@@ -11,7 +11,7 @@ import {
   CodeEditorBorder,
   EditorTheme,
 } from "components/editorComponents/CodeEditor/EditorConfig";
-import Text, { Case, TextType } from "components/ads/Text";
+import { Text, Case, TextType } from "design-system";
 import { Classes } from "components/ads/common";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 import DynamicDropdownField from "./DynamicDropdownField";

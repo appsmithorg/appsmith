@@ -20,8 +20,10 @@ export const ERROR_EMPTY_APPLICATION_NAME = () =>
   `Application name can't be empty`;
 export const API_PATH_START_WITH_SLASH_ERROR = () => `Path cannot start with /`;
 export const FIELD_REQUIRED_ERROR = () => `This field is required`;
-export const INPUT_DEFAULT_TEXT_MAX_CHAR_ERROR = () =>
-  `Default Text length must be less than Max Chars allowed`;
+export const INPUT_DEFAULT_TEXT_MAX_CHAR_ERROR = (max: number) =>
+  `Default text length must be less than ${max} characters`;
+export const INPUT_TEXT_MAX_CHAR_ERROR = (max: number) =>
+  `Input text length must be less than ${max} characters`;
 export const INPUT_DEFAULT_TEXT_MAX_NUM_ERROR = () =>
   `Default Text value must be less than Max number allowed`;
 export const INPUT_DEFAULT_TEXT_MIN_NUM_ERROR = () =>
@@ -768,6 +770,8 @@ export const DISCARD_CHANGES = () => "Discard changes";
 // GIT DEPLOY begin
 export const DEPLOY = () => "Deploy";
 export const DEPLOY_YOUR_APPLICATION = () => "Deploy your application";
+export const CHANGES_SINCE_LAST_DEPLOYMENT = () =>
+  "Changes since last deployment";
 export const CHANGES_ONLY_USER = () => "Changes since last commit";
 export const CHANGES_MADE_SINCE_LAST_COMMIT = () =>
   "Changes made since last commit";
@@ -775,7 +779,18 @@ export const CHANGES_ONLY_MIGRATION = () =>
   "Appsmith update changes since last commit";
 export const CHANGES_USER_AND_MIGRATION = () =>
   "Appsmith update and user changes since last commit";
+export const CURRENT_PAGE_DISCARD_WARNING = (page: string) =>
+  `Current page (${page}) is in the discard list.`;
 // GIT DEPLOY end
+
+// GIT CHANGE LIST begin
+export const CHANGES_FROM_APPSMITH = () =>
+  "Some changes are platform upgrades from Appsmith.";
+export const TRY_TO_PULL = () =>
+  "We will try to pull before pushing your changes.";
+export const NOT_PUSHED_YET = () =>
+  "These are the commits that haven't been pushed to remote yet.";
+// GIT CHANGE LIST end
 
 // GIT DELETE BRANCH begin
 export const DELETE = () => "Delete";

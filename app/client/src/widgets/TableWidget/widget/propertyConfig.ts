@@ -23,7 +23,7 @@ import {
   TABLE_WIDGET_TOTAL_RECORD_TOOLTIP,
 } from "@appsmith/constants/messages";
 import { IconNames } from "@blueprintjs/icons";
-import { getStylesheetValue } from "./helpers";
+import { getPrimaryColumnStylesheetValue } from "./helpers";
 
 const ICON_NAMES = Object.keys(IconNames).map(
   (name: string) => IconNames[name as keyof typeof IconNames],
@@ -712,7 +712,7 @@ export default [
                       value: "BOTTOM",
                     },
                   ],
-                  defaultValue: "LEFT",
+                  defaultValue: "CENTER",
                   isJSConvertible: true,
                   customJSControl: "COMPUTE_VALUE",
                   updateHook: updateDerivedColumnsHook,
@@ -904,7 +904,7 @@ export default [
                 },
                 {
                   propertyName: "buttonColor",
-                  getStylesheetValue,
+                  getStylesheetValue: getPrimaryColumnStylesheetValue,
                   label: "Button Color",
                   controlType: "PRIMARY_COLUMNS_COLOR_PICKER",
                   helpText: "Changes the color of the button",
@@ -989,6 +989,7 @@ export default [
                   label: "Border Radius",
                   customJSControl: "COMPUTE_VALUE",
                   isJSConvertible: true,
+                  getStylesheetValue: getPrimaryColumnStylesheetValue,
                   helpText:
                     "Rounds the corners of the icon button's outer border edge",
                   controlType: "BORDER_RADIUS_OPTIONS",
@@ -1052,6 +1053,7 @@ export default [
                   customJSControl: "COMPUTE_VALUE",
                   isJSConvertible: true,
                   isBindProperty: true,
+                  getStylesheetValue: getPrimaryColumnStylesheetValue,
                   isTriggerProperty: false,
                   placeholderText: "#FFFFFF / Gray / rgb(255, 99, 71)",
                   validation: {
@@ -1751,7 +1753,7 @@ export default [
             value: "BOTTOM",
           },
         ],
-        defaultValue: "LEFT",
+        defaultValue: "CENTER",
         isBindProperty: false,
         isTriggerProperty: false,
       },

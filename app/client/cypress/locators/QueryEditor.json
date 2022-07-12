@@ -32,5 +32,6 @@
     "suggestedWidgetText": "//div[contains(@class, 't--suggested-widget-TEXT_WIDGET')]",
     "suggestedWidgetChart": ".t--suggested-widget-CHART_WIDGET",
     "queryTimeout": "//input[@name='actionConfiguration.timeoutInMillisecond']",
-    "listingAndReviewContext": "//div[text()='listingAndReviews']/ancestor::div/following-sibling::div/div[contains(@class, 'entity-context-menu')]//span[text()='Add']"
+    "listingAndReviewContext": "//div[text()='listingAndReviews']/ancestor::div/following-sibling::div/div[contains(@class, 'entity-context-menu')]//span[text()='Add']",
+    "navigateToAction": ".t--entity-name"
 }

@@ -30,7 +30,7 @@ import {
   getAppMode,
   getCurrentApplication,
 } from "selectors/applicationSelectors";
-import _, { get, isString, set } from "lodash";
+import _, { get, isArray, isString, set } from "lodash";
 import AppsmithConsole from "utils/AppsmithConsole";
 import { ENTITY_TYPE, PLATFORM_ERROR } from "entities/AppsmithConsole";
 import { validateResponse } from "sagas/ErrorSagas";
@@ -102,7 +102,7 @@ import { getFormNames, getFormValues } from "redux-form";
 import { CURL_IMPORT_FORM } from "constants/forms";
 import { submitCurlImportForm } from "actions/importActions";
 import { curlImportFormValues } from "pages/Editor/APIEditor/helpers";
-import { getBasePath } from "pages/Editor/Explorer/helpers";
+import { matchBasePath } from "pages/Editor/Explorer/helpers";
 import { isTrueObject } from "workers/evaluationUtils";
 import { handleExecuteJSFunctionSaga } from "sagas/JSPaneSagas";
 import { Plugin } from "api/PluginApi";
@@ -187,6 +187,37 @@ function* readBlob(blobUrl: string): any {
 }
 
 /**
+ * This function resolves :
+ * - individual objects containing blob urls
+ * - blob urls directly
+ * - else returns the value unchanged
+ *
+ * @param value
+ */
+
+function* resolvingBlobUrls(value: any) {
+  if (isTrueObject(value)) {
+    const blobUrlPaths: string[] = [];
+    Object.keys(value).forEach((propertyName) => {
+      if (isBlobUrl(value[propertyName])) {
+        blobUrlPaths.push(propertyName);
+      }
+    });
+
+    for (const blobUrlPath of blobUrlPaths) {
+      const blobUrl = value[blobUrlPath] as string;
+      const resolvedBlobValue: unknown = yield call(readBlob, blobUrl);
+      set(value, blobUrlPath, resolvedBlobValue);
+    }
+  } else if (isBlobUrl(value)) {
+    // @ts-expect-error: Values can take many types
+    value = yield call(readBlob, value);
+  }
+
+  return value;
+}
+
+/**
  * Api1
  * URL: https://example.com/{{Text1.text}}
  * Body: {
@@ -231,28 +262,23 @@ function* evaluateActionParams(
     const key = bindings[i];
     let value = values[i];
 
-    if (isTrueObject(value)) {
-      const blobUrlPaths: string[] = [];
-      Object.keys(value).forEach((propertyName) => {
-        if (isBlobUrl(value[propertyName])) {
-          blobUrlPaths.push(propertyName);
-        }
-      });
-
-      for (const blobUrlPath of blobUrlPaths) {
-        const blobUrl = value[blobUrlPath] as string;
-        const resolvedBlobValue: unknown = yield call(readBlob, blobUrl);
-        set(value, blobUrlPath, resolvedBlobValue);
+    if (isArray(value)) {
+      const tempArr = [];
+      // array of objects containing blob urls that is loops and individual object is checked for resolution of blob urls.
+      for (const val of value) {
+        const newVal: unknown = yield call(resolvingBlobUrls, val);
+        tempArr.push(newVal);
       }
+      value = tempArr;
+    } else {
+      // @ts-expect-error: Values can take many types
+      value = yield call(resolvingBlobUrls, value);
     }
 
     if (typeof value === "object") {
       value = JSON.stringify(value);
     }
-    if (isBlobUrl(value)) {
-      // @ts-expect-error: Values can take many types
-      value = yield call(readBlob, value);
-    }
+
     value = new Blob([value], { type: "text/plain" });
 
     formData.append(encodeURIComponent(key), value);
@@ -382,18 +408,20 @@ export default function* executePluginActionTriggerSaga(
 }
 
 function* runActionShortcutSaga() {
-  const location = window.location.pathname;
-  const basePath = getBasePath();
-  const match: any = matchPath(location, {
+  const pathname = window.location.pathname;
+  const baseMatch = matchBasePath(pathname);
+  if (!baseMatch) return;
+  const { path } = baseMatch;
+  const match: any = matchPath(pathname, {
     path: [
-      trimQueryString(`${basePath}${API_EDITOR_BASE_PATH}`),
-      trimQueryString(`${basePath}${API_EDITOR_ID_PATH}`),
-      trimQueryString(`${basePath}${QUERIES_EDITOR_BASE_PATH}`),
-      trimQueryString(`${basePath}${QUERIES_EDITOR_ID_PATH}`),
-      trimQueryString(`${basePath}${API_EDITOR_PATH_WITH_SELECTED_PAGE_ID}`),
-      trimQueryString(`${basePath}${INTEGRATION_EDITOR_PATH}`),
-      trimQueryString(`${basePath}${SAAS_EDITOR_API_ID_PATH}`),
-      `${basePath}${CURL_IMPORT_PAGE_PATH}`,
+      trimQueryString(`${path}${API_EDITOR_BASE_PATH}`),
+      trimQueryString(`${path}${API_EDITOR_ID_PATH}`),
+      trimQueryString(`${path}${QUERIES_EDITOR_BASE_PATH}`),
+      trimQueryString(`${path}${QUERIES_EDITOR_ID_PATH}`),
+      trimQueryString(`${path}${API_EDITOR_PATH_WITH_SELECTED_PAGE_ID}`),
+      trimQueryString(`${path}${INTEGRATION_EDITOR_PATH}`),
+      trimQueryString(`${path}${SAAS_EDITOR_API_ID_PATH}`),
+      `${path}${CURL_IMPORT_PAGE_PATH}`,
     ],
     exact: true,
     strict: false,

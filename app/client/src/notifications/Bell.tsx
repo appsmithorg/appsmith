@@ -20,13 +20,12 @@ import {
   unreadCountSelector,
   isNotificationsListVisibleSelector,
 } from "selectors/notificationSelectors";
-import TooltipComponent from "components/ads/Tooltip";
+import { TooltipComponent } from "design-system";
 import {
   createMessage,
   NOTIFICATIONS_TOOLTIP,
 } from "@appsmith/constants/messages";
 import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
-import { Position } from "@blueprintjs/core";
 
 const Container = styled.div`
   position: relative;
@@ -100,7 +99,7 @@ function Bell() {
           boundary="viewport"
           content={createMessage(NOTIFICATIONS_TOOLTIP)}
           hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
-          position={Position.BOTTOM}
+          position="bottom"
         >
           <StyledBellIcon color={Colors.GRAY} />
         </TooltipComponent>

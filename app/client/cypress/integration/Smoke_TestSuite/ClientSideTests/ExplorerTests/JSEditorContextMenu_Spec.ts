@@ -62,7 +62,7 @@ describe("Validate basic operations on Entity explorer JSEditor structure", () =
     ee.ActionContextMenuByEntityName(
       "ExplorerRenamed",
       "Delete",
-      "Are you sure?",
+      "Are you sure?", true
     );
     ee.AssertEntityAbsenceInExplorer("ExplorerRenamed");
   });

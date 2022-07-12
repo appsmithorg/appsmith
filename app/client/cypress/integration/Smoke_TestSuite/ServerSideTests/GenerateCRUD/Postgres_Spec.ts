@@ -2,15 +2,14 @@ import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 
 let guid: any, dsName: any, newCallsign: any;
 
-let agHelper = ObjectsRegistry.AggregateHelper,
+const agHelper = ObjectsRegistry.AggregateHelper,
   ee = ObjectsRegistry.EntityExplorer,
   locator = ObjectsRegistry.CommonLocators,
   table = ObjectsRegistry.Table,
   homePage = ObjectsRegistry.HomePage,
   dataSources = ObjectsRegistry.DataSources,
   propPane = ObjectsRegistry.PropertyPane,
-  deployMode = ObjectsRegistry.DeployMode,
-  jsEditor = ObjectsRegistry.JSEditor;
+  deployMode = ObjectsRegistry.DeployMode;
 
 describe("Validate Postgres Generate CRUD with JSON Form", () => {
   before(() => {
@@ -38,7 +37,6 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
     });
 
     agHelper.ValidateNetworkStatus("@getDatasourceStructure"); //Making sure table dropdown is populated
-    agHelper.WaitUntilToastDisappear("datasource updated successfully");
     agHelper.GetNClick(dataSources._selectTableDropdown);
     agHelper.GetNClickByContains(dataSources._dropdownOption, "film");
 
@@ -91,7 +89,6 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
     });
 
     agHelper.ValidateNetworkStatus("@getDatasourceStructure"); //Making sure table dropdown is populated
-    agHelper.WaitUntilToastDisappear("datasource updated successfully");
     agHelper.GetNClick(dataSources._selectTableDropdown);
     agHelper.GetNClickByContains(dataSources._dropdownOption, "suppliers");
 
@@ -106,7 +103,7 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;
     });
-    propPane.ChangeTheme("Rounded");
+    propPane.ChangeTheme("Sunrise");
   });
 
   it("3. Generate CRUD page from datasource present in ACTIVE section", function() {
@@ -135,7 +132,7 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
   });
 
   it("4. Create new CRUD Table 'Vessels' and populate & refresh Entity Explorer to find the new table", () => {
-    let tableCreateQuery = `CREATE TABLE Vessels(
+    const tableCreateQuery = `CREATE TABLE Vessels(
       SHIP_ID                  INTEGER  NOT NULL PRIMARY KEY
      ,CALLSIGN                 VARCHAR(7)
      ,SHIPNAME                 VARCHAR(30) NOT NULL
@@ -167,13 +164,14 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
     dataSources.NavigateFromActiveDS(dsName, true);
     agHelper.GetNClick(dataSources._templateMenu);
     agHelper.RenameWithInPane("CreateVessels");
-    agHelper.EnterValue(tableCreateQuery);
+    dataSources.EnterQuery(tableCreateQuery);
     cy.get(".CodeMirror textarea").focus();
     //agHelper.VerifyEvaluatedValue(tableCreateQuery); //failing sometimes!
 
     dataSources.RunQuery();
     agHelper.ActionContextMenuWithInPane("Delete");
 
+    ee.ExpandCollapseEntity("DATASOURCES");
     ee.ExpandCollapseEntity(dsName);
     ee.ActionContextMenuByEntityName(dsName, "Refresh");
     agHelper.AssertElementVisible(ee._entityNameInExplorer("public.vessels"));
@@ -259,7 +257,7 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
   });
 
   it("7. Update the UpdateQuery to update all columns from UI", () => {
-    let updateQuery = `UPDATE public."vessels" SET
+    const updateQuery = `UPDATE public."vessels" SET
 		"callsign" = UPPER('{{update_form.fieldState.callsign.isVisible ? update_form.formData.callsign : update_form.sourceData.callsign}}'),
 		"shipname" = '{{update_form.fieldState.shipname.isVisible ? update_form.formData.shipname : update_form.sourceData.shipname}}',
     "country" = '{{update_form.fieldState.country.isVisible ? update_form.formData.country : update_form.sourceData.country}}',
@@ -277,7 +275,8 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
 	WHERE "ship_id" = {{data_table.selectedRow.ship_id}};`;
 
     ee.SelectEntityByName("UpdateQuery", "QUERIES/JS");
-    agHelper.EnterValue(updateQuery);
+    dataSources.EnterQuery(updateQuery);
+    agHelper.Escape();
     agHelper.AssertAutoSave();
     ee.ExpandCollapseEntity("QUERIES/JS", false);
   });
@@ -286,9 +285,9 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
     ee.SelectEntityByName("update_form", "WIDGETS");
     updatingVesselsJSONPropertyFileds();
     deployMode.DeployApp();
-    agHelper.Sleep(2000)
+    agHelper.Sleep(2000);
     table.SelectTableRow(0); //to make JSON form hidden
-    agHelper.Sleep(2000);//Sleep time for tab to disappear!
+    agHelper.Sleep(2000); //Sleep time for tab to disappear!
     agHelper.AssertElementAbsence(locator._jsonFormWidget);
     table.SelectTableRow(5);
     agHelper.AssertElementVisible(locator._jsonFormWidget);
@@ -448,7 +447,7 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
     agHelper.ClickButton("Confirm");
     agHelper.ValidateNetworkStatus("@postExecute", 200);
     agHelper.ValidateNetworkStatus("@postExecute", 200);
-    agHelper.Sleep(2500);// for delete to take effect!
+    agHelper.Sleep(2500); // for delete to take effect!
     table.AssertSelectedRow(0); //Control going back to 1st row in table
     dataSources.AssertJSONFormHeader(0, 0, "ship_id");
   });
@@ -483,7 +482,7 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
   it("12. Update the InsertQuery to insert all columns from UI", () => {
     deployMode.NavigateBacktoEditor();
     table.WaitUntilTableLoad();
-    let insertQuery = `INSERT INTO public."vessels" (
+    const insertQuery = `INSERT INTO public."vessels" (
       "ship_id",
       "callsign",
       "shipname",
@@ -519,7 +518,8 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
     );`;
 
     ee.SelectEntityByName("InsertQuery", "QUERIES/JS");
-    agHelper.EnterValue(insertQuery);
+    dataSources.EnterQuery(insertQuery);
+    agHelper.Escape();
     agHelper.AssertAutoSave();
     ee.ExpandCollapseEntity("QUERIES/JS", false);
   });
@@ -541,7 +541,7 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
     table.AssertSelectedRow(0);
 
     agHelper.GetNClick(dataSources._addIcon);
-    agHelper.Sleep()
+    agHelper.Sleep();
     //agHelper.AssertElementVisible(locator._jsonFormWidget, 1); //Insert Modal
     agHelper.AssertElementVisible(locator._visibleTextDiv("Insert Row"));
 
@@ -590,7 +590,8 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
     deployMode.EnterJSONInputValue("Speed", "0.6", 1);
 
     agHelper.GetNClick(
-      deployMode._jsonFormDatepickerFieldByName("Eta Updated"), 1
+      deployMode._jsonFormDatepickerFieldByName("Eta Updated"),
+      1,
     );
     agHelper.GetNClick(locator._datePicker(2));
 
@@ -598,7 +599,8 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
 
     deployMode.EnterJSONInputValue("Current Port", "GALVESTON", 1);
 
-    cy.xpath(deployMode._jsonFormFieldByName("Callsign", true)).eq(1)
+    cy.xpath(deployMode._jsonFormFieldByName("Callsign", true))
+      .eq(1)
       .invoke("attr", "type")
       .should("eq", "password");
 
@@ -674,32 +676,37 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
     deployMode.NavigateBacktoEditor();
     table.WaitUntilTableLoad();
     //Delete the test data
-    ee.ActionContextMenuByEntityName("Public.vessels", "Delete", "Are you sure?");
+    ee.ActionContextMenuByEntityName(
+      "Public.vessels",
+      "Delete",
+      "Are you sure?",
+    );
     agHelper.ValidateNetworkStatus("@deletePage", 200);
   });
 
   it("16. Validate Drop of the Newly Created - Vessels - Table from Postgres datasource", () => {
-    let deleteTblQuery = "DROP TABLE Vessels;";
+    const deleteTblQuery = "DROP TABLE Vessels;";
     dataSources.NavigateFromActiveDS(dsName, true);
     agHelper.GetNClick(dataSources._templateMenu);
     agHelper.RenameWithInPane("DropVessels");
-    agHelper.EnterValue(deleteTblQuery);
+    dataSources.EnterQuery(deleteTblQuery);
     cy.get(".CodeMirror textarea").focus();
     //agHelper.VerifyEvaluatedValue(tableCreateQuery);
 
     dataSources.RunQuery();
     agHelper.ActionContextMenuWithInPane("Delete");
+    ee.ExpandCollapseEntity("DATASOURCES");
     ee.ExpandCollapseEntity(dsName);
     ee.ActionContextMenuByEntityName(dsName, "Refresh");
     agHelper.AssertElementAbsence(ee._entityNameInExplorer("public.vessels"));
   });
 
   it("17. Verify application does not break when user runs the query with wrong table name", function() {
-    let deleteTblQuery = "DROP TABLE vessels;";
+    const deleteTblQuery = "DROP TABLE vessels;";
     dataSources.NavigateFromActiveDS(dsName, true);
     agHelper.GetNClick(dataSources._templateMenu);
     agHelper.RenameWithInPane("DropVessels");
-    agHelper.EnterValue(deleteTblQuery);
+    dataSources.EnterQuery(deleteTblQuery);
     cy.get(".CodeMirror textarea").focus();
     //agHelper.VerifyEvaluatedValue(tableCreateQuery);
 
@@ -761,7 +768,7 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
     table.ReadTableRowColumnData(rowIndex, 9, 200).then(($yearBuilt: any) => {
       table.ReadTableRowColumnData(rowIndex, 11, 200).then(($areaCode: any) => {
         table.ReadTableRowColumnData(rowIndex, 3, 200).then(($country: any) => {
-          var callSign =
+          const callSign =
             ($country as string).slice(0, 2) +
             ($areaCode as string).slice(0, 3) +
             ($yearBuilt as string).slice(0, 2); //(/(?<=\()).+?(?=\))/g)
@@ -803,7 +810,7 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
     propPane.NavigateBackToPropertyPane();
 
     propPane.ChangeJsonFormFieldType("Vessel Type", "Select");
-    jsEditor.EnterJSContext(
+    propPane.UpdatePropertyFieldValue(
       "Options",
       `{{["Cargo", "Pleasure Craft", "Passenger", "Fishing", "Special Craft"].map(item=> {return {
         label: item,
@@ -813,9 +820,9 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
     propPane.NavigateBackToPropertyPane();
 
     propPane.OpenJsonFormFieldSettings("Timezone");
-    jsEditor.EnterJSContext("Min", "-10");
-    jsEditor.EnterJSContext("Max", "10");
-    jsEditor.EnterJSContext("Error Message", "Not a valid timezone!");
+    propPane.UpdatePropertyFieldValue("Min", "-10");
+    propPane.UpdatePropertyFieldValue("Max", "10");
+    propPane.UpdatePropertyFieldValue("Error Message", "Not a valid timezone!");
     propPane.NavigateBackToPropertyPane();
 
     propPane.ChangeJsonFormFieldType("Eta Updated", "Datepicker");
