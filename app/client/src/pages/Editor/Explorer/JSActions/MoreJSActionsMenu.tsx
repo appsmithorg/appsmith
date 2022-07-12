@@ -85,7 +85,7 @@ export function MoreJSCollectionsMenu(props: EntityContextMenuProps) {
         copyJSCollectionRequest({
           id: actionId,
           destinationPageId: pageId,
-          name: nextEntityName(`${actionName}Copy`, pageId),
+          name: nextEntityName(`${actionName}`, pageId),
         }),
       );
     },
