@@ -33,12 +33,13 @@ function AdsSlider(props: ISliderProps) {
   );
 }
 
-class SliderControl extends BaseControl<ControlProps> {
+class SliderControl extends BaseControl<SliderControlProps> {
   render() {
     return (
       <AdsSlider
         className={this.props.propertyValue ? "checked" : "unchecked"}
         onChange={this.onToggle}
+        onRelease={this.onRelease}
         value={this.props.propertyValue}
       />
     );
@@ -46,6 +47,15 @@ class SliderControl extends BaseControl<ControlProps> {
 
   onToggle = (value: number) => {
     this.updateProperty(this.props.propertyName, value);
+    if (this.props.onChange) {
+      this.props.onChange();
+    }
+  };
+
+  onRelease = () => {
+    if (this.props.onRelease) {
+      this.props.onRelease();
+    }
   };
 
   static getControlType() {
@@ -57,6 +67,9 @@ class SliderControl extends BaseControl<ControlProps> {
   }
 }
 
-export type SliderControlProps = ControlProps;
+export interface SliderControlProps extends ControlProps {
+  onChange?: () => void;
+  onRelease?: () => void;
+}
 
 export default SliderControl;

@@ -36,7 +36,7 @@ const OverlayDisplay = styled.div<OverlayDisplayProps>`
   left: 0;
   width: 100%;
   height: ${(props) => props.maxY}px;
-  border-bottom: 1px solid ${OVERLAY_COLOR};
+  // border-bottom: 1px solid ${OVERLAY_COLOR};
   background-color: rgba(243, 43, 139, 0.1);
 `;
 
@@ -263,6 +263,58 @@ const getSnappedValues = (
   };
 };
 
+const OverlayHandleLabelSlider = styled.div`
+  position: absolute;
+  right: 0;
+  transform: translateX(calc(100% + 16px));
+  padding: 1px 4px;
+  background: #191919;
+  font-weight: 400;
+  font-size: 10px;
+  line-height: 16px;
+  color: #ffffff;
+  text-align: center;
+  white-space: nowrap;
+`;
+
+const Bordered = styled.div<{ y: number }>`
+  pointer-events: none;
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  transform: translateY(${(props) => props.y}px);
+
+  &:after {
+    position: absolute;
+    content: "";
+    width: 100%;
+    height: 2px;
+    border-bottom: 1px dashed ${OVERLAY_COLOR};
+  }
+`;
+
+const OverlayLabels: React.FC<{
+  isActive: boolean;
+  minRows: number;
+  maxRows: number;
+}> = ({ isActive, maxRows, minRows }) => {
+  return (
+    <div style={{ display: isActive ? "block" : "none" }}>
+      <Bordered y={minRows * 10}>
+        <OverlayHandleLabelSlider>
+          Min-height: {minRows} rows
+        </OverlayHandleLabelSlider>
+      </Bordered>
+      <Bordered y={maxRows * 10}>
+        <OverlayHandleLabelSlider>
+          Max-height: {maxRows} rows
+        </OverlayHandleLabelSlider>
+      </Bordered>
+    </div>
+  );
+};
+
 const DynamicHeightOverlay: React.FC<DynamicHeightOverlayProps> = memo(
   ({
     children,
@@ -428,21 +480,21 @@ const DynamicHeightOverlay: React.FC<DynamicHeightOverlayProps> = memo(
 
     function onPropertPaneFocusedFocusedHandler(propertyName: string) {
       if (propertyName === "maxDynamicHeight") {
-        setPropertyPaneFieldFocused(true);
+        setIsResizing && !isResizing && setIsResizing(true);
       }
 
       if (propertyName === "minDynamicHeight") {
-        setPropertyPaneFieldFocused(true);
+        setIsResizing && !isResizing && setIsResizing(true);
       }
     }
 
     function onPropertFieldBlurredHandler(propertyName: string) {
       if (propertyName === "maxDynamicHeight") {
-        setPropertyPaneFieldFocused(false);
+        setIsResizing && setIsResizing(false);
       }
 
       if (propertyName === "minDynamicHeight") {
-        setPropertyPaneFieldFocused(false);
+        setIsResizing && setIsResizing(false);
       }
     }
 
@@ -468,6 +520,8 @@ const DynamicHeightOverlay: React.FC<DynamicHeightOverlayProps> = memo(
       };
     }, []);
 
+    const isWidgetSelected = selectedWidget === widgetId;
+
     return (
       <StyledDynamicHeightOverlay>
         <OverlayDisplay
@@ -477,9 +531,14 @@ const DynamicHeightOverlay: React.FC<DynamicHeightOverlayProps> = memo(
             isMinDotActive ||
             isMaxDotActive ||
             isPropertyPaneFieldFocues ||
-            selectedWidget === widgetId
+            isWidgetSelected
           }
           maxY={finalMaxY}
+        />
+        <OverlayLabels
+          isActive={isWidgetSelected}
+          maxRows={maxDynamicHeight}
+          minRows={minDynamicHeight}
         />
         {/* <OverlayHandles
           isMaxDotActive={isMaxDotDragging || isMaxDotActive}
