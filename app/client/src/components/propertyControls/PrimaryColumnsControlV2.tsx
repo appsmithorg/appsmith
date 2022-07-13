@@ -205,7 +205,7 @@ class PrimaryColumnsControlV2 extends BaseControl<ControlProps, State> {
           <div>{Object.values(reorderedColumns).length} columns</div>
           {this.state.hasEditableColumn && (
             <EdtiableCheckboxWrapper
-              className="flex"
+              className="flex t--uber-editable-checkbox"
               rightPadding={this.state.hasScrollableList}
             >
               <span className="mr-2">Editable</span>

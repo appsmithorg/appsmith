@@ -82,7 +82,7 @@ class TableFilterPane extends Component<Props> {
         Prevent the FilterPane from overflowing the canvas when the
         table widget is on the very top of the canvas.
       */
-      const boundaryParent = document.querySelector('[type="CANVAS_WIDGET"]');
+      const boundaryParent = document.querySelector("#root");
 
       return (
         <Popper
