@@ -16,6 +16,7 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 
 import javax.validation.Validator;
+import java.util.HashSet;
 import java.util.Set;
 
 
@@ -55,7 +56,14 @@ public class PermissionGroupServiceCEImpl extends BaseService<PermissionGroupRep
     public Mono<PermissionGroup> assignToUser(PermissionGroup permissionGroup, User user) {
         return repository.findById(permissionGroup.getId(), AclPermission.ASSIGN_PERMISSION_GROUPS)
                 .flatMap(pg -> {
-                    pg.getAssignedToUserIds().add(user.getId());
+
+                    Set<String> assignedToUserIds = pg.getAssignedToUserIds();
+                    if (assignedToUserIds == null) {
+                        assignedToUserIds = new HashSet<>();
+                    }
+                    assignedToUserIds.add(user.getId());
+                    pg.setAssignedToUserIds(assignedToUserIds);
+
                     return repository.updateById(pg.getId(), pg, AclPermission.ASSIGN_PERMISSION_GROUPS);
                 })
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND)));
