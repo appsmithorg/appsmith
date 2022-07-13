@@ -1,5 +1,4 @@
 const dsl = require("../../../../fixtures/widgetSelection.json");
-import { isMacOrIOS } from "../../../../../src/utils/helpers";
 
 describe("Widget Grouping", function() {
   before(() => {
