@@ -726,6 +726,8 @@ export const ReduxActionTypes = {
   SET_ACTIVE_JS_ACTION: "SET_ACTIVE_JS_ACTION",
   RECORD_RECENTLY_ADDED_WIDGET: "RECORD_RECENTLY_ADDED_WIDGET",
   REMOVE_FROM_RECENTLY_ADDED_WIDGET: "REMOVE_FROM_RECENTLY_ADDED_WIDGET",
+  UPDATE_CUSTOM_SLUG_INIT: "UPDATE_CUSTOM_SLUG_INIT",
+  UPDATE_CUSTOM_SLUG_SUCCESS: "UPDATE_CUSTOM_SLUG_SUCCESS",
   INIT_TRIGGER_VALUES: "INIT_TRIGGER_VALUES",
   FETCH_TRIGGER_VALUES_INIT: "FETCH_TRIGGER_VALUES_INIT",
   FETCH_TRIGGER_VALUES_SUCCESS: "FETCH_TRIGGER_VALUES_SUCCESS",
@@ -905,6 +907,7 @@ export const ReduxActionErrorTypes = {
   IMPORT_TEMPLATE_TO_WORKSPACE_ERROR: "IMPORT_TEMPLATE_TO_WORKSPACE_ERROR",
   GET_DEFAULT_PLUGINS_ERROR: "GET_DEFAULT_PLUGINS_ERROR",
   GET_TEMPLATE_ERROR: "GET_TEMPLATE_ERROR",
+  UPDATE_CUSTOM_SLUG_ERROR: "UPDATE_CUSTOM_SLUG_ERROR",
 };
 
 export const ReduxFormActionTypes = {
@@ -999,7 +1002,8 @@ export interface Page {
   isDefault: boolean;
   latest?: boolean;
   isHidden?: boolean;
-  slug?: string;
+  slug: string;
+  customSlug?: string;
 }
 
 export interface ClonePageSuccessPayload {
@@ -1007,6 +1011,7 @@ export interface ClonePageSuccessPayload {
   pageId: string;
   layoutId: string;
   isDefault: boolean;
+  slug: string;
 }
 
 export interface ApplicationPayload {
@@ -1019,7 +1024,7 @@ export interface ApplicationPayload {
   isPublic?: boolean;
   userPermissions?: string[];
   appIsExample: boolean;
-  slug?: string;
+  slug: string;
   forkingEnabled?: boolean;
   appLayout?: AppLayoutConfig;
   gitApplicationMetadata?: GitApplicationMetadata;

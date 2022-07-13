@@ -10,7 +10,7 @@ import ReactJson from "react-json-view";
 import styled, { useTheme } from "styled-components";
 import EntityLink, { DebuggerLinkUI } from "./EntityLink";
 import { SeverityIcon } from "./helpers";
-import Text, { TextType } from "components/ads/Text";
+import { Text, TextType } from "design-system";
 import { getTypographyByKey } from "constants/DefaultTheme";
 import { TooltipComponent } from "design-system";
 import {

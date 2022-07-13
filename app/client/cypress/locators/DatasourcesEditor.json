@@ -13,6 +13,7 @@
   "PostgreSQL": ".t--plugin-name:contains('PostgreSQL')",
   "SMTP":".t--plugin-name:contains('SMTP')",
   "MySQL": ".t--plugin-name:contains('MySQL')",
+  "GoogleSheets": ".t--plugin-name:contains('Google Sheets')",
   "sectionAuthentication": "[data-cy=section-Authentication]",
   "PostgresEntity": ".t--entity-name:contains(PostgreSQL)",
   "MySQLEntity": ".t--entity-name:contains(Mysql)",

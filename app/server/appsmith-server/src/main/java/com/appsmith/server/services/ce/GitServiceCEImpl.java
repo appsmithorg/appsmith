@@ -1153,7 +1153,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                     // Create a new branch from the parent checked out branch
                     return gitExecutor.checkoutToBranch(repoSuffix, srcBranch)
                             .onErrorResume(error -> Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "checkout", "Unable to find " + srcBranch)))
-                            .zipWhen(isCheckedOut -> gitExecutor.fetchRemote(repoSuffix, defaultGitAuth.getPublicKey(), defaultGitAuth.getPrivateKey(), false)
+                            .zipWhen(isCheckedOut -> gitExecutor.fetchRemote(repoSuffix, defaultGitAuth.getPublicKey(), defaultGitAuth.getPrivateKey(), false, srcBranch, true)
                                     .onErrorResume(error -> Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "fetch", error))))
                             .flatMap(ignore -> gitExecutor.listBranches(repoSuffix, srcBranchGitData.getRemoteUrl(), defaultGitAuth.getPrivateKey(), defaultGitAuth.getPublicKey(), false)
                                     .flatMap(branchList -> {
@@ -1270,8 +1270,13 @@ public class GitServiceCEImpl implements GitServiceCE {
                     String repoName = gitApplicationMetadata.getRepoName();
                     Path repoPath = Paths.get(application.getWorkspaceId(), defaultApplicationId, repoName);
 
-                    return gitExecutor.fetchRemote(repoPath, gitApplicationMetadata.getGitAuth().getPublicKey(), gitApplicationMetadata.getGitAuth().getPrivateKey(), false)
-                            .flatMap(fetchStatus -> gitExecutor.checkoutRemoteBranch(repoPath, branchName).zipWith(Mono.just(application))
+                    return gitExecutor.fetchRemote(repoPath,
+                            gitApplicationMetadata.getGitAuth().getPublicKey(),
+                            gitApplicationMetadata.getGitAuth().getPrivateKey(),
+                            false,
+                            branchName,
+                            true
+                    ).flatMap(fetchStatus -> gitExecutor.checkoutRemoteBranch(repoPath, branchName).zipWith(Mono.just(application))
                                     .onErrorResume(error -> Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "checkout branch", error.getMessage()))));
                 })
                 .flatMap(tuple -> {
@@ -1409,7 +1414,9 @@ public class GitServiceCEImpl implements GitServiceCE {
                                 repoPath,
                                 gitApplicationMetadata.getGitAuth().getPublicKey(),
                                 gitApplicationMetadata.getGitAuth().getPrivateKey(),
-                                false)
+                                false,
+                                currentBranch,
+                                true)
                                 .flatMap(s -> gitExecutor.listBranches(
                                         repoPath,
                                         gitApplicationMetadata.getRemoteUrl(),
@@ -1548,7 +1555,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                 .flatMap(tuple -> {
                     Mono<GitStatusDTO> branchedStatusMono = gitExecutor.getStatus(tuple.getT1(), finalBranchName).cache();
                     try {
-                        return gitExecutor.fetchRemote(tuple.getT1(), tuple.getT2().getPublicKey(), tuple.getT2().getPrivateKey(), true)
+                        return gitExecutor.fetchRemote(tuple.getT1(), tuple.getT2().getPublicKey(), tuple.getT2().getPrivateKey(), true, branchName, false)
                                 .then(branchedStatusMono)
                                 // Remove any files which are copied by hard resetting the repo
                                 .then(gitExecutor.resetToLastCommit(tuple.getT3(), branchName))

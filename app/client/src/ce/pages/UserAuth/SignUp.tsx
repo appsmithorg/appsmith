@@ -114,13 +114,17 @@ export function SignUp(props: SignUpFormProps) {
     showError = true;
   }
 
-  let signupURL = "/api/v1/" + SIGNUP_SUBMIT_PATH;
-  if (queryParams.has("appId")) {
-    signupURL += `?appId=${queryParams.get("appId")}`;
+  const signupURL = new URL(
+    `/api/v1/` + SIGNUP_SUBMIT_PATH,
+    window.location.origin,
+  );
+  const appId = queryParams.get("appId");
+  if (appId) {
+    signupURL.searchParams.append("appId", appId);
   } else {
     const redirectUrl = queryParams.get("redirectUrl");
     if (redirectUrl != null && getIsSafeRedirectURL(redirectUrl)) {
-      signupURL += `?redirectUrl=${encodeURIComponent(redirectUrl)}`;
+      signupURL.searchParams.append("redirectUrl", redirectUrl);
     }
   }
 
@@ -138,12 +142,11 @@ export function SignUp(props: SignUpFormProps) {
           action: "submit",
         })
         .then(function(token: any) {
-          formElement &&
-            formElement.setAttribute(
-              "action",
-              `${signupURL}?recaptchaToken=${token}`,
-            );
-          formElement && formElement.submit();
+          if (formElement) {
+            signupURL.searchParams.append("recaptchaToken", token);
+            formElement.setAttribute("action", signupURL.toString());
+            formElement.submit();
+          }
         });
     } else {
       formElement && formElement.submit();
@@ -170,7 +173,7 @@ export function SignUp(props: SignUpFormProps) {
       )}
       {!disableLoginForm && (
         <SpacedSubmitForm
-          action={signupURL}
+          action={signupURL.toString()}
           id="signup-form"
           method="POST"
           onSubmit={(e) => handleSubmit(e)}
