@@ -153,13 +153,13 @@ myFun2: async () => {
       .eq(1)
       .click({ force: true });
 
-    cy.get("div.CodeMirror").matchImageSnapshot("jsObjBeforePrettify3");
+    cy.get("div.CodeMirror").wait(1000).matchImageSnapshot("jsObjBeforePrettify3", {failureThreshold: 0});
     cy.get("div.CodeMirror").type("{shift+cmd+p}");
 
-    cy.get("div.CodeMirror").matchImageSnapshot("jsObjAfterPrettify3");
+    cy.get("div.CodeMirror").wait(1000).matchImageSnapshot("jsObjAfterPrettify3");
 
     // taking a snap after clicking inside the editor to make sure prettify has not reverted
-    cy.get("div.CodeMirror").click();
+    cy.get("div.CodeMirror").click().wait(1000);
     cy.get("div.CodeMirror").matchImageSnapshot("jsObjAfterPrettify3");
   });
 
@@ -208,31 +208,31 @@ myFun2: async () => {
       .eq(1)
       .click({ force: true });
 
-    cy.get("div.CodeMirror").matchImageSnapshot("jsObjBeforePrettify4");
-    cy.get("div.CodeMirror").type("{shift+cmd+p}");
+    cy.get("div.CodeMirror").matchImageSnapshot("jsObjBeforePrettify4", {failureThreshold: 0});
+    cy.get("div.CodeMirror").type("{shift+cmd+p}").wait(1000);
 
-    cy.get("div.CodeMirror").matchImageSnapshot("jsObjAfterPrettify4");
+    cy.get("div.CodeMirror").matchImageSnapshot("jsObjAfterPrettify4", {failureThreshold: 0});
 
     // taking a snap after clicking inside the editor to make sure prettify has not reverted
-    cy.get("div.CodeMirror").click();
-    cy.get("div.CodeMirror").matchImageSnapshot("jsObjAfterPrettify4");
+    cy.get("div.CodeMirror").click().wait(1000);
+    cy.get("div.CodeMirror").matchImageSnapshot("jsObjAfterPrettify4_1");
 
     // click run button and take a snap to make sure prettify did not revert
     cy.contains("Run")
       .click({ force: true })
       .wait(3000); // allow time to run
-    cy.get("div.CodeMirror").matchImageSnapshot("jsObjAfterPrettify4");
+    cy.get("div.CodeMirror").matchImageSnapshot("jsObjAfterPrettify4_1");
 
     // click dropdown to change function and make sure prettify has not reverted
     // click dropdown to change function and make sure prettify has not reverted
     cy.get("[data-cy='function-select-dropdown']")
       .first()
       .click({ force: true });
-    cy.contains("myFun2").trigger("click");
-    cy.get("div.CodeMirror").matchImageSnapshot("jsObjAfterPrettify4");
+    cy.contains("myFun2").trigger("click").wait(1000);
+    cy.get("div.CodeMirror").matchImageSnapshot("jsObjAfterPrettify4_1");
   });
 
-  it("5. JSEditor validation for goLineStartSmart with no errors, triggered by keyboard shortcut", () => {
+  it("5. TC 1862 - JSEditor validation for goLineStartSmart with no errors, triggered by keyboard shortcut", () => {
     jsEditor.CreateJSObject(`const a = 1826;`, {
       paste: false,
       completeReplace: true,
