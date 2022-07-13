@@ -52,6 +52,10 @@ jobs:
         shell: bash
 
     steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
       - name: Load secrets from AWS
         env:
           AWS_ACCESS_KEY_ID: "${{ secrets.AWS_ACCESS_KEY_ID_FOR_SECRETS }}"
@@ -65,13 +69,7 @@ jobs:
 
       - name: Check if required variables are available
         run: |
-          set -o errexit
-          set -o xtrace
           test -n "${GA_SEGMENT_KEY_EE_LATEST-}"
-
-      - uses: actions/checkout@v2
-        with:
-          fetch-depth: 0
 
       - name: Use Node.js 16.14.0
         uses: actions/setup-node@v1
@@ -207,6 +205,9 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Checkout the merged commit from PR and base branch
+        uses: actions/checkout@v2
+
       - name: Load secrets from AWS
         env:
           AWS_ACCESS_KEY_ID: "${{ secrets.AWS_ACCESS_KEY_ID_FOR_SECRETS }}"
@@ -220,12 +221,7 @@ jobs:
 
       - name: Check if required variables are available
         run: |
-          set -o errexit
-          set -o xtrace
           test -n "${GA_SEGMENT_KEY_EE_LATEST-}"
-
-      - name: Checkout the merged commit from PR and base branch
-        uses: actions/checkout@v2
 
       - name: Download the client build artifact
         uses: actions/download-artifact@v2
