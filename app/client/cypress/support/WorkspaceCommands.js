@@ -22,7 +22,8 @@ Cypress.Commands.add("createWorkspace", () => {
 });
 
 Cypress.Commands.add("renameWorkspace", (workspaceName, newWorkspaceName) => {
-  cy.contains(workspaceName)
+  cy.get(".t--applications-container")
+    .contains(workspaceName)
     .closest(homePage.workspaceCompleteSection)
     .find(homePage.workspaceNamePopover)
     .find(homePage.optionsIcon)
