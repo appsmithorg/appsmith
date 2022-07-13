@@ -154,6 +154,7 @@ describe("Git discard changes:", function() {
     // verify page is deleted
     cy.CheckAndUnfoldEntityItem("PAGES");
     cy.get(`.t--entity-name:contains(${page2})`).should("not.exist");
+    cy.wait(2000);
     cy.gitDiscardChanges();
     // verify page2 is recovered back
     cy.get(`.t--entity-name:contains(${page2})`).should("be.visible");
