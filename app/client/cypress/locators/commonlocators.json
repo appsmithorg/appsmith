@@ -188,5 +188,6 @@
   "textWidgetContainer": ".t--text-widget-container",
   "propertyStyle": "li:contains('STYLE')",
   "propertyContent": "li:contains('CONTENT')",
-  "cancelActionExecution": ".t--cancel-action-button"
+  "cancelActionExecution": ".t--cancel-action-button",
+  "expandMore": "[name='expand-more']"
 }

@@ -8,7 +8,8 @@
     "propertyList": ".t--entity-property",
     "delete": ".single-select >div:contains('Delete')",
     "deleteConfirm": ".single-select >div:contains('Are you sure?')",
-    "popover": "//*[local-name()='g' and @id='Icon/Outline/more-vertical']"
+    "popover": "//*[local-name()='g' and @id='Icon/Outline/more-vertical']",
+    "jsActionMenu": ".t--more-action-menu"
 }
 
 
