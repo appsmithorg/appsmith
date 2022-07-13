@@ -156,8 +156,8 @@
             "offset": "0"
           },
           "tooltipText": {
-            "limit": "Fetch only the rows that can be displayed to improve performance with pagination",
-            "offset": "Skip the rows before the start of the current page"
+            "limit": "Bind to the pageSize property of your widget {{Table1.pageSize}}",
+            "offset": "Bind to the index of the first row to display {{(Table1.pageNo-1)*pageSize}}"
           }
         }
       ]
