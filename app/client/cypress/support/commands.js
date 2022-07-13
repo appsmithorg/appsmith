@@ -143,7 +143,7 @@ Cypress.Commands.add(
         );
         expect(firstTxt).to.equal(expectedvalue);
       });
-    cy.testSelfSignedCertificateSettingsInREST();
+    cy.testSelfSignedCertificateSettingsInREST(true);
   },
 );
 
@@ -161,22 +161,24 @@ Cypress.Commands.add(
     cy.xpath("//span[text()='Send client credentials in body']").should(
       "be.visible",
     );
-    cy.testSelfSignedCertificateSettingsInREST();
+    cy.testSelfSignedCertificateSettingsInREST(true);
   },
 );
 
-Cypress.Commands.add("testSelfSignedCertificateSettingsInREST", () => {
+Cypress.Commands.add("testSelfSignedCertificateSettingsInREST", (isOAuth2) => {
   cy.get(datasource.advancedSettings).click();
-  cy.get(datasource.useSelfSignedCert).should("be.visible");
-  cy.get(datasource.useSelfSignedCert).click();
-  cy.get(datasource.useSelfSignedCert).within(() => {
-    cy.get("[data-cy='t--dropdown-option-Yes']").click();
-  });
-  cy.get(datasource.useCertInAuth).should("be.visible");
-  cy.get(datasource.certificateDetails).should("be.visible");
-  cy.get(datasource.useSelfSignedCert).within(() => {
-    cy.get("[data-cy='t--dropdown-option-No']").click();
-  });
+  // cy.get(datasource.useSelfSignedCert).should("be.visible");
+  // cy.get(datasource.useSelfSignedCert).click();
+  cy.get(datasource.useCertInAuth).should("not.exist");
+  cy.get(datasource.certificateDetails).should("not.exist");
+  cy.TargetDropdownAndSelectOption(datasource.useSelfSignedCert, "Yes");
+  if (isOAuth2) {
+    cy.get(datasource.useCertInAuth).should("exist");
+  } else {
+    cy.get(datasource.useCertInAuth).should("not.exist");
+  }
+  cy.get(datasource.certificateDetails).should("exist");
+  cy.TargetDropdownAndSelectOption(datasource.useSelfSignedCert, "No");
   cy.get(datasource.advancedSettings).click();
 });
 
