@@ -27,14 +27,14 @@ describe("Widget Copy paste", function() {
 
     // verify the position
     cy.get(widgetsPage.chartWidget)
-      .eq(0)
+      .eq(1)
       .then((element) => {
         const elementTop = parseFloat(element.css("top"));
         const elementHeight = parseFloat(element.css("height"));
         const pastedWidgetTop =
           (elementTop + elementHeight + 10).toString() + "px";
         cy.get(widgetsPage.chartWidget)
-          .eq(1)
+          .eq(0)
           .invoke("attr", "style")
           .should("contain", `left: ${element.css("left")}`)
           .should("contain", `top: ${pastedWidgetTop}`);

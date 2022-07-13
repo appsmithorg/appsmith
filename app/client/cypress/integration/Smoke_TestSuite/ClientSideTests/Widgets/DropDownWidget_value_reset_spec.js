@@ -10,7 +10,7 @@ describe("Dropdown Widget Check value does not reset on navigation", function() 
     //Change the value of drop down;
     cy.wait(4000); //settling time for dsl into layout
     cy.get(commonlocators.selectButton)
-      .first()
+      .eq(1)
       .click();
     cy.selectWidgetOnClickOption("Red");
     cy.wait(200);
@@ -25,7 +25,7 @@ describe("Dropdown Widget Check value does not reset on navigation", function() 
     cy.get(
       `.t--draggable-selectwidget .bp3-popover-target ${commonlocators.menuSelection}`,
     )
-      .first()
+      .eq(1)
       .should("have.text", "Red");
   });
 });

@@ -36,7 +36,7 @@ describe("Widget Grouping", function() {
 
     // verify the position so that the camera widget is still below the newly grouped container
     cy.get(`.t--widget-containerwidget`)
-      .eq(1)
+      .eq(0)
       .then((element) => {
         const elementTop = parseFloat(element.css("top"));
         const elementHeight = parseFloat(element.css("height"));

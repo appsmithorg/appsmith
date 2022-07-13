@@ -5,6 +5,7 @@ const menuButton =
   ".t--buttongroup-widget .bp3-popover2-target > div > button > div";
 
 describe("Button Group Widget Functionality", function() {
+  const mod = Cypress.platform === "darwin" ? "meta" : "ctrl";
   before(() => {
     // no dsl required
   });
@@ -36,7 +37,7 @@ describe("Button Group Widget Functionality", function() {
     cy.get(firstButton).contains("Add");
 
     // Undo
-    cy.get("body").type("{ctrl+z}");
+    cy.get("body").type(`{${mod}+z}`);
 
     // Check if the button is back
     cy.get(".t--buttongroup-widget")

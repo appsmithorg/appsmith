@@ -622,7 +622,12 @@ function* batchUpdateMultipleWidgetsPropertiesSaga(
 
   // Save the layout
   yield put(
-    updateAndSaveLayout(updatedStateWidgets, false, false, updatedWidgetIds),
+    updateAndSaveLayout(
+      updatedStateWidgets,
+      undefined,
+      undefined,
+      updatedWidgetIds,
+    ),
   );
 }
 
