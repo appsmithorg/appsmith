@@ -23,7 +23,7 @@ import {
 import Button, { Size, Category } from "components/ads/Button";
 import TableDropdown from "components/ads/TableDropdown";
 import Dropdown from "components/ads/Dropdown";
-import Text, { TextType } from "components/ads/Text";
+import { Text, TextType } from "design-system";
 import { SettingsHeading } from "./General";
 import styled from "styled-components";
 import { Classes } from "@blueprintjs/core";

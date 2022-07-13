@@ -10,7 +10,7 @@ import {
 } from "actions/datasourceActions";
 import history from "utils/history";
 import { getQueryParams } from "utils/AppsmithUtils";
-import Text, { TextType } from "components/ads/Text";
+import { Text, TextType } from "design-system";
 import { AuthType } from "entities/Datasource/RestAPIForm";
 import { API_EDITOR_FORM_NAME } from "constants/forms";
 import { formValueSelector } from "redux-form";

@@ -2,7 +2,7 @@ const testdata = require("../../../../fixtures/testdata.json");
 const datasource = require("../../../../locators/DatasourcesEditor.json");
 const apiwidget = require("../../../../locators/apiWidgetslocator.json");
 
-describe("Datasource form related tests", function() {
+describe("Datasource form OAuth2 authorization code related tests", function() {
   it("Create an API with app url and save as Datasource", function() {
     cy.NavigateToAPI_Panel();
     cy.CreateAPI("TestOAuth");
@@ -17,8 +17,8 @@ describe("Datasource form related tests", function() {
   });
 
   it("Add Oauth details to datasource and save", function() {
-    cy.get(".t--save-datasource").should("not.be.disabled");
-    cy.addOauthAuthDetails(
+    cy.get(datasource.saveBtn).should("not.be.disabled");
+    cy.addOAuth2AuthorizationCodeDetails(
       testdata.accessTokenUrl,
       testdata.clientID,
       testdata.clientSecret,
