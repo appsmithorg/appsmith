@@ -24,6 +24,26 @@ export const getIndexOfRegex = (
   return pos > -1 ? pos + start : pos;
 };
 
+interface LintAnnotationOptions {
+  isJSObject: boolean;
+  contextData: Record<string, Record<string, unknown>>;
+}
+
+const hasUndefinedIdentifierInContextData = (
+  error: EvaluationError,
+  contextData: LintAnnotationOptions["contextData"],
+) => {
+  /**
+   * W117: "'{a}' is not defined.",
+   * error has only one variable "a"
+   *  */
+  return (
+    error.code === IDENTIFIER_NOT_DEFINED_LINT_ERROR_CODE &&
+    error.variables &&
+    error.variables[0] &&
+    error.variables[0] in contextData
+  );
+};
 const buildBoundaryRegex = (key: string) => {
   return key
     .replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&")
@@ -83,22 +103,16 @@ export const filterLintErrors = (
     (error) =>
       error.errorType === PropertyEvaluationErrorType.LINT &&
       // Remove all errors where additional dynamic data is reported as undefined
-      !(
-        contextData &&
-        error.code === IDENTIFIER_NOT_DEFINED_LINT_ERROR_CODE &&
-        error.variables &&
-        error.variables[0] &&
-        error.variables[0] in contextData
-      ),
+      !(contextData && hasUndefinedIdentifierInContextData(error, contextData)),
   );
 };
 
 export const getLintAnnotations = (
   value: string,
   errors: EvaluationError[],
-  isJSObject?: boolean,
-  contextData?: Record<string, Record<string, unknown>>,
+  options: Partial<LintAnnotationOptions>,
 ): Annotation[] => {
+  const { contextData, isJSObject } = options;
   const annotations: Annotation[] = [];
   const lintErrors = filterLintErrors(errors, contextData);
   const lines = value.split("\n");
