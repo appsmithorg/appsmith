@@ -115,6 +115,8 @@ export const onboardingContainerBlueprint = {
                 imageShape: "RECTANGLE",
                 defaultImage: "https://assets.appsmith.com/widgets/default.png",
                 objectFit: "contain",
+                image: "{{CustomersTable.selectedRow.image}}",
+                dynamicBindingPathList: [{ key: "image" }],
               },
             },
             {
@@ -271,8 +273,8 @@ export const Steps: StepsType = {
       {
         text: (
           <>
-            This command will fetch the first 10 items in the user_data
-            database. Hit <RunButton>RUN</RunButton> to see the response.
+            This command will fetch the first 20 items in the user_data
+            database. Hit <b>RUN</b> to see the response.
           </>
         ),
       },
@@ -442,13 +444,6 @@ export const Steps: StepsType = {
             {"'"}s Default Text Property to{" "}
             <code>
               &#123;&#123;CustomersTable.selectedRow.country&#125;&#125;
-            </code>
-          </>,
-          <>
-            Connect <b>{GuidedTourEntityNames.DISPLAY_IMAGE}</b>
-            {"'"}s Image Property to{" "}
-            <code>
-              &#123;&#123;CustomersTable.selectedRow.image&#125;&#125;
             </code>
           </>,
         ],
