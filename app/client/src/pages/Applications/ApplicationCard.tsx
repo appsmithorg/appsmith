@@ -742,8 +742,19 @@ export function ApplicationCard(props: ApplicationCardProps) {
     );
   }
 
+  const editModeURL = builderURL({
+    pageId: props.application.defaultPageId,
+    params,
+  });
+
+  const viewModeURL = viewerURL({
+    pageId: props.application.defaultPageId,
+    params,
+  });
+
   const launchApp = useCallback(
     (e) => {
+      e.preventDefault();
       e.stopPropagation();
       setURLParams();
       history.push(
@@ -758,6 +769,7 @@ export function ApplicationCard(props: ApplicationCardProps) {
 
   const editApp = useCallback(
     (e) => {
+      e.preventDefault();
       e.stopPropagation();
       setURLParams();
       history.push(
@@ -826,6 +838,7 @@ export function ApplicationCard(props: ApplicationCardProps) {
                     <EditButton
                       className="t--application-edit-link"
                       fill
+                      href={editModeURL}
                       icon={"edit"}
                       iconPosition={IconPositions.left}
                       onClick={editApp}
@@ -838,6 +851,7 @@ export function ApplicationCard(props: ApplicationCardProps) {
                       category={Category.tertiary}
                       className="t--application-view-link"
                       fill
+                      href={viewModeURL}
                       icon={"rocket"}
                       iconPosition={IconPositions.left}
                       onClick={launchApp}
