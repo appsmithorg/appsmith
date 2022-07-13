@@ -50,10 +50,10 @@ public class OAuth2ClientCredentials extends APIConnection implements UpdatableC
     private static final int MAX_IN_MEMORY_SIZE = 10 * 1024 * 1024; // 10 MB
 
     public static Mono<OAuth2ClientCredentials> create(DatasourceConfiguration datasourceConfiguration) {
-        final OAuth2 oAuth2 = (OAuth2) datasourceConfiguration.getAuthentication();
         if (datasourceConfiguration == null) {
             return Mono.empty();
         }
+        final OAuth2 oAuth2 = (OAuth2) datasourceConfiguration.getAuthentication();
         // Create OAuth2Connection
         OAuth2ClientCredentials connection = new OAuth2ClientCredentials();
 

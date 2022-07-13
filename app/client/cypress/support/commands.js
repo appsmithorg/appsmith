@@ -167,8 +167,6 @@ Cypress.Commands.add(
 
 Cypress.Commands.add("testSelfSignedCertificateSettingsInREST", (isOAuth2) => {
   cy.get(datasource.advancedSettings).click();
-  // cy.get(datasource.useSelfSignedCert).should("be.visible");
-  // cy.get(datasource.useSelfSignedCert).click();
   cy.get(datasource.useCertInAuth).should("not.exist");
   cy.get(datasource.certificateDetails).should("not.exist");
   cy.TargetDropdownAndSelectOption(datasource.useSelfSignedCert, "Yes");
