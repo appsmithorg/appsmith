@@ -5,16 +5,16 @@ import { Collapse, Icon } from "@blueprintjs/core";
 
 const CollapseWrapper = styled.div`
   position: relative;
-  margin-top: ${(props) => props.theme.spaces[3]}px;
   .collapse-title {
-    color: ${Colors.TROUT_DARK};
+    color: ${Colors.GRAY_700};
     letter-spacing: 0.04em;
     text-transform: uppercase;
     font-weight: 500;
     font-size: 12px;
     line-height: 16px;
     display: flex;
-    gap: 4px;
+    align-items: center;
+    gap: 8px;
     cursor: pointer;
     /* justify-content: space-between; */
     .icon {
@@ -50,14 +50,17 @@ function CollapseComponent(props: {
     <CollapseWrapper>
       <div
         className="collapse-title"
+        data-testid="datasource-collapse-wrapper"
         onClick={handleIsOpen}
         style={props.titleStyle}
       >
         {props.title}
         <Icon
-          className={`icon ${!open ? "collapse" : ""}`}
-          icon="chevron-down"
-          iconSize={16}
+          className={`icon ${open ? "collapse" : ""}`}
+          color="#4B4848"
+          data-testid="datasource-collapse-icon"
+          icon="arrow-right"
+          iconSize={12}
         />
       </div>
       <Collapse isOpen={open} keepChildrenMounted>

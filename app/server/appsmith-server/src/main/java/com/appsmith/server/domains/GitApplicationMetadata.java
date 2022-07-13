@@ -1,10 +1,13 @@
 package com.appsmith.server.domains;
 
 import com.appsmith.external.models.AppsmithDomain;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 
 import org.springframework.data.annotation.Transient;
+
+import java.time.Instant;
 import java.util.Map;
 
 // This class will be used for one-to-one mapping for the DB application and the application present in the git repo.
@@ -46,4 +49,7 @@ public class GitApplicationMetadata implements AppsmithDomain {
     // Deploy key documentation url
     @Transient
     String docUrl;
+
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ssX", timezone = "UTC")
+    Instant lastCommittedAt;
 }

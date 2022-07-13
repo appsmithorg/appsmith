@@ -16,7 +16,7 @@ import { noop } from "lodash";
 import "@blueprintjs/popover2/lib/css/blueprint-popover2.css";
 
 import { Popover2 } from "@blueprintjs/popover2";
-import Tooltip from "components/ads/Tooltip";
+import { TooltipComponent as Tooltip } from "design-system";
 import { Colors } from "constants/Colors";
 
 // render over popover portals

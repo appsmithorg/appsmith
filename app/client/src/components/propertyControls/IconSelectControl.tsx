@@ -10,7 +10,7 @@ import {
 } from "react-virtuoso";
 
 import BaseControl, { ControlProps } from "./BaseControl";
-import TooltipComponent from "components/ads/Tooltip";
+import { TooltipComponent } from "design-system";
 import { Colors } from "constants/Colors";
 import { replayHighlightClass } from "globalStyles/portals";
 import _ from "lodash";

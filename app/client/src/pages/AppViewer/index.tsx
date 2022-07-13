@@ -40,6 +40,7 @@ import {
 } from "actions/controlActions";
 import { setAppViewHeaderHeight } from "actions/appViewActions";
 import { showPostCompletionMessage } from "selectors/onboardingSelectors";
+import { CANVAS_SELECTOR } from "constants/WidgetConstants";
 import { getShowBrandingBadge } from "@appsmith/selectors/workspaceSelectors";
 import { fetchPublishedPage } from "actions/pageActions";
 import usePrevious from "utils/hooks/usePrevious";
@@ -57,6 +58,7 @@ const AppViewerBody = styled.section<{
   align-items: stretch;
   justify-content: flex-start;
   height: calc(100vh - ${({ headerHeight }) => headerHeight}px);
+  --view-mode-header-height: ${({ headerHeight }) => headerHeight}px;
 `;
 
 const ContainerWithComments = styled.div`
@@ -253,6 +255,7 @@ function AppViewer(props: Props) {
               backgroundColor={selectedTheme.properties.colors.backgroundColor}
             >
               <AppViewerBody
+                className={CANVAS_SELECTOR}
                 hasPages={pages.length > 1}
                 headerHeight={headerHeight}
                 showGuidedTourMessage={showGuidedTourMessage}
