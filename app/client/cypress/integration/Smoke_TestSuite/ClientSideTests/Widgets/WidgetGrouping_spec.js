@@ -16,9 +16,9 @@ describe("Widget Grouping", function() {
     });
     cy.get(`div[data-testid='t--selected']`).should("have.length", 2);
     cy.get(`.t--multi-selection-box`).should("have.length", 1);
-
+    const isMac = Cypress.platform === "darwin";
     // Grouping
-    if (isMacOrIOS) {
+    if (isMac) {
       cy.get("body").type("{cmd}{g}");
     } else {
       cy.get("body").type("{ctrl}{g}");
