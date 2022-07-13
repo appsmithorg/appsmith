@@ -136,7 +136,7 @@ export function emitInteractionAnalyticsEvent<T extends HTMLElement>(
 export const DS_EVENT = "DS_EVENT";
 
 export enum DSEventTypes {
-  KEYBOARD_ANALYTICS = "KEYBOARD_ANALYTICS",
+  KEYPRESS = "KEYPRESS",
 }
 
 export type DSEventDetail = {

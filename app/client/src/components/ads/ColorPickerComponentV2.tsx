@@ -337,11 +337,11 @@ const ColorPickerComponent = React.forwardRef(
 
     const { dispatchDSEvent } = useDSEvent<HTMLDivElement>(false, containerRef);
 
-    const emitKeyboardAnalyticsEvent = useCallback(
+    const emitKeyPressEvent = useCallback(
       (key: string) => {
         dispatchDSEvent({
           component: "ColorPicker",
-          event: DSEventTypes.KEYBOARD_ANALYTICS,
+          event: DSEventTypes.KEYPRESS,
           meta: {
             key,
           },
@@ -354,7 +354,7 @@ const ColorPickerComponent = React.forwardRef(
       if (isOpen) {
         switch (e.key) {
           case "Escape":
-            emitKeyboardAnalyticsEvent(e.key);
+            emitKeyPressEvent(e.key);
             setIsOpen(false);
             setTimeout(() => {
               inputGroupRef.current?.focus();
@@ -362,7 +362,7 @@ const ColorPickerComponent = React.forwardRef(
             e.stopPropagation();
             break;
           case "Tab":
-            emitKeyboardAnalyticsEvent(`${e.shiftKey ? "Shift+" : ""}${e.key}`);
+            emitKeyPressEvent(`${e.shiftKey ? "Shift+" : ""}${e.key}`);
             currentFocus.current = 0;
             if (document.activeElement === inputGroupRef.current) {
               setTimeout(() => {
@@ -375,7 +375,7 @@ const ColorPickerComponent = React.forwardRef(
             break;
           case "Enter":
           case " ":
-            emitKeyboardAnalyticsEvent(e.key);
+            emitKeyPressEvent(e.key);
             (document.activeElement as any)?.click();
             setTimeout(() => {
               inputGroupRef.current?.focus();
@@ -383,7 +383,7 @@ const ColorPickerComponent = React.forwardRef(
             e.preventDefault();
             break;
           case "ArrowRight": {
-            emitKeyboardAnalyticsEvent(e.key);
+            emitKeyPressEvent(e.key);
             const totalColors =
               document.activeElement?.parentElement?.childElementCount ?? 0;
             currentFocus.current = currentFocus.current + 1;
@@ -401,7 +401,7 @@ const ColorPickerComponent = React.forwardRef(
             break;
           }
           case "ArrowLeft": {
-            emitKeyboardAnalyticsEvent(e.key);
+            emitKeyPressEvent(e.key);
             const totalColors =
               document.activeElement?.parentElement?.childElementCount ?? 0;
             currentFocus.current = currentFocus.current - 1;
@@ -419,7 +419,7 @@ const ColorPickerComponent = React.forwardRef(
             break;
           }
           case "ArrowDown": {
-            emitKeyboardAnalyticsEvent(e.key);
+            emitKeyPressEvent(e.key);
             const totalColors =
               document.activeElement?.parentElement?.childElementCount ?? 0;
             if (totalColors < MAX_COLS) break;
@@ -432,7 +432,7 @@ const ColorPickerComponent = React.forwardRef(
             break;
           }
           case "ArrowUp": {
-            emitKeyboardAnalyticsEvent(e.key);
+            emitKeyPressEvent(e.key);
             const totalColors =
               document.activeElement?.parentElement?.childElementCount ?? 0;
             if (totalColors < MAX_COLS) break;
@@ -453,7 +453,7 @@ const ColorPickerComponent = React.forwardRef(
       } else if (document.activeElement === inputGroupRef.current) {
         switch (e.key) {
           case "Enter":
-            emitKeyboardAnalyticsEvent(e.key);
+            emitKeyPressEvent(e.key);
             setIsOpen(true);
             const firstElement = popupRef.current?.querySelectorAll(
               "[tabindex='0']",
@@ -461,11 +461,11 @@ const ColorPickerComponent = React.forwardRef(
             firstElement?.focus();
             break;
           case "Escape":
-            emitKeyboardAnalyticsEvent(e.key);
+            emitKeyPressEvent(e.key);
             inputGroupRef.current?.blur();
             break;
           case "Tab":
-            emitKeyboardAnalyticsEvent(`${e.shiftKey ? "Shift+" : ""}${e.key}`);
+            emitKeyPressEvent(`${e.shiftKey ? "Shift+" : ""}${e.key}`);
         }
       }
     };

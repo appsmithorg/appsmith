@@ -596,13 +596,10 @@ const scrollIntoViewOptions: ScrollIntoViewOptions = {
   block: "nearest",
 };
 
-function emitKeyboardAnalyticsEvent(
-  element: HTMLDivElement | null,
-  key: string,
-) {
+function emitKeyPressEvent(element: HTMLDivElement | null, key: string) {
   emitDSEvent(element, {
     component: "Dropdown",
-    event: DSEventTypes.KEYBOARD_ANALYTICS,
+    event: DSEventTypes.KEYPRESS,
     meta: {
       key,
     },
@@ -1036,7 +1033,7 @@ export default function Dropdown(props: DropdownProps) {
     (e: React.KeyboardEvent) => {
       switch (e.key) {
         case "Escape":
-          emitKeyboardAnalyticsEvent(dropdownWrapperRef.current, e.key);
+          emitKeyPressEvent(dropdownWrapperRef.current, e.key);
           if (isOpen) {
             setSelected((prevSelected) => {
               if (prevSelected != props.selected) return props.selected;
@@ -1047,7 +1044,7 @@ export default function Dropdown(props: DropdownProps) {
           }
           break;
         case " ":
-          emitKeyboardAnalyticsEvent(dropdownWrapperRef.current, e.key);
+          emitKeyPressEvent(dropdownWrapperRef.current, e.key);
           if (closeOnSpace) {
             e.preventDefault();
             if (isOpen) {
@@ -1063,7 +1060,7 @@ export default function Dropdown(props: DropdownProps) {
           }
           break;
         case "Enter":
-          emitKeyboardAnalyticsEvent(dropdownWrapperRef.current, e.key);
+          emitKeyPressEvent(dropdownWrapperRef.current, e.key);
           e.preventDefault();
           if (isOpen) {
             if (props.isMultiSelect) {
@@ -1077,7 +1074,7 @@ export default function Dropdown(props: DropdownProps) {
           }
           break;
         case "ArrowUp":
-          emitKeyboardAnalyticsEvent(dropdownWrapperRef.current, e.key);
+          emitKeyPressEvent(dropdownWrapperRef.current, e.key);
           e.preventDefault();
           if (isOpen) {
             if (props.isMultiSelect) {
@@ -1108,7 +1105,7 @@ export default function Dropdown(props: DropdownProps) {
           }
           break;
         case "ArrowDown":
-          emitKeyboardAnalyticsEvent(dropdownWrapperRef.current, e.key);
+          emitKeyPressEvent(dropdownWrapperRef.current, e.key);
           e.preventDefault();
           if (isOpen) {
             if (props.isMultiSelect) {
@@ -1139,7 +1136,7 @@ export default function Dropdown(props: DropdownProps) {
           }
           break;
         case "Tab":
-          emitKeyboardAnalyticsEvent(
+          emitKeyPressEvent(
             dropdownWrapperRef.current,
             `${e.shiftKey ? "Shift+" : ""}${e.key}`,
           );

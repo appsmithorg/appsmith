@@ -29,7 +29,7 @@ class ColorPickerControl extends BaseControl<ColorPickerControlProps> {
   handleAdsEvent = (e: CustomEvent<DSEventDetail>) => {
     if (
       e.detail.component === "ColorPicker" &&
-      e.detail.event === DSEventTypes.KEYBOARD_ANALYTICS
+      e.detail.event === DSEventTypes.KEYPRESS
     ) {
       emitInteractionAnalyticsEvent(this.componentRef.current, {
         key: e.detail.meta.key,

@@ -76,11 +76,11 @@ const StepComponent = React.forwardRef(
       ref,
     );
 
-    const emitKeyboardAnalyticsEvent = useCallback(
+    const emitKeyPressEvent = useCallback(
       (key: string) => {
         dispatchDSEvent({
           component: "StepComponent",
-          event: DSEventTypes.KEYBOARD_ANALYTICS,
+          event: DSEventTypes.KEYPRESS,
           meta: {
             key,
           },
@@ -111,7 +111,7 @@ const StepComponent = React.forwardRef(
         case "Up":
         case "ArrowRight":
         case "Right":
-          emitKeyboardAnalyticsEvent(e.key);
+          emitKeyPressEvent(e.key);
           increase(true);
           e.preventDefault();
           break;
@@ -119,12 +119,12 @@ const StepComponent = React.forwardRef(
         case "Down":
         case "ArrowLeft":
         case "Left":
-          emitKeyboardAnalyticsEvent(e.key);
+          emitKeyPressEvent(e.key);
           decrease(true);
           e.preventDefault();
           break;
         case "Tab":
-          emitKeyboardAnalyticsEvent(`${e.shiftKey ? "Shift+" : ""}${e.key}`);
+          emitKeyPressEvent(`${e.shiftKey ? "Shift+" : ""}${e.key}`);
           break;
       }
     }

@@ -69,11 +69,11 @@ const ButtonTabComponent = React.forwardRef(
       ref,
     );
 
-    const emitKeyboardAnalyticsEvent = useCallback(
+    const emitKeyPressEvent = useCallback(
       (key: string) => {
         dispatchDSEvent({
           component: "ButtonTab",
-          event: DSEventTypes.KEYBOARD_ANALYTICS,
+          event: DSEventTypes.KEYPRESS,
           meta: {
             key,
           },
@@ -88,26 +88,26 @@ const ButtonTabComponent = React.forwardRef(
       switch (e.key) {
         case "ArrowRight":
         case "Right":
-          emitKeyboardAnalyticsEvent(e.key);
+          emitKeyPressEvent(e.key);
           setFocusedIndex((prev) =>
             prev === props.options.length - 1 ? 0 : prev + 1,
           );
           break;
         case "ArrowLeft":
         case "Left":
-          emitKeyboardAnalyticsEvent(e.key);
+          emitKeyPressEvent(e.key);
           setFocusedIndex((prev) =>
             prev === 0 ? props.options.length - 1 : prev - 1,
           );
           break;
         case "Enter":
         case " ":
-          emitKeyboardAnalyticsEvent(e.key);
+          emitKeyPressEvent(e.key);
           props.selectButton(props.options[focusedIndex].value, true);
           e.preventDefault();
           break;
         case "Tab":
-          emitKeyboardAnalyticsEvent(`${e.shiftKey ? "Shift+" : ""}${e.key}`);
+          emitKeyPressEvent(`${e.shiftKey ? "Shift+" : ""}${e.key}`);
           break;
       }
     };

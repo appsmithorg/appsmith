@@ -27,7 +27,7 @@ class DropDownControl extends BaseControl<DropDownControlProps> {
   handleAdsEvent = (e: CustomEvent<DSEventDetail>) => {
     if (
       e.detail.component === "Dropdown" &&
-      e.detail.event === DSEventTypes.KEYBOARD_ANALYTICS
+      e.detail.event === DSEventTypes.KEYPRESS
     ) {
       emitInteractionAnalyticsEvent(this.containerRef.current, {
         key: e.detail.meta.key,

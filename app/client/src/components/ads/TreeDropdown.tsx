@@ -281,11 +281,11 @@ function TreeDropdown(props: TreeDropdownProps) {
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const { dispatchDSEvent } = useDSEvent<HTMLButtonElement>(false, buttonRef);
 
-  const emitKeyboardAnalyticsEvent = useCallback(
+  const emitKeyPressEvent = useCallback(
     (key: string) => {
       dispatchDSEvent({
         component: "TreeDropdown",
-        event: DSEventTypes.KEYBOARD_ANALYTICS,
+        event: DSEventTypes.KEYPRESS,
         meta: {
           key,
         },
@@ -405,7 +405,7 @@ function TreeDropdown(props: TreeDropdownProps) {
     switch (e.key) {
       case "Escape":
         if (isOpen) {
-          emitKeyboardAnalyticsEvent(e.key);
+          emitKeyPressEvent(e.key);
           if (selectedOptionIndex.current.length > 1) {
             setOptionTree((prev) => {
               const prevIndex = selectedOptionIndex.current.slice(0, -1);
@@ -432,7 +432,7 @@ function TreeDropdown(props: TreeDropdownProps) {
       case "Enter":
       case "ArrowRight":
         if (isOpen) {
-          emitKeyboardAnalyticsEvent(e.key);
+          emitKeyPressEvent(e.key);
           const selectedOpt = getItem(optionTree, selectedOptionIndex.current);
           if (selectedOpt?.children) {
             handleOptionClick(selectedOpt)(e, true);
@@ -441,14 +441,14 @@ function TreeDropdown(props: TreeDropdownProps) {
             shouldOpen.current = false;
           }
         } else if (e.key !== "ArrowRight") {
-          emitKeyboardAnalyticsEvent(e.key);
+          emitKeyPressEvent(e.key);
           setIsOpen(true);
           selectedOptionIndex.current = [findIndex(optionTree, selectedOption)];
           shouldOpen.current = true;
         }
         break;
       case "ArrowUp":
-        emitKeyboardAnalyticsEvent(e.key);
+        emitKeyPressEvent(e.key);
         e.preventDefault();
         if (isOpen) {
           let currentLength = optionTree.length;
@@ -470,7 +470,7 @@ function TreeDropdown(props: TreeDropdownProps) {
         }
         break;
       case "ArrowDown":
-        emitKeyboardAnalyticsEvent(e.key);
+        emitKeyPressEvent(e.key);
         e.preventDefault();
         if (isOpen) {
           let currentLength = optionTree.length;
@@ -492,7 +492,7 @@ function TreeDropdown(props: TreeDropdownProps) {
         }
         break;
       case "Tab":
-        emitKeyboardAnalyticsEvent(`${e.shiftKey ? "Shift+" : ""}${e.key}`);
+        emitKeyPressEvent(`${e.shiftKey ? "Shift+" : ""}${e.key}`);
         if (isOpen) {
           setIsOpen(false);
           // reset selected option
@@ -502,7 +502,7 @@ function TreeDropdown(props: TreeDropdownProps) {
         }
         break;
       case "ArrowLeft":
-        emitKeyboardAnalyticsEvent(e.key);
+        emitKeyPressEvent(e.key);
         if (selectedOptionIndex.current.length > 1) {
           setOptionTree((prev) => {
             const prevIndex = selectedOptionIndex.current.slice(0, -1);

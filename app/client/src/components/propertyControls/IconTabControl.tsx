@@ -30,7 +30,7 @@ class IconTabControl extends BaseControl<IconTabControlProps> {
   handleAdsEvent = (e: CustomEvent<DSEventDetail>) => {
     if (
       e.detail.component === "ButtonTab" &&
-      e.detail.event === DSEventTypes.KEYBOARD_ANALYTICS
+      e.detail.event === DSEventTypes.KEYPRESS
     ) {
       emitInteractionAnalyticsEvent(this.componentRef.current, {
         key: e.detail.meta.key,

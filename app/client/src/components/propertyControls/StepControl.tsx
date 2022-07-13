@@ -31,7 +31,7 @@ class StepControl extends BaseControl<StepControlProps> {
   handleAdsEvent = (e: CustomEvent<DSEventDetail>) => {
     if (
       e.detail.component === "StepComponent" &&
-      e.detail.event === DSEventTypes.KEYBOARD_ANALYTICS
+      e.detail.event === DSEventTypes.KEYPRESS
     ) {
       emitInteractionAnalyticsEvent(this.componentRef.current, {
         key: e.detail.meta.key,

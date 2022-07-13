@@ -21,11 +21,11 @@ export default function AdsSwitch(props: ISwitchProps) {
     HTMLDivElement
   >(true);
 
-  const emitKeyboardAnalyticsEvent = useCallback(
+  const emitKeyPressEvent = useCallback(
     (key: string) => {
       dispatchDSEvent({
         component: "AdsSwitch",
-        event: DSEventTypes.KEYBOARD_ANALYTICS,
+        event: DSEventTypes.KEYPRESS,
         meta: {
           key,
         },
@@ -38,10 +38,10 @@ export default function AdsSwitch(props: ISwitchProps) {
     switch (e.key) {
       case "Enter":
       case " ":
-        emitKeyboardAnalyticsEvent(e.key);
+        emitKeyPressEvent(e.key);
         break;
       case "Tab":
-        emitKeyboardAnalyticsEvent(`${e.shiftKey ? "Shift+" : ""}${e.key}`);
+        emitKeyPressEvent(`${e.shiftKey ? "Shift+" : ""}${e.key}`);
         break;
     }
   };

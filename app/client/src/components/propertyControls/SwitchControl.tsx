@@ -29,7 +29,7 @@ class SwitchControl extends BaseControl<ControlProps> {
   handleAdsEvent = (e: CustomEvent<DSEventDetail>) => {
     if (
       e.detail.component === "AdsSwitch" &&
-      e.detail.event === DSEventTypes.KEYBOARD_ANALYTICS
+      e.detail.event === DSEventTypes.KEYPRESS
     ) {
       this.isUpdatedViaKeyboard = true;
       emitInteractionAnalyticsEvent(this.containerRef.current, {
