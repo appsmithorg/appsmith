@@ -115,8 +115,9 @@ export const StyledCheckbox = styled(Checkbox)<StyledCheckboxProps>`
           ? "background-color: ${Colors.GREY_5} !important;"
           : `border: 1px solid ${Colors.GREY_6};`};
 
-    ${({ accentColor, checked }) =>
+    ${({ accentColor, checked, disabled }) =>
       checked &&
+      !disabled &&
       `
     background-color: ${darkenColor(accentColor)} !important;
   `}
