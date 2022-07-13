@@ -1,6 +1,7 @@
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 
-let jsEditor = ObjectsRegistry.JSEditor;
+let jsEditor = ObjectsRegistry.JSEditor,
+ agHelper = ObjectsRegistry.AggregateHelper;
 
 describe("JSEditor Indendation - Visual tests", () => {
   // for any changes in UI, update the screenshot in snapshot folder, to do so:
@@ -120,6 +121,7 @@ myFun2: async () => {
       .click({ force: true });
     cy.contains("myFun2").trigger("click");
     cy.get("div.CodeMirror").matchImageSnapshot("jsObjAfterPrettify2");
+    agHelper.WaitUntilToastDisappear("ran successfully");
   });
 
   it("3. TC 1863 : JSEditor validation for Prettify Code with lint errors, triggered by keyboard shortcut", () => {
