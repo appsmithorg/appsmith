@@ -298,7 +298,7 @@ export const validate = (
   props: Record<string, unknown>,
   propertyPath = "",
 ): ValidationResponse => {
-  const validatorFunc = VALIDATORS[config.type as ValidationTypes];
+  const validatorFunc = VALIDATORS[config.type];
   if (validatorFunc) {
     const _result = validatorFunc(config, value, props, propertyPath);
 

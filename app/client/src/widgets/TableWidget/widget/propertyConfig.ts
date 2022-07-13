@@ -1381,7 +1381,12 @@ export default [
         placeholderText: "{{appsmith.user.name}}",
         isBindProperty: true,
         isTriggerProperty: false,
-        validation: { type: ValidationTypes.TEXT },
+        validation: {
+          type: ValidationTypes.TEXT,
+          params: {
+            default: "",
+          },
+        },
       },
       {
         helpText: "Selects row(s) by default",
