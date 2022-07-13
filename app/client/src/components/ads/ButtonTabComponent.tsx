@@ -64,14 +64,14 @@ const ButtonTabComponent = React.forwardRef(
       }
     }
 
-    const { dispatchDSEvent, eventEmitterRef } = useDSEvent<HTMLDivElement>(
+    const { emitDSEvent, eventEmitterRef } = useDSEvent<HTMLDivElement>(
       false,
       ref,
     );
 
     const emitKeyPressEvent = useCallback(
       (key: string) => {
-        dispatchDSEvent({
+        emitDSEvent({
           component: "ButtonTab",
           event: DSEventTypes.KEYPRESS,
           meta: {
@@ -79,7 +79,7 @@ const ButtonTabComponent = React.forwardRef(
           },
         });
       },
-      [dispatchDSEvent],
+      [emitDSEvent],
     );
 
     const [focusedIndex, setFocusedIndex] = useState<number>(-1);

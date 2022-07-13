@@ -335,11 +335,11 @@ const ColorPickerComponent = React.forwardRef(
 
     const currentFocus = useRef(0);
 
-    const { dispatchDSEvent } = useDSEvent<HTMLDivElement>(false, containerRef);
+    const { emitDSEvent } = useDSEvent<HTMLDivElement>(false, containerRef);
 
     const emitKeyPressEvent = useCallback(
       (key: string) => {
-        dispatchDSEvent({
+        emitDSEvent({
           component: "ColorPicker",
           event: DSEventTypes.KEYPRESS,
           meta: {
@@ -347,7 +347,7 @@ const ColorPickerComponent = React.forwardRef(
           },
         });
       },
-      [dispatchDSEvent],
+      [emitDSEvent],
     );
 
     const handleKeydown = (e: KeyboardEvent) => {

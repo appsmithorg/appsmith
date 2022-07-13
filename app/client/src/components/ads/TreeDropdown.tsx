@@ -279,11 +279,11 @@ function TreeDropdown(props: TreeDropdownProps) {
   const selectedOptionIndex = useRef([findIndex(optionTree, selectedOption)]);
   const buttonRef = useRef<HTMLButtonElement>(null);
   const [isOpen, setIsOpen] = useState<boolean>(false);
-  const { dispatchDSEvent } = useDSEvent<HTMLButtonElement>(false, buttonRef);
+  const { emitDSEvent } = useDSEvent<HTMLButtonElement>(false, buttonRef);
 
   const emitKeyPressEvent = useCallback(
     (key: string) => {
-      dispatchDSEvent({
+      emitDSEvent({
         component: "TreeDropdown",
         event: DSEventTypes.KEYPRESS,
         meta: {
@@ -291,7 +291,7 @@ function TreeDropdown(props: TreeDropdownProps) {
         },
       });
     },
-    [dispatchDSEvent],
+    [emitDSEvent],
   );
 
   useEffect(() => {

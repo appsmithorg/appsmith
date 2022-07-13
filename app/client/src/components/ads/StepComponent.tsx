@@ -71,14 +71,14 @@ interface StepComponentProps {
 
 const StepComponent = React.forwardRef(
   (props: StepComponentProps, ref: any) => {
-    const { dispatchDSEvent, eventEmitterRef } = useDSEvent<HTMLDivElement>(
+    const { emitDSEvent, eventEmitterRef } = useDSEvent<HTMLDivElement>(
       false,
       ref,
     );
 
     const emitKeyPressEvent = useCallback(
       (key: string) => {
-        dispatchDSEvent({
+        emitDSEvent({
           component: "StepComponent",
           event: DSEventTypes.KEYPRESS,
           meta: {
@@ -86,7 +86,7 @@ const StepComponent = React.forwardRef(
           },
         });
       },
-      [dispatchDSEvent],
+      [emitDSEvent],
     );
 
     function decrease(isUpdatedViaKeyboard = false) {

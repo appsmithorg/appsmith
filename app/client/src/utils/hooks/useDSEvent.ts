@@ -24,7 +24,7 @@ export default function useDSEvent<T extends HTMLElement>(
   }
 
   return {
-    dispatchDSEvent,
+    emitDSEvent: dispatchDSEvent,
     eventEmitterRef,
     eventEmitterRefCallback,
   };

@@ -17,13 +17,13 @@ const StyledSwitch = styled(Switch)`
 `;
 
 export default function AdsSwitch(props: ISwitchProps) {
-  const { dispatchDSEvent, eventEmitterRefCallback } = useDSEvent<
-    HTMLDivElement
-  >(true);
+  const { emitDSEvent, eventEmitterRefCallback } = useDSEvent<HTMLDivElement>(
+    true,
+  );
 
   const emitKeyPressEvent = useCallback(
     (key: string) => {
-      dispatchDSEvent({
+      emitDSEvent({
         component: "AdsSwitch",
         event: DSEventTypes.KEYPRESS,
         meta: {
@@ -31,7 +31,7 @@ export default function AdsSwitch(props: ISwitchProps) {
         },
       });
     },
-    [dispatchDSEvent],
+    [emitDSEvent],
   );
 
   const handleKeydown = (e: React.KeyboardEvent) => {
