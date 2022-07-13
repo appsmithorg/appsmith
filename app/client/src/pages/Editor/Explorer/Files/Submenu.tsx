@@ -128,12 +128,7 @@ export default function ExplorerSubMenu({
       if (item.action) {
         dispatch(item.action(pageId, "SUBMENU"));
       } else if (item.redirect) {
-        item.redirect(
-          applicationSlug,
-          pageIdToSlugMap[pageId],
-          pageId,
-          "SUBMENU",
-        );
+        item.redirect(pageId, "SUBMENU");
       }
       setShow(false);
     },
