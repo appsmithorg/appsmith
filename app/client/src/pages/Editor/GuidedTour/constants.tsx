@@ -1,7 +1,6 @@
 import React from "react";
 import { ReactNode } from "react";
 import { Dispatch } from "redux";
-import styled from "styled-components";
 import TableData from "assets/gifs/table_data.gif";
 import DefaultText from "assets/gifs/default_text.gif";
 import {
@@ -39,7 +38,6 @@ import {
   STEP_THREE_TITLE,
   STEP_TWO_TITLE,
 } from "@appsmith/constants/messages";
-import { getTypographyByKey } from "constants/DefaultTheme";
 
 export const Classes = {
   GUIDED_TOUR_BORDER: "guided-tour-border",
@@ -255,15 +253,6 @@ type Step = {
   };
 };
 type StepsType = Record<number, Step>;
-
-const RunButton = styled.div`
-  background-color: ${(props) => props.theme.colors.guidedTour.runButton};
-  padding: ${(props) => props.theme.spaces[1] + 1}px
-    ${(props) => props.theme.spaces[6] + 1}px;
-  color: white;
-  ${(props) => getTypographyByKey(props, "btnMedium")}
-  display: inline-block;
-`;
 
 export const Steps: StepsType = {
   [GUIDED_TOUR_STEPS.RUN_QUERY]: {
