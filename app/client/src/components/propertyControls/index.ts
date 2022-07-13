@@ -58,6 +58,7 @@ import LabelAlignmentOptionsControl from "./LabelAlignmentOptionsControl";
 import NumericInputControl, {
   NumericInputControlProps,
 } from "./NumericInputControl";
+import SliderControl, { SliderControlProps } from "./SliderControl";
 
 export const PropertyControls = {
   InputTextControl,
@@ -91,6 +92,7 @@ export const PropertyControls = {
   LabelAlignmentOptionsControl,
   NumericInputControl,
   PrimaryColumnColorPickerControl,
+  SliderControl,
 };
 
 export type PropertyControlPropsType =
@@ -107,7 +109,8 @@ export type PropertyControlPropsType =
   | ComputeTablePropertyControlProps
   | PrimaryColumnDropdownControlProps
   | NumericInputControlProps
-  | PrimaryColumnColorPickerControlProps;
+  | PrimaryColumnColorPickerControlProps
+  | SliderControlProps;
 
 export const getPropertyControlTypes = (): { [key: string]: string } => {
   const _types: { [key: string]: string } = {};

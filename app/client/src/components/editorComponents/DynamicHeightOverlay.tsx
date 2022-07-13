@@ -78,6 +78,7 @@ const OverlayHandleDot = styled.div`
 
 const StyledDraggableOverlayHandleDot = styled.div`
   cursor: pointer;
+  align-self: start;
 `;
 
 interface DragFunctions {
@@ -475,11 +476,12 @@ const DynamicHeightOverlay: React.FC<DynamicHeightOverlayProps> = memo(
             isMaxDotDragging ||
             isMinDotActive ||
             isMaxDotActive ||
-            isPropertyPaneFieldFocues
+            isPropertyPaneFieldFocues ||
+            selectedWidget === widgetId
           }
           maxY={finalMaxY}
         />
-        <OverlayHandles
+        {/* <OverlayHandles
           isMaxDotActive={isMaxDotDragging || isMaxDotActive}
           isMinDotActive={isMinDotDragging || isMinDotActive}
           maxDragFunctions={{
@@ -498,7 +500,7 @@ const DynamicHeightOverlay: React.FC<DynamicHeightOverlayProps> = memo(
           minY={finalMinY}
           onMaxHeightSet={onMaxHeightSet}
           onMinHeightSet={onMinHeightSet}
-        />
+        /> */}
         {children}
       </StyledDynamicHeightOverlay>
     );
