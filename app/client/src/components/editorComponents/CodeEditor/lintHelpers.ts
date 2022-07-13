@@ -7,6 +7,7 @@ import {
 import { Severity } from "entities/AppsmithConsole";
 import {
   CODE_EDITOR_START_POSITION,
+  IDENTIFIER_NOT_DEFINED_LINT_ERROR_CODE,
   INVALID_JSOBJECT_START_STATEMENT,
   JS_OBJECT_START_STATEMENT,
   LintTooltipDirection,
@@ -84,7 +85,7 @@ export const filterLintErrors = (
       // Remove all errors where additional dynamic data is reported as undefined
       !(
         contextData &&
-        error.code === "W117" &&
+        error.code === IDENTIFIER_NOT_DEFINED_LINT_ERROR_CODE &&
         error.variables &&
         error.variables[0] &&
         error.variables[0] in contextData
@@ -125,18 +126,6 @@ export const getLintAnnotations = (
       variables,
     } = error;
 
-    /** Some error messages reference line numbers, these line numbers
-     * need to be re-calculated depending on the binding location.
-     * */
-    const possibleLineNumbersInErrorMessage = new Set<number>();
-    if (variables) {
-      variables.forEach((variable) => {
-        if (isNumber(variable)) {
-          possibleLineNumbersInErrorMessage.add(variable);
-        }
-      });
-    }
-
     if (!originalBinding) {
       return annotations;
     }
@@ -167,19 +156,6 @@ export const getLintAnnotations = (
         // Jshint counts \t as two characters and codemirror counts it as 1.
         // So we need to subtract number of tabs to get accurate position
         const tabs = lineContent.slice(0, currentCh).match(/\t/g)?.length || 0;
-
-        let message = errorMessage;
-        Array.from(possibleLineNumbersInErrorMessage).forEach(
-          (possibleLineNumber) => {
-            message = message.replaceAll(
-              `line ${possibleLineNumber}`,
-              `line ${bindingLocation.line +
-                possibleLineNumber +
-                1 -
-                (error.scriptPos?.line ?? 0)}`,
-            );
-          },
-        );
         const from = {
           line: currentLine,
           ch: currentCh - tabs - 1,
@@ -191,7 +167,7 @@ export const getLintAnnotations = (
         annotations.push({
           from,
           to,
-          message,
+          message: errorMessage,
           severity,
         });
       }

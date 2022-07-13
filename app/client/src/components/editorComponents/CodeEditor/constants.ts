@@ -7,17 +7,22 @@ export const WARNING_LINT_ERRORS = {
   W014:
     "Misleading line break before '{a}'; readers may interpret this as an expression boundary.",
 };
-// These lint errors should be overlooked
-export const UNWANTED_LINT_ERRORS: Record<string, string[]> = {
-  codes: ["E041", "W032"],
-  reasons: [],
-};
+
+/** These errors should be overlooked
+ * E041 => Unrecoverable syntax error.
+ * W032 => Unnecessary semicolon.
+ */
+export const IGNORED_LINT_ERRORS = ["E041", "W032"];
+
+// https://github.com/jshint/jshint/blob/d3d84ae1695359aef077ddb143f4be98001343b4/src/messages.js#L204
+export const IDENTIFIER_NOT_DEFINED_LINT_ERROR_CODE = "W117";
 
 // Refined error messages
 export const REFINED_LINT_ERROR_MESSAGES: Record<string, string> = {
   "'await' is not defined.":
     "'await' expressions are only allowed within async functions. Did you mean to mark this function as 'async'?",
 };
+
 export const LINT_TOOLTIP_CLASS = "CodeMirror-lint-tooltip";
 export const LINT_TOOLTIP_JUSTIFIED_LEFT_CLASS = "CodeMirror-lint-tooltip-left";
 export enum LintTooltipDirection {
