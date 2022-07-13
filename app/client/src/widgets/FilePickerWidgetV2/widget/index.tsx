@@ -17,7 +17,43 @@ import FileDataTypes from "../constants";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { createBlobUrl, isBlobUrl } from "utils/AppsmithUtils";
 import log from "loglevel";
+import { createGlobalStyle } from "styled-components";
+import UpIcon from "assets/icons/ads/up-arrow.svg";
 
+const FilePickerGlobalStyles = createGlobalStyle<{
+  backgroundColor?: string;
+  borderRadius?: string;
+}>`
+  .uppy-Dashboard-dropFilesHereHint {
+    background-image: none;
+  }
+
+  .uppy-Dashboard-dropFilesHereHint::before {
+    border: 2.5px solid var(--wds-accent-color);
+    width: 60px;
+    height: 60px;
+    border-radius: ${(props) => props.borderRadius};
+    display: inline-block;
+    content: ' ';
+    position: absolute;
+    top: 43%;
+  }
+
+  .uppy-Dashboard-dropFilesHereHint::after {
+    display: inline-block;
+    content: ' ';
+    position: absolute;
+    top: 46%;
+    width: 30px;
+    height: 30px;
+
+    -webkit-mask-image: url(${UpIcon});
+    -webkit-mask-repeat: no-repeat;
+    -webkit-mask-position: center;
+    -webkit-mask-size: 30px;
+    background: var(--wds-accent-color);
+  }
+`;
 class FilePickerWidget extends BaseWidget<
   FilePickerWidgetProps,
   FilePickerWidgetState
@@ -519,18 +555,26 @@ class FilePickerWidget extends BaseWidget<
 
   getPageView() {
     return (
-      <FilePickerComponent
-        borderRadius={this.props.borderRadius}
-        boxShadow={this.props.boxShadow}
-        buttonColor={this.props.buttonColor}
-        files={this.props.selectedFiles || []}
-        isDisabled={this.props.isDisabled}
-        isLoading={this.props.isLoading || this.state.isLoading}
-        key={this.props.widgetId}
-        label={this.props.label}
-        uppy={this.state.uppy}
-        widgetId={this.props.widgetId}
-      />
+      <>
+        <FilePickerComponent
+          borderRadius={this.props.borderRadius}
+          boxShadow={this.props.boxShadow}
+          buttonColor={this.props.buttonColor}
+          files={this.props.selectedFiles || []}
+          isDisabled={this.props.isDisabled}
+          isLoading={this.props.isLoading || this.state.isLoading}
+          key={this.props.widgetId}
+          label={this.props.label}
+          uppy={this.state.uppy}
+          widgetId={this.props.widgetId}
+        />
+        {this.state.uppy && this.state.uppy.getID() === this.props.widgetId && (
+          <FilePickerGlobalStyles
+            backgroundColor={this.props.backgroundColor ?? "blue"}
+            borderRadius={this.props.borderRadius}
+          />
+        )}
+      </>
     );
   }
 

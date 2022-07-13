@@ -47,6 +47,7 @@ import usePrevious from "utils/hooks/usePrevious";
 import { getIsBranchUpdated } from "../utils";
 import { APP_MODE } from "entities/App";
 import { initAppViewer } from "actions/initActions";
+import { WidgetGlobaStyles } from "globalStyles/WidgetGlobalStyles";
 
 const AppViewerBody = styled.section<{
   hasPages: boolean;
@@ -249,6 +250,9 @@ function AppViewer(props: Props) {
             triggerEvalOnMetaUpdate: triggerEvalOnMetaUpdateCallback,
           }}
         >
+          <WidgetGlobaStyles
+            primaryColor={selectedTheme.properties.colors.primaryColor}
+          />
           <ContainerWithComments>
             <AppViewerCommentsSidebar />
             <AppViewerBodyContainer
