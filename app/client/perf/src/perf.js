@@ -50,15 +50,36 @@ module.exports = class Perf {
       .pop()
       .replace(".perf.js", "");
     global.APP_ROOT = path.join(__dirname, ".."); //Going back one level from src folder to /perf
+
     process.on("unhandledRejection", async (reason, p) => {
       console.error("Unhandled Rejection at: Promise", p, "reason:", reason);
       const fileName = sanitize(
         `${this.currentTestFile}__${this.currentTrace}`,
       );
+
+      if (!this.page) {
+        console.warn("No page instance was found", this.currentTestFile);
+        return;
+      }
       const screenshotPath = `${APP_ROOT}/traces/reports/${fileName}-${getFormattedTime()}.png`;
       await this.page.screenshot({
         path: screenshotPath,
       });
+
+      const pageContent = await page.evaluate(() => {
+        return document.querySelector("body").innerHTML;
+      });
+
+      fs.writeFile(
+        `${APP_ROOT}/traces/reports/${fileName}-${getFormattedTime()}.html`,
+        pageContent,
+        (err) => {
+          if (err) {
+            console.error(err);
+          }
+        },
+      );
+
       if (this.currentTrace) {
         await this.stopTrace();
       }

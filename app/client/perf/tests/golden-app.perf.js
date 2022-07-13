@@ -26,7 +26,7 @@ const SEL = {
   commentsTableTitle: "#urzv99hdc8",
 };
 
-async function testTyping() {
+async function testGoldenApp() {
   const perf = new Perf();
   await perf.launch();
   const page = perf.getPage();
@@ -110,10 +110,10 @@ async function testTyping() {
 }
 
 async function runTests() {
-  await testTyping();
-  await testTyping();
-  await testTyping();
-  await testTyping();
-  await testTyping();
+  for(let i=0;i<5;i++){
+    await testGoldenApp().catch(e=>console.log(e))
+  }
 }
+
+
 runTests();

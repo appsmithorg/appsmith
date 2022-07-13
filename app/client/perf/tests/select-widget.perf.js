@@ -38,11 +38,11 @@ async function testSelectOptionsRender() {
   }
 }
 
+
 async function runTests() {
-  await testSelectOptionsRender();
-  await testSelectOptionsRender();
-  await testSelectOptionsRender();
-  await testSelectOptionsRender();
-  await testSelectOptionsRender();
+  for(let i=0;i<5;i++){
+    await testSelectOptionsRender().catch(e=>console.log(e))
+  }
 }
+
 runTests();

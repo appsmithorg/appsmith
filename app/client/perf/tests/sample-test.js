@@ -4,9 +4,10 @@ const dsl = require("./dsl/simple-typing").dsl;
 
 process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0;
 
-async function testTyping() {
+async function sampleTest() {
   const perf = new Perf();
   await perf.launch();
+
   const page = perf.getPage();
   await perf.loadDSL(dsl);
 
@@ -32,10 +33,9 @@ async function testTyping() {
 }
 
 async function runTests() {
-  await testTyping();
-  await testTyping();
-  await testTyping();
-  await testTyping();
-  await testTyping();
+  for(let i=0;i<5;i++){
+    await sampleTest().catch(e=>console.log(e))
+  }
 }
+
 runTests();
