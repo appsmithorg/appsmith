@@ -27,7 +27,7 @@ describe("GlobalSearch", function() {
     // wait for the page to load
     cy.get(commonlocators.canvas);
     const isMac = Cypress.platform === "darwin";
-    if (isMacOrIOS) {
+    if (isMac) {
       cy.get("body").type("{cmd}{k}");
       cy.get(commonlocators.globalSearchModal);
       cy.get("body").type("{esc}");
