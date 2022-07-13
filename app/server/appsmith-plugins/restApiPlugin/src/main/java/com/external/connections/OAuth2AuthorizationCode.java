@@ -107,10 +107,10 @@ public class OAuth2AuthorizationCode extends APIConnection implements UpdatableC
 
     private Mono<OAuth2> generateOAuth2Token(DatasourceConfiguration datasourceConfiguration) {
         final OAuth2 oAuth2 = (OAuth2) datasourceConfiguration.getAuthentication();
-        final HttpClient httpClient = HttpClient.create();
+        HttpClient httpClient = HttpClient.create();
 
         if (oAuth2.isUseSelfSignedCert()) {
-            httpClient.secure(SSLHelper.sslCheckForHttpClient(datasourceConfiguration));
+            httpClient = httpClient.secure(SSLHelper.sslCheckForHttpClient(datasourceConfiguration));
         }
         // Webclient
         WebClient.Builder webClientBuilder = WebClient.builder()
