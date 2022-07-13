@@ -4,6 +4,7 @@ import React, {
   useRef,
   useContext,
   useCallback,
+  useMemo,
 } from "react";
 import styled, { ThemeContext } from "styled-components";
 import {
@@ -742,15 +743,21 @@ export function ApplicationCard(props: ApplicationCardProps) {
     );
   }
 
-  const editModeURL = builderURL({
-    pageId: props.application.defaultPageId,
-    params,
-  });
+  const editModeURL = useMemo(() => {
+    if (!props.application.defaultPageId) return "";
+    return builderURL({
+      pageId: props.application.defaultPageId,
+      params,
+    });
+  }, [props.application.defaultPageId, params]);
 
-  const viewModeURL = viewerURL({
-    pageId: props.application.defaultPageId,
-    params,
-  });
+  const viewModeURL = useMemo(() => {
+    if (!props.application.defaultPageId) return "";
+    return viewerURL({
+      pageId: props.application.defaultPageId,
+      params,
+    });
+  }, [props.application.defaultPageId, params]);
 
   const launchApp = useCallback(
     (e) => {
