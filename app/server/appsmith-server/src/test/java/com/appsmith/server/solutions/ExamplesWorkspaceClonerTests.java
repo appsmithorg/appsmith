@@ -864,6 +864,7 @@ public class ExamplesWorkspaceClonerTests {
                             "scope",
                             Set.of("scope1", "scope2", "scope3"),
                             true,
+                            OAuth2.RefreshTokenClientCredentialsLocation.BODY,
                             "header prefix",
                             Set.of(
                                     new Property("custom token param 1", "custom token param value 1"),

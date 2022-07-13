@@ -79,7 +79,7 @@ const createRunMeta = async () => {
       pull_request_id: prId || parsePullRequestId(process.env.GITHUB_REF),
       runner_name: process.env?.RUNNER_NAME,
       host_name: hostname,
-      machine: process.env?.MACHINE || "",
+      machine: process.env?.MACHINE || "buildjet-4vcpu-ubuntu-2004", // Hardcoded temporarily. Should be removed
     },
   ]);
   if (data) {
