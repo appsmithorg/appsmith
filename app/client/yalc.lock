@@ -1,9 +1,0 @@
-{
-  "version": "v1",
-  "packages": {
-    "@appsmithorg/design-system": {
-      "signature": "48a4fd0f429ebfe31ecaffce2c0aa754",
-      "file": true
-    }
-  }
-}

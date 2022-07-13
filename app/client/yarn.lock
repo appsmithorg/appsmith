@@ -1408,9 +1408,10 @@
     resize-observer-polyfill "^1.5.1"
     tslib "~1.13.0"
 
-"@blueprintjs/datetime@^3.23.6":
+"@blueprintjs/datetime@3.23.6", "@blueprintjs/datetime@^3.23.6":
   version "3.23.6"
-  resolved "https://registry.npmjs.org/@blueprintjs/datetime/-/datetime-3.23.6.tgz"
+  resolved "https://registry.yarnpkg.com/@blueprintjs/datetime/-/datetime-3.23.6.tgz#5d9588ae4537e87a6d14d765db722b9a2f449d95"
+  integrity sha512-OACqjo7HQQnEvILj9L/4w0jbM34+aAP8g78eqcOl8E/R+W4U/V9ePBrlcY2eknkgalyueOkx5/0Ee852v5FL/w==
   dependencies:
     "@blueprintjs/core" "^3.47.0"
     classnames "^2.2"
@@ -6119,10 +6120,13 @@ depd@~1.1.2:
   version "1.1.2"
   resolved "https://registry.npmjs.org/depd/-/depd-1.1.2.tgz"
 
-"design-system@npm:@appsmithorg/design-system@1.0.4-beta.1":
-  version "1.0.4-beta.1"
-  resolved "https://registry.yarnpkg.com/@appsmithorg/design-system/-/design-system-1.0.4-beta.1.tgz#752383f3f25921c57de7618046d9c56589ecd2ec"
-  integrity sha512-AZUhobfOFOwtRushfElbqt+RKhkd5r8QKPtnjwbuxVQM7vPpI0m9mu8dEbUI7f5HWZlBz2dxg9CSnyNh2ULZ5w==
+"design-system@npm:@appsmithorg/design-system@0.0.0-beta-20220713075020":
+  version "0.0.0-beta-20220713075020"
+  resolved "https://registry.yarnpkg.com/@appsmithorg/design-system/-/design-system-0.0.0-beta-20220713075020.tgz#4e1d25468d40a30834f412622a6ece3603b19359"
+  integrity sha512-BpvrJRhfC/LDa4tW7AYcNaKA9cx6Gjdn61sgECl99DbeiH3aXwPkh14cCd4KbltY4gR5OQ3XGTHHwvxpFIAO7g==
+  dependencies:
+    "@blueprintjs/datetime" "3.23.6"
+    remixicon-react "^1.0.0"
 
 destroy@1.2.0:
   version "1.2.0"

@@ -8,7 +8,6 @@
   },
   "cracoConfig": "craco.dev.config.js",
   "dependencies": {
-    "@appsmithorg/design-system": "file:.yalc/@appsmithorg/design-system",
     "@blueprintjs/core": "^3.36.0",
     "@blueprintjs/datetime": "^3.23.6",
     "@blueprintjs/icons": "^3.10.0",
@@ -46,7 +45,7 @@
     "cypress-log-to-output": "^1.1.2",
     "dayjs": "^1.10.6",
     "deep-diff": "^1.0.2",
-    "design-system": "npm:@appsmithorg/design-system@1.0.4-beta.1",
+    "design-system": "npm:@appsmithorg/design-system@0.0.0-beta-20220713075020",
     "downloadjs": "^1.4.7",
     "draft-js": "^0.11.7",
     "emoji-mart": "^3.0.1",
