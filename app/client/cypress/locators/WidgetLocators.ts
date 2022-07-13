@@ -11,9 +11,14 @@ export const WIDGET = {
   SWITCHGROUP: "switchgroupwidget",
   SWITCH: "switchwidget",
   SELECT: "selectwidget",
-  MULTITREESELECT: "multiselectwidgetv2",
+  MULTITREESELECT: "multiselecttreewidget",
   RADIO_GROUP: "radiogroupwidget",
-  LIST: "listwidget"
+  LIST: "listwidget",
+  RATING: "ratewidget",
+  CHECKBOXGROUP: "checkboxgroupwidget",
+  CHECKBOX: "checkboxwidget",
+  AUDIO: "audiowidget",
+  AUDIORECORDER: "audiorecorderwidget"
 } as const;
 
 export const PROPERTY_SELECTOR = {
