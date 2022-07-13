@@ -105,7 +105,6 @@ export const getLintingErrors = (
         code: lintError.code,
         line: lintError.line - scriptPos.line,
         ch: lintError.line === scriptPos.line ? ch - scriptPos.ch : ch,
-        scriptPos,
       };
     },
   );
