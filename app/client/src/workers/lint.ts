@@ -4,8 +4,8 @@ import {
   extraLibraries,
   PropertyEvaluationErrorType,
 } from "utils/DynamicBindingUtils";
-import { JSHINT as jshint, LintError } from "jshint";
-import { isEmpty, keys, last } from "lodash";
+import { JSHINT as jshint, LintError, LintOptions } from "jshint";
+import { isEmpty, isNumber, keys, last } from "lodash";
 import {
   EvaluationScripts,
   EvaluationScriptType,
@@ -16,7 +16,7 @@ import {
   getLintSeverity,
 } from "components/editorComponents/CodeEditor/lintHelpers";
 import { ECMA_VERSION } from "constants/ast";
-import { UNWANTED_LINT_ERRORS } from "components/editorComponents/CodeEditor/constants";
+import { IGNORED_LINT_ERRORS } from "components/editorComponents/CodeEditor/constants";
 
 export const getPositionInEvaluationScript = (
   type: EvaluationScriptType,
@@ -63,7 +63,7 @@ export const getLintingErrors = (
 
   globalData.console = true;
 
-  const options = {
+  const options: LintOptions = {
     indent: 2,
     esversion: ECMA_VERSION,
     eqeqeq: false, // Not necessary to use ===
@@ -90,28 +90,73 @@ export const getLintingErrors = (
   };
 
   jshint(script, options);
-  return jshint.errors.filter(lintErrorFilters).map((lintError) => {
-    const ch = lintError.character;
-    return {
-      errorType: PropertyEvaluationErrorType.LINT,
-      raw: script,
-      severity: getLintSeverity(lintError.code),
-      errorMessage: getLintErrorMessage(lintError.reason),
-      errorSegment: lintError.evidence,
-      originalBinding,
-      // By keeping track of these variables we can highlight the exact text that caused the error.
-      variables: [lintError.a, lintError.b, lintError.c, lintError.d],
-      code: lintError.code,
-      line: lintError.line - scriptPos.line,
-      ch: lintError.line === scriptPos.line ? ch - scriptPos.ch : ch,
-      scriptPos,
-    };
-  });
+  return getValidLintErrors(jshint.errors, originalBinding, scriptPos).map(
+    (lintError) => {
+      const ch = lintError.character;
+      return {
+        errorType: PropertyEvaluationErrorType.LINT,
+        raw: script,
+        severity: getLintSeverity(lintError.code),
+        errorMessage: getLintErrorMessage(lintError.reason),
+        errorSegment: lintError.evidence,
+        originalBinding,
+        // By keeping track of these variables we can highlight the exact text that caused the error.
+        variables: [lintError.a, lintError.b, lintError.c, lintError.d],
+        code: lintError.code,
+        line: lintError.line - scriptPos.line,
+        ch: lintError.line === scriptPos.line ? ch - scriptPos.ch : ch,
+        scriptPos,
+      };
+    },
+  );
 };
 
-const lintErrorFilters = (lintError: LintError) => {
-  return !(
-    UNWANTED_LINT_ERRORS.reasons.includes(lintError.reason) ||
-    UNWANTED_LINT_ERRORS.codes.includes(lintError.code)
-  );
+const getValidLintErrors = (
+  lintErrors: LintError[],
+  originalBinding: string,
+  scriptPos: Position,
+) => {
+  return lintErrors.reduce((result: LintError[], lintError) => {
+    // Ignored errors should not be reported
+    if (IGNORED_LINT_ERRORS.includes(lintError.code)) return result;
+    // errors not caused by the user's script should not be reported
+    if (!originalBinding.includes(lintError.evidence)) return result;
+    /** Some error messages reference line numbers,
+     * Eg. Expected '{a}' to match '{b}' from line {c} and instead saw '{d}'
+     * these line numbers need to be re-calculated based on the binding location.
+     * Errors referencing line numbers outside the user's script should also be ignored
+     * */
+    let message = lintError.reason;
+    const matchedLines = message.match(/line \d/gi);
+    const lineNumbersInErrorMessage = new Set<number>();
+    let isInvalidErrorMessage = false;
+    if (matchedLines) {
+      matchedLines.forEach((lineStatement) => {
+        const digitString = lineStatement.split(" ")[1];
+        const digit = Number(digitString);
+        if (isNumber(digit)) {
+          if (digit < scriptPos.line) {
+            // referenced line number is outside the scope of user's script
+            isInvalidErrorMessage = true;
+          } else {
+            lineNumbersInErrorMessage.add(digit);
+          }
+        }
+      });
+    }
+    if (isInvalidErrorMessage) return result;
+    if (lineNumbersInErrorMessage.size) {
+      Array.from(lineNumbersInErrorMessage).forEach((lineNumber) => {
+        message = message.replaceAll(
+          `line ${lineNumber}`,
+          `line ${lineNumber - scriptPos.line + 1}`,
+        );
+      });
+    }
+    result.push({
+      ...lintError,
+      reason: message,
+    });
+    return result;
+  }, []);
 };
