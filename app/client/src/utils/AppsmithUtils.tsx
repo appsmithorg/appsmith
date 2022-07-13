@@ -1,8 +1,4 @@
-import {
-  ApplicationPayload,
-  Page,
-  ReduxAction,
-} from "@appsmith/constants/ReduxActionConstants";
+import { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import * as Sentry from "@sentry/react";
 import AnalyticsUtil from "./AnalyticsUtil";
@@ -17,11 +13,7 @@ import { AppIconCollection, AppIconName } from "components/ads/AppIcon";
 import { ERROR_CODES } from "@appsmith/constants/ApiConstants";
 import { createMessage, ERROR_500 } from "@appsmith/constants/messages";
 import localStorage from "utils/localStorage";
-import { APP_MODE } from "entities/App";
-import { trimQueryString } from "./helpers";
 import { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
-import { PLACEHOLDER_APP_SLUG, PLACEHOLDER_PAGE_SLUG } from "constants/routes";
-import { builderURL, viewerURL } from "RouteBuilder";
 import { osName } from "react-device-detect";
 
 export const createReducer = (
@@ -389,39 +381,6 @@ export const getCamelCaseString = (sourceString: string) => {
   }
 
   return out;
-};
-
-/*
- * gets the page url
- *
- * Note: for edit mode, the page will have different url ( contains '/edit' at the end )
- *
- * @param page
- * @returns
- */
-export const getPageURL = (
-  page: Page,
-  appMode: APP_MODE | undefined,
-  currentApplicationDetails: ApplicationPayload | undefined,
-) => {
-  if (appMode === APP_MODE.PUBLISHED) {
-    return trimQueryString(
-      viewerURL({
-        applicationSlug:
-          currentApplicationDetails?.slug || PLACEHOLDER_APP_SLUG,
-        pageSlug: page.slug || PLACEHOLDER_PAGE_SLUG,
-        pageId: page.pageId,
-      }),
-    );
-  }
-
-  return trimQueryString(
-    builderURL({
-      applicationSlug: currentApplicationDetails?.slug || PLACEHOLDER_APP_SLUG,
-      pageSlug: page.slug || PLACEHOLDER_PAGE_SLUG,
-      pageId: page.pageId,
-    }),
-  );
 };
 
 /**

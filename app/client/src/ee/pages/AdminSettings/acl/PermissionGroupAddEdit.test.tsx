@@ -1,17 +1,83 @@
 import React from "react";
 import "@testing-library/jest-dom";
-import { render, screen /*waitFor*/ } from "test/testUtils";
+import { render, screen, waitFor } from "test/testUtils";
 import {
   PermissionGroupAddEdit,
   PermissionGroupEditProps,
-  response2,
 } from "./PermissionGroupAddEdit";
 import { permissionGroupTableData } from "./PermissionGroupListing";
 import { hashtable } from "./PermissionGroupsTree";
 import userEvent from "@testing-library/user-event";
-import { forEach } from "lodash";
+import { response2 } from "./mocks/mockPermissionTreeResponse";
 
 let container: any = null;
+
+const searchResultsMock = [
+  {
+    name: "Application Resources",
+    data: [
+      {
+        id: "query2",
+        name: "put_fo_roster",
+        permission: [0, 1, 1, 1],
+      },
+      {
+        id: "query6",
+        name: "put_force_roster",
+        permission: [0, 1, 1, 1],
+      },
+      {
+        id: "query3",
+        name: "put_force_roster",
+        permission: [0, 1, 1, 1],
+      },
+      {
+        id: "query1",
+        name: "put_top_list",
+        permission: [0, 1, 1, 1],
+      },
+    ],
+    count: 4,
+  },
+  {
+    name: "Datasources & Queries",
+    data: [
+      {
+        id: "query1",
+        name: "put_top_list",
+        permission: [0, 1, 1, 1],
+      },
+    ],
+    count: 1,
+  },
+  {
+    name: "User & Permission Groups",
+    data: [
+      {
+        id: "query1",
+        name: "put_my_list",
+        permission: [0, 1, 1, 1],
+      },
+    ],
+    count: 1,
+  },
+  {
+    name: "Others",
+    data: [
+      {
+        id: "query1",
+        name: "put_my_list",
+        permission: [0, 1, 1, 1],
+      },
+      {
+        id: "query1",
+        name: "put_my_list",
+        permission: [0, 1, 1, 1],
+      },
+    ],
+    count: 2,
+  },
+];
 
 const listMenuItems = [
   {
@@ -101,6 +167,35 @@ describe("<PermissionGroupAddEdit />", () => {
       );
     }
   });
+  it("should search and highlight search results correctly", async () => {
+    renderComponent();
+    const searchInput = screen.queryAllByTestId("t--acl-search-input");
+
+    const users = screen.queryAllByText("get_top_list");
+    expect(users).toHaveLength(0);
+
+    const tabCount = screen.queryAllByTestId("t--tab-count");
+    expect(tabCount).toHaveLength(0);
+
+    await userEvent.type(searchInput[0], "put");
+    expect(searchInput[0]).toHaveValue("put");
+
+    const searchResultsCounts = searchResultsMock.map((result) =>
+      result.count.toString(),
+    );
+
+    await waitFor(() => {
+      const searched = screen.queryAllByText("put");
+      const highlighted = screen.getAllByTestId("t--highlighted-text");
+      expect(searched).toHaveLength(searchResultsMock[0].count);
+      expect(highlighted).toHaveLength(searchResultsMock[0].count);
+      const tabCount = screen.queryAllByTestId("t--tab-count");
+      expect(tabCount).toHaveLength(response2.length);
+      expect(tabCount.map((tab) => tab.textContent)).toEqual(
+        searchResultsCounts,
+      );
+    });
+  });
   it("should select tab on click", async () => {
     renderComponent();
     const tabs = screen.getAllByRole("tab");
@@ -160,6 +255,7 @@ describe("<PermissionGroupAddEdit />", () => {
     expect(hoverEls[0]).toHaveClass("hover-state");
     // expect(hoverEls[0]).toHaveStyle("opacity: 0.4"); styled-components 5.2.1 should solve this
   });
+
   // it("should update data on clicking a checkbox as expected", async () => {});
   // it("should save data on save button click", async () => {});
   /*it("should clone the group when clone menu item is clicked", async () => {

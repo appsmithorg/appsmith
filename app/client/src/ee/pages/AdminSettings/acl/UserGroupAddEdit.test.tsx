@@ -81,8 +81,20 @@ describe("<UserGroupAddEdit />", () => {
     const searchInput = screen.getAllByTestId("t--acl-search-input");
     expect(searchInput).toHaveLength(1);
 
-    const tab = screen.getByText(`Users (${props.selected.allUsers.length})`);
+    const tab = screen.getByText("Users");
     userEvent.click(tab);
+
+    const tabs = screen.getAllByRole("tab");
+    const tabCount = screen.queryAllByTestId("t--tab-count");
+    expect(tabCount).toHaveLength(2);
+    const mockCounts = [
+      userGroupTableData[1].allUsers.length.toString(),
+      (
+        userGroupTableData[1].allPermissions.length +
+        userGroupTableData[1].activePermissions.length
+      ).toString(),
+    ];
+    expect(tabCount.map((tab) => tab.textContent)).toEqual(mockCounts);
 
     await userEvent.type(searchInput[0], "k");
     expect(searchInput[0]).toHaveValue("k");
@@ -90,14 +102,16 @@ describe("<UserGroupAddEdit />", () => {
     const searched = screen.queryAllByText("techak@appsmith.com");
     expect(searched).toHaveLength(1);
 
-    await waitFor(() => {
-      const count = screen.getByText("Users (1)");
-      return expect(count).toBeTruthy();
-    });
+    const mockedSearchResults = ["1", "1"];
 
     await waitFor(() => {
+      const tabCount = screen.queryAllByTestId("t--tab-count");
       const filtered = screen.queryAllByText("hello123@appsmith.com");
-      return expect(filtered).toHaveLength(0);
+      expect(filtered).toHaveLength(0);
+      expect(tabCount).toHaveLength(tabs.length);
+      expect(tabCount.map((tab) => tab.textContent)).toEqual(
+        mockedSearchResults,
+      );
     });
   });
   it("should search and filter permission groups on search", async () => {
@@ -111,11 +125,20 @@ describe("<UserGroupAddEdit />", () => {
     const searchInput = screen.getAllByTestId("t--acl-search-input");
     expect(searchInput).toHaveLength(1);
 
-    const tab = screen.getByText(
-      `Permissions (${props.selected.activePermissions.length +
-        props.selected.allPermissions.length})`,
-    );
+    const tab = screen.getByText(`Permissions`);
     userEvent.click(tab);
+
+    const tabs = screen.getAllByRole("tab");
+    const tabCount = screen.queryAllByTestId("t--tab-count");
+    expect(tabCount).toHaveLength(2);
+    const mockCounts = [
+      userGroupTableData[1].allUsers.length.toString(),
+      (
+        userGroupTableData[1].allPermissions.length +
+        userGroupTableData[1].activePermissions.length
+      ).toString(),
+    ];
+    expect(tabCount.map((tab) => tab.textContent)).toEqual(mockCounts);
 
     await userEvent.type(searchInput[0], "k");
     expect(searchInput[0]).toHaveValue("k");
@@ -123,14 +146,21 @@ describe("<UserGroupAddEdit />", () => {
     const searched = screen.queryAllByText("marketing_nov");
     expect(searched).toHaveLength(1);
 
+    const mockedSearchResults = ["1", "1"];
+
     await waitFor(() => {
-      const count = screen.getByText("Permissions (1)");
+      const count = screen.getByText("Permissions");
       return expect(count).toBeTruthy();
     });
 
     await waitFor(() => {
+      const tabCount = screen.queryAllByTestId("t--tab-count");
       const filtered = screen.queryAllByText("devops_eng_nov");
-      return expect(filtered).toHaveLength(0);
+      expect(filtered).toHaveLength(0);
+      expect(tabCount).toHaveLength(tabs.length);
+      expect(tabCount.map((tab) => tab.textContent)).toEqual(
+        mockedSearchResults,
+      );
     });
   });
   it("should list the correct options in the more menu", async () => {

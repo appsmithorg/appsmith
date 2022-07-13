@@ -75,7 +75,6 @@ export const BackButtonText = styled.span`
 `;
 
 export const StyledSearchInput = styled(SearchInput)`
-  flex-shrink: 0;
   > div {
     border-radius: 1px;
     border: 1px solid var(--appsmith-color-black-250);

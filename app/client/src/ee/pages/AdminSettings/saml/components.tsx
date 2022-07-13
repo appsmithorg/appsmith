@@ -1,8 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 import { Colors } from "constants/Colors";
-import { TooltipComponent as Tooltip } from "design-system";
-import Text, { TextType } from "components/ads/Text";
+import { TooltipComponent as Tooltip, Text, TextType } from "design-system";
 import FormTextField from "components/ads/formFields/TextField";
 import FormTextAreaField from "components/ads/formFields/TextAreaField";
 import { HelpIcons } from "icons/HelpIcons";

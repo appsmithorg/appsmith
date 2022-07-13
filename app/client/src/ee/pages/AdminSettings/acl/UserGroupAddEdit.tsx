@@ -335,7 +335,8 @@ export function UserGroupAddEdit(props: UserGroupEditProps) {
   const tabs: TabProp[] = [
     {
       key: "users",
-      title: `Users (${users.length})`,
+      title: "Users",
+      count: users.length,
       panelComponent: (
         <ListUsers>
           {users && users.length > 0 ? (
@@ -359,8 +360,10 @@ export function UserGroupAddEdit(props: UserGroupEditProps) {
     },
     {
       key: "permissions",
-      title: `Permissions (${permissions.activePermissions.length +
-        permissions.allPermissions.length})`,
+      title: "Permissions",
+      count:
+        permissions.activePermissions.length +
+        permissions.allPermissions.length,
       panelComponent: (
         <ActiveAllGroupsList
           activeGroups={permissions.activePermissions}
