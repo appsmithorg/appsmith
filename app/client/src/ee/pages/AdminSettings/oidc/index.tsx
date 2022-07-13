@@ -39,6 +39,7 @@ import {
   SettingsHeader,
   SettingsSubHeader,
   SettingsFormWrapper,
+  BackButton,
 } from "pages/Settings/components";
 
 type FormProps = {
@@ -228,6 +229,7 @@ export function OidcSettingsForm(
 
   return (
     <Wrapper>
+      {subCategory && <BackButton />}
       <SettingsFormWrapper>
         <HeaderWrapper>
           <SettingsHeader>{pageTitle}</SettingsHeader>

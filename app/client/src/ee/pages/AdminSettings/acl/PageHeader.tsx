@@ -23,7 +23,11 @@ import EditableText, {
   EditInteractionKind,
 } from "components/editorComponents/EditableText";
 import { HelpPopoverStyle, StyledSearchInput } from "./components";
-import { ARE_YOU_SURE, createMessage } from "@appsmith/constants/messages";
+import {
+  ARE_YOU_SURE,
+  createMessage,
+  ENTER_GROUP_NAME,
+} from "@appsmith/constants/messages";
 
 type PageHeaderProps = {
   buttonText?: string;
@@ -128,7 +132,7 @@ export function PageHeader(props: PageHeaderProps) {
               isEditingDefault={isEditing}
               onBlur={() => setIsEditing(false)}
               onTextChanged={(name) => onEditTitle?.(name)}
-              placeholder="Enter group name"
+              placeholder={createMessage(ENTER_GROUP_NAME)}
               type="text"
             />
           </SettingsHeader>

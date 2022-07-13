@@ -15,12 +15,7 @@ import { TabComponent, TabProp } from "components/ads/Tabs";
 import { ActiveAllGroupsList } from "./ActiveAllGroupsList";
 import { PageHeader } from "./PageHeader";
 import ProfileImage from "pages/common/ProfileImage";
-import {
-  BackButton,
-  HelpPopoverStyle,
-  SaveButtonBar,
-  TabsWrapper,
-} from "./components";
+import { HelpPopoverStyle, SaveButtonBar, TabsWrapper } from "./components";
 import { debounce } from "lodash";
 import FormDialogComponent from "components/editorComponents/form/FormDialogComponent";
 import WorkspaceInviteUsersForm from "pages/workspace/WorkspaceInviteUsersForm";
@@ -28,13 +23,27 @@ import { useHistory } from "react-router";
 import { HighlightText } from "./helpers/HighlightText";
 import { User } from "./UserListing";
 import { Position } from "@blueprintjs/core";
-import { ARE_YOU_SURE, createMessage } from "@appsmith/constants/messages";
+import {
+  ADD_USERS,
+  ARE_YOU_SURE,
+  CLONE_USER_GROUP,
+  createMessage,
+  DELETE_USER,
+  DELETE_USER_GROUP,
+  INVITE_USERS_SUBMIT_BUTTON_TEXT,
+  NO_USERS_MESSAGE,
+  PERMISSION_GROUPS_UPDATED_SUCCESS,
+  RENAME_SUCCESSFUL,
+  RENAME_USER_GROUP,
+  SEARCH_PLACEHOLDER,
+} from "@appsmith/constants/messages";
+import { BackButton } from "pages/Settings/components";
 
 export type UserGroupProps = {
   isEditing: boolean;
   isDeleting: boolean;
   rolename: string;
-  isAppsmithProvided: boolean;
+  // isAppsmithProvided: boolean;
   id: string;
   allUsers: Array<any>;
   allPermissions: Array<any>;
@@ -232,7 +241,7 @@ export function UserGroupAddEdit(props: UserGroupEditProps) {
     setRemovedActiveGroups([]);
     setAddedAllGroups([]);
     Toaster.show({
-      text: "Successfully Saved",
+      text: createMessage(PERMISSION_GROUPS_UPDATED_SUCCESS),
       variant: Variant.success,
     });
   };
@@ -245,6 +254,10 @@ export function UserGroupAddEdit(props: UserGroupEditProps) {
 
   const onEditTitle = (name: string) => {
     setPageTitle(name);
+    Toaster.show({
+      text: createMessage(RENAME_SUCCESSFUL),
+      variant: Variant.success,
+    });
   };
 
   const columns = [
@@ -315,14 +328,14 @@ export function UserGroupAddEdit(props: UserGroupEditProps) {
             <MenuItem
               className={"delete-menu-item"}
               icon={"delete-blank"}
-              key={"Delete User"}
+              key={createMessage(DELETE_USER)}
               onSelect={() => {
                 onOptionSelect();
               }}
               text={
                 showConfirmationText
                   ? createMessage(ARE_YOU_SURE)
-                  : "Delete User"
+                  : createMessage(DELETE_USER)
               }
               {...(showConfirmationText ? { type: "warning" } : {})}
             />
@@ -344,14 +357,14 @@ export function UserGroupAddEdit(props: UserGroupEditProps) {
           ) : (
             <NoUsersWrapper>
               <NoUsersText data-testid="t--no-users-msg">
-                There are no users added to this group
+                {createMessage(NO_USERS_MESSAGE)}
               </NoUsersText>
               <StyledButton
                 data-testid="t--add-users-button"
                 height="36"
                 onClick={onButtonClick}
                 tag="button"
-                text={"Add Users"}
+                text={createMessage(ADD_USERS)}
               />
             </NoUsersWrapper>
           )}
@@ -393,20 +406,20 @@ export function UserGroupAddEdit(props: UserGroupEditProps) {
       className: "clone-menu-item",
       icon: "duplicate",
       onSelect: () => onCloneHandler(),
-      text: "Clone User Group",
+      text: createMessage(CLONE_USER_GROUP),
       label: "clone",
     },
     {
       className: "rename-menu-item",
       icon: "edit-underline",
-      text: "Rename User Group",
+      text: createMessage(RENAME_USER_GROUP),
       label: "rename",
     },
     {
       className: "delete-menu-item",
       icon: "delete-blank",
       onSelect: () => onDeleteHanlder(),
-      text: "Delete User Group",
+      text: createMessage(DELETE_USER_GROUP),
       label: "delete",
     },
   ];
@@ -415,14 +428,14 @@ export function UserGroupAddEdit(props: UserGroupEditProps) {
     <div data-testid="t--user-edit-wrapper" style={{ width: "100%" }}>
       <BackButton />
       <PageHeader
-        buttonText="Add users"
+        buttonText={createMessage(ADD_USERS)}
         isEditingTitle={selected.isNew}
         isTitleEditable
         onButtonClick={onButtonClick}
         onEditTitle={onEditTitle}
         onSearch={onSearch}
         pageMenuItems={menuItems}
-        searchPlaceholder="Search"
+        searchPlaceholder={createMessage(SEARCH_PLACEHOLDER)}
         title={pageTitle}
       />
       <TabsWrapper data-testid="t--user-edit-tabs-wrapper">
@@ -448,7 +461,7 @@ export function UserGroupAddEdit(props: UserGroupEditProps) {
         }}
         isOpen={showModal}
         onClose={() => setShowModal(false)}
-        title={`Invite Users`}
+        title={createMessage(INVITE_USERS_SUBMIT_BUTTON_TEXT)}
         trigger
       />
     </div>

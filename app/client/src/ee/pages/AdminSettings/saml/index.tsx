@@ -10,6 +10,7 @@ import {
   SettingsHeader,
   SettingsSubHeader,
   SettingsFormWrapper,
+  BackButton,
 } from "pages/Settings/components";
 import AdminConfig from "@appsmith/pages/AdminSettings/config";
 import RestartBanner from "pages/Settings/RestartBanner";
@@ -74,6 +75,7 @@ export function Saml() {
 
   return (
     <Wrapper>
+      {subCategory && <BackButton />}
       <SettingsFormWrapper>
         <HeaderWrapper>
           <SettingsHeader>{pageTitle}</SettingsHeader>

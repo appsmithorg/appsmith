@@ -9,19 +9,26 @@ import {
   SearchVariant,
   Toaster,
   Variant,
+  Icon,
+  Menu,
+  MenuItem,
 } from "components/ads";
-import { Icon, Menu, MenuItem } from "components/ads";
 import ProfileImage from "pages/common/ProfileImage";
 import { TabComponent, TabProp } from "components/ads/Tabs";
 import { ActiveAllGroupsList } from "./ActiveAllGroupsList";
 import {
   TabsWrapper,
   HelpPopoverStyle,
-  BackButton,
   StyledSearchInput,
   SaveButtonBar,
 } from "./components";
-import { ARE_YOU_SURE, createMessage } from "@appsmith/constants/messages";
+import {
+  ARE_YOU_SURE,
+  createMessage,
+  DELETE_USER,
+  USER_GROUPS_UPDATED_SUCCESS,
+} from "@appsmith/constants/messages";
+import { BackButton } from "pages/Settings/components";
 
 type UserProps = {
   isChangingRole: boolean;
@@ -135,7 +142,7 @@ export function UserEdit(props: UserEditProps) {
     setData(updatedGroups);
     setRemovedActiveGroups([]);
     Toaster.show({
-      text: "Successfully Saved",
+      text: createMessage(USER_GROUPS_UPDATED_SUCCESS),
       variant: Variant.success,
     });
   };
@@ -177,7 +184,7 @@ export function UserEdit(props: UserEditProps) {
       onSelect: () => {
         onDeleteHanlder();
       },
-      text: "Delete User",
+      text: createMessage(DELETE_USER),
     },
   ];
 

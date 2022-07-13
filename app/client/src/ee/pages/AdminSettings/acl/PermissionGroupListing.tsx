@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 import styled from "styled-components";
 import debounce from "lodash/debounce";
 import { Listing } from "./Listing";
-import { MenuItemProps } from "components/ads";
+import { MenuItemProps, Toaster, Variant } from "components/ads";
 import { PageHeader } from "./PageHeader";
 import { BottomSpace } from "pages/Settings/components";
 import { HighlightText } from "./helpers/HighlightText";
@@ -13,6 +13,17 @@ import uniqueId from "lodash/uniqueId";
 import { adminSettingsCategoryUrl } from "RouteBuilder";
 import { SettingCategories } from "@appsmith/pages/AdminSettings/config/types";
 import { PermissionGroupAddEdit } from "./PermissionGroupAddEdit";
+import {
+  ADD_GROUP,
+  CLONE_PERMISSION_GROUP,
+  COPY_OF_GROUP,
+  createMessage,
+  DELETE_PERMISSION_GROUP,
+  EDIT_PERMISSION_GROUP,
+  GROUP_CLONED,
+  GROUP_DELETED,
+  SEARCH_PERMISSION_GROUPS_PLACEHOLDER,
+} from "@appsmith/constants/messages";
 
 const CellContainer = styled.div`
   display: flex;
@@ -123,17 +134,25 @@ export function PermissionGroupListing() {
       return permissionGroup.id !== id;
     });
     setData(updatedData);
+    Toaster.show({
+      text: createMessage(GROUP_DELETED),
+      variant: Variant.success,
+    });
   };
 
   const onCloneHandler = (permission: PermissionGroupProps) => {
     const clonedData = {
       ...permission,
       id: uniqueId("pg"),
-      permissionName: `Copy of ${permission.permissionName}`,
+      permissionName: createMessage(COPY_OF_GROUP, permission.permissionName),
       isAppsmithProvided: false,
     };
     permissionGroupTableData.push(clonedData);
     setData([...permissionGroupTableData]);
+    Toaster.show({
+      text: createMessage(GROUP_CLONED),
+      variant: Variant.success,
+    });
   };
 
   const columns = [
@@ -175,7 +194,7 @@ export function PermissionGroupListing() {
         selectedPermission &&
           onCloneHandler({ ...selectedPermission, isAppsmithProvided: false });
       },
-      text: "Clone Permission Group",
+      text: createMessage(CLONE_PERMISSION_GROUP),
       label: "clone",
     },
     {
@@ -184,7 +203,7 @@ export function PermissionGroupListing() {
       onSelect: (e, key) => {
         history.push(`/settings/permission-groups/${key}`);
       },
-      text: "Edit Permission Group",
+      text: createMessage(EDIT_PERMISSION_GROUP),
       label: "edit",
     },
     {
@@ -194,7 +213,7 @@ export function PermissionGroupListing() {
       onSelect: (e, key: string) => {
         onDeleteHandler(key);
       },
-      text: "Delete Permission Group",
+      text: createMessage(DELETE_PERMISSION_GROUP),
     },
   ];
 
@@ -240,11 +259,13 @@ export function PermissionGroupListing() {
       ) : (
         <>
           <PageHeader
-            buttonText="Add Group"
+            buttonText={createMessage(ADD_GROUP)}
             onButtonClick={onAddButtonClick}
             onSearch={onSearch}
             pageMenuItems={pageMenuItems}
-            searchPlaceholder="Search permission groups"
+            searchPlaceholder={createMessage(
+              SEARCH_PERMISSION_GROUPS_PLACEHOLDER,
+            )}
           />
           <Listing
             columns={columns}

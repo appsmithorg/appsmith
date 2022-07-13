@@ -9,7 +9,7 @@ import { getCurrentUser } from "selectors/usersSelectors";
 // import { fetchUsersForOrg, fetchRolesForOrg } from "actions/orgActions";
 import { Listing } from "./Listing";
 import ProfileImage from "pages/common/ProfileImage";
-import { MenuItemProps } from "components/ads";
+import { MenuItemProps, Toaster, Variant } from "components/ads";
 import { PageHeader } from "./PageHeader";
 import { BottomSpace } from "pages/Settings/components";
 import { HighlightText } from "./helpers/HighlightText";
@@ -19,6 +19,11 @@ import FormDialogComponent from "components/editorComponents/form/FormDialogComp
 import WorkspaceInviteUsersForm from "pages/workspace/WorkspaceInviteUsersForm";
 import { adminSettingsCategoryUrl } from "RouteBuilder";
 import { SettingCategories } from "@appsmith/pages/AdminSettings/config/types";
+import {
+  createMessage,
+  SHOW_LESS_GROUPS,
+  SHOW_MORE_GROUPS,
+} from "@appsmith/constants/messages";
 
 export const CellContainer = styled.div`
   display: flex;
@@ -148,6 +153,10 @@ export function UserListing() {
       return user.userId !== userId;
     });
     setData(updatedData);
+    Toaster.show({
+      text: "User deleted successfully",
+      variant: Variant.success,
+    });
   };
 
   const columns = [
@@ -196,7 +205,7 @@ export function UserListing() {
                   data-testid="t--show-less"
                   onClick={() => setShowAllGroups(false)}
                 >
-                  show less
+                  {createMessage(SHOW_LESS_GROUPS)}
                 </ShowLess>
               </AllGroups>
             ) : (
@@ -210,8 +219,10 @@ export function UserListing() {
                         data-testid="t--show-more"
                         onClick={() => setShowAllGroups(true)}
                       >
-                        show {cellProps.cell.row.values.allRoles.length - 2}{" "}
-                        more
+                        {createMessage(
+                          SHOW_MORE_GROUPS,
+                          cellProps.cell.row.values.allRoles.length - 2,
+                        )}
                       </MoreGroups>
                     )}
                   </>
@@ -221,7 +232,10 @@ export function UserListing() {
                       data-testid="t--show-more"
                       onClick={() => setShowAllGroups(true)}
                     >
-                      show {cellProps.cell.row.values.allRoles.length - 1} more
+                      {createMessage(
+                        SHOW_MORE_GROUPS,
+                        cellProps.cell.row.values.allRoles.length - 1,
+                      )}
                     </MoreGroups>
                   )
                 )}
