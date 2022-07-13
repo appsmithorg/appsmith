@@ -70,6 +70,8 @@ export const StyledCheckbox = styled(Checkbox)<StyledCheckboxProps>`
   display: flex;
   align-items: center;
   color: ${({ checked }) => (checked ? Colors.GREY_10 : Colors.GREY_9)};
+  margin-bottom: 0px;
+
   &.bp3-control.bp3-checkbox .bp3-control-indicator {
     border-radius: ${({ borderRadius }) => borderRadius};
     border: 1px solid ${Colors.GREY_5};
