@@ -72,7 +72,7 @@ export function defaultOptionValueValidation(
     message = `value does not evaluate to type: string | number | { "label": "label1", "value": "value1" }`;
   }
 
-  if (isValid && !_.isEmpty(parsed)) {
+  if (isValid && !_.isNil(parsed)) {
     /*
      * When options is "[ {label: 'green', value: 'green'} ]"
      */
@@ -83,30 +83,24 @@ export function defaultOptionValueValidation(
         if (_.isArray(parsedOptions)) {
           options = parsedOptions;
         }
-      } catch (e) {}
+      } catch (e) {
+        // eslint-disable-next-line no-console
+        console.log(e);
+      }
     }
+    const parsedValue = (parsed as any).hasOwnProperty("value")
+      ? (parsed as any).value
+      : parsed;
+    const valueIndex = _.findIndex(
+      options,
+      (option) => option.value === parsedValue,
+    );
 
-    if (!isServerSideFiltered) {
-      const parsedValue = (parsed as any).hasOwnProperty("value")
-        ? (parsed as any).value
-        : parsed;
-      const valueIndex = _.findIndex(
-        options,
-        (option) => option.value === parsedValue,
-      );
-      if (valueIndex === -1) {
+    if (valueIndex === -1) {
+      if (!isServerSideFiltered) {
         isValid = false;
         message = `Default value is missing in options. Please update the value.`;
-      }
-    } else {
-      const parsedValue = (parsed as any).hasOwnProperty("value")
-        ? (parsed as any).value
-        : parsed;
-      const valueIndex = _.findIndex(
-        options,
-        (option) => option.value === parsedValue,
-      );
-      if (valueIndex === -1) {
+      } else {
         if (!hasLabelValue(parsed)) {
           isValid = false;
           message = `Default value is missing in options. Please use {label : <string | num>, value : < string | num>} format to show default for server side data`;

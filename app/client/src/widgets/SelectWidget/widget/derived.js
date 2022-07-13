@@ -2,37 +2,34 @@
 export default {
   getIsValid: (props, moment, _) => {
     return props.isRequired
-      ? !_.isNil(props.selectedOptionValue) &&
-          !_.isEmpty(props.selectedOptionValue)
+      ? !_.isNil(props.selectedOptionValue) && props.selectedOptionValue !== ""
       : true;
   },
   //
   getSelectedOptionValue: (props, moment, _) => {
     const isServerSideFiltered = props.serverSideFiltering;
     const options = props.options ?? [];
-    let value = _.isPlainObject(props.value) ? props.value?.value : props.value;
+    let value = props.value?.value ?? props.value;
 
-    if (!isServerSideFiltered) {
-      const valueIndex = _.findIndex(
-        options,
-        (option) => option.value === value,
-      );
-      if (valueIndex === -1) {
+    const valueIndex = _.findIndex(options, (option) => option.value === value);
+    if (valueIndex === -1) {
+      if (!isServerSideFiltered) {
         value = "";
       }
     }
+
     return value;
   },
   //
   getSelectedOptionLabel: (props, moment, _) => {
     const isServerSideFiltered = props.serverSideFiltering;
     const options = props.options ?? [];
-    let label = _.isPlainObject(props.label) ? props.label?.label : props.label;
+    let label = props.label?.label ?? props.label;
     const labelIndex = _.findIndex(options, (option) => option.label === label);
     if (labelIndex === -1) {
       if (
         !_.isNil(props.selectedOptionValue) &&
-        !_.isEmpty(props.selectedOptionValue)
+        props.selectedOptionValue !== ""
       ) {
         const selectedOption = _.find(
           options,
@@ -42,7 +39,10 @@ export default {
           label = selectedOption.label;
         }
       } else {
-        if (!isServerSideFiltered) {
+        if (
+          !isServerSideFiltered ||
+          (isServerSideFiltered && props.selectedOptionValue === "")
+        ) {
           label = "";
         }
       }
