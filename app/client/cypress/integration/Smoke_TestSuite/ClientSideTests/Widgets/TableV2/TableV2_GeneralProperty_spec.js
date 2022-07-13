@@ -190,7 +190,7 @@ describe("Table Widget property pane feature validation", function() {
       .click({ force: true });
     cy.wait(2000);
     cy.PublishtheApp();
-    cy.readTableV2dataValidateCSS("0", "1", "height", "28px", true);
+    cy.readTableV2dataValidateCSS("0", "1", "height", "29px", true);
     cy.get(publish.backToEditor).click();
     cy.wait(2000);
   });
