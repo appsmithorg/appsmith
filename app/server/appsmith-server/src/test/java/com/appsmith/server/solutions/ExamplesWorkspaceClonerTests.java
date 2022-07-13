@@ -872,7 +872,6 @@ public class ExamplesWorkspaceClonerTests {
                             ),
                             null,
                             null,
-                            OAuth2.RefreshTokenClientCredentialsLocation.BODY,
                             false
                     ));
 

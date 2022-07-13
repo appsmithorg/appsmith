@@ -76,8 +76,6 @@ public class OAuth2 extends AuthenticationDTO {
 
     String resource;
 
-    RefreshTokenClientCredentialsLocation refreshTokenClientCredentialsLocation;
-
     boolean useSelfSignedCert = false;
 
     public String getScopeString() {

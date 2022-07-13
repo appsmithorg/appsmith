@@ -94,7 +94,9 @@ public class OAuth2ClientCredentialsTest {
     public void testCreate_withIsAuthorizationHeaderTrue_sendsCredentialsInHeader() throws InterruptedException {
         String baseUrl = String.format("http://localhost:%s", mockEndpoint.getPort());
 
+        final DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
         OAuth2 oAuth2 = new OAuth2();
+        datasourceConfiguration.setAuthentication(oAuth2);
         oAuth2.setIsAuthorizationHeader(true);
         oAuth2.setGrantType(OAuth2.Type.CLIENT_CREDENTIALS);
         oAuth2.setAccessTokenUrl(baseUrl);
@@ -106,7 +108,7 @@ public class OAuth2ClientCredentialsTest {
                         .setBody("{}")
                         .addHeader("Content-Type", "application/json"));
 
-        final OAuth2ClientCredentials response = OAuth2ClientCredentials.create(oAuth2).block();
+        final OAuth2ClientCredentials response = OAuth2ClientCredentials.create(datasourceConfiguration).block();
         final RecordedRequest recordedRequest = mockEndpoint.takeRequest(30, TimeUnit.SECONDS);
 
         final String authorizationHeader = recordedRequest.getHeader("Authorization");
@@ -118,7 +120,9 @@ public class OAuth2ClientCredentialsTest {
     public void testCreate_withIsAuthorizationHeaderFalse_sendsCredentialsInBody() throws InterruptedException, EOFException {
         String baseUrl = String.format("http://localhost:%s", mockEndpoint.getPort());
 
+        final DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
         OAuth2 oAuth2 = new OAuth2();
+        datasourceConfiguration.setAuthentication(oAuth2);
         oAuth2.setGrantType(OAuth2.Type.CLIENT_CREDENTIALS);
         oAuth2.setAccessTokenUrl(baseUrl);
         oAuth2.setClientId("testId");
@@ -129,7 +133,7 @@ public class OAuth2ClientCredentialsTest {
                         .setBody("{}")
                         .addHeader("Content-Type", "application/json"));
 
-        final OAuth2ClientCredentials response = OAuth2ClientCredentials.create(oAuth2).block();
+        final OAuth2ClientCredentials response = OAuth2ClientCredentials.create(datasourceConfiguration).block();
         final RecordedRequest recordedRequest = mockEndpoint.takeRequest(30, TimeUnit.SECONDS);
 
         final String authorizationHeader = recordedRequest.getHeader("Authorization");

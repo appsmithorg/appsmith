@@ -90,7 +90,7 @@ public class OAuth2ClientCredentials extends APIConnection implements UpdatableC
             httpClient.secure(SSLHelper.sslCheckForHttpClient(datasourceConfiguration));
         }
         // Webclient
-        WebClient webClient = WebClient.builder()
+        final WebClient.Builder webClientBuilder = WebClient.builder()
                 .clientConnector(new ReactorClientHttpConnector(httpClient))
                 .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED_VALUE)
                 .exchangeStrategies(ExchangeStrategies
