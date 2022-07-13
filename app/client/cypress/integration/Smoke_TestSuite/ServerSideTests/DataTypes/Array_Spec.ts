@@ -421,7 +421,11 @@ describe("Postgres - Datatype Array types tests", function() {
     query = `SELECT ARRAY[1,2] || ARRAY[3,4] as "Test ||", ARRAY[5,6] || ARRAY[[1,2],[3,4]] as "Test || of 2D Array", ARRAY[1, 2] || '{3, 4}' as "Test || with {}"`;
     dataSources.EnterQuery(query);
     dataSources.RunQuery();
-    dataSources.AssertQueryResponseHeaders(["Test ||", "Test || of 2D Array", "Test || with {}"]);
+    dataSources.AssertQueryResponseHeaders([
+      "Test ||",
+      "Test || of 2D Array",
+      "Test || with {}",
+    ]);
     dataSources.ReadQueryTableResponse(0).then(($cellData) => {
       expect($cellData).to.eq("[1,2,3,4]");
     });
@@ -436,7 +440,12 @@ describe("Postgres - Datatype Array types tests", function() {
     query = `SELECT array_dims(1 || '[0:1]={2,3}'::int[]) as "array_dims1", array_dims(ARRAY[1,2] || 3) as "array_dims2", array_dims(ARRAY[1,2] || ARRAY[3,4,5]) as "array_dims3", array_dims(ARRAY[[1,2],[3,4]] || ARRAY[[5,6],[7,8],[9,0]])  as "array_dims4";`;
     dataSources.EnterQuery(query);
     dataSources.RunQuery();
-    dataSources.AssertQueryResponseHeaders(["array_dims1", "array_dims2", "array_dims3", "array_dims4"]);
+    dataSources.AssertQueryResponseHeaders([
+      "array_dims1",
+      "array_dims2",
+      "array_dims3",
+      "array_dims4",
+    ]);
     dataSources.ReadQueryTableResponse(0).then(($cellData) => {
       expect($cellData).to.eq("[0:2]");
     });
@@ -466,7 +475,11 @@ describe("Postgres - Datatype Array types tests", function() {
     query = `SELECT array_cat(ARRAY[1,2], ARRAY[3,4]) as "array_cat1", array_cat(ARRAY[[1,2],[3,4]], ARRAY[5,6]) as "array_cat2", array_cat(ARRAY[5,6], ARRAY[[1,2],[3,4]]) as "array_cat3"`;
     dataSources.EnterQuery(query);
     dataSources.RunQuery();
-    dataSources.AssertQueryResponseHeaders(["array_cat1", "array_cat2", "array_cat3"]);
+    dataSources.AssertQueryResponseHeaders([
+      "array_cat1",
+      "array_cat2",
+      "array_cat3",
+    ]);
     dataSources.ReadQueryTableResponse(0).then(($cellData) => {
       expect($cellData).to.eq("[1,2,3,4]");
     });
@@ -476,18 +489,6 @@ describe("Postgres - Datatype Array types tests", function() {
     dataSources.ReadQueryTableResponse(2).then(($cellData) => {
       expect($cellData).to.eq("[[5,6],[1,2],[3,4]]");
     });
-
-    //Verifying error
-    query = `SELECT ARRAY[1, 2] || '7';`;
-    dataSources.EnterQuery(query);
-    dataSources.RunQuery(false);
-    agHelper
-      .GetText(dataSources._queryError)
-      .then(($errorText) =>
-        expect($errorText).to.contain(
-          `ERROR: malformed array literal: "7" Detail: Array value must start with "{" or dimension information`,
-        ),
-      );
 
     //Verifying || with NULL
     query = `SELECT ARRAY[1, 2] || NULL as "|| with NULL", array_append(ARRAY[1, 2], NULL) as "array_append";;`;
@@ -505,7 +506,10 @@ describe("Postgres - Datatype Array types tests", function() {
     query = `SELECT array_position(ARRAY['sun','mon','tue','wed','thu','fri','sat'], 'sat'), array_positions(ARRAY[1, 4, 3, 1, 3, 4, 2, 1], 1);`;
     dataSources.EnterQuery(query);
     dataSources.RunQuery();
-    dataSources.AssertQueryResponseHeaders(["array_position", "array_positions"]);
+    dataSources.AssertQueryResponseHeaders([
+      "array_position",
+      "array_positions",
+    ]);
     dataSources.ReadQueryTableResponse(0).then(($cellData) => {
       expect($cellData).to.eq("7");
     });
@@ -521,7 +525,7 @@ describe("Postgres - Datatype Array types tests", function() {
     dataSources.ReadQueryTableResponse(0).then(($cellData) => {
       expect($cellData).to.eq("1");
     });
-    dataSources.ReadQueryTableResponse(2).then(($cellData) => {
+    dataSources.ReadQueryTableResponse(1).then(($cellData) => {
       expect($cellData).to.eq("6");
     });
 
@@ -571,20 +575,33 @@ describe("Postgres - Datatype Array types tests", function() {
       expect($cellData).to.eq("true");
     });
 
-      //Verifying array_to_string
-      query = `SELECT array_to_string(ARRAY[1, 2, 3, NULL, 5], ',', '*')	as array_to_string, string_to_array('xx~^~yy~^~zz', '~^~', 'yy') as string_to_array;`;
-      dataSources.EnterQuery(query);
-      dataSources.RunQuery();
-      dataSources.AssertQueryResponseHeaders([
-        "array_to_string",
-        "string_to_array",
-      ]);
-      dataSources.ReadQueryTableResponse(0).then(($cellData) => {
-        expect($cellData).to.eq("1,2,3,*,5");
-      });
-      dataSources.ReadQueryTableResponse(1).then(($cellData) => {
-        expect($cellData).to.eq(`["xx",null,"zz"]`);
-      });
+    //Verifying array_to_string
+    query = `SELECT array_to_string(ARRAY[1, 2, 3, NULL, 5], ',', '*')	as array_to_string, string_to_array('xx~^~yy~^~zz', '~^~', 'yy') as string_to_array;`;
+    dataSources.EnterQuery(query);
+    dataSources.RunQuery();
+    dataSources.AssertQueryResponseHeaders([
+      "array_to_string",
+      "string_to_array",
+    ]);
+    dataSources.ReadQueryTableResponse(0).then(($cellData) => {
+      expect($cellData).to.eq("1,2,3,*,5");
+    });
+    dataSources.ReadQueryTableResponse(1).then(($cellData) => {
+      expect($cellData).to.eq(`["xx",null,"zz"]`);
+    });
+
+    //Verifying error
+    query = `SELECT ARRAY[1, 2] || '7';`;
+    dataSources.EnterQuery(query);
+    cy.get(locator._codeMirrorTextArea).focus();
+    dataSources.RunQuery();
+    agHelper
+      .GetText(dataSources._queryError)
+      .then(($errorText) =>
+        expect($errorText).to.contain(
+          `ERROR: malformed array literal: "7"\n Detail: Array value must start with "{" or dimension information`,
+        ),
+      );
 
     agHelper.ActionContextMenuWithInPane("Delete");
     ee.ExpandCollapseEntity("QUERIES/JS", false);
@@ -620,8 +637,7 @@ describe("Postgres - Datatype Array types tests", function() {
 
     agHelper.EnterInputText("Name", "Bob Sim");
     agHelper.EnterInputText("Pay_by_quarter", "121,3234,4454,21213");
-    agHelper.EnterInputText(
-      "Schedule", "Travel,Chillax,Hire,Give rewards");
+    agHelper.EnterInputText("Schedule", "Travel,Chillax,Hire,Give rewards");
 
     agHelper.ClickButton("Insert");
     agHelper.AssertElementVisible(locator._spanButton("Run InsertQuery"));
