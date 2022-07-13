@@ -15,7 +15,6 @@ const loginPage = require("../locators/LoginPage.json");
 const signupPage = require("../locators/SignupPage.json");
 import homePage from "../locators/HomePage";
 const pages = require("../locators/Pages.json");
-const datasourceEditor = require("../locators/DatasourcesEditor.json");
 const datasourceFormData = require("../fixtures/datasources.json");
 const commonlocators = require("../locators/commonlocators.json");
 const queryEditor = require("../locators/QueryEditor.json");
@@ -144,6 +143,7 @@ Cypress.Commands.add(
         );
         expect(firstTxt).to.equal(expectedvalue);
       });
+    cy.testSelfSignedCertificateSettingsInREST();
   },
 );
 
@@ -161,8 +161,24 @@ Cypress.Commands.add(
     cy.xpath("//span[text()='Send client credentials in body']").should(
       "be.visible",
     );
+    cy.testSelfSignedCertificateSettingsInREST();
   },
 );
+
+Cypress.Commands.add("testSelfSignedCertificateSettingsInREST", () => {
+  cy.get(datasource.advancedSettings).click();
+  cy.get(datasource.useSelfSignedCert).should("be.visible");
+  cy.get(datasource.useSelfSignedCert).click();
+  cy.get(datasource.useSelfSignedCert).within(() => {
+    cy.get("[data-cy='t--dropdown-option-Yes']").click();
+  });
+  cy.get(datasource.useCertInAuth).should("be.visible");
+  cy.get(datasource.certificateDetails).should("be.visible");
+  cy.get(datasource.useSelfSignedCert).within(() => {
+    cy.get("[data-cy='t--dropdown-option-No']").click();
+  });
+  cy.get(datasource.advancedSettings).click();
+});
 
 Cypress.Commands.add("addBasicProfileDetails", (username, password) => {
   cy.get(datasource.authType).click();
