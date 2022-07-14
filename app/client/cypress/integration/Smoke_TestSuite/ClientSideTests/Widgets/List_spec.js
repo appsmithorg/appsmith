@@ -35,7 +35,7 @@ describe("List Widget Functionality", function() {
 
     const disallowed = [
       "containerwidget",
-      "tablewidget",
+      "tablewidgetv2",
       "radiogroupwidget",
       "tabswidget",
       "richtexteditorwidget",

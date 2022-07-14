@@ -41,7 +41,7 @@ class CodeEditorControl extends BaseControl<ControlProps> {
   onChange: EventOrValueHandler<ChangeEvent<any>> = (
     value: string | ChangeEvent,
   ) => {
-    this.updateProperty(this.props.propertyName, value);
+    this.updateProperty(this.props.propertyName, value, true);
   };
 
   static getControlType() {
