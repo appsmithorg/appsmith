@@ -358,6 +358,32 @@ Cypress.Commands.add("clearComputedValueFirst", () => {
   cy.wait(1000);
 });
 
+Cypress.Commands.add("updateComputedValueV2", (value) => {
+  cy.get(".t--property-control-computedvalue .CodeMirror textarea")
+    .first()
+    .focus({ force: true })
+    .type("{uparrow}", { force: true })
+    .type("{ctrl}{shift}{downarrow}", { force: true });
+  cy.focused().then(($cm) => {
+    if ($cm.contents !== "") {
+      cy.log("The field is empty");
+      cy.get(".CodeMirror textarea")
+        .first()
+        .clear({
+          force: true,
+        });
+    }
+    cy.get(".t--property-control-computedvalue .CodeMirror textarea")
+      .first()
+      .type(value, {
+        force: true,
+        parseSpecialCharSequences: false,
+      });
+  });
+  // eslint-disable-next-line cypress/no-unnecessary-waiting
+  cy.wait(1000);
+});
+
 Cypress.Commands.add("testCodeMirrorLast", (value) => {
   cy.get(".CodeMirror textarea")
     .last()
@@ -545,6 +571,14 @@ Cypress.Commands.add("tableColumnDataValidation", (columnName) => {
     .should("be.visible");
 });
 
+Cypress.Commands.add("tableV2ColumnDataValidation", (columnName) => {
+  cy.get("[data-rbd-draggable-id='" + columnName + "'] input[type='text']")
+    .scrollIntoView()
+    .first()
+    .focus({ force: true })
+    .should("be.visible");
+});
+
 Cypress.Commands.add("tableColumnPopertyUpdate", (colId, newColName) => {
   cy.get("[data-rbd-draggable-id='" + colId + "'] input")
     .scrollIntoView()
@@ -558,6 +592,27 @@ Cypress.Commands.add("tableColumnPopertyUpdate", (colId, newColName) => {
   cy.get("[data-rbd-draggable-id='" + colId + "'] input").type(newColName, {
     force: true,
   });
+  cy.get(".draggable-header ")
+    .contains(newColName)
+    .should("be.visible");
+});
+
+Cypress.Commands.add("tableV2ColumnPopertyUpdate", (colId, newColName) => {
+  cy.get("[data-rbd-draggable-id='" + colId + "'] input[type='text']")
+    .scrollIntoView()
+    .should("be.visible")
+    .click({
+      force: true,
+    });
+  cy.get("[data-rbd-draggable-id='" + colId + "'] input[type='text']").clear({
+    force: true,
+  });
+  cy.get("[data-rbd-draggable-id='" + colId + "'] input[type='text']").type(
+    newColName,
+    {
+      force: true,
+    },
+  );
   cy.get(".draggable-header ")
     .contains(newColName)
     .should("be.visible");
@@ -629,8 +684,23 @@ Cypress.Commands.add("addColumn", (colId) => {
   cy.get(widgetsPage.defaultColName).type(colId, { force: true });
 });
 
+Cypress.Commands.add("addColumnV2", (colId) => {
+  cy.get(widgetsPage.addColumn).scrollIntoView();
+  cy.get(widgetsPage.addColumn)
+    .should("be.visible")
+    .click({ force: true });
+  // eslint-disable-next-line cypress/no-unnecessary-waiting
+  cy.wait(3000);
+  cy.get(widgetsPage.defaultColNameV2).clear({
+    force: true,
+  });
+  cy.get(widgetsPage.defaultColNameV2).type(colId, { force: true });
+});
+
 Cypress.Commands.add("editColumn", (colId) => {
-  cy.get("[data-rbd-draggable-id='" + colId + "'] .t--edit-column-btn").click();
+  cy.get("[data-rbd-draggable-id='" + colId + "'] .t--edit-column-btn").click({
+    force: true,
+  });
   // eslint-disable-next-line cypress/no-unnecessary-waiting
   cy.wait(1500);
 });
@@ -1097,9 +1167,21 @@ Cypress.Commands.add("getTableDataSelector", (rowNum, colNum) => {
   return selector;
 });
 
+Cypress.Commands.add("getTableV2DataSelector", (rowNum, colNum) => {
+  const selector = `.t--widget-tablewidgetv2 .tbody .td[data-rowindex=${rowNum}][data-colindex=${colNum}]`;
+  return selector;
+});
+
 Cypress.Commands.add("readTabledata", (rowNum, colNum) => {
   // const selector = `.t--draggable-tablewidget .e-gridcontent.e-lib.e-droppable td[index=${rowNum}][aria-colindex=${colNum}]`;
   const selector = `.tbody .td[data-rowindex="${rowNum}"][data-colindex="${colNum}"] div div`;
+  const tabVal = cy.get(selector).invoke("text");
+  return tabVal;
+});
+
+Cypress.Commands.add("readTableV2data", (rowNum, colNum) => {
+  // const selector = `.t--draggable-tablewidget .e-gridcontent.e-lib.e-droppable td[index=${rowNum}][aria-colindex=${colNum}]`;
+  const selector = `.tbody .td[data-rowindex="${rowNum}"][data-colindex="${colNum}"]`;
   const tabVal = cy.get(selector).invoke("text");
   return tabVal;
 });
@@ -1117,6 +1199,15 @@ Cypress.Commands.add(
 );
 
 Cypress.Commands.add(
+  "readTableV2dataPublish",
+  (rowNum, colNum, shouldNotGoOneLeveDeeper) => {
+    const selector = `.t--widget-tablewidgetv2 .tbody .td[data-rowindex=${rowNum}][data-colindex=${colNum}]`;
+    const tabVal = cy.get(selector).invoke("text");
+    return tabVal;
+  },
+);
+
+Cypress.Commands.add(
   "readTabledataValidateCSS",
   (rowNum, colNum, cssProperty, cssValue, shouldNotGotOneLeveDeeper) => {
     const selector = `.t--widget-tablewidget .tbody .td[data-rowindex=${rowNum}][data-colindex=${colNum}] div ${
@@ -1127,10 +1218,30 @@ Cypress.Commands.add(
 );
 
 Cypress.Commands.add(
+  "readTableV2dataValidateCSS",
+  (rowNum, colNum, cssProperty, cssValue) => {
+    const selector = `.t--widget-tablewidgetv2 .tbody .td[data-rowindex=${rowNum}][data-colindex=${colNum}] .cell-wrapper`;
+    cy.get(selector).should("have.css", cssProperty, cssValue);
+  },
+);
+
+Cypress.Commands.add(
   "readTabledataFromSpecificIndex",
   (rowNum, colNum, index) => {
     // const selector = `.t--widget-tablewidget .e-gridcontent.e-lib.e-droppable td[index=${rowNum}][aria-colindex=${colNum}]`;
     const selector = `.t--widget-tablewidget .tbody .td[data-rowindex=${rowNum}][data-colindex=${colNum}] div`;
+    const tabVal = cy
+      .get(selector)
+      .eq(index)
+      .invoke("text");
+    return tabVal;
+  },
+);
+
+Cypress.Commands.add(
+  "readTableV2dataFromSpecificIndex",
+  (rowNum, colNum, index) => {
+    const selector = `.t--widget-tablewidgetv2 .tbody .td[data-rowindex=${rowNum}][data-colindex=${colNum}]`;
     const tabVal = cy
       .get(selector)
       .eq(index)
@@ -1161,6 +1272,12 @@ Cypress.Commands.add("scrollTabledataPublish", (rowNum, colNum) => {
 
 Cypress.Commands.add("readTableLinkPublish", (rowNum, colNum) => {
   const selector = `.t--widget-tablewidget .tbody .td[data-rowindex=${rowNum}][data-colindex=${colNum}] div .image-cell-wrapper .image-cell`;
+  const bgUrl = cy.get(selector).should("have.css", "background-image");
+  return bgUrl;
+});
+
+Cypress.Commands.add("readTableV2LinkPublish", (rowNum, colNum) => {
+  const selector = `.t--widget-tablewidgetv2 .tbody .td[data-rowindex=${rowNum}][data-colindex=${colNum}] div .image-cell-wrapper .image-cell`;
   const bgUrl = cy.get(selector).should("have.css", "background-image");
   return bgUrl;
 });
@@ -1239,3 +1356,70 @@ Cypress.Commands.add(
     }
   },
 );
+
+Cypress.Commands.add("getTableCellHeight", (x, y) => {
+  return cy
+    .get(
+      `.t--widget-tablewidgetv2 .tbody .td[data-colindex=${x}][data-rowindex=${y}] .cell-wrapper div`,
+    )
+    .invoke("css", "height");
+});
+
+Cypress.Commands.add("hoverTableCell", (x, y) => {
+  return cy.get(`[data-colindex="${x}"][data-rowindex="${y}"]`).then((ele) => {
+    const { left, top } = ele[0].getBoundingClientRect();
+    cy.get(
+      `[data-colindex=${x}][data-rowindex=${y}] .t--table-text-cell`,
+    ).trigger("mousemove", top + 5, left + 5, {
+      eventConstructor: "MouseEvent",
+      force: true,
+    });
+  });
+});
+
+Cypress.Commands.add("editTableCell", (x, y) => {
+  cy.get(`[data-colindex="${x}"][data-rowindex="${y}"] .t--editable-cell-icon`)
+    .invoke("show")
+    .click({ force: true });
+  cy.get(
+    `[data-colindex="${x}"][data-rowindex="${y}"] .t--inlined-cell-editor input.bp3-input`,
+  ).should("exist");
+});
+
+Cypress.Commands.add("makeColumnEditable", (column) => {
+  cy.get(
+    `[data-rbd-draggable-id="${column}"] .t--card-checkbox input+span`,
+  ).click();
+});
+
+Cypress.Commands.add("enterTableCellValue", (x, y, text) => {
+  cy.get(
+    `[data-colindex="${x}"][data-rowindex="${y}"] .t--inlined-cell-editor input.bp3-input`,
+  )
+    .clear()
+    .type(text);
+});
+
+Cypress.Commands.add("discardTableCellValue", (x, y) => {
+  cy.get(
+    `[data-colindex="${x}"][data-rowindex="${y}"] .t--inlined-cell-editor input.bp3-input`,
+  ).type("{esc}", { force: true });
+});
+
+Cypress.Commands.add("saveTableCellValue", (x, y) => {
+  cy.get(
+    `[data-colindex="${x}"][data-rowindex="${y}"] .t--inlined-cell-editor input.bp3-input`,
+  ).type("{enter}", { force: true });
+});
+
+Cypress.Commands.add("saveTableRow", (x, y) => {
+  cy.get(
+    `[data-colindex="${x}"][data-rowindex="${y}"] button span:contains('Save')`,
+  ).click({ force: true });
+});
+
+Cypress.Commands.add("discardTableRow", (x, y) => {
+  cy.get(
+    `[data-colindex="${x}"][data-rowindex="${y}"] button span:contains('Discard')`,
+  ).click({ force: true });
+});
