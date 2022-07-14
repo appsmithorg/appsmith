@@ -51,4 +51,4 @@ popd
 docker build -t appsmith/appsmith-ce:local-testing . > /dev/null && pretty_print "Docker image build successful. Triggering run now ..."
 
 (docker stop appsmith || true) && (docker rm appsmith || true)
-docker run -d --name appsmith -p 80:80 -v "$PWD/stacks:/appsmith-stacks" appsmith/appsmith-ce:local-testing && pretty_print "Local instance is up! Open Appsmith at http://localhost! "
+docker run -d --name appsmith -p 80:80 -v "$PWD/stacks:/appsmith-stacks" appsmith/appsmith-ce:local-testing && sleep 15 && pretty_print "Local instance is up! Open Appsmith at http://localhost! "
