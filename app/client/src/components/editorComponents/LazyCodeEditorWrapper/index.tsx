@@ -52,6 +52,7 @@ SyntaxHighlighter.registerLanguage("javascript", js);
  * then render it immediately upon focus event.
  */
 function CodeEditor(props: any) {
+  console.log(props);
   const [showEditor, setEditorVisibility] = useState<boolean>(false);
   const [containsCode, setContainsCode] = useState<boolean>(false);
   const [containsObject, setContainsObject] = useState<boolean>(false);
@@ -92,7 +93,7 @@ function CodeEditor(props: any) {
 
   const highlightedText = () => {
     if (!containsCode || isPlaceholder) {
-      return <NoCodeText>{text}</NoCodeText>;
+      return <NoCodeText isPlaceholder={isPlaceholder}>{text}</NoCodeText>;
     }
     return (
       <SyntaxHighlighter
@@ -122,7 +123,7 @@ function CodeEditor(props: any) {
     <Editor {...props} />
   ) : (
     <LazyEditorWrapper>
-      <ContentWrapper containsCode={containsCode}>
+      <ContentWrapper containsCode={containsCode} isPlaceholder={isPlaceholder}>
         <ReadOnlyInput
           className="t--code-editor-wrapper unfocused-code-editor"
           data-testid="lazy-code-editor"
