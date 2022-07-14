@@ -21,7 +21,7 @@ public class ApplicationTemplate extends BaseDomain {
     private List<String> functions;
     private List<String> useCases;
     private List<String> datasources;
-    private List<String> pageNames;
+    private List<PageNameIdDTO> pages;
     private String minVersion;
     private String minVersionPadded;
     private Long downloadCount;

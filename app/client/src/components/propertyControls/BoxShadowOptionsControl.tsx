@@ -5,6 +5,12 @@ import { TooltipComponent } from "design-system";
 import { boxShadowOptions } from "constants/ThemeConstants";
 import CloseLineIcon from "remixicon-react/CloseLineIcon";
 import { ButtonTabComponent } from "components/ads";
+import {
+  DSEventDetail,
+  DSEventTypes,
+  DS_EVENT,
+  emitInteractionAnalyticsEvent,
+} from "utils/AppsmithUtils";
 export interface BoxShadowOptionsControlProps extends ControlProps {
   propertyValue: string | undefined;
 }
@@ -40,6 +46,34 @@ const optionsValues = new Set(Object.values(boxShadowOptions));
 class BoxShadowOptionsControl extends BaseControl<
   BoxShadowOptionsControlProps
 > {
+  componentRef = React.createRef<HTMLDivElement>();
+
+  componentDidMount() {
+    this.componentRef.current?.addEventListener(
+      DS_EVENT,
+      this.handleAdsEvent as (arg0: Event) => void,
+    );
+  }
+
+  componentWillUnmount() {
+    this.componentRef.current?.removeEventListener(
+      DS_EVENT,
+      this.handleAdsEvent as (arg0: Event) => void,
+    );
+  }
+
+  handleAdsEvent = (e: CustomEvent<DSEventDetail>) => {
+    if (
+      e.detail.component === "ButtonTab" &&
+      e.detail.event === DSEventTypes.KEYPRESS
+    ) {
+      emitInteractionAnalyticsEvent(this.componentRef.current, {
+        key: e.detail.meta.key,
+      });
+      e.stopPropagation();
+    }
+  };
+
   static getControlType() {
     return "BOX_SHADOW_OPTIONS";
   }
@@ -48,8 +82,13 @@ class BoxShadowOptionsControl extends BaseControl<
     return (
       <ButtonTabComponent
         options={options}
-        selectButton={(value) => {
-          this.updateProperty(this.props.propertyName, value);
+        ref={this.componentRef}
+        selectButton={(value, isUpdatedViaKeyboard = false) => {
+          this.updateProperty(
+            this.props.propertyName,
+            value,
+            isUpdatedViaKeyboard,
+          );
         }}
         values={this.props.evaluatedValue ? [this.props.evaluatedValue] : []}
       />

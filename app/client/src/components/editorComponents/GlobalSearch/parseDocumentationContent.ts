@@ -1,7 +1,7 @@
-import marked, { Token } from "marked";
 import { HelpBaseURL } from "constants/HelpConstants";
 import { algoliaHighlightTag } from "./utils";
 import log from "loglevel";
+import marked, { Token } from "marked";
 
 /**
  * @param {String} HTML representing a single element
@@ -138,6 +138,7 @@ const parseMarkdown = (value: string) => {
       }
     },
   });
+
   return marked(value);
 };
 

@@ -10,6 +10,12 @@ const {
   login,
   sortObjectKeys,
 } = require("./utils/utils");
+
+const {
+  cleanTheHost,
+  setChromeProcessPriority,
+} = require("./utils/system-cleanup");
+
 const selectors = {
   appMoreIcon: "span.t--options-icon",
   workspaceImportAppOption: '[data-cy*="t--workspace-import-app"]',
@@ -17,6 +23,7 @@ const selectors = {
   importButton: '[data-cy*="t--workspace-import-app-button"]',
   createNewApp: ".createnew",
 };
+
 module.exports = class Perf {
   constructor(launchOptions = {}) {
     this.launchOptions = {
@@ -62,9 +69,12 @@ module.exports = class Perf {
    * Launches the browser and, gives you the page
    */
   launch = async () => {
+    await cleanTheHost();
     this.browser = await puppeteer.launch(this.launchOptions);
     const pages_ = await this.browser.pages();
     this.page = pages_[0];
+
+    await setChromeProcessPriority();
     await this._login();
   };
 
@@ -75,13 +85,20 @@ module.exports = class Perf {
 
   startTrace = async (action = "foo") => {
     if (this.currentTrace) {
-      console.warn("Trace progress. You can run only one trace at a time");
+      console.warn(
+        "Trace already in progress. You can run only one trace at a time",
+      );
       return;
     }
 
     this.currentTrace = action;
     await delay(3000, `before starting trace ${action}`);
+    await this.page._client.send("HeapProfiler.enable");
+    await this.page._client.send("HeapProfiler.collectGarbage");
+    await delay(1000, `After clearing memory`);
+
     const path = `${APP_ROOT}/traces/${action}-${getFormattedTime()}-chrome-profile.json`;
+
     await this.page.tracing.start({
       path: path,
       screenshots: true,
@@ -109,7 +126,7 @@ module.exports = class Perf {
     await this.page.waitForNavigation();
 
     const currentUrl = this.page.url();
-    const pageId = currentURL
+    const pageId = currentUrl
       .split("/")[5]
       ?.split("-")
       .pop();
