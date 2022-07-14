@@ -292,7 +292,7 @@
                 ],
                 "shouldTruncate": false,
                 "truncateButtonColor": "#FFC13D",
-                "text": "Selected image",
+                "text": "Select image",
                 "key": "cilgtxe2tn",
                 "isDeprecated": false,
                 "rightColumn": 40,
@@ -343,7 +343,7 @@
                 "isDefaultClickDisabled": true,
                 "widgetId": "1a17y3hgy0",
                 "isVisible": true,
-                "label": "Select new image",
+                "label": "Select update image",
                 "maxFileSize": 5,
                 "version": 1,
                 "fileDataType": "Base64",
@@ -378,7 +378,7 @@
                     "key": "defaultImage"
                   }
                 ],
-                "defaultImage": "{{Table1.selectedRow.Image}}",
+                "defaultImage": "{{Table1.selectedRow.OldImage}}",
                 "key": "pf0s33wwbz",
                 "image": "",
                 "isDeprecated": false,
@@ -537,7 +537,10 @@
             "key": "primaryColumns.imagename.computedValue"
           },
           {
-            "key": "primaryColumns.Image.computedValue"
+            "key": "primaryColumns.OldImage.computedValue"
+          },
+          {
+            "key": "primaryColumns.NewImage.computedValue"
           }
         ],
         "leftColumn": 4,
@@ -592,7 +595,8 @@
         "columnOrder": [
           "serialid",
           "imagename",
-          "Image",
+          "OldImage",
+          "NewImage",
           "customColumn1"
         ],
         "dynamicPropertyPathList": [],
@@ -667,13 +671,14 @@
             "label": "imagename",
             "computedValue": "{{Table1.sanitizedTableData.map((currentRow) => ( currentRow.imagename))}}"
           },
-          "Image": {
+          "OldImage": {
             "index": 2,
             "width": 150,
-            "id": "Image",
+            "id": "OldImage",
             "horizontalAlignment": "LEFT",
             "verticalAlignment": "CENTER",
             "columnType": "image",
+            "textColor": "",
             "textSize": "0.875rem",
             "enableFilter": true,
             "enableSort": true,
@@ -681,8 +686,29 @@
             "isDisabled": false,
             "isCellVisible": true,
             "isDerived": false,
-            "label": "Image",
-            "computedValue": "{{Table1.sanitizedTableData.map((currentRow) => ( currentRow.Image))}}",
+            "label": "OldImage",
+            "computedValue": "{{Table1.sanitizedTableData.map((currentRow) => ( currentRow.OldImage))}}",
+            "cellBackground": "",
+            "iconName": ""
+          },
+          "NewImage": {
+            "index": 3,
+            "width": 150,
+            "id": "NewImage",
+            "horizontalAlignment": "LEFT",
+            "verticalAlignment": "CENTER",
+            "columnType": "image",
+            "textColor": "",
+            "textSize": "0.875rem",
+            "enableFilter": true,
+            "enableSort": true,
+            "isVisible": true,
+            "isDisabled": false,
+            "isCellVisible": true,
+            "isDerived": false,
+            "label": "NewImage",
+            "computedValue": "{{Table1.sanitizedTableData.map((currentRow) => ( currentRow.NewImage))}}",
+            "cellBackground": "",
             "iconName": ""
           }
         },
@@ -1091,7 +1117,7 @@
                 "isDefaultClickDisabled": true,
                 "widgetId": "mc5x1pm1u4",
                 "isVisible": true,
-                "label": "Select Files",
+                "label": "Select New Image",
                 "maxFileSize": 5,
                 "version": 1,
                 "fileDataType": "Base64",

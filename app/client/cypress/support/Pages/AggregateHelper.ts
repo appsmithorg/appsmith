@@ -677,7 +677,6 @@ export class AggregateHelper {
     cy.get(this.locator._uploadBtn)
       .click()
       .wait(3000);
-    this.ValidateNetworkExecutionSuccess("@postExecute", execStat);
   }
 
   public AssertDebugError(label: string, messgae: string) {
