@@ -707,7 +707,7 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
     agHelper.GetNClick(dataSources._templateMenu);
     agHelper.RenameWithInPane("DropVessels");
     dataSources.EnterQuery(deleteTblQuery);
-    cy.get(".CodeMirror textarea").focus();
+    cy.get(locator._codeMirrorTextArea).focus();
     //agHelper.VerifyEvaluatedValue(tableCreateQuery);
 
     dataSources.RunQuery(false);
