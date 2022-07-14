@@ -14,6 +14,7 @@ export const ReadOnlyInput = styled.input`
 
 export const HighlighedCodeContainer = styled("div")<{
   containsCode: boolean;
+  containsObject?: boolean;
 }>`
   width: 100%;
   background-color: #fff !important;
@@ -26,7 +27,7 @@ export const HighlighedCodeContainer = styled("div")<{
   padding-left: 10px !important;
   padding-right: 10px !important;
   padding-bottom: ${({ containsCode }) =>
-    containsCode ? "6px" : 0}; !important;
+    containsCode ? "6px" : 0} !important;
 
   pre {
     margin: 0 !important;
@@ -45,11 +46,12 @@ export const HighlighedCodeContainer = styled("div")<{
       font-family: monospace !important;
       line-height: 21px !important;
       font-size: 14px !important;
-      color: ${({ containsCode }) =>
-        containsCode ? "#063289" : "inherit"} !important;
+      color: ${({ containsCode, containsObject }) =>
+        containsCode && !containsObject ? "#063289" : "inherit"} !important;
 
       .token {
-        color: #063289 !important;
+        color: ${({ containsCode, containsObject }) =>
+          containsCode && !containsObject ? "#063289" : "inherit"} !important;
       }
     }
   }
@@ -65,10 +67,6 @@ export const ContentWrapper = styled("div")<{ containsCode: boolean }>`
   min-height: 34px;
   border: 1px solid;
   border-color: inherit;
-
-  div:nth-child(1) {
-    min-height: 34px;
-  }
 `;
 
 export const NoCodeText = styled("div")`

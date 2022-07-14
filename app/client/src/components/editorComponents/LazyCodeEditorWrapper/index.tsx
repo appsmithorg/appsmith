@@ -55,6 +55,7 @@ function CodeEditor(props: any) {
   const [showEditor, setEditorVisibility] = useState<boolean>(false);
   const [containsCode, setContainsCode] = useState<boolean>(false);
   const [containsObject, setContainsObject] = useState<boolean>(false);
+  const [isPlaceholder, setIsPlaceholder] = useState<boolean>(false);
   const [text, setText] = useState<string>("");
   let handle: number;
   const handleFocus = (): void => {
@@ -64,7 +65,7 @@ function CodeEditor(props: any) {
 
   useEffect(() => {
     // Check if input value contains code
-    let str: string = getText();
+    const str: string = getText();
     if (str && typeof str === "string" && str?.indexOf("{{") > -1)
       setContainsCode(true);
     if (Array.isArray(str) || typeof str === "object") {
@@ -73,21 +74,24 @@ function CodeEditor(props: any) {
       setContainsObject(true);
       return;
     }
-    // If !inputValue; then use placeholder
-    if (!str?.toString()?.length) str = props?.placeholder || "";
     setText(str.toString());
   }, [props?.input?.value, props?.placeholder]);
 
   const getText = (): string => {
+    const str = props?.input?.value;
     try {
-      return JSON.parse(props?.input?.value);
+      return JSON.parse(str);
     } catch (e) {
-      return props?.input?.value || "";
+      if (!str) {
+        setIsPlaceholder(true);
+        return props?.placeholder || "";
+      }
+      return str;
     }
   };
 
   const highlightedText = () => {
-    if (!containsCode) {
+    if (!containsCode || isPlaceholder) {
       return <NoCodeText>{text}</NoCodeText>;
     }
     return (
@@ -128,7 +132,10 @@ function CodeEditor(props: any) {
           type="text"
           value={""}
         />
-        <HighlighedCodeContainer containsCode={containsCode}>
+        <HighlighedCodeContainer
+          containsCode={containsCode}
+          containsObject={containsObject}
+        >
           {highlightedText()}
         </HighlighedCodeContainer>
       </ContentWrapper>
