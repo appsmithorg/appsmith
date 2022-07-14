@@ -94,6 +94,7 @@ function CodeEditor(props: any) {
       );
     }
     lazyLoadEditor();
+    return () => handle && (window as any).cancelIdleCallback(handle);
   }, []);
 
   return showEditor ? (
