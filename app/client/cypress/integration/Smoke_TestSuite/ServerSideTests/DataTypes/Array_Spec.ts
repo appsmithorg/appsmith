@@ -27,7 +27,7 @@ describe("Postgres - Datatype Array types tests", function() {
   });
 
   it("0. Importing App & setting theme", () => {
-    cy.fixture("ArrayDTdsl").then((val: any) => {
+    cy.fixture("Datatypes/ArrayDTdsl").then((val: any) => {
       agHelper.AddDsl(val);
     });
     ee.NavigateToSwitcher("widgets");

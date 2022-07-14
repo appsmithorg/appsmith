@@ -11,7 +11,7 @@ const agHelper = ObjectsRegistry.AggregateHelper,
 
 describe("Postgres - Datatype Numeric tests", function() {
   before(() => {
-    cy.fixture("NumericDTdsl").then((val: any) => {
+    cy.fixture("Datatypes/NumericDTdsl").then((val: any) => {
       agHelper.AddDsl(val);
     });
     propPane.ChangeTheme("Moon");

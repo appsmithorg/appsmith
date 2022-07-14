@@ -11,7 +11,7 @@ const agHelper = ObjectsRegistry.AggregateHelper,
 
 describe("Postgres - Datatype Boolean & Enum types tests", function() {
   before(() => {
-    cy.fixture("BooleanEnumDTdsl").then((val: any) => {
+    cy.fixture("Datatypes/BooleanEnumDTdsl").then((val: any) => {
       agHelper.AddDsl(val);
     });
     propPane.ChangeColor(-18, "Primary");

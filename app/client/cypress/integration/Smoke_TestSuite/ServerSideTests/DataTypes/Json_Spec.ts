@@ -29,7 +29,7 @@ describe("Postgres - Datatype Json & JsonB types tests", function() {
   //#region Json Datatype
 
   it("0. Importing App & setting theme", () => {
-    cy.fixture("JsonDTdsl").then((val: any) => {
+    cy.fixture("Datatypes/JsonDTdsl").then((val: any) => {
       agHelper.AddDsl(val);
     });
     ee.NavigateToSwitcher("widgets");
@@ -354,7 +354,7 @@ describe("Postgres - Datatype Json & JsonB types tests", function() {
   //#region JsonB Datatype
 
   it("14. Importing App & setting theme", () => {
-    cy.fixture("JsonBDTdsl").then((val: any) => {
+    cy.fixture("Datatypes/JsonBDTdsl").then((val: any) => {
       agHelper.AddDsl(val);
     });
     ee.NavigateToSwitcher("widgets");

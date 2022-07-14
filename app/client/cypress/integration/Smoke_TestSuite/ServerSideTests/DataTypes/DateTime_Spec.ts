@@ -11,7 +11,7 @@ const agHelper = ObjectsRegistry.AggregateHelper,
 
 describe("Postgres - Datatype DateTime tests", function() {
   before(() => {
-    cy.fixture("DateTimeDTdsl").then((val: any) => {
+    cy.fixture("Datatypes/DateTimeDTdsl").then((val: any) => {
       agHelper.AddDsl(val);
     });
     propPane.ChangeColor(22, "Primary");

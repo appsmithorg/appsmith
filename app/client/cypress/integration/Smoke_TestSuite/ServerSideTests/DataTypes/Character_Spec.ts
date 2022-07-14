@@ -11,7 +11,7 @@ const agHelper = ObjectsRegistry.AggregateHelper,
 
 describe("Postgres - Datatype Character tests", function() {
   before(() => {
-    cy.fixture("CharacterDTdsl").then((val: any) => {
+    cy.fixture("Datatypes/CharacterDTdsl").then((val: any) => {
       agHelper.AddDsl(val);
     });
     propPane.ChangeTheme("Pacific");
