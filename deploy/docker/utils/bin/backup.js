@@ -127,10 +127,10 @@ async function createFinalArchive(destFolder, timestamp) {
 }
 
 async function postBackupCleanup(){
-  console.log('Post-backup cleanup')
+  console.log('Post-backup cleanup');
   let backupArchivesLimit = process.env.APPSMITH_BACKUP_ARCHIVE_LIMIT;
   if(!backupArchivesLimit)
-    backupArchivesLimit = 2
+    backupArchivesLimit = 4;
   const backupFiles = await utils.listLocalBackupFiles();
   while (backupFiles.length > backupArchivesLimit){
     const fileName = backupFiles.shift();
