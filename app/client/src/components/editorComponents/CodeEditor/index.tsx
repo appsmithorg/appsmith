@@ -94,7 +94,6 @@ import {
   LINT_TOOLTIP_JUSTIFIED_LEFT_CLASS,
 } from "./constants";
 import { interactionAnalyticsEvent } from "utils/AppsmithUtils";
-import { TruthyPrimitiveTypes } from "utils/TypeHelpers";
 import { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTypeDefCreator";
 
 interface ReduxStateProps {

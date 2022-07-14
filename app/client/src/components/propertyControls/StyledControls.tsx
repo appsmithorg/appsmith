@@ -13,7 +13,6 @@ import Dropdown from "components/ads/Dropdown";
 import { IconWrapper } from "constants/IconConstants";
 import { InputWrapper } from "components/ads/TextInput";
 import useInteractionAnalyticsEvent from "utils/hooks/useInteractionAnalyticsEvent";
-import MultiSelectDropdown from "components/ads/MultiselectDropdown";
 import Checkbox from "components/ads/Checkbox";
 
 type ControlWrapperProps = {
