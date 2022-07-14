@@ -1,4 +1,4 @@
-import Text, { TextType } from "components/ads/Text";
+import { Text, TextType } from "design-system";
 import React from "react";
 import { getSettings } from "selectors/settingsSelectors";
 import { useSelector } from "store";

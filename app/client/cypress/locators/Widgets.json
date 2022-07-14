@@ -62,7 +62,7 @@
     "tableSearchTextChangeSelected": ".t--property-control-onsearchtextchanged",
     "videoWidget": ".t--draggable-videowidget",
     "audioWidget": ".t--draggable-audiowidget",
-    "autoPlay": ".t--property-control-autoplay > .bp3-control > .bp3-control-indicator",
+    "autoPlay": ".t--property-control-autoplay .bp3-control > .bp3-control-indicator",
     "defaultOption": ".t--property-control-defaultoption .CodeMirror-code",
     "dropdownSingleSelect": ".bp3-popover-target > div > .bp3-button",
     "menuButton": ".bp3-popover2-target",

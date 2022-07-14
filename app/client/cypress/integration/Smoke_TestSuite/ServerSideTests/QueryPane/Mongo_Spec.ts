@@ -664,7 +664,7 @@ describe("Validate Mongo Query Pane Validations", () => {
     agHelper.GetNClick(dataSources._templateMenu);
     agHelper.RenameWithInPane("DropAuthorNAwards");
     dataSources.EnterQuery(dropCollection);
-    cy.get(".CodeMirror textarea").focus();
+    cy.get(locator._codeMirrorTextArea).focus();
     //agHelper.VerifyEvaluatedValue(tableCreateQuery);
 
     dataSources.RunQuery(false);

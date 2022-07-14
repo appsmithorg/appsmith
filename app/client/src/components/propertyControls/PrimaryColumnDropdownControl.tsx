@@ -3,8 +3,42 @@ import BaseControl, { ControlProps } from "./BaseControl";
 import { ColumnProperties } from "widgets/TableWidget/component/Constants";
 import { StyledDropDown, StyledDropDownContainer } from "./StyledControls";
 import { DropdownOption } from "components/ads/Dropdown";
+import {
+  DSEventDetail,
+  DSEventTypes,
+  DS_EVENT,
+  emitInteractionAnalyticsEvent,
+} from "utils/AppsmithUtils";
 
 class PrimaryColumnDropdownControl extends BaseControl<ControlProps> {
+  containerRef = React.createRef<HTMLDivElement>();
+
+  componentDidMount() {
+    this.containerRef.current?.addEventListener(
+      DS_EVENT,
+      this.handleAdsEvent as (arg0: Event) => void,
+    );
+  }
+
+  componentWillUnmount() {
+    this.containerRef.current?.removeEventListener(
+      DS_EVENT,
+      this.handleAdsEvent as (arg0: Event) => void,
+    );
+  }
+
+  handleAdsEvent = (e: CustomEvent<DSEventDetail>) => {
+    if (
+      e.detail.component === "Dropdown" &&
+      e.detail.event === DSEventTypes.KEYPRESS
+    ) {
+      emitInteractionAnalyticsEvent(this.containerRef.current, {
+        key: e.detail.meta.key,
+      });
+      e.stopPropagation();
+    }
+  };
+
   render() {
     // Get columns from widget properties
     const columns: Record<string, ColumnProperties> = this.props
@@ -33,7 +67,7 @@ class PrimaryColumnDropdownControl extends BaseControl<ControlProps> {
     }
 
     return (
-      <StyledDropDownContainer>
+      <StyledDropDownContainer ref={this.containerRef}>
         <StyledDropDown
           dropdownMaxHeight="200px"
           fillOptions
@@ -47,9 +81,13 @@ class PrimaryColumnDropdownControl extends BaseControl<ControlProps> {
     );
   }
 
-  onItemSelect = (value?: string): void => {
+  onItemSelect = (
+    value?: string,
+    _option?: DropdownOption,
+    isUpdatedViaKeyboard?: boolean,
+  ): void => {
     if (value) {
-      this.updateProperty(this.props.propertyName, value);
+      this.updateProperty(this.props.propertyName, value, isUpdatedViaKeyboard);
     }
   };
 
