@@ -52,7 +52,6 @@ SyntaxHighlighter.registerLanguage("javascript", js);
  * then render it immediately upon focus event.
  */
 function CodeEditor(props: any) {
-  console.log(props);
   const [showEditor, setEditorVisibility] = useState<boolean>(false);
   const [containsCode, setContainsCode] = useState<boolean>(false);
   const [containsObject, setContainsObject] = useState<boolean>(false);
