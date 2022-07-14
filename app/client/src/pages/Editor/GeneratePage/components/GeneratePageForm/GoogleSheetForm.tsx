@@ -19,7 +19,7 @@ import Icon, { IconSize } from "components/ads/Icon";
 import { Colors } from "constants/Colors";
 import { getTypographyByKey } from "constants/DefaultTheme";
 import { debounce } from "lodash";
-import Text, { TextType, FontWeight } from "components/ads/Text";
+import { Text, TextType, FontWeight } from "design-system";
 import {
   createMessage,
   GEN_CRUD_TABLE_HEADER_LABEL,

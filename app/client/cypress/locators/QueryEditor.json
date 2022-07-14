@@ -33,5 +33,6 @@
     "suggestedWidgetChart": ".t--suggested-widget-CHART_WIDGET",
     "queryTimeout": "//input[@name='actionConfiguration.timeoutInMillisecond']",
     "listingAndReviewContext": "//div[text()='listingAndReviews']/ancestor::div/following-sibling::div/div[contains(@class, 'entity-context-menu')]//span[text()='Add']",
-    "navigateToAction": ".t--entity-name"
+    "navigateToAction": ".t--entity-name",
+    "querySettingsTab": "[data-cy=t--tab-SETTINGS]"
 }
