@@ -37,7 +37,7 @@ async function run() {
     const backupRootPath = await fsPromises.mkdtemp(path.join(os.tmpdir(), 'appsmithctl-backup-'));
     const backupContentsPath = backupRootPath + '/appsmith-backup-' + timestamp;
 
-    await fsPromises.mkdir(backupContentsPaths);
+    await fsPromises.mkdir(backupContentsPath);
 
     await exportDatabase(backupContentsPath);
 
@@ -51,7 +51,7 @@ async function run() {
     await fsPromises.rm(backupRootPath, { recursive: true, force: true });
 
     console.log('Finished taking a baceup at', archivePath);
-    // console.log('Please remember to also take the `docker.env` separately since it includes sensitive, but critical information.')
+    await postBackupCleanup();
 
   } catch (err) {
     errorCode = 1;
@@ -124,6 +124,20 @@ async function createFinalArchive(destFolder, timestamp) {
   console.log('Created final archive');
 
   return archive;
+}
+
+async function postBackupCleanup(){
+  console.log('Post-backup cleanup')
+  let backupArchivesLimit = process.env.APPSMITH_BACKUP_ARCHIVE_LIMIT;
+  if(!backupArchivesLimit)
+    backupArchivesLimit = 2
+  const backupFiles = await utils.listLocalBackupFiles();
+  while (backupFiles.length > backupArchivesLimit){
+    const fileName = backupFiles.shift();
+    await fsPromises.rm(Constants.BACKUP_PATH + '/' + fileName);
+  }
+  console.log('Post-backup cleanup completed.');
+
 }
 
 module.exports = {
