@@ -185,6 +185,7 @@ describe("<TreeDropdown/>", () => {
         selfIndex: [1],
       },
       undefined,
+      true,
     );
 
     userEvent.keyboard("{Enter}");
@@ -200,6 +201,7 @@ describe("<TreeDropdown/>", () => {
         selfIndex: [4],
       },
       undefined,
+      true,
     );
   });
 
@@ -313,6 +315,7 @@ describe("<TreeDropdown/>", () => {
         selfIndex: [2, 1],
       },
       undefined,
+      true,
     );
   });
 
