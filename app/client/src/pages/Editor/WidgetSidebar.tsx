@@ -21,7 +21,7 @@ function WidgetSidebar({ isActive }: { isActive: boolean }) {
   useEffect(() => {
     fuse = new Fuse(cards, {
       keys: ["displayName", "searchTags"],
-      threshold: 0.2,
+      threshold: 0.1,
       distance: 0,
     });
   }, [cards]);
