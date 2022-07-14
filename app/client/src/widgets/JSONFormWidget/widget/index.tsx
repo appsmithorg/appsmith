@@ -85,6 +85,7 @@ class JSONFormWidget extends BaseWidget<
 
     this.isWidgetMounting = true;
   }
+  formRef = React.createRef<HTMLDivElement>();
 
   state = {
     resetObserverCallback: noop,
@@ -133,6 +134,14 @@ class JSONFormWidget extends BaseWidget<
       this.state.metaInternalFieldState,
       schema,
     );
+    const height = this.formRef?.current?.scrollHeight || 0;
+    const footerHeight = 60; // TODO(abhinav): Get it from the component.
+    const totalHeight = footerHeight + height;
+    const { componentHeight } = this.getComponentDimensions();
+
+    if (height && Math.abs(componentHeight - totalHeight) > 20) {
+      this.updateDynamicHeight(totalHeight);
+    }
   }
 
   computeDynamicPropertyPathList = (schema: Schema) => {
@@ -363,7 +372,7 @@ class JSONFormWidget extends BaseWidget<
         isWidgetMounting={this.isWidgetMounting}
         onFormValidityUpdate={this.onFormValidityUpdate}
         onSubmit={this.onSubmit}
-        ref={this.contentRef}
+        ref={this.formRef}
         registerResetObserver={this.registerResetObserver}
         renderMode={this.props.renderMode}
         resetButtonLabel={this.props.resetButtonLabel}

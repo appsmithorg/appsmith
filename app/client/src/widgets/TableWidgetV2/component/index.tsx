@@ -73,6 +73,7 @@ interface ReactTableComponentProps {
   applyFilter: (filters: ReactTableFilter[]) => void;
   columns: ReactTableColumnProps[];
   compactMode?: CompactMode;
+  isDynamicHeightEnabled: boolean;
   isVisibleSearch?: boolean;
   isVisibleFilters?: boolean;
   isVisibleDownload?: boolean;
@@ -84,7 +85,10 @@ interface ReactTableComponentProps {
   boxShadow?: string;
 }
 
-function ReactTableComponent(props: ReactTableComponentProps) {
+const ReactTableComponent = React.forwardRef<
+  HTMLDivElement,
+  ReactTableComponentProps
+>((props, ref) => {
   const {
     applyFilter,
     columns,
@@ -98,6 +102,7 @@ function ReactTableComponent(props: ReactTableComponentProps) {
     handleReorderColumn,
     handleResizeColumn,
     height,
+    isDynamicHeightEnabled,
     isLoading,
     isSortable,
     isVisibleDownload,
@@ -279,6 +284,7 @@ function ReactTableComponent(props: ReactTableComponentProps) {
       filters={filters}
       handleResizeColumn={handleResizeColumn}
       height={height}
+      isDynamicHeightEnabled={isDynamicHeightEnabled}
       isLoading={isLoading}
       isSortable={isSortable}
       isVisibleDownload={isVisibleDownload}
@@ -292,6 +298,7 @@ function ReactTableComponent(props: ReactTableComponentProps) {
       pageNo={pageNo - 1}
       pageSize={pageSize || 1}
       prevPageClick={prevPageClick}
+      ref={ref}
       searchKey={searchKey}
       searchTableData={searchTableData}
       selectTableRow={selectTableRow}
@@ -308,7 +315,7 @@ function ReactTableComponent(props: ReactTableComponentProps) {
       width={width}
     />
   );
-}
+});
 
 export default React.memo(ReactTableComponent, (prev, next) => {
   return (

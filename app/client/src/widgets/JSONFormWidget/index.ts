@@ -15,6 +15,7 @@ export const CONFIG = {
   features: {
     dynamicHeight: true,
   },
+  canvasHeightOffset: 6,
   type: Widget.getWidgetType(),
   name: "JSON Form",
   iconSVG: IconSVG,

@@ -110,6 +110,7 @@ export function* updateWidgetDynamicHeightSaga() {
       if (newHeightInPixels > maxDynamicHeightInPixels) {
         newHeightInPixels = maxDynamicHeightInPixels;
       }
+
       // Push the updates into the initialised array.
       expectedUpdates.push({
         widgetId,
@@ -452,10 +453,13 @@ export function* updateWidgetDynamicHeightSaga() {
       } else {
         const childWidget = stateWidgets[childWidgetId];
         const detachFromLayout = stateWidgets[childWidgetId];
+
+        const bottomRow =
+          dynamicHeightLayoutTree[childWidget.widgetId].bottomRow;
         if (!detachFromLayout) {
           maxCanvasHeight = Math.max(
             maxCanvasHeight,
-            childWidget.bottomRow * GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
+            bottomRow * GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
           );
         }
       }

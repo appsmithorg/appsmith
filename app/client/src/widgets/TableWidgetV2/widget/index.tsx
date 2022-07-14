@@ -59,7 +59,10 @@ import { IconName } from "@blueprintjs/icons";
 import { Colors } from "constants/Colors";
 import { IconNames } from "@blueprintjs/core/node_modules/@blueprintjs/icons";
 import equal from "fast-deep-equal/es6";
-import { sanitizeKey } from "widgets/WidgetUtils";
+import {
+  isDynamicHeightEnabledForWidget,
+  sanitizeKey,
+} from "widgets/WidgetUtils";
 import DefaultCell from "../component/cellComponents/DefaultCell";
 import { ButtonCell } from "../component/cellComponents/ButtonCell";
 import { MenuButtonCell } from "../component/cellComponents/MenuButtonCell";
@@ -478,6 +481,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
   }
 
   componentDidUpdate(prevProps: TableWidgetProps) {
+    super.componentDidUpdate(prevProps);
     const {
       defaultSelectedRowIndex,
       defaultSelectedRowIndices,
@@ -755,6 +759,11 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
       isVisibleSearch;
 
     const { componentHeight, componentWidth } = this.getComponentDimensions();
+    const isDynamicHeightEnabled = isDynamicHeightEnabledForWidget(this.props);
+    console.log(
+      "Dynamic height: Is Dynamic height enabled for TABLEWIDGET:",
+      isDynamicHeightEnabled,
+    );
 
     return (
       <Suspense fallback={<Skeleton />}>
@@ -774,6 +783,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
           handleReorderColumn={this.handleReorderColumn}
           handleResizeColumn={this.handleResizeColumn}
           height={componentHeight}
+          isDynamicHeightEnabled={isDynamicHeightEnabled}
           isLoading={this.props.isLoading}
           isSortable={this.props.isSortable ?? true}
           isVisibleDownload={isVisibleDownload}
@@ -790,6 +800,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
             isVisibleHeaderOptions ? Math.max(1, pageSize) : pageSize + 1
           }
           prevPageClick={this.handlePrevPageClick}
+          ref={this.contentRef}
           searchKey={this.props.searchText}
           searchTableData={this.handleSearchTable}
           selectAllRow={this.handleAllRowSelect}

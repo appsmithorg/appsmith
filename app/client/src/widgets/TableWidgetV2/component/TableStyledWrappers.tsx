@@ -32,6 +32,7 @@ export const TableWrapper = styled.div<{
   isHeaderVisible?: boolean;
   borderRadius: string;
   boxShadow?: string;
+  $isDynamicHeightEnabled: boolean;
 }>`
   width: 100%;
   height: 100%;

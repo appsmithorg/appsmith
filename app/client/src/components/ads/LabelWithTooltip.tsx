@@ -269,9 +269,9 @@ const LabelWithTooltip = React.forwardRef<
       >
         <StyledLabel
           $isDynamicHeightEnabled={isDynamicHeightEnabled}
-          className={`${
-            loading ? Classes.SKELETON : Classes.TEXT_OVERFLOW_ELLIPSIS
-          } ${className}`}
+          className={`${loading ? Classes.SKELETON : ""} ${className} ${
+            position !== LabelPosition.Top ? Classes.TEXT_OVERFLOW_ELLIPSIS : ""
+          }`}
           color={color}
           compact={compact}
           disabled={disabled}
