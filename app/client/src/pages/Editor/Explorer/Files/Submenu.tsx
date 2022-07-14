@@ -8,11 +8,7 @@ import {
 import styled from "constants/DefaultTheme";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import {
-  getCurrentPageId,
-  selectCurrentApplicationSlug,
-  selectPageSlugToIdMap,
-} from "selectors/editorSelectors";
+import { getCurrentPageId } from "selectors/editorSelectors";
 import EntityAddButton from "../Entity/AddButton";
 import { ReactComponent as SearchIcon } from "assets/icons/ads/search.svg";
 import { ReactComponent as CrossIcon } from "assets/icons/ads/cross.svg";
@@ -66,8 +62,6 @@ export default function ExplorerSubMenu({
   const [show, setShow] = useState(openMenu);
   const fileOperations = useFilteredFileOperations(query);
   const pageId = useSelector(getCurrentPageId);
-  const applicationSlug = useSelector(selectCurrentApplicationSlug);
-  const pageIdToSlugMap = useSelector(selectPageSlugToIdMap);
   const dispatch = useDispatch();
   const plugins = useSelector((state: AppState) => {
     return state.entities.plugins.list;
@@ -128,12 +122,7 @@ export default function ExplorerSubMenu({
       if (item.action) {
         dispatch(item.action(pageId, "SUBMENU"));
       } else if (item.redirect) {
-        item.redirect(
-          applicationSlug,
-          pageIdToSlugMap[pageId],
-          pageId,
-          "SUBMENU",
-        );
+        item.redirect(pageId, "SUBMENU");
       }
       setShow(false);
     },

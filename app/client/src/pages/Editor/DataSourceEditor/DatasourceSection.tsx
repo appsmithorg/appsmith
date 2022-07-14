@@ -1,6 +1,6 @@
 import { Datasource } from "entities/Datasource";
 import React from "react";
-import { map, get, isEmpty } from "lodash";
+import { map, get, isEmpty, isArray } from "lodash";
 import { Colors } from "constants/Colors";
 import styled from "styled-components";
 import { isHidden } from "components/formControls/utils";
@@ -45,6 +45,10 @@ export const renderDatasourceSection = (
             const { configProperty, controlType, label } = section;
             const reactKey = datasource.id + "_" + label;
             let value = get(datasource, configProperty);
+
+            if (!value || (isArray(value) && value.length < 1)) {
+              return;
+            }
 
             if (controlType === "KEYVALUE_ARRAY") {
               const configPropertyInfo = configProperty.split("[*].");
