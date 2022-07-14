@@ -4,6 +4,7 @@ import React, {
   useRef,
   useContext,
   useCallback,
+  useMemo,
 } from "react";
 import styled, { ThemeContext } from "styled-components";
 import {
@@ -742,8 +743,25 @@ export function ApplicationCard(props: ApplicationCardProps) {
     );
   }
 
+  const editModeURL = useMemo(() => {
+    if (!props.application.defaultPageId) return "";
+    return builderURL({
+      pageId: props.application.defaultPageId,
+      params,
+    });
+  }, [props.application.defaultPageId, params]);
+
+  const viewModeURL = useMemo(() => {
+    if (!props.application.defaultPageId) return "";
+    return viewerURL({
+      pageId: props.application.defaultPageId,
+      params,
+    });
+  }, [props.application.defaultPageId, params]);
+
   const launchApp = useCallback(
     (e) => {
+      e.preventDefault();
       e.stopPropagation();
       setURLParams();
       history.push(
@@ -758,6 +776,7 @@ export function ApplicationCard(props: ApplicationCardProps) {
 
   const editApp = useCallback(
     (e) => {
+      e.preventDefault();
       e.stopPropagation();
       setURLParams();
       history.push(
@@ -826,6 +845,7 @@ export function ApplicationCard(props: ApplicationCardProps) {
                     <EditButton
                       className="t--application-edit-link"
                       fill
+                      href={editModeURL}
                       icon={"edit"}
                       iconPosition={IconPositions.left}
                       onClick={editApp}
@@ -838,6 +858,7 @@ export function ApplicationCard(props: ApplicationCardProps) {
                       category={Category.tertiary}
                       className="t--application-view-link"
                       fill
+                      href={viewModeURL}
                       icon={"rocket"}
                       iconPosition={IconPositions.left}
                       onClick={launchApp}

@@ -77,7 +77,7 @@ export class Table {
   _columnSettings = (columnName: string) =>
     "//input[@placeholder='Column Title'][@value='" +
     columnName +
-    "']/parent::div/parent::div/following-sibling::div[contains(@class, 't--edit-column-btn')]";
+    "']/parent::div/parent::div/following-sibling::div/div[contains(@class, 't--edit-column-btn')]";
   _showPageItemsCount = "div.show-page-items";
   _filtersCount = this._filterBtn + " span.action-title";
 
