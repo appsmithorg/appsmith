@@ -61,6 +61,7 @@ const DraggableListWrapper = styled.div`
 
 function DraggableList(props: any) {
   const {
+    className,
     fixedHeight,
     focusedIndex,
     itemHeight,
@@ -215,6 +216,7 @@ function DraggableList(props: any) {
   });
   return (
     <div
+      className={className}
       ref={listRef}
       style={{
         height: listContainerHeight,
