@@ -1,8 +1,7 @@
 import { HelpBaseURL } from "constants/HelpConstants";
 import { algoliaHighlightTag } from "./utils";
 import log from "loglevel";
-
-const { marked } = require("marked");
+import marked, { Token } from "marked";
 
 /**
  * @param {String} HTML representing a single element
@@ -123,8 +122,8 @@ const parseMarkdown = (value: string) => {
   value = replaceHintTagsWithCode(stripDescriptionMarkdown(value));
 
   marked.use({
-    walkTokens(token: any) {
-      const currentToken = token;
+    walkTokens(token: unknown) {
+      const currentToken = token as Token;
       if ("type" in currentToken && currentToken.type === "link") {
         let href = currentToken.href;
         try {

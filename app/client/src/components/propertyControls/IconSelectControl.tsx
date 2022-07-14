@@ -15,6 +15,7 @@ import { Colors } from "constants/Colors";
 import { replayHighlightClass } from "globalStyles/portals";
 import _ from "lodash";
 import { generateReactKey } from "utils/generators";
+import { emitInteractionAnalyticsEvent } from "utils/AppsmithUtils";
 
 const IconSelectContainerStyles = createGlobalStyle<{
   targetWidth: number | undefined;
@@ -185,7 +186,7 @@ class IconSelectControl extends BaseControl<
           itemPredicate={this.filterIconName}
           itemRenderer={this.renderIconItem}
           items={ICON_NAMES}
-          onItemSelect={this.handleIconChange}
+          onItemSelect={this.handleItemSelect}
           onQueryChange={this.handleQueryChange}
           popoverProps={{
             enforceFocus: false,
@@ -241,6 +242,9 @@ class IconSelectControl extends BaseControl<
           break;
         case "ArrowDown":
         case "Down": {
+          emitInteractionAnalyticsEvent(this.iconSelectTargetRef.current, {
+            key: e.key,
+          });
           if (document.activeElement === this.searchInput.current) {
             (document.activeElement as HTMLElement).blur();
             if (this.initialItemIndex < 0) this.initialItemIndex = -4;
@@ -261,9 +265,15 @@ class IconSelectControl extends BaseControl<
               (this.initialItemIndex >= 0 && this.initialItemIndex < 4)) &&
             this.searchInput.current
           ) {
+            emitInteractionAnalyticsEvent(this.iconSelectTargetRef.current, {
+              key: e.key,
+            });
             this.searchInput.current.focus();
             break;
           }
+          emitInteractionAnalyticsEvent(this.iconSelectTargetRef.current, {
+            key: e.key,
+          });
           const nextIndex = this.initialItemIndex - 4;
           if (nextIndex >= 0) this.setActiveIcon(nextIndex);
           e.preventDefault();
@@ -274,6 +284,9 @@ class IconSelectControl extends BaseControl<
           if (document.activeElement === this.searchInput.current) {
             break;
           }
+          emitInteractionAnalyticsEvent(this.iconSelectTargetRef.current, {
+            key: e.key,
+          });
           const nextIndex = this.initialItemIndex + 1;
           if (nextIndex < this.filteredItems.length)
             this.setActiveIcon(nextIndex);
@@ -285,6 +298,9 @@ class IconSelectControl extends BaseControl<
           if (document.activeElement === this.searchInput.current) {
             break;
           }
+          emitInteractionAnalyticsEvent(this.iconSelectTargetRef.current, {
+            key: e.key,
+          });
           const nextIndex = this.initialItemIndex - 1;
           if (nextIndex >= 0) this.setActiveIcon(nextIndex);
           e.preventDefault();
@@ -297,13 +313,22 @@ class IconSelectControl extends BaseControl<
             this.filteredItems.length !== 2
           )
             break;
-          this.handleIconChange(this.filteredItems[this.initialItemIndex]);
+          emitInteractionAnalyticsEvent(this.iconSelectTargetRef.current, {
+            key: e.key,
+          });
+          this.handleIconChange(
+            this.filteredItems[this.initialItemIndex],
+            true,
+          );
           this.debouncedSetState({ isOpen: false });
           e.preventDefault();
           e.stopPropagation();
           break;
         }
         case "Escape": {
+          emitInteractionAnalyticsEvent(this.iconSelectTargetRef.current, {
+            key: e.key,
+          });
           this.setState({
             isOpen: false,
             activeIcon: this.props.propertyValue ?? NONE,
@@ -311,14 +336,20 @@ class IconSelectControl extends BaseControl<
           e.stopPropagation();
         }
       }
-    } else if (
-      this.iconSelectTargetRef.current === document.activeElement &&
-      (e.key === "ArrowUp" ||
-        e.key === "Up" ||
-        e.key === "ArrowDown" ||
-        e.key === "Down")
-    ) {
-      this.debouncedSetState({ isOpen: true }, this.handleButtonClick);
+    } else if (this.iconSelectTargetRef.current === document.activeElement) {
+      switch (e.key) {
+        case "ArrowUp":
+        case "Up":
+        case "ArrowDown":
+        case "Down":
+          this.debouncedSetState({ isOpen: true }, this.handleButtonClick);
+          break;
+        case "Tab":
+          emitInteractionAnalyticsEvent(this.iconSelectTargetRef.current, {
+            key: `${e.shiftKey ? "Shift+" : ""}${e.key}`,
+          });
+          break;
+      }
     }
   };
 
@@ -385,12 +416,17 @@ class IconSelectControl extends BaseControl<
     return iconName.toLowerCase().indexOf(query.toLowerCase()) >= 0;
   };
 
-  private handleIconChange = (icon: IconType) => {
+  private handleIconChange = (icon: IconType, isUpdatedViaKeyboard = false) => {
     this.setState({ activeIcon: icon });
     this.updateProperty(
       this.props.propertyName,
       icon === NONE ? undefined : icon,
+      isUpdatedViaKeyboard,
     );
+  };
+
+  private handleItemSelect = (icon: IconType) => {
+    this.handleIconChange(icon, false);
   };
 
   static getControlType() {
