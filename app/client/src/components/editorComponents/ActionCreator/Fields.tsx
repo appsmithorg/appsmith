@@ -1,6 +1,9 @@
 import React from "react";
 
-import TreeDropdown, { TreeDropdownOption } from "components/ads/TreeDropdown";
+import TreeDropdown, {
+  Setter,
+  TreeDropdownOption,
+} from "components/ads/TreeDropdown";
 import {
   ControlWrapper,
   FieldWrapper,
@@ -279,9 +282,7 @@ const views = {
             defaultText={props.defaultText}
             displayValue={props.displayValue}
             getDefaults={props.getDefaults}
-            onSelect={(value, defaultValue?: string) => {
-              props.set(value, defaultValue);
-            }}
+            onSelect={props.set as Setter}
             optionTree={props.options}
             selectedLabelModifier={props.selectedLabelModifier}
             selectedValue={props.get(props.value, false) as string}
@@ -317,9 +318,9 @@ const views = {
             label={props.label}
             onChange={(event: any) => {
               if (event.target) {
-                props.set(event.target.value);
+                props.set(event.target.value, true);
               } else {
-                props.set(event);
+                props.set(event, true);
               }
             }}
             value={props.get(props.value, props.index, false) as string}
@@ -742,13 +743,17 @@ function renderField(props: {
         options: options,
         label: label,
         get: fieldConfig.getter,
-        set: (value: string | DropdownOption, defaultValue?: string) => {
+        set: (
+          value: string | DropdownOption,
+          defaultValue?: string,
+          isUpdatedViaKeyboard = false,
+        ) => {
           const finalValueToSet = fieldConfig.setter(
             value,
             props.value,
             defaultValue,
           );
-          props.onValueChange(finalValueToSet);
+          props.onValueChange(finalValueToSet, isUpdatedViaKeyboard);
         },
         value: props.value,
         defaultText: defaultText,
@@ -825,9 +830,9 @@ function renderField(props: {
       viewElement = (view as (props: TextViewProps) => JSX.Element)({
         label: fieldLabel,
         get: fieldConfig.getter,
-        set: (value: string | DropdownOption) => {
+        set: (value: string | DropdownOption, isUpdatedViaKeyboard = false) => {
           const finalValueToSet = fieldConfig.setter(value, props.value);
-          props.onValueChange(finalValueToSet);
+          props.onValueChange(finalValueToSet, isUpdatedViaKeyboard);
         },
         value: props.value,
         additionalAutoComplete: props.additionalAutoComplete,
@@ -885,13 +890,19 @@ function Fields(props: {
                     label={selectorField.label}
                     maxDepth={props.maxDepth}
                     modalDropdownList={props.modalDropdownList}
-                    onValueChange={(value: any) => {
+                    onValueChange={(
+                      value: any,
+                      isUpdatedViaKeyboard: boolean,
+                    ) => {
                       const parentValue =
                         selectorField.getParentValue &&
                         selectorField.getParentValue(
                           value.substring(2, value.length - 2),
                         );
-                      props.onValueChange(parentValue || value);
+                      props.onValueChange(
+                        parentValue || value,
+                        isUpdatedViaKeyboard,
+                      );
                     }}
                     pageDropdownOptions={props.pageDropdownOptions}
                     value={selectorField.value}
@@ -929,11 +940,11 @@ function Fields(props: {
             label={selectorField.label}
             maxDepth={props.maxDepth}
             modalDropdownList={props.modalDropdownList}
-            onValueChange={(value: any) => {
+            onValueChange={(value: any, isUpdatedViaKeyboard: boolean) => {
               const parentValue = selectorField.getParentValue(
                 value.substring(2, value.length - 2),
               );
-              props.onValueChange(parentValue);
+              props.onValueChange(parentValue, isUpdatedViaKeyboard);
             }}
             pageDropdownOptions={props.pageDropdownOptions}
             value={selectorField.value}

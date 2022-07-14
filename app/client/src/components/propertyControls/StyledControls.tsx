@@ -12,6 +12,7 @@ import TextInput, { TextInputProps } from "components/ads/TextInput";
 import Dropdown from "components/ads/Dropdown";
 import { IconWrapper } from "constants/IconConstants";
 import { InputWrapper } from "components/ads/TextInput";
+import useInteractionAnalyticsEvent from "utils/hooks/useInteractionAnalyticsEvent";
 
 type ControlWrapperProps = {
   orientation?: ContainerOrientation;
@@ -203,6 +204,9 @@ export const StyledInputGroup = React.forwardRef(
   (props: TextInputProps, ref) => {
     let inputRef = useRef<HTMLInputElement>(null);
     const wrapperRef = useRef<HTMLInputElement>(null);
+    const { dispatchInteractionAnalyticsEvent } = useInteractionAnalyticsEvent<
+      HTMLInputElement
+    >(false, wrapperRef);
 
     if (ref) inputRef = ref as RefObject<HTMLInputElement>;
 
@@ -218,14 +222,23 @@ export const StyledInputGroup = React.forwardRef(
         case "Enter":
         case " ":
           if (document.activeElement === wrapperRef?.current) {
+            dispatchInteractionAnalyticsEvent({ key: e.key });
             inputRef?.current?.focus();
             e.preventDefault();
           }
           break;
         case "Escape":
           if (document.activeElement === inputRef?.current) {
+            dispatchInteractionAnalyticsEvent({ key: e.key });
             wrapperRef?.current?.focus();
             e.preventDefault();
+          }
+          break;
+        case "Tab":
+          if (document.activeElement === wrapperRef?.current) {
+            dispatchInteractionAnalyticsEvent({
+              key: `${e.shiftKey ? "Shift+" : ""}${e.key}`,
+            });
           }
           break;
       }
