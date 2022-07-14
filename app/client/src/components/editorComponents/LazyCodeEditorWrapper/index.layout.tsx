@@ -1,20 +1,9 @@
 import styled from "styled-components";
 
-export const ReadOnlyInput = styled.input`
-  width: 100%;
-  background-color: rgba(0, 0, 0, 0) !important;
-
-  position: absolute;
-  top: 0;
-  left: 0;
-  z-index: 2;
-  min-height: inherit;
-  height: -webkit-fill-available !important;
-`;
-
 export const HighlighedCodeContainer = styled("div")<{
   containsCode: boolean;
   containsObject?: boolean;
+  isPlaceholder?: boolean;
 }>`
   width: 100%;
   background-color: #fff !important;
@@ -40,19 +29,12 @@ export const HighlighedCodeContainer = styled("div")<{
     white-space: pre-wrap !important;
     word-break: normal !important;
 
-    code {
-      background: white !important;
-      font-family: monospace !important;
-      line-height: 21px !important;
-      font-size: 14px !important;
-      color: ${({ containsCode, containsObject }) =>
-        containsCode && !containsObject ? "#063289" : "inherit"} !important;
-
-      .token {
-        color: ${({ containsCode, containsObject }) =>
-          containsCode && !containsObject ? "#063289" : "inherit"} !important;
-      }
-    }
+    color: ${({ containsCode, containsObject, isPlaceholder }) =>
+      containsCode && !containsObject
+        ? "#063289"
+        : isPlaceholder
+        ? "#858282"
+        : "inherit"} !important;
   }
 `;
 
@@ -70,9 +52,4 @@ export const ContentWrapper = styled("div")<{
   min-height: 34px;
   border: 1px solid;
   border-color: inherit;
-`;
-
-export const NoCodeText = styled("div")<{ isPlaceholder?: boolean }>`
-  color: ${({ isPlaceholder }) =>
-    isPlaceholder ? "#858282" : "inherit"} !important;
 `;

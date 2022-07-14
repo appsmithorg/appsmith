@@ -1,8 +1,4 @@
 import React, { useState, useEffect } from "react";
-import { PrismLight as SyntaxHighlighter } from "react-syntax-highlighter";
-import js from "react-syntax-highlighter/dist/cjs/languages/prism/javascript";
-import { duotoneLight } from "react-syntax-highlighter/dist/cjs/styles/prism";
-import { ascetic } from "react-syntax-highlighter/dist/cjs/styles/hljs";
 
 import Editor from "components/editorComponents/CodeEditor";
 
@@ -10,11 +6,7 @@ import {
   ContentWrapper,
   HighlighedCodeContainer,
   LazyEditorWrapper,
-  NoCodeText,
-  ReadOnlyInput,
 } from "./index.layout";
-
-SyntaxHighlighter.registerLanguage("javascript", js);
 
 /**
  * Shimming request idle callback as it is not avaialble in Safari browser.
@@ -65,7 +57,7 @@ function CodeEditor(props: any) {
 
   useEffect(() => {
     // Check if input value contains code
-    const str: string = getText();
+    let str: string = getText();
     if (str && typeof str === "string" && str?.indexOf("{{") > -1)
       setContainsCode(true);
     if (Array.isArray(str) || typeof str === "object") {
@@ -74,35 +66,21 @@ function CodeEditor(props: any) {
       setContainsObject(true);
       return;
     }
+    if (!str) {
+      str = props?.placeholder || "";
+      setIsPlaceholder(true);
+    }
     setText(str.toString());
   }, [props?.input?.value, props?.placeholder]);
 
   const getText = (): string => {
     const str = props?.input?.value;
     try {
+      if (str && typeof str === "string") return str;
       return JSON.parse(str);
     } catch (e) {
-      if (!str) {
-        setIsPlaceholder(true);
-        return props?.placeholder || "";
-      }
       return str;
     }
-  };
-
-  const highlightedText = () => {
-    if (!containsCode || isPlaceholder) {
-      return <NoCodeText isPlaceholder={isPlaceholder}>{text}</NoCodeText>;
-    }
-    return (
-      <SyntaxHighlighter
-        language="javascript"
-        style={containsObject ? ascetic : duotoneLight}
-        wrapLongLines
-      >
-        {text}
-      </SyntaxHighlighter>
-    );
   };
 
   useEffect(() => {
@@ -123,20 +101,13 @@ function CodeEditor(props: any) {
   ) : (
     <LazyEditorWrapper>
       <ContentWrapper containsCode={containsCode} isPlaceholder={isPlaceholder}>
-        <ReadOnlyInput
-          className="t--code-editor-wrapper unfocused-code-editor"
-          data-testid="lazy-code-editor"
-          onFocus={handleFocus}
-          placeholder={""}
-          readOnly
-          type="text"
-          value={""}
-        />
         <HighlighedCodeContainer
           containsCode={containsCode}
           containsObject={containsObject}
+          isPlaceholder={isPlaceholder}
+          onMouseEnter={handleFocus}
         >
-          {highlightedText()}
+          <pre>{text}</pre>
         </HighlighedCodeContainer>
       </ContentWrapper>
     </LazyEditorWrapper>
