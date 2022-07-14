@@ -674,7 +674,7 @@ describe("Validate Mongo Query Pane Validations", () => {
     agHelper.ActionContextMenuWithInPane("Delete");
   });
 
-  it("19. Verfiy application can parse dates before and on or after Jan 1, 1970", () => {
+  it("19. Bug 13285 - Verfiy application can parse dates before and on or after Jan 1, 1970", () => {
     let birthNDeathArray = `[{
       "name": {
         "first": "John",
