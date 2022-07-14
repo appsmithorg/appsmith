@@ -1,0 +1,1901 @@
+{
+	"clientSchemaVersion": 1,
+	"serverSchemaVersion": 4,
+	"exportedApplication": {
+		"name": "TableFilters",
+		"isPublic": false,
+		"appIsExample": false,
+		"unreadCommentThreads": 0,
+		"color": "#EAEDFB",
+		"icon": "open-new-tab",
+		"slug": "tablefilters",
+		"evaluationVersion": 2,
+		"applicationVersion": 2,
+		"isManualUpdate": false,
+		"new": true
+	},
+	"datasourceList": [
+
+	],
+	"pageList": [
+		{
+			"userPermissions": [
+				"read:pages",
+				"manage:pages"
+			],
+			"gitSyncId": "627404e07867f03d1e244656_6274f1e29803f9024b1208be",
+			"unpublishedPage": {
+				"name": "TableFiltersTest",
+				"slug": "tablefilterstest",
+				"layouts": [
+					{
+						"id": "TableFiltersTest",
+						"userPermissions": [
+
+						],
+						"dsl": {
+							"widgetName": "MainContainer",
+							"backgroundColor": "none",
+							"rightColumn": 1224,
+							"snapColumns": 64,
+							"detachFromLayout": true,
+							"widgetId": "0",
+							"topRow": 0,
+							"bottomRow": 930,
+							"containerStyle": "none",
+							"snapRows": 93,
+							"parentRowSpace": 1,
+							"type": "CANVAS_WIDGET",
+							"canExtend": true,
+							"version": 58,
+							"minHeight": 940,
+							"parentColumnSpace": 1,
+							"dynamicBindingPathList": [
+
+							],
+							"leftColumn": 0,
+							"children": [
+								{
+									"boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}",
+									"widgetName": "Table1",
+									"defaultPageSize": 0,
+									"columnOrder": [
+										"seq",
+										"pick",
+										"FirstName",
+										"LastName",
+										"FullName",
+										"Birthdate",
+										"age",
+										"dollar",
+										"street",
+										"city",
+										"state",
+										"zip",
+										"customColumn1"
+									],
+                  "aliasMap": {
+                    "seq": "seq",
+										"pick": "pick",
+										"FirstName": "FirstName",
+										"LastName": "LastName",
+										"FullName": "FullName",
+										"Birthdate": "Birthdate",
+										"age": "age",
+										"dollar": "dollar",
+										"street": "street",
+										"city": "city",
+										"state": "state",
+										"zip": "zip",
+										"undefined": "undefined",
+										"customColumn1": "customColumn1"
+                  },
+									"isVisibleDownload": true,
+									"dynamicPropertyPathList": [
+										{
+											"key": "primaryColumns.pick.buttonColor"
+										}
+									],
+									"displayName": "Table",
+									"iconSVG": "/static/media/icon.db8a9cbd.svg",
+									"topRow": 0,
+									"bottomRow": 88,
+									"isSortable": true,
+									"parentRowSpace": 10,
+									"type": "TABLE_WIDGET_V2",
+									"defaultSelectedRow": "0",
+									"hideCard": false,
+									"animateLoading": true,
+									"parentColumnSpace": 10.3125,
+									"dynamicTriggerPathList": [
+
+									],
+									"dynamicBindingPathList": [
+										{
+											"key": "accentColor"
+										},
+										{
+											"key": "borderRadius"
+										},
+										{
+											"key": "boxShadow"
+										},
+										{
+											"key": "childStylesheet.button.buttonColor"
+										},
+										{
+											"key": "childStylesheet.button.borderRadius"
+										},
+										{
+											"key": "childStylesheet.menuButton.menuColor"
+										},
+										{
+											"key": "childStylesheet.menuButton.borderRadius"
+										},
+										{
+											"key": "childStylesheet.iconButton.menuColor"
+										},
+										{
+											"key": "childStylesheet.iconButton.borderRadius"
+										},
+										{
+											"key": "tableData"
+										},
+										{
+											"key": "primaryColumns.zip.computedValue"
+										},
+										{
+											"key": "primaryColumns.city.computedValue"
+										},
+										{
+											"key": "primaryColumns.dollar.computedValue"
+										},
+										{
+											"key": "primaryColumns.pick.computedValue"
+										},
+										{
+											"key": "primaryColumns.street.computedValue"
+										},
+										{
+											"key": "primaryColumns.FullName.computedValue"
+										},
+										{
+											"key": "primaryColumns.LastName.computedValue"
+										},
+										{
+											"key": "primaryColumns.state.computedValue"
+										},
+										{
+											"key": "primaryColumns.seq.computedValue"
+										},
+										{
+											"key": "primaryColumns.age.computedValue"
+										},
+										{
+											"key": "derivedColumns.dollar.buttonColor"
+										},
+										{
+											"key": "primaryColumns.dollar.buttonColor"
+										},
+										{
+											"key": "derivedColumns.dollar.borderRadius"
+										},
+										{
+											"key": "primaryColumns.dollar.borderRadius"
+										},
+										{
+											"key": "derivedColumns.dollar.boxShadow"
+										},
+										{
+											"key": "primaryColumns.dollar.boxShadow"
+										},
+										{
+											"key": "primaryColumns.dollar.buttonLabel"
+										},
+										{
+											"key": "derivedColumns.pick.buttonColor"
+										},
+										{
+											"key": "derivedColumns.pick.borderRadius"
+										},
+										{
+											"key": "primaryColumns.pick.borderRadius"
+										},
+										{
+											"key": "derivedColumns.pick.boxShadow"
+										},
+										{
+											"key": "primaryColumns.pick.boxShadow"
+										},
+										{
+											"key": "primaryColumns.pick.buttonLabel"
+										},
+										{
+											"key": "primaryColumns.pick.buttonColor"
+										},
+										{
+											"key": "primaryColumns.Birthdate.computedValue"
+										},
+										{
+											"key": "primaryColumns.FirstName.computedValue"
+										},
+										{
+											"key": "derivedColumns.customColumn1.computedValue"
+										},
+										{
+											"key": "primaryColumns.customColumn1.computedValue"
+										}
+									],
+									"leftColumn": 0,
+									"primaryColumns": {
+										"zip": {
+											"index": 0,
+											"width": 150,
+											"id": "zip",
+                      "alias": "zip",
+                      "originalId": "zip",
+											"horizontalAlignment": "LEFT",
+											"verticalAlignment": "CENTER",
+											"columnType": "text",
+											"textSize": "0.875rem",
+											"enableFilter": true,
+											"enableSort": true,
+											"isVisible": false,
+											"isDisabled": false,
+											"isCellVisible": true,
+											"isDerived": false,
+											"label": "zip",
+											"computedValue": "{{Table1.processedTableData.map((currentRow, currentIndex) => ( currentRow.zip))}}"
+										},
+										"city": {
+											"index": 2,
+											"width": 150,
+											"id": "city",
+                      "alias": "city",
+                      "originalId": "city",
+											"horizontalAlignment": "LEFT",
+											"verticalAlignment": "CENTER",
+											"columnType": "text",
+											"textSize": "0.875rem",
+											"enableFilter": true,
+											"enableSort": true,
+											"isVisible": false,
+											"isDisabled": false,
+											"isCellVisible": true,
+											"isDerived": false,
+											"label": "city",
+											"computedValue": "{{Table1.processedTableData.map((currentRow, currentIndex) => ( currentRow.city))}}"
+										},
+										"dollar": {
+											"index": 4,
+											"width": 150,
+											"id": "dollar",
+                      "alias": "dollar",
+                      "originalId": "dollar",
+											"horizontalAlignment": "LEFT",
+											"verticalAlignment": "CENTER",
+											"columnType": "text",
+											"textSize": "0.875rem",
+											"enableFilter": true,
+											"enableSort": true,
+											"isVisible": true,
+											"isDisabled": false,
+											"isCellVisible": true,
+											"isDerived": false,
+											"label": "Wealth",
+											"computedValue": "{{Table1.processedTableData.map((currentRow, currentIndex) => ( currentRow.dollar))}}",
+											"iconName": "",
+											"buttonColor": "{{Table1.processedTableData.map((currentRow, currentIndex) => ( appsmith.theme.colors.primaryColor))}}",
+											"borderRadius": "{{Table1.processedTableData.map((currentRow, currentIndex) => ( appsmith.theme.borderRadius.appBorderRadius))}}",
+											"boxShadow": "{{Table1.processedTableData.map((currentRow, currentIndex) => ( 'none'))}}",
+											"buttonLabel": "{{Table1.processedTableData.map((currentRow, currentIndex) => ( 'Action'))}}"
+										},
+										"pick": {
+											"index": 5,
+											"width": 150,
+											"id": "pick",
+                      "alias": "pick",
+                      "originalId": "pick",
+											"horizontalAlignment": "LEFT",
+											"verticalAlignment": "CENTER",
+											"columnType": "button",
+											"textSize": "0.875rem",
+											"enableFilter": true,
+											"enableSort": true,
+											"isVisible": true,
+											"isDisabled": false,
+											"isCellVisible": true,
+											"isDerived": false,
+											"label": "Family",
+											"computedValue": "{{Table1.processedTableData.map((currentRow, currentIndex) => ( currentRow.pick))}}",
+											"buttonColor": "{{Table1.processedTableData.map((currentRow, currentIndex) => ( currentRow.pick))}}",
+											"borderRadius": "{{Table1.processedTableData.map((currentRow, currentIndex) => ( appsmith.theme.borderRadius.appBorderRadius))}}",
+											"boxShadow": "{{Table1.processedTableData.map((currentRow, currentIndex) => ( 'none'))}}",
+											"iconName": "",
+											"buttonLabel": "{{Table1.processedTableData.map((currentRow, currentIndex) => ( currentRow.pick))}}"
+										},
+										"street": {
+											"index": 6,
+											"width": 150,
+											"id": "street",
+                      "alias": "street",
+                      "originalId": "street",
+											"horizontalAlignment": "LEFT",
+											"verticalAlignment": "CENTER",
+											"columnType": "text",
+											"textSize": "0.875rem",
+											"enableFilter": true,
+											"enableSort": true,
+											"isVisible": false,
+											"isDisabled": false,
+											"isCellVisible": true,
+											"isDerived": false,
+											"label": "street",
+											"computedValue": "{{Table1.processedTableData.map((currentRow, currentIndex) => ( currentRow.street))}}"
+										},
+										"FullName": {
+											"index": 7,
+											"width": 150,
+											"id": "FullName",
+                      "alias": "FullName",
+                      "originalId": "FullName",
+											"horizontalAlignment": "LEFT",
+											"verticalAlignment": "CENTER",
+											"columnType": "text",
+											"textSize": "0.875rem",
+											"enableFilter": true,
+											"enableSort": true,
+											"isVisible": true,
+											"isDisabled": false,
+											"isCellVisible": true,
+											"isDerived": false,
+											"label": "FullName",
+											"computedValue": "{{Table1.processedTableData.map((currentRow, currentIndex) => ( currentRow.FullName))}}"
+										},
+										"LastName": {
+											"index": 9,
+											"width": 150,
+											"id": "LastName",
+                      "alias": "LastName",
+                      "originalId": "LastName",
+											"horizontalAlignment": "LEFT",
+											"verticalAlignment": "CENTER",
+											"columnType": "text",
+											"textSize": "0.875rem",
+											"enableFilter": true,
+											"enableSort": true,
+											"isVisible": true,
+											"isDisabled": false,
+											"isCellVisible": true,
+											"isDerived": false,
+											"label": "LastName",
+											"computedValue": "{{Table1.processedTableData.map((currentRow, currentIndex) => ( currentRow.LastName))}}"
+										},
+										"state": {
+											"index": 10,
+											"width": 150,
+											"id": "state",
+                      "alias": "state",
+                      "originalId": "state",
+											"horizontalAlignment": "LEFT",
+											"verticalAlignment": "CENTER",
+											"columnType": "text",
+											"textSize": "0.875rem",
+											"enableFilter": true,
+											"enableSort": true,
+											"isVisible": false,
+											"isDisabled": false,
+											"isCellVisible": true,
+											"isDerived": false,
+											"label": "state",
+											"computedValue": "{{Table1.processedTableData.map((currentRow, currentIndex) => ( currentRow.state))}}"
+										},
+										"seq": {
+											"index": 11,
+											"width": 150,
+											"id": "seq",
+                      "alias": "seq",
+                      "originalId": "seq",
+											"horizontalAlignment": "LEFT",
+											"verticalAlignment": "CENTER",
+											"columnType": "number",
+											"textSize": "0.875rem",
+											"enableFilter": true,
+											"enableSort": true,
+											"isVisible": true,
+											"isDisabled": false,
+											"isCellVisible": true,
+											"isDerived": false,
+											"label": "seq",
+											"computedValue": "{{Table1.processedTableData.map((currentRow, currentIndex) => ( currentRow.seq))}}",
+											"iconName": ""
+										},
+										"age": {
+											"index": 12,
+											"width": 150,
+											"id": "age",
+                      "alias": "age",
+                      "originalId": "age",
+											"horizontalAlignment": "LEFT",
+											"verticalAlignment": "CENTER",
+											"columnType": "number",
+											"textSize": "0.875rem",
+											"enableFilter": true,
+											"enableSort": true,
+											"isVisible": true,
+											"isDisabled": false,
+											"isCellVisible": true,
+											"isDerived": false,
+											"label": "Age",
+											"computedValue": "{{Table1.processedTableData.map((currentRow, currentIndex) => ( currentRow.age))}}",
+											"iconName": ""
+										},
+										"Birthdate": {
+											"index": 8,
+											"width": 150,
+											"id": "Birthdate",
+                      "alias": "Birthdate",
+                      "originalId": "Birthdate",
+											"horizontalAlignment": "LEFT",
+											"verticalAlignment": "CENTER",
+											"columnType": "date",
+											"textColor": "",
+											"textSize": "0.875rem",
+											"enableFilter": true,
+											"enableSort": true,
+											"isVisible": true,
+											"isDisabled": false,
+											"isCellVisible": true,
+											"isDerived": false,
+											"label": "Enhancementdate",
+											"computedValue": "{{Table1.processedTableData.map((currentRow, currentIndex) => ( currentRow.Birthdate))}}",
+											"cellBackground": "",
+											"iconName": "",
+											"inputFormat": "Do MMM YYYY",
+											"outputFormat": "Do MMM YYYY"
+										},
+										"FirstName": {
+											"index": 3,
+											"width": 150,
+											"id": "FirstName",
+                      "alias": "FirstName",
+                      "originalId": "FirstName",
+											"horizontalAlignment": "LEFT",
+											"verticalAlignment": "CENTER",
+											"columnType": "text",
+											"textColor": "",
+											"textSize": "0.875rem",
+											"enableFilter": true,
+											"enableSort": true,
+											"isVisible": true,
+											"isDisabled": false,
+											"isCellVisible": true,
+											"isDerived": false,
+											"label": "FirstName",
+											"computedValue": "{{Table1.processedTableData.map((currentRow, currentIndex) => ( currentRow.FirstName))}}",
+											"cellBackground": ""
+										},
+										"customColumn1": {
+											"index": 13,
+											"width": 150,
+											"id": "customColumn1",
+                      "alias": "customColumn1",
+                      "originalId": "customColumn1",
+											"columnType": "text",
+											"enableFilter": true,
+											"enableSort": true,
+											"isVisible": true,
+											"isDisabled": false,
+											"isCellVisible": true,
+											"isDerived": true,
+											"label": "Address",
+											"computedValue": "{{Table1.processedTableData.map((currentRow, currentIndex) => ( currentRow.age + ', ' + currentRow.street + ', ' + currentRow.city + ', ' + currentRow.state + ' - ' + currentRow.zip))}}",
+											"buttonStyle": "rgb(3, 179, 101)",
+											"labelColor": "#FFFFFF"
+										}
+									},
+									"delimiter": ",",
+									"key": "4u6cxamhqp",
+									"derivedColumns": {
+										"dollar": {
+											"buttonColor": "{{Table1.processedTableData.map((currentRow, currentIndex) => ( appsmith.theme.colors.primaryColor))}}",
+											"borderRadius": "{{Table1.processedTableData.map((currentRow, currentIndex) => ( appsmith.theme.borderRadius.appBorderRadius))}}",
+											"boxShadow": "{{Table1.processedTableData.map((currentRow, currentIndex) => ( 'none'))}}"
+										},
+										"pick": {
+											"buttonColor": "{{Table1.processedTableData.map((currentRow, currentIndex) => ( appsmith.theme.colors.primaryColor))}}",
+											"borderRadius": "{{Table1.processedTableData.map((currentRow, currentIndex) => ( appsmith.theme.borderRadius.appBorderRadius))}}",
+											"boxShadow": "{{Table1.processedTableData.map((currentRow, currentIndex) => ( 'none'))}}"
+										},
+										"customColumn1": {
+											"index": 13,
+											"width": 150,
+											"id": "customColumn1",
+											"columnType": "text",
+											"enableFilter": true,
+											"enableSort": true,
+											"isVisible": true,
+											"isDisabled": false,
+											"isCellVisible": true,
+											"isDerived": true,
+											"label": "Address",
+											"computedValue": "{{Table1.processedTableData.map((currentRow, currentIndex) => ( currentRow.age + ', ' + currentRow.street + ', ' + currentRow.city + ', ' + currentRow.state + ' - ' + currentRow.zip))}}",
+											"buttonStyle": "rgb(3, 179, 101)",
+											"labelColor": "#FFFFFF"
+										}
+									},
+									"rightColumn": 64,
+									"textSize": "0.875rem",
+									"widgetId": "o186qw63ch",
+									"accentColor": "{{appsmith.theme.colors.primaryColor}}",
+									"isVisibleFilters": true,
+									"tableData": "{{GetFilterTableTestData.data.body}}",
+									"isVisible": true,
+									"label": "Data",
+									"searchKey": "",
+									"enableClientSideSearch": true,
+									"version": 3,
+									"totalRecordsCount": 0,
+									"parentId": "0",
+									"renderMode": "CANVAS",
+									"isLoading": false,
+									"horizontalAlignment": "LEFT",
+									"isVisibleSearch": true,
+									"childStylesheet": {
+										"button": {
+											"buttonColor": "{{appsmith.theme.colors.primaryColor}}",
+											"borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+											"boxShadow": "none"
+										},
+										"menuButton": {
+											"menuColor": "{{appsmith.theme.colors.primaryColor}}",
+											"borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+											"boxShadow": "none"
+										},
+										"iconButton": {
+											"menuColor": "{{appsmith.theme.colors.primaryColor}}",
+											"borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+											"boxShadow": "none"
+										}
+									},
+									"borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+									"isVisiblePagination": true,
+									"verticalAlignment": "CENTER",
+									"columnWidthMap": {
+										"task": 245,
+										"step": 62,
+										"status": 75,
+										"seq": 81,
+										"zip": 94,
+										"state": 97
+									}
+								}
+							]
+						},
+						"layoutOnLoadActions": [
+							[
+								{
+									"id": "TableFiltersTest_GetFilterTableTestData",
+									"name": "GetFilterTableTestData",
+									"confirmBeforeExecute": false,
+									"pluginType": "API",
+									"jsonPathKeys": [
+
+									],
+									"timeoutInMillisecond": 10000
+								}
+							]
+						],
+						"new": false
+					}
+				],
+				"userPermissions": [
+
+				],
+				"isHidden": false
+			},
+			"publishedPage": {
+				"name": "TableFiltersTest",
+				"slug": "tablefilterstest",
+				"layouts": [
+					{
+						"id": "TableFiltersTest",
+						"userPermissions": [
+
+						],
+						"dsl": {
+							"widgetName": "MainContainer",
+							"backgroundColor": "none",
+							"rightColumn": 1224,
+							"snapColumns": 64,
+							"detachFromLayout": true,
+							"widgetId": "0",
+							"topRow": 0,
+							"bottomRow": 930,
+							"containerStyle": "none",
+							"snapRows": 93,
+							"parentRowSpace": 1,
+							"type": "CANVAS_WIDGET",
+							"canExtend": true,
+							"version": 58,
+							"minHeight": 940,
+							"parentColumnSpace": 1,
+							"dynamicBindingPathList": [
+
+							],
+							"leftColumn": 0,
+							"children": [
+								{
+									"boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}",
+									"widgetName": "Table1",
+									"defaultPageSize": 0,
+									"columnOrder": [
+										"seq",
+										"pick",
+										"FirstName",
+										"LastName",
+										"FullName",
+										"Birthdate",
+										"age",
+										"dollar",
+										"street",
+										"city",
+										"state",
+										"zip",
+										null,
+										"customColumn1"
+									],
+                  "aliasMap": {
+										"seq": "seq",
+										"pick": "pick",
+										"FirstName": "FirstName",
+										"LastName": "LastName",
+										"FullName": "FullName",
+										"Birthdate": "Birthdate",
+										"age": "age",
+										"dollar": "dollar",
+										"street": "street",
+										"city": "city",
+										"state": "state",
+										"zip": "zip",
+										"undefined": "undefined",
+										"customColumn1": "customColumn1"
+                  },
+									"isVisibleDownload": true,
+									"dynamicPropertyPathList": [
+										{
+											"key": "primaryColumns.pick.buttonColor"
+										}
+									],
+									"displayName": "Table",
+									"iconSVG": "/static/media/icon.db8a9cbd.svg",
+									"topRow": 0,
+									"bottomRow": 88,
+									"isSortable": true,
+									"parentRowSpace": 10,
+									"type": "TABLE_WIDGET_V2",
+									"defaultSelectedRow": "0",
+									"hideCard": false,
+									"animateLoading": true,
+									"parentColumnSpace": 10.3125,
+									"dynamicTriggerPathList": [
+
+									],
+									"dynamicBindingPathList": [
+										{
+											"key": "accentColor"
+										},
+										{
+											"key": "borderRadius"
+										},
+										{
+											"key": "boxShadow"
+										},
+										{
+											"key": "childStylesheet.button.buttonColor"
+										},
+										{
+											"key": "childStylesheet.button.borderRadius"
+										},
+										{
+											"key": "childStylesheet.menuButton.menuColor"
+										},
+										{
+											"key": "childStylesheet.menuButton.borderRadius"
+										},
+										{
+											"key": "childStylesheet.iconButton.menuColor"
+										},
+										{
+											"key": "childStylesheet.iconButton.borderRadius"
+										},
+										{
+											"key": "tableData"
+										},
+										{
+											"key": "primaryColumns.zip.computedValue"
+										},
+										{
+											"key": "primaryColumns.city.computedValue"
+										},
+										{
+											"key": "primaryColumns.dollar.computedValue"
+										},
+										{
+											"key": "primaryColumns.pick.computedValue"
+										},
+										{
+											"key": "primaryColumns.street.computedValue"
+										},
+										{
+											"key": "primaryColumns.FullName.computedValue"
+										},
+										{
+											"key": "primaryColumns.LastName.computedValue"
+										},
+										{
+											"key": "primaryColumns.state.computedValue"
+										},
+										{
+											"key": "primaryColumns.seq.computedValue"
+										},
+										{
+											"key": "primaryColumns.age.computedValue"
+										},
+										{
+											"key": "derivedColumns.dollar.buttonColor"
+										},
+										{
+											"key": "primaryColumns.dollar.buttonColor"
+										},
+										{
+											"key": "derivedColumns.dollar.borderRadius"
+										},
+										{
+											"key": "primaryColumns.dollar.borderRadius"
+										},
+										{
+											"key": "derivedColumns.dollar.boxShadow"
+										},
+										{
+											"key": "primaryColumns.dollar.boxShadow"
+										},
+										{
+											"key": "primaryColumns.dollar.buttonLabel"
+										},
+										{
+											"key": "derivedColumns.pick.buttonColor"
+										},
+										{
+											"key": "derivedColumns.pick.borderRadius"
+										},
+										{
+											"key": "primaryColumns.pick.borderRadius"
+										},
+										{
+											"key": "derivedColumns.pick.boxShadow"
+										},
+										{
+											"key": "primaryColumns.pick.boxShadow"
+										},
+										{
+											"key": "primaryColumns.pick.buttonLabel"
+										},
+										{
+											"key": "primaryColumns.pick.buttonColor"
+										},
+										{
+											"key": "primaryColumns.Birthdate.computedValue"
+										},
+										{
+											"key": "primaryColumns.FirstName.computedValue"
+										},
+										{
+											"key": "derivedColumns.customColumn1.computedValue"
+										},
+										{
+											"key": "primaryColumns.customColumn1.computedValue"
+										}
+									],
+									"leftColumn": 0,
+									"primaryColumns": {
+										"zip": {
+											"index": 0,
+											"width": 150,
+											"id": "zip",
+                      "alias": "zip",
+                      "originalId": "zip",
+											"horizontalAlignment": "LEFT",
+											"verticalAlignment": "CENTER",
+											"columnType": "text",
+											"textSize": "0.875rem",
+											"enableFilter": true,
+											"enableSort": true,
+											"isVisible": false,
+											"isDisabled": false,
+											"isCellVisible": true,
+											"isDerived": false,
+											"label": "zip",
+											"computedValue": "{{Table1.processedTableData.map((currentRow, currentIndex) => ( currentRow.zip))}}"
+										},
+										"city": {
+											"index": 2,
+											"width": 150,
+											"id": "city",
+                      "alias": "city",
+                      "originalId": "city",
+											"horizontalAlignment": "LEFT",
+											"verticalAlignment": "CENTER",
+											"columnType": "text",
+											"textSize": "0.875rem",
+											"enableFilter": true,
+											"enableSort": true,
+											"isVisible": false,
+											"isDisabled": false,
+											"isCellVisible": true,
+											"isDerived": false,
+											"label": "city",
+											"computedValue": "{{Table1.processedTableData.map((currentRow, currentIndex) => ( currentRow.city))}}"
+										},
+										"dollar": {
+											"index": 4,
+											"width": 150,
+											"id": "dollar",
+                      "alias": "dollar",
+                      "originalId": "dollar",
+											"horizontalAlignment": "LEFT",
+											"verticalAlignment": "CENTER",
+											"columnType": "text",
+											"textSize": "0.875rem",
+											"enableFilter": true,
+											"enableSort": true,
+											"isVisible": true,
+											"isDisabled": false,
+											"isCellVisible": true,
+											"isDerived": false,
+											"label": "Wealth",
+											"computedValue": "{{Table1.processedTableData.map((currentRow, currentIndex) => ( currentRow.dollar))}}",
+											"iconName": "",
+											"buttonColor": "{{Table1.processedTableData.map((currentRow, currentIndex) => ( appsmith.theme.colors.primaryColor))}}",
+											"borderRadius": "{{Table1.processedTableData.map((currentRow, currentIndex) => ( appsmith.theme.borderRadius.appBorderRadius))}}",
+											"boxShadow": "{{Table1.processedTableData.map((currentRow, currentIndex) => ( 'none'))}}",
+											"buttonLabel": "{{Table1.processedTableData.map((currentRow, currentIndex) => ( 'Action'))}}"
+										},
+										"pick": {
+											"index": 5,
+											"width": 150,
+											"id": "pick",
+                      "alias": "pick",
+                      "originalId": "pick",
+											"horizontalAlignment": "LEFT",
+											"verticalAlignment": "CENTER",
+											"columnType": "button",
+											"textSize": "0.875rem",
+											"enableFilter": true,
+											"enableSort": true,
+											"isVisible": true,
+											"isDisabled": false,
+											"isCellVisible": true,
+											"isDerived": false,
+											"label": "Family",
+											"computedValue": "{{Table1.processedTableData.map((currentRow, currentIndex) => ( currentRow.pick))}}",
+											"buttonColor": "{{Table1.processedTableData.map((currentRow, currentIndex) => ( currentRow.pick))}}",
+											"borderRadius": "{{Table1.processedTableData.map((currentRow, currentIndex) => ( appsmith.theme.borderRadius.appBorderRadius))}}",
+											"boxShadow": "{{Table1.processedTableData.map((currentRow, currentIndex) => ( 'none'))}}",
+											"iconName": "",
+											"buttonLabel": "{{Table1.processedTableData.map((currentRow, currentIndex) => ( currentRow.pick))}}"
+										},
+										"street": {
+											"index": 6,
+											"width": 150,
+											"id": "street",
+                      "alias": "street",
+                      "originalId": "street",
+											"horizontalAlignment": "LEFT",
+											"verticalAlignment": "CENTER",
+											"columnType": "text",
+											"textSize": "0.875rem",
+											"enableFilter": true,
+											"enableSort": true,
+											"isVisible": false,
+											"isDisabled": false,
+											"isCellVisible": true,
+											"isDerived": false,
+											"label": "street",
+											"computedValue": "{{Table1.processedTableData.map((currentRow, currentIndex) => ( currentRow.street))}}"
+										},
+										"FullName": {
+											"index": 7,
+											"width": 150,
+											"id": "FullName",
+                      "alias": "FullName",
+                      "originalId": "FullName",
+											"horizontalAlignment": "LEFT",
+											"verticalAlignment": "CENTER",
+											"columnType": "text",
+											"textSize": "0.875rem",
+											"enableFilter": true,
+											"enableSort": true,
+											"isVisible": true,
+											"isDisabled": false,
+											"isCellVisible": true,
+											"isDerived": false,
+											"label": "FullName",
+											"computedValue": "{{Table1.processedTableData.map((currentRow, currentIndex) => ( currentRow.FullName))}}"
+										},
+										"LastName": {
+											"index": 9,
+											"width": 150,
+											"id": "LastName",
+                      "alias": "LastName",
+                      "originalId": "LastName",
+											"horizontalAlignment": "LEFT",
+											"verticalAlignment": "CENTER",
+											"columnType": "text",
+											"textSize": "0.875rem",
+											"enableFilter": true,
+											"enableSort": true,
+											"isVisible": true,
+											"isDisabled": false,
+											"isCellVisible": true,
+											"isDerived": false,
+											"label": "LastName",
+											"computedValue": "{{Table1.processedTableData.map((currentRow, currentIndex) => ( currentRow.LastName))}}"
+										},
+										"state": {
+											"index": 10,
+											"width": 150,
+											"id": "state",
+                      "alias": "state",
+                      "originalId": "state",
+											"horizontalAlignment": "LEFT",
+											"verticalAlignment": "CENTER",
+											"columnType": "text",
+											"textSize": "0.875rem",
+											"enableFilter": true,
+											"enableSort": true,
+											"isVisible": false,
+											"isDisabled": false,
+											"isCellVisible": true,
+											"isDerived": false,
+											"label": "state",
+											"computedValue": "{{Table1.processedTableData.map((currentRow, currentIndex) => ( currentRow.state))}}"
+										},
+										"seq": {
+											"index": 11,
+											"width": 150,
+											"id": "seq",
+                      "alias": "seq",
+                      "originalId": "seq",
+											"horizontalAlignment": "LEFT",
+											"verticalAlignment": "CENTER",
+											"columnType": "number",
+											"textSize": "0.875rem",
+											"enableFilter": true,
+											"enableSort": true,
+											"isVisible": true,
+											"isDisabled": false,
+											"isCellVisible": true,
+											"isDerived": false,
+											"label": "seq",
+											"computedValue": "{{Table1.processedTableData.map((currentRow, currentIndex) => ( currentRow.seq))}}",
+											"iconName": ""
+										},
+										"age": {
+											"index": 12,
+											"width": 150,
+											"id": "age",
+                      "alias": "age",
+                      "originalId": "age",
+											"horizontalAlignment": "LEFT",
+											"verticalAlignment": "CENTER",
+											"columnType": "number",
+											"textSize": "0.875rem",
+											"enableFilter": true,
+											"enableSort": true,
+											"isVisible": true,
+											"isDisabled": false,
+											"isCellVisible": true,
+											"isDerived": false,
+											"label": "Age",
+											"computedValue": "{{Table1.processedTableData.map((currentRow, currentIndex) => ( currentRow.age))}}",
+											"iconName": ""
+										},
+										"Birthdate": {
+											"index": 8,
+											"width": 150,
+											"id": "Birthdate",
+                      "alias": "Birthdate",
+                      "originalId": "Birthdate",
+											"horizontalAlignment": "LEFT",
+											"verticalAlignment": "CENTER",
+											"columnType": "date",
+											"textColor": "",
+											"textSize": "0.875rem",
+											"enableFilter": true,
+											"enableSort": true,
+											"isVisible": true,
+											"isDisabled": false,
+											"isCellVisible": true,
+											"isDerived": false,
+											"label": "Enhancementdate",
+											"computedValue": "{{Table1.processedTableData.map((currentRow, currentIndex) => ( currentRow.Birthdate))}}",
+											"cellBackground": "",
+											"iconName": "",
+											"inputFormat": "Do MMM YYYY",
+											"outputFormat": "Do MMM YYYY"
+										},
+										"undefined": {
+											"buttonColor": [
+												"#16a34a",
+												"#16a34a",
+												"#16a34a",
+												"#16a34a",
+												"#16a34a",
+												"#16a34a",
+												"#16a34a",
+												"#16a34a",
+												"#16a34a",
+												"#16a34a",
+												"#16a34a",
+												"#16a34a",
+												"#16a34a",
+												"#16a34a",
+												"#16a34a",
+												"#16a34a",
+												"#16a34a",
+												"#16a34a",
+												"#16a34a",
+												"#16a34a",
+												"#16a34a",
+												"#16a34a",
+												"#16a34a",
+												"#16a34a",
+												"#16a34a",
+												"#16a34a",
+												"#16a34a",
+												"#16a34a",
+												"#16a34a",
+												"#16a34a",
+												"#16a34a",
+												"#16a34a",
+												"#16a34a",
+												"#16a34a",
+												"#16a34a",
+												"#16a34a",
+												"#16a34a",
+												"#16a34a",
+												"#16a34a",
+												"#16a34a",
+												"#16a34a",
+												"#16a34a",
+												"#16a34a",
+												"#16a34a",
+												"#16a34a",
+												"#16a34a",
+												"#16a34a",
+												"#16a34a",
+												"#16a34a",
+												"#16a34a"
+											],
+											"borderRadius": [
+												"0px",
+												"0px",
+												"0px",
+												"0px",
+												"0px",
+												"0px",
+												"0px",
+												"0px",
+												"0px",
+												"0px",
+												"0px",
+												"0px",
+												"0px",
+												"0px",
+												"0px",
+												"0px",
+												"0px",
+												"0px",
+												"0px",
+												"0px",
+												"0px",
+												"0px",
+												"0px",
+												"0px",
+												"0px",
+												"0px",
+												"0px",
+												"0px",
+												"0px",
+												"0px",
+												"0px",
+												"0px",
+												"0px",
+												"0px",
+												"0px",
+												"0px",
+												"0px",
+												"0px",
+												"0px",
+												"0px",
+												"0px",
+												"0px",
+												"0px",
+												"0px",
+												"0px",
+												"0px",
+												"0px",
+												"0px",
+												"0px",
+												"0px"
+											],
+											"boxShadow": [
+												"none",
+												"none",
+												"none",
+												"none",
+												"none",
+												"none",
+												"none",
+												"none",
+												"none",
+												"none",
+												"none",
+												"none",
+												"none",
+												"none",
+												"none",
+												"none",
+												"none",
+												"none",
+												"none",
+												"none",
+												"none",
+												"none",
+												"none",
+												"none",
+												"none",
+												"none",
+												"none",
+												"none",
+												"none",
+												"none",
+												"none",
+												"none",
+												"none",
+												"none",
+												"none",
+												"none",
+												"none",
+												"none",
+												"none",
+												"none",
+												"none",
+												"none",
+												"none",
+												"none",
+												"none",
+												"none",
+												"none",
+												"none",
+												"none",
+												"none"
+											],
+											"index": 13,
+											"isVisible": true,
+                      "id": "undefined",
+                      "alias": "undefined",
+                      "originalId": "undefined"
+										},
+										"FirstName": {
+											"index": 3,
+											"width": 150,
+											"id": "FirstName",
+                      "alias": "FirstName",
+                      "originalId": "FirstName",
+											"horizontalAlignment": "LEFT",
+											"verticalAlignment": "CENTER",
+											"columnType": "text",
+											"textColor": "",
+											"textSize": "0.875rem",
+											"enableFilter": true,
+											"enableSort": true,
+											"isVisible": true,
+											"isDisabled": false,
+											"isCellVisible": true,
+											"isDerived": false,
+											"label": "FirstName",
+											"computedValue": "{{Table1.processedTableData.map((currentRow, currentIndex) => ( currentRow.FirstName))}}",
+											"cellBackground": ""
+										},
+										"customColumn1": {
+											"index": 13,
+											"width": 150,
+											"id": "customColumn1",
+                      "alias": "customColumn1",
+                      "originalId": "customColumn1",
+											"columnType": "text",
+											"enableFilter": true,
+											"enableSort": true,
+											"isVisible": true,
+											"isDisabled": false,
+											"isCellVisible": true,
+											"isDerived": true,
+											"label": "Address",
+											"computedValue": "{{Table1.processedTableData.map((currentRow, currentIndex) => ( currentRow.age + ', ' + currentRow.street + ', ' + currentRow.city + ', ' + currentRow.state + ' - ' + currentRow.zip))}}",
+											"buttonStyle": "rgb(3, 179, 101)",
+											"labelColor": "#FFFFFF"
+										}
+									},
+									"delimiter": ",",
+									"key": "4u6cxamhqp",
+									"derivedColumns": {
+										"dollar": {
+											"buttonColor": "{{Table1.processedTableData.map((currentRow, currentIndex) => ( appsmith.theme.colors.primaryColor))}}",
+											"borderRadius": "{{Table1.processedTableData.map((currentRow, currentIndex) => ( appsmith.theme.borderRadius.appBorderRadius))}}",
+											"boxShadow": "{{Table1.processedTableData.map((currentRow, currentIndex) => ( 'none'))}}"
+										},
+										"pick": {
+											"buttonColor": "{{Table1.processedTableData.map((currentRow, currentIndex) => ( appsmith.theme.colors.primaryColor))}}",
+											"borderRadius": "{{Table1.processedTableData.map((currentRow, currentIndex) => ( appsmith.theme.borderRadius.appBorderRadius))}}",
+											"boxShadow": "{{Table1.processedTableData.map((currentRow, currentIndex) => ( 'none'))}}"
+										},
+										"customColumn1": {
+											"index": 13,
+											"width": 150,
+											"id": "customColumn1",
+											"columnType": "text",
+											"enableFilter": true,
+											"enableSort": true,
+											"isVisible": true,
+											"isDisabled": false,
+											"isCellVisible": true,
+											"isDerived": true,
+											"label": "Address",
+											"computedValue": "{{Table1.processedTableData.map((currentRow, currentIndex) => ( currentRow.age + ', ' + currentRow.street + ', ' + currentRow.city + ', ' + currentRow.state + ' - ' + currentRow.zip))}}",
+											"buttonStyle": "rgb(3, 179, 101)",
+											"labelColor": "#FFFFFF"
+										}
+									},
+									"rightColumn": 64,
+									"textSize": "0.875rem",
+									"widgetId": "o186qw63ch",
+									"accentColor": "{{appsmith.theme.colors.primaryColor}}",
+									"isVisibleFilters": true,
+									"tableData": "{{GetFilterTableTestData.data.body}}",
+									"isVisible": true,
+									"label": "Data",
+									"searchKey": "",
+									"enableClientSideSearch": true,
+									"version": 3,
+									"totalRecordsCount": 0,
+									"parentId": "0",
+									"renderMode": "CANVAS",
+									"isLoading": false,
+									"horizontalAlignment": "LEFT",
+									"isVisibleSearch": true,
+									"childStylesheet": {
+										"button": {
+											"buttonColor": "{{appsmith.theme.colors.primaryColor}}",
+											"borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+											"boxShadow": "none"
+										},
+										"menuButton": {
+											"menuColor": "{{appsmith.theme.colors.primaryColor}}",
+											"borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+											"boxShadow": "none"
+										},
+										"iconButton": {
+											"menuColor": "{{appsmith.theme.colors.primaryColor}}",
+											"borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+											"boxShadow": "none"
+										}
+									},
+									"borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+									"isVisiblePagination": true,
+									"verticalAlignment": "CENTER",
+									"columnWidthMap": {
+										"task": 245,
+										"step": 62,
+										"status": 75,
+										"seq": 81,
+										"zip": 94,
+										"state": 97
+									}
+								}
+							]
+						},
+						"layoutOnLoadActions": [
+							[
+								{
+									"id": "TableFiltersTest_GetFilterTableTestData",
+									"name": "GetFilterTableTestData",
+									"confirmBeforeExecute": false,
+									"pluginType": "API",
+									"jsonPathKeys": [
+
+									],
+									"timeoutInMillisecond": 10000
+								}
+							]
+						],
+						"new": false
+					}
+				],
+				"userPermissions": [
+
+				],
+				"isHidden": false
+			},
+			"new": true
+		}
+	],
+	"pageOrder": [
+		"TableFiltersTest"
+	],
+	"publishedPageOrder": [
+		"TableFiltersTest"
+	],
+	"publishedDefaultPageName": "TableFiltersTest",
+	"unpublishedDefaultPageName": "TableFiltersTest",
+	"actionList": [
+		{
+			"id": "TableFiltersTest_GetFilterTableTestData",
+			"userPermissions": [
+				"read:actions",
+				"execute:actions",
+				"manage:actions"
+			],
+			"gitSyncId": "627404e07867f03d1e244656_6274f20b9803f9024b1208c0",
+			"pluginType": "API",
+			"pluginId": "restapi-plugin",
+			"unpublishedAction": {
+				"name": "GetFilterTableTestData",
+				"datasource": {
+					"userPermissions": [
+
+					],
+					"name": "DEFAULT_REST_DATASOURCE",
+					"pluginId": "restapi-plugin",
+					"datasourceConfiguration": {
+						"url": "https://mock-api.appsmith.com"
+					},
+					"invalids": [
+
+					],
+					"messages": [
+
+					],
+					"isValid": true,
+					"new": true
+				},
+				"pageId": "TableFiltersTest",
+				"actionConfiguration": {
+					"timeoutInMillisecond": 10000,
+					"paginationType": "NONE",
+					"path": "/echo/post",
+					"headers": [
+						{
+							"key": "content-type",
+							"value": "application/json"
+						}
+					],
+					"encodeParamsToggle": true,
+					"queryParameters": [
+
+					],
+					"body": "[\n  {\n    \"seq\": \"1\",\n    \"FirstName\": \"Jimmy\",\n    \"LastName\": \"Leonard\",\n    \"FullName\": \"Jimmy Leonard\",\n    \"age\": \"47\",\n    \"street\": \"Vijo Street\",\n    \"city\": \"Fodjogad\",\n    \"state\": \"CT\",\n    \"zip\": \"52773\",\n    \"dollar\": \"$5,485.03\",\n    \"pick\": \"RED\",\n    \"Birthdate\": \"02/16/2040\"   \n  },\n  {\n    \"seq\": \"2\",\n    \"FirstName\": \"Esther\",\n    \"LastName\": \"Grant\",\n    \"FullName\": \"Esther Grant\",\n    \"age\": \"34\",\n    \"street\": \"Sesu Loop\",\n    \"city\": \"Etendu\",\n    \"state\": \"ND\",\n    \"zip\": \"35601\",\n    \"dollar\": \"$8,545.08\",\n    \"pick\": \"GREEN\",\n    \"Birthdate\": \"08/06/1971\"   \n  },\n  {\n    \"seq\": \"3\",\n    \"FirstName\": \"Julia\",\n    \"LastName\": \"Cain\",\n    \"FullName\": \"Julia Cain\",\n    \"age\": \"34\",\n    \"street\": \"Jauja Road\",\n    \"city\": \"Hugcejub\",\n    \"state\": \"NJ\",\n    \"zip\": \"4376\",\n    \"dollar\": \"$6,536.42\",\n    \"pick\": \"YELLOW\",\n    \"Birthdate\": \"08/28/2047\"   \n  },\n  {\n    \"seq\": \"4\",\n    \"FirstName\": \"Catherine\",\n    \"LastName\": \"Benson\",\n    \"FullName\": \"Catherine Benson\",\n    \"age\": \"62\",\n    \"street\": \"Timuf Way\",\n    \"city\": \"Satpealo\",\n    \"state\": \"AK\",\n    \"zip\": \"7162\",\n    \"dollar\": \"$4,041.90\",\n    \"pick\": \"BLUE\",\n    \"Birthdate\": \"02/24/2011\"   \n  },\n  {\n    \"seq\": \"5\",\n    \"FirstName\": \"Martha\",\n    \"LastName\": \"Richards\",\n    \"FullName\": \"Martha Richards\",\n    \"age\": \"24\",\n    \"street\": \"Ojofew River\",\n    \"city\": \"Bujkane\",\n    \"state\": \"OR\",\n    \"zip\": \"17082\",\n    \"dollar\": \"$8,481.25\",\n    \"pick\": \"YELLOW\",\n    \"Birthdate\": \"10/27/1992\"   \n  },\n  {\n    \"seq\": \"6\",\n    \"FirstName\": \"Shane\",\n    \"LastName\": \"Pope\",\n    \"FullName\": \"Shane Pope\",\n    \"age\": \"33\",\n    \"street\": \"Nomo Boulevard\",\n    \"city\": \"Dorowzed\",\n    \"state\": \"OK\",\n    \"zip\": \"76037\",\n    \"dollar\": \"$5,390.80\",\n    \"pick\": \"GREEN\",\n    \"Birthdate\": \"07/06/1972\"   \n  },\n  {\n    \"seq\": \"7\",\n    \"FirstName\": \"Douglas\",\n    \"LastName\": \"Norman\",\n    \"FullName\": \"Douglas Norman\",\n    \"age\": \"19\",\n    \"street\": \"Nefat Way\",\n    \"city\": \"Arucadel\",\n    \"state\": \"OH\",\n    \"zip\": \"11994\",\n    \"dollar\": \"$4,482.46\",\n    \"pick\": \"GREEN\",\n    \"Birthdate\": \"12/09/1952\"   \n  },\n  {\n    \"seq\": \"8\",\n    \"FirstName\": \"Lura\",\n    \"LastName\": \"Hoffman\",\n    \"FullName\": \"Lura Hoffman\",\n    \"age\": \"27\",\n    \"street\": \"Dujsug Manor\",\n    \"city\": \"Dahiit\",\n    \"state\": \"OR\",\n    \"zip\": \"59391\",\n    \"dollar\": \"$6,031.31\",\n    \"pick\": \"RED\",\n    \"Birthdate\": \"07/01/2012\"   \n  },\n  {\n    \"seq\": \"9\",\n    \"FirstName\": \"Alberta\",\n    \"LastName\": \"Mitchell\",\n    \"FullName\": \"Alberta Mitchell\",\n    \"age\": \"64\",\n    \"street\": \"Pelo Mill\",\n    \"city\": \"Kaihtum\",\n    \"state\": \"CO\",\n    \"zip\": \"49150\",\n    \"dollar\": \"$3,075.35\",\n    \"pick\": \"WHITE\",\n    \"Birthdate\": \"09/04/2016\"   \n  },\n  {\n    \"seq\": \"10\",\n    \"FirstName\": \"Esther\",\n    \"LastName\": \"Arnold\",\n    \"FullName\": \"Esther Arnold\",\n    \"age\": \"33\",\n    \"street\": \"Weccaw Pike\",\n    \"city\": \"Sujunu\",\n    \"state\": \"RI\",\n    \"zip\": \"76860\",\n    \"dollar\": \"$4,645.47\",\n    \"pick\": \"BLUE\",\n    \"Birthdate\": \"01/08/1933\"   \n  },\n  {\n    \"seq\": \"11\",\n    \"FirstName\": \"Teresa\",\n    \"LastName\": \"Wolfe\",\n    \"FullName\": \"Teresa Wolfe\",\n    \"age\": \"52\",\n    \"street\": \"Intok Key\",\n    \"city\": \"Faevza\",\n    \"state\": \"SD\",\n    \"zip\": \"71094\",\n    \"dollar\": \"$4,965.49\",\n    \"pick\": \"BLUE\",\n    \"Birthdate\": \"09/27/1993\"   \n  },\n  {\n    \"seq\": \"12\",\n    \"FirstName\": \"Dean\",\n    \"LastName\": \"Lawrence\",\n    \"FullName\": \"Dean Lawrence\",\n    \"age\": \"42\",\n    \"street\": \"Ebewe Grove\",\n    \"city\": \"Icemoalo\",\n    \"state\": \"VT\",\n    \"zip\": \"45094\",\n    \"dollar\": \"$2,465.56\",\n    \"pick\": \"RED\",\n    \"Birthdate\": \"07/02/2006\"   \n  },\n  {\n    \"seq\": \"13\",\n    \"FirstName\": \"Winnie\",\n    \"LastName\": \"Ross\",\n    \"FullName\": \"Winnie Ross\",\n    \"age\": \"59\",\n    \"street\": \"Mappic Boulevard\",\n    \"city\": \"Kitomsog\",\n    \"state\": \"IL\",\n    \"zip\": \"68569\",\n    \"dollar\": \"$4,874.64\",\n    \"pick\": \"GREEN\",\n    \"Birthdate\": \"06/24/1933\"   \n  },\n  {\n    \"seq\": \"14\",\n    \"FirstName\": \"Kathryn\",\n    \"LastName\": \"Fowler\",\n    \"FullName\": \"Kathryn Fowler\",\n    \"age\": \"30\",\n    \"street\": \"Hawdav Circle\",\n    \"city\": \"Vappopo\",\n    \"state\": \"FL\",\n    \"zip\": \"8160\",\n    \"dollar\": \"$8,222.79\",\n    \"pick\": \"GREEN\",\n    \"Birthdate\": \"09/15/2003\"   \n  },\n  {\n    \"seq\": \"15\",\n    \"FirstName\": \"Christina\",\n    \"LastName\": \"Mathis\",\n    \"FullName\": \"Christina Mathis\",\n    \"age\": \"19\",\n    \"street\": \"Dagfaf Highway\",\n    \"city\": \"Samnulu\",\n    \"state\": \"MO\",\n    \"zip\": \"6288\",\n    \"dollar\": \"$9,318.62\",\n    \"pick\": \"YELLOW\",\n    \"Birthdate\": \"07/28/1988\"   \n  },\n  {\n    \"seq\": \"16\",\n    \"FirstName\": \"Daisy\",\n    \"LastName\": \"Quinn\",\n    \"FullName\": \"Daisy Quinn\",\n    \"age\": \"42\",\n    \"street\": \"Nuron Lane\",\n    \"city\": \"Jacouve\",\n    \"state\": \"GA\",\n    \"zip\": \"40394\",\n    \"dollar\": \"$2,700.02\",\n    \"pick\": \"YELLOW\",\n    \"Birthdate\": \"11/23/1909\"   \n  },\n  {\n    \"seq\": \"17\",\n    \"FirstName\": \"Della\",\n    \"LastName\": \"Alvarado\",\n    \"FullName\": \"Della Alvarado\",\n    \"age\": \"64\",\n    \"street\": \"Vesa Pike\",\n    \"city\": \"Elhojac\",\n    \"state\": \"AK\",\n    \"zip\": \"55294\",\n    \"dollar\": \"$1,839.01\",\n    \"pick\": \"RED\",\n    \"Birthdate\": \"01/16/1904\"   \n  },\n  {\n    \"seq\": \"18\",\n    \"FirstName\": \"Walter\",\n    \"LastName\": \"Caldwell\",\n    \"FullName\": \"Walter Caldwell\",\n    \"age\": \"47\",\n    \"street\": \"Bolpe Trail\",\n    \"city\": \"Jucoot\",\n    \"state\": \"NE\",\n    \"zip\": \"66845\",\n    \"dollar\": \"$3,845.11\",\n    \"pick\": \"BLUE\",\n    \"Birthdate\": \"06/10/1900\"   \n  },\n  {\n    \"seq\": \"19\",\n    \"FirstName\": \"Alex\",\n    \"LastName\": \"Lindsey\",\n    \"FullName\": \"Alex Lindsey\",\n    \"age\": \"46\",\n    \"street\": \"Vuma Ridge\",\n    \"city\": \"Piibedar\",\n    \"state\": \"AZ\",\n    \"zip\": \"12443\",\n    \"dollar\": \"$5,912.68\",\n    \"pick\": \"BLUE\",\n    \"Birthdate\": \"06/04/1943\"   \n  },\n  {\n    \"seq\": \"20\",\n    \"FirstName\": \"Ray\",\n    \"LastName\": \"Colon\",\n    \"FullName\": \"Ray Colon\",\n    \"age\": \"27\",\n    \"street\": \"Zumep Loop\",\n    \"city\": \"Kapaduw\",\n    \"state\": \"CT\",\n    \"zip\": \"15863\",\n    \"dollar\": \"$5,523.45\",\n    \"pick\": \"WHITE\",\n    \"Birthdate\": \"09/25/2069\"   \n  },\n  {\n    \"seq\": \"21\",\n    \"FirstName\": \"Cole\",\n    \"LastName\": \"Lawson\",\n    \"FullName\": \"Cole Lawson\",\n    \"age\": \"36\",\n    \"street\": \"Hawjek Avenue\",\n    \"city\": \"Nihibi\",\n    \"state\": \"CT\",\n    \"zip\": \"51827\",\n    \"dollar\": \"$6,424.12\",\n    \"pick\": \"GREEN\",\n    \"Birthdate\": \"11/28/1900\"   \n  },\n  {\n    \"seq\": \"22\",\n    \"FirstName\": \"Minnie\",\n    \"LastName\": \"Hampton\",\n    \"FullName\": \"Minnie Hampton\",\n    \"age\": \"52\",\n    \"street\": \"Taduh Avenue\",\n    \"city\": \"Ratcutab\",\n    \"state\": \"ME\",\n    \"zip\": \"98421\",\n    \"dollar\": \"$5,904.36\",\n    \"pick\": \"BLUE\",\n    \"Birthdate\": \"01/15/2050\"   \n  },\n  {\n    \"seq\": \"23\",\n    \"FirstName\": \"Alice\",\n    \"LastName\": \"Sanders\",\n    \"FullName\": \"Alice Sanders\",\n    \"age\": \"46\",\n    \"street\": \"Vumura Lane\",\n    \"city\": \"Tikujir\",\n    \"state\": \"TN\",\n    \"zip\": \"110\",\n    \"dollar\": \"$3,607.60\",\n    \"pick\": \"BLUE\",\n    \"Birthdate\": \"05/11/1915\"   \n  },\n  {\n    \"seq\": \"24\",\n    \"FirstName\": \"Glen\",\n    \"LastName\": \"Santos\",\n    \"FullName\": \"Glen Santos\",\n    \"age\": \"64\",\n    \"street\": \"Watu Glen\",\n    \"city\": \"Zonovhoh\",\n    \"state\": \"DC\",\n    \"zip\": \"24707\",\n    \"dollar\": \"$2,332.88\",\n    \"pick\": \"GREEN\",\n    \"Birthdate\": \"09/07/1905\"   \n  },\n  {\n    \"seq\": \"25\",\n    \"FirstName\": \"Caroline\",\n    \"LastName\": \"McKinney\",\n    \"FullName\": \"Caroline McKinney\",\n    \"age\": \"38\",\n    \"street\": \"Uctu Mill\",\n    \"city\": \"Kisemizo\",\n    \"state\": \"AK\",\n    \"zip\": \"75753\",\n    \"dollar\": \"$9,721.37\",\n    \"pick\": \"YELLOW\",\n    \"Birthdate\": \"01/29/2061\"   \n  },\n  {\n    \"seq\": \"26\",\n    \"FirstName\": \"Maurice\",\n    \"LastName\": \"Moss\",\n    \"FullName\": \"Maurice Moss\",\n    \"age\": \"48\",\n    \"street\": \"Kuvu Turnpike\",\n    \"city\": \"Aredeha\",\n    \"state\": \"ME\",\n    \"zip\": \"41895\",\n    \"dollar\": \"$7,518.62\",\n    \"pick\": \"RED\",\n    \"Birthdate\": \"04/30/2025\"   \n  },\n  {\n    \"seq\": \"27\",\n    \"FirstName\": \"George\",\n    \"LastName\": \"Chandler\",\n    \"FullName\": \"George Chandler\",\n    \"age\": \"54\",\n    \"street\": \"Rumfug Circle\",\n    \"city\": \"Rovebada\",\n    \"state\": \"NY\",\n    \"zip\": \"47927\",\n    \"dollar\": \"$2,365.45\",\n    \"pick\": \"GREEN\",\n    \"Birthdate\": \"11/13/1902\"   \n  },\n  {\n    \"seq\": \"28\",\n    \"FirstName\": \"Carl\",\n    \"LastName\": \"Mason\",\n    \"FullName\": \"Carl Mason\",\n    \"age\": \"50\",\n    \"street\": \"Nadner Lane\",\n    \"city\": \"Judnuvut\",\n    \"state\": \"MN\",\n    \"zip\": \"5950\",\n    \"dollar\": \"$2,029.78\",\n    \"pick\": \"WHITE\",\n    \"Birthdate\": \"02/01/1913\"   \n  },\n  {\n    \"seq\": \"29\",\n    \"FirstName\": \"Julia\",\n    \"LastName\": \"Nash\",\n    \"FullName\": \"Julia Nash\",\n    \"age\": \"57\",\n    \"street\": \"Zasmo Grove\",\n    \"city\": \"Homusit\",\n    \"state\": \"GA\",\n    \"zip\": \"18651\",\n    \"dollar\": \"$735.45\",\n    \"pick\": \"BLUE\",\n    \"Birthdate\": \"09/15/1951\"   \n  },\n  {\n    \"seq\": \"30\",\n    \"FirstName\": \"Tommy\",\n    \"LastName\": \"Waters\",\n    \"FullName\": \"Tommy Waters\",\n    \"age\": \"34\",\n    \"street\": \"Hogli Manor\",\n    \"city\": \"Ovbuug\",\n    \"state\": \"HI\",\n    \"zip\": \"46157\",\n    \"dollar\": \"$1,420.29\",\n    \"pick\": \"GREEN\",\n    \"Birthdate\": \"11/27/1954\"   \n  },\n  {\n    \"seq\": \"31\",\n    \"FirstName\": \"Charles\",\n    \"LastName\": \"Carlson\",\n    \"FullName\": \"Charles Carlson\",\n    \"age\": \"59\",\n    \"street\": \"Rokob River\",\n    \"city\": \"Bopbusuf\",\n    \"state\": \"CT\",\n    \"zip\": \"10906\",\n    \"dollar\": \"$1,858.60\",\n    \"pick\": \"WHITE\",\n    \"Birthdate\": \"03/30/1916\"   \n  },\n  {\n    \"seq\": \"32\",\n    \"FirstName\": \"Mike\",\n    \"LastName\": \"Phelps\",\n    \"FullName\": \"Mike Phelps\",\n    \"age\": \"40\",\n    \"street\": \"Kodzos Park\",\n    \"city\": \"Bitefsip\",\n    \"state\": \"MI\",\n    \"zip\": \"38658\",\n    \"dollar\": \"$587.89\",\n    \"pick\": \"RED\",\n    \"Birthdate\": \"05/11/1961\"   \n  },\n  {\n    \"seq\": \"33\",\n    \"FirstName\": \"Lillie\",\n    \"LastName\": \"Bush\",\n    \"FullName\": \"Lillie Bush\",\n    \"age\": \"27\",\n    \"street\": \"Wopnec Drive\",\n    \"city\": \"Baiflan\",\n    \"state\": \"IA\",\n    \"zip\": \"36403\",\n    \"dollar\": \"$8,078.55\",\n    \"pick\": \"GREEN\",\n    \"Birthdate\": \"07/11/1948\"   \n  },\n  {\n    \"seq\": \"34\",\n    \"FirstName\": \"Wayne\",\n    \"LastName\": \"Barrett\",\n    \"FullName\": \"Wayne Barrett\",\n    \"age\": \"19\",\n    \"street\": \"Zurjup Heights\",\n    \"city\": \"Henabmer\",\n    \"state\": \"FL\",\n    \"zip\": \"53323\",\n    \"dollar\": \"$9,644.59\",\n    \"pick\": \"YELLOW\",\n    \"Birthdate\": \"08/22/1911\"   \n  },\n  {\n    \"seq\": \"35\",\n    \"FirstName\": \"Mason\",\n    \"LastName\": \"Banks\",\n    \"FullName\": \"Mason Banks\",\n    \"age\": \"26\",\n    \"street\": \"Etke Street\",\n    \"city\": \"Jousoaf\",\n    \"state\": \"SC\",\n    \"zip\": \"95102\",\n    \"dollar\": \"$7,687.78\",\n    \"pick\": \"GREEN\",\n    \"Birthdate\": \"08/01/2038\"   \n  },\n  {\n    \"seq\": \"36\",\n    \"FirstName\": \"Nell\",\n    \"LastName\": \"Daniel\",\n    \"FullName\": \"Nell Daniel\",\n    \"age\": \"24\",\n    \"street\": \"Ziwgim Ridge\",\n    \"city\": \"Tazadif\",\n    \"state\": \"MO\",\n    \"zip\": \"81540\",\n    \"dollar\": \"$5,708.40\",\n    \"pick\": \"GREEN\",\n    \"Birthdate\": \"07/31/2000\"   \n  },\n  {\n    \"seq\": \"37\",\n    \"FirstName\": \"Garrett\",\n    \"LastName\": \"Moore\",\n    \"FullName\": \"Garrett Moore\",\n    \"age\": \"37\",\n    \"street\": \"Hubu Pike\",\n    \"city\": \"Wonuloc\",\n    \"state\": \"DE\",\n    \"zip\": \"20172\",\n    \"dollar\": \"$8,699.74\",\n    \"pick\": \"GREEN\",\n    \"Birthdate\": \"10/20/2047\"   \n  },\n  {\n    \"seq\": \"38\",\n    \"FirstName\": \"Alma\",\n    \"LastName\": \"Mendez\",\n    \"FullName\": \"Alma Mendez\",\n    \"age\": \"32\",\n    \"street\": \"Boahe Highway\",\n    \"city\": \"Zifuzut\",\n    \"state\": \"VT\",\n    \"zip\": \"89460\",\n    \"dollar\": \"$4,930.86\",\n    \"pick\": \"WHITE\",\n    \"Birthdate\": \"10/08/1991\"   \n  },\n  {\n    \"seq\": \"39\",\n    \"FirstName\": \"Jacob\",\n    \"LastName\": \"Mack\",\n    \"FullName\": \"Jacob Mack\",\n    \"age\": \"55\",\n    \"street\": \"Cimiji Key\",\n    \"city\": \"Ozasazad\",\n    \"state\": \"SD\",\n    \"zip\": \"45305\",\n    \"dollar\": \"$840.77\",\n    \"pick\": \"WHITE\",\n    \"Birthdate\": \"04/13/1970\"   \n  },\n  {\n    \"seq\": \"40\",\n    \"FirstName\": \"Eva\",\n    \"LastName\": \"Robinson\",\n    \"FullName\": \"Eva Robinson\",\n    \"age\": \"18\",\n    \"street\": \"Nohfa Terrace\",\n    \"city\": \"Zaslovja\",\n    \"state\": \"NH\",\n    \"zip\": \"79892\",\n    \"dollar\": \"$1,781.90\",\n    \"pick\": \"GREEN\",\n    \"Birthdate\": \"07/13/1988\"   \n  },\n  {\n    \"seq\": \"41\",\n    \"FirstName\": \"Maude\",\n    \"LastName\": \"Fisher\",\n    \"FullName\": \"Maude Fisher\",\n    \"age\": \"61\",\n    \"street\": \"Ucafo Extension\",\n    \"city\": \"Siivaiv\",\n    \"state\": \"TX\",\n    \"zip\": \"41454\",\n    \"dollar\": \"$4,675.25\",\n    \"pick\": \"YELLOW\",\n    \"Birthdate\": \"09/03/1923\"   \n  },\n  {\n    \"seq\": \"42\",\n    \"FirstName\": \"Gene\",\n    \"LastName\": \"Munoz\",\n    \"FullName\": \"Gene Munoz\",\n    \"age\": \"36\",\n    \"street\": \"Banow Trail\",\n    \"city\": \"Kepitte\",\n    \"state\": \"OH\",\n    \"zip\": \"87526\",\n    \"dollar\": \"$4,147.00\",\n    \"pick\": \"GREEN\",\n    \"Birthdate\": \"10/07/2061\"   \n  },\n  {\n    \"seq\": \"43\",\n    \"FirstName\": \"Jesse\",\n    \"LastName\": \"Pearson\",\n    \"FullName\": \"Jesse Pearson\",\n    \"age\": \"44\",\n    \"street\": \"Nohwi Plaza\",\n    \"city\": \"Tevzahjom\",\n    \"state\": \"NM\",\n    \"zip\": \"97261\",\n    \"dollar\": \"$4,288.70\",\n    \"pick\": \"YELLOW\",\n    \"Birthdate\": \"08/04/2036\"   \n  },\n  {\n    \"seq\": \"44\",\n    \"FirstName\": \"Effie\",\n    \"LastName\": \"Nichols\",\n    \"FullName\": \"Effie Nichols\",\n    \"age\": \"48\",\n    \"street\": \"Cogef Pass\",\n    \"city\": \"Virovde\",\n    \"state\": \"TN\",\n    \"zip\": \"3925\",\n    \"dollar\": \"$1,374.16\",\n    \"pick\": \"YELLOW\",\n    \"Birthdate\": \"12/25/2039\"   \n  },\n  {\n    \"seq\": \"45\",\n    \"FirstName\": \"Shane\",\n    \"LastName\": \"McLaughlin\",\n    \"FullName\": \"Shane McLaughlin\",\n    \"age\": \"51\",\n    \"street\": \"Vevoh Road\",\n    \"city\": \"Purmewge\",\n    \"state\": \"PA\",\n    \"zip\": \"63753\",\n    \"dollar\": \"$795.77\",\n    \"pick\": \"RED\",\n    \"Birthdate\": \"03/22/2021\"   \n  },\n  {\n    \"seq\": \"46\",\n    \"FirstName\": \"Teresa\",\n    \"LastName\": \"Wright\",\n    \"FullName\": \"Teresa Wright\",\n    \"age\": \"35\",\n    \"street\": \"Zuker Turnpike\",\n    \"city\": \"Amzotde\",\n    \"state\": \"WY\",\n    \"zip\": \"52822\",\n    \"dollar\": \"$6,796.71\",\n    \"pick\": \"GREEN\",\n    \"Birthdate\": \"03/27/1958\"   \n  },\n  {\n    \"seq\": \"47\",\n    \"FirstName\": \"Bess\",\n    \"LastName\": \"Williams\",\n    \"FullName\": \"Bess Williams\",\n    \"age\": \"26\",\n    \"street\": \"Vipzo Place\",\n    \"city\": \"Raltecsep\",\n    \"state\": \"DC\",\n    \"zip\": \"27123\",\n    \"dollar\": \"$262.15\",\n    \"pick\": \"BLUE\",\n    \"Birthdate\": \"09/30/1912\"   \n  },\n  {\n    \"seq\": \"48\",\n    \"FirstName\": \"George\",\n    \"LastName\": \"Johnson\",\n    \"FullName\": \"George Johnson\",\n    \"age\": \"30\",\n    \"street\": \"Gucmu Pike\",\n    \"city\": \"Tulukvuf\",\n    \"state\": \"VA\",\n    \"zip\": \"55196\",\n    \"dollar\": \"$6,080.74\",\n    \"pick\": \"YELLOW\",\n    \"Birthdate\": \"10/23/1993\"   \n  },\n  {\n    \"seq\": \"49\",\n    \"FirstName\": \"Virgie\",\n    \"LastName\": \"Torres\",\n    \"FullName\": \"Virgie Torres\",\n    \"age\": \"49\",\n    \"street\": \"Gupciv Loop\",\n    \"city\": \"Ujaamelo\",\n    \"state\": \"NE\",\n    \"zip\": \"93102\",\n    \"dollar\": \"$6,267.89\",\n    \"pick\": \"WHITE\",\n    \"Birthdate\": \"02/03/2020\"   \n  },\n  {\n    \"seq\": \"50\",\n    \"FirstName\": \"Herman\",\n    \"LastName\": \"Walton\",\n    \"FullName\": \"Herman Walton\",\n    \"age\": \"47\",\n    \"street\": \"Agorez Ridge\",\n    \"city\": \"Zibavhu\",\n    \"state\": \"IA\",\n    \"zip\": \"76539\",\n    \"dollar\": \"$7,909.38\",\n    \"pick\": \"GREEN\",\n    \"Birthdate\": \"05/14/1924\"\n  }\n]",
+					"bodyFormData": [
+
+					],
+					"httpMethod": "POST",
+					"pluginSpecifiedTemplates": [
+						{
+							"value": true
+						}
+					],
+					"formData": {
+						"apiContentType": "none"
+					}
+				},
+				"executeOnLoad": true,
+				"dynamicBindingPathList": [
+
+				],
+				"isValid": true,
+				"invalids": [
+
+				],
+				"messages": [
+
+				],
+				"jsonPathKeys": [
+
+				],
+				"confirmBeforeExecute": false,
+				"userPermissions": [
+
+				],
+				"validName": "GetFilterTableTestData"
+			},
+			"publishedAction": {
+				"name": "GetFilterTableTestData",
+				"datasource": {
+					"userPermissions": [
+
+					],
+					"name": "DEFAULT_REST_DATASOURCE",
+					"pluginId": "restapi-plugin",
+					"datasourceConfiguration": {
+						"url": "https://mock-api.appsmith.com"
+					},
+					"invalids": [
+
+					],
+					"messages": [
+
+					],
+					"isValid": true,
+					"new": true
+				},
+				"pageId": "TableFiltersTest",
+				"actionConfiguration": {
+					"timeoutInMillisecond": 10000,
+					"paginationType": "NONE",
+					"path": "/echo/post",
+					"headers": [
+						{
+							"key": "content-type",
+							"value": "application/json"
+						}
+					],
+					"encodeParamsToggle": true,
+					"queryParameters": [
+
+					],
+					"body": "[\n  {\n    \"seq\": \"1\",\n    \"FirstName\": \"Jimmy\",\n    \"LastName\": \"Leonard\",\n    \"FullName\": \"Jimmy Leonard\",\n    \"age\": \"47\",\n    \"street\": \"Vijo Street\",\n    \"city\": \"Fodjogad\",\n    \"state\": \"CT\",\n    \"zip\": \"52773\",\n    \"dollar\": \"$5,485.03\",\n    \"pick\": \"RED\",\n    \"Birthdate\": \"02/16/2040\"   \n  },\n  {\n    \"seq\": \"2\",\n    \"FirstName\": \"Esther\",\n    \"LastName\": \"Grant\",\n    \"FullName\": \"Esther Grant\",\n    \"age\": \"34\",\n    \"street\": \"Sesu Loop\",\n    \"city\": \"Etendu\",\n    \"state\": \"ND\",\n    \"zip\": \"35601\",\n    \"dollar\": \"$8,545.08\",\n    \"pick\": \"GREEN\",\n    \"Birthdate\": \"08/06/1971\"   \n  },\n  {\n    \"seq\": \"3\",\n    \"FirstName\": \"Julia\",\n    \"LastName\": \"Cain\",\n    \"FullName\": \"Julia Cain\",\n    \"age\": \"34\",\n    \"street\": \"Jauja Road\",\n    \"city\": \"Hugcejub\",\n    \"state\": \"NJ\",\n    \"zip\": \"4376\",\n    \"dollar\": \"$6,536.42\",\n    \"pick\": \"YELLOW\",\n    \"Birthdate\": \"08/28/2047\"   \n  },\n  {\n    \"seq\": \"4\",\n    \"FirstName\": \"Catherine\",\n    \"LastName\": \"Benson\",\n    \"FullName\": \"Catherine Benson\",\n    \"age\": \"62\",\n    \"street\": \"Timuf Way\",\n    \"city\": \"Satpealo\",\n    \"state\": \"AK\",\n    \"zip\": \"7162\",\n    \"dollar\": \"$4,041.90\",\n    \"pick\": \"BLUE\",\n    \"Birthdate\": \"02/24/2011\"   \n  },\n  {\n    \"seq\": \"5\",\n    \"FirstName\": \"Martha\",\n    \"LastName\": \"Richards\",\n    \"FullName\": \"Martha Richards\",\n    \"age\": \"24\",\n    \"street\": \"Ojofew River\",\n    \"city\": \"Bujkane\",\n    \"state\": \"OR\",\n    \"zip\": \"17082\",\n    \"dollar\": \"$8,481.25\",\n    \"pick\": \"YELLOW\",\n    \"Birthdate\": \"10/27/1992\"   \n  },\n  {\n    \"seq\": \"6\",\n    \"FirstName\": \"Shane\",\n    \"LastName\": \"Pope\",\n    \"FullName\": \"Shane Pope\",\n    \"age\": \"33\",\n    \"street\": \"Nomo Boulevard\",\n    \"city\": \"Dorowzed\",\n    \"state\": \"OK\",\n    \"zip\": \"76037\",\n    \"dollar\": \"$5,390.80\",\n    \"pick\": \"GREEN\",\n    \"Birthdate\": \"07/06/1972\"   \n  },\n  {\n    \"seq\": \"7\",\n    \"FirstName\": \"Douglas\",\n    \"LastName\": \"Norman\",\n    \"FullName\": \"Douglas Norman\",\n    \"age\": \"19\",\n    \"street\": \"Nefat Way\",\n    \"city\": \"Arucadel\",\n    \"state\": \"OH\",\n    \"zip\": \"11994\",\n    \"dollar\": \"$4,482.46\",\n    \"pick\": \"GREEN\",\n    \"Birthdate\": \"12/09/1952\"   \n  },\n  {\n    \"seq\": \"8\",\n    \"FirstName\": \"Lura\",\n    \"LastName\": \"Hoffman\",\n    \"FullName\": \"Lura Hoffman\",\n    \"age\": \"27\",\n    \"street\": \"Dujsug Manor\",\n    \"city\": \"Dahiit\",\n    \"state\": \"OR\",\n    \"zip\": \"59391\",\n    \"dollar\": \"$6,031.31\",\n    \"pick\": \"RED\",\n    \"Birthdate\": \"07/01/2012\"   \n  },\n  {\n    \"seq\": \"9\",\n    \"FirstName\": \"Alberta\",\n    \"LastName\": \"Mitchell\",\n    \"FullName\": \"Alberta Mitchell\",\n    \"age\": \"64\",\n    \"street\": \"Pelo Mill\",\n    \"city\": \"Kaihtum\",\n    \"state\": \"CO\",\n    \"zip\": \"49150\",\n    \"dollar\": \"$3,075.35\",\n    \"pick\": \"WHITE\",\n    \"Birthdate\": \"09/04/2016\"   \n  },\n  {\n    \"seq\": \"10\",\n    \"FirstName\": \"Esther\",\n    \"LastName\": \"Arnold\",\n    \"FullName\": \"Esther Arnold\",\n    \"age\": \"33\",\n    \"street\": \"Weccaw Pike\",\n    \"city\": \"Sujunu\",\n    \"state\": \"RI\",\n    \"zip\": \"76860\",\n    \"dollar\": \"$4,645.47\",\n    \"pick\": \"BLUE\",\n    \"Birthdate\": \"01/08/1933\"   \n  },\n  {\n    \"seq\": \"11\",\n    \"FirstName\": \"Teresa\",\n    \"LastName\": \"Wolfe\",\n    \"FullName\": \"Teresa Wolfe\",\n    \"age\": \"52\",\n    \"street\": \"Intok Key\",\n    \"city\": \"Faevza\",\n    \"state\": \"SD\",\n    \"zip\": \"71094\",\n    \"dollar\": \"$4,965.49\",\n    \"pick\": \"BLUE\",\n    \"Birthdate\": \"09/27/1993\"   \n  },\n  {\n    \"seq\": \"12\",\n    \"FirstName\": \"Dean\",\n    \"LastName\": \"Lawrence\",\n    \"FullName\": \"Dean Lawrence\",\n    \"age\": \"42\",\n    \"street\": \"Ebewe Grove\",\n    \"city\": \"Icemoalo\",\n    \"state\": \"VT\",\n    \"zip\": \"45094\",\n    \"dollar\": \"$2,465.56\",\n    \"pick\": \"RED\",\n    \"Birthdate\": \"07/02/2006\"   \n  },\n  {\n    \"seq\": \"13\",\n    \"FirstName\": \"Winnie\",\n    \"LastName\": \"Ross\",\n    \"FullName\": \"Winnie Ross\",\n    \"age\": \"59\",\n    \"street\": \"Mappic Boulevard\",\n    \"city\": \"Kitomsog\",\n    \"state\": \"IL\",\n    \"zip\": \"68569\",\n    \"dollar\": \"$4,874.64\",\n    \"pick\": \"GREEN\",\n    \"Birthdate\": \"06/24/1933\"   \n  },\n  {\n    \"seq\": \"14\",\n    \"FirstName\": \"Kathryn\",\n    \"LastName\": \"Fowler\",\n    \"FullName\": \"Kathryn Fowler\",\n    \"age\": \"30\",\n    \"street\": \"Hawdav Circle\",\n    \"city\": \"Vappopo\",\n    \"state\": \"FL\",\n    \"zip\": \"8160\",\n    \"dollar\": \"$8,222.79\",\n    \"pick\": \"GREEN\",\n    \"Birthdate\": \"09/15/2003\"   \n  },\n  {\n    \"seq\": \"15\",\n    \"FirstName\": \"Christina\",\n    \"LastName\": \"Mathis\",\n    \"FullName\": \"Christina Mathis\",\n    \"age\": \"19\",\n    \"street\": \"Dagfaf Highway\",\n    \"city\": \"Samnulu\",\n    \"state\": \"MO\",\n    \"zip\": \"6288\",\n    \"dollar\": \"$9,318.62\",\n    \"pick\": \"YELLOW\",\n    \"Birthdate\": \"07/28/1988\"   \n  },\n  {\n    \"seq\": \"16\",\n    \"FirstName\": \"Daisy\",\n    \"LastName\": \"Quinn\",\n    \"FullName\": \"Daisy Quinn\",\n    \"age\": \"42\",\n    \"street\": \"Nuron Lane\",\n    \"city\": \"Jacouve\",\n    \"state\": \"GA\",\n    \"zip\": \"40394\",\n    \"dollar\": \"$2,700.02\",\n    \"pick\": \"YELLOW\",\n    \"Birthdate\": \"11/23/1909\"   \n  },\n  {\n    \"seq\": \"17\",\n    \"FirstName\": \"Della\",\n    \"LastName\": \"Alvarado\",\n    \"FullName\": \"Della Alvarado\",\n    \"age\": \"64\",\n    \"street\": \"Vesa Pike\",\n    \"city\": \"Elhojac\",\n    \"state\": \"AK\",\n    \"zip\": \"55294\",\n    \"dollar\": \"$1,839.01\",\n    \"pick\": \"RED\",\n    \"Birthdate\": \"01/16/1904\"   \n  },\n  {\n    \"seq\": \"18\",\n    \"FirstName\": \"Walter\",\n    \"LastName\": \"Caldwell\",\n    \"FullName\": \"Walter Caldwell\",\n    \"age\": \"47\",\n    \"street\": \"Bolpe Trail\",\n    \"city\": \"Jucoot\",\n    \"state\": \"NE\",\n    \"zip\": \"66845\",\n    \"dollar\": \"$3,845.11\",\n    \"pick\": \"BLUE\",\n    \"Birthdate\": \"06/10/1900\"   \n  },\n  {\n    \"seq\": \"19\",\n    \"FirstName\": \"Alex\",\n    \"LastName\": \"Lindsey\",\n    \"FullName\": \"Alex Lindsey\",\n    \"age\": \"46\",\n    \"street\": \"Vuma Ridge\",\n    \"city\": \"Piibedar\",\n    \"state\": \"AZ\",\n    \"zip\": \"12443\",\n    \"dollar\": \"$5,912.68\",\n    \"pick\": \"BLUE\",\n    \"Birthdate\": \"06/04/1943\"   \n  },\n  {\n    \"seq\": \"20\",\n    \"FirstName\": \"Ray\",\n    \"LastName\": \"Colon\",\n    \"FullName\": \"Ray Colon\",\n    \"age\": \"27\",\n    \"street\": \"Zumep Loop\",\n    \"city\": \"Kapaduw\",\n    \"state\": \"CT\",\n    \"zip\": \"15863\",\n    \"dollar\": \"$5,523.45\",\n    \"pick\": \"WHITE\",\n    \"Birthdate\": \"09/25/2069\"   \n  },\n  {\n    \"seq\": \"21\",\n    \"FirstName\": \"Cole\",\n    \"LastName\": \"Lawson\",\n    \"FullName\": \"Cole Lawson\",\n    \"age\": \"36\",\n    \"street\": \"Hawjek Avenue\",\n    \"city\": \"Nihibi\",\n    \"state\": \"CT\",\n    \"zip\": \"51827\",\n    \"dollar\": \"$6,424.12\",\n    \"pick\": \"GREEN\",\n    \"Birthdate\": \"11/28/1900\"   \n  },\n  {\n    \"seq\": \"22\",\n    \"FirstName\": \"Minnie\",\n    \"LastName\": \"Hampton\",\n    \"FullName\": \"Minnie Hampton\",\n    \"age\": \"52\",\n    \"street\": \"Taduh Avenue\",\n    \"city\": \"Ratcutab\",\n    \"state\": \"ME\",\n    \"zip\": \"98421\",\n    \"dollar\": \"$5,904.36\",\n    \"pick\": \"BLUE\",\n    \"Birthdate\": \"01/15/2050\"   \n  },\n  {\n    \"seq\": \"23\",\n    \"FirstName\": \"Alice\",\n    \"LastName\": \"Sanders\",\n    \"FullName\": \"Alice Sanders\",\n    \"age\": \"46\",\n    \"street\": \"Vumura Lane\",\n    \"city\": \"Tikujir\",\n    \"state\": \"TN\",\n    \"zip\": \"110\",\n    \"dollar\": \"$3,607.60\",\n    \"pick\": \"BLUE\",\n    \"Birthdate\": \"05/11/1915\"   \n  },\n  {\n    \"seq\": \"24\",\n    \"FirstName\": \"Glen\",\n    \"LastName\": \"Santos\",\n    \"FullName\": \"Glen Santos\",\n    \"age\": \"64\",\n    \"street\": \"Watu Glen\",\n    \"city\": \"Zonovhoh\",\n    \"state\": \"DC\",\n    \"zip\": \"24707\",\n    \"dollar\": \"$2,332.88\",\n    \"pick\": \"GREEN\",\n    \"Birthdate\": \"09/07/1905\"   \n  },\n  {\n    \"seq\": \"25\",\n    \"FirstName\": \"Caroline\",\n    \"LastName\": \"McKinney\",\n    \"FullName\": \"Caroline McKinney\",\n    \"age\": \"38\",\n    \"street\": \"Uctu Mill\",\n    \"city\": \"Kisemizo\",\n    \"state\": \"AK\",\n    \"zip\": \"75753\",\n    \"dollar\": \"$9,721.37\",\n    \"pick\": \"YELLOW\",\n    \"Birthdate\": \"01/29/2061\"   \n  },\n  {\n    \"seq\": \"26\",\n    \"FirstName\": \"Maurice\",\n    \"LastName\": \"Moss\",\n    \"FullName\": \"Maurice Moss\",\n    \"age\": \"48\",\n    \"street\": \"Kuvu Turnpike\",\n    \"city\": \"Aredeha\",\n    \"state\": \"ME\",\n    \"zip\": \"41895\",\n    \"dollar\": \"$7,518.62\",\n    \"pick\": \"RED\",\n    \"Birthdate\": \"04/30/2025\"   \n  },\n  {\n    \"seq\": \"27\",\n    \"FirstName\": \"George\",\n    \"LastName\": \"Chandler\",\n    \"FullName\": \"George Chandler\",\n    \"age\": \"54\",\n    \"street\": \"Rumfug Circle\",\n    \"city\": \"Rovebada\",\n    \"state\": \"NY\",\n    \"zip\": \"47927\",\n    \"dollar\": \"$2,365.45\",\n    \"pick\": \"GREEN\",\n    \"Birthdate\": \"11/13/1902\"   \n  },\n  {\n    \"seq\": \"28\",\n    \"FirstName\": \"Carl\",\n    \"LastName\": \"Mason\",\n    \"FullName\": \"Carl Mason\",\n    \"age\": \"50\",\n    \"street\": \"Nadner Lane\",\n    \"city\": \"Judnuvut\",\n    \"state\": \"MN\",\n    \"zip\": \"5950\",\n    \"dollar\": \"$2,029.78\",\n    \"pick\": \"WHITE\",\n    \"Birthdate\": \"02/01/1913\"   \n  },\n  {\n    \"seq\": \"29\",\n    \"FirstName\": \"Julia\",\n    \"LastName\": \"Nash\",\n    \"FullName\": \"Julia Nash\",\n    \"age\": \"57\",\n    \"street\": \"Zasmo Grove\",\n    \"city\": \"Homusit\",\n    \"state\": \"GA\",\n    \"zip\": \"18651\",\n    \"dollar\": \"$735.45\",\n    \"pick\": \"BLUE\",\n    \"Birthdate\": \"09/15/1951\"   \n  },\n  {\n    \"seq\": \"30\",\n    \"FirstName\": \"Tommy\",\n    \"LastName\": \"Waters\",\n    \"FullName\": \"Tommy Waters\",\n    \"age\": \"34\",\n    \"street\": \"Hogli Manor\",\n    \"city\": \"Ovbuug\",\n    \"state\": \"HI\",\n    \"zip\": \"46157\",\n    \"dollar\": \"$1,420.29\",\n    \"pick\": \"GREEN\",\n    \"Birthdate\": \"11/27/1954\"   \n  },\n  {\n    \"seq\": \"31\",\n    \"FirstName\": \"Charles\",\n    \"LastName\": \"Carlson\",\n    \"FullName\": \"Charles Carlson\",\n    \"age\": \"59\",\n    \"street\": \"Rokob River\",\n    \"city\": \"Bopbusuf\",\n    \"state\": \"CT\",\n    \"zip\": \"10906\",\n    \"dollar\": \"$1,858.60\",\n    \"pick\": \"WHITE\",\n    \"Birthdate\": \"03/30/1916\"   \n  },\n  {\n    \"seq\": \"32\",\n    \"FirstName\": \"Mike\",\n    \"LastName\": \"Phelps\",\n    \"FullName\": \"Mike Phelps\",\n    \"age\": \"40\",\n    \"street\": \"Kodzos Park\",\n    \"city\": \"Bitefsip\",\n    \"state\": \"MI\",\n    \"zip\": \"38658\",\n    \"dollar\": \"$587.89\",\n    \"pick\": \"RED\",\n    \"Birthdate\": \"05/11/1961\"   \n  },\n  {\n    \"seq\": \"33\",\n    \"FirstName\": \"Lillie\",\n    \"LastName\": \"Bush\",\n    \"FullName\": \"Lillie Bush\",\n    \"age\": \"27\",\n    \"street\": \"Wopnec Drive\",\n    \"city\": \"Baiflan\",\n    \"state\": \"IA\",\n    \"zip\": \"36403\",\n    \"dollar\": \"$8,078.55\",\n    \"pick\": \"GREEN\",\n    \"Birthdate\": \"07/11/1948\"   \n  },\n  {\n    \"seq\": \"34\",\n    \"FirstName\": \"Wayne\",\n    \"LastName\": \"Barrett\",\n    \"FullName\": \"Wayne Barrett\",\n    \"age\": \"19\",\n    \"street\": \"Zurjup Heights\",\n    \"city\": \"Henabmer\",\n    \"state\": \"FL\",\n    \"zip\": \"53323\",\n    \"dollar\": \"$9,644.59\",\n    \"pick\": \"YELLOW\",\n    \"Birthdate\": \"08/22/1911\"   \n  },\n  {\n    \"seq\": \"35\",\n    \"FirstName\": \"Mason\",\n    \"LastName\": \"Banks\",\n    \"FullName\": \"Mason Banks\",\n    \"age\": \"26\",\n    \"street\": \"Etke Street\",\n    \"city\": \"Jousoaf\",\n    \"state\": \"SC\",\n    \"zip\": \"95102\",\n    \"dollar\": \"$7,687.78\",\n    \"pick\": \"GREEN\",\n    \"Birthdate\": \"08/01/2038\"   \n  },\n  {\n    \"seq\": \"36\",\n    \"FirstName\": \"Nell\",\n    \"LastName\": \"Daniel\",\n    \"FullName\": \"Nell Daniel\",\n    \"age\": \"24\",\n    \"street\": \"Ziwgim Ridge\",\n    \"city\": \"Tazadif\",\n    \"state\": \"MO\",\n    \"zip\": \"81540\",\n    \"dollar\": \"$5,708.40\",\n    \"pick\": \"GREEN\",\n    \"Birthdate\": \"07/31/2000\"   \n  },\n  {\n    \"seq\": \"37\",\n    \"FirstName\": \"Garrett\",\n    \"LastName\": \"Moore\",\n    \"FullName\": \"Garrett Moore\",\n    \"age\": \"37\",\n    \"street\": \"Hubu Pike\",\n    \"city\": \"Wonuloc\",\n    \"state\": \"DE\",\n    \"zip\": \"20172\",\n    \"dollar\": \"$8,699.74\",\n    \"pick\": \"GREEN\",\n    \"Birthdate\": \"10/20/2047\"   \n  },\n  {\n    \"seq\": \"38\",\n    \"FirstName\": \"Alma\",\n    \"LastName\": \"Mendez\",\n    \"FullName\": \"Alma Mendez\",\n    \"age\": \"32\",\n    \"street\": \"Boahe Highway\",\n    \"city\": \"Zifuzut\",\n    \"state\": \"VT\",\n    \"zip\": \"89460\",\n    \"dollar\": \"$4,930.86\",\n    \"pick\": \"WHITE\",\n    \"Birthdate\": \"10/08/1991\"   \n  },\n  {\n    \"seq\": \"39\",\n    \"FirstName\": \"Jacob\",\n    \"LastName\": \"Mack\",\n    \"FullName\": \"Jacob Mack\",\n    \"age\": \"55\",\n    \"street\": \"Cimiji Key\",\n    \"city\": \"Ozasazad\",\n    \"state\": \"SD\",\n    \"zip\": \"45305\",\n    \"dollar\": \"$840.77\",\n    \"pick\": \"WHITE\",\n    \"Birthdate\": \"04/13/1970\"   \n  },\n  {\n    \"seq\": \"40\",\n    \"FirstName\": \"Eva\",\n    \"LastName\": \"Robinson\",\n    \"FullName\": \"Eva Robinson\",\n    \"age\": \"18\",\n    \"street\": \"Nohfa Terrace\",\n    \"city\": \"Zaslovja\",\n    \"state\": \"NH\",\n    \"zip\": \"79892\",\n    \"dollar\": \"$1,781.90\",\n    \"pick\": \"GREEN\",\n    \"Birthdate\": \"07/13/1988\"   \n  },\n  {\n    \"seq\": \"41\",\n    \"FirstName\": \"Maude\",\n    \"LastName\": \"Fisher\",\n    \"FullName\": \"Maude Fisher\",\n    \"age\": \"61\",\n    \"street\": \"Ucafo Extension\",\n    \"city\": \"Siivaiv\",\n    \"state\": \"TX\",\n    \"zip\": \"41454\",\n    \"dollar\": \"$4,675.25\",\n    \"pick\": \"YELLOW\",\n    \"Birthdate\": \"09/03/1923\"   \n  },\n  {\n    \"seq\": \"42\",\n    \"FirstName\": \"Gene\",\n    \"LastName\": \"Munoz\",\n    \"FullName\": \"Gene Munoz\",\n    \"age\": \"36\",\n    \"street\": \"Banow Trail\",\n    \"city\": \"Kepitte\",\n    \"state\": \"OH\",\n    \"zip\": \"87526\",\n    \"dollar\": \"$4,147.00\",\n    \"pick\": \"GREEN\",\n    \"Birthdate\": \"10/07/2061\"   \n  },\n  {\n    \"seq\": \"43\",\n    \"FirstName\": \"Jesse\",\n    \"LastName\": \"Pearson\",\n    \"FullName\": \"Jesse Pearson\",\n    \"age\": \"44\",\n    \"street\": \"Nohwi Plaza\",\n    \"city\": \"Tevzahjom\",\n    \"state\": \"NM\",\n    \"zip\": \"97261\",\n    \"dollar\": \"$4,288.70\",\n    \"pick\": \"YELLOW\",\n    \"Birthdate\": \"08/04/2036\"   \n  },\n  {\n    \"seq\": \"44\",\n    \"FirstName\": \"Effie\",\n    \"LastName\": \"Nichols\",\n    \"FullName\": \"Effie Nichols\",\n    \"age\": \"48\",\n    \"street\": \"Cogef Pass\",\n    \"city\": \"Virovde\",\n    \"state\": \"TN\",\n    \"zip\": \"3925\",\n    \"dollar\": \"$1,374.16\",\n    \"pick\": \"YELLOW\",\n    \"Birthdate\": \"12/25/2039\"   \n  },\n  {\n    \"seq\": \"45\",\n    \"FirstName\": \"Shane\",\n    \"LastName\": \"McLaughlin\",\n    \"FullName\": \"Shane McLaughlin\",\n    \"age\": \"51\",\n    \"street\": \"Vevoh Road\",\n    \"city\": \"Purmewge\",\n    \"state\": \"PA\",\n    \"zip\": \"63753\",\n    \"dollar\": \"$795.77\",\n    \"pick\": \"RED\",\n    \"Birthdate\": \"03/22/2021\"   \n  },\n  {\n    \"seq\": \"46\",\n    \"FirstName\": \"Teresa\",\n    \"LastName\": \"Wright\",\n    \"FullName\": \"Teresa Wright\",\n    \"age\": \"35\",\n    \"street\": \"Zuker Turnpike\",\n    \"city\": \"Amzotde\",\n    \"state\": \"WY\",\n    \"zip\": \"52822\",\n    \"dollar\": \"$6,796.71\",\n    \"pick\": \"GREEN\",\n    \"Birthdate\": \"03/27/1958\"   \n  },\n  {\n    \"seq\": \"47\",\n    \"FirstName\": \"Bess\",\n    \"LastName\": \"Williams\",\n    \"FullName\": \"Bess Williams\",\n    \"age\": \"26\",\n    \"street\": \"Vipzo Place\",\n    \"city\": \"Raltecsep\",\n    \"state\": \"DC\",\n    \"zip\": \"27123\",\n    \"dollar\": \"$262.15\",\n    \"pick\": \"BLUE\",\n    \"Birthdate\": \"09/30/1912\"   \n  },\n  {\n    \"seq\": \"48\",\n    \"FirstName\": \"George\",\n    \"LastName\": \"Johnson\",\n    \"FullName\": \"George Johnson\",\n    \"age\": \"30\",\n    \"street\": \"Gucmu Pike\",\n    \"city\": \"Tulukvuf\",\n    \"state\": \"VA\",\n    \"zip\": \"55196\",\n    \"dollar\": \"$6,080.74\",\n    \"pick\": \"YELLOW\",\n    \"Birthdate\": \"10/23/1993\"   \n  },\n  {\n    \"seq\": \"49\",\n    \"FirstName\": \"Virgie\",\n    \"LastName\": \"Torres\",\n    \"FullName\": \"Virgie Torres\",\n    \"age\": \"49\",\n    \"street\": \"Gupciv Loop\",\n    \"city\": \"Ujaamelo\",\n    \"state\": \"NE\",\n    \"zip\": \"93102\",\n    \"dollar\": \"$6,267.89\",\n    \"pick\": \"WHITE\",\n    \"Birthdate\": \"02/03/2020\"   \n  },\n  {\n    \"seq\": \"50\",\n    \"FirstName\": \"Herman\",\n    \"LastName\": \"Walton\",\n    \"FullName\": \"Herman Walton\",\n    \"age\": \"47\",\n    \"street\": \"Agorez Ridge\",\n    \"city\": \"Zibavhu\",\n    \"state\": \"IA\",\n    \"zip\": \"76539\",\n    \"dollar\": \"$7,909.38\",\n    \"pick\": \"GREEN\",\n    \"Birthdate\": \"05/14/1924\"\n  }\n]",
+					"bodyFormData": [
+
+					],
+					"httpMethod": "POST",
+					"pluginSpecifiedTemplates": [
+						{
+							"value": true
+						}
+					],
+					"formData": {
+						"apiContentType": "none"
+					}
+				},
+				"executeOnLoad": true,
+				"dynamicBindingPathList": [
+
+				],
+				"isValid": true,
+				"invalids": [
+
+				],
+				"messages": [
+
+				],
+				"jsonPathKeys": [
+
+				],
+				"confirmBeforeExecute": false,
+				"userPermissions": [
+
+				],
+				"validName": "GetFilterTableTestData"
+			},
+			"new": false
+		}
+	],
+	"actionCollectionList": [
+
+	],
+	"invisibleActionFields": {
+		"TableFiltersTest_GetFilterTableTestData": {
+			"unpublishedUserSetOnLoad": false,
+			"publishedUserSetOnLoad": false
+		}
+	},
+	"editModeTheme": {
+		"name": "Rounded",
+		"displayName": "Rounded",
+		"config": {
+			"colors": {
+				"primaryColor": "#DE1593",
+				"backgroundColor": "#F6F6F6"
+			},
+			"borderRadius": {
+				"appBorderRadius": {
+					"none": "0px",
+					"md": "0.375rem",
+					"lg": "1.5rem"
+				}
+			},
+			"boxShadow": {
+				"appBoxShadow": {
+					"none": "none",
+					"sm": "0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)",
+					"md": "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)",
+					"lg": "0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)"
+				}
+			},
+			"fontFamily": {
+				"appFont": [
+					"System Default",
+					"Nunito Sans",
+					"Poppins",
+					"Inter",
+					"Montserrat",
+					"Noto Sans",
+					"Open Sans",
+					"Roboto",
+					"Rubik",
+					"Ubuntu"
+				]
+			}
+		},
+		"properties": {
+			"colors": {
+				"primaryColor": "#DE1593",
+				"backgroundColor": "#F6F6F6"
+			},
+			"borderRadius": {
+				"appBorderRadius": "1.5rem"
+			},
+			"boxShadow": {
+				"appBoxShadow": "0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)"
+			},
+			"fontFamily": {
+				"appFont": "Ubuntu"
+			}
+		},
+		"stylesheet": {
+			"AUDIO_RECORDER_WIDGET": {
+				"accentColor": "{{appsmith.theme.colors.primaryColor}}",
+				"borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+				"boxShadow": "none"
+			},
+			"BUTTON_WIDGET": {
+				"buttonColor": "{{appsmith.theme.colors.primaryColor}}",
+				"borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+				"boxShadow": "none"
+			},
+			"BUTTON_GROUP_WIDGET": {
+				"borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+				"boxShadow": "none",
+				"childStylesheet": {
+					"button": {
+						"buttonColor": "{{appsmith.theme.colors.primaryColor}}"
+					}
+				}
+			},
+			"CAMERA_WIDGET": {
+				"borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+				"boxShadow": "none"
+			},
+			"CHART_WIDGET": {
+				"borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+				"boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}"
+			},
+			"CHECKBOX_WIDGET": {
+				"accentColor": "{{appsmith.theme.colors.primaryColor}}",
+				"borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}"
+			},
+			"CHECKBOX_GROUP_WIDGET": {
+				"accentColor": "{{appsmith.theme.colors.primaryColor}}",
+				"borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}"
+			},
+			"CONTAINER_WIDGET": {
+				"borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+				"boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}"
+			},
+			"CIRCULAR_PROGRESS_WIDGET": {
+				"fillColor": "{{appsmith.theme.colors.primaryColor}}",
+				"borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}"
+			},
+			"CURRENCY_INPUT_WIDGET": {
+				"accentColor": "{{appsmith.theme.colors.primaryColor}}",
+				"borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+				"boxShadow": "none"
+			},
+			"PHONE_INPUT_WIDGET": {
+				"accentColor": "{{appsmith.theme.colors.primaryColor}}",
+				"borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+				"boxShadow": "none"
+			},
+			"DATE_PICKER_WIDGET2": {
+				"accentColor": "{{appsmith.theme.colors.primaryColor}}",
+				"borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+				"boxShadow": "none"
+			},
+			"FILE_PICKER_WIDGET_V2": {
+				"buttonColor": "{{appsmith.theme.colors.primaryColor}}",
+				"borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+				"boxShadow": "none"
+			},
+			"FORM_WIDGET": {
+				"borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+				"boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}"
+			},
+			"FORM_BUTTON_WIDGET": {
+				"buttonColor": "{{appsmith.theme.colors.primaryColor}}",
+				"borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+				"boxShadow": "none"
+			},
+			"ICON_BUTTON_WIDGET": {
+				"buttonColor": "{{appsmith.theme.colors.primaryColor}}",
+				"borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+				"boxShadow": "none"
+			},
+			"IFRAME_WIDGET": {
+				"borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+				"boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}"
+			},
+			"IMAGE_WIDGET": {
+				"borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+				"boxShadow": "none"
+			},
+			"INPUT_WIDGET": {
+				"accentColor": "{{appsmith.theme.colors.primaryColor}}",
+				"borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+				"boxShadow": "none"
+			},
+			"INPUT_WIDGET_V2": {
+				"accentColor": "{{appsmith.theme.colors.primaryColor}}",
+				"borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+				"boxShadow": "none"
+			},
+			"JSON_FORM_WIDGET": {
+				"borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+				"boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}",
+				"submitButtonStyles": {
+					"buttonColor": "{{appsmith.theme.colors.primaryColor}}",
+					"borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+					"boxShadow": "none"
+				},
+				"resetButtonStyles": {
+					"buttonColor": "{{appsmith.theme.colors.primaryColor}}",
+					"borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+					"boxShadow": "none"
+				},
+				"childStylesheet": {
+					"ARRAY": {
+						"accentColor": "{{appsmith.theme.colors.primaryColor}}",
+						"borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+						"boxShadow": "none",
+						"cellBorderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+						"cellBoxShadow": "none"
+					},
+					"OBJECT": {
+						"borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+						"boxShadow": "none",
+						"cellBorderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+						"cellBoxShadow": "none"
+					},
+					"CHECKBOX": {
+						"accentColor": "{{appsmith.theme.colors.primaryColor}}",
+						"borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}"
+					},
+					"CURRENCY_INPUT": {
+						"accentColor": "{{appsmith.theme.colors.primaryColor}}",
+						"borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+						"boxShadow": "none"
+					},
+					"DATEPICKER": {
+						"accentColor": "{{appsmith.theme.colors.primaryColor}}",
+						"borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+						"boxShadow": "none"
+					},
+					"EMAIL_INPUT": {
+						"accentColor": "{{appsmith.theme.colors.primaryColor}}",
+						"borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+						"boxShadow": "none"
+					},
+					"MULTISELECT": {
+						"accentColor": "{{appsmith.theme.colors.primaryColor}}",
+						"borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+						"boxShadow": "none"
+					},
+					"MULTILINE_TEXT_INPUT": {
+						"accentColor": "{{appsmith.theme.colors.primaryColor}}",
+						"borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+						"boxShadow": "none"
+					},
+					"NUMBER_INPUT": {
+						"accentColor": "{{appsmith.theme.colors.primaryColor}}",
+						"borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+						"boxShadow": "none"
+					},
+					"PASSWORD_INPUT": {
+						"accentColor": "{{appsmith.theme.colors.primaryColor}}",
+						"borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+						"boxShadow": "none"
+					},
+					"PHONE_NUMBER_INPUT": {
+						"accentColor": "{{appsmith.theme.colors.primaryColor}}",
+						"borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+						"boxShadow": "none"
+					},
+					"RADIO_GROUP": {
+						"accentColor": "{{appsmith.theme.colors.primaryColor}}",
+						"boxShadow": "none"
+					},
+					"SELECT": {
+						"accentColor": "{{appsmith.theme.colors.primaryColor}}",
+						"borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+						"boxShadow": "none"
+					},
+					"SWITCH": {
+						"accentColor": "{{appsmith.theme.colors.primaryColor}}",
+						"boxShadow": "none"
+					},
+					"TEXT_INPUT": {
+						"accentColor": "{{appsmith.theme.colors.primaryColor}}",
+						"borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+						"boxShadow": "none"
+					}
+				}
+			},
+			"LIST_WIDGET": {
+				"accentColor": "{{appsmith.theme.colors.primaryColor}}",
+				"borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+				"boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}"
+			},
+			"MAP_WIDGET": {
+				"borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+				"boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}"
+			},
+			"MAP_CHART_WIDGET": {
+				"borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+				"boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}"
+			},
+			"MENU_BUTTON_WIDGET": {
+				"menuColor": "{{appsmith.theme.colors.primaryColor}}",
+				"borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+				"boxShadow": "none"
+			},
+			"MODAL_WIDGET": {
+				"borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+				"boxShadow": "none"
+			},
+			"MULTI_SELECT_TREE_WIDGET": {
+				"accentColor": "{{appsmith.theme.colors.primaryColor}}",
+				"borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+				"boxShadow": "none"
+			},
+			"MULTI_SELECT_WIDGET": {
+				"accentColor": "{{appsmith.theme.colors.primaryColor}}",
+				"borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+				"boxShadow": "none"
+			},
+			"MULTI_SELECT_WIDGET_V2": {
+				"accentColor": "{{appsmith.theme.colors.primaryColor}}",
+				"borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+				"boxShadow": "none"
+			},
+			"DROP_DOWN_WIDGET": {
+				"accentColor": "{{appsmith.theme.colors.primaryColor}}",
+				"borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+				"boxShadow": "none"
+			},
+			"PROGRESSBAR_WIDGET": {
+				"fillColor": "{{appsmith.theme.colors.primaryColor}}",
+				"borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}"
+			},
+			"PROGRESS_WIDGET": {
+				"fillColor": "{{appsmith.theme.colors.primaryColor}}",
+				"borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}"
+			},
+			"RATE_WIDGET": {
+				"activeColor": "{{appsmith.theme.colors.primaryColor}}"
+			},
+			"RADIO_GROUP_WIDGET": {
+				"accentColor": "{{appsmith.theme.colors.primaryColor}}",
+				"boxShadow": "none"
+			},
+			"RICH_TEXT_EDITOR_WIDGET": {
+				"borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+				"boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}"
+			},
+			"STATBOX_WIDGET": {
+				"borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+				"boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}"
+			},
+			"SWITCH_WIDGET": {
+				"accentColor": "{{appsmith.theme.colors.primaryColor}}",
+				"boxShadow": "none"
+			},
+			"SWITCH_GROUP_WIDGET": {
+				"accentColor": "{{appsmith.theme.colors.primaryColor}}"
+			},
+			"SELECT_WIDGET": {
+				"accentColor": "{{appsmith.theme.colors.primaryColor}}",
+				"borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+				"boxShadow": "none"
+			},
+			"TABLE_WIDGET": {
+				"accentColor": "{{appsmith.theme.colors.primaryColor}}",
+				"borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+				"boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}",
+				"childStylesheet": {
+					"button": {
+						"buttonColor": "{{appsmith.theme.colors.primaryColor}}",
+						"borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+						"boxShadow": "none"
+					},
+					"menuButton": {
+						"menuColor": "{{appsmith.theme.colors.primaryColor}}",
+						"borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+						"boxShadow": "none"
+					},
+					"iconButton": {
+						"menuColor": "{{appsmith.theme.colors.primaryColor}}",
+						"borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+						"boxShadow": "none"
+					}
+				}
+			},
+      "TABLE_WIDGET_V2": {
+				"accentColor": "{{appsmith.theme.colors.primaryColor}}",
+				"borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+				"boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}",
+				"childStylesheet": {
+					"button": {
+						"buttonColor": "{{appsmith.theme.colors.primaryColor}}",
+						"borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+						"boxShadow": "none"
+					},
+					"menuButton": {
+						"menuColor": "{{appsmith.theme.colors.primaryColor}}",
+						"borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+						"boxShadow": "none"
+					},
+					"iconButton": {
+						"menuColor": "{{appsmith.theme.colors.primaryColor}}",
+						"borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+						"boxShadow": "none"
+					},
+          "editActions": {
+						"buttonColor": "{{appsmith.theme.colors.primaryColor}}",
+						"borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+						"boxShadow": "none"
+					}
+				}
+			},
+			"TABS_WIDGET": {
+				"accentColor": "{{appsmith.theme.colors.primaryColor}}",
+				"borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+				"boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}"
+			},
+			"TEXT_WIDGET": {
+				"fontFamily": "{{appsmith.theme.fontFamily.appFont}}",
+				"borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}"
+			},
+			"VIDEO_WIDGET": {
+				"borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+				"boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}"
+			},
+			"SINGLE_SELECT_TREE_WIDGET": {
+				"accentColor": "{{appsmith.theme.colors.primaryColor}}",
+				"borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+				"boxShadow": "none"
+			}
+		},
+		"new": true,
+		"isSystemTheme": false
+	},
+	"publishedTheme": {
+		"name": "Classic",
+		"displayName": "Classic",
+		"new": true,
+		"isSystemTheme": true
+	},
+	"publishedLayoutmongoEscapedWidgets": {
+	},
+	"unpublishedLayoutmongoEscapedWidgets": {
+	}
+}
