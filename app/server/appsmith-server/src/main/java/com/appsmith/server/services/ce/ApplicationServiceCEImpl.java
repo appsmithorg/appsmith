@@ -434,6 +434,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
                 .switchIfEmpty(this.findByBranchNameAndDefaultApplicationId(branchName, defaultApplicationId, MAKE_PUBLIC_APPLICATIONS))
                 .flatMap(branchedApplication -> changeViewAccess(branchedApplication.getId(), applicationAccessDTO))
                 .then(repository.findById(defaultApplicationId, MAKE_PUBLIC_APPLICATIONS)
+                        .flatMap(this::setTransientFields)
                         .map(responseUtils::updateApplicationWithDefaultResources));
     }
 
@@ -763,7 +764,8 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
           We're not setting updatedAt and modifiedBy fields to the application DTO because these fields will be set
           by the updateById method of the BaseAppsmithRepositoryImpl
          */
-        return repository.updateById(applicationId, application, MANAGE_APPLICATIONS); // it'll do a set operation
+        return repository.updateById(applicationId, application, MANAGE_APPLICATIONS) // it'll do a set operation
+                .flatMap(this::setTransientFields);
     }
 
     public Mono<String> findBranchedApplicationId(String branchName, String defaultApplicationId, AclPermission permission) {

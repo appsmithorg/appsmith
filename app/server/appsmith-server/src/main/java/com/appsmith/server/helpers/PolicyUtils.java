@@ -105,11 +105,11 @@ public class PolicyUtils {
             String permission = policy.getPermission();
             if (policyMap1.containsKey(permission)) {
                 policy.getUsers().removeAll(policyMap1.get(permission).getUsers());
-                if (policy.getGroups() == null) {
-                    policy.setGroups(new HashSet<>());
+                if (policy.getPermissionGroups() == null) {
+                    policy.setPermissionGroups(new HashSet<>());
                 }
-                if (policyMap1.get(permission).getGroups() != null) {
-                    policy.getGroups().removeAll(policyMap1.get(permission).getGroups());
+                if (policyMap1.get(permission).getPermissionGroups() != null) {
+                    policy.getPermissionGroups().removeAll(policyMap1.get(permission).getPermissionGroups());
                 }
                 // Remove this permission from the policyMap as this has been accounted for in the above code
                 policyMap1.remove(permission);
