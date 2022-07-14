@@ -30,6 +30,8 @@ import { SchemaItem } from "./JSONFormWidget/constants";
 import { find, isEmpty } from "lodash";
 import { rgbaMigrationConstantV56 } from "./constants";
 import { DynamicPath } from "utils/DynamicBindingUtils";
+import { isArray } from "lodash";
+import { PropertyHookUpdates } from "constants/PropertyControlConstants";
 
 const punycode = require("punycode/");
 
@@ -543,3 +545,47 @@ export const parseSchemaItem = (
 
 export const getMainCanvas = () =>
   document.querySelector(`.${CANVAS_SELECTOR}`) as HTMLElement;
+
+/*
+ * Function that composes two or more hooks together in the updateHook
+ * property of the property pane config
+ *
+ * - Often times we would wanna call more than one hook when a property is
+ *   changed. Use this hook instead of nested calls
+ *
+ * Eack hook should either return `undefined` or an array of PropertyHookUpdates
+ * this function ignores the undefined and concats all the property update array.
+ */
+export function composePropertyUpdateHook(
+  updateFunctions: Array<
+    (
+      props: any,
+      propertyPath: string,
+      propertyValue: any,
+    ) => Array<PropertyHookUpdates> | undefined
+  >,
+): (
+  props: any,
+  propertyPath: string,
+  propertyValue: any,
+) => Array<PropertyHookUpdates> | undefined {
+  return (props: any, propertyPath: string, propertyValue: any) => {
+    if (updateFunctions.length) {
+      let updates: PropertyHookUpdates[] = [];
+
+      updateFunctions.forEach((func) => {
+        if (typeof func === "function") {
+          const value = func(props, propertyPath, propertyValue);
+
+          if (isArray(value)) {
+            updates = updates.concat(value);
+          }
+        }
+      });
+
+      return updates.length ? updates : undefined;
+    } else {
+      return undefined;
+    }
+  };
+}

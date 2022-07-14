@@ -94,6 +94,7 @@ import {
   LINT_TOOLTIP_JUSTIFIED_LEFT_CLASS,
 } from "./constants";
 import { interactionAnalyticsEvent } from "utils/AppsmithUtils";
+import { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTypeDefCreator";
 
 interface ReduxStateProps {
   dynamicData: DataTree;
@@ -166,7 +167,7 @@ export type EditorProps = EditorStyleProps &
   EditorConfig & {
     input: Partial<WrappedFieldInputProps>;
   } & {
-    additionalDynamicData?: Record<string, Record<string, unknown>>;
+    additionalDynamicData?: AdditionalDynamicDataTree;
     promptMessage?: React.ReactNode | string;
     hideEvaluatedValue?: boolean;
     errors?: any;
@@ -457,7 +458,7 @@ class CodeEditor extends Component<Props, State> {
     editor: CodeMirror.Editor,
     hinting: Array<HintHelper>,
     dynamicData: DataTree,
-    additionalDynamicData?: Record<string, Record<string, unknown>>,
+    additionalDynamicData?: AdditionalDynamicDataTree,
   ) {
     return hinting.map((helper) => {
       return helper(editor, dynamicData, additionalDynamicData);
