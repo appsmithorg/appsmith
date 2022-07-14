@@ -4,7 +4,6 @@ const { merge } = require("webpack-merge");
 const common = require("./craco.common.config.js");
 const WorkboxPlugin = require("workbox-webpack-plugin");
 const CompressionPlugin = require("compression-webpack-plugin");
-// const BrotliPlugin = require("brotli-webpack-plugin");
 
 const env = process.env.REACT_APP_ENVIRONMENT;
 

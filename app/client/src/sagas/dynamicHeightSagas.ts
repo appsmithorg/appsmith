@@ -509,12 +509,7 @@ function* batchCallsToUpdateWidgetDynamicHeightSaga(
   action: ReduxAction<UpdateWidgetDynamicHeightPayload>,
 ) {
   const { height, widgetId } = action.payload;
-  console.log(
-    "Dynamic Height: Batching update",
-    { height },
-    { widgetId },
-    { timeStamp: performance.now() },
-  );
+
   dynamicHeightUpdateWidgets[widgetId] = height;
   yield put({
     type: ReduxActionTypes.PROCESS_DYNAMIC_HEIGHT_UPDATES,

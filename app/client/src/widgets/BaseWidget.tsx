@@ -174,9 +174,6 @@ abstract class BaseWidget<
   */
   updateDynamicHeight(height: number): void {
     const shouldUpdate = this.shouldUpdateDynamicHeight(height);
-    console.log("Dynamic height: So, what's the result? should update?", {
-      shouldUpdate,
-    });
     const { updateWidgetDynamicHeight } = this.context;
     if (updateWidgetDynamicHeight) {
       const { widgetId } = this.props;
@@ -192,14 +189,6 @@ abstract class BaseWidget<
     const currentHeightInRows = this.props.bottomRow - this.props.topRow;
     const expectedHeightInRows = Math.ceil(
       expectedHeight / GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
-    );
-
-    console.log(
-      "Dynamic height: Checking if we should update:",
-      { props: this.props },
-      { currentHeightInRows },
-      { expectedHeightInRows },
-      { diff: Math.abs(currentHeightInRows - expectedHeightInRows) },
     );
 
     // If the diff is of less than 2 rows, do nothing. If it is actually 2 rows,

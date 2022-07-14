@@ -150,6 +150,7 @@ const MultiTreeSelectComponent = React.forwardRef<
     const {
       BackDrop,
       getPopupContainer,
+      isOpen,
       onKeyDown,
       onOpen,
       selectRef,
@@ -223,6 +224,11 @@ const MultiTreeSelectComponent = React.forwardRef<
     );
 
     const onClear = useCallback(() => onChange([], []), []);
+    const onDropdownVisibleChange = (open: boolean) => {
+      onOpen(open);
+      // clear the search input on closing the widget
+      setFilter("");
+    };
 
     return (
       <TreeSelectContainer
@@ -293,7 +299,8 @@ const MultiTreeSelectComponent = React.forwardRef<
             notFoundContent="No Results Found"
             onChange={onChange}
             onClear={onClear}
-            onDropdownVisibleChange={onOpen}
+            onDropdownVisibleChange={onDropdownVisibleChange}
+            open={isOpen}
             placeholder={placeholder}
             ref={selectRef}
             removeIcon={

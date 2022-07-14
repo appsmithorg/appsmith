@@ -159,6 +159,11 @@ public class FileUtilsImpl implements FileInterface {
 
                     Set<String> validFileNames = new HashSet<>();
                     Map<String, Set<String>> updatedResources = applicationGitReference.getUpdatedResources();
+
+                    // Remove unwanted directories which was present in v1 of the git file format version
+                    deleteDirectory(baseRepo.resolve(ACTION_DIRECTORY));
+                    deleteDirectory(baseRepo.resolve(ACTION_COLLECTION_DIRECTORY));
+
                     // Save application
                     saveFile(applicationGitReference.getApplication(), baseRepo.resolve(CommonConstants.APPLICATION + CommonConstants.JSON_EXTENSION), gson);
 

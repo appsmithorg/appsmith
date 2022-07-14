@@ -178,8 +178,10 @@ export const JSToString = (js: string): string => {
 };
 
 class JSONFormComputeControl extends BaseControl<JSONFormComputeControlProps> {
-  getInputComputedValue = (propertyValue: string) => {
-    const { widgetName } = this.props.widgetProperties;
+  static getInputComputedValue = (
+    propertyValue: string,
+    widgetName: string,
+  ) => {
     const { prefixTemplate, suffixTemplate } = getBindingTemplate(widgetName);
 
     const value = propertyValue.substring(
@@ -236,7 +238,11 @@ class JSONFormComputeControl extends BaseControl<JSONFormComputeControlProps> {
 
     const value = (() => {
       if (propertyValue && isDynamicValue(propertyValue)) {
-        return this.getInputComputedValue(propertyValue);
+        const { widgetName } = this.props.widgetProperties;
+        return JSONFormComputeControl.getInputComputedValue(
+          propertyValue,
+          widgetName,
+        );
       }
 
       return propertyValue || defaultValue;

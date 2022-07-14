@@ -29,10 +29,11 @@ import {
   CanvasWidgetsReduxState,
   FlattenedWidgetProps,
 } from "reducers/entityReducers/canvasWidgetsReducer";
-import { getWidgetChildren } from "./WidgetOperationUtils";
+import { getWidgetChildrenIds } from "./WidgetOperationUtils";
 import { AppState } from "reducers";
 import { checkIsDropTarget } from "components/designSystems/appsmith/PositionedContainer";
 import WidgetFactory from "utils/WidgetFactory";
+import { showModal } from "actions/widgetActions";
 const WidgetTypes = WidgetFactory.widgetTypes;
 // The following is computed to be used in the entity explorer
 // Every time a widget is selected, we need to expand widget entities
@@ -140,7 +141,7 @@ function* getAllSelectableChildren() {
     : false;
   if (selectGrandChildren) {
     allChildren = yield call(
-      getWidgetChildren,
+      getWidgetChildrenIds,
       canvasWidgets,
       lastSelectedWidget,
     );
@@ -302,6 +303,11 @@ function* selectMultipleWidgetsSaga(
     });
     if (doesNotMatchParent) {
       return;
+    } else if (
+      widgetIds.length === 1 &&
+      allWidgets[widgetIds[0]]?.type === "MODAL_WIDGET"
+    ) {
+      yield put(showModal(widgetIds[0]));
     } else {
       yield put(selectWidgetAction());
       yield put(selectMultipleWidgetsAction(widgetIds));

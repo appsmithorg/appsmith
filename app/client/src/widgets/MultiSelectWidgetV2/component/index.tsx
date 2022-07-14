@@ -119,6 +119,7 @@ const MultiSelectComponent = React.forwardRef<HTMLDivElement, MultiSelectProps>(
     const {
       BackDrop,
       getPopupContainer,
+      isOpen,
       onKeyDown,
       onOpen,
       selectRef,
@@ -233,6 +234,18 @@ const MultiSelectComponent = React.forwardRef<HTMLDivElement, MultiSelectProps>(
       [],
     );
 
+    const onDropdownVisibleChange = (open: boolean) => {
+      onOpen(open);
+
+      /**
+       * Clear the search input on closing the widget
+       * and serverSideFiltering is off
+       */
+      if (!serverSideFiltering) {
+        setFilter("");
+      }
+    };
+
     const dropdownRender = useCallback(
       (
         menu: React.ReactElement<
@@ -346,8 +359,9 @@ const MultiSelectComponent = React.forwardRef<HTMLDivElement, MultiSelectProps>(
             notFoundContent="No Results Found"
             onBlur={onBlur}
             onChange={onChange}
-            onDropdownVisibleChange={onOpen}
+            onDropdownVisibleChange={onDropdownVisibleChange}
             onFocus={onFocus}
+            open={isOpen}
             options={filteredOptions}
             placeholder={placeholder || "select option(s)"}
             ref={selectRef}
