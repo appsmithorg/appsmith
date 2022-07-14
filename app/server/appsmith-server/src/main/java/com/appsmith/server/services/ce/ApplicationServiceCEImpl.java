@@ -522,11 +522,12 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
                                             datasourcePolicyMap, addViewAccess)
                                     .collectList();
 
-                    Set<Permission> datasourcePermissions = datasourceIds.stream()
-                            .map(datasourceId -> new Permission(datasourceId, EXECUTE_DATASOURCES))
-                            .collect(Collectors.toSet());
 
                     if (addViewAccess) {
+
+                        Set<Permission> datasourcePermissions = datasourceIds.stream()
+                                .map(datasourceId -> new Permission(datasourceId, EXECUTE_DATASOURCES))
+                                .collect(Collectors.toSet());
                         // the newly created permission group must be updated to store the top level permissions
                         Set<Permission> permissionGroupPermissions = permissionGroup.getPermissions();
                         permissionGroupPermissions.add(new Permission(application.getId(), READ_APPLICATIONS));
