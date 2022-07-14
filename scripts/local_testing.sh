@@ -1,32 +1,58 @@
 #!/usr/bin/env bash
 set -o errexit
 
-# check whether user had supplied -h or --help . If yes display usage
+display_help()
+{
+  echo "---------------------------------------------------------------------------------------"
+  echo "Use this script to run a local instance of Appsmith on port 80."
+  echo "The script will build all the artefacts required for a fat Docker container to come up."
+  echo "If no argument is given, the build defaults to release branch."
+  echo "---------------------------------------------------------------------------------------"
+  echo
+  echo "Syntax: $0 [-h] [branchName]"
+  echo "options:"
+  echo "h     Print this help"
+  echo
+}
+
+pretty_print()
+{
+  echo "----------------"
+  echo $1
+  echo "----------------"
+  echo
+}
+
+# Check whether user had supplied -h or --help. If yes display usage
 if [[ ( $@ == "--help") ||  $@ == "-h" ]]
 then 
-	echo "Usage: $0 [branchName]"
-	exit 0
+  display_help
+  exit 0
 fi 
 
 BRANCH=${1:-release}
 
-echo "Setting up instance to run on branch: $BRANCH"
+pretty_print "Setting up instance to run on branch: $BRANCH"
 cd "$(dirname "$0")"/..
 git fetch origin $BRANCH
 git checkout $BRANCH
 git pull origin $BRANCH
-echo "Local branch is now up to date"
+pretty_print "Local branch is now up to date"
 
-pushd app/server > /dev/null && ./build.sh -DskipTests > /dev/null && echo "Server build successful"
-
-popd
-pushd app/client > /dev/null && yarn > /dev/null && yarn build > /dev/null && echo "Client build successful"
+pretty_print "Starting server build ..."
+pushd app/server > /dev/null && ./build.sh -DskipTests > /dev/null && pretty_print "Server build successful"
 
 popd
-pushd app/rts > /dev/null && ./build.sh > /dev/null && echo "RTS build successful"
+pretty_print "Starting client build ..."
+pushd app/client > /dev/null && yarn > /dev/null && yarn build > /dev/null && pretty_print "Client build successful"
 
 popd
-docker build -t appsmith/appsmith-ce:local-testing . > /dev/null && echo "Docker image build successful. Triggering run now ..."
+pretty_print "Starting RTS build ..."
+pushd app/rts > /dev/null && ./build.sh > /dev/null && pretty_print "RTS build successful"
+
+popd
+pretty_print "Starting Docker build ..."
+docker build -t appsmith/appsmith-ce:local-testing . > /dev/null && pretty_print "Docker image build successful. Triggering run now ..."
 
 (docker stop appsmith || true) && (docker rm appsmith || true)
-docker run -d --name appsmith -p 80:80 -v "$PWD/stacks:/appsmith-stacks" appsmith/appsmith-ce:local-testing && echo "Local instance is up! Open Appsmith at http://localhost! "
+docker run -d --name appsmith -p 80:80 -v "$PWD/stacks:/appsmith-stacks" appsmith/appsmith-ce:local-testing && pretty_print "Local instance is up! Open Appsmith at http://localhost! "
