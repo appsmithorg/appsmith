@@ -21,9 +21,16 @@ import { createGlobalStyle } from "styled-components";
 import UpIcon from "assets/icons/ads/up-arrow.svg";
 
 const FilePickerGlobalStyles = createGlobalStyle<{
-  backgroundColor?: string;
   borderRadius?: string;
 }>`
+
+  /* Sets the font-family to theming font-family of the upload modal */
+  .uppy-Root {
+    font-family: var(--wds-font-family);
+  }
+
+  /*********************************************************/
+  /* Set the new dropHint upload icon */
   .uppy-Dashboard-dropFilesHereHint {
     background-image: none;
   }
@@ -32,7 +39,7 @@ const FilePickerGlobalStyles = createGlobalStyle<{
     border: 2.5px solid var(--wds-accent-color);
     width: 60px;
     height: 60px;
-    border-radius: ${(props) => props.borderRadius};
+    border-radius: ${({ borderRadius }) => borderRadius};
     display: inline-block;
     content: ' ';
     position: absolute;
@@ -52,6 +59,42 @@ const FilePickerGlobalStyles = createGlobalStyle<{
     -webkit-mask-position: center;
     -webkit-mask-size: 30px;
     background: var(--wds-accent-color);
+  }
+  /*********************************************************/
+
+  /* Set the styles for the upload button */
+  .uppy-StatusBar-actionBtn--upload {
+    background-color: var(--wds-accent-color) !important;
+    border-radius: ${({ borderRadius }) => borderRadius};
+  }
+
+  .uppy-Dashboard-Item-action--remove {
+
+    /* Sets the border radius of the button when it is focused */
+    &:focus {
+      border-radius: ${({ borderRadius }) => borderRadius} !important;
+    }
+
+    .uppy-c-icon {
+      & path:first-child {
+      /* Sets the black background of remove file button hidden */
+        visibility: hidden;
+      }
+  
+      & path:last-child {
+      /* Sets the cross mark color of remove file button */
+        fill: #858282;
+      }
+  
+      background-color: #FFFFFF;
+      box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.06), 0px 1px 3px rgba(0, 0, 0, 0.1);
+  
+      & {
+      /* Sets the black background of remove file button hidden*/
+        border-radius: ${({ borderRadius }) => borderRadius};
+      }
+    }
+    
   }
 `;
 class FilePickerWidget extends BaseWidget<
@@ -569,10 +612,7 @@ class FilePickerWidget extends BaseWidget<
           widgetId={this.props.widgetId}
         />
         {this.state.uppy && this.state.uppy.getID() === this.props.widgetId && (
-          <FilePickerGlobalStyles
-            backgroundColor={this.props.backgroundColor ?? "blue"}
-            borderRadius={this.props.borderRadius}
-          />
+          <FilePickerGlobalStyles borderRadius={this.props.borderRadius} />
         )}
       </>
     );

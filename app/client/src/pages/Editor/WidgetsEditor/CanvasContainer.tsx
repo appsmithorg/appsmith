@@ -105,6 +105,7 @@ function CanvasContainer() {
       }}
     >
       <WidgetGlobaStyles
+        fontFamily={selectedTheme.properties.fontFamily.appFont}
         primaryColor={selectedTheme.properties.colors.primaryColor}
       />
       {isAppThemeChanging && (
