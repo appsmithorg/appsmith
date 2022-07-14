@@ -32,8 +32,6 @@ type CheckboxFieldProps = BaseFieldComponentProps<CheckboxComponentProps>;
 const DEFAULT_BORDER_RADIUS = "0px";
 
 const StyledCheckboxWrapper = styled.div`
-  margin-top: 3px;
-
   & label {
     margin-bottom: 0;
   }

@@ -26,14 +26,6 @@ import { IconSize } from "components/ads/Icon";
 import { useDynamicAppLayout } from "utils/hooks/useDynamicAppLayout";
 import { getCurrentThemeDetails } from "selectors/themeSelectors";
 
-const WidgetsGlobalStyle = createGlobalStyle<{
-  accentColor: string;
-}>`
-  :root {
-    --wds-color-accent: ${({ accentColor }) => accentColor};
-  }
-`;
-
 const Container = styled.section<{
   background: string;
 }>`
@@ -111,9 +103,6 @@ function CanvasContainer() {
         fontFamily: fontFamily,
       }}
     >
-      <WidgetsGlobalStyle
-        accentColor={selectedTheme.properties.colors.primaryColor}
-      />
       {isAppThemeChanging && (
         <div className="fixed top-0 bottom-0 left-0 right-0 flex items-center justify-center bg-white/70 z-[2]">
           <Spinner size={IconSize.XXL} />
