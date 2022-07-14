@@ -37,21 +37,17 @@ cd "$(dirname "$0")"/..
 git fetch origin $BRANCH
 git checkout $BRANCH
 git pull origin $BRANCH
-pretty_print "Local branch is now up to date"
+pretty_print "Local branch is now up to date. Starting server build ..."
 
-pretty_print "Starting server build ..."
-pushd app/server > /dev/null && ./build.sh -DskipTests > /dev/null && pretty_print "Server build successful"
-
-popd
-pretty_print "Starting client build ..."
-pushd app/client > /dev/null && yarn > /dev/null && yarn build > /dev/null && pretty_print "Client build successful"
+pushd app/server > /dev/null && ./build.sh -DskipTests > /dev/null && pretty_print "Server build successful. Starting client build ..."
 
 popd
-pretty_print "Starting RTS build ..."
-pushd app/rts > /dev/null && ./build.sh > /dev/null && pretty_print "RTS build successful"
+pushd app/client > /dev/null && yarn > /dev/null && yarn build > /dev/null && pretty_print "Client build successful. Starting RTS build ..."
 
 popd
-pretty_print "Starting Docker build ..."
+pushd app/rts > /dev/null && ./build.sh > /dev/null && pretty_print "RTS build successful. Starting Docker build ..."
+
+popd
 docker build -t appsmith/appsmith-ce:local-testing . > /dev/null && pretty_print "Docker image build successful. Triggering run now ..."
 
 (docker stop appsmith || true) && (docker rm appsmith || true)
