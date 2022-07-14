@@ -22,7 +22,8 @@ export type EventLocation =
   | "QUERY_PANE"
   | "QUERY_TEMPLATE"
   | "QUICK_COMMANDS"
-  | "OMNIBAR";
+  | "OMNIBAR"
+  | "SUBMENU";
 
 export type EventName =
   | "APP_CRASH"
@@ -246,6 +247,7 @@ export type EventName =
   | "PAGE_NOT_FOUND"
   | "SIMILAR_TEMPLATE_CLICK"
   | "RUN_JS_FUNCTION"
+  | "PROPERTY_PANE_KEYPRESS"
   | "PAGE_NAME_CLICK"
   | "BACK_BUTTON_CLICK"
   | "WIDGET_TAB_CLICK"

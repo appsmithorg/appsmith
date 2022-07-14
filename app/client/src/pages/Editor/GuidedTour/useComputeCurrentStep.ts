@@ -21,12 +21,10 @@ import {
   isNameInputBoundSelector,
   isCountryInputBound,
   isEmailInputBound,
-  isImageWidgetBound,
   isButtonWidgetPresent,
   buttonWidgetHasOnClickBinding,
   buttonWidgetHasOnSuccessBinding,
   countryInputSelector,
-  imageWidgetSelector,
 } from "selectors/onboardingSelectors";
 import { getBaseWidgetClassName } from "constants/componentClassNameConstants";
 import { GUIDED_TOUR_STEPS, Steps } from "./constants";
@@ -56,9 +54,7 @@ function useComputeCurrentStep(showInfoMessage: boolean) {
   // 5
   const countryInputBound = useSelector(isCountryInputBound);
   const isCountryInputSelected = useSelector(countryInputSelector);
-  const isImageWidgetSelected = useSelector(imageWidgetSelector);
   const emailInputBound = useSelector(isEmailInputBound);
-  const imageWidgetBound = useSelector(isImageWidgetBound);
   // 6
   const buttonWidgetPresent = useSelector(isButtonWidgetPresent);
   // 7
@@ -117,12 +113,9 @@ function useComputeCurrentStep(showInfoMessage: boolean) {
     if (countryInputBound) {
       meta.completedSubSteps.push(1);
     }
-    if (imageWidgetBound) {
-      meta.completedSubSteps.push(2);
-    }
     // Once all three widgets are bound this step is complete
     if (
-      meta.completedSubSteps.length === 3 &&
+      meta.completedSubSteps.length === 2 &&
       hadReachedStep > GUIDED_TOUR_STEPS.BIND_OTHER_FORM_WIDGETS
     ) {
       step = GUIDED_TOUR_STEPS.ADD_BUTTON_WIDGET;
@@ -274,24 +267,7 @@ function useComputeCurrentStep(showInfoMessage: boolean) {
       }
     }
   }, [step, hadReachedStep, countryInputBound, isCountryInputSelected]);
-  // Show indicator alongside the image property in property pane
-  useEffect(() => {
-    if (
-      step === GUIDED_TOUR_STEPS.BIND_OTHER_FORM_WIDGETS &&
-      hadReachedStep <= GUIDED_TOUR_STEPS.BIND_OTHER_FORM_WIDGETS
-    ) {
-      if (isImageWidgetSelected) {
-        if (!imageWidgetBound) {
-          showIndicator(`[data-guided-tour-iid='image']`, "top", {
-            top: 20,
-            left: 0,
-          });
-        } else {
-          hideIndicator();
-        }
-      }
-    }
-  }, [step, hadReachedStep, imageWidgetBound, isImageWidgetSelected]);
+
   // Show success message
   useEffect(() => {
     if (
@@ -301,7 +277,7 @@ function useComputeCurrentStep(showInfoMessage: boolean) {
       if (meta.completedSubSteps.length === 1) {
         hideIndicator();
       }
-      if (meta.completedSubSteps.length === 3) {
+      if (meta.completedSubSteps.length === 2) {
         dispatch(markStepComplete());
       }
     }

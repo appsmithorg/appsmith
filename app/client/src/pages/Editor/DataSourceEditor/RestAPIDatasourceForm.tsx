@@ -261,6 +261,12 @@ class DatasourceRestAPIEditor extends React.Component<
       }
     }
 
+    if (_.get(authentication, "grantType") === GrantType.ClientCredentials) {
+      if (_.get(authentication, "isAuthorizationHeader") === undefined) {
+        this.props.change("authentication.isAuthorizationHeader", false);
+      }
+    }
+
     if (_.get(authentication, "grantType") === GrantType.AuthorizationCode) {
       if (
         _.get(authentication, "sendScopeWithRefreshToken") === undefined ||
@@ -834,6 +840,27 @@ class DatasourceRestAPIEditor extends React.Component<
             false,
           )}
         </FormInputContainer>
+        <FormInputContainer
+          data-replay-id={btoa("authentication.isAuthorizationHeader")}
+        >
+          {this.renderDropdownControlViaFormControl(
+            "authentication.isAuthorizationHeader",
+            [
+              {
+                label: "Send as Basic Auth header",
+                value: true,
+              },
+              {
+                label: "Send client credentials in body",
+                value: false,
+              },
+            ],
+            "Client Authentication",
+            "",
+            false,
+            "",
+          )}
+        </FormInputContainer>
       </>
     );
   };
@@ -993,27 +1020,6 @@ class DatasourceRestAPIEditor extends React.Component<
             "Custom Authentication Parameters",
             "",
             false,
-          )}
-        </FormInputContainer>
-        <FormInputContainer
-          data-replay-id={btoa("authentication.isAuthorizationHeader")}
-        >
-          {this.renderDropdownControlViaFormControl(
-            "authentication.isAuthorizationHeader",
-            [
-              {
-                label: "Send as Basic Auth header",
-                value: true,
-              },
-              {
-                label: "Send client credentials in body",
-                value: false,
-              },
-            ],
-            "Client Authentication",
-            "",
-            false,
-            "",
           )}
         </FormInputContainer>
 

@@ -18,8 +18,8 @@ class OptionControl extends BaseControl<ControlProps> {
     );
   }
 
-  updateOptions = (options: DropdownOption[]) => {
-    this.updateProperty("options", options);
+  updateOptions = (options: DropdownOption[], isUpdatedViaKeyboard = false) => {
+    this.updateProperty("options", options, isUpdatedViaKeyboard);
   };
 
   static getControlType() {
