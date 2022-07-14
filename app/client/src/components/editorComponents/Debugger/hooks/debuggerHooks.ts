@@ -7,7 +7,6 @@ import { getWidget } from "sagas/selectors";
 import {
   getCurrentApplicationId,
   getCurrentPageId,
-  selectURLSlugs,
 } from "selectors/editorSelectors";
 import { getAction, getPlugins } from "selectors/entitiesSelector";
 import { onApiEditor, onQueryEditor, onCanvas } from "../helpers";
@@ -107,46 +106,45 @@ export const useEntityLink = () => {
   const pageId = useSelector(getCurrentPageId);
   const plugins = useSelector(getPlugins);
   const applicationId = useSelector(getCurrentApplicationId);
-  const { applicationSlug, pageSlug } = useSelector(selectURLSlugs);
 
   const { navigateToWidget } = useNavigateToWidget();
 
-  const navigateToEntity = useCallback((name) => {
-    const dataTree = getDataTree(store.getState());
-    const entity = dataTree[name];
-    if (isWidget(entity)) {
-      navigateToWidget(entity.widgetId, entity.type, pageId || "");
-    } else if (isAction(entity)) {
-      const actionConfig = getActionConfig(entity.pluginType);
-      let plugin;
-      if (entity?.pluginType === PluginType.SAAS) {
-        plugin = plugins.find((plugin) => plugin?.id === entity?.pluginId);
-      }
-      const url =
-        applicationId &&
-        actionConfig?.getURL(
-          applicationSlug,
-          pageSlug,
-          pageId || "",
-          entity.actionId,
-          entity.pluginType,
-          plugin,
-        );
+  const navigateToEntity = useCallback(
+    (name) => {
+      const dataTree = getDataTree(store.getState());
+      const entity = dataTree[name];
+      if (!pageId) return;
+      if (isWidget(entity)) {
+        navigateToWidget(entity.widgetId, entity.type, pageId || "");
+      } else if (isAction(entity)) {
+        const actionConfig = getActionConfig(entity.pluginType);
+        let plugin;
+        if (entity?.pluginType === PluginType.SAAS) {
+          plugin = plugins.find((plugin) => plugin?.id === entity?.pluginId);
+        }
+        const url =
+          applicationId &&
+          actionConfig?.getURL(
+            pageId,
+            entity.actionId,
+            entity.pluginType,
+            plugin,
+          );
 
-      if (url) {
-        history.push(url);
+        if (url) {
+          history.push(url);
+        }
+      } else if (isJSAction(entity)) {
+        history.push(
+          jsCollectionIdURL({
+            pageId,
+            collectionId: entity.actionId,
+          }),
+        );
       }
-    } else if (isJSAction(entity)) {
-      history.push(
-        jsCollectionIdURL({
-          applicationSlug,
-          pageSlug,
-          pageId,
-          collectionId: entity.actionId,
-        }),
-      );
-    }
-  }, []);
+    },
+    [pageId],
+  );
 
   return {
     navigateToEntity,

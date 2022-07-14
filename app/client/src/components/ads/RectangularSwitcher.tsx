@@ -1,7 +1,7 @@
 import { CommonComponentProps, Classes } from "./common";
 import React, { useState, useEffect } from "react";
 import styled from "styled-components";
-import Text, { TextType } from "./Text";
+import { Text, TextType } from "design-system";
 
 type SwitchProps = CommonComponentProps & {
   onSwitch: (value: boolean) => void;
