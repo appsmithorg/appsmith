@@ -216,9 +216,15 @@ export function* undoRedoSaga(action: ReduxAction<UndoRedoPayload>) {
       case ENTITY_TYPE.WIDGET: {
         const isPropertyUpdate = replay.widgets && replay.propertyUpdates;
         AnalyticsUtil.logEvent(event, { paths, timeTaken });
-        if (isPropertyUpdate) yield call(openPropertyPaneSaga, replay);
+
         yield put(updateAndSaveLayout(replayEntity.widgets, false, false));
-        if (!isPropertyUpdate) yield call(postUndoRedoSaga, replay);
+        if (isPropertyUpdate) {
+          yield put(generateDynamicHeightComputationTree(true));
+          yield call(openPropertyPaneSaga, replay);
+        }
+        if (!isPropertyUpdate) {
+          yield call(postUndoRedoSaga, replay);
+        }
         break;
       }
       case ENTITY_TYPE.ACTION:

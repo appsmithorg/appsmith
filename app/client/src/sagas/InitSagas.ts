@@ -90,6 +90,7 @@ import {
   fetchSelectedAppThemeAction,
   fetchAppThemesAction,
 } from "actions/appThemingActions";
+import { generateDynamicHeightComputationTree } from "actions/dynamicHeightActions";
 
 export function* failFastApiCalls(
   triggerActions: Array<ReduxAction<unknown> | ReduxActionWithoutPayload>,
@@ -394,6 +395,7 @@ function* initializeEditorSaga(
     yield put({
       type: ReduxActionTypes.INITIALIZE_EDITOR_SUCCESS,
     });
+    yield put(generateDynamicHeightComputationTree(true));
 
     PerformanceTracker.stopAsyncTracking(
       PerformanceTransactionName.INIT_EDIT_APP,
@@ -447,6 +449,9 @@ export function* initializeAppViewerSaga(
   yield put({
     type: ReduxActionTypes.INITIALIZE_PAGE_VIEWER_SUCCESS,
   });
+
+  yield put(generateDynamicHeightComputationTree(true));
+
   PerformanceTracker.stopAsyncTracking(
     PerformanceTransactionName.INIT_VIEW_APP,
   );

@@ -6,6 +6,7 @@ import {
 } from "./selectors";
 import _, { isString, remove } from "lodash";
 import {
+  CANVAS_MIN_HEIGHT,
   CONTAINER_GRID_PADDING,
   GridDefaults,
   MAIN_CONTAINER_WIDGET_ID,
@@ -1423,7 +1424,7 @@ export const getParentBottomRowAfterAddingWidget = (
     ? Math.max(
         (newWidget.bottomRow + GridDefaults.CANVAS_EXTENSION_OFFSET) *
           parentRowSpace,
-        stateParent.bottomRow,
+        CANVAS_MIN_HEIGHT,
       )
     : stateParent.bottomRow;
 };

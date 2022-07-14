@@ -13,7 +13,7 @@ import log from "loglevel";
 import { cloneDeep } from "lodash";
 import { updateAndSaveLayout, WidgetAddChild } from "actions/pageActions";
 import { calculateDropTargetRows } from "components/editorComponents/DropTargetUtils";
-import { GridDefaults } from "constants/WidgetConstants";
+import { CANVAS_MIN_HEIGHT, GridDefaults } from "constants/WidgetConstants";
 import { WidgetProps } from "widgets/BaseWidget";
 import { getOccupiedSpacesSelectorForContainer } from "selectors/editorSelectors";
 import { OccupiedSpace } from "constants/CanvasEditorConstants";
@@ -49,7 +49,10 @@ export function* getCanvasSizeAfterWidgetMove(
     const occupiedSpacesByChildren: OccupiedSpace[] | undefined = yield select(
       getOccupiedSpacesSelectorForContainer(canvasWidgetId),
     );
-    const canvasMinHeight = canvasWidget.minHeight || 0;
+    const canvasMinHeight =
+      canvasWidget.minHeight === undefined
+        ? 0
+        : Math.min(canvasWidget.minHeight, CANVAS_MIN_HEIGHT);
     const newRows = calculateDropTargetRows(
       movedWidgetIds,
       movedWidgetsBottomRow,

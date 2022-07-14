@@ -11,7 +11,7 @@ import {
   ReduxActionTypes,
   WidgetReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
-import { GridDefaults } from "constants/WidgetConstants";
+import { CANVAS_MIN_HEIGHT, GridDefaults } from "constants/WidgetConstants";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import { flattenDeep, omit, orderBy } from "lodash";
@@ -324,7 +324,6 @@ function* postDelete(
   })[],
 ) {
   showUndoRedoToast(widgetName, false, false, true);
-  yield put(generateDynamicHeightComputationTree(true));
 
   if (widgetId) {
     otherWidgetsToDelete.map((widget) => {
@@ -363,8 +362,7 @@ function resizeCanvasToLowestWidget(
   }
 
   let lowestBottomRow = Math.ceil(
-    (finalWidgets[parentId].minHeight || 0) /
-      GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
+    CANVAS_MIN_HEIGHT / GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
   );
   const childIds = finalWidgets[parentId].children || [];
 
