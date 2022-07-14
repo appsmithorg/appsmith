@@ -18,11 +18,13 @@ glob("./tests/*.perf.js", {}, async function(er, files) {
 
   fs.writeFileSync(`${dir}/setup.log`, setupLogs.toString());
 
-
   files.forEach(async (file) => {
-    const testSuiteName = file.split("/").pop().replace(".perf.js", "");
+    const testSuiteName = file
+      .split("/")
+      .pop()
+      .replace(".perf.js", "");
 
-    const logs = await cp.execSync(`node ${file}`); // Logging to terminal, log it to a file in future?
+    const logs = await cp.execSync(`node ${file}`, { stdio: "inherit" }); // Logging to terminal, log it to a file in future?
     fs.writeFileSync(`${dir}/${testSuiteName}.log`, logs.toString());
   });
   await summaries(`${APP_ROOT}/traces/reports`);
