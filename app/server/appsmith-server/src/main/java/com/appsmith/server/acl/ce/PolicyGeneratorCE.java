@@ -109,7 +109,9 @@ public class PolicyGeneratorCE {
 
     private void createDatasourcePolicyGraph() {
         hierarchyGraph.addEdge(WORKSPACE_MANAGE_APPLICATIONS, MANAGE_DATASOURCES);
-        hierarchyGraph.addEdge(WORKSPACE_READ_APPLICATIONS, READ_DATASOURCES);
+
+        // If a viewer of all apps in the workspace, give execute permission on all the datasources
+        hierarchyGraph.addEdge(WORKSPACE_READ_APPLICATIONS, EXECUTE_DATASOURCES);
 
         lateralGraph.addEdge(MANAGE_DATASOURCES, READ_DATASOURCES);
         lateralGraph.addEdge(MANAGE_DATASOURCES, EXECUTE_DATASOURCES);

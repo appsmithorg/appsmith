@@ -1116,34 +1116,36 @@ public class ApplicationServiceTest {
     @WithUserDetails(value = "api_user")
     public void validMakeApplicationPublicWithActions() {
 
+        Mono<Workspace> workspaceResponse = workspaceService.findById(workspaceId, READ_WORKSPACES);
+
+        List<PermissionGroup> permissionGroups = workspaceResponse
+                .flatMapMany(savedWorkspace -> {
+                    Set<String> defaultPermissionGroups = savedWorkspace.getDefaultPermissionGroups();
+                    return permissionGroupRepository.findAllById(defaultPermissionGroups);
+                })
+                .collectList()
+                .block();
+
+        PermissionGroup adminPermissionGroup = permissionGroups.stream()
+                .filter(permissionGroup -> permissionGroup.getName().startsWith(ADMINISTRATOR))
+                .findFirst().get();
+
+        PermissionGroup developerPermissionGroup = permissionGroups.stream()
+                .filter(permissionGroup -> permissionGroup.getName().startsWith(DEVELOPER))
+                .findFirst().get();
+
+        PermissionGroup viewerPermissionGroup = permissionGroups.stream()
+                .filter(permissionGroup -> permissionGroup.getName().startsWith(VIEWER))
+                .findFirst().get();
+
         Application application = new Application();
         application.setName("validMakeApplicationPublic-ExplicitDatasource-Test");
-
-        Policy manageDatasourcePolicy = Policy.builder().permission(MANAGE_DATASOURCES.getValue())
-                .users(Set.of("api_user"))
-                .build();
-        Policy readDatasourcePolicy = Policy.builder().permission(READ_DATASOURCES.getValue())
-                .users(Set.of("api_user"))
-                .build();
-        Policy executeDatasourcePolicy = Policy.builder().permission(EXECUTE_DATASOURCES.getValue())
-                .users(Set.of("api_user", FieldName.ANONYMOUS_USER))
-                .build();
-
-        Policy manageActionPolicy = Policy.builder().permission(MANAGE_ACTIONS.getValue())
-                .users(Set.of("api_user"))
-                .build();
-        Policy readActionPolicy = Policy.builder().permission(READ_ACTIONS.getValue())
-                .users(Set.of("api_user"))
-                .build();
-        Policy executeActionPolicy = Policy.builder().permission(EXECUTE_ACTIONS.getValue())
-                .users(Set.of("api_user", FieldName.ANONYMOUS_USER))
-                .build();
 
         Application createdApplication = applicationPageService.createApplication(application, workspaceId).block();
 
         String pageId = createdApplication.getPages().get(0).getId();
 
-        Plugin plugin = pluginService.findByName("Installed Plugin Name").block();
+        Plugin plugin = pluginService.findByPackageName("restapi-plugin").block();
         Datasource datasource = new Datasource();
         datasource.setName("Public App Test");
         datasource.setPluginId(plugin.getId());
@@ -1184,6 +1186,16 @@ public class ApplicationServiceTest {
                 .changeViewAccess(createdApplication.getId(), applicationAccessDTO)
                 .cache();
 
+        Mono<PermissionGroup> appPermissionGroupMono = publicAppMono
+                .flatMap(publicApp -> {
+                    String permissionGroupId = publicApp.getDefaultPermissionGroup();
+                    assertThat(permissionGroupId).isNotNull();
+
+                    return permissionGroupRepository.findById(permissionGroupId);
+                });
+
+        User anonymousUser = userRepository.findByEmail(ANONYMOUS_USER).block();
+
         Mono<Datasource> datasourceMono = publicAppMono
                 .then(datasourceService.findById(savedDatasource.getId()));
 
@@ -1194,11 +1206,34 @@ public class ApplicationServiceTest {
                 .then(actionCollectionService.findById(savedActionCollection.getId(), READ_ACTIONS));
 
         StepVerifier
-                .create(Mono.zip(datasourceMono, actionMono, actionCollectionMono))
+                .create(Mono.zip(datasourceMono, actionMono, actionCollectionMono, appPermissionGroupMono))
                 .assertNext(tuple -> {
                     Datasource datasource1 = tuple.getT1();
                     NewAction action1 = tuple.getT2();
+                    PermissionGroup publicPermissionGroup = tuple.getT4();
                     final ActionCollection actionCollection1 = tuple.getT3();
+
+                    Policy manageDatasourcePolicy = Policy.builder().permission(MANAGE_DATASOURCES.getValue())
+                            .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId()))
+                            .build();
+                    Policy readDatasourcePolicy = Policy.builder().permission(READ_DATASOURCES.getValue())
+                            .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId()))
+                            .build();
+                    Policy executeDatasourcePolicy = Policy.builder().permission(EXECUTE_DATASOURCES.getValue())
+                            .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId(),
+                                    viewerPermissionGroup.getId(), publicPermissionGroup.getId()))
+                            .build();
+
+                    Policy manageActionPolicy = Policy.builder().permission(MANAGE_ACTIONS.getValue())
+                            .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId()))
+                            .build();
+                    Policy readActionPolicy = Policy.builder().permission(READ_ACTIONS.getValue())
+                            .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId()))
+                            .build();
+                    Policy executeActionPolicy = Policy.builder().permission(EXECUTE_ACTIONS.getValue())
+                            .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId(),
+                                    viewerPermissionGroup.getId(), publicPermissionGroup.getId()))
+                            .build();
 
                     // Check that the datasource used in the app contains public execute permission
                     assertThat(datasource1.getPolicies()).containsAll(Set.of(manageDatasourcePolicy, readDatasourcePolicy, executeDatasourcePolicy));
@@ -2792,7 +2827,8 @@ public class ApplicationServiceTest {
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
-                    return applicationRepository.findById(originalApplication.getId(), READ_APPLICATIONS);
+                    return applicationRepository.findById(originalApplication.getId(), READ_APPLICATIONS)
+                            .flatMap(applicationService::setTransientFields);
                 })
                 .cache();
 
@@ -2810,13 +2846,46 @@ public class ApplicationServiceTest {
         Mono<Datasource> datasourceMono = applicationFromDbPostViewChange
                 .flatMap(application -> datasourceService.findById(savedDatasource.getId(), READ_DATASOURCES));
 
+        List<PermissionGroup> permissionGroups = workspaceService.findById(workspaceId, READ_WORKSPACES)
+                .flatMapMany(savedWorkspace -> {
+                    Set<String> defaultPermissionGroups = savedWorkspace.getDefaultPermissionGroups();
+                    return permissionGroupRepository.findAllById(defaultPermissionGroups);
+                })
+                .collectList()
+                .block();
+
+        PermissionGroup adminPermissionGroup = permissionGroups.stream()
+                .filter(permissionGroup -> permissionGroup.getName().startsWith(ADMINISTRATOR))
+                .findFirst().get();
+
+        PermissionGroup developerPermissionGroup = permissionGroups.stream()
+                .filter(permissionGroup -> permissionGroup.getName().startsWith(DEVELOPER))
+                .findFirst().get();
+
+        PermissionGroup viewerPermissionGroup = permissionGroups.stream()
+                .filter(permissionGroup -> permissionGroup.getName().startsWith(VIEWER))
+                .findFirst().get();
+
+        Mono<PermissionGroup> mainAppPermissionGroupMono = applicationFromDbPostViewChange
+                .flatMap(publicApp -> {
+                    String permissionGroupId = publicApp.getDefaultPermissionGroup();
+                    assertThat(permissionGroupId).isNotNull();
+
+                    return permissionGroupRepository.findById(permissionGroupId);
+                });
+
+        User anonymousUser = userRepository.findByEmail(ANONYMOUS_USER).block();
+
         StepVerifier
-                .create(Mono.zip(applicationFromDbPostViewChange, actionsMono, pagesMono, datasourceMono))
+                .create(Mono.zip(applicationFromDbPostViewChange, actionsMono, pagesMono, datasourceMono, mainAppPermissionGroupMono))
                 .assertNext(tuple -> {
                     Application updatedApplication = tuple.getT1();
                     List<NewAction> actions = tuple.getT2();
                     List<PageDTO> pages = tuple.getT3();
                     Datasource datasource1 = tuple.getT4();
+                    PermissionGroup permissionGroup = tuple.getT5();
+
+                    assertThat(permissionGroup.getAssignedToUserIds()).containsAll(Set.of(anonymousUser.getId()));
 
                     assertThat(updatedApplication).isNotNull();
                     assertThat(updatedApplication.getIsPublic()).isTrue();
@@ -2826,8 +2895,8 @@ public class ApplicationServiceTest {
                             .filter(policy -> policy.getPermission().equals(READ_APPLICATIONS.getValue()))
                             .findFirst()
                             .get()
-                            .getUsers()
-                    ).contains("anonymousUser");
+                            .getPermissionGroups()
+                    ).contains(permissionGroup.getId());
 
                     for (PageDTO page : pages) {
                         assertThat(page
@@ -2836,8 +2905,8 @@ public class ApplicationServiceTest {
                                 .filter(policy -> policy.getPermission().equals(READ_PAGES.getValue()))
                                 .findFirst()
                                 .get()
-                                .getUsers()
-                        ).contains("anonymousUser");
+                                .getPermissionGroups()
+                        ).contains(permissionGroup.getId());
                     }
 
                     for (NewAction action : actions) {
@@ -2847,10 +2916,9 @@ public class ApplicationServiceTest {
                                 .filter(policy -> policy.getPermission().equals(EXECUTE_ACTIONS.getValue()))
                                 .findFirst()
                                 .get()
-                                .getUsers()
-                        ).contains("anonymousUser");
+                                .getPermissionGroups()
+                        ).contains(permissionGroup.getId());
                     }
-
 
                     assertThat(datasource1
                             .getPolicies()
@@ -2858,8 +2926,8 @@ public class ApplicationServiceTest {
                             .filter(policy -> policy.getPermission().equals(EXECUTE_DATASOURCES.getValue()))
                             .findFirst()
                             .get()
-                            .getUsers()
-                    ).contains("anonymousUser");
+                            .getPermissionGroups()
+                    ).contains(permissionGroup.getId());
 
                 })
                 .verifyComplete();
