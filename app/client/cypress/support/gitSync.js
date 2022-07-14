@@ -277,12 +277,12 @@ Cypress.Commands.add(
 
 Cypress.Commands.add("merge", (destinationBranch) => {
   cy.get(gitSyncLocators.bottomBarMergeButton).click();
-  cy.wait(1000); // wait for git status call to finish
-  cy.wait("@gitStatus").should(
+  cy.wait(5000); // wait for git status call to finish
+  /*cy.wait("@gitStatus").should(
     "have.nested.property",
     "response.body.responseMeta.status",
     200,
-  );
+  ); */
   cy.get(gitSyncLocators.mergeBranchDropdownDestination).click();
   cy.get(commonLocators.dropdownmenu)
     .contains(destinationBranch)
