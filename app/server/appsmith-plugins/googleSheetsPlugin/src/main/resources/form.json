@@ -30,7 +30,7 @@
               "value": "https://www.googleapis.com/auth/spreadsheets.readonly,https://www.googleapis.com/auth/drive.readonly"
             },
             {
-              "label": "Read and Edit Files",
+              "label": "Read, Edit and Create Files",
               "value": "https://www.googleapis.com/auth/spreadsheets,https://www.googleapis.com/auth/drive.readonly"
             },
             {
