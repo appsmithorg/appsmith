@@ -75,6 +75,12 @@ export const WIDGET_DATA_FIELD_MAP: Record<string, WidgetBindingInfo> = {
     widgetName: "Table",
     image: "https://assets.appsmith.com/widgetSuggestion/table.svg",
   },
+  TABLE_WIDGET_V2: {
+    label: "tabledata",
+    propertyName: "tableData",
+    widgetName: "Table",
+    image: "https://assets.appsmith.com/widgetSuggestion/table.svg",
+  },
   CHART_WIDGET: {
     label: "chart-series-data-control",
     propertyName: "chartData",
@@ -112,6 +118,15 @@ function getWidgetProps(
     case "TABLE_WIDGET":
       return {
         type: "TABLE_WIDGET",
+        props: {
+          [fieldName]: `{{${actionName}.${suggestedWidget.bindingQuery}}}`,
+          dynamicBindingPathList: [{ key: "tableData" }],
+        },
+        parentRowSpace: 10,
+      };
+    case "TABLE_WIDGET_V2":
+      return {
+        type: "TABLE_WIDGET_V2",
         props: {
           [fieldName]: `{{${actionName}.${suggestedWidget.bindingQuery}}}`,
           dynamicBindingPathList: [{ key: "tableData" }],
