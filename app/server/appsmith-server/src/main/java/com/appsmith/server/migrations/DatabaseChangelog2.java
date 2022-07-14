@@ -1057,6 +1057,7 @@ public class DatabaseChangelog2 {
             anonymousUser.setCurrentWorkspaceId("");
             anonymousUser.setWorkspaceIds(new HashSet<>());
             anonymousUser.setIsAnonymous(true);
+            anonymousUser.setTenantId(tenant.getId());
 
             mongockTemplate.save(anonymousUser);
         }
