@@ -21,6 +21,13 @@ export type PropertyPaneSectionConfig = {
   propertySectionPath?: string;
 };
 
+export type PropertyHookUpdates = {
+  propertyPath: string;
+  propertyValue?: unknown;
+  isDynamicPropertyPath?: boolean; // Toggles the property mode to JS
+  shouldDeleteProperty?: boolean; // Deletes the property, propertyValue is ignored
+};
+
 export type PanelConfig = {
   editableTitle: boolean;
   titlePropertyName: string;
@@ -32,7 +39,7 @@ export type PanelConfig = {
     props: any,
     propertyPath: string,
     propertyValue: any,
-  ) => Array<{ propertyPath: string; propertyValue: any }> | undefined;
+  ) => Array<PropertyHookUpdates> | undefined;
 };
 
 export type PropertyPaneControlConfig = {
@@ -56,7 +63,7 @@ export type PropertyPaneControlConfig = {
     props: any,
     propertyName: string,
     propertyValue: any,
-  ) => Array<{ propertyPath: string; propertyValue: any }> | undefined;
+  ) => Array<PropertyHookUpdates> | undefined;
   hidden?: (props: any, propertyPath: string) => boolean;
   invisible?: boolean;
   isBindProperty: boolean;
