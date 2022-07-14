@@ -3,14 +3,52 @@ import BaseControl, { ControlData, ControlProps } from "./BaseControl";
 import ButtonTabComponent, {
   ButtonTabOption,
 } from "components/ads/ButtonTabComponent";
+import {
+  DSEventDetail,
+  DSEventTypes,
+  DS_EVENT,
+  emitInteractionAnalyticsEvent,
+} from "utils/AppsmithUtils";
 
 class IconTabControl extends BaseControl<IconTabControlProps> {
-  selectOption = (value: string) => {
+  componentRef = React.createRef<HTMLDivElement>();
+
+  componentDidMount() {
+    this.componentRef.current?.addEventListener(
+      DS_EVENT,
+      this.handleAdsEvent as (arg0: Event) => void,
+    );
+  }
+
+  componentWillUnmount() {
+    this.componentRef.current?.removeEventListener(
+      DS_EVENT,
+      this.handleAdsEvent as (arg0: Event) => void,
+    );
+  }
+
+  handleAdsEvent = (e: CustomEvent<DSEventDetail>) => {
+    if (
+      e.detail.component === "ButtonTab" &&
+      e.detail.event === DSEventTypes.KEYPRESS
+    ) {
+      emitInteractionAnalyticsEvent(this.componentRef.current, {
+        key: e.detail.meta.key,
+      });
+      e.stopPropagation();
+    }
+  };
+
+  selectOption = (value: string, isUpdatedViaKeyboard = false) => {
     const { defaultValue, propertyValue } = this.props;
     if (propertyValue === value) {
-      this.updateProperty(this.props.propertyName, defaultValue);
+      this.updateProperty(
+        this.props.propertyName,
+        defaultValue,
+        isUpdatedViaKeyboard,
+      );
     } else {
-      this.updateProperty(this.props.propertyName, value);
+      this.updateProperty(this.props.propertyName, value, isUpdatedViaKeyboard);
     }
   };
   render() {
@@ -18,6 +56,7 @@ class IconTabControl extends BaseControl<IconTabControlProps> {
     return (
       <ButtonTabComponent
         options={options}
+        ref={this.componentRef}
         selectButton={this.selectOption}
         values={[propertyValue]}
       />

@@ -567,31 +567,33 @@ function useIntegrationsOptionTree() {
 
 type ActionCreatorProps = {
   value: string;
-  onValueChange: (newValue: string) => void;
+  onValueChange: (newValue: string, isUpdatedViaKeyboard: boolean) => void;
   additionalAutoComplete?: Record<string, Record<string, unknown>>;
 };
 
-export function ActionCreator(props: ActionCreatorProps) {
-  const dataTree = useSelector(getDataTree);
-  const integrationOptionTree = useIntegrationsOptionTree();
-  const widgetOptionTree = useSelector(getWidgetOptionsTree);
-  const modalDropdownList = useModalDropdownList();
-  const pageDropdownOptions = useSelector(getPageListAsOptions);
-  const fields = getFieldFromValue(props.value, undefined, dataTree);
-  return (
-    <TreeStructure>
-      <Fields
-        additionalAutoComplete={props.additionalAutoComplete}
-        depth={1}
-        fields={fields}
-        integrationOptionTree={integrationOptionTree}
-        maxDepth={1}
-        modalDropdownList={modalDropdownList}
-        onValueChange={props.onValueChange}
-        pageDropdownOptions={pageDropdownOptions}
-        value={props.value}
-        widgetOptionTree={widgetOptionTree}
-      />
-    </TreeStructure>
-  );
-}
+export const ActionCreator = React.forwardRef(
+  (props: ActionCreatorProps, ref: any) => {
+    const dataTree = useSelector(getDataTree);
+    const integrationOptionTree = useIntegrationsOptionTree();
+    const widgetOptionTree = useSelector(getWidgetOptionsTree);
+    const modalDropdownList = useModalDropdownList();
+    const pageDropdownOptions = useSelector(getPageListAsOptions);
+    const fields = getFieldFromValue(props.value, undefined, dataTree);
+    return (
+      <TreeStructure ref={ref}>
+        <Fields
+          additionalAutoComplete={props.additionalAutoComplete}
+          depth={1}
+          fields={fields}
+          integrationOptionTree={integrationOptionTree}
+          maxDepth={1}
+          modalDropdownList={modalDropdownList}
+          onValueChange={props.onValueChange}
+          pageDropdownOptions={pageDropdownOptions}
+          value={props.value}
+          widgetOptionTree={widgetOptionTree}
+        />
+      </TreeStructure>
+    );
+  },
+);

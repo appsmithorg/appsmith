@@ -159,3 +159,5 @@ export const JSON_FORM_WIDGET_CHILD_STYLESHEET = {
     boxShadow: "none",
   },
 };
+
+export const YOUTUBE_URL_REGEX = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=|\?v=)([^#&?]*).*/;

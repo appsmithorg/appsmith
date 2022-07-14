@@ -145,8 +145,8 @@ describe("Git sync:", function() {
       cy.contains("ParentPage1").click();
       cy.contains("ParentPage1").click(); // to unfurl
       cy.get(explorer.addWidget).click();
-      cy.dragAndDropToCanvas("tablewidget", { x: 200, y: 200 });
-      cy.get(".t--widget-tablewidget").should("exist");
+      cy.dragAndDropToCanvas("tablewidgetv2", { x: 200, y: 200 });
+      cy.get(".t--widget-tablewidgetv2").should("exist");
       cy.commitAndPush();
 
       const urlObject = new URL(url);
@@ -156,7 +156,7 @@ describe("Git sync:", function() {
       cy.get(".bp3-spinner").should("exist");
       cy.get(".bp3-spinner").should("not.exist");
 
-      cy.get(".t--widget-tablewidget").should("not.exist");
+      cy.get(".t--widget-tablewidgetv2").should("not.exist");
 
       cy.commitAndPush();
 
@@ -172,7 +172,7 @@ describe("Git sync:", function() {
         200,
       );
 
-      cy.get(".t--widget-tablewidget").should("not.exist");
+      cy.get(".t--widget-tablewidgetv2").should("not.exist");
 
       cy.url().then((url) => {
         const urlObject = new URL(url);
@@ -185,7 +185,7 @@ describe("Git sync:", function() {
           200,
         );
 
-        cy.get(".t--widget-tablewidget").should("exist");
+        cy.get(".t--widget-tablewidgetv2").should("exist");
       });
     });
   });

@@ -93,6 +93,8 @@ import {
   LINT_TOOLTIP_CLASS,
   LINT_TOOLTIP_JUSTIFIED_LEFT_CLASS,
 } from "./constants";
+import { interactionAnalyticsEvent } from "utils/AppsmithUtils";
+import { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTypeDefCreator";
 
 interface ReduxStateProps {
   dynamicData: DataTree;
@@ -165,7 +167,7 @@ export type EditorProps = EditorStyleProps &
   EditorConfig & {
     input: Partial<WrappedFieldInputProps>;
   } & {
-    additionalDynamicData?: Record<string, Record<string, unknown>>;
+    additionalDynamicData?: AdditionalDynamicDataTree;
     promptMessage?: React.ReactNode | string;
     hideEvaluatedValue?: boolean;
     errors?: any;
@@ -426,11 +428,28 @@ class CodeEditor extends Component<Props, State> {
       case " ":
         if (document.activeElement === this.codeEditorTarget.current) {
           this.editor.focus();
+          this.codeEditorTarget.current?.dispatchEvent(
+            interactionAnalyticsEvent({ key: e.key }),
+          );
           e.preventDefault();
         }
         break;
       case "Escape":
-        if (this.state.isFocused) this.codeEditorTarget.current?.focus();
+        if (this.state.isFocused) {
+          this.codeEditorTarget.current?.focus();
+          this.codeEditorTarget.current?.dispatchEvent(
+            interactionAnalyticsEvent({ key: e.key }),
+          );
+        }
+        break;
+      case "Tab":
+        if (document.activeElement === this.codeEditorTarget.current) {
+          this.codeEditorTarget.current?.dispatchEvent(
+            interactionAnalyticsEvent({
+              key: `${e.shiftKey ? "Shift+" : ""}${e.key}`,
+            }),
+          );
+        }
         break;
     }
   };
@@ -439,7 +458,7 @@ class CodeEditor extends Component<Props, State> {
     editor: CodeMirror.Editor,
     hinting: Array<HintHelper>,
     dynamicData: DataTree,
-    additionalDynamicData?: Record<string, Record<string, unknown>>,
+    additionalDynamicData?: AdditionalDynamicDataTree,
   ) {
     return hinting.map((helper) => {
       return helper(editor, dynamicData, additionalDynamicData);
