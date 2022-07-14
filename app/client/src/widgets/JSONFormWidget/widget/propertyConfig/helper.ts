@@ -108,6 +108,7 @@ export const getStylesheetValue = (
   return getSchemaItem(props, propertyPath).compute(
     (schemaItem, propertyName) => {
       const fieldStylesheet = getFieldStylesheet(
+        props.widgetName,
         schemaItem.fieldType,
         widgetStylesheet?.childStylesheet as FieldThemeStylesheet,
       );

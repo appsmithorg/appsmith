@@ -12,7 +12,7 @@ import { getCurrentUser } from "selectors/usersSelectors";
 import { useSelector } from "react-redux";
 import bootIntercom from "utils/bootIntercom";
 import { Colors } from "constants/Colors";
-import TooltipComponent from "components/ads/Tooltip";
+import { TooltipComponent } from "design-system";
 import {
   createMessage,
   HELP_RESOURCE_TOOLTIP,
@@ -54,7 +54,7 @@ const Trigger = withTheme(({ theme, tooltipsDisabled }: TriggerProps) => (
     content={createMessage(HELP_RESOURCE_TOOLTIP)}
     disabled={tooltipsDisabled}
     hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
-    position={Position.BOTTOM}
+    position="bottom"
   >
     <StyledTrigger>
       <Icon

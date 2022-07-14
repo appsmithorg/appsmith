@@ -1,5 +1,7 @@
 package com.appsmith.server.services.ce;
 
+import com.appsmith.external.dtos.DatasourceDTO;
+import com.appsmith.external.dtos.ExecutePluginDTO;
 import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.UpdatableConnection;
@@ -8,6 +10,7 @@ import com.appsmith.external.services.EncryptionService;
 import com.appsmith.server.domains.DatasourceContext;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.helpers.PluginExecutorHelper;
+import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.services.DatasourceService;
 import com.appsmith.server.services.PluginService;
 import lombok.extern.slf4j.Slf4j;
@@ -25,19 +28,21 @@ import static com.appsmith.server.acl.AclPermission.EXECUTE_DATASOURCES;
 public class DatasourceContextServiceCEImpl implements DatasourceContextServiceCE {
 
     //This is DatasourceId mapped to the DatasourceContext
-    private final Map<String, DatasourceContext> datasourceContextMap;
-    private final Map<String, Mono<DatasourceContext>> datasourceContextMonoMap;
+    private final Map<String, Mono<? extends DatasourceContext<?>>> datasourceContextMonoMap;
     private final Map<String, Object> datasourceContextSynchronizationMonitorMap;
+    private final Map<String, DatasourceContext<?>> datasourceContextMap;
     private final DatasourceService datasourceService;
     private final PluginService pluginService;
     private final PluginExecutorHelper pluginExecutorHelper;
     private final EncryptionService encryptionService;
+    private final ConfigService configService;
 
     @Autowired
     public DatasourceContextServiceCEImpl(DatasourceService datasourceService,
                                           PluginService pluginService,
                                           PluginExecutorHelper pluginExecutorHelper,
-                                          EncryptionService encryptionService) {
+                                          EncryptionService encryptionService,
+                                          ConfigService configService) {
         this.datasourceService = datasourceService;
         this.pluginService = pluginService;
         this.pluginExecutorHelper = pluginExecutorHelper;
@@ -45,6 +50,7 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
         this.datasourceContextMap = new ConcurrentHashMap<>();
         this.datasourceContextMonoMap = new ConcurrentHashMap<>();
         this.datasourceContextSynchronizationMonitorMap = new ConcurrentHashMap<>();
+        this.configService = configService;
     }
 
     /**
@@ -63,7 +69,7 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
      * @return a cached source publisher which upon subscription produces / returns the latest datasource context /
      * connection.
      */
-    public Mono<DatasourceContext> getCachedDatasourceContextMono(Datasource datasource,
+    public Mono<? extends DatasourceContext<?>> getCachedDatasourceContextMono(Datasource datasource,
                                                                   PluginExecutor<Object> pluginExecutor,
                                                                   Object monitor) {
         synchronized (monitor) {
@@ -92,7 +98,7 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
             }
 
             /* Create a fresh datasource context */
-            DatasourceContext datasourceContext = new DatasourceContext();
+            DatasourceContext<Object> datasourceContext = new DatasourceContext<Object>();
             if (datasourceId != null) {
             /* For this datasource, either the context doesn't exist, or the context is stale. Replace (or add) with
             the new connection in the context map. */
@@ -100,7 +106,7 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
             }
 
             Mono<Object> connectionMono = pluginExecutor.datasourceCreate(datasource.getDatasourceConfiguration());
-            Mono<DatasourceContext> datasourceContextMonoCache = connectionMono
+            Mono<DatasourceContext<Object>> datasourceContextMonoCache = connectionMono
                     .flatMap(connection -> {
                         Mono<Datasource> datasourceMono1 = Mono.just(datasource);
                         if (connection instanceof UpdatableConnection) {
@@ -115,8 +121,8 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
                         return datasourceMono1.thenReturn(connection);
                     })
                     .map(connection -> {
-                    /* When a connection object exists and makes sense for the plugin, we put it in the
-                     context. Example, DB plugins. */
+                        /* When a connection object exists and makes sense for the plugin, we put it in the
+                         context. Example, DB plugins. */
                         datasourceContext.setConnection(connection);
                         return datasourceContext;
                     })
@@ -130,11 +136,10 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
                 datasourceContextMonoMap.put(datasourceId, datasourceContextMonoCache);
             }
             return datasourceContextMonoCache;
-
         }
     }
 
-    Mono<DatasourceContext> createNewDatasourceContext(Datasource datasource) {
+    Mono<DatasourceContext<?>> createNewDatasourceContext(Datasource datasource) {
         log.debug("Datasource context doesn't exist. Creating connection.");
 
         String datasourceId = datasource.getId();
@@ -201,7 +206,7 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
     }
 
     @Override
-    public Mono<DatasourceContext> getDatasourceContext(Datasource datasource) {
+    public Mono<DatasourceContext<?>> getDatasourceContext(Datasource datasource) {
         String datasourceId = datasource.getId();
         if (datasourceId == null) {
             log.debug("This is a dry run or an embedded datasource. The datasource context would not exist in this " +
@@ -215,7 +220,7 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
     }
 
     @Override
-    public <T> Mono<T> retryOnce(Datasource datasource, Function<DatasourceContext, Mono<T>> task) {
+    public <T> Mono<T> retryOnce(Datasource datasource, Function<DatasourceContext<?>, Mono<T>> task) {
         final Mono<T> taskRunnerMono = Mono.justOrEmpty(datasource)
                 .flatMap(this::getDatasourceContext)
                 // Now that we have the context (connection details), call the task.
@@ -230,12 +235,12 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
     }
 
     @Override
-    public Mono<DatasourceContext> deleteDatasourceContext(String datasourceId) {
+    public Mono<DatasourceContext<?>> deleteDatasourceContext(String datasourceId) {
         if (datasourceId == null) {
             return Mono.empty();
         }
 
-        DatasourceContext datasourceContext = datasourceContextMap.get(datasourceId);
+        DatasourceContext<?> datasourceContext = datasourceContextMap.get(datasourceId);
         if (datasourceContext == null) {
             // No resource context exists for this resource. Return void.
             return Mono.empty();
@@ -253,6 +258,24 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
                     pluginExecutor.datasourceDestroy(datasourceContext.getConnection());
                     datasourceContextMonoMap.remove(datasourceId);
                     return datasourceContextMap.remove(datasourceId);
+                });
+    }
+
+    // We can afford to make this call all the time since we already have all the info we need in context
+    @Override
+    public Mono<DatasourceContext<?>> getRemoteDatasourceContext(Plugin plugin, Datasource datasource) {
+        final DatasourceContext<ExecutePluginDTO> datasourceContext = new DatasourceContext<>();
+
+        return configService.getInstanceId()
+                .map(instanceId -> {
+                    ExecutePluginDTO executePluginDTO = new ExecutePluginDTO();
+                    executePluginDTO.setInstallationKey(instanceId);
+                    executePluginDTO.setPluginName(plugin.getPluginName());
+                    executePluginDTO.setPluginVersion(plugin.getVersion());
+                    executePluginDTO.setDatasource(new DatasourceDTO(datasource.getId(), datasource.getDatasourceConfiguration()));
+                    datasourceContext.setConnection(executePluginDTO);
+
+                    return datasourceContext;
                 });
     }
 }

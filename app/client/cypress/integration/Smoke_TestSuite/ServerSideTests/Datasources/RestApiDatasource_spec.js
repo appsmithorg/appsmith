@@ -10,7 +10,7 @@ describe("Create a rest datasource", function() {
 
   it("Create a rest datasource + Bug 14566", function() {
     cy.NavigateToAPI_Panel();
-    cy.CreateAPI("Testapi");
+    cy.CreateAPI();
     cy.enterDatasourceAndPath(testdata.baseUrl, testdata.methods);
     cy.assertPageSave();
     cy.get(".t--store-as-datasource")

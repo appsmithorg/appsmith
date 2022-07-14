@@ -15,7 +15,7 @@ Cypress.Commands.add("revokeAccessGit", (appName) => {
     .click();
   cy.get(gitSyncLocators.disconnectAppNameInput).type(appName);
   cy.get(gitSyncLocators.disconnectButton).click();
-  cy.route("POST", "api/v1/git/disconnect/*").as("disconnect");
+  cy.route("POST", "api/v1/git/disconnect/app/*").as("disconnect");
   cy.get(gitSyncLocators.disconnectButton).click();
   cy.wait("@disconnect").should(
     "have.nested.property",
@@ -45,7 +45,7 @@ Cypress.Commands.add(
 
     cy.intercept(
       {
-        url: "api/v1/git/connect/*",
+        url: "api/v1/git/connect/app/*",
         hostname: window.location.host,
       },
       (req) => {
@@ -276,7 +276,7 @@ Cypress.Commands.add(
 
 Cypress.Commands.add("merge", (destinationBranch) => {
   cy.get(gitSyncLocators.bottomBarMergeButton).click();
-  cy.wait(2000); // wait for git status call to finish
+  cy.wait(3000); // wait for git status call to finish
   cy.get(gitSyncLocators.mergeBranchDropdownDestination).click();
   cy.get(commonLocators.dropdownmenu)
     .contains(destinationBranch)
@@ -301,7 +301,7 @@ Cypress.Commands.add(
     let generatedKey;
     cy.intercept(
       {
-        url: "api/v1/git/connect/*",
+        url: "api/v1/git/connect/app/*",
         hostname: window.location.host,
       },
       (req) => {

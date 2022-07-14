@@ -1,24 +1,12 @@
 const explorer = require("../../../../locators/explorerlocators.json");
 const testdata = require("../../../../fixtures/testdata.json");
 const apiwidget = require("../../../../locators/apiWidgetslocator.json");
-import apiEditor from "../../../../locators/ApiEditor";
-
-const WIDGET = {
-  INPUT_WIDGET_V2: "inputwidgetv2",
-  TEXT: "textwidget",
-  PHONE_INPUT_WIDGET: "phoneinputwidget",
-  CURRENCY_INPUT_WIDGET: "currencyinputwidget",
-  BUTTON_WIDGET: "buttonwidget",
-};
-
-const PROPERTY_SELECTOR = {
-  onClick: ".t--property-control-onclick",
-  onSubmit: ".t--property-control-onsubmit",
-  text: ".t--property-control-text",
-};
-
-const getWidgetSelector = (widget) => `.t--widget-${widget}`;
-const getWidgetInputSelector = (widget) => `.t--widget-${widget} input`;
+import {
+  WIDGET,
+  PROPERTY_SELECTOR,
+  getWidgetSelector,
+  getWidgetInputSelector,
+} from "../../../../locators/WidgetLocators";
 
 const widgetsToTest = {
   [WIDGET.INPUT_WIDGET_V2]: {

@@ -5,9 +5,8 @@ import * as log from "loglevel";
 import {
   ControlPropertyLabelContainer,
   ControlWrapper,
-  JSToggleButton,
 } from "components/propertyControls/StyledControls";
-import { ControlIcons } from "icons/ControlIcons";
+import { JSToggleButton } from "components/ads";
 import PropertyControlFactory from "utils/PropertyControlFactory";
 import PropertyHelpLabel from "pages/Editor/PropertyPane/PropertyHelpLabel";
 import { useDispatch, useSelector } from "react-redux";
@@ -41,9 +40,8 @@ import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import { getExpectedValue } from "utils/validation/common";
 import { ControlData } from "components/propertyControls/BaseControl";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
-import { Tooltip } from "components/ads";
 import { getSelectedAppTheme } from "selectors/appThemingSelectors";
-import TooltipComponent from "components/ads/Tooltip";
+import { TooltipComponent } from "design-system";
 import { ReactComponent as ResetIcon } from "assets/icons/control/undo_2.svg";
 import { AppTheme } from "entities/AppTheming";
 import { JS_TOGGLE_DISABLED_MESSAGE } from "@appsmith/constants/messages";
@@ -481,22 +479,39 @@ const PropertyControl = memo((props: Props) => {
       config.controlType,
     );
 
+    const customJSControl = getCustomJSControl();
+
     let isToggleDisabled = false;
     if (
-      isDynamic && // JS mode is enabled
-      propertyValue !== "" && // value is not empty
-      !canDisplayValueInUI?.(config, propertyValue) // value can't be represented in UI mode
+      isDynamic // JS toggle button is ON
     ) {
-      isToggleDisabled = true;
-    }
+      if (
+        // Check if value is not empty
+        propertyValue !== undefined &&
+        propertyValue !== ""
+      ) {
+        let value = propertyValue;
+        // extract out the value from binding, if there is custom JS control (Table & JSONForm widget)
+        if (customJSControl && isDynamicValue(value)) {
+          const extractValue = PropertyControlFactory.inputComputedValueMap.get(
+            customJSControl,
+          );
+          if (extractValue)
+            value = extractValue(value, widgetProperties.widgetName);
+        }
 
-    // Checks if the value is same as the one defined in theme stylesheet.
-    if (
-      typeof propertyStylesheetValue === "string" &&
-      THEME_BINDING_REGEX.test(propertyStylesheetValue) &&
-      propertyStylesheetValue === propertyValue
-    ) {
-      isToggleDisabled = false;
+        // disable button if value can't be represented in UI mode
+        if (!canDisplayValueInUI?.(config, value)) isToggleDisabled = true;
+      }
+
+      // Enable button if the value is same as the one defined in theme stylesheet.
+      if (
+        typeof propertyStylesheetValue === "string" &&
+        THEME_BINDING_REGEX.test(propertyStylesheetValue) &&
+        propertyStylesheetValue === propertyValue
+      ) {
+        isToggleDisabled = false;
+      }
     }
 
     try {
@@ -519,7 +534,7 @@ const PropertyControl = memo((props: Props) => {
               tooltip={props.helpText}
             />
             {isConvertible && (
-              <Tooltip
+              <TooltipComponent
                 content={JS_TOGGLE_DISABLED_MESSAGE}
                 disabled={!isToggleDisabled}
                 hoverOpenDelay={200}
@@ -527,16 +542,13 @@ const PropertyControl = memo((props: Props) => {
                 position="auto"
               >
                 <JSToggleButton
-                  active={isDynamic}
-                  className={`focus:ring-2 t--js-toggle ${
-                    isDynamic ? "is-active" : ""
-                  }`}
-                  disabled={isToggleDisabled}
-                  onClick={() => toggleDynamicProperty(propertyName, isDynamic)}
-                >
-                  <ControlIcons.JS_TOGGLE />
-                </JSToggleButton>
-              </Tooltip>
+                  handleClick={() =>
+                    toggleDynamicProperty(propertyName, isDynamic)
+                  }
+                  isActive={isDynamic}
+                  isToggleDisabled={isToggleDisabled}
+                />
+              </TooltipComponent>
             )}
             {isPropertyDeviatedFromTheme && (
               <>
@@ -572,7 +584,7 @@ const PropertyControl = memo((props: Props) => {
               theme: props.theme,
             },
             isDynamic,
-            getCustomJSControl(),
+            customJSControl,
             additionAutocomplete,
             hideEvaluatedValue(),
           )}

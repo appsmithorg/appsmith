@@ -123,12 +123,12 @@ Cypress.Commands.add("stubPostHeaderReq", () => {
 });
 
 Cypress.Commands.add(
-  "addOauthAuthDetails",
+  "addOAuth2AuthorizationCodeDetails",
   (accessTokenUrl, clientId, clientSecret, authURL) => {
     cy.get(datasource.authType).click();
     cy.get(datasource.OAuth2).click();
     cy.get(datasource.grantType).click();
-    cy.get(datasource.authorisecode).click();
+    cy.get(datasource.authorizationCode).click();
     cy.get(datasource.accessTokenUrl).type(accessTokenUrl);
     cy.get(datasource.clienID).type(clientId);
     cy.get(datasource.clientSecret).type(clientSecret);
@@ -144,6 +144,23 @@ Cypress.Commands.add(
         );
         expect(firstTxt).to.equal(expectedvalue);
       });
+  },
+);
+
+Cypress.Commands.add(
+  "addOAuth2ClientCredentialsDetails",
+  (accessTokenUrl, clientId, clientSecret, scope) => {
+    cy.get(datasource.authType).click();
+    cy.get(datasource.OAuth2).click();
+    cy.xpath("//span[text()='Client Credentials']").should("be.visible");
+    cy.get(datasource.accessTokenUrl).type(accessTokenUrl);
+    cy.get(datasource.clienID).type(clientId);
+    cy.get(datasource.clientSecret).type(clientSecret);
+    cy.get(datasource.scope).type(scope);
+    cy.get(datasource.clientAuthentication).should("be.visible");
+    cy.xpath("//span[text()='Send client credentials in body']").should(
+      "be.visible",
+    );
   },
 );
 
@@ -898,6 +915,8 @@ Cypress.Commands.add("startServerAndRoutes", () => {
     "datasourceQuery",
   );
 
+  cy.route("POST", "/api/v1/datasources/*/trigger").as("trigger");
+
   cy.route("PUT", "/api/v1/pages/crud-page/*").as("replaceLayoutWithCRUDPage");
   cy.route("POST", "/api/v1/pages/crud-page").as("generateCRUDPage");
 
@@ -952,10 +971,10 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   cy.route("POST", "/api/v1/comments/threads").as("createNewThread");
   cy.route("POST", "/api/v1/comments?threadId=*").as("createNewComment");
 
-  cy.route("POST", "api/v1/git/connect/*").as("connectGitRepo");
-  cy.route("POST", "api/v1/git/commit/*").as("commit");
+  cy.route("POST", "api/v1/git/connect/app/*").as("connectGitRepo");
+  cy.route("POST", "api/v1/git/commit/app/*").as("commit");
   cy.route("POST", "/api/v1/git/import/*").as("importFromGit");
-  cy.route("POST", "/api/v1/git/merge/*").as("mergeBranch");
+  cy.route("POST", "/api/v1/git/merge/app/*").as("mergeBranch");
   cy.route("PUT", "api/v1/collections/actions/refactor").as("renameJsAction");
 
   cy.route("POST", "/api/v1/collections/actions").as("createNewJSCollection");
@@ -965,8 +984,8 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   cy.intercept("POST", "/api/v1/users/super").as("createSuperUser");
   cy.intercept("POST", "/api/v1/actions/execute").as("postExecute");
   cy.intercept("GET", "/api/v1/admin/env").as("getEnvVariables");
-  cy.intercept("DELETE", "/api/v1/git/branch/*").as("deleteBranch");
-  cy.intercept("GET", "/api/v1/git/status/*").as("gitStatus");
+  cy.intercept("DELETE", "/api/v1/git/branch/app/*").as("deleteBranch");
+  cy.intercept("GET", "/api/v1/git/status/app/*").as("gitStatus");
   cy.intercept("PUT", "/api/v1/layouts/refactor").as("updateWidgetName");
   cy.intercept("GET", "/api/v1/workspaces/*/members").as("getMembers");
 });
@@ -1277,11 +1296,12 @@ Cypress.Commands.add(
   },
 );
 
+// the way we target form controls from now on has to change
+// we would be getting the form controls by their class names and not their xpaths.
+// the xpath method is flaky and highly subjected to change.
 Cypress.Commands.add("typeValueNValidate", (valueToType, fieldName = "") => {
   if (fieldName) {
-    cy.xpath(
-      "//p[text()='" + fieldName + "']/parent::label/following-sibling::div",
-    ).then(($field) => {
+    cy.get(fieldName).then(($field) => {
       cy.updateCodeInput($field, valueToType);
     });
   } else {
@@ -1371,11 +1391,7 @@ Cypress.Commands.add(
     let toValidate = false;
     if (currentValue) toValidate = true;
     if (fieldName) {
-      cy.xpath(
-        "//p[text()='" +
-          fieldName +
-          "']/parent::label/following-sibling::div//div[@class='CodeMirror-code']",
-      ).click();
+      cy.get(fieldName).click();
     } else {
       cy.xpath("//div[@class='CodeMirror-code']")
         .first()

@@ -11,8 +11,7 @@ import { getCurrentAppGitMetaData } from "selectors/applicationSelectors";
 import BranchList from "../components/BranchList";
 import { fetchBranchesInit } from "actions/gitSyncActions";
 import Icon, { IconSize } from "components/ads/Icon";
-import Tooltip from "components/ads/Tooltip";
-import { Position } from "@blueprintjs/core";
+import { TooltipComponent as Tooltip } from "design-system";
 import { isEllipsisActive } from "utils/helpers";
 import { getGitStatus } from "selectors/gitSyncSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
@@ -82,7 +81,7 @@ function BranchButton() {
         content={currentBranch || ""}
         disabled={!isEllipsisActive(labelTarget.current)}
         hoverOpenDelay={1}
-        position={Position.TOP_LEFT}
+        position="top-left"
       >
         <ButtonContainer
           className="t--branch-button"

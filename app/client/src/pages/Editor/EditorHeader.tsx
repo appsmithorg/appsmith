@@ -18,7 +18,6 @@ import {
   getCurrentPageId,
   getIsPublishingApplication,
   previewModeSelector,
-  selectURLSlugs,
 } from "selectors/editorSelectors";
 import {
   getAllUsers,
@@ -61,8 +60,7 @@ import { fetchUsersForWorkspace } from "actions/workspaceActions";
 import { WorkspaceUser } from "constants/workspaceConstants";
 
 import { getIsGitConnected } from "selectors/gitSyncSelectors";
-import TooltipComponent from "components/ads/Tooltip";
-import { Position } from "@blueprintjs/core/lib/esnext/common";
+import { TooltipComponent } from "design-system";
 import {
   CLOSE_ENTITY_EXPLORER_MESSAGE,
   createMessage,
@@ -87,6 +85,7 @@ import Boxed from "./GuidedTour/Boxed";
 import EndTour from "./GuidedTour/EndTour";
 import { GUIDED_TOUR_STEPS } from "./GuidedTour/constants";
 import { viewerURL } from "RouteBuilder";
+import { useHref } from "./utils";
 
 const HeaderWrapper = styled.div`
   width: 100%;
@@ -265,6 +264,7 @@ export function EditorHeader(props: EditorHeaderProps) {
   const user = useSelector(getCurrentUser);
   const shouldHideComments = useHideComments();
   const isPreviewMode = useSelector(previewModeSelector);
+  const deployLink = useHref(viewerURL, { pageId });
 
   useEffect(() => {
     if (window.location.href) {
@@ -341,7 +341,6 @@ export function EditorHeader(props: EditorHeaderProps) {
   const filteredSharedUserList = props.sharedUserList.filter(
     (user) => user.username !== props.currentUser?.username,
   );
-  const { applicationSlug, pageSlug } = useSelector(selectURLSlugs);
   const showModes = !shouldHideComments;
 
   return (
@@ -393,7 +392,7 @@ export function EditorHeader(props: EditorHeaderProps) {
           <TooltipComponent
             content={createMessage(LOGO_TOOLTIP)}
             hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
-            position={Position.BOTTOM_LEFT}
+            position="bottom-left"
           >
             <AppsmithLink to={APPLICATIONS_URL}>
               <img
@@ -410,16 +409,12 @@ export function EditorHeader(props: EditorHeaderProps) {
             disabled={isPopoverOpen}
             hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
             openOnTargetFocus={false}
-            position={Position.BOTTOM}
+            position="bottom"
           >
             <EditorAppName
               applicationId={applicationId}
               className="t--application-name editable-application-name max-w-48"
-              currentDeployLink={viewerURL({
-                applicationSlug,
-                pageSlug,
-                pageId,
-              })}
+              currentDeployLink={deployLink}
               defaultSavingState={
                 isSavingName ? SavingState.STARTED : SavingState.NOT_STARTED
               }
@@ -487,7 +482,7 @@ export function EditorHeader(props: EditorHeaderProps) {
                       : createMessage(SHARE_BUTTON_TOOLTIP)
                   }
                   hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
-                  position={Position.BOTTOM}
+                  position="bottom"
                 >
                   <ShareButtonComponent />
                 </TooltipComponent>
@@ -498,7 +493,7 @@ export function EditorHeader(props: EditorHeaderProps) {
               <TooltipComponent
                 content={createMessage(DEPLOY_BUTTON_TOOLTIP)}
                 hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
-                position={Position.BOTTOM_RIGHT}
+                position="bottom-right"
               >
                 <StyledDeployButton
                   className="t--application-publish-btn"
@@ -511,11 +506,7 @@ export function EditorHeader(props: EditorHeaderProps) {
               </TooltipComponent>
 
               <DeployLinkButtonDialog
-                link={viewerURL({
-                  applicationSlug,
-                  pageSlug,
-                  pageId,
-                })}
+                link={deployLink}
                 trigger={
                   <StyledDeployIcon
                     fillColor="#fff"
