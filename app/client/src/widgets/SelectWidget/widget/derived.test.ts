@@ -2,10 +2,9 @@ import _ from "lodash";
 import derivedProperty from "./derived";
 
 describe("Derived property - Select Widget", () => {
-  describe("isValid property", () => {
-    it("should test isRequired", () => {
-      //Select with required false and empty value
-      let isValid = derivedProperty.getIsValid(
+  describe("#getIsValid", () => {
+    it("return true when isRequired false and selectedOptionValue is empty string", () => {
+      const isValid = derivedProperty.getIsValid(
         {
           isRequired: false,
           selectedOptionValue: "",
@@ -15,9 +14,10 @@ describe("Derived property - Select Widget", () => {
       );
 
       expect(isValid).toBeTruthy();
+    });
 
-      //Select with required true and valid value
-      isValid = derivedProperty.getIsValid(
+    it("return true when isRequired true and selectedOptionValue is not empty", () => {
+      const isValid = derivedProperty.getIsValid(
         {
           selectedOptionValue: "GREEN",
           isRequired: true,
@@ -27,9 +27,10 @@ describe("Derived property - Select Widget", () => {
       );
 
       expect(isValid).toBeTruthy();
+    });
 
-      //Select with required true and invalid value
-      isValid = derivedProperty.getIsValid(
+    it("return false when isRequired true and selectedOptionValue is empty", () => {
+      const isValid = derivedProperty.getIsValid(
         {
           selectedOptionValue: "",
           isRequired: true,
@@ -42,9 +43,9 @@ describe("Derived property - Select Widget", () => {
     });
   });
 
-  describe("selectedOptionValue property", () => {
-    it("should test selectedOptionValue", () => {
-      let selectedOptionValue = derivedProperty.getSelectedOptionValue(
+  describe("#getSelectedOptionValue", () => {
+    it("selectedOptionValue should have a value if defaultValue(String) is in option", () => {
+      const selectedOptionValue = derivedProperty.getSelectedOptionValue(
         {
           serverSideFiltering: false,
           value: "GREEN",
@@ -59,8 +60,10 @@ describe("Derived property - Select Widget", () => {
       );
 
       expect(selectedOptionValue).toBe("GREEN");
+    });
 
-      selectedOptionValue = derivedProperty.getSelectedOptionValue(
+    it("selectedOptionValue should have a value if defaultValue(Object) is in option", () => {
+      const selectedOptionValue = derivedProperty.getSelectedOptionValue(
         {
           serverSideFiltering: false,
           value: { label: "Green", value: "GREEN" },
@@ -75,8 +78,10 @@ describe("Derived property - Select Widget", () => {
       );
 
       expect(selectedOptionValue).toBe("GREEN");
+    });
 
-      selectedOptionValue = derivedProperty.getSelectedOptionValue(
+    it("selectedOptionValue should not have a value if defaultValue(Object) is not in option and serverSideFiltering is false", () => {
+      const selectedOptionValue = derivedProperty.getSelectedOptionValue(
         {
           serverSideFiltering: false,
           value: { label: "Yellow", value: "YELLOW" },
@@ -91,8 +96,10 @@ describe("Derived property - Select Widget", () => {
       );
 
       expect(selectedOptionValue).toBe("");
+    });
 
-      selectedOptionValue = derivedProperty.getSelectedOptionValue(
+    it("selectedOptionValue should not have a value if defaultValue(string) is not in option and serverSideFiltering is false", () => {
+      const selectedOptionValue = derivedProperty.getSelectedOptionValue(
         {
           serverSideFiltering: false,
           value: "YELLOW",
@@ -107,8 +114,10 @@ describe("Derived property - Select Widget", () => {
       );
 
       expect(selectedOptionValue).toBe("");
+    });
 
-      selectedOptionValue = derivedProperty.getSelectedOptionValue(
+    it("selectedOptionValue should have a value if defaultValue(object) is not in option and serverSideFiltering is true", () => {
+      const selectedOptionValue = derivedProperty.getSelectedOptionValue(
         {
           serverSideFiltering: true,
           value: { label: "Yellow", value: "YELLOW" },
@@ -123,8 +132,10 @@ describe("Derived property - Select Widget", () => {
       );
 
       expect(selectedOptionValue).toBe("YELLOW");
+    });
 
-      selectedOptionValue = derivedProperty.getSelectedOptionValue(
+    it("selectedOptionValue should have a value if defaultValue(string) is not in option and serverSideFiltering is true", () => {
+      const selectedOptionValue = derivedProperty.getSelectedOptionValue(
         {
           serverSideFiltering: true,
           value: "YELLOW",
@@ -142,9 +153,9 @@ describe("Derived property - Select Widget", () => {
     });
   });
 
-  describe("selectedOptionLabel property", () => {
-    it("should test selectedOptionLabel", () => {
-      let selectedOptionLabel = derivedProperty.getSelectedOptionLabel(
+  describe("#getSelectedOptionLabel", () => {
+    it("selectedOptionLabel should have a value if defaultValue(String) is in option", () => {
+      const selectedOptionLabel = derivedProperty.getSelectedOptionLabel(
         {
           selectedOptionValue: "GREEN",
           serverSideFiltering: false,
@@ -160,8 +171,10 @@ describe("Derived property - Select Widget", () => {
       );
 
       expect(selectedOptionLabel).toBe("Green");
+    });
 
-      selectedOptionLabel = derivedProperty.getSelectedOptionLabel(
+    it("selectedOptionLabel should have a value if defaultValue(Object) is in option", () => {
+      const selectedOptionLabel = derivedProperty.getSelectedOptionLabel(
         {
           selectedOptionValue: "GREEN",
           serverSideFiltering: false,
@@ -177,8 +190,10 @@ describe("Derived property - Select Widget", () => {
       );
 
       expect(selectedOptionLabel).toBe("Green");
+    });
 
-      selectedOptionLabel = derivedProperty.getSelectedOptionLabel(
+    it("selectedOptionLabel should have it's value from the options and not from defaultValue(Object)", () => {
+      const selectedOptionLabel = derivedProperty.getSelectedOptionLabel(
         {
           selectedOptionValue: "GREEN",
           serverSideFiltering: false,
@@ -194,8 +209,10 @@ describe("Derived property - Select Widget", () => {
       );
 
       expect(selectedOptionLabel).toBe("Green");
+    });
 
-      selectedOptionLabel = derivedProperty.getSelectedOptionLabel(
+    it("selectedOptionLabel should not have a value if defaultValue(Object) is not in option and serverSideFiltering is false", () => {
+      const selectedOptionLabel = derivedProperty.getSelectedOptionLabel(
         {
           selectedOptionValue: "",
           serverSideFiltering: false,
@@ -211,25 +228,10 @@ describe("Derived property - Select Widget", () => {
       );
 
       expect(selectedOptionLabel).toBe("");
+    });
 
-      selectedOptionLabel = derivedProperty.getSelectedOptionLabel(
-        {
-          selectedOptionValue: "GREEN",
-          serverSideFiltering: false,
-          label: { label: "Yellow", value: "YELLOW" },
-          options: [
-            { label: "Blue", value: "BLUE" },
-            { label: "Green", value: "GREEN" },
-            { label: "Red", value: "RED" },
-          ],
-        },
-        null,
-        _,
-      );
-
-      expect(selectedOptionLabel).toBe("Green");
-
-      selectedOptionLabel = derivedProperty.getSelectedOptionLabel(
+    it("selectedOptionLabel should not have a value if defaultValue(string) is not in option and serverSideFiltering is false", () => {
+      const selectedOptionLabel = derivedProperty.getSelectedOptionLabel(
         {
           selectedOptionValue: "",
           serverSideFiltering: false,
@@ -245,8 +247,10 @@ describe("Derived property - Select Widget", () => {
       );
 
       expect(selectedOptionLabel).toBe("");
+    });
 
-      selectedOptionLabel = derivedProperty.getSelectedOptionLabel(
+    it("selectedOptionLabel should have a value if defaultValue(object) is not in option and serverSideFiltering is true", () => {
+      const selectedOptionLabel = derivedProperty.getSelectedOptionLabel(
         {
           serverSideFiltering: true,
           label: { label: "Yellow", value: "YELLOW" },
@@ -259,10 +263,11 @@ describe("Derived property - Select Widget", () => {
         null,
         _,
       );
-
       expect(selectedOptionLabel).toBe("Yellow");
+    });
 
-      selectedOptionLabel = derivedProperty.getSelectedOptionLabel(
+    it("selectedOptionLabel should have it's value from the options and not from defaultValue(Object) and serverSideFiltering is true", () => {
+      const selectedOptionLabel = derivedProperty.getSelectedOptionLabel(
         {
           selectedOptionValue: "GREEN",
           serverSideFiltering: true,
@@ -278,8 +283,10 @@ describe("Derived property - Select Widget", () => {
       );
 
       expect(selectedOptionLabel).toBe("Green");
+    });
 
-      selectedOptionLabel = derivedProperty.getSelectedOptionLabel(
+    it("selectedOptionLabel should have it's value if defaultValue(string) and serverSideFiltering is true", () => {
+      const selectedOptionLabel = derivedProperty.getSelectedOptionLabel(
         {
           serverSideFiltering: true,
           label: "YELLOW",

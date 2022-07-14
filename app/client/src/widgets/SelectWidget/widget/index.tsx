@@ -33,7 +33,8 @@ export function defaultOptionValueValidation(
   let parsed;
   let message = "";
   const isServerSideFiltered = props.serverSideFiltering;
-  let options = props.options ?? [];
+  // TODO: options shouldn't get un-eval values;
+  const options = Array.isArray(props.options) ? props.options : [];
 
   /*
    * Function to check if the object has `label` and `value`
@@ -72,22 +73,7 @@ export function defaultOptionValueValidation(
     message = `value does not evaluate to type: string | number | { "label": "label1", "value": "value1" }`;
   }
 
-  if (isValid && !_.isNil(parsed)) {
-    /*
-     * When options is "[ {label: 'green', value: 'green'} ]"
-     */
-    // TODO: options might be a query string
-    if (typeof options === "string") {
-      try {
-        const parsedOptions = JSON.parse(options);
-        if (_.isArray(parsedOptions)) {
-          options = parsedOptions;
-        }
-      } catch (e) {
-        // eslint-disable-next-line no-console
-        console.log(e);
-      }
-    }
+  if (isValid && !_.isNil(parsed) && parsed !== "") {
     const parsedValue = (parsed as any).hasOwnProperty("value")
       ? (parsed as any).value
       : parsed;
@@ -103,7 +89,7 @@ export function defaultOptionValueValidation(
       } else {
         if (!hasLabelValue(parsed)) {
           isValid = false;
-          message = `Default value is missing in options. Please use {label : <string | num>, value : < string | num>} format to show default for server side data`;
+          message = `Default value is missing in options. Please use {label : <string | num>, value : < string | num>} format to show default for server side data.`;
         }
       }
     }
