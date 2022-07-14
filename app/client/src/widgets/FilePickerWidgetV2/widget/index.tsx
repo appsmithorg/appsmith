@@ -33,6 +33,7 @@ const FilePickerGlobalStyles = createGlobalStyle<{
   /* Set the new dropHint upload icon */
   .uppy-Dashboard-dropFilesHereHint {
     background-image: none;
+    border-radius: ${({ borderRadius }) => borderRadius};
   }
 
   .uppy-Dashboard-dropFilesHereHint::before {
@@ -62,6 +63,7 @@ const FilePickerGlobalStyles = createGlobalStyle<{
   }
   /*********************************************************/
 
+  /*********************************************************/
   /* Set the styles for the upload button */
   .uppy-StatusBar-actionBtn--upload {
     background-color: var(--wds-accent-color) !important;
@@ -93,9 +95,58 @@ const FilePickerGlobalStyles = createGlobalStyle<{
       /* Sets the black background of remove file button hidden*/
         border-radius: ${({ borderRadius }) => borderRadius};
       }
-    }
-    
+    }    
   }
+  /*********************************************************/
+
+  /*********************************************************/
+  /* Sets the back cancel button color to match theming primary color */
+  .uppy-DashboardContent-back {
+    color: var(--wds-accent-color);
+  }
+  /*********************************************************/
+
+  /*********************************************************/
+  /* Sets the style according to reskinning for x button at the top right corner of the modal */
+  .uppy-Dashboard-close {
+    background-color: white;
+    width: 32px;
+    height: 32px;
+    text-align: center;
+    top: -33px;
+    border-radius: ${({ borderRadius }) => borderRadius};
+    & span {
+      color: #858282;
+    }
+  }
+  /*********************************************************/
+
+
+  /*********************************************************/
+  /* Sets the border radius of the upload modal */
+  .uppy-Dashboard-inner, .uppy-Dashboard-innerWrap {
+    border-radius: ${({ borderRadius }) => borderRadius} !important;
+  }
+
+  .uppy-Dashboard-AddFiles {
+    border-radius: ${({ borderRadius }) => borderRadius} !important;
+  } 
+  /*********************************************************/
+
+  /*********************************************************/
+  /* Sets the error message style according to reskinning*/
+  .uppy-Informer {
+    bottom: 82px;
+    & p[role="alert"] {
+      border-radius: ${({ borderRadius }) => borderRadius};
+      background-color: transparent;
+      color: #D91921;
+      border: 1px solid #D91921;
+    }
+  }
+  /*********************************************************/
+
+}
 `;
 class FilePickerWidget extends BaseWidget<
   FilePickerWidgetProps,
