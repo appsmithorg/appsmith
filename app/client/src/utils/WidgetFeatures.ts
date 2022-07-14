@@ -3,6 +3,8 @@ import { WidgetHeightLimits } from "constants/WidgetConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { WidgetProps } from "widgets/BaseWidget";
 
+import { AutocompleteDataType } from "./autocomplete/TernServer";
+
 export interface WidgetFeatures {
   dynamicHeight: boolean;
 }
