@@ -15,6 +15,7 @@ import { AppState } from "reducers";
 import { FormLabel } from "components/editorComponents/form/fields/StyledFormComponents";
 import DynamicTextField from "components/editorComponents/form/fields/DynamicTextField";
 import { Colors } from "constants/Colors";
+import { GRAPHQL_PAGINATION_TYPE } from "constants/ApiEditorConstants";
 
 interface PaginationProps {
   onTestClick: (test?: "PREV" | "NEXT") => void;
@@ -106,7 +107,7 @@ const DynamicTextFieldWrapper = styled(DynamicTextField)`
 `;
 
 const PAGINATION_PREFIX =
-  "actionConfiguration.selfReferencingData.paginationData";
+  "actionConfiguration.pluginSpecifiedTemplates[2].value";
 const LIMITBASED_PREFIX = "limitBased";
 const CURSORBASED_PREFIX = "cursorBased";
 
@@ -131,6 +132,7 @@ const graphqlParseVariables = (queryBody: string) => {
 };
 
 type PaginationTypeBasedWrapperProps = {
+  className: string;
   dataReplayId: string;
   onInputChange?: (value: any) => void;
   onSelectVariable: (_: any, dropdownOption: any) => void;
@@ -144,7 +146,6 @@ type PaginationTypeBasedWrapperProps = {
   separateKeyPath?: string;
   // This states that is separate value for any text is enabled or not
   separateValueFlag?: boolean;
-  valueClassName: string;
   valueEvaluated?: any;
   valuePath: string;
   valuePlaceholder?: string;
@@ -156,6 +157,7 @@ type PaginationTypeBasedWrapperProps = {
 };
 
 function PaginationTypeBasedWrapper({
+  className,
   dataReplayId,
   onInputChange,
   onSelectVariable,
@@ -165,7 +167,6 @@ function PaginationTypeBasedWrapper({
   separateKeyLabel,
   separateKeyPath,
   separateValueFlag,
-  valueClassName,
   valueEvaluated,
   valueLabel,
   valuePath,
@@ -191,6 +192,7 @@ function PaginationTypeBasedWrapper({
         </Step>
         <Dropdown
           boundary="viewport"
+          className={`${className}Variable`}
           dropdownMaxHeight={"200px"}
           fillOptions
           onSelect={onSelectVariable}
@@ -222,7 +224,7 @@ function PaginationTypeBasedWrapper({
           </FormLabel>
         </Step>
         <DynamicTextFieldWrapper
-          className={valueClassName}
+          className={`${className}Value`}
           disabled={separateKeyFlag && !separateValueFlag}
           evaluatedValue={valueEvaluated}
           fill={!!true}
@@ -334,6 +336,7 @@ function Pagination(props: PaginationProps) {
               <PaginationSection>
                 {/* Limit */}
                 <PaginationTypeBasedWrapper
+                  className="t--apiFormPaginationLimit"
                   dataReplayId={btoa(
                     `${PAGINATION_PREFIX}.${LIMITBASED_PREFIX}.limit`,
                   )}
@@ -358,7 +361,6 @@ function Pagination(props: PaginationProps) {
                     label: props.limitBased?.limit?.name,
                     value: props.limitBased?.limit?.name,
                   }}
-                  valueClassName="t--apiFormPaginationLimit"
                   valueEvaluated={props.limitBased?.limit?.value}
                   valueLabel="Limit Value"
                   valuePath={`${PAGINATION_PREFIX}.${LIMITBASED_PREFIX}.limit.value`}
@@ -370,6 +372,7 @@ function Pagination(props: PaginationProps) {
                 />
                 {/* Offset */}
                 <PaginationTypeBasedWrapper
+                  className="t--apiFormPaginationOffset"
                   dataReplayId={btoa(
                     `${PAGINATION_PREFIX}.${LIMITBASED_PREFIX}.offset`,
                   )}
@@ -394,7 +397,6 @@ function Pagination(props: PaginationProps) {
                     label: props.limitBased?.offset?.name,
                     value: props.limitBased?.offset?.name,
                   }}
-                  valueClassName="t--apiFormPaginationOffset"
                   valueEvaluated={props.limitBased?.offset?.value}
                   valueLabel="Offset Value"
                   valuePath={`${PAGINATION_PREFIX}.${LIMITBASED_PREFIX}.offset.value`}
@@ -426,6 +428,7 @@ function Pagination(props: PaginationProps) {
                 </SubHeading>
                 {/* Previous Limit Value */}
                 <PaginationTypeBasedWrapper
+                  className="t--apiFormPaginationPrevLimit"
                   dataReplayId={btoa(
                     `${PAGINATION_PREFIX}.${CURSORBASED_PREFIX}.previous"`,
                   )}
@@ -451,7 +454,6 @@ function Pagination(props: PaginationProps) {
                     label: paginationPrev?.limit?.name,
                     value: paginationPrev?.limit?.name,
                   }}
-                  valueClassName="t--apiFormPaginationCursorPrev"
                   valueEvaluated={paginationPrev?.limit?.value}
                   valueLabel="Limit Variable Value"
                   valuePath={`${PAGINATION_PREFIX}.${CURSORBASED_PREFIX}.previous.limit.value`}
@@ -463,6 +465,7 @@ function Pagination(props: PaginationProps) {
                 />
                 {/* Previous Cursor Values */}
                 <PaginationTypeBasedWrapper
+                  className="t--apiFormPaginationPrevCursor"
                   dataReplayId={btoa(
                     `${PAGINATION_PREFIX}.cursorBased.previous.cursor`,
                   )}
@@ -487,7 +490,6 @@ function Pagination(props: PaginationProps) {
                     label: paginationPrev?.cursor?.name,
                     value: paginationPrev?.cursor?.name,
                   }}
-                  valueClassName="t--apiFormPaginationCursorPrev"
                   valueEvaluated={paginationPrev?.cursor?.value}
                   valueLabel="Start Cursor Value"
                   valuePath={`${PAGINATION_PREFIX}.${CURSORBASED_PREFIX}.previous.cursor.value`}
@@ -502,6 +504,7 @@ function Pagination(props: PaginationProps) {
                 <SubHeading type={TextType.P1}>Configure Next Page</SubHeading>
                 {/* Next Limit Value */}
                 <PaginationTypeBasedWrapper
+                  className="t--apiFormPaginationNextLimit"
                   dataReplayId={btoa(`${PAGINATION_PREFIX}.next.limit`)}
                   onInputChange={(value: any) => {
                     setPaginationValue(
@@ -535,7 +538,6 @@ function Pagination(props: PaginationProps) {
                   separateKeyLabel="Enable separate value for first limit variable"
                   separateKeyPath={`${PAGINATION_PREFIX}.${CURSORBASED_PREFIX}.next.limit.isSeparate`}
                   separateValueFlag={!!paginationNext?.limit?.isSeparate}
-                  valueClassName="t--apiFormPaginationCursorNext"
                   valueEvaluated={paginationNext?.limit?.value}
                   valueLabel="Limit Variable Value"
                   valuePath={`${PAGINATION_PREFIX}.${CURSORBASED_PREFIX}.next.limit.value`}
@@ -547,6 +549,7 @@ function Pagination(props: PaginationProps) {
                 />
                 {/* Next Cursor Values */}
                 <PaginationTypeBasedWrapper
+                  className="t--apiFormPaginationNextCursor"
                   dataReplayId={btoa(`${PAGINATION_PREFIX}.next.cursor`)}
                   onInputChange={(value: any) => {
                     setPaginationValue(
@@ -569,7 +572,6 @@ function Pagination(props: PaginationProps) {
                     label: paginationNext?.cursor?.name,
                     value: paginationNext?.cursor?.name,
                   }}
-                  valueClassName="t--apiFormPaginationCursorNext"
                   valueEvaluated={paginationNext?.cursor?.value}
                   valueLabel="End Cursor Value"
                   valuePath={`${PAGINATION_PREFIX}.${CURSORBASED_PREFIX}.next.cursor.value`}
@@ -590,8 +592,10 @@ function Pagination(props: PaginationProps) {
 
 const mapStateToProps = (state: AppState, props: { formName: string }) => {
   const selector = formValueSelector(props.formName);
-  const pluginExtraData = selector(state, PAGINATION_PREFIX);
-
+  const pluginExtraData: GRAPHQL_PAGINATION_TYPE = selector(
+    state,
+    PAGINATION_PREFIX,
+  );
   const limitBased = pluginExtraData?.[LIMITBASED_PREFIX];
   const cursorBased = pluginExtraData?.[CURSORBASED_PREFIX];
 

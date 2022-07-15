@@ -50,7 +50,7 @@ function QueryEditor(props: QueryProps) {
   };
 
   return (
-    <QueryWrapper>
+    <QueryWrapper className="t--graphql-query-editor">
       <QueryHeader>
         <Text color={Colors.GRAY_700} type={TextType.H6}>
           Query

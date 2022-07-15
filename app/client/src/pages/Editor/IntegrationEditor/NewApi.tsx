@@ -297,7 +297,7 @@ function NewApiScreen(props: Props) {
           </CardContentWrapper>
         </ApiCard>
         <ApiCard
-          className="t--createBlankCurlCard"
+          className="t--createBlankApiGraphqlCard"
           onClick={() => handleOnClick(API_ACTION.CREATE_NEW_GRAPHQL_API)}
         >
           <CardContentWrapper>

@@ -48,7 +48,7 @@ type VariableProps = {
  */
 function VariableEditor(props: VariableProps) {
   return (
-    <VariableWrapper>
+    <VariableWrapper className="t--graphql-variable-editor">
       <VariableHeader>
         <Text color={Colors.GRAY_700} type={TextType.H6}>
           Query Variables
