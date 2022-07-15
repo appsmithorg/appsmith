@@ -5,7 +5,7 @@ import {
 import { ApiAction } from "entities/Action";
 import isEmpty from "lodash/isEmpty";
 import isString from "lodash/isString";
-import { klona } from "klona/full";
+import { klona } from "klona";
 
 export const transformRestAction = (data: ApiAction): ApiAction => {
   let action = klona(data);

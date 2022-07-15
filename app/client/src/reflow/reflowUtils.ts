@@ -1,5 +1,5 @@
 import { OccupiedSpace } from "constants/CanvasEditorConstants";
-import { klona } from "klona/full";
+import { klona } from "klona";
 import { isUndefined } from "lodash";
 import { Rect } from "utils/WidgetPropsUtils";
 import {

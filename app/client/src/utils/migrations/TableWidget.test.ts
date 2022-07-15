@@ -1,4 +1,4 @@
-import { klona } from "klona/full";
+import { klona } from "klona";
 import { DSLWidget } from "widgets/constants";
 import {
   tableWidgetPropertyPaneMigrations,

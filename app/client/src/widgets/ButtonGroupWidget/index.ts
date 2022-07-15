@@ -2,7 +2,7 @@ import { ButtonVariantTypes } from "components/constants";
 import { get } from "lodash";
 import { WidgetProps } from "widgets/BaseWidget";
 import { BlueprintOperationTypes } from "widgets/constants";
-import { klona as clone } from "klona/full";
+import { klona as clone } from "klona";
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
 

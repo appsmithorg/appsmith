@@ -20,7 +20,7 @@ import { collisionCheckPostReflow } from "utils/reflowHookUtils";
 import { WidgetDraggingUpdateParams } from "pages/common/CanvasArenas/hooks/useBlocksToBeDraggedOnCanvas";
 import { getWidget, getWidgets } from "sagas/selectors";
 import { getUpdateDslAfterCreatingChild } from "sagas/WidgetAdditionSagas";
-import { klona } from "klona/full";
+import { klona } from "klona";
 
 export type WidgetMoveParams = {
   widgetId: string;

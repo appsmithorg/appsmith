@@ -18,7 +18,7 @@ import {
   getMousePositionsOnCanvas,
 } from "./WidgetPropsUtils";
 import { WidgetDraggingBlock } from "pages/common/CanvasArenas/hooks/useBlocksToBeDraggedOnCanvas";
-import { klona } from "klona/full";
+import { klona } from "klona";
 
 describe("WidgetProps tests", () => {
   it("should convert WidgetDraggingBlocks to occupied Spaces", () => {

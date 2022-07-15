@@ -17,7 +17,7 @@ import {
   updateChildrenDisabledStateHook,
 } from "./helper";
 
-import { klona as clone } from "klona/full";
+import { klona as clone } from "klona";
 
 const widgetName = "JSONForm1";
 

@@ -8,7 +8,7 @@ import {
 } from "entities/DataTree/actionTriggers";
 import { NavigationTargetType } from "sagas/ActionExecution/NavigateActionSaga";
 import { promisifyAction } from "workers/PromisifyAction";
-import { klona } from "klona/full";
+import { klona } from "klona";
 import uniqueId from "lodash/uniqueId";
 declare global {
   interface Window {

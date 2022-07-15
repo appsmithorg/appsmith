@@ -83,7 +83,7 @@ import {
   ValidationConfig,
 } from "constants/PropertyControlConstants";
 import { parseJSObjectWithAST, isFunctionNode } from "workers/ast";
-import { klona } from "klona/full";
+import { klona } from "klona";
 import { EvalMetaUpdates } from "./types";
 export default class DataTreeEvaluator {
   dependencyMap: DependencyMap = {};

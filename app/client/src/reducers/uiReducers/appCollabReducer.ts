@@ -4,7 +4,7 @@ import {
 } from "@appsmith/constants/ReduxActionConstants";
 import { createReducer } from "utils/AppsmithUtils";
 import { User } from "entities/AppCollab/CollabInterfaces";
-import { klona } from "klona/full";
+import { klona } from "klona";
 
 const initialState: AppCollabReducerState = {
   editors: [],
