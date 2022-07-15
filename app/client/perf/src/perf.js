@@ -26,6 +26,7 @@ const selectors = {
 
 module.exports = class Perf {
   constructor(launchOptions = {}) {
+    this.iteration = launchOptions.iteration || 0; // Current iteration number
     this.launchOptions = {
       defaultViewport: null,
       args: ["--window-size=1920,1080"],
@@ -119,7 +120,9 @@ module.exports = class Perf {
     await this.page._client.send("HeapProfiler.collectGarbage");
     await delay(1000, `After clearing memory`);
 
-    const path = `${APP_ROOT}/traces/${action}-${getFormattedTime()}-chrome-profile.json`;
+    const path = `${APP_ROOT}/traces/${action}-${
+      this.iteration
+    }-${getFormattedTime()}-chrome-profile.json`;
 
     await this.page.tracing.start({
       path: path,

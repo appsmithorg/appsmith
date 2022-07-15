@@ -26,8 +26,8 @@ const SEL = {
   commentsTableTitle: "#urzv99hdc8",
 };
 
-async function testGoldenApp() {
-  const perf = new Perf();
+async function testGoldenApp(iteration) {
+  const perf = new Perf({ iteration });
   try {
     await perf.launch();
     const page = perf.getPage();
@@ -110,7 +110,7 @@ async function testGoldenApp() {
 
 async function runTests() {
   for (let i = 0; i < 5; i++) {
-    await testGoldenApp();
+    await testGoldenApp(i + 1);
   }
 }
 

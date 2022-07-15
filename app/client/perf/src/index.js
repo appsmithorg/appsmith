@@ -14,9 +14,7 @@ if (!fs.existsSync(dir)) {
 
 glob("./tests/*.perf.js", {}, async function(er, files) {
   // Initial setup
-  const setupLogs = await cp.execSync(`node ./tests/initial-setup.js`);
-
-  fs.writeFileSync(`${dir}/setup.log`, setupLogs.toString());
+  await cp.execSync(`node ./tests/initial-setup.js`, { stdio: "inherit" });
 
   files.forEach(async (file) => {
     const testSuiteName = file
@@ -24,8 +22,7 @@ glob("./tests/*.perf.js", {}, async function(er, files) {
       .pop()
       .replace(".perf.js", "");
 
-    const logs = await cp.execSync(`node ${file}`, { stdio: "inherit" }); // Logging to terminal, log it to a file in future?
-    fs.writeFileSync(`${dir}/${testSuiteName}.log`, logs.toString());
+    await cp.execSync(`node ${file}`, { stdio: "inherit" }); // Logging to terminal, log it to a file in future?
   });
   await summaries(`${APP_ROOT}/traces/reports`);
   await saveToSupabase();

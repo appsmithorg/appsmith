@@ -4,8 +4,8 @@ const dsl = require("./dsl/simple-typing").dsl;
 
 process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0;
 
-async function sampleTest() {
-  const perf = new Perf();
+async function sampleTest(iteration) {
+  const perf = new Perf({ iteration });
   await perf.launch();
 
   const page = perf.getPage();
@@ -33,8 +33,8 @@ async function sampleTest() {
 }
 
 async function runTests() {
-  for(let i=0;i<5;i++){
-    await sampleTest().catch(e=>console.log(e))
+  for (let i = 0; i < 5; i++) {
+    await sampleTest(i + 1);
   }
 }
 
