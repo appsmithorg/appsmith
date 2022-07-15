@@ -20,6 +20,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.MultiValueMap;
+import org.springframework.web.reactive.function.client.ExchangeStrategies;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.DefaultUriBuilderFactory;
 import org.springframework.web.util.UriComponents;
@@ -150,8 +151,14 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
             /* using a custom url builder factory because default builder always encodes URL.
              It's expected that the appDataUrl is already encoded, so we don't need to encode that again.
              Encoding an encoded URL will not work and end up resulting a 404 error */
+        final int size = 4 * 1024 * 1024; // 4 MB
+        final ExchangeStrategies strategies = ExchangeStrategies.builder()
+                .codecs(codecs -> codecs.defaultCodecs().maxInMemorySize(size))
+                .build();
+
         WebClient webClient = WebClient.builder()
                 .uriBuilderFactory(new NoEncodingUriBuilderFactory(templateUrl))
+                .exchangeStrategies(strategies)
                 .build();
 
         return webClient

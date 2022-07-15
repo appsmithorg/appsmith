@@ -1,12 +1,14 @@
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 import largeJSONData from "../../../../fixtures/largeJSONData.json";
+const dsl = require("../../../../fixtures/tablev1NewDsl.json");
 
 const jsEditor = ObjectsRegistry.JSEditor,
   locator = ObjectsRegistry.CommonLocators,
   ee = ObjectsRegistry.EntityExplorer,
   table = ObjectsRegistry.Table,
   agHelper = ObjectsRegistry.AggregateHelper,
-  deployMode = ObjectsRegistry.DeployMode;
+  deployMode = ObjectsRegistry.DeployMode,
+  propPane = ObjectsRegistry.PropertyPane;
 
 let onPageLoadAndConfirmExecuteFunctionsLength: number,
   getJSObject: any,
@@ -48,7 +50,7 @@ describe("JS Function Execution", function() {
   ];
 
   before(() => {
-    ee.DragDropWidgetNVerify("tablewidget", 300, 300);
+    agHelper.AddDsl(dsl);
     ee.NavigateToSwitcher("explorer");
   });
   function assertAsyncFunctionsOrder(data: IFunctionSettingData[]) {
@@ -172,9 +174,8 @@ describe("JS Function Execution", function() {
         toRun: false,
         shouldCreateNewJSObj: true,
       });
-
       // Assert presence of toast message
-      agHelper.ValidateToastMessage(invalidJSObjectStartToastMessage);
+      agHelper.WaitUntilToastDisappear(invalidJSObjectStartToastMessage);
 
       // Assert presence of lint error at the start line
       cy.get(locator._lintErrorElement)
@@ -244,6 +245,7 @@ describe("JS Function Execution", function() {
     // Re-introduce parse errors
     jsEditor.EditJSObj(JS_OBJECT_WITH_PARSE_ERROR);
     agHelper.GetNClick(jsEditor._runButton);
+    agHelper.WaitUntilToastDisappear("ran successfully"); //to not hinder with next toast msg in next case!
     // Assert that there is a function execution parse error
     jsEditor.AssertParseError(true, true);
 
@@ -255,6 +257,7 @@ describe("JS Function Execution", function() {
       "TypeError: Cannot read properties of undefined (reading 'name')",
     ).should("not.exist");
   });
+
   it("6. Supports the use of large JSON data (doesn't crash)", () => {
     const jsObjectWithLargeJSONData = `export default{
       largeData: ${JSON.stringify(largeJSONData)},
@@ -283,7 +286,10 @@ describe("JS Function Execution", function() {
 
     cy.get("@jsObjName").then((jsObjName) => {
       ee.SelectEntityByName("Table1", "WIDGETS");
-      jsEditor.EnterJSContext("Table Data", `{{${jsObjName}.largeData}}`);
+      propPane.UpdatePropertyFieldValue(
+        "Table Data",
+        `{{${jsObjName}.largeData}}`,
+      );
     });
 
     // Deploy App and test that table loads properly
@@ -338,7 +344,6 @@ describe("JS Function Execution", function() {
       toRun: false,
       shouldCreateNewJSObj: true,
     });
-    agHelper.WaitUntilToastDisappear("created successfully");
 
     // change sync function name and test that cyclic dependency is not created
     jsEditor.EditJSObj(syncJSCodeWithRenamedFunction1);
@@ -352,7 +357,6 @@ describe("JS Function Execution", function() {
       toRun: false,
       shouldCreateNewJSObj: true,
     });
-    agHelper.WaitUntilToastDisappear("created successfully");
     // change async function name and test that cyclic dependency is not created
     jsEditor.EditJSObj(asyncJSCodeWithRenamedFunction1);
     agHelper.AssertElementAbsence(locator._toastMsg);

@@ -107,7 +107,6 @@ function Pages() {
   const switchPage = useCallback(
     (page: Page) => {
       const navigateToUrl = builderURL({
-        pageSlug: page.slug as string,
         pageId: page.pageId,
       });
       AnalyticsUtil.logEvent("PAGE_NAME_CLICK", {

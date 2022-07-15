@@ -38,11 +38,7 @@ import {
 import { getDynamicBindingsChangesSaga } from "utils/DynamicBindingUtils";
 import { validateResponse } from "./ErrorSagas";
 import { transformRestAction } from "transformers/RestActionTransformer";
-import {
-  getActionById,
-  getCurrentPageId,
-  selectPageSlugById,
-} from "selectors/editorSelectors";
+import { getActionById, getCurrentPageId } from "selectors/editorSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import {
   Action,
@@ -397,6 +393,7 @@ export function* deleteActionSaga(
     const isApi = action.pluginType === PluginType.API;
     const isQuery = action.pluginType === PluginType.DB;
     const isSaas = action.pluginType === PluginType.SAAS;
+    const pageId: string = yield select(getCurrentPageId);
 
     const response: ApiResponse<Action> = yield ActionAPI.deleteAction(id);
     const isValidResponse: boolean = yield validateResponse(response);
@@ -430,6 +427,7 @@ export function* deleteActionSaga(
     } else {
       history.push(
         integrationEditorURL({
+          pageId,
           selectedTab: INTEGRATION_TABS.NEW,
         }),
       );
@@ -770,12 +768,10 @@ function* handleMoveOrCopySaga(actionPayload: ReduxAction<{ id: string }>) {
   const isApi = action.pluginType === PluginType.API;
   const isQuery = action.pluginType === PluginType.DB;
   const isSaas = action.pluginType === PluginType.SAAS;
-  const pageSlug: string = yield select(selectPageSlugById(action.pageId));
 
   if (isApi) {
     history.push(
       apiEditorIdURL({
-        pageSlug,
         pageId: action.pageId,
         apiId: action.id,
       }),
@@ -784,7 +780,6 @@ function* handleMoveOrCopySaga(actionPayload: ReduxAction<{ id: string }>) {
   if (isQuery) {
     history.push(
       queryEditorIdURL({
-        pageSlug,
         pageId: action.pageId,
         queryId: action.id,
       }),
@@ -797,7 +792,6 @@ function* handleMoveOrCopySaga(actionPayload: ReduxAction<{ id: string }>) {
     );
     history.push(
       saasEditorApiIdURL({
-        pageSlug,
         pageId: action.pageId,
         pluginPackageName: plugin.packageName,
         apiId: action.id,
@@ -943,6 +937,7 @@ function* executeCommandSaga(actionPayload: ReduxAction<SlashCommandPayload>) {
     case SlashCommand.NEW_INTEGRATION:
       history.push(
         integrationEditorURL({
+          pageId,
           selectedTab: INTEGRATION_TABS.NEW,
         }),
       );

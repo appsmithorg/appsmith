@@ -21,6 +21,7 @@ const RichTextEditorComponent = lazy(() =>
   ),
 );
 
+const converter = new showdown.Converter();
 class RichTextEditorWidget extends BaseWidget<
   RichTextEditorWidgetProps,
   WidgetState
@@ -185,11 +186,11 @@ class RichTextEditorWidget extends BaseWidget<
         ],
       },
       {
-        sectionName: "Styles",
+        sectionName: "Label Styles",
         children: [
           {
             propertyName: "labelTextColor",
-            label: "Label Text Color",
+            label: "Text Color",
             controlType: "COLOR_PICKER",
             isJSConvertible: true,
             isBindProperty: true,
@@ -198,7 +199,7 @@ class RichTextEditorWidget extends BaseWidget<
           },
           {
             propertyName: "labelTextSize",
-            label: "Label Text Size",
+            label: "Text Size",
             controlType: "DROP_DOWN",
             defaultValue: "0.875rem",
             options: [
@@ -305,7 +306,6 @@ class RichTextEditorWidget extends BaseWidget<
   static getMetaPropertiesMap(): Record<string, any> {
     return {
       text: undefined,
-      shouldReset: false,
       isDirty: false,
     };
   }
@@ -323,27 +323,16 @@ class RichTextEditorWidget extends BaseWidget<
     };
   }
 
-  componentDidMount(): void {
-    if (this.props.defaultText) {
-      this.props.updateWidgetMetaProperty("shouldReset", true);
-    }
-  }
-
   componentDidUpdate(prevProps: RichTextEditorWidgetProps): void {
     if (this.props.defaultText !== prevProps.defaultText) {
       if (this.props.isDirty) {
         this.props.updateWidgetMetaProperty("isDirty", false);
       }
-      if (this.props.defaultText) {
-        this.props.updateWidgetMetaProperty("shouldReset", true);
-      }
     }
   }
 
   onValueChange = (text: string) => {
-    if (this.props.shouldReset) {
-      this.props.updateWidgetMetaProperty("shouldReset", false);
-    } else if (!this.props.isDirty) {
+    if (!this.props.isDirty) {
       this.props.updateWidgetMetaProperty("isDirty", true);
     }
 
@@ -359,7 +348,6 @@ class RichTextEditorWidget extends BaseWidget<
   getPageView() {
     let value = this.props.text ?? "";
     if (this.props.inputType === RTEFormats.MARKDOWN) {
-      const converter = new showdown.Converter();
       value = converter.makeHtml(value);
     }
 
