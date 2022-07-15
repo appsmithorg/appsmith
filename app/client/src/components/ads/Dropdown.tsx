@@ -21,7 +21,7 @@ import { TooltipComponent as Tooltip } from "design-system";
 import { isEllipsisActive } from "utils/helpers";
 import SegmentHeader from "components/ads/ListSegmentHeader";
 import { useTheme } from "styled-components";
-import { findIndex, isArray } from "lodash";
+import { debounce, findIndex, isArray } from "lodash";
 import { TooltipComponent } from "design-system";
 import { SubTextPosition } from "components/constants";
 import { DSEventTypes, emitDSEvent } from "utils/AppsmithUtils";
@@ -1149,12 +1149,29 @@ export default function Dropdown(props: DropdownProps) {
     [isOpen, props.options, props.selected, selected, highlight],
   );
 
-  let dropdownWrapperWidth = "100%";
+  const [dropdownWrapperWidth, setDropdownWrapperWidth] = useState<string>(
+    "100%",
+  );
 
-  if (dropdownWrapperRef.current) {
-    const { width } = dropdownWrapperRef.current.getBoundingClientRect();
-    dropdownWrapperWidth = `${width}px`;
-  }
+  const onParentResize = useCallback(
+    debounce(() => {
+      if (dropdownWrapperRef.current) {
+        const { width } = dropdownWrapperRef.current.getBoundingClientRect();
+        setDropdownWrapperWidth(`${width}px`);
+      }
+    }, 500),
+    [dropdownWrapperRef.current],
+  );
+
+  useEffect(() => {
+    const resizeObserver = new ResizeObserver(onParentResize);
+    if (dropdownWrapperRef.current)
+      resizeObserver.observe(dropdownWrapperRef.current);
+
+    return () => {
+      resizeObserver.disconnect();
+    };
+  }, [dropdownWrapperRef.current]);
 
   let dropdownHeight = props.isMultiSelect ? "auto" : "36px";
   if (props.height) {
@@ -1167,6 +1184,7 @@ export default function Dropdown(props: DropdownProps) {
 
   const dropdownTrigger = props.dropdownTriggerIcon ? (
     <DropdownTriggerWrapper
+      className="dropdown-wraaaaaaaaaaaap"
       disabled={props.disabled}
       isOpen={isOpen}
       onClick={onClickHandler}
@@ -1175,7 +1193,10 @@ export default function Dropdown(props: DropdownProps) {
       {props.dropdownTriggerIcon}
     </DropdownTriggerWrapper>
   ) : (
-    <DropdownSelect ref={dropdownWrapperRef}>
+    <DropdownSelect
+      className="dropdown-wraaaaaaaaaaaap"
+      ref={dropdownWrapperRef}
+    >
       <Selected
         bgColor={props.bgColor}
         className={props.className}
