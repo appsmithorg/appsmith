@@ -326,6 +326,7 @@ export class DataSources {
 
   RunQuery(expectedStatus = true) {
     cy.get(this._runQueryBtn).click({ force: true });
+    this.agHelper.Sleep(2000);
     this.agHelper.ValidateNetworkExecutionSuccess(
       "@postExecute",
       expectedStatus,
