@@ -469,6 +469,7 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
     };
   }
 
+  // https://github.com/appsmithorg/appsmith/issues/13664#issuecomment-1120814337
   static getDerivedPropertiesMap() {
     return {
       isValid: `{{(()=>{${derivedProperties.getIsValid}})()}}`,
@@ -480,7 +481,6 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
 
   componentDidMount() {
     super.componentDidMount();
-    // this.changeSelectedOption();
   }
 
   componentDidUpdate(prevProps: SelectWidgetProps): void {
