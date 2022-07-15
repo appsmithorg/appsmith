@@ -10,6 +10,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.bson.internal.Base64;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
@@ -78,13 +79,22 @@ public class OAuth2ClientCredentials extends APIConnection implements UpdatableC
 
     private Mono<OAuth2> generateOAuth2Token(OAuth2 oAuth2) {
         // Webclient
-        WebClient webClient = WebClient.builder()
+        WebClient.Builder webClientBuilder = WebClient.builder()
                 .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED_VALUE)
                 .exchangeStrategies(ExchangeStrategies
                         .builder()
                         .codecs(configurer -> configurer.defaultCodecs().maxInMemorySize(MAX_IN_MEMORY_SIZE))
-                        .build())
-                .build();
+                        .build());
+
+        if (Boolean.TRUE.equals(oAuth2.getIsAuthorizationHeader())) {
+            byte[] clientCredentials = (oAuth2.getClientId() + ":" + oAuth2.getClientSecret()).getBytes();
+            final String authorizationHeader = "Basic " + Base64.encode(clientCredentials);
+            webClientBuilder.defaultHeader("Authorization", authorizationHeader);
+        }
+
+
+        // Webclient
+        WebClient webClient = webClientBuilder.build();
 
         // Send oauth2 generic request
         return webClient
@@ -162,9 +172,12 @@ public class OAuth2ClientCredentials extends APIConnection implements UpdatableC
 
     private BodyInserters.FormInserter<String> clientCredentialsTokenBody(OAuth2 oAuth2) {
         BodyInserters.FormInserter<String> body = BodyInserters
-                .fromFormData(Authentication.GRANT_TYPE, Authentication.CLIENT_CREDENTIALS)
-                .with(Authentication.CLIENT_ID, oAuth2.getClientId())
-                .with(Authentication.CLIENT_SECRET, oAuth2.getClientSecret());
+                .fromFormData(Authentication.GRANT_TYPE, Authentication.CLIENT_CREDENTIALS);
+
+        if (Boolean.FALSE.equals(oAuth2.getIsAuthorizationHeader())) {
+            body.with(Authentication.CLIENT_ID, oAuth2.getClientId())
+                    .with(Authentication.CLIENT_SECRET, oAuth2.getClientSecret());
+        }
 
         // Adding optional audience parameter
         if (!StringUtils.isEmpty(oAuth2.getAudience())) {

@@ -276,6 +276,7 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
 
     ee.SelectEntityByName("UpdateQuery", "QUERIES/JS");
     dataSources.EnterQuery(updateQuery);
+    agHelper.Escape();
     agHelper.AssertAutoSave();
     ee.ExpandCollapseEntity("QUERIES/JS", false);
   });
@@ -518,6 +519,7 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
 
     ee.SelectEntityByName("InsertQuery", "QUERIES/JS");
     dataSources.EnterQuery(insertQuery);
+    agHelper.Escape();
     agHelper.AssertAutoSave();
     ee.ExpandCollapseEntity("QUERIES/JS", false);
   });
@@ -705,7 +707,7 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
     agHelper.GetNClick(dataSources._templateMenu);
     agHelper.RenameWithInPane("DropVessels");
     dataSources.EnterQuery(deleteTblQuery);
-    cy.get(".CodeMirror textarea").focus();
+    cy.get(locator._codeMirrorTextArea).focus();
     //agHelper.VerifyEvaluatedValue(tableCreateQuery);
 
     dataSources.RunQuery(false);
