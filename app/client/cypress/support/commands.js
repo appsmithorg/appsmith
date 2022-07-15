@@ -736,7 +736,8 @@ Cypress.Commands.add("dragAndDropToCanvas", (widgetType, { x, y }) => {
     .trigger("mousemove", x, y, { eventConstructor: "MouseEvent" })
     .trigger("mousemove", x, y, { eventConstructor: "MouseEvent" })
     .trigger("mouseup", x, y, { eventConstructor: "MouseEvent" });
-});
+    cy.assertPageSave();
+  });
 
 Cypress.Commands.add(
   "dragAndDropToWidget",
@@ -1125,7 +1126,7 @@ Cypress.Commands.add("ValidatePaginationInputDataV2", () => {
 });
 
 Cypress.Commands.add("assertPageSave", () => {
-  cy.get(commonlocators.saveStatusSuccess, { timeout: 40000 }).should("exist");
+  cy.get(commonlocators.saveStatusSuccess).should("exist");
 });
 
 Cypress.Commands.add(
