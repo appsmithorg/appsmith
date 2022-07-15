@@ -196,7 +196,7 @@ describe("Binary Datatype tests", function() {
     agHelper.AssertElementAbsence(locator._toastMsg); //Assert that Update did not fail
     agHelper.AssertElementVisible(locator._spanButton("Run UpdateQuery"));
     table.WaitUntilTableLoad();
-    agHelper.Sleep(2000); //for all rows with images to be populated
+    agHelper.Sleep(4000); //for the update row to appear at last
     table.ReadTableRowColumnData(2, 0, 2000).then(($cellData) => {
       expect($cellData).to.eq("2"); //asserting serial column is inserting fine in sequence
     });
