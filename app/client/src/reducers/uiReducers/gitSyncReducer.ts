@@ -5,7 +5,7 @@ import {
   ReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
 import { GitConfig, GitSyncModalTab, MergeStatus } from "entities/GitSync";
-import { GetSSHKeyResponseData } from "actions/gitSyncActions";
+import { GetSSHKeyResponseData, SSHKeyType } from "actions/gitSyncActions";
 
 const initialState: GitSyncReducerState = {
   isGitSyncModalOpen: false,
@@ -371,6 +371,7 @@ const gitSyncReducer = createReducer(initialState, {
       ...state,
       SSHKeyPair: action.payload.publicKey,
       deployKeyDocUrl: action.payload.docUrl,
+      supportedKeyTypes: action.payload?.gitSupportedSSHKeyType,
     };
   },
   [ReduxActionErrorTypes.FETCH_SSH_KEY_PAIR_ERROR]: (
@@ -380,6 +381,7 @@ const gitSyncReducer = createReducer(initialState, {
       ...state,
       SSHKeyPair: null,
       deployKeyDocUrl: "",
+      supportedKeyTypes: null,
     };
   },
   [ReduxActionTypes.CREATE_APPLICATION_SUCCESS]: (
@@ -546,6 +548,7 @@ export type GitSyncReducerState = GitBranchDeleteState & {
 
   SSHKeyPair?: string;
   deployKeyDocUrl?: string;
+  supportedKeyTypes?: SSHKeyType[];
 
   isImportingApplicationViaGit?: boolean;
 

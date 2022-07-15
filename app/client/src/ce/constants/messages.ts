@@ -645,7 +645,11 @@ export const COMMIT_TO = () => "Commit to";
 export const COMMIT_AND_PUSH = () => "Commit & push";
 export const PULL_CHANGES = () => "PULL CHANGES";
 export const DEPLOY_KEY_TITLE = () => "Deployed Key";
-export const REGENERATE_SSH_KEY = () => "Regenerate SSH Key";
+export const REGENERATE_SSH_KEY = (keyType: string, keySize: number) =>
+  `Regenerate ${keyType} ${keySize} key`;
+export const GENERATE_SSH_KEY = (keyType: string, keySize: number) =>
+  `${keyType} ${keySize} key`;
+export const SSH_KEY_PLATFORM = (name: string) => ` (${name})`;
 export const SSH_KEY = () => "SSH Key";
 export const COPY_SSH_KEY = () => "Copy SSH Key";
 export const SSH_KEY_GENERATED = () => "SSH Key generated";
