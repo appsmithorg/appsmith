@@ -8,6 +8,7 @@ import DropTargetComponent from "components/editorComponents/DropTargetComponent
 import { getCanvasSnapRows } from "utils/WidgetPropsUtils";
 import { getCanvasClassName } from "utils/generators";
 import WidgetFactory, { DerivedPropertiesMap } from "utils/WidgetFactory";
+import { CANVAS_DEFAULT_MIN_HEIGHT_PX } from "constants/AppConstants";
 
 class CanvasWidget extends ContainerWidget {
   static getPropertyPaneConfig() {
@@ -35,7 +36,7 @@ class CanvasWidget extends ContainerWidget {
       <DropTargetComponent
         {...canvasProps}
         {...this.getSnapSpaces()}
-        minHeight={this.props.minHeight || 380}
+        minHeight={this.props.minHeight || CANVAS_DEFAULT_MIN_HEIGHT_PX}
       >
         {this.renderAsContainerComponent(canvasProps)}
       </DropTargetComponent>
