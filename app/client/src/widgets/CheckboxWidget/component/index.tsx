@@ -80,6 +80,7 @@ class CheckboxComponent extends React.Component<CheckboxComponentProps> {
             this.props.isLoading ? Classes.SKELETON : Classes.RUNNING_TEXT
           }
           disabled={this.props.isDisabled}
+          hasError={!isValid}
           inputRef={this.props.inputRef}
           labelElement={
             <CheckboxLabel

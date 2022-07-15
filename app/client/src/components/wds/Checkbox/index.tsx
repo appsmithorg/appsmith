@@ -25,7 +25,6 @@ const Checkbox = styled(BlueprintCheckbox)<StyledCheckboxProps>`
     flex-direction: ${
       alignIndicator === Alignment.RIGHT ? "row-reverse" : "row"
     };
-    line-height: 1.4rem;
 
     // base
     &.bp3-control.bp3-checkbox .bp3-control-indicator  {

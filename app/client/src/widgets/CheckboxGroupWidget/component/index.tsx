@@ -46,12 +46,9 @@ const InputContainer = styled.div<ThemeProp & InputContainerProps>`
       : `center`};
   width: 100%;
   height: ${({ inline }) => (inline ? "32px" : "100%")};
+  flex-grow: 1;
+  height: 100%;
   border: 1px solid transparent;
-  ${({ theme, valid }) =>
-    !valid &&
-    `
-    border: 1px solid ${theme.colors.error};
-  `}
 
   .${Classes.CONTROL} {
     display: flex;
@@ -214,7 +211,6 @@ function CheckboxGroupComponent(props: CheckboxGroupComponentProps) {
         inline={isInline}
         optionAlignment={optionAlignment}
         optionCount={options.length}
-        valid={isValid}
       >
         {isSelectAll && (
           <SelectAll
@@ -235,6 +231,7 @@ function CheckboxGroupComponent(props: CheckboxGroupComponentProps) {
               borderRadius={borderRadius}
               checked={(selectedValues || []).includes(option.value)}
               disabled={isDisabled}
+              hasError={!isValid}
               indeterminate={isDisabled ? true : undefined}
               inline={isInline}
               key={generateReactKey()}
