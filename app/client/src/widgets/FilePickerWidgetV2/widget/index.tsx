@@ -117,6 +117,10 @@ const FilePickerGlobalStyles = createGlobalStyle<{
     border-radius: ${({ borderRadius }) => borderRadius};
     & span {
       color: #858282;
+      position: absolute;
+      top: -6%;
+      left: 20%;
+}
     }
   }
   /*********************************************************/
