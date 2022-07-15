@@ -34,7 +34,7 @@ const Checkbox = styled(BlueprintCheckbox)<StyledCheckboxProps>`
       box-shadow: 0px 0px 0px 1px ${Colors.GREY_5};
       outline: none !important;
       background-color: transparent;
-      border-radius: ${borderRadius === "0.375rem" ? "4px" : borderRadius};
+      border-radius: ${borderRadius === "0.375rem" ? "0.25rem" : borderRadius};
 
       // ERROR state ( needed when checkbox is required )
       ${hasError ? `box-shadow: 0px 0px 0px 1px ${Colors.ERROR_RED};` : ""};
@@ -128,10 +128,5 @@ const Checkbox = styled(BlueprintCheckbox)<StyledCheckboxProps>`
     }
   `}
 `;
-
-Checkbox.defaultProps = {
-  accentColor: "#553DE9",
-  borderRadius: "0.375rem",
-};
 
 export { Checkbox };
