@@ -337,6 +337,8 @@ class DatasourceRestAPIEditor extends React.Component<
         pluginId: datasource.pluginId,
         datasource: {
           id: datasource.id,
+          isMock: datasource?.isMock,
+          isTemplate: datasource?.isTemplate,
         },
         eventData: {
           actionType: "API",

@@ -80,6 +80,8 @@ function NewActionButton(props: NewActionButtonProps) {
           pluginId: datasource?.pluginId,
           datasource: {
             id: datasource?.id,
+            isMock: datasource?.isMock,
+            isTemplate: datasource?.isTemplate,
           },
           actionConfiguration:
             pluginType === PluginType.API ? defaultApiActionConfig : {},

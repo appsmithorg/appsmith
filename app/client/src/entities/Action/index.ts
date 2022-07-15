@@ -74,6 +74,8 @@ export const isStoredDatasource = (val: any): val is StoredDatasource => {
 };
 export interface StoredDatasource {
   id: string;
+  isMock?: boolean;
+  isTemplate?: boolean;
 }
 
 export interface BaseAction {

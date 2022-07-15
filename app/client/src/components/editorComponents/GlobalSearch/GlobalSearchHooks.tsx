@@ -65,6 +65,8 @@ export const useFilteredFileOperations = (query = "") => {
       pluginId: ds.pluginId,
       datasource: {
         id: ds.id,
+        isMock: ds?.isMock,
+        isTemplate: ds?.isTemplate,
       },
       actionConfiguration:
         ds.pluginId === restApiPlugin?.id ? defaultApiActionConfig : {},

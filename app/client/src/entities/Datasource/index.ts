@@ -62,6 +62,8 @@ interface BaseDatasource {
   workspaceId: string;
   isValid: boolean;
   isConfigured?: boolean;
+  isMock?: boolean;
+  isTemplate?: boolean;
 }
 
 export const isEmbeddedRestDatasource = (
