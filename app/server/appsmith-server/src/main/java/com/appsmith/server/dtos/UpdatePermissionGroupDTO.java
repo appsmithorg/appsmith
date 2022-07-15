@@ -6,11 +6,11 @@ import lombok.NonNull;
 
 @Data
 @Builder
-public class UpdateUserGroupDTO {
+public class UpdatePermissionGroupDTO {
     
     @NonNull
     private String username;
 
-    private String newGroupId;
+    private String newPermissionGroup;
     
 }

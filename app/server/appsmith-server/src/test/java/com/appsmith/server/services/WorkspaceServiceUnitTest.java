@@ -2,8 +2,10 @@ package com.appsmith.server.services;
 
 import com.appsmith.server.acl.RoleGraph;
 import com.appsmith.server.constants.FieldName;
+import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.Workspace;
-import com.appsmith.server.dtos.UserAndGroupDTO;
+import com.appsmith.server.dtos.PermissionGroupInfoDTO;
+import com.appsmith.server.dtos.UserAndPermissionGroupDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.repositories.ApplicationRepository;
@@ -64,20 +66,20 @@ public class WorkspaceServiceUnitTest {
         workspaceService = new WorkspaceServiceImpl(scheduler, validator, mongoConverter, reactiveMongoTemplate,
                 workspaceRepository, analyticsService, pluginRepository, sessionUserService, userWorkspaceService,
                 userRepository, roleGraph, assetRepository, assetService, applicationRepository,
-                permissionGroupService, policyUtils);
+                permissionGroupService, policyUtils, modelMapper);
     }
 
-//    @Test
-//    public void whenMapUserGroup_thenConvertsToUserGroupInfoDTO() {
-//        UserGroup userGroup = new UserGroup();
-//        userGroup.setName("Test");
-//        userGroup.setId("123");
-//        userGroup.setDescription("Test");
-//        UserGroupInfoDTO userGroupInfoDTO = modelMapper.map(userGroup, UserGroupInfoDTO.class);
-//        Assert.assertEquals(userGroup.getName(), userGroupInfoDTO.getName());
-//        Assert.assertEquals(userGroup.getId(), userGroupInfoDTO.getId());
-//        Assert.assertEquals(userGroup.getDescription(), userGroupInfoDTO.getDescription());
-//    }
+   @Test
+   public void whenMapPermissionGroup_thenConvertsToPermissionGroupInfoDTO() {
+       PermissionGroup permissionGroup = new PermissionGroup();
+       permissionGroup.setName("Test");
+       permissionGroup.setId("123");
+       permissionGroup.setDescription("Test");
+       PermissionGroupInfoDTO permissionGroupInfoDTO = modelMapper.map(permissionGroup, PermissionGroupInfoDTO.class);
+       Assert.assertEquals(permissionGroup.getName(), permissionGroupInfoDTO.getName());
+       Assert.assertEquals(permissionGroup.getId(), permissionGroupInfoDTO.getId());
+       Assert.assertEquals(permissionGroup.getDescription(), permissionGroupInfoDTO.getDescription());
+   }
 
     @Test
     public void getWorkspaceMembers_WhenRoleIsNull_ReturnsEmptyList() {
@@ -92,7 +94,7 @@ public class WorkspaceServiceUnitTest {
         Mockito.when(workspaceRepository.findById("test-org-id", WORKSPACE_INVITE_USERS))
                 .thenReturn(Mono.just(testWorkspace));
 
-        Mono<List<UserAndGroupDTO>> workspaceMembers = userWorkspaceService.getWorkspaceMembers(testWorkspace.getId());
+        Mono<List<UserAndPermissionGroupDTO>> workspaceMembers = userWorkspaceService.getWorkspaceMembers(testWorkspace.getId());
         StepVerifier
                 .create(workspaceMembers)
                 .assertNext(userAndGroupDTOs -> {
@@ -108,7 +110,7 @@ public class WorkspaceServiceUnitTest {
         Mockito.when(workspaceRepository.findById(sampleWorkspaceId, WORKSPACE_INVITE_USERS))
                 .thenReturn(Mono.empty());
 
-        Mono<List<UserAndGroupDTO>> workspaceMembers = userWorkspaceService.getWorkspaceMembers(sampleWorkspaceId);
+        Mono<List<UserAndPermissionGroupDTO>> workspaceMembers = userWorkspaceService.getWorkspaceMembers(sampleWorkspaceId);
         StepVerifier
                 .create(workspaceMembers)
                 .expectErrorMessage(AppsmithError.NO_RESOURCE_FOUND.getMessage(FieldName.WORKSPACE, sampleWorkspaceId))

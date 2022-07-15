@@ -2,10 +2,10 @@ package com.appsmith.server.controllers.ce;
 
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.domains.Workspace;
-import com.appsmith.server.dtos.UpdateUserGroupDTO;
+import com.appsmith.server.dtos.UpdatePermissionGroupDTO;
 import com.appsmith.server.dtos.ResponseDTO;
-import com.appsmith.server.dtos.UserAndGroupDTO;
-import com.appsmith.server.dtos.UserGroupInfoDTO;
+import com.appsmith.server.dtos.UserAndPermissionGroupDTO;
+import com.appsmith.server.dtos.PermissionGroupInfoDTO;
 import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.services.UserWorkspaceService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,23 +40,23 @@ public class WorkspaceControllerCE extends BaseController<WorkspaceService, Work
      *
      * @return
      */
-    @GetMapping("/{workspaceId}/userGroups")
-    public Mono<ResponseDTO<List<UserGroupInfoDTO>>> getUserGroupsForWorkspace(@PathVariable String workspaceId) {
-        return service.getUserGroupsForWorkspace(workspaceId)
+    @GetMapping("/{workspaceId}/permissionGroups")
+    public Mono<ResponseDTO<List<PermissionGroupInfoDTO>>> getPermissionGroupsForWorkspace(@PathVariable String workspaceId) {
+        return service.getPermissionGroupsForWorkspace(workspaceId)
                 .map(groupInfoList -> new ResponseDTO<>(HttpStatus.OK.value(), groupInfoList, null));
     }
 
     @GetMapping("/{workspaceId}/members")
-    public Mono<ResponseDTO<List<UserAndGroupDTO>>> getUserMembersOfWorkspace(@PathVariable String workspaceId) {
+    public Mono<ResponseDTO<List<UserAndPermissionGroupDTO>>> getUserMembersOfWorkspace(@PathVariable String workspaceId) {
         return userWorkspaceService.getWorkspaceMembers(workspaceId)
                 .map(users -> new ResponseDTO<>(HttpStatus.OK.value(), users, null));
     }
 
-    @PutMapping("/{workspaceId}/userGroup")
-    public Mono<ResponseDTO<UserAndGroupDTO>> changeUserGroupForMember(@RequestBody UpdateUserGroupDTO changeUserGroupDTO,
+    @PutMapping("/{workspaceId}/permissionGroup")
+    public Mono<ResponseDTO<UserAndPermissionGroupDTO>> updatePermissionGroupForMember(@RequestBody UpdatePermissionGroupDTO updatePermissionGroupDTO,
                                                            @PathVariable String workspaceId,
                                                            @RequestHeader(name = "Origin", required = false) String originHeader) {
-        return userWorkspaceService.updateUserGroupForMember(workspaceId, changeUserGroupDTO, originHeader)
+        return userWorkspaceService.updatePermissionGroupForMember(workspaceId, updatePermissionGroupDTO, originHeader)
                 .map(user -> new ResponseDTO<>(HttpStatus.OK.value(), user, null));
     }
 

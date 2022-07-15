@@ -17,8 +17,9 @@ public class PermissionGroupServiceImpl extends PermissionGroupServiceCEImpl imp
                                       MongoConverter mongoConverter,
                                       ReactiveMongoTemplate reactiveMongoTemplate,
                                       PermissionGroupRepository repository,
-                                      AnalyticsService analyticsService) {
+                                      AnalyticsService analyticsService,
+                                      SessionUserService sessionUserService) {
 
-        super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
+        super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService, sessionUserService);
     }
 }

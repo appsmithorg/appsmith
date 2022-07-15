@@ -3,7 +3,7 @@ package com.appsmith.server.services.ce;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
-import com.appsmith.server.dtos.UserGroupInfoDTO;
+import com.appsmith.server.dtos.PermissionGroupInfoDTO;
 import com.appsmith.server.services.CrudService;
 import org.springframework.http.codec.multipart.Part;
 import reactor.core.publisher.Flux;
@@ -30,7 +30,7 @@ public interface WorkspaceServiceCE extends CrudService<Workspace, String> {
 
     Flux<Workspace> findByIdsIn(Set<String> ids, String tenantId, AclPermission permission);
 
-    Mono<List<UserGroupInfoDTO>> getUserGroupsForWorkspace(String workspaceId);
+    Mono<List<PermissionGroupInfoDTO>> getPermissionGroupsForWorkspace(String workspaceId);
 
     Mono<Workspace> uploadLogo(String workspaceId, Part filePart);
 

@@ -5,14 +5,16 @@ import lombok.Data;
 
 @Data
 @Builder
-public class UserAndGroupDTO {
+public class UserAndPermissionGroupDTO {
+
+    String userId;
 
     String username;
 
     String name;
 
-    String groupName;
+    String permissionGroupName;
 
-    String groupId;
+    String permissionGroupId;
 
 }

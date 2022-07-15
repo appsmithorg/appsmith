@@ -13,8 +13,8 @@ import com.appsmith.server.domains.Asset;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
-import com.appsmith.server.dtos.UserAndGroupDTO;
-import com.appsmith.server.dtos.UserGroupInfoDTO;
+import com.appsmith.server.dtos.UserAndPermissionGroupDTO;
+import com.appsmith.server.dtos.PermissionGroupInfoDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.TextUtils;
@@ -400,8 +400,8 @@ public class WorkspaceServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void getAllUserRolesForWorkspaceDomainAsAdministrator() {
-        Mono<List<UserGroupInfoDTO>> userRolesForWorkspace = workspaceService.create(workspace)
-                .flatMap(createdWorkspace -> workspaceService.getUserGroupsForWorkspace(createdWorkspace.getId()));
+        Mono<List<PermissionGroupInfoDTO>> userRolesForWorkspace = workspaceService.create(workspace)
+                .flatMap(createdWorkspace -> workspaceService.getPermissionGroupsForWorkspace(createdWorkspace.getId()));
 
         StepVerifier.create(userRolesForWorkspace)
                 .assertNext(userGroupInfos -> {
@@ -422,7 +422,7 @@ public class WorkspaceServiceTest {
         testWorkspace.setWebsite("https://test.com");
 
         Mono<Workspace> createWorkspaceMono = workspaceService.create(testWorkspace);
-        Mono<List<UserAndGroupDTO>> usersMono = createWorkspaceMono
+        Mono<List<UserAndPermissionGroupDTO>> usersMono = createWorkspaceMono
                 .flatMap(workspace -> userWorkspaceService.getWorkspaceMembers(workspace.getId()));
 
 //        Mono<UserGroup> adminUserGroup = createWorkspaceMono

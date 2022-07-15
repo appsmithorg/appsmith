@@ -8,7 +8,7 @@ import com.appsmith.server.domains.CommentThread;
 import com.appsmith.server.domains.GitApplicationMetadata;
 import com.appsmith.server.domains.UserRole;
 import com.appsmith.server.domains.Workspace;
-import com.appsmith.server.dtos.UserAndGroupDTO;
+import com.appsmith.server.dtos.UserAndPermissionGroupDTO;
 import com.appsmith.server.events.CommentAddedEvent;
 import com.appsmith.server.events.CommentThreadClosedEvent;
 import com.appsmith.server.helpers.CommentUtils;
@@ -70,7 +70,7 @@ public class EmailEventHandlerCEImpl implements EmailEventHandlerCE {
                         .zipWith(userWorkspaceService.getWorkspaceMembers(objects.getT1().getWorkspaceId()))
                         .map(tuple -> {
                             Workspace workspace = tuple.getT1();
-                            List<UserAndGroupDTO> workspaceMembers = tuple.getT2();
+                            List<UserAndPermissionGroupDTO> workspaceMembers = tuple.getT2();
                             String pagename = objects.getT2();
                             applicationEventPublisher.publishEvent(
                                     new CommentAddedEvent(
@@ -197,7 +197,7 @@ public class EmailEventHandlerCEImpl implements EmailEventHandlerCE {
         return emailSender.sendMail(receiverEmail, emailSubject, COMMENT_ADDED_EMAIL_TEMPLATE, templateParams);
     }
 
-    private Mono<Boolean> getAddCommentEmailSenderMono(UserAndGroupDTO userAndGroupDTO, Comment comment, String originHeader,
+    private Mono<Boolean> getAddCommentEmailSenderMono(UserAndPermissionGroupDTO userAndGroupDTO, Comment comment, String originHeader,
                                                        Application application, String pagename) {
         String receiverName = StringUtils.isEmpty(userAndGroupDTO.getName()) ? "User" : userAndGroupDTO.getName();
         String receiverEmail = userAndGroupDTO.getUsername();
@@ -261,12 +261,12 @@ public class EmailEventHandlerCEImpl implements EmailEventHandlerCE {
         );
     }
 
-    private Mono<Boolean> sendEmailForCommentAdded(Workspace workspace, List<UserAndGroupDTO> workspaceMembers,
+    private Mono<Boolean> sendEmailForCommentAdded(Workspace workspace, List<UserAndPermissionGroupDTO> workspaceMembers,
                                                    Application application, Comment comment, String originHeader,
                                                    Set<String> subscribers, String pagename) {
 
         List<Mono<Boolean>> emailMonos = new ArrayList<>();
-        for (UserAndGroupDTO user : workspaceMembers) {
+        for (UserAndPermissionGroupDTO user : workspaceMembers) {
             if(!comment.getAuthorUsername().equals(user.getUsername()) && subscribers.contains(user.getUsername())) {
                 emailMonos.add(getAddCommentEmailSenderMono(user, comment, originHeader, application, pagename));
             }

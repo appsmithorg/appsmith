@@ -80,7 +80,7 @@ public abstract class BaseAppsmithRepositoryImpl<T extends BaseDomain> {
         Query query = new Query();
 
         query.fields()
-                .elemMatch(fieldName(QPermissionGroup.permissionGroup.asignedToUserIds),
+                .elemMatch(fieldName(QPermissionGroup.permissionGroup.assignedToUserIds),
                         new Criteria("$eq").is(user.getId()));
 
         return mongoOperations.find(query, PermissionGroup.class)
