@@ -23,6 +23,8 @@ import { Colors } from "constants/Colors";
 import { DropdownOption } from "components/constants";
 import Icon, { IconSize } from "components/ads/Icon";
 import { replayHighlightClass } from "globalStyles/portals";
+import useDSEvent from "utils/hooks/useDSEvent";
+import { DSEventTypes } from "utils/AppsmithUtils";
 
 export type TreeDropdownOption = DropdownOption & {
   onSelect?: (value: TreeDropdownOption, setter?: Setter) => void;
@@ -35,7 +37,11 @@ export type TreeDropdownOption = DropdownOption & {
   args?: Array<any>;
 };
 
-type Setter = (value: TreeDropdownOption, defaultVal?: string) => void;
+export type Setter = (
+  value: TreeDropdownOption,
+  defaultVal?: string,
+  isUpdatedViaKeyboard?: boolean,
+) => void;
 
 export type TreeDropdownProps = {
   optionTree: TreeDropdownOption[];
@@ -273,6 +279,20 @@ function TreeDropdown(props: TreeDropdownProps) {
   const selectedOptionIndex = useRef([findIndex(optionTree, selectedOption)]);
   const buttonRef = useRef<HTMLButtonElement>(null);
   const [isOpen, setIsOpen] = useState<boolean>(false);
+  const { emitDSEvent } = useDSEvent<HTMLButtonElement>(false, buttonRef);
+
+  const emitKeyPressEvent = useCallback(
+    (key: string) => {
+      emitDSEvent({
+        component: "TreeDropdown",
+        event: DSEventTypes.KEYPRESS,
+        meta: {
+          key,
+        },
+      });
+    },
+    [emitDSEvent],
+  );
 
   useEffect(() => {
     if (!isOpen) {
@@ -290,12 +310,15 @@ function TreeDropdown(props: TreeDropdownProps) {
     }
   }, [isOpen]);
 
-  const handleSelect = (option: TreeDropdownOption) => {
+  const handleSelect = (
+    option: TreeDropdownOption,
+    isUpdatedViaKeyboard: boolean,
+  ) => {
     if (option.onSelect) {
       option.onSelect(option, onSelect);
     } else {
       const defaultVal = getDefaults ? getDefaults(option.value) : undefined;
-      onSelect(option, defaultVal);
+      onSelect(option, defaultVal, isUpdatedViaKeyboard);
     }
     setSelectedOption(option);
   };
@@ -326,8 +349,8 @@ function TreeDropdown(props: TreeDropdownProps) {
         }
         e?.stopPropagation && e.stopPropagation();
       };
-    return (e: any) => {
-      handleSelect(option);
+    return (e: any, isUpdatedViaKeyboard = false) => {
+      handleSelect(option, isUpdatedViaKeyboard);
       setIsOpen(false);
       props.onMenuToggle && props.onMenuToggle(false);
       e?.stopPropagation && e.stopPropagation();
@@ -382,6 +405,7 @@ function TreeDropdown(props: TreeDropdownProps) {
     switch (e.key) {
       case "Escape":
         if (isOpen) {
+          emitKeyPressEvent(e.key);
           if (selectedOptionIndex.current.length > 1) {
             setOptionTree((prev) => {
               const prevIndex = selectedOptionIndex.current.slice(0, -1);
@@ -408,20 +432,23 @@ function TreeDropdown(props: TreeDropdownProps) {
       case "Enter":
       case "ArrowRight":
         if (isOpen) {
+          emitKeyPressEvent(e.key);
           const selectedOpt = getItem(optionTree, selectedOptionIndex.current);
           if (selectedOpt?.children) {
-            handleOptionClick(selectedOpt)(e);
+            handleOptionClick(selectedOpt)(e, true);
           } else if (selectedOpt && e.key !== "ArrowRight") {
-            handleOptionClick(selectedOpt)(e);
+            handleOptionClick(selectedOpt)(e, true);
             shouldOpen.current = false;
           }
         } else if (e.key !== "ArrowRight") {
+          emitKeyPressEvent(e.key);
           setIsOpen(true);
           selectedOptionIndex.current = [findIndex(optionTree, selectedOption)];
           shouldOpen.current = true;
         }
         break;
       case "ArrowUp":
+        emitKeyPressEvent(e.key);
         e.preventDefault();
         if (isOpen) {
           let currentLength = optionTree.length;
@@ -443,6 +470,7 @@ function TreeDropdown(props: TreeDropdownProps) {
         }
         break;
       case "ArrowDown":
+        emitKeyPressEvent(e.key);
         e.preventDefault();
         if (isOpen) {
           let currentLength = optionTree.length;
@@ -464,6 +492,7 @@ function TreeDropdown(props: TreeDropdownProps) {
         }
         break;
       case "Tab":
+        emitKeyPressEvent(`${e.shiftKey ? "Shift+" : ""}${e.key}`);
         if (isOpen) {
           setIsOpen(false);
           // reset selected option
@@ -473,6 +502,7 @@ function TreeDropdown(props: TreeDropdownProps) {
         }
         break;
       case "ArrowLeft":
+        emitKeyPressEvent(e.key);
         if (selectedOptionIndex.current.length > 1) {
           setOptionTree((prev) => {
             const prevIndex = selectedOptionIndex.current.slice(0, -1);

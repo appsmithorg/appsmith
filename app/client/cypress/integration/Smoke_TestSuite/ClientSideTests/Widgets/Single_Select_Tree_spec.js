@@ -8,7 +8,7 @@ describe("Single Select Widget Functionality", function() {
     cy.addDsl(dsl);
   });
 
-  it("Check isDirty meta property", function() {
+  it("1. Check isDirty meta property", function() {
     cy.openPropertyPane("textwidget");
     cy.updateCodeInput(
       ".t--property-control-text",
@@ -35,7 +35,8 @@ describe("Single Select Widget Functionality", function() {
     // Check if isDirty is reset to false
     cy.get(".t--widget-textwidget").should("contain", "false");
   });
-  it("Selects value with enter in default value", () => {
+
+  it("2. Selects value with enter in default value", () => {
     cy.openPropertyPane("singleselecttreewidget");
     cy.testJsontext("defaultvalue", "RED\n");
     cy.get(formWidgetsPage.singleselecttreeWidget)
@@ -43,7 +44,8 @@ describe("Single Select Widget Functionality", function() {
       .first()
       .should("have.text", "Red");
   });
-  it(" To Validate Options", function() {
+
+  it("3. To Validate Options", function() {
     cy.get(formWidgetsPage.treeSelectInput)
       .last()
       .click({ force: true });
@@ -52,7 +54,34 @@ describe("Single Select Widget Functionality", function() {
       .type("light");
     cy.treeSelectDropdown("Light Blue");
   });
-  it("To Unchecked Visible Widget", function() {
+
+  it("4. Clears the search field when widget is closed", () => {
+    // Open the widget
+    cy.get(formWidgetsPage.treeSelectInput)
+      .last()
+      .click({ force: true });
+    // Search for Green option in the search input
+    cy.get(formWidgetsPage.treeSelectFilterInput)
+      .click()
+      .type("Green");
+    // Select the Green Option
+    cy.treeSelectDropdown("Green");
+    // Assert Green option is selected
+    cy.get(formWidgetsPage.singleselecttreeWidget)
+      .find(".rc-tree-select-selection-item")
+      .first()
+      .should("have.text", "Green");
+    // Reopen the widget
+    cy.get(formWidgetsPage.treeSelectInput)
+      .last()
+      .click({ force: true });
+    // Assert the search input is cleared
+    cy.get(formWidgetsPage.treeSelectFilterInput)
+      .invoke("val")
+      .should("be.empty");
+  });
+
+  it("5. To Unchecked Visible Widget", function() {
     cy.togglebarDisable(commonlocators.visibleCheckbox);
     cy.PublishtheApp();
     cy.get(
@@ -60,7 +89,8 @@ describe("Single Select Widget Functionality", function() {
     ).should("not.exist");
     cy.get(publish.backToEditor).click();
   });
-  it(" To Check Visible Widget", function() {
+
+  it("6. To Check Visible Widget", function() {
     cy.openPropertyPane("singleselecttreewidget");
     cy.togglebar(commonlocators.visibleCheckbox);
     cy.PublishtheApp();

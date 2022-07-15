@@ -143,7 +143,7 @@ function renderFormConfigTop(props: {
                     content={tooltipText as string}
                     disabled={!tooltipText}
                     hoverOpenDelay={200}
-                    underline
+                    underline={!!tooltipText}
                   >
                     <p className="label-icon-wrapper">{label}</p>
                   </Tooltip>

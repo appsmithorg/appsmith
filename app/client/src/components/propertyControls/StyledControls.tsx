@@ -4,7 +4,7 @@ import { ContainerOrientation } from "constants/WidgetConstants";
 import { DateRangeInput } from "@blueprintjs/datetime";
 import { Colors } from "constants/Colors";
 import styled, { Skin } from "constants/DefaultTheme";
-import { AnyStyledComponent } from "styled-components";
+import { AnyStyledComponent, css } from "styled-components";
 import { ControlIcons } from "icons/ControlIcons";
 import { FormIcons } from "icons/FormIcons";
 import Button from "components/ads/Button";
@@ -12,6 +12,8 @@ import TextInput, { TextInputProps } from "components/ads/TextInput";
 import Dropdown from "components/ads/Dropdown";
 import { IconWrapper } from "constants/IconConstants";
 import { InputWrapper } from "components/ads/TextInput";
+import useInteractionAnalyticsEvent from "utils/hooks/useInteractionAnalyticsEvent";
+import Checkbox from "components/ads/Checkbox";
 
 type ControlWrapperProps = {
   orientation?: ContainerOrientation;
@@ -203,6 +205,9 @@ export const StyledInputGroup = React.forwardRef(
   (props: TextInputProps, ref) => {
     let inputRef = useRef<HTMLInputElement>(null);
     const wrapperRef = useRef<HTMLInputElement>(null);
+    const { dispatchInteractionAnalyticsEvent } = useInteractionAnalyticsEvent<
+      HTMLInputElement
+    >(false, wrapperRef);
 
     if (ref) inputRef = ref as RefObject<HTMLInputElement>;
 
@@ -218,14 +223,23 @@ export const StyledInputGroup = React.forwardRef(
         case "Enter":
         case " ":
           if (document.activeElement === wrapperRef?.current) {
+            dispatchInteractionAnalyticsEvent({ key: e.key });
             inputRef?.current?.focus();
             e.preventDefault();
           }
           break;
         case "Escape":
           if (document.activeElement === inputRef?.current) {
+            dispatchInteractionAnalyticsEvent({ key: e.key });
             wrapperRef?.current?.focus();
             e.preventDefault();
+          }
+          break;
+        case "Tab":
+          if (document.activeElement === wrapperRef?.current) {
+            dispatchInteractionAnalyticsEvent({
+              key: `${e.shiftKey ? "Shift+" : ""}${e.key}`,
+            });
           }
           break;
       }
@@ -254,26 +268,6 @@ export const FieldWrapper = styled.div`
   width: 100%;
 `;
 
-export const StyledEditIcon = styled(
-  ControlIcons.SETTINGS_CONTROL as AnyStyledComponent,
-)`
-  padding: 0;
-  position: absolute;
-  margin-left: 0;
-  cursor: pointer;
-  right: 40px;
-  display: flex;
-  align-items: center;
-  && svg {
-    width: 16px;
-    height: 16px;
-    position: relative;
-    path {
-      fill: ${(props) => props.theme.colors.propertyPane.iconColor};
-    }
-  }
-`;
-
 export const StyledDragIcon = styled(
   ControlIcons.DRAG_CONTROL as AnyStyledComponent,
 )`
@@ -294,69 +288,8 @@ export const StyledDragIcon = styled(
   }
 `;
 
-export const StyledDeleteIcon = styled(
-  FormIcons.DELETE_ICON as AnyStyledComponent,
-)`
-  padding: 0;
-  position: absolute;
-  margin-left: 15px;
-  cursor: pointer;
-  right: ${(props) => props.marginRight ?? 12}px;
-  display: flex;
-  align-items: center;
-
-  && svg {
-    width: 16px;
-    height: 16px;
-    position: relative;
-    path {
-      fill: ${(props) => props.theme.colors.propertyPane.iconColor};
-    }
-  }
-`;
-
 export const FlexWrapper = styled.div`
   display: flex;
-`;
-
-export const StyledVisibleIcon = styled(
-  ControlIcons.SHOW_COLUMN as AnyStyledComponent,
-)`
-  padding: 0;
-  position: absolute;
-  margin-left: 15px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  right: ${(props) => props.marginRight ?? 12}px;
-  && svg {
-    width: 16px;
-    height: 16px;
-    position: relative;
-    path {
-      fill: ${(props) => props.theme.colors.propertyPane.iconColor};
-    }
-  }
-`;
-
-export const StyledHiddenIcon = styled(
-  ControlIcons.HIDE_COLUMN as AnyStyledComponent,
-)`
-  padding: 0;
-  position: absolute;
-  margin-left: 15px;
-  cursor: pointer;
-  right: ${(props) => props.marginRight ?? 12}px;
-  display: flex;
-  align-items: center;
-  && svg {
-    width: 16px;
-    height: 16px;
-    position: relative;
-    path {
-      fill: ${(props) => props.theme.colors.propertyPane.iconColor};
-    }
-  }
 `;
 
 export const StyledPropertyPaneButton = styled(Button)`
@@ -395,10 +328,12 @@ export const StyledPropertyPaneButton = styled(Button)`
   }
 `;
 
-export const StyledOptionControlInputGroup = styled(StyledInputGroup)`
+export const StyledOptionControlInputGroup = styled(StyledInputGroup)<{
+  rightPadding: number;
+}>`
   width: 100%;
   padding-left: 20px;
-  padding-right: 60px;
+  padding-right: ${(props) => props.rightPadding}px;
   padding-bottom: 4px;
   text-overflow: ellipsis;
   background: inherit;
@@ -413,4 +348,85 @@ export const StyledOptionControlInputGroup = styled(StyledInputGroup)`
       }
     }
   }
+`;
+
+/* Used in Draggable List Card component in Property pane */
+export const StyledActionContainer = styled.div`
+  position: absolute;
+  right: 0px;
+  display: flex;
+`;
+
+const CommonIconStyles = css`
+  padding: 0;
+  margin-right: 10px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+`;
+
+export const StyledEditIcon = styled(
+  ControlIcons.SETTINGS_CONTROL as AnyStyledComponent,
+)`
+  ${CommonIconStyles}
+
+  && svg {
+    width: 16px;
+    height: 16px;
+    position: relative;
+    path {
+      fill: ${(props) => props.theme.colors.propertyPane.iconColor};
+    }
+  }
+`;
+
+export const StyledVisibleIcon = styled(
+  ControlIcons.SHOW_COLUMN as AnyStyledComponent,
+)`
+  ${CommonIconStyles}
+
+  && svg {
+    width: 16px;
+    height: 16px;
+    position: relative;
+    path {
+      fill: ${(props) => props.theme.colors.propertyPane.iconColor};
+    }
+  }
+`;
+
+export const StyledHiddenIcon = styled(
+  ControlIcons.HIDE_COLUMN as AnyStyledComponent,
+)`
+  ${CommonIconStyles}
+
+  && svg {
+    width: 16px;
+    height: 16px;
+    position: relative;
+    path {
+      fill: ${(props) => props.theme.colors.propertyPane.iconColor};
+    }
+  }
+`;
+
+export const StyledDeleteIcon = styled(
+  FormIcons.DELETE_ICON as AnyStyledComponent,
+)`
+  ${CommonIconStyles}
+
+  && svg {
+    width: 16px;
+    height: 16px;
+    position: relative;
+    path {
+      fill: ${(props) => props.theme.colors.propertyPane.iconColor};
+    }
+  }
+`;
+
+export const StyledCheckbox = styled(Checkbox)<{ disabled?: boolean }>`
+  ${CommonIconStyles}
+  cursor: ${(props) => (props.disabled ? "default" : "cursor")};
+  width: 18px;
 `;

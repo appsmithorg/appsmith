@@ -31,7 +31,7 @@ describe("Git sync modal: connect tab", function() {
   beforeEach(() => {
     cy.intercept(
       {
-        url: "api/v1/git/connect/*",
+        url: "api/v1/git/connect/app/*",
         hostname: window.location.host,
       },
       (req) => {
