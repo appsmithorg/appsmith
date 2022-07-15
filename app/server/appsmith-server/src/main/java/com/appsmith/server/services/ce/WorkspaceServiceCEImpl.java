@@ -31,6 +31,8 @@ import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserWorkspaceService;
 import lombok.extern.slf4j.Slf4j;
+
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
@@ -72,6 +74,7 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
     private final ApplicationRepository applicationRepository;
     private final PermissionGroupService permissionGroupService;
     private final PolicyUtils policyUtils;
+    private final ModelMapper modelMapper;
 
 
     @Autowired
@@ -90,7 +93,8 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
                                   AssetService assetService,
                                   ApplicationRepository applicationRepository,
                                   PermissionGroupService permissionGroupService,
-                                  PolicyUtils policyUtils) {
+                                  PolicyUtils policyUtils,
+                                  ModelMapper modelMapper) {
 
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.pluginRepository = pluginRepository;
@@ -103,6 +107,7 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
         this.applicationRepository = applicationRepository;
         this.permissionGroupService = permissionGroupService;
         this.policyUtils = policyUtils;
+        this.modelMapper = modelMapper;
     }
 
     @Override

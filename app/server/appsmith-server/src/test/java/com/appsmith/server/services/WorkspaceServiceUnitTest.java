@@ -66,7 +66,7 @@ public class WorkspaceServiceUnitTest {
         workspaceService = new WorkspaceServiceImpl(scheduler, validator, mongoConverter, reactiveMongoTemplate,
                 workspaceRepository, analyticsService, pluginRepository, sessionUserService, userWorkspaceService,
                 userRepository, roleGraph, assetRepository, assetService, applicationRepository,
-                permissionGroupService, policyUtils);
+                permissionGroupService, policyUtils, modelMapper);
     }
 
    @Test
