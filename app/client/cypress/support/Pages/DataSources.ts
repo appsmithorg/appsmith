@@ -388,4 +388,17 @@ export class DataSources {
     });
     this.agHelper.AssertAutoSave();
   }
+
+  public RunQueryNVerifyResponseViews(
+    expectdRecordCount = 1,
+    tableCheck = true,
+  ) {
+    this.RunQuery();
+    tableCheck && this.agHelper.AssertElementVisible(this._queryResponse("TABLE"));
+    this.agHelper.AssertElementVisible(this._queryResponse("JSON"));
+    this.agHelper.AssertElementVisible(this._queryResponse("RAW"));
+    this.agHelper.AssertElementVisible(
+      this._queryRecordResult(expectdRecordCount),
+    );
+  }
 }
