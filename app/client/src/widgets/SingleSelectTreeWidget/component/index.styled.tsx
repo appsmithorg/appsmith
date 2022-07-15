@@ -862,7 +862,7 @@ export const TreeSelectContainer = styled.div<{
       }
     }
   }
-  .rc-tree-select-allow-clear.rc-tree-select-focused {
+  .rc-tree-select-allow-clear {
     .rc-tree-select-clear {
       z-index: 1;
     }
