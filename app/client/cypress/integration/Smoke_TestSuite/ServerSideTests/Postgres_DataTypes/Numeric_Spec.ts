@@ -9,7 +9,7 @@ const agHelper = ObjectsRegistry.AggregateHelper,
   locator = ObjectsRegistry.CommonLocators,
   deployMode = ObjectsRegistry.DeployMode;
 
-describe("Postgres - Datatype Numeric tests", function() {
+describe("Numeric Datatype tests", function() {
   before(() => {
     cy.fixture("Datatypes/NumericDTdsl").then((val: any) => {
       agHelper.AddDsl(val);

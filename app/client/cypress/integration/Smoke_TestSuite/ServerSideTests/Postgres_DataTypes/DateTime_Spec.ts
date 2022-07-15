@@ -9,7 +9,7 @@ const agHelper = ObjectsRegistry.AggregateHelper,
   locator = ObjectsRegistry.CommonLocators,
   deployMode = ObjectsRegistry.DeployMode;
 
-describe("Postgres - Datatype DateTime tests", function() {
+describe("DateTime Datatype tests", function() {
   before(() => {
     cy.fixture("Datatypes/DateTimeDTdsl").then((val: any) => {
       agHelper.AddDsl(val);

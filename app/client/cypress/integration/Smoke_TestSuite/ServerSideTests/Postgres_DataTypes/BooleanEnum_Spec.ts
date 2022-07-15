@@ -9,7 +9,7 @@ const agHelper = ObjectsRegistry.AggregateHelper,
   locator = ObjectsRegistry.CommonLocators,
   deployMode = ObjectsRegistry.DeployMode;
 
-describe("Postgres - Datatype Boolean & Enum types tests", function() {
+describe("Boolean & Enum Datatype tests", function() {
   before(() => {
     cy.fixture("Datatypes/BooleanEnumDTdsl").then((val: any) => {
       agHelper.AddDsl(val);

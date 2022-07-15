@@ -9,7 +9,7 @@ const agHelper = ObjectsRegistry.AggregateHelper,
   locator = ObjectsRegistry.CommonLocators,
   deployMode = ObjectsRegistry.DeployMode;
 
-describe("Postgres - Datatype Array types tests", function() {
+describe("Array Datatype tests", function() {
   before(() => {
     agHelper.GenerateUUID();
     cy.get("@guid").then((uid) => {
