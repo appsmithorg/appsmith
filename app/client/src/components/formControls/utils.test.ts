@@ -388,6 +388,9 @@ describe("json/form viewTypes test", () => {
               viewType: ViewTypes.JSON,
               componentData: "value2",
             },
+            node6: {
+              viewType: ViewTypes.COMPONENT,
+            },
           },
         },
       },
@@ -402,6 +405,9 @@ describe("json/form viewTypes test", () => {
               data: "value1",
               viewType: ViewTypes.JSON,
               componentData: "value2",
+            },
+            node6: {
+              viewType: ViewTypes.COMPONENT,
             },
           },
         },
@@ -422,20 +428,8 @@ describe("json/form viewTypes test", () => {
               viewType: ViewTypes.JSON,
               componentData: "value2",
             },
-          },
-        },
-      },
-      {
-        actionConfiguration: {
-          formData: {
-            node1: { data: "value1" },
-            node3: { data: "value1" },
-            node2: { data: "value1", viewType: ViewTypes.JSON },
-            node4: { data: "value1", viewType: ViewTypes.COMPONENT },
-            node5: {
-              data: "value1",
-              viewType: ViewTypes.JSON,
-              componentData: "value2",
+            node6: {
+              viewType: ViewTypes.COMPONENT,
             },
           },
         },
@@ -452,6 +446,9 @@ describe("json/form viewTypes test", () => {
               viewType: ViewTypes.JSON,
               componentData: "value2",
             },
+            node6: {
+              viewType: ViewTypes.COMPONENT,
+            },
           },
         },
       },
@@ -466,6 +463,27 @@ describe("json/form viewTypes test", () => {
               data: "value1",
               viewType: ViewTypes.JSON,
               componentData: "value2",
+            },
+            node6: {
+              viewType: ViewTypes.COMPONENT,
+            },
+          },
+        },
+      },
+      {
+        actionConfiguration: {
+          formData: {
+            node1: { data: "value1" },
+            node3: { data: "value1" },
+            node2: { data: "value1", viewType: ViewTypes.JSON },
+            node4: { data: "value1", viewType: ViewTypes.COMPONENT },
+            node5: {
+              data: "value1",
+              viewType: ViewTypes.JSON,
+              componentData: "value2",
+            },
+            node6: {
+              viewType: ViewTypes.COMPONENT,
             },
           },
         },
@@ -494,6 +512,9 @@ describe("json/form viewTypes test", () => {
             viewType: ViewTypes.JSON,
             componentData: "value2",
           },
+          node6: {
+            viewType: ViewTypes.COMPONENT,
+          },
         },
       },
     };
@@ -514,6 +535,9 @@ describe("json/form viewTypes test", () => {
               viewType: ViewTypes.JSON,
               componentData: "value2",
             },
+            node6: {
+              viewType: ViewTypes.COMPONENT,
+            },
           },
         },
       },
@@ -532,6 +556,9 @@ describe("json/form viewTypes test", () => {
               data: "value1",
               viewType: ViewTypes.JSON,
               componentData: "value2",
+            },
+            node6: {
+              viewType: ViewTypes.COMPONENT,
             },
           },
         },
@@ -553,6 +580,9 @@ describe("json/form viewTypes test", () => {
               viewType: ViewTypes.JSON,
               componentData: "value2",
             },
+            node6: {
+              viewType: ViewTypes.COMPONENT,
+            },
           },
         },
       },
@@ -568,6 +598,9 @@ describe("json/form viewTypes test", () => {
               viewType: ViewTypes.COMPONENT,
               componentData: "value2",
               jsonData: "value1",
+            },
+            node6: {
+              viewType: ViewTypes.COMPONENT,
             },
           },
         },
@@ -587,6 +620,32 @@ describe("json/form viewTypes test", () => {
               data: "value1",
               viewType: ViewTypes.JSON,
               componentData: "value2",
+            },
+            node6: {
+              viewType: ViewTypes.COMPONENT,
+            },
+          },
+        },
+      },
+      {
+        actionConfiguration: {
+          formData: {
+            node1: { data: "value1" },
+            node2: { data: "value1", viewType: ViewTypes.JSON },
+            node3: { data: "value1" },
+            node4: {
+              data: "value1",
+              viewType: ViewTypes.COMPONENT,
+            },
+            node5: {
+              data: "value1",
+              viewType: ViewTypes.JSON,
+              componentData: "value2",
+            },
+            node6: {
+              viewType: ViewTypes.JSON,
+              data: "",
+              componentData: "",
             },
           },
         },
@@ -612,6 +671,10 @@ describe("json/form viewTypes test", () => {
       {
         path: "actionConfiguration.formData.node3.data",
         viewType: ViewTypes.JSON,
+      },
+      {
+        path: "actionConfiguration.formData.node6.data",
+        viewType: ViewTypes.COMPONENT,
       },
     ];
     testCases.forEach((testCase, index) => {
