@@ -4,6 +4,8 @@ import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
+import com.appsmith.server.exceptions.AppsmithError;
+import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.BaseService;
@@ -19,6 +21,7 @@ import reactor.core.scheduler.Scheduler;
 import javax.validation.Validator;
 
 import java.util.List;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -55,23 +58,41 @@ public class PermissionGroupServiceCEImpl extends BaseService<PermissionGroupRep
         return repository.findById(id, permission);
     }
     
+    public Mono<Void> delete(String id) {
+        return repository.deleteById(id);
+    }
+
+    @Override
+    public Mono<PermissionGroup> findById(String permissionGroupId) {
+        return repository.findById(permissionGroupId);
+    }
+
     public Mono<PermissionGroup> assignToUser(PermissionGroup permissionGroup, User user) {
         return bulkAssignToUsers(permissionGroup, List.of(user));
+    }
+
+    private void ensureAssignedToUserIds(PermissionGroup permissionGroup) {
+        if (permissionGroup.getAssignedToUserIds() == null) {
+            permissionGroup.setAssignedToUserIds(new HashSet<>());
+        }
     }
 
     @Override
     public Mono<PermissionGroup> bulkAssignToUsers(PermissionGroup permissionGroup, List<User> users) {
         return repository.findById(permissionGroup.getId(), AclPermission.ASSIGN_PERMISSION_GROUPS)
                 .flatMap(pg -> {
+                    ensureAssignedToUserIds(pg);
                     pg.getAssignedToUserIds().addAll(users.stream().map(User::getId).collect(Collectors.toList()));
                     return repository.updateById(pg.getId(), pg, AclPermission.ASSIGN_PERMISSION_GROUPS);
-                });
+                })
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND)));
     }
 
     @Override
     public Mono<PermissionGroup> unassignFromSelf(PermissionGroup permissionGroup) {
         return sessionUserService.getCurrentUser()
                 .flatMap(user -> {
+                    ensureAssignedToUserIds(permissionGroup);
                     permissionGroup.getAssignedToUserIds().remove(user.getId());
                     return repository.updateById(permissionGroup.getId(), permissionGroup, AclPermission.READ_PERMISSION_GROUPS);
                 });
@@ -91,6 +112,7 @@ public class PermissionGroupServiceCEImpl extends BaseService<PermissionGroupRep
     public Mono<PermissionGroup> unassignFromUser(PermissionGroup permissionGroup, User user) {
         return repository.findById(permissionGroup.getId(), AclPermission.MANAGE_PERMISSION_GROUPS)
                 .flatMap(pg -> {
+                    ensureAssignedToUserIds(pg);
                     pg.getAssignedToUserIds().remove(user.getId());
                     return repository.updateById(pg.getId(), pg, AclPermission.MANAGE_PERMISSION_GROUPS);
                 });

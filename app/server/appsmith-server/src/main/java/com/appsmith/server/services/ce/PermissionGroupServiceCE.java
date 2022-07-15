@@ -31,4 +31,8 @@ public interface PermissionGroupServiceCE extends CrudService<PermissionGroup, S
 
     Flux<PermissionGroup> getAllByAssignedToUserAndDefaultWorkspace(User user, Workspace defaultWorkspace, AclPermission aclPermission);
     
+    Mono<Void> delete(String id);
+
+    Mono<PermissionGroup> findById(String permissionGroupId);
+
 }

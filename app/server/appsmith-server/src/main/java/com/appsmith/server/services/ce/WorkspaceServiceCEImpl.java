@@ -31,7 +31,6 @@ import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserWorkspaceService;
 import lombok.extern.slf4j.Slf4j;
-import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
@@ -52,7 +51,6 @@ import java.util.stream.Collectors;
 
 import static com.appsmith.server.acl.AclPermission.ASSIGN_PERMISSION_GROUPS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_WORKSPACES;
-import static com.appsmith.server.acl.AclPermission.USER_MANAGE_WORKSPACES;
 import static com.appsmith.server.constants.FieldName.ADMINISTRATOR;
 import static com.appsmith.server.constants.FieldName.DEVELOPER;
 import static com.appsmith.server.constants.FieldName.VIEWER;
@@ -74,7 +72,6 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
     private final ApplicationRepository applicationRepository;
     private final PermissionGroupService permissionGroupService;
     private final PolicyUtils policyUtils;
-    private final ModelMapper modelMapper;
 
 
     @Autowired
@@ -93,8 +90,7 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
                                   AssetService assetService,
                                   ApplicationRepository applicationRepository,
                                   PermissionGroupService permissionGroupService,
-                                  PolicyUtils policyUtils,
-                                  ModelMapper modelMapper) {
+                                  PolicyUtils policyUtils) {
 
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.pluginRepository = pluginRepository;
@@ -107,7 +103,6 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
         this.applicationRepository = applicationRepository;
         this.permissionGroupService = permissionGroupService;
         this.policyUtils = policyUtils;
-        this.modelMapper = modelMapper;
     }
 
     @Override
@@ -157,13 +152,14 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.WORKSPACE));
         }
 
-        // Does the user have permissions to create a workspace?
-        boolean isManageOrgPolicyPresent = user.getPolicies().stream()
-                .anyMatch(policy -> policy.getPermission().equals(USER_MANAGE_WORKSPACES.getValue()));
-
-        if (!isManageOrgPolicyPresent) {
-            return Mono.error(new AppsmithException(AppsmithError.ACTION_IS_NOT_AUTHORIZED, "Create organization"));
-        }
+        // TODO : Replace with a tenant level permission check.
+//        // Does the user have permissions to create a workspace?
+//        boolean isManageOrgPolicyPresent = user.getPolicies().stream()
+//                .anyMatch(policy -> policy.getPermission().equals(USER_MANAGE_WORKSPACES.getValue()));
+//
+//        if (!isManageOrgPolicyPresent) {
+//            return Mono.error(new AppsmithException(AppsmithError.ACTION_IS_NOT_AUTHORIZED, "Create organization"));
+//        }
 
         if (workspace.getEmail() == null) {
             workspace.setEmail(user.getEmail());
@@ -189,7 +185,7 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
                 .flatMap(repository::save)
                 // Generate the default permission groups & policy for the current user
                 .flatMap(createdWorkspace1 -> {
-                    return Mono.zip(generateDefaultPermissionGroups(createdWorkspace1), Mono.just(createdWorkspace1))
+                    return Mono.zip(generateDefaultPermissionGroups(createdWorkspace1, user), Mono.just(createdWorkspace1))
                             .flatMap(tuple -> {
 
                                 Set<PermissionGroup> permissionGroups = tuple.getT1();
@@ -203,17 +199,12 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
 
                                 // Apply the permissions to the workspace
                                 for (PermissionGroup permissionGroup : permissionGroups) {
-                                    Map<String, Policy> policyMap = policyUtils.generatePolicyFromPermissionForObject(permissionGroup, createdWorkspace.getId());
+                                    Map<String, Policy> policyMap = policyUtils.generatePolicyFromPermissionGroupForObject(permissionGroup, createdWorkspace.getId());
 
                                     createdWorkspace = policyUtils.addPoliciesToExistingObject(policyMap, createdWorkspace);
                                 }
 
-                                PermissionGroup adminPermissionGroup = permissionGroups.stream()
-                                        .filter(permissionGroup -> permissionGroup.getName().startsWith(ADMINISTRATOR))
-                                        .findFirst().get();
-
-                                // Create a policy for current user to become the administrator
-                                return permissionGroupService.assignToUser(adminPermissionGroup, user).then(Mono.just(createdWorkspace));
+                                return repository.save(createdWorkspace);
                             });
                 });
     }
@@ -284,7 +275,7 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
                 .collect(Collectors.toSet());
     }
 
-    Mono<Set<PermissionGroup>> generatePermissionsForDefaultPermissionGroups(Set<PermissionGroup> permissionGroups, Workspace workspace) {
+    Mono<Set<PermissionGroup>> generatePermissionsForDefaultPermissionGroups(Set<PermissionGroup> permissionGroups, Workspace workspace, User user) {
         PermissionGroup adminPermissionGroup = permissionGroups.stream()
                 .filter(permissionGroup -> permissionGroup.getName().startsWith(ADMINISTRATOR))
                 .findFirst().get();
@@ -306,10 +297,15 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
         Set<Permission> permissionGroupPermissions = permissionGroups.stream()
                 .map(permissionGroup -> new Permission(permissionGroup.getId(), ASSIGN_PERMISSION_GROUPS))
                 .collect(Collectors.toSet());
+
+
         Set<Permission> permissions = new HashSet<>();
         permissions.addAll(workspacePermissions);
         permissions.addAll(permissionGroupPermissions);
         adminPermissionGroup.setPermissions(permissions);
+
+        // Assign the user creating the permission group to this permission group
+        adminPermissionGroup.setAssignedToUserIds(Set.of(user.getId()));
 
         // Developer Permissions
         workspacePermissions = AppsmithRole.ORGANIZATION_DEVELOPER
@@ -345,14 +341,27 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
 
         return Flux.fromIterable(permissionGroups)
                 .flatMap(permissionGroup -> permissionGroupService.save(permissionGroup))
+                .collect(Collectors.toSet())
+                .flatMapMany(savedPermissionGroups -> {
+                    // Apply the permissions to the permission groups
+                    for (PermissionGroup permissionGroup : savedPermissionGroups) {
+                        for (PermissionGroup nestedPermissionGroup : savedPermissionGroups) {
+                            Map<String, Policy> policyMap = policyUtils.generatePolicyFromPermissionGroupForObject(permissionGroup, nestedPermissionGroup.getId());
+                             policyUtils.addPoliciesToExistingObject(policyMap, nestedPermissionGroup);
+                        }
+                    }
+
+                    return Flux.fromIterable(savedPermissionGroups);
+                })
+                .flatMap(permissionGroup -> permissionGroupService.save(permissionGroup))
                 .collect(Collectors.toSet());
     }
 
-    private Mono<Set<PermissionGroup>> generateDefaultPermissionGroups(Workspace workspace) {
+    private Mono<Set<PermissionGroup>> generateDefaultPermissionGroups(Workspace workspace, User user) {
 
         return generateDefaultPermissionGroupsWithoutPermissions(workspace)
                 // Generate the permissions per permission group
-                .flatMap(permissionGroups -> generatePermissionsForDefaultPermissionGroups(permissionGroups, workspace));
+                .flatMap(permissionGroups -> generatePermissionsForDefaultPermissionGroups(permissionGroups, workspace, user));
     }
 
     /**
