@@ -105,6 +105,7 @@ async function testGoldenApp(iteration) {
     await perf.close();
   } catch (e) {
     await perf.handleRejections(e);
+    await perf.close();
   }
 }
 
