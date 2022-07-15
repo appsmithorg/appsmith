@@ -667,10 +667,10 @@ export const addErrorToEntityProperty = (
 
 export const removeLintErrorsFromEntityProperty = (
   dataTree: DataTree,
-  fullPropertypath: string,
+  fullPropertyPath: string,
 ) => {
   const { entityName, propertyPath } = getEntityNameAndPropertyPath(
-    fullPropertypath,
+    fullPropertyPath,
   );
   if (propertyPath) {
     const existingNonLintErrors = (_.get(

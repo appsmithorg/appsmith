@@ -1,4 +1,3 @@
-import { klona } from "klona/full";
 import { DataTree, DataTreeEntity } from "entities/DataTree/dataTreeFactory";
 import { get } from "lodash";
 import {
@@ -26,24 +25,19 @@ import {
   pathRequiresLinting,
 } from "./utils";
 
-export const lintTree = (
-  unEvalDataTree: DataTree,
-  evalTree: DataTree,
-  sortedDependencies: string[],
-  triggerPathsToLint: string[],
-  resolvedFunctions: Record<string, any>,
-) => {
-  const unEvalTree = klona(unEvalDataTree);
-  const GLOBAL_DATA_WITHOUT_FUNCTIONS = createGlobalData(
-    unEvalTree,
-    resolvedFunctions,
-    false,
-  );
-  const GLOBAL_DATA_WITH_FUNCTIONS = createGlobalData(
-    unEvalTree,
-    resolvedFunctions,
-    true,
-  );
+interface LintTreeArgs {
+  unEvalTree: DataTree;
+  evalTree: DataTree;
+  sortedDependencies: string[];
+  triggerPathsToLint: string[];
+}
+
+export const lintTree = (args: LintTreeArgs) => {
+  const { evalTree, sortedDependencies, triggerPathsToLint, unEvalTree } = args;
+  // For non-trigger fields, functions such as showAlert, storeValue are not needed in global data
+  const GLOBAL_DATA_WITHOUT_FUNCTIONS = createGlobalData(unEvalTree, {}, false);
+  // In trigger based fields, functions such as showAlert, storeValue need to be added to the global data
+  const GLOBAL_DATA_WITH_FUNCTIONS = createGlobalData(unEvalTree, {}, true);
   const triggerPaths = [...triggerPathsToLint];
   sortedDependencies.forEach((fullPropertyPath) => {
     const { entityName, propertyPath } = getEntityNameAndPropertyPath(

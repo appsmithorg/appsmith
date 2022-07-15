@@ -143,7 +143,12 @@ export default class DataTreeEvaluator {
     this.allKeys = getAllPaths(localUnEvalTree);
     // Create dependency map
     const createDependencyStart = performance.now();
-    this.dependencyMap = this.createDependencyMap(localUnEvalTree);
+    const {
+      dependencyMap,
+      triggerFieldDependencyMap,
+    } = this.createDependencyMap(localUnEvalTree);
+    this.dependencyMap = dependencyMap;
+    this.triggerFieldDependencyMap = triggerFieldDependencyMap;
     const createDependencyEnd = performance.now();
     // Create triggerfield dependency Map
     const createTriggerFieldDependencyStart = performance.now();
@@ -178,13 +183,12 @@ export default class DataTreeEvaluator {
     this.oldUnEvalTree = klona(localUnEvalTree);
     // Lint
     const lintStart = performance.now();
-    lintTree(
-      this.oldUnEvalTree,
-      this.evalTree,
-      this.sortedDependencies,
-      [],
-      this.resolvedFunctions,
-    );
+    lintTree({
+      unEvalTree: localUnEvalTree,
+      evalTree: this.evalTree,
+      sortedDependencies: this.sortedDependencies,
+      triggerPathsToLint: [],
+    });
     const lintStop = performance.now();
     const totalEnd = performance.now();
     const timeTakenForFirstTree = {
@@ -192,9 +196,6 @@ export default class DataTreeEvaluator {
       createDependencies: (createDependencyEnd - createDependencyStart).toFixed(
         2,
       ),
-      createTriggerFieldDependencies: (
-        createTriggerFieldDependencyEnd - createTriggerFieldDependencyStart
-      ).toFixed(2),
       sortDependencies: (sortDependenciesEnd - sortDependenciesStart).toFixed(
         2,
       ),
@@ -370,21 +371,21 @@ export default class DataTreeEvaluator {
     );
     const evalStop = performance.now();
 
-    // Lint
-    const lintStart = performance.now();
-    lintTree(
-      localUnEvalTree,
-      newEvalTree,
-      evaluationOrder,
-      triggerPathsToLint,
-      this.resolvedFunctions,
-    );
-    const lintStop = performance.now();
-
-    const totalEnd = performance.now();
     // TODO: For some reason we are passing some reference which are getting mutated.
     // Need to check why big api responses are getting split between two eval runs
     this.oldUnEvalTree = klona(localUnEvalTree);
+
+    // Lint
+    const lintStart = performance.now();
+    lintTree({
+      unEvalTree: localUnEvalTree,
+      evalTree: newEvalTree,
+      sortedDependencies: evaluationOrder,
+      triggerPathsToLint,
+    });
+    const lintStop = performance.now();
+
+    const totalEnd = performance.now();
     this.evalTree = newEvalTree;
     const timeTakenForSubTreeEval = {
       total: (totalEnd - totalStart).toFixed(2),
@@ -490,8 +491,10 @@ export default class DataTreeEvaluator {
     return sortOrder;
   }
 
-  createDependencyMap(unEvalTree: DataTree): DependencyMap {
+  createDependencyMap(unEvalTree: DataTree) {
     let dependencyMap: DependencyMap = {};
+    let triggerFieldDependencyMap: DependencyMap = {};
+
     Object.keys(unEvalTree).forEach((entityName) => {
       const entity = unEvalTree[entityName];
       if (isAction(entity) || isWidget(entity) || isJSAction(entity)) {
@@ -500,6 +503,13 @@ export default class DataTreeEvaluator {
           entityName,
         );
         dependencyMap = { ...dependencyMap, ...entityListedDependencies };
+      }
+      if (isWidget(entity)) {
+        // only widgets have trigger paths
+        triggerFieldDependencyMap = {
+          ...triggerFieldDependencyMap,
+          ...this.listTriggerFieldDependencies(entity, entityName),
+        };
       }
     });
     Object.keys(dependencyMap).forEach((key) => {
@@ -520,29 +530,18 @@ export default class DataTreeEvaluator {
         }),
       );
     });
-    dependencyMap = makeParentsDependOnChildren(dependencyMap, this.allKeys);
-    return dependencyMap;
-  }
 
-  createTriggerFieldDependencyMap(unEvalTree: DataTree): DependencyMap {
-    let dependencyMap: DependencyMap = {};
-    Object.keys(unEvalTree).forEach((entityName) => {
-      const entity = unEvalTree[entityName];
-      // Only widgets have triggerPaths
-      if (isWidget(entity)) {
-        dependencyMap = {
-          ...dependencyMap,
-          ...this.listTriggerFieldDependencies(entity, entityName),
-        };
-      }
-    });
-
-    Object.keys(dependencyMap).forEach((key) => {
-      dependencyMap[key] = this.getEntityReferencesFromPropertyBindings(
-        dependencyMap[key],
+    // extract references from bindings
+    Object.keys(triggerFieldDependencyMap).forEach((key) => {
+      triggerFieldDependencyMap[
+        key
+      ] = this.getEntityReferencesFromPropertyBindings(
+        triggerFieldDependencyMap[key],
       );
     });
-    return dependencyMap;
+
+    dependencyMap = makeParentsDependOnChildren(dependencyMap, this.allKeys);
+    return { dependencyMap, triggerFieldDependencyMap };
   }
 
   getPrivateWidgets(dataTree: DataTree): PrivateWidgets {
@@ -1262,7 +1261,7 @@ export default class DataTreeEvaluator {
                   didUpdateTriggerDependencyMap = true;
                 });
               }
-
+              // When deleted entity is referenced in a trigger field, remove deleted entity from it's triggerfieldDependencyMap
               if (entityName in this.triggerFieldInverseDependencyMap) {
                 triggerPathsToLint = triggerPathsToLint.concat(
                   this.triggerFieldInverseDependencyMap[entityName],
