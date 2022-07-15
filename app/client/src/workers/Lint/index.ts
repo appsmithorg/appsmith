@@ -34,8 +34,6 @@ interface LintTreeArgs {
 
 export const lintTree = (args: LintTreeArgs) => {
   const { evalTree, sortedDependencies, triggerPathsToLint, unEvalTree } = args;
-  // For non-trigger fields, functions such as showAlert, storeValue are not needed in global data
-  const GLOBAL_DATA_WITHOUT_FUNCTIONS = createGlobalData(unEvalTree, {}, false);
   // In trigger based fields, functions such as showAlert, storeValue need to be added to the global data
   const GLOBAL_DATA_WITH_FUNCTIONS = createGlobalData(unEvalTree, {}, true);
   const triggerPaths = [...triggerPathsToLint];
@@ -57,9 +55,7 @@ export const lintTree = (args: LintTreeArgs) => {
         unEvalPropertyValue,
         entity,
         fullPropertyPath,
-        isJSAction(entity)
-          ? GLOBAL_DATA_WITH_FUNCTIONS
-          : GLOBAL_DATA_WITHOUT_FUNCTIONS,
+        isJSAction(entity) ? GLOBAL_DATA_WITH_FUNCTIONS : unEvalTree,
       );
       lintErrors.length &&
         addErrorToEntityProperty(lintErrors, evalTree, fullPropertyPath);
