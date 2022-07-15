@@ -617,6 +617,47 @@ Cypress.Commands.add("DeleteAppByApi", () => {
   }
 });
 
+Cypress.Commands.add("StopTheContainer", (path, containerName) => {
+  cy.request({
+    method: "GET",
+    url: path,
+    qs: {
+      cmd: "docker stop " + containerName,
+    },
+  }).then((res) => {
+    expect(res.status).equal(200);
+  });
+});
+
+Cypress.Commands.add("CreateLatestContainer", (path, containerName) => {
+  cy.request({
+    method: "GET",
+    url: path,
+    qs: {
+      cmd:
+        "docker run -d --name " +
+        containerName +
+        ' -p 80:80 -v "$PWD/stacks:/appsmith-stacks" appsmith/appsmith-ce:latest',
+    },
+  }).then((res) => {
+    expect(res.status).equal(200);
+  });
+});
+
+Cypress.Commands.add("GetAndVerifyLogs", (path, containerName) => {
+  let logs = null;
+  cy.request({
+    method: "GET",
+    url: path,
+    qs: {
+      cmd: "docker logs " + containerName,
+    },
+  }).then((res) => {
+    expect(res.status).equal(200);
+    expect(res.body.stdout).not.equal("");
+  });
+});
+
 Cypress.Commands.add("togglebar", (value) => {
   cy.get(value)
     .check({ force: true })
