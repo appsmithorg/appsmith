@@ -24,7 +24,7 @@ export class PropertyPane {
   _fieldConfig = (fieldName: string) =>
     "//input[@placeholder='Field label'][@value='" +
     fieldName +
-    "']/ancestor::div/following-sibling::div[contains(@class, 't--edit-column-btn')]";
+    "']/ancestor::div/following-sibling::div/div[contains(@class, 't--edit-column-btn')]";
   private _goBackToProperty = "button.t--property-pane-back-btn";
   private _copyWidget = "button.t--copy-widget";
   private _deleteWidget = "button.t--delete-widget";
@@ -143,6 +143,7 @@ export class PropertyPane {
     cy.xpath(this.locator._existingFieldTextByName(propFieldName)).then(
       ($field: any) => {
         this.agHelper.UpdateCodeInput($field, valueToEnter);
-      });
+      },
+    );
   }
 }
