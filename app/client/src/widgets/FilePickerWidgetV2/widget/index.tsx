@@ -75,7 +75,8 @@ const FilePickerGlobalStyles = createGlobalStyle<{
 
     /* Sets the border radius of the button when it is focused */
     &:focus {
-      border-radius: ${({ borderRadius }) => borderRadius} !important;
+      border-radius: ${({ borderRadius }) =>
+        borderRadius === "0.375rem" ? "0.25rem" : borderRadius} !important;
     }
 
     .uppy-c-icon {
@@ -94,7 +95,8 @@ const FilePickerGlobalStyles = createGlobalStyle<{
   
       & {
       /* Sets the black background of remove file button hidden*/
-        border-radius: ${({ borderRadius }) => borderRadius};
+        border-radius: ${({ borderRadius }) =>
+          borderRadius === "0.375rem" ? "0.25rem" : borderRadius};
       }
     }    
   }
