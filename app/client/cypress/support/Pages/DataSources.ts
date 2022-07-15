@@ -66,6 +66,8 @@ export class DataSources {
   _noRecordFound = "span[data-testid='no-data-table-message']";
   _usePreparedStatement =
     "input[name='actionConfiguration.pluginSpecifiedTemplates[0].value'][type='checkbox']";
+  _queriesOnPageText = (dsName: string) =>
+    ".t--datasource-name:contains('" + dsName + "') .t--queries-for-DB";
 
   public StartDataSourceRoutes() {
     cy.intercept("PUT", "/api/v1/datasources/*").as("saveDatasource");
@@ -237,8 +239,7 @@ export class DataSources {
     datasourceName: string,
     expectedRes = 200,
   ) {
-    this.NavigateToDSCreateNew();
-    this.agHelper.GetNClick(this._activeTab);
+    this.NavigateToActiveTab();
     cy.get(this._datasourceCard)
       .contains(datasourceName)
       .scrollIntoView()
@@ -256,8 +257,7 @@ export class DataSources {
     datasourceName: string,
     expectedStatus = 200,
   ) {
-    this.NavigateToDSCreateNew();
-    this.agHelper.GetNClick(this._activeTab);
+    this.NavigateToActiveTab();
     cy.get(this._datasourceCard)
       .contains(datasourceName)
       .scrollIntoView()
@@ -267,6 +267,11 @@ export class DataSources {
     this.agHelper.ClickButton("Delete");
     this.agHelper.ClickButton("Are you sure?");
     this.agHelper.ValidateNetworkStatus("@deleteDatasource", expectedStatus);
+  }
+
+  public NavigateToActiveTab() {
+    this.NavigateToDSCreateNew();
+    this.agHelper.GetNClick(this._activeTab);
   }
 
   public NavigateFromActiveDS(datasourceName: string, createQuery: boolean) {
@@ -279,8 +284,7 @@ export class DataSources {
     this.ee.ExpandCollapseEntity("DATASOURCES", false);
     //this.ee.SelectEntityByName(datasourceName, "DATASOURCES");
     //this.ee.ExpandCollapseEntity(datasourceName, false);
-    this.NavigateToDSCreateNew();
-    this.agHelper.GetNClick(this._activeTab);
+    this.NavigateToActiveTab();
     cy.get(this._datasourceCard)
       .contains(datasourceName)
       .scrollIntoView()
@@ -394,7 +398,8 @@ export class DataSources {
     tableCheck = true,
   ) {
     this.RunQuery();
-    tableCheck && this.agHelper.AssertElementVisible(this._queryResponse("TABLE"));
+    tableCheck &&
+      this.agHelper.AssertElementVisible(this._queryResponse("TABLE"));
     this.agHelper.AssertElementVisible(this._queryResponse("JSON"));
     this.agHelper.AssertElementVisible(this._queryResponse("RAW"));
     this.agHelper.AssertElementVisible(
