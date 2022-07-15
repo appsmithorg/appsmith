@@ -3,20 +3,23 @@ package com.appsmith.server.configurations;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AppsmithRole;
 import com.appsmith.server.domains.Application;
-import com.appsmith.server.domains.Workspace;
-import com.appsmith.server.domains.WorkspacePlugin;
 import com.appsmith.server.domains.Page;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.PluginType;
+import com.appsmith.server.domains.PricingPlan;
+import com.appsmith.server.domains.Tenant;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserRole;
 import com.appsmith.server.domains.UserState;
+import com.appsmith.server.domains.Workspace;
+import com.appsmith.server.domains.WorkspacePlugin;
 import com.appsmith.server.dtos.WorkspacePluginStatus;
 import com.appsmith.server.repositories.ApplicationRepository;
-import com.appsmith.server.repositories.WorkspaceRepository;
 import com.appsmith.server.repositories.PageRepository;
 import com.appsmith.server.repositories.PluginRepository;
+import com.appsmith.server.repositories.TenantRepository;
 import com.appsmith.server.repositories.UserRepository;
+import com.appsmith.server.repositories.WorkspaceRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Bean;
@@ -33,17 +36,17 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
-import static com.appsmith.server.acl.AclPermission.MANAGE_WORKSPACES;
 import static com.appsmith.server.acl.AclPermission.MANAGE_PAGES;
 import static com.appsmith.server.acl.AclPermission.MANAGE_USERS;
-import static com.appsmith.server.acl.AclPermission.WORKSPACE_INVITE_USERS;
-import static com.appsmith.server.acl.AclPermission.WORKSPACE_MANAGE_APPLICATIONS;
-import static com.appsmith.server.acl.AclPermission.WORKSPACE_EXPORT_APPLICATIONS;
+import static com.appsmith.server.acl.AclPermission.MANAGE_WORKSPACES;
 import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
-import static com.appsmith.server.acl.AclPermission.READ_WORKSPACES;
 import static com.appsmith.server.acl.AclPermission.READ_PAGES;
 import static com.appsmith.server.acl.AclPermission.READ_USERS;
+import static com.appsmith.server.acl.AclPermission.READ_WORKSPACES;
 import static com.appsmith.server.acl.AclPermission.USER_MANAGE_WORKSPACES;
+import static com.appsmith.server.acl.AclPermission.WORKSPACE_EXPORT_APPLICATIONS;
+import static com.appsmith.server.acl.AclPermission.WORKSPACE_INVITE_USERS;
+import static com.appsmith.server.acl.AclPermission.WORKSPACE_MANAGE_APPLICATIONS;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
 @Slf4j
@@ -56,7 +59,8 @@ public class SeedMongoData {
                            ApplicationRepository applicationRepository,
                            PageRepository pageRepository,
                            PluginRepository pluginRepository,
-                           ReactiveMongoTemplate mongoTemplate) {
+                           ReactiveMongoTemplate mongoTemplate,
+                           TenantRepository tenantRepository) {
 
         log.info("Seeding the data");
         final String API_USER_EMAIL = "api_user";
@@ -165,6 +169,16 @@ public class SeedMongoData {
                 }).flatMap(pluginRepository::save)
                 .cache();
 
+        Tenant defaultTenant = new Tenant();
+        defaultTenant.setDisplayName("Default");
+        defaultTenant.setSlug("default");
+        defaultTenant.setPricingPlan(PricingPlan.FREE);
+
+        Mono<String> defaultTenantId = tenantRepository.findBySlug("default")
+                .switchIfEmpty(tenantRepository.save(defaultTenant))
+                .map(Tenant::getId)
+                .cache();
+
         Flux<User> userFlux = Flux.just(userData)
                 .map(array -> {
                     log.debug("Going to create bare users");
@@ -173,8 +187,19 @@ public class SeedMongoData {
                     user.setEmail((String) array[1]);
                     user.setState((UserState) array[2]);
                     user.setPolicies((Set<Policy>) array[3]);
-                    log.debug("Bare user: {}", user);
                     return user;
+                })
+                .collectList()
+                .zipWith(defaultTenantId)
+                .flatMapMany(tuple -> {
+                    List<User> users = tuple.getT1();
+                    String tenantId = tuple.getT2();
+                    return Flux.fromIterable(users)
+                            .map(user -> {
+                                user.setTenantId(tenantId);
+                                log.debug("Creating user: {}", user);
+                                return user;
+                            });
                 })
                 .flatMap(userRepository::save)
                 .cache();

@@ -144,7 +144,13 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
 
     @Override
     public Mono<User> findByEmail(String email) {
-        return repository.findByEmail(email);
+        return tenantService.getDefaultTenantId()
+                .flatMap(tenantId -> findByEmailAndTenantId(email, tenantId));
+    }
+
+    @Override
+    public Mono<User> findByEmailAndTenantId(String email, String tenantId) {
+        return repository.findByEmailAndTenantId(email, tenantId);
     }
 
     /**

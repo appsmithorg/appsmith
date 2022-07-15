@@ -16,6 +16,8 @@ public interface CustomUserRepositoryCE extends AppsmithRepository<User> {
 
     Mono<User> findByCaseInsensitiveEmail(String email);
 
+    Mono<User> findByEmailAndTenantId(String email, String tenantId);
+
     Mono<Boolean> isUsersEmpty();
 
 }
