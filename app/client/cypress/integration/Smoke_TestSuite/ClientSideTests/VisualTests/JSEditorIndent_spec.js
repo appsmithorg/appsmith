@@ -2,7 +2,8 @@ import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 import homePage from "../../../../locators/HomePage";
 
 let jsEditor = ObjectsRegistry.JSEditor,
-  agHelper = ObjectsRegistry.AggregateHelper;
+  agHelper = ObjectsRegistry.AggregateHelper,
+  ee = ObjectsRegistry.EntityExplorer;
 const pages = require("../../../../locators/Pages.json");
 
 describe("JSEditor Indendation - Visual tests", () => {
@@ -408,13 +409,8 @@ myFun2: async () => {
     cy.get("div.CodeMirror").click();
     cy.get("div.CodeMirror").matchImageSnapshot("jsObjAfterPrettify7");
 
-    cy.get(`.t--entity-item:contains('Page1')`).within(() => {
-      cy.get(".t--context-menu").click({ force: true });
-    });
-    cy.get(pages.clonePage).click({ force: true });
-    cy.wait(2000);
-    cy.CheckAndUnfoldEntityItem("QUERIES/JS");
-    cy.SearchEntityandOpen("JSObject2");
+    ee.ClonePage("Page1");
+    ee.SelectEntityByName("JSObject1", "QUERIES/JS");
     cy.wait(3000);
 
     cy.get("[name='expand-more']")
