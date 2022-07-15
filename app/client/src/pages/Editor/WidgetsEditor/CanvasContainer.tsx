@@ -7,7 +7,7 @@ import {
   getViewModePageList,
   previewModeSelector,
 } from "selectors/editorSelectors";
-import styled, { createGlobalStyle } from "styled-components";
+import styled from "styled-components";
 import { getCanvasClassName } from "utils/generators";
 
 import Centered from "components/designSystems/appsmith/CenteredWrapper";
