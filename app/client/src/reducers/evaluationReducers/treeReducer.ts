@@ -23,10 +23,7 @@ const evaluatedTreeReducer = createImmerReducer(initialState, {
     const { dataTree, updates } = action.payload;
     // Check if the current state is empty, in that case we directly push the whole dataTree
     if (Object.keys(state).length === 0) {
-      if (Object.keys(dataTree).length) {
-        return dataTree;
-      }
-      return state;
+      return dataTree;
     }
     // If there are no updates, return the current state
     if (updates.length === 0) {
