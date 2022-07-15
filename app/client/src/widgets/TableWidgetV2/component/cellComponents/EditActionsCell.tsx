@@ -58,6 +58,7 @@ export function EditActionCell(props: RenderEditActionsProps) {
   return (
     <CellWrapper
       allowCellWrapping={allowCellWrapping}
+      cellBackground={cellBackground}
       compactMode={compactMode}
       horizontalAlignment={horizontalAlignment}
       isCellVisible={isCellVisible}
