@@ -1,5 +1,5 @@
 import React from "react";
-import Text, { TextType } from "components/ads/Text";
+import { Text, TextType } from "design-system";
 import { HelpIcons } from "icons/HelpIcons";
 import { withTheme } from "styled-components";
 import styled from "styled-components";

@@ -12,7 +12,7 @@ import {
 } from "actions/gitSyncActions";
 import Button, { Category, Size } from "components/ads/Button";
 import styled, { useTheme } from "styled-components";
-import Text, { TextType } from "components/ads/Text";
+import { Text, TextType } from "design-system";
 import { Colors } from "constants/Colors";
 import {
   CONTACT_SALES_MESSAGE_ON_INTERCOM,

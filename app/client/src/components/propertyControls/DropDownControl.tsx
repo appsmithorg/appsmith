@@ -4,8 +4,38 @@ import { StyledDropDown, StyledDropDownContainer } from "./StyledControls";
 import { DropdownOption } from "components/ads/Dropdown";
 import { isNil } from "lodash";
 import { isDynamicValue } from "utils/DynamicBindingUtils";
+import { DSEventDetail, DSEventTypes, DS_EVENT } from "utils/AppsmithUtils";
+import { emitInteractionAnalyticsEvent } from "utils/AppsmithUtils";
 
 class DropDownControl extends BaseControl<DropDownControlProps> {
+  containerRef = React.createRef<HTMLDivElement>();
+
+  componentDidMount() {
+    this.containerRef.current?.addEventListener(
+      DS_EVENT,
+      this.handleAdsEvent as (arg0: Event) => void,
+    );
+  }
+
+  componentWillUnmount() {
+    this.containerRef.current?.removeEventListener(
+      DS_EVENT,
+      this.handleAdsEvent as (arg0: Event) => void,
+    );
+  }
+
+  handleAdsEvent = (e: CustomEvent<DSEventDetail>) => {
+    if (
+      e.detail.component === "Dropdown" &&
+      e.detail.event === DSEventTypes.KEYPRESS
+    ) {
+      emitInteractionAnalyticsEvent(this.containerRef.current, {
+        key: e.detail.meta.key,
+      });
+      e.stopPropagation();
+    }
+  };
+
   render() {
     let defaultSelected: DropdownOption | DropdownOption[] = {
       label: "No selection.",
@@ -51,7 +81,7 @@ class DropDownControl extends BaseControl<DropDownControlProps> {
     }
 
     return (
-      <StyledDropDownContainer>
+      <StyledDropDownContainer ref={this.containerRef}>
         <StyledDropDown
           dropdownHeight={this.props.dropdownHeight}
           dropdownMaxHeight="200px"
@@ -75,7 +105,11 @@ class DropDownControl extends BaseControl<DropDownControlProps> {
     );
   }
 
-  onItemSelect = (value?: string): void => {
+  onItemSelect = (
+    value?: string,
+    _option?: DropdownOption,
+    isUpdatedViaKeyboard?: boolean,
+  ): void => {
     if (!isNil(value)) {
       let selectedValue: string | string[] = this.props.propertyValue;
       if (this.props.isMultiSelect) {
@@ -95,7 +129,11 @@ class DropDownControl extends BaseControl<DropDownControlProps> {
       } else {
         selectedValue = value;
       }
-      this.updateProperty(this.props.propertyName, selectedValue);
+      this.updateProperty(
+        this.props.propertyName,
+        selectedValue,
+        isUpdatedViaKeyboard,
+      );
     }
   };
 

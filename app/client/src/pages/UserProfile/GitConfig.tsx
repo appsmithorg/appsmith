@@ -11,7 +11,7 @@ import {
   AUTHOR_NAME,
   SUBMIT,
 } from "@appsmith/constants/messages";
-import Text, { TextType } from "components/ads/Text";
+import { Text, TextType } from "design-system";
 import { Classes } from "@blueprintjs/core";
 import TextInput, { notEmptyValidator } from "components/ads/TextInput";
 import Button, { Category, Size } from "components/ads/Button";
