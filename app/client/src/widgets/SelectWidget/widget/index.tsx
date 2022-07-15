@@ -480,7 +480,7 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
 
   componentDidMount() {
     super.componentDidMount();
-    this.changeSelectedOption();
+    // this.changeSelectedOption();
   }
 
   componentDidUpdate(prevProps: SelectWidgetProps): void {
@@ -553,9 +553,7 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
     // Check if the value has changed. If no option
     // selected till now, there is a change
     if (!isNil(this.props.selectedOptionValue)) {
-      isChanged =
-        !(this.props.selectedOptionValue === selectedOption.value) &&
-        !(this.props.selectedOptionLabel === selectedOption.label);
+      isChanged = !(this.props.selectedOptionValue === selectedOption.value);
     }
     if (isChanged) {
       if (!this.props.isDirty) {
@@ -575,17 +573,11 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
         this.props.updateWidgetMetaProperty("isDirty", true);
       }
     }
-  };
 
-  changeSelectedOption = () => {
-    const label = this.isStringOrNumber(this.props.label)
-      ? this.props.label
-      : this.props.label?.label;
-    const value = this.isStringOrNumber(this.props.value)
-      ? this.props.value
-      : this.props.value?.value;
-    this.props.updateWidgetMetaProperty("value", value);
-    this.props.updateWidgetMetaProperty("label", label);
+    // When Label changes but value doesnt change, Applies to serverside Filtering
+    if (!isChanged && this.props.selectedOptionLabel !== selectedOption.label) {
+      this.props.updateWidgetMetaProperty("label", selectedOption.label ?? "");
+    }
   };
 
   onFilterChange = (value: string) => {

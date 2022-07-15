@@ -139,6 +139,7 @@ describe("Derived property - Select Widget", () => {
         {
           serverSideFiltering: true,
           value: "YELLOW",
+          isDirty: false,
           options: [
             { label: "Blue", value: "BLUE" },
             { label: "Green", value: "GREEN" },
@@ -149,7 +150,7 @@ describe("Derived property - Select Widget", () => {
         _,
       );
 
-      expect(selectedOptionValue).toBe("YELLOW");
+      expect(selectedOptionValue).toBe("");
     });
   });
 
@@ -289,6 +290,7 @@ describe("Derived property - Select Widget", () => {
       const selectedOptionLabel = derivedProperty.getSelectedOptionLabel(
         {
           serverSideFiltering: true,
+          selectedOptionValue: "",
           label: "YELLOW",
           options: [
             { label: "Blue", value: "BLUE" },
@@ -300,7 +302,7 @@ describe("Derived property - Select Widget", () => {
         _,
       );
 
-      expect(selectedOptionLabel).toBe("YELLOW");
+      expect(selectedOptionLabel).toBe("");
     });
   });
 });

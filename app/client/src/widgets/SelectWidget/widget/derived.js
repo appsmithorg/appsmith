@@ -16,6 +16,13 @@ export default {
       if (!isServerSideFiltered) {
         value = "";
       }
+      if (
+        isServerSideFiltered &&
+        !_.isPlainObject(props.value) &&
+        !props.isDirty
+      ) {
+        value = "";
+      }
     }
 
     return value;
@@ -25,7 +32,11 @@ export default {
     const isServerSideFiltered = props.serverSideFiltering;
     const options = props.options ?? [];
     let label = props.label?.label ?? props.label;
-    const labelIndex = _.findIndex(options, (option) => option.label === label);
+    const labelIndex = _.findIndex(
+      options,
+      (option) =>
+        option.label === label && option.value === props.selectedOptionValue,
+    );
     if (labelIndex === -1) {
       if (
         !_.isNil(props.selectedOptionValue) &&
