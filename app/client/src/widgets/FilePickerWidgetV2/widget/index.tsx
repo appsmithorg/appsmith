@@ -19,6 +19,7 @@ import { createBlobUrl, isBlobUrl } from "utils/AppsmithUtils";
 import log from "loglevel";
 import { createGlobalStyle } from "styled-components";
 import UpIcon from "assets/icons/ads/up-arrow.svg";
+import { Colors } from "constants/Colors";
 
 const FilePickerGlobalStyles = createGlobalStyle<{
   borderRadius?: string;
@@ -103,6 +104,11 @@ const FilePickerGlobalStyles = createGlobalStyle<{
   /* Sets the back cancel button color to match theming primary color */
   .uppy-DashboardContent-back {
     color: var(--wds-accent-color);
+
+    &:hover {
+      color: var(--wds-accent-color);
+      background-color: ${Colors.ATHENS_GRAY};
+    }
   }
   /*********************************************************/
 
@@ -120,7 +126,7 @@ const FilePickerGlobalStyles = createGlobalStyle<{
       position: absolute;
       top: -6%;
       left: 20%;
-}
+      }
     }
   }
   /*********************************************************/
@@ -146,6 +152,21 @@ const FilePickerGlobalStyles = createGlobalStyle<{
       background-color: transparent;
       color: #D91921;
       border: 1px solid #D91921;
+    }
+  }
+  /*********************************************************/
+
+  /*********************************************************/
+  /* Style the + add more files button on top right corner of the upload modal */  
+  .uppy-DashboardContent-addMore {
+    color: var(--wds-accent-color);
+    &:hover {
+      background-color: ${Colors.ATHENS_GRAY};
+      color: var(--wds-accent-color);
+    }
+
+    & svg {
+      fill: var(--wds-accent-color) !important;
     }
   }
   /*********************************************************/
