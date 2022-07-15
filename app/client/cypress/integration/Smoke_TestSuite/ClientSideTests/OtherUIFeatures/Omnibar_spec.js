@@ -19,6 +19,7 @@ describe("Omnibar functionality test cases", () => {
     cy.get(omnibar.openDocumentationLink).should("be.visible");
     cy.get("body").click(0, 0);
   });
+
   it("2.Verify omnibar is present across all pages and validate its fields", function() {
     cy.get(omnibar.globalSearch)
       .trigger("mouseover")
@@ -175,20 +176,17 @@ describe("Omnibar functionality test cases", () => {
       .should("have.text", "Page1");
   });
 
-  it.skip("7. Verify documentation should open in new tab, on clicking open documentation", function() {
+  it("7. Verify documentation should open in new tab, on clicking open documentation", function() {
     //cy.get(omnibar.category).click()
     cy.get(omnibar.globalSearch).click({ force: true });
     cy.get(omnibar.categoryTitle)
       .eq(3)
       .click({ force: true });
-    cy.window().then((win) => {
-      cy.stub(win, "open", (url) => {
-        win.location.href =
-          "https://docs.appsmith.com/core-concepts/connecting-to-data-sources";
-      }).as("documentationLink");
-    });
-    cy.get(omnibar.openDocumentationLink).click();
-    cy.get("@documentationLink").should("be.called");
+    cy.get(omnibar.openDocumentationLink)
+      .invoke("removeAttr", "target")
+      .click()
+      .wait(2000);
+    cy.url().should("eq", "https://docs.appsmith.com/troubleshooting-guide"); // => true
     cy.go(-1);
   });
 });
