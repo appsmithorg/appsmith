@@ -975,6 +975,7 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   cy.route("POST", "api/v1/git/commit/app/*").as("commit");
   cy.route("POST", "/api/v1/git/import/*").as("importFromGit");
   cy.route("POST", "/api/v1/git/merge/app/*").as("mergeBranch");
+  cy.route("POST", "/api/v1/git/merge/status/app/*").as("mergeStatus");
   cy.route("PUT", "api/v1/collections/actions/refactor").as("renameJsAction");
 
   cy.route("POST", "/api/v1/collections/actions").as("createNewJSCollection");
