@@ -75,7 +75,6 @@ export const CheckboxGroupContainer = styled.div<CheckboxGroupContainerProps>`
   }
   & .select-all {
     white-space: nowrap;
-    color: ${Colors.GREY_9} !important;
   }
 `;
 
@@ -113,6 +112,7 @@ function SelectAll(props: SelectAllProps) {
           className="t--checkbox-widget-label"
           disabled={isDisabled}
           labelPosition={LabelPosition.Left}
+          labelTextColor={disabled ? Colors.GREY_8 : "inherit"}
         >
           Select all
         </CheckboxLabel>
@@ -232,7 +232,6 @@ function CheckboxGroupComponent(props: CheckboxGroupComponentProps) {
               checked={(selectedValues || []).includes(option.value)}
               disabled={isDisabled}
               hasError={!isValid}
-              indeterminate={isDisabled ? true : undefined}
               inline={isInline}
               key={generateReactKey()}
               labelElement={

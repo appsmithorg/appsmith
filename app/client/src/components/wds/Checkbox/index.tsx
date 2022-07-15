@@ -53,7 +53,9 @@ const Checkbox = styled(BlueprintCheckbox)<StyledCheckboxProps>`
 
     // hover
     &.bp3-control.bp3-checkbox:hover input:not(:checked) ~ .bp3-control-indicator {
-      box-shadow: 0px 0px 0px 1px ${Colors.GREY_6};
+      box-shadow: 0px 0px 0px 1px ${
+        hasError ? darkenColor(Colors.ERROR_RED) : Colors.GREY_6
+      };
     }
 
     // hover on checked
@@ -63,7 +65,7 @@ const Checkbox = styled(BlueprintCheckbox)<StyledCheckboxProps>`
     }
 
     // hover on disabled
-    &.bp3-control.bp3-checkbox:hover input:disabled:not(:checked) ~ .bp3-control-indicator {
+    &.bp3-control.bp3-checkbox:hover input:disabled:not(:checked):not(:indeterminate) ~ .bp3-control-indicator {
       box-shadow: 0px 0px 0px 1px ${Colors.GREY_5};
     }
 
@@ -91,6 +93,15 @@ const Checkbox = styled(BlueprintCheckbox)<StyledCheckboxProps>`
       box-shadow: none;
     }
 
+    &.bp3-control.bp3-checkbox:hover input:indeterminate ~ .bp3-control-indicator {
+      box-shadow: none;
+    }
+
+    &.bp3-control.bp3-checkbox input:indeterminate:disabled ~ .bp3-control-indicator {
+      background-color: ${Colors.GREY_5} !important;
+      box-shadow: none;
+    }
+
     // blueprint specific issues
     &.bp3-control:not(.bp3-align-right) {
       padding-left: 0;
@@ -99,6 +110,16 @@ const Checkbox = styled(BlueprintCheckbox)<StyledCheckboxProps>`
     // checked + disabled icon
     &.bp3-control.bp3-checkbox input:checked:disabled ~ .bp3-control-indicator::before {
       background-image: url(/widgets/disabledcheck-icon.svg);
+    }
+
+    // indeterminate icon
+    &.bp3-control.bp3-checkbox input:indeterminate ~ .bp3-control-indicator::before {
+      background-image: url(/widgets/indeterminate-icon.svg);
+    }
+
+    // indeterminate + disabled icon
+    &.bp3-control.bp3-checkbox input:indeterminate:disabled ~ .bp3-control-indicator::before {
+      background-image: url(/widgets/disabled-indeterminate-icon.svg);
     }
 
     // checked icon
