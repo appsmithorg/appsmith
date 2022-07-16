@@ -43,6 +43,10 @@ export const HelpMap: Record<string, { path: string; searchKey: string }> = {
     path: "/widget-reference/table",
     searchKey: "Table",
   },
+  TABLE_WIDGET_V2: {
+    path: "/widget-reference/table",
+    searchKey: "Table",
+  },
   VIDEO_WIDGET: {
     path: "/widget-reference/video",
     searchKey: "Video",
