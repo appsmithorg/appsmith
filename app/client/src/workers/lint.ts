@@ -90,36 +90,28 @@ export const getLintingErrors = (
   };
 
   jshint(script, options);
-  return getValidLintErrors(jshint.errors, originalBinding, scriptPos).map(
-    (lintError) => {
-      const ch = lintError.character;
-      return {
-        errorType: PropertyEvaluationErrorType.LINT,
-        raw: script,
-        severity: getLintSeverity(lintError.code),
-        errorMessage: getLintErrorMessage(lintError.reason),
-        errorSegment: lintError.evidence,
-        originalBinding,
-        // By keeping track of these variables we can highlight the exact text that caused the error.
-        variables: [lintError.a, lintError.b, lintError.c, lintError.d],
-        code: lintError.code,
-        line: lintError.line - scriptPos.line,
-        ch: lintError.line === scriptPos.line ? ch - scriptPos.ch : ch,
-      };
-    },
-  );
+  return getValidLintErrors(jshint.errors, scriptPos).map((lintError) => {
+    const ch = lintError.character;
+    return {
+      errorType: PropertyEvaluationErrorType.LINT,
+      raw: script,
+      severity: getLintSeverity(lintError.code),
+      errorMessage: getLintErrorMessage(lintError.reason),
+      errorSegment: lintError.evidence,
+      originalBinding,
+      // By keeping track of these variables we can highlight the exact text that caused the error.
+      variables: [lintError.a, lintError.b, lintError.c, lintError.d],
+      code: lintError.code,
+      line: lintError.line - scriptPos.line,
+      ch: lintError.line === scriptPos.line ? ch - scriptPos.ch : ch,
+    };
+  });
 };
 
-const getValidLintErrors = (
-  lintErrors: LintError[],
-  originalBinding: string,
-  scriptPos: Position,
-) => {
+const getValidLintErrors = (lintErrors: LintError[], scriptPos: Position) => {
   return lintErrors.reduce((result: LintError[], lintError) => {
     // Ignored errors should not be reported
     if (IGNORED_LINT_ERRORS.includes(lintError.code)) return result;
-    // errors not caused by the user's script should not be reported
-    if (!originalBinding.includes(lintError.evidence)) return result;
     /** Some error messages reference line numbers,
      * Eg. Expected '{a}' to match '{b}' from line {c} and instead saw '{d}'
      * these line numbers need to be re-calculated based on the binding location.
