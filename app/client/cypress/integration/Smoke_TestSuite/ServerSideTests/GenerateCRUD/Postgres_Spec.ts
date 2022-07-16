@@ -168,7 +168,7 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
     cy.get(".CodeMirror textarea").focus();
     //agHelper.VerifyEvaluatedValue(tableCreateQuery); //failing sometimes!
 
-    dataSources.RunQuery();
+    dataSources.RunQueryNVerifyResponseViews();
     agHelper.ActionContextMenuWithInPane("Delete");
 
     ee.ExpandCollapseEntity("DATASOURCES");
@@ -179,7 +179,7 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
 
   it("5. Validate Select record from Postgress datasource & verify query response", () => {
     ee.ActionTemplateMenuByEntityName("public.vessels", "SELECT");
-    dataSources.RunQuery();
+    dataSources.RunQueryNVerifyResponseViews(10);
     dataSources.ReadQueryTableResponse(0).then(($cellData) => {
       expect($cellData).to.eq("371681");
     });
@@ -693,7 +693,7 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
     cy.get(".CodeMirror textarea").focus();
     //agHelper.VerifyEvaluatedValue(tableCreateQuery);
 
-    dataSources.RunQuery();
+    dataSources.RunQueryNVerifyResponseViews();
     agHelper.ActionContextMenuWithInPane("Delete");
     ee.ExpandCollapseEntity("DATASOURCES");
     ee.ExpandCollapseEntity(dsName);
