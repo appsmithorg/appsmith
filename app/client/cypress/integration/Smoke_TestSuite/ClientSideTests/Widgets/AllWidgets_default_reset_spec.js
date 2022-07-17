@@ -673,7 +673,7 @@ xdescribe(`checkboxGroup widget test for validating reset action`, () => {
   });
 });
 
-describe(`checkbox widget test for validating reset action`, () => {
+xdescribe(`checkbox widget test for validating reset action`, () => {
   before(() => {
     cy.addDsl(dsl);
   });
@@ -711,12 +711,12 @@ describe(`checkbox widget test for validating reset action`, () => {
       .click({ force: true });
     cy.wait(3000);
     cy.get(".t--text-widget-container").each((item, index, list) => {
-      cy.wrap(item).should("contain.text", "FALSE");
+      cy.wrap(item).should("contain.text", "false");
     });
     cy.get("button:contains('Submit')").click({ force: true });
     cy.wait(1000);
     cy.get(".t--text-widget-container").each((item, index, list) => {
-      cy.wrap(item).should("contain.text", "TRUE");
+      cy.wrap(item).should("contain.text", "true");
     });
     cy.get(".t--toast-action span").contains("success");
   });
@@ -724,6 +724,105 @@ describe(`checkbox widget test for validating reset action`, () => {
   it("4. Delete all the widgets on canvas", () => {
     cy.goToEditFromPublish();
     cy.get(getWidgetSelector(WIDGET.CHECKBOX)).click();
+    cy.get("body").type(`{del}`, { force: true });
+  });
+});
+
+xdescribe(`Audio widget test for validating reset action`, () => {
+  before(() => {
+    cy.addDsl(dsl);
+  });
+
+  it(`1. DragDrop Widget Audio`, () => {
+    cy.get(explorer.addWidget).click({ force: true });
+    cy.dragAndDropToCanvas(WIDGET.AUDIO, { x: 300, y: 200 });
+    cy.get(getWidgetSelector(WIDGET.AUDIO)).should("exist");
+  });
+
+  it("2. Bind Button on click  and Text widget content", () => {
+    // Set onClick action, storing value
+    cy.openPropertyPane(WIDGET.BUTTON_WIDGET);
+
+    cy.get(PROPERTY_SELECTOR.onClick)
+      .find(".t--js-toggle")
+      .click();
+    cy.updateCodeInput(
+      PROPERTY_SELECTOR.onClick,
+      `{{resetWidget("Audio1",true).then(() => showAlert("success"))}}`,
+    );
+    cy.openPropertyPane(WIDGET.TEXT);
+    cy.updateCodeInput(PROPERTY_SELECTOR.text, testdata.audioBindingValue);
+    cy.closePropertyPane();
+
+    cy.get(getWidgetSelector(WIDGET.BUTTON_WIDGET)).click();
+    cy.wait("@updateLayout");
+    cy.get(".t--toast-action span").contains("success");
+  });
+
+  it("3. Publish the app and validate reset action", function() {
+    cy.PublishtheApp();
+    cy.get(".t--text-widget-container").each((item, index, list) => {
+      cy.wrap(item).should("contain.text", "false");
+    });
+    cy.get("button:contains('Submit')").click({ force: true });
+    cy.wait(1000);
+    cy.get(".t--toast-action span").contains("success");
+  });
+
+  it("4. Delete all the widgets on canvas", () => {
+    cy.goToEditFromPublish();
+    cy.get(getWidgetSelector(WIDGET.AUDIO)).click();
+    cy.get("body").type(`{del}`, { force: true });
+  });
+});
+
+describe(`AudioRecorder widget test for validating reset action`, () => {
+  before(() => {
+    cy.addDsl(dsl);
+  });
+
+  it(`1. DragDrop Widget Audio Recorder`, () => {
+    cy.get(explorer.addWidget).click({ force: true });
+    cy.dragAndDropToCanvas(WIDGET.AUDIORECORDER, { x: 300, y: 200 });
+    cy.get(getWidgetSelector(WIDGET.AUDIORECORDER)).should("exist");
+  });
+
+  it("2. Bind Button on click  and Text widget content", () => {
+    // Set onClick action, storing value
+    cy.openPropertyPane(WIDGET.BUTTON_WIDGET);
+
+    cy.get(PROPERTY_SELECTOR.onClick)
+      .find(".t--js-toggle")
+      .click();
+    cy.updateCodeInput(
+      PROPERTY_SELECTOR.onClick,
+      `{{resetWidget("AudioRecorder1",true).then(() => showAlert("success"))}}`,
+    );
+    cy.openPropertyPane(WIDGET.TEXT);
+    cy.updateCodeInput(
+      PROPERTY_SELECTOR.text,
+      testdata.audioRecorderBindingValue,
+    );
+    cy.closePropertyPane();
+
+    cy.get(getWidgetSelector(WIDGET.BUTTON_WIDGET)).click();
+    cy.wait("@updateLayout");
+    cy.get(".t--toast-action span").contains("success");
+  });
+
+  it("3. Publish the app and validate reset action", function() {
+    cy.PublishtheApp();
+    cy.get(".t--text-widget-container").each((item, index, list) => {
+      cy.wrap(item).should("contain.text", "true");
+    });
+    cy.get("button:contains('Submit')").click({ force: true });
+    cy.wait(1000);
+    cy.get(".t--toast-action span").contains("success");
+  });
+
+  it("4. Delete all the widgets on canvas", () => {
+    cy.goToEditFromPublish();
+    cy.get(getWidgetSelector(WIDGET.AUDIORECORDER)).click();
     cy.get("body").type(`{del}`, { force: true });
   });
 });
