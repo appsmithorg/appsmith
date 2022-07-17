@@ -81,10 +81,6 @@ describe("evaluateSync", () => {
   }
   closedFunction.call(THIS_CONTEXT)
   `,
-          scriptPos: {
-            ch: 19,
-            line: 3,
-          },
           severity: "error",
           originalBinding: "wrongJS",
           variables: ["wrongJS", undefined, undefined, undefined],
