@@ -736,8 +736,8 @@ Cypress.Commands.add("dragAndDropToCanvas", (widgetType, { x, y }) => {
     .trigger("mousemove", x, y, { eventConstructor: "MouseEvent" })
     .trigger("mousemove", x, y, { eventConstructor: "MouseEvent" })
     .trigger("mouseup", x, y, { eventConstructor: "MouseEvent" });
-    cy.assertPageSave();
-  });
+  cy.assertPageSave();
+});
 
 Cypress.Commands.add(
   "dragAndDropToWidget",
@@ -1745,3 +1745,16 @@ Cypress.Commands.add(
     });
   },
 );
+
+Cypress.Commands.add("openDropdown", (option) => {
+  const query =
+    "//div[text()='" +
+    option +
+    "']/ancestor::div/preceding-sibling::a[contains(@class, 't--entity-collapse-toggle')]";
+
+  cy.xpath(query)
+    .invoke("attr", "name")
+    .then((arrow) => {
+      cy.xpath(query).trigger("click", { multiple: true, force: true });
+    });
+});

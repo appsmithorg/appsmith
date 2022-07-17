@@ -6,7 +6,6 @@ const dsl = require("../../../../fixtures/formInputTableDsl.json");
 /* TO-DO
     8. Ensure the user is able to add special characters as names and is reflected into the
     9. Ensure the user is able to copy the binding from the entity explorer and bind to a widget
-    11.Ensure the user is able to copy the binding from the entity explorer
     14.Ensure to add a longer query name and observe if it is truncated in the entity explorer
 */
 
@@ -134,7 +133,7 @@ describe("Test Entity Explorer", function() {
     );
   });
 
-  it("8. Test the user is able to add special characters as names and is reflected into the", function() {
+  /*it("8. Test the user is able to add special characters as names and is reflected into the", function() {
     cy.contains(".t--entity-name", "Page1").click();
 
     cy.contains(".t--entity-item", "CREATE_MESSAGE_TESTCopy")
@@ -146,13 +145,12 @@ describe("Test Entity Explorer", function() {
     cy.contains(".t--entity-item", "CREATE_MESSAGE_TESTCopy").type("CREATE@Test~$%&/()!*#");
 
     cy.contains(".t--entity-item", "CREATE@Test~$%&/()!*#",).should("not.exist");
-    cy.contains(".t--entity-item", "CREATE_Test__________",).should("not.exist");
+    cy.contains(".t--entity-item", "CREATE_Test__________",).should("exist");
 
     cy.contains(".t--entity-item", "CREATE_Test__________").type("{backspace}{backspace}{backspace}CREATE_MESSAGE_TESTCopy");
 
     cy.wait(3000);
-  });
-
+  });*/
 
   /*it("9.Test the user is able to copy the binding from the entity explorer and bind to a widget", function() {
     cy.addDsl(dsl);
@@ -187,7 +185,12 @@ describe("Test Entity Explorer", function() {
     cy.contains(
       ".language-appsmith-binding",
       "{{CREATE_MESSAGE_TESTCopy.isLoading}}",
-    ).click();
+    )
+      .click()
+      .then(($message) => {
+        const textToPaste = $message.text();
+        expect(textToPaste).equal("{{CREATE_MESSAGE_TESTCopy.isLoading}}");
+      });
   });
 
   it("12.Test the user is able to close the binding option by clicking on the cross mark", function() {

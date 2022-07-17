@@ -1,6 +1,5 @@
 /* eslint-disable cypress/no-unnecessary-waiting */
 /* eslint-disable cypress/no-assigning-return-values */
-
 require("cy-verify-downloads").addCustomCommand();
 require("cypress-file-upload");
 const pages = require("../locators/Pages.json");
@@ -8,6 +7,8 @@ const datasourceEditor = require("../locators/DatasourcesEditor.json");
 const datasourceFormData = require("../fixtures/datasources.json");
 const explorer = require("../locators/explorerlocators.json");
 const apiWidgetslocator = require("../locators/apiWidgetslocator.json");
+const datasource = require("../fixtures/datasources.json");
+import ApiEditor from "../locators/ApiEditor";
 
 const backgroundColorBlack = "rgb(0, 0, 0)";
 const backgroundColorGray1 = "rgb(250, 250, 250)";
@@ -536,4 +537,34 @@ Cypress.Commands.add("mockDatasourceDescriptionStyle", (tag) => {
     .and("have.css", "font-weight", "400")
     .and("have.css", "line-height", "17px")
     .and("have.css", "letter-spacing", "-0.24px");
+});
+
+Cypress.Commands.add("createTwilioDatasource", () => {
+  cy.get(datasourceEditor.Twilio).click();
+  cy.get(".t--json-to-form-wrapper").should("exist");
+  cy.get(ApiEditor.dropdownTypeAuth).click();
+  cy.contains(ApiEditor.test, "Basic Auth").click();
+  cy.get(datasourceEditor.datasourceTitle).type("Test Twilio");
+  cy.get(ApiEditor.backBtn).should("exist");
+  cy.get('input[name="datasourceConfiguration.authentication.username"]').type(
+    datasource.username,
+  );
+  cy.get(
+    'input[name="datasourceConfiguration.authentication.username"]',
+  ).should("have.value", datasource.username);
+
+  cy.get('input[name="datasourceConfiguration.authentication.password"]').type(
+    datasource.password,
+  );
+  cy.get(
+    'input[name="datasourceConfiguration.authentication.password"]',
+  ).should("have.value", datasource.password);
+
+  cy.get(".bp3-button-text:contains('Save')").click();
+
+  cy.wait("@saveDatasource").should(
+    "have.nested.property",
+    "response.body.responseMeta.status",
+    200,
+  );
 });

@@ -9,8 +9,9 @@ describe("Tests on active datasource behaviour ", function() {
     cy.get(pages.integrationCreateNew)
       .should("be.visible")
       .click({ force: true });
-    cy.get(".tab-title").contains("Active");
-    cy.get(".tab-title:contains('Active')").click();
+
+    //If the datasource does not exist
+    cy.createTwilioDatasource();
   });
 
   it("1. Test to check that the saved Twilio is displayed under the Active tab section", function() {
