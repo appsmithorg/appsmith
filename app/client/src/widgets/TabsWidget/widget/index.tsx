@@ -13,7 +13,6 @@ import { WidgetProperties } from "selectors/propertyPaneSelectors";
 import { WIDGET_PADDING } from "constants/WidgetConstants";
 import derivedProperties from "./parseDerivedProperties";
 import { isEqual, find } from "lodash";
-import { CanvasWidgetStructure } from "widgets/constants";
 
 export function selectedTabValidation(
   value: unknown,
@@ -264,9 +263,7 @@ class TabsWidget extends BaseWidget<
 
   renderComponent = () => {
     const selectedTabWidgetId = this.props.selectedTabWidgetId;
-    // TODO (Ashit): Fix the typing here
-    const childWidgetData = ((this.props
-      .children as unknown) as CanvasWidgetStructure[])
+    const childWidgetData = this.props.children
       ?.filter(Boolean)
       .filter((item) => {
         return selectedTabWidgetId === item.widgetId;

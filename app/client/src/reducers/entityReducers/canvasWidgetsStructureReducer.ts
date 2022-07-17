@@ -7,7 +7,11 @@ import {
 import { WidgetProps } from "widgets/BaseWidget";
 import { CanvasWidgetStructure } from "widgets/constants";
 import { pick } from "lodash";
-import { WIDGET_DSL_STRUCTURE_PROPS } from "constants/WidgetConstants";
+import {
+  MAIN_CONTAINER_WIDGET_ID,
+  WidgetType,
+  WIDGET_DSL_STRUCTURE_PROPS,
+} from "constants/WidgetConstants";
 
 export type FlattenedWidgetProps<orType = never> =
   | (WidgetProps & {
@@ -15,11 +19,26 @@ export type FlattenedWidgetProps<orType = never> =
     })
   | orType;
 
-export type CanvasWidgetsStructureReduxState = CanvasWidgetStructure;
+export type CanvasWidgetsStructureReduxState = {
+  children?: CanvasWidgetsStructureReduxState[];
+  type: WidgetType;
+  widgetId: string;
+  parentId?: string;
+  bottomRow: number;
+};
 
-// TODO (Ashit): Fix 'as'
-const initialState: CanvasWidgetsStructureReduxState = {} as CanvasWidgetsStructureReduxState;
+const initialState: CanvasWidgetsStructureReduxState = {
+  type: "CANVAS_WIDGET",
+  widgetId: MAIN_CONTAINER_WIDGET_ID,
+  bottomRow: 10,
+};
 
+/**
+ * Generate dsl type skeletal structure from canvas widgets
+ * @param rootWidgetId
+ * @param widgets
+ * @returns
+ */
 function denormalize(
   rootWidgetId: string,
   widgets: Record<string, FlattenedWidgetProps>,

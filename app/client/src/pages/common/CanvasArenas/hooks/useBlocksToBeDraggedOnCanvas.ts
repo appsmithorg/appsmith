@@ -7,7 +7,7 @@ import {
 import { useSelector } from "store";
 import { AppState } from "reducers";
 import { getSelectedWidgets } from "selectors/ui";
-import { getOccupiedSpacesWhileDraggingOrResizing } from "selectors/editorSelectors";
+import { getOccupiedSpacesWhileMoving } from "selectors/editorSelectors";
 import { getTableFilterState } from "selectors/tableFilterSelectors";
 import { OccupiedSpace } from "constants/CanvasEditorConstants";
 import { getDragDetails, getWidgetByID, getWidgets } from "sagas/selectors";
@@ -118,7 +118,7 @@ export const useBlocksToBeDraggedOnCanvas = ({
   );
   const selectedWidgets = useSelector(getSelectedWidgets);
   const occupiedSpaces =
-    useSelector(getOccupiedSpacesWhileDraggingOrResizing, isEqual) || {};
+    useSelector(getOccupiedSpacesWhileMoving, isEqual) || {};
   const isNewWidget = !!newWidget && !dragParent;
   const childrenOccupiedSpaces: OccupiedSpace[] =
     (dragParent && occupiedSpaces[dragParent]) || [];

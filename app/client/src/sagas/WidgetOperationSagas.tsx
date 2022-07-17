@@ -56,7 +56,7 @@ import log from "loglevel";
 import { navigateToCanvas } from "pages/Editor/Explorer/Widgets/utils";
 import {
   getCurrentPageId,
-  getWidgetSpacesSelectorForContainer,
+  getContainerWidgetSpacesSelector,
 } from "selectors/editorSelectors";
 import { selectMultipleWidgetsInitAction } from "actions/widgetSelectionActions";
 
@@ -1056,7 +1056,7 @@ function* getNewPositionsBasedOnSelectedWidgets(
     maxGridColumns: GridDefaults.DEFAULT_GRID_COLUMNS,
   };
 
-  const reflowSpacesSelector = getWidgetSpacesSelectorForContainer(parentId);
+  const reflowSpacesSelector = getContainerWidgetSpacesSelector(parentId);
   const widgetSpaces: WidgetSpace[] = yield select(reflowSpacesSelector) || [];
 
   // Ids of each pasting are changed just for reflow
@@ -1146,7 +1146,7 @@ function* getNewPositionsBasedOnMousePositions(
 
   if (!snapGrid || !mousePositions) return {};
 
-  const reflowSpacesSelector = getWidgetSpacesSelectorForContainer(canvasId);
+  const reflowSpacesSelector = getContainerWidgetSpacesSelector(canvasId);
   const widgetSpaces: WidgetSpace[] = yield select(reflowSpacesSelector) || [];
 
   let mouseTopRow = mousePositions.top;

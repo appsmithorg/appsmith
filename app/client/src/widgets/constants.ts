@@ -48,9 +48,9 @@ export type CanvasWidgetStructure = Pick<
   keyof typeof staticProps
 > & {
   children?: CanvasWidgetStructure[];
-  // TODO (Ashit): Remove these after refactor in container and container like widgets
-  containerStyle: string;
-  shouldScrollContents: boolean;
+
+  containerStyle?: string;
+  shouldScrollContents?: boolean;
   canExtend?: boolean;
   isVisible?: boolean;
   // List widget

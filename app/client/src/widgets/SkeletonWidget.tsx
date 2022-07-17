@@ -1,4 +1,3 @@
-// TODO: Remove this widget?
 import React from "react";
 import styled from "styled-components";
 import BaseWidget, { WidgetProps, WidgetState } from "./BaseWidget";

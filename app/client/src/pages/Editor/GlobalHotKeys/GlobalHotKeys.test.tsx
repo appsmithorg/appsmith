@@ -45,7 +45,6 @@ describe("Canvas Hot Keys", () => {
   const mockGetIsFetchingPage = jest.spyOn(utilities, "getIsFetchingPage");
   const spyGetCanvasWidgetDsl = jest.spyOn(utilities, "getCanvasWidgetDsl");
   const spyGetChildWidgets = jest.spyOn(utilities, "getChildWidgets");
-  const spyFormGetChildWidgets = jest.spyOn(utilities, "getFormChildWidgets");
   const spyCreateCanvasWidget = jest.spyOn(utilities, "createCanvasWidget");
 
   function UpdatedMainContainer({ dsl }: any) {
@@ -259,8 +258,6 @@ describe("Canvas Hot Keys", () => {
       expect(selectedWidgets.length).toBe(children.length);
     });
     it("Cmd + A - select all widgets inside a form", async () => {
-      spyFormGetChildWidgets.mockImplementation(mockGetChildWidgets);
-
       const children: any = buildChildren([
         { type: "FORM_WIDGET", parentId: MAIN_CONTAINER_WIDGET_ID },
       ]);

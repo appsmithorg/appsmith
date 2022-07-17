@@ -3,6 +3,12 @@ import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { getCommentMode } from "selectors/commentsSelectors";
 
+/**
+ * Replacing the commentModeSelector for extensively repeated components,
+ * but runs the check only when required,
+ * instead of every state change
+ * @returns
+ */
 export const useCommentMode = () => {
   const commentMode = useSelector(getCommentMode);
   const [isCommentMode, setCommentMode] = useState(commentMode);

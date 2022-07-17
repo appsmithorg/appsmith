@@ -5,6 +5,7 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import { useDynamicAppLayout } from "utils/hooks/useDynamicAppLayout";
 import { CanvasWidgetStructure } from "widgets/constants";
 import { RenderModes } from "constants/WidgetConstants";
+import { CanvasWidgetsStructureReduxState } from "reducers/entityReducers/canvasWidgetsStructureReducer";
 
 const PageView = styled.div<{ width: number }>`
   height: 100%;
@@ -14,12 +15,11 @@ const PageView = styled.div<{ width: number }>`
 `;
 
 type AppPageProps = {
-  // dsl: DSLWidget;
   appName?: string;
   canvasWidth: number;
   pageId?: string;
   pageName?: string;
-  widgetsStructure: CanvasWidgetStructure;
+  widgetsStructure: CanvasWidgetsStructureReduxState;
 };
 
 export function AppPage(props: AppPageProps) {
@@ -37,7 +37,10 @@ export function AppPage(props: AppPageProps) {
   return (
     <PageView className="t--app-viewer-page" width={props.canvasWidth}>
       {props.widgetsStructure.widgetId &&
-        WidgetFactory.createWidget(props.widgetsStructure, RenderModes.PAGE)}
+        WidgetFactory.createWidget(
+          props.widgetsStructure as CanvasWidgetStructure,
+          RenderModes.PAGE,
+        )}
     </PageView>
   );
 }

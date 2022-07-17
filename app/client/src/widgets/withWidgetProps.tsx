@@ -14,7 +14,6 @@ import {
   getChildWidgets,
   createLoadingWidget,
   getRenderMode,
-  getFormChildWidgets,
 } from "selectors/editorSelectors";
 import { AppState } from "reducers";
 import { CanvasWidgetStructure } from "./constants";
@@ -45,8 +44,6 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
 
     const childWidgets = useSelector((state: AppState) => {
       if (!WIDGETS_WITH_CHILD_WIDGETS.includes(type)) return undefined;
-
-      if (type === "FORM_WIDGET") return getFormChildWidgets(state, widgetId);
       return getChildWidgets(state, widgetId);
     }, equal);
 
@@ -101,8 +98,6 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
       widgetProps.children = children;
 
       widgetProps.isLoading = isLoading;
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
       widgetProps.childWidgets = childWidgets;
     }
 
@@ -110,8 +105,6 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
       widgetProps.renderMode = renderMode;
     }
 
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
     return <WrappedWidget {...props} {...widgetProps} />;
   }
 

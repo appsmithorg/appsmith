@@ -33,7 +33,6 @@ type AppViewerPageContainerProps = RouteComponentProps<AppViewerRouteParams>;
 
 function AppViewerPageContainer(props: AppViewerPageContainerProps) {
   const currentPageName = useSelector(getCurrentPageName);
-  // const widgets = useSelector(getCanvasWidgetDsl);
   const widgetsStructure = useSelector(getCanvasWidgetsStructure);
   const canvasWidth = useSelector(getCanvasWidth);
   const isFetchingPage = useSelector(getIsFetchingPage);

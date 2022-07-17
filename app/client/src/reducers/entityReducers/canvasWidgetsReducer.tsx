@@ -16,6 +16,26 @@ export type FlattenedWidgetProps<orType = never> =
     })
   | orType;
 
+/**
+ *
+ * @param updateLayoutDiff
+ * @returns list of widgets that were updated
+ */
+function getUpdatedWidgetLists(
+  updateLayoutDiff: Diff<
+    CanvasWidgetsReduxState,
+    {
+      [widgetId: string]: WidgetProps;
+    }
+  >[],
+) {
+  return uniq(
+    updateLayoutDiff
+      .map((diff: Diff<CanvasWidgetsReduxState>) => diff.path?.[0])
+      .filter((widgetId) => !!widgetId),
+  );
+}
+
 const canvasWidgetsReducer = createImmerReducer(initialState, {
   [ReduxActionTypes.INIT_CANVAS_LAYOUT]: (
     state: CanvasWidgetsReduxState,
@@ -38,6 +58,7 @@ const canvasWidgetsReducer = createImmerReducer(initialState, {
 
       listOfUpdatedWidgets = getUpdatedWidgetLists(updateLayoutDiff);
     }
+
     //update only the widgets that need to be updated.
     for (const widgetId of listOfUpdatedWidgets) {
       const updatedWidget = action.payload.widgets[widgetId];
@@ -49,26 +70,6 @@ const canvasWidgetsReducer = createImmerReducer(initialState, {
     }
   },
 });
-
-/**
- *
- * @param updateLayoutDiff
- * @returns list of widgets that were updated
- */
-const getUpdatedWidgetLists = (
-  updateLayoutDiff: Diff<
-    CanvasWidgetsReduxState,
-    {
-      [widgetId: string]: WidgetProps;
-    }
-  >[],
-) => {
-  return uniq(
-    updateLayoutDiff
-      .map((diff: Diff<CanvasWidgetsReduxState>) => diff.path?.[0])
-      .filter((widgetId) => !!widgetId),
-  );
-};
 export interface CanvasWidgetsReduxState {
   [widgetId: string]: FlattenedWidgetProps;
 }

@@ -143,6 +143,12 @@ export const widgetDraggingReducer = createImmerReducer(initialState, {
   },
 });
 
+/**
+ * checks if array of strings are equal
+ * @param arr1
+ * @param arr2
+ * @returns
+ */
 function areArraysEqual(arr1: string[], arr2: string[]) {
   if (arr1.length !== arr2.length) return false;
 

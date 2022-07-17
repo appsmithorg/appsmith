@@ -17,7 +17,7 @@ import {
   ReflowedSpace,
 } from "reflow/reflowTypes";
 import { getNearestParentCanvas } from "utils/generators";
-import { getOccupiedSpacesSelectorForContainerWhileResizing } from "selectors/editorSelectors";
+import { getContainerOccupiedSpacesSelectorWhileResizing } from "selectors/editorSelectors";
 import { isDropZoneOccupied } from "utils/WidgetPropsUtils";
 
 const ResizeWrapper = styled(animated.div)<{ prevents: boolean }>`
@@ -162,7 +162,7 @@ export function ReflowResizable(props: ResizableProps) {
   const [isResizing, setResizing] = useState(false);
 
   const occupiedSpacesBySiblingWidgets = useSelector(
-    getOccupiedSpacesSelectorForContainerWhileResizing(props.parentId),
+    getContainerOccupiedSpacesSelectorWhileResizing(props.parentId),
   );
   const checkForCollision = (widgetNewSize: {
     left: number;

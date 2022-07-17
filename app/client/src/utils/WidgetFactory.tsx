@@ -21,9 +21,6 @@ class WidgetFactory {
   static widgetTypes: Record<string, string> = {};
   static widgetMap: Map<
     WidgetType,
-    // TODO (Ashit): Fix
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
     WidgetBuilder<WidgetProps, WidgetState>
   > = new Map();
   static widgetDerivedPropertiesGetterMap: Map<
@@ -51,9 +48,6 @@ class WidgetFactory {
 
   static registerWidgetBuilder(
     widgetType: string,
-    // TODO (Ashit): Fix
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
     widgetBuilder: WidgetBuilder<WidgetProps, WidgetState>,
     derivedPropertiesMap: DerivedPropertiesMap,
     defaultPropertiesMap: Record<string, string>,
@@ -110,7 +104,6 @@ class WidgetFactory {
     const widgetBuilder = this.widgetMap.get(widgetData.type);
     if (widgetBuilder) {
       // TODO validate props here
-      // TODO (Ashit): Fix
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       const widget = widgetBuilder.buildWidget(widgetProps);

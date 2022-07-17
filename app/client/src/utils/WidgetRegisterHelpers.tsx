@@ -19,7 +19,6 @@ const generateWidget = memoize(function getWidgetComponent(
   needsMeta: boolean,
 ) {
   let widget = needsMeta ? withMeta(Widget) : Widget;
-  // const widget = withMeta(Widget);
   // eslint-disable-next-line
   // @ts-ignore
   widget = withWidgetProps(widget);
