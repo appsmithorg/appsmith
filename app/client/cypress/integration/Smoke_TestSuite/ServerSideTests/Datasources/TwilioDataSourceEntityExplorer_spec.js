@@ -4,8 +4,6 @@ import ApiEditor from "../../../../locators/ApiEditor";
 const dsl = require("../../../../fixtures/formInputTableDsl.json");
 
 /* TO-DO
-    8. Ensure the user is able to add special characters as names and is reflected into the
-    9. Ensure the user is able to copy the binding from the entity explorer and bind to a widget
     14.Ensure to add a longer query name and observe if it is truncated in the entity explorer
 */
 
@@ -16,8 +14,11 @@ describe("Test Entity Explorer", function() {
     cy.get(pages.integrationCreateNew)
       .should("be.visible")
       .click({ force: true });
+
     cy.get(".tab-title").contains("Active");
     cy.get(".tab-title:contains('Active')").click();
+    //If the datasource does not exist
+    //cy.createTwilioDatasource();
   });
 
   it("1. Test user is able to see the query in the entity explorer", function() {
@@ -133,40 +134,59 @@ describe("Test Entity Explorer", function() {
     );
   });
 
-  /*it("8. Test the user is able to add special characters as names and is reflected into the", function() {
+  it("8. Test the user is able to add special characters as names and is reflected into the", function() {
     cy.contains(".t--entity-name", "Page1").click();
+    cy.wait(3000);
 
-    cy.contains(".t--entity-item", "CREATE_MESSAGE_TESTCopy")
+    cy.contains(".t--entity-item", "CREATE_MESSAGE_TESTCopy2")
       .find(".entity-context-menu-icon")
       .click({ force: true });
 
     cy.selectAction("Edit Name");
 
-    cy.contains(".t--entity-item", "CREATE_MESSAGE_TESTCopy").type("CREATE@Test~$%&/()!*#");
-
-    cy.contains(".t--entity-item", "CREATE@Test~$%&/()!*#",).should("not.exist");
-    cy.contains(".t--entity-item", "CREATE_Test__________",).should("exist");
-
-    cy.contains(".t--entity-item", "CREATE_Test__________").type("{backspace}{backspace}{backspace}CREATE_MESSAGE_TESTCopy");
-
-    cy.wait(3000);
-  });*/
-
-  /*it("9.Test the user is able to copy the binding from the entity explorer and bind to a widget", function() {
-    cy.addDsl(dsl);
-
-    cy.SearchEntityandOpen("Input1");
-    cy.testJsontext("defaulttext", "Copy data");
-
-    cy.wait("@updateLayout").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      200,
+    cy.contains(".t--entity-item", "CREATE_MESSAGE_TESTCopy2").type(
+      "CREATE@TEST~$%&/()!*#",
     );
-  });*/
+
+    cy.contains(".t--entity-item", "CREATE@TEST~$%&/()!*#").should("not.exist");
+    cy.contains(".t--entity-item", "CREATE_TEST__________").should("exist");
+  });
+
+  it("9.Test the user is able to copy the binding from the entity explorer and bind to a widget", function() {
+    let textToPaste = "";
+    cy.contains(".t--entity-item", "CREATE_MESSAGE_TESTCopy")
+      .find(".entity-context-menu-icon")
+      .click({ force: true });
+
+    cy.selectAction("Show Bindings");
+    cy.contains(
+      ".language-appsmith-binding",
+      "{{CREATE_MESSAGE_TESTCopy.data}}",
+    )
+      .click()
+      .then(($message) => {
+        textToPaste = $message.text();
+        expect(textToPaste).equal("{{CREATE_MESSAGE_TESTCopy.data}}");
+
+        cy.addDsl(dsl);
+
+        cy.SearchEntityandOpen("Input1");
+        cy.testJsontext("defaulttext", textToPaste);
+
+        cy.wait("@updateLayout").should(
+          "have.nested.property",
+          "response.body.responseMeta.status",
+          200,
+        );
+      });
+  });
 
   it("10. Test the user is able to click Show BIndings and added binding are displayed to the user", function() {
+    cy.openDropdown("PAGES");
+
     cy.contains(".t--entity-name", "Page1").click();
+
+    cy.openDropdown("QUERIES/JS");
 
     cy.contains(".t--entity-item", "CREATE_MESSAGE_TESTCopy")
       .find(".entity-context-menu-icon")

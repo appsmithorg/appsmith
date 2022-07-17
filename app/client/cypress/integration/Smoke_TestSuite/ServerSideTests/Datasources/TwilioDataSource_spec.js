@@ -55,17 +55,17 @@ describe("Twilio Active datasource test cases", function() {
   it("6. Test clicking on Save option the DS gets saved", function() {
     cy.get(
       'input[name="datasourceConfiguration.authentication.username"]',
-    ).type(datasource.username);
+    ).type(datasource["twilio-username"]);
     cy.get(
       'input[name="datasourceConfiguration.authentication.username"]',
-    ).should("have.value", datasource.username);
+    ).should("have.value", datasource["twilio-username"]);
 
     cy.get(
       'input[name="datasourceConfiguration.authentication.password"]',
-    ).type(datasource.password);
+    ).type(datasource["twilio-password"]);
     cy.get(
       'input[name="datasourceConfiguration.authentication.password"]',
-    ).should("have.value", datasource.password);
+    ).should("have.value", datasource["twilio-password"]);
 
     cy.get(".bp3-button-text:contains('Save')").click();
 

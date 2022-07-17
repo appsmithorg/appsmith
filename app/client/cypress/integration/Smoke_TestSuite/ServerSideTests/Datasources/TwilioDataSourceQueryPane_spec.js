@@ -3,9 +3,8 @@ const queryLocators = require("../../../../locators/QueryEditor.json");
 import ApiEditor from "../../../../locators/ApiEditor";
 
 /* TO-DO
-    4. Ensure the user is displayed appropriate error messages on the wrong field data (List o Fetch)
+    4. Ensure the user is displayed appropriate error messages on the wrong field data (List or Fetch)
     5. Ensure Long body form is added  //Add more than 500 characters
-    9. Ensure user is able to add special characters to the name from Pane   //Ad special characters and verify is _
 */
 
 describe("Test Query Pane  ", function() {
@@ -17,6 +16,9 @@ describe("Test Query Pane  ", function() {
       .click({ force: true });
     cy.get(".tab-title").contains("Active");
     cy.get(".tab-title:contains('Active')").click();
+
+    //If the datasource does not exist
+    //cy.createTwilioDatasource();
   });
 
   it("1. Test user is displayed with following command", function() {
@@ -71,26 +73,32 @@ describe("Test Query Pane  ", function() {
     cy.get(".label-icon-wrapper:contains('Body')").contains("*");
   });
 
-  it("5. Test Ensure Long body form is added", function() {
-    cy.contains(ApiEditor.dropdownOption, "Create Message").click();
-
+  /*it("5. Test Ensure Long body form is added", function() {
     const query1 = '.t--actionConfiguration\.formData\.Body > .styledComponents__DynamicAutocompleteInputWrapper-gizjok-2 > .EvaluatedValuePopup__Wrapper-dlvj8d-0 > .styledComponents__EditorWrapper-gizjok-0 > [data-testid=code-editor-target] > .CodeMirror > .CodeMirror-scroll > .CodeMirror-sizer > [style="position: relative; top: 0px;"] > .CodeMirror-lines > [style="position: relative; outline: none;"] > .CodeMirror-code > .CodeMirror-line';
     const longBody = "This is a long text to test if a long entry with more than 500 characters works well. This is a long text to test if a long entry with more than 500 characters works well. This is a long text to test if a long entry with more than 500 characters works well. This is a long text to test if a long entry with more than 500 characters works well. This is a long text to test if a long entry with more than 500 characters works well. This is a long text to test if a long entry with more than 500 characters works well."
     cy.get(".t--actionConfiguration.formData.Body").type(longBody);
     cy.get(ApiEditor.backBtn).click();
 
-    cy.contains(".t--entity-item", "Test").click();
-    cy.contains(".t--form-control-QUERY_DYNAMIC_INPUT_TEXT", longBody).should("exist");
+    cy.contains(".t--entity-item", "Create Message").click();
+    cy.contains("..t--actionConfiguration.formData.Body", longBody).should("exist");
 
-  });
+  });*/
 
   it("6. Test use the method from the drop-down", function() {
-    cy.contains('[style="width: 100%;"] > .Text-sc-19bppua-0',"Create Message").click();
+    cy.contains(
+      '[style="width: 100%;"] > .Text-sc-19bppua-0',
+      "Create Message",
+    ).click();
     cy.contains(ApiEditor.dropdownOption, "Schedule Message").click();
 
-    cy.contains('[style="width: 100%;"] > .Text-sc-19bppua-0',"Create Message").should("not.exist");
-    cy.contains('[style="width: 100%;"] > .Text-sc-19bppua-0',"Schedule Message").should("exist");
-
+    cy.contains(
+      '[style="width: 100%;"] > .Text-sc-19bppua-0',
+      "Create Message",
+    ).should("not.exist");
+    cy.contains(
+      '[style="width: 100%;"] > .Text-sc-19bppua-0',
+      "Schedule Message",
+    ).should("exist");
   });
 
   it("7. Test user is able to change the name from the pane", function() {
@@ -122,20 +130,30 @@ describe("Test Query Pane  ", function() {
   });
 
   it("9. Test user is able to add special characters to the name from Pane", function() {
-    cy.contains(".t--entity-item", "CREATE_MESSAGE_TEST1")
-    .find(".entity-context-menu-icon")
-    .click({ force: true });
+    cy.get(ApiEditor.backBtn).click();
+    cy.get(".tab-title").contains("Active");
+    cy.get(".tab-title:contains('Active')").click();
+
+    cy.contains(".t--datasource-name", "Test Twilio")
+      .find(queryLocators.createQuery)
+      .click();
+
+    cy.get(queryLocators.queryNameField).type("CREATE_MESSAGE_TEST2");
+
+    cy.contains(".t--entity-item", "CREATE_MESSAGE_TEST2")
+      .find(".entity-context-menu-icon")
+      .click({ force: true });
 
     cy.selectAction("Edit Name");
 
-    cy.contains(".t--entity-item", "CREATE_MESSAGE_TEST1").type("CREATE@Test~$%&/()!*#");
+    cy.contains(".t--entity-item", "CREATE_MESSAGE_TEST2").type(
+      "CREATE@Test~$%&/()!*#",
+    );
+    cy.get("[alt='entityIcon']").click({ multiple: true }); //Only to save the query name
+    cy.wait(2000);
 
-    cy.contains(".t--entity-item", "CREATE@Test~$%&/()!*#",).should("not.exist");
-    cy.contains(".t--entity-item", "CREATE_Test__________",).should("exist");
-
-    cy.contains(".t--entity-item", "CREATE_Test__________").type("{backspace}{backspace}{backspace}CREATE_MESSAGE_TEST1");
-    cy.wait(3000);
-
+    cy.contains(".t--entity-item", "CREATE@Test~$%&/()!*#").should("not.exist");
+    cy.contains(".t--entity-item", "CREATE_Test__________").should("exist");
   });
 
   it("10. Test user is able to save the queries", function() {

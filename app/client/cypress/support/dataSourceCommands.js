@@ -547,18 +547,18 @@ Cypress.Commands.add("createTwilioDatasource", () => {
   cy.get(datasourceEditor.datasourceTitle).type("Test Twilio");
   cy.get(ApiEditor.backBtn).should("exist");
   cy.get('input[name="datasourceConfiguration.authentication.username"]').type(
-    datasource.username,
+    datasource["twilio-username"],
   );
   cy.get(
     'input[name="datasourceConfiguration.authentication.username"]',
-  ).should("have.value", datasource.username);
+  ).should("have.value", datasource["twilio-username"]);
 
   cy.get('input[name="datasourceConfiguration.authentication.password"]').type(
-    datasource.password,
+    datasource["twilio-password"],
   );
   cy.get(
     'input[name="datasourceConfiguration.authentication.password"]',
-  ).should("have.value", datasource.password);
+  ).should("have.value", datasource["twilio-password"]);
 
   cy.get(".bp3-button-text:contains('Save')").click();
 
