@@ -26,6 +26,7 @@ const selectors = {
 
 module.exports = class Perf {
   constructor(launchOptions = {}) {
+    this.iteration = launchOptions.iteration || 0; // Current iteration number
     this.launchOptions = {
       defaultViewport: null,
       args: ["--window-size=1920,1080"],
@@ -50,26 +51,48 @@ module.exports = class Perf {
       .pop()
       .replace(".perf.js", "");
     global.APP_ROOT = path.join(__dirname, ".."); //Going back one level from src folder to /perf
-    process.on("unhandledRejection", async (reason, p) => {
-      console.error("Unhandled Rejection at: Promise", p, "reason:", reason);
-      const fileName = sanitize(
-        `${this.currentTestFile}__${this.currentTrace}`,
-      );
-      const screenshotPath = `${APP_ROOT}/traces/reports/${fileName}-${getFormattedTime()}.png`;
-      await this.page.screenshot({
-        path: screenshotPath,
-      });
-      if (this.currentTrace) {
-        await this.stopTrace();
-      }
-      this.browser.close();
-    });
+
+    process.on("unhandledRejection", this.handleRejections);
   }
+
+  handleRejections = async (reason = "", p = "") => {
+    console.error("Unhandled Rejection at: Promise", p, "reason:", reason);
+    const fileName = sanitize(`${this.currentTestFile}__${this.currentTrace}`);
+
+    if (!this.page) {
+      console.warn("No page instance was found", this.currentTestFile);
+      return;
+    }
+    const screenshotPath = `${APP_ROOT}/traces/reports/${fileName}-${getFormattedTime()}.png`;
+    await this.page.screenshot({
+      path: screenshotPath,
+    });
+
+    const pageContent = await this.page.evaluate(() => {
+      return document.querySelector("body").innerHTML;
+    });
+
+    fs.writeFile(
+      `${APP_ROOT}/traces/reports/${fileName}-${getFormattedTime()}.html`,
+      pageContent,
+      (err) => {
+        if (err) {
+          console.error(err);
+        }
+      },
+    );
+
+    if (this.currentTrace) {
+      await this.stopTrace();
+    }
+    this.browser.close();
+  };
   /**
    * Launches the browser and, gives you the page
    */
   launch = async () => {
     await cleanTheHost();
+    await delay(3000);
     this.browser = await puppeteer.launch(this.launchOptions);
     const pages_ = await this.browser.pages();
     this.page = pages_[0];
@@ -97,7 +120,9 @@ module.exports = class Perf {
     await this.page._client.send("HeapProfiler.collectGarbage");
     await delay(1000, `After clearing memory`);
 
-    const path = `${APP_ROOT}/traces/${action}-${getFormattedTime()}-chrome-profile.json`;
+    const path = `${APP_ROOT}/traces/${action}-${
+      this.iteration
+    }-${getFormattedTime()}-chrome-profile.json`;
 
     await this.page.tracing.start({
       path: path,

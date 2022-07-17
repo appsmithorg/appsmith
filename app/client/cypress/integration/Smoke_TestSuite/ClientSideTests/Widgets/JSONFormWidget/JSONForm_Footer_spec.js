@@ -2,7 +2,7 @@ const dslWithoutSchema = require("../../../../../fixtures/jsonFormDslWithoutSche
 const dslWithSchema = require("../../../../../fixtures/jsonFormDslWithSchema.json");
 
 describe("JSONForm Footer spec", () => {
-  it("sticks to the bottom when fixed footer is true and content is less", () => {
+  it("1. sticks to the bottom when fixed footer is true and content is less", () => {
     cy.addDsl(dslWithoutSchema);
     // add small source data
     const sourceData = {
@@ -26,7 +26,7 @@ describe("JSONForm Footer spec", () => {
     });
   });
 
-  it("sticks to the content when fixed footer is off", () => {
+  it("2. sticks to the content when fixed footer is off", () => {
     // Disable fixed footer
     cy.togglebarDisable(".t--property-control-fixedfooter input");
 
@@ -40,11 +40,11 @@ describe("JSONForm Footer spec", () => {
     });
   });
 
-  it("floats to the bottom when fixed footer is true and content overflows", () => {
+  it("3. floats to the bottom when fixed footer is true and content overflows", () => {
     cy.addDsl(dslWithSchema);
+    cy.wait(3000); //for dsl to settle
 
     cy.openPropertyPane("jsonformwidget");
-
     // check if fixed footer enabled
     cy.get(".t--property-control-fixedfooter")
       .find("label.bp3-control")
@@ -65,7 +65,7 @@ describe("JSONForm Footer spec", () => {
       });
   });
 
-  it("floats to the bottom when fixed footer is false and content overflows", () => {
+  it("4. floats to the bottom when fixed footer is false and content overflows", () => {
     // Disable fixed footer
     cy.togglebarDisable(".t--property-control-fixedfooter input");
 

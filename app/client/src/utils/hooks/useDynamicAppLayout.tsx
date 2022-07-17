@@ -25,6 +25,7 @@ import {
   getIsCanvasInitialized,
   getMainCanvasCalculatedMinHeight,
 } from "selectors/mainCanvasSelectors";
+import { calculateDynamicHeight } from "utils/DSLMigrations";
 
 const BORDERS_WIDTH = 2;
 const GUTTER_WIDTH = 72;
@@ -35,12 +36,18 @@ export const useDynamicAppLayout = () => {
   const isExplorerPinned = useSelector(getExplorerPinned);
   const appMode: APP_MODE | undefined = useSelector(getAppMode);
   const { height: screenHeight, width: screenWidth } = useWindowSizeHooks();
-  const calculatedMinHeight = useSelector(getMainCanvasCalculatedMinHeight);
   const mainCanvasProps = useSelector(getMainCanvasProps);
   const isPreviewMode = useSelector(previewModeSelector);
   const currentPageId = useSelector(getCurrentPageId);
   const isCanvasInitialized = useSelector(getIsCanvasInitialized);
   const appLayout = useSelector(getCurrentApplicationLayout);
+
+  /**
+   * calculates min height
+   */
+  const calculatedMinHeight = useMemo(() => {
+    return calculateDynamicHeight();
+  }, [mainCanvasProps]);
 
   /**
    * app layout range i.e minWidth and maxWidth for the current layout
@@ -131,9 +138,7 @@ export const useDynamicAppLayout = () => {
     const { width: rightColumn } = mainCanvasProps || {};
 
     if (rightColumn !== calculatedWidth || !isCanvasInitialized) {
-      dispatch(
-        updateCanvasLayoutAction(calculatedWidth, mainCanvasProps?.height),
-      );
+      dispatch(updateCanvasLayoutAction(calculatedWidth, calculatedMinHeight));
     }
   };
 
