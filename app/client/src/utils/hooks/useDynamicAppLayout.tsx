@@ -21,10 +21,7 @@ import { scrollbarWidth } from "utils/helpers";
 import { useWindowSizeHooks } from "./dragResizeHooks";
 import { getAppMode } from "selectors/entitiesSelector";
 import { updateCanvasLayoutAction } from "actions/editorActions";
-import {
-  getIsCanvasInitialized,
-  getMainCanvasCalculatedMinHeight,
-} from "selectors/mainCanvasSelectors";
+import { getIsCanvasInitialized } from "selectors/mainCanvasSelectors";
 import { calculateDynamicHeight } from "utils/DSLMigrations";
 
 const BORDERS_WIDTH = 2;

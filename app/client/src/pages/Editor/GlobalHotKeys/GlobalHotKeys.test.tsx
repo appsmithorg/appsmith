@@ -258,6 +258,7 @@ describe("Canvas Hot Keys", () => {
       expect(selectedWidgets.length).toBe(children.length);
     });
     it("Cmd + A - select all widgets inside a form", async () => {
+      spyGetChildWidgets.mockImplementation(mockGetChildWidgets);
       const children: any = buildChildren([
         { type: "FORM_WIDGET", parentId: MAIN_CONTAINER_WIDGET_ID },
       ]);
