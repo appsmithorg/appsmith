@@ -24,7 +24,7 @@ const DropdownSelect = styled.div<{
   width: string;
 }>`
   font-size: 14px;
-  width: ${(props) => (props?.width ? props?.width : "35vw")};
+  width: ${(props) => (props?.width ? props?.width : "280px")};
 `;
 
 class DropDownControl extends BaseControl<Props> {
@@ -83,7 +83,7 @@ class DropDownControl extends BaseControl<Props> {
 
   render() {
     const styles = {
-      width: "35vw",
+      width: "280px",
       ...("customStyles" in this.props &&
       typeof this.props.customStyles === "object"
         ? this.props.customStyles

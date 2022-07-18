@@ -10,7 +10,7 @@ import React, {
 import { Classes, CommonComponentProps, hexToRgba } from "./common";
 import { Classes as BlueprintClasses } from "@blueprintjs/core";
 import styled, { withTheme } from "styled-components";
-import Text, { TextType } from "./Text";
+import { Text, TextType } from "design-system";
 import {
   ERROR_MESSAGE_NAME_EMPTY,
   createMessage,
