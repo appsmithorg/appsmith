@@ -15,6 +15,7 @@ import {
   VALID_JS_OBJECT_BINDING_POSITION,
   WARNING_LINT_ERRORS,
 } from "./constants";
+import { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTypeDefCreator";
 export const getIndexOfRegex = (
   str: string,
   regex: RegExp,
@@ -26,7 +27,7 @@ export const getIndexOfRegex = (
 
 interface LintAnnotationOptions {
   isJSObject: boolean;
-  contextData: Record<string, Record<string, unknown>>;
+  contextData: AdditionalDynamicDataTree;
 }
 
 const hasUndefinedIdentifierInContextData = (
@@ -97,7 +98,7 @@ export const getFirstNonEmptyPosition = (lines: string[]): Position => {
 
 export const filterLintErrors = (
   errors: EvaluationError[],
-  contextData?: Record<string, Record<string, unknown>>,
+  contextData?: AdditionalDynamicDataTree,
 ) => {
   return errors.filter(
     (error) =>
