@@ -39,11 +39,12 @@ describe("Test Postgres number of connections on page load", function() {
     agHelper.RenameWithInPane("create_user");
     const userName = "test_conn_user_" + guid;
     const userCreateQuery =
-      `drop owned by ` +
+      `create user ` +
       userName +
-      `; drop user test_conn_user;
-      create user test_conn_user with password 'password';
-      grant select, insert, update, delete on all tables in schema public TO test_conn_user;`;
+      ` with password 'password';
+      grant select, insert, update, delete on all tables in schema public TO ` +
+      userName +
+      `;`;
     dataSources.EnterQuery(userCreateQuery);
     cy.get(".CodeMirror textarea").focus();
     dataSources.RunQuery();
@@ -53,20 +54,16 @@ describe("Test Postgres number of connections on page load", function() {
   });
 
   it("3. Create new datasource for user test_conn_user", () => {
-    agHelper.GenerateUUID();
-    cy.get("@guid").then((uid) => {
-      dataSources.NavigateToDSCreateNew();
-      dataSources.CreatePlugIn("PostgreSQL");
-      guid = uid;
-      agHelper.RenameWithInPane("Postgres " + guid, false);
-      const userName = "test_conn_user_" + guid;
-      dataSources.FillPostgresDSForm(false, userName, "password");
-      dataSources.TestSaveDatasource();
+    dataSources.NavigateToDSCreateNew();
+    dataSources.CreatePlugIn("PostgreSQL");
+    agHelper.RenameWithInPane("Postgres_2_ " + guid, false);
+    const userName = "test_conn_user_" + guid;
+    dataSources.FillPostgresDSForm(false, userName, "password");
+    dataSources.TestSaveDatasource();
 
-      cy.wrap("Postgres " + guid).as("dsName");
-      cy.get("@dsName").then(($dsName) => {
-        dsName = $dsName;
-      });
+    cy.wrap("Postgres_2_ " + guid).as("dsName");
+    cy.get("@dsName").then(($dsName) => {
+      dsName = $dsName;
     });
   });
 
@@ -95,7 +92,10 @@ describe("Test Postgres number of connections on page load", function() {
     dataSources.NavigateFromActiveDS(dsName, true);
     agHelper.GetNClick(dataSources._templateMenu);
     agHelper.RenameWithInPane("check_number_of_connections");
-    const checkNoOfConnQuery = `select count(*) from pg_stat_activity where usename='test_conn_user'`;
+    const checkNoOfConnQuery =
+      `select count(*) from pg_stat_activity where usename='test_conn_user_` +
+      guid +
+      `'`;
     dataSources.EnterQuery(checkNoOfConnQuery);
     cy.get(".CodeMirror textarea").focus();
     dataSources.RunQuery();
