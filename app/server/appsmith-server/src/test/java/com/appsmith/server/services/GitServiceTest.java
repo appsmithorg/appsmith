@@ -1785,6 +1785,44 @@ public class GitServiceTest {
                 .verifyComplete();
     }
 
+    /**
+     * To verify when a git push fails the application is not deployed
+     */
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void commitApplication_pushFails_verifyAppNotPublished_throwUpstreamChangesFoundException() {
+
+        // Creating a new page to commit to git
+        PageDTO testPage = new PageDTO();
+        testPage.setName("GitServiceTestPageGitPushFail");
+        testPage.setApplicationId(gitConnectedApplication.getId());
+        applicationPageService.createPage(testPage).block();
+
+        GitCommitDTO commitDTO = new GitCommitDTO();
+        commitDTO.setDoPush(true);
+        commitDTO.setCommitMessage("New page added");
+
+        Mono<String> commitMono = gitService.commitApplication(commitDTO, gitConnectedApplication.getId(), DEFAULT_BRANCH);
+
+        Mono<Application> committedApplicationMono = applicationService.getApplicationByDefaultApplicationIdAndDefaultBranch(gitConnectedApplication.getId());
+
+        // Mocking a git push failure
+        Mockito.when(gitExecutor.pushApplication(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
+                .thenReturn(Mono.error(new AppsmithException(AppsmithError.GIT_UPSTREAM_CHANGES)));
+
+        StepVerifier
+                .create(commitMono)
+                .expectErrorMatches(throwable -> throwable instanceof AppsmithException)
+                .verify();
+
+        StepVerifier
+                .create(committedApplicationMono)
+                .assertNext(application -> {
+                    assertThat(application.getPublishedPages().size()).isEqualTo(gitConnectedApplication.getPublishedPages().size());
+                })
+                .verifyComplete();
+    }
+
     @Test
     @WithUserDetails(value = "api_user")
     public void createBranch_branchWithOriginPrefix_throwUnsupportedException() {
