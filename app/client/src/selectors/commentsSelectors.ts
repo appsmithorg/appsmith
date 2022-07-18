@@ -28,6 +28,7 @@ export const getCommentMode = (state: AppState) =>
   state.ui.comments?.isCommentMode;
 
 //TODO, remove logic from below selector
+// Do not use this selector in components, can be used in Sagas.
 export const commentModeSelector = (state: AppState) => {
   const pathName = window.location.pathname;
   const onEditorOrViewerPage =
