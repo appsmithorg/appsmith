@@ -6,11 +6,9 @@ import {
   LATEST_PAGE_VERSION,
   MAIN_CONTAINER_WIDGET_ID,
 } from "constants/WidgetConstants";
-import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
 import { nextAvailableRowInContainer } from "entities/Widget/utils";
 import { get, has, isEmpty, isString, omit, set } from "lodash";
 import * as Sentry from "@sentry/react";
-import { CANVAS_DEFAULT_HEIGHT_PX } from "constants/AppConstants";
 import { ChartDataPoint } from "widgets/ChartWidget/constants";
 import log from "loglevel";
 import { migrateIncorrectDynamicBindingPathLists } from "./migrations/IncorrectDynamicBindingPathLists";
@@ -668,34 +666,20 @@ const pixelToNumber = (pixel: string) => {
   return 0;
 };
 
-export const calculateDynamicHeight = (
-  canvasWidgets: {
-    [widgetId: string]: FlattenedWidgetProps;
-  } = {},
-  presentMinimumHeight = CANVAS_DEFAULT_HEIGHT_PX,
-) => {
-  let minimumHeight = presentMinimumHeight;
-  const nextAvailableRow = nextAvailableRowInContainer(
-    MAIN_CONTAINER_WIDGET_ID,
-    canvasWidgets,
-  );
+export const calculateDynamicHeight = () => {
   const screenHeight = window.innerHeight;
   const gridRowHeight = GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
-  const calculatedCanvasHeight = nextAvailableRow * gridRowHeight;
   // DGRH - DEFAULT_GRID_ROW_HEIGHT
   // View Mode: Header height + Page Selection Tab = 8 * DGRH (approx)
   // Edit Mode: Header height + Canvas control = 8 * DGRH (approx)
   // buffer: ~8 grid row height
-  const buffer = gridRowHeight + 2 * pixelToNumber(theme.smallHeaderHeight);
+  const buffer =
+    gridRowHeight +
+    2 * pixelToNumber(theme.smallHeaderHeight) +
+    pixelToNumber(theme.bottomBarHeight);
   const calculatedMinHeight =
     Math.floor((screenHeight - buffer) / gridRowHeight) * gridRowHeight;
-  if (
-    calculatedCanvasHeight < screenHeight &&
-    calculatedMinHeight !== presentMinimumHeight
-  ) {
-    minimumHeight = calculatedMinHeight;
-  }
-  return minimumHeight;
+  return calculatedMinHeight;
 };
 
 export const migrateInitialValues = (
