@@ -154,7 +154,7 @@
   "currencyBindingValue": "{{CurrencyInput1.value}}",
   "multitreeselectBindingValue": "{{MultiTreeSelect1.selectedOptionValues}}",
   "radiogroupselectBindingValue": "{{RadioGroup1.selectedOptionValue}}",
-  "listBindingValue": "{{List1.selectedItem}}",
+  "listBindingValue": "{{List1.selectedItem.id}}",
   "ratingBindingValue": "{{Rating1.value}}",
   "checkboxGroupBindingValue": "{{CheckboxGroup1.selectedValues}}",
   "checkboxBindingValue": "{{Checkbox1.isChecked}}",

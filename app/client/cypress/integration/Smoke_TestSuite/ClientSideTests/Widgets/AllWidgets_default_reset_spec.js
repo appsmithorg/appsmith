@@ -65,7 +65,7 @@ xdescribe(`TresSelect widget test for validating reset action`, () => {
   });
 });
 
-xdescribe(`Tab widget test for validating reset action`, () => {
+describe(`Tab widget test for validating reset action`, () => {
   before(() => {
     cy.addDsl(dsl);
   });
@@ -527,10 +527,11 @@ describe(`List widget test for validating reset action`, () => {
       PROPERTY_SELECTOR.onClick,
       `{{resetWidget("List1",true).then(() => showAlert("success"))}}`,
     );
-    cy.openPropertyPane(WIDGET.TEXT);
+    cy.get(".t--draggable-textwidget")
+      .last()
+      .click({ force: true });
     cy.updateCodeInput(PROPERTY_SELECTOR.text, testdata.listBindingValue);
     cy.closePropertyPane();
-
     cy.get(getWidgetSelector(WIDGET.BUTTON_WIDGET)).click();
     cy.wait("@updateLayout");
     cy.get(".t--toast-action span").contains("success");
@@ -538,19 +539,14 @@ describe(`List widget test for validating reset action`, () => {
 
   it("3. Publish the app and validate reset action", function() {
     cy.PublishtheApp();
-    cy.get(".select-button").click({ force: true });
-    cy.get(".bp3-input")
-      .click({ force: true })
-      .type("123");
+    cy.get(".t--widget-containerwidget")
+      .eq(1)
+      .click({ force: true });
     cy.wait(3000);
-    cy.get(".t--text-widget-container").each((item, index, list) => {
-      cy.wrap(item).should("contain.text", "123");
-    });
+    cy.get(".t--text-widget-container").should("contain.text", "002");
     cy.get("button:contains('Submit')").click({ force: true });
     cy.wait(1000);
-    cy.get(".t--text-widget-container").each((item, index, list) => {
-      cy.wrap(item).should("not.contain.text", "");
-    });
+    cy.get(".t--text-widget-container").should("contain.text", "001");
     cy.get(".t--toast-action span").contains("success");
   });
 

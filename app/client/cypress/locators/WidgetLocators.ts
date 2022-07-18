@@ -7,7 +7,7 @@ export const WIDGET = {
   MULTISELECT_WIDGET: "multiselectwidgetv2",
   TREESELECT_WIDGET: "singleselecttreewidget",
   TAB: "tabswidget",
-  TABLE: "tablewidget",
+  TABLE: "tablewidgetv2",
   SWITCHGROUP: "switchgroupwidget",
   SWITCH: "switchwidget",
   SELECT: "selectwidget",
