@@ -11,7 +11,11 @@ import {
   ReduxActionTypes,
   WidgetReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
-import { CANVAS_MIN_HEIGHT, GridDefaults } from "constants/WidgetConstants";
+import {
+  CANVAS_MIN_HEIGHT,
+  GridDefaults,
+  MAIN_CONTAINER_WIDGET_ID,
+} from "constants/WidgetConstants";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import { flattenDeep, omit, orderBy } from "lodash";
@@ -38,6 +42,8 @@ import {
 } from "selectors/onboardingSelectors";
 import { toggleShowDeviationDialog } from "actions/onboardingActions";
 import { generateDynamicHeightComputationTree } from "actions/dynamicHeightActions";
+import { getMainCanvasProps } from "selectors/editorSelectors";
+import { MainCanvasReduxState } from "reducers/uiReducers/mainCanvasReducer";
 const WidgetTypes = WidgetFactory.widgetTypes;
 
 type WidgetDeleteTabChild = {
@@ -172,8 +178,17 @@ function* getUpdatedDslAfterDeletingWidget(widgetId: string, parentId: string) {
       otherWidgetsToDelete.map((widgets) => widgets.widgetId),
     );
 
+    //Main canvas's minheight keeps varying, hence retrieving updated value
+    let mainCanvasMinHeight;
+    if (parentId === MAIN_CONTAINER_WIDGET_ID) {
+      const mainCanvasProps: MainCanvasReduxState = yield select(
+        getMainCanvasProps,
+      );
+      mainCanvasMinHeight = mainCanvasProps?.height;
+    }
+
     // Note: mutates finalWidgets
-    resizeCanvasToLowestWidget(finalWidgets, parentId);
+    resizeCanvasToLowestWidget(finalWidgets, parentId, mainCanvasMinHeight);
     return {
       finalWidgets,
       otherWidgetsToDelete,
@@ -276,7 +291,17 @@ function* deleteAllSelectedWidgetsSaga(
     );
     // assuming only widgets with same parent can be selected
     const parentId = widgets[selectedWidgets[0]].parentId;
-    resizeCanvasToLowestWidget(finalWidgets, parentId);
+
+    //Main canvas's minheight keeps varying, hence retrieving updated value
+    let mainCanvasMinHeight;
+    if (parentId === MAIN_CONTAINER_WIDGET_ID) {
+      const mainCanvasProps: MainCanvasReduxState = yield select(
+        getMainCanvasProps,
+      );
+      mainCanvasMinHeight = mainCanvasProps?.height;
+    }
+
+    resizeCanvasToLowestWidget(finalWidgets, parentId, mainCanvasMinHeight);
 
     yield put(updateAndSaveLayout(finalWidgets));
     yield put(generateDynamicHeightComputationTree(true));
@@ -351,6 +376,7 @@ function* postDelete(
 function resizeCanvasToLowestWidget(
   finalWidgets: CanvasWidgetsReduxState,
   parentId: string | undefined,
+  mainCanvasMinHeight: number | undefined,
 ) {
   if (!parentId) return;
 

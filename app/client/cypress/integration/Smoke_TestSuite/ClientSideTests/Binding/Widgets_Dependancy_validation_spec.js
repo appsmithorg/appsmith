@@ -42,7 +42,6 @@ describe("Binding the multiple input Widget", function() {
   });
 
   it("3. Binding second input widget with first input widget and validating", function() {
-    cy.selectEntityByName("WIDGETS");
     cy.selectEntityByName("Input2");
     cy.testJsontext("defaulttext", testdata.defaultMoustacheData + "}}");
 
@@ -66,7 +65,7 @@ describe("Binding the multiple input Widget", function() {
   });
 
   it("4. Binding third input widget with first input widget and validating", function() {
-    cy.selectEntityByName("WIDGETS");
+    cy.CheckAndUnfoldWidgets();
     cy.selectEntityByName("Input3");
     cy.testJsontext("defaulttext", testdata.defaultMoustacheData + "}}");
 

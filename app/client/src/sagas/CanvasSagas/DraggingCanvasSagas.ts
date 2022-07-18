@@ -45,6 +45,7 @@ export function* getCanvasSizeAfterWidgetMove(
   movedWidgetsBottomRow: number,
 ) {
   const canvasWidget: WidgetProps = yield select(getWidget, canvasWidgetId);
+
   if (canvasWidget) {
     const occupiedSpacesByChildren: OccupiedSpace[] | undefined = yield select(
       getOccupiedSpacesSelectorForContainer(canvasWidgetId),
