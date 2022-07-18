@@ -649,7 +649,7 @@ describe("Validate Mongo Query Pane Validations", () => {
     agHelper.GetNClick(dataSources._templateMenu);
 
     dataSources.EnterQuery(dropCollection);
-    cy.get(".CodeMirror textarea").focus();
+     agHelper.FocusElement(locator._codeMirrorTextArea);;
     //agHelper.VerifyEvaluatedValue(tableCreateQuery);
 
     dataSources.RunQuery();
@@ -667,7 +667,7 @@ describe("Validate Mongo Query Pane Validations", () => {
     agHelper.GetNClick(dataSources._templateMenu);
     agHelper.RenameWithInPane("DropAuthorNAwards");
     dataSources.EnterQuery(dropCollection);
-    cy.get(locator._codeMirrorTextArea).focus();
+     agHelper.FocusElement(locator._codeMirrorTextArea);;
     //agHelper.VerifyEvaluatedValue(tableCreateQuery);
 
     dataSources.RunQuery(false);
@@ -768,7 +768,7 @@ describe("Validate Mongo Query Pane Validations", () => {
     agHelper.GetNClick(dataSources._templateMenu);
     agHelper.RenameWithInPane("DropBirthNDeath");
     dataSources.EnterQuery(dropCollection);
-    cy.get(".CodeMirror textarea").focus();
+     agHelper.FocusElement(locator._codeMirrorTextArea);;
     dataSources.RunQuery();
   });
 

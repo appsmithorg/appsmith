@@ -165,7 +165,7 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
     agHelper.GetNClick(dataSources._templateMenu);
     agHelper.RenameWithInPane("CreateVessels");
     dataSources.EnterQuery(tableCreateQuery);
-    cy.get(".CodeMirror textarea").focus();
+     agHelper.FocusElement(locator._codeMirrorTextArea);;
     //agHelper.VerifyEvaluatedValue(tableCreateQuery); //failing sometimes!
 
     dataSources.RunQueryNVerifyResponseViews();
@@ -690,7 +690,7 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
     agHelper.GetNClick(dataSources._templateMenu);
     agHelper.RenameWithInPane("DropVessels");
     dataSources.EnterQuery(deleteTblQuery);
-    cy.get(".CodeMirror textarea").focus();
+     agHelper.FocusElement(locator._codeMirrorTextArea);;
     //agHelper.VerifyEvaluatedValue(tableCreateQuery);
 
     dataSources.RunQueryNVerifyResponseViews();
@@ -707,7 +707,7 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
     agHelper.GetNClick(dataSources._templateMenu);
     agHelper.RenameWithInPane("DropVessels");
     dataSources.EnterQuery(deleteTblQuery);
-    cy.get(locator._codeMirrorTextArea).focus();
+     agHelper.FocusElement(locator._codeMirrorTextArea);;
     //agHelper.VerifyEvaluatedValue(tableCreateQuery);
 
     dataSources.RunQuery(false);

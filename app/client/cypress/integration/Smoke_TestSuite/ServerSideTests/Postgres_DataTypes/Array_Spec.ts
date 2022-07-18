@@ -593,7 +593,7 @@ describe("Array Datatype tests", function() {
     //Verifying error
     query = `SELECT ARRAY[1, 2] || '7';`;
     dataSources.EnterQuery(query);
-    cy.get(locator._codeMirrorTextArea).focus();
+     agHelper.FocusElement(locator._codeMirrorTextArea);;
     dataSources.RunQuery();
     agHelper
       .GetText(dataSources._queryError)

@@ -42,7 +42,7 @@ describe("DateTime Datatype tests", function() {
     agHelper.GetNClick(dataSources._templateMenu);
     agHelper.RenameWithInPane("createTable");
     dataSources.EnterQuery(query);
-    cy.get(".CodeMirror textarea").focus();
+     agHelper.FocusElement(locator._codeMirrorTextArea);;
     dataSources.RunQuery();
     ee.ExpandCollapseEntity("DATASOURCES");
     ee.ExpandCollapseEntity(dsName);

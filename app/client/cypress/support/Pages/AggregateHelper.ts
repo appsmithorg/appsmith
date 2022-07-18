@@ -336,8 +336,8 @@ export class AggregateHelper {
     //     .click()
   }
 
-  public Escape(){
-    cy.get('body').type("{esc}");
+  public Escape() {
+    cy.get("body").type("{esc}");
   }
 
   public RemoveMultiSelectItems(items: string[]) {
@@ -746,6 +746,13 @@ export class AggregateHelper {
       : cy.get(selector);
     if (index) locator.eq(index).should("have.length", length);
     else locator.should("have.length", length);
+  }
+
+  public FocusElement(selector: string) {
+    const locator = selector.startsWith("//")
+      ? cy.xpath(selector)
+      : cy.get(selector);
+    locator.focus();
   }
 
   //Not used:
