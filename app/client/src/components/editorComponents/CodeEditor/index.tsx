@@ -695,7 +695,6 @@ class CodeEditor extends Component<Props, State> {
     if (!dataTreePath || !this.updateLintingCallback || !editor) {
       return;
     }
-
     const errors = _.get(
       dynamicData,
       getEvalErrorPath(dataTreePath),
