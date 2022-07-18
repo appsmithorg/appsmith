@@ -37,6 +37,7 @@ import {
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import {
   Wrapper,
+  BackButton,
   BottomSpace,
   HeaderWrapper,
   SettingsHeader,
@@ -182,6 +183,7 @@ export function SettingsForm(
 
   return (
     <Wrapper>
+      {subCategory && <BackButton />}
       <SettingsFormWrapper>
         <HeaderWrapper>
           <SettingsHeader>{pageTitle}</SettingsHeader>

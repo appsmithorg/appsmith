@@ -15,7 +15,7 @@ Cypress.Commands.add("revokeAccessGit", (appName) => {
     .click();
   cy.get(gitSyncLocators.disconnectAppNameInput).type(appName);
   cy.get(gitSyncLocators.disconnectButton).click();
-  cy.route("POST", "api/v1/git/disconnect/*").as("disconnect");
+  cy.route("POST", "api/v1/git/disconnect/app/*").as("disconnect");
   cy.get(gitSyncLocators.disconnectButton).click();
   cy.wait("@disconnect").should(
     "have.nested.property",
@@ -45,7 +45,7 @@ Cypress.Commands.add(
 
     cy.intercept(
       {
-        url: "api/v1/git/connect/*",
+        url: "api/v1/git/connect/app/*",
         hostname: window.location.host,
       },
       (req) => {
@@ -160,6 +160,7 @@ Cypress.Commands.add("switchGitBranch", (branch, expectError) => {
     cy.get(".bp3-spinner", { timeout: 30000 }).should("exist");
     cy.get(".bp3-spinner", { timeout: 30000 }).should("not.exist");
   }
+  cy.wait(2000);
 });
 
 Cypress.Commands.add("createTestGithubRepo", (repo, privateFlag = false) => {
@@ -232,7 +233,7 @@ Cypress.Commands.add("commitAndPush", (assertFailure) => {
       "response.body.responseMeta.status",
       201,
     );
-    cy.wait(2000);
+    cy.wait(3000);
   } else {
     cy.wait("@commit").then((interception) => {
       const status = interception.response.body.responseMeta.status;
@@ -276,11 +277,21 @@ Cypress.Commands.add(
 
 Cypress.Commands.add("merge", (destinationBranch) => {
   cy.get(gitSyncLocators.bottomBarMergeButton).click();
-  cy.wait(2000); // wait for git status call to finish
+  cy.wait(5000); // wait for git status call to finish
+  /*cy.wait("@gitStatus").should(
+    "have.nested.property",
+    "response.body.responseMeta.status",
+    200,
+  ); */
   cy.get(gitSyncLocators.mergeBranchDropdownDestination).click();
   cy.get(commonLocators.dropdownmenu)
     .contains(destinationBranch)
     .click();
+  cy.wait("@mergeStatus").should(
+    "have.nested.property",
+    "response.body.data.isMergeAble",
+    true,
+  );
   cy.contains(Cypress.env("MESSAGES").NO_MERGE_CONFLICT());
   cy.get(gitSyncLocators.mergeCTA).click();
   cy.wait("@mergeBranch").should(
@@ -301,7 +312,7 @@ Cypress.Commands.add(
     let generatedKey;
     cy.intercept(
       {
-        url: "api/v1/git/connect/*",
+        url: "api/v1/git/connect/app/*",
         hostname: window.location.host,
       },
       (req) => {

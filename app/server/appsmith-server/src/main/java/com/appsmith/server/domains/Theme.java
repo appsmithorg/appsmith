@@ -16,7 +16,7 @@ import java.util.Map;
 @Document
 public class Theme extends BaseDomain {
     public static final String LEGACY_THEME_NAME = "classic";
-    public static final String DEFAULT_THEME_NAME = "classic";
+    public static final String DEFAULT_THEME_NAME = "default";
 
     // name will be used internally to identify system themes for import, export application and theme migration
     // it'll never change. We need to remove this from API response in future when FE uses displayName everywhere
