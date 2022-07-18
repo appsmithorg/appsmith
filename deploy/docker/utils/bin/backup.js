@@ -127,7 +127,7 @@ async function createFinalArchive(destFolder, timestamp) {
 }
 
 async function postBackupCleanup(){
-  console.log('Post-backup cleanup');
+  console.log('Starting the cleanup task after taking a backup.');
   let backupArchivesLimit = process.env.APPSMITH_BACKUP_ARCHIVE_LIMIT;
   if(!backupArchivesLimit)
     backupArchivesLimit = 4;
@@ -136,7 +136,7 @@ async function postBackupCleanup(){
     const fileName = backupFiles.shift();
     await fsPromises.rm(Constants.BACKUP_PATH + '/' + fileName);
   }
-  console.log('Post-backup cleanup completed.');
+  console.log('Cleanup task completed.');
 
 }
 
