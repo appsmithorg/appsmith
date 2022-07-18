@@ -22,6 +22,7 @@ import styled from "styled-components";
 const FlexWrapper = styled.div`
   display: flex;
   width: fit-content;
+  margin-right: 16px;
   & .t--js-toggle {
     margin-bottom: 0px;
   }
