@@ -2,7 +2,6 @@ package com.external.connections;
 
 import com.appsmith.external.constants.Authentication;
 import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
-import com.appsmith.external.helpers.SSLHelper;
 import com.appsmith.external.models.AuthenticationDTO;
 import com.appsmith.external.models.AuthenticationResponse;
 import com.appsmith.external.models.DatasourceConfiguration;
@@ -84,14 +83,11 @@ public class OAuth2ClientCredentials extends APIConnection implements UpdatableC
 
     private Mono<OAuth2> generateOAuth2Token(DatasourceConfiguration datasourceConfiguration) {
         final OAuth2 oAuth2 = (OAuth2) datasourceConfiguration.getAuthentication();
-        HttpClient httpClient = HttpClient.create();
+        final HttpClient securedHttpClient = this.getSecuredHttpClient(datasourceConfiguration);
 
-        if (oAuth2.isUseSelfSignedCert()) {
-            httpClient = httpClient.secure(SSLHelper.sslCheckForHttpClient(datasourceConfiguration));
-        }
         // Webclient
         final WebClient.Builder webClientBuilder = WebClient.builder()
-                .clientConnector(new ReactorClientHttpConnector(httpClient))
+                .clientConnector(new ReactorClientHttpConnector(securedHttpClient))
                 .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED_VALUE)
                 .exchangeStrategies(ExchangeStrategies
                         .builder()
