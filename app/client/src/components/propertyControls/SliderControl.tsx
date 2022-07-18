@@ -26,9 +26,9 @@ function AdsSlider(props: ISliderProps) {
           ? props.className + " " + replayHighlightClass
           : replayHighlightClass
       }
-      labelStepSize={25}
-      max={100}
-      min={0}
+      labelStepSize={250}
+      max={1000}
+      min={4}
     />
   );
 }
