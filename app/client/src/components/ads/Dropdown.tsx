@@ -1155,12 +1155,12 @@ export default function Dropdown(props: DropdownProps) {
 
   const onParentResize = useCallback(
     debounce(() => {
-      if (dropdownWrapperRef.current) {
+      if (dropdownWrapperRef.current && props.fillOptions) {
         const { width } = dropdownWrapperRef.current.getBoundingClientRect();
         setDropdownWrapperWidth(`${width}px`);
       }
     }, 500),
-    [dropdownWrapperRef.current],
+    [dropdownWrapperRef.current, props.fillOptions],
   );
 
   useEffect(() => {
