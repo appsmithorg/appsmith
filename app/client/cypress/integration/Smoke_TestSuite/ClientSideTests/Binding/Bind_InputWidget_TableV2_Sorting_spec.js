@@ -1,5 +1,4 @@
 const dsl = require("../../../../fixtures/formInputTableV2Dsl.json");
-const widgetsPage = require("../../../../locators/Widgets.json");
 const publish = require("../../../../locators/publishWidgetspage.json");
 const testdata = require("../../../../fixtures/testdata.json");
 
@@ -52,20 +51,7 @@ describe("Binding the Table and input Widget", function() {
 
   it("3. validation of column id displayed in input widgets based on sorted column", function() {
     cy.SearchEntityandOpen("Input1");
-    cy.get(".t--property-control-defaulttext .CodeMirror  textarea")
-      .first()
-      .focus()
-      .type("{ctrl}{shift}{downarrow}")
-      .then(($cm) => {
-        if ($cm.val() !== "") {
-          cy.get(".t--property-control-defaulttext .CodeMirror textarea")
-            .first()
-            .clear({
-              force: true,
-            });
-        }
-      });
-    cy.get(widgetsPage.defaultInput).type(testdata.sortedColumn);
+    cy.testJsontext("defaulttext", testdata.sortedColumn+ "}}");
     cy.wait("@updateLayout").should(
       "have.nested.property",
       "response.body.responseMeta.status",
