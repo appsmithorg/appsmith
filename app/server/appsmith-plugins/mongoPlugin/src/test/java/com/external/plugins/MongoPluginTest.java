@@ -2651,4 +2651,108 @@ public class    MongoPluginTest {
                 })
                 .verifyComplete();
     }
+
+    @Test
+    public void testInsertAndFindInvalidDatetime() {
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+
+        Map<String, Object> configMap = new HashMap<>();
+        setDataValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.FALSE);
+        setDataValueSafelyInFormData(configMap, COMMAND, "INSERT");
+        setDataValueSafelyInFormData(configMap, COLLECTION, "users");
+        setDataValueSafelyInFormData(configMap, INSERT_DOCUMENT, "[\n" +
+                "      {\n" +
+                "        \"name\": {\n" +
+                "          \"first\": \"John\",\n" +
+                "          \"last\": \"Backus\"\n" +
+                "        },\n" +
+                "        \"birth\": ISODate(\"0001-01-01T00:00:00.000+00:00\"),\n" +
+                "        \"death\": ISODate(\"2007-03-17T04:00:00Z\"),\n" +
+                "        \"issue\": 13285\n" +
+                "      },\n" +
+                "      {\n" +
+                "        \"name\": {\n" +
+                "          \"first\": \"John\",\n" +
+                "          \"last\": \"McCarthy\"\n" +
+                "        },\n" +
+                "        \"birth\": ISODate(\"1927-09-04T04:00:00Z\"),\n" +
+                "        \"death\": ISODate(\"2011-12-24T05:00:00Z\"),\n" +
+                "        \"issue\": 13285\n" +
+                "      },\n" +
+                "      {\n" +
+                "        \"name\": {\n" +
+                "          \"first\": \"Grace\",\n" +
+                "          \"last\": \"Hopper\"\n" +
+                "        },\n" +
+                "        \"title\": \"Rear Admiral\",\n" +
+                "        \"birth\": ISODate(\"1906-12-09T05:00:00Z\"),\n" +
+                "        \"death\": ISODate(\"1992-01-01T05:00:00Z\"),\n" +
+                "        \"issue\": 13285\n" +
+                "      },\n" +
+                "      {\n" +
+                "        \"name\": {\n" +
+                "          \"first\": \"Kristen\",\n" +
+                "          \"last\": \"Nygaard\"\n" +
+                "        },\n" +
+                "        \"birth\": ISODate(\"1926-08-27T04:00:00Z\"),\n" +
+                "        \"death\": ISODate(\"2002-08-10T04:00:00Z\"),\n" +
+                "        \"issue\": 13285\n" +
+                "      }\n" +
+                "]");
+
+        actionConfiguration.setFormData(configMap);
+
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+        Mono<MongoClient> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
+        Mono<Object> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.executeParameterized(conn, new ExecuteActionDTO(), dsConfig, actionConfiguration));
+        StepVerifier.create(executeMono)
+                .assertNext(obj -> {
+                    ActionExecutionResult result = (ActionExecutionResult) obj;
+                    assertNotNull(result);
+                    assertTrue(result.getIsExecutionSuccess());
+                    assertNotNull(result.getBody());
+                    assertEquals(
+                            List.of(new ParsedDataType(JSON), new ParsedDataType(RAW)).toString(),
+                            result.getDataTypes().toString()
+                    );
+                })
+                .verifyComplete();
+
+        //Find query
+        configMap.clear();
+        setDataValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.FALSE);
+        setDataValueSafelyInFormData(configMap, COMMAND, "FIND");
+        setDataValueSafelyInFormData(configMap, FIND_QUERY, "{ \"issue\": 13285}");
+        setDataValueSafelyInFormData(configMap, FIND_SORT, "{ id: 1 }");
+        setDataValueSafelyInFormData(configMap, COLLECTION, "users");
+
+        actionConfiguration.setFormData(configMap);
+
+        executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.executeParameterized(conn, new ExecuteActionDTO(), dsConfig, actionConfiguration));
+        StepVerifier.create(executeMono)
+                .assertNext(obj -> {
+                    ActionExecutionResult result = (ActionExecutionResult) obj;
+                    assertNotNull(result);
+                    assertTrue(result.getIsExecutionSuccess());
+                    assertNotNull(result.getBody());
+                    assertEquals(4, ((ArrayNode) result.getBody()).size());
+                    assertEquals(
+                            List.of(new ParsedDataType(JSON), new ParsedDataType(RAW)).toString(),
+                            result.getDataTypes().toString()
+                    );
+                })
+                .verifyComplete();
+
+        // Clean up this newly inserted values
+        configMap = new HashMap<>();
+        setDataValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.FALSE);
+        setDataValueSafelyInFormData(configMap, COMMAND, "DELETE");
+        setDataValueSafelyInFormData(configMap, COLLECTION, "users");
+        setDataValueSafelyInFormData(configMap, DELETE_QUERY, "{ \"issue\": 13285}");
+        setDataValueSafelyInFormData(configMap, DELETE_LIMIT, "ALL");
+
+        actionConfiguration.setFormData(configMap);
+        // Run the delete command
+        dsConnectionMono.flatMap(conn -> pluginExecutor.executeParameterized(conn, new ExecuteActionDTO(), dsConfig, actionConfiguration)).block();
+    }
 }

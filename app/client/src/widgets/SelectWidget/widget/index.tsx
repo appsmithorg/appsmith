@@ -65,7 +65,8 @@ export function defaultOptionValueValidation(
   } else {
     isValid = false;
     parsed = {};
-    message = `value does not evaluate to type: string | number | { "label": "label1", "value": "value1" }`;
+    message =
+      'value does not evaluate to type: string | number | { "label": "label1", "value": "value1" }';
   }
 
   return {
