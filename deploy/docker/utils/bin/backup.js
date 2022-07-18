@@ -50,7 +50,7 @@ async function run() {
 
     await fsPromises.rm(backupRootPath, { recursive: true, force: true });
 
-    console.log('Finished taking a baceup at', archivePath);
+    console.log('Finished taking a backup at', archivePath);
     await postBackupCleanup();
 
   } catch (err) {
