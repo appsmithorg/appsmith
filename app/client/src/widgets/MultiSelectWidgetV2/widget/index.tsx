@@ -545,17 +545,12 @@ class MultiSelectWidget extends BaseWidget<
   componentDidUpdate(prevProps: MultiSelectWidgetProps): void {
     // Check if defaultOptionValue is string
     let isStringArray = false;
-    // TODO: This throws error when page is changed
-    try {
-      if (
-        this.props.defaultOptionValue.some(
-          (value: any) => isString(value) || isFinite(value),
-        )
-      ) {
-        isStringArray = true;
-      }
-    } catch (e) {
-      // debugger;
+    if (
+      this.props.defaultOptionValue.some(
+        (value: any) => isString(value) || isFinite(value),
+      )
+    ) {
+      isStringArray = true;
     }
 
     const hasChanges = isStringArray

@@ -2,7 +2,6 @@ import { WidgetType } from "constants/WidgetConstants";
 import ContainerWidget from "widgets/ContainerWidget";
 
 import { ValidationTypes } from "constants/WidgetValidation";
-import { CanvasWidgetStructure } from "widgets/constants";
 
 class StatboxWidget extends ContainerWidget {
   static getPropertyPaneConfig() {
@@ -101,17 +100,6 @@ class StatboxWidget extends ContainerWidget {
         ],
       },
     ];
-  }
-
-  renderChildWidget(childWidgetData: CanvasWidgetStructure): React.ReactNode {
-    if (childWidgetData.children) {
-      childWidgetData.children.forEach((grandChild: CanvasWidgetStructure) => {
-        if (grandChild.type === "ICON_BUTTON_WIDGET" && !!grandChild.onClick) {
-          grandChild.boxShadow = "VARIANT1";
-        }
-      });
-    }
-    return super.renderChildWidget(childWidgetData);
   }
 
   static getWidgetType(): WidgetType {
