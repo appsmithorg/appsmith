@@ -6,18 +6,16 @@ import {
   ApplicationPayload,
   Page,
 } from "@appsmith/constants/ReduxActionConstants";
-import { PLACEHOLDER_APP_SLUG, PLACEHOLDER_PAGE_SLUG } from "constants/routes";
-import { isEllipsisActive } from "utils/helpers";
+import { isEllipsisActive, trimQueryString } from "utils/helpers";
 import { TooltipComponent } from "design-system";
 import { getTypographyByKey } from "constants/DefaultTheme";
 
 import { getAppMode } from "selectors/applicationSelectors";
 import { useSelector } from "react-redux";
-
-import { trimQueryString } from "utils/helpers";
-import { getPageURL } from "utils/AppsmithUtils";
 import { getSelectedAppTheme } from "selectors/appThemingSelectors";
-import { viewerURL } from "RouteBuilder";
+import { useHref } from "pages/Editor/utils";
+import { APP_MODE } from "entities/App";
+import { builderURL, viewerURL } from "RouteBuilder";
 
 const PageTab = styled(NavLink)`
   display: flex;
@@ -140,12 +138,10 @@ type Props = {
 };
 
 export function PageTabs(props: Props) {
-  const { appPages, currentApplicationDetails } = props;
+  const { appPages } = props;
   const location = useLocation();
   const { pathname } = location;
-  const appMode = useSelector(getAppMode);
   const [query, setQuery] = useState("");
-  const selectedTheme = useSelector(getSelectedAppTheme);
 
   useEffect(() => {
     setQuery(window.location.search);
@@ -156,43 +152,47 @@ export function PageTabs(props: Props) {
       className="flex w-full hidden-scrollbar gap-x-8"
       ref={props.measuredTabsRef}
     >
-      {appPages.map((page) => (
-        <PageTabContainer
-          isTabActive={
-            pathname ===
-            trimQueryString(
-              viewerURL({
-                applicationSlug:
-                  currentApplicationDetails?.slug || PLACEHOLDER_APP_SLUG,
-                pageSlug: page.slug || PLACEHOLDER_PAGE_SLUG,
-                pageId: page.pageId,
-              }),
-            )
-          }
-          key={page.pageId}
-          setShowScrollArrows={props.setShowScrollArrows}
-          tabsScrollable={props.tabsScrollable}
-        >
-          <PageTab
-            activeClassName="is-active"
-            className="t--page-switch-tab"
-            to={{
-              pathname: getPageURL(page, appMode, currentApplicationDetails),
-              search: query,
-            }}
+      {appPages.map((page) => {
+        return (
+          <PageTabContainer
+            isTabActive={pathname.indexOf(page.pageId) > -1}
+            key={page.pageId}
+            setShowScrollArrows={props.setShowScrollArrows}
+            tabsScrollable={props.tabsScrollable}
           >
-            <PageTabName
-              name={page.pageName}
-              primaryColor={get(
-                selectedTheme,
-                "properties.colors.primaryColor",
-                "inherit",
-              )}
-            />
-          </PageTab>
-        </PageTabContainer>
-      ))}
+            <PageTabItem page={page} query={query} />
+          </PageTabContainer>
+        );
+      })}
     </div>
+  );
+}
+
+function PageTabItem({ page, query }: { page: Page; query: string }) {
+  const appMode = useSelector(getAppMode);
+  const pageURL = useHref(
+    appMode === APP_MODE.PUBLISHED ? viewerURL : builderURL,
+    { pageId: page.pageId },
+  );
+  const selectedTheme = useSelector(getSelectedAppTheme);
+  return (
+    <PageTab
+      activeClassName="is-active"
+      className="t--page-switch-tab"
+      to={{
+        pathname: trimQueryString(pageURL),
+        search: query,
+      }}
+    >
+      <PageTabName
+        name={page.pageName}
+        primaryColor={get(
+          selectedTheme,
+          "properties.colors.primaryColor",
+          "inherit",
+        )}
+      />
+    </PageTab>
   );
 }
 

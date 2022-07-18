@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import styled from "styled-components";
 import { CommonComponentProps } from "./common";
-import Text, { Case, TextType } from "./Text";
+import { Text, Case, TextType } from "design-system";
 
 export type TabProp<T> = {
   key: string;

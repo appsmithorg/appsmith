@@ -47,6 +47,8 @@ export class Table {
     `.t--widget-tablewidget .tbody .td[data-rowindex=${rowNum}][data-colindex=${colNum}]`;
   _tableRowColumnData = (rowNum: number, colNum: number) =>
     this._tableRow(rowNum, colNum) + ` div div`;
+  _tableRowImageColumnData = (rowNum: number, colNum: number) =>
+    this._tableRow(rowNum, colNum) + ` div div.image-cell`;
   _tableEmptyColumnData = `.t--widget-tablewidget .tbody .td`; //selected-row
   _tableSelectedRow =
     this._tableWrap +
@@ -77,7 +79,7 @@ export class Table {
   _columnSettings = (columnName: string) =>
     "//input[@placeholder='Column Title'][@value='" +
     columnName +
-    "']/parent::div/parent::div/following-sibling::div[contains(@class, 't--edit-column-btn')]";
+    "']/parent::div/parent::div/following-sibling::div/div[contains(@class, 't--edit-column-btn')]";
   _showPageItemsCount = "div.show-page-items";
   _filtersCount = this._filterBtn + " span.action-title";
 
@@ -122,6 +124,19 @@ export class Table {
     //timeout can be sent higher values incase of larger tables
     this.agHelper.Sleep(timeout); //Settling time for table!
     return cy.get(this._tableRowColumnData(rowNum, colNum)).invoke("text");
+  }
+
+  public AssertTableRowImageColumnIsLoaded(
+    rowNum: number,
+    colNum: number,
+    timeout = 200,
+  ) {
+    //timeout can be sent higher values incase of larger tables
+    this.agHelper.Sleep(timeout); //Settling time for table!
+    return cy
+      .get(this._tableRowImageColumnData(rowNum, colNum))
+      .invoke("attr", "style")
+      .should("not.be.empty");
   }
 
   public AssertHiddenColumns(columnNames: string[]) {
