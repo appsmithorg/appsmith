@@ -553,7 +553,7 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
     // Check if the value has changed. If no option
     // selected till now, there is a change
     if (!isNil(this.props.selectedOptionValue)) {
-      isChanged = !(this.props.selectedOptionValue === selectedOption.value);
+      isChanged = this.props.selectedOptionValue !== selectedOption.value;
     }
     if (isChanged) {
       if (!this.props.isDirty) {
