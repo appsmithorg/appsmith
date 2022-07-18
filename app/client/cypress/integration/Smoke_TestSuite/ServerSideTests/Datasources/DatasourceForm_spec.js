@@ -1,27 +1,34 @@
 const testdata = require("../../../../fixtures/testdata.json");
+import { ObjectsRegistry } from "../../../../support/Objects/Registry";
+
+let agHelper = ObjectsRegistry.AggregateHelper;
 
 describe("Datasource form related tests", function() {
   beforeEach(() => {
     cy.startRoutesForDatasource();
   });
 
-  it("Check whether the delete button has the right color", function() {
+  it("1. Check whether the delete button has the right color", function() {
     cy.NavigateToAPI_Panel();
     cy.CreateAPI("Testapi");
     cy.enterDatasourceAndPath(testdata.baseUrl, testdata.methods);
 
-    cy.get(".t--store-as-datasource").click();
+    cy.get(".t--store-as-datasource")
+      .trigger("click")
+      .wait(1000);
+    agHelper.ValidateToastMessage("datasource created"); //verifying there is no error toast, Bug 14566
 
     cy.get(".t--add-field")
       .first()
       .click();
     cy.get(".t--delete-field").should("attr", "color", "#A3B3BF");
   });
-  it("Check if save button is disabled", function() {
+
+  it("2. Check if save button is disabled", function() {
     cy.get(".t--save-datasource").should("not.be.disabled");
   });
 
-  it("Check if saved api as a datasource does not fail on cloning", function() {
+  it("3. Check if saved api as a datasource does not fail on cloning", function() {
     cy.NavigateToAPI_Panel();
     cy.get(".t--entity-name")
       .contains("Testapi")

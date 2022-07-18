@@ -1,4 +1,5 @@
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
+const dsl = require("../../../../fixtures/tablev1NewDsl.json");
 
 let guid: any, jsName: any;
 const agHelper = ObjectsRegistry.AggregateHelper,
@@ -14,7 +15,7 @@ const agHelper = ObjectsRegistry.AggregateHelper,
 
 describe("JSObjects OnLoad Actions tests", function() {
   before(() => {
-    ee.DragDropWidgetNVerify("tablewidget", 300, 300);
+    agHelper.AddDsl(dsl);
     ee.NavigateToSwitcher("explorer");
   });
 

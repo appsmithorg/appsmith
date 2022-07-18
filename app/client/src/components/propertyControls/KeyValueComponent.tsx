@@ -81,7 +81,10 @@ const StyledButton = styled.button`
   }
 `;
 
-type UpdatePairFunction = (pair: DropdownOption[]) => any;
+type UpdatePairFunction = (
+  pair: DropdownOption[],
+  isUpdatedViaKeyboard?: boolean,
+) => any;
 
 type KeyValueComponentProps = {
   pairs: DropdownOption[];
@@ -106,7 +109,7 @@ export function KeyValueComponent(props: KeyValueComponentProps) {
     pairs.length !== 0 && !typing && setRenderPairs(newRenderPairs);
   }, [props, pairs.length, renderPairs.length]);
 
-  function deletePair(index: number) {
+  function deletePair(index: number, isUpdatedViaKeyboard = false) {
     let { pairs } = props;
     pairs = Array.isArray(pairs) ? pairs : [];
 
@@ -114,12 +117,12 @@ export function KeyValueComponent(props: KeyValueComponentProps) {
     const newRenderPairs = renderPairs.filter((o, i) => i !== index);
 
     setRenderPairs(newRenderPairs);
-    props.updatePairs(newPairs);
+    props.updatePairs(newPairs, isUpdatedViaKeyboard);
   }
 
   const debouncedUpdatePairs = useCallback(
     debounce((updatedPairs: DropdownOption[]) => {
-      props.updatePairs(updatedPairs);
+      props.updatePairs(updatedPairs, true);
     }, 200),
     [props.updatePairs],
   );
@@ -152,7 +155,7 @@ export function KeyValueComponent(props: KeyValueComponentProps) {
     debouncedUpdatePairs(updatedPairs);
   }
 
-  function addPair() {
+  function addPair(e: React.MouseEvent) {
     let { pairs } = props;
     pairs = Array.isArray(pairs) ? pairs.slice() : [];
     pairs.push({
@@ -182,7 +185,7 @@ export function KeyValueComponent(props: KeyValueComponentProps) {
     });
 
     setRenderPairs(updatedRenderPairs);
-    props.updatePairs(pairs);
+    props.updatePairs(pairs, e.detail === 0);
   }
 
   function onInputFocus() {
@@ -221,8 +224,8 @@ export function KeyValueComponent(props: KeyValueComponentProps) {
             />
             <StyledBox />
             <StyledButton
-              onClick={() => {
-                deletePair(index);
+              onClick={(e: React.MouseEvent) => {
+                deletePair(index, e.detail === 0);
               }}
             >
               <StyledDeleteIcon />

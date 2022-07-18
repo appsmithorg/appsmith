@@ -921,6 +921,20 @@ public class MongoPlugin extends BasePlugin {
                 return jsonObject.getString("$oid");
 
             } else if (isSingleKey && "$date".equals(jsonObject.keys().next())) {
+                JSONObject dateJSON = jsonObject.optJSONObject("$date");
+                /*
+                    For dates before Jan 1, 1970 then the output json from MongoDB driver looks like
+                    "$date": {
+                        "$numberLong": "-493033770000"
+                    }
+                    And for dates on or after Jan 1, 1970 the output json from MongoDB driver is readily available and looks like
+                    "$date": "2022-07-01T10:32:37.318Z"
+                */
+                if (dateJSON != null && dateJSON.keySet().size() == 1 &&
+                        "$numberLong".equals(dateJSON.keys().next())) {
+                    return DateTimeFormatter.ISO_INSTANT.format(
+                            Instant.ofEpochMilli(dateJSON.getLong("$numberLong")));
+                }
                 return DateTimeFormatter.ISO_INSTANT.format(
                         Instant.parse(jsonObject.getString("$date"))
                 );

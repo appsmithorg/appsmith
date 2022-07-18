@@ -910,6 +910,7 @@
 					"parentRowSpace": 10.0,
 					"isSortable": true,
 					"type": "TABLE_WIDGET",
+					"animateLoading": true,
 					"defaultSelectedRow": "0",
 					"hideCard": false,
 					"parentColumnSpace": 17.28125,
