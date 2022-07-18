@@ -461,7 +461,8 @@ function GitConnection({ isImport }: Props) {
             <ButtonContainer topMargin={7}>
               <Button
                 category={Category.primary}
-                className="t--generate-deploy-key-button t--submit-repo-url-button"
+                className="t--generate-deploy-ssh-key-button t--submit-repo-url-button"
+                data-testid="t--generate-deploy-ssh-key-button"
                 disabled={!remoteUrl || isInvalidRemoteUrl}
                 isLoading={generatingSSHKey || fetchingSSHKeyPair}
                 onClick={() => {

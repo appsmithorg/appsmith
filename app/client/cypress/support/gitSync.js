@@ -321,7 +321,9 @@ Cypress.Commands.add(
         req.headers["origin"] = "Cypress";
       },
     );
-    cy.intercept("GET", "api/v1/git/import/keys").as(`generateKey-${repo}`);
+    cy.intercept("GET", "api/v1/git/import/keys?keyType=ECDSA").as(
+      `generateKey-${repo}`,
+    );
     cy.get(gitSyncLocators.gitRepoInput).type(
       `git@github.com:${owner}/${repo}.git`,
     );

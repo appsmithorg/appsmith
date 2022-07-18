@@ -1,6 +1,6 @@
 export default {
   gitRepoInput: ".t--git-repo-input",
-  generateDeployKeyBtn: ".t--generate-deploy-key-button",
+  generateDeployKeyBtn: "[data-testid=t--generate-deploy-ssh-key-button]",
   connectSubmitBtn: ".t--connect-submit-btn",
   createNewBranchButton: ".t--create-new-branch-button",
   createNewBranchSubmitbutton: ".t--create-new-branch-submit-button",
