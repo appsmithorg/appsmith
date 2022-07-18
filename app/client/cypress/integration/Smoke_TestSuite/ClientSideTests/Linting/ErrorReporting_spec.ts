@@ -50,6 +50,7 @@ describe("Lint error reporting", () => {
         }
     }`;
 
+    // Test in PropertyPane
     ee.ExpandCollapseEntity("QUERIES/JS");
     ee.SelectEntityByName("Button1", "WIDGETS");
     jsEditor.EnterJSContext(
@@ -70,6 +71,9 @@ describe("Lint error reporting", () => {
     cy.contains(
       "'await' expressions are only allowed within async functions. Did you mean to mark this function as 'async'?",
     ).should("exist");
+    propPane.UpdatePropertyFieldValue("onClick", "");
+
+    // Test in JS Object
     jsEditor.CreateJSObject(JS_OBJECT_WITH_WRONG_AWAIT_KEYWORD, {
       paste: true,
       completeReplace: true,
@@ -84,6 +88,8 @@ describe("Lint error reporting", () => {
     cy.contains(
       "'await' expressions are only allowed within async functions. Did you mean to mark this function as 'async'?",
     ).should("exist");
+
+    // Test in Api
     apiPage.CreateApi();
     apiPage.EnterParams(
       "test",
@@ -109,6 +115,7 @@ describe("Lint error reporting", () => {
 
         }
     }`;
+    // Test in JS Object
     jsEditor.CreateJSObject(JS_OBJECT_WITHOUT_COMMA_SEPARATOR, {
       paste: true,
       completeReplace: true,
@@ -116,6 +123,49 @@ describe("Lint error reporting", () => {
       shouldCreateNewJSObj: true,
     });
 
+    cy.get(locator._lintErrorElement)
+      .contains("myFun1")
+      .should("exist")
+      .first()
+      .trigger("mouseover");
+    cy.contains(
+      "Expected '}' to match '{' from line 1 and instead saw 'myFun1'",
+    );
+
+    // Test in PropertyPane
+    ee.ExpandCollapseEntity("QUERIES/JS");
+    ee.SelectEntityByName("Button1", "WIDGETS");
+    jsEditor.EnterJSContext(
+      "onClick",
+      `{{ {
+          myVar2: {}
+          myFun1: () => {
+  
+          }
+        }}}`,
+      true,
+      true,
+    );
+    cy.get(locator._lintErrorElement)
+      .contains("myFun1")
+      .should("exist")
+      .first()
+      .trigger("mouseover");
+    cy.contains(
+      "Expected '}' to match '{' from line 1 and instead saw 'myFun1'",
+    );
+
+    // Test in Api
+    apiPage.CreateApi();
+    apiPage.EnterParams(
+      "test",
+      `{{ {
+        myVar2: {}
+        myFun1: () => {
+
+        }
+      }}}`,
+    );
     cy.get(locator._lintErrorElement)
       .contains("myFun1")
       .should("exist")
@@ -137,16 +187,20 @@ describe("Lint error reporting", () => {
         }
     }
     `;
+    // Test in PropertyPane
     ee.ExpandCollapseEntity("QUERIES/JS");
     ee.SelectEntityByName("Button1", "WIDGETS");
     propPane.UpdatePropertyFieldValue("Tooltip", "{{currentItem}}");
     propPane.UpdatePropertyFieldValue("Label", "{{currentRow}}");
-    cy.get(locator._lintErrorElement).should("have.length", 4);
+    propPane.UpdatePropertyFieldValue("onClick", "");
+    cy.get(locator._lintErrorElement).should("have.length", 2);
     ee.SelectEntityByName("Table1", "WIDGETS");
     agHelper.GetNClick(table._columnSettings("step"));
     cy.get(locator._lintErrorElement).should("not.exist");
     propPane.UpdatePropertyFieldValue("Computed Value", "{{currentRow}}");
     cy.get(locator._lintErrorElement).should("not.exist");
+
+    // Test in JSObject
     jsEditor.CreateJSObject(JSOBJECT_WITH_INVALID_IDENTIFIER, {
       paste: true,
       completeReplace: true,
@@ -154,6 +208,8 @@ describe("Lint error reporting", () => {
       shouldCreateNewJSObj: true,
     });
     cy.get(locator._lintErrorElement).should("have.length", 2);
+
+    // test in Api
     apiPage.CreateApi();
     apiPage.EnterParams(
       "test",
@@ -162,6 +218,7 @@ describe("Lint error reporting", () => {
         currentRow
     }()}}`,
     );
+    cy.get(locator._lintErrorElement).should("have.length", 2);
   });
 
   it("5. Doesn't show error for 'unneccessary semi-colon'", () => {
@@ -174,6 +231,7 @@ describe("Lint error reporting", () => {
         }
     }
     `;
+    // Test in PropertyPane
     ee.SelectEntityByName("Button1", "QUERIES/JS");
     propPane.UpdatePropertyFieldValue("Tooltip", "");
     propPane.UpdatePropertyFieldValue("Label", "");
@@ -188,9 +246,13 @@ describe("Lint error reporting", () => {
         }}`,
     );
     cy.get(locator._lintErrorElement).should("not.exist");
+
+    // Test in JS Object
     ee.SelectEntityByName("JSObject1", "QUERIES/JS");
     jsEditor.EditJSObj(JSOBJECT_WITH_UNNECCESARY_SEMICOLON);
     cy.get(locator._lintErrorElement).should("not.exist");
+
+    // Test in API
     apiPage.CreateApi();
     apiPage.EnterParams(
       "test",
