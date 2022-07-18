@@ -169,8 +169,8 @@ export class DataSources {
 
   public FillPostgresDSForm(
     shouldAddTrailingSpaces = false,
-    username = null,
-    password = null,
+    username = "",
+    password = "",
   ) {
     const hostAddress = shouldAddTrailingSpaces
       ? datasourceFormData["postgres-host"] + "  "
@@ -185,10 +185,10 @@ export class DataSources {
       .type(databaseName);
     cy.get(this._sectionAuthentication).click();
     cy.get(this._username).type(
-      username == null ? datasourceFormData["postgres-username"] : username,
+      username == "" ? datasourceFormData["postgres-username"] : username,
     );
     cy.get(this._password).type(
-      password == null ? datasourceFormData["postgres-password"] : password,
+      password == "" ? datasourceFormData["postgres-password"] : password,
     );
   }
 
