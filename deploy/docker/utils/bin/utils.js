@@ -81,12 +81,11 @@ async function updateLastBackupErrorMailSentInMilliSec(ts) {
 
 async function getLastBackupErrorMailSentInMilliSec() {
   try {
-    await fsPromises.access(Constants.BACKUP_PATH + '/last-error-mail-ts');
+    const ts = await fsPromises.readFile(BACKUP_PATH + '/last-error-mail-ts');
+    return parseInt(ts, 10);
   } catch (error) {
     return 0;
   }
-  const ts = await fsPromises.readFile(BACKUP_PATH + '/last-error-mail-ts');
-  return parseInt(ts, 10);
 }
 
 module.exports = {
