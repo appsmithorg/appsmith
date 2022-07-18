@@ -112,6 +112,8 @@ export function generateTypeDef(
       return "number";
     case Types.BOOLEAN:
       return "bool";
+    case Types.FUNCTION:
+      return "fn() -> void";
     case Types.NULL:
     case Types.UNDEFINED:
       return "?";

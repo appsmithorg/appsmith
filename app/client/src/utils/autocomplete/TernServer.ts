@@ -80,6 +80,24 @@ type ArgHints = {
   doc: CodeMirror.Doc;
 };
 
+type RequestQuery = {
+  type: string;
+  types?: boolean;
+  docs?: boolean;
+  urls?: boolean;
+  origins?: boolean;
+  caseInsensitive?: boolean;
+  preferFunction?: boolean;
+  end?: CodeMirror.Position;
+  guess?: boolean;
+  inLiteral?: boolean;
+  fullDocs?: any;
+  lineCharPositions?: any;
+  start?: any;
+  file?: any;
+  includeKeywords?: boolean;
+};
+
 export type DataTreeDefEntityInformation = {
   type: ENTITY_TYPE;
   subType: string;
@@ -490,18 +508,7 @@ class TernServer {
 
   request(
     cm: CodeMirror.Editor,
-    query: {
-      type: string;
-      types?: boolean;
-      docs?: boolean;
-      urls?: boolean;
-      origins?: boolean;
-      caseInsensitive?: boolean;
-      preferFunction?: boolean;
-      end?: CodeMirror.Position;
-      guess?: boolean;
-      inLiteral?: boolean;
-    },
+    query: RequestQuery,
     callbackFn: (error: any, data: any) => void,
     pos?: CodeMirror.Position,
   ) {
@@ -538,20 +545,7 @@ class TernServer {
 
   buildRequest(
     doc: TernDoc,
-    query: {
-      type?: string;
-      types?: boolean;
-      docs?: boolean;
-      urls?: boolean;
-      origins?: boolean;
-      fullDocs?: any;
-      lineCharPositions?: any;
-      end?: any;
-      start?: any;
-      file?: any;
-      includeKeywords?: boolean;
-      inLiteral?: boolean;
-    },
+    query: Partial<RequestQuery>,
     pos?: CodeMirror.Position,
   ) {
     const files = [];
