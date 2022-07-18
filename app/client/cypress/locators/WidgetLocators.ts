@@ -18,7 +18,10 @@ export const WIDGET = {
   CHECKBOXGROUP: "checkboxgroupwidget",
   CHECKBOX: "checkboxwidget",
   AUDIO: "audiowidget",
-  AUDIORECORDER: "audiorecorderwidget"
+  AUDIORECORDER: "audiorecorderwidget",
+  PHONEINPUT: "phoneinputwidget",
+  CAMERA: "camerawidget",
+  FILEPICKER: "filepickerwidgetv2"
 } as const;
 
 export const PROPERTY_SELECTOR = {

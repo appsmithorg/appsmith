@@ -2,6 +2,7 @@ const explorer = require("../../../../locators/explorerlocators.json");
 const testdata = require("../../../../fixtures/testdata.json");
 const apiwidget = require("../../../../locators/apiWidgetslocator.json");
 const dsl = require("../../../../fixtures/defaultMetaDsl.json");
+const commonlocators = require("../../../../locators/commonlocators.json");
 
 import {
   WIDGET,
@@ -117,7 +118,7 @@ xdescribe(`Tab widget test for validating reset action`, () => {
   });
 });
 
-xdescribe(`Table widget test for validating reset action`, () => {
+describe(`Table widget test for validating reset action`, () => {
   before(() => {
     cy.addDsl(dsl);
   });
@@ -169,7 +170,7 @@ xdescribe(`Table widget test for validating reset action`, () => {
     cy.get("body").type(`{del}`, { force: true });
   });
 });
-xdescribe(`Switch Group widget test for validating reset action`, () => {
+describe(`Switch Group widget test for validating reset action`, () => {
   before(() => {
     cy.addDsl(dsl);
   });
@@ -226,7 +227,7 @@ xdescribe(`Switch Group widget test for validating reset action`, () => {
   });
 });
 
-xdescribe(`Switch widget test for validating reset action`, () => {
+describe(`Switch widget test for validating reset action`, () => {
   before(() => {
     cy.addDsl(dsl);
   });
@@ -276,7 +277,7 @@ xdescribe(`Switch widget test for validating reset action`, () => {
   });
 });
 
-xdescribe(`Select widget test for validating reset action`, () => {
+describe(`Select widget test for validating reset action`, () => {
   before(() => {
     cy.addDsl(dsl);
   });
@@ -332,7 +333,7 @@ xdescribe(`Select widget test for validating reset action`, () => {
   });
 });
 
-xdescribe(`CurrencyInput widget test for validating reset action`, () => {
+describe(`CurrencyInput widget test for validating reset action`, () => {
   before(() => {
     cy.addDsl(dsl);
   });
@@ -387,7 +388,7 @@ xdescribe(`CurrencyInput widget test for validating reset action`, () => {
   });
 });
 
-xdescribe(`MultiTreeSelect widget test for validating reset action`, () => {
+describe(`MultiTreeSelect widget test for validating reset action`, () => {
   before(() => {
     cy.addDsl(dsl);
   });
@@ -446,7 +447,7 @@ xdescribe(`MultiTreeSelect widget test for validating reset action`, () => {
   });
 });
 
-xdescribe(`RadioGroup widget test for validating reset action`, () => {
+describe(`RadioGroup widget test for validating reset action`, () => {
   before(() => {
     cy.addDsl(dsl);
   });
@@ -504,7 +505,7 @@ xdescribe(`RadioGroup widget test for validating reset action`, () => {
   });
 });
 
-xdescribe(`List widget test for validating reset action`, () => {
+describe(`List widget test for validating reset action`, () => {
   before(() => {
     cy.addDsl(dsl);
   });
@@ -560,7 +561,7 @@ xdescribe(`List widget test for validating reset action`, () => {
   });
 });
 
-xdescribe(`Rating widget test for validating reset action`, () => {
+describe(`Rating widget test for validating reset action`, () => {
   before(() => {
     cy.addDsl(dsl);
   });
@@ -615,7 +616,7 @@ xdescribe(`Rating widget test for validating reset action`, () => {
   });
 });
 
-xdescribe(`checkboxGroup widget test for validating reset action`, () => {
+describe(`checkboxGroup widget test for validating reset action`, () => {
   before(() => {
     cy.addDsl(dsl);
   });
@@ -673,7 +674,7 @@ xdescribe(`checkboxGroup widget test for validating reset action`, () => {
   });
 });
 
-xdescribe(`checkbox widget test for validating reset action`, () => {
+describe(`checkbox widget test for validating reset action`, () => {
   before(() => {
     cy.addDsl(dsl);
   });
@@ -728,7 +729,7 @@ xdescribe(`checkbox widget test for validating reset action`, () => {
   });
 });
 
-xdescribe(`Audio widget test for validating reset action`, () => {
+describe(`Audio widget test for validating reset action`, () => {
   before(() => {
     cy.addDsl(dsl);
   });
@@ -823,6 +824,174 @@ describe(`AudioRecorder widget test for validating reset action`, () => {
   it("4. Delete all the widgets on canvas", () => {
     cy.goToEditFromPublish();
     cy.get(getWidgetSelector(WIDGET.AUDIORECORDER)).click();
+    cy.get("body").type(`{del}`, { force: true });
+  });
+});
+
+describe(`Phoneinput widget test for validating reset action`, () => {
+  before(() => {
+    cy.addDsl(dsl);
+  });
+
+  it(`1. DragDrop Widget Phone Input`, () => {
+    cy.get(explorer.addWidget).click({ force: true });
+    cy.dragAndDropToCanvas(WIDGET.PHONEINPUT, { x: 300, y: 200 });
+    cy.get(getWidgetSelector(WIDGET.PHONEINPUT)).should("exist");
+  });
+
+  it("2. Bind Button on click  and Text widget content", () => {
+    // Set onClick action, storing value
+    cy.openPropertyPane(WIDGET.BUTTON_WIDGET);
+
+    cy.get(PROPERTY_SELECTOR.onClick)
+      .find(".t--js-toggle")
+      .click();
+    cy.updateCodeInput(
+      PROPERTY_SELECTOR.onClick,
+      `{{resetWidget("PhoneInput1",true).then(() => showAlert("success"))}}`,
+    );
+    cy.openPropertyPane(WIDGET.TEXT);
+    cy.updateCodeInput(PROPERTY_SELECTOR.text, testdata.phoneBindingValue);
+    cy.closePropertyPane();
+
+    cy.get(getWidgetSelector(WIDGET.BUTTON_WIDGET)).click();
+    cy.wait("@updateLayout");
+    cy.get(".t--toast-action span").contains("success");
+  });
+
+  it("3. Publish the app and validate reset action", function() {
+    cy.PublishtheApp();
+    cy.get(".bp3-input").type("1234");
+    cy.get(".t--text-widget-container").each((item, index, list) => {
+      cy.wrap(item).should("contain.text", "1234");
+    });
+    cy.get("button:contains('Submit')").click({ force: true });
+    cy.wait(1000);
+    cy.get(".t--toast-action span").contains("success");
+    cy.get(".t--text-widget-container").each((item, index, list) => {
+      cy.wrap(item).should("contain.text", "");
+    });
+  });
+
+  it("4. Delete all the widgets on canvas", () => {
+    cy.goToEditFromPublish();
+    cy.get(getWidgetSelector(WIDGET.PHONEINPUT)).click();
+    cy.get("body").type(`{del}`, { force: true });
+  });
+});
+
+describe(`FilePicker widget test for validating reset action`, () => {
+  before(() => {
+    cy.addDsl(dsl);
+  });
+
+  it(`1. DragDrop Widget FilePicker`, () => {
+    cy.get(explorer.addWidget).click({ force: true });
+    cy.dragAndDropToCanvas(WIDGET.FILEPICKER, { x: 300, y: 200 });
+    cy.get(getWidgetSelector(WIDGET.FILEPICKER)).should("exist");
+  });
+
+  it("2. Bind Button on click  and Text widget content", () => {
+    // Set onClick action, storing value
+    cy.openPropertyPane(WIDGET.BUTTON_WIDGET);
+
+    cy.get(PROPERTY_SELECTOR.onClick)
+      .find(".t--js-toggle")
+      .click();
+    cy.updateCodeInput(
+      PROPERTY_SELECTOR.onClick,
+      `{{resetWidget("FilePicker1",true).then(() => showAlert("success"))}}`,
+    );
+    cy.openPropertyPane(WIDGET.TEXT);
+    cy.updateCodeInput(PROPERTY_SELECTOR.text, testdata.fileBindingValue);
+    cy.closePropertyPane();
+    cy.get(getWidgetSelector(WIDGET.BUTTON_WIDGET)).click();
+    cy.wait("@updateLayout");
+    cy.get(".t--toast-action span").contains("success");
+  });
+
+  it("3. Publish the app and validate reset action", function() {
+    cy.PublishtheApp();
+    cy.get(".t--text-widget-container").each((item, index, list) => {
+      cy.wrap(item).should("contain.text", "false");
+    });
+    cy.get(commonlocators.filePickerInput)
+      .first()
+      .attachFile("testFile.mov");
+    //eslint-disable-next-line cypress/no-unnecessary-waiting
+    cy.wait(500);
+    cy.get(".t--text-widget-container").each((item, index, list) => {
+      cy.wrap(item).should("contain.text", "true");
+    });
+    cy.get("button:contains('Submit')").click({ force: true });
+    cy.wait(1000);
+    cy.get(".t--toast-action span").contains("success");
+    cy.get(".t--text-widget-container").each((item, index, list) => {
+      cy.wrap(item).should("contain.text", "false");
+    });
+  });
+
+  it("4. Delete all the widgets on canvas", () => {
+    cy.goToEditFromPublish();
+    cy.get(getWidgetSelector(WIDGET.FILEPICKER)).click();
+    cy.get("body").type(`{del}`, { force: true });
+  });
+});
+
+describe(` widget test for validating reset action`, () => {
+  before(() => {
+    cy.addDsl(dsl);
+  });
+
+  it(`1. DragDrop Widget FilePicker`, () => {
+    cy.get(explorer.addWidget).click({ force: true });
+    cy.dragAndDropToCanvas(WIDGET.FILEPICKER, { x: 300, y: 200 });
+    cy.get(getWidgetSelector(WIDGET.FILEPICKER)).should("exist");
+  });
+
+  it("2. Bind Button on click  and Text widget content", () => {
+    // Set onClick action, storing value
+    cy.openPropertyPane(WIDGET.BUTTON_WIDGET);
+
+    cy.get(PROPERTY_SELECTOR.onClick)
+      .find(".t--js-toggle")
+      .click();
+    cy.updateCodeInput(
+      PROPERTY_SELECTOR.onClick,
+      `{{resetWidget("FilePicker1",true).then(() => showAlert("success"))}}`,
+    );
+    cy.openPropertyPane(WIDGET.TEXT);
+    cy.updateCodeInput(PROPERTY_SELECTOR.text, testdata.fileBindingValue);
+    cy.closePropertyPane();
+    cy.get(getWidgetSelector(WIDGET.BUTTON_WIDGET)).click();
+    cy.wait("@updateLayout");
+    cy.get(".t--toast-action span").contains("success");
+  });
+
+  it("3. Publish the app and validate reset action", function() {
+    cy.PublishtheApp();
+    cy.get(".t--text-widget-container").each((item, index, list) => {
+      cy.wrap(item).should("contain.text", "false");
+    });
+    cy.get(commonlocators.filePickerInput)
+      .first()
+      .attachFile("testFile.mov");
+    //eslint-disable-next-line cypress/no-unnecessary-waiting
+    cy.wait(500);
+    cy.get(".t--text-widget-container").each((item, index, list) => {
+      cy.wrap(item).should("contain.text", "true");
+    });
+    cy.get("button:contains('Submit')").click({ force: true });
+    cy.wait(1000);
+    cy.get(".t--toast-action span").contains("success");
+    cy.get(".t--text-widget-container").each((item, index, list) => {
+      cy.wrap(item).should("contain.text", "false");
+    });
+  });
+
+  it("4. Delete all the widgets on canvas", () => {
+    cy.goToEditFromPublish();
+    cy.get(getWidgetSelector(WIDGET.FILEPICKER)).click();
     cy.get("body").type(`{del}`, { force: true });
   });
 });
