@@ -18,6 +18,7 @@ const StyledSlider = styled(Slider)`
 `;
 
 function AdsSlider(props: ISliderProps) {
+  const max = (props.value || 0) + 100;
   return (
     <StyledSlider
       {...props}
@@ -26,8 +27,8 @@ function AdsSlider(props: ISliderProps) {
           ? props.className + " " + replayHighlightClass
           : replayHighlightClass
       }
-      labelStepSize={250}
-      max={1000}
+      labelStepSize={Math.floor(max / 4)}
+      max={max}
       min={4}
     />
   );
