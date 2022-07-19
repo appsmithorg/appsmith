@@ -216,11 +216,6 @@ function Deploy() {
   const commitButtonDisabled =
     !hasChangesToCommit || !commitMessage || commitMessage.trim().length < 1;
   const commitButtonLoading = isCommittingInProgress;
-  const commitInputDisabled =
-    !hasChangesToCommit ||
-    isCommittingInProgress ||
-    isCommitAndPushSuccessful ||
-    isDiscarding;
 
   const commitRequired =
     !!gitStatus?.modifiedPages ||
@@ -228,7 +223,12 @@ function Deploy() {
     !!gitStatus?.modifiedJSObjects ||
     !!gitStatus?.modifiedDatasources;
   const isConflicting = !isFetchingGitStatus && !!pullFailed;
-
+  const commitInputDisabled =
+    isConflicting ||
+    !hasChangesToCommit ||
+    isCommittingInProgress ||
+    isCommitAndPushSuccessful ||
+    isDiscarding;
   const pullRequired =
     gitError?.code === GIT_ERROR_CODES.PUSH_FAILED_REMOTE_COUNTERPART_IS_AHEAD;
 
@@ -381,14 +381,6 @@ function Deploy() {
               width="max-content"
             />
           )}
-          {isConflicting && (
-            <ConflictInfo
-              browserSupportedRemoteUrl={
-                gitMetaData?.browserSupportedRemoteUrl || ""
-              }
-              learnMoreLink={gitConflictDocumentUrl}
-            />
-          )}
 
           {showCommitButton && (
             <Tooltip
@@ -432,7 +424,14 @@ function Deploy() {
             />
           )}
         </ActionsContainer>
-
+        {isConflicting && (
+          <ConflictInfo
+            browserSupportedRemoteUrl={
+              gitMetaData?.browserSupportedRemoteUrl || ""
+            }
+            learnMoreLink={gitConflictDocumentUrl}
+          />
+        )}
         {isCommitting && !isDiscarding && (
           <StatusbarWrapper>
             <Statusbar
