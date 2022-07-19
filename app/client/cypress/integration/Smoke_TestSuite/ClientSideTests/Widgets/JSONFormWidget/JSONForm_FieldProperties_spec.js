@@ -82,6 +82,19 @@ describe("Text Field Property Control", () => {
 
     cy.togglebarDisable(`.t--property-control-disabled input`);
   });
+
+  it("throws error when REGEX does not match the input value", () => {
+    cy.testJsontext("regex", "^\\d+$");
+    cy.get(`${fieldPrefix}-name input`)
+      .clear()
+      .type("abcd");
+    cy.get(".bp3-popover-content").contains("Invalid input");
+
+    cy.get(`${fieldPrefix}-name input`)
+      .clear()
+      .type("1234");
+    cy.get(".bp3-popover-content").should("not.exist");
+  });
 });
 
 describe("Checkbox Field Property Control", () => {
