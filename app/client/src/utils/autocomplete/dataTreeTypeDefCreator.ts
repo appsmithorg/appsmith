@@ -11,8 +11,7 @@ import {
   isWidget,
 } from "workers/evaluationUtils";
 import { DataTreeDefEntityInformation } from "utils/autocomplete/TernServer";
-import store from "store";
-import { getCurrentFocusedEntityInfo } from "selectors/editorSelectors";
+
 // When there is a complex data type, we store it in extra def and refer to it
 // in the def
 let extraDefs: Def = {};
@@ -87,16 +86,6 @@ export const dataTreeTypeDefCreator = (
     }
   });
 
-  const currentFocusedEntity = getCurrentFocusedEntityInfo(store.getState());
-  if (
-    currentFocusedEntity &&
-    currentFocusedEntity.entityType === ENTITY_TYPE.JSACTION
-  ) {
-    const focusedJSObjectDef = def[currentFocusedEntity.entityName];
-    def["this"] = focusedJSObjectDef;
-  }
-
-  // console.log("$$$-def", def);
   return { def, entityInfo: entityMap };
 };
 
