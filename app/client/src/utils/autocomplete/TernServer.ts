@@ -552,31 +552,18 @@ class TernServer {
     let offsetLines = 0;
     const allowFragments = !query.fullDocs;
     if (!allowFragments) delete query.fullDocs;
+    if (typeof query == "string") query = { type: query };
     query.lineCharPositions = true;
-    query.includeKeywords = true;
-    if (!query.end) {
-      const lineValue = this.lineValue(doc);
-      const focusedValue = this.getFocusedDynamicValue(doc);
-      const index = lineValue.indexOf(focusedValue);
-
-      const positions = pos || doc.doc.getCursor("end");
-      const queryChPosition = positions.ch - index;
-
-      query.end = {
-        ...positions,
-        line: 0,
-        ch: queryChPosition,
-      };
-
-      if (doc.doc.somethingSelected()) {
-        query.start = doc.doc.getCursor("start");
-      }
+    if (query.end == null) {
+      query.end = pos || doc.doc.getCursor("end");
+      if (doc.doc.somethingSelected()) query.start = doc.doc.getCursor("start");
     }
     const startPos = query.start || query.end;
+
     if (doc.changed) {
       if (
         doc.doc.lineCount() > bigDoc &&
-        allowFragments &&
+        allowFragments !== false &&
         doc.changed.to - doc.changed.from < 100 &&
         doc.changed.from <= startPos.line &&
         doc.changed.to > query.end.line
@@ -584,15 +571,14 @@ class TernServer {
         files.push(this.getFragmentAround(doc, startPos, query.end));
         query.file = "#0";
         offsetLines = files[0].offsetLines;
-        if (query.start) {
+        if (query.start != null)
           query.start = Pos(query.start.line - -offsetLines, query.start.ch);
-        }
         query.end = Pos(query.end.line - offsetLines, query.end.ch);
       } else {
         files.push({
           type: "full",
           name: doc.name,
-          text: this.getFocusedDynamicValue(doc),
+          text: this.docValue(doc),
         });
         query.file = doc.name;
         doc.changed = null;
@@ -602,11 +588,11 @@ class TernServer {
     }
     for (const name in this.docs) {
       const cur = this.docs[name];
-      if (cur.changed && cur !== doc) {
+      if (cur.changed && cur != doc) {
         files.push({
           type: "full",
           name: cur.name,
-          text: this.getFocusedDynamicValue(cur),
+          text: this.docValue(cur),
         });
         cur.changed = null;
       }
