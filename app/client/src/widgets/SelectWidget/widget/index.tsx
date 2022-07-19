@@ -33,7 +33,8 @@ export function defaultOptionValueValidation(
   let parsed;
   let message = "";
   const isServerSideFiltered = props.serverSideFiltering;
-  // TODO: options shouldn't get un-eval values;
+  // TODO: validation of defaultOption is dependent on serverSideFiltering and options, this property should reValidated once the dependencies change
+  //this issue is been tracked here https://github.com/appsmithorg/appsmith/issues/15303
   const options = Array.isArray(props.options) ? props.options : [];
 
   /*
