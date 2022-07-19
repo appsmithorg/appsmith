@@ -5,6 +5,11 @@ import { Text, TextType } from "design-system";
 import { Colors } from "constants/Colors";
 import { replayHighlightClass } from "globalStyles/portals";
 
+export enum CheckboxType {
+  PRIMARY = "PRIMARY",
+  "SECONDARY" = "SECONDARY",
+}
+
 export type CheckboxProps = CommonComponentProps & {
   label: string;
   isDefaultChecked?: boolean;
@@ -13,6 +18,8 @@ export type CheckboxProps = CommonComponentProps & {
   backgroundColor?: string;
   fill?: boolean;
   name?: string;
+  className?: string;
+  type?: CheckboxType;
 };
 
 export const Checkmark = styled.span<{
@@ -20,29 +27,71 @@ export const Checkmark = styled.span<{
   isChecked?: boolean;
   info?: string;
   backgroundColor?: string;
+  type?: CheckboxType;
 }>`
   position: absolute;
   top: ${(props) => (props.info ? "6px" : "1px")};
   left: 0;
   width: ${(props) => props.theme.spaces[8]}px;
   height: ${(props) => props.theme.spaces[8]}px;
-  background-color: ${(props) =>
-    props.isChecked
-      ? props.disabled
-        ? props.theme.colors.checkbox.disabled
-        : props.backgroundColor || props.theme.colors.info.main
-      : props.disabled
-      ? props.theme.colors.checkbox.disabled
-      : "transparent"};
-  border: 1.8px solid
-    ${(props) =>
-      props.isChecked
-        ? props.disabled
+  ${(props) => {
+    if (props.type === CheckboxType.PRIMARY) {
+      return `
+      background-color: ${
+        props.isChecked
+          ? props.disabled
+            ? props.theme.colors.checkbox.disabled
+            : props.backgroundColor || props.theme.colors.info.main
+          : props.disabled
           ? props.theme.colors.checkbox.disabled
-          : props.backgroundColor || props.theme.colors.info.main
-        : props.disabled
-        ? props.theme.colors.checkbox.disabled
-        : props.theme.colors.checkbox.unchecked};
+          : "transparent"
+      };
+      border: 1.8px solid
+        ${
+          props.isChecked
+            ? props.disabled
+              ? props.theme.colors.checkbox.disabled
+              : props.backgroundColor || props.theme.colors.info.main
+            : props.disabled
+            ? props.theme.colors.checkbox.disabled
+            : props.theme.colors.checkbox.unchecked
+        };
+
+        &::after {
+          border: solid
+            ${
+              props.disabled
+                ? props.theme.colors.checkbox.disabledCheck
+                : props.theme.colors.checkbox.normalCheck
+            };
+        }
+      `;
+    } else {
+      return `
+      background-color: ${
+        props.disabled ? props.theme.colors.checkbox.disabled : "transparent"
+      };
+      border: 1.8px solid
+        ${
+          props.isChecked
+            ? props.disabled
+              ? props.theme.colors.checkbox.disabled
+              : props.backgroundColor || props.theme.colors.info.main
+            : props.disabled
+            ? props.theme.colors.checkbox.disabled
+            : props.theme.colors.checkbox.unchecked
+        };
+        &::after {
+          border: solid
+            ${
+              props.disabled
+                ? props.backgroundColor || props.theme.colors.info.main
+                : props.backgroundColor || props.theme.colors.info.main
+            };
+        }
+      `;
+    }
+  }}
 
   &::after {
     content: "";
@@ -52,11 +101,6 @@ export const Checkmark = styled.span<{
     left: 4px;
     width: 6px;
     height: 11px;
-    border: solid
-      ${(props) =>
-        props.disabled
-          ? props.theme.colors.checkbox.disabledCheck
-          : props.theme.colors.checkbox.normalCheck};
     border-width: 0 2px 2px 0;
     transform: rotate(45deg);
   }
@@ -117,7 +161,7 @@ const useUpdate = (intitialValue?: boolean) => {
 };
 
 function Checkbox(props: CheckboxProps) {
-  const { fill = true } = props;
+  const { className, fill = true } = props;
   const [checked, setChecked] = useUpdate(props.isDefaultChecked);
 
   const onChangeHandler = (checked: boolean) => {
@@ -128,6 +172,7 @@ function Checkbox(props: CheckboxProps) {
   return (
     <StyledCheckbox
       $fill={fill}
+      className={className}
       data-cy={props.cypressSelector}
       disabled={props.disabled}
     >
@@ -150,6 +195,7 @@ function Checkbox(props: CheckboxProps) {
         disabled={props.disabled}
         info={props.info}
         isChecked={checked}
+        type={props.type || CheckboxType.PRIMARY}
       />
     </StyledCheckbox>
   );

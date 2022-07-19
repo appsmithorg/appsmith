@@ -109,6 +109,56 @@ export const mapToPropList = (map: Record<string, string>): Property[] => {
   });
 };
 
+export const INTERACTION_ANALYTICS_EVENT = "INTERACTION_ANALYTICS_EVENT";
+
+export type InteractionAnalyticsEventDetail = {
+  key?: string;
+  propertyName?: string;
+  propertyType?: string;
+  widgetType?: string;
+};
+
+export const interactionAnalyticsEvent = (
+  detail: InteractionAnalyticsEventDetail = {},
+) =>
+  new CustomEvent(INTERACTION_ANALYTICS_EVENT, {
+    bubbles: true,
+    detail,
+  });
+
+export function emitInteractionAnalyticsEvent<T extends HTMLElement>(
+  element: T | null,
+  args: Record<string, unknown>,
+) {
+  element?.dispatchEvent(interactionAnalyticsEvent(args));
+}
+
+export const DS_EVENT = "DS_EVENT";
+
+export enum DSEventTypes {
+  KEYPRESS = "KEYPRESS",
+}
+
+export type DSEventDetail = {
+  component: string;
+  event: DSEventTypes;
+  meta: Record<string, unknown>;
+};
+
+export function createDSEvent(detail: DSEventDetail) {
+  return new CustomEvent(DS_EVENT, {
+    bubbles: true,
+    detail,
+  });
+}
+
+export function emitDSEvent<T extends HTMLElement>(
+  element: T | null,
+  args: DSEventDetail,
+) {
+  element?.dispatchEvent(createDSEvent(args));
+}
+
 export const getNextEntityName = (
   prefix: string,
   existingNames: string[],
