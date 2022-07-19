@@ -101,13 +101,26 @@ export function setupEvaluationEnvironment() {
 
 const beginsWithLineBreakRegex = /^\s+|\s+$/;
 
-export const createGlobalData = (
-  dataTree: DataTree,
-  resolvedFunctions: Record<string, any>,
-  isTriggerBased: boolean,
-  context?: EvaluateContext,
-  evalArguments?: Array<any>,
-) => {
+export interface createGlobalDataArgs {
+  dataTree: DataTree;
+  resolvedFunctions: Record<string, any>;
+  context?: EvaluateContext;
+  evalArguments?: Array<unknown>;
+  isTriggerBased: boolean;
+  // Whether not to add functions like "run", "clear" to entity in global data
+  skipEntityFunctions?: boolean;
+}
+
+export const createGlobalData = (args: createGlobalDataArgs) => {
+  const {
+    context,
+    dataTree,
+    evalArguments,
+    isTriggerBased,
+    resolvedFunctions,
+    skipEntityFunctions,
+  } = args;
+
   const GLOBAL_DATA: Record<string, any> = {};
   ///// Adding callback data
   GLOBAL_DATA.ARGUMENTS = evalArguments;
@@ -128,6 +141,7 @@ export const createGlobalData = (
     const dataTreeWithFunctions = enhanceDataTreeWithFunctions(
       dataTree,
       context?.requestId,
+      skipEntityFunctions,
     );
     ///// Adding Data tree with functions
     Object.keys(dataTreeWithFunctions).forEach((datum) => {
@@ -218,13 +232,13 @@ export default function evaluateSync(
     const errors: EvaluationError[] = [];
     let result;
     /**** Setting the eval context ****/
-    const GLOBAL_DATA: Record<string, any> = createGlobalData(
+    const GLOBAL_DATA: Record<string, any> = createGlobalData({
       dataTree,
       resolvedFunctions,
-      isJSCollection,
+      isTriggerBased: isJSCollection,
       context,
       evalArguments,
-    );
+    });
     GLOBAL_DATA.ALLOW_ASYNC = false;
     const { script } = getUserScriptToEvaluate(
       userScript,
@@ -284,13 +298,13 @@ export async function evaluateAsync(
     const errors: EvaluationError[] = [];
     let result;
     /**** Setting the eval context ****/
-    const GLOBAL_DATA: Record<string, any> = createGlobalData(
+    const GLOBAL_DATA: Record<string, any> = createGlobalData({
       dataTree,
       resolvedFunctions,
-      true,
-      { ...context, requestId },
+      isTriggerBased: true,
+      context: { ...context, requestId },
       evalArguments,
-    );
+    });
     const { script } = getUserScriptToEvaluate(userScript, true, evalArguments);
     GLOBAL_DATA.ALLOW_ASYNC = true;
     // Set it to self so that the eval function can have access to it
