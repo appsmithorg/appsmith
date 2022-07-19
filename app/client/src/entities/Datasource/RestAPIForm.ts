@@ -47,7 +47,7 @@ export interface Certificate {
 export interface ApiDatasourceForm {
   datasourceId: string;
   pluginId: string;
-  organizationId: string;
+  workspaceId: string;
   isValid: boolean;
   url: string;
   headers?: Property[];
@@ -67,6 +67,7 @@ export interface Oauth2Common {
   headerPrefix: string;
   scopeString: string;
   isTokenHeader: boolean;
+  isAuthorizationHeader: boolean;
   audience: string;
   resource: string;
   sendScopeWithRefreshToken: string;
@@ -82,7 +83,6 @@ export interface AuthorizationCode extends Oauth2Common {
   grantType: GrantType.AuthorizationCode;
   authorizationUrl: string;
   customAuthenticationParameters: Property[];
-  isAuthorizationHeader: boolean;
   isAuthorized: boolean;
 }
 

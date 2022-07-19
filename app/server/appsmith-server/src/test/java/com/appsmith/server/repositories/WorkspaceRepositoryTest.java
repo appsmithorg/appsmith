@@ -1,36 +1,36 @@
 package com.appsmith.server.repositories;
 
-import com.appsmith.server.domains.Workspace;
-import com.appsmith.server.domains.UserRole;
-import lombok.extern.slf4j.Slf4j;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+
 import org.junit.Assert;
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringRunner;
+
+import com.appsmith.server.domains.UserRole;
+import com.appsmith.server.domains.Workspace;
+
+import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 import reactor.util.function.Tuple2;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @Slf4j
 @DirtiesContext
-class WorkspaceRepositoryTest {
+public class WorkspaceRepositoryTest {
 
     @Autowired
-    private WorkspaceRepository organizationRepository;
+    private WorkspaceRepository workspaceRepository;
 
     @Test
-    void updateUserRoleNames_WhenUserIdMatched_AllOrgsUpdated() {
+    public void updateUserRoleNames_WhenUserIdMatched_AllOrgsUpdated() {
         String oldUserName = "Old name",
                 newUserName = "New name",
                 userId = "user1";
@@ -53,16 +53,16 @@ class WorkspaceRepositoryTest {
 
         // create two orgs
         Mono<Tuple2<Workspace, Workspace>> aveOrgsMonoZip = Mono.zip(
-                organizationRepository.save(org1), organizationRepository.save(org2)
+                workspaceRepository.save(org1), workspaceRepository.save(org2)
         );
 
         Mono<Tuple2<Workspace, Workspace>> updatedOrgTupleMono = aveOrgsMonoZip.flatMap(objects -> {
             // update the user names
-            return organizationRepository.updateUserRoleNames(userId, newUserName).thenReturn(objects);
-        }).flatMap(organizationTuple2 -> {
+            return workspaceRepository.updateUserRoleNames(userId, newUserName).thenReturn(objects);
+        }).flatMap(workspaceTuple2 -> {
             // fetch the two orgs again
-            Mono<Workspace> updatedOrg1Mono = organizationRepository.findBySlug(org1.getId());
-            Mono<Workspace> updatedOrg2Mono = organizationRepository.findBySlug(org2.getId());
+            Mono<Workspace> updatedOrg1Mono = workspaceRepository.findBySlug(org1.getId());
+            Mono<Workspace> updatedOrg2Mono = workspaceRepository.findBySlug(org2.getId());
             return Mono.zip(updatedOrg1Mono, updatedOrg2Mono);
         });
 

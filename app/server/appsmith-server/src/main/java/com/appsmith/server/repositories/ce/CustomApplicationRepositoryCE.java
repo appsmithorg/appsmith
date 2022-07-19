@@ -14,13 +14,13 @@ import java.util.Set;
 
 public interface CustomApplicationRepositoryCE extends AppsmithRepository<Application> {
 
-    Mono<Application> findByIdAndOrganizationId(String id, String orgId, AclPermission permission);
+    Mono<Application> findByIdAndWorkspaceId(String id, String workspaceId, AclPermission permission);
 
     Mono<Application> findByName(String name, AclPermission permission);
 
-    Flux<Application> findByOrganizationId(String orgId, AclPermission permission);
+    Flux<Application> findByWorkspaceId(String workspaceId, AclPermission permission);
 
-    Flux<Application> findByMultipleOrganizationIds(Set<String> orgIds, AclPermission permission);
+    Flux<Application> findByMultipleWorkspaceIds(Set<String> workspaceIds, AclPermission permission);
 
     Flux<Application> findByClonedFromApplicationId(String applicationId, AclPermission permission);
 
@@ -36,15 +36,15 @@ public interface CustomApplicationRepositoryCE extends AppsmithRepository<Applic
 
     Flux<Application> getApplicationByGitDefaultApplicationId(String defaultApplicationId, AclPermission permission);
 
-    Mono<List<String>> getAllApplicationId(String organizationId);
+    Mono<List<String>> getAllApplicationId(String workspaceId);
 
     Mono<UpdateResult> setAppTheme(String applicationId, String editModeThemeId, String publishedModeThemeId, AclPermission aclPermission);
 
-    Mono<Long> countByOrganizationId(String organizationId);
+    Mono<Long> countByWorkspaceId(String workspaceId);
 
-    Mono<Long> getGitConnectedApplicationWithPrivateRepoCount(String organizationId);
+    Mono<Long> getGitConnectedApplicationWithPrivateRepoCount(String workspaceId);
 
-    Flux<Application> getGitConnectedApplicationByOrganizationId(String organizationId);
+    Flux<Application> getGitConnectedApplicationByWorkspaceId(String workspaceId);
 
     Mono<Application> getApplicationByDefaultApplicationIdAndDefaultBranch(String defaultApplicationId);
 }

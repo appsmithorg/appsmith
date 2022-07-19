@@ -11,6 +11,8 @@ import { JSCollection } from "entities/JSCollection";
 import { JsFileIconV2 } from "../ExplorerIcons";
 import { PluginType } from "entities/Action";
 import { jsCollectionIdURL } from "RouteBuilder";
+import AnalyticsUtil from "utils/AnalyticsUtil";
+import { useLocation } from "react-router";
 
 type ExplorerJSCollectionEntityProps = {
   step: number;
@@ -30,13 +32,23 @@ export const ExplorerJSCollectionEntity = memo(
     const jsAction = useSelector((state: AppState) =>
       getJSCollection(state, props.id),
     ) as JSCollection;
+    const location = useLocation();
+    const navigateToUrl = jsCollectionIdURL({
+      pageId,
+      collectionId: jsAction.id,
+      params: {},
+    });
     const navigateToJSCollection = useCallback(() => {
       if (jsAction.id) {
-        history.push(
-          jsCollectionIdURL({ pageId, collectionId: jsAction.id, params: {} }),
-        );
+        AnalyticsUtil.logEvent("ENTITY_EXPLORER_CLICK", {
+          type: "JSOBJECT",
+          fromUrl: location.pathname,
+          toUrl: navigateToUrl,
+          name: jsAction.name,
+        });
+        history.push(navigateToUrl);
       }
-    }, [pageId, jsAction.id]);
+    }, [pageId, jsAction.id, jsAction.name, location.pathname]);
     const contextMenu = (
       <JSCollectionEntityContextMenu
         className={EntityClassNames.CONTEXT_MENU}

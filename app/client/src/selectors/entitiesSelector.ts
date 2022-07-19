@@ -565,10 +565,10 @@ export const getAllWidgetsMap = createSelector(
 export const getAllPageWidgets = createSelector(
   getAllWidgetsMap,
   (widgetsMap) => {
-    return Object.entries(widgetsMap).reduce(
-      (res: any[], [, widget]: any) => [...res, widget],
-      [],
-    );
+    return Object.entries(widgetsMap).reduce((res: any[], [, widget]: any) => {
+      res.push(widget);
+      return res;
+    }, []);
   },
 );
 
@@ -656,18 +656,8 @@ export const widgetsMapWithParentModalId = (state: AppState) => {
     : getCanvasWidgetsWithParentId(state);
 };
 
-export const getIsOnboardingTasksView = createSelector(
-  getCanvasWidgets,
-  (widgets) => {
-    return Object.keys(widgets).length == 1;
-  },
-);
-
 export const getIsReconnectingDatasourcesModalOpen = (state: AppState) =>
   state.entities.datasources.isReconnectingModalOpen;
-
-export const getIsOnboardingWidgetSelection = (state: AppState) =>
-  state.ui.onBoarding.inOnboardingWidgetSelection;
 
 export const getPageActions = (pageId = "") => {
   return (state: AppState) => {
@@ -824,7 +814,9 @@ export const getJSActions = (
     (jsCollectionData) => jsCollectionData.config.id === JSCollectionId,
   );
 
-  return jsCollection?.config.actions ?? [];
+  return jsCollection?.config.actions
+    ? sortBy(jsCollection?.config.actions, ["name"])
+    : [];
 };
 
 export const getActiveJSActionId = (

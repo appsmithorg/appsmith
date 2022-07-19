@@ -51,7 +51,7 @@ const StyledContainerComponent = styled.div<
         : props.backgroundColor;
     }};
   }
-}`;
+`;
 
 function ContainerComponentWrapper(props: ContainerComponentProps) {
   const containerStyle = props.containerStyle || "card";
@@ -94,6 +94,7 @@ function ContainerComponent(props: ContainerComponentProps) {
       {...pick(props, [
         "widgetId",
         "containerStyle",
+        "backgroundColor",
         "borderColor",
         "borderWidth",
         "borderRadius",

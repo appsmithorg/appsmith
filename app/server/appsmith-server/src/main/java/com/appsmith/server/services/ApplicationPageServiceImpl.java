@@ -16,7 +16,7 @@ public class ApplicationPageServiceImpl extends ApplicationPageServiceCEImpl imp
 
     public ApplicationPageServiceImpl(ApplicationService applicationService,
                                       SessionUserService sessionUserService,
-                                      WorkspaceRepository organizationRepository,
+                                      WorkspaceRepository workspaceRepository,
                                       LayoutActionService layoutActionService,
                                       AnalyticsService analyticsService,
                                       PolicyGenerator policyGenerator,
@@ -29,7 +29,7 @@ public class ApplicationPageServiceImpl extends ApplicationPageServiceCEImpl imp
                                       ThemeService themeService,
                                       ResponseUtils responseUtils) {
 
-        super(applicationService, sessionUserService, organizationRepository, layoutActionService, analyticsService,
+        super(applicationService, sessionUserService, workspaceRepository, layoutActionService, analyticsService,
                 policyGenerator, applicationRepository, newPageService, newActionService, actionCollectionService,
                 gitFileUtils, commentThreadRepository, themeService, responseUtils);
     }

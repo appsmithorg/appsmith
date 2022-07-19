@@ -12,9 +12,9 @@ public class CommentAddedEvent extends AbstractCommentEvent {
     private final Comment comment;
     private final Set<String> subscribers;
 
-    public CommentAddedEvent(Workspace organization, Application application,
+    public CommentAddedEvent(Workspace workspace, Application application,
                              String originHeader, Comment comment, Set<String> subscribers, String pageName) {
-        super(comment.getAuthorUsername(), organization, application, originHeader, pageName);
+        super(comment.getAuthorUsername(), workspace, application, originHeader, pageName);
         this.comment = comment;
         this.subscribers = subscribers;
     }

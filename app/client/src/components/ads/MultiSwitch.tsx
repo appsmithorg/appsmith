@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import styled from "styled-components";
 import { CommonComponentProps } from "./common";
-import Text, { Case, TextType } from "./Text";
+import { Text, Case, TextType } from "design-system";
 
 export type TabProp<T> = {
   key: string;
@@ -79,6 +79,9 @@ export default function MultiSwitch<T>(props: MultiSwitchProps<T>) {
         <TabList>
           {props.tabs.map((tab) => (
             <Tab
+              className={`${
+                props.selected.value === tab.key ? "t--tab-selected" : ""
+              }`}
               data-cy={`tab--${tab.title}`}
               key={tab.key}
               onClick={() => props.onSelect(tab.key)}

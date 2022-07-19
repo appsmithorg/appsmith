@@ -22,8 +22,8 @@ describe("Checks ReplayDSL functionality", () => {
     localStorage.setItem("undoToastShown", false);
     localStorage.setItem("redoToastShown", false);
 
-    const test1 = shouldDisallowToast(false);
-    const test2 = shouldDisallowToast(true);
+    let test1 = shouldDisallowToast(false);
+    let test2 = shouldDisallowToast(true);
 
     expect(test1).toBe(false);
     expect(test2).toBe(false);

@@ -44,9 +44,6 @@ describe("Guided Tour", function() {
     cy.get(".t--entity-name")
       .contains("DisplayImage")
       .click({ force: true });
-    // cy.SearchEntityandOpen("ImageWidget");
-    // cy.get(commonlocators.editWidgetName).contains("CountryInput");
-    cy.testJsontext("image", "{{CustomersTable.selectedRow.image}}");
     cy.get(guidedTourLocators.successButton).click();
     // Step 6: Drag and drop a widget
     cy.dragAndDropToCanvas("buttonwidget", {
@@ -73,7 +70,7 @@ describe("Guided Tour", function() {
     cy.get(guidedTourLocators.successButton).click();
     // Step 9: Deploy
     cy.PublishtheApp();
-    cy.wait("@getOrganisation");
+    cy.wait("@getWorkspace");
     cy.get(guidedTourLocators.rating).should("be.visible");
     cy.get(guidedTourLocators.rating)
       .eq(4)

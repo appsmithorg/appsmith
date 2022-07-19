@@ -11,32 +11,34 @@ import userEvent from "@testing-library/user-event";
 import { noop } from "lodash";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 
+const requiredParams = {
+  evaluatedValue: undefined,
+  deleteProperties: noop,
+  widgetProperties: undefined,
+  parentPropertyName: "",
+  parentPropertyValue: undefined,
+  additionalDynamicData: {},
+  label: "",
+  openNextPanel: noop,
+  onPropertyChange: noop,
+  theme: EditorTheme.LIGHT,
+  propertyName: "iconName",
+  controlType: "",
+  isBindProperty: false,
+  isTriggerProperty: false,
+};
+
 describe("<IconSelectControl /> - Keyboard navigation", () => {
   const getTestComponent = (
     onPropertyChange: (
       propertyName: string,
       propertyValue: string,
+      isUpdatedViaKeyboard?: boolean,
     ) => void = noop,
   ) => (
     <IconSelectControl
-      additionalDynamicData={{
-        dummy: {
-          dummy: 1,
-        },
-      }}
-      controlType="add"
-      deleteProperties={noop}
-      evaluatedValue={undefined}
-      isBindProperty={false}
-      isTriggerProperty={false}
-      label="Icon"
+      {...requiredParams}
       onPropertyChange={onPropertyChange}
-      openNextPanel={noop}
-      parentPropertyName="iconName"
-      parentPropertyValue="add"
-      propertyName="iconName"
-      theme={EditorTheme.LIGHT}
-      widgetProperties={undefined}
     />
   );
 
@@ -221,7 +223,11 @@ describe("<IconSelectControl /> - Keyboard navigation", () => {
     );
     userEvent.keyboard(" ");
     expect(handleOnSelect).toHaveBeenCalledTimes(1);
-    expect(handleOnSelect).toHaveBeenLastCalledWith("iconName", "add-row-top");
+    expect(handleOnSelect).toHaveBeenLastCalledWith(
+      "iconName",
+      "add-row-top",
+      true,
+    );
     await waitForElementToBeRemoved(screen.getByRole("list"));
 
     userEvent.keyboard("{Enter}");
@@ -239,6 +245,23 @@ describe("<IconSelectControl /> - Keyboard navigation", () => {
     expect(handleOnSelect).toHaveBeenLastCalledWith(
       "iconName",
       "add-to-artifact",
+      true,
+    );
+  });
+});
+
+const config = { ...requiredParams };
+describe("IconSelectControl.canDisplayValue", () => {
+  it("Should return true when a proper icon name is passed", () => {
+    expect(IconSelectControl.canDisplayValueInUI(config, "add")).toEqual(true);
+    expect(IconSelectControl.canDisplayValueInUI(config, "airplane")).toEqual(
+      true,
+    );
+  });
+
+  it("Should return false when a non-alowed icon value is passed", () => {
+    expect(IconSelectControl.canDisplayValueInUI(config, "macbook")).toEqual(
+      false,
     );
   });
 });

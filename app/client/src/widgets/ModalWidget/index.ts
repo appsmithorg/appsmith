@@ -20,6 +20,7 @@ export const CONFIG = {
   iconSVG: IconSVG,
   needsMeta: true,
   isCanvas: true,
+  searchTags: ["dialog", "popup", "notification"],
   defaults: {
     rows: 24,
     columns: 24,

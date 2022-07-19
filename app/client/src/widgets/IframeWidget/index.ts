@@ -6,6 +6,7 @@ export const CONFIG = {
   name: "Iframe",
   iconSVG: IconSVG,
   needsMeta: true,
+  searchTags: ["embed"],
   defaults: {
     source: "https://www.example.com",
     borderOpacity: 100,

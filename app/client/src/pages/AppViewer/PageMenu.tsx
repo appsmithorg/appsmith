@@ -1,10 +1,9 @@
 import React, { useState, useEffect, useRef } from "react";
 import {
   ApplicationPayload,
-  PageListPayload,
+  Page,
 } from "@appsmith/constants/ReduxActionConstants";
 import { NavLink } from "react-router-dom";
-import { getPageURL } from "utils/AppsmithUtils";
 import {
   getAppMode,
   showAppInviteUsersDialogSelector,
@@ -13,18 +12,23 @@ import { useSelector } from "react-redux";
 import classNames from "classnames";
 import PrimaryCTA from "./PrimaryCTA";
 import Button from "./AppViewerButton";
-import AppInviteUsersForm from "pages/organization/AppInviteUsersForm";
+import AppInviteUsersForm from "pages/workspace/AppInviteUsersForm";
 import FormDialogComponent from "components/editorComponents/form/FormDialogComponent";
-import { getCurrentOrgId } from "selectors/organizationSelectors";
+import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
 import { getSelectedAppTheme } from "selectors/appThemingSelectors";
 import BrandingBadge from "./BrandingBadgeMobile";
 import { getAppViewHeaderHeight } from "selectors/appViewSelectors";
 import { useOnClickOutside } from "utils/hooks/useOnClickOutside";
+import { getShowBrandingBadge } from "@appsmith/selectors/workspaceSelectors";
+import { useHref } from "pages/Editor/utils";
+import { APP_MODE } from "entities/App";
+import { builderURL, viewerURL } from "RouteBuilder";
+import { trimQueryString } from "utils/helpers";
 
 type AppViewerHeaderProps = {
   isOpen?: boolean;
   application?: ApplicationPayload;
-  pages: PageListPayload;
+  pages: Page[];
   url?: string;
   setMenuOpen?: (shouldOpen: boolean) => void;
   headerRef?: React.RefObject<HTMLDivElement>;
@@ -32,15 +36,15 @@ type AppViewerHeaderProps = {
 
 export function PageMenu(props: AppViewerHeaderProps) {
   const { application, headerRef, isOpen, pages, setMenuOpen } = props;
-  const appMode = useSelector(getAppMode);
   const menuRef = useRef<any>();
   const selectedTheme = useSelector(getSelectedAppTheme);
-  const organisationID = useSelector(getCurrentOrgId);
+  const workspaceID = useSelector(getCurrentWorkspaceId);
   const showAppInviteUsersDialog = useSelector(
     showAppInviteUsersDialogSelector,
   );
   const headerHeight = useSelector(getAppViewHeaderHeight);
   const [query, setQuery] = useState("");
+  const showBrandingBadge = useSelector(getShowBrandingBadge);
 
   // hide menu on click outside
   useOnClickOutside(
@@ -72,7 +76,7 @@ export function PageMenu(props: AppViewerHeaderProps) {
       {/* BG OVERLAY */}
       <div
         className={classNames({
-          "fixed h-full w-full bg-black bg-opacity-30 transform transition-all": true,
+          "fixed h-full w-full bg-black/30 transform transition-all": true,
           "opacity-0 hidden": !isOpen,
           "opacity-100": isOpen,
         })}
@@ -93,20 +97,7 @@ export function PageMenu(props: AppViewerHeaderProps) {
       >
         <div className="flex-grow py-3 overflow-y-auto" ref={menuRef}>
           {appPages.map((page) => (
-            <NavLink
-              activeClassName="border-r-3 font-semibold"
-              activeStyle={{
-                borderColor: selectedTheme.properties.colors.primaryColor,
-              }}
-              className="flex flex-col px-3 py-2 text-gray-700 no-underline border-transparent border-r-3 hover:no-underline focus:text-gray-700"
-              key={page.pageId}
-              to={{
-                pathname: getPageURL(page, appMode, application),
-                search: query,
-              }}
-            >
-              {page.pageName}
-            </NavLink>
+            <PageNavLink key={page.pageId} page={page} query={query} />
           ))}
         </div>
         <div className="p-3 space-y-3 border-t">
@@ -120,7 +111,6 @@ export function PageMenu(props: AppViewerHeaderProps) {
                 bgColor: "transparent",
               }}
               isOpen={showAppInviteUsersDialog}
-              orgId={organisationID}
               title={application.name}
               trigger={
                 <Button
@@ -134,13 +124,40 @@ export function PageMenu(props: AppViewerHeaderProps) {
                   text="Share"
                 />
               }
+              workspaceId={workspaceID}
             />
           )}
           <PrimaryCTA className="t--back-to-editor--mobile" url={props.url} />
-          <BrandingBadge />
+          {showBrandingBadge && <BrandingBadge />}
         </div>
       </div>
     </>
+  );
+}
+
+function PageNavLink({ page, query }: { page: Page; query: string }) {
+  const appMode = useSelector(getAppMode);
+  const selectedTheme = useSelector(getSelectedAppTheme);
+  const pathname = useHref(
+    appMode === APP_MODE.PUBLISHED ? viewerURL : builderURL,
+    { pageId: page.pageId },
+  );
+
+  return (
+    <NavLink
+      activeClassName="border-r-3 font-semibold"
+      activeStyle={{
+        borderColor: selectedTheme.properties.colors.primaryColor,
+      }}
+      className="flex flex-col px-4 py-2 text-gray-700 no-underline border-transparent border-r-3 hover:no-underline focus:text-gray-700"
+      key={page.pageId}
+      to={{
+        pathname: trimQueryString(pathname),
+        search: query,
+      }}
+    >
+      {page.pageName}
+    </NavLink>
   );
 }
 

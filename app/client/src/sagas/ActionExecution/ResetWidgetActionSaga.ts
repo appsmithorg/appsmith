@@ -14,7 +14,11 @@ import {
   TriggerFailureError,
 } from "sagas/ActionExecution/errorUtils";
 import { getType, Types } from "utils/TypeHelpers";
+import { FlattenedWidgetProps } from "widgets/constants";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import { getDataTree } from "selectors/dataTreeSelectors";
+import { DataTree } from "entities/DataTree/dataTreeFactory";
+import { isWidget } from "workers/evaluationUtils";
 
 export default function* resetWidgetActionSaga(
   payload: ResetWidgetDescription["payload"],
@@ -28,15 +32,21 @@ export default function* resetWidgetActionSaga(
       getType(widgetName),
     );
   }
+  const dataTree: DataTree = yield select(getDataTree);
 
-  const widget = yield select(getWidgetByName, widgetName);
+  const widget: FlattenedWidgetProps | undefined = yield select(
+    getWidgetByName,
+    widgetName,
+  );
   if (!widget) {
     throw new TriggerFailureError(`Widget ${payload.widgetName} not found`);
   }
-
-  yield put(resetWidgetMetaProperty(widget.widgetId));
-  if (payload.resetChildren) {
-    yield put(resetChildrenMetaProperty(widget.widgetId));
+  const evaluatedEntity = dataTree[widget.widgetName];
+  if (isWidget(evaluatedEntity)) {
+    yield put(resetWidgetMetaProperty(widget.widgetId, evaluatedEntity));
+    if (payload.resetChildren) {
+      yield put(resetChildrenMetaProperty(widget.widgetId));
+    }
   }
 
   yield take(ReduxActionTypes.RESET_WIDGET_META_EVALUATED);

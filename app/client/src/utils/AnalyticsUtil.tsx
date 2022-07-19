@@ -6,15 +6,27 @@ import * as Sentry from "@sentry/react";
 import { ANONYMOUS_USERNAME, User } from "constants/userConstants";
 import { sha256 } from "js-sha256";
 
+declare global {
+  interface Window {
+    // Zipy is added via script tags in index.html
+    zipy: {
+      identify: (uid: string, userInfo: Record<string, string>) => void;
+      anonymize: () => void;
+    };
+  }
+}
+
 export type EventLocation =
   | "LIGHTNING_MENU"
   | "API_PANE"
   | "QUERY_PANE"
   | "QUERY_TEMPLATE"
   | "QUICK_COMMANDS"
-  | "OMNIBAR";
+  | "OMNIBAR"
+  | "SUBMENU";
 
 export type EventName =
+  | "APP_CRASH"
   | "SWITCH_DATASOURCE"
   | "LOGIN_CLICK"
   | "SIGNUP_CLICK"
@@ -234,7 +246,12 @@ export type EventName =
   | "MANUAL_UPGRADE_CLICK"
   | "PAGE_NOT_FOUND"
   | "SIMILAR_TEMPLATE_CLICK"
-  | "RUN_JS_FUNCTION";
+  | "RUN_JS_FUNCTION"
+  | "PROPERTY_PANE_KEYPRESS"
+  | "PAGE_NAME_CLICK"
+  | "BACK_BUTTON_CLICK"
+  | "WIDGET_TAB_CLICK"
+  | "ENTITY_EXPLORER_CLICK";
 
 function getApplicationId(location: Location) {
   const pathSplit = location.pathname.split("/");
@@ -402,6 +419,14 @@ class AnalyticsUtil {
     if (smartLook.enabled) {
       smartlookClient.identify(userId, { email: userData.email });
     }
+
+    // If zipy was included, identify this user on the platform
+    if (window.zipy && userId) {
+      window.zipy.identify(userId, {
+        email: userData.email,
+        username: userData.username,
+      });
+    }
   }
 
   static reset() {
@@ -411,6 +436,7 @@ class AnalyticsUtil {
     }
     windowDoc.analytics && windowDoc.analytics.reset();
     windowDoc.mixpanel && windowDoc.mixpanel.reset();
+    window.zipy && window.zipy.anonymize();
   }
 }
 

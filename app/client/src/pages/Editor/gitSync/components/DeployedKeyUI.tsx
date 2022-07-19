@@ -12,8 +12,8 @@ import {
 } from "@appsmith/constants/messages";
 import React, { useCallback, useState } from "react";
 import styled from "styled-components";
-import Text, { TextType } from "components/ads/Text";
-import TooltipComponent from "components/ads/Tooltip";
+import { Text, TextType } from "design-system";
+import { TooltipComponent } from "design-system";
 import Key2LineIcon from "remixicon-react/Key2LineIcon";
 import { Space } from "pages/Editor/gitSync/components/StyledComponents";
 import AnalyticsUtil from "utils/AnalyticsUtil";

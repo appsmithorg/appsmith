@@ -23,9 +23,27 @@ public class ActionCollection extends BaseDomain {
 
     String applicationId;
 
+    //Organizations migrated to workspaces, kept the field as depricated to support the old migration
+    @Deprecated
     String organizationId;
+
+    String workspaceId;
 
     ActionCollectionDTO unpublishedCollection;
 
     ActionCollectionDTO publishedCollection;
+
+    public void sanitiseToExportDBObject() {
+        this.setDefaultResources(null);
+        ActionCollectionDTO unpublishedCollection = this.getUnpublishedCollection();
+        if (unpublishedCollection != null) {
+            unpublishedCollection.sanitiseForExport();
+        }
+        ActionCollectionDTO publishedCollection = this.getPublishedCollection();
+        if (publishedCollection != null) {
+            publishedCollection.sanitiseForExport();
+        }
+        this.sanitiseToExportBaseObject();
+        this.setOrganizationId(null);
+    }
 }

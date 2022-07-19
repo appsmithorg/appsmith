@@ -1,11 +1,12 @@
 import React, { useState } from "react";
-import BaseControl, { ControlProps } from "./BaseControl";
+import BaseControl, { ControlData, ControlProps } from "./BaseControl";
 import SearchBox from "react-google-maps/lib/components/places/SearchBox";
 import StandaloneSearchBox from "react-google-maps/lib/components/places/StandaloneSearchBox";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import { useScript, ScriptStatus, AddScriptTo } from "utils/hooks/useScript";
 import { StyledInputGroup } from "./StyledControls";
 import log from "loglevel";
+import { isDynamicValue } from "utils/DynamicBindingUtils";
 
 const { google } = getAppsmithConfigs();
 
@@ -29,7 +30,7 @@ class LocationSearchControl extends BaseControl<ControlProps> {
       const lat = location.lat();
       const long = location.lng();
       const value = { lat, long, title };
-      this.updateProperty(this.props.propertyName, value);
+      this.updateProperty(this.props.propertyName, value, true);
     } catch (e) {
       if (this.searchBox && this.searchBox.getPlaces)
         log.debug("Error selecting location:", this.searchBox.getPlaces());
@@ -56,6 +57,10 @@ class LocationSearchControl extends BaseControl<ControlProps> {
 
   static getControlType() {
     return "LOCATION_SEARCH";
+  }
+
+  static canDisplayValueInUI(config: ControlData, value: any): boolean {
+    return !isDynamicValue(value);
   }
 }
 

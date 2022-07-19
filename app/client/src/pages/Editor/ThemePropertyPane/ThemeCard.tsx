@@ -25,13 +25,13 @@ import { getCurrentApplicationId } from "selectors/editorSelectors";
  * TYPES
  *-----------------------------------------------------------------------------
  */
-interface ThemeCard {
+type ThemeCard = React.PropsWithChildren<{
   theme: AppTheme;
   isSelected?: boolean;
   className?: string;
   selectable?: boolean;
   deletable?: boolean;
-}
+}>;
 
 const MainContainer = styled.main<{ backgroundColor: string }>`
   background-color: ${({ backgroundColor }) => backgroundColor};
@@ -204,7 +204,7 @@ export function ThemeCard(props: ThemeCard) {
             </section>
           </MainContainer>
           <aside
-            className={`absolute bottom-0 left-0 right-0 items-center justify-center hidden  bg-gray-900 bg-opacity-80 ${
+            className={`absolute bottom-0 left-0 right-0 items-center justify-center hidden  bg-gray-900/80 ${
               selectable ? "group-hover:flex" : ""
             }`}
           >
@@ -212,6 +212,7 @@ export function ThemeCard(props: ThemeCard) {
               Apply Theme
             </div>
           </aside>
+          {props.children}
         </div>
       </div>
       <DeleteThemeModal

@@ -17,10 +17,11 @@ const generateWidget = memoize(function getWidgetComponent(
   Widget: typeof BaseWidget,
   needsMeta: boolean,
 ) {
-  const MetaWidget = needsMeta ? withMeta(Widget) : Widget;
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore
-  return Sentry.withProfiler(MetaWidget);
+  const widget = needsMeta ? withMeta(Widget) : Widget;
+  return Sentry.withProfiler(
+    // @ts-expect-error: Types are not available
+    widget,
+  );
 });
 
 export const registerWidget = (Widget: any, config: WidgetConfiguration) => {
@@ -50,9 +51,11 @@ export const configureWidget = (config: WidgetConfiguration) => {
   const _config = {
     ...features,
     ...config.defaults,
+    searchTags: config.searchTags,
     type: config.type,
     hideCard: !!config.hideCard || !config.iconSVG,
     isDeprecated: !!config.isDeprecated,
+    replacement: config.replacement,
     displayName: config.name,
     key: generateReactKey(),
     iconSVG: config.iconSVG,

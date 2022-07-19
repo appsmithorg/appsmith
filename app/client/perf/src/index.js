@@ -15,6 +15,7 @@ if (!fs.existsSync(dir)) {
 glob("./tests/*.perf.js", {}, async function(er, files) {
   // Initial setup
   await cp.execSync(`node ./tests/initial-setup.js`, { stdio: "inherit" });
+
   files.forEach(async (file) => {
     await cp.execSync(`node ${file}`, { stdio: "inherit" }); // Logging to terminal, log it to a file in future?
   });

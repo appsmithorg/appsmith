@@ -7,6 +7,7 @@ export const CONFIG = {
   name: "Circular Progress",
   hideCard: true,
   isDeprecated: true,
+  replacement: "PROGRESS_WIDGET",
   iconSVG: IconSVG,
   defaults: {
     counterClockWise: false,
