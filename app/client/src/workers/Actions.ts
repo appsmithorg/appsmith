@@ -31,7 +31,7 @@ type ActionDispatcherWithExecutionType = (
   ...args: any[]
 ) => ActionDescriptionWithExecutionType;
 
-const DATA_TREE_FUNCTIONS: Record<
+export const DATA_TREE_FUNCTIONS: Record<
   string,
   | ActionDispatcherWithExecutionType
   | {

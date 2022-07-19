@@ -20,6 +20,7 @@ import {
 } from "workers/evaluationUtils";
 
 import {
+  addAppsmithFunctionsKeysToDataTree,
   getJSSnippetToLint,
   getLintingErrors,
   pathRequiresLinting,
@@ -35,7 +36,9 @@ interface LintTreeArgs {
 export const lintTree = (args: LintTreeArgs) => {
   const { evalTree, sortedDependencies, triggerPathsToLint, unEvalTree } = args;
   // In trigger based fields, functions such as showAlert, storeValue need to be added to the global data
-  const GLOBAL_DATA_WITH_FUNCTIONS = createGlobalData(unEvalTree, {}, true);
+  const GLOBAL_DATA_WITH_FUNCTIONS = addAppsmithFunctionsKeysToDataTree(
+    unEvalTree,
+  );
   const triggerPaths = [...triggerPathsToLint];
   sortedDependencies.forEach((fullPropertyPath) => {
     const { entityName, propertyPath } = getEntityNameAndPropertyPath(

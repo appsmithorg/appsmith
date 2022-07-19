@@ -22,6 +22,7 @@ import {
 } from "workers/evaluate";
 import { getLintSeverity } from "components/editorComponents/CodeEditor/lintHelpers";
 import { ECMA_VERSION } from "constants/ast";
+import { DATA_TREE_FUNCTIONS } from "workers/Actions";
 
 export const pathRequiresLinting = (
   dataTree: DataTree,
@@ -151,4 +152,12 @@ const lintErrorFilters = (lintError: LintError) => {
     return false;
   }
   return true;
+};
+
+export const addAppsmithFunctionsKeysToDataTree = (dataTree: DataTree) => {
+  const globalData: Record<string, unknown> = Object.assign({}, dataTree);
+  Object.keys(DATA_TREE_FUNCTIONS).forEach((func) => {
+    globalData[func] = true;
+  });
+  return globalData;
 };
