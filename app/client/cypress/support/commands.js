@@ -736,7 +736,8 @@ Cypress.Commands.add("dragAndDropToCanvas", (widgetType, { x, y }) => {
     .trigger("mousemove", x, y, { eventConstructor: "MouseEvent" })
     .trigger("mousemove", x, y, { eventConstructor: "MouseEvent" })
     .trigger("mouseup", x, y, { eventConstructor: "MouseEvent" });
-});
+    cy.assertPageSave();
+  });
 
 Cypress.Commands.add(
   "dragAndDropToWidget",
@@ -975,6 +976,7 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   cy.route("POST", "api/v1/git/commit/app/*").as("commit");
   cy.route("POST", "/api/v1/git/import/*").as("importFromGit");
   cy.route("POST", "/api/v1/git/merge/app/*").as("mergeBranch");
+  cy.route("POST", "/api/v1/git/merge/status/app/*").as("mergeStatus");
   cy.route("PUT", "api/v1/collections/actions/refactor").as("renameJsAction");
 
   cy.route("POST", "/api/v1/collections/actions").as("createNewJSCollection");
@@ -1124,7 +1126,7 @@ Cypress.Commands.add("ValidatePaginationInputDataV2", () => {
 });
 
 Cypress.Commands.add("assertPageSave", () => {
-  cy.get(commonlocators.saveStatusSuccess, { timeout: 40000 }).should("exist");
+  cy.get(commonlocators.saveStatusSuccess).should("exist");
 });
 
 Cypress.Commands.add(

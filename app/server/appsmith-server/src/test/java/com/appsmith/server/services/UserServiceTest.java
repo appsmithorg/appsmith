@@ -62,6 +62,7 @@ import static com.appsmith.server.acl.AclPermission.USER_READ_WORKSPACES;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 @Slf4j
 @RunWith(SpringRunner.class)
@@ -389,8 +390,8 @@ public class UserServiceTest {
 
         StepVerifier.create(userMono)
                 .assertNext(user -> {
-                    assertThat(user.getEmail().equals(newUser.getEmail()));
-                    assertThat(user.getSource().equals(LoginSource.FORM));
+                    assertEquals(newUser.getEmail(), user.getEmail());
+                    assertEquals(LoginSource.FORM, user.getSource());
                     assertThat(user.getIsEnabled()).isTrue();
                 })
                 .verifyComplete();
@@ -414,9 +415,9 @@ public class UserServiceTest {
 
         StepVerifier.create(userMono)
                 .assertNext(user -> {
-                    assertThat(user.getEmail().equals(newUser.getEmail()));
-                    assertThat(user.getSource().equals(LoginSource.GOOGLE));
-                    assertThat(user.getIsEnabled()).isTrue();
+                    assertEquals(newUser.getEmail(), user.getEmail());
+                    assertEquals(LoginSource.GOOGLE, user.getSource());
+                    assertTrue(user.getIsEnabled());
                 })
                 .verifyComplete();
     }
@@ -459,8 +460,8 @@ public class UserServiceTest {
 
         StepVerifier.create(invitedUserSignUpMono)
                 .assertNext(user -> {
-                    assertThat(user.getIsEnabled().equals(true));
-                    assertThat(passwordEncoder.matches("123456", user.getPassword())).isTrue();
+                    assertTrue(user.getIsEnabled());
+                    assertTrue(passwordEncoder.matches("123456", user.getPassword()));
                 })
                 .verifyComplete();
 
@@ -501,7 +502,8 @@ public class UserServiceTest {
             user.setPassword("test-password");
             user.setName("test-name");
             StepVerifier.create(userSignup.signupAndLogin(user, null))
-                    .expectErrorMessage(AppsmithError.INVALID_PARAMETER.getMessage(FieldName.EMAIL));
+                    .expectErrorMessage(AppsmithError.INVALID_PARAMETER.getMessage(FieldName.EMAIL))
+                    .verify();
         }
     }
 
@@ -573,9 +575,8 @@ public class UserServiceTest {
                 .map(UserSignupDTO::getUser);
 
         StepVerifier.create(userAndSendEmail)
-                .expectErrorMessage(
-                        AppsmithError.USER_ALREADY_EXISTS_SIGNUP.getMessage(existingUser.getEmail())
-                );
+                .expectErrorMessage(AppsmithError.USER_ALREADY_EXISTS_SIGNUP.getMessage(existingUser.getEmail()))
+                .verify();
     }
 
     @Test
