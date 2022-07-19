@@ -1,5 +1,6 @@
 {
   "datasourceEditorIcon": ".t--entity-name:contains('DataSources)",
+  "datasourcesCard": "t--datasource",
   "host": "input[name='datasourceConfiguration.endpoints[0].host']",
   "port": "input[name='datasourceConfiguration.endpoints[0].port']",
   "databaseName": "input[name='datasourceConfiguration.authentication.databaseName']",
