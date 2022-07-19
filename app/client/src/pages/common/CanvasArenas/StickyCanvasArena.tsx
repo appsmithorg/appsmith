@@ -16,6 +16,7 @@ interface StickyCanvasArenaProps {
 }
 
 interface StickyCanvasArenaRef {
+  dropPositionRef: RefObject<HTMLDivElement>;
   stickyCanvasRef: RefObject<HTMLCanvasElement>;
   slidingArenaRef: RefObject<HTMLDivElement>;
 }
@@ -46,7 +47,7 @@ export const StickyCanvasArena = forwardRef(
       snapRows,
       snapRowSpace,
     } = props;
-    const { slidingArenaRef, stickyCanvasRef } = ref.current;
+    const { dropPositionRef, slidingArenaRef, stickyCanvasRef } = ref.current;
 
     const interSectionObserver = useRef(
       new IntersectionObserver((entries) => {
@@ -129,6 +130,16 @@ export const StickyCanvasArena = forwardRef(
           id={id}
           paddingBottom={canvasPadding}
           ref={slidingArenaRef}
+        />
+        <div
+          ref={dropPositionRef}
+          style={{
+            width: "100%",
+            height: 4,
+            backgroundColor: "rgba(240, 190, 117, 0.6)",
+            position: "absolute",
+            opacity: 0,
+          }}
         />
       </>
     );

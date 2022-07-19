@@ -199,6 +199,8 @@ class ContainerWidget extends BaseWidget<
   };
 
   renderAsContainerComponent(props: ContainerWidgetProps<WidgetProps>) {
+    // console.log(`${props.widgetName} =======`);
+    // console.log(props);
     const snapRows = getCanvasSnapRows(props.bottomRow, props.canExtend);
     return (
       <ContainerComponent {...props}>
@@ -211,6 +213,7 @@ class ContainerWidget extends BaseWidget<
               noPad={this.props.noPad}
               parentId={props.parentId}
               snapRows={snapRows}
+              useAutoLayout={props.useAutoLayout}
               widgetId={props.widgetId}
             />
             <CanvasSelectionArena

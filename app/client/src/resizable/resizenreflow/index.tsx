@@ -473,8 +473,7 @@ export function ReflowResizable(props: ResizableProps) {
       snapGrid={props.snapGrid}
     />
   ));
-  console.log("========");
-  console.log(props);
+
   const widgetWidth =
     reflowedPosition?.width === undefined
       ? newDimensions.width

@@ -40,6 +40,7 @@ import AppsmithConsole from "utils/AppsmithConsole";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import PreviewModeComponent from "components/editorComponents/PreviewModeComponent";
 import { LayoutDirection } from "components/constants";
+import { AutoLayoutWrapper } from "components/AutoLayoutWrapper";
 
 /***
  * BaseWidget
@@ -217,9 +218,7 @@ abstract class BaseWidget<
    */
   makeResizable(content: ReactNode) {
     const { componentHeight, componentWidth } = this.getComponentDimensions();
-    console.log(
-      `widgetName: ${this.props.widgetName} & width: ${componentWidth}`,
-    );
+
     return (
       <ResizableComponent
         {...this.props}
@@ -334,43 +333,58 @@ abstract class BaseWidget<
   }
 
   addAutoLayoutWrapper(content: ReactNode) {
-    let size = {},
-      margin = {};
-    if (this.props.autoLayout && this.props.alignItems === "stretch") {
-      size = {
-        width: "100%",
-        height: "auto",
-      };
-    }
-    if (
-      this.props.useAutoLayout &&
-      this.props.direction === LayoutDirection.Vertical
-    ) {
-      margin = {
-        marginTop: 8,
-        marginBottom: 4,
-      };
-    } else {
-      margin = {
-        marginLeft: 8,
-        marginRight: 8,
-      };
-    }
+    // let size = {},
+    //   margin = {};
+    // if (this.props.autoLayout && this.props.alignItems === "stretch") {
+    //   size = {
+    //     width: "100%",
+    //     height: "auto",
+    //   };
+    // }
+    // if (
+    //   this.props.useAutoLayout &&
+    //   this.props.direction === LayoutDirection.Vertical
+    // ) {
+    //   margin = {
+    //     marginTop: 8,
+    //     marginBottom: 4,
+    //   };
+    // } else {
+    //   margin = {
+    //     marginLeft: 8,
+    //     marginRight: 8,
+    //   };
+    // }
+    // return (
+    //   <div
+    //     // onClickCapture={onClickFn}
+    //     style={{
+    //       position: "unset",
+    //       ...size,
+    //       ...margin,
+    //     }}
+    //   >
+    //     {content}
+    //   </div>
+    // );
     return (
-      <div
-        style={{
-          position: "unset",
-          ...size,
-          ...margin,
-        }}
+      <AutoLayoutWrapper
+        alignItems={"stretch"}
+        direction={this.props.direction}
+        parentId={this.props.parentId}
+        useAutoLayout={this.props.useAutoLayout}
+        widgetId={this.props.widgetId}
+        widgetType={this.props.type}
       >
         {content}
-      </div>
+      </AutoLayoutWrapper>
     );
   }
 
   private getWidgetView(): ReactNode {
     let content: ReactNode;
+    // console.log(`${this.props.widgetName} =========`);
+    // console.log(this.props);
     switch (this.props.renderMode) {
       case RenderModes.CANVAS:
         content = this.getCanvasView();
@@ -393,6 +407,7 @@ abstract class BaseWidget<
           ) {
             content = this.addAutoLayoutWrapper(content);
           } else content = this.makePositioned(content);
+          // content = this.makePositioned(content);
         }
         return content;
 
@@ -515,6 +530,7 @@ export interface WidgetPositionProps extends WidgetRowCols {
   detachFromLayout?: boolean;
   noContainerOffset?: boolean; // This won't offset the child in parent
   useAutoLayout?: boolean;
+  direction?: LayoutDirection;
 }
 
 export const WIDGET_STATIC_PROPS = {

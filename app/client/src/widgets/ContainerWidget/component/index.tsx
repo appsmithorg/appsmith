@@ -1,4 +1,10 @@
-import React, { ReactNode, useRef, useEffect, RefObject } from "react";
+import React, {
+  ReactElement,
+  ReactNode,
+  useRef,
+  useEffect,
+  RefObject,
+} from "react";
 import styled, { css } from "styled-components";
 import tinycolor from "tinycolor2";
 import { invisible } from "constants/DefaultTheme";
@@ -77,6 +83,7 @@ function ContainerComponentWrapper(props: ContainerComponentProps) {
       }
     }
   }, [props.shouldScrollContents]);
+
   return (
     <StyledContainerComponent
       {...props}
@@ -92,6 +99,45 @@ function ContainerComponentWrapper(props: ContainerComponentProps) {
     </StyledContainerComponent>
   );
 }
+
+// function DnDWrapper(items: ReactNode[], widgetId: string) {
+//   return (
+//     <DragDropContext
+//       onDragEnd={() => {
+//         console.log("drag end");
+//       }}
+//     >
+//       <Droppable droppableId={widgetId}>
+//         {(provided) => (
+//           <div ref={provided.innerRef} {...provided.droppableProps}>
+//             {(items[0] as any)?.map((item: any, index: number) => {
+//               return (
+//                 <Draggable
+//                   draggableId={index.toString()}
+//                   index={index}
+//                   key={index}
+//                 >
+//                   {(provided) => {
+//                     return (
+//                       <div
+//                         ref={provided.innerRef}
+//                         {...provided.draggableProps}
+//                         {...provided.dragHandleProps}
+//                       >
+//                         {item}
+//                       </div>
+//                     );
+//                   }}
+//                 </Draggable>
+//               );
+//             })}
+//             {provided.placeholder}
+//           </div>
+//         )}
+//       </Droppable>
+//     </DragDropContext>
+//   );
+// }
 
 function ContainerComponent(props: ContainerComponentProps) {
   useCanvasMinHeightUpdateHook(props.widgetId, props.minHeight);

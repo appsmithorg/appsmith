@@ -21,6 +21,7 @@ export interface CanvasDraggingArenaProps {
   snapRows: number;
   snapRowSpace: number;
   parentId?: string;
+  useAutoLayout?: boolean;
   widgetId: string;
 }
 
@@ -32,6 +33,7 @@ export function CanvasDraggingArena({
   snapColumnSpace,
   snapRows,
   snapRowSpace,
+  useAutoLayout,
   widgetId,
 }: CanvasDraggingArenaProps) {
   const needsPadding = useMemo(() => {
@@ -40,17 +42,25 @@ export function CanvasDraggingArena({
 
   const slidingArenaRef = React.useRef<HTMLDivElement>(null);
   const stickyCanvasRef = React.useRef<HTMLCanvasElement>(null);
-  const { showCanvas } = useCanvasDragging(slidingArenaRef, stickyCanvasRef, {
-    canExtend,
-    dropDisabled,
-    noPad,
-    parentId,
-    snapColumnSpace,
-    snapRows,
-    snapRowSpace,
-    widgetId,
-  });
+  const dropPositionRef = React.useRef<HTMLDivElement>(null);
+  const { showCanvas } = useCanvasDragging(
+    dropPositionRef,
+    slidingArenaRef,
+    stickyCanvasRef,
+    {
+      canExtend,
+      dropDisabled,
+      noPad,
+      parentId,
+      snapColumnSpace,
+      snapRows,
+      snapRowSpace,
+      useAutoLayout,
+      widgetId,
+    },
+  );
   const canvasRef = React.useRef({
+    dropPositionRef,
     stickyCanvasRef,
     slidingArenaRef,
   });

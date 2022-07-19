@@ -5,7 +5,7 @@ import {
 } from "constants/WidgetConstants";
 import { debounce, isEmpty, throttle } from "lodash";
 import { CanvasDraggingArenaProps } from "pages/common/CanvasArenas/CanvasDraggingArena";
-import { useEffect, useRef } from "react";
+import React, { useEffect, useRef } from "react";
 import { useSelector } from "react-redux";
 import {
   MovementLimitMap,
@@ -29,6 +29,7 @@ import {
 } from "./useBlocksToBeDraggedOnCanvas";
 import { useCanvasDragToScroll } from "./useCanvasDragToScroll";
 import ContainerJumpMetrics from "./ContainerJumpMetric";
+import { remoteUrlInputValue } from "actions/gitSyncActions";
 
 export interface XYCord {
   x: number;
@@ -45,6 +46,7 @@ const containerJumpThresholdMetrics = new ContainerJumpMetrics<{
 }>();
 
 export const useCanvasDragging = (
+  dropPositionRef: React.RefObject<HTMLDivElement>,
   slidingArenaRef: React.RefObject<HTMLDivElement>,
   stickyCanvasRef: React.RefObject<HTMLCanvasElement>,
   {
@@ -54,6 +56,7 @@ export const useCanvasDragging = (
     snapColumnSpace,
     snapRows,
     snapRowSpace,
+    useAutoLayout,
     widgetId,
   }: CanvasDraggingArenaProps,
 ) => {
@@ -87,6 +90,7 @@ export const useCanvasDragging = (
     snapColumnSpace,
     snapRows,
     snapRowSpace,
+    useAutoLayout,
     widgetId,
   });
   const gridProps = {
@@ -98,6 +102,20 @@ export const useCanvasDragging = (
 
   const reflow = useRef<ReflowInterface>();
   reflow.current = useReflow(draggingSpaces, widgetId || "", gridProps);
+  const offsets: number[] = [];
+  if (useAutoLayout) {
+    const els = document.querySelectorAll(`.${widgetId}-auto-layout`);
+    if (els && els.length) {
+      els.forEach((el) => {
+        offsets.push((el as any).offsetTop);
+      });
+      offsets.push(
+        (els[els.length - 1] as any).offsetTop +
+          els[els.length - 1].clientHeight +
+          8,
+      );
+    }
+  }
 
   const {
     setDraggingCanvas,
@@ -242,6 +260,9 @@ export const useCanvasDragging = (
       };
       if (isDragging) {
         const startPoints = defaultHandlePositions;
+        /**
+         * On mouse up, calculate the top, left, bottom and right positions for each of the reflowed widgets
+         */
         const onMouseUp = () => {
           if (isDragging && canvasIsDragging) {
             const { movementMap: reflowingWidgets } = currentReflowParams;
@@ -253,6 +274,7 @@ export const useCanvasDragging = (
                   reflowedWidget.X !== undefined &&
                   (Math.abs(reflowedWidget.X) || reflowedWidget.width)
                 ) {
+                  // Could it be negative if the widget has been moved to the left?
                   const movement = reflowedWidget.X / snapColumnSpace;
                   const newWidth = reflowedWidget.width
                     ? reflowedWidget.width / snapColumnSpace
@@ -317,6 +339,7 @@ export const useCanvasDragging = (
                 acceleration,
                 speed,
               } = containerJumpThresholdMetrics.getMetrics();
+
               logContainerJump(widgetId, speed, acceleration);
               containerJumpThresholdMetrics.clearMetrics();
               // we can just use canvasIsDragging but this is needed to render the relative DragLayerComponent
@@ -526,6 +549,7 @@ export const useCanvasDragging = (
               renderNewRows(delta);
             } else if (!isUpdatingRows) {
               triggerReflow(e, firstMove);
+              highlightDropPosition(e);
               renderBlocks();
             }
             scrollObj.lastMouseMoveEvent = {
@@ -537,6 +561,21 @@ export const useCanvasDragging = (
           } else {
             onFirstMoveOnCanvas(e);
           }
+        };
+        const highlightDropPosition = (e: any) => {
+          if (!offsets || !offsets.length) return;
+          const pos = e.offsetY;
+          // console.log(e);
+          // console.log(pos);
+          const arr = offsets.sort((a, b) => {
+            return Math.abs(a - pos) - Math.abs(b - pos);
+          });
+          console.log(`#### ref: ${dropPositionRef.current}`);
+          if (dropPositionRef && dropPositionRef.current) {
+            dropPositionRef.current.style.opacity = "1";
+            dropPositionRef.current.style.top = arr[0] - 6 + "px";
+          }
+          console.log(arr);
         };
         const renderNewRows = debounce((delta) => {
           isUpdatingRows = true;
@@ -599,6 +638,8 @@ export const useCanvasDragging = (
             canvasIsDragging &&
             stickyCanvasRef.current
           ) {
+            // console.log(`${widgetId} =======`);
+            // console.log(currentDirection);
             const canvasCtx: any = stickyCanvasRef.current.getContext("2d");
             canvasCtx.save();
             canvasCtx.clearRect(

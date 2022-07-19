@@ -74,6 +74,7 @@ export const useBlocksToBeDraggedOnCanvas = ({
   snapColumnSpace,
   snapRows,
   snapRowSpace,
+  useAutoLayout,
   widgetId,
 }: CanvasDraggingArenaProps) => {
   const dispatch = useDispatch();
@@ -220,9 +221,11 @@ export const useBlocksToBeDraggedOnCanvas = ({
           {
             top: 0,
             left: 0,
-            width: newWidget.columns * snapColumnSpace,
+            width: useAutoLayout
+              ? 64 * snapColumnSpace
+              : newWidget.columns * snapColumnSpace,
             height: newWidget.rows * snapRowSpace,
-            columnWidth: newWidget.columns,
+            columnWidth: useAutoLayout ? 64 : newWidget.columns,
             rowHeight: newWidget.rows,
             widgetId: newWidget.widgetId,
             detachFromLayout: newWidget.detachFromLayout,
@@ -248,9 +251,11 @@ export const useBlocksToBeDraggedOnCanvas = ({
         blocksToDraw: draggingSpaces.map((each) => ({
           top: each.top * snapRowSpace + containerPadding,
           left: each.left * snapColumnSpace + containerPadding,
-          width: (each.right - each.left) * snapColumnSpace,
+          width: useAutoLayout
+            ? 64 * snapColumnSpace
+            : (each.right - each.left) * snapColumnSpace,
           height: (each.bottom - each.top) * snapRowSpace,
-          columnWidth: each.right - each.left,
+          columnWidth: useAutoLayout ? 64 : each.right - each.left,
           rowHeight: each.bottom - each.top,
           widgetId: each.id,
           isNotColliding: true,
@@ -259,8 +264,9 @@ export const useBlocksToBeDraggedOnCanvas = ({
     }
   };
   const { blocksToDraw, draggingSpaces } = getBlocksToDraw();
-  const dragCenterSpace: any = getDragCenterSpace();
 
+  const dragCenterSpace: any = getDragCenterSpace();
+  // get spaces occupied by unselected children
   const filteredChildOccupiedSpaces = childrenOccupiedSpaces.filter(
     (each) => !selectedWidgets.includes(each.id),
   );

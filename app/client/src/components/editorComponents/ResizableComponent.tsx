@@ -271,12 +271,14 @@ export const ResizableComponent = memo(function ResizableComponent(
     bottom: props.bottomRow,
     right: props.rightColumn,
   };
+  // console.log(`${props.widgetName} =========`);
+  // console.log(originalPositions);
   const updateBottomRow = (bottom: number) => {
     if (props.parentId) {
       updateDropTargetRows && updateDropTargetRows([props.parentId], bottom);
     }
   };
-  console.log(props);
+
   return (
     <Resizable
       allowResize={!isMultiSelectedWidget}

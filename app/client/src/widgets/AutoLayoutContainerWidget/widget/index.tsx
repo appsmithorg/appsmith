@@ -1,4 +1,4 @@
-import React from "react";
+import React, { Context, createContext } from "react";
 import { compact, map, sortBy } from "lodash";
 
 import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
@@ -9,12 +9,27 @@ import { ValidationTypes } from "constants/WidgetValidation";
 import { JustifyContent, LayoutDirection } from "components/constants";
 import { ContainerStyle } from "widgets/ContainerWidget/component";
 
+export const AutoLayoutContext: Context<{
+  useAutoLayout?: boolean;
+  direction?: keyof typeof LayoutDirection;
+  justifyContent?: keyof typeof JustifyContent;
+  overflow?: string;
+}> = createContext({});
+
 class AutoLayoutContainerWidget extends BaseWidget<
   AutoLayoutContainerWidgetProps<WidgetProps>,
   WidgetState
 > {
   constructor(props: AutoLayoutContainerWidgetProps<any>) {
     super(props);
+    this.state = {
+      contextValue: {
+        useAutoLayout: false,
+        direction: LayoutDirection.Horizontal,
+        JustifyContent: JustifyContent.FlexStart,
+        overflow: "wrap",
+      },
+    };
     this.renderChildWidget = this.renderChildWidget.bind(this);
   }
 
@@ -177,6 +192,10 @@ class AutoLayoutContainerWidget extends BaseWidget<
   static getMetaPropertiesMap(): Record<string, any> {
     return {};
   }
+
+  // componentDidUpdate(prevProps: AutoLayoutContainerWidgetProps<WidgetProps>): void {
+  //   if (prevProps.)
+  // }
 
   renderChildWidget(childWidgetData: WidgetProps): React.ReactNode {
     // For now, isVisible prop defines whether to render a detached widget
