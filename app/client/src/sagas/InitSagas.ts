@@ -95,8 +95,8 @@ export function* startAppEngine(action: ReduxAction<AppEnginePayload>) {
     engine.stopPerformanceTracking();
   } catch (e) {
     log.error(e);
-    Sentry.captureException(e);
     if (e instanceof PageNotFoundError) return;
+    Sentry.captureException(e);
     yield put({
       type: ReduxActionTypes.SAFE_CRASH_APPSMITH_REQUEST,
       payload: {

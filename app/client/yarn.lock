@@ -8415,6 +8415,14 @@ import-local@^3.0.2:
     pkg-dir "^4.2.0"
     resolve-cwd "^3.0.0"
 
+imports-loader@^4.0.0:
+  version "4.0.0"
+  resolved "https://registry.yarnpkg.com/imports-loader/-/imports-loader-4.0.0.tgz#c11574247beca48e6549db1eb603f8939884aca1"
+  integrity sha512-8PPbhk/9CEHd0WWKESw/oYTDhp3So9PWA9OfyIbH3kywIN4uxrWkQ8ux47xpk4yWUKX97Erbws9MFSaBlVvAjg==
+  dependencies:
+    source-map "^0.6.1"
+    strip-comments "^2.0.1"
+
 imurmurhash@^0.1.4:
   version "0.1.4"
   resolved "https://registry.npmjs.org/imurmurhash/-/imurmurhash-0.1.4.tgz"

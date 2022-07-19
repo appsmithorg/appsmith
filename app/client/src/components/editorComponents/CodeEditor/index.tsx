@@ -10,14 +10,18 @@ import "codemirror/lib/codemirror.css";
 import "codemirror/theme/duotone-dark.css";
 import "codemirror/theme/duotone-light.css";
 import "codemirror/addon/hint/show-hint";
+import "codemirror/addon/hint/javascript-hint";
 import "codemirror/addon/edit/matchbrackets";
 import "codemirror/addon/display/placeholder";
 import "codemirror/addon/edit/closebrackets";
 import "codemirror/addon/display/autorefresh";
 import "codemirror/addon/mode/multiplex";
 import "codemirror/addon/tern/tern.css";
+import "codemirror/addon/tern/tern";
 import "codemirror/addon/lint/lint";
 import "codemirror/addon/lint/lint.css";
+import "tern/lib/tern";
+import TernServer from "utils/autocomplete/TernServer";
 
 import { getDataTreeForAutocomplete } from "selectors/dataTreeSelectors";
 import EvaluatedValuePopup from "components/editorComponents/CodeEditor/EvaluatedValuePopup";
@@ -75,7 +79,10 @@ import {
   removeEventFromHighlightedElement,
 } from "./codeEditorUtils";
 import { commandsHelper } from "./commandsHelper";
-import { getEntityNameAndPropertyPath } from "workers/evaluationUtils";
+import {
+  getEntityNameAndPropertyPath,
+  isJSObject,
+} from "workers/evaluationUtils";
 import Button from "components/ads/Button";
 import { getPluginIdToImageLocation } from "sagas/selectors";
 import { ExpectedValueExample } from "utils/validation/common";
@@ -226,109 +233,110 @@ class CodeEditor extends Component<Props, State> {
     this.updatePropertyValue = this.updatePropertyValue.bind(this);
   }
   componentDidMount(): void {
-    if (this.codeEditorTarget.current) {
-      const options: EditorConfiguration = {
-        autoRefresh: true,
-        mode: this.props.mode,
-        theme: EditorThemes[this.props.theme],
-        viewportMargin: 10,
-        tabSize: 2,
-        autoCloseBrackets: true,
-        indentWithTabs: this.props.tabBehaviour === TabBehaviour.INDENT,
-        lineWrapping: true,
-        lineNumbers: this.props.showLineNumbers,
-        addModeClass: true,
-        matchBrackets: false,
-        scrollbarStyle:
-          this.props.size !== EditorSize.COMPACT ? "native" : "null",
-        placeholder: this.props.placeholder,
-        lint: {
-          getAnnotations: (_: string, callback: UpdateLintingCallback) => {
-            this.updateLintingCallback = callback;
-          },
-          async: true,
-          lintOnChange: false,
-        },
-        tabindex: -1,
-      };
-
-      const gutters = new Set<string>();
-
-      if (!this.props.input.onChange || this.props.disabled) {
-        options.readOnly = true;
-        options.scrollbarStyle = "null";
-      }
-
-      options.extraKeys = {};
-      if (this.props.tabBehaviour === TabBehaviour.INPUT) {
-        options.extraKeys["Tab"] = false;
-      }
-      if (this.props.customGutter) {
-        gutters.add(this.props.customGutter.gutterId);
-      }
-      if (this.props.folding) {
-        options.foldGutter = true;
-        gutters.add("CodeMirror-linenumbers");
-        gutters.add("CodeMirror-foldgutter");
-        // @ts-expect-error: Types are not available
-        options.foldOptions = {
-          widget: () => {
-            return "\u002E\u002E\u002E";
-          },
-        };
-      }
-      options.gutters = Array.from(gutters);
-
-      // Set value of the editor
-      const inputValue = getInputValue(this.props.input.value) || "";
-      if (this.props.size === EditorSize.COMPACT) {
-        options.value = removeNewLineChars(inputValue);
-      } else {
-        options.value = inputValue;
-      }
-
-      // @ts-expect-error: Types are not available
-      options.finishInit = (editor: CodeMirror.Editor) => {
-        // If you need to do something with the editor right after it’s been created,
-        // put that code here.
-        //
-        // This helps with performance: finishInit() is called inside
-        // CodeMirror’s `operation()` (https://codemirror.net/doc/manual.html#operation
-        // which means CodeMirror recalculates itself only one time, once all CodeMirror
-        // changes here are completed
-        //
-        editor.on("beforeChange", this.handleBeforeChange);
-        editor.on("change", this.startChange);
-        editor.on("keyup", this.handleAutocompleteKeyup);
-        editor.on("focus", this.handleEditorFocus);
-        editor.on("cursorActivity", this.handleCursorMovement);
-        editor.on("blur", this.handleEditorBlur);
-        editor.on("postPick", () => this.handleAutocompleteVisibility(editor));
-
-        if (this.props.height) {
-          editor.setSize("100%", this.props.height);
-        } else {
-          editor.setSize("100%", "100%");
-        }
-
-        CodeEditor.updateMarkings(editor, this.props.marking);
-
-        this.hinters = CodeEditor.startAutocomplete(
-          editor,
-          this.props.hinting,
-          this.props.dynamicData,
-          this.props.additionalDynamicData,
-        );
-
-        this.lintCode(editor);
-      };
-
-      // Finally create the Codemirror editor
-      this.editor = CodeMirror(this.codeEditorTarget.current, options);
-      // DO NOT ADD CODE BELOW. If you need to do something with the editor right after it’s created,
-      // put that code into `options.finishInit()`.
-    }
     window.addEventListener("keydown", this.handleKeydown);
+
+    if (!this.codeEditorTarget.current) return;
+
+    const options: EditorConfiguration = {
+      autoRefresh: true,
+      mode: { name: this.props.mode, globalVars: true },
+      theme: EditorThemes[this.props.theme],
+      viewportMargin: 10,
+      tabSize: 2,
+      autoCloseBrackets: true,
+      indentWithTabs: this.props.tabBehaviour === TabBehaviour.INDENT,
+      lineWrapping: true,
+      lineNumbers: this.props.showLineNumbers,
+      addModeClass: true,
+      matchBrackets: false,
+      scrollbarStyle:
+        this.props.size !== EditorSize.COMPACT ? "native" : "null",
+      placeholder: this.props.placeholder,
+      lint: {
+        getAnnotations: (_: string, callback: UpdateLintingCallback) => {
+          this.updateLintingCallback = callback;
+        },
+        async: true,
+        lintOnChange: false,
+      },
+      tabindex: -1,
+    };
+
+    const gutters = new Set<string>();
+
+    if (!this.props.input.onChange || this.props.disabled) {
+      options.readOnly = true;
+      options.scrollbarStyle = "null";
+    }
+
+    options.extraKeys = {};
+    if (this.props.tabBehaviour === TabBehaviour.INPUT) {
+      options.extraKeys["Tab"] = false;
+    }
+    if (this.props.customGutter) {
+      gutters.add(this.props.customGutter.gutterId);
+    }
+    if (this.props.folding) {
+      options.foldGutter = true;
+      gutters.add("CodeMirror-linenumbers");
+      gutters.add("CodeMirror-foldgutter");
+      // @ts-expect-error: Types are not available
+      options.foldOptions = {
+        widget: () => {
+          return "\u002E\u002E\u002E";
+        },
+      };
+    }
+    options.gutters = Array.from(gutters);
+
+    // Set value of the editor
+    const inputValue = getInputValue(this.props.input.value) || "";
+    if (this.props.size === EditorSize.COMPACT) {
+      options.value = removeNewLineChars(inputValue);
+    } else {
+      options.value = inputValue;
+    }
+
+    // @ts-expect-error: Types are not available
+    options.finishInit = (editor: CodeMirror.Editor) => {
+      // If you need to do something with the editor right after it’s been created,
+      // put that code here.
+      //
+      // This helps with performance: finishInit() is called inside
+      // CodeMirror’s `operation()` (https://codemirror.net/doc/manual.html#operation
+      // which means CodeMirror recalculates itself only one time, once all CodeMirror
+      // changes here are completed
+      //
+      editor.on("beforeChange", this.handleBeforeChange);
+      editor.on("change", this.startChange);
+      editor.on("keyup", this.handleAutocompleteKeyup);
+      editor.on("focus", this.handleEditorFocus);
+      editor.on("cursorActivity", this.handleCursorMovement);
+      editor.on("blur", this.handleEditorBlur);
+      editor.on("postPick", () => this.handleAutocompleteVisibility(editor));
+
+      if (this.props.height) {
+        editor.setSize("100%", this.props.height);
+      } else {
+        editor.setSize("100%", "100%");
+      }
+
+      CodeEditor.updateMarkings(editor, this.props.marking);
+
+      this.hinters = CodeEditor.startAutocomplete(
+        editor,
+        this.props.hinting,
+        this.props.dynamicData,
+        this.props.additionalDynamicData,
+      );
+
+      this.lintCode(editor);
+    };
+
+    // Finally create the Codemirror editor
+    this.editor = CodeMirror(this.codeEditorTarget.current, options);
+    // DO NOT ADD CODE BELOW. If you need to do something with the editor right after it’s created,
+    // put that code into `options.finishInit()`.
   }
 
   componentDidUpdate(prevProps: Props): void {
@@ -356,11 +364,16 @@ class CodeEditor extends Component<Props, State> {
         CodeEditor.updateMarkings(this.editor, this.props.marking);
       } else {
         // Update the dynamic bindings for autocomplete
-        if (prevProps.dynamicData !== this.props.dynamicData) {
-          this.hinters.forEach(
-            (hinter) => hinter.update && hinter.update(this.props.dynamicData),
-          );
-        }
+        if (prevProps.dynamicData === this.props.dynamicData) return;
+        if (!this.props.dataTreePath) return;
+        const { entityName } = getEntityNameAndPropertyPath(
+          this.props.dataTreePath,
+        );
+        const entity = this.props.dynamicData[entityName];
+        if (!isJSObject(entity)) return;
+        this.hinters.forEach(
+          (hinter) => hinter.update && hinter.update(this.props.dynamicData),
+        );
       }
     });
   }
@@ -487,6 +500,7 @@ class CodeEditor extends Component<Props, State> {
   };
 
   handleCursorMovement = (cm: CodeMirror.Editor) => {
+    TernServer.updateArgHints(cm);
     this.handleCustomGutter(cm.getCursor().line, true);
     // ignore if disabled
     if (!this.props.input.onChange || this.props.disabled) {
