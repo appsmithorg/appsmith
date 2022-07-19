@@ -84,7 +84,10 @@ import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 import { Placement } from "@blueprintjs/popover2";
 import { getLintAnnotations, getLintTooltipDirection } from "./lintHelpers";
 import { executeCommandAction } from "actions/apiPaneActions";
-import { startingEntityUpdation } from "actions/editorActions";
+import {
+  setEditorFocusedEntityInfo,
+  startingEntityUpdation,
+} from "actions/editorActions";
 import { SlashCommandPayload } from "entities/Action";
 import { Indices } from "constants/Layers";
 import { replayHighlightClass } from "globalStyles/portals";
@@ -95,18 +98,10 @@ import {
 } from "./constants";
 import { interactionAnalyticsEvent } from "utils/AppsmithUtils";
 import { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTypeDefCreator";
+import { CurrentFocusedEntityInfo } from "reducers/uiReducers/editorReducer";
 
-interface ReduxStateProps {
-  dynamicData: DataTree;
-  datasources: any;
-  pluginIdToImageLocation: Record<string, string>;
-  recentEntities: string[];
-}
-
-interface ReduxDispatchProps {
-  executeCommand: (payload: any) => void;
-  startingEntityUpdation: () => void;
-}
+type ReduxStateProps = ReturnType<typeof mapStateToProps>;
+type ReduxDispatchProps = ReturnType<typeof mapDispatchToProps>;
 
 export type CodeEditorExpected = {
   type: string;
@@ -185,9 +180,7 @@ export type EditorProps = EditorStyleProps &
     customGutter?: CodeEditorGutter;
   };
 
-type Props = ReduxStateProps &
-  EditorProps &
-  ReduxDispatchProps & { dispatch?: () => void };
+interface Props extends ReduxStateProps, EditorProps, ReduxDispatchProps {}
 
 type State = {
   isFocused: boolean;
@@ -505,16 +498,17 @@ class CodeEditor extends Component<Props, State> {
 
   handleEditorFocus = (cm: CodeMirror.Editor) => {
     this.setState({ isFocused: true });
+
+    const entityInformation = this.getEntityInformation();
+    this.props.setEditorFocusedEntityInfo(
+      entityInformation as CurrentFocusedEntityInfo,
+    );
+
     if (!cm.state.completionActive) {
-      const entityInformation: FieldEntityInformation = this.getEntityInformation();
       this.hinters
         .filter((hinter) => hinter.fireOnFocus)
         .forEach(
-          (hinter) =>
-            hinter.showHint &&
-            hinter.showHint(cm, entityInformation, {
-              dataTreeForAutoComplete: this.props.dynamicData,
-            }),
+          (hinter) => hinter.showHint && hinter.showHint(cm, entityInformation),
         );
     }
   };
@@ -522,6 +516,7 @@ class CodeEditor extends Component<Props, State> {
   handleEditorBlur = () => {
     this.handleChange();
     this.setState({ isFocused: false });
+    this.props.setEditorFocusedEntityInfo(null);
     this.editor.setOption("matchBrackets", false);
     this.handleCustomGutter(null);
   };
@@ -636,7 +631,7 @@ class CodeEditor extends Component<Props, State> {
 
   handleAutocompleteVisibility = (cm: CodeMirror.Editor) => {
     if (!this.state.isFocused) return;
-    const entityInformation: FieldEntityInformation = this.getEntityInformation();
+    const entityInformation = this.getEntityInformation();
     let hinterOpen = false;
     for (let i = 0; i < this.hinters.length; i++) {
       hinterOpen = this.hinters[i].showHint(cm, entityInformation, {
@@ -935,17 +930,20 @@ class CodeEditor extends Component<Props, State> {
   }
 }
 
-const mapStateToProps = (state: AppState): ReduxStateProps => ({
+const mapStateToProps = (state: AppState) => ({
   dynamicData: getDataTreeForAutocomplete(state),
   datasources: state.entities.datasources,
   pluginIdToImageLocation: getPluginIdToImageLocation(state),
   recentEntities: getRecentEntityIds(state),
 });
 
-const mapDispatchToProps = (dispatch: any): ReduxDispatchProps => ({
+const mapDispatchToProps = (dispatch: any) => ({
   executeCommand: (payload: SlashCommandPayload) =>
     dispatch(executeCommandAction(payload)),
   startingEntityUpdation: () => dispatch(startingEntityUpdation()),
+  setEditorFocusedEntityInfo: (
+    currentFocusedEntityInfo: CurrentFocusedEntityInfo,
+  ) => dispatch(setEditorFocusedEntityInfo(currentFocusedEntityInfo)),
 });
 
 export default Sentry.withProfiler(

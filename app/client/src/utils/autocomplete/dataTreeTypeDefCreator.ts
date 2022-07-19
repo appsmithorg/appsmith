@@ -1,9 +1,5 @@
-import {
-  DataTree,
-  ENTITY_TYPE,
-  MetaArgs,
-} from "entities/DataTree/dataTreeFactory";
-import _ from "lodash";
+import { DataTree, ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import { get, isFunction } from "lodash";
 import { entityDefinitions } from "utils/autocomplete/EntityDefinitions";
 import { getType, Types } from "utils/TypeHelpers";
 import { Def } from "tern";
@@ -15,9 +11,11 @@ import {
   isWidget,
 } from "workers/evaluationUtils";
 import { DataTreeDefEntityInformation } from "utils/autocomplete/TernServer";
+import store from "store";
+import { getCurrentFocusedEntityInfo } from "selectors/editorSelectors";
 // When there is a complex data type, we store it in extra def and refer to it
 // in the def
-let extraDefs: any = {};
+let extraDefs: Def = {};
 // Def names are encoded with information about the entity
 // This so that we have more info about them
 // when sorting results in autocomplete
@@ -28,16 +26,17 @@ export const dataTreeTypeDefCreator = (
   dataTree: DataTree,
   isJSEditorEnabled: boolean,
 ): { def: Def; entityInfo: Map<string, DataTreeDefEntityInformation> } => {
-  const def: any = {
+  const def: Def = {
     "!name": "DATA_TREE",
   };
   const entityMap: Map<string, DataTreeDefEntityInformation> = new Map();
+
   Object.entries(dataTree).forEach(([entityName, entity]) => {
     if (isWidget(entity)) {
       const widgetType = entity.type;
       if (widgetType in entityDefinitions) {
-        const definition = _.get(entityDefinitions, widgetType);
-        if (_.isFunction(definition)) {
+        const definition = get(entityDefinitions, widgetType);
+        if (isFunction(definition)) {
           def[entityName] = definition(entity);
         } else {
           def[entityName] = definition;
@@ -49,7 +48,7 @@ export const dataTreeTypeDefCreator = (
         });
       }
     } else if (isAction(entity)) {
-      def[entityName] = (entityDefinitions.ACTION as any)(entity);
+      def[entityName] = entityDefinitions.ACTION(entity);
       flattenDef(def, entityName);
       entityMap.set(entityName, {
         type: ENTITY_TYPE.ACTION,
@@ -62,20 +61,20 @@ export const dataTreeTypeDefCreator = (
         subType: ENTITY_TYPE.APPSMITH,
       });
     } else if (isJSAction(entity) && isJSEditorEnabled) {
-      const metaObj: Record<string, MetaArgs> = entity.meta;
-      const jsOptions: Record<string, unknown> = {};
+      const metaObj = entity.meta;
+      const jsProperty: Def = {};
       for (const key in metaObj) {
-        jsOptions[key] =
+        jsProperty[key] =
           "fn(onSuccess: fn() -> void, onError: fn() -> void) -> void";
       }
 
       for (let i = 0; i < entity.variables.length; i++) {
         const varKey = entity.variables[i];
         const varValue = entity[varKey];
-        jsOptions[varKey] = generateTypeDef(varValue);
+        jsProperty[varKey] = generateTypeDef(varValue);
       }
 
-      def[entityName] = jsOptions;
+      def[entityName] = jsProperty;
       flattenDef(def, entityName);
       entityMap.set(entityName, {
         type: ENTITY_TYPE.JSACTION,
@@ -87,12 +86,21 @@ export const dataTreeTypeDefCreator = (
       extraDefs = {};
     }
   });
+
+  const currentFocusedEntity = getCurrentFocusedEntityInfo(store.getState());
+  if (
+    currentFocusedEntity &&
+    currentFocusedEntity.entityType === ENTITY_TYPE.JSACTION
+  ) {
+    const focusedJSObjectDef = def[currentFocusedEntity.entityName];
+    def["this"] = focusedJSObjectDef;
+  }
+
+  // console.log("$$$-def", def);
   return { def, entityInfo: entityMap };
 };
 
-export function generateTypeDef(
-  obj: any,
-): string | Record<string, string | Record<string, unknown>> {
+export function generateTypeDef(obj: any): string | Def {
   const type = getType(obj);
   switch (type) {
     case Types.ARRAY: {
@@ -100,7 +108,7 @@ export function generateTypeDef(
       return `[${arrayType}]`;
     }
     case Types.OBJECT: {
-      const objType: Record<string, string | Record<string, unknown>> = {};
+      const objType: Def = {};
       Object.keys(obj).forEach((k) => {
         objType[k] = generateTypeDef(obj[k]);
       });

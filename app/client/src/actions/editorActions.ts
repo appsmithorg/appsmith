@@ -1,4 +1,5 @@
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import { CurrentFocusedEntityInfo } from "reducers/uiReducers/editorReducer";
 
 /**
  * action that sets preview mode
@@ -39,4 +40,13 @@ export const updateCanvasLayoutAction = (
 
 export const startingEntityUpdation = () => ({
   type: ReduxActionTypes.ENTITY_UPDATE_STARTED,
+});
+
+export const setEditorFocusedEntityInfo = (
+  currentFocusedEntityInfo: CurrentFocusedEntityInfo,
+) => ({
+  type: ReduxActionTypes.SET_EDITOR_FOCUSED_ENTITY_INFO,
+  payload: {
+    currentFocusedEntityInfo,
+  },
 });

@@ -45,7 +45,7 @@ export const EditorThemes: Record<EditorTheme, string> = {
 export type FieldEntityInformation = {
   entityName?: string;
   expectedType?: AutocompleteDataType;
-  entityType?: ENTITY_TYPE.ACTION | ENTITY_TYPE.WIDGET | ENTITY_TYPE.JSACTION;
+  entityType?: ENTITY_TYPE;
   entityId?: string;
   propertyPath?: string;
 };

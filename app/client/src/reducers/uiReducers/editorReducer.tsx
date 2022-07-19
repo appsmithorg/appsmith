@@ -7,6 +7,14 @@ import {
 } from "@appsmith/constants/ReduxActionConstants";
 import moment from "moment";
 import { PageAction } from "constants/AppsmithActionConstants/ActionConstants";
+import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+
+export type CurrentFocusedEntityInfo = {
+  entityName: string;
+  entityType: ENTITY_TYPE;
+  entityId?: string;
+  propertyPath?: string;
+} | null;
 
 const initialState: EditorReduxState = {
   initialized: false,
@@ -30,6 +38,7 @@ const initialState: EditorReduxState = {
   isSnipingMode: false,
   isPreviewMode: false,
   zoomLevel: 1,
+  currentFocusedEntityInfo: null,
 };
 
 const editorReducer = createReducer(initialState, {
@@ -209,6 +218,13 @@ const editorReducer = createReducer(initialState, {
       savingEntity: false,
     },
   }),
+  [ReduxActionTypes.SET_EDITOR_FOCUSED_ENTITY_INFO]: (
+    state,
+    action: ReduxAction<{ currentFocusedEntityInfo: CurrentFocusedEntityInfo }>,
+  ) => ({
+    ...state,
+    currentFocusedEntityInfo: action.payload.currentFocusedEntityInfo,
+  }),
 });
 
 export interface EditorReduxState {
@@ -240,6 +256,7 @@ export interface EditorReduxState {
     updatingWidgetName: boolean;
     updateWidgetNameError: boolean;
   };
+  currentFocusedEntityInfo: CurrentFocusedEntityInfo;
 }
 
 export default editorReducer;

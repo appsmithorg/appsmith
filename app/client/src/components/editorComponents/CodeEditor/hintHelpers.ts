@@ -5,10 +5,7 @@ import { HintHelper } from "components/editorComponents/CodeEditor/EditorConfig"
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { customTreeTypeDefCreator } from "utils/autocomplete/customTreeTypeDefCreator";
 import { checkIfCursorInsideBinding } from "components/editorComponents/CodeEditor/codeEditorUtils";
-import { DataTree, ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
-import { generateTypeDef } from "utils/autocomplete/dataTreeTypeDefCreator";
-import { getJSObjectProperty } from "./utils";
-import { Def } from "tern";
+import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 
 export const bindingHint: HintHelper = (editor, dataTree, customDataTree) => {
   if (customDataTree) {
@@ -31,27 +28,12 @@ export const bindingHint: HintHelper = (editor, dataTree, customDataTree) => {
     },
   });
   return {
-    showHint: (
-      editor: CodeMirror.Editor,
-      entityInformation,
-      { dataTreeForAutoComplete }: { dataTreeForAutoComplete: DataTree },
-    ): boolean => {
+    showHint: (editor: CodeMirror.Editor, entityInformation): boolean => {
       TernServer.setEntityInformation(entityInformation);
       const entityType = entityInformation?.entityType;
       let shouldShow = false;
       if (entityType === ENTITY_TYPE.JSACTION) {
         shouldShow = true;
-
-        // If focused/modified JSEditor has changed
-        if (dataTreeForAutoComplete && entityInformation.entityName) {
-          const JSObject = getJSObjectProperty({
-            dataTreeForAutoComplete,
-            JSObjectName: entityInformation.entityName,
-          });
-          const JSObjectFocusedDef = generateTypeDef(JSObject) as Def;
-
-          TernServer.updateDef("JSOBJECT_GLOBAL", JSObjectFocusedDef);
-        }
       } else {
         shouldShow = checkIfCursorInsideBinding(editor);
       }
