@@ -1,8 +1,9 @@
 const Tracelib = require("tracelib");
-const puppeteer = require("puppeteer");
-var sanitize = require("sanitize-filename");
+const puppeteer = require("puppeteer-extra");
+const sanitize = require("sanitize-filename");
 const fs = require("fs");
 const path = require("path");
+const puppeteerPrefs = require("puppeteer-extra-plugin-user-preferences");
 
 const {
   delay,
@@ -34,7 +35,7 @@ module.exports = class Perf {
       ...launchOptions,
     };
 
-    if (process.env.PERF_TEST_ENV === "dev") {
+    if (0 && process.env.PERF_TEST_ENV === "dev") {
       this.launchOptions.executablePath =
         "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
       this.launchOptions.devtools = true;
@@ -53,6 +54,18 @@ module.exports = class Perf {
     global.APP_ROOT = path.join(__dirname, ".."); //Going back one level from src folder to /perf
 
     process.on("unhandledRejection", this.handleRejections);
+
+    puppeteer.use(
+      puppeteerPrefs({
+        userPrefs: {
+          devtools: {
+            preferences: {
+              currentDockState: '"bottom"',
+            },
+          },
+        },
+      }),
+    );
   }
 
   handleRejections = async (reason = "", p = "") => {
@@ -93,6 +106,7 @@ module.exports = class Perf {
   launch = async () => {
     await cleanTheHost();
     await delay(3000);
+
     this.browser = await puppeteer.launch(this.launchOptions);
     const pages_ = await this.browser.pages();
     this.page = pages_[0];
@@ -115,14 +129,16 @@ module.exports = class Perf {
     }
 
     this.currentTrace = action;
-    await delay(3000, `before starting trace ${action}`);
+    // await delay(3000, `before starting trace ${action}`);
     await this.page._client.send("HeapProfiler.enable");
     await this.page._client.send("HeapProfiler.collectGarbage");
-    await delay(1000, `After clearing memory`);
+    await delay(3000, `After clearing memory`);
 
     const path = `${APP_ROOT}/traces/${action}-${
       this.iteration
     }-${getFormattedTime()}-chrome-profile.json`;
+
+    await this.waitForIdle();
 
     await this.page.tracing.start({
       path: path,
@@ -133,7 +149,8 @@ module.exports = class Perf {
 
   stopTrace = async () => {
     this.currentTrace = null;
-    await delay(3000, "before stopping the trace");
+    await delay(2000, "before stopping the trace");
+    await this.waitForIdle();
     await this.page.tracing.stop();
   };
 
@@ -229,5 +246,16 @@ module.exports = class Perf {
 
   close = async () => {
     this.browser.close();
+  };
+
+  waitForIdle = async () => {
+    await this.page.$eval("body", (el) => {
+      const promise = new Promise((resolve, reject) => {
+        requestIdleCallback(() => {
+          resolve("Browser is idle");
+        });
+      });
+      return promise;
+    });
   };
 };
