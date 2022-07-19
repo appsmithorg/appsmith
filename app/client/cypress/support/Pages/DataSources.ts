@@ -296,6 +296,18 @@ export class DataSources {
     this.agHelper.Sleep(2000); //for the CreateQuery/GeneratePage page to load
   }
 
+  public CreateQuery(datasourceName: string){
+    cy.get(this._datasourceCard)
+      .contains(datasourceName)
+      .scrollIntoView()
+      .should("be.visible")
+      .closest(this._datasourceCard)
+      .within(() => {
+        cy.get(this._createQuery).click({ force: true });
+      });
+    this.agHelper.Sleep(2000); //for the CreateQuery
+  }
+
   public ValidateNSelectDropdown(
     ddTitle: string,
     currentValue = "",
