@@ -11,11 +11,11 @@ import PropertySection from "./PropertySection";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import Boxed from "../GuidedTour/Boxed";
 import { GUIDED_TOUR_STEPS } from "../GuidedTour/constants";
-import Fuse from "fuse.js";
 import { IconNames } from "@blueprintjs/icons";
 import { Icon, IconSize } from "components/ads";
 import styled from "styled-components";
 import { Colors } from "constants/Colors";
+import { searchProperty } from "./helpers";
 
 const EmptySearchResultWrapper = styled.div`
   color: ${Colors.GRAY_700};
@@ -105,34 +105,7 @@ function EmptySearchResult() {
 export function PropertyControlsGenerator(
   props: PropertyControlsGeneratorProps,
 ) {
-  const fuse = new Fuse(props.config, {
-    includeMatches: true,
-    keys: ["children.label"],
-    threshold: 0.5,
-    location: 0,
-    distance: 100,
-  });
-
-  let config = props.config;
-  if (props.searchQuery && props.searchQuery !== "") {
-    const results = fuse.search(props.searchQuery);
-    const searchResults: PropertyPaneConfig[] = [];
-    for (const result of results) {
-      if (result.item.children && result.matches) {
-        const children = [];
-        for (const match of result.matches) {
-          if (match.key === "children.label" && match.refIndex !== undefined) {
-            children.push(result.item.children[match.refIndex]);
-          }
-        }
-        searchResults.push({
-          ...result.item,
-          children,
-        });
-      }
-    }
-    config = searchResults;
-  }
+  const config = searchProperty(props.config, props.searchQuery);
 
   return props.searchQuery &&
     props.searchQuery.length > 0 &&
