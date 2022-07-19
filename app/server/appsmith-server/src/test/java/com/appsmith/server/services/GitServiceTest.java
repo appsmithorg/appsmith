@@ -1793,19 +1793,21 @@ public class GitServiceTest {
     @WithUserDetails(value = "api_user")
     public void commitApplication_pushFails_verifyAppNotPublished_throwUpstreamChangesFoundException() {
 
+        // Fetch the application state before adding new page
+        Application preCommitApplication = applicationService.getApplicationByDefaultApplicationIdAndDefaultBranch(gitConnectedApplication.getId()).block();
+
         // Creating a new page to commit to git
         PageDTO testPage = new PageDTO();
         testPage.setName("GitServiceTestPageGitPushFail");
-        testPage.setApplicationId(gitConnectedApplication.getId());
+        testPage.setApplicationId(preCommitApplication.getId());
         PageDTO createdPage = applicationPageService.createPage(testPage).block();
 
         GitCommitDTO commitDTO = new GitCommitDTO();
         commitDTO.setDoPush(true);
         commitDTO.setCommitMessage("New page added");
+        Mono<String> commitMono = gitService.commitApplication(commitDTO, preCommitApplication.getId(), DEFAULT_BRANCH);
 
-        Mono<String> commitMono = gitService.commitApplication(commitDTO, gitConnectedApplication.getId(), DEFAULT_BRANCH);
-
-        Mono<Application> committedApplicationMono = applicationService.getApplicationByDefaultApplicationIdAndDefaultBranch(gitConnectedApplication.getId());
+        Mono<Application> committedApplicationMono = applicationService.getApplicationByDefaultApplicationIdAndDefaultBranch(preCommitApplication.getId());
 
         // Mocking a git push failure
         Mockito.when(gitExecutor.pushApplication(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
@@ -1813,13 +1815,15 @@ public class GitServiceTest {
 
         StepVerifier
                 .create(commitMono)
-                .expectErrorMatches(throwable -> throwable instanceof AppsmithException)
+                .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
+                        throwable.getMessage().equals((new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "push", AppsmithError.GIT_UPSTREAM_CHANGES.getMessage())).getMessage()))
                 .verify();
 
         StepVerifier
                 .create(committedApplicationMono)
                 .assertNext(application -> {
                     List<ApplicationPage> publishedPages = application.getPublishedPages();
+                    assertThat(application.getPublishedPages().size()).isEqualTo(preCommitApplication.getPublishedPages().size());
                     publishedPages.forEach(publishedPage -> {
                         assertThat(publishedPage.getId().equals(createdPage.getId())).isFalse();
                     });
