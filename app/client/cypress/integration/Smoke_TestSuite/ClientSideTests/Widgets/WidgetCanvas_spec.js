@@ -7,6 +7,7 @@ describe("reduce long canvas height on widget operation", () => {
 
   it("should reduce canvas height when a widget is deleted", () => {
     //select a widget
+    cy.wait(2000);
     cy.get(`#${dsl.dsl.children[1].widgetId}`).click({
       ctrlKey: true,
     });
