@@ -87,13 +87,13 @@ public class GlobalExceptionHandler {
         doLog(e);
 
         String urlPath = exchange.getRequest().getPath().toString();
-        Mono<ResponseDTO<ErrorDTO>> response;
+        ResponseDTO<ErrorDTO> response;
 
         // Do special formatting for this error to run the message string into valid jsonified string
         if (AppsmithError.INVALID_DYNAMIC_BINDING_REFERENCE.getAppErrorCode().equals(e.getError().getAppErrorCode())) {
-            response = Mono.just(new ResponseDTO<>(e.getHttpStatus(), new ErrorDTO(e.getAppErrorCode(), "{" + e.getMessage() + "}")));
+            response = new ResponseDTO<>(e.getHttpStatus(), new ErrorDTO(e.getAppErrorCode(), "{" + e.getMessage() + "}"));
         } else {
-            response = Mono.just(new ResponseDTO<>(e.getHttpStatus(), new ErrorDTO(e.getAppErrorCode(), e.getMessage(), e.getErrorType(), e.getReferenceDoc())));
+            response = new ResponseDTO<>(e.getHttpStatus(), new ErrorDTO(e.getAppErrorCode(), e.getMessage(), e.getErrorType(), e.getReferenceDoc()));
         }
 
         return getResponseDTOMono(urlPath, response);
@@ -107,8 +107,8 @@ public class GlobalExceptionHandler {
         doLog(e);
 
         String urlPath = exchange.getRequest().getPath().toString();
-        Mono<ResponseDTO<ErrorDTO>> response =  Mono.just(new ResponseDTO<>(appsmithError.getHttpErrorCode(), new ErrorDTO(appsmithError.getAppErrorCode(),
-                appsmithError.getMessage(e.getCause().getMessage()))));
+        ResponseDTO<ErrorDTO> response =  new ResponseDTO<>(appsmithError.getHttpErrorCode(), new ErrorDTO(appsmithError.getAppErrorCode(),
+                appsmithError.getMessage(e.getCause().getMessage())));
 
         return getResponseDTOMono(urlPath, response);
     }
@@ -120,8 +120,8 @@ public class GlobalExceptionHandler {
         exchange.getResponse().setStatusCode(HttpStatus.resolve(appsmithError.getHttpErrorCode()));
         doLog(e);
         String urlPath = exchange.getRequest().getPath().toString();
-        Mono<ResponseDTO<ErrorDTO>> response = Mono.just(new ResponseDTO<>(appsmithError.getHttpErrorCode(), new ErrorDTO(appsmithError.getAppErrorCode(),
-                appsmithError.getMessage())));
+        ResponseDTO<ErrorDTO> response = new ResponseDTO<>(appsmithError.getHttpErrorCode(), new ErrorDTO(appsmithError.getAppErrorCode(),
+                appsmithError.getMessage()));
 
         return getResponseDTOMono(urlPath, response);
     }
@@ -142,8 +142,8 @@ public class GlobalExceptionHandler {
                             errors.put(fieldName, errorMessage);
                         });
         String urlPath = exchange.getRequest().getPath().toString();
-        Mono<ResponseDTO<ErrorDTO>> response = Mono.just(new ResponseDTO<>(appsmithError.getHttpErrorCode(), new ErrorDTO(appsmithError.getAppErrorCode(),
-                appsmithError.getMessage(errors.toString()))));
+        ResponseDTO<ErrorDTO> response = new ResponseDTO<>(appsmithError.getHttpErrorCode(), new ErrorDTO(appsmithError.getAppErrorCode(),
+                appsmithError.getMessage(errors.toString())));
 
         return getResponseDTOMono(urlPath, response);
     }
@@ -163,8 +163,8 @@ public class GlobalExceptionHandler {
         }
 
         String urlPath = exchange.getRequest().getPath().toString();
-        Mono<ResponseDTO<ErrorDTO>> response = Mono.just(new ResponseDTO<>(appsmithError.getHttpErrorCode(), new ErrorDTO(appsmithError.getAppErrorCode(),
-                appsmithError.getMessage(errorMessage))));
+        ResponseDTO<ErrorDTO> response = new ResponseDTO<>(appsmithError.getHttpErrorCode(), new ErrorDTO(appsmithError.getAppErrorCode(),
+                appsmithError.getMessage(errorMessage)));
 
         return getResponseDTOMono(urlPath, response);
     }
@@ -176,8 +176,8 @@ public class GlobalExceptionHandler {
         exchange.getResponse().setStatusCode(HttpStatus.resolve(appsmithError.getHttpErrorCode()));
         doLog(e);
         String urlPath = exchange.getRequest().getPath().toString();
-        Mono<ResponseDTO<ErrorDTO>> response = Mono.just(new ResponseDTO<>(appsmithError.getHttpErrorCode(), new ErrorDTO(appsmithError.getAppErrorCode(),
-                e.getMessage(), e.getErrorType(), null)));
+        ResponseDTO<ErrorDTO> response = new ResponseDTO<>(appsmithError.getHttpErrorCode(), new ErrorDTO(appsmithError.getAppErrorCode(),
+                e.getMessage(), e.getErrorType(), null));
 
         return getResponseDTOMono(urlPath, response);
     }
@@ -189,8 +189,8 @@ public class GlobalExceptionHandler {
         exchange.getResponse().setStatusCode(HttpStatus.resolve(appsmithError.getHttpErrorCode()));
         doLog(e);
         String urlPath = exchange.getRequest().getPath().toString();
-        Mono<ResponseDTO<ErrorDTO>> response = Mono.just(new ResponseDTO<>(appsmithError.getHttpErrorCode(), new ErrorDTO(appsmithError.getAppErrorCode(),
-                appsmithError.getMessage())));
+        ResponseDTO<ErrorDTO> response = new ResponseDTO<>(appsmithError.getHttpErrorCode(), new ErrorDTO(appsmithError.getAppErrorCode(),
+                appsmithError.getMessage()));
 
         return getResponseDTOMono(urlPath, response);
     }
@@ -202,8 +202,8 @@ public class GlobalExceptionHandler {
         exchange.getResponse().setStatusCode(HttpStatus.resolve(appsmithError.getHttpErrorCode()));
         doLog(e);
         String urlPath = exchange.getRequest().getPath().toString();
-        Mono<ResponseDTO<ErrorDTO>> response = Mono.just(new ResponseDTO<>(appsmithError.getHttpErrorCode(), new ErrorDTO(appsmithError.getAppErrorCode(),
-                appsmithError.getMessage(e.getMessage()))));
+        ResponseDTO<ErrorDTO> response = new ResponseDTO<>(appsmithError.getHttpErrorCode(), new ErrorDTO(appsmithError.getAppErrorCode(),
+                appsmithError.getMessage(e.getMessage())));
 
         return getResponseDTOMono(urlPath, response);
     }
@@ -223,21 +223,21 @@ public class GlobalExceptionHandler {
         exchange.getResponse().setStatusCode(HttpStatus.resolve(appsmithError.getHttpErrorCode()));
         doLog(e);
         String urlPath = exchange.getRequest().getPath().toString();
-        Mono<ResponseDTO<ErrorDTO>> response = Mono.just(new ResponseDTO<>(appsmithError.getHttpErrorCode(), new ErrorDTO(appsmithError.getAppErrorCode(),
-                appsmithError.getMessage())));
+        ResponseDTO<ErrorDTO> response = new ResponseDTO<>(appsmithError.getHttpErrorCode(), new ErrorDTO(appsmithError.getAppErrorCode(),
+                appsmithError.getMessage()));
 
         return getResponseDTOMono(urlPath, response);
     }
 
-    private Mono<ResponseDTO<ErrorDTO>> getResponseDTOMono(String urlPath, Mono<ResponseDTO<ErrorDTO>> response) {
+    private Mono<ResponseDTO<ErrorDTO>> getResponseDTOMono(String urlPath, ResponseDTO<ErrorDTO> response) {
         if(urlPath.contains("/git") && urlPath.contains("/app")) {
             String appId = urlPath.substring(urlPath.lastIndexOf('/') + 1);
             if(StringUtils.isEmpty(appId)) {
-                return response;
+                return Mono.just(response);
             }
             return redisUtils.releaseFileLock(appId)
-                    .then(response);
+                    .then(Mono.just(response));
         }
-        return response;
+        return Mono.just(response);
     }
 }

@@ -347,10 +347,11 @@ public class GitServiceCEImpl implements GitServiceCE {
 
     /**
      * This method will make a commit to local repo
+     * This is used directly from client and we need to acquire file lock before starting to keep the application in a sane state
      *
      * @param commitDTO            information required for making a commit
      * @param defaultApplicationId application branch on which the commit needs to be done
-     * @param doAmend              if we want to amend the commit with the earlier one
+     * @param doAmend              if we want to amend the commit with the earlier one, used in connect flow
      * @return success message
      */
     @Override
@@ -358,10 +359,27 @@ public class GitServiceCEImpl implements GitServiceCE {
         return this.commitApplication(commitDTO, defaultApplicationId, branchName, doAmend, true);
     }
 
+    /**
+     * This method will make a commit to local repo and is used internally in flows like create, merge branch
+     * Since the lock is already acquired by the other flows, we do not need to acquire file lock again
+     *
+     * @param commitDTO            information required for making a commit
+     * @param defaultApplicationId application branch on which the commit needs to be done
+     * @return success message
+     */
     public Mono<String> commitApplication(GitCommitDTO commitDTO, String defaultApplicationId, String branchName) {
         return this.commitApplication(commitDTO, defaultApplicationId, branchName, false, false);
     }
 
+    /**
+     *
+     * @param commitDTO             information required for making a commit
+     * @param defaultApplicationId  application branch on which the commit needs to be done
+     * @param branchName            branch name for the commit flow
+     * @param doAmend               if we want to amend the commit with the earlier one, used in connect flow
+     * @param isFileLock            boolean value indicates whether the file lock is needed to complete the operation
+     * @return success message
+     */
     private Mono<String> commitApplication(GitCommitDTO commitDTO, String defaultApplicationId, String branchName, boolean doAmend, boolean isFileLock) {
         /*
         1. Check if application exists and user have sufficient permissions
@@ -562,7 +580,8 @@ public class GitServiceCEImpl implements GitServiceCE {
                                         error.getClass().getName(),
                                         error.getMessage(),
                                         childApplication.getGitApplicationMetadata().getIsRepoPrivate()
-                                ).then(Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "commit", error.getMessage())));
+                                )
+                                        .then(Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "commit", error.getMessage())));
                             });
 
                     return Mono.zip(gitCommitMono, Mono.just(childApplication));
@@ -1551,6 +1570,8 @@ public class GitServiceCEImpl implements GitServiceCE {
      *
      * @param defaultApplicationId root/default application
      * @param branchName           for which the status is required
+     * @param isFileLock           if the locking is required, since the status API is used in the other flows of git
+     *                             Only for the direct hits from the client the locking will be added
      * @return Map of json file names which are added, modified, conflicting, removed and the working tree if this is clean
      */
     private Mono<GitStatusDTO> getStatus(String defaultApplicationId, String branchName, boolean isFileLock) {
@@ -1566,26 +1587,25 @@ public class GitServiceCEImpl implements GitServiceCE {
 
         Mono<GitStatusDTO> statusMono = getGitApplicationMetadata(defaultApplicationId)
                 .flatMap(gitApplicationMetadata -> {
-                    Mono<Tuple2<GitApplicationMetadata, Tuple2<Application, ApplicationJson>>> tupleMono = Mono.zip(
-                            Mono.just(gitApplicationMetadata),
-                            applicationService.findByBranchNameAndDefaultApplicationId(finalBranchName, defaultApplicationId, MANAGE_APPLICATIONS)
-                                    .onErrorResume(error -> {
-                                        //if the branch does not exist in local, checkout remote branch
-                                        return checkoutBranch(defaultApplicationId, finalBranchName);
-                                    })
-                                    .zipWhen(application -> importExportApplicationService.exportApplicationById(application.getId(), SerialiseApplicationObjective.VERSION_CONTROL))
-                    );
 
-                    if(Boolean.TRUE.equals(isFileLock)) {
+                    Mono<Tuple2<Application, ApplicationJson>> applicationJsonTuple = applicationService.findByBranchNameAndDefaultApplicationId(finalBranchName, defaultApplicationId, MANAGE_APPLICATIONS)
+                            .onErrorResume(error -> {
+                                //if the branch does not exist in local, checkout remote branch
+                                return checkoutBranch(defaultApplicationId, finalBranchName);
+                            })
+                            .zipWhen(application -> importExportApplicationService.exportApplicationById(application.getId(), SerialiseApplicationObjective.VERSION_CONTROL));
+
+                    if (Boolean.TRUE.equals(isFileLock)) {
                         // Add file lock for the status API call to avoid sending wrong info on the status
                         return redisUtils.addFileLock(gitApplicationMetadata.getDefaultApplicationId())
                                 .retryWhen(Retry.fixedDelay(MAX_RETRIES, RETRY_DELAY).jitter(0.75)
                                         .onRetryExhaustedThrow((retryBackoffSpec, retrySignal) -> {
                                             throw new AppsmithException(AppsmithError.GIT_FILE_IN_USE);
                                         }))
-                                .then(tupleMono);
+                                .then(Mono.zip(Mono.just(gitApplicationMetadata), applicationJsonTuple));
                     }
-                    return tupleMono;
+                    return Mono.zip(Mono.just(gitApplicationMetadata), applicationJsonTuple);
+
                 })
                 .flatMap(tuple -> {
                     GitApplicationMetadata defaultApplicationMetadata = tuple.getT1();

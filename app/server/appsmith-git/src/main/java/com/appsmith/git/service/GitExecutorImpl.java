@@ -318,7 +318,7 @@ public class GitExecutorImpl implements GitExecutor {
             // We can safely assume that repo has been already initialised either in commit or clone flow and can directly
             // open the repo
             Path baseRepoPath = createRepoPath(repoSuffix);
-            try(Git git = Git.open(baseRepoPath.toFile())) {
+            try (Git git = Git.open(baseRepoPath.toFile())) {
                 if (StringUtils.equalsIgnoreCase(branchName, git.getRepository().getBranch())) {
                     return Boolean.TRUE;
                 }
