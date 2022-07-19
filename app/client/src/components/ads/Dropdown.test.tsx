@@ -11,6 +11,15 @@ import Dropdown from "./Dropdown";
 import { lightTheme } from "selectors/themeSelectors";
 import userEvent from "@testing-library/user-event";
 
+class ResizeObserver {
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
+  observe() {}
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
+  disconnect() {}
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
+  unobserve() {}
+}
+
 const optionsProps: any = {
   options: [
     { label: "Primary", value: "PRIMARY" },
@@ -49,6 +58,7 @@ const getTestComponent = (
 );
 
 describe("<Dropdown /> - Keyboard Navigation", () => {
+  window.ResizeObserver = ResizeObserver;
   it("Pressing tab should focus the component", () => {
     render(getTestComponent());
     userEvent.tab();
@@ -171,6 +181,7 @@ describe("<Dropdown /> - Keyboard Navigation", () => {
 });
 
 describe("<Dropdown isMultiSelect /> - Keyboard Navigation", () => {
+  window.ResizeObserver = ResizeObserver;
   it("After selecting an option using arrow, {Enter} or ' ' should trigger optionClick", () => {
     const handleOnSelect = jest.fn();
     render(getTestComponent(handleOnSelect, optionsProps, undefined, true));
@@ -216,6 +227,7 @@ describe("<Dropdown isMultiSelect /> - Keyboard Navigation", () => {
 });
 
 describe("<Dropdown /> - allowDeselection behaviour", () => {
+  window.ResizeObserver = ResizeObserver;
   it("Test default allowDeselection behaviour", async () => {
     const handleOnSelect = jest.fn();
     render(getTestComponent(handleOnSelect));
@@ -280,6 +292,7 @@ describe("<Dropdown /> - allowDeselection behaviour", () => {
 });
 
 describe("<Dropdown /> - when the options is an empty array", () => {
+  window.ResizeObserver = ResizeObserver;
   it("Hide options renderer when option list is empty", () => {
     const handleOnSelect = jest.fn();
     render(getTestComponent(handleOnSelect, noOptionsProps));
