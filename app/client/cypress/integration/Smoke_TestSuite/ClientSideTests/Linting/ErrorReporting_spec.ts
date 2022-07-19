@@ -10,8 +10,8 @@ const jsEditor = ObjectsRegistry.JSEditor,
 
 describe("Lint error reporting", () => {
   before(() => {
+    ee.DragDropWidgetNVerify("tablewidgetv2", 300, 500);
     ee.DragDropWidgetNVerify("buttonwidget", 300, 300);
-    ee.DragDropWidgetNVerify("tablewidget", 300, 500);
     ee.NavigateToSwitcher("explorer");
   });
 
@@ -115,22 +115,6 @@ describe("Lint error reporting", () => {
 
         }
     }`;
-    // Test in JS Object
-    jsEditor.CreateJSObject(JS_OBJECT_WITHOUT_COMMA_SEPARATOR, {
-      paste: true,
-      completeReplace: true,
-      toRun: false,
-      shouldCreateNewJSObj: true,
-    });
-
-    cy.get(locator._lintErrorElement)
-      .contains("myFun1")
-      .should("exist")
-      .first()
-      .trigger("mouseover");
-    cy.contains(
-      "Expected '}' to match '{' from line 1 and instead saw 'myFun1'",
-    );
 
     // Test in PropertyPane
     ee.ExpandCollapseEntity("QUERIES/JS");
@@ -154,7 +138,22 @@ describe("Lint error reporting", () => {
     cy.contains(
       "Expected '}' to match '{' from line 1 and instead saw 'myFun1'",
     );
+    // Test in JS Object
+    jsEditor.CreateJSObject(JS_OBJECT_WITHOUT_COMMA_SEPARATOR, {
+      paste: true,
+      completeReplace: true,
+      toRun: false,
+      shouldCreateNewJSObj: true,
+    });
 
+    cy.get(locator._lintErrorElement)
+      .contains("myFun1")
+      .should("exist")
+      .first()
+      .trigger("mouseover");
+    cy.contains(
+      "Expected '}' to match '{' from line 1 and instead saw 'myFun1'",
+    );
     // Test in Api
     apiPage.CreateApi();
     apiPage.EnterParams(
