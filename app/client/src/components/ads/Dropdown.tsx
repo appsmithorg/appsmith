@@ -1155,23 +1155,25 @@ export default function Dropdown(props: DropdownProps) {
 
   const onParentResize = useCallback(
     debounce(() => {
-      if (dropdownWrapperRef.current && props.fillOptions) {
-        const { width } = dropdownWrapperRef.current.getBoundingClientRect();
-        setDropdownWrapperWidth(`${width}px`);
-      }
-    }, 500),
-    [dropdownWrapperRef.current, props.fillOptions],
+      requestAnimationFrame(() => {
+        if (dropdownWrapperRef.current) {
+          const { width } = dropdownWrapperRef.current.getBoundingClientRect();
+          setDropdownWrapperWidth(`${width}px`);
+        }
+      });
+    }, 1000),
+    [dropdownWrapperRef.current],
   );
 
   useEffect(() => {
     const resizeObserver = new ResizeObserver(onParentResize);
-    if (dropdownWrapperRef.current)
+    if (dropdownWrapperRef.current && props.fillOptions)
       resizeObserver.observe(dropdownWrapperRef.current);
 
     return () => {
       resizeObserver.disconnect();
     };
-  }, [dropdownWrapperRef.current]);
+  }, [dropdownWrapperRef.current, props.fillOptions]);
 
   let dropdownHeight = props.isMultiSelect ? "auto" : "36px";
   if (props.height) {
@@ -1184,7 +1186,6 @@ export default function Dropdown(props: DropdownProps) {
 
   const dropdownTrigger = props.dropdownTriggerIcon ? (
     <DropdownTriggerWrapper
-      className="dropdown-wraaaaaaaaaaaap"
       disabled={props.disabled}
       isOpen={isOpen}
       onClick={onClickHandler}
@@ -1193,10 +1194,7 @@ export default function Dropdown(props: DropdownProps) {
       {props.dropdownTriggerIcon}
     </DropdownTriggerWrapper>
   ) : (
-    <DropdownSelect
-      className="dropdown-wraaaaaaaaaaaap"
-      ref={dropdownWrapperRef}
-    >
+    <DropdownSelect ref={dropdownWrapperRef}>
       <Selected
         bgColor={props.bgColor}
         className={props.className}
