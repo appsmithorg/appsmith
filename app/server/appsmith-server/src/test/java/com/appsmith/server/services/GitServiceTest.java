@@ -22,6 +22,7 @@ import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.PluginType;
 import com.appsmith.server.domains.Theme;
 import com.appsmith.server.domains.Workspace;
+import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.ApplicationImportDTO;
@@ -1796,7 +1797,7 @@ public class GitServiceTest {
         PageDTO testPage = new PageDTO();
         testPage.setName("GitServiceTestPageGitPushFail");
         testPage.setApplicationId(gitConnectedApplication.getId());
-        applicationPageService.createPage(testPage).block();
+        PageDTO createdPage = applicationPageService.createPage(testPage).block();
 
         GitCommitDTO commitDTO = new GitCommitDTO();
         commitDTO.setDoPush(true);
@@ -1818,7 +1819,10 @@ public class GitServiceTest {
         StepVerifier
                 .create(committedApplicationMono)
                 .assertNext(application -> {
-                    assertThat(application.getPublishedPages().size()).isEqualTo(gitConnectedApplication.getPublishedPages().size());
+                    List<ApplicationPage> publishedPages = application.getPublishedPages();
+                    publishedPages.forEach(publishedPage -> {
+                        assertThat(publishedPage.getId().equals(createdPage.getId())).isFalse();
+                    });
                 })
                 .verifyComplete();
     }
