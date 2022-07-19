@@ -256,7 +256,7 @@ describe("Lint error reporting", () => {
     apiPage.EnterParams(
       "test",
       `{{function(){
-        if (a) {
+        if (1) {
             return true;
         };
     }()}}`,
