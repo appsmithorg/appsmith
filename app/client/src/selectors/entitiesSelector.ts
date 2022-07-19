@@ -30,6 +30,7 @@ import {
   EVAL_ERROR_PATH,
   PropertyEvaluationErrorType,
 } from "utils/DynamicBindingUtils";
+import { CanvasWidgetsStructureReduxState } from "reducers/entityReducers/canvasWidgetsStructureReducer";
 
 export const getEntities = (state: AppState): AppState["entities"] =>
   state.entities;
@@ -467,10 +468,22 @@ export const getAppStoreData = (state: AppState): AppStoreState =>
 export const getCanvasWidgets = (state: AppState): CanvasWidgetsReduxState =>
   state.entities.canvasWidgets;
 
+export const getWidgetProps = (
+  state: AppState,
+): CanvasWidgetsStructureReduxState => state.entities.canvasWidgetsStructure;
+
 export const getWidgetCanvasValues = createSelector(
-  [getCanvasWidgets, (_state: AppState, widgetId: string) => widgetId],
-  (canvasWidgets: CanvasWidgetsReduxState, widgetId: string) =>
-    canvasWidgets[widgetId],
+  [getWidgetProps, (_state: AppState, widgetId: string) => widgetId],
+  ({ widgetIdPathMap, widgetProps }, widgetId: string) => {
+    const path = widgetIdPathMap[widgetId];
+    if (path.length) {
+      const subPaths = path.split(".");
+      const widget = get(widgetProps, subPaths);
+      console.log("$$$-getWidgetCanvasValues", { widgetProps, widget, path });
+      return widget;
+    }
+    return widgetProps;
+  },
 );
 
 function getWidgetsStructure(canvasWidgets: CanvasWidgetsReduxState) {

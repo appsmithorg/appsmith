@@ -9,9 +9,11 @@ import pluginsReducer from "reducers/entityReducers/pluginsReducer";
 import metaReducer from "./metaReducer";
 import appReducer from "./appReducer";
 import jsActionsReducer from "./jsActionsReducer";
+import canvasWidgetsStructureReducer from "./canvasWidgetsStructureReducer";
 
 const entityReducer = combineReducers({
   canvasWidgets: canvasWidgetsReducer,
+  canvasWidgetsStructure: canvasWidgetsStructureReducer,
   widgetConfig: widgetConfigReducer,
   actions: actionsReducer,
   datasources: datasourceReducer,

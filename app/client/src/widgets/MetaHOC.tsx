@@ -183,6 +183,7 @@ function withMeta(WrappedWidget: typeof BaseWidget) {
 
     updatedProps = () => {
       const { canvasWidget, evaluatedWidget } = this.props;
+      console.log("$$$", { canvasWidget });
       let widgetProps = {
         ...this.props,
         ...canvasWidget,
