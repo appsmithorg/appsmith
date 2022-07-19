@@ -1,6 +1,7 @@
 import localStorage from "utils/localStorage";
 
 export const CANVAS_DEFAULT_HEIGHT_PX = 1292;
+export const CANVAS_DEFAULT_MIN_HEIGHT_PX = 380;
 export const CANVAS_DEFAULT_GRID_HEIGHT_PX = 1;
 export const CANVAS_DEFAULT_GRID_WIDTH_PX = 1;
 export const CANVAS_BACKGROUND_COLOR = "#FFFFFF";
