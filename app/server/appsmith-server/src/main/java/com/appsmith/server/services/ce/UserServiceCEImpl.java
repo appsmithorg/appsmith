@@ -544,7 +544,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                     if (!savedUser.isEnabled()) {
                         // First enable the user
                         savedUser.setIsEnabled(true);
-
+                        savedUser.setSource(user.getSource());
                         // In case of form login, store the encrypted password.
                         savedUser.setPassword(user.getPassword());
                         return repository.save(savedUser).map(updatedUser -> {
