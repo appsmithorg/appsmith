@@ -100,7 +100,7 @@ export const getSearchedTemplateList = createSelector(
     }
 
     const fuzzy = new Fuse(templates, fuzzySearchOptions);
-    return fuzzy.search(query).map((x) => x.item);
+    return fuzzy.search(query);
   },
 );
 

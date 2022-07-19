@@ -16,7 +16,7 @@ function WidgetSidebar({ isActive }: { isActive: boolean }) {
   const [filteredCards, setFilteredCards] = useState(cards);
   const searchInputRef = useRef<HTMLInputElement | null>(null);
 
-  let fuse: Fuse<WidgetCardProps>;
+  let fuse: Fuse<WidgetCardProps, Fuse.FuseOptions<WidgetCardProps>>;
 
   useEffect(() => {
     fuse = new Fuse(cards, {
@@ -28,8 +28,8 @@ function WidgetSidebar({ isActive }: { isActive: boolean }) {
 
   const filterCards = (keyword: string) => {
     if (keyword.trim().length > 0) {
-      const searchResult = fuse.search(keyword).map((x) => x.item);
-      setFilteredCards(searchResult);
+      const searchResult = fuse.search(keyword);
+      setFilteredCards(searchResult as WidgetCardProps[]);
     } else {
       setFilteredCards(cards);
     }
