@@ -82,10 +82,9 @@ export const BlueprintControlTransform = css`
         box-shadow: none;
         border: 1px solid ${(props) => props.theme.colors.primaryOld};
       }
-      input:disabled ~ .${Classes.CONTROL_INDICATOR} {
-        opacity: 0.5;
-      }
+
       & input:disabled:not(:checked) ~ .${Classes.CONTROL_INDICATOR} {
+        background-color: ${Colors.CONCRETE};
         border: 1px solid ${Colors.GREY_5};
       }
     }
@@ -342,15 +341,15 @@ export const BlueprintRadioSwitchGroupTransform = css<{
     }
     .bp3-control-indicator {
       margin-top: 0;
-      border: 1px solid ${Colors.GREY_3};
+      border: 1px solid ${Colors.GREY_5};
+      box-shadow: none;
+      background-image: none;
+      background-color: white;
     }
-    input:checked ~ .bp3-control-indicator,
-    &:hover input:checked ~ .bp3-control-indicator {
-      background-color: ${Colors.GREEN};
-    }
+
     &:hover {
-      & input:not(:checked) ~ .bp3-control-indicator {
-        border: 1px solid ${Colors.GREY_5} !important;
+      & input:not(:checked):not(:disabled) ~ .bp3-control-indicator {
+        border: 1px solid ${Colors.GREY_6} !important;
       }
     }
   }
