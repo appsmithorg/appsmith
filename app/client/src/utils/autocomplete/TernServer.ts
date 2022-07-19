@@ -34,10 +34,6 @@ const DEFS: Def[] = [
   forge,
 ];
 
-const bigDoc = 250;
-const cls = "CodeMirror-Tern-";
-const hintDelay = 1700;
-
 export type Completion = Hint & {
   origin: string;
   type: AutocompleteDataType;
@@ -54,14 +50,6 @@ export type CommandsCompletion = Completion & {
   triggerCompletionsPostPick?: boolean;
 };
 
-type TernDocs = Record<string, TernDoc>;
-
-type TernDoc = {
-  doc: CodeMirror.Doc;
-  name: string;
-  changed: { to: number; from: number } | null;
-};
-
 export enum AutocompleteDataType {
   OBJECT = "OBJECT",
   NUMBER = "NUMBER",
@@ -71,14 +59,6 @@ export enum AutocompleteDataType {
   STRING = "STRING",
   UNKNOWN = "UNKNOWN",
 }
-
-type ArgHints = {
-  start: CodeMirror.Position;
-  type: { args: any[]; rettype: null | string };
-  name: string;
-  guess: boolean;
-  doc: CodeMirror.Doc;
-};
 
 declare module "codemirror" {
   interface TernServer {
