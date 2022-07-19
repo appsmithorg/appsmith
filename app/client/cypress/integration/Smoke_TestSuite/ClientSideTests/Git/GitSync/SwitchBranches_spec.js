@@ -26,7 +26,7 @@ describe("Git sync:", function() {
     });
   });
 
-  it("create branch input", function() {
+  it("1. create branch input", function() {
     cy.get(commonLocators.canvas).click({ force: true });
     cy.get(gitSyncLocators.branchButton).click();
 
@@ -54,12 +54,12 @@ describe("Git sync:", function() {
     cy.get(gitSyncLocators.closeBranchList).click();
   });
 
-  it("creates a new branch", function() {
+  it("2. creates a new branch", function() {
     cy.get(commonLocators.canvas).click({ force: true });
     cy.createGitBranch(parentBranchKey);
   });
 
-  it("creates branch specific resources", function() {
+  it("3. creates branch specific resources", function() {
     cy.Createpage("ParentPage1");
     cy.get(pages.addEntityAPI)
       .last()
@@ -117,7 +117,7 @@ describe("Git sync:", function() {
   });
 
   // rename entities
-  it("makes branch specific resource updates", function() {
+  it("4. makes branch specific resource updates", function() {
     cy.switchGitBranch(childBranchKey);
     cy.CheckAndUnfoldEntityItem("QUERIES/JS");
     cy.CheckAndUnfoldEntityItem("PAGES");
@@ -139,14 +139,14 @@ describe("Git sync:", function() {
     // );
   });
 
-  it("enables switching branch from the URL", () => {
+  it("5. enables switching branch from the URL", () => {
     cy.url().then((url) => {
       cy.GlobalSearchEntity("ParentPage1");
       cy.contains("ParentPage1").click();
       cy.contains("ParentPage1").click(); // to unfurl
       cy.get(explorer.addWidget).click();
-      cy.dragAndDropToCanvas("tablewidget", { x: 200, y: 200 });
-      cy.get(".t--widget-tablewidget").should("exist");
+      cy.dragAndDropToCanvas("tablewidgetv2", { x: 200, y: 200 });
+      cy.get(".t--widget-tablewidgetv2").should("exist");
       cy.commitAndPush();
 
       const urlObject = new URL(url);
@@ -156,7 +156,7 @@ describe("Git sync:", function() {
       cy.get(".bp3-spinner").should("exist");
       cy.get(".bp3-spinner").should("not.exist");
 
-      cy.get(".t--widget-tablewidget").should("not.exist");
+      cy.get(".t--widget-tablewidgetv2").should("not.exist");
 
       cy.commitAndPush();
 
@@ -172,7 +172,7 @@ describe("Git sync:", function() {
         200,
       );
 
-      cy.get(".t--widget-tablewidget").should("not.exist");
+      cy.get(".t--widget-tablewidgetv2").should("not.exist");
 
       cy.url().then((url) => {
         const urlObject = new URL(url);
@@ -185,12 +185,12 @@ describe("Git sync:", function() {
           200,
         );
 
-        cy.get(".t--widget-tablewidget").should("exist");
+        cy.get(".t--widget-tablewidgetv2").should("exist");
       });
     });
   });
 
-  it("test sync and prune branches", () => {
+  it("6. test sync and prune branches", () => {
     // uncomment once prune branch flow is complete
     const tempBranch = "featureA";
     const tempBranchRenamed = "newFeatureA";
@@ -224,7 +224,7 @@ describe("Git sync:", function() {
   });
 
   // Validate the error faced when user switches between the branches
-  it("error faced when user switches branch with new page", function() {
+  it("7. error faced when user switches branch with new page", function() {
     cy.generateUUID().then((uuid) => {
       cy.createGitBranch(childBranchKey);
       cy.CheckAndUnfoldEntityItem("PAGES");
@@ -234,7 +234,7 @@ describe("Git sync:", function() {
     });
   });
 
-  it("branch list search", function() {
+  it("8. branch list search", function() {
     cy.go("back");
     cy.reload();
     cy.get(".bp3-spinner").should("not.exist");

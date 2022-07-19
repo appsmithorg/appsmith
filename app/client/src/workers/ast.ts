@@ -402,6 +402,7 @@ export const parseJSObjectWithAST = (
     VariableDeclarator(node: Node) {
       if (
         isVariableDeclarator(node) &&
+        node.id.name === jsObjectVariableName &&
         node.init &&
         isObjectExpression(node.init)
       ) {

@@ -25,7 +25,8 @@ Cypress.Commands.add("enterDatasource", (datasource) => {
     .first()
     .click({ force: true })
     .type(datasource, { parseSpecialCharSequences: false })
-    .type("{esc}}");
+    //.type("{esc}}");
+    cy.assertPageSave();
 });
 
 Cypress.Commands.add("ResponseStatusCheck", (statusCode) => {
