@@ -34,7 +34,7 @@ export type PropertyControlsGeneratorProps = {
   searchQuery?: string;
 };
 
-export const generatePropertyControl = (
+const generatePropertyControl = (
   propertyPaneConfig: readonly PropertyPaneConfig[],
   props: PropertyControlsGeneratorProps,
 ) => {
@@ -102,9 +102,7 @@ function EmptySearchResult() {
   );
 }
 
-export function PropertyControlsGenerator(
-  props: PropertyControlsGeneratorProps,
-) {
+function PropertyControlsGenerator(props: PropertyControlsGeneratorProps) {
   const config = searchProperty(props.config, props.searchQuery);
 
   return props.searchQuery &&

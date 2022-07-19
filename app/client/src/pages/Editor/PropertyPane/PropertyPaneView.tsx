@@ -31,6 +31,7 @@ export const StyledSearchInput = styled(SearchInput)`
 
   ${InputWrapper} {
     background: ${Colors.GRAY_50};
+    padding: 0 8px;
   }
 `;
 
@@ -191,7 +192,6 @@ function PropertyPaneView(
               placeholder="Search for controls, labels etc"
               variant={SearchVariant.BACKGROUND}
             />
-            <div>Search term: {searchText}</div>
             <PropertyPaneTab
               contentComponent={
                 isContentConfigAvailable ? (
