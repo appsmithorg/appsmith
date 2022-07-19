@@ -1,4 +1,4 @@
-import marked from "marked";
+import { marked } from "marked";
 import { HelpBaseURL } from "constants/HelpConstants";
 import { algoliaHighlightTag } from "./utils";
 import log from "loglevel";
