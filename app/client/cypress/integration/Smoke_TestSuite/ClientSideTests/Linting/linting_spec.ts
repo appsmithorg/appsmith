@@ -8,15 +8,9 @@ const jsEditor = ObjectsRegistry.JSEditor,
   dataSources = ObjectsRegistry.DataSources,
   propPane = ObjectsRegistry.PropertyPane;
 
-const setUpMySQL = () => {
-  if (Cypress.env("MySQL") === 0) {
-    cy.log("MySQL DB is not found. Using intercept");
-    dataSources.StartInterceptRoutesForMySQL();
-  } else cy.log("MySQL DB is found, hence using actual DB");
-};
-
 const successMessage = "Successful Trigger";
 const errorMessage = "Unsuccessful Trigger";
+let guid: any, dsName: any;
 
 const clickButtonAndAssertLintError = (
   shouldExist: boolean,
@@ -46,38 +40,31 @@ const clickButtonAndAssertLintError = (
 };
 
 const createMySQLDatasourceQuery = () => {
-  let guid = "";
-  // Create mySql datasource
-  agHelper.GenerateUUID();
-  cy.get("@guid").then((uid) => {
-    dataSources.NavigateToDSCreateNew();
-    dataSources.CreatePlugIn("MySQL");
-    guid = (uid as unknown) as string;
-    agHelper.RenameWithInPane("MySQL " + guid, false);
-    dataSources.FillMySqlDSForm();
-    dataSources.TestSaveDatasource();
-
     // Create Query
-    dataSources.NavigateFromActiveDS("MySQL " + guid, true);
+    dataSources.NavigateFromActiveDS(dsName, true);
     agHelper.GetNClick(dataSources._templateMenu);
-
-    const tableCreateQuery = `CREATE TABLE Stores(
-      store_id         INTEGER  NOT NULL PRIMARY KEY
-     ,name          VARCHAR(36) NOT NULL
-     ,store_status  VARCHAR(1) NOT NULL
-     ,store_address VARCHAR(96) NOT NULL
-     ,store_secret_code  VARCHAR(16)
-   );
-   INSERT INTO Stores(store_id,name,store_status,store_address,store_secret_code) VALUES (2106,'Hillstreet News and Tobacco','A','2217 College Cedar Falls, IA 506130000 (42.51716928600007, -92.45583783899997)',NULL);
-   INSERT INTO Stores(store_id,name,store_status,store_address,store_secret_code) VALUES (2112,'Mike''s Liquors','I','407 Sharp St.Glenwood, IA 515340000 (41.04631266100006, -95.74218014299998)',NULL);`;
+    const tableCreateQuery = `SELECT * FROM spacecrafts LIMIT 10;`;
     dataSources.EnterQuery(tableCreateQuery);
-  });
 };
 
 describe("Linting", () => {
   before(() => {
     ee.DragDropWidgetNVerify("buttonwidget", 300, 300);
     ee.NavigateToSwitcher("explorer");
+
+    agHelper.GenerateUUID();
+    cy.get("@guid").then((uid) => {
+      dataSources.NavigateToDSCreateNew();
+      dataSources.CreatePlugIn("MySQL");
+      guid = uid;
+      agHelper.RenameWithInPane("MySQL " + guid, false);
+      dataSources.FillMySqlDSForm();
+      dataSources.TestSaveDatasource();
+      cy.wrap("MySQL " + guid).as("dsName");
+    });
+    cy.get("@dsName").then(($dsName) => {
+      dsName = $dsName;
+    });
   });
 
   it("1. TC 1927 - Shows correct lint error when Api is deleted or created", () => {
@@ -102,7 +89,7 @@ describe("Linting", () => {
     // create Api1
     apiPage.CreateAndFillApi(
       "https://jsonplaceholder.typicode.com/",
-      "Api1",
+      "",
       "GET",
     );
 
@@ -117,12 +104,13 @@ describe("Linting", () => {
     // Re-create Api1
     apiPage.CreateAndFillApi(
       "https://jsonplaceholder.typicode.com/",
-      "Api1",
+      "",
       "GET",
     );
 
     clickButtonAndAssertLintError(false);
   });
+
   it("2. TC 1927 Cont'd - Doesn't show lint errors when Api is renamed", () => {
     ee.SelectEntityByName("Api1", "QUERIES/JS");
     agHelper.RenameWithInPane("Api2");
@@ -134,18 +122,20 @@ describe("Linting", () => {
 
     clickButtonAndAssertLintError(false);
   });
+
   it("3. TC 1929 - Shows correct lint error when JSObject is deleted or created", () => {
     ee.SelectEntityByName("Button1", "WIDGETS");
-    propPane.UpdatePropertyFieldValue(
+    jsEditor.EnterJSContext(
       "onClick",
       `{{function(){
-      try{
-        JSObject1.myFun1()
-        showAlert("${successMessage}")
-      }catch(e){
-        showAlert("${errorMessage}")
-      }
-    }()}}`,
+        try{
+          JSObject1.myFun1()
+        }catch(e){
+          showAlert("${errorMessage}")
+        }
+      }()}}`,
+      true,
+      true,
     );
     propPane.UpdatePropertyFieldValue("Tooltip", `{{JSObject1.myVar1}}`);
 
@@ -156,7 +146,7 @@ describe("Linting", () => {
         myVar1: "name",
         myVar2: "test",
         myFun1: () => {
-            //write code here
+          showAlert("${successMessage}")
         },
         myFun2: async () => {
             //use async-await or promises
@@ -179,10 +169,10 @@ describe("Linting", () => {
     // Re-create JSObject, lint error should be gone
     jsEditor.CreateJSObject(
       `export default {
-        myVar1: "test",
-        myVar2: "name",
+        myVar1: "name",
+        myVar2: "test",
         myFun1: () => {
-            //write code here
+          showAlert("${successMessage}")
         },
         myFun2: async () => {
             //use async-await or promises
@@ -197,6 +187,7 @@ describe("Linting", () => {
     );
     clickButtonAndAssertLintError(false);
   });
+
   it("4. TC 1929 Cont'd -Doesn't show lint error when JSObject is renamed", () => {
     ee.ExpandCollapseEntity("QUERIES/JS");
     ee.SelectEntityByName("JSObject1", "QUERIES/JS");
@@ -209,9 +200,8 @@ describe("Linting", () => {
   });
 
   it("5. TC 1928 - Shows correct lint error with Query is created or Deleted", () => {
-    setUpMySQL();
     ee.SelectEntityByName("Button1", "WIDGETS");
-    propPane.UpdatePropertyFieldValue(
+    jsEditor.EnterJSContext(
       "onClick",
       `{{function(){
       try{
@@ -220,7 +210,7 @@ describe("Linting", () => {
       }catch(e){
         showAlert("${errorMessage}")
       }
-    }()}}`,
+    }()}}`, true, true,
     );
     propPane.UpdatePropertyFieldValue("Tooltip", `{{Query1.name}}`);
     clickButtonAndAssertLintError(true);
@@ -240,8 +230,7 @@ describe("Linting", () => {
     clickButtonAndAssertLintError(false);
   });
 
-  it("6. 5. TC 1928 Cont'd - Shows correct lint error when Query is renamed", () => {
-    setUpMySQL();
+  it("6. TC 1928 Cont'd - Shows correct lint error when Query is renamed", () => {
     ee.SelectEntityByName("Query1", "QUERIES/JS");
     agHelper.RenameWithInPane("Query2");
 
@@ -254,10 +243,10 @@ describe("Linting", () => {
     // Assert Absence of lint error
     clickButtonAndAssertLintError(false);
   });
+
   it("7. TC 1930 - Shows correct lint error with multiple entities in triggerfield", () => {
-    setUpMySQL();
     ee.SelectEntityByName("Button1", "WIDGETS");
-    propPane.UpdatePropertyFieldValue(
+    jsEditor.EnterJSContext(
       "onClick",
       `{{function(){
         try{
@@ -266,7 +255,7 @@ describe("Linting", () => {
         }catch(e){
           showAlert("${errorMessage}")
         }
-      }()}}`,
+      }()}}`, true, true
     );
     propPane.UpdatePropertyFieldValue(
       "Tooltip",
@@ -288,7 +277,7 @@ describe("Linting", () => {
           myVar1: "name",
           myVar2: "test",
           myFun1: () => {
-              //write code here
+            showAlert("${successMessage}")
           },
           myFun2: async () => {
               //use async-await or promises
