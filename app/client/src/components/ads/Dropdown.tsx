@@ -1153,15 +1153,20 @@ export default function Dropdown(props: DropdownProps) {
     "100%",
   );
 
+  const prevWidth = useRef(0);
+
   const onParentResize = useCallback(
-    debounce(() => {
+    debounce((entries) => {
       requestAnimationFrame(() => {
         if (dropdownWrapperRef.current) {
-          const { width } = dropdownWrapperRef.current.getBoundingClientRect();
-          setDropdownWrapperWidth(`${width}px`);
+          const width = entries[0].borderBoxSize?.[0].inlineSize;
+          if (typeof width === "number" && width !== prevWidth.current) {
+            prevWidth.current = width;
+            setDropdownWrapperWidth(`${width}px`);
+          }
         }
       });
-    }, 1000),
+    }, 300),
     [dropdownWrapperRef.current],
   );
 
