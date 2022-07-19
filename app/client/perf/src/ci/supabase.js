@@ -18,7 +18,7 @@ const metricsToLog = [
   "LongTask",
 ];
 
-const supabaseKey = process.env.APPSMITH_PERF_SUPABASE_SECRET;
+const supabaseKey = process.env.APPSMITH_PERF_SUPABASE_SECRET || "empty";
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 const actionRows = Object.keys(actions).map((action) => ({
