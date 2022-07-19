@@ -29,10 +29,10 @@ describe("Git import flow", function() {
     cy.get(homePage.workspaceImportAppModal).should("be.visible");
     cy.wait(1000);
     cy.xpath(homePage.uploadLogo).attachFile("gitImport.json");
-    cy.wait(3000);
+    cy.wait(4000);
     cy.wait("@importNewApplication").then((interception) => {
       cy.log(interception.response.body.data);
-      cy.wait(100);
+      cy.wait(1000);
       // should check reconnect modal opening
       cy.get(reconnectDatasourceModal.Modal).should("be.visible");
       cy.ReconnectDatasource("TEDPostgres");
