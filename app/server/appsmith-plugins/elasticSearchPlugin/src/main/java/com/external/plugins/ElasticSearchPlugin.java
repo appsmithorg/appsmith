@@ -251,11 +251,10 @@ public class ElasticSearchPlugin extends BasePlugin {
                         if (client == null) {
                             return new DatasourceTestResult("Null client object to ElasticSearch.");
                         }
-
-                        // This HEAD request is to check if an index exists. It response with 200 if the index exists,
+                        // This HEAD request is to check if the base of datasource exists. It responds with 200 if the index exists,
                         // 404 if it doesn't. We just check for either of these two.
                         // Ref: https://www.elastic.co/guide/en/elasticsearch/reference/current/indices-exists.html
-                        Request request = new Request("HEAD", "/potentially-missing-index?local=true");
+                        Request request = new Request("HEAD", "/");
 
                         final Response response;
                         try {
@@ -271,8 +270,9 @@ public class ElasticSearchPlugin extends BasePlugin {
                         } catch (IOException e) {
                             log.warn("Error closing ElasticSearch client that was made for testing.", e);
                         }
-
-                        if (statusLine.getStatusCode() != 404 && statusLine.getStatusCode() != 200) {
+                        // earlier it was 404 and 200, now it has been changed to just expect 200 status code
+                        // here it checks if it is anything else than 200, even 404 is not allowed!
+                        if (statusLine.getStatusCode() != 200) {
                             return new DatasourceTestResult(
                                     "Unexpected response from ElasticSearch: " + statusLine);
                         }
