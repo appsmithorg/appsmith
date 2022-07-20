@@ -34,7 +34,6 @@ describe("Lint error reporting", () => {
       toRun: false,
       shouldCreateNewJSObj: true,
     });
-    agHelper.Sleep();
     MouseHoverNVerify("name", "'name' is defined but never used.", false);
     agHelper.GetNClick(locator._errorTab);
     agHelper.AssertContains("'name' is defined but never used.", "not.exist");
@@ -210,7 +209,7 @@ describe("Lint error reporting", () => {
     );
   });
 
-  it("5. TC. 1938 - Shows correct lint error when currentItem/currentRow is used in field", () => {
+  it("5. TC. 1938 - Shows correct lint error when currentItem/currentRow is used in field + Bug 15099", () => {
     const JSOBJECT_WITH_INVALID_IDENTIFIER = `export default {
         myFun1: () => {
             //write code here
@@ -227,21 +226,25 @@ describe("Lint error reporting", () => {
     propPane.UpdatePropertyFieldValue("Tooltip", "{{currentItem}}");
     propPane.UpdatePropertyFieldValue("Label", "{{currentRow}}");
     propPane.UpdatePropertyFieldValue("onClick", "");
-    cy.get(locator._lintErrorElement).should("have.length", 2);
+
+    agHelper.AssertElementLength(locator._lintErrorElement, 2);
+
+    //Test in Table for no error when using {{currentRow}}
     ee.SelectEntityByName("Table1", "WIDGETS");
     agHelper.GetNClick(table._columnSettings("step"));
-    cy.get(locator._lintErrorElement).should("not.exist");
-    propPane.UpdatePropertyFieldValue("Computed Value", "{{currentRow}}");
-    cy.get(locator._lintErrorElement).should("not.exist");
+    agHelper.AssertElementAbsence(locator._lintErrorElement);
 
-    // Test in JSObject
+    propPane.UpdatePropertyFieldValue("Computed Value", "{{currentRow}}");
+    agHelper.AssertElementAbsence(locator._lintErrorElement);
+
+    // Test in JSObject for lint error
     jsEditor.CreateJSObject(JSOBJECT_WITH_INVALID_IDENTIFIER, {
       paste: true,
       completeReplace: true,
       toRun: false,
       shouldCreateNewJSObj: true,
     });
-    cy.get(locator._lintErrorElement).should("have.length", 2);
+    agHelper.AssertElementLength(locator._lintErrorElement, 2);
 
     // test in Api
     apiPage.CreateApi();
@@ -252,14 +255,14 @@ describe("Lint error reporting", () => {
         currentRow
     }()}}`,
     );
-    cy.get(locator._lintErrorElement).should("have.length", 2);
+    agHelper.AssertElementLength(locator._lintErrorElement, 2);
   });
 
   it("6. Bug 15156 - Doesn't show error for 'unneccessary semi-colon'", () => {
     const JSOBJECT_WITH_UNNECCESARY_SEMICOLON = `export default {
         myFun1: () => {
             //write code here
-            if (a) {
+            if (1) {
                 return true;
             };
         }
@@ -273,18 +276,18 @@ describe("Lint error reporting", () => {
       "onClick",
       `{{
         function example(a) {
-            if (a) {
+            if (1) {
                 return true;
             };
         };
         }}`,
     );
-    cy.get(locator._lintErrorElement).should("not.exist");
+    agHelper.AssertElementAbsence(locator._lintErrorElement);
 
     // Test in JS Object
     ee.SelectEntityByName("JSObject1", "QUERIES/JS");
     jsEditor.EditJSObj(JSOBJECT_WITH_UNNECCESARY_SEMICOLON);
-    cy.get(locator._lintErrorElement).should("not.exist");
+    agHelper.AssertElementAbsence(locator._lintErrorElement);
 
     // Test in API
     apiPage.CreateApi();
@@ -296,7 +299,7 @@ describe("Lint error reporting", () => {
         };
     }()}}`,
     );
-    cy.get(locator._lintErrorElement).should("not.exist");
+    agHelper.AssertElementAbsence(locator._lintErrorElement);
   });
 
   function MouseHoverNVerify(
@@ -304,6 +307,7 @@ describe("Lint error reporting", () => {
     debugMsg: string,
     isError = true,
   ) {
+    agHelper.Sleep();
     let element = isError
       ? cy.get(locator._lintErrorElement)
       : cy.get(locator._lintWarningElement);
