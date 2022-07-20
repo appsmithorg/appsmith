@@ -40,6 +40,7 @@ describe("Lint error reporting", () => {
     agHelper.GetNClick(locator._errorTab);
     cy.contains("'name' is defined but never used.").should("not.exist");
   });
+
   it("2. TC. 1939 - Shows correct error when await keyword is used in sync functions", () => {
     const JS_OBJECT_WITH_WRONG_AWAIT_KEYWORD = `export default {
         myVar1: [],
@@ -56,7 +57,7 @@ describe("Lint error reporting", () => {
     jsEditor.EnterJSContext(
       "onClick",
       `{{
-        () => {	
+        () => {
         await showAlert('test')
     }
 }}`,
@@ -107,12 +108,11 @@ describe("Lint error reporting", () => {
     ).should("exist");
   });
 
-  it("3. TC. 1940 - Shows correct error when no comma is used to separate object properties", () => {
+  it("3. TC. 1940 - Shows correct error when no comma is used to separate object properties + Bug 8659", () => {
     const JS_OBJECT_WITHOUT_COMMA_SEPARATOR = `export default {
         myVar1: [],
         myVar2: {}
         myFun1: () => {
-
         }
     }`;
 
@@ -124,20 +124,14 @@ describe("Lint error reporting", () => {
       `{{ {
           myVar2: {}
           myFun1: () => {
-  
           }
         }}}`,
       true,
       true,
     );
-    cy.get(locator._lintErrorElement)
-      .contains("myFun1")
-      .should("exist")
-      .first()
-      .trigger("mouseover");
-    cy.contains(
-      "Expected '}' to match '{' from line 1 and instead saw 'myFun1'",
-    );
+    MouseHoverNVerify("myFun1");
+    agHelper.AssertContains("Expected '}' to match '{' from line 1 and instead saw 'myFun1'");
+
     // Test in JS Object
     jsEditor.CreateJSObject(JS_OBJECT_WITHOUT_COMMA_SEPARATOR, {
       paste: true,
@@ -145,15 +139,9 @@ describe("Lint error reporting", () => {
       toRun: false,
       shouldCreateNewJSObj: true,
     });
+    MouseHoverNVerify("myFun1");
+    agHelper.AssertContains("Expected '}' to match '{' from line 1 and instead saw 'myFun1'");
 
-    cy.get(locator._lintErrorElement)
-      .contains("myFun1")
-      .should("exist")
-      .first()
-      .trigger("mouseover");
-    cy.contains(
-      "Expected '}' to match '{' from line 1 and instead saw 'myFun1'",
-    );
     // Test in Api
     apiPage.CreateApi();
     apiPage.EnterParams(
@@ -161,21 +149,65 @@ describe("Lint error reporting", () => {
       `{{ {
         myVar2: {}
         myFun1: () => {
-
         }
       }}}`,
     );
-    cy.get(locator._lintErrorElement)
-      .contains("myFun1")
-      .should("exist")
-      .first()
-      .trigger("mouseover");
-    cy.contains(
-      "Expected '}' to match '{' from line 1 and instead saw 'myFun1'",
-    );
+    MouseHoverNVerify("myFun1");
+    agHelper.AssertContains("Expected '}' to match '{' from line 1 and instead saw 'myFun1'");
   });
 
-  it("4. TC. 1938 - Shows correct lint error when currentItem/currentRow is used in field", () => {
+  it("4. TC. 1940 - Shows correct error when semicolon used instead of comma to separate object properties", () => {
+    const JS_OBJECT_WITH_SEMICOLON_SEPARATOR = `export default {
+      func1: () => {
+        showAlert('this')
+      };
+      func2: () => {
+      }
+    }`;
+
+    // Test in PropertyPane
+    ee.ExpandCollapseEntity("QUERIES/JS");
+    ee.SelectEntityByName("Button1", "WIDGETS");
+    jsEditor.EnterJSContext(
+      "onClick",
+      `{{ {
+          myVar2: {};
+          myFun1: () => {
+          }
+        }}}`,
+      true,
+      true,
+    );
+
+    MouseHoverNVerify(";");
+    agHelper.AssertContains("Expected '}' to match '{' from line 1 and instead saw ';'");
+
+    // Test in JS Object
+    jsEditor.CreateJSObject(JS_OBJECT_WITH_SEMICOLON_SEPARATOR, {
+      paste: true,
+      completeReplace: true,
+      toRun: false,
+      shouldCreateNewJSObj: true,
+    });
+    MouseHoverNVerify(";");
+    agHelper.AssertContains("Expected '}' to match '{' from line 1 and instead saw ';'");
+
+    // Test in Api
+    apiPage.CreateApi();
+    apiPage.EnterParams(
+      "test",
+      `{{ {
+        myVar2: {};
+        myFun1: () => {
+        }
+      }}}`,
+    );
+    MouseHoverNVerify(";");
+    agHelper.AssertContains("Expected '}' to match '{' from line 1 and instead saw ';'");
+
+  });
+
+  it("5. TC. 1938 - Shows correct lint error when currentItem/currentRow is used in field", () => {
     const JSOBJECT_WITH_INVALID_IDENTIFIER = `export default {
         myFun1: () => {
             //write code here
@@ -220,7 +252,7 @@ describe("Lint error reporting", () => {
     cy.get(locator._lintErrorElement).should("have.length", 2);
   });
 
-  it("5. Doesn't show error for 'unneccessary semi-colon'", () => {
+  it("6. Doesn't show error for 'unneccessary semi-colon'", () => {
     const JSOBJECT_WITH_UNNECCESARY_SEMICOLON = `export default {
         myFun1: () => {
             //write code here
@@ -263,4 +295,12 @@ describe("Lint error reporting", () => {
     );
     cy.get(locator._lintErrorElement).should("not.exist");
   });
+
+  function MouseHoverNVerify(lintErrorOn: string) {
+    cy.get(locator._lintErrorElement)
+      .contains(lintErrorOn)
+      .should("exist")
+      .first()
+      .trigger("mouseover");
+  }
 });
