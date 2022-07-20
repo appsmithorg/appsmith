@@ -278,7 +278,7 @@
   },
   "husky": {
     "hooks": {
-      "pre-commit": "lint-staged"
+      "pre-commit": "lint-staged && git-secrets --scan --untracked && git-secrets --scan -r"
     }
   },
   "resolutions": {
