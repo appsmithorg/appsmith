@@ -1,10 +1,6 @@
 import { DataTree, DataTreeEntity } from "entities/DataTree/dataTreeFactory";
 import { get } from "lodash";
-import {
-  EvaluationError,
-  getDynamicBindings,
-  isDynamicValue,
-} from "utils/DynamicBindingUtils";
+import { EvaluationError, getDynamicBindings } from "utils/DynamicBindingUtils";
 import {
   createGlobalData,
   EvaluationScriptType,
