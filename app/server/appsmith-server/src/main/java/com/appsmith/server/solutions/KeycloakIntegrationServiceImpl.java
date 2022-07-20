@@ -3,6 +3,7 @@ package com.appsmith.server.solutions;
 import com.appsmith.server.configurations.KeycloakConfig;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -17,6 +18,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.MultipartBodyBuilder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.BodyInserters;
@@ -89,12 +91,10 @@ public class KeycloakIntegrationServiceImpl implements KeycloakIntegrationServic
                             .exchange()
                             .flatMap(clientResponse -> clientResponse.toEntity(byte[].class))
                             .flatMap(stringResponseEntity -> {
-                                HttpHeaders headers = stringResponseEntity.getHeaders();
-                                // Find the media type of the response to parse the body as required.
-                                MediaType contentType = headers.getContentType();
                                 HttpStatus statusCode = stringResponseEntity.getStatusCode();
                                 if (!statusCode.is2xxSuccessful()) {
-                                    return Mono.error(new AppsmithException(AppsmithError.INTERNAL_SERVER_ERROR));
+                                    return Mono.error(new AppsmithException(AppsmithError.SAML_CONFIGURATION_FAILURE,
+                                            generateErrorMessage(stringResponseEntity)));
                                 }
 
                                 return Mono.just(TRUE);
@@ -158,12 +158,10 @@ public class KeycloakIntegrationServiceImpl implements KeycloakIntegrationServic
                             .exchange()
                             .flatMap(clientResponse -> clientResponse.toEntity(byte[].class))
                             .flatMap(stringResponseEntity -> {
-                                HttpHeaders headers = stringResponseEntity.getHeaders();
-                                // Find the media type of the response to parse the body as required.
-                                MediaType contentType = headers.getContentType();
                                 HttpStatus statusCode = stringResponseEntity.getStatusCode();
                                 if (!statusCode.is2xxSuccessful()) {
-                                    return Mono.error(new AppsmithException(AppsmithError.INTERNAL_SERVER_ERROR));
+                                    return Mono.error(new AppsmithException(AppsmithError.SAML_CONFIGURATION_FAILURE,
+                                            generateErrorMessage(stringResponseEntity)));
                                 }
 
                                 return Mono.just(TRUE);
@@ -313,7 +311,8 @@ public class KeycloakIntegrationServiceImpl implements KeycloakIntegrationServic
                                 MediaType contentType = headers.getContentType();
                                 HttpStatus statusCode = stringResponseEntity.getStatusCode();
                                 if (!statusCode.is2xxSuccessful()) {
-                                    return Mono.error(new AppsmithException(AppsmithError.INTERNAL_SERVER_ERROR));
+                                    return Mono.error(new AppsmithException(AppsmithError.SAML_CONFIGURATION_FAILURE,
+                                            generateErrorMessage(stringResponseEntity)));
                                 }
 
                                 byte[] body = stringResponseEntity.getBody();
@@ -362,17 +361,46 @@ public class KeycloakIntegrationServiceImpl implements KeycloakIntegrationServic
                             .exchange()
                             .flatMap(clientResponse -> clientResponse.toEntity(byte[].class))
                             .flatMap(stringResponseEntity -> {
-                                HttpHeaders headers = stringResponseEntity.getHeaders();
-                                // Find the media type of the response to parse the body as required.
-                                MediaType contentType = headers.getContentType();
                                 HttpStatus statusCode = stringResponseEntity.getStatusCode();
                                 if (!statusCode.is2xxSuccessful()) {
-                                    return Mono.error(new AppsmithException(AppsmithError.INTERNAL_SERVER_ERROR));
+                                    return Mono.error(new AppsmithException(AppsmithError.SAML_CONFIGURATION_FAILURE,
+                                            generateErrorMessage(stringResponseEntity)));
                                 }
 
                                 return Mono.just(TRUE);
                             });
                 });
+    }
+
+    private String generateErrorMessage(ResponseEntity<byte[]> stringResponseEntity) {
+        HttpHeaders headers = stringResponseEntity.getHeaders();
+
+        // Find the media type of the response to parse the body as required.
+        MediaType contentType = headers.getContentType();
+        String errorMessage = "";
+
+        byte[] body = stringResponseEntity.getBody();
+        if (body!=null) {
+            String bodyString = new String(body, StandardCharsets.UTF_8);
+            errorMessage = bodyString;
+
+            if (contentType.includes(MediaType.APPLICATION_JSON)) {
+                try {
+                    JsonNode jsonNode = objectMapper.readTree(bodyString);
+                    JsonNode errorMessageNode = jsonNode.get("errorMessage");
+                    JsonNode errorNode = jsonNode.get("error");
+                    if (errorMessageNode != null) {
+                        errorMessage = errorMessageNode.asText();
+                    } else if (errorNode != null) {
+                        errorMessage = errorNode.asText();
+                    }
+                } catch (JsonProcessingException e) {
+                    errorMessage = e.getMessage();
+                }
+            }
+        }
+
+        return errorMessage;
     }
 
     @Override
@@ -523,12 +551,11 @@ public class KeycloakIntegrationServiceImpl implements KeycloakIntegrationServic
                             .exchange()
                             .flatMap(clientResponse -> clientResponse.toEntity(byte[].class))
                             .flatMap(stringResponseEntity -> {
-                                HttpHeaders headers = stringResponseEntity.getHeaders();
-                                // Find the media type of the response to parse the body as required.
-                                MediaType contentType = headers.getContentType();
                                 HttpStatus statusCode = stringResponseEntity.getStatusCode();
+
                                 if (!statusCode.is2xxSuccessful()) {
-                                    return Mono.error(new AppsmithException(AppsmithError.INTERNAL_SERVER_ERROR));
+                                    return Mono.error(new AppsmithException(AppsmithError.SAML_CONFIGURATION_FAILURE,
+                                            generateErrorMessage(stringResponseEntity)));
                                 }
 
                                 return Mono.just(TRUE);
@@ -584,7 +611,8 @@ public class KeycloakIntegrationServiceImpl implements KeycloakIntegrationServic
                                 HttpStatus statusCode = stringResponseEntity.getStatusCode();
 
                                 if (!statusCode.is2xxSuccessful()) {
-                                    return Mono.error(new AppsmithException(AppsmithError.SAML_CONFIGURATION_FAILURE));
+                                    return Mono.error(new AppsmithException(AppsmithError.SAML_CONFIGURATION_FAILURE,
+                                            generateErrorMessage(stringResponseEntity)));
                                 }
 
                                 byte[] body = stringResponseEntity.getBody();

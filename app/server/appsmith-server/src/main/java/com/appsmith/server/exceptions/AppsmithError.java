@@ -144,7 +144,7 @@ public enum AppsmithError {
     INVALID_GIT_SSH_URL(400, 4050, "Please enter valid SSH URL of your repository", AppsmithErrorAction.DEFAULT, null, ErrorType.GIT_CONFIGURATION_ERROR, null),
     REPOSITORY_NOT_FOUND(404, 4051, "Unable to find the repository for application {0}, please refresh the page to auto-sync with the remote. This might take couple of minutes", AppsmithErrorAction.DEFAULT, "Repository Not Found Exception", ErrorType.REPOSITORY_NOT_FOUND, null),
     UNKNOWN_PLUGIN_REFERENCE(400, 4052, " Unable to find the {0} plugin. Please reach out to Appsmith customer support to resolve this.", AppsmithErrorAction.DEFAULT, null, ErrorType.CONFIGURATION_ERROR, null),
-    SAML_CONFIGURATION_FAILURE(400, 4053, "SAML configuration failed.", AppsmithErrorAction.DEFAULT, null, ErrorType.ARGUMENT_ERROR, null),
+    SAML_CONFIGURATION_FAILURE(400, 4053, "SAML configuration failed. {0}", AppsmithErrorAction.DEFAULT, null, ErrorType.ARGUMENT_ERROR, null),
     ENV_FILE_NOT_FOUND(500, 5019, "Admin Settings is unavailable. Unable to read and write to Environment file.", AppsmithErrorAction.DEFAULT, null, ErrorType.CONFIGURATION_ERROR, null),
     ;
 
