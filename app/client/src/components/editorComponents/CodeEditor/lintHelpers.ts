@@ -131,6 +131,7 @@ export const getLintAnnotations = (
       },
     ];
   }
+
   lintErrors.forEach((error) => {
     const {
       ch,
@@ -153,7 +154,7 @@ export const getLintAnnotations = (
           variableLength =
             variableLength === 1
               ? String(variable).length
-              : Math.min(variable.length, variableLength);
+              : Math.min(String(variable).length, variableLength);
         }
       }
     }

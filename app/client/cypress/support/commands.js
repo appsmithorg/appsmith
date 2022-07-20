@@ -736,8 +736,8 @@ Cypress.Commands.add("dragAndDropToCanvas", (widgetType, { x, y }) => {
     .trigger("mousemove", x, y, { eventConstructor: "MouseEvent" })
     .trigger("mousemove", x, y, { eventConstructor: "MouseEvent" })
     .trigger("mouseup", x, y, { eventConstructor: "MouseEvent" });
-    cy.assertPageSave();
-  });
+  cy.assertPageSave();
+});
 
 Cypress.Commands.add(
   "dragAndDropToWidget",
