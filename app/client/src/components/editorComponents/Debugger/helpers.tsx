@@ -79,10 +79,13 @@ export function getDependenciesFromInverseDependencies(
       const { entityName: entityDependency } = getEntityNameAndPropertyPath(
         dependency,
       );
-      if (entity !== entityName && entityDependency === entityName) {
-        directDependencies.add(entity);
-      } else if (entity === entityName && entityDependency !== entityName) {
-        inverseDependencies.add(entityDependency);
+
+      if (entity !== "appsmith") {
+        if (entity !== entityName && entityDependency === entityName) {
+          directDependencies.add(entity);
+        } else if (entity === entityName && entityDependency !== entityName) {
+          inverseDependencies.add(entityDependency);
+        }
       }
     });
   });
