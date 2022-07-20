@@ -72,12 +72,14 @@ describe("Table Widget V2 property pane feature validation", function() {
   it("2. check background of the edit action column", function() {
     cy.openPropertyPane("tablewidgetv2");
     cy.makeColumnEditable("id");
-    cy.editColumn("EditActions1");
     cy.readTableV2dataValidateCSS(0, 5, "background-color", "rgba(0, 0, 0, 0)");
-    cy.get(".t--property-control-cellbackground")
+    cy.get(".t--property-control-cellbackgroundcolor")
       .find(".t--js-toggle")
       .click();
-    propPane.UpdatePropertyFieldValue("Cell Background", "rgb(255, 0, 0)");
+    propPane.UpdatePropertyFieldValue(
+      "Cell Background Color",
+      "rgb(255, 0, 0)",
+    );
     cy.readTableV2dataValidateCSS(0, 5, "background-color", "rgb(255, 0, 0)");
   });
 });
