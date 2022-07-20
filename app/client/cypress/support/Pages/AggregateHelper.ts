@@ -595,7 +595,10 @@ export class AggregateHelper {
   }
 
   public UpdateCodeInput(selector: string, value: string) {
+    this.EnableAllEditors();
     cy.wrap(selector)
+      .click({ force: true })
+      .wait(1000)
       .find(".CodeMirror")
       .first()
       .then((ins: any) => {
@@ -750,6 +753,23 @@ export class AggregateHelper {
 
   public AssertContains(text: string, exists: "exist" | "not.exist" = "exist") {
     return cy.contains(text).should(exists);
+  }
+
+  public EnableAllEditors() {
+    this.Sleep(2000);
+    cy.get("body").then(($body: any) => {
+      if ($body.get(this.locator._codeEditorWrapper)?.length > 0) {
+        let count = $body.get(this.locator._codeEditorWrapper)?.length || 0;
+        while (count) {
+          $body
+            .get(this.locator._codeEditorWrapper)
+            ?.eq(0)
+            .then(($el: any) => $el.click({ force: true }).wait(100));
+          count = $body.find(this.locator._codeEditorWrapper)?.length || 0;
+        }
+      }
+    });
+    this.Sleep();
   }
 
   //Not used:
