@@ -5854,9 +5854,10 @@ cypress-multi-reporters@^1.2.4:
     debug "^4.1.1"
     lodash "^4.17.15"
 
-cypress-real-events@^1.5.1:
-  version "1.5.1"
-  resolved "https://registry.npmjs.org/cypress-real-events/-/cypress-real-events-1.5.1.tgz"
+cypress-real-events@^1.7.1:
+  version "1.7.1"
+  resolved "https://registry.yarnpkg.com/cypress-real-events/-/cypress-real-events-1.7.1.tgz#8f430d67c29ea4f05b9c5b0311780120cbc9b935"
+  integrity sha512-/Bg15RgJ0SYsuXc6lPqH08x19z6j2vmhWN4wXfJqm3z8BTAFiK2MvipZPzxT8Z0jJP0q7kuniWrLIvz/i/8lCQ==
 
 cypress-wait-until@^1.7.2:
   version "1.7.2"
