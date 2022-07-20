@@ -249,7 +249,7 @@ export function PanelPropertiesEditor(
         panelConfigs && (
           <PanelWrapper>
             <PropertyControlsGenerator
-              config={(panelConfig as unknown) as PropertyPaneConfig[]}
+              config={panelConfig.children}
               id={widgetProperties.widgetId}
               panel={panel}
               searchQuery={searchText}
