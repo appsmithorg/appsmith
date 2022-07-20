@@ -15,13 +15,13 @@ describe("Lint error reporting", () => {
     ee.NavigateToSwitcher("explorer");
   });
 
-  it("1. Doesn't show lint warnings in debugger", () => {
+  it("1. Doesn't show lint warnings in debugger but shows on Hover only", () => {
     const JS_OBJECT_WITH_LINT_WARNING = `export default {
           myVar1: [],
           myVar2: {},
           myFun1: () => {
               //write code here
-              const name = "Favour"
+              const name = "Automation"
           },
           myFun2: async () => {
               //use async-await or promises
@@ -34,11 +34,14 @@ describe("Lint error reporting", () => {
       toRun: false,
       shouldCreateNewJSObj: true,
     });
+    agHelper.Sleep();
+    MouseHoverNVerify("name", "'name' is defined but never used.", false);
     agHelper.GetNClick(locator._errorTab);
-    cy.contains("'name' is defined but never used.").should("not.exist");
+    agHelper.AssertContains("'name' is defined but never used.", "not.exist");
+
     agHelper.RefreshPage();
     agHelper.GetNClick(locator._errorTab);
-    cy.contains("'name' is defined but never used.").should("not.exist");
+    agHelper.AssertContains("'name' is defined but never used.", "not.exist");
   });
 
   it("2. TC. 1939 - Shows correct error when await keyword is used in sync functions", () => {
@@ -252,7 +255,7 @@ describe("Lint error reporting", () => {
     cy.get(locator._lintErrorElement).should("have.length", 2);
   });
 
-  it("6. Doesn't show error for 'unneccessary semi-colon'", () => {
+  it("6. Bug 15156 - Doesn't show error for 'unneccessary semi-colon'", () => {
     const JSOBJECT_WITH_UNNECCESARY_SEMICOLON = `export default {
         myFun1: () => {
             //write code here
@@ -296,9 +299,16 @@ describe("Lint error reporting", () => {
     cy.get(locator._lintErrorElement).should("not.exist");
   });
 
-  function MouseHoverNVerify(lintErrorOn: string, debugMsg: string) {
-    cy.get(locator._lintErrorElement)
-      .contains(lintErrorOn)
+  function MouseHoverNVerify(
+    lintOn: string,
+    debugMsg: string,
+    isError = true,
+  ) {
+    let element = isError
+      ? cy.get(locator._lintErrorElement)
+      : cy.get(locator._lintWarningElement);
+      element
+      .contains(lintOn)
       .should("exist")
       .first()
       .trigger("mouseover");
