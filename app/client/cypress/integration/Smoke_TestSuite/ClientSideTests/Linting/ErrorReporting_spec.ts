@@ -59,20 +59,16 @@ describe("Lint error reporting", () => {
       `{{
         () => {
         await showAlert('test')
-    }
-}}`,
+    }}}`,
       true,
       true,
     );
-    agHelper.AssertElementExist(locator._lintErrorElement);
-    cy.get(locator._lintErrorElement)
-      .first()
-      .trigger("mouseover");
-    cy.contains("'await' is not defined").should("not.exist");
-    cy.contains(
+
+    MouseHoverNVerify(
+      "await",
       "'await' expressions are only allowed within async functions. Did you mean to mark this function as 'async'?",
-    ).should("exist");
-    propPane.UpdatePropertyFieldValue("onClick", "");
+    );
+    agHelper.AssertContains("'await' is not defined", "not.exist");
 
     // Test in JS Object
     jsEditor.CreateJSObject(JS_OBJECT_WITH_WRONG_AWAIT_KEYWORD, {
@@ -81,14 +77,11 @@ describe("Lint error reporting", () => {
       toRun: false,
       shouldCreateNewJSObj: true,
     });
-    agHelper.AssertElementExist(locator._lintErrorElement);
-    cy.get(locator._lintErrorElement)
-      .first()
-      .trigger("mouseover");
-    cy.contains("'await' is not defined").should("not.exist");
-    cy.contains(
+    MouseHoverNVerify(
+      "await",
       "'await' expressions are only allowed within async functions. Did you mean to mark this function as 'async'?",
-    ).should("exist");
+    );
+    agHelper.AssertContains("'await' is not defined", "not.exist");
 
     // Test in Api
     apiPage.CreateApi();
@@ -98,14 +91,11 @@ describe("Lint error reporting", () => {
         await Promise.all([])
     }()}}`,
     );
-    agHelper.AssertElementExist(locator._lintErrorElement);
-    cy.get(locator._lintErrorElement)
-      .first()
-      .trigger("mouseover");
-    cy.contains("'await' is not defined").should("not.exist");
-    cy.contains(
+    MouseHoverNVerify(
+      "await",
       "'await' expressions are only allowed within async functions. Did you mean to mark this function as 'async'?",
-    ).should("exist");
+    );
+    agHelper.AssertContains("'await' is not defined", "not.exist");
   });
 
   it("3. TC. 1940 - Shows correct error when no comma is used to separate object properties + Bug 8659", () => {
@@ -129,8 +119,10 @@ describe("Lint error reporting", () => {
       true,
       true,
     );
-    MouseHoverNVerify("myFun1");
-    agHelper.AssertContains("Expected '}' to match '{' from line 1 and instead saw 'myFun1'");
+    MouseHoverNVerify(
+      "myFun1",
+      "Expected '}' to match '{' from line 1 and instead saw 'myFun1'",
+    );
 
     // Test in JS Object
     jsEditor.CreateJSObject(JS_OBJECT_WITHOUT_COMMA_SEPARATOR, {
@@ -139,8 +131,10 @@ describe("Lint error reporting", () => {
       toRun: false,
       shouldCreateNewJSObj: true,
     });
-    MouseHoverNVerify("myFun1");
-    agHelper.AssertContains("Expected '}' to match '{' from line 1 and instead saw 'myFun1'");
+    MouseHoverNVerify(
+      "myFun1",
+      "Expected '}' to match '{' from line 1 and instead saw 'myFun1'",
+    );
 
     // Test in Api
     apiPage.CreateApi();
@@ -152,8 +146,10 @@ describe("Lint error reporting", () => {
         }
       }}}`,
     );
-    MouseHoverNVerify("myFun1");
-    agHelper.AssertContains("Expected '}' to match '{' from line 1 and instead saw 'myFun1'");
+    MouseHoverNVerify(
+      "myFun1",
+      "Expected '}' to match '{' from line 1 and instead saw 'myFun1'",
+    );
   });
 
   it("4. TC. 1940 - Shows correct error when semicolon used instead of comma to separate object properties", () => {
@@ -178,9 +174,10 @@ describe("Lint error reporting", () => {
       true,
       true,
     );
-
-    MouseHoverNVerify(";");
-    agHelper.AssertContains("Expected '}' to match '{' from line 1 and instead saw ';'");
+    MouseHoverNVerify(
+      ";",
+      "Expected '}' to match '{' from line 1 and instead saw ';'",
+    );
 
     // Test in JS Object
     jsEditor.CreateJSObject(JS_OBJECT_WITH_SEMICOLON_SEPARATOR, {
@@ -189,8 +186,10 @@ describe("Lint error reporting", () => {
       toRun: false,
       shouldCreateNewJSObj: true,
     });
-    MouseHoverNVerify(";");
-    agHelper.AssertContains("Expected '}' to match '{' from line 1 and instead saw ';'");
+    MouseHoverNVerify(
+      ";",
+      "Expected '}' to match '{' from line 1 and instead saw ';'",
+    );
 
     // Test in Api
     apiPage.CreateApi();
@@ -202,9 +201,10 @@ describe("Lint error reporting", () => {
         }
       }}}`,
     );
-    MouseHoverNVerify(";");
-    agHelper.AssertContains("Expected '}' to match '{' from line 1 and instead saw ';'");
-
+    MouseHoverNVerify(
+      ";",
+      "Expected '}' to match '{' from line 1 and instead saw ';'",
+    );
   });
 
   it("5. TC. 1938 - Shows correct lint error when currentItem/currentRow is used in field", () => {
@@ -296,11 +296,12 @@ describe("Lint error reporting", () => {
     cy.get(locator._lintErrorElement).should("not.exist");
   });
 
-  function MouseHoverNVerify(lintErrorOn: string) {
+  function MouseHoverNVerify(lintErrorOn: string, debugMsg: string) {
     cy.get(locator._lintErrorElement)
       .contains(lintErrorOn)
       .should("exist")
       .first()
       .trigger("mouseover");
+    agHelper.AssertContains(debugMsg);
   }
 });

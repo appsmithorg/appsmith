@@ -748,8 +748,8 @@ export class AggregateHelper {
     else locator.should("have.length", length);
   }
 
-  public AssertContains(text: string) {
-    return cy.contains(text);
+  public AssertContains(text: string, exists: "exist" | "not.exist" = "exist") {
+    return cy.contains(text).should(exists);
   }
 
   //Not used:
