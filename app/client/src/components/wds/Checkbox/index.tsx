@@ -87,6 +87,10 @@ const Checkbox = styled(BlueprintCheckbox)<StyledCheckboxProps>`
     &.bp3-control.bp3-checkbox input:checked:disabled ~ .bp3-control-indicator {
       background-color: ${Colors.GREY_5} !important;
     }
+    // not checked + disabled
+    &.bp3-control.bp3-checkbox input:not(:checked):disabled ~ .bp3-control-indicator {
+      background-color: ${Colors.CONCRETE} !important;
+    }
 
     // indeterminate
     &.bp3-control.bp3-checkbox input:indeterminate ~ .bp3-control-indicator {
