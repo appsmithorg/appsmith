@@ -64,6 +64,11 @@ describe("Text Field Property Control", () => {
     cy.testJsontext("errormessage", "Custom error message");
     cy.get(`${fieldPrefix}-name input`).click({ force: true });
     cy.get(".bp3-popover-content").contains("Custom error message");
+
+    // Reset the error message
+    cy.testJsontext("errormessage", "");
+    // Reset valid
+    cy.testJsontext("valid", "");
   });
 
   it("hides field when visible switched off", () => {
