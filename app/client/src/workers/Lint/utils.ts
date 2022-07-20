@@ -2,6 +2,7 @@ import { DataTree, DataTreeEntity } from "entities/DataTree/dataTreeFactory";
 import {
   getEntityNameAndPropertyPath,
   isAction,
+  isATriggerPath,
   isJSAction,
   isWidget,
 } from "workers/evaluationUtils";
@@ -33,6 +34,10 @@ export const pathRequiresLinting = (
     dataTree,
     fullPropertyPath,
   ) as unknown) as string;
+
+  if (isATriggerPath(entity, propertyPath)) {
+    return isDynamicValue(unEvalPropertyValue);
+  }
   const isADynamicBindingPath =
     (isAction(entity) || isWidget(entity) || isJSAction(entity)) &&
     isPathADynamicBinding(entity, propertyPath);

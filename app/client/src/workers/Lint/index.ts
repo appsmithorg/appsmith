@@ -34,14 +34,16 @@ interface LintTreeArgs {
 
 export const lintTree = (args: LintTreeArgs) => {
   const { evalTree, sortedDependencies, triggerPathsToLint, unEvalTree } = args;
-  // In trigger based fields, functions such as showAlert, storeValue need to be added to the global data
-  const GLOBAL_DATA_WITH_FUNCTIONS = createGlobalData({
+  const GLOBAL_DATA_WITHOUT_FUNCTIONS = createGlobalData({
     dataTree: unEvalTree,
     resolvedFunctions: {},
-    isTriggerBased: true,
-    skipEntityFunctions: true,
+    isTriggerBased: false,
   });
+  // trigger paths
   const triggerPaths = [...triggerPathsToLint];
+  // Certain paths, like JS Object's body are binding paths where appsmith functions are needed in the global data
+  const bindingPathsRequiringFunctions: string[] = [];
+
   sortedDependencies.forEach((fullPropertyPath) => {
     const { entityName, propertyPath } = getEntityNameAndPropertyPath(
       fullPropertyPath,
@@ -51,41 +53,73 @@ export const lintTree = (args: LintTreeArgs) => {
       unEvalTree,
       fullPropertyPath,
     ) as unknown) as string;
-    if (isATriggerPath(entity, propertyPath)) {
+    // remove all lint errors from path
+    removeLintErrorsFromEntityProperty(evalTree, fullPropertyPath);
+    // We are only interested in paths that require linting
+    if (!pathRequiresLinting(unEvalTree, entity, fullPropertyPath)) return;
+    if (isATriggerPath(entity, propertyPath))
       return triggerPaths.push(fullPropertyPath);
-    }
-    if (pathRequiresLinting(unEvalTree, entity, fullPropertyPath)) {
-      removeLintErrorsFromEntityProperty(evalTree, fullPropertyPath);
-      const lintErrors = lintBindingPath(
-        unEvalPropertyValue,
-        entity,
-        fullPropertyPath,
-        isJSAction(entity) ? GLOBAL_DATA_WITH_FUNCTIONS : unEvalTree,
-      );
-      lintErrors.length &&
-        addErrorToEntityProperty(lintErrors, evalTree, fullPropertyPath);
-    }
+    if (isJSAction(entity))
+      return bindingPathsRequiringFunctions.push(fullPropertyPath);
+
+    const lintErrors = lintBindingPath(
+      unEvalPropertyValue,
+      entity,
+      fullPropertyPath,
+      GLOBAL_DATA_WITHOUT_FUNCTIONS,
+    );
+    lintErrors.length &&
+      addErrorToEntityProperty(lintErrors, evalTree, fullPropertyPath);
   });
-  // Lint triggerPaths
-  if (triggerPaths.length) {
-    triggerPaths.forEach((triggerPath) => {
-      removeLintErrorsFromEntityProperty(evalTree, triggerPath);
-      const { entityName } = getEntityNameAndPropertyPath(triggerPath);
-      const entity = unEvalTree[entityName];
-      const unEvalPropertyValue = (get(
-        unEvalTree,
-        triggerPath,
-      ) as unknown) as string;
-      if (isDynamicValue(unEvalPropertyValue)) {
-        const errors = lintTriggerPath(
+
+  if (triggerPaths.length || bindingPathsRequiringFunctions.length) {
+    // we only create GLOBAL_DATA_WITH_FUNCTIONS if there are paths requiring it
+    // In trigger based fields, functions such as showAlert, storeValue, etc need to be added to the global data
+    const GLOBAL_DATA_WITH_FUNCTIONS = createGlobalData({
+      dataTree: unEvalTree,
+      resolvedFunctions: {},
+      isTriggerBased: true,
+      skipEntityFunctions: true,
+    });
+
+    // lint binding paths that need GLOBAL_DATA_WITH_FUNCTIONS
+    if (bindingPathsRequiringFunctions.length) {
+      bindingPathsRequiringFunctions.forEach((fullPropertyPath) => {
+        const { entityName } = getEntityNameAndPropertyPath(fullPropertyPath);
+        const entity = unEvalTree[entityName];
+        const unEvalPropertyValue = (get(
+          unEvalTree,
+          fullPropertyPath,
+        ) as unknown) as string;
+        const lintErrors = lintBindingPath(
+          unEvalPropertyValue,
+          entity,
+          fullPropertyPath,
+          GLOBAL_DATA_WITH_FUNCTIONS,
+        );
+        lintErrors.length &&
+          addErrorToEntityProperty(lintErrors, evalTree, fullPropertyPath);
+      });
+    }
+
+    // Lint triggerPaths
+    if (triggerPaths.length) {
+      triggerPaths.forEach((triggerPath) => {
+        const { entityName } = getEntityNameAndPropertyPath(triggerPath);
+        const entity = unEvalTree[entityName];
+        const unEvalPropertyValue = (get(
+          unEvalTree,
+          triggerPath,
+        ) as unknown) as string;
+        const lintErrors = lintTriggerPath(
           unEvalPropertyValue,
           entity,
           GLOBAL_DATA_WITH_FUNCTIONS,
         );
-        errors.length &&
-          addErrorToEntityProperty(errors, evalTree, triggerPath);
-      }
-    });
+        lintErrors.length &&
+          addErrorToEntityProperty(lintErrors, evalTree, triggerPath);
+      });
+    }
   }
 };
 
