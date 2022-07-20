@@ -564,7 +564,9 @@ describe("JSObjects OnLoad Actions tests", function() {
     );
   });
 
-  it.skip("13. Tc # 57 - Multiple functions set to true for OnPageLoad & Confirmation before running", () => {});
+  it.skip("13. Tc # 57 - Multiple functions set to true for OnPageLoad & Confirmation before running + Bug 15340", () => {
+
+  });
 
   function VerifyFunctionDropdown(
     syncFunctions: string[],
