@@ -55,6 +55,7 @@ public class SessionUserServiceCEImpl implements SessionUserServiceCE {
                         currentToken.getAuthorities(),
                         ((OAuth2AuthenticationToken) currentToken).getAuthorizedClientRegistrationId()
                 );
+                // Here also update the userdata to contain the new access token.
             } else {
                 log.error("Unrecognized session token type when updating user in session: {}.", currentToken.getClass());
                 return Mono.error(new AppsmithException(AppsmithError.FAIL_UPDATE_USER_IN_SESSION));

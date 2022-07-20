@@ -1,0 +1,10 @@
+{
+    "clientID": "",
+    "clientSecret": "",
+    "authorizationURL": "",
+    "tokenURL": "",
+    "userInfo": "",
+    "jwtSetURI": "",
+    "scope": "openid, profile, email",
+    "userAttribute": "email"
+}

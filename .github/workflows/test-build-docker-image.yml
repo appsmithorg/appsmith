@@ -583,6 +583,19 @@ jobs:
           CYPRESS_APPSMITH_OAUTH2_GOOGLE_CLIENT_SECRET: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_GOOGLE_CLIENT_SECRET }}
           CYPRESS_APPSMITH_OAUTH2_GITHUB_CLIENT_ID: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_GITHUB_CLIENT_ID }}
           CYPRESS_APPSMITH_OAUTH2_GITHUB_CLIENT_SECRET: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_GITHUB_CLIENT_SECRET }}
+          CYPRESS_OAUTH_SAML_EMAIL: ${{ secrets.CYPRESS_OAUTH_SAML_EMAIL }}
+          CYPRESS_OAUTH_SAML_ENTITY_ID: ${{ secrets.CYPRESS_OAUTH_SAML_ENTITY_ID }}
+          CYPRESS_OAUTH_SAML_METADATA_URL: ${{ secrets.CYPRESS_OAUTH_SAML_METADATA_URL }}
+          CYPRESS_OAUTH_SAML_METADATA_XML: ${{ secrets.CYPRESS_OAUTH_SAML_METADATA_XML }}
+          CYPRESS_OAUTH_SAML_PUB_CERT: ${{ secrets.CYPRESS_OAUTH_SAML_PUB_CERT }}
+          CYPRESS_OAUTH_SAML_SSO_URL: ${{ secrets.CYPRESS_OAUTH_SAML_SSO_URL }}
+          CYPRESS_OAUTH_SAML_REDIRECT_URL: ${{ secrets.CYPRESS_OAUTH_SAML_REDIRECT_URL }}
+          CYPRESS_APPSMITH_OAUTH2_OIDC_CLIENT_ID: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_OIDC_CLIENT_ID }}
+          CYPRESS_APPSMITH_OAUTH2_OIDC_CLIENT_SECRET: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_OIDC_CLIENT_SECRET }}
+          CYPRESS_APPSMITH_OAUTH2_OIDC_AUTH_URL: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_OIDC_AUTH_URL }}
+          CYPRESS_APPSMITH_OAUTH2_OIDC_TOKEN_URL: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_OIDC_TOKEN_URL }}
+          CYPRESS_APPSMITH_OAUTH2_OIDC_USER_INFO: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_OIDC_USER_INFO }}
+          CYPRESS_APPSMITH_OAUTH2_OIDC_JWKS_URL: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_OIDC_JWKS_URL }}
           APPSMITH_DISABLE_TELEMETRY: true
           APPSMITH_GOOGLE_MAPS_API_KEY: ${{ secrets.APPSMITH_GOOGLE_MAPS_API_KEY }}
           POSTGRES_PASSWORD: postgres
@@ -612,6 +625,19 @@ jobs:
           CYPRESS_APPSMITH_OAUTH2_GOOGLE_CLIENT_SECRET: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_GOOGLE_CLIENT_SECRET }}
           CYPRESS_APPSMITH_OAUTH2_GITHUB_CLIENT_ID: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_GITHUB_CLIENT_ID }}
           CYPRESS_APPSMITH_OAUTH2_GITHUB_CLIENT_SECRET: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_GITHUB_CLIENT_SECRET }}
+          CYPRESS_OAUTH_SAML_EMAIL: ${{ secrets.CYPRESS_OAUTH_SAML_EMAIL }}
+          CYPRESS_OAUTH_SAML_ENTITY_ID: ${{ secrets.CYPRESS_OAUTH_SAML_ENTITY_ID }}
+          CYPRESS_OAUTH_SAML_METADATA_URL: ${{ secrets.CYPRESS_OAUTH_SAML_METADATA_URL }}
+          CYPRESS_OAUTH_SAML_METADATA_XML: ${{ secrets.CYPRESS_OAUTH_SAML_METADATA_XML }}
+          CYPRESS_OAUTH_SAML_PUB_CERT: ${{ secrets.CYPRESS_OAUTH_SAML_PUB_CERT }}
+          CYPRESS_OAUTH_SAML_SSO_URL: ${{ secrets.CYPRESS_OAUTH_SAML_SSO_URL }}
+          CYPRESS_OAUTH_SAML_REDIRECT_URL: ${{ secrets.CYPRESS_OAUTH_SAML_REDIRECT_URL }}
+          CYPRESS_APPSMITH_OAUTH2_OIDC_CLIENT_ID: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_OIDC_CLIENT_ID }}
+          CYPRESS_APPSMITH_OAUTH2_OIDC_CLIENT_SECRET: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_OIDC_CLIENT_SECRET }}
+          CYPRESS_APPSMITH_OAUTH2_OIDC_AUTH_URL: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_OIDC_AUTH_URL }}
+          CYPRESS_APPSMITH_OAUTH2_OIDC_TOKEN_URL: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_OIDC_TOKEN_URL }}
+          CYPRESS_APPSMITH_OAUTH2_OIDC_USER_INFO: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_OIDC_USER_INFO }}
+          CYPRESS_APPSMITH_OAUTH2_OIDC_JWKS_URL: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_OIDC_JWKS_URL }}
           APPSMITH_DISABLE_TELEMETRY: true
           APPSMITH_GOOGLE_MAPS_API_KEY: ${{ secrets.APPSMITH_GOOGLE_MAPS_API_KEY }}
           COMMIT_INFO_MESSAGE: ${{ github.event.pull_request.title }}
@@ -651,6 +677,19 @@ jobs:
           CYPRESS_APPSMITH_OAUTH2_GOOGLE_CLIENT_SECRET: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_GOOGLE_CLIENT_SECRET }}
           CYPRESS_APPSMITH_OAUTH2_GITHUB_CLIENT_ID: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_GITHUB_CLIENT_ID }}
           CYPRESS_APPSMITH_OAUTH2_GITHUB_CLIENT_SECRET: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_GITHUB_CLIENT_SECRET }}
+          CYPRESS_OAUTH_SAML_EMAIL: ${{ secrets.CYPRESS_OAUTH_SAML_EMAIL }}
+          CYPRESS_OAUTH_SAML_ENTITY_ID: ${{ secrets.CYPRESS_OAUTH_SAML_ENTITY_ID }}
+          CYPRESS_OAUTH_SAML_METADATA_URL: ${{ secrets.CYPRESS_OAUTH_SAML_METADATA_URL }}
+          CYPRESS_OAUTH_SAML_METADATA_XML: ${{ secrets.CYPRESS_OAUTH_SAML_METADATA_XML }}
+          CYPRESS_OAUTH_SAML_PUB_CERT: ${{ secrets.CYPRESS_OAUTH_SAML_PUB_CERT }}
+          CYPRESS_OAUTH_SAML_SSO_URL: ${{ secrets.CYPRESS_OAUTH_SAML_SSO_URL }}
+          CYPRESS_OAUTH_SAML_REDIRECT_URL: ${{ secrets.CYPRESS_OAUTH_SAML_REDIRECT_URL }}
+          CYPRESS_APPSMITH_OAUTH2_OIDC_CLIENT_ID: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_OIDC_CLIENT_ID }}
+          CYPRESS_APPSMITH_OAUTH2_OIDC_CLIENT_SECRET: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_OIDC_CLIENT_SECRET }}
+          CYPRESS_APPSMITH_OAUTH2_OIDC_AUTH_URL: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_OIDC_AUTH_URL }}
+          CYPRESS_APPSMITH_OAUTH2_OIDC_TOKEN_URL: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_OIDC_TOKEN_URL }}
+          CYPRESS_APPSMITH_OAUTH2_OIDC_USER_INFO: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_OIDC_USER_INFO }}
+          CYPRESS_APPSMITH_OAUTH2_OIDC_JWKS_URL: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_OIDC_JWKS_URL }}
           APPSMITH_DISABLE_TELEMETRY: true
           APPSMITH_GOOGLE_MAPS_API_KEY: ${{ secrets.APPSMITH_GOOGLE_MAPS_API_KEY }}
           COMMIT_INFO_MESSAGE: ${{ github.event.pull_request.title }}
@@ -931,6 +970,7 @@ jobs:
           APPSMITH_CLOUD_SERVICES_USERNAME: ""
           APPSMITH_CLOUD_SERVICES_PASSWORD: ""
           APPSMITH_GIT_ROOT: "./container-volumes/git-storage"
+          APPSMITH_LICENSE_KEY: ${{ secrets.APPSMITH_LICENSE_KEY }}
         run: |
           ls -l
           ls -l scripts/
@@ -1014,6 +1054,19 @@ jobs:
           CYPRESS_APPSMITH_OAUTH2_GOOGLE_CLIENT_SECRET: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_GOOGLE_CLIENT_SECRET }}
           CYPRESS_APPSMITH_OAUTH2_GITHUB_CLIENT_ID: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_GITHUB_CLIENT_ID }}
           CYPRESS_APPSMITH_OAUTH2_GITHUB_CLIENT_SECRET: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_GITHUB_CLIENT_SECRET }}
+          CYPRESS_OAUTH_SAML_EMAIL: ${{ secrets.CYPRESS_OAUTH_SAML_EMAIL }}
+          CYPRESS_OAUTH_SAML_ENTITY_ID: ${{ secrets.CYPRESS_OAUTH_SAML_ENTITY_ID }}
+          CYPRESS_OAUTH_SAML_METADATA_URL: ${{ secrets.CYPRESS_OAUTH_SAML_METADATA_URL }}
+          CYPRESS_OAUTH_SAML_METADATA_XML: ${{ secrets.CYPRESS_OAUTH_SAML_METADATA_XML }}
+          CYPRESS_OAUTH_SAML_PUB_CERT: ${{ secrets.CYPRESS_OAUTH_SAML_PUB_CERT }}
+          CYPRESS_OAUTH_SAML_SSO_URL: ${{ secrets.CYPRESS_OAUTH_SAML_SSO_URL }}
+          CYPRESS_OAUTH_SAML_REDIRECT_URL: ${{ secrets.CYPRESS_OAUTH_SAML_REDIRECT_URL }}
+          CYPRESS_APPSMITH_OAUTH2_OIDC_CLIENT_ID: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_OIDC_CLIENT_ID }}
+          CYPRESS_APPSMITH_OAUTH2_OIDC_CLIENT_SECRET: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_OIDC_CLIENT_SECRET }}
+          CYPRESS_APPSMITH_OAUTH2_OIDC_AUTH_URL: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_OIDC_AUTH_URL }}
+          CYPRESS_APPSMITH_OAUTH2_OIDC_TOKEN_URL: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_OIDC_TOKEN_URL }}
+          CYPRESS_APPSMITH_OAUTH2_OIDC_USER_INFO: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_OIDC_USER_INFO }}
+          CYPRESS_APPSMITH_OAUTH2_OIDC_JWKS_URL: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_OIDC_JWKS_URL }}
           APPSMITH_DISABLE_TELEMETRY: true
           APPSMITH_GOOGLE_MAPS_API_KEY: ${{ secrets.APPSMITH_GOOGLE_MAPS_API_KEY }}
           POSTGRES_PASSWORD: postgres
@@ -1041,6 +1094,19 @@ jobs:
           CYPRESS_APPSMITH_OAUTH2_GOOGLE_CLIENT_SECRET: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_GOOGLE_CLIENT_SECRET }}
           CYPRESS_APPSMITH_OAUTH2_GITHUB_CLIENT_ID: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_GITHUB_CLIENT_ID }}
           CYPRESS_APPSMITH_OAUTH2_GITHUB_CLIENT_SECRET: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_GITHUB_CLIENT_SECRET }}
+          CYPRESS_OAUTH_SAML_EMAIL: ${{ secrets.CYPRESS_OAUTH_SAML_EMAIL }}
+          CYPRESS_OAUTH_SAML_ENTITY_ID: ${{ secrets.CYPRESS_OAUTH_SAML_ENTITY_ID }}
+          CYPRESS_OAUTH_SAML_METADATA_URL: ${{ secrets.CYPRESS_OAUTH_SAML_METADATA_URL }}
+          CYPRESS_OAUTH_SAML_METADATA_XML: ${{ secrets.CYPRESS_OAUTH_SAML_METADATA_XML }}
+          CYPRESS_OAUTH_SAML_PUB_CERT: ${{ secrets.CYPRESS_OAUTH_SAML_PUB_CERT }}
+          CYPRESS_OAUTH_SAML_SSO_URL: ${{ secrets.CYPRESS_OAUTH_SAML_SSO_URL }}
+          CYPRESS_OAUTH_SAML_REDIRECT_URL: ${{ secrets.CYPRESS_OAUTH_SAML_REDIRECT_URL }}
+          CYPRESS_APPSMITH_OAUTH2_OIDC_CLIENT_ID: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_OIDC_CLIENT_ID }}
+          CYPRESS_APPSMITH_OAUTH2_OIDC_CLIENT_SECRET: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_OIDC_CLIENT_SECRET }}
+          CYPRESS_APPSMITH_OAUTH2_OIDC_AUTH_URL: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_OIDC_AUTH_URL }}
+          CYPRESS_APPSMITH_OAUTH2_OIDC_TOKEN_URL: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_OIDC_TOKEN_URL }}
+          CYPRESS_APPSMITH_OAUTH2_OIDC_USER_INFO: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_OIDC_USER_INFO }}
+          CYPRESS_APPSMITH_OAUTH2_OIDC_JWKS_URL: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_OIDC_JWKS_URL }}
           APPSMITH_DISABLE_TELEMETRY: true
           APPSMITH_GOOGLE_MAPS_API_KEY: ${{ secrets.APPSMITH_GOOGLE_MAPS_API_KEY }}
           COMMIT_INFO_MESSAGE: ${{ github.event.pull_request.title }}
@@ -1079,6 +1145,19 @@ jobs:
           CYPRESS_APPSMITH_OAUTH2_GOOGLE_CLIENT_SECRET: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_GOOGLE_CLIENT_SECRET }}
           CYPRESS_APPSMITH_OAUTH2_GITHUB_CLIENT_ID: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_GITHUB_CLIENT_ID }}
           CYPRESS_APPSMITH_OAUTH2_GITHUB_CLIENT_SECRET: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_GITHUB_CLIENT_SECRET }}
+          CYPRESS_OAUTH_SAML_EMAIL: ${{ secrets.CYPRESS_OAUTH_SAML_EMAIL }}
+          CYPRESS_OAUTH_SAML_ENTITY_ID: ${{ secrets.CYPRESS_OAUTH_SAML_ENTITY_ID }}
+          CYPRESS_OAUTH_SAML_METADATA_URL: ${{ secrets.CYPRESS_OAUTH_SAML_METADATA_URL }}
+          CYPRESS_OAUTH_SAML_METADATA_XML: ${{ secrets.CYPRESS_OAUTH_SAML_METADATA_XML }}
+          CYPRESS_OAUTH_SAML_PUB_CERT: ${{ secrets.CYPRESS_OAUTH_SAML_PUB_CERT }}
+          CYPRESS_OAUTH_SAML_SSO_URL: ${{ secrets.CYPRESS_OAUTH_SAML_SSO_URL }}
+          CYPRESS_OAUTH_SAML_REDIRECT_URL: ${{ secrets.CYPRESS_OAUTH_SAML_REDIRECT_URL }}
+          CYPRESS_APPSMITH_OAUTH2_OIDC_CLIENT_ID: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_OIDC_CLIENT_ID }}
+          CYPRESS_APPSMITH_OAUTH2_OIDC_CLIENT_SECRET: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_OIDC_CLIENT_SECRET }}
+          CYPRESS_APPSMITH_OAUTH2_OIDC_AUTH_URL: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_OIDC_AUTH_URL }}
+          CYPRESS_APPSMITH_OAUTH2_OIDC_TOKEN_URL: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_OIDC_TOKEN_URL }}
+          CYPRESS_APPSMITH_OAUTH2_OIDC_USER_INFO: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_OIDC_USER_INFO }}
+          CYPRESS_APPSMITH_OAUTH2_OIDC_JWKS_URL: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_OIDC_JWKS_URL }}
           APPSMITH_DISABLE_TELEMETRY: true
           APPSMITH_GOOGLE_MAPS_API_KEY: ${{ secrets.APPSMITH_GOOGLE_MAPS_API_KEY }}
           COMMIT_INFO_MESSAGE: ${{ github.event.pull_request.title }}
@@ -1317,24 +1396,24 @@ jobs:
         if: success() && github.ref == 'refs/heads/release' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
         working-directory: app/client
         run: |
-          docker build -t ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-editor:${{steps.vars.outputs.tag}} .
-          docker push ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-editor:${{steps.vars.outputs.tag}}
+          docker build -t ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-editor-ee:${{steps.vars.outputs.tag}} .
+          docker push ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-editor-ee:${{steps.vars.outputs.tag}}
 
       # Build master Docker image and push to Docker Hub
       - name: Push client master image to Docker Hub with commit tag
         if: success() && github.ref == 'refs/heads/master' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
         working-directory: app/client
         run: |
-          docker build -t ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-editor:${GITHUB_SHA} .
-          docker build -t ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-editor:nightly .
-          docker push ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-editor:${GITHUB_SHA}
-          docker push ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-editor:nightly
+          docker build -t ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-editor-ee:${GITHUB_SHA} .
+          docker build -t ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-editor-ee:nightly .
+          docker push ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-editor-ee:${GITHUB_SHA}
+          docker push ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-editor-ee:nightly
 
       - name: Build and push release image to Docker Hub
         if: success() && github.ref == 'refs/heads/release' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
         working-directory: "."
         run: |
-          tag_args="--tag ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-ce:${{steps.vars.outputs.tag}}"
+          tag_args="--tag ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-ee:${{steps.vars.outputs.tag}}"
           docker buildx build \
             --platform linux/arm64,linux/amd64 \
             --push \
@@ -1346,8 +1425,8 @@ jobs:
         if: success() && github.ref == 'refs/heads/master' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
         working-directory: "."
         run: |
-          tag_args="--tag ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-ce:${GITHUB_SHA}"
-          tag_args="$tag_args --tag ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-ce:nightly"
+          tag_args="--tag ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-ee:${GITHUB_SHA}"
+          tag_args="$tag_args --tag ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-ee:nightly"
           docker buildx build \
             --platform linux/arm64,linux/amd64 \
             --push \
@@ -1365,16 +1444,16 @@ jobs:
       #       tag="${{ steps.vars.outputs.tag }}"
       #     fi
       #     docker run --detach --publish 80:80 --name appsmith \
-      #       "${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-ce:$tag"
+      #       "${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-ee:$tag"
       #     sleep 180
       #     cd deploy/docker
       #     if bash run-test.sh; then
       #       echo "Fat container test passed. Pushing image."
-      #       docker push --all-tags ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-ce
+      #       docker push --all-tags ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-ee
       #     else
       #       echo "Fat container test FAILED. Not pushing image."
       #       # Temporarily pushing even if test fails.
-      #       docker push --all-tags ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-ce
+      #       docker push --all-tags ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-ee
       #     fi
 
       # Build release Docker image and push to Docker Hub
@@ -1382,33 +1461,33 @@ jobs:
         if: success() && github.ref == 'refs/heads/release'
         working-directory: app/server
         run: |
-          docker build --build-arg APPSMITH_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY_RELEASE }} -t ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-server:${{steps.vars.outputs.tag}} .
-          docker push ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-server:${{steps.vars.outputs.tag}}
+          docker build --build-arg APPSMITH_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY_RELEASE }} -t ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-server-ee:${{steps.vars.outputs.tag}} .
+          docker push ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-server-ee:${{steps.vars.outputs.tag}}
 
       # Build master Docker image and push to Docker Hub
       - name: Push server master image to Docker Hub with commit tag
         if: success() && github.ref == 'refs/heads/master'
         working-directory: app/server
         run: |
-          docker build --build-arg APPSMITH_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY }} -t ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-server:${GITHUB_SHA} .
-          docker build --build-arg APPSMITH_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY }} -t ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-server:nightly .
-          docker push ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-server:${GITHUB_SHA}
-          docker push ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-server:nightly
+          docker build --build-arg APPSMITH_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY }} -t ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-server-ee:${GITHUB_SHA} .
+          docker build --build-arg APPSMITH_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY }} -t ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-server-ee:nightly .
+          docker push ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-server-ee:${GITHUB_SHA}
+          docker push ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-server-ee:nightly
 
       # Build release Docker image and push to Docker Hub
       - name: Push RTS release image to Docker Hub
         if: success() && github.ref == 'refs/heads/release'
         working-directory: app/rts
         run: |
-          docker build -t ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-rts:${{steps.vars.outputs.tag}} .
-          docker push ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-rts:${{steps.vars.outputs.tag}}
+          docker build -t ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-rts-ee:${{steps.vars.outputs.tag}} .
+          docker push ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-rts-ee:${{steps.vars.outputs.tag}}
 
       # Build master Docker image and push to Docker Hub
       - name: Push RTS master image to Docker Hub with commit tag
         if: success() && github.ref == 'refs/heads/master'
         working-directory: app/rts
         run: |
-          docker build -t ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-rts:${GITHUB_SHA} .
-          docker build -t ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-rts:nightly .
-          docker push ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-rts:${GITHUB_SHA}
-          docker push ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-rts:nightly
+          docker build -t ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-rts-ee:${GITHUB_SHA} .
+          docker build -t ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-rts-ee:nightly .
+          docker push ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-rts-ee:${GITHUB_SHA}
+          docker push ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-rts-ee:nightly

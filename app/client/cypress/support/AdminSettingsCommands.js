@@ -7,41 +7,47 @@ require("cypress-file-upload");
 const googleForm = require("../locators/GoogleForm.json");
 const googleData = require("../fixtures/googleSource.json");
 const githubForm = require("../locators/GithubForm.json");
+const oidcform = require("../locators/OIDCForm.json");
+const oidcData = require("../fixtures/oidcSource.json");
 const adminSettings = require("../locators/AdminsSettings");
 
 Cypress.Commands.add("fillGoogleFormPartly", () => {
-  cy.get(googleForm.googleClientId).type(
-    Cypress.env("APPSMITH_OAUTH2_GOOGLE_CLIENT_ID"),
-  );
-  cy.get(googleForm.googleAllowedDomains).type(googleData.googleAllowedDomains);
+  cy.get(googleForm.googleClientId)
+    .clear()
+    .type(Cypress.env("APPSMITH_OAUTH2_GOOGLE_CLIENT_ID"));
+  cy.get(googleForm.googleAllowedDomains)
+    .clear()
+    .type(googleData.googleAllowedDomains);
   cy.get(googleForm.saveBtn).click({ force: true });
 });
 
 Cypress.Commands.add("fillGoogleForm", () => {
-  cy.get(googleForm.googleClientId).type(
-    Cypress.env("APPSMITH_OAUTH2_GOOGLE_CLIENT_ID"),
-  );
-  cy.get(googleForm.googleClientSecret).type(
-    Cypress.env("APPSMITH_OAUTH2_GOOGLE_CLIENT_SECRET"),
-  );
-  cy.get(googleForm.googleAllowedDomains).type(googleData.googleAllowedDomains);
+  cy.get(googleForm.googleClientId)
+    .clear()
+    .type(Cypress.env("APPSMITH_OAUTH2_GOOGLE_CLIENT_ID"));
+  cy.get(googleForm.googleClientSecret)
+    .clear()
+    .type(Cypress.env("APPSMITH_OAUTH2_GOOGLE_CLIENT_SECRET"));
+  cy.get(googleForm.googleAllowedDomains)
+    .clear()
+    .type(googleData.googleAllowedDomains);
   cy.get(googleForm.saveBtn).click({ force: true });
 });
 
 Cypress.Commands.add("fillGithubFormPartly", () => {
-  cy.get(githubForm.githubClientId).type(
-    Cypress.env("APPSMITH_OAUTH2_GITHUB_CLIENT_ID"),
-  );
+  cy.get(githubForm.githubClientId)
+    .clear()
+    .type(Cypress.env("APPSMITH_OAUTH2_GITHUB_CLIENT_ID"));
   cy.get(githubForm.saveBtn).click({ force: true });
 });
 
 Cypress.Commands.add("fillGithubForm", () => {
-  cy.get(githubForm.githubClientId).type(
-    Cypress.env("APPSMITH_OAUTH2_GITHUB_CLIENT_ID"),
-  );
-  cy.get(githubForm.githubClientSecret).type(
-    Cypress.env("APPSMITH_OAUTH2_GITHUB_CLIENT_SECRET"),
-  );
+  cy.get(githubForm.githubClientId)
+    .clear()
+    .type(Cypress.env("APPSMITH_OAUTH2_GITHUB_CLIENT_ID"));
+  cy.get(githubForm.githubClientSecret)
+    .clear()
+    .type(Cypress.env("APPSMITH_OAUTH2_GITHUB_CLIENT_SECRET"));
   cy.get(githubForm.saveBtn).click({ force: true });
 });
 

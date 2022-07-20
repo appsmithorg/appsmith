@@ -6,6 +6,7 @@ type FeatureFlags = {
   GIT?: boolean;
   GIT_IMPORT?: boolean;
   PROPERTY_PANE_GROUPING?: boolean;
+  RBAC?: boolean;
 };
 
 export default FeatureFlags;

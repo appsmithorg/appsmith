@@ -150,7 +150,11 @@ public class CustomServerOAuth2AuthorizationRequestResolverCE implements ServerO
                 // Section 3.1.2.1 Authentication Request - https://openid.net/specs/openid-connect-core-1_0.html#AuthRequest
                 // scope
                 // 		REQUIRED. OpenID Connect requests MUST contain the "openid" scope value.
-                addNonceParameters(attributes, additionalParameters);
+
+                // Add nonce parameter in the request if it has not been disabled by instance configuration
+                if (!commonConfig.isNonceDisabled()) {
+                    addNonceParameters(attributes, additionalParameters);
+                }
             }
             if (ClientAuthenticationMethod.NONE.equals(clientRegistration.getClientAuthenticationMethod())) {
                 addPkceParameters(attributes, additionalParameters);

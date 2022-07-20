@@ -1,8 +1,8 @@
 package com.appsmith.server.domains;
 
 import com.appsmith.external.models.BaseDomain;
-import com.appsmith.server.helpers.CollectionUtils;
 import com.appsmith.server.constants.CommentOnboardingState;
+import com.appsmith.server.helpers.CollectionUtils;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -62,7 +62,7 @@ public class UserData extends BaseDomain {
 
     // JWT tokens
     @JsonIgnore
-    String accessToken;
+    AppsmithOidcAccessToken oidcAccessToken;
 
     Map<String, Object> userClaims;
 

@@ -138,10 +138,13 @@ public enum AppsmithError {
     GIT_UPSTREAM_CHANGES(400, 4048, "Looks like there are pending upstream changes. To prevent you from losing history, we will pull the changes and push them to your repo.", AppsmithErrorAction.DEFAULT, null, ErrorType.GIT_UPSTREAM_CHANGES_PUSH_EXECUTION_ERROR, ErrorReferenceDocUrl.GIT_UPSTREAM_CHANGES.getDocUrl()),
     GENERIC_JSON_IMPORT_ERROR(400, 4049, "Unable to import application in organization {0} with error {1}", AppsmithErrorAction.DEFAULT, null, ErrorType.BAD_REQUEST, null),
     FILE_PART_DATA_BUFFER_ERROR(500, 5017, "Failed to upload file with error: {0}", AppsmithErrorAction.DEFAULT, null, ErrorType.BAD_REQUEST, null),
+    UNKNOWN_SERVER_VARIABLE_TYPE(500, 5019, "Unexpected state. Server side variable type is unknown. Please contact Appsmith support to report this issue.", AppsmithErrorAction.LOG_EXTERNALLY, null, ErrorType.INTERNAL_ERROR, null),
     MIGRATION_ERROR(500, 5018, "This action is already migrated", AppsmithErrorAction.DEFAULT, null, ErrorType.INTERNAL_ERROR, null),
+    SAML_ALREADY_CONFIGURED(500, 5019, "SAML configuration already exists. Please disconnect SAML before trying to configure it again", AppsmithErrorAction.DEFAULT, null, ErrorType.INTERNAL_ERROR, null),
     INVALID_GIT_SSH_URL(400, 4050, "Please enter valid SSH URL of your repository", AppsmithErrorAction.DEFAULT, null, ErrorType.GIT_CONFIGURATION_ERROR, null),
     REPOSITORY_NOT_FOUND(404, 4051, "Unable to find the repository for application {0}, please refresh the page to auto-sync with the remote. This might take couple of minutes", AppsmithErrorAction.DEFAULT, "Repository Not Found Exception", ErrorType.REPOSITORY_NOT_FOUND, null),
     UNKNOWN_PLUGIN_REFERENCE(400, 4052, " Unable to find the {0} plugin. Please reach out to Appsmith customer support to resolve this.", AppsmithErrorAction.DEFAULT, null, ErrorType.CONFIGURATION_ERROR, null),
+    SAML_CONFIGURATION_FAILURE(400, 4053, "SAML configuration failed.", AppsmithErrorAction.DEFAULT, null, ErrorType.ARGUMENT_ERROR, null),
     ENV_FILE_NOT_FOUND(500, 5019, "Admin Settings is unavailable. Unable to read and write to Environment file.", AppsmithErrorAction.DEFAULT, null, ErrorType.CONFIGURATION_ERROR, null),
     ;
 

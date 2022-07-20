@@ -62,6 +62,9 @@ public class CommonConfig {
     @Value("${disable.telemetry:true}")
     private boolean isTelemetryDisabled;
 
+    @Value("${APPSMITH_OIDC_DISABLE_NONCE:false}")
+    private boolean isNonceDisabled;
+
     private List<String> allowedDomains;
 
     @Bean
