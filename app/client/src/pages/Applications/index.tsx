@@ -408,7 +408,7 @@ function LeftPane() {
                 submitCreateWorkspaceForm(
                   {
                     name: getNextEntityName(
-                      "Untitled organization ",
+                      "Untitled workspace ",
                       fetchedUserWorkspaces.map((el: any) => el.workspace.name),
                     ),
                   },
@@ -853,7 +853,7 @@ function ApplicationsSection(props: any) {
                           }}
                           text={
                             !warnLeavingWorkspace
-                              ? "Leave Organization"
+                              ? "Leave Workspace"
                               : "Are you sure?"
                           }
                           type={!warnLeavingWorkspace ? undefined : "warning"}
@@ -870,7 +870,7 @@ function ApplicationsSection(props: any) {
                               }}
                               text={
                                 !warnDeleteWorkspace
-                                  ? "Delete Organization"
+                                  ? "Delete Workspace"
                                   : "Are you sure?"
                               }
                               type={
@@ -902,7 +902,7 @@ function ApplicationsSection(props: any) {
               {applications.length === 0 && (
                 <NoAppsFound>
                   <NoAppsFoundIcon />
-                  <span>There’s nothing inside this organization</span>
+                  <span>There’s nothing inside this workspace</span>
                   {/* below component is duplicate. This is because of cypress test were failing */}
                   {!isMobile && (
                     <Button
