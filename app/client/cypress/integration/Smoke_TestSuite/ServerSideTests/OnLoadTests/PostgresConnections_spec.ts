@@ -4,7 +4,6 @@ let guid: any, dsName_1: any, dsName_2: any;
 
 const agHelper = ObjectsRegistry.AggregateHelper,
   ee = ObjectsRegistry.EntityExplorer,
-  locator = ObjectsRegistry.CommonLocators,
   dataSources = ObjectsRegistry.DataSources,
   propPane = ObjectsRegistry.PropertyPane,
   deployMode = ObjectsRegistry.DeployMode;
@@ -39,7 +38,6 @@ describe("Test Postgres number of connections on page load + Bug 11572, Bug 1120
       userName +
       `;`;
     dataSources.EnterQuery(userCreateQuery);
-    agHelper.FocusElement(locator._codeMirrorTextArea);
     dataSources.RunQuery();
     dataSources.ReadQueryTableResponse(0).then(($cellData) => {
       expect($cellData).to.eq("0");
@@ -72,7 +70,7 @@ describe("Test Postgres number of connections on page load + Bug 11572, Bug 1120
 
   it("4. Bind queries to select widget", () => {
     for (let i = 1; i <= 10; i++) {
-      ee.DragDropWidgetNVerify("selectwidget", i * 50 + 100, i * 50 + 250);
+      ee.DragDropWidgetNVerify("selectwidget", i * 50 + 50, i * 50 + 200);
       propPane.UpdatePropertyFieldValue(
         "Options",
         "{{Query_" +
@@ -96,12 +94,10 @@ describe("Test Postgres number of connections on page load + Bug 11572, Bug 1120
       userName +
       `'`;
     dataSources.EnterQuery(dropConnections);
-    agHelper.FocusElement(locator._codeMirrorTextArea);
     dataSources.RunQuery();
     const checkNoOfConnQuery =
       `select count(*) from pg_stat_activity where usename='` + userName + `'`;
     dataSources.EnterQuery(checkNoOfConnQuery);
-    agHelper.FocusElement(locator._codeMirrorTextArea);
     dataSources.RunQuery();
     dataSources.ReadQueryTableResponse(0).then(($cellData) => {
       expect(Number($cellData)).to.eq(0);
