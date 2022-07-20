@@ -3,8 +3,6 @@ package com.appsmith.git.helpers;
 import com.appsmith.external.models.ApplicationGitReference;
 import com.appsmith.git.configurations.GitServiceConfig;
 import com.appsmith.git.service.GitExecutorImpl;
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Iterables;
 import junit.framework.TestCase;
 import org.apache.commons.io.FileUtils;
 import org.eclipse.jgit.api.errors.GitAPIException;
@@ -98,7 +96,8 @@ public class FileUtilsImplTest extends TestCase {
 
         // Create a valid set of directory from the directorySet so that those directories will be retained after
         // scan and delete operation. Every directory except this will be deleted.
-        Set<String> validDirectorySet = ImmutableSet.copyOf(Iterables.limit(directorySet, 5));
+        Set<String> validDirectorySet = directorySet.stream().limit(5).collect(Collectors.toUnmodifiableSet());
+        // Set<String> validDirectorySet = ImmutableSet.copyOf(Iterables.limit(directorySet, 5));
 
         this.fileUtils.scanAndDeleteDirectoryForDeletedResources(validDirectorySet, pageDirectoryPath);
         try (Stream<Path> paths = Files.walk(pageDirectoryPath, 1)) {
@@ -151,7 +150,8 @@ public class FileUtilsImplTest extends TestCase {
 
         // Create a valid list of actions from the actionsList so that those files will be retained after
         // scan and delete operation. Every file except this will be deleted.
-        Set<String> validActionsSet = ImmutableSet.copyOf(Iterables.limit(actionsSet, 5));
+        // Set<String> validActionsSet = ImmutableSet.copyOf(Iterables.limit(actionsSet, 5));
+        Set<String> validActionsSet = actionsSet.stream().limit(5).collect(Collectors.toUnmodifiableSet());
 
         this.fileUtils.scanAndDeleteFileForDeletedResources(validActionsSet, actionDirectoryPath);
         try (Stream<Path> paths = Files.walk(actionDirectoryPath)) {

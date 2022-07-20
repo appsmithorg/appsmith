@@ -505,13 +505,14 @@ class ButtonGroupWidget extends BaseWidget<
     ];
   }
 
-  handleClick = (onClick: string | undefined): void => {
+  handleClick = (onClick: string | undefined, callback: () => void): void => {
     if (onClick) {
       super.executeAction({
         triggerPropertyName: "onClick",
         dynamicString: onClick,
         event: {
           type: EventType.ON_CLICK,
+          callback,
         },
       });
     }

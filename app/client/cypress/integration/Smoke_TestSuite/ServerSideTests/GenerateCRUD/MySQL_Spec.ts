@@ -164,7 +164,7 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
     cy.get(".CodeMirror textarea").focus();
     //agHelper.VerifyEvaluatedValue(tableCreateQuery); //failing sometimes!
 
-    dataSources.RunQuery();
+    dataSources.RunQueryNVerifyResponseViews();
     agHelper.ActionContextMenuWithInPane("Delete");
 
     ee.ExpandCollapseEntity("DATASOURCES")
@@ -306,7 +306,7 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
     cy.get(".CodeMirror textarea").focus();
     //agHelper.VerifyEvaluatedValue(tableCreateQuery);
 
-    dataSources.RunQuery();
+    dataSources.RunQueryNVerifyResponseViews();
     agHelper.ActionContextMenuWithInPane("Delete");
 
     ee.ExpandCollapseEntity(dsName);
@@ -316,7 +316,7 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
 
   it("9. Validate Select record from Postgress datasource & verify query response", () => {
     ee.ActionTemplateMenuByEntityName("Stores", "SELECT");
-    dataSources.RunQuery();
+    dataSources.RunQueryNVerifyResponseViews(10);
     dataSources.ReadQueryTableResponse(5).then(($cellData) => {
       expect($cellData).to.eq("2112");
     });
@@ -586,7 +586,7 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
     cy.get(".CodeMirror textarea").focus();
     //agHelper.VerifyEvaluatedValue(tableCreateQuery);
 
-    dataSources.RunQuery();
+    dataSources.RunQueryNVerifyResponseViews();
     agHelper.ActionContextMenuWithInPane("Delete");
     ee.ExpandCollapseEntity("DATASOURCES");
     ee.ExpandCollapseEntity(dsName);

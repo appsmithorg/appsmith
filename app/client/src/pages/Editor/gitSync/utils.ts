@@ -18,7 +18,7 @@ export const getIsStartingWithRemoteBranches = (
   );
 };
 
-const GIT_REMOTE_URL_PATTERN = /^((git|ssh)|(git@[\w\.]+))(:(\/\/)?)([\w\.@\:\/\-~]+)[^\/]$/im;
+const GIT_REMOTE_URL_PATTERN = /^((git|ssh)|(git@[\w\.]+))(:(\/\/)?)([\w\.@\:\/\-~\(\)]+)[^\/]$/im;
 
 const gitRemoteUrlRegExp = new RegExp(GIT_REMOTE_URL_PATTERN);
 
@@ -76,3 +76,11 @@ export function changeInfoSinceLastCommit(
   const changeReasonText = createMessage(CHANGES_SINCE_LAST_DEPLOYMENT);
   return { isAutoUpdate, isManualUpdate, changeReasonText };
 }
+
+export const GIT_DOC_URLs = {
+  base: "https://docs.appsmith.com/core-concepts/version-control-with-git",
+  import:
+    "https://docs.appsmith.com/core-concepts/version-control-with-git/connecting-to-git-repository#importing-from-a-repository",
+  connect:
+    "https://docs.appsmith.com/core-concepts/version-control-with-git/connecting-to-git-repository",
+};
