@@ -70,6 +70,9 @@ class CanvasWidget extends ContainerWidget {
       childWidgetData.direction = this.props.direction;
       childWidgetData.justifyContent = this.props.justifyContent;
       childWidgetData.alignItems = this.props.alignItems;
+      // console.log(
+      //   `${childWidgetData.widgetName} : ${childWidgetData.widgetId} =======`,
+      // );
     }
 
     return WidgetFactory.createWidget(childWidgetData, this.props.renderMode);

@@ -10,7 +10,7 @@ import {
 } from "reducers/entityReducers/canvasWidgetsReducer";
 import { all, call, put, select, takeLatest } from "redux-saga/effects";
 import log from "loglevel";
-import { cloneDeep } from "lodash";
+import { cloneDeep, isNumber } from "lodash";
 import { updateAndSaveLayout, WidgetAddChild } from "actions/pageActions";
 import { calculateDropTargetRows } from "components/editorComponents/DropTargetUtils";
 import { GridDefaults } from "constants/WidgetConstants";
@@ -36,6 +36,8 @@ export type WidgetMoveParams = {
     */
   newParentId: string;
   allWidgets: CanvasWidgetsReduxState;
+  position?: number;
+  useAutoLayout?: boolean;
 };
 
 export function* getCanvasSizeAfterWidgetMove(
@@ -132,6 +134,8 @@ function* addWidgetAndMoveWidgetsSaga(
     });
   }
 }
+
+// function* update
 
 function* addWidgetAndMoveWidgets(
   newWidget: WidgetAddChild,
@@ -304,12 +308,125 @@ function moveWidget(widgetMoveParams: WidgetMoveParams) {
   return widgets;
 }
 
+function* autolayoutReorderSaga(
+  actionPayload: ReduxAction<{
+    movedWidgets: string[];
+    index: number;
+    parentId: string;
+  }>,
+) {
+  const start = performance.now();
+
+  const { index, movedWidgets, parentId } = actionPayload.payload;
+  try {
+    const allWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
+    if (!parentId || !movedWidgets || !movedWidgets.length) return;
+    const updatedWidgets = reorderAutolayoutChildren({
+      movedWidgets,
+      index,
+      parentId,
+      allWidgets,
+    });
+    yield put(updateAndSaveLayout(updatedWidgets));
+    log.debug("reorder computations took", performance.now() - start, "ms");
+  } catch (e) {
+    console.error(e);
+  }
+}
+
+function reorderAutolayoutChildren(params: {
+  movedWidgets: string[];
+  index: number;
+  parentId: string;
+  allWidgets: CanvasWidgetsReduxState;
+}) {
+  const { allWidgets, index, movedWidgets, parentId } = params;
+  const widgets = Object.assign({}, allWidgets);
+  const selectedWidgets = [...movedWidgets];
+  // Check if parent has changed
+  const orphans = selectedWidgets.filter(
+    (item) => widgets[item].parentId !== parentId,
+  );
+  if (orphans && orphans.length) {
+    //parent has changed
+
+    // update parent for children
+    orphans.forEach((item) => {
+      const prevParentId = widgets[item].parentId;
+      if (prevParentId !== undefined) {
+        const prevParent = Object.assign({}, widgets[prevParentId]);
+        if (prevParent.children && Array.isArray(prevParent.children)) {
+          const updatedPrevParent = {
+            ...prevParent,
+            children: prevParent.children.filter((each) => each !== item),
+          };
+          widgets[prevParentId] = updatedPrevParent;
+        }
+      }
+      widgets[item] = {
+        ...widgets[item],
+        parentId: parentId,
+      };
+    });
+  }
+
+  const items = [...(widgets[parentId].children || [])];
+  // remove moved widegts from children
+  const newItems = items.filter((item) => movedWidgets.indexOf(item) === -1);
+  // calculate valid position for drop
+  const pos = index > newItems.length ? newItems.length : index;
+  widgets[parentId] = {
+    ...widgets[parentId],
+    children: [
+      ...newItems.slice(0, pos),
+      ...movedWidgets,
+      ...newItems.slice(pos),
+    ],
+  };
+  return widgets;
+}
+
+function* addWidgetAndReorderSaga(
+  actionPayload: ReduxAction<{
+    newWidget: WidgetAddChild;
+    index: number;
+    parentId: string;
+  }>,
+) {
+  const start = performance.now();
+  const { index, newWidget, parentId } = actionPayload.payload;
+  try {
+    const updatedWidgetsOnAddition: CanvasWidgetsReduxState = yield call(
+      getUpdateDslAfterCreatingChild,
+      { ...newWidget, widgetId: parentId },
+    );
+    const updatedWidgetsOnMove = reorderAutolayoutChildren({
+      movedWidgets: [newWidget.newWidgetId],
+      index,
+      parentId,
+      allWidgets: updatedWidgetsOnAddition,
+    });
+    yield put(updateAndSaveLayout(updatedWidgetsOnMove));
+    log.debug("reorder computations took", performance.now() - start, "ms");
+  } catch (e) {
+    console.error(e);
+  }
+}
+
 export default function* draggingCanvasSagas() {
   yield all([
     takeLatest(ReduxActionTypes.WIDGETS_MOVE, moveWidgetsSaga),
     takeLatest(
       ReduxActionTypes.WIDGETS_ADD_CHILD_AND_MOVE,
       addWidgetAndMoveWidgetsSaga,
+    ),
+    takeLatest(
+      ReduxActionTypes.AUTOLAYOUT_REORDER_WIDGETS,
+      autolayoutReorderSaga,
+    ),
+    takeLatest(
+      ReduxActionTypes.AUTOLAYOUT_ADD_NEW_WIDGETS,
+      addWidgetAndReorderSaga,
     ),
   ]);
 }

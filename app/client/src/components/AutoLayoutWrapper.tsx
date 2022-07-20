@@ -22,6 +22,7 @@ const AutoLayout = styled("div")<{ styles: any }>`
       ? css`
           width: calc(100% - 16px);
           height: auto;
+          min-height: 30px;
         `
       : ""}
 `;
@@ -56,7 +57,7 @@ export function AutoLayoutWrapper(props: AutoLayoutProps) {
 
   return (
     <AutoLayout
-      className={`${props.parentId}-auto-layout`}
+      className={`${props.parentId}-auto-layout auto-layout-child-${props.widgetId}`}
       onClickCapture={onClickFn}
       {...props}
       styles={{

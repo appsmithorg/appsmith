@@ -29,7 +29,6 @@ import {
 } from "./useBlocksToBeDraggedOnCanvas";
 import { useCanvasDragToScroll } from "./useCanvasDragToScroll";
 import ContainerJumpMetrics from "./ContainerJumpMetric";
-import { remoteUrlInputValue } from "actions/gitSyncActions";
 
 export interface XYCord {
   x: number;
@@ -83,6 +82,7 @@ export const useCanvasDragging = (
     rowRef,
     stopReflowing,
     updateBottomRow,
+    updateChildrenPositions,
     updateRelativeRows,
   } = useBlocksToBeDraggedOnCanvas({
     canExtend,
@@ -103,11 +103,16 @@ export const useCanvasDragging = (
   const reflow = useRef<ReflowInterface>();
   reflow.current = useReflow(draggingSpaces, widgetId || "", gridProps);
   const offsets: number[] = [];
+  const siblings: { [key: string]: number } = {};
   if (useAutoLayout) {
     const els = document.querySelectorAll(`.${widgetId}-auto-layout`);
-    if (els && els.length) {
+    if (els && els.length && offsets.length !== els.length) {
+      const blocks = blocksToDraw.map((block) => block.widgetId);
       els.forEach((el) => {
+        const mClass = el.className.split("auto-layout-child-")[1];
+        if (blocks && blocks.length && blocks.indexOf(mClass) !== -1) return;
         offsets.push((el as any).offsetTop);
+        siblings[mClass] = (el as any).offsetTop;
       });
       offsets.push(
         (els[els.length - 1] as any).offsetTop +
@@ -116,7 +121,6 @@ export const useCanvasDragging = (
       );
     }
   }
-
   const {
     setDraggingCanvas,
     setDraggingNewWidget,
@@ -301,8 +305,14 @@ export const useCanvasDragging = (
                 }
                 return each;
               });
-
-            onDrop(currentRectanglesToDraw, reflowedPositionsUpdatesWidgets);
+            // console.log(currentRectanglesToDraw);
+            // console.log(reflowedPositionsUpdatesWidgets);
+            const pos = getDropPosition(currentRectanglesToDraw[0].top);
+            console.log(`pos: ${pos}`);
+            if (pos !== undefined && useAutoLayout)
+              updateChildrenPositions(pos, currentRectanglesToDraw);
+            else
+              onDrop(currentRectanglesToDraw, reflowedPositionsUpdatesWidgets);
           }
           startPoints.top = defaultHandlePositions.top;
           startPoints.left = defaultHandlePositions.left;
@@ -563,19 +573,31 @@ export const useCanvasDragging = (
           }
         };
         const highlightDropPosition = (e: any) => {
-          if (!offsets || !offsets.length) return;
-          const pos = e.offsetY;
-          // console.log(e);
-          // console.log(pos);
-          const arr = offsets.sort((a, b) => {
-            return Math.abs(a - pos) - Math.abs(b - pos);
-          });
-          console.log(`#### ref: ${dropPositionRef.current}`);
+          if (!useAutoLayout) return;
+          const pos: number | undefined = getHighlightPosition(e);
+          if (!pos) return;
+          // console.log(`#### ref: ${dropPositionRef.current}`);
           if (dropPositionRef && dropPositionRef.current) {
             dropPositionRef.current.style.opacity = "1";
-            dropPositionRef.current.style.top = arr[0] - 6 + "px";
+            dropPositionRef.current.style.top = pos - 6 + "px";
           }
-          console.log(arr);
+        };
+        const getHighlightPosition = (e: any, top?: number) => {
+          let base: number[] = [];
+          if (!offsets || !offsets.length) base = [8];
+          else base = offsets;
+          const pos = e?.offsetY || top;
+          // console.log(e);
+          // console.log(pos);
+          const arr = [...base].sort((a, b) => {
+            return Math.abs(a - pos) - Math.abs(b - pos);
+          });
+          return arr[0];
+        };
+        const getDropPosition = (top: number): number | undefined => {
+          const pos = getHighlightPosition(null, top);
+          if (!pos) return;
+          return offsets.indexOf(pos);
         };
         const renderNewRows = debounce((delta) => {
           isUpdatingRows = true;
@@ -688,7 +710,9 @@ export const useCanvasDragging = (
             );
 
             canvasCtx.fillStyle = `${
-              blockDimensions.isNotColliding ? "rgb(104,	113,	239, 0.6)" : "red"
+              blockDimensions.isNotColliding || useAutoLayout
+                ? "rgb(104,	113,	239, 0.6)"
+                : "red"
             }`;
             canvasCtx.fillRect(
               blockDimensions.left -

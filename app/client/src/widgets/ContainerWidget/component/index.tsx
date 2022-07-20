@@ -17,7 +17,7 @@ import WidgetStyleContainer, {
 import { pick } from "lodash";
 import { ComponentProps } from "widgets/BaseComponent";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
-import { LayoutDirection } from "components/constants";
+import { JustifyContent, LayoutDirection } from "components/constants";
 
 const scrollContents = css`
   overflow-y: auto;
@@ -37,13 +37,6 @@ const StyledContainerComponent = styled.div<
   box-shadow: ${(props) =>
     props.selected ? "inset 0px 0px 0px 3px rgba(59,130,246,0.5)" : "none"};
   border-radius: ${({ borderRadius }) => borderRadius};
-
-  display: ${({ useAutoLayout }) => (useAutoLayout ? "flex" : "block")};
-  flex-direction: ${({ direction }) =>
-    direction === LayoutDirection.Vertical ? "column" : "row"};
-  justify-content: ${({ justifyContent }) => justifyContent || "flex-start"};
-  align-items: ${({ alignItems }) => alignItems || "flex-start"};
-  flex-wrap: wrap;
 
   ${(props) =>
     props.shouldScrollContents === true
@@ -65,6 +58,23 @@ const StyledContainerComponent = styled.div<
         : props.backgroundColor;
     }};
   }
+`;
+
+export const FlexContainer = styled.div<{
+  useAutoLayout?: boolean;
+  direction?: string;
+  justifyContent?: JustifyContent;
+  alignItems?: string;
+}>`
+  display: ${({ useAutoLayout }) => (useAutoLayout ? "flex" : "block")};
+  flex-direction: ${({ direction }) =>
+    direction === "Vertical" ? "column" : "row"};
+  justify-content: ${({ justifyContent }) => justifyContent || "flex-start"};
+  align-items: ${({ alignItems }) => alignItems || "flex-start"};
+  flex-wrap: wrap;
+
+  width: 100%;
+  height: 100%;
 `;
 
 function ContainerComponentWrapper(props: ContainerComponentProps) {
@@ -100,44 +110,9 @@ function ContainerComponentWrapper(props: ContainerComponentProps) {
   );
 }
 
-// function DnDWrapper(items: ReactNode[], widgetId: string) {
-//   return (
-//     <DragDropContext
-//       onDragEnd={() => {
-//         console.log("drag end");
-//       }}
-//     >
-//       <Droppable droppableId={widgetId}>
-//         {(provided) => (
-//           <div ref={provided.innerRef} {...provided.droppableProps}>
-//             {(items[0] as any)?.map((item: any, index: number) => {
-//               return (
-//                 <Draggable
-//                   draggableId={index.toString()}
-//                   index={index}
-//                   key={index}
-//                 >
-//                   {(provided) => {
-//                     return (
-//                       <div
-//                         ref={provided.innerRef}
-//                         {...provided.draggableProps}
-//                         {...provided.dragHandleProps}
-//                       >
-//                         {item}
-//                       </div>
-//                     );
-//                   }}
-//                 </Draggable>
-//               );
-//             })}
-//             {provided.placeholder}
-//           </div>
-//         )}
-//       </Droppable>
-//     </DragDropContext>
-//   );
-// }
+export function FlexBox(props: any) {
+  return <FlexContainer {...props}>{props.children}</FlexContainer>;
+}
 
 function ContainerComponent(props: ContainerComponentProps) {
   useCanvasMinHeightUpdateHook(props.widgetId, props.minHeight);

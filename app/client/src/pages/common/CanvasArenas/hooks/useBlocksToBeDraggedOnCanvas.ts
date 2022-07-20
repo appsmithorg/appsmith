@@ -274,6 +274,54 @@ export const useBlocksToBeDraggedOnCanvas = ({
   const stopReflowing = () => {
     if (isReflowing) dispatch(stopReflowAction());
   };
+  const updateChildrenPositions = (
+    index: number,
+    drawingBlocks: WidgetDraggingBlock[],
+  ): void => {
+    // console.log("**********");
+    // console.log(index);
+    // console.log(allWidgets);
+    // console.log(selectedWidgets);
+    // console.log(widgetId);
+    if (isNewWidget) addNewWidgetToAutoLayout(index, drawingBlocks);
+    dispatch({
+      type: ReduxActionTypes.AUTOLAYOUT_REORDER_WIDGETS,
+      payload: {
+        index,
+        movedWidgets: selectedWidgets,
+        parentId: widgetId,
+      },
+    });
+  };
+  const addNewWidgetToAutoLayout = (
+    index: number,
+    drawingBlocks: WidgetDraggingBlock[],
+  ) => {
+    logContainerJumpOnDrop();
+    const blocksToUpdate = drawingBlocks.map((each) => {
+      const updateWidgetParams = widgetOperationParams(
+        newWidget,
+        { x: 0, y: each.top },
+        { x: 0, y: 0 },
+        snapColumnSpace,
+        snapRowSpace,
+        newWidget.detachFromLayout ? MAIN_CONTAINER_WIDGET_ID : widgetId,
+        { width: each.width, height: each.height },
+      );
+      return {
+        ...each,
+        updateWidgetParams,
+      };
+    });
+    dispatch({
+      type: ReduxActionTypes.AUTOLAYOUT_ADD_NEW_WIDGETS,
+      payload: {
+        index,
+        newWidget: blocksToUpdate[0].updateWidgetParams.payload,
+        parentId: widgetId,
+      },
+    });
+  };
   const onDrop = (
     drawingBlocks: WidgetDraggingBlock[],
     reflowedPositionsUpdatesWidgets: OccupiedSpace[],
@@ -497,6 +545,7 @@ export const useBlocksToBeDraggedOnCanvas = ({
     rowRef,
     stopReflowing,
     updateBottomRow,
+    updateChildrenPositions,
     updateRelativeRows,
     widgetOccupiedSpace: childrenOccupiedSpaces.filter(
       (each) => each.id === dragCenter?.widgetId,

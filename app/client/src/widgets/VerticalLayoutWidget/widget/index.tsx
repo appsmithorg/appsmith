@@ -7,7 +7,7 @@ import WidgetFactory, { DerivedPropertiesMap } from "utils/WidgetFactory";
 
 import VerticalLayoutComponent from "../component";
 import { ContainerStyle } from "widgets/ContainerWidget/component";
-import { LayoutDirection } from "components/constants";
+import { JustifyContent, LayoutDirection } from "components/constants";
 import { CanvasDraggingArena } from "pages/common/CanvasArenas/CanvasDraggingArena";
 import { CanvasSelectionArena } from "pages/common/CanvasArenas/CanvasSelectionArena";
 import {
@@ -91,7 +91,7 @@ class VerticalLayoutWidget extends BaseWidget<
     const layoutProps = {
       useAutoLayout: true,
       direction: LayoutDirection.Vertical,
-      justifyContent: "flex-start",
+      justifyContent: JustifyContent.FlexStart,
       alignItems: "stretch",
     };
 

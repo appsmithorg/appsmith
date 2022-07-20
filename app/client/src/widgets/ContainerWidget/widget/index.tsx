@@ -1,6 +1,6 @@
 import React from "react";
 
-import ContainerComponent, { ContainerStyle } from "../component";
+import ContainerComponent, { ContainerStyle, FlexBox } from "../component";
 import WidgetFactory, { DerivedPropertiesMap } from "utils/WidgetFactory";
 import {
   CONTAINER_GRID_PADDING,
@@ -193,14 +193,16 @@ class ContainerWidget extends BaseWidget<
       // sort by row so stacking context is correct
       // TODO(abhinav): This is hacky. The stacking context should increase for widgets rendered top to bottom, always.
       // Figure out a way in which the stacking context is consistent.
-      sortBy(compact(this.props.children), (child) => child.topRow),
+      this.props.useAutoLayout
+        ? this.props.children
+        : sortBy(compact(this.props.children), (child) => child.topRow),
       this.renderChildWidget,
     );
   };
 
   renderAsContainerComponent(props: ContainerWidgetProps<WidgetProps>) {
-    // console.log(`${props.widgetName} =======`);
-    // console.log(props);
+    console.log(`${props.widgetName} : ${props.widgetId} =======`);
+    console.log(props);
     const snapRows = getCanvasSnapRows(props.bottomRow, props.canExtend);
     return (
       <ContainerComponent {...props}>
@@ -233,7 +235,14 @@ class ContainerWidget extends BaseWidget<
           widgetType={this.props.type}
         />
         {/* without the wrapping div onClick events are triggered twice */}
-        <>{this.renderChildren()}</>
+        <FlexBox
+          alignItems={this.props.alignItems}
+          direction={this.props.direction}
+          justifyContent={this.props.justifyContent}
+          useAutoLayout={this.props.useAutoLayout}
+        >
+          {this.renderChildren()}
+        </FlexBox>
       </ContainerComponent>
     );
   }
@@ -253,6 +262,10 @@ export interface ContainerWidgetProps<T extends WidgetProps>
   containerStyle?: ContainerStyle;
   shouldScrollContents?: boolean;
   noPad?: boolean;
+}
+
+interface ContainerWidgetState<T extends WidgetProps> extends WidgetState {
+  items?: T[];
 }
 
 export default ContainerWidget;

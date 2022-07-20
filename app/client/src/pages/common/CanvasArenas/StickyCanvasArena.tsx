@@ -136,7 +136,7 @@ export const StickyCanvasArena = forwardRef(
           style={{
             width: "100%",
             height: 4,
-            backgroundColor: "rgba(240, 190, 117, 0.6)",
+            backgroundColor: "rgba(217, 89, 183, 0.8)",
             position: "absolute",
             opacity: 0,
           }}
