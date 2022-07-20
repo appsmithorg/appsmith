@@ -4469,7 +4469,7 @@ public class DatabaseChangelog {
                         "end";
         final Flux<Object> flushdb = reactiveRedisOperations.execute(RedisScript.of(script));
 
-        flushdb.subscribe();
+        flushdb.blockLast();
     }
 
     /* Map values from pluginSpecifiedTemplates to formData (UQI) */
