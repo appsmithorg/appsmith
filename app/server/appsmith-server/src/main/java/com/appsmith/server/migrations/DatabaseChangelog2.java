@@ -1369,8 +1369,8 @@ public class DatabaseChangelog2 {
         return newWhereClause;
     }
 
-    @ChangeSet(order = "021", id = "flush-spring-redis-keys-2", author = "")
-    public void migrateGoogleSheetsToUqi(ReactiveRedisOperations<String, String> reactiveRedisOperations) {
+    @ChangeSet(order = "021", id = "flush-spring-redis-keys-2a", author = "")
+    public void clearRedisCache2(ReactiveRedisOperations<String, String> reactiveRedisOperations) {
         DatabaseChangelog.doClearRedisKeys(reactiveRedisOperations);
     }
 
