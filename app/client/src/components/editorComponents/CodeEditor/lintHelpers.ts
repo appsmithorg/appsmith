@@ -131,6 +131,7 @@ export const getLintAnnotations = (
       },
     ];
   }
+
   lintErrors.forEach((error) => {
     const {
       ch,
