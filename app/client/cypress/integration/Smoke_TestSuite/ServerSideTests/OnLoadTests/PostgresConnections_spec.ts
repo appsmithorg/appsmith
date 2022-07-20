@@ -124,7 +124,7 @@ describe("Test Postgres number of connections on page load + Bug 11572, Bug 1120
 
   it("7. Drop the newly created user", () => {
     ee.CreateNewDsQuery(dsName_1);
-    agHelper.GetNClick(dataSources._templateMenu);
+    //agHelper.GetNClick(dataSources._templateMenu);
     agHelper.RenameWithInPane("drop_user");
     const userName = "test_conn_user_" + guid;
     const dropUser = `DROP OWNED BY ` + userName +`;
