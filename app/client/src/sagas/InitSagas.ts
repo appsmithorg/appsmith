@@ -89,7 +89,13 @@ export function* startAppEngine(action: ReduxAction<AppEnginePayload>) {
       action.payload,
     );
     yield call(engine.loadAppURL, toLoadPageId, action.payload.pageId);
-    yield call(engine.loadAppEntities, toLoadPageId, applicationId);
+    const loadAppEntities: boolean = yield call(
+      engine.loadAppEntities,
+      toLoadPageId,
+      applicationId,
+    );
+    // If loading application entities fails we do not proceed further
+    if (!loadAppEntities) return;
     yield call(engine.loadGit, applicationId);
     yield call(engine.completeChore);
     engine.stopPerformanceTracking();

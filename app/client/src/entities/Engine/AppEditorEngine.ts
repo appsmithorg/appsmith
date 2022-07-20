@@ -114,8 +114,10 @@ export default class AppEditorEngine extends AppEngine {
       failureActionEffects,
     );
 
-    if (!allActionCalls) return;
+    if (!allActionCalls) return false;
     yield put(fetchAllPageEntityCompletion([executePageLoadActions()]));
+
+    return true;
   }
 
   private *loadPluginsAndDatasources() {
@@ -147,7 +149,7 @@ export default class AppEditorEngine extends AppEngine {
       errorActions,
     );
 
-    if (!initActionCalls) return;
+    if (!initActionCalls) return false;
 
     const pluginFormCall: boolean = yield call(
       failFastApiCalls,
@@ -155,14 +157,18 @@ export default class AppEditorEngine extends AppEngine {
       [ReduxActionTypes.FETCH_PLUGIN_FORM_CONFIGS_SUCCESS],
       [ReduxActionErrorTypes.FETCH_PLUGIN_FORM_CONFIGS_ERROR],
     );
-    if (!pluginFormCall) return;
+    if (!pluginFormCall) return false;
+
+    return true;
   }
 
   public *loadAppEntities(toLoadPageId: string, applicationId: string): any {
-    yield all([
+    const results: boolean[] = yield all([
       call(this.loadPageThemesAndActions, toLoadPageId, applicationId),
       call(this.loadPluginsAndDatasources),
     ]);
+    // Returns true if all were succesfull else will return false
+    return results.every((result) => result);
   }
 
   public *completeChore() {
