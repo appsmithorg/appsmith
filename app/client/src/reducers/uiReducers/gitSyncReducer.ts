@@ -468,6 +468,14 @@ const gitSyncReducer = createReducer(initialState, {
     ...state,
     deletingBranch: action.payload,
   }),
+  [ReduxActionTypes.GIT_DISCARD_CHANGES_SUCCESS]: (
+    state: GitSyncReducerState,
+    action: ReduxAction<any>,
+  ) => ({
+    ...state,
+    isDiscarding: false,
+    discard: action.payload,
+  }),
 });
 
 export type GitStatusData = {
@@ -503,6 +511,46 @@ export type GitBranchDeleteState = {
   deleteBranchError?: any;
   deleteBranchWarning?: any;
   deletingBranch?: boolean;
+};
+
+export type GitDiscardResponse = {
+  id: string;
+  modifiedBy: string;
+  userPermissions: string[];
+  name: string;
+  workspaceId: string;
+  isPublic: boolean;
+  pages: {
+    id: string;
+    isDefault: boolean;
+    defaultPageId: string;
+    default: boolean;
+  }[];
+  appIsExample: boolean;
+  unreadCommentThreads: number;
+  color: string;
+  icon: string;
+  slug: string;
+  gitApplicationMetadata: {
+    branchName: string;
+    defaultBranchName: string;
+    remoteUrl: string;
+    browserSupportedRemoteUrl: string;
+    isRepoPrivate: boolean;
+    repoName: string;
+    defaultApplicationId: string;
+    lastCommittedAt: string;
+  };
+  lastDeployedAt: string;
+  evaluationVersion: number;
+  applicationVersion: number;
+  isManualUpdate: boolean;
+  isAutoUpdate: boolean;
+  appLayout: {
+    type: string;
+  };
+  new: boolean;
+  modifiedAt: string;
 };
 
 export type GitSyncReducerState = GitBranchDeleteState & {
@@ -552,6 +600,7 @@ export type GitSyncReducerState = GitBranchDeleteState & {
   gitImportError?: any;
 
   isDiscarding?: boolean;
+  discard?: GitDiscardResponse;
 };
 
 export default gitSyncReducer;
