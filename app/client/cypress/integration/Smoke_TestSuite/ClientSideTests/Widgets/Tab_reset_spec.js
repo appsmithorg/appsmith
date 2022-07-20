@@ -7,22 +7,18 @@ describe("Tabs widget resetting", function() {
     cy.addDsl(dsl);
   });
 
-  it("1.Change the tab in the Tabs widget", function() {
+  it("1.Reset the Tabs widget With the default value.", function() {
     cy.get(LayoutPage.tabWidget)
       .contains("Tab 3")
       .click({ force: true })
       .should("be.visible");
-  });
 
-  it("2.Reset the Tabs widget using the Button widget", function() {
     cy.get(widgetsPage.buttonWidget)
       .contains("Submit")
       .click({
         force: true,
       });
-  });
 
-  it("3.Check the Tabs widget default value after the reset", function() {
     cy.get(LayoutPage.tabWidget)
       .contains("Tab 1")
       .should("not.have.class", "is-selected");
@@ -36,5 +32,21 @@ describe("Tabs widget resetting", function() {
     cy.get(".t--property-control-defaulttab .CodeMirror .CodeMirror-code")
       .first()
       .should("have.text", "Tab 2");
+  });
+
+  it("2.Reset the Tabs widget Without the default value.", function() {
+    cy.testJsontext("defaulttab", "");
+    cy.get(LayoutPage.tabWidget)
+      .contains("Tab 3")
+      .click({ force: true })
+      .should("be.visible");
+    cy.get(widgetsPage.buttonWidget)
+      .contains("Submit")
+      .click({
+        force: true,
+      });
+    cy.get(LayoutPage.tabWidget)
+      .contains("Tab 1")
+      .should("have.class", "is-selected");
   });
 });

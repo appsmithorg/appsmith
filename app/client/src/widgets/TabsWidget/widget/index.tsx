@@ -337,7 +337,7 @@ class TabsWidget extends BaseWidget<
             // Select the first tab in the tabs list.
             this.props.updateWidgetMetaProperty(
               "selectedTabWidgetId",
-              visibleTabs.length ? visibleTabs[0].widgetId : undefined,
+              visibleTabs?.[0]?.widgetId,
             );
           }
         }
@@ -360,24 +360,22 @@ class TabsWidget extends BaseWidget<
   setDefaultSelectedTabWidgetId = () => {
     const visibleTabs = this.getVisibleTabs();
     // Find the default Tab object
-    const selectedTab = find(visibleTabs, {
+    const defaultTab = find(visibleTabs, {
       label: this.props.defaultTab,
     });
     // Find the default Tab id
-    const selectedTabWidgetId = selectedTab
-      ? selectedTab.widgetId
-      : visibleTabs.length
-      ? visibleTabs[0].widgetId
-      : undefined; // in case the default tab is deleted
+    const defaultTabWidgetId =
+      defaultTab?.widgetId ?? visibleTabs?.[0]?.widgetId; // in case the default tab is deleted
+
     // If we have a legitimate default tab Id and it is not already the selected Tab
     if (
-      selectedTabWidgetId &&
-      selectedTabWidgetId !== this.props.selectedTabWidgetId
+      defaultTabWidgetId &&
+      defaultTabWidgetId !== this.props.selectedTabWidgetId
     ) {
       // Select the default tab
       this.props.updateWidgetMetaProperty(
         "selectedTabWidgetId",
-        selectedTabWidgetId,
+        defaultTabWidgetId,
       );
     }
   };
