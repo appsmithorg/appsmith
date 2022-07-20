@@ -130,14 +130,4 @@ describe("Validate Mongo CRUD with JSON Form", () => {
     });
     dataSources.AssertJSONFormHeader(0, idIndex, "Id", "", true);
   }
-
-  function RunQueryNVerify(expectdRecordCount = 1) {
-    dataSources.RunQuery();
-    agHelper.AssertElementVisible(dataSources._queryResponse("JSON"));
-    agHelper.AssertElementVisible(dataSources._queryResponse("RAW"));
-    agHelper.AssertElementVisible(
-      dataSources._queryRecordResult(expectdRecordCount),
-    );
-    agHelper.ActionContextMenuWithInPane("Delete");
-  }
 });
