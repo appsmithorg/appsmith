@@ -47,7 +47,7 @@ describe("tests the sagas in initSagas", () => {
         ),
       ),
     );
-    expect(JSON.stringify(gen.next().value)).toStrictEqual(
+    expect(JSON.stringify(gen.next(true).value)).toStrictEqual(
       JSON.stringify(call(engine.loadGit, action.payload.applicationId)),
     );
     expect(JSON.stringify(gen.next().value)).toStrictEqual(
