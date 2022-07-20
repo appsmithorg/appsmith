@@ -679,7 +679,7 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
     cy.get(queryLocators.suggestedTableWidget)
       .click()
       .wait(1000);
-    cy.get(commonlocators.TableRow).validateWidgetExists();
+    cy.get(commonlocators.TableV2Row).validateWidgetExists();
 
     cy.get("@entity").then((entityN) => cy.selectEntityByName(entityN));
     cy.xpath(queryLocators.suggestedWidgetText)
