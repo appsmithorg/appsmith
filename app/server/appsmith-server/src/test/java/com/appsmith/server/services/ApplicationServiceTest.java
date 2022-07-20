@@ -209,9 +209,12 @@ public class ApplicationServiceTest {
         if (workspaceId == null) {
             Workspace workspace = workspaceService.create(toCreate, apiUser).block();
             workspaceId = workspace.getId();
-        }
 
-        if (StringUtils.isEmpty(gitConnectedApp.getId())) {
+            if (StringUtils.hasLength(gitConnectedApp.getId())) {
+                applicationPageService.deleteApplication(gitConnectedApp.getId()).block();
+            }
+
+            gitConnectedApp = new Application();
             gitConnectedApp.setWorkspaceId(workspaceId);
             GitApplicationMetadata gitData = new GitApplicationMetadata();
             gitData.setBranchName("testBranch");
@@ -1046,18 +1049,44 @@ public class ApplicationServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void makeApplicationPrivate_applicationWithGitMetadata_success() {
+
+        Mono<Workspace> workspaceResponse = workspaceService.findById(workspaceId, READ_WORKSPACES);
+
+        List<PermissionGroup> permissionGroups = workspaceResponse
+                .flatMapMany(savedWorkspace -> {
+                    Set<String> defaultPermissionGroups = savedWorkspace.getDefaultPermissionGroups();
+                    log.debug("Default workspace permission groups: {}", defaultPermissionGroups);
+                    return permissionGroupRepository.findAllById(defaultPermissionGroups);
+                })
+                .collectList()
+                .block();
+
+        PermissionGroup adminPermissionGroup = permissionGroups.stream()
+                .filter(permissionGroup -> permissionGroup.getName().startsWith(ADMINISTRATOR))
+                .findFirst().get();
+
+        PermissionGroup developerPermissionGroup = permissionGroups.stream()
+                .filter(permissionGroup -> permissionGroup.getName().startsWith(DEVELOPER))
+                .findFirst().get();
+
+        PermissionGroup viewerPermissionGroup = permissionGroups.stream()
+                .filter(permissionGroup -> permissionGroup.getName().startsWith(VIEWER))
+                .findFirst().get();
+
         Policy manageAppPolicy = Policy.builder().permission(MANAGE_APPLICATIONS.getValue())
-                .users(Set.of("api_user"))
+                .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId()))
                 .build();
         Policy readAppPolicy = Policy.builder().permission(READ_APPLICATIONS.getValue())
-                .users(Set.of("api_user"))
+                .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId(),
+                        viewerPermissionGroup.getId()))
                 .build();
 
         Policy managePagePolicy = Policy.builder().permission(MANAGE_PAGES.getValue())
-                .users(Set.of("api_user"))
+                .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId()))
                 .build();
         Policy readPagePolicy = Policy.builder().permission(READ_PAGES.getValue())
-                .users(Set.of("api_user"))
+                .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId(),
+                        viewerPermissionGroup.getId()))
                 .build();
 
         // Create a branch
