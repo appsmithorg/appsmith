@@ -1055,7 +1055,6 @@ public class ApplicationServiceTest {
         List<PermissionGroup> permissionGroups = workspaceResponse
                 .flatMapMany(savedWorkspace -> {
                     Set<String> defaultPermissionGroups = savedWorkspace.getDefaultPermissionGroups();
-                    log.debug("Default workspace permission groups: {}", defaultPermissionGroups);
                     return permissionGroupRepository.findAllById(defaultPermissionGroups);
                 })
                 .collectList()
