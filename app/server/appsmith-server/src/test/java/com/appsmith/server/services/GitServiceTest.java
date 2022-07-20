@@ -1791,10 +1791,11 @@ public class GitServiceTest {
      */
     @Test
     @WithUserDetails(value = "api_user")
-    public void commitApplication_pushFails_verifyAppNotPublished_throwUpstreamChangesFoundException() {
+    public void commitApplication_pushFails_verifyAppNotPublished_throwUpstreamChangesFoundException() throws GitAPIException, IOException {
 
-        // Fetch the application state before adding new page
-        Application preCommitApplication = applicationService.getApplicationByDefaultApplicationIdAndDefaultBranch(gitConnectedApplication.getId()).block();
+        // Create and fetch the application state before adding new page
+        Application testApplication = createApplicationConnectedToGit("gitConnectedPushFailApplication", DEFAULT_BRANCH);
+        Application preCommitApplication = applicationService.getApplicationByDefaultApplicationIdAndDefaultBranch(testApplication.getId()).block();
 
         // Creating a new page to commit to git
         PageDTO testPage = new PageDTO();
