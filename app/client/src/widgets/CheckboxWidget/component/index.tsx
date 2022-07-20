@@ -21,7 +21,7 @@ const CheckboxContainer = styled.div<StyledCheckboxContainerProps>`
     align-items: center;
     display: flex;
     height: 100%;
-    justify-content: center;
+    justify-content: start;
     width: 100%;
   }
 `;

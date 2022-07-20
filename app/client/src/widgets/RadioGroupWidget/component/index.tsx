@@ -46,12 +46,9 @@ const StyledRadioGroup = styled(RadioGroup)<StyledRadioGroupProps>`
     }
 
     & input:disabled:checked ~ .${Classes.CONTROL_INDICATOR} {
-      background: ${Colors.CONCRETE} !important;
-      border: 1px solid ${Colors.CONCRETE} !important;
-
       &:before {
-       background-image: radial-gradient(${Colors.GREY_6}, ${
-  Colors.GREY_6
+       background-image: radial-gradient(${Colors.GREY_8}, ${
+  Colors.GREY_8
 } 28%, transparent 32%)
       }
     }
