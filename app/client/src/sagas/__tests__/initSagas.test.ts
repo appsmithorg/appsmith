@@ -54,4 +54,32 @@ describe("tests the sagas in initSagas", () => {
       JSON.stringify(call(engine.completeChore)),
     );
   });
+  it("saga should finish if loadAppEntities fails", () => {
+    const action = {
+      type: ReduxActionTypes.INITIALIZE_EDITOR,
+      payload: {
+        applicationId: "appId",
+        pageId: "pageId",
+        mode: APP_MODE.EDIT,
+      },
+    };
+    const gen = startAppEngine(action);
+    const engine: AppEngine = AppEngineFactory.create(
+      APP_MODE.EDIT,
+      APP_MODE.EDIT,
+    );
+    engine.loadGit = jest.fn();
+    // setupEngine
+    gen.next();
+    // loadAppData
+    gen.next();
+    // loadAppURL
+    gen.next({
+      applicationId: action.payload.applicationId,
+      toLoadPageId: action.payload.pageId,
+    });
+    // loadAppEntities
+    gen.next();
+    expect(gen.next(false).done).toEqual(true);
+  });
 });
