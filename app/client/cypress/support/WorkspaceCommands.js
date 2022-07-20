@@ -301,6 +301,9 @@ Cypress.Commands.add("CreateAppInFirstListedWorkspace", (appname) => {
     "response.body.responseMeta.status",
     200,
   );
+  // Remove tooltip on the Application Name element
+  cy.get(homePage.applicationName).realHover();
+  cy.get("body").realHover({ position: "topLeft" });
 
   cy.waitUntil(() => cy.get(generatePage.buildFromScratchActionCard), {
     errorMsg: "Build app from scratch not visible even aft 80 secs",
