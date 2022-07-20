@@ -167,7 +167,11 @@ export class DataSources {
     cy.get(this._newDatabases).should("be.visible");
   }
 
-  public FillPostgresDSForm(shouldAddTrailingSpaces = false) {
+  public FillPostgresDSForm(
+    shouldAddTrailingSpaces = false,
+    username = "",
+    password = "",
+  ) {
     const hostAddress = shouldAddTrailingSpaces
       ? datasourceFormData["postgres-host"] + "  "
       : datasourceFormData["postgres-host"];
@@ -180,8 +184,12 @@ export class DataSources {
       .clear()
       .type(databaseName);
     cy.get(this._sectionAuthentication).click();
-    cy.get(this._username).type(datasourceFormData["postgres-username"]);
-    cy.get(this._password).type(datasourceFormData["postgres-password"]);
+    cy.get(this._username).type(
+      username == "" ? datasourceFormData["postgres-username"] : username,
+    );
+    cy.get(this._password).type(
+      password == "" ? datasourceFormData["postgres-password"] : password,
+    );
   }
 
   public FillMongoDSForm(shouldAddTrailingSpaces = false) {

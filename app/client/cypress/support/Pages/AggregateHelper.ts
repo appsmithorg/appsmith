@@ -595,7 +595,10 @@ export class AggregateHelper {
   }
 
   public UpdateCodeInput(selector: string, value: string) {
+    this.EnableAllEditors();
     cy.wrap(selector)
+      .click({ force: true })
+      .wait(1000)
       .find(".CodeMirror")
       .first()
       .then((ins: any) => {
@@ -753,6 +756,23 @@ export class AggregateHelper {
       ? cy.xpath(selector)
       : cy.get(selector);
     locator.focus();
+  }
+
+  public EnableAllEditors() {
+    cy.wait(2000);
+    cy.get("body").then(($body: any) => {
+      if ($body.get(this.locator._codeEditorWrapper)?.length > 0) {
+        let count = $body.get(this.locator._codeEditorWrapper)?.length || 0;
+        while (count) {
+          $body
+            .get(this.locator._codeEditorWrapper)
+            ?.eq(0)
+            .then(($el: any) => $el.click({ force: true }).wait(100));
+          count = $body.find(this.locator._codeEditorWrapper)?.length || 0;
+        }
+      }
+    });
+    cy.wait(1000);
   }
 
   //Not used:
