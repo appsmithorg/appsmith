@@ -186,6 +186,8 @@
     "not op_mini all"
   ],
   "devDependencies": {
+    "@babel/helper-builder-react-jsx": "^7.18.6",
+    "@babel/helper-builder-react-jsx-experimental": "^7.12.11",
     "@sentry/webpack-plugin": "^1.18.9",
     "@testing-library/jest-dom": "5.16.1",
     "@testing-library/react": "12.1.2",

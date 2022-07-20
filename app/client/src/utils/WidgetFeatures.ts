@@ -1,9 +1,9 @@
-import { PropertyPaneConfig } from "constants/PropertyControlConstants";
 import { WidgetHeightLimits } from "constants/WidgetConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { WidgetProps } from "widgets/BaseWidget";
 
 import { AutocompleteDataType } from "./autocomplete/TernServer";
+import EventEmitter from "./EventEmitter";
 
 export interface WidgetFeatures {
   dynamicHeight: boolean;
@@ -161,10 +161,11 @@ function transformToNumber(
   ];
 }
 // TODO FEATURE:(abhinav) Add validations to these properties
-export const PropertyPaneConfigTemplates: Record<string, PropertyPaneConfig> = {
+
+export const PropertyPaneConfigTemplates = {
   DYNAMIC_HEIGHT: {
     sectionName: "Layout Features",
-    hidden: (props) => {
+    hidden: (props: WidgetProps) => {
       if (props.type === "TABLE_WIDGET_V2")
         return !props.serverSidePaginationEnabled;
       else return false;
@@ -197,9 +198,15 @@ export const PropertyPaneConfigTemplates: Record<string, PropertyPaneConfig> = {
       },
       {
         propertyName: "minDynamicHeight",
+        onRelease: () => {
+          EventEmitter.emit("property_pane_input_blurred", "minDynamicHeight");
+        },
+        onChange: () => {
+          EventEmitter.emit("property_pane_input_focused", "minDynamicHeight");
+        },
         label: "Min Height (in rows)",
         helpText: "Minimum number of rows to occupy irrespective of contents",
-        controlType: "INPUT_TEXT",
+        controlType: "SLIDER",
         hidden: hideDynamicHeightPropertyControl,
         dependencies: ["dynamicHeight"],
         isJSConvertible: false,
@@ -220,9 +227,15 @@ export const PropertyPaneConfigTemplates: Record<string, PropertyPaneConfig> = {
       },
       {
         propertyName: "maxDynamicHeight",
+        onChange: () => {
+          EventEmitter.emit("property_pane_input_focused", "maxDynamicHeight");
+        },
+        onRelease: () => {
+          EventEmitter.emit("property_pane_input_blurred", "maxDynamicHeight");
+        },
         label: "Max Height (in rows)",
         helpText: "Maximum Height, after which contents will scroll",
-        controlType: "INPUT_TEXT",
+        controlType: "SLIDER",
         dependencies: ["dynamicHeight"],
         hidden: hideDynamicHeightPropertyControl,
         updateHook: transformToNumber,

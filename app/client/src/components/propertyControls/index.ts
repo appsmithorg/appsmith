@@ -65,6 +65,7 @@ import ComputeTablePropertyControlV2, {
 import PrimaryColumnColorPickerControlV2, {
   PrimaryColumnColorPickerControlPropsV2,
 } from "components/propertyControls/PrimaryColumnColorPickerControlV2";
+import SliderControl, { SliderControlProps } from "./SliderControl";
 
 export const PropertyControls = {
   InputTextControl,
@@ -101,6 +102,7 @@ export const PropertyControls = {
   NumericInputControl,
   PrimaryColumnColorPickerControl,
   PrimaryColumnColorPickerControlV2,
+  SliderControl,
 };
 
 export type PropertyControlPropsType =
@@ -120,7 +122,8 @@ export type PropertyControlPropsType =
   | PrimaryColumnColorPickerControlProps
   | ComputeTablePropertyControlPropsV2
   | PrimaryColumnDropdownControlProps
-  | PrimaryColumnColorPickerControlPropsV2;
+  | PrimaryColumnColorPickerControlPropsV2
+  | SliderControlProps;
 
 export const getPropertyControlTypes = (): { [key: string]: string } => {
   const _types: { [key: string]: string } = {};

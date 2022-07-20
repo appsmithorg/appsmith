@@ -44,6 +44,7 @@ import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import PreviewModeComponent from "components/editorComponents/PreviewModeComponent";
 import { DynamicHeight } from "utils/WidgetFeatures";
 import { isDynamicHeightEnabledForWidget } from "./WidgetUtils";
+import DynamicHeightOverlay from "components/editorComponents/DynamicHeightOverlay";
 import log from "loglevel";
 
 /***
@@ -423,9 +424,27 @@ abstract class BaseWidget<
     );
   }
 
-  // addDynamicHeightContainer(content: ReactNode) {
-  //   return <div className="dynamic-height-is-enabled">{content}</div>;
-  // }
+  addDynamicHeightOverlay(content: ReactNode) {
+    const onMaxHeightSet = (height: number) => {
+      this.updateWidgetProperty("maxDynamicHeight", Math.floor(height / 10));
+    };
+
+    const onMinHeightSet = (height: number) => {
+      this.updateWidgetProperty("minDynamicHeight", Math.floor(height / 10));
+    };
+
+    return (
+      <DynamicHeightOverlay
+        {...this.props}
+        maxDynamicHeight={this.props.maxDynamicHeight}
+        minDynamicHeight={this.props.minDynamicHeight}
+        onMaxHeightSet={onMaxHeightSet}
+        onMinHeightSet={onMinHeightSet}
+      >
+        {content}
+      </DynamicHeightOverlay>
+    );
+  }
 
   private getWidgetView(): ReactNode {
     let content: ReactNode;
@@ -433,17 +452,30 @@ abstract class BaseWidget<
       case RenderModes.CANVAS:
         content = this.getCanvasView();
         content = this.addPreviewModeWidget(content);
+
         content = this.addPreventInteractionOverlay(content);
         content = this.addOverlayComments(content);
 
         if (!this.props.detachFromLayout) {
+          if (
+            this.props.dynamicHeight === DynamicHeight.AUTO_HEIGHT_WITH_LIMITS
+          ) {
+            console.log(
+              "AUTO_HEIGHT_WITH_LIMITS",
+              this.props.maxDynamicHeight,
+              this.props.minDynamicHeight,
+            );
+            content = this.addDynamicHeightOverlay(content);
+          }
           if (!this.props.resizeDisabled) content = this.makeResizable(content);
           content = this.showWidgetName(content);
           content = this.makeDraggable(content);
+
           content = this.makeSnipeable(content);
           // NOTE: In sniping mode we are not blocking onClick events from PositionWrapper.
           content = this.makePositioned(content);
         }
+
         return content;
 
       // return this.getCanvasView();
