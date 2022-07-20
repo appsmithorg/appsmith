@@ -1,4 +1,5 @@
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
+const dsl = require("../../../../fixtures/tablev1NewDsl.json");
 
 let guid: any, jsName: any;
 const agHelper = ObjectsRegistry.AggregateHelper,
@@ -14,7 +15,7 @@ const agHelper = ObjectsRegistry.AggregateHelper,
 
 describe("JSObjects OnLoad Actions tests", function() {
   before(() => {
-    ee.DragDropWidgetNVerify("tablewidget", 300, 300);
+    agHelper.AddDsl(dsl);
     ee.NavigateToSwitcher("explorer");
   });
 
@@ -50,7 +51,7 @@ describe("JSObjects OnLoad Actions tests", function() {
     agHelper.RenameWithInPane("GetUser");
     cy.get("@jsObjName").then((jsObjName) => {
       jsName = jsObjName;
-      agHelper.EnterValue(
+      dataSources.EnterQuery(
         "SELECT * FROM public.users where id = {{" +
           jsObjName +
           ".getId.data}}",
@@ -170,7 +171,7 @@ describe("JSObjects OnLoad Actions tests", function() {
     ee.ActionContextMenuByEntityName(
       jsName as string,
       "Delete",
-      "Are you sure?",
+      "Are you sure?", true
     );
 
     ee.ActionContextMenuByEntityName("GetUser", "Delete", "Are you sure?");
@@ -220,7 +221,7 @@ describe("JSObjects OnLoad Actions tests", function() {
       ee.ActionContextMenuByEntityName(
         jsName as string,
         "Delete",
-        "Are you sure?",
+        "Are you sure?", true
       );
     });
   });
@@ -418,7 +419,7 @@ describe("JSObjects OnLoad Actions tests", function() {
     dataSources.NavigateFromActiveDS(guid, true);
     agHelper.GetNClick(dataSources._templateMenu);
     agHelper.RenameWithInPane("getCitiesList");
-    agHelper.EnterValue(
+    dataSources.EnterQuery(
       "SELECT distinct city FROM public.city order by city ASC",
     );
 
@@ -460,7 +461,7 @@ describe("JSObjects OnLoad Actions tests", function() {
       // dataSources.NavigateToActiveDSQueryPane(guid);
       // agHelper.GetNClick(dataSources._templateMenu);
       // agHelper.RenameWithInPane("getCountry");
-      // agHelper.EnterValue(
+      // dataSources.EnterQuery(
       //   "SELECT country FROM public.city as City join public.country Country on City.country_id=Country.country_id where City.city = {{" +
       //     jsObjName +
       //     ".getSelectedCity()}}",
@@ -559,7 +560,7 @@ describe("JSObjects OnLoad Actions tests", function() {
     ee.ActionContextMenuByEntityName(
       jsName as string,
       "Delete",
-      "Are you sure?",
+      "Are you sure?", true
     );
   });
 

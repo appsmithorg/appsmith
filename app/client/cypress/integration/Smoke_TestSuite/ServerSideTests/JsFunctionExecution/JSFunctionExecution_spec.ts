@@ -1,5 +1,6 @@
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 import largeJSONData from "../../../../fixtures/largeJSONData.json";
+const dsl = require("../../../../fixtures/tablev1NewDsl.json");
 
 const jsEditor = ObjectsRegistry.JSEditor,
   locator = ObjectsRegistry.CommonLocators,
@@ -49,7 +50,7 @@ describe("JS Function Execution", function() {
   ];
 
   before(() => {
-    ee.DragDropWidgetNVerify("tablewidget", 300, 300);
+    agHelper.AddDsl(dsl);
     ee.NavigateToSwitcher("explorer");
   });
   function assertAsyncFunctionsOrder(data: IFunctionSettingData[]) {
@@ -244,6 +245,7 @@ describe("JS Function Execution", function() {
     // Re-introduce parse errors
     jsEditor.EditJSObj(JS_OBJECT_WITH_PARSE_ERROR);
     agHelper.GetNClick(jsEditor._runButton);
+    agHelper.WaitUntilToastDisappear("ran successfully"); //to not hinder with next toast msg in next case!
     // Assert that there is a function execution parse error
     jsEditor.AssertParseError(true, true);
 
@@ -255,6 +257,7 @@ describe("JS Function Execution", function() {
       "TypeError: Cannot read properties of undefined (reading 'name')",
     ).should("not.exist");
   });
+
   it("6. Supports the use of large JSON data (doesn't crash)", () => {
     const jsObjectWithLargeJSONData = `export default{
       largeData: ${JSON.stringify(largeJSONData)},
@@ -283,7 +286,10 @@ describe("JS Function Execution", function() {
 
     cy.get("@jsObjName").then((jsObjName) => {
       ee.SelectEntityByName("Table1", "WIDGETS");
-      propPane.UpdatePropertyFieldValue("Table Data", `{{${jsObjName}.largeData}}`);
+      propPane.UpdatePropertyFieldValue(
+        "Table Data",
+        `{{${jsObjName}.largeData}}`,
+      );
     });
 
     // Deploy App and test that table loads properly

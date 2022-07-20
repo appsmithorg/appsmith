@@ -45,7 +45,7 @@ import Statusbar, {
 import { getIsStartingWithRemoteBranches } from "pages/Editor/gitSync/utils";
 import { Classes } from "../constants";
 import SuccessTick from "pages/common/SuccessTick";
-import Text, { Case, TextType } from "components/ads/Text";
+import { Text, Case, TextType } from "design-system";
 import { Colors } from "constants/Colors";
 import { Theme } from "constants/DefaultTheme";
 import AnalyticsUtil from "utils/AnalyticsUtil";
@@ -282,6 +282,7 @@ export default function Merge() {
         showMergeButton && (
           <Button
             className="t--git-merge-button"
+            data-testid="t--git-merge-button"
             disabled={mergeBtnDisabled}
             isLoading={isMerging}
             onClick={mergeHandler}

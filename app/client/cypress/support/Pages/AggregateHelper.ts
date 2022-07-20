@@ -139,7 +139,11 @@ export class AggregateHelper {
     });
   }
 
-  public WaitUntilToastDisappear(msgToCheckforDisappearance: string | "", index = 0 , length = 1) {
+  public WaitUntilToastDisappear(
+    msgToCheckforDisappearance: string | "",
+    index = 0,
+    length = 1,
+  ) {
     this.ValidateToastMessage(msgToCheckforDisappearance, index, length);
     cy.waitUntil(() => cy.get(this.locator._toastMsg), {
       errorMsg: msgToCheckforDisappearance + " did not disappear",
@@ -326,10 +330,14 @@ export class AggregateHelper {
     }
 
     // //closing multiselect dropdown
-    cy.get("body").type("{esc}");
+    this.Escape();
     // cy.get(this.locator._widgetInDeployed(endpoint))
     //     .eq(index)
     //     .click()
+  }
+
+  public Escape(){
+    cy.get('body').type("{esc}");
   }
 
   public RemoveMultiSelectItems(items: string[]) {
@@ -444,8 +452,11 @@ export class AggregateHelper {
   public ToggleSwitch(
     switchName: string,
     toggle: "check" | "uncheck" = "check",
+    jsonSwitch = false,
   ) {
-    const locator = cy.xpath(this.locator._switchToggle(switchName));
+    const locator = jsonSwitch
+      ? cy.xpath(this.locator._jsonToggle(switchName))
+      : cy.xpath(this.locator._switchToggle(switchName));
     const parentLoc = locator.parent("label");
     if (toggle == "check")
       parentLoc.then(($parent) => {
@@ -551,10 +562,6 @@ export class AggregateHelper {
           this.UpdateCodeInput($field, valueToEnter);
         },
       );
-    } else {
-      cy.get(this.locator._codeEditorTarget).then(($field: any) => {
-        this.UpdateCodeInput($field, valueToEnter);
-      });
     }
     this.AssertAutoSave();
   }
@@ -588,7 +595,10 @@ export class AggregateHelper {
   }
 
   public UpdateCodeInput(selector: string, value: string) {
+    this.EnableAllEditors();
     cy.wrap(selector)
+      .click({ force: true })
+      .wait(1000)
       .find(".CodeMirror")
       .first()
       .then((ins: any) => {
@@ -670,7 +680,6 @@ export class AggregateHelper {
     cy.get(this.locator._uploadBtn)
       .click()
       .wait(3000);
-    this.ValidateNetworkExecutionSuccess("@postExecute", execStat);
   }
 
   public AssertDebugError(label: string, messgae: string) {
@@ -740,6 +749,23 @@ export class AggregateHelper {
       : cy.get(selector);
     if (index) locator.eq(index).should("have.length", length);
     else locator.should("have.length", length);
+  }
+
+  public EnableAllEditors() {
+    cy.wait(2000);
+    cy.get("body").then(($body: any) => {
+      if ($body.get(this.locator._codeEditorWrapper)?.length > 0) {
+        let count = $body.get(this.locator._codeEditorWrapper)?.length || 0;
+        while (count) {
+          $body
+            .get(this.locator._codeEditorWrapper)
+            ?.eq(0)
+            .then(($el: any) => $el.click({ force: true }).wait(100));
+          count = $body.find(this.locator._codeEditorWrapper)?.length || 0;
+        }
+      }
+    });
+    cy.wait(1000);
   }
 
   //Not used:
