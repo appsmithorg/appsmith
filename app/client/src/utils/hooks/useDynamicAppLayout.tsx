@@ -135,7 +135,7 @@ export const useDynamicAppLayout = () => {
     const { width: rightColumn } = mainCanvasProps || {};
 
     if (rightColumn !== calculatedWidth || !isCanvasInitialized) {
-      dispatch(updateCanvasLayoutAction(calculatedWidth, calculatedMinHeight));
+      dispatch(updateCanvasLayoutAction(calculatedWidth));
     }
   };
 

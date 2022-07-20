@@ -760,10 +760,6 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
 
     const { componentHeight, componentWidth } = this.getComponentDimensions();
     const isDynamicHeightEnabled = isDynamicHeightEnabledForWidget(this.props);
-    console.log(
-      "Dynamic height: Is Dynamic height enabled for TABLEWIDGET:",
-      isDynamicHeightEnabled,
-    );
 
     return (
       <Suspense fallback={<Skeleton />}>

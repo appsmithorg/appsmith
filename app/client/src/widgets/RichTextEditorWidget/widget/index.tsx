@@ -332,7 +332,6 @@ class RichTextEditorWidget extends BaseWidget<
         this.props.updateWidgetMetaProperty("isDirty", false);
       }
     }
-    console.log("Dynamic Height: From RTE:", { ref: this.contentRef });
   }
 
   onValueChange = (text: string) => {

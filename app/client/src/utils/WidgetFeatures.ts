@@ -100,8 +100,10 @@ function updateMinMaxDynamicHeight(
       propertyValue: propertyValue,
     },
   ];
+
   if (propertyValue === DynamicHeight.AUTO_HEIGHT_WITH_LIMITS) {
     const minDynamicHeight = parseInt(props.minDynamicHeight, 10);
+
     if (
       isNaN(minDynamicHeight) ||
       minDynamicHeight < WidgetHeightLimits.MIN_HEIGHT_IN_ROWS
@@ -179,7 +181,13 @@ export const PropertyPaneConfigTemplates = {
         controlType: "DROP_DOWN",
         isBindProperty: false,
         isTriggerProperty: false,
-        dependencies: ["shouldScrollContents"],
+        dependencies: [
+          "shouldScrollContents",
+          "maxDynamicHeight",
+          "minDynamicHeight",
+          "bottomRow",
+          "topRow",
+        ],
         updateHook: updateMinMaxDynamicHeight,
         options: [
           {

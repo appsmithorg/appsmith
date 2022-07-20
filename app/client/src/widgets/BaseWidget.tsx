@@ -17,7 +17,7 @@ import {
   WIDGET_PADDING,
 } from "constants/WidgetConstants";
 import React, { Component, ReactNode } from "react";
-import { get, memoize } from "lodash";
+import { debounce, get, memoize } from "lodash";
 import DraggableComponent from "components/editorComponents/DraggableComponent";
 import SnipeableComponent from "components/editorComponents/SnipeableComponent";
 import ResizableComponent from "components/editorComponents/ResizableComponent";
@@ -175,9 +175,6 @@ abstract class BaseWidget<
   */
   updateDynamicHeight(height: number): void {
     const shouldUpdate = this.shouldUpdateDynamicHeight(height);
-    console.log("Dynamic height: So, what's the result? should update?", {
-      shouldUpdate,
-    });
     const { updateWidgetDynamicHeight } = this.context;
     if (updateWidgetDynamicHeight) {
       const { widgetId } = this.props;
@@ -195,7 +192,7 @@ abstract class BaseWidget<
       expectedHeight / GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
     );
 
-    console.log(
+    log.debug(
       "Dynamic height: Checking if we should update:",
       { props: this.props },
       { currentHeightInRows },
@@ -425,13 +422,13 @@ abstract class BaseWidget<
   }
 
   addDynamicHeightOverlay(content: ReactNode) {
-    const onMaxHeightSet = (height: number) => {
+    const onMaxHeightSet = debounce((height: number) => {
       this.updateWidgetProperty("maxDynamicHeight", Math.floor(height / 10));
-    };
+    }, 250);
 
-    const onMinHeightSet = (height: number) => {
+    const onMinHeightSet = debounce((height: number) => {
       this.updateWidgetProperty("minDynamicHeight", Math.floor(height / 10));
-    };
+    }, 250);
 
     return (
       <DynamicHeightOverlay
@@ -460,7 +457,7 @@ abstract class BaseWidget<
           if (
             this.props.dynamicHeight === DynamicHeight.AUTO_HEIGHT_WITH_LIMITS
           ) {
-            console.log(
+            log.debug(
               "AUTO_HEIGHT_WITH_LIMITS",
               this.props.maxDynamicHeight,
               this.props.minDynamicHeight,

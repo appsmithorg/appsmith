@@ -1,19 +1,9 @@
-import { focusWidget } from "actions/widgetActions";
-import React, { memo, useEffect, useMemo, useRef } from "react";
-import { useState } from "react";
+import React, { memo, useEffect } from "react";
 import { useSelector } from "react-redux";
-import { useDrag } from "react-use-gesture";
 import { AppState } from "reducers";
-import { getCanvasWidgets } from "selectors/entitiesSelector";
 import styled from "styled-components";
 import EventEmitter from "utils/EventEmitter";
-import {
-  useShowPropertyPane,
-  useShowTableFilterPane,
-  useWidgetDragResize,
-} from "utils/hooks/dragResizeHooks";
-import { getParentToOpenIfAny } from "utils/hooks/useClickToSelectWidget";
-import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
+import { useWidgetDragResize } from "utils/hooks/dragResizeHooks";
 import { WidgetProps } from "widgets/BaseWidget";
 
 const StyledDynamicHeightOverlay = styled.div`
@@ -71,12 +61,14 @@ const Bordered = styled.div<{ y: number }>`
   right: 0;
   top: 0;
   transform: translateY(${(props) => props.y}px);
+  z-index: 1000;
 
   &:after {
     position: absolute;
     content: "";
     width: 100%;
     height: 2px;
+    z-index: 9999;
     border-bottom: 1px dashed ${OVERLAY_COLOR};
   }
 `;
@@ -103,14 +95,7 @@ const OverlayLabels: React.FC<{
 };
 
 const DynamicHeightOverlay: React.FC<DynamicHeightOverlayProps> = memo(
-  ({
-    children,
-    maxDynamicHeight,
-    minDynamicHeight,
-    onMaxHeightSet,
-    onMinHeightSet,
-    ...props
-  }) => {
+  ({ children, maxDynamicHeight, minDynamicHeight, ...props }) => {
     const widgetId = props.widgetId;
     const selectedWidget = useSelector(
       (state: AppState) => state.ui.widgetDragResize.lastSelectedWidget,
