@@ -8,7 +8,6 @@ import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.JSValue;
 import com.appsmith.external.models.Policy;
 import com.appsmith.external.plugins.PluginExecutor;
-import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
@@ -2965,11 +2964,9 @@ public class ApplicationServiceTest {
     public void generateSshKeyPair_WhenDefaultApplicationIdNotSet_CurrentAppUpdated() {
         Application unsavedApplication = new Application();
         unsavedApplication.setWorkspaceId(workspaceId);
-        Map<String, Policy> policyMap = policyUtils.generatePolicyFromPermission(Set.of(MANAGE_APPLICATIONS), "api_user");
-        unsavedApplication.setPolicies(Set.copyOf(policyMap.values()));
         unsavedApplication.setName("ssh-test-app");
 
-        Mono<Application> applicationMono = applicationRepository.save(unsavedApplication)
+        Mono<Application> applicationMono = applicationPageService.createApplication(unsavedApplication)
                 .flatMap(savedApplication -> applicationService.createOrUpdateSshKeyPair(savedApplication.getId(), null)
                         .thenReturn(savedApplication.getId())
                 ).flatMap(testApplicationId -> applicationRepository.findById(testApplicationId, MANAGE_APPLICATIONS));
@@ -2988,25 +2985,22 @@ public class ApplicationServiceTest {
     @WithUserDetails("api_user")
     @Test
     public void generateSshKeyPair_WhenDefaultApplicationIdSet_DefaultApplicationUpdated() {
-        AclPermission perm = MANAGE_APPLICATIONS;
-        Map<String, Policy> policyMap = policyUtils.generatePolicyFromPermission(Set.of(perm), "api_user");
-        Set<Policy> policies = Set.copyOf(policyMap.values());
 
         Application unsavedMainApp = new Application();
-        unsavedMainApp.setPolicies(policies);
         unsavedMainApp.setName("ssh-key-master-app");
         unsavedMainApp.setWorkspaceId(workspaceId);
 
-        Mono<Tuple2<Application, Application>> tuple2Mono = applicationRepository.save(unsavedMainApp)
-                .flatMap(savedApplication -> applicationService.createOrUpdateSshKeyPair(savedApplication.getId(), null).thenReturn(savedApplication))
+        Application savedApplication = applicationPageService.createApplication(unsavedMainApp, workspaceId).block();
+
+        Mono<Tuple2<Application, Application>> tuple2Mono = applicationService.createOrUpdateSshKeyPair(savedApplication.getId(), null)
+                .thenReturn(savedApplication)
                 .flatMap(savedMainApp -> {
                     Application unsavedChildApp = new Application();
                     unsavedChildApp.setGitApplicationMetadata(new GitApplicationMetadata());
                     unsavedChildApp.getGitApplicationMetadata().setDefaultApplicationId(savedMainApp.getId());
-                    unsavedChildApp.setPolicies(policies);
                     unsavedChildApp.setName("ssh-key-child-app");
                     unsavedChildApp.setWorkspaceId(workspaceId);
-                    return applicationRepository.save(unsavedChildApp);
+                    return applicationPageService.createApplication(unsavedChildApp, workspaceId);
                 })
                 .flatMap(savedChildApp ->
                         applicationService.createOrUpdateSshKeyPair(savedChildApp.getId(), null).thenReturn(savedChildApp)
@@ -3014,8 +3008,8 @@ public class ApplicationServiceTest {
                 .flatMap(savedChildApp -> {
                     // fetch and return both child and main applications
                     String mainApplicationId = savedChildApp.getGitApplicationMetadata().getDefaultApplicationId();
-                    Mono<Application> childAppMono = applicationRepository.findById(savedChildApp.getId(), perm);
-                    Mono<Application> mainAppMono = applicationRepository.findById(mainApplicationId, perm);
+                    Mono<Application> childAppMono = applicationRepository.findById(savedChildApp.getId(), MANAGE_APPLICATIONS);
+                    Mono<Application> mainAppMono = applicationRepository.findById(mainApplicationId, MANAGE_APPLICATIONS);
                     return Mono.zip(childAppMono, mainAppMono);
                 });
 
