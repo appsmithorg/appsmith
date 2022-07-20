@@ -64,11 +64,6 @@ describe("tests the sagas in initSagas", () => {
       },
     };
     const gen = startAppEngine(action);
-    const engine: AppEngine = AppEngineFactory.create(
-      APP_MODE.EDIT,
-      APP_MODE.EDIT,
-    );
-    engine.loadGit = jest.fn();
     // setupEngine
     gen.next();
     // loadAppData
