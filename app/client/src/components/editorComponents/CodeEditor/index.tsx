@@ -93,6 +93,11 @@ import {
   LINT_TOOLTIP_CLASS,
   LINT_TOOLTIP_JUSTIFIED_LEFT_CLASS,
 } from "./constants";
+import {
+  getAutoIndentShortcutKey,
+  autoIndentCode,
+} from "./utils/autoIndentUtils";
+import { getMoveCursorLeftKey } from "./utils/cursorLeftMovement";
 import { interactionAnalyticsEvent } from "utils/AppsmithUtils";
 import { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTypeDefCreator";
 
@@ -259,13 +264,27 @@ class CodeEditor extends Component<Props, State> {
         options.scrollbarStyle = "null";
       }
 
-      options.extraKeys = {};
+      const moveCursorLeftKey = getMoveCursorLeftKey();
+      options.extraKeys = {
+        [moveCursorLeftKey]: "goLineStartSmart",
+      };
+
       if (this.props.tabBehaviour === TabBehaviour.INPUT) {
         options.extraKeys["Tab"] = false;
       }
+
       if (this.props.customGutter) {
         gutters.add(this.props.customGutter.gutterId);
       }
+
+      if (!this.props.isReadOnly) {
+        const autoIndentKey = getAutoIndentShortcutKey();
+        options.extraKeys[autoIndentKey] = (editor) => {
+          autoIndentCode(editor);
+          AnalyticsUtil.logEvent("PRETTIFY_CODE_KEYBOARD_SHORTCUT");
+        };
+      }
+
       if (this.props.folding) {
         options.foldGutter = true;
         gutters.add("CodeMirror-linenumbers");
