@@ -187,6 +187,7 @@ function PropertyPaneView(
         (isContentConfigAvailable || isStyleConfigAvailable) ? (
           <>
             <StyledSearchInput
+              className="propertyPaneSearch"
               fill
               onChange={setSearchText}
               placeholder="Search for controls, labels etc"
