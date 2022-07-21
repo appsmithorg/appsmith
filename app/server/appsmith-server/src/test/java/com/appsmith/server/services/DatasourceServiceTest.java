@@ -111,7 +111,7 @@ public class DatasourceServiceTest {
         Workspace toCreate = new Workspace();
         toCreate.setName("DatasourceServiceTest");
 
-        if (workspaceId == null) {
+        if (!StringUtils.hasLength(workspaceId)) {
             Workspace workspace = workspaceService.create(toCreate, apiUser).block();
             workspaceId = workspace.getId();
         }
@@ -650,14 +650,13 @@ public class DatasourceServiceTest {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
 
         String name = "DatasourceServiceTest-deleteDatasourceWithActions";
-        if (!StringUtils.hasLength(workspaceId)) {
-            User apiUser = userService.findByEmail("api_user").block();
-            Workspace toCreate = new Workspace();
-            toCreate.setName(name);
 
-            Workspace workspace = workspaceService.create(toCreate, apiUser).block();
-            workspaceId = workspace.getId();
-        }
+        User apiUser = userService.findByEmail("api_user").block();
+        Workspace toCreate = new Workspace();
+        toCreate.setName(name);
+
+        Workspace createdWorkspace = workspaceService.create(toCreate, apiUser).block();
+        String workspaceId = createdWorkspace.getId();
 
         Mono<Datasource> datasourceMono = Mono
                 .zip(
@@ -726,14 +725,12 @@ public class DatasourceServiceTest {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
 
         String name = "DatasourceServiceTest-deleteDatasourceWithDeletedActions";
-        if (!StringUtils.hasLength(workspaceId)) {
-            User apiUser = userService.findByEmail("api_user").block();
-            Workspace toCreate = new Workspace();
-            toCreate.setName(name);
+        User apiUser = userService.findByEmail("api_user").block();
+        Workspace toCreate = new Workspace();
+        toCreate.setName(name);
 
-            Workspace workspace = workspaceService.create(toCreate, apiUser).block();
-            workspaceId = workspace.getId();
-        }
+        Workspace createdWorkspace = workspaceService.create(toCreate, apiUser).block();
+        String workspaceId = createdWorkspace.getId();
 
         Mono<Datasource> datasourceMono = Mono
                 .zip(
@@ -1007,15 +1004,34 @@ public class DatasourceServiceTest {
     public void createDatasourceWithInvalidCharsInHost() {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
 
-        if (!StringUtils.hasLength(workspaceId)) {
-            User apiUser = userService.findByEmail("api_user").block();
-            Workspace toCreate = new Workspace();
-            toCreate.setName("DatasourceServiceTest-createDatasourceWithInvalidCharsInHost");
+        User apiUser = userService.findByEmail("api_user").block();
+        Workspace toCreate = new Workspace();
+        toCreate.setName("DatasourceServiceTest-createDatasourceWithInvalidCharsInHost");
 
-            Workspace workspace = workspaceService.create(toCreate, apiUser).block();
-            workspaceId = workspace.getId();
+        Workspace workspace = workspaceService.create(toCreate, apiUser).block();
+        String workspaceId = workspace.getId();
 
-        }
+        Mono<Workspace> workspaceResponse = workspaceService.findById(workspaceId, READ_WORKSPACES);
+
+        List<PermissionGroup> permissionGroups = workspaceResponse
+                .flatMapMany(savedWorkspace -> {
+                    Set<String> defaultPermissionGroups = savedWorkspace.getDefaultPermissionGroups();
+                    return permissionGroupRepository.findAllById(defaultPermissionGroups);
+                })
+                .collectList()
+                .block();
+
+        PermissionGroup adminPermissionGroup = permissionGroups.stream()
+                .filter(permissionGroup -> permissionGroup.getName().startsWith(ADMINISTRATOR))
+                .findFirst().get();
+
+        PermissionGroup developerPermissionGroup = permissionGroups.stream()
+                .filter(permissionGroup -> permissionGroup.getName().startsWith(DEVELOPER))
+                .findFirst().get();
+
+        PermissionGroup viewerPermissionGroup = permissionGroups.stream()
+                .filter(permissionGroup -> permissionGroup.getName().startsWith(VIEWER))
+                .findFirst().get();
 
         Mono<Plugin> pluginMono = pluginService.findByPackageName("postgres-plugin");
         Datasource datasource = new Datasource();
@@ -1040,13 +1056,14 @@ public class DatasourceServiceTest {
                     assertThat(createdDatasource.getInvalids()).isEmpty();
 
                     Policy manageDatasourcePolicy = Policy.builder().permission(MANAGE_DATASOURCES.getValue())
-                            .users(Set.of("api_user"))
+                            .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId()))
                             .build();
                     Policy readDatasourcePolicy = Policy.builder().permission(READ_DATASOURCES.getValue())
-                            .users(Set.of("api_user"))
+                            .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId()))
                             .build();
                     Policy executeDatasourcePolicy = Policy.builder().permission(EXECUTE_DATASOURCES.getValue())
-                            .users(Set.of("api_user"))
+                            .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId(),
+                                    viewerPermissionGroup.getId()))
                             .build();
 
                     assertThat(createdDatasource.getPolicies()).isNotEmpty();
@@ -1436,12 +1453,13 @@ public class DatasourceServiceTest {
     }
 
     private Datasource createDatasource(String name, String workspaceId) {
+
+        Plugin plugin = pluginService.findByPackageName("restapi-plugin").block();
+
         Datasource datasource = new Datasource();
-        datasource.setPluginId("mongo-plugin");
+        datasource.setPluginId(plugin.getId());
         datasource.setWorkspaceId(workspaceId);
         datasource.setName(name);
-//        Map<String, Policy> policyMap = policyUtils.generatePolicyFromPermission(Set.of(AclPermission.READ_DATASOURCES), "api_user");
-//        datasource.setPolicies(Set.copyOf(policyMap.values()));
         Datasource createdDatasource = datasourceService.create(datasource).block();
         return createdDatasource ;
     }
