@@ -14,13 +14,9 @@ const agHelper = ObjectsRegistry.AggregateHelper,
 
 describe("JSObjects OnLoad Actions tests", function() {
   before(() => {
-
-    before(() => {
-      cy.fixture("tablev1NewDsl").then((val: any) => {
-        dsl = val;
-      });
-    })
-
+    cy.fixture("tablev1NewDsl").then((val: any) => {
+      dsl = val;
+    });
     agHelper.AddDsl(dsl);
     ee.NavigateToSwitcher("explorer");
   });

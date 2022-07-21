@@ -24,7 +24,7 @@ describe("Validate Mock Query Active Ds querying & count", () => {
 
     ee.CreateNewDsQuery("Movies");
     dataSources.ValidateNSelectDropdown("Commands", "Find Document(s)");
-    agHelper.EnterValue("Movies", {
+    agHelper.EnterValue("movies", {
       propFieldName: "",
       directInput: false,
       inputFieldName: "Collection",

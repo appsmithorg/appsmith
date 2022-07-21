@@ -646,6 +646,7 @@ describe("Verify various Table_Filter combinations", function() {
   });
 
   it("30. Import TableFilter application & verify all filters for same FirstName (one word column) + Bug 13334", () => {
+    deployMode.NavigateBacktoEditor();
     homePage.NavigateToHome();
     homePage.ImportApp("TableFilterImportApp.json");
     homePage.AssertImportToast();

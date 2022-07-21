@@ -342,9 +342,8 @@ export class HomePage {
     else this.agHelper.GetNClick(this._optionsIcon);
     this.agHelper.GetNClick(this._workspaceImport, 0, true);
     this.agHelper.AssertElementVisible(this._workspaceImportAppModal);
-    cy.xpath(this._uploadFile)
-      .attachFile(fixtureJson)
-      .wait(500);
+    cy.xpath(this._uploadFile).attachFile(fixtureJson);
+    this.agHelper.Sleep(2000);
     this.agHelper.AssertElementAbsence(this._workspaceImportAppModal);
   }
 
