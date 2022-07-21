@@ -16,7 +16,7 @@ describe("JSObjects OnLoad Actions tests", function() {
   before(() => {});
 
   it("1. Tc #58 Verify JSOnPageload with ConfirmBefore calling - while imported, forked, duplicated", () => {
-    cy.visit("/applications");
+    homePage.NavigateToHome();
     homePage.CreateNewWorkspace("JSOnLoadTest");
     homePage.ImportApp("ImportApps/JSOnLoadImport.json", "JSOnLoadTest");
     cy.wait("@importNewApplication").then(() => {
@@ -26,10 +26,36 @@ describe("JSObjects OnLoad Actions tests", function() {
     agHelper.AssertElementVisible(
       jsEditor._dialogBody("JSObject1.runSpaceCraftImages"),
     );
-    agHelper.ClickButton("Yes");
+    agHelper.ClickButton("No");
     agHelper.Sleep(1000);
     homePage.AssertNCloseImport();
 
-    //homePage.cre
+    deployMode.DeployApp();
+    agHelper.AssertElementVisible(
+      jsEditor._dialogBody("JSObject1.runSpaceCraftImages"),
+    );
+    agHelper.ClickButton("Yes");
+    agHelper.Sleep(1000);
+    deployMode.NavigateBacktoEditor();
+    agHelper.ClickButton("No");
   });
+
+  it("2. Tc #58 Verify JSOnPageload with ConfirmBefore calling - while forked, duplicated", () => {
+    homePage.NavigateToHome();
+    homePage.ForkApplication("JSOnloadImportTest");
+    agHelper.AssertElementVisible(
+      jsEditor._dialogBody("JSObject1.runSpaceCraftImages"),
+    );
+    agHelper.ClickButton("No");
+    agHelper.Sleep(1000);
+
+    deployMode.DeployApp();
+    agHelper.AssertElementVisible(
+      jsEditor._dialogBody("JSObject1.runSpaceCraftImages"),
+    );
+    agHelper.ClickButton("Yes");
+    agHelper.Sleep(1000);
+    deployMode.NavigateBacktoEditor();
+  });
+
 });

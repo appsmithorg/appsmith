@@ -66,7 +66,7 @@ export class HomePage {
   private _leaveWorkspaceConfirmModal = ".t--member-delete-confirmation-modal";
   private _workspaceImportAppModal = ".t--import-application-modal";
   private _leaveWorkspaceConfirmButton =
-    "[data - cy= t--workspace-leave - button]";
+  "[data - cy= t--workspace-leave - button]";
   private _lastWorkspaceInHomePage =
     "//div[contains(@class, 't--workspace-section')][last()]//span/span";
   _editPageLanding = "//h2[text()='Drag and drop a widget here']";
@@ -74,7 +74,13 @@ export class HomePage {
   private _workspaceImport = "[data-cy=t--workspace-import-app]";
   private _uploadFile = "//div/form/input";
   private _importSuccessModal = ".t--import-app-success-modal";
+  private _forkModal = ".fork-modal"
   private _importSuccessModalGotit = ".t--import-success-modal-got-it";
+  private _applicationContextMenu = (applicationName: string) =>
+    "//span[text()='" +
+    applicationName +
+    "']/ancestor::div[contains(@class, 't--application-card')]//span[@name= 'context-menu']";
+  private _forkApp = 'data-cy="t--fork-app"';
 
   public CreateNewWorkspace(workspaceNewName: string) {
     let oldName: string = "";
@@ -131,13 +137,8 @@ export class HomePage {
   ) {
     const successMessage = "The user has been invited successfully";
     this.StubPostHeaderReq();
-    cy.get(this._workspaceList(workspaceName))
-      .scrollIntoView()
-      .should("be.visible");
-    cy.get(this._shareWorkspace(workspaceName))
-      .first()
-      .should("be.visible")
-      .click({ force: true });
+    this.agHelper.AssertElementVisible(this._workspaceList(workspaceName));
+    this.agHelper.GetNClick(this._shareWorkspace(workspaceName), 0, true);
     cy.xpath(this._email)
       .click({ force: true })
       .type(email);
@@ -342,14 +343,21 @@ export class HomePage {
     this.agHelper.AssertElementAbsence(this._workspaceImportAppModal);
   }
 
-  public AssertNCloseImport(){
+  public AssertNCloseImport() {
     this.agHelper.AssertElementVisible(this._importSuccessModal);
-    this.agHelper.GetNClick(this._importSuccessModalGotit, 0, true)
+    this.agHelper.GetNClick(this._importSuccessModalGotit, 0, true);
   }
 
   public AssertImportToast() {
     this.agHelper.ValidateToastMessage("Application imported successfully");
     this.agHelper.Sleep(5000); //for imported app to settle!
     cy.get(this.locator._loading).should("not.exist");
+  }
+
+  public ForkApplication(appliName: string) {
+    this.agHelper.GetNClick(this._applicationContextMenu(appliName));
+    this.agHelper.GetNClick(this._forkApp);
+    this.agHelper.AssertElementVisible(this._forkModal);
+    this.agHelper.ClickButton("FORK");
   }
 }

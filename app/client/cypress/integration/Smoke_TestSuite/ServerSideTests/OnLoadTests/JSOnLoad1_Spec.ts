@@ -410,7 +410,7 @@ describe("JSObjects OnLoad Actions tests", function() {
   });
 
   it("11. Tc #1646, 60 - Honouring the order of execution & Bug 13826 + Bug 13646", () => {
-    cy.visit("/applications");
+    homePage.NavigateToHome();
     homePage.ImportApp("JSObjOnLoadApp.json");
     homePage.AssertImportToast();
 
