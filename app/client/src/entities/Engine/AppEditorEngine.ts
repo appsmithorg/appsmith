@@ -168,12 +168,10 @@ export default class AppEditorEngine extends AppEngine {
   }
 
   public *loadAppEntities(toLoadPageId: string, applicationId: string): any {
-    const results: boolean[] = yield all([
+    yield all([
       call(this.loadPageThemesAndActions, toLoadPageId, applicationId),
       call(this.loadPluginsAndDatasources),
     ]);
-    // Returns true if all were succesfull else will return false
-    return results.every((result) => result);
   }
 
   public *completeChore() {
