@@ -752,8 +752,8 @@ Cypress.Commands.add("dragAndDropToCanvas", (widgetType, { x, y }) => {
     .trigger("mousemove", x, y, { eventConstructor: "MouseEvent" })
     .trigger("mousemove", x, y, { eventConstructor: "MouseEvent" })
     .trigger("mouseup", x, y, { eventConstructor: "MouseEvent" });
-    cy.assertPageSave();
-  });
+  cy.assertPageSave();
+});
 
 Cypress.Commands.add(
   "dragAndDropToWidget",
@@ -792,6 +792,7 @@ Cypress.Commands.add("closePropertyPane", () => {
 });
 
 Cypress.Commands.add("onClickActions", (forSuccess, forFailure, endp) => {
+  cy.EnableAllCodeEditors();
   // Filling the messages for success/failure in the onClickAction of the button widget.
   // For Success
   cy.get(".code-highlight", { timeout: 10000 })
@@ -816,6 +817,7 @@ Cypress.Commands.add("onClickActions", (forSuccess, forFailure, endp) => {
     .last()
     .click({ force: true })
     .selectOnClickOption("Show message")
+    .wait(2000)
     .get("div.t--property-control-" + endp + " div.CodeMirror-lines")
     .last()
     .click()
