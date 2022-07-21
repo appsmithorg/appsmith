@@ -1,10 +1,12 @@
 import styled from "constants/DefaultTheme";
 import React, { forwardRef, RefObject, useEffect, useRef } from "react";
 import ResizeObserver from "resize-observer-polyfill";
+import { LayoutDirection } from "components/constants";
 
 interface StickyCanvasArenaProps {
   showCanvas: boolean;
   canvasId: string;
+  direction?: LayoutDirection;
   id: string;
   canvasPadding: number;
   snapRows: number;
@@ -13,6 +15,7 @@ interface StickyCanvasArenaProps {
   getRelativeScrollingParent: (child: HTMLDivElement) => Element | null;
   canExtend: boolean;
   ref: StickyCanvasArenaRef;
+  useAutoLayout?: boolean;
 }
 
 interface StickyCanvasArenaRef {
@@ -34,18 +37,32 @@ const StyledCanvasSlider = styled.div<{ paddingBottom: number }>`
   overflow-y: auto;
 `;
 
+const Highlight = styled.div<{
+  direction?: LayoutDirection;
+}>`
+  width: ${({ direction }) =>
+    direction === LayoutDirection.Vertical ? "100%" : "4px"};
+  height: ${({ direction }) =>
+    direction === LayoutDirection.Horizontal ? "100%" : "4px"};
+  background-color: rgba(217, 89, 183, 0.8);
+  position: absolute;
+  opacity: 0;
+`;
+
 export const StickyCanvasArena = forwardRef(
   (props: StickyCanvasArenaProps, ref: any) => {
     const {
       canExtend,
       canvasId,
       canvasPadding,
+      direction,
       getRelativeScrollingParent,
       id,
       showCanvas,
       snapColSpace,
       snapRows,
       snapRowSpace,
+      useAutoLayout,
     } = props;
     const { dropPositionRef, slidingArenaRef, stickyCanvasRef } = ref.current;
 
@@ -118,7 +135,6 @@ export const StickyCanvasArena = forwardRef(
         resizeObserver.current.unobserve(slidingArenaRef.current);
       };
     }, []);
-
     return (
       <>
         {/* Canvas will always be sticky to its scrollable parent's view port. i.e,
@@ -131,16 +147,9 @@ export const StickyCanvasArena = forwardRef(
           paddingBottom={canvasPadding}
           ref={slidingArenaRef}
         />
-        <div
-          ref={dropPositionRef}
-          style={{
-            width: "100%",
-            height: 4,
-            backgroundColor: "rgba(217, 89, 183, 0.8)",
-            position: "absolute",
-            opacity: 0,
-          }}
-        />
+        {useAutoLayout && (
+          <Highlight direction={direction} ref={dropPositionRef} />
+        )}
       </>
     );
   },

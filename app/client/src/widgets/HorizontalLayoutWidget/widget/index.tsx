@@ -1,34 +1,34 @@
 import React from "react";
-import { map } from "lodash";
 
 import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import WidgetFactory, { DerivedPropertiesMap } from "utils/WidgetFactory";
 
-import VerticalLayoutComponent from "../component";
-import { ContainerStyle } from "widgets/ContainerWidget/component";
+import HorizontalLayoutComponent from "../component";
+import { CanvasSelectionArena } from "pages/common/CanvasArenas/CanvasSelectionArena";
+import { CanvasDraggingArena } from "pages/common/CanvasArenas/CanvasDraggingArena";
 import {
   AlignItems,
   JustifyContent,
   LayoutDirection,
 } from "components/constants";
-import { CanvasDraggingArena } from "pages/common/CanvasArenas/CanvasDraggingArena";
-import { CanvasSelectionArena } from "pages/common/CanvasArenas/CanvasSelectionArena";
+import { AutoLayoutContext } from "widgets/AutoLayoutContainerWidget/widget";
+import { getCanvasSnapRows } from "utils/WidgetPropsUtils";
+import { ValidationTypes } from "constants/WidgetValidation";
 import {
   CONTAINER_GRID_PADDING,
   GridDefaults,
   MAIN_CONTAINER_WIDGET_ID,
   WIDGET_PADDING,
 } from "constants/WidgetConstants";
+import { map } from "lodash";
+import { ContainerStyle } from "widgets/ContainerWidget/component";
 import WidgetsMultiSelectBox from "pages/Editor/WidgetsMultiSelectBox";
-import { getCanvasSnapRows } from "utils/WidgetPropsUtils";
-import { ValidationTypes } from "constants/WidgetValidation";
-import { AutoLayoutContext } from "widgets/AutoLayoutContainerWidget/widget";
 
-class VerticalLayoutWidget extends BaseWidget<
-  VerticalLayoutWidgetProps<WidgetProps>,
+class HorizontalLayoutWidget extends BaseWidget<
+  HorizontalLayoutWidgetProps<WidgetProps>,
   WidgetState
 > {
-  constructor(props: VerticalLayoutWidgetProps<WidgetProps>) {
+  constructor(props: HorizontalLayoutWidgetProps<WidgetProps>) {
     super(props);
     this.renderChildWidget = this.renderChildWidget.bind(this);
   }
@@ -114,9 +114,9 @@ class VerticalLayoutWidget extends BaseWidget<
     // Pass layout controls to children
     const layoutProps = {
       useAutoLayout: true,
-      direction: LayoutDirection.Vertical,
+      direction: LayoutDirection.Horizontal,
       justifyContent: JustifyContent.FlexStart,
-      alignItems: AlignItems.Stretch,
+      alignItems: AlignItems.FlexStart,
     };
     return WidgetFactory.createWidget(
       { ...childWidgetData, ...layoutProps },
@@ -136,27 +136,19 @@ class VerticalLayoutWidget extends BaseWidget<
     return (
       <AutoLayoutContext.Provider
         value={{
-          alignItems: AlignItems.Stretch,
           useAutoLayout: true,
-          direction: LayoutDirection.Vertical,
+          direction: LayoutDirection.Horizontal,
           justifyContent: JustifyContent.FlexStart,
-          disabledResizeHandles: [
-            "left",
-            "right",
-            "bottomRight",
-            "topLeft",
-            "topRight",
-            "bottomLeft",
-          ],
+          disabledResizeHandles: [],
         }}
       >
-        <VerticalLayoutComponent {...this.props}>
+        <HorizontalLayoutComponent {...this.props}>
           {this.props.type === "CANVAS_WIDGET" && (
             <>
               <CanvasDraggingArena
                 {...this.getSnapSpaces()}
                 canExtend={this.props.canExtend}
-                direction={LayoutDirection.Vertical}
+                direction={LayoutDirection.Horizontal}
                 dropDisabled={!!this.props.dropDisabled}
                 noPad={this.props.noPad}
                 parentId={this.props.parentId}
@@ -182,17 +174,17 @@ class VerticalLayoutWidget extends BaseWidget<
           />
           {/* without the wrapping div onClick events are triggered twice */}
           <>{this.renderChildren()}</>
-        </VerticalLayoutComponent>
+        </HorizontalLayoutComponent>
       </AutoLayoutContext.Provider>
     );
   }
 
   static getWidgetType(): string {
-    return "VERTICALLAYOUT_WIDGET";
+    return "HORIZONTALLAYOUT_WIDGET";
   }
 }
 
-export interface VerticalLayoutWidgetProps<T extends WidgetProps>
+export interface HorizontalLayoutWidgetProps<T extends WidgetProps>
   extends WidgetProps {
   children?: T[];
   containerStyle?: ContainerStyle;
@@ -200,4 +192,4 @@ export interface VerticalLayoutWidgetProps<T extends WidgetProps>
   noPad?: boolean;
 }
 
-export default VerticalLayoutWidget;
+export default HorizontalLayoutWidget;

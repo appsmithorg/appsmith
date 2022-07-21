@@ -6,7 +6,11 @@ import WidgetFactory, { DerivedPropertiesMap } from "utils/WidgetFactory";
 
 import AutoLayoutContainerComponent from "../component";
 import { ValidationTypes } from "constants/WidgetValidation";
-import { JustifyContent, LayoutDirection } from "components/constants";
+import {
+  AlignItems,
+  JustifyContent,
+  LayoutDirection,
+} from "components/constants";
 import { ContainerStyle } from "widgets/ContainerWidget/component";
 
 export const AutoLayoutContext: Context<{
@@ -15,6 +19,7 @@ export const AutoLayoutContext: Context<{
   justifyContent?: JustifyContent;
   overflow?: string;
   disabledResizeHandles?: string[];
+  alignItems?: AlignItems;
 }> = createContext({});
 
 class AutoLayoutContainerWidget extends BaseWidget<

@@ -30,6 +30,7 @@ import { DragDetails } from "reducers/uiReducers/dragResizeReducer";
 import { getIsReflowing } from "selectors/widgetReflowSelectors";
 import { XYCord } from "./useCanvasDragging";
 import ContainerJumpMetrics from "./ContainerJumpMetric";
+import { AlignItems, LayoutDirection } from "components/constants";
 
 export interface WidgetDraggingUpdateParams extends WidgetDraggingBlock {
   updateWidgetParams: WidgetOperationParams;
@@ -70,6 +71,8 @@ const logContainerJumpOnDrop = () => {
 };
 
 export const useBlocksToBeDraggedOnCanvas = ({
+  alignItems,
+  direction,
   noPad,
   snapColumnSpace,
   snapRows,
@@ -221,11 +224,19 @@ export const useBlocksToBeDraggedOnCanvas = ({
           {
             top: 0,
             left: 0,
-            width: useAutoLayout
-              ? 64 * snapColumnSpace
-              : newWidget.columns * snapColumnSpace,
+            width:
+              useAutoLayout &&
+              direction === LayoutDirection.Vertical &&
+              alignItems === AlignItems.Stretch
+                ? 64 * snapColumnSpace
+                : newWidget.columns * snapColumnSpace,
             height: newWidget.rows * snapRowSpace,
-            columnWidth: useAutoLayout ? 64 : newWidget.columns,
+            columnWidth:
+              useAutoLayout &&
+              direction === LayoutDirection.Vertical &&
+              alignItems === AlignItems.Stretch
+                ? 64
+                : newWidget.columns,
             rowHeight: newWidget.rows,
             widgetId: newWidget.widgetId,
             detachFromLayout: newWidget.detachFromLayout,
@@ -251,11 +262,19 @@ export const useBlocksToBeDraggedOnCanvas = ({
         blocksToDraw: draggingSpaces.map((each) => ({
           top: each.top * snapRowSpace + containerPadding,
           left: each.left * snapColumnSpace + containerPadding,
-          width: useAutoLayout
-            ? 64 * snapColumnSpace
-            : (each.right - each.left) * snapColumnSpace,
+          width:
+            useAutoLayout &&
+            direction === LayoutDirection.Vertical &&
+            alignItems === AlignItems.Stretch
+              ? 64 * snapColumnSpace
+              : (each.right - each.left) * snapColumnSpace,
           height: (each.bottom - each.top) * snapRowSpace,
-          columnWidth: useAutoLayout ? 64 : each.right - each.left,
+          columnWidth:
+            useAutoLayout &&
+            direction === LayoutDirection.Vertical &&
+            alignItems === AlignItems.Stretch
+              ? 64
+              : each.right - each.left,
           rowHeight: each.bottom - each.top,
           widgetId: each.id,
           isNotColliding: true,

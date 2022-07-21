@@ -123,3 +123,9 @@ export enum JustifyContent {
   SpaceBetween = "space-between",
   SpaceEvenly = "space-evenly",
 }
+
+export enum AlignItems {
+  FlexStart = "flex-start",
+  Center = "center",
+  Stretch = "stretch",
+}

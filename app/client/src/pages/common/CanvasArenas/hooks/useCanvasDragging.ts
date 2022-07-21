@@ -29,6 +29,7 @@ import {
 } from "./useBlocksToBeDraggedOnCanvas";
 import { useCanvasDragToScroll } from "./useCanvasDragToScroll";
 import ContainerJumpMetrics from "./ContainerJumpMetric";
+import { LayoutDirection } from "components/constants";
 
 export interface XYCord {
   x: number;
@@ -49,7 +50,9 @@ export const useCanvasDragging = (
   slidingArenaRef: React.RefObject<HTMLDivElement>,
   stickyCanvasRef: React.RefObject<HTMLCanvasElement>,
   {
+    alignItems,
     canExtend,
+    direction,
     dropDisabled,
     noPad,
     snapColumnSpace,
@@ -85,7 +88,9 @@ export const useCanvasDragging = (
     updateChildrenPositions,
     updateRelativeRows,
   } = useBlocksToBeDraggedOnCanvas({
+    alignItems,
     canExtend,
+    direction,
     noPad,
     snapColumnSpace,
     snapRows,
@@ -104,23 +109,46 @@ export const useCanvasDragging = (
   reflow.current = useReflow(draggingSpaces, widgetId || "", gridProps);
   const offsets: number[] = [];
   const siblings: { [key: string]: number } = {};
-  if (useAutoLayout) {
-    const els = document.querySelectorAll(`.${widgetId}-auto-layout`);
-    if (els && els.length && offsets.length !== els.length) {
-      const blocks = blocksToDraw.map((block) => block.widgetId);
-      els.forEach((el) => {
-        const mClass = el.className.split("auto-layout-child-")[1];
-        if (blocks && blocks.length && blocks.indexOf(mClass) !== -1) return;
-        offsets.push((el as any).offsetTop);
-        siblings[mClass] = (el as any).offsetTop;
-      });
-      offsets.push(
-        (els[els.length - 1] as any).offsetTop +
-          els[els.length - 1].clientHeight +
-          8,
-      );
+  const calculateHighlightOffsets = () => {
+    if (useAutoLayout) {
+      // Get all children of current auto layout container
+      const els = document.querySelectorAll(`.${widgetId}-auto-layout`);
+      if (els && els.length && offsets.length !== els.length) {
+        // Get widget ids of all widgets being dragged
+        // console.log(els);
+        const blocks = blocksToDraw.map((block) => block.widgetId);
+        els.forEach((el) => {
+          // console.log((el as any).offsetParent);
+          // Extract widget id of current widget
+          const mClass = el.className.split("auto-layout-child-")[1];
+          /**
+           * If the widget is also being dragged,
+           * then discount its presence from offset calculation.
+           */
+          if (blocks && blocks.length && blocks.indexOf(mClass) !== -1) return;
+          const mOffset =
+            direction === LayoutDirection.Vertical
+              ? (el as any).offsetTop
+              : (el as any).offsetLeft;
+          offsets.push(mOffset);
+          siblings[mClass] = mOffset;
+        });
+        offsets.push(
+          direction === LayoutDirection.Vertical
+            ? (els[els.length - 1] as any).offsetTop +
+                els[els.length - 1].clientHeight +
+                8
+            : (els[els.length - 1] as any).offsetLeft +
+                els[els.length - 1].clientWidth +
+                8,
+        );
+      }
     }
-  }
+  };
+  calculateHighlightOffsets();
+  // console.log("*********");
+  // console.log(offsets);
+  // console.log(siblings);
   const {
     setDraggingCanvas,
     setDraggingNewWidget,
@@ -307,8 +335,12 @@ export const useCanvasDragging = (
               });
             // console.log(currentRectanglesToDraw);
             // console.log(reflowedPositionsUpdatesWidgets);
-            const pos = getDropPosition(currentRectanglesToDraw[0].top);
-            console.log(`pos: ${pos}`);
+            const pos = getDropPosition(
+              direction === LayoutDirection.Vertical
+                ? currentRectanglesToDraw[0].top
+                : currentRectanglesToDraw[0].left,
+            );
+            // console.log(`pos: ${pos}`);
             if (pos !== undefined && useAutoLayout)
               updateChildrenPositions(pos, currentRectanglesToDraw);
             else
@@ -579,14 +611,19 @@ export const useCanvasDragging = (
           // console.log(`#### ref: ${dropPositionRef.current}`);
           if (dropPositionRef && dropPositionRef.current) {
             dropPositionRef.current.style.opacity = "1";
-            dropPositionRef.current.style.top = pos - 6 + "px";
+            if (direction === LayoutDirection.Vertical)
+              dropPositionRef.current.style.top = pos - 6 + "px";
+            else dropPositionRef.current.style.left = pos - 6 + "px";
           }
         };
-        const getHighlightPosition = (e: any, top?: number) => {
+        const getHighlightPosition = (e: any, val?: number) => {
           let base: number[] = [];
           if (!offsets || !offsets.length) base = [8];
           else base = offsets;
-          const pos = e?.offsetY || top;
+          const pos =
+            (direction === LayoutDirection.Vertical
+              ? e?.offsetY
+              : e?.offsetX) || val;
           // console.log(e);
           // console.log(pos);
           const arr = [...base].sort((a, b) => {
@@ -594,8 +631,8 @@ export const useCanvasDragging = (
           });
           return arr[0];
         };
-        const getDropPosition = (top: number): number | undefined => {
-          const pos = getHighlightPosition(null, top);
+        const getDropPosition = (val: number): number | undefined => {
+          const pos = getHighlightPosition(null, val);
           if (!pos) return;
           return offsets.indexOf(pos);
         };

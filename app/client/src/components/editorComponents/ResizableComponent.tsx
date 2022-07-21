@@ -1,4 +1,4 @@
-import React, { useContext, memo, useMemo } from "react";
+import React, { useContext, useEffect, memo, useMemo, useState } from "react";
 import {
   WidgetOperations,
   WidgetRowCols,
@@ -44,7 +44,7 @@ import { getParentToOpenIfAny } from "utils/hooks/useClickToSelectWidget";
 import { GridDefaults } from "constants/WidgetConstants";
 import { DropTargetContext } from "./DropTargetComponent";
 import { XYCord } from "pages/common/CanvasArenas/hooks/useCanvasDragging";
-import { LayoutDirection } from "components/constants";
+import { AlignItems, LayoutDirection } from "components/constants";
 import { AutoLayoutContext } from "widgets/AutoLayoutContainerWidget/widget";
 
 export type ResizableComponentProps = WidgetProps & {
@@ -54,9 +54,16 @@ export type ResizableComponentProps = WidgetProps & {
 export const ResizableComponent = memo(function ResizableComponent(
   props: ResizableComponentProps,
 ) {
+  const [componentWidth, setComponentWidth] = useState<number>(0);
+  const [componentHeight, setComponentHeight] = useState<number>(0);
   // Fetch information from the context
   const { updateWidget } = useContext(EditorContext);
-  const layoutContext = useContext(AutoLayoutContext);
+  // const {
+  //   alignItems,
+  //   direction,
+  //   disabledResizeHandles,
+  //   useAutoLayout,
+  // } = useContext(AutoLayoutContext || null);
   const canvasWidgets = useSelector(getCanvasWidgets);
 
   const isCommentMode = useSelector(commentModeSelector);
@@ -93,23 +100,66 @@ export const ResizableComponent = memo(function ResizableComponent(
     selectedWidget === props.widgetId ||
     selectedWidgets.includes(props.widgetId);
 
+  useEffect(() => {
+    // Set initial dimensions
+    // console.log(`#### ${props.widgetName} : Initial dimensions`);
+    setComponentWidth(
+      props.useAutoLayout &&
+        props.direction === LayoutDirection.Vertical &&
+        props.alignItems === AlignItems.Stretch
+        ? 64 * props.parentColumnSpace - 2 * props.paddingOffset
+        : (props.rightColumn - props.leftColumn) * props.parentColumnSpace -
+            2 * props.paddingOffset,
+    );
+    setComponentHeight(
+      (props.bottomRow - props.topRow) * props.parentRowSpace -
+        2 * props.paddingOffset,
+    );
+  }, [props.useAutoLayout, props.direction, props.alignItems]);
+
+  useEffect(() => {
+    // console.log(`#### ${props.widgetName} : Manual resize`);
+    setComponentWidth(
+      props.useAutoLayout &&
+        props.direction === LayoutDirection.Vertical &&
+        props.alignItems === AlignItems.Stretch
+        ? 64 * props.parentColumnSpace - 2 * props.paddingOffset
+        : (props.rightColumn - props.leftColumn) * props.parentColumnSpace -
+            2 * props.paddingOffset,
+    );
+    setComponentHeight(
+      (props.bottomRow - props.topRow) * props.parentRowSpace -
+        2 * props.paddingOffset,
+    );
+  }, [props.topRow, props.bottomRow, props.leftColumn, props.rightColumn]);
+
+  useEffect(() => {
+    // console.log(`#### ${props.widgetName} : Parent resize`);
+    if (!props.useAutoLayout) {
+      setComponentWidth(
+        (props.rightColumn - props.leftColumn) * props.parentColumnSpace -
+          2 * props.paddingOffset,
+      );
+      setComponentHeight(
+        (props.bottomRow - props.topRow) * props.parentRowSpace -
+          2 * props.paddingOffset,
+      );
+    }
+  }, [props.parentColumnSpace, props.parentRowSpace, props.useAutoLayout]);
+
   // Calculate the dimensions of the widget,
   // The ResizableContainer's size prop is controlled
   const dimensions: UIElementSize = {
     width:
       props.useAutoLayout &&
       props.direction === LayoutDirection.Vertical &&
-      props.alignItems === "stretch"
+      props.alignItems === AlignItems.Stretch
         ? 64 * props.parentColumnSpace - 2 * props.paddingOffset
         : (props.rightColumn - props.leftColumn) * props.parentColumnSpace -
           2 * props.paddingOffset,
     height:
-      props.useAutoLayout &&
-      props.direction === LayoutDirection.Horizontal &&
-      props.alignItems === "stretch"
-        ? 64 * props.parentRowSpace - 2 * props.paddingOffset
-        : (props.bottomRow - props.topRow) * props.parentRowSpace -
-          2 * props.paddingOffset,
+      (props.bottomRow - props.topRow) * props.parentRowSpace -
+      2 * props.paddingOffset,
   };
 
   // onResize handler
@@ -175,7 +225,6 @@ export const ResizableComponent = memo(function ResizableComponent(
       height: newDimensions.height - dimensions.height,
       width: newDimensions.width - dimensions.width,
     };
-
     // Get the updated Widget rows and columns props
     // False, if there is collision
     // False, if none of the rows and cols have changed.
@@ -252,11 +301,8 @@ export const ResizableComponent = memo(function ResizableComponent(
       bottomLeft: BottomLeftHandleStyles,
     };
 
-    return omit(
-      allHandles,
-      get({ ...props, ...layoutContext }, "disabledResizeHandles", []),
-    );
-  }, [props, layoutContext]);
+    return omit(allHandles, get(props, "disabledResizeHandles", []));
+  }, [props]);
 
   const isEnabled =
     !isDragging &&
@@ -293,8 +339,8 @@ export const ResizableComponent = memo(function ResizableComponent(
   return (
     <Resizable
       allowResize={!isMultiSelectedWidget}
-      componentHeight={dimensions.height}
-      componentWidth={dimensions.width}
+      componentHeight={componentHeight}
+      componentWidth={componentWidth}
       enable={isEnabled}
       getResizedPositions={getResizedPositions}
       gridProps={gridProps}

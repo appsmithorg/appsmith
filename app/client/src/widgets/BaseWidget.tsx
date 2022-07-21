@@ -39,7 +39,7 @@ import PreventInteractionsOverlay from "components/editorComponents/PreventInter
 import AppsmithConsole from "utils/AppsmithConsole";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import PreviewModeComponent from "components/editorComponents/PreviewModeComponent";
-import { LayoutDirection } from "components/constants";
+import { AlignItems, LayoutDirection } from "components/constants";
 import { AutoLayoutWrapper } from "components/AutoLayoutWrapper";
 
 /***
@@ -331,43 +331,9 @@ abstract class BaseWidget<
   }
 
   addAutoLayoutWrapper(content: ReactNode) {
-    // let size = {},
-    //   margin = {};
-    // if (this.props.autoLayout && this.props.alignItems === "stretch") {
-    //   size = {
-    //     width: "100%",
-    //     height: "auto",
-    //   };
-    // }
-    // if (
-    //   this.props.useAutoLayout &&
-    //   this.props.direction === LayoutDirection.Vertical
-    // ) {
-    //   margin = {
-    //     marginTop: 8,
-    //     marginBottom: 4,
-    //   };
-    // } else {
-    //   margin = {
-    //     marginLeft: 8,
-    //     marginRight: 8,
-    //   };
-    // }
-    // return (
-    //   <div
-    //     // onClickCapture={onClickFn}
-    //     style={{
-    //       position: "unset",
-    //       ...size,
-    //       ...margin,
-    //     }}
-    //   >
-    //     {content}
-    //   </div>
-    // );
     return (
       <AutoLayoutWrapper
-        alignItems={"stretch"}
+        alignItems={this.props.alignItems}
         direction={this.props.direction}
         parentId={this.props.parentId}
         useAutoLayout={this.props.useAutoLayout}
@@ -525,6 +491,7 @@ export interface WidgetPositionProps extends WidgetRowCols {
   noContainerOffset?: boolean; // This won't offset the child in parent
   useAutoLayout?: boolean;
   direction?: LayoutDirection;
+  alignItems?: AlignItems;
 }
 
 export const WIDGET_STATIC_PROPS = {
