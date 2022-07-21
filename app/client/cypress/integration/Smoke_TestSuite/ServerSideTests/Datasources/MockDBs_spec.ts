@@ -11,7 +11,7 @@ describe("Validate Mock Query Active Ds querying & count", () => {
     agHelper.GetNClick(dataSources._mockDB("Movies"));
     dataSources.CreateQuery("Movies");
     dataSources.ValidateNSelectDropdown("Commands", "Find Document(s)");
-    agHelper.EnterValue("Movies", {
+    agHelper.EnterValue("movies", {
       propFieldName: "",
       directInput: false,
       inputFieldName: "Collection",
