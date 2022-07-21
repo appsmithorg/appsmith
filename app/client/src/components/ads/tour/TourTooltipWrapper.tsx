@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from "react";
 import { TooltipComponent } from "design-system";
 import { useSelector } from "react-redux";
-import Text, { TextType } from "../Text";
+import { Text, TextType } from "design-system";
 import { getActiveTourIndex, getActiveTourType } from "selectors/tourSelectors";
 import { TourType } from "entities/Tour";
 import TourStepsByType from "constants/TourSteps";

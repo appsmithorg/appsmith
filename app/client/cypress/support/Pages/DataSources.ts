@@ -31,7 +31,7 @@ export class DataSources {
   _dropdownTitle = (ddTitle: string) =>
     "//p[contains(text(),'" +
     ddTitle +
-    "')]/parent::label/following-sibling::div/div/div";
+    "')]/ancestor::label/parent::div/following-sibling::div/div/div";
   _reconnectModal = "div.reconnect-datasource-modal";
   _activeDSListReconnectModal = (dbName: string) =>
     "//div[contains(@class, 't--ds-list')]//span[text()='" + dbName + "']";
@@ -39,6 +39,8 @@ export class DataSources {
   _newDatabases = "#new-datasources";
   _selectDatasourceDropdown = "[data-cy=t--datasource-dropdown]";
   _selectTableDropdown = "[data-cy=t--table-dropdown]";
+  _selectSheetNameDropdown = "[data-cy=t--sheetName-dropdown]";
+  _selectTableHeaderIndexInput = "[data-cy=t--tableHeaderIndex]";
   _dropdownOption = ".bp3-popover-content .t--dropdown-option";
   _generatePageBtn = "[data-cy=t--generate-page-form-submit]";
   _selectedRow = ".tr.selected-row";
@@ -64,6 +66,8 @@ export class DataSources {
   _noRecordFound = "span[data-testid='no-data-table-message']";
   _usePreparedStatement =
     "input[name='actionConfiguration.pluginSpecifiedTemplates[0].value'][type='checkbox']";
+  _queriesOnPageText = (dsName: string) =>
+    ".t--datasource-name:contains('" + dsName + "') .t--queries-for-DB";
 
   public StartDataSourceRoutes() {
     cy.intercept("PUT", "/api/v1/datasources/*").as("saveDatasource");
@@ -163,7 +167,11 @@ export class DataSources {
     cy.get(this._newDatabases).should("be.visible");
   }
 
-  public FillPostgresDSForm(shouldAddTrailingSpaces = false) {
+  public FillPostgresDSForm(
+    shouldAddTrailingSpaces = false,
+    username = "",
+    password = "",
+  ) {
     const hostAddress = shouldAddTrailingSpaces
       ? datasourceFormData["postgres-host"] + "  "
       : datasourceFormData["postgres-host"];
@@ -176,8 +184,12 @@ export class DataSources {
       .clear()
       .type(databaseName);
     cy.get(this._sectionAuthentication).click();
-    cy.get(this._username).type(datasourceFormData["postgres-username"]);
-    cy.get(this._password).type(datasourceFormData["postgres-password"]);
+    cy.get(this._username).type(
+      username == "" ? datasourceFormData["postgres-username"] : username,
+    );
+    cy.get(this._password).type(
+      password == "" ? datasourceFormData["postgres-password"] : password,
+    );
   }
 
   public FillMongoDSForm(shouldAddTrailingSpaces = false) {
@@ -223,6 +235,7 @@ export class DataSources {
   public SaveDatasource() {
     cy.get(this._saveDs).click();
     this.agHelper.ValidateNetworkStatus("@saveDatasource", 200);
+    this.agHelper.WaitUntilToastDisappear("datasource updated successfully");
 
     // cy.wait("@saveDatasource")
     //     .then((xhr) => {
@@ -234,8 +247,7 @@ export class DataSources {
     datasourceName: string,
     expectedRes = 200,
   ) {
-    this.NavigateToDSCreateNew();
-    this.agHelper.GetNClick(this._activeTab);
+    this.NavigateToActiveTab();
     cy.get(this._datasourceCard)
       .contains(datasourceName)
       .scrollIntoView()
@@ -253,8 +265,7 @@ export class DataSources {
     datasourceName: string,
     expectedStatus = 200,
   ) {
-    this.NavigateToDSCreateNew();
-    this.agHelper.GetNClick(this._activeTab);
+    this.NavigateToActiveTab();
     cy.get(this._datasourceCard)
       .contains(datasourceName)
       .scrollIntoView()
@@ -266,16 +277,22 @@ export class DataSources {
     this.agHelper.ValidateNetworkStatus("@deleteDatasource", expectedStatus);
   }
 
+  public NavigateToActiveTab() {
+    this.NavigateToDSCreateNew();
+    this.agHelper.GetNClick(this._activeTab);
+  }
+
   public NavigateFromActiveDS(datasourceName: string, createQuery: boolean) {
     let btnLocator =
       createQuery == true
         ? this._createQuery
         : this._datasourceCardGeneratePageBtn;
 
-    this.ee.SelectEntityByName(datasourceName, "DATASOURCES");
-    this.ee.ExpandCollapseEntity(datasourceName, false);
-    this.NavigateToDSCreateNew();
-    this.agHelper.GetNClick(this._activeTab);
+    this.ee.NavigateToSwitcher("explorer");
+    this.ee.ExpandCollapseEntity("DATASOURCES", false);
+    //this.ee.SelectEntityByName(datasourceName, "DATASOURCES");
+    //this.ee.ExpandCollapseEntity(datasourceName, false);
+    this.NavigateToActiveTab();
     cy.get(this._datasourceCard)
       .contains(datasourceName)
       .scrollIntoView()
@@ -285,11 +302,6 @@ export class DataSources {
         cy.get(btnLocator).click({ force: true });
       });
     this.agHelper.Sleep(2000); //for the CreateQuery/GeneratePage page to load
-  }
-
-  public NavigateToActiveDSviaEntityExplorer(datasourceName: string) {
-    this.ee.SelectEntityByName(datasourceName, "DATASOURCES");
-    cy.get(this._createQuery).click({ force: true });
   }
 
   public ValidateNSelectDropdown(
@@ -326,6 +338,7 @@ export class DataSources {
 
   RunQuery(expectedStatus = true) {
     cy.get(this._runQueryBtn).click({ force: true });
+    this.agHelper.Sleep(2000);
     this.agHelper.ValidateNetworkExecutionSuccess(
       "@postExecute",
       expectedStatus,
@@ -379,5 +392,26 @@ export class DataSources {
       });
 
     this.agHelper.AssertAutoSave();
+  }
+
+  public EnterQuery(query: string) {
+    cy.get(this.locator._codeEditorTarget).then(($field: any) => {
+      this.agHelper.UpdateCodeInput($field, query);
+    });
+    this.agHelper.AssertAutoSave();
+  }
+
+  public RunQueryNVerifyResponseViews(
+    expectdRecordCount = 1,
+    tableCheck = true,
+  ) {
+    this.RunQuery();
+    tableCheck &&
+      this.agHelper.AssertElementVisible(this._queryResponse("TABLE"));
+    this.agHelper.AssertElementVisible(this._queryResponse("JSON"));
+    this.agHelper.AssertElementVisible(this._queryResponse("RAW"));
+    this.agHelper.AssertElementVisible(
+      this._queryRecordResult(expectdRecordCount),
+    );
   }
 }

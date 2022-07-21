@@ -128,9 +128,10 @@ function* handleCreateNewJsActionSaga(action: ReduxAction<{ pageId: string }>) {
 function* handleJSCollectionCreatedSaga(
   actionPayload: ReduxAction<JSCollection>,
 ) {
-  const { id } = actionPayload.payload;
+  const { id, pageId } = actionPayload.payload;
   history.push(
     jsCollectionIdURL({
+      pageId,
       collectionId: id,
       params: {
         editName: true,
@@ -270,6 +271,10 @@ function* updateJSCollection(data: {
             jsCollection,
             createMessage(JS_FUNCTION_DELETE_SUCCESS),
           );
+          // delete all execution error logs for deletedActions if present
+          deletedActions.forEach((action) =>
+            AppsmithConsole.deleteError(`${jsCollection.id}-${action.id}`),
+          );
         }
 
         yield put(
@@ -314,6 +319,7 @@ function* handleJSObjectNameChangeSuccessSaga(
     }
     history.push(
       jsCollectionIdURL({
+        pageId: actionObj.pageId,
         collectionId: actionId,
         params,
       }),
@@ -353,6 +359,7 @@ export function* handleExecuteJSFunctionSaga(data: {
       executeFunction,
       collectionName,
       action,
+      collectionId,
     );
     yield put({
       type: ReduxActionTypes.EXECUTE_JS_FUNCTION_SUCCESS,
@@ -446,7 +453,6 @@ function* handleUpdateJSCollectionBody(
   );
   // @ts-expect-error: Object jsCollection is possibly undefined
   jsCollection["body"] = actionPayload.payload.body;
-
   try {
     if (jsCollection) {
       const response: JSCollectionCreateUpdateResponse = yield JSActionAPI.updateJSCollection(
