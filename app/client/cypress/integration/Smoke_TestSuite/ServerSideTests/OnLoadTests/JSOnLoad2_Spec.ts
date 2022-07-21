@@ -41,6 +41,7 @@ describe("JSObjects OnLoad Actions tests", function() {
     homePage.DeleteApplication("JSOnloadImportTest");
     homePage.DeleteApplication("JSOnloadImportTest (1)");
     homePage.DeleteApplication("JSOnloadImportTest Copy");
+    agHelper.WaitUntilToastDisappear("Deleting application...");
     homePage.DeleteWorkspace("JSOnLoadTest");
   });
 
