@@ -28,11 +28,13 @@ import {
   addApiToPage,
 } from "actions/providerActions";
 import { getDuplicateName } from "utils/AppsmithUtils";
-import { INTEGRATION_EDITOR_URL, INTEGRATION_TABS } from "constants/routes";
+import { INTEGRATION_TABS } from "constants/routes";
 import Spinner from "components/editorComponents/Spinner";
 import { getInitialsAndColorCode } from "utils/AppsmithUtils";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getAppCardColorPalette } from "selectors/themeSelectors";
+import { getCurrentApplicationId } from "selectors/editorSelectors";
+import { integrationEditorURL } from "RouteBuilder";
 
 const TEMPLATES_TOP_SECTION_HEIGHT = "83px";
 
@@ -194,6 +196,7 @@ type ProviderTemplatesProps = {
   setLastSelectedPage: (selectedPageId: string) => void;
   addApiToPage: (templateData: AddApiToPageRequest) => void;
   appCardColors: string[];
+  applicationId: string;
 } & RouteComponentProps<ProviderViewerRouteParams>;
 
 class ProviderTemplates extends React.Component<ProviderTemplatesProps> {
@@ -271,7 +274,7 @@ class ProviderTemplates extends React.Component<ProviderTemplatesProps> {
       providerDetails,
       providerTemplates,
     } = this.props;
-    const { applicationId, pageId } = this.props.match.params;
+    const { pageId } = this.props.match.params;
 
     let destinationPageId = new URLSearchParams(this.props.location.search).get(
       "importTo",
@@ -290,27 +293,16 @@ class ProviderTemplates extends React.Component<ProviderTemplatesProps> {
     return (
       <TemplateDetailPage>
         <ProviderInfoTopSection>
-          {/* <SearchContainer>
-            <SearchBar
-              icon="search"
-              input={{
-                onChange: this.handleSearchChange,
-              }}
-              placeholder="Search"
-            />
-          </SearchContainer> */}
-
           <Icon
             className="backBtn"
             icon="chevron-left"
             iconSize={16}
             onClick={() =>
               history.push(
-                INTEGRATION_EDITOR_URL(
-                  applicationId,
+                integrationEditorURL({
                   pageId,
-                  INTEGRATION_TABS.ACTIVE,
-                ),
+                  selectedTab: INTEGRATION_TABS.ACTIVE,
+                }),
               )
             }
           />
@@ -318,11 +310,10 @@ class ProviderTemplates extends React.Component<ProviderTemplatesProps> {
             className="backBtnText"
             onClick={() =>
               history.push(
-                INTEGRATION_EDITOR_URL(
-                  applicationId,
+                integrationEditorURL({
                   pageId,
-                  INTEGRATION_TABS.ACTIVE,
-                ),
+                  selectedTab: INTEGRATION_TABS.ACTIVE,
+                }),
               )
             }
           >
@@ -510,6 +501,7 @@ const mapStateToProps = (state: AppState) => ({
   actions: state.entities.actions,
   providerDetails: state.ui.providers.providerDetailsByProviderId,
   appCardColors: getAppCardColorPalette(state),
+  applicationId: getCurrentApplicationId(state),
 });
 
 const mapDispatchToProps = (dispatch: any) => ({

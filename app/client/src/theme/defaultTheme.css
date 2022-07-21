@@ -1,0 +1,13 @@
+.appsmith-light-theme {
+  /* Syntax of style naming */
+  /* --appsmith-<entity name>-<style-name> */
+  /* --------------------- */
+
+  /* input */
+  --appsmith-input-focus-border-color: var(--appsmith-color-black-900);
+
+  /* search input */
+  --appsmith-search-input-focus-mobile-border-color: var(--appsmith-color-black-900);
+  --appsmith-search-input-mobile-border-color: var(--appsmith-color-black-400); 
+
+}

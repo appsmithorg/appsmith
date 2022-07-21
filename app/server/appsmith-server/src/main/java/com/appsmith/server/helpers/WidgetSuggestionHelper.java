@@ -131,7 +131,7 @@ public class WidgetSuggestionHelper {
             }
             return getWidgetsForTypeArray(fields, numericFields);
         }
-        return List.of(getWidget(WidgetType.TABLE_WIDGET), getWidget(WidgetType.TEXT_WIDGET));
+        return List.of(getWidget(WidgetType.TABLE_WIDGET_V2), getWidget(WidgetType.TEXT_WIDGET));
     }
 
     /*
@@ -165,7 +165,7 @@ public class WidgetSuggestionHelper {
     private static List<WidgetSuggestionDTO> getWidgetsForTypeString(List<String> fields, int length) {
         List<WidgetSuggestionDTO> widgetTypeList = new ArrayList<>();
         if (length > 1 && !fields.isEmpty()) {
-            widgetTypeList.add(getWidget(WidgetType.DROP_DOWN_WIDGET, fields.get(0), fields.get(0)));
+            widgetTypeList.add(getWidget(WidgetType.SELECT_WIDGET, fields.get(0), fields.get(0)));
         }
         else {
             widgetTypeList.add(getWidget(WidgetType.TEXT_WIDGET));
@@ -178,15 +178,15 @@ public class WidgetSuggestionHelper {
         List<WidgetSuggestionDTO> widgetTypeList = new ArrayList<>();
         if(!fields.isEmpty()) {
             if(fields.size() < 2) {
-                widgetTypeList.add(getWidget(WidgetType.DROP_DOWN_WIDGET, fields.get(0), fields.get(0)));
+                widgetTypeList.add(getWidget(WidgetType.SELECT_WIDGET, fields.get(0), fields.get(0)));
             } else {
-                widgetTypeList.add(getWidget(WidgetType.DROP_DOWN_WIDGET, fields.get(0), fields.get(0)));
+                widgetTypeList.add(getWidget(WidgetType.SELECT_WIDGET, fields.get(0), fields.get(1)));
             }
             if(!numericFields.isEmpty()) {
                 widgetTypeList.add(getWidget(WidgetType.CHART_WIDGET, fields.get(0), numericFields.get(0)));
             }
         }
-        widgetTypeList.add(getWidget(WidgetType.TABLE_WIDGET));
+        widgetTypeList.add(getWidget(WidgetType.TABLE_WIDGET_V2));
         widgetTypeList.add(getWidget(WidgetType.TEXT_WIDGET));
         return widgetTypeList;
     }
@@ -214,15 +214,15 @@ public class WidgetSuggestionHelper {
         * */
         if(!fields.isEmpty()) {
             if(fields.size() < 2) {
-                widgetTypeList.add(getWidgetNestedData(WidgetType.DROP_DOWN_WIDGET, nestedFieldName, fields.get(0), fields.get(0)));
+                widgetTypeList.add(getWidgetNestedData(WidgetType.SELECT_WIDGET, nestedFieldName, fields.get(0), fields.get(0)));
             } else {
-                widgetTypeList.add(getWidgetNestedData(WidgetType.DROP_DOWN_WIDGET, nestedFieldName, fields.get(0), fields.get(1)));
+                widgetTypeList.add(getWidgetNestedData(WidgetType.SELECT_WIDGET, nestedFieldName, fields.get(0), fields.get(1)));
             }
             if(!numericFields.isEmpty()) {
                 widgetTypeList.add(getWidgetNestedData(WidgetType.CHART_WIDGET, nestedFieldName, fields.get(0), numericFields.get(0)));
             }
         }
-        widgetTypeList.add(getWidgetNestedData(WidgetType.TABLE_WIDGET, nestedFieldName));
+        widgetTypeList.add(getWidgetNestedData(WidgetType.TABLE_WIDGET_V2, nestedFieldName));
         widgetTypeList.add(getWidgetNestedData(WidgetType.TEXT_WIDGET, nestedFieldName));
         return widgetTypeList;
     }

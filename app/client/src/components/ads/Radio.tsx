@@ -1,8 +1,9 @@
 import { CommonComponentProps } from "./common";
 import React, { useState, useEffect } from "react";
 import styled from "styled-components";
+import * as log from "loglevel";
 
-type OptionProps = {
+export type OptionProps = {
   label: string;
   value: string;
   disabled?: boolean;
@@ -16,6 +17,9 @@ export type RadioProps = CommonComponentProps & {
   onSelect?: (value: string) => void;
   options: OptionProps[];
   backgroundColor?: string;
+  // To prevent interference when there are multiple radio groups,
+  // options corresponding to the same radio should have same name, which is different from others.
+  name?: string;
 };
 
 const RadioGroup = styled.div<{
@@ -115,9 +119,7 @@ export default function RadioComponent(props: RadioProps) {
 
   useEffect(() => {
     if (props.rows && props.columns && props.rows > 0 && props.columns > 0) {
-      console.error(
-        "Please pass either rows prop or column prop but not both.",
-      );
+      log.error("Please pass either rows prop or column prop but not both.");
     }
   }, [props]);
 
@@ -150,7 +152,7 @@ export default function RadioComponent(props: RadioProps) {
           <input
             checked={selected === option.value}
             disabled={props.disabled || option.disabled}
-            name="radio"
+            name={props.name || "radio"}
             onChange={(e) => option.onSelect && option.onSelect(e.target.value)}
             type="radio"
             value={option.value}

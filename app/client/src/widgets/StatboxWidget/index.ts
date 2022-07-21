@@ -1,7 +1,8 @@
-import Widget from "./widget";
-import IconSVG from "./icon.svg";
-import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
+import { ButtonVariantTypes } from "components/constants";
 import { Colors } from "constants/Colors";
+import { THEMEING_TEXT_SIZES } from "constants/ThemeConstants";
+import IconSVG from "./icon.svg";
+import Widget from "./widget";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
@@ -10,8 +11,9 @@ export const CONFIG = {
   needsMeta: true,
   isCanvas: true,
   defaults: {
-    rows: 3.5 * GRID_DENSITY_MIGRATION_V1,
-    columns: 4 * GRID_DENSITY_MIGRATION_V1,
+    rows: 14,
+    columns: 16,
+    animateLoading: true,
     widgetName: "Statbox",
     backgroundColor: "white",
     children: [],
@@ -31,13 +33,13 @@ export const CONFIG = {
                 {
                   type: "TEXT_WIDGET",
                   size: {
-                    rows: 1 * GRID_DENSITY_MIGRATION_V1,
-                    cols: 9 * GRID_DENSITY_MIGRATION_V1,
+                    rows: 4,
+                    cols: 36,
                   },
                   position: { top: 0, left: 1 },
                   props: {
                     text: "Page Views",
-                    fontSize: "PARAGRAPH2",
+                    fontSize: "0.75rem",
                     textColor: "#999999",
                     version: 1,
                   },
@@ -45,16 +47,16 @@ export const CONFIG = {
                 {
                   type: "TEXT_WIDGET",
                   size: {
-                    rows: 1 * GRID_DENSITY_MIGRATION_V1,
-                    cols: 9 * GRID_DENSITY_MIGRATION_V1,
+                    rows: 4,
+                    cols: 36,
                   },
                   position: {
-                    top: 1 * GRID_DENSITY_MIGRATION_V1,
+                    top: 4,
                     left: 1,
                   },
                   props: {
                     text: "2.6 M",
-                    fontSize: "HEADING1",
+                    fontSize: THEMEING_TEXT_SIZES.lg,
                     fontStyle: "BOLD",
                     version: 1,
                   },
@@ -62,16 +64,16 @@ export const CONFIG = {
                 {
                   type: "TEXT_WIDGET",
                   size: {
-                    rows: 1 * GRID_DENSITY_MIGRATION_V1,
-                    cols: 9 * GRID_DENSITY_MIGRATION_V1,
+                    rows: 4,
+                    cols: 36,
                   },
                   position: {
-                    top: 2 * GRID_DENSITY_MIGRATION_V1,
+                    top: 8,
                     left: 1,
                   },
                   props: {
                     text: "21% more than last month",
-                    fontSize: "PARAGRAPH2",
+                    fontSize: "0.75rem",
                     textColor: Colors.GREEN,
                     version: 1,
                   },
@@ -79,17 +81,17 @@ export const CONFIG = {
                 {
                   type: "ICON_BUTTON_WIDGET",
                   size: {
-                    rows: 2 * GRID_DENSITY_MIGRATION_V1,
-                    cols: 4 * GRID_DENSITY_MIGRATION_V1,
+                    rows: 8,
+                    cols: 16,
                   },
                   position: {
                     top: 2,
-                    left: 11.5 * GRID_DENSITY_MIGRATION_V1,
+                    left: 46,
                   },
                   props: {
                     iconName: "arrow-top-right",
                     buttonStyle: "PRIMARY",
-                    buttonVariant: "SOLID",
+                    buttonVariant: ButtonVariantTypes.PRIMARY,
                     version: 1,
                   },
                 },

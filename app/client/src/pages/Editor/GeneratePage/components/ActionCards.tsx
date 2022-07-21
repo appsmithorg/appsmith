@@ -2,47 +2,45 @@ import React from "react";
 import ActionCard from "./ActionCard";
 import { FormIcons } from "icons/FormIcons";
 import history from "utils/history";
-import { BUILDER_PAGE_URL, getGenerateTemplateFormURL } from "constants/routes";
 import Icon, { IconSize } from "components/ads/Icon";
 import { useParams } from "react-router";
 import { ExplorerURLParams } from "../../Explorer/helpers";
 import {
   GENERATE_PAGE_ACTION_SUBTITLE,
   GENERATE_PAGE_ACTION_TITLE,
-} from "../../../../constants/messages";
-import {
   BUILD_FROM_SCRATCH_ACTION_TITLE,
   BUILD_FROM_SCRATCH_ACTION_SUBTITLE,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import { builderURL, generateTemplateFormURL } from "RouteBuilder";
 
 type routeId = {
-  applicationId: string;
   pageId: string;
 };
 
-const routeToEmptyEditorFromGenPage = ({
-  applicationId,
-  pageId,
-}: routeId): void => {
+const routeToEmptyEditorFromGenPage = ({ pageId }: routeId): void => {
   AnalyticsUtil.logEvent("BUILD_FROM_SCRATCH_ACTION_CARD_CLICK");
-  history.push(BUILDER_PAGE_URL(applicationId, pageId));
+  history.push(builderURL({ pageId }));
 };
 
-const goToGenPageForm = ({ applicationId, pageId }: routeId): void => {
+const goToGenPageForm = ({ pageId }: routeId): void => {
   AnalyticsUtil.logEvent("GEN_CRUD_PAGE_ACTION_CARD_CLICK");
-  history.push(getGenerateTemplateFormURL(applicationId, pageId));
+  history.push(generateTemplateFormURL({ pageId }));
 };
 
 function ActionCards() {
-  const { applicationId, pageId } = useParams<ExplorerURLParams>();
+  const { pageId } = useParams<ExplorerURLParams>();
 
   return (
     <>
       <ActionCard
         Icon={FormIcons.CREATE_NEW_ICON}
         className="t--BuildFromScratch"
-        onClick={() => routeToEmptyEditorFromGenPage({ applicationId, pageId })}
+        onClick={() =>
+          routeToEmptyEditorFromGenPage({
+            pageId,
+          })
+        }
         subTitle={BUILD_FROM_SCRATCH_ACTION_SUBTITLE()}
         title={BUILD_FROM_SCRATCH_ACTION_TITLE()}
       />
@@ -57,7 +55,7 @@ function ActionCards() {
           />
         )}
         className="t--GenerateCRUDPage"
-        onClick={() => goToGenPageForm({ applicationId, pageId })}
+        onClick={() => goToGenPageForm({ pageId })}
         subTitle={GENERATE_PAGE_ACTION_SUBTITLE()}
         title={GENERATE_PAGE_ACTION_TITLE()}
       />

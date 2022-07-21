@@ -1,23 +1,36 @@
 import * as React from "react";
 import styled, { createGlobalStyle } from "styled-components";
-import { Alignment, Button, Classes, Menu, MenuItem } from "@blueprintjs/core";
+import { Alignment, Button, Classes, MenuItem } from "@blueprintjs/core";
 import { IconName, IconNames } from "@blueprintjs/icons";
 import { ItemListRenderer, ItemRenderer, Select } from "@blueprintjs/select";
+import {
+  GridListProps,
+  VirtuosoGrid,
+  VirtuosoGridHandle,
+} from "react-virtuoso";
 
 import BaseControl, { ControlProps } from "./BaseControl";
-import TooltipComponent from "components/ads/Tooltip";
+import { TooltipComponent } from "design-system";
 import { Colors } from "constants/Colors";
+import { replayHighlightClass } from "globalStyles/portals";
+import _ from "lodash";
+import { generateReactKey } from "utils/generators";
+import { emitInteractionAnalyticsEvent } from "utils/AppsmithUtils";
 
 const IconSelectContainerStyles = createGlobalStyle<{
   targetWidth: number | undefined;
+  id: string;
 }>`
-  .bp3-select-popover {
-    width: ${({ targetWidth }) => targetWidth}px;
+  ${({ id, targetWidth }) => `
+    .icon-select-popover-${id} {
+      width: ${targetWidth}px;
+      background: white;
 
-    .bp3-input-group {
-      margin: 5px !important;
+      .bp3-input-group {
+        margin: 5px !important;
+      }
     }
-  }
+  `}
 `;
 
 const StyledButton = styled(Button)`
@@ -29,9 +42,14 @@ const StyledButton = styled(Button)`
   > span.bp3-icon-caret-down {
     color: rgb(169, 167, 167);
   }
+
+  &:hover,
+  &:focus {
+    border: 1.2px solid var(--appsmith-input-focus-border-color);
+  }
 `;
 
-const StyledMenu = styled(Menu)`
+const StyledMenu = styled.ul<GridListProps>`
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   grid-auto-rows: minmax(50px, auto);
@@ -47,6 +65,9 @@ const StyledMenu = styled(Menu)`
     border-radius: 10px;
     -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
     background-color: #939090;
+  }
+  & li {
+    list-style: none;
   }
 `;
 
@@ -72,10 +93,12 @@ const StyledMenuItem = styled(MenuItem)`
 
 export interface IconSelectControlProps extends ControlProps {
   propertyValue?: IconName;
+  defaultIconName?: IconName;
 }
 
 export interface IconSelectControlState {
-  popoverTargetWidth: number | undefined;
+  activeIcon: IconType;
+  isOpen: boolean;
 }
 
 const NONE = "(none)";
@@ -84,6 +107,7 @@ const ICON_NAMES = Object.keys(IconNames).map<IconType>(
   (name: string) => IconNames[name as keyof typeof IconNames],
 );
 ICON_NAMES.unshift(NONE);
+const icons = new Set(ICON_NAMES);
 
 const TypedSelect = Select.ofType<IconType>();
 
@@ -92,71 +116,273 @@ class IconSelectControl extends BaseControl<
   IconSelectControlState
 > {
   private iconSelectTargetRef: React.RefObject<HTMLButtonElement>;
-  private timer?: number;
+  private virtuosoRef: React.RefObject<VirtuosoGridHandle>;
+  private initialItemIndex: number;
+  private filteredItems: Array<IconType>;
+  private searchInput: React.RefObject<HTMLInputElement>;
+  id: string = generateReactKey();
 
   constructor(props: IconSelectControlProps) {
     super(props);
     this.iconSelectTargetRef = React.createRef();
-    this.state = { popoverTargetWidth: 0 };
+    this.virtuosoRef = React.createRef();
+    this.searchInput = React.createRef();
+    this.initialItemIndex = 0;
+    this.filteredItems = [];
+    this.state = {
+      activeIcon: props.propertyValue ?? NONE,
+      isOpen: false,
+    };
   }
 
-  componentDidMount() {
-    this.timer = setTimeout(() => {
-      const iconSelectTargetElement = this.iconSelectTargetRef.current;
+  // debouncedSetState is used to fix the following bug:
+  // https://github.com/appsmithorg/appsmith/pull/10460#issuecomment-1022895174
+  private debouncedSetState = _.debounce(
+    (obj: any, callback?: () => void) => {
       this.setState((prevState: IconSelectControlState) => {
         return {
           ...prevState,
-          popoverTargetWidth: iconSelectTargetElement?.getBoundingClientRect()
-            .width,
+          ...obj,
         };
-      });
-    }, 0);
+      }, callback);
+    },
+    300,
+    {
+      leading: true,
+      trailing: false,
+    },
+  );
+
+  componentDidMount() {
+    // keydown event is attached to body so that it will not interfere with the keydown handler in GlobalHotKeys
+    document.body.addEventListener("keydown", this.handleKeydown);
   }
 
   componentWillUnmount() {
-    if (this.timer) {
-      clearTimeout(this.timer);
-    }
+    document.body.removeEventListener("keydown", this.handleKeydown);
   }
 
+  private handleQueryChange = _.debounce(() => {
+    if (this.filteredItems.length === 2)
+      this.setState({ activeIcon: this.filteredItems[1] });
+  }, 50);
+
   public render() {
-    const { propertyValue: iconName } = this.props;
-    const { popoverTargetWidth } = this.state;
+    const { defaultIconName, propertyValue: iconName } = this.props;
+    const { activeIcon } = this.state;
+    const containerWidth =
+      this.iconSelectTargetRef.current?.getBoundingClientRect?.()?.width || 0;
+
     return (
       <>
-        <IconSelectContainerStyles targetWidth={popoverTargetWidth} />
+        <IconSelectContainerStyles id={this.id} targetWidth={containerWidth} />
         <TypedSelect
+          activeItem={activeIcon || defaultIconName || NONE}
           className="icon-select-container"
+          inputProps={{
+            inputRef: this.searchInput,
+          }}
           itemListRenderer={this.renderMenu}
           itemPredicate={this.filterIconName}
           itemRenderer={this.renderIconItem}
           items={ICON_NAMES}
-          noResults={<MenuItem disabled text="No results" />}
-          onItemSelect={this.handleIconChange}
-          popoverProps={{ minimal: true }}
+          onItemSelect={this.handleItemSelect}
+          onQueryChange={this.handleQueryChange}
+          popoverProps={{
+            enforceFocus: false,
+            minimal: true,
+            isOpen: this.state.isOpen,
+            popoverClassName: `icon-select-popover-${this.id}`,
+            onInteraction: (state) => {
+              if (this.state.isOpen !== state)
+                this.debouncedSetState({ isOpen: state });
+            },
+          }}
         >
           <StyledButton
             alignText={Alignment.LEFT}
-            className={Classes.TEXT_OVERFLOW_ELLIPSIS}
+            className={
+              Classes.TEXT_OVERFLOW_ELLIPSIS + " " + replayHighlightClass
+            }
             elementRef={this.iconSelectTargetRef}
             fill
-            icon={iconName}
+            icon={iconName || defaultIconName}
+            onClick={this.handleButtonClick}
             rightIcon="caret-down"
-            text={iconName || NONE}
+            tabIndex={0}
+            text={iconName || defaultIconName || NONE}
           />
         </TypedSelect>
       </>
     );
   }
 
+  private setActiveIcon(iconIndex: number) {
+    this.setState(
+      {
+        activeIcon: this.filteredItems[iconIndex],
+      },
+      () => {
+        if (this.virtuosoRef.current) {
+          this.virtuosoRef.current.scrollToIndex(iconIndex);
+        }
+      },
+    );
+  }
+
+  private handleKeydown = (e: KeyboardEvent) => {
+    if (this.state.isOpen) {
+      switch (e.key) {
+        case "Tab":
+          e.preventDefault();
+          this.setState({
+            isOpen: false,
+            activeIcon: this.props.propertyValue ?? NONE,
+          });
+          break;
+        case "ArrowDown":
+        case "Down": {
+          emitInteractionAnalyticsEvent(this.iconSelectTargetRef.current, {
+            key: e.key,
+          });
+          if (document.activeElement === this.searchInput.current) {
+            (document.activeElement as HTMLElement).blur();
+            if (this.initialItemIndex < 0) this.initialItemIndex = -4;
+            else break;
+          }
+          const nextIndex = this.initialItemIndex + 4;
+          if (nextIndex < this.filteredItems.length)
+            this.setActiveIcon(nextIndex);
+          e.preventDefault();
+          break;
+        }
+        case "ArrowUp":
+        case "Up": {
+          if (document.activeElement === this.searchInput.current) {
+            break;
+          } else if (
+            (e.shiftKey ||
+              (this.initialItemIndex >= 0 && this.initialItemIndex < 4)) &&
+            this.searchInput.current
+          ) {
+            emitInteractionAnalyticsEvent(this.iconSelectTargetRef.current, {
+              key: e.key,
+            });
+            this.searchInput.current.focus();
+            break;
+          }
+          emitInteractionAnalyticsEvent(this.iconSelectTargetRef.current, {
+            key: e.key,
+          });
+          const nextIndex = this.initialItemIndex - 4;
+          if (nextIndex >= 0) this.setActiveIcon(nextIndex);
+          e.preventDefault();
+          break;
+        }
+        case "ArrowRight":
+        case "Right": {
+          if (document.activeElement === this.searchInput.current) {
+            break;
+          }
+          emitInteractionAnalyticsEvent(this.iconSelectTargetRef.current, {
+            key: e.key,
+          });
+          const nextIndex = this.initialItemIndex + 1;
+          if (nextIndex < this.filteredItems.length)
+            this.setActiveIcon(nextIndex);
+          e.preventDefault();
+          break;
+        }
+        case "ArrowLeft":
+        case "Left": {
+          if (document.activeElement === this.searchInput.current) {
+            break;
+          }
+          emitInteractionAnalyticsEvent(this.iconSelectTargetRef.current, {
+            key: e.key,
+          });
+          const nextIndex = this.initialItemIndex - 1;
+          if (nextIndex >= 0) this.setActiveIcon(nextIndex);
+          e.preventDefault();
+          break;
+        }
+        case " ":
+        case "Enter": {
+          if (
+            this.searchInput.current === document.activeElement &&
+            this.filteredItems.length !== 2
+          )
+            break;
+          emitInteractionAnalyticsEvent(this.iconSelectTargetRef.current, {
+            key: e.key,
+          });
+          this.handleIconChange(
+            this.filteredItems[this.initialItemIndex],
+            true,
+          );
+          this.debouncedSetState({ isOpen: false });
+          e.preventDefault();
+          e.stopPropagation();
+          break;
+        }
+        case "Escape": {
+          emitInteractionAnalyticsEvent(this.iconSelectTargetRef.current, {
+            key: e.key,
+          });
+          this.setState({
+            isOpen: false,
+            activeIcon: this.props.propertyValue ?? NONE,
+          });
+          e.stopPropagation();
+        }
+      }
+    } else if (this.iconSelectTargetRef.current === document.activeElement) {
+      switch (e.key) {
+        case "ArrowUp":
+        case "Up":
+        case "ArrowDown":
+        case "Down":
+          this.debouncedSetState({ isOpen: true }, this.handleButtonClick);
+          break;
+        case "Tab":
+          emitInteractionAnalyticsEvent(this.iconSelectTargetRef.current, {
+            key: `${e.shiftKey ? "Shift+" : ""}${e.key}`,
+          });
+          break;
+      }
+    }
+  };
+
+  private handleButtonClick = () => {
+    setTimeout(() => {
+      if (this.virtuosoRef.current) {
+        this.virtuosoRef.current.scrollToIndex(this.initialItemIndex);
+      }
+    }, 0);
+  };
+
   private renderMenu: ItemListRenderer<IconType> = ({
-    items,
-    itemsParentRef,
+    activeItem,
+    filteredItems,
     renderItem,
   }) => {
-    const renderedItems = items.map(renderItem).filter((item) => item != null);
+    this.filteredItems = filteredItems;
+    this.initialItemIndex = filteredItems.findIndex((x) => x === activeItem);
 
-    return <StyledMenu ulRef={itemsParentRef}>{renderedItems}</StyledMenu>;
+    return (
+      <VirtuosoGrid
+        components={{
+          List: StyledMenu,
+        }}
+        computeItemKey={(index) => filteredItems[index]}
+        initialItemCount={16}
+        itemContent={(index) => renderItem(filteredItems[index], index)}
+        ref={this.virtuosoRef}
+        style={{ height: "165px" }}
+        tabIndex={-1}
+        totalCount={filteredItems.length}
+      />
+    );
   };
 
   private renderIconItem: ItemRenderer<IconName | typeof NONE> = (
@@ -174,6 +400,7 @@ class IconSelectControl extends BaseControl<
           key={icon}
           onClick={handleClick}
           text={icon === NONE ? NONE : undefined}
+          textClassName={icon === NONE ? "bp3-icon-(none)" : ""}
         />
       </TooltipComponent>
     );
@@ -189,14 +416,29 @@ class IconSelectControl extends BaseControl<
     return iconName.toLowerCase().indexOf(query.toLowerCase()) >= 0;
   };
 
-  private handleIconChange = (icon: IconType) =>
+  private handleIconChange = (icon: IconType, isUpdatedViaKeyboard = false) => {
+    this.setState({ activeIcon: icon });
     this.updateProperty(
       this.props.propertyName,
       icon === NONE ? undefined : icon,
+      isUpdatedViaKeyboard,
     );
+  };
+
+  private handleItemSelect = (icon: IconType) => {
+    this.handleIconChange(icon, false);
+  };
 
   static getControlType() {
     return "ICON_SELECT";
+  }
+
+  static canDisplayValueInUI(
+    config: IconSelectControlProps,
+    value: any,
+  ): boolean {
+    if (icons.has(value)) return true;
+    return false;
   }
 }
 

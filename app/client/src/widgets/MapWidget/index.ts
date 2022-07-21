@@ -1,6 +1,5 @@
-import Widget from "./widget";
 import IconSVG from "./icon.svg";
-import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
+import Widget from "./widget";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
@@ -8,8 +7,8 @@ export const CONFIG = {
   iconSVG: IconSVG,
   needsMeta: true,
   defaults: {
-    rows: 10 * GRID_DENSITY_MIGRATION_V1,
-    columns: 6 * GRID_DENSITY_MIGRATION_V1,
+    rows: 40,
+    columns: 24,
     isDisabled: false,
     isVisible: true,
     widgetName: "Map",
@@ -19,7 +18,9 @@ export const CONFIG = {
     allowZoom: true,
     mapCenter: { lat: 25.122, long: 50.132 },
     defaultMarkers: [{ lat: 25.122, long: 50.132, title: "Location1" }],
+    isClickedMarkerCentered: true,
     version: 1,
+    animateLoading: true,
   },
   properties: {
     derived: Widget.getDerivedPropertiesMap(),

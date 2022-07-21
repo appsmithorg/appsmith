@@ -1,20 +1,31 @@
 import React, { useCallback, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-
-import { AppState } from "reducers";
-
 import {
   moveJSCollectionRequest,
   copyJSCollectionRequest,
   deleteJSCollection,
 } from "actions/jsActionActions";
-
 import { ContextMenuPopoverModifiers } from "../helpers";
-import { noop } from "lodash";
-import TreeDropdown from "components/ads/TreeDropdown";
-import { useNewJSCollectionName } from "./helpers";
+import noop from "lodash/noop";
+import TreeDropdown from "pages/Editor/Explorer/TreeDropdown";
+import { getJSEntityName } from "./helpers";
 import styled from "styled-components";
 import Icon, { IconSize } from "components/ads/Icon";
+import { Position } from "@blueprintjs/core";
+import {
+  CONTEXT_COPY,
+  CONTEXT_DELETE,
+  CONFIRM_CONTEXT_DELETE,
+  CONTEXT_MOVE,
+  createMessage,
+} from "@appsmith/constants/messages";
+import { getPageListAsOptions } from "selectors/entitiesSelector";
+import {
+  autoIndentCode,
+  getAutoIndentShortcutKeyText,
+} from "components/editorComponents/CodeEditor/utils/autoIndentUtils";
+import AnalyticsUtil from "utils/AnalyticsUtil";
+import { updateJSCollectionBody } from "../../../../actions/jsPaneActions";
 
 type EntityContextMenuProps = {
   id: string;
@@ -60,31 +71,39 @@ export const MoreActionablesContainer = styled.div<{ isOpen?: boolean }>`
   }
 `;
 
+const prettifyCodeKeyboardShortCut = getAutoIndentShortcutKeyText();
+
 export function MoreJSCollectionsMenu(props: EntityContextMenuProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const nextEntityName = useNewJSCollectionName();
-
+  const [confirmDelete, setConfirmDelete] = useState(false);
   const dispatch = useDispatch();
+
   const copyJSCollectionToPage = useCallback(
-    (actionId: string, actionName: string, pageId: string) =>
+    (actionId: string, actionName: string, pageId: string) => {
+      const nextEntityName = getJSEntityName();
       dispatch(
         copyJSCollectionRequest({
           id: actionId,
           destinationPageId: pageId,
           name: nextEntityName(`${actionName}Copy`, pageId),
         }),
-      ),
-    [dispatch, nextEntityName],
+      );
+    },
+    [dispatch],
   );
+
   const moveJSCollectionToPage = useCallback(
-    (actionId: string, actionName: string, destinationPageId: string) =>
+    (actionId: string, actionName: string, destinationPageId: string) => {
+      const nextEntityName = getJSEntityName();
       dispatch(
         moveJSCollectionRequest({
           id: actionId,
           destinationPageId,
+          name: nextEntityName(actionName, destinationPageId, false),
         }),
-      ),
-    [dispatch, nextEntityName, props.pageId],
+      );
+    },
+    [dispatch],
   );
   const deleteJSCollectionFromPage = useCallback(
     (actionId: string, actionName: string) =>
@@ -92,18 +111,13 @@ export function MoreJSCollectionsMenu(props: EntityContextMenuProps) {
     [dispatch],
   );
 
-  const menuPages = useSelector((state: AppState) => {
-    return state.entities.pageList.pages.map((page) => ({
-      label: page.pageName,
-      id: page.pageId,
-      value: page.pageName,
-    }));
-  });
+  const menuPages = useSelector(getPageListAsOptions);
 
   return (
     <TreeDropdown
       className={props.className}
       defaultText=""
+      menuWidth={260}
       modifiers={ContextMenuPopoverModifiers}
       onMenuToggle={(isOpen: boolean) => setIsMenuOpen(isOpen)}
       onSelect={noop}
@@ -112,7 +126,7 @@ export function MoreJSCollectionsMenu(props: EntityContextMenuProps) {
           icon: "duplicate",
           value: "copy",
           onSelect: noop,
-          label: "Copy to page",
+          label: createMessage(CONTEXT_COPY),
           children: menuPages.map((page) => {
             return {
               ...page,
@@ -125,7 +139,7 @@ export function MoreJSCollectionsMenu(props: EntityContextMenuProps) {
           icon: "swap-horizontal",
           value: "move",
           onSelect: noop,
-          label: "Move to page",
+          label: createMessage(CONTEXT_MOVE),
           children:
             menuPages.length > 1
               ? menuPages
@@ -140,15 +154,43 @@ export function MoreJSCollectionsMenu(props: EntityContextMenuProps) {
               : [{ value: "No Pages", onSelect: noop, label: "No Pages" }],
         },
         {
+          value: "prettify",
+          icon: "code",
+          subText: prettifyCodeKeyboardShortCut,
+          onSelect: () => {
+            /*
+            PS: Please do not remove ts-ignore from here, TS keeps suggesting that
+            the object is null, but that is not the case, and we need an
+            instance of the editor to pass to autoIndentCode function
+            */
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
+            const editor = document.querySelector(".CodeMirror").CodeMirror;
+            autoIndentCode(editor);
+            dispatch(updateJSCollectionBody(editor.getValue(), props.id));
+            AnalyticsUtil.logEvent("PRETTIFY_CODE_MANUAL_TRIGGER");
+          },
+          label: "Prettify Code",
+        },
+        {
+          confirmDelete: confirmDelete,
           icon: "trash",
           value: "delete",
-          onSelect: () => deleteJSCollectionFromPage(props.id, props.name),
-          label: "Delete",
+          onSelect: () => {
+            confirmDelete
+              ? deleteJSCollectionFromPage(props.id, props.name)
+              : setConfirmDelete(true);
+          },
+          label: confirmDelete
+            ? createMessage(CONFIRM_CONTEXT_DELETE)
+            : createMessage(CONTEXT_DELETE),
           intent: "danger",
           className: "t--apiFormDeleteBtn",
         },
       ]}
+      position={Position.LEFT_TOP}
       selectedValue=""
+      setConfirmDelete={setConfirmDelete}
       toggle={
         <MoreActionablesContainer
           className={props.className}

@@ -1,6 +1,6 @@
-import React from "react";
+import React, { useEffect } from "react";
 import styled from "styled-components";
-import Text, { TextType } from "components/ads/Text";
+import { Text, TextType } from "design-system";
 import { debounce } from "lodash";
 import TextInput, { notEmptyValidator } from "components/ads/TextInput";
 import { useDispatch, useSelector } from "react-redux";
@@ -9,7 +9,10 @@ import { getCurrentUser } from "selectors/usersSelectors";
 import { forgotPasswordSubmitHandler } from "pages/UserAuth/helpers";
 import { Toaster } from "components/ads/Toast";
 import { Variant } from "components/ads/common";
-import { FORGOT_PASSWORD_SUCCESS_TEXT } from "constants/messages";
+import {
+  FORGOT_PASSWORD_SUCCESS_TEXT,
+  createMessage,
+} from "@appsmith/constants/messages";
 import { logoutUser, updateUserDetails } from "actions/userActions";
 import { AppState } from "reducers";
 import UserProfileImagePicker from "components/ads/UserProfileImagePicker";
@@ -20,6 +23,10 @@ import {
   Loader,
   TextLoader,
 } from "./StyledComponents";
+import { getCurrentUser as refreshCurrentUser } from "actions/authActions";
+import { getAppsmithConfigs } from "@appsmith/configs";
+import { ANONYMOUS_USERNAME } from "constants/userConstants";
+const { disableLoginForm } = getAppsmithConfigs();
 
 const ForgotPassword = styled.a`
   margin-top: 12px;
@@ -38,13 +45,13 @@ function General() {
     try {
       await forgotPasswordSubmitHandler({ email: user?.email }, dispatch);
       Toaster.show({
-        text: `${FORGOT_PASSWORD_SUCCESS_TEXT} ${user?.email}`,
+        text: createMessage(FORGOT_PASSWORD_SUCCESS_TEXT, user?.email),
         variant: Variant.success,
       });
       dispatch(logoutUser());
     } catch (error) {
       Toaster.show({
-        text: error._error,
+        text: (error as { _error: string })._error,
         variant: Variant.success,
       });
     }
@@ -62,6 +69,12 @@ function General() {
   const isFetchingUser = useSelector(
     (state: AppState) => state.ui.users.loadingStates.fetchingUser,
   );
+
+  useEffect(() => {
+    dispatch(refreshCurrentUser());
+  }, []);
+
+  if (user?.email === ANONYMOUS_USERNAME) return null;
 
   return (
     <Wrapper>
@@ -97,9 +110,11 @@ function General() {
           {isFetchingUser && <TextLoader className={Classes.SKELETON} />}
           {!isFetchingUser && <Text type={TextType.P1}>{user?.email}</Text>}
 
-          <ForgotPassword onClick={forgotPassword}>
-            Reset Password
-          </ForgotPassword>
+          {!disableLoginForm && (
+            <ForgotPassword onClick={forgotPassword}>
+              Reset Password
+            </ForgotPassword>
+          )}
         </div>
       </FieldWrapper>
       {/* <InputWrapper>

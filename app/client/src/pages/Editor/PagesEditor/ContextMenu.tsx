@@ -7,17 +7,27 @@ import { Popover2 } from "@blueprintjs/popover2";
 
 import { ControlIcons } from "icons/ControlIcons";
 import { FormIcons } from "icons/FormIcons";
-import { Page } from "constants/ReduxActionConstants";
+import { Page } from "@appsmith/constants/ReduxActionConstants";
 import Toggle from "components/ads/Toggle";
 import { Action } from "./PageListItem";
 import EditName from "./EditName";
+import { useSelector } from "react-redux";
+
+import { getCurrentApplicationId } from "selectors/editorSelectors";
 import { Colors } from "constants/Colors";
+import { TooltipComponent } from "design-system";
+import { createMessage, SETTINGS_TOOLTIP } from "@appsmith/constants/messages";
+import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
 
 // render over popover portals
 const Container = styled.div`
   padding: 12px;
   padding-top: 6px;
-  width: 280px;
+
+  /* min width to be 280px i.e. 17.5rem to wrap long page names */
+  max-width: inherit;
+  min-width: 17.5rem;
+
   background-color: ${Colors.GREY_1};
 
   h4 {
@@ -30,6 +40,14 @@ const Container = styled.div`
 
   main {
     padding: 4px;
+  }
+
+  & .ContextMenuPopOver .ContextMenu {
+    width: 10rem;
+  }
+
+  & .editing {
+    width: 10rem;
   }
 `;
 
@@ -89,7 +107,6 @@ const SettingsIcon = ControlIcons.SETTINGS_CONTROL;
 
 type Props = {
   page: Page;
-  applicationId: string;
   onSetPageHidden: () => void;
   onCopy: (pageId: string) => void;
   onDelete: (pageId: string, pageName: string) => void;
@@ -97,16 +114,11 @@ type Props = {
 };
 
 function ContextMenu(props: Props) {
-  const {
-    applicationId,
-    onCopy,
-    onDelete,
-    onSetPageDefault,
-    onSetPageHidden,
-    page,
-  } = props;
+  const { onCopy, onDelete, onSetPageDefault, onSetPageHidden, page } = props;
   const theme = useTheme();
   const [isOpen, setIsOpen] = useState(false);
+
+  const applicationId = useSelector(getCurrentApplicationId);
 
   /**
    * opens the context menu on interaction ( on click )
@@ -121,7 +133,9 @@ function ContextMenu(props: Props) {
         <Container>
           <Header>
             <PageName>
-              <EditName applicationId={applicationId} page={page} />
+              <div className="ContextMenuPopOver">
+                <EditName page={page} />
+              </div>
             </PageName>
             <Actions>
               <Action>
@@ -187,14 +201,20 @@ function ContextMenu(props: Props) {
       placement="bottom-start"
       portalClassName="pages-editor-context-menu"
     >
-      <Action className={isOpen ? "active" : ""} type="button">
-        <SettingsIcon
-          color={Colors.GREY_8}
-          height={16}
-          onClick={noop}
-          width={16}
-        />
-      </Action>
+      <TooltipComponent
+        content={createMessage(SETTINGS_TOOLTIP)}
+        hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
+        position="bottom"
+      >
+        <Action className={isOpen ? "active" : ""} type="button">
+          <SettingsIcon
+            color={Colors.GREY_9}
+            height={16}
+            onClick={noop}
+            width={16}
+          />
+        </Action>
+      </TooltipComponent>
     </Popover2>
   );
 }

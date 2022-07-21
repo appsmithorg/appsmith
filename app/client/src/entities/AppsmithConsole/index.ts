@@ -1,4 +1,4 @@
-import { ReduxAction } from "constants/ReduxActionConstants";
+import { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import LOG_TYPE from "./logtype";
 import { PropertyEvaluationErrorType } from "utils/DynamicBindingUtils";
 
@@ -11,6 +11,7 @@ export enum ENTITY_TYPE {
 
 export enum PLATFORM_ERROR {
   PLUGIN_EXECUTION = "PLUGIN_EXECUTION",
+  JS_FUNCTION_EXECUTION = "JS_FUNCTION_EXECUTION",
 }
 
 export type ErrorType = PropertyEvaluationErrorType | PLATFORM_ERROR;

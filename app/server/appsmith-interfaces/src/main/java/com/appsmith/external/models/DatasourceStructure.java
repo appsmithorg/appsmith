@@ -27,6 +27,7 @@ public class DatasourceStructure {
         VIEW,
         ALIAS,
         COLLECTION,
+        BUCKET,
     }
 
     @Data
@@ -120,11 +121,21 @@ public class DatasourceStructure {
             this.configuration = configuration;
         }
 
-        // To create templates for plugins with UQI framework whic store the configurations
+        // To create templates for plugins with UQI framework which store the configurations
         // as a map
         public Template(String title, String body, Map<String, ?> configuration) {
             this.title = title;
             this.body = body;
+            this.configuration = configuration;
+        }
+
+        /**
+         * Create templates by passing UQI framework config.
+         * <p>
+         * For integrations that use UQI interface, a config map is used to indicate the required template.
+         */
+        public Template(String title, Map<String, ?> configuration) {
+            this.title = title;
             this.configuration = configuration;
         }
 

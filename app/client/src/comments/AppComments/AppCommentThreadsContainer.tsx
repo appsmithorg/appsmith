@@ -29,7 +29,7 @@ function AppCommentThreadsContainer({ isOpen }: Props) {
   }, [isOpen]);
 
   return (
-    <Container style={{ height: springHeight.height as number }}>
+    <Container style={{ height: springHeight.height }}>
       <AppCommentThreads />
     </Container>
   );

@@ -1,6 +1,6 @@
 import * as Sentry from "@sentry/react";
 import { Span, SpanStatus } from "@sentry/tracing";
-import { getAppsmithConfigs } from "configs";
+import { getAppsmithConfigs } from "@appsmith/configs";
 import _ from "lodash";
 import * as log from "loglevel";
 

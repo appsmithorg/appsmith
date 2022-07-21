@@ -23,13 +23,13 @@ export const LoadingAnimation = createGlobalStyle<{ theme: Theme }>`
 	}
 `;
 
-export const loadingUserOrgs = [
+export const loadingUserWorkspaces = [
   {
-    organization: {
-      id: "loadingOrgId1",
-      userPermissions: ["read:organizations", "read:orgApplications"],
-      name: "loadingOrgName1",
-      organizationSettings: [],
+    workspace: {
+      id: "loadingWorkspaceId1",
+      userPermissions: ["read:workspaces", "read:workspaceApplications"],
+      name: "loadingWorkspaceName1",
+      workspaceSettings: [],
       plugins: [
         {
           userPermissions: [],
@@ -71,7 +71,7 @@ export const loadingUserOrgs = [
         id: "loadingAppId1",
         userPermissions: ["read:applications"],
         name: "loadingAppName1",
-        organizationId: "loadingOrgId1",
+        workspaceId: "loadingWorkspaceId1",
         isPublic: false,
         pages: [
           {
@@ -86,14 +86,9 @@ export const loadingUserOrgs = [
       },
       {
         id: "loadingAppId2",
-        userPermissions: [
-          "manage:applications",
-          "read:applications",
-          "publish:applications",
-          "makePublic:applications",
-        ],
+        userPermissions: ["read:applications"],
         name: "loadingAppName2",
-        organizationId: "loadingOrgId1",
+        workspaceId: "loadingWorkspaceId1",
         isPublic: false,
         pages: [
           {
@@ -110,18 +105,18 @@ export const loadingUserOrgs = [
     ],
   },
   {
-    organization: {
-      id: "loadingOrgId2",
+    workspace: {
+      id: "loadingWorkspaceId2",
       userPermissions: [
-        "read:organizations",
-        "manage:orgApplications",
-        "inviteUsers:organization",
-        "manage:organizations",
-        "publish:orgApplications",
-        "read:orgApplications",
+        "read:workspaces",
+        "manage:workspaceApplications",
+        "inviteUsers:workspace",
+        "manage:workspaces",
+        "publish:workspaceApplications",
+        "read:workspaceApplications",
       ],
-      name: "loadingOrgName2",
-      organizationSettings: [],
+      name: "loadingWorkspaceName2",
+      workspaceSettings: [],
       plugins: [
         {
           userPermissions: [],
@@ -161,14 +156,9 @@ export const loadingUserOrgs = [
     applications: [
       {
         id: "loadingAppId3",
-        userPermissions: [
-          "manage:applications",
-          "read:applications",
-          "publish:applications",
-          "makePublic:applications",
-        ],
+        userPermissions: ["read:applications"],
         name: "loadingAppName3",
-        organizationId: "loadingOrgId2",
+        workspaceId: "loadingWorkspaceId2",
         isPublic: false,
         pages: [
           {
@@ -183,14 +173,9 @@ export const loadingUserOrgs = [
       },
       {
         id: "loadingAppId4",
-        userPermissions: [
-          "manage:applications",
-          "read:applications",
-          "publish:applications",
-          "makePublic:applications",
-        ],
+        userPermissions: ["read:applications"],
         name: "loadingAppName4",
-        organizationId: "loadingOrgId2",
+        workspaceId: "loadingWorkspaceId2",
         isPublic: false,
         pages: [
           {
@@ -205,14 +190,9 @@ export const loadingUserOrgs = [
       },
       {
         id: "loadingAppId5",
-        userPermissions: [
-          "manage:applications",
-          "read:applications",
-          "publish:applications",
-          "makePublic:applications",
-        ],
+        userPermissions: ["read:applications"],
         name: "loadingAppName5",
-        organizationId: "loadingOrgId2",
+        workspaceId: "loadingWorkspaceId2",
         isPublic: false,
         pages: [
           {

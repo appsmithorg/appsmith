@@ -1,0 +1,8 @@
+{
+    "welcomeTour": ".t--welcome-tour",
+    "startBuilding": ".t--start-building",
+    "successButton": ".t--success-button",
+    "infoButton": ".t--info-button",
+    "hintButton": ".t--hint-button",
+    "rating": ".t--guided-tour-rating"
+}

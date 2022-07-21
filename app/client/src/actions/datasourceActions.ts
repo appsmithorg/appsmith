@@ -2,12 +2,12 @@ import {
   ReduxAction,
   ReduxActionTypes,
   ReduxActionWithCallbacks,
-} from "constants/ReduxActionConstants";
+} from "@appsmith/constants/ReduxActionConstants";
 import { CreateDatasourceConfig } from "api/DatasourcesApi";
 import { Datasource } from "entities/Datasource";
 import { PluginType } from "entities/Action";
-import { executeDatasourceQueryRequest } from "../api/DatasourcesApi";
-import { ResponseMeta } from "../api/ApiResponses";
+import { executeDatasourceQueryRequest } from "api/DatasourcesApi";
+import { ResponseMeta } from "api/ApiResponses";
 
 export const createDatasourceFromForm = (payload: CreateDatasourceConfig) => {
   return {
@@ -93,17 +93,23 @@ export const saveDatasourceName = (payload: { id: string; name: string }) => ({
   payload: payload,
 });
 
-export const changeDatasource = (payload: Datasource) => {
+export const changeDatasource = (payload: {
+  datasource?: Datasource;
+  shouldNotRedirect?: boolean;
+}) => {
   return {
     type: ReduxActionTypes.CHANGE_DATASOURCE,
     payload,
   };
 };
 
-export const switchDatasource = (id: string) => {
+export const switchDatasource = (id: string, shouldNotRedirect: boolean) => {
   return {
     type: ReduxActionTypes.SWITCH_DATASOURCE,
-    payload: { datasourceId: id },
+    payload: {
+      datasourceId: id,
+      shouldNotRedirect,
+    },
   };
 };
 
@@ -139,9 +145,10 @@ export const setDatsourceEditorMode = (payload: {
   };
 };
 
-export const fetchDatasources = () => {
+export const fetchDatasources = (payload?: { workspaceId?: string }) => {
   return {
     type: ReduxActionTypes.FETCH_DATASOURCES_INIT,
+    payload,
   };
 };
 
@@ -154,7 +161,7 @@ export const fetchMockDatasources = () => {
 export interface addMockRequest
   extends ReduxAction<{
     name: string;
-    organizationId: string;
+    workspaceId: string;
     pluginId: string;
     packageName: string;
     isGeneratePageMode?: string;
@@ -162,16 +169,16 @@ export interface addMockRequest
   extraParams?: any;
 }
 
-export const addMockDatasourceToOrg = (
+export const addMockDatasourceToWorkspace = (
   name: string,
-  organizationId: string,
+  workspaceId: string,
   pluginId: string,
   packageName: string,
   isGeneratePageMode?: string,
 ): addMockRequest => {
   return {
     type: ReduxActionTypes.ADD_MOCK_DATASOURCES_INIT,
-    payload: { name, packageName, pluginId, organizationId },
+    payload: { name, packageName, pluginId, workspaceId },
     extraParams: { isGeneratePageMode },
   };
 };
@@ -194,7 +201,7 @@ export const storeAsDatasource = () => {
 
 export const getOAuthAccessToken = (datasourceId: string) => {
   return {
-    type: ReduxActionTypes.SAAS_GET_OAUTH_ACCESS_TOKEN,
+    type: ReduxActionTypes.GET_OAUTH_ACCESS_TOKEN,
     payload: { datasourceId },
   };
 };
@@ -203,6 +210,7 @@ export type executeDatasourceQuerySuccessPayload<T> = {
   responseMeta: ResponseMeta;
   data: {
     body: T;
+    trigger: T;
     headers: Record<string, string[]>;
     statusCode: string;
     isExecutionSuccess: boolean;
@@ -234,6 +242,13 @@ export const executeDatasourceQuery = ({
     onSuccessCallback,
   };
 };
+
+export const setUnconfiguredDatasourcesDuringImport = (
+  payload?: Array<Datasource>,
+) => ({
+  type: ReduxActionTypes.SET_UNCONFIGURED_DATASOURCES,
+  payload,
+});
 
 export default {
   fetchDatasources,

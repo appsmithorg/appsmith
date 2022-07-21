@@ -1,14 +1,15 @@
-import React, { useState, useEffect } from "react";
-import { Icon, Position } from "@blueprintjs/core";
+import React from "react";
+import { Icon } from "@blueprintjs/core";
 import { IconNames } from "@blueprintjs/icons";
 import styled from "styled-components";
 import Rating from "react-rating";
 import _ from "lodash";
 
 import { RateSize, RATE_SIZES } from "../constants";
-import TooltipComponent from "components/ads/Tooltip";
+import { TooltipComponent } from "design-system";
 import { disable } from "constants/DefaultTheme";
 import { ComponentProps } from "widgets/BaseComponent";
+import { Colors } from "constants/Colors";
 
 /*
   Note:
@@ -20,7 +21,6 @@ import { ComponentProps } from "widgets/BaseComponent";
 
 interface RateContainerProps {
   isDisabled: boolean;
-  scrollable: boolean;
 }
 
 export const RateContainer = styled.div<RateContainerProps>`
@@ -32,16 +32,28 @@ export const RateContainer = styled.div<RateContainerProps>`
   overflow: auto;
 
   > span {
-    align-self: ${(props) => (props.scrollable ? "flex-start" : "center")};
+    display: flex !important;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 5px;
+    height: auto;
+
+    & > span {
+      height: 100%;
+
+      & > span {
+        height: 100%;
+        padding: 0;
+        display: flex !important;
+        align-items: center;
+      }
+    }
   }
 
   ${({ isDisabled }) => isDisabled && disable}
 `;
 
-export const Star = styled(Icon)`
-  padding: ${(props) =>
-    props.iconSize === 12 ? 2.92 : props.iconSize === 16 ? 4.37 : 4.93}px;
-`;
+export const Star = styled(Icon)``;
 
 export interface RateComponentProps extends ComponentProps {
   value: number;
@@ -74,7 +86,7 @@ function renderStarsWithTooltip(props: RateComponentProps) {
     );
   }
   const starWithTooltip = rateTooltips.map((tooltip) => (
-    <TooltipComponent content={tooltip} key={tooltip} position={Position.TOP}>
+    <TooltipComponent content={tooltip} key={tooltip} position="top">
       <Star
         color={props.activeColor}
         icon={IconNames.STAR}
@@ -98,44 +110,22 @@ function RateComponent(props: RateComponentProps) {
   const rateContainerRef = React.createRef<HTMLDivElement>();
 
   const {
-    bottomRow,
     inactiveColor,
     isAllowHalf,
     isDisabled,
-    leftColumn,
     maxCount,
     onValueChanged,
     readonly,
-    rightColumn,
     size,
-    topRow,
     value,
   } = props;
 
-  const [scrollable, setScrollable] = useState(false);
-
-  useEffect(() => {
-    const rateContainerElement = rateContainerRef.current;
-    if (
-      rateContainerElement &&
-      rateContainerElement.scrollHeight > rateContainerElement.clientHeight
-    ) {
-      setScrollable(true);
-    } else {
-      setScrollable(false);
-    }
-  }, [leftColumn, rightColumn, topRow, bottomRow, maxCount, size]);
-
   return (
-    <RateContainer
-      isDisabled={Boolean(isDisabled)}
-      ref={rateContainerRef}
-      scrollable={scrollable}
-    >
+    <RateContainer isDisabled={Boolean(isDisabled)} ref={rateContainerRef}>
       <Rating
         emptySymbol={
           <Star
-            color={inactiveColor}
+            color={inactiveColor || Colors.ALTO_3}
             icon={IconNames.STAR}
             iconSize={RATE_SIZES[size]}
           />

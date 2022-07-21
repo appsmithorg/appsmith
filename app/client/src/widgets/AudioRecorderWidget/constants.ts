@@ -1,1 +1,0 @@
-export const MY_AUDIORECORDER_WIDGET_CONSTANT = "";

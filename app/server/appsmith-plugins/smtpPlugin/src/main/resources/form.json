@@ -1,0 +1,53 @@
+{
+  "form": [
+    {
+      "sectionName": "Email Configuration",
+      "id": 1,
+      "children": [
+        {
+          "sectionName": null,
+          "children": [
+            {
+              "label": "Host Address",
+              "configProperty": "datasourceConfiguration.endpoints[*].host",
+              "controlType": "KEYVALUE_ARRAY",
+              "validationMessage": "Please enter a valid host",
+              "validationRegex": "^((?![/:]).)*$"
+            },
+            {
+              "label": "Port",
+              "configProperty": "datasourceConfiguration.endpoints[*].port",
+              "dataType": "NUMBER",
+              "controlType": "KEYVALUE_ARRAY"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "sectionName": "Authentication",
+      "id": 2,
+      "children": [
+        {
+          "sectionName": null,
+          "children": [
+            {
+              "label": "Username",
+              "configProperty": "datasourceConfiguration.authentication.username",
+              "controlType": "INPUT_TEXT",
+              "placeholderText": "Username"
+            },
+            {
+              "label": "Password",
+              "configProperty": "datasourceConfiguration.authentication.password",
+              "dataType": "PASSWORD",
+              "controlType": "INPUT_TEXT",
+              "placeholderText": "Password",
+              "encrypted": true
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

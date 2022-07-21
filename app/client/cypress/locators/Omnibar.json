@@ -1,0 +1,11 @@
+{
+    "globalSearch": ".t--global-search-modal-trigger",
+    "globalSearchInput": ".t--global-search-input",
+    "discordLink":".discord",
+    "categoryTitle":".category-title",
+    "openDocumentationLink":".documentation-cta",
+    "globalSearchClose":".t--global-clear-input",
+    "createNew":".t--file-operation",
+    "recentlyopenItem":"//span[@class='text']",
+    "category":".t--global-search-category"
+}

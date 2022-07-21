@@ -7,7 +7,6 @@ const OutputContainer = styled.div`
   background: #f5f6f7;
   border: 1px solid #d0d7dd;
   box-sizing: border-box;
-  border-radius: 4px;
   padding: 6px;
 `;
 
@@ -17,6 +16,7 @@ const ResponseContent = styled.div`
 
 const Record = styled(Card)`
   margin: 5px;
+  border-radius: 0;
   span.string-value {
     overflow-wrap: anywhere;
   }
@@ -39,7 +39,12 @@ class JSONOutput extends React.Component<Props> {
       style: {
         fontSize: "14px",
       },
-      collapsed: 1,
+      collapsed: 2,
+      collapseStringsAfterLength: 20,
+      shouldCollapse: (field: any) => {
+        const index = field.name * 1;
+        return index >= 2;
+      },
     };
 
     if (typeof src !== "object") {

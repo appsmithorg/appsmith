@@ -16,6 +16,7 @@ import _, { findIndex } from "lodash";
 import FileDataTypes from "../constants";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { createBlobUrl, isBlobUrl } from "utils/AppsmithUtils";
+import log from "loglevel";
 
 class FilePickerWidget extends BaseWidget<
   FilePickerWidgetProps,
@@ -75,8 +76,9 @@ class FilePickerWidget extends BaseWidget<
             propertyName: "allowedFileTypes",
             helpText: "Restricts the type of files which can be uploaded",
             label: "Allowed File Types",
-            controlType: "MULTI_SELECT",
-            placeholderText: "Select file types",
+            controlType: "DROP_DOWN",
+            isMultiSelect: true,
+            placeholderText: "Select File types",
             options: [
               {
                 label: "Any File",
@@ -117,16 +119,10 @@ class FilePickerWidget extends BaseWidget<
             validation: {
               type: ValidationTypes.ARRAY,
               params: {
-                allowedValues: [
-                  "*",
-                  "image/*",
-                  "video/*",
-                  "audio/*",
-                  "text/*",
-                  ".doc",
-                  "image/jpeg",
-                  ".png",
-                ],
+                unique: true,
+                children: {
+                  type: ValidationTypes.TEXT,
+                },
               },
             },
             evaluationSubstitutionType:
@@ -184,10 +180,21 @@ class FilePickerWidget extends BaseWidget<
             isTriggerProperty: false,
             validation: { type: ValidationTypes.BOOLEAN },
           },
+          {
+            propertyName: "animateLoading",
+            label: "Animate Loading",
+            controlType: "SWITCH",
+            helpText: "Controls the loading of the widget",
+            defaultValue: true,
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+          },
         ],
       },
       {
-        sectionName: "Actions",
+        sectionName: "Events",
         children: [
           {
             helpText:
@@ -201,15 +208,50 @@ class FilePickerWidget extends BaseWidget<
           },
         ],
       },
+
+      {
+        sectionName: "Styles",
+        children: [
+          {
+            propertyName: "buttonColor",
+            helpText: "Changes the color of the button",
+            label: "Button Color",
+            controlType: "COLOR_PICKER",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
+          {
+            propertyName: "borderRadius",
+            label: "Border Radius",
+            helpText:
+              "Rounds the corners of the icon button's outer border edge",
+            controlType: "BORDER_RADIUS_OPTIONS",
+
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
+          {
+            propertyName: "boxShadow",
+            label: "Box Shadow",
+            helpText:
+              "Enables you to cast a drop shadow from the frame of the widget",
+            controlType: "BOX_SHADOW_OPTIONS",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
+        ],
+      },
     ];
   }
-
   static getDefaultPropertiesMap(): Record<string, string> {
-    return {
-      selectedFiles: "defaultSelectedFiles",
-    };
+    return {};
   }
-
   static getDerivedPropertiesMap(): DerivedPropertiesMap {
     return {
       isValid: `{{ this.isRequired ? this.files.length > 0 : true }}`,
@@ -221,6 +263,7 @@ class FilePickerWidget extends BaseWidget<
     return {
       selectedFiles: [],
       uploadedFileData: {},
+      isDirty: false,
     };
   }
 
@@ -318,22 +361,33 @@ class FilePickerWidget extends BaseWidget<
       .use(Url, { companionUrl: "https://companion.uppy.io" })
       .use(OneDrive, {
         companionUrl: "https://companion.uppy.io/",
-      })
-      .use(Webcam, {
+      });
+
+    if (location.protocol === "https:") {
+      this.state.uppy.use(Webcam, {
         onBeforeSnapshot: () => Promise.resolve(),
         countdown: false,
         mirror: true,
         facingMode: "user",
         locale: {},
       });
+    }
 
-    this.state.uppy.on("file-removed", (file: any) => {
-      const updatedFiles = this.props.selectedFiles
-        ? this.props.selectedFiles.filter((dslFile) => {
-            return file.id !== dslFile.id;
-          })
-        : [];
-      this.props.updateWidgetMetaProperty("selectedFiles", updatedFiles);
+    this.state.uppy.on("file-removed", (file: any, reason: any) => {
+      /**
+       * The below line will not update the selectedFiles meta prop when cancel-all event is triggered.
+       * cancel-all event occurs when close or reset function of uppy is executed.
+       * Uppy provides an argument called reason. It helps us to distinguish on which event the file-removed event was called.
+       * Refer to the following issue to know about reason prop: https://github.com/transloadit/uppy/pull/2323
+       */
+      if (reason !== "cancel-all") {
+        const updatedFiles = this.props.selectedFiles
+          ? this.props.selectedFiles.filter((dslFile) => {
+              return file.id !== dslFile.id;
+            })
+          : [];
+        this.props.updateWidgetMetaProperty("selectedFiles", updatedFiles);
+      }
     });
 
     this.state.uppy.on("files-added", (files: any[]) => {
@@ -360,6 +414,7 @@ class FilePickerWidget extends BaseWidget<
                 data: reader.result,
                 name: file.meta ? file.meta.name : `File-${index + fileCount}`,
                 size: file.size,
+                dataFormat: this.props.fileDataType,
               };
               resolve(newFile);
             };
@@ -371,6 +426,7 @@ class FilePickerWidget extends BaseWidget<
               data: data,
               name: file.meta ? file.meta.name : `File-${index + fileCount}`,
               size: file.size,
+              dataFormat: this.props.fileDataType,
             };
             resolve(newFile);
           }
@@ -378,6 +434,10 @@ class FilePickerWidget extends BaseWidget<
       });
 
       Promise.all(fileReaderPromises).then((files) => {
+        if (!this.props.isDirty) {
+          this.props.updateWidgetMetaProperty("isDirty", true);
+        }
+
         this.props.updateWidgetMetaProperty(
           "selectedFiles",
           dslFiles.concat(files),
@@ -416,11 +476,9 @@ class FilePickerWidget extends BaseWidget<
 
   componentDidUpdate(prevProps: FilePickerWidgetProps) {
     super.componentDidUpdate(prevProps);
-    if (
-      prevProps.selectedFiles &&
-      prevProps.selectedFiles.length > 0 &&
-      this.props.selectedFiles === undefined
-    ) {
+    const { selectedFiles: previousSelectedFiles = [] } = prevProps;
+    const { selectedFiles = [] } = this.props;
+    if (previousSelectedFiles.length && selectedFiles.length === 0) {
       this.state.uppy.reset();
     } else if (
       !shallowequal(prevProps.allowedFileTypes, this.props.allowedFileTypes) ||
@@ -448,7 +506,11 @@ class FilePickerWidget extends BaseWidget<
   componentDidMount() {
     super.componentDidMount();
 
-    this.initializeUppyEventListeners();
+    try {
+      this.initializeUppyEventListeners();
+    } catch (e) {
+      log.debug("Error in initializing uppy");
+    }
   }
 
   componentWillUnmount() {
@@ -458,6 +520,9 @@ class FilePickerWidget extends BaseWidget<
   getPageView() {
     return (
       <FilePickerComponent
+        borderRadius={this.props.borderRadius}
+        boxShadow={this.props.boxShadow}
+        buttonColor={this.props.buttonColor}
         files={this.props.selectedFiles || []}
         isDisabled={this.props.isDisabled}
         isLoading={this.props.isLoading || this.state.isLoading}
@@ -488,6 +553,9 @@ interface FilePickerWidgetProps extends WidgetProps {
   onFilesSelected?: string;
   fileDataType: FileDataTypes;
   isRequired?: boolean;
+  backgroundColor: string;
+  borderRadius: string;
+  boxShadow?: string;
 }
 
 export type FilePickerWidgetV2Props = FilePickerWidgetProps;

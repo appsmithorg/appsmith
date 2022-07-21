@@ -12,6 +12,11 @@ export interface DropdownOption {
   intent?: BlueprintIntent;
 }
 
+export enum SubTextPosition {
+  BOTTOM,
+  LEFT,
+}
+
 export const InputTypes: { [key: string]: string } = {
   TEXT: "TEXT",
   NUMBER: "NUMBER",
@@ -30,6 +35,7 @@ export enum ButtonBorderRadiusTypes {
   ROUNDED = "ROUNDED",
   CIRCLE = "CIRCLE",
 }
+
 export type ButtonBorderRadius = keyof typeof ButtonBorderRadiusTypes;
 
 export enum ButtonBoxShadowTypes {
@@ -60,8 +66,47 @@ export enum ButtonStyleTypes {
 export type ButtonStyleType = keyof typeof ButtonStyleTypes;
 
 export enum ButtonVariantTypes {
-  SOLID = "SOLID",
-  OUTLINE = "OUTLINE",
-  GHOST = "GHOST",
+  PRIMARY = "PRIMARY",
+  SECONDARY = "SECONDARY",
+  TERTIARY = "TERTIARY",
 }
 export type ButtonVariant = keyof typeof ButtonVariantTypes;
+
+export enum RecaptchaTypes {
+  V3 = "V3",
+  V2 = "V2",
+}
+export type RecaptchaType = keyof typeof RecaptchaTypes;
+
+export enum CheckboxGroupAlignmentTypes {
+  START = "flex-start",
+  END = "flex-end",
+  CENTER = "center",
+  SPACE_BETWEEN = "space-between",
+  SPACE_AROUND = "space-around",
+  NONE = "unset",
+}
+export type CheckboxGroupAlignment = keyof typeof CheckboxGroupAlignmentTypes;
+export enum ButtonPlacementTypes {
+  START = "START",
+  BETWEEN = "BETWEEN",
+  CENTER = "CENTER",
+}
+export type ButtonPlacement = keyof typeof ButtonPlacementTypes;
+
+export enum LabelPosition {
+  Auto = "Auto",
+  Top = "Top",
+  Left = "Left",
+  Right = "Right",
+}
+
+/**
+ * Default height for Select, MultiSelect, SingleTreeSelect and MultiTreeSelect
+ */
+export const SELECT_DEFAULT_HEIGHT = "32px";
+
+/**
+ * Default margin bottom value for old select widgets
+ */
+export const LABEL_MARGIN_OLD_SELECT = "5px";

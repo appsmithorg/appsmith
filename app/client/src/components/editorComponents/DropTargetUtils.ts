@@ -1,8 +1,8 @@
-import { OccupiedSpace } from "constants/editorConstants";
+import { OccupiedSpace } from "constants/CanvasEditorConstants";
 import { GridDefaults } from "constants/WidgetConstants";
 
 export const calculateDropTargetRows = (
-  widgetId: string,
+  widgetIdsToExclude: string[],
   widgetBottomRow: number,
   defaultRows: number,
   occupiedSpacesByChildren?: OccupiedSpace[],
@@ -11,7 +11,7 @@ export const calculateDropTargetRows = (
   let minBottomRow = widgetBottomRow;
   if (occupiedSpacesByChildren) {
     minBottomRow = occupiedSpacesByChildren.reduce((prev, next) => {
-      if (next.id !== widgetId) {
+      if (!widgetIdsToExclude.includes(next.id)) {
         return next.bottom > prev ? next.bottom : prev;
       }
       return prev;

@@ -12,7 +12,7 @@ import { Placement } from "popper.js";
 import ScrollIndicator from "components/ads/ScrollIndicator";
 import { EvaluatedValueDebugButton } from "components/editorComponents/Debugger/DebugCTA";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
-import Tooltip from "components/ads/Tooltip";
+import { TooltipComponent as Tooltip } from "design-system";
 import { Toaster } from "components/ads/Toast";
 import { Classes, Collapse, Button, Icon } from "@blueprintjs/core";
 import { IconNames } from "@blueprintjs/icons";
@@ -83,17 +83,6 @@ const ContentWrapper = styled.div<{ colorTheme: EditorTheme }>`
   border-radius: 0px;
 `;
 
-const CurrentValueWrapper = styled.div<{ colorTheme: EditorTheme }>`
-  max-height: 300px;
-  min-height: 1rem;
-  overflow-y: auto;
-  -ms-overflow-style: none;
-  padding: ${(props) => props.theme.spaces[3]}px;
-  padding-right: 30px;
-  background-color: ${(props) => THEMES[props.colorTheme].editorBackground};
-  position: relative;
-`;
-
 const CopyIconWrapper = styled(Button)<{ colorTheme: EditorTheme }>`
   color: ${(props) => THEMES[props.colorTheme].textColor};
   position: absolute;
@@ -101,6 +90,24 @@ const CopyIconWrapper = styled(Button)<{ colorTheme: EditorTheme }>`
   top: 0;
   cursor: pointer;
   padding: 0;
+  border-radius: 0;
+  display: none;
+`;
+
+const CurrentValueWrapper = styled.div<{ colorTheme: EditorTheme }>`
+  // max-height: 300px;
+  min-height: 28px;
+  // overflow-y: auto;
+  -ms-overflow-style: none;
+  padding: ${(props) => props.theme.spaces[3]}px;
+  padding-right: 30px;
+  background-color: ${(props) => THEMES[props.colorTheme].editorBackground};
+  position: relative;
+  &:hover {
+    ${CopyIconWrapper} {
+      display: flex;
+    }
+  }
 `;
 
 const CodeWrapper = styled.pre<{ colorTheme: EditorTheme }>`
@@ -162,7 +169,11 @@ function CollapseToggle(props: { isOpen: boolean }) {
 }
 
 function copyContent(content: any) {
-  copy(content);
+  const stringifiedContent = _.isString(content)
+    ? content
+    : JSON.stringify(content, null, 2);
+
+  copy(stringifiedContent);
   Toaster.show({
     text: `Evaluated value copied to clipboard`,
     variant: Variant.success,
@@ -226,8 +237,9 @@ export function PreparedStatementViewer(props: {
     });
     return <div />;
   }
-  const stringSegments = value.split(/\$\d/);
-  const $params = [...value.matchAll(/\$\d/g)].map((matches) => matches[0]);
+  const stringSegments = value.split(/\$\d+/);
+  const $params = [...value.matchAll(/\$\d+/g)].map((matches) => matches[0]);
+
   const paramsWithTooltips = $params.map((param) => (
     <Tooltip content={<span>{parameters[param]}</span>} key={param}>
       <PreparedStatementParameter key={param}>
@@ -325,7 +337,10 @@ export const CurrentValueViewer = memo(
           </StyledTitle>
         )}
         <Collapse isOpen={openEvaluatedValue}>
-          <CurrentValueWrapper colorTheme={props.theme}>
+          <CurrentValueWrapper
+            className="t-property-evaluated-value"
+            colorTheme={props.theme}
+          >
             {content}
             {props.hasOwnProperty("evaluatedValue") && (
               <CopyIconWrapper
@@ -333,7 +348,7 @@ export const CurrentValueViewer = memo(
                 minimal
                 onClick={() => copyContent(props.evaluatedValue)}
               >
-                <CopyIcon />
+                <CopyIcon height={34} />
               </CopyIconWrapper>
             )}
           </CurrentValueWrapper>

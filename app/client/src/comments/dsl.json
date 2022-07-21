@@ -68,7 +68,7 @@
         "widgetName":"Chart1",
         "chartType":"LINE_CHART",
         "chartName":"Sales on working days",
-        "allowHorizontalScroll":false,
+        "allowScroll":false,
         "version":1,
         "chartData":[
            {
@@ -183,7 +183,7 @@
         "widgetName":"Dropdown1",
         "defaultOptionValue":"VEG",
         "version":1,
-        "type":"DROP_DOWN_WIDGET",
+        "type":"SELECT_WIDGET",
         "isLoading":false,
         "parentColumnSpace":60.131249999999994,
         "parentRowSpace":40,
@@ -811,7 +811,7 @@
      "bmyc9rnkyv":{
         "isVisible":true,
         "widgetName":"Video1",
-        "url":"https://www.youtube.com/watch?v=mzqK0QIZRLs",
+        "url":"https://assets.appsmith.com/widgets/bird.mp4",
         "autoPlay":false,
         "version":1,
         "type":"VIDEO_WIDGET",

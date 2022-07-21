@@ -14,11 +14,12 @@ import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import { ValidationTypes } from "constants/WidgetValidation";
 
 import WidgetsMultiSelectBox from "pages/Editor/WidgetsMultiSelectBox";
-import { CanvasSelectionArena } from "pages/common/CanvasSelectionArena";
+import { CanvasSelectionArena } from "pages/common/CanvasArenas/CanvasSelectionArena";
 import { compact, map, sortBy } from "lodash";
 
-import { CanvasDraggingArena } from "pages/common/CanvasDraggingArena";
+import { CanvasDraggingArena } from "pages/common/CanvasArenas/CanvasDraggingArena";
 import { getCanvasSnapRows } from "utils/WidgetPropsUtils";
+
 class ContainerWidget extends BaseWidget<
   ContainerWidgetProps<WidgetProps>,
   WidgetState
@@ -44,6 +45,18 @@ class ContainerWidget extends BaseWidget<
             validation: { type: ValidationTypes.BOOLEAN },
           },
           {
+            propertyName: "animateLoading",
+            label: "Animate Loading",
+            controlType: "SWITCH",
+            helpText: "Controls the loading of the widget",
+            defaultValue: true,
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+          },
+          {
+            helpText: "Enables scrolling for content inside the widget",
             propertyName: "shouldScrollContents",
             label: "Scroll Contents",
             controlType: "SWITCH",
@@ -59,8 +72,9 @@ class ContainerWidget extends BaseWidget<
             helpText: "Use a html color name, HEX, RGB or RGBA value",
             placeholderText: "#FFFFFF / Gray / rgb(255, 99, 71)",
             propertyName: "backgroundColor",
-            label: "Background Colour",
+            label: "Background Color",
             controlType: "COLOR_PICKER",
+            isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
             validation: { type: ValidationTypes.TEXT },
@@ -69,7 +83,7 @@ class ContainerWidget extends BaseWidget<
             helpText: "Use a html color name, HEX, RGB or RGBA value",
             placeholderText: "#FFFFFF / Gray / rgb(255, 99, 71)",
             propertyName: "borderColor",
-            label: "Border Colour",
+            label: "Border Color",
             controlType: "COLOR_PICKER",
             isBindProperty: true,
             isTriggerProperty: false,
@@ -86,14 +100,15 @@ class ContainerWidget extends BaseWidget<
             validation: { type: ValidationTypes.NUMBER },
           },
           {
-            helpText: "Enter value for border radius",
             propertyName: "borderRadius",
             label: "Border Radius",
-            placeholderText: "Enter value in px",
-            controlType: "INPUT_TEXT",
+            helpText:
+              "Rounds the corners of the icon button's outer border edge",
+            controlType: "BORDER_RADIUS_OPTIONS",
+            isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: { type: ValidationTypes.NUMBER },
+            validation: { type: ValidationTypes.TEXT },
           },
           {
             propertyName: "boxShadow",
@@ -101,28 +116,8 @@ class ContainerWidget extends BaseWidget<
             helpText:
               "Enables you to cast a drop shadow from the frame of the widget",
             controlType: "BOX_SHADOW_OPTIONS",
-            isBindProperty: false,
-            isTriggerProperty: false,
-            validation: {
-              type: ValidationTypes.TEXT,
-              params: {
-                allowedValues: [
-                  "NONE",
-                  "VARIANT1",
-                  "VARIANT2",
-                  "VARIANT3",
-                  "VARIANT4",
-                  "VARIANT5",
-                ],
-              },
-            },
-          },
-          {
-            propertyName: "boxShadowColor",
-            helpText: "Sets the shadow color of the widget",
-            label: "Shadow Color",
-            controlType: "COLOR_PICKER",
-            isBindProperty: false,
+            isJSConvertible: true,
+            isBindProperty: true,
             isTriggerProperty: false,
             validation: { type: ValidationTypes.TEXT },
           },
@@ -209,12 +204,14 @@ class ContainerWidget extends BaseWidget<
               canExtend={props.canExtend}
               dropDisabled={!!props.dropDisabled}
               noPad={this.props.noPad}
+              parentId={props.parentId}
               snapRows={snapRows}
               widgetId={props.widgetId}
             />
             <CanvasSelectionArena
               {...this.getSnapSpaces()}
               canExtend={props.canExtend}
+              dropDisabled={!!props.dropDisabled}
               parentId={props.parentId}
               snapRows={snapRows}
               widgetId={props.widgetId}
@@ -223,6 +220,7 @@ class ContainerWidget extends BaseWidget<
         )}
         <WidgetsMultiSelectBox
           {...this.getSnapSpaces()}
+          noContainerOffset={!!props.noContainerOffset}
           widgetId={this.props.widgetId}
           widgetType={this.props.type}
         />

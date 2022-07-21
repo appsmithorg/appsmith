@@ -28,6 +28,8 @@ import { ReactComponent as ItalicsFontIcon } from "assets/icons/control/italics.
 import { ReactComponent as LeftAlignIcon } from "assets/icons/control/left-align.svg";
 import { ReactComponent as CenterAlignIcon } from "assets/icons/control/center-align.svg";
 import { ReactComponent as RightAlignIcon } from "assets/icons/control/right-align.svg";
+import { ReactComponent as VerticalAlignRight } from "assets/icons/control/align_right.svg";
+import { ReactComponent as VerticalAlignLeft } from "assets/icons/control/align_left.svg";
 import { ReactComponent as VerticalAlignBottom } from "assets/icons/control/vertical_align_bottom.svg";
 import { ReactComponent as VerticalAlignCenter } from "assets/icons/control/vertical_align_center.svg";
 import { ReactComponent as VerticalAlignTop } from "assets/icons/control/vertical_align_top.svg";
@@ -55,7 +57,7 @@ import { ReactComponent as BoxShadowVariant2Icon } from "assets/icons/control/bo
 import { ReactComponent as BoxShadowVariant3Icon } from "assets/icons/control/box-shadow-variant3.svg";
 import { ReactComponent as BoxShadowVariant4Icon } from "assets/icons/control/box-shadow-variant4.svg";
 import { ReactComponent as BoxShadowVariant5Icon } from "assets/icons/control/box-shadow-variant5.svg";
-import IncreaseV2Icon from "remixicon-react/AddCircleLineIcon";
+import IncreaseV2Icon from "remixicon-react/AddLineIcon";
 import PlayIcon from "assets/icons/control/play-icon.png";
 import CopyIcon from "remixicon-react/FileCopyLineIcon";
 import QuestionIcon from "remixicon-react/QuestionLineIcon";
@@ -236,6 +238,16 @@ export const ControlIcons: {
   RIGHT_ALIGN: (props: IconProps) => (
     <IconWrapper {...props}>
       <RightAlignIcon />
+    </IconWrapper>
+  ),
+  VERTICAL_RIGHT: (props: IconProps) => (
+    <IconWrapper {...props}>
+      <VerticalAlignRight />
+    </IconWrapper>
+  ),
+  VERTICAL_LEFT: (props: IconProps) => (
+    <IconWrapper {...props}>
+      <VerticalAlignLeft />
     </IconWrapper>
   ),
   VERTICAL_TOP: (props: IconProps) => (

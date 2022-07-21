@@ -4,6 +4,7 @@ import com.appsmith.external.models.BaseDomain;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import org.springframework.data.annotation.Transient;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
@@ -17,9 +18,21 @@ public abstract class AbstractCommentDomain extends BaseDomain {
 
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     String authorUsername; // username i.e. email of the user, who authored this comment or thread.
+
+    //Organizations migrated to workspaces, kept the field as deprecated to support the old migration
+    @Deprecated
     String orgId;
 
-    /** Edit/Published Mode */
-    String mode;
+    String workspaceId;
 
+    /** Edit/Published Mode */
+    ApplicationMode mode;
+
+
+    @Transient
+    String branchName;
+
+    public String getType() {
+        return getClass().getSimpleName();
+    }
 }

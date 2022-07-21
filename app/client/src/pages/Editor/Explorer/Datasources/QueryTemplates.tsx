@@ -5,15 +5,17 @@ import { useDispatch, useSelector } from "react-redux";
 import { createActionRequest } from "actions/pluginActionActions";
 import { AppState } from "reducers";
 import { createNewQueryName } from "utils/AppsmithUtils";
-import { getCurrentPageId } from "selectors/editorSelectors";
+import {
+  getCurrentApplicationId,
+  getCurrentPageId,
+} from "selectors/editorSelectors";
 import { QueryAction } from "entities/Action";
 import { Classes } from "@blueprintjs/core";
 import history from "utils/history";
 import { Datasource, QueryTemplate } from "entities/Datasource";
-import { useParams } from "react-router";
-import { ExplorerURLParams } from "../helpers";
-import { INTEGRATION_EDITOR_URL, INTEGRATION_TABS } from "constants/routes";
+import { INTEGRATION_TABS } from "constants/routes";
 import { getDatasource } from "selectors/entitiesSelector";
+import { integrationEditorURL } from "RouteBuilder";
 
 const Container = styled.div`
   background-color: ${(props) => props.theme.colors.queryTemplate.bg};
@@ -38,7 +40,7 @@ type QueryTemplatesProps = {
 
 export function QueryTemplates(props: QueryTemplatesProps) {
   const dispatch = useDispatch();
-  const params = useParams<ExplorerURLParams>();
+  const applicationId = useSelector(getCurrentApplicationId);
   const actions = useSelector((state: AppState) => state.entities.actions);
   const currentPageId = useSelector(getCurrentPageId);
   const dataSource: Datasource | undefined = useSelector((state: AppState) =>
@@ -52,6 +54,7 @@ export function QueryTemplates(props: QueryTemplatesProps) {
           body: template.body,
           pluginSpecifiedTemplates: template.pluginSpecifiedTemplates,
           formData: template.configuration,
+          ...template.actionConfiguration,
         },
       };
 
@@ -59,6 +62,7 @@ export function QueryTemplates(props: QueryTemplatesProps) {
         createActionRequest({
           name: newQueryName,
           pageId: currentPageId,
+          pluginId: dataSource?.pluginId,
           datasource: {
             id: props.datasourceId,
           },
@@ -71,18 +75,17 @@ export function QueryTemplates(props: QueryTemplatesProps) {
         }),
       );
       history.push(
-        INTEGRATION_EDITOR_URL(
-          params.applicationId,
-          currentPageId,
-          INTEGRATION_TABS.ACTIVE,
-        ),
+        integrationEditorURL({
+          pageId: currentPageId,
+          selectedTab: INTEGRATION_TABS.ACTIVE,
+        }),
       );
     },
     [
       dispatch,
       actions,
       currentPageId,
-      params.applicationId,
+      applicationId,
       props.datasourceId,
       dataSource,
     ],

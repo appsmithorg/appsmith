@@ -5,9 +5,12 @@ import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.helpers.DataTypeStringUtils;
 import com.appsmith.external.helpers.MustacheHelper;
+import com.appsmith.external.helpers.PluginUtils;
+import com.appsmith.external.helpers.SSLHelper;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionRequest;
 import com.appsmith.external.models.ActionExecutionResult;
+import com.appsmith.external.models.ApiContentType;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.PaginationField;
@@ -40,6 +43,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.InvalidMediaTypeException;
 import org.springframework.http.MediaType;
 import org.springframework.http.client.reactive.ClientHttpRequest;
+import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.reactive.function.BodyInserter;
 import org.springframework.web.reactive.function.client.ClientResponse;
@@ -48,14 +52,20 @@ import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriComponentsBuilder;
 import reactor.core.Exceptions;
 import reactor.core.publisher.Mono;
+import reactor.netty.http.client.HttpClient;
+import reactor.netty.resources.ConnectionProvider;
+import reactor.util.function.Tuple2;
 
 import javax.crypto.SecretKey;
 import java.io.IOException;
+import java.net.InetAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
+import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Date;
@@ -65,6 +75,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static com.external.helpers.HintMessageUtils.getActionHintMessages;
+import static com.external.helpers.HintMessageUtils.getDatasourceHintMessages;
 import static java.lang.Boolean.TRUE;
 
 public class RestApiPlugin extends BasePlugin {
@@ -89,6 +101,7 @@ public class RestApiPlugin extends BasePlugin {
                 "application/pdf",
                 "application/pkcs8",
                 "application/x-binary");
+        private final String FIELD_API_CONTENT_TYPE = "apiContentType";
 
         private final SharedConfig sharedConfig;
         private final DataUtils dataUtils;
@@ -96,6 +109,11 @@ public class RestApiPlugin extends BasePlugin {
         // Setting max content length. This would've been coming from `spring.codec.max-in-memory-size` property if the
         // `WebClient` instance was loaded as an auto-wired bean.
         public ExchangeStrategies EXCHANGE_STRATEGIES;
+
+        private static final Set<String> DISALLOWED_HOSTS = Set.of(
+                "169.254.169.254",
+                "metadata.google.internal"
+        );
 
         public RestApiPluginExecutor(SharedConfig sharedConfig) {
             this.sharedConfig = sharedConfig;
@@ -226,9 +244,17 @@ public class RestApiPlugin extends BasePlugin {
             URI uri;
             try {
                 String httpUrl = addHttpToUrlWhenPrefixNotPresent(url);
-                uri = createFinalUriWithQueryParams(httpUrl,
-                        actionConfiguration.getQueryParameters(),
-                        encodeParamsToggle);
+
+                ArrayList<Property> allQueryParams = new ArrayList<>();
+                if (!CollectionUtils.isEmpty(actionConfiguration.getQueryParameters())) {
+                    allQueryParams.addAll(actionConfiguration.getQueryParameters());
+                }
+
+                if (!CollectionUtils.isEmpty(datasourceConfiguration.getQueryParameters())) {
+                    allQueryParams.addAll(datasourceConfiguration.getQueryParameters());
+                }
+
+                uri = createFinalUriWithQueryParams(httpUrl, allQueryParams, encodeParamsToggle);
             } catch (URISyntaxException e) {
                 ActionExecutionRequest actionExecutionRequest =
                         RequestCaptureFilter.populateRequestFields(actionConfiguration, null, insertedParams, objectMapper);
@@ -241,6 +267,21 @@ public class RestApiPlugin extends BasePlugin {
             ActionExecutionRequest actionExecutionRequest =
                     RequestCaptureFilter.populateRequestFields(actionConfiguration, uri, insertedParams, objectMapper);
 
+            try {
+                final String host = uri.getHost();
+                if (StringUtils.isEmpty(host)
+                        || DISALLOWED_HOSTS.contains(host)
+                        || DISALLOWED_HOSTS.contains(InetAddress.getByName(host).getHostAddress())) {
+                    errorResult.setBody(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR.getMessage("Host not allowed."));
+                    errorResult.setRequest(actionExecutionRequest);
+                    return Mono.just(errorResult);
+                }
+            } catch (UnknownHostException e) {
+                errorResult.setBody(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR.getMessage("Unknown host."));
+                errorResult.setRequest(actionExecutionRequest);
+                return Mono.just(errorResult);
+            }
+
             if (httpMethod == null) {
                 errorResult.setBody(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR.getMessage("HTTPMethod must be set."));
                 errorResult.setRequest(actionExecutionRequest);
@@ -248,7 +289,22 @@ public class RestApiPlugin extends BasePlugin {
             }
 
             // Initializing webClient to be used for http call
-            WebClient.Builder webClientBuilder = WebClient.builder();
+            final ConnectionProvider provider = ConnectionProvider
+                    .builder("rest-api-provider")
+                    .maxIdleTime(Duration.ofSeconds(600))
+                    .maxLifeTime(Duration.ofSeconds(600))
+                    .build();
+
+            HttpClient httpClient = HttpClient.create(provider)
+                    .secure(SSLHelper.sslCheckForHttpClient(datasourceConfiguration))
+                    .compress(true);
+
+            if ("true".equals(System.getProperty("java.net.useSystemProxies"))
+                    && (!System.getProperty("http.proxyHost", "").isEmpty() || !System.getProperty("https.proxyHost", "").isEmpty())) {
+                httpClient = httpClient.proxyWithSystemProperties();
+            }
+
+            WebClient.Builder webClientBuilder = WebClient.builder().clientConnector(new ReactorClientHttpConnector(httpClient));
 
             // Adding headers from datasource
             if (datasourceConfiguration.getHeaders() != null) {
@@ -273,15 +329,28 @@ public class RestApiPlugin extends BasePlugin {
             // Based on the content-type, this Object may be of type MultiValueMap or String
             Object requestBodyObj = "";
 
-            // Add request body only for non GET calls.
-            if (!HttpMethod.GET.equals(httpMethod)) {
-                // Adding request body
-                requestBodyObj = (actionConfiguration.getBody() == null) ? "" : actionConfiguration.getBody();
+            // We will read the request body for all HTTP calls where the apiContentType is NOT "none".
+            // This is irrespective of the content-type header or the HTTP method
+            String apiContentTypeStr = (String) PluginUtils.getValueSafelyFromFormData(
+                    actionConfiguration.getFormData(),
+                    FIELD_API_CONTENT_TYPE
+            );
+            ApiContentType apiContentType = ApiContentType.getValueFromString(apiContentTypeStr);
 
-                if (MediaType.APPLICATION_FORM_URLENCODED_VALUE.equals(reqContentType)
-                        || MediaType.MULTIPART_FORM_DATA_VALUE.equals(reqContentType)) {
-                    requestBodyObj = actionConfiguration.getBodyFormData();
-                }
+            if (!httpMethod.equals(HttpMethod.GET)) {
+                // Read the body normally as this is a non-GET request
+                requestBodyObj = (actionConfiguration.getBody() == null) ? "" : actionConfiguration.getBody();
+            } else if (apiContentType != null && apiContentType != ApiContentType.NONE) {
+                // This is a GET request
+                // For all existing GET APIs, the apiContentType will be null. Hence we don't read the body
+                // Also, any new APIs which have apiContentType set to NONE shouldn't read the body.
+                // All other API content types should read the body
+                requestBodyObj = (actionConfiguration.getBody() == null) ? "" : actionConfiguration.getBody();
+            }
+
+            if (MediaType.APPLICATION_FORM_URLENCODED_VALUE.equals(reqContentType)
+                    || MediaType.MULTIPART_FORM_DATA_VALUE.equals(reqContentType)) {
+                requestBodyObj = actionConfiguration.getBodyFormData();
             }
 
             // If users have chosen to share the Appsmith signature in the header, calculate and add that
@@ -326,8 +395,16 @@ public class RestApiPlugin extends BasePlugin {
                     .flatMap(clientResponse -> clientResponse.toEntity(byte[].class))
                     .map(stringResponseEntity -> {
                         HttpHeaders headers = stringResponseEntity.getHeaders();
-                        // Find the media type of the response to parse the body as required.
+                        /*
+                            Find the media type of the response to parse the body as required. In case the content-type
+                            header is not present in the response then set it to our default i.e. "text/plain" although
+                            the RFC 7231 standard suggests assuming "application/octet-stream" content-type in case
+                            it's not present in response header.
+                         */
                         MediaType contentType = headers.getContentType();
+                        if (contentType == null) {
+                            contentType = MediaType.TEXT_PLAIN;
+                        }
                         byte[] body = stringResponseEntity.getBody();
                         HttpStatus statusCode = stringResponseEntity.getStatusCode();
 
@@ -368,8 +445,7 @@ public class RestApiPlugin extends BasePlugin {
                              * Handle XML response. Currently we only handle JSON & Image responses. The other kind of responses
                              * are kept as is and returned as a string.
                              */
-                            if (MediaType.APPLICATION_JSON.equals(contentType) ||
-                                    MediaType.APPLICATION_JSON_UTF8.equals(contentType)) {
+                            if (contentType.includes(MediaType.APPLICATION_JSON)) {
                                 try {
                                     String jsonBody = new String(body, StandardCharsets.UTF_8);
                                     result.setBody(objectMapper.readTree(jsonBody));
@@ -392,6 +468,7 @@ public class RestApiPlugin extends BasePlugin {
                                 String encode = Base64.encode(body);
                                 result.setBody(encode);
                                 responseDataType = ResponseDataType.IMAGE;
+
                             } else if (binaryDataTypes.contains(contentType.toString())) {
                                 String encode = Base64.encode(body);
                                 result.setBody(encode);
@@ -464,7 +541,7 @@ public class RestApiPlugin extends BasePlugin {
             }
 
             for (Property header : headers) {
-                if (header.getKey().equalsIgnoreCase(HttpHeaders.CONTENT_TYPE)) {
+                if (StringUtils.isNotEmpty(header.getKey()) && header.getKey().equalsIgnoreCase(HttpHeaders.CONTENT_TYPE)) {
                     try {
                         MediaType.valueOf((String) header.getValue());
                     } catch (InvalidMediaTypeException e) {
@@ -520,7 +597,7 @@ public class RestApiPlugin extends BasePlugin {
 
         @Override
         public Mono<APIConnection> datasourceCreate(DatasourceConfiguration datasourceConfiguration) {
-            return APIConnectionFactory.createConnection(datasourceConfiguration.getAuthentication());
+            return APIConnectionFactory.createConnection(datasourceConfiguration);
         }
 
         @Override
@@ -668,7 +745,7 @@ public class RestApiPlugin extends BasePlugin {
                                              List<Map.Entry<String, String>> insertedParams,
                                              Object... args) {
             String jsonBody = (String) input;
-            return DataTypeStringUtils.jsonSmartReplacementPlaceholderWithValue(jsonBody, value, insertedParams);
+            return DataTypeStringUtils.jsonSmartReplacementPlaceholderWithValue(jsonBody, value, null, insertedParams, null);
         }
 
         @Override
@@ -678,6 +755,12 @@ public class RestApiPlugin extends BasePlugin {
             // Unused function
             return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, "Unsupported Operation"));
         }
-    }
 
+        @Override
+        public Mono<Tuple2<Set<String>, Set<String>>> getHintMessages(ActionConfiguration actionConfiguration,
+                                                                      DatasourceConfiguration datasourceConfiguration) {
+            return Mono.zip(Mono.just(getDatasourceHintMessages(datasourceConfiguration)),
+                    Mono.just(getActionHintMessages(actionConfiguration, datasourceConfiguration)));
+        }
+    }
 }

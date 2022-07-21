@@ -1,5 +1,5 @@
 import { CommentThread } from "entities/Comments/CommentsInterfaces";
-import { ReduxAction } from "constants/ReduxActionConstants";
+import { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import { get } from "lodash";
 import { CommentsReduxState } from "./interfaces";
 
@@ -13,35 +13,19 @@ const handleUpdateCommentThreadSuccess = (
 
   if (!commentThreadInStore) return state;
 
-  const pinnedStateChanged =
-    commentThreadInStore?.pinnedState?.active !==
-    action.payload?.pinnedState?.active;
-
-  const isNowResolved =
-    !commentThreadInStore?.resolvedState?.active &&
-    action.payload?.resolvedState?.active;
-
-  const shouldRefreshList = isNowResolved || pinnedStateChanged;
-
   state.commentThreadsMap[id] = {
     ...commentThreadInStore,
     ...action.payload,
     comments: existingComments,
   };
 
-  if (shouldRefreshList) {
-    state.applicationCommentThreadsByRef[
-      action.payload.applicationId as string
-    ] = {
-      ...state.applicationCommentThreadsByRef[
-        action.payload.applicationId as string
-      ],
-    };
-  }
-
   return {
     ...state,
     creatingNewThreadComment: false,
+    lastUpdatedCommentThreadByAppId: {
+      ...state.lastUpdatedCommentThreadByAppId,
+      [commentThreadInStore.applicationId]: id,
+    },
   };
 };
 

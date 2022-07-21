@@ -1,10 +1,11 @@
 package com.appsmith.external.helpers;
 
-import com.appsmith.external.constants.DisplayDataType;
 import com.appsmith.external.constants.DataType;
+import com.appsmith.external.constants.DisplayDataType;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.models.ParsedDataType;
+import com.appsmith.external.plugins.SmartSubstitutionInterface;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -18,7 +19,6 @@ import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
 import net.minidev.json.parser.JSONParser;
-import org.apache.commons.validator.routines.DateValidator;
 import org.bson.BsonInvalidOperationException;
 import org.bson.Document;
 import org.bson.json.JsonParseException;
@@ -26,9 +26,12 @@ import reactor.core.Exceptions;
 
 import java.io.IOException;
 import java.io.StringReader;
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeFormatterBuilder;
+import java.time.format.DateTimeParseException;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
 import java.util.List;
@@ -55,25 +58,6 @@ public class DataTypeStringUtils {
     private static final TypeAdapter<JsonObject> strictGsonObjectAdapter =
             new Gson().getAdapter(JsonObject.class);
 
-    public static class DateValidatorUsingDateFormat extends DateValidator {
-        private String dateFormat;
-
-        public DateValidatorUsingDateFormat(String dateFormat) {
-            this.dateFormat = dateFormat;
-        }
-
-        @Override
-        public boolean isValid(String dateStr) {
-            DateFormat sdf = new SimpleDateFormat(this.dateFormat);
-            sdf.setLenient(false);
-            try {
-                sdf.parse(dateStr);
-            } catch (ParseException e) {
-                return false;
-            }
-            return true;
-        }
-    }
 
     public static DataType stringToKnownDataTypeConverter(String input) {
 
@@ -81,7 +65,7 @@ public class DataTypeStringUtils {
             return DataType.NULL;
         }
 
-        input = input.trim();
+        String strNumericValue = input.trim().replaceAll(",", "");
 
         if (input.startsWith("[") && input.endsWith("]")) {
             String betweenBraces = input.substring(1, input.length() - 1);
@@ -95,28 +79,28 @@ public class DataTypeStringUtils {
         }
 
         try {
-            Integer.parseInt(input);
+            Integer.parseInt(strNumericValue);
             return DataType.INTEGER;
         } catch (NumberFormatException e) {
             // Not an integer
         }
 
         try {
-            Long.parseLong(input);
+            Long.parseLong(strNumericValue);
             return DataType.LONG;
         } catch (NumberFormatException e1) {
             // Not long
         }
 
         try {
-            Float.parseFloat(input);
+            Float.parseFloat(strNumericValue);
             return DataType.FLOAT;
         } catch (NumberFormatException e2) {
             // Not float
         }
 
         try {
-            Double.parseDouble(input);
+            Double.parseDouble(strNumericValue);
             return DataType.DOUBLE;
         } catch (NumberFormatException e3) {
             // Not double
@@ -132,20 +116,37 @@ public class DataTypeStringUtils {
             return DataType.NULL;
         }
 
-        DateValidator timestampValidator = new DateValidatorUsingDateFormat("yyyy-MM-dd HH:mm:ss");
-        if (timestampValidator.isValid(input)) {
+        try {
+            final DateTimeFormatter dateTimeFormatter = new DateTimeFormatterBuilder()
+//                    .appendOptional(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"))
+                    .appendOptional(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
+                    .toFormatter();
+            LocalDateTime.parse(input, dateTimeFormatter);
             return DataType.TIMESTAMP;
+        } catch (DateTimeParseException ex) {
+            // Not timestamp
         }
 
-        DateValidator dateValidator = new DateValidatorUsingDateFormat("yyyy-mm-dd");
-        if (dateValidator.isValid(input)) {
+        try {
+            final DateTimeFormatter dateFormatter = new DateTimeFormatterBuilder()
+                    .appendOptional(DateTimeFormatter.ISO_LOCAL_DATE)
+                    .toFormatter();
+            LocalDate.parse(input, dateFormatter);
             return DataType.DATE;
+        } catch (DateTimeParseException ex) {
+            // Not date
         }
 
-        DateValidator timeValidator = new DateValidatorUsingDateFormat("hh:mm:ss");
-        if (timeValidator.isValid(input)) {
+        try {
+            final DateTimeFormatter timeFormatter = new DateTimeFormatterBuilder()
+                    .appendOptional(DateTimeFormatter.ISO_LOCAL_TIME)
+                    .toFormatter();
+            LocalTime.parse(input, timeFormatter);
             return DataType.TIME;
+        } catch (DateTimeParseException ex) {
+            // Not time
         }
+
 
         try (JsonReader reader = new JsonReader(new StringReader(input))) {
             strictGsonObjectAdapter.read(reader);
@@ -186,15 +187,35 @@ public class DataTypeStringUtils {
         return DataType.STRING;
     }
 
+    /**
+     *
+     * @param input input string which has a mustache expression that will be substituted by the replacement value
+     * @param replacement value that needs to be substituted in place of mustache expression
+     * @param replacementDataType nullable DataType that is used to provide Plugin Specific types, by setting this
+     *                            you can override the 'DataTypeStringUtils.stringToKnownDataTypeConverter(replacement)'
+     *                            default behavior.
+     * @param insertedParams keeps a list of tuple (replacement, data_type)
+     * @param smartSubstitutionUtils provides entry to plugin specific post-processing logic applied to replacement
+     *                               value before the final substitution happens
+     * @return
+     */
     public static String jsonSmartReplacementPlaceholderWithValue(String input,
                                                                   String replacement,
-                                                                  List<Map.Entry<String, String>> insertedParams) {
+                                                                  DataType replacementDataType,
+                                                                  List<Map.Entry<String, String>> insertedParams,
+                                                                  SmartSubstitutionInterface smartSubstitutionUtils) {
 
-        DataType dataType = DataTypeStringUtils.stringToKnownDataTypeConverter(replacement);
+        final DataType dataType;
+        if (replacementDataType == null) {
+            dataType = DataTypeStringUtils.stringToKnownDataTypeConverter(replacement);
+        } else {
+            dataType = replacementDataType;
+        }
 
         Map.Entry<String, String> parameter = new SimpleEntry<>(replacement, dataType.toString());
         insertedParams.add(parameter);
 
+        String updatedReplacement;
         switch (dataType) {
             case INTEGER:
             case LONG:
@@ -202,12 +223,12 @@ public class DataTypeStringUtils {
             case DOUBLE:
             case NULL:
             case BOOLEAN:
-                input = placeholderPattern.matcher(input).replaceFirst(String.valueOf(replacement));
+                updatedReplacement = String.valueOf(replacement);
                 break;
             case ARRAY:
                 try {
                     JSONArray jsonArray = (JSONArray) parser.parse(replacement);
-                    input = placeholderPattern.matcher(input).replaceFirst(String.valueOf(objectMapper.writeValueAsString(jsonArray)));
+                    updatedReplacement = String.valueOf(objectMapper.writeValueAsString(jsonArray));
                 } catch (net.minidev.json.parser.ParseException | JsonProcessingException e) {
                     throw Exceptions.propagate(
                             new AppsmithPluginException(
@@ -223,7 +244,7 @@ public class DataTypeStringUtils {
                     JSONObject jsonObject = (JSONObject) parser.parse(replacement);
                     String jsonString = String.valueOf(objectMapper.writeValueAsString(jsonObject));
                     // Adding Matcher.quoteReplacement so that "/" and "$" in the string are escaped during replacement
-                    input = placeholderPattern.matcher(input).replaceFirst(Matcher.quoteReplacement(jsonString));
+                    updatedReplacement = Matcher.quoteReplacement(jsonString);
                 } catch (net.minidev.json.parser.ParseException | JsonProcessingException e) {
                     throw Exceptions.propagate(
                             new AppsmithPluginException(
@@ -235,7 +256,16 @@ public class DataTypeStringUtils {
                 }
                 break;
             case BSON:
-                input = placeholderPattern.matcher(input).replaceFirst(Matcher.quoteReplacement(replacement));
+                updatedReplacement = Matcher.quoteReplacement(replacement);
+                break;
+            case BSON_SPECIAL_DATA_TYPES:
+                /**
+                 * For this data type the replacement logic is handled via `sanitizeReplacement(...)` method.
+                 * Usually usage of special Mongo data types like `ObjectId` or `ISODate` falls into this category
+                 * (if it does not get detected as BSON). For complete list please check out `MongoSpecialDataTypes
+                 * .java`.
+                 */
+                updatedReplacement = replacement;
                 break;
             case DATE:
             case TIME:
@@ -245,9 +275,8 @@ public class DataTypeStringUtils {
             case STRING:
             default:
                 try {
-                    replacement = escapeSpecialCharacters(replacement);
                     String valueAsString = objectMapper.writeValueAsString(replacement);
-                    input = placeholderPattern.matcher(input).replaceFirst(Matcher.quoteReplacement(valueAsString));
+                    updatedReplacement = Matcher.quoteReplacement(valueAsString);
                 } catch (JsonProcessingException e) {
                     throw Exceptions.propagate(
                             new AppsmithPluginException(
@@ -259,20 +288,12 @@ public class DataTypeStringUtils {
                 }
         }
 
-        return input;
-    }
+        if (smartSubstitutionUtils != null) {
+            updatedReplacement = smartSubstitutionUtils.sanitizeReplacement(updatedReplacement, dataType);
+        }
 
-    private static String escapeSpecialCharacters(String raw) {
-        String escaped = raw;
-        escaped = escaped.replace("\\", "\\\\");
-        escaped = escaped.replace("\"", "\\\"");
-        escaped = escaped.replace("\b", "\\b");
-        escaped = escaped.replace("\f", "\\f");
-        escaped = escaped.replace("\n", "\\n");
-        escaped = escaped.replace("\r", "\\r");
-        escaped = escaped.replace("\t", "\\t");
-        // TODO: escape other non-printing characters using uXXXX notation
-        return escaped;
+        input = placeholderPattern.matcher(input).replaceFirst(updatedReplacement);
+        return input;
     }
 
     private static boolean isBinary(String input) {
@@ -289,27 +310,25 @@ public class DataTypeStringUtils {
 
     private static boolean isDisplayTypeTable(Object data) {
         if (data instanceof List) {
-            // Check if the data is a list of simple json objects i.e. all values in the key value pairs are simple
-            // objects or their wrappers.
-            return ((List)data).stream()
-                    .allMatch(item -> item instanceof Map
-                            && ((Map)item).entrySet().stream()
-                            .allMatch(e -> ((Map.Entry)e).getValue() == null ||
-                            isPrimitiveOrWrapper(((Map.Entry)e).getValue().getClass())));
+            // Check if the data is a list of json objects
+            return ((List) data).stream()
+                    .allMatch(item -> item instanceof Map);
         }
         else if (data instanceof JsonNode) {
-            // Check if the data is an array of simple json objects
+            // Check if the data is an array of json objects
             try {
-                objectMapper.convertValue(data, new TypeReference<List<Map<String, String>>>() {});
+                objectMapper.convertValue(data, new TypeReference<List<Map<String, Object>>>() {
+                });
                 return true;
             } catch (IllegalArgumentException e) {
                 return false;
             }
         }
         else if (data instanceof String) {
-            // Check if the data is an array of simple json objects
+            // Check if the data is an array of json objects
             try {
-                objectMapper.readValue((String)data, new TypeReference<List<Map<String, String>>>() {});
+                objectMapper.readValue((String) data, new TypeReference<List<Map<String, Object>>>() {
+                });
                 return true;
             } catch (IOException e) {
                 return false;

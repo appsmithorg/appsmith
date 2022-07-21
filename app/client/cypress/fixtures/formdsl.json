@@ -65,7 +65,7 @@
                   "parentRowSpace": 38,
                   "isVisible": true,
                   "label": "Test Dropdown",
-                  "type": "DROP_DOWN_WIDGET",
+                  "type": "SELECT_WIDGET",
                   "dynamicBindingPathList": [],
                   "isLoading": false,
                   "selectionType": "",

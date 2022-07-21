@@ -1,7 +1,11 @@
-import { createMessage, FIELD_REQUIRED_ERROR } from "constants/messages";
+import {
+  createMessage,
+  FIELD_REQUIRED_ERROR,
+} from "@appsmith/constants/messages";
 import { ValidationConfig } from "constants/PropertyControlConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import moment from "moment";
+import { sample } from "lodash";
 import { CodeEditorExpected } from "components/editorComponents/CodeEditor";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 
@@ -47,6 +51,7 @@ export function getExpectedValue(
       if (config.params?.allowedValues) {
         const allowed = config.params.allowedValues.join(" | ");
         result.type = result.type + ` ( ${allowed} )`;
+        result.example = sample(config.params.allowedValues) as string;
       }
       if (config.params?.expected?.type)
         result.type = config.params?.expected.type;
@@ -72,44 +77,44 @@ export function getExpectedValue(
         autocompleteDataType: AutocompleteDataType.BOOLEAN,
       };
     case ValidationTypes.NUMBER:
-      let type = "number";
+      let numberType = "number";
       let eg = 100;
       if (config.params?.min) {
-        type = `${type} Min: ${config.params?.min}`;
+        numberType = `${numberType} Min: ${config.params?.min}`;
         eg = config.params?.min;
       }
       if (config.params?.max) {
-        type = `${type} Max: ${config.params?.max}`;
+        numberType = `${numberType} Max: ${config.params?.max}`;
         eg = config.params?.max;
       }
       if (config.params?.required) {
-        type = `${type} Required`;
+        numberType = `${numberType} Required`;
       }
 
       return {
-        type,
+        type: numberType,
         example: eg,
         autocompleteDataType: AutocompleteDataType.NUMBER,
       };
     case ValidationTypes.OBJECT:
       const _exampleObj: Record<string, unknown> = {};
-      type = "Object";
+      let objectType = "Object";
       if (config.params?.allowedKeys) {
-        type = "{";
+        objectType = "{";
         config.params?.allowedKeys.forEach((allowedKeyConfig) => {
           const _expected = getExpectedValue(allowedKeyConfig);
-          type = `${type} "${allowedKeyConfig.name}": "${_expected?.type}",`;
+          objectType = `${objectType} "${allowedKeyConfig.name}": "${_expected?.type}",`;
           _exampleObj[allowedKeyConfig.name] = _expected?.example;
         });
-        type = `${type.substring(0, type.length - 1)} }`;
+        objectType = `${objectType.substring(0, objectType.length - 1)} }`;
         return {
-          type,
+          type: objectType,
           example: _exampleObj,
           autocompleteDataType: AutocompleteDataType.OBJECT,
         };
       }
       return {
-        type,
+        type: objectType,
         example: { key: "value" },
         autocompleteDataType: AutocompleteDataType.OBJECT,
       };
@@ -151,7 +156,7 @@ export function getExpectedValue(
     case ValidationTypes.SAFE_URL:
       return {
         type: "URL",
-        example: `https://wikipedia.org`,
+        example: `https://www.example.com`,
         autocompleteDataType: AutocompleteDataType.STRING,
       };
     case ValidationTypes.JSON:
@@ -166,5 +171,7 @@ export function getExpectedValue(
         ),
         autocompleteDataType: AutocompleteDataType.STRING,
       };
+    case ValidationTypes.TABLE_PROPERTY:
+      return getExpectedValue(config.params as ValidationConfig);
   }
 }

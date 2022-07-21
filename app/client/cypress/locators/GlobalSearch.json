@@ -1,0 +1,8 @@
+{
+    "createNew": ".t--entity-add-btn.group.files",
+    "docHint": ".t--docHit",
+    "filterButton": ".t--filter-button",
+    "category": ".t--global-search-category",
+    "blankDatasource": "span:contains('New Datasource')",
+    "fileOperation": ".t--file-operation"
+}

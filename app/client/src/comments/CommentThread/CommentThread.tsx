@@ -42,7 +42,7 @@ const ThreadContainer = styled(animated.div).withConfig({
   pinned?: boolean;
   maxHeight: string;
 }>`
-  width: 280px;
+  width: ${(props) => (props.inline ? "280px" : "100%")};
   max-width: 100%;
   background-color: ${(props) =>
     props.inline
@@ -182,11 +182,11 @@ const CommentThreadContainer = withTheme(function CommentThreadContainer({
               isParentComment
               key={parentComment.id}
               numberOfReplies={numberOfReplies}
-              resolved={!!commentThread.resolvedState?.active}
+              resolved={!!commentThread?.resolvedState?.active}
               showReplies={hideChildren}
               showSubheader={showSubheader}
               toggleResolved={resolveCommentThread}
-              unread={!commentThread.isViewed}
+              unread={!commentThread?.isViewed}
               visible={isVisible}
             />
           )}

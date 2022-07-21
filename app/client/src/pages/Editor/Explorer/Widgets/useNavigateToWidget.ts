@@ -4,28 +4,27 @@ import { useParams } from "react-router";
 import { ExplorerURLParams } from "../helpers";
 import { flashElementsById } from "utils/helpers";
 import { useDispatch, useSelector } from "react-redux";
-import {
-  forceOpenPropertyPane,
-  showModal,
-  closeAllModals,
-} from "actions/widgetActions";
+import { showModal, closeAllModals } from "actions/widgetActions";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 import { navigateToCanvas } from "./utils";
 import { getCurrentPageWidgets } from "selectors/entitiesSelector";
 import WidgetFactory from "utils/WidgetFactory";
+import { inGuidedTour } from "selectors/onboardingSelectors";
+import store from "store";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
 
 export const useNavigateToWidget = () => {
   const params = useParams<ExplorerURLParams>();
-  const allWidgets = useSelector(getCurrentPageWidgets);
+
   const dispatch = useDispatch();
   const {
     selectWidget,
     shiftSelectWidgetEntityExplorer,
   } = useWidgetSelection();
+  const guidedTourEnabled = useSelector(inGuidedTour);
   const multiSelectWidgets = (widgetId: string, pageId: string) => {
-    navigateToCanvas(params, window.location.pathname, pageId, widgetId);
+    navigateToCanvas({ pageId, widgetId });
     flashElementsById(widgetId);
     selectWidget(widgetId, true);
   };
@@ -43,15 +42,17 @@ export const useNavigateToWidget = () => {
     if (parentModalId) dispatch(showModal(parentModalId));
     else dispatch(closeAllModals());
     selectWidget(widgetId, false);
-    navigateToCanvas(params, window.location.pathname, pageId, widgetId);
+    navigateToCanvas({ pageId, widgetId });
 
     // Navigating to a widget from query pane seems to make the property pane
     // appear below the entity explorer hence adding a timeout here
     setTimeout(() => {
-      if (params.pageId === pageId) {
+      // Scrolling will hide some part of the content at the top during guided tour. To avoid that
+      // we skip scrolling altogether during guided tour as we don't have
+      // too many widgets during the same
+      if (params.pageId === pageId && !guidedTourEnabled) {
         flashElementsById(widgetId);
       }
-      dispatch(forceOpenPropertyPane(widgetId));
     }, 0);
   };
 
@@ -66,6 +67,7 @@ export const useNavigateToWidget = () => {
       isShiftSelect?: boolean,
       widgetsInStep?: string[],
     ) => {
+      const allWidgets = getCurrentPageWidgets(store.getState());
       // restrict multi-select across pages
       if (widgetId && (isMultiSelect || isShiftSelect) && !allWidgets[widgetId])
         return;
@@ -78,7 +80,7 @@ export const useNavigateToWidget = () => {
         selectSingleWidget(widgetId, widgetType, pageId, parentModalId);
       }
     },
-    [dispatch, params, selectWidget, allWidgets],
+    [dispatch, params, selectWidget],
   );
 
   return { navigateToWidget };

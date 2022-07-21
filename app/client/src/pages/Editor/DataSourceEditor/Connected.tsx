@@ -8,8 +8,6 @@ import { Colors } from "constants/Colors";
 import { HeaderIcons } from "icons/HeaderIcons";
 import styled from "styled-components";
 import { renderDatasourceSection } from "./DatasourceSection";
-import { OnboardingStep } from "constants/OnboardingConstants";
-import OnboardingIndicator from "components/editorComponents/Onboarding/Indicator";
 import NewActionButton from "./NewActionButton";
 
 const ConnectedText = styled.div`
@@ -38,7 +36,7 @@ const Wrapper = styled.div`
 `;
 
 function Connected() {
-  const params = useParams<{ datasourceId: string; applicationId: string }>();
+  const params = useParams<{ datasourceId: string }>();
   const datasource = useSelector((state: AppState) =>
     getDatasource(state, params.datasourceId),
   );
@@ -64,16 +62,14 @@ function Connected() {
             width={30}
           />
 
-          <div style={{ marginLeft: "12px" }}>Datasource Connected</div>
+          <div style={{ marginLeft: "12px" }}>Datasource Saved</div>
         </ConnectedText>
 
-        <OnboardingIndicator step={OnboardingStep.EXAMPLE_DATABASE} width={120}>
-          <NewActionButton
-            datasource={datasource}
-            eventFrom="datasource-pane"
-            pluginType={plugin?.type}
-          />
-        </OnboardingIndicator>
+        <NewActionButton
+          datasource={datasource}
+          eventFrom="datasource-pane"
+          pluginType={plugin?.type}
+        />
       </Header>
       <div style={{ marginTop: "30px" }}>
         {!isNil(currentFormConfig) && !isNil(datasource)

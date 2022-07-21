@@ -20,37 +20,44 @@
         "leftColumn": 0,
         "children": [
             {
-                "isRequired": false,
                 "widgetName": "CheckboxGroup1",
-                "rightColumn": 64,
-                "defaultSelectedValues": "apple",
-                "widgetId": "g6sddv09d5",
-                "topRow": 1,
-                "bottomRow": 33,
+                "displayName": "Checkbox Group",
+                "iconSVG": "/static/media/icon.ecb38479.svg",
+                "topRow": 8,
+                "bottomRow": 21,
                 "parentRowSpace": 10,
-                "isVisible": true,
                 "type": "CHECKBOX_GROUP_WIDGET",
-                "version": 1,
-                "parentId": "0",
-                "isLoading": false,
-                "parentColumnSpace": 7.852001953124999,
-                "leftColumn": 24,
+                "hideCard": false,
+                "isSelectAll": true,
+                "parentColumnSpace": 18.66171875,
+                "dynamicTriggerPathList": [],
+                "leftColumn": 5,
                 "dynamicBindingPathList": [],
                 "options": [
                     {
-                        "label": "Apple",
-                        "value": "apple"
+                        "label": "Blue",
+                        "value": "BLUE"
                     },
                     {
-                        "label": "Orange",
-                        "value": "orange"
+                        "label": "Green",
+                        "value": "GREEN"
                     },
                     {
-                        "label": "Lemon",
-                        "value": "lemon"
+                        "label": "Red",
+                        "value": "RED"
                     }
                 ],
-                "isDisabled": false
+                "isDisabled": false,
+                "key": "5xno62xw2y",
+                "isRequired": false,
+                "rightColumn": 32,
+                "defaultSelectedValues": "BLUE",
+                "widgetId": "u0xf5la5f2",
+                "isVisible": true,
+                "version": 1,
+                "parentId": "0",
+                "renderMode": "CANVAS",
+                "isLoading": false
             }
         ]
     }

@@ -3,7 +3,7 @@ import {
   ReduxActionTypes,
   ReduxActionErrorTypes,
   ReduxAction,
-} from "constants/ReduxActionConstants";
+} from "@appsmith/constants/ReduxActionConstants";
 import _ from "lodash";
 import { Action } from "entities/Action";
 import { ActionResponse } from "api/ActionAPI";
@@ -123,6 +123,19 @@ const queryPaneReducer = createReducer(initialState, {
       isRunning: {
         ...state.isRunning,
         [action.payload.id]: true,
+      },
+    };
+  },
+
+  [ReduxActionTypes.RUN_ACTION_CANCELLED]: (
+    state: any,
+    action: ReduxAction<{ id: string }>,
+  ) => {
+    return {
+      ...state,
+      isRunning: {
+        ...state.isRunning,
+        [action.payload.id]: false,
       },
     };
   },

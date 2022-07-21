@@ -1,8 +1,14 @@
-import { ENTITY_TYPE, Log, Severity } from "entities/AppsmithConsole";
+import {
+  ENTITY_TYPE,
+  Log,
+  PLATFORM_ERROR,
+  Severity,
+} from "entities/AppsmithConsole";
 import { DataTree } from "entities/DataTree/dataTreeFactory";
 import {
   DataTreeDiff,
   DataTreeDiffEvent,
+  getDataTreeWithoutPrivateWidgets,
   getEntityNameAndPropertyPath,
   isAction,
   isJSAction,
@@ -17,31 +23,30 @@ import {
   PropertyEvaluationErrorType,
 } from "utils/DynamicBindingUtils";
 import { find, get, some } from "lodash";
-import LOG_TYPE from "../entities/AppsmithConsole/logtype";
+import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import { put, select } from "redux-saga/effects";
-import {
-  ReduxAction,
-  ReduxActionWithoutPayload,
-} from "constants/ReduxActionConstants";
+import { AnyReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import { Toaster } from "components/ads/Toast";
 import { Variant } from "components/ads/common";
-import AppsmithConsole from "../utils/AppsmithConsole";
+import AppsmithConsole from "utils/AppsmithConsole";
 import * as Sentry from "@sentry/react";
-import AnalyticsUtil from "../utils/AnalyticsUtil";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 import {
   createMessage,
   ERROR_EVAL_ERROR_GENERIC,
-  ERROR_EVAL_TRIGGER,
-  VALUE_IS_INVALID,
   JS_OBJECT_BODY_INVALID,
-} from "constants/messages";
+  VALUE_IS_INVALID,
+  JS_EXECUTION_FAILURE,
+} from "@appsmith/constants/messages";
 import log from "loglevel";
 import { AppState } from "reducers";
 import { getAppMode } from "selectors/applicationSelectors";
 import { APP_MODE } from "entities/App";
 import { dataTreeTypeDefCreator } from "utils/autocomplete/dataTreeTypeDefCreator";
 import TernServer from "utils/autocomplete/TernServer";
-import { TriggerEvaluationError } from "sagas/ActionExecution/errorUtils";
+import { selectFeatureFlags } from "selectors/usersSelectors";
+import FeatureFlags from "entities/FeatureFlags";
+import { JSAction } from "entities/JSCollection";
 
 const getDebuggerErrors = (state: AppState) => state.ui.debugger.errors;
 /**
@@ -52,6 +57,7 @@ const getDebuggerErrors = (state: AppState) => state.ui.debugger.errors;
  * W117: `x` is undefined
  */
 const errorCodesToIgnoreInDebugger = ["W117"];
+const errorCodesForJSEditorInDebugger = ["E041"]; //how much object parsed error example 90% parsed
 
 function logLatestEvalPropertyErrors(
   currentDebuggerErrors: Record<string, Log>,
@@ -73,17 +79,27 @@ function logLatestEvalPropertyErrors(
       }
       let allEvalErrors: EvaluationError[] = get(
         entity,
-        getEvalErrorPath(evaluatedPath, false),
+        getEvalErrorPath(evaluatedPath, {
+          fullPath: false,
+          isPopulated: false,
+        }),
         [],
       );
 
-      allEvalErrors = allEvalErrors.filter(
-        (err) => err.errorType !== PropertyEvaluationErrorType.LINT,
-      );
+      allEvalErrors = isJSAction(entity)
+        ? allEvalErrors.filter(
+            (err) => !errorCodesForJSEditorInDebugger.includes(err.code || ""),
+          )
+        : allEvalErrors.filter(
+            (err) => err.errorType !== PropertyEvaluationErrorType.LINT,
+          );
 
       const evaluatedValue = get(
         entity,
-        getEvalValuePath(evaluatedPath, false),
+        getEvalValuePath(evaluatedPath, {
+          isPopulated: false,
+          fullPath: false,
+        }),
       );
       const evalErrors: EvaluationError[] = [];
       const evalWarnings: EvaluationError[] = [];
@@ -135,12 +151,10 @@ function logLatestEvalPropertyErrors(
           // Reformatting eval errors here to a format usable by the debugger
           const errorMessages = errors.map((e) => {
             // Error format required for the debugger
-            const formattedError = {
+            return {
               message: e.errorMessage,
               type: e.errorType,
             };
-
-            return formattedError;
           });
 
           const analyticsData = isWidget(entity)
@@ -152,29 +166,36 @@ function logLatestEvalPropertyErrors(
             ? propertyPath
             : entityName;
           // Add or update
-          AppsmithConsole.addError(
-            {
-              id: debuggerKey,
-              logType: isWarning ? LOG_TYPE.EVAL_WARNING : LOG_TYPE.EVAL_ERROR,
-              // Unless the intention is to change the message shown in the debugger please do not
-              // change the text shown here
-              text: isJSAction(entity)
-                ? createMessage(JS_OBJECT_BODY_INVALID)
-                : createMessage(VALUE_IS_INVALID, propertyPath),
-              messages: errorMessages,
-              source: {
-                id: idField,
-                name: nameField,
-                type: entityType,
-                propertyPath: logPropertyPath,
+          if (
+            !isJSAction(entity) ||
+            (isJSAction(entity) && propertyPath === "body")
+          ) {
+            AppsmithConsole.addError(
+              {
+                id: debuggerKey,
+                logType: isWarning
+                  ? LOG_TYPE.EVAL_WARNING
+                  : LOG_TYPE.EVAL_ERROR,
+                // Unless the intention is to change the message shown in the debugger please do not
+                // change the text shown here
+                text: isJSAction(entity)
+                  ? createMessage(JS_OBJECT_BODY_INVALID)
+                  : createMessage(VALUE_IS_INVALID, propertyPath),
+                messages: errorMessages,
+                source: {
+                  id: idField,
+                  name: nameField,
+                  type: entityType,
+                  propertyPath: logPropertyPath,
+                },
+                state: {
+                  [logPropertyPath]: evaluatedValue,
+                },
+                analytics: analyticsData,
               },
-              state: {
-                [logPropertyPath]: evaluatedValue,
-              },
-              analytics: analyticsData,
-            },
-            isWarning ? Severity.WARNING : Severity.ERROR,
-          );
+              isWarning ? Severity.WARNING : Severity.ERROR,
+            );
+          }
         } else if (debuggerKey in updatedDebuggerErrors) {
           AppsmithConsole.deleteError(debuggerKey);
         }
@@ -248,12 +269,6 @@ export function* evalErrorHandler(
         Sentry.captureException(error);
         break;
       }
-      case EvalErrorTypes.EVAL_TRIGGER_ERROR: {
-        log.error(error);
-        throw new TriggerEvaluationError(
-          createMessage(ERROR_EVAL_TRIGGER, error.message),
-        );
-      }
       case EvalErrorTypes.EVAL_PROPERTY_ERROR: {
         log.debug(error);
         break;
@@ -263,6 +278,22 @@ export function* evalErrorHandler(
           extra: {
             request: error.context,
           },
+        });
+        break;
+      }
+      case EvalErrorTypes.PARSE_JS_ERROR: {
+        Toaster.show({
+          text: `${error.message} at: ${error.context?.entity.name}`,
+          variant: Variant.danger,
+        });
+        AppsmithConsole.error({
+          text: `${error.message} at: ${error.context?.propertyPath}`,
+        });
+        break;
+      }
+      case EvalErrorTypes.EXTRACT_DEPENDENCY_ERROR: {
+        Sentry.captureException(new Error(error.message), {
+          extra: error.context,
         });
         break;
       }
@@ -278,10 +309,17 @@ export function* logSuccessfulBindings(
   unEvalTree: DataTree,
   dataTree: DataTree,
   evaluationOrder: string[],
+  isCreateFirstTree: boolean,
 ) {
-  const appMode = yield select(getAppMode);
+  const appMode: APP_MODE | undefined = yield select(getAppMode);
   if (appMode === APP_MODE.PUBLISHED) return;
   if (!evaluationOrder) return;
+
+  if (isCreateFirstTree) {
+    // we only aim to log binding success which were added by user
+    // for first evaluation, bindings are not added by user hence skipping it.
+    return;
+  }
   evaluationOrder.forEach((evaluatedPath) => {
     const { entityName, propertyPath } = getEntityNameAndPropertyPath(
       evaluatedPath,
@@ -293,6 +331,7 @@ export function* logSuccessfulBindings(
       const isABinding = find(entity.dynamicBindingPathList, {
         key: propertyPath,
       });
+
       const logBlackList = entity.logBlackList;
       const errors: EvaluationError[] = get(
         dataTree,
@@ -315,9 +354,7 @@ export function* logSuccessfulBindings(
   });
 }
 
-export function* postEvalActionDispatcher(
-  actions: Array<ReduxAction<unknown> | ReduxActionWithoutPayload>,
-) {
+export function* postEvalActionDispatcher(actions: Array<AnyReduxAction>) {
   for (const action of actions) {
     yield put(action);
   }
@@ -330,14 +367,14 @@ export function* updateTernDefinitions(
   updates?: DataTreeDiff[],
 ) {
   let shouldUpdate: boolean;
-  // No updates means it was a first Eval
+  // No updates, means it was a first Eval
   if (!updates) {
     shouldUpdate = true;
   } else if (updates.length === 0) {
     // update length is 0 means no significant updates
     shouldUpdate = false;
   } else {
-    // Only when new field is added or deleted, we want to re create the def
+    // Only when new field is added or deleted, we want to re-create the def
     shouldUpdate = some(updates, (update) => {
       return (
         update.event === DataTreeDiffEvent.NEW ||
@@ -347,10 +384,46 @@ export function* updateTernDefinitions(
   }
   if (shouldUpdate) {
     const start = performance.now();
-    const { def, entityInfo } = dataTreeTypeDefCreator(dataTree);
+    // remove private widgets from dataTree used for autocompletion
+    const treeWithoutPrivateWidgets = getDataTreeWithoutPrivateWidgets(
+      dataTree,
+    );
+    const featureFlags: FeatureFlags = yield select(selectFeatureFlags);
+    const { def, entityInfo } = dataTreeTypeDefCreator(
+      treeWithoutPrivateWidgets,
+      !!featureFlags.JS_EDITOR,
+    );
     TernServer.updateDef("DATA_TREE", def, entityInfo);
     const end = performance.now();
     log.debug("Tern", { updates });
     log.debug("Tern definitions updated took ", (end - start).toFixed(2));
   }
+}
+
+export function* handleJSFunctionExecutionErrorLog(
+  collectionId: string,
+  collectionName: string,
+  action: JSAction,
+  errors: any[],
+) {
+  errors.length
+    ? AppsmithConsole.addError({
+        id: `${collectionId}-${action.id}`,
+        logType: LOG_TYPE.EVAL_ERROR,
+        text: `${createMessage(JS_EXECUTION_FAILURE)}: ${collectionName}.${
+          action.name
+        }`,
+        messages: errors.map((error) => ({
+          message: error.errorMessage || error.message,
+          type: PLATFORM_ERROR.JS_FUNCTION_EXECUTION,
+          subType: error.errorType,
+        })),
+        source: {
+          id: action.id,
+          name: `${collectionName}.${action.name}`,
+          type: ENTITY_TYPE.JSACTION,
+          propertyPath: `${collectionName}.${action.name}`,
+        },
+      })
+    : AppsmithConsole.deleteError(`${collectionId}-${action.id}`);
 }

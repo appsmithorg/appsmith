@@ -1,5 +1,7 @@
-import Boxed from "components/editorComponents/Onboarding/Boxed";
-import { OnboardingStep } from "constants/OnboardingConstants";
+import {
+  createMessage,
+  SCHEMA_NOT_AVAILABLE,
+} from "@appsmith/constants/messages";
 import {
   DatasourceStructure as DatasourceStructureType,
   DatasourceTable,
@@ -26,17 +28,12 @@ const Container = (props: Props) => {
           {props.datasourceStructure.tables.map(
             (structure: DatasourceTable) => {
               return (
-                <Boxed
+                <DatasourceStructure
+                  datasourceId={props.datasourceId}
+                  dbStructure={structure}
                   key={`${props.datasourceId}${structure.name}`}
-                  show={structure.name === "public.standup_updates"}
-                  step={OnboardingStep.DEPLOY}
-                >
-                  <DatasourceStructure
-                    datasourceId={props.datasourceId}
-                    dbStructure={structure}
-                    step={props.step + 1}
-                  />
-                </Boxed>
+                  step={props.step + 1}
+                />
               );
             },
           )}
@@ -49,7 +46,7 @@ const Container = (props: Props) => {
           props.datasourceStructure.error &&
           props.datasourceStructure.error.message
             ? props.datasourceStructure.error.message
-            : "No information available"}
+            : createMessage(SCHEMA_NOT_AVAILABLE)}
         </EntityPlaceholder>
       );
     }

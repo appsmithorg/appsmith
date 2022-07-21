@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import ResizeObserver from "resize-observer-polyfill";
 
 const useResizeObserver = (
   ref: HTMLDivElement | null,

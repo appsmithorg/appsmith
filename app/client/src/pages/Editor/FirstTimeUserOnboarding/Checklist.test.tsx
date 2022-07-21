@@ -1,15 +1,16 @@
+const history = jest.fn();
+const dispatch = jest.fn();
+
 import { bindDataOnCanvas } from "actions/pluginActionActions";
-import { ReduxActionTypes } from "constants/ReduxActionConstants";
-import {
-  BUILDER_PAGE_URL,
-  INTEGRATION_EDITOR_URL,
-  INTEGRATION_TABS,
-} from "constants/routes";
+import { builderURL, integrationEditorURL } from "RouteBuilder";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import { INTEGRATION_TABS } from "constants/routes";
 import React from "react";
 import { Provider } from "react-redux";
 import { fireEvent, render, screen } from "test/testUtils";
 import OnboardingChecklist from "./Checklist";
 import { getStore, initialState } from "./testUtils";
+import urlBuilder from "entities/URLRedirect/URLAssembly";
 
 let container: any = null;
 
@@ -18,7 +19,6 @@ jest.mock("pages/Editor/utils", () => ({
   useIsWidgetActionConnectionPresent: () => useIsWidgetActionConnectionPresent,
 }));
 
-const dispatch = jest.fn();
 jest.mock("react-redux", () => {
   const originalModule = jest.requireActual("react-redux");
   return {
@@ -27,13 +27,9 @@ jest.mock("react-redux", () => {
   };
 });
 
-let history: any;
-jest.mock("utils/history", () => {
-  history = jest.fn();
-  return {
-    push: history,
-  };
-});
+jest.mock("utils/history", () => ({
+  push: history,
+}));
 
 function renderComponent(store: any) {
   render(
@@ -48,6 +44,19 @@ describe("Checklist", () => {
   beforeEach(() => {
     container = document.createElement("div");
     document.body.appendChild(container);
+    urlBuilder.updateURLParams(
+      {
+        applicationSlug: initialState.ui.applications.currentApplication.slug,
+        applicationId: initialState.entities.pageList.applicationId,
+        applicationVersion: 2,
+      },
+      [
+        {
+          pageSlug: initialState.entities.pageList.pages[0].slug,
+          pageId: initialState.entities.pageList.currentPageId,
+        },
+      ],
+    );
   });
 
   afterEach(() => {
@@ -78,11 +87,10 @@ describe("Checklist", () => {
     expect(banner.length).toBe(0);
     fireEvent.click(datasourceButton[0]);
     expect(history).toHaveBeenCalledWith(
-      INTEGRATION_EDITOR_URL(
-        initialState.entities.pageList.applicationId,
-        initialState.entities.pageList.currentPageId,
-        INTEGRATION_TABS.NEW,
-      ),
+      integrationEditorURL({
+        pageId: initialState.entities.pageList.currentPageId,
+        selectedTab: INTEGRATION_TABS.NEW,
+      }),
     );
   });
 
@@ -95,11 +103,10 @@ describe("Checklist", () => {
     const actionButton = screen.queryAllByTestId("checklist-action-button");
     fireEvent.click(actionButton[0]);
     expect(history).toHaveBeenCalledWith(
-      INTEGRATION_EDITOR_URL(
-        initialState.entities.pageList.applicationId,
-        initialState.entities.pageList.currentPageId,
-        INTEGRATION_TABS.ACTIVE,
-      ),
+      integrationEditorURL({
+        pageId: initialState.entities.pageList.currentPageId,
+        selectedTab: INTEGRATION_TABS.ACTIVE,
+      }),
     );
   });
 
@@ -110,10 +117,7 @@ describe("Checklist", () => {
     const widgetButton = screen.queryAllByTestId("checklist-widget-button");
     fireEvent.click(widgetButton[0]);
     expect(history).toHaveBeenCalledWith(
-      BUILDER_PAGE_URL(
-        initialState.entities.pageList.applicationId,
-        initialState.entities.pageList.currentPageId,
-      ),
+      builderURL({ pageId: initialState.entities.pageList.currentPageId }),
     );
     expect(dispatch).toHaveBeenCalledWith({
       type: ReduxActionTypes.TOGGLE_ONBOARDING_WIDGET_SELECTION,

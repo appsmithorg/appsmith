@@ -1,0 +1,78 @@
+---
+
+- name: Upgrade all packages to the latest version
+  apt:
+    name: '*'
+    state: latest
+  become: true
+
+- name: Install required system packages
+  apt:
+    update_cache: yes
+    name:
+      - apt-transport-https
+      - ca-certificates
+      - curl
+      - software-properties-common
+      - python3-pip
+      - virtualenv
+      - python3-setuptools
+      - gnupg2
+    state: latest
+  become: true
+  tags:
+    - always
+
+- name: Ensure old versions of Docker are not installed
+  package:
+    name:
+      - docker
+      - docker-engine
+    state: absent
+
+- name: Extra packages for Ubuntu
+  apt:
+    name: linux-image-extra-virtual
+    state: latest
+  become: true
+  when: ansible_distribution == "Ubuntu"
+
+- name: Add key id
+  apt_key:
+    url: "https://download.docker.com/linux/{{ ansible_distribution | lower }}/gpg"
+    state: present
+  become: true
+
+- name: Add docker repository
+  apt_repository:
+    repo: "deb [arch=amd64] https://download.docker.com/linux/{{ ansible_distribution | lower }} {{ ansible_distribution_release | lower }} stable"
+    filename: docker
+    state: present
+  become: true
+
+- name: Install docker
+  apt:
+    name: docker-ce
+    update_cache: yes
+    state: present
+  become: true
+
+- name: Install Docker-compose
+  get_url:
+    url: https://github.com/docker/compose/releases/download/{{ docker_compose_version }}/docker-compose-Linux-x86_64
+    dest: '{{ docker_compose_path }}'
+    mode: 0755
+  become: true
+
+- name: Ensure handlers are notified now to avoid firewall conflicts.
+  meta: flush_handlers
+
+- name: Ensure docker users are added to the docker group.
+  user:
+    name: "{{ ansible_user }}"
+    groups: docker
+    append: true
+  become: true
+
+- name: reset ssh connection to allow user changes to affect 'current login user'
+  meta: reset_connection

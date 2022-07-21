@@ -1,15 +1,29 @@
 import React from "react";
 import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
-import { WidgetType } from "constants/WidgetConstants";
+import { TextSize, WidgetType } from "constants/WidgetConstants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import DatePickerComponent from "../component";
 
 import { ValidationTypes } from "constants/WidgetValidation";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
+import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 
-import moment from "moment";
-import { DatePickerType } from "../constants";
+import derivedProperties from "./parseDerivedProperties";
+import { DatePickerType, TimePrecision } from "../constants";
+import { LabelPosition } from "components/constants";
+import { Alignment } from "@blueprintjs/core";
+import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
+import { DateFormatOptions } from "./constants";
 
+function allowedRange(value: any) {
+  const allowedValues = [0, 1, 2, 3, 4, 5, 6];
+  const isValid = allowedValues.includes(Number(value));
+  return {
+    isValid: isValid,
+    parsed: isValid ? Number(value) : 0,
+    messages: isValid ? [] : ["Number should be between 0-6."],
+  };
+}
 class DatePickerWidget extends BaseWidget<DatePickerWidget2Props, WidgetState> {
   static getPropertyPaneConfig() {
     return [
@@ -36,91 +50,46 @@ class DatePickerWidget extends BaseWidget<DatePickerWidget2Props, WidgetState> {
             controlType: "DROP_DOWN",
             isJSConvertible: true,
             optionWidth: "340px",
-            options: [
-              {
-                label: moment().format("YYYY-MM-DDTHH:mm:ss.sssZ"),
-                subText: "ISO 8601",
-                value: "YYYY-MM-DDTHH:mm:ss.sssZ",
-              },
-              {
-                label: moment().format("LLL"),
-                subText: "LLL",
-                value: "LLL",
-              },
-              {
-                label: moment().format("LL"),
-                subText: "LL",
-                value: "LL",
-              },
-              {
-                label: moment().format("YYYY-MM-DD HH:mm"),
-                subText: "YYYY-MM-DD HH:mm",
-                value: "YYYY-MM-DD HH:mm",
-              },
-              {
-                label: moment().format("YYYY-MM-DDTHH:mm:ss"),
-                subText: "YYYY-MM-DDTHH:mm:ss",
-                value: "YYYY-MM-DDTHH:mm:ss",
-              },
-              {
-                label: moment().format("YYYY-MM-DD hh:mm:ss A"),
-                subText: "YYYY-MM-DD hh:mm:ss A",
-                value: "YYYY-MM-DD hh:mm:ss A",
-              },
-              {
-                label: moment().format("DD/MM/YYYY HH:mm"),
-                subText: "DD/MM/YYYY HH:mm",
-                value: "DD/MM/YYYY HH:mm",
-              },
-              {
-                label: moment().format("D MMMM, YYYY"),
-                subText: "D MMMM, YYYY",
-                value: "D MMMM, YYYY",
-              },
-              {
-                label: moment().format("H:mm A D MMMM, YYYY"),
-                subText: "H:mm A D MMMM, YYYY",
-                value: "H:mm A D MMMM, YYYY",
-              },
-              {
-                label: moment().format("YYYY-MM-DD"),
-                subText: "YYYY-MM-DD",
-                value: "YYYY-MM-DD",
-              },
-              {
-                label: moment().format("MM-DD-YYYY"),
-                subText: "MM-DD-YYYY",
-                value: "MM-DD-YYYY",
-              },
-              {
-                label: moment().format("DD-MM-YYYY"),
-                subText: "DD-MM-YYYY",
-                value: "DD-MM-YYYY",
-              },
-              {
-                label: moment().format("MM/DD/YYYY"),
-                subText: "MM/DD/YYYY",
-                value: "MM/DD/YYYY",
-              },
-              {
-                label: moment().format("DD/MM/YYYY"),
-                subText: "DD/MM/YYYY",
-                value: "DD/MM/YYYY",
-              },
-              {
-                label: moment().format("DD/MM/YY"),
-                subText: "DD/MM/YY",
-                value: "DD/MM/YY",
-              },
-              {
-                label: moment().format("MM/DD/YY"),
-                subText: "MM/DD/YY",
-                value: "MM/DD/YY",
-              },
-            ],
+            options: DateFormatOptions,
             isBindProperty: true,
             isTriggerProperty: false,
             validation: { type: ValidationTypes.TEXT },
+            hideSubText: true,
+          },
+          {
+            propertyName: "timePrecision",
+            label: "Time precision",
+            controlType: "DROP_DOWN",
+            helpText: "Sets the different time picker or hide.",
+            defaultValue: TimePrecision.MINUTE,
+            options: [
+              {
+                label: "None",
+                value: TimePrecision.NONE,
+              },
+              {
+                label: "Minute",
+                value: TimePrecision.MINUTE,
+              },
+              {
+                label: "Second",
+                value: TimePrecision.SECOND,
+              },
+            ],
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: {
+              type: ValidationTypes.TEXT,
+              params: {
+                allowedValues: [
+                  TimePrecision.NONE,
+                  TimePrecision.MINUTE,
+                  TimePrecision.SECOND,
+                ],
+                default: TimePrecision.MINUTE,
+              },
+            },
           },
           {
             propertyName: "isRequired",
@@ -153,10 +122,22 @@ class DatePickerWidget extends BaseWidget<DatePickerWidget2Props, WidgetState> {
             validation: { type: ValidationTypes.BOOLEAN },
           },
           {
+            propertyName: "animateLoading",
+            label: "Animate Loading",
+            controlType: "SWITCH",
+            helpText: "Controls the loading of the widget",
+            defaultValue: true,
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+          },
+          {
             propertyName: "closeOnSelection",
             label: "Close On Selection",
             helpText: "Calender should close when a date is selected",
             controlType: "SWITCH",
+            defaultValue: true,
             isJSConvertible: false,
             isBindProperty: true,
             isTriggerProperty: false,
@@ -194,10 +175,179 @@ class DatePickerWidget extends BaseWidget<DatePickerWidget2Props, WidgetState> {
             isTriggerProperty: false,
             validation: { type: ValidationTypes.DATE_ISO_STRING },
           },
+          {
+            propertyName: "firstDayOfWeek",
+            label: "First Day Of Week",
+            helpText: "Defines the first day of the week for calendar",
+            controlType: "INPUT_TEXT",
+            defaultValue: "0",
+            inputType: "INTEGER",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: {
+              type: ValidationTypes.FUNCTION,
+              params: {
+                fn: allowedRange,
+                expected: {
+                  type:
+                    "0 : sunday\n1 : monday\n2 : tuesday\n3 : wednesday\n4 : thursday\n5 : friday\n6 : saturday",
+                  example: "0",
+                  autocompleteDataType: AutocompleteDataType.STRING,
+                },
+              },
+            },
+          },
         ],
       },
       {
-        sectionName: "Actions",
+        sectionName: "Label",
+        children: [
+          {
+            helpText: "Sets the label text of the widget",
+            propertyName: "label",
+            label: "Text",
+            controlType: "INPUT_TEXT",
+            placeholderText: "Enter label text",
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
+          {
+            helpText: "Sets the label position of the widget",
+            propertyName: "labelPosition",
+            label: "Position",
+            controlType: "DROP_DOWN",
+            options: [
+              { label: "Left", value: LabelPosition.Left },
+              { label: "Top", value: LabelPosition.Top },
+              { label: "Auto", value: LabelPosition.Auto },
+            ],
+            isBindProperty: false,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
+          {
+            helpText: "Sets the label alignment of the widget",
+            propertyName: "labelAlignment",
+            label: "Alignment",
+            controlType: "LABEL_ALIGNMENT_OPTIONS",
+            options: [
+              {
+                icon: "LEFT_ALIGN",
+                value: Alignment.LEFT,
+              },
+              {
+                icon: "RIGHT_ALIGN",
+                value: Alignment.RIGHT,
+              },
+            ],
+            isBindProperty: false,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+            hidden: (props: DatePickerWidget2Props) =>
+              props.labelPosition !== LabelPosition.Left,
+            dependencies: ["labelPosition"],
+          },
+          {
+            helpText:
+              "Sets the label width of the widget as the number of columns",
+            propertyName: "labelWidth",
+            label: "Width (in columns)",
+            controlType: "NUMERIC_INPUT",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            min: 0,
+            validation: {
+              type: ValidationTypes.NUMBER,
+              params: {
+                natural: true,
+              },
+            },
+            hidden: (props: DatePickerWidget2Props) =>
+              props.labelPosition !== LabelPosition.Left,
+            dependencies: ["labelPosition"],
+          },
+        ],
+      },
+      {
+        sectionName: "Styles",
+        children: [
+          {
+            propertyName: "labelTextColor",
+            label: "Label Text Color",
+            controlType: "COLOR_PICKER",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
+          {
+            propertyName: "labelTextSize",
+            label: "Label Text Size",
+            controlType: "DROP_DOWN",
+            defaultValue: "0.875rem",
+            options: [
+              {
+                label: "S",
+                value: "0.875rem",
+                subText: "0.875rem",
+              },
+              {
+                label: "M",
+                value: "1rem",
+                subText: "1rem",
+              },
+              {
+                label: "L",
+                value: "1.25rem",
+                subText: "1.25rem",
+              },
+              {
+                label: "XL",
+                value: "1.875rem",
+                subText: "1.875rem",
+              },
+              {
+                label: "XXL",
+                value: "3rem",
+                subText: "3rem",
+              },
+              {
+                label: "3XL",
+                value: "3.75rem",
+                subText: "3.75rem",
+              },
+            ],
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
+          {
+            propertyName: "labelStyle",
+            label: "Label Font Style",
+            controlType: "BUTTON_TABS",
+            options: [
+              {
+                icon: "BOLD_FONT",
+                value: "BOLD",
+              },
+              {
+                icon: "ITALICS_FONT",
+                value: "ITALIC",
+              },
+            ],
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
+        ],
+      },
+      {
+        sectionName: "Events",
         children: [
           {
             propertyName: "onDateSelected",
@@ -209,12 +359,50 @@ class DatePickerWidget extends BaseWidget<DatePickerWidget2Props, WidgetState> {
           },
         ],
       },
+
+      {
+        sectionName: "Styles",
+        children: [
+          {
+            propertyName: "accentColor",
+            label: "Accent Color",
+            controlType: "COLOR_PICKER",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+            invisible: true,
+          },
+          {
+            propertyName: "borderRadius",
+            label: "Border Radius",
+            helpText:
+              "Rounds the corners of the icon button's outer border edge",
+            controlType: "BORDER_RADIUS_OPTIONS",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
+          {
+            propertyName: "boxShadow",
+            label: "Box Shadow",
+            helpText:
+              "Enables you to cast a drop shadow from the frame of the widget",
+            controlType: "BOX_SHADOW_OPTIONS",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
+        ],
+      },
     ];
   }
 
   static getDerivedPropertiesMap(): DerivedPropertiesMap {
     return {
-      isValid: `{{ this.isRequired ? !!this.selectedDate : true }}`,
+      isValid: `{{(()=>{${derivedProperties.isValidDate}})()}}`,
       selectedDate: `{{ this.value ? moment(this.value).toISOString() : "" }}`,
       formattedDate: `{{ this.value ? moment(this.value).format(this.dateFormat) : "" }}`,
     };
@@ -229,29 +417,62 @@ class DatePickerWidget extends BaseWidget<DatePickerWidget2Props, WidgetState> {
   static getMetaPropertiesMap(): Record<string, any> {
     return {
       value: undefined,
+      isDirty: false,
     };
+  }
+
+  componentDidUpdate(prevProps: DatePickerWidget2Props): void {
+    if (
+      this.props.defaultDate !== prevProps.defaultDate &&
+      this.props.isDirty
+    ) {
+      this.props.updateWidgetMetaProperty("isDirty", false);
+    }
   }
 
   getPageView() {
     return (
       <DatePickerComponent
+        accentColor={this.props.accentColor}
+        backgroundColor={this.props.backgroundColor}
+        borderRadius={this.props.borderRadius}
+        boxShadow={this.props.boxShadow}
         closeOnSelection={this.props.closeOnSelection}
+        compactMode={
+          !(
+            (this.props.bottomRow - this.props.topRow) /
+              GRID_DENSITY_MIGRATION_V1 >
+            1
+          )
+        }
         dateFormat={this.props.dateFormat}
         datePickerType={"DATE_PICKER"}
+        firstDayOfWeek={this.props.firstDayOfWeek}
         isDisabled={this.props.isDisabled}
         isLoading={this.props.isLoading}
-        label={`${this.props.label}`}
+        labelAlignment={this.props.labelAlignment}
+        labelPosition={this.props.labelPosition}
+        labelStyle={this.props.labelStyle}
+        labelText={this.props.label}
+        labelTextColor={this.props.labelTextColor}
+        labelTextSize={this.props.labelTextSize}
+        labelWidth={this.getLabelWidth()}
         maxDate={this.props.maxDate}
         minDate={this.props.minDate}
         onDateSelected={this.onDateSelected}
         selectedDate={this.props.value}
         shortcuts={this.props.shortcuts}
+        timePrecision={this.props.timePrecision}
         widgetId={this.props.widgetId}
       />
     );
   }
 
   onDateSelected = (selectedDate: string) => {
+    if (!this.props.isDirty) {
+      this.props.updateWidgetMetaProperty("isDirty", true);
+    }
+
     this.props.updateWidgetMetaProperty("value", selectedDate, {
       triggerPropertyName: "onDateSelected",
       dynamicString: this.props.onDateSelected,
@@ -273,6 +494,12 @@ export interface DatePickerWidget2Props extends WidgetProps {
   isDisabled: boolean;
   dateFormat: string;
   label: string;
+  labelPosition?: LabelPosition;
+  labelAlignment?: Alignment;
+  labelWidth?: number;
+  labelTextColor?: string;
+  labelTextSize?: TextSize;
+  labelStyle?: string;
   datePickerType: DatePickerType;
   onDateSelected?: string;
   onDateRangeSelected?: string;
@@ -281,6 +508,12 @@ export interface DatePickerWidget2Props extends WidgetProps {
   isRequired?: boolean;
   closeOnSelection: boolean;
   shortcuts: boolean;
+  backgroundColor: string;
+  borderRadius: string;
+  boxShadow?: string;
+  accentColor: string;
+  firstDayOfWeek?: number;
+  timePrecision: TimePrecision;
 }
 
 export default DatePickerWidget;

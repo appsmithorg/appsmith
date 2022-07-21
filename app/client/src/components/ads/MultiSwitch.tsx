@@ -1,7 +1,7 @@
-import React from "react";
+import React, { useEffect } from "react";
 import styled from "styled-components";
 import { CommonComponentProps } from "./common";
-import Text, { Case, TextType } from "./Text";
+import { Text, Case, TextType } from "design-system";
 
 export type TabProp<T> = {
   key: string;
@@ -39,31 +39,61 @@ const Tab = styled.div<{ selected: boolean }>`
   border-right: 1px solid ${(props) => props.theme.colors.multiSwitch.border};
 `;
 
+const TabHeader = styled.div<{ stickyTabHeader?: boolean }>`
+  ${({ stickyTabHeader }) =>
+    stickyTabHeader &&
+    `
+      background-color: white;
+      position: sticky;
+      top: -10px;
+      z-index: 10;
+      padding-top: 10px;
+      padding-bottom: 5px;
+      overflow: hidden;
+    `}
+`;
+
 type MultiSwitchProps<T> = CommonComponentProps & {
   tabs: Array<TabProp<T>>;
   selected: { title: T; value: string };
-  onSelect: (title: T) => void;
+  stickyTabHeader?: boolean;
+  customStyle?: Record<string, string>;
+  onSelect: (title: string) => void;
 };
 
 export default function MultiSwitch<T>(props: MultiSwitchProps<T>) {
   const selectedTab = props.tabs.find(
     (tab) => tab.key === props.selected.value,
   );
+
+  useEffect(() => {
+    props.onSelect(props.selected.value);
+  }, []);
+
   return (
     <div data-cy={props.cypressSelector}>
-      <TabList>
-        {props.tabs.map((tab) => (
-          <Tab
-            key={tab.key}
-            onClick={() => props.onSelect(tab.title)}
-            selected={props.selected.value === tab.key}
-          >
-            <Text case={Case.UPPERCASE} type={TextType.P3}>
-              {tab.title}
-            </Text>
-          </Tab>
-        ))}
-      </TabList>
+      <TabHeader
+        stickyTabHeader={props.stickyTabHeader}
+        style={props.customStyle}
+      >
+        <TabList>
+          {props.tabs.map((tab) => (
+            <Tab
+              className={`${
+                props.selected.value === tab.key ? "t--tab-selected" : ""
+              }`}
+              data-cy={`tab--${tab.title}`}
+              key={tab.key}
+              onClick={() => props.onSelect(tab.key)}
+              selected={props.selected.value === tab.key}
+            >
+              <Text case={Case.UPPERCASE} type={TextType.P3}>
+                {tab.title}
+              </Text>
+            </Tab>
+          ))}
+        </TabList>
+      </TabHeader>
       {selectedTab && <TabContent>{selectedTab.panelComponent}</TabContent>}
     </div>
   );

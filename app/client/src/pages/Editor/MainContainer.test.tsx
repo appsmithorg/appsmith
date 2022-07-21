@@ -19,6 +19,8 @@ import lodash from "lodash";
 import { getAbsolutePixels } from "utils/helpers";
 import { UpdatedMainContainer } from "test/testMockedWidgets";
 import { AppState } from "reducers";
+import { generateReactKey } from "utils/generators";
+import * as useDynamicAppLayoutHook from "utils/hooks/useDynamicAppLayout";
 
 const renderNestedComponent = () => {
   const initialState = (store.getState() as unknown) as Partial<AppState>;
@@ -27,7 +29,7 @@ const renderNestedComponent = () => {
 
   const children: any = buildChildren([
     {
-      type: "INPUT_WIDGET",
+      type: "INPUT_WIDGET_V2",
       dragDisabled: true,
       leftColumn: 0,
       topRow: 1,
@@ -71,7 +73,9 @@ const renderNestedComponent = () => {
   });
 
   return render(
-    <MemoryRouter initialEntries={["/applications/app_id/pages/page_id/edit"]}>
+    <MemoryRouter
+      initialEntries={["/app/applicationSlug/pageSlug-page_id/edit"]}
+    >
       <MockApplication>
         <GlobalHotKeys>
           <UpdatedMainContainer dsl={dsl} />
@@ -85,6 +89,15 @@ const renderNestedComponent = () => {
 describe("Drag and Drop widgets into Main container", () => {
   const mockGetIsFetchingPage = jest.spyOn(utilities, "getIsFetchingPage");
   const spyGetCanvasWidgetDsl = jest.spyOn(utilities, "getCanvasWidgetDsl");
+  jest
+    .spyOn(useDynamicAppLayoutHook, "useDynamicAppLayout")
+    .mockImplementation(() => true);
+
+  const pushState = jest.spyOn(window.history, "pushState");
+  pushState.mockImplementation((state: any, title: any, url: any) => {
+    window.document.title = title;
+    window.location.pathname = url;
+  });
 
   // These need to be at the top to avoid imports not being mocked. ideally should be in setup.ts but will override for all other tests
   beforeAll(() => {
@@ -128,7 +141,7 @@ describe("Drag and Drop widgets into Main container", () => {
 
     const component = render(
       <MemoryRouter
-        initialEntries={["/applications/app_id/pages/page_id/edit"]}
+        initialEntries={["/app/applicationSlug/pageSlug-page_id/edit"]}
       >
         <MockApplication>
           <GlobalHotKeys>
@@ -159,7 +172,7 @@ describe("Drag and Drop widgets into Main container", () => {
       fireEvent.dragStart(tabsWidget);
     });
 
-    const mainCanvas: any = component.queryByTestId("canvas-dragging-0");
+    const mainCanvas: any = component.queryByTestId("div-dragarena-0");
     act(() => {
       fireEvent(
         mainCanvas,
@@ -228,7 +241,7 @@ describe("Drag and Drop widgets into Main container", () => {
 
     const component = render(
       <MemoryRouter
-        initialEntries={["/applications/app_id/pages/page_id/edit"]}
+        initialEntries={["/app/applicationSlug/pageSlug-page_id/edit"]}
       >
         <MockApplication>
           <GlobalHotKeys>
@@ -259,7 +272,7 @@ describe("Drag and Drop widgets into Main container", () => {
       fireEvent.dragStart(tabsWidget);
     });
 
-    const mainCanvas: any = component.queryByTestId("canvas-dragging-0");
+    const mainCanvas: any = component.queryByTestId("div-dragarena-0");
     act(() => {
       fireEvent(
         mainCanvas,
@@ -335,7 +348,7 @@ describe("Drag and Drop widgets into Main container", () => {
 
     const component = render(
       <MemoryRouter
-        initialEntries={["/applications/app_id/pages/page_id/edit"]}
+        initialEntries={["/app/applicationSlug/pageSlug-page_id/edit"]}
       >
         <MockApplication>
           <GlobalHotKeys>
@@ -366,7 +379,7 @@ describe("Drag and Drop widgets into Main container", () => {
       fireEvent.dragStart(tabsWidget);
     });
 
-    const mainCanvas: any = component.queryByTestId("canvas-dragging-0");
+    const mainCanvas: any = component.queryByTestId("div-dragarena-0");
     act(() => {
       fireEvent(
         mainCanvas,
@@ -443,7 +456,7 @@ describe("Drag and Drop widgets into Main container", () => {
 
     const component = render(
       <MemoryRouter
-        initialEntries={["/applications/app_id/pages/page_id/edit"]}
+        initialEntries={["/app/applicationSlug/pageSlug-page_id/edit"]}
       >
         <MockApplication>
           <GlobalHotKeys>
@@ -470,7 +483,7 @@ describe("Drag and Drop widgets into Main container", () => {
       fireEvent.dragStart(tabsWidget);
     });
 
-    const mainCanvas: any = component.queryByTestId("canvas-dragging-0");
+    const mainCanvas: any = component.queryByTestId("div-dragarena-0");
     const dropTarget: any = component.container.getElementsByClassName(
       "t--drop-target",
     )[0];
@@ -548,7 +561,7 @@ describe("Drag and Drop widgets into Main container", () => {
 
     const component = render(
       <MemoryRouter
-        initialEntries={["/applications/app_id/pages/page_id/edit"]}
+        initialEntries={["/app/applicationSlug/pageSlug-page_id/edit"]}
       >
         <MockApplication>
           <GlobalHotKeys>
@@ -570,13 +583,13 @@ describe("Drag and Drop widgets into Main container", () => {
     act(() => {
       fireEvent.click(widgetAddButton);
     });
-    const containerButton: any = component.queryByText("Container");
+    const containerButton: any = component.queryAllByText("Container");
 
     act(() => {
-      fireEvent.dragStart(containerButton);
+      fireEvent.dragStart(containerButton[0]);
     });
 
-    const mainCanvas: any = component.queryByTestId("canvas-dragging-0");
+    const mainCanvas: any = component.queryByTestId("div-dragarena-0");
     act(() => {
       fireEvent(
         mainCanvas,
@@ -626,16 +639,29 @@ describe("Drag and Drop widgets into Main container", () => {
 
   it("Disallow drag if widget not focused", () => {
     const initialState = (store.getState() as unknown) as Partial<AppState>;
+    const containerId = generateReactKey();
+    const canvasId = generateReactKey();
 
-    const children: any = buildChildren([
+    const canvasWidget = buildChildren([
+      {
+        type: "CANVAS_WIDGET",
+        parentId: containerId,
+        children: [],
+        widgetId: canvasId,
+        dropDisabled: true,
+      },
+    ]);
+    const containerChildren: any = buildChildren([
       {
         type: "CONTAINER_WIDGET",
+        children: canvasWidget,
+        widgetId: containerId,
         parentId: "0",
       },
     ]);
 
     const dsl: any = widgetCanvasFactory.build({
-      children,
+      children: containerChildren,
     });
 
     spyGetCanvasWidgetDsl.mockImplementation(mockGetCanvasWidgetDsl);
@@ -643,7 +669,7 @@ describe("Drag and Drop widgets into Main container", () => {
 
     const component = render(
       <MemoryRouter
-        initialEntries={["/applications/app_id/pages/page_id/edit"]}
+        initialEntries={["/app/applicationSlug/pageSlug-page_id/edit"]}
       >
         <MockApplication>
           <GlobalHotKeys>
@@ -673,7 +699,7 @@ describe("Drag and Drop widgets into Main container", () => {
       fireEvent.dragStart(draggableWidget);
     });
 
-    let mainCanvas: any = component.queryByTestId("canvas-dragging-0");
+    let mainCanvas: any = component.queryByTestId("div-dragarena-0");
     expect(mainCanvas).toBeNull();
 
     // Focus on widget and drag
@@ -685,7 +711,7 @@ describe("Drag and Drop widgets into Main container", () => {
       fireEvent.dragStart(draggableWidget);
     });
 
-    mainCanvas = component.queryByTestId("canvas-dragging-0");
+    mainCanvas = component.queryByTestId("div-dragarena-0");
     act(() => {
       fireEvent(
         mainCanvas,
@@ -695,8 +721,8 @@ describe("Drag and Drop widgets into Main container", () => {
             cancelable: true,
           }),
           {
-            offsetX: 500,
-            offsetY: 500,
+            offsetX: 100,
+            offsetY: 100,
           },
         ),
       );
@@ -782,7 +808,7 @@ describe("Drag in a nested container", () => {
       fireEvent.dragStart(draggableContainerWidget);
     });
 
-    const mainCanvas: any = component.queryByTestId("canvas-dragging-0");
+    const mainCanvas: any = component.queryByTestId("div-dragarena-0");
     act(() => {
       fireEvent(
         mainCanvas,
@@ -850,7 +876,7 @@ describe("Drag in a nested container", () => {
       fireEvent.dragStart(draggableTextWidget);
     });
 
-    const mainCanvas: any = component.queryByTestId("canvas-dragging-0");
+    const mainCanvas: any = component.queryByTestId("div-dragarena-0");
     act(() => {
       fireEvent(
         mainCanvas,
@@ -894,10 +920,10 @@ describe("Drag in a nested container", () => {
     const component = renderNestedComponent();
 
     const inputWidget: any = component.container.querySelector(
-      ".t--widget-inputwidget",
+      ".t--widget-inputwidgetv2",
     );
     const draggableInputWidget: any = component.container.querySelector(
-      ".t--draggable-inputwidget",
+      ".t--draggable-inputwidgetv2",
     );
     const draggableContainerWidget: any = component.container.querySelector(
       ".t--draggable-containerwidget",
@@ -931,7 +957,7 @@ describe("Drag in a nested container", () => {
       fireEvent.dragStart(draggableInputWidget);
     });
 
-    const mainCanvas: any = component.queryByTestId("canvas-dragging-0");
+    const mainCanvas: any = component.queryByTestId("div-dragarena-0");
 
     if (mainCanvas) {
       act(() => {
@@ -961,7 +987,7 @@ describe("Drag in a nested container", () => {
     }
 
     const movedInputWidget: any = component.container.querySelector(
-      ".t--widget-inputwidget",
+      ".t--widget-inputwidgetv2",
     );
     const finalInputWidgetPositions = {
       left: movedInputWidget.style.left,

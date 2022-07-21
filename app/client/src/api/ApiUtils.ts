@@ -3,18 +3,20 @@ import {
   ERROR_0,
   ERROR_500,
   SERVER_API_TIMEOUT_ERROR,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 import axios, { AxiosRequestConfig, AxiosResponse } from "axios";
 import {
   API_STATUS_CODES,
   ERROR_CODES,
   SERVER_ERROR_CODES,
-} from "constants/ApiConstants";
+} from "@appsmith/constants/ApiConstants";
 import log from "loglevel";
 import { ActionExecutionResponse } from "api/ActionAPI";
 import store from "store";
 import { logoutUser } from "actions/userActions";
 import { AUTH_LOGIN_URL } from "constants/routes";
+import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
+import getQueryParamsObject from "utils/getQueryParamsObject";
 
 const executeActionRegex = /actions\/execute/;
 const timeoutErrorRegex = /timeout of (\d+)ms exceeded/;
@@ -37,6 +39,15 @@ const is404orAuthPath = () => {
 // this will be used to calculate the time taken for an action
 // execution request
 export const apiRequestInterceptor = (config: AxiosRequestConfig) => {
+  const branch =
+    getCurrentGitBranch(store.getState()) || getQueryParamsObject().branch;
+  if (branch && config.headers) {
+    config.headers.branchName = branch;
+  }
+  if (config.url?.indexOf("/git/") !== -1) {
+    config.timeout = 1000 * 120; // increase timeout for git specific APIs
+  }
+
   return { ...config, timer: performance.now() };
 };
 
@@ -117,7 +128,8 @@ export const apiFailureResponseInterceptor = (error: any) => {
       const errorData = error.response.data.responseMeta;
       if (
         errorData.status === API_STATUS_CODES.RESOURCE_NOT_FOUND &&
-        errorData.error.code === SERVER_ERROR_CODES.RESOURCE_NOT_FOUND
+        (errorData.error.code === SERVER_ERROR_CODES.RESOURCE_NOT_FOUND ||
+          errorData.error.code === SERVER_ERROR_CODES.UNABLE_TO_FIND_PAGE)
       ) {
         return Promise.reject({
           code: ERROR_CODES.PAGE_NOT_FOUND,

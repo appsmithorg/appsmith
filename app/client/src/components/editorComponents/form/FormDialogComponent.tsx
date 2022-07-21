@@ -3,18 +3,27 @@ import { isPermitted } from "pages/Applications/permissionHelpers";
 import Dialog from "components/ads/DialogComponent";
 import { useDispatch } from "react-redux";
 import { setShowAppInviteUsersDialog } from "actions/applicationActions";
+import { IconName } from "components/ads/Icon";
 
 type FormDialogComponentProps = {
   isOpen?: boolean;
   canOutsideClickClose?: boolean;
-  orgId?: string;
+  workspaceId?: string;
   title: string;
   Form: any;
   trigger: ReactNode;
+  onClose?: () => void;
+  customProps?: any;
   permissionRequired?: string;
   permissions?: string[];
   setMaxWidth?: boolean;
   applicationId?: string;
+  headerIcon?: {
+    name: IconName;
+    fillColor?: string;
+    hoverColor?: string;
+    bgColor?: string;
+  };
 };
 
 export function FormDialogComponent(props: FormDialogComponentProps) {
@@ -32,6 +41,11 @@ export function FormDialogComponent(props: FormDialogComponentProps) {
 
   const Form = props.Form;
 
+  const onCloseHandler = () => {
+    props?.onClose?.();
+    setIsOpen(false);
+  };
+
   if (
     props.permissions &&
     props.permissionRequired &&
@@ -42,7 +56,9 @@ export function FormDialogComponent(props: FormDialogComponentProps) {
   return (
     <Dialog
       canOutsideClickClose={!!props.canOutsideClickClose}
+      headerIcon={props.headerIcon}
       isOpen={isOpen}
+      onClose={onCloseHandler}
       onOpening={() => setIsOpen(true)}
       setMaxWidth={props.setMaxWidth}
       setModalClose={() => setIsOpen(false)}
@@ -50,9 +66,10 @@ export function FormDialogComponent(props: FormDialogComponentProps) {
       trigger={props.trigger}
     >
       <Form
+        {...props.customProps}
         applicationId={props.applicationId}
         onCancel={() => setIsOpen(false)}
-        orgId={props.orgId}
+        workspaceId={props.workspaceId}
       />
     </Dialog>
   );

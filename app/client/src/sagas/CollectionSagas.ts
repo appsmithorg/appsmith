@@ -2,7 +2,7 @@ import { call, takeLatest, put, all } from "redux-saga/effects";
 import {
   ReduxActionTypes,
   ReduxActionErrorTypes,
-} from "constants/ReduxActionConstants";
+} from "@appsmith/constants/ReduxActionConstants";
 import { validateResponse } from "sagas/ErrorSagas";
 import ImportedCollectionsApi from "api/CollectionApi";
 import { ImportedCollections } from "constants/collectionsConstants";
@@ -12,7 +12,7 @@ export function* fetchImportedCollectionsSaga() {
     const response: ImportedCollections = yield call(
       ImportedCollectionsApi.fetchImportedCollections,
     );
-    const isValidResponse = yield validateResponse(response);
+    const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
       yield put({
         type: ReduxActionTypes.FETCH_IMPORTED_COLLECTIONS_SUCCESS,

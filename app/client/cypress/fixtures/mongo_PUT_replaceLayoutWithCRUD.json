@@ -1,0 +1,1462 @@
+{
+	"responseMeta": {
+		"status": 201,
+		"success": true
+	},
+	"data": {
+		"page": {
+			"id": "616d7d4c9594b25adfa3e569",
+			"name": "Page3",
+			"applicationId": "6167ece2fe0e4804a2e6ce44",
+			"layouts": [
+				{
+					"id": "616d7d4c9594b25adfa3e568",
+					"userPermissions": [
+
+					],
+					"dsl": {
+						"widgetName": "MainContainer",
+						"backgroundColor": "none",
+						"rightColumn": 1280.0,
+						"snapColumns": 64.0,
+						"detachFromLayout": true,
+						"widgetId": "0",
+						"topRow": 0.0,
+						"bottomRow": 940.0,
+						"containerStyle": "none",
+						"snapRows": 125.0,
+						"parentRowSpace": 1.0,
+						"type": "CANVAS_WIDGET",
+						"canExtend": true,
+						"version": 41.0,
+						"minHeight": 860.0,
+						"parentColumnSpace": 1.0,
+						"dynamicTriggerPathList": [
+
+						],
+						"dynamicBindingPathList": [
+
+						],
+						"leftColumn": 0.0,
+						"children": [
+							{
+								"backgroundColor": "#FFFFFF",
+								"widgetName": "Container1",
+								"rightColumn": 40.0,
+								"widgetId": "mvubsemxfo",
+								"containerStyle": "card",
+								"topRow": 0.0,
+								"bottomRow": 87.0,
+								"parentRowSpace": 10.0,
+								"isVisible": "true",
+								"type": "CONTAINER_WIDGET",
+								"version": 1.0,
+								"parentId": "0",
+								"isLoading": false,
+								"parentColumnSpace": 19.75,
+								"leftColumn": 0.0,
+								"children": [
+									{
+										"widgetName": "Canvas1",
+										"rightColumn": 632.0,
+										"detachFromLayout": true,
+										"widgetId": "59rw5mx0bq",
+										"containerStyle": "none",
+										"topRow": 0.0,
+										"bottomRow": 890.0,
+										"parentRowSpace": 1.0,
+										"isVisible": "true",
+										"canExtend": false,
+										"type": "CANVAS_WIDGET",
+										"version": 1.0,
+										"parentId": "mvubsemxfo",
+										"minHeight": 870.0,
+										"isLoading": false,
+										"parentColumnSpace": 1.0,
+										"dynamicTriggerPathList": [
+
+										],
+										"leftColumn": 0.0,
+										"dynamicBindingPathList": [
+
+										],
+										"children": [
+											{
+												"widgetName": "data_table",
+												"columnOrder": [
+													"customColumn1",
+													"_id",
+													"col4",
+													"col2",
+													"col3",
+													"col1"
+												],
+												"dynamicPropertyPathList": [
+													{
+														"key": "onPageChange"
+													}
+												],
+												"isVisibleDownload": true,
+												"topRow": 10.0,
+												"bottomRow": 86.0,
+												"parentRowSpace": 10.0,
+												"onPageChange": "{{FindQuery.run()}}",
+												"type": "TABLE_WIDGET",
+												"defaultSelectedRow": "0",
+												"parentColumnSpace": 1.0,
+												"dynamicTriggerPathList": [
+													{
+														"key": "onPageChange"
+													},
+													{
+														"key": "primaryColumns.customColumn1.onClick"
+													},
+													{
+														"key": "onSearchTextChanged"
+													}
+												],
+												"dynamicBindingPathList": [
+													{
+														"key": "primaryColumns.customColumn1.buttonLabel"
+													},
+													{
+														"key": "tableData"
+													},
+													{
+														"key": "primaryColumns.col1.computedValue"
+													},
+													{
+														"key": "primaryColumns.col2.computedValue"
+													},
+													{
+														"key": "primaryColumns.col3.computedValue"
+													},
+													{
+														"key": "primaryColumns.col4.computedValue"
+													},
+													{
+														"key": "primaryColumns._id.computedValue"
+													}
+												],
+												"leftColumn": 0.0,
+												"primaryColumns": {
+													"customColumn1": {
+														"isCellVisible": true,
+														"isDerived": true,
+														"computedValue": "",
+														"onClick": "{{showModal('Delete_Modal')}}",
+														"textSize": "PARAGRAPH",
+														"buttonColor": "#DD4B34",
+														"index": 7.0,
+														"isVisible": true,
+														"label": "Delete",
+														"buttonLabel": "{{data_table.sanitizedTableData.map((currentRow) => { return 'Delete'})}}",
+														"columnType": "button",
+														"horizontalAlignment": "LEFT",
+														"width": 150.0,
+														"enableFilter": true,
+														"enableSort": true,
+														"id": "customColumn1",
+														"isDisabled": false,
+														"buttonLabelColor": "#FFFFFF",
+														"verticalAlignment": "CENTER"
+													},
+													"col4": {
+														"isCellVisible": true,
+														"isDerived": false,
+														"computedValue": "{{data_table.sanitizedTableData.map((currentRow) => ( currentRow.col4))}}",
+														"textSize": "PARAGRAPH",
+														"index": 3.0,
+														"isVisible": true,
+														"label": "col4",
+														"columnType": "text",
+														"horizontalAlignment": "LEFT",
+														"width": 150.0,
+														"enableFilter": true,
+														"enableSort": true,
+														"id": "col4",
+														"verticalAlignment": "CENTER"
+													},
+													"_id": {
+														"isCellVisible": true,
+														"isDerived": false,
+														"computedValue": "{{data_table.sanitizedTableData.map((currentRow) => ( currentRow._id))}}",
+														"textSize": "PARAGRAPH",
+														"index": 1.0,
+														"isVisible": true,
+														"label": "_id",
+														"columnType": "text",
+														"horizontalAlignment": "LEFT",
+														"width": 150.0,
+														"enableFilter": true,
+														"enableSort": true,
+														"id": "_id",
+														"verticalAlignment": "CENTER"
+													},
+													"col2": {
+														"isCellVisible": true,
+														"isDerived": false,
+														"computedValue": "{{data_table.sanitizedTableData.map((currentRow) => ( currentRow.col2))}}",
+														"textSize": "PARAGRAPH",
+														"index": 1.0,
+														"isVisible": true,
+														"label": "col2",
+														"columnType": "text",
+														"horizontalAlignment": "LEFT",
+														"width": 150.0,
+														"enableFilter": true,
+														"enableSort": true,
+														"id": "col2",
+														"verticalAlignment": "CENTER"
+													},
+													"col3": {
+														"isCellVisible": true,
+														"isDerived": false,
+														"computedValue": "{{data_table.sanitizedTableData.map((currentRow) => ( currentRow.col3))}}",
+														"textSize": "PARAGRAPH",
+														"index": 2.0,
+														"isVisible": true,
+														"label": "col3",
+														"columnType": "text",
+														"horizontalAlignment": "LEFT",
+														"width": 150.0,
+														"enableFilter": true,
+														"enableSort": true,
+														"id": "col3",
+														"verticalAlignment": "CENTER"
+													},
+													"col1": {
+														"isCellVisible": true,
+														"isDerived": false,
+														"computedValue": "{{data_table.sanitizedTableData.map((currentRow) => ( currentRow.col1))}}",
+														"textSize": "PARAGRAPH",
+														"index": 0.0,
+														"isVisible": true,
+														"label": "col1",
+														"columnType": "text",
+														"horizontalAlignment": "LEFT",
+														"width": 150.0,
+														"enableFilter": true,
+														"enableSort": true,
+														"id": "col1",
+														"verticalAlignment": "CENTER"
+													}
+												},
+												"delimiter": ",",
+												"derivedColumns": {
+													"customColumn1": {
+														"isDerived": true,
+														"computedValue": "",
+														"onClick": "{{DeleteQuery.run()}}",
+														"textSize": "PARAGRAPH",
+														"buttonStyle": "#DD4B34",
+														"index": 7.0,
+														"isVisible": true,
+														"label": "customColumn1",
+														"buttonLabel": "{{data_table.sanitizedTableData.map((currentRow) => { return 'Delete'})}}",
+														"columnType": "button",
+														"horizontalAlignment": "LEFT",
+														"width": 150.0,
+														"enableFilter": true,
+														"enableSort": true,
+														"id": "customColumn1",
+														"buttonLabelColor": "#FFFFFF",
+														"verticalAlignment": "CENTER"
+													}
+												},
+												"rightColumn": 64.0,
+												"textSize": "PARAGRAPH",
+												"widgetId": "jabdu9f16g",
+												"isVisibleFilters": true,
+												"tableData": "{{FindQuery.data}}",
+												"isVisible": "true",
+												"label": "Data",
+												"searchKey": "",
+												"version": 3.0,
+												"parentId": "59rw5mx0bq",
+												"serverSidePaginationEnabled": true,
+												"isLoading": false,
+												"isVisibleCompactMode": true,
+												"onSearchTextChanged": "{{FindQuery.run()}}",
+												"horizontalAlignment": "LEFT",
+												"isVisibleSearch": true,
+												"isVisiblePagination": true,
+												"verticalAlignment": "CENTER",
+												"columnSizeMap": {
+													"task": 245.0,
+													"deliveryAddress": 170.0,
+													"step": 62.0,
+													"id": 228.0,
+													"status": 75.0
+												}
+											},
+											{
+												"isRequired": false,
+												"widgetName": "key_select",
+												"isFilterable": true,
+												"rightColumn": 22.0,
+												"dynamicPropertyPathList": [
+													{
+														"key": "isVisible"
+													}
+												],
+												"widgetId": "asmgosgxjm",
+												"topRow": 5.0,
+												"bottomRow": 9.0,
+												"parentRowSpace": 10.0,
+												"isVisible": "{{FindQuery.data.length > 0}}",
+												"label": "",
+												"type": "DROP_DOWN_WIDGET",
+												"version": 1.0,
+												"parentId": "59rw5mx0bq",
+												"isLoading": false,
+												"defaultOptionValue": "genres",
+												"parentColumnSpace": 18.8828125,
+												"dynamicTriggerPathList": [
+													{
+														"key": "onOptionChange"
+													}
+												],
+												"leftColumn": 7.0,
+												"dynamicBindingPathList": [
+													{
+														"key": "isVisible"
+													}
+												],
+												"options": "[\n{\n\t\"label\": \"poster_path\",\n\t\"value\": \"poster_path\"\n}, \n{\n\t\"label\": \"homepage\",\n\t\"value\": \"homepage\"\n}, \n{\n\t\"label\": \"imdb_id\",\n\t\"value\": \"imdb_id\"\n}, \n{\n\t\"label\": \"genres\",\n\t\"value\": \"genres\"\n}]",
+												"onOptionChange": "{{FindQuery.run()}}",
+												"isDisabled": false
+											},
+											{
+												"widgetName": "Text15",
+												"rightColumn": 7.0,
+												"textAlign": "LEFT",
+												"widgetId": "l8pgl90klz",
+												"topRow": 5.0,
+												"bottomRow": 9.0,
+												"parentRowSpace": 10.0,
+												"isVisible": "true",
+												"fontStyle": "BOLD",
+												"type": "TEXT_WIDGET",
+												"textColor": "#231F20",
+												"version": 1.0,
+												"parentId": "59rw5mx0bq",
+												"isLoading": false,
+												"parentColumnSpace": 19.75,
+												"dynamicTriggerPathList": [
+
+												],
+												"leftColumn": 0.0,
+												"dynamicBindingPathList": [
+
+												],
+												"fontSize": "PARAGRAPH",
+												"text": "Order By :"
+											},
+											{
+												"isRequired": false,
+												"widgetName": "order_select",
+												"isFilterable": true,
+												"rightColumn": 30.0,
+												"dynamicPropertyPathList": [
+													{
+														"key": "isVisible"
+													}
+												],
+												"widgetId": "10v8a19m25",
+												"topRow": 5.0,
+												"bottomRow": 9.0,
+												"parentRowSpace": 10.0,
+												"isVisible": "{{FindQuery.data.length > 0}}",
+												"label": "",
+												"type": "DROP_DOWN_WIDGET",
+												"version": 1.0,
+												"parentId": "59rw5mx0bq",
+												"isLoading": false,
+												"defaultOptionValue": "1",
+												"parentColumnSpace": 19.75,
+												"dynamicTriggerPathList": [
+													{
+														"key": "onOptionChange"
+													}
+												],
+												"leftColumn": 22.0,
+												"dynamicBindingPathList": [
+													{
+														"key": "isVisible"
+													}
+												],
+												"options": "[\n  {\n    \"label\": \"ASC\",\n    \"value\": \"1\"\n  },\n  {\n    \"label\": \"DESC\",\n    \"value\": \"-1\"\n  }\n]",
+												"onOptionChange": "{{FindQuery.run()}}",
+												"isDisabled": false
+											},
+											{
+												"widgetName": "Text16",
+												"rightColumn": 41.0,
+												"textAlign": "LEFT",
+												"widgetId": "urzv99hdc8",
+												"topRow": 0.0,
+												"bottomRow": 4.0,
+												"parentRowSpace": 10.0,
+												"isVisible": "true",
+												"fontStyle": "BOLD",
+												"type": "TEXT_WIDGET",
+												"textColor": "#231F20",
+												"version": 1.0,
+												"parentId": "59rw5mx0bq",
+												"isLoading": false,
+												"parentColumnSpace": 11.78515625,
+												"dynamicTriggerPathList": [
+
+												],
+												"leftColumn": 0.0,
+												"dynamicBindingPathList": [
+
+												],
+												"fontSize": "HEADING1",
+												"text": "movies Data"
+											},
+											{
+												"boxShadow": "NONE",
+												"widgetName": "refresh_btn",
+												"rightColumn": 64.0,
+												"onClick": "{{FindQuery.run()}}",
+												"iconName": "refresh",
+												"buttonColor": "#03B365",
+												"widgetId": "nj85l57r47",
+												"topRow": 5.0,
+												"bottomRow": 9.0,
+												"parentRowSpace": 10.0,
+												"isVisible": "true",
+												"type": "ICON_BUTTON_WIDGET",
+												"version": 1.0,
+												"parentId": "59rw5mx0bq",
+												"isLoading": false,
+												"parentColumnSpace": 12.0703125,
+												"dynamicTriggerPathList": [
+													{
+														"key": "onClick"
+													}
+												],
+												"borderRadius": "CIRCLE",
+												"leftColumn": 60.0,
+												"dynamicBindingPathList": [
+
+												],
+												"buttonVariant": "GHOST",
+												"isDisabled": false
+											},
+											{
+												"boxShadow": "NONE",
+												"widgetName": "add_btn",
+												"rightColumn": 60.0,
+												"onClick": "{{showModal('Insert_Modal')}}",
+												"iconName": "add",
+												"buttonColor": "#03B365",
+												"widgetId": "atgojamsmw",
+												"topRow": 5.0,
+												"bottomRow": 9.0,
+												"parentRowSpace": 10.0,
+												"isVisible": "true",
+												"type": "ICON_BUTTON_WIDGET",
+												"version": 1.0,
+												"parentId": "59rw5mx0bq",
+												"isLoading": false,
+												"parentColumnSpace": 12.0703125,
+												"dynamicTriggerPathList": [
+													{
+														"key": "onClick"
+													}
+												],
+												"borderRadius": "CIRCLE",
+												"leftColumn": 56.0,
+												"dynamicBindingPathList": [
+
+												],
+												"buttonVariant": "GHOST",
+												"isDisabled": false
+											}
+										]
+									}
+								]
+							},
+							{
+								"widgetName": "Delete_Modal",
+								"rightColumn": 45.0,
+								"detachFromLayout": true,
+								"widgetId": "i3whp03wf0",
+								"topRow": 13.0,
+								"bottomRow": 37.0,
+								"parentRowSpace": 10.0,
+								"canOutsideClickClose": true,
+								"type": "MODAL_WIDGET",
+								"canEscapeKeyClose": true,
+								"version": 2.0,
+								"parentId": "0",
+								"shouldScrollContents": false,
+								"isLoading": false,
+								"parentColumnSpace": 18.8828125,
+								"dynamicTriggerPathList": [
+
+								],
+								"leftColumn": 21.0,
+								"dynamicBindingPathList": [
+
+								],
+								"children": [
+									{
+										"widgetName": "Canvas3",
+										"rightColumn": 453.1875,
+										"detachFromLayout": true,
+										"widgetId": "zi8fjakv8o",
+										"topRow": 0.0,
+										"bottomRow": 230.0,
+										"parentRowSpace": 1.0,
+										"isVisible": "true",
+										"canExtend": true,
+										"type": "CANVAS_WIDGET",
+										"version": 1.0,
+										"parentId": "i3whp03wf0",
+										"shouldScrollContents": false,
+										"minHeight": 240.0,
+										"isLoading": false,
+										"parentColumnSpace": 1.0,
+										"dynamicTriggerPathList": [
+
+										],
+										"leftColumn": 0.0,
+										"dynamicBindingPathList": [
+
+										],
+										"children": [
+											{
+												"widgetName": "Alert_text",
+												"rightColumn": 41.0,
+												"textAlign": "LEFT",
+												"widgetId": "35yoxo4oec",
+												"topRow": 1.0,
+												"bottomRow": 5.0,
+												"isVisible": "true",
+												"fontStyle": "BOLD",
+												"type": "TEXT_WIDGET",
+												"textColor": "#231F20",
+												"version": 1.0,
+												"parentId": "zi8fjakv8o",
+												"isLoading": false,
+												"dynamicTriggerPathList": [
+
+												],
+												"leftColumn": 1.0,
+												"dynamicBindingPathList": [
+
+												],
+												"fontSize": "HEADING1",
+												"text": "Delete Row"
+											},
+											{
+												"widgetName": "Button1",
+												"rightColumn": 46.0,
+												"onClick": "{{closeModal('Delete_Modal')}}",
+												"isDefaultClickDisabled": true,
+												"dynamicPropertyPathList": [
+
+												],
+												"buttonColor": "#03B365",
+												"widgetId": "lryg8kw537",
+												"topRow": 17.0,
+												"bottomRow": 21.0,
+												"isVisible": "true",
+												"type": "BUTTON_WIDGET",
+												"version": 1.0,
+												"parentId": "zi8fjakv8o",
+												"isLoading": false,
+												"dynamicTriggerPathList": [
+													{
+														"key": "onClick"
+													}
+												],
+												"leftColumn": 34.0,
+												"dynamicBindingPathList": [
+
+												],
+												"text": "Cancel",
+												"isDisabled": false
+											},
+											{
+												"widgetName": "Delete_Button",
+												"rightColumn": 64.0,
+												"onClick": "{{DeleteQuery.run(() => FindQuery.run(() => closeModal('Delete_Modal')), () => {})}}",
+												"isDefaultClickDisabled": true,
+												"dynamicPropertyPathList": [
+													{
+														"key": "onClick"
+													}
+												],
+												"buttonColor": "#F22B2B",
+												"widgetId": "qq02lh7ust",
+												"topRow": 17.0,
+												"bottomRow": 21.0,
+												"isVisible": "true",
+												"type": "BUTTON_WIDGET",
+												"version": 1.0,
+												"parentId": "zi8fjakv8o",
+												"isLoading": false,
+												"dynamicTriggerPathList": [
+													{
+														"key": "onClick"
+													}
+												],
+												"leftColumn": 48.0,
+												"dynamicBindingPathList": [
+
+												],
+												"text": "Confirm",
+												"isDisabled": false
+											},
+											{
+												"widgetName": "Text12",
+												"rightColumn": 63.0,
+												"textAlign": "LEFT",
+												"widgetId": "48uac29g6e",
+												"topRow": 8.0,
+												"bottomRow": 12.0,
+												"parentRowSpace": 10.0,
+												"isVisible": "true",
+												"fontStyle": "BOLD",
+												"type": "TEXT_WIDGET",
+												"textColor": "#231F20",
+												"version": 1.0,
+												"parentId": "zi8fjakv8o",
+												"isLoading": false,
+												"parentColumnSpace": 6.875,
+												"dynamicTriggerPathList": [
+
+												],
+												"leftColumn": 1.0,
+												"dynamicBindingPathList": [
+
+												],
+												"fontSize": "PARAGRAPH",
+												"text": "Are you sure you want to delete this item?"
+											}
+										],
+										"isDisabled": false
+									}
+								],
+								"width": 456.0,
+								"height": 240.0
+							},
+							{
+								"widgetName": "Insert_Modal",
+								"rightColumn": 41.0,
+								"detachFromLayout": true,
+								"widgetId": "vmorzie6eq",
+								"topRow": 16.0,
+								"bottomRow": 40.0,
+								"parentRowSpace": 10.0,
+								"canOutsideClickClose": true,
+								"type": "MODAL_WIDGET",
+								"canEscapeKeyClose": true,
+								"version": 2.0,
+								"parentId": "0",
+								"shouldScrollContents": false,
+								"isLoading": false,
+								"parentColumnSpace": 18.8828125,
+								"dynamicTriggerPathList": [
+
+								],
+								"leftColumn": 17.0,
+								"dynamicBindingPathList": [
+
+								],
+								"children": [
+									{
+										"widgetName": "Canvas4",
+										"rightColumn": 453.1875,
+										"detachFromLayout": true,
+										"widgetId": "9rhv3ioohq",
+										"topRow": 0.0,
+										"bottomRow": 610.0,
+										"parentRowSpace": 1.0,
+										"isVisible": "true",
+										"canExtend": true,
+										"type": "CANVAS_WIDGET",
+										"version": 1.0,
+										"parentId": "vmorzie6eq",
+										"shouldScrollContents": false,
+										"minHeight": 600.0,
+										"isLoading": false,
+										"parentColumnSpace": 1.0,
+										"dynamicTriggerPathList": [
+
+										],
+										"leftColumn": 0.0,
+										"dynamicBindingPathList": [
+
+										],
+										"children": [
+											{
+												"widgetName": "Form2",
+												"backgroundColor": "#F6F7F8",
+												"rightColumn": 64.0,
+												"widgetId": "1ruewbc4ef",
+												"topRow": 0.0,
+												"bottomRow": 58.0,
+												"parentRowSpace": 10.0,
+												"isVisible": "true",
+												"type": "FORM_WIDGET",
+												"parentId": "9rhv3ioohq",
+												"isLoading": false,
+												"shouldScrollContents": false,
+												"parentColumnSpace": 8.0,
+												"dynamicTriggerPathList": [
+
+												],
+												"leftColumn": 1.0,
+												"dynamicBindingPathList": [
+
+												],
+												"children": [
+													{
+														"widgetName": "Canvas5",
+														"rightColumn": 224.0,
+														"detachFromLayout": true,
+														"widgetId": "tp9pui0e6y",
+														"containerStyle": "none",
+														"topRow": 0.0,
+														"bottomRow": 570.0,
+														"parentRowSpace": 1.0,
+														"isVisible": "true",
+														"canExtend": false,
+														"type": "CANVAS_WIDGET",
+														"version": 1.0,
+														"parentId": "1ruewbc4ef",
+														"minHeight": 580.0,
+														"isLoading": false,
+														"parentColumnSpace": 1.0,
+														"dynamicTriggerPathList": [
+
+														],
+														"leftColumn": 0.0,
+														"dynamicBindingPathList": [
+
+														],
+														"children": [
+															{
+																"resetFormOnClick": true,
+																"widgetName": "insert_button",
+																"rightColumn": 62.0,
+																"onClick": "{{InsertQuery.run(() => FindQuery.run(() => closeModal('Insert_Modal')))}}",
+																"isDefaultClickDisabled": true,
+																"dynamicPropertyPathList": [
+																	{
+																		"key": "onClick"
+																	}
+																],
+																"buttonColor": "#03B365",
+																"widgetId": "h8vxf3oh4s",
+																"topRow": 51.0,
+																"bottomRow": 55.0,
+																"isVisible": "true",
+																"type": "FORM_BUTTON_WIDGET",
+																"version": 1.0,
+																"parentId": "tp9pui0e6y",
+																"isLoading": false,
+																"dynamicTriggerPathList": [
+																	{
+																		"key": "onClick"
+																	}
+																],
+																"disabledWhenInvalid": true,
+																"leftColumn": 43.0,
+																"dynamicBindingPathList": [
+
+																],
+																"googleRecaptchaKey": "",
+																"text": "Submit"
+															},
+															{
+																"resetFormOnClick": true,
+																"widgetName": "reset_button",
+																"rightColumn": 42.0,
+																"onClick": "{{closeModal('Insert_Modal')}}",
+																"isDefaultClickDisabled": true,
+																"buttonColor": "#03B365",
+																"widgetId": "o23gs26wm5",
+																"topRow": 51.0,
+																"bottomRow": 55.0,
+																"isVisible": "true",
+																"type": "FORM_BUTTON_WIDGET",
+																"version": 1.0,
+																"parentId": "tp9pui0e6y",
+																"isLoading": false,
+																"dynamicTriggerPathList": [
+																	{
+																		"key": "onClick"
+																	}
+																],
+																"disabledWhenInvalid": false,
+																"leftColumn": 29.0,
+																"dynamicBindingPathList": [
+
+																],
+																"buttonVariant": "OUTLINE",
+																"text": "Close"
+															},
+															{
+																"widgetName": "Text21",
+																"rightColumn": 19.0,
+																"textAlign": "RIGHT",
+																"widgetId": "cfmxebyn06",
+																"topRow": 5.0,
+																"bottomRow": 9.0,
+																"parentRowSpace": 10.0,
+																"isVisible": "true",
+																"fontStyle": "BOLD",
+																"type": "TEXT_WIDGET",
+																"textColor": "#231F20",
+																"version": 1.0,
+																"parentId": "tp9pui0e6y",
+																"isLoading": false,
+																"parentColumnSpace": 7.6865234375,
+																"dynamicTriggerPathList": [
+
+																],
+																"leftColumn": 3.0,
+																"dynamicBindingPathList": [
+
+																],
+																"fontSize": "PARAGRAPH",
+																"text": "genres:"
+															},
+															{
+																"isRequired": true,
+																"widgetName": "insert_col_input1",
+																"rightColumn": 62.0,
+																"widgetId": "h1wbbv7alb",
+																"topRow": 5.0,
+																"bottomRow": 9.0,
+																"parentRowSpace": 10.0,
+																"isVisible": "true",
+																"label": "",
+																"type": "INPUT_WIDGET_V2",
+																"version": 1.0,
+																"parentId": "tp9pui0e6y",
+																"isLoading": false,
+																"parentColumnSpace": 7.6865234375,
+																"dynamicTriggerPathList": [
+
+																],
+																"resetOnSubmit": true,
+																"leftColumn": 21.0,
+																"dynamicBindingPathList": [
+
+																],
+																"inputType": "TEXT",
+																"placeholderText": "genres",
+																"defaultText": "",
+																"isDisabled": false,
+																"validation": "true"
+															},
+															{
+																"widgetName": "Text22",
+																"rightColumn": 19.0,
+																"textAlign": "RIGHT",
+																"widgetId": "jsffaxrqhw",
+																"topRow": 12.0,
+																"bottomRow": 16.0,
+																"parentRowSpace": 10.0,
+																"isVisible": "true",
+																"fontStyle": "BOLD",
+																"type": "TEXT_WIDGET",
+																"textColor": "#231F20",
+																"version": 1.0,
+																"parentId": "tp9pui0e6y",
+																"isLoading": false,
+																"parentColumnSpace": 7.6865234375,
+																"dynamicTriggerPathList": [
+
+																],
+																"leftColumn": 2.0,
+																"dynamicBindingPathList": [
+
+																],
+																"fontSize": "PARAGRAPH",
+																"text": "homepage:"
+															},
+															{
+																"isRequired": true,
+																"widgetName": "insert_col_input2",
+																"rightColumn": 62.0,
+																"widgetId": "6enalyprua",
+																"topRow": 12.0,
+																"bottomRow": 16.0,
+																"parentRowSpace": 10.0,
+																"isVisible": "true",
+																"label": "",
+																"type": "INPUT_WIDGET_V2",
+																"version": 1.0,
+																"parentId": "tp9pui0e6y",
+																"isLoading": false,
+																"parentColumnSpace": 8.0625,
+																"dynamicTriggerPathList": [
+
+																],
+																"resetOnSubmit": true,
+																"leftColumn": 21.0,
+																"dynamicBindingPathList": [
+
+																],
+																"inputType": "TEXT",
+																"defaultText": "",
+																"placeholderText": "homepage",
+																"isDisabled": false,
+																"validation": "true"
+															},
+															{
+																"widgetName": "Text23",
+																"rightColumn": 19.0,
+																"textAlign": "RIGHT",
+																"widgetId": "btk60uozsm",
+																"topRow": 19.0,
+																"bottomRow": 23.0,
+																"parentRowSpace": 10.0,
+																"isVisible": "true",
+																"fontStyle": "BOLD",
+																"type": "TEXT_WIDGET",
+																"textColor": "#231F20",
+																"version": 1.0,
+																"parentId": "tp9pui0e6y",
+																"isLoading": false,
+																"parentColumnSpace": 7.6865234375,
+																"dynamicTriggerPathList": [
+
+																],
+																"leftColumn": 3.0,
+																"dynamicBindingPathList": [
+
+																],
+																"fontSize": "PARAGRAPH",
+																"text": "imdb_id:"
+															},
+															{
+																"isRequired": true,
+																"widgetName": "insert_col_input3",
+																"rightColumn": 62.0,
+																"widgetId": "e490gfts69",
+																"topRow": 19.0,
+																"bottomRow": 23.0,
+																"parentRowSpace": 10.0,
+																"isVisible": "true",
+																"label": "",
+																"type": "INPUT_WIDGET_V2",
+																"version": 1.0,
+																"parentId": "tp9pui0e6y",
+																"isLoading": false,
+																"parentColumnSpace": 8.0625,
+																"dynamicTriggerPathList": [
+
+																],
+																"resetOnSubmit": true,
+																"leftColumn": 21.0,
+																"dynamicBindingPathList": [
+
+																],
+																"inputType": "TEXT",
+																"placeholderText": "imdb_id",
+																"defaultText": "",
+																"isDisabled": false,
+																"validation": "true"
+															},
+															{
+																"widgetName": "Text14",
+																"rightColumn": 19.0,
+																"textAlign": "RIGHT",
+																"widgetId": "8fm60omwwv",
+																"topRow": 26.0,
+																"bottomRow": 30.0,
+																"parentRowSpace": 10.0,
+																"isVisible": "true",
+																"fontStyle": "BOLD",
+																"type": "TEXT_WIDGET",
+																"textColor": "#231F20",
+																"version": 1.0,
+																"parentId": "tp9pui0e6y",
+																"isLoading": false,
+																"parentColumnSpace": 8.0625,
+																"dynamicTriggerPathList": [
+
+																],
+																"leftColumn": 3.0,
+																"dynamicBindingPathList": [
+
+																],
+																"fontSize": "PARAGRAPH",
+																"text": "poster_path:"
+															},
+															{
+																"isRequired": true,
+																"widgetName": "insert_col_input4",
+																"rightColumn": 62.0,
+																"widgetId": "r55cydp0ao",
+																"topRow": 26.0,
+																"bottomRow": 30.0,
+																"parentRowSpace": 10.0,
+																"isVisible": "true",
+																"label": "",
+																"type": "INPUT_WIDGET_V2",
+																"version": 1.0,
+																"parentId": "tp9pui0e6y",
+																"isLoading": false,
+																"parentColumnSpace": 8.0625,
+																"dynamicTriggerPathList": [
+
+																],
+																"resetOnSubmit": true,
+																"leftColumn": 21.0,
+																"dynamicBindingPathList": [
+
+																],
+																"inputType": "TEXT",
+																"placeholderText": "poster_path",
+																"defaultText": "",
+																"isDisabled": false,
+																"validation": "true"
+															},
+															{
+																"widgetName": "Text13Copy",
+																"rightColumn": 35.0,
+																"textAlign": "LEFT",
+																"widgetId": "18x7vdv3gs",
+																"topRow": 0.0,
+																"bottomRow": 4.0,
+																"isVisible": "true",
+																"fontStyle": "BOLD",
+																"type": "TEXT_WIDGET",
+																"textColor": "#231F20",
+																"version": 1.0,
+																"shouldScroll": false,
+																"parentId": "tp9pui0e6y",
+																"isLoading": false,
+																"dynamicTriggerPathList": [
+
+																],
+																"leftColumn": 0.0,
+																"dynamicBindingPathList": [
+
+																],
+																"fontSize": "HEADING1",
+																"text": "Insert Row"
+															}
+														]
+													}
+												]
+											}
+										],
+										"isDisabled": false
+									}
+								],
+								"width": 532.0,
+								"height": 600.0
+							},
+							{
+								"widgetName": "Form1",
+								"backgroundColor": "white",
+								"rightColumn": 64.0,
+								"dynamicPropertyPathList": [
+									{
+										"key": "isVisible"
+									}
+								],
+								"widgetId": "m7dvlazbn7",
+								"topRow": 0.0,
+								"bottomRow": 46.0,
+								"parentRowSpace": 10.0,
+								"isVisible": "{{!!data_table.selectedRow._id}}",
+								"type": "FORM_WIDGET",
+								"parentId": "0",
+								"isLoading": false,
+								"shouldScrollContents": true,
+								"parentColumnSpace": 18.8828125,
+								"dynamicTriggerPathList": [
+
+								],
+								"leftColumn": 40.0,
+								"dynamicBindingPathList": [
+									{
+										"key": "isVisible"
+									}
+								],
+								"children": [
+									{
+										"widgetName": "Canvas2",
+										"rightColumn": 528.71875,
+										"detachFromLayout": true,
+										"widgetId": "cicukwhp5j",
+										"containerStyle": "none",
+										"topRow": 0.0,
+										"bottomRow": 450.0,
+										"parentRowSpace": 1.0,
+										"isVisible": "true",
+										"canExtend": false,
+										"type": "CANVAS_WIDGET",
+										"version": 1.0,
+										"parentId": "m7dvlazbn7",
+										"minHeight": 460.0,
+										"isLoading": false,
+										"parentColumnSpace": 1.0,
+										"dynamicTriggerPathList": [
+
+										],
+										"leftColumn": 0.0,
+										"dynamicBindingPathList": [
+
+										],
+										"children": [
+											{
+												"resetFormOnClick": false,
+												"widgetName": "update_button",
+												"rightColumn": 63.0,
+												"onClick": "{{UpdateQuery.run(() => FindQuery.run(), () => showAlert('Error while updating resource!','error'))}}",
+												"isDefaultClickDisabled": true,
+												"dynamicPropertyPathList": [
+
+												],
+												"buttonColor": "#03B365",
+												"widgetId": "4gnygu5jew",
+												"topRow": 39.0,
+												"bottomRow": 43.0,
+												"isVisible": "true",
+												"type": "FORM_BUTTON_WIDGET",
+												"version": 1.0,
+												"parentId": "cicukwhp5j",
+												"isLoading": false,
+												"dynamicTriggerPathList": [
+													{
+														"key": "onClick"
+													}
+												],
+												"disabledWhenInvalid": true,
+												"leftColumn": 47.0,
+												"dynamicBindingPathList": [
+
+												],
+												"text": "Update"
+											},
+											{
+												"resetFormOnClick": true,
+												"widgetName": "reset_update_button",
+												"rightColumn": 46.0,
+												"onClick": "",
+												"isDefaultClickDisabled": true,
+												"dynamicPropertyPathList": [
+
+												],
+												"buttonColor": "#03B365",
+												"widgetId": "twwgpz5wfu",
+												"topRow": 39.0,
+												"bottomRow": 43.0,
+												"isVisible": "true",
+												"type": "FORM_BUTTON_WIDGET",
+												"version": 1.0,
+												"parentId": "cicukwhp5j",
+												"isLoading": false,
+												"dynamicTriggerPathList": [
+													{
+														"key": "onClick"
+													}
+												],
+												"disabledWhenInvalid": false,
+												"leftColumn": 28.0,
+												"dynamicBindingPathList": [
+
+												],
+												"buttonVariant": "OUTLINE",
+												"text": "Reset"
+											},
+											{
+												"isRequired": true,
+												"widgetName": "update_col_1",
+												"rightColumn": 63.0,
+												"widgetId": "in8e51pg3y",
+												"topRow": 8.0,
+												"bottomRow": 12.0,
+												"parentRowSpace": 10.0,
+												"isVisible": "true",
+												"label": "",
+												"type": "INPUT_WIDGET_V2",
+												"version": 1.0,
+												"parentId": "cicukwhp5j",
+												"isLoading": false,
+												"parentColumnSpace": 8.8963623046875,
+												"dynamicTriggerPathList": [
+
+												],
+												"resetOnSubmit": true,
+												"leftColumn": 19.0,
+												"dynamicBindingPathList": [
+													{
+														"key": "defaultText"
+													}
+												],
+												"inputType": "TEXT",
+												"defaultText": "{{data_table.selectedRow.genres}}",
+												"isDisabled": false,
+												"validation": "true"
+											},
+											{
+												"isRequired": true,
+												"widgetName": "update_col_2",
+												"rightColumn": 63.0,
+												"widgetId": "mlhvfasf31",
+												"topRow": 15.0,
+												"bottomRow": 19.0,
+												"parentRowSpace": 10.0,
+												"isVisible": "true",
+												"label": "",
+												"type": "INPUT_WIDGET_V2",
+												"version": 1.0,
+												"parentId": "cicukwhp5j",
+												"isLoading": false,
+												"parentColumnSpace": 8.8963623046875,
+												"dynamicTriggerPathList": [
+
+												],
+												"resetOnSubmit": true,
+												"leftColumn": 19.0,
+												"dynamicBindingPathList": [
+													{
+														"key": "defaultText"
+													}
+												],
+												"inputType": "TEXT",
+												"defaultText": "{{data_table.selectedRow.homepage}}",
+												"isDisabled": false,
+												"validation": "true"
+											},
+											{
+												"isRequired": true,
+												"widgetName": "update_col_3",
+												"rightColumn": 63.0,
+												"widgetId": "0lz9vhcnr0",
+												"topRow": 22.0,
+												"bottomRow": 26.0,
+												"parentRowSpace": 10.0,
+												"isVisible": "true",
+												"label": "",
+												"type": "INPUT_WIDGET_V2",
+												"version": 1.0,
+												"parentId": "cicukwhp5j",
+												"isLoading": false,
+												"parentColumnSpace": 8.8963623046875,
+												"dynamicTriggerPathList": [
+
+												],
+												"resetOnSubmit": true,
+												"leftColumn": 19.0,
+												"dynamicBindingPathList": [
+													{
+														"key": "defaultText"
+													}
+												],
+												"inputType": "TEXT",
+												"defaultText": "{{data_table.selectedRow.imdb_id}}",
+												"isDisabled": false,
+												"validation": "true"
+											},
+											{
+												"isRequired": true,
+												"widgetName": "update_col_4",
+												"rightColumn": 63.0,
+												"widgetId": "m4esf7fww5",
+												"topRow": 29.0,
+												"bottomRow": 33.0,
+												"parentRowSpace": 10.0,
+												"isVisible": "true",
+												"label": "",
+												"type": "INPUT_WIDGET_V2",
+												"version": 1.0,
+												"parentId": "cicukwhp5j",
+												"isLoading": false,
+												"parentColumnSpace": 8.8963623046875,
+												"dynamicTriggerPathList": [
+
+												],
+												"resetOnSubmit": true,
+												"leftColumn": 19.0,
+												"dynamicBindingPathList": [
+													{
+														"key": "defaultText"
+													}
+												],
+												"inputType": "TEXT",
+												"defaultText": "{{data_table.selectedRow.poster_path}}",
+												"isDisabled": false,
+												"validation": "true"
+											},
+											{
+												"widgetName": "Text9",
+												"rightColumn": 63.0,
+												"textAlign": "LEFT",
+												"widgetId": "4hnz8ktmz5",
+												"topRow": 0.0,
+												"bottomRow": 6.0,
+												"parentRowSpace": 10.0,
+												"isVisible": "true",
+												"fontStyle": "BOLD",
+												"type": "TEXT_WIDGET",
+												"textColor": "#231F20",
+												"version": 1.0,
+												"parentId": "cicukwhp5j",
+												"isLoading": false,
+												"parentColumnSpace": 8.8963623046875,
+												"dynamicTriggerPathList": [
+
+												],
+												"leftColumn": 1.0,
+												"dynamicBindingPathList": [
+
+												],
+												"fontSize": "HEADING1",
+												"text": "Update Selected Row"
+											},
+											{
+												"widgetName": "Text17",
+												"rightColumn": 18.0,
+												"textAlign": "RIGHT",
+												"widgetId": "afzzc7q8af",
+												"topRow": 8.0,
+												"bottomRow": 12.0,
+												"parentRowSpace": 10.0,
+												"isVisible": "true",
+												"fontStyle": "BOLD",
+												"type": "TEXT_WIDGET",
+												"textColor": "#231F20",
+												"version": 1.0,
+												"parentId": "cicukwhp5j",
+												"isLoading": false,
+												"parentColumnSpace": 7.15625,
+												"dynamicTriggerPathList": [
+
+												],
+												"leftColumn": 1.0,
+												"dynamicBindingPathList": [
+
+												],
+												"fontSize": "PARAGRAPH",
+												"text": "genres:"
+											},
+											{
+												"widgetName": "Text18",
+												"rightColumn": 18.0,
+												"textAlign": "RIGHT",
+												"widgetId": "xqcsd2e5dj",
+												"topRow": 15.0,
+												"bottomRow": 19.0,
+												"parentRowSpace": 10.0,
+												"isVisible": "true",
+												"fontStyle": "BOLD",
+												"type": "TEXT_WIDGET",
+												"textColor": "#231F20",
+												"version": 1.0,
+												"parentId": "cicukwhp5j",
+												"isLoading": false,
+												"parentColumnSpace": 7.15625,
+												"dynamicTriggerPathList": [
+
+												],
+												"leftColumn": 1.0,
+												"dynamicBindingPathList": [
+
+												],
+												"fontSize": "PARAGRAPH",
+												"text": "homepage:"
+											},
+											{
+												"widgetName": "Text19",
+												"rightColumn": 18.0,
+												"textAlign": "RIGHT",
+												"widgetId": "l109ilp3vq",
+												"topRow": 22.0,
+												"bottomRow": 26.0,
+												"parentRowSpace": 10.0,
+												"isVisible": "true",
+												"fontStyle": "BOLD",
+												"type": "TEXT_WIDGET",
+												"textColor": "#231F20",
+												"version": 1.0,
+												"parentId": "cicukwhp5j",
+												"isLoading": false,
+												"parentColumnSpace": 7.15625,
+												"dynamicTriggerPathList": [
+
+												],
+												"leftColumn": 1.0,
+												"dynamicBindingPathList": [
+
+												],
+												"fontSize": "PARAGRAPH",
+												"text": "imdb_id:"
+											},
+											{
+												"widgetName": "Text20",
+												"rightColumn": 18.0,
+												"textAlign": "RIGHT",
+												"widgetId": "gqpwf0yng6",
+												"topRow": 29.0,
+												"bottomRow": 33.0,
+												"parentRowSpace": 10.0,
+												"isVisible": "true",
+												"fontStyle": "BOLD",
+												"type": "TEXT_WIDGET",
+												"textColor": "#231F20",
+												"version": 1.0,
+												"parentId": "cicukwhp5j",
+												"isLoading": false,
+												"parentColumnSpace": 7.15625,
+												"dynamicTriggerPathList": [
+
+												],
+												"leftColumn": 1.0,
+												"dynamicBindingPathList": [
+
+												],
+												"fontSize": "PARAGRAPH",
+												"text": "poster_path:"
+											}
+										]
+									}
+								]
+							}
+						]
+					},
+					"layoutOnLoadActions": [
+						[
+							{
+								"id": "616d7e429594b25adfa3e580",
+								"name": "FindQuery",
+								"pluginType": "DB",
+								"jsonPathKeys": [
+									"key_select.selectedOptionValue",
+									"data_table.pageSize",
+									"data_table.searchText||\"\"",
+									"(data_table.pageNo - 1) * data_table.pageSize",
+									"order_select.selectedOptionValue"
+								],
+								"timeoutInMillisecond": 10000
+							}
+						]
+					],
+					"new": false
+				}
+			],
+			"userPermissions": [
+				"read:pages",
+				"manage:pages"
+			],
+			"lastUpdatedTime": 1634565699
+		},
+		"successMessage": "We have generated the <b>TABLE</b> from the <b>MongoDB Datasource</b>. You can use the <b>FORM</b> to modify it. Since all your data is already connected you can add more queries and modify the bindings",
+		"successImageUrl": "https://assets.appsmith.com/crud/working-flow-chart.png"
+	}
+}

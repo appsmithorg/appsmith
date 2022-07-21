@@ -35,14 +35,14 @@ const HorizontalDivider = styled.div<Partial<DividerComponentProps>>`
   width: 100%;
   border-top: ${(props) =>
     `${props.thickness || 1}px ${props.strokeStyle ||
-      "solid"} ${props.dividerColor || "black"};`};
+      "solid"} ${props.dividerColor || "transparent"};`};
 `;
 const VerticalDivider = styled.div<Partial<DividerComponentProps>>`
   width: 0px;
   height: 100%;
   border-right: ${(props) =>
     `${props.thickness || 1}px ${props.strokeStyle ||
-      "solid"} ${props.dividerColor || "black"};`};
+      "solid"} ${props.dividerColor || "transparent"};`};
 `;
 
 const CapWrapper = styled.div<{
@@ -156,7 +156,7 @@ class DividerComponent extends React.Component<DividerComponentProps> {
             <circle
               cx={halfCapSize}
               cy={halfCapSize}
-              fill={dividerColor}
+              fill={dividerColor || "none"}
               r={halfCapSize}
             />
           </svg>
@@ -165,7 +165,7 @@ class DividerComponent extends React.Component<DividerComponentProps> {
             <path
               d="M7 13L1 7L7 1"
               fill="none"
-              stroke={dividerColor}
+              stroke={dividerColor || "transparent"}
               strokeLinecap="round"
               strokeLinejoin="round"
               strokeWidth="2"

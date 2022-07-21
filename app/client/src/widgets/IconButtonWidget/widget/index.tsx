@@ -7,20 +7,18 @@ import { ValidationTypes } from "constants/WidgetValidation";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 
 import IconButtonComponent from "../component";
-import {
-  ButtonBorderRadius,
-  ButtonBoxShadow,
-  ButtonVariant,
-  ButtonBorderRadiusTypes,
-} from "components/constants";
-import { Colors } from "constants/Colors";
+import { IconNames } from "@blueprintjs/icons";
+import { ButtonVariant, ButtonVariantTypes } from "components/constants";
 
+const ICON_NAMES = Object.keys(IconNames).map(
+  (name: string) => IconNames[name as keyof typeof IconNames],
+);
 export interface IconButtonWidgetProps extends WidgetProps {
   iconName?: IconName;
-  buttonColor?: string;
+  backgroundColor: string;
   buttonVariant: ButtonVariant;
-  borderRadius: ButtonBorderRadius;
-  boxShadow: ButtonBoxShadow;
+  borderRadius: string;
+  boxShadow: string;
   boxShadowColor: string;
   isDisabled: boolean;
   isVisible: boolean;
@@ -38,7 +36,25 @@ class IconButtonWidget extends BaseWidget<IconButtonWidgetProps, WidgetState> {
             label: "Icon",
             helpText: "Sets the icon to be used for the icon button",
             controlType: "ICON_SELECT",
-            isBindProperty: false,
+            defaultIconName: "plus",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: {
+              type: ValidationTypes.TEXT,
+              params: {
+                allowedValues: ICON_NAMES,
+                default: IconNames.PLUS,
+              },
+            },
+          },
+          {
+            helpText: "Show helper text with button on hover",
+            propertyName: "tooltip",
+            label: "Tooltip",
+            controlType: "INPUT_TEXT",
+            placeholderText: "Add Input Field",
+            isBindProperty: true,
             isTriggerProperty: false,
             validation: { type: ValidationTypes.TEXT },
           },
@@ -62,10 +78,21 @@ class IconButtonWidget extends BaseWidget<IconButtonWidgetProps, WidgetState> {
             isTriggerProperty: false,
             validation: { type: ValidationTypes.BOOLEAN },
           },
+          {
+            propertyName: "animateLoading",
+            label: "Animate Loading",
+            controlType: "SWITCH",
+            helpText: "Controls the loading of the widget",
+            defaultValue: true,
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+          },
         ],
       },
       {
-        sectionName: "Actions",
+        sectionName: "Events",
         children: [
           {
             helpText: "Triggers an action when the button is clicked",
@@ -86,8 +113,15 @@ class IconButtonWidget extends BaseWidget<IconButtonWidgetProps, WidgetState> {
             helpText: "Sets the style of the icon button",
             label: "Button Color",
             controlType: "COLOR_PICKER",
-            isBindProperty: false,
+            isJSConvertible: true,
+            isBindProperty: true,
             isTriggerProperty: false,
+            validation: {
+              type: ValidationTypes.TEXT,
+              params: {
+                regex: /^(?![<|{{]).+/,
+              },
+            },
           },
           {
             propertyName: "buttonVariant",
@@ -97,19 +131,31 @@ class IconButtonWidget extends BaseWidget<IconButtonWidgetProps, WidgetState> {
             options: [
               {
                 label: "Primary",
-                value: "SOLID",
+                value: ButtonVariantTypes.PRIMARY,
               },
               {
                 label: "Secondary",
-                value: "OUTLINE",
+                value: ButtonVariantTypes.SECONDARY,
               },
               {
                 label: "Tertiary",
-                value: "GHOST",
+                value: ButtonVariantTypes.TERTIARY,
               },
             ],
-            isBindProperty: false,
+            isJSConvertible: true,
+            isBindProperty: true,
             isTriggerProperty: false,
+            validation: {
+              type: ValidationTypes.TEXT,
+              params: {
+                allowedValues: [
+                  ButtonVariantTypes.PRIMARY,
+                  ButtonVariantTypes.SECONDARY,
+                  ButtonVariantTypes.TERTIARY,
+                ],
+                default: ButtonVariantTypes.PRIMARY,
+              },
+            },
           },
           {
             propertyName: "borderRadius",
@@ -117,19 +163,10 @@ class IconButtonWidget extends BaseWidget<IconButtonWidgetProps, WidgetState> {
             helpText:
               "Rounds the corners of the icon button's outer border edge",
             controlType: "BORDER_RADIUS_OPTIONS",
-            options: [
-              ButtonBorderRadiusTypes.SHARP,
-              ButtonBorderRadiusTypes.ROUNDED,
-              ButtonBorderRadiusTypes.CIRCLE,
-            ],
-            isBindProperty: false,
+            isJSConvertible: true,
+            isBindProperty: true,
             isTriggerProperty: false,
-            validation: {
-              type: ValidationTypes.TEXT,
-              params: {
-                allowedValues: ["CIRCLE", "SHARP", "ROUNDED"],
-              },
-            },
+            validation: { type: ValidationTypes.TEXT },
           },
           {
             propertyName: "boxShadow",
@@ -137,29 +174,10 @@ class IconButtonWidget extends BaseWidget<IconButtonWidgetProps, WidgetState> {
             helpText:
               "Enables you to cast a drop shadow from the frame of the widget",
             controlType: "BOX_SHADOW_OPTIONS",
-            isBindProperty: false,
+            isJSConvertible: true,
+            isBindProperty: true,
             isTriggerProperty: false,
-            validation: {
-              type: ValidationTypes.TEXT,
-              params: {
-                allowedValues: [
-                  "NONE",
-                  "VARIANT1",
-                  "VARIANT2",
-                  "VARIANT3",
-                  "VARIANT4",
-                  "VARIANT5",
-                ],
-              },
-            },
-          },
-          {
-            propertyName: "boxShadowColor",
-            helpText: "Sets the shadow color of the widget",
-            label: "Shadow Color",
-            controlType: "COLOR_PICKER",
-            isBindProperty: false,
-            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
           },
         ],
       },
@@ -170,12 +188,12 @@ class IconButtonWidget extends BaseWidget<IconButtonWidgetProps, WidgetState> {
     const {
       borderRadius,
       boxShadow,
-      boxShadowColor,
       buttonColor,
       buttonVariant,
       iconName,
       isDisabled,
       isVisible,
+      tooltip,
       widgetId,
     } = this.props;
 
@@ -183,8 +201,7 @@ class IconButtonWidget extends BaseWidget<IconButtonWidgetProps, WidgetState> {
       <IconButtonComponent
         borderRadius={borderRadius}
         boxShadow={boxShadow}
-        boxShadowColor={boxShadowColor}
-        buttonColor={buttonColor || Colors.GREEN}
+        buttonColor={buttonColor}
         buttonVariant={buttonVariant}
         hasOnClickAction={!!this.props.onClick}
         height={
@@ -194,6 +211,8 @@ class IconButtonWidget extends BaseWidget<IconButtonWidgetProps, WidgetState> {
         isDisabled={isDisabled}
         isVisible={isVisible}
         onClick={this.handleClick}
+        renderMode={this.props.renderMode}
+        tooltip={tooltip}
         widgetId={widgetId}
         width={
           (this.props.rightColumn - this.props.leftColumn) *

@@ -1,16 +1,25 @@
-import { last, isNumber } from "lodash";
+import { last, isNumber, isEmpty } from "lodash";
 import { Annotation, Position } from "codemirror";
 import {
   EvaluationError,
   PropertyEvaluationErrorType,
 } from "utils/DynamicBindingUtils";
+import { Severity } from "entities/AppsmithConsole";
+import {
+  CODE_EDITOR_START_POSITION,
+  INVALID_JSOBJECT_START_STATEMENT,
+  JS_OBJECT_START_STATEMENT,
+  LintTooltipDirection,
+  VALID_JS_OBJECT_BINDING_POSITION,
+  WARNING_LINT_ERRORS,
+} from "./constants";
 
 export const getIndexOfRegex = (
   str: string,
   regex: RegExp,
   start = 0,
 ): number => {
-  const pos = str.substr(start).search(regex);
+  const pos = str.slice(start).search(regex);
   return pos > -1 ? pos + start : pos;
 };
 
@@ -42,7 +51,7 @@ export const getKeyPositionInString = (
   let positions: Position[] = [];
   if (str.includes("\n")) {
     for (const index of indices) {
-      const substr = str.substr(0, index);
+      const substr = str.slice(0, index);
       const substrLines = substr.split("\n");
       const ch = last(substrLines)?.length || 0;
       const line = substrLines.length - 1;
@@ -55,15 +64,40 @@ export const getKeyPositionInString = (
   return positions;
 };
 
+export const getFirstNonEmptyPosition = (lines: string[]): Position => {
+  const lineNumber = lines.findIndex((line) => !isEmpty(line));
+  return lineNumber > -1
+    ? {
+        line: lineNumber,
+        ch: lines[lineNumber].length,
+      }
+    : CODE_EDITOR_START_POSITION;
+};
+
 export const getLintAnnotations = (
   value: string,
   errors: EvaluationError[],
+  isJSObject?: boolean,
 ): Annotation[] => {
   const annotations: Annotation[] = [];
   const lintErrors = errors.filter(
     (error) => error.errorType === PropertyEvaluationErrorType.LINT,
   );
   const lines = value.split("\n");
+  if (
+    isJSObject &&
+    !isEmpty(lines) &&
+    !lines[0].startsWith(JS_OBJECT_START_STATEMENT)
+  ) {
+    return [
+      {
+        from: CODE_EDITOR_START_POSITION,
+        to: getFirstNonEmptyPosition(lines),
+        message: INVALID_JSOBJECT_START_STATEMENT,
+        severity: Severity.ERROR,
+      },
+    ];
+  }
   lintErrors.forEach((error) => {
     const {
       ch,
@@ -91,18 +125,19 @@ export const getLintAnnotations = (
       }
     }
 
-    const bindingPositions = getKeyPositionInString(value, originalBinding);
+    const bindingPositions = isJSObject
+      ? [VALID_JS_OBJECT_BINDING_POSITION]
+      : getKeyPositionInString(value, originalBinding);
 
     if (isNumber(line) && isNumber(ch)) {
       for (const bindingLocation of bindingPositions) {
         const currentLine = bindingLocation.line + line;
         const lineContent = lines[currentLine] || "";
-        const currentCh = originalBinding.includes("\n")
-          ? ch
-          : bindingLocation.ch + ch;
+        const currentCh =
+          bindingLocation.line !== currentLine ? ch : bindingLocation.ch + ch;
         // Jshint counts \t as two characters and codemirror counts it as 1.
         // So we need to subtract number of tabs to get accurate position
-        const tabs = lineContent.substr(0, currentCh).match(/\t/g)?.length || 0;
+        const tabs = lineContent.slice(0, currentCh).match(/\t/g)?.length || 0;
 
         const from = {
           line: currentLine,
@@ -125,4 +160,28 @@ export const getLintAnnotations = (
     }
   });
   return annotations;
+};
+
+export const getLintSeverity = (
+  code: string,
+): Severity.WARNING | Severity.ERROR => {
+  const severity =
+    code in WARNING_LINT_ERRORS ? Severity.WARNING : Severity.ERROR;
+  return severity;
+};
+
+/* By default, lint tooltips are rendered to the right of the cursor
+if the tooltip overflows out of the page, we want to render it to the left of the cursor
+*/
+export const getLintTooltipDirection = (
+  tooltip: Element,
+): LintTooltipDirection => {
+  if (
+    tooltip.getBoundingClientRect().right >
+    (window.innerWidth || document.documentElement.clientWidth)
+  ) {
+    return LintTooltipDirection.left;
+  } else {
+    return LintTooltipDirection.right;
+  }
 };

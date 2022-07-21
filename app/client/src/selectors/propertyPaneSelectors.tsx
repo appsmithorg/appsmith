@@ -1,4 +1,4 @@
-import { find, get, set } from "lodash";
+import { find, get, pick, set } from "lodash";
 import { AppState } from "reducers";
 import { createSelector } from "reselect";
 
@@ -12,6 +12,7 @@ import { getSelectedWidget, getSelectedWidgets } from "./ui";
 import { EVALUATION_PATH } from "utils/DynamicBindingUtils";
 import { DataTreeEntity } from "entities/DataTree/dataTreeFactory";
 import { generateClassName } from "utils/generators";
+import { getWidgets } from "sagas/selectors";
 
 export type WidgetProperties = WidgetProps & {
   [EVALUATION_PATH]?: DataTreeEntity;
@@ -27,12 +28,12 @@ export const getCurrentWidgetId = createSelector(
 
 export const getCurrentWidgetProperties = createSelector(
   getCanvasWidgets,
-  getPropertyPaneState,
+  getSelectedWidgets,
   (
     widgets: CanvasWidgetsReduxState,
-    pane: PropertyPaneReduxState,
+    selectedWidgetIds: string[],
   ): WidgetProps | undefined => {
-    return get(widgets, `${pane.widgetId}`);
+    return get(widgets, `${selectedWidgetIds[0]}`);
   },
 );
 
@@ -53,6 +54,36 @@ export const getWidgetPropsForPropertyPane = createSelector(
       widgetProperties[EVALUATION_PATH] = evaluatedWidget[EVALUATION_PATH];
     }
     return widgetProperties;
+  },
+);
+
+type WidgetPropertiesForPropertyPaneView = {
+  type: string;
+  widgetId: string;
+  widgetName: string;
+  displayName: string;
+};
+
+export const getWidgetPropsForPropertyPaneView = createSelector(
+  getWidgetPropsForPropertyPane,
+  (props) =>
+    pick(props, [
+      "type",
+      "widgetId",
+      "widgetName",
+      "displayName",
+    ]) as WidgetPropertiesForPropertyPaneView,
+);
+
+export const selectedWidgetsPresentInCanvas = createSelector(
+  getWidgets,
+  getSelectedWidgets,
+  (canvasWidgets, selectedWidgets) => {
+    const widgets = [];
+    for (const widget of selectedWidgets) {
+      if (widget in canvasWidgets) widgets.push(widget);
+    }
+    return widgets;
   },
 );
 
@@ -95,6 +126,7 @@ const getAndSetPath = (from: any, to: any, path: string) => {
 const populateEvaluatedWidgetProperties = (
   evaluatedWidget: DataTreeWidget,
   propertyPath: string,
+  evaluatedDependencies: string[] = [],
 ) => {
   if (!evaluatedWidget || !evaluatedWidget[EVALUATION_PATH]) return;
 
@@ -105,16 +137,18 @@ const populateEvaluatedWidgetProperties = (
     evaluatedValues: {},
   };
 
-  getAndSetPath(
-    evaluatedWidgetPath?.errors,
-    evaluatedProperties.errors,
-    propertyPath,
-  );
-  getAndSetPath(
-    evaluatedWidgetPath?.evaluatedValues,
-    evaluatedProperties.evaluatedValues,
-    propertyPath,
-  );
+  [propertyPath, ...evaluatedDependencies].forEach((path) => {
+    getAndSetPath(
+      evaluatedWidgetPath?.errors,
+      evaluatedProperties.errors,
+      path,
+    );
+    getAndSetPath(
+      evaluatedWidgetPath?.evaluatedValues,
+      evaluatedProperties.evaluatedValues,
+      path,
+    );
+  });
 
   return evaluatedProperties;
 };
@@ -122,6 +156,7 @@ const populateEvaluatedWidgetProperties = (
 export const getWidgetPropsForPropertyName = (
   propertyName: string,
   dependencies: string[] = [],
+  evaluatedDependencies: string[] = [],
 ) => {
   return createSelector(
     getCurrentWidgetProperties,
@@ -143,6 +178,7 @@ export const getWidgetPropsForPropertyName = (
       widgetProperties[EVALUATION_PATH] = populateEvaluatedWidgetProperties(
         evaluatedWidget,
         propertyName,
+        evaluatedDependencies,
       );
 
       return widgetProperties;

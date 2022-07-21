@@ -1,5 +1,6 @@
 import { SupportedLayouts } from "reducers/entityReducers/pageListReducer";
 import { WidgetType as FactoryWidgetType } from "utils/WidgetFactory";
+import { THEMEING_TEXT_SIZES } from "./ThemeConstants";
 export type WidgetType = FactoryWidgetType;
 
 export const SKELETON_WIDGET_TYPE = "SKELETON_WIDGET";
@@ -48,13 +49,13 @@ export const CSSUnits: { [id: string]: CSSUnit } = {
   RELATIVE_PARENT: "%",
 };
 
-interface LayoutConfig {
+export interface LayoutConfig {
   minWidth: number;
   maxWidth: number;
 }
 
 type LayoutConfigurations = Record<SupportedLayouts, LayoutConfig>;
-export const DefaultLayoutType: SupportedLayouts = "DESKTOP";
+export const DefaultLayoutType: SupportedLayouts = "FLUID";
 export const layoutConfigurations: LayoutConfigurations = {
   TABLET_LARGE: {
     minWidth: 960,
@@ -69,7 +70,7 @@ export const layoutConfigurations: LayoutConfigurations = {
   FLUID: { minWidth: -1, maxWidth: -1 },
 };
 
-export const LATEST_PAGE_VERSION = 41;
+export const LATEST_PAGE_VERSION = 59;
 
 export const GridDefaults = {
   DEFAULT_CELL_SIZE: 1,
@@ -92,7 +93,7 @@ export const WIDGET_CLASSNAME_PREFIX = "WIDGET_";
 export const MAIN_CONTAINER_WIDGET_ID = "0";
 export const MAIN_CONTAINER_WIDGET_NAME = "MainContainer";
 export const MODAL_PORTAL_CLASSNAME = "bp3-modal-widget";
-export const CANVAS_CLASSNAME = "appsmith_widget_0";
+export const CANVAS_SELECTOR = "canvas";
 
 export const DEFAULT_CENTER = { lat: -34.397, lng: 150.644 };
 
@@ -138,3 +139,5 @@ export const WIDGET_STATIC_PROPS = {
 };
 
 export type TextSize = keyof typeof TextSizes;
+
+export const DEFAULT_FONT_SIZE = THEMEING_TEXT_SIZES.base;

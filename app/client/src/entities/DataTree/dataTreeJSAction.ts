@@ -5,54 +5,66 @@ import {
 } from "entities/DataTree/dataTreeFactory";
 import { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
+import { DependencyMap } from "utils/DynamicBindingUtils";
+
+const reg = /this\./g;
 
 export const generateDataTreeJSAction = (
   js: JSCollectionData,
 ): DataTreeJSAction => {
-  const data: Record<string, unknown> = {};
   const meta: Record<string, MetaArgs> = {};
   const dynamicBindingPathList = [];
   const bindingPaths: Record<string, EvaluationSubstitutionType> = {};
-  let result: Record<string, unknown> = {};
+  const variableList: Record<string, any> = {};
   const variables = js.config.variables;
   const listVariables: Array<string> = [];
+  dynamicBindingPathList.push({ key: "body" });
+
+  const removeThisReference = js.config.body.replace(reg, `${js.config.name}.`);
+  bindingPaths["body"] = EvaluationSubstitutionType.SMART_SUBSTITUTE;
+
   if (variables) {
     for (let i = 0; i < variables.length; i++) {
       const variable = variables[i];
-      result[variable.name] = variable.value;
+      variableList[variable.name] = variable.value;
       listVariables.push(variable.name);
+      dynamicBindingPathList.push({ key: variable.name });
+      bindingPaths[variable.name] = EvaluationSubstitutionType.SMART_SUBSTITUTE;
     }
   }
+  const dependencyMap: DependencyMap = {};
+  dependencyMap["body"] = [];
   const actions = js.config.actions;
-  const subActionsObject: any = {};
+  const actionsData: Record<string, any> = {};
   if (actions) {
-    const reg = /this\./g;
     for (let i = 0; i < actions.length; i++) {
       const action = actions[i];
-      data[action.name] = null;
-      subActionsObject[
-        action.name
-      ] = action.actionConfiguration.body.replaceAll(reg, `${js.config.name}.`);
       meta[action.name] = {
         arguments: action.actionConfiguration.jsArguments,
+        isAsync: action.actionConfiguration.isAsync,
+        confirmBeforeExecute: !!action.confirmBeforeExecute,
       };
       bindingPaths[action.name] = EvaluationSubstitutionType.SMART_SUBSTITUTE;
       dynamicBindingPathList.push({ key: action.name });
+      dependencyMap["body"].push(action.name);
+      actionsData[action.name] = {
+        data: (js.data && js.data[`${action.id}`]) || {},
+      };
     }
   }
-  result = {
-    ...result,
+  return {
+    ...variableList,
     name: js.config.name,
     actionId: js.config.id,
     pluginType: js.config.pluginType,
-    data: data ? data : {},
     ENTITY_TYPE: ENTITY_TYPE.JSACTION,
-    body: js.config.body,
+    body: removeThisReference,
     meta: meta,
-    bindingPaths: bindingPaths,
+    bindingPaths: bindingPaths, // As all js object function referred to as action is user javascript code, we add them as binding paths.
+    reactivePaths: { ...bindingPaths },
     dynamicBindingPathList: dynamicBindingPathList,
     variables: listVariables,
+    dependencyMap: dependencyMap,
+    ...actionsData,
   };
-
-  return Object.assign(result, subActionsObject);
 };

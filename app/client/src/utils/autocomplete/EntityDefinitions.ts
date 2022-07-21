@@ -1,14 +1,43 @@
 import { generateTypeDef } from "utils/autocomplete/dataTreeTypeDefCreator";
-import { DataTreeAction } from "entities/DataTree/dataTreeFactory";
+import {
+  DataTreeAction,
+  DataTreeAppsmith,
+} from "entities/DataTree/dataTreeFactory";
 import _ from "lodash";
-import { JSCollection } from "entities/JSCollection";
+import { EVALUATION_PATH } from "utils/DynamicBindingUtils";
+import { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
 
 const isVisible = {
   "!type": "bool",
   "!doc": "Boolean value indicating if the widget is in visible state",
 };
 
-export const entityDefinitions: Record<string, unknown> = {
+export const entityDefinitions = {
+  APPSMITH: (entity: DataTreeAppsmith) => {
+    const generatedTypeDef = generateTypeDef(
+      _.omit(entity, "ENTITY_TYPE", EVALUATION_PATH),
+    );
+    if (
+      typeof generatedTypeDef === "object" &&
+      typeof generatedTypeDef.geolocation === "object"
+    ) {
+      return {
+        ...generatedTypeDef,
+        geolocation: {
+          ...generatedTypeDef.geolocation,
+          "!doc":
+            "The user's geo location information. Only available when requested",
+          "!url":
+            "https://docs.appsmith.com/v/v1.2.1/framework-reference/geolocation",
+          getCurrentPosition:
+            "fn(onSuccess: fn() -> void, onError: fn() -> void, options: object) -> void",
+          watchPosition: "fn(options: object) -> void",
+          clearWatch: "fn() -> void",
+        },
+      };
+    }
+    return generatedTypeDef;
+  },
   ACTION: (entity: DataTreeAction) => {
     const dataDef = generateTypeDef(entity.data);
     let data: Record<string, any> = {
@@ -29,8 +58,9 @@ export const entityDefinitions: Record<string, unknown> = {
         "!doc": "The response meta of the action",
         "!type": "?",
       },
-      run: "fn(onSuccess: fn() -> void, onError: fn() -> void) -> void",
-      clear: "fn() -> void",
+      run:
+        "fn(onSuccess: fn() -> void, onError: fn() -> void) -> +Promise[:t=[!0.<i>.:t]]",
+      clear: "fn() -> +Promise[:t=[!0.<i>.:t]]",
     };
   },
   AUDIO_WIDGET: {
@@ -77,7 +107,30 @@ export const entityDefinitions: Record<string, unknown> = {
     "!url": "https://docs.appsmith.com/widget-reference/table",
     selectedRow: generateTypeDef(widget.selectedRow),
     selectedRows: generateTypeDef(widget.selectedRows),
+    selectedRowIndices: generateTypeDef(widget.selectedRowIndices),
     triggeredRow: generateTypeDef(widget.triggeredRow),
+    selectedRowIndex: "number",
+    tableData: generateTypeDef(widget.tableData),
+    filteredTableData: generateTypeDef(widget.filteredTableData),
+    pageNo: "number",
+    pageSize: "number",
+    isVisible: isVisible,
+    searchText: "string",
+    totalRecordsCount: "number",
+    sortOrder: {
+      column: "string",
+      order: ["asc", "desc"],
+    },
+  }),
+  TABLE_WIDGET_V2: (widget: any) => ({
+    "!doc":
+      "The Table is the hero widget of Appsmith. You can display data from an API in a table, trigger an action when a user selects a row and even work with large paginated data sets",
+    "!url": "https://docs.appsmith.com/widget-reference/table",
+    selectedRow: generateTypeDef(widget.selectedRow),
+    selectedRows: generateTypeDef(widget.selectedRows),
+    selectedRowIndices: generateTypeDef(widget.selectedRowIndices),
+    triggeredRow: generateTypeDef(widget.triggeredRow),
+    updatedRow: generateTypeDef(widget.updatedRow),
     selectedRowIndex: "number",
     tableData: generateTypeDef(widget.tableData),
     pageNo: "number",
@@ -89,6 +142,9 @@ export const entityDefinitions: Record<string, unknown> = {
       column: "string",
       order: ["asc", "desc"],
     },
+    updatedRows: generateTypeDef(widget.updatedRows),
+    updatedRowIndices: generateTypeDef(widget.updatedRowIndices),
+    triggeredRowIndex: generateTypeDef(widget.triggeredRowIndex),
   }),
   VIDEO_WIDGET: {
     "!doc":
@@ -99,11 +155,11 @@ export const entityDefinitions: Record<string, unknown> = {
   },
   DROP_DOWN_WIDGET: {
     "!doc":
-      "Select is used to capture user input/s from a specified list of permitted inputs. A Select can capture a single choice as well as multiple choices",
+      "Select is used to capture user input/s from a specified list of permitted inputs. A Select can capture a single choice",
     "!url": "https://docs.appsmith.com/widget-reference/dropdown",
     isVisible: isVisible,
     filterText: {
-      "!type": "[string]",
+      "!type": "string",
       "!doc": "The filter text for Server side filtering",
     },
     selectedOptionValue: {
@@ -115,6 +171,40 @@ export const entityDefinitions: Record<string, unknown> = {
       "!type": "string",
       "!doc": "The selected option label in a single select dropdown",
       "!url": "https://docs.appsmith.com/widget-reference/dropdown",
+    },
+    isDisabled: "bool",
+    options: "[dropdownOption]",
+  },
+  SELECT_WIDGET: {
+    "!doc":
+      "Select is used to capture user input/s from a specified list of permitted inputs. A Select can capture a single choice",
+    "!url": "https://docs.appsmith.com/widget-reference/dropdown",
+    isVisible: isVisible,
+    filterText: {
+      "!type": "string",
+      "!doc": "The filter text for Server side filtering",
+    },
+    selectedOptionValue: {
+      "!type": "string",
+      "!doc": "The value selected in a single select dropdown",
+      "!url": "https://docs.appsmith.com/widget-reference/dropdown",
+    },
+    selectedOptionLabel: {
+      "!type": "string",
+      "!doc": "The selected option label in a single select dropdown",
+      "!url": "https://docs.appsmith.com/widget-reference/dropdown",
+    },
+    isDisabled: "bool",
+    options: "[dropdownOption]",
+  },
+  MULTI_SELECT_WIDGET: {
+    "!doc":
+      "MultiSelect is used to capture user input/s from a specified list of permitted inputs. A MultiSelect captures multiple choices from a list of options",
+    "!url": "https://docs.appsmith.com/widget-reference/dropdown",
+    isVisible: isVisible,
+    filterText: {
+      "!type": "string",
+      "!doc": "The filter text for Server side filtering",
     },
     selectedOptionValues: {
       "!type": "[string]",
@@ -129,13 +219,13 @@ export const entityDefinitions: Record<string, unknown> = {
     isDisabled: "bool",
     options: "[dropdownOption]",
   },
-  MULTI_SELECT_WIDGET: {
+  MULTI_SELECT_WIDGET_V2: {
     "!doc":
       "MultiSelect is used to capture user input/s from a specified list of permitted inputs. A MultiSelect captures multiple choices from a list of options",
     "!url": "https://docs.appsmith.com/widget-reference/dropdown",
     isVisible: isVisible,
     filterText: {
-      "!type": "[string]",
+      "!type": "string",
       "!doc": "The filter text for Server side filtering",
     },
     selectedOptionValues: {
@@ -172,6 +262,7 @@ export const entityDefinitions: Record<string, unknown> = {
     isVisible: isVisible,
     text: "string",
     isDisabled: "bool",
+    recaptchaToken: "string",
   },
   DATE_PICKER_WIDGET: {
     "!doc":
@@ -244,6 +335,7 @@ export const entityDefinitions: Record<string, unknown> = {
     "!url": "https://docs.appsmith.com/widget-reference/form",
     isVisible: isVisible,
     data: generateTypeDef(widget.data),
+    hasChanges: "bool",
   }),
   FORM_BUTTON_WIDGET: {
     "!doc":
@@ -252,6 +344,7 @@ export const entityDefinitions: Record<string, unknown> = {
     isVisible: isVisible,
     text: "string",
     isDisabled: "bool",
+    recaptchaToken: "string",
   },
   MAP_WIDGET: {
     isVisible: isVisible,
@@ -389,8 +482,127 @@ export const entityDefinitions: Record<string, unknown> = {
       "Audio recorder widget allows users to record using their microphone, listen to the playback, and export the data to a data source.",
     "!url": "https://docs.appsmith.com/widget-reference/recorder",
     isVisible: isVisible,
-    value: "blob",
-    url: "string",
+    blobURL: "string",
+    dataURL: "string",
+    rawBinary: "string",
+  },
+  PROGRESSBAR_WIDGET: {
+    "!doc": "Progress bar is a simple UI widget used to show progress",
+    "!url": "https://docs.appsmith.com/widget-reference/progressbar",
+    isVisible: isVisible,
+    progress: "number",
+  },
+  SWITCH_GROUP_WIDGET: {
+    "!doc":
+      "Switch group widget allows users to create many switch components which can easily by used in a form",
+    "!url": "https://docs.appsmith.com/widget-reference/switch-group",
+    selectedValues: "[string]",
+  },
+  CAMERA_WIDGET: {
+    "!doc":
+      "Camera widget allows users to take a picture or record videos through their system camera using browser permissions.",
+    "!url": "https://docs.appsmith.com/widget-reference/camera",
+    imageBlobURL: "string",
+    imageDataURL: "string",
+    imageRawBinary: "string",
+    videoBlobURL: "string",
+    videoDataURL: "string",
+    videoRawBinary: "string",
+  },
+  MAP_CHART_WIDGET: {
+    "!doc":
+      "Map Chart widget shows the graphical representation of your data on the map.",
+    "!url": "https://docs.appsmith.com/widget-reference/map-chart",
+    isVisible: isVisible,
+    selectedDataPoint: "mapChartDataPoint",
+  },
+  INPUT_WIDGET_V2: {
+    "!doc":
+      "An input text field is used to capture a users textual input such as their names, numbers, emails etc. Inputs are used in forms and can have custom validations.",
+    "!url": "https://docs.appsmith.com/widget-reference/input",
+    text: {
+      "!type": "string",
+      "!doc": "The text value of the input",
+      "!url": "https://docs.appsmith.com/widget-reference/input",
+    },
+    isValid: "bool",
+    isVisible: isVisible,
+    isDisabled: "bool",
+  },
+  CURRENCY_INPUT_WIDGET: {
+    "!doc":
+      "An input text field is used to capture a currency value. Inputs are used in forms and can have custom validations.",
+    "!url": "https://docs.appsmith.com/widget-reference/currency-input",
+    text: {
+      "!type": "string",
+      "!doc": "The formatted text value of the input",
+      "!url": "https://docs.appsmith.com/widget-reference/currency-input",
+    },
+    value: {
+      "!type": "number",
+      "!doc": "The value of the input",
+      "!url": "https://docs.appsmith.com/widget-reference/currency-input",
+    },
+    isValid: "bool",
+    isVisible: isVisible,
+    isDisabled: "bool",
+    countryCode: {
+      "!type": "string",
+      "!doc": "Selected country code for Currency",
+    },
+    currencyCode: {
+      "!type": "string",
+      "!doc": "Selected Currency code",
+    },
+  },
+  PHONE_INPUT_WIDGET: {
+    "!doc":
+      "An input text field is used to capture a phone number. Inputs are used in forms and can have custom validations.",
+    "!url": "https://docs.appsmith.com/widget-reference/phone-input",
+    text: {
+      "!type": "string",
+      "!doc": "The text value of the input",
+      "!url": "https://docs.appsmith.com/widget-reference/phone-input",
+    },
+    value: {
+      "!type": "string",
+      "!doc": "The unformatted text value of the input",
+      "!url": "https://docs.appsmith.com/widget-reference/phone-input",
+    },
+    isValid: "bool",
+    isVisible: isVisible,
+    isDisabled: "bool",
+    countryCode: {
+      "!type": "string",
+      "!doc": "Selected country code for Phone Number",
+    },
+    dialCode: {
+      "!type": "string",
+      "!doc": "Selected dialing code for Phone Number",
+    },
+  },
+  CIRCULAR_PROGRESS_WIDGET: {
+    "!doc": "Circular Progress is a simple UI widget used to show progress",
+    "!url": "https://docs.appsmith.com/widget-reference/circular-progress",
+    isVisible: isVisible,
+    progress: "number",
+  },
+  JSON_FORM_WIDGET: (widget: any) => ({
+    "!doc":
+      "JSON Form widget can be used to auto-generate forms by providing a JSON source data.",
+    // TODO: Update the url
+    "!url": "https://docs.appsmith.com/widget-reference",
+    formData: generateTypeDef(widget.formData),
+    sourceData: generateTypeDef(widget.sourceData),
+    fieldState: generateTypeDef(widget.fieldState),
+    isValid: "bool",
+  }),
+  PROGRESS_WIDGET: {
+    "!doc":
+      "Progress indicators commonly known as spinners, express an unspecified wait time or display the length of a process.",
+    "!url": "https://docs.appsmith.com/widget-reference/progress",
+    isVisible: isVisible,
+    progress: "number",
   },
   JSON_EDITOR_WIDGET: {
     "!doc":
@@ -422,6 +634,7 @@ export const GLOBAL_DEFS = {
   latLong: {
     lat: "number",
     long: "number",
+    title: "string",
   },
   mapMarker: {
     lat: "number",
@@ -431,8 +644,16 @@ export const GLOBAL_DEFS = {
   },
   file: {
     data: "string",
+    dataFormat: "string",
     name: "text",
     type: "file",
+  },
+  mapChartDataPoint: {
+    id: "string",
+    label: "string",
+    originalId: "string",
+    shortLabel: "string",
+    value: "number",
   },
 };
 
@@ -440,49 +661,64 @@ export const GLOBAL_FUNCTIONS = {
   "!name": "DATA_TREE.APPSMITH.FUNCTIONS",
   navigateTo: {
     "!doc": "Action to navigate the user to another page or url",
-    "!type": "fn(pageNameOrUrl: string, params: {}, target?: string) -> void",
+    "!type":
+      "fn(pageNameOrUrl: string, params: {}, target?: string) -> +Promise[:t=[!0.<i>.:t]]",
   },
   showAlert: {
     "!doc": "Show a temporary notification style message to the user",
-    "!type": "fn(message: string, style: string) -> void",
+    "!type": "fn(message: string, style: string) -> +Promise[:t=[!0.<i>.:t]]",
   },
   showModal: {
     "!doc": "Open a modal",
-    "!type": "fn(modalName: string) -> void",
+    "!type": "fn(modalName: string) -> +Promise[:t=[!0.<i>.:t]]",
   },
   closeModal: {
     "!doc": "Close a modal",
-    "!type": "fn(modalName: string) -> void",
+    "!type": "fn(modalName: string) -> +Promise[:t=[!0.<i>.:t]]",
   },
   storeValue: {
     "!doc": "Store key value data locally",
-    "!type": "fn(key: string, value: any) -> void",
+    "!type": "fn(key: string, value: any) -> +Promise[:t=[!0.<i>.:t]]",
   },
   download: {
     "!doc": "Download anything as a file",
-    "!type": "fn(data: any, fileName: string, fileType?: string) -> void",
+    "!type":
+      "fn(data: any, fileName: string, fileType?: string) -> +Promise[:t=[!0.<i>.:t]]",
   },
   copyToClipboard: {
     "!doc": "Copy text to clipboard",
-    "!type": "fn(data: string, options: object) -> void",
+    "!type": "fn(data: string, options: object) -> +Promise[:t=[!0.<i>.:t]]",
   },
   resetWidget: {
     "!doc": "Reset widget values",
-    "!type": "fn(widgetName: string, resetChildren: boolean) -> void",
+    "!type":
+      "fn(widgetName: string, resetChildren: boolean) -> +Promise[:t=[!0.<i>.:t]]",
+  },
+  setInterval: {
+    "!doc": "Execute triggers at a given interval",
+    "!type": "fn(callback: fn, interval: number, id?: string) -> void",
+  },
+  clearInterval: {
+    "!doc": "Stop executing a setInterval with id",
+    "!type": "fn(id: string) -> void",
   },
 };
 
-export const getPropsForJSActionEntity = (
-  entity: JSCollection,
-): Record<string, string> => {
-  const properties: Record<string, string> = {};
-  const actions = entity.actions;
+export const getPropsForJSActionEntity = ({
+  config,
+  data,
+}: JSCollectionData): Record<string, string> => {
+  const properties: Record<string, any> = {};
+  const actions = config.actions;
   if (actions && actions.length > 0)
-    for (let i = 0; i < entity.actions.length; i++) {
-      const action = entity.actions[i];
+    for (let i = 0; i < config.actions.length; i++) {
+      const action = config.actions[i];
       properties[action.name + "()"] = "Function";
+      if (data && action.id in data) {
+        properties[action.name + ".data"] = data[action.id];
+      }
     }
-  const variablesProps = entity.variables;
+  const variablesProps = config.variables;
   if (variablesProps && variablesProps.length > 0) {
     for (let i = 0; i < variablesProps.length; i++) {
       const variableProp = variablesProps[i];
@@ -491,3 +727,5 @@ export const getPropsForJSActionEntity = (
   }
   return properties;
 };
+
+export type EntityDefinitionsOptions = keyof typeof entityDefinitions;

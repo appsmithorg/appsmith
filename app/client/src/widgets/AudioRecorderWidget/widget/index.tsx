@@ -6,14 +6,20 @@ import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import AudioRecorderComponent from "../component";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
+import { createBlobUrl } from "utils/AppsmithUtils";
+import { FileDataTypes } from "widgets/constants";
 
 export interface AudioRecorderWidgetProps extends WidgetProps {
-  backgroundColor: string;
+  accentColor: string;
+  borderRadius: string;
+  boxShadow?: string;
   iconColor: string;
   isDisabled: boolean;
   isValid: boolean;
   onRecordingStart?: string;
   onRecordingComplete?: string;
+  blobURL?: string;
+  isDirty: boolean;
 }
 
 class AudioRecorderWidget extends BaseWidget<
@@ -25,22 +31,6 @@ class AudioRecorderWidget extends BaseWidget<
       {
         sectionName: "General",
         children: [
-          {
-            propertyName: "backgroundColor",
-            helpText: "Sets the background color of the widget",
-            label: "Background color",
-            controlType: "COLOR_PICKER",
-            isBindProperty: false,
-            isTriggerProperty: false,
-          },
-          {
-            propertyName: "iconColor",
-            helpText: "Sets the icon color of the widget",
-            label: "Icon color",
-            controlType: "COLOR_PICKER",
-            isBindProperty: false,
-            isTriggerProperty: false,
-          },
           {
             propertyName: "isDisabled",
             label: "Disabled",
@@ -65,10 +55,21 @@ class AudioRecorderWidget extends BaseWidget<
               type: ValidationTypes.BOOLEAN,
             },
           },
+          {
+            propertyName: "animateLoading",
+            label: "Animate Loading",
+            controlType: "SWITCH",
+            helpText: "Controls the loading of the widget",
+            defaultValue: true,
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+          },
         ],
       },
       {
-        sectionName: "Actions",
+        sectionName: "Events",
         children: [
           {
             helpText: "Triggers an action when the recording starts",
@@ -90,23 +91,78 @@ class AudioRecorderWidget extends BaseWidget<
           },
         ],
       },
+      {
+        sectionName: "Styles",
+        children: [
+          {
+            propertyName: "accentColor",
+            helpText: "Changes the color of the recorder button",
+            label: "Button Color",
+            controlType: "COLOR_PICKER",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
+          {
+            propertyName: "borderRadius",
+            label: "Border Radius",
+            helpText:
+              "Rounds the corners of the icon button's outer border edge",
+            controlType: "BORDER_RADIUS_OPTIONS",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
+          {
+            propertyName: "boxShadow",
+            label: "Box Shadow",
+            helpText:
+              "Enables you to cast a drop shadow from the frame of the widget",
+            controlType: "BOX_SHADOW_OPTIONS",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
+          {
+            propertyName: "iconColor",
+            helpText: "Sets the icon color of the widget",
+            label: "Icon color",
+            controlType: "COLOR_PICKER",
+            isBindProperty: false,
+            isTriggerProperty: false,
+          },
+        ],
+      },
     ];
   }
 
   static getMetaPropertiesMap(): Record<string, any> {
     return {
-      value: null,
+      blobURL: undefined,
+      dataURL: undefined,
+      rawBinary: undefined,
+      isDirty: false,
     };
   }
 
   static getDerivedPropertiesMap(): DerivedPropertiesMap {
-    return {
-      url: `{{URL.createObjectURL(this.value)}}`,
-    };
+    return {};
   }
 
   handleRecordingStart = () => {
-    this.props.updateWidgetMetaProperty("value", null);
+    if (!this.props.isDirty) {
+      this.props.updateWidgetMetaProperty("isDirty", true);
+    }
+
+    if (this.props.blobURL) {
+      URL.revokeObjectURL(this.props.blobURL);
+    }
+
+    this.props.updateWidgetMetaProperty("dataURL", undefined);
+    this.props.updateWidgetMetaProperty("rawBinary", undefined);
 
     if (this.props.onRecordingStart) {
       super.executeAction({
@@ -121,21 +177,36 @@ class AudioRecorderWidget extends BaseWidget<
 
   handleRecordingComplete = (blobUrl?: string, blob?: Blob) => {
     if (!blobUrl) {
-      this.props.updateWidgetMetaProperty("value", undefined);
+      this.props.updateWidgetMetaProperty("blobURL", undefined);
+      this.props.updateWidgetMetaProperty("dataURL", undefined);
+      this.props.updateWidgetMetaProperty("rawBinary", undefined);
       return;
     }
-    this.props.updateWidgetMetaProperty("value", blob, {
-      triggerPropertyName: "onRecordingComplete",
-      dynamicString: this.props.onRecordingComplete,
-      event: {
-        type: EventType.ON_RECORDING_COMPLETE,
-      },
-    });
+    this.props.updateWidgetMetaProperty("blobURL", blobUrl);
+    if (blob) {
+      const blobIdForBase64 = createBlobUrl(blob, FileDataTypes.Base64);
+      const blobIdForRaw = createBlobUrl(blob, FileDataTypes.Binary);
+
+      this.props.updateWidgetMetaProperty("dataURL", blobIdForBase64, {
+        triggerPropertyName: "onRecordingComplete",
+        dynamicString: this.props.onRecordingComplete,
+        event: {
+          type: EventType.ON_RECORDING_COMPLETE,
+        },
+      });
+      this.props.updateWidgetMetaProperty("rawBinary", blobIdForRaw, {
+        triggerPropertyName: "onRecordingComplete",
+        dynamicString: this.props.onRecordingComplete,
+        event: {
+          type: EventType.ON_RECORDING_COMPLETE,
+        },
+      });
+    }
   };
 
   getPageView() {
     const {
-      backgroundColor,
+      blobURL,
       bottomRow,
       iconColor,
       isDisabled,
@@ -144,18 +215,19 @@ class AudioRecorderWidget extends BaseWidget<
       parentRowSpace,
       rightColumn,
       topRow,
-      value,
     } = this.props;
 
     return (
       <AudioRecorderComponent
-        backgroundColor={backgroundColor}
+        accentColor={this.props.accentColor}
+        blobUrl={blobURL}
+        borderRadius={this.props.borderRadius}
+        boxShadow={this.props.boxShadow}
         height={(bottomRow - topRow) * parentRowSpace}
         iconColor={iconColor}
         isDisabled={isDisabled}
         onRecordingComplete={this.handleRecordingComplete}
         onRecordingStart={this.handleRecordingStart}
-        value={value}
         width={(rightColumn - leftColumn) * parentColumnSpace}
       />
     );

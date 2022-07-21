@@ -6,7 +6,7 @@ public interface Url {
     String LOGIN_URL = BASE_URL + VERSION + "/login";
     String LOGOUT_URL = BASE_URL + VERSION + "/logout";
     String WIDGET_URL = BASE_URL + VERSION + "/widgets";
-    String ORGANIZATION_URL = BASE_URL + VERSION + "/organizations";
+    String WORKSPACE_URL = BASE_URL + VERSION + "/workspaces";
     String LAYOUT_URL = BASE_URL + VERSION + "/layouts";
     String PLUGIN_URL = BASE_URL + VERSION + "/plugins";
     String SETTING_URL = BASE_URL + VERSION + "/settings";
@@ -33,4 +33,7 @@ public interface Url {
     String NOTIFICATION_URL = BASE_URL + VERSION + "/notifications";
     String INSTANCE_ADMIN_URL = BASE_URL + VERSION + "/admin";
     String GIT_URL = BASE_URL + VERSION + "/git";
+    String THEME_URL = BASE_URL + VERSION + "/themes";
+    String APP_TEMPLATE_URL = BASE_URL + VERSION + "/app-templates";
+    String USAGE_PULSE_URL = BASE_URL + VERSION + "/usage-pulse";
 }

@@ -1,0 +1,21 @@
+{
+  "plugins": [
+    ["module-resolver", {
+      "root": ["./src"],
+      "alias": {
+        "utils": "./src/utils/",
+        "test/*": ["../test/*"],
+        "underscore": "lodash",
+        "constants": "./src/constants/",
+        "components": "./src/components/",
+        "selectors": "./src/selectors/",
+        "reducers": "./src/reducers/",
+        "actions":"./src/actions/",
+        "api": "./src/api/",
+        "assets": "./src/assets/",
+        "sagas": "./src/sagas/",
+        "@appsmith": "./src/ee",
+      }
+    }]
+  ]
+}

@@ -1,5 +1,8 @@
 import { createReducer } from "utils/AppsmithUtils";
-import { ReduxAction, ReduxActionTypes } from "constants/ReduxActionConstants";
+import {
+  ReduxAction,
+  ReduxActionTypes,
+} from "@appsmith/constants/ReduxActionConstants";
 import {
   filterCategories,
   RecentEntity,
@@ -25,6 +28,7 @@ const initialState: GlobalSearchReduxState = {
     executionInProgress: false,
     evaluatedArguments: {},
     onEnter: SnippetAction.COPY,
+    hideOuterBindings: false,
   },
 };
 
@@ -35,17 +39,24 @@ const globalSearchReducer = createReducer(initialState, {
   ) => ({ ...state, query: action.payload }),
   [ReduxActionTypes.TOGGLE_SHOW_GLOBAL_SEARCH_MODAL]: (
     state: GlobalSearchReduxState,
+  ) => {
+    return {
+      ...state,
+      modalOpen: !state.modalOpen,
+      filterContext: initialState.filterContext,
+    };
+  },
+  [ReduxActionTypes.SET_GLOBAL_SEARCH_CATEGORY]: (
+    state: GlobalSearchReduxState,
     action: ReduxAction<SearchCategory>,
   ) => ({
     ...state,
-    modalOpen: !state.modalOpen,
-    filterContext: state.modalOpen
-      ? initialState.filterContext
-      : {
-          ...state.filterContext,
-          category: action.payload,
-          onEnter: SnippetAction.COPY,
-        },
+    modalOpen: true,
+    filterContext: {
+      ...state.filterContext,
+      category: action.payload,
+      onEnter: SnippetAction.COPY,
+    },
   }),
   [ReduxActionTypes.SET_SEARCH_FILTER_CONTEXT]: (
     state: GlobalSearchReduxState,
@@ -128,6 +139,7 @@ export interface GlobalSearchReduxState {
     evaluatedSnippet: string;
     executionInProgress: boolean;
     evaluatedArguments: any;
+    hideOuterBindings: boolean;
   };
 }
 

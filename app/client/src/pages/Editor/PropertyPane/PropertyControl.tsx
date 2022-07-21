@@ -1,11 +1,12 @@
 import React, { memo, useCallback } from "react";
-import _, { isEqual } from "lodash";
+import _, { get, isEqual } from "lodash";
+import * as log from "loglevel";
+
 import {
   ControlPropertyLabelContainer,
   ControlWrapper,
-  JSToggleButton,
 } from "components/propertyControls/StyledControls";
-import { ControlIcons } from "icons/ControlIcons";
+import { JSToggleButton } from "components/ads";
 import PropertyControlFactory from "utils/PropertyControlFactory";
 import PropertyHelpLabel from "pages/Editor/PropertyPane/PropertyHelpLabel";
 import { useDispatch, useSelector } from "react-redux";
@@ -17,22 +18,25 @@ import {
   setWidgetDynamicProperty,
   UpdateWidgetPropertyPayload,
 } from "actions/controlActions";
-import { PropertyPaneControlConfig } from "constants/PropertyControlConstants";
+import {
+  PropertyHookUpdates,
+  PropertyPaneControlConfig,
+} from "constants/PropertyControlConstants";
 import { IPanelProps } from "@blueprintjs/core";
 import PanelPropertiesEditor from "./PanelPropertiesEditor";
 import {
+  DynamicPath,
   getEvalValuePath,
+  isDynamicValue,
   isPathADynamicProperty,
   isPathADynamicTrigger,
+  THEME_BINDING_REGEX,
 } from "utils/DynamicBindingUtils";
 import {
   getWidgetPropsForPropertyName,
   WidgetProperties,
 } from "selectors/propertyPaneSelectors";
 import { getWidgetEnhancementSelector } from "selectors/widgetEnhancementSelectors";
-import Boxed from "components/editorComponents/Onboarding/Boxed";
-import { OnboardingStep } from "constants/OnboardingConstants";
-import Indicator from "components/editorComponents/Onboarding/Indicator";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import AppsmithConsole from "utils/AppsmithConsole";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
@@ -40,11 +44,18 @@ import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import { getExpectedValue } from "utils/validation/common";
 import { ControlData } from "components/propertyControls/BaseControl";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
+import { getSelectedAppTheme } from "selectors/appThemingSelectors";
+import { TooltipComponent } from "design-system";
+import { ReactComponent as ResetIcon } from "assets/icons/control/undo_2.svg";
+import { AppTheme } from "entities/AppTheming";
+import { JS_TOGGLE_DISABLED_MESSAGE } from "@appsmith/constants/messages";
 
 type Props = PropertyPaneControlConfig & {
   panel: IPanelProps;
   theme: EditorTheme;
 };
+
+const SHOULD_NOT_REJECT_DYNAMIC_BINDING_LIST_FOR = ["COLOR_PICKER"];
 
 const PropertyControl = memo((props: Props) => {
   const dispatch = useDispatch();
@@ -52,6 +63,7 @@ const PropertyControl = memo((props: Props) => {
   const propsSelector = getWidgetPropsForPropertyName(
     props.propertyName,
     props.dependencies,
+    props.evaluatedDependencies,
   );
 
   const widgetProperties: WidgetProperties = useSelector(
@@ -67,6 +79,53 @@ const PropertyControl = memo((props: Props) => {
     enhancementSelector,
     isEqual,
   );
+
+  const selectedTheme = useSelector(getSelectedAppTheme);
+
+  /**
+   * A property's stylesheet value can be fetched in 2 ways
+   * 1. If a method is defined on the property config (getStylesheetValue), then
+   *   it's the methods responsibility to resolve the stylesheet value.
+   * 2. If no such method is defined, the value is assumed to be present in the
+   *   theme config and thus it is fetched from there.
+   */
+  const propertyStylesheetValue = (() => {
+    const widgetStylesheet: AppTheme["stylesheet"][string] = get(
+      selectedTheme,
+      `stylesheet.${widgetProperties.type}`,
+    );
+
+    if (props.getStylesheetValue) {
+      return props.getStylesheetValue(
+        widgetProperties,
+        props.propertyName,
+        widgetStylesheet,
+      );
+    }
+
+    return get(widgetStylesheet, props.propertyName);
+  })();
+
+  const propertyValue = _.get(widgetProperties, props.propertyName);
+
+  /**
+   * checks if property value is deviated or not.
+   * by deviation, we mean if value of property is same as
+   * the one defined in the theme stylesheet. if values are different,
+   * that means the property value is deviated from the theme stylesheet.
+   */
+  const isPropertyDeviatedFromTheme =
+    typeof propertyStylesheetValue === "string" &&
+    THEME_BINDING_REGEX.test(propertyStylesheetValue) &&
+    propertyStylesheetValue !== propertyValue;
+
+  /**
+   * resets the value of property to theme stylesheet value
+   * which is a binding to theme object defined in the stylesheet
+   */
+  const resetPropertyValueToTheme = () => {
+    onPropertyChange(props.propertyName, propertyStylesheetValue);
+  };
 
   const {
     autoCompleteEnhancementFn: childWidgetAutoCompleteEnhancementFn,
@@ -84,11 +143,26 @@ const PropertyControl = memo((props: Props) => {
         propertyName: propertyName,
         propertyState: !isDynamic ? "JS" : "NORMAL",
       });
+
+      let shouldRejectDynamicBindingPathList = true;
+
+      // we don't want to remove the path from dynamic binding list
+      // on toggling of js in case of few widgets
+      if (
+        SHOULD_NOT_REJECT_DYNAMIC_BINDING_LIST_FOR.includes(
+          props.controlType,
+        ) &&
+        isDynamicValue(propertyValue)
+      ) {
+        shouldRejectDynamicBindingPathList = false;
+      }
+
       dispatch(
         setWidgetDynamicProperty(
           widgetProperties?.widgetId,
           propertyName,
           !isDynamic,
+          shouldRejectDynamicBindingPathList,
         ),
       );
     },
@@ -124,13 +198,8 @@ const PropertyControl = memo((props: Props) => {
   const getWidgetsOwnUpdatesOnPropertyChange = (
     propertyName: string,
     propertyValue: any,
-  ) => {
-    let propertiesToUpdate:
-      | Array<{
-          propertyPath: string;
-          propertyValue: any;
-        }>
-      | undefined;
+  ): UpdateWidgetPropertyPayload | undefined => {
+    let propertiesToUpdate: Array<PropertyHookUpdates> | undefined;
     // To support updating multiple properties of same widget.
     if (props.updateHook) {
       propertiesToUpdate = props.updateHook(
@@ -141,9 +210,28 @@ const PropertyControl = memo((props: Props) => {
     }
     if (propertiesToUpdate) {
       const allUpdates: Record<string, unknown> = {};
-      propertiesToUpdate.forEach(({ propertyPath, propertyValue }) => {
-        allUpdates[propertyPath] = propertyValue;
-      });
+      const allDeletions: string[] = [];
+      const allDynamicPropertyPathUpdate: DynamicPath[] = [];
+      propertiesToUpdate.forEach(
+        ({
+          isDynamicPropertyPath,
+          propertyPath,
+          propertyValue,
+          shouldDeleteProperty,
+        }) => {
+          if (shouldDeleteProperty) {
+            allDeletions.push(propertyPath);
+          } else {
+            allUpdates[propertyPath] = propertyValue;
+          }
+
+          if (isDynamicPropertyPath) {
+            allDynamicPropertyPathUpdate.push({
+              key: propertyPath,
+            });
+          }
+        },
+      );
       allUpdates[propertyName] = propertyValue;
       AppsmithConsole.info({
         logType: LOG_TYPE.WIDGET_UPDATE,
@@ -162,6 +250,10 @@ const PropertyControl = memo((props: Props) => {
         widgetId: widgetProperties.widgetId,
         updates: {
           modify: allUpdates,
+          remove: allDeletions,
+        },
+        dynamicUpdates: {
+          dynamicPropertyPathList: allDynamicPropertyPathUpdate,
         },
       };
     }
@@ -255,12 +347,17 @@ const PropertyControl = memo((props: Props) => {
    * It also calls the beforeChildPropertyUpdate hook
    */
   const onPropertyChange = useCallback(
-    (propertyName: string, propertyValue: any) => {
+    (
+      propertyName: string,
+      propertyValue: any,
+      isUpdatedViaKeyboard?: boolean,
+    ) => {
       AnalyticsUtil.logEvent("WIDGET_PROPERTY_UPDATE", {
         widgetType: widgetProperties.type,
         widgetName: widgetProperties.widgetName,
         propertyName: propertyName,
         updatedValue: propertyValue,
+        isUpdatedViaKeyboard,
       });
 
       const selfUpdates:
@@ -312,13 +409,15 @@ const PropertyControl = memo((props: Props) => {
   );
 
   // Do not render the control if it needs to be hidden
-  if (props.hidden && props.hidden(widgetProperties, props.propertyName)) {
+  if (
+    (props.hidden && props.hidden(widgetProperties, props.propertyName)) ||
+    props.invisible
+  ) {
     return null;
   }
 
   const { label, propertyName } = props;
   if (widgetProperties) {
-    const propertyValue = _.get(widgetProperties, propertyName);
     // get the dataTreePath and apply enhancement if exists
     let dataTreePath: string =
       props.dataTreePath || `${widgetProperties.widgetName}.${propertyName}`;
@@ -330,7 +429,10 @@ const PropertyControl = memo((props: Props) => {
 
     const evaluatedValue = _.get(
       widgetProperties,
-      getEvalValuePath(dataTreePath, false),
+      getEvalValuePath(dataTreePath, {
+        isPopulated: true,
+        fullPath: false,
+      }),
     );
 
     const { additionalAutoComplete, ...rest } = props;
@@ -400,11 +502,50 @@ const PropertyControl = memo((props: Props) => {
     };
 
     const uniqId = btoa(`${widgetProperties.widgetId}.${propertyName}`);
+    const canDisplayValueInUI = PropertyControlFactory.controlUIToggleValidation.get(
+      config.controlType,
+    );
+
+    const customJSControl = getCustomJSControl();
+
+    let isToggleDisabled = false;
+    if (
+      isDynamic // JS toggle button is ON
+    ) {
+      if (
+        // Check if value is not empty
+        propertyValue !== undefined &&
+        propertyValue !== ""
+      ) {
+        let value = propertyValue;
+        // extract out the value from binding, if there is custom JS control (Table & JSONForm widget)
+        if (customJSControl && isDynamicValue(value)) {
+          const extractValue = PropertyControlFactory.inputComputedValueMap.get(
+            customJSControl,
+          );
+          if (extractValue)
+            value = extractValue(value, widgetProperties.widgetName);
+        }
+
+        // disable button if value can't be represented in UI mode
+        if (!canDisplayValueInUI?.(config, value)) isToggleDisabled = true;
+      }
+
+      // Enable button if the value is same as the one defined in theme stylesheet.
+      if (
+        typeof propertyStylesheetValue === "string" &&
+        THEME_BINDING_REGEX.test(propertyStylesheetValue) &&
+        propertyStylesheetValue === propertyValue
+      ) {
+        isToggleDisabled = false;
+      }
+    }
 
     try {
       return (
         <ControlWrapper
-          className={`t--property-control-${className}`}
+          className={`t--property-control-${className} group`}
+          data-guided-tour-iid={propertyName}
           id={uniqId}
           key={config.id}
           orientation={
@@ -413,51 +554,71 @@ const PropertyControl = memo((props: Props) => {
               : "VERTICAL"
           }
         >
-          <Boxed
-            show={
-              propertyName !== "isRequired" && propertyName !== "isDisabled"
-            }
-            step={OnboardingStep.DEPLOY}
-          >
-            <ControlPropertyLabelContainer>
-              <PropertyHelpLabel
-                label={label}
-                theme={props.theme}
-                tooltip={props.helpText}
-              />
-              {isConvertible && (
+          <ControlPropertyLabelContainer className="gap-1">
+            <PropertyHelpLabel
+              label={label}
+              theme={props.theme}
+              tooltip={props.helpText}
+            />
+            {isConvertible && (
+              <TooltipComponent
+                content={JS_TOGGLE_DISABLED_MESSAGE}
+                disabled={!isToggleDisabled}
+                hoverOpenDelay={200}
+                openOnTargetFocus={false}
+                position="auto"
+              >
                 <JSToggleButton
-                  active={isDynamic}
-                  className={`t--js-toggle ${isDynamic ? "is-active" : ""}`}
-                  onClick={() => toggleDynamicProperty(propertyName, isDynamic)}
+                  handleClick={() =>
+                    toggleDynamicProperty(propertyName, isDynamic)
+                  }
+                  isActive={isDynamic}
+                  isToggleDisabled={isToggleDisabled}
+                />
+              </TooltipComponent>
+            )}
+            {isPropertyDeviatedFromTheme && (
+              <>
+                <TooltipComponent
+                  content="Value deviated from theme"
+                  openOnTargetFocus={false}
                 >
-                  <ControlIcons.JS_TOGGLE />
-                </JSToggleButton>
-              )}
-            </ControlPropertyLabelContainer>
-            <Indicator
-              show={propertyName === "onSubmit"}
-              step={OnboardingStep.ADD_INPUT_WIDGET}
-            >
-              {PropertyControlFactory.createControl(
-                config,
-                {
-                  onPropertyChange: onPropertyChange,
-                  openNextPanel: openPanel,
-                  deleteProperties: onDeleteProperties,
-                  theme: props.theme,
-                },
-                isDynamic,
-                getCustomJSControl(),
-                additionAutocomplete,
-                hideEvaluatedValue(),
-              )}
-            </Indicator>
-          </Boxed>
+                  <div className="w-2 h-2 rounded-full bg-primary-500" />
+                </TooltipComponent>
+                <button
+                  className="hidden ml-auto focus:ring-2 group-hover:block reset-button"
+                  onClick={resetPropertyValueToTheme}
+                >
+                  <TooltipComponent
+                    boundary="viewport"
+                    content="Reset value"
+                    openOnTargetFocus={false}
+                    position="top-right"
+                  >
+                    <ResetIcon className="w-5 h-5" />
+                  </TooltipComponent>
+                </button>
+              </>
+            )}
+          </ControlPropertyLabelContainer>
+          {PropertyControlFactory.createControl(
+            config,
+            {
+              onPropertyChange: onPropertyChange,
+              onBatchUpdateProperties: onBatchUpdateProperties,
+              openNextPanel: openPanel,
+              deleteProperties: onDeleteProperties,
+              theme: props.theme,
+            },
+            isDynamic,
+            customJSControl,
+            additionAutocomplete,
+            hideEvaluatedValue(),
+          )}
         </ControlWrapper>
       );
     } catch (e) {
-      console.error(e);
+      log.error(e);
       return null;
     }
   }

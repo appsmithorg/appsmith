@@ -2,7 +2,6 @@ package com.appsmith.server.domains;
 
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.server.dtos.ActionDTO;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -19,7 +18,11 @@ public class NewAction extends BaseDomain {
     // Fields in action that are not allowed to change between published and unpublished versions
     String applicationId;
 
+    //Organizations migrated to workspaces, kept the field as deprecated to support the old migration
+    @Deprecated
     String organizationId;
+
+    String workspaceId;
 
     PluginType pluginType;
 
@@ -36,9 +39,22 @@ public class NewAction extends BaseDomain {
 
     ActionDTO publishedAction;
 
-    // This field will only be used for git related functionality to sync the action object across different instances.
-    // Once created no-one has access to update this field
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    String gitSyncId;
+    public void sanitiseToExportDBObject() {
+        this.setTemplateId(null);
+        this.setApplicationId(null);
+        this.setOrganizationId(null);
+        this.setWorkspaceId(null);
+        this.setProviderId(null);
+        this.setDocumentation(null);
+        ActionDTO unpublishedAction = this.getUnpublishedAction();
+        if (unpublishedAction != null) {
+            unpublishedAction.sanitiseToExportDBObject();
+        }
+        ActionDTO publishedAction = this.getPublishedAction();
+        if (publishedAction != null) {
+            publishedAction.sanitiseToExportDBObject();
+        }
+        this.sanitiseToExportBaseObject();
+    }
 
 }

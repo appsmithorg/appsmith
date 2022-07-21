@@ -1,12 +1,25 @@
 import { getDependenciesFromInverseDependencies } from "components/editorComponents/Debugger/helpers";
 import _, { debounce } from "lodash";
+import { useEffect, useMemo, useState } from "react";
 import ReactDOM from "react-dom";
+import { useLocation } from "react-router";
+import { WidgetType } from "constants/WidgetConstants";
 import ResizeObserver from "resize-observer-polyfill";
+import WidgetFactory from "utils/WidgetFactory";
+import {
+  createMessage,
+  DEPRECATION_WIDGET_REPLACEMENT_MESSAGE,
+  WIDGET_DEPRECATION_MESSAGE,
+} from "@appsmith/constants/messages";
+import { URLBuilderParams } from "RouteBuilder";
+import { useSelector } from "react-redux";
+import { getCurrentPageId } from "selectors/editorSelectors";
 
 export const draggableElement = (
   id: string,
   element: any,
   onPositionChange: any,
+  parentElement?: Element | null,
   initPostion?: any,
   renderDragBlockPositions?: {
     left?: string;
@@ -36,21 +49,31 @@ export const draggableElement = (
     document.onmouseup = closeDragElement;
     document.onmousemove = elementDrag;
   };
+
   const calculateBoundaryConfinedPosition = (
     calculatedLeft: number,
     calculatedTop: number,
   ) => {
     const bottomBarOffset = 34;
 
+    /*
+      Default to 70 for a save offset that can also
+      handle the pagination Bar.
+    */
+    const canvasTopOffset = parentElement?.getBoundingClientRect().top || 70;
+
     if (calculatedLeft <= 0) {
       calculatedLeft = 0;
     }
-    if (calculatedTop <= 30) {
-      calculatedTop = 30;
+
+    if (calculatedTop <= canvasTopOffset) {
+      calculatedTop = canvasTopOffset;
     }
+
     if (calculatedLeft >= window.innerWidth - element.clientWidth) {
       calculatedLeft = window.innerWidth - element.clientWidth;
     }
+
     if (
       calculatedTop >=
       window.innerHeight - (element.clientHeight + bottomBarOffset)
@@ -58,6 +81,7 @@ export const draggableElement = (
       calculatedTop =
         window.innerHeight - element.clientHeight - bottomBarOffset;
     }
+
     return {
       left: calculatedLeft,
       top: calculatedTop,
@@ -215,3 +239,70 @@ export const useIsWidgetActionConnectionPresent = (
   }
   return isBindingAvailable;
 };
+
+export const useQuery = () => {
+  const { search } = useLocation();
+  return useMemo(() => new URLSearchParams(search), [search]);
+};
+
+/**
+ * Method that returns if the WidgetType is deprecated along with,
+ * deprecated widget's display name (currentWidgetName) and
+ * the name of the widget that is being replaced with (widgetReplacedWith)
+ *
+ * @param WidgetType
+ * @returns
+ */
+export function isWidgetDeprecated(WidgetType: WidgetType) {
+  const currentWidgetConfig = WidgetFactory.widgetConfigMap.get(WidgetType);
+  const isDeprecated = !!currentWidgetConfig?.isDeprecated;
+  let widgetReplacedWith;
+  if (isDeprecated && currentWidgetConfig?.replacement) {
+    widgetReplacedWith = WidgetFactory.widgetConfigMap.get(
+      currentWidgetConfig.replacement,
+    )?.displayName;
+  }
+
+  return {
+    isDeprecated,
+    currentWidgetName: currentWidgetConfig?.displayName,
+    widgetReplacedWith,
+  };
+}
+
+export function buildDeprecationWidgetMessage(
+  currentWidgetName: string,
+  replacingWidgetName: string,
+) {
+  const widgetName = currentWidgetName ? `${currentWidgetName} ` : "";
+  const deprecationMessage = createMessage(
+    WIDGET_DEPRECATION_MESSAGE,
+    widgetName,
+  );
+  const deprecatedReplacementMessage = replacingWidgetName
+    ? createMessage(DEPRECATION_WIDGET_REPLACEMENT_MESSAGE, replacingWidgetName)
+    : "";
+
+  return `${deprecationMessage}${deprecatedReplacementMessage}`;
+}
+
+/**
+ * Use this hook if you are try to set href in components that could possibly mount before the application is initialized.
+ * Eg. Deploy button in header.
+ * @param urlBuilderFn
+ * @param params
+ * @returns URL
+ */
+export function useHref<T extends URLBuilderParams>(
+  urlBuilderFn: (params: T) => string,
+  params: T,
+) {
+  const [href, setHref] = useState("");
+  // Current pageId selector serves as delay to generate urls
+  const pageId = useSelector(getCurrentPageId);
+  useEffect(() => {
+    if (pageId) setHref(urlBuilderFn(params));
+  }, [params, urlBuilderFn, pageId]);
+
+  return href;
+}

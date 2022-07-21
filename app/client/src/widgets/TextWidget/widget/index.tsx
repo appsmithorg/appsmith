@@ -1,17 +1,21 @@
-import React from "react";
-import { pick } from "lodash";
-import WidgetStyleContainer, {
-  WidgetStyleContainerProps,
-} from "components/designSystems/appsmith/WidgetStyleContainer";
+import React, { ReactNode } from "react";
 
 import { TextSize } from "constants/WidgetConstants";
+import { countOccurrences } from "workers/helpers";
 
 import { ValidationTypes } from "constants/WidgetValidation";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
 
+import { Color } from "constants/Colors";
 import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import TextComponent, { TextAlign } from "../component";
+import { ContainerStyle } from "widgets/ContainerWidget/component";
+import { AutocompleteDataType } from "utils/autocomplete/TernServer";
+import { OverflowTypes } from "../constants";
+import WidgetStyleContainer from "components/designSystems/appsmith/WidgetStyleContainer";
+import { pick } from "lodash";
 
+const MAX_HTML_PARSING_LENGTH = 1000;
 class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
   static getPropertyPaneConfig() {
     return [
@@ -26,13 +30,31 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
             placeholderText: "Name:",
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: { type: ValidationTypes.TEXT },
+            validation: {
+              type: ValidationTypes.TEXT,
+              params: { limitLineBreaks: true },
+            },
           },
           {
-            propertyName: "shouldScroll",
-            label: "Enable Scroll",
-            helpText: "Allows scrolling text instead of truncation",
-            controlType: "SWITCH",
+            propertyName: "overflow",
+            label: "Overflow",
+            helpText: "Controls the text behavior when length of text exceeds",
+            controlType: "DROP_DOWN",
+            options: [
+              {
+                label: "Scroll contents",
+                value: OverflowTypes.SCROLL,
+              },
+              {
+                label: "Truncate text",
+                value: OverflowTypes.TRUNCATE,
+              },
+              {
+                label: "No overflow",
+                value: OverflowTypes.NONE,
+              },
+            ],
+            defaultValue: OverflowTypes.NONE,
             isBindProperty: false,
             isTriggerProperty: false,
           },
@@ -41,6 +63,17 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
             helpText: "Controls the visibility of the widget",
             label: "Visible",
             controlType: "SWITCH",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+          },
+          {
+            propertyName: "animateLoading",
+            label: "Animate Loading",
+            controlType: "SWITCH",
+            helpText: "Controls the loading of the widget",
+            defaultValue: true,
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
@@ -63,11 +96,22 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
         children: [
           {
             propertyName: "backgroundColor",
-            label: "Cell Background",
+            label: "Cell Background Color",
             controlType: "COLOR_PICKER",
             isJSConvertible: true,
-            isBindProperty: false,
+            isBindProperty: true,
             isTriggerProperty: false,
+            validation: {
+              type: ValidationTypes.TEXT,
+              params: {
+                regex: /^((?![<|{{]).+){0,1}/,
+                expected: {
+                  type: "string (HTML color name or HEX value)",
+                  example: `red | #9C0D38`,
+                  autocompleteDataType: AutocompleteDataType.STRING,
+                },
+              },
+            },
           },
           {
             propertyName: "textColor",
@@ -84,10 +128,28 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
             },
           },
           {
+            propertyName: "truncateButtonColor",
+            label: "Truncate Button Color",
+            controlType: "COLOR_PICKER",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: {
+              type: ValidationTypes.TEXT,
+              params: {
+                regex: /^(?![<|{{]).+/,
+              },
+            },
+            dependencies: ["overflow"],
+            hidden: (props: TextWidgetProps) => {
+              return props.overflow !== OverflowTypes.TRUNCATE;
+            },
+          },
+          {
             helpText: "Use a html color name, HEX, RGB or RGBA value",
             placeholderText: "#FFFFFF / Gray / rgb(255, 99, 71)",
             propertyName: "borderColor",
-            label: "Border Colour",
+            label: "Border Color",
             controlType: "COLOR_PICKER",
             isBindProperty: true,
             isTriggerProperty: false,
@@ -108,41 +170,99 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
             propertyName: "fontSize",
             label: "Text Size",
             controlType: "DROP_DOWN",
+            defaultValue: "1rem",
             options: [
               {
-                label: "Heading 1",
-                value: "HEADING1",
-                subText: "24px",
-                icon: "HEADING_ONE",
+                label: "S",
+                value: "0.875rem",
+                subText: "0.875rem",
               },
               {
-                label: "Heading 2",
-                value: "HEADING2",
-                subText: "18px",
-                icon: "HEADING_TWO",
+                label: "M",
+                value: "1rem",
+                subText: "1rem",
               },
               {
-                label: "Heading 3",
-                value: "HEADING3",
-                subText: "16px",
-                icon: "HEADING_THREE",
+                label: "L",
+                value: "1.25rem",
+                subText: "1.25rem",
               },
               {
-                label: "Paragraph",
-                value: "PARAGRAPH",
-                subText: "14px",
-                icon: "PARAGRAPH",
+                label: "XL",
+                value: "1.875rem",
+                subText: "1.875rem",
               },
               {
-                label: "Paragraph 2",
-                value: "PARAGRAPH2",
-                subText: "12px",
-                icon: "PARAGRAPH_TWO",
+                label: "XXL",
+                value: "3rem",
+                subText: "3rem",
+              },
+              {
+                label: "3XL",
+                value: "3.75rem",
+                subText: "3.75rem",
               },
             ],
             isJSConvertible: true,
-            isBindProperty: false,
+            isBindProperty: true,
             isTriggerProperty: false,
+            validation: {
+              type: ValidationTypes.TEXT,
+            },
+          },
+          {
+            propertyName: "fontFamily",
+            label: "Font Family",
+            controlType: "DROP_DOWN",
+            options: [
+              {
+                label: "System Default",
+                value: "System Default",
+              },
+              {
+                label: "Nunito Sans",
+                value: "Nunito Sans",
+              },
+              {
+                label: "Poppins",
+                value: "Poppins",
+              },
+              {
+                label: "Inter",
+                value: "Inter",
+              },
+              {
+                label: "Montserrat",
+                value: "Montserrat",
+              },
+              {
+                label: "Noto Sans",
+                value: "Noto Sans",
+              },
+              {
+                label: "Open Sans",
+                value: "Open Sans",
+              },
+              {
+                label: "Roboto",
+                value: "Roboto",
+              },
+              {
+                label: "Rubik",
+                value: "Rubik",
+              },
+              {
+                label: "Ubuntu",
+                value: "Ubuntu",
+              },
+            ],
+            defaultValue: "System Default",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: {
+              type: ValidationTypes.TEXT,
+            },
           },
           {
             propertyName: "fontStyle",
@@ -192,9 +312,26 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
     ];
   }
 
+  /**
+   * Disable html parsing for long continuous texts
+   * @returns boolean
+   */
+  shouldDisableLink = (): boolean => {
+    const text = this.props.text || "";
+    const count: number = countOccurrences(text, "\n", false, 0);
+    return (
+      (count === 0 && text.length > MAX_HTML_PARSING_LENGTH) ||
+      text.length > 50000
+    );
+  };
+
   getPageView() {
+    const disableLink: boolean = this.props.disableLink
+      ? true
+      : this.shouldDisableLink();
     return (
       <WidgetStyleContainer
+        className="t--text-widget-container"
         {...pick(this.props, [
           "widgetId",
           "containerStyle",
@@ -204,15 +341,21 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
       >
         <TextComponent
           backgroundColor={this.props.backgroundColor}
-          disableLink={this.props.disableLink || false}
+          bottomRow={this.props.bottomRow}
+          disableLink={disableLink}
+          fontFamily={this.props.fontFamily}
           fontSize={this.props.fontSize}
           fontStyle={this.props.fontStyle}
           isLoading={this.props.isLoading}
           key={this.props.widgetId}
-          shouldScroll={this.props.shouldScroll}
+          leftColumn={this.props.leftColumn}
+          overflow={this.props.overflow}
+          rightColumn={this.props.rightColumn}
           text={this.props.text}
           textAlign={this.props.textAlign ? this.props.textAlign : "LEFT"}
           textColor={this.props.textColor}
+          topRow={this.props.topRow}
+          truncateButtonColor={this.props.truncateButtonColor}
           widgetId={this.props.widgetId}
         />
       </WidgetStyleContainer>
@@ -236,16 +379,20 @@ export interface TextStyles {
   fontStyle?: string;
   fontSize?: TextSize;
   textAlign?: TextAlign;
+  truncateButtonColor?: string;
+  fontFamily: string;
 }
 
-export interface TextWidgetProps
-  extends WidgetProps,
-    TextStyles,
-    WidgetStyleContainerProps {
+export interface TextWidgetProps extends WidgetProps, TextStyles {
   text?: string;
   isLoading: boolean;
-  shouldScroll: boolean;
   disableLink: boolean;
+  widgetId: string;
+  containerStyle?: ContainerStyle;
+  children?: ReactNode;
+  borderColor?: Color;
+  borderWidth?: number;
+  overflow: OverflowTypes;
 }
 
 export default TextWidget;

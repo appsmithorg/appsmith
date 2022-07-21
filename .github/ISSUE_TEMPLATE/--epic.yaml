@@ -1,0 +1,59 @@
+name: 📓 Epic
+description: A large planned scope of work for the quarter
+title: "[Epic]: "
+labels: [Epic]
+assignees:
+- Nikhil-Nandagopal
+body:
+- type: textarea
+  id: objective
+  attributes:
+    label: Objective
+    description: Here you fill in the objective of the product/feature that you are writing about.
+  validations:
+    required: true
+- type: textarea
+  attributes:
+    label: Success Metrics
+    description: List of all metrics you are tracking and the desired goal.
+    value: |
+      | Metric         |
+      | -------------- |
+      | Customer satisfaction score increases  |
+      | Decrease churn rate down to 30%        |
+  validations:
+    required: true
+- type: textarea
+  attributes:
+    label: Prioritised User Stories 
+    value: |
+      | User Story    |
+      | ------------- |
+      | e.g. as a user, I want to be able to access the platform via mobile phone  |
+      | e.g as a user, I want to be able to communicate with the other members on the canvas  |
+  validations:
+    required: false
+- type: input
+  attributes:
+    label: Developer Handoff Document in Figma
+    description: Link to the developer Handoff Document. 
+  validations:
+    required: false
+- type: input
+  attributes:
+    label: Test Plan
+    description: Link to the Test Plan Document. 
+  validations:
+    required: false
+- type: textarea
+  attributes:
+    label: RACI matrix
+    description: Please fill the table below.
+    value: |
+      | ------------- | ------------- |
+      | Responsible   |               |
+      | Accountable   |               |
+      | Consulted     | @Nikhil-Nandagopal, @mohanarpit, @areyabhishek|
+      | Informed      |               |
+  validations:
+    required: true

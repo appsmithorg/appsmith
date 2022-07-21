@@ -2,6 +2,7 @@ package com.external.plugins.utils;
 
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
+import com.appsmith.external.helpers.PluginUtils;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
@@ -23,7 +24,6 @@ import org.springframework.util.StringUtils;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.Date;
@@ -31,6 +31,9 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import static com.appsmith.external.helpers.PluginUtils.STRING_TYPE;
+import static com.appsmith.external.helpers.PluginUtils.getDataValueSafelyFromFormData;
+import static com.external.plugins.constants.FieldName.BODY;
 import static com.external.plugins.constants.FieldName.COMMAND;
 import static com.external.plugins.constants.FieldName.RAW;
 
@@ -45,7 +48,7 @@ public class MongoPluginUtils {
     }
 
     public static Boolean isRawCommand(Map<String, Object> formData) {
-        String command = (String) formData.getOrDefault(COMMAND, null);
+        String command = PluginUtils.getDataValueSafelyFromFormData(formData, COMMAND, null);
         return RAW.equals(command);
     }
 
@@ -54,34 +57,8 @@ public class MongoPluginUtils {
         if (formData != null && !formData.isEmpty()) {
             // If its not raw command, then it must be one of the mongo form commands
             if (!isRawCommand(formData)) {
-
                 // Parse the commands into raw appropriately
-                MongoCommand command = null;
-                switch ((String) formData.getOrDefault(COMMAND, "")) {
-                    case "INSERT":
-                        command = new Insert(actionConfiguration);
-                        break;
-                    case "FIND":
-                        command = new Find(actionConfiguration);
-                        break;
-                    case "UPDATE":
-                        command = new UpdateMany(actionConfiguration);
-                        break;
-                    case "DELETE":
-                        command = new Delete(actionConfiguration);
-                        break;
-                    case "COUNT":
-                        command = new Count(actionConfiguration);
-                        break;
-                    case "DISTINCT":
-                        command = new Distinct(actionConfiguration);
-                        break;
-                    case "AGGREGATE":
-                        command = new Aggregate(actionConfiguration);
-                        break;
-                    default:
-                        throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, "No valid mongo command found. Please select a command from the \"Command\" dropdown and try again");
-                }
+                MongoCommand command = getMongoCommand(actionConfiguration);
                 if (!command.isValid()) {
                     throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, "Try again after configuring the fields : " + command.getFieldNamesWithNoConfiguration());
                 }
@@ -92,7 +69,41 @@ public class MongoPluginUtils {
 
         // We reached here. This means either this is a RAW command input or some configuration error has happened
         // in which case, we default to RAW
-        return actionConfiguration.getBody();
+        return PluginUtils.getDataValueSafelyFromFormData(formData, BODY, PluginUtils.STRING_TYPE);
+    }
+
+    private static MongoCommand getMongoCommand(ActionConfiguration actionConfiguration) throws AppsmithPluginException {
+        Map<String, Object> formData = actionConfiguration.getFormData();
+        MongoCommand command;
+        switch (getDataValueSafelyFromFormData(formData, COMMAND, STRING_TYPE, "")) {
+            case "INSERT":
+                command = new Insert(actionConfiguration);
+                break;
+            case "FIND":
+                command = new Find(actionConfiguration);
+                break;
+            case "UPDATE":
+                command = new UpdateMany(actionConfiguration);
+                break;
+            case "DELETE":
+                command = new Delete(actionConfiguration);
+                break;
+            case "COUNT":
+                command = new Count(actionConfiguration);
+                break;
+            case "DISTINCT":
+                command = new Distinct(actionConfiguration);
+                break;
+            case "AGGREGATE":
+                command = new Aggregate(actionConfiguration);
+                break;
+            default:
+                throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                        "No valid mongo command found. Please select a command from the \"Command\" dropdown and try " +
+                                "again");
+        }
+
+        return command;
     }
 
     public static String getDatabaseName(DatasourceConfiguration datasourceConfiguration) {
@@ -185,10 +196,28 @@ public class MongoPluginUtils {
         templates.addAll(
                 new Delete().generateTemplate(templateConfiguration)
         );
+
+        templates.addAll(
+                new Count().generateTemplate(templateConfiguration)
+        );
+
+        templates.addAll(
+                new Distinct().generateTemplate(templateConfiguration)
+        );
+
+        templates.addAll(
+                new Aggregate().generateTemplate(templateConfiguration)
+        );
+
     }
 
     public static String urlEncode(String text) {
         return URLEncoder.encode(text, StandardCharsets.UTF_8);
+    }
+
+    public static String getRawQuery(ActionConfiguration actionConfiguration) {
+        MongoCommand command = getMongoCommand(actionConfiguration);
+        return command.getRawQuery();
     }
 
 }

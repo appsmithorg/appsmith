@@ -8,16 +8,21 @@ import Button, { Size } from "components/ads/Button";
 import { useSelector } from "react-redux";
 import { getIsFetchingApplications } from "selectors/applicationSelectors";
 import { Indices } from "constants/Layers";
+import { useIsMobileDevice } from "utils/hooks/useDeviceDetect";
 
-const SubHeaderWrapper = styled.div`
-  width: 250px;
+const SubHeaderWrapper = styled.div<{
+  isMobile?: boolean;
+}>`
+  width: ${({ isMobile }) => (isMobile ? `100%` : `250px`)};
   display: flex;
   justify-content: space-between;
-  position: fixed;
+
   background: ${(props) => props.theme.colors.homepageBackground};
-  top: 2px;
-  left: ${(props) => props.theme.homePage.sidebar + 24}px;
   z-index: ${Indices.Layer9};
+  margin-left: ${(props) => props.theme.spaces[4]}px;
+  margin-top: ${(props) => props.theme.spaces[11]}px;
+  z-index: ${({ isMobile }) => (isMobile ? Indices.Layer8 : Indices.Layer9)};
+  ${({ isMobile }) => isMobile && `padding: 12px 16px; margin: 0px;`}
 `;
 const SearchContainer = styled.div`
   flex-grow: 1;
@@ -52,6 +57,7 @@ type SubHeaderProps = {
 
 export function ApplicationsSubHeader(props: SubHeaderProps) {
   const isFetchingApplications = useSelector(getIsFetchingApplications);
+  const isMobile = useIsMobileDevice();
   const query =
     props.search &&
     props.search.queryFn &&
@@ -61,17 +67,19 @@ export function ApplicationsSubHeader(props: SubHeaderProps) {
   );
 
   return (
-    <SubHeaderWrapper>
+    <SubHeaderWrapper isMobile={isMobile}>
       <SearchContainer>
         {props.search && (
           <ControlGroup>
             <SearchInput
+              border={isMobile}
               cypressSelector={"t--application-search-input"}
               defaultValue={props.search.defaultValue}
               disabled={isFetchingApplications}
               onChange={query || noop}
               placeholder={props.search.placeholder}
               variant={SearchVariant.BACKGROUND}
+              width={isMobile ? "100%" : "228px"}
             />
           </ControlGroup>
         )}

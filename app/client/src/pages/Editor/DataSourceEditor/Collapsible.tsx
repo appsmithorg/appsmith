@@ -1,6 +1,7 @@
 import React from "react";
 import { Collapse, Icon } from "@blueprintjs/core";
 import styled from "styled-components";
+import AdsIcon, { IconName, IconSize } from "components/ads/Icon";
 
 const SectionLabel = styled.div`
   font-weight: 500;
@@ -8,6 +9,10 @@ const SectionLabel = styled.div`
   line-height: 24px;
   letter-spacing: -0.17px;
   color: #4e5d78;
+  display: flex;
+  .cs-icon {
+    margin-left: ${(props) => props.theme.spaces[2]}px;
+  }
 `;
 
 const SectionContainer = styled.div`
@@ -20,6 +25,13 @@ const SectionContainer = styled.div`
   margin-bottom: 5;
 `;
 
+const TopBorder = styled.div`
+  height: 2px;
+  background-color: #d0d7dd;
+  margin-top: 24px;
+  margin-bottom: 24px;
+`;
+
 interface ComponentState {
   isOpen: boolean;
 }
@@ -27,7 +39,12 @@ interface ComponentState {
 interface ComponentProps {
   children: any;
   title: string;
-  defaultIsOpen: boolean;
+  defaultIsOpen?: boolean;
+  // header icon props of collapse header
+  headerIcon?: {
+    name: IconName;
+    color?: string;
+  };
 }
 
 type Props = ComponentProps;
@@ -42,23 +59,28 @@ class Collapsible extends React.Component<Props, ComponentState> {
   }
 
   render() {
-    const { children, title } = this.props;
+    const { children, headerIcon, title } = this.props;
     const { isOpen } = this.state;
 
     return (
       <>
-        <hr
-          style={{
-            border: "1px solid #D0D7DD",
-            marginTop: 24,
-            marginBottom: 24,
-          }}
-        />
+        <TopBorder className="t--collapse-top-border" />
         <SectionContainer
+          className="t--collapse-section-container"
           data-cy={`section-${title}`}
+          data-replay-id={`section-${title}`}
           onClick={() => this.setState({ isOpen: !this.state.isOpen })}
         >
-          <SectionLabel>{title}</SectionLabel>
+          <SectionLabel>
+            {title}
+            {headerIcon && (
+              <AdsIcon
+                fillColor={headerIcon.color}
+                name={headerIcon.name}
+                size={IconSize.MEDIUM}
+              />
+            )}
+          </SectionLabel>
           <Icon
             icon={isOpen ? "chevron-up" : "chevron-down"}
             iconSize={16}

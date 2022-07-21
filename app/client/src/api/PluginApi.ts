@@ -1,6 +1,6 @@
 import Api from "api/Api";
 import { AxiosPromise } from "axios";
-import { GenericApiResponse } from "api/ApiResponses";
+import { ApiResponse } from "api/ApiResponses";
 import { PluginType } from "entities/Action";
 import { DependencyMap } from "utils/DynamicBindingUtils";
 
@@ -40,20 +40,44 @@ export interface PluginFormPayload {
   editor: any[];
   setting: any[];
   dependencies: DependencyMap;
+  formButton: string[];
+}
+
+export interface DefaultPlugin {
+  id: string;
+  name: string;
+  packageName: string;
+  iconLocation?: string;
+  allowUserDatasources?: boolean;
 }
 
 class PluginsApi extends Api {
   static url = "v1/plugins";
+  static defaultDynamicTriggerURL(datasourceId: string): string {
+    return `/v1/datasources/${datasourceId}/trigger`;
+  }
   static fetchPlugins(
-    orgId: string,
-  ): AxiosPromise<GenericApiResponse<Plugin[]>> {
-    return Api.get(PluginsApi.url, { organizationId: orgId });
+    workspaceId: string,
+  ): AxiosPromise<ApiResponse<Plugin[]>> {
+    return Api.get(PluginsApi.url, { workspaceId: workspaceId });
   }
 
   static fetchFormConfig(
     id: string,
-  ): AxiosPromise<GenericApiResponse<PluginFormPayload>> {
+  ): AxiosPromise<ApiResponse<PluginFormPayload>> {
     return Api.get(PluginsApi.url + `/${id}/form`);
+  }
+
+  // Definition to fetch the dynamic data via the URL passed in the config
+  static fetchDynamicFormValues(
+    url: string,
+    body: Record<string, any>,
+  ): AxiosPromise<ApiResponse> {
+    return Api.post(url, body);
+  }
+
+  static fetchDefaultPlugins(): AxiosPromise<ApiResponse<DefaultPlugin[]>> {
+    return Api.get(PluginsApi.url + `/default/icons`);
   }
 }
 

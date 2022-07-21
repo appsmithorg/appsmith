@@ -8,6 +8,7 @@ import { EditorReduxState } from "./uiReducers/editorReducer";
 import { ErrorReduxState } from "./uiReducers/errorReducer";
 import { ActionDataState } from "./entityReducers/actionsReducer";
 import { PropertyPaneReduxState } from "./uiReducers/propertyPaneReducer";
+import { TemplatesReduxState } from "./uiReducers/templateReducer";
 import { WidgetConfigReducerState } from "./entityReducers/widgetConfigReducer";
 import { DatasourceDataState } from "./entityReducers/datasourceReducer";
 import { AppViewReduxState } from "./uiReducers/appViewReducer";
@@ -18,7 +19,7 @@ import { ApiPaneReduxState } from "./uiReducers/apiPaneReducer";
 import { QueryPaneReduxState } from "./uiReducers/queryPaneReducer";
 import { PluginDataState } from "reducers/entityReducers/pluginsReducer";
 import { AuthState } from "reducers/uiReducers/authReducer";
-import { OrgReduxState } from "reducers/uiReducers/orgReducer";
+import { WorkspaceReduxState } from "reducers/uiReducers/workspaceReducer";
 import { UsersReduxState } from "reducers/uiReducers/usersReducer";
 import { ThemeState } from "reducers/uiReducers/themeReducer";
 import { WidgetDragResizeState } from "reducers/uiReducers/dragResizeReducer";
@@ -30,7 +31,7 @@ import { HelpReduxState } from "./uiReducers/helpReducer";
 import { ApiNameReduxState } from "./uiReducers/apiNameReducer";
 import { ExplorerReduxState } from "./uiReducers/explorerReducer";
 import { PageCanvasStructureReduxState } from "reducers/uiReducers/pageCanvasStructureReducer";
-import { ConfirmRunActionReduxState } from "./uiReducers/confirmRunActionReducer";
+import { ModalActionReduxState } from "./uiReducers/modalActionReducer";
 import { AppDataState } from "reducers/entityReducers/appReducer";
 import { DatasourceNameReduxState } from "./uiReducers/datasourceNameReducer";
 import { EvaluatedTreeState } from "./evaluationReducers/treeReducer";
@@ -49,25 +50,31 @@ import { JsPaneReduxState } from "./uiReducers/jsPaneReducer";
 import { JSCollectionDataState } from "./entityReducers/jsActionsReducer";
 import { NotificationReducerState } from "./uiReducers/notificationsReducer";
 import { CanvasSelectionState } from "./uiReducers/canvasSelectionReducer";
-import { ActionTabsReduxState } from "./uiReducers/actionTabsReducer";
 import { JSObjectNameReduxState } from "./uiReducers/jsObjectNameReducer";
 import { GitSyncReducerState } from "./uiReducers/gitSyncReducer";
 import { AppCollabReducerState } from "./uiReducers/appCollabReducer";
 import { CrudInfoModalReduxState } from "./uiReducers/crudInfoModalReducer";
 import { FormEvaluationState } from "./evaluationReducers/formEvaluationReducer";
+import { widgetReflow } from "./uiReducers/reflowReducer";
+import { AppThemingState } from "./uiReducers/appThemingReducer";
+import { MainCanvasReduxState } from "./uiReducers/mainCanvasReducer";
+import SettingsReducer, {
+  SettingsReduxState,
+} from "@appsmith/reducers/settingsReducer";
+import { TriggerValuesEvaluationState } from "./evaluationReducers/triggerReducer";
 
 const appReducer = combineReducers({
   entities: entityReducer,
   ui: uiReducer,
   evaluations: evaluationsReducer,
   form: formReducer,
+  settings: SettingsReducer,
 });
 
 export default appReducer;
 
 export interface AppState {
   ui: {
-    actionTabs: ActionTabsReduxState;
     editor: EditorReduxState;
     propertyPane: PropertyPaneReduxState;
     tableFilterPane: TableFilterPaneReduxState;
@@ -76,7 +83,8 @@ export interface AppState {
     applications: ApplicationsReduxState;
     apiPane: ApiPaneReduxState;
     auth: AuthState;
-    orgs: OrgReduxState;
+    templates: TemplatesReduxState;
+    workspaces: WorkspaceReduxState;
     users: UsersReduxState;
     widgetDragResize: WidgetDragResizeState;
     importedCollections: ImportedCollectionsReduxState;
@@ -89,7 +97,7 @@ export interface AppState {
     explorer: ExplorerReduxState;
     pageCanvasStructure: PageCanvasStructureReduxState;
     pageWidgets: PageWidgetsReduxState;
-    confirmRunAction: ConfirmRunActionReduxState;
+    modalAction: ModalActionReduxState;
     datasourceName: DatasourceNameReduxState;
     theme: ThemeState;
     onBoarding: OnboardingState;
@@ -106,6 +114,9 @@ export interface AppState {
     gitSync: GitSyncReducerState;
     appCollab: AppCollabReducerState;
     crudInfoModal: CrudInfoModalReduxState;
+    widgetReflow: widgetReflow;
+    appTheming: AppThemingState;
+    mainCanvas: MainCanvasReduxState;
   };
   entities: {
     canvasWidgets: CanvasWidgetsReduxState;
@@ -123,5 +134,10 @@ export interface AppState {
     dependencies: EvaluationDependencyState;
     loadingEntities: LoadingEntitiesState;
     formEvaluation: FormEvaluationState;
+    triggers: TriggerValuesEvaluationState;
   };
+  form: {
+    [key: string]: any;
+  };
+  settings: SettingsReduxState;
 }

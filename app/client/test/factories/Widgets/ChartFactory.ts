@@ -6,7 +6,7 @@ export const ChartFactory = Factory.Sync.makeFactory<WidgetProps>({
   isVisible: true,
   chartType: "LINE_CHART",
   chartName: "Sales on working days",
-  allowHorizontalScroll: false,
+  allowScroll: false,
   chartData: [
     {
       seriesName: "Sales",

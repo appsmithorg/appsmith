@@ -1,5 +1,6 @@
 import React, {
   Component,
+  useCallback,
   useContext,
   useEffect,
   useRef,
@@ -7,10 +8,14 @@ import React, {
 } from "react";
 import styled, { ThemeContext } from "styled-components";
 import { connect, useDispatch, useSelector } from "react-redux";
+import MediaQuery from "react-responsive";
 import { useLocation } from "react-router-dom";
 import { AppState } from "reducers";
 import { Classes as BlueprintClasses } from "@blueprintjs/core";
-import { truncateTextUsingEllipsis } from "constants/DefaultTheme";
+import {
+  thinScrollbar,
+  truncateTextUsingEllipsis,
+} from "constants/DefaultTheme";
 import {
   getApplicationList,
   getApplicationSearchKeyword,
@@ -19,31 +24,30 @@ import {
   getIsDeletingApplication,
   getIsDuplicatingApplication,
   getIsFetchingApplications,
-  getIsSavingOrgInfo,
-  getUserApplicationsOrgs,
-  getUserApplicationsOrgsList,
+  getIsSavingWorkspaceInfo,
+  getUserApplicationsWorkspaces,
+  getUserApplicationsWorkspacesList,
 } from "selectors/applicationSelectors";
 import {
   ApplicationPayload,
   ReduxActionTypes,
-} from "constants/ReduxActionConstants";
+} from "@appsmith/constants/ReduxActionConstants";
 import PageWrapper from "pages/common/PageWrapper";
 import SubHeader from "pages/common/SubHeader";
 import ApplicationCard from "./ApplicationCard";
-import OrgInviteUsersForm from "pages/organization/OrgInviteUsersForm";
+import WorkspaceInviteUsersForm from "pages/workspace/WorkspaceInviteUsersForm";
 import { isPermitted, PERMISSION_TYPE } from "./permissionHelpers";
 import FormDialogComponent from "components/editorComponents/form/FormDialogComponent";
 import Dialog from "components/ads/DialogComponent";
-// import OnboardingHelper from "components/editorComponents/Onboarding/Helper";
 import { User } from "constants/userConstants";
-import { getCurrentUser } from "selectors/usersSelectors";
-import { CREATE_ORGANIZATION_FORM_NAME } from "constants/forms";
+import { getCurrentUser, selectFeatureFlags } from "selectors/usersSelectors";
+import { CREATE_WORKSPACE_FORM_NAME } from "constants/forms";
 import {
   DropdownOnSelectActions,
   getOnSelectAction,
 } from "pages/common/CustomizedDropdown/dropdownHelpers";
-import Button, { Size, Category } from "components/ads/Button";
-import Text, { TextType } from "components/ads/Text";
+import Button, { Category, Size } from "components/ads/Button";
+import { Text, TextType } from "design-system";
 import Icon, { IconName, IconSize } from "components/ads/Icon";
 import MenuItem from "components/ads/MenuItem";
 import {
@@ -57,72 +61,70 @@ import { UpdateApplicationPayload } from "api/ApplicationApi";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
-import { loadingUserOrgs } from "./ApplicationLoaders";
+import { loadingUserWorkspaces } from "./ApplicationLoaders";
 import { creatingApplicationMap } from "reducers/uiReducers/applicationsReducer";
 import EditableText, {
   EditInteractionKind,
   SavingState,
 } from "components/ads/EditableText";
 import { notEmptyValidator } from "components/ads/TextInput";
-import { saveOrg } from "actions/orgActions";
-import { leaveOrganization } from "actions/userActions";
-import CenteredWrapper from "../../components/designSystems/appsmith/CenteredWrapper";
-import NoSearchImage from "../../assets/images/NoSearchResult.svg";
+import { deleteWorkspace, saveWorkspace } from "actions/workspaceActions";
+import { leaveWorkspace } from "actions/userActions";
+import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
+import NoSearchImage from "assets/images/NoSearchResult.svg";
 import { getNextEntityName, getRandomPaletteColor } from "utils/AppsmithUtils";
 import { AppIconCollection } from "components/ads/AppIcon";
-import ProductUpdatesModal from "pages/Applications/ProductUpdatesModal";
-import WelcomeHelper from "components/editorComponents/Onboarding/WelcomeHelper";
-import { useIntiateOnboarding } from "components/editorComponents/Onboarding/utils";
-import AnalyticsUtil from "utils/AnalyticsUtil";
-import { createOrganizationSubmitHandler } from "../organization/helpers";
+import { createWorkspaceSubmitHandler } from "pages/workspace/helpers";
 import ImportApplicationModal from "./ImportApplicationModal";
-import ImportAppViaGitModal from "pages/Editor/gitSync/ImportAppViaGitModal";
-import {
-  BUILDER_PAGE_URL,
-  extractAppIdAndPageIdFromUrl,
-  SIGNUP_SUCCESS_URL,
-} from "constants/routes";
 import {
   createMessage,
-  DOCUMENTATION,
-  ORGANIZATIONS_HEADING,
-  SEARCH_APPS,
-  WELCOME_TOUR,
   NO_APPS_FOUND,
-} from "constants/messages";
+  WORKSPACES_HEADING,
+  SEARCH_APPS,
+} from "@appsmith/constants/messages";
 import { ReactComponent as NoAppsFoundIcon } from "assets/svg/no-apps-icon.svg";
 
-import { getIsSafeRedirectURL, howMuchTimeBeforeText } from "utils/helpers";
 import { setHeaderMeta } from "actions/themeActions";
-import history from "utils/history";
-import getFeatureFlags from "utils/featureFlags";
-import { setIsImportAppViaGitModalOpen } from "actions/gitSyncActions";
 import SharedUserList from "pages/common/SharedUserList";
-import { getOnboardingOrganisations } from "selectors/onboardingSelectors";
-import { getAppsmithConfigs } from "configs";
+import { useIsMobileDevice } from "utils/hooks/useDeviceDetect";
+import { Indices } from "constants/Layers";
+import GitSyncModal from "pages/Editor/gitSync/GitSyncModal";
+import ReconnectDatasourceModal from "pages/Editor/gitSync/ReconnectDatasourceModal";
+import LeftPaneBottomSection from "pages/Home/LeftPaneBottomSection";
+import { MOBILE_MAX_WIDTH } from "constants/AppConstants";
+import urlBuilder from "entities/URLRedirect/URLAssembly";
+import RepoLimitExceededErrorModal from "../Editor/gitSync/RepoLimitExceededErrorModal";
+import { resetEditorRequest } from "actions/initActions";
 
-const OrgDropDown = styled.div`
+const WorkspaceDropDown = styled.div<{ isMobile?: boolean }>`
   display: flex;
-  padding: ${(props) => props.theme.spaces[4]}px
-    ${(props) => props.theme.spaces[4]}px;
+  padding: ${(props) => (props.isMobile ? `10px 16px` : `10px 10px`)};
   font-size: ${(props) => props.theme.fontSizes[1]}px;
   justify-content: space-between;
   align-items: center;
+  ${({ isMobile }) =>
+    isMobile &&
+    `
+    position: sticky;
+    top: 0;
+    background-color: #fff;
+    z-index: ${Indices.Layer8};
+  `}
 `;
 
-const ApplicationCardsWrapper = styled.div`
+const ApplicationCardsWrapper = styled.div<{ isMobile?: boolean }>`
   display: flex;
   flex-wrap: wrap;
-  gap: 20px;
+  gap: ${({ isMobile }) => (isMobile ? 12 : 20)}px;
   font-size: ${(props) => props.theme.fontSizes[4]}px;
-  padding: 10px;
+  padding: ${({ isMobile }) => (isMobile ? `10px 16px` : `10px`)};
 `;
 
-const OrgSection = styled.div`
-  margin-bottom: 40px;
+const WorkspaceSection = styled.div<{ isMobile?: boolean }>`
+  margin-bottom: ${({ isMobile }) => (isMobile ? `8` : `40`)}px;
 `;
 
-const PaddingWrapper = styled.div`
+const PaddingWrapper = styled.div<{ isMobile?: boolean }>`
   display: flex;
   align-items: baseline;
   justify-content: center;
@@ -187,10 +189,15 @@ const PaddingWrapper = styled.div`
       height: ${(props) => props.theme.card.minHeight - 15}px;
     }
   }
+
+  ${({ isMobile }) =>
+    isMobile &&
+    `
+    width: 100% !important;
+  `}
 `;
 
 const LeftPaneWrapper = styled.div`
-  // height: 50vh;
   overflow: auto;
   width: ${(props) => props.theme.homePage.sidebar}px;
   height: 100%;
@@ -202,23 +209,16 @@ const LeftPaneWrapper = styled.div`
   top: ${(props) => props.theme.homePage.header}px;
   box-shadow: 1px 0px 0px #ededed;
 `;
-const ApplicationContainer = styled.div`
-  height: calc(100vh - ${(props) => props.theme.homePage.search.height - 40}px);
-  overflow: auto;
+const ApplicationContainer = styled.div<{ isMobile?: boolean }>`
   padding-right: ${(props) => props.theme.homePage.leftPane.rightMargin}px;
   padding-top: 16px;
-  margin-left: ${(props) =>
-    props.theme.homePage.leftPane.width +
-    props.theme.homePage.leftPane.rightMargin +
-    props.theme.homePage.leftPane.leftPadding}px;
-  width: calc(
-    100% -
-      ${(props) =>
-        props.theme.homePage.leftPane.width +
-        props.theme.homePage.leftPane.rightMargin +
-        props.theme.homePage.leftPane.leftPadding}px
-  );
-  scroll-behavior: smooth;
+  ${({ isMobile }) =>
+    isMobile &&
+    `
+    margin-left: 0;
+    width: 100%;
+    padding: 0;
+  `}
 `;
 
 const ItemWrapper = styled.div`
@@ -227,12 +227,13 @@ const ItemWrapper = styled.div`
 const StyledIcon = styled(Icon)`
   margin-right: 11px;
 `;
-const OrgShareUsers = styled.div`
+const WorkspaceShareUsers = styled.div`
   display: flex;
   align-items: center;
 
   & .t--options-icon {
     margin-left: 8px;
+
     svg {
       path {
         fill: #090707;
@@ -315,35 +316,8 @@ const StyledAnchor = styled.a`
 const WorkpsacesNavigator = styled.div`
   overflow: auto;
   height: calc(100vh - ${(props) => props.theme.homePage.header + 252}px);
+  ${thinScrollbar};
   /* padding-bottom: 160px; */
-`;
-
-const LeftPaneBottomSection = styled.div`
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  padding-bottom: 8px;
-  background-color: #fff;
-
-  & .ads-dialog-trigger {
-    margin-top: 4px;
-  }
-
-  & .ads-dialog-trigger > div {
-    position: initial;
-    width: 92%;
-    padding: 0 14px;
-  }
-`;
-
-const LeftPaneVersionData = styled.div`
-  display: flex;
-  justify-content: space-between;
-  color: #121826;
-  font-size: 8px;
-  width: 92%;
-  margin-top: 8px;
 `;
 
 const textIconStyles = (props: { color: string; hover: string }) => {
@@ -367,7 +341,11 @@ const textIconStyles = (props: { color: string; hover: string }) => {
   `;
 };
 
-function OrgMenuItem({ isFetchingApplications, org, selected }: any) {
+function WorkspaceMenuItem({
+  isFetchingApplications,
+  selected,
+  workspace,
+}: any) {
   const menuRef = useRef<HTMLAnchorElement>(null);
   useEffect(() => {
     if (selected) {
@@ -382,118 +360,75 @@ function OrgMenuItem({ isFetchingApplications, org, selected }: any) {
         isFetchingApplications ? BlueprintClasses.SKELETON : ""
       }
       ellipsize={20}
-      href={`${window.location.pathname}#${org.organization.slug}`}
+      href={`${window.location.pathname}#${workspace.workspace.id}`}
       icon="workspace"
-      key={org.organization.slug}
+      key={workspace.workspace.id}
       ref={menuRef}
       selected={selected}
-      text={org.organization.name}
+      text={workspace.workspace.name}
+      tooltipPos={Position.BOTTOM_LEFT}
     />
   );
 }
 
-const submitCreateOrganizationForm = async (data: any, dispatch: any) => {
-  const result = await createOrganizationSubmitHandler(data, dispatch);
+const submitCreateWorkspaceForm = async (data: any, dispatch: any) => {
+  const result = await createWorkspaceSubmitHandler(data, dispatch);
   return result;
 };
 
 function LeftPane() {
   const dispatch = useDispatch();
-  const fetchedUserOrgs = useSelector(getUserApplicationsOrgs);
-  const onboardingOrgs = useSelector(getOnboardingOrganisations);
+  const fetchedUserWorkspaces = useSelector(getUserApplicationsWorkspaces);
   const isFetchingApplications = useSelector(getIsFetchingApplications);
-  const { appVersion } = getAppsmithConfigs();
-  const howMuchTimeBefore = howMuchTimeBeforeText(appVersion.releaseDate);
-  let userOrgs;
+  const isMobile = useIsMobileDevice();
+  let userWorkspaces;
   if (!isFetchingApplications) {
-    userOrgs = fetchedUserOrgs;
+    userWorkspaces = fetchedUserWorkspaces;
   } else {
-    userOrgs = loadingUserOrgs as any;
+    userWorkspaces = loadingUserWorkspaces as any;
   }
 
   const location = useLocation();
   const urlHash = location.hash.slice(1);
 
-  const initiateOnboarding = useIntiateOnboarding();
+  if (isMobile) return null;
 
   return (
     <LeftPaneWrapper>
       <LeftPaneSection
-        heading={createMessage(ORGANIZATIONS_HEADING)}
+        heading={createMessage(WORKSPACES_HEADING)}
         isFetchingApplications={isFetchingApplications}
       >
         <WorkpsacesNavigator data-cy="t--left-panel">
-          {userOrgs &&
-            userOrgs.map((org: any) => (
-              <OrgMenuItem
-                isFetchingApplications={isFetchingApplications}
-                key={org.organization.slug}
-                org={org}
-                selected={urlHash === org.organization.slug}
-              />
-            ))}
-          {!isFetchingApplications && fetchedUserOrgs && (
+          {!isFetchingApplications && fetchedUserWorkspaces && (
             <MenuItem
-              cypressSelector="t--org-new-organization-auto-create"
+              cypressSelector="t--workspace-new-workspace-auto-create"
               icon="plus"
               onSelect={() =>
-                submitCreateOrganizationForm(
+                submitCreateWorkspaceForm(
                   {
                     name: getNextEntityName(
-                      "Untitled organization ",
-                      fetchedUserOrgs.map((el: any) => el.organization.name),
+                      "Untitled workspace ",
+                      fetchedUserWorkspaces.map((el: any) => el.workspace.name),
                     ),
                   },
                   dispatch,
                 )
               }
-              text={CREATE_ORGANIZATION_FORM_NAME}
+              text={CREATE_WORKSPACE_FORM_NAME}
             />
           )}
+          {userWorkspaces &&
+            userWorkspaces.map((workspace: any) => (
+              <WorkspaceMenuItem
+                isFetchingApplications={isFetchingApplications}
+                key={workspace.workspace.id}
+                selected={urlHash === workspace.workspace.id}
+                workspace={workspace}
+              />
+            ))}
         </WorkpsacesNavigator>
-        <LeftPaneBottomSection>
-          <MenuItem
-            className={isFetchingApplications ? BlueprintClasses.SKELETON : ""}
-            icon="discord"
-            onSelect={() => {
-              window.open("https://discord.gg/rBTTVJp", "_blank");
-            }}
-            text={"Join our Discord"}
-          />
-          <MenuItem
-            containerClassName={
-              isFetchingApplications ? BlueprintClasses.SKELETON : ""
-            }
-            icon="book"
-            onSelect={() => {
-              window.open("https://docs.appsmith.com/", "_blank");
-            }}
-            text={createMessage(DOCUMENTATION)}
-          />
-          {!!onboardingOrgs.length && (
-            <MenuItem
-              containerClassName={
-                isFetchingApplications
-                  ? BlueprintClasses.SKELETON
-                  : "t--welcome-tour"
-              }
-              icon="guide"
-              onSelect={() => {
-                AnalyticsUtil.logEvent("WELCOME_TOUR_CLICK");
-
-                initiateOnboarding();
-              }}
-              text={createMessage(WELCOME_TOUR)}
-            />
-          )}
-          <ProductUpdatesModal />
-          <LeftPaneVersionData>
-            <span>Appsmith {appVersion.id}</span>
-            {howMuchTimeBefore !== "" && (
-              <span>Released {howMuchTimeBefore} ago</span>
-            )}
-          </LeftPaneVersionData>
-        </LeftPaneBottomSection>
+        <LeftPaneBottomSection />
       </LeftPaneSection>
     </LeftPaneWrapper>
   );
@@ -503,34 +438,33 @@ const CreateNewLabel = styled(Text)`
   margin-top: 18px;
 `;
 
-const OrgNameElement = styled(Text)`
-  max-width: 500px;
+const WorkspaceNameElement = styled(Text)<{ isMobile?: boolean }>`
+  max-width: ${({ isMobile }) => (isMobile ? 220 : 500)}px;
   ${truncateTextUsingEllipsis}
 `;
 
-const OrgNameHolder = styled(Text)`
+const WorkspaceNameHolder = styled(Text)`
   display: flex;
   align-items: center;
 `;
 
-const OrgNameWrapper = styled.div<{ disabled?: boolean }>`
-${(props) => {
-  const color = props.disabled
-    ? props.theme.colors.applications.orgColor
-    : props.theme.colors.applications.hover.orgColor[9];
-  return `${textIconStyles({
-    color: color,
-    hover: color,
-  })}`;
-}}
-
-.${Classes.ICON} {
-  display: ${(props) => (!props.disabled ? "inline" : "none")};;
-  margin-left: 8px;
-  color: ${(props) => props.theme.colors.applications.iconColor};
-}
+const WorkspaceNameWrapper = styled.div<{ disabled?: boolean }>`
+  ${(props) => {
+    const color = props.disabled
+      ? props.theme.colors.applications.workspaceColor
+      : props.theme.colors.applications.hover.workspaceColor[9];
+    return `${textIconStyles({
+      color: color,
+      hover: color,
+    })}`;
+  }}
+  .${Classes.ICON} {
+    display: ${(props) => (!props.disabled ? "inline" : "none")};
+    margin-left: 8px;
+    color: ${(props) => props.theme.colors.applications.iconColor};
+  }
 `;
-const OrgRename = styled(EditableText)`
+const WorkspaceRename = styled(EditableText)`
   padding: 0 2px;
 `;
 
@@ -538,15 +472,40 @@ const NoSearchResultImg = styled.img`
   margin: 1em;
 `;
 
+const ApplicationsWrapper = styled.div<{ isMobile: boolean }>`
+  height: calc(100vh - ${(props) => props.theme.homePage.search.height - 40}px);
+  overflow: auto;
+  margin-left: ${(props) =>
+    props.theme.homePage.leftPane.width +
+    props.theme.homePage.leftPane.rightMargin +
+    props.theme.homePage.leftPane.leftPadding}px;
+  width: calc(
+    100% -
+      ${(props) =>
+        props.theme.homePage.leftPane.width +
+        props.theme.homePage.leftPane.rightMargin +
+        props.theme.homePage.leftPane.leftPadding}px
+  );
+  scroll-behavior: smooth;
+  ${({ isMobile }) =>
+    isMobile &&
+    `
+    margin-left: 0;
+    width: 100%;
+    padding: 0;
+  `}
+`;
+
 function ApplicationsSection(props: any) {
   const enableImportExport = true;
   const dispatch = useDispatch();
   const theme = useContext(ThemeContext);
-  const isSavingOrgInfo = useSelector(getIsSavingOrgInfo);
+  const isSavingWorkspaceInfo = useSelector(getIsSavingWorkspaceInfo);
   const isFetchingApplications = useSelector(getIsFetchingApplications);
-  const userOrgs = useSelector(getUserApplicationsOrgsList);
+  const userWorkspaces = useSelector(getUserApplicationsWorkspacesList);
   const creatingApplicationMap = useSelector(getIsCreatingApplication);
   const currentUser = useSelector(getCurrentUser);
+  const isMobile = useIsMobileDevice();
   const deleteApplication = (applicationId: string) => {
     if (applicationId && applicationId.length > 0) {
       dispatch({
@@ -557,67 +516,94 @@ function ApplicationsSection(props: any) {
       });
     }
   };
-  const [warnLeavingOrganization, setWarnLeavingOrganization] = useState(false);
-  const [orgToOpenMenu, setOrgToOpenMenu] = useState<string | null>(null);
+  const [warnLeavingWorkspace, setWarnLeavingWorkspace] = useState(false);
+  const [warnDeleteWorkspace, setWarnDeleteWorkspace] = useState(false);
+  const [workspaceToOpenMenu, setWorkspaceToOpenMenu] = useState<string | null>(
+    null,
+  );
   const updateApplicationDispatch = (
     id: string,
     data: UpdateApplicationPayload,
   ) => {
     dispatch(updateApplication(id, data));
   };
+  const featureFlags = useSelector(selectFeatureFlags);
+
+  useEffect(() => {
+    // Clears URL params cache
+    urlBuilder.resetURLParams();
+  }, []);
 
   const duplicateApplicationDispatch = (applicationId: string) => {
     dispatch(duplicateApplication(applicationId));
   };
 
-  const [selectedOrgId, setSelectedOrgId] = useState<string | undefined>();
+  const [selectedWorkspaceId, setSelectedWorkspaceId] = useState<
+    string | undefined
+  >();
   const [
-    selectedOrgIdForImportApplication,
-    setSelectedOrgIdForImportApplication,
+    selectedWorkspaceIdForImportApplication,
+    setSelectedWorkspaceIdForImportApplication,
   ] = useState<string | undefined>();
-  const Form: any = OrgInviteUsersForm;
+  const Form: any = WorkspaceInviteUsersForm;
 
-  const leaveOrg = (orgId: string) => {
-    setWarnLeavingOrganization(false);
-    setOrgToOpenMenu(null);
-    dispatch(leaveOrganization(orgId));
+  const leaveWS = (workspaceId: string) => {
+    setWarnLeavingWorkspace(false);
+    setWorkspaceToOpenMenu(null);
+    dispatch(leaveWorkspace(workspaceId));
   };
 
-  const OrgNameChange = (newName: string, orgId: string) => {
+  const handleDeleteWorkspace = useCallback(
+    (workspaceId: string) => {
+      setWarnDeleteWorkspace(false);
+      setWorkspaceToOpenMenu(null);
+      dispatch(deleteWorkspace(workspaceId));
+    },
+    [dispatch],
+  );
+
+  const WorkspaceNameChange = (newName: string, workspaceId: string) => {
     dispatch(
-      saveOrg({
-        id: orgId as string,
+      saveWorkspace({
+        id: workspaceId as string,
         name: newName,
       }),
     );
   };
 
-  function OrgMenuTarget(props: {
-    orgName: string;
+  function WorkspaceMenuTarget(props: {
+    workspaceName: string;
     disabled?: boolean;
-    orgSlug: string;
+    workspaceSlug: string;
   }) {
-    const { disabled, orgName, orgSlug } = props;
+    const { disabled, workspaceName, workspaceSlug } = props;
 
     return (
-      <OrgNameWrapper className="t--org-name-text" disabled={disabled}>
-        <StyledAnchor id={orgSlug} />
-        <OrgNameHolder
+      <WorkspaceNameWrapper
+        className="t--workspace-name-text"
+        disabled={disabled}
+      >
+        <StyledAnchor id={workspaceSlug} />
+        <WorkspaceNameHolder
           className={isFetchingApplications ? BlueprintClasses.SKELETON : ""}
           type={TextType.H1}
         >
-          <OrgNameElement
+          <WorkspaceNameElement
             className={isFetchingApplications ? BlueprintClasses.SKELETON : ""}
+            isMobile={isMobile}
             type={TextType.H1}
           >
-            {orgName}
-          </OrgNameElement>
-        </OrgNameHolder>
-      </OrgNameWrapper>
+            {workspaceName}
+          </WorkspaceNameElement>
+        </WorkspaceNameHolder>
+      </WorkspaceNameWrapper>
     );
   }
 
-  const createNewApplication = (applicationName: string, orgId: string) => {
+  const createNewApplication = (
+    applicationName: string,
+    workspaceId: string,
+  ) => {
     const color = getRandomPaletteColor(theme.colors.appCardColors);
     const icon =
       AppIconCollection[Math.floor(Math.random() * AppIconCollection.length)];
@@ -626,32 +612,31 @@ function ApplicationsSection(props: any) {
       type: ReduxActionTypes.CREATE_APPLICATION_INIT,
       payload: {
         applicationName,
-        orgId,
+        workspaceId,
         icon,
         color,
       },
     });
   };
 
-  let updatedOrgs;
+  let updatedWorkspaces;
   if (!isFetchingApplications) {
-    updatedOrgs = userOrgs;
+    updatedWorkspaces = userWorkspaces;
   } else {
-    updatedOrgs = loadingUserOrgs as any;
+    updatedWorkspaces = loadingUserWorkspaces as any;
   }
 
-  let organizationsListComponent;
+  let workspacesListComponent;
   if (
     !isFetchingApplications &&
     props.searchKeyword &&
     props.searchKeyword.trim().length > 0 &&
-    updatedOrgs.length === 0
+    updatedWorkspaces.length === 0
   ) {
-    organizationsListComponent = (
+    workspacesListComponent = (
       <CenteredWrapper
         style={{
           flexDirection: "column",
-          marginTop: "-150px",
           position: "static",
         }}
       >
@@ -662,67 +647,74 @@ function ApplicationsSection(props: any) {
       </CenteredWrapper>
     );
   } else {
-    organizationsListComponent = updatedOrgs.map(
-      (organizationObject: any, index: number) => {
-        const { applications, organization, userRoles } = organizationObject;
-        const hasManageOrgPermissions = isPermitted(
-          organization.userPermissions,
-          PERMISSION_TYPE.MANAGE_ORGANIZATION,
+    workspacesListComponent = updatedWorkspaces.map(
+      (workspaceObject: any, index: number) => {
+        const { applications, workspace } = workspaceObject;
+        const hasManageWorkspacePermissions = isPermitted(
+          workspace.userPermissions,
+          PERMISSION_TYPE.MANAGE_WORKSPACE,
         );
         return (
-          <OrgSection className="t--org-section" key={index}>
-            <OrgDropDown>
+          <WorkspaceSection
+            className="t--workspace-section"
+            isMobile={isMobile}
+            key={index}
+          >
+            <WorkspaceDropDown isMobile={isMobile}>
               {(currentUser || isFetchingApplications) &&
-                OrgMenuTarget({
-                  orgName: organization.name,
-                  orgSlug: organization.slug,
+                WorkspaceMenuTarget({
+                  workspaceName: workspace.name,
+                  workspaceSlug: workspace.id,
                 })}
-              {selectedOrgIdForImportApplication && (
-                <ImportApplicationModal
-                  isModalOpen={
-                    selectedOrgIdForImportApplication === organization.id
-                  }
-                  onClose={() => setSelectedOrgIdForImportApplication("")}
-                  organizationId={selectedOrgIdForImportApplication}
-                />
-              )}
-              {hasManageOrgPermissions && (
+              {hasManageWorkspacePermissions && (
                 <Dialog
                   canEscapeKeyClose={false}
-                  canOutsideClickClose={false}
-                  isOpen={selectedOrgId === organization.id}
-                  onClose={() => setSelectedOrgId("")}
-                  title={`Invite Users to ${organization.name}`}
+                  canOutsideClickClose
+                  isOpen={selectedWorkspaceId === workspace.id}
+                  onClose={() => setSelectedWorkspaceId("")}
+                  title={`Invite Users to ${workspace.name}`}
                 >
-                  <Form orgId={organization.id} />
+                  <Form workspaceId={workspace.id} />
                 </Dialog>
               )}
+              {selectedWorkspaceIdForImportApplication && (
+                <ImportApplicationModal
+                  isModalOpen={
+                    selectedWorkspaceIdForImportApplication === workspace.id
+                  }
+                  onClose={() => setSelectedWorkspaceIdForImportApplication("")}
+                  workspaceId={selectedWorkspaceIdForImportApplication}
+                />
+              )}
               {isPermitted(
-                organization.userPermissions,
-                PERMISSION_TYPE.INVITE_USER_TO_ORGANIZATION,
+                workspace.userPermissions,
+                PERMISSION_TYPE.INVITE_USER_TO_WORKSPACE,
               ) &&
                 !isFetchingApplications && (
-                  <OrgShareUsers>
-                    <SharedUserList userRoles={userRoles} />
-                    <FormDialogComponent
-                      Form={OrgInviteUsersForm}
-                      canOutsideClickClose
-                      orgId={organization.id}
-                      title={`Invite Users to ${organization.name}`}
-                      trigger={
-                        <Button
-                          category={Category.tertiary}
-                          icon={"share"}
-                          size={Size.medium}
-                          tag="button"
-                          text={"Share"}
-                        />
-                      }
-                    />
+                  <WorkspaceShareUsers>
+                    <SharedUserList workspaceId={workspace.id} />
+                    {!isMobile && (
+                      <FormDialogComponent
+                        Form={WorkspaceInviteUsersForm}
+                        canOutsideClickClose
+                        title={`Invite Users to ${workspace.name}`}
+                        trigger={
+                          <Button
+                            category={Category.tertiary}
+                            icon={"share-line"}
+                            size={Size.medium}
+                            tag="button"
+                            text={"Share"}
+                          />
+                        }
+                        workspaceId={workspace.id}
+                      />
+                    )}
                     {isPermitted(
-                      organization.userPermissions,
+                      workspace.userPermissions,
                       PERMISSION_TYPE.CREATE_APPLICATION,
                     ) &&
+                      !isMobile &&
                       !isFetchingApplications &&
                       applications.length !== 0 && (
                         <Button
@@ -730,21 +722,21 @@ function ApplicationsSection(props: any) {
                           icon={"plus"}
                           isLoading={
                             creatingApplicationMap &&
-                            creatingApplicationMap[organization.id]
+                            creatingApplicationMap[workspace.id]
                           }
                           onClick={() => {
                             if (
                               Object.entries(creatingApplicationMap).length ===
                                 0 ||
                               (creatingApplicationMap &&
-                                !creatingApplicationMap[organization.id])
+                                !creatingApplicationMap[workspace.id])
                             ) {
                               createNewApplication(
                                 getNextEntityName(
                                   "Untitled application ",
                                   applications.map((el: any) => el.name),
                                 ),
-                                organization.id,
+                                workspace.id,
                               );
                             }
                           }}
@@ -753,103 +745,97 @@ function ApplicationsSection(props: any) {
                           text={"New"}
                         />
                       )}
-                    {(currentUser || isFetchingApplications) && (
+                    {(currentUser || isFetchingApplications) && !isMobile && (
                       <Menu
-                        className="t--org-name"
-                        cypressSelector="t--org-name"
+                        autoFocus={false}
+                        className="t--workspace-name"
+                        closeOnItemClick
+                        cypressSelector="t--workspace-name"
                         disabled={isFetchingApplications}
-                        isOpen={organization.slug === orgToOpenMenu}
+                        isOpen={workspace.id === workspaceToOpenMenu}
                         onClose={() => {
-                          setOrgToOpenMenu(null);
+                          setWorkspaceToOpenMenu(null);
                         }}
                         onClosing={() => {
-                          setWarnLeavingOrganization(false);
+                          setWarnLeavingWorkspace(false);
+                          setWarnDeleteWorkspace(false);
                         }}
                         position={Position.BOTTOM_RIGHT}
                         target={
                           <Icon
                             className="t--options-icon"
                             name="context-menu"
-                            onClick={() => setOrgToOpenMenu(organization.slug)}
+                            onClick={() => {
+                              setWorkspaceToOpenMenu(workspace.id);
+                            }}
                             size={IconSize.XXXL}
                           />
                         }
                       >
-                        {hasManageOrgPermissions && (
+                        {hasManageWorkspacePermissions && (
                           <>
-                            <OrgRename
-                              cypressSelector="t--org-rename-input"
-                              defaultValue={organization.name}
-                              editInteractionKind={EditInteractionKind.SINGLE}
-                              fill
-                              hideEditIcon={false}
-                              isEditingDefault={false}
-                              isInvalid={(value: string) => {
-                                return notEmptyValidator(value).message;
-                              }}
-                              onBlur={(value: string) => {
-                                OrgNameChange(value, organization.id);
-                              }}
-                              placeholder="Workspace name"
-                              savingState={
-                                isSavingOrgInfo
-                                  ? SavingState.STARTED
-                                  : SavingState.NOT_STARTED
-                              }
-                              underline
-                            />
+                            <div className="px-3 py-2">
+                              <WorkspaceRename
+                                cypressSelector="t--workspace-rename-input"
+                                defaultValue={workspace.name}
+                                editInteractionKind={EditInteractionKind.SINGLE}
+                                fill
+                                hideEditIcon={false}
+                                isEditingDefault={false}
+                                isInvalid={(value: string) => {
+                                  return notEmptyValidator(value).message;
+                                }}
+                                onBlur={(value: string) => {
+                                  WorkspaceNameChange(value, workspace.id);
+                                }}
+                                placeholder="Workspace name"
+                                savingState={
+                                  isSavingWorkspaceInfo
+                                    ? SavingState.STARTED
+                                    : SavingState.NOT_STARTED
+                                }
+                                underline
+                              />
+                            </div>
                             <MenuItem
-                              cypressSelector="t--org-setting"
-                              icon="general"
+                              cypressSelector="t--workspace-setting"
+                              icon="settings-2-line"
                               onSelect={() =>
                                 getOnSelectAction(
                                   DropdownOnSelectActions.REDIRECT,
                                   {
-                                    path: `/org/${organization.id}/settings/general`,
+                                    path: `/workspace/${workspace.id}/settings/general`,
                                   },
                                 )
                               }
-                              text="Organization Settings"
+                              text="Settings"
                             />
                             {enableImportExport && (
                               <MenuItem
-                                cypressSelector="t--org-import-app"
-                                icon="upload"
+                                cypressSelector="t--workspace-import-app"
+                                icon="download"
                                 onSelect={() =>
-                                  setSelectedOrgIdForImportApplication(
-                                    organization.id,
+                                  setSelectedWorkspaceIdForImportApplication(
+                                    workspace.id,
                                   )
                                 }
-                                text="Import Application"
-                              />
-                            )}
-                            {getFeatureFlags().GIT && (
-                              <MenuItem
-                                cypressSelector="t--org-import-app-git"
-                                icon="upload"
-                                onSelect={() =>
-                                  dispatch(
-                                    setIsImportAppViaGitModalOpen({
-                                      isOpen: true,
-                                      organizationId: organization.id,
-                                    }),
-                                  )
-                                }
-                                text="Import Via GIT"
+                                text="Import"
                               />
                             )}
                             <MenuItem
-                              icon="share"
-                              onSelect={() => setSelectedOrgId(organization.id)}
+                              icon="share-line"
+                              onSelect={() =>
+                                setSelectedWorkspaceId(workspace.id)
+                              }
                               text="Share"
                             />
                             <MenuItem
-                              icon="user"
+                              icon="member"
                               onSelect={() =>
                                 getOnSelectAction(
                                   DropdownOnSelectActions.REDIRECT,
                                   {
-                                    path: `/org/${organization.id}/settings/members`,
+                                    path: `/workspace/${workspace.id}/settings/members`,
                                   },
                                 )
                               }
@@ -859,34 +845,54 @@ function ApplicationsSection(props: any) {
                         )}
                         <MenuItem
                           icon="logout"
-                          onSelect={() =>
-                            !warnLeavingOrganization
-                              ? setWarnLeavingOrganization(true)
-                              : leaveOrg(organization.id)
-                          }
+                          onSelect={(e: React.MouseEvent) => {
+                            e.stopPropagation();
+                            !warnLeavingWorkspace
+                              ? setWarnLeavingWorkspace(true)
+                              : leaveWS(workspace.id);
+                          }}
                           text={
-                            !warnLeavingOrganization
-                              ? "Leave Organization"
+                            !warnLeavingWorkspace
+                              ? "Leave Workspace"
                               : "Are you sure?"
                           }
-                          type={
-                            !warnLeavingOrganization ? undefined : "warning"
-                          }
+                          type={!warnLeavingWorkspace ? undefined : "warning"}
                         />
+                        {applications.length === 0 &&
+                          hasManageWorkspacePermissions && (
+                            <MenuItem
+                              icon="trash"
+                              onSelect={(e: React.MouseEvent) => {
+                                e.stopPropagation();
+                                warnDeleteWorkspace
+                                  ? handleDeleteWorkspace(workspace.id)
+                                  : setWarnDeleteWorkspace(true);
+                              }}
+                              text={
+                                !warnDeleteWorkspace
+                                  ? "Delete Workspace"
+                                  : "Are you sure?"
+                              }
+                              type={
+                                !warnDeleteWorkspace ? undefined : "warning"
+                              }
+                            />
+                          )}
                       </Menu>
                     )}
-                  </OrgShareUsers>
+                  </WorkspaceShareUsers>
                 )}
-            </OrgDropDown>
-            <ApplicationCardsWrapper key={organization.id}>
+            </WorkspaceDropDown>
+            <ApplicationCardsWrapper isMobile={isMobile} key={workspace.id}>
               {applications.map((application: any) => {
                 return (
-                  <PaddingWrapper key={application.id}>
+                  <PaddingWrapper isMobile={isMobile} key={application.id}>
                     <ApplicationCard
                       application={application}
                       delete={deleteApplication}
                       duplicate={duplicateApplicationDispatch}
                       enableImportExport={enableImportExport}
+                      isMobile={isMobile}
                       key={application.id}
                       update={updateApplicationDispatch}
                     />
@@ -896,51 +902,57 @@ function ApplicationsSection(props: any) {
               {applications.length === 0 && (
                 <NoAppsFound>
                   <NoAppsFoundIcon />
-                  <span>There’s nothing inside this organization</span>
+                  <span>There’s nothing inside this workspace</span>
                   {/* below component is duplicate. This is because of cypress test were failing */}
-                  <Button
-                    className="t--new-button createnew"
-                    icon={"plus"}
-                    isLoading={
-                      creatingApplicationMap &&
-                      creatingApplicationMap[organization.id]
-                    }
-                    onClick={() => {
-                      if (
-                        Object.entries(creatingApplicationMap).length === 0 ||
-                        (creatingApplicationMap &&
-                          !creatingApplicationMap[organization.id])
-                      ) {
-                        createNewApplication(
-                          getNextEntityName(
-                            "Untitled application ",
-                            applications.map((el: any) => el.name),
-                          ),
-                          organization.id,
-                        );
+                  {!isMobile && (
+                    <Button
+                      className="t--new-button createnew"
+                      icon={"plus"}
+                      isLoading={
+                        creatingApplicationMap &&
+                        creatingApplicationMap[workspace.id]
                       }
-                    }}
-                    size={Size.medium}
-                    tag="button"
-                    text={"New"}
-                  />
+                      onClick={() => {
+                        if (
+                          Object.entries(creatingApplicationMap).length === 0 ||
+                          (creatingApplicationMap &&
+                            !creatingApplicationMap[workspace.id])
+                        ) {
+                          createNewApplication(
+                            getNextEntityName(
+                              "Untitled application ",
+                              applications.map((el: any) => el.name),
+                            ),
+                            workspace.id,
+                          );
+                        }
+                      }}
+                      size={Size.medium}
+                      tag="button"
+                      text={"New"}
+                    />
+                  )}
                 </NoAppsFound>
               )}
             </ApplicationCardsWrapper>
-          </OrgSection>
+          </WorkspaceSection>
         );
       },
     );
   }
 
   return (
-    <ApplicationContainer className="t--applications-container">
-      {organizationsListComponent}
-      <WelcomeHelper />
-      {getFeatureFlags().GIT && <ImportAppViaGitModal />}
+    <ApplicationContainer
+      className="t--applications-container"
+      isMobile={isMobile}
+    >
+      {workspacesListComponent}
+      {featureFlags.GIT_IMPORT && <GitSyncModal isImport />}
+      <ReconnectDatasourceModal />
     </ApplicationContainer>
   );
 }
+
 type ApplicationProps = {
   applicationList: ApplicationPayload[];
   searchApplications: (keyword: string) => void;
@@ -951,29 +963,25 @@ type ApplicationProps = {
   deletingApplication: boolean;
   duplicatingApplication: boolean;
   getAllApplication: () => void;
-  userOrgs: any;
+  userWorkspaces: any;
   currentUser?: User;
   searchKeyword: string | undefined;
   setHeaderMetaData: (
     hideHeaderShadow: boolean,
     showHeaderSeparator: boolean,
   ) => void;
-  enableFirstTimeUserOnboarding: (applicationId: string) => void;
-};
-
-const getIsFromSignup = () => {
-  return window.location?.pathname === SIGNUP_SUCCESS_URL;
+  resetEditor: () => void;
 };
 
 class Applications extends Component<
   ApplicationProps,
-  { selectedOrgId: string; showOnboardingForm: boolean }
+  { selectedWorkspaceId: string; showOnboardingForm: boolean }
 > {
   constructor(props: ApplicationProps) {
     super(props);
 
     this.state = {
-      selectedOrgId: "",
+      selectedWorkspaceId: "",
       showOnboardingForm: false,
     };
   }
@@ -981,11 +989,9 @@ class Applications extends Component<
   componentDidMount() {
     PerformanceTracker.stopTracking(PerformanceTransactionName.LOGIN_CLICK);
     PerformanceTracker.stopTracking(PerformanceTransactionName.SIGN_UP);
-    const isFromSignUp = getIsFromSignup();
-    if (isFromSignUp) {
-      this.redirectUsingQueryParam();
+    if (!this.props.userWorkspaces.length) {
+      this.props.getAllApplication();
     }
-    this.props.getAllApplication();
     this.props.setHeaderMetaData(true, true);
   }
 
@@ -993,46 +999,25 @@ class Applications extends Component<
     this.props.setHeaderMetaData(false, false);
   }
 
-  redirectUsingQueryParam = () => {
-    const urlObject = new URL(window.location.href);
-    const redirectUrl = urlObject?.searchParams.get("redirectUrl");
-    const shouldEnableFirstTimeUserOnboarding = urlObject?.searchParams.get(
-      "enableFirstTimeUserExperience",
-    );
-    if (redirectUrl) {
-      try {
-        if (
-          window.location.pathname == SIGNUP_SUCCESS_URL &&
-          shouldEnableFirstTimeUserOnboarding === "true"
-        ) {
-          const { applicationId, pageId } = extractAppIdAndPageIdFromUrl(
-            redirectUrl,
-          );
-          if (applicationId && pageId) {
-            this.props.enableFirstTimeUserOnboarding(applicationId);
-            history.replace(BUILDER_PAGE_URL(applicationId, pageId));
-          }
-        } else if (getIsSafeRedirectURL(redirectUrl)) {
-          window.location.replace(redirectUrl);
-        }
-      } catch (e) {
-        console.error("Error handling the redirect url");
-      }
-    }
-  };
-
   public render() {
     return (
       <PageWrapper displayName="Applications">
         <LeftPane />
-        <SubHeader
-          search={{
-            placeholder: createMessage(SEARCH_APPS),
-            queryFn: this.props.searchApplications,
-            defaultValue: this.props.searchKeyword,
-          }}
-        />
-        <ApplicationsSection searchKeyword={this.props.searchKeyword} />
+        <MediaQuery maxWidth={MOBILE_MAX_WIDTH}>
+          {(matches: boolean) => (
+            <ApplicationsWrapper isMobile={matches}>
+              <SubHeader
+                search={{
+                  placeholder: createMessage(SEARCH_APPS),
+                  queryFn: this.props.searchApplications,
+                  defaultValue: this.props.searchKeyword,
+                }}
+              />
+              <ApplicationsSection searchKeyword={this.props.searchKeyword} />
+              <RepoLimitExceededErrorModal />
+            </ApplicationsWrapper>
+          )}
+        </MediaQuery>
       </PageWrapper>
     );
   }
@@ -1045,7 +1030,7 @@ const mapStateToProps = (state: AppState) => ({
   createApplicationError: getCreateApplicationError(state),
   deletingApplication: getIsDeletingApplication(state),
   duplicatingApplication: getIsDuplicatingApplication(state),
-  userOrgs: getUserApplicationsOrgsList(state),
+  userWorkspaces: getUserApplicationsWorkspacesList(state),
   currentUser: getCurrentUser(state),
   searchKeyword: getApplicationSearchKeyword(state),
 });
@@ -1053,6 +1038,9 @@ const mapStateToProps = (state: AppState) => ({
 const mapDispatchToProps = (dispatch: any) => ({
   getAllApplication: () => {
     dispatch({ type: ReduxActionTypes.GET_ALL_APPLICATION_INIT });
+  },
+  resetEditor: () => {
+    dispatch(resetEditorRequest());
   },
   searchApplications: (keyword: string) => {
     dispatch({
@@ -1067,20 +1055,6 @@ const mapDispatchToProps = (dispatch: any) => ({
     showHeaderSeparator: boolean,
   ) => {
     dispatch(setHeaderMeta(hideHeaderShadow, showHeaderSeparator));
-  },
-  enableFirstTimeUserOnboarding: (applicationId: string) => {
-    dispatch({
-      type: ReduxActionTypes.SET_ENABLE_FIRST_TIME_USER_ONBOARDING,
-      payload: true,
-    });
-    dispatch({
-      type: ReduxActionTypes.SET_FIRST_TIME_USER_ONBOARDING_APPLICATION_ID,
-      payload: applicationId,
-    });
-    dispatch({
-      type: ReduxActionTypes.SET_SHOW_FIRST_TIME_USER_ONBOARDING_MODAL,
-      payload: true,
-    });
   },
 });
 

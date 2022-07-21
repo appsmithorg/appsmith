@@ -34,22 +34,22 @@
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <version>1.18.8</version>
+            <version>1.18.22</version>
             <scope>provided</scope>
         </dependency>
-
         <dependency>
             <groupId>org.eclipse.jgit</groupId>
             <artifactId>org.eclipse.jgit</artifactId>
-            <version>5.12.0.202106070339-r</version>
+            <version>5.13.0.202109080827-r</version>
         </dependency>
 
-        <!-- https://mvnrepository.com/artifact/org.eclipse.jgit/org.eclipse.jgit.ssh.jsch -->
+        <!-- https://mvnrepository.com/artifact/org.eclipse.jgit/org.eclipse.jgit.junit.ssh -->
         <dependency>
             <groupId>org.eclipse.jgit</groupId>
             <artifactId>org.eclipse.jgit.ssh.jsch</artifactId>
-            <version>5.12.0.202106070339-r</version>
+            <version>5.13.0.202109080827-r</version>
         </dependency>
+
 
         <!-- Test Dependencies -->
         <dependency>
@@ -58,6 +58,14 @@
             <version>4.13.1</version>
             <scope>test</scope>
         </dependency>
+
+        <!-- https://mvnrepository.com/artifact/org.eclipse.jgit/org.eclipse.jgit.junit.ssh -->
+        <dependency>
+            <groupId>org.eclipse.jgit</groupId>
+            <artifactId>org.eclipse.jgit.junit.ssh</artifactId>
+            <version>5.13.0.202109080827-r</version>
+        </dependency>
+
 
         <dependency>
             <groupId>io.projectreactor</groupId>
@@ -75,6 +83,26 @@
             <groupId>com.appsmith</groupId>
             <artifactId>interfaces</artifactId>
             <version>1.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.assertj</groupId>
+            <artifactId>assertj-core</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-api</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-test</artifactId>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 

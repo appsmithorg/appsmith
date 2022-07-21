@@ -85,6 +85,7 @@ import ArrowLeftIcon from "remixicon-react/ArrowLeftSLineIcon";
 import ArrowRightIcon from "remixicon-react/ArrowRightSLineIcon";
 import HelpIcon from "remixicon-react/QuestionLineIcon";
 import OpenNewTabIcon from "remixicon-react/ShareBoxLineIcon";
+import ServerLineIcon from "remixicon-react/ServerLineIcon";
 
 import styled from "styled-components";
 import { Size } from "./Button";
@@ -155,6 +156,7 @@ export const AppIconCollection = [
   "rupee",
   "saturn",
   "server",
+  "server-line",
   "shake-hands",
   "shirt",
   "shop",
@@ -437,6 +439,9 @@ function AppIcon(props: AppIconProps) {
       break;
     case "server":
       returnIcon = <ServerIcon />;
+      break;
+    case "server-line":
+      returnIcon = <ServerLineIcon />;
       break;
     case "shake-hands":
       returnIcon = <ShakeHandsIcon />;

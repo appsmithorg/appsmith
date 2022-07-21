@@ -11,14 +11,15 @@ export const bindingHint: HintHelper = (editor, dataTree, customDataTree) => {
   if (customDataTree) {
     const customTreeDef = customTreeTypeDefCreator(customDataTree);
     TernServer.updateDef("customDataTree", customTreeDef);
+  } else {
+    TernServer.updateDef("customDataTree", {});
   }
 
   editor.setOption("extraKeys", {
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore: No types available
+    // @ts-expect-error: Types are not available
     ...editor.options.extraKeys,
     [KeyboardShortcuts.CodeEditor.OpenAutocomplete]: (cm: CodeMirror.Editor) =>
-      TernServer.complete(cm),
+      checkIfCursorInsideBinding(cm) && TernServer.complete(cm),
     [KeyboardShortcuts.CodeEditor.ShowTypeAndInfo]: (cm: CodeMirror.Editor) => {
       TernServer.showType(cm);
     },
@@ -41,8 +42,7 @@ export const bindingHint: HintHelper = (editor, dataTree, customDataTree) => {
         TernServer.complete(editor);
         return true;
       }
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore: No types available
+      // @ts-expect-error: Types are not available
       editor.closeHint();
       return shouldShow;
     },

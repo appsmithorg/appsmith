@@ -11,6 +11,7 @@ import {
   Basic,
   ApiKey,
   BearerToken,
+  SSLType,
 } from "entities/Datasource/RestAPIForm";
 import _ from "lodash";
 
@@ -22,6 +23,11 @@ export const datasourceToFormValues = (
     "datasourceConfiguration.authentication.authenticationType",
     AuthType.NONE,
   );
+  const connection = _.get(datasource, "datasourceConfiguration.connection", {
+    ssl: {
+      authType: SSLType.DEFAULT,
+    },
+  });
   const authentication = datasourceToFormAuthentication(authType, datasource);
   const isSendSessionEnabled =
     _.get(datasource, "datasourceConfiguration.properties[0].value", "N") ===
@@ -31,15 +37,19 @@ export const datasourceToFormValues = (
     : "";
   return {
     datasourceId: datasource.id,
-    organizationId: datasource.organizationId,
+    workspaceId: datasource.workspaceId,
     pluginId: datasource.pluginId,
     isValid: datasource.isValid,
-    url: datasource.datasourceConfiguration.url,
-    headers: cleanupProperties(datasource.datasourceConfiguration.headers),
+    url: datasource.datasourceConfiguration?.url,
+    headers: cleanupProperties(datasource.datasourceConfiguration?.headers),
+    queryParameters: cleanupProperties(
+      datasource.datasourceConfiguration?.queryParameters,
+    ),
     isSendSessionEnabled: isSendSessionEnabled,
     sessionSignatureKey: sessionSignatureKey,
     authType: authType,
     authentication: authentication,
+    connection: connection,
   };
 };
 
@@ -57,6 +67,7 @@ export const formValuesToDatasource = (
     datasourceConfiguration: {
       url: form.url,
       headers: cleanupProperties(form.headers),
+      queryParameters: cleanupProperties(form.queryParameters),
       properties: [
         {
           key: "isSendSessionEnabled",
@@ -65,6 +76,7 @@ export const formValuesToDatasource = (
         { key: "sessionSignatureKey", value: form.sessionSignatureKey },
       ],
       authentication: authentication,
+      connection: form.connection,
     },
   } as Datasource;
 };
@@ -85,14 +97,22 @@ const formToDatasourceAuthentication = (
       headerPrefix: authentication.headerPrefix,
       scopeString: authentication.scopeString,
       clientSecret: authentication.clientSecret,
+      isAuthorizationHeader: authentication.isAuthorizationHeader,
       isTokenHeader: authentication.isTokenHeader,
       audience: authentication.audience,
       resource: authentication.resource,
+      sendScopeWithRefreshToken: authentication.sendScopeWithRefreshToken,
+      refreshTokenClientCredentialsLocation:
+        authentication.refreshTokenClientCredentialsLocation,
+      useSelfSignedCert: authentication.useSelfSignedCert,
     };
     if (isClientCredentials(authType, authentication)) {
       return {
         ...oAuth2Common,
         grantType: GrantType.ClientCredentials,
+        customTokenParameters: cleanupProperties(
+          authentication.customTokenParameters,
+        ),
       };
     }
     if (isAuthorizationCode(authType, authentication)) {
@@ -100,7 +120,6 @@ const formToDatasourceAuthentication = (
         ...oAuth2Common,
         grantType: GrantType.AuthorizationCode,
         authorizationUrl: authentication.authorizationUrl,
-        isAuthorizationHeader: authentication.isAuthorizationHeader,
         isAuthorized: !!authentication.isAuthorized,
         customAuthenticationParameters: cleanupProperties(
           authentication.customAuthenticationParameters,
@@ -167,13 +186,20 @@ const datasourceToFormAuthentication = (
       scopeString: authentication.scopeString || "",
       clientSecret: authentication.clientSecret,
       isTokenHeader: !!authentication.isTokenHeader,
+      isAuthorizationHeader: !!authentication.isAuthorizationHeader,
       audience: authentication.audience || "",
       resource: authentication.resource || "",
+      sendScopeWithRefreshToken: authentication.sendScopeWithRefreshToken || "",
+      refreshTokenClientCredentialsLocation:
+        authentication.refreshTokenClientCredentialsLocation || "BODY",
     };
     if (isClientCredentials(authType, authentication)) {
       return {
         ...oAuth2Common,
         grantType: GrantType.ClientCredentials,
+        customTokenParameters: cleanupProperties(
+          authentication.customTokenParameters,
+        ),
       };
     }
     if (isAuthorizationCode(authType, authentication)) {

@@ -3,6 +3,8 @@ import _ from "lodash";
 
 describe("#defaultValueValidation", () => {
   const defaultInputWidgetProps: InputWidgetProps = {
+    backgroundColor: "",
+    borderRadius: "",
     bottomRow: 2,
     inputType: "NUMBER",
     inputValidators: [],
@@ -12,6 +14,7 @@ describe("#defaultValueValidation", () => {
     leftColumn: 0,
     parentColumnSpace: 71.75,
     parentRowSpace: 38,
+    primaryColor: "",
     renderMode: "CANVAS",
     rightColumn: 100,
     text: "",
@@ -106,6 +109,21 @@ describe("#defaultValueValidation", () => {
       const response = defaultValueValidation(input, props, _);
 
       expect(response).toStrictEqual(expectedOutputs[index]);
+    });
+  });
+
+  it("validates correctly for Number type with undefined value", () => {
+    const props = {
+      ...defaultInputWidgetProps,
+      inputType: "NUMBER",
+    };
+
+    const response = defaultValueValidation(undefined, props, _);
+
+    expect(response).toStrictEqual({
+      isValid: true,
+      parsed: undefined,
+      messages: [""],
     });
   });
 });

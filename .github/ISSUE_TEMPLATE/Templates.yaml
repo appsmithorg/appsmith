@@ -1,0 +1,113 @@
+name: 📓 App Template Request
+description: Request the app template you would like us to make
+title: "[Template]: "
+labels: [Example Apps]
+assignees:
+- Kocharrahul8
+body:
+- type: input
+  id: Title
+  attributes:
+    label: Title
+    description: Name your template, and make sure it is descriptive, so we make what you need
+  validations:
+    required: true
+
+- type: textarea
+  id: Objective
+  attributes:
+    label: Objective
+    description: Let us know in as much detail as possible what you want your app template to do
+  validations:
+    required: true
+
+- type: input
+  id: Wireframes
+  attributes:
+    label: Wireframes
+    description: Share your app template outline/design. link to Wireframes you have created, existing applications/templates/tools which you would like to leverage
+  validations:
+    required: true
+
+- type: textarea
+  attributes:
+    label: Validation criteria
+    description: List of all Objectives your app must achieve. They can be functionality that the template must satisfy, or specific widgets/data sourecs you would like used
+    value: |
+      e.g. User should be able to upload a file
+      e.g. Data should be stored in a Firestore database
+  validations:
+    required: true
+
+- type: dropdown
+  id: Use_case
+  attributes:
+    label: Use case
+    options:
+      - Support
+      - Martketing
+      - Sales
+      - Finance
+      - Information Technology (I
+      - Human Resources (HR)
+      - Communications
+      - Legal
+      - PR & Communications
+      - Product, design, and UX
+      - Project Management
+      - Personal
+      - Remote work
+      - Software Development
+      - None of the above
+  validations:
+    required: true
+    
+    
+- type: dropdown
+  id: Industry
+  attributes:
+    label: Industry
+    options:
+      - Technology
+      - Health Care
+      - Financials
+      - Consumer Discretionary
+      - Communication Services
+      - Industrials
+      - Consumer goods
+      - Energy
+      - Utilities
+      - Real Estate
+      - Materials
+      - Aggriculture
+      - Services
+      - Other
+      - None of the above
+  validations:
+    required: true
+
+- type: dropdown
+  id: Data_sources
+  attributes:
+    label: Data sources
+    options:
+      - Any
+      - API
+      - CURL import
+      - Authenticated API
+      - Google Sheets
+      - PostgreSQL
+      - MongoDB
+      - Mysql
+      - ElasticSearch
+      - DynamoDB
+      - Redis
+      - MsSQL
+      - Firestore
+      - Redshift
+      - S3
+      - Snowflake
+      - ArangoDB
+  validations:
+    required: true
+

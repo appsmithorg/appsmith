@@ -20,6 +20,12 @@ import {
   unreadCountSelector,
   isNotificationsListVisibleSelector,
 } from "selectors/notificationSelectors";
+import { TooltipComponent } from "design-system";
+import {
+  createMessage,
+  NOTIFICATIONS_TOOLTIP,
+} from "@appsmith/constants/messages";
+import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
 
 const Container = styled.div`
   position: relative;
@@ -89,7 +95,14 @@ function Bell() {
       placement={"bottom-end"}
     >
       <Container>
-        <StyledBellIcon color={Colors.GRAY} />
+        <TooltipComponent
+          boundary="viewport"
+          content={createMessage(NOTIFICATIONS_TOOLTIP)}
+          hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
+          position="bottom"
+        >
+          <StyledBellIcon color={Colors.GRAY} />
+        </TooltipComponent>
         {showIndicator && (
           <BellIndicatorContainer>
             {/** Not using overflow ellipsis here for UI specs */}

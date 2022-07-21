@@ -1,8 +1,8 @@
-import { ReduxAction } from "constants/ReduxActionConstants";
-import { getAppsmithConfigs } from "configs";
+import { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
+import { getAppsmithConfigs } from "@appsmith/configs";
 import * as Sentry from "@sentry/react";
 import AnalyticsUtil from "./AnalyticsUtil";
-import FormControlRegistry from "./FormControlRegistry";
+import FormControlRegistry from "./formControl/FormControlRegistry";
 import { Property } from "api/ActionAPI";
 import _ from "lodash";
 import { ActionDataState } from "reducers/entityReducers/actionsReducer";
@@ -10,9 +10,11 @@ import * as log from "loglevel";
 import { LogLevelDesc } from "loglevel";
 import produce from "immer";
 import { AppIconCollection, AppIconName } from "components/ads/AppIcon";
-import { ERROR_CODES } from "constants/ApiConstants";
-import { createMessage, ERROR_500 } from "../constants/messages";
+import { ERROR_CODES } from "@appsmith/constants/ApiConstants";
+import { createMessage, ERROR_500 } from "@appsmith/constants/messages";
 import localStorage from "utils/localStorage";
+import { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
+import { osName } from "react-device-detect";
 
 export const createReducer = (
   initialState: any,
@@ -43,46 +45,62 @@ export const createImmerReducer = (
 export const appInitializer = () => {
   FormControlRegistry.registerFormControlBuilders();
   const appsmithConfigs = getAppsmithConfigs();
-
-  if (appsmithConfigs.sentry.enabled) {
-    Sentry.init({
-      ...appsmithConfigs.sentry,
-      beforeBreadcrumb(breadcrumb) {
-        if (breadcrumb.category === "console" && breadcrumb.level !== "error") {
-          return null;
-        }
-        if (breadcrumb.category === "sentry.transaction") {
-          return null;
-        }
-        if (breadcrumb.category === "redux.action") {
-          if (
-            breadcrumb.data &&
-            breadcrumb.data.type === "SET_EVALUATED_TREE"
-          ) {
-            breadcrumb.data = undefined;
-          }
-        }
-        return breadcrumb;
-      },
-    });
-  }
-
-  if (appsmithConfigs.smartLook.enabled) {
-    const { id } = appsmithConfigs.smartLook;
-    AnalyticsUtil.initializeSmartLook(id);
-  }
-
-  if (appsmithConfigs.segment.enabled) {
-    if (appsmithConfigs.segment.apiKey) {
-      // This value is only enabled for Appsmith's cloud hosted version. It is not set in self-hosted environments
-      AnalyticsUtil.initializeSegment(appsmithConfigs.segment.apiKey);
-    } else if (appsmithConfigs.segment.ceKey) {
-      // This value is set in self-hosted environments. But if the analytics are disabled, it's never used.
-      AnalyticsUtil.initializeSegment(appsmithConfigs.segment.ceKey);
-    }
-  }
-
   log.setLevel(getEnvLogLevel(appsmithConfigs.logLevel));
+};
+
+export const initializeAnalyticsAndTrackers = () => {
+  const appsmithConfigs = getAppsmithConfigs();
+
+  try {
+    if (appsmithConfigs.sentry.enabled && !window.Sentry) {
+      window.Sentry = Sentry;
+      Sentry.init({
+        ...appsmithConfigs.sentry,
+        beforeBreadcrumb(breadcrumb) {
+          if (
+            breadcrumb.category === "console" &&
+            breadcrumb.level !== "error"
+          ) {
+            return null;
+          }
+          if (breadcrumb.category === "sentry.transaction") {
+            return null;
+          }
+          if (breadcrumb.category === "redux.action") {
+            if (
+              breadcrumb.data &&
+              breadcrumb.data.type === "SET_EVALUATED_TREE"
+            ) {
+              breadcrumb.data = undefined;
+            }
+          }
+          return breadcrumb;
+        },
+      });
+    }
+  } catch (e) {
+    log.error(e);
+  }
+
+  try {
+    if (appsmithConfigs.smartLook.enabled && !(window as any).smartlook) {
+      const { id } = appsmithConfigs.smartLook;
+      AnalyticsUtil.initializeSmartLook(id);
+    }
+
+    if (appsmithConfigs.segment.enabled && !(window as any).analytics) {
+      if (appsmithConfigs.segment.apiKey) {
+        // This value is only enabled for Appsmith's cloud hosted version. It is not set in self-hosted environments
+        AnalyticsUtil.initializeSegment(appsmithConfigs.segment.apiKey);
+      } else if (appsmithConfigs.segment.ceKey) {
+        // This value is set in self-hosted environments. But if the analytics are disabled, it's never used.
+        AnalyticsUtil.initializeSegment(appsmithConfigs.segment.ceKey);
+      }
+    }
+  } catch (e) {
+    Sentry.captureException(e);
+    log.error(e);
+  }
 };
 
 export const mapToPropList = (map: Record<string, string>): Property[] => {
@@ -90,6 +108,56 @@ export const mapToPropList = (map: Record<string, string>): Property[] => {
     return { key: key, value: value };
   });
 };
+
+export const INTERACTION_ANALYTICS_EVENT = "INTERACTION_ANALYTICS_EVENT";
+
+export type InteractionAnalyticsEventDetail = {
+  key?: string;
+  propertyName?: string;
+  propertyType?: string;
+  widgetType?: string;
+};
+
+export const interactionAnalyticsEvent = (
+  detail: InteractionAnalyticsEventDetail = {},
+) =>
+  new CustomEvent(INTERACTION_ANALYTICS_EVENT, {
+    bubbles: true,
+    detail,
+  });
+
+export function emitInteractionAnalyticsEvent<T extends HTMLElement>(
+  element: T | null,
+  args: Record<string, unknown>,
+) {
+  element?.dispatchEvent(interactionAnalyticsEvent(args));
+}
+
+export const DS_EVENT = "DS_EVENT";
+
+export enum DSEventTypes {
+  KEYPRESS = "KEYPRESS",
+}
+
+export type DSEventDetail = {
+  component: string;
+  event: DSEventTypes;
+  meta: Record<string, unknown>;
+};
+
+export function createDSEvent(detail: DSEventDetail) {
+  return new CustomEvent(DS_EVENT, {
+    bubbles: true,
+    detail,
+  });
+}
+
+export function emitDSEvent<T extends HTMLElement>(
+  element: T | null,
+  args: DSEventDetail,
+) {
+  element?.dispatchEvent(createDSEvent(args));
+}
 
 export const getNextEntityName = (
   prefix: string,
@@ -148,7 +216,7 @@ export const createNewApiName = (actions: ActionDataState, pageId: string) => {
 };
 
 export const createNewJSFunctionName = (
-  jsActions: ActionDataState,
+  jsActions: JSCollectionData[],
   pageId: string,
 ) => {
   const pageJsFunctionNames = jsActions
@@ -323,7 +391,7 @@ export const isBlobUrl = (url: string) => {
  * @param type string file type
  * @returns string containing blob id and type
  */
-export const createBlobUrl = (data: string, type: string) => {
+export const createBlobUrl = (data: Blob | MediaSource, type: string) => {
   let url = URL.createObjectURL(data);
   url = url.replace(
     `${window.location.protocol}//${window.location.hostname}/`,
@@ -343,4 +411,60 @@ export const parseBlobUrl = (blobId: string) => {
     window.location.hostname
   }/${blobId.substring(5)}`;
   return url.split("?type=");
+};
+
+/**
+ * Convert a string into camelCase
+ * @param sourceString input string
+ * @returns camelCase string
+ */
+export const getCamelCaseString = (sourceString: string) => {
+  let out = "";
+  // Split the input string to separate words using RegEx
+  const regEx = /[A-Z\xC0-\xD6\xD8-\xDE]?[a-z\xDF-\xF6\xF8-\xFF]+|[A-Z\xC0-\xD6\xD8-\xDE]+(?![a-z\xDF-\xF6\xF8-\xFF])|\d+/g;
+  const words = sourceString.match(regEx);
+  if (words) {
+    words.forEach(function(el, idx) {
+      const add = el.toLowerCase();
+      out += idx === 0 ? add : add[0].toUpperCase() + add.slice(1);
+    });
+  }
+
+  return out;
+};
+
+/**
+ * Convert Base64 string to Blob
+ * @param base64Data
+ * @param contentType
+ * @param sliceSize
+ * @returns
+ */
+export const base64ToBlob = (
+  base64Data: string,
+  contentType = "",
+  sliceSize = 512,
+) => {
+  const byteCharacters = atob(base64Data);
+  const byteArrays = [];
+
+  for (let offset = 0; offset < byteCharacters.length; offset += sliceSize) {
+    const slice = byteCharacters.slice(offset, offset + sliceSize);
+
+    const byteNumbers = new Array(slice.length);
+    for (let i = 0; i < slice.length; i++) {
+      byteNumbers[i] = slice.charCodeAt(i);
+    }
+
+    const byteArray = new Uint8Array(byteNumbers);
+    byteArrays.push(byteArray);
+  }
+
+  const blob = new Blob(byteArrays, { type: contentType });
+  return blob;
+};
+
+// util function to detect current os is Mac
+export const isMacOs = () => {
+  return osName === "Mac OS";
 };

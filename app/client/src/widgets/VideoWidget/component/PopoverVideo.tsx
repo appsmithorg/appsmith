@@ -10,7 +10,6 @@ import styled, { AnyStyledComponent } from "styled-components";
 import { ControlIcons } from "icons/ControlIcons";
 const PlayIcon = styled(ControlIcons.PLAY_VIDEO as AnyStyledComponent)`
   position: relative;
-  top: 10px;
   cursor: pointer;
   &:hover {
     svg {
@@ -22,8 +21,8 @@ const PlayIcon = styled(ControlIcons.PLAY_VIDEO as AnyStyledComponent)`
 `;
 
 const PlayerWrapper = styled.div`	import React, { Ref } from "react";
-  width: 600px;	
-  height: 400px;	
+  width: 600px;
+  height: 400px;
 `;
 
 function PopoverVideo(props: VideoComponentProps) {
@@ -52,9 +51,14 @@ function PopoverVideo(props: VideoComponentProps) {
         position={PopoverPosition.AUTO}
         usePortal
       >
-        <PlayIcon />
+        <PlayIcon className="play-icon" />
         <PlayerWrapper>
-          <VideoComponent url={props.url} />
+          <VideoComponent
+            backgroundColor={props.backgroundColor}
+            borderRadius={props.borderRadius}
+            boxShadow={props.boxShadow}
+            url={props.url}
+          />
         </PlayerWrapper>
       </Popover>
     </div>

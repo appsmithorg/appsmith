@@ -20,9 +20,9 @@ import {
   LIGHTNING_MENU_QUERY_CREATE_NEW,
   LIGHTNING_MENU_API_CREATE_NEW,
   createMessage,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 import { Skin } from "constants/DefaultTheme";
-import { ReduxAction } from "constants/ReduxActionConstants";
+import { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 
 export const getApiOptions = (
   skin: Skin,
@@ -95,7 +95,7 @@ export const getQueryOptions = (
             />
           ),
           onSelect: () => {
-            dispatch(createNewQueryAction(pageId, "LIGHTNING_MENU"));
+            dispatch(createNewQueryAction(pageId, "LIGHTNING_MENU", ""));
           },
         },
       ],

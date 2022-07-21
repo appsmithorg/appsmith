@@ -3,7 +3,7 @@ import {
   debuggerLogInit,
   deleteErrorLogInit,
 } from "actions/debuggerActions";
-import { ReduxAction } from "constants/ReduxActionConstants";
+import { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import { Severity, LogActionPayload, Log } from "entities/AppsmithConsole";
 import moment from "moment";
 import store from "store";

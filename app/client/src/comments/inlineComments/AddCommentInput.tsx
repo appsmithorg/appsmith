@@ -15,8 +15,8 @@ import styled from "styled-components";
 import { EditorState, convertToRaw, Modifier, SelectionState } from "draft-js";
 import { MentionData } from "@draft-js-plugins/mention";
 
-import { OrgUser } from "constants/orgConstants";
-import useOrgUsers from "./useOrgUsers";
+import { WorkspaceUser } from "constants/workspaceConstants";
+import useWorkspaceUsers from "./useWorkspaceUsers";
 
 import { RawDraftContentState } from "draft-js";
 
@@ -26,13 +26,13 @@ import {
   CANCEL,
   POST,
   INVALID_EMAIL,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 
 import { setShowAppInviteUsersDialog } from "actions/applicationActions";
 import { useDispatch, useSelector } from "react-redux";
 import { change } from "redux-form";
 
-import { INVITE_USERS_TO_ORG_FORM } from "constants/forms";
+import { INVITE_USERS_TO_WORKSPACE_FORM } from "constants/forms";
 
 import { isEmail } from "utils/formhelpers";
 import TourTooltipWrapper from "components/ads/tour/TourTooltipWrapper";
@@ -42,11 +42,11 @@ import {
   commentsTourStepsEditModeTypes,
   commentsTourStepsPublishedModeTypes,
 } from "comments/tour/commentsTourSteps";
-import { getCurrentAppOrg } from "selectors/organizationSelectors";
-import useOrg from "utils/hooks/useOrg";
+import { getCurrentAppWorkspace } from "@appsmith/selectors/workspaceSelectors";
+import useWorkspace from "utils/hooks/useWorkspace";
 import { getCanCreateApplications } from "utils/helpers";
 
-import { getAppsmithConfigs } from "configs";
+import { getAppsmithConfigs } from "@appsmith/configs";
 import { Toaster } from "components/ads/Toast";
 import { Variant } from "components/ads/common";
 
@@ -164,12 +164,12 @@ const sortMentionData = (filter = "") => (a: MentionData, b: MentionData) => {
 };
 
 const useUserSuggestions = (
-  users: Array<OrgUser>,
+  users: Array<WorkspaceUser>,
   setSuggestions: Dispatch<SetStateAction<Array<MentionData>>>,
 ) => {
-  const { id } = useSelector(getCurrentAppOrg) || {};
-  const currentOrg = useOrg(id);
-  const canManage = getCanCreateApplications(currentOrg);
+  const { id } = useSelector(getCurrentAppWorkspace) || {};
+  const currentWorkspace = useWorkspace(id);
+  const canManage = getCanCreateApplications(currentWorkspace);
 
   useEffect(() => {
     const result: Array<MentionData> = users.map((user) => ({
@@ -206,7 +206,7 @@ function AddCommentInput({
   });
 
   const dispatch = useDispatch();
-  const users = useOrgUsers();
+  const users = useWorkspaceUsers();
   const [suggestions, setSuggestions] = useState<Array<MentionData>>([]);
   const [trigger, setTrigger] = useState<Trigger>();
   useUserSuggestions(users, setSuggestions);
@@ -267,6 +267,7 @@ function AddCommentInput({
 
   const filteredSuggestions = useMemo(() => {
     let suggestionResults = suggestions;
+    let hasExactMatch = false;
     if (!suggestionsQuery) return suggestionResults;
     else {
       const filter = suggestionsQuery.toLowerCase();
@@ -274,14 +275,18 @@ function AddCommentInput({
         .filter((suggestion) => {
           const name = suggestion.name.toLowerCase();
           const username = suggestion.user?.username.toLowerCase() || "";
+          hasExactMatch = name === filter || username === filter;
           return name.indexOf(filter) !== -1 || username.indexOf(filter) !== -1;
         })
         .sort(sortMentionData(filter));
     }
-
-    if (suggestionResults.length !== 0) return suggestionResults;
-
-    return [{ name: suggestionsQuery, isInviteTrigger: true }];
+    const couldBeNewEmail = isEmail(suggestionsQuery);
+    const inviteNew = [{ name: suggestionsQuery, isInviteTrigger: true }];
+    // Show invite prompt only if there is no exact match and user has typed email.
+    return [
+      ...suggestionResults,
+      ...(couldBeNewEmail && !hasExactMatch ? inviteNew : []),
+    ];
   }, [suggestionsQuery, suggestions, trigger]);
 
   const onAddMention = (mention: MentionData) => {
@@ -291,7 +296,7 @@ function AddCommentInput({
     ) {
       const email = mention.isSupport ? mention.user?.username : mention.name;
       dispatch(setShowAppInviteUsersDialog(true));
-      dispatch(change(INVITE_USERS_TO_ORG_FORM, "users", email));
+      dispatch(change(INVITE_USERS_TO_WORKSPACE_FORM, "users", email));
     } else if (mention.isInviteTrigger && !isEmail(mention.name)) {
       Toaster.show({
         text: createMessage(INVALID_EMAIL),
@@ -332,6 +337,7 @@ function AddCommentInput({
             <Button
               category={Category.tertiary}
               className={"cancel-button"}
+              data-cy="add-comment-cancel"
               onClick={_onCancel}
               text={createMessage(CANCEL)}
             />

@@ -11,7 +11,7 @@ import {
   UNSUBSCRIBE_EMAIL_MSG_2,
   UNSUBSCRIBE_EMAIL_CONFIRM_MSG,
   UNSUBSCRIBE_BUTTON_LABEL,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 
 const Wrapper = styled.div`
   height: calc(100vh - ${(props) => props.theme.headerHeight});

@@ -3,59 +3,57 @@ import {
   ReduxAction,
   ReduxActionErrorTypes,
   ReduxActionTypes,
-} from "constants/ReduxActionConstants";
+} from "@appsmith/constants/ReduxActionConstants";
 import ApplicationApi, {
   ApplicationObject,
   ApplicationPagePayload,
+  ApplicationResponsePayload,
   ChangeAppViewAccessRequest,
   CreateApplicationRequest,
   CreateApplicationResponse,
   DeleteApplicationRequest,
   DuplicateApplicationRequest,
-  FetchUsersApplicationsOrgsResponse,
+  FetchApplicationPayload,
+  FetchApplicationResponse,
+  FetchUnconfiguredDatasourceListResponse,
+  FetchUsersApplicationsWorkspacesResponse,
   ForkApplicationRequest,
-  OrganizationApplicationObject,
+  ImportApplicationRequest,
+  WorkspaceApplicationObject,
   PublishApplicationRequest,
   PublishApplicationResponse,
   SetDefaultPageRequest,
   UpdateApplicationRequest,
-  ImportApplicationRequest,
-  FetchApplicationResponse,
 } from "api/ApplicationApi";
 import { all, call, put, select, takeLatest } from "redux-saga/effects";
 
 import { validateResponse } from "./ErrorSagas";
-import { getUserApplicationsOrgsList } from "selectors/applicationSelectors";
+import { getUserApplicationsWorkspacesList } from "selectors/applicationSelectors";
 import { ApiResponse } from "api/ApiResponses";
 import history from "utils/history";
-import {
-  BUILDER_PAGE_URL,
-  getApplicationViewerPageURL,
-  getGenerateTemplateURL,
-} from "constants/routes";
 import { AppState } from "reducers";
 import {
-  setDefaultApplicationPageSuccess,
+  ApplicationVersion,
+  fetchApplication,
+  getAllApplications,
+  importApplicationSuccess,
+  initDatasourceConnectionDuringImportSuccess,
   resetCurrentApplication,
-  generateSSHKeyPairSuccess,
-  generateSSHKeyPairError,
-  getSSHKeyPairSuccess,
-  getSSHKeyPairError,
-  GenerateSSHKeyPairReduxAction,
-  GetSSHKeyPairReduxAction,
-  FetchApplicationReduxAction,
+  setDefaultApplicationPageSuccess,
+  setIsReconnectingDatasourcesModalOpen,
+  setWorkspaceIdForImport,
+  showReconnectDatasourceModal,
 } from "actions/applicationActions";
-import { fetchUnreadCommentThreadsCountSuccess } from "actions/commentActions";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import {
-  APPLICATION_NAME_UPDATE,
   createMessage,
   DELETING_APPLICATION,
+  DISCARD_SUCCESS,
   DUPLICATING_APPLICATION,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 import { Toaster } from "components/ads/Toast";
 import { APP_MODE } from "entities/App";
-import { Organization } from "constants/orgConstants";
+import { Workspace, Workspaces } from "constants/workspaceConstants";
 import { Variant } from "components/ads/common";
 import { AppIconName } from "components/ads/AppIcon";
 import { AppColorCode } from "constants/DefaultTheme";
@@ -63,22 +61,42 @@ import {
   getCurrentApplicationId,
   getCurrentPageId,
 } from "selectors/editorSelectors";
-import { showCompletionDialog } from "./OnboardingSagas";
 
-import { deleteRecentAppEntities } from "utils/storage";
+import {
+  deleteRecentAppEntities,
+  setPostWelcomeTourState,
+} from "utils/storage";
 import {
   reconnectAppLevelWebsocket,
   reconnectPageLevelWebsocket,
 } from "actions/websocketActions";
-import { getCurrentOrg } from "selectors/organizationSelectors";
-import { Org } from "constants/orgConstants";
+import { getCurrentWorkspace } from "@appsmith/selectors/workspaceSelectors";
 
 import {
+  getCurrentStep,
   getEnableFirstTimeUserOnboarding,
   getFirstTimeUserOnboardingApplicationId,
+  inGuidedTour,
 } from "selectors/onboardingSelectors";
+import { fetchPluginFormConfigs, fetchPlugins } from "actions/pluginActions";
+import {
+  fetchDatasources,
+  setUnconfiguredDatasourcesDuringImport,
+} from "actions/datasourceActions";
+import { failFastApiCalls } from "./InitSagas";
+import { Datasource } from "entities/Datasource";
+import { GUIDED_TOUR_STEPS } from "pages/Editor/GuidedTour/constants";
+import { builderURL, generateTemplateURL, viewerURL } from "RouteBuilder";
+import { getDefaultPageId as selectDefaultPageId } from "./selectors";
+import PageApi from "api/PageApi";
+import { identity, merge, pickBy } from "lodash";
+import { checkAndGetPluginFormConfigsSaga } from "./PluginSagas";
+import { getPluginForm } from "selectors/entitiesSelector";
+import { getConfigInitialValues } from "components/formControls/utils";
+import DatasourcesApi from "api/DatasourcesApi";
+import { resetApplicationWidgets } from "actions/pageActions";
 
-const getDefaultPageId = (
+export const getDefaultPageId = (
   pages?: ApplicationPagePayload[],
 ): string | undefined => {
   let defaultPage: ApplicationPagePayload | undefined = undefined;
@@ -102,32 +120,32 @@ export function* publishApplicationSaga(
       ApplicationApi.publishApplication,
       request,
     );
-    const isValidResponse = yield validateResponse(response);
+    const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
       yield put({
         type: ReduxActionTypes.PUBLISH_APPLICATION_SUCCESS,
       });
 
-      const applicationId = yield select(getCurrentApplicationId);
-      const currentPageId = yield select(getCurrentPageId);
+      const applicationId: string = yield select(getCurrentApplicationId);
+      const currentPageId: string = yield select(getCurrentPageId);
+      const guidedTour: boolean = yield select(inGuidedTour);
+      const currentStep: number = yield select(getCurrentStep);
 
-      let appicationViewPageUrl = getApplicationViewerPageURL(
-        applicationId,
-        currentPageId,
-      );
-
-      const showOnboardingCompletionDialog = yield select(showCompletionDialog);
-      if (showOnboardingCompletionDialog) {
-        appicationViewPageUrl += "?onboardingComplete=true";
+      let appicationViewPageUrl = viewerURL({
+        pageId: currentPageId,
+      });
+      if (guidedTour && currentStep === GUIDED_TOUR_STEPS.DEPLOY) {
+        appicationViewPageUrl += "?&guidedTourComplete=true";
+        yield call(setPostWelcomeTourState, true);
       }
 
-      yield put({
-        type: ReduxActionTypes.FETCH_APPLICATION_INIT,
-        payload: {
-          applicationId: applicationId,
+      yield put(
+        fetchApplication({
+          applicationId,
+          pageId: currentPageId,
           mode: APP_MODE.EDIT,
-        },
-      });
+        }),
+      );
       // If the tab is opened focus and reload else open in new tab
       if (!windowReference || windowReference.closed) {
         windowReference = window.open(appicationViewPageUrl, "_blank");
@@ -146,31 +164,34 @@ export function* publishApplicationSaga(
     });
   }
 }
+
 export function* getAllApplicationSaga() {
   try {
-    const response: FetchUsersApplicationsOrgsResponse = yield call(
+    const response: FetchUsersApplicationsWorkspacesResponse = yield call(
       ApplicationApi.getAllApplication,
     );
-    const isValidResponse = yield validateResponse(response);
+    const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
-      const organizationApplication: OrganizationApplicationObject[] = response.data.organizationApplications.map(
-        (userOrgs: OrganizationApplicationObject) => ({
-          organization: userOrgs.organization,
-          userRoles: userOrgs.userRoles,
-          applications: !userOrgs.applications
+      const workspaceApplication: WorkspaceApplicationObject[] = response.data.workspaceApplications.map(
+        (userWorkspaces: WorkspaceApplicationObject) => ({
+          workspace: userWorkspaces.workspace,
+          userRoles: userWorkspaces.userRoles,
+          applications: !userWorkspaces.applications
             ? []
-            : userOrgs.applications.map((application: ApplicationObject) => {
-                return {
-                  ...application,
-                  defaultPageId: getDefaultPageId(application.pages),
-                };
-              }),
+            : userWorkspaces.applications.map(
+                (application: ApplicationObject) => {
+                  return {
+                    ...application,
+                    defaultPageId: getDefaultPageId(application.pages),
+                  };
+                },
+              ),
         }),
       );
 
       yield put({
-        type: ReduxActionTypes.FETCH_USER_APPLICATIONS_ORGS_SUCCESS,
-        payload: organizationApplication,
+        type: ReduxActionTypes.FETCH_USER_APPLICATIONS_WORKSPACES_SUCCESS,
+        payload: workspaceApplication,
       });
       const { newReleasesCount, releaseItems } = response.data || {};
       yield put({
@@ -180,7 +201,7 @@ export function* getAllApplicationSaga() {
     }
   } catch (error) {
     yield put({
-      type: ReduxActionErrorTypes.FETCH_USER_APPLICATIONS_ORGS_ERROR,
+      type: ReduxActionErrorTypes.FETCH_USER_APPLICATIONS_WORKSPACES_ERROR,
       payload: {
         error,
       },
@@ -188,61 +209,94 @@ export function* getAllApplicationSaga() {
   }
 }
 
-export function* fetchApplicationSaga(action: FetchApplicationReduxAction) {
+export function* fetchAppAndPagesSaga(
+  action: ReduxAction<FetchApplicationPayload>,
+) {
   try {
-    const { applicationId, mode } = action.payload;
-    // Get endpoint based on app mode
-    const apiEndpoint =
-      mode === APP_MODE.EDIT
-        ? ApplicationApi.fetchApplication
-        : ApplicationApi.fetchApplicationForViewMode;
+    const params = pickBy(action.payload, identity);
+    if (params.pageId && params.applicationId) {
+      delete params.applicationId;
+    }
 
     const response: FetchApplicationResponse = yield call(
-      apiEndpoint,
-      applicationId,
+      PageApi.fetchAppAndPages,
+      params,
     );
+    const isValidResponse: boolean = yield call(validateResponse, response);
+    if (isValidResponse) {
+      yield put({
+        type: ReduxActionTypes.FETCH_APPLICATION_SUCCESS,
+        payload: { ...response.data.application, pages: response.data.pages },
+      });
 
-    yield put({
-      type: ReduxActionTypes.FETCH_APPLICATION_SUCCESS,
-      payload: response.data,
-    });
+      yield put({
+        type: ReduxActionTypes.FETCH_PAGE_LIST_SUCCESS,
+        payload: {
+          pages: response.data.pages.map((page) => ({
+            pageName: page.name,
+            pageId: page.id,
+            isDefault: page.isDefault,
+            isHidden: !!page.isHidden,
+            slug: page.slug,
+          })),
+          applicationId: response.data.application?.id,
+        },
+      });
 
-    yield put(
-      fetchUnreadCommentThreadsCountSuccess(
-        response.data?.unreadCommentThreads,
-      ),
-    );
+      yield put({
+        type: ReduxActionTypes.SET_CURRENT_WORKSPACE_ID,
+        payload: {
+          workspaceId: response.data.workspaceId,
+        },
+      });
 
-    if (action.onSuccessCallback) {
-      action.onSuccessCallback(response);
+      if (localStorage.getItem("GIT_DISCARD_CHANGES") === "success") {
+        Toaster.show({
+          text: createMessage(DISCARD_SUCCESS),
+          variant: Variant.success,
+        });
+        localStorage.setItem("GIT_DISCARD_CHANGES", "");
+      }
+
+      yield put({
+        type: ReduxActionTypes.SET_APP_VERSION_ON_WORKER,
+        payload: response.data.application?.evaluationVersion,
+      });
+    } else {
+      yield call(handleFetchApplicationError, response.responseMeta?.error);
     }
   } catch (error) {
-    yield put({
-      type: ReduxActionErrorTypes.FETCH_APPLICATION_ERROR,
-      payload: {
-        error,
-      },
-    });
-    if (action.onErrorCallback) {
-      action.onErrorCallback(error);
-    }
+    yield call(handleFetchApplicationError, error);
   }
+}
+
+function* handleFetchApplicationError(error: unknown) {
+  yield put({
+    type: ReduxActionErrorTypes.FETCH_APPLICATION_ERROR,
+    payload: {
+      error,
+    },
+  });
+  yield put({
+    type: ReduxActionErrorTypes.FETCH_PAGE_LIST_ERROR,
+    payload: {
+      error,
+    },
+  });
 }
 
 export function* setDefaultApplicationPageSaga(
   action: ReduxAction<SetDefaultPageRequest>,
 ) {
   try {
-    const defaultPageId = yield select(
-      (state: AppState) => state.entities.pageList.defaultPageId,
-    );
+    const defaultPageId: string = yield select(selectDefaultPageId);
     if (defaultPageId !== action.payload.id) {
       const request: SetDefaultPageRequest = action.payload;
       const response: ApiResponse = yield call(
         ApplicationApi.setDefaultApplicationPage,
         request,
       );
-      const isValidResponse = yield validateResponse(response);
+      const isValidResponse: boolean = yield validateResponse(response);
       if (isValidResponse) {
         yield put(
           setDefaultApplicationPageSuccess(request.id, request.applicationId),
@@ -290,23 +344,25 @@ export function* updateApplicationSaga(
     const isValidResponse: boolean = yield validateResponse(response);
     // as the redux store updates the app only on success.
     // we have to run this
-    if (isValidResponse && request) {
-      yield put({
-        type: ReduxActionTypes.UPDATE_APPLICATION_SUCCESS,
-        payload: action.payload,
-      });
-    }
-    if (isValidResponse && request && request.name) {
-      Toaster.show({
-        text: createMessage(APPLICATION_NAME_UPDATE),
-        variant: Variant.success,
-      });
-    }
-    if (isValidResponse && request.currentApp) {
-      yield put({
-        type: ReduxActionTypes.CURRENT_APPLICATION_NAME_UPDATE,
-        payload: request.name,
-      });
+    if (isValidResponse) {
+      if (request && request.applicationVersion) {
+        if (request.applicationVersion === ApplicationVersion.SLUG_URL) {
+          request.callback?.();
+          return;
+        }
+      }
+      if (request) {
+        yield put({
+          type: ReduxActionTypes.UPDATE_APPLICATION_SUCCESS,
+          payload: response.data,
+        });
+      }
+      if (request.currentApp) {
+        yield put({
+          type: ReduxActionTypes.CURRENT_APPLICATION_NAME_UPDATE,
+          payload: response.data,
+        });
+      }
     }
   } catch (error) {
     yield put({
@@ -330,7 +386,7 @@ export function* deleteApplicationSaga(
       ApplicationApi.deleteApplication,
       request,
     );
-    const isValidResponse = yield validateResponse(response);
+    const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
       yield put({
         type: ReduxActionTypes.DELETE_APPLICATION_SUCCESS,
@@ -360,20 +416,22 @@ export function* duplicateApplicationSaga(
       ApplicationApi.duplicateApplication,
       request,
     );
-    const isValidResponse = yield validateResponse(response);
+    const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
       const application: ApplicationPayload = {
+        // @ts-expect-error: response is of type unknown
         ...response.data,
+        // @ts-expect-error: response is of type unknown
         defaultPageId: getDefaultPageId(response.data.pages),
       };
       yield put({
         type: ReduxActionTypes.DUPLICATE_APPLICATION_SUCCESS,
         payload: response.data,
       });
-      const pageURL = BUILDER_PAGE_URL(
-        application.id,
-        application.defaultPageId,
-      );
+
+      const pageURL = builderURL({
+        pageId: application.defaultPageId,
+      });
       history.push(pageURL);
     }
   } catch (error) {
@@ -395,12 +453,14 @@ export function* changeAppViewAccessSaga(
       ApplicationApi.changeAppViewAccess,
       request,
     );
-    const isValidResponse = yield validateResponse(response);
+    const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
       yield put({
         type: ReduxActionTypes.CHANGE_APPVIEW_ACCESS_SUCCESS,
         payload: {
+          // @ts-expect-error: response is of type unknown
           id: response.data.id,
+          // @ts-expect-error: response is of type unknown
           isPublic: response.data.isPublic,
         },
       });
@@ -420,19 +480,21 @@ export function* createApplicationSaga(
     applicationName: string;
     icon: AppIconName;
     color: AppColorCode;
-    orgId: string;
+    workspaceId: string;
     resolve: any;
     reject: any;
   }>,
 ) {
-  const { applicationName, color, icon, orgId, reject } = action.payload;
+  const { applicationName, color, icon, reject, workspaceId } = action.payload;
   try {
-    const userOrgs = yield select(getUserApplicationsOrgsList);
-    const existingOrgs = userOrgs.filter(
-      (org: Organization) => org.organization.id === orgId,
+    const userWorkspaces: Workspaces[] = yield select(
+      getUserApplicationsWorkspacesList,
+    );
+    const existingWorkspaces = userWorkspaces.filter(
+      (workspace: Workspaces) => workspace.workspace.id === workspaceId,
     )[0];
-    const existingApplication = existingOrgs
-      ? existingOrgs.applications.find(
+    const existingApplication = existingWorkspaces
+      ? existingWorkspaces.applications.find(
           (application: ApplicationPayload) =>
             application.name === applicationName,
         )
@@ -455,17 +517,17 @@ export function* createApplicationSaga(
         name: applicationName,
         icon: icon,
         color: color,
-        orgId,
+        workspaceId,
       };
       const response: CreateApplicationResponse = yield call(
         ApplicationApi.createApplication,
         request,
       );
-      const isValidResponse = yield validateResponse(response);
+      const isValidResponse: boolean = yield validateResponse(response);
       if (isValidResponse) {
         const application: ApplicationPayload = {
           ...response.data,
-          defaultPageId: getDefaultPageId(response.data.pages),
+          defaultPageId: getDefaultPageId(response.data.pages) as string,
         };
         AnalyticsUtil.logEvent("CREATE_APP", {
           appName: application.name,
@@ -473,20 +535,18 @@ export function* createApplicationSaga(
         // This sets ui.pageWidgets = {} to ensure that
         // widgets are cleaned up from state before
         // finishing creating a new application
-        yield put({
-          type: ReduxActionTypes.RESET_APPLICATION_WIDGET_STATE_REQUEST,
-        });
+        yield put(resetApplicationWidgets());
         yield put({
           type: ReduxActionTypes.CREATE_APPLICATION_SUCCESS,
           payload: {
-            orgId,
+            workspaceId,
             application,
           },
         });
-        const isFirstTimeUserOnboardingEnabled = yield select(
+        const isFirstTimeUserOnboardingEnabled: boolean = yield select(
           getEnableFirstTimeUserOnboarding,
         );
-        const FirstTimeUserOnboardingApplicationId = yield select(
+        const FirstTimeUserOnboardingApplicationId: string = yield select(
           getFirstTimeUserOnboardingApplicationId,
         );
         let pageURL;
@@ -499,12 +559,13 @@ export function* createApplicationSaga(
               ReduxActionTypes.SET_FIRST_TIME_USER_ONBOARDING_APPLICATION_ID,
             payload: application.id,
           });
-          pageURL = BUILDER_PAGE_URL(application.id, application.defaultPageId);
+          pageURL = builderURL({
+            pageId: application.defaultPageId as string,
+          });
         } else {
-          pageURL = getGenerateTemplateURL(
-            application.id,
-            application.defaultPageId,
-          );
+          pageURL = generateTemplateURL({
+            pageId: application.defaultPageId as string,
+          });
         }
         history.push(pageURL);
 
@@ -521,7 +582,7 @@ export function* createApplicationSaga(
       payload: {
         error,
         show: false,
-        orgId,
+        workspaceId,
       },
     });
   }
@@ -535,24 +596,25 @@ export function* forkApplicationSaga(
       ApplicationApi.forkApplication,
       action.payload,
     );
-    const isValidResponse = yield validateResponse(response);
+    const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
       yield put(resetCurrentApplication());
       const application: ApplicationPayload = {
+        // @ts-expect-error: response is of type unknown
         ...response.data,
+        // @ts-expect-error: response is of type unknown
         defaultPageId: getDefaultPageId(response.data.pages),
       };
       yield put({
         type: ReduxActionTypes.FORK_APPLICATION_SUCCESS,
         payload: {
-          orgId: action.payload.organizationId,
+          workspaceId: action.payload.workspaceId,
           application,
         },
       });
-      const pageURL = BUILDER_PAGE_URL(
-        application.id,
-        application.defaultPageId,
-      );
+      const pageURL = builderURL({
+        pageId: application.defaultPageId as string,
+      });
       history.push(pageURL);
     }
   } catch (error) {
@@ -565,41 +627,83 @@ export function* forkApplicationSaga(
   }
 }
 
+function* showReconnectDatasourcesModalSaga(
+  action: ReduxAction<{
+    application: ApplicationResponsePayload;
+    unConfiguredDatasourceList: Array<Datasource>;
+    workspaceId: string;
+  }>,
+) {
+  const {
+    application,
+    unConfiguredDatasourceList,
+    workspaceId,
+  } = action.payload;
+  yield put(getAllApplications());
+  yield put(importApplicationSuccess(application));
+  yield put(fetchPlugins({ workspaceId }));
+
+  yield put(
+    setUnconfiguredDatasourcesDuringImport(unConfiguredDatasourceList || []),
+  );
+
+  yield put(setWorkspaceIdForImport(workspaceId));
+  yield put(setIsReconnectingDatasourcesModalOpen({ isOpen: true }));
+}
+
 export function* importApplicationSaga(
   action: ReduxAction<ImportApplicationRequest>,
 ) {
   try {
     const response: ApiResponse = yield call(
-      ApplicationApi.importApplicationToOrg,
+      ApplicationApi.importApplicationToWorkspace,
       action.payload,
     );
-    const isValidResponse = yield validateResponse(response);
+    const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
-      const allOrgs = yield select(getCurrentOrg);
-      const currentOrg = allOrgs.filter(
-        (el: Org) => el.id === action.payload.orgId,
+      const allWorkspaces: Workspace[] = yield select(getCurrentWorkspace);
+      const currentWorkspace = allWorkspaces.filter(
+        (el: Workspace) => el.id === action.payload.workspaceId,
       );
-      if (currentOrg.length > 0) {
+      if (currentWorkspace.length > 0) {
         const {
-          id: appId,
-          pages,
-        }: {
-          id: string;
-          pages: { default?: boolean; id: string; isDefault?: boolean }[];
+          // @ts-expect-error: response is of type unknown
+          application: { pages },
+          // @ts-expect-error: response is of type unknown
+          isPartialImport,
         } = response.data;
-        yield put({
-          type: ReduxActionTypes.IMPORT_APPLICATION_SUCCESS,
-          payload: {
-            importedApplication: appId,
-          },
-        });
-        const defaultPage = pages.filter((eachPage) => !!eachPage.isDefault);
-        const pageURL = BUILDER_PAGE_URL(appId, defaultPage[0].id);
-        history.push(pageURL);
-        Toaster.show({
-          text: "Application imported successfully",
-          variant: Variant.success,
-        });
+
+        // @ts-expect-error: response is of type unknown
+        yield put(importApplicationSuccess(response.data?.application));
+
+        if (isPartialImport) {
+          yield put(
+            showReconnectDatasourceModal({
+              // @ts-expect-error: response is of type unknown
+              application: response.data?.application,
+              unConfiguredDatasourceList:
+                // @ts-expect-error: response is of type unknown
+                response?.data.unConfiguredDatasourceList,
+              workspaceId: action.payload.workspaceId,
+            }),
+          );
+        } else {
+          // @ts-expect-error: pages is of type any
+          // TODO: Update route params here
+          const defaultPage = pages.filter((eachPage) => !!eachPage.isDefault);
+          const pageURL = builderURL({
+            pageId: defaultPage[0].id,
+          });
+          history.push(pageURL);
+          const guidedTour: boolean = yield select(inGuidedTour);
+
+          if (guidedTour) return;
+
+          Toaster.show({
+            text: "Application imported successfully",
+            variant: Variant.success,
+          });
+        }
       }
     }
   } catch (error) {
@@ -612,48 +716,115 @@ export function* importApplicationSaga(
   }
 }
 
-export function* getSSHKeyPairSaga(action: GetSSHKeyPairReduxAction) {
+function* fetchReleases() {
   try {
-    const applicationId: string = yield select(getCurrentApplicationId);
-    const response: ApiResponse = yield call(
-      ApplicationApi.getSSHKeyPair,
-      applicationId,
+    const response: FetchUsersApplicationsWorkspacesResponse = yield call(
+      ApplicationApi.getAllApplication,
     );
-    const isValidResponse = yield validateResponse(response, false);
+    const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
-      yield put(getSSHKeyPairSuccess(response.data));
-      if (action.onSuccessCallback) {
-        action.onSuccessCallback(response);
-      }
+      const { newReleasesCount, releaseItems } = response.data || {};
+      yield put({
+        type: ReduxActionTypes.FETCH_RELEASES_SUCCESS,
+        payload: { newReleasesCount, releaseItems },
+      });
     }
   } catch (error) {
-    yield put(getSSHKeyPairError({ error, show: false }));
-    if (action.onErrorCallback) {
-      action.onErrorCallback(error);
+    yield put({
+      type: ReduxActionErrorTypes.FETCH_RELEASES_ERROR,
+      payload: {
+        error,
+      },
+    });
+  }
+}
+
+export function* fetchUnconfiguredDatasourceList(
+  action: ReduxAction<{
+    applicationId: string;
+    workspaceId: string;
+  }>,
+) {
+  try {
+    // Get endpoint based on app mode
+    const response: FetchUnconfiguredDatasourceListResponse = yield call(
+      ApplicationApi.fetchUnconfiguredDatasourceList,
+      action.payload,
+    );
+
+    yield put(setUnconfiguredDatasourcesDuringImport(response.data || []));
+  } catch (error) {
+    yield put(setUnconfiguredDatasourcesDuringImport([]));
+    yield put({
+      type: ReduxActionErrorTypes.FETCH_APPLICATION_ERROR,
+      payload: {
+        error,
+      },
+    });
+  }
+}
+
+export function* initializeDatasourceWithDefaultValues(datasource: Datasource) {
+  if (!datasource.datasourceConfiguration) {
+    yield call(checkAndGetPluginFormConfigsSaga, datasource.pluginId);
+    const formConfig: Record<string, unknown>[] = yield select(
+      getPluginForm,
+      datasource.pluginId,
+    );
+    const initialValues: unknown = yield call(
+      getConfigInitialValues,
+      formConfig,
+    );
+    const payload = merge(initialValues, datasource);
+    payload.isConfigured = false; // imported datasource as not configured yet
+    const response: ApiResponse = yield DatasourcesApi.updateDatasource(
+      payload,
+      datasource.id,
+    );
+    const isValidResponse: boolean = yield validateResponse(response);
+    if (isValidResponse) {
+      yield put({
+        type: ReduxActionTypes.UPDATE_DATASOURCE_IMPORT_SUCCESS,
+        payload: response.data,
+      });
     }
   }
 }
 
-export function* generateSSHKeyPairSaga(action: GenerateSSHKeyPairReduxAction) {
-  try {
-    const applicationId: string = yield select(getCurrentApplicationId);
-    const response: ApiResponse = yield call(
-      ApplicationApi.generateSSHKeyPair,
-      applicationId,
-    );
-    const isValidResponse = yield validateResponse(response);
-    if (isValidResponse) {
-      yield put(generateSSHKeyPairSuccess(response.data));
-      if (action.onSuccessCallback) {
-        action.onSuccessCallback(response);
-      }
-    }
-  } catch (error) {
-    yield put(generateSSHKeyPairError(error));
-    if (action.onErrorCallback) {
-      action.onErrorCallback(error);
-    }
-  }
+function* initDatasourceConnectionDuringImport(action: ReduxAction<string>) {
+  const workspaceId = action.payload;
+
+  const pluginsAndDatasourcesCalls: boolean = yield failFastApiCalls(
+    [fetchPlugins({ workspaceId }), fetchDatasources({ workspaceId })],
+    [
+      ReduxActionTypes.FETCH_PLUGINS_SUCCESS,
+      ReduxActionTypes.FETCH_DATASOURCES_SUCCESS,
+    ],
+    [
+      ReduxActionErrorTypes.FETCH_PLUGINS_ERROR,
+      ReduxActionErrorTypes.FETCH_DATASOURCES_ERROR,
+    ],
+  );
+  if (!pluginsAndDatasourcesCalls) return;
+
+  const pluginFormCall: boolean = yield failFastApiCalls(
+    [fetchPluginFormConfigs()],
+    [ReduxActionTypes.FETCH_PLUGIN_FORM_CONFIGS_SUCCESS],
+    [ReduxActionErrorTypes.FETCH_PLUGIN_FORM_CONFIGS_ERROR],
+  );
+  if (!pluginFormCall) return;
+
+  const datasources: Datasource[] = yield select((state: AppState) => {
+    return state.entities.datasources.list;
+  });
+
+  yield all(
+    datasources.map((datasource: Datasource) =>
+      call(initializeDatasourceWithDefaultValues, datasource),
+    ),
+  );
+
+  yield put(initDatasourceConnectionDuringImportSuccess());
 }
 
 export default function* applicationSagas() {
@@ -672,7 +843,7 @@ export default function* applicationSagas() {
       ReduxActionTypes.GET_ALL_APPLICATION_INIT,
       getAllApplicationSaga,
     ),
-    takeLatest(ReduxActionTypes.FETCH_APPLICATION_INIT, fetchApplicationSaga),
+    takeLatest(ReduxActionTypes.FETCH_APPLICATION_INIT, fetchAppAndPagesSaga),
     takeLatest(ReduxActionTypes.FORK_APPLICATION_INIT, forkApplicationSaga),
     takeLatest(ReduxActionTypes.CREATE_APPLICATION_INIT, createApplicationSaga),
     takeLatest(
@@ -685,10 +856,18 @@ export default function* applicationSagas() {
       duplicateApplicationSaga,
     ),
     takeLatest(ReduxActionTypes.IMPORT_APPLICATION_INIT, importApplicationSaga),
+    takeLatest(ReduxActionTypes.FETCH_RELEASES, fetchReleases),
     takeLatest(
-      ReduxActionTypes.GENERATE_SSH_KEY_PAIR_INIT,
-      generateSSHKeyPairSaga,
+      ReduxActionTypes.INIT_DATASOURCE_CONNECTION_DURING_IMPORT_REQUEST,
+      initDatasourceConnectionDuringImport,
     ),
-    takeLatest(ReduxActionTypes.FETCH_SSH_KEY_PAIR_INIT, getSSHKeyPairSaga),
+    takeLatest(
+      ReduxActionTypes.SHOW_RECONNECT_DATASOURCE_MODAL,
+      showReconnectDatasourcesModalSaga,
+    ),
+    takeLatest(
+      ReduxActionTypes.FETCH_UNCONFIGURED_DATASOURCE_LIST,
+      fetchUnconfiguredDatasourceList,
+    ),
   ]);
 }

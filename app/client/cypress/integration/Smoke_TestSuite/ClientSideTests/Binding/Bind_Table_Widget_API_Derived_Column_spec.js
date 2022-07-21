@@ -1,8 +1,5 @@
 const commonlocators = require("../../../../locators/commonlocators.json");
 const dsl = require("../../../../fixtures/tableTextPaginationDsl.json");
-const pages = require("../../../../locators/Pages.json");
-const apiPage = require("../../../../locators/ApiEditor.json");
-const publishPage = require("../../../../locators/publishWidgetspage.json");
 const testdata = require("../../../../fixtures/testdata.json");
 const widgetsPage = require("../../../../locators/Widgets.json");
 

@@ -5,6 +5,10 @@ const path = require("path");
 const dotenv = require("dotenv");
 const chalk = require("chalk");
 const cypressLogToOutput = require("cypress-log-to-output");
+//const { isFileExist } = require("cy-verify-downloads");
+const {
+  addMatchImageSnapshotPlugin,
+} = require("cypress-image-snapshot/plugin");
 
 // ***********************************************************
 // This example plugins/index.js can be used to load plugins
@@ -30,13 +34,19 @@ module.exports = (on, config) => {
     }
     return false;
   });
+};
+
+module.exports = (on, config) => {
+  // on("task", {
+  //   isFileExist,
+  // });
 
   // `on` is used to hook into various events Cypress emits
   // `config` is the resolved Cypress config
   on("before:browser:launch", (browser = {}, launchOptions) => {
     /*
-      Uncomment below to get console log printed in cypress output
-    */
+        Uncomment below to get console log printed in cypress output
+      */
 
     launchOptions.args = cypressLogToOutput.browserLaunchHandler(
       browser,
@@ -44,7 +54,17 @@ module.exports = (on, config) => {
     );
     if (browser.name === "chrome") {
       launchOptions.args.push("--disable-dev-shm-usage");
+      launchOptions.push("--window-size=1400,1100");
       return launchOptions;
+    }
+
+    if (browser.name === "electron") {
+      // && browser.isHeadless) {
+      launchOptions.preferences.fullscreen = true;
+      launchOptions.preferences.darkTheme = true;
+      launchOptions["width"] = 1400;
+      launchOptions["height"] = 1100;
+      launchOptions["resizable"] = false;
     }
 
     return launchOptions;
@@ -119,4 +139,8 @@ module.exports = (on, config) => {
   });
 
   return config;
+};
+
+module.exports = (on, config) => {
+  addMatchImageSnapshotPlugin(on, config);
 };

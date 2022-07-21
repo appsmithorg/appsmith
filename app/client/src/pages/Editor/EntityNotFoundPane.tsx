@@ -6,7 +6,7 @@ import {
   PAGE_NOT_FOUND_ERROR,
   INVALID_URL_ERROR,
   createMessage,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 import { useHistory } from "react-router-dom";
 
 const Wrapper = styled.div`
@@ -46,7 +46,11 @@ const Wrapper = styled.div`
   }
 `;
 
-function EntityNotFoundPane() {
+type Props = {
+  goBackFn?: () => void; // custom function for returning to any declared route.
+};
+
+function EntityNotFoundPane(props: Props) {
   const history = useHistory();
   return (
     <Wrapper>
@@ -62,7 +66,7 @@ function EntityNotFoundPane() {
           category={Category.secondary}
           className="button-position"
           cypressSelector="t--invalid-page-go-back"
-          onClick={history.goBack}
+          onClick={props.goBackFn ? props.goBackFn : history.goBack}
           size={Size.large}
           tag="button"
           text="Go Back"

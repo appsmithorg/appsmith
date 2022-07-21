@@ -27,6 +27,10 @@ export const HelpMap: Record<string, { path: string; searchKey: string }> = {
     path: "/widget-reference/input",
     searchKey: "Input",
   },
+  INPUT_WIDGET_V2: {
+    path: "/widget-reference/input",
+    searchKey: "Input",
+  },
   DATE_PICKER_WIDGET: {
     path: "/widget-reference/datepicker",
     searchKey: "DatePicker",
@@ -39,11 +43,19 @@ export const HelpMap: Record<string, { path: string; searchKey: string }> = {
     path: "/widget-reference/table",
     searchKey: "Table",
   },
+  TABLE_WIDGET_V2: {
+    path: "/widget-reference/table",
+    searchKey: "Table",
+  },
   VIDEO_WIDGET: {
     path: "/widget-reference/video",
     searchKey: "Video",
   },
   DROP_DOWN_WIDGET: {
+    path: "/widget-reference/dropdown",
+    searchKey: "Select",
+  },
+  SELECT_WIDGET: {
     path: "/widget-reference/dropdown",
     searchKey: "Select",
   },
@@ -127,6 +139,10 @@ export const HelpMap: Record<string, { path: string; searchKey: string }> = {
     path: "",
     searchKey: "",
   },
+  MULTI_SELECT_WIDGET_V2: {
+    path: "",
+    searchKey: "",
+  },
   RATE_WIDGET: {
     path: "/widget-reference/rate",
     searchKey: "Rate",
@@ -170,6 +186,18 @@ export const HelpMap: Record<string, { path: string; searchKey: string }> = {
   JSON_EDITOR_WIDGET: {
     path: "/widget-reference/json-editor",
     searchKey: "JSON Editor",
+  },
+  PROGRESSBAR_WIDGET: {
+    path: "/widget-reference/progressbar",
+    searchKey: "Progress Bar",
+  },
+  SWITCH_GROUP_WIDGET: {
+    path: "/widget-reference/switch-group",
+    searchKey: "Switch Group",
+  },
+  MAP_CHART_WIDGET: {
+    path: "/widget-reference/map-chart",
+    searchKey: "Map Chart",
   },
 };
 

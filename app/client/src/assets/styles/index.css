@@ -1,0 +1,68 @@
+@import './tailwind.css';
+
+/**
+* ---------------------------------------------------------------------------------------------------
+* general
+* ---------------------------------------------------------------------------------------------------
+*/
+body, html {
+  @apply w-full h-full overflow-x-hidden;
+}
+
+
+/**
+* ---------------------------------------------------------------------------------------------------
+* blueprint specific css overrides
+* ---------------------------------------------------------------------------------------------------
+*/
+.bp3-panel-stack-view {
+  background: none;
+}
+
+
+/**
+* ---------------------------------------------------------------------------------------------------
+* custom css
+* ---------------------------------------------------------------------------------------------------
+*/
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color:  rgba(209, 213, 219, var(--tw-bg-opacity)) white;
+}
+
+::-webkit-scrollbar {
+  height: 6px;
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-white;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-transparent;
+}
+
+:hover::-webkit-scrollbar-thumb {
+  @apply bg-gray-300;
+}
+
+
+.diagnol-cross {
+  background: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' version='1.1' preserveAspectRatio='none' viewBox='0 0 100 100'><path d='M0 99 L99 0 L100 1 L1 100' fill='red' /></svg>");
+  background-repeat:no-repeat;
+  background-position:center center;
+  background-size: 100% 100%, auto;
+}
+
+
+.hidden-scrollbar {
+  -ms-overflow-style: none; /* for Internet Explorer, Edge */
+  scrollbar-width: none; /* for Firefox */
+  overflow-y: scroll;
+}
+
+.hidden-scrollbar::-webkit-scrollbar {
+  display: none; /* for Chrome, Safari, and Opera */
+}

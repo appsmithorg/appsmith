@@ -1,81 +1,77 @@
-import React, { memo, useMemo } from "react";
+import React, { memo, useCallback, useMemo } from "react";
 import { useSelector } from "react-redux";
-import EntityPlaceholder from "../Entity/Placeholder";
 import Entity from "../Entity";
-import { widgetIcon } from "../ExplorerIcons";
 import WidgetEntity from "./WidgetEntity";
-import { useParams } from "react-router";
-import { ExplorerURLParams } from "../helpers";
-import { BUILDER_PAGE_URL } from "constants/routes";
-import { Link } from "react-router-dom";
-import styled from "styled-components";
-import { CanvasStructure } from "reducers/uiReducers/pageCanvasStructureReducer";
-import { getSelectedWidgets } from "selectors/ui";
+import {
+  getCurrentApplicationId,
+  getCurrentPageId,
+} from "selectors/editorSelectors";
+import {
+  ADD_WIDGET_BUTTON,
+  ADD_WIDGET_TOOLTIP,
+  createMessage,
+  EMPTY_WIDGET_BUTTON_TEXT,
+  EMPTY_WIDGET_MAIN_TEXT,
+} from "@appsmith/constants/messages";
+import { selectWidgetsForCurrentPage } from "selectors/entitiesSelector";
+import { inGuidedTour } from "selectors/onboardingSelectors";
+import { getExplorerStatus, saveExplorerStatus } from "../helpers";
+import Icon from "components/ads/Icon";
+import { AddEntity, EmptyComponent } from "../common";
+import { noop } from "lodash";
 
 type ExplorerWidgetGroupProps = {
-  pageId: string;
   step: number;
-  widgets?: CanvasStructure;
   searchKeyword?: string;
   addWidgetsFn?: () => void;
 };
 
-const StyledLink = styled(Link)`
-  & {
-    color: ${(props) => props.theme.colors.primary};
-    &:hover {
-      color: ${(props) => props.theme.colors.primary};
-    }
-  }
-`;
-
 export const ExplorerWidgetGroup = memo((props: ExplorerWidgetGroupProps) => {
-  const params = useParams<ExplorerURLParams>();
-  const selectedWidgets = useSelector(getSelectedWidgets);
-
-  const childNode = (
-    <EntityPlaceholder step={props.step + 1}>
-      Please{" "}
-      {params.pageId !== props.pageId ? (
-        <>
-          <StyledLink to={BUILDER_PAGE_URL(params.applicationId, props.pageId)}>
-            switch to this page
-          </StyledLink>
-          ,&nbsp;then&nbsp;
-        </>
-      ) : (
-        "  "
-      )}
-      click the <strong>+</strong> icon above to add widgets
-    </EntityPlaceholder>
-  );
+  const applicationId = useSelector(getCurrentApplicationId);
+  const pageId = useSelector(getCurrentPageId) || "";
+  const widgets = useSelector(selectWidgetsForCurrentPage);
+  const guidedTour = useSelector(inGuidedTour);
+  let isWidgetsOpen = getExplorerStatus(applicationId, "widgets");
+  if (isWidgetsOpen === null) {
+    isWidgetsOpen = widgets?.children?.length === 0 || guidedTour;
+    saveExplorerStatus(applicationId, "widgets", isWidgetsOpen);
+  } else if (guidedTour) {
+    isWidgetsOpen = guidedTour;
+    saveExplorerStatus(applicationId, "widgets", isWidgetsOpen);
+  }
 
   const widgetsInStep = useMemo(() => {
-    return props.widgets?.children?.map((child) => child.widgetId) || [];
-  }, [props.widgets?.children]);
+    return widgets?.children?.map((child) => child.widgetId) || [];
+  }, [widgets?.children]);
+
+  const onWidgetToggle = useCallback(
+    (isOpen: boolean) => {
+      saveExplorerStatus(applicationId, "widgets", isOpen);
+    },
+    [applicationId],
+  );
 
   return (
     <Entity
+      addButtonHelptext={createMessage(ADD_WIDGET_TOOLTIP)}
       className={`group widgets ${props.addWidgetsFn ? "current" : ""}`}
-      disabled={!props.widgets && !!props.searchKeyword}
-      entityId={props.pageId + "_widgets"}
-      icon={widgetIcon}
-      isDefaultExpanded={
-        !!props.searchKeyword ||
-        (params.pageId === props.pageId &&
-          !!(selectedWidgets && selectedWidgets.length))
-      }
-      key={props.pageId + "_widgets"}
-      name="Widgets"
+      disabled={!widgets && !!props.searchKeyword}
+      entityId={pageId + "_widgets"}
+      icon={""}
+      isDefaultExpanded={isWidgetsOpen}
+      isSticky
+      key={pageId + "_widgets"}
+      name="WIDGETS"
       onCreate={props.addWidgetsFn}
+      onToggle={onWidgetToggle}
       searchKeyword={props.searchKeyword}
       step={props.step}
     >
-      {props.widgets?.children?.map((child) => (
+      {widgets?.children?.map((child) => (
         <WidgetEntity
           childWidgets={child.children}
           key={child.widgetId}
-          pageId={props.pageId}
+          pageId={pageId}
           searchKeyword={props.searchKeyword}
           step={props.step + 1}
           widgetId={child.widgetId}
@@ -84,9 +80,23 @@ export const ExplorerWidgetGroup = memo((props: ExplorerWidgetGroupProps) => {
           widgetsInStep={widgetsInStep}
         />
       ))}
-      {(!props.widgets?.children || props.widgets?.children.length === 0) &&
-        !props.searchKeyword &&
-        childNode}
+      {(!widgets?.children || widgets?.children.length === 0) &&
+        !props.searchKeyword && (
+          <EmptyComponent
+            addBtnText={createMessage(EMPTY_WIDGET_BUTTON_TEXT)}
+            addFunction={props.addWidgetsFn || noop}
+            mainText={createMessage(EMPTY_WIDGET_MAIN_TEXT)}
+          />
+        )}
+      {widgets?.children && widgets?.children?.length > 0 && (
+        <AddEntity
+          action={props.addWidgetsFn}
+          entityId={pageId + "_widgets_add_new_datasource"}
+          icon={<Icon name="plus" />}
+          name={createMessage(ADD_WIDGET_BUTTON)}
+          step={props.step + 1}
+        />
+      )}
     </Entity>
   );
 });

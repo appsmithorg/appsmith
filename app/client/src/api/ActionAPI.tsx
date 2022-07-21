@@ -1,6 +1,6 @@
 import API, { HttpMethod } from "api/Api";
-import { ApiResponse, GenericApiResponse, ResponseMeta } from "./ApiResponses";
-import { DEFAULT_EXECUTE_ACTION_TIMEOUT_MS } from "constants/ApiConstants";
+import { ApiResponse } from "./ApiResponses";
+import { DEFAULT_EXECUTE_ACTION_TIMEOUT_MS } from "@appsmith/constants/ApiConstants";
 import axios, { AxiosPromise, CancelTokenSource } from "axios";
 import { Action, ActionViewMode } from "entities/Action";
 import { APIRequest } from "constants/AppsmithActionConstants/ActionConstants";
@@ -35,10 +35,10 @@ export interface QueryConfig {
   queryString: string;
 }
 
-export interface ActionCreateUpdateResponse extends ApiResponse {
+export type ActionCreateUpdateResponse = ApiResponse & {
   id: string;
   jsonPathKeys: Record<string, string>;
-}
+};
 
 export type PaginationField = "PREV" | "NEXT";
 
@@ -49,10 +49,9 @@ export interface ExecuteActionRequest extends APIRequest {
   viewMode: boolean;
 }
 
-export interface ExecuteActionResponse extends ApiResponse {
+export type ExecuteActionResponse = ApiResponse & {
   actionId: string;
-  data: any;
-}
+};
 
 export interface ActionApiResponseReq {
   headers: Record<string, string[]>;
@@ -61,21 +60,20 @@ export interface ActionApiResponseReq {
   url: string;
 }
 
-export interface ActionExecutionResponse {
-  responseMeta: ResponseMeta;
-  data: {
-    body: Record<string, unknown> | string;
-    headers: Record<string, string[]>;
-    statusCode: string;
-    isExecutionSuccess: boolean;
-    request: ActionApiResponseReq;
-    errorType?: string;
-  };
+export type ActionExecutionResponse = ApiResponse<{
+  body: Record<string, unknown> | string;
+  headers: Record<string, string[]>;
+  statusCode: string;
+  isExecutionSuccess: boolean;
+  request: ActionApiResponseReq;
+  errorType?: string;
+  dataTypes: any[];
+}> & {
   clientMeta: {
     duration: string;
     size: string;
   };
-}
+};
 
 export interface SuggestedWidget {
   type: WidgetType;
@@ -87,12 +85,15 @@ export interface ActionResponse {
   headers: Record<string, string[]>;
   request?: ActionApiResponseReq;
   statusCode: string;
+  dataTypes: Record<string, string>[];
   duration: string;
   size: string;
   isExecutionSuccess?: boolean;
   suggestedWidgets?: SuggestedWidget[];
   messages?: Array<string>;
   errorType?: string;
+  readableError?: string;
+  responseDisplayFormat?: string;
 }
 
 export interface MoveActionRequest {
@@ -111,9 +112,7 @@ export interface UpdateActionNameRequest {
   layoutId: string;
   newName: string;
   oldName: string;
-  collectionName?: string;
 }
-
 class ActionAPI extends API {
   static url = "v1/actions";
   static apiUpdateCancelTokenSource: CancelTokenSource;
@@ -127,19 +126,19 @@ class ActionAPI extends API {
 
   static fetchActions(
     applicationId: string,
-  ): AxiosPromise<GenericApiResponse<Action[]>> {
+  ): AxiosPromise<ApiResponse<Action[]>> {
     return API.get(ActionAPI.url, { applicationId });
   }
 
   static fetchActionsForViewMode(
     applicationId: string,
-  ): AxiosPromise<GenericApiResponse<ActionViewMode[]>> {
+  ): AxiosPromise<ApiResponse<ActionViewMode[]>> {
     return API.get(`${ActionAPI.url}/view`, { applicationId });
   }
 
   static fetchActionsByPageId(
     pageId: string,
-  ): AxiosPromise<GenericApiResponse<Action[]>> {
+  ): AxiosPromise<ApiResponse<Action[]>> {
     return API.get(ActionAPI.url, { pageId });
   }
 
@@ -167,11 +166,15 @@ class ActionAPI extends API {
   }
 
   static executeAction(
-    executeAction: ExecuteActionRequest,
+    executeAction: FormData,
     timeout?: number,
   ): AxiosPromise<ActionExecutionResponse> {
     return API.post(ActionAPI.url + "/execute", executeAction, undefined, {
       timeout: timeout || DEFAULT_EXECUTE_ACTION_TIMEOUT_MS,
+      headers: {
+        accept: "application/json",
+        "Content-Type": "multipart/form-data",
+      },
     });
   }
 

@@ -45,22 +45,11 @@ const StyledDropTarget = styled.div`
   z-index: 1;
 `;
 
-const StyledOnboardingWrapper = styled.div`
-  position: fixed;
-  left: 50%;
-  top: 50vh;
-`;
-const StyledOnboardingMessage = styled.h2`
-  color: #ccc;
-`;
-
 function Onboarding() {
   return (
-    <StyledOnboardingWrapper>
-      <StyledOnboardingMessage>
-        Drag and drop a widget here
-      </StyledOnboardingMessage>
-    </StyledOnboardingWrapper>
+    <h2 className="absolute top-0 left-0 right-0 flex items-end h-108 justify-center text-2xl font-bold text-gray-300">
+      Drag and drop a widget here
+    </h2>
   );
 }
 
@@ -70,7 +59,7 @@ function Onboarding() {
 */
 export const DropTargetContext: Context<{
   updateDropTargetRows?: (
-    widgetId: string,
+    widgetIdsToExclude: string[],
     widgetBottomRow: number,
   ) => number | false;
 }> = createContext({});
@@ -111,6 +100,8 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
   const showPropertyPane = useShowPropertyPane();
   const { deselectAll, focusWidget } = useWidgetSelection();
   const updateCanvasSnapRows = useCanvasSnapRowsUpdateHook();
+  const showDragLayer =
+    (isDragging && draggedOn === props.widgetId) || isResizing;
 
   useEffect(() => {
     const snapRows = getCanvasSnapRows(props.bottomRow, props.canExtend);
@@ -122,6 +113,16 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
       }
     }
   }, [props.bottomRow, props.canExtend]);
+  useEffect(() => {
+    if (!isDragging || !isResizing) {
+      // bottom row of canvas can increase by any number as user moves/resizes any widget towards the bottom of the canvas
+      // but canvas height is not lost when user moves/resizes back top.
+      // it is done that way to have a pleasant building experience.
+      // post drop the bottom most row is used to appropriately calculate the canvas height and lose unwanted height.
+      rowRef.current = snapRows;
+      updateHeight();
+    }
+  }, [isDragging, isResizing]);
 
   const updateHeight = () => {
     if (dropTargetRef.current) {
@@ -131,10 +132,13 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
       dropTargetRef.current.style.height = height;
     }
   };
-  const updateDropTargetRows = (widgetId: string, widgetBottomRow: number) => {
+  const updateDropTargetRows = (
+    widgetIdsToExclude: string[],
+    widgetBottomRow: number,
+  ) => {
     if (canDropTargetExtend) {
       const newRows = calculateDropTargetRows(
-        widgetId,
+        widgetIdsToExclude,
         widgetBottomRow,
         props.minHeight / GridDefaults.DEFAULT_GRID_ROW_HEIGHT - 1,
         occupiedSpacesByChildren,
@@ -166,7 +170,7 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
     : "100%";
   const boxShadow =
     (isResizing || isDragging) && props.widgetId === MAIN_CONTAINER_WIDGET_ID
-      ? "0px 0px 0px 1px #DDDDDD"
+      ? "inset 0px 0px 0px 1px #DDDDDD"
       : "0px 0px 0px 1px transparent";
   const dropTargetRef = useRef<HTMLDivElement>(null);
 
@@ -176,7 +180,6 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
       updateDropTargetRows,
     };
   }, [updateDropTargetRows, occupiedSpacesByChildren]);
-
   return (
     <DropTargetContext.Provider value={contextValue}>
       <StyledDropTarget
@@ -192,7 +195,7 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
         {!(childWidgets && childWidgets.length) &&
           !isDragging &&
           !props.parentId && <Onboarding />}
-        {((isDragging && draggedOn === props.widgetId) || isResizing) && (
+        {showDragLayer && (
           <DragLayerComponent
             noPad={props.noPad || false}
             parentColumnWidth={props.snapColumnSpace}

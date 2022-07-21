@@ -3,11 +3,12 @@ import { WidgetProps } from "widgets/BaseWidget";
 import ContainerWidget, {
   ContainerWidgetProps,
 } from "widgets/ContainerWidget/widget";
-import { GridDefaults } from "constants/WidgetConstants";
+import { GridDefaults, RenderModes } from "constants/WidgetConstants";
 import DropTargetComponent from "components/editorComponents/DropTargetComponent";
 import { getCanvasSnapRows } from "utils/WidgetPropsUtils";
 import { getCanvasClassName } from "utils/generators";
 import WidgetFactory, { DerivedPropertiesMap } from "utils/WidgetFactory";
+import { CANVAS_DEFAULT_MIN_HEIGHT_PX } from "constants/AppConstants";
 
 class CanvasWidget extends ContainerWidget {
   static getPropertyPaneConfig() {
@@ -35,7 +36,7 @@ class CanvasWidget extends ContainerWidget {
       <DropTargetComponent
         {...canvasProps}
         {...this.getSnapSpaces()}
-        minHeight={this.props.minHeight || 380}
+        minHeight={this.props.minHeight || CANVAS_DEFAULT_MIN_HEIGHT_PX}
       >
         {this.renderAsContainerComponent(canvasProps)}
       </DropTargetComponent>
@@ -48,6 +49,15 @@ class CanvasWidget extends ContainerWidget {
     if (childWidgetData.detachFromLayout && !childWidgetData.isVisible) {
       return null;
     }
+
+    // We don't render invisible widgets in view mode
+    if (
+      this.props.renderMode === RenderModes.PAGE &&
+      !childWidgetData.isVisible
+    ) {
+      return null;
+    }
+
     const snapSpaces = this.getSnapSpaces();
 
     childWidgetData.parentColumnSpace = snapSpaces.snapColumnSpace;

@@ -1,20 +1,18 @@
 import React, { useEffect, useRef, useState } from "react";
 import styled from "styled-components";
 import Button, { Category, Size } from "./Button";
-import { ReactComponent as UploadIcon } from "../../assets/icons/ads/upload-v2.svg";
-import { ReactComponent as UploadSuccessIcon } from "../../assets/icons/ads/upload_success.svg";
+import { ReactComponent as UploadSuccessIcon } from "assets/icons/ads/upload_success.svg";
 import { DndProvider, useDrop, DropTargetMonitor } from "react-dnd";
 import HTML5Backend, { NativeTypes } from "react-dnd-html5-backend";
-import Text, { TextType } from "./Text";
+import { Text, TextType } from "design-system";
 import { Variant } from "./common";
 import { Toaster } from "./Toast";
 import {
   createMessage,
   ERROR_FILE_TOO_LARGE,
   REMOVE_FILE_TOOL_TIP,
-} from "constants/messages";
-import TooltipComponent from "components/ads/Tooltip";
-import { Position } from "@blueprintjs/core/lib/esm/common/position";
+} from "@appsmith/constants/messages";
+import { TooltipComponent } from "design-system";
 import Icon, { IconSize } from "./Icon";
 import {
   ContainerDiv,
@@ -22,6 +20,7 @@ import {
   FileType,
   FilePickerProps,
 } from "./FilePicker";
+import { Colors } from "constants/Colors";
 
 const ContainerDivWithBorder = styled(ContainerDiv)<{
   isUploaded: boolean;
@@ -38,6 +37,13 @@ const ContainerDivWithBorder = styled(ContainerDiv)<{
 const IconWrapper = styled.div`
   width: ${(props) => props.theme.spaces[9]}px;
   padding-left: ${(props) => props.theme.spaces[2]}px;
+`;
+
+const UploadIconWrapper = styled.div`
+  svg {
+    width: 55px;
+    height: 55px;
+  }
 `;
 
 function FilePickerComponent(props: FilePickerProps) {
@@ -65,6 +71,13 @@ function FilePickerComponent(props: FilePickerProps) {
   const progressRef = useRef<HTMLDivElement>(null);
   const fileDescRef = useRef<HTMLDivElement>(null);
   const fileContainerRef = useRef<HTMLDivElement>(null);
+
+  // when click container, it'll be work as browser button
+  function onContainerClick() {
+    if (props.containerClickable && inputRef.current) {
+      inputRef.current.click();
+    }
+  }
 
   function ButtonClick(event: React.MouseEvent<HTMLElement>) {
     event.preventDefault();
@@ -212,10 +225,20 @@ function FilePickerComponent(props: FilePickerProps) {
 
   const uploadFileForm = (
     <div className="button-wrapper" ref={fileContainerRef}>
-      <UploadIcon />
+      <UploadIconWrapper>
+        <Icon
+          fillColor={props.iconFillColor || Colors.GREY_800}
+          name={props.uploadIcon || "upload-cloud"}
+        />
+      </UploadIconWrapper>
       <Text className="drag-drop-text" type={TextType.P2}>
-        Drag & Drop files to upload or
+        {props.title || "Drag & Drop files to upload or"}
       </Text>
+      {props.description && (
+        <Text className="drag-drop-description" type={TextType.P2}>
+          {props.description}
+        </Text>
+      )}
       <form>
         <input
           accept={FileEndings[fileType]}
@@ -226,12 +249,14 @@ function FilePickerComponent(props: FilePickerProps) {
           type="file"
           value={""}
         />
-        <Button
-          category={Category.tertiary}
-          onClick={(el) => ButtonClick(el)}
-          size={Size.medium}
-          text="Browse"
-        />
+        {!props.containerClickable && (
+          <Button
+            category={Category.tertiary}
+            onClick={(el) => ButtonClick(el)}
+            size={Size.medium}
+            text="Browse"
+          />
+        )}
       </form>
     </div>
   );
@@ -280,10 +305,7 @@ function FilePickerComponent(props: FilePickerProps) {
           <Text className="success-text" type={TextType.H4}>
             Successfully Uploaded!
           </Text>
-          <TooltipComponent
-            content={REMOVE_FILE_TOOL_TIP()}
-            position={Position.TOP}
-          >
+          <TooltipComponent content={REMOVE_FILE_TOOL_TIP()} position="top">
             <IconWrapper className="icon-wrapper" onClick={() => removeFile()}>
               <Icon name="close" size={IconSize.XL} />
             </IconWrapper>
@@ -299,6 +321,7 @@ function FilePickerComponent(props: FilePickerProps) {
       fileType={fileType}
       isActive={isActive}
       isUploaded={isUploaded}
+      onClick={onContainerClick}
       ref={drop}
     >
       {fileType === FileType.IMAGE ? imageUploadComponent : uploadComponent}

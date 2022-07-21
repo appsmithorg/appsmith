@@ -2,9 +2,9 @@ import { getCanvasWidgetsPayload } from "sagas/PageSagas";
 import { updateCurrentPage } from "actions/pageActions";
 import { editorInitializer } from "utils/EditorUtils";
 import {
-  PageListPayload,
+  Page,
   ReduxActionTypes,
-} from "constants/ReduxActionConstants";
+} from "@appsmith/constants/ReduxActionConstants";
 import { initEditor } from "actions/initActions";
 import { useDispatch } from "react-redux";
 import { extractCurrentDSL } from "utils/WidgetPropsUtils";
@@ -14,9 +14,9 @@ import { createSelector } from "reselect";
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { getCanvasWidgets } from "selectors/entitiesSelector";
 
-import { WidgetProps } from "widgets/BaseWidget";
 import CanvasWidgetsNormalizer from "normalizers/CanvasWidgetsNormalizer";
 import { DSLWidget } from "widgets/constants";
+import urlBuilder from "entities/URLRedirect/URLAssembly";
 
 export const useMockDsl = (dsl: any) => {
   const dispatch = useDispatch();
@@ -28,6 +28,7 @@ export const useMockDsl = (dsl: any) => {
       applicationId: "app_id",
       isDefault: true,
       isHidden: false,
+      slug: "page-1",
       layouts: [
         {
           id: "layout_id",
@@ -48,12 +49,13 @@ export const useMockDsl = (dsl: any) => {
       },
     ],
   });
-  const pages: PageListPayload = [
+  const pages: Page[] = [
     {
       pageName: mockResp.data.name,
       pageId: mockResp.data.id,
       isDefault: mockResp.data.isDefault,
       isHidden: !!mockResp.data.isHidden,
+      slug: mockResp.data.slug,
     },
   ];
   dispatch({
@@ -99,17 +101,42 @@ export const syntheticTestMouseEvent = (
 export function MockApplication({ children }: any) {
   editorInitializer();
   const dispatch = useDispatch();
-  dispatch(initEditor("app_id", "page_id"));
+  dispatch(initEditor({ pageId: "page_id", mode: APP_MODE.EDIT }));
   const mockResp: any = {
-    organizationId: "org_id",
-    pages: [{ id: "page_id", name: "Page1", isDefault: true }],
+    workspaceId: "workspace_id",
+    pages: [{ id: "page_id", name: "Page1", isDefault: true, slug: "page-1" }],
     id: "app_id",
     isDefault: true,
-    name: "Page1",
+    name: "appName",
+    slug: "app-name",
+    applicationVersion: 2,
   };
+  urlBuilder.updateURLParams(
+    {
+      applicationId: mockResp.id,
+      applicationSlug: mockResp.slug,
+      applicationVersion: mockResp.applicationVersion,
+    },
+    [
+      {
+        pageId: mockResp.pages[0].id,
+        pageSlug: mockResp.pages[0].slug,
+      },
+    ],
+  );
   dispatch({
     type: ReduxActionTypes.FETCH_APPLICATION_SUCCESS,
     payload: mockResp,
+  });
+  dispatch({
+    type: ReduxActionTypes.FETCH_PAGE_LIST_SUCCESS,
+    payload: {
+      pages: mockResp.pages,
+    },
+  });
+  dispatch({
+    type: ReduxActionTypes.SWITCH_CURRENT_PAGE_ID,
+    payload: { id: "page_id", slug: "page-1" },
   });
   return children;
 }

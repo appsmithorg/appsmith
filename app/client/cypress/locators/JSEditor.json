@@ -1,0 +1,15 @@
+{
+    "runButton": ".run-js-action",
+    "editNameField": ".bp3-editable-text-input",
+    "outputConsole": ".CodeEditorTarget",
+    "jsObjectName": ".t--action-name-edit-field",
+    "jsPage": ".form-row-header",
+    "jsPageProperty": ".entity-context-menu",
+    "propertyList": ".t--entity-property",
+    "delete": ".single-select >div:contains('Delete')",
+    "deleteConfirm": ".single-select >div:contains('Are you sure?')",
+    "popover": "//*[local-name()='g' and @id='Icon/Outline/more-vertical']"
+}
+
+
+

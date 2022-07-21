@@ -8,12 +8,12 @@ import {
   StyledInputGroup,
   StyledPropertyPaneButton,
 } from "./StyledControls";
-
 import { DropDownOptionWithKey } from "./OptionControl";
 import { DropdownOption } from "components/constants";
 import { generateReactKey } from "utils/generators";
 import { Category, Size } from "components/ads/Button";
 import { debounce } from "lodash";
+import { getNextEntityName } from "utils/AppsmithUtils";
 
 function updateOptionLabel<T>(
   options: Array<T>,
@@ -48,31 +48,43 @@ function updateOptionValue<T>(
 }
 
 const StyledDeleteIcon = styled(FormIcons.DELETE_ICON as AnyStyledComponent)`
-  padding: 0px 5px;
-  position: absolute;
-  right: 4px;
   cursor: pointer;
+
   && svg path {
     fill: ${(props) => props.theme.colors.propertyPane.deleteIconColor};
   }
-`;
 
-const StyledOptionControlInputGroup = styled(StyledInputGroup)`
-  margin-right: 5px;
-`;
-
-const StyledOptionControlWrapper = styled(ControlWrapper)`
-  display: flex;
-  justify-content: flex-start;
-  padding-right: 16px;
-  width: calc(100% - 10px);
+  &&:hover {
+    svg path {
+      fill: ${(props) => props.theme.colors.propertyPane.title};
+    }
+  }
 `;
 
 const StyledBox = styled.div`
   width: 10px;
 `;
 
-type UpdatePairFunction = (pair: DropdownOption[]) => any;
+const StyledButton = styled.button`
+  width: 28px;
+  height: 28px;
+
+  &&& svg {
+    width: 14px;
+    height: 14px;
+  }
+
+  &&:focus {
+    svg path {
+      fill: ${(props) => props.theme.colors.propertyPane.title};
+    }
+  }
+`;
+
+type UpdatePairFunction = (
+  pair: DropdownOption[],
+  isUpdatedViaKeyboard?: boolean,
+) => any;
 
 type KeyValueComponentProps = {
   pairs: DropdownOption[];
@@ -97,7 +109,7 @@ export function KeyValueComponent(props: KeyValueComponentProps) {
     pairs.length !== 0 && !typing && setRenderPairs(newRenderPairs);
   }, [props, pairs.length, renderPairs.length]);
 
-  function deletePair(index: number) {
+  function deletePair(index: number, isUpdatedViaKeyboard = false) {
     let { pairs } = props;
     pairs = Array.isArray(pairs) ? pairs : [];
 
@@ -105,12 +117,12 @@ export function KeyValueComponent(props: KeyValueComponentProps) {
     const newRenderPairs = renderPairs.filter((o, i) => i !== index);
 
     setRenderPairs(newRenderPairs);
-    props.updatePairs(newPairs);
+    props.updatePairs(newPairs, isUpdatedViaKeyboard);
   }
 
   const debouncedUpdatePairs = useCallback(
     debounce((updatedPairs: DropdownOption[]) => {
-      props.updatePairs(updatedPairs);
+      props.updatePairs(updatedPairs, true);
     }, 200),
     [props.updatePairs],
   );
@@ -143,15 +155,37 @@ export function KeyValueComponent(props: KeyValueComponentProps) {
     debouncedUpdatePairs(updatedPairs);
   }
 
-  function addPair() {
+  function addPair(e: React.MouseEvent) {
     let { pairs } = props;
     pairs = Array.isArray(pairs) ? pairs.slice() : [];
-    pairs.push({ label: "", value: "" });
+    pairs.push({
+      label: getNextEntityName(
+        "Option",
+        pairs.map((pair: any) => pair.label),
+      ),
+      value: getNextEntityName(
+        "OPTION",
+        pairs.map((pair: any) => pair.value),
+      ),
+    });
     const updatedRenderPairs = renderPairs.slice();
-    updatedRenderPairs.push({ label: "", value: "", key: generateReactKey() });
+    updatedRenderPairs.push({
+      label: getNextEntityName(
+        "Option",
+        renderPairs.map((pair: any) => pair.label),
+      ),
+      value: getNextEntityName(
+        "OPTION",
+        renderPairs.map((pair: any) => pair.value),
+      ),
+      key: getNextEntityName(
+        "OPTION",
+        renderPairs.map((pair: any) => pair.value),
+      ),
+    });
 
     setRenderPairs(updatedRenderPairs);
-    props.updatePairs(pairs);
+    props.updatePairs(pairs, e.detail === 0);
   }
 
   function onInputFocus() {
@@ -166,8 +200,8 @@ export function KeyValueComponent(props: KeyValueComponentProps) {
     <>
       {renderPairs.map((pair: DropDownOptionWithKey, index) => {
         return (
-          <StyledOptionControlWrapper key={pair.key} orientation={"HORIZONTAL"}>
-            <StyledOptionControlInputGroup
+          <ControlWrapper key={pair.key} orientation={"HORIZONTAL"}>
+            <StyledInputGroup
               dataType={"text"}
               onBlur={onInputBlur}
               onChange={(value: string) => {
@@ -188,19 +222,21 @@ export function KeyValueComponent(props: KeyValueComponentProps) {
               placeholder={"Value"}
               value={pair.value}
             />
-            <StyledDeleteIcon
-              height={20}
-              onClick={() => {
-                deletePair(index);
+            <StyledBox />
+            <StyledButton
+              onClick={(e: React.MouseEvent) => {
+                deletePair(index, e.detail === 0);
               }}
-              width={20}
-            />
-          </StyledOptionControlWrapper>
+            >
+              <StyledDeleteIcon />
+            </StyledButton>
+          </ControlWrapper>
         );
       })}
 
       <StyledPropertyPaneButton
         category={Category.tertiary}
+        className="t--property-control-options-add"
         icon="plus"
         onClick={addPair}
         size={Size.medium}

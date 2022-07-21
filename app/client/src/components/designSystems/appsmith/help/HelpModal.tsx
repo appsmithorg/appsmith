@@ -8,7 +8,7 @@ import {
 import styled from "styled-components";
 import { theme } from "constants/DefaultTheme";
 import { HelpIcons } from "icons/HelpIcons";
-import { getAppsmithConfigs } from "configs";
+import { getAppsmithConfigs } from "@appsmith/configs";
 import { LayersContext } from "constants/Layers";
 import { connect } from "react-redux";
 import { AppState } from "reducers";
@@ -17,7 +17,13 @@ import { HELP_MODAL_HEIGHT, HELP_MODAL_WIDTH } from "constants/HelpConstants";
 import ModalComponent from "../ModalComponent";
 import { getCurrentUser } from "selectors/usersSelectors";
 import { User } from "constants/userConstants";
-import { bootIntercom } from "utils/helpers";
+import bootIntercom from "utils/bootIntercom";
+import { TooltipComponent } from "design-system";
+import {
+  createMessage,
+  HELP_RESOURCE_TOOLTIP,
+} from "@appsmith/constants/messages";
+import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
 
 const { algolia } = getAppsmithConfigs();
 const HelpButton = styled.button<{
@@ -136,11 +142,19 @@ class HelpModal extends React.Component<Props> {
             layer={layers.max}
             onClick={this.onOpen}
           >
-            {isHelpModalOpen ? (
-              <CloseIcon height={50} width={50} />
-            ) : (
-              <HelpIcon height={50} width={50} />
-            )}
+            <TooltipComponent
+              boundary="viewport"
+              content={createMessage(HELP_RESOURCE_TOOLTIP)}
+              disabled={isHelpModalOpen}
+              hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
+              position="left"
+            >
+              {isHelpModalOpen ? (
+                <CloseIcon height={50} width={50} />
+              ) : (
+                <HelpIcon height={50} width={50} />
+              )}
+            </TooltipComponent>
           </HelpButton>
         )}
       </>

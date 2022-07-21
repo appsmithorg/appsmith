@@ -5,7 +5,11 @@ import { noop } from "lodash";
 
 import { CommonComponentProps } from "components/ads/common";
 import EditableTextSubComponent from "components/ads/EditableTextSubComponent";
-import { EditInteractionKind, SavingState } from "components/ads/EditableText";
+import {
+  EditInteractionKind,
+  SavingState,
+  UNFILLED_WIDTH,
+} from "components/ads/EditableText";
 
 export type EditableAppNameProps = CommonComponentProps & {
   defaultValue: string;
@@ -33,11 +37,12 @@ export const EditableAppNameWrapper = styled.div<{
   ${(props) =>
     !props.filled
       ? `
-    width: 243px;
+    width: ${UNFILLED_WIDTH}px;
   `
       : `
     width: 100%;
     flex: 1;
+    max-width: ${UNFILLED_WIDTH}px;
   `}
   .error-message {
     margin-left: ${(props) => props.theme.spaces[5]}px;

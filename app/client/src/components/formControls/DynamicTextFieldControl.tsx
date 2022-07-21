@@ -3,7 +3,6 @@ import { formValueSelector, change } from "redux-form";
 import { connect } from "react-redux";
 import BaseControl, { ControlProps } from "./BaseControl";
 import { ControlType } from "constants/PropertyControlConstants";
-import FormLabel from "components/editorComponents/FormLabel";
 import DynamicTextField from "components/editorComponents/form/fields/DynamicTextField";
 import {
   EditorSize,
@@ -25,7 +24,7 @@ import { actionPathFromName } from "components/formControls/utils";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 
 const Wrapper = styled.div`
-  width: 75%;
+  width: 872px;
   .dynamic-text-field {
     border-radius: 4px;
     font-size: 14px;
@@ -64,7 +63,6 @@ class DynamicTextControl extends BaseControl<
       actionName,
       configProperty,
       evaluationSubstitutionType,
-      label,
       placeholderText,
       responseType,
     } = this.props;
@@ -80,8 +78,7 @@ class DynamicTextControl extends BaseControl<
         : EditorModes.JSON_WITH_BINDING;
 
     return (
-      <Wrapper>
-        <FormLabel>{label}</FormLabel>
+      <Wrapper className={`t--${configProperty}`}>
         {showTemplate ? (
           <TemplateMenu
             createTemplate={(templateString) => {
@@ -102,10 +99,12 @@ class DynamicTextControl extends BaseControl<
           <DynamicTextField
             className="dynamic-text-field"
             dataTreePath={dataTreePath}
+            disabled={this.props.disabled}
             evaluationSubstitutionType={evaluationSubstitutionType}
             mode={mode}
             name={this.props.configProperty}
             placeholder={placeholderText}
+            showLineNumbers={this.props.showLineNumbers}
             size={EditorSize.EXTENDED}
             tabBehaviour={TabBehaviour.INDENT}
           />

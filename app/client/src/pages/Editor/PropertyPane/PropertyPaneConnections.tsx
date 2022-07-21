@@ -1,46 +1,58 @@
-import React, { memo, useMemo, useCallback } from "react";
+import React, { memo, useMemo, useCallback, useEffect, useRef } from "react";
 import styled from "styled-components";
 import Icon, { IconSize } from "components/ads/Icon";
 import Dropdown, {
   DefaultDropDownValueNodeProps,
   DropdownOption,
 } from "components/ads/Dropdown";
-import Tooltip from "components/ads/Tooltip";
+import { TooltipComponent as Tooltip } from "design-system";
 import { AppState } from "reducers";
 import { useDispatch, useSelector } from "react-redux";
 import { getDataTree } from "selectors/dataTreeSelectors";
 import { isAction, isWidget } from "workers/evaluationUtils";
-import Text, { TextType } from "components/ads/Text";
+import { Text, TextType } from "design-system";
 import { Classes } from "components/ads/common";
 import { useEntityLink } from "components/editorComponents/Debugger/hooks/debuggerHooks";
 import { useGetEntityInfo } from "components/editorComponents/Debugger/hooks/useGetEntityInfo";
 import {
+  DEBUGGER_TAB_KEYS,
   doesEntityHaveErrors,
   getDependenciesFromInverseDependencies,
 } from "components/editorComponents/Debugger/helpers";
 import { getFilteredErrors } from "selectors/debuggerSelectors";
 import { ENTITY_TYPE, Log } from "entities/AppsmithConsole";
 import { DebugButton } from "components/editorComponents/Debugger/DebugCTA";
-import { showDebugger } from "actions/debuggerActions";
-import { setActionTabsInitialIndex } from "actions/pluginActionActions";
+import { setCurrentTab, showDebugger } from "actions/debuggerActions";
 import { getTypographyByKey } from "constants/DefaultTheme";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { Colors } from "constants/Colors";
+import { inGuidedTour } from "selectors/onboardingSelectors";
+import {
+  interactionAnalyticsEvent,
+  InteractionAnalyticsEventDetail,
+  INTERACTION_ANALYTICS_EVENT,
+} from "utils/AppsmithUtils";
+import { PopoverPosition } from "@blueprintjs/core/lib/esnext/components/popover/popoverSharedProps";
+import equal from "fast-deep-equal";
+import { mapValues, pick } from "lodash";
+import { createSelector } from "reselect";
 
-const CONNECTION_WIDTH = 113;
 const CONNECTION_HEIGHT = 28;
 
 const TopLayer = styled.div`
   display: flex;
   flex: 1;
   justify-content: space-between;
-  background-color: ${Colors.GREY_1};
+  padding: 0 0.75rem;
 
   .connection-dropdown {
     box-shadow: none;
     border: none;
-    background-color: ${Colors.GREY_1};
+    background-color: ${Colors.WHITE};
+    padding: 0;
+    width: auto;
   }
+
   .error {
     border: 1px solid
       ${(props) => props.theme.colors.propertyPane.connections.error};
@@ -51,16 +63,17 @@ const TopLayer = styled.div`
 const SelectedNodeWrapper = styled.div<{
   entityCount: number;
   hasError: boolean;
+  justifyContent: string;
 }>`
   display: flex;
   align-items: center;
-  justify-content: center;
+  width: 100%;
+  justify-content: ${(props) => props.justifyContent};
   color: ${(props) =>
     props.hasError
       ? props.theme.colors.propertyPane.connections.error
       : props.theme.colors.propertyPane.connections.connectionsCount};
   ${(props) => getTypographyByKey(props, "p3")}
-  width: 113px;
   opacity: ${(props) => (!!props.entityCount ? 1 : 0.5)};
 
   & > *:nth-child(2) {
@@ -121,6 +134,7 @@ const OptionWrapper = styled.div<{ hasError: boolean; fillIconColor: boolean }>`
 
 const OptionContentWrapper = styled.div<{
   hasError: boolean;
+  isSelected: boolean;
 }>`
   padding: ${(props) => props.theme.spaces[2] + 1}px
     ${(props) => props.theme.spaces[5]}px;
@@ -130,6 +144,10 @@ const OptionContentWrapper = styled.div<{
   line-height: 8px;
   flex: 1;
   min-width: 0;
+  background-color: ${(props) =>
+    props.isSelected &&
+    !props.hasError &&
+    props.theme.colors.dropdown.hovered.bg};
 
   span:first-child {
     font-size: 10px;
@@ -155,18 +173,12 @@ const OptionContentWrapper = styled.div<{
   &:hover {
     background-color: ${(props) =>
       !props.hasError && props.theme.colors.dropdown.hovered.bg};
-
-    .${Classes.TEXT} {
-      color: ${(props) =>
-        props.hasError
-          ? props.theme.colors.propertyPane.connections.error
-          : props.theme.colors.textOnDarkBG};
-    }
   }
 `;
 
 type PropertyPaneConnectionsProps = {
   widgetName: string;
+  widgetType: string;
 };
 
 type TriggerNodeProps = DefaultDropDownValueNodeProps & {
@@ -174,6 +186,8 @@ type TriggerNodeProps = DefaultDropDownValueNodeProps & {
   iconAlignment: "LEFT" | "RIGHT";
   connectionType: "INCOMING" | "OUTGOING";
   hasError: boolean;
+  justifyContent: string;
+  tooltipPosition?: PopoverPosition;
 };
 
 const doConnectionsHaveErrors = (
@@ -185,9 +199,17 @@ const doConnectionsHaveErrors = (
   );
 };
 
+const getDataTreeWithOnlyIds = createSelector(getDataTree, (tree) =>
+  mapValues(tree, (x) => pick(x, ["ENTITY_TYPE", "widgetId", "actionId"])),
+);
+
 const useDependencyList = (name: string) => {
-  const dataTree = useSelector(getDataTree);
-  const deps = useSelector((state: AppState) => state.evaluations.dependencies);
+  const dataTree = useSelector(getDataTreeWithOnlyIds, equal);
+  const inverseDependencyMap = useSelector(
+    (state: AppState) => state.evaluations.dependencies.inverseDependencyMap,
+    equal,
+  );
+  const guidedTour = useSelector(inGuidedTour);
 
   const getEntityId = useCallback((name) => {
     const entity = dataTree[name];
@@ -200,16 +222,14 @@ const useDependencyList = (name: string) => {
   }, []);
 
   const entityDependencies = useMemo(() => {
-    return getDependenciesFromInverseDependencies(
-      deps.inverseDependencyMap,
-      name,
-    );
-  }, [name, deps.inverseDependencyMap]);
+    if (guidedTour) return null;
+    return getDependenciesFromInverseDependencies(inverseDependencyMap, name);
+  }, [name, inverseDependencyMap, guidedTour]);
 
   const dependencyOptions =
     entityDependencies?.directDependencies.map((e) => ({
       label: e,
-      value: getEntityId(e),
+      value: getEntityId(e) ?? e,
     })) ?? [];
   const inverseDependencyOptions =
     entityDependencies?.inverseDependencies.map((e) => ({
@@ -231,10 +251,10 @@ function OptionNode(props: any) {
 
   const onClick = () => {
     if (entityInfo?.hasError) {
-      if (entityInfo?.type === ENTITY_TYPE.ACTION) {
-        dispatch(setActionTabsInitialIndex(1));
-      } else {
+      if (entityInfo?.type === ENTITY_TYPE.WIDGET) {
         dispatch(showDebugger(true));
+      } else {
+        dispatch(setCurrentTab(DEBUGGER_TAB_KEYS.ERROR_TAB));
       }
     }
     navigateToEntity(props.option.label);
@@ -244,12 +264,28 @@ function OptionNode(props: any) {
     });
   };
 
+  const handleKeyDown = (e: KeyboardEvent) => {
+    if (!props.isSelectedNode) return;
+    if (e.key === " " || e.key === "Enter") onClick();
+  };
+
+  useEffect(() => {
+    document.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [props.isSelectedNode]);
+
   return (
     <OptionWrapper
       fillIconColor={!entityInfo?.datasourceName}
       hasError={!!entityInfo?.hasError}
     >
-      <OptionContentWrapper hasError={!!entityInfo?.hasError} onClick={onClick}>
+      <OptionContentWrapper
+        hasError={!!entityInfo?.hasError}
+        isSelected={props.isSelectedNode}
+        onClick={onClick}
+      >
         <span>{entityInfo?.icon}</span>
         <Text type={TextType.H6}>
           {props.option.label}{" "}
@@ -281,6 +317,7 @@ const TriggerNode = memo((props: TriggerNodeProps) => {
       className={props.hasError ? "t--connection-error" : "t--connection"}
       entityCount={props.entityCount}
       hasError={props.hasError}
+      justifyContent={props.justifyContent}
       onClick={onClick}
     >
       {props.iconAlignment === "LEFT" && (
@@ -292,7 +329,12 @@ const TriggerNode = memo((props: TriggerNodeProps) => {
         />
       )}
       <span>
-        <Tooltip content={tooltipText} disabled={props.isOpen}>
+        <Tooltip
+          content={tooltipText}
+          disabled={props.isOpen}
+          openOnTargetFocus={false}
+          position={props.tooltipPosition}
+        >
           {props.entityCount ? `${props.entityCount} ${ENTITY}` : "No Entity"}
         </Tooltip>
       </span>
@@ -311,10 +353,41 @@ const TriggerNode = memo((props: TriggerNodeProps) => {
 
 TriggerNode.displayName = "TriggerNode";
 
+const selectedOption = { label: "", value: "" };
+
 function PropertyPaneConnections(props: PropertyPaneConnectionsProps) {
   const dependencies = useDependencyList(props.widgetName);
   const { navigateToEntity } = useEntityLink();
   const debuggerErrors = useSelector(getFilteredErrors);
+  const topLayerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    topLayerRef.current?.addEventListener(
+      INTERACTION_ANALYTICS_EVENT,
+      handleKbdEvent,
+    );
+    return () => {
+      topLayerRef.current?.removeEventListener(
+        INTERACTION_ANALYTICS_EVENT,
+        handleKbdEvent,
+      );
+    };
+  }, []);
+
+  const handleKbdEvent = (e: Event) => {
+    const event = e as CustomEvent<InteractionAnalyticsEventDetail>;
+    if (!event.detail?.propertyName) {
+      e.stopPropagation();
+      topLayerRef.current?.dispatchEvent(
+        interactionAnalyticsEvent({
+          key: event.detail.key,
+          propertyType: "PROPERTY_PANE_CONNECTION",
+          propertyName: "propertyPaneConnections",
+          widgetType: props.widgetType,
+        }),
+      );
+    }
+  };
 
   const errorIncomingConnections = useMemo(() => {
     return doConnectionsHaveErrors(
@@ -331,15 +404,17 @@ function PropertyPaneConnections(props: PropertyPaneConnectionsProps) {
   }, [dependencies.inverseDependencyOptions, debuggerErrors]);
 
   return (
-    <TopLayer>
+    <TopLayer ref={topLayerRef}>
       <Dropdown
         SelectedValueNode={(selectedValueProps) => (
           <TriggerNode
             iconAlignment={"LEFT"}
+            justifyContent={"flex-start"}
             {...selectedValueProps}
             connectionType="INCOMING"
             entityCount={dependencies.dependencyOptions.length}
             hasError={errorIncomingConnections}
+            tooltipPosition="bottom-left"
           />
         )}
         className={`connection-dropdown ${
@@ -350,22 +425,29 @@ function PropertyPaneConnections(props: PropertyPaneConnectionsProps) {
         height={`${CONNECTION_HEIGHT}px`}
         options={dependencies.dependencyOptions}
         renderOption={(optionProps) => {
-          return <OptionNode option={optionProps.option} />;
+          return (
+            <OptionNode
+              isSelectedNode={optionProps.isSelectedNode}
+              option={optionProps.option}
+            />
+          );
         }}
-        selected={{ label: "", value: "" }}
+        selected={selectedOption}
         showDropIcon={false}
         showLabelOnly
-        width={`${CONNECTION_WIDTH}px`}
+        width="100%"
       />
       {/* <PopperDragHandle /> */}
       <Dropdown
         SelectedValueNode={(selectedValueProps) => (
           <TriggerNode
             iconAlignment={"RIGHT"}
+            justifyContent={"flex-end"}
             {...selectedValueProps}
             connectionType="OUTGOING"
             entityCount={dependencies.inverseDependencyOptions.length}
             hasError={errorOutgoingConnections}
+            tooltipPosition="bottom-right"
           />
         )}
         className={`connection-dropdown ${
@@ -377,12 +459,17 @@ function PropertyPaneConnections(props: PropertyPaneConnectionsProps) {
         onSelect={navigateToEntity}
         options={dependencies.inverseDependencyOptions}
         renderOption={(optionProps) => {
-          return <OptionNode option={optionProps.option} />;
+          return (
+            <OptionNode
+              isSelectedNode={optionProps.isSelectedNode}
+              option={optionProps.option}
+            />
+          );
         }}
         selected={{ label: "", value: "" }}
         showDropIcon={false}
         showLabelOnly
-        width={`${CONNECTION_WIDTH}px`}
+        width={`100%`}
       />
     </TopLayer>
   );

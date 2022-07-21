@@ -53,7 +53,9 @@
             "orientation": "VERTICAL",
             "children": [
               {
+                "enableClientSideSearch": true,
                 "isVisible": true,
+                "isSortable": true,
                 "label": "Data",
                 "widgetName": "Table1",
                 "tableData": "",

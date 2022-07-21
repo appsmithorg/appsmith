@@ -129,7 +129,6 @@ const StyledMenu = styled(Menu)`
 
 export function EditorAppName(props: EditorAppNameProps) {
   const {
-    applicationId,
     currentDeployLink,
     defaultSavingState,
     defaultValue,
@@ -188,7 +187,6 @@ export function EditorAppName(props: EditorAppNameProps) {
   }, []);
 
   const NavigationMenuData = GetNavigationMenuData({
-    applicationId,
     currentDeployLink,
     editMode,
     deploy,
@@ -196,7 +194,7 @@ export function EditorAppName(props: EditorAppNameProps) {
   });
 
   const NavigationMenuItems = (
-    <StyledMenu>
+    <StyledMenu className="t--application-edit-menu">
       <NavigationMenu
         menuItems={NavigationMenuData}
         setIsPopoverOpen={setIsPopoverOpen}
@@ -237,7 +235,7 @@ export function EditorAppName(props: EditorAppNameProps) {
         {!isEditing && (
           <StyledIcon
             fillColor={theme.colors.navigationMenu.contentActive}
-            name={isPopoverOpen ? "upArrow" : "downArrow"}
+            name={isPopoverOpen ? "expand-less" : "down-arrow"}
             size={IconSize.XXL}
           />
         )}

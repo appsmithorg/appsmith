@@ -4,15 +4,17 @@ import { useSelector } from "react-redux";
 import { AppState } from "reducers";
 import { Datasource } from "entities/Datasource";
 import DatasourceCard from "./DatasourceCard";
-import Text, { TextType } from "components/ads/Text";
+import { Text, TextType } from "design-system";
 import Button, { Category, Size } from "components/ads/Button";
 import { thinScrollbar } from "constants/DefaultTheme";
 import { keyBy } from "lodash";
-import { createMessage, EMPTY_ACTIVE_DATA_SOURCES } from "constants/messages";
+import {
+  createMessage,
+  EMPTY_ACTIVE_DATA_SOURCES,
+} from "@appsmith/constants/messages";
 
 const QueryHomePage = styled.div`
   ${thinScrollbar};
-  padding: 5px;
   overflow: auto;
   display: flex;
   flex-direction: column;
@@ -37,24 +39,8 @@ const EmptyActiveDatasource = styled.div`
   justify-content: center;
 `;
 
-const GenerateInfoBanner = styled.div`
-  width: 518px;
-`;
-
-const GenerateInfoHeader = styled.h5`
-  margin: 32px 0px 8px;
-  font-weight: 500;
-  color: ${(props) => props.theme.colors.textOnGreyBG};
-`;
-
-const GenerateInfoBody = styled.p`
-  font-size: 12px;
-  color: ${(props) => props.theme.colors.searchInput.placeholder};
-`;
-
 type ActiveDataSourcesProps = {
   dataSources: Datasource[];
-  applicationId: string;
   pageId: string;
   location: {
     search: string;
@@ -101,14 +87,6 @@ function ActiveDataSources(props: ActiveDataSourcesProps) {
           />
         );
       })}
-      <GenerateInfoBanner>
-        <GenerateInfoHeader>Generate an application</GenerateInfoHeader>
-        <GenerateInfoBody>
-          Quickly create a full application with using our Generation
-          &nbsp;Application feature By adding a new query you’ll be able to
-          choose your own widgets, connect them to your data.
-        </GenerateInfoBody>
-      </GenerateInfoBanner>
     </QueryHomePage>
   );
 }

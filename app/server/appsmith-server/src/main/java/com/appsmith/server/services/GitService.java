@@ -1,12 +1,7 @@
 package com.appsmith.server.services;
 
-import com.appsmith.server.domains.GitConfig;
-import com.appsmith.server.domains.UserData;
-import reactor.core.publisher.Mono;
+import com.appsmith.server.services.ce.GitServiceCE;
 
-public interface GitService extends CrudService<UserData, String> {
+public interface GitService extends GitServiceCE {
 
-    Mono<UserData> saveGitConfigData(GitConfig gitConfig);
-
-    Mono<GitConfig> getGitConfigForUser();
 }

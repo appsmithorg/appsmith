@@ -1,18 +1,19 @@
-import { ExplorerURLParams } from "../helpers";
-import { BUILDER_PAGE_URL } from "constants/routes";
+import { builderURL } from "RouteBuilder";
 import history from "utils/history";
 
-export const navigateToCanvas = (
-  params: ExplorerURLParams,
-  currentPath: string,
-  widgetPageId: string,
-  widgetId: string,
-) => {
-  const canvasEditorURL = `${BUILDER_PAGE_URL(
-    params.applicationId,
-    widgetPageId,
-  )}`;
+export const navigateToCanvas = ({
+  pageId,
+  widgetId,
+}: {
+  pageId: string;
+  widgetId: string;
+}) => {
+  const currentPath = window.location.pathname;
+  const canvasEditorURL = `${builderURL({
+    pageId,
+    hash: widgetId,
+  })}`;
   if (currentPath !== canvasEditorURL) {
-    history.push(`${canvasEditorURL}#${widgetId}`);
+    history.push(canvasEditorURL);
   }
 };

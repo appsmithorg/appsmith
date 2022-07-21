@@ -1,23 +1,36 @@
 import { AppState } from "reducers";
 import { createSelector } from "reselect";
-import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
+import {
+  CanvasWidgetsReduxState,
+  FlattenedWidgetProps,
+} from "reducers/entityReducers/canvasWidgetsReducer";
 import { WidgetProps } from "widgets/BaseWidget";
 import _ from "lodash";
 import { WidgetType } from "constants/WidgetConstants";
 import { ActionData } from "reducers/entityReducers/actionsReducer";
-import { Page } from "constants/ReduxActionConstants";
-import { getActions, getPlugins } from "../selectors/entitiesSelector";
+import { Page } from "@appsmith/constants/ReduxActionConstants";
+import { getActions, getPlugins } from "selectors/entitiesSelector";
 import { Plugin } from "api/PluginApi";
 
-export const getWidgets = (
-  state: AppState,
-): { [widgetId: string]: FlattenedWidgetProps } => {
+export const getWidgets = (state: AppState): CanvasWidgetsReduxState => {
   return state.entities.canvasWidgets;
 };
 
 export const getWidgetsMeta = (state: AppState) => state.entities.meta;
-export const getWidgetMetaProps = (state: AppState, widgetId: string) =>
-  state.entities.meta[widgetId];
+
+export const getWidgetMetaProps = createSelector(
+  [getWidgetsMeta, (_state: AppState, widgetId: string) => widgetId],
+  (metaState, widgetId: string) => metaState[widgetId],
+);
+
+export const getWidgetByID = (widgetId: string) => {
+  return createSelector(
+    getWidgets,
+    (canvasWidgets: { [widgetId: string]: FlattenedWidgetProps }) => {
+      return canvasWidgets[widgetId];
+    },
+  );
+};
 
 export const getWidget = (state: AppState, widgetId: string): WidgetProps => {
   return state.entities.canvasWidgets[widgetId];
@@ -50,7 +63,7 @@ export const getEditorConfigs = (
   return { pageId, layoutId };
 };
 
-export const getDefaultPageId = (state: AppState): string | undefined =>
+export const getDefaultPageId = (state: AppState): string =>
   state.entities.pageList.defaultPageId;
 
 export const getExistingWidgetNames = createSelector(
@@ -111,14 +124,6 @@ export const getWidgetByName = (
   );
 };
 
-export const getWidgetById = (
-  state: AppState,
-  id: string,
-): FlattenedWidgetProps | undefined => {
-  const widgets = state.entities.canvasWidgets;
-  return widgets[id];
-};
-
 export const getAllPageIds = (state: AppState) => {
   return state.entities.pageList.pages.map((page) => page.pageId);
 };
@@ -137,7 +142,9 @@ export const getDragDetails = (state: AppState) => {
   return state.ui.widgetDragResize.dragDetails;
 };
 
-export const getSelectedWidget = (state: AppState) => {
+export const getSelectedWidget = (
+  state: AppState,
+): FlattenedWidgetProps | undefined => {
   const selectedWidgetId = state.ui.widgetDragResize.lastSelectedWidget;
   if (!selectedWidgetId) return;
   return state.entities.canvasWidgets[selectedWidgetId];

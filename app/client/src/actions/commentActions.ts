@@ -1,4 +1,7 @@
-import { ReduxAction, ReduxActionTypes } from "constants/ReduxActionConstants";
+import {
+  ReduxAction,
+  ReduxActionTypes,
+} from "@appsmith/constants/ReduxActionConstants";
 import { COMMENT_EVENTS_CHANNEL } from "constants/CommentConstants";
 import { options as filterOptions } from "comments/AppComments/AppCommentsFilterPopover";
 
@@ -86,9 +89,10 @@ export const fetchApplicationCommentsRequest = () => ({
   type: ReduxActionTypes.FETCH_APPLICATION_COMMENTS_REQUEST,
 });
 
-export const fetchApplicationCommentsSuccess = (
-  payload: Array<CommentThread>,
-) => ({
+export const fetchApplicationCommentsSuccess = (payload: {
+  commentThreads: CommentThread[];
+  applicationId: string;
+}) => ({
   type: ReduxActionTypes.FETCH_APPLICATION_COMMENTS_SUCCESS,
   payload,
 });
@@ -262,19 +266,6 @@ export const showCommentsIntroCarousel = () => ({
 export const hideCommentsIntroCarousel = () => ({
   type: ReduxActionTypes.HIDE_COMMENTS_INTRO_CAROUSEL,
   payload: undefined,
-});
-
-export const fetchUnreadCommentThreadsCountSuccess = (count?: number) => ({
-  type: ReduxActionTypes.FETCH_UNREAD_COMMENT_THREADS_COUNT_SUCCESS,
-  payload: count,
-});
-
-export const incrementThreadUnreadCount = () => ({
-  type: ReduxActionTypes.INCREMENT_COMMENT_THREAD_UNREAD_COUNT,
-});
-
-export const decrementThreadUnreadCount = () => ({
-  type: ReduxActionTypes.DECREMENT_COMMENT_THREAD_UNREAD_COUNT,
 });
 
 export const deleteCommentThreadEvent = (thread: CommentThread) => ({

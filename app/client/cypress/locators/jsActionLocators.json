@@ -1,0 +1,5 @@
+{
+  "addJsActionButton": ".js_actions .t--entity-add-btn",
+  "name": ".t--js-action-name-edit-field",
+  "nameInput": ".t--js-action-name-edit-field input"
+}

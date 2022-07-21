@@ -1,72 +1,81 @@
 import React from "react";
 import styled from "styled-components";
-import {
-  labelStyle,
-  IntentColors,
-  getBorderCSSShorthand,
-} from "constants/DefaultTheme";
-import { ControlGroup, Classes, Label } from "@blueprintjs/core";
+import { IntentColors } from "constants/DefaultTheme";
+import { ControlGroup, Classes, IRef, Alignment } from "@blueprintjs/core";
 import { ComponentProps } from "widgets/BaseComponent";
 import { DateInput } from "@blueprintjs/datetime";
 import moment from "moment-timezone";
 import "../../../../node_modules/@blueprintjs/datetime/lib/css/blueprint-datetime.css";
-import { DatePickerType } from "../constants";
-import { WIDGET_PADDING } from "constants/WidgetConstants";
-import { TimePrecision } from "@blueprintjs/datetime";
+import { DatePickerType, TimePrecision } from "../constants";
+import { TextSize } from "constants/WidgetConstants";
 import { Colors } from "constants/Colors";
 import { ISO_DATE_FORMAT } from "constants/WidgetValidation";
 import ErrorTooltip from "components/editorComponents/ErrorTooltip";
 import {
   createMessage,
   DATE_WIDGET_DEFAULT_VALIDATION_ERROR,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
+import { LabelPosition } from "components/constants";
+import { parseDate } from "./utils";
+import LabelWithTooltip, {
+  labelLayoutStyles,
+} from "components/ads/LabelWithTooltip";
+import { lightenColor, PopoverStyles } from "widgets/WidgetUtils";
 
-enum KEYS {
-  Tab = "Tab",
-  Escape = "Escape",
-}
+const DATEPICKER_POPUP_CLASSNAME = "datepickerwidget-popup";
 
-const StyledControlGroup = styled(ControlGroup)<{ isValid: boolean }>`
+const StyledControlGroup = styled(ControlGroup)<{
+  isValid: boolean;
+  compactMode: boolean;
+  labelPosition?: LabelPosition;
+  borderRadius: string;
+  boxShadow?: string;
+  accentColor: string;
+}>`
+  ${labelLayoutStyles}
+
   &&& {
     .${Classes.INPUT} {
-      box-shadow: none;
+      color: ${Colors.GREY_10};
+      background: ${Colors.WHITE};
+      border-radius: ${({ borderRadius }) => borderRadius} !important;
+      box-shadow: ${({ boxShadow }) => `${boxShadow}`} !important;
       border: 1px solid;
-      border-color: ${(props) =>
-        !props.isValid ? IntentColors.danger : Colors.GEYSER_LIGHT};
-      border-radius: ${(props) => props.theme.radii[1]}px;
+      border-color: ${({ isValid }) =>
+        !isValid ? `${Colors.DANGER_SOLID} !important;` : `${Colors.GREY_3};`}
       width: 100%;
-      height: inherit;
+      height: 100%;
+      min-height: 32px;
       align-items: center;
-      &:active {
-        border-color: ${({ isValid }) =>
-          !isValid ? IntentColors.danger : Colors.HIT_GRAY};
-      }
-      &:focus {
-        border-color: ${({ isValid }) =>
-          !isValid ? IntentColors.danger : Colors.MYSTIC};
+      transition: none;
 
-        &:focus {
-          border: ${(props) => getBorderCSSShorthand(props.theme.borders[2])};
-          border-color: #80bdff;
-          outline: 0;
-          box-shadow: 0 0 0 0.1rem rgba(0, 123, 255, 0.25);
-        }
+      &:active {
+        border-color: ${({ accentColor, isValid }) =>
+          !isValid ? Colors.DANGER_SOLID : accentColor};
+      }
+
+      &:focus {
+        outline: 0;
+        border: 1px solid;
+        border-color: ${({ accentColor, isValid }) =>
+          !isValid ? Colors.DANGER_SOLID : accentColor};
+        box-shadow: ${({ accentColor }) =>
+          `0px 0px 0px 3px ${lightenColor(accentColor)} !important;`}
       }
     }
+
+    .${Classes.INPUT}:disabled {
+      background: ${Colors.GREY_1};
+      color: ${Colors.GREY_7};
+    }
+
     .${Classes.INPUT_GROUP} {
       display: block;
       margin: 0;
     }
+
     .${Classes.CONTROL_GROUP} {
       justify-content: flex-start;
-    }
-    label {
-      ${labelStyle}
-      flex: 0 1 30%;
-      margin: 7px ${WIDGET_PADDING * 2}px 0 0;
-      text-align: right;
-      align-self: flex-start;
-      max-width: calc(30% - ${WIDGET_PADDING}px);
     }
   }
   &&& {
@@ -74,12 +83,21 @@ const StyledControlGroup = styled(ControlGroup)<{ isValid: boolean }>`
       border: 1px solid;
       border-color: ${(props) =>
         !props.isValid ? IntentColors.danger : Colors.HIT_GRAY};
-      border-radius: ${(props) => props.theme.radii[1]}px;
       box-shadow: none;
-      color: ${Colors.OXFORD_BLUE};
       font-size: ${(props) => props.theme.fontSizes[3]}px;
     }
   }
+`;
+
+export const DateInputWrapper = styled.div<{
+  compactMode: boolean;
+  labelPosition?: LabelPosition;
+}>`
+  display: flex;
+  &&& {
+    flex-grow: 0;
+  }
+  width: 100%;
 `;
 
 class DatePickerComponent extends React.Component<
@@ -90,19 +108,18 @@ class DatePickerComponent extends React.Component<
     super(props);
     this.state = {
       selectedDate: props.selectedDate,
-      showPicker: false,
     };
   }
 
-  pickerRef: HTMLElement | null = null;
-
   componentDidUpdate(prevProps: DatePickerComponentProps) {
+    // prevProps.selectedDate can undefined and moment(undefined) returns now
     if (
       this.props.selectedDate !== this.state.selectedDate &&
-      !moment(this.props.selectedDate).isSame(
+      (!moment(this.props.selectedDate).isSame(
         moment(prevProps.selectedDate),
         "seconds",
-      )
+      ) ||
+        (!prevProps.selectedDate && this.props.selectedDate))
     ) {
       this.setState({ selectedDate: this.props.selectedDate });
     }
@@ -113,12 +130,19 @@ class DatePickerComponent extends React.Component<
     return _date.isValid() ? _date.toDate() : undefined;
   };
 
-  handlePopoverRef = (ref: any) => {
-    // get popover ref as callback
-    this.pickerRef = ref as HTMLElement;
-  };
-
   render() {
+    const {
+      compactMode,
+      isDisabled,
+      isLoading,
+      labelAlignment,
+      labelPosition,
+      labelStyle,
+      labelText,
+      labelTextColor,
+      labelTextSize,
+      labelWidth,
+    } = this.props;
     const now = moment();
     const year = now.get("year");
     const minDate = this.props.minDate
@@ -140,26 +164,129 @@ class DatePickerComponent extends React.Component<
       isValid && this.state.selectedDate
         ? new Date(this.state.selectedDate)
         : null;
+
+    const getInitialMonth = () => {
+      // None
+      if (
+        !this.props.minDate &&
+        !this.props.maxDate &&
+        !this.state.selectedDate
+      ) {
+        return new Date();
+      }
+      // Min-Max-Selcted
+      else if (
+        this.props.minDate &&
+        this.props.maxDate &&
+        this.state.selectedDate
+      ) {
+        switch (true) {
+          case new Date(this.props.minDate) > new Date(this.state.selectedDate):
+            return new Date(this.props.minDate);
+          case new Date(this.props.minDate) < new Date(this.state.selectedDate):
+            return isValid
+              ? new Date(this.state.selectedDate)
+              : new Date(this.props.minDate);
+          default:
+            return new Date();
+        }
+      }
+      // Min-Max-!Selcted
+      else if (
+        this.props.minDate &&
+        this.props.maxDate &&
+        !this.state.selectedDate
+      ) {
+        switch (true) {
+          case new Date(this.props.minDate) > new Date():
+          case new Date(this.props.maxDate) < new Date():
+            return new Date(this.props.minDate);
+          default:
+            return new Date();
+        }
+      }
+      // Min-Selcted
+      else if (this.props.minDate && this.state.selectedDate) {
+        switch (true) {
+          case new Date(this.props.minDate) > new Date(this.state.selectedDate):
+            return new Date(this.props.minDate);
+          case new Date(this.props.minDate) < new Date(this.state.selectedDate):
+            return new Date(this.state.selectedDate);
+          default:
+            return new Date();
+        }
+      }
+      // Max-Selcted
+      else if (this.props.maxDate && this.state.selectedDate) {
+        switch (true) {
+          case new Date(this.props.maxDate) > new Date(this.state.selectedDate):
+            return new Date(this.state.selectedDate);
+          case new Date(this.props.maxDate) < new Date(this.state.selectedDate):
+            return new Date(this.props.maxDate);
+          default:
+            return new Date();
+        }
+      }
+      // Selected
+      else if (this.state.selectedDate) {
+        return new Date(this.state.selectedDate);
+      }
+      // Min
+      else if (this.props.minDate) {
+        switch (true) {
+          case new Date(this.props.minDate) > new Date():
+            return new Date(this.props.minDate);
+          default:
+            return new Date();
+        }
+      }
+      // Max
+      else if (this.props.maxDate) {
+        switch (true) {
+          case new Date(this.props.maxDate) < new Date():
+            return new Date(this.props.maxDate);
+          default:
+            return new Date();
+        }
+      } else {
+        return new Date();
+      }
+    };
+    const initialMonth = getInitialMonth();
+
     return (
       <StyledControlGroup
+        accentColor={this.props.accentColor}
+        borderRadius={this.props.borderRadius}
+        boxShadow={this.props.boxShadow}
+        compactMode={this.props.compactMode}
+        data-testid="datepicker-container"
         fill
         isValid={isValid}
+        labelPosition={this.props.labelPosition}
         onClick={(e: any) => {
           e.stopPropagation();
         }}
       >
-        {this.props.label && (
-          <Label
-            className={
-              this.props.isLoading
-                ? Classes.SKELETON
-                : Classes.TEXT_OVERFLOW_ELLIPSIS
-            }
-          >
-            {this.props.label}
-          </Label>
+        {labelText && (
+          <LabelWithTooltip
+            alignment={labelAlignment}
+            className={`datepicker-label`}
+            color={labelTextColor}
+            compact={compactMode}
+            disabled={isDisabled}
+            fontSize={labelTextSize}
+            fontStyle={labelStyle}
+            loading={isLoading}
+            position={labelPosition}
+            text={labelText}
+            width={labelWidth}
+          />
         )}
-        {
+        <DateInputWrapper
+          compactMode={compactMode}
+          labelPosition={labelPosition}
+        >
           <ErrorTooltip
             isOpen={!isValid}
             message={createMessage(DATE_WIDGET_DEFAULT_VALIDATION_ERROR)}
@@ -167,11 +294,14 @@ class DatePickerComponent extends React.Component<
             <DateInput
               className={this.props.isLoading ? "bp3-skeleton" : ""}
               closeOnSelection={this.props.closeOnSelection}
+              dayPickerProps={{
+                firstDayOfWeek: this.props.firstDayOfWeek || 0,
+              }}
               disabled={this.props.isDisabled}
               formatDate={this.formatDate}
+              initialMonth={initialMonth}
               inputProps={{
-                onFocus: this.showPicker,
-                onKeyDown: this.handleKeyDown,
+                inputRef: this.props.inputRef,
               }}
               maxDate={maxDate}
               minDate={minDate}
@@ -180,17 +310,25 @@ class DatePickerComponent extends React.Component<
               placeholder={"Select Date"}
               popoverProps={{
                 usePortal: !this.props.withoutPortal,
-                isOpen: this.state.showPicker,
-                onClose: this.closePicker,
-                popoverRef: this.handlePopoverRef,
+                canEscapeKeyClose: true,
+                portalClassName: `${DATEPICKER_POPUP_CLASSNAME}-${this.props.widgetId}`,
               }}
               shortcuts={this.props.shortcuts}
               showActionsBar
-              timePrecision={TimePrecision.MINUTE}
+              timePrecision={
+                this.props.timePrecision === TimePrecision.NONE
+                  ? undefined
+                  : this.props.timePrecision
+              }
               value={value}
             />
           </ErrorTooltip>
-        }
+        </DateInputWrapper>
+        <PopoverStyles
+          accentColor={this.props.accentColor}
+          borderRadius={this.props.borderRadius}
+          portalClassName={`${DATEPICKER_POPUP_CLASSNAME}-${this.props.widgetId}`}
+        />
       </StyledControlGroup>
     );
   }
@@ -235,10 +373,8 @@ class DatePickerComponent extends React.Component<
     if (!dateStr) {
       return null;
     } else {
-      const date = moment(dateStr);
       const dateFormat = this.props.dateFormat || ISO_DATE_FORMAT;
-      if (date.isValid()) return moment(dateStr, dateFormat).toDate();
-      else return moment().toDate();
+      return parseDate(dateStr, dateFormat);
     }
   };
 
@@ -246,51 +382,31 @@ class DatePickerComponent extends React.Component<
    * checks if selelectedDate is null or not,
    * sets state and calls props onDateSelected
    * if its null, don't call onDateSelected
+   * update internal state while changing month/year to update calender
    *
    * @param selectedDate
    */
   onDateSelected = (selectedDate: Date | null, isUserChange: boolean) => {
     if (isUserChange) {
-      const { closeOnSelection, onDateSelected } = this.props;
-
+      const { onDateSelected } = this.props;
       const date = selectedDate ? selectedDate.toISOString() : "";
       this.setState({
         selectedDate: date,
-        // close picker while user changes in calender
-        // if closeOnSelection false, do not allow user to close picker
-        showPicker: !closeOnSelection,
       });
-
       onDateSelected(date);
-    }
-  };
-
-  showPicker = () => {
-    this.setState({ showPicker: true });
-  };
-
-  closePicker = (e: any) => {
-    const { closeOnSelection } = this.props;
-    try {
-      // user click shortcuts, follow closeOnSelection behaviour otherwise close picker
-      const showPicker =
-        this.pickerRef && this.pickerRef.contains(e.target)
-          ? !closeOnSelection
-          : false;
-      this.setState({ showPicker });
-    } catch (error) {
-      this.setState({ showPicker: false });
-    }
-  };
-  handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === KEYS.Tab || e.key === KEYS.Escape) {
-      this.closePicker(e);
     }
   };
 }
 
 interface DatePickerComponentProps extends ComponentProps {
-  label: string;
+  compactMode: boolean;
+  labelText: string;
+  labelPosition?: LabelPosition;
+  labelAlignment?: Alignment;
+  labelWidth?: number;
+  labelTextColor?: string;
+  labelTextSize?: TextSize;
+  labelStyle?: string;
   dateFormat: string;
   selectedDate?: string;
   minDate?: string;
@@ -303,11 +419,16 @@ interface DatePickerComponentProps extends ComponentProps {
   withoutPortal?: boolean;
   closeOnSelection: boolean;
   shortcuts: boolean;
+  firstDayOfWeek?: number;
+  timePrecision: TimePrecision;
+  inputRef?: IRef<HTMLInputElement>;
+  borderRadius: string;
+  boxShadow?: string;
+  accentColor: string;
 }
 
 interface DatePickerComponentState {
   selectedDate?: string;
-  showPicker?: boolean;
 }
 
 export default DatePickerComponent;

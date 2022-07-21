@@ -17,12 +17,13 @@ import {
   ONBOARDING_TASK_WIDGET_FOOTER_ACTION,
   ONBOARDING_TASK_FOOTER,
   createMessage,
-} from "constants/messages";
-import { ReduxActionTypes } from "constants/ReduxActionConstants";
-import { INTEGRATION_EDITOR_URL, INTEGRATION_TABS } from "constants/routes";
+} from "@appsmith/constants/messages";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import { INTEGRATION_TABS } from "constants/routes";
 import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
 import React from "react";
 import { useDispatch } from "react-redux";
+
 import {
   getCurrentApplicationId,
   getCurrentPageId,
@@ -38,6 +39,7 @@ import styled from "styled-components";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import history from "utils/history";
 import IntroductionModal from "./IntroductionModal";
+import { integrationEditorURL } from "RouteBuilder";
 
 const Wrapper = styled.div`
   width: 100%;
@@ -111,7 +113,10 @@ export default function OnboardingTasks() {
         <TaskImageContainer>
           <TaskImage src={getOnboardingDatasourceImg()} />
         </TaskImageContainer>
-        <TaskHeader data-testid="onboarding-tasks-datasource-text">
+        <TaskHeader
+          className="t--tasks-datasource-header"
+          data-testid="onboarding-tasks-datasource-text"
+        >
           {createMessage(ONBOARDING_TASK_DATASOURCE_HEADER)}
         </TaskHeader>
         <TaskSubText>
@@ -119,17 +124,17 @@ export default function OnboardingTasks() {
         </TaskSubText>
         <TaskButtonWrapper>
           <StyledButton
+            className="t--tasks-datasource-button"
             data-testid="onboarding-tasks-datasource-button"
             onClick={() => {
               AnalyticsUtil.logEvent("SIGNPOSTING_CREATE_DATASOURCE_CLICK", {
                 from: "CANVAS",
               });
               history.push(
-                INTEGRATION_EDITOR_URL(
-                  applicationId,
+                integrationEditorURL({
                   pageId,
-                  INTEGRATION_TABS.NEW,
-                ),
+                  selectedTab: INTEGRATION_TABS.NEW,
+                }),
               );
             }}
             tag="button"
@@ -140,6 +145,7 @@ export default function OnboardingTasks() {
         <Taskfootnote>
           {createMessage(ONBOARDING_TASK_FOOTER)}&nbsp;
           <span
+            className="t--tasks-datasource-alternate-button"
             data-testid="onboarding-tasks-datasource-alt"
             onClick={() => {
               AnalyticsUtil.logEvent("SIGNPOSTING_ADD_WIDGET_CLICK", {
@@ -161,23 +167,26 @@ export default function OnboardingTasks() {
         <TaskImageContainer>
           <TaskImage src={getOnboardingQueryImg()} />
         </TaskImageContainer>
-        <TaskHeader data-testid="onboarding-tasks-action-text">
+        <TaskHeader
+          className="t--tasks-datasource-header"
+          data-testid="onboarding-tasks-action-text"
+        >
           {createMessage(ONBOARDING_TASK_QUERY_HEADER)}
         </TaskHeader>
         <TaskSubText>{createMessage(ONBOARDING_TASK_QUERY_BODY)}</TaskSubText>
         <TaskButtonWrapper>
           <StyledButton
+            className="t--tasks-action-button"
             data-testid="onboarding-tasks-action-button"
             onClick={() => {
               AnalyticsUtil.logEvent("SIGNPOSTING_CREATE_QUERY_CLICK", {
                 from: "CANVAS",
               });
               history.push(
-                INTEGRATION_EDITOR_URL(
-                  applicationId,
+                integrationEditorURL({
                   pageId,
-                  INTEGRATION_TABS.ACTIVE,
-                ),
+                  selectedTab: INTEGRATION_TABS.ACTIVE,
+                }),
               );
             }}
             tag="button"
@@ -188,6 +197,7 @@ export default function OnboardingTasks() {
         <Taskfootnote>
           {createMessage(ONBOARDING_TASK_FOOTER)}&nbsp;
           <span
+            className="t--tasks-action-alternate-button"
             data-testid="onboarding-tasks-action-alt"
             onClick={() => {
               AnalyticsUtil.logEvent("SIGNPOSTING_ADD_WIDGET_CLICK", {
@@ -208,12 +218,16 @@ export default function OnboardingTasks() {
         <TaskImageContainer>
           <TaskImage src={getOnboardingWidgetImg()} />
         </TaskImageContainer>
-        <TaskHeader data-testid="onboarding-tasks-widget-text">
+        <TaskHeader
+          className="t--tasks-datasource-header"
+          data-testid="onboarding-tasks-widget-text"
+        >
           {createMessage(ONBOARDING_TASK_WIDGET_HEADER)}
         </TaskHeader>
         <TaskSubText>{createMessage(ONBOARDING_TASK_WIDGET_BODY)}</TaskSubText>
         <TaskButtonWrapper>
           <StyledButton
+            className="t--tasks-widget-button"
             data-testid="onboarding-tasks-widget-button"
             onClick={() => {
               AnalyticsUtil.logEvent("SIGNPOSTING_ADD_WIDGET_CLICK", {
@@ -230,6 +244,7 @@ export default function OnboardingTasks() {
         <Taskfootnote>
           {createMessage(ONBOARDING_TASK_FOOTER)}&nbsp;
           <span
+            className="t--tasks-widget-alternate-button"
             data-testid="onboarding-tasks-widget-alt"
             onClick={() => {
               AnalyticsUtil.logEvent("SIGNPOSTING_PUBLISH_CLICK", {

@@ -1,16 +1,19 @@
-import Widget from "./widget";
+import { Alignment } from "@blueprintjs/core";
+import { LabelPosition } from "components/constants";
 import IconSVG from "./icon.svg";
-import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
+import Widget from "./widget";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
   name: "Multi TreeSelect",
   iconSVG: IconSVG,
   needsMeta: true,
+  searchTags: ["dropdown"],
   defaults: {
-    rows: 1.72 * GRID_DENSITY_MIGRATION_V1,
-    columns: 4 * GRID_DENSITY_MIGRATION_V1,
+    rows: 4,
+    columns: 20,
     mode: "SHOW_ALL",
+    animateLoading: true,
     options: [
       {
         label: "Blue",
@@ -29,7 +32,7 @@ export const CONFIG = {
       { label: "Green", value: "GREEN" },
       { label: "Red", value: "RED" },
     ],
-    widgetName: "MultiSelectTree",
+    widgetName: "MultiTreeSelect",
     defaultOptionValue: ["GREEN"],
     version: 1,
     isVisible: true,
@@ -37,8 +40,12 @@ export const CONFIG = {
     isDisabled: false,
     allowClear: false,
     expandAll: false,
-    placeholderText: "select option(s)",
+    placeholderText: "Select option(s)",
     labelText: "Label",
+    labelPosition: LabelPosition.Left,
+    labelAlignment: Alignment.LEFT,
+    labelWidth: 5,
+    labelTextSize: "0.875rem",
   },
   properties: {
     derived: Widget.getDerivedPropertiesMap(),

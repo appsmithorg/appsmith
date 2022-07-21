@@ -30,15 +30,15 @@ const COMMENT_PIN_SIZE = 30;
  * instead of the top left for the default arrow cursor
  */
 const CommentTriggerContainer = styled.div<{
-  top: number;
-  left: number;
+  top?: number;
+  left?: number;
   leftPercent: number;
   topPercent: number;
   positionAbsolutely: boolean;
   xOffset: number;
   yOffset: number;
 }>`
-  position: absolute;
+  position: ${(props) => (props.positionAbsolutely ? "absolute" : "fixed")};
   ${(props) => getPosition(props)}
   z-index: 1;
 `;
@@ -279,8 +279,8 @@ function InlineCommentPin(props: Props) {
         <Pin
           commentThreadId={commentThreadId}
           onClick={handlePinClick}
-          sequenceId={commentThread.sequenceId}
-          unread={!commentThread.isViewed || isCommentThreadVisible}
+          sequenceId={commentThread?.sequenceId}
+          unread={!commentThread?.isViewed || isCommentThreadVisible}
         />
       </Popover2>
     </CommentTriggerContainer>

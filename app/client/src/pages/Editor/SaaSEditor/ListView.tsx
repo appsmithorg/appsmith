@@ -20,8 +20,13 @@ import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
 import styled from "styled-components";
 import { Spinner, Button } from "@blueprintjs/core";
 import DatasourceCard from "pages/Editor/SaaSEditor/DatasourceCard";
-import { getIsEditorInitialized } from "selectors/editorSelectors";
-import { INTEGRATION_EDITOR_URL, INTEGRATION_TABS } from "constants/routes";
+import {
+  getCurrentApplicationId,
+  getIsEditorInitialized,
+  selectURLSlugs,
+} from "selectors/editorSelectors";
+import { INTEGRATION_TABS } from "constants/routes";
+import { integrationEditorURL } from "RouteBuilder";
 
 const IntegrationHomePage = styled.div`
   padding: 20px;
@@ -60,6 +65,9 @@ interface StateProps {
   datasources: Datasource[];
   isCreating: boolean;
   isEditorInitialized: boolean;
+  applicationId: string;
+  applicationSlug: string;
+  pageSlug: string;
 }
 
 interface DispatchFunctions {
@@ -68,7 +76,6 @@ interface DispatchFunctions {
 }
 
 type RouteProps = RouteComponentProps<{
-  applicationId: string;
   pageId: string;
   pluginPackageName: string;
 }>;
@@ -161,7 +168,7 @@ class ListView extends React.Component<Props> {
     const {
       history,
       match: {
-        params: { applicationId, pageId },
+        params: { pageId },
       },
     } = this.props;
     return (
@@ -170,11 +177,10 @@ class ListView extends React.Component<Props> {
           buttonText="Go back to Datasources"
           onBackButton={() =>
             history.push(
-              INTEGRATION_EDITOR_URL(
-                applicationId,
+              integrationEditorURL({
                 pageId,
-                INTEGRATION_TABS.ACTIVE,
-              ),
+                selectedTab: INTEGRATION_TABS.ACTIVE,
+              }),
             )
           }
           title="Datasources/Queries Not found"
@@ -193,12 +199,16 @@ const mapStateToProps = (state: AppState, props: RouteProps): StateProps => {
   if (plugin) {
     datasources = getDatasourcesByPluginId(state, plugin.id);
   }
+  const { applicationSlug, pageSlug } = selectURLSlugs(state);
   return {
     plugin,
     actions: state.entities.actions,
     isCreating: state.ui.apiPane.isCreating,
     isEditorInitialized: getIsEditorInitialized(state),
     datasources: datasources,
+    applicationId: getCurrentApplicationId(state),
+    applicationSlug,
+    pageSlug,
   };
 };
 

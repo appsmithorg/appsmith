@@ -3,7 +3,7 @@ import React from "react";
 import styled from "styled-components";
 import EmojiPicker from "./EmojiPicker";
 import { IconSize } from "./Icon";
-import TooltipComponent from "./Tooltip";
+import { TooltipComponent } from "design-system";
 
 const Container = styled.div`
   display: flex;
@@ -37,7 +37,7 @@ const Bubble = styled.div<{ active?: boolean }>`
         : "transparent"};
 
   border-radius: ${(props) => `${props.theme.radii[4]}px`};
-  margin-right: ${(props) => `${props.theme.radii[1]}px`};  
+  margin-right: ${(props) => `${props.theme.radii[1]}px`};
 
   & span.emoji {
     /*

@@ -5,16 +5,16 @@ import { Classes as BPClasses, Position } from "@blueprintjs/core";
 import { Popover2, IPopover2Props } from "@blueprintjs/popover2";
 import { Dispatch } from "redux";
 import { useDispatch } from "react-redux";
-import Text, { FontWeight, TextType } from "components/ads/Text";
+import { Text, FontWeight, TextType } from "design-system";
 import { Message, SourceEntity } from "entities/AppsmithConsole";
 import { PropertyEvaluationErrorType } from "utils/DynamicBindingUtils";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import {
   setGlobalSearchQuery,
-  toggleShowGlobalSearchModal,
+  setGlobalSearchCategory,
 } from "actions/globalSearchActions";
 import { filterCategories, SEARCH_CATEGORY_ID } from "../GlobalSearch/utils";
-import { getAppsmithConfigs } from "configs";
+import { getAppsmithConfigs } from "@appsmith/configs";
 import {
   createMessage,
   DEBUGGER_APPSMITH_SUPPORT,
@@ -23,7 +23,7 @@ import {
   DEBUGGER_OPEN_DOCUMENTATION,
   DEBUGGER_SEARCH_GOOGLE,
   DEBUGGER_SEARCH_SNIPPET,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 import Icon, { IconName, IconSize } from "components/ads/Icon";
 import { Classes } from "components/ads/common";
 import { Colors } from "constants/Colors";
@@ -156,6 +156,9 @@ const searchAction: Record<
     icon: "duplicate",
     text: createMessage(DEBUGGER_COPY_MESSAGE),
     onSelect: (error: Message) => {
+      AnalyticsUtil.logEvent("DEBUGGER_CONTEXT_MENU_CLICK", {
+        menuItem: CONTEXT_MENU_ACTIONS.COPY,
+      });
       copy(error.message);
     },
   },
@@ -163,6 +166,9 @@ const searchAction: Record<
     icon: "share-2",
     text: createMessage(DEBUGGER_SEARCH_GOOGLE),
     onSelect: (error: Message) => {
+      AnalyticsUtil.logEvent("DEBUGGER_CONTEXT_MENU_CLICK", {
+        menuItem: CONTEXT_MENU_ACTIONS.GOOGLE,
+      });
       window.open("http://google.com/search?q=" + error.message);
     },
   },
@@ -170,6 +176,9 @@ const searchAction: Record<
     icon: "book-line",
     text: createMessage(DEBUGGER_OPEN_DOCUMENTATION),
     onSelect: (error: Message, dispatch: Dispatch) => {
+      AnalyticsUtil.logEvent("DEBUGGER_CONTEXT_MENU_CLICK", {
+        menuItem: CONTEXT_MENU_ACTIONS.DOCS,
+      });
       // Search through the omnibar
       AnalyticsUtil.logEvent("OPEN_OMNIBAR", {
         source: "DEBUGGER",
@@ -178,7 +187,7 @@ const searchAction: Record<
       });
       dispatch(setGlobalSearchQuery(error.message || ""));
       dispatch(
-        toggleShowGlobalSearchModal(filterCategories[SEARCH_CATEGORY_ID.INIT]),
+        setGlobalSearchCategory(filterCategories[SEARCH_CATEGORY_ID.INIT]),
       );
     },
   },
@@ -186,6 +195,9 @@ const searchAction: Record<
     icon: "support",
     text: createMessage(DEBUGGER_APPSMITH_SUPPORT),
     onSelect: (error: Message) => {
+      AnalyticsUtil.logEvent("DEBUGGER_CONTEXT_MENU_CLICK", {
+        menuItem: CONTEXT_MENU_ACTIONS.INTERCOM,
+      });
       // Search through the omnibar
       if (intercomAppID && window.Intercom) {
         window.Intercom(
@@ -199,6 +211,9 @@ const searchAction: Record<
     icon: "play",
     text: createMessage(DEBUGGER_SEARCH_SNIPPET),
     onSelect: (error: Message, dispatch: Dispatch, entity) => {
+      AnalyticsUtil.logEvent("DEBUGGER_CONTEXT_MENU_CLICK", {
+        menuItem: CONTEXT_MENU_ACTIONS.SNIPPET,
+      });
       /// Search through the omnibar
       AnalyticsUtil.logEvent("OPEN_OMNIBAR", {
         source: "DEBUGGER",

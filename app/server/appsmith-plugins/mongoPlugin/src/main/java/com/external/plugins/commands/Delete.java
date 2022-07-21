@@ -1,5 +1,6 @@
 package com.external.plugins.commands;
 
+import com.appsmith.external.helpers.PluginUtils;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.DatasourceStructure;
 import lombok.Getter;
@@ -14,15 +15,17 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.appsmith.external.helpers.PluginUtils.getValueSafelyFromFormData;
-import static com.external.plugins.utils.MongoPluginUtils.parseSafely;
-import static com.appsmith.external.helpers.PluginUtils.setValueSafelyInFormData;
+import static com.appsmith.external.helpers.PluginUtils.STRING_TYPE;
+import static com.appsmith.external.helpers.PluginUtils.setDataValueSafelyInFormData;
 import static com.appsmith.external.helpers.PluginUtils.validConfigurationPresentInFormData;
+import static com.external.plugins.constants.FieldName.BODY;
 import static com.external.plugins.constants.FieldName.COLLECTION;
 import static com.external.plugins.constants.FieldName.COMMAND;
+import static com.external.plugins.constants.FieldName.DELETE;
 import static com.external.plugins.constants.FieldName.DELETE_LIMIT;
 import static com.external.plugins.constants.FieldName.DELETE_QUERY;
 import static com.external.plugins.constants.FieldName.SMART_SUBSTITUTION;
+import static com.external.plugins.utils.MongoPluginUtils.parseSafely;
 
 @Getter
 @Setter
@@ -37,11 +40,11 @@ public class Delete extends MongoCommand {
         Map<String, Object> formData = actionConfiguration.getFormData();
 
         if (validConfigurationPresentInFormData(formData, DELETE_QUERY)) {
-            this.query = (String) getValueSafelyFromFormData(formData, DELETE_QUERY);
+            this.query = PluginUtils.getDataValueSafelyFromFormData(formData, DELETE_QUERY, STRING_TYPE);
         }
 
         if (validConfigurationPresentInFormData(formData, DELETE_LIMIT)) {
-            String limitOption = (String) getValueSafelyFromFormData(formData, DELETE_LIMIT);
+            String limitOption = PluginUtils.getDataValueSafelyFromFormData(formData, DELETE_LIMIT, STRING_TYPE);
             if ("ALL".equals(limitOption)) {
                 this.limit = 0;
             }
@@ -65,7 +68,7 @@ public class Delete extends MongoCommand {
     public Document parseCommand() {
         Document document = new Document();
 
-        document.put("delete", this.collection);
+        document.put(DELETE, this.collection);
 
         Document queryDocument = parseSafely("Query", this.query);
 
@@ -87,11 +90,11 @@ public class Delete extends MongoCommand {
 
         Map<String, Object> configMap = new HashMap<>();
 
-        setValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
-        setValueSafelyInFormData(configMap, COMMAND, "DELETE");
-        setValueSafelyInFormData(configMap, COLLECTION, collectionName);
-        setValueSafelyInFormData(configMap, DELETE_QUERY, "{ \"_id\": ObjectId(\"id_of_document_to_delete\") }");
-        setValueSafelyInFormData(configMap, DELETE_LIMIT, "SINGLE");
+        setDataValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
+        setDataValueSafelyInFormData(configMap, COMMAND, "DELETE");
+        setDataValueSafelyInFormData(configMap, COLLECTION, collectionName);
+        setDataValueSafelyInFormData(configMap, DELETE_QUERY, "{ \"_id\": ObjectId(\"id_of_document_to_delete\") }");
+        setDataValueSafelyInFormData(configMap, DELETE_LIMIT, "SINGLE");
 
         String rawQuery = "{\n" +
                 "  \"delete\": \"" + collectionName + "\",\n" +
@@ -104,11 +107,42 @@ public class Delete extends MongoCommand {
                 "    }\n" +
                 "  ]\n" +
                 "}\n";
+        setDataValueSafelyInFormData(configMap, BODY, rawQuery);
 
         return Collections.singletonList(new DatasourceStructure.Template(
                 "Delete",
-                rawQuery,
+                null,
                 configMap
         ));
+    }
+
+    /**
+     * This method coverts Mongo plugin's form inputs to Mongo's native query. Currently, it is meant to help users
+     * switch easily from form based input to raw input mode by providing a readily available translation of the form
+     * data to raw query.
+     * The `parseCommand` method defined in this class could not be used since it tries to parse and validate the form
+     * data and fails if the data is bad or if it contains mustache binding. However, this is not the desired behavior
+     * wrt the use case this method is intended to solve i.e. we should be able to covert the form data to raw query
+     * irrespective of whether the data provided by the user is valid or not since we are not trying to execute it
+     * immediately.
+     * When writing this method the following two alternative implementations were also considered - using JSONObject
+     * and JsonNode. The issue with JSONObject is that it does not maintain the keys in order, which causes the final
+     * query to fail since order of keys is essential - e.g. `find` must be the first key in the native query for
+     * Mongo to recognize it as a valid command. JsonNode could not be used because it would enclose all values
+     * inside double quotes - which is not a true translation of what the user might have fed into the form.
+     * @return : Mongo's native query
+     */
+    @Override
+    public String getRawQuery() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("{\n");
+        sb.append("  \"delete\": \"" + this.collection + "\",\n");
+        sb.append("  \"deletes\": [{\n");
+        sb.append("    \"q\": " + this.query + ",\n");
+        sb.append("    \"limit\": " + this.limit + ",\n");
+        sb.append("  }]\n");
+        sb.append("}\n");
+
+        return sb.toString();
     }
 }

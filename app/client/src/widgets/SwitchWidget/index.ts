@@ -1,21 +1,25 @@
-import Widget from "./widget";
 import IconSVG from "./icon.svg";
-import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
+import Widget from "./widget";
+import { LabelPosition } from "components/constants";
+import { AlignWidgetTypes } from "widgets/constants";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
   name: "Switch",
   iconSVG: IconSVG,
   needsMeta: true,
+  searchTags: ["boolean"],
   defaults: {
     label: "Label",
-    rows: 1 * GRID_DENSITY_MIGRATION_V1,
-    columns: 3 * GRID_DENSITY_MIGRATION_V1,
+    rows: 4,
+    columns: 12,
     defaultSwitchState: true,
     widgetName: "Switch",
-    alignWidget: "LEFT",
+    alignWidget: AlignWidgetTypes.LEFT,
+    labelPosition: LabelPosition.Left,
     version: 1,
     isDisabled: false,
+    animateLoading: true,
   },
   properties: {
     derived: Widget.getDerivedPropertiesMap(),

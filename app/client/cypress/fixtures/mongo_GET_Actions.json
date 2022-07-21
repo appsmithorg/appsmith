@@ -1,0 +1,353 @@
+{
+	"responseMeta": {
+		"status": 200,
+		"success": true
+	},
+	"data": [
+		{
+			"id": "616d7e429594b25adfa3e57e",
+			"workspaceId": "6156b8c6c7e12534da9c5a1d",
+			"pluginType": "DB",
+			"pluginId": "6156b848c7e12534da9c5985",
+			"name": "InsertQuery",
+			"datasource": {
+				"id": "616d7cca9594b25adfa3e566",
+				"userPermissions": [
+
+				],
+				"pluginId": "6156b848c7e12534da9c5985",
+				"messages": [
+
+				],
+				"isValid": true,
+				"new": false
+			},
+			"pageId": "616d7d4c9594b25adfa3e569",
+			"actionConfiguration": {
+				"timeoutInMillisecond": 10000,
+				"paginationType": "NONE",
+				"encodeParamsToggle": true,
+				"formData": {
+					"updateMany": {
+						"limit": {
+							"data": "SINGLE",
+							"componentData": "SINGLE",
+							"viewType": "form"
+						  }
+					},
+					"insert": {
+						"documents": {
+							"data": "{\n \"genres\": {{insert_col_input1.text}}, \n \"homepage\": {{insert_col_input2.text}}, \n \"imdb_id\": {{insert_col_input3.text}}, \n \"poster_path\": {{insert_col_input4.text}}\n}",
+							"componentData": "{\n \"genres\": {{insert_col_input1.text}}, \n \"homepage\": {{insert_col_input2.text}}, \n \"imdb_id\": {{insert_col_input3.text}}, \n \"poster_path\": {{insert_col_input4.text}}\n}",
+							"viewType": "form"
+						  }
+					},
+					"collection": {
+						"data": "movies",
+						"componentData": "movies",
+						"viewType": "form"
+					},
+					"delete": {
+						"limit": {
+							"data": "SINGLE",
+							"componentData": "SINGLE",
+							"viewType": "form"
+						  }
+					},
+					"command": {
+						"data": "INSERT",
+						"componentData": "INSERT",
+						"viewType": "form"
+					  },
+					"smartSubstitution": {
+						"data": true,
+						"componentData": true,
+						"viewType": "form"
+					  }
+				}
+			},
+			"executeOnLoad": false,
+			"isValid": true,
+			"invalids": [
+
+			],
+			"jsonPathKeys": [
+				"insert_col_input1.text",
+				"insert_col_input4.text",
+				"insert_col_input3.text",
+				"insert_col_input2.text"
+			],
+			"confirmBeforeExecute": false,
+			"userPermissions": [
+				"read:actions",
+				"execute:actions",
+				"manage:actions"
+			],
+			"validName": "InsertQuery"
+		},
+		{
+			"id": "616d7e429594b25adfa3e57d",
+			"workspaceId": "6156b8c6c7e12534da9c5a1d",
+			"pluginType": "DB",
+			"pluginId": "6156b848c7e12534da9c5985",
+			"name": "DeleteQuery",
+			"datasource": {
+				"id": "616d7cca9594b25adfa3e566",
+				"userPermissions": [
+
+				],
+				"pluginId": "6156b848c7e12534da9c5985",
+				"messages": [
+
+				],
+				"isValid": true,
+				"new": false
+			},
+			"pageId": "616d7d4c9594b25adfa3e569",
+			"actionConfiguration": {
+				"timeoutInMillisecond": 10000,
+				"paginationType": "NONE",
+				"encodeParamsToggle": true,
+				"formData": {
+					"path": {
+						"data": "template_table/{{data_table.selectedRow._ref}}",
+						"componentData": "template_table/{{data_table.selectedRow._ref}}",
+						"viewType": "form"
+					  },
+					"updateMany": {
+						"limit": {
+							"data": "SINGLE",
+							"componentData": "SINGLE",
+							"viewType": "form"
+						  }
+					},
+					"collection": {
+						"data": "movies",
+						"componentData": "movies",
+						"viewType": "form"
+					  },
+					"delete": {
+						"query": {
+							"data": "{ _id: ObjectId('{{data_table.triggeredRow._id}}') }",
+							"componentData": "{ _id: ObjectId('{{data_table.triggeredRow._id}}') }",
+							"viewType": "form"
+						  },
+						"limit": {
+							"data": "SINGLE",
+							"componentData": "SINGLE",
+							"viewType": "form"
+						  }
+					},
+					"command": {
+						"data": "DELETE",
+						"componentData": "DELETE",
+						"viewType": "form"
+					  },
+					"smartSubstitution": {
+						"data": "DELETE_DOCUMENT",
+						"componentData": "DELETE_DOCUMENT",
+						"viewType": "form"
+					  }
+				}
+			},
+			"executeOnLoad": false,
+			"isValid": true,
+			"invalids": [
+
+			],
+			"jsonPathKeys": [
+				"data_table.selectedRow._ref",
+				"data_table.triggeredRow._id"
+			],
+			"confirmBeforeExecute": false,
+			"userPermissions": [
+				"read:actions",
+				"execute:actions",
+				"manage:actions"
+			],
+			"validName": "DeleteQuery"
+		},
+		{
+			"id": "616d7e429594b25adfa3e580",
+			"workspaceId": "6156b8c6c7e12534da9c5a1d",
+			"pluginType": "DB",
+			"pluginId": "6156b848c7e12534da9c5985",
+			"name": "FindQuery",
+			"datasource": {
+				"id": "616d7cca9594b25adfa3e566",
+				"userPermissions": [
+
+				],
+				"pluginId": "6156b848c7e12534da9c5985",
+				"messages": [
+
+				],
+				"isValid": true,
+				"new": false
+			},
+			"pageId": "616d7d4c9594b25adfa3e569",
+			"actionConfiguration": {
+				"timeoutInMillisecond": 10000,
+				"paginationType": "NONE",
+				"encodeParamsToggle": true,
+				"formData": {
+					"updateMany": {
+						"limit": {
+							"data": "SINGLE",
+							"componentData": "SINGLE",
+							"viewType": "form"
+						  }
+					},
+					"find": {
+						"query": {
+							"data": "{ homepage: /{{data_table.searchText||\"\"}}/i }",
+							"componentData": "{ homepage: /{{data_table.searchText||\"\"}}/i }",
+							"viewType": "form"
+						  },
+						"limit": {
+							"data": "{{data_table.pageSize}}",
+							"componentData": "{{data_table.pageSize}}",
+							"viewType": "form"
+						  },
+						"skip": {
+							"data": "{{(data_table.pageNo - 1) * data_table.pageSize}}",
+							"componentData": "{{(data_table.pageNo - 1) * data_table.pageSize}}",
+							"viewType": "form"
+						  },
+						"sort": {
+							"data": "{ \n{{key_select.selectedOptionValue}}: {{order_select.selectedOptionValue}} \n}",
+							"componentData": "{ \n{{key_select.selectedOptionValue}}: {{order_select.selectedOptionValue}} \n}",
+							"viewType": "form"
+						  }
+					},
+					"collection": {
+						"data": "movies",
+						"componentData": "movies",
+						"viewType": "form"
+					  },
+					"delete": {
+						"limit": {
+							"data": "SINGLE",
+							"componentData": "SINGLE",
+							"viewType": "form"
+						  }
+					},
+					"command": {
+						"data": "FIND",
+						"componentData": "FIND",
+						"viewType": "form"
+					  },
+					"smartSubstitution": {
+						"data": false,
+						"componentData": false,
+						"viewType": "form"
+					  }
+				}
+			},
+			"executeOnLoad": true,
+			"isValid": true,
+			"invalids": [
+
+			],
+			"jsonPathKeys": [
+				"key_select.selectedOptionValue",
+				"data_table.pageSize",
+				"data_table.searchText||\"\"",
+				"(data_table.pageNo - 1) * data_table.pageSize",
+				"order_select.selectedOptionValue"
+			],
+			"confirmBeforeExecute": false,
+			"userPermissions": [
+				"read:actions",
+				"execute:actions",
+				"manage:actions"
+			],
+			"validName": "FindQuery"
+		},
+		{
+			"id": "616d7e429594b25adfa3e57f",
+			"workspaceId": "6156b8c6c7e12534da9c5a1d",
+			"pluginType": "DB",
+			"pluginId": "6156b848c7e12534da9c5985",
+			"name": "UpdateQuery",
+			"datasource": {
+				"id": "616d7cca9594b25adfa3e566",
+				"userPermissions": [
+
+				],
+				"pluginId": "6156b848c7e12534da9c5985",
+				"messages": [
+
+				],
+				"isValid": true,
+				"new": false
+			},
+			"pageId": "616d7d4c9594b25adfa3e569",
+			"actionConfiguration": {
+				"timeoutInMillisecond": 10000,
+				"paginationType": "NONE",
+				"encodeParamsToggle": true,
+				"formData": {
+					"updateMany": {
+						"query": {
+							"data": "{ _id: ObjectId('{{data_table.selectedRow._id}}') }",
+							"componentData": "{ _id: ObjectId('{{data_table.selectedRow._id}}') }",
+							"viewType": "form"
+						  },
+						"limit": {
+							"data": "SINGLE",
+							"componentData": "SINGLE",
+							"viewType": "form"
+						  },
+						"update": {
+							"data": "{\n  \"genres\" : {{update_col_1.text}},\n\t\"homepage\" : {{update_col_2.text}},\n  \"imdb_id\" : {{update_col_3.text}},\n  \"poster_path\" : {{update_col_4.text}}\n}",
+							"componentData": "{\n  \"genres\" : {{update_col_1.text}},\n\t\"homepage\" : {{update_col_2.text}},\n  \"imdb_id\" : {{update_col_3.text}},\n  \"poster_path\" : {{update_col_4.text}}\n}",
+							"viewType": "form"
+						  }
+					},
+					"collection": {
+						"data": "movies",
+						"componentData": "movies",
+						"viewType": "form"
+					  },
+					"delete": {
+						"limit": {
+							"data": "SINGLE",
+							"componentData": "SINGLE",
+							"viewType": "form"
+						  }
+					},
+					"command": {
+						"data": "UPDATE",
+						"componentData": "UPDATE",
+						"viewType": "form"
+					  },
+					"smartSubstitution": {
+						"data": true,
+						"componentData": true,
+						"viewType": "form"
+					  }
+				}
+			},
+			"executeOnLoad": false,
+			"isValid": true,
+			"invalids": [
+
+			],
+			"jsonPathKeys": [
+				"update_col_3.text",
+				"update_col_2.text",
+				"data_table.selectedRow._id",
+				"update_col_1.text",
+				"update_col_4.text"
+			],
+			"confirmBeforeExecute": false,
+			"userPermissions": [
+				"read:actions",
+				"execute:actions",
+				"manage:actions"
+			],
+			"validName": "UpdateQuery"
+		}
+	]
+}

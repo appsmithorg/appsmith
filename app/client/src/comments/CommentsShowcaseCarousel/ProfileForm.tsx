@@ -7,7 +7,11 @@ import FormTextField from "components/ads/formFields/TextField";
 
 import UserProfileImagePicker from "components/ads/UserProfileImagePicker";
 
-import { createMessage, DISPLAY_NAME, EMAIL_ADDRESS } from "constants/messages";
+import {
+  createMessage,
+  DISPLAY_NAME,
+  EMAIL_ADDRESS,
+} from "@appsmith/constants/messages";
 import styled from "styled-components";
 
 import { isEmail, isEmptyString } from "utils/formhelpers";
@@ -24,7 +28,7 @@ const Container = styled.div`
 
 export const PROFILE_FORM = "PROFILE_FORM";
 
-const fieldNames = {
+export const fieldNames = {
   displayName: "displayName",
   emailAddress: "emailAddress",
 };

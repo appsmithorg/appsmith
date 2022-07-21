@@ -1,0 +1,54 @@
+{
+	"responseMeta": {
+		"status": 200,
+		"success": true
+	},
+	"data": {
+		"body": [
+			{
+				"hobbiesname": "Reading",
+				"frequency": 2
+			}
+		],
+		"isExecutionSuccess": true,
+		"messages": [
+
+		],
+		"request": {
+			"requestParams": {
+				"Query": {
+					"value": "SELECT * FROM Hob\nWHERE hobbiesname like '%%'\nORDER BY frequency ASC\nLIMIT 17\nOFFSET 0;"
+				}
+			}
+		},
+		"dataTypes": [
+			{
+				"dataType": "TABLE"
+			},
+			{
+				"dataType": "JSON"
+			},
+			{
+				"dataType": "RAW"
+			}
+		],
+		"suggestedWidgets": [
+			{
+				"type": "SELECT_WIDGET",
+				"bindingQuery": "data.map( (obj) =>{ return  {'label': obj.hobbiesname, 'value': obj.hobbiesname } })"
+			},
+			{
+				"type": "CHART_WIDGET",
+				"bindingQuery": "data.map( (obj) =>{ return  {'x': obj.hobbiesname, 'y': obj.frequency } })"
+			},
+			{
+				"type": "TABLE_WIDGET",
+				"bindingQuery": "data"
+			},
+			{
+				"type": "TEXT_WIDGET",
+				"bindingQuery": "data"
+			}
+		]
+	}
+}

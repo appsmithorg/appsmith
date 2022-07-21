@@ -3,31 +3,15 @@ import React from "react";
 import * as Sentry from "@sentry/react";
 import store from "store";
 
-import BaseWidget, { WidgetProps } from "widgets/BaseWidget";
-import { WidgetConfigProps } from "reducers/entityReducers/widgetConfigReducer";
-import { PropertyPaneConfig } from "constants/PropertyControlConstants";
-import WidgetFactory, { DerivedPropertiesMap } from "./WidgetFactory";
+import BaseWidget from "widgets/BaseWidget";
+import WidgetFactory from "./WidgetFactory";
 
-import { ReduxActionTypes } from "constants/ReduxActionConstants";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import withMeta from "widgets/MetaHOC";
 import { generateReactKey } from "./generators";
 import { memoize } from "lodash";
-
-export interface WidgetConfiguration {
-  type: string;
-  name: string;
-  iconSVG?: string;
-  defaults: Partial<WidgetProps> & WidgetConfigProps;
-  hideCard?: boolean;
-  isCanvas?: boolean;
-  needsMeta?: boolean;
-  properties: {
-    config: PropertyPaneConfig[];
-    default: Record<string, string>;
-    meta: Record<string, any>;
-    derived: DerivedPropertiesMap;
-  };
-}
+import { WidgetFeatureProps } from "./WidgetFeatures";
+import { WidgetConfiguration } from "widgets/constants";
 
 const generateWidget = memoize(function getWidgetComponent(
   Widget: typeof BaseWidget,
@@ -35,8 +19,7 @@ const generateWidget = memoize(function getWidgetComponent(
 ) {
   const widget = needsMeta ? withMeta(Widget) : Widget;
   return Sentry.withProfiler(
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
+    // @ts-expect-error: Types are not available
     widget,
   );
 });
@@ -55,15 +38,24 @@ export const registerWidget = (Widget: any, config: WidgetConfiguration) => {
     config.properties.default,
     config.properties.meta,
     config.properties.config,
+    config.features,
   );
   configureWidget(config);
 };
 
 export const configureWidget = (config: WidgetConfiguration) => {
+  let features = {};
+  if (config.features && config.features.dynamicHeight) {
+    features = Object.assign({}, WidgetFeatureProps.DYNAMIC_HEIGHT);
+  }
   const _config = {
+    ...features,
     ...config.defaults,
+    searchTags: config.searchTags,
     type: config.type,
     hideCard: !!config.hideCard || !config.iconSVG,
+    isDeprecated: !!config.isDeprecated,
+    replacement: config.replacement,
     displayName: config.name,
     key: generateReactKey(),
     iconSVG: config.iconSVG,

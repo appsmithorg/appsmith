@@ -1,0 +1,525 @@
+{
+	"responseMeta": {
+		"status": 200,
+		"success": true
+	},
+	"data": {
+		"headers": [
+			{
+				"ok": 1
+			}
+		],
+		"body": [
+			{
+				"revenue": 111641532,
+				"imdb_id": "tt5109280",
+				"release_date": "2021-03-03",
+				"genres": [
+					{
+						"name": "Animation",
+						"id": 16
+					},
+					{
+						"name": "Adventure",
+						"id": 12
+					},
+					{
+						"name": "Fantasy",
+						"id": 14
+					},
+					{
+						"name": "Family",
+						"id": 10751
+					},
+					{
+						"name": "Action",
+						"id": 28
+					}
+				],
+				"vote_average": 8.2,
+				"tagline": "A quest to save her world.",
+				"_id": "60d0bdcae00251fb5617b2f2",
+				"title": "Raya and the Last Dragon",
+				"vote_count": 2992,
+				"poster_path": "/lPsD10PP4rgUGiGR4CCXA6iY0QQ.jpg",
+				"homepage": "https://movies.disney.com/raya-and-the-last-dragon",
+				"status": "Released"
+			},
+			{
+				"revenue": 0,
+				"imdb_id": "tt12816634",
+				"release_date": "2021-04-04",
+				"genres": [
+					{
+						"name": "Animation",
+						"id": 16
+					},
+					{
+						"name": "Comedy",
+						"id": 35
+					},
+					{
+						"name": "Family",
+						"id": 10751
+					},
+					{
+						"name": "Adventure",
+						"id": 12
+					}
+				],
+				"vote_average": 7.8,
+				"tagline": "",
+				"_id": "60d0bdcae00251fb5617b2f1",
+				"title": "Miraculous World: Shanghai – The Legend of Ladydragon",
+				"vote_count": 371,
+				"poster_path": "/msI5a9TPnepx47JUb2vl88hb80R.jpg",
+				"homepage": "",
+				"status": "Released"
+			},
+			{
+				"revenue": 76706000,
+				"imdb_id": "tt0293429",
+				"release_date": "2021-04-07",
+				"genres": [
+					{
+						"name": "Action",
+						"id": 28
+					},
+					{
+						"name": "Fantasy",
+						"id": 14
+					},
+					{
+						"name": "Adventure",
+						"id": 12
+					}
+				],
+				"vote_average": 7.6,
+				"tagline": "Get over here.",
+				"_id": "60d0bdcae00251fb5617b2f3",
+				"title": "Mortal Kombat",
+				"vote_count": 2827,
+				"poster_path": "/nkayOAUBUu4mMvyNf9iHSUiPjF1.jpg",
+				"homepage": "https://www.mortalkombatmovie.net",
+				"status": "Released"
+			},
+			{
+				"revenue": 435954000,
+				"imdb_id": "tt5034838",
+				"release_date": "2021-03-24",
+				"genres": [
+					{
+						"name": "Action",
+						"id": 28
+					},
+					{
+						"name": "Adventure",
+						"id": 12
+					},
+					{
+						"name": "Science Fiction",
+						"id": 878
+					}
+				],
+				"vote_average": 8.1,
+				"tagline": "One Will Fall",
+				"_id": "60d0bdcae00251fb5617b2e2",
+				"title": "Godzilla vs. Kong",
+				"vote_count": 5794,
+				"poster_path": "/pgqgaUx1cJb5oZQQ5v0tNARCeBp.jpg",
+				"homepage": "https://www.godzillavskong.net/",
+				"status": "Released"
+			},
+			{
+				"revenue": 475000000,
+				"imdb_id": "tt11032374",
+				"release_date": "2020-10-16",
+				"genres": [
+					{
+						"name": "Animation",
+						"id": 16
+					},
+					{
+						"name": "Action",
+						"id": 28
+					},
+					{
+						"name": "Adventure",
+						"id": 12
+					},
+					{
+						"name": "Fantasy",
+						"id": 14
+					},
+					{
+						"name": "Drama",
+						"id": 18
+					}
+				],
+				"vote_average": 8.4,
+				"tagline": "With your blade, bring an end to the nightmare.",
+				"_id": "60d0bdcae00251fb5617b2eb",
+				"title": "Demon Slayer -Kimetsu no Yaiba- The Movie: Mugen Train",
+				"vote_count": 1109,
+				"poster_path": "/h8Rb9gBr48ODIwYUttZNYeMWeUU.jpg",
+				"homepage": "https://kimetsu.com/anime/movie/mugenressyahen/",
+				"status": "Released"
+			},
+			{
+				"revenue": 0,
+				"imdb_id": "tt14423802",
+				"release_date": "2021-04-02",
+				"genres": [
+					{
+						"name": "Animation",
+						"id": 16
+					},
+					{
+						"name": "Comedy",
+						"id": 35
+					},
+					{
+						"name": "Fantasy",
+						"id": 14
+					}
+				],
+				"vote_average": 7.6,
+				"tagline": "",
+				"_id": "60d0bdcae00251fb5617b2ed",
+				"title": "Monster Pets: A Hotel Transylvania Short",
+				"vote_count": 148,
+				"poster_path": "/dkokENeY5Ka30BFgWAqk14mbnGs.jpg",
+				"homepage": "",
+				"status": "Released"
+			},
+			{
+				"revenue": 0,
+				"imdb_id": "tt9013182",
+				"release_date": "2021-05-14",
+				"genres": [
+					{
+						"name": "Crime",
+						"id": 80
+					},
+					{
+						"name": "Drama",
+						"id": 18
+					},
+					{
+						"name": "Mystery",
+						"id": 9648
+					},
+					{
+						"name": "Thriller",
+						"id": 53
+					}
+				],
+				"vote_average": 7,
+				"tagline": "",
+				"_id": "60d0bdcae00251fb5617b2ee",
+				"title": "I Am All Girls",
+				"vote_count": 89,
+				"poster_path": "/m6bUeV4mczG3z2YXXr5XDKPsQzv.jpg",
+				"homepage": "",
+				"status": "Released"
+			},
+			{
+				"revenue": 0,
+				"imdb_id": "tt14217100",
+				"release_date": "2021-05-14",
+				"genres": [
+					{
+						"name": "Action",
+						"id": 28
+					},
+					{
+						"name": "Crime",
+						"id": 80
+					},
+					{
+						"name": "Drama",
+						"id": 18
+					}
+				],
+				"vote_average": 7.1,
+				"tagline": "",
+				"_id": "60d0bdcae00251fb5617b2ea",
+				"title": "Ferry",
+				"vote_count": 74,
+				"poster_path": "/w6n1pu9thpCVHILejsuhKf3tNCV.jpg",
+				"homepage": "https://www.netflix.com/title/81248114",
+				"status": "Released"
+			},
+			{
+				"revenue": 80500000,
+				"imdb_id": "tt8332922",
+				"release_date": "2021-05-21",
+				"genres": [
+					{
+						"name": "Drama",
+						"id": 18
+					},
+					{
+						"name": "Science Fiction",
+						"id": 878
+					},
+					{
+						"name": "Thriller",
+						"id": 53
+					}
+				],
+				"vote_average": 7.4,
+				"tagline": "Silence is not enough.",
+				"_id": "60d0bdcae00251fb5617b2ec",
+				"title": "A Quiet Place Part II",
+				"vote_count": 113,
+				"poster_path": "/4q2hz2m8hubgvijz8Ez0T2Os2Yv.jpg",
+				"homepage": "https://www.aquietplacemovie.com",
+				"status": "Released"
+			},
+			{
+				"revenue": 13126737,
+				"imdb_id": "tt32286774",
+				"release_date": "2021-05-05",
+				"genres": [
+					{
+						"name": "Thriller",
+						"id": 53
+					},
+					{
+						"name": "Drama",
+						"id": 18
+					},
+					{
+						"name": "Action",
+						"id": 28
+					},
+					{
+						"name": "Mystery",
+						"id": 9648
+					}
+				],
+				"vote_average": 7,
+				"tagline": "Nature finds a way.",
+				"_id": "60d0bdcae00251fb5617b2e3",
+				"title": "Those Who Wish Me Dead",
+				"vote_count": 364,
+				"poster_path": "/xCEg6KowNISWvMh8GvPSxtdf9TO.jpg",
+				"homepage": "https://www.warnerbros.com/movies/those-who-wish-me-dead",
+				"status": "Released"
+			},
+			{
+				"revenue": 29082988,
+				"imdb_id": "tt9419056",
+				"release_date": "2021-03-31",
+				"genres": [
+					{
+						"name": "Horror",
+						"id": 27
+					}
+				],
+				"vote_average": 7.1,
+				"tagline": "Be careful who you pray to.",
+				"_id": "60d0bdcae00251fb5617b2e6",
+				"title": "The Unholy",
+				"vote_count": 745,
+				"poster_path": "/6wxfWZxQcuv2QgxIQKj0eYTdKTv.jpg",
+				"homepage": "https://www.sonypictures.com/movies/theunholy",
+				"status": "Released"
+			},
+			{
+				"revenue": 780000,
+				"imdb_id": "tt0993840",
+				"release_date": "2021-05-14",
+				"genres": [
+					{
+						"name": "Action",
+						"id": 28
+					},
+					{
+						"name": "Horror",
+						"id": 27
+					},
+					{
+						"name": "Thriller",
+						"id": 53
+					}
+				],
+				"vote_average": 6.6,
+				"tagline": "Always bet on the dead.",
+				"_id": "60d0bdcae00251fb5617b2ef",
+				"title": "Army of the Dead",
+				"vote_count": 1270,
+				"poster_path": "/z8CExJekGrEThbpMXAmCFvvgoJR.jpg",
+				"homepage": "https://www.netflix.com/title/81046394",
+				"status": "Released"
+			},
+			{
+				"revenue": 46088130,
+				"imdb_id": "tt7888964",
+				"release_date": "2021-03-26",
+				"genres": [
+					{
+						"name": "Action",
+						"id": 28
+					},
+					{
+						"name": "Thriller",
+						"id": 53
+					},
+					{
+						"name": "Crime",
+						"id": 80
+					},
+					{
+						"name": "Comedy",
+						"id": 35
+					}
+				],
+				"vote_average": 8.5,
+				"tagline": "Never underestimate a nobody.",
+				"_id": "60d0bdcae00251fb5617b2e8",
+				"title": "Nobody",
+				"vote_count": 1796,
+				"poster_path": "/oBgWY00bEFeZ9N25wWVyuQddbAo.jpg",
+				"homepage": "https://www.nobody.movie",
+				"status": "Released"
+			},
+			{
+				"revenue": 80437520,
+				"imdb_id": "tt11083552",
+				"release_date": "2021-04-22",
+				"genres": [
+					{
+						"name": "Action",
+						"id": 28
+					},
+					{
+						"name": "Crime",
+						"id": 80
+					}
+				],
+				"vote_average": 8,
+				"tagline": "A one man army.",
+				"_id": "60d0bdcae00251fb5617b2f0",
+				"title": "Wrath of Man",
+				"vote_count": 587,
+				"poster_path": "/YxopfHpsCV1oF8CZaL4M3Eodqa.jpg",
+				"homepage": "https://www.miramax.com/movie/wrath-of-man",
+				"status": "Released"
+			},
+			{
+				"revenue": 0,
+				"imdb_id": "tt4136456",
+				"release_date": "2021-04-30",
+				"genres": [
+					{
+						"name": "Thriller",
+						"id": 53
+					},
+					{
+						"name": "Action",
+						"id": 28
+					},
+					{
+						"name": "Crime",
+						"id": 80
+					}
+				],
+				"vote_average": 6.2,
+				"tagline": "Every betrayal begins with trust.",
+				"_id": "60d0bdcae00251fb5617b2e4",
+				"title": "The Virtuoso",
+				"vote_count": 101,
+				"poster_path": "/vXHzO26mJaOt4VO7ZFiM6No5ScT.jpg",
+				"homepage": "https://www.lionsgate.com/movies/the-virtuoso",
+				"status": "Released"
+			},
+			{
+				"revenue": 0,
+				"imdb_id": "tt5932368",
+				"release_date": "2021-04-16",
+				"genres": [
+					{
+						"name": "Action",
+						"id": 28
+					},
+					{
+						"name": "Crime",
+						"id": 80
+					},
+					{
+						"name": "Thriller",
+						"id": 53
+					}
+				],
+				"vote_average": 6,
+				"tagline": "She's got one night to save her life.",
+				"_id": "60d0bdcae00251fb5617b2e9",
+				"title": "Vanquish",
+				"vote_count": 112,
+				"poster_path": "/AoWY1gkcNzabh229Icboa1Ff0BM.jpg",
+				"homepage": "https://www.lionsgate.com/movies/vanquish",
+				"status": "Released"
+			},
+			{
+				"revenue": 0,
+				"imdb_id": "tt0499097",
+				"release_date": "2021-04-29",
+				"genres": [
+					{
+						"name": "Action",
+						"id": 28
+					},
+					{
+						"name": "Thriller",
+						"id": 53
+					},
+					{
+						"name": "War",
+						"id": 10752
+					}
+				],
+				"vote_average": 7.2,
+				"tagline": "Revenge. Blood. Terrorists",
+				"_id": "60d0bdcae00251fb5617b2e5",
+				"title": "Tom Clancy's Without Remorse",
+				"vote_count": 1083,
+				"poster_path": "/rEm96ib0sPiZBADNKBHKBv5bve9.jpg",
+				"homepage": "https://www.amazon.com/dp/B08VFD1Y3B",
+				"status": "Released"
+			}
+		],
+		"isExecutionSuccess": true,
+		"request": {
+			"requestParams": {
+			}
+		},
+		"dataTypes": [
+			{
+				"dataType": "JSON"
+			},
+			{
+				"dataType": "RAW"
+			}
+		],
+		"suggestedWidgets": [
+			{
+				"type": "SELECT_WIDGET",
+				"bindingQuery": "data.map( (obj) =>{ return  {'label': obj.imdb_id, 'value': obj.imdb_id } })"
+			},
+			{
+				"type": "CHART_WIDGET",
+				"bindingQuery": "data.map( (obj) =>{ return  {'x': obj.imdb_id, 'y': obj.revenue } })"
+			},
+			{
+				"type": "TABLE_WIDGET",
+				"bindingQuery": "data"
+			},
+			{
+				"type": "TEXT_WIDGET",
+				"bindingQuery": "data"
+			}
+		]
+	}
+}

@@ -2,16 +2,20 @@ import { sortBy } from "lodash";
 import {
   ReduxAction,
   ReduxActionTypes,
-  PageListPayload,
+  Page,
   ClonePageSuccessPayload,
   ReduxActionErrorTypes,
-} from "constants/ReduxActionConstants";
+} from "@appsmith/constants/ReduxActionConstants";
 import { createReducer } from "utils/AppsmithUtils";
 import { GenerateCRUDSuccess } from "actions/pageActions";
 
 const initialState: PageListReduxState = {
   pages: [],
   isGeneratingTemplatePage: false,
+  applicationId: "",
+  currentPageId: "",
+  defaultPageId: "",
+  loading: {},
 };
 
 export const pageListReducer = createReducer(initialState, {
@@ -32,7 +36,7 @@ export const pageListReducer = createReducer(initialState, {
   },
   [ReduxActionTypes.FETCH_PAGE_LIST_SUCCESS]: (
     state: PageListReduxState,
-    action: ReduxAction<{ pages: PageListPayload; applicationId: string }>,
+    action: ReduxAction<{ pages: Page[]; applicationId: string }>,
   ) => {
     return {
       ...state,
@@ -42,6 +46,7 @@ export const pageListReducer = createReducer(initialState, {
         action.payload.pages[0].pageId,
     };
   },
+  [ReduxActionTypes.RESET_PAGE_LIST]: () => initialState,
   [ReduxActionTypes.CREATE_PAGE_SUCCESS]: (
     state: PageListReduxState,
     action: ReduxAction<{
@@ -49,6 +54,7 @@ export const pageListReducer = createReducer(initialState, {
       pageId: string;
       layoutId: string;
       isDefault: boolean;
+      slug: string;
     }>,
   ) => {
     const _state = state;
@@ -95,15 +101,60 @@ export const pageListReducer = createReducer(initialState, {
     ...state,
     currentPageId: action.payload.id,
   }),
+  [ReduxActionTypes.UPDATE_CUSTOM_SLUG_INIT]: (
+    state: PageListReduxState,
+    action: ReduxAction<{ pageId: string }>,
+  ) => ({
+    ...state,
+    loading: {
+      ...state.loading,
+      [action.payload.pageId]: true,
+    },
+  }),
+  [ReduxActionTypes.UPDATE_CUSTOM_SLUG_SUCCESS]: (
+    state: PageListReduxState,
+    action: ReduxAction<{ pageId: string }>,
+  ) => ({
+    ...state,
+    loading: {
+      ...state.loading,
+      [action.payload.pageId]: false,
+    },
+  }),
+  [ReduxActionErrorTypes.UPDATE_CUSTOM_SLUG_ERROR]: (
+    state: PageListReduxState,
+    action: ReduxAction<{ pageId: string }>,
+  ) => ({
+    ...state,
+    loading: {
+      ...state.loading,
+      [action.payload.pageId]: false,
+    },
+  }),
   [ReduxActionTypes.UPDATE_PAGE_SUCCESS]: (
     state: PageListReduxState,
-    action: ReduxAction<{ id: string; name: string; isHidden?: boolean }>,
+    action: ReduxAction<{
+      id: string;
+      name: string;
+      isHidden?: boolean;
+      slug: string;
+      customSlug: string;
+    }>,
   ) => {
     const pages = [...state.pages];
-    const updatedPage = pages.find((page) => page.pageId === action.payload.id);
-    if (updatedPage) {
-      updatedPage.pageName = action.payload.name;
-      updatedPage.isHidden = !!action.payload.isHidden;
+    const updatedPageIndex = pages.findIndex(
+      (page) => page.pageId === action.payload.id,
+    );
+
+    if (updatedPageIndex !== -1) {
+      const updatedPage = {
+        ...pages[updatedPageIndex],
+        pageName: action.payload.name,
+        isHidden: !!action.payload.isHidden,
+        slug: action.payload.slug,
+        customSlug: action.payload.customSlug,
+      };
+      pages.splice(updatedPageIndex, 1, updatedPage);
     }
 
     return { ...state, pages };
@@ -125,6 +176,7 @@ export const pageListReducer = createReducer(initialState, {
         pageId: action.payload.page.id,
         layoutId: action.payload.page.layouts[0].id,
         isDefault: !!action.payload.page.isDefault,
+        slug: action.payload.page.slug,
       };
       _state.pages.push({ ...newPage, latest: true });
     }
@@ -167,12 +219,13 @@ export interface AppLayoutConfig {
 }
 
 export interface PageListReduxState {
-  pages: PageListPayload;
-  applicationId?: string;
-  defaultPageId?: string;
-  currentPageId?: string;
+  pages: Page[];
+  applicationId: string;
+  defaultPageId: string;
+  currentPageId: string;
   appLayout?: AppLayoutConfig;
   isGeneratingTemplatePage?: boolean;
+  loading: Record<string, boolean>;
 }
 
 export default pageListReducer;

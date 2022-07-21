@@ -2,11 +2,11 @@
 In this tutorial, I’ll walk you, step by step, through the process of using the AWS Console to create and provision a new AWS cloud server. And since AWS offers a Free Tier valid for 12 months, you’ll have plenty of time to experiment with your server and Appsmith image without worrying about being billed for usage.
 
 # Overview
-In this tutorial, I’ll launch a cloud server with the Appsmith Stack, which gives you a pre-configured Appsmith web application that you can start using right way.
+In this tutorial, I’ll launch a cloud server with the Appsmith Stack, which gives you a pre-configured Appsmith web application that you can start using the right way.
 
 Here are the steps you’ll follow in this tutorial:
-- Register with Amazon Web Servces (AWS) 
-- Generate a SSH key pair
+- Register with Amazon Web Services (AWS) 
+- Generate an SSH key pair
 - Create an AWS Security Group
 - Deploy Appsmith on an AWS cloud server
 - Log in and start using Appsmith
@@ -16,7 +16,7 @@ The next sections will walk you through these steps in detail.
 
 # Step 1: Register With Amazon Web Services (AWS)
 ```
-At the end of this step, you will have signed up for the Amazon Web Services free tier. If you already have an Amazon Web Services account, you may skip this step.
+You will have signed up for the Amazon Web Services free tier, at the end of this step. If you already have an Amazon Web Services account, you may skip this step.
 ```
 You will need an existing Amazon account to log in and sign up. To create it, follow these steps:
   - Browse to [http://aws.amazon.com](http://aws.amazon.com) and click the “Create an AWS account” button at the top of the page.
@@ -34,16 +34,16 @@ You will need an existing Amazon account to log in and sign up. To create it, fo
 
 
 
-# Step 2: Generate a SSH key pair
+# Step 2: Generate an SSH key pair
 ```
-At the end of this step, you will have generated an SSH key pair to access your EC2 instances. If you already have an SSH key pair for the AWS region you are operating in, you can skip this step.
+You will have generated an SSH key pair to access your EC2 instances, at the end of this step. If you already have an SSH key pair for the AWS region you are operating in, you can skip this step.
 ```
 
 To generate an SSH key pair, which you will need to log in to your EC2 instances, follow the steps below:
 
 - Log in to the AWS Console.
 
-- Select the EC2 service from Amazon Web Services menu.
+- Select the EC2 service from the Amazon Web Services menu.
     ![AWS Services](./images/aws-services.png)
 
 - If required, use the region selector in the top right corner to switch to the region where your instance will be launched.
@@ -68,10 +68,10 @@ By default, AWS cloud servers have their ports closed to secure them against ext
 - From the Amazon EC2 dashboard, select the “Security Groups” option in the “Network & Security” menu.<image>
   ![AWS Security Group](./images/security-group.png)
 - Click the “Create Security Group” button.
-- In the Create Security Group page, enter a name and description for the for the new security group.
+- In the Create Security Group page, enter a name and description for the new security group.
   ![AWS Security Group Page](./images/security-group-page.png)
-- Click the “Add Rule” button in "Inbound Rule" section and add new rules for HTTP, HTTPS and SSH access using the following guidelines:
-  - Type: Use the pre-defined types “HTTP”, “HTTPS” and “SSH”.
+- Click the “Add Rule” button in the "Inbound Rule" section and add new rules for HTTP, HTTPS and SSH access using the following guidelines:
+  - Type: Use the pre-defined types “HTTP”, “HTTPS”, and “SSH”.
   - Source: Use “Anywhere” to allow access from anywhere, or use “Custom IP” and specify an IP address range.
   ![Inbound Rules](./images/inbound-rules.png)
 - Click the “Create” button to save your changes.
@@ -108,7 +108,7 @@ The process usually takes a few minutes, use EC2 Dashboard to check the status o
 
 ![EC2 Detail](./images/ec2-detail.png)
 
-At this point, you should be able to browse to the cloud server, by entering the cloud server IP address or DNS name directly into your browser’s address bar. You should now see your webapp home page as shown below:
+At this point, you should be able to browse to the cloud server, by entering the cloud server IP address or DNS name directly into your browser’s address bar. You should now see your web-app home page as shown below:
 ![Login Page](./images/login-page.png)
 
 
@@ -119,10 +119,10 @@ At the end of this step, you will have logged in to Appsmith and build your inte
 
 To log in to the Appsmith dashboard, follow these steps:
 - You will need to register an account to login
-  - Go to Sign Up page, fill in your user's email & password, then click Sign Up
+  - Go to the Sign Up page, fill in your user's email & password, then click Sign Up
   ![Appsmith Signup Page](./images/appsmith_signup.png)
 
-Once you completed the registration, you will be moved to Personal Organization page. Now you can begin to create your custom app. 
+Once you completed the registration, you will be moved to the Personal Workspace page. Now you can begin to create your custom app. 
 ![Appsmith Dashboard Page](./images/appsmith_dashboard.png)
 
 For more tutorials on how to create your custom app by Appsmith, please take a look at [https://docs.appsmith.com/](https://docs.appsmith.com/)
@@ -133,9 +133,9 @@ For more tutorials on how to create your custom app by Appsmith, please take a l
 At the end of this step, you should be able to access to your web app by your custom domain
 ```
 
-The next step is to configure your app so that it can be access by your custom domain. Follow these steps:
+The next step is to configure your app so that it can be accessed by your custom domain. Follow these steps:
 
-- Once your instance is ready, connect to that instance (via SSH) using your key pair (Create in step 2) and the public ip of your instance (Create in step 4) by terminal or any SSH Client that you have
+- Once your instance is ready, connect to that instance (via SSH) using your key pair (Create in step 2) and the public IP of your instance (Create in step 4) by the terminal or any SSH Client that you have
 - Move to `/home/ubuntu/appsmith/scripts`
 
 - Run `configure-ssl.sh` script
@@ -143,14 +143,14 @@ The next step is to configure your app so that it can be access by your custom d
   ./configure-ssl.sh
   ```
 
-- You will be asked to your input domain to proceed the configuration(Please make sure that you have map your domain with EC2 Instance's public ip)
+- You will be asked to your input domain to proceed with the configuration(Please make sure that you have mapped your domain with EC2 Instance's public IP)
 
     ![Custom Domain](./images/custom-domain.png)
 
-- There will be option for you to configure SSL for your domain
+- There will be an option for you to configure SSL for your domain
   ![SSL](./images/ssl.png)
 
-At this point, you should be able to browse to the cloud server, by entering the your custom domain directly into your browser’s address bar. You should be able to see your webapp home page now
+At this point, you should be able to browse to the cloud server, by entering your custom domain directly into your browser’s address bar. You should be able to see your webapp home page now
 ![Login Page](./images/login-page.png)
 
 ## Step 7: Find Application Credentials

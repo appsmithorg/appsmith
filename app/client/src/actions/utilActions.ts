@@ -1,4 +1,4 @@
-import { ReduxActionTypes } from "constants/ReduxActionConstants";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 
 export const historyPush = (url: string) => ({
   type: ReduxActionTypes.HISTORY_PUSH,

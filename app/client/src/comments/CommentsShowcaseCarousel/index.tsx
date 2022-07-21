@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 
-import Text, { TextType } from "components/ads/Text";
+import { Text, TextType } from "design-system";
 import ShowcaseCarousel, { Steps } from "components/ads/ShowcaseCarousel";
-import ProfileForm, { PROFILE_FORM } from "./ProfileForm";
+import ProfileForm, { PROFILE_FORM, fieldNames } from "./ProfileForm";
 import CommentsCarouselModal from "./CommentsCarouselModal";
 import ProgressiveImage, {
   Container as ProgressiveImageContainer,
@@ -26,8 +26,8 @@ import {
 
 import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
 
-import { getCurrentAppOrg } from "selectors/organizationSelectors";
-import useOrg from "utils/hooks/useOrg";
+import { getCurrentAppWorkspace } from "@appsmith/selectors/workspaceSelectors";
+import useWorkspace from "utils/hooks/useWorkspace";
 import { getCanCreateApplications } from "utils/helpers";
 
 import stepOneThumbnail from "assets/images/comments-onboarding/thumbnails/step-1.jpg";
@@ -204,13 +204,23 @@ export default function CommentsShowcaseCarousel() {
   const dispatch = useDispatch();
   const isIntroCarouselVisible = useSelector(isIntroCarouselVisibleSelector);
   const profileFormValues = useSelector(getFormValues(PROFILE_FORM));
-  const profileFormErrors = useSelector(getFormSyncErrors("PROFILE_FORM"));
-  const isSubmitDisabled = Object.keys(profileFormErrors).length !== 0;
+  const profileFormErrors = useSelector(
+    getFormSyncErrors("PROFILE_FORM"),
+  ) as Partial<typeof fieldNames>;
 
   const [isSkipped, setIsSkipped] = useState(false);
 
   const currentUser = useSelector(getCurrentUser);
   const { email, name } = currentUser || {};
+  const emailDisabled = !!email;
+
+  // don't validate email address if it already exists on the user object
+  // this is to unblock the comments feature for github users where email is
+  // actually the github username
+  const isSubmitDisabled = !!(
+    profileFormErrors.displayName ||
+    (profileFormErrors.emailAddress && !emailDisabled)
+  );
 
   const initialProfileFormValues = { emailAddress: email, displayName: name };
   const onSubmitProfileForm = () => {
@@ -222,9 +232,9 @@ export default function CommentsShowcaseCarousel() {
     dispatch(updateUserDetails({ name, email }));
   };
 
-  const { id } = useSelector(getCurrentAppOrg) || {};
-  const currentOrg = useOrg(id);
-  const canManage = getCanCreateApplications(currentOrg);
+  const { id } = useSelector(getCurrentAppWorkspace) || {};
+  const currentWorkspace = useWorkspace(id);
+  const canManage = getCanCreateApplications(currentWorkspace);
 
   const [initialStep, finalStep] = getInitialAndFinalSteps(canManage);
 
@@ -265,7 +275,7 @@ export default function CommentsShowcaseCarousel() {
     isSubmitDisabled,
     finalSubmit,
     initialProfileFormValues,
-    !!email,
+    emailDisabled,
     canManage,
     onSkip,
     isSkipped,

@@ -1,7 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 import { getTypographyByKey } from "constants/DefaultTheme";
-import { COMMENTS, createMessage } from "constants/messages";
+import { COMMENTS, createMessage } from "@appsmith/constants/messages";
 
 import AppCommentsFilterPopover from "./AppCommentsFilterPopover";
 
@@ -17,8 +17,6 @@ const Header = styled.div`
   justify-content: space-between;
   align-items: center;
   border-bottom: 1px solid
-    ${(props) => props.theme.colors.comments.appCommentsHeaderBorder};
-  border-right: 1px solid
     ${(props) => props.theme.colors.comments.appCommentsHeaderBorder};
 `;
 

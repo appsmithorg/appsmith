@@ -23,6 +23,7 @@ export const commentThreadsMapInitial = {
     },
     refId: "0",
     applicationId: "605c435a91dea93f0eaf91b8",
+    pageId: "605c435a91dea93f0eaf91ba",
     comments: [
       {
         id: "605c436591dea93f0eaf91bc",
@@ -45,6 +46,7 @@ export const commentThreadsMapInitial = {
       },
     ],
     new: false,
+    isViewed: true,
   },
   "605c444c91dea93f0eaf91bd": {
     id: "605c444c91dea93f0eaf91bd",
@@ -55,6 +57,7 @@ export const commentThreadsMapInitial = {
     },
     refId: "0",
     applicationId: "605c435a91dea93f0eaf91b8",
+    pageId: "605c435a91dea93f0eaf91ba",
     comments: [
       {
         id: "605c444c91dea93f0eaf91be",
@@ -77,6 +80,7 @@ export const commentThreadsMapInitial = {
       },
     ],
     new: false,
+    isViewed: true,
   },
   "605c519391dea93f0eaf91bf": {
     id: "605c519391dea93f0eaf91bf",
@@ -87,6 +91,7 @@ export const commentThreadsMapInitial = {
     },
     refId: "0",
     applicationId: "605c435a91dea93f0eaf91b8",
+    pageId: "605c435a91dea93f0eaf91ba",
     comments: [
       {
         id: "605c519391dea93f0eaf91c0",
@@ -109,6 +114,7 @@ export const commentThreadsMapInitial = {
       },
     ],
     new: false,
+    isViewed: true,
   },
   "605c519c91dea93f0eaf91c1": {
     id: "605c519c91dea93f0eaf91c1",
@@ -119,6 +125,7 @@ export const commentThreadsMapInitial = {
     },
     refId: "0",
     applicationId: "605c435a91dea93f0eaf91b8",
+    pageId: "605c435a91dea93f0eaf91ba",
     comments: [
       {
         id: "605c519c91dea93f0eaf91c2",
@@ -160,6 +167,7 @@ export const commentThreadsMapInitial = {
       },
     ],
     new: false,
+    isViewed: true,
   },
   "605c51e891dea93f0eaf91c4": {
     id: "605c51e891dea93f0eaf91c4",
@@ -170,6 +178,7 @@ export const commentThreadsMapInitial = {
     },
     refId: "0",
     applicationId: "605c435a91dea93f0eaf91b8",
+    pageId: "605c435a91dea93f0eaf91ba",
     comments: [
       {
         id: "605c51e891dea93f0eaf91c5",
@@ -192,6 +201,7 @@ export const commentThreadsMapInitial = {
       },
     ],
     new: false,
+    isViewed: true,
   },
   "605c53b491dea93f0eaf91c6": {
     id: "605c53b491dea93f0eaf91c6",
@@ -202,6 +212,7 @@ export const commentThreadsMapInitial = {
     },
     refId: "0",
     applicationId: "605c435a91dea93f0eaf91b8",
+    pageId: "605c435a91dea93f0eaf91ba",
     comments: [
       {
         id: "605c53b491dea93f0eaf91c7",
@@ -224,6 +235,7 @@ export const commentThreadsMapInitial = {
       },
     ],
     new: false,
+    isViewed: true,
   },
   "605cb30c91dea93f0eaf91cb": {
     id: "605cb30c91dea93f0eaf91cb",
@@ -234,6 +246,7 @@ export const commentThreadsMapInitial = {
     },
     refId: "0",
     applicationId: "605c435a91dea93f0eaf91b8",
+    pageId: "605c435a91dea93f0eaf91ba",
     comments: [
       {
         id: "605cb30c91dea93f0eaf91cc",
@@ -256,6 +269,7 @@ export const commentThreadsMapInitial = {
       },
     ],
     new: false,
+    isViewed: true,
   },
   "6060c45e91dea93f0eaf91ce": {
     id: "6060c45e91dea93f0eaf91ce",
@@ -266,6 +280,7 @@ export const commentThreadsMapInitial = {
     },
     refId: "0",
     applicationId: "605c435a91dea93f0eaf91b8",
+    pageId: "605c435a91dea93f0eaf91ba",
     comments: [
       {
         id: "6060c45e91dea93f0eaf91cf",
@@ -288,6 +303,7 @@ export const commentThreadsMapInitial = {
       },
     ],
     new: false,
+    isViewed: true,
   },
 };
 
@@ -311,6 +327,7 @@ export const createCommentThreadSuccessPayload = {
   },
   refId: "0",
   applicationId: "605c435a91dea93f0eaf91b8",
+  pageId: "605c435a91dea93f0eaf91ba",
   comments: [
     {
       id: "606acdfac7a35467ac887f67",
@@ -374,19 +391,19 @@ export const updateCommentThreadPayload = {
   refId: "0",
   resolved: true,
   applicationId: "605c435a91dea93f0eaf91b8",
+  pageId: "605c435a91dea93f0eaf91ba",
   new: false,
 };
 
 export const newCommentThreadEventPayload = {
-  thread: {
-    _id: "606bf995c7a35467ac887f99",
-    position: {
-      topPercent: 4,
-      leftPercent: 28,
-    },
-    refId: "0",
-    applicationId: "605c435a91dea93f0eaf91b8",
+  _id: "606bf995c7a35467ac887f99",
+  position: {
+    topPercent: 4,
+    leftPercent: 28,
   },
+  refId: "0",
+  applicationId: "605c435a91dea93f0eaf91b8",
+  pageId: "605c435a91dea93f0eaf91ba",
 };
 
 export const updateCommentThreadEventPayload = {
@@ -397,6 +414,7 @@ export const updateCommentThreadEventPayload = {
   },
   refId: "0",
   applicationId: "605c435a91dea93f0eaf91b8",
+  pageId: "605c435a91dea93f0eaf91ba",
   resolved: true,
 };
 

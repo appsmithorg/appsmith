@@ -23,10 +23,10 @@ import SortRules from "./dataTypeSortRules";
 import _ from "lodash";
 
 const DEFS: Def[] = [
+  // @ts-expect-error: Types are not available
+  ecma,
   GLOBAL_FUNCTIONS,
   GLOBAL_DEFS,
-  // @ts-ignore
-  ecma,
   lodash,
   base64,
   moment,
@@ -51,6 +51,7 @@ export type Completion = Hint & {
 export type CommandsCompletion = Completion & {
   action?: () => void;
   shortcut: string;
+  triggerCompletionsPostPick?: boolean;
 };
 
 type TernDocs = Record<string, TernDoc>;
@@ -149,8 +150,8 @@ class TernServer {
     entityInfo?: Map<string, DataTreeDefEntityInformation>,
   ) {
     this.server.deleteDefs(name);
-    // @ts-ignore: No types available
-    this.server.addDefs(def, true);
+    // @ts-expect-error: Types are not available
+    this.server.addDefs(def);
     if (entityInfo) this.defEntityInformation = entityInfo;
   }
 
@@ -192,14 +193,14 @@ class TernServer {
     const searchText = (bindings.jsSnippets[0] || "").trim();
     for (let i = 0; i < data.completions.length; ++i) {
       const completion = data.completions[i];
-      let className = this.typeToIcon(completion.type);
+      let className = this.typeToIcon(completion.type, completion.isKeyword);
       const dataType = this.getDataType(completion.type);
       if (data.guess) className += " " + cls + "guess";
       let completionText = completion.name + after;
       if (dataType === "FUNCTION") {
         completionText = completionText + "()";
       }
-      completions.push({
+      const codeMirrorCompletion: Completion = {
         text: completionText,
         displayText: completionText,
         className: className,
@@ -207,7 +208,18 @@ class TernServer {
         origin: completion.origin,
         type: dataType,
         isHeader: false,
-      });
+      };
+      if (completion.isKeyword) {
+        codeMirrorCompletion.render = (
+          element: HTMLElement,
+          self: any,
+          data: any,
+        ) => {
+          element.setAttribute("keyword", data.displayText);
+          element.innerHTML = data.displayText;
+        };
+      }
+      completions.push(codeMirrorCompletion);
     }
 
     completions = this.sortAndFilterCompletions(
@@ -273,6 +285,7 @@ class TernServer {
           origins: true,
           caseInsensitive: true,
           guess: false,
+          inLiteral: false,
         },
         (error, data) => this.requestCallback(error, data, cm, resolve),
       );
@@ -320,7 +333,8 @@ class TernServer {
             if (
               !entityType ||
               ENTITY_TYPE.ACTION === entityType ||
-              ENTITY_TYPE.JSACTION === entityType
+              ENTITY_TYPE.JSACTION === entityType ||
+              ENTITY_TYPE.WIDGET === entityType
             ) {
               completionType.MATCHING_TYPE.push(completion);
               completionType.DATA_TREE.push(completion);
@@ -377,11 +391,16 @@ class TernServer {
         if (!entityInfo) return c.text;
         return c.text.replace(name, entityInfo.subType);
       });
-      SortRules[expectedType].forEach((rule) => {
-        if (Array.isArray(groupedMatches[rule])) {
-          sortedMatches.push(...groupedMatches[rule]);
+
+      const expectedRules = SortRules[expectedType];
+      for (const [key, value] of Object.entries(groupedMatches)) {
+        const name = key.split(".")[0];
+        if (name === "JSACTION") {
+          sortedMatches.push(...value);
+        } else if (expectedRules.indexOf(key) !== -1) {
+          sortedMatches.push(...value);
         }
-      });
+      }
 
       sortedMatches.sort((a, b) => {
         let aRank = 0;
@@ -434,9 +453,10 @@ class TernServer {
     else return AutocompleteDataType.OBJECT;
   }
 
-  typeToIcon(type: string) {
+  typeToIcon(type: string, isKeyword: boolean) {
     let suffix;
-    if (type === "?") suffix = "unknown";
+    if (isKeyword) suffix = "keyword";
+    else if (type === "?") suffix = "unknown";
     else if (type === "number" || type === "string" || type === "bool")
       suffix = type;
     else if (/^fn\(/.test(type)) suffix = "fn";
@@ -457,10 +477,10 @@ class TernServer {
       if (data.url) {
         tip.appendChild(document.createTextNode(" "));
         const child = tip.appendChild(this.elt("a", null, "[docs]"));
-        // @ts-ignore: No types available
+        // @ts-expect-error: Types are not available
         child.href = data.url;
 
-        // @ts-ignore: No types available
+        // @ts-expect-error: Types are not available
         child.target = "_blank";
       }
       this.tempTooltip(cm, tip);
@@ -480,13 +500,14 @@ class TernServer {
       preferFunction?: boolean;
       end?: CodeMirror.Position;
       guess?: boolean;
+      inLiteral?: boolean;
     },
     callbackFn: (error: any, data: any) => void,
     pos?: CodeMirror.Position,
   ) {
     const doc = this.findDoc(cm.getDoc());
     const request = this.buildRequest(doc, query, pos);
-    // @ts-ignore: No types available
+    // @ts-expect-error: Types are not available
     this.server.request(request, callbackFn);
   }
 
@@ -529,6 +550,7 @@ class TernServer {
       start?: any;
       file?: any;
       includeKeywords?: boolean;
+      inLiteral?: boolean;
     },
     pos?: CodeMirror.Position,
   ) {
@@ -636,9 +658,8 @@ class TernServer {
   sendDoc(doc: TernDoc) {
     this.server.request(
       {
-        // @ts-ignore: No types available
         files: [
-          // @ts-ignore: No types available
+          // @ts-expect-error: Types are not available
           {
             type: "full",
             name: doc.name,
@@ -738,12 +759,12 @@ class TernServer {
   tempTooltip(cm: CodeMirror.Editor, content: HTMLElement | string) {
     if (cm.state.ternTooltip) this.remove(cm.state.ternTooltip);
     if (cm.state.completionActive) {
-      // @ts-ignore: No types available
+      // @ts-expect-error: Types are not available
       cm.closeHint();
     }
     const where = cm.cursorCoords();
     const tip = (cm.state.ternTooltip = this.makeTooltip(
-      // @ts-ignore: No types available
+      // @ts-expect-error: Types are not available
       where.right + 1,
       where.bottom,
       content,
@@ -764,7 +785,7 @@ class TernServer {
     });
     CodeMirror.on(tip, "mouseout", function(e: MouseEvent) {
       const related = e.relatedTarget;
-      // @ts-ignore: No types available
+      // @ts-expect-error: Types are not available
       if (!related || !CodeMirror.contains(tip, related)) {
         if (old) clear();
         else mouseOnTip = false;

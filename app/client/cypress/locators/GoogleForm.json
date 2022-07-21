@@ -1,0 +1,6 @@
+{
+  "googleClientId": "[name='APPSMITH_OAUTH2_GOOGLE_CLIENT_ID']",
+  "googleClientSecret": "[name='APPSMITH_OAUTH2_GOOGLE_CLIENT_SECRET']",
+  "googleAllowedDomains": "[name='APPSMITH_SIGNUP_ALLOWED_DOMAINS']",
+  "saveBtn": ".t--admin-settings-save-button"
+}

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import styled, { css } from "styled-components";
 import { CommonComponentProps } from "components/ads/common";
-import { Colors } from "../../constants/Colors";
+import { Colors } from "constants/Colors";
 
 /** Styles **/
 const MainContainer = styled.div`
@@ -18,10 +18,13 @@ const SwitchBlock = styled.div<{ active?: boolean }>`
   align-items: center;
   justify-content: center;
   font-size: 14px;
+  line-height: 28px;
   color: ${Colors.DARK_GRAY};
   cursor: pointer;
   height: 100%;
   flex: 1;
+  border: 1px solid transparent;
+  user-select: none;
 
   ${(props) =>
     props.active &&

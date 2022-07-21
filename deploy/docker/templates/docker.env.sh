@@ -1,10 +1,11 @@
 #!/bin/bash
 
 set -o nounset
-
-MONGO_PASSWORD="$1"
-ENCRYPTION_PASSWORD="$2"
-ENCRYPTION_SALT="$3"
+MONGO_USER="$1"
+MONGO_PASSWORD="$2"
+ENCRYPTION_PASSWORD="$3"
+ENCRYPTION_SALT="$4"
+SUPERVISOR_PASSWORD="$5"
 
 cat <<EOF
 # Sentry
@@ -21,15 +22,16 @@ APPSMITH_OAUTH2_GOOGLE_CLIENT_SECRET=
 APPSMITH_OAUTH2_GITHUB_CLIENT_ID=
 APPSMITH_OAUTH2_GITHUB_CLIENT_SECRET=
 
+# Form Login/Signup
+APPSMITH_FORM_LOGIN_DISABLED=
+APPSMITH_SIGNUP_DISABLED=
+
 # Segment
 APPSMITH_SEGMENT_KEY=
 
 # RapidAPI
 APPSMITH_RAPID_API_KEY_VALUE=
 APPSMITH_MARKETPLACE_ENABLED=
-
-# Optimizely
-APPSMITH_OPTIMIZELY_KEY=
 
 # Algolia Search (Docs)
 APPSMITH_ALGOLIA_API_ID=
@@ -57,10 +59,9 @@ APPSMITH_MAIL_SMTP_AUTH=
 APPSMITH_MAIL_SMTP_TLS_ENABLED=
 
 # Disable all telemetry
-# Note: This only takes effect in self-hosted scenarios. 
+# Note: This only takes effect in self-hosted scenarios.
 # Please visit: https://docs.appsmith.com/telemetry to read more about anonymized data collected by Appsmith
 APPSMITH_DISABLE_TELEMETRY=false
-
 #APPSMITH_SENTRY_DSN=
 #APPSMITH_SENTRY_ENVIRONMENT=
 
@@ -69,23 +70,31 @@ APPSMITH_RECAPTCHA_SITE_KEY=
 APPSMITH_RECAPTCHA_SECRET_KEY=
 APPSMITH_RECAPTCHA_ENABLED=
 
-MONGO_INITDB_ROOT_USERNAME=appsmith
-MONGO_INITDB_ROOT_PASSWORD=$MONGO_PASSWORD
-MONGO_INITDB_DATABASE=appsmith
-APPSMITH_MONGO_HOST=localhost:27017
-APPSMITH_MONGODB_URI=mongodb://appsmith:$MONGO_PASSWORD@localhost/appsmith
-APPSMITH_API_BASE_URL=http://localhost:8080
+APPSMITH_MONGODB_URI=mongodb://$MONGO_USER:$MONGO_PASSWORD@localhost:27017/appsmith
+APPSMITH_MONGODB_USER=$MONGO_USER
+APPSMITH_MONGODB_PASSWORD=$MONGO_PASSWORD
+APPSMITH_API_BASE_URL=http://localhost:8080/api/v1
 
 APPSMITH_REDIS_URL=redis://127.0.0.1:6379
-
-APPSMITH_MAIL_ENABLED=false
 
 APPSMITH_ENCRYPTION_PASSWORD=$ENCRYPTION_PASSWORD
 APPSMITH_ENCRYPTION_SALT=$ENCRYPTION_SALT
 
 APPSMITH_CUSTOM_DOMAIN=
-# APPSMITH_PLUGIN_MAX_RESPONSE_SIZE_MB=5
 
+# Java command line arguments, as space-delimited string. Ex: "-Xms800M -Xmx800M"
+APPSMITH_JAVA_ARGS=
+
+# APPSMITH_PLUGIN_MAX_RESPONSE_SIZE_MB=5
 # MAX PAYLOAD SIZE
 # APPSMITH_CODEC_SIZE=
+
+APPSMITH_SUPERVISOR_USER=appsmith
+APPSMITH_SUPERVISOR_PASSWORD=$SUPERVISOR_PASSWORD
+
+# Set this to a space separated list of addresses that should be allowed to load Appsmith in a frame.
+# Example: "https://mydomain.com https://another-trusted-domain.com" will allow embedding on those two domains.
+# Default value, if commented or not set, is "'none'", which disables embedding completely.
+# https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy/frame-ancestors
+APPSMITH_ALLOWED_FRAME_ANCESTORS="'self'"
 EOF

@@ -3,7 +3,7 @@ import { Theme } from "constants/DefaultTheme";
 import React from "react";
 import styled, { withTheme } from "styled-components";
 import { getTypographyByKey } from "constants/DefaultTheme";
-import { VIEW_LATEST, createMessage } from "constants/messages";
+import { VIEW_LATEST, createMessage } from "@appsmith/constants/messages";
 
 const Container = styled.div`
   position: absolute;

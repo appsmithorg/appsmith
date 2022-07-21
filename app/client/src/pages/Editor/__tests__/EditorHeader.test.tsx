@@ -12,15 +12,14 @@ describe("Editor header", () => {
     container = document.createElement("div");
     document.body.appendChild(container);
   });
-  it("checks that Omnibar has correct styles", async (done) => {
+  it("checks that Omnibar has correct styles", async () => {
+    // @ts-expect-error: AppHeader props are missing
     const { findByDataCy } = render(<AppHeader />);
     const appOmnibar = await findByDataCy("global-search-modal-trigger");
     act(() => {
       fireEvent.mouseOver(appOmnibar);
     });
     expect(appOmnibar).toHaveStyle({ border: "1.5px solid #FFFFFF;" });
-
-    await done();
   });
   afterEach(() => {
     // cleanup on exiting

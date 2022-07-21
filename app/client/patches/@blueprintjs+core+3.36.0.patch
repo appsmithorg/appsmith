@@ -20,3 +20,16 @@ index 84f03fa..5e5488a 100644
      };
      EditableText.prototype.renderInput = function (value) {
          var _a = this.props, disabled = _a.disabled, maxLength = _a.maxLength, multiline = _a.multiline, type = _a.type, placeholder = _a.placeholder;
+diff --git a/node_modules/@blueprintjs/core/lib/esm/components/popover/popover.js b/node_modules/@blueprintjs/core/lib/esm/components/popover/popover.js
+index 0a12a2d..0169bf7 100644
+--- a/node_modules/@blueprintjs/core/lib/esm/components/popover/popover.js
++++ b/node_modules/@blueprintjs/core/lib/esm/components/popover/popover.js
+@@ -169,6 +169,8 @@ var Popover = /** @class */ (function (_super) {
+                 // close the popover if necessary.
+                 if (e.relatedTarget != null && !_this.isElementInPopover(e.relatedTarget)) {
+                     _this.handleMouseLeave(e);
++                } else if(e.relatedTarget === null) {
++                    _this.handleMouseLeave(e);
+                 }
+             }
+             _this.lostFocusOnSamePage = e.relatedTarget != null;

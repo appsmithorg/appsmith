@@ -1,6 +1,9 @@
 @import "~normalize.css";
 @import "~@blueprintjs/core/lib/css/blueprint.css";
 @import "~@blueprintjs/icons/lib/css/blueprint-icons.css";
+@import "~design-system/build/css/design-system.css";
+@import "theme/colors.css";
+@import "theme/defaultTheme.css";
 
 body {
   margin: 0;
@@ -10,13 +13,13 @@ body {
   background-color: #FFF !important;
 }
 
-body.dragging *{
+body.dragging * {
   cursor: grabbing !important;
 }
 
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
-    monospace;
+  monospace;
 }
 
 * {
@@ -28,14 +31,19 @@ div.bp3-select-popover .bp3-popover-content {
 }
 
 span.bp3-popover-target {
-  display: block;
+  display: flex;
+  width: 100%;
+}
+
+span.bp3-popover-target > * {
+  flex-grow: 1;
 }
 
 div.bp3-popover-arrow {
-  display:none;
+  display: none;
 }
 
-.bp3-button.bp3-loading{
+.bp3-button.bp3-loading {
   cursor: default !important;
 }
 
@@ -46,7 +54,9 @@ div.bp3-popover-arrow {
 .Toastify__toast {
   padding: 0 !important;
   border-radius: 4px !important;
+  box-shadow: none !important;
 }
+
 .Toastify__toast-body {
   margin: 0 !important;
 }
@@ -76,10 +86,14 @@ div.bp3-popover-arrow {
   margin-top: 8px !important;
 }
 
-.layout-control.bp3-popover.bp3-minimal{
+.layout-control.bp3-popover.bp3-minimal {
   margin-top: 8px !important;
 }
 
+.bp3-popover.none-shadow-popover {
+  box-shadow: none;
+  border: 0px;
+}
 
 .bp3-datepicker {
   border-radius: 0 !important;
@@ -90,7 +104,7 @@ div.bp3-popover-arrow {
   border-color: #E7E7E7 !important;
 }
 
-.tox:not([dir=rtl]) .tox-toolbar__group:not(:last-of-type), .tox .tox-statusbar  {
+.tox:not([dir=rtl]) .tox-toolbar__group:not(:last-of-type), .tox .tox-statusbar {
   border-color: #E7E7E7 !important;
 }
 
@@ -98,6 +112,7 @@ div.bp3-popover-arrow {
   background: white !important;
   border-bottom: 1px solid #E7E7E7 !important;
 }
+
 /* making both the Modal layer and the Dropdown layer */
 .bp3-modal-widget, .appsmith_widget_0 > .bp3-portal {
   z-index: 2 !important;
@@ -108,10 +123,6 @@ div.bp3-popover-arrow {
   z-index: 21 !important;
 }
 
-/* Change the white to any color */
-input:-webkit-autofill,
-input:-webkit-autofill:hover,
-input:-webkit-autofill:focus,
-input:-webkit-autofill:active {
-  -webkit-box-shadow: 0 0 0 30px white inset !important;
+.bp3-overlay-backdrop {
+  background-color: rgba(16, 22, 26, 0.7) !important;
 }

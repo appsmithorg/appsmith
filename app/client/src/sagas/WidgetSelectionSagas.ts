@@ -2,7 +2,7 @@ import {
   ReduxAction,
   ReduxActionErrorTypes,
   ReduxActionTypes,
-} from "constants/ReduxActionConstants";
+} from "@appsmith/constants/ReduxActionConstants";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import { all, call, fork, put, select, takeLatest } from "redux-saga/effects";
 import {
@@ -19,17 +19,21 @@ import {
   silentAddSelectionsAction,
 } from "actions/widgetSelectionActions";
 import { Toaster } from "components/ads/Toast";
-import { createMessage, SELECT_ALL_WIDGETS_MSG } from "constants/messages";
+import {
+  createMessage,
+  SELECT_ALL_WIDGETS_MSG,
+} from "@appsmith/constants/messages";
 import { Variant } from "components/ads/common";
 import { getSelectedWidget, getSelectedWidgets } from "selectors/ui";
 import {
   CanvasWidgetsReduxState,
   FlattenedWidgetProps,
 } from "reducers/entityReducers/canvasWidgetsReducer";
-import { getWidgetChildren } from "./WidgetOperationUtils";
+import { getWidgetChildrenIds } from "./WidgetOperationUtils";
 import { AppState } from "reducers";
 import { checkIsDropTarget } from "components/designSystems/appsmith/PositionedContainer";
 import WidgetFactory from "utils/WidgetFactory";
+import { showModal } from "actions/widgetActions";
 const WidgetTypes = WidgetFactory.widgetTypes;
 // The following is computed to be used in the entity explorer
 // Every time a widget is selected, we need to expand widget entities
@@ -133,11 +137,11 @@ function* getAllSelectableChildren() {
   const canvasId: string = yield call(getLastSelectedCanvas);
   let allChildren: string[] = [];
   const selectGrandChildren: boolean = lastSelectedWidget
-    ? widgetLastSelected.type === WidgetTypes.LIST_WIDGET
+    ? widgetLastSelected && widgetLastSelected.type === WidgetTypes.LIST_WIDGET
     : false;
   if (selectGrandChildren) {
     allChildren = yield call(
-      getWidgetChildren,
+      getWidgetChildrenIds,
       canvasWidgets,
       lastSelectedWidget,
     );
@@ -299,6 +303,11 @@ function* selectMultipleWidgetsSaga(
     });
     if (doesNotMatchParent) {
       return;
+    } else if (
+      widgetIds.length === 1 &&
+      allWidgets[widgetIds[0]]?.type === "MODAL_WIDGET"
+    ) {
+      yield put(showModal(widgetIds[0]));
     } else {
       yield put(selectWidgetAction());
       yield put(selectMultipleWidgetsAction(widgetIds));

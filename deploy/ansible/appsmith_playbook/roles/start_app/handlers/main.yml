@@ -1,9 +1,0 @@
----
-    - name: Send request to integromat when start app with docker
-      uri:
-        url: "{{ analytics_webhook_uri }}"
-        method: POST
-        body: "{\"userId\":\"{{ app_installation_id.content }}\",\"event\":\"Start app\",\"data\":{\"os\":\"{{ os.stdout }}\", \"platform\": \"ansible\"}}"
-        body_format: json
-        return_content: yes
-      listen: "Start Appsmith with docker-compose"

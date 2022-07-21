@@ -7,11 +7,13 @@ import { ValidationTypes } from "constants/WidgetValidation";
 import { Alignment } from "@blueprintjs/core";
 import {
   ButtonBorderRadius,
-  ButtonBoxShadow,
   ButtonVariant,
   ButtonVariantTypes,
+  ButtonPlacementTypes,
+  ButtonPlacement,
 } from "components/constants";
 import { IconName } from "@blueprintjs/icons";
+import { MinimumPopupRows } from "widgets/constants";
 export interface MenuButtonWidgetProps extends WidgetProps {
   label?: string;
   isDisabled?: boolean;
@@ -36,11 +38,11 @@ export interface MenuButtonWidgetProps extends WidgetProps {
   >;
   menuVariant?: ButtonVariant;
   menuColor?: string;
-  borderRadius?: ButtonBorderRadius;
-  boxShadow?: ButtonBoxShadow;
-  boxShadowColor?: string;
+  borderRadius: ButtonBorderRadius;
+  boxShadow?: string;
   iconName?: IconName;
   iconAlign?: Alignment;
+  placement?: ButtonPlacement;
 }
 
 class MenuButtonWidget extends BaseWidget<MenuButtonWidgetProps, WidgetState> {
@@ -97,22 +99,6 @@ class MenuButtonWidget extends BaseWidget<MenuButtonWidgetProps, WidgetState> {
                       validation: { type: ValidationTypes.TEXT },
                     },
                     {
-                      propertyName: "backgroundColor",
-                      helpText: "Sets the background color of a menu item",
-                      label: "Background color",
-                      controlType: "COLOR_PICKER",
-                      isBindProperty: false,
-                      isTriggerProperty: false,
-                    },
-                    {
-                      propertyName: "textColor",
-                      helpText: "Sets the text color of a menu item",
-                      label: "Text color",
-                      controlType: "COLOR_PICKER",
-                      isBindProperty: false,
-                      isTriggerProperty: false,
-                    },
-                    {
                       propertyName: "isDisabled",
                       helpText: "Disables input to the widget",
                       label: "Disabled",
@@ -146,19 +132,22 @@ class MenuButtonWidget extends BaseWidget<MenuButtonWidgetProps, WidgetState> {
                       isTriggerProperty: false,
                       validation: { type: ValidationTypes.TEXT },
                     },
-                    {
-                      propertyName: "iconColor",
-                      helpText: "Sets the icon color of a menu item",
-                      label: "Icon color",
-                      controlType: "COLOR_PICKER",
-                      isBindProperty: false,
-                      isTriggerProperty: false,
-                    },
+
                     {
                       propertyName: "iconAlign",
                       label: "Icon alignment",
                       helpText: "Sets the icon alignment of a menu item",
-                      controlType: "ICON_ALIGN",
+                      controlType: "ICON_TABS",
+                      options: [
+                        {
+                          icon: "VERTICAL_LEFT",
+                          value: "left",
+                        },
+                        {
+                          icon: "VERTICAL_RIGHT",
+                          value: "right",
+                        },
+                      ],
                       isBindProperty: false,
                       isTriggerProperty: false,
                       validation: { type: ValidationTypes.TEXT },
@@ -166,7 +155,7 @@ class MenuButtonWidget extends BaseWidget<MenuButtonWidgetProps, WidgetState> {
                   ],
                 },
                 {
-                  sectionName: "Actions",
+                  sectionName: "Events",
                   children: [
                     {
                       helpText:
@@ -177,6 +166,35 @@ class MenuButtonWidget extends BaseWidget<MenuButtonWidgetProps, WidgetState> {
                       isJSConvertible: true,
                       isBindProperty: true,
                       isTriggerProperty: true,
+                    },
+                  ],
+                },
+                {
+                  sectionName: "Styles",
+                  children: [
+                    {
+                      propertyName: "iconColor",
+                      helpText: "Sets the icon color of a menu item",
+                      label: "Icon color",
+                      controlType: "COLOR_PICKER",
+                      isBindProperty: false,
+                      isTriggerProperty: false,
+                    },
+                    {
+                      propertyName: "backgroundColor",
+                      helpText: "Sets the background color of a menu item",
+                      label: "Background color",
+                      controlType: "COLOR_PICKER",
+                      isBindProperty: false,
+                      isTriggerProperty: false,
+                    },
+                    {
+                      propertyName: "textColor",
+                      helpText: "Sets the text color of a menu item",
+                      label: "Text color",
+                      controlType: "COLOR_PICKER",
+                      isBindProperty: false,
+                      isTriggerProperty: false,
                     },
                   ],
                 },
@@ -204,6 +222,17 @@ class MenuButtonWidget extends BaseWidget<MenuButtonWidgetProps, WidgetState> {
             validation: { type: ValidationTypes.BOOLEAN },
           },
           {
+            propertyName: "animateLoading",
+            label: "Animate Loading",
+            controlType: "SWITCH",
+            helpText: "Controls the loading of the widget",
+            defaultValue: true,
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+          },
+          {
             propertyName: "isCompact",
             helpText: "Decides if menu items will consume lesser space",
             label: "Compact",
@@ -223,8 +252,10 @@ class MenuButtonWidget extends BaseWidget<MenuButtonWidgetProps, WidgetState> {
             helpText: "Sets the style of the Menu button",
             label: "Menu Color",
             controlType: "COLOR_PICKER",
-            isBindProperty: false,
+            isJSConvertible: true,
+            isBindProperty: true,
             isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
           },
           {
             propertyName: "menuVariant",
@@ -234,15 +265,15 @@ class MenuButtonWidget extends BaseWidget<MenuButtonWidgetProps, WidgetState> {
             options: [
               {
                 label: "Primary",
-                value: "SOLID",
+                value: ButtonVariantTypes.PRIMARY,
               },
               {
                 label: "Secondary",
-                value: "OUTLINE",
+                value: ButtonVariantTypes.SECONDARY,
               },
               {
                 label: "Tertiary",
-                value: "GHOST",
+                value: ButtonVariantTypes.TERTIARY,
               },
             ],
             isJSConvertible: true,
@@ -251,8 +282,12 @@ class MenuButtonWidget extends BaseWidget<MenuButtonWidgetProps, WidgetState> {
             validation: {
               type: ValidationTypes.TEXT,
               params: {
-                default: ButtonVariantTypes.SOLID,
-                allowedValues: ["SOLID", "OUTLINE", "GHOST"],
+                allowedValues: [
+                  ButtonVariantTypes.PRIMARY,
+                  ButtonVariantTypes.SECONDARY,
+                  ButtonVariantTypes.TERTIARY,
+                ],
+                default: ButtonVariantTypes.PRIMARY,
               },
             },
           },
@@ -261,15 +296,11 @@ class MenuButtonWidget extends BaseWidget<MenuButtonWidgetProps, WidgetState> {
             label: "Border Radius",
             helpText:
               "Rounds the corners of the icon button's outer border edge",
-            controlType: "BUTTON_BORDER_RADIUS_OPTIONS",
-            isBindProperty: false,
+            controlType: "BORDER_RADIUS_OPTIONS",
+            isJSConvertible: true,
+            isBindProperty: true,
             isTriggerProperty: false,
-            validation: {
-              type: ValidationTypes.TEXT,
-              params: {
-                allowedValues: ["CIRCLE", "SHARP", "ROUNDED"],
-              },
-            },
+            validation: { type: ValidationTypes.TEXT },
           },
           {
             propertyName: "boxShadow",
@@ -277,35 +308,10 @@ class MenuButtonWidget extends BaseWidget<MenuButtonWidgetProps, WidgetState> {
             helpText:
               "Enables you to cast a drop shadow from the frame of the widget",
             controlType: "BOX_SHADOW_OPTIONS",
-            isBindProperty: false,
+            isJSConvertible: true,
+            isBindProperty: true,
             isTriggerProperty: false,
-            validation: {
-              type: ValidationTypes.TEXT,
-              params: {
-                allowedValues: [
-                  "NONE",
-                  "VARIANT1",
-                  "VARIANT2",
-                  "VARIANT3",
-                  "VARIANT4",
-                  "VARIANT5",
-                ],
-              },
-            },
-          },
-          {
-            propertyName: "boxShadowColor",
-            helpText: "Sets the shadow color of the widget",
-            label: "Shadow Color",
-            controlType: "COLOR_PICKER",
-            isBindProperty: false,
-            isTriggerProperty: false,
-            validation: {
-              type: ValidationTypes.TEXT,
-              params: {
-                regex: /^(?![<|{{]).+/,
-              },
-            },
+            validation: { type: ValidationTypes.TEXT },
           },
           {
             propertyName: "iconName",
@@ -328,15 +334,61 @@ class MenuButtonWidget extends BaseWidget<MenuButtonWidgetProps, WidgetState> {
               }
               return propertiesToUpdate;
             },
+            dependencies: ["iconAlign"],
             validation: {
               type: ValidationTypes.TEXT,
+            },
+          },
+          {
+            propertyName: "placement",
+            label: "Placement",
+            controlType: "DROP_DOWN",
+            helpText: "Sets the space between items",
+            options: [
+              {
+                label: "Start",
+                value: ButtonPlacementTypes.START,
+              },
+              {
+                label: "Between",
+                value: ButtonPlacementTypes.BETWEEN,
+              },
+              {
+                label: "Center",
+                value: ButtonPlacementTypes.CENTER,
+              },
+            ],
+            defaultValue: ButtonPlacementTypes.CENTER,
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: {
+              type: ValidationTypes.TEXT,
+              params: {
+                allowedValues: [
+                  ButtonPlacementTypes.START,
+                  ButtonPlacementTypes.BETWEEN,
+                  ButtonPlacementTypes.CENTER,
+                ],
+                default: ButtonPlacementTypes.CENTER,
+              },
             },
           },
           {
             propertyName: "iconAlign",
             label: "Icon Alignment",
             helpText: "Sets the icon alignment of the menu button",
-            controlType: "ICON_ALIGN",
+            controlType: "ICON_TABS",
+            options: [
+              {
+                icon: "VERTICAL_LEFT",
+                value: "left",
+              },
+              {
+                icon: "VERTICAL_RIGHT",
+                value: "right",
+              },
+            ],
             isBindProperty: false,
             isTriggerProperty: false,
             validation: {
@@ -364,10 +416,16 @@ class MenuButtonWidget extends BaseWidget<MenuButtonWidgetProps, WidgetState> {
   };
 
   getPageView() {
+    const { componentWidth } = this.getComponentDimensions();
+    const menuDropDownWidth = MinimumPopupRows * this.props.parentColumnSpace;
+
     return (
       <MenuButtonComponent
         {...this.props}
+        menuDropDownWidth={menuDropDownWidth}
         onItemClicked={this.menuItemClickHandler}
+        renderMode={this.props.renderMode}
+        width={componentWidth}
       />
     );
   }

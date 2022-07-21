@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useMemo, useRef } from "react";
-import styled, { css, keyframes } from "styled-components";
+import styled from "styled-components";
 import { Button, Icon } from "@blueprintjs/core";
 import { useReactMediaRecorder } from "react-media-recorder";
 import { useStopwatch } from "react-timer-hook";
@@ -10,10 +10,13 @@ import { ReactComponent as RecorderPauseIcon } from "assets/icons/widget/recorde
 import { ReactComponent as RecorderCompleteIcon } from "assets/icons/widget/recorder/recorder_complete.svg";
 import { ReactComponent as RecorderNoPermissionIcon } from "assets/icons/widget/recorder/recorder_no_permission.svg";
 import { WIDGET_PADDING } from "constants/WidgetConstants";
-import { hexToRgb, ThemeProp } from "components/ads/common";
+import { ThemeProp } from "components/ads/common";
 import { darkenHover } from "constants/DefaultTheme";
+import { Colors } from "constants/Colors";
 
 export enum RecorderStatusTypes {
+  PERMISSION_PROMPT = "PERMISSION_PROMPT",
+  PERMISSION_DENIED = "PERMISSION_DENIED",
   DEFAULT = "DEFAULT",
   RECORDING = "RECORDING",
   PAUSE = "PAUSE",
@@ -38,7 +41,6 @@ const RecorderContainer = styled.div`
   justify-content: space-evenly;
   width: 100%;
   height: 100%;
-  overflow: auto;
 `;
 
 const RightContainer = styled.div`
@@ -60,55 +62,29 @@ const RightContainer = styled.div`
 `;
 
 const TimerContainer = styled.div<ThemeProp>`
-  color: ${({ theme }) => theme.colors.button.disabled.bgColor};
+  color: ${Colors.GREY_8};
 `;
 
 interface RecorderLeftButtonStyleProps {
-  backgroundColor: string;
+  accentColor: string;
+  boxShadow?: string;
+  borderRadius: string;
   dimension: number;
   disabled: boolean;
   iconColor: string;
+  permissionDenied: boolean;
   status: RecorderStatus;
 }
-
-const getRgbaColor = (color: string, alpha: number) => {
-  const rgb = hexToRgb(color);
-
-  return `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, ${alpha})`;
-};
-
-const pulse = (boxShadowColor: string, dimension: number) => {
-  return keyframes`
-  0% {
-    box-shadow: 0 0 0 0px ${getRgbaColor(boxShadowColor, 0.4)};
-  }
-  100% {
-    box-shadow: 0 0 0 ${dimension * 0.1}px rgba(0, 0, 0, 0);
-  }
-`;
-};
-
-const animation = (props: RecorderLeftButtonStyleProps) => css`
-  ${pulse(props.backgroundColor, props.dimension)} 2s infinite
-`;
 
 const StyledRecorderLeftButton = styled(Button)<
   ThemeProp & RecorderLeftButtonStyleProps
 >`
   background-image: none !important;
-  border-radius: 50%;
+  border-radius: ${({ borderRadius }) => borderRadius};
   height: ${({ dimension }) => dimension * 0.8}px;
   width: ${({ dimension }) => dimension * 0.8}px;
-
-  box-shadow: ${({ backgroundColor, status }) =>
-    status === RecorderStatusTypes.RECORDING
-      ? `
-      0 0 0 1px 1px ${getRgbaColor(backgroundColor, 0.4)}
-    `
-      : "none"} !important;
+  box-shadow: ${({ boxShadow }) => `${boxShadow}`} !important;
   margin-left: ${({ dimension }) => dimension * 0.1}px;
-
-  animation: ${animation};
 
   & > svg {
     flex: 1;
@@ -133,17 +109,32 @@ const StyledRecorderLeftButton = styled(Button)<
     }
   }
 
-  ${({ backgroundColor, theme }) => `
+  ${({ accentColor, permissionDenied, theme }) => `
     &:enabled {
-      background: ${backgroundColor ? backgroundColor : "none"} !important;
+      background: ${
+        accentColor
+          ? permissionDenied
+            ? theme.colors.button.disabled.bgColor
+            : accentColor
+          : "none"
+      } !important;
     }
     &:hover:enabled, &:active:enabled {
-      background: ${darkenHover(backgroundColor || "#f6f6f6")} !important;
+      background: ${darkenHover(
+        permissionDenied
+          ? theme.colors.button.disabled.bgColor
+          : accentColor || "#f6f6f6",
+      )} !important;
       animation: none;
     }
     &:disabled {
       background-color: ${theme.colors.button.disabled.bgColor} !important;
       color: ${theme.colors.button.disabled.textColor} !important;
+      > svg {
+        path, circle {
+          fill: ${theme.colors.button.disabled.textColor};
+        }
+      }
     }
   `}
 `;
@@ -172,7 +163,9 @@ const renderRecorderIcon = (
 };
 
 interface RecorderLeftProps {
-  backgroundColor: string;
+  accentColor: string;
+  borderRadius: string;
+  boxShadow?: string;
   dimension: number;
   disabled: boolean;
   iconColor: string;
@@ -183,7 +176,9 @@ interface RecorderLeftProps {
 
 function RecorderLeft(props: RecorderLeftProps) {
   const {
-    backgroundColor,
+    accentColor,
+    borderRadius,
+    boxShadow,
     denied,
     dimension,
     disabled,
@@ -198,12 +193,15 @@ function RecorderLeft(props: RecorderLeftProps) {
 
   return (
     <StyledRecorderLeftButton
-      backgroundColor={backgroundColor}
+      accentColor={accentColor}
+      borderRadius={borderRadius}
+      boxShadow={boxShadow}
       dimension={dimension}
       disabled={disabled || denied}
       icon={renderRecorderIcon(denied, status)}
       iconColor={iconColor}
       onClick={handleClick}
+      permissionDenied={denied}
       status={status}
     />
   );
@@ -311,6 +309,7 @@ function RecorderRight(props: RecorderRightProps) {
     onClearRecording,
     onPlayerEnded,
     playerStatus,
+    recorderStatus,
     seconds,
     statusMessage,
   } = props;
@@ -491,41 +490,55 @@ function RecorderRight(props: RecorderRightProps) {
   return (
     <RightContainer>
       <div className="status">{statusMessage}</div>
-      <div className="controls">
-        {isReadyPlayerTimer
-          ? renderTimer(
-              currentDays,
-              currentHours,
-              currentMinutes,
-              currentSeconds,
-            )
-          : renderTimer(days, hours, minutes, seconds)}
-        {renderPlayerControls(props)}
-      </div>
+      {recorderStatus === RecorderStatusTypes.PERMISSION_DENIED ? (
+        <a
+          href="https://help.sprucehealth.com/article/386-changing-permissions-for-video-and-audio-on-your-internet-browser"
+          rel="noreferrer"
+          target="_blank"
+        >
+          Know more
+        </a>
+      ) : (
+        <div className="controls">
+          {isReadyPlayerTimer
+            ? renderTimer(
+                currentDays,
+                currentHours,
+                currentMinutes,
+                currentSeconds,
+              )
+            : renderTimer(days, hours, minutes, seconds)}
+          {renderPlayerControls(props)}
+        </div>
+      )}
     </RightContainer>
   );
 }
 
 export interface RecorderComponentProps {
-  backgroundColor: string;
+  accentColor: string;
+  borderRadius: string;
+  boxShadow?: string;
   height: number;
   iconColor: string;
   isDisabled: boolean;
   onRecordingStart: () => void;
   onRecordingComplete: (blobUrl?: string, blob?: Blob) => void;
-  value?: Blob;
+  blobUrl?: string;
   width: number;
 }
 
 function AudioRecorderComponent(props: RecorderComponentProps) {
   const {
-    backgroundColor,
+    accentColor,
+    blobUrl,
+    borderRadius,
+    boxShadow,
     height,
     iconColor,
     isDisabled,
     onRecordingComplete,
     onRecordingStart,
-    value,
     width,
   } = props;
 
@@ -535,17 +548,14 @@ function AudioRecorderComponent(props: RecorderComponentProps) {
     width - WIDGET_PADDING * 2,
   );
   const [recorderStatus, setRecorderStatus] = useState(
-    RecorderStatusTypes.DEFAULT,
+    RecorderStatusTypes.PERMISSION_PROMPT,
   );
   const [playerStatus, setPlayerStatus] = useState(PlayerStatusTypes.DEFAULT);
-  const [statusMessage, setStatusMessage] = useState(
-    "Press to start recording",
-  );
+  const [statusMessage, setStatusMessage] = useState("Press to get permission");
 
   const [isReadyPlayerTimer, setIsReadyPlayerTimer] = useState(false);
   const [isClear, setIsClear] = useState(false);
   const [isPermissionDenied, setIsPermissionDenied] = useState(false);
-
   const {
     clearBlobUrl,
     error,
@@ -555,7 +565,6 @@ function AudioRecorderComponent(props: RecorderComponentProps) {
     startRecording,
     stopRecording,
   } = useReactMediaRecorder({
-    askPermissionOnMount: true,
     onStop: (blobUrl: string, blob: Blob) => onRecordingComplete(blobUrl, blob),
   });
 
@@ -573,15 +582,20 @@ function AudioRecorderComponent(props: RecorderComponentProps) {
   useEffect(() => {
     if (error === "permission_denied") {
       setIsPermissionDenied(true);
-      setStatusMessage("Permission not given");
+      setRecorderStatus(RecorderStatusTypes.PERMISSION_DENIED);
+      setStatusMessage("Permission denied");
     }
   }, [error]);
 
   useEffect(() => {
-    if (recorderStatus !== RecorderStatusTypes.DEFAULT && value === undefined) {
+    if (
+      recorderStatus !== RecorderStatusTypes.PERMISSION_PROMPT &&
+      recorderStatus !== RecorderStatusTypes.DEFAULT &&
+      blobUrl === undefined
+    ) {
       resetRecorder();
     }
-  }, [value]);
+  }, [blobUrl]);
 
   const dimension = useMemo(() => {
     if (containerWidth > height) {
@@ -599,8 +613,33 @@ function AudioRecorderComponent(props: RecorderComponentProps) {
     reset(0, false);
   };
 
+  const handlePermissionPrompt = () => {
+    navigator.mediaDevices
+      .getUserMedia({ video: false, audio: true })
+      .then(() => {
+        setIsPermissionDenied(false);
+        setRecorderStatus(RecorderStatusTypes.DEFAULT);
+        setStatusMessage("Press to start recording");
+      })
+      .catch((err) => {
+        if (err.code === 0) {
+          setIsPermissionDenied(true);
+          setRecorderStatus(RecorderStatusTypes.PERMISSION_DENIED);
+          setStatusMessage("Permission denied");
+        }
+      });
+  };
+
   const handleRecorderClick = () => {
     switch (recorderStatus) {
+      case RecorderStatusTypes.DEFAULT:
+        startRecording();
+        start();
+        setRecorderStatus(RecorderStatusTypes.RECORDING);
+        setStatusMessage("Recording...");
+        setIsClear(false);
+        onRecordingStart();
+        break;
       case RecorderStatusTypes.RECORDING:
         pauseRecording();
         pause();
@@ -622,12 +661,7 @@ function AudioRecorderComponent(props: RecorderComponentProps) {
         break;
 
       default:
-        startRecording();
-        start();
-        setRecorderStatus(RecorderStatusTypes.RECORDING);
-        setStatusMessage("Recording...");
-        setIsClear(false);
-        onRecordingStart();
+        handlePermissionPrompt();
         break;
     }
   };
@@ -675,7 +709,9 @@ function AudioRecorderComponent(props: RecorderComponentProps) {
   return (
     <RecorderContainer ref={recorderContainerRef}>
       <RecorderLeft
-        backgroundColor={backgroundColor}
+        accentColor={accentColor}
+        borderRadius={borderRadius}
+        boxShadow={boxShadow}
         denied={isPermissionDenied}
         dimension={dimension}
         disabled={isDisabled}

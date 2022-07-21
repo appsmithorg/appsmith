@@ -31,6 +31,9 @@ type EditableTextProps = {
   minimal?: boolean;
   onBlur?: (value?: string) => void;
   beforeUnmount?: (value?: string) => void;
+  errorTooltipClass?: string;
+  maxLength?: number;
+  underline?: boolean;
 };
 
 const EditableTextWrapper = styled.div<{
@@ -67,7 +70,13 @@ const EditableTextWrapper = styled.div<{
   }
 `;
 
-const TextContainer = styled.div<{ isValid: boolean; minimal: boolean }>`
+// using the !important keyword here is mandatory because a style is being applied to that element using the style attribute
+// which has higher specificity than other css selectors. It seems the overriding style is being applied by the package itself.
+const TextContainer = styled.div<{
+  isValid: boolean;
+  minimal: boolean;
+  underline?: boolean;
+}>`
   display: flex;
   &&&& .${Classes.EDITABLE_TEXT} {
     & .${Classes.EDITABLE_TEXT_CONTENT} {
@@ -75,6 +84,19 @@ const TextContainer = styled.div<{ isValid: boolean; minimal: boolean }>`
         text-decoration: ${(props) => (props.minimal ? "underline" : "none")};
       }
     }
+  }
+  &&& .${Classes.EDITABLE_TEXT_CONTENT}:hover {
+    ${(props) =>
+      props.underline
+        ? `
+        border-bottom-style: solid;
+        border-bottom-width: 1px;
+        width: fit-content;
+      `
+        : null}
+  }
+  & span.bp3-editable-text-content {
+    height: auto !important;
   }
 `;
 
@@ -84,10 +106,12 @@ export function EditableText(props: EditableTextProps) {
     className,
     defaultValue,
     editInteractionKind,
+    errorTooltipClass,
     forceDefault,
     hideEditIcon,
     isEditingDefault,
     isInvalid,
+    maxLength,
     minimal,
     onBlur,
     onTextChanged,
@@ -171,12 +195,21 @@ export function EditableText(props: EditableTextProps) {
         editInteractionKind === EditInteractionKind.DOUBLE ? edit : _.noop
       }
     >
-      <ErrorTooltip isOpen={!!error} message={errorMessage as string}>
-        <TextContainer isValid={!error} minimal={!!minimal}>
+      <ErrorTooltip
+        customClass={errorTooltipClass}
+        isOpen={!!error}
+        message={errorMessage as string}
+      >
+        <TextContainer
+          isValid={!error}
+          minimal={!!minimal}
+          underline={props.underline}
+        >
           <BlueprintEditableText
             className={className}
             disabled={!isEditing}
             isEditing={isEditing}
+            maxLength={maxLength}
             onCancel={onBlur}
             onChange={onInputchange}
             onConfirm={onChange}
@@ -185,7 +218,12 @@ export function EditableText(props: EditableTextProps) {
             value={value}
           />
           {!minimal && !hideEditIcon && !updating && !isEditing && (
-            <Icon fillColor="#939090" name="edit" size={IconSize.XXL} />
+            <Icon
+              className="t--action-name-edit-icon"
+              fillColor="#939090"
+              name="edit"
+              size={IconSize.XXL}
+            />
           )}
         </TextContainer>
       </ErrorTooltip>

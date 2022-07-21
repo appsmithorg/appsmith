@@ -1,21 +1,29 @@
 import React from "react";
 import {
   createMessage,
+  ACTION_OPERATION_DESCRIPTION,
   DOC_DESCRIPTION,
   NAV_DESCRIPTION,
   SNIPPET_DESCRIPTION,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { Datasource } from "entities/Datasource";
 import { useEffect, useState } from "react";
 import { fetchRawGithubContentList } from "./githubHelper";
 import { PluginType } from "entities/Action";
-import { modText } from "./HelpBar";
 import { WidgetType } from "constants/WidgetConstants";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { getPluginByPackageName } from "selectors/entitiesSelector";
 import { AppState } from "reducers";
 import WidgetFactory from "utils/WidgetFactory";
+import { CurlIconV2, JsFileIconV2 } from "pages/Editor/Explorer/ExplorerIcons";
+import { createNewApiAction } from "actions/apiPaneActions";
+import { createNewJSCollection } from "actions/jsPaneActions";
+import { EventLocation } from "utils/AnalyticsUtil";
+import { getQueryParams } from "utils/AppsmithUtils";
+import history from "utils/history";
+import { curlImportPageURL } from "RouteBuilder";
+import { isMacOrIOS, modText, shiftText } from "utils/helpers";
 
 export type SelectEvent =
   | React.MouseEvent
@@ -34,6 +42,7 @@ export enum SEARCH_CATEGORY_ID {
   DOCUMENTATION = "Documentation",
   NAVIGATION = "Navigate",
   INIT = "INIT",
+  ACTION_OPERATION = "Create New",
 }
 
 export enum SEARCH_ITEM_TYPES {
@@ -47,6 +56,7 @@ export enum SEARCH_ITEM_TYPES {
   jsAction = "jsAction",
   category = "category",
   snippet = "snippet",
+  actionOperation = "actionOperation",
 }
 
 export type DocSearchItem = {
@@ -61,10 +71,15 @@ export type DocSearchItem = {
 };
 
 export const comboHelpText = {
-  [SEARCH_CATEGORY_ID.SNIPPETS]: <>{modText()} + J</>,
-  [SEARCH_CATEGORY_ID.DOCUMENTATION]: <>{modText()} + L</>,
-  [SEARCH_CATEGORY_ID.NAVIGATION]: <>{modText()} + K</>,
-  [SEARCH_CATEGORY_ID.INIT]: <>{modText()} + P</>,
+  [SEARCH_CATEGORY_ID.SNIPPETS]: <>{modText()} J</>,
+  [SEARCH_CATEGORY_ID.DOCUMENTATION]: <>{modText()} L</>,
+  [SEARCH_CATEGORY_ID.NAVIGATION]: <>{modText()} P</>,
+  [SEARCH_CATEGORY_ID.INIT]: <>{modText()} K</>,
+  [SEARCH_CATEGORY_ID.ACTION_OPERATION]: (
+    <>
+      {modText()} {shiftText()} {isMacOrIOS() ? "+" : "Plus"}
+    </>
+  ),
 };
 
 export type Snippet = {
@@ -91,6 +106,7 @@ export type FilterEntity = WidgetType | ENTITY_TYPE;
 export const filterEntityTypeLabels: Partial<Record<ENTITY_TYPE, string>> = {
   ACTION: "All Queries",
   WIDGET: "All Widgets",
+  JSACTION: "JS Objects",
 };
 
 export const getSnippetFilterLabel = (state: AppState, label: string) => {
@@ -134,6 +150,12 @@ export const filterCategories: Record<SEARCH_CATEGORY_ID, SearchCategory> = {
     id: SEARCH_CATEGORY_ID.NAVIGATION,
     desc: createMessage(NAV_DESCRIPTION),
   },
+  [SEARCH_CATEGORY_ID.ACTION_OPERATION]: {
+    title: "Create New",
+    kind: SEARCH_ITEM_TYPES.category,
+    id: SEARCH_CATEGORY_ID.ACTION_OPERATION,
+    desc: createMessage(ACTION_OPERATION_DESCRIPTION),
+  },
   [SEARCH_CATEGORY_ID.SNIPPETS]: {
     title: "Use Snippets",
     kind: SEARCH_ITEM_TYPES.category,
@@ -159,6 +181,8 @@ export const isSnippet = (category: SearchCategory) =>
   category.id === SEARCH_CATEGORY_ID.SNIPPETS;
 export const isMenu = (category: SearchCategory) =>
   category.id === SEARCH_CATEGORY_ID.INIT;
+export const isActionOperation = (category: SearchCategory) =>
+  category.id === SEARCH_CATEGORY_ID.ACTION_OPERATION;
 
 export const getFilterCategoryList = () =>
   Object.values(filterCategories).filter((cat: SearchCategory) => {
@@ -176,16 +200,15 @@ export const getItemType = (item: SearchItem): SEARCH_ITEM_TYPES => {
     item.kind === SEARCH_ITEM_TYPES.page ||
     item.kind === SEARCH_ITEM_TYPES.sectionTitle ||
     item.kind === SEARCH_ITEM_TYPES.placeholder ||
-    item.kind === SEARCH_ITEM_TYPES.category
+    item.kind === SEARCH_ITEM_TYPES.category ||
+    item.kind === SEARCH_ITEM_TYPES.actionOperation
   )
     type = item.kind;
-  else if (item.kind === SEARCH_ITEM_TYPES.page) type = SEARCH_ITEM_TYPES.page;
   else if (item.config?.pluginType === PluginType.JS)
     type = SEARCH_ITEM_TYPES.jsAction;
   else if (item.config?.name) type = SEARCH_ITEM_TYPES.action;
   else if (item.body?.snippet) type = SEARCH_ITEM_TYPES.snippet;
   else type = SEARCH_ITEM_TYPES.datasource;
-
   return type;
 };
 
@@ -207,6 +230,8 @@ export const getItemTitle = (item: SearchItem): string => {
     case SEARCH_ITEM_TYPES.document:
       return item?.title;
     case SEARCH_ITEM_TYPES.snippet:
+      return item.title;
+    case SEARCH_ITEM_TYPES.actionOperation:
       return item.title;
     default:
       return "";
@@ -297,6 +322,58 @@ export const getEntityId = (entity: any) => {
     case "widget":
       return entity.widgetId;
     case "action":
+    case "jsAction":
       return entity.config?.id;
   }
+};
+
+export type ActionOperation = {
+  title: string;
+  desc: string;
+  icon?: any;
+  kind: SEARCH_ITEM_TYPES;
+  action?: (pageId: string, location: EventLocation) => any;
+  redirect?: (pageId: string, from: EventLocation) => any;
+  pluginId?: string;
+};
+
+export const actionOperations: ActionOperation[] = [
+  {
+    title: "New Blank API",
+    desc: "Create a new API",
+    kind: SEARCH_ITEM_TYPES.actionOperation,
+    action: (pageId: string, location: EventLocation) =>
+      createNewApiAction(pageId, location),
+  },
+  {
+    title: "New JS Object",
+    desc: "Create a new JS Object",
+    kind: SEARCH_ITEM_TYPES.actionOperation,
+    icon: JsFileIconV2,
+    action: (pageId: string) => createNewJSCollection(pageId),
+  },
+  {
+    title: "New cURL Import",
+    desc: "Import a cURL Request",
+    kind: SEARCH_ITEM_TYPES.actionOperation,
+    icon: <CurlIconV2 />,
+    redirect: (pageId: string, from: EventLocation) => {
+      const queryParams = getQueryParams();
+      const curlImportURL = curlImportPageURL({
+        pageId,
+        params: {
+          from,
+          ...queryParams,
+        },
+      });
+      history.push(curlImportURL);
+    },
+  },
+];
+
+export const isMatching = (text = "", query = "") => {
+  if (typeof text === "string" && typeof query === "string") {
+    return text.toLowerCase().indexOf(query.toLowerCase()) > -1;
+  }
+  return false;
 };

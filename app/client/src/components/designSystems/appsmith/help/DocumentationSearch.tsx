@@ -14,7 +14,7 @@ import styled from "styled-components";
 import { HelpIcons } from "icons/HelpIcons";
 import { HelpBaseURL } from "constants/HelpConstants";
 import { getDefaultRefinement } from "selectors/helpSelectors";
-import { getAppsmithConfigs } from "configs";
+import { getAppsmithConfigs } from "@appsmith/configs";
 import { AppState } from "reducers";
 import {
   setHelpDefaultRefinement,
@@ -349,8 +349,7 @@ class DocumentationSearch extends React.Component<Props, State> {
   }
 
   onSearchValueChange = (event: SyntheticEvent<HTMLInputElement, Event>) => {
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore: No types available
+    // @ts-expect-error: value is missing
     const value = event.target.value;
     if (value === "" && this.state.showResults) {
       this.setState({

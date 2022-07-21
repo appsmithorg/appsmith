@@ -18,6 +18,8 @@ export const commentThreadsSelector = (commentThreadId: string) => (
   state: AppState,
 ) => state.ui.comments.commentThreadsMap[commentThreadId];
 
+export const getCommentsState = (state: AppState) => state.ui.comments;
+
 export const unpublishedCommentThreadSelector = (refId: string) => (
   state: AppState,
 ) => state.ui.comments.unpublishedCommentThreads[refId];
@@ -147,20 +149,16 @@ export const getSortedAndFilteredAppCommentThreadIds = (
 
   return result;
 };
-export const getUnreadCommentsCount = (state: AppState) =>
-  state.ui.comments.unreadCommentThreadsCount;
 
-export const getLastUpdatedCommentThreadId = (state: AppState) =>
-  state.ui.comments.lastUpdatedCommentThreadId;
+export const getLastUpdatedCommentThreadId = (applicationId: string) => (
+  state: AppState,
+) => state.ui.comments.lastUpdatedCommentThreadByAppId[applicationId];
 
 export const shouldShowResolved = (state: AppState) =>
   state.ui.comments.shouldShowResolvedAppCommentThreads;
 
 export const appCommentsFilter = (state: AppState) =>
   state.ui.comments.appCommentsFilter;
-
-export const showUnreadIndicator = (state: AppState) =>
-  state.ui.comments.unreadCommentThreadsCount > 0;
 
 export const visibleCommentThreadSelector = (state: AppState) =>
   state.ui.comments.visibleCommentThreadId;

@@ -20,15 +20,15 @@ import { getUnpublishedThreadDraftComment } from "selectors/commentsSelectors";
 const Container = document.getElementById("root");
 
 const CommentTriggerContainer = styled.div<{
-  top: number;
-  left: number;
+  top?: number;
+  left?: number;
   leftPercent: number;
   topPercent: number;
   positionAbsolutely: boolean;
   xOffset: number;
   yOffset: number;
 }>`
-  position: absolute;
+  position: ${(props) => (props.positionAbsolutely ? "absolute" : "fixed")};
   ${(props) => getPosition(props)}
   z-index: 1;
   & svg {

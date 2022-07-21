@@ -1,7 +1,7 @@
 package com.appsmith.server.services;
 
-import reactor.core.publisher.Mono;
+import com.appsmith.server.services.ce.CaptchaServiceCE;
 
-public interface CaptchaService {
-  Mono<Boolean> verify(String recaptchaResponse);
+public interface CaptchaService extends CaptchaServiceCE {
+
 }

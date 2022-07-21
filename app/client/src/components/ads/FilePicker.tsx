@@ -2,21 +2,21 @@ import React, { useEffect, useRef, useState } from "react";
 import styled from "styled-components";
 import Button, { Category, Size } from "./Button";
 import axios from "axios";
-import { ReactComponent as UploadIcon } from "../../assets/icons/ads/upload.svg";
-import { ReactComponent as UploadSuccessIcon } from "../../assets/icons/ads/upload_success.svg";
+import { ReactComponent as UploadIcon } from "assets/icons/ads/upload.svg";
+import { ReactComponent as UploadSuccessIcon } from "assets/icons/ads/upload_success.svg";
 import { DndProvider, useDrop, DropTargetMonitor } from "react-dnd";
 import HTML5Backend, { NativeTypes } from "react-dnd-html5-backend";
-import Text, { TextType } from "./Text";
+import { Text, TextType } from "design-system";
 import { Classes, Variant } from "./common";
 import { Toaster } from "./Toast";
 import {
   createMessage,
   ERROR_FILE_TOO_LARGE,
   REMOVE_FILE_TOOL_TIP,
-} from "constants/messages";
-import TooltipComponent from "components/ads/Tooltip";
-import { Position } from "@blueprintjs/core/lib/esm/common/position";
-import Icon, { IconSize } from "./Icon";
+} from "@appsmith/constants/messages";
+import { TooltipComponent } from "design-system";
+import Icon, { IconName, IconSize } from "./Icon";
+import { error as logError } from "loglevel";
 const CLOUDINARY_PRESETS_NAME = "";
 const CLOUDINARY_CLOUD_NAME = "";
 
@@ -42,6 +42,11 @@ export type FilePickerProps = {
   logoUploadError?: string;
   fileType: FileType;
   delayedUpload?: boolean;
+  uploadIcon?: IconName;
+  title?: string;
+  description?: string;
+  containerClickable?: boolean; // when cotainer is clicked, it'll be work as button
+  iconFillColor?: string;
 };
 
 export const ContainerDiv = styled.div<{
@@ -73,6 +78,8 @@ export const ContainerDiv = styled.div<{
     background-repeat: no-repeat;
     background-position: center;
     background-size: contain;
+    background-origin: content-box;
+    padding: 8px;
   }
 
   .centered {
@@ -204,7 +211,7 @@ export function CloudinaryUploader(
       onUpload(data.data.url);
     })
     .catch((error) => {
-      console.error("error in file uploading", error);
+      logError("error in file uploading", error);
     });
 }
 
@@ -448,10 +455,7 @@ function FilePickerComponent(props: FilePickerProps) {
           <Text className="success-text" type={TextType.H4}>
             Successfully Uploaded!
           </Text>
-          <TooltipComponent
-            content={REMOVE_FILE_TOOL_TIP()}
-            position={Position.TOP}
-          >
+          <TooltipComponent content={REMOVE_FILE_TOOL_TIP()} position="top">
             <IconWrapper className="icon-wrapper" onClick={() => removeFile()}>
               <Icon name="close" size={IconSize.XL} />
             </IconWrapper>

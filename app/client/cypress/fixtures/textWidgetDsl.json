@@ -1,0 +1,49 @@
+{
+    "dsl":{
+        "widgetName": "MainContainer",
+        "backgroundColor": "none",
+        "rightColumn": 1714,
+        "snapColumns": 64,
+        "detachFromLayout": true,
+        "widgetId": "0",
+        "topRow": 0,
+        "bottomRow": 1150,
+        "containerStyle": "none",
+        "snapRows": 125,
+        "parentRowSpace": 1,
+        "type": "CANVAS_WIDGET",
+        "canExtend": true,
+        "version": 46,
+        "minHeight": 1130,
+        "parentColumnSpace": 1,
+        "dynamicBindingPathList": [],
+        "leftColumn": 0,
+        "children": [
+          {
+            "widgetName": "Text1",
+            "rightColumn": 26,
+            "textAlign": "LEFT",
+            "displayName": "Text",
+            "iconSVG": "/static/media/icon.97c59b52.svg",
+            "widgetId": "vmo0ewamhx",
+            "topRow": 29,
+            "bottomRow": 33,
+            "parentRowSpace": 10,
+            "isVisible": true,
+            "fontStyle": "BOLD",
+            "type": "TEXT_WIDGET",
+            "textColor": "#231F20",
+            "version": 1,
+            "hideCard": false,
+            "parentId": "0",
+            "renderMode": "CANVAS",
+            "isLoading": false,
+            "parentColumnSpace": 26.59375,
+            "leftColumn": 10,
+            "fontSize": "PARAGRAPH",
+            "text": "Label",
+            "key": "zzkmsgz6bl"
+          }
+        ]
+      }
+}

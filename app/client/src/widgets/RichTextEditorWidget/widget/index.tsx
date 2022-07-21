@@ -1,12 +1,15 @@
 import React, { lazy, Suspense } from "react";
 import BaseWidget, { WidgetProps, WidgetState } from "../../BaseWidget";
-import { WidgetType } from "constants/WidgetConstants";
+import { TextSize, WidgetType } from "constants/WidgetConstants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
 import Skeleton from "components/utils/Skeleton";
 import { retryPromise } from "utils/AppsmithUtils";
-const showdown = require("showdown");
+import { LabelPosition } from "components/constants";
+import { Alignment } from "@blueprintjs/core";
+import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
+import showdown from "showdown";
 
 export enum RTEFormats {
   MARKDOWN = "markdown",
@@ -18,6 +21,7 @@ const RichTextEditorComponent = lazy(() =>
   ),
 );
 
+const converter = new showdown.Converter();
 class RichTextEditorWidget extends BaseWidget<
   RichTextEditorWidgetProps,
   WidgetState
@@ -87,10 +91,175 @@ class RichTextEditorWidget extends BaseWidget<
             isTriggerProperty: false,
             validation: { type: ValidationTypes.BOOLEAN },
           },
+          {
+            propertyName: "animateLoading",
+            label: "Animate Loading",
+            controlType: "SWITCH",
+            helpText: "Controls the loading of the widget",
+            defaultValue: true,
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+          },
+          {
+            propertyName: "isToolbarHidden",
+            label: "Hide toolbar",
+            helpText: "Controls the visibility of the toolbar",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+          },
         ],
       },
       {
-        sectionName: "Actions",
+        sectionName: "Label",
+        children: [
+          {
+            helpText: "Sets the label text of the widget",
+            propertyName: "labelText",
+            label: "Text",
+            controlType: "INPUT_TEXT",
+            placeholderText: "Enter label text",
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
+          {
+            helpText: "Sets the label position of the widget",
+            propertyName: "labelPosition",
+            label: "Position",
+            controlType: "DROP_DOWN",
+            options: [
+              { label: "Left", value: LabelPosition.Left },
+              { label: "Top", value: LabelPosition.Top },
+              { label: "Auto", value: LabelPosition.Auto },
+            ],
+            isBindProperty: false,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
+          {
+            helpText: "Sets the label alignment of the widget",
+            propertyName: "labelAlignment",
+            label: "Alignment",
+            controlType: "LABEL_ALIGNMENT_OPTIONS",
+            options: [
+              {
+                icon: "LEFT_ALIGN",
+                value: Alignment.LEFT,
+              },
+              {
+                icon: "RIGHT_ALIGN",
+                value: Alignment.RIGHT,
+              },
+            ],
+            isBindProperty: false,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+            hidden: (props: RichTextEditorWidgetProps) =>
+              props.labelPosition !== LabelPosition.Left,
+            dependencies: ["labelPosition"],
+          },
+          {
+            helpText:
+              "Sets the label width of the widget as the number of columns",
+            propertyName: "labelWidth",
+            label: "Width (in columns)",
+            controlType: "NUMERIC_INPUT",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            min: 0,
+            validation: {
+              type: ValidationTypes.NUMBER,
+              params: {
+                natural: true,
+              },
+            },
+            hidden: (props: RichTextEditorWidgetProps) =>
+              props.labelPosition !== LabelPosition.Left,
+            dependencies: ["labelPosition"],
+          },
+        ],
+      },
+      {
+        sectionName: "Label Styles",
+        children: [
+          {
+            propertyName: "labelTextColor",
+            label: "Text Color",
+            controlType: "COLOR_PICKER",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
+          {
+            propertyName: "labelTextSize",
+            label: "Text Size",
+            controlType: "DROP_DOWN",
+            defaultValue: "0.875rem",
+            options: [
+              {
+                label: "S",
+                value: "0.875rem",
+                subText: "0.875rem",
+              },
+              {
+                label: "M",
+                value: "1rem",
+                subText: "1rem",
+              },
+              {
+                label: "L",
+                value: "1.25rem",
+                subText: "1.25rem",
+              },
+              {
+                label: "XL",
+                value: "1.875rem",
+                subText: "1.875rem",
+              },
+              {
+                label: "XXL",
+                value: "3rem",
+                subText: "3rem",
+              },
+              {
+                label: "3XL",
+                value: "3.75rem",
+                subText: "3.75rem",
+              },
+            ],
+            isBindProperty: false,
+            isTriggerProperty: false,
+          },
+          {
+            propertyName: "labelStyle",
+            label: "Label Font Style",
+            controlType: "BUTTON_TABS",
+            options: [
+              {
+                icon: "BOLD_FONT",
+                value: "BOLD",
+              },
+              {
+                icon: "ITALICS_FONT",
+                value: "ITALIC",
+              },
+            ],
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
+        ],
+      },
+      {
+        sectionName: "Events",
         children: [
           {
             helpText: "Triggers an action when the text is changed",
@@ -103,12 +272,41 @@ class RichTextEditorWidget extends BaseWidget<
           },
         ],
       },
+      {
+        sectionName: "Styles",
+        children: [
+          {
+            propertyName: "borderRadius",
+            label: "Border Radius",
+            helpText:
+              "Rounds the corners of the icon button's outer border edge",
+            controlType: "BORDER_RADIUS_OPTIONS",
+
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
+          {
+            propertyName: "boxShadow",
+            label: "Box Shadow",
+            helpText:
+              "Enables you to cast a drop shadow from the frame of the widget",
+            controlType: "BOX_SHADOW_OPTIONS",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
+        ],
+      },
     ];
   }
 
   static getMetaPropertiesMap(): Record<string, any> {
     return {
       text: undefined,
+      isDirty: false,
     };
   }
 
@@ -125,7 +323,19 @@ class RichTextEditorWidget extends BaseWidget<
     };
   }
 
+  componentDidUpdate(prevProps: RichTextEditorWidgetProps): void {
+    if (this.props.defaultText !== prevProps.defaultText) {
+      if (this.props.isDirty) {
+        this.props.updateWidgetMetaProperty("isDirty", false);
+      }
+    }
+  }
+
   onValueChange = (text: string) => {
+    if (!this.props.isDirty) {
+      this.props.updateWidgetMetaProperty("isDirty", true);
+    }
+
     this.props.updateWidgetMetaProperty("text", text, {
       triggerPropertyName: "onTextChange",
       dynamicString: this.props.onTextChange,
@@ -136,20 +346,39 @@ class RichTextEditorWidget extends BaseWidget<
   };
 
   getPageView() {
-    let defaultValue = this.props.text || "";
+    let value = this.props.text ?? "";
     if (this.props.inputType === RTEFormats.MARKDOWN) {
-      const converter = new showdown.Converter();
-      defaultValue = converter.makeHtml(defaultValue);
+      value = converter.makeHtml(value);
     }
+
     return (
       <Suspense fallback={<Skeleton />}>
         <RichTextEditorComponent
-          defaultValue={defaultValue}
+          borderRadius={this.props.borderRadius}
+          boxShadow={this.props.boxShadow}
+          compactMode={
+            !(
+              (this.props.bottomRow - this.props.topRow) /
+                GRID_DENSITY_MIGRATION_V1 >
+              1
+            )
+          }
           isDisabled={this.props.isDisabled}
+          isMarkdown={this.props.inputType === RTEFormats.MARKDOWN}
+          isToolbarHidden={!!this.props.isToolbarHidden}
+          isValid={this.props.isValid}
           isVisible={this.props.isVisible}
           key={this.props.widgetId}
+          labelAlignment={this.props.labelAlignment}
+          labelPosition={this.props.labelPosition}
+          labelStyle={this.props.labelStyle}
+          labelText={this.props.labelText}
+          labelTextColor={this.props.labelTextColor}
+          labelTextSize={this.props.labelTextSize}
+          labelWidth={this.getLabelWidth()}
           onValueChange={this.onValueChange}
           placeholder={this.props.placeholder}
+          value={value}
           widgetId={this.props.widgetId}
         />
       </Suspense>
@@ -167,9 +396,20 @@ export interface RichTextEditorWidgetProps extends WidgetProps {
   inputType: string;
   placeholder?: string;
   onTextChange?: string;
-  isDisabled?: boolean;
+  isDisabled: boolean;
   isVisible?: boolean;
   isRequired?: boolean;
+  isToolbarHidden?: boolean;
+  borderRadius: string;
+  boxShadow?: string;
+  labelText: string;
+  labelPosition?: LabelPosition;
+  labelAlignment?: Alignment;
+  labelWidth?: number;
+  labelTextColor?: string;
+  labelTextSize?: TextSize;
+  labelStyle?: string;
+  isDirty: boolean;
 }
 
 export default RichTextEditorWidget;

@@ -1,5 +1,6 @@
 import { WidgetType } from "constants/WidgetConstants";
 import generate from "nanoid/generate";
+import { getBaseWidgetClassName } from "../constants/componentClassNameConstants";
 
 const ALPHANUMERIC = "1234567890abcdefghijklmnopqrstuvwxyz";
 // const ALPHABET = "abcdefghijklmnopqrstuvwxyz";
@@ -16,7 +17,7 @@ export const generateReactKey = ({
 // 2. Property pane reference for positioning
 // 3. Table widget filter pan reference for positioning
 export const generateClassName = (seed?: string) => {
-  return `appsmith_widget_${seed}`;
+  return getBaseWidgetClassName(seed);
 };
 
 export const getCanvasClassName = () => "canvas";

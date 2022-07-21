@@ -13,6 +13,7 @@ import {
 import { Variant } from "components/ads/common";
 import { Toaster } from "components/ads/Toast";
 import { BlueprintOperationTypes } from "widgets/constants";
+import * as log from "loglevel";
 
 function buildView(view: WidgetBlueprint["view"], widgetId: string) {
   const children = [];
@@ -31,7 +32,7 @@ function buildView(view: WidgetBlueprint["view"], widgetId: string) {
           props: template.props,
         });
       } catch (e) {
-        console.error(e);
+        log.error(e);
       }
     }
   }
@@ -43,7 +44,11 @@ export function* buildWidgetBlueprint(
   blueprint: WidgetBlueprint,
   widgetId: string,
 ) {
-  const widgetProps = yield call(buildView, blueprint.view, widgetId);
+  const widgetProps: Record<string, unknown> = yield call(
+    buildView,
+    blueprint.view,
+    widgetId,
+  );
   return widgetProps;
 }
 
@@ -118,7 +123,8 @@ export function* executeWidgetBlueprintOperations(
     }
   });
 
-  return yield widgets;
+  const result: { [widgetId: string]: FlattenedWidgetProps } = yield widgets;
+  return result;
 }
 
 /**

@@ -1,7 +1,6 @@
 import React, { useCallback, useState, useEffect } from "react";
 import { connect } from "react-redux";
 import styled from "styled-components";
-import { getCurlImportPageURL, convertToQueryParams } from "constants/routes";
 import { createDatasourceFromForm } from "actions/datasourceActions";
 import { AppState } from "reducers";
 import { Colors } from "constants/Colors";
@@ -14,10 +13,11 @@ import { CURL } from "constants/AppsmithActionConstants/ActionConstants";
 import { PluginType } from "entities/Action";
 import { Spinner } from "@blueprintjs/core";
 import { getQueryParams } from "utils/AppsmithUtils";
-import { GenerateCRUDEnabledPluginMap } from "../../../api/PluginApi";
-import { getGenerateCRUDEnabledPluginMap } from "../../../selectors/entitiesSelector";
+import { GenerateCRUDEnabledPluginMap } from "api/PluginApi";
+import { getGenerateCRUDEnabledPluginMap } from "selectors/entitiesSelector";
 import { useSelector } from "react-redux";
 import { getIsGeneratePageInitiator } from "utils/GenerateCrudUtil";
+import { curlImportPageURL } from "RouteBuilder";
 
 const StyledContainer = styled.div`
   flex: 1;
@@ -28,9 +28,9 @@ const StyledContainer = styled.div`
     margin: 0;
     justify-content: center;
     text-align: center;
-    letter-spacing: -0.17px;
-    color: ${Colors.OXFORD_BLUE};
-    font-weight: 500;
+    letter-spacing: -0.24px;
+    color: ${Colors.BLACK};
+    font-weight: 400;
     text-decoration: none !important;
     flex-wrap: wrap;
     white-space: nowrap;
@@ -83,17 +83,15 @@ const ApiCard = styled.div`
   justify-content: space-between;
   height: 64px;
   &:hover {
-    background: ${Colors.Gallery};
+    background-color: ${Colors.GREY_1};
     cursor: pointer;
   }
 
   .content-icon-wrapper {
-    width: 40px;
-    height: 40px;
-    border-radius: 20px;
-    padding: 6px 0;
-    margin: 0 8px;
-    background: #f0f0f0;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: ${Colors.GREY_2};
     display: flex;
     align-items: center;
 
@@ -120,10 +118,11 @@ const ApiCard = styled.div`
 const CardContentWrapper = styled.div`
   display: flex;
   align-items: center;
+  gap: 13px;
+  padding-left: 13.5px;
 `;
 
 type ApiHomeScreenProps = {
-  applicationId: string;
   createNewApiAction: (pageId: string, from: EventLocation) => void;
   history: {
     replace: (data: string) => void;
@@ -149,14 +148,7 @@ const API_ACTION = {
 };
 
 function NewApiScreen(props: Props) {
-  const {
-    applicationId,
-    createNewApiAction,
-    history,
-    isCreating,
-    pageId,
-    plugins,
-  } = props;
+  const { createNewApiAction, history, isCreating, pageId, plugins } = props;
 
   const generateCRUDSupportedPlugin: GenerateCRUDEnabledPluginMap = useSelector(
     getGenerateCRUDEnabledPluginMap,
@@ -223,9 +215,13 @@ function NewApiScreen(props: Props) {
         });
 
         delete queryParams.isGeneratePageMode;
-        const curlImportURL =
-          getCurlImportPageURL(applicationId, pageId) +
-          convertToQueryParams({ from: "datasources", ...queryParams });
+        const curlImportURL = curlImportPageURL({
+          pageId,
+          params: {
+            from: "datasources",
+            ...queryParams,
+          },
+        });
 
         history.push(curlImportURL);
         break;
@@ -244,12 +240,12 @@ function NewApiScreen(props: Props) {
 
   return (
     <StyledContainer>
-      <ApiCardsContainer>
+      <ApiCardsContainer data-testid="newapi-datasource-card-container">
         <ApiCard
           className="t--createBlankApiCard create-new-api"
           onClick={() => handleOnClick(API_ACTION.CREATE_NEW_API)}
         >
-          <CardContentWrapper>
+          <CardContentWrapper data-testid="newapi-datasource-content-wrapper">
             <div className="content-icon-wrapper">
               <img
                 alt="New"
@@ -323,7 +319,7 @@ function NewApiScreen(props: Props) {
                     src={p.iconLocation}
                   />
                 </div>
-                <p className="textBtn">{p.name}</p>
+                <p className="t--plugin-name textBtn">{p.name}</p>
               </CardContentWrapper>
             </ApiCard>
           ))}

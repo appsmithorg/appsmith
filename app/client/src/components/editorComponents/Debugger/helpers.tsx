@@ -2,15 +2,19 @@ import { Log, Severity } from "entities/AppsmithConsole";
 import React from "react";
 import styled from "styled-components";
 import { getTypographyByKey } from "constants/DefaultTheme";
-import { createMessage, OPEN_THE_DEBUGGER, PRESS } from "constants/messages";
+import {
+  createMessage,
+  OPEN_THE_DEBUGGER,
+  PRESS,
+} from "@appsmith/constants/messages";
 import { DependencyMap } from "utils/DynamicBindingUtils";
 import {
-  API_EDITOR_URL,
-  BUILDER_PAGE_URL,
-  QUERIES_EDITOR_URL,
+  matchBuilderPath,
+  matchApiPath,
+  matchQueryPath,
 } from "constants/routes";
 import { getEntityNameAndPropertyPath } from "workers/evaluationUtils";
-import { isMac } from "utils/helpers";
+import { modText } from "utils/helpers";
 
 const BlankStateWrapper = styled.div`
   overflow: auto;
@@ -31,7 +35,7 @@ export function BlankState(props: {
   placeholderText?: string;
   hasShortCut?: boolean;
 }) {
-  const shortcut = isMac() ? "Cmd + D" : "Ctrl + D";
+  const shortcut = <>{modText()} D</>;
 
   return (
     <BlankStateWrapper>
@@ -64,8 +68,6 @@ export function getDependenciesFromInverseDependencies(
   deps: DependencyMap,
   entityName: string | null,
 ) {
-  // eslint-disable-next-line no-console
-  console.log("DEPENDENCY", deps);
   if (!entityName) return null;
 
   const directDependencies = new Set<string>();
@@ -125,35 +127,14 @@ export const doesEntityHaveErrors = (
   return ids.some((e: string) => e.includes(entityId));
 };
 
-export const onApiEditor = (
-  applicationId: string | undefined,
-  currentPageId: string | undefined,
-) => {
-  return (
-    window.location.pathname.indexOf(
-      API_EDITOR_URL(applicationId, currentPageId),
-    ) > -1
-  );
+export const onApiEditor = () => {
+  return matchApiPath(window.location.pathname);
 };
 
-export const onQueryEditor = (
-  applicationId: string | undefined,
-  currentPageId: string | undefined,
-) => {
-  return (
-    window.location.pathname.indexOf(
-      QUERIES_EDITOR_URL(applicationId, currentPageId),
-    ) > -1
-  );
+export const onQueryEditor = () => {
+  return matchQueryPath(window.location.pathname);
 };
 
-export const onCanvas = (
-  applicationId: string | undefined,
-  currentPageId: string | undefined,
-) => {
-  return (
-    window.location.pathname.indexOf(
-      BUILDER_PAGE_URL(applicationId, currentPageId),
-    ) > -1
-  );
+export const onCanvas = () => {
+  return matchBuilderPath(window.location.pathname);
 };

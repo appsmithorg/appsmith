@@ -1,14 +1,16 @@
 import { ActionResponse, PaginationField } from "api/ActionAPI";
 import {
   EvaluationReduxAction,
+  AnyReduxAction,
   ReduxAction,
   ReduxActionErrorTypes,
   ReduxActionTypes,
   ReduxActionWithoutPayload,
-} from "constants/ReduxActionConstants";
+} from "@appsmith/constants/ReduxActionConstants";
 import { Action } from "entities/Action";
 import { batchAction } from "actions/batchActions";
 import { ExecuteErrorPayload } from "constants/AppsmithActionConstants/ActionConstants";
+import { ModalInfo } from "reducers/uiReducers/modalActionReducer";
 
 export const createActionRequest = (payload: Partial<Action>) => {
   return {
@@ -29,8 +31,8 @@ export type FetchActionsPayload = {
 };
 
 export const fetchActions = (
-  applicationId: string,
-  postEvalActions: Array<ReduxAction<unknown> | ReduxActionWithoutPayload>,
+  { applicationId }: { applicationId: string },
+  postEvalActions: Array<AnyReduxAction>,
 ): EvaluationReduxAction<unknown> => {
   return {
     type: ReduxActionTypes.FETCH_ACTIONS_INIT,
@@ -39,9 +41,11 @@ export const fetchActions = (
   };
 };
 
-export const fetchActionsForView = (
-  applicationId: string,
-): ReduxAction<FetchActionsPayload> => {
+export const fetchActionsForView = ({
+  applicationId,
+}: {
+  applicationId: string;
+}): ReduxAction<FetchActionsPayload> => {
   return {
     type: ReduxActionTypes.FETCH_ACTIONS_VIEW_MODE_INIT,
     payload: { applicationId },
@@ -50,30 +54,25 @@ export const fetchActionsForView = (
 
 export const fetchActionsForPage = (
   pageId: string,
-  postEvalActions: Array<ReduxAction<unknown> | ReduxActionWithoutPayload> = [],
 ): EvaluationReduxAction<unknown> => {
   return {
     type: ReduxActionTypes.FETCH_ACTIONS_FOR_PAGE_INIT,
     payload: { pageId },
-    postEvalActions,
   };
 };
 
 export const fetchActionsForPageSuccess = (
   actions: Action[],
-  postEvalActions?: Array<ReduxAction<unknown> | ReduxActionWithoutPayload>,
 ): EvaluationReduxAction<unknown> => {
   return {
     type: ReduxActionTypes.FETCH_ACTIONS_FOR_PAGE_SUCCESS,
     payload: actions,
-    postEvalActions,
   };
 };
 
-export const setActionTabsInitialIndex = (index: number) => {
+export const fetchActionsForPageError = () => {
   return {
-    type: ReduxActionTypes.SET_ACTION_TABS_INITIAL_INDEX,
-    payload: index,
+    type: ReduxActionErrorTypes.FETCH_ACTIONS_FOR_PAGE_ERROR,
   };
 };
 
@@ -93,22 +92,22 @@ export const runAction = (id: string, paginationField?: PaginationField) => {
   };
 };
 
-export const showRunActionConfirmModal = (show: boolean) => {
+export const showActionConfirmationModal = (payload: ModalInfo) => {
   return {
-    type: ReduxActionTypes.SHOW_RUN_ACTION_CONFIRM_MODAL,
-    payload: show,
+    type: ReduxActionTypes.SHOW_ACTION_MODAL,
+    payload,
   };
 };
 
-export const cancelRunActionConfirmModal = () => {
+export const cancelActionConfirmationModal = (payload: string) => {
   return {
-    type: ReduxActionTypes.CANCEL_RUN_ACTION_CONFIRM_MODAL,
+    type: ReduxActionTypes.CANCEL_ACTION_MODAL + `_FOR_${payload.trim()}`,
   };
 };
 
-export const acceptRunActionConfirmModal = () => {
+export const acceptActionConfirmationModal = (payload: string) => {
   return {
-    type: ReduxActionTypes.ACCEPT_RUN_ACTION_CONFIRM_MODAL,
+    type: ReduxActionTypes.CONFIRM_ACTION_MODAL + `_FOR_${payload.trim()}`,
   };
 };
 
@@ -224,6 +223,13 @@ export const executePluginActionSuccess = (payload: {
   payload: payload,
 });
 
+export const setActionResponseDisplayFormat = (
+  payload: UpdateActionPropertyActionPayload,
+) => ({
+  type: ReduxActionTypes.SET_ACTION_RESPONSE_DISPLAY_FORMAT,
+  payload: payload,
+});
+
 export const executePluginActionError = (
   executeErrorPayload: ExecuteErrorPayload,
 ): ReduxAction<ExecuteErrorPayload> => {
@@ -242,6 +248,7 @@ export type SetActionPropertyPayload = {
   actionId: string;
   propertyName: string;
   value: any;
+  skipSave?: boolean;
 };
 
 export const setActionProperty = (payload: SetActionPropertyPayload) => ({
@@ -277,6 +284,20 @@ export const setActionsToExecuteOnPageLoad = (
 ) => {
   return {
     type: ReduxActionTypes.SET_ACTION_TO_EXECUTE_ON_PAGELOAD,
+    payload: actions,
+  };
+};
+
+export const setJSActionsToExecuteOnPageLoad = (
+  actions: Array<{
+    executeOnLoad: boolean;
+    id: string;
+    name: string;
+    collectionId?: string;
+  }>,
+) => {
+  return {
+    type: ReduxActionTypes.SET_JS_ACTION_TO_EXECUTE_ON_PAGELOAD,
     payload: actions,
   };
 };

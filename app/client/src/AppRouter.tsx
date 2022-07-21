@@ -1,17 +1,16 @@
-import React, { Suspense } from "react";
+import React, { Suspense, useEffect } from "react";
 import history from "utils/history";
 import AppHeader from "pages/common/AppHeader";
 import { Redirect, Route, Router, Switch } from "react-router-dom";
 import {
-  APP_VIEW_URL,
   APPLICATIONS_URL,
   AUTH_LOGIN_URL,
   BASE_LOGIN_URL,
   BASE_SIGNUP_URL,
   BASE_URL,
-  BUILDER_URL,
-  getApplicationViewerPageURL,
-  ORG_URL,
+  BUILDER_PATH,
+  BUILDER_CUSTOM_PATH,
+  WORKSPACE_URL,
   SIGN_UP_URL,
   SIGNUP_SUCCESS_URL,
   USER_AUTH_URL,
@@ -19,8 +18,18 @@ import {
   PROFILE,
   UNSUBSCRIBE_EMAIL_URL,
   SETUP,
+  VIEWER_PATH,
+  VIEWER_CUSTOM_PATH,
+  ADMIN_SETTINGS_PATH,
+  ADMIN_SETTINGS_CATEGORY_PATH,
+  ADMIN_SETTINGS_CATEGORY_DEFAULT_PATH,
+  BUILDER_PATH_DEPRECATED,
+  VIEWER_PATH_DEPRECATED,
+  TEMPLATES_PATH,
+  VIEWER_PATCH_PATH,
+  BUILDER_PATCH_PATH,
 } from "constants/routes";
-import OrganizationLoader from "pages/organization/loader";
+import WorkspaceLoader from "pages/workspace/loader";
 import ApplicationListLoader from "pages/Applications/loader";
 import EditorLoader from "pages/Editor/loader";
 import AppViewerLoader from "pages/AppViewer/loader";
@@ -43,8 +52,16 @@ import { trimTrailingSlash } from "utils/helpers";
 import { getSafeCrash, getSafeCrashCode } from "selectors/errorSelectors";
 import UserProfile from "pages/UserProfile";
 import { getCurrentUser } from "actions/authActions";
-import { getFeatureFlagsFetched } from "selectors/usersSelectors";
+import { selectFeatureFlags } from "selectors/usersSelectors";
 import Setup from "pages/setup";
+import Settings from "@appsmith/pages/AdminSettings";
+import SignupSuccess from "pages/setup/SignupSuccess";
+import { Theme } from "constants/DefaultTheme";
+import { ERROR_CODES } from "@appsmith/constants/ApiConstants";
+import TemplatesListLoader from "pages/Templates/loader";
+import { fetchFeatureFlagsInit } from "actions/userActions";
+import FeatureFlags from "entities/FeatureFlags";
+import WDSPage from "components/wds/Showcase";
 
 const SentryRoute = Sentry.withSentryRouting(Route);
 
@@ -64,91 +81,115 @@ function changeAppBackground(currentTheme: any) {
   }
 }
 
-class AppRouter extends React.Component<any, any> {
-  unlisten: any;
-
-  componentDidMount() {
-    // This is needed for the route switch.
+function AppRouter(props: {
+  safeCrash: boolean;
+  getCurrentUser: () => void;
+  getFeatureFlags: () => void;
+  currentTheme: Theme;
+  safeCrashCode?: ERROR_CODES;
+  featureFlags: FeatureFlags;
+  setTheme: (theme: ThemeMode) => void;
+}) {
+  const { getCurrentUser, getFeatureFlags } = props;
+  useEffect(() => {
     AnalyticsUtil.logEvent("ROUTE_CHANGE", { path: window.location.pathname });
-    this.unlisten = history.listen((location: any) => {
+    const stopListener = history.listen((location: any) => {
       AnalyticsUtil.logEvent("ROUTE_CHANGE", { path: location.pathname });
-      changeAppBackground(this.props.currentTheme);
+      changeAppBackground(props.currentTheme);
     });
-    this.props.getCurrentUser();
-  }
+    getCurrentUser();
+    getFeatureFlags();
+    return stopListener;
+  }, []);
 
-  componentWillUnmount() {
-    this.unlisten();
-  }
+  useEffect(() => {
+    changeAppBackground(props.currentTheme);
+  }, [props.currentTheme]);
 
-  render() {
-    const {
-      currentTheme,
-      featureFlagsFetched,
-      safeCrash,
-      safeCrashCode,
-    } = this.props;
+  return (
+    <Router history={history}>
+      <Suspense fallback={loadingIndicator}>
+        {props.safeCrash && props.safeCrashCode ? (
+          <>
+            <ErrorPageHeader />
+            <ErrorPage code={props.safeCrashCode} />
+          </>
+        ) : (
+          <>
+            <AppHeader />
+            <Switch>
+              <SentryRoute component={LandingScreen} exact path={BASE_URL} />
+              <Redirect exact from={BASE_LOGIN_URL} to={AUTH_LOGIN_URL} />
+              <Redirect exact from={BASE_SIGNUP_URL} to={SIGN_UP_URL} />
+              <SentryRoute component={WorkspaceLoader} path={WORKSPACE_URL} />
+              <SentryRoute component={Users} exact path={USERS_URL} />
+              <SentryRoute component={UserAuth} path={USER_AUTH_URL} />
+              <SentryRoute component={WDSPage} path="/wds" />
+              <SentryRoute
+                component={ApplicationListLoader}
+                exact
+                path={APPLICATIONS_URL}
+              />
+              <SentryRoute
+                component={SignupSuccess}
+                exact
+                path={SIGNUP_SUCCESS_URL}
+              />
+              <SentryRoute component={UserProfile} path={PROFILE} />
+              <SentryRoute
+                component={UnsubscribeEmail}
+                path={UNSUBSCRIBE_EMAIL_URL}
+              />
+              <SentryRoute component={Setup} exact path={SETUP} />
 
-    // This is needed for the theme switch.
-    changeAppBackground(currentTheme);
-
-    // Render the app once the feature flags have been fetched
-    if (!featureFlagsFetched) return null;
-
-    return (
-      <Router history={history}>
-        <Suspense fallback={loadingIndicator}>
-          {safeCrash ? (
-            <>
-              <ErrorPageHeader />
-              <ErrorPage code={safeCrashCode} />
-            </>
-          ) : (
-            <>
-              <AppHeader />
-              <Switch>
-                <SentryRoute component={LandingScreen} exact path={BASE_URL} />
-                <Redirect exact from={BASE_LOGIN_URL} to={AUTH_LOGIN_URL} />
-                <Redirect exact from={BASE_SIGNUP_URL} to={SIGN_UP_URL} />
-                <SentryRoute component={OrganizationLoader} path={ORG_URL} />
-                <SentryRoute component={Users} exact path={USERS_URL} />
-                <SentryRoute component={UserAuth} path={USER_AUTH_URL} />
-                <SentryRoute
-                  component={ApplicationListLoader}
-                  exact
-                  path={APPLICATIONS_URL}
-                />
-                <SentryRoute
-                  component={ApplicationListLoader}
-                  exact
-                  path={SIGNUP_SUCCESS_URL}
-                />
-                <SentryRoute component={EditorLoader} path={BUILDER_URL} />
-                <SentryRoute
-                  component={AppViewerLoader}
-                  path={getApplicationViewerPageURL()}
-                />
-                <SentryRoute component={UserProfile} exact path={PROFILE} />
-                <SentryRoute component={AppViewerLoader} path={APP_VIEW_URL} />
-                <SentryRoute
-                  component={UnsubscribeEmail}
-                  path={UNSUBSCRIBE_EMAIL_URL}
-                />
-                <SentryRoute component={Setup} exact path={SETUP} />
-                <SentryRoute component={PageNotFound} />
-              </Switch>
-            </>
-          )}
-        </Suspense>
-      </Router>
-    );
-  }
+              <SentryRoute
+                component={TemplatesListLoader}
+                path={TEMPLATES_PATH}
+              />
+              <Redirect
+                exact
+                from={ADMIN_SETTINGS_PATH}
+                to={ADMIN_SETTINGS_CATEGORY_DEFAULT_PATH}
+              />
+              <SentryRoute
+                component={Settings}
+                exact
+                path={ADMIN_SETTINGS_CATEGORY_PATH}
+              />
+              <SentryRoute
+                component={EditorLoader}
+                path={BUILDER_PATH_DEPRECATED}
+              />
+              <SentryRoute
+                component={AppViewerLoader}
+                path={VIEWER_PATH_DEPRECATED}
+              />
+              <SentryRoute component={EditorLoader} path={BUILDER_PATH} />
+              <SentryRoute
+                component={EditorLoader}
+                path={BUILDER_CUSTOM_PATH}
+              />
+              <SentryRoute component={AppViewerLoader} path={VIEWER_PATH} />
+              <SentryRoute
+                component={AppViewerLoader}
+                path={VIEWER_CUSTOM_PATH}
+              />
+              <Redirect from={BUILDER_PATCH_PATH} to={BUILDER_PATH} />
+              <Redirect from={VIEWER_PATCH_PATH} to={VIEWER_PATH} />
+              <SentryRoute component={PageNotFound} />
+            </Switch>
+          </>
+        )}
+      </Suspense>
+    </Router>
+  );
 }
+
 const mapStateToProps = (state: AppState) => ({
   currentTheme: getCurrentThemeDetails(state),
   safeCrash: getSafeCrash(state),
   safeCrashCode: getSafeCrashCode(state),
-  featureFlagsFetched: getFeatureFlagsFetched(state),
+  featureFlags: selectFeatureFlags(state),
 });
 
 const mapDispatchToProps = (dispatch: any) => ({
@@ -156,6 +197,7 @@ const mapDispatchToProps = (dispatch: any) => ({
     dispatch(setThemeMode(mode));
   },
   getCurrentUser: () => dispatch(getCurrentUser()),
+  getFeatureFlags: () => dispatch(fetchFeatureFlagsInit()),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(AppRouter);

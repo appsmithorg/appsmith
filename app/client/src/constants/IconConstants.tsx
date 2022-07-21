@@ -17,6 +17,7 @@ export const IconWrapper = styled.div<IconProps>`
   &:focus {
     outline: none;
   }
+
   display: inline-flex;
   width: ${(props) => props.width}px;
   height: ${(props) => props.height}px;

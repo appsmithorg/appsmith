@@ -1,0 +1,104 @@
+{
+    "dsl": {
+      "widgetName": "MainContainer",
+      "backgroundColor": "none",
+      "rightColumn": 1864,
+      "snapColumns": 64,
+      "detachFromLayout": true,
+      "widgetId": "0",
+      "topRow": 0,
+      "bottomRow": 1160,
+      "containerStyle": "none",
+      "snapRows": 125,
+      "parentRowSpace": 1,
+      "type": "CANVAS_WIDGET",
+      "canExtend": true,
+      "version": 49,
+      "minHeight": 650,
+      "parentColumnSpace": 1,
+      "dynamicBindingPathList": [],
+      "leftColumn": 0,
+      "children": [
+        {
+          "setAdaptiveYMin": false,
+          "widgetName": "Chart1",
+          "allowScroll": false,
+          "dynamicPropertyPathList": [],
+          "displayName": "Chart",
+          "iconSVG": "/static/media/icon.6adbe31e.svg",
+          "topRow": 33,
+          "bottomRow": 65,
+          "parentRowSpace": 10,
+          "type": "CHART_WIDGET",
+          "hideCard": false,
+          "chartData": {
+            "hba7jh4buz": {
+              "seriesName": "Sales",
+              "data": "{{Query1.data.map( (obj) =>{ return  {'x': obj.gender, 'y': obj.id }})}}"
+            }
+          },
+          "animateLoading": true,
+          "dynamicTriggerPathList": [],
+          "dynamicBindingPathList": [
+            {
+              "key": "customFusionChartConfig"
+            },
+            {
+              "key": "chartData.hba7jh4buz.data"
+            }
+          ],
+          "leftColumn": 12,
+          "customFusionChartConfig": "{{{\n    type: 'scrollline2d',\n    dataSource: {\n      \"chart\": {\n        \"theme\": \"fusion\",\n        \"caption\": \"User gender Trends\",\n        \"xAxisName\": \"gender\",\n        \"yAxisName\": \"Count\",\n        \"lineThickness\": \"3\",\n        \"flatScrollBars\": \"1\",\n        \"scrollheight\": \"10\",\n        \"numVisiblePlot\": \"12\",\n        \"showHoverEffect\": \"1\"\n      },\n      \"categories\": [{\n        \"category\": [{\n            \"label\": \"Male\"\n          },\n          {\n            \"label\": \"Female\"\n          },\n\t\t\t\t\t\t\t\t\t\t {\n            \"label\": \"Male1\"\n          },\n          {\n            \"label\": \"Female1\"\n          },\n\t\t\t\t\t\t\t\t\t\t \t\t\t\t\t\t\t\t\t\t {\n            \"label\": \"Male2\"\n          },\n          {\n            \"label\": \"Female2\"\n          },\n\t\t\t\t\t\t{\n            \"label\": \"Female3\"\n          },\n\t\t\t\t\t\t\t\t\t\t \t\t\t\t\t\t\t\t\t\t {\n            \"label\": \"Male3\"\n          },\n          {\n            \"label\": \"Female4\"\n          },\t\t\t\t \n        ]\n      }],\n      \"dataset\": [{\n        \"data\": [{\n            \"value\": Query1.data.filter(item => item.gender === \"male\").length\n          },\n          {\n            \"value\": Query1.data.filter(item => item.gender === \"female\").length\n          },\n\t\t\t\t\t\t\t\t {\n            \"value\": Query1.data.filter(item => item.gender === \"male\").length\n          },\n          {\n            \"value\": Query1.data.filter(item => item.gender === \"female\").length\n          },\n\t\t\t\t\t\t\t\t {\n            \"value\": Query1.data.filter(item => item.gender === \"male\").length\n          },\n          {\n            \"value\": Query1.data.filter(item => item.gender === \"female\").length\n          },\n\t\t\t\t\t\t {\n            \"value\": Query1.data.filter(item => item.gender === \"male\").length\n          },\n          {\n            \"value\": Query1.data.filter(item => item.gender === \"female\").length\n          }\t,\n\t\t\t\t\t\t\t\t {\n            \"value\": Query1.data.filter(item => item.gender === \"female\").length\n          }\t\n        ]\n      }]\n    }\n  }}}",
+          "key": "p6sgc9yn7m",
+          "rightColumn": 36,
+          "widgetId": "nrzva5zez9",
+          "isVisible": true,
+          "version": 1,
+          "parentId": "0",
+          "labelOrientation": "auto",
+          "renderMode": "CANVAS",
+          "isLoading": false,
+          "yAxisName": "Revenue($)",
+          "chartName": "Sales Report",
+          "xAxisName": "Product Line",
+          "chartType": "LINE_CHART"
+        },
+        {
+          "widgetName": "Button1",
+          "onClick": "{{Query1.run()}}",
+          "buttonColor": "#03B365",
+          "displayName": "Button",
+          "iconSVG": "/static/media/icon.cca02633.svg",
+          "topRow": 18,
+          "bottomRow": 22,
+          "parentRowSpace": 10,
+          "type": "BUTTON_WIDGET",
+          "hideCard": false,
+          "animateLoading": true,
+          "parentColumnSpace": 28.9375,
+          "dynamicTriggerPathList": [
+            {
+              "key": "onClick"
+            }
+          ],
+          "leftColumn": 37,
+          "dynamicBindingPathList": [],
+          "text": "Submit",
+          "isDisabled": false,
+          "key": "0w8iby68or",
+          "rightColumn": 53,
+          "isDefaultClickDisabled": true,
+          "widgetId": "9p2kcaof91",
+          "isVisible": true,
+          "recaptchaType": "V3",
+          "version": 1,
+          "parentId": "0",
+          "renderMode": "CANVAS",
+          "isLoading": false,
+          "buttonVariant": "PRIMARY",
+          "placement": "CENTER"
+        }
+      ]
+    }
+      
+}

@@ -24,55 +24,6 @@ const PropertyPaneConfig = [
         evaluationSubstitutionType: EvaluationSubstitutionType.SMART_SUBSTITUTE,
       },
       {
-        propertyName: "backgroundColor",
-        label: "Background",
-        controlType: "COLOR_PICKER",
-        isJSConvertible: true,
-        isBindProperty: true,
-        isTriggerProperty: false,
-        validation: {
-          type: ValidationTypes.TEXT,
-          params: {
-            expected: {
-              type: "Color name | hex code",
-              example: "#FFFFFF",
-              autocompleteDataType: AutocompleteDataType.STRING,
-            },
-          },
-        },
-      },
-      {
-        propertyName: "itemBackgroundColor",
-        label: "Item Background",
-        controlType: "COLOR_PICKER",
-        isJSConvertible: true,
-        isBindProperty: true,
-        isTriggerProperty: false,
-        defaultValue: "#FFFFFF",
-        validation: {
-          type: ValidationTypes.TEXT,
-          params: {
-            expected: {
-              type: "Color name | hex code",
-              example: "#FFFFFF",
-              autocompleteDataType: AutocompleteDataType.STRING,
-            },
-          },
-        },
-      },
-
-      {
-        helpText: "Spacing between items in Pixels",
-        placeholderText: "0",
-        propertyName: "gridGap",
-        label: "Item Spacing (px)",
-        controlType: "INPUT_TEXT",
-        isBindProperty: true,
-        isTriggerProperty: false,
-        inputType: "INTEGER",
-        validation: { type: ValidationTypes.NUMBER, params: { min: 0 } },
-      },
-      {
         helpText:
           "Bind the List.pageNo property in your API and call it onPageChange",
         propertyName: "serverSidePaginationEnabled",
@@ -93,10 +44,21 @@ const PropertyPaneConfig = [
           type: ValidationTypes.BOOLEAN,
         },
       },
+      {
+        propertyName: "animateLoading",
+        label: "Animate Loading",
+        controlType: "SWITCH",
+        helpText: "Controls the loading of the widget",
+        defaultValue: true,
+        isJSConvertible: true,
+        isBindProperty: true,
+        isTriggerProperty: false,
+        validation: { type: ValidationTypes.BOOLEAN },
+      },
     ],
   },
   {
-    sectionName: "Actions",
+    sectionName: "Events",
     children: [
       {
         helpText: "Triggers an action when a grid list item is clicked",
@@ -149,6 +111,80 @@ const PropertyPaneConfig = [
         hidden: (props: ListWidgetProps<WidgetProps>) =>
           !props.serverSidePaginationEnabled,
         dependencies: ["serverSidePaginationEnabled"],
+      },
+    ],
+  },
+  {
+    sectionName: "Styles",
+    children: [
+      {
+        propertyName: "backgroundColor",
+        label: "Background Color",
+        controlType: "COLOR_PICKER",
+        isJSConvertible: true,
+        isBindProperty: true,
+        isTriggerProperty: false,
+        validation: {
+          type: ValidationTypes.TEXT,
+          params: {
+            expected: {
+              type: "Color name | hex code",
+              example: "#FFFFFF",
+              autocompleteDataType: AutocompleteDataType.STRING,
+            },
+          },
+        },
+      },
+      {
+        propertyName: "itemBackgroundColor",
+        label: "Item Background Color",
+        controlType: "COLOR_PICKER",
+        isJSConvertible: true,
+        isBindProperty: true,
+        isTriggerProperty: false,
+        defaultValue: "#FFFFFF",
+        validation: {
+          type: ValidationTypes.TEXT,
+          params: {
+            expected: {
+              type: "Color name | hex code",
+              example: "#FFFFFF",
+              autocompleteDataType: AutocompleteDataType.STRING,
+            },
+          },
+        },
+      },
+      {
+        helpText: "Spacing between items in Pixels",
+        placeholderText: "0",
+        propertyName: "gridGap",
+        label: "Item Spacing (px)",
+        controlType: "INPUT_TEXT",
+        isBindProperty: true,
+        isTriggerProperty: false,
+        inputType: "INTEGER",
+        validation: { type: ValidationTypes.NUMBER, params: { min: -8 } },
+      },
+      {
+        propertyName: "borderRadius",
+        label: "Border Radius",
+        helpText: "Rounds the corners of the icon button's outer border edge",
+        controlType: "BORDER_RADIUS_OPTIONS",
+        isJSConvertible: true,
+        isBindProperty: true,
+        isTriggerProperty: false,
+        validation: { type: ValidationTypes.TEXT },
+      },
+      {
+        propertyName: "boxShadow",
+        label: "Box Shadow",
+        helpText:
+          "Enables you to cast a drop shadow from the frame of the widget",
+        controlType: "BOX_SHADOW_OPTIONS",
+        isJSConvertible: true,
+        isBindProperty: true,
+        isTriggerProperty: false,
+        validation: { type: ValidationTypes.TEXT },
       },
     ],
   },

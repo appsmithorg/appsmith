@@ -3,7 +3,7 @@ import {
   ReduxActionTypes,
   ReduxActionErrorTypes,
   ReduxAction,
-} from "constants/ReduxActionConstants";
+} from "@appsmith/constants/ReduxActionConstants";
 import log from "loglevel";
 import history from "utils/history";
 import { ApiResponse } from "api/ApiResponses";
@@ -11,7 +11,11 @@ import { Variant } from "components/ads/common";
 import { Toaster } from "components/ads/Toast";
 import { flushErrors } from "actions/errorActions";
 import { AUTH_LOGIN_URL } from "constants/routes";
-import { ERROR_CODES, SERVER_ERROR_CODES } from "constants/ApiConstants";
+import { User } from "constants/userConstants";
+import {
+  ERROR_CODES,
+  SERVER_ERROR_CODES,
+} from "@appsmith/constants/ApiConstants";
 import { getSafeCrash } from "selectors/errorSelectors";
 import { getCurrentUser } from "selectors/usersSelectors";
 import { ANONYMOUS_USERNAME } from "constants/userConstants";
@@ -22,9 +26,10 @@ import {
   ERROR_0,
   DEFAULT_ERROR_MESSAGE,
   createMessage,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 
 import * as Sentry from "@sentry/react";
+import { axiosConnectionAbortedCode } from "api/ApiUtils";
 
 /**
  * making with error message with action name
@@ -36,9 +41,10 @@ export const getDefaultActionError = (action: string) =>
 
 export function* callAPI(apiCall: any, requestPayload: any) {
   try {
-    return yield call(apiCall, requestPayload);
+    const response: ApiResponse = yield call(apiCall, requestPayload);
+    return response;
   } catch (error) {
-    return yield error;
+    return error;
   }
 }
 
@@ -62,14 +68,24 @@ export class IncorrectBindingError extends Error {}
 
 /**
  * validates if response does have any errors
- *
+ * @throws {Error}
  * @param response
  * @param show
  */
-export function* validateResponse(response: ApiResponse | any, show = true) {
+export function* validateResponse(
+  response: ApiResponse | any,
+  show = true,
+  logToSentry = false,
+) {
   if (!response) {
     throw Error("");
   }
+
+  // letting `apiFailureResponseInterceptor` handle it this case
+  if (response?.code === axiosConnectionAbortedCode) {
+    return false;
+  }
+
   if (!response.responseMeta && !response.status) {
     throw Error(getErrorMessage(0));
   }
@@ -90,6 +106,7 @@ export function* validateResponse(response: ApiResponse | any, show = true) {
     type: ReduxActionErrorTypes.API_ERROR,
     payload: {
       error: response.responseMeta.error,
+      logToSentry,
       show,
     },
   });
@@ -214,7 +231,7 @@ function* crashAppSaga(error: ErrorPayloadType) {
  * this saga do some logic before actually setting safeCrash to true
  */
 function* safeCrashSagaRequest(action: ReduxAction<{ code?: string }>) {
-  const user = yield select(getCurrentUser);
+  const user: User | undefined = yield select(getCurrentUser);
   const code = get(action, "payload.code");
 
   // if user is not logged and the error is "PAGE_NOT_FOUND",
@@ -223,7 +240,9 @@ function* safeCrashSagaRequest(action: ReduxAction<{ code?: string }>) {
     get(user, "email") === ANONYMOUS_USERNAME &&
     code === ERROR_CODES.PAGE_NOT_FOUND
   ) {
-    window.location.href = `${AUTH_LOGIN_URL}?redirectUrl=${window.location.href}`;
+    window.location.href = `${AUTH_LOGIN_URL}?redirectUrl=${encodeURIComponent(
+      window.location.href,
+    )}`;
 
     return false;
   }
@@ -245,7 +264,7 @@ function* safeCrashSagaRequest(action: ReduxAction<{ code?: string }>) {
 export function* flushErrorsAndRedirectSaga(
   action: ReduxAction<{ url?: string }>,
 ) {
-  const safeCrash = yield select(getSafeCrash);
+  const safeCrash: boolean = yield select(getSafeCrash);
 
   if (safeCrash) {
     yield put(flushErrors());

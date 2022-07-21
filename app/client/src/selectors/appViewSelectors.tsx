@@ -2,19 +2,10 @@ import { createSelector } from "reselect";
 import { AppState } from "reducers";
 import { AppViewReduxState } from "reducers/uiReducers/appViewReducer";
 import { PageListReduxState } from "reducers/entityReducers/pageListReducer";
-import { BUILDER_PAGE_URL } from "constants/routes";
 
 const getAppViewState = (state: AppState) => state.ui.appView;
 const getPageListState = (state: AppState): PageListReduxState =>
   state.entities.pageList;
-
-// For the viewer, this does not need to be wrapped in createCachedSelector, as it will not change in subsequent renders.
-// export const getCurrentPageLayoutDSL = createSelector(
-//   getAppViewState,
-//   getDataTree,
-//   (view: AppViewReduxState, dataTree: DataTree) =>
-//     injectDataTreeIntoDsl(dataTree, view.dsl),
-// );
 
 export const getPageList = createSelector(
   getPageListState,
@@ -37,10 +28,12 @@ export const getCurrentDSLPageId = createSelector(
   (pageList: PageListReduxState) => pageList.currentPageId,
 );
 
-export const getEditorURL = createSelector(
-  getPageListState,
-  (pageList: PageListReduxState) =>
-    pageList.applicationId && pageList.currentPageId
-      ? BUILDER_PAGE_URL(pageList.applicationId, pageList.currentPageId)
-      : "",
-);
+/**
+ * returns the height of header in app view mode
+ *
+ * @param state
+ * @returns
+ */
+export const getAppViewHeaderHeight = (state: AppState) => {
+  return state.ui.appView.headerHeight;
+};

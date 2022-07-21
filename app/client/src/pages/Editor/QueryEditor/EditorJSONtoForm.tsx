@@ -1,4 +1,4 @@
-import React, { RefObject, useEffect, useRef, useState } from "react";
+import React, { RefObject, useRef, useState } from "react";
 import { InjectedFormProps } from "redux-form";
 import { Icon, Tag } from "@blueprintjs/core";
 import { isString } from "lodash";
@@ -10,29 +10,25 @@ import {
   SingleValueProps,
 } from "react-select";
 import { Datasource } from "entities/Datasource";
+import { getPluginImages } from "selectors/entitiesSelector";
 import { Colors } from "constants/Colors";
-import JSONViewer from "./JSONViewer";
 import FormControl from "../FormControl";
-import Table from "./Table";
 import { Action, QueryAction, SaaSAction } from "entities/Action";
 import { useDispatch, useSelector } from "react-redux";
 import ActionNameEditor from "components/editorComponents/ActionNameEditor";
 import DropdownField from "components/editorComponents/form/fields/DropdownField";
 import { ControlProps } from "components/formControls/BaseControl";
 import ActionSettings from "pages/Editor/ActionSettings";
-import { OnboardingStep } from "constants/OnboardingConstants";
-import Boxed from "components/editorComponents/Onboarding/Boxed";
 import log from "loglevel";
 import Callout from "components/ads/Callout";
 import { Variant } from "components/ads/common";
-import Text, { TextType } from "components/ads/Text";
+import { Text, TextType } from "design-system";
 import styled from "constants/DefaultTheme";
 import { TabComponent } from "components/ads/Tabs";
 import AdsIcon, { IconSize } from "components/ads/Icon";
 import { Classes } from "components/ads/common";
 import FormRow from "components/editorComponents/FormRow";
 import EditorButton from "components/editorComponents/Button";
-import OnboardingIndicator from "components/editorComponents/Onboarding/Indicator";
 import DebuggerLogs from "components/editorComponents/Debugger/DebuggerLogs";
 import ErrorLogs from "components/editorComponents/Debugger/Errors";
 import Resizable, {
@@ -44,7 +40,14 @@ import CloseEditor from "components/editorComponents/CloseEditor";
 import { setGlobalSearchQuery } from "actions/globalSearchActions";
 import { toggleShowGlobalSearchModal } from "actions/globalSearchActions";
 import EntityDeps from "components/editorComponents/Debugger/EntityDependecies";
-import { isHidden } from "components/formControls/utils";
+import {
+  checkIfSectionCanRender,
+  checkIfSectionIsEnabled,
+  extractConditionalOutput,
+  isHidden,
+  modifySectionConfig,
+  updateEvaluatedSectionConfig,
+} from "components/formControls/utils";
 import {
   createMessage,
   DEBUGGER_ERRORS,
@@ -53,7 +56,7 @@ import {
   DOCUMENTATION,
   DOCUMENTATION_TOOLTIP,
   INSPECT_ENTITY,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 import { useParams } from "react-router";
 import { AppState } from "reducers";
 import { ExplorerURLParams } from "../Explorer/helpers";
@@ -64,14 +67,30 @@ import ActionRightPane, {
   useEntityDependencies,
 } from "components/editorComponents/ActionRightPane";
 import { SuggestedWidget } from "api/ActionAPI";
-import { getActionTabsInitialIndex } from "selectors/editorSelectors";
 import { Plugin } from "api/PluginApi";
 import { UIComponentTypes } from "../../../api/PluginApi";
-import TooltipComponent from "components/ads/Tooltip";
+import { TooltipComponent } from "design-system";
 import * as Sentry from "@sentry/react";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import SearchSnippets from "components/ads/SnippetButton";
-import { setActionTabsInitialIndex } from "actions/pluginActionActions";
+import EntityBottomTabs from "components/editorComponents/EntityBottomTabs";
+import { setCurrentTab } from "actions/debuggerActions";
+import { DEBUGGER_TAB_KEYS } from "components/editorComponents/Debugger/helpers";
+import { getErrorAsString } from "sagas/ActionExecution/errorUtils";
+import { UpdateActionPropertyActionPayload } from "actions/pluginActionActions";
+import Guide from "pages/Editor/GuidedTour/Guide";
+import { inGuidedTour } from "selectors/onboardingSelectors";
+import { EDITOR_TABS } from "constants/QueryEditorConstants";
+import Spinner from "components/ads/Spinner";
+import {
+  FormEvalOutput,
+  isValidFormConfig,
+} from "reducers/evaluationReducers/formEvaluationReducer";
+import {
+  responseTabComponent,
+  InlineButton,
+  TableCellHeight,
+} from "components/editorComponents/ApiResponseView";
 
 const QueryFormContainer = styled.form`
   flex: 1;
@@ -115,10 +134,11 @@ export const TabbedViewContainer = styled.div`
   }
   .react-tabs__tab-list {
     margin: 0px;
+   
   }
   &&& {
     ul.react-tabs__tab-list {
-      padding: 0px ${(props) => props.theme.spaces[12]}px;
+      margin: 0px ${(props) => props.theme.spaces[11]}px;
       background-color: ${(props) =>
         props.theme.colors.apiPane.responseBody.bg};
     }
@@ -127,7 +147,7 @@ export const TabbedViewContainer = styled.div`
     }
   }
   background-color: ${(props) => props.theme.colors.apiPane.responseBody.bg};
-  border-top: 2px solid #e8e8e8;
+  border-top: 1px solid #e8e8e8;
 `;
 
 const SettingsWrapper = styled.div`
@@ -175,9 +195,10 @@ const SecondaryWrapper = styled.div`
 const HelpSection = styled.div``;
 
 const ResponseContentWrapper = styled.div`
-  padding: 10px 15px;
+  padding: 10px 0px;
   overflow-y: auto;
   height: 100%;
+  display: grid;
 
   ${HelpSection} {
     margin-bottom: 10px;
@@ -272,6 +293,15 @@ const DropdownSelect = styled.div`
     & > div {
       height: 100%;
     }
+
+    & .appsmith-select__input > input {
+      position: relative;
+      bottom: 4px;
+    }
+
+    & .appsmith-select__input > input[value=""] {
+      caret-color: transparent;
+    }
   }
 `;
 
@@ -306,14 +336,14 @@ const Container = styled.div`
   }
 `;
 
-// const ActionButton = styled(BaseButton)`
-//   &&&& {
-//     min-width: 72px;
-//     width: auto;
-//     margin: 0 5px;
-//     min-height: 30px;
-//   }
-// `;
+const StyledSpinner = styled.div`
+  display: flex;
+  padding: 5px;
+  height: 2vw;
+  align-items: center;
+  justify-content: space-between;
+  width: 5vw;
+`;
 
 const NoDataSourceContainer = styled.div`
   align-items: center;
@@ -333,7 +363,7 @@ const NoDataSourceContainer = styled.div`
 const TabContainerView = styled.div`
   flex: 1;
   overflow: auto;
-  border-top: 2px solid ${(props) => props.theme.colors.apiPane.dividerBg};
+  border-top: 1px solid ${(props) => props.theme.colors.apiPane.dividerBg};
   ${thinScrollbar}
   a {
     font-size: 14px;
@@ -348,15 +378,10 @@ const TabContainerView = styled.div`
   }
   &&& {
     ul.react-tabs__tab-list {
-      padding-left: 23px;
+      margin-left: 24px;
     }
   }
   position: relative;
-`;
-
-const InlineButton = styled(Button)`
-  display: inline-flex;
-  margin: 0 4px;
 `;
 
 const Wrapper = styled.div`
@@ -368,6 +393,7 @@ const Wrapper = styled.div`
 
 const SidebarWrapper = styled.div<{ show: boolean }>`
   border: 1px solid #e8e8e8;
+  border-bottom: 0;
   display: ${(props) => (props.show ? "flex" : "none")};
   width: ${(props) => props.theme.actionSidePane.width}px;
 `;
@@ -379,13 +405,13 @@ type QueryFormProps = {
   isDeleting: boolean;
   isRunning: boolean;
   dataSources: Datasource[];
-  DATASOURCES_OPTIONS: any;
   uiComponent: UIComponentTypes;
   executedQueryData?: {
     body: any;
     isExecutionSuccess?: boolean;
     messages?: Array<string>;
     suggestedWidgets?: SuggestedWidget[];
+    readableError?: string;
   };
   runErrorMessage: string | undefined;
   location: {
@@ -395,15 +421,21 @@ type QueryFormProps = {
   formName: string;
   settingConfig: any;
   formData: SaaSAction | QueryAction;
+  responseDisplayFormat: { title: string; value: string };
+  responseDataTypes: { key: string; title: string }[];
+  updateActionResponseDisplayFormat: ({
+    field,
+    id,
+    value,
+  }: UpdateActionPropertyActionPayload) => void;
 };
 
 type ReduxProps = {
   actionName: string;
-  responseType: string | undefined;
   plugin?: Plugin;
   pluginId: string;
   documentationLink: string | undefined;
-  formEvaluationState: Record<string, any>;
+  formEvaluationState: FormEvalOutput;
 };
 
 export type EditorJSONtoFormProps = QueryFormProps & ReduxProps;
@@ -415,7 +447,6 @@ export function EditorJSONtoForm(props: Props) {
   const {
     actionName,
     dataSources,
-    DATASOURCES_OPTIONS,
     documentationLink,
     editorConfig,
     executedQueryData,
@@ -425,47 +456,51 @@ export function EditorJSONtoForm(props: Props) {
     onCreateDatasourceClick,
     onRunClick,
     plugin,
-    responseType,
+    responseDataTypes,
+    responseDisplayFormat,
     runErrorMessage,
     settingConfig,
     uiComponent,
+    updateActionResponseDisplayFormat,
   } = props;
   let error = runErrorMessage;
   let output: Record<string, any>[] | null = null;
   let hintMessages: Array<string> = [];
   const panelRef: RefObject<HTMLDivElement> = useRef(null);
-  const initialIndex = useSelector(getActionTabsInitialIndex);
-  const [selectedIndex, setSelectedIndex] = useState(initialIndex);
   const [tableBodyHeight, setTableBodyHeightHeight] = useState(
     window.innerHeight,
   );
-
-  useEffect(() => {
-    if (selectedIndex !== initialIndex) setSelectedIndex(initialIndex);
-  }, [initialIndex]);
-
-  useEffect(() => {
-    // reset on unmount
-    return () => {
-      dispatch(setActionTabsInitialIndex(0));
-    };
-  }, []);
 
   const params = useParams<{ apiId?: string; queryId?: string }>();
 
   const actions: Action[] = useSelector((state: AppState) =>
     state.entities.actions.map((action) => action.config),
   );
+  const guidedTourEnabled = useSelector(inGuidedTour);
   const currentActionConfig: Action | undefined = actions.find(
     (action) => action.id === params.apiId || action.id === params.queryId,
   );
   const { pageId } = useParams<ExplorerURLParams>();
 
+  // Query is executed even once during the session, show the response data.
   if (executedQueryData) {
     if (!executedQueryData.isExecutionSuccess) {
-      error = String(executedQueryData.body);
+      // Pass the error to be shown in the error tab
+      error = executedQueryData.readableError
+        ? getErrorAsString(executedQueryData.readableError)
+        : getErrorAsString(executedQueryData.body);
     } else if (isString(executedQueryData.body)) {
-      output = JSON.parse(executedQueryData.body);
+      try {
+        // Try to parse response as JSON array to be displayed in the Response tab
+        output = JSON.parse(executedQueryData.body);
+      } catch (e) {
+        // In case the string is not a JSON, wrap it in a response object
+        output = [
+          {
+            response: executedQueryData.body,
+          },
+        ];
+      }
     } else {
       output = executedQueryData.body;
     }
@@ -473,8 +508,6 @@ export function EditorJSONtoForm(props: Props) {
       hintMessages = executedQueryData.messages;
     }
   }
-
-  const isTableResponse = responseType === "TABLE";
 
   const dispatch = useDispatch();
 
@@ -535,11 +568,27 @@ export function EditorJSONtoForm(props: Props) {
   const renderConfig = (editorConfig: any) => {
     try {
       // Selectively rendering form based on uiComponent prop
-      return uiComponent === UIComponentTypes.UQIDbEditorForm
-        ? editorConfig.map((config: any, idx: number) => {
+      if (uiComponent === UIComponentTypes.UQIDbEditorForm) {
+        // If the formEvaluation is not ready yet, just show loading state.
+        if (
+          props.hasOwnProperty("formEvaluationState") &&
+          !!props.formEvaluationState &&
+          Object.keys(props.formEvaluationState).length > 0
+        ) {
+          return editorConfig.map((config: any, idx: number) => {
             return renderEachConfigV2(formName, config, idx);
-          })
-        : editorConfig.map(renderEachConfig(formName));
+          });
+        } else {
+          return (
+            <StyledSpinner>
+              <Spinner size={IconSize.LARGE} />
+              <p>Loading..</p>
+            </StyledSpinner>
+          );
+        }
+      } else {
+        return editorConfig.map(renderEachConfig(formName));
+      }
     } catch (e) {
       log.error(e);
       Sentry.captureException(e);
@@ -560,35 +609,46 @@ export function EditorJSONtoForm(props: Props) {
     }
   };
 
-  // V2 call to make rendering more flexible, used for UQI forms
+  // Render function to render the V2 of form editor type (UQI)
+  // Section argument is a nested config object, this function recursively renders the UI based on the config
   const renderEachConfigV2 = (formName: string, section: any, idx: number) => {
-    if (
-      !!section &&
-      props.hasOwnProperty("formEvaluationState") &&
-      !!props.formEvaluationState
-    ) {
-      let allowToRender = true;
+    let enabled = true;
+    if (!!section) {
+      // If the section is a nested component, recursively check for conditional statements
       if (
-        section.hasOwnProperty("propertyName") &&
-        props.formEvaluationState.hasOwnProperty(section.propertyName)
+        "schema" in section &&
+        Array.isArray(section.schema) &&
+        section.schema.length > 0
       ) {
-        allowToRender =
-          props?.formEvaluationState[section.propertyName].visible;
-      } else if (
-        section.hasOwnProperty("configProperty") &&
-        props.formEvaluationState.hasOwnProperty(section.configProperty)
-      ) {
-        allowToRender =
-          props?.formEvaluationState[section.configProperty].visible;
-      } else if (
-        section.hasOwnProperty("identifier") &&
-        !!section.identifier &&
-        props.formEvaluationState.hasOwnProperty(section.identifier)
-      ) {
-        allowToRender = props?.formEvaluationState[section.identifier].visible;
+        section.schema = section.schema.map((subSection: any) => {
+          const conditionalOutput = extractConditionalOutput(
+            subSection,
+            props.formEvaluationState,
+          );
+          if (!checkIfSectionCanRender(conditionalOutput)) {
+            subSection.hidden = true;
+          } else {
+            subSection.hidden = false;
+          }
+          enabled = checkIfSectionIsEnabled(conditionalOutput);
+          subSection = updateEvaluatedSectionConfig(
+            subSection,
+            conditionalOutput,
+            enabled,
+          );
+          if (!isValidFormConfig(subSection)) return null;
+          return subSection;
+        });
       }
-
-      if (!allowToRender) return null;
+      // If the component is not allowed to render, return null
+      const conditionalOutput = extractConditionalOutput(
+        section,
+        props.formEvaluationState,
+      );
+      if (!checkIfSectionCanRender(conditionalOutput)) return null;
+      section = updateEvaluatedSectionConfig(section, conditionalOutput);
+      enabled = checkIfSectionIsEnabled(conditionalOutput);
+      if (!isValidFormConfig(section)) return null;
     }
     if (section.hasOwnProperty("controlType")) {
       // If component is type section, render it's children
@@ -602,9 +662,10 @@ export function EditorJSONtoForm(props: Props) {
       }
       try {
         const { configProperty } = section;
+        const modifiedSection = modifySectionConfig(section, enabled);
         return (
           <FieldWrapper key={`${configProperty}_${idx}`}>
-            <FormControl config={section} formName={formName} />
+            <FormControl config={modifiedSection} formName={formName} />
           </FieldWrapper>
         );
       } catch (e) {
@@ -653,6 +714,35 @@ export function EditorJSONtoForm(props: Props) {
     });
   };
 
+  const responseBodyTabs =
+    responseDataTypes &&
+    responseDataTypes.map((dataType, index) => {
+      return {
+        index: index,
+        key: dataType.key,
+        title: dataType.title,
+        panelComponent: responseTabComponent(
+          dataType.key,
+          output,
+          tableBodyHeight,
+        ),
+      };
+    });
+
+  const onResponseTabSelect = (tab: any) => {
+    updateActionResponseDisplayFormat({
+      id: currentActionConfig?.id || "",
+      field: "responseDisplayFormat",
+      value: tab.title,
+    });
+  };
+
+  const selectedTabIndex =
+    responseDataTypes &&
+    responseDataTypes.findIndex(
+      (dataType) => dataType.title === responseDisplayFormat?.title,
+    );
+
   const responseTabs = [
     {
       key: "Response",
@@ -677,7 +767,7 @@ export function EditorJSONtoForm(props: Props) {
                   AnalyticsUtil.logEvent("OPEN_DEBUGGER", {
                     source: "QUERY",
                   });
-                  setSelectedIndex(1);
+                  dispatch(setCurrentTab(DEBUGGER_TAB_KEYS.ERROR_TAB));
                 }}
                 secondHalfText={createMessage(
                   DEBUGGER_QUERY_RESPONSE_SECOND_HALF,
@@ -697,12 +787,19 @@ export function EditorJSONtoForm(props: Props) {
               ))}
             </HelpSection>
           )}
-          {output &&
-            (isTableResponse ? (
-              <Table data={output} tableBodyHeight={tableBodyHeight} />
-            ) : (
-              <JSONViewer src={output} />
-            ))}
+          {currentActionConfig &&
+            output &&
+            responseBodyTabs &&
+            responseBodyTabs.length > 0 &&
+            selectedTabIndex !== -1 && (
+              <EntityBottomTabs
+                defaultIndex={selectedTabIndex}
+                onSelect={onResponseTabSelect}
+                responseViewer
+                selectedTabIndex={selectedTabIndex}
+                tabs={responseBodyTabs}
+              />
+            )}
           {!output && !error && (
             <NoResponseContainer>
               <AdsIcon name="no-response" />
@@ -724,42 +821,59 @@ export function EditorJSONtoForm(props: Props) {
       ),
     },
     {
-      key: "ERROR",
+      key: DEBUGGER_TAB_KEYS.ERROR_TAB,
       title: createMessage(DEBUGGER_ERRORS),
       panelComponent: <ErrorLogs />,
     },
     {
-      key: "LOGS",
+      key: DEBUGGER_TAB_KEYS.LOGS_TAB,
       title: createMessage(DEBUGGER_LOGS),
       panelComponent: <DebuggerLogs searchQuery={actionName} />,
     },
     {
-      key: "ENTITY_DEPENDENCIES",
+      key: DEBUGGER_TAB_KEYS.INSPECT_TAB,
       title: createMessage(INSPECT_ENTITY),
       panelComponent: <EntityDeps />,
     },
   ];
 
-  const onTabSelect = (index: number) => {
-    const debuggerTabKeys = ["ERROR", "LOGS"];
-    if (
-      debuggerTabKeys.includes(responseTabs[index].key) &&
-      debuggerTabKeys.includes(responseTabs[selectedIndex].key)
-    ) {
-      AnalyticsUtil.logEvent("DEBUGGER_TAB_SWITCH", {
-        tabName: responseTabs[index].key,
-      });
-    }
-    dispatch(setActionTabsInitialIndex(index));
-    setSelectedIndex(index);
-  };
   const { entityDependencies, hasDependencies } = useEntityDependencies(
     props.actionName,
   );
 
+  const pluginImages = useSelector(getPluginImages);
+
+  type DATASOURCES_OPTIONS_TYPE = {
+    label: string;
+    value: string;
+    image: string;
+  };
+
+  // Filtering the datasources for listing the similar datasources only rather than having all the active datasources in the list, which on switching resulted in error.
+  const DATASOURCES_OPTIONS: Array<DATASOURCES_OPTIONS_TYPE> = dataSources.reduce(
+    (acc: Array<DATASOURCES_OPTIONS_TYPE>, dataSource: Datasource) => {
+      if (dataSource.pluginId === plugin?.id) {
+        acc.push({
+          label: dataSource.name,
+          value: dataSource.id,
+          image: pluginImages[dataSource.pluginId],
+        });
+      }
+      return acc;
+    },
+    [],
+  );
+
+  // when switching between different redux forms, make sure this redux form has been initialized before rendering anything.
+  // the initialized prop below comes from redux-form.
+  if (!props.initialized) {
+    return null;
+  }
+
   return (
     <>
-      <CloseEditor />
+      {!guidedTourEnabled && <CloseEditor />}
+      {guidedTourEnabled && <Guide className="query-page" />}
       <QueryFormContainer onSubmit={handleSubmit}>
         <StyledFormRow>
           <NameWrapper>
@@ -772,6 +886,11 @@ export function EditorJSONtoForm(props: Props) {
               name={currentActionConfig ? currentActionConfig.name : ""}
               pageId={pageId}
             />
+            <SearchSnippets
+              className="search-snippets"
+              entityId={currentActionConfig?.id}
+              entityType={ENTITY_TYPE.ACTION}
+            />
             <DropdownSelect>
               <DropdownField
                 className={"t--switch-datasource"}
@@ -783,25 +902,16 @@ export function EditorJSONtoForm(props: Props) {
                 width={232}
               />
             </DropdownSelect>
-            <SearchSnippets
-              className="search-snippets"
-              entityId={currentActionConfig?.id}
-              entityType={ENTITY_TYPE.ACTION}
+            <Button
+              className="t--run-query"
+              data-guided-tour-iid="run-query"
+              isLoading={isRunning}
+              onClick={onRunClick}
+              size={Size.medium}
+              tag="button"
+              text="Run"
+              type="button"
             />
-            <OnboardingIndicator
-              step={OnboardingStep.EXAMPLE_DATABASE}
-              width={75}
-            >
-              <Button
-                className="t--run-query"
-                isLoading={isRunning}
-                onClick={onRunClick}
-                size={Size.medium}
-                tag="button"
-                text="Run"
-                type="button"
-              />
-            </OnboardingIndicator>
           </ActionsWrapper>
         </StyledFormRow>
         <Wrapper>
@@ -834,7 +944,7 @@ export function EditorJSONtoForm(props: Props) {
               <TabComponent
                 tabs={[
                   {
-                    key: "query",
+                    key: EDITOR_TABS.QUERY,
                     title: "Query",
                     panelComponent: (
                       <SettingsWrapper>
@@ -876,7 +986,7 @@ export function EditorJSONtoForm(props: Props) {
                     ),
                   },
                   {
-                    key: "settings",
+                    key: EDITOR_TABS.SETTINGS,
                     title: "Settings",
                     panelComponent: (
                       <SettingsWrapper>
@@ -895,30 +1005,27 @@ export function EditorJSONtoForm(props: Props) {
               <Resizable
                 panelRef={panelRef}
                 setContainerDimensions={(height: number) =>
-                  setTableBodyHeightHeight(height)
+                  // TableCellHeight in this case is the height of one table cell in pixels.
+                  setTableBodyHeightHeight(height - TableCellHeight)
                 }
               />
               {output && !!output.length && (
-                <Boxed step={OnboardingStep.SUCCESSFUL_BINDING}>
-                  <ResultsCount>
-                    <Text type={TextType.P3}>
-                      Result:
-                      <Text type={TextType.H5}>{`${output.length} Record${
-                        output.length > 1 ? "s" : ""
-                      }`}</Text>
-                    </Text>
-                  </ResultsCount>
-                </Boxed>
+                <ResultsCount>
+                  <Text type={TextType.P3}>
+                    Result:
+                    <Text type={TextType.H5}>{`${output.length} Record${
+                      output.length > 1 ? "s" : ""
+                    }`}</Text>
+                  </Text>
+                </ResultsCount>
               )}
 
-              <TabComponent
-                onSelect={onTabSelect}
-                selectedIndex={selectedIndex}
-                tabs={responseTabs}
-              />
+              <EntityBottomTabs defaultIndex={0} tabs={responseTabs} />
             </TabbedViewContainer>
           </SecondaryWrapper>
-          <SidebarWrapper show={hasDependencies || !!output}>
+          <SidebarWrapper
+            show={(hasDependencies || !!output) && !guidedTourEnabled}
+          >
             <ActionRightPane
               actionName={actionName}
               entityDependencies={entityDependencies}

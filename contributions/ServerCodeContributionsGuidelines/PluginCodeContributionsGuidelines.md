@@ -184,7 +184,7 @@ The `BasePlugin` & `PluginExecutor` classes define the basic operations of plugi
             log.warn(plugin.getPackageName() + " already present in database.");
         }
 
-        installPluginToAllOrganizations(mongoTemplate, plugin.getId());
+        installPluginToAllWorkspaces(mongoTemplate, plugin.getId());
     }
 ```
 

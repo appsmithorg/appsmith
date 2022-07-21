@@ -1,11 +1,10 @@
-const testdata = require("../../../../fixtures/testdata.json");
 const apiwidget = require("../../../../locators/apiWidgetslocator.json");
-const explorer = require("../../../../locators/explorerlocators.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
 const formWidgetsPage = require("../../../../locators/FormWidgets.json");
-const publish = require("../../../../locators/publishWidgetspage.json");
-const widgetsPage = require("../../../../locators/Widgets.json");
 const dsl = require("../../../../fixtures/formWithInputdsl.json");
+import { ObjectsRegistry } from "../../../../support/Objects/Registry";
+
+let ee = ObjectsRegistry.EntityExplorer;
 
 const pageid = "MyPage";
 before(() => {
@@ -43,21 +42,18 @@ describe("Test Suite to validate copy/delete/undo functionalites", function() {
       200,
     );
     cy.get("body").type(`{${modifierKey}}z`);
-    cy.GlobalSearchEntity("FormTestCopy");
+    ee.ExpandCollapseEntity("WIDGETS");
+    ee.ExpandCollapseEntity("FormTest");
+    ee.ActionContextMenuByEntityName("FormTestCopy", "Show Bindings");
     cy.get(apiwidget.propertyList).then(function($lis) {
-      expect($lis).to.have.length(2);
+      expect($lis).to.have.length(3);
       expect($lis.eq(0)).to.contain("{{FormTestCopy.isVisible}}");
       expect($lis.eq(1)).to.contain("{{FormTestCopy.data}}");
+      expect($lis.eq(2)).to.contain("{{FormTestCopy.hasChanges}}");
       cy.contains("FormTestCopy");
       cy.get($lis.eq(1))
         .contains("{{FormTestCopy.data}}")
         .click({ force: true });
-      //cy.get('.clipboard-message success')
-      //  .contains('Copied to clipboard!')
-      //  .should('be.visible');
-      cy.wait(10000);
-      cy.GlobalSearchEntity("Input1");
-      cy.wait(10000);
       cy.get(".bp3-input")
         .first()
         .click({ force: true });

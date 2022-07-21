@@ -1,9 +1,12 @@
-import React, { useEffect, useState, useRef, useContext } from "react";
+import React, {
+  useEffect,
+  useState,
+  useRef,
+  useContext,
+  useCallback,
+  useMemo,
+} from "react";
 import styled, { ThemeContext } from "styled-components";
-import {
-  getApplicationViewerPageURL,
-  BUILDER_PAGE_URL,
-} from "constants/routes";
 import {
   Card,
   Classes,
@@ -11,7 +14,7 @@ import {
   ICardProps,
   Position,
 } from "@blueprintjs/core";
-import { ApplicationPayload } from "constants/ReduxActionConstants";
+import { ApplicationPayload } from "@appsmith/constants/ReduxActionConstants";
 import {
   isPermitted,
   PERMISSION_TYPE,
@@ -21,8 +24,8 @@ import {
   getApplicationIcon,
   getRandomPaletteColor,
 } from "utils/AppsmithUtils";
-import { omit } from "lodash";
-import Text, { TextType } from "components/ads/Text";
+import { noop, omit } from "lodash";
+import { Text, TextType } from "design-system";
 import Button, { Category, Size, IconPositions } from "components/ads/Button";
 import Icon, { IconSize } from "components/ads/Icon";
 import Menu from "components/ads/Menu";
@@ -36,24 +39,31 @@ import ColorSelector from "components/ads/ColorSelector";
 import MenuDivider from "components/ads/MenuDivider";
 import IconSelector from "components/ads/IconSelector";
 import { useSelector } from "react-redux";
-import { UpdateApplicationPayload } from "api/ApplicationApi";
+import {
+  ApplicationPagePayload,
+  UpdateApplicationPayload,
+} from "api/ApplicationApi";
 import {
   getIsFetchingApplications,
   getIsSavingAppName,
   getIsErroredSavingAppName,
 } from "selectors/applicationSelectors";
 import { Classes as CsClasses } from "components/ads/common";
-import TooltipComponent from "components/ads/Tooltip";
+import { TooltipComponent } from "design-system";
 import {
-  isEllipsisActive,
+  isVerticalEllipsisActive,
   truncateString,
   howMuchTimeBeforeText,
 } from "utils/helpers";
 import ForkApplicationModal from "./ForkApplicationModal";
 import { Toaster } from "components/ads/Toast";
 import { Variant } from "components/ads/common";
-import { getExportAppAPIRoute } from "constants/ApiConstants";
+import { getExportAppAPIRoute } from "@appsmith/constants/ApiConstants";
 import { Colors } from "constants/Colors";
+import { CONNECTED_TO_GIT, createMessage } from "@appsmith/constants/messages";
+import { builderURL, viewerURL } from "RouteBuilder";
+import history from "utils/history";
+import urlBuilder from "entities/URLRedirect/URLAssembly";
 
 type NameWrapperProps = {
   hasReadPermission: boolean;
@@ -97,9 +107,21 @@ const NameWrapper = styled((props: HTMLDivProps & NameWrapperProps) => (
                 z-index: 1;
 
                 & .t--application-view-link {
-                  border: none;
-                  background-color: #000;
-                  color: #fff;
+                  border: 2px solid ${Colors.BLACK};
+                  background-color: ${Colors.BLACK};
+                  color: ${Colors.WHITE};
+                }
+
+                & .t--application-view-link:hover {
+                  background-color: transparent;
+                  border: 2px solid ${Colors.BLACK};
+                  color: ${Colors.BLACK};
+
+                  svg {
+                    path {
+                      fill: ${Colors.BLACK};
+                    }
+                  }
                 }
 
                 & .t--application-edit-link, & .t--application-view-link {
@@ -110,7 +132,7 @@ const NameWrapper = styled((props: HTMLDivProps & NameWrapperProps) => (
                       width: 16px;
                       height: 16px;
                       path {
-                        fill: #fff;
+                        fill: ${Colors.WHITE};
                       }
                     }
                   }
@@ -148,8 +170,13 @@ const Wrapper = styled(
     props: ICardProps & {
       hasReadPermission?: boolean;
       backgroundColor: string;
+      isMobile?: boolean;
     },
-  ) => <Card {...omit(props, ["hasReadPermission", "backgroundColor"])} />,
+  ) => (
+    <Card
+      {...omit(props, ["hasReadPermission", "backgroundColor", "isMobile"])}
+    />
+  ),
 )`
   display: flex;
   flex-direction: row-reverse;
@@ -178,6 +205,13 @@ const Wrapper = styled(
       }
     }
   }
+
+  ${({ isMobile }) =>
+    isMobile &&
+    `
+    width: 100% !important;
+    height: 126px !important;
+  `}
 `;
 
 const ApplicationImage = styled.div`
@@ -257,6 +291,10 @@ const AppNameWrapper = styled.div<{ isFetching: boolean }>`
   word-break: break-word;
   color: ${(props) => props.theme.colors.text.heading};
   flex: 1;
+
+  .bp3-popover-target {
+    display: inline;
+  }
 `;
 
 type ApplicationCardProps = {
@@ -266,6 +304,7 @@ type ApplicationCardProps = {
   delete?: (applicationId: string) => void;
   update?: (id: string, data: UpdateApplicationPayload) => void;
   enableImportExport?: boolean;
+  isMobile?: boolean;
 };
 
 const EditButton = styled(Button)`
@@ -347,6 +386,39 @@ const MenuItemWrapper = styled(MenuItem)`
   }
 `;
 
+const StyledGitConnectedBadge = styled.div`
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: absolute;
+  top: -12px;
+  right: -12px;
+  box-shadow: 0px 2px 16px rgba(0, 0, 0, 0.07);
+  background: ${Colors.WHITE};
+`;
+
+function GitConnectedBadge() {
+  return (
+    <StyledGitConnectedBadge>
+      <TooltipComponent
+        content={createMessage(CONNECTED_TO_GIT)}
+        maxWidth="400px"
+      >
+        <Icon fillColor={Colors.GREY_7} name="fork" size={IconSize.XXL} />
+      </TooltipComponent>
+    </StyledGitConnectedBadge>
+  );
+}
+
+const Container = styled.div<{ isMobile?: boolean }>`
+  position: relative;
+  overflow: visible;
+  ${({ isMobile }) => isMobile && `width: 100%;`}
+`;
+
 export function ApplicationCard(props: ApplicationCardProps) {
   const isFetchingApplications = useSelector(getIsFetchingApplications);
   const theme = useContext(ThemeContext);
@@ -367,6 +439,9 @@ export function ApplicationCard(props: ApplicationCardProps) {
   );
   const [lastUpdatedValue, setLastUpdatedValue] = useState("");
   const appNameWrapperRef = useRef<HTMLDivElement>(null);
+
+  const applicationId = props.application?.id;
+  const showGitBadge = props.application?.gitApplicationMetadata?.branchName;
 
   useEffect(() => {
     let colorCode;
@@ -400,7 +475,7 @@ export function ApplicationCard(props: ApplicationCardProps) {
       moreActionItems.push({
         onSelect: forkApplicationInitiate,
         text: "Fork",
-        icon: "fork",
+        icon: "fork-2",
         cypressSelector: "t--fork-app",
       });
     }
@@ -418,7 +493,7 @@ export function ApplicationCard(props: ApplicationCardProps) {
   }, []);
 
   const appIcon = (props.application?.icon ||
-    getApplicationIcon(props.application.id)) as AppIconName;
+    getApplicationIcon(applicationId)) as AppIconName;
   const hasEditPermission = isPermitted(
     props.application?.userPermissions ?? [],
     PERMISSION_TYPE.MANAGE_APPLICATION,
@@ -434,21 +509,21 @@ export function ApplicationCard(props: ApplicationCardProps) {
   const updateColor = (color: string) => {
     setSelectedColor(color);
     props.update &&
-      props.update(props.application.id, {
+      props.update(applicationId, {
         color: color,
       });
   };
   const updateIcon = (icon: AppIconName) => {
     props.update &&
-      props.update(props.application.id, {
+      props.update(applicationId, {
         icon: icon,
       });
   };
   const duplicateApp = () => {
-    props.duplicate && props.duplicate(props.application.id);
+    props.duplicate && props.duplicate(applicationId);
   };
   const shareApp = () => {
-    props.share && props.share(props.application.id);
+    props.share && props.share(applicationId);
   };
   const exportApplicationAsJSONFile = () => {
     // export api response comes with content-disposition header.
@@ -458,12 +533,10 @@ export function ApplicationCard(props: ApplicationCardProps) {
     existingLink && existingLink.remove();
     const link = document.createElement("a");
 
-    link.href = getExportAppAPIRoute(props.application.id);
+    link.href = getExportAppAPIRoute(applicationId);
     link.id = id;
     document.body.appendChild(link);
-    // will fetch the file manually during cypress test run.
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
+    // @ts-expect-error: Types are not available
     if (!window.Cypress) {
       link.click();
     }
@@ -475,12 +548,12 @@ export function ApplicationCard(props: ApplicationCardProps) {
   };
   const forkApplicationInitiate = () => {
     // open fork application modal
-    // on click on an organisation, create app and take to app
+    // on click on an workspace, create app and take to app
     setForkApplicationModalOpen(true);
   };
   const deleteApp = () => {
     setShowOverlay(false);
-    props.delete && props.delete(props.application.id);
+    props.delete && props.delete(applicationId);
   };
   const askForConfirmation = () => {
     const updatedActionItems = [...moreActionItems];
@@ -514,14 +587,13 @@ export function ApplicationCard(props: ApplicationCardProps) {
   if (initials.length < 2 && props.application.name.length > 1) {
     initials += props.application.name[1].toUpperCase() || "";
   }
-  const viewApplicationURL = getApplicationViewerPageURL(
-    props.application.id,
-    props.application.defaultPageId,
-  );
-  const editApplicationURL = BUILDER_PAGE_URL(
-    props.application.id,
-    props.application.defaultPageId,
-  );
+
+  // should show correct branch of application when edit mode
+  const params: any = {};
+  if (showGitBadge) {
+    params.branch = showGitBadge;
+  }
+
   const appNameText = (
     <Text cypressSelector="t--app-card-name" type={TextType.H3}>
       {props.application.name}
@@ -531,6 +603,7 @@ export function ApplicationCard(props: ApplicationCardProps) {
   const ContextMenu = (
     <ContextDropdownWrapper>
       <Menu
+        autoFocus={false}
         className="more"
         onClosing={() => {
           setIsMenuOpen(false);
@@ -538,7 +611,7 @@ export function ApplicationCard(props: ApplicationCardProps) {
           addDeleteOption();
           if (lastUpdatedValue && props.application.name !== lastUpdatedValue) {
             props.update &&
-              props.update(props.application.id, {
+              props.update(applicationId, {
                 name: lastUpdatedValue,
               });
           }
@@ -560,7 +633,7 @@ export function ApplicationCard(props: ApplicationCardProps) {
       >
         {hasEditPermission && (
           <EditableText
-            className="t--application-name"
+            className="px-3 pt-3 pb-2 t--application-name"
             defaultValue={props.application.name}
             editInteractionKind={EditInteractionKind.SINGLE}
             fill
@@ -575,7 +648,7 @@ export function ApplicationCard(props: ApplicationCardProps) {
             }}
             onBlur={(value: string) => {
               props.update &&
-                props.update(props.application.id, {
+                props.update(applicationId, {
                   name: value,
                 });
             }}
@@ -622,7 +695,7 @@ export function ApplicationCard(props: ApplicationCardProps) {
           );
         })}
         <ForkApplicationModal
-          applicationId={props.application.id}
+          applicationId={applicationId}
           isModalOpen={isForkApplicationModalopen}
           setModalClose={setForkApplicationModalOpen}
         />
@@ -649,83 +722,162 @@ export function ApplicationCard(props: ApplicationCardProps) {
     return editedBy + " edited " + editedOn;
   };
 
+  function setURLParams() {
+    const page:
+      | ApplicationPagePayload
+      | undefined = props.application.pages.find(
+      (page) => page.id === props.application.defaultPageId,
+    );
+    if (!page) return;
+    urlBuilder.updateURLParams(
+      {
+        applicationSlug: props.application.slug,
+        applicationVersion: props.application.applicationVersion,
+        applicationId: props.application.id,
+      },
+      props.application.pages.map((page) => ({
+        pageSlug: page.slug,
+        customSlug: page.customSlug,
+        pageId: page.id,
+      })),
+    );
+  }
+
+  const editModeURL = useMemo(() => {
+    if (!props.application.defaultPageId) return "";
+    return builderURL({
+      pageId: props.application.defaultPageId,
+      params,
+    });
+  }, [props.application.defaultPageId, params]);
+
+  const viewModeURL = useMemo(() => {
+    if (!props.application.defaultPageId) return "";
+    return viewerURL({
+      pageId: props.application.defaultPageId,
+      params,
+    });
+  }, [props.application.defaultPageId, params]);
+
+  const launchApp = useCallback(
+    (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      setURLParams();
+      history.push(
+        viewerURL({
+          pageId: props.application.defaultPageId,
+          params,
+        }),
+      );
+    },
+    [props.application.defaultPageId],
+  );
+
+  const editApp = useCallback(
+    (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      setURLParams();
+      history.push(
+        builderURL({
+          pageId: props.application.defaultPageId,
+          params,
+        }),
+      );
+    },
+    [props.application.defaultPageId],
+  );
+
   return (
-    <NameWrapper
-      className="t--application-card"
-      hasReadPermission={hasReadPermission}
-      isMenuOpen={isMenuOpen}
-      onMouseEnter={() => {
-        !isFetchingApplications && setShowOverlay(true);
-      }}
-      onMouseLeave={() => {
-        // If the menu is not open, then setOverlay false
-        // Set overlay false on outside click.
-        !isMenuOpen && setShowOverlay(false);
-      }}
-      showOverlay={showOverlay}
+    <Container
+      isMobile={props.isMobile}
+      onClick={props.isMobile ? launchApp : noop}
     >
-      <Wrapper
-        backgroundColor={selectedColor}
-        className={
-          isFetchingApplications
-            ? Classes.SKELETON
-            : "t--application-card-background"
-        }
+      <NameWrapper
+        className="t--application-card"
         hasReadPermission={hasReadPermission}
-        key={props.application.id}
+        isMenuOpen={isMenuOpen}
+        onMouseEnter={() => {
+          !isFetchingApplications && setShowOverlay(true);
+        }}
+        onMouseLeave={() => {
+          // If the menu is not open, then setOverlay false
+          // Set overlay false on outside click.
+          !isMenuOpen && setShowOverlay(false);
+        }}
+        showOverlay={showOverlay}
       >
-        <CircleAppIcon name={appIcon} size={Size.large} />
-        <AppNameWrapper
-          className={isFetchingApplications ? Classes.SKELETON : ""}
-          isFetching={isFetchingApplications}
-          ref={appNameWrapperRef}
+        <Wrapper
+          backgroundColor={selectedColor}
+          className={
+            isFetchingApplications
+              ? Classes.SKELETON
+              : "t--application-card-background"
+          }
+          hasReadPermission={hasReadPermission}
+          isMobile={props.isMobile}
+          key={props.application.id}
         >
-          {isEllipsisActive(appNameWrapperRef?.current) ? (
-            <TooltipComponent content={props.application.name} maxWidth="400px">
-              {appNameText}
-            </TooltipComponent>
-          ) : (
-            appNameText
+          <CircleAppIcon name={appIcon} size={Size.large} />
+          <AppNameWrapper
+            className={isFetchingApplications ? Classes.SKELETON : ""}
+            isFetching={isFetchingApplications}
+            ref={appNameWrapperRef}
+          >
+            {isVerticalEllipsisActive(appNameWrapperRef?.current) ? (
+              <TooltipComponent
+                content={props.application.name}
+                maxWidth="400px"
+              >
+                {appNameText}
+              </TooltipComponent>
+            ) : (
+              appNameText
+            )}
+          </AppNameWrapper>
+          {showOverlay && !props.isMobile && (
+            <div className="overlay">
+              <div className="overlay-blur" />
+              <ApplicationImage className="image-container">
+                <Control className="control">
+                  {hasEditPermission && !isMenuOpen && (
+                    <EditButton
+                      className="t--application-edit-link"
+                      fill
+                      href={editModeURL}
+                      icon={"edit"}
+                      iconPosition={IconPositions.left}
+                      onClick={editApp}
+                      size={Size.medium}
+                      text="Edit"
+                    />
+                  )}
+                  {!isMenuOpen && (
+                    <Button
+                      category={Category.tertiary}
+                      className="t--application-view-link"
+                      fill
+                      href={viewModeURL}
+                      icon={"rocket"}
+                      iconPosition={IconPositions.left}
+                      onClick={launchApp}
+                      size={Size.medium}
+                      text="Launch"
+                    />
+                  )}
+                </Control>
+              </ApplicationImage>
+            </div>
           )}
-        </AppNameWrapper>
-        {showOverlay && (
-          <div className="overlay">
-            <div className="overlay-blur" />
-            <ApplicationImage className="image-container">
-              <Control className="control">
-                {hasEditPermission && !isMenuOpen && (
-                  <EditButton
-                    className="t--application-edit-link"
-                    fill
-                    href={editApplicationURL}
-                    icon={"edit"}
-                    iconPosition={IconPositions.left}
-                    size={Size.medium}
-                    text="Edit"
-                  />
-                )}
-                {!isMenuOpen && (
-                  <Button
-                    category={Category.tertiary}
-                    className="t--application-view-link"
-                    fill
-                    href={viewApplicationURL}
-                    icon={"rocket"}
-                    iconPosition={IconPositions.left}
-                    size={Size.medium}
-                    text="Launch"
-                  />
-                )}
-              </Control>
-            </ApplicationImage>
-          </div>
-        )}
-      </Wrapper>
-      <CardFooter>
-        <ModifiedDataComponent>{editedByText()}</ModifiedDataComponent>
-        {!!moreActionItems.length && ContextMenu}
-      </CardFooter>
-    </NameWrapper>
+        </Wrapper>
+        <CardFooter>
+          <ModifiedDataComponent>{editedByText()}</ModifiedDataComponent>
+          {!!moreActionItems.length && !props.isMobile && ContextMenu}
+        </CardFooter>
+      </NameWrapper>
+      {showGitBadge && <GitConnectedBadge />}
+    </Container>
   );
 }
 

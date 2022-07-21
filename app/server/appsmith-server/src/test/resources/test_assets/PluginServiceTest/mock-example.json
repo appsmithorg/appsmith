@@ -1,0 +1,23 @@
+{
+  "identifier": "EXAMPLE",
+  "controlType": "SECTION",
+  "conditionals": {
+    "show": "{{actionConfiguration.formData.command.data === 'EXAMPLE'}}"
+  },
+  "children": [
+    {
+      "controlType": "SECTION",
+      "label": "Example form control section",
+      "children": [
+        {
+          "label": "Example form control component",
+          "configProperty": "actionConfiguration.formData.example.data",
+          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+          "evaluationSubstitutionType": "TEMPLATE",
+          "isRequired": true,
+          "initialValue": ""
+        }
+      ]
+    }
+  ]
+}

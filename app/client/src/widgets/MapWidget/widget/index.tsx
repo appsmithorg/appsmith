@@ -5,7 +5,7 @@ import MapComponent from "../component";
 
 import { ValidationTypes } from "constants/WidgetValidation";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import { getAppsmithConfigs } from "configs";
+import { getAppsmithConfigs } from "@appsmith/configs";
 import styled from "styled-components";
 import { DEFAULT_CENTER } from "constants/WidgetConstants";
 import { getBorderCSSShorthand } from "constants/DefaultTheme";
@@ -15,14 +15,18 @@ import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 
 const { google } = getAppsmithConfigs();
 
-const DisabledContainer = styled.div`
+const DisabledContainer = styled.div<{
+  borderRadius: string;
+  boxShadow?: string;
+}>`
   background-color: white;
   height: 100%;
   text-align: center;
   display: flex;
   flex-direction: column;
+  border-radius: ${({ borderRadius }) => borderRadius};
+  box-shadow: ${({ boxShadow }) => boxShadow} !important;
   border: ${(props) => getBorderCSSShorthand(props.theme.borders[2])};
-  border-radius: 0;
   h1 {
     margin-top: 15%;
     margin-bottom: 10%;
@@ -122,6 +126,10 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
                         name: "title",
                         type: ValidationTypes.TEXT,
                       },
+                      {
+                        name: "color",
+                        type: ValidationTypes.TEXT,
+                      },
                     ],
                   },
                 },
@@ -131,9 +139,18 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
               EvaluationSubstitutionType.SMART_SUBSTITUTE,
           },
           {
+            propertyName: "isClickedMarkerCentered",
+            label: "Map & Marker centering",
+            helpText:
+              "Controls whether the clicked marker is centered on the map",
+            controlType: "SWITCH",
+            isBindProperty: false,
+            isTriggerProperty: false,
+          },
+          {
             propertyName: "enableSearch",
             label: "Enable search location",
-            helpText: "Enables locaton search",
+            helpText: "Allows a user to search for a location",
             controlType: "SWITCH",
             isBindProperty: false,
             isTriggerProperty: false,
@@ -165,6 +182,17 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
             validation: { type: ValidationTypes.BOOLEAN },
           },
           {
+            propertyName: "animateLoading",
+            label: "Animate Loading",
+            controlType: "SWITCH",
+            helpText: "Controls the loading of the widget",
+            defaultValue: true,
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+          },
+          {
             propertyName: "zoomLevel",
             label: "Zoom Level",
             controlType: "STEP",
@@ -176,7 +204,7 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
         ],
       },
       {
-        sectionName: "Actions",
+        sectionName: "Events",
         children: [
           {
             propertyName: "onMarkerClick",
@@ -193,6 +221,35 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: true,
+          },
+        ],
+      },
+
+      {
+        sectionName: "Styles",
+        children: [
+          {
+            propertyName: "borderRadius",
+            label: "Border Radius",
+            helpText:
+              "Rounds the corners of the icon button's outer border edge",
+            controlType: "BORDER_RADIUS_OPTIONS",
+
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
+          {
+            propertyName: "boxShadow",
+            label: "Box Shadow",
+            helpText:
+              "Enables you to cast a drop shadow from the frame of the widget",
+            controlType: "BOX_SHADOW_OPTIONS",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
           },
         ],
       },
@@ -217,8 +274,8 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
     return {};
   }
 
-  updateCenter = (lat: number, long: number) => {
-    this.props.updateWidgetMetaProperty("center", { lat, long });
+  updateCenter = (lat: number, long: number, title?: string) => {
+    this.props.updateWidgetMetaProperty("center", { lat, long, title });
   };
 
   updateMarker = (lat: number, long: number, index: number) => {
@@ -285,6 +342,27 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
     ) {
       this.unselectMarker();
     }
+
+    // If initial location was changed
+    if (
+      JSON.stringify(prevProps.mapCenter) !==
+      JSON.stringify(this.props.mapCenter)
+    ) {
+      this.props.updateWidgetMetaProperty("center", this.props.mapCenter);
+      return;
+    }
+
+    // If markers were changed
+    if (
+      this.props.markers &&
+      this.props.markers.length > 0 &&
+      JSON.stringify(prevProps.markers) !== JSON.stringify(this.props.markers)
+    ) {
+      this.props.updateWidgetMetaProperty(
+        "center",
+        this.props.markers[this.props.markers.length - 1],
+      );
+    }
   }
 
   enableDrag = () => {
@@ -295,7 +373,10 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
     return (
       <>
         {!google.enabled && (
-          <DisabledContainer>
+          <DisabledContainer
+            borderRadius={this.props.borderRadius}
+            boxShadow={this.props.boxShadow}
+          >
             <h1>{"Map Widget disabled"}</h1>
             <p>{"Map widget requires a Google Maps API Key"}</p>
             <p>
@@ -315,7 +396,10 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
           <MapComponent
             allowZoom={this.props.allowZoom}
             apiKey={google.apiKey}
+            borderRadius={this.props.borderRadius}
+            boxShadow={this.props.boxShadow}
             center={this.getCenter()}
+            clickedMarkerCentered={this.props.isClickedMarkerCentered}
             enableCreateMarker={this.props.enableCreateMarker}
             enableDrag={this.enableDrag}
             enablePickLocation={this.props.enablePickLocation}
@@ -364,9 +448,12 @@ export interface MapWidgetProps extends WidgetProps {
     lat: number;
     long: number;
     title?: string;
+    color?: string;
   };
   onMarkerClick?: string;
   onCreateMarker?: string;
+  borderRadius: string;
+  boxShadow?: string;
 }
 
 export default MapWidget;

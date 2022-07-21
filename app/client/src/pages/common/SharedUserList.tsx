@@ -1,17 +1,20 @@
 import { Popover, PopoverInteractionKind, Position } from "@blueprintjs/core";
-import { UserRoles } from "api/ApplicationApi";
-import UserApi from "api/UserApi";
-import React from "react";
+import UserApi from "@appsmith/api/UserApi";
+import React, { useMemo } from "react";
 import { getCurrentUser } from "selectors/usersSelectors";
 import { useSelector } from "store";
 import styled from "styled-components";
 import ProfileImage from "./ProfileImage";
+import ScrollIndicator from "components/ads/ScrollIndicator";
+import { WorkspaceUser } from "constants/workspaceConstants";
+import { getUserApplicationsWorkspacesList } from "selectors/applicationSelectors";
+import { useIsMobileDevice } from "utils/hooks/useDeviceDetect";
 
-const UserImageContainer = styled.div`
+const UserImageContainer = styled.div<{ isMobile?: boolean }>`
   display: flex;
-  margin-right: 24px;
+  margin-right: ${({ isMobile }) => (isMobile ? 0 : 24)}px;
 
-  .org-share-user-icons {
+  .workspace-share-user-icons {
     cursor: default;
     margin-right: -6px;
     width: 24px;
@@ -35,6 +38,14 @@ const ProfileImageListPopover = styled.ul`
   font-size: 14px;
   margin: 0;
   padding: 5px;
+  max-height: 40vh;
+  overflow-y: auto;
+  &::-webkit-scrollbar-thumb {
+    background-color: transparent;
+  }
+  &::-webkit-scrollbar {
+    width: 0px;
+  }
 `;
 
 const ProfileImageListItem = styled.li`
@@ -47,25 +58,40 @@ const ProfileImageListName = styled.span`
   margin-left: 12px;
 `;
 
-type SharedUserListProps = {
-  userRoles: UserRoles[];
-};
+const ProfileImageMore = styled(ProfileImage)`
+  &.workspace-share-user-icons {
+    cursor: pointer;
+  }
+`;
 
-export default function SharedUserList({ userRoles }: SharedUserListProps) {
+export default function SharedUserList(props: any) {
   const currentUser = useSelector(getCurrentUser);
+  const scrollWrapperRef = React.createRef<HTMLUListElement>();
+  const userWorkspaces = useSelector(getUserApplicationsWorkspacesList);
+  const isMobile = useIsMobileDevice();
+  const allUsers = useMemo(() => {
+    const workspace: any = userWorkspaces.find((workspaceObject: any) => {
+      const { workspace } = workspaceObject;
+      return workspace.id === props.workspaceId;
+    });
 
+    const { userRoles } = workspace;
+    return userRoles || [];
+  }, [userWorkspaces]);
   return (
-    <UserImageContainer>
-      {userRoles.slice(0, 5).map((el: UserRoles) => (
+    <UserImageContainer isMobile={isMobile}>
+      {allUsers.slice(0, 5).map((el: WorkspaceUser) => (
         <Popover
+          boundary="viewport"
           hoverCloseDelay={100}
           interactionKind={PopoverInteractionKind.HOVER_TARGET_ONLY}
           key={el.username}
           position={Position.BOTTOM}
+          transitionDuration={0}
           usePortal={false}
         >
           <ProfileImage
-            className="org-share-user-icons"
+            className="workspace-share-user-icons"
             source={`/api/${UserApi.photoURL}/${el.username}`}
             userName={el.name ? el.name : el.username}
           />
@@ -75,28 +101,34 @@ export default function SharedUserList({ userRoles }: SharedUserListProps) {
           </ProfileImagePopover>
         </Popover>
       ))}
-      {userRoles.length > 5 ? (
+      {allUsers.length > 5 ? (
         <Popover
           hoverCloseDelay={0}
-          interactionKind={PopoverInteractionKind.HOVER_TARGET_ONLY}
+          interactionKind={PopoverInteractionKind.CLICK}
           position={Position.BOTTOM}
+          transitionDuration={0}
           usePortal={false}
         >
-          <ProfileImage
-            className="org-share-user-icons"
-            commonName={`+${userRoles.length - 5}`}
+          <ProfileImageMore
+            className="workspace-share-user-icons"
+            commonName={`+${allUsers.length - 5}`}
           />
-          <ProfileImageListPopover>
-            {userRoles.slice(5).map((el) => (
+          <ProfileImageListPopover ref={scrollWrapperRef}>
+            {allUsers.slice(5).map((el: WorkspaceUser) => (
               <ProfileImageListItem key={el.username}>
                 <ProfileImage
-                  className="org-share-user-icons"
+                  className="workspace-share-user-icons"
                   source={`/api/${UserApi.photoURL}/${el.username}`}
                   userName={el.name ? el.name : el.username}
                 />
                 <ProfileImageListName>{el.username}</ProfileImageListName>
               </ProfileImageListItem>
             ))}
+            <ScrollIndicator
+              alwaysShowScrollbar
+              containerRef={scrollWrapperRef}
+              mode="DARK"
+            />
           </ProfileImageListPopover>
         </Popover>
       ) : null}

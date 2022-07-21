@@ -1,24 +1,26 @@
-import React, { useEffect } from "react";
+import React, { useCallback, useEffect } from "react";
 import Dialog from "components/ads/DialogComponent";
 import {
   getActiveGitSyncModalTab,
+  getIsGitConnected,
   getIsGitSyncModalOpen,
 } from "selectors/gitSyncSelectors";
 import { useDispatch, useSelector } from "react-redux";
-import { useCallback } from "react";
 import { setIsGitSyncModalOpen } from "actions/gitSyncActions";
-import styled from "styled-components";
+import { setWorkspaceIdForImport } from "actions/applicationActions";
 import Menu from "./Menu";
-import { MENU_ITEM, MENU_ITEMS_MAP } from "./constants";
+import { Classes, MENU_HEIGHT, MENU_ITEM, MENU_ITEMS_MAP } from "./constants";
 import Deploy from "./Tabs/Deploy";
 import Merge from "./Tabs/Merge";
 import GitConnection from "./Tabs/GitConnection";
-import Icon from "components/ads/Icon";
-import { Colors } from "constants/Colors";
-import { Classes } from "./constants";
+import Icon, { IconSize } from "components/ads/Icon";
 
 import GitErrorPopup from "./components/GitErrorPopup";
-import { getCurrentAppGitMetaData } from "selectors/applicationSelectors";
+import styled, { useTheme } from "styled-components";
+import { get } from "lodash";
+import { GitSyncModalTab } from "entities/GitSync";
+import { createMessage, GIT_IMPORT } from "@appsmith/constants/messages";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 const Container = styled.div`
   height: 600px;
@@ -26,115 +28,153 @@ const Container = styled.div`
   display: flex;
   flex-direction: column;
   position: relative;
-  overflow-y: hidden;
+  overflow: hidden;
 `;
 
 const BodyContainer = styled.div`
   flex: 3;
-  padding-left: ${(props) => props.theme.spaces[11]}px;
-  padding-bottom: ${(props) => props.theme.spaces[13]}px;
-  padding-right: ${(props) => props.theme.spaces[13]}px;
-  overflow-y: auto;
-  height: 100%;
+  height: calc(100% - ${MENU_HEIGHT}px);
 `;
 
 const MenuContainer = styled.div`
-  padding: ${(props) =>
-    `${props.theme.spaces[10]}px ${props.theme.spaces[10]}px ${props.theme.spaces[6]}px;`};
+  height: ${MENU_HEIGHT}px;
 `;
 
 const CloseBtnContainer = styled.div`
   position: absolute;
-  right: 30px;
-  top: 34px;
-  &:hover {
-    background-color: ${(props) => props.theme.colors.modal.hoverState};
-  }
-  padding: ${(props) => props.theme.spaces[1]}px;
+  right: -5px;
+  top: 0;
+  padding: ${(props) => props.theme.spaces[1]}px 0;
   border-radius: ${(props) => props.theme.radii[1]}px;
-`;
 
-// function NoopComponent() {
-//   return <div />;
-// }
+  &:hover {
+    svg,
+    svg path {
+      fill: ${({ theme }) => get(theme, "colors.gitSyncModal.closeIconHover")};
+    }
+  }
+`;
 
 const ComponentsByTab = {
   [MENU_ITEM.GIT_CONNECTION]: GitConnection,
   [MENU_ITEM.DEPLOY]: Deploy,
   [MENU_ITEM.MERGE]: Merge,
-  // [MENU_ITEM.SHARE_APPLICATION]: NoopComponent,
-  // [MENU_ITEM.SETTINGS]: NoopComponent,
 };
 
 const allMenuOptions = Object.values(MENU_ITEMS_MAP);
+const TabKeys: string[] = Object.values(GitSyncModalTab)
+  .filter((value) => typeof value === "string")
+  .map((value) => value as string);
 
-function GitSyncModal() {
+function GitSyncModal(props: { isImport?: boolean }) {
+  const theme = useTheme();
   const dispatch = useDispatch();
   const isModalOpen = useSelector(getIsGitSyncModalOpen);
+  const isGitConnected = useSelector(getIsGitConnected);
+  const activeTabIndex = useSelector(getActiveGitSyncModalTab);
+
   const handleClose = useCallback(() => {
     dispatch(setIsGitSyncModalOpen({ isOpen: false }));
+    dispatch(setWorkspaceIdForImport(""));
   }, [dispatch, setIsGitSyncModalOpen]);
 
-  const activeTabIndex = useSelector(getActiveGitSyncModalTab);
-  const setActiveTabIndex = (index: number) =>
-    dispatch(setIsGitSyncModalOpen({ isOpen: true, tab: index }));
-  const gitMetaData = useSelector(getCurrentAppGitMetaData);
-  const remoteUrlInStore = gitMetaData?.remoteUrl;
-  let initialTabIndex = 0;
-  let menuOptions: Array<{ key: MENU_ITEM; title: string }> = [];
-
-  if (!remoteUrlInStore) {
-    menuOptions = [MENU_ITEMS_MAP.GIT_CONNECTION];
-  } else {
-    menuOptions = allMenuOptions;
-    // when git is connected directly open deploy tab
-    initialTabIndex = menuOptions.findIndex(
-      (menuItem) => menuItem.key === MENU_ITEMS_MAP.DEPLOY.key,
-    );
-  }
-
-  const initializeTabIndex = () => {
-    if (initialTabIndex !== activeTabIndex) {
-      setActiveTabIndex(initialTabIndex);
-    }
-  };
+  const setActiveTabIndex = useCallback(
+    (index: number) =>
+      dispatch(setIsGitSyncModalOpen({ isOpen: isModalOpen, tab: index })),
+    [dispatch, setIsGitSyncModalOpen, isModalOpen],
+  );
 
   useEffect(() => {
-    initializeTabIndex();
-  }, []);
+    if (!isGitConnected && activeTabIndex !== GitSyncModalTab.GIT_CONNECTION) {
+      setActiveTabIndex(GitSyncModalTab.DEPLOY);
+    }
+  }, [activeTabIndex]);
+
+  useEffect(() => {
+    // when git connected
+    if (isGitConnected && activeTabIndex === GitSyncModalTab.GIT_CONNECTION) {
+      setActiveTabIndex(GitSyncModalTab.DEPLOY);
+    }
+  }, [isGitConnected]);
+
+  let menuOptions = allMenuOptions;
+  if (props.isImport) {
+    menuOptions = [
+      {
+        key: MENU_ITEM.GIT_CONNECTION,
+        title: createMessage(GIT_IMPORT),
+      },
+    ];
+  } else {
+    menuOptions = isGitConnected
+      ? allMenuOptions
+      : [MENU_ITEMS_MAP.GIT_CONNECTION];
+  }
+
+  useEffect(() => {
+    // onMount or onChange of activeTabIndex
+    if (
+      activeTabIndex !== GitSyncModalTab.GIT_CONNECTION &&
+      menuOptions.length - 1 < activeTabIndex
+    ) {
+      setActiveTabIndex(GitSyncModalTab.GIT_CONNECTION);
+    }
+  }, [activeTabIndex]);
 
   const activeMenuItemKey = menuOptions[activeTabIndex]
     ? menuOptions[activeTabIndex].key
     : MENU_ITEMS_MAP.GIT_CONNECTION.key;
   const BodyComponent = ComponentsByTab[activeMenuItemKey];
 
-  const showDeployTab = () => {
-    setActiveTabIndex(1);
-  };
   return (
     <>
       <Dialog
         canEscapeKeyClose
         canOutsideClickClose
         className={Classes.GIT_SYNC_MODAL}
+        data-testid="t--git-sync-modal"
         isOpen={isModalOpen}
         maxWidth={"900px"}
+        noModalBodyMarginTop
         onClose={handleClose}
-        width={"550px"}
+        width={"535px"}
       >
         <Container>
           <MenuContainer>
             <Menu
               activeTabIndex={activeTabIndex}
-              onSelect={setActiveTabIndex}
+              onSelect={(tabIndex: number) => {
+                if (tabIndex === GitSyncModalTab.DEPLOY) {
+                  AnalyticsUtil.logEvent("GS_DEPLOY_GIT_MODAL_TRIGGERED", {
+                    source: `${TabKeys[activeTabIndex]}_TAB`,
+                  });
+                } else if (tabIndex === GitSyncModalTab.MERGE) {
+                  AnalyticsUtil.logEvent("GS_MERGE_GIT_MODAL_TRIGGERED", {
+                    source: `${TabKeys[activeTabIndex]}_TAB`,
+                  });
+                }
+                setActiveTabIndex(tabIndex);
+              }}
               options={menuOptions}
             />
           </MenuContainer>
           <BodyContainer>
-            <BodyComponent onSuccess={showDeployTab} />
+            {activeTabIndex === GitSyncModalTab.GIT_CONNECTION && (
+              <BodyComponent isImport={props.isImport} />
+            )}
+            {activeTabIndex !== GitSyncModalTab.GIT_CONNECTION && (
+              <BodyComponent />
+            )}
           </BodyContainer>
-          <CloseBtnContainer onClick={handleClose}>
-            <Icon fillColor={Colors.THUNDER_ALT} name="close-modal" />
+          <CloseBtnContainer
+            className="t--close-git-sync-modal"
+            onClick={handleClose}
+          >
+            <Icon
+              fillColor={get(theme, "colors.gitSyncModal.closeIcon")}
+              name="close-modal"
+              size={IconSize.XXXXL}
+            />
           </CloseBtnContainer>
         </Container>
       </Dialog>

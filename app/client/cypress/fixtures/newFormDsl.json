@@ -53,12 +53,31 @@
             "orientation": "VERTICAL",
             "children": [
               {
+                "widgetName": "Text1",
+                "rightColumn": 3,
+                "widgetId": "4d8d2eh4xg",
+                "dynamicPropertyPathList": [],
+                "topRow": 0,
+                "bottomRow": 1,
+                "parentRowSpace": 38,
+                "isVisible": true,
+                "type": "TEXT_WIDGET",
+                "dynamicBindingPathList": [],
+                "shouldScroll": true,
+                "parentId": "hjiybwqair",
+                "isLoading": false,
+                "parentColumnSpace": 71.75,
+                "leftColumn": 1,
+                "text": "Test text",
+                "textStyle": "HEADING"
+              },
+              {
                 "isVisible": true,
                 "inputType": "TEXT",
                 "label": "",
                 "iconAlign": "left",
                 "widgetName": "Input1",
-                "type": "INPUT_WIDGET",
+                "type": "INPUT_WIDGET_V2",
                 "isLoading": false,
                 "parentColumnSpace": 71.75,
                 "parentRowSpace": 38,
@@ -75,7 +94,7 @@
                 "selectionType": "SINGLE_SELECT",
                 "options": "",
                 "widgetName": "Dropdown1",
-                "type": "DROP_DOWN_WIDGET",
+                "type": "SELECT_WIDGET",
                 "isLoading": false,
                 "parentColumnSpace": 71.75,
                 "parentRowSpace": 38,
@@ -94,17 +113,23 @@
                 "topRow": 12,
                 "bottomRow": 16,
                 "parentRowSpace": 10,
-                 "rightColumn": 15,
+                "rightColumn": 15,
                 "isVisible": true,
                 "label": "",
-                "type": "MULTI_SELECT_WIDGET",
+                "type": "MULTI_SELECT_WIDGET_V2",
                 "parentId": "zizrooqfps",
                 "isLoading": false,
                 "defaultOptionValue": [
-                  "First",
-                  "Seventh"
+                  {
+                    "label": "Hashirama Senju",
+                    "value": "First"
+                  },
+                  {
+                    "label": "Naruto Uzumaki",
+                    "value": "Seventh"
+                  }
                 ],
-               "parentColumnSpace": 71.75,
+                "parentColumnSpace": 71.75,
                 "leftColumn": 10,
                 "options": [
                   {
@@ -307,6 +332,45 @@
                 "bottomRow": 17,
                 "parentId": "kipfh779n5",
                 "widgetId": "zbzrlbiose"
+              },
+              {
+                "widgetName": "SwitchGroup1",
+                "isCanvas": false,
+                "displayName": "Switch Group",
+                "iconSVG": "/static/media/icon.086a7201.svg",
+                "topRow": 8,
+                "bottomRow": 14,
+                "parentRowSpace": 10,
+                "type": "SWITCH_GROUP_WIDGET",
+                "hideCard": false,
+                "parentColumnSpace": 6.6856445312499995,
+                "leftColumn": 2,
+                "options": [
+                    {
+                        "label": "Blue",
+                        "value": "BLUE"
+                    },
+                    {
+                        "label": "Green",
+                        "value": "GREEN"
+                    },
+                    {
+                        "label": "Red",
+                        "value": "RED"
+                    }
+                ],
+                "isDisabled": false,
+                "key": "vrhzyvir7s",
+                "isRequired": false,
+                "rightColumn": 20,
+                "defaultSelectedValues": "BLUE",
+                "widgetId": "egtjazr1wh",
+                "isVisible": true,
+                "version": 1,
+                "parentId": "xbbqrz2ncf",
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "isInline": true
               }
             ],
             "widgetId": "e3tq9qwta6",

@@ -1,5 +1,9 @@
-import { ReduxAction, ReduxActionTypes } from "constants/ReduxActionConstants";
+import {
+  ReduxAction,
+  ReduxActionTypes,
+} from "@appsmith/constants/ReduxActionConstants";
 import { JSCollection, JSAction } from "entities/JSCollection";
+import { RefactorAction, SetFunctionPropertyPayload } from "api/JSActionAPI";
 
 export const createNewJSCollection = (
   pageId: string,
@@ -16,6 +20,15 @@ export const updateJSCollection = (
   payload: { body, id },
 });
 
+export const updateJSCollectionBody = (
+  body: string,
+  id: string,
+  isReplay = false,
+): ReduxAction<{ body: string; id: string; isReplay?: boolean }> => ({
+  type: ReduxActionTypes.UPDATE_JS_ACTION_BODY_INIT,
+  payload: { body, id, isReplay },
+});
+
 export const updateJSCollectionSuccess = (payload: { data: JSCollection }) => {
   return {
     type: ReduxActionTypes.UPDATE_JS_ACTION_SUCCESS,
@@ -23,42 +36,18 @@ export const updateJSCollectionSuccess = (payload: { data: JSCollection }) => {
   };
 };
 
-export const addJSObjectAction = (payload: {
-  jsAction: JSCollection;
-  subActions: Array<Partial<JSAction>>;
+export const updateJSCollectionBodySuccess = (payload: {
+  data: JSCollection;
 }) => {
   return {
-    type: ReduxActionTypes.ADD_JS_ACTION_TO_COLLECTION,
-    payload,
-  };
-};
-
-export const updateJSObjectAction = (payload: {
-  jsAction: JSCollection;
-  subActions: Array<JSAction>;
-}) => {
-  return {
-    type: ReduxActionTypes.UPDATE_JS_ACTION_TO_COLLECTION,
-    payload,
-  };
-};
-
-export const deleteJSObjectAction = (payload: {
-  jsAction: JSCollection;
-  subActions: Array<JSAction>;
-}) => {
-  return {
-    type: ReduxActionTypes.DELETE_JS_ACTION_FROM_COLLECTION,
+    type: ReduxActionTypes.UPDATE_JS_ACTION_BODY_SUCCESS,
     payload,
   };
 };
 
 export const refactorJSCollectionAction = (payload: {
-  actionId: string;
-  collectionName: string;
-  pageId: string;
-  oldName: string;
-  newName: string;
+  refactorAction: RefactorAction;
+  actionCollection: JSCollection;
 }) => {
   return {
     type: ReduxActionTypes.REFACTOR_JS_ACTION_NAME,
@@ -66,13 +55,48 @@ export const refactorJSCollectionAction = (payload: {
   };
 };
 
-export const executeJSFunction = (payload: {
+export const executeJSFunctionInit = (payload: {
   collectionName: string;
   action: JSAction;
   collectionId: string;
 }) => {
   return {
     type: ReduxActionTypes.EXECUTE_JS_FUNCTION_INIT,
+    payload,
+  };
+};
+
+export const startExecutingJSFunction = (payload: {
+  collectionName: string;
+  action: JSAction;
+  collectionId: string;
+}) => {
+  return {
+    type: ReduxActionTypes.START_EXECUTE_JS_FUNCTION,
+    payload,
+  };
+};
+
+export const updateFunctionProperty = (payload: SetFunctionPropertyPayload) => {
+  return {
+    type: ReduxActionTypes.SET_FUNCTION_PROPERTY,
+    payload,
+  };
+};
+
+export const updateJSFunction = (payload: SetFunctionPropertyPayload) => {
+  return {
+    type: ReduxActionTypes.UPDATE_JS_FUNCTION_PROPERTY_INIT,
+    payload,
+  };
+};
+
+export const setActiveJSAction = (payload: {
+  jsCollectionId: string;
+  jsActionId: string;
+}) => {
+  return {
+    type: ReduxActionTypes.SET_ACTIVE_JS_ACTION,
     payload,
   };
 };

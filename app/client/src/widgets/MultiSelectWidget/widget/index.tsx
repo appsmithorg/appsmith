@@ -13,6 +13,9 @@ import MultiSelectComponent from "../component";
 import { DefaultValueType } from "rc-select/lib/interface/generator";
 import { Layers } from "constants/Layers";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
+import { MinimumPopupRows, GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
+import { LabelPosition } from "components/constants";
+import { Alignment } from "@blueprintjs/core";
 
 function defaultOptionValueValidation(value: unknown): ValidationResponse {
   let values: string[] = [];
@@ -80,7 +83,6 @@ class MultiSelectWidget extends BaseWidget<
                         type: ValidationTypes.TEXT,
                         params: {
                           default: "",
-                          required: true,
                         },
                       },
                     ],
@@ -112,7 +114,7 @@ class MultiSelectWidget extends BaseWidget<
             },
           },
           {
-            helpText: "Sets a Placeholder text",
+            helpText: "Sets a Placeholder Text",
             propertyName: "placeholderText",
             label: "Placeholder",
             controlType: "INPUT_TEXT",
@@ -152,6 +154,17 @@ class MultiSelectWidget extends BaseWidget<
             validation: { type: ValidationTypes.BOOLEAN },
           },
           {
+            propertyName: "animateLoading",
+            label: "Animate Loading",
+            controlType: "SWITCH",
+            helpText: "Controls the loading of the widget",
+            defaultValue: true,
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+          },
+          {
             helpText: "Enables server side filtering of the data",
             propertyName: "serverSideFiltering",
             label: "Server Side Filtering",
@@ -160,6 +173,173 @@ class MultiSelectWidget extends BaseWidget<
             isBindProperty: true,
             isTriggerProperty: false,
             validation: { type: ValidationTypes.BOOLEAN },
+          },
+          {
+            helpText:
+              "Controls the visibility of select all option in dropdown.",
+            propertyName: "allowSelectAll",
+            label: "Allow Select All",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+          },
+        ],
+      },
+      {
+        sectionName: "Label",
+        children: [
+          {
+            helpText: "Sets the label text of the widget",
+            propertyName: "labelText",
+            label: "Text",
+            controlType: "INPUT_TEXT",
+            placeholderText: "Enter label text",
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
+          {
+            helpText: "Sets the label position of the widget",
+            propertyName: "labelPosition",
+            label: "Position",
+            controlType: "DROP_DOWN",
+            options: [
+              { label: "Left", value: LabelPosition.Left },
+              { label: "Top", value: LabelPosition.Top },
+              { label: "Auto", value: LabelPosition.Auto },
+            ],
+            isBindProperty: false,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
+          {
+            helpText: "Sets the label alignment of the widget",
+            propertyName: "labelAlignment",
+            label: "Alignment",
+            controlType: "LABEL_ALIGNMENT_OPTIONS",
+            options: [
+              {
+                icon: "LEFT_ALIGN",
+                value: Alignment.LEFT,
+              },
+              {
+                icon: "RIGHT_ALIGN",
+                value: Alignment.RIGHT,
+              },
+            ],
+            isBindProperty: false,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+            hidden: (props: MultiSelectWidgetProps) =>
+              props.labelPosition !== LabelPosition.Left,
+            dependencies: ["labelPosition"],
+          },
+          {
+            helpText:
+              "Sets the label width of the widget as the number of columns",
+            propertyName: "labelWidth",
+            label: "Width (in columns)",
+            controlType: "NUMERIC_INPUT",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            min: 0,
+            validation: {
+              type: ValidationTypes.NUMBER,
+              params: {
+                natural: true,
+              },
+            },
+            hidden: (props: MultiSelectWidgetProps) =>
+              props.labelPosition !== LabelPosition.Left,
+            dependencies: ["labelPosition"],
+          },
+        ],
+      },
+      {
+        sectionName: "Styles",
+        children: [
+          {
+            propertyName: "accentColor",
+            label: "Accent Color",
+            controlType: "COLOR_PICKER",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+            invisible: true,
+          },
+          {
+            propertyName: "labelTextColor",
+            label: "Label Text Color",
+            controlType: "COLOR_PICKER",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
+          {
+            propertyName: "labelTextSize",
+            label: "Label Text Size",
+            controlType: "DROP_DOWN",
+            defaultValue: "0.875rem",
+            options: [
+              {
+                label: "S",
+                value: "0.875rem",
+                subText: "0.875rem",
+              },
+              {
+                label: "M",
+                value: "1rem",
+                subText: "1rem",
+              },
+              {
+                label: "L",
+                value: "1.25rem",
+                subText: "1.25rem",
+              },
+              {
+                label: "XL",
+                value: "1.875rem",
+                subText: "1.875rem",
+              },
+              {
+                label: "XXL",
+                value: "3rem",
+                subText: "3rem",
+              },
+              {
+                label: "3XL",
+                value: "3.75rem",
+                subText: "3.75rem",
+              },
+            ],
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
+          {
+            propertyName: "labelStyle",
+            label: "Label Font Style",
+            controlType: "BUTTON_TABS",
+            options: [
+              {
+                icon: "BOLD_FONT",
+                value: "BOLD",
+              },
+              {
+                icon: "ITALICS_FONT",
+                value: "ITALIC",
+              },
+            ],
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
           },
         ],
       },
@@ -186,6 +366,20 @@ class MultiSelectWidget extends BaseWidget<
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: true,
+          },
+        ],
+      },
+
+      {
+        sectionName: "Styles",
+        children: [
+          {
+            propertyName: "backgroundColor",
+            helpText: "Sets the background color of the widget",
+            label: "Background color",
+            controlType: "COLOR_PICKER",
+            isBindProperty: false,
+            isTriggerProperty: false,
           },
         ],
       },
@@ -220,12 +414,35 @@ class MultiSelectWidget extends BaseWidget<
     const values: string[] = isArray(this.props.selectedOptionValues)
       ? this.props.selectedOptionValues
       : [];
+    const dropDownWidth = MinimumPopupRows * this.props.parentColumnSpace;
+    const { componentWidth } = this.getComponentDimensions();
+
     return (
       <MultiSelectComponent
+        accentColor={this.props.accentColor}
+        allowSelectAll={this.props.allowSelectAll}
+        borderRadius={this.props.borderRadius}
+        boxShadow={this.props.boxShadow}
+        compactMode={
+          !(
+            (this.props.bottomRow - this.props.topRow) /
+              GRID_DENSITY_MIGRATION_V1 >
+            1
+          )
+        }
         disabled={this.props.isDisabled ?? false}
+        dropDownWidth={dropDownWidth}
         dropdownStyle={{
           zIndex: Layers.dropdownModalWidget,
         }}
+        isValid={this.props.isValid}
+        labelAlignment={this.props.labelAlignment}
+        labelPosition={this.props.labelPosition}
+        labelStyle={this.props.labelStyle}
+        labelText={this.props.labelText}
+        labelTextColor={this.props.labelTextColor}
+        labelTextSize={this.props.labelTextSize}
+        labelWidth={this.getLabelWidth()}
         loading={this.props.isLoading}
         onChange={this.onOptionChange}
         onFilterChange={this.onFilterChange}
@@ -233,6 +450,8 @@ class MultiSelectWidget extends BaseWidget<
         placeholder={this.props.placeholderText as string}
         serverSideFiltering={this.props.serverSideFiltering}
         value={values}
+        widgetId={this.props.widgetId}
+        width={componentWidth}
       />
     );
   }
@@ -292,6 +511,15 @@ export interface MultiSelectWidgetProps extends WidgetProps {
   selectedOptionLabels: string[];
   serverSideFiltering: boolean;
   onFilterUpdate: string;
+  backgroundColor: string;
+  borderRadius: string;
+  boxShadow?: string;
+  accentColor: string;
+  allowSelectAll?: boolean;
+  labelText: string;
+  labelPosition?: LabelPosition;
+  labelAlignment?: Alignment;
+  labelWidth?: number;
 }
 
 export default MultiSelectWidget;

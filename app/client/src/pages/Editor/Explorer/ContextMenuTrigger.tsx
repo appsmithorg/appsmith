@@ -5,6 +5,12 @@ import { Theme } from "constants/DefaultTheme";
 import { EntityTogglesWrapper } from "./ExplorerStyledComponents";
 import styled from "styled-components";
 import { Colors } from "constants/Colors";
+import { TooltipComponent } from "design-system";
+import {
+  createMessage,
+  ENTITY_MORE_ACTIONS_TOOLTIP,
+} from "@appsmith/constants/messages";
+import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
 
 const ToggleIcon = styled(ControlIcons.MORE_VERTICAL_CONTROL)`
   &&& {
@@ -23,11 +29,20 @@ export function ContextMenuTrigger(props: {
   theme: Theme;
 }) {
   return (
-    <EntityTogglesWrapper className={props.className}>
-      <ToggleIcon
-        height={props.theme.fontSizes[3]}
-        width={props.theme.fontSizes[3]}
-      />
+    <EntityTogglesWrapper
+      className={props.className + " entity-context-menu-icon"}
+    >
+      <TooltipComponent
+        boundary="viewport"
+        content={createMessage(ENTITY_MORE_ACTIONS_TOOLTIP)}
+        hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
+        position="right"
+      >
+        <ToggleIcon
+          height={props.theme.fontSizes[3]}
+          width={props.theme.fontSizes[3]}
+        />
+      </TooltipComponent>
     </EntityTogglesWrapper>
   );
 }

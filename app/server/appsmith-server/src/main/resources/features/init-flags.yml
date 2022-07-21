@@ -8,15 +8,14 @@ ff4j:
   audit: false
 
   features:
-
     - uid: JS_EDITOR
       enable: true
       description: Enable JS editor by email domain of the user
       flipstrategy:
-        class: com.appsmith.server.featureflags.strategies.EmailBasedRolloutStrategy
+        class: org.ff4j.strategy.PonderationStrategy
         param:
-          - name: emailDomains
-            value: appsmith.com,moolya.com
+          - name: weight
+            value: 1
 
     - uid: LINTING
       enable: true
@@ -40,7 +39,34 @@ ff4j:
       enable: true
       description: Enable git for apps
       flipstrategy:
+        class: org.ff4j.strategy.PonderationStrategy
+        param:
+          - name: weight
+            value: 1
+
+    - uid: GIT_IMPORT
+      enable: true
+      description: Enable git import for apps
+      flipstrategy:
+        class: org.ff4j.strategy.PonderationStrategy
+        param:
+          - name: weight
+            value: 1
+
+    - uid: APP_TEMPLATE
+      enable: true
+      description: Allow users to browse application templates and import them
+      flipstrategy:
+        class: org.ff4j.strategy.PonderationStrategy
+        param:
+          - name: weight
+            value: 1
+
+    - uid: PROPERTY_PANE_GROUPING
+      enable: true
+      description: Group the properties into content & style tab also adds search option in property pane
+      flipstrategy:
         class: com.appsmith.server.featureflags.strategies.EmailBasedRolloutStrategy
         param:
-          - name: emailDomains
-            value: test.com
+          - name: emails
+            value: aswath+test_grouping@appsmith.com

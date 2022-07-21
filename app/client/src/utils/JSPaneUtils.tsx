@@ -8,11 +8,19 @@ export type ParsedJSSubAction = {
   name: string;
   body: string;
   arguments: Array<Variable>;
+  isAsync: boolean;
+  // parsedFunction - used only to determine if function is async
+  parsedFunction?: () => unknown;
 };
 
 export type ParsedBody = {
   actions: Array<ParsedJSSubAction>;
   variables: Array<Variable>;
+};
+
+export type JSUpdate = {
+  id: string;
+  parsedBody: ParsedBody | undefined;
 };
 
 export const getDifferenceInJSCollection = (
@@ -31,13 +39,17 @@ export const getDifferenceInJSCollection = (
       const action = parsedBody.actions[i];
       const preExisted = jsAction.actions.find((js) => js.name === action.name);
       if (preExisted) {
-        if (preExisted.actionConfiguration.body !== action.body) {
+        if (
+          preExisted.actionConfiguration.body !== action.body ||
+          preExisted.actionConfiguration.isAsync !== action.isAsync
+        ) {
           toBeUpdatedActions.push({
             ...preExisted,
             actionConfiguration: {
               ...preExisted.actionConfiguration,
               body: action.body,
               jsArguments: action.arguments,
+              isAsync: action.isAsync,
             },
           });
         }
@@ -99,11 +111,11 @@ export const getDifferenceInJSCollection = (
         collectionId: jsAction.id,
         executeOnLoad: false,
         pageId: jsAction.pageId,
-        organizationId: jsAction.organizationId,
+        workspaceId: jsAction.workspaceId,
         actionConfiguration: {
           body: action.body,
-          isAsync: false,
-          timeoutInMilliseconds: 0,
+          isAsync: action.isAsync,
+          timeoutInMillisecond: 0,
           jsArguments: [],
         },
       };
@@ -119,16 +131,56 @@ export const getDifferenceInJSCollection = (
       jsAction.actions.splice(deleteArchived, 1);
     }
   }
+  //change in variables
+  const varList = jsAction.variables;
+  let changedVariables: Array<Variable> = [];
+  if (parsedBody.variables.length) {
+    for (let i = 0; i < parsedBody.variables.length; i++) {
+      const newVar = parsedBody.variables[i];
+      const existedVar = varList.find((item) => item.name === newVar.name);
+      if (!!existedVar) {
+        const existedValue = existedVar.value;
+        if (
+          (!!existedValue &&
+            existedValue.toString() !==
+              (newVar.value && newVar.value.toString())) ||
+          (!existedValue && !!newVar.value)
+        ) {
+          changedVariables.push(newVar);
+        }
+      } else {
+        changedVariables.push(newVar);
+      }
+    }
+  } else {
+    changedVariables = jsAction.variables;
+  }
+  //delete variable
+  if (varList && varList.length > 0 && parsedBody.variables) {
+    for (let i = 0; i < varList.length; i++) {
+      const preVar = varList[i];
+      const existed = parsedBody.variables.find(
+        (jsVar: Variable) => jsVar.name === preVar.name,
+      );
+      if (!existed) {
+        const newvarList = varList.filter(
+          (deletedVar) => deletedVar.name !== preVar.name,
+        );
+        changedVariables = changedVariables.concat(newvarList);
+      }
+    }
+  }
   return {
     newActions: toBeAddedActions,
     updateActions: toBeUpdatedActions,
     deletedActions: toBearchivedActions,
     nameChangedActions: nameChangedActions,
+    changedVariables: changedVariables,
   };
 };
 
 export const pushLogsForObjectUpdate = (
-  actions: JSAction[],
+  actions: Partial<JSAction>[],
   jsCollection: JSCollection,
   text: string,
 ) => {
@@ -143,4 +195,45 @@ export const pushLogsForObjectUpdate = (
       },
     });
   }
+};
+
+export const createDummyJSCollectionActions = (
+  pageId: string,
+  workspaceId: string,
+) => {
+  const body =
+    "export default {\n\tmyVar1: [],\n\tmyVar2: {},\n\tmyFun1: () => {\n\t\t//write code here\n\t},\n\tmyFun2: async () => {\n\t\t//use async-await or promises\n\t}\n}";
+
+  const actions = [
+    {
+      name: "myFun1",
+      pageId,
+      workspaceId,
+      executeOnLoad: false,
+      actionConfiguration: {
+        body: "() => {\n\t\t//write code here\n\t}",
+        isAsync: false,
+        timeoutInMillisecond: 0,
+        jsArguments: [],
+      },
+      clientSideExecution: true,
+    },
+    {
+      name: "myFun2",
+      pageId,
+      workspaceId,
+      executeOnLoad: false,
+      actionConfiguration: {
+        body: "async () => {\n\t\t//use async-await or promises\n\t}",
+        isAsync: true,
+        timeoutInMillisecond: 0,
+        jsArguments: [],
+      },
+      clientSideExecution: true,
+    },
+  ];
+  return {
+    actions,
+    body,
+  };
 };

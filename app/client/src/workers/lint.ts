@@ -4,10 +4,44 @@ import {
   extraLibraries,
   PropertyEvaluationErrorType,
 } from "utils/DynamicBindingUtils";
-import { JSHINT as jshint } from "jshint";
-import { Severity } from "entities/AppsmithConsole";
-import { last } from "lodash";
-import { EvaluationScripts, EvaluationScriptType } from "workers/evaluate";
+import { JSHINT as jshint, LintError } from "jshint";
+import { isEmpty, keys, last } from "lodash";
+import {
+  EvaluationScripts,
+  EvaluationScriptType,
+  ScriptTemplate,
+} from "workers/evaluate";
+import { getLintSeverity } from "components/editorComponents/CodeEditor/lintHelpers";
+import { ECMA_VERSION } from "constants/ast";
+
+export const getPositionInEvaluationScript = (
+  type: EvaluationScriptType,
+): Position => {
+  const script = EvaluationScripts[type];
+
+  const index = script.indexOf(ScriptTemplate);
+  const substr = script.slice(0, index !== -1 ? index : 0);
+  const lines = substr.split("\n");
+  const lastLine = last(lines) || "";
+
+  return { line: lines.length, ch: lastLine.length };
+};
+
+const EvaluationScriptPositions: Record<string, Position> = {};
+
+function getEvaluationScriptPosition(scriptType: EvaluationScriptType) {
+  if (isEmpty(EvaluationScriptPositions)) {
+    // We are computing position of <<script>> in our templates.
+    // This will be used to get the exact location of error in linting
+    keys(EvaluationScripts).forEach((type) => {
+      EvaluationScriptPositions[type] = getPositionInEvaluationScript(
+        type as EvaluationScriptType,
+      );
+    });
+  }
+
+  return EvaluationScriptPositions[scriptType];
+}
 
 export const getLintingErrors = (
   script: string,
@@ -15,7 +49,7 @@ export const getLintingErrors = (
   originalBinding: string,
   scriptType: EvaluationScriptType,
 ): EvaluationError[] => {
-  const scriptPos = getPositionInEvaluationScript(scriptType);
+  const scriptPos = getEvaluationScriptPosition(scriptType);
   const globalData: Record<string, boolean> = {};
   for (const dataKey in data) {
     globalData[dataKey] = true;
@@ -27,7 +61,7 @@ export const getLintingErrors = (
 
   const options = {
     indent: 2,
-    esversion: 8, // For async/await support
+    esversion: ECMA_VERSION,
     eqeqeq: false, // Not necessary to use ===
     curly: false, // Blocks can be added without {}, eg if (x) return true
     freeze: true, // Overriding inbuilt classes like Array is not allowed
@@ -35,29 +69,30 @@ export const getLintingErrors = (
     forin: false, // Doesn't require filtering for..in loops with obj.hasOwnProperty()
     noempty: false, // Empty blocks are allowed
     strict: false, // We won't force strict mode
-    unused: false, // Unused variables are allowed
+    unused: "strict", // Unused variables are not allowed
     asi: true, // Tolerate Automatic Semicolon Insertion (no semicolons)
     boss: true, // Tolerate assignments where comparisons would be expected
     evil: false, // Use of eval not allowed
     funcscope: true, // Tolerate variable definition inside control statements
     sub: true, // Don't force dot notation
+    expr: true, // suppresses warnings about the use of expressions where normally you would expect to see assignments or function calls
     // environments
     browser: true,
     worker: true,
     mocha: false,
     // global values
     globals: globalData,
+    loopfunc: true,
   };
 
   jshint(script, options);
 
-  return jshint.errors.map((lintError) => {
+  return jshint.errors.filter(lintErrorFilters).map((lintError) => {
     const ch = lintError.character;
     return {
       errorType: PropertyEvaluationErrorType.LINT,
       raw: script,
-      // We are forcing warnings to errors and removing unwanted JSHint checks
-      severity: Severity.ERROR,
+      severity: getLintSeverity(lintError.code),
       errorMessage: lintError.reason,
       errorSegment: lintError.evidence,
       originalBinding,
@@ -70,15 +105,11 @@ export const getLintingErrors = (
   });
 };
 
-export const getPositionInEvaluationScript = (
-  type: EvaluationScriptType,
-): Position => {
-  const script = EvaluationScripts[type];
-
-  const index = script.indexOf("<<script>>");
-  const substr = script.substr(0, index);
-  const lines = substr.split("\n");
-  const lastLine = last(lines) || "";
-
-  return { line: lines.length, ch: lastLine.length };
+const lintErrorFilters = (lintError: LintError) => {
+  if (lintError.reason === "'currentRow' is not defined.") {
+    return false;
+  } else if (lintError.reason === "'currentItem' is not defined.") {
+    return false;
+  }
+  return true;
 };

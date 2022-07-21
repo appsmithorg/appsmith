@@ -1,25 +1,30 @@
-import Widget from "./widget";
-import IconSVG from "./icon.svg";
-import { WidgetProps } from "widgets/BaseWidget";
+import { Colors } from "constants/Colors";
 import { cloneDeep, set } from "lodash";
 import {
-  BlueprintOperationTypes,
-  GRID_DENSITY_MIGRATION_V1,
-} from "widgets/constants";
+  combineDynamicBindings,
+  getDynamicBindings,
+} from "utils/DynamicBindingUtils";
+import { WidgetProps } from "widgets/BaseWidget";
+import { BlueprintOperationTypes } from "widgets/constants";
+import IconSVG from "./icon.svg";
+import Widget from "./widget";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
   name: "Table",
   iconSVG: IconSVG,
   needsMeta: true,
+  searchTags: ["datagrid"],
+  hideCard: true,
   defaults: {
-    rows: 7 * GRID_DENSITY_MIGRATION_V1,
-    columns: 7.5 * GRID_DENSITY_MIGRATION_V1,
+    rows: 28,
+    columns: 34,
+    animateLoading: true,
     defaultSelectedRow: "0",
     label: "Data",
     widgetName: "Table",
     searchKey: "",
-    textSize: "PARAGRAPH",
+    textSize: "0.875rem",
     horizontalAlignment: "LEFT",
     verticalAlignment: "CENTER",
     totalRecordsCount: 0,
@@ -37,6 +42,15 @@ export const CONFIG = {
       {
         key: "primaryColumns.action.computedValue",
       },
+      {
+        key: "primaryColumns.action.buttonColor",
+      },
+      {
+        key: "primaryColumns.action.borderRadius",
+      },
+      {
+        key: "primaryColumns.action.boxShadow",
+      },
     ],
     primaryColumns: {
       step: {
@@ -46,7 +60,7 @@ export const CONFIG = {
         horizontalAlignment: "LEFT",
         verticalAlignment: "CENTER",
         columnType: "text",
-        textSize: "PARAGRAPH",
+        textSize: "0.875rem",
         enableFilter: true,
         enableSort: true,
         isVisible: true,
@@ -63,7 +77,7 @@ export const CONFIG = {
         horizontalAlignment: "LEFT",
         verticalAlignment: "CENTER",
         columnType: "text",
-        textSize: "PARAGRAPH",
+        textSize: "0.875rem",
         enableFilter: true,
         enableSort: true,
         isVisible: true,
@@ -80,7 +94,7 @@ export const CONFIG = {
         horizontalAlignment: "LEFT",
         verticalAlignment: "CENTER",
         columnType: "text",
-        textSize: "PARAGRAPH",
+        textSize: "0.875rem",
         enableFilter: true,
         enableSort: true,
         isVisible: true,
@@ -97,7 +111,7 @@ export const CONFIG = {
         horizontalAlignment: "LEFT",
         verticalAlignment: "CENTER",
         columnType: "button",
-        textSize: "PARAGRAPH",
+        textSize: "0.875rem",
         enableFilter: true,
         enableSort: true,
         isVisible: true,
@@ -137,6 +151,7 @@ export const CONFIG = {
       step: 62,
       status: 75,
     },
+    columnOrder: ["step", "task", "status", "action"],
     blueprint: {
       operations: [
         {
@@ -150,7 +165,28 @@ export const CONFIG = {
                 `${columnId}.computedValue`,
                 `{{${widget.widgetName}.sanitizedTableData.map((currentRow) => ( currentRow.${columnId}))}}`,
               );
+              set(primaryColumns, `${columnId}.labelColor`, Colors.WHITE);
+
+              Object.keys(
+                widget.childStylesheet[primaryColumns[columnId].columnType] ||
+                  [],
+              ).map((propertyKey) => {
+                const { jsSnippets, stringSegments } = getDynamicBindings(
+                  widget.childStylesheet[primaryColumns[columnId].columnType][
+                    propertyKey
+                  ],
+                );
+
+                const js = combineDynamicBindings(jsSnippets, stringSegments);
+
+                set(
+                  primaryColumns,
+                  `${columnId}.${propertyKey}`,
+                  `{{${widget.widgetName}.sanitizedTableData.map((currentRow) => ( ${js}))}}`,
+                );
+              });
             });
+
             const updatePropertyMap = [
               {
                 widgetId: widget.widgetId,
@@ -163,10 +199,12 @@ export const CONFIG = {
         },
       ],
     },
+    enableClientSideSearch: true,
     isVisibleSearch: true,
     isVisibleFilters: true,
     isVisibleDownload: true,
     isVisiblePagination: true,
+    isSortable: true,
     delimiter: ",",
     version: 3,
   },

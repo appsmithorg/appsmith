@@ -17,6 +17,7 @@ type RenderComponentProps = {
     isDerived?: boolean;
   };
   deleteOption: (index: number) => void;
+  updateCurrentFocusedInput: (index: number | null) => void;
   updateOption: (index: number, value: string) => void;
   toggleVisibility?: (index: number) => void;
   onEdit?: (index: number) => void;
@@ -26,6 +27,7 @@ interface DroppableComponentProps {
   items: Array<Record<string, unknown>>;
   renderComponent: (props: RenderComponentProps) => JSX.Element;
   deleteOption: (index: number) => void;
+  updateCurrentFocusedInput: (index: number | null) => void;
   updateOption: (index: number, value: string) => void;
   toggleVisibility?: (index: number) => void;
   updateItems: (items: Array<Record<string, unknown>>) => void;
@@ -85,6 +87,7 @@ export class DroppableComponent extends React.Component<
       onEdit,
       renderComponent,
       toggleVisibility,
+      updateCurrentFocusedInput,
       updateOption,
     } = this.props;
     return (
@@ -116,6 +119,7 @@ export class DroppableComponent extends React.Component<
                         >
                           {renderComponent({
                             deleteOption,
+                            updateCurrentFocusedInput,
                             updateOption,
                             toggleVisibility,
                             onEdit,

@@ -381,6 +381,64 @@
       "contributions": [
         "code"
       ]
+    },
+    {
+      "login": "rafaeelaudibert",
+      "name": "Rafael Baldasso Audibert",
+      "avatar_url": "https://avatars.githubusercontent.com/u/32079912?v=4",
+      "profile": "https://www.rafaaudibert.dev",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "yaldram",
+      "name": "Arsalan Yaldram",
+      "avatar_url": "https://avatars.githubusercontent.com/u/13429535?v=4",
+      "profile": "https://github.com/yaldram",
+      "contributions": [
+        "code",
+        "ideas"
+      ]
+    },
+    {
+      "login": "prsidhu",
+      "name": "Preet Sidhu",
+      "avatar_url": "https://avatars.githubusercontent.com/u/5424788?v=4",
+      "profile": "https://github.com/prsidhu",
+      "contributions": [
+        "code",
+        "bug"
+      ]
+    },
+    {
+      "login": "pallavagarwal07",
+      "name": "Pallav Agarwal",
+      "avatar_url": "https://avatars.githubusercontent.com/u/9394044?v=4",
+      "profile": "https://www.varstack.com",
+      "contributions": [
+        "code",
+        "bug"
+      ]
+    },
+    {
+      "login": "ganganimaulik",
+      "name": "Maulik",
+      "avatar_url": "https://avatars.githubusercontent.com/u/10296400?v=4",
+      "profile": "https://github.com/ganganimaulik",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "AnaghHegde",
+      "name": "Anagh Hegde",
+      "avatar_url": "https://avatars.githubusercontent.com/u/12005551?v=4",
+      "profile": "https://loopbackweb.wordpress.com/",
+      "contributions": [
+        "code",
+        "bug"
+      ]
     }
   ],
   "contributorsPerLine": 7,

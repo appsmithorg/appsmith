@@ -2,20 +2,32 @@ import styled, { css } from "styled-components";
 import { TableSizes, CellLayoutProperties, CellAlignment } from "./Constants";
 import { Colors, Color } from "constants/Colors";
 import { hideScrollbar } from "constants/DefaultTheme";
-import { FontStyleTypes, TEXT_SIZES } from "constants/WidgetConstants";
+import {
+  fontSizeUtility,
+  lightenColor,
+  darkenColor,
+} from "widgets/WidgetUtils";
+import { FontStyleTypes } from "constants/WidgetConstants";
+import { Classes } from "@blueprintjs/core";
 
 export const TableWrapper = styled.div<{
   width: number;
   height: number;
   tableSizes: TableSizes;
+  accentColor: string;
   backgroundColor?: Color;
   triggerRowSelection: boolean;
   isHeaderVisible?: boolean;
+  borderRadius: string;
+  boxShadow?: string;
 }>`
   width: 100%;
   height: 100%;
   background: white;
-  border: 1px solid ${Colors.GEYSER_LIGHT};
+  border: ${({ boxShadow }) =>
+    boxShadow === "none" ? `1px solid ${Colors.GEYSER_LIGHT}` : `none`};
+  border-radius: ${({ borderRadius }) => borderRadius};
+  box-shadow: ${({ boxShadow }) => `${boxShadow}`} !important;
   box-sizing: border-box;
   display: flex;
   justify-content: space-between;
@@ -25,7 +37,7 @@ export const TableWrapper = styled.div<{
     height: 100%;
     display: block;
     position: relative;
-    width: ${(props) => props.width - 8}px;
+    width: ${(props) => props.width}px;
     overflow-x: auto;
     ${hideScrollbar};
     .thumb-horizontal {
@@ -61,13 +73,12 @@ export const TableWrapper = styled.div<{
       cursor: ${(props) => props.triggerRowSelection && "pointer"};
       background: ${Colors.WHITE};
       &.selected-row {
-        background: ${Colors.OPAQ_BLUE}!important;
-        &:hover {
-          background: ${Colors.OPAQ_BLUE};
-        }
+        background: ${({ accentColor }) =>
+          `${lightenColor(accentColor)}`} !important;
       }
       &:hover {
-        background: ${Colors.ATHENS_GRAY};
+        background: ${({ accentColor }) =>
+          `${lightenColor(accentColor)}`} !important;
       }
     }
     .th,
@@ -121,6 +132,11 @@ export const TableWrapper = styled.div<{
       z-index: 1;
     }
   }
+
+  .tbody .tr:last-child .td {
+    border-bottom: none;
+  }
+
   .draggable-header,
   .hidden-header {
     width: 100%;
@@ -137,7 +153,7 @@ export const TableWrapper = styled.div<{
     cursor: pointer;
     display: inline-block;
     width: 100%;
-    height: 38px;
+    height: 32px;
     &.reorder-line {
       width: 1px;
       height: 100%;
@@ -228,6 +244,8 @@ export const PaginationWrapper = styled.div`
 export const PaginationItemWrapper = styled.div<{
   disabled?: boolean;
   selected?: boolean;
+  borderRadius: string;
+  accentColor: string;
 }>`
   background: ${(props) => (props.disabled ? Colors.MERCURY : Colors.WHITE)};
   border: 1px solid ${Colors.ALTO2};
@@ -240,8 +258,12 @@ export const PaginationItemWrapper = styled.div<{
   margin: 0 4px;
   pointer-events: ${(props) => props.disabled && "none"};
   cursor: pointer;
+  border-radius: ${({ borderRadius }) => borderRadius};
   &:hover {
-    border-color: ${Colors.GREEN};
+    border-color: ${({ accentColor }) => accentColor};
+  }
+  .bp3-icon svg {
+    fill: ${(props) => (props.disabled ? Colors.GREY_8 : "")};
   }
 `;
 
@@ -262,26 +284,26 @@ export const MenuColumnWrapper = styled.div<{ selected: boolean }>`
   }
 `;
 
-export const ActionWrapper = styled.div<{
-  background: string;
-  buttonLabelColor: string;
-}>`
+export const ActionWrapper = styled.div<{ disabled: boolean }>`
   margin: 0 5px 0 0;
+  ${(props) => (props.disabled ? "cursor: not-allowed;" : null)}
   &&&&&& {
     .bp3-button {
-      background: ${(props) => props.background};
-      color: ${(props) => props.buttonLabelColor};
-      border: none;
+      min-width: 50px;
     }
     .bp3-button span {
-      font-weight: 400;
+      font-weight: 500;
       text-decoration: none;
     }
     &&& .bp3-disabled {
-      color: ${Colors.SLATE_GRAY};
-      background: ${Colors.MERCURY};
+      background: ${Colors.GREY_1};
+      color: ${Colors.GREY_8};
     }
   }
+`;
+
+export const IconButtonWrapper = styled.div<{ disabled: boolean }>`
+  ${(props) => (props.disabled ? "cursor: not-allowed;" : null)}
 `;
 
 const JUSTIFY_CONTENT = {
@@ -341,7 +363,7 @@ export const TableStyles = css<{
   background: ${(props) => props?.cellProperties?.cellBackground};
   font-size: ${(props) =>
     props?.cellProperties?.textSize &&
-    TEXT_SIZES[props?.cellProperties?.textSize]};
+    fontSizeUtility(props?.cellProperties?.textSize)};
 `;
 
 export const DraggableHeaderWrapper = styled.div<{
@@ -353,25 +375,31 @@ export const DraggableHeaderWrapper = styled.div<{
 
 export const CellWrapper = styled.div<{
   isHidden?: boolean;
+  isPadding?: boolean;
   cellProperties?: CellLayoutProperties;
   isHyperLink?: boolean;
   useLinkToolTip?: boolean;
   isCellVisible?: boolean;
   isTextType?: boolean;
+  lineHeight?: number;
 }>`
   display: ${(props) => (props.isCellVisible !== false ? "flex" : "none")};
-
-  align-items: center;
+  align-items: ${(props) => (props.isPadding ? "center" : "flex-start")};
   justify-content: flex-start;
-  width: 100%;
+  width: ${(props) => (props.isPadding ? "100%" : "calc(100% - 10px)")};
   height: 100%;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
   opacity: ${(props) => (props.isHidden ? "0.6" : "1")};
   ${TableStyles};
-  padding: 0 10px;
+  padding: ${(props) => (props.isPadding ? "0 10px" : " 0px")};
   line-height: 28px;
+  .${Classes.POPOVER_WRAPPER}, > span > span > span {
+    width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
   .image-cell-wrapper {
     width: 100%;
     height: 100%;
@@ -398,7 +426,7 @@ export const CellWrapper = styled.div<{
     `
     cursor: pointer;
     &:hover {
-      color: ${Colors.ROYAL_BLUE};      
+      color: ${Colors.ROYAL_BLUE};
       text-decoration: underline;
     }`};
   &.video-cell {
@@ -422,48 +450,53 @@ export const CellWrapper = styled.div<{
   }
   &:hover {
     .hidden-icon {
-      display: inline;
+      display: flex;
     }
   }
 `;
 
-export const CellCheckboxWrapper = styled(CellWrapper)<{ isChecked?: boolean }>`
-  justify-content: center;
-  width: 40px;
-  background: ${Colors.WHITE};
-  & > div {
-    background: ${(props) => (props.isChecked ? Colors.DANUBE : "")};
+export const CellCheckboxWrapper = styled(CellWrapper)<{
+  isChecked?: boolean;
+  accentColor: string;
+  borderRadius: string;
+}>`
+  &&& {
+    justify-content: center;
+    width: 40px;
+    padding: 0px;
+    align-items: center;
   }
+  & > div {
+    border-radius: ${({ borderRadius }) => borderRadius};
 
-  ${(props) =>
-    props.isChecked
-      ? `
-    background: #FAFAFA;
-    &:hover {
-      background: ${Colors.OPAQ_BLUE};
-    }
-    `
-      : `
-    &:hover {
-      & > div {
-        background: ${Colors.Gallery};
-      }
-    }
-  `}
+    ${(props) =>
+      props.isChecked
+        ? `
+          background: ${props.accentColor};
+          &:hover {
+            background: ${darkenColor(props.accentColor)};
+          }
+            `
+        : `
+          border: 1px solid ${Colors.GREY_3};
+          &:hover {
+            border: 1px solid ${Colors.GREY_5};
+          }
+        `};
+  }
 `;
 
 export const CellCheckbox = styled.div`
-  height: 15px;
-  width: 15px;
-  border: 0.5px solid ${Colors.GEYSER_LIGHT};
+  height: 14px;
+  width: 14px;
+  background: ${Colors.WHITE};
+  cursor: pointer;
   position: relative;
   .th-svg {
     display: block;
     position: absolute;
-    left: -1px;
-    top: -1px;
-    height: 15px;
-    width: 15px;
+    left: 2px;
+    top: 2px;
   }
 `;
 
@@ -546,12 +579,6 @@ export const TableIconWrapper = styled.div<{
   }
 `;
 
-export const SortIconWrapper = styled.div`
-  display: inline-block;
-  height: 32px;
-  line-height: 32px;
-`;
-
 export const RenderOptionWrapper = styled.div<{ selected: boolean }>`
   display: flex;
   justify-content: space-between;
@@ -559,7 +586,7 @@ export const RenderOptionWrapper = styled.div<{ selected: boolean }>`
   width: 150px;
   position: relative;
   .title {
-    color: ${(props) => (props.selected ? Colors.WHITE : Colors.OXFORD_BLUE)};
+    color: ${Colors.GREY_10};
     width: 120px;
     white-space: nowrap;
     overflow: hidden;
@@ -569,7 +596,7 @@ export const RenderOptionWrapper = styled.div<{ selected: boolean }>`
     position: absolute;
     left: 135px;
     font-size: 12px !important;
-    color: ${(props) => (props.selected ? Colors.WHITE : Colors.BLUE_BAYOUX)};
+    color: ${Colors.GREY_10};
   }
 `;
 
@@ -583,4 +610,10 @@ export const MenuCategoryWrapper = styled.div`
 
 export const MenuStyledOptionHeader = styled.div`
   font-weight: 600;
+`;
+
+export const ColumnWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  height: 100%;
 `;

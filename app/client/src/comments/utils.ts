@@ -1,11 +1,10 @@
 import { CommentThread } from "entities/Comments/CommentsInterfaces";
-import {
-  BUILDER_PAGE_URL,
-  getApplicationViewerPageURL,
-} from "constants/routes";
+import { GIT_BRANCH_QUERY_KEY } from "constants/routes";
 import { APP_MODE } from "entities/App";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import WidgetFactory from "utils/WidgetFactory";
+import { builderURL, viewerURL } from "RouteBuilder";
+import { useHref } from "pages/Editor/utils";
 const WidgetTypes = WidgetFactory.widgetTypes;
 
 // used for dev
@@ -115,17 +114,17 @@ export const getOffsetPos = (
   return getRelativePos(clickPosition, boundingClientRect);
 };
 
-export const getCommentThreadURL = ({
-  applicationId,
+export const useCommentThreadURL = ({
+  branch,
   commentThreadId,
   isResolved,
   pageId,
   mode = APP_MODE.PUBLISHED,
 }: {
-  applicationId?: string;
+  branch?: string;
   commentThreadId: string;
   isResolved?: boolean;
-  pageId?: string;
+  pageId: string;
   mode?: APP_MODE;
 }) => {
   const queryParams: Record<string, any> = {
@@ -137,18 +136,18 @@ export const getCommentThreadURL = ({
     queryParams.isResolved = true;
   }
 
-  const urlBuilder =
-    mode === APP_MODE.PUBLISHED
-      ? getApplicationViewerPageURL
-      : BUILDER_PAGE_URL;
+  if (branch) {
+    queryParams[GIT_BRANCH_QUERY_KEY] = branch;
+  }
 
-  const url = new URL(
-    `${window.location.origin}${urlBuilder(
-      applicationId,
-      pageId,
-      queryParams,
-    )}`,
-  );
+  const urlBuilder = mode === APP_MODE.PUBLISHED ? viewerURL : builderURL;
+
+  const pathname = useHref(urlBuilder, {
+    pageId,
+    params: queryParams,
+  });
+
+  const url = new URL(`${window.location.origin}${pathname}`);
 
   return url;
 };
@@ -159,8 +158,8 @@ export const getCommentThreadURL = ({
  * can change dynamically
  */
 export const getPosition = (props: {
-  top: number;
-  left: number;
+  top?: number;
+  left?: number;
   leftPercent: number;
   topPercent: number;
   positionAbsolutely: boolean;
@@ -170,10 +169,12 @@ export const getPosition = (props: {
 }) => {
   const xOffset = props.xOffset || props.offset || 0;
   const yOffset = props.yOffset || props.offset || 0;
+  const top = props.top || 0;
+  const left = props.left || 0;
   if (props.positionAbsolutely) {
     return `
-      top: ${props.top - 29}px;
-      left: ${props.left - 29}px;
+      top: ${top - 29}px;
+      left: ${left - 29}px;
     `;
   } else {
     // The folling syntax is supported: bottom: calc(50% + -6px);

@@ -2,8 +2,8 @@ import {
   createMessage,
   GIT_CONNECTION,
   DEPLOY,
-  // MERGE,
-} from "constants/messages";
+  MERGE,
+} from "@appsmith/constants/messages";
 
 export enum MENU_ITEM {
   GIT_CONNECTION = "GIT_CONNECTION",
@@ -17,7 +17,7 @@ export const MENU_ITEMS_MAP = {
     title: createMessage(GIT_CONNECTION),
   },
   [MENU_ITEM.DEPLOY]: { key: MENU_ITEM.DEPLOY, title: createMessage(DEPLOY) },
-  // [MENU_ITEM.MERGE]: { key: MENU_ITEM.MERGE, title: createMessage(MERGE) },
+  [MENU_ITEM.MERGE]: { key: MENU_ITEM.MERGE, title: createMessage(MERGE) },
   // Hide Merge Tab till basic functionality is not ready
 };
 
@@ -32,7 +32,17 @@ export const AUTH_TYPE_OPTIONS = [
 ];
 export const Classes = {
   GIT_SYNC_MODAL: "git-sync-modal",
+  DISCONNECT_GIT_MODAL: "disconnect-git-modal",
   OPTION_SELECTOR_WRAPPER: "option-wrapper",
+  MERGE_DROPDOWN: "merge-dropdown",
+  GIT_IMPORT_MODAL: "git-import-modal",
+  RECONNECT_DATASOURCE_MODAL: "reconnect-datasource-modal",
 };
 
 export const DEFAULT_REMOTE = "origin";
+export const MENU_HEIGHT = 46;
+
+export enum CREDENTIAL_MODE {
+  MANUALLY = "MANUALLY",
+  IMPORT_JSON = "IMPORT_JSON",
+}

@@ -1,4 +1,7 @@
-import { ReduxActionTypes, ReduxAction } from "constants/ReduxActionConstants";
+import {
+  ReduxActionTypes,
+  ReduxAction,
+} from "@appsmith/constants/ReduxActionConstants";
 import {
   all,
   call,
@@ -14,16 +17,29 @@ import {
   setRecentEntities,
 } from "actions/globalSearchActions";
 import { AppState } from "reducers";
-import { getIsEditorInitialized } from "selectors/editorSelectors";
+import {
+  getCurrentApplicationId,
+  getIsEditorInitialized,
+} from "selectors/editorSelectors";
 import { RecentEntity } from "components/editorComponents/GlobalSearch/utils";
 import log from "loglevel";
+import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
 
-export function* updateRecentEntity(actionPayload: ReduxAction<RecentEntity>) {
+const getRecentEntitiesKey = (applicationId: string, branch?: string) =>
+  branch ? `${applicationId}-${branch}` : applicationId;
+
+export function* updateRecentEntitySaga(
+  actionPayload: ReduxAction<RecentEntity>,
+) {
   try {
-    const recentEntitiesRestored = yield select(
+    const branch: string | undefined = yield select(getCurrentGitBranch);
+
+    const applicationId: string = yield select(getCurrentApplicationId);
+
+    const recentEntitiesRestored: boolean = yield select(
       (state: AppState) => state.ui.globalSearch.recentEntitiesRestored,
     );
-    const isEditorInitialised = yield select(getIsEditorInitialized);
+    const isEditorInitialised: boolean = yield select(getIsEditorInitialized);
 
     const waitForEffects = [];
 
@@ -40,7 +56,7 @@ export function* updateRecentEntity(actionPayload: ReduxAction<RecentEntity>) {
     yield all(waitForEffects);
 
     const { payload: entity } = actionPayload;
-    let recentEntities = yield select(
+    let recentEntities: RecentEntity[] = yield select(
       (state: AppState) => state.ui.globalSearch.recentEntities,
     );
 
@@ -54,11 +70,11 @@ export function* updateRecentEntity(actionPayload: ReduxAction<RecentEntity>) {
     recentEntities = recentEntities.slice(0, 6);
 
     yield put(setRecentEntities(recentEntities));
-    if (entity?.params?.applicationId) {
+    if (applicationId) {
       yield call(
         setRecentAppEntities,
         recentEntities,
-        entity?.params?.applicationId,
+        getRecentEntitiesKey(applicationId, branch),
       );
     }
   } catch (e) {
@@ -66,16 +82,23 @@ export function* updateRecentEntity(actionPayload: ReduxAction<RecentEntity>) {
   }
 }
 
-export function* restoreRecentEntities(actionPayload: ReduxAction<string>) {
-  const { payload: appId } = actionPayload;
-  const recentAppEntities = yield call(fetchRecentAppEntities, appId);
+export function* restoreRecentEntities(
+  actionPayload: ReduxAction<{ applicationId: string; branch?: string }>,
+) {
+  const {
+    payload: { applicationId, branch },
+  } = actionPayload;
+  const recentAppEntities: RecentEntity[] = yield call(
+    fetchRecentAppEntities,
+    getRecentEntitiesKey(applicationId, branch),
+  );
   yield putResolve(setRecentEntities(recentAppEntities));
   yield put(restoreRecentEntitiesSuccess());
 }
 
 export default function* globalSearchSagas() {
   yield all([
-    takeLatest(ReduxActionTypes.UPDATE_RECENT_ENTITY, updateRecentEntity),
+    takeLatest(ReduxActionTypes.UPDATE_RECENT_ENTITY, updateRecentEntitySaga),
     takeLatest(
       ReduxActionTypes.RESTORE_RECENT_ENTITIES_REQUEST,
       restoreRecentEntities,

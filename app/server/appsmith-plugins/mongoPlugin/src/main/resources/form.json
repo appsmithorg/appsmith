@@ -179,7 +179,7 @@
               "controlType": "INPUT_TEXT",
               "placeholderText": "Password",
               "encrypted": true
-              }
+            }
           ]
         }
       ]

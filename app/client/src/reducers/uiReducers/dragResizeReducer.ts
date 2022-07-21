@@ -1,5 +1,8 @@
 import { createImmerReducer } from "utils/AppsmithUtils";
-import { ReduxAction, ReduxActionTypes } from "constants/ReduxActionConstants";
+import {
+  ReduxAction,
+  ReduxActionTypes,
+} from "@appsmith/constants/ReduxActionConstants";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 
 const initialState: WidgetDragResizeState = {

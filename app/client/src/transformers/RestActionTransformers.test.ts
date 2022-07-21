@@ -1,6 +1,10 @@
 import { transformRestAction } from "transformers/RestActionTransformer";
 import { PluginType, ApiAction } from "entities/Action";
-import { POST_BODY_FORMAT_OPTIONS } from "constants/ApiEditorConstants";
+import {
+  MultiPartOptionTypes,
+  POST_BODY_FORMAT_OPTIONS,
+  // POST_BODY_FORMAT_OPTIONS_ENUM,
+} from "constants/ApiEditorConstants";
 
 // jest.mock("POST_");
 
@@ -10,7 +14,7 @@ const BASE_ACTION: ApiAction = {
   executeOnLoad: false,
   invalids: [],
   isValid: false,
-  organizationId: "",
+  workspaceId: "",
   pageId: "",
   pluginId: "",
   id: "testId",
@@ -24,9 +28,13 @@ const BASE_ACTION: ApiAction = {
     encodeParamsToggle: true,
     path: "users",
     headers: [],
+    formData: {
+      apiContentType: "none",
+    },
     timeoutInMillisecond: 5000,
   },
   jsonPathKeys: [],
+  messages: [],
 };
 
 describe("Api action transformer", () => {
@@ -135,7 +143,10 @@ describe("Api action transformer", () => {
         ...BASE_ACTION.actionConfiguration,
         httpMethod: "POST",
         headers: [
-          { key: "content-type", value: POST_BODY_FORMAT_OPTIONS[1].value },
+          {
+            key: "content-type",
+            value: POST_BODY_FORMAT_OPTIONS.FORM_URLENCODED,
+          },
         ],
         bodyFormData: [
           {
@@ -156,7 +167,10 @@ describe("Api action transformer", () => {
         ...BASE_ACTION.actionConfiguration,
         httpMethod: "POST",
         headers: [
-          { key: "content-type", value: POST_BODY_FORMAT_OPTIONS[1].value },
+          {
+            key: "content-type",
+            value: POST_BODY_FORMAT_OPTIONS.FORM_URLENCODED,
+          },
         ],
         body: "{ name: 'test' }",
         bodyFormData: [
@@ -182,7 +196,10 @@ describe("Api action transformer", () => {
         ...BASE_ACTION.actionConfiguration,
         httpMethod: "POST",
         headers: [
-          { key: "content-type", value: POST_BODY_FORMAT_OPTIONS[1].value },
+          {
+            key: "content-type",
+            value: POST_BODY_FORMAT_OPTIONS.FORM_URLENCODED,
+          },
         ],
         bodyFormData: [
           {
@@ -202,7 +219,10 @@ describe("Api action transformer", () => {
         ...BASE_ACTION.actionConfiguration,
         httpMethod: "POST",
         headers: [
-          { key: "content-type", value: POST_BODY_FORMAT_OPTIONS[1].value },
+          {
+            key: "content-type",
+            value: POST_BODY_FORMAT_OPTIONS.FORM_URLENCODED,
+          },
         ],
         body: "",
         bodyFormData: [
@@ -238,6 +258,70 @@ describe("Api action transformer", () => {
         headers: [{ key: "content-type", value: "text/html" }],
         httpMethod: "POST",
         body: "raw body",
+      },
+    };
+    const result = transformRestAction(input);
+    expect(result).toEqual(output);
+  });
+
+  it("filters empty pairs from form data", () => {
+    const input: ApiAction = {
+      ...BASE_ACTION,
+      actionConfiguration: {
+        ...BASE_ACTION.actionConfiguration,
+        httpMethod: "POST",
+        headers: [
+          {
+            key: "content-type",
+            value: POST_BODY_FORMAT_OPTIONS.MULTIPART_FORM_DATA,
+          },
+        ],
+        body: "",
+        bodyFormData: [
+          {
+            key: "hey",
+            value: "ho",
+            type: MultiPartOptionTypes.TEXT,
+            editable: true,
+            mandatory: false,
+            description: "I been tryin to do it right",
+          },
+          {
+            key: "",
+            value: "",
+            editable: true,
+            mandatory: false,
+            description: "I been tryin to do it right",
+            type: "",
+          },
+        ],
+      },
+    };
+
+    // output object should not include the second bodyFormData object
+    // as its key, value and type are empty
+    const output: ApiAction = {
+      ...BASE_ACTION,
+      actionConfiguration: {
+        ...BASE_ACTION.actionConfiguration,
+        httpMethod: "POST",
+        headers: [
+          {
+            key: "content-type",
+            value: POST_BODY_FORMAT_OPTIONS.MULTIPART_FORM_DATA,
+          },
+        ],
+        body: "",
+        bodyFormData: [
+          {
+            key: "hey",
+            value: "ho",
+            type: MultiPartOptionTypes.TEXT,
+            editable: true,
+            mandatory: false,
+            description: "I been tryin to do it right",
+          },
+        ],
       },
     };
     const result = transformRestAction(input);

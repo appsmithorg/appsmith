@@ -1,0 +1,77 @@
+{
+  "dsl": {
+    "widgetName": "MainContainer",
+    "backgroundColor": "none",
+    "rightColumn": 909,
+    "snapColumns": 64,
+    "detachFromLayout": true,
+    "widgetId": "0",
+    "topRow": 0,
+    "bottomRow": 710,
+    "containerStyle": "none",
+    "snapRows": 125,
+    "parentRowSpace": 1,
+    "type": "CANVAS_WIDGET",
+    "canExtend": true,
+    "version": 53,
+    "minHeight": 690,
+    "parentColumnSpace": 1,
+    "dynamicBindingPathList": [],
+    "leftColumn": 0,
+    "children": [
+      {
+        "isCompact": false,
+        "widgetName": "MenuButton1",
+        "displayName": "Menu Button",
+        "iconSVG": "/static/media/icon.0341d17d.svg",
+        "topRow": 5,
+        "bottomRow": 9,
+        "parentRowSpace": 10,
+        "type": "MENU_BUTTON_WIDGET",
+        "hideCard": false,
+        "animateLoading": true,
+        "parentColumnSpace": 14.015625,
+        "leftColumn": 3,
+        "isDisabled": false,
+        "key": "ngk48zgyuy",
+        "rightColumn": 19,
+        "menuVariant": "PRIMARY",
+        "widgetId": "z2o5n9g9yw",
+        "menuItems": {
+          "menuItem1": {
+            "label": "First Menu Item",
+            "id": "menuItem1",
+            "widgetId": "",
+            "isVisible": true,
+            "isDisabled": false,
+            "index": 0
+          },
+          "menuItem2": {
+            "label": "Second Menu Item",
+            "id": "menuItem2",
+            "widgetId": "",
+            "isVisible": true,
+            "isDisabled": false,
+            "index": 1
+          },
+          "menuItem3": {
+            "label": "Third Menu Item",
+            "id": "menuItem3",
+            "widgetId": "",
+            "isVisible": true,
+            "isDisabled": false,
+            "index": 2
+          }
+        },
+        "isVisible": true,
+        "label": "Open Menu",
+        "version": 1,
+        "parentId": "0",
+        "renderMode": "CANVAS",
+        "isLoading": false,
+        "menuColor": "#03B365",
+        "placement": "CENTER"
+      }
+    ]
+  }
+}

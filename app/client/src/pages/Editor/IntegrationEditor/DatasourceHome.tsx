@@ -9,11 +9,11 @@ import { createDatasourceFromForm } from "actions/datasourceActions";
 import { AppState } from "reducers";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getCurrentApplication } from "selectors/applicationSelectors";
-import { CurrentApplicationData } from "constants/ReduxActionConstants";
+import { ApplicationPayload } from "@appsmith/constants/ReduxActionConstants";
 import { Colors } from "constants/Colors";
 import { getQueryParams } from "utils/AppsmithUtils";
-import { getGenerateCRUDEnabledPluginMap } from "../../../selectors/entitiesSelector";
-import { GenerateCRUDEnabledPluginMap } from "../../../api/PluginApi";
+import { getGenerateCRUDEnabledPluginMap } from "selectors/entitiesSelector";
+import { GenerateCRUDEnabledPluginMap } from "api/PluginApi";
 import { getIsGeneratePageInitiator } from "utils/GenerateCrudUtil";
 
 // This function remove the given key from queryParams and return string
@@ -34,21 +34,18 @@ const removeQueryParams = (paramKeysToRemove: Array<string>) => {
 };
 
 const DatasourceHomePage = styled.div`
-  max-height: 95vh;
   .textBtn {
     justify-content: center;
     text-align: center;
-    color: #2e3d49;
-    font-weight: 500;
+    color: ${Colors.BLACK};
+    font-weight: 400;
     text-decoration: none !important;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-
-    font-weight: 500;
     font-size: 16px;
     line-height: 24px;
-    letter-spacing: -0.17px;
+    letter-spacing: -0.24px;
     margin: 0;
   }
 `;
@@ -69,20 +66,17 @@ const DatasourceCard = styled.div`
   justify-content: space-between;
   height: 64px;
   &:hover {
-    background: ${Colors.Gallery};
+    background: ${Colors.GREY_1};
     cursor: pointer;
   }
 
   .dataSourceImageWrapper {
-    width: 40px;
-    height: 40px;
-    padding: 6px 0;
-    border-radius: 20px;
-    margin: 0 8px;
-    background: #f0f0f0;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: ${Colors.GREY_2};
     display: flex;
     align-items: center;
-
     .dataSourceImage {
       height: 28px;
       width: auto;
@@ -106,11 +100,12 @@ const DatasourceCard = styled.div`
 const DatasourceContentWrapper = styled.div`
   display: flex;
   align-items: center;
+  gap: 13px;
+  padding-left: 13.5px;
 `;
 
 interface DatasourceHomeScreenProps {
   pageId: string;
-  applicationId: string;
   location: {
     search: string;
   };
@@ -128,7 +123,7 @@ interface ReduxDispatchProps {
 
 interface ReduxStateProps {
   plugins: Plugin[];
-  currentApplication?: CurrentApplicationData;
+  currentApplication?: ApplicationPayload;
   pluginImages: Record<string, string>;
   isSaving: boolean;
   generateCRUDSupportedPlugin: GenerateCRUDEnabledPluginMap;
@@ -191,11 +186,11 @@ class DatasourceHomeScreen extends React.Component<Props> {
 
     return (
       <DatasourceHomePage>
-        <DatasourceCardsContainer>
+        <DatasourceCardsContainer data-testid="database-datasource-card-container">
           {plugins.map((plugin, idx) => {
             return (
               <DatasourceCard
-                className="eachDatasourceCard"
+                data-testid="database-datasource-card"
                 key={`${plugin.id}_${idx}`}
                 onClick={() => {
                   AnalyticsUtil.logEvent("CREATE_DATA_SOURCE_CLICK", {
@@ -208,11 +203,12 @@ class DatasourceHomeScreen extends React.Component<Props> {
                   });
                 }}
               >
-                <DatasourceContentWrapper>
+                <DatasourceContentWrapper data-testid="database-datasource-content-wrapper">
                   <div className="dataSourceImageWrapper">
                     <img
                       alt="Datasource"
                       className="dataSourceImage"
+                      data-testid="database-datasource-image"
                       src={pluginImages[plugin.id]}
                     />
                   </div>

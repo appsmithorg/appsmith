@@ -12,6 +12,7 @@ import { getWidgets, getWidgetsMeta } from "sagas/selectors";
 import "url-search-params-polyfill";
 import { getPageList } from "./appViewSelectors";
 import { AppState } from "reducers";
+import { getSelectedAppThemeProperties } from "./appThemingSelectors";
 
 export const getUnevaluatedDataTree = createSelector(
   getActionsForCurrentPage,
@@ -22,6 +23,7 @@ export const getUnevaluatedDataTree = createSelector(
   getAppData,
   getPluginEditorConfigs,
   getPluginDependencyConfig,
+  getSelectedAppThemeProperties,
   (
     actions,
     jsActions,
@@ -31,6 +33,7 @@ export const getUnevaluatedDataTree = createSelector(
     appData,
     editorConfigs,
     pluginDependencyConfig,
+    selectedAppThemeProperty,
   ) => {
     const pageList = pageListPayload || [];
     return DataTreeFactory.create({
@@ -42,6 +45,7 @@ export const getUnevaluatedDataTree = createSelector(
       appData,
       editorConfigs,
       pluginDependencyConfig,
+      theme: selectedAppThemeProperty,
     });
   },
 );

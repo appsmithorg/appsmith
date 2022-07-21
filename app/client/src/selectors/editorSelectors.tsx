@@ -2,14 +2,14 @@ import { createSelector } from "reselect";
 
 import { AppState } from "reducers";
 import { WidgetConfigReducerState } from "reducers/entityReducers/widgetConfigReducer";
-import { WidgetProps } from "widgets/BaseWidget";
+import { WidgetCardProps, WidgetProps } from "widgets/BaseWidget";
 import {
   CanvasWidgetsReduxState,
   FlattenedWidgetProps,
 } from "reducers/entityReducers/canvasWidgetsReducer";
 import { PageListReduxState } from "reducers/entityReducers/pageListReducer";
 
-import { OccupiedSpace } from "constants/editorConstants";
+import { OccupiedSpace, WidgetSpace } from "constants/CanvasEditorConstants";
 import {
   getActions,
   getCanvasWidgets,
@@ -31,8 +31,13 @@ import { find, pick, sortBy } from "lodash";
 import WidgetFactory from "utils/WidgetFactory";
 import { APP_MODE } from "entities/App";
 import { getDataTree, getLoadingEntities } from "selectors/dataTreeSelectors";
+import { Page } from "@appsmith/constants/ReduxActionConstants";
+import { PLACEHOLDER_APP_SLUG, PLACEHOLDER_PAGE_SLUG } from "constants/routes";
+import { ApplicationVersion } from "actions/applicationActions";
+import { MainCanvasReduxState } from "reducers/uiReducers/mainCanvasReducer";
 
-const getWidgetConfigs = (state: AppState) => state.entities.widgetConfig;
+export const getWidgetConfigs = (state: AppState) =>
+  state.entities.widgetConfig;
 const getPageListState = (state: AppState) => state.entities.pageList;
 
 export const getProviderCategories = (state: AppState) =>
@@ -59,6 +64,7 @@ export const getIsPageSaving = (state: AppState) => {
 
   const savingApis = state.ui.apiPane.isSaving;
   const savingJSObjects = state.ui.jsPane.isSaving;
+  const isSavingAppTheme = state.ui.appTheming.isSaving;
 
   Object.keys(savingApis).forEach((apiId) => {
     areApisSaving = savingApis[apiId] || areApisSaving;
@@ -69,7 +75,11 @@ export const getIsPageSaving = (state: AppState) => {
   });
 
   return (
-    state.ui.editor.loadingStates.saving || areApisSaving || areJsObjectsSaving
+    state.ui.editor.loadingStates.saving ||
+    areApisSaving ||
+    areJsObjectsSaving ||
+    isSavingAppTheme ||
+    state.ui.editor.loadingStates.savingEntity
   );
 };
 
@@ -94,11 +104,61 @@ export const getCurrentLayoutId = (state: AppState) =>
 
 export const getPageList = (state: AppState) => state.entities.pageList.pages;
 
+export const getPageById = (pageId: string) =>
+  createSelector(getPageList, (pages: Page[]) =>
+    pages.find((page) => page.pageId === pageId),
+  );
+
 export const getCurrentPageId = (state: AppState) =>
   state.entities.pageList.currentPageId;
 
+export const selectCurrentPageSlug = createSelector(
+  getCurrentPageId,
+  getPageList,
+  (pageId, pages) =>
+    pages.find((page) => page.pageId === pageId)?.slug || PLACEHOLDER_PAGE_SLUG,
+);
+
+export const selectPageSlugToIdMap = createSelector(getPageList, (pages) =>
+  pages.reduce((acc, page: Page) => {
+    // Comeback
+    acc[page.pageId] = page.slug || "";
+    return acc;
+  }, {} as Record<string, string>),
+);
+
+export const getCurrentApplication = (state: AppState) =>
+  state.ui.applications.currentApplication;
+
 export const getCurrentApplicationId = (state: AppState) =>
-  state.entities.pageList.applicationId;
+  state.entities.pageList.applicationId ||
+  ""; /** this is set during init can assume it to be defined */
+
+export const selectCurrentApplicationSlug = (state: AppState) =>
+  state.ui.applications.currentApplication?.slug || PLACEHOLDER_APP_SLUG;
+
+export const selectApplicationVersion = (state: AppState) =>
+  state.ui.applications.currentApplication?.applicationVersion ||
+  ApplicationVersion.DEFAULT;
+
+export const selectPageSlugById = (pageId: string) =>
+  createSelector(getPageList, (pages) => {
+    const page = pages.find((page) => page.pageId === pageId);
+    return page?.slug || PLACEHOLDER_PAGE_SLUG;
+  });
+
+export const selectURLSlugs = createSelector(
+  getCurrentApplication,
+  getPageList,
+  getCurrentPageId,
+  (application, pages, pageId) => {
+    const applicationSlug = application?.slug || PLACEHOLDER_APP_SLUG;
+    const currentPage = pages.find((page) => page.pageId === pageId);
+    const pageSlug = currentPage?.slug || PLACEHOLDER_PAGE_SLUG;
+    const customSlug = currentPage?.customSlug;
+    return { applicationSlug, pageSlug, customSlug };
+  },
+);
 
 export const getRenderMode = (state: AppState) =>
   state.entities.app.mode === APP_MODE.EDIT
@@ -128,8 +188,9 @@ export const getViewModePageList = createSelector(
 export const getCurrentApplicationLayout = (state: AppState) =>
   state.ui.applications.currentApplication?.appLayout;
 
-export const getCanvasWidth = (state: AppState) =>
-  state.entities.canvasWidgets[MAIN_CONTAINER_WIDGET_ID].rightColumn;
+export const getCanvasWidth = (state: AppState) => state.ui.mainCanvas.width;
+
+export const getMainCanvasProps = (state: AppState) => state.ui.mainCanvas;
 
 export const getCurrentPageName = createSelector(
   getPageListState,
@@ -145,7 +206,7 @@ export const getWidgetCards = createSelector(
       (config) => !config.hideCard,
     );
 
-    const _cards = cards.map((config) => {
+    const _cards: WidgetCardProps[] = cards.map((config) => {
       const {
         columns,
         detachFromLayout = false,
@@ -153,6 +214,7 @@ export const getWidgetCards = createSelector(
         iconSVG,
         key,
         rows,
+        searchTags,
         type,
       } = config;
       return {
@@ -163,6 +225,7 @@ export const getWidgetCards = createSelector(
         detachFromLayout,
         displayName,
         icon: iconSVG,
+        searchTags,
       };
     });
     const sortedCards = sortBy(_cards, ["displayName"]);
@@ -173,8 +236,14 @@ export const getWidgetCards = createSelector(
 const getMainContainer = (
   canvasWidgets: CanvasWidgetsReduxState,
   evaluatedDataTree: DataTree,
+  mainCanvasProps: MainCanvasReduxState,
 ) => {
-  const canvasWidget = canvasWidgets[MAIN_CONTAINER_WIDGET_ID];
+  const canvasWidget = {
+    ...canvasWidgets[MAIN_CONTAINER_WIDGET_ID],
+    rightColumn: mainCanvasProps.width,
+    minHeight: mainCanvasProps.height,
+  };
+  //TODO: Need to verify why `evaluatedDataTree` is required here.
   const evaluatedWidget = find(evaluatedDataTree, {
     widgetId: MAIN_CONTAINER_WIDGET_ID,
   }) as DataTreeWidget;
@@ -185,15 +254,18 @@ export const getCanvasWidgetDsl = createSelector(
   getCanvasWidgets,
   getDataTree,
   getLoadingEntities,
+  getMainCanvasProps,
   (
     canvasWidgets: CanvasWidgetsReduxState,
     evaluatedDataTree,
     loadingEntities,
+    mainCanvasProps,
   ): ContainerWidgetProps<WidgetProps> => {
     const widgets: Record<string, DataTreeWidget> = {
       [MAIN_CONTAINER_WIDGET_ID]: getMainContainer(
         canvasWidgets,
         evaluatedDataTree,
+        mainCanvasProps,
       ),
     };
     Object.keys(canvasWidgets)
@@ -234,6 +306,24 @@ const getOccupiedSpacesForContainer = (
       top: widget.topRow,
       bottom: widget.bottomRow,
       right: widget.rightColumn,
+    };
+    return occupiedSpace;
+  });
+};
+
+const getWidgetSpacesForContainer = (
+  containerWidgetId: string,
+  widgets: FlattenedWidgetProps[],
+): WidgetSpace[] => {
+  return widgets.map((widget) => {
+    const occupiedSpace: WidgetSpace = {
+      id: widget.widgetId,
+      parentId: containerWidgetId,
+      left: widget.leftColumn,
+      top: widget.topRow,
+      bottom: widget.bottomRow,
+      right: widget.rightColumn,
+      type: widget.type,
     };
     return occupiedSpace;
   });
@@ -305,6 +395,35 @@ export function getOccupiedSpacesSelectorForContainer(
   });
 }
 
+// same as getOccupiedSpaces but gets only the container specific occupied Spaces
+export function getWidgetSpacesSelectorForContainer(
+  containerId: string | undefined,
+) {
+  return createSelector(getWidgets, (widgets: CanvasWidgetsReduxState):
+    | WidgetSpace[]
+    | undefined => {
+    if (containerId === null || containerId === undefined) return undefined;
+
+    const containerWidget: FlattenedWidgetProps = widgets[containerId];
+
+    if (!containerWidget || !containerWidget.children) return undefined;
+
+    // Get child widgets for the container
+    const childWidgets = Object.keys(widgets).filter(
+      (widgetId) =>
+        containerWidget.children &&
+        containerWidget.children.indexOf(widgetId) > -1 &&
+        !widgets[widgetId].detachFromLayout,
+    );
+
+    const occupiedSpaces = getWidgetSpacesForContainer(
+      containerId,
+      childWidgets.map((widgetId) => widgets[widgetId]),
+    );
+    return occupiedSpaces;
+  });
+}
+
 export const getActionById = createSelector(
   [getActions, (state: any, props: any) => props.match.params.apiId],
   (actions, id) => {
@@ -316,8 +435,6 @@ export const getActionById = createSelector(
     }
   },
 );
-export const getActionTabsInitialIndex = (state: AppState) =>
-  state.ui.actionTabs.index;
 
 const createCanvasWidget = (
   canvasWidget: FlattenedWidgetProps,
@@ -346,10 +463,15 @@ const createLoadingWidget = (
     type: WidgetTypes.SKELETON_WIDGET,
     ENTITY_TYPE: ENTITY_TYPE.WIDGET,
     bindingPaths: {},
+    reactivePaths: {},
     triggerPaths: {},
     validationPaths: {},
     logBlackList: {},
     isLoading: true,
+    propertyOverrideDependency: {},
+    overridingPropertyPaths: {},
+    privateWidgets: {},
+    meta: {},
   };
 };
 
@@ -370,3 +492,35 @@ export const getJSCollectionById = createSelector(
 
 export const getApplicationLastDeployedAt = (state: AppState) =>
   state.ui.applications.currentApplication?.lastDeployedAt;
+
+/**
+ * returns the `state.ui.editor.isPreviewMode`
+ *
+ * @param state AppState
+ * @returns boolean
+ */
+export const previewModeSelector = (state: AppState) => {
+  return state.ui.editor.isPreviewMode;
+};
+
+/**
+ * returns the `state.ui.editor.zoomLevel`
+ *
+ * @param state AppState
+ * @returns number
+ */
+export const getZoomLevel = (state: AppState) => {
+  return state.ui.editor.zoomLevel;
+};
+
+/**
+ * returns the `state.ui.editor.savingEntity`
+ *
+ * @param state AppState
+ * @returns boolean
+ */
+export const getIsSavingEntity = (state: AppState) =>
+  state.ui.editor.loadingStates.savingEntity;
+
+export const selectJSCollections = (state: AppState) =>
+  state.entities.jsActions;

@@ -2,6 +2,7 @@ import React, { ReactNode, useState, useEffect } from "react";
 import styled from "styled-components";
 import { Dialog, Classes } from "@blueprintjs/core";
 import { Colors } from "constants/Colors";
+import Icon, { IconName, IconSize } from "./Icon";
 
 const StyledDialog = styled(Dialog)<{
   setMaxWidth?: boolean;
@@ -9,11 +10,11 @@ const StyledDialog = styled(Dialog)<{
   maxHeight?: string;
   maxWidth?: string;
   showHeaderUnderline?: boolean;
+  noModalBodyMarginTop?: boolean;
 }>`
   && {
     border-radius: 0;
-    padding: 22px;
-    padding-bottom: 28px;
+    padding: 24px;
     background: ${(props) => props.theme.colors.modal.bg};
     ${(props) => (props.maxHeight ? `max-height: ${props.maxHeight};` : "")}
     width: ${(props) => props.width || "640px"};
@@ -22,12 +23,12 @@ const StyledDialog = styled(Dialog)<{
 
     & .${Classes.DIALOG_HEADER} {
       position: relative;
-      padding: 0px;
-      padding-bottom: 0;
+      padding: 0;
       background: ${(props) => props.theme.colors.modal.bg};
       box-shadow: none;
-      .${Classes.ICON} {
-        color: ${(props) => props.theme.colors.modal.iconColor};
+      min-height: unset;
+      svg {
+        color: ${Colors.GREY_800};
       }
 
       .${Classes.BUTTON}.${Classes.MINIMAL}:hover {
@@ -39,17 +40,23 @@ const StyledDialog = styled(Dialog)<{
       color: ${(props) => props.theme.colors.modal.headerText};
       font-weight: ${(props) => props.theme.typography.h1.fontWeight};
       font-size: ${(props) => props.theme.typography.h1.fontSize}px;
-      line-height: ${(props) => props.theme.typography.h1.lineHeight}px;
+      line-height: unset;
       letter-spacing: ${(props) => props.theme.typography.h1.letterSpacing};
     }
 
     .${Classes.DIALOG_CLOSE_BUTTON} {
-      color: ${Colors.CHARCOAL};
+      color: ${Colors.SCORPION};
       min-width: 0;
       padding: 0;
 
       svg {
-        fill: ${Colors.CHARCOAL};
+        fill: ${Colors.SCORPION};
+        width: 24px;
+        height: 24px;
+
+        &:hover {
+          fill: ${Colors.COD_GRAY};
+        }
       }
     }
 
@@ -75,8 +82,8 @@ const StyledDialog = styled(Dialog)<{
         : ""}
 
     & .${Classes.DIALOG_BODY} {
-      padding-top: ${(props) => props.theme.spaces[9]}px;
       margin: 0;
+      margin-top: ${(props) => (props.noModalBodyMarginTop ? "0px" : "16px")};
       overflow: auto;
     }
 
@@ -86,14 +93,28 @@ const StyledDialog = styled(Dialog)<{
   }
 `;
 
-const TriggerWrapper = styled.div`
-  margin-right: 4px;
+const HeaderIconWrapper = styled.div<{ bgColor?: string }>`
+  padding: 5px;
+  border-radius: 50%;
+  margin-right: 10px;
+  background: ${(props) => props.bgColor || props.theme.colors.modal.iconBg};
+  cursor: default;
+  .cs-icon svg {
+    cursor: default;
+  }
 `;
 
 type DialogComponentProps = {
   isOpen?: boolean;
   canOutsideClickClose?: boolean;
   title?: string;
+  headerIcon?: {
+    clickable?: boolean;
+    name: IconName;
+    fillColor?: string;
+    hoverColor?: string;
+    bgColor?: string;
+  };
   trigger?: ReactNode;
   setMaxWidth?: boolean;
   children: ReactNode;
@@ -108,6 +129,7 @@ type DialogComponentProps = {
   canEscapeKeyClose?: boolean;
   className?: string;
   maxWidth?: string;
+  noModalBodyMarginTop?: boolean;
 };
 
 export function DialogComponent(props: DialogComponentProps) {
@@ -125,11 +147,22 @@ export function DialogComponent(props: DialogComponentProps) {
   }, [props.isOpen]);
 
   const getHeader = props.getHeader;
+  const headerIcon = props.headerIcon ? (
+    <HeaderIconWrapper bgColor={props.headerIcon.bgColor}>
+      <Icon
+        clickable={props.headerIcon?.clickable}
+        fillColor={props.headerIcon.fillColor}
+        hoverFillColor={props.headerIcon.hoverColor}
+        name={props.headerIcon.name}
+        size={IconSize.XL}
+      />
+    </HeaderIconWrapper>
+  ) : null;
 
   return (
     <>
       {props.trigger && (
-        <TriggerWrapper
+        <div
           className="ads-dialog-trigger"
           onClick={() => {
             setIsOpen(true);
@@ -137,15 +170,17 @@ export function DialogComponent(props: DialogComponentProps) {
           style={{ zIndex: props.triggerZIndex }}
         >
           {props.trigger}
-        </TriggerWrapper>
+        </div>
       )}
       <StyledDialog
         canEscapeKeyClose={!!props.canEscapeKeyClose}
         canOutsideClickClose={!!props.canOutsideClickClose}
         className={props.className}
+        icon={headerIcon}
         isOpen={isOpen}
         maxHeight={props.maxHeight}
         maxWidth={props.maxWidth}
+        noModalBodyMarginTop={props.noModalBodyMarginTop}
         onClose={onClose}
         onOpening={props.onOpening}
         setMaxWidth={props.setMaxWidth}
@@ -154,7 +189,9 @@ export function DialogComponent(props: DialogComponentProps) {
         width={props.width}
       >
         {getHeader && getHeader()}
-        <div className={Classes.DIALOG_BODY}>{props.children}</div>
+        <div className={Classes.DIALOG_BODY} data-testid="t--dialog-component">
+          {props.children}
+        </div>
       </StyledDialog>
     </>
   );

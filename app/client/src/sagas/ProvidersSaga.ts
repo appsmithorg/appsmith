@@ -12,7 +12,7 @@ import {
   ReduxActionWithPromise,
   ReduxAction,
   Page,
-} from "constants/ReduxActionConstants";
+} from "@appsmith/constants/ReduxActionConstants";
 import { validateResponse } from "sagas/ErrorSagas";
 import ProvidersApi, {
   FetchProviderTemplateResponse,
@@ -34,9 +34,9 @@ import {
 import {
   ADD_API_TO_PAGE_SUCCESS_MESSAGE,
   createMessage,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { getCurrentOrgId } from "selectors/organizationSelectors";
+import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
 import { Toaster } from "components/ads/Toast";
 import { Variant } from "components/ads/common";
 
@@ -51,7 +51,7 @@ export function* fetchProviderTemplatesSaga(
       request,
     );
 
-    const isValidResponse = yield validateResponse(response);
+    const isValidResponse: boolean = yield validateResponse(response);
 
     if (isValidResponse) {
       yield put({
@@ -72,17 +72,17 @@ export function* fetchProviderTemplatesSaga(
 export function* addApiToPageSaga(
   action: ReduxActionWithPromise<AddApiToPageRequest>,
 ) {
-  const organizationId = yield select(getCurrentOrgId);
+  const workspaceId: string = yield select(getCurrentWorkspaceId);
   const request: AddApiToPageRequest = {
     ...action.payload,
-    organizationId,
+    workspaceId,
   };
   try {
     const response: FetchProviderTemplateResponse = yield ProvidersApi.addApiToPage(
       request,
     );
 
-    const isValidResponse = yield validateResponse(response);
+    const isValidResponse: boolean = yield validateResponse(response);
 
     if (isValidResponse) {
       const { payload } = action;
@@ -103,8 +103,8 @@ export function* addApiToPageSaga(
         data: response.data,
       });
 
-      const applicationId = yield select(getCurrentApplicationId);
-      yield put(fetchActions(applicationId, []));
+      const applicationId: string = yield select(getCurrentApplicationId);
+      yield put(fetchActions({ applicationId }, []));
     }
   } catch (error) {
     yield put({
@@ -126,9 +126,10 @@ export function* fetchProvidersWithCategorySaga(
       request,
     );
 
-    const isValidResponse = yield validateResponse(response);
+    const isValidResponse: boolean = yield validateResponse(response);
 
     if (isValidResponse) {
+      // @ts-expect-error: response is of type unknown
       if (response.data.providers.length === 0) {
         yield put({
           type: ReduxActionTypes.SET_PROVIDERS_LENGTH,
@@ -180,7 +181,7 @@ export function* fetchProviderDetailsByProviderIdSaga(
       request,
     );
 
-    const isValidResponse = yield validateResponse(response);
+    const isValidResponse: boolean = yield validateResponse(response);
 
     if (isValidResponse) {
       yield put({
@@ -207,7 +208,7 @@ export function* searchApiOrProviderSaga(
       action.payload,
     );
 
-    const isValidResponse = yield validateResponse(response);
+    const isValidResponse: boolean = yield validateResponse(response);
 
     if (isValidResponse) {
       yield put({

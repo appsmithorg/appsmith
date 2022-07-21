@@ -1,0 +1,108 @@
+{
+    "dsl": {
+        "widgetName": "MainContainer",
+        "backgroundColor": "none",
+        "rightColumn": 1864,
+        "snapColumns": 64,
+        "detachFromLayout": true,
+        "widgetId": "0",
+        "topRow": 0,
+        "bottomRow": 1290,
+        "containerStyle": "none",
+        "snapRows": 125,
+        "parentRowSpace": 1,
+        "type": "CANVAS_WIDGET",
+        "canExtend": true,
+        "version": 47,
+        "minHeight": 1270,
+        "parentColumnSpace": 1,
+        "dynamicTriggerPathList": [],
+        "dynamicBindingPathList": [],
+        "leftColumn": 0,
+        "children": [
+            {
+                "widgetName": "Select2",
+                "isFilterable": false,
+                "displayName": "Select",
+                "iconSVG": "/static/media/icon.bd99caba.svg",
+                "labelText": "Label",
+                "topRow": 27,
+                "bottomRow": 34,
+                "parentRowSpace": 10,
+                "type": "SELECT_WIDGET",
+                "serverSideFiltering": false,
+                "hideCard": false,
+                "defaultOptionValue": {
+                    "label": "Male",
+                    "value": "male"
+                },
+                "selectionType": "SINGLE_SELECT",
+                "animateLoading": true,
+                "parentColumnSpace": 33.375,
+                "dynamicTriggerPathList": [],
+                "leftColumn": 16,
+                "dynamicBindingPathList": [],
+                "options": "[\n  {\n    \"label\": \"Male\",\n    \"value\": \"male\"\n  },\n  {\n    \"label\": \"Female\",\n    \"value\": \"female\"\n  }\n]",
+                "placeholderText": "Select option",
+                "isDisabled": false,
+                "key": "m8n7zjr7bj",
+                "isRequired": false,
+                "rightColumn": 36,
+                "widgetId": "f550u14wk4",
+                "isVisible": true,
+                "version": 1,
+                "parentId": "0",
+                "renderMode": "CANVAS",
+                "isLoading": false
+            },
+            {
+                "widgetName": "Select3",
+                "isFilterable": false,
+                "displayName": "Select",
+                "iconSVG": "/static/media/icon.bd99caba.svg",
+                "labelText": "Label",
+                "topRow": 12,
+                "bottomRow": 19,
+                "parentRowSpace": 10,
+                "type": "SELECT_WIDGET",
+                "serverSideFiltering": false,
+                "hideCard": false,
+                "defaultOptionValue": {
+                    "label": "Blue",
+                    "value": "BLUE"
+                },
+                "selectionType": "SINGLE_SELECT",
+                "animateLoading": true,
+                "parentColumnSpace": 33.375,
+                "dynamicTriggerPathList": [],
+                "leftColumn": 34,
+                "dynamicBindingPathList": [],
+                "options": [
+                    {
+                        "label": "Blue",
+                        "value": "BLUE"
+                    },
+                    {
+                        "label": "Green",
+                        "value": "GREEN"
+                    },
+                    {
+                        "label": "Red",
+                        "value": "RED"
+                    }
+                ],
+                "placeholderText": "Select option",
+                "isDisabled": false,
+                "key": "m8n7zjr7bj",
+                "isRequired": false,
+                "rightColumn": 54,
+                "widgetId": "uo1c0rrrrk",
+                "isVisible": true,
+                "version": 1,
+                "parentId": "0",
+                "renderMode": "CANVAS",
+                "isLoading": false
+            }
+        ]
+    }
+}

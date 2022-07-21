@@ -3,7 +3,7 @@ import {
   ReduxAction,
   ReduxActionTypes,
   ReduxActionErrorTypes,
-} from "constants/ReduxActionConstants";
+} from "@appsmith/constants/ReduxActionConstants";
 
 const initialState: JSObjectNameReduxState = {
   isSaving: {},

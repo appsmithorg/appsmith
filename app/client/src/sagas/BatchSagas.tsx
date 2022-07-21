@@ -1,11 +1,19 @@
 /* eslint-disable  @typescript-eslint/ban-ts-comment */
 import _ from "lodash";
 import { put, debounce, takeEvery, all } from "redux-saga/effects";
-import { ReduxAction, ReduxActionTypes } from "constants/ReduxActionConstants";
+import {
+  ReduxAction,
+  ReduxActionTypes,
+} from "@appsmith/constants/ReduxActionConstants";
 import { batchActionSuccess } from "actions/batchActions";
+import * as log from "loglevel";
 
 const BATCH_PRIORITY = {
-  [ReduxActionTypes.SET_META_PROP]: {
+  [ReduxActionTypes.META_UPDATE_DEBOUNCED_EVAL]: {
+    priority: 0,
+    needsSaga: false,
+  },
+  [ReduxActionTypes.SET_META_PROP_AND_EVAL]: {
     priority: 0,
     needsSaga: false,
   },
@@ -45,7 +53,7 @@ function* storeUpdatesSaga(action: ReduxAction<ReduxAction<any>>) {
     _.set(batches, `[${priority}]`, currentPriorityBatch);
     yield put({ type: ReduxActionTypes.EXECUTE_BATCH });
   } catch (e) {
-    console.error(`${action.payload.type} action priority not set`);
+    log.error(`${action.payload.type} action priority not set`);
   }
 }
 
@@ -56,7 +64,7 @@ function* executeBatchSaga() {
       const needsSaga = batch.filter((b) => BATCH_PRIORITY[b.type].needsSaga);
       const canBatch = batch.filter((b) => !BATCH_PRIORITY[b.type].needsSaga);
       batches[priority] = [];
-      // @ts-ignore: No types available
+      // @ts-expect-error: Types are not available
       yield put(canBatch);
       if (needsSaga.length) {
         for (const sagaAction of needsSaga) {

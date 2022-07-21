@@ -34,7 +34,7 @@ import { widgetsMapWithParentModalId } from "selectors/entitiesSelector";
 
 import { USER_PHOTO_ASSET_URL } from "constants/userConstants";
 
-import { getCommentThreadURL } from "../utils";
+import { useCommentThreadURL } from "../utils";
 
 import {
   deleteCommentRequest,
@@ -48,11 +48,13 @@ import {
 import { useDispatch, useSelector } from "react-redux";
 import { commentThreadsSelector } from "selectors/commentsSelectors";
 import { getCurrentUser } from "selectors/usersSelectors";
-import { createMessage, LINK_COPIED_SUCCESSFULLY } from "constants/messages";
+import {
+  createMessage,
+  LINK_COPIED_SUCCESSFULLY,
+} from "@appsmith/constants/messages";
 import { Variant } from "components/ads/common";
 import TourTooltipWrapper from "components/ads/tour/TourTooltipWrapper";
 import { TourType } from "entities/Tour";
-import { getCurrentApplicationId } from "selectors/editorSelectors";
 import useProceedToNextTourStep from "utils/hooks/useProceedToNextTourStep";
 import { commentsTourStepsEditModeTypes } from "comments/tour/commentsTourSteps";
 
@@ -297,10 +299,7 @@ function CommentCard({
     pinnedBy = "You";
   }
 
-  const applicationId = useSelector(getCurrentApplicationId);
-
-  const commentThreadURL = getCommentThreadURL({
-    applicationId,
+  const commentThreadURL = useCommentThreadURL({
     commentThreadId,
     isResolved: !!commentThread?.resolvedState?.active,
     pageId: commentThread?.pageId,
@@ -386,7 +385,7 @@ function CommentCard({
       `${commentThreadURL.pathname}${commentThreadURL.search}${commentThreadURL.hash}`,
     );
 
-    if (!commentThread.isViewed) {
+    if (!commentThread?.isViewed) {
       dispatch(markThreadAsReadRequest(commentThreadId));
     }
   };
@@ -445,7 +444,7 @@ function CommentCard({
       <CommentHeader data-cy="comments-card-header">
         <HeaderSection>
           <ProfileImage
-            side={25}
+            size={25}
             source={profilePhotoUrl}
             userName={authorName || ""}
           />

@@ -1,6 +1,6 @@
 package com.appsmith.server.repositories;
 
-import com.appsmith.server.domains.Collection;
+import com.appsmith.server.repositories.ce.CustomCollectionRepositoryCE;
 
-public interface CustomCollectionRepository extends AppsmithRepository<Collection> {
+public interface CustomCollectionRepository extends CustomCollectionRepositoryCE {
 }

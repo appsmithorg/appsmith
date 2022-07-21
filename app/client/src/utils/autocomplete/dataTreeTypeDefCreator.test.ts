@@ -12,13 +12,14 @@ import { entityDefinitions } from "utils/autocomplete/EntityDefinitions";
 
 describe("dataTreeTypeDefCreator", () => {
   it("creates the right def for a widget", () => {
+    // @ts-expect-error: meta property not provided
     const dataTreeEntity: DataTreeWidget = {
       widgetId: "yolo",
       widgetName: "Input1",
       parentId: "123",
       renderMode: "CANVAS",
       text: "yo",
-      type: "INPUT_WIDGET",
+      type: "INPUT_WIDGET_V2",
       ENTITY_TYPE: ENTITY_TYPE.WIDGET,
       parentColumnSpace: 1,
       parentRowSpace: 2,
@@ -31,23 +32,32 @@ describe("dataTreeTypeDefCreator", () => {
       bindingPaths: {
         defaultText: EvaluationSubstitutionType.TEMPLATE,
       },
+      reactivePaths: {
+        defaultText: EvaluationSubstitutionType.TEMPLATE,
+      },
       triggerPaths: {
         onTextChange: true,
       },
       validationPaths: {},
       logBlackList: {},
+      propertyOverrideDependency: {},
+      overridingPropertyPaths: {},
+      privateWidgets: {},
     };
-    const { def, entityInfo } = dataTreeTypeDefCreator({
-      Input1: dataTreeEntity,
-    });
+    const { def, entityInfo } = dataTreeTypeDefCreator(
+      {
+        Input1: dataTreeEntity,
+      },
+      false,
+    );
     // TODO hetu: needs better general testing
     // instead of testing each widget maybe we can test to ensure
     // that defs are in a correct format
-    expect(def.Input1).toBe(entityDefinitions.INPUT_WIDGET);
+    expect(def.Input1).toBe(entityDefinitions.INPUT_WIDGET_V2);
     expect(def).toHaveProperty("Input1.isDisabled");
     expect(entityInfo.get("Input1")).toStrictEqual({
       type: ENTITY_TYPE.WIDGET,
-      subType: "INPUT_WIDGET",
+      subType: "INPUT_WIDGET_V2",
     });
   });
 

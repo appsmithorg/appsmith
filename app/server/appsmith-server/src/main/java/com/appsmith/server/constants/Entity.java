@@ -6,4 +6,5 @@ public interface Entity {
     String PAGES = "pages";
     String DATASOURCES = "datasources";
     String S3_PLUGIN_PACKAGE_NAME = "amazons3-plugin";
+    String POSTGRES_PLUGIN_PACKAGE_NAME = "postgres-plugin";
 }

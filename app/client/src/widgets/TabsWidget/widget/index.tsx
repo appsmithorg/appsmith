@@ -6,12 +6,13 @@ import {
   ValidationResponse,
   ValidationTypes,
 } from "constants/WidgetValidation";
-import _ from "lodash";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { TabContainerWidgetProps, TabsWidgetProps } from "../constants";
-
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 import { WidgetProperties } from "selectors/propertyPaneSelectors";
+import { WIDGET_PADDING } from "constants/WidgetConstants";
+import derivedProperties from "./parseDerivedProperties";
+import { isEqual, find } from "lodash";
 
 export function selectedTabValidation(
   value: unknown,
@@ -136,6 +137,7 @@ class TabsWidget extends BaseWidget<
             isTriggerProperty: false,
           },
           {
+            helpText: "Enables scrolling for content inside the widget",
             propertyName: "shouldScrollContents",
             label: "Scroll Contents",
             controlType: "SWITCH",
@@ -152,10 +154,21 @@ class TabsWidget extends BaseWidget<
             isTriggerProperty: false,
             validation: { type: ValidationTypes.BOOLEAN },
           },
+          {
+            propertyName: "animateLoading",
+            label: "Animate Loading",
+            controlType: "SWITCH",
+            helpText: "Controls the loading of the widget",
+            defaultValue: true,
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+          },
         ],
       },
       {
-        sectionName: "Actions",
+        sectionName: "Events",
         children: [
           {
             helpText: "Triggers an action when the button is clicked",
@@ -165,6 +178,35 @@ class TabsWidget extends BaseWidget<
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: true,
+          },
+        ],
+      },
+
+      {
+        sectionName: "Styles",
+        children: [
+          {
+            propertyName: "borderRadius",
+            label: "Border Radius",
+            helpText:
+              "Rounds the corners of the icon button's outer border edge",
+            controlType: "BORDER_RADIUS_OPTIONS",
+
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
+          {
+            propertyName: "boxShadow",
+            label: "Box Shadow",
+            helpText:
+              "Enables you to cast a drop shadow from the frame of the widget",
+            controlType: "BOX_SHADOW_OPTIONS",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
           },
         ],
       },
@@ -183,9 +225,7 @@ class TabsWidget extends BaseWidget<
 
   static getDerivedPropertiesMap() {
     return {
-      selectedTab: `{{_.find(Object.values(this.tabsObj), {
-        widgetId: this.selectedTabWidgetId,
-      }).label}}`,
+      selectedTab: `{{(()=>{${derivedProperties.getSelectedTab}})()}}`,
     };
   }
 
@@ -200,12 +240,22 @@ class TabsWidget extends BaseWidget<
   }
 
   getPageView() {
+    const { leftColumn, parentColumnSpace, rightColumn } = this.props;
+
     const tabsComponentProps = {
       ...this.props,
       tabs: this.getVisibleTabs(),
+      width:
+        (rightColumn - leftColumn) * parentColumnSpace - WIDGET_PADDING * 2,
     };
     return (
-      <TabsComponent {...tabsComponentProps} onTabChange={this.onTabChange}>
+      <TabsComponent
+        {...tabsComponentProps}
+        borderRadius={this.props.borderRadius}
+        boxShadow={this.props.boxShadow}
+        onTabChange={this.onTabChange}
+        primaryColor={this.props.primaryColor}
+      >
         {this.renderComponent()}
       </TabsComponent>
     );
@@ -241,10 +291,13 @@ class TabsWidget extends BaseWidget<
   }
 
   componentDidUpdate(prevProps: TabsWidgetProps<TabContainerWidgetProps>) {
-    const visibleTabs = this.getVisibleTabs();
-    if (this.props.defaultTab) {
-      if (this.props.defaultTab !== prevProps.defaultTab) {
-        const selectedTab = _.find(visibleTabs, {
+    if (!isEqual(prevProps, this.props)) {
+      const visibleTabs = this.getVisibleTabs();
+      if (
+        this.props.defaultTab &&
+        this.props.defaultTab !== prevProps.defaultTab
+      ) {
+        const selectedTab = find(visibleTabs, {
           label: this.props.defaultTab,
         });
         const selectedTabWidgetId = selectedTab
@@ -255,32 +308,32 @@ class TabsWidget extends BaseWidget<
           selectedTabWidgetId,
         );
       }
-    }
-    // if selected tab is deleted
-    if (this.props.selectedTabWidgetId) {
-      if (visibleTabs.length > 0) {
-        const selectedTabWithinTabs = _.find(visibleTabs, {
-          widgetId: this.props.selectedTabWidgetId,
-        });
-        if (!selectedTabWithinTabs) {
-          // try to select default else select first
-          const defaultTab = _.find(visibleTabs, {
-            label: this.props.defaultTab,
+      // if selected tab is deleted
+      if (this.props.selectedTabWidgetId) {
+        if (visibleTabs.length > 0) {
+          const selectedTabWithinTabs = find(visibleTabs, {
+            widgetId: this.props.selectedTabWidgetId,
           });
+          if (!selectedTabWithinTabs) {
+            // try to select default else select first
+            const defaultTab = find(visibleTabs, {
+              label: this.props.defaultTab,
+            });
+            this.props.updateWidgetMetaProperty(
+              "selectedTabWidgetId",
+              (defaultTab && defaultTab.widgetId) || visibleTabs[0].widgetId,
+            );
+          }
+        } else {
+          this.props.updateWidgetMetaProperty("selectedTabWidgetId", undefined);
+        }
+      } else if (!this.props.selectedTabWidgetId) {
+        if (visibleTabs.length > 0) {
           this.props.updateWidgetMetaProperty(
             "selectedTabWidgetId",
-            (defaultTab && defaultTab.widgetId) || visibleTabs[0].widgetId,
+            visibleTabs[0].widgetId,
           );
         }
-      } else {
-        this.props.updateWidgetMetaProperty("selectedTabWidgetId", undefined);
-      }
-    } else if (!this.props.selectedTabWidgetId) {
-      if (visibleTabs.length > 0) {
-        this.props.updateWidgetMetaProperty(
-          "selectedTabWidgetId",
-          visibleTabs[0].widgetId,
-        );
       }
     }
   }
@@ -302,7 +355,7 @@ class TabsWidget extends BaseWidget<
     // If we have a defaultTab
     if (this.props.defaultTab && Object.keys(this.props.tabsObj || {}).length) {
       // Find the default Tab object
-      const selectedTab = _.find(visibleTabs, {
+      const selectedTab = find(visibleTabs, {
         label: this.props.defaultTab,
       });
       // Find the default Tab id

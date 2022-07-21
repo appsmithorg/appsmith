@@ -38,6 +38,7 @@ import OverlayCommentsWrapper from "comments/inlineComments/OverlayCommentsWrapp
 import PreventInteractionsOverlay from "components/editorComponents/PreventInteractionsOverlay";
 import AppsmithConsole from "utils/AppsmithConsole";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
+import PreviewModeComponent from "components/editorComponents/PreviewModeComponent";
 
 /***
  * BaseWidget
@@ -57,6 +58,7 @@ abstract class BaseWidget<
   K extends WidgetState
 > extends Component<T, K> {
   static contextType = EditorContext;
+  context!: React.ContextType<typeof EditorContext>;
 
   static getPropertyPaneConfig(): PropertyPaneConfig[] {
     return [];
@@ -150,7 +152,7 @@ abstract class BaseWidget<
 
   resetChildrenMetaProperty(widgetId: string) {
     const { resetChildrenMetaProperty } = this.context;
-    resetChildrenMetaProperty(widgetId);
+    if (resetChildrenMetaProperty) resetChildrenMetaProperty(widgetId);
   }
 
   /* eslint-disable @typescript-eslint/no-empty-function */
@@ -187,6 +189,10 @@ abstract class BaseWidget<
       componentHeight: (bottomRow - topRow) * parentRowSpace,
     };
   }
+
+  getLabelWidth = () => {
+    return (Number(this.props.labelWidth) || 0) * this.props.parentColumnSpace;
+  };
 
   getErrorCount = memoize((evalErrors: Record<string, EvaluationError[]>) => {
     return Object.values(evalErrors).reduce(
@@ -271,6 +277,7 @@ abstract class BaseWidget<
     return (
       <PositionedContainer
         focused={this.props.focused}
+        parentId={this.props.parentId}
         resizeDisabled={this.props.resizeDisabled}
         selected={this.props.selected}
         style={style}
@@ -312,12 +319,20 @@ abstract class BaseWidget<
     );
   }
 
+  addPreviewModeWidget(content: ReactNode): React.ReactElement {
+    return (
+      <PreviewModeComponent isVisible={this.props.isVisible}>
+        {content}
+      </PreviewModeComponent>
+    );
+  }
+
   private getWidgetView(): ReactNode {
     let content: ReactNode;
-
     switch (this.props.renderMode) {
       case RenderModes.CANVAS:
         content = this.getCanvasView();
+        content = this.addPreviewModeWidget(content);
         content = this.addPreventInteractionOverlay(content);
         content = this.addOverlayComments(content);
         if (!this.props.detachFromLayout) {
@@ -480,6 +495,7 @@ export interface WidgetDisplayProps {
   isLoading: boolean;
   isDisabled?: boolean;
   backgroundColor?: string;
+  animateLoading?: boolean;
 }
 
 export interface WidgetDataProps

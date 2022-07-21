@@ -6,6 +6,7 @@ import React, {
   useRef,
   useState,
 } from "react";
+import { isEqual } from "lodash";
 import { useDispatch, useSelector } from "react-redux";
 import EditableText, {
   EditInteractionKind,
@@ -16,78 +17,16 @@ import { AppState } from "reducers";
 import { getExistingWidgetNames } from "sagas/selectors";
 import { removeSpecialChars } from "utils/helpers";
 import { useToggleEditWidgetName } from "utils/hooks/dragResizeHooks";
+import useInteractionAnalyticsEvent from "utils/hooks/useInteractionAnalyticsEvent";
 
 import { WidgetType } from "constants/WidgetConstants";
-import styled from "constants/DefaultTheme";
-import { ControlIcons } from "icons/ControlIcons";
-import { AnyStyledComponent } from "styled-components";
-import { Classes as BlueprintClasses } from "@blueprintjs/core";
-import TooltipComponent from "components/ads/Tooltip";
-import { isEqual } from "lodash";
-import { Colors } from "constants/Colors";
 
-const FixedTitle = styled.div`
-  position: fixed;
-  z-index: 3;
-  width: ${(props) => props.theme.propertyPane.width}px;
-  padding: 0px ${(props) => props.theme.spaces[5]}px;
-`;
-
-const Wrapper = styled.div<{ iconCount: number }>`
-  display: grid;
-  grid-template-columns: 1fr repeat(${(props) => props.iconCount}, 25px);
-  justify-items: center;
-  align-items: center;
-  height: ${(props) => props.theme.propertyPane.titleHeight}px;
-  background-color: ${Colors.GREY_1};
-  & span.${BlueprintClasses.POPOVER_TARGET} {
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  &&& .${BlueprintClasses.EDITABLE_TEXT} {
-    height: auto;
-    padding: 0;
-    width: 100%;
-  }
-  &&&
-    .${BlueprintClasses.EDITABLE_TEXT_CONTENT},
-    &&&
-    .${BlueprintClasses.EDITABLE_TEXT_INPUT} {
-    color: ${(props) => props.theme.colors.propertyPane.title};
-    font-size: ${(props) => props.theme.fontSizes[4]}px;
-  }
-  && svg path {
-    fill: ${(props) => props.theme.colors.propertyPane.label};
-  }
-`;
-
-const NameWrapper = styled.div<{ isPanelTitle?: boolean }>`
-  display: ${(props) => (props.isPanelTitle ? "flex" : "block")};
-  align-items: center;
-  min-width: 100%;
-  padding-right: 25px;
-  max-width: 134px;
-  &&&&&&& > * {
-    overflow: hidden;
-  }
-`;
-
-const StyledBackIcon = styled(ControlIcons.BACK_CONTROL as AnyStyledComponent)`
-  padding: 0;
-  position: relative;
-  cursor: pointer;
-  top: 3px;
-  margin-right: 8px;
-  && svg {
-    width: 16px;
-    height: 16px;
-    path {
-      fill: ${(props) => props.theme.colors.propertyPane.label};
-    }
-  }
-`;
+import { TooltipComponent } from "design-system";
+import { ReactComponent as BackIcon } from "assets/icons/control/back.svg";
+import { inGuidedTour } from "selectors/onboardingSelectors";
+import { toggleShowDeviationDialog } from "actions/onboardingActions";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import { PopoverPosition } from "@blueprintjs/core/lib/esnext/components/popover/popoverSharedProps";
 
 type PropertyPaneTitleProps = {
   title: string;
@@ -99,6 +38,7 @@ type PropertyPaneTitleProps = {
   actions: Array<{
     tooltipContent: any;
     icon: ReactElement;
+    tooltipPosition?: PopoverPosition;
   }>;
 };
 
@@ -107,10 +47,21 @@ const PropertyPaneTitle = memo(function PropertyPaneTitle(
   props: PropertyPaneTitleProps,
 ) {
   const dispatch = useDispatch();
+  const containerRef = useRef<HTMLDivElement>(null);
   const updating = useSelector(
     (state: AppState) => state.ui.editor.loadingStates.updatingWidgetName,
   );
   const isNew = useSelector((state: AppState) => state.ui.propertyPane.isNew);
+  const newWidgetId = useSelector(
+    (state: AppState) =>
+      state.ui.canvasSelection.recentlyAddedWidget[props.widgetId || ""],
+  );
+  const guidedTourEnabled = useSelector(inGuidedTour);
+
+  const {
+    dispatchInteractionAnalyticsEvent,
+    eventEmitterRef,
+  } = useInteractionAnalyticsEvent<HTMLDivElement>();
 
   // Pass custom equality check function. Shouldn't be expensive than the render
   // as it is just a small array #perf
@@ -123,6 +74,11 @@ const PropertyPaneTitle = memo(function PropertyPaneTitle(
   const { title, updatePropertyTitle } = props;
   const updateNewTitle = useCallback(
     (value: string) => {
+      if (guidedTourEnabled) {
+        dispatch(toggleShowDeviationDialog(true));
+        return;
+      }
+
       if (
         value &&
         value.trim().length > 0 &&
@@ -131,12 +87,16 @@ const PropertyPaneTitle = memo(function PropertyPaneTitle(
         updatePropertyTitle && updatePropertyTitle(value.trim());
       }
     },
-    [updatePropertyTitle, title],
+    [updatePropertyTitle, title, guidedTourEnabled],
   );
   // End
 
   const updateTitle = useCallback(
     (value?: string) => {
+      if (guidedTourEnabled) {
+        dispatch(toggleShowDeviationDialog(true));
+        return;
+      }
       if (
         value &&
         value.trim().length > 0 &&
@@ -152,57 +112,134 @@ const PropertyPaneTitle = memo(function PropertyPaneTitle(
         toggleEditWidgetName(props.widgetId, false);
       }
     },
-    [dispatch, widgets, setName, props.widgetId, props.title],
+    [
+      dispatch,
+      widgets,
+      setName,
+      props.widgetId,
+      props.title,
+      guidedTourEnabled,
+    ],
   );
+
+  useEffect(() => {
+    if (props.isPanelTitle) return;
+    if (props.widgetId === newWidgetId) {
+      containerRef.current?.focus();
+    } else {
+      // Checks if the property pane opened not because of focusing an input inside a widget
+      if (
+        document.activeElement &&
+        ["input", "textarea"].indexOf(
+          document.activeElement?.tagName?.toLowerCase(),
+        ) === -1
+      )
+        setTimeout(
+          () =>
+            document
+              .querySelector(
+                '.t--property-pane-section-wrapper [tabindex]:not([tabindex="-1"])',
+              )
+              // @ts-expect-error: Focus
+              ?.focus(),
+          200, // Adding non zero time out as codemirror imports are loaded using idle callback. pr #13676
+        );
+    }
+
+    return () => {
+      dispatch({
+        type: ReduxActionTypes.REMOVE_FROM_RECENTLY_ADDED_WIDGET,
+        payload: props.widgetId,
+      });
+    };
+  }, []);
 
   useEffect(() => {
     setName(props.title);
   }, [props.title]);
 
+  // Focus title on F2
+  const [isEditingDefault, setIsEditingDefault] = useState(
+    !props.isPanelTitle ? isNew : undefined,
+  );
+
+  function handleKeyDown(e: KeyboardEvent) {
+    if (e.key === "F2") {
+      setIsEditingDefault(true);
+    }
+  }
+
+  function handleOnBlurEverytime() {
+    setIsEditingDefault(false);
+  }
+
+  useEffect(() => {
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, []);
+
+  function handleTabKeyDown(e: React.KeyboardEvent) {
+    if (e.key === "Tab")
+      dispatchInteractionAnalyticsEvent({
+        key: e.key,
+        propertyType: "LABEL",
+        propertyName: "widgetName",
+        widgetType: props.widgetType,
+      });
+  }
+
   return props.widgetId || props.isPanelTitle ? (
-    <FixedTitle>
-      <Wrapper iconCount={props.actions.length}>
-        <NameWrapper isPanelTitle={props.isPanelTitle}>
-          <>
-            {props.isPanelTitle && (
-              <StyledBackIcon
-                className="t--property-pane-back-btn"
-                onClick={props.onBackClick}
-              />
-            )}
+    <div
+      className="flex items-center w-full px-3 space-x-1 z-[3]"
+      ref={eventEmitterRef}
+    >
+      {/* BACK BUTTON */}
+      {props.isPanelTitle && (
+        <button
+          className="p-1 hover:bg-warmGray-100 group t--property-pane-back-btn"
+          onClick={props.onBackClick}
+        >
+          <BackIcon className="w-4 h-4 text-gray-500" />
+        </button>
+      )}
+      {/* EDITABLE TEXT */}
+      <div
+        className="flex-grow"
+        onKeyDown={handleTabKeyDown}
+        style={{ maxWidth: `calc(100% - 52px)` }}
+      >
+        <EditableText
+          className="flex-grow text-lg font-semibold t--property-pane-title"
+          defaultValue={name}
+          editInteractionKind={EditInteractionKind.SINGLE}
+          fill
+          hideEditIcon
+          isEditingDefault={isEditingDefault}
+          onBlur={!props.isPanelTitle ? updateTitle : undefined}
+          onBlurEverytime={handleOnBlurEverytime}
+          onTextChanged={!props.isPanelTitle ? undefined : updateNewTitle}
+          placeholder={props.title}
+          savingState={updating ? SavingState.STARTED : SavingState.NOT_STARTED}
+          underline
+          valueTransform={!props.isPanelTitle ? removeSpecialChars : undefined}
+          wrapperRef={containerRef}
+        />
+      </div>
 
-            <EditableText
-              className="t--propery-page-title"
-              defaultValue={name}
-              editInteractionKind={EditInteractionKind.SINGLE}
-              fill
-              hideEditIcon
-              isEditingDefault={!props.isPanelTitle ? isNew : undefined}
-              onBlur={!props.isPanelTitle ? updateTitle : undefined}
-              onTextChanged={!props.isPanelTitle ? undefined : updateNewTitle}
-              placeholder={props.title}
-              savingState={
-                updating ? SavingState.STARTED : SavingState.NOT_STARTED
-              }
-              underline
-              valueTransform={
-                !props.isPanelTitle ? removeSpecialChars : undefined
-              }
-            />
-          </>
-        </NameWrapper>
-
+      {/* ACTIONS */}
+      <div className="flex items-center space-x-1">
         {props.actions.map((value, index) => (
           <TooltipComponent
             content={value.tooltipContent}
             hoverOpenDelay={200}
             key={index}
+            position={value.tooltipPosition}
           >
             {value.icon}
           </TooltipComponent>
         ))}
-      </Wrapper>
-    </FixedTitle>
+      </div>
+    </div>
   ) : null;
 });
 export default PropertyPaneTitle;

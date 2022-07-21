@@ -13,7 +13,7 @@ import { EntryComponentProps } from "@draft-js-plugins/mention/lib/MentionSugges
 
 import Icon from "components/ads/Icon";
 
-import { INVITE_A_NEW_USER, createMessage } from "constants/messages";
+import { INVITE_A_NEW_USER, createMessage } from "@appsmith/constants/messages";
 import { USER_PHOTO_URL } from "constants/userConstants";
 
 import scrollIntoView from "scroll-into-view-if-needed";
@@ -131,7 +131,7 @@ function SuggestionComponent(props: EntryComponentProps) {
     <StyledSuggestionsComponent ref={mentionRef} {...parentProps}>
       <div style={{ flexShrink: 0 }}>
         <ProfileImage
-          side={25}
+          size={25}
           source={`/api/${USER_PHOTO_URL}/${user?.username}`}
           userName={user?.username || ""}
         />

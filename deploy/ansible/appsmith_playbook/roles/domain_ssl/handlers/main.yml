@@ -1,9 +1,0 @@
----
-    - name: Send request to integromat webhook after configure ssl successfully
-      uri:
-        url: "{{ analytics_webhook_uri }}"
-        method: POST
-        body: "{\"userId\":\"{{ app_installation_id.content }}\",\"event\":\"Configure SSL Successfully\",\"data\":{\"os\":\"{{ os.stdout }}\", \"platform\": \"ansible\"}}"
-        body_format: json
-        return_content: yes
-      listen: "Configure SSL"

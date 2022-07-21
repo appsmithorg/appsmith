@@ -15,7 +15,7 @@ describe("Tabs widget functional cases", () => {
     });
     const component = render(
       <MockPageDSL dsl={dsl}>
-        <Canvas dsl={dsl} />
+        <Canvas dsl={dsl} pageId="" />
       </MockPageDSL>,
     );
     const tab1 = component.queryByText("Tab 1");
@@ -30,7 +30,7 @@ describe("Tabs widget functional cases", () => {
       { type: "CHECKBOX_WIDGET", label: "Tab1 Checkbox" },
     ]);
     const tab2Children = buildChildren([
-      { type: "INPUT_WIDGET", text: "Tab2 Text" },
+      { type: "INPUT_WIDGET_V2", text: "Tab2 Text" },
       { type: "BUTTON_WIDGET", label: "Tab2 Button" },
     ]);
     const children: any = buildChildren([{ type: "TABS_WIDGET" }]);
@@ -41,7 +41,7 @@ describe("Tabs widget functional cases", () => {
     });
     const component = render(
       <MockPageDSL dsl={dsl}>
-        <Canvas dsl={dsl} />
+        <Canvas dsl={dsl} pageId="" />
       </MockPageDSL>,
     );
     const tab1 = component.queryByText("Tab 1");

@@ -106,20 +106,7 @@ class RateWidget extends BaseWidget<RateWidgetProps, WidgetState> {
             },
             dependencies: ["maxCount", "isAllowHalf"],
           },
-          {
-            propertyName: "activeColor",
-            label: "Active color",
-            controlType: "COLOR_PICKER",
-            isBindProperty: false,
-            isTriggerProperty: false,
-          },
-          {
-            propertyName: "inactiveColor",
-            label: "Inactive color",
-            controlType: "COLOR_PICKER",
-            isBindProperty: false,
-            isTriggerProperty: false,
-          },
+
           {
             propertyName: "tooltips",
             helpText: "Sets the tooltip contents of stars",
@@ -184,10 +171,21 @@ class RateWidget extends BaseWidget<RateWidgetProps, WidgetState> {
             isTriggerProperty: false,
             validation: { type: ValidationTypes.BOOLEAN },
           },
+          {
+            propertyName: "animateLoading",
+            label: "Animate Loading",
+            controlType: "SWITCH",
+            helpText: "Controls the loading of the widget",
+            defaultValue: true,
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+          },
         ],
       },
       {
-        sectionName: "Actions",
+        sectionName: "Events",
         children: [
           {
             helpText: "Triggers an action when the rate is changed",
@@ -197,6 +195,29 @@ class RateWidget extends BaseWidget<RateWidgetProps, WidgetState> {
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: true,
+          },
+        ],
+      },
+      {
+        sectionName: "Styles",
+        children: [
+          {
+            propertyName: "activeColor",
+            label: "Active color",
+            controlType: "COLOR_PICKER",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
+          {
+            propertyName: "inactiveColor",
+            label: "Inactive color",
+            controlType: "COLOR_PICKER",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
           },
         ],
       },
@@ -235,11 +256,23 @@ class RateWidget extends BaseWidget<RateWidgetProps, WidgetState> {
     return (
       (this.props.rate || this.props.rate === 0) && (
         <RateComponent
+          activeColor={this.props.activeColor}
+          bottomRow={this.props.bottomRow}
+          inactiveColor={this.props.inactiveColor}
+          isAllowHalf={this.props.isAllowHalf}
+          isDisabled={this.props.isDisabled}
+          isLoading={this.props.isLoading}
+          key={this.props.widgetId}
+          leftColumn={this.props.leftColumn}
+          maxCount={this.props.maxCount}
           onValueChanged={this.valueChangedHandler}
           readonly={this.props.isDisabled}
+          rightColumn={this.props.rightColumn}
+          size={this.props.size}
+          tooltips={this.props.tooltips}
+          topRow={this.props.topRow}
           value={this.props.rate}
-          {...this.props}
-          key={this.props.widgetId}
+          widgetId={this.props.widgetId}
         />
       )
     );

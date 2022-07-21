@@ -46,10 +46,13 @@ export const EditorWrapper = styled.div<{
   height?: string | number;
   borderLess?: boolean;
   isNotHover?: boolean;
+  isReadOnly?: boolean;
+  isRawView?: boolean;
   border?: CodeEditorBorder;
   hoverInteraction?: boolean;
   fill?: boolean;
   className?: string;
+  codeEditorVisibleOverflow?: boolean;
 }>`
   width: 100%;
   ${(props) =>
@@ -61,7 +64,7 @@ export const EditorWrapper = styled.div<{
   top: 0;
   `
       : `position: relative;`}
-  min-height: 32px;
+  min-height: 36px;
   height: ${(props) => props.height || "auto"};
   background-color: ${(props) => editorBackground(props.editorTheme)};
   background-color: ${(props) => props.disabled && "#eef2f5"};
@@ -115,16 +118,14 @@ export const EditorWrapper = styled.div<{
           case props.hasError:
             return "red";
           case props.isFocused:
-            return Colors.PRIMARY_ORANGE;
+            return "var(--appsmith-input-focus-border-color)";
           default:
             return Colors.GREY_5;
         }
       }};
-      background: ${(props) =>
-        props.isFocused
-          ? props.theme.colors.apiPane.requestTree.header.bg
-          : props.theme.colors.apiPane.bg};
+      background: ${(props) => props.theme.colors.apiPane.bg};
       color: ${Colors.CHARCOAL};
+      ${(props) => props.size === EditorSize.COMPACT && `min-height: 36px;`}
       & {
         span.cm-operator {
           color: ${(props) => props.theme.colors.textDefault};
@@ -174,6 +175,14 @@ export const EditorWrapper = styled.div<{
       padding: 2px;
       border-radius: 2px;
       margin-right: 2px;
+    }
+    .datasource-highlight-error {
+      background: #FFF0F0;
+      border: 1px solid #F22B2B;
+    }
+    .datasource-highlight-success {
+      background: #E3FFF3;
+      border: 1px solid #03B365;
     }
     .CodeMirror {
       flex: 1;
@@ -240,6 +249,14 @@ export const EditorWrapper = styled.div<{
   }
   .CodeEditorTarget {
     width: 100%;
+
+    &:focus {
+      border: 1px solid var(--appsmith-input-focus-border-color);
+      .CodeMirror.cm-s-duotone-light {
+        border: none;
+      }
+    }
+
     ${(props) =>
       props.size === EditorSize.COMPACT
         ? `
@@ -255,11 +272,39 @@ export const EditorWrapper = styled.div<{
     ${(props) => {
       let height = props.height || "auto";
       if (props.size === EditorSize.COMPACT && !props.isFocused) {
-        height = props.height || "35px";
+        height = props.height || "36px";
       }
       return `height: ${height}`;
     }}
   }
+
+  ${(props) =>
+    props.codeEditorVisibleOverflow &&
+    `
+    &&&&&&&& .CodeMirror-scroll {
+      overflow: visible;
+    }
+   
+    & .CodeEditorTarget {
+      height: ${props.isFocused ? "auto" : "35px"};
+    }
+  `}
+
+  ${(props) =>
+    props.isReadOnly &&
+    ` 
+      &&&&&&&&&& .cm-m-javascript.cm-number {
+        color: ${props.isRawView ? "#000" : "#268bd2"};
+
+      }
+      &&&&&&&& .cm-m-javascript.cm-string.cm-property {
+        color: ${props.isRawView ? "#000" : "#002b36"};
+      }
+
+      &&&&&&&& .cm-m-javascript.cm-string {
+        color: ${props.isRawView ? "#000" : "#cb4b16"};
+      }
+    `}
 `;
 
 export const IconContainer = styled.div`
@@ -323,8 +368,8 @@ export const DynamicAutocompleteInputWrapper = styled.div<{
     z-index: 2;
     width: 20px;
     position: absolute;
-    right: 5px;
-    top: 7px;
+    right: 0;
+    transform: translate(-50%, 50%);
     height: 20px;
     background: transparent;
     display: none;

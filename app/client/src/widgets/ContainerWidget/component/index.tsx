@@ -29,6 +29,8 @@ const StyledContainerComponent = styled.div<
   ${(props) => (!props.isVisible ? invisible : "")};
   box-shadow: ${(props) =>
     props.selected ? "inset 0px 0px 0px 3px rgba(59,130,246,0.5)" : "none"};
+  border-radius: ${({ borderRadius }) => borderRadius};
+
   ${(props) =>
     props.shouldScrollContents === true
       ? scrollContents
@@ -49,7 +51,7 @@ const StyledContainerComponent = styled.div<
         : props.backgroundColor;
     }};
   }
-}`;
+`;
 
 function ContainerComponentWrapper(props: ContainerComponentProps) {
   const containerStyle = props.containerStyle || "card";
@@ -92,11 +94,11 @@ function ContainerComponent(props: ContainerComponentProps) {
       {...pick(props, [
         "widgetId",
         "containerStyle",
+        "backgroundColor",
         "borderColor",
         "borderWidth",
         "borderRadius",
         "boxShadow",
-        "boxShadowColor",
       ])}
     >
       <ContainerComponentWrapper {...props} />

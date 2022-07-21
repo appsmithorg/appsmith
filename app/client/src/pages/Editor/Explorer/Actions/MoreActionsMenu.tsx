@@ -11,11 +11,21 @@ import {
 
 import { ContextMenuPopoverModifiers } from "../helpers";
 import { noop } from "lodash";
-import TreeDropdown from "components/ads/TreeDropdown";
+import TreeDropdown from "pages/Editor/Explorer/TreeDropdown";
 import { useNewActionName } from "./helpers";
 import styled from "styled-components";
 import Icon, { IconSize } from "components/ads/Icon";
 import { Classes } from "components/ads/common";
+import { Position } from "@blueprintjs/core";
+import { inGuidedTour } from "selectors/onboardingSelectors";
+import { toggleShowDeviationDialog } from "actions/onboardingActions";
+import {
+  CONTEXT_COPY,
+  CONTEXT_DELETE,
+  CONFIRM_CONTEXT_DELETE,
+  CONTEXT_MOVE,
+  createMessage,
+} from "@appsmith/constants/messages";
 
 type EntityContextMenuProps = {
   id: string;
@@ -64,6 +74,8 @@ export const MoreActionablesContainer = styled.div<{ isOpen?: boolean }>`
 export function MoreActionsMenu(props: EntityContextMenuProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const nextEntityName = useNewActionName();
+  const guidedTourEnabled = useSelector(inGuidedTour);
+  const [confirmDelete, setConfirmDelete] = useState(false);
 
   const dispatch = useDispatch();
   const copyActionToPage = useCallback(
@@ -90,9 +102,15 @@ export function MoreActionsMenu(props: EntityContextMenuProps) {
     [dispatch, nextEntityName, props.pageId],
   );
   const deleteActionFromPage = useCallback(
-    (actionId: string, actionName: string) =>
-      dispatch(deleteAction({ id: actionId, name: actionName })),
-    [dispatch],
+    (actionId: string, actionName: string) => {
+      if (guidedTourEnabled) {
+        dispatch(toggleShowDeviationDialog(true));
+        return;
+      }
+
+      dispatch(deleteAction({ id: actionId, name: actionName }));
+    },
+    [dispatch, guidedTourEnabled],
   );
 
   const menuPages = useSelector((state: AppState) => {
@@ -115,7 +133,7 @@ export function MoreActionsMenu(props: EntityContextMenuProps) {
           icon: "duplicate",
           value: "copy",
           onSelect: noop,
-          label: "Copy to page",
+          label: createMessage(CONTEXT_COPY),
           children: menuPages.map((page) => {
             return {
               ...page,
@@ -127,7 +145,7 @@ export function MoreActionsMenu(props: EntityContextMenuProps) {
           icon: "swap-horizontal",
           value: "move",
           onSelect: noop,
-          label: "Move to page",
+          label: createMessage(CONTEXT_MOVE),
           children:
             menuPages.length > 1
               ? menuPages
@@ -142,15 +160,24 @@ export function MoreActionsMenu(props: EntityContextMenuProps) {
               : [{ value: "No Pages", onSelect: noop, label: "No Pages" }],
         },
         {
+          confirmDelete: confirmDelete,
           icon: "trash",
           value: "delete",
-          onSelect: () => deleteActionFromPage(props.id, props.name),
-          label: "Delete",
+          onSelect: () => {
+            confirmDelete
+              ? deleteActionFromPage(props.id, props.name)
+              : setConfirmDelete(true);
+          },
+          label: confirmDelete
+            ? createMessage(CONFIRM_CONTEXT_DELETE)
+            : createMessage(CONTEXT_DELETE),
           intent: "danger",
           className: "t--apiFormDeleteBtn",
         },
       ]}
+      position={Position.LEFT_TOP}
       selectedValue=""
+      setConfirmDelete={setConfirmDelete}
       toggle={
         <MoreActionablesContainer
           className={props.className}

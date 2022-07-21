@@ -6,23 +6,25 @@ LABEL maintainer="tech@appsmith.com"
 WORKDIR /opt/appsmith
 
 # The env variables are needed for Appsmith server to correctly handle non-roman scripts like Arabic.
-ENV LANG C.UTF-8  
-ENV LC_ALL C.UTF-8 
+ENV LANG C.UTF-8
+ENV LC_ALL C.UTF-8
 
 # Update APT packages - Base Layer
-RUN apt-get update && apt-get install --no-install-recommends -y \
-  supervisor curl cron certbot nginx gnupg wget \
-  software-properties-common gettext openjdk-11-jre \
-  && add-apt-repository ppa:redislabs/redis \
-  && apt-get clean \
-  && rm -rf /var/lib/apt/lists/*
+RUN apt-get update \
+  && apt-get upgrade --yes \
+  && DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y \
+    supervisor curl cron certbot nginx gnupg wget netcat openssh-client \
+    software-properties-common gettext openjdk-11-jre \
+    python3-pip python-setuptools git ca-certificates-java \
+  && pip install --no-cache-dir git+https://github.com/coderanger/supervisor-stdout@973ba19967cdaf46d9c1634d1675fc65b9574f6e \
+  && apt-get remove -y git python3-pip
 
 # Install MongoDB v4.0.5, Redis, NodeJS - Service Layer
 RUN wget -qO - https://www.mongodb.org/static/pgp/server-4.4.asc | apt-key add -
 RUN echo "deb [ arch=amd64,arm64 ]http://repo.mongodb.org/apt/ubuntu focal/mongodb-org/4.4 multiverse" | tee /etc/apt/sources.list.d/mongodb-org-4.4.list \
   && apt-get remove wget -y
 RUN curl -sL https://deb.nodesource.com/setup_14.x | bash - \
-  && apt-get -y install --no-install-recommends -y mongodb-org=4.4.6 nodejs redis \
+  && apt-get install --no-install-recommends -y mongodb-org=4.4.6 nodejs redis build-essential \
   && apt-get clean \
   && rm -rf /var/lib/apt/lists/*
 
@@ -61,7 +63,10 @@ COPY ./app/rts/package.json ./app/rts/dist/* rts/
 COPY ./app/rts/node_modules rts/node_modules
 
 # Nginx & MongoDB config template - Configuration layer
-COPY ./deploy/docker/templates/nginx_app.conf.sh ./deploy/docker/templates/mongo-init.js.sh ./deploy/docker/templates/docker.env.sh templates/
+COPY ./deploy/docker/templates/nginx/* \
+  ./deploy/docker/templates/mongo-init.js.sh\
+  ./deploy/docker/templates/docker.env.sh \
+  templates/
 
 # Add bootstrapfile
 COPY ./deploy/docker/entrypoint.sh ./deploy/docker/scripts/* ./
@@ -78,13 +83,16 @@ COPY ./deploy/docker/templates/supervisord/ templates/supervisord/
 COPY ./deploy/docker/templates/cron.d /etc/cron.d/
 RUN chmod 0644 /etc/cron.d/*
 
-RUN chmod +x entrypoint.sh renew-certificate.sh
+RUN chmod +x entrypoint.sh renew-certificate.sh healthcheck.sh
+
+# Disable setuid/setgid bits for the files inside container.
+RUN find / \( -path /proc -prune \) -o \( \( -perm -2000 -o -perm -4000 \) -print -exec chmod -s '{}' + \) || true
 
 # Update path to load appsmith utils tool as default
 ENV PATH /opt/appsmith/utils/node_modules/.bin:$PATH
 
 EXPOSE 80
 EXPOSE 443
-EXPOSE 9001
 ENTRYPOINT [ "/opt/appsmith/entrypoint.sh" ]
+HEALTHCHECK --interval=15s --timeout=15s --start-period=45s CMD "/opt/appsmith/healthcheck.sh"
 CMD ["/usr/bin/supervisord", "-n"]

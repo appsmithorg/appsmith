@@ -1,11 +1,8 @@
 const widgetsPage = require("../../../../locators/Widgets.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
-const publish = require("../../../../locators/publishWidgetspage.json");
 const dsl = require("../../../../fixtures/tableWidgetDsl.json");
-const pages = require("../../../../locators/Pages.json");
 const testdata = require("../../../../fixtures/testdata.json");
 const dsl2 = require("../../../../fixtures/displayWidgetDsl.json");
-const explorer = require("../../../../locators/explorerlocators.json");
 const pageid = "MyPage";
 
 describe("Table Widget and Navigate to functionality validation", function() {
@@ -20,10 +17,10 @@ describe("Table Widget and Navigate to functionality validation", function() {
     cy.get(widgetsPage.tableOnRowSelect).click();
     cy.get(commonlocators.chooseAction)
       .children()
-      .contains("Navigate To")
+      .contains("Navigate to")
       .click();
     cy.enterNavigatePageName(pageid);
-    cy.get(commonlocators.editPropCrossButton).click({ force: true });
+    cy.assertPageSave();
   });
 
   it("Create MyPage and valdiate if its successfully created", function() {
@@ -31,14 +28,15 @@ describe("Table Widget and Navigate to functionality validation", function() {
     cy.addDsl(dsl2);
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(500);
+    cy.CheckAndUnfoldEntityItem("PAGES");
     cy.get(`.t--entity-name:contains("${pageid}")`).should("be.visible");
   });
 
   it("Validate NavigateTo Page functionality ", function() {
-    cy.SearchEntityandOpen("Table1");
-    //Below test to be enabled once the bug related to change of page in table in fixed
-    //cy.get('.t--table-widget-next-page')
-    //  .click();
+    cy.get(`.t--entity-name:contains("Page1")`)
+      .should("be.visible")
+      .click({ force: true });
+    cy.wait(2000);
     cy.PublishtheApp();
     cy.get(widgetsPage.chartWidget).should("not.exist");
     cy.isSelectRow(1);

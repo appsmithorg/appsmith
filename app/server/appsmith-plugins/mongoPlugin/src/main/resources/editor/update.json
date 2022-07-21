@@ -1,8 +1,8 @@
 {
   "identifier": "UPDATE",
-  "controlType" : "SECTION",
+  "controlType": "SECTION",
   "conditionals": {
-    "show": "{{actionConfiguration.formData.command === 'UPDATE'}}"
+    "show": "{{actionConfiguration.formData.command.data === 'UPDATE'}}"
   },
   "children": [
     {
@@ -11,7 +11,7 @@
       "children": [
         {
           "label": "Collection",
-          "configProperty": "actionConfiguration.formData.collection",
+          "configProperty": "actionConfiguration.formData.collection.data",
           "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
           "evaluationSubstitutionType": "TEMPLATE"
         }
@@ -20,28 +20,31 @@
     {
       "controlType": "SECTION",
       "label": "Query",
-      "description" : "Optional",
+      "description": "Optional",
       "children": [
         {
           "label": "Query",
-          "configProperty": "actionConfiguration.formData.updateMany.query",
+          "configProperty": "actionConfiguration.formData.updateMany.query.data",
           "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
           "inputType": "JSON",
           "evaluationSubstitutionType": "TEMPLATE",
-          "placeholderText" : "{rating : {$gte : 9}}"
+          "placeholderText": "{rating : {$gte : 9}}"
         },
         {
           "label": "Update",
-          "configProperty": "actionConfiguration.formData.updateMany.update",
+          "configProperty": "actionConfiguration.formData.updateMany.update.data",
           "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
           "inputType": "JSON",
           "evaluationSubstitutionType": "TEMPLATE",
-          "placeholderText" : "{ $inc: { score: 1 } }"
+          "placeholderText": "{ $inc: { score: 1 } }"
         },
         {
           "label": "Limit",
-          "configProperty": "actionConfiguration.formData.updateMany.limit",
+          "configProperty": "actionConfiguration.formData.updateMany.limit.data",
           "controlType": "DROP_DOWN",
+          "-subtitle": "Allowed values: SINGLE, ALL",
+          "-tooltipText": "Allowed values: SINGLE, ALL",
+          "-alternateViewTypes": ["json"],
           "initialValue": "SINGLE",
           "options": [
             {

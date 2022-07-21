@@ -56,6 +56,7 @@ interface TableProps {
   pageNo: number;
   updatePageNo: (pageNo: number, event?: EventType) => void;
   multiRowSelection?: boolean;
+  isSortable?: boolean;
   nextPageClick: () => void;
   prevPageClick: () => void;
   serverSidePaginationEnabled: boolean;
@@ -77,6 +78,9 @@ interface TableProps {
   isVisiblePagination?: boolean;
   isVisibleSearch?: boolean;
   delimiter: string;
+  accentColor: string;
+  borderRadius: string;
+  boxShadow?: string;
 }
 
 const defaultColumn = {
@@ -212,7 +216,10 @@ export function Table(props: TableProps) {
 
   return (
     <TableWrapper
+      accentColor={props.accentColor}
       backgroundColor={Colors.ATHENS_GRAY_DARKER}
+      borderRadius={props.borderRadius}
+      boxShadow={props.boxShadow}
       height={props.height}
       id={`table${props.widgetId}`}
       isHeaderVisible={isHeaderVisible}
@@ -229,9 +236,13 @@ export function Table(props: TableProps) {
           width={props.width}
         >
           <Scrollbars
+            autoHide
             renderThumbHorizontal={ScrollbarHorizontalThumb}
             renderThumbVertical={ScrollbarVerticalThumb}
-            style={{ width: props.width, height: 38 }}
+            style={{
+              width: props.width,
+              height: 38,
+            }}
           >
             <TableHeaderInnerWrapper
               backgroundColor={Colors.WHITE}
@@ -240,7 +251,10 @@ export function Table(props: TableProps) {
               width={props.width}
             >
               <TableHeader
+                accentColor={props.accentColor}
                 applyFilter={props.applyFilter}
+                borderRadius={props.borderRadius}
+                boxShadow={props.boxShadow}
                 columns={tableHeadercolumns}
                 currentPageIndex={currentPageIndex}
                 delimiter={props.delimiter}
@@ -297,6 +311,8 @@ export function Table(props: TableProps) {
                       renderCheckBoxHeaderCell(
                         handleAllRowSelectClick,
                         rowSelectionState,
+                        props.accentColor,
+                        props.borderRadius,
                       )}
                     {headerGroup.headers.map(
                       (column: any, columnIndex: number) => {
@@ -305,11 +321,14 @@ export function Table(props: TableProps) {
                             column={column}
                             columnIndex={columnIndex}
                             columnName={column.Header}
+                            editMode={props.editMode}
                             isAscOrder={column.isAscOrder}
                             isHidden={column.isHidden}
                             isResizingColumn={isResizingColumn.current}
+                            isSortable={props.isSortable}
                             key={columnIndex}
                             sortTableColumn={props.sortTableColumn}
+                            width={props.width}
                           />
                         );
                       },
@@ -325,6 +344,8 @@ export function Table(props: TableProps) {
                   subPage,
                   prepareRow,
                   props.multiRowSelection,
+                  props.accentColor,
+                  props.borderRadius,
                 )}
             </div>
             <div
@@ -355,7 +376,11 @@ export function Table(props: TableProps) {
                     }}
                   >
                     {props.multiRowSelection &&
-                      renderCheckBoxCell(isRowSelected)}
+                      renderCheckBoxCell(
+                        isRowSelected,
+                        props.accentColor,
+                        props.borderRadius,
+                      )}
                     {row.cells.map((cell, cellIndex) => {
                       return (
                         <div
@@ -380,6 +405,8 @@ export function Table(props: TableProps) {
                   subPage,
                   prepareRow,
                   props.multiRowSelection,
+                  props.accentColor,
+                  props.borderRadius,
                 )}
             </div>
           </div>

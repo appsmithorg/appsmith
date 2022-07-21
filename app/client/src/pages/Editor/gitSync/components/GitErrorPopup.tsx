@@ -1,28 +1,24 @@
 import React from "react";
-import styled from "styled-components";
+import styled, { useTheme } from "styled-components";
 import { Overlay, Classes } from "@blueprintjs/core";
 import { useDispatch, useSelector } from "react-redux";
+import { setIsGitErrorPopupVisible } from "actions/gitSyncActions";
 import {
-  setIsGitErrorPopupVisible,
-  showCreateBranchPopup,
-} from "actions/gitSyncActions";
-import {
-  getGitError,
+  getConflictFoundDocUrlDeploy,
   getIsGitErrorPopupVisible,
 } from "selectors/gitSyncSelectors";
-import Icon from "components/ads/Icon";
+import Icon, { IconSize } from "components/ads/Icon";
 
 import {
   createMessage,
-  RETRY,
-  CREATE_NEW_BRANCH,
-  ERROR_WHILE_PULLING_CHANGES,
-} from "constants/messages";
-import Button, { Category, Size } from "components/ads/Button";
+  CONFLICTS_FOUND_WHILE_PULLING_CHANGES,
+} from "@appsmith/constants/messages";
 import { Space } from "./StyledComponents";
-import { debug } from "loglevel";
 import { Colors } from "constants/Colors";
-import { getTypographyByKey } from "constants/DefaultTheme";
+import { get } from "lodash";
+
+import ConflictInfo from "../components/ConflictInfo";
+import { getCurrentAppGitMetaData } from "selectors/applicationSelectors";
 
 const StyledGitErrorPopup = styled.div`
   & {
@@ -33,6 +29,7 @@ const StyledGitErrorPopup = styled.div`
       right: 0;
       display: flex;
       justify-content: center;
+
       .${Classes.OVERLAY_CONTENT} {
         overflow: hidden;
         bottom: ${(props) =>
@@ -41,9 +38,9 @@ const StyledGitErrorPopup = styled.div`
         background-color: ${Colors.WHITE};
       }
     }
+
     .git-error-popup {
       width: 364px;
-      min-height: 164px;
       padding: ${(props) => props.theme.spaces[7]}px;
 
       display: flex;
@@ -52,23 +49,30 @@ const StyledGitErrorPopup = styled.div`
   }
 `;
 
-const CloseBtnContainer = styled.div`
-  position: absolute;
-  right: ${(props) => props.theme.spaces[6]}px;
-  top: ${(props) => props.theme.spaces[6]}px;
-`;
+function Header({ closePopup }: { closePopup: () => void }) {
+  const title = createMessage(CONFLICTS_FOUND_WHILE_PULLING_CHANGES);
+  const theme = useTheme();
 
-const Title = styled.div`
-  ${(props) => getTypographyByKey(props, "btnMedium")};
-  color: ${Colors.POMEGRANATE2};
-`;
-
-const Error = styled.div`
-  flex: 1;
-  overflow-wrap: anywhere;
-  word-break: break-word;
-  overflow-y: auto;
-`;
+  return (
+    <div
+      style={{
+        display: "flex",
+        justifyContent: "space-between",
+      }}
+    >
+      <div style={{ display: "flex", alignItems: "center" }}>
+        <span className="title">{title}</span>
+      </div>
+      <Icon
+        fillColor={get(theme, "colors.gitSyncModal.closeIcon")}
+        hoverFillColor={Colors.BLACK}
+        name="close-modal"
+        onClick={closePopup}
+        size={IconSize.XXXXL}
+      />
+    </div>
+  );
+}
 
 function GitErrorPopup() {
   const dispatch = useDispatch();
@@ -76,7 +80,12 @@ function GitErrorPopup() {
   const hidePopup = () => {
     dispatch(setIsGitErrorPopupVisible({ isVisible: false }));
   };
-  const gitError = useSelector(getGitError);
+
+  const gitConflictDocumentUrl = useSelector(getConflictFoundDocUrlDeploy);
+  const gitMetaData = useSelector(getCurrentAppGitMetaData);
+  const browserSupportedRemoteUrl =
+    gitMetaData?.browserSupportedRemoteUrl || "";
+  const isConflicting = true; // refactored
 
   return (
     <StyledGitErrorPopup>
@@ -89,31 +98,14 @@ function GitErrorPopup() {
       >
         <div className={Classes.OVERLAY_CONTENT}>
           <div className="git-error-popup">
-            <Title>{createMessage(ERROR_WHILE_PULLING_CHANGES)}</Title>
-            <Space size={7} />
-            <Error>{gitError}</Error>
-            <div style={{ display: "flex" }}>
-              <Button
-                category={Category.tertiary}
-                onClick={() => {
-                  debug("retry GIT operation");
-                }}
-                size={Size.medium}
-                tag="button"
-                text={createMessage(RETRY)}
+            <Header closePopup={hidePopup} />
+            <Space size={2} />
+            {isConflicting && (
+              <ConflictInfo
+                browserSupportedRemoteUrl={browserSupportedRemoteUrl}
+                learnMoreLink={gitConflictDocumentUrl}
               />
-              <Space horizontal size={2} />
-              <Button
-                category={Category.primary}
-                onClick={() => dispatch(showCreateBranchPopup())}
-                size={Size.medium}
-                tag="button"
-                text={createMessage(CREATE_NEW_BRANCH)}
-              />
-            </div>
-            <CloseBtnContainer>
-              <Icon name="close-modal" onClick={hidePopup} />
-            </CloseBtnContainer>
+            )}
           </div>
         </div>
       </Overlay>

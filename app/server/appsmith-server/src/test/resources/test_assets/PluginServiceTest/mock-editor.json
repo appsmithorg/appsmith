@@ -1,0 +1,26 @@
+{
+  "editor": [
+    {
+      "controlType": "SECTION",
+      "identifier": "SELECTOR",
+      "children": [
+        {
+          "label": "Commands",
+          "description": "Choose the method you would like to use",
+          "configProperty": "actionConfiguration.formData.command.data",
+          "controlType": "DROP_DOWN",
+          "initialValue": "EXAMPLE",
+          "options": [
+            {
+              "label": "Example command",
+              "value": "EXAMPLE"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "files": [
+    "mock-example.json"
+  ]
+}

@@ -8,14 +8,17 @@ import {
   getCurrentApplicationId,
   getCurrentPageId,
 } from "selectors/editorSelectors";
-import { getAction } from "selectors/entitiesSelector";
+import { getAction, getPlugins } from "selectors/entitiesSelector";
 import { onApiEditor, onQueryEditor, onCanvas } from "../helpers";
 import { getSelectedWidget } from "selectors/ui";
 import { getDataTree } from "selectors/dataTreeSelectors";
 import { useNavigateToWidget } from "pages/Editor/Explorer/Widgets/useNavigateToWidget";
 import { getActionConfig } from "pages/Editor/Explorer/Actions/helpers";
-import { isWidget, isAction } from "workers/evaluationUtils";
+import { isWidget, isAction, isJSAction } from "workers/evaluationUtils";
 import history from "utils/history";
+import { jsCollectionIdURL } from "RouteBuilder";
+import store from "store";
+import { PluginType } from "entities/Action";
 
 export const useFilteredLogs = (query: string, filter?: any) => {
   let logs = useSelector((state: AppState) => state.ui.debugger.logs);
@@ -62,15 +65,9 @@ export const usePagination = (data: Log[], itemsPerPage = 50) => {
 };
 
 export const useSelectedEntity = () => {
-  const applicationId = useSelector(getCurrentApplicationId);
-  const currentPageId = useSelector(getCurrentPageId);
-
   const params: any = useParams();
   const action = useSelector((state: AppState) => {
-    if (
-      onApiEditor(applicationId, currentPageId) ||
-      onQueryEditor(applicationId, currentPageId)
-    ) {
+    if (onApiEditor() || onQueryEditor()) {
       const id = params.apiId || params.queryId;
 
       return getAction(state, id);
@@ -81,23 +78,20 @@ export const useSelectedEntity = () => {
 
   const selectedWidget = useSelector(getSelectedWidget);
   const widget = useSelector((state: AppState) => {
-    if (onCanvas(applicationId, currentPageId)) {
+    if (onCanvas()) {
       return selectedWidget ? getWidget(state, selectedWidget) : null;
     }
 
     return null;
   });
 
-  if (
-    onApiEditor(applicationId, currentPageId) ||
-    onQueryEditor(applicationId, currentPageId)
-  ) {
+  if (onApiEditor() || onQueryEditor()) {
     return {
       name: action?.name ?? "",
       type: ENTITY_TYPE.ACTION,
       id: action?.id ?? "",
     };
-  } else if (onCanvas(applicationId, currentPageId)) {
+  } else if (onCanvas()) {
     return {
       name: widget?.widgetName ?? "",
       type: ENTITY_TYPE.WIDGET,
@@ -109,34 +103,47 @@ export const useSelectedEntity = () => {
 };
 
 export const useEntityLink = () => {
-  const dataTree = useSelector(getDataTree);
-  const applicationId = useSelector(getCurrentApplicationId);
   const pageId = useSelector(getCurrentPageId);
+  const plugins = useSelector(getPlugins);
+  const applicationId = useSelector(getCurrentApplicationId);
 
   const { navigateToWidget } = useNavigateToWidget();
 
   const navigateToEntity = useCallback(
     (name) => {
+      const dataTree = getDataTree(store.getState());
       const entity = dataTree[name];
+      if (!pageId) return;
       if (isWidget(entity)) {
         navigateToWidget(entity.widgetId, entity.type, pageId || "");
       } else if (isAction(entity)) {
         const actionConfig = getActionConfig(entity.pluginType);
+        let plugin;
+        if (entity?.pluginType === PluginType.SAAS) {
+          plugin = plugins.find((plugin) => plugin?.id === entity?.pluginId);
+        }
         const url =
           applicationId &&
           actionConfig?.getURL(
-            applicationId,
-            pageId || "",
+            pageId,
             entity.actionId,
             entity.pluginType,
+            plugin,
           );
 
         if (url) {
           history.push(url);
         }
+      } else if (isJSAction(entity)) {
+        history.push(
+          jsCollectionIdURL({
+            pageId,
+            collectionId: entity.actionId,
+          }),
+        );
       }
     },
-    [dataTree],
+    [pageId],
   );
 
   return {

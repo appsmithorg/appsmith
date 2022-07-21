@@ -3,8 +3,8 @@ import {
   ReduxAction,
   ReduxActionTypes,
   ReduxActionErrorPayload,
-} from "constants/ReduxActionConstants";
-import { ERROR_CODES } from "constants/ApiConstants";
+} from "@appsmith/constants/ReduxActionConstants";
+import { ERROR_CODES } from "@appsmith/constants/ApiConstants";
 import _ from "lodash";
 
 const initialState: ErrorReduxState = {

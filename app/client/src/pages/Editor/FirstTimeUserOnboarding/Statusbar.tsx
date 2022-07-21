@@ -1,6 +1,5 @@
 import { Icon } from "@blueprintjs/core";
-import { ReduxActionTypes } from "constants/ReduxActionConstants";
-import { getOnboardingCheckListUrl } from "constants/routes";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { useIsWidgetActionConnectionPresent } from "pages/Editor/utils";
 import React, { SyntheticEvent } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -8,7 +7,6 @@ import { RouteComponentProps, withRouter } from "react-router-dom";
 import { getEvaluationInverseDependencyMap } from "selectors/dataTreeSelectors";
 import {
   getApplicationLastDeployedAt,
-  getCurrentApplicationId,
   getCurrentPageId,
 } from "selectors/editorSelectors";
 import {
@@ -33,20 +31,20 @@ import {
   ONBOARDING_STATUS_GET_STARTED,
   createMessage,
   ONBOARDING_STATUS_STEPS_THIRD_ALT,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 import { getTypographyByKey } from "constants/DefaultTheme";
-import { useIntiateOnboarding } from "components/editorComponents/Onboarding/utils";
 import { Colors } from "constants/Colors";
+import { onboardingCheckListUrl } from "RouteBuilder";
 
 const Wrapper = styled.div<{ active: boolean }>`
-  position: relative;
   width: 100%;
   background-color: ${(props) =>
     props.active ? props.theme.colors.welcomeTourStickySidebarBackground : ""};
   cursor: ${(props) => (props.active ? "default" : "pointer")};
   height: ${(props) => props.theme.onboarding.statusBarHeight}px;
-  padding: 10px 16px;
+  padding: 12px 16px;
   transition: background-color 0.3s ease;
+  border: 1px solid ${Colors.Gallery};
 
   ${(props) =>
     props.active &&
@@ -193,7 +191,6 @@ const useStatus = (): { percentage: number; content: string } => {
 
 export function OnboardingStatusbar(props: RouteComponentProps) {
   const dispatch = useDispatch();
-  const applicationId = useSelector(getCurrentApplicationId);
   const pageId = useSelector(getCurrentPageId);
   const { content, percentage } = useStatus();
   const isChecklistPage = props.location.pathname.indexOf("/checklist") > -1;
@@ -202,7 +199,6 @@ export function OnboardingStatusbar(props: RouteComponentProps) {
   const isFirstTimeUserOnboardingComplete = useSelector(
     getFirstTimeUserOnboardingComplete,
   );
-  const intiateOnboarding = useIntiateOnboarding();
   if (isGenerateAppPage) {
     return null;
   }
@@ -211,7 +207,6 @@ export function OnboardingStatusbar(props: RouteComponentProps) {
     dispatch({
       type: ReduxActionTypes.END_FIRST_TIME_USER_ONBOARDING,
     });
-    intiateOnboarding();
   };
   if (percentage === 100 && !isFirstTimeUserOnboardingComplete) {
     dispatch({
@@ -231,9 +226,10 @@ export function OnboardingStatusbar(props: RouteComponentProps) {
   return (
     <Wrapper
       active={isChecklistPage}
+      className="sticky top-0 t--onboarding-statusbar"
       data-testid="statusbar-container"
       onClick={() => {
-        history.push(getOnboardingCheckListUrl(applicationId, pageId));
+        history.push(onboardingCheckListUrl({ pageId }));
       }}
     >
       {!isFirstTimeUserOnboardingComplete && (
@@ -249,7 +245,7 @@ export function OnboardingStatusbar(props: RouteComponentProps) {
       <TitleWrapper>
         {createMessage(ONBOARDING_STATUS_GET_STARTED)}
       </TitleWrapper>
-      <StatusText>
+      <StatusText className="mt-2">
         <span data-testid="statusbar-text">{content}</span>&nbsp;&nbsp;
         {!isChecklistPage && (
           <Icon

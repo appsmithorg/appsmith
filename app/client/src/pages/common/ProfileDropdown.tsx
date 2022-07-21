@@ -1,6 +1,6 @@
 import React from "react";
 import { CommonComponentProps, Classes } from "components/ads/common";
-import Text, { TextType } from "components/ads/Text";
+import { Text, TextType } from "design-system";
 import styled from "styled-components";
 import { Position, Classes as BlueprintClasses } from "@blueprintjs/core";
 import Menu from "components/ads/Menu";
@@ -10,17 +10,30 @@ import {
   getOnSelectAction,
   DropdownOnSelectActions,
 } from "./CustomizedDropdown/dropdownHelpers";
-import { ReduxActionTypes } from "constants/ReduxActionConstants";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import ProfileImage from "./ProfileImage";
 import { PopperModifiers } from "@blueprintjs/core";
-import { PROFILE } from "constants/routes";
-import UserApi from "api/UserApi";
+import {
+  PROFILE,
+  ADMIN_SETTINGS_CATEGORY_DEFAULT_PATH,
+} from "constants/routes";
 import { Colors } from "constants/Colors";
+import { TooltipComponent } from "design-system";
+import {
+  ACCOUNT_TOOLTIP,
+  createMessage,
+  ADMIN_SETTINGS,
+} from "@appsmith/constants/messages";
+import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
+import { useSelector } from "react-redux";
+import { getCurrentUser } from "selectors/usersSelectors";
+
 type TagProps = CommonComponentProps & {
   onClick?: (text: string) => void;
   userName?: string;
   name: string;
   modifiers?: PopperModifiers;
+  photoId?: string;
 };
 
 const StyledMenuItem = styled(MenuItem)`
@@ -80,18 +93,27 @@ const UserNameWrapper = styled.div`
 `;
 
 export default function ProfileDropdown(props: TagProps) {
+  const user = useSelector(getCurrentUser);
   const Profile = (
-    <ProfileImage
-      source={`/api/${UserApi.photoURL}`}
-      userName={props.name || props.userName}
-    />
+    <TooltipComponent
+      content={createMessage(ACCOUNT_TOOLTIP)}
+      hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
+      position="bottom-right"
+    >
+      <ProfileImage
+        className="t--profile-menu-icon"
+        size={34}
+        source={!!props.photoId ? `/api/v1/assets/${props.photoId}` : ""}
+        userName={props.name || props.userName}
+      />
+    </TooltipComponent>
   );
 
   return (
     <Menu
       className="profile-menu t--profile-menu"
       modifiers={props.modifiers}
-      position={Position.BOTTOM}
+      position={Position.BOTTOM_RIGHT}
       target={Profile}
     >
       <UserInformation>
@@ -121,6 +143,18 @@ export default function ProfileDropdown(props: TagProps) {
         }}
         text="Edit Profile"
       />
+      {user?.isSuperUser && user?.isConfigurable && (
+        <StyledMenuItem
+          className={`t--admin-settings-menu ${BlueprintClasses.POPOVER_DISMISS}`}
+          icon="setting"
+          onSelect={() => {
+            getOnSelectAction(DropdownOnSelectActions.REDIRECT, {
+              path: ADMIN_SETTINGS_CATEGORY_DEFAULT_PATH,
+            });
+          }}
+          text={createMessage(ADMIN_SETTINGS)}
+        />
+      )}
       <StyledMenuItem
         className="t--logout-icon"
         icon="logout"

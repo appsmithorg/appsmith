@@ -9,16 +9,22 @@ import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.Param;
 import com.appsmith.external.models.Property;
+import com.appsmith.external.models.TriggerRequestDTO;
+import com.appsmith.external.models.TriggerResultDTO;
 import org.pf4j.ExtensionPoint;
 import org.springframework.util.CollectionUtils;
 import reactor.core.publisher.Mono;
+import reactor.util.function.Tuple2;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public interface PluginExecutor<C> extends ExtensionPoint {
+import static com.appsmith.external.helpers.PluginUtils.getHintMessageForLocalhostUrl;
+
+public interface PluginExecutor<C> extends ExtensionPoint, CrudTemplateService {
 
     /**
      * This function is implemented by the plugins by default to execute the action.
@@ -173,5 +179,46 @@ public interface PluginExecutor<C> extends ExtensionPoint {
             MustacheHelper.renderFieldValues(datasourceConfiguration, replaceParamsMap);
             MustacheHelper.renderFieldValues(actionConfiguration, replaceParamsMap);
         }
+    }
+
+    /**
+     * This method generates hint messages after reading the action configuration and the datasource configuration
+     * defined by user. Each plugin must override this method to provide their plugin specific hint messages - since
+     * the configuration related constraints can only be meaningfully interpreted by the respective plugins for which
+     * they are defined. Otherwise, this default implementation will be used.
+     *
+     * It generates two set of hint messages - one for action configuration and another for the datasource
+     * configuration. The datasource related hint messages are meant to be displayed on the datasource configuration
+     * page and the action related hint messages are meant to be displayed on the query editor page.
+     *
+     * @param actionConfiguration
+     * @param datasourceConfiguration
+     * @return A tuple of datasource and action configuration related hint messages.
+     */
+    default Mono<Tuple2<Set<String>, Set<String>>> getHintMessages(ActionConfiguration actionConfiguration,
+                                                                        DatasourceConfiguration datasourceConfiguration) {
+        Set<String> datasourceHintMessages = new HashSet<>();
+        Set<String> actionHintMessages = new HashSet<>();
+
+        datasourceHintMessages.addAll(getHintMessageForLocalhostUrl(datasourceConfiguration));
+
+        return Mono.zip(Mono.just(datasourceHintMessages), Mono.just(actionHintMessages));
+    }
+
+    default Mono<TriggerResultDTO> trigger(C connection, DatasourceConfiguration datasourceConfiguration, TriggerRequestDTO request) {
+        return Mono.empty();
+    }
+
+    /**
+     * This method coverts a plugin's form data to its native query. Currently, it is meant to help users
+     * switch easily from form based input to raw input mode by providing a readily available translation of the form
+     * data to raw query. It stores its result at the following two keys:
+     *   o formToNativeQuery.status: success / error
+     *   o formToNativeQuery.data: translated raw query if status is success or error message if status is error.
+     * Each plugin must override this method to provide their own translation logic.
+     * @param actionConfiguration
+     * @return modified actionConfiguration object after setting the two keys mentioned above in `formData`.
+     */
+    default void extractAndSetNativeQueryFromFormData(ActionConfiguration actionConfiguration) {
     }
 }

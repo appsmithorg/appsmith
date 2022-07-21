@@ -4,13 +4,14 @@ import {
   ReduxAction,
   ReduxActionTypes,
   ReduxActionErrorTypes,
-} from "constants/ReduxActionConstants";
+} from "@appsmith/constants/ReduxActionConstants";
 
 import {
   CommentsOnboardingState,
   DefaultCurrentUserDetails,
   User,
 } from "constants/userConstants";
+import FeatureFlags from "entities/FeatureFlags";
 
 const initialState: UsersReduxState = {
   loadingStates: {
@@ -22,7 +23,10 @@ const initialState: UsersReduxState = {
   error: "",
   current: undefined,
   currentUser: undefined,
-  featureFlagFetched: false,
+  featureFlag: {
+    data: {},
+    isFetched: false,
+  },
 };
 
 const usersReducer = createReducer(initialState, {
@@ -145,15 +149,34 @@ const usersReducer = createReducer(initialState, {
       },
     ],
   }),
-  [ReduxActionTypes.FETCH_FEATURE_FLAGS_SUCCESS]: (state: UsersReduxState) => ({
+  [ReduxActionTypes.UPDATE_PHOTO_ID]: (
+    state: UsersReduxState,
+    action: ReduxAction<{ photoId: string }>,
+  ) => ({
     ...state,
-    featureFlagFetched: true,
+    currentUser: {
+      ...state.currentUser,
+      photoId: action.payload.photoId,
+    },
+  }),
+  [ReduxActionTypes.FETCH_FEATURE_FLAGS_SUCCESS]: (
+    state: UsersReduxState,
+    action: ReduxAction<FeatureFlags>,
+  ) => ({
+    ...state,
+    featureFlag: {
+      data: action.payload,
+      isFetched: true,
+    },
   }),
   [ReduxActionErrorTypes.FETCH_FEATURE_FLAGS_ERROR]: (
     state: UsersReduxState,
   ) => ({
     ...state,
-    featureFlagFetched: true,
+    featureFlag: {
+      data: {},
+      isFetched: true,
+    },
   }),
   [ReduxActionTypes.UPDATE_USERS_COMMENTS_ONBOARDING_STATE]: (
     state: UsersReduxState,
@@ -185,7 +208,10 @@ export interface UsersReduxState {
   currentUser?: User;
   error: string;
   propPanePreferences?: PropertyPanePositionConfig;
-  featureFlagFetched: boolean;
+  featureFlag: {
+    isFetched: boolean;
+    data: FeatureFlags;
+  };
 }
 
 export default usersReducer;

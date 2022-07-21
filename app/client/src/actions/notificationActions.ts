@@ -1,4 +1,4 @@
-import { ReduxActionTypes } from "constants/ReduxActionConstants";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { AppsmithNotification } from "entities/Notification";
 
 export const fetchNotificationsRequest = (beforeTime?: string) => ({

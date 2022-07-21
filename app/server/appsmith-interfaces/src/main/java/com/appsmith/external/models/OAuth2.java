@@ -28,11 +28,17 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 @DocumentType(Authentication.OAUTH2)
 public class OAuth2 extends AuthenticationDTO {
+
     public enum Type {
         @JsonProperty(Authentication.CLIENT_CREDENTIALS)
         CLIENT_CREDENTIALS,
         @JsonProperty(Authentication.AUTHORIZATION_CODE)
         AUTHORIZATION_CODE
+    }
+
+    public enum RefreshTokenClientCredentialsLocation {
+        HEADER,
+        BODY
     }
 
     Type grantType;
@@ -58,6 +64,10 @@ public class OAuth2 extends AuthenticationDTO {
 
     Set<String> scope;
 
+    Boolean sendScopeWithRefreshToken;
+
+    RefreshTokenClientCredentialsLocation refreshTokenClientCredentialsLocation;
+
     String headerPrefix;
 
     Set<Property> customTokenParameters;
@@ -65,6 +75,8 @@ public class OAuth2 extends AuthenticationDTO {
     String audience;
 
     String resource;
+
+    boolean useSelfSignedCert = false;
 
     public String getScopeString() {
         if (scopeString != null && !scopeString.isBlank()) {

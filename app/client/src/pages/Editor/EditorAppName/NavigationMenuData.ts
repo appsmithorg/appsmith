@@ -9,39 +9,73 @@ import {
   setCommentModeInUrl,
   useHideComments,
 } from "pages/Editor/ToggleModeButton";
-import { ReduxActionTypes } from "constants/ReduxActionConstants";
-import { APPLICATIONS_URL, PAGE_LIST_EDITOR_URL } from "constants/routes";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import { APPLICATIONS_URL } from "constants/routes";
 
 import { MenuItemData, MenuTypes } from "./NavigationMenuItem";
 import { useCallback } from "react";
 import { ExplorerURLParams } from "../Explorer/helpers";
-import { getExportAppAPIRoute } from "constants/ApiConstants";
+import { getExportAppAPIRoute } from "@appsmith/constants/ApiConstants";
+
 import {
   isPermitted,
   PERMISSION_TYPE,
 } from "../../Applications/permissionHelpers";
 import { getCurrentApplication } from "selectors/applicationSelectors";
 import { Colors } from "constants/Colors";
+import { setIsGitSyncModalOpen } from "actions/gitSyncActions";
+import { GitSyncModalTab } from "entities/GitSync";
+import { getIsGitConnected } from "selectors/gitSyncSelectors";
+import {
+  createMessage,
+  DEPLOY_MENU_OPTION,
+  CONNECT_TO_GIT_OPTION,
+  CURRENT_DEPLOY_PREVIEW_OPTION,
+} from "@appsmith/constants/messages";
+import { getCurrentApplicationId } from "selectors/editorSelectors";
+import { redoAction, undoAction } from "actions/pageActions";
+import { redoShortCut, undoShortCut } from "utils/helpers";
+import { pageListEditorURL } from "RouteBuilder";
+import AnalyticsUtil from "utils/AnalyticsUtil";
+import { selectFeatureFlags } from "selectors/usersSelectors";
 
 type NavigationMenuDataProps = ThemeProp & {
-  applicationId: string | undefined;
   editMode: typeof noop;
   deploy: typeof noop;
   currentDeployLink: string;
 };
 
 export const GetNavigationMenuData = ({
-  applicationId,
   currentDeployLink,
   deploy,
   editMode,
 }: NavigationMenuDataProps): MenuItemData[] => {
   const dispatch = useDispatch();
+
   const isHideComments = useHideComments();
   const history = useHistory();
   const params = useParams<ExplorerURLParams>();
-  const currentApplication = useSelector(getCurrentApplication);
+
+  const isGitConnected = useSelector(getIsGitConnected);
+
+  const openGitConnectionPopup = () => {
+    AnalyticsUtil.logEvent("GS_CONNECT_GIT_CLICK", {
+      source: "Application name menu (top left)",
+    });
+
+    dispatch(
+      setIsGitSyncModalOpen({
+        isOpen: true,
+        tab: GitSyncModalTab.GIT_CONNECTION,
+      }),
+    );
+  };
+
+  const applicationId = useSelector(getCurrentApplicationId);
+
   const isApplicationIdPresent = !!(applicationId && applicationId.length > 0);
+
+  const currentApplication = useSelector(getCurrentApplication);
   const hasExportPermission = isPermitted(
     currentApplication?.userPermissions ?? [],
     PERMISSION_TYPE.EXPORT_APPLICATION,
@@ -57,7 +91,7 @@ export const GetNavigationMenuData = ({
       dispatch({
         type: ReduxActionTypes.DELETE_APPLICATION_INIT,
         payload: {
-          applicationId,
+          applicationId: applicationId,
         },
       });
       history.push(APPLICATIONS_URL);
@@ -69,17 +103,70 @@ export const GetNavigationMenuData = ({
     }
   };
 
+  const deployOptions = [
+    {
+      text: createMessage(DEPLOY_MENU_OPTION),
+      onClick: deploy,
+      type: MenuTypes.MENU,
+      isVisible: true,
+      isOpensNewWindow: true,
+      className: "t--app-name-menu-deploy",
+    },
+    {
+      text: createMessage(CURRENT_DEPLOY_PREVIEW_OPTION),
+      onClick: () => openExternalLink(currentDeployLink),
+      type: MenuTypes.MENU,
+      isVisible: true,
+      isOpensNewWindow: true,
+      className: "t--app-name-menu-deploy-current-version",
+    },
+  ];
+
+  const featureFlags = useSelector(selectFeatureFlags);
+
+  if (featureFlags.GIT && !isGitConnected) {
+    deployOptions.push({
+      text: createMessage(CONNECT_TO_GIT_OPTION),
+      onClick: () => openGitConnectionPopup(),
+      type: MenuTypes.MENU,
+      isVisible: true,
+      isOpensNewWindow: false,
+      className: "t--app-name-menu-deploy-connect-to-git",
+    });
+  }
+
   return [
     {
-      text: "Rename",
+      text: "Edit Name",
       onClick: editMode,
       type: MenuTypes.MENU,
       isVisible: true,
     },
     {
+      text: "Edit",
+      type: MenuTypes.PARENT,
+      isVisible: true,
+      children: [
+        {
+          text: "Undo",
+          labelElement: undoShortCut(),
+          onClick: () => dispatch(undoAction()),
+          type: MenuTypes.MENU,
+          isVisible: true,
+        },
+        {
+          text: "Redo",
+          labelElement: redoShortCut(),
+          onClick: () => dispatch(redoAction()),
+          type: MenuTypes.MENU,
+          isVisible: true,
+        },
+      ],
+    },
+    {
       text: "Pages",
       onClick: () => {
-        history.push(PAGE_LIST_EDITOR_URL(params.applicationId, params.pageId));
+        history.push(pageListEditorURL({ pageId: params.pageId }));
       },
       type: MenuTypes.MENU,
       isVisible: true,
@@ -109,22 +196,8 @@ export const GetNavigationMenuData = ({
       text: "Deploy",
       type: MenuTypes.PARENT,
       isVisible: true,
-      children: [
-        {
-          text: "Deploy",
-          onClick: deploy,
-          type: MenuTypes.MENU,
-          isVisible: true,
-          isOpensNewWindow: true,
-        },
-        {
-          text: "Current Deployed Version",
-          onClick: () => openExternalLink(currentDeployLink),
-          type: MenuTypes.MENU,
-          isVisible: true,
-          isOpensNewWindow: true,
-        },
-      ],
+      children: deployOptions,
+      className: "t--app-name-menu-deploy-parent",
     },
     {
       text: "Help",

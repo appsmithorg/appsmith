@@ -1,21 +1,20 @@
-import Widget from "./widget";
-import IconSVG from "./icon.svg";
-import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
 import FileDataTypes from "./constants";
+import IconSVG from "./icon.svg";
+import Widget from "./widget";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
   name: "FilePicker",
   iconSVG: IconSVG,
   needsMeta: true,
+  searchTags: ["upload"],
   defaults: {
-    rows: 1 * GRID_DENSITY_MIGRATION_V1,
+    rows: 4,
     files: [],
     selectedFiles: [],
-    defaultSelectedFiles: [],
     allowedFileTypes: [],
     label: "Select Files",
-    columns: 4 * GRID_DENSITY_MIGRATION_V1,
+    columns: 16,
     maxNumFiles: 1,
     maxFileSize: 5,
     fileDataType: FileDataTypes.Base64,
@@ -24,6 +23,7 @@ export const CONFIG = {
     version: 1,
     isRequired: false,
     isDisabled: false,
+    animateLoading: true,
   },
   properties: {
     derived: Widget.getDerivedPropertiesMap(),

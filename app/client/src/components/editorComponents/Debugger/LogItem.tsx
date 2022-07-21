@@ -1,4 +1,4 @@
-import { Collapse, Position } from "@blueprintjs/core";
+import { Collapse } from "@blueprintjs/core";
 import { get } from "lodash";
 import { Classes as BPPopover2Classes } from "@blueprintjs/popover2";
 import { isString } from "lodash";
@@ -10,10 +10,13 @@ import ReactJson from "react-json-view";
 import styled, { useTheme } from "styled-components";
 import EntityLink, { DebuggerLinkUI } from "./EntityLink";
 import { SeverityIcon } from "./helpers";
-import Text, { TextType } from "components/ads/Text";
+import { Text, TextType } from "design-system";
 import { getTypographyByKey } from "constants/DefaultTheme";
-import TooltipComponent from "components/ads/Tooltip";
-import { createMessage, TROUBLESHOOT_ISSUE } from "constants/messages";
+import { TooltipComponent } from "design-system";
+import {
+  createMessage,
+  TROUBLESHOOT_ISSUE,
+} from "@appsmith/constants/messages";
 import ContextualMenu from "./ContextualMenu";
 
 const Wrapper = styled.div<{ collapsed: boolean }>`
@@ -67,7 +70,7 @@ const Wrapper = styled.div<{ collapsed: boolean }>`
         }
       }
     }
-    
+
     .${BPPopover2Classes.POPOVER2_OPEN} {
       .${Classes.ICON}.search-menu {
         path {
@@ -100,7 +103,6 @@ const Wrapper = styled.div<{ collapsed: boolean }>`
     .debugger-toggle {
       ${(props) => props.collapsed && `transform: rotate(-90deg);`}
       margin-left: -5px;
-      margin-top: 
     }
 
     .debugger-label {
@@ -247,7 +249,7 @@ function LogItem(props: LogItemProps) {
             <Icon
               className={`${Classes.ICON} debugger-toggle`}
               fillColor={get(theme, "colors.debugger.jsonIcon")}
-              name={"downArrow"}
+              name={"down-arrow"}
               onClick={() => setIsOpen(!isOpen)}
               size={IconSize.XXL}
             />
@@ -273,7 +275,7 @@ function LogItem(props: LogItemProps) {
                   </Text>
                 }
                 minimal
-                position={Position.BOTTOM_LEFT}
+                position="bottom-left"
               >
                 <StyledSearchIcon
                   className={`${Classes.ICON} search-menu`}

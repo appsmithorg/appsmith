@@ -7,6 +7,7 @@ import Skeleton from "components/utils/Skeleton";
 import { retryPromise } from "utils/AppsmithUtils";
 import ReactPlayer from "react-player";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
+import { ButtonBorderRadius } from "components/constants";
 
 const VideoComponent = lazy(() => retryPromise(() => import("../component")));
 
@@ -37,7 +38,7 @@ class VideoWidget extends BaseWidget<VideoWidgetProps, WidgetState> {
                 regex: /(http(s)?:\/\/.)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/,
                 expected: {
                   type: "Video URL",
-                  example: "https://www.youtube.com/watch?v=mzqK0QIZRLs",
+                  example: "https://assets.appsmith.com/widgets/bird.mp4",
                   autocompleteDataType: AutocompleteDataType.STRING,
                 },
               },
@@ -46,7 +47,8 @@ class VideoWidget extends BaseWidget<VideoWidgetProps, WidgetState> {
           {
             propertyName: "autoPlay",
             label: "Auto Play",
-            helpText: "Video will be automatically played",
+            helpText:
+              "Video will be automatically played, by enabling this feature, video will be muted by default.",
             controlType: "SWITCH",
             isJSConvertible: true,
             isBindProperty: true,
@@ -63,10 +65,21 @@ class VideoWidget extends BaseWidget<VideoWidgetProps, WidgetState> {
             isTriggerProperty: false,
             validation: { type: ValidationTypes.BOOLEAN },
           },
+          {
+            propertyName: "animateLoading",
+            label: "Animate Loading",
+            controlType: "SWITCH",
+            helpText: "Controls the loading of the widget",
+            defaultValue: true,
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+          },
         ],
       },
       {
-        sectionName: "Actions",
+        sectionName: "Events",
         children: [
           {
             helpText: "Triggers an action when the video is played",
@@ -97,6 +110,43 @@ class VideoWidget extends BaseWidget<VideoWidgetProps, WidgetState> {
           },
         ],
       },
+      {
+        sectionName: "Styles",
+        children: [
+          {
+            propertyName: "backgroundColor",
+            helpText: "Sets the background color of the widget",
+            label: "Background color",
+            controlType: "COLOR_PICKER",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
+          {
+            propertyName: "borderRadius",
+            label: "Border Radius",
+            helpText:
+              "Rounds the corners of the icon button's outer border edge",
+            controlType: "BORDER_RADIUS_OPTIONS",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
+          {
+            propertyName: "boxShadow",
+            label: "Box Shadow",
+            helpText:
+              "Enables you to cast a drop shadow from the frame of the widget",
+            controlType: "BOX_SHADOW_OPTIONS",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
+        ],
+      },
     ];
   }
   private _player = React.createRef<ReactPlayer>();
@@ -117,6 +167,10 @@ class VideoWidget extends BaseWidget<VideoWidgetProps, WidgetState> {
       <Suspense fallback={<Skeleton />}>
         <VideoComponent
           autoplay={autoPlay}
+          backgroundColor={this.props.backgroundColor}
+          borderRadius={this.props.borderRadius}
+          boxShadow={this.props.boxShadow}
+          boxShadowColor={this.props.boxShadowColor}
           controls
           onEnded={() => {
             this.props.updateWidgetMetaProperty("playState", PlayState.ENDED, {
@@ -168,6 +222,9 @@ export interface VideoWidgetProps extends WidgetProps {
   onPause?: string;
   onPlay?: string;
   onEnd?: string;
+  backgroundColor?: string;
+  borderRadius?: ButtonBorderRadius;
+  boxShadow?: string;
 }
 
 export default VideoWidget;

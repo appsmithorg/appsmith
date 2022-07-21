@@ -215,13 +215,25 @@ export default [
         validation: { type: ValidationTypes.BOOLEAN },
       },
       {
+        propertyName: "animateLoading",
+        label: "Animate Loading",
+        controlType: "SWITCH",
+        helpText: "Controls the loading of the widget",
+        defaultValue: true,
+        isJSConvertible: true,
+        isBindProperty: true,
+        isTriggerProperty: false,
+        validation: { type: ValidationTypes.BOOLEAN },
+      },
+      {
         helpText: "Enables scrolling inside the chart",
-        propertyName: "allowHorizontalScroll",
-        label: "Allow horizontal scroll",
+        propertyName: "allowScroll",
+        label: "Allow scroll",
         controlType: "SWITCH",
         isBindProperty: false,
         isTriggerProperty: false,
-        hidden: (x: ChartWidgetProps) => x.chartType === "CUSTOM_FUSION_CHART",
+        hidden: (x: ChartWidgetProps) =>
+          x.chartType === "CUSTOM_FUSION_CHART" || x.chartType === "PIE_CHART",
         dependencies: ["chartType"],
       },
     ],
@@ -294,7 +306,7 @@ export default [
     ],
   },
   {
-    sectionName: "Actions",
+    sectionName: "Events",
     children: [
       {
         helpText: "Triggers an action when the chart data point is clicked",
@@ -304,6 +316,32 @@ export default [
         isJSConvertible: true,
         isBindProperty: true,
         isTriggerProperty: true,
+      },
+    ],
+  },
+  {
+    sectionName: "Styles",
+    children: [
+      {
+        propertyName: "borderRadius",
+        label: "Border Radius",
+        helpText: "Rounds the corners of the icon button's outer border edge",
+        controlType: "BORDER_RADIUS_OPTIONS",
+        isJSConvertible: true,
+        isBindProperty: true,
+        isTriggerProperty: false,
+        validation: { type: ValidationTypes.TEXT },
+      },
+      {
+        propertyName: "boxShadow",
+        label: "Box Shadow",
+        helpText:
+          "Enables you to cast a drop shadow from the frame of the widget",
+        controlType: "BOX_SHADOW_OPTIONS",
+        isJSConvertible: true,
+        isBindProperty: true,
+        isTriggerProperty: false,
+        validation: { type: ValidationTypes.TEXT },
       },
     ],
   },

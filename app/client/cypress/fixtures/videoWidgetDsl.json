@@ -22,7 +22,7 @@
       {
         "isVisible": true,
         "widgetName": "Video1",
-        "url": "https://www.youtube.com/watch?v=mzqK0QIZRLs",
+        "url": "https://assets.appsmith.com/widgets/bird.mp4",
         "autoPlay": false,
         "type": "VIDEO_WIDGET",
         "isLoading": false,

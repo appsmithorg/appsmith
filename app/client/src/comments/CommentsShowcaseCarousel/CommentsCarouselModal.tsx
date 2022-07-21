@@ -21,8 +21,8 @@ function ShowcaseCarouselModal({ children }: { children: React.ReactNode }) {
         dispatch(hideCommentsIntroCarousel());
         AnalyticsUtil.logEvent("COMMENTS_ONBOARDING_MODAL_DISMISSED");
       }}
-      overlayClassName="comments-onboarding-carousel"
-      portalClassName="comments-onboarding-carousel-portal"
+      overlayClassName="onboarding-carousel"
+      portalClassName="onboarding-carousel-portal"
       scrollContents
       width={325}
       zIndex={Layers.appComments}

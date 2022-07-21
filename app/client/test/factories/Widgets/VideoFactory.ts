@@ -4,7 +4,7 @@ import { WidgetProps } from "widgets/BaseWidget";
 
 export const VideoFactory = Factory.Sync.makeFactory<WidgetProps>({
   isVisible: true,
-  url: "https://www.youtube.com/watch?v=mzqK0QIZRLs",
+  url: "https://assets.appsmith.com/widgets/bird.mp4",
   autoPlay: false,
   type: "VIDEO_WIDGET",
   isLoading: false,

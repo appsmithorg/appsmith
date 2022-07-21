@@ -3,21 +3,22 @@ import {
   EvaluationReduxAction,
   ReduxAction,
   ReduxActionTypes,
-  ReduxActionWithoutPayload,
   UpdateCanvasPayload,
   ReduxActionErrorTypes,
-} from "constants/ReduxActionConstants";
+  WidgetReduxActionTypes,
+  ReplayReduxActionTypes,
+  AnyReduxAction,
+} from "@appsmith/constants/ReduxActionConstants";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { WidgetOperation } from "widgets/BaseWidget";
 import { FetchPageRequest, PageLayout, SavePageResponse } from "api/PageApi";
 import { UrlDataState } from "reducers/entityReducers/appReducer";
 import { APP_MODE } from "entities/App";
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
-import { GenerateTemplatePageRequest } from "../api/PageApi";
-import {
-  WidgetReduxActionTypes,
-  ReplayReduxActionTypes,
-} from "../constants/ReduxActionConstants";
+import { GenerateTemplatePageRequest } from "api/PageApi";
+import { ENTITY_TYPE } from "entities/AppsmithConsole";
+import { Replayable } from "entities/Replay/ReplayEntity/ReplayEditor";
+import { StoreValueActionDescription } from "entities/DataTree/actionTriggers";
 
 export interface FetchPageListPayload {
   applicationId: string;
@@ -36,19 +37,6 @@ export interface CreatePageActionPayload {
   blockNavigation?: boolean;
 }
 
-export const fetchPageList = (
-  applicationId: string,
-  mode: APP_MODE,
-): ReduxAction<FetchPageListPayload> => {
-  return {
-    type: ReduxActionTypes.FETCH_PAGE_LIST_INIT,
-    payload: {
-      applicationId,
-      mode,
-    },
-  };
-};
-
 export const fetchPage = (
   pageId: string,
   isFirstLoad = false,
@@ -62,35 +50,49 @@ export const fetchPage = (
   };
 };
 
-export const fetchPublishedPage = (pageId: string, bustCache = false) => ({
+export const fetchPublishedPage = (
+  pageId: string,
+  bustCache = false,
+  firstLoad = false,
+) => ({
   type: ReduxActionTypes.FETCH_PUBLISHED_PAGE_INIT,
   payload: {
     pageId,
     bustCache,
+    firstLoad,
   },
 });
 
-export const fetchPageSuccess = (
-  postEvalActions: Array<ReduxAction<unknown> | ReduxActionWithoutPayload>,
-): EvaluationReduxAction<undefined> => {
+export const fetchPageSuccess = (): EvaluationReduxAction<undefined> => {
   return {
     type: ReduxActionTypes.FETCH_PAGE_SUCCESS,
-    postEvalActions,
     payload: undefined,
   };
 };
 
-export const fetchPublishedPageSuccess = (
-  postEvalActions: Array<ReduxAction<unknown> | ReduxActionWithoutPayload>,
-): EvaluationReduxAction<undefined> => ({
+export const fetchPublishedPageSuccess = (): EvaluationReduxAction<undefined> => ({
   type: ReduxActionTypes.FETCH_PUBLISHED_PAGE_SUCCESS,
+  payload: undefined,
+});
+
+/**
+ * After all page entities are fetched like DSL, actions and JsObjects,
+ * we trigger evaluation using this redux action, here we supply postEvalActions
+ * to trigger action after evaluation has been completed like executeOnPageLoadAction
+ *
+ * @param {Array<AnyReduxAction>} postEvalActions
+ */
+export const fetchAllPageEntityCompletion = (
+  postEvalActions: Array<AnyReduxAction>,
+) => ({
+  type: ReduxActionTypes.FETCH_ALL_PAGE_ENTITY_COMPLETION,
   postEvalActions,
   payload: undefined,
 });
 
-export const updateCurrentPage = (id: string) => ({
+export const updateCurrentPage = (id: string, slug?: string) => ({
   type: ReduxActionTypes.SWITCH_CURRENT_PAGE_ID,
-  payload: { id },
+  payload: { id, slug },
 });
 
 export const initCanvasLayout = (
@@ -185,6 +187,7 @@ export const clonePageSuccess = (
   pageId: string,
   pageName: string,
   layoutId: string,
+  pageSlug: string,
 ) => {
   return {
     type: ReduxActionTypes.CLONE_PAGE_SUCCESS,
@@ -192,6 +195,7 @@ export const clonePageSuccess = (
       pageId,
       pageName,
       layoutId,
+      pageSlug,
     },
   };
 };
@@ -247,6 +251,8 @@ export type WidgetResize = {
   rightColumn: number;
   topRow: number;
   bottomRow: number;
+  snapColumnSpace: number;
+  snapRowSpace: number;
 };
 
 export type ModalWidgetResize = {
@@ -311,19 +317,30 @@ export const setAppMode = (payload: APP_MODE): ReduxAction<APP_MODE> => {
   };
 };
 
+export const updateAppStoreEvaluated = (
+  storeValueAction?: StoreValueActionDescription["payload"],
+) => ({
+  type: ReduxActionTypes.UPDATE_APP_STORE_EVALUATED,
+  payload: storeValueAction,
+});
+
 export const updateAppTransientStore = (
   payload: Record<string, unknown>,
-): ReduxAction<Record<string, unknown>> => ({
+  storeValueAction?: StoreValueActionDescription["payload"],
+): EvaluationReduxAction<Record<string, unknown>> => ({
   type: ReduxActionTypes.UPDATE_APP_TRANSIENT_STORE,
   payload,
+  postEvalActions: [updateAppStoreEvaluated(storeValueAction)],
 });
 
 export const updateAppPersistentStore = (
   payload: Record<string, unknown>,
-): ReduxAction<Record<string, unknown>> => {
+  storeValueAction?: StoreValueActionDescription["payload"],
+): EvaluationReduxAction<Record<string, unknown>> => {
   return {
     type: ReduxActionTypes.UPDATE_APP_PERSISTENT_STORE,
     payload,
+    postEvalActions: [updateAppStoreEvaluated(storeValueAction)],
   };
 };
 
@@ -337,6 +354,7 @@ export type GenerateCRUDSuccess = {
     id: string;
     name: string;
     isDefault?: boolean;
+    slug: string;
   };
   isNewPage: boolean;
 };
@@ -380,6 +398,17 @@ export const generateTemplateToUpdatePage = ({
     },
   };
 };
+
+export function updateReplayEntity(
+  entityId: string,
+  entity: Replayable,
+  entityType: ENTITY_TYPE,
+) {
+  return {
+    type: ReduxActionTypes.UPDATE_REPLAY_ENTITY,
+    payload: { entityId, entity, entityType },
+  };
+}
 
 export function undoAction() {
   return {
@@ -452,3 +481,23 @@ export const setPageOrder = (
     },
   };
 };
+
+export const resetPageList = () => ({
+  type: ReduxActionTypes.RESET_PAGE_LIST,
+});
+
+export const resetApplicationWidgets = () => ({
+  type: ReduxActionTypes.RESET_APPLICATION_WIDGET_STATE_REQUEST,
+});
+
+export const fetchPageDSLs = () => ({
+  type: ReduxActionTypes.POPULATE_PAGEDSLS_INIT,
+});
+
+export const setPageSlug = (payload: {
+  customSlug: string;
+  pageId: string;
+}) => ({
+  type: ReduxActionTypes.UPDATE_CUSTOM_SLUG_INIT,
+  payload,
+});

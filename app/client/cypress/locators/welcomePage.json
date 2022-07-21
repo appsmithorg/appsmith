@@ -1,0 +1,16 @@
+{
+  "getStarted": ".t--welcome-form-get-started",
+  "fullName":".t--welcome-form-full-name input",
+  "email":".t--welcome-form-email input",
+  "password":".t--welcome-form-password input",
+  "verifyPassword":".t--welcome-form-verify-password input",
+  "roleDropdown": ".t--welcome-form-role-dropdown .setup-dropdown",
+  "roleDropdownOption": ".t--welcome-form-role-dropdown .t--dropdown-option",
+  "roleInput": ".t--welcome-form-role-input input",
+  "useCaseDropdown": ".t--welcome-form-role-usecase",
+  "useCaseDropdownOption": ".t--welcome-form-role-usecase .t--dropdown-option",
+  "nextButton": ".t--welcome-form-next-button",
+  "dataCollection": ".t--welcome-form-datacollection",
+  "newsLetter": ".t--welcome-form-newsletter",
+  "createButton": ".t--welcome-form-create-button"
+}

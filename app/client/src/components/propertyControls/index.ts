@@ -12,9 +12,6 @@ import BaseControl, {
   ControlProps,
 } from "components/propertyControls/BaseControl";
 import CodeEditorControl from "components/propertyControls/CodeEditorControl";
-import MultiSelectControl, {
-  MultiSelectControlProps,
-} from "components/propertyControls/MultiSelectControl";
 import DatePickerControl, {
   DatePickerControlProps,
 } from "components/propertyControls/DatePickerControl";
@@ -27,9 +24,15 @@ import TabControl from "components/propertyControls/TabControl";
 import ActionSelectorControl from "components/propertyControls/ActionSelectorControl";
 import ColumnActionSelectorControl from "components/propertyControls/ColumnActionSelectorControl";
 import PrimaryColumnsControl from "components/propertyControls/PrimaryColumnsControl";
+import PrimaryColumnDropdownControl, {
+  PrimaryColumnDropdownControlProps,
+} from "components/propertyControls/PrimaryColumnDropdownControl";
 import ColorPickerControl, {
   ColorPickerControlProps,
 } from "components/propertyControls/ColorPickerControl";
+import PrimaryColumnColorPickerControl, {
+  PrimaryColumnColorPickerControlProps,
+} from "components/propertyControls/PrimaryColumnColorPickerControl";
 import ComputeTablePropertyControl, {
   ComputeTablePropertyControlProps,
 } from "components/propertyControls/ComputeTablePropertyControl";
@@ -43,11 +46,25 @@ import MultiSwitchControl, {
   MultiSwitchControlProps,
 } from "components/propertyControls/MultiSwitchControl";
 import MenuItemsControl from "./MenuItemsControl";
+import ButtonListControl from "./ButtonListControl";
 import IconSelectControl from "./IconSelectControl";
-import IconAlignControl from "./IconAlignControl";
 import BoxShadowOptionsControl from "./BoxShadowOptionsControl";
 import BorderRadiusOptionsControl from "./BorderRadiusOptionsControl";
 import ButtonBorderRadiusOptionsControl from "./ButtonBorderRadiusControl";
+import FieldConfigurationControl from "components/propertyControls/FieldConfigurationControl";
+import JSONFormComputeControl from "./JSONFormComputeControl";
+import ButtonControl from "./ButtonControl";
+import LabelAlignmentOptionsControl from "./LabelAlignmentOptionsControl";
+import NumericInputControl, {
+  NumericInputControlProps,
+} from "./NumericInputControl";
+import PrimaryColumnsControlV2 from "components/propertyControls/PrimaryColumnsControlV2";
+import ComputeTablePropertyControlV2, {
+  ComputeTablePropertyControlPropsV2,
+} from "components/propertyControls/TableComputeValue";
+import PrimaryColumnColorPickerControlV2, {
+  PrimaryColumnColorPickerControlPropsV2,
+} from "components/propertyControls/PrimaryColumnColorPickerControlV2";
 
 export const PropertyControls = {
   InputTextControl,
@@ -55,7 +72,6 @@ export const PropertyControls = {
   SwitchControl,
   OptionControl,
   CodeEditorControl,
-  MultiSelectControl,
   DatePickerControl,
   ActionSelectorControl,
   ColumnActionSelectorControl,
@@ -66,15 +82,25 @@ export const PropertyControls = {
   TabControl,
   ColorPickerControl,
   PrimaryColumnsControl,
+  PrimaryColumnsControlV2,
+  PrimaryColumnDropdownControl,
   IconTabControl,
   ButtonTabControl,
   ComputeTablePropertyControl,
+  ComputeTablePropertyControlV2,
   MenuItemsControl,
+  ButtonListControl,
   IconSelectControl,
-  IconAlignControl,
   BoxShadowOptionsControl,
   BorderRadiusOptionsControl,
   ButtonBorderRadiusOptionsControl,
+  FieldConfigurationControl,
+  JSONFormComputeControl,
+  ButtonControl,
+  LabelAlignmentOptionsControl,
+  NumericInputControl,
+  PrimaryColumnColorPickerControl,
+  PrimaryColumnColorPickerControlV2,
 };
 
 export type PropertyControlPropsType =
@@ -82,14 +108,19 @@ export type PropertyControlPropsType =
   | InputControlProps
   | DropDownControlProps
   | SwitchControlProps
-  | MultiSelectControlProps
   | DatePickerControlProps
   | MultiSwitchControlProps
   | IconTabControlProps
   | ButtonTabControlProps
   | StepControlProps
   | ColorPickerControlProps
-  | ComputeTablePropertyControlProps;
+  | ComputeTablePropertyControlProps
+  | PrimaryColumnDropdownControlProps
+  | NumericInputControlProps
+  | PrimaryColumnColorPickerControlProps
+  | ComputeTablePropertyControlPropsV2
+  | PrimaryColumnDropdownControlProps
+  | PrimaryColumnColorPickerControlPropsV2;
 
 export const getPropertyControlTypes = (): { [key: string]: string } => {
   const _types: { [key: string]: string } = {};

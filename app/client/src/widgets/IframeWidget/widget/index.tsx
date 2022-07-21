@@ -4,6 +4,7 @@ import { ValidationTypes } from "constants/WidgetValidation";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import IframeComponent from "../component";
 import { IframeWidgetProps } from "../constants";
+
 class IframeWidget extends BaseWidget<IframeWidgetProps, WidgetState> {
   static getPropertyPaneConfig() {
     return [
@@ -21,8 +22,20 @@ class IframeWidget extends BaseWidget<IframeWidgetProps, WidgetState> {
             validation: {
               type: ValidationTypes.SAFE_URL,
               params: {
-                default: "https://wikipedia.org",
+                default: "https://www.example.com",
               },
+            },
+          },
+          {
+            propertyName: "srcDoc",
+            helpText: "Inline HTML to embed, overriding the src attribute",
+            label: "srcDoc",
+            controlType: "INPUT_TEXT",
+            placeholderText: "<p>Inline HTML</p>",
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: {
+              type: ValidationTypes.TEXT,
             },
           },
           {
@@ -35,15 +48,35 @@ class IframeWidget extends BaseWidget<IframeWidgetProps, WidgetState> {
             isTriggerProperty: false,
             validation: { type: ValidationTypes.TEXT },
           },
+          {
+            propertyName: "animateLoading",
+            label: "Animate Loading",
+            controlType: "SWITCH",
+            helpText: "Controls the loading of the widget",
+            defaultValue: true,
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+          },
         ],
       },
       {
-        sectionName: "Actions",
+        sectionName: "Events",
         children: [
           {
             helpText: "Triggers an action when the source URL is changed",
             propertyName: "onURLChanged",
             label: "onURLChanged",
+            controlType: "ACTION_SELECTOR",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: true,
+          },
+          {
+            helpText: "Triggers an action when the srcDoc is changed",
+            propertyName: "onSrcDocChanged",
+            label: "onSrcDocChanged",
             controlType: "ACTION_SELECTOR",
             isJSConvertible: true,
             isBindProperty: true,
@@ -67,8 +100,10 @@ class IframeWidget extends BaseWidget<IframeWidgetProps, WidgetState> {
             propertyName: "borderColor",
             label: "Border Color",
             controlType: "COLOR_PICKER",
-            isBindProperty: false,
+            isJSConvertible: true,
+            isBindProperty: true,
             isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
           },
           {
             propertyName: "borderOpacity",
@@ -94,6 +129,28 @@ class IframeWidget extends BaseWidget<IframeWidgetProps, WidgetState> {
               params: { min: 0, default: 1 },
             },
           },
+          {
+            propertyName: "borderRadius",
+            label: "Border Radius",
+            helpText:
+              "Rounds the corners of the icon button's outer border edge",
+            controlType: "BORDER_RADIUS_OPTIONS",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
+          {
+            propertyName: "boxShadow",
+            label: "Box Shadow",
+            helpText:
+              "Enables you to cast a drop shadow from the frame of the widget",
+            controlType: "BOX_SHADOW_OPTIONS",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
         ],
       },
     ];
@@ -105,7 +162,7 @@ class IframeWidget extends BaseWidget<IframeWidgetProps, WidgetState> {
     };
   }
 
-  urlChangedHandler = (url: string) => {
+  handleUrlChange = (url: string) => {
     if (url && this.props.onURLChanged) {
       super.executeAction({
         triggerPropertyName: "onURLChanged",
@@ -117,12 +174,19 @@ class IframeWidget extends BaseWidget<IframeWidgetProps, WidgetState> {
     }
   };
 
-  messageReceivedHandler = (event: MessageEvent) => {
-    // Accept messages only from the current iframe
-    if (!this.props.source?.includes(event.origin)) {
-      return;
+  handleSrcDocChange = (srcDoc?: string) => {
+    if (srcDoc && this.props.onSrcDocChanged) {
+      super.executeAction({
+        triggerPropertyName: "onSrcDocChanged",
+        dynamicString: this.props.onSrcDocChanged,
+        event: {
+          type: EventType.ON_IFRAME_SRC_DOC_CHANGED,
+        },
+      });
     }
+  };
 
+  handleMessageReceive = (event: MessageEvent) => {
     this.props.updateWidgetMetaProperty("message", event.data, {
       triggerPropertyName: "onMessageReceived",
       dynamicString: this.props.onMessageReceived,
@@ -139,6 +203,7 @@ class IframeWidget extends BaseWidget<IframeWidgetProps, WidgetState> {
       borderWidth,
       renderMode,
       source,
+      srcDoc,
       title,
       widgetId,
     } = this.props;
@@ -147,11 +212,15 @@ class IframeWidget extends BaseWidget<IframeWidgetProps, WidgetState> {
       <IframeComponent
         borderColor={borderColor}
         borderOpacity={borderOpacity}
+        borderRadius={this.props.borderRadius}
         borderWidth={borderWidth}
-        onMessageReceived={this.messageReceivedHandler}
-        onURLChanged={this.urlChangedHandler}
+        boxShadow={this.props.boxShadow}
+        onMessageReceived={this.handleMessageReceive}
+        onSrcDocChanged={this.handleSrcDocChange}
+        onURLChanged={this.handleUrlChange}
         renderMode={renderMode}
         source={source}
+        srcDoc={srcDoc}
         title={title}
         widgetId={widgetId}
       />

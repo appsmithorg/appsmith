@@ -1,4 +1,7 @@
-import { ReduxAction, ReduxActionTypes } from "constants/ReduxActionConstants";
+import {
+  ReduxAction,
+  ReduxActionTypes,
+} from "@appsmith/constants/ReduxActionConstants";
 import { createReducer } from "utils/AppsmithUtils";
 import { get, uniqBy } from "lodash";
 import handleCreateNewCommentThreadSuccess from "./handleCreateNewCommentThreadSuccess";
@@ -36,7 +39,6 @@ const initialState: CommentsReduxState = {
   creatingNewThreadComment: false,
   appCommentsFilter: filterOptions[0].value,
   shouldShowResolvedAppCommentThreads: false,
-  unreadCommentThreadsCount: 0,
   visibleCommentThreadId: "",
   isIntroCarouselVisible: false,
   unsubscribed: false,
@@ -45,7 +47,7 @@ const initialState: CommentsReduxState = {
   draftComments: {},
   unpublishedThreadDraftComment: null,
   commentThreadsFetched: false,
-  lastUpdatedCommentThreadId: null,
+  lastUpdatedCommentThreadByAppId: {},
 };
 
 /**
@@ -105,7 +107,10 @@ const commentsReducer = createReducer(initialState, {
   }),
   [ReduxActionTypes.FETCH_APPLICATION_COMMENTS_SUCCESS]: (
     state: CommentsReduxState,
-    action: ReduxAction<CommentThread>,
+    action: ReduxAction<{
+      commentThreads: CommentThread[];
+      applicationId: string;
+    }>,
   ) => {
     return handleFetchApplicationCommentsSuccess(state, action);
   },
@@ -269,13 +274,6 @@ const commentsReducer = createReducer(initialState, {
   ) => {
     return handleUpdateCommentEvent(state, action);
   },
-  [ReduxActionTypes.FETCH_UNREAD_COMMENT_THREADS_COUNT_SUCCESS]: (
-    state: CommentsReduxState,
-    action: ReduxAction<number>,
-  ) => ({
-    ...state,
-    unreadCommentThreadsCount: Math.max(action.payload, 0),
-  }),
   [ReduxActionTypes.DELETE_COMMENT_EVENT]: (
     state: CommentsReduxState,
     action: ReduxAction<Comment>,

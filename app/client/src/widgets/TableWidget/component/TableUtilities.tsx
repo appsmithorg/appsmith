@@ -1,12 +1,17 @@
 import React, { useState } from "react";
-import { MenuItem, Classes, Button as BButton } from "@blueprintjs/core";
+import {
+  MenuItem,
+  Classes,
+  Button as BButton,
+  Alignment,
+} from "@blueprintjs/core";
 import {
   CellWrapper,
   CellCheckboxWrapper,
   CellCheckbox,
   ActionWrapper,
-  SortIconWrapper,
   DraggableHeaderWrapper,
+  IconButtonWrapper,
 } from "./TableStyledWrappers";
 import { ColumnAction } from "components/propertyControls/ColumnActionSelectorControl";
 
@@ -17,10 +22,10 @@ import {
   ColumnProperties,
   CellLayoutProperties,
   TableStyles,
+  MenuItems,
 } from "./Constants";
-import { isString, isEmpty, findIndex } from "lodash";
+import { isString, isEmpty, findIndex, isNil, isNaN, get, set } from "lodash";
 import PopoverVideo from "widgets/VideoWidget/component/PopoverVideo";
-import Button from "components/editorComponents/Button";
 import AutoToolTipComponent from "widgets/TableWidget/component/AutoToolTipComponent";
 import { ControlIcons } from "icons/ControlIcons";
 import { AnyStyledComponent } from "styled-components";
@@ -29,18 +34,20 @@ import { Colors } from "constants/Colors";
 import { DropdownOption } from "widgets/DropdownWidget/constants";
 import { IconName, IconNames } from "@blueprintjs/icons";
 import { Select, IItemRendererProps } from "@blueprintjs/select";
-import { FontStyleTypes, TextSizes } from "constants/WidgetConstants";
+import { FontStyleTypes } from "constants/WidgetConstants";
 import { noop } from "utils/AppsmithUtils";
 
-import {
-  ButtonVariant,
-  ButtonBoxShadow,
-  ButtonBorderRadius,
-} from "components/constants";
+import { ReactComponent as CheckBoxLineIcon } from "assets/icons/widget/table/checkbox-line.svg";
+import { ReactComponent as CheckBoxCheckIcon } from "assets/icons/widget/table/checkbox-check.svg";
+
+import { ButtonVariant } from "components/constants";
 
 //TODO(abstraction leak)
 import { StyledButton } from "widgets/IconButtonWidget/component";
+import MenuButtonTableComponent from "./components/menuButtonTableComponent";
 import { stopClickEventPropagation } from "utils/helpers";
+import tinycolor from "tinycolor2";
+import { generateTableColumnId } from "./TableHelpers";
 
 export const renderCell = (
   value: any,
@@ -60,6 +67,7 @@ export const renderCell = (
             cellProperties={cellProperties}
             isCellVisible={isCellVisible}
             isHidden={isHidden}
+            isPadding
           />
         );
       } else if (!isString(value)) {
@@ -68,6 +76,7 @@ export const renderCell = (
             cellProperties={cellProperties}
             isCellVisible={isCellVisible}
             isHidden={isHidden}
+            isPadding
           >
             <div>Invalid Image </div>
           </CellWrapper>
@@ -82,6 +91,7 @@ export const renderCell = (
           cellProperties={cellProperties}
           isCellVisible={isCellVisible}
           isHidden={isHidden}
+          isPadding
         >
           {value
             .toString()
@@ -123,6 +133,7 @@ export const renderCell = (
             cellProperties={cellProperties}
             isCellVisible={isCellVisible}
             isHidden={isHidden}
+            isPadding
           />
         );
       } else if (isString(value) && youtubeRegex.test(value)) {
@@ -132,6 +143,7 @@ export const renderCell = (
             className="video-cell"
             isCellVisible={isCellVisible}
             isHidden={isHidden}
+            isPadding
           >
             <PopoverVideo url={value} />
           </CellWrapper>
@@ -142,6 +154,7 @@ export const renderCell = (
             cellProperties={cellProperties}
             isCellVisible={isCellVisible}
             isHidden={isHidden}
+            isPadding
           >
             Invalid Video Link
           </CellWrapper>
@@ -159,7 +172,7 @@ export const renderCell = (
         >
           {value && columnType === ColumnTypes.URL && cellProperties.displayText
             ? cellProperties.displayText
-            : !!value
+            : !isNil(value) && !isNaN(value)
             ? value.toString()
             : ""}
         </AutoToolTipComponent>
@@ -173,11 +186,11 @@ interface RenderIconButtonProps {
   iconName?: IconName;
   buttonVariant: ButtonVariant;
   buttonColor: string;
-  borderRadius: ButtonBorderRadius;
-  boxShadow: ButtonBoxShadow;
-  boxShadowColor: string;
+  borderRadius: string;
+  boxShadow: string;
   onCommandClick: (dynamicTrigger: string, onComplete: () => void) => void;
   isCellVisible: boolean;
+  disabled: boolean;
 }
 export const renderIconButton = (
   props: RenderIconButtonProps,
@@ -185,13 +198,20 @@ export const renderIconButton = (
   cellProperties: CellLayoutProperties,
 ) => {
   if (!props.columnActions)
-    return <CellWrapper cellProperties={cellProperties} isHidden={isHidden} />;
+    return (
+      <CellWrapper
+        cellProperties={cellProperties}
+        isHidden={isHidden}
+        isPadding
+      />
+    );
 
   return (
     <CellWrapper
       cellProperties={cellProperties}
       isCellVisible={props.isCellVisible}
       isHidden={isHidden}
+      isPadding
     >
       {props.columnActions.map((action: ColumnAction, index: number) => {
         return (
@@ -199,9 +219,9 @@ export const renderIconButton = (
             action={action}
             borderRadius={props.borderRadius}
             boxShadow={props.boxShadow}
-            boxShadowColor={props.boxShadowColor}
             buttonColor={props.buttonColor}
             buttonVariant={props.buttonVariant}
+            disabled={props.disabled}
             iconName={props.iconName}
             isSelected={props.isSelected}
             key={index}
@@ -219,9 +239,9 @@ function IconButton(props: {
   action: ColumnAction;
   buttonColor: string;
   buttonVariant: ButtonVariant;
-  borderRadius: ButtonBorderRadius;
-  boxShadow: ButtonBoxShadow;
-  boxShadowColor: string;
+  borderRadius: string;
+  boxShadow: string;
+  disabled: boolean;
 }): JSX.Element {
   const [loading, setLoading] = useState(false);
   const onComplete = () => {
@@ -241,18 +261,18 @@ function IconButton(props: {
     }
   };
   return (
-    <div onClick={handlePropagation}>
+    <IconButtonWrapper disabled={props.disabled} onClick={handlePropagation}>
       <StyledButton
         borderRadius={props.borderRadius}
         boxShadow={props.boxShadow}
-        boxShadowColor={props.boxShadowColor}
         buttonColor={props.buttonColor}
         buttonVariant={props.buttonVariant}
+        disabled={props.disabled}
         icon={props.iconName}
         loading={loading}
         onClick={handleClick}
       />
-    </div>
+    </IconButtonWrapper>
   );
 }
 
@@ -260,10 +280,30 @@ interface RenderActionProps {
   isSelected: boolean;
   columnActions?: ColumnAction[];
   backgroundColor: string;
+  borderRadius: string;
+  boxShadow?: string;
+
   buttonLabelColor: string;
+  buttonVariant: ButtonVariant;
   isDisabled: boolean;
   isCellVisible: boolean;
   onCommandClick: (dynamicTrigger: string, onComplete: () => void) => void;
+}
+export interface RenderMenuButtonProps {
+  isSelected: boolean;
+  // columnActions?: ColumnAction[];
+  label: string;
+  isDisabled: boolean;
+  isCellVisible: boolean;
+  onCommandClick: (dynamicTrigger: string, onComplete?: () => void) => void;
+  isCompact?: boolean;
+  menuItems: MenuItems;
+  menuVariant?: ButtonVariant;
+  menuColor?: string;
+  borderRadius?: string;
+  boxShadow?: string;
+  iconName?: IconName;
+  iconAlign?: Alignment;
 }
 
 export const renderActions = (
@@ -277,6 +317,7 @@ export const renderActions = (
         cellProperties={cellProperties}
         isCellVisible={props.isCellVisible}
         isHidden={isHidden}
+        isPadding
       />
     );
 
@@ -285,13 +326,17 @@ export const renderActions = (
       cellProperties={cellProperties}
       isCellVisible={props.isCellVisible}
       isHidden={isHidden}
+      isPadding
     >
       {props.columnActions.map((action: ColumnAction, index: number) => {
         return (
           <TableAction
             action={action}
             backgroundColor={props.backgroundColor}
+            borderRadius={props.borderRadius}
+            boxShadow={props.boxShadow}
             buttonLabelColor={props.buttonLabelColor}
+            buttonVariant={props.buttonVariant}
             isCellVisible={props.isCellVisible}
             isDisabled={props.isDisabled}
             isSelected={props.isSelected}
@@ -304,24 +349,99 @@ export const renderActions = (
   );
 };
 
+export const renderMenuButton = (
+  props: RenderMenuButtonProps,
+  isHidden: boolean,
+  cellProperties: CellLayoutProperties,
+) => {
+  return (
+    <CellWrapper
+      cellProperties={cellProperties}
+      isCellVisible={props.isCellVisible}
+      isHidden={isHidden}
+      isPadding
+    >
+      <MenuButton {...props} />
+    </CellWrapper>
+  );
+};
+
+interface MenuButtonProps extends Omit<RenderMenuButtonProps, "columnActions"> {
+  action?: ColumnAction;
+}
+function MenuButton({
+  borderRadius,
+  boxShadow,
+  iconAlign,
+  iconName,
+  isCompact,
+  isDisabled,
+  isSelected,
+  label,
+  menuColor,
+  menuItems,
+  menuVariant,
+  onCommandClick,
+}: MenuButtonProps): JSX.Element {
+  const handlePropagation = (
+    e: React.MouseEvent<HTMLDivElement, MouseEvent>,
+  ) => {
+    if (isSelected) {
+      e.stopPropagation();
+    }
+  };
+  const onItemClicked = (onClick?: string) => {
+    if (onClick) {
+      onCommandClick(onClick);
+    }
+  };
+
+  return (
+    <div onClick={handlePropagation}>
+      <MenuButtonTableComponent
+        borderRadius={borderRadius}
+        boxShadow={boxShadow}
+        iconAlign={iconAlign}
+        iconName={iconName}
+        isCompact={isCompact}
+        isDisabled={isDisabled}
+        label={label}
+        menuColor={menuColor}
+        menuItems={{ ...menuItems }}
+        menuVariant={menuVariant}
+        onItemClicked={onItemClicked}
+      />
+    </div>
+  );
+}
+
 function TableAction(props: {
   isSelected: boolean;
   action: ColumnAction;
   backgroundColor: string;
+  boxShadow?: string;
+
   buttonLabelColor: string;
+  buttonVariant: ButtonVariant;
   isDisabled: boolean;
   isCellVisible: boolean;
+  borderRadius: string;
   onCommandClick: (dynamicTrigger: string, onComplete: () => void) => void;
 }) {
   const [loading, setLoading] = useState(false);
   const onComplete = () => {
     setLoading(false);
   };
+  const handleClick = () => {
+    if (props.action.dynamicTrigger) {
+      setLoading(true);
+      props.onCommandClick(props.action.dynamicTrigger, onComplete);
+    }
+  };
 
   return (
     <ActionWrapper
-      background={props.backgroundColor}
-      buttonLabelColor={props.buttonLabelColor}
+      disabled={props.isDisabled}
       onClick={(e) => {
         if (props.isSelected) {
           e.stopPropagation();
@@ -329,16 +449,16 @@ function TableAction(props: {
       }}
     >
       {props.isCellVisible ? (
-        <Button
+        <StyledButton
+          borderRadius={props.borderRadius}
+          boxShadow={props.boxShadow}
+          buttonColor={props.backgroundColor}
+          buttonVariant={props.buttonVariant}
           disabled={props.isDisabled}
           filled
-          intent="PRIMARY_BUTTON"
           loading={loading}
-          onClick={() => {
-            setLoading(true);
-            props.onCommandClick(props.action.dynamicTrigger, onComplete);
-          }}
-          size="small"
+          onClick={handleClick}
+          small
           text={props.action.label}
         />
       ) : null}
@@ -346,63 +466,43 @@ function TableAction(props: {
   );
 }
 
-function CheckBoxLineIcon() {
-  return (
-    <svg
-      className="th-svg t--table-multiselect-header-half-check-svg"
-      fill="none"
-      height="15"
-      width="15"
-    >
-      <path
-        d="M11.183673404886235,7.5 H3.81632661819458 "
-        stroke="white"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeOpacity="0.9"
-      />
-    </svg>
-  );
-}
-
-function CheckBoxCheckIcon() {
-  return (
-    <svg className="th-svg" fill="none" height="15" width="15">
-      <path
-        d="M3.523326302644791,8.068102895600848 L5.7957131234862,10.340476082148596 L11.476673358442884,4.659524027768102 "
-        stroke="white"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeOpacity="0.9"
-      />
-    </svg>
-  );
-}
-
-export const renderCheckBoxCell = (isChecked: boolean) => (
+export const renderCheckBoxCell = (
+  isChecked: boolean,
+  accentColor: string,
+  borderRadius: string,
+) => (
   <CellCheckboxWrapper
+    accentColor={accentColor}
+    borderRadius={borderRadius}
     className="td t--table-multiselect"
     isCellVisible
     isChecked={isChecked}
   >
-    <CellCheckbox>{isChecked && <CheckBoxCheckIcon />}</CellCheckbox>
+    <CellCheckbox>
+      {isChecked && <CheckBoxCheckIcon className="th-svg" />}
+    </CellCheckbox>
   </CellCheckboxWrapper>
 );
 
 export const renderCheckBoxHeaderCell = (
   onClick: (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => void,
   checkState: number | null,
+  accentColor: string,
+  borderRadius: string,
 ) => (
   <CellCheckboxWrapper
+    accentColor={accentColor}
+    borderRadius={borderRadius}
     className="th header-reorder t--table-multiselect-header"
     isChecked={!!checkState}
     onClick={onClick}
     role="columnheader"
-    style={{ padding: "0px", justifyContent: "center" }}
   >
     <CellCheckbox>
-      {checkState === 1 && <CheckBoxCheckIcon />}
-      {checkState === 2 && <CheckBoxLineIcon />}
+      {checkState === 1 && <CheckBoxCheckIcon className="th-svg" />}
+      {checkState === 2 && (
+        <CheckBoxLineIcon className="th-svg t--table-multiselect-header-half-check-svg" />
+      )}
     </CellCheckbox>
   </CellCheckboxWrapper>
 );
@@ -414,6 +514,8 @@ export const renderEmptyRows = (
   page: any,
   prepareRow: any,
   multiRowSelection = false,
+  accentColor: string,
+  borderRadius: string,
 ) => {
   const rows: string[] = new Array(rowCount).fill("");
   if (page.length) {
@@ -426,14 +528,23 @@ export const renderEmptyRows = (
       };
       return (
         <div {...rowProps} className="tr" key={index}>
-          {multiRowSelection && renderCheckBoxCell(false)}
+          {multiRowSelection &&
+            renderCheckBoxCell(false, accentColor, borderRadius)}
           {row.cells.map((cell: any, cellIndex: number) => {
             const cellProps = cell.getCellProps();
-            if (columns[0]?.columnProperties?.cellBackground) {
-              cellProps.style.background =
-                columns[0].columnProperties.cellBackground;
-            }
-            return <div {...cellProps} className="td" key={cellIndex} />;
+            set(
+              cellProps,
+              "style.backgroundColor",
+              get(cell, "column.columnProperties.cellBackground"),
+            );
+            return (
+              <div
+                {...cellProps}
+                className="td"
+                data-cy={`empty-row-${index}-cell-${cellIndex}`}
+                key={cellIndex}
+              />
+            );
           })}
         </div>
       );
@@ -454,7 +565,8 @@ export const renderEmptyRows = (
                 flex: "1 0 auto",
               }}
             >
-              {multiRowSelection && renderCheckBoxCell(false)}
+              {multiRowSelection &&
+                renderCheckBoxCell(false, accentColor, borderRadius)}
               {tableColumns.map((column: any, colIndex: number) => {
                 return (
                   <div
@@ -464,6 +576,10 @@ export const renderEmptyRows = (
                       width: column.width + "px",
                       boxSizing: "border-box",
                       flex: `${column.width} 0 auto`,
+                      backgroundColor: get(
+                        column,
+                        "columnProperties.cellBackground",
+                      ),
                     }}
                   />
                 );
@@ -479,12 +595,12 @@ export const renderEmptyRows = (
 const AscendingIcon = styled(ControlIcons.SORT_CONTROL as AnyStyledComponent)`
   padding: 0;
   position: relative;
-  top: 12px;
+  top: 3px;
   cursor: pointer;
   transform: rotate(180deg);
   && svg {
     path {
-      fill: ${(props) => props.theme.colors.secondary};
+      fill: ${Colors.LIGHT_GREYISH_BLUE};
     }
   }
 `;
@@ -496,7 +612,7 @@ const DescendingIcon = styled(ControlIcons.SORT_CONTROL as AnyStyledComponent)`
   cursor: pointer;
   && svg {
     path {
-      fill: ${(props) => props.theme.colors.secondary};
+      fill: ${Colors.LIGHT_GREYISH_BLUE};
     }
   }
 `;
@@ -509,8 +625,11 @@ export function TableHeaderCell(props: {
   sortTableColumn: (columnIndex: number, asc: boolean) => void;
   isResizingColumn: boolean;
   column: any;
+  editMode?: boolean;
+  isSortable?: boolean;
+  width: number;
 }) {
-  const { column } = props;
+  const { column, editMode, isSortable, width } = props;
   const handleSortColumn = () => {
     if (props.isResizingColumn) return;
     let columnIndex = props.columnIndex;
@@ -521,34 +640,35 @@ export function TableHeaderCell(props: {
       props.isAscOrder === undefined ? false : !props.isAscOrder;
     props.sortTableColumn(columnIndex, sortOrder);
   };
+  const disableSort = editMode === false && isSortable === false;
 
   return (
     <div
       {...column.getHeaderProps()}
       className="th header-reorder"
-      onClick={handleSortColumn}
+      onClick={!disableSort && props ? handleSortColumn : undefined}
     >
+      <DraggableHeaderWrapper
+        className={!props.isHidden ? `draggable-header` : "hidden-header"}
+        horizontalAlignment={column.columnProperties.horizontalAlignment}
+      >
+        <AutoToolTipComponent
+          noPadding
+          tableWidth={width}
+          title={props.columnName}
+        >
+          {props.columnName}
+        </AutoToolTipComponent>
+      </DraggableHeaderWrapper>
       {props.isAscOrder !== undefined ? (
-        <SortIconWrapper>
+        <div>
           {props.isAscOrder ? (
             <AscendingIcon height={16} width={16} />
           ) : (
             <DescendingIcon height={16} width={16} />
           )}
-        </SortIconWrapper>
+        </div>
       ) : null}
-      <DraggableHeaderWrapper
-        className={
-          !props.isHidden
-            ? `draggable-header ${
-                props.isAscOrder !== undefined ? "sorted" : ""
-              }`
-            : "hidden-header"
-        }
-        horizontalAlignment={column.columnProperties.horizontalAlignment}
-      >
-        {props.columnName}
-      </DraggableHeaderWrapper>
       <div
         {...column.getResizerProps()}
         className={`resizer ${column.isResizing ? "isResizing" : ""}`}
@@ -564,18 +684,19 @@ export function TableHeaderCell(props: {
 export function getDefaultColumnProperties(
   accessor: string,
   index: number,
-  widgetName: string,
+  widgetProperties: any,
   isDerived?: boolean,
 ): ColumnProperties {
+  const id = generateTableColumnId(accessor);
   const columnProps = {
     index: index,
     width: 150,
-    id: accessor,
+    id,
     horizontalAlignment: CellAlignmentTypes.LEFT,
     verticalAlignment: VerticalAlignmentTypes.CENTER,
     columnType: ColumnTypes.TEXT,
     textColor: Colors.THUNDER,
-    textSize: TextSizes.PARAGRAPH,
+    textSize: "0.875rem",
     fontStyle: FontStyleTypes.REGULAR,
     enableFilter: true,
     enableSort: true,
@@ -586,7 +707,7 @@ export function getDefaultColumnProperties(
     label: accessor,
     computedValue: isDerived
       ? ""
-      : `{{${widgetName}.sanitizedTableData.map((currentRow) => ( currentRow.${accessor}))}}`,
+      : `{{${widgetProperties}.sanitizedTableData.map((currentRow) => ( currentRow.${id}))}}`,
   };
 
   return columnProps;
@@ -705,4 +826,42 @@ export const renderDropdown = (props: {
       </StyledSingleDropDown>
     </div>
   );
+};
+
+/**
+ * returns selected row bg color
+ *
+ * if the color is dark, use 80% lighter color for selected row
+ * if color is light, use 10% darker color for selected row
+ *
+ * @param accentColor
+ */
+export const getSelectedRowBgColor = (accentColor: string) => {
+  const tinyAccentColor = tinycolor(accentColor);
+  const brightness = tinycolor(accentColor)
+    .greyscale()
+    .getBrightness();
+
+  const percentageBrightness = (brightness / 255) * 100;
+  let nextBrightness = 0;
+
+  switch (true) {
+    case percentageBrightness > 70:
+      nextBrightness = 10;
+      break;
+    case percentageBrightness > 50:
+      nextBrightness = 35;
+      break;
+    case percentageBrightness > 50:
+      nextBrightness = 55;
+      break;
+    default:
+      nextBrightness = 60;
+  }
+
+  if (brightness > 180) {
+    return tinyAccentColor.darken(10).toString();
+  } else {
+    return tinyAccentColor.lighten(nextBrightness).toString();
+  }
 };

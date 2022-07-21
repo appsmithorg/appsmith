@@ -4,15 +4,18 @@ import com.appsmith.external.constants.Authentication;
 import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
 import com.appsmith.external.models.AuthenticationDTO;
 import com.appsmith.external.models.AuthenticationResponse;
+import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.OAuth2;
 import com.appsmith.external.models.UpdatableConnection;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.bson.internal.Base64;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
+import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.reactive.function.BodyExtractors;
@@ -24,12 +27,17 @@ import org.springframework.web.reactive.function.client.ExchangeStrategies;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriComponentsBuilder;
 import reactor.core.publisher.Mono;
+import reactor.netty.http.client.HttpClient;
 
 import java.net.URI;
 import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Map;
+
+import static com.appsmith.external.models.OAuth2.RefreshTokenClientCredentialsLocation.BODY;
+import static com.appsmith.external.models.OAuth2.RefreshTokenClientCredentialsLocation.HEADER;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 
 @Setter
 @Getter
@@ -45,48 +53,78 @@ public class OAuth2AuthorizationCode extends APIConnection implements UpdatableC
     private Object tokenResponse;
     private static final int MAX_IN_MEMORY_SIZE = 10 * 1024 * 1024; // 10 MB
 
-    public static Mono<OAuth2AuthorizationCode> create(OAuth2 oAuth2) {
-        if (oAuth2 == null) {
+    private static void updateConnection(OAuth2AuthorizationCode connection, OAuth2 token) {
+        connection.setToken(token.getAuthenticationResponse().getToken());
+        connection.setHeader(token.getIsTokenHeader());
+        connection.setHeaderPrefix(token.getHeaderPrefix());
+        connection.setExpiresAt(token.getAuthenticationResponse().getExpiresAt());
+        connection.setRefreshToken(token.getAuthenticationResponse().getRefreshToken());
+        connection.setTokenResponse(token.getAuthenticationResponse().getTokenResponse());
+    }
+
+    private static boolean isAuthenticationResponseValid(OAuth2 oAuth2) {
+        if (oAuth2.getAuthenticationResponse() == null
+                || isBlank(oAuth2.getAuthenticationResponse().getToken())
+                || isExpired(oAuth2)) {
+            return false;
+        }
+
+        return true;
+    }
+
+    public static Mono<OAuth2AuthorizationCode> create(DatasourceConfiguration datasourceConfiguration) {
+        if (datasourceConfiguration == null || datasourceConfiguration.getAuthentication() == null) {
             return Mono.empty();
         }
+        final OAuth2 oAuth2 = (OAuth2) datasourceConfiguration.getAuthentication();
         // Create OAuth2Connection
         OAuth2AuthorizationCode connection = new OAuth2AuthorizationCode();
 
-        return Mono.just(oAuth2)
-                // Validate existing token
-                .filter(x -> x.getAuthenticationResponse() != null
-                        && x.getAuthenticationResponse().getToken() != null
-                        && !x.getAuthenticationResponse().getToken().isBlank())
-                .filter(x -> x.getAuthenticationResponse().getExpiresAt() != null)
-                .filter(x -> {
-                    Instant now = connection.clock.instant();
-                    Instant expiresAt = x.getAuthenticationResponse().getExpiresAt();
+        if (!isAuthenticationResponseValid(oAuth2)) {
+            return connection.generateOAuth2Token(datasourceConfiguration)
+                    .flatMap(token -> {
+                        updateConnection(connection, token);
+                        return Mono.just(connection);
+                    });
+        }
 
-                    return now.isBefore(expiresAt.minus(Duration.ofMinutes(1)));
-                })
-                // If invalid, regenerate token
-                .switchIfEmpty(connection.generateOAuth2Token(oAuth2))
-                // Store valid token
-                .flatMap(token -> {
-                    connection.setToken(token.getAuthenticationResponse().getToken());
-                    connection.setHeader(token.getIsTokenHeader());
-                    connection.setHeaderPrefix(token.getHeaderPrefix());
-                    connection.setExpiresAt(token.getAuthenticationResponse().getExpiresAt());
-                    connection.setRefreshToken(token.getAuthenticationResponse().getRefreshToken());
-                    connection.setTokenResponse(token.getAuthenticationResponse().getTokenResponse());
-                    return Mono.just(connection);
-                });
+        updateConnection(connection, oAuth2);
+        return Mono.just(connection);
     }
 
-    private Mono<OAuth2> generateOAuth2Token(OAuth2 oAuth2) {
+    private static boolean isExpired(OAuth2 oAuth2) {
+        if (oAuth2.getAuthenticationResponse().getExpiresAt() == null) {
+            return false;
+        }
+
+        OAuth2AuthorizationCode connection = new OAuth2AuthorizationCode();
+        Instant now = connection.clock.instant();
+        Instant expiresAt = oAuth2.getAuthenticationResponse().getExpiresAt();
+
+        return now.isAfter(expiresAt.minus(Duration.ofMinutes(1)));
+    }
+
+    private Mono<OAuth2> generateOAuth2Token(DatasourceConfiguration datasourceConfiguration) {
+        final OAuth2 oAuth2 = (OAuth2) datasourceConfiguration.getAuthentication();
+        final HttpClient securedHttpClient = this.getSecuredHttpClient(datasourceConfiguration);
+
         // Webclient
-        WebClient webClient = WebClient.builder()
-                .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+        WebClient.Builder webClientBuilder = WebClient.builder()
+                .clientConnector(new ReactorClientHttpConnector(securedHttpClient))
+                .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED_VALUE)
                 .exchangeStrategies(ExchangeStrategies
                         .builder()
                         .codecs(configurer -> configurer.defaultCodecs().maxInMemorySize(MAX_IN_MEMORY_SIZE))
-                        .build())
-                .build();
+                        .build());
+
+        if (HEADER.equals(oAuth2.getRefreshTokenClientCredentialsLocation())) {
+            byte[] clientCredentials = (oAuth2.getClientId() + ":" + oAuth2.getClientSecret()).getBytes();
+            final String authorizationHeader = "Basic " + Base64.encode(clientCredentials);
+            webClientBuilder.defaultHeader("Authorization", authorizationHeader);
+        }
+
+        // Webclient
+        WebClient webClient = webClientBuilder.build();
 
         // Send oauth2 generic request
         return webClient
@@ -113,9 +151,9 @@ public class OAuth2AuthorizationCode extends APIConnection implements UpdatableC
                     Object expiresInResponse = mappedResponse.get(Authentication.EXPIRES_IN);
                     Instant expiresAt = null;
                     if (expiresAtResponse != null) {
-                        expiresAt = Instant.ofEpochSecond(Long.valueOf((Integer) expiresAtResponse));
+                        expiresAt = Instant.ofEpochSecond(Long.parseLong(String.valueOf(expiresAtResponse)));
                     } else if (expiresInResponse != null) {
-                        expiresAt = issuedAt.plusSeconds(Long.valueOf((Integer) expiresInResponse));
+                        expiresAt = issuedAt.plusSeconds(Long.parseLong(String.valueOf(expiresInResponse)));
                     }
                     authenticationResponse.setExpiresAt(expiresAt);
                     authenticationResponse.setIssuedAt(issuedAt);
@@ -168,9 +206,14 @@ public class OAuth2AuthorizationCode extends APIConnection implements UpdatableC
     private BodyInserters.FormInserter<String> getTokenBody(OAuth2 oAuth2) {
         BodyInserters.FormInserter<String> body = BodyInserters
                 .fromFormData(Authentication.GRANT_TYPE, Authentication.REFRESH_TOKEN)
-                .with(Authentication.CLIENT_ID, oAuth2.getClientId())
-                .with(Authentication.CLIENT_SECRET, oAuth2.getClientSecret())
                 .with(Authentication.REFRESH_TOKEN, oAuth2.getAuthenticationResponse().getRefreshToken());
+
+        if (BODY.equals(oAuth2.getRefreshTokenClientCredentialsLocation())
+                || oAuth2.getRefreshTokenClientCredentialsLocation() == null) {
+            body.with(Authentication.CLIENT_ID, oAuth2.getClientId())
+                    .with(Authentication.CLIENT_SECRET, oAuth2.getClientSecret());
+        }
+
         // Adding optional audience parameter
         if (!StringUtils.isEmpty(oAuth2.getAudience())) {
             body.with(Authentication.AUDIENCE, oAuth2.getAudience());
@@ -180,7 +223,8 @@ public class OAuth2AuthorizationCode extends APIConnection implements UpdatableC
             body.with(Authentication.RESOURCE, oAuth2.getResource());
         }
         // Optionally add scope, if applicable
-        if (!CollectionUtils.isEmpty(oAuth2.getScope())) {
+        if (!CollectionUtils.isEmpty(oAuth2.getScope())
+                && (Boolean.TRUE.equals(oAuth2.getSendScopeWithRefreshToken()) || oAuth2.getSendScopeWithRefreshToken() == null)) {
             body.with(Authentication.SCOPE, StringUtils.collectionToDelimitedString(oAuth2.getScope(), " "));
         }
         return body;

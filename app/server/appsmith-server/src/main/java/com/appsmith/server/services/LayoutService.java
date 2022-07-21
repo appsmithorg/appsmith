@@ -1,10 +1,7 @@
 package com.appsmith.server.services;
 
-import com.appsmith.server.domains.Layout;
-import reactor.core.publisher.Mono;
+import com.appsmith.server.services.ce.LayoutServiceCE;
 
-public interface LayoutService {
-    Mono<Layout> createLayout(String pageId, Layout layout);
+public interface LayoutService extends LayoutServiceCE {
 
-    Mono<Layout> getLayout(String pageId, String layoutId, Boolean viewMode);
 }

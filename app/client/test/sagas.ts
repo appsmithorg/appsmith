@@ -3,7 +3,7 @@ import apiPaneSagas from "../src/sagas/ApiPaneSagas";
 import jsPaneSagas from "../src/sagas/JSPaneSagas";
 import userSagas from "../src/sagas/userSagas";
 import pluginSagas from "../src/sagas/PluginSagas";
-import orgSagas from "../src/sagas/OrgSagas";
+import workspaceSagas from "../src/sagas/WorkspaceSagas";
 import importedCollectionsSagas from "../src/sagas/CollectionSagas";
 import providersSagas from "../src/sagas/ProvidersSaga";
 import curlImportSagas from "../src/sagas/CurlImportSagas";
@@ -28,8 +28,8 @@ import { watchDatasourcesSagas } from "../src/sagas/DatasourcesSagas";
 import { watchJSActionSagas } from "../src/sagas/JSActionSagas";
 import tourSagas from "../src/sagas/TourSagas";
 import notificationsSagas from "../src/sagas/NotificationsSagas";
-import selectionCanvasSagas from "../src/sagas/SelectionCanvasSagas";
-import draggingCanvasSagas from "../src/sagas/DraggingCanvasSagas";
+import selectionCanvasSagas from "../src/sagas/CanvasSagas/SelectionCanvasSagas";
+import draggingCanvasSagas from "../src/sagas/CanvasSagas/DraggingCanvasSagas";
 import formEvaluationChangeListener from "../src/sagas/FormEvaluationSaga";
 
 export const sagasToRunForTests = [
@@ -43,7 +43,7 @@ export const sagasToRunForTests = [
   jsPaneSagas,
   userSagas,
   pluginSagas,
-  orgSagas,
+  workspaceSagas,
   importedCollectionsSagas,
   providersSagas,
   curlImportSagas,

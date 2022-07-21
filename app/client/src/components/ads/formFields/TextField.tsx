@@ -19,9 +19,11 @@ const renderComponent = (
   return (
     <>
       <InputComponent {...componentProps} {...componentProps.input} fill />
-      {!componentProps.hideErrorMessage && (
-        <FormFieldError error={showError && componentProps.meta.error} />
-      )}
+      {!componentProps.hideErrorMessage &&
+        showError &&
+        componentProps.meta.error && (
+          <FormFieldError error={showError && componentProps.meta.error} />
+        )}
     </>
   );
 };

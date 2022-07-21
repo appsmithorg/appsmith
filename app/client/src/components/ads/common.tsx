@@ -7,6 +7,7 @@ export interface CommonComponentProps {
   isLoading?: boolean; //default false
   cypressSelector?: string;
   className?: string;
+  name?: string;
   disabled?: boolean; //default false
 }
 
@@ -75,24 +76,24 @@ export enum Variant {
   danger = "danger",
 }
 
-export const ToastVariant = (type: any) => {
-  let variant: Variant;
-  switch (type) {
-    case toast.TYPE.ERROR === type:
-      variant = Variant.danger;
-      break;
-    case toast.TYPE.INFO === type:
-      variant = Variant.info;
-      break;
-    case toast.TYPE.SUCCESS === type:
-      variant = Variant.success;
-      break;
-    case toast.TYPE.WARNING === type:
-      variant = Variant.warning;
-      break;
-    default:
-      variant = Variant.info;
-      break;
-  }
-  return variant;
+export enum ToastTypeOptions {
+  success = "success",
+  info = "info",
+  warning = "warning",
+  error = "error",
+}
+
+const TOAST_VARIANT_LOOKUP = {
+  [toast.TYPE.ERROR]: Variant.danger,
+  [toast.TYPE.INFO]: Variant.info,
+  [toast.TYPE.SUCCESS]: Variant.success,
+  [toast.TYPE.WARNING]: Variant.warning,
+  undefined: Variant.info,
+};
+
+export const ToastVariant = (type: any): Variant => {
+  return (
+    TOAST_VARIANT_LOOKUP[type as keyof typeof TOAST_VARIANT_LOOKUP] ||
+    Variant.info
+  );
 };

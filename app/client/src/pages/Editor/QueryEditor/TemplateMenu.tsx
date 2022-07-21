@@ -36,7 +36,6 @@ const Row = styled.div`
 
   :hover {
     background-color: #ebeff2;
-    border-radius: 4px;
   }
 `;
 

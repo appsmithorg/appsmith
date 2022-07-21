@@ -114,7 +114,7 @@
                                "widgetName": "Chart1",
                                "chartType": "LINE_CHART",
                                "chartName": "Sales on working days",
-                               "allowHorizontalScroll": false,
+                               "allowScroll": false,
                                "chartData": [
                                     {
                                       "seriesName": "Sales",

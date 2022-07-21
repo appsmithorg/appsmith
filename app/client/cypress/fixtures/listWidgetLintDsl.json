@@ -1,0 +1,441 @@
+{
+    "dsl": {
+        "widgetName": "MainContainer",
+        "backgroundColor": "none",
+        "rightColumn": 1080,
+        "snapColumns": 64,
+        "detachFromLayout": true,
+        "widgetId": "0",
+        "topRow": 0,
+        "bottomRow": 5168,
+        "containerStyle": "none",
+        "snapRows": 129,
+        "parentRowSpace": 1,
+        "type": "CANVAS_WIDGET",
+        "canExtend": true,
+        "version": 41,
+        "minHeight": 820,
+        "parentColumnSpace": 1,
+        "dynamicBindingPathList": [],
+        "leftColumn": 0,
+        "children": [
+            {
+                "isVisible": true,
+                "backgroundColor": "{{ERROR}}",
+                "itemBackgroundColor": "{{LIST ERROR}}",
+                "gridType": "vertical",
+                "template": {
+                    "Image1": {
+                        "isVisible": true,
+                        "defaultImage": "https://assets.appsmith.com/widgets/default.png",
+                        "imageShape": "RECTANGLE",
+                        "maxZoomLevel": 1,
+                        "enableRotation": false,
+                        "enableDownload": false,
+                        "objectFit": "contain",
+                        "image": "{{List1.listData.map((currentItem) => currentItem.img)}}",
+                        "widgetName": "Image1",
+                        "version": 1,
+                        "type": "IMAGE_WIDGET",
+                        "hideCard": false,
+                        "displayName": "Image",
+                        "key": "xjg5tc0rsq",
+                        "iconSVG": "/static/media/icon.33f70f3e.svg",
+                        "dynamicBindingPathList": [
+                            {
+                                "key": "image"
+                            }
+                        ],
+                        "dynamicTriggerPathList": [],
+                        "widgetId": "82w99yxpw6",
+                        "renderMode": "CANVAS",
+                        "isLoading": false,
+                        "leftColumn": 0,
+                        "rightColumn": 16,
+                        "topRow": 0,
+                        "bottomRow": 8.4,
+                        "parentId": "axi8vl974j"
+                    },
+                    "Text1": {
+                        "isVisible": true,
+                        "text": "{{List1.listData.map((currentItem) => currentItem.name)}}",
+                        "fontSize": "PARAGRAPH",
+                        "fontStyle": "BOLD",
+                        "textAlign": "LEFT",
+                        "textColor": "#231F20",
+                        "widgetName": "Text1",
+                        "version": 1,
+                        "type": "TEXT_WIDGET",
+                        "hideCard": false,
+                        "displayName": "Text",
+                        "key": "yv9e0um9i7",
+                        "iconSVG": "/static/media/icon.dbad9587.svg",
+                        "textStyle": "HEADING",
+                        "dynamicBindingPathList": [
+                            {
+                                "key": "text"
+                            }
+                        ],
+                        "dynamicTriggerPathList": [],
+                        "widgetId": "bc47x34rzi",
+                        "renderMode": "CANVAS",
+                        "isLoading": false,
+                        "leftColumn": 16,
+                        "rightColumn": 28,
+                        "topRow": 0,
+                        "bottomRow": 4,
+                        "parentId": "axi8vl974j"
+                    },
+                    "Text2": {
+                        "isVisible": true,
+                        "text": "{{List1.listData.map((currentItem) => currentItem.id)}}",
+                        "fontSize": "PARAGRAPH",
+                        "fontStyle": "BOLD",
+                        "textAlign": "LEFT",
+                        "textColor": "#231F20",
+                        "widgetName": "Text2",
+                        "version": 1,
+                        "type": "TEXT_WIDGET",
+                        "hideCard": false,
+                        "displayName": "Text",
+                        "key": "yv9e0um9i7",
+                        "iconSVG": "/static/media/icon.dbad9587.svg",
+                        "textStyle": "BODY",
+                        "dynamicBindingPathList": [
+                            {
+                                "key": "text"
+                            }
+                        ],
+                        "dynamicTriggerPathList": [],
+                        "widgetId": "ed5v9vp441",
+                        "renderMode": "CANVAS",
+                        "isLoading": false,
+                        "leftColumn": 16,
+                        "rightColumn": 24,
+                        "topRow": 4,
+                        "bottomRow": 8,
+                        "parentId": "axi8vl974j"
+                    }
+                },
+                "enhancements": true,
+                "gridGap": 0,
+                "listData": "{{NO DATA}}",
+                "widgetName": "List1",
+                "children": [
+                    {
+                        "isVisible": true,
+                        "widgetName": "Canvas1",
+                        "version": 1,
+                        "detachFromLayout": true,
+                        "type": "CANVAS_WIDGET",
+                        "hideCard": true,
+                        "displayName": "Canvas",
+                        "key": "i6gni8dlfk",
+                        "containerStyle": "none",
+                        "canExtend": false,
+                        "dropDisabled": true,
+                        "openParentPropertyPane": true,
+                        "noPad": true,
+                        "children": [
+                            {
+                                "isVisible": true,
+                                "backgroundColor": "white",
+                                "widgetName": "Container1",
+                                "containerStyle": "card",
+                                "borderColor": "transparent",
+                                "borderWidth": "0",
+                                "borderRadius": "0",
+                                "boxShadow": "NONE",
+                                "children": [
+                                    {
+                                        "isVisible": true,
+                                        "widgetName": "Canvas2",
+                                        "version": 1,
+                                        "detachFromLayout": true,
+                                        "type": "CANVAS_WIDGET",
+                                        "hideCard": true,
+                                        "displayName": "Canvas",
+                                        "key": "i6gni8dlfk",
+                                        "containerStyle": "none",
+                                        "canExtend": false,
+                                        "children": [
+                                            {
+                                                "isVisible": true,
+                                                "defaultImage": "https://assets.appsmith.com/widgets/default.png",
+                                                "imageShape": "RECTANGLE",
+                                                "maxZoomLevel": 1,
+                                                "enableRotation": false,
+                                                "enableDownload": false,
+                                                "objectFit": "contain",
+                                                "image": "{{currentItem.img}}",
+                                                "widgetName": "Image1",
+                                                "version": 1,
+                                                "type": "IMAGE_WIDGET",
+                                                "hideCard": false,
+                                                "displayName": "Image",
+                                                "key": "xjg5tc0rsq",
+                                                "iconSVG": "/static/media/icon.33f70f3e.svg",
+                                                "dynamicBindingPathList": [
+                                                    {
+                                                        "key": "image"
+                                                    }
+                                                ],
+                                                "dynamicTriggerPathList": [],
+                                                "widgetId": "82w99yxpw6",
+                                                "renderMode": "CANVAS",
+                                                "isLoading": false,
+                                                "leftColumn": 0,
+                                                "rightColumn": 16,
+                                                "topRow": 0,
+                                                "bottomRow": 8.4,
+                                                "parentId": "axi8vl974j",
+                                                "logBlackList": {
+                                                    "isVisible": true,
+                                                    "defaultImage": true,
+                                                    "imageShape": true,
+                                                    "maxZoomLevel": true,
+                                                    "enableRotation": true,
+                                                    "enableDownload": true,
+                                                    "objectFit": true,
+                                                    "image": true,
+                                                    "widgetName": true,
+                                                    "version": true,
+                                                    "type": true,
+                                                    "hideCard": true,
+                                                    "displayName": true,
+                                                    "key": true,
+                                                    "iconSVG": true,
+                                                    "isCanvas": true,
+                                                    "dynamicBindingPathList": true,
+                                                    "dynamicTriggerPathList": true,
+                                                    "minHeight": true,
+                                                    "widgetId": true,
+                                                    "renderMode": true,
+                                                    "isLoading": true,
+                                                    "parentColumnSpace": true,
+                                                    "parentRowSpace": true,
+                                                    "leftColumn": true,
+                                                    "rightColumn": true,
+                                                    "topRow": true,
+                                                    "bottomRow": true,
+                                                    "parentId": true
+                                                }
+                                            },
+                                            {
+                                                "isVisible": true,
+                                                "text": "{{currentItem.name}}",
+                                                "fontSize": "PARAGRAPH",
+                                                "fontStyle": "BOLD",
+                                                "textAlign": "LEFT",
+                                                "textColor": "#231F20",
+                                                "widgetName": "Text1",
+                                                "version": 1,
+                                                "type": "TEXT_WIDGET",
+                                                "hideCard": false,
+                                                "displayName": "Text",
+                                                "key": "yv9e0um9i7",
+                                                "iconSVG": "/static/media/icon.dbad9587.svg",
+                                                "textStyle": "HEADING",
+                                                "dynamicBindingPathList": [
+                                                    {
+                                                        "key": "text"
+                                                    }
+                                                ],
+                                                "dynamicTriggerPathList": [],
+                                                "widgetId": "bc47x34rzi",
+                                                "renderMode": "CANVAS",
+                                                "isLoading": false,
+                                                "leftColumn": 16,
+                                                "rightColumn": 28,
+                                                "topRow": 0,
+                                                "bottomRow": 4,
+                                                "parentId": "axi8vl974j",
+                                                "logBlackList": {
+                                                    "isVisible": true,
+                                                    "text": true,
+                                                    "fontSize": true,
+                                                    "fontStyle": true,
+                                                    "textAlign": true,
+                                                    "textColor": true,
+                                                    "widgetName": true,
+                                                    "version": true,
+                                                    "type": true,
+                                                    "hideCard": true,
+                                                    "displayName": true,
+                                                    "key": true,
+                                                    "iconSVG": true,
+                                                    "isCanvas": true,
+                                                    "textStyle": true,
+                                                    "dynamicBindingPathList": true,
+                                                    "dynamicTriggerPathList": true,
+                                                    "minHeight": true,
+                                                    "widgetId": true,
+                                                    "renderMode": true,
+                                                    "isLoading": true,
+                                                    "parentColumnSpace": true,
+                                                    "parentRowSpace": true,
+                                                    "leftColumn": true,
+                                                    "rightColumn": true,
+                                                    "topRow": true,
+                                                    "bottomRow": true,
+                                                    "parentId": true
+                                                }
+                                            },
+                                            {
+                                                "isVisible": true,
+                                                "text": "{{currentItem.id}}",
+                                                "fontSize": "PARAGRAPH",
+                                                "fontStyle": "BOLD",
+                                                "textAlign": "LEFT",
+                                                "textColor": "#231F20",
+                                                "widgetName": "Text2",
+                                                "version": 1,
+                                                "type": "TEXT_WIDGET",
+                                                "hideCard": false,
+                                                "displayName": "Text",
+                                                "key": "yv9e0um9i7",
+                                                "iconSVG": "/static/media/icon.dbad9587.svg",
+                                                "textStyle": "BODY",
+                                                "dynamicBindingPathList": [
+                                                    {
+                                                        "key": "text"
+                                                    }
+                                                ],
+                                                "dynamicTriggerPathList": [],
+                                                "widgetId": "ed5v9vp441",
+                                                "renderMode": "CANVAS",
+                                                "isLoading": false,
+                                                "leftColumn": 16,
+                                                "rightColumn": 24,
+                                                "topRow": 4,
+                                                "bottomRow": 8,
+                                                "parentId": "axi8vl974j",
+                                                "logBlackList": {
+                                                    "isVisible": true,
+                                                    "text": true,
+                                                    "fontSize": true,
+                                                    "fontStyle": true,
+                                                    "textAlign": true,
+                                                    "textColor": true,
+                                                    "widgetName": true,
+                                                    "version": true,
+                                                    "type": true,
+                                                    "hideCard": true,
+                                                    "displayName": true,
+                                                    "key": true,
+                                                    "iconSVG": true,
+                                                    "isCanvas": true,
+                                                    "textStyle": true,
+                                                    "dynamicBindingPathList": true,
+                                                    "dynamicTriggerPathList": true,
+                                                    "minHeight": true,
+                                                    "widgetId": true,
+                                                    "renderMode": true,
+                                                    "isLoading": true,
+                                                    "parentColumnSpace": true,
+                                                    "parentRowSpace": true,
+                                                    "leftColumn": true,
+                                                    "rightColumn": true,
+                                                    "topRow": true,
+                                                    "bottomRow": true,
+                                                    "parentId": true
+                                                }
+                                            }
+                                        ],
+                                        "minHeight": null,
+                                        "widgetId": "axi8vl974j",
+                                        "renderMode": "CANVAS",
+                                        "isLoading": false,
+                                        "parentColumnSpace": 1,
+                                        "parentRowSpace": 1,
+                                        "leftColumn": 0,
+                                        "rightColumn": null,
+                                        "topRow": 0,
+                                        "bottomRow": null,
+                                        "parentId": "hn3xjxyurc"
+                                    }
+                                ],
+                                "version": 1,
+                                "type": "CONTAINER_WIDGET",
+                                "hideCard": false,
+                                "displayName": "Container",
+                                "key": "svupg8rpe8",
+                                "iconSVG": "/static/media/icon.5c440258.svg",
+                                "isCanvas": true,
+                                "dragDisabled": true,
+                                "isDeletable": false,
+                                "disallowCopy": true,
+                                "disablePropertyPane": true,
+                                "openParentPropertyPane": true,
+                                "widgetId": "hn3xjxyurc",
+                                "renderMode": "CANVAS",
+                                "isLoading": false,
+                                "leftColumn": 0,
+                                "rightColumn": 64,
+                                "topRow": 0,
+                                "bottomRow": 12,
+                                "parentId": "dvoy6ifl0b"
+                            }
+                        ],
+                        "minHeight": 400,
+                        "widgetId": "dvoy6ifl0b",
+                        "renderMode": "CANVAS",
+                        "isLoading": false,
+                        "parentColumnSpace": 1,
+                        "parentRowSpace": 1,
+                        "leftColumn": 0,
+                        "rightColumn": 400.5,
+                        "topRow": 0,
+                        "bottomRow": 400,
+                        "parentId": "pqn18bggc8"
+                    }
+                ],
+                "type": "LIST_WIDGET",
+                "hideCard": false,
+                "displayName": "List",
+                "key": "nchd2o4df6",
+                "iconSVG": "/static/media/icon.00e5b44c.svg",
+                "isCanvas": true,
+                "widgetId": "pqn18bggc8",
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "parentColumnSpace": 16.6875,
+                "parentRowSpace": 10,
+                "leftColumn": 14,
+                "rightColumn": 38,
+                "topRow": 22,
+                "bottomRow": 62,
+                "parentId": "0",
+                "dynamicBindingPathList": [
+                    {
+                        "key": "template.Image1.image"
+                    },
+                    {
+                        "key": "template.Text1.text"
+                    },
+                    {
+                        "key": "template.Text2.text"
+                    },
+                    {
+                        "key": "listData"
+                    },
+                    {
+                        "key": "backgroundColor"
+                    },
+                    {
+                        "key": "itemBackgroundColor"
+                    }
+                ],
+                "dynamicTriggerPathList": [],
+                "dynamicPropertyPathList": [
+                    {
+                        "key": "backgroundColor"
+                    },
+                    {
+                        "key": "itemBackgroundColor"
+                    }
+                ]
+            }
+        ]
+    }
+}

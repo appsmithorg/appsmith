@@ -22,6 +22,7 @@ import { RenderOptionWrapper } from "./TableStyledWrappers";
 
 //TODO(abhinav): Fix this cross import between widgets
 import DatePickerComponent from "widgets/DatePickerWidget2/component";
+import { TimePrecision } from "widgets/DatePickerWidget2/constants";
 
 const StyledRemoveIcon = styled(
   ControlIcons.CLOSE_CIRCLE_CONTROL as AnyStyledComponent,
@@ -279,6 +280,8 @@ type CascadeFieldProps = {
   hasAnyFilters: boolean;
   applyFilter: (filter: ReactTableFilter, index: number) => void;
   removeFilter: (index: number) => void;
+  accentColor: string;
+  borderRadius: string;
 };
 
 type CascadeFieldState = {
@@ -563,15 +566,20 @@ function Fields(props: CascadeFieldProps & { state: CascadeFieldState }) {
       {showDateInput ? (
         <DatePickerWrapper className="t--table-filter-date-input">
           <DatePickerComponent
+            accentColor={props.accentColor}
+            backgroundColor="#fff"
+            borderRadius={props.borderRadius}
             closeOnSelection
+            compactMode
             dateFormat="YYYY-MM-DD HH:mm"
             datePickerType="DATE_PICKER"
             isDisabled={false}
             isLoading={false}
-            label=""
+            labelText=""
             onDateSelected={onDateSelected}
             selectedDate={value}
             shortcuts={false}
+            timePrecision={TimePrecision.MINUTE}
             widgetId=""
             withoutPortal
           />

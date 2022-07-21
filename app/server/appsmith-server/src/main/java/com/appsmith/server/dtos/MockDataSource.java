@@ -9,7 +9,7 @@ public class MockDataSource {
 
     String name;
 
-    String organizationId;
+    String workspaceId;
 
     String pluginId;
 

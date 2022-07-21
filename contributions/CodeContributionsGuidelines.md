@@ -23,6 +23,21 @@ We use [Github Flow](https://guides.github.com/introduction/flow/index.html), so
 
 ### 🏡 Setup for local development
 
+#### Pre-requisites
+
+1. Install git-secrets
+   1. `brew install git-secrets` (macOS)
+   2. [Linux](https://github.com/awslabs/git-secrets#nix-linuxmacos)
+   3. [Windows](https://github.com/awslabs/git-secrets#windows)
+2. Register the secrets with git-secrets
+   1. `git secrets --register-aws`
+   2. This is very important step as it the registers the regex to be scanned by the git-secrets.
+3. Verify the secrets are registered
+   1. `git secrets --list`
+4. Refer to [this repo](https://github.com/awslabs/git-secrets) for more information.
+
+#### Code setup
+
 - [Running the Client](ClientSetup.md)
 - [Running the Server](ServerSetup.md)
 
@@ -33,5 +48,9 @@ Please follow these guidelines according to the module that you wish to contribu
 - [Plugin](./ServerCodeContributionsGuidelines/PluginCodeContributionsGuidelines.md)
 
 #### Client Code
+
 Please follow the below guideline to add a new JS library to the Appsmith platform:
 - [Add Custom JS Library](./CustomJsLibrary.md)
+
+Please follow the below guideline for widget development
+- [Widget Development Guideline](./AppsmithWidgetDevelopmentGuide.md)

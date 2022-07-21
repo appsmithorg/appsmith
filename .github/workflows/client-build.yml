@@ -24,7 +24,7 @@ defaults:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: buildjet-8vcpu-ubuntu-2004
     # Only run for internal PRs or commits to release or master
     if: |
       github.event.pull_request.head.repo.full_name == github.repository || 
@@ -53,10 +53,10 @@ jobs:
       - name: Figure out the PR number
         run: echo ${{ github.event.pull_request.number }}
 
-      - name: Use Node.js 14.15.4
+      - name: Use Node.js 16.14.0
         uses: actions/setup-node@v1
         with:
-          node-version: "14.15.4"
+          node-version: "16.14.0"
 
       - name: Get yarn cache directory path
         id: yarn-dep-cache-dir-path
@@ -77,7 +77,7 @@ jobs:
 
       # Install all the dependencies
       - name: Install dependencies
-        run: yarn install
+        run: yarn install --frozen-lockfile
 
       - name: Set the build environment based on the branch
         id: vars
@@ -99,10 +99,7 @@ jobs:
 
       - name: Run the jest tests
         if: github.event_name == 'pull_request'
-        uses: hetunandu/Jest-Coverage-Diff@feature/better-report-comments
-        with:
-          fullCoverageDiff: false
-          runCommand: cd app/client && REACT_APP_ENVIRONMENT=${{steps.vars.outputs.REACT_APP_ENVIRONMENT}} yarn run test:unit
+        run: REACT_APP_ENVIRONMENT=${{steps.vars.outputs.REACT_APP_ENVIRONMENT}} yarn run test:unit
 
       # We burn React environment & the Segment analytics key into the build itself.
       # This is to ensure that we don't need to configure it in each installation

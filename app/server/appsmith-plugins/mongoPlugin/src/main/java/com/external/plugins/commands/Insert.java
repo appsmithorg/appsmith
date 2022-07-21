@@ -4,6 +4,7 @@ import com.appsmith.external.constants.DataType;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.helpers.DataTypeStringUtils;
+import com.appsmith.external.helpers.PluginUtils;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.DatasourceStructure;
 import lombok.Getter;
@@ -21,14 +22,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static com.appsmith.external.helpers.PluginUtils.getValueSafelyFromFormData;
-import static com.external.plugins.utils.MongoPluginUtils.parseSafely;
-import static com.appsmith.external.helpers.PluginUtils.setValueSafelyInFormData;
+import static com.appsmith.external.helpers.PluginUtils.STRING_TYPE;
+import static com.appsmith.external.helpers.PluginUtils.setDataValueSafelyInFormData;
 import static com.appsmith.external.helpers.PluginUtils.validConfigurationPresentInFormData;
+import static com.external.plugins.constants.FieldName.BODY;
 import static com.external.plugins.constants.FieldName.COLLECTION;
 import static com.external.plugins.constants.FieldName.COMMAND;
+import static com.external.plugins.constants.FieldName.INSERT;
 import static com.external.plugins.constants.FieldName.INSERT_DOCUMENT;
 import static com.external.plugins.constants.FieldName.SMART_SUBSTITUTION;
+import static org.apache.commons.lang3.StringUtils.isBlank;
+import static com.external.plugins.utils.MongoPluginUtils.parseSafely;
 
 @Getter
 @Setter
@@ -42,7 +46,7 @@ public class Insert extends MongoCommand {
         Map<String, Object> formData = actionConfiguration.getFormData();
 
         if (validConfigurationPresentInFormData(formData, INSERT_DOCUMENT)) {
-            this.documents = (String) getValueSafelyFromFormData(formData, INSERT_DOCUMENT);
+            this.documents = PluginUtils.getDataValueSafelyFromFormData(formData, INSERT_DOCUMENT, STRING_TYPE);
         }
     }
 
@@ -62,7 +66,7 @@ public class Insert extends MongoCommand {
     public Document parseCommand() {
         Document commandDocument = new Document();
 
-        commandDocument.put("insert", this.collection);
+        commandDocument.put(INSERT, this.collection);
 
         DataType dataType = DataTypeStringUtils.stringToKnownDataTypeConverter(this.documents);
         if (dataType.equals(DataType.ARRAY)) {
@@ -100,10 +104,10 @@ public class Insert extends MongoCommand {
 
         Map<String, Object> configMap = new HashMap<>();
 
-        setValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
-        setValueSafelyInFormData(configMap, COMMAND, "INSERT");
-        setValueSafelyInFormData(configMap, INSERT_DOCUMENT, "[{" + sampleInsertDocuments + "}]");
-        setValueSafelyInFormData(configMap, COLLECTION, collectionName);
+        setDataValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
+        setDataValueSafelyInFormData(configMap, COMMAND, "INSERT");
+        setDataValueSafelyInFormData(configMap, INSERT_DOCUMENT, "[{" + sampleInsertDocuments + "}]");
+        setDataValueSafelyInFormData(configMap, COLLECTION, collectionName);
 
         String rawQuery = "{\n" +
                 "  \"insert\": \"" + collectionName + "\",\n" +
@@ -113,11 +117,45 @@ public class Insert extends MongoCommand {
                 "    }\n" +
                 "  ]\n" +
                 "}\n";
+        setDataValueSafelyInFormData(configMap, BODY, rawQuery);
 
         return Collections.singletonList(new DatasourceStructure.Template(
                 "Insert",
-                rawQuery,
+                null,
                 configMap
         ));
+    }
+
+    /**
+     * This method coverts Mongo plugin's form inputs to Mongo's native query. Currently, it is meant to help users
+     * switch easily from form based input to raw input mode by providing a readily available translation of the form
+     * data to raw query.
+     * The `parseCommand` method defined in this class could not be used since it tries to parse and validate the form
+     * data and fails if the data is bad or if it contains mustache binding. However, this is not the desired behavior
+     * wrt the use case this method is intended to solve i.e. we should be able to covert the form data to raw query
+     * irrespective of whether the data provided by the user is valid or not since we are not trying to execute it
+     * immediately.
+     * When writing this method the following two alternative implementations were also considered - using JSONObject
+     * and JsonNode. The issue with JSONObject is that it does not maintain the keys in order, which causes the final
+     * query to fail since order of keys is essential - e.g. `find` must be the first key in the native query for
+     * Mongo to recognize it as a valid command. JsonNode could not be used because it would enclose all values
+     * inside double quotes - which is not a true translation of what the user might have fed into the form.
+     * @return : Mongo's native query
+     */
+    @Override
+    public String getRawQuery() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("{\n");
+        sb.append("  \"insert\": \"" + this.collection + "\",\n");
+
+        /* Default to empty list of documents */
+        String documents = "[]";
+        if (!isBlank(this.documents)) {
+            documents = this.documents;
+        }
+        sb.append("  \"documents\": " + documents + "\n");
+        sb.append("}\n");
+
+        return sb.toString();
     }
 }

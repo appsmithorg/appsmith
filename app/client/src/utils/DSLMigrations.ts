@@ -6,11 +6,9 @@ import {
   LATEST_PAGE_VERSION,
   MAIN_CONTAINER_WIDGET_ID,
 } from "constants/WidgetConstants";
-import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
 import { nextAvailableRowInContainer } from "entities/Widget/utils";
 import { get, has, isEmpty, isString, omit, set } from "lodash";
 import * as Sentry from "@sentry/react";
-import { CANVAS_DEFAULT_HEIGHT_PX } from "constants/AppConstants";
 import { ChartDataPoint } from "widgets/ChartWidget/constants";
 import log from "loglevel";
 import { migrateIncorrectDynamicBindingPathLists } from "./migrations/IncorrectDynamicBindingPathLists";
@@ -23,21 +21,43 @@ import {
   migrateTableWidgetDelimiterProperties,
   migrateTableWidgetSelectedRowBindings,
   migrateTableSanitizeColumnKeys,
+  isSortableMigration,
+  migrateTableWidgetIconButtonVariant,
 } from "./migrations/TableWidget";
-import { migrateTextStyleFromTextWidget } from "./migrations/TextWidgetReplaceTextStyle";
+import {
+  migrateTextStyleFromTextWidget,
+  migrateScrollTruncateProperties,
+} from "./migrations/TextWidget";
 import { DATA_BIND_REGEX_GLOBAL } from "constants/BindingsConstants";
 import { theme } from "constants/DefaultTheme";
 import { getCanvasSnapRows } from "./WidgetPropsUtils";
 import CanvasWidgetsNormalizer from "normalizers/CanvasWidgetsNormalizer";
 import { FetchPageResponse } from "api/PageApi";
 import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
-import defaultTemplate from "templates/default";
+// import defaultTemplate from "templates/default";
 import { renameKeyInObject } from "./helpers";
 import { ColumnProperties } from "widgets/TableWidget/component/Constants";
 import { migrateMenuButtonWidgetButtonProperties } from "./migrations/MenuButtonWidget";
-import { ButtonStyleTypes, ButtonVariantTypes } from "../components/constants";
-import { Colors } from "../constants/Colors";
-import { migrateResizableModalWidgetProperties } from "./migrations/ModalWidget";
+import { ButtonStyleTypes, ButtonVariantTypes } from "components/constants";
+import { Colors } from "constants/Colors";
+import {
+  migrateModalIconButtonWidget,
+  migrateResizableModalWidgetProperties,
+} from "./migrations/ModalWidget";
+import { migrateCheckboxGroupWidgetInlineProperty } from "./migrations/CheckboxGroupWidget";
+import { migrateMapWidgetIsClickedMarkerCentered } from "./migrations/MapWidget";
+import { DSLWidget } from "widgets/constants";
+import { migrateRecaptchaType } from "./migrations/ButtonWidgetMigrations";
+import { PrivateWidgets } from "entities/DataTree/dataTreeFactory";
+import { migrateStylingPropertiesForTheming } from "./migrations/ThemingMigrations";
+
+import {
+  migratePhoneInputWidgetAllowFormatting,
+  migratePhoneInputWidgetDefaultDialCode,
+} from "./migrations/PhoneInputWidgetMigrations";
+import { migrateCurrencyInputWidgetDefaultCurrencyCode } from "./migrations/CurrencyInputWidgetMigrations";
+import { migrateRadioGroupAlignmentProperty } from "./migrations/RadioGroupWidget";
+import { migrateCheckboxSwitchProperty } from "./migrations/PropertyPaneMigrations";
 
 /**
  * adds logBlackList key for all list widget children
@@ -72,6 +92,32 @@ const addLogBlackListToAllListWidgetChildren = (
     }
 
     return children;
+  });
+
+  return currentDSL;
+};
+
+/**
+ * adds 'privateWidgets' key for all list widgets
+ *
+ * @param currentDSL
+ * @returns
+ */
+export const addPrivateWidgetsToAllListWidgets = (
+  currentDSL: ContainerWidgetProps<WidgetProps>,
+) => {
+  currentDSL.children = currentDSL.children?.map((child: WidgetProps) => {
+    if (child.type === "LIST_WIDGET") {
+      const privateWidgets: PrivateWidgets = {};
+      Object.keys(child.template).forEach((entityName) => {
+        privateWidgets[entityName] = true;
+      });
+
+      if (!child.privateWidgets) {
+        set(child, `privateWidgets`, privateWidgets);
+      }
+    }
+    return child;
   });
 
   return currentDSL;
@@ -162,11 +208,9 @@ const updateContainers = (dsl: ContainerWidgetProps<WidgetProps>) => {
         canExtend: false,
         isVisible: true,
       };
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
+      // @ts-expect-error: Types are not available
       delete canvas.dynamicBindings;
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
+      // @ts-expect-error: Types are not available
       delete canvas.dynamicProperties;
       if (canvas.children && canvas.children.length > 0)
         canvas.children = canvas.children.map(updateContainers);
@@ -288,6 +332,24 @@ const mapDataMigration = (currentDSL: ContainerWidgetProps<WidgetProps>) => {
     }
     return children;
   });
+  return currentDSL;
+};
+
+const mapAllowHorizontalScrollMigration = (
+  currentDSL: ContainerWidgetProps<WidgetProps>,
+) => {
+  currentDSL.children = currentDSL.children?.map((child: DSLWidget) => {
+    if (child.type === "CHART_WIDGET") {
+      child.allowScroll = child.allowHorizontalScroll;
+      delete child.allowHorizontalScroll;
+    }
+
+    if (Array.isArray(child.children) && child.children.length > 0)
+      child = mapAllowHorizontalScrollMigration(child);
+
+    return child;
+  });
+
   return currentDSL;
 };
 
@@ -604,34 +666,20 @@ const pixelToNumber = (pixel: string) => {
   return 0;
 };
 
-export const calculateDynamicHeight = (
-  canvasWidgets: {
-    [widgetId: string]: FlattenedWidgetProps;
-  } = {},
-  presentMinimumHeight = CANVAS_DEFAULT_HEIGHT_PX,
-) => {
-  let minimumHeight = presentMinimumHeight;
-  const nextAvailableRow = nextAvailableRowInContainer(
-    MAIN_CONTAINER_WIDGET_ID,
-    canvasWidgets,
-  );
+export const calculateDynamicHeight = () => {
   const screenHeight = window.innerHeight;
   const gridRowHeight = GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
-  const calculatedCanvasHeight = nextAvailableRow * gridRowHeight;
   // DGRH - DEFAULT_GRID_ROW_HEIGHT
   // View Mode: Header height + Page Selection Tab = 8 * DGRH (approx)
   // Edit Mode: Header height + Canvas control = 8 * DGRH (approx)
   // buffer: ~8 grid row height
-  const buffer = gridRowHeight + 2 * pixelToNumber(theme.smallHeaderHeight);
+  const buffer =
+    gridRowHeight +
+    2 * pixelToNumber(theme.smallHeaderHeight) +
+    pixelToNumber(theme.bottomBarHeight);
   const calculatedMinHeight =
     Math.floor((screenHeight - buffer) / gridRowHeight) * gridRowHeight;
-  if (
-    calculatedCanvasHeight < screenHeight &&
-    calculatedMinHeight !== presentMinimumHeight
-  ) {
-    minimumHeight = calculatedMinHeight;
-  }
-  return minimumHeight;
+  return calculatedMinHeight;
 };
 
 export const migrateInitialValues = (
@@ -703,13 +751,17 @@ export const migrateInitialValues = (
 
 // A rudimentary transform function which updates the DSL based on its version.
 // A more modular approach needs to be designed.
-export const transformDSL = (currentDSL: ContainerWidgetProps<WidgetProps>) => {
+export const transformDSL = (
+  currentDSL: ContainerWidgetProps<WidgetProps>,
+  newPage = false,
+) => {
   if (currentDSL.version === undefined) {
     // Since this top level widget is a CANVAS_WIDGET,
     // DropTargetComponent needs to know the minimum height the canvas can take
     // See DropTargetUtils.ts
     currentDSL.minHeight = calculateDynamicHeight();
-
+    currentDSL.bottomRow =
+      currentDSL.minHeight - GridDefaults.DEFAULT_GRID_ROW_HEIGHT;
     // For the first time the DSL is created, remove one row from the total possible rows
     // to adjust for padding and margins.
     currentDSL.snapRows =
@@ -718,14 +770,14 @@ export const transformDSL = (currentDSL: ContainerWidgetProps<WidgetProps>) => {
 
     // Force the width of the canvas to 1224 px
     currentDSL.rightColumn = 1224;
-    // The canvas is a CANVAS_WIDGET whichdoesn't have a background or borders by default
+    // The canvas is a CANVAS_WIDGET which doesn't have a background or borders by default
     currentDSL.backgroundColor = "none";
     currentDSL.containerStyle = "none";
     currentDSL.type = "CANVAS_WIDGET";
     currentDSL.detachFromLayout = true;
     currentDSL.canExtend = true;
 
-    // Update version to make sure this doesn't run everytime.
+    // Update version to make sure this doesn't run every time.
     currentDSL.version = 1;
   }
 
@@ -821,7 +873,9 @@ export const transformDSL = (currentDSL: ContainerWidgetProps<WidgetProps>) => {
       currentDSL.bottomRow,
       currentDSL.detachFromLayout || false,
     );
-    currentDSL = migrateToNewLayout(currentDSL);
+    if (!newPage) {
+      currentDSL = migrateToNewLayout(currentDSL);
+    }
     currentDSL.version = 20;
   }
 
@@ -932,9 +986,160 @@ export const transformDSL = (currentDSL: ContainerWidgetProps<WidgetProps>) => {
 
   if (currentDSL.version === 40) {
     currentDSL = revertButtonStyleToButtonColor(currentDSL);
+    currentDSL.version = 41;
+  }
+
+  if (currentDSL.version === 41) {
+    currentDSL = migrateButtonVariant(currentDSL);
+    currentDSL.version = 42;
+  }
+
+  if (currentDSL.version === 42) {
+    currentDSL = migrateMapWidgetIsClickedMarkerCentered(currentDSL);
+    currentDSL.version = 43;
+  }
+
+  if (currentDSL.version === 43) {
+    currentDSL = mapAllowHorizontalScrollMigration(currentDSL);
+    currentDSL.version = 44;
+  }
+  if (currentDSL.version === 44) {
+    currentDSL = isSortableMigration(currentDSL);
+    currentDSL.version = 45;
+  }
+
+  if (currentDSL.version === 45) {
+    currentDSL = migrateTableWidgetIconButtonVariant(currentDSL);
+    currentDSL.version = 46;
+  }
+
+  if (currentDSL.version === 46) {
+    currentDSL = migrateCheckboxGroupWidgetInlineProperty(currentDSL);
+    currentDSL.version = 47;
+  }
+
+  if (currentDSL.version === 47) {
+    // We're skipping this to fix a bad table migration.
+    // skipped migration is added as version 51
+    currentDSL.version = 48;
+  }
+
+  if (currentDSL.version === 48) {
+    currentDSL = migrateRecaptchaType(currentDSL);
+    currentDSL.version = 49;
+  }
+
+  if (currentDSL.version === 49) {
+    currentDSL = addPrivateWidgetsToAllListWidgets(currentDSL);
+    currentDSL.version = 50;
+  }
+
+  if (currentDSL.version === 50) {
+    /*
+     * We're skipping this to fix a bad table migration - migrateTableWidgetNumericColumnName
+     * it overwrites the computedValue of the table columns
+     */
+
+    currentDSL.version = 51;
+  }
+
+  if (currentDSL.version === 51) {
+    currentDSL = migratePhoneInputWidgetAllowFormatting(currentDSL);
+    currentDSL.version = 52;
+  }
+
+  if (currentDSL.version === 52) {
+    currentDSL = migrateModalIconButtonWidget(currentDSL);
+    currentDSL.version = 53;
+  }
+
+  if (currentDSL.version === 53) {
+    currentDSL = migrateScrollTruncateProperties(currentDSL);
+    currentDSL.version = 54;
+  }
+
+  if (currentDSL.version === 54) {
+    currentDSL = migratePhoneInputWidgetDefaultDialCode(currentDSL);
+    currentDSL.version = 55;
+  }
+
+  if (currentDSL.version === 55) {
+    currentDSL = migrateCurrencyInputWidgetDefaultCurrencyCode(currentDSL);
+    currentDSL.version = 56;
+  }
+
+  if (currentDSL.version === 56) {
+    currentDSL = migrateRadioGroupAlignmentProperty(currentDSL);
+    currentDSL.version = 57;
+  }
+
+  if (currentDSL.version === 57) {
+    currentDSL = migrateStylingPropertiesForTheming(currentDSL);
+    currentDSL.version = 58;
+  }
+
+  if (currentDSL.version === 58) {
+    currentDSL = migrateCheckboxSwitchProperty(currentDSL);
     currentDSL.version = LATEST_PAGE_VERSION;
   }
 
+  return currentDSL;
+};
+
+const migrateButtonVariant = (
+  currentDSL: ContainerWidgetProps<WidgetProps>,
+) => {
+  if (
+    currentDSL.type === "BUTTON_WIDGET" ||
+    currentDSL.type === "FORM_BUTTON_WIDGET" ||
+    currentDSL.type === "ICON_BUTTON_WIDGET"
+  ) {
+    switch (currentDSL.buttonVariant) {
+      case "OUTLINE":
+        currentDSL.buttonVariant = ButtonVariantTypes.SECONDARY;
+        break;
+      case "GHOST":
+        currentDSL.buttonVariant = ButtonVariantTypes.TERTIARY;
+        break;
+      default:
+        currentDSL.buttonVariant = ButtonVariantTypes.PRIMARY;
+    }
+  }
+  if (currentDSL.type === "MENU_BUTTON_WIDGET") {
+    switch (currentDSL.menuVariant) {
+      case "OUTLINE":
+        currentDSL.menuVariant = ButtonVariantTypes.SECONDARY;
+        break;
+      case "GHOST":
+        currentDSL.menuVariant = ButtonVariantTypes.TERTIARY;
+        break;
+      default:
+        currentDSL.menuVariant = ButtonVariantTypes.PRIMARY;
+    }
+  }
+  if (currentDSL.type === "TABLE_WIDGET") {
+    if (currentDSL.hasOwnProperty("primaryColumns")) {
+      Object.keys(currentDSL.primaryColumns).forEach((column) => {
+        if (currentDSL.primaryColumns[column].columnType === "iconButton") {
+          let newVariant = ButtonVariantTypes.PRIMARY;
+          switch (currentDSL.primaryColumns[column].buttonVariant) {
+            case "OUTLINE":
+              newVariant = ButtonVariantTypes.SECONDARY;
+              break;
+            case "GHOST":
+              newVariant = ButtonVariantTypes.TERTIARY;
+              break;
+          }
+          currentDSL.primaryColumns[column].buttonVariant = newVariant;
+        }
+      });
+    }
+  }
+  if (currentDSL.children && currentDSL.children.length) {
+    currentDSL.children = currentDSL.children.map((child) =>
+      migrateButtonVariant(child),
+    );
+  }
   return currentDSL;
 };
 
@@ -985,7 +1190,7 @@ export const revertButtonStyleToButtonColor = (
           break;
         case "SECONDARY_BUTTON":
           currentDSL.buttonColor = Colors.GREEN;
-          currentDSL.buttonVariant = ButtonVariantTypes.OUTLINE;
+          currentDSL.buttonVariant = ButtonVariantTypes.SECONDARY;
           break;
         case "DANGER_BUTTON":
           currentDSL.buttonColor = Colors.DANGER_SOLID;
@@ -1301,7 +1506,8 @@ export const migrateToNewLayout = (dsl: ContainerWidgetProps<WidgetProps>) => {
 export const checkIfMigrationIsNeeded = (
   fetchPageResponse?: FetchPageResponse,
 ) => {
-  const currentDSL = fetchPageResponse?.data.layouts[0].dsl || defaultTemplate;
+  const currentDSL = fetchPageResponse?.data.layouts[0].dsl;
+  if (!currentDSL) return false;
   return currentDSL.version !== LATEST_PAGE_VERSION;
 };
 

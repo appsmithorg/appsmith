@@ -1,11 +1,10 @@
 import React from "react";
 import ProfileImage, { Profile } from "pages/common/ProfileImage";
 
-import UserApi from "api/UserApi";
+import UserApi from "@appsmith/api/UserApi";
 
 import { AppsmithNotification, NotificationTypes } from "entities/Notification";
 import { getTypographyByKey } from "constants/DefaultTheme";
-import { getCommentThreadURL } from "comments/utils";
 import {
   markNotificationAsReadRequest,
   setIsNotificationsListVisible,
@@ -18,12 +17,13 @@ import moment from "moment";
 import styled from "styled-components";
 
 import { APP_MODE } from "entities/App";
-import OrgApi from "api/OrgApi";
+import WorkspaceApi from "api/WorkspaceApi";
 
 import {
   isPermitted,
   PERMISSION_TYPE,
 } from "pages/Applications/permissionHelpers";
+import { builderURL, viewerURL } from "RouteBuilder";
 
 export const NOTIFICATION_HEIGHT = 82;
 
@@ -79,12 +79,14 @@ const UnreadIndicator = styled.div`
     props.theme.colors.notifications.unreadIndicator};
 `;
 
-const getModeFromUserRole = async (orgId: string) => {
+const getModeFromUserRole = async (workspaceId: string) => {
   try {
-    const response = (await OrgApi.fetchOrg({ orgId })) as any;
-    const userOrgPermissions = response?.data?.userPermissions || [];
+    const response = (await WorkspaceApi.fetchWorkspace({
+      workspaceId,
+    })) as any;
+    const userWorkspacePermissions = response?.data?.userPermissions || [];
     const canPublish = isPermitted(
-      userOrgPermissions,
+      userWorkspacePermissions,
       PERMISSION_TYPE.PUBLISH_APPLICATION,
     );
 
@@ -114,15 +116,15 @@ function CommentNotification(props: { notification: AppsmithNotification }) {
     isRead,
   } = props.notification;
   const {
-    applicationId,
     applicationName,
     authorName,
     authorUsername,
+    branchName,
     mode: modeFromComment,
-    orgId,
     pageId,
-    // resolvedState, TODO get from comment thread
     threadId,
+    // resolvedState, TODO get from comment thread
+    workspaceId,
   } = comment;
 
   const _createdAt = createdAt || creationTime;
@@ -135,20 +137,18 @@ function CommentNotification(props: { notification: AppsmithNotification }) {
   }
 
   const handleClick = async () => {
-    const modeFromRole = await getModeFromUserRole(orgId);
+    const modeFromRole = await getModeFromUserRole(workspaceId);
     const mode = getModeFromRoleAndDomain(modeFromRole, modeFromComment);
-
-    const commentThreadUrl = getCommentThreadURL({
-      applicationId,
-      commentThreadId: threadId,
-      // isResolved: resolvedState?.active,
-      mode,
+    const urlBuilder = mode === APP_MODE.EDIT ? builderURL : viewerURL;
+    const commentThreadURL = urlBuilder({
       pageId,
+      params: {
+        commentThreadId: threadId,
+        branch: branchName,
+      },
     });
     dispatch(setIsNotificationsListVisible(false));
-    history.push(
-      `${commentThreadUrl.pathname}${commentThreadUrl.search}${commentThreadUrl.hash}`,
-    );
+    history.push(commentThreadURL);
 
     dispatch(markNotificationAsReadRequest(id || (_id as string)));
   };
@@ -157,7 +157,7 @@ function CommentNotification(props: { notification: AppsmithNotification }) {
     <FlexContainer onClick={handleClick}>
       <ProfileImageContainer>
         <ProfileImage
-          side={25}
+          size={25}
           source={`/api/${UserApi.photoURL}/${authorUsername}`}
           userName={displayName}
         />
@@ -190,36 +190,35 @@ function CommentThreadNotification(props: {
 
   const {
     _id,
-    applicationId,
     applicationName,
     authorName,
     authorUsername,
+    branchName,
     id,
     mode: modeFromThread,
-    orgId,
     pageId,
     resolvedState,
+    workspaceId,
   } = commentThread;
 
   const commentThreadId = _id || id;
 
   const handleClick = async () => {
-    const modeFromRole = await getModeFromUserRole(orgId);
+    const modeFromRole = await getModeFromUserRole(workspaceId);
     const mode = getModeFromRoleAndDomain(modeFromRole, modeFromThread);
-
-    const commentThreadUrl = getCommentThreadURL({
-      applicationId,
-      commentThreadId,
-      isResolved: resolvedState?.active,
-      mode,
+    const urlBuilder = mode === APP_MODE.EDIT ? builderURL : viewerURL;
+    const commentThreadURL = urlBuilder({
       pageId,
+      params: {
+        commentThreadId,
+        branch: branchName,
+        isResolved: resolvedState?.active,
+      },
     });
 
     dispatch(setIsNotificationsListVisible(false));
 
-    history.push(
-      `${commentThreadUrl.pathname}${commentThreadUrl.search}${commentThreadUrl.hash}`,
-    );
+    history.push(commentThreadURL);
 
     dispatch(
       markNotificationAsReadRequest(
@@ -236,7 +235,7 @@ function CommentThreadNotification(props: {
     <FlexContainer onClick={handleClick}>
       <ProfileImageContainer>
         <ProfileImage
-          side={25}
+          size={25}
           source={`/api/${UserApi.photoURL}/${authorUsername}`}
           userName={displayName}
         />

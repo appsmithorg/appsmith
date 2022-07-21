@@ -42,7 +42,7 @@ import java.util.Map;
 @Component
 public class ClientUserRepository implements ServerOAuth2AuthorizedClientRepository {
 
-    private static final String DEFAULT_AUTHORIZED_CLIENTS_ATTR_NAME =
+    public static final String DEFAULT_AUTHORIZED_CLIENTS_ATTR_NAME =
             WebSessionServerOAuth2AuthorizedClientRepository.class.getName() + ".AUTHORIZED_CLIENTS";
 
     private final String sessionAttributeName = DEFAULT_AUTHORIZED_CLIENTS_ATTR_NAME;

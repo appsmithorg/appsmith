@@ -1,19 +1,14 @@
 import React from "react";
 import styled from "styled-components";
 import { Icon } from "@blueprintjs/core";
-import Text, { TextType } from "components/ads/Text";
+import { Text, TextType } from "design-system";
 import { useHistory } from "react-router-dom";
-import { useSelector } from "react-redux";
 import { getIsGeneratePageInitiator } from "utils/GenerateCrudUtil";
 import { Colors } from "constants/Colors";
-import {
-  getCurrentApplicationId,
-  getCurrentPageId,
-} from "../../../selectors/editorSelectors";
-import {
-  BUILDER_PAGE_URL,
-  getGenerateTemplateFormURL,
-} from "../../../constants/routes";
+import { builderURL, generateTemplateFormURL } from "RouteBuilder";
+import AnalyticsUtil from "utils/AnalyticsUtil";
+import { useSelector } from "react-redux";
+import { getCurrentPageId } from "selectors/editorSelectors";
 
 const Back = styled.span`
   height: 30px;
@@ -25,17 +20,22 @@ const Back = styled.span`
 
 function BackButton() {
   const history = useHistory();
-  const applicationId = useSelector(getCurrentApplicationId);
   const pageId = useSelector(getCurrentPageId);
   const goBack = () => {
     const isGeneratePageInitiator = getIsGeneratePageInitiator();
     const redirectURL = isGeneratePageInitiator
-      ? getGenerateTemplateFormURL(applicationId, pageId)
-      : BUILDER_PAGE_URL(applicationId, pageId);
+      ? generateTemplateFormURL({ pageId })
+      : builderURL({ pageId });
+
+    AnalyticsUtil.logEvent("BACK_BUTTON_CLICK", {
+      type: "BACK_BUTTON",
+      fromUrl: location.pathname,
+      toUrl: redirectURL,
+    });
     history.push(redirectURL);
   };
   return (
-    <Back onClick={goBack}>
+    <Back className="t--back-button" onClick={goBack}>
       <Icon icon="chevron-left" iconSize={16} />
       <Text
         style={{ color: Colors.DIESEL, lineHeight: "14px" }}

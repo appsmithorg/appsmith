@@ -18,23 +18,52 @@ export enum SearchVariant {
 }
 
 export type TextInputProps = CommonComponentProps & {
+  border?: boolean;
   placeholder?: string;
   fill?: boolean;
   defaultValue?: string;
   variant?: SearchVariant;
+  width?: string;
   onChange?: (value: string) => void;
 };
 
-const SearchInputWrapper = styled.div`
+const SearchInputWrapper = styled.div<{ border?: boolean; className?: string }>`
   & > div {
     border: none;
+
+    & > .left-icon {
+      margin-left: 8px;
+
+      & span {
+        margin-right: 0;
+      }
+    }
+
+    & > .right-icon {
+      position: relative;
+      right: 0;
+    }
+
+    & input {
+      padding: 0 8px;
+    }
+
+    ${({ border }) =>
+      border &&
+      `
+      border: 1.2px solid var(--appsmith-search-input-mobile-border-color);
+
+      &:active, &:focus, &:hover {
+        border-color: var(--appsmith-search-input-focus-mobile-border-color);
+      }
+    `}
   }
 `;
 
 const CloseIcon = styled.div`
   .${Classes.ICON} {
     margin-right: ${(props) => props.theme.spaces[4]}px;
-    margin-left: ${(props) => props.theme.spaces[4]}px;
+    margin-left: 0;
   }
 `;
 
@@ -65,7 +94,11 @@ const SearchInput = forwardRef(
       return props.onChange && props.onChange("");
     }, [props]);
     return (
-      <SearchInputWrapper ref={wrapperRef}>
+      <SearchInputWrapper
+        border={props.border}
+        className={props.className}
+        ref={wrapperRef}
+      >
         <TextInput
           {...props}
           defaultValue={searchValue}
@@ -85,7 +118,7 @@ const SearchInput = forwardRef(
               </CloseIcon>
             ) : null
           }
-          width="228px"
+          width={props.width ? props.width : "228px"}
         />
       </SearchInputWrapper>
     );

@@ -1,20 +1,21 @@
-import Widget from "./widget";
-import IconSVG from "./icon.svg";
-import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
 import { Colors } from "constants/Colors";
+import IconSVG from "./icon.svg";
+import Widget from "./widget";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
   name: "Rating",
   iconSVG: IconSVG,
   needsMeta: true,
+  searchTags: ["stars"],
   defaults: {
-    rows: 1 * GRID_DENSITY_MIGRATION_V1,
-    columns: 2.5 * GRID_DENSITY_MIGRATION_V1,
+    rows: 4,
+    columns: 20,
+    animateLoading: true,
     maxCount: 5,
     defaultRate: 3,
     activeColor: Colors.RATE_ACTIVE,
-    inactiveColor: Colors.RATE_INACTIVE,
+    inactiveColor: Colors.ALTO_3,
     size: "LARGE",
     isRequired: false,
     isAllowHalf: false,

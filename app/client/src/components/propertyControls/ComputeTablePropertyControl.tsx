@@ -1,9 +1,7 @@
 import React from "react";
 import BaseControl, { ControlProps } from "./BaseControl";
 import { StyledDynamicInput } from "./StyledControls";
-import CodeEditor, {
-  CodeEditorExpected,
-} from "components/editorComponents/CodeEditor";
+import { CodeEditorExpected } from "components/editorComponents/CodeEditor";
 import {
   EditorModes,
   EditorSize,
@@ -18,6 +16,7 @@ import {
   JSToString,
   stringToJS,
 } from "components/editorComponents/ActionCreator/Fields";
+import CodeEditor from "components/editorComponents/LazyCodeEditorWrapper";
 
 const PromptMessage = styled.span`
   line-height: 17px;
@@ -95,7 +94,10 @@ class ComputeTablePropertyControl extends BaseControl<
     const tableId = this.props.widgetProperties.widgetName;
     const value =
       propertyValue && isDynamicValue(propertyValue)
-        ? this.getInputComputedValue(propertyValue, tableId)
+        ? ComputeTablePropertyControl.getInputComputedValue(
+            propertyValue,
+            tableId,
+          )
         : propertyValue
         ? propertyValue
         : defaultValue;
@@ -107,7 +109,10 @@ class ComputeTablePropertyControl extends BaseControl<
     Object.keys(columns).forEach((id: string) => {
       currentRow[id] = undefined;
     });
-
+    // Load default value in evaluated value
+    if (value && !propertyValue) {
+      this.onTextChange(value);
+    }
     return (
       <InputText
         additionalDynamicData={{
@@ -123,7 +128,7 @@ class ComputeTablePropertyControl extends BaseControl<
     );
   }
 
-  getInputComputedValue = (propertyValue: string, tableId: string) => {
+  static getInputComputedValue = (propertyValue: string, tableId: string) => {
     const value = `${propertyValue.substring(
       `{{${tableId}.sanitizedTableData.map((currentRow) => ( `.length,
       propertyValue.length - 4,
@@ -144,7 +149,7 @@ class ComputeTablePropertyControl extends BaseControl<
   onTextChange = (event: React.ChangeEvent<HTMLTextAreaElement> | string) => {
     let value = "";
     if (typeof event !== "string") {
-      value = event.target.value;
+      value = event.target?.value;
     } else {
       value = event;
     }

@@ -2,13 +2,16 @@ package com.appsmith.server.services;
 
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
+import com.appsmith.server.acl.AppsmithRole;
 import com.appsmith.server.constants.CommentOnboardingState;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Comment;
 import com.appsmith.server.domains.CommentThread;
-import com.appsmith.server.domains.Organization;
+import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserData;
+import com.appsmith.server.domains.UserRole;
+import com.appsmith.server.dtos.ApplicationAccessDTO;
 import com.appsmith.server.dtos.CommentThreadFilterDTO;
 import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.repositories.CommentRepository;
@@ -16,6 +19,7 @@ import com.appsmith.server.repositories.CommentThreadRepository;
 import com.appsmith.server.repositories.NotificationRepository;
 import com.appsmith.server.repositories.UserDataRepository;
 import com.appsmith.server.solutions.EmailEventHandler;
+import com.mongodb.client.result.UpdateResult;
 import com.segment.analytics.Analytics;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Before;
@@ -65,7 +69,7 @@ public class CommentServiceTest {
     ApplicationPageService applicationPageService;
 
     @Autowired
-    OrganizationService organizationService;
+    WorkspaceService workspaceService;
 
     @Autowired
     PolicyUtils policyUtils;
@@ -75,6 +79,9 @@ public class CommentServiceTest {
 
     @Autowired
     private NotificationRepository notificationRepository;
+
+    @Autowired
+    private UserWorkspaceService userWorkspaceService;
 
     @MockBean
     private Analytics analytics;
@@ -101,8 +108,17 @@ public class CommentServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void setup() {
-        final Mono<Tuple2<CommentThread, List<CommentThread>>> resultMono = applicationService
-                .findByName("TestApplications", AclPermission.READ_APPLICATIONS)
+        String randomId = UUID.randomUUID().toString();
+        Workspace workspace = new Workspace();
+        workspace.setName(randomId + "-test-org");
+
+        final Mono<Tuple2<CommentThread, List<CommentThread>>> resultMono = workspaceService
+                .create(workspace).flatMap(workspace1 -> {
+                    Application application = new Application();
+                    application.setName(randomId + "-test-app");
+                    application.setWorkspaceId(workspace1.getId());
+                    return applicationPageService.createApplication(application);
+                })
                 .flatMap(application -> {
                     final CommentThread thread = new CommentThread();
                     thread.setApplicationId(application.getId());
@@ -125,15 +141,15 @@ public class CommentServiceTest {
                     assertThat(thread.getId()).isNotEmpty();
                     //assertThat(thread.getResolved()).isNull();
                     assertThat(thread.getPolicies()).containsExactlyInAnyOrder(
-                            Policy.builder().permission(AclPermission.READ_THREAD.getValue()).users(Set.of("api_user")).groups(Collections.emptySet()).build(),
-                            Policy.builder().permission(AclPermission.MANAGE_THREAD.getValue()).users(Set.of("api_user")).groups(Collections.emptySet()).build(),
-                            Policy.builder().permission(AclPermission.COMMENT_ON_THREAD.getValue()).users(Set.of("api_user")).groups(Collections.emptySet()).build()
+                            Policy.builder().permission(AclPermission.READ_THREADS.getValue()).users(Set.of("api_user")).groups(Collections.emptySet()).build(),
+                            Policy.builder().permission(AclPermission.MANAGE_THREADS.getValue()).users(Set.of("api_user")).groups(Collections.emptySet()).build(),
+                            Policy.builder().permission(AclPermission.COMMENT_ON_THREADS.getValue()).users(Set.of("api_user")).groups(Collections.emptySet()).build()
                     );
                     assertThat(thread.getComments()).hasSize(2);  // one comment is from bot
                     assertThat(thread.getComments().get(0).getBody()).isEqualTo(makePlainTextComment("comment one").getBody());
                     assertThat(thread.getComments().get(0).getPolicies()).containsExactlyInAnyOrder(
-                            Policy.builder().permission(AclPermission.MANAGE_COMMENT.getValue()).users(Set.of("api_user")).groups(Collections.emptySet()).build(),
-                            Policy.builder().permission(AclPermission.READ_COMMENT.getValue()).users(Set.of("api_user")).groups(Collections.emptySet()).build()
+                            Policy.builder().permission(AclPermission.MANAGE_COMMENTS.getValue()).users(Set.of("api_user")).groups(Collections.emptySet()).build(),
+                            Policy.builder().permission(AclPermission.READ_COMMENTS.getValue()).users(Set.of("api_user")).groups(Collections.emptySet()).build()
                     );
 
                     assertThat(threadsInApp).hasSize(1);
@@ -188,10 +204,10 @@ public class CommentServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void deleteValidComment() {
-        Organization organization = new Organization();
-        organization.setName("CommentDeleteTestOrg");
-        Mono<Comment> beforeDeletionMono = organizationService
-                .create(organization)
+        Workspace workspace = new Workspace();
+        workspace.setName("CommentDeleteTestOrg");
+        Mono<Comment> beforeDeletionMono = workspaceService
+                .create(workspace)
                 .flatMap(org -> {
                     Application testApplication = new Application();
                     testApplication.setName("CommentDeleteApp");
@@ -225,10 +241,10 @@ public class CommentServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void testAddReaction() {
-        Organization organization = new Organization();
-        organization.setName("ReactionsOrg");
-        Mono<Comment> reactionMono = organizationService
-                .create(organization)
+        Workspace workspace = new Workspace();
+        workspace.setName("ReactionsOrg");
+        Mono<Comment> reactionMono = workspaceService
+                .create(workspace)
                 .flatMap(org -> {
                     Application testApplication = new Application();
                     testApplication.setName("ReactionApp");
@@ -264,10 +280,10 @@ public class CommentServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void testAddAndRemoveReaction() {
-        Organization organization = new Organization();
-        organization.setName("ReactionsOrg");
-        Mono<Comment> reactionMono = organizationService
-                .create(organization)
+        Workspace workspace = new Workspace();
+        workspace.setName("ReactionsOrg");
+        Mono<Comment> reactionMono = workspaceService
+                .create(workspace)
                 .flatMap(org -> {
                     Application testApplication = new Application();
                     testApplication.setName("ReactionApp");
@@ -309,7 +325,7 @@ public class CommentServiceTest {
         User user = new User();
         user.setEmail("api_user");
         Map<String, Policy> stringPolicyMap = policyUtils.generatePolicyFromPermission(
-                Set.of(AclPermission.READ_THREAD),
+                Set.of(AclPermission.READ_THREADS),
                 user
         );
         Set<Policy> policies = Set.copyOf(stringPolicyMap.values());
@@ -341,7 +357,7 @@ public class CommentServiceTest {
         Mono<Long> unreadCountMono = commentThreadRepository
                 .saveAll(List.of(c1, c2, c3)) // save all the threads
                 .collectList()
-                .then(commentService.getUnreadCount("test-application-1")); // count unread in first app
+                .then(commentService.getUnreadCount("test-application-1", null)); // count unread in first app
 
         StepVerifier.create(unreadCountMono).assertNext(aLong -> {
             assertThat(aLong).isEqualTo(1);
@@ -353,7 +369,7 @@ public class CommentServiceTest {
     public void create_WhenThreadIsResolvedAndAlreadyViewed_ThreadIsUnresolvedAndUnread() {
         // create a thread first with resolved=true
         Collection<Policy> threadPolicies = policyUtils.generatePolicyFromPermission(
-                Set.of(AclPermission.COMMENT_ON_THREAD),
+                Set.of(AclPermission.COMMENT_ON_THREADS),
                 "api_user"
         ).values();
 
@@ -368,7 +384,7 @@ public class CommentServiceTest {
                 .flatMap(savedThread -> {
                     Comment comment = makePlainTextComment("Test comment");
                     comment.setThreadId(savedThread.getId());
-                    return commentService.create(savedThread.getId(), comment, null);
+                    return commentService.create(savedThread.getId(), comment, null, null);
                 })
                 .flatMap(savedComment ->
                         commentThreadRepository.findById(savedComment.getThreadId())
@@ -486,11 +502,11 @@ public class CommentServiceTest {
         userData.setCommentOnboardingState(CommentOnboardingState.COMMENTED);
         Mockito.when(userDataRepository.findByUserId(any(String.class))).thenReturn(Mono.just(userData));
 
-        Organization organization = new Organization();
-        organization.setName("GetThreadsTestOrg");
+        Workspace workspace = new Workspace();
+        workspace.setName("GetThreadsTestOrg");
 
-        Mono<List<CommentThread>> commentThreadListMono = organizationService
-                .create(organization)
+        Mono<List<CommentThread>> commentThreadListMono = workspaceService
+                .create(workspace)
                 .flatMap(org -> {
                     Application testApplication = new Application();
                     testApplication.setName("GetThreadsTestApplication");
@@ -528,13 +544,13 @@ public class CommentServiceTest {
         userData.setCommentOnboardingState(CommentOnboardingState.COMMENTED);
         Mockito.when(userDataRepository.findByUserId(any(String.class))).thenReturn(Mono.just(userData));
 
-        Organization organization = new Organization();
-        organization.setName("CreateThreadTestOrg");
+        Workspace workspace = new Workspace();
+        workspace.setName("CreateThreadTestOrg");
 
         String testUsernameForNotification = "test_username_for_notification";
 
-        Mono<Long> notificationCount = organizationService
-                .create(organization)
+        Mono<Long> notificationCount = workspaceService
+                .create(workspace)
                 .flatMap(org -> {
                     Application testApplication = new Application();
                     testApplication.setName("CreateThreadsTestApplication");
@@ -571,7 +587,7 @@ public class CommentServiceTest {
 
         // create a thread first with resolved=true
         Collection<Policy> threadPolicies = policyUtils.generatePolicyFromPermission(
-                Set.of(AclPermission.COMMENT_ON_THREAD),
+                Set.of(AclPermission.COMMENT_ON_THREADS),
                 "api_user"
         ).values();
         CommentThread commentThread = new CommentThread();
@@ -581,11 +597,61 @@ public class CommentServiceTest {
                 .flatMap(savedThread -> {
                     Comment comment = makePlainTextComment("Test comment");
                     comment.setThreadId(savedThread.getId());
-                    return commentService.create(savedThread.getId(), comment, null);
+                    return commentService.create(savedThread.getId(), comment, null, null);
                 });
 
         StepVerifier.create(commentMono).assertNext(comment -> {
             assertThat(comment.getAuthorPhotoId()).isEqualTo("test-photo-id");
         }).verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void createThread_WhenPublicAppAndOutsideUser_CommentIsCreated() {
+        Mockito.when(
+                userDataRepository.removeIdFromRecentlyUsedList(any(String.class), any(String.class), any(List.class))
+        ).thenReturn(Mono.just(Mockito.mock(UpdateResult.class)));
+        String randomId = UUID.randomUUID().toString();
+        Workspace workspace = new Workspace();
+        workspace.setName("Comment test " + randomId);
+
+        Mono<CommentThread> commentThreadMono = workspaceService.create(workspace).flatMap(workspace1 -> {
+            Application application = new Application();
+            application.setName("Comment test " + randomId);
+            ApplicationAccessDTO applicationAccessDTO = new ApplicationAccessDTO();
+            applicationAccessDTO.setPublicAccess(true);
+            return applicationPageService.createApplication(application, workspace1.getId()).flatMap(
+                    createdApp -> applicationService.changeViewAccess(application.getId(), applicationAccessDTO)
+            );
+        }).flatMap(application -> {
+            // add another admin to this org and remove api_user from this workspace
+            User user = new User();
+            user.setEmail("some_other_user");
+            user.setPassword("mypassword");
+
+            UserRole userRole = new UserRole();
+            userRole.setUsername(user.getUsername());
+            userRole.setRoleName(AppsmithRole.ORGANIZATION_ADMIN.getName());
+            userRole.setRole(AppsmithRole.ORGANIZATION_ADMIN);
+
+            return userService.create(user)
+                    .then(userWorkspaceService.addUserRoleToWorkspace(application.getWorkspaceId(), userRole))
+                    .then(userWorkspaceService.leaveWorkspace(application.getWorkspaceId()))
+                    .thenReturn(application);
+        }).flatMap(application -> {
+            String pageId = application.getPublishedPages().get(0).getId();
+            // try to add a comment thread
+            CommentThread commentThread = new CommentThread();
+            commentThread.setApplicationId(application.getId());
+            commentThread.setPageId(pageId);
+            commentThread.setComments(List.of(makePlainTextComment("my test comment")));
+            return commentService.createThread(commentThread, null, null);
+        });
+
+        StepVerifier.create(commentThreadMono)
+                .assertNext(commentThread -> {
+                    assertThat(commentThread.getId()).isNotEmpty();
+                })
+                .verifyComplete();
     }
 }

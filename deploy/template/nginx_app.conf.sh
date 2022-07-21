@@ -11,6 +11,11 @@ NGINX_SSL_CMNT="$1"
 custom_domain="$2"
 
 cat <<EOF
+map \$http_x_forwarded_proto \$origin_scheme {
+  default \$http_x_forwarded_proto;
+  '' \$scheme;
+}
+
 server {
     listen 80;
 $NGINX_SSL_CMNT    server_name $custom_domain ;
@@ -25,7 +30,7 @@ $NGINX_SSL_CMNT    server_name $custom_domain ;
         root /var/www/certbot;
     }
 
-    proxy_set_header X-Forwarded-Proto \$scheme;
+    proxy_set_header X-Forwarded-Proto \$origin_scheme;
     proxy_set_header X-Forwarded-Host \$host;
 
     location / {
@@ -37,7 +42,6 @@ $NGINX_SSL_CMNT    server_name $custom_domain ;
         sub_filter __APPSMITH_OAUTH2_GITHUB_CLIENT_ID__ '\${APPSMITH_OAUTH2_GITHUB_CLIENT_ID}';
         sub_filter __APPSMITH_MARKETPLACE_ENABLED__ '\${APPSMITH_MARKETPLACE_ENABLED}';
         sub_filter __APPSMITH_SEGMENT_KEY__ '\${APPSMITH_SEGMENT_KEY}';
-        sub_filter __APPSMITH_OPTIMIZELY_KEY__ '\${APPSMITH_OPTIMIZELY_KEY}';
         sub_filter __APPSMITH_ALGOLIA_API_ID__ '\${APPSMITH_ALGOLIA_API_ID}';
         sub_filter __APPSMITH_ALGOLIA_SEARCH_INDEX_NAME__ '\${APPSMITH_ALGOLIA_SEARCH_INDEX_NAME}';
         sub_filter __APPSMITH_ALGOLIA_API_KEY__ '\${APPSMITH_ALGOLIA_API_KEY}';
@@ -53,11 +57,10 @@ $NGINX_SSL_CMNT    server_name $custom_domain ;
         sub_filter __APPSMITH_RECAPTCHA_SECRET_KEY__ '\${APPSMITH_RECAPTCHA_SECRET_KEY}';
         sub_filter __APPSMITH_RECAPTCHA_ENABLED__ '\${APPSMITH_RECAPTCHA_ENABLED}';
         sub_filter __APPSMITH_DISABLE_INTERCOM__ '\${APPSMITH_DISABLE_INTERCOM}';
+        sub_filter __APPSMITH_FORM_LOGIN_DISABLED__ '\${APPSMITH_FORM_LOGIN_DISABLED}';
+        sub_filter __APPSMITH_SIGNUP_DISABLED__ '\${APPSMITH_SIGNUP_DISABLED}';
     }
 
-    location /f {
-       proxy_pass https://cdn.optimizely.com/;
-    }
 
     location /api {
         proxy_pass http://appsmith-internal-server:8080;
@@ -83,7 +86,7 @@ $NGINX_SSL_CMNT
 $NGINX_SSL_CMNT    include /etc/letsencrypt/options-ssl-nginx.conf;
 $NGINX_SSL_CMNT    ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
 $NGINX_SSL_CMNT
-$NGINX_SSL_CMNT    proxy_set_header X-Forwarded-Proto \$scheme;
+$NGINX_SSL_CMNT    proxy_set_header X-Forwarded-Proto \$origin_scheme;
 $NGINX_SSL_CMNT    proxy_set_header X-Forwarded-Host \$host;
 $NGINX_SSL_CMNT
 $NGINX_SSL_CMNT    root /var/www/appsmith;
@@ -98,7 +101,6 @@ $NGINX_SSL_CMNT        sub_filter __APPSMITH_OAUTH2_GOOGLE_CLIENT_ID__ '\${APPSM
 $NGINX_SSL_CMNT        sub_filter __APPSMITH_OAUTH2_GITHUB_CLIENT_ID__ '\${APPSMITH_OAUTH2_GITHUB_CLIENT_ID}';
 $NGINX_SSL_CMNT        sub_filter __APPSMITH_MARKETPLACE_ENABLED__ '\${APPSMITH_MARKETPLACE_ENABLED}';
 $NGINX_SSL_CMNT        sub_filter __APPSMITH_SEGMENT_KEY__ '\${APPSMITH_SEGMENT_KEY}';
-$NGINX_SSL_CMNT        sub_filter __APPSMITH_OPTIMIZELY_KEY__ '\${APPSMITH_OPTIMIZELY_KEY}';
 $NGINX_SSL_CMNT        sub_filter __APPSMITH_ALGOLIA_API_ID__ '\${APPSMITH_ALGOLIA_API_ID}';
 $NGINX_SSL_CMNT        sub_filter __APPSMITH_ALGOLIA_SEARCH_INDEX_NAME__ '\${APPSMITH_ALGOLIA_SEARCH_INDEX_NAME}';
 $NGINX_SSL_CMNT        sub_filter __APPSMITH_ALGOLIA_API_KEY__ '\${APPSMITH_ALGOLIA_API_KEY}';
@@ -114,10 +116,8 @@ $NGINX_SSL_CMNT        sub_filter __APPSMITH_RECAPTCHA_SITE_KEY__ '\${APPSMITH_R
 $NGINX_SSL_CMNT        sub_filter __APPSMITH_RECAPTCHA_SECRET_KEY__ '\${APPSMITH_RECAPTCHA_SECRET_KEY}';
 $NGINX_SSL_CMNT        sub_filter __APPSMITH_RECAPTCHA_ENABLED__ '\${APPSMITH_RECAPTCHA_ENABLED}';
 $NGINX_SSL_CMNT        sub_filter __APPSMITH_DISABLE_INTERCOM__ '\${APPSMITH_DISABLE_INTERCOM}';
-$NGINX_SSL_CMNT    }
-$NGINX_SSL_CMNT
-$NGINX_SSL_CMNT    location /f {
-$NGINX_SSL_CMNT       proxy_pass https://cdn.optimizely.com/;
+$NGINX_SSL_CMNT        sub_filter __APPSMITH_FORM_LOGIN_DISABLED__ '\${APPSMITH_FORM_LOGIN_DISABLED}';
+$NGINX_SSL_CMNT        sub_filter __APPSMITH_SIGNUP_DISABLED__ '\${APPSMITH_SIGNUP_DISABLED}';
 $NGINX_SSL_CMNT    }
 $NGINX_SSL_CMNT
 $NGINX_SSL_CMNT    location /api {

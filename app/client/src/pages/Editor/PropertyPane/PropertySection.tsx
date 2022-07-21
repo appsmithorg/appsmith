@@ -18,6 +18,10 @@ const SectionWrapper = styled.div`
     z-index: 1;
     position: relative;
   }
+
+  .bp3-collapse {
+    transition: none;
+  }
 `;
 const SectionTitle = styled.div`
   display: grid;
@@ -38,7 +42,7 @@ const SectionTitle = styled.div`
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: transform 0.2s;
+    transition: none;
     &.open-collapse {
       transform: rotate(90deg);
     }
@@ -62,7 +66,8 @@ const areEqual = (prev: PropertySectionProps, next: PropertySectionProps) => {
 export const CollapseContext: Context<boolean> = createContext<boolean>(false);
 
 export const PropertySection = memo((props: PropertySectionProps) => {
-  const [isOpen, open] = useState(!!props.isDefaultOpen);
+  const { isDefaultOpen = true } = props;
+  const [isOpen, open] = useState(!!isDefaultOpen);
   const widgetProps: any = useSelector(getWidgetPropsForPropertyPane);
   if (props.hidden) {
     if (props.hidden(widgetProps, props.propertyPath || "")) {
@@ -74,7 +79,7 @@ export const PropertySection = memo((props: PropertySectionProps) => {
     .join("")
     .toLowerCase();
   return (
-    <SectionWrapper>
+    <SectionWrapper className="t--property-pane-section-wrapper">
       <SectionTitle
         className={`t--property-pane-section-collapse-${className}`}
         onClick={() => open(!isOpen)}
@@ -86,7 +91,7 @@ export const PropertySection = memo((props: PropertySectionProps) => {
         />
       </SectionTitle>
       {props.children && (
-        <Collapse isOpen={isOpen} keepChildrenMounted>
+        <Collapse isOpen={isOpen} keepChildrenMounted transitionDuration={0}>
           <div
             className={`t--property-pane-section-${className}`}
             style={{ position: "relative", zIndex: 1 }}

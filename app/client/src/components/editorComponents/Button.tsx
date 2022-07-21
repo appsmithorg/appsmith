@@ -26,15 +26,14 @@ const outline = css`
 const buttonStyles = css<Partial<ButtonProps>>`
   ${BlueprintButtonIntentsCSS}
   &&&& {
-    padding: ${(props) =>
-      props.filled || props.outline
-        ? props.theme.spaces[2] + "px " + props.theme.spaces[3] + "px"
-        : 0};
     border-radius: 0;
     background: ${(props) =>
       props.filled || props.outline ? "inherit" : "transparent"};
-
+    border-radius: ${({ borderRadius }) => borderRadius};
+    box-shadow: ${({ boxShadow }) => `${boxShadow}`} !important;
     width: ${(props) => (props.fluid ? "100%" : "auto")};
+    height: 100%;
+    padding: 0 10px;
   }
   &&&&&& {
     &.bp3-button span {
@@ -78,7 +77,7 @@ export type ButtonProps = {
   filled?: boolean;
   intent?: Intent;
   text?: string;
-  onClick?: () => void;
+  onClick?: (e?: React.MouseEvent<HTMLElement>) => void;
   href?: string;
   icon?: string | MaybeElement;
   iconAlignment?: Direction;
@@ -90,6 +89,9 @@ export type ButtonProps = {
   fluid?: boolean;
   skin?: Skin;
   target?: string;
+  borderRadius?: string;
+  boxShadow?: string;
+  boxShadowColor?: string;
 };
 
 export const Button = (props: ButtonProps) => {
@@ -133,6 +135,9 @@ export const Button = (props: ButtonProps) => {
   } else
     return (
       <StyledButton
+        borderRadius={props.borderRadius}
+        boxShadow={props.boxShadow}
+        boxShadowColor={props.boxShadowColor}
         icon={icon}
         rightIcon={rightIcon}
         {...baseProps}

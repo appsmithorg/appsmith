@@ -210,7 +210,7 @@ public class RedshiftPlugin extends BasePlugin {
          *    can be triggered.
          */
         private void checkConnectionValidity(Connection connection) throws SQLException {
-            if (connection == null || connection.isClosed() || !connection.isValid(VALIDITY_CHECK_TIMEOUT)) {
+            if (connection == null || connection.isClosed()) {
                 throw new StaleConnectionException();
             }
         }
@@ -287,6 +287,13 @@ public class RedshiftPlugin extends BasePlugin {
                             log.warn("Error closing Redshift Statement", e);
                         }
                     }
+
+                    try {
+                        connection.close();
+                    } catch (SQLException e) {
+                        log.warn("Error closing Redshift Connection", e);
+                    }
+
                 }
 
                 ActionExecutionResult result = new ActionExecutionResult();
@@ -667,6 +674,14 @@ public class RedshiftPlugin extends BasePlugin {
                 } catch (AppsmithPluginException e) {
                     e.printStackTrace();
                     return Mono.error(e);
+
+                } finally {
+                    try {
+                        connection.close();
+                    } catch (SQLException e) {
+                        log.warn("Error closing Redshift Connection", e);
+                    }
+
                 }
 
                 structure.setTables(new ArrayList<>(tablesByName.values()));

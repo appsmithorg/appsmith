@@ -1,11 +1,12 @@
 import { Variant } from "components/ads/common";
 import { Toaster } from "components/ads/Toast";
+import * as log from "loglevel";
 import {
   LOCAL_STORAGE_QUOTA_EXCEEDED_MESSAGE,
   LOCAL_STORAGE_NO_SPACE_LEFT_ON_DEVICE_MESSAGE,
   LOCAL_STORAGE_NOT_SUPPORTED_APP_MIGHT_NOT_WORK_AS_EXPECTED,
   createMessage,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 
 class LocalStorageNotSupportedError extends Error {
   name: string;
@@ -39,7 +40,7 @@ export const getLocalStorage = () => {
       message = LOCAL_STORAGE_NO_SPACE_LEFT_ON_DEVICE_MESSAGE;
     } else if (e.name === "LOCAL_STORAGE_NOT_SUPPORTED") {
       // Fail silently
-      console.error(
+      log.error(
         createMessage(
           LOCAL_STORAGE_NOT_SUPPORTED_APP_MIGHT_NOT_WORK_AS_EXPECTED,
         ),
@@ -63,8 +64,8 @@ export const getLocalStorage = () => {
         throw new LocalStorageNotSupportedError();
       }
       return storage.getItem(key);
-    } catch (e) {
-      handleError(e);
+    } catch (error) {
+      handleError(error as Error);
     }
     return null;
   };
@@ -75,8 +76,8 @@ export const getLocalStorage = () => {
         throw new LocalStorageNotSupportedError();
       }
       storage.setItem(key, value);
-    } catch (e) {
-      handleError(e);
+    } catch (error) {
+      handleError(error as Error);
     }
   };
 
@@ -86,8 +87,8 @@ export const getLocalStorage = () => {
         throw new LocalStorageNotSupportedError();
       }
       storage.removeItem(key);
-    } catch (e) {
-      handleError(e);
+    } catch (error) {
+      handleError(error as Error);
     }
   };
 
@@ -97,8 +98,8 @@ export const getLocalStorage = () => {
         throw new LocalStorageNotSupportedError();
       }
       storage.clear();
-    } catch (e) {
-      handleError(e);
+    } catch (error) {
+      handleError(error as Error);
     }
   };
 

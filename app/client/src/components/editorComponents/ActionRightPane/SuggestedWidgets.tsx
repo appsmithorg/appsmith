@@ -4,7 +4,7 @@ import { useDispatch } from "react-redux";
 import styled from "styled-components";
 import { generateReactKey } from "utils/generators";
 import { Collapsible } from ".";
-import Tooltip from "components/ads/Tooltip";
+import { TooltipComponent as Tooltip } from "design-system";
 import { addSuggestedWidget } from "actions/widgetActions";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import {
@@ -12,7 +12,7 @@ import {
   createMessage,
   SUGGESTED_WIDGETS,
   SUGGESTED_WIDGET_TOOLTIP,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 import { SuggestedWidget } from "api/ActionAPI";
 
 import { useSelector } from "store";
@@ -67,43 +67,43 @@ export const WIDGET_DATA_FIELD_MAP: Record<string, WidgetBindingInfo> = {
     label: "items",
     propertyName: "listData",
     widgetName: "List",
-    image:
-      "https://s3.us-east-2.amazonaws.com/assets.appsmith.com/widgetSuggestion/list.svg",
+    image: "https://assets.appsmith.com/widgetSuggestion/list.svg",
   },
   TABLE_WIDGET: {
     label: "tabledata",
     propertyName: "tableData",
     widgetName: "Table",
-    image:
-      "https://s3.us-east-2.amazonaws.com/assets.appsmith.com/widgetSuggestion/table.svg",
+    image: "https://assets.appsmith.com/widgetSuggestion/table.svg",
+  },
+  TABLE_WIDGET_V2: {
+    label: "tabledata",
+    propertyName: "tableData",
+    widgetName: "Table",
+    image: "https://assets.appsmith.com/widgetSuggestion/table.svg",
   },
   CHART_WIDGET: {
     label: "chart-series-data-control",
     propertyName: "chartData",
     widgetName: "Chart",
-    image:
-      "https://s3.us-east-2.amazonaws.com/assets.appsmith.com/widgetSuggestion/chart.svg",
+    image: "https://assets.appsmith.com/widgetSuggestion/chart.svg",
   },
-  DROP_DOWN_WIDGET: {
+  SELECT_WIDGET: {
     label: "options",
     propertyName: "options",
     widgetName: "Select",
-    image:
-      "https://s3.us-east-2.amazonaws.com/assets.appsmith.com/widgetSuggestion/dropdown.svg",
+    image: "https://assets.appsmith.com/widgetSuggestion/dropdown.svg",
   },
   TEXT_WIDGET: {
     label: "text",
     propertyName: "text",
     widgetName: "Text",
-    image:
-      "https://s3.us-east-2.amazonaws.com/assets.appsmith.com/widgetSuggestion/text.svg",
+    image: "https://assets.appsmith.com/widgetSuggestion/text.svg",
   },
-  INPUT_WIDGET: {
+  INPUT_WIDGET_V2: {
     label: "text",
     propertyName: "defaultText",
     widgetName: "Input",
-    image:
-      "https://s3.us-east-2.amazonaws.com/assets.appsmith.com/widgetSuggestion/input.svg",
+    image: "https://assets.appsmith.com/widgetSuggestion/input.svg",
   },
 };
 
@@ -118,6 +118,15 @@ function getWidgetProps(
     case "TABLE_WIDGET":
       return {
         type: "TABLE_WIDGET",
+        props: {
+          [fieldName]: `{{${actionName}.${suggestedWidget.bindingQuery}}}`,
+          dynamicBindingPathList: [{ key: "tableData" }],
+        },
+        parentRowSpace: 10,
+      };
+    case "TABLE_WIDGET_V2":
+      return {
+        type: "TABLE_WIDGET_V2",
         props: {
           [fieldName]: `{{${actionName}.${suggestedWidget.bindingQuery}}}`,
           dynamicBindingPathList: [{ key: "tableData" }],
@@ -139,12 +148,17 @@ function getWidgetProps(
           dynamicBindingPathList: [{ key: `chartData.${reactKey}.data` }],
         },
       };
-    case "DROP_DOWN_WIDGET":
+    case "SELECT_WIDGET":
       return {
         type: suggestedWidget.type,
         props: {
           [fieldName]: `{{${actionName}.${suggestedWidget.bindingQuery}}}`,
-          defaultOptionValue: `{{${widgetName}.options[0].value}}`,
+          defaultOptionValue: `{{
+            {
+              label: ${widgetName}.options[0].label,
+              value: ${widgetName}.options[0].value
+            }
+          }}`,
           dynamicBindingPathList: [
             { key: widgetInfo.propertyName },
             { key: "defaultOptionValue" },

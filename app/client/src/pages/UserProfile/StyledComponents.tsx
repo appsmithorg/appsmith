@@ -6,11 +6,14 @@ export const Wrapper = styled.div`
   }
 `;
 export const FieldWrapper = styled.div`
-  width: 520px;
+  width: 460px;
   display: flex;
 `;
 
 export const LabelWrapper = styled.div`
+  .self-center {
+    align-self: center;
+  }
   width: 200px;
   display: flex;
 `;

@@ -1,7 +1,7 @@
 import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
-} from "constants/ReduxActionConstants";
+} from "@appsmith/constants/ReduxActionConstants";
 import {
   CommentsOnboardingState,
   CurrentUserDetailsRequestPayload,
@@ -10,7 +10,8 @@ import {
   TokenPasswordUpdateRequest,
   UpdateUserRequest,
   VerifyTokenRequest,
-} from "api/UserApi";
+} from "@appsmith/api/UserApi";
+import FeatureFlags from "entities/FeatureFlags";
 
 export const logoutUser = (payload?: { redirectURL: string }) => ({
   type: ReduxActionTypes.LOGOUT_USER_INIT,
@@ -79,22 +80,27 @@ export const updateUsersCommentOnboardingState = (
 
 export const updatePhoto = (payload: {
   file: File;
-  callback?: () => void;
+  callback?: (id: string) => void;
 }) => ({
   type: ReduxActionTypes.UPLOAD_PROFILE_PHOTO,
   payload,
 });
 
-export const removePhoto = (callback: () => void) => ({
+export const removePhoto = (callback: (id: string) => void) => ({
   type: ReduxActionTypes.REMOVE_PROFILE_PHOTO,
   payload: { callback },
 });
 
-export const leaveOrganization = (orgId: string) => {
+export const updatePhotoId = (payload: { photoId: string }) => ({
+  type: ReduxActionTypes.UPDATE_PHOTO_ID,
+  payload,
+});
+
+export const leaveWorkspace = (workspaceId: string) => {
   return {
-    type: ReduxActionTypes.LEAVE_ORG_INIT,
+    type: ReduxActionTypes.LEAVE_WORKSPACE_INIT,
     payload: {
-      orgId,
+      workspaceId,
     },
   };
 };
@@ -103,8 +109,9 @@ export const fetchFeatureFlagsInit = () => ({
   type: ReduxActionTypes.FETCH_FEATURE_FLAGS_INIT,
 });
 
-export const fetchFeatureFlagsSuccess = () => ({
+export const fetchFeatureFlagsSuccess = (payload: FeatureFlags) => ({
   type: ReduxActionTypes.FETCH_FEATURE_FLAGS_SUCCESS,
+  payload,
 });
 
 export const fetchFeatureFlagsError = (error: any) => ({

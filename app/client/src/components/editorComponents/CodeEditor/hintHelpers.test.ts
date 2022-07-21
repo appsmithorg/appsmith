@@ -4,8 +4,7 @@ import { MockCodemirrorEditor } from "../../../../test/__mocks__/CodeMirrorEdito
 describe("hint helpers", () => {
   describe("binding hint helper", () => {
     it("is initialized correctly", () => {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore: No types available
+      // @ts-expect-error: Types are not available
       const helper = bindingHint(MockCodemirrorEditor, {});
       expect(MockCodemirrorEditor.setOption).toBeCalled();
       expect(helper).toHaveProperty("showHint");
@@ -43,6 +42,16 @@ describe("hint helpers", () => {
           cursor: { ch: 10, line: 1 },
           toCall: "showHint",
         },
+        {
+          value: "{test(",
+          cursor: { ch: 1, line: 0 },
+          toCall: "closeHint",
+        },
+        {
+          value: "justanystring {{}}",
+          cursor: { ch: 16, line: 0 },
+          toCall: "showHint",
+        },
       ];
 
       cases.forEach((testCase) => {
@@ -57,11 +66,9 @@ describe("hint helpers", () => {
 
       // Test
       cases.forEach(() => {
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore: No types available
+        // @ts-expect-error: Types are not available
         const helper = bindingHint(MockCodemirrorEditor, {});
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore: No types available
+        // @ts-expect-error: Types are not available
         helper.showHint(MockCodemirrorEditor);
       });
 

@@ -1,9 +1,9 @@
 import { getAllPathsFromPropertyConfig } from "./utils";
-import { RenderModes } from "../../constants/WidgetConstants";
+import { RenderModes } from "constants/WidgetConstants";
 import tablePropertyPaneConfig from "widgets/TableWidget/widget/propertyConfig";
 import chartPorpertyConfig from "widgets/ChartWidget/widget/propertyConfig";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
-import { AutocompleteDataType } from "utils/autocomplete/TernServer";
+import { ValidationTypes } from "constants/WidgetValidation";
 
 describe("getAllPathsFromPropertyConfig", () => {
   it("works as expected for table widget", () => {
@@ -31,6 +31,7 @@ describe("getAllPathsFromPropertyConfig", () => {
       type: "TABLE_WIDGET",
       parentId: "0",
       isLoading: false,
+      isSortable: true,
       horizontalAlignment: "LEFT",
       parentColumnSpace: 74,
       version: 1,
@@ -114,102 +115,358 @@ describe("getAllPathsFromPropertyConfig", () => {
     };
     const config = tablePropertyPaneConfig;
 
-    const expected = {
-      bindingPaths: {
-        selectedRow: EvaluationSubstitutionType.TEMPLATE,
-        selectedRows: EvaluationSubstitutionType.TEMPLATE,
-        tableData: EvaluationSubstitutionType.SMART_SUBSTITUTE,
-        defaultSearchText: EvaluationSubstitutionType.TEMPLATE,
-        defaultSelectedRow: EvaluationSubstitutionType.TEMPLATE,
-        isVisible: EvaluationSubstitutionType.TEMPLATE,
-        compactMode: EvaluationSubstitutionType.TEMPLATE,
-        delimiter: EvaluationSubstitutionType.TEMPLATE,
-        "primaryColumns.name.computedValue":
-          EvaluationSubstitutionType.TEMPLATE,
-        "primaryColumns.name.horizontalAlignment":
-          EvaluationSubstitutionType.TEMPLATE,
-        "primaryColumns.name.verticalAlignment":
-          EvaluationSubstitutionType.TEMPLATE,
-        "primaryColumns.name.textSize": EvaluationSubstitutionType.TEMPLATE,
-        "primaryColumns.name.fontStyle": EvaluationSubstitutionType.TEMPLATE,
-        "primaryColumns.name.textColor": EvaluationSubstitutionType.TEMPLATE,
-        // "primaryColumns.name.isVisible": EvaluationSubstitutionType.TEMPLATE,
-        "primaryColumns.name.isCellVisible":
-          EvaluationSubstitutionType.TEMPLATE,
-
-        "primaryColumns.name.cellBackground":
-          EvaluationSubstitutionType.TEMPLATE,
-        "primaryColumns.createdAt.inputFormat":
-          EvaluationSubstitutionType.TEMPLATE,
-        "primaryColumns.createdAt.outputFormat":
-          EvaluationSubstitutionType.TEMPLATE,
-        "primaryColumns.createdAt.computedValue":
-          EvaluationSubstitutionType.TEMPLATE,
-        "primaryColumns.createdAt.isCellVisible":
-          EvaluationSubstitutionType.TEMPLATE,
-        "primaryColumns.createdAt.horizontalAlignment":
-          EvaluationSubstitutionType.TEMPLATE,
-        "primaryColumns.createdAt.verticalAlignment":
-          EvaluationSubstitutionType.TEMPLATE,
-        "primaryColumns.createdAt.textSize":
-          EvaluationSubstitutionType.TEMPLATE,
-        "primaryColumns.createdAt.fontStyle":
-          EvaluationSubstitutionType.TEMPLATE,
-        "primaryColumns.createdAt.textColor":
-          EvaluationSubstitutionType.TEMPLATE,
-        "primaryColumns.createdAt.cellBackground":
-          EvaluationSubstitutionType.TEMPLATE,
-        "primaryColumns.status.buttonLabel":
-          EvaluationSubstitutionType.TEMPLATE,
-        "primaryColumns.status.buttonColor":
-          EvaluationSubstitutionType.TEMPLATE,
-        "primaryColumns.status.isDisabled": EvaluationSubstitutionType.TEMPLATE,
-        "primaryColumns.status.buttonLabelColor":
-          EvaluationSubstitutionType.TEMPLATE,
-        "primaryColumns.status.isCellVisible":
-          EvaluationSubstitutionType.TEMPLATE,
-      },
-      triggerPaths: {
-        onRowSelected: true,
-        onPageChange: true,
-        onSearchTextChanged: true,
-        onSort: true,
-        onPageSizeChange: true,
-        "primaryColumns.status.onClick": true,
-      },
-      validationPaths: {
-        defaultSearchText: {
-          type: "TEXT",
-        },
-        delimiter: {
-          type: "TEXT",
-        },
-        defaultSelectedRow: {
-          params: {
-            expected: {
-              autocompleteDataType: AutocompleteDataType.STRING,
-              example: "0 | [0, 1]",
-              type: "Index of row(s)",
-            },
-          },
-          type: "FUNCTION",
-        },
-        isVisible: {
-          type: "BOOLEAN",
-        },
-        tableData: {
-          type: "OBJECT_ARRAY",
-          params: {
-            default: [],
-          },
-        },
-      },
-    };
-
     const result = getAllPathsFromPropertyConfig(widget, config, {
       selectedRow: true,
       selectedRows: true,
+      tableData: true,
     });
+
+    const expected = {
+      reactivePaths: {
+        selectedRow: EvaluationSubstitutionType.TEMPLATE,
+        selectedRows: EvaluationSubstitutionType.TEMPLATE,
+        tableData: "SMART_SUBSTITUTE",
+        "primaryColumns.status.boxShadow": EvaluationSubstitutionType.TEMPLATE,
+        "primaryColumns.status.borderRadius":
+          EvaluationSubstitutionType.TEMPLATE,
+        "primaryColumns.status.buttonVariant":
+          EvaluationSubstitutionType.TEMPLATE,
+        "primaryColumns.status.buttonColor":
+          EvaluationSubstitutionType.TEMPLATE,
+        "primaryColumns.status.buttonLabel":
+          EvaluationSubstitutionType.TEMPLATE,
+        "primaryColumns.status.isDisabled": EvaluationSubstitutionType.TEMPLATE,
+        "primaryColumns.status.isCellVisible":
+          EvaluationSubstitutionType.TEMPLATE,
+        "primaryColumns.createdAt.cellBackground":
+          EvaluationSubstitutionType.TEMPLATE,
+        "primaryColumns.createdAt.textColor":
+          EvaluationSubstitutionType.TEMPLATE,
+        "primaryColumns.createdAt.verticalAlignment":
+          EvaluationSubstitutionType.TEMPLATE,
+        "primaryColumns.createdAt.fontStyle":
+          EvaluationSubstitutionType.TEMPLATE,
+        "primaryColumns.createdAt.textSize":
+          EvaluationSubstitutionType.TEMPLATE,
+        "primaryColumns.createdAt.horizontalAlignment":
+          EvaluationSubstitutionType.TEMPLATE,
+        "primaryColumns.createdAt.outputFormat":
+          EvaluationSubstitutionType.TEMPLATE,
+        "primaryColumns.createdAt.inputFormat":
+          EvaluationSubstitutionType.TEMPLATE,
+        "primaryColumns.createdAt.isCellVisible":
+          EvaluationSubstitutionType.TEMPLATE,
+        "primaryColumns.createdAt.computedValue":
+          EvaluationSubstitutionType.TEMPLATE,
+        "primaryColumns.name.cellBackground":
+          EvaluationSubstitutionType.TEMPLATE,
+        "primaryColumns.name.textColor": EvaluationSubstitutionType.TEMPLATE,
+        "primaryColumns.name.verticalAlignment":
+          EvaluationSubstitutionType.TEMPLATE,
+        "primaryColumns.name.fontStyle": EvaluationSubstitutionType.TEMPLATE,
+        "primaryColumns.name.textSize": EvaluationSubstitutionType.TEMPLATE,
+        "primaryColumns.name.horizontalAlignment":
+          EvaluationSubstitutionType.TEMPLATE,
+        "primaryColumns.name.isCellVisible":
+          EvaluationSubstitutionType.TEMPLATE,
+        "primaryColumns.name.computedValue":
+          EvaluationSubstitutionType.TEMPLATE,
+        primaryColumnId: EvaluationSubstitutionType.TEMPLATE,
+        defaultSearchText: EvaluationSubstitutionType.TEMPLATE,
+        defaultSelectedRow: EvaluationSubstitutionType.TEMPLATE,
+        compactMode: EvaluationSubstitutionType.TEMPLATE,
+        isVisible: EvaluationSubstitutionType.TEMPLATE,
+        animateLoading: EvaluationSubstitutionType.TEMPLATE,
+        isSortable: EvaluationSubstitutionType.TEMPLATE,
+        isVisibleSearch: EvaluationSubstitutionType.TEMPLATE,
+        isVisibleFilters: EvaluationSubstitutionType.TEMPLATE,
+        isVisibleDownload: EvaluationSubstitutionType.TEMPLATE,
+        isVisiblePagination: EvaluationSubstitutionType.TEMPLATE,
+        delimiter: EvaluationSubstitutionType.TEMPLATE,
+        cellBackground: EvaluationSubstitutionType.TEMPLATE,
+        accentColor: EvaluationSubstitutionType.TEMPLATE,
+        textColor: EvaluationSubstitutionType.TEMPLATE,
+        textSize: EvaluationSubstitutionType.TEMPLATE,
+        borderRadius: EvaluationSubstitutionType.TEMPLATE,
+        boxShadow: EvaluationSubstitutionType.TEMPLATE,
+      },
+      triggerPaths: {
+        "primaryColumns.status.onClick": true,
+        onRowSelected: true,
+        onPageChange: true,
+        onPageSizeChange: true,
+        onSearchTextChanged: true,
+        onSort: true,
+      },
+      validationPaths: {
+        tableData: { type: "OBJECT_ARRAY", params: { default: [] } },
+        "primaryColumns.status.boxShadow": {
+          type: ValidationTypes.TABLE_PROPERTY,
+          params: { type: ValidationTypes.TEXT },
+        },
+        "primaryColumns.status.borderRadius": {
+          type: ValidationTypes.TABLE_PROPERTY,
+          params: { type: ValidationTypes.TEXT },
+        },
+        "primaryColumns.status.buttonVariant": {
+          type: ValidationTypes.TABLE_PROPERTY,
+          params: {
+            type: ValidationTypes.TEXT,
+            params: {
+              default: "PRIMARY",
+              allowedValues: ["PRIMARY", "SECONDARY", "TERTIARY"],
+            },
+          },
+        },
+        "primaryColumns.status.buttonColor": {
+          type: ValidationTypes.TABLE_PROPERTY,
+          params: {
+            type: ValidationTypes.TEXT,
+            params: { regex: /^(?![<|{{]).+/ },
+          },
+        },
+        "primaryColumns.status.isDisabled": {
+          type: ValidationTypes.TABLE_PROPERTY,
+          params: { type: "BOOLEAN" },
+        },
+        "primaryColumns.status.isCellVisible": {
+          type: ValidationTypes.TABLE_PROPERTY,
+          params: { type: "BOOLEAN" },
+        },
+        "primaryColumns.createdAt.cellBackground": {
+          type: ValidationTypes.TABLE_PROPERTY,
+          params: {
+            type: ValidationTypes.TEXT,
+            params: { regex: /^(?![<|{{]).+/ },
+          },
+        },
+        "primaryColumns.createdAt.textColor": {
+          type: ValidationTypes.TABLE_PROPERTY,
+          params: {
+            type: ValidationTypes.TEXT,
+            params: { regex: /^(?![<|{{]).+/ },
+          },
+        },
+        "primaryColumns.createdAt.verticalAlignment": {
+          type: ValidationTypes.TABLE_PROPERTY,
+          params: {
+            type: ValidationTypes.TEXT,
+            params: { allowedValues: ["TOP", "CENTER", "BOTTOM"] },
+          },
+        },
+        "primaryColumns.createdAt.fontStyle": {
+          type: ValidationTypes.TABLE_PROPERTY,
+          params: { type: ValidationTypes.TEXT },
+        },
+        "primaryColumns.createdAt.textSize": {
+          type: ValidationTypes.TABLE_PROPERTY,
+          params: { type: ValidationTypes.TEXT },
+        },
+        "primaryColumns.createdAt.horizontalAlignment": {
+          type: ValidationTypes.TABLE_PROPERTY,
+          params: {
+            type: ValidationTypes.TEXT,
+            params: { allowedValues: ["LEFT", "CENTER", "RIGHT"] },
+          },
+        },
+        "primaryColumns.createdAt.outputFormat": {
+          type: ValidationTypes.TABLE_PROPERTY,
+          params: {
+            type: ValidationTypes.TEXT,
+            params: {
+              allowedValues: [
+                "Epoch",
+                "Milliseconds",
+                "YYYY-MM-DD",
+                "YYYY-MM-DD HH:mm",
+                "YYYY-MM-DDTHH:mm:ss.sssZ",
+                "YYYY-MM-DDTHH:mm:ss",
+                "YYYY-MM-DD hh:mm:ss",
+                "Do MMM YYYY",
+                "DD/MM/YYYY",
+                "DD/MM/YYYY HH:mm",
+                "LLL",
+                "LL",
+                "D MMMM, YYYY",
+                "H:mm A D MMMM, YYYY",
+                "MM-DD-YYYY",
+                "DD-MM-YYYY",
+                "MM/DD/YYYY",
+                "DD/MM/YYYY",
+                "DD/MM/YY",
+                "MM/DD/YY",
+              ],
+            },
+          },
+        },
+        "primaryColumns.createdAt.inputFormat": {
+          type: ValidationTypes.TABLE_PROPERTY,
+          params: {
+            type: ValidationTypes.TEXT,
+            params: {
+              allowedValues: [
+                "Epoch",
+                "Milliseconds",
+                "YYYY-MM-DD",
+                "YYYY-MM-DD HH:mm",
+                "YYYY-MM-DDTHH:mm:ss.sssZ",
+                "YYYY-MM-DDTHH:mm:ss",
+                "YYYY-MM-DD hh:mm:ss",
+                "Do MMM YYYY",
+                "DD/MM/YYYY",
+                "DD/MM/YYYY HH:mm",
+                "LLL",
+                "LL",
+                "D MMMM, YYYY",
+                "H:mm A D MMMM, YYYY",
+                "MM-DD-YYYY",
+                "DD-MM-YYYY",
+                "MM/DD/YYYY",
+                "DD/MM/YYYY",
+                "DD/MM/YY",
+                "MM/DD/YY",
+              ],
+            },
+          },
+        },
+        "primaryColumns.createdAt.isCellVisible": {
+          type: ValidationTypes.TABLE_PROPERTY,
+          params: { type: "BOOLEAN" },
+        },
+        "primaryColumns.name.cellBackground": {
+          type: ValidationTypes.TABLE_PROPERTY,
+          params: {
+            type: ValidationTypes.TEXT,
+            params: { regex: /^(?![<|{{]).+/ },
+          },
+        },
+        "primaryColumns.name.textColor": {
+          type: ValidationTypes.TABLE_PROPERTY,
+          params: {
+            type: ValidationTypes.TEXT,
+            params: { regex: /^(?![<|{{]).+/ },
+          },
+        },
+        "primaryColumns.name.verticalAlignment": {
+          type: ValidationTypes.TABLE_PROPERTY,
+          params: {
+            type: ValidationTypes.TEXT,
+            params: { allowedValues: ["TOP", "CENTER", "BOTTOM"] },
+          },
+        },
+        "primaryColumns.name.fontStyle": {
+          type: ValidationTypes.TABLE_PROPERTY,
+          params: { type: ValidationTypes.TEXT },
+        },
+        "primaryColumns.name.textSize": {
+          type: ValidationTypes.TABLE_PROPERTY,
+          params: { type: ValidationTypes.TEXT },
+        },
+        "primaryColumns.name.horizontalAlignment": {
+          type: ValidationTypes.TABLE_PROPERTY,
+          params: {
+            type: ValidationTypes.TEXT,
+            params: { allowedValues: ["LEFT", "CENTER", "RIGHT"] },
+          },
+        },
+        "primaryColumns.name.isCellVisible": {
+          type: ValidationTypes.TABLE_PROPERTY,
+          params: { type: "BOOLEAN" },
+        },
+        primaryColumnId: { type: ValidationTypes.TEXT },
+        defaultSearchText: { type: ValidationTypes.TEXT },
+        defaultSelectedRow: {
+          type: "FUNCTION",
+          params: {
+            expected: {
+              type: "Index of row(s)",
+              example: "0 | [0, 1]",
+              autocompleteDataType: "STRING",
+            },
+          },
+        },
+        isVisible: { type: "BOOLEAN" },
+        animateLoading: { type: "BOOLEAN" },
+        isSortable: { type: "BOOLEAN", params: { default: true } },
+        isVisibleSearch: { type: "BOOLEAN" },
+        isVisibleFilters: { type: "BOOLEAN" },
+        isVisibleDownload: { type: "BOOLEAN" },
+        isVisiblePagination: { type: "BOOLEAN" },
+        delimiter: { type: ValidationTypes.TEXT },
+        cellBackground: { type: ValidationTypes.TEXT },
+        accentColor: { type: ValidationTypes.TEXT },
+        textColor: { type: ValidationTypes.TEXT },
+        textSize: { type: ValidationTypes.TEXT },
+        borderRadius: { type: ValidationTypes.TEXT },
+        boxShadow: { type: ValidationTypes.TEXT },
+      },
+      bindingPaths: {
+        tableData: "SMART_SUBSTITUTE",
+        "primaryColumns.status.boxShadow": EvaluationSubstitutionType.TEMPLATE,
+        "primaryColumns.status.borderRadius":
+          EvaluationSubstitutionType.TEMPLATE,
+        "primaryColumns.status.buttonVariant":
+          EvaluationSubstitutionType.TEMPLATE,
+        "primaryColumns.status.buttonColor":
+          EvaluationSubstitutionType.TEMPLATE,
+        "primaryColumns.status.buttonLabel":
+          EvaluationSubstitutionType.TEMPLATE,
+        "primaryColumns.status.isDisabled": EvaluationSubstitutionType.TEMPLATE,
+        "primaryColumns.status.isCellVisible":
+          EvaluationSubstitutionType.TEMPLATE,
+        "primaryColumns.createdAt.cellBackground":
+          EvaluationSubstitutionType.TEMPLATE,
+        "primaryColumns.createdAt.textColor":
+          EvaluationSubstitutionType.TEMPLATE,
+        "primaryColumns.createdAt.verticalAlignment":
+          EvaluationSubstitutionType.TEMPLATE,
+        "primaryColumns.createdAt.fontStyle":
+          EvaluationSubstitutionType.TEMPLATE,
+        "primaryColumns.createdAt.textSize":
+          EvaluationSubstitutionType.TEMPLATE,
+        "primaryColumns.createdAt.horizontalAlignment":
+          EvaluationSubstitutionType.TEMPLATE,
+        "primaryColumns.createdAt.outputFormat":
+          EvaluationSubstitutionType.TEMPLATE,
+        "primaryColumns.createdAt.inputFormat":
+          EvaluationSubstitutionType.TEMPLATE,
+        "primaryColumns.createdAt.isCellVisible":
+          EvaluationSubstitutionType.TEMPLATE,
+        "primaryColumns.createdAt.computedValue":
+          EvaluationSubstitutionType.TEMPLATE,
+        "primaryColumns.name.cellBackground":
+          EvaluationSubstitutionType.TEMPLATE,
+        "primaryColumns.name.textColor": EvaluationSubstitutionType.TEMPLATE,
+        "primaryColumns.name.verticalAlignment":
+          EvaluationSubstitutionType.TEMPLATE,
+        "primaryColumns.name.fontStyle": EvaluationSubstitutionType.TEMPLATE,
+        "primaryColumns.name.textSize": EvaluationSubstitutionType.TEMPLATE,
+        "primaryColumns.name.horizontalAlignment":
+          EvaluationSubstitutionType.TEMPLATE,
+        "primaryColumns.name.isCellVisible":
+          EvaluationSubstitutionType.TEMPLATE,
+        "primaryColumns.name.computedValue":
+          EvaluationSubstitutionType.TEMPLATE,
+        primaryColumnId: EvaluationSubstitutionType.TEMPLATE,
+        defaultSearchText: EvaluationSubstitutionType.TEMPLATE,
+        defaultSelectedRow: EvaluationSubstitutionType.TEMPLATE,
+        compactMode: EvaluationSubstitutionType.TEMPLATE,
+        isVisible: EvaluationSubstitutionType.TEMPLATE,
+        animateLoading: EvaluationSubstitutionType.TEMPLATE,
+        isSortable: EvaluationSubstitutionType.TEMPLATE,
+        isVisibleSearch: EvaluationSubstitutionType.TEMPLATE,
+        isVisibleFilters: EvaluationSubstitutionType.TEMPLATE,
+        isVisibleDownload: EvaluationSubstitutionType.TEMPLATE,
+        isVisiblePagination: EvaluationSubstitutionType.TEMPLATE,
+        delimiter: EvaluationSubstitutionType.TEMPLATE,
+        cellBackground: EvaluationSubstitutionType.TEMPLATE,
+        accentColor: EvaluationSubstitutionType.TEMPLATE,
+        textColor: EvaluationSubstitutionType.TEMPLATE,
+        textSize: EvaluationSubstitutionType.TEMPLATE,
+        borderRadius: EvaluationSubstitutionType.TEMPLATE,
+        boxShadow: EvaluationSubstitutionType.TEMPLATE,
+      },
+    };
 
     // Note: Removing until we figure out how functions are represented here.
     delete result.validationPaths.defaultSelectedRow.params?.fn;
@@ -223,7 +480,7 @@ describe("getAllPathsFromPropertyConfig", () => {
       widgetName: "Chart1",
       chartType: "LINE_CHART",
       chartName: "Sales on working days",
-      allowHorizontalScroll: false,
+      allowScroll: false,
       version: 1,
       chartData: {
         "random-id": {
@@ -252,17 +509,23 @@ describe("getAllPathsFromPropertyConfig", () => {
     };
     const config = chartPorpertyConfig;
 
+    const bindingPaths = {
+      chartType: EvaluationSubstitutionType.TEMPLATE,
+      chartName: EvaluationSubstitutionType.TEMPLATE,
+      "chartData.random-id.seriesName": EvaluationSubstitutionType.TEMPLATE,
+      "chartData.random-id.data": EvaluationSubstitutionType.SMART_SUBSTITUTE,
+      xAxisName: EvaluationSubstitutionType.TEMPLATE,
+      yAxisName: EvaluationSubstitutionType.TEMPLATE,
+      isVisible: EvaluationSubstitutionType.TEMPLATE,
+      animateLoading: EvaluationSubstitutionType.TEMPLATE,
+      setAdaptiveYMin: EvaluationSubstitutionType.TEMPLATE,
+      borderRadius: EvaluationSubstitutionType.TEMPLATE,
+      boxShadow: EvaluationSubstitutionType.TEMPLATE,
+    };
+
     const expected = {
-      bindingPaths: {
-        chartType: EvaluationSubstitutionType.TEMPLATE,
-        chartName: EvaluationSubstitutionType.TEMPLATE,
-        "chartData.random-id.seriesName": EvaluationSubstitutionType.TEMPLATE,
-        "chartData.random-id.data": EvaluationSubstitutionType.SMART_SUBSTITUTE,
-        xAxisName: EvaluationSubstitutionType.TEMPLATE,
-        yAxisName: EvaluationSubstitutionType.TEMPLATE,
-        isVisible: EvaluationSubstitutionType.TEMPLATE,
-        setAdaptiveYMin: EvaluationSubstitutionType.TEMPLATE,
-      },
+      bindingPaths,
+      reactivePaths: { ...bindingPaths },
       triggerPaths: {
         onDataPointClick: true,
       },
@@ -275,7 +538,7 @@ describe("getAllPathsFromPropertyConfig", () => {
                 allowedKeys: [
                   {
                     name: "x",
-                    type: "TEXT",
+                    type: ValidationTypes.TEXT,
                     params: {
                       default: "",
                       required: true,
@@ -297,10 +560,10 @@ describe("getAllPathsFromPropertyConfig", () => {
           type: "ARRAY",
         },
         "chartData.random-id.seriesName": {
-          type: "TEXT",
+          type: ValidationTypes.TEXT,
         },
         chartName: {
-          type: "TEXT",
+          type: ValidationTypes.TEXT,
         },
         chartType: {
           params: {
@@ -313,24 +576,35 @@ describe("getAllPathsFromPropertyConfig", () => {
               "CUSTOM_FUSION_CHART",
             ],
           },
-          type: "TEXT",
+          type: ValidationTypes.TEXT,
         },
         isVisible: {
-          type: "BOOLEAN",
+          type: ValidationTypes.BOOLEAN,
+        },
+        animateLoading: {
+          type: ValidationTypes.BOOLEAN,
         },
         setAdaptiveYMin: {
-          type: "BOOLEAN",
+          type: ValidationTypes.BOOLEAN,
         },
         xAxisName: {
-          type: "TEXT",
+          type: ValidationTypes.TEXT,
         },
         yAxisName: {
-          type: "TEXT",
+          type: ValidationTypes.TEXT,
+        },
+        borderRadius: {
+          type: ValidationTypes.TEXT,
+        },
+        boxShadow: {
+          type: ValidationTypes.TEXT,
         },
       },
     };
 
-    const result = getAllPathsFromPropertyConfig(widget, config, {});
+    const result = getAllPathsFromPropertyConfig(widget, config, {
+      "chartData.random-id.data": true,
+    });
 
     expect(result).toStrictEqual(expected);
   });

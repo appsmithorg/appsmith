@@ -10,7 +10,7 @@ import {
   ONBOARDING_STATUS_STEPS_FOURTH,
   ONBOARDING_STATUS_STEPS_FIVETH,
   ONBOARDING_STATUS_STEPS_SIXTH,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 import { useIsWidgetActionConnectionPresent } from "pages/Editor/utils";
 
 let container: any = null;
@@ -30,18 +30,16 @@ describe("Statusbar", () => {
     document.body.appendChild(container);
   });
 
-  it("is rendered", async (done) => {
+  it("is rendered", async () => {
     renderComponent(getStore(0));
     const statusbar = screen.queryAllByTestId("statusbar-container");
     expect(statusbar).toHaveLength(1);
-    done();
   });
 
-  it("is pro", async (done) => {
+  it("is pro", async () => {
     renderComponent(getStore(0));
     const statusbar = screen.queryAllByTestId("statusbar-container");
     expect(statusbar).not.toBeNull();
-    done();
   });
 
   it("is showing first step", async () => {

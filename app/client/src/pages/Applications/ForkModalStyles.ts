@@ -8,9 +8,6 @@ import { Classes } from "@blueprintjs/core";
 const TriggerButton = styled(Button)`
   ${(props) => getTypographyByKey(props, "btnLarge")}
   height: 100%;
-  svg {
-    transform: rotate(-90deg);
-  }
 `;
 
 const StyledDialog = styled(Dialog)`
@@ -32,7 +29,7 @@ const ForkButton = styled(Button)<{ disabled?: boolean }>`
   pointer-events: ${(props) => (!!props.disabled ? "none" : "auto")};
 `;
 
-const OrganizationList = styled.div`
+const WorkspaceList = styled.div`
   overflow: auto;
   max-height: 250px;
   margin-bottom: 10px;
@@ -41,6 +38,8 @@ const OrganizationList = styled.div`
 
 const ButtonWrapper = styled.div`
   display: flex;
+  margin-top: ${(props) => props.theme.spaces[11]}px;
+  gap: ${(props) => props.theme.spaces[4]}px;
   justify-content: flex-end;
 `;
 
@@ -54,7 +53,7 @@ export {
   StyledDialog,
   StyledRadioComponent,
   ForkButton,
-  OrganizationList,
+  WorkspaceList,
   ButtonWrapper,
   SpinnerWrapper,
 };

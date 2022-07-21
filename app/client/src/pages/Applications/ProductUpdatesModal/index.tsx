@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useContext } from "react";
+import React, { useState, useCallback, useContext, useRef } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import styled from "styled-components";
 import "@github/g-emoji-element";
@@ -8,122 +8,164 @@ import { AppState } from "reducers";
 import { LayersContext } from "constants/Layers";
 import ReleasesAPI from "api/ReleasesAPI";
 import { resetReleasesCount } from "actions/releasesActions";
-import { HelpIcons } from "icons/HelpIcons";
-import ReleaseComponent, { Release, StyledSeparator } from "./ReleaseComponent";
-import { withTheme } from "styled-components";
-import { Color } from "constants/Colors";
+import ReleaseComponent, { Release } from "./ReleaseComponent";
+import ScrollIndicator from "components/ads/ScrollIndicator";
+import Button, { Category, Size } from "components/ads/Button";
+import { Colors } from "constants/Colors";
+import { Icon } from "components/ads";
 
-const CloseIcon = HelpIcons.CLOSE_ICON;
-
-const HeaderContents = styled.div`
-  padding: 20px 0;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding-bottom: ${(props) => props.theme.spaces[7]}px;
+const StyledDialog = styled(Dialog)`
+  .bp3-dialog-body {
+    overflow: hidden !important;
+  }
 `;
 
-const Heading = styled.div`
-  color: ${(props) => props.theme.colors.modal.headerText};
+const Container = styled.div`
+  position: relative;
+  width: 100%;
+  height: 410px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  &&::-webkit-scrollbar-thumb {
+    background-color: ${(props) => props.theme.colors.modal.scrollbar};
+  }
+  &::-webkit-scrollbar {
+    width: 4px;
+  }
+`;
+
+const WhiteOverlay = styled.div`
+  position: absolute;
   display: flex;
+  align-items: flex-end;
   justify-content: center;
-  font-weight: ${(props) => props.theme.typography.h1.fontWeight};
-  font-size: ${(props) => props.theme.typography.h1.fontSize}px;
-  line-height: ${(props) => props.theme.typography.h1.lineHeight}px;
-  letter-spacing: ${(props) => props.theme.typography.h1.letterSpacing};
-`;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    0deg,
+    rgba(255, 255, 255, 1) 0%,
+    rgba(255, 255, 255, 0) 100%
+  );
 
-const ViewInGithubLink = styled.a`
-  cursor: pointer;
-  text-decoration: none;
-  :hover {
-    text-decoration: underline;
-    color: ${(props) => props.theme.colors.text.normal};
+  span {
+    color: ${Colors.CRUSTA};
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+
+    svg {
+      height: 16px;
+      width: 16px;
+      margin-top: 2px;
+    }
+
+    &:hover {
+      text-decoration: underline;
+    }
   }
-  font-weight: ${(props) => props.theme.typography.releaseList.fontWeight};
-  font-size: ${(props) => props.theme.typography.releaseList.fontSize}px;
-  line-height: ${(props) => props.theme.typography.releaseList.lineHeight}px;
-  letter-spacing: ${(props) =>
-    props.theme.typography.releaseList.letterSpacing}px;
-  color: ${(props) => props.theme.colors.text.normal};
-  margin-right: ${(props) => props.theme.spaces[4]}px;
 `;
 
-const HeaderRight = styled.div`
+const Footer = styled.div`
   display: flex;
-`;
-
-const CloseIconContainer = styled.div`
-  width: 20px;
-  height: 20px;
-  cursor: pointer;
-  &:hover {
-    background-color: ${(props) => props.theme.colors.modal.hoverState};
+  justify-content: end;
+  margin-top: 24px;
+  a:first-child {
+    margin-right: ${(props) => props.theme.spaces[5]}px;
   }
 `;
 
-const Header = withTheme(
-  ({ onClose, theme }: { onClose: () => void; theme: any }) => (
-    <>
-      <HeaderContents>
-        <Heading>Product Updates</Heading>
-        <HeaderRight>
-          <ViewInGithubLink
-            href="https://github.com/appsmithorg/appsmith/releases"
-            target="_blank"
-          >
-            View on Github
-          </ViewInGithubLink>
-          <CloseIconContainer
-            data-cy="t--product-updates-close-btn"
-            onClick={onClose}
-          >
-            <CloseIcon
-              color={theme.colors.text.normal as Color}
-              height={20}
-              width={20}
-            />
-          </CloseIconContainer>
-        </HeaderRight>
-      </HeaderContents>
-      <div style={{ padding: `0` }}>
-        <StyledSeparator />
-      </div>
-    </>
-  ),
-);
+type ProductUpdatesModalProps = {
+  isOpen?: boolean;
+  onClose?: () => void;
+  hideTrigger?: boolean;
+};
 
-function ProductUpdatesModal() {
+function ProductUpdatesModal(props: ProductUpdatesModalProps) {
   const { newReleasesCount, releaseItems } = useSelector(
     (state: AppState) => state.ui.releases,
   );
+  const containerRef = useRef<HTMLDivElement>(null);
   const dispatch = useDispatch();
   const onOpening = useCallback(async () => {
     setIsOpen(true);
     dispatch(resetReleasesCount());
     await ReleasesAPI.markAsRead();
   }, []);
+  const [showFull, setShowFull] = useState(false);
+
+  const onClose = useCallback(() => {
+    props.onClose && props.onClose();
+    setIsOpen(false);
+    setShowFull(false);
+  }, []);
+
+  const showFullUpdates = useCallback(() => {
+    const ele = document.getElementById("white-overlay-product-updates");
+    if (ele) {
+      const h = ele.offsetHeight;
+      containerRef.current?.scrollTo({ behavior: "smooth", top: h - 100 });
+    }
+    setShowFull(true);
+  }, []);
 
   const Layers = useContext(LayersContext);
-  const [isOpen, setIsOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(!!props.isOpen);
 
   return Array.isArray(releaseItems) && releaseItems.length > 0 ? (
-    <Dialog
+    <StyledDialog
       canEscapeKeyClose
       canOutsideClickClose
-      getHeader={() => <Header onClose={() => setIsOpen(false)} />}
+      headerIcon={{
+        name: "file-list-line",
+        bgColor: Colors.GEYSER_LIGHT,
+      }}
       isOpen={isOpen}
-      maxHeight={"80vh"}
+      maxHeight={"94vh"}
+      onClose={onClose}
       onOpening={onOpening}
-      showHeaderUnderline
-      trigger={<UpdatesButton newReleasesCount={newReleasesCount} />}
+      title="Product Updates"
+      trigger={
+        props.hideTrigger ? null : (
+          <UpdatesButton newReleasesCount={newReleasesCount} />
+        )
+      }
       triggerZIndex={Layers.productUpdates}
       width={"580px"}
     >
-      {releaseItems.map((release: Release, index: number) => (
-        <ReleaseComponent key={index} release={release} />
-      ))}
-    </Dialog>
+      <Container
+        ref={containerRef}
+        style={!showFull ? { overflow: "hidden" } : {}}
+      >
+        {!showFull && (
+          <WhiteOverlay id="white-overlay-product-updates">
+            <span onClick={showFullUpdates}>
+              Show more
+              <Icon name="down-arrow" />
+            </span>
+          </WhiteOverlay>
+        )}
+        {releaseItems.map((release: Release, index: number) => (
+          <ReleaseComponent key={index} release={release} />
+        ))}
+      </Container>
+      <Footer>
+        <Button
+          category={Category.tertiary}
+          data-cy="t--product-updates-close-btn"
+          onClick={onClose}
+          size={Size.large}
+          text="CANCEL"
+        />
+        <Button
+          category={Category.primary}
+          data-cy="t--product-updates-ok-btn"
+          onClick={onClose}
+          size={Size.large}
+          text="OK, THANKS"
+        />
+      </Footer>
+      <ScrollIndicator containerRef={containerRef} />
+    </StyledDialog>
   ) : null;
 }
 

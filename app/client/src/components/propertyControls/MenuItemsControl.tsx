@@ -1,18 +1,15 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React from "react";
 import BaseControl, { ControlProps } from "./BaseControl";
-import {
-  StyledInputGroup,
-  StyledPropertyPaneButton,
-  StyledDragIcon,
-  StyledDeleteIcon,
-  StyledEditIcon,
-} from "./StyledControls";
+import { StyledPropertyPaneButton } from "./StyledControls";
 import styled from "constants/DefaultTheme";
 import { generateReactKey } from "utils/generators";
 import { DroppableComponent } from "components/ads/DraggableListComponent";
 import { getNextEntityName } from "utils/AppsmithUtils";
-import _, { debounce, orderBy } from "lodash";
+import orderBy from "lodash/orderBy";
+import isString from "lodash/isString";
+import isUndefined from "lodash/isUndefined";
 import { Category, Size } from "components/ads/Button";
+import { DraggableListCard } from "components/ads/DraggableListCard";
 
 const StyledPropertyPaneButtonWrapper = styled.div`
   display: flex;
@@ -21,37 +18,10 @@ const StyledPropertyPaneButtonWrapper = styled.div`
   margin-top: 10px;
 `;
 
-const ItemWrapper = styled.div`
-  display: flex;
-  justify-content: flex-start;
-  align-items: center;
-`;
-
 const MenuItemsWrapper = styled.div`
   width: 100%;
   display: flex;
   flex-direction: column;
-`;
-
-const StyledOptionControlInputGroup = styled(StyledInputGroup)`
-  margin-right: 2px;
-  margin-bottom: 2px;
-  width: 100%;
-  padding-left: 10px;
-  padding-right: 60px;
-  text-overflow: ellipsis;
-  &&& {
-    input {
-      border: none;
-      color: ${(props) => props.theme.colors.propertyPane.radioGroupText};
-      background: ${(props) => props.theme.colors.propertyPane.radioGroupBg};
-      &:focus {
-        border: none;
-        color: ${(props) => props.theme.colors.textOnDarkBG};
-        background: ${(props) => props.theme.colors.paneInputBG};
-      }
-    }
-  }
 `;
 
 const AddMenuItemButton = styled(StyledPropertyPaneButton)`
@@ -59,78 +29,32 @@ const AddMenuItemButton = styled(StyledPropertyPaneButton)`
   flex-grow: 1;
 `;
 
-type RenderComponentProps = {
-  index: number;
-  item: {
-    label: string;
-    isVisible?: boolean;
-  };
-  deleteOption: (index: number) => void;
-  updateOption: (index: number, value: string) => void;
-  toggleVisibility?: (index: number) => void;
-  onEdit?: (props: any) => void;
+type State = {
+  focusedIndex: number | null;
 };
 
-function MenuItemComponent(props: RenderComponentProps) {
-  const { deleteOption, index, item, updateOption } = props;
+class MenuItemsControl extends BaseControl<ControlProps, State> {
+  constructor(props: ControlProps) {
+    super(props);
 
-  const [value, setValue] = useState(item.label);
-  const [isEditing, setEditing] = useState(false);
+    this.state = {
+      focusedIndex: null,
+    };
+  }
 
-  useEffect(() => {
-    if (!isEditing && item && item.label) setValue(item.label);
-  }, [item?.label, isEditing]);
-
-  const debouncedUpdate = debounce(updateOption, 1000);
-  const onChange = useCallback(
-    (index: number, value: string) => {
-      setValue(value);
-      debouncedUpdate(index, value);
-    },
-    [updateOption],
-  );
-  const handleChange = useCallback(() => props.onEdit && props.onEdit(index), [
-    index,
-  ]);
-
-  const onFocus = () => setEditing(true);
-  const onBlur = () => setEditing(false);
-
-  return (
-    <ItemWrapper>
-      <StyledDragIcon height={20} width={20} />
-      <StyledOptionControlInputGroup
-        dataType="text"
-        onBlur={onBlur}
-        onChange={(value: string) => {
-          onChange(index, value);
-        }}
-        onFocus={onFocus}
-        placeholder="Menu item label"
-        value={value}
-      />
-      <StyledDeleteIcon
-        className="t--delete-tab-btn"
-        height={20}
-        marginRight={12}
-        onClick={() => {
-          deleteOption(index);
-        }}
-        width={20}
-      />
-      <StyledEditIcon
-        className="t--edit-column-btn"
-        height={20}
-        onClick={handleChange}
-        width={20}
-      />
-    </ItemWrapper>
-  );
-}
-
-class MenuItemsControl extends BaseControl<ControlProps> {
+  componentDidUpdate(prevProps: ControlProps): void {
+    //on adding a new column last column should get focused
+    if (
+      prevProps.propertyValue &&
+      this.props.propertyValue &&
+      Object.keys(prevProps.propertyValue).length + 1 ===
+        Object.keys(this.props.propertyValue).length
+    ) {
+      this.updateFocus(Object.keys(this.props.propertyValue).length - 1, true);
+    }
+  }
   updateItems = (items: Array<Record<string, any>>) => {
-    const menuItems = items.reduce((obj: any, each: any, index: number) => {
+    const menuItems = items.reduce((obj: any, each: any, index) => {
       obj[each.id] = {
         ...each,
         index,
@@ -140,11 +64,24 @@ class MenuItemsControl extends BaseControl<ControlProps> {
     this.updateProperty(this.props.propertyName, menuItems);
   };
 
-  onEdit = (index: number) => {
+  getMenuItems = () => {
     const menuItems: Array<{
       id: string;
       label: string;
-    }> = Object.values(this.props.propertyValue);
+      isDisabled: boolean;
+      isVisible: boolean;
+      widgetId: string;
+    }> =
+      isString(this.props.propertyValue) ||
+      isUndefined(this.props.propertyValue)
+        ? []
+        : Object.values(this.props.propertyValue);
+
+    return orderBy(menuItems, ["index"], ["asc"]);
+  };
+
+  onEdit = (index: number) => {
+    const menuItems = this.getMenuItems();
     const targetMenuItem = menuItems[index];
     this.props.openNextPanel({
       index,
@@ -154,27 +91,31 @@ class MenuItemsControl extends BaseControl<ControlProps> {
   };
 
   render() {
-    const menuItems: Array<{
-      id: string;
-      label: string;
-    }> = _.isString(this.props.propertyValue)
-      ? []
-      : Object.values(this.props.propertyValue);
     return (
       <MenuItemsWrapper>
         <DroppableComponent
           deleteOption={this.deleteOption}
+          fixedHeight={370}
+          focusedIndex={this.state.focusedIndex}
           itemHeight={45}
-          items={orderBy(menuItems, ["index"], ["asc"])}
+          items={this.getMenuItems()}
           onEdit={this.onEdit}
-          renderComponent={MenuItemComponent}
+          renderComponent={(props) =>
+            DraggableListCard({
+              ...props,
+              isDelete: true,
+              placeholder: "Menu item label",
+            })
+          }
           toggleVisibility={this.toggleVisibility}
+          updateFocus={this.updateFocus}
           updateItems={this.updateItems}
           updateOption={this.updateOption}
         />
         <StyledPropertyPaneButtonWrapper>
           <AddMenuItemButton
             category={Category.tertiary}
+            className="t--add-menu-item-btn"
             icon="plus"
             onClick={this.addOption}
             size={Size.medium}
@@ -188,13 +129,7 @@ class MenuItemsControl extends BaseControl<ControlProps> {
   }
 
   toggleVisibility = (index: number) => {
-    const menuItems: Array<{
-      id: string;
-      label: string;
-      isDisabled: boolean;
-      isVisible: boolean;
-      widgetId: string;
-    }> = this.props.propertyValue.slice();
+    const menuItems = this.getMenuItems();
     const isVisible = menuItems[index].isVisible === true ? false : true;
     const updatedMenuItems = menuItems.map((item, itemIndex) => {
       if (index === itemIndex) {
@@ -209,9 +144,8 @@ class MenuItemsControl extends BaseControl<ControlProps> {
   };
 
   deleteOption = (index: number) => {
-    const menuItemsArray: any = Object.values(this.props.propertyValue);
-    const itemId = menuItemsArray[index].id;
-    if (menuItemsArray && menuItemsArray.length === 1) return;
+    const menuItemsArray = this.getMenuItems();
+    if (menuItemsArray.length === 1) return;
     const updatedArray = menuItemsArray.filter((eachItem: any, i: number) => {
       return i !== index;
     });
@@ -225,12 +159,11 @@ class MenuItemsControl extends BaseControl<ControlProps> {
       },
       {},
     );
-    this.deleteProperties([`${this.props.propertyName}.${itemId}.isVisible`]);
     this.updateProperty(this.props.propertyName, updatedObj);
   };
 
   updateOption = (index: number, updatedLabel: string) => {
-    const menuItemsArray: any = Object.values(this.props.propertyValue);
+    const menuItemsArray = this.getMenuItems();
     const itemId = menuItemsArray[index].id;
     this.updateProperty(
       `${this.props.propertyName}.${itemId}.label`,
@@ -239,8 +172,8 @@ class MenuItemsControl extends BaseControl<ControlProps> {
   };
 
   addOption = () => {
-    let menuItems = this.props.propertyValue;
-    const menuItemsArray = Object.values(menuItems);
+    let menuItems = this.props.propertyValue || [];
+    const menuItemsArray = this.getMenuItems();
     const newMenuItemId = generateReactKey({ prefix: "menuItem" });
     const newMenuItemLabel = getNextEntityName(
       "Menu Item ",
@@ -250,6 +183,7 @@ class MenuItemsControl extends BaseControl<ControlProps> {
       ...menuItems,
       [newMenuItemId]: {
         id: newMenuItemId,
+        index: menuItemsArray.length,
         label: newMenuItemLabel,
         widgetId: generateReactKey(),
         isDisabled: false,
@@ -258,6 +192,10 @@ class MenuItemsControl extends BaseControl<ControlProps> {
     };
 
     this.updateProperty(this.props.propertyName, menuItems);
+  };
+
+  updateFocus = (index: number, isFocused: boolean) => {
+    this.setState({ focusedIndex: isFocused ? index : null });
   };
 
   static getControlType() {

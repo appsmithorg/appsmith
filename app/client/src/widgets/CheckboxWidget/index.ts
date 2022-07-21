@@ -1,22 +1,26 @@
 import Widget from "./widget";
 import IconSVG from "./icon.svg";
-import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
+import { LabelPosition } from "components/constants";
+import { AlignWidgetTypes } from "widgets/constants";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
   name: "Checkbox",
   iconSVG: IconSVG,
   needsMeta: true,
+  searchTags: ["boolean"],
   defaults: {
-    rows: 1 * GRID_DENSITY_MIGRATION_V1,
-    columns: 3 * GRID_DENSITY_MIGRATION_V1,
+    rows: 4,
+    columns: 7,
     label: "Label",
     defaultCheckedState: true,
     widgetName: "Checkbox",
     version: 1,
-    alignWidget: "LEFT",
+    alignWidget: AlignWidgetTypes.LEFT,
+    labelPosition: LabelPosition.Left,
     isDisabled: false,
     isRequired: false,
+    animateLoading: true,
   },
   properties: {
     derived: Widget.getDerivedPropertiesMap(),

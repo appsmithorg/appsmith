@@ -2,6 +2,9 @@
   "newPage": {
     "id": "testPageId",
     "applicationId": "testApplicationId",
+    "defaultResources": {
+      "pageId" : "testPageId"
+    },
     "unpublishedPage": {
       "name": "TestPage",
       "layouts": [
@@ -46,14 +49,18 @@
   "actionCollectionWithAction": {
     "id": "testCollectionId",
     "applicationId": "testApplicationId",
-    "organizationId": "testOrganizationId",
+    "workspaceId": "testWorkspaceId",
     "unpublishedCollection": {
       "name": "testCollection",
       "pageId": "testPageId",
       "pluginId": "testPluginId",
-      "actionIds": [
-        "testActionId1",
-        "testActionId2"
+      "defaultToBranchedActionIdsMap": [
+        {
+          "defaultTestActionId1": "testActionId1"
+        },
+        {
+          "defaultTestActionId2": "testActionId2"
+        }
       ],
       "actions": [
         {
@@ -68,24 +75,32 @@
       "name": "testCollection",
       "pageId": "testPageId",
       "pluginId": "testPluginId",
-      "actionIds": [
-        "testActionId1"
+      "defaultToBranchedActionIdsMap": [
+        {
+          "defaultTestActionId1": "testActionId1"
+        }
       ]
     }
   },
   "actionCollectionDTOWithModifiedActions": {
     "id": "testCollectionId",
     "applicationId": "testApplicationId",
-    "organizationId": "testOrganizationId",
+    "workspaceId": "testWorkspaceId",
     "name": "testCollection",
     "pageId": "testPageId",
     "pluginId": "testPluginId",
-    "actionIds": [
-      "testActionId1",
-      "testActionId3"
+    "defaultToBranchedActionIdsMap": [
+      {
+        "defaultTestActionId1": "testActionId1"
+      },
+      {
+        "defaultTestActionId3": "testActionId3"
+      }
     ],
-    "archivedActionIds": [
-      "testActionId2"
+    "defaultToBranchedArchivedActionIdsMap": [
+      {
+        "defaultTestActionId2": "testActionId2"
+      }
     ],
     "actions": [
       {
@@ -104,20 +119,25 @@
   "actionCollectionAfterModifiedActions": {
     "id": "testCollectionId",
     "applicationId": "testApplicationId",
-    "organizationId": "testOrganizationId",
+    "workspaceId": "testWorkspaceId",
     "unpublishedCollection": {
       "id": "testCollectionId",
-      "applicationId": "testApplicationId",
-      "organizationId": "testOrganizationId",
+      "workspaceId": "testWorkspaceId",
       "name": "testCollection",
       "pageId": "testPageId",
       "pluginId": "testPluginId",
-      "actionIds": [
-        "testActionId1",
-        "testActionId3"
+      "defaultToBranchedActionIdsMap": [
+        {
+          "defaultTestActionId1": "testActionId1"
+        },
+        {
+          "defaultTestActionId3": "testActionId3"
+        }
       ],
-      "archivedActionIds": [
-        "testActionId2"
+      "defaultToBranchedArchivedActionIdsMap": [
+        {
+          "defaultTestActionId2": "testActionId2"
+        }
       ],
       "actions": [
         {
@@ -137,8 +157,10 @@
       "name": "testCollection",
       "pageId": "testPageId",
       "pluginId": "testPluginId",
-      "actionIds": [
-        "testActionId1"
+      "defaultToBranchedActionIdsMap": [
+        {
+          "defaultTestActionId1": "testActionId1"
+        }
       ]
     }
   }

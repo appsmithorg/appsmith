@@ -19,7 +19,7 @@
   </h3>
 
 <p align="center">
-Turn any datasource into an internal app in minutes. Appsmith lets you drag-and-drop components to build dashboards, write logic with JavaScript objects and connect to any API, database or GraphQL source.
+Turn any datasource into an internal app in minutes. Appsmith lets you drag-and-drop UI components to build pages, connect to any API, database or GraphQL source and write logic with JavaScript objects.  
 <br />
 <br />
 <img src="static/images/integrations.png" width="320px">
@@ -33,7 +33,7 @@ Turn any datasource into an internal app in minutes. Appsmith lets you drag-and-
 
 The fastest way to start with Appsmith is the cloud-hosted version. When you're ready, you can also host it yourself.
 
-- Start building apps _immediately_ with [Appsmith Cloud](https://app.appsmith.com/signup/?utm_source=github&utm_medium=social&utm_content=website&utm_campaign=null&utm_term=website)
+- Start building apps _immediately_ with [Appsmith Cloud](https://app.appsmith.com/signup/?utm_source=github&utm_medium=social&utm_content=website&utm_campaign=null&utm_term=website) _(Recommended)_
 - Install locally or on a private instance with [Docker](https://docs.appsmith.com/setup/docker?utm_source=github&utm_medium=social&utm_content=appsmith_docs&utm_campaign=null&utm_term=appsmith_docs) _(Recommended)_
 - Deploy on a [Kubernetes](https://docs.appsmith.com/setup/kubernetes?utm_source=github&utm_medium=social&utm_content=appsmith_docs&utm_campaign=null&utm_term=appsmith_docs) cluster
 - Deploy to [AWS with an AMI](https://docs.appsmith.com/setup/aws-ami?utm_source=github&utm_medium=social&utm_content=appsmith_docs&utm_campaign=null&utm_term=appsmith_docs) on the marketplace
@@ -87,7 +87,7 @@ Issues are inevitable. When you have one, our entire team is around to help—
 
 ## Deployment Options
 
-Check out the instructions for the deploying Appsmith on different services:
+Check out the instructions for deploying Appsmith on different services:
 
 | **Cloud Provider** |                                                                                                                 **Link**                                                                                                                 |                                      **Documentation**                                      |
 | :----------------: | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------: | :-----------------------------------------------------------------------------------------: |
@@ -104,15 +104,16 @@ Check out some real applications that can be built with Appsmith:
 - 🗓️ [Calendly in Appsmith](https://app.appsmith.com/applications/600186605b452f525458d6d2/pages/600186605b452f525458d6d4/?utm_source=github&utm_medium=direct&utm_content=appsmith_apps&utm_campaign=null&utm_term=appsmith_apps)
 - 💸 [Fundraising CRM](https://app.appsmith.com/applications/6098bdc65864501cc39c3d2f/pages/6098bdc65864501cc39c3d31/?utm_source=github&utm_medium=direct&utm_content=appsmith_apps&utm_campaign=null&utm_term=appsmith_apps)
 - 📄 [Application Tracking System App](https://app.appsmith.com/applications/5f43bce13697fd5df1c52ce4/pages/5f43c39c3697fd5df1c52d50/?utm_source=github&utm_medium=direct&utm_content=appsmith_apps&utm_campaign=null&utm_term=appsmith_apps)
+- 📦 [All Sample Apps](https://docs.appsmith.com/sample-apps?utm_source=github&utm_medium=direct&utm_content=appsmith_apps&utm_campaign=null&utm_term=appsmith_apps)
 
-- 🌟 Made something cool? [Share it with the community](https://discord.gg/Tx395War)
+- 🌟 Made something cool? [Share it with the community](https://discord.gg/rBTTVJp)
   <br><br>
 
 ## Tutorials
 
 Here are the latest tutorials and videos for you to learn more about Appsmith:
 
-1. [Build an Investor CRM using Appsmith on Google Sheets](https://blog.appsmith.com/build-an-investor-crm-using-appsmith-on-google-sheets-1)
+1. [Build an Investor CRM using Appsmith on Google Sheets](https://www.appsmith.com/blog/build-an-investor-crm-using-appsmith-on-google-sheets)
 2. [Building an Admin Panel on MongoDB using Appsmith](https://blog.appsmith.com/building-an-admin-panel-with-mongodb-using-appsmith) ([Video](https://www.youtube.com/watch?v=tisUaIgI86k))
 3. [Building a Discount Management Dashboard With Postgres](https://blog.appsmith.com/building-a-discount-management-dashboard-with-postgres)
 4. [Building a Customer Support Dashboard in Appsmith](https://www.youtube.com/watch?v=-O_6OLREEzo)
@@ -191,6 +192,14 @@ We love our contributors! We're committed to fostering an open and welcoming env
     <td align="center"><a href="http://appsmith.com"><img src="https://avatars.githubusercontent.com/u/11089579?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Somangshu Goswami</b></sub></a><br /><a href="https://github.com/appsmithorg/appsmith/issues?q=author%3Asomangshu" title="Bug reports">🐛</a> <a href="https://github.com/appsmithorg/appsmith/commits?author=somangshu" title="Code">💻</a></td>
     <td align="center"><a href="https://github.com/akshayrangasaid"><img src="https://avatars.githubusercontent.com/u/76783810?v=4?s=100" width="100px;" alt=""/><br /><sub><b>akshayrangasaid</b></sub></a><br /><a href="#content-akshayrangasaid" title="Content">🖋</a> <a href="#ideas-akshayrangasaid" title="Ideas, Planning, & Feedback">🤔</a></td>
     <td align="center"><a href="https://github.com/marks0351"><img src="https://avatars.githubusercontent.com/u/35134347?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Ashok Kumar M</b></sub></a><br /><a href="https://github.com/appsmithorg/appsmith/commits?author=marks0351" title="Code">💻</a></td>
+    <td align="center"><a href="https://www.rafaaudibert.dev"><img src="https://avatars.githubusercontent.com/u/32079912?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Rafael Baldasso Audibert</b></sub></a><br /><a href="https://github.com/appsmithorg/appsmith/commits?author=rafaeelaudibert" title="Code">💻</a></td>
+    <td align="center"><a href="https://github.com/yaldram"><img src="https://avatars.githubusercontent.com/u/13429535?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Arsalan Yaldram</b></sub></a><br /><a href="https://github.com/appsmithorg/appsmith/commits?author=yaldram" title="Code">💻</a> <a href="#ideas-yaldram" title="Ideas, Planning, & Feedback">🤔</a></td>
+  </tr>
+  <tr>
+    <td align="center"><a href="https://github.com/prsidhu"><img src="https://avatars.githubusercontent.com/u/5424788?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Preet Sidhu</b></sub></a><br /><a href="https://github.com/appsmithorg/appsmith/commits?author=prsidhu" title="Code">💻</a> <a href="https://github.com/appsmithorg/appsmith/issues?q=author%3Aprsidhu" title="Bug reports">🐛</a></td>
+    <td align="center"><a href="https://www.varstack.com"><img src="https://avatars.githubusercontent.com/u/9394044?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Pallav Agarwal</b></sub></a><br /><a href="https://github.com/appsmithorg/appsmith/commits?author=pallavagarwal07" title="Code">💻</a> <a href="https://github.com/appsmithorg/appsmith/issues?q=author%3Apallavagarwal07" title="Bug reports">🐛</a></td>
+    <td align="center"><a href="https://github.com/ganganimaulik"><img src="https://avatars.githubusercontent.com/u/10296400?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Maulik</b></sub></a><br /><a href="https://github.com/appsmithorg/appsmith/commits?author=ganganimaulik" title="Code">💻</a></td>
+    <td align="center"><a href="https://loopbackweb.wordpress.com/"><img src="https://avatars.githubusercontent.com/u/12005551?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Anagh Hegde</b></sub></a><br /><a href="https://github.com/appsmithorg/appsmith/commits?author=AnaghHegde" title="Code">💻</a> <a href="https://github.com/appsmithorg/appsmith/issues?q=author%3AAnaghHegde" title="Bug reports">🐛</a></td>
   </tr>
 </table>
 

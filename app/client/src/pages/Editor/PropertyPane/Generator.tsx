@@ -10,6 +10,8 @@ import WidgetFactory from "utils/WidgetFactory";
 import PropertyControl from "./PropertyControl";
 import PropertySection from "./PropertySection";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
+import Boxed from "../GuidedTour/Boxed";
+import { GUIDED_TOUR_STEPS } from "../GuidedTour/constants";
 
 export type PropertyControlsGeneratorProps = {
   id: string;
@@ -27,25 +29,43 @@ export const generatePropertyControl = (
     if ((config as PropertyPaneSectionConfig).sectionName) {
       const sectionConfig: PropertyPaneSectionConfig = config as PropertyPaneSectionConfig;
       return (
-        <PropertySection
-          hidden={sectionConfig.hidden}
-          id={config.id || sectionConfig.sectionName}
-          isDefaultOpen
+        <Boxed
           key={config.id + props.id}
-          name={sectionConfig.sectionName}
-          propertyPath={sectionConfig.propertySectionPath}
+          show={
+            sectionConfig.sectionName !== "General" &&
+            props.type === "TABLE_WIDGET"
+          }
+          step={GUIDED_TOUR_STEPS.TABLE_WIDGET_BINDING}
         >
-          {config.children && generatePropertyControl(config.children, props)}
-        </PropertySection>
+          <PropertySection
+            hidden={sectionConfig.hidden}
+            id={config.id || sectionConfig.sectionName}
+            isDefaultOpen={sectionConfig.isDefaultOpen}
+            key={config.id + props.id}
+            name={sectionConfig.sectionName}
+            propertyPath={sectionConfig.propertySectionPath}
+          >
+            {config.children && generatePropertyControl(config.children, props)}
+          </PropertySection>
+        </Boxed>
       );
     } else if ((config as PropertyPaneControlConfig).controlType) {
       return (
-        <PropertyControl
+        <Boxed
           key={config.id + props.id}
-          {...(config as PropertyPaneControlConfig)}
-          panel={props.panel}
-          theme={props.theme}
-        />
+          show={
+            (config as PropertyPaneControlConfig).propertyName !==
+              "tableData" && props.type === "TABLE_WIDGET"
+          }
+          step={GUIDED_TOUR_STEPS.TABLE_WIDGET_BINDING}
+        >
+          <PropertyControl
+            key={config.id + props.id}
+            {...(config as PropertyPaneControlConfig)}
+            panel={props.panel}
+            theme={props.theme}
+          />
+        </Boxed>
       );
     }
     throw Error("Unknown configuration provided: " + props.type);
@@ -57,9 +77,9 @@ export function PropertyControlsGenerator(
 ) {
   const config = WidgetFactory.getWidgetPropertyPaneConfig(props.type);
   return (
-    <>
+    <div className="px-3">
       {generatePropertyControl(config as readonly PropertyPaneConfig[], props)}
-    </>
+    </div>
   );
 }
 

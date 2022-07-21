@@ -2,12 +2,12 @@ import React from "react";
 import styled, { withTheme } from "styled-components";
 import Icon, { IconSize } from "components/ads/Icon";
 import { Theme } from "constants/DefaultTheme";
-import Tooltip from "components/ads/Tooltip";
+import { TooltipComponent as Tooltip } from "design-system";
 import {
   createMessage,
   RESOLVE_THREAD,
   RESOLVED_THREAD,
-} from "constants/messages";
+} from "@appsmith/constants/messages";
 import { Colors } from "constants/Colors";
 
 const Container = styled.div`

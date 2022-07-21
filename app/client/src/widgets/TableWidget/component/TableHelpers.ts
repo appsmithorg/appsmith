@@ -1,4 +1,4 @@
-import { uniq, without } from "lodash";
+import { uniq, without, isNaN } from "lodash";
 import { ColumnProperties } from "./Constants";
 
 const removeSpecialChars = (value: string, limit?: number) => {
@@ -47,4 +47,9 @@ export const reorderColumns = (
     });
   }
   return newColumnsInOrder;
+};
+
+// check and update column id if it is number
+export const generateTableColumnId = (accessor: string) => {
+  return isNaN(Number(accessor)) ? accessor : `_${accessor}`;
 };

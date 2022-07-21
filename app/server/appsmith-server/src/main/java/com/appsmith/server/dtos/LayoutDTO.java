@@ -19,7 +19,7 @@ public class LayoutDTO {
 
     JSONObject dsl;
 
-    List<HashSet<DslActionDTO>> layoutOnLoadActions;
+    List<Set<DslActionDTO>> layoutOnLoadActions;
 
     // All the actions which have been updated as part of updateLayout function call
     List<LayoutActionUpdateDTO> actionUpdates;

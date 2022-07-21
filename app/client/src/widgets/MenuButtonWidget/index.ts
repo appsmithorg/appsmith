@@ -1,7 +1,6 @@
 import Widget from "./widget";
 import IconSVG from "./icon.svg";
-import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
-import { Colors } from "constants/Colors";
+import { ButtonPlacementTypes, ButtonVariantTypes } from "components/constants";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
@@ -9,11 +8,12 @@ export const CONFIG = {
   iconSVG: IconSVG,
   defaults: {
     label: "Open Menu",
-    menuColor: Colors.GREEN,
-    menuVariant: "SOLID",
+    menuVariant: ButtonVariantTypes.PRIMARY,
+    placement: ButtonPlacementTypes.CENTER,
     isCompact: false,
     isDisabled: false,
     isVisible: true,
+    animateLoading: true,
     menuItems: {
       menuItem1: {
         label: "First Menu Item",
@@ -40,8 +40,8 @@ export const CONFIG = {
         index: 2,
       },
     },
-    rows: 1 * GRID_DENSITY_MIGRATION_V1,
-    columns: 4 * GRID_DENSITY_MIGRATION_V1,
+    rows: 4,
+    columns: 16,
     widgetName: "MenuButton",
     version: 1,
   },

@@ -1,0 +1,101 @@
+{
+    "dsl": {
+      "widgetName": "MainContainer",
+      "backgroundColor": "none",
+      "rightColumn": 528,
+      "snapColumns": 64,
+      "detachFromLayout": true,
+      "widgetId": "0",
+      "topRow": 0,
+      "bottomRow": 410,
+      "containerStyle": "none",
+      "snapRows": 80,
+      "parentRowSpace": 1,
+      "type": "CANVAS_WIDGET",
+      "canExtend": true,
+      "version": 49,
+      "minHeight": 240,
+      "parentColumnSpace": 1,
+      "dynamicTriggerPathList": [],
+      "dynamicBindingPathList": [],
+      "leftColumn": 0,
+      "children": [
+        {
+          "widgetName": "Image1",
+          "onClick": "",
+          "dynamicPropertyPathList": [
+            {
+              "key": "onClick"
+            }
+          ],
+          "displayName": "Image",
+          "iconSVG": "/static/media/icon.52d8fb96.svg",
+          "topRow": 19,
+          "bottomRow": 39,
+          "parentRowSpace": 10,
+          "type": "IMAGE_WIDGET",
+          "hideCard": false,
+          "animateLoading": true,
+          "parentColumnSpace": 8.0625,
+          "dynamicTriggerPathList": [
+            {
+              "key": "onClick"
+            }
+          ],
+          "imageShape": "RECTANGLE",
+          "leftColumn": 12,
+          "dynamicBindingPathList": [],
+          "defaultImage": "https://assets.appsmith.com/widgets/default.png",
+          "key": "rmhpjhzzn1",
+          "image": "",
+          "rightColumn": 29,
+          "objectFit": "contain",
+          "widgetId": "3p4qrtylg1",
+          "isVisible": true,
+          "version": 1,
+          "parentId": "0",
+          "renderMode": "CANVAS",
+          "isLoading": false,
+          "maxZoomLevel": 1,
+          "enableDownload": false,
+          "enableRotation": false
+        },
+        {
+          "widgetName": "Button1",
+          "onClick": "",
+          "buttonColor": "#03B365",
+          "dynamicPropertyPathList": [],
+          "displayName": "Button",
+          "iconSVG": "/static/media/icon.cca02633.svg",
+          "topRow": 10,
+          "bottomRow": 14,
+          "parentRowSpace": 10,
+          "type": "BUTTON_WIDGET",
+          "hideCard": false,
+          "animateLoading": true,
+          "parentColumnSpace": 8.0625,
+          "dynamicTriggerPathList": [
+            {
+              "key": "onClick"
+            }
+          ],
+          "leftColumn": 12,
+          "dynamicBindingPathList": [],
+          "text": "Submit",
+          "isDisabled": false,
+          "key": "24mm844wc6",
+          "rightColumn": 28,
+          "isDefaultClickDisabled": true,
+          "widgetId": "ibkh7yx66l",
+          "isVisible": true,
+          "recaptchaType": "V3",
+          "version": 1,
+          "parentId": "0",
+          "renderMode": "CANVAS",
+          "isLoading": false,
+          "buttonVariant": "PRIMARY",
+          "placement": "CENTER"
+        }
+      ]
+    }
+  }

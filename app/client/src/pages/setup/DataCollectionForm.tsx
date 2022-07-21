@@ -1,5 +1,4 @@
-import { noop } from "lodash";
-import React, { memo } from "react";
+import React, { memo, useState } from "react";
 import styled from "styled-components";
 import Toggle from "components/ads/Toggle";
 import { ControlWrapper } from "components/propertyControls/StyledControls";
@@ -15,6 +14,14 @@ import {
   StyledLink as Link,
 } from "./common";
 import { TELEMETRY_URL } from "constants/ThirdPartyConstants";
+import {
+  createMessage,
+  WELCOME_FORM_DATA_COLLECTION_BODY,
+  WELCOME_FORM_DATA_COLLECTION_HEADER,
+  WELCOME_FORM_DATA_COLLECTION_LABEL_DISABLE,
+  WELCOME_FORM_DATA_COLLECTION_LABEL_ENABLE,
+  WELCOME_FORM_DATA_COLLECTION_LINK,
+} from "@appsmith/constants/messages";
 
 const DataCollectionFormWrapper = styled.div`
   width: 100%;
@@ -28,15 +35,19 @@ const StyledLink = styled(Link)`
 `;
 
 export default memo(function DataCollectionForm() {
+  const [allowCollection, setAllowCollection] = useState(true);
   return (
     <DataCollectionFormWrapper>
-      <FormHeaderWrapper>
-        <FormHeaderIndex>2.</FormHeaderIndex>
-        <FormHeaderLabel>Usage data preference</FormHeaderLabel>
+      <FormHeaderWrapper className="relative flex flex-col items-start">
+        <FormHeaderIndex className="absolute -left-6">2.</FormHeaderIndex>
+        <FormHeaderLabel>
+          {createMessage(WELCOME_FORM_DATA_COLLECTION_HEADER)}
+        </FormHeaderLabel>
         <FormHeaderSubtext>
-          Your data. Your choice. Data is collected anonymously. <br />
+          {createMessage(WELCOME_FORM_DATA_COLLECTION_BODY)}
+          <br />
           <StyledLink href={TELEMETRY_URL} target="_blank">
-            List of tracked items
+            {createMessage(WELCOME_FORM_DATA_COLLECTION_LINK)}
           </StyledLink>
         </FormHeaderSubtext>
       </FormHeaderWrapper>
@@ -45,13 +56,16 @@ export default memo(function DataCollectionForm() {
           <AllowToggleWrapper>
             <AllowToggle>
               <Toggle
+                className="t--welcome-form-datacollection"
                 name="allowCollectingAnonymousData"
-                onToggle={() => noop}
-                value
+                onToggle={(value) => setAllowCollection(value)}
+                value={allowCollection}
               />
             </AllowToggle>
             <AllowToggleLabel>
-              Allow Appsmith to collect usage data anonymously
+              {allowCollection
+                ? createMessage(WELCOME_FORM_DATA_COLLECTION_LABEL_ENABLE)
+                : createMessage(WELCOME_FORM_DATA_COLLECTION_LABEL_DISABLE)}
             </AllowToggleLabel>
           </AllowToggleWrapper>
         </ControlWrapper>

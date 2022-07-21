@@ -12,6 +12,8 @@ import { generateReactKey } from "utils/generators";
 import { draggableElement } from "./utils";
 
 export type PopperProps = {
+  boundaryParent?: Element | PopperJS.Boundary;
+  parentElement?: Element | null;
   zIndex: number;
   isOpen: boolean;
   themeMode?: ThemeMode;
@@ -72,6 +74,7 @@ export default (props: PopperProps) => {
   const popperId = popperIdRef.current;
 
   const {
+    boundaryParent = "viewport",
     isDraggable = false,
     disablePopperEvents = false,
     position,
@@ -81,7 +84,7 @@ export default (props: PopperProps) => {
     renderDragBlockPositions,
     cypressSelectorDragHandle,
   } = props;
-  // Meomoizing to avoid rerender of draggable icon.
+  // Memoizing to avoid rerender of draggable icon.
   // What is the cost of memoizing?
   const popperTheme = useMemo(
     () => getThemeDetails({} as AppState, themeMode),
@@ -90,6 +93,7 @@ export default (props: PopperProps) => {
 
   useEffect(() => {
     const parentElement = props.targetNode && props.targetNode.parentElement;
+
     if (
       parentElement &&
       parentElement.parentElement &&
@@ -100,7 +104,7 @@ export default (props: PopperProps) => {
       // and figure out a way to keep an app instance level popper instance
       // which we can update to have different references when called here.
       // However, the performance benefit gained by such an optimization
-      // remaines to be discovered.
+      // remains to be discovered.
       const _popper = new PopperJS(
         props.targetNode,
         (contentRef.current as unknown) as Element,
@@ -130,7 +134,11 @@ export default (props: PopperProps) => {
             },
             preventOverflow: {
               enabled: true,
-              boundariesElement: "viewport",
+              /* 
+                Prevent the FilterPane from overflowing the canvas when the 
+                table widget is on the very top of the canvas.
+              */
+              boundariesElement: boundaryParent,
             },
             ...props.modifiers,
           },
@@ -142,6 +150,7 @@ export default (props: PopperProps) => {
           `${popperId}-popper`,
           _popper.popper,
           onPositionChange,
+          parentElement,
           position,
           renderDragBlockPositions,
           () =>

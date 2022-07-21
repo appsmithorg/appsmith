@@ -1,0 +1,69 @@
+{
+    "dsl": {
+        "widgetName": "MainContainer",
+        "backgroundColor": "none",
+        "rightColumn": 656,
+        "snapColumns": 64,
+        "detachFromLayout": true,
+        "widgetId": "0",
+        "topRow": 0,
+        "bottomRow": 5016,
+        "containerStyle": "none",
+        "snapRows": 125,
+        "parentRowSpace": 1,
+        "type": "CANVAS_WIDGET",
+        "canExtend": true,
+        "version": 46,
+        "minHeight": 1292,
+        "parentColumnSpace": 1,
+        "dynamicBindingPathList": [],
+        "leftColumn": 0,
+        "children": [
+            {
+                "isVisible": true,
+                "placeholderText": "Select option",
+                "labelText": "Label",
+                "selectionType": "SINGLE_SELECT",
+                "options": [
+                    {
+                        "label": "Blue",
+                        "value": "BLUE"
+                    },
+                    {
+                        "label": "Green",
+                        "value": "GREEN"
+                    },
+                    {
+                        "label": "Red",
+                        "value": "RED"
+                    }
+                ],
+                "serverSideFiltering": false,
+                "widgetName": "Select1",
+                "defaultOptionValue": {
+                    "label": "Green",
+                    "value": "GREEN"
+                },
+                "version": 1,
+                "isFilterable": false,
+                "isRequired": false,
+                "isDisabled": false,
+                "type": "SELECT_WIDGET",
+                "hideCard": false,
+                "displayName": "Select",
+                "key": "xlzcpnuumm",
+                "iconSVG": "/static/media/icon.bd99caba.svg",
+                "widgetId": "w042446bbt",
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "parentColumnSpace": 10.0625,
+                "parentRowSpace": 10,
+                "leftColumn": 16,
+                "rightColumn": 36,
+                "topRow": 6,
+                "bottomRow": 12.9,
+                "parentId": "0"
+            }
+        ]
+    }
+}

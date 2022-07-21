@@ -1,11 +1,16 @@
 import { Property } from "entities/Action";
 
 export enum AuthType {
-  NONE = "NONE",
+  NONE = "dbAuth",
   OAuth2 = "oAuth2",
   basic = "basic",
   apiKey = "apiKey",
   bearerToken = "bearerToken",
+}
+
+export enum SSLType {
+  DEFAULT = "DEFAULT",
+  SELF_SIGNED_CERTIFICATE = "SELF_SIGNED_CERTIFICATE",
 }
 
 export enum ApiKeyAuthType {
@@ -25,17 +30,33 @@ export type Authentication =
   | ApiKey
   | BearerToken;
 
+export interface Connection {
+  ssl: SSL;
+}
+
+export interface SSL {
+  authType: SSLType;
+  certificateFile: Certificate;
+}
+
+export interface Certificate {
+  name: string;
+  base64Content: string | ArrayBuffer | null;
+}
+
 export interface ApiDatasourceForm {
   datasourceId: string;
   pluginId: string;
-  organizationId: string;
+  workspaceId: string;
   isValid: boolean;
   url: string;
   headers?: Property[];
+  queryParameters?: Property[];
   isSendSessionEnabled: boolean;
   sessionSignatureKey: string;
   authType: AuthType;
   authentication?: Authentication;
+  connection?: Connection;
 }
 
 export interface Oauth2Common {
@@ -46,19 +67,23 @@ export interface Oauth2Common {
   headerPrefix: string;
   scopeString: string;
   isTokenHeader: boolean;
+  isAuthorizationHeader: boolean;
   audience: string;
   resource: string;
+  sendScopeWithRefreshToken: string;
+  refreshTokenClientCredentialsLocation: string;
+  useSelfSignedCert?: boolean;
 }
 
 export interface ClientCredentials extends Oauth2Common {
   grantType: GrantType.ClientCredentials;
+  customTokenParameters: Property[];
 }
 
 export interface AuthorizationCode extends Oauth2Common {
   grantType: GrantType.AuthorizationCode;
   authorizationUrl: string;
   customAuthenticationParameters: Property[];
-  isAuthorizationHeader: boolean;
   isAuthorized: boolean;
 }
 

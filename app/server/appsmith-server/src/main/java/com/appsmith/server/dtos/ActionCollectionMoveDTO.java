@@ -10,6 +10,9 @@ import javax.validation.constraints.NotNull;
 public class ActionCollectionMoveDTO {
 
     @NotNull
+    String name;
+
+    @NotNull
     String collectionId;
 
     @NotNull

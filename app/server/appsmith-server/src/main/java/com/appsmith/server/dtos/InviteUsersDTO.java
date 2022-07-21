@@ -17,5 +17,5 @@ public class InviteUsersDTO {
     String roleName;
 
     @NotNull
-    String orgId;
+    String workspaceId;
 }
