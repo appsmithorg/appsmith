@@ -22,7 +22,11 @@ import { SupportedLayouts } from "reducers/entityReducers/pageListReducer";
 import { getCurrentApplicationLayout } from "selectors/editorSelectors";
 import { useSelector } from "store";
 import { Colors } from "constants/Colors";
-import { getSupportedMimeTypes, isMac } from "utils/helpers";
+import {
+  getPlatformOS,
+  getSupportedMimeTypes,
+  PLATFORM_OS,
+} from "utils/helpers";
 
 import {
   CameraMode,
@@ -619,7 +623,7 @@ function ControlPanel(props: ControlPanelProps) {
     // Remove fullscreen functionality for ios mobile devices
     // due to fullscreen API is not supported to ios mobile devices.
     // https://caniuse.com/fullscreen
-    if (isMac(true)) return null;
+    if (getPlatformOS() === PLATFORM_OS.IOS) return null;
 
     return fullScreenHandle.active ? (
       <StyledButton
