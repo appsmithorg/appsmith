@@ -28,7 +28,7 @@ export function searchProperty(
   const fuseConfig = {
     threshold: 0.5,
     location: 0,
-    distance: 100,
+    distance: 20,
     keys: ["children.label", "label", "children.children.label"],
   };
   const fuse = new Fuse(config, fuseConfig);

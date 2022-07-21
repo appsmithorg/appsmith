@@ -205,16 +205,6 @@ describe("Property configuration search", () => {
           },
         ],
       },
-      {
-        sectionName: "A",
-        children: [
-          {
-            label: "Scroll Contents",
-            propertyName: "scrollContents",
-            ...commonProperties,
-          },
-        ],
-      },
     ]);
   });
 });
