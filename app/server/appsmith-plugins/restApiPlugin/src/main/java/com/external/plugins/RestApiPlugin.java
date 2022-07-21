@@ -296,7 +296,8 @@ public class RestApiPlugin extends BasePlugin {
                     .build();
 
             HttpClient httpClient = HttpClient.create(provider)
-                    .secure(SSLHelper.sslCheckForHttpClient(datasourceConfiguration));
+                    .secure(SSLHelper.sslCheckForHttpClient(datasourceConfiguration))
+                    .compress(true);
 
             if ("true".equals(System.getProperty("java.net.useSystemProxies"))
                     && (!System.getProperty("http.proxyHost", "").isEmpty() || !System.getProperty("https.proxyHost", "").isEmpty())) {
