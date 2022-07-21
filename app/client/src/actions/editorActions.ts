@@ -1,5 +1,4 @@
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import { CurrentFocusedEntityInfo } from "reducers/uiReducers/editorReducer";
 
 /**
  * action that sets preview mode
