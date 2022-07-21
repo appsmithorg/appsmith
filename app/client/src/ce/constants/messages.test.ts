@@ -47,6 +47,9 @@ import {
   GIT_SETTINGS,
   GIT_UPSTREAM_CHANGES,
   GIT_USER_UPDATED_SUCCESSFULLY,
+  IMPORT_APP_FROM_FILE_MESSAGE,
+  IMPORT_APP_FROM_GIT_MESSAGE,
+  IMPORT_FROM_GIT_REPOSITORY,
   IMPORTING_APP_FROM_GIT,
   INVALID_USER_DETAILS_MSG,
   IS_MERGING,
@@ -71,12 +74,9 @@ import {
   SSH_KEY,
   SUBMIT,
   UPDATE_CONFIG,
-  USE_DEFAULT_CONFIGURATION,
-  UPLOADING_JSON,
   UPLOADING_APPLICATION,
-  IMPORT_APP_FROM_FILE_MESSAGE,
-  IMPORT_APP_FROM_GIT_MESSAGE,
-  IMPORT_FROM_GIT_REPOSITORY,
+  UPLOADING_JSON,
+  USE_DEFAULT_CONFIGURATION,
 } from "./messages";
 
 describe("messages", () => {
@@ -87,7 +87,7 @@ describe("messages", () => {
   });
 });
 
-describe("git-sync messages", () => {
+describe("messages without input", () => {
   const expectedMessages = [
     { key: "COMMIT_CHANGES", value: "Commit changes" },
     {
@@ -100,8 +100,6 @@ describe("git-sync messages", () => {
       value: "PULL CHANGES",
     },
     { key: "DEPLOY_KEY_TITLE", value: "Deployed Key" },
-
-    { key: "REGENERATE_SSH_KEY", value: "Regenerate SSH Key" },
     { key: "SSH_KEY", value: "SSH Key" },
     {
       key: "COPY_SSH_KEY",
@@ -308,6 +306,23 @@ describe("git-sync messages", () => {
       key: "IMPORTING_APP_FROM_GIT",
       value: "Importing application from git",
     },
+    { key: "UPLOADING_JSON", value: "Uploading JSON file" },
+    {
+      key: "UPLOADING_APPLICATION",
+      value: "Uploading application",
+    },
+    {
+      key: "IMPORT_APP_FROM_FILE_MESSAGE",
+      value: "Drag and drop your file or upload from your computer",
+    },
+    {
+      key: "IMPORT_APP_FROM_GIT_MESSAGE",
+      value: "Import an application from its git repository using its SSH URL",
+    },
+    {
+      key: "IMPORT_FROM_GIT_REPOSITORY",
+      value: "Import from git repository",
+    },
   ];
   const functions = [
     ARE_YOU_SURE,
@@ -368,7 +383,6 @@ describe("git-sync messages", () => {
     PASTE_SSH_URL_INFO,
     PULL_CHANGES,
     REGENERATE_KEY_CONFIRM_MESSAGE,
-    REGENERATE_SSH_KEY,
     REMOTE_URL,
     REMOTE_URL_INFO,
     REMOTE_URL_INPUT_PLACEHOLDER,
@@ -381,38 +395,6 @@ describe("git-sync messages", () => {
     SUBMIT,
     UPDATE_CONFIG,
     USE_DEFAULT_CONFIGURATION,
-  ];
-  functions.forEach((fn: () => string) => {
-    it(`${fn.name} returns expected value`, () => {
-      const actual = createMessage(fn);
-      const found = expectedMessages.find((em) => em.key === fn.name);
-      const expected = found && found.value;
-      expect(actual).toEqual(expected);
-    });
-  });
-});
-
-describe("import application messages", () => {
-  const expectedMessages = [
-    { key: "UPLOADING_JSON", value: "Uploading JSON file" },
-    {
-      key: "UPLOADING_APPLICATION",
-      value: "Uploading application",
-    },
-    {
-      key: "IMPORT_APP_FROM_FILE_MESSAGE",
-      value: "Drag and drop your file or upload from your computer",
-    },
-    {
-      key: "IMPORT_APP_FROM_GIT_MESSAGE",
-      value: "Import an application from its git repository using its SSH URL",
-    },
-    {
-      key: "IMPORT_FROM_GIT_REPOSITORY",
-      value: "Import from git repository",
-    },
-  ];
-  const functions = [
     UPLOADING_JSON,
     UPLOADING_APPLICATION,
     IMPORT_APP_FROM_FILE_MESSAGE,
@@ -426,5 +408,16 @@ describe("import application messages", () => {
       const expected = found && found.value;
       expect(actual).toEqual(expected);
     });
+  });
+});
+
+describe("messages with input values", () => {
+  it("REGENERATE_SSH_KEY returns expected value", () => {
+    expect(createMessage(REGENERATE_SSH_KEY)).toEqual(
+      "Regenerate undefined undefined key",
+    );
+    expect(createMessage(REGENERATE_SSH_KEY, "ECDSA", 256)).toEqual(
+      "Regenerate ECDSA 256 key",
+    );
   });
 });

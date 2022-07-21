@@ -195,7 +195,7 @@ export const updateChildrenDisabledStateHook = (
   }
 };
 
-export const hiddenIfArrayOrObject = (
+export const isFieldTypeArrayOrObject = (
   props: JSONFormWidgetProps,
   propertyPath: string,
 ) => {

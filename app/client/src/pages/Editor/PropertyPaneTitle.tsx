@@ -17,6 +17,7 @@ import { AppState } from "reducers";
 import { getExistingWidgetNames } from "sagas/selectors";
 import { removeSpecialChars } from "utils/helpers";
 import { useToggleEditWidgetName } from "utils/hooks/dragResizeHooks";
+import useInteractionAnalyticsEvent from "utils/hooks/useInteractionAnalyticsEvent";
 
 import { WidgetType } from "constants/WidgetConstants";
 
@@ -58,6 +59,11 @@ const PropertyPaneTitle = memo(function PropertyPaneTitle(
       state.ui.canvasSelection.recentlyAddedWidget[props.widgetId || ""],
   );
   const guidedTourEnabled = useSelector(inGuidedTour);
+
+  const {
+    dispatchInteractionAnalyticsEvent,
+    eventEmitterRef,
+  } = useInteractionAnalyticsEvent<HTMLDivElement>();
 
   // Pass custom equality check function. Shouldn't be expensive than the render
   // as it is just a small array #perf
@@ -130,21 +136,24 @@ const PropertyPaneTitle = memo(function PropertyPaneTitle(
           document.activeElement?.tagName?.toLowerCase(),
         ) === -1
       )
-        setTimeout(() => {
-          if (featureFlags.PROPERTY_PANE_GROUPING) {
-            document
-              .querySelector(".propertyPaneSearch input")
-              // @ts-expect-error: Focus
-              ?.focus();
-          } else {
-            document
-              .querySelector(
-                '.t--property-pane-section-wrapper [tabindex]:not([tabindex="-1"])',
-              )
-              // @ts-expect-error: Focus
-              ?.focus();
-          }
-        });
+        setTimeout(
+          () => {
+            if (featureFlags.PROPERTY_PANE_GROUPING) {
+              document
+                .querySelector(".propertyPaneSearch input")
+                // @ts-expect-error: Focus
+                ?.focus();
+            } else {
+              document
+                .querySelector(
+                  '.t--property-pane-section-wrapper [tabindex]:not([tabindex="-1"])',
+                )
+                // @ts-expect-error: Focus
+                ?.focus();
+            }
+          },
+          200, // Adding non zero time out as codemirror imports are loaded using idle callback. pr #13676
+        );
     }
 
     return () => {
@@ -179,8 +188,21 @@ const PropertyPaneTitle = memo(function PropertyPaneTitle(
     return () => document.removeEventListener("keydown", handleKeyDown);
   }, []);
 
+  function handleTabKeyDown(e: React.KeyboardEvent) {
+    if (e.key === "Tab")
+      dispatchInteractionAnalyticsEvent({
+        key: e.key,
+        propertyType: "LABEL",
+        propertyName: "widgetName",
+        widgetType: props.widgetType,
+      });
+  }
+
   return props.widgetId || props.isPanelTitle ? (
-    <div className="flex items-center w-full p-3 space-x-1 z-[3] fixed bg-white z-10">
+    <div
+      className="flex items-center w-full p-3 space-x-1 fixed bg-white z-3"
+      ref={eventEmitterRef}
+    >
       {/* BACK BUTTON */}
       {props.isPanelTitle && (
         <button
@@ -191,7 +213,11 @@ const PropertyPaneTitle = memo(function PropertyPaneTitle(
         </button>
       )}
       {/* EDITABLE TEXT */}
-      <div className="flex-grow" style={{ maxWidth: `calc(100% - 52px)` }}>
+      <div
+        className="flex-grow"
+        onKeyDown={handleTabKeyDown}
+        style={{ maxWidth: `calc(100% - 52px)` }}
+      >
         <EditableText
           className="flex-grow text-lg font-semibold t--property-pane-title"
           defaultValue={name}

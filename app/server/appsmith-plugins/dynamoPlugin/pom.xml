@@ -50,7 +50,7 @@
         <dependency>
             <groupId>org.testcontainers</groupId>
             <artifactId>testcontainers</artifactId>
-            <version>1.15.0-rc2</version>
+            <version>1.17.1</version>
             <scope>test</scope>
         </dependency>
 

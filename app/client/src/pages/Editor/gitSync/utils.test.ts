@@ -24,9 +24,12 @@ const validUrls = [
   "ssh://host.xz/~/path/to/repo.git",
   "git@ssh.dev.azure.com:v3/something/other/thing",
   "git@ssh.dev.azure.com:v3/something/other/thing.git",
+  "git@ssh.dev.azure.com:v3/something/other/(thing).git",
+  "git@ssh.dev.azure.com:v3/(((something)/(other)/(thing).git",
 ];
 
 const invalidUrls = [
+  "git@ssh.dev.azure.(com):v3/(((something)/(other)/(thing).git",
   "git@ssh.dev.azure.com:v3/something/other/thing/",
   "gitclonegit://a@b:c/d.git",
   "https://github.com/user/project.git",
@@ -224,7 +227,7 @@ describe("gitSync utils", () => {
       };
       const actual = changeInfoSinceLastCommit(applicationData);
       const expected = {
-        changeReasonText: "Changes since last commit",
+        changeReasonText: "Changes since last deployment",
         isAutoUpdate: false,
         isManualUpdate: false,
       };
@@ -245,7 +248,7 @@ describe("gitSync utils", () => {
       };
       const actual = changeInfoSinceLastCommit(applicationData);
       const expected = {
-        changeReasonText: "Appsmith update changes since last commit",
+        changeReasonText: "Changes since last deployment",
         isAutoUpdate: true,
         isManualUpdate: false,
       };
@@ -266,7 +269,7 @@ describe("gitSync utils", () => {
       };
       const actual = changeInfoSinceLastCommit(applicationData);
       const expected = {
-        changeReasonText: "Appsmith update and user changes since last commit",
+        changeReasonText: "Changes since last deployment",
         isAutoUpdate: true,
         isManualUpdate: true,
       };
@@ -287,7 +290,7 @@ describe("gitSync utils", () => {
       };
       const actual = changeInfoSinceLastCommit(applicationData);
       const expected = {
-        changeReasonText: "Changes since last commit",
+        changeReasonText: "Changes since last deployment",
         isAutoUpdate: false,
         isManualUpdate: true,
       };

@@ -6,13 +6,24 @@ import * as Sentry from "@sentry/react";
 import { ANONYMOUS_USERNAME, User } from "constants/userConstants";
 import { sha256 } from "js-sha256";
 
+declare global {
+  interface Window {
+    // Zipy is added via script tags in index.html
+    zipy: {
+      identify: (uid: string, userInfo: Record<string, string>) => void;
+      anonymize: () => void;
+    };
+  }
+}
+
 export type EventLocation =
   | "LIGHTNING_MENU"
   | "API_PANE"
   | "QUERY_PANE"
   | "QUERY_TEMPLATE"
   | "QUICK_COMMANDS"
-  | "OMNIBAR";
+  | "OMNIBAR"
+  | "SUBMENU";
 
 export type EventName =
   | "APP_CRASH"
@@ -83,7 +94,6 @@ export type EventName =
   | "PROPERTY_PANE_OPEN"
   | "PROPERTY_PANE_CLOSE"
   | "PROPERTY_PANE_OPEN_CLICK"
-  | "PROPERTY_PANE_CLOSE_CLICK"
   | "WIDGET_DELETE_UNDO"
   | "WIDGET_COPY_VIA_SHORTCUT"
   | "WIDGET_COPY"
@@ -122,13 +132,11 @@ export type EventName =
   | "DEBUGGER_RESOLVED_ERROR_MESSAGE"
   | "DEBUGGER_CONTEXT_MENU_CLICK"
   | "ADD_MOCK_DATASOURCE_CLICK"
-  | "CREATE_DATA_SOURCE_AUTH_API_CLICK"
   | "GEN_CRUD_PAGE_CREATE_NEW_DATASOURCE"
   | "GEN_CRUD_PAGE_FORM_SUBMIT"
   | "GEN_CRUD_PAGE_EDIT_DATASOURCE_CONFIG"
   | "GEN_CRUD_PAGE_SELECT_DATASOURCE"
   | "GEN_CRUD_PAGE_SELECT_TABLE"
-  | "GEN_CRUD_PAGE_SELECT_SEARCH_COLUMN"
   | "GEN_CRUD_PAGE_SELECT_SEARCH_COLUMN"
   | "BUILD_FROM_SCRATCH_ACTION_CARD_CLICK"
   | "GEN_CRUD_PAGE_ACTION_CARD_CLICK"
@@ -149,7 +157,6 @@ export type EventName =
   | "PAGES_LIST_LOAD"
   | "WIDGET_GROUP"
   | "CLOSE_GEN_PAGE_INFO_MODAL"
-  | "PAGES_LIST_LOAD"
   | "COMMENTS_TOGGLE_MODE"
   | "COMMENTS_ONBOARDING_SKIP_BUTTON_CLICK"
   | "COMMENTS_ONBOARDING_STEP_CHANGE"
@@ -236,10 +243,13 @@ export type EventName =
   | "PAGE_NOT_FOUND"
   | "SIMILAR_TEMPLATE_CLICK"
   | "RUN_JS_FUNCTION"
+  | "PROPERTY_PANE_KEYPRESS"
   | "PAGE_NAME_CLICK"
   | "BACK_BUTTON_CLICK"
   | "WIDGET_TAB_CLICK"
-  | "ENTITY_EXPLORER_CLICK";
+  | "ENTITY_EXPLORER_CLICK"
+  | "PRETTIFY_CODE_MANUAL_TRIGGER"
+  | "PRETTIFY_CODE_KEYBOARD_SHORTCUT";
 
 function getApplicationId(location: Location) {
   const pathSplit = location.pathname.split("/");
@@ -407,6 +417,14 @@ class AnalyticsUtil {
     if (smartLook.enabled) {
       smartlookClient.identify(userId, { email: userData.email });
     }
+
+    // If zipy was included, identify this user on the platform
+    if (window.zipy && userId) {
+      window.zipy.identify(userId, {
+        email: userData.email,
+        username: userData.username,
+      });
+    }
   }
 
   static reset() {
@@ -416,6 +434,7 @@ class AnalyticsUtil {
     }
     windowDoc.analytics && windowDoc.analytics.reset();
     windowDoc.mixpanel && windowDoc.mixpanel.reset();
+    window.zipy && window.zipy.anonymize();
   }
 }
 
