@@ -1,4 +1,4 @@
-import React, { useContext, memo, useMemo, useState } from "react";
+import React, { useContext, memo, useMemo } from "react";
 import {
   WidgetOperations,
   WidgetRowCols,
@@ -45,6 +45,7 @@ import { GridDefaults } from "constants/WidgetConstants";
 import { DropTargetContext } from "./DropTargetComponent";
 import { XYCord } from "pages/common/CanvasArenas/hooks/useCanvasDragging";
 import { LayoutDirection } from "components/constants";
+import { AutoLayoutContext } from "widgets/AutoLayoutContainerWidget/widget";
 
 export type ResizableComponentProps = WidgetProps & {
   paddingOffset: number;
@@ -55,6 +56,7 @@ export const ResizableComponent = memo(function ResizableComponent(
 ) {
   // Fetch information from the context
   const { updateWidget } = useContext(EditorContext);
+  const layoutContext = useContext(AutoLayoutContext);
   const canvasWidgets = useSelector(getCanvasWidgets);
 
   const isCommentMode = useSelector(commentModeSelector);
@@ -250,8 +252,11 @@ export const ResizableComponent = memo(function ResizableComponent(
       bottomLeft: BottomLeftHandleStyles,
     };
 
-    return omit(allHandles, get(props, "disabledResizeHandles", []));
-  }, [props]);
+    return omit(
+      allHandles,
+      get({ ...props, ...layoutContext }, "disabledResizeHandles", []),
+    );
+  }, [props, layoutContext]);
 
   const isEnabled =
     !isDragging &&

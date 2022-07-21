@@ -202,7 +202,7 @@ class ContainerWidget extends BaseWidget<
 
   renderAsContainerComponent(props: ContainerWidgetProps<WidgetProps>) {
     console.log(`${props.widgetName} : ${props.widgetId} =======`);
-    console.log(props);
+    // console.log(props);
     const snapRows = getCanvasSnapRows(props.bottomRow, props.canExtend);
     return (
       <ContainerComponent {...props}>

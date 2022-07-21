@@ -217,8 +217,6 @@ abstract class BaseWidget<
    * @param content
    */
   makeResizable(content: ReactNode) {
-    const { componentHeight, componentWidth } = this.getComponentDimensions();
-
     return (
       <ResizableComponent
         {...this.props}

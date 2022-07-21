@@ -1,5 +1,4 @@
 import React from "react";
-import styled from "styled-components";
 import { compact, map, sortBy } from "lodash";
 
 import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
@@ -19,6 +18,7 @@ import {
 import WidgetsMultiSelectBox from "pages/Editor/WidgetsMultiSelectBox";
 import { getCanvasSnapRows } from "utils/WidgetPropsUtils";
 import { ValidationTypes } from "constants/WidgetValidation";
+import { AutoLayoutContext } from "widgets/AutoLayoutContainerWidget/widget";
 
 class VerticalLayoutWidget extends BaseWidget<
   VerticalLayoutWidgetProps<WidgetProps>,
@@ -114,7 +114,6 @@ class VerticalLayoutWidget extends BaseWidget<
       justifyContent: JustifyContent.FlexStart,
       alignItems: "stretch",
     };
-
     return WidgetFactory.createWidget(
       { ...childWidgetData, ...layoutProps },
       this.props.renderMode,
@@ -137,37 +136,53 @@ class VerticalLayoutWidget extends BaseWidget<
       this.props.canExtend,
     );
     return (
-      <VerticalLayoutComponent {...this.props}>
-        {this.props.type === "CANVAS_WIDGET" && (
-          <>
-            <CanvasDraggingArena
-              {...this.getSnapSpaces()}
-              canExtend={this.props.canExtend}
-              dropDisabled={!!this.props.dropDisabled}
-              noPad={this.props.noPad}
-              parentId={this.props.parentId}
-              snapRows={snapRows}
-              widgetId={this.props.widgetId}
-            />
-            <CanvasSelectionArena
-              {...this.getSnapSpaces()}
-              canExtend={this.props.canExtend}
-              dropDisabled={!!this.props.dropDisabled}
-              parentId={this.props.parentId}
-              snapRows={snapRows}
-              widgetId={this.props.widgetId}
-            />
-          </>
-        )}
-        <WidgetsMultiSelectBox
-          {...this.getSnapSpaces()}
-          noContainerOffset={!!this.props.noContainerOffset}
-          widgetId={this.props.widgetId}
-          widgetType={this.props.type}
-        />
-        {/* without the wrapping div onClick events are triggered twice */}
-        <>{this.renderChildren()}</>
-      </VerticalLayoutComponent>
+      <AutoLayoutContext.Provider
+        value={{
+          useAutoLayout: true,
+          direction: LayoutDirection.Vertical,
+          justifyContent: JustifyContent.FlexStart,
+          disabledResizeHandles: [
+            "left",
+            "right",
+            "bottomRight",
+            "topLeft",
+            "topRight",
+            "bottomLeft",
+          ],
+        }}
+      >
+        <VerticalLayoutComponent {...this.props}>
+          {this.props.type === "CANVAS_WIDGET" && (
+            <>
+              <CanvasDraggingArena
+                {...this.getSnapSpaces()}
+                canExtend={this.props.canExtend}
+                dropDisabled={!!this.props.dropDisabled}
+                noPad={this.props.noPad}
+                parentId={this.props.parentId}
+                snapRows={snapRows}
+                widgetId={this.props.widgetId}
+              />
+              <CanvasSelectionArena
+                {...this.getSnapSpaces()}
+                canExtend={this.props.canExtend}
+                dropDisabled={!!this.props.dropDisabled}
+                parentId={this.props.parentId}
+                snapRows={snapRows}
+                widgetId={this.props.widgetId}
+              />
+            </>
+          )}
+          <WidgetsMultiSelectBox
+            {...this.getSnapSpaces()}
+            noContainerOffset={!!this.props.noContainerOffset}
+            widgetId={this.props.widgetId}
+            widgetType={this.props.type}
+          />
+          {/* without the wrapping div onClick events are triggered twice */}
+          <>{this.renderChildren()}</>
+        </VerticalLayoutComponent>
+      </AutoLayoutContext.Provider>
     );
   }
 

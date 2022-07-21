@@ -11,9 +11,10 @@ import { ContainerStyle } from "widgets/ContainerWidget/component";
 
 export const AutoLayoutContext: Context<{
   useAutoLayout?: boolean;
-  direction?: keyof typeof LayoutDirection;
-  justifyContent?: keyof typeof JustifyContent;
+  direction?: LayoutDirection;
+  justifyContent?: JustifyContent;
   overflow?: string;
+  disabledResizeHandles?: string[];
 }> = createContext({});
 
 class AutoLayoutContainerWidget extends BaseWidget<
