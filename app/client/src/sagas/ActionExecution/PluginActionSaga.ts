@@ -186,6 +186,13 @@ function* readBlob(blobUrl: string): any {
   });
 }
 
+function trueTypeOf(obj: any) {
+  return Object.prototype.toString
+    .call(obj)
+    .slice(8, -1)
+    .toLowerCase();
+}
+
 /**
  * This function resolves :
  * - individual objects containing blob urls
@@ -195,7 +202,13 @@ function* readBlob(blobUrl: string): any {
  * @param value
  */
 
-function* resolvingBlobUrls(value: any) {
+function* resolvingBlobUrls(
+  value: any,
+  executeActionRequest?: any,
+  index?: number,
+) {
+  console.log("ondhu 1", executeActionRequest);
+  const dataType = trueTypeOf(value);
   if (isTrueObject(value)) {
     const blobUrlPaths: string[] = [];
     Object.keys(value).forEach((propertyName) => {
@@ -209,11 +222,13 @@ function* resolvingBlobUrls(value: any) {
       const resolvedBlobValue: unknown = yield call(readBlob, blobUrl);
       set(value, blobUrlPath, resolvedBlobValue);
     }
-  } else if (isBlobUrl(value)) {
-    // @ts-expect-error: Values can take many types
-    value = yield call(readBlob, value);
+  } else {
+    executeActionRequest.paramProperties.push({ [`k${index}`]: dataType });
+    if (isBlobUrl(value)) {
+      // @ts-expect-error: Values can take many types
+      value = yield call(readBlob, value);
+    }
   }
-
   return value;
 }
 
@@ -249,6 +264,7 @@ function* resolvingBlobUrls(value: any) {
 function* evaluateActionParams(
   bindings: string[] | undefined,
   formData: FormData,
+  executeActionRequest: any,
   executionParams?: Record<string, any> | string,
 ) {
   if (_.isNil(bindings) || bindings.length === 0) return [];
@@ -256,7 +272,8 @@ function* evaluateActionParams(
   // Evaluated all bindings of the actions. Pass executionParams if any
   // @ts-expect-error: Values can take many types
   const values = yield call(evaluateActionBindings, bindings, executionParams);
-
+  const bindingsMap: any = {};
+  const bindingBlob = [];
   // Add keys values to formData for the multipart submission
   for (let i = 0; i < bindings.length; i++) {
     const key = bindings[i];
@@ -266,13 +283,18 @@ function* evaluateActionParams(
       const tempArr = [];
       // array of objects containing blob urls that is loops and individual object is checked for resolution of blob urls.
       for (const val of value) {
-        const newVal: unknown = yield call(resolvingBlobUrls, val);
+        const newVal: unknown = yield call(
+          resolvingBlobUrls,
+          val,
+          executeActionRequest,
+          i,
+        );
         tempArr.push(newVal);
       }
       value = tempArr;
     } else {
       // @ts-expect-error: Values can take many types
-      value = yield call(resolvingBlobUrls, value);
+      value = yield call(resolvingBlobUrls, value, executeActionRequest, i);
     }
 
     if (typeof value === "object") {
@@ -280,9 +302,14 @@ function* evaluateActionParams(
     }
 
     value = new Blob([value], { type: "text/plain" });
-
-    formData.append(encodeURIComponent(key), value);
+    bindingsMap[`k${i}`] = encodeURIComponent(key);
+    bindingBlob.push({ name: `k${i}`, value: value });
+    //formData.append(`k${i}`, value);
+    //formData.append(encodeURIComponent(key), value);
   }
+  formData.append("executeActionDTO", JSON.stringify(executeActionRequest));
+  formData.append("parameterMap", JSON.stringify(bindingsMap));
+  bindingBlob?.forEach((item) => formData.append(item.name, item.value));
 }
 
 export default function* executePluginActionTriggerSaga(
@@ -855,6 +882,7 @@ function* executePluginActionSaga(
   const executeActionRequest: ExecuteActionRequest = {
     actionId: actionId,
     viewMode: appMode === APP_MODE.PUBLISHED,
+    paramProperties: [],
   };
 
   if (paginationField) {
@@ -862,8 +890,14 @@ function* executePluginActionSaga(
   }
 
   const formData = new FormData();
-  formData.append("executeActionDTO", JSON.stringify(executeActionRequest));
-  yield call(evaluateActionParams, pluginAction.jsonPathKeys, formData, params);
+  //formData.append("executeActionDTO", JSON.stringify(executeActionRequest));
+  yield call(
+    evaluateActionParams,
+    pluginAction.jsonPathKeys,
+    formData,
+    executeActionRequest,
+    params,
+  );
 
   const response: ActionExecutionResponse = yield ActionAPI.executeAction(
     formData,
