@@ -40,6 +40,8 @@ public enum EnvVariables {
 
     // SSO SAML using Keycloak Configuration variables
     APPSMITH_BASE_URL,
-    APPSMITH_SSO_SAML_ENABLED
+    APPSMITH_SSO_SAML_ENABLED,
+
+    APPSMITH_HIDE_WATERMARK,
 
 }
