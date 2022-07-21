@@ -10,7 +10,6 @@ import LabelWithTooltip, {
   labelLayoutStyles,
   LABEL_CONTAINER_CLASS,
 } from "components/ads/LabelWithTooltip";
-import { Colors } from "constants/Colors";
 
 export interface RadioGroupContainerProps {
   compactMode: boolean;
@@ -47,9 +46,7 @@ const StyledRadioGroup = styled(RadioGroup)<StyledRadioGroupProps>`
 
     & input:disabled:checked ~ .${Classes.CONTROL_INDICATOR} {
       &:before {
-       background-image: radial-gradient(${Colors.GREY_8}, ${
-  Colors.GREY_8
-} 28%, transparent 32%)
+       background-image: radial-gradient(var( --wds-color-bg-disabled-strong), var( --wds-color-bg-disabled-strong) 28%, transparent 32%)
       }
     }
   }

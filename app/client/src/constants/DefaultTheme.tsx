@@ -84,13 +84,13 @@ export const BlueprintControlTransform = css`
       }
 
       & input:disabled:not(:checked) ~ .${Classes.CONTROL_INDICATOR} {
-        background-color: ${Colors.CONCRETE};
-        border: 1px solid ${Colors.GREY_5};
+        background-color: var(--wds-color-bg-disabled) !important;
+        border: 1px solid var(--wds-color-border-disabled) !important;
       }
 
       & input:disabled:checked ~ .${Classes.CONTROL_INDICATOR} {
-        background-color: ${Colors.GREY_5} !important;
-        border: 1px solid ${Colors.GREY_5} !important;
+        background-color: var(--wds-color-bg-disabled) !important;
+        border: 1px solid var(--wds-color-border-disabled) !important;
       }
 
       &:hover {
