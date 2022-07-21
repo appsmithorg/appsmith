@@ -489,9 +489,9 @@ const PROPERTIES = {
   content: {
     data: [
       {
+        propertyName: "defaultValue",
         helpText:
           "Sets the default text of the field. The text is updated if the default text changes",
-        propertyName: "defaultValue",
         label: "Default Value",
         controlType: "JSON_FORM_COMPUTE_VALUE",
         placeholderText: "John Doe",
@@ -513,8 +513,8 @@ const PROPERTIES = {
         dependencies: ["schema"],
       },
       {
-        helpText: "Changes the country code",
         propertyName: "dialCode",
+        helpText: "Changes the country code",
         label: "Default Country Code",
         enableSearch: true,
         dropdownHeight: "195px",
@@ -530,8 +530,8 @@ const PROPERTIES = {
         isTriggerProperty: false,
       },
       {
-        helpText: "Changes the type of currency",
         propertyName: "currencyCountryCode",
+        helpText: "Changes the type of currency",
         label: "Currency",
         enableSearch: true,
         dropdownHeight: "195px",
@@ -572,8 +572,8 @@ const PROPERTIES = {
         dependencies: ["schema"],
       },
       {
-        helpText: "No. of decimals in currency input",
         propertyName: "decimalsInCurrency",
+        helpText: "No. of decimals in currency input",
         label: "Decimals",
         controlType: "DROP_DOWN",
         options: [
@@ -599,8 +599,8 @@ const PROPERTIES = {
     ],
     general: [
       {
-        helpText: "Sets a placeholder text for the input",
         propertyName: "placeholderText",
+        helpText: "Sets a placeholder text for the input",
         label: "Placeholder",
         controlType: "JSON_FORM_COMPUTE_VALUE",
         placeholderText: "Placeholder",
@@ -614,8 +614,8 @@ const PROPERTIES = {
     ],
     validation: [
       {
-        label: "Required",
         propertyName: "isRequired",
+        label: "Required",
         helpText: "Makes input to the widget mandatory",
         controlType: "SWITCH",
         isJSConvertible: true,
@@ -633,8 +633,8 @@ const PROPERTIES = {
         dependencies: ["schema", "sourceData"],
       },
       {
-        helpText: "Sets maximum allowed text length",
         propertyName: "maxChars",
+        helpText: "Sets maximum allowed text length",
         label: "Max Chars",
         controlType: "JSON_FORM_COMPUTE_VALUE",
         placeholderText: "255",
@@ -646,8 +646,8 @@ const PROPERTIES = {
         dependencies: ["schema"],
       },
       {
-        helpText: "Sets the minimum allowed value",
         propertyName: "minNum",
+        helpText: "Sets the minimum allowed value",
         label: "Min",
         controlType: "INPUT_TEXT",
         placeholderText: "1",
@@ -669,8 +669,8 @@ const PROPERTIES = {
         dependencies: ["schema"],
       },
       {
-        helpText: "Sets the maximum allowed value",
         propertyName: "maxNum",
+        helpText: "Sets the maximum allowed value",
         label: "Max",
         controlType: "INPUT_TEXT",
         placeholderText: "100",
@@ -705,9 +705,9 @@ const PROPERTIES = {
         dependencies: ["schema"],
       },
       {
+        propertyName: "regex",
         helpText:
           "Adds a validation to the input which displays an error on failure",
-        propertyName: "regex",
         label: "Regex",
         controlType: "JSON_FORM_COMPUTE_VALUE",
         placeholderText: "^\\w+@[a-zA-Z_]+?\\.[a-zA-Z]{2,3}$",
@@ -720,8 +720,8 @@ const PROPERTIES = {
         dependencies: ["schema"],
       },
       {
-        helpText: "Sets the input validity based on a JS expression",
         propertyName: "validation",
+        helpText: "Sets the input validity based on a JS expression",
         label: "Valid",
         controlType: "JSON_FORM_COMPUTE_VALUE",
         placeholderText: "{{ Input1.text.length > 0 }}",
@@ -737,9 +737,9 @@ const PROPERTIES = {
         dependencies: ["schema"],
       },
       {
+        propertyName: "errorMessage",
         helpText:
           "The error message to display if the regex or valid property check fails",
-        propertyName: "errorMessage",
         label: "Error Message",
         controlType: "JSON_FORM_COMPUTE_VALUE",
         placeholderText: "Not a valid email!",

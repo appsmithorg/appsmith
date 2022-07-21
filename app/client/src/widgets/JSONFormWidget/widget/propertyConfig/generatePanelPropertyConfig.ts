@@ -6,7 +6,11 @@ import {
   FieldType,
   SchemaItem,
 } from "widgets/JSONFormWidget/constants";
-import { getSchemaItem, HiddenFnParams, hiddenIfArrayOrObject } from "./helper";
+import {
+  getSchemaItem,
+  HiddenFnParams,
+  isFieldTypeArrayOrObject,
+} from "./helper";
 import {
   ARRAY_PROPERTIES,
   CHECKBOX_PROPERTIES,
@@ -129,7 +133,7 @@ function generatePanelPropertyConfig(
           ...RADIO_GROUP_PROPERTIES.content.data,
           ...MULTI_SELECT_PROPERTIES.content.data,
           ...DATE_PROPERTIES.content.data,
-          ...CHECKBOX_PROPERTIES.content.general,
+          ...CHECKBOX_PROPERTIES.content.data,
           {
             propertyName: "children",
             label: "Field Configuration",
@@ -178,7 +182,7 @@ function generatePanelPropertyConfig(
           ...INPUT_PROPERTIES.content.validation,
           ...DATE_PROPERTIES.content.validation,
         ],
-        hidden: hiddenIfArrayOrObject,
+        hidden: isFieldTypeArrayOrObject,
       },
       {
         sectionName: "General",
@@ -205,7 +209,7 @@ function generatePanelPropertyConfig(
           ...COMMON_PROPERTIES.content.events,
           ...RADIO_GROUP_PROPERTIES.content.events,
         ],
-        hidden: hiddenIfArrayOrObject,
+        hidden: isFieldTypeArrayOrObject,
       },
     ],
     styleChildren: [
@@ -229,7 +233,7 @@ function generatePanelPropertyConfig(
       {
         sectionName: "Color",
         children: [...COMMON_PROPERTIES.style.color],
-        hidden: hiddenIfArrayOrObject,
+        hidden: isFieldTypeArrayOrObject,
       },
       {
         sectionName: "Border and Shadow",

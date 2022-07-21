@@ -6,12 +6,12 @@ import React, {
   useState,
   Context,
   createContext,
+  useCallback,
 } from "react";
 import { Collapse } from "@blueprintjs/core";
 import { useSelector } from "react-redux";
 import { getWidgetPropsForPropertyPane } from "selectors/propertyPaneSelectors";
 import styled from "constants/DefaultTheme";
-import { noop } from "lodash";
 import { Colors } from "constants/Colors";
 
 const SectionWrapper = styled.div`
@@ -85,13 +85,18 @@ export const CollapseContext: Context<boolean> = createContext<boolean>(false);
 
 export const PropertySection = memo((props: PropertySectionProps) => {
   const { isDefaultOpen = true } = props;
-  const [isOpen, open] = useState(!!isDefaultOpen);
+  const [isOpen, setIsOpen] = useState(!!isDefaultOpen);
   const widgetProps: any = useSelector(getWidgetPropsForPropertyPane);
+  const handleSectionTitleClick = useCallback(() => {
+    if (props.collapsible) setIsOpen((x) => !x);
+  }, []);
+
   if (props.hidden) {
     if (props.hidden(widgetProps, props.propertyPath || "")) {
       return null;
     }
   }
+
   const className = props.name
     .split(" ")
     .join("")
@@ -100,7 +105,7 @@ export const PropertySection = memo((props: PropertySectionProps) => {
     <SectionWrapper className="t--property-pane-section-wrapper">
       <SectionTitle
         className={`t--property-pane-section-collapse-${className}`}
-        onClick={props.collapsible ? () => open(!isOpen) : noop}
+        onClick={handleSectionTitleClick}
       >
         <span>{props.name}</span>
         {props.collapsible && (

@@ -188,7 +188,7 @@ const PropertyPaneTitle = memo(function PropertyPaneTitle(
 
   return props.widgetId || props.isPanelTitle ? (
     <div
-      className="flex items-center w-full p-3 space-x-1 z-[3] fixed bg-white z-10"
+      className="flex items-center w-full p-3 space-x-1 fixed bg-white z-3"
       ref={eventEmitterRef}
     >
       {/* BACK BUTTON */}
