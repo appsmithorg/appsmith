@@ -15,7 +15,7 @@
     "settings": "li:contains('Settings')",
     "query": "li:contains('Query')",
     "switch": ".t--form-control-SWITCH input",
-    "suggestedTableWidget": ".t--suggested-widget-TABLE_WIDGET",
+    "suggestedTableWidget": ".t--suggested-widget-TABLE_WIDGET_V2",
     "queryResponse": "(//div[@class='table']//div[@class='tr'])[3]//div[@class='td']",
     "querySelect": "//div[contains(@class, 't--template-menu')]//div[text()='Select']",
     "queryCreate": "//div[contains(@class, 't--template-menu')]//div[text()='Create']",
@@ -33,5 +33,6 @@
     "suggestedWidgetChart": ".t--suggested-widget-CHART_WIDGET",
     "queryTimeout": "//input[@name='actionConfiguration.timeoutInMillisecond']",
     "listingAndReviewContext": "//div[text()='listingAndReviews']/ancestor::div/following-sibling::div/div[contains(@class, 'entity-context-menu')]//span[text()='Add']",
-    "navigateToAction": ".t--entity-name"
+    "navigateToAction": ".t--entity-name",
+    "querySettingsTab": "[data-cy=t--tab-SETTINGS]"
 }

@@ -1659,3 +1659,13 @@ export function getValueFromTree(
   // Need to return the defaultValue, if there is no match for the path in the tree
   return value !== defaultValueSymbol ? value : defaultValue;
 }
+
+/*
+ * Function to merge two dynamicpath arrays
+ */
+export function mergeDynamicPropertyPaths(
+  a?: DynamicPath[],
+  b?: DynamicPath[],
+) {
+  return _.unionWith(a, b, (a, b) => a.key === b.key);
+}
