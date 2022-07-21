@@ -175,8 +175,7 @@ const FilePickerGlobalStyles = createGlobalStyle<{
   /* Style the + add more files button on top right corner of the upload modal */  
   .uppy-DashboardContent-addMore {
     color: var(--wds-accent-color);
-    width: 100px;
-
+    font-weight: 400;
     &:hover {
       background-color: ${Colors.ATHENS_GRAY};
       color: var(--wds-accent-color);
@@ -184,17 +183,6 @@ const FilePickerGlobalStyles = createGlobalStyle<{
 
     & svg {
       fill: var(--wds-accent-color) !important;
-      position: absolute;
-      top: 38%;
-      right: 11%;
-
-      &:hover {
-        background-color: ${Colors.ATHENS_GRAY};
-      }
-    }
-
-    & .uppy-DashboardContent-addMoreCaption {
-      margin-left: 15px;
     }
   }
   /*********************************************************/

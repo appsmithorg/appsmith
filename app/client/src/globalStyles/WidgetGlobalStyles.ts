@@ -6,6 +6,7 @@ export const WidgetGlobaStyles = createGlobalStyle<{
 }>`
     :root{
       --wds-accent-color: ${({ primaryColor }) => primaryColor};
-      --wds-font-family: ${({ fontFamily }) => fontFamily};
+      --wds-font-family: ${({ fontFamily }) =>
+        fontFamily === "System Default" ? "inherit" : fontFamily};
     }
   `;
