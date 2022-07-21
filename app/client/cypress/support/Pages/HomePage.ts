@@ -66,7 +66,7 @@ export class HomePage {
   private _leaveWorkspaceConfirmModal = ".t--member-delete-confirmation-modal";
   private _workspaceImportAppModal = ".t--import-application-modal";
   private _leaveWorkspaceConfirmButton =
-  "[data - cy= t--workspace-leave - button]";
+    "[data - cy= t--workspace-leave - button]";
   private _lastWorkspaceInHomePage =
     "//div[contains(@class, 't--workspace-section')][last()]//span/span";
   _editPageLanding = "//h2[text()='Drag and drop a widget here']";
@@ -74,13 +74,18 @@ export class HomePage {
   private _workspaceImport = "[data-cy=t--workspace-import-app]";
   private _uploadFile = "//div/form/input";
   private _importSuccessModal = ".t--import-app-success-modal";
-  private _forkModal = ".fork-modal"
+  private _forkModal = ".fork-modal";
   private _importSuccessModalGotit = ".t--import-success-modal-got-it";
   private _applicationContextMenu = (applicationName: string) =>
     "//span[text()='" +
     applicationName +
     "']/ancestor::div[contains(@class, 't--application-card')]//span[@name= 'context-menu']";
-  private _forkApp = 'data-cy="t--fork-app"';
+  private _forkApp = '[data-cy="t--fork-app"]';
+  private _duplicateApp = '[data-cy="t--duplicate"]';
+  private _deleteApp = '[data-cy="t--delete-confirm"]';
+  private _deleteAppConfirm = '[data-cy="t--delete"]';
+  private _wsAction = (action: string) =>
+    "//span[text()='" + action + "']/ancestor::a";
 
   public CreateNewWorkspace(workspaceNewName: string) {
     let oldName: string = "";
@@ -343,6 +348,16 @@ export class HomePage {
     this.agHelper.AssertElementAbsence(this._workspaceImportAppModal);
   }
 
+  public DeleteWorkspace(workspaceNameToDelete: string) {
+    cy.get(this._homeIcon).click();
+    this.agHelper.GetNClick(
+      this._optionsIconInWorkspace(workspaceNameToDelete),
+    );
+    this.agHelper.GetNClick(this._wsAction("Delete Workspace")); //Are you sure?
+    this.agHelper.GetNClick(this._wsAction("Are you sure?")); //
+    this.agHelper.ValidateToastMessage("Workspace deleted successfully");
+  }
+
   public AssertNCloseImport() {
     this.agHelper.AssertElementVisible(this._importSuccessModal);
     this.agHelper.GetNClick(this._importSuccessModalGotit, 0, true);
@@ -359,5 +374,16 @@ export class HomePage {
     this.agHelper.GetNClick(this._forkApp);
     this.agHelper.AssertElementVisible(this._forkModal);
     this.agHelper.ClickButton("FORK");
+  }
+
+  public DuplicateApplication(appliName: string) {
+    this.agHelper.GetNClick(this._applicationContextMenu(appliName));
+    this.agHelper.GetNClick(this._duplicateApp);
+  }
+
+  public DeleteApplication(appliName: string) {
+    this.agHelper.GetNClick(this._applicationContextMenu(appliName));
+    this.agHelper.GetNClick(this._deleteApp);
+    this.agHelper.GetNClick(this._deleteAppConfirm);
   }
 }

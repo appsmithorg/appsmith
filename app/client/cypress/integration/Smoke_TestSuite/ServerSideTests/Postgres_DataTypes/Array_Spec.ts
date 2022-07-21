@@ -491,7 +491,7 @@ describe("Array Datatype tests", function() {
     });
 
     //Verifying || with NULL
-    query = `SELECT ARRAY[1, 2] || NULL as "|| with NULL", array_append(ARRAY[1, 2], NULL) as "array_append";;`;
+    query = `SELECT ARRAY[1, 2] || NULL as "|| with NULL", array_append(ARRAY[1, 2], NULL) as "array_append";`;
     dataSources.EnterQuery(query);
     dataSources.RunQuery();
     dataSources.AssertQueryResponseHeaders(["|| with NULL", "array_append"]);
@@ -593,7 +593,7 @@ describe("Array Datatype tests", function() {
     //Verifying error
     query = `SELECT ARRAY[1, 2] || '7';`;
     dataSources.EnterQuery(query);
-     agHelper.FocusElement(locator._codeMirrorTextArea);;
+     agHelper.FocusElement(locator._codeMirrorTextArea);
     dataSources.RunQuery();
     agHelper
       .GetText(dataSources._queryError)
