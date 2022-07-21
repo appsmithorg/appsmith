@@ -1119,8 +1119,9 @@ Cypress.Commands.add("copyWidget", (widget, widgetLocator) => {
       cy.reload();
       // Wait for the widget to be appear in the DOM and press Ctrl/Cmd + V to paste the button.
       cy.get(widgetLocator).should("be.visible");
+      cy.wait(1000);
       cy.get("body").type(`{${modifierKey}}v`);
-      cy.wait(2000);
+      cy.wait(3000);
       cy.openPropertyPaneCopy(widget);
       cy.get(widgetsPage.propertypaneText)
         .children()
