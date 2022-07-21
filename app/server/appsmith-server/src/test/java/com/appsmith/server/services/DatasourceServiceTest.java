@@ -16,9 +16,10 @@ import com.appsmith.external.services.EncryptionService;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
+import com.appsmith.server.domains.PermissionGroup;
+import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
-import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.exceptions.AppsmithError;
@@ -26,6 +27,7 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.helpers.PolicyUtils;
+import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.repositories.WorkspaceRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Before;
@@ -48,16 +50,18 @@ import reactor.util.function.Tuple2;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
-import java.util.UUID;
 
 import static com.appsmith.server.acl.AclPermission.EXECUTE_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.MANAGE_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.READ_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.READ_PAGES;
-import static org.assertj.core.api.Assertions.assertThat;
+import static com.appsmith.server.acl.AclPermission.READ_WORKSPACES;
+import static com.appsmith.server.constants.FieldName.ADMINISTRATOR;
+import static com.appsmith.server.constants.FieldName.DEVELOPER;
+import static com.appsmith.server.constants.FieldName.VIEWER;
 import static com.appsmith.server.repositories.BaseAppsmithRepositoryImpl.fieldName;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -91,6 +95,9 @@ public class DatasourceServiceTest {
 
     @Autowired
     UserService userService;
+
+    @Autowired
+    PermissionGroupRepository permissionGroupRepository;
 
     @MockBean
     PluginExecutorHelper pluginExecutorHelper;
@@ -253,8 +260,29 @@ public class DatasourceServiceTest {
 
             Workspace workspace = workspaceService.create(toCreate, apiUser).block();
             workspaceId = workspace.getId();
-
         }
+
+        Mono<Workspace> workspaceResponse = workspaceService.findById(workspaceId, READ_WORKSPACES);
+
+        List<PermissionGroup> permissionGroups = workspaceResponse
+                .flatMapMany(savedWorkspace -> {
+                    Set<String> defaultPermissionGroups = savedWorkspace.getDefaultPermissionGroups();
+                    return permissionGroupRepository.findAllById(defaultPermissionGroups);
+                })
+                .collectList()
+                .block();
+
+        PermissionGroup adminPermissionGroup = permissionGroups.stream()
+                .filter(permissionGroup -> permissionGroup.getName().startsWith(ADMINISTRATOR))
+                .findFirst().get();
+
+        PermissionGroup developerPermissionGroup = permissionGroups.stream()
+                .filter(permissionGroup -> permissionGroup.getName().startsWith(DEVELOPER))
+                .findFirst().get();
+
+        PermissionGroup viewerPermissionGroup = permissionGroups.stream()
+                .filter(permissionGroup -> permissionGroup.getName().startsWith(VIEWER))
+                .findFirst().get();
 
         Mono<Plugin> pluginMono = pluginService.findByPackageName("restapi-plugin");
         Datasource datasource = new Datasource();
@@ -275,13 +303,13 @@ public class DatasourceServiceTest {
                     assertThat(createdDatasource.getPluginId()).isEqualTo(datasource.getPluginId());
                     assertThat(createdDatasource.getName()).isEqualTo(datasource.getName());
                     Policy manageDatasourcePolicy = Policy.builder().permission(MANAGE_DATASOURCES.getValue())
-                            .users(Set.of("api_user"))
+                            .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId()))
                             .build();
                     Policy readDatasourcePolicy = Policy.builder().permission(READ_DATASOURCES.getValue())
-                            .users(Set.of("api_user"))
+                            .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId()))
                             .build();
                     Policy executeDatasourcePolicy = Policy.builder().permission(EXECUTE_DATASOURCES.getValue())
-                            .users(Set.of("api_user"))
+                            .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId(), viewerPermissionGroup.getId()))
                             .build();
 
                     assertThat(createdDatasource.getPolicies()).isNotEmpty();
@@ -1369,7 +1397,12 @@ public class DatasourceServiceTest {
     public void get_WhenDatasourcesPresent_SortedAndIsRecentlyCreatedFlagSet() {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
 
-        String workspaceId = UUID.randomUUID().toString();
+        Workspace toCreate = new Workspace();
+        toCreate.setName("DatasourceServiceTest : get_WhenDatasourcesPresent_SortedAndIsRecentlyCreatedFlagSet");
+
+        Workspace workspace = workspaceService.create(toCreate).block();
+        String workspaceId = workspace.getId();
+
         List<Datasource> datasourceList = List.of(
                 createDatasource("D", workspaceId), // should have isRecentlyCreated=false
                 createDatasource("C", workspaceId), // should have isRecentlyCreated=true
@@ -1407,8 +1440,9 @@ public class DatasourceServiceTest {
         datasource.setPluginId("mongo-plugin");
         datasource.setWorkspaceId(workspaceId);
         datasource.setName(name);
-        Map<String, Policy> policyMap = policyUtils.generatePolicyFromPermission(Set.of(AclPermission.READ_DATASOURCES), "api_user");
-        datasource.setPolicies(Set.copyOf(policyMap.values()));
-        return datasource;
+//        Map<String, Policy> policyMap = policyUtils.generatePolicyFromPermission(Set.of(AclPermission.READ_DATASOURCES), "api_user");
+//        datasource.setPolicies(Set.copyOf(policyMap.values()));
+        Datasource createdDatasource = datasourceService.create(datasource).block();
+        return createdDatasource ;
     }
 }

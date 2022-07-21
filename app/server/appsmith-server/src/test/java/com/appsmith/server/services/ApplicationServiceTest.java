@@ -692,6 +692,8 @@ public class ApplicationServiceTest {
                 .assertNext(tuple -> {
                     UserHomepageDTO userHomepageDTO = tuple.getT1();
                     List<Application> gitConnectedApps = tuple.getT2();
+
+                    log.debug("Homepage : {}, Git connected apps : {}", userHomepageDTO, gitConnectedApps);
                     assertThat(userHomepageDTO).isNotNull();
                     //In case of anonymous user, we should have errored out. Assert that the user is not anonymous.
                     assertThat(userHomepageDTO.getUser().getIsAnonymous()).isFalse();
