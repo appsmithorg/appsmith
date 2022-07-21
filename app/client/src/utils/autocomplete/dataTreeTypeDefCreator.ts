@@ -109,8 +109,6 @@ export function generateTypeDef(obj: any): string | Def {
       return "number";
     case Types.BOOLEAN:
       return "bool";
-    case Types.FUNCTION:
-      return "fn() -> void";
     case Types.NULL:
     case Types.UNDEFINED:
       return "?";
