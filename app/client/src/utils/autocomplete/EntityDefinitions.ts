@@ -3,13 +3,27 @@ import {
   DataTreeAction,
   DataTreeAppsmith,
 } from "entities/DataTree/dataTreeFactory";
-import _ from "lodash";
+import _, { pick } from "lodash";
 import { EVALUATION_PATH } from "utils/DynamicBindingUtils";
 import { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
+import { ButtonGroupWidgetProps } from "widgets/ButtonGroupWidget/widget";
+import { MapWidgetProps } from "widgets/MapWidget/widget";
 
 const isVisible = {
   "!type": "bool",
   "!doc": "Boolean value indicating if the widget is in visible state",
+};
+
+type PartialGroupButton = {
+  isVisible: boolean;
+  isDisabled: boolean;
+  menuItems: {
+    index: number;
+    isVisible?: boolean;
+    isDisabled?: boolean;
+    label?: string;
+  };
+  label: string;
 };
 
 export const entityDefinitions = {
@@ -173,7 +187,7 @@ export const entityDefinitions = {
       "!url": "https://docs.appsmith.com/widget-reference/dropdown",
     },
     isDisabled: "bool",
-    options: "[dropdownOption]",
+    options: "[$__dropdownOption__$]",
   },
   SELECT_WIDGET: {
     "!doc":
@@ -195,7 +209,7 @@ export const entityDefinitions = {
       "!url": "https://docs.appsmith.com/widget-reference/dropdown",
     },
     isDisabled: "bool",
-    options: "[dropdownOption]",
+    options: "[$__dropdownOption__$]",
   },
   MULTI_SELECT_WIDGET: {
     "!doc":
@@ -217,7 +231,7 @@ export const entityDefinitions = {
       "!url": "https://docs.appsmith.com/widget-reference/dropdown",
     },
     isDisabled: "bool",
-    options: "[dropdownOption]",
+    options: "[$__dropdownOption__$]",
   },
   MULTI_SELECT_WIDGET_V2: {
     "!doc":
@@ -239,7 +253,7 @@ export const entityDefinitions = {
       "!url": "https://docs.appsmith.com/widget-reference/dropdown",
     },
     isDisabled: "bool",
-    options: "[dropdownOption]",
+    options: "[$__dropdownOption__$]",
   },
   IMAGE_WIDGET: {
     "!doc":
@@ -263,6 +277,23 @@ export const entityDefinitions = {
     text: "string",
     isDisabled: "bool",
     recaptchaToken: "string",
+  },
+  BUTTON_GROUP_WIDGET: (widget: ButtonGroupWidgetProps) => {
+    const groupButtons: Record<string, PartialGroupButton> = {};
+    Object.entries(widget.groupButtons).forEach(([buttonLabel, button]) => {
+      groupButtons[buttonLabel] = (pick(button, [
+        "isVisible",
+        "isDisabled",
+        "menuItems",
+        "label",
+      ]) as unknown) as PartialGroupButton;
+    });
+    return {
+      "!doc":
+        "The Button group widget represents a set of buttons in a group. Group can have simple buttons or menu buttons with drop-down items.",
+      "!url": "https://docs.appsmith.com/widget-reference/button-group",
+      groupButtons: generateTypeDef(groupButtons),
+    };
   },
   DATE_PICKER_WIDGET: {
     "!doc":
@@ -302,7 +333,7 @@ export const entityDefinitions = {
       "Radio widget lets the user choose only one option from a predefined set of options. It is quite similar to a SingleSelect Dropdown in its functionality",
     "!url": "https://docs.appsmith.com/widget-reference/radio",
     isVisible: isVisible,
-    options: "[dropdownOption]",
+    options: "[$__dropdownOption__$]",
     selectedOptionValue: "string",
     isRequired: "bool",
   },
@@ -324,10 +355,13 @@ export const entityDefinitions = {
       "Chart widget is used to view the graphical representation of your data. Chart is the go-to widget for your data visualisation needs.",
     "!url": "https://docs.appsmith.com/widget-reference/chart",
     isVisible: isVisible,
-    chartData: "chartData",
+    chartData: {
+      seriesName: "string",
+      data: "[$__chartDataPoint__$]",
+    },
     xAxisName: "string",
     yAxisName: "string",
-    selectedDataPoint: "chartDataPoint",
+    selectedDataPoint: "$__chartDataPoint__$",
   },
   FORM_WIDGET: (widget: any) => ({
     "!doc":
@@ -346,12 +380,16 @@ export const entityDefinitions = {
     isDisabled: "bool",
     recaptchaToken: "string",
   },
-  MAP_WIDGET: {
+  MAP_WIDGET: (widget: MapWidgetProps) => ({
     isVisible: isVisible,
-    center: "latLong",
-    markers: "[mapMarker]",
-    selectedMarker: "mapMarker",
-  },
+    center: generateTypeDef({
+      lat: "number",
+      long: "number",
+      title: "string",
+    }),
+    markers: generateTypeDef(widget.markers),
+    selectedMarker: generateTypeDef(widget.selectedMarker),
+  }),
   FILE_PICKER_WIDGET: {
     "!doc":
       "Filepicker widget is used to allow users to upload files from their local machines to any cloud storage via API. Cloudinary and Amazon S3 have simple APIs for cloud storage uploads",
@@ -435,7 +473,7 @@ export const entityDefinitions = {
     },
     isDisabled: "bool",
     isValid: "bool",
-    options: "[dropdownOption]",
+    options: "[$__dropdownOption__$]",
   },
   MULTI_SELECT_TREE_WIDGET: {
     "!doc":
@@ -454,7 +492,7 @@ export const entityDefinitions = {
     },
     isDisabled: "bool",
     isValid: "bool",
-    options: "[dropdownOption]",
+    options: "[$__dropdownOption__$]",
   },
   ICON_BUTTON_WIDGET: {
     "!doc":
@@ -469,7 +507,7 @@ export const entityDefinitions = {
     isVisible: isVisible,
     isDisabled: "bool",
     isValid: "bool",
-    options: "[dropdownOption]",
+    options: "[$__dropdownOption__$]",
     selectedValues: "[string]",
   },
   STATBOX_WIDGET: {
@@ -514,7 +552,15 @@ export const entityDefinitions = {
       "Map Chart widget shows the graphical representation of your data on the map.",
     "!url": "https://docs.appsmith.com/widget-reference/map-chart",
     isVisible: isVisible,
-    selectedDataPoint: "mapChartDataPoint",
+    selectedDataPoint: {
+      "!type": {
+        id: "string",
+        label: "string",
+        originalId: "string",
+        shortLabel: "string",
+        value: "number",
+      },
+    },
   },
   INPUT_WIDGET_V2: {
     "!doc":
@@ -606,46 +652,25 @@ export const entityDefinitions = {
   },
 };
 
+/* 
+  $__name__$ is just to reduce occurrences of global def showing up in auto completion for user as `$` is less commonly used as entityName/
+
+  GLOBAL_DEFS are maintained to support definition for array of objects which currently aren't supported by our generateTypeDef.
+*/
 export const GLOBAL_DEFS = {
-  dropdownOption: {
+  $__dropdownOption__$: {
     label: "string",
     value: "string",
   },
-  tabs: {
-    id: "string",
-    label: "string",
-  },
-  chartDataPoint: {
+  $__chartDataPoint__$: {
     x: "string",
     y: "string",
   },
-  chartData: {
-    seriesName: "string",
-    data: "[chartDataPoint]",
-  },
-  latLong: {
-    lat: "number",
-    long: "number",
-    title: "string",
-  },
-  mapMarker: {
-    lat: "number",
-    long: "number",
-    title: "string",
-    description: "string",
-  },
-  file: {
+  $__file__$: {
     data: "string",
     dataFormat: "string",
     name: "text",
     type: "file",
-  },
-  mapChartDataPoint: {
-    id: "string",
-    label: "string",
-    originalId: "string",
-    shortLabel: "string",
-    value: "number",
   },
 };
 
