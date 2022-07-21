@@ -47,34 +47,11 @@ describe("tests the sagas in initSagas", () => {
         ),
       ),
     );
-    expect(JSON.stringify(gen.next(true).value)).toStrictEqual(
+    expect(JSON.stringify(gen.next().value)).toStrictEqual(
       JSON.stringify(call(engine.loadGit, action.payload.applicationId)),
     );
     expect(JSON.stringify(gen.next().value)).toStrictEqual(
       JSON.stringify(call(engine.completeChore)),
     );
-  });
-  it("saga should finish if loadAppEntities fails", () => {
-    const action = {
-      type: ReduxActionTypes.INITIALIZE_EDITOR,
-      payload: {
-        applicationId: "appId",
-        pageId: "pageId",
-        mode: APP_MODE.EDIT,
-      },
-    };
-    const gen = startAppEngine(action);
-    // setupEngine
-    gen.next();
-    // loadAppData
-    gen.next();
-    // loadAppURL
-    gen.next({
-      applicationId: action.payload.applicationId,
-      toLoadPageId: action.payload.pageId,
-    });
-    // loadAppEntities
-    gen.next();
-    expect(gen.next(false).done).toEqual(true);
   });
 });

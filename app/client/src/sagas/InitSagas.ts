@@ -38,6 +38,11 @@ import AppEngine, {
 import AppEngineFactory from "entities/Engine/factory";
 import { ApplicationPagePayload } from "api/ApplicationApi";
 import { updateSlugNamesInURL } from "utils/helpers";
+import {
+  ActionsNotFoundError,
+  PluginFormConfigsNotFoundError,
+  PluginsNotFoundError,
+} from "entities/Engine/AppEditorEngine";
 
 export const URL_CHANGE_ACTIONS = [
   ReduxActionTypes.CURRENT_APPLICATION_NAME_UPDATE,
@@ -89,19 +94,21 @@ export function* startAppEngine(action: ReduxAction<AppEnginePayload>) {
       action.payload,
     );
     yield call(engine.loadAppURL, toLoadPageId, action.payload.pageId);
-    const loadAppEntities: boolean = yield call(
-      engine.loadAppEntities,
-      toLoadPageId,
-      applicationId,
-    );
-    // If loading application entities fails we do not proceed further
-    if (!loadAppEntities) return;
+    yield call(engine.loadAppEntities, toLoadPageId, applicationId);
     yield call(engine.loadGit, applicationId);
     yield call(engine.completeChore);
     engine.stopPerformanceTracking();
   } catch (e) {
     log.error(e);
-    Sentry.captureException(e);
+    if (
+      !(
+        e instanceof PluginFormConfigsNotFoundError ||
+        e instanceof PluginsNotFoundError ||
+        e instanceof ActionsNotFoundError
+      )
+    ) {
+      Sentry.captureException(e);
+    }
     if (e instanceof PageNotFoundError) return;
     yield put({
       type: ReduxActionTypes.SAFE_CRASH_APPSMITH_REQUEST,
