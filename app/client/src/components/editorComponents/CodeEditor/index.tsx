@@ -84,10 +84,7 @@ import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 import { Placement } from "@blueprintjs/popover2";
 import { getLintAnnotations, getLintTooltipDirection } from "./lintHelpers";
 import { executeCommandAction } from "actions/apiPaneActions";
-import {
-  setEditorFocusedEntityInfo,
-  startingEntityUpdation,
-} from "actions/editorActions";
+import { startingEntityUpdation } from "actions/editorActions";
 import { SlashCommandPayload } from "entities/Action";
 import { Indices } from "constants/Layers";
 import { replayHighlightClass } from "globalStyles/portals";
@@ -98,7 +95,6 @@ import {
 } from "./constants";
 import { interactionAnalyticsEvent } from "utils/AppsmithUtils";
 import { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTypeDefCreator";
-import { CurrentFocusedEntityInfo } from "reducers/uiReducers/editorReducer";
 
 type ReduxStateProps = ReturnType<typeof mapStateToProps>;
 type ReduxDispatchProps = ReturnType<typeof mapDispatchToProps>;
@@ -500,9 +496,6 @@ class CodeEditor extends Component<Props, State> {
     this.setState({ isFocused: true });
 
     const entityInformation = this.getEntityInformation();
-    this.props.setEditorFocusedEntityInfo(
-      entityInformation as CurrentFocusedEntityInfo,
-    );
 
     if (!cm.state.completionActive) {
       this.hinters
@@ -516,7 +509,6 @@ class CodeEditor extends Component<Props, State> {
   handleEditorBlur = () => {
     this.handleChange();
     this.setState({ isFocused: false });
-    this.props.setEditorFocusedEntityInfo(null);
     this.editor.setOption("matchBrackets", false);
     this.handleCustomGutter(null);
   };
@@ -941,9 +933,6 @@ const mapDispatchToProps = (dispatch: any) => ({
   executeCommand: (payload: SlashCommandPayload) =>
     dispatch(executeCommandAction(payload)),
   startingEntityUpdation: () => dispatch(startingEntityUpdation()),
-  setEditorFocusedEntityInfo: (
-    currentFocusedEntityInfo: CurrentFocusedEntityInfo,
-  ) => dispatch(setEditorFocusedEntityInfo(currentFocusedEntityInfo)),
 });
 
 export default Sentry.withProfiler(
