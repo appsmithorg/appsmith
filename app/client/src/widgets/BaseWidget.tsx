@@ -392,11 +392,7 @@ abstract class BaseWidget<
         content = this.addPreventInteractionOverlay(content);
         content = this.addOverlayComments(content);
         if (!this.props.detachFromLayout) {
-          if (
-            !this.props.resizeDisabled &&
-            !(this.props.useAutoLayout && this.props.alignItems === "stretch")
-          )
-            content = this.makeResizable(content);
+          if (!this.props.resizeDisabled) content = this.makeResizable(content);
           content = this.showWidgetName(content);
           content = this.makeDraggable(content);
           content = this.makeSnipeable(content);

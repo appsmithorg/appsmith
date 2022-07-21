@@ -18,6 +18,7 @@ import {
 } from "constants/WidgetConstants";
 import WidgetsMultiSelectBox from "pages/Editor/WidgetsMultiSelectBox";
 import { getCanvasSnapRows } from "utils/WidgetPropsUtils";
+import { ValidationTypes } from "constants/WidgetValidation";
 
 class VerticalLayoutWidget extends BaseWidget<
   VerticalLayoutWidgetProps<WidgetProps>,
@@ -29,7 +30,26 @@ class VerticalLayoutWidget extends BaseWidget<
   }
 
   static getPropertyPaneConfig() {
-    return [];
+    return [
+      {
+        helpText: "Controls alignment of the content",
+        propertyName: "justifyContent",
+        label: "Align content",
+        controlType: "DROP_DOWN",
+        defaultValue: JustifyContent.FlexStart,
+        options: [
+          { label: "Flex start", value: JustifyContent.FlexStart },
+          { label: "Center", value: JustifyContent.Center },
+          { label: "Space around", value: JustifyContent.SpaceAround },
+          { label: "Space between", value: JustifyContent.SpaceBetween },
+          { label: "Space evently", value: JustifyContent.SpaceEvenly },
+        ],
+        isJSConvertible: false,
+        isBindProperty: false,
+        isTriggerProperty: false,
+        validation: { type: ValidationTypes.TEXT },
+      },
+    ];
   }
 
   static getDerivedPropertiesMap(): DerivedPropertiesMap {

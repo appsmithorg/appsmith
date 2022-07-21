@@ -1,4 +1,4 @@
-import React, { useContext, memo, useMemo } from "react";
+import React, { useContext, memo, useMemo, useState } from "react";
 import {
   WidgetOperations,
   WidgetRowCols,
@@ -44,6 +44,7 @@ import { getParentToOpenIfAny } from "utils/hooks/useClickToSelectWidget";
 import { GridDefaults } from "constants/WidgetConstants";
 import { DropTargetContext } from "./DropTargetComponent";
 import { XYCord } from "pages/common/CanvasArenas/hooks/useCanvasDragging";
+import { LayoutDirection } from "components/constants";
 
 export type ResizableComponentProps = WidgetProps & {
   paddingOffset: number;
@@ -94,11 +95,19 @@ export const ResizableComponent = memo(function ResizableComponent(
   // The ResizableContainer's size prop is controlled
   const dimensions: UIElementSize = {
     width:
-      (props.rightColumn - props.leftColumn) * props.parentColumnSpace -
-      2 * props.paddingOffset,
+      props.useAutoLayout &&
+      props.direction === LayoutDirection.Vertical &&
+      props.alignItems === "stretch"
+        ? 64 * props.parentColumnSpace - 2 * props.paddingOffset
+        : (props.rightColumn - props.leftColumn) * props.parentColumnSpace -
+          2 * props.paddingOffset,
     height:
-      (props.bottomRow - props.topRow) * props.parentRowSpace -
-      2 * props.paddingOffset,
+      props.useAutoLayout &&
+      props.direction === LayoutDirection.Horizontal &&
+      props.alignItems === "stretch"
+        ? 64 * props.parentRowSpace - 2 * props.paddingOffset
+        : (props.bottomRow - props.topRow) * props.parentRowSpace -
+          2 * props.paddingOffset,
   };
 
   // onResize handler
@@ -271,19 +280,16 @@ export const ResizableComponent = memo(function ResizableComponent(
     bottom: props.bottomRow,
     right: props.rightColumn,
   };
-  // console.log(`${props.widgetName} =========`);
-  // console.log(originalPositions);
   const updateBottomRow = (bottom: number) => {
     if (props.parentId) {
       updateDropTargetRows && updateDropTargetRows([props.parentId], bottom);
     }
   };
-
   return (
     <Resizable
       allowResize={!isMultiSelectedWidget}
       componentHeight={dimensions.height}
-      componentWidth={props?.alignItems === "stretch" ? 200 : dimensions.width}
+      componentWidth={dimensions.width}
       enable={isEnabled}
       getResizedPositions={getResizedPositions}
       gridProps={gridProps}

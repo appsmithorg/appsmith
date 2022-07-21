@@ -8,12 +8,14 @@ export const CONFIG = {
   iconSVG: IconSVG,
   needsMeta: false, // Defines if this widget adds any meta properties
   isCanvas: true, // Defines if this widget has a canvas within in which we can drop other widgets
+  searchTags: ["auto layout", "flex", "column", "div", "parent", "group"],
   defaults: {
     widgetName: "VerticalLayout",
     rows: 40,
     columns: 24,
     version: 1,
     containerStyle: "card",
+    backgroundColor: "#FFFFFF",
     borderColor: "transparent",
     borderWidth: "0",
     boxShadow: ButtonBoxShadowTypes.NONE,

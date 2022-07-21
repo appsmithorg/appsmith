@@ -68,7 +68,7 @@ export const FlexContainer = styled.div<{
 }>`
   display: ${({ useAutoLayout }) => (useAutoLayout ? "flex" : "block")};
   flex-direction: ${({ direction }) =>
-    direction === "Vertical" ? "column" : "row"};
+    direction === LayoutDirection.Vertical ? "column" : "row"};
   justify-content: ${({ justifyContent }) => justifyContent || "flex-start"};
   align-items: ${({ alignItems }) => alignItems || "flex-start"};
   flex-wrap: wrap;
