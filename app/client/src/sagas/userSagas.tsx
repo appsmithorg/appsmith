@@ -532,7 +532,7 @@ export function* leaveWorkspaceSaga(
         type: ReduxActionTypes.GET_ALL_APPLICATION_INIT,
       });
       Toaster.show({
-        text: `You have successfully left the organization`,
+        text: `You have successfully left the workspace`,
         variant: Variant.success,
       });
     }

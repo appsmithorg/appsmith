@@ -3,9 +3,7 @@ import { isString } from "lodash";
 
 import BaseControl, { ControlProps } from "./BaseControl";
 import { StyledDynamicInput } from "./StyledControls";
-import CodeEditor, {
-  CodeEditorExpected,
-} from "components/editorComponents/CodeEditor";
+import { CodeEditorExpected } from "components/editorComponents/CodeEditor";
 import {
   EditorModes,
   EditorSize,
@@ -24,6 +22,7 @@ import {
   Schema,
   SchemaItem,
 } from "widgets/JSONFormWidget/constants";
+import CodeEditor from "components/editorComponents/LazyCodeEditorWrapper";
 
 const PromptMessage = styled.span`
   line-height: 17px;

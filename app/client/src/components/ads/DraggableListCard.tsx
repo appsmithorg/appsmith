@@ -9,8 +9,11 @@ import {
   StyledDeleteIcon,
   StyledVisibleIcon,
   StyledHiddenIcon,
+  StyledCheckbox,
+  StyledActionContainer,
 } from "components/propertyControls/StyledControls";
 import { Colors } from "constants/Colors";
+import { CheckboxType } from "./Checkbox";
 
 const ItemWrapper = styled.div`
   display: flex;
@@ -29,16 +32,24 @@ type RenderComponentProps = {
     isDerived?: boolean;
     isVisible?: boolean;
     isDuplicateLabel?: boolean;
+    isChecked?: boolean;
+    isCheckboxDisabled?: boolean;
   };
   isDelete?: boolean;
   isDragging: boolean;
+  showCheckbox?: boolean;
   placeholder: string;
   updateFocus?: (index: number, isFocused: boolean) => void;
   updateOption: (index: number, value: string) => void;
   onEdit?: (index: number) => void;
   deleteOption: (index: number) => void;
   toggleVisibility?: (index: number) => void;
+  toggleCheckbox?: (index: number, checked: boolean) => void;
+  isAllColumnEditable?: boolean;
 };
+
+const PADDING_WITHOUT_CHECKBOX = 60;
+const PADDING_WITH_CHECKBOX = 90;
 
 export function DraggableListCard(props: RenderComponentProps) {
   const [value, setValue] = useState(props.item.label);
@@ -53,6 +64,8 @@ export function DraggableListCard(props: RenderComponentProps) {
     item,
     onEdit,
     placeholder,
+    showCheckbox,
+    toggleCheckbox,
     toggleVisibility,
     updateFocus,
     updateOption,
@@ -147,28 +160,53 @@ export function DraggableListCard(props: RenderComponentProps) {
         onFocus={onFocus}
         placeholder={placeholder}
         ref={ref}
+        rightPadding={
+          showCheckbox ? PADDING_WITH_CHECKBOX : PADDING_WITHOUT_CHECKBOX
+        }
         value={value}
         width="100%"
       />
-      <StyledEditIcon
-        className="t--edit-column-btn"
-        height={20}
-        onClick={() => {
-          onEdit && onEdit(index);
-        }}
-        width={20}
-      />
-      {showDelete && (
-        <StyledDeleteIcon
-          className="t--delete-column-btn"
+      <StyledActionContainer>
+        <StyledEditIcon
+          className="t--edit-column-btn"
           height={20}
           onClick={() => {
-            deleteOption && deleteOption(index);
+            onEdit && onEdit(index);
           }}
           width={20}
         />
-      )}
-      {!showDelete && toggleVisibility && renderVisibilityIcon()}
+        {showDelete && (
+          <StyledDeleteIcon
+            className="t--delete-column-btn"
+            height={20}
+            onClick={() => {
+              deleteOption && deleteOption(index);
+            }}
+            width={20}
+          />
+        )}
+        {!showDelete && toggleVisibility && renderVisibilityIcon()}
+        {/*
+         * Used in Table_Widget_V2's primary columns to enable/disable cell editability.
+         * Using a common name `showCheckbox` instead of showEditable or isEditable,
+         * to be generic and reusable.
+         */}
+        {showCheckbox && (
+          <StyledCheckbox
+            backgroundColor={Colors.GREY_600}
+            className={`t--card-checkbox ${
+              item.isChecked ? "t--checked" : "t--unchecked"
+            }`}
+            disabled={item.isCheckboxDisabled}
+            isDefaultChecked={item.isChecked}
+            label=""
+            onCheckChange={(checked: boolean) =>
+              toggleCheckbox && toggleCheckbox(index, checked)
+            }
+            type={CheckboxType.SECONDARY}
+          />
+        )}
+      </StyledActionContainer>
     </ItemWrapper>
   );
 }

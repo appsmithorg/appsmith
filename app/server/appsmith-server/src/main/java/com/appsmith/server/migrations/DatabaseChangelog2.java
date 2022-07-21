@@ -82,8 +82,9 @@ import static org.springframework.data.mongodb.core.query.Query.query;
 @ChangeLog(order = "002")
 public class DatabaseChangelog2 {
 
-    public static ObjectMapper objectMapper = new ObjectMapper();
-    static Pattern sheetRangePattern = Pattern.compile("https://docs.google.com/spreadsheets/d/([^/]+)/?[^\"]*");
+    private static final ObjectMapper objectMapper = new ObjectMapper();
+
+    private static final Pattern sheetRangePattern = Pattern.compile("https://docs.google.com/spreadsheets/d/([^/]+)/?[^\"]*");
 
     @ChangeSet(order = "001", id = "fix-plugin-title-casing", author = "")
     public void fixPluginTitleCasing(MongockTemplate mongockTemplate) {
@@ -1367,4 +1368,10 @@ public class DatabaseChangelog2 {
 
         return newWhereClause;
     }
+
+    @ChangeSet(order = "021", id = "flush-spring-redis-keys-2a", author = "")
+    public void clearRedisCache2(ReactiveRedisOperations<String, String> reactiveRedisOperations) {
+        DatabaseChangelog.doClearRedisKeys(reactiveRedisOperations);
+    }
+
 }
