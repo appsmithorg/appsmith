@@ -19,6 +19,7 @@ import { createBlobUrl, isBlobUrl } from "utils/AppsmithUtils";
 import log from "loglevel";
 import { createGlobalStyle } from "styled-components";
 import UpIcon from "assets/icons/ads/up-arrow.svg";
+import CloseIcon from "assets/icons/ads/cross.svg";
 import { Colors } from "constants/Colors";
 
 const FilePickerGlobalStyles = createGlobalStyle<{
@@ -123,11 +124,23 @@ const FilePickerGlobalStyles = createGlobalStyle<{
     text-align: center;
     top: -33px;
     border-radius: ${({ borderRadius }) => borderRadius};
-    & span {
-      color: #858282;
-      position: absolute;
-      top: -6%;
-      left: 20%;
+
+      & span {
+        font-size: 0;
+      }
+
+      & span::after {
+        content: ' ';
+        -webkit-mask-image: url(${CloseIcon});
+        -webkit-mask-repeat: no-repeat;
+        -webkit-mask-position: center;
+        -webkit-mask-size: 20px;
+        background: #858282;
+        position: absolute;
+        top: 29%;
+        left: 27%;
+        width: 15px;
+        height: 15px;
       }
     }
   }
