@@ -76,6 +76,7 @@ function RadioGroupComponent(props: RadioGroupComponentProps) {
     loading,
     onRadioSelectionChange,
     options,
+    required,
     selectedOptionValue,
   } = props;
 
@@ -131,6 +132,7 @@ function RadioGroupComponent(props: RadioGroupComponentProps) {
               inline={inline}
               key={optInd}
               label={option.label}
+              required={required}
               value={option.value}
             />
           );
@@ -159,6 +161,7 @@ export interface RadioGroupComponentProps extends ComponentProps {
   widgetId: string;
   height?: number;
   accentColor: string;
+  required?: boolean;
 }
 
 export default RadioGroupComponent;

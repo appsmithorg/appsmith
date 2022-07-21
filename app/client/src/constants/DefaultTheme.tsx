@@ -83,6 +83,14 @@ export const BlueprintControlTransform = css`
         border: 1px solid ${(props) => props.theme.colors.primaryOld};
       }
 
+      & input:invalid:not(:disabled) ~ .${Classes.CONTROL_INDICATOR} {
+        border: 1px solid var(--wds-color-border-danger);
+      }
+
+      &:hover input:invalid:not(:disabled) ~ .${Classes.CONTROL_INDICATOR} {
+        border: 1px solid var(--wds-color-border-danger-hover) !important;
+      }
+
       & input:disabled:not(:checked) ~ .${Classes.CONTROL_INDICATOR} {
         background-color: var(--wds-color-bg-disabled) !important;
         border: 1px solid var(--wds-color-border-disabled) !important;
