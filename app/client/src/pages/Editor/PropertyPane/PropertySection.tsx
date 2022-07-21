@@ -6,6 +6,7 @@ import React, {
   useState,
   Context,
   createContext,
+  useCallback,
 } from "react";
 import { Collapse } from "@blueprintjs/core";
 import { useSelector } from "react-redux";
@@ -15,8 +16,18 @@ import { Colors } from "constants/Colors";
 
 const SectionWrapper = styled.div`
   position: relative;
-  border-bottom: 1px solid ${Colors.GREY_4};
+  border-top: 1px solid ${Colors.GREY_4};
   padding: 4px 16px 8px 16px;
+
+  &:first-of-type {
+    border-top: 0;
+  }
+
+  /* Referring to a nested SectionWrapper */
+  & & {
+    padding: 0;
+    margin-top: 8px;
+  }
 
   .${Classes.COLLAPSE_BODY} {
     z-index: 1;
@@ -28,6 +39,7 @@ const SectionWrapper = styled.div`
     transition: none;
   }
 `;
+
 const SectionTitle = styled.div`
   display: grid;
   grid-template-columns: 1fr 30px;
@@ -57,6 +69,7 @@ const SectionTitle = styled.div`
 type PropertySectionProps = {
   id: string;
   name: string;
+  collapsible?: boolean;
   children?: ReactNode;
   hidden?: (props: any, propertyPath: string) => boolean;
   isDefaultOpen?: boolean;
@@ -72,13 +85,18 @@ export const CollapseContext: Context<boolean> = createContext<boolean>(false);
 
 export const PropertySection = memo((props: PropertySectionProps) => {
   const { isDefaultOpen = true } = props;
-  const [isOpen, open] = useState(!!isDefaultOpen);
+  const [isOpen, setIsOpen] = useState(!!isDefaultOpen);
   const widgetProps: any = useSelector(getWidgetPropsForPropertyPane);
+  const handleSectionTitleClick = useCallback(() => {
+    if (props.collapsible) setIsOpen((x) => !x);
+  }, []);
+
   if (props.hidden) {
     if (props.hidden(widgetProps, props.propertyPath || "")) {
       return null;
     }
   }
+
   const className = props.name
     .split(" ")
     .join("")
@@ -87,13 +105,15 @@ export const PropertySection = memo((props: PropertySectionProps) => {
     <SectionWrapper className="t--property-pane-section-wrapper">
       <SectionTitle
         className={`t--property-pane-section-collapse-${className}`}
-        onClick={() => open(!isOpen)}
+        onClick={handleSectionTitleClick}
       >
         <span>{props.name}</span>
-        <Icon
-          className={isOpen ? "open-collapse" : ""}
-          icon={IconNames.CHEVRON_RIGHT}
-        />
+        {props.collapsible && (
+          <Icon
+            className={isOpen ? "open-collapse" : ""}
+            icon={IconNames.CHEVRON_RIGHT}
+          />
+        )}
       </SectionTitle>
       {props.children && (
         <Collapse isOpen={isOpen} keepChildrenMounted transitionDuration={0}>

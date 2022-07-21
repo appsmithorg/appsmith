@@ -15,6 +15,7 @@ export type PropertyPaneSectionConfig = {
   sectionName: string;
   id?: string;
   children: PropertyPaneConfig[];
+  collapsible?: boolean;
   hidden?: (props: any, propertyPath: string) => boolean;
   isDefaultOpen?: boolean;
   propertySectionPath?: string;
@@ -32,6 +33,8 @@ export type PanelConfig = {
   titlePropertyName: string;
   panelIdPropertyName: string;
   children: PropertyPaneConfig[];
+  contentChildren?: PropertyPaneConfig[];
+  styleChildren?: PropertyPaneConfig[];
   updateHook: (
     props: any,
     propertyPath: string,

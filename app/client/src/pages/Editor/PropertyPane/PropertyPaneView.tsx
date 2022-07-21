@@ -35,13 +35,14 @@ import styled from "styled-components";
 import { InputWrapper } from "components/ads/TextInput";
 import { PropertyPaneTab } from "./PropertyPaneTab";
 
-const StyledSearchInput = styled(SearchInput)`
+export const StyledSearchInput = styled(SearchInput)`
   position: sticky;
   top: 52px;
-  z-index: 10;
+  z-index: 3;
 
   ${InputWrapper} {
     background: ${Colors.GRAY_50};
+    padding: 0 8px;
   }
 `;
 
