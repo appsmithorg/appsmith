@@ -18,7 +18,7 @@
   "sectionAuthentication": "[data-cy=section-Authentication]",
   "PostgresEntity": ".t--entity-name:contains(PostgreSQL)",
   "MySQLEntity": ".t--entity-name:contains(Mysql)",
-  "createQuerty": ".t--create-query",
+  "createQuery": ".t--create-query",
   "activeDatasourceList": ".t--active-datasource-list",
   "datasourceCard": ".t--datasource",
   "datasourceCardMenu": ".t--datasource-menu-option",

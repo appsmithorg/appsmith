@@ -279,7 +279,7 @@ describe("Git sync apps", function() {
       .should("be.visible")
       .closest(datasource.datasourceCard)
       .within(() => {
-        cy.get(datasource.createQuerty).click();
+        cy.get(datasource.createQuery).click();
       });
     cy.get(queryLocators.queryNameField).type("get_users");
     cy.get(queryLocators.switch)

@@ -23,6 +23,8 @@ export class DataSources {
   private _saveDs = ".t--save-datasource";
   private _datasourceCard = ".t--datasource";
   _templateMenu = ".t--template-menu";
+  _templateMenuOption = (action: string) =>
+    "//div[contains(@class, 't--template-menu')]//div[text()='" + action + "']";
   private _createQuery = ".t--create-query";
   private _importSuccessModal = ".t--import-app-success-modal";
   private _importSuccessModalClose = ".t--import-success-modal-got-it";
@@ -68,6 +70,10 @@ export class DataSources {
     "input[name='actionConfiguration.pluginSpecifiedTemplates[0].value'][type='checkbox']";
   _queriesOnPageText = (dsName: string) =>
     ".t--datasource-name:contains('" + dsName + "') .t--queries-for-DB";
+  _mockDB = (dbName: string) =>
+    "//span[text()='" +
+    dbName +
+    "']/ancestor::div[contains(@class, 't--mock-datasource')][1]";
 
   public StartDataSourceRoutes() {
     cy.intercept("PUT", "/api/v1/datasources/*").as("saveDatasource");
@@ -304,7 +310,7 @@ export class DataSources {
     this.agHelper.Sleep(2000); //for the CreateQuery/GeneratePage page to load
   }
 
-  public CreateQuery(datasourceName: string){
+  public CreateQuery(datasourceName: string) {
     cy.get(this._datasourceCard)
       .contains(datasourceName)
       .scrollIntoView()
