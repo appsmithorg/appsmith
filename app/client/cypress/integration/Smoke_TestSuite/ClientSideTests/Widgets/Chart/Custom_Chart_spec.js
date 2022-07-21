@@ -120,6 +120,7 @@ describe("Chart Widget Functionality around custom chart feature", function() {
   it("4. Chart-Copy Verification", function() {
     const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
     //Copy Chart and verify all properties
+    cy.wait(1000);
     cy.copyWidget("chartwidget", viewWidgetsPage.chartWidget);
 
     cy.PublishtheApp();
@@ -133,6 +134,7 @@ describe("Chart Widget Functionality around custom chart feature", function() {
   });
 
   afterEach(() => {
+    cy.wait(2000);
     cy.get(publish.backToEditor).click({ force: true });
   });
 });
