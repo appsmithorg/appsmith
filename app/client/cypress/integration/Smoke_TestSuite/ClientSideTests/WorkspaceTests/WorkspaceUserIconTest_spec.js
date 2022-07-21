@@ -10,7 +10,7 @@ describe("Check if workspace has user icons on homepage", function() {
     cy.NavigateToHome();
     cy.generateUUID().then((uid) => {
       workspaceId = uid;
-      localStorage.setItem("OrgName", workspaceId);
+      localStorage.setItem("WorkspaceName", workspaceId);
       cy.createWorkspace();
       cy.wait("@createWorkspace").then((interception) => {
         newWorkspaceName = interception.response.body.data.name;

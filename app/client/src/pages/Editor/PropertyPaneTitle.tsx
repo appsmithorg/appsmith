@@ -134,13 +134,15 @@ const PropertyPaneTitle = memo(function PropertyPaneTitle(
           document.activeElement?.tagName?.toLowerCase(),
         ) === -1
       )
-        setTimeout(() =>
-          document
-            .querySelector(
-              '.t--property-pane-section-wrapper [tabindex]:not([tabindex="-1"])',
-            )
-            // @ts-expect-error: Focus
-            ?.focus(),
+        setTimeout(
+          () =>
+            document
+              .querySelector(
+                '.t--property-pane-section-wrapper [tabindex]:not([tabindex="-1"])',
+              )
+              // @ts-expect-error: Focus
+              ?.focus(),
+          200, // Adding non zero time out as codemirror imports are loaded using idle callback. pr #13676
         );
     }
 
