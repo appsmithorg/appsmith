@@ -437,7 +437,7 @@ export const StyledCheckbox = styled(Checkbox)<{ disabled?: boolean }>`
 export const StyledNavigateToFieldWrapper = styled.div`
   display: flex;
   justify-content: space-between;
-  height: 250px;
+  height: auto;
 `;
 
 export const StyledDividerContainer = styled.div`
