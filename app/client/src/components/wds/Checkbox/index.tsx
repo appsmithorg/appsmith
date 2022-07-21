@@ -33,7 +33,7 @@ const Checkbox = styled(BlueprintCheckbox)<StyledCheckboxProps>`
       border: none;
       box-shadow: 0px 0px 0px 1px ${Colors.GREY_5};
       outline: none !important;
-      background-color: transparent;
+      background-color: white;
       border-radius: ${borderRadius === "0.375rem" ? "0.25rem" : borderRadius};
 
       // ERROR state ( needed when checkbox is required )
@@ -86,6 +86,10 @@ const Checkbox = styled(BlueprintCheckbox)<StyledCheckboxProps>`
     // checked + disabled
     &.bp3-control.bp3-checkbox input:checked:disabled ~ .bp3-control-indicator {
       background-color: ${Colors.GREY_5} !important;
+    }
+    // not checked + disabled
+    &.bp3-control.bp3-checkbox input:not(:checked):disabled ~ .bp3-control-indicator {
+      background-color: ${Colors.CONCRETE} !important;
     }
 
     // indeterminate
