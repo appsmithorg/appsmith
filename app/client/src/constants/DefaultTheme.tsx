@@ -126,21 +126,21 @@ export const BlueprintControlTransform = css`
         }
       }
       input:not(:checked) ~ .${Classes.CONTROL_INDICATOR} {
-        background: ${Colors.GREY_5};
-        border: 1px solid ${Colors.GREY_5};
+        background: var(--wds-color-bg-strong);
+        border: 1px solid var(--wds-color-border);
       }
 
       input:disabled ~ .${Classes.CONTROL_INDICATOR} {
-        background: ${Colors.GREY_5} !important;
+        background: var(--wds-color-bg-disabled) !important;
         &::before {
-          background: ${Colors.GREY_6};
+          background: var(--wds-color-bg-disabled-strong);
         }
       }
 
       &:hover {
         & input:not(:checked):not(:disabled) ~ .bp3-control-indicator {
-          background: ${Colors.GRAY_400};
-          border: 1px solid ${Colors.GRAY_400} !important;
+          background: var(--wds-color-bg-strong-hover);
+          border: 1px solid var(--wds-color-border-hover) !important;
         }
       }
     }
