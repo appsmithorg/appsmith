@@ -1,7 +1,6 @@
 import React from "react";
 import { ReactNode } from "react";
 import { Dispatch } from "redux";
-import styled from "styled-components";
 import TableData from "assets/gifs/table_data.gif";
 import DefaultText from "assets/gifs/default_text.gif";
 import {
@@ -39,7 +38,6 @@ import {
   STEP_THREE_TITLE,
   STEP_TWO_TITLE,
 } from "@appsmith/constants/messages";
-import { getTypographyByKey } from "constants/DefaultTheme";
 
 export const Classes = {
   GUIDED_TOUR_BORDER: "guided-tour-border",
@@ -115,6 +113,8 @@ export const onboardingContainerBlueprint = {
                 imageShape: "RECTANGLE",
                 defaultImage: "https://assets.appsmith.com/widgets/default.png",
                 objectFit: "contain",
+                image: "{{CustomersTable.selectedRow.image}}",
+                dynamicBindingPathList: [{ key: "image" }],
               },
             },
             {
@@ -254,15 +254,6 @@ type Step = {
 };
 type StepsType = Record<number, Step>;
 
-const RunButton = styled.div`
-  background-color: ${(props) => props.theme.colors.guidedTour.runButton};
-  padding: ${(props) => props.theme.spaces[1] + 1}px
-    ${(props) => props.theme.spaces[6] + 1}px;
-  color: white;
-  ${(props) => getTypographyByKey(props, "btnMedium")}
-  display: inline-block;
-`;
-
 export const Steps: StepsType = {
   [GUIDED_TOUR_STEPS.RUN_QUERY]: {
     title: createMessage(STEP_ONE_TITLE),
@@ -271,8 +262,8 @@ export const Steps: StepsType = {
       {
         text: (
           <>
-            This command will fetch the first 10 items in the user_data
-            database. Hit <RunButton>RUN</RunButton> to see the response.
+            This command will fetch the first 20 items in the user_data
+            database. Hit <b>RUN</b> to see the response.
           </>
         ),
       },
@@ -442,13 +433,6 @@ export const Steps: StepsType = {
             {"'"}s Default Text Property to{" "}
             <code>
               &#123;&#123;CustomersTable.selectedRow.country&#125;&#125;
-            </code>
-          </>,
-          <>
-            Connect <b>{GuidedTourEntityNames.DISPLAY_IMAGE}</b>
-            {"'"}s Image Property to{" "}
-            <code>
-              &#123;&#123;CustomersTable.selectedRow.image&#125;&#125;
             </code>
           </>,
         ],

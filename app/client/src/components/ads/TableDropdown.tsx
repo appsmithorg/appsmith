@@ -8,7 +8,7 @@ import styled from "styled-components";
 import { Classes, CommonComponentProps } from "./common";
 import Icon, { IconSize } from "./Icon";
 import Spinner from "./Spinner";
-import Text, { TextType } from "./Text";
+import { Text, TextType } from "design-system";
 
 type DropdownOption = {
   name: string;

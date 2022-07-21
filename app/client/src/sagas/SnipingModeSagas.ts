@@ -31,8 +31,7 @@ export function* bindDataToWidgetSaga(
     widgetId: string;
   }>,
 ) {
-  const pageId: string | undefined = yield select(getCurrentPageId);
-  // console.log("Binding Data in Saga");
+  const pageId: string = yield select(getCurrentPageId);
   const currentURL = new URL(window.location.href);
   const searchParams = currentURL.searchParams;
   const queryId = searchParams.get("bindTo");
@@ -122,6 +121,10 @@ export function* bindDataToWidgetSaga(
       propertyValue = `{{${currentAction.config.name}.data}}`;
       break;
     case WidgetTypes.TABLE_WIDGET:
+      propertyPath = "tableData";
+      propertyValue = `{{${currentAction.config.name}.data}}`;
+      break;
+    case WidgetTypes.TABLE_WIDGET_V2:
       propertyPath = "tableData";
       propertyValue = `{{${currentAction.config.name}.data}}`;
       break;
