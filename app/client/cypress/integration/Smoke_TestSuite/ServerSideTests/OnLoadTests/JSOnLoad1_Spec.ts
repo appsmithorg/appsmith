@@ -1,7 +1,6 @@
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
-const dsl = require("../../../../fixtures/tablev1NewDsl.json");
 
-let guid: any, jsName: any;
+let guid: any, jsName: any, dsl: any;
 const agHelper = ObjectsRegistry.AggregateHelper,
   ee = ObjectsRegistry.EntityExplorer,
   dataSources = ObjectsRegistry.DataSources,
@@ -15,6 +14,13 @@ const agHelper = ObjectsRegistry.AggregateHelper,
 
 describe("JSObjects OnLoad Actions tests", function() {
   before(() => {
+
+    before(() => {
+      cy.fixture("tablev1NewDsl").then((val: any) => {
+        dsl = val;
+      });
+    })
+
     agHelper.AddDsl(dsl);
     ee.NavigateToSwitcher("explorer");
   });

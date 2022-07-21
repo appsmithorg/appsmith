@@ -26,8 +26,6 @@ export class DataSources {
   _templateMenuOption = (action: string) =>
     "//div[contains(@class, 't--template-menu')]//div[text()='" + action + "']";
   private _createQuery = ".t--create-query";
-  private _importSuccessModal = ".t--import-app-success-modal";
-  private _importSuccessModalClose = ".t--import-success-modal-got-it";
   _visibleTextSpan = (spanText: string) =>
     "//span[contains(text(),'" + spanText + "')]";
   _dropdownTitle = (ddTitle: string) =>
@@ -341,17 +339,17 @@ export class DataSources {
     }
   }
 
-  public ReconnectDataSourcePostgres(dbName: string) {
+  public ReconnectDataSource(
+    dbName: string,
+    dsName: "PostgreSQL" | "MySQL",
+  ) {
     this.agHelper.AssertElementVisible(this._reconnectModal);
-    cy.xpath(this._activeDSListReconnectModal("PostgreSQL")).should(
-      "be.visible",
-    );
+    cy.xpath(this._activeDSListReconnectModal(dsName)).should("be.visible");
     cy.xpath(this._activeDSListReconnectModal(dbName)).should("be.visible"); //.click()
     this.ValidateNSelectDropdown("Connection Mode", "", "Read / Write");
-    this.FillPostgresDSForm();
+    if (dsName == "PostgreSQL") this.FillPostgresDSForm();
+    else if (dsName == "MySQL") this.FillMySqlDSForm();
     cy.get(this._saveDs).click();
-    cy.get(this._importSuccessModal).should("be.visible");
-    cy.get(this._importSuccessModalClose).click({ force: true });
   }
 
   RunQuery(expectedStatus = true) {

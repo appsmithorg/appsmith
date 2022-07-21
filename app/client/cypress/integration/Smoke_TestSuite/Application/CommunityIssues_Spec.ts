@@ -33,9 +33,10 @@ describe("AForce - Community Issues page validations", function() {
       const { isPartialImport } = interception.response.body.data;
       if (isPartialImport) {
         // should reconnect modal
-        dataSources.ReconnectDataSourcePostgres("AForceDB");
+        dataSources.ReconnectDataSource("AForceDB", "PostgreSQL");
+        homePage.AssertNCloseImport();
       } else {
-        homePage.AssertImport();
+        homePage.AssertImportToast();
       }
       //Validate table is not empty!
       table.WaitUntilTableLoad();

@@ -9,6 +9,10 @@ export class HomePage {
   private _workspaceCompleteSection = ".t--workspace-section";
   private _workspaceName = ".t--workspace-name";
   private _optionsIcon = ".t--options-icon";
+  private _optionsIconInWorkspace = (workspaceName: string) =>
+    "//span[text()='" +
+    workspaceName +
+    "']/ancestor::div[contains(@class, 't--workspace-section')]//span[contains(@class, 't--options-icon')]";
   private _renameWorkspaceInput = "[data-cy=t--workspace-rename-input]";
   private _workspaceList = (workspaceName: string) =>
     ".t--workspace-section:contains(" + workspaceName + ")";
@@ -69,6 +73,8 @@ export class HomePage {
   _usersEmailList = "[data-colindex='1']";
   private _workspaceImport = "[data-cy=t--workspace-import-app]";
   private _uploadFile = "//div/form/input";
+  private _importSuccessModal = ".t--import-app-success-modal";
+  private _importSuccessModalGotit = ".t--import-success-modal-got-it";
 
   public CreateNewWorkspace(workspaceNewName: string) {
     let oldName: string = "";
@@ -323,20 +329,25 @@ export class HomePage {
     this.NavigateToHome();
   }
 
-  public ImportApp(fixtureJson: string) {
+  public ImportApp(fixtureJson: string, intoWorkspaceName = "") {
     cy.get(this._homeIcon).click();
-    cy.get(this._optionsIcon)
-      .first()
-      .click();
-    cy.get(this._workspaceImport).click({ force: true });
-    cy.get(this._workspaceImportAppModal).should("be.visible");
+    if (intoWorkspaceName)
+      this.agHelper.GetNClick(this._optionsIconInWorkspace(intoWorkspaceName));
+    else this.agHelper.GetNClick(this._optionsIcon);
+    this.agHelper.GetNClick(this._workspaceImport, 0, true);
+    this.agHelper.AssertElementVisible(this._workspaceImportAppModal);
     cy.xpath(this._uploadFile)
       .attachFile(fixtureJson)
       .wait(500);
-    cy.get(this._workspaceImportAppModal).should("not.exist");
+    this.agHelper.AssertElementAbsence(this._workspaceImportAppModal);
   }
 
-  public AssertImport() {
+  public AssertNCloseImport(){
+    this.agHelper.AssertElementVisible(this._importSuccessModal);
+    this.agHelper.GetNClick(this._importSuccessModalGotit, 0, true)
+  }
+
+  public AssertImportToast() {
     this.agHelper.ValidateToastMessage("Application imported successfully");
     this.agHelper.Sleep(5000); //for imported app to settle!
     cy.get(this.locator._loading).should("not.exist");
