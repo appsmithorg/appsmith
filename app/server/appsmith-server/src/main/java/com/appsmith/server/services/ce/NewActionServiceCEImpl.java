@@ -993,10 +993,20 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
         if (request.getHeaders() != null) {
             JsonNode headers = objectMapper.convertValue(request.getHeaders(), JsonNode.class);
             try {
-                String headersAsString = objectMapper.writeValueAsString(headers);
+                final String headersAsString = objectMapper.writeValueAsString(headers);
                 request.setHeaders(headersAsString);
             } catch (JsonProcessingException e) {
                 log.error(e.getMessage());
+            }
+        }
+
+        if (request.getBody() != null) {
+            try {
+                final String bodyAsString = objectMapper.writeValueAsString(request.getBody());
+                request.setBody(bodyAsString);
+            } catch (JsonProcessingException e) {
+                log.error(e.getMessage());
+                request.setBody("\"Error serializing value to JSON.\"");
             }
         }
 
@@ -1030,9 +1040,8 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                     final Plugin plugin = tuple.getT4();
 
                     final PluginType pluginType = action.getPluginType();
-                    final Map<String, Object> data = new HashMap<>();
 
-                    data.putAll(Map.of(
+                    final Map<String, Object> data = new HashMap<>(Map.of(
                             "username", user.getUsername(),
                             "type", pluginType,
                             "pluginName", plugin.getName(),
@@ -1048,7 +1057,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                     ));
 
                     String dsCreatedAt = "";
-                    if (datasource != null && datasource.getCreatedAt() != null) {
+                    if (datasource.getCreatedAt() != null) {
                         dsCreatedAt = DateUtils.ISO_FORMATTER.format(datasource.getCreatedAt());
                     }
 
