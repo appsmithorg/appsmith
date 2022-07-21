@@ -60,7 +60,7 @@ const PROPERTIES = {
     },
   ],
   content: {
-    general: [
+    data: [
       {
         propertyName: "defaultValue",
         label: "Default State",

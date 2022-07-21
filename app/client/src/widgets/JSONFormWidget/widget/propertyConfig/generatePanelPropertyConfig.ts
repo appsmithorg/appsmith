@@ -133,7 +133,7 @@ function generatePanelPropertyConfig(
           ...RADIO_GROUP_PROPERTIES.content.data,
           ...MULTI_SELECT_PROPERTIES.content.data,
           ...DATE_PROPERTIES.content.data,
-          ...CHECKBOX_PROPERTIES.content.general,
+          ...CHECKBOX_PROPERTIES.content.data,
           {
             propertyName: "children",
             label: "Field Configuration",
