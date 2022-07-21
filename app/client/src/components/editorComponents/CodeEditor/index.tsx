@@ -704,23 +704,26 @@ class CodeEditor extends Component<Props, State> {
   };
 
   lintCode(editor: CodeMirror.Editor) {
-    const { dataTreePath, dynamicData } = this.props;
+    const {
+      additionalDynamicData: contextData,
+      dataTreePath,
+      dynamicData,
+      isJSObject,
+    } = this.props;
 
     if (!dataTreePath || !this.updateLintingCallback || !editor) {
       return;
     }
-
     const errors = _.get(
       dynamicData,
       getEvalErrorPath(dataTreePath),
       [],
     ) as EvaluationError[];
 
-    const annotations = getLintAnnotations(
-      editor.getValue(),
-      errors,
-      this.props.isJSObject,
-    );
+    const annotations = getLintAnnotations(editor.getValue(), errors, {
+      isJSObject,
+      contextData,
+    });
 
     this.updateLintingCallback(editor, annotations);
   }
