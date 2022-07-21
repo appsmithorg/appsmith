@@ -1,6 +1,6 @@
-const dsl = require("../../../../fixtures/emptyDSL.json");
-const explorer = require("../../../../locators/explorerlocators.json");
-const themelocators = require("../../../../locators/ThemeLocators.json");
+const dsl = require("../../../../../fixtures/emptyDSL.json");
+const explorer = require("../../../../../locators/explorerlocators.json");
+const themelocators = require("../../../../../locators/ThemeLocators.json");
 
 const widgetName = "currencyinputwidget";
 const widgetInput = `.t--widget-${widgetName} input`;
