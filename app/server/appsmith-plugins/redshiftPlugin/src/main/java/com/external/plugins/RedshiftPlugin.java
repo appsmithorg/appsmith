@@ -287,13 +287,6 @@ public class RedshiftPlugin extends BasePlugin {
                             log.warn("Error closing Redshift Statement", e);
                         }
                     }
-
-                    try {
-                        connection.close();
-                    } catch (SQLException e) {
-                        log.warn("Error closing Redshift Connection", e);
-                    }
-
                 }
 
                 ActionExecutionResult result = new ActionExecutionResult();
@@ -674,13 +667,6 @@ public class RedshiftPlugin extends BasePlugin {
                 } catch (AppsmithPluginException e) {
                     e.printStackTrace();
                     return Mono.error(e);
-
-                } finally {
-                    try {
-                        connection.close();
-                    } catch (SQLException e) {
-                        log.warn("Error closing Redshift Connection", e);
-                    }
 
                 }
 
