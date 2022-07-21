@@ -16,7 +16,7 @@ const StyledTabComponent = styled(TabComponent)`
 const StyledTabs = styled(Tabs)`
   position: sticky;
   top: 90px;
-  z-index: 10;
+  z-index: 3;
   background: ${Colors.WHITE};
   padding: 0px 12px;
   border-bottom: 1px solid ${Colors.GREY_4};
@@ -33,6 +33,13 @@ const StyledTabs = styled(Tabs)`
 
   .react-tabs__tab--selected .tab-title {
     color: ${Colors.GREY_900};
+  }
+
+  .react-tabs__tab:focus {
+    box-shadow: none;
+    &:after {
+      content: none;
+    }
   }
 
   .react-tabs__tab--selected {
