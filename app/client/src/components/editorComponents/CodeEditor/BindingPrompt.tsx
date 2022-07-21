@@ -10,7 +10,7 @@ const Wrapper = styled.span<{
 }>`
   padding: ${(props) => (props.customMessage ? 6 : 8)}px;
   font-size: 12px;
-  color: #ffffff;
+  color: var(--appsmith-color-black-800);
   box-shadow: 0px 0px 2px rgba(0, 0, 0, 0.2), 0px 2px 10px rgba(0, 0, 0, 0.1);
   border-radius: 0px;
   background-color: ${(props) =>
@@ -25,11 +25,9 @@ const Wrapper = styled.span<{
 `;
 
 const CurlyBraces = styled.span`
-  color: ${(props) => props.theme.colors.codeMirror.background.hoverState};
-  background-color: #ffffff;
-  border-radius: 2px;
-  padding: 2px;
-  margin: 0px 2px;
+  color: var(--appsmith-color-black-800);
+  background-color: ${(props) =>
+    props.theme.colors.codeMirror.background.hoverState};
 `;
 
 function BindingPrompt(props: {

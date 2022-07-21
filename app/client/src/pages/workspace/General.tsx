@@ -19,7 +19,7 @@ import {
 } from "@appsmith/selectors/workspaceSelectors";
 import { useParams } from "react-router-dom";
 import styled from "styled-components";
-import Text, { TextType } from "components/ads/Text";
+import { Text, TextType } from "design-system";
 import { Classes } from "@blueprintjs/core";
 import {
   SetProgress,
@@ -166,7 +166,7 @@ export function GeneralSettings() {
         <Row>
           <Col>
             <InputLabelWrapper>
-              <Text type={TextType.P1}>Organization Name</Text>
+              <Text type={TextType.P1}>Workspace Name</Text>
             </InputLabelWrapper>
             {isFetchingApplications && <Loader className={Classes.SKELETON} />}
             {!isFetchingApplications && (
@@ -175,7 +175,7 @@ export function GeneralSettings() {
                 defaultValue={currentWorkspace && currentWorkspace.name}
                 fill
                 onChange={onWorkspaceNameChange}
-                placeholder="Organization Name"
+                placeholder="Workspace Name"
                 validator={notEmptyValidator}
               />
             )}

@@ -1492,7 +1492,6 @@ jobs:
           APPSMITH_DISABLE_TELEMETRY: true
           POSTGRES_PASSWORD: postgres
           NODE_TLS_REJECT_UNAUTHORIZED: "0"
-          MACHINE: ${{matrix.machine}}
         run: ./start-test.sh
 
       # Restore the previous built bundle if present. If not push the newly built into the cache

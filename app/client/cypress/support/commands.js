@@ -15,7 +15,6 @@ const loginPage = require("../locators/LoginPage.json");
 const signupPage = require("../locators/SignupPage.json");
 import homePage from "../locators/HomePage";
 const pages = require("../locators/Pages.json");
-const datasourceEditor = require("../locators/DatasourcesEditor.json");
 const datasourceFormData = require("../fixtures/datasources.json");
 const commonlocators = require("../locators/commonlocators.json");
 const queryEditor = require("../locators/QueryEditor.json");
@@ -123,12 +122,12 @@ Cypress.Commands.add("stubPostHeaderReq", () => {
 });
 
 Cypress.Commands.add(
-  "addOauthAuthDetails",
+  "addOAuth2AuthorizationCodeDetails",
   (accessTokenUrl, clientId, clientSecret, authURL) => {
     cy.get(datasource.authType).click();
     cy.get(datasource.OAuth2).click();
     cy.get(datasource.grantType).click();
-    cy.get(datasource.authorisecode).click();
+    cy.get(datasource.authorizationCode).click();
     cy.get(datasource.accessTokenUrl).type(accessTokenUrl);
     cy.get(datasource.clienID).type(clientId);
     cy.get(datasource.clientSecret).type(clientSecret);
@@ -144,8 +143,42 @@ Cypress.Commands.add(
         );
         expect(firstTxt).to.equal(expectedvalue);
       });
+    cy.testSelfSignedCertificateSettingsInREST(true);
   },
 );
+
+Cypress.Commands.add(
+  "addOAuth2ClientCredentialsDetails",
+  (accessTokenUrl, clientId, clientSecret, scope) => {
+    cy.get(datasource.authType).click();
+    cy.get(datasource.OAuth2).click();
+    cy.xpath("//span[text()='Client Credentials']").should("be.visible");
+    cy.get(datasource.accessTokenUrl).type(accessTokenUrl);
+    cy.get(datasource.clienID).type(clientId);
+    cy.get(datasource.clientSecret).type(clientSecret);
+    cy.get(datasource.scope).type(scope);
+    cy.get(datasource.clientAuthentication).should("be.visible");
+    cy.xpath("//span[text()='Send client credentials in body']").should(
+      "be.visible",
+    );
+    cy.testSelfSignedCertificateSettingsInREST(true);
+  },
+);
+
+Cypress.Commands.add("testSelfSignedCertificateSettingsInREST", (isOAuth2) => {
+  cy.get(datasource.advancedSettings).click();
+  cy.get(datasource.useCertInAuth).should("not.exist");
+  cy.get(datasource.certificateDetails).should("not.exist");
+  cy.TargetDropdownAndSelectOption(datasource.useSelfSignedCert, "Yes");
+  if (isOAuth2) {
+    cy.get(datasource.useCertInAuth).should("exist");
+  } else {
+    cy.get(datasource.useCertInAuth).should("not.exist");
+  }
+  cy.get(datasource.certificateDetails).should("exist");
+  cy.TargetDropdownAndSelectOption(datasource.useSelfSignedCert, "No");
+  cy.get(datasource.advancedSettings).click();
+});
 
 Cypress.Commands.add("addBasicProfileDetails", (username, password) => {
   cy.get(datasource.authType).click();
@@ -719,6 +752,7 @@ Cypress.Commands.add("dragAndDropToCanvas", (widgetType, { x, y }) => {
     .trigger("mousemove", x, y, { eventConstructor: "MouseEvent" })
     .trigger("mousemove", x, y, { eventConstructor: "MouseEvent" })
     .trigger("mouseup", x, y, { eventConstructor: "MouseEvent" });
+  cy.assertPageSave();
 });
 
 Cypress.Commands.add(
@@ -758,6 +792,7 @@ Cypress.Commands.add("closePropertyPane", () => {
 });
 
 Cypress.Commands.add("onClickActions", (forSuccess, forFailure, endp) => {
+  cy.EnableAllCodeEditors();
   // Filling the messages for success/failure in the onClickAction of the button widget.
   // For Success
   cy.get(".code-highlight", { timeout: 10000 })
@@ -782,6 +817,7 @@ Cypress.Commands.add("onClickActions", (forSuccess, forFailure, endp) => {
     .last()
     .click({ force: true })
     .selectOnClickOption("Show message")
+    .wait(2000)
     .get("div.t--property-control-" + endp + " div.CodeMirror-lines")
     .last()
     .click()
@@ -958,6 +994,7 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   cy.route("POST", "api/v1/git/commit/app/*").as("commit");
   cy.route("POST", "/api/v1/git/import/*").as("importFromGit");
   cy.route("POST", "/api/v1/git/merge/app/*").as("mergeBranch");
+  cy.route("POST", "/api/v1/git/merge/status/app/*").as("mergeStatus");
   cy.route("PUT", "api/v1/collections/actions/refactor").as("renameJsAction");
 
   cy.route("POST", "/api/v1/collections/actions").as("createNewJSCollection");
@@ -994,9 +1031,25 @@ Cypress.Commands.add("ValidateTableData", (value) => {
   });
 });
 
+Cypress.Commands.add("ValidateTableV2Data", (value) => {
+  // cy.isSelectRow(0);
+  cy.readTableV2data("0", "0").then((tabData) => {
+    const tableData = tabData;
+    expect(tableData).to.equal(value.toString());
+  });
+});
+
 Cypress.Commands.add("ValidatePublishTableData", (value) => {
   cy.isSelectRow(0);
   cy.readTabledataPublish("0", "0").then((tabData) => {
+    const tableData = tabData;
+    expect(tableData).to.equal(value);
+  });
+});
+
+Cypress.Commands.add("ValidatePublishTableV2Data", (value) => {
+  cy.isSelectRow(0);
+  cy.readTableV2dataPublish("0", "0").then((tabData) => {
     const tableData = tabData;
     expect(tableData).to.equal(value);
   });
@@ -1038,6 +1091,42 @@ Cypress.Commands.add("ValidatePaginateResponseUrlData", (runTestCss) => {
     });
 });
 
+Cypress.Commands.add("ValidatePaginateResponseUrlDataV2", (runTestCss) => {
+  cy.CheckAndUnfoldEntityItem("QUERIES/JS");
+  cy.get(".t--entity-name")
+    .contains("Api2")
+    .click({ force: true });
+  cy.NavigateToPaginationTab();
+  cy.RunAPI();
+  cy.get(ApiEditor.apiPaginationNextTest).click();
+  cy.wait("@postExecute");
+  // eslint-disable-next-line cypress/no-unnecessary-waiting
+  cy.wait(2000);
+  cy.get(runTestCss).click();
+  cy.wait("@postExecute");
+  // eslint-disable-next-line cypress/no-unnecessary-waiting
+  cy.wait(2000);
+  cy.get(ApiEditor.formActionButtons).should("be.visible");
+  cy.get(ApiEditor.ApiRunBtn).should("not.be.disabled");
+  cy.get(ApiEditor.responseBody)
+    .contains("name")
+    .siblings("span")
+    .invoke("text")
+    .then((tabData) => {
+      const respBody = tabData.match(/"(.*)"/)[0];
+      localStorage.setItem("respBody", respBody);
+      cy.log(respBody);
+      cy.get(".t--entity-name")
+        .contains("Table1")
+        .click({ force: true });
+      cy.isSelectRow(0);
+      cy.readTableV2data("0", "1").then((tabData) => {
+        const tableData = tabData;
+        expect(`\"${tableData}\"`).to.equal(respBody);
+      });
+    });
+});
+
 Cypress.Commands.add("ValidatePaginationInputData", () => {
   cy.isSelectRow(0);
   cy.readTabledataPublish("0", "1").then((tabData) => {
@@ -1046,8 +1135,16 @@ Cypress.Commands.add("ValidatePaginationInputData", () => {
   });
 });
 
+Cypress.Commands.add("ValidatePaginationInputDataV2", () => {
+  cy.isSelectRow(0);
+  cy.readTableV2dataPublish("0", "1").then((tabData) => {
+    const tableData = tabData;
+    expect(`\"${tableData}\"`).to.equal(localStorage.getItem("respBody"));
+  });
+});
+
 Cypress.Commands.add("assertPageSave", () => {
-  cy.get(commonlocators.saveStatusSuccess, { timeout: 40000 }).should("exist");
+  cy.get(commonlocators.saveStatusSuccess).should("exist");
 });
 
 Cypress.Commands.add(

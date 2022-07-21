@@ -24,8 +24,10 @@ import { DSLWidget } from "widgets/constants";
 import * as Sentry from "@sentry/react";
 import { matchPath } from "react-router";
 import {
+  BUILDER_CUSTOM_PATH,
   BUILDER_PATH,
   BUILDER_PATH_DEPRECATED,
+  VIEWER_CUSTOM_PATH,
   VIEWER_PATH,
   VIEWER_PATH_DEPRECATED,
 } from "constants/routes";
@@ -233,10 +235,38 @@ export const resolveAsSpaceChar = (value: string, limit?: number) => {
     .slice(0, limit || 30);
 };
 
-export const isMac = () => {
-  const platform =
-    typeof navigator !== "undefined" ? navigator.platform : undefined;
-  return !platform ? false : /Mac|iPod|iPhone|iPad/.test(platform);
+export const PLATFORM_OS = {
+  MAC: "MAC",
+  IOS: "IOS",
+  LINUX: "LINUX",
+  ANDROID: "ANDROID",
+  WINDOWS: "WINDOWS",
+};
+
+const platformOSRegex = {
+  [PLATFORM_OS.MAC]: /mac.*/i,
+  [PLATFORM_OS.IOS]: /(?:iphone|ipod|ipad|Pike v.*)/i,
+  [PLATFORM_OS.LINUX]: /(?:linux.*)/i,
+  [PLATFORM_OS.ANDROID]: /android.*|aarch64|arm.*/i,
+  [PLATFORM_OS.WINDOWS]: /win.*/i,
+};
+
+export const getPlatformOS = () => {
+  const browserPlatform =
+    typeof navigator !== "undefined" ? navigator.platform : null;
+  if (browserPlatform) {
+    const platformOSList = Object.entries(platformOSRegex);
+    const platform = platformOSList.find(([, regex]) =>
+      regex.test(browserPlatform),
+    );
+    return platform ? platform[0] : null;
+  }
+  return null;
+};
+
+export const isMacOrIOS = () => {
+  const platformOS = getPlatformOS();
+  return platformOS === PLATFORM_OS.MAC || platformOS === PLATFORM_OS.IOS;
 };
 
 /**
@@ -553,14 +583,15 @@ export const truncateString = (
  *
  * @returns
  */
-export const modText = () => (isMac() ? <span>&#8984;</span> : "Ctrl +");
-export const altText = () => (isMac() ? <span>&#8997;</span> : "Alt +");
-export const shiftText = () => (isMac() ? <span>&#8682;</span> : "Shift +");
+export const modText = () => (isMacOrIOS() ? <span>&#8984;</span> : "Ctrl +");
+export const altText = () => (isMacOrIOS() ? <span>&#8997;</span> : "Alt +");
+export const shiftText = () =>
+  isMacOrIOS() ? <span>&#8682;</span> : "Shift +";
 
 export const undoShortCut = () => <span>{modText()} Z</span>;
 
 export const redoShortCut = () =>
-  isMac() ? (
+  isMacOrIOS() ? (
     <span>
       {modText()} {shiftText()} Z
     </span>
@@ -735,6 +766,13 @@ export const getUpdatedRoute = (
   });
   if (match?.params) {
     const { applicationSlug, pageSlug } = match?.params;
+    if (params.customSlug) {
+      updatedPath = updatedPath.replace(
+        `${applicationSlug}/${pageSlug}`,
+        `${params.customSlug}-`,
+      );
+      return updatedPath;
+    }
     if (params.applicationSlug)
       updatedPath = updatedPath.replace(
         applicationSlug,
@@ -742,6 +780,24 @@ export const getUpdatedRoute = (
       );
     if (params.pageSlug)
       updatedPath = updatedPath.replace(pageSlug, `${params.pageSlug}-`);
+    return updatedPath;
+  }
+  const matchCustomPath = matchPath<{ customSlug: string }>(path, {
+    path: [BUILDER_CUSTOM_PATH, VIEWER_CUSTOM_PATH],
+  });
+  if (matchCustomPath?.params) {
+    const { customSlug } = matchCustomPath.params;
+    if (params.customSlug) {
+      updatedPath = updatedPath.replace(
+        `${customSlug}`,
+        `${params.customSlug}-`,
+      );
+    } else {
+      updatedPath = updatedPath.replace(
+        `${customSlug}`,
+        `${params.applicationSlug}/${params.pageSlug}-`,
+      );
+    }
   }
   return updatedPath;
 };
@@ -753,3 +809,9 @@ export const updateSlugNamesInURL = (params: Record<string, string>) => {
   const newURL = getUpdatedRoute(pathname, params);
   history.replace(newURL + search);
 };
+
+export function AutoBind(target: any, _: string, descriptor: any) {
+  if (typeof descriptor.value === "function")
+    descriptor.value = descriptor.value.bind(target);
+  return descriptor;
+}
