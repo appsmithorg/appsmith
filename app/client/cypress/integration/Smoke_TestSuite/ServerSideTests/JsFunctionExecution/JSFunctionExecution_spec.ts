@@ -141,6 +141,8 @@ describe("JS Function Execution", function() {
       shouldCreateNewJSObj: false,
     });
 
+    agHelper.Sleep(2000); // Giving more time for parsing to reduce flakiness!
+
     // Assert presence of parse error callout (entire JS Object is invalid)
     jsEditor.AssertParseError(true, false);
     agHelper.ActionContextMenuWithInPane("Delete", "", true);
