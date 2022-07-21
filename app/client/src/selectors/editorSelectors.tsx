@@ -524,6 +524,3 @@ export const getIsSavingEntity = (state: AppState) =>
 
 export const selectJSCollections = (state: AppState) =>
   state.entities.jsActions;
-
-export const getCurrentFocusedEntityInfo = (state: AppState) =>
-  state.ui.editor.currentFocusedEntityInfo;
