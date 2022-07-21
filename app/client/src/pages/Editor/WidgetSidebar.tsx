@@ -18,6 +18,23 @@ function WidgetSidebar({ isActive }: { isActive: boolean }) {
 
   let fuse: Fuse<WidgetCardProps, Fuse.FuseOptions<WidgetCardProps>>;
 
+  useEffect(() => {
+    fuse = new Fuse(cards, {
+      keys: [
+        {
+          name: "displayName",
+          weight: 0.9,
+        },
+        {
+          name: "searchTags",
+          weight: 0.1,
+        },
+      ],
+      threshold: 0.2,
+      distance: 100,
+    });
+  }, [cards]);
+
   const filterCards = (keyword: string) => {
     if (keyword.trim().length > 0) {
       const searchResult = fuse.search(keyword);
