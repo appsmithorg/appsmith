@@ -5,6 +5,7 @@ require("cy-verify-downloads").addCustomCommand();
 require("cypress-file-upload");
 import gitSyncLocators from "../locators/gitSyncLocators";
 import homePage from "../locators/HomePage";
+
 const commonLocators = require("../locators/commonlocators.json");
 const GITHUB_API_BASE = "https://api.github.com";
 
@@ -99,23 +100,23 @@ Cypress.Commands.add(
 
       // click commit button
       /* if (shouldCommit) {
-          cy.get(gitSyncLocators.commitCommentInput).type("Initial Commit");
-          cy.get(gitSyncLocators.commitButton).click();
-          // check for commit success
-          cy.wait("@commit").should(
-            "have.nested.property",
-            "response.body.responseMeta.status",
-            201,
-          );
+      cy.get(gitSyncLocators.commitCommentInput).type("Initial Commit");
+      cy.get(gitSyncLocators.commitButton).click();
+      // check for commit success
+      cy.wait("@commit").should(
+        "have.nested.property",
+        "response.body.responseMeta.status",
+        201,
+      );
 
-          cy.get(gitSyncLocators.closeGitSyncModal).click();
-        }
-      } else {
-        cy.wait("@connectGitRepo").then((interception) => {
-          const status = interception.response.body.responseMeta.status;
-          expect(status).to.be.gte(400);
-        });
-      } */
+      cy.get(gitSyncLocators.closeGitSyncModal).click();
+    }
+  } else {
+    cy.wait("@connectGitRepo").then((interception) => {
+      const status = interception.response.body.responseMeta.status;
+      expect(status).to.be.gte(400);
+    });
+  } */
       cy.get(gitSyncLocators.closeGitSyncModal).click();
     });
   },
@@ -143,6 +144,7 @@ Cypress.Commands.add("latestDeployPreview", () => {
 
 Cypress.Commands.add("createGitBranch", (branch) => {
   cy.get(gitSyncLocators.branchButton).click({ force: true });
+  cy.wait(3000);
   cy.get(gitSyncLocators.branchSearchInput).type(`{selectall}${branch}{enter}`);
   // increasing timeout to reduce flakyness
   cy.get(".bp3-spinner", { timeout: 30000 }).should("exist");
@@ -152,6 +154,7 @@ Cypress.Commands.add("createGitBranch", (branch) => {
 Cypress.Commands.add("switchGitBranch", (branch, expectError) => {
   cy.get(gitSyncLocators.branchButton).click({ force: true });
   cy.get(gitSyncLocators.branchSearchInput).type(`{selectall}${branch}`);
+  cy.wait(400);
   cy.get(gitSyncLocators.branchListItem)
     .contains(branch)
     .click();
@@ -160,6 +163,7 @@ Cypress.Commands.add("switchGitBranch", (branch, expectError) => {
     cy.get(".bp3-spinner", { timeout: 30000 }).should("exist");
     cy.get(".bp3-spinner", { timeout: 30000 }).should("not.exist");
   }
+  cy.wait(2000);
 });
 
 Cypress.Commands.add("createTestGithubRepo", (repo, privateFlag = false) => {
@@ -232,7 +236,7 @@ Cypress.Commands.add("commitAndPush", (assertFailure) => {
       "response.body.responseMeta.status",
       201,
     );
-    cy.wait(2000);
+    cy.wait(3000);
   } else {
     cy.wait("@commit").then((interception) => {
       const status = interception.response.body.responseMeta.status;
@@ -276,11 +280,21 @@ Cypress.Commands.add(
 
 Cypress.Commands.add("merge", (destinationBranch) => {
   cy.get(gitSyncLocators.bottomBarMergeButton).click();
-  cy.wait(3000); // wait for git status call to finish
+  cy.wait(5000); // wait for git status call to finish
+  /*cy.wait("@gitStatus").should(
+    "have.nested.property",
+    "response.body.responseMeta.status",
+    200,
+  ); */
   cy.get(gitSyncLocators.mergeBranchDropdownDestination).click();
   cy.get(commonLocators.dropdownmenu)
     .contains(destinationBranch)
     .click();
+  cy.wait("@mergeStatus").should(
+    "have.nested.property",
+    "response.body.data.isMergeAble",
+    true,
+  );
   cy.contains(Cypress.env("MESSAGES").NO_MERGE_CONFLICT());
   cy.get(gitSyncLocators.mergeCTA).click();
   cy.wait("@mergeBranch").should(
@@ -308,7 +322,9 @@ Cypress.Commands.add(
         req.headers["origin"] = "Cypress";
       },
     );
-    cy.intercept("GET", "api/v1/git/import/keys").as(`generateKey-${repo}`);
+    cy.intercept("GET", "api/v1/git/import/keys?keyType=ECDSA").as(
+      `generateKey-${repo}`,
+    );
     cy.get(gitSyncLocators.gitRepoInput).type(
       `git@github.com:${owner}/${repo}.git`,
     );
@@ -361,14 +377,9 @@ Cypress.Commands.add(
   },
 );
 
-Cypress.Commands.add("gitDiscardChanges", (assertResourceFound = true) => {
+Cypress.Commands.add("gitDiscardChanges", () => {
   cy.get(gitSyncLocators.bottomBarCommitButton).click();
-  //cy.intercept("GET", "/api/v1/git/status/*").as("gitStatus");
-  //  cy.wait("@gitStatus").should(
-  //    "have.nested.property",
-  //    "response.body.responseMeta.status",
-  //   200,
-  // );
+  cy.wait(6000);
   cy.get(gitSyncLocators.discardChanges)
     .children()
     .should("have.text", "Discard changes");
@@ -381,52 +392,62 @@ Cypress.Commands.add("gitDiscardChanges", (assertResourceFound = true) => {
     .should("have.text", "Are you sure?");
   cy.get(gitSyncLocators.discardChanges).click();
   cy.contains(Cypress.env("MESSAGES").DISCARDING_AND_PULLING_CHANGES());
-  if (assertResourceFound) {
-    cy.wait("@applications").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      200,
-    );
-    cy.validateToastMessage("Discarded changes successfully.");
-  } else {
-    cy.get(".bold-text").should(($x) => {
-      expect($x).contain("Page not found");
-    });
-  }
-});
-
-Cypress.Commands.add("regenerateSSHKey", (repo, generateKey = true) => {
-  let generatedKey;
-  cy.get(gitSyncLocators.bottomBarCommitButton).click();
-  cy.get("[data-cy=t--tab-GIT_CONNECTION]").click();
   cy.wait(2000);
-  cy.get(gitSyncLocators.SSHKeycontextmenu).click();
-  cy.get(gitSyncLocators.regenerateSSHKey).click();
-  cy.contains(Cypress.env("MESSAGES").REGENERATE_KEY_CONFIRM_MESSAGE());
-  cy.xpath(gitSyncLocators.confirmButton).click();
-  cy.intercept("POST", "/api/v1/applications/ssh-keypair/*").as(
-    `generateKey-${repo}`,
-  );
-  if (generateKey) {
-    cy.wait(`@generateKey-${repo}`).then((result) => {
-      generatedKey = result.response.body.data.publicKey;
-      generatedKey = generatedKey.slice(0, generatedKey.length - 1);
-      // fetch the generated key and post to the github repo
-      cy.request({
-        method: "POST",
-        url: `${GITHUB_API_BASE}/repos/${Cypress.env(
-          "TEST_GITHUB_USER_NAME",
-        )}/${repo}/keys`,
-        headers: {
-          Authorization: `token ${Cypress.env("GITHUB_PERSONAL_ACCESS_TOKEN")}`,
-        },
-        body: {
-          title: "key0",
-          key: generatedKey,
-        },
-      });
-
-      cy.get(gitSyncLocators.closeGitSyncModal);
-    });
-  }
+  cy.validateToastMessage("Discarded changes successfully.");
 });
+
+Cypress.Commands.add(
+  "regenerateSSHKey",
+  (repo, generateKey = true, protocol = "ECDSA") => {
+    let generatedKey;
+    cy.get(gitSyncLocators.bottomBarCommitButton).click();
+    cy.get("[data-cy=t--tab-GIT_CONNECTION]").click();
+    cy.wait(2000);
+    cy.get(gitSyncLocators.SSHKeycontextmenu).click();
+    if (protocol === "ECDSA") {
+      cy.get(gitSyncLocators.regenerateSSHKeyECDSA).click();
+    } else if (protocol === "RSA") {
+      cy.get(gitSyncLocators.regenerateSSHKeyRSA).click();
+    }
+    cy.contains(Cypress.env("MESSAGES").REGENERATE_KEY_CONFIRM_MESSAGE());
+    cy.xpath(gitSyncLocators.confirmButton).click();
+    if (protocol === "ECDSA") {
+      cy.intercept("POST", "/api/v1/applications/ssh-keypair/*").as(
+        `generateKey-${repo}`,
+      );
+    } else if (protocol === "RSA") {
+      cy.intercept("POST", "/api/v1/applications/ssh-keypair/*?keyType=RSA").as(
+        `generateKey-${repo}-RSA`,
+      );
+    }
+
+    if (generateKey) {
+      if (protocol === "ECDSA") {
+        cy.wait(`@generateKey-${repo}`).then((result) => {
+          generatedKey = result.response.body.data.publicKey;
+          generatedKey = generatedKey.slice(0, generatedKey.length - 1);
+          // fetch the generated key and post to the github repo
+          cy.request({
+            method: "POST",
+            url: `${GITHUB_API_BASE}/repos/${Cypress.env(
+              "TEST_GITHUB_USER_NAME",
+            )}/${repo}/keys`,
+            headers: {
+              Authorization: `token ${Cypress.env(
+                "GITHUB_PERSONAL_ACCESS_TOKEN",
+              )}`,
+            },
+            body: {
+              title: "key0",
+              key: generatedKey,
+            },
+          });
+
+          cy.get(gitSyncLocators.closeGitSyncModal);
+        });
+      } else if (protocol === "RSA") {
+        // doesn't work with github
+      }
+    }
+  },
+);

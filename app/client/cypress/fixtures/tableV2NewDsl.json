@@ -21,6 +21,7 @@
         "children": [
             {
                 "widgetName": "Table1",
+                "inlineEditingSaveOption": "ROW_LEVEL",
                 "columnOrder": [
                     "id",
                     "email",
