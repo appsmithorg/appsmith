@@ -65,5 +65,9 @@
   "mongoUriDropdown": "//p[text()='Use Mongo Connection String URI']/following-sibling::div",
   "mongoUriYes": "//div[text()='Yes']",
   "mongoUriInput":"//p[text()='Connection String URI']/following-sibling::div//input",
+  "advancedSettings": "[data-cy='section-Advanced Settings']",
+  "useSelfSignedCert": ".t--connection\\.ssl\\.authType",
+  "useCertInAuth": "[data-cy='authentication.useSelfSignedCert'] input",
+  "certificateDetails": "[data-cy='section-Certificate Details']",
   "saveBtn": ".t--save-datasource"
 }
