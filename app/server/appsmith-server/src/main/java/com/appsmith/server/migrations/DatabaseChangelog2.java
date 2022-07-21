@@ -44,7 +44,9 @@ import com.github.cloudyrock.mongock.ChangeLog;
 import com.github.cloudyrock.mongock.ChangeSet;
 import com.github.cloudyrock.mongock.driver.mongodb.springdata.v3.decorator.impl.MongockTemplate;
 import com.google.gson.Gson;
+import com.mongodb.client.AggregateIterable;
 import lombok.extern.slf4j.Slf4j;
+import org.bson.Document;
 import org.springframework.data.mongodb.core.aggregation.AggregationUpdate;
 import org.springframework.data.mongodb.core.aggregation.Fields;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -59,6 +61,7 @@ import reactor.core.publisher.Flux;
 
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -71,6 +74,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNewFieldValuesIntoOldObject;
 import static com.appsmith.server.migrations.DatabaseChangelog.dropIndexIfExists;
 import static com.appsmith.server.migrations.DatabaseChangelog.ensureIndexes;
 import static com.appsmith.server.migrations.DatabaseChangelog.getUpdatedDynamicBindingPathList;
@@ -79,6 +83,8 @@ import static com.appsmith.server.repositories.BaseAppsmithRepositoryImpl.fieldN
 import static java.lang.Boolean.TRUE;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 import static org.springframework.data.mongodb.core.query.Query.query;
+import static com.mongodb.client.model.Aggregates.*;
+
 
 @Slf4j
 @ChangeLog(order = "002")
@@ -1393,7 +1399,7 @@ public class DatabaseChangelog2 {
         return applications.stream().map(getThemeIdMethod).collect(Collectors.toList());
     }
 
-    @ChangeSet(order = "020", id = "fix-deleted-themes-when-git-branch-deleted", author = "")
+    @ChangeSet(order = "022", id = "fix-deleted-themes-when-git-branch-deleted", author = "")
     public void fixDeletedThemesWhenGitBranchDeleted(MongockTemplate mongockTemplate) {
         Query getSystemThemesQuery = new Query(Criteria.where(fieldName(QTheme.theme.isSystemTheme)).is(TRUE));
         getSystemThemesQuery.fields().include(fieldName(QTheme.theme.id));
@@ -1419,5 +1425,49 @@ public class DatabaseChangelog2 {
                 .and(fieldName(QTheme.theme.deleted)).is(true);
 
         mongockTemplate.updateMulti(new Query(deletedCustomThemes), update, Theme.class);
+    }
+
+
+    @ChangeSet(order = "023", id = "clone-themes-for-branched-applications", author = "")
+    public void cloneThemesForTheBranchedApplicationsUsingTheSameTheme(MongockTemplate mongockTemplate) {
+        Arrays.asList(new Document("$group",
+                new Document("_id", "$publishedModeThemeId")));
+
+        // Collect all the duplicate editModeThemes
+        AggregateIterable<Document> duplicateEditModeThemeIds = mongockTemplate.getCollection("application").aggregate(Arrays.asList(new Document("$group",
+                new Document("_id", "$publishedModeThemeId"))));
+
+        for (Document document : duplicateEditModeThemeIds) {
+            if (!StringUtils.isEmpty(document.toJson())) {
+                String id = document.toJson().split(":")[1];
+                id = id.replace("}", "").replace("\"", "").replace(" ", "");
+
+                Query query = new Query(Criteria.where(fieldName(QApplication.application.editModeThemeId)).is(id))
+                        .addCriteria(where(fieldName(QApplication.application.deleted)).is(false));
+                List<Application> applicationList = mongockTemplate.find(query, Application.class);
+
+                if (applicationList.size() > 1) {
+
+                    // Remove one as we will create a  new theme for all the other branch apps
+                    applicationList.remove(applicationList.size() - 1);
+
+                    Query themeQuery = new Query(Criteria.where(fieldName(QTheme.theme.id)).is(id))
+                            .addCriteria(where(fieldName(QTheme.theme.deleted)).is(false));
+                    Theme theme = mongockTemplate.findOne(themeQuery, Theme.class);
+
+                    for (Application application : applicationList) {
+                        Theme newTheme = new Theme();
+                        copyNewFieldValuesIntoOldObject(theme, newTheme);
+                        newTheme.setId(null);
+                        newTheme = mongockTemplate.insert(newTheme);
+
+                        application.setEditModeThemeId(newTheme.getId());
+                        application.setPublishedModeThemeId(newTheme.getId());
+
+                        mongockTemplate.save(application);
+                    }
+                }
+            }
+        }
     }
 }
