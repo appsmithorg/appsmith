@@ -27,6 +27,9 @@ server {
   root /opt/appsmith/editor;
   index index.html index.htm;
 
+  # https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy/frame-ancestors
+  add_header Content-Security-Policy "frame-ancestors ${APPSMITH_ALLOWED_FRAME_ANCESTORS-'self'}";
+
   location /.well-known/acme-challenge/ {
     root /appsmith-stacks/data/certificate/certbot;
   }
@@ -40,13 +43,13 @@ server {
     proxy_buffering     off;
     proxy_max_temp_file_size 0;
     proxy_redirect     off;
-    
+
     proxy_set_header  Host             	\$http_host/supervisor/;
     proxy_set_header  X-Forwarded-For  	\$proxy_add_x_forwarded_for;
     proxy_set_header 	X-Forwarded-Proto \$scheme;
     proxy_set_header 	X-Forwarded-Host 	\$http_host;
     proxy_set_header  Connection       "";
-    
+
     proxy_pass http://localhost:9001/;
 
     auth_basic "Protected";
