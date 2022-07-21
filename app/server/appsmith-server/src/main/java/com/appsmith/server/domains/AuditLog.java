@@ -6,7 +6,6 @@ import lombok.Setter;
 import lombok.ToString;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import java.util.List;
 import java.util.Map;
 
 @Getter
@@ -15,6 +14,21 @@ import java.util.Map;
 @Document
 public class AuditLog extends BaseDomain {
     String name;
+
     String userId;
-    List<Map<String, String>> metadata;
+
+    String pageId;
+
+    String newActionId;
+
+    String appId;
+
+    String appName;
+
+    String workspaceId;
+
+    String datasourceId;
+
+    // This field will store all the extra details about the event like instance version
+    Map<String, Object> metadata;
 }
