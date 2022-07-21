@@ -55,7 +55,6 @@ import com.appsmith.server.services.NewPageService;
 import com.appsmith.server.services.PluginService;
 import com.appsmith.server.services.SessionUserService;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.ArrayUtils;
@@ -978,40 +977,16 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                     actionExecutionRequest.getActionId(),
                     actionExecutionRequest.getRequestedAt(),
                     actionExecutionRequest.getQuery(),
-                    actionExecutionRequest.getBody(),
-                    actionExecutionRequest.getHeaders(),
+                    null,
+                    null,
                     actionExecutionRequest.getHttpMethod(),
                     actionExecutionRequest.getUrl(),
-                    actionExecutionRequest.getProperties(),
+                    null,
                     actionExecutionRequest.getExecutionParameters(),
                     null
             );
         } else {
             request = new ActionExecutionRequest();
-        }
-
-        if (request.getHeaders() != null) {
-            JsonNode headers = objectMapper.convertValue(request.getHeaders(), JsonNode.class);
-            try {
-                String headersAsString = objectMapper.writeValueAsString(headers);
-                request.setHeaders(headersAsString);
-            } catch (JsonProcessingException e) {
-                log.error(e.getMessage());
-            }
-        }
-
-        if (!CollectionUtils.isEmpty(request.getProperties())) {
-            final Map<String, String> stringProperties = new HashMap<>();
-            for (final Map.Entry<String, ?> entry : request.getProperties().entrySet()) {
-                String jsonValue;
-                try {
-                    jsonValue = objectMapper.writeValueAsString(entry.getValue());
-                } catch (JsonProcessingException e) {
-                    jsonValue = "\"Error serializing value to JSON.\"";
-                }
-                stringProperties.put(entry.getKey(), jsonValue);
-            }
-            request.setProperties(stringProperties);
         }
 
         return Mono.justOrEmpty(action.getApplicationId())
@@ -1030,9 +1005,8 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                     final Plugin plugin = tuple.getT4();
 
                     final PluginType pluginType = action.getPluginType();
-                    final Map<String, Object> data = new HashMap<>();
 
-                    data.putAll(Map.of(
+                    final Map<String, Object> data = new HashMap<>(Map.of(
                             "username", user.getUsername(),
                             "type", pluginType,
                             "pluginName", plugin.getName(),
@@ -1048,7 +1022,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                     ));
 
                     String dsCreatedAt = "";
-                    if (datasource != null && datasource.getCreatedAt() != null) {
+                    if (datasource.getCreatedAt() != null) {
                         dsCreatedAt = DateUtils.ISO_FORMATTER.format(datasource.getCreatedAt());
                     }
 
