@@ -42,9 +42,14 @@ describe("Import, Export and Fork application and validate data binding", functi
       cy.get(homePage.applicationName)
         .clear()
         .type(appName);
+      cy.get("body").click(0, 0);
+      cy.wait("@updateApplication").should(
+        "have.nested.property",
+        "response.body.responseMeta.status",
+        200,
+      );
       cy.wait(2000);
       cy.wrap(appName).as("appname");
-      cy.get("body").click(0, 0);
       cy.wait(3000);
       // validating data binding for the imported application
       cy.xpath("//input[@value='Submit']").should("be.visible");
