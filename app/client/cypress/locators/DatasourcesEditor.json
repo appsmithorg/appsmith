@@ -56,6 +56,10 @@
   "clientCredentials": ".t--dropdown-option:contains('Client Credentials')",
   "clientAuthentication": "[data-cy='authentication.isAuthorizationHeader']",
   "sendClientCredentialsInBody": ".t--dropdown-option:contains('Send client credentials in body')",
+  "scopeString": "[data-cy='datasourceConfiguration.authentication.scopeString']",
+  "GS_readFiles": "[data-cy='t--dropdown-option-Read Files']",
+  "GS_readAndEditFiles": "[data-cy='t--dropdown-option-Read, Edit and Create Files']",
+  "GS_readEditCreateAndDeleteFiles": "[data-cy='t--dropdown-option-Read, Edit, Create and Delete Files']",
   "saveAndAuthorize": "button:contains('Save and Authorize')",
   "basic": "//div[contains(@class,'option') and text()='Basic']",
   "basicUsername": "input[name='authentication.username']",
@@ -65,5 +69,9 @@
   "mongoUriDropdown": "//p[text()='Use Mongo Connection String URI']/following-sibling::div",
   "mongoUriYes": "//div[text()='Yes']",
   "mongoUriInput":"//p[text()='Connection String URI']/following-sibling::div//input",
+  "advancedSettings": "[data-cy='section-Advanced Settings']",
+  "useSelfSignedCert": ".t--connection\\.ssl\\.authType",
+  "useCertInAuth": "[data-cy='authentication.useSelfSignedCert'] input",
+  "certificateDetails": "[data-cy='section-Certificate Details']",
   "saveBtn": ".t--save-datasource"
 }
