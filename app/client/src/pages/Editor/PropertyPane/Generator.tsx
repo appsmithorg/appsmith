@@ -103,15 +103,21 @@ function EmptySearchResult() {
 }
 
 function PropertyControlsGenerator(props: PropertyControlsGeneratorProps) {
-  const config = searchProperty(props.config, props.searchQuery);
+  const searchResults = searchProperty(props.config, props.searchQuery);
 
-  return props.searchQuery &&
+  const isSearchResultEmpty =
+    props.searchQuery &&
     props.searchQuery.length > 0 &&
-    config.length === 0 ? (
+    searchResults.length === 0;
+
+  return isSearchResultEmpty ? (
     <EmptySearchResult />
   ) : (
     <>
-      {generatePropertyControl(config as readonly PropertyPaneConfig[], props)}
+      {generatePropertyControl(
+        searchResults as readonly PropertyPaneConfig[],
+        props,
+      )}
     </>
   );
 }
