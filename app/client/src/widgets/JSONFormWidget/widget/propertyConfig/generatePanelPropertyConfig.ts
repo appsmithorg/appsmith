@@ -134,6 +134,7 @@ function generatePanelPropertyConfig(
           ...MULTI_SELECT_PROPERTIES.content.data,
           ...DATE_PROPERTIES.content.data,
           ...CHECKBOX_PROPERTIES.content.data,
+          ...ARRAY_PROPERTIES.content.data,
           {
             propertyName: "children",
             label: "Field Configuration",
@@ -151,7 +152,6 @@ function generatePanelPropertyConfig(
             },
             dependencies: ["schema", "childStylesheet"],
           },
-          ...ARRAY_PROPERTIES.content.data,
         ],
       },
       {
