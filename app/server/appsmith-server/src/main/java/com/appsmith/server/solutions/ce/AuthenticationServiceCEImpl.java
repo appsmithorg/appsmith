@@ -32,7 +32,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.bson.internal.Base64;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
-import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -176,8 +175,7 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
                         httpClient.secure(SSLHelper.sslCheckForHttpClient(datasource.getDatasourceConfiguration()));
                     }
 
-                    WebClient.Builder builder = WebClientUtils.builder()
-                            .clientConnector(new ReactorClientHttpConnector(httpClient))
+                    WebClient.Builder builder = WebClientUtils.builder(httpClient)
                             .baseUrl(oAuth2.getAccessTokenUrl());
 
                     MultiValueMap<String, String> map = new LinkedMultiValueMap<>();

@@ -16,7 +16,6 @@ import org.bson.internal.Base64;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
-import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.reactive.function.BodyExtractors;
@@ -110,8 +109,7 @@ public class OAuth2AuthorizationCode extends APIConnection implements UpdatableC
         final HttpClient securedHttpClient = this.getSecuredHttpClient(datasourceConfiguration);
 
         // Webclient
-        WebClient.Builder webClientBuilder = WebClientUtils.builder()
-                .clientConnector(new ReactorClientHttpConnector(securedHttpClient))
+        WebClient.Builder webClientBuilder = WebClientUtils.builder(securedHttpClient)
                 .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED_VALUE)
                 .exchangeStrategies(ExchangeStrategies
                         .builder()

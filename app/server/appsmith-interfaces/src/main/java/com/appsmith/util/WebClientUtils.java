@@ -26,13 +26,7 @@ public class WebClientUtils {
     }
 
     public static WebClient.Builder builder() {
-        HttpClient httpClient = applyProxyIfConfigured(HttpClient.create());
-
-        if (shouldUseSystemProxy()) {
-            httpClient = httpClient.proxyWithSystemProperties();
-        }
-
-        return builder(httpClient);
+        return builder(HttpClient.create());
     }
 
     public static WebClient.Builder builder(HttpClient httpClient) {
