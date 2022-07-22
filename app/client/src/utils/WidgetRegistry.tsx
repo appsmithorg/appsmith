@@ -199,6 +199,7 @@ export const ALL_WIDGETS_AND_CONFIG = [
   [CurrencyInputWidget, CURRENCY_INPUT_WIDGET_V2_CONFIG],
   [JSONFormWidget, JSON_FORM_WIDGET_CONFIG],
   [TableWidgetV2, TABLE_WIDGET_CONFIG_V2],
+  [JsonEditorWidget, JSON_EDITOR_WIDGET_CONFIG],
 
   //Deprecated Widgets
   [InputWidget, INPUT_WIDGET_CONFIG],
