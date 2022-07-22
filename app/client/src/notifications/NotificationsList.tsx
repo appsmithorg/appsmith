@@ -116,7 +116,9 @@ function NotificationsList() {
         backgroundColor={Colors.WARNING_ORANGE}
         className="t--deprecation-warning"
         ctaText={"Read more about it here"}
-        ctaURL={"https://www.google.com"}
+        ctaURL={
+          "https://appsmith.notion.site/Deprecating-real-time-commenting-60a307d2c5e1485b85ff95afebb616eb"
+        }
         icon="warning-line"
         iconColor={Colors.WARNING_SOLID}
         iconSize={IconSize.XXXXL}
