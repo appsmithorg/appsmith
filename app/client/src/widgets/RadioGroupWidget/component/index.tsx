@@ -10,7 +10,6 @@ import LabelWithTooltip, {
   labelLayoutStyles,
   LABEL_CONTAINER_CLASS,
 } from "components/ads/LabelWithTooltip";
-import { Colors } from "constants/Colors";
 
 export interface RadioGroupContainerProps {
   compactMode: boolean;
@@ -46,13 +45,8 @@ const StyledRadioGroup = styled(RadioGroup)<StyledRadioGroupProps>`
     }
 
     & input:disabled:checked ~ .${Classes.CONTROL_INDICATOR} {
-      background: ${Colors.CONCRETE} !important;
-      border: 1px solid ${Colors.CONCRETE} !important;
-
       &:before {
-       background-image: radial-gradient(${Colors.GREY_6}, ${
-  Colors.GREY_6
-} 28%, transparent 32%)
+       background-image: radial-gradient(var( --wds-color-bg-disabled-strong), var( --wds-color-bg-disabled-strong) 28%, transparent 32%)
       }
     }
   }
@@ -82,6 +76,7 @@ function RadioGroupComponent(props: RadioGroupComponentProps) {
     loading,
     onRadioSelectionChange,
     options,
+    required,
     selectedOptionValue,
   } = props;
 
@@ -137,6 +132,7 @@ function RadioGroupComponent(props: RadioGroupComponentProps) {
               inline={inline}
               key={optInd}
               label={option.label}
+              required={required}
               value={option.value}
             />
           );
@@ -165,6 +161,7 @@ export interface RadioGroupComponentProps extends ComponentProps {
   widgetId: string;
   height?: number;
   accentColor: string;
+  required?: boolean;
 }
 
 export default RadioGroupComponent;

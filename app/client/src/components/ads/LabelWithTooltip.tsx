@@ -97,7 +97,7 @@ export const labelLayoutStyles = css<{
 
   align-items: ${({ compactMode, labelPosition }) => {
     if (labelPosition === LabelPosition.Top) return "flex-start";
-    if (compactMode || labelPosition === LabelPosition.Left) return "center";
+    if (compactMode) return "center";
     return "flex-start";
   }};
   justify-content: ${({ compactMode, labelPosition }) => {
