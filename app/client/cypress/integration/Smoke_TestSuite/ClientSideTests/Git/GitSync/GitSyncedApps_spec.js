@@ -162,12 +162,14 @@ describe("Git sync apps", function() {
     // bind input widgets to the api calls responses
     cy.dragAndDropToCanvas("inputwidgetv2", { x: 300, y: 300 });
     cy.get(".t--widget-inputwidgetv2").should("exist");
+    cy.EnableAllCodeEditors();
     cy.get(dynamicInputLocators.input)
       .eq(1)
       .click({ force: true })
       .type("{{Api1.data.body.name}}", { parseSpecialCharSequences: false });
     cy.dragAndDropToCanvas("inputwidgetv2", { x: 300, y: 500 });
     cy.get(".t--widget-inputwidgetv2").should("exist");
+    cy.EnableAllCodeEditors();
     cy.get(dynamicInputLocators.input)
       .eq(1)
       .click({ force: true })
@@ -315,12 +317,14 @@ describe("Git sync apps", function() {
     // bind input widgets to the jsObject and query response
     cy.dragAndDropToCanvas("inputwidgetv2", { x: 300, y: 300 });
     cy.get(".t--widget-inputwidgetv2").should("exist");
+    cy.EnableAllCodeEditors();
     cy.get(dynamicInputLocators.input)
       .eq(1)
       .click({ force: true })
       .type("{{JSObject1.myFun1()}}", { parseSpecialCharSequences: false });
     cy.dragAndDropToCanvas("inputwidgetv2", { x: 300, y: 500 });
     cy.get(".t--widget-inputwidgetv2").should("exist");
+    cy.EnableAllCodeEditors();
     cy.get(dynamicInputLocators.input)
       .eq(1)
       .click({ force: true })

@@ -5,10 +5,12 @@ import com.appsmith.external.models.Connection;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.Endpoint;
 import com.appsmith.external.models.Property;
-import org.assertj.core.api.IterableAssert;
+import org.assertj.core.api.AbstractCollectionAssert;
+import org.assertj.core.api.ObjectAssert;
 import org.junit.Test;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -44,7 +46,8 @@ public class MustacheHelperTest {
         }
     }
 
-    private IterableAssert<String> assertKeys(Object object) {
+    private AbstractCollectionAssert<?, Collection<? extends String>, String, ObjectAssert<String>>
+    assertKeys(Object object) {
         return assertThat(extractMustacheKeysFromFields(object));
     }
 
