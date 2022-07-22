@@ -92,6 +92,7 @@ export interface SelectAllProps {
 function SelectAll(props: SelectAllProps) {
   const {
     accentColor,
+    borderRadius,
     checked,
     disabled,
     indeterminate,
@@ -102,6 +103,7 @@ function SelectAll(props: SelectAllProps) {
   return (
     <StyledCheckbox
       accentColor={accentColor}
+      borderRadius={borderRadius}
       checked={checked}
       className="select-all"
       disabled={disabled}

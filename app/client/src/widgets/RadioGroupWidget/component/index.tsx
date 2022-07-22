@@ -46,6 +46,7 @@ const StyledRadioGroup = styled(RadioGroup)<StyledRadioGroupProps>`
 
     & input:disabled:checked ~ .${Classes.CONTROL_INDICATOR} {
       &:before {
+       opacity: 1;
        background-image: radial-gradient(var( --wds-color-bg-disabled-strong), var( --wds-color-bg-disabled-strong) 28%, transparent 32%)
       }
     }
