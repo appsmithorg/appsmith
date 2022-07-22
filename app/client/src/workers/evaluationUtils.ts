@@ -857,8 +857,6 @@ export const overrideWidgetProperties = (params: {
     }
   }
 };
-
-<<<<<<< HEAD
 export function isValidEntity(
   entity: DataTreeEntity,
 ): entity is DataTreeObjectEntity {
@@ -867,11 +865,9 @@ export function isValidEntity(
   }
   return "ENTITY_TYPE" in entity;
 }
-=======
 export const isATriggerPath = (
   entity: DataTreeEntity,
   propertyPath: string,
 ) => {
   return isWidget(entity) && isPathADynamicTrigger(entity, propertyPath);
 };
->>>>>>> 38ca18950 (Revamp linting architecture)
