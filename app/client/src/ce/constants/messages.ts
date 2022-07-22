@@ -190,7 +190,7 @@ export const SIGN_IN = () => `Sign in`;
 export const CREATE_NEW_APPLICATION = () => `Create new`;
 export const SEARCH_APPS = () => `Search for apps...`;
 export const GETTING_STARTED = () => `GETTING STARTED`;
-export const WORKSPACES_HEADING = () => `ORGANIZATIONS`;
+export const WORKSPACES_HEADING = () => `WORKSPACES`;
 export const WELCOME_TOUR = () => `Welcome Tour`;
 export const NO_APPS_FOUND = () =>
   `Whale! Whale! This name doesn't ring a bell!`;
@@ -511,7 +511,7 @@ export const SELECT_A_METHOD_TO_ADD_CREDENTIALS = () =>
   "Select a method to add credentials";
 export const DELETE_CONFIRMATION_MODAL_TITLE = () => `Are you sure?`;
 export const DELETE_CONFIRMATION_MODAL_SUBTITLE = (name?: string | null) =>
-  `You want to remove ${name} from this organization`;
+  `You want to remove ${name} from this workspace`;
 export const PARSING_ERROR = () =>
   "Syntax Error: Unable to parse code, please check error logs to debug";
 export const PARSING_WARNING = () =>
@@ -645,7 +645,11 @@ export const COMMIT_TO = () => "Commit to";
 export const COMMIT_AND_PUSH = () => "Commit & push";
 export const PULL_CHANGES = () => "PULL CHANGES";
 export const DEPLOY_KEY_TITLE = () => "Deployed Key";
-export const REGENERATE_SSH_KEY = () => "Regenerate SSH Key";
+export const REGENERATE_SSH_KEY = (keyType: string, keySize: number) =>
+  `Regenerate ${keyType} ${keySize} key`;
+export const GENERATE_SSH_KEY = (keyType: string, keySize: number) =>
+  `${keyType} ${keySize} key`;
+export const SSH_KEY_PLATFORM = (name: string) => ` (${name})`;
 export const SSH_KEY = () => "SSH Key";
 export const COPY_SSH_KEY = () => "Copy SSH Key";
 export const SSH_KEY_GENERATED = () => "SSH Key generated";
@@ -1085,7 +1089,7 @@ export const GENERATE_APPLICATION_TITLE = () => "Generate Page";
 export const GENERATE_APPLICATION_DESCRIPTION = () =>
   "Quickly generate a page to perform CRUD operations on your database tables";
 export const DELETE_WORKSPACE_SUCCESSFUL = () =>
-  "Organization deleted successfully";
+  "Workspace deleted successfully";
 // theming
 export const CHANGE_APP_THEME = (name: string) => `Theme ${name} Applied`;
 export const SAVE_APP_THEME = (name: string) => `Theme ${name} Saved`;
@@ -1198,7 +1202,7 @@ export const EMPTY_DATASOURCE_BUTTON_TEXT = () => "NEW DATASOURCE";
 export const MORE = () => "MORE";
 export const SHOW_LESS = () => "SHOW LESS";
 export const CHOOSE_WHERE_TO_FORK = () => "Choose where to fork the template";
-export const SELECT_WORKSPACE = () => "Select Organization";
+export const SELECT_WORKSPACE = () => "Select Workspace";
 export const FORK_TEMPLATE = () => "FORK TEMPLATE";
 export const TEMPLATES = () => "TEMPLATES";
 export const FORK_THIS_TEMPLATE = () => "Fork this template";
@@ -1231,9 +1235,9 @@ export const ENTITY_ID_TOOLTIP = () =>
   "This URL will be used while configuring your Identity Provider's Entity ID URL";
 
 export const FORK_APP_MODAL_LOADING_TITLE = () =>
-  "Fetching organisations to fork to...";
+  "Fetching workspaces to fork to...";
 export const FORK_APP_MODAL_EMPTY_TITLE = () =>
-  "No organisation available to fork to";
+  "No workspace available to fork to";
 export const FORK_APP_MODAL_SUCCESS_TITLE = () =>
   "Choose where to fork the app";
 export const FORK = () => `FORK`;

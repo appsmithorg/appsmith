@@ -31,7 +31,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.mongodb.ConnectionString;
-import com.mongodb.DBObjectCodecProvider;
 import com.mongodb.DBRefCodecProvider;
 import com.mongodb.MongoClientSettings;
 import com.mongodb.MongoCommandException;
@@ -49,6 +48,8 @@ import org.bson.codecs.BsonTypeClassMap;
 import org.bson.codecs.BsonValueCodecProvider;
 import org.bson.codecs.DocumentCodec;
 import org.bson.codecs.DocumentCodecProvider;
+import org.bson.codecs.IterableCodecProvider;
+import org.bson.codecs.MapCodecProvider;
 import org.bson.codecs.ValueCodecProvider;
 import org.bson.codecs.configuration.CodecRegistries;
 import org.bson.codecs.configuration.CodecRegistry;
@@ -71,6 +72,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -192,15 +194,16 @@ public class MongoPlugin extends BasePlugin {
 
     private static final MongoErrorUtils mongoErrorUtils = MongoErrorUtils.getInstance();
 
-    private static final CodecRegistry DEFAULT_REGISTRY = CodecRegistries.fromProviders(
-            asList(new ValueCodecProvider(),
-                    new BsonValueCodecProvider(),
-                    new DocumentCodecProvider(),
-                    new DBRefCodecProvider(),
-                    new DBObjectCodecProvider(),
-                    new BsonValueCodecProvider(),
-                    new GeoJsonCodecProvider(),
-                    new GridFSFileCodecProvider()));
+    private static final CodecRegistry DEFAULT_REGISTRY = CodecRegistries.fromProviders(Arrays.asList(
+            new ValueCodecProvider(),
+            new IterableCodecProvider(),
+            new BsonValueCodecProvider(),
+            new DocumentCodecProvider(),
+            new MapCodecProvider(),
+            new DBRefCodecProvider(),
+            new GeoJsonCodecProvider(),
+            new GridFSFileCodecProvider()
+    ));
 
     private static final BsonTypeClassMap DEFAULT_BSON_TYPE_CLASS_MAP = new org.bson.codecs.BsonTypeClassMap();
 
@@ -921,6 +924,20 @@ public class MongoPlugin extends BasePlugin {
                 return jsonObject.getString("$oid");
 
             } else if (isSingleKey && "$date".equals(jsonObject.keys().next())) {
+                JSONObject dateJSON = jsonObject.optJSONObject("$date");
+                /*
+                    For dates before Jan 1, 1970 then the output json from MongoDB driver looks like
+                    "$date": {
+                        "$numberLong": "-493033770000"
+                    }
+                    And for dates on or after Jan 1, 1970 the output json from MongoDB driver is readily available and looks like
+                    "$date": "2022-07-01T10:32:37.318Z"
+                */
+                if (dateJSON != null && dateJSON.keySet().size() == 1 &&
+                        "$numberLong".equals(dateJSON.keys().next())) {
+                    return DateTimeFormatter.ISO_INSTANT.format(
+                            Instant.ofEpochMilli(dateJSON.getLong("$numberLong")));
+                }
                 return DateTimeFormatter.ISO_INSTANT.format(
                         Instant.parse(jsonObject.getString("$date"))
                 );

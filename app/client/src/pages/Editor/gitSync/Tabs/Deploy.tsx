@@ -57,7 +57,7 @@ import Link from "../components/Link";
 import ConflictInfo from "../components/ConflictInfo";
 import Icon, { IconSize } from "components/ads/Icon";
 
-import { isMac } from "utils/helpers";
+import { isMacOrIOS } from "utils/helpers";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import {
   getApplicationLastDeployedAt,
@@ -128,7 +128,7 @@ function SubmitWrapper(props: {
   onSubmit: () => void;
 }) {
   const onKeyDown = (e: React.KeyboardEvent) => {
-    const triggerSubmit = isMac()
+    const triggerSubmit = isMacOrIOS()
       ? e.metaKey && e.key === "Enter"
       : e.ctrlKey && e.key === "Enter";
     if (triggerSubmit) props.onSubmit();
@@ -216,11 +216,6 @@ function Deploy() {
   const commitButtonDisabled =
     !hasChangesToCommit || !commitMessage || commitMessage.trim().length < 1;
   const commitButtonLoading = isCommittingInProgress;
-  const commitInputDisabled =
-    !hasChangesToCommit ||
-    isCommittingInProgress ||
-    isCommitAndPushSuccessful ||
-    isDiscarding;
 
   const commitRequired =
     !!gitStatus?.modifiedPages ||
@@ -228,7 +223,12 @@ function Deploy() {
     !!gitStatus?.modifiedJSObjects ||
     !!gitStatus?.modifiedDatasources;
   const isConflicting = !isFetchingGitStatus && !!pullFailed;
-
+  const commitInputDisabled =
+    isConflicting ||
+    !hasChangesToCommit ||
+    isCommittingInProgress ||
+    isCommitAndPushSuccessful ||
+    isDiscarding;
   const pullRequired =
     gitError?.code === GIT_ERROR_CODES.PUSH_FAILED_REMOTE_COUNTERPART_IS_AHEAD;
 
@@ -381,14 +381,6 @@ function Deploy() {
               width="max-content"
             />
           )}
-          {isConflicting && (
-            <ConflictInfo
-              browserSupportedRemoteUrl={
-                gitMetaData?.browserSupportedRemoteUrl || ""
-              }
-              learnMoreLink={gitConflictDocumentUrl}
-            />
-          )}
 
           {showCommitButton && (
             <Tooltip
@@ -432,7 +424,14 @@ function Deploy() {
             />
           )}
         </ActionsContainer>
-
+        {isConflicting && (
+          <ConflictInfo
+            browserSupportedRemoteUrl={
+              gitMetaData?.browserSupportedRemoteUrl || ""
+            }
+            learnMoreLink={gitConflictDocumentUrl}
+          />
+        )}
         {isCommitting && !isDiscarding && (
           <StatusbarWrapper>
             <Statusbar

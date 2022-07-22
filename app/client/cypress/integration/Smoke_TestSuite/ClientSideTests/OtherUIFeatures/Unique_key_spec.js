@@ -14,7 +14,6 @@ describe("Unique react keys", function() {
   it("Should not create duplicate versions of widget on drop from explorer", function() {
     cy.get(explorer.addWidget).click();
     cy.dragAndDropToCanvas("chartwidget", { x: 200, y: 200 });
-
     cy.dragAndDropToCanvas("selectwidget", { x: 200, y: 600 });
     cy.dragAndDropToCanvas("selectwidget", { x: 200, y: 700 });
 
@@ -28,7 +27,6 @@ describe("Unique react keys", function() {
     const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
     cy.get(explorer.addWidget).click();
     cy.dragAndDropToCanvas("chartwidget", { x: 200, y: 200 });
-
     cy.dragAndDropToCanvas("selectwidget", { x: 200, y: 600 });
     //copy and paste
     cy.openPropertyPane("selectwidget");
