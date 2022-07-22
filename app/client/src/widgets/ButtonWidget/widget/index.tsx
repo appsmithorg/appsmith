@@ -125,6 +125,7 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
           },
         ],
       },
+      // TODO: refactor widgetParentProps implementation when we address #10659
       {
         sectionName: "Form options",
         hidden: (
