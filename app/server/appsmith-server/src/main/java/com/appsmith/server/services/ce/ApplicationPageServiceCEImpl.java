@@ -41,6 +41,7 @@ import com.appsmith.server.services.NewActionService;
 import com.appsmith.server.services.NewPageService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.ThemeService;
+import com.appsmith.server.services.WorkspaceService;
 import com.google.common.base.Strings;
 import com.mongodb.client.result.UpdateResult;
 import lombok.RequiredArgsConstructor;
@@ -77,6 +78,7 @@ import static org.apache.commons.lang.ObjectUtils.defaultIfNull;
 @RequiredArgsConstructor
 public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
 
+    private final WorkspaceService workspaceService;
     private final ApplicationService applicationService;
     private final SessionUserService sessionUserService;
     private final WorkspaceRepository workspaceRepository;
@@ -781,7 +783,10 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                                                         application.getId(), editModeThemeId, publishedModeThemeId, MANAGE_APPLICATIONS
                                                 ).thenReturn(application);
                                             })
-                            );
+                            )
+                            .flatMap(application -> {
+                                return sendCloneApplicationAnalyticsEvent(sourceApplication, application);
+                            });
                 });
 
         // Clone Application is currently a slow API because it needs to create application, clone all the pages, and then
@@ -1107,5 +1112,30 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                 });
     }
 
+    /**
+     * To send analytics event for cloning an application
+     * @param sourceApplication The application from which cloning is done
+     * @param application The newly created application by cloning
+     * @return The newly created application by cloning
+     */
+    private Mono<Application> sendCloneApplicationAnalyticsEvent(Application sourceApplication, Application application) {
+        return workspaceService.getById(application.getWorkspaceId())
+                .flatMap(workspace -> {
+                    final Map<String, Object> auditData = Map.of(
+                            FieldName.SOURCE_APPLICATION, sourceApplication,
+                            FieldName.APPLICATION, application,
+                            FieldName.WORKSPACE, workspace
+                    );
+
+                    final Map<String, Object> data = Map.of(
+                            FieldName.SOURCE_APPLICATION_ID, sourceApplication.getId(),
+                            FieldName.APPLICATION_ID, application.getId(),
+                            FieldName.WORKSPACE_ID, workspace.getId(),
+                            FieldName.AUDIT_DATA, auditData
+                    );
+
+                    return analyticsService.sendObjectEvent(AnalyticsEvents.CLONE_APPLICATION, application, data);
+                });
+    }
 
 }

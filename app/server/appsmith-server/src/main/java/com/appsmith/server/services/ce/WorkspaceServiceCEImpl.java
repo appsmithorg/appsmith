@@ -180,7 +180,8 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
                 // Now add the org id to the user object and then return the saved org
                 .flatMap(savedWorkspace -> userWorkspaceService
                         .addUserToWorkspace(savedWorkspace.getId(), user)
-                        .thenReturn(savedWorkspace));
+                        .thenReturn(savedWorkspace))
+                .flatMap(analyticsService::sendCreateEvent);
     }
 
     /**
@@ -364,7 +365,8 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
                         .switchIfEmpty(Mono.error(new AppsmithException(
                                 AppsmithError.NO_RESOURCE_FOUND, FieldName.WORKSPACE, workspaceId
                         )))
-                        .flatMap(repository::archive);
+                        .flatMap(repository::archive)
+                        .flatMap(analyticsService::sendDeleteEvent);
             } else {
                 return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
             }

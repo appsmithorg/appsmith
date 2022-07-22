@@ -193,6 +193,7 @@ public class AnalyticsServiceCEImpl implements AnalyticsServiceCE {
                     analyticsProperties.put("oid", object.getId());
                     if (extraProperties != null) {
                         analyticsProperties.putAll(extraProperties);
+                        analyticsProperties.remove(FieldName.AUDIT_DATA);
                     }
 
                     sendEvent(eventTag, username, analyticsProperties);
