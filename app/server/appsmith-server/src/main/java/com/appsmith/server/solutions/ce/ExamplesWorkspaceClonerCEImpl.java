@@ -178,6 +178,7 @@ public class ExamplesWorkspaceClonerCEImpl implements ExamplesWorkspaceClonerCE 
             Flux<Application> applicationFlux,
             Flux<Datasource> datasourceFlux
     ) {
+        log.debug("Cloning application");
         final List<NewPage> clonedPages = new ArrayList<>();
         final List<String> newApplicationIds = new ArrayList<>();
 

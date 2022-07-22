@@ -192,6 +192,7 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepositoryCE, Theme, St
      */
     @Override
     public Mono<Theme> publishTheme(String applicationId) {
+        log.debug("Publishing theme");
         // fetch application to make sure user has permission to manage this application
         return applicationRepository.findById(applicationId, MANAGE_APPLICATIONS).flatMap(application -> {
             Mono<Theme> editModeThemeMono;
@@ -204,6 +205,7 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepositoryCE, Theme, St
             return editModeThemeMono.flatMap(editModeTheme -> {
                 if (editModeTheme.isSystemTheme()) {  // system theme is set as edit mode theme
                     // Delete published mode theme if it was a copy of custom theme
+                    log.debug("editModeTheme is systemTheme");
                     return deletePublishedCustomizedThemeCopy(application.getPublishedModeThemeId()).then(
                             // Set the system theme id as edit and published mode theme id to application object
                             applicationRepository.setAppTheme(
@@ -230,6 +232,7 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepositoryCE, Theme, St
      * @return Updated or newly created theme Publisher
      */
     private Mono<Theme> saveThemeForApplication(String currentThemeId, Theme targetThemeResource, Application application, ApplicationMode applicationMode) {
+        log.debug("Saving theme for application");
         return repository.findById(currentThemeId, READ_THEMES)
                 .flatMap(currentTheme -> {
                     // update the attributes of entity as per the request DTO

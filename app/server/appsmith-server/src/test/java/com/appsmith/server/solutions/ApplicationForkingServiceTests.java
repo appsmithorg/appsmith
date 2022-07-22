@@ -67,6 +67,7 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 import reactor.util.function.Tuple3;
 import reactor.util.function.Tuple4;
+import reactor.util.function.Tuple5;
 
 import java.time.Duration;
 import java.util.ArrayList;
@@ -521,26 +522,31 @@ public class ApplicationForkingServiceTests {
     @Test
     @WithUserDetails("api_user")
     public void forkApplicationToWorkspace_WhenAppHasUnsavedThemeCustomization_ForkedWithCustomizations() {
+        log.debug("Running forkApplicationToWorkspace_WhenAppHasUnsavedThemeCustomization_ForkedWithCustomizations");
         String uniqueString = UUID.randomUUID().toString();
         Workspace workspace = new Workspace();
         workspace.setName("org_" + uniqueString);
 
         Mono<Tuple4<Theme, Theme, Application, Application>> tuple4Mono = workspaceService.create(workspace)
                 .flatMap(createdOrg -> {
+                    log.debug("Created source workspace: " + createdOrg);
                     Application application = new Application();
                     application.setName("app_" + uniqueString);
                     return applicationPageService.createApplication(application, createdOrg.getId());
                 }).flatMap(srcApplication -> {
+                    log.debug("Created source application: " + srcApplication);
                     Theme theme = new Theme();
                     theme.setDisplayName("theme_" + uniqueString);
+                    log.debug("Updating theme: " + theme);
                     return themeService.updateTheme(srcApplication.getId(), null, theme)
                             .then(applicationService.findById(srcApplication.getId()));
                 }).flatMap(srcApplication -> {
                     Workspace desOrg = new Workspace();
                     desOrg.setName("org_dest_" + uniqueString);
-                    return workspaceService.create(desOrg).flatMap(createdOrg ->
-                            applicationForkingService.forkApplicationToWorkspace(srcApplication.getId(), createdOrg.getId())
-                    ).zipWith(Mono.just(srcApplication));
+                    return workspaceService.create(desOrg).flatMap(createdOrg -> {
+                        log.debug("Created destination workspace: " + createdOrg);
+                        return applicationForkingService.forkApplicationToWorkspace(srcApplication.getId(), createdOrg.getId());
+                    }).zipWith(Mono.just(srcApplication));
                 }).flatMap(applicationTuple2 -> {
                     Application forkedApp = applicationTuple2.getT1();
                     Application srcApp = applicationTuple2.getT2();
@@ -557,6 +563,10 @@ public class ApplicationForkingServiceTests {
             Theme publishedModeTheme = objects.getT2();
             Application forkedApp = objects.getT3();
             Application srcApp = objects.getT4();
+            log.debug("Source application: " + srcApp);
+            log.debug("Forked application: " + forkedApp);
+            log.debug("Edit mode theme:" + editModeTheme);
+            log.debug("Published mode theme" + publishedModeTheme);
 
             assertThat(forkedApp.getEditModeThemeId()).isEqualTo(editModeTheme.getId());
             assertThat(forkedApp.getPublishedModeThemeId()).isEqualTo(publishedModeTheme.getId());
@@ -582,6 +592,7 @@ public class ApplicationForkingServiceTests {
             assertThat(srcApp.getEditModeThemeId()).isNotEqualTo(forkedApp.getEditModeThemeId());
             assertThat(srcApp.getPublishedModeThemeId()).isNotEqualTo(forkedApp.getPublishedModeThemeId());
         }).verifyComplete();
+        log.debug("Completed forkApplicationToWorkspace_WhenAppHasUnsavedThemeCustomization_ForkedWithCustomizations");
     }
 
     @Test
@@ -638,43 +649,53 @@ public class ApplicationForkingServiceTests {
     @Test
     @WithUserDetails("api_user")
     public void forkApplicationToWorkspace_WhenAppHasCustomSavedTheme_NewCustomThemeCreated() {
+        log.debug("Running forkApplicationToWorkspace_WhenAppHasCustomSavedTheme_NewCustomThemeCreated");
         String uniqueString = UUID.randomUUID().toString();
         Workspace workspace = new Workspace();
         workspace.setName("org_" + uniqueString);
 
-        Mono<Tuple4<Theme, Theme, Application, Application>> tuple4Mono = workspaceService.create(workspace)
+        Mono<Tuple5<Theme, Theme, Theme, Application, Application>> tuple5Mono = workspaceService.create(workspace)
                 .flatMap(createdOrg -> {
+                    log.debug("Created source workspace: " + createdOrg);
                     Application application = new Application();
                     application.setName("app_" + uniqueString);
                     return applicationPageService.createApplication(application, createdOrg.getId());
                 }).flatMap(srcApplication -> {
+                    log.debug("Created source application: " + srcApplication);
                     Theme theme = new Theme();
                     theme.setDisplayName("theme_" + uniqueString);
+                    log.debug("Updating theme: " + theme);
                     return themeService.updateTheme(srcApplication.getId(), null, theme)
                             .then(themeService.persistCurrentTheme(srcApplication.getId(), null, theme))
                             .then(applicationService.findById(srcApplication.getId()));
                 }).flatMap(srcApplication -> {
                     Workspace desOrg = new Workspace();
                     desOrg.setName("org_dest_" + uniqueString);
-                    return workspaceService.create(desOrg).flatMap(createdOrg ->
-                            applicationForkingService.forkApplicationToWorkspace(srcApplication.getId(), createdOrg.getId())
-                    ).zipWith(Mono.just(srcApplication));
+                    return workspaceService.create(desOrg).flatMap(createdOrg -> {
+                        log.debug("Created destination workspace: " + createdOrg);
+                        return applicationForkingService.forkApplicationToWorkspace(srcApplication.getId(), createdOrg.getId());
+                    }).zipWith(Mono.just(srcApplication));
                 }).flatMap(applicationTuple2 -> {
                     Application forkedApp = applicationTuple2.getT1();
                     Application srcApp = applicationTuple2.getT2();
                     return Mono.zip(
                             themeService.getApplicationTheme(forkedApp.getId(), ApplicationMode.EDIT, null),
                             themeService.getApplicationTheme(forkedApp.getId(), ApplicationMode.PUBLISHED, null),
+                            themeService.getApplicationTheme(srcApp.getId(), ApplicationMode.PUBLISHED, null),
                             Mono.just(forkedApp),
                             Mono.just(srcApp)
                     );
                 });
 
-        StepVerifier.create(tuple4Mono).assertNext(objects -> {
+        StepVerifier.create(tuple5Mono).assertNext(objects -> {
             Theme editModeTheme = objects.getT1();
             Theme publishedModeTheme = objects.getT2();
-            Application forkedApp = objects.getT3();
-            Application srcApp = objects.getT4();
+            Application forkedApp = objects.getT4();
+            Application srcApp = objects.getT5();
+            log.debug("Source application: " + srcApp);
+            log.debug("Forked application: " + forkedApp);
+            log.debug("Edit mode theme:" + editModeTheme);
+            log.debug("Published mode theme" + publishedModeTheme);
 
             assertThat(forkedApp.getEditModeThemeId()).isEqualTo(editModeTheme.getId());
             assertThat(forkedApp.getPublishedModeThemeId()).isEqualTo(publishedModeTheme.getId());
@@ -702,6 +723,7 @@ public class ApplicationForkingServiceTests {
             assertThat(srcApp.getEditModeThemeId()).isNotEqualTo(forkedApp.getEditModeThemeId());
             assertThat(srcApp.getPublishedModeThemeId()).isNotEqualTo(forkedApp.getPublishedModeThemeId());
         }).verifyComplete();
+        log.debug("Completed forkApplicationToWorkspace_WhenAppHasCustomSavedTheme_NewCustomThemeCreated");
     }
 
     @Test
