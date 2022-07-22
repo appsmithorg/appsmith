@@ -70,7 +70,7 @@ export function defaultOptionValueValidation(
     parsed = value;
   } else {
     isValid = false;
-    parsed = {};
+    parsed = undefined;
     message =
       'value does not evaluate to type: string | number | { "label": "label1", "value": "value1" }';
   }
