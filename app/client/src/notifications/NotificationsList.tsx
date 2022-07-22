@@ -120,9 +120,7 @@ function NotificationsList() {
         icon="warning-line"
         iconColor={Colors.WARNING_SOLID}
         iconSize={IconSize.XXXXL}
-        message={
-          "We are removing comments from Appsmith in a few weeks (v1.8.0)"
-        }
+        message={"We are removing comments from Appsmith in v1.7.11"}
         messageHeader={"Comments are being deprecated"}
         textColor={Colors.BROWN}
       />
