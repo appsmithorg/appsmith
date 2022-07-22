@@ -43,6 +43,7 @@ import PerformanceTracker, {
 import AppEngine, {
   ActionsNotFoundError,
   AppEnginePayload,
+  PluginFormConfigsNotFoundError,
   PluginsNotFoundError,
 } from ".";
 
@@ -164,7 +165,9 @@ export default class AppEditorEngine extends AppEngine {
       [ReduxActionErrorTypes.FETCH_PLUGIN_FORM_CONFIGS_ERROR],
     );
     if (!pluginFormCall)
-      throw new PluginsNotFoundError("Unable to fetch plugin form configs");
+      throw new PluginFormConfigsNotFoundError(
+        "Unable to fetch plugin form configs",
+      );
   }
 
   public *loadAppEntities(toLoadPageId: string, applicationId: string): any {
