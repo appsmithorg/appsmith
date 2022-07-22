@@ -46,10 +46,13 @@ import { DropTargetContext } from "./DropTargetComponent";
 import { XYCord } from "pages/common/CanvasArenas/hooks/useCanvasDragging";
 import { AlignItems, LayoutDirection } from "components/constants";
 import { AutoLayoutContext } from "widgets/AutoLayoutContainerWidget/widget";
+import { log } from "utils/common";
 
 export type ResizableComponentProps = WidgetProps & {
   paddingOffset: number;
 };
+
+const shouldLog = false;
 
 export const ResizableComponent = memo(function ResizableComponent(
   props: ResizableComponentProps,
@@ -102,7 +105,7 @@ export const ResizableComponent = memo(function ResizableComponent(
 
   useEffect(() => {
     // Set initial dimensions
-    // console.log(`#### ${props.widgetName} : Initial dimensions`);
+    log(`#### ${props.widgetName} : Initial dimensions`, shouldLog);
     setComponentWidth(
       props.useAutoLayout &&
         props.direction === LayoutDirection.Vertical &&
@@ -118,7 +121,7 @@ export const ResizableComponent = memo(function ResizableComponent(
   }, [props.useAutoLayout, props.direction, props.alignItems]);
 
   useEffect(() => {
-    // console.log(`#### ${props.widgetName} : Manual resize`);
+    log(`#### ${props.widgetName} : Manual resize`, shouldLog);
     setComponentWidth(
       props.useAutoLayout &&
         props.direction === LayoutDirection.Vertical &&
@@ -134,7 +137,7 @@ export const ResizableComponent = memo(function ResizableComponent(
   }, [props.topRow, props.bottomRow, props.leftColumn, props.rightColumn]);
 
   useEffect(() => {
-    // console.log(`#### ${props.widgetName} : Parent resize`);
+    log(`#### ${props.widgetName} : Parent resize`, shouldLog);
     if (!props.useAutoLayout) {
       setComponentWidth(
         (props.rightColumn - props.leftColumn) * props.parentColumnSpace -
@@ -144,23 +147,40 @@ export const ResizableComponent = memo(function ResizableComponent(
         (props.bottomRow - props.topRow) * props.parentRowSpace -
           2 * props.paddingOffset,
       );
+    } else {
+      if (
+        props.direction === LayoutDirection.Vertical &&
+        props.alignItems === AlignItems.Stretch
+      ) {
+        setComponentWidth(
+          64 * props.parentColumnSpace - 2 * props.paddingOffset,
+        );
+      } else if (
+        props.direction === LayoutDirection.Vertical &&
+        props.alignItems === AlignItems.Stretch
+      ) {
+        setComponentHeight(64 * props.parentRowSpace - 2 * props.paddingOffset);
+      }
     }
   }, [props.parentColumnSpace, props.parentRowSpace, props.useAutoLayout]);
 
   // Calculate the dimensions of the widget,
   // The ResizableContainer's size prop is controlled
-  const dimensions: UIElementSize = {
-    width:
-      props.useAutoLayout &&
-      props.direction === LayoutDirection.Vertical &&
-      props.alignItems === AlignItems.Stretch
-        ? 64 * props.parentColumnSpace - 2 * props.paddingOffset
-        : (props.rightColumn - props.leftColumn) * props.parentColumnSpace -
-          2 * props.paddingOffset,
-    height:
-      (props.bottomRow - props.topRow) * props.parentRowSpace -
-      2 * props.paddingOffset,
-  };
+  // const dimensions: UIElementSize = {
+  //   width:
+  //     props.useAutoLayout &&
+  //     props.direction === LayoutDirection.Vertical &&
+  //     props.alignItems === AlignItems.Stretch
+  //       ? 64 * props.parentColumnSpace - 2 * props.paddingOffset
+  //       : (props.rightColumn - props.leftColumn) * props.parentColumnSpace -
+  //         2 * props.paddingOffset,
+  //   height:
+  //     (props.bottomRow - props.topRow) * props.parentRowSpace -
+  //     2 * props.paddingOffset,
+  // };
+
+  log(`#### ${props.widgetName} : width - ${componentWidth}`, shouldLog);
+  log(`#### ${props.widgetName} : bottomRow - ${props.bottomRow}`, shouldLog);
 
   // onResize handler
   const getResizedPositions = (
@@ -168,9 +188,11 @@ export const ResizableComponent = memo(function ResizableComponent(
     position: XYCord,
   ) => {
     const delta: UIElementSize = {
-      height: newDimensions.height - dimensions.height,
-      width: newDimensions.width - dimensions.width,
+      height: newDimensions.height - componentHeight,
+      width: newDimensions.width - componentWidth,
     };
+    log(newDimensions, shouldLog);
+    log(`#### ${props.widgetName} : delta - ${delta.height}`, shouldLog);
     const newRowCols: WidgetRowCols = computeRowCols(delta, position, props);
     let canResizeHorizontally = true,
       canResizeVertically = true;
@@ -221,10 +243,12 @@ export const ResizableComponent = memo(function ResizableComponent(
   // Update widget, if both of the above are true.
   const updateSize = (newDimensions: UIElementSize, position: XYCord) => {
     // Get the difference in size of the widget, before and after resizing.
+    log(`#### ${props.widgetName} : update size`, shouldLog);
     const delta: UIElementSize = {
-      height: newDimensions.height - dimensions.height,
-      width: newDimensions.width - dimensions.width,
+      height: newDimensions.height - componentHeight,
+      width: newDimensions.width - componentWidth,
     };
+    log(`#### ${props.widgetName} : delta - ${delta.height}`, shouldLog);
     // Get the updated Widget rows and columns props
     // False, if there is collision
     // False, if none of the rows and cols have changed.
@@ -233,7 +257,8 @@ export const ResizableComponent = memo(function ResizableComponent(
       position,
       props,
     );
-
+    log("#### new row cols", shouldLog);
+    log(newRowCols, shouldLog);
     if (newRowCols) {
       updateWidget &&
         updateWidget(WidgetOperations.RESIZE, props.widgetId, {
@@ -270,8 +295,8 @@ export const ResizableComponent = memo(function ResizableComponent(
     AnalyticsUtil.logEvent("WIDGET_RESIZE_END", {
       widgetName: props.widgetName,
       widgetType: props.type,
-      startHeight: dimensions.height,
-      startWidth: dimensions.width,
+      startHeight: componentHeight,
+      startWidth: componentWidth,
       endHeight: newDimensions.height,
       endWidth: newDimensions.width,
     });

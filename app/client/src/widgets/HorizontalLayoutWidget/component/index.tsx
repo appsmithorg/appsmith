@@ -1,13 +1,29 @@
 import React, { ReactNode } from "react";
-import styled from "styled-components";
-
-const HorizontalContainer = styled.div``;
+import WidgetStyleContainer, {
+  WidgetStyleContainerProps,
+} from "components/designSystems/appsmith/WidgetStyleContainer";
+import { pick } from "lodash";
 
 function HorizontalLayoutComponent(props: HorizontalLayoutComponentProps) {
-  return <HorizontalContainer>{props.children}</HorizontalContainer>;
+  return (
+    <WidgetStyleContainer
+      {...pick(props, [
+        "widgetId",
+        "containerStyle",
+        "backgroundColor",
+        "borderColor",
+        "borderWidth",
+        "borderRadius",
+        "boxShadow",
+      ])}
+    >
+      {props.children}
+    </WidgetStyleContainer>
+  );
 }
 
-export interface HorizontalLayoutComponentProps {
+export interface HorizontalLayoutComponentProps
+  extends WidgetStyleContainerProps {
   children?: ReactNode;
 }
 

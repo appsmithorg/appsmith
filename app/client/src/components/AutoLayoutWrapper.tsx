@@ -45,7 +45,7 @@ export function AutoLayoutWrapper(props: AutoLayoutProps) {
   return (
     <AutoLayout
       alignItems={props.alignItems}
-      className={`${props.parentId}-auto-layout auto-layout-child-${props.widgetId}`}
+      className={`auto-layout-parent-${props.parentId} auto-layout-child-${props.widgetId}`}
       direction={props.direction}
       onClickCapture={onClickFn}
       useAutoLayout={props.useAutoLayout}

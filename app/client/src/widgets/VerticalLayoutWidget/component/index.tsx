@@ -1,19 +1,30 @@
+import WidgetStyleContainer, {
+  WidgetStyleContainerProps,
+} from "components/designSystems/appsmith/WidgetStyleContainer";
 import React, { ReactNode } from "react";
-import styled from "styled-components";
-
-const Container = styled.div<VerticalLayoutComponentProps>`
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
-  align-items: center;
-`;
+import { pick } from "lodash";
 
 function VerticalLayoutComponent(props: VerticalLayoutComponentProps) {
-  return <Container>{props.children}</Container>;
+  return (
+    <WidgetStyleContainer
+      {...pick(props, [
+        "widgetId",
+        "containerStyle",
+        "backgroundColor",
+        "borderColor",
+        "borderWidth",
+        "borderRadius",
+        "boxShadow",
+      ])}
+    >
+      {props.children}
+    </WidgetStyleContainer>
+  );
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface VerticalLayoutComponentProps {
+export interface VerticalLayoutComponentProps
+  extends WidgetStyleContainerProps {
   children?: ReactNode;
 }
 
