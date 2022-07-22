@@ -71,7 +71,7 @@ export default {
     },
     {
       propertyName: "inlineEditingSaveOption",
-      helpText: "choose the save experience to save the edited cell",
+      helpText: "Choose the save experience to save the edited cell",
       label: "Update Mode",
       controlType: "DROP_DOWN",
       isBindProperty: true,

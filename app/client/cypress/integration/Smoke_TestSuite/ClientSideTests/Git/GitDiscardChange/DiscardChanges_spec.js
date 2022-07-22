@@ -9,6 +9,7 @@ describe("Git discard changes:", function() {
   const query1 = "get_users";
   const query2 = "get_allusers";
   const jsObject = "JSObject1";
+  const jsObject2 = "JSObject2";
   const page2 = "Page_2";
   const page3 = "Page_3";
 
@@ -62,6 +63,7 @@ describe("Git discard changes:", function() {
     cy.get(explorer.addWidget).click();
     cy.dragAndDropToCanvas("inputwidgetv2", { x: 300, y: 300 });
     cy.get(".t--widget-inputwidgetv2").should("exist");
+    cy.EnableAllCodeEditors();
     cy.get(dynamicInputLocators.input)
       .eq(1)
       .click({ force: true })
@@ -81,6 +83,7 @@ describe("Git discard changes:", function() {
     // bind input widget to JSObject response on page2
     cy.dragAndDropToCanvas("inputwidgetv2", { x: 300, y: 300 });
     cy.get(".t--widget-inputwidgetv2").should("exist");
+    cy.EnableAllCodeEditors();
     cy.get(dynamicInputLocators.input)
       .eq(1)
       .click({ force: true })
@@ -133,6 +136,7 @@ describe("Git discard changes:", function() {
     cy.wait("@getPage");
     // discard changes
     cy.gitDiscardChanges();
+    cy.wait(5000);
     cy.CheckAndUnfoldEntityItem("QUERIES/JS");
     // verify query2 is not present
     cy.get(`.t--entity-name:contains(${query2})`).should("not.exist");
@@ -144,6 +148,7 @@ describe("Git discard changes:", function() {
     // verify jsObject is not duplicated
     cy.get(`.t--entity-name:contains(${jsObject})`).should("have.length", 1);
     cy.gitDiscardChanges();
+    cy.wait(5000);
     cy.CheckAndUnfoldEntityItem("QUERIES/JS");
     // verify jsObject2 is deleted after discarding changes
     cy.get(`.t--entity-name:contains(${jsObject})`).should("not.exist");
@@ -154,7 +159,9 @@ describe("Git discard changes:", function() {
     // verify page is deleted
     cy.CheckAndUnfoldEntityItem("PAGES");
     cy.get(`.t--entity-name:contains(${page2})`).should("not.exist");
+    cy.wait(2000);
     cy.gitDiscardChanges();
+    cy.wait(5000);
     // verify page2 is recovered back
     cy.get(`.t--entity-name:contains(${page2})`).should("be.visible");
     cy.get(`.t--entity-item:contains(${page2})`)
@@ -178,6 +185,7 @@ describe("Git discard changes:", function() {
     cy.get(`.t--entity-name:contains(${query1})`).should("not.exist");
     // discard changes
     cy.gitDiscardChanges();
+    cy.wait(5000);
     //verify query1 is recovered
     cy.get(`.t--entity-name:contains(${query1})`).should("be.visible");
 
@@ -191,6 +199,9 @@ describe("Git discard changes:", function() {
       .first()
       .click();
     cy.wait("@getPage");
+    cy.wait(3000);
+    /* create and save jsObject */
+    // cy.createJSObject('return "Success";');
     // delete jsObject1
     cy.CheckAndUnfoldEntityItem("QUERIES/JS");
     cy.get(`.t--entity-item:contains(${jsObject})`).within(() => {
@@ -201,8 +212,15 @@ describe("Git discard changes:", function() {
     cy.get(`.t--entity-name:contains(${jsObject})`).should("not.exist");
     // discard changes
     cy.gitDiscardChanges();
+    cy.wait(5000);
+    cy.CheckAndUnfoldEntityItem("PAGES");
+    cy.get(`.t--entity-item:contains(${page2})`)
+      .first()
+      .click();
+    cy.wait("@getPage");
+    cy.wait(3000);
     //verify JSObject is recovered
-    cy.get(`.t--entity-name:contains(${jsObject})`).should("be.visible");
+    cy.get(`.t--entity-name:contains(${jsObject})`).should("exist");
     cy.get(".bp3-input").should("have.value", "Success");
   });
 
@@ -214,15 +232,16 @@ describe("Git discard changes:", function() {
       .click();
     // discard changes
     cy.gitDiscardChanges();
+    cy.wait(5000);
     // verify page3 is removed
     cy.CheckAndUnfoldEntityItem("PAGES");
     cy.get(`.t--entity-name:contains("${page3}")`).should("not.exist");
   });
 
-  it("8. Add new page i.e page3, discard changes should give error resource not found", () => {
+  it(`8. Add new page i.e page3, discard changes should not throw error: "resource not found"`, () => {
     cy.Createpage(page3);
-    cy.gitDiscardChanges(false);
-    cy.go("back");
-    cy.reload();
+    cy.gitDiscardChanges();
+    cy.wait(5000);
+    cy.get(`.t--entity-name:contains("${page3}")`).should("not.exist");
   });
 });
