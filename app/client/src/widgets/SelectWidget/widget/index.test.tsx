@@ -145,7 +145,7 @@ describe("defaultOptionValueValidation - ", () => {
         undefined,
         {
           isValid: false,
-          parsed: {},
+          parsed: undefined,
           messages: [
             `value does not evaluate to type: string | number | { "label": "label1", "value": "value1" }`,
           ],
@@ -155,7 +155,7 @@ describe("defaultOptionValueValidation - ", () => {
         null,
         {
           isValid: false,
-          parsed: {},
+          parsed: undefined,
           messages: [
             `value does not evaluate to type: string | number | { "label": "label1", "value": "value1" }`,
           ],
@@ -165,7 +165,7 @@ describe("defaultOptionValueValidation - ", () => {
         [],
         {
           isValid: false,
-          parsed: {},
+          parsed: undefined,
           messages: [
             `value does not evaluate to type: string | number | { "label": "label1", "value": "value1" }`,
           ],
@@ -175,7 +175,7 @@ describe("defaultOptionValueValidation - ", () => {
         true,
         {
           isValid: false,
-          parsed: {},
+          parsed: undefined,
           messages: [
             `value does not evaluate to type: string | number | { "label": "label1", "value": "value1" }`,
           ],
@@ -187,7 +187,7 @@ describe("defaultOptionValueValidation - ", () => {
         },
         {
           isValid: false,
-          parsed: {},
+          parsed: undefined,
           messages: [
             `value does not evaluate to type: string | number | { "label": "label1", "value": "value1" }`,
           ],
