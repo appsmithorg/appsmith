@@ -110,7 +110,7 @@ export const useCanvasDragging = (
   const offsets: number[] = [];
   const siblings: { [key: string]: number } = {};
   const calculateHighlightOffsets = () => {
-    if (useAutoLayout) {
+    if (useAutoLayout && isDragging) {
       // Get all children of current auto layout container
       const els = document.querySelectorAll(`.auto-layout-parent-${widgetId}`);
       if (els && els.length && offsets.length !== els.length) {
