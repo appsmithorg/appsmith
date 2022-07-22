@@ -30,6 +30,8 @@ public interface WorkspaceServiceCE extends CrudService<Workspace, String> {
 
     Flux<Workspace> findByIdsIn(Set<String> ids, String tenantId, AclPermission permission);
 
+    Flux<Workspace> getAll(AclPermission permission);
+
     Mono<List<PermissionGroupInfoDTO>> getPermissionGroupsForWorkspace(String workspaceId);
 
     Mono<Workspace> uploadLogo(String workspaceId, Part filePart);
