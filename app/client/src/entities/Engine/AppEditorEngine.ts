@@ -40,11 +40,11 @@ import history from "utils/history";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
-import AppEngine, { AppEnginePayload } from ".";
-
-export class ActionsNotFoundError extends Error {}
-export class PluginsNotFoundError extends Error {}
-export class PluginFormConfigsNotFoundError extends Error {}
+import AppEngine, {
+  ActionsNotFoundError,
+  AppEnginePayload,
+  PluginsNotFoundError,
+} from ".";
 
 export default class AppEditorEngine extends AppEngine {
   constructor(mode: APP_MODE) {
