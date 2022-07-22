@@ -4,6 +4,9 @@ import { getTypographyByKey } from "constants/DefaultTheme";
 import { COMMENTS, createMessage } from "@appsmith/constants/messages";
 
 import AppCommentsFilterPopover from "./AppCommentsFilterPopover";
+import { Colors } from "constants/Colors";
+import { IconSize } from "components/ads";
+import { BannerMessage } from "components/ads/BannerMessage";
 
 const AppCommentHeaderTitle = styled.div`
   padding: ${(props) => props.theme.spaces[6]}px;
