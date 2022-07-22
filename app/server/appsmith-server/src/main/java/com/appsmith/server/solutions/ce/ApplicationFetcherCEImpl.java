@@ -31,6 +31,7 @@ import reactor.core.publisher.Mono;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -65,7 +66,7 @@ public class ApplicationFetcherCEImpl implements ApplicationFetcherCE {
         if (CollectionUtils.isEmpty(sortOrder)) {
             return domainFlux;
         }
-        return domainFlux.collectMap(Domain::getId, Function.identity())
+        return domainFlux.collect(Collectors.toMap(Domain::getId, Function.identity(), (key1, key2) -> key1, LinkedHashMap::new))
         .map(domainMap -> {
             List<Domain> sortedDomains = new ArrayList<>();
             for (String id : sortOrder) {
