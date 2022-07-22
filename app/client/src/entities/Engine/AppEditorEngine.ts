@@ -155,7 +155,7 @@ export default class AppEditorEngine extends AppEngine {
     );
 
     if (!initActionCalls)
-      throw new PluginsNotFoundError(`Unable to fetch plugins`);
+      throw new PluginsNotFoundError("Unable to fetch plugins");
 
     const pluginFormCall: boolean = yield call(
       failFastApiCalls,
@@ -164,7 +164,7 @@ export default class AppEditorEngine extends AppEngine {
       [ReduxActionErrorTypes.FETCH_PLUGIN_FORM_CONFIGS_ERROR],
     );
     if (!pluginFormCall)
-      throw new PluginsNotFoundError(`Unable to fetch plugin form configs`);
+      throw new PluginsNotFoundError("Unable to fetch plugin form configs");
   }
 
   public *loadAppEntities(toLoadPageId: string, applicationId: string): any {
