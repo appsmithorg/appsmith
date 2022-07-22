@@ -1,7 +1,6 @@
 import {
   DataTreeJSAction,
   ENTITY_TYPE,
-  JSActionProperty,
   MetaArgs,
 } from "entities/DataTree/dataTreeFactory";
 import { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
@@ -60,8 +59,6 @@ export const parseJSObjectMemoize = memoize(getJSObjectProperties, {
   maxSize: 100,
 });
 
-type ActionsConfigMap = Record<string, JSActionProperty>;
-
 export const generateDataTreeJSAction = (
   js: JSCollectionData,
 ): DataTreeJSAction => {
@@ -79,8 +76,7 @@ export const generateDataTreeJSAction = (
     `${js.config.name}.`,
   );
 
-  dynamicBindingPathList.push({ key: "body" });
-  bindingPaths["body"] = EvaluationSubstitutionType.SMART_SUBSTITUTE;
+  bindingPaths["body"] = EvaluationSubstitutionType.TEMPLATE;
 
   let variables: Variable[] = [];
   let actions: Array<{
@@ -114,6 +110,8 @@ export const generateDataTreeJSAction = (
       variablesMap[variable.name] = variable.value;
       listVariables.push(variable.name);
 
+      // Paths that need to evaluate are added as dynamicBinding
+      // we want to only evaluate variables in case of JSObject
       dynamicBindingPathList.push({ key: variable.name });
       bindingPaths[variable.name] = EvaluationSubstitutionType.SMART_SUBSTITUTE;
     }
@@ -122,7 +120,6 @@ export const generateDataTreeJSAction = (
   const dependencyMap: DependencyMap = {};
   dependencyMap["body"] = [];
 
-  const actionsConfigMap: ActionsConfigMap = {};
   const actionsData: Record<string, any> = {};
 
   if (actions) {
@@ -141,18 +138,6 @@ export const generateDataTreeJSAction = (
         isAsync = !!actionConfig.actionConfiguration.isAsync;
       }
 
-      actionsConfigMap[actionName] = {
-        name: actionName,
-        confirmBeforeExecute,
-        arguments: args,
-        isAsync,
-        body,
-      };
-
-      /* 
-        Ideally, we shouldn't use meta object for following values as these are not changed by app viewers
-        it should be moved to actionsConfig
-       */
       meta[actionName] = {
         arguments: args,
         isAsync: isAsync,
@@ -162,10 +147,9 @@ export const generateDataTreeJSAction = (
       actionsData[actionName] = body;
       actionsData[`${actionName}.data`] = data;
 
-      bindingPaths[actionName] = EvaluationSubstitutionType.SMART_SUBSTITUTE;
+      bindingPaths[actionName] = EvaluationSubstitutionType.TEMPLATE;
       bindingPaths[`${actionName}.data`] = EvaluationSubstitutionType.TEMPLATE;
 
-      dynamicBindingPathList.push({ key: actionName });
       dependencyMap["body"].push(actionName);
     }
   }
@@ -183,7 +167,6 @@ export const generateDataTreeJSAction = (
     dynamicBindingPathList: dynamicBindingPathList,
     variables: listVariables,
     dependencyMap: dependencyMap,
-    actionsConfig: actionsConfigMap,
     ...actionsData,
   };
 };

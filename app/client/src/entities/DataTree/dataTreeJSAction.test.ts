@@ -138,22 +138,6 @@ describe("generateDataTreeJSAction", () => {
       myVar2: "{}",
       name: "JSObject2",
       actionId: "1234",
-      actionsConfig: {
-        myFun1: {
-          arguments: [],
-          body: "() => {}",
-          confirmBeforeExecute: false,
-          isAsync: false,
-          name: "myFun1",
-        },
-        myFun2: {
-          arguments: [],
-          body: "async () => {}",
-          confirmBeforeExecute: false,
-          isAsync: true,
-          name: "myFun2",
-        },
-      },
       pluginType: "JS",
       ENTITY_TYPE: "JSACTION",
       body:
@@ -355,24 +339,6 @@ describe("generateDataTreeJSAction", () => {
       myVar2: "{}",
       name: "JSObject2",
       actionId: "1234",
-      actionsConfig: {
-        myFun1: {
-          arguments: [],
-          body: `() => {
-  return JSObject2.myFun2;
-}`,
-          confirmBeforeExecute: false,
-          isAsync: false,
-          name: "myFun1",
-        },
-        myFun2: {
-          arguments: [],
-          body: "async () => {}",
-          confirmBeforeExecute: false,
-          isAsync: true,
-          name: "myFun2",
-        },
-      },
       pluginType: "JS",
       ENTITY_TYPE: "JSACTION",
       body:

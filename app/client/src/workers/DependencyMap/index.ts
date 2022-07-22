@@ -43,6 +43,7 @@ export function createDependencyMap(
       dependencyMap = { ...dependencyMap, ...entityListedDependencies };
     }
   });
+  console.log("$$$-dependencyMap", dependencyMap);
   Object.keys(dependencyMap).forEach((key) => {
     const newDep = dependencyMap[key].map((path) => {
       try {

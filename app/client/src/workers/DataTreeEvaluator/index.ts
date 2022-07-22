@@ -622,29 +622,10 @@ export default class DataTreeEvaluator {
             _.set(currentTree, fullPropertyPath, evalPropertyValue);
             return currentTree;
           } else if (isJSAction(entity)) {
+            // If JSObject variable are changed then re-evaluate it and set new evaluated value in dataTree.
             const variableList = entity.variables;
-
             if (variableList.indexOf(propertyPath) > -1) {
-              const currentEvaluatedValue = _.get(
-                currentTree,
-                getEvalValuePath(fullPropertyPath, {
-                  isPopulated: true,
-                  fullPath: true,
-                }),
-              );
-              if (!currentEvaluatedValue) {
-                _.set(
-                  currentTree,
-                  getEvalValuePath(fullPropertyPath, {
-                    isPopulated: true,
-                    fullPath: true,
-                  }),
-                  evalPropertyValue,
-                );
-                _.set(currentTree, fullPropertyPath, evalPropertyValue);
-              } else {
-                _.set(currentTree, fullPropertyPath, currentEvaluatedValue);
-              }
+              _.set(currentTree, fullPropertyPath, evalPropertyValue);
             }
             return currentTree;
           } else {

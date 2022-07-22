@@ -40,27 +40,28 @@ export function updateResolvedFunctions(
     // delete resolved functions of this entity
     unset(dataTreeEvalRef.resolvedFunctions, entityName);
 
-    const actionConfigs = Object.values(entity.actionsConfig);
+    const actionConfigs = Object.entries(entity.meta);
     const actions: ParsedJSSubAction[] = [];
     const variables: Array<Variable> = entity.variables.map((variableName) => ({
       name: variableName,
       value: entity[variableName],
     }));
 
-    actionConfigs.forEach((action) => {
+    actionConfigs.forEach(([actionName, action]) => {
       try {
-        const { result } = evaluateSync(action.body, unEvalDataTree, {}, true);
+        const body = entity[actionName];
+        const { result } = evaluateSync(body, unEvalDataTree, {}, true);
 
         if (!!result) {
           set(
             dataTreeEvalRef.resolvedFunctions,
-            `${entityName}.${action.name}`,
+            `${entityName}.${actionName}`,
             result,
           );
 
           actions.push({
-            name: action.name,
-            body: action.body,
+            name: actionName,
+            body,
             arguments: action.arguments,
             parsedFunction: result as ParsedFunction,
             isAsync: action.isAsync,
@@ -96,33 +97,6 @@ export function updateResolvedFunctions(
   }
   return jsUpdates;
 }
-/**
- * It checks if modified propertyPath is either
- * - `actionsConfig.functionName`: on function add or remove (or rename)
- *
- * OR
- * - `actionsConfig.functionName.body`: on function body edit
- * @param propertyPath
- * @returns
- */
-const isJSActionsConfigEditPath = (propertyPath: string) => {
-  const subPaths = propertyPath.split(".");
-  switch (subPaths.length) {
-    case 2:
-      // on function add or remove, `actionsConfig.functionName` is modified
-      if (subPaths[0] === "actionsConfig") {
-        return true;
-      }
-      break;
-    case 3:
-      // on function edit, `actionsConfig.functionName.body` is modified
-      if (subPaths[0] === "actionsConfig" && subPaths[2] === "body") {
-        return true;
-      }
-      break;
-  }
-  return false;
-};
 
 export function getJSActionUpdates(
   dataTreeEvalRef: DataTreeEvaluator,
@@ -157,12 +131,10 @@ export function getJSActionUpdates(
         );
         const entity = unEvalDataTree[entityName];
         const isJSObjectAction = isJSAction(entity);
-        // Only if JSObject function's actionConfig is modified
+
+        // Only if JSObject's body is modified
         // then update resolved functions
-        if (
-          !isJSObjectAction ||
-          (isJSObjectAction && !isJSActionsConfigEditPath(propertyPath))
-        ) {
+        if (!isJSObjectAction || propertyPath !== "body") {
           return false;
         }
 

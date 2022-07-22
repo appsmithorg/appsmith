@@ -89,7 +89,6 @@ export interface DataTreeJSAction {
   reactivePaths: Record<string, EvaluationSubstitutionType>;
   variables: Array<string>;
   dependencyMap: DependencyMap;
-  actionsConfig: Record<string, JSActionProperty>;
 }
 
 export interface MetaArgs {
