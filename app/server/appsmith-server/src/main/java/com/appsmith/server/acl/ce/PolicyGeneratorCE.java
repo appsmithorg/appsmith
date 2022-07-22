@@ -189,6 +189,9 @@ public class PolicyGeneratorCE {
      * @return
      */
     public Set<Policy> getChildPolicies(Policy policy, AclPermission aclPermission, Class<? extends BaseDomain> destinationEntity) {
+        if(policy.getPermissionGroups() == null) {
+            policy.setPermissionGroups(new HashSet<>());
+        }
         // Check the hierarchy graph to derive child permissions that must be given to this
         // document
         Set<Policy> childPolicySet = new HashSet<>();
