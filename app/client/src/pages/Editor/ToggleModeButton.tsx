@@ -11,7 +11,6 @@ import { Indices } from "constants/Layers";
 import {
   fetchApplicationCommentsRequest,
   setCommentMode as setCommentModeAction,
-  showCommentsIntroCarousel,
 } from "actions/commentActions";
 import {
   commentModeSelector,
@@ -40,7 +39,7 @@ import {
   commentsTourStepsPublishedModeTypes,
 } from "comments/tour/commentsTourSteps";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { getAppMode } from "../../selectors/applicationSelectors";
+import { getAppMode } from "selectors/applicationSelectors";
 import { setPreviewModeAction } from "actions/editorActions";
 import {
   getCurrentApplicationId,
