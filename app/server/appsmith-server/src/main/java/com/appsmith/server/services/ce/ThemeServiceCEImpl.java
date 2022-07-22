@@ -192,7 +192,7 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepositoryCE, Theme, St
      */
     @Override
     public Mono<Theme> publishTheme(String applicationId) {
-        log.debug("Publishing theme");
+        log.debug("Publishing theme for application: {}", applicationId);
         // fetch application to make sure user has permission to manage this application
         return applicationRepository.findById(applicationId, MANAGE_APPLICATIONS).flatMap(application -> {
             Mono<Theme> editModeThemeMono;
@@ -232,7 +232,7 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepositoryCE, Theme, St
      * @return Updated or newly created theme Publisher
      */
     private Mono<Theme> saveThemeForApplication(String currentThemeId, Theme targetThemeResource, Application application, ApplicationMode applicationMode) {
-        log.debug("Saving theme for application");
+        log.debug("Saving theme: {} for application: {} {}", currentThemeId, application.getId(), application.getName());
         return repository.findById(currentThemeId, READ_THEMES)
                 .flatMap(currentTheme -> {
                     // update the attributes of entity as per the request DTO
