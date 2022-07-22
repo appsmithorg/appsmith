@@ -81,7 +81,7 @@ describe("Theme validation usecases", function() {
         .then(($childElem) => {
           cy.get($childElem).click({ force: true });
           cy.get(
-            ".t--draggable-formbuttonwidget button :contains('Submit')",
+            ".t--draggable-buttonwidget button :contains('Submit')",
           ).should(
             "have.css",
             "font-family",

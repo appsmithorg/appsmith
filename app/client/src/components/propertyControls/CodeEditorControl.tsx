@@ -1,12 +1,12 @@
 import React, { ChangeEvent } from "react";
 import BaseControl, { ControlProps } from "./BaseControl";
-import CodeEditor from "components/editorComponents/CodeEditor";
 import { EventOrValueHandler } from "redux-form";
 import {
   EditorModes,
   EditorSize,
   TabBehaviour,
 } from "components/editorComponents/CodeEditor/EditorConfig";
+import CodeEditor from "components/editorComponents/LazyCodeEditorWrapper";
 
 class CodeEditorControl extends BaseControl<ControlProps> {
   render() {
