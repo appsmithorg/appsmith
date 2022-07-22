@@ -71,6 +71,11 @@ import {
 } from "constants/PropertyControlConstants";
 import { klona } from "klona/full";
 import { EvalMetaUpdates } from "./types";
+import { extractReferencesFromBinding } from "workers/DependencyMap/utils";
+import {
+  updateDependencyMap,
+  createDependencyMap,
+} from "workers/DependencyMap";
 import {
   extractReferencesFromBinding,
   getEntityReferencesFromPropertyBindings,

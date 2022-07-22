@@ -857,6 +857,7 @@ export const overrideWidgetProperties = (params: {
     }
   }
 };
+
 export function isValidEntity(
   entity: DataTreeEntity,
 ): entity is DataTreeObjectEntity {
