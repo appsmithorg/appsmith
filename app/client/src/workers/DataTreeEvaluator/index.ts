@@ -42,7 +42,6 @@ import {
   validateActionProperty,
   addWidgetPropertyDependencies,
   overrideWidgetProperties,
-  isValidEntity,
 } from "workers/evaluationUtils";
 import _ from "lodash";
 import { applyChange, Diff, diff } from "deep-diff";
@@ -1078,10 +1077,7 @@ export default class DataTreeEvaluator {
             propertyBindings.map((binding) => {
               {
                 try {
-                  return extractReferencesFromBinding({
-                    binding,
-                    allKeys: this.allKeys,
-                  });
+                  return extractReferencesFromBinding(binding, this.allKeys);
                 } catch (error) {
                   this.errors.push({
                     type: EvalErrorTypes.EXTRACT_DEPENDENCY_ERROR,
