@@ -144,6 +144,39 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
           },
         ],
       },
+      // TODO: refactor widgetParentProps implementation when we address #10659
+      {
+        sectionName: "Form Settings",
+        hidden: (
+          props: ButtonWidgetProps,
+          propertyPath: string,
+          widgetParentProps?: WidgetProps,
+        ) => widgetParentProps?.type !== FormWidget.getWidgetType(),
+        children: [
+          {
+            helpText:
+              "Disabled if the form is invalid, if this widget exists directly within a Form widget.",
+            propertyName: "disabledWhenInvalid",
+            label: "Disabled Invalid Forms",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+          },
+          {
+            helpText:
+              "Resets the fields of the form, on click, if this widget exists directly within a Form widget.",
+            propertyName: "resetFormOnClick",
+            label: "Reset Form on Success",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+          },
+        ],
+      },
     ];
   }
 
