@@ -1,7 +1,6 @@
 import { debounce, get } from "lodash";
 import { useDispatch, useSelector } from "react-redux";
 import { useCallback, useEffect, useMemo } from "react";
-import { getWidgets } from "sagas/selectors";
 
 import {
   DefaultLayoutType,
@@ -37,7 +36,6 @@ export const useDynamicAppLayout = () => {
   const mainCanvasProps = useSelector(getMainCanvasProps);
   const isPreviewMode = useSelector(previewModeSelector);
   const currentPageId = useSelector(getCurrentPageId);
-  const canvasWidgets = useSelector(getWidgets);
   const isCanvasInitialized = useSelector(getIsCanvasInitialized);
   const appLayout = useSelector(getCurrentApplicationLayout);
 
@@ -45,7 +43,7 @@ export const useDynamicAppLayout = () => {
    * calculates min height
    */
   const calculatedMinHeight = useMemo(() => {
-    return calculateDynamicHeight(canvasWidgets, mainCanvasProps?.height);
+    return calculateDynamicHeight();
   }, [mainCanvasProps]);
 
   /**
@@ -137,9 +135,7 @@ export const useDynamicAppLayout = () => {
     const { width: rightColumn } = mainCanvasProps || {};
 
     if (rightColumn !== calculatedWidth || !isCanvasInitialized) {
-      dispatch(
-        updateCanvasLayoutAction(calculatedWidth, mainCanvasProps?.height),
-      );
+      dispatch(updateCanvasLayoutAction(calculatedWidth, calculatedMinHeight));
     }
   };
 

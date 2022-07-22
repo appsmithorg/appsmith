@@ -20,6 +20,7 @@ import com.google.gson.reflect.TypeToken;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.reactive.function.client.ExchangeStrategies;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.DefaultUriBuilderFactory;
@@ -56,10 +57,16 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
     }
 
     @Override
-    public Flux<ApplicationTemplate> getSimilarTemplates(String templateId) {
-        final String apiUrl = String.format("%s/api/v1/app-templates/%s/similar?version=%s",
-                cloudServicesConfig.getBaseUrl(), templateId, releaseNotesService.getReleasedVersion()
-        );
+    public Flux<ApplicationTemplate> getSimilarTemplates(String templateId, MultiValueMap<String, String> params) {
+        UriComponents uriComponents = UriComponentsBuilder
+                .fromUriString(cloudServicesConfig.getBaseUrl())
+                .pathSegment("api/v1/app-templates", templateId, "similar")
+                .queryParams(params)
+                .queryParam("version", releaseNotesService.getReleasedVersion())
+                .build();
+
+        String apiUrl = uriComponents.toUriString();
+
         return WebClientUtils
                 .create(apiUrl)
                 .get()

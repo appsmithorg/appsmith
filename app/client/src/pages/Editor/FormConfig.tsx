@@ -22,6 +22,7 @@ import styled from "styled-components";
 const FlexWrapper = styled.div`
   display: flex;
   width: fit-content;
+  margin-right: 16px;
   & .t--js-toggle {
     margin-bottom: 0px;
   }
@@ -143,7 +144,7 @@ function renderFormConfigTop(props: {
                     content={tooltipText as string}
                     disabled={!tooltipText}
                     hoverOpenDelay={200}
-                    underline
+                    underline={!!tooltipText}
                   >
                     <p className="label-icon-wrapper">{label}</p>
                   </Tooltip>

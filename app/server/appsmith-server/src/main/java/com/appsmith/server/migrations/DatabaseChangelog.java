@@ -4459,13 +4459,17 @@ public class DatabaseChangelog {
 
     @ChangeSet(order = "102", id = "flush-spring-redis-keys", author = "")
     public void clearRedisCache(ReactiveRedisOperations<String, String> reactiveRedisOperations) {
+        doClearRedisKeys(reactiveRedisOperations);
+    }
+
+    protected static void doClearRedisKeys(ReactiveRedisOperations<String, String> reactiveRedisOperations) {
         final String script =
                 "for _,k in ipairs(redis.call('keys','spring:session:sessions:*'))" +
                         " do redis.call('del',k) " +
                         "end";
         final Flux<Object> flushdb = reactiveRedisOperations.execute(RedisScript.of(script));
 
-        flushdb.subscribe();
+        flushdb.blockLast();
     }
 
     /* Map values from pluginSpecifiedTemplates to formData (UQI) */

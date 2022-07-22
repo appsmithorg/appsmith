@@ -1,5 +1,5 @@
 import Icon, { IconSize } from "components/ads/Icon";
-import Text, { TextType } from "components/ads/Text";
+import { Text, TextType } from "design-system";
 import { Colors } from "constants/Colors";
 import { Datasource } from "entities/Datasource";
 import { PluginImage } from "pages/Editor/DataSourceEditor/JSONtoForm";

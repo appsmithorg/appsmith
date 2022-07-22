@@ -4,7 +4,10 @@ module.exports = {
   devServer: {
     client: {
       webSocketURL: {
-        protocol: "wss",
+        hostname: "127.0.0.1",
+        pathname: "/ws",
+        port: 3000,
+        protocol: "ws",
       },
     },
   },

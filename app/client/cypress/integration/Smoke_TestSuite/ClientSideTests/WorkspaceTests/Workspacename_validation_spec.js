@@ -11,7 +11,8 @@ describe("Workspace name validation spec", function() {
     cy.wait("@createWorkspace").then((interception) => {
       newWorkspaceName = interception.response.body.data.name;
       cy.NavigateToHome();
-      cy.contains(newWorkspaceName)
+      cy.get(".t--applications-container")
+        .contains(newWorkspaceName)
         .closest(homePage.workspaceCompleteSection)
         .find(homePage.workspaceNamePopover)
         .find(homePage.optionsIcon)

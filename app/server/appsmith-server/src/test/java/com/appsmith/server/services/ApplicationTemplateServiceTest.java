@@ -3,12 +3,16 @@ package com.appsmith.server.services;
 import com.appsmith.server.configurations.CloudServicesConfig;
 import com.appsmith.server.domains.UserData;
 import com.appsmith.server.dtos.ApplicationTemplate;
+import com.appsmith.server.dtos.PageNameIdDTO;
 import com.appsmith.server.solutions.ImportExportApplicationService;
 import com.appsmith.server.solutions.ReleaseNotesService;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 import okhttp3.mockwebserver.RecordedRequest;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -23,7 +27,6 @@ import reactor.test.StepVerifier;
 import java.io.IOException;
 import java.util.List;
 
-import static com.appsmith.server.migrations.DatabaseChangelog.objectMapper;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
@@ -32,15 +35,20 @@ import static org.assertj.core.api.Assertions.assertThat;
 @RunWith(SpringJUnit4ClassRunner.class)
 public class ApplicationTemplateServiceTest {
     ApplicationTemplateService applicationTemplateService;
+    private static ObjectMapper objectMapper = new ObjectMapper();
 
     @MockBean
     private UserDataService userDataService;
+
     @MockBean
     private CloudServicesConfig cloudServicesConfig;
+
     @MockBean
     private ReleaseNotesService releaseNotesService;
+
     @MockBean
     private ImportExportApplicationService importExportApplicationService;
+
     @MockBean
     private AnalyticsService analyticsService;
 
@@ -134,5 +142,46 @@ public class ApplicationTemplateServiceTest {
         assertThat(queryParameterValues).contains("id-one");
         assertThat(queryParameterValues).contains("id-two");
         assertThat(queryParameterValues.size()).isEqualTo(2);
+    }
+
+    @Test
+    public void get_WhenPageMetaDataExists_PageMetaDataParsedProperly() throws JsonProcessingException {
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("id", "1234567890");
+        jsonObject.put("name", "My Page");
+        jsonObject.put("isDefault", true);
+        JSONArray pages = new JSONArray();
+        pages.put(jsonObject);
+
+        JSONObject templateObj = new JSONObject();
+        templateObj.put("title", "My Template");
+        templateObj.put("pages", pages);
+
+        JSONArray templates = new JSONArray();
+        templates.put(templateObj);
+
+        // mock the server to return a template when it's called
+        mockCloudServices
+                .enqueue(new MockResponse()
+                        .setBody(templates.toString())
+                        .addHeader("Content-Type", "application/json"));
+
+        // mock the user data to set recently used template ids
+        UserData mockUserData = new UserData();
+        mockUserData.setRecentlyUsedTemplateIds(List.of());
+        Mockito.when(userDataService.getForCurrentUser()).thenReturn(Mono.just(mockUserData));
+
+        // make sure we've received the response returned by the mockCloudServices
+        StepVerifier.create(applicationTemplateService.getActiveTemplates(null))
+                .assertNext(applicationTemplates -> {
+                    assertThat(applicationTemplates.size()).isEqualTo(1);
+                    ApplicationTemplate applicationTemplate = applicationTemplates.get(0);
+                    assertThat(applicationTemplate.getPages()).hasSize(1);
+                    PageNameIdDTO pageNameIdDTO = applicationTemplate.getPages().get(0);
+                    assertThat(pageNameIdDTO.getId()).isEqualTo("1234567890");
+                    assertThat(pageNameIdDTO.getName()).isEqualTo("My Page");
+                    assertThat(pageNameIdDTO.getIsDefault()).isTrue();
+                })
+                .verifyComplete();
     }
 }

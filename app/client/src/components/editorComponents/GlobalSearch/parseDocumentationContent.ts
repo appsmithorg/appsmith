@@ -1,4 +1,4 @@
-import marked, { Token } from "marked";
+import marked from "marked";
 import { HelpBaseURL } from "constants/HelpConstants";
 import { algoliaHighlightTag } from "./utils";
 import log from "loglevel";
@@ -122,22 +122,31 @@ const parseMarkdown = (value: string) => {
   value = replaceHintTagsWithCode(stripDescriptionMarkdown(value));
 
   marked.use({
-    walkTokens(token: unknown) {
-      const currentToken = token as Token;
+    walkTokens(token) {
+      const currentToken = token;
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
       if ("type" in currentToken && currentToken.type === "link") {
-        let href = currentToken.href;
-        try {
-          new URL(href);
-        } catch (e) {
-          href = `${HelpBaseURL}/${href}`;
+        if ("href" in currentToken) {
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
+          let href = currentToken.href;
+          try {
+            new URL(href);
+          } catch (e) {
+            href = `${HelpBaseURL}/${href}`;
+          }
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
+          currentToken.href = href
+            .replace(aisTag, "")
+            .replaceAll(aisOpenHTMLTag, "")
+            .replaceAll(aisCloseHTMLTag, "");
         }
-        currentToken.href = href
-          .replace(aisTag, "")
-          .replaceAll(aisOpenHTMLTag, "")
-          .replaceAll(aisCloseHTMLTag, "");
       }
     },
   });
+
   return marked(value);
 };
 
