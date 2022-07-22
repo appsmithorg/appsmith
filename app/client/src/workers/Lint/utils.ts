@@ -1,11 +1,21 @@
+import { DataTree, DataTreeEntity } from "entities/DataTree/dataTreeFactory";
+import {
+  getEntityNameAndPropertyPath,
+  isAction,
+  isATriggerPath,
+  isJSAction,
+  isWidget,
+} from "workers/evaluationUtils";
 import { Position } from "codemirror";
 import {
   EvaluationError,
   extraLibraries,
+  isDynamicValue,
+  isPathADynamicBinding,
   PropertyEvaluationErrorType,
 } from "utils/DynamicBindingUtils";
 import { JSHINT as jshint, LintError, LintOptions } from "jshint";
-import { isEmpty, isNumber, keys, last } from "lodash";
+import { get, isEmpty, isNumber, keys, last } from "lodash";
 import {
   EvaluationScripts,
   EvaluationScriptType,
@@ -17,6 +27,40 @@ import {
 } from "components/editorComponents/CodeEditor/lintHelpers";
 import { ECMA_VERSION } from "constants/ast";
 import { IGNORED_LINT_ERRORS } from "components/editorComponents/CodeEditor/constants";
+
+export const pathRequiresLinting = (
+  dataTree: DataTree,
+  entity: DataTreeEntity,
+  fullPropertyPath: string,
+): boolean => {
+  const { propertyPath } = getEntityNameAndPropertyPath(fullPropertyPath);
+  const unEvalPropertyValue = (get(
+    dataTree,
+    fullPropertyPath,
+  ) as unknown) as string;
+
+  if (isATriggerPath(entity, propertyPath)) {
+    return isDynamicValue(unEvalPropertyValue);
+  }
+  const isADynamicBindingPath =
+    (isAction(entity) || isWidget(entity) || isJSAction(entity)) &&
+    isPathADynamicBinding(entity, propertyPath);
+  const requiresLinting =
+    isADynamicBindingPath &&
+    (isDynamicValue(unEvalPropertyValue) ||
+      (isJSAction(entity) && propertyPath === "body"));
+  return requiresLinting;
+};
+
+export const getJSSnippetToLint = (
+  entity: DataTreeEntity,
+  snippet: string,
+  propertyPath: string,
+) => {
+  return entity && isJSAction(entity) && propertyPath === "body"
+    ? snippet.replace(/export default/g, "")
+    : snippet;
+};
 
 export const getPositionInEvaluationScript = (
   type: EvaluationScriptType,
@@ -90,6 +134,7 @@ export const getLintingErrors = (
   };
 
   jshint(script, options);
+
   return getValidLintErrors(jshint.errors, scriptPos).map((lintError) => {
     const ch = lintError.character;
     return {
