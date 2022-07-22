@@ -45,7 +45,7 @@ export const FORM_VALIDATION_PASSWORD_RULE = () =>
   `Please provide a password between 6 and 42 characters`;
 export const FORM_VALIDATION_INVALID_PASSWORD = FORM_VALIDATION_PASSWORD_RULE;
 
-export const LOGIN_PAGE_SUBTITLE = () => `Use your organization email`;
+export const LOGIN_PAGE_SUBTITLE = () => `Use your workspace email`;
 export const LOGIN_PAGE_TITLE = () => `Sign in to your account`;
 export const LOGIN_PAGE_EMAIL_INPUT_LABEL = () => `Email`;
 export const LOGIN_PAGE_PASSWORD_INPUT_LABEL = () => `Password`;
@@ -64,7 +64,7 @@ export const LOGIN_PAGE_FORGOT_PASSWORD_TEXT = () => `Forgot Password`;
 export const LOGIN_PAGE_REMEMBER_ME_LABEL = () => `Remember`;
 export const LOGIN_PAGE_SIGN_UP_LINK_TEXT = () => `Sign up`;
 export const SIGNUP_PAGE_TITLE = () => `Create your free account`;
-export const SIGNUP_PAGE_SUBTITLE = () => `Use your organization email`;
+export const SIGNUP_PAGE_SUBTITLE = () => `Use your workspace email`;
 export const SIGNUP_PAGE_EMAIL_INPUT_LABEL = () => `Email`;
 export const SIGNUP_PAGE_EMAIL_INPUT_PLACEHOLDER = () => `Email`;
 export const SIGNUP_PAGE_NAME_INPUT_PLACEHOLDER = () => `Name`;
