@@ -31,18 +31,10 @@ import {
 import { getIsInitialized as getIsViewerInitialized } from "selectors/appViewSelectors";
 import { enableGuidedTour } from "actions/onboardingActions";
 import { setPreviewModeAction } from "actions/editorActions";
-import AppEngine, {
-  AppEnginePayload,
-  PageNotFoundError,
-} from "entities/Engine";
+import AppEngine, { EngineApiError, AppEnginePayload } from "entities/Engine";
 import AppEngineFactory from "entities/Engine/factory";
 import { ApplicationPagePayload } from "api/ApplicationApi";
 import { updateSlugNamesInURL } from "utils/helpers";
-import {
-  ActionsNotFoundError,
-  PluginFormConfigsNotFoundError,
-  PluginsNotFoundError,
-} from "entities/Engine/AppEditorEngine";
 
 export const URL_CHANGE_ACTIONS = [
   ReduxActionTypes.CURRENT_APPLICATION_NAME_UPDATE,
@@ -100,16 +92,8 @@ export function* startAppEngine(action: ReduxAction<AppEnginePayload>) {
     engine.stopPerformanceTracking();
   } catch (e) {
     log.error(e);
-    if (
-      !(
-        e instanceof PluginFormConfigsNotFoundError ||
-        e instanceof PluginsNotFoundError ||
-        e instanceof ActionsNotFoundError
-      )
-    ) {
-      Sentry.captureException(e);
-    }
-    if (e instanceof PageNotFoundError) return;
+    if (e instanceof EngineApiError) return;
+    Sentry.captureException(e);
     yield put({
       type: ReduxActionTypes.SAFE_CRASH_APPSMITH_REQUEST,
       payload: {
