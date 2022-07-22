@@ -46,13 +46,10 @@ import { DropTargetContext } from "./DropTargetComponent";
 import { XYCord } from "pages/common/CanvasArenas/hooks/useCanvasDragging";
 import { AlignItems, LayoutDirection } from "components/constants";
 import { AutoLayoutContext } from "widgets/AutoLayoutContainerWidget/widget";
-import { log } from "utils/common";
 
 export type ResizableComponentProps = WidgetProps & {
   paddingOffset: number;
 };
-
-const shouldLog = false;
 
 export const ResizableComponent = memo(function ResizableComponent(
   props: ResizableComponentProps,
@@ -105,7 +102,7 @@ export const ResizableComponent = memo(function ResizableComponent(
 
   useEffect(() => {
     // Set initial dimensions
-    log(`#### ${props.widgetName} : Initial dimensions`, shouldLog);
+    // console.log(`#### ${props.widgetName} : Initial dimensions`);
     setComponentWidth(
       props.useAutoLayout &&
         props.direction === LayoutDirection.Vertical &&
@@ -121,7 +118,7 @@ export const ResizableComponent = memo(function ResizableComponent(
   }, [props.useAutoLayout, props.direction, props.alignItems]);
 
   useEffect(() => {
-    log(`#### ${props.widgetName} : Manual resize`, shouldLog);
+    // console.log(`#### ${props.widgetName} : Manual resize`);
     setComponentWidth(
       props.useAutoLayout &&
         props.direction === LayoutDirection.Vertical &&
@@ -137,7 +134,7 @@ export const ResizableComponent = memo(function ResizableComponent(
   }, [props.topRow, props.bottomRow, props.leftColumn, props.rightColumn]);
 
   useEffect(() => {
-    log(`#### ${props.widgetName} : Parent resize`, shouldLog);
+    // console.log(`#### ${props.widgetName} : Parent resize`);
     if (!props.useAutoLayout) {
       setComponentWidth(
         (props.rightColumn - props.leftColumn) * props.parentColumnSpace -
@@ -179,8 +176,8 @@ export const ResizableComponent = memo(function ResizableComponent(
   //     2 * props.paddingOffset,
   // };
 
-  log(`#### ${props.widgetName} : width - ${componentWidth}`, shouldLog);
-  log(`#### ${props.widgetName} : bottomRow - ${props.bottomRow}`, shouldLog);
+  // console.log(`#### ${props.widgetName} : width - ${componentWidth}`);
+  // console.log(`#### ${props.widgetName} : bottomRow - ${props.bottomRow}`);
 
   // onResize handler
   const getResizedPositions = (
@@ -191,8 +188,8 @@ export const ResizableComponent = memo(function ResizableComponent(
       height: newDimensions.height - componentHeight,
       width: newDimensions.width - componentWidth,
     };
-    log(newDimensions, shouldLog);
-    log(`#### ${props.widgetName} : delta - ${delta.height}`, shouldLog);
+    // console.log(newDimensions);
+    // console.log(`#### ${props.widgetName} : delta - ${delta.height}`);
     const newRowCols: WidgetRowCols = computeRowCols(delta, position, props);
     let canResizeHorizontally = true,
       canResizeVertically = true;
@@ -243,12 +240,12 @@ export const ResizableComponent = memo(function ResizableComponent(
   // Update widget, if both of the above are true.
   const updateSize = (newDimensions: UIElementSize, position: XYCord) => {
     // Get the difference in size of the widget, before and after resizing.
-    log(`#### ${props.widgetName} : update size`, shouldLog);
+    // console.log(`#### ${props.widgetName} : update size`);
     const delta: UIElementSize = {
       height: newDimensions.height - componentHeight,
       width: newDimensions.width - componentWidth,
     };
-    log(`#### ${props.widgetName} : delta - ${delta.height}`, shouldLog);
+    // console.log(`#### ${props.widgetName} : delta - ${delta.height}`);
     // Get the updated Widget rows and columns props
     // False, if there is collision
     // False, if none of the rows and cols have changed.
@@ -257,8 +254,8 @@ export const ResizableComponent = memo(function ResizableComponent(
       position,
       props,
     );
-    log("#### new row cols", shouldLog);
-    log(newRowCols, shouldLog);
+    // console.log("#### new row cols");
+    // console.log(newRowCols);
     if (newRowCols) {
       updateWidget &&
         updateWidget(WidgetOperations.RESIZE, props.widgetId, {

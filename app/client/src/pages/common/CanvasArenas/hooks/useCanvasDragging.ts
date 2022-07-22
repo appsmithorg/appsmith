@@ -112,7 +112,7 @@ export const useCanvasDragging = (
   const calculateHighlightOffsets = () => {
     if (useAutoLayout) {
       // Get all children of current auto layout container
-      const els = document.querySelectorAll(`.${widgetId}-auto-layout`);
+      const els = document.querySelectorAll(`.auto-layout-parent-${widgetId}`);
       if (els && els.length && offsets.length !== els.length) {
         // Get widget ids of all widgets being dragged
         // console.log(els);
