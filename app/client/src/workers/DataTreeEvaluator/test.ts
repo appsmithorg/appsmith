@@ -6,6 +6,7 @@ import { ALL_WIDGETS_AND_CONFIG } from "utils/WidgetRegistry";
 import { arrayAccessorCyclicDependency } from "./mockData/ArrayAccessorTree";
 import { nestedArrayAccessorCyclicDependency } from "./mockData/NestedArrayAccessorTree";
 import { getJSActionUpdates } from "workers/JSObject";
+import { updateDependencyMap } from "workers/DependencyMap";
 
 const widgetConfigMap = {};
 ALL_WIDGETS_AND_CONFIG.map(([, config]) => {
@@ -155,10 +156,11 @@ describe("DataTreeEvaluator", () => {
           event: "EDIT",
         },
       ];
-      dataTreeEvaluator.updateDependencyMap(
-        translatedDiffs as Array<DataTreeDiff>,
-        dataTreeEvaluator.oldUnEvalTree,
-      );
+      updateDependencyMap({
+        dataTreeEvalRef: dataTreeEvaluator,
+        translatedDiffs: translatedDiffs as Array<DataTreeDiff>,
+        unEvalDataTree: dataTreeEvaluator.oldUnEvalTree,
+      });
 
       expect(dataTreeEvaluator.dependencyMap).toStrictEqual({
         "Button2.text": [],
@@ -177,10 +179,11 @@ describe("DataTreeEvaluator", () => {
           event: "EDIT",
         },
       ];
-      dataTreeEvaluator.updateDependencyMap(
-        translatedDiffs as Array<DataTreeDiff>,
-        dataTreeEvaluator.oldUnEvalTree,
-      );
+      updateDependencyMap({
+        dataTreeEvalRef: dataTreeEvaluator,
+        translatedDiffs: translatedDiffs as Array<DataTreeDiff>,
+        unEvalDataTree: dataTreeEvaluator.oldUnEvalTree,
+      });
 
       expect(dataTreeEvaluator.dependencyMap).toStrictEqual({
         Button2: ["Button2.text"],
