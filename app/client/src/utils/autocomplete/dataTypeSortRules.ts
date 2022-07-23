@@ -1,4 +1,5 @@
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
+import { WidgetType } from "utils/WidgetFactory";
 
 const RULES: Record<AutocompleteDataType, Array<string>> = {
   STRING: [
@@ -23,6 +24,8 @@ const RULES: Record<AutocompleteDataType, Array<string>> = {
     "TABLE_WIDGET.selectedRowIndex",
     "TABLE_WIDGET_V2.selectedRowIndex",
     "TABLE_WIDGET_V2.triggeredRowIndex",
+    "TABLE_WIDGET.selectedRow",
+    "TABLE_WIDGET_V2.selectedRow",
     "IFRAME_WIDGET.source",
     "IFRAME_WIDGET.title",
     "DROP_DOWN_WIDGET.selectedOptionLabel",
@@ -141,6 +144,16 @@ const RULES: Record<AutocompleteDataType, Array<string>> = {
     "showModal()",
   ],
   UNKNOWN: [],
+};
+
+export const PriorityOrder: Record<AutocompleteDataType, string[]> = {
+  STRING: ["selectedRow", "data"],
+  NUMBER: ["selectedRow", "data"],
+  OBJECT: [],
+  ARRAY: [],
+  FUNCTION: ["run()"],
+  BOOLEAN: ["selectedRow", "data"],
+  UNKNOWN: ["selectedRow", "data", "run()"],
 };
 
 export default RULES;
