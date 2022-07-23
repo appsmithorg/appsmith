@@ -55,15 +55,15 @@ export function createDependencyMap(
     }
   });
   Object.keys(dependencyMap).forEach((key) => {
-    const newDep = dependencyMap[key].map((path) => {
+    const newDep = dependencyMap[key].map((script) => {
       try {
-        return extractReferencesFromBinding(path, dataTreeEvalRef.allKeys);
+        return extractReferencesFromBinding(script, dataTreeEvalRef.allKeys);
       } catch (error) {
         dataTreeEvalRef.errors.push({
           type: EvalErrorTypes.EXTRACT_DEPENDENCY_ERROR,
           message: (error as Error).message,
           context: {
-            script: path,
+            script,
           },
         });
         return [];
@@ -387,10 +387,10 @@ export const updateDependencyMap = ({
     Object.keys(dataTreeEvalRef.dependencyMap).forEach((key) => {
       dataTreeEvalRef.dependencyMap[key] = uniq(
         flatten(
-          dataTreeEvalRef.dependencyMap[key].map((path) => {
+          dataTreeEvalRef.dependencyMap[key].map((script) => {
             try {
               return extractReferencesFromBinding(
-                path,
+                script,
                 dataTreeEvalRef.allKeys,
               );
             } catch (error) {
@@ -398,7 +398,7 @@ export const updateDependencyMap = ({
                 type: EvalErrorTypes.EXTRACT_DEPENDENCY_ERROR,
                 message: (error as Error).message,
                 context: {
-                  script: path,
+                  script,
                 },
               });
               return [];
