@@ -430,9 +430,8 @@ export const asyncTagUnevalTree: DataTree = {
     dependencyMap: {
       body: ["myFun1"],
     },
-    myFun1: {
-      data: {},
-    },
+    myFun1: "() => {\n\t\treturn JSObject2.callApi();\n\t}",
+    "myFun1.data": {},
   },
   JSObject2: {
     name: "JSObject2",
@@ -468,9 +467,8 @@ export const asyncTagUnevalTree: DataTree = {
     dependencyMap: {
       body: ["callApi"],
     },
-    callApi: {
-      data: {},
-    },
+    callApi: "() => {\n\t\treturn Api1.run()\n\t}",
+    "callApi.data": {},
   },
   MainContainer: ({
     widgetName: "MainContainer",

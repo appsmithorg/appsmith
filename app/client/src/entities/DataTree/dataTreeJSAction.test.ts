@@ -155,29 +155,20 @@ describe("generateDataTreeJSAction", () => {
         },
       },
       bindingPaths: {
-        body: "SMART_SUBSTITUTE",
-        myFun1: "SMART_SUBSTITUTE",
+        body: "TEMPLATE",
+        myFun1: "TEMPLATE",
         "myFun1.data": "TEMPLATE",
-        myFun2: "SMART_SUBSTITUTE",
+        myFun2: "TEMPLATE",
         "myFun2.data": "TEMPLATE",
         myVar1: "SMART_SUBSTITUTE",
         myVar2: "SMART_SUBSTITUTE",
       },
       dynamicBindingPathList: [
         {
-          key: "body",
-        },
-        {
           key: "myVar1",
         },
         {
           key: "myVar2",
-        },
-        {
-          key: "myFun1",
-        },
-        {
-          key: "myFun2",
         },
       ],
       variables: ["myVar1", "myVar2"],
@@ -191,10 +182,10 @@ describe("generateDataTreeJSAction", () => {
       myFun1: "() => {}",
       "myFun1.data": undefined,
       reactivePaths: {
-        body: "SMART_SUBSTITUTE",
-        myFun1: "SMART_SUBSTITUTE",
+        body: "TEMPLATE",
+        myFun1: "TEMPLATE",
         "myFun1.data": "TEMPLATE",
-        myFun2: "SMART_SUBSTITUTE",
+        myFun2: "TEMPLATE",
         "myFun2.data": "TEMPLATE",
         myVar1: "SMART_SUBSTITUTE",
         myVar2: "SMART_SUBSTITUTE",
@@ -356,29 +347,20 @@ describe("generateDataTreeJSAction", () => {
         },
       },
       bindingPaths: {
-        body: "SMART_SUBSTITUTE",
-        myFun1: "SMART_SUBSTITUTE",
+        body: "TEMPLATE",
+        myFun1: "TEMPLATE",
         "myFun1.data": "TEMPLATE",
-        myFun2: "SMART_SUBSTITUTE",
+        myFun2: "TEMPLATE",
         "myFun2.data": "TEMPLATE",
         myVar1: "SMART_SUBSTITUTE",
         myVar2: "SMART_SUBSTITUTE",
       },
       dynamicBindingPathList: [
         {
-          key: "body",
-        },
-        {
           key: "myVar1",
         },
         {
           key: "myVar2",
-        },
-        {
-          key: "myFun1",
-        },
-        {
-          key: "myFun2",
         },
       ],
       variables: ["myVar1", "myVar2"],
@@ -394,10 +376,10 @@ describe("generateDataTreeJSAction", () => {
 }`,
       "myFun1.data": undefined,
       reactivePaths: {
-        body: "SMART_SUBSTITUTE",
-        myFun1: "SMART_SUBSTITUTE",
+        body: "TEMPLATE",
+        myFun1: "TEMPLATE",
         "myFun1.data": "TEMPLATE",
-        myFun2: "SMART_SUBSTITUTE",
+        myFun2: "TEMPLATE",
         "myFun2.data": "TEMPLATE",
         myVar1: "SMART_SUBSTITUTE",
         myVar2: "SMART_SUBSTITUTE",
