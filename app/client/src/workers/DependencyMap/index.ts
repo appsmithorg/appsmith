@@ -54,7 +54,6 @@ export function createDependencyMap(
       };
     }
   });
-  console.log("$$$-dependencyMap", dependencyMap);
   Object.keys(dependencyMap).forEach((key) => {
     const newDep = dependencyMap[key].map((path) => {
       try {
