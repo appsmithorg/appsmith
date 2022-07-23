@@ -21,3 +21,5 @@ deploy/ansible/appsmith_playbook/inventory
 app/client/perf/traces/*
 .history
 stacks
+
+build

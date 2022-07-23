@@ -21,6 +21,7 @@
     "@manaflair/redux-batch": "^1.0.0",
     "@sentry/react": "^6.2.4",
     "@sentry/tracing": "^6.2.4",
+    "@shared/ast": "^1.0.0",
     "@tinymce/tinymce-react": "^3.13.0",
     "@uppy/core": "^1.16.0",
     "@uppy/dashboard": "^1.16.0",
@@ -176,7 +177,8 @@
     "test:unit": "$(npm bin)/jest -b --colors --no-cache --silent --coverage --collectCoverage=true --coverageDirectory='../../' --coverageReporters='json-summary'",
     "test:jest": "$(npm bin)/jest --watch",
     "generate:widget": "plop --plopfile generators/index.js",
-    "postinstall": "patch-package"
+    "postinstall": "patch-package",
+    "preinstall": "lerna run build --scope=@shared/ast"
   },
   "browserslist": [
     ">0.2%",

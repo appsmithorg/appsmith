@@ -1,0 +1,28 @@
+{
+  "name": "appsmith-root",
+  "private": true,
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "workspaces": [
+    "packages/*",
+    "app/*"
+  ],
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/appsmithorg/appsmith.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/appsmithorg/appsmith/issues"
+  },
+  "homepage": "https://github.com/appsmithorg/appsmith#readme",
+  "devDependencies": {
+    "lerna": "^5.1.8",
+    "nx": "^14.4.3"
+  }
+}
