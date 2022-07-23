@@ -487,22 +487,13 @@ export default class DataTreeEvaluator {
         },
       );
     }
+
     if (isJSAction(entity)) {
-      // making functions dependent on their function body entities
+      // JSObject variables and functions are not reactive
+      // hence there dependencies should be empty
       if (entity.reactivePaths) {
         Object.keys(entity.reactivePaths).forEach((propertyPath) => {
-          const existingDeps =
-            dependencies[`${entityName}.${propertyPath}`] || [];
-          const unevalPropValue = _.get(entity, propertyPath);
-          const unevalPropValueString =
-            !!unevalPropValue && unevalPropValue.toString();
-          const { jsSnippets } = getDynamicBindings(
-            unevalPropValueString,
-            entity,
-          );
-          dependencies[`${entityName}.${propertyPath}`] = existingDeps.concat(
-            jsSnippets.filter((jsSnippet) => !!jsSnippet),
-          );
+          dependencies[`${entityName}.${propertyPath}`] = [];
         });
       }
     }
