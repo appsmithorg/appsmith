@@ -42,6 +42,7 @@ import {
   validateActionProperty,
   addWidgetPropertyDependencies,
   overrideWidgetProperties,
+  getAllPaths,
 } from "workers/evaluationUtils";
 import _ from "lodash";
 import { applyChange, Diff, diff } from "deep-diff";
@@ -126,6 +127,9 @@ export default class DataTreeEvaluator {
     //save functions in resolveFunctions (as functions) to be executed as functions are not allowed in evalTree
     //and functions are saved in dataTree as strings
     const { jsUpdates } = getJSActionUpdates(this, localUnEvalTree);
+
+    // set All keys
+    this.allKeys = getAllPaths(localUnEvalTree);
 
     // Create dependency map
     const createDependencyStart = performance.now();
