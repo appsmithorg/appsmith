@@ -32,6 +32,7 @@ import com.appsmith.server.services.ActionCollectionService;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.CollectionService;
+import com.appsmith.server.services.DatasourceService;
 import com.appsmith.server.services.NewActionService;
 import com.appsmith.server.services.NewPageService;
 import com.appsmith.server.services.SessionUserService;
@@ -52,6 +53,7 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.util.function.Tuple2;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -86,6 +88,7 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
     private final CollectionService collectionService;
     private final ApplicationService applicationService;
     private final ResponseUtils responseUtils;
+    private final DatasourceService datasourceService;
 
 
     /*
@@ -1173,9 +1176,28 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
                     return Mono.just(newAction);
                 })
                 .flatMap(savedNewAction -> newActionService.validateAndSaveActionToRepository(savedNewAction).zipWith(Mono.just(savedNewAction)))
-                .flatMap(zippedActions -> analyticsService
-                        .sendCreateEvent(zippedActions.getT2(), newActionService.getAnalyticsProperties(zippedActions.getT2()))
-                        .thenReturn(zippedActions.getT1()));
+                .zipWith(Mono.defer(() -> {
+                    if (action.getDatasource() != null &&
+                            action.getDatasource().getId() != null) {
+                        return datasourceService.findById(action.getDatasource().getId());
+                    } else {
+                        return Mono.justOrEmpty(action.getDatasource());
+                    }
+                }))
+                .flatMap(zippedData -> {
+
+                    final Tuple2<ActionDTO, NewAction> zippedActions = zippedData.getT1();
+                    final Datasource datasource = zippedData.getT2();
+                    final NewAction newAction1 = zippedActions.getT2();
+                    final Datasource embeddedDatasource = newAction1.getUnpublishedAction().getDatasource();
+                    embeddedDatasource.setIsMock(datasource.getIsMock());
+                    embeddedDatasource.setIsTemplate(datasource.getIsTemplate());
+
+                    return analyticsService
+                            .sendCreateEvent(newAction1, newActionService.getAnalyticsProperties(newAction1))
+                            .thenReturn(zippedActions.getT1());
+
+                });
     }
 
 }

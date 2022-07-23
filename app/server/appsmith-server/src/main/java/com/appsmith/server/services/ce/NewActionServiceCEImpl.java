@@ -541,9 +541,25 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
 
         return updatedActionMono
                 .flatMap(savedNewAction -> this.validateAndSaveActionToRepository(savedNewAction).zipWith(Mono.just(savedNewAction)))
-                .flatMap(zippedActions -> analyticsService
-                        .sendUpdateEvent(zippedActions.getT2(), this.getAnalyticsProperties(zippedActions.getT2()))
-                        .thenReturn(zippedActions.getT1()));
+                .zipWith(Mono.defer(() -> {
+                    if (action.getDatasource() != null &&
+                            action.getDatasource().getId() != null) {
+                        return datasourceService.findById(action.getDatasource().getId());
+                    } else {
+                        return Mono.justOrEmpty(action.getDatasource());
+                    }
+                }))
+                .flatMap(zippedData -> {
+
+                    final Tuple2<ActionDTO, NewAction> zippedActions = zippedData.getT1();
+                    final Datasource datasource = zippedData.getT2();
+                    final NewAction newAction1 = zippedActions.getT2();
+
+                    return analyticsService
+                            .sendUpdateEvent(newAction1, this.getAnalyticsProperties(newAction1, datasource))
+                            .thenReturn(zippedActions.getT1());
+
+                });
     }
 
     private Mono<NewAction> extractAndSetNativeQueryFromFormData(NewAction action) {
@@ -1249,13 +1265,49 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                         toDelete.getUnpublishedAction().setDeletedAt(Instant.now());
                         newActionMono = repository
                                 .save(toDelete)
-                                .flatMap(deletedAction -> analyticsService.sendArchiveEvent(deletedAction, getAnalyticsProperties(deletedAction)));
+
+                                .zipWith(Mono.defer(() -> {
+                                    final ActionDTO action = toDelete.getUnpublishedAction();
+                                    if (action.getDatasource() != null &&
+                                            action.getDatasource().getId() != null) {
+                                        return datasourceService.findById(action.getDatasource().getId());
+                                    } else {
+                                        return Mono.justOrEmpty(action.getDatasource());
+                                    }
+                                }))
+                                .flatMap(zippedActions -> {
+                                    final Datasource datasource = zippedActions.getT2();
+                                    final NewAction newAction1 = zippedActions.getT1();
+
+                                    return analyticsService
+                                            .sendArchiveEvent(newAction1, this.getAnalyticsProperties(newAction1, datasource))
+                                            .thenReturn(zippedActions.getT1());
+
+                                })
+                                .thenReturn(toDelete);
                     } else {
                         // This action was never published. This document can be safely archived
                         newActionMono = repository
                                 .archive(toDelete)
-                                .thenReturn(toDelete)
-                                .flatMap(deletedAction -> analyticsService.sendDeleteEvent(deletedAction, getAnalyticsProperties(deletedAction)));
+                                .zipWith(Mono.defer(() -> {
+                                    final ActionDTO action = toDelete.getUnpublishedAction();
+                                    if (action.getDatasource() != null &&
+                                            action.getDatasource().getId() != null) {
+                                        return datasourceService.findById(action.getDatasource().getId());
+                                    } else {
+                                        return Mono.justOrEmpty(action.getDatasource());
+                                    }
+                                }))
+                                .flatMap(zippedActions -> {
+                                    final Datasource datasource = zippedActions.getT2();
+                                    final NewAction newAction1 = zippedActions.getT1();
+
+                                    return analyticsService
+                                            .sendDeleteEvent(newAction1, this.getAnalyticsProperties(newAction1, datasource))
+                                            .thenReturn(zippedActions.getT1());
+
+                                })
+                                .thenReturn(toDelete);
                     }
 
                     return newActionMono;
@@ -1665,8 +1717,27 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
         Mono<NewAction> actionMono = repository.findById(id)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ACTION, id)));
         return actionMono
-                .flatMap(toDelete -> repository.archive(toDelete).thenReturn(toDelete))
-                .flatMap(deletedAction -> analyticsService.sendDeleteEvent(deletedAction, getAnalyticsProperties(deletedAction)));
+                .flatMap(toDelete -> repository
+                        .archive(toDelete)
+                        .zipWith(Mono.defer(() -> {
+                            final ActionDTO action = toDelete.getUnpublishedAction();
+                            if (action.getDatasource() != null &&
+                                    action.getDatasource().getId() != null) {
+                                return datasourceService.findById(action.getDatasource().getId());
+                            } else {
+                                return Mono.justOrEmpty(action.getDatasource());
+                            }
+                        }))
+                        .flatMap(zippedActions -> {
+                            final Datasource datasource = zippedActions.getT2();
+                            final NewAction newAction1 = zippedActions.getT1();
+
+                            return analyticsService
+                                    .sendDeleteEvent(newAction1, this.getAnalyticsProperties(newAction1, datasource))
+                                    .thenReturn(zippedActions.getT1());
+
+                        })
+                        .thenReturn(toDelete));
     }
 
     @Override
@@ -1765,6 +1836,16 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                         new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.ACTION, defaultActionId + "," + branchName))
                 )
                 .map(NewAction::getId);
+    }
+
+    private Map<String, Object> getAnalyticsProperties(NewAction savedAction, Datasource datasource) {
+        final Datasource embeddedDatasource = savedAction.getUnpublishedAction().getDatasource();
+        embeddedDatasource.setIsMock(datasource.getIsMock());
+        embeddedDatasource.setIsTemplate(datasource.getIsTemplate());
+        if (!StringUtils.hasLength(savedAction.getUnpublishedAction().getPluginName())) {
+            savedAction.getUnpublishedAction().setPluginName(datasource.getPluginName());
+        }
+        return this.getAnalyticsProperties(savedAction);
     }
 
     @Override
