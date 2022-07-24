@@ -78,7 +78,7 @@ import {
   updateDependencyMap,
   createDependencyMap,
 } from "workers/DependencyMap";
-import { lintTree } from "workers/Lint";
+import { lintTree } from "workers/Lint/index";
 
 export default class DataTreeEvaluator {
   dependencyMap: DependencyMap = {};
