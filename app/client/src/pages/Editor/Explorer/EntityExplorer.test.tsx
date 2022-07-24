@@ -13,6 +13,7 @@ import Datasources from "./Datasources";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { mockDatasources } from "./mockTestData";
 import { updateCurrentPage } from "actions/pageActions";
+import urlBuilder from "entities/URLRedirect/URLAssembly";
 
 jest.useFakeTimers();
 const pushState = jest.spyOn(window.history, "pushState");
@@ -22,12 +23,28 @@ pushState.mockImplementation((state: any, title: any, url: any) => {
 });
 
 describe("Entity Explorer tests", () => {
+  beforeEach(() => {
+    urlBuilder.updateURLParams(
+      {
+        applicationId: "appId",
+        applicationSlug: "appSlug",
+        applicationVersion: 2,
+      },
+      [
+        {
+          pageId: "pageId",
+          pageSlug: "pageSlug",
+        },
+      ],
+    );
+  });
+
   it("checks datasources section in explorer", () => {
     store.dispatch({
       type: ReduxActionTypes.FETCH_DATASOURCES_SUCCESS,
       payload: mockDatasources,
     });
-    store.dispatch(updateCurrentPage("623188f81876bb1bcfab19fd"));
+    store.dispatch(updateCurrentPage("pageId"));
     const component = render(<Datasources />);
     expect(component.container.getElementsByClassName("t--entity").length).toBe(
       5,

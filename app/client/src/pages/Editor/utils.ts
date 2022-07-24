@@ -1,6 +1,6 @@
 import { getDependenciesFromInverseDependencies } from "components/editorComponents/Debugger/helpers";
 import _, { debounce } from "lodash";
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import ReactDOM from "react-dom";
 import { useLocation } from "react-router";
 import { WidgetType } from "constants/WidgetConstants";
@@ -11,6 +11,9 @@ import {
   DEPRECATION_WIDGET_REPLACEMENT_MESSAGE,
   WIDGET_DEPRECATION_MESSAGE,
 } from "@appsmith/constants/messages";
+import { URLBuilderParams } from "RouteBuilder";
+import { useSelector } from "react-redux";
+import { getCurrentPageId } from "selectors/editorSelectors";
 
 export const draggableElement = (
   id: string,
@@ -281,4 +284,25 @@ export function buildDeprecationWidgetMessage(
     : "";
 
   return `${deprecationMessage}${deprecatedReplacementMessage}`;
+}
+
+/**
+ * Use this hook if you are try to set href in components that could possibly mount before the application is initialized.
+ * Eg. Deploy button in header.
+ * @param urlBuilderFn
+ * @param params
+ * @returns URL
+ */
+export function useHref<T extends URLBuilderParams>(
+  urlBuilderFn: (params: T) => string,
+  params: T,
+) {
+  const [href, setHref] = useState("");
+  // Current pageId selector serves as delay to generate urls
+  const pageId = useSelector(getCurrentPageId);
+  useEffect(() => {
+    if (pageId) setHref(urlBuilderFn(params));
+  }, [params, urlBuilderFn, pageId]);
+
+  return href;
 }

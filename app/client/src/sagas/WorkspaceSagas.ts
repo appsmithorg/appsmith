@@ -285,7 +285,7 @@ export function* createWorkspaceSaga(
       yield call(resolve);
     }
 
-    // get created worskpace in focus
+    // get created workspace in focus
     // @ts-expect-error: response is of type unknown
     const workspaceId = response.data.id;
     history.push(`${window.location.pathname}#${workspaceId}`);

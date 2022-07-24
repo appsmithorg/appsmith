@@ -85,8 +85,12 @@ function* setFormEvaluationSagaAsync(
           },
         });
       }
-
-      if (action?.type === ReduxActionTypes.RUN_FORM_EVALUATION) {
+      // RUN_FORM_EVALUATION shouldn't be called before INIT_FORM_EVALUATION has been called with
+      // the same `formId` else `extractQueueOfValuesToBeFetched` will be sent an undefined value.
+      if (
+        action?.type === ReduxActionTypes.RUN_FORM_EVALUATION &&
+        workerResponse[action?.payload?.formId]
+      ) {
         const queue = extractQueueOfValuesToBeFetched(
           workerResponse[action?.payload?.formId],
         );

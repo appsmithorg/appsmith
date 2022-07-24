@@ -3,7 +3,7 @@ import scrollIntoView from "scroll-into-view-if-needed";
 import { BranchListItemContainer } from "./BranchListItemContainer";
 import { TooltipComponent as Tooltip } from "design-system";
 import { isEllipsisActive } from "utils/helpers";
-import Text, { TextType } from "components/ads/Text";
+import { Text, TextType } from "design-system";
 import DefaultTag from "./DefaultTag";
 import { useHover } from "../hooks";
 import BranchMoreMenu from "./BranchMoreMenu";
@@ -35,6 +35,7 @@ export function BranchListItem({
     <BranchListItemContainer
       active={active}
       className={className}
+      data-testid="t--branch-list-item"
       isDefault={isDefault}
       ref={itemRef}
       selected={selected}

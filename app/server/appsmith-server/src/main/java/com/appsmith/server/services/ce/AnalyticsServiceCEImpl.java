@@ -102,11 +102,13 @@ public class AnalyticsServiceCEImpl implements AnalyticsServiceCE {
         analytics.flush();
     }
 
-    public void sendEvent(String event, String userId, Map<String, Object> properties) {
+    @Override
+    public void sendEvent(String event, String userId, Map<String, ?> properties) {
         sendEvent(event, userId, properties, true);
     }
 
-    public void sendEvent(String event, String userId, Map<String, Object> properties, boolean hashUserId) {
+    @Override
+    public void sendEvent(String event, String userId, Map<String, ?> properties, boolean hashUserId) {
         if (!isActive()) {
             return;
         }

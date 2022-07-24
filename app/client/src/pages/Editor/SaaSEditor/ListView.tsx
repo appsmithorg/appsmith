@@ -168,7 +168,6 @@ class ListView extends React.Component<Props> {
 
   renderNotFound() {
     const {
-      applicationId,
       history,
       match: {
         params: { pageId },
@@ -181,7 +180,6 @@ class ListView extends React.Component<Props> {
           onBackButton={() =>
             history.push(
               integrationEditorURL({
-                applicationId,
                 pageId,
                 selectedTab: INTEGRATION_TABS.ACTIVE,
               }),
