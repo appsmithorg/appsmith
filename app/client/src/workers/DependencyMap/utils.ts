@@ -8,6 +8,7 @@ import { convertPathToString } from "../evaluationUtils";
 export const extractReferencesFromBinding = (
   script: string,
   allPaths: Record<string, true>,
+  includeSubpathTopLevelEntities = false,
 ): string[] => {
   const references: Set<string> = new Set<string>();
   const identifiers = extractIdentifiersFromCode(script);
@@ -22,9 +23,10 @@ export const extractReferencesFromBinding = (
     let current = "";
     // We want to keep going till we reach top level, but not add top level
     // Eg: Input1.text should not depend on entire Table1 unless it explicitly asked for that.
-    // This is mainly to avoid a lot of unnecessary evals, if we feel this is wrong
-    // we can remove the length requirement, and it will still work
-    while (subpaths.length > 1) {
+    // This is mainly to avoid a lot of unnecessary evals. To explicitly include top level entities
+    // set includeSubpathTopLevelEntities to "true"
+    const minSubpathLength = includeSubpathTopLevelEntities ? 0 : 1;
+    while (subpaths.length > minSubpathLength) {
       current = convertPathToString(subpaths);
       // We've found the dep, add it and return
       if (allPaths.hasOwnProperty(current)) {
@@ -56,6 +58,7 @@ export const getEntityReferencesFromPropertyBindings = (
               extractReferencesFromBinding(
                 binding,
                 dataTreeEvalRef.allKeys,
+                true,
               ).map((reference) => reference.split(".")[0]),
             ),
           ];
