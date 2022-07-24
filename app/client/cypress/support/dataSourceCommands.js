@@ -542,8 +542,8 @@ Cypress.Commands.add("mockDatasourceDescriptionStyle", (tag) => {
 Cypress.Commands.add("createTwilioDatasource", () => {
   cy.get(datasourceEditor.Twilio).click();
   cy.get(".t--json-to-form-wrapper").should("exist");
-  cy.get(ApiEditor.dropdownTypeAuth).click();
-  cy.contains(ApiEditor.test, "Basic Auth").click();
+  cy.get(ApiEditor.dropdownActions).click();
+  cy.contains(ApiEditor.dropdownOption, "Basic Auth").click();
   cy.get(datasourceEditor.datasourceTitle).type("Test Twilio");
   cy.get(ApiEditor.backBtn).should("exist");
   cy.get('input[name="datasourceConfiguration.authentication.username"]').type(

@@ -15,10 +15,10 @@ describe("Test Entity Explorer", function() {
       .should("be.visible")
       .click({ force: true });
 
-    cy.get(".tab-title").contains("Active");
-    cy.get(".tab-title:contains('Active')").click();
+    //cy.get(".tab-title").contains("Active");
+    //cy.get(".tab-title:contains('Active')").click();
     //If the datasource does not exist
-    //cy.createTwilioDatasource();
+    cy.createTwilioDatasource();
   });
 
   it("1. Test user is able to see the query in the entity explorer", function() {
@@ -181,7 +181,7 @@ describe("Test Entity Explorer", function() {
       });
   });
 
-  it("10. Test the user is able to click Show BIndings and added binding are displayed to the user", function() {
+  it("10. Test the user is able to click Show Bindings and added binding are displayed to the user", function() {
     cy.openDropdown("PAGES");
 
     cy.contains(".t--entity-name", "Page1").click();
@@ -246,6 +246,26 @@ describe("Test Entity Explorer", function() {
     ).should("not.exist");
     cy.contains(".t--entity-item", "CREATE_MESSAGE_TEST_LONG_NAME_").should(
       "exist",
+    );
+    cy.get(".ContextMenu:contains('CREATE_MESSAGE_TEST_LONG_NAME_')").should(
+      "have.css",
+      "text-overflow",
+      "ellipsis",
+    );
+    cy.get(".ContextMenu:contains('CREATE_TEST__________')").should(
+      "have.css",
+      "text-overflow",
+      "ellipsis",
+    );
+    cy.get(".t--entity-name:contains('CREATE_MESSAGE_TEST_LONG_NAME_')").should(
+      "have.css",
+      "overflow",
+      "hidden",
+    );
+    cy.get(".t--entity-name:contains('CREATE_TEST__________')").should(
+      "have.css",
+      "overflow",
+      "hidden",
     );
   });
 });

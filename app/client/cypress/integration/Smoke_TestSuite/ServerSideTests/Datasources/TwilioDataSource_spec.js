@@ -25,8 +25,10 @@ describe("Twilio Active datasource test cases", function() {
   });
 
   it("3. Test user is displayed with Auth type and user is able to select Basic Auth", function() {
-    cy.get(ApiEditor.dropdownTypeAuth).click();
-    cy.contains(ApiEditor.test, "Basic Auth").click();
+    cy.get(ApiEditor.dropdownActions).click();
+    cy.get(ApiEditor.dropdownOption)
+      .contains("Basic Auth")
+      .click();
   });
 
   it("4. Test selection user must be displayed with Username and Password", function() {
@@ -115,8 +117,10 @@ describe("Twilio Active datasource test cases", function() {
   });
 
   it("9. Test Password is encrypted", function() {
-    cy.get(ApiEditor.dropdownTypeAuth).click();
-    cy.contains(ApiEditor.test, "Basic Auth").click();
+    cy.get(ApiEditor.dropdownActions).click();
+    cy.get(ApiEditor.dropdownOption)
+      .contains("Basic Auth")
+      .click();
     cy.get("[type='password']").should("exist");
   });
 

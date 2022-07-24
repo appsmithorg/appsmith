@@ -13,11 +13,11 @@ describe("Test Query Pane  ", function() {
     cy.get(pages.integrationCreateNew)
       .should("be.visible")
       .click({ force: true });
-    cy.get(".tab-title").contains("Active");
-    cy.get(".tab-title:contains('Active')").click();
+    //cy.get(".tab-title").contains("Active");
+    //cy.get(".tab-title:contains('Active')").click();
 
     //If the datasource does not exist
-    //cy.createTwilioDatasource();
+    cy.createTwilioDatasource();
   });
 
   it("1. Test user is displayed with following command", function() {
@@ -32,7 +32,7 @@ describe("Test Query Pane  ", function() {
 
     cy.get(queryLocators.queryNameField).type("Test");
     cy.get(ApiEditor.twilioImage).click(); //Only to save the query name
-    cy.get(ApiEditor.dropdownTypeAuth).click();
+    cy.get(ApiEditor.dropdownActions).click();
     cy.contains(ApiEditor.dropdownOption, "Create Message").should("exist");
     cy.contains(ApiEditor.dropdownOption, "Schedule Message").should("exist");
     cy.contains(ApiEditor.dropdownOption, "List Message").should("exist");
@@ -81,12 +81,21 @@ describe("Test Query Pane  ", function() {
     ).contains("*");
   });
 
-  /*it("4. Test the user is displayed appropriate error messages on the wrong field data", function() {
+  it("4. Test the user is displayed appropriate error messages on the wrong field data", function() {
+    cy.get(ApiEditor.dropdownActions).click();
+    cy.get(ApiEditor.dropdownOption)
+      .contains("List Message")
+      .click();
     const runQueryBtn = ".t--run-query";
     cy.get(runQueryBtn).click();
-  });*/
+  });
 
   it("5. Test Ensure Long body form is added", function() {
+    cy.get(ApiEditor.dropdownActions).click();
+    cy.get(ApiEditor.dropdownOption)
+      .contains("Create Message")
+      .click();
+
     const longBody =
       "This is a long text to test if a long entry with more than 500 characters works well. This is a long text to test if a long entry with more than 500 characters works well. This is a long text to test if a long entry with more than 500 characters works well. This is a long text to test if a long entry with more than 500 characters works well. This is a long text to test if a long entry with more than 500 characters works well. This is a long text to test if a long entry with more than 500 characters works well.";
 
@@ -208,7 +217,7 @@ describe("Test Query Pane  ", function() {
 
     cy.get(queryLocators.queryNameField).type("Test");
     cy.get(ApiEditor.twilioImage).click(); //Only to save the query name
-    cy.get(ApiEditor.dropdownTypeAuth).click();
+    cy.get(ApiEditor.dropdownActions).click();
     cy.contains(ApiEditor.dropdownOption, "List Message").click();
 
     cy.get(".CodeMirror-code")

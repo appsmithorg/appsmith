@@ -36,7 +36,7 @@ export default {
   slashCommandButton: ".commands-button",
   airtableImage: "[alt='Airtable']",
   twilioImage: "[alt='Twilio']",
-  dropdownTypeAuth: ".t--form-control-DROP_DOWN .bp3-popover-wrapper",
+  dropdownActions: ".t--form-control-DROP_DOWN .bp3-popover-wrapper",
   dropdownOption: ".t--dropdown-option",
   labelAuth: ".label-icon-wrapper",
   backBtn: ".t--close-editor",
