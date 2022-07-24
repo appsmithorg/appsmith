@@ -12,6 +12,38 @@ interface AutocompleteRule {
 }
 
 /**
+ * Order of this enum determines the weight of each rule.
+ */
+enum RuleWeight {
+  GlobalJS = 1,
+  JSLibrary,
+  DataTreeFunction,
+  DataTreeMatch,
+  TypeMatch,
+  PriorityMatch,
+  ScopeMatch,
+}
+
+export class AndRule implements AutocompleteRule {
+  rules: AutocompleteRule[];
+  constructor(rules: AutocompleteRule[]) {
+    this.rules = rules;
+  }
+  computeScore(completion: Completion): number {
+    let score = 0;
+    for (const rule of this.rules) {
+      const localScore = rule.computeScore(completion);
+      if (localScore <= 0) {
+        score = 0;
+        break;
+      }
+      score += localScore;
+    }
+    return score;
+  }
+}
+
+/**
  * Set score to -Infinity for suggestions like Table1.selectedRow.address
  * Max score - 0
  * Min score - -Infinity
@@ -49,10 +81,11 @@ class NoSelfReferenceRule implements AutocompleteRule {
  * Min score - 0
  */
 class GlobalJSRule implements AutocompleteRule {
+  static threshold = 1 << RuleWeight.GlobalJS;
   computeScore(completion: Completion): number {
     let score = 0;
     if (completion.origin === "ecmascript" || completion.origin === "base-64")
-      score += 1 << 2;
+      score += GlobalJSRule.threshold;
     return score;
   }
 }
@@ -63,7 +96,7 @@ class GlobalJSRule implements AutocompleteRule {
  * Min score - 0
  */
 class JSLibraryRule implements AutocompleteRule {
-  static threshold = 1 ** 3;
+  static threshold = 1 << 3;
   computeScore(completion: Completion): number {
     const score = 0;
     if (!completion.origin) return score;
@@ -78,10 +111,11 @@ class JSLibraryRule implements AutocompleteRule {
  * Min score - 0
  */
 class DataTreeFunctionRule implements AutocompleteRule {
+  static threshold = 1 << RuleWeight.DataTreeFunction;
   computeScore(completion: Completion): number {
     let score = 0;
     if (!(completion.origin === "DATA_TREE.APPSMITH.FUNCTIONS")) return score;
-    score = 1 << 4;
+    score += DataTreeFunctionRule.threshold;
     return score;
   }
 }
@@ -93,13 +127,13 @@ class DataTreeFunctionRule implements AutocompleteRule {
  * Min score - 0
  */
 class DataTreeRule implements AutocompleteRule {
-  static threshold = 1 << 5;
+  static threshold = 1 << RuleWeight.DataTreeMatch;
   computeScore(completion: Completion): number {
     let score = 0;
     if (!(completion.origin === "DATA_TREE")) return score;
     score = DataTreeRule.threshold;
     if (completion.type === "FUNCTION") return score;
-    return score + DataTreeRule.threshold / 10;
+    return score + DataTreeRule.threshold / 2;
   }
 }
 
@@ -109,7 +143,7 @@ class DataTreeRule implements AutocompleteRule {
  * Min score - 0
  */
 class TypeMatchRule implements AutocompleteRule {
-  static threshold = 1 << 6;
+  static threshold = 1 << RuleWeight.TypeMatch;
   computeScore(completion: Completion): number {
     let score = 0;
     const currentFieldInfo = AutocompleteSorter.currentFieldInfo;
@@ -125,7 +159,7 @@ class TypeMatchRule implements AutocompleteRule {
  * Min score - 0
  */
 class PriorityMatchRule implements AutocompleteRule {
-  static threshold = 1 << 7;
+  static threshold = 1 << RuleWeight.PriorityMatch;
   computeScore(completion: Completion): number {
     let score = 0;
     const { currentFieldInfo } = AutocompleteSorter;
@@ -145,7 +179,7 @@ class PriorityMatchRule implements AutocompleteRule {
  * Min score - 0
  */
 class ScopeMatchRule implements AutocompleteRule {
-  static threshold = 1 << 8;
+  static threshold = 1 << RuleWeight.ScopeMatch;
   computeScore(completion: Completion): number {
     let score = 0;
     if (completion.origin === "[doc]" || completion.origin === "customDataTree")
@@ -190,7 +224,7 @@ export class AutocompleteSorter {
       ? [
           createCompletionHeader("Best Match"),
           ...sortedCompletions.slice(0, bestMatchEndIndex),
-          createCompletionHeader("Search Result"),
+          createCompletionHeader("Search Results"),
           ...sortedCompletions.slice(bestMatchEndIndex),
         ]
       : sortedCompletions;
@@ -200,6 +234,8 @@ export class AutocompleteSorter {
 export class ScoredCompletion {
   score = 0;
   static rules = [
+    new NoDeepNestedSuggestionsRule(),
+    new NoSelfReferenceRule(),
     new ScopeMatchRule(),
     new PriorityMatchRule(),
     new TypeMatchRule(),
@@ -207,8 +243,6 @@ export class ScoredCompletion {
     new DataTreeFunctionRule(),
     new JSLibraryRule(),
     new GlobalJSRule(),
-    new NoDeepNestedSuggestionsRule(),
-    new NoSelfReferenceRule(),
   ];
   completion: Completion;
 
@@ -221,6 +255,7 @@ export class ScoredCompletion {
     let score = 0;
     for (const rule of ScoredCompletion.rules) {
       score += rule.computeScore(this.completion);
+      if (score === -Infinity) break;
     }
     return score;
   }
