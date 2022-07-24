@@ -65,8 +65,6 @@ export function QueryTemplates(props: QueryTemplatesProps) {
           pluginId: dataSource?.pluginId,
           datasource: {
             id: props.datasourceId,
-            isMock: dataSource?.isMock,
-            isTemplate: dataSource?.isTemplate,
           },
           eventData: {
             actionType: "Query",

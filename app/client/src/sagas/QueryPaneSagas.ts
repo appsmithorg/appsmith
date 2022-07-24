@@ -324,8 +324,6 @@ function* createNewQueryForDatasourceSaga(
     pluginId: datasource?.pluginId,
     datasource: {
       id: datasourceId,
-      isMock: datasource?.isMock,
-      isTemplate: datasource?.isTemplate,
     },
     eventData: {
       actionType: "Query",

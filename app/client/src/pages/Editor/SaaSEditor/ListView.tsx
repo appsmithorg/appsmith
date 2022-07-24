@@ -108,8 +108,6 @@ class ListView extends React.Component<Props> {
         pluginId: datasource.pluginId,
         datasource: {
           id: datasource.id,
-          isMock: datasource?.isMock,
-          isTemplate: datasource?.isTemplate,
         },
       });
     }

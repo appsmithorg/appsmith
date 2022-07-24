@@ -971,8 +971,6 @@ function* executeCommandSaga(actionPayload: ReduxAction<SlashCommandPayload>) {
       } else {
         nextPayload.datasource = {
           id: datasource.id,
-          isMock: datasource?.isMock,
-          isTemplate: datasource?.isTemplate,
         };
       }
       yield put(createActionRequest(nextPayload));
