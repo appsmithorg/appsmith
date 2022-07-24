@@ -18,6 +18,7 @@ import {
   DataTreeAction,
   DataTreeEntity,
   DataTreeJSAction,
+  DataTreeObjectEntity,
   DataTreeWidget,
   ENTITY_TYPE,
   EvaluationSubstitutionType,
@@ -84,7 +85,7 @@ import {
   getUpdatedLocalUnEvalTreeAfterJSUpdates,
   parseJSActions,
 } from "workers/JSObject";
-import { lintTree } from "workers/Lint";
+import { lintTree } from "workers/Lint/index";
 
 export default class DataTreeEvaluator {
   dependencyMap: DependencyMap = {};
@@ -803,11 +804,16 @@ export default class DataTreeEvaluator {
 
       let entityType = "UNKNOWN";
       const entityName = node.split(".")[0];
-      const entity = _.get(this.oldUnEvalTree, entityName);
+      const entity = _.get(
+        this.oldUnEvalTree,
+        entityName,
+      ) as DataTreeObjectEntity;
       if (entity && isWidget(entity)) {
         entityType = entity.type;
       } else if (entity && isAction(entity)) {
         entityType = entity.pluginType;
+      } else {
+        entityType = entity.ENTITY_TYPE || "UNKNOWN";
       }
       this.errors.push({
         type: EvalErrorTypes.CYCLICAL_DEPENDENCY_ERROR,
