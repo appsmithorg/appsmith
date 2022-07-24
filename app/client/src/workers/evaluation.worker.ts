@@ -106,7 +106,7 @@ ctx.addEventListener(
         let logs: any[] = [];
         let dependencies: DependencyMap = {};
         let evaluationOrder: string[] = [];
-        let unEvalUpdates: DataTreeDiff[] = [];
+        let unEvalUpdates: DataTreeDiff[] | null = null;
         let jsUpdates: Record<string, any> = {};
         let evalMetaUpdates: EvalMetaUpdates = [];
         let isCreateFirstTree = false;
