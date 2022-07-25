@@ -106,7 +106,7 @@ ctx.addEventListener(
         let logs: any[] = [];
         let dependencies: DependencyMap = {};
         let evaluationOrder: string[] = [];
-        let unEvalUpdates: DataTreeDiff[] | null = null;
+        let unEvalUpdates: DataTreeDiff[] | null = [];
         let jsUpdates: Record<string, any> = {};
         let evalMetaUpdates: EvalMetaUpdates = [];
         let isCreateFirstTree = false;
@@ -129,6 +129,7 @@ ctx.addEventListener(
             // We need to clean it to remove any possible functions inside the tree.
             // If functions exist, it will crash the web worker
             dataTree = dataTree && JSON.parse(JSON.stringify(dataTree));
+            unEvalUpdates = null;
           } else if (dataTreeEvaluator.hasCyclicalDependency) {
             if (dataTreeEvaluator && !isEmpty(allActionValidationConfig)) {
               //allActionValidationConfigs may not be set in dataTreeEvaluatior. Therefore, set it explicitly via setter method
@@ -156,6 +157,7 @@ ctx.addEventListener(
             dataTree = dataTreeResponse.evalTree;
             jsUpdates = dataTreeResponse.jsUpdates;
             dataTree = dataTree && JSON.parse(JSON.stringify(dataTree));
+            unEvalUpdates = null;
           } else {
             if (dataTreeEvaluator && !isEmpty(allActionValidationConfig)) {
               dataTreeEvaluator.setAllActionValidationConfig(
