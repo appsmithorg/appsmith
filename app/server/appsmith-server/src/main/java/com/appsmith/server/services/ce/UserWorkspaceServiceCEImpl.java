@@ -26,11 +26,13 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 
 @Slf4j
@@ -193,7 +195,7 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
                .map(UserAndPermissionGroupDTO::getUserId)
                .collect(Collectors.toSet())
                .flatMapMany(userIds -> userRepository.findAllById(userIds))
-               .collectMap(User::getUsername)
+               .collectMap(User::getId)
                .cache();
 
        // Update name and username in the list of UserAndGroupDTO
@@ -215,7 +217,7 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
        Set<String> userIds = new HashSet<>(); // Set of already collected users
        List<UserAndPermissionGroupDTO> userAndGroupDTOList = new ArrayList<>();
        permissionGroupList.forEach(permissionGroup -> {
-           permissionGroup.getAssignedToUserIds().stream().filter(userId -> !userIds.contains(userId)).forEach(userId -> {
+           Stream.ofNullable(permissionGroup.getAssignedToUserIds()).flatMap(Collection::stream).filter(userId -> !userIds.contains(userId)).forEach(userId -> {
                userAndGroupDTOList.add(UserAndPermissionGroupDTO.builder()
                        .userId(userId)
                        .permissionGroupName(permissionGroup.getName())
