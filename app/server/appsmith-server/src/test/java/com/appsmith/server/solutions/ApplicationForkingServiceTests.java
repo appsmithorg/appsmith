@@ -50,6 +50,7 @@ import org.apache.commons.lang.StringUtils;
 import org.junit.Before;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
+import org.junit.jupiter.api.RepeatedTest;
 import org.junit.runner.RunWith;
 import org.junit.runners.MethodSorters;
 import org.mockito.Mockito;
@@ -545,8 +546,7 @@ public class ApplicationForkingServiceTests {
                     desOrg.setName("org_dest_" + uniqueString);
                     return workspaceService.create(desOrg).flatMap(createdOrg -> {
                         log.debug("Created destination workspace: " + createdOrg);
-                        applicationForkingService.forkApplicationToWorkspace(srcApplication.getId(), createdOrg.getId()).block();
-                        return Mono.just(srcApplication);
+                        return applicationForkingService.forkApplicationToWorkspace(srcApplication.getId(), createdOrg.getId());
                     }).zipWith(Mono.just(srcApplication));
                 }).flatMap(applicationTuple2 -> {
                     Application forkedApp = applicationTuple2.getT1();
@@ -649,23 +649,24 @@ public class ApplicationForkingServiceTests {
 
     @Test
     @WithUserDetails("api_user")
+    @RepeatedTest(100)
     public void forkApplicationToWorkspace_WhenAppHasCustomSavedTheme_NewCustomThemeCreated() {
         log.debug("Running forkApplicationToWorkspace_WhenAppHasCustomSavedTheme_NewCustomThemeCreated");
         String uniqueString = UUID.randomUUID().toString();
         Workspace workspace = new Workspace();
         workspace.setName("org_" + uniqueString);
-
+        String testDebug = "TestThemeIdentifier() ";
         Mono<Tuple5<Theme, Theme, Theme, Application, Application>> tuple5Mono = workspaceService.create(workspace)
                 .flatMap(createdOrg -> {
-                    log.debug("Created source workspace: " + createdOrg);
+                    log.debug(testDebug + "Created source workspace: " + createdOrg);
                     Application application = new Application();
                     application.setName("app_" + uniqueString);
                     return applicationPageService.createApplication(application, createdOrg.getId());
                 }).flatMap(srcApplication -> {
-                    log.debug("Created source application: " + srcApplication);
+                    log.debug(testDebug + "Created source application: " + srcApplication);
                     Theme theme = new Theme();
                     theme.setDisplayName("theme_" + uniqueString);
-                    log.debug("Updating theme: " + theme);
+                    log.debug(testDebug + "Updating theme: " + theme);
                     return themeService.updateTheme(srcApplication.getId(), null, theme)
                             .then(themeService.persistCurrentTheme(srcApplication.getId(), null, theme))
                             .then(applicationService.findById(srcApplication.getId()));
@@ -673,9 +674,8 @@ public class ApplicationForkingServiceTests {
                     Workspace desOrg = new Workspace();
                     desOrg.setName("org_dest_" + uniqueString);
                     return workspaceService.create(desOrg).flatMap(createdOrg -> {
-                        log.debug("Created destination workspace: " + createdOrg);
-                        applicationForkingService.forkApplicationToWorkspace(srcApplication.getId(), createdOrg.getId()).block();
-                        return Mono.just(srcApplication);
+                        log.debug(testDebug + "Created destination workspace: " + createdOrg);
+                        return applicationForkingService.forkApplicationToWorkspace(srcApplication.getId(), createdOrg.getId());
                     }).zipWith(Mono.just(srcApplication));
                 }).flatMap(applicationTuple2 -> {
                     Application forkedApp = applicationTuple2.getT1();
@@ -694,10 +694,10 @@ public class ApplicationForkingServiceTests {
             Theme publishedModeTheme = objects.getT2();
             Application forkedApp = objects.getT4();
             Application srcApp = objects.getT5();
-            log.debug("Source application: " + srcApp);
-            log.debug("Forked application: " + forkedApp);
-            log.debug("Edit mode theme:" + editModeTheme);
-            log.debug("Published mode theme" + publishedModeTheme);
+            log.debug(testDebug + "Source application: " + srcApp);
+            log.debug(testDebug + "Forked application: " + forkedApp);
+            log.debug(testDebug + "Edit mode theme:" + editModeTheme);
+            log.debug(testDebug + "Published mode theme" + publishedModeTheme);
 
             assertThat(forkedApp.getEditModeThemeId()).isEqualTo(editModeTheme.getId());
             assertThat(forkedApp.getPublishedModeThemeId()).isEqualTo(publishedModeTheme.getId());
