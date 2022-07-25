@@ -161,6 +161,8 @@ import UserHeartLineIcon from "remixicon-react/UserHeartLineIcon";
 import DvdLineIcon from "remixicon-react/DvdLineIcon";
 import Group2LineIcon from "remixicon-react/Group2LineIcon";
 import CodeViewIcon from "remixicon-react/CodeViewIcon";
+import GroupLineIcon from "remixicon-react/GroupLineIcon";
+import ArrowRightUpLineIcon from "remixicon-react/ArrowRightUpLineIcon";
 
 export enum IconSize {
   XXS = "extraExtraSmall",
@@ -320,6 +322,8 @@ const ICON_LOOKUP = {
   "warning-triangle": <WarningTriangleIcon />,
   "chat-help": <ChatIcon />,
   "group-2-line": <Group2LineIcon />,
+  "group-line": <GroupLineIcon />,
+  "arrow-right-up-line": <ArrowRightUpLineIcon />,
   billing: <BillingIcon />,
   book: <BookIcon />,
   bug: <BugIcon />,
