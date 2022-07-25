@@ -15,9 +15,9 @@ import javax.annotation.PreDestroy;
 import java.util.Map;
 
 @Configuration
-public class MdcConfig {
+public class MDCConfig {
 
-    private static final String MDC_CONTEXT_REACTOR_KEY = "MdcConfig";
+    private static final String MDC_CONTEXT_REACTOR_KEY = "MDCConfig";
 
     @PostConstruct
     void contextOperatorHook() {
