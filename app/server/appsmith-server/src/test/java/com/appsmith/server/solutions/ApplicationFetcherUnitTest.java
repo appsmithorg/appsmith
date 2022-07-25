@@ -183,6 +183,7 @@ public class ApplicationFetcherUnitTest {
         Mockito.when(releaseNotesService.getReleaseNodes()).thenReturn(Mono.empty());
         Mockito.when(releaseNotesService.computeNewFrom(any())).thenReturn("0");
         Mockito.when(userDataService.ensureViewedCurrentVersionReleaseNotes(testUser)).thenReturn(Mono.just(testUser));
+        Mockito.when(userWorkspaceService.getWorkspaceMembers(any())).thenReturn(Mono.just(List.of()));
     }
 
     @Test
