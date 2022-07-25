@@ -655,9 +655,7 @@ public class ApplicationServiceTest {
                             Application application = workspaceApplicationDTO.getApplications().get(0);
                             assertThat(application.getUserPermissions()).contains("read:applications");
                             assertThat(application.isAppIsExample()).isFalse();
-
-                            assertThat(workspaceApplicationDTO.getUserRoles().get(0).getRole().getName()).isEqualTo("Administrator");
-                            log.debug(workspaceApplicationDTO.getUserRoles().toString());
+                            assertThat(workspaceApplicationDTO.getUsers().get(0).getPermissionGroupName().startsWith(FieldName.ADMINISTRATOR));
                         }
                     }
 
