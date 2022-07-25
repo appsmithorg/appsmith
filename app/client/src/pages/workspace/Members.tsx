@@ -1,15 +1,12 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   getAllUsers,
   getAllRoles,
-  getCurrentWorkspace,
+  // getCurrentWorkspace,
   getWorkspaceLoadingStates,
 } from "@appsmith/selectors/workspaceSelectors";
-import PageSectionHeader from "pages/common/PageSectionHeader";
-import WorkspaceInviteUsersForm from "pages/workspace/WorkspaceInviteUsersForm";
 import { RouteComponentProps } from "react-router";
-import FormDialogComponent from "components/editorComponents/form/FormDialogComponent";
 import { getCurrentUser } from "selectors/usersSelectors";
 import Table from "components/ads/Table";
 import Icon, { IconSize } from "components/ads/Icon";
@@ -24,21 +21,29 @@ import Button, { Size, Category } from "components/ads/Button";
 import TableDropdown from "components/ads/TableDropdown";
 import Dropdown from "components/ads/Dropdown";
 import { Text, TextType } from "design-system";
-import { SettingsHeading } from "./General";
 import styled from "styled-components";
-import { Classes } from "@blueprintjs/core";
+import { Classes, Position } from "@blueprintjs/core";
+import { Menu, MenuItem } from "components/ads";
 import { Classes as AppClass } from "components/ads/common";
-import { Variant } from "components/ads/common";
 import DeleteConfirmationModal from "./DeleteConfirmationModal";
 import { useMediaQuery } from "react-responsive";
 import { Card } from "@blueprintjs/core";
 import ProfileImage from "pages/common/ProfileImage";
 import { USER_PHOTO_URL } from "constants/userConstants";
 import { Colors } from "constants/Colors";
+import { HighlightText } from "components/utils/HighlightText";
+import { HelpPopoverStyle } from "./helperComponents";
+import { createMessage, ARE_YOU_SURE } from "ce/constants/messages";
+import {
+  WorkspaceUser,
+  WorkspaceUserGroup,
+} from "constants/workspaceConstants";
 
 export type PageProps = RouteComponentProps<{
   workspaceId: string;
-}>;
+}> & {
+  searchValue?: string;
+};
 
 const Loader = styled.div`
   height: 120px;
@@ -57,25 +62,6 @@ const MembersWrapper = styled.div<{
         }
       }
     }
-  }
-`;
-
-const ButtonWrapper = styled.div`
-  margin-top: 10px;
-  a {
-    padding: 0 8px;
-  }
-  span:last-child {
-    font-size: 14px;
-  }
-  svg {
-    path {
-      stroke: #ffffff;
-      fill: #ffffff;
-    }
-  }
-  button {
-    padding: 6px 8px;
   }
 `;
 
@@ -148,14 +134,68 @@ const UserCard = styled(Card)`
   }
 `;
 
-const TableWrapper = styled(Table)`
-  tbody {
-    tr:hover {
-      .t--deleteUser {
-        path {
-          fill: #ff6786;
+const ListUsers = styled.div`
+  margin-top: 4px;
+
+  thead {
+    tr {
+      background-color: transparent !important;
+      th {
+        font-size: 14px !important;
+        font-weight: 500 !important;
+        line-height: 1.5 !important;
+        text-align: left !important;
+        color: var(--appsmith-color-black-700) !important;
+        padding-left:0 !important;
         }
       }
+    }
+  }
+
+  tbody {
+    tr {
+      td {
+        padding: 10px 0 !important;
+        .actions-icon {
+          visibility: hidden;
+          justify-content: end;
+          > svg {
+            path {
+              fill: var(--appsmith-color-black-400);
+            }
+            &:hover {
+              path {
+                fill: var(--appsmith-color-black-700);
+              }
+            }
+          }
+          &.active {
+            visibility: visible;
+          }
+        }
+      }
+
+      &:hover {
+        td {
+          .actions-icon {
+            visibility: visible;
+          }
+        }
+      }
+    }
+  }
+`;
+
+const EachUser = styled.div`
+  display: flex;
+  align-items: center;
+
+  .user-icons {
+    margin-right 8px;
+    cursor: initial;
+
+    span {
+      color: var(--appsmith-color-black-0);
     }
   }
 `;
@@ -166,11 +206,45 @@ const DeleteIcon = styled(Icon)`
   right: ${(props) => props.theme.spaces[7]}px;
 `;
 
+const allUserGroups: WorkspaceUserGroup[] = [
+  {
+    name: "Design",
+    isDeleting: false,
+    roleName: "Developer",
+    isChangingRole: false,
+    permissions: [
+      "HR_Appsmith",
+      "devops_design",
+      "Administrator",
+      "App Viewer",
+    ],
+    users: [
+      {
+        isChangingRole: false,
+        roleName: "Developer",
+        isDeleting: false,
+        name: "Ankita Kinger",
+        username: "techak@appsmith.com",
+      },
+      {
+        isChangingRole: false,
+        roleName: "Developer",
+        isDeleting: false,
+        name: "Hello",
+        username: "hello123@appsmith.com",
+      },
+    ],
+  },
+];
+
+type MembersListing = WorkspaceUser | WorkspaceUserGroup;
+
 export default function MemberSettings(props: PageProps) {
   const {
     match: {
       params: { workspaceId },
     },
+    searchValue = "",
     // deleteWorkspaceUser,
     // changeWorkspaceUserRole,
   } = props;
@@ -206,18 +280,17 @@ export default function MemberSettings(props: PageProps) {
     onOpenConfirmationModal();
   };
 
-  const onDeleteMember = () => {
-    if (!userToBeDeleted) return null;
+  const onDeleteMember = (data?: any) => {
+    if (!userToBeDeleted && !data) return null;
     dispatch(
       deleteWorkspaceUser(
-        userToBeDeleted.workspaceId,
-        userToBeDeleted.username,
+        userToBeDeleted?.workspaceId || data?.workspaceId,
+        userToBeDeleted?.username || data?.username,
       ),
     );
   };
 
   const {
-    deletingUserInfo,
     isFetchingAllRoles,
     isFetchingAllUsers,
     roleChangingUserInfo,
@@ -225,9 +298,9 @@ export default function MemberSettings(props: PageProps) {
   const allRoles = useSelector(getAllRoles);
   const allUsers = useSelector(getAllUsers);
   const currentUser = useSelector(getCurrentUser);
-  const currentWorkspace = useSelector(getCurrentWorkspace).filter(
-    (el) => el.id === workspaceId,
-  )[0];
+  // const currentWorkspace = useSelector(getCurrentWorkspace).filter(
+  //   (el) => el.id === workspaceId,
+  // )[0];
 
   useEffect(() => {
     if (!!userToBeDeleted && showMemberDeletionConfirmation) {
@@ -244,24 +317,77 @@ export default function MemberSettings(props: PageProps) {
     }
   }, [allUsers]);
 
-  const userTableData = allUsers.map((user) => ({
-    ...user,
-    isCurrentUser: user.username === currentUser?.username,
-  }));
+  const userTableData = useMemo(
+    () =>
+      allUsers.map((user) => ({
+        ...user,
+        isCurrentUser: user.username === currentUser?.username,
+      })),
+    [allUsers, currentUser],
+  );
+
+  const membersData: any[] = useMemo(
+    () => [...userTableData, ...allUserGroups],
+    [allUserGroups, userTableData],
+  );
+
+  const [filteredData, setFilteredData] = useState<MembersListing[]>([]);
+
+  const getFilteredUsers = () =>
+    membersData.filter((member) => {
+      return (
+        member?.username?.toLowerCase().includes(searchValue?.toLowerCase()) ||
+        member?.name?.toLowerCase().includes(searchValue?.toLowerCase())
+      );
+    });
+
+  useEffect(() => {
+    if (searchValue) {
+      const filteredUsers = getFilteredUsers();
+      setFilteredData(filteredUsers);
+    } else {
+      setFilteredData(membersData);
+    }
+  }, [searchValue, membersData]);
 
   const columns = [
     {
-      Header: "Name",
-      accessor: "name",
-    },
-    {
-      Header: "Email",
-      accessor: "username",
+      Header: `Users / User Groups (${membersData?.length})`,
+      accessor: "users",
+      Cell: function UserCell(props: any) {
+        const member = props.cell.row.original;
+        const isUserGroup = member.hasOwnProperty("users");
+        return (
+          <EachUser>
+            {!isUserGroup ? (
+              <>
+                <ProfileImage
+                  className="user-icons"
+                  size={20}
+                  source={`/api/v1/users/photo/${member.username}`}
+                  userName={member.username}
+                />
+                <HighlightText highlight={searchValue} text={member.username} />
+              </>
+            ) : (
+              <>
+                <Icon
+                  className="user-icons"
+                  name="group-line"
+                  size={IconSize.XXL}
+                />
+                <HighlightText highlight={searchValue} text={member.name} />
+              </>
+            )}
+          </EachUser>
+        );
+      },
     },
     {
       Header: "Role",
       accessor: "roleName",
       Cell: function DropdownCell(cellProps: any) {
+        const data = cellProps.cell.row.original;
         const allRoles = useSelector(getAllRoles);
         const roles = allRoles
           ? Object.keys(allRoles).map((role) => {
@@ -275,22 +401,22 @@ export default function MemberSettings(props: PageProps) {
           (role: { name: string; desc: string }) =>
             role.name === cellProps.cell.value,
         );
-        if (cellProps.cell.row.values.username === currentUser?.username) {
+        if (data.username === currentUser?.username) {
           return cellProps.cell.value;
         }
         return (
           <TableDropdown
             isLoading={
               roleChangingUserInfo &&
-              roleChangingUserInfo.username ===
-                cellProps.cell.row.values.username
+              roleChangingUserInfo.username === data.username
             }
             onSelect={(option) => {
+              const isUserGroup = data.hasOwnProperty("users");
               dispatch(
                 changeWorkspaceUserRole(
                   workspaceId,
                   option.name,
-                  cellProps.cell.row.values.username,
+                  isUserGroup ? data.name : data.username,
                 ),
               );
             }}
@@ -302,39 +428,72 @@ export default function MemberSettings(props: PageProps) {
       },
     },
     {
-      Header: "Status",
-      accessor: "status",
-    },
-    {
-      Header: "Actions",
-      accessor: "delete",
-      disableSortBy: true,
-      Cell: function DeleteCell(cellProps: any) {
+      Header: "",
+      accessor: "actions",
+      Cell: function ActionsCell(props: any) {
+        const data = props.cell.row.original;
+        const [showOptions, setShowOptions] = useState(false);
+        const [showConfirmationText, setShowConfirmationText] = useState(false);
+        const isUserGroup = data.hasOwnProperty("users");
+        const memberToBeDeleted = {
+          name: isUserGroup ? data.name : data.username,
+          username: isUserGroup ? data.name : data.username,
+          workspaceId,
+        };
+        const onOptionSelect = () => {
+          if (showConfirmationText) {
+            onDeleteMember(memberToBeDeleted);
+          } else {
+            setShowOptions(true);
+            setShowConfirmationText(true);
+          }
+        };
+
         return (
-          <Icon
-            className="t--deleteUser"
-            cypressSelector="t--deleteUser"
-            fillColor="#FF6786"
-            hoverFillColor="#FF6786"
-            isLoading={
-              deletingUserInfo &&
-              deletingUserInfo.username === cellProps.cell.row.values.username
-            }
-            name="trash-outline"
-            onClick={() => {
-              onConfirmMemberDeletion(
-                cellProps.cell.row.values.username,
-                cellProps.cell.row.values.username,
-                workspaceId,
-              );
+          <Menu
+            canEscapeKeyClose
+            canOutsideClickClose
+            className="t--menu-actions-icon"
+            data-testid="actions-cell-menu-options"
+            isOpen={showOptions}
+            menuItemWrapperWidth={"auto"}
+            onClose={() => setShowOptions(false)}
+            onClosing={() => {
+              setShowConfirmationText(false);
+              setShowOptions(false);
             }}
-            size={IconSize.LARGE}
-          />
+            onOpening={() => setShowOptions(true)}
+            position={Position.BOTTOM_RIGHT}
+            target={
+              <Icon
+                className={`actions-icon ${showOptions && "active"}`}
+                data-testid="actions-cell-menu-icon"
+                name="more-2-fill"
+                onClick={() => setShowOptions(!showOptions)}
+                size={IconSize.XXL}
+              />
+            }
+          >
+            <HelpPopoverStyle />
+            <MenuItem
+              className={"delete-menu-item"}
+              icon={"delete-blank"}
+              key={"Delete User"}
+              onSelect={() => {
+                onOptionSelect();
+              }}
+              text={
+                showConfirmationText
+                  ? createMessage(ARE_YOU_SURE)
+                  : `Delete ${isUserGroup ? "User Group" : "User"}`
+              }
+              {...(showConfirmationText ? { type: "warning" } : {})}
+            />
+          </Menu>
         );
       },
     },
   ];
-  const currentWorkspaceName = currentWorkspace?.name ?? "";
   const isMobile: boolean = useMediaQuery({ maxWidth: 767 });
   const roles = allRoles
     ? Object.keys(allRoles).map((role) => {
@@ -350,57 +509,51 @@ export default function MemberSettings(props: PageProps) {
     dispatch(changeWorkspaceUserRole(workspaceId, option, username));
   };
   return (
-    <MembersWrapper isMobile={isMobile}>
-      <PageSectionHeader>
-        <SettingsHeading type={TextType.H1}>Manage Users</SettingsHeading>
-        <FormDialogComponent
-          Form={WorkspaceInviteUsersForm}
-          canOutsideClickClose
-          title={`Invite Users to ${currentWorkspaceName}`}
-          trigger={
-            <ButtonWrapper>
-              <Button
-                cypressSelector="t--invite-users"
-                icon="plus"
-                size={Size.medium}
-                tag="button"
-                text="Invite Users"
-                variant={Variant.info}
-              />
-            </ButtonWrapper>
-          }
-          workspaceId={workspaceId}
-        />
-      </PageSectionHeader>
+    <MembersWrapper data-testid="t--members-wrapper" isMobile={isMobile}>
       {isFetchingAllUsers && isFetchingAllRoles ? (
         <Loader className={Classes.SKELETON} />
       ) : (
         <>
-          {!isMobile && <TableWrapper columns={columns} data={userTableData} />}
+          {!isMobile && (
+            <ListUsers>
+              <Table
+                columns={columns}
+                data={filteredData}
+                data-testid="listing-table"
+              />
+            </ListUsers>
+          )}
           {isMobile && (
             <UserCardContainer>
-              {allUsers.map((user, index) => {
+              {membersData.map((member, index) => {
+                const isUserGroup = member.hasOwnProperty("users");
                 const role =
-                  roles.find((role) => role.value === user.roleName) ||
+                  roles.find((role) => role.value === member.roleName) ||
                   roles[0];
-                const isOwner = user.username === currentUser?.username;
+                const isOwner = member.username === currentUser?.username;
                 return (
                   <UserCard key={index}>
-                    <ProfileImage
-                      className="avatar"
-                      size={71}
-                      source={`/api/${USER_PHOTO_URL}/${user.username}`}
-                      userName={user.name || user.username}
-                    />
+                    {!isUserGroup ? (
+                      <ProfileImage
+                        className="avatar"
+                        size={71}
+                        source={`/api/${USER_PHOTO_URL}/${member.username}`}
+                        userName={member.name || member.username}
+                      />
+                    ) : (
+                      <Icon name="group-line" size={IconSize.XXL} />
+                    )}
                     <Text className="user-name" type={TextType.P1}>
-                      {user.name || user.username}
+                      {member.name || member.username}
                     </Text>
-                    <Text className="user-email" type={TextType.P1}>
-                      {user.username}
-                    </Text>
+                    {!isUserGroup && (
+                      <Text className="user-email" type={TextType.P1}>
+                        {member.username}
+                      </Text>
+                    )}
                     {isOwner && (
                       <Text className="user-role" type={TextType.P1}>
-                        {user.roleName}
+                        {member.roleName}
                       </Text>
                     )}
                     {!isOwner && (
@@ -410,7 +563,10 @@ export default function MemberSettings(props: PageProps) {
                         defaultIcon="downArrow"
                         height="31px"
                         onSelect={(value) => {
-                          selectRole(value, user.username);
+                          selectRole(
+                            value,
+                            isUserGroup ? member.name : member.username,
+                          );
                         }}
                         options={roles}
                         selected={role}
@@ -431,8 +587,8 @@ export default function MemberSettings(props: PageProps) {
                       name="trash-outline"
                       onClick={() => {
                         onConfirmMemberDeletion(
-                          user.username,
-                          user.username,
+                          isUserGroup ? member.name : member.username,
+                          isUserGroup ? member.name : member.username,
                           workspaceId,
                         );
                       }}

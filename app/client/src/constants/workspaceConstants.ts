@@ -25,6 +25,15 @@ export type WorkspaceUser = {
   isChangingRole: boolean;
 };
 
+export type WorkspaceUserGroup = {
+  name: string;
+  roleName: string;
+  isDeleting: boolean;
+  isChangingRole: boolean;
+  users: WorkspaceUser[];
+  permissions: string[];
+};
+
 export type Workspaces = {
   applications: ApplicationPayload[];
   workspace: Workspace;
