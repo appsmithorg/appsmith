@@ -3,7 +3,7 @@ import {
   CONTAINER_GRID_PADDING,
   GridDefaults,
 } from "constants/WidgetConstants";
-import { debounce, isEmpty, throttle } from "lodash";
+import { debounce, isEmpty, isNumber, throttle } from "lodash";
 import { CanvasDraggingArenaProps } from "pages/common/CanvasArenas/CanvasDraggingArena";
 import React, { useEffect, useRef } from "react";
 import { useSelector } from "react-redux";
@@ -39,6 +39,8 @@ export interface XYCord {
 const CONTAINER_JUMP_ACC_THRESHOLD = 8000;
 const CONTAINER_JUMP_SPEED_THRESHOLD = 800;
 
+let dragBlocksSize = 0;
+let lastTranslatedIndex: number;
 //Since useCanvasDragging's Instance changes during container jump, metrics is stored outside
 const containerJumpThresholdMetrics = new ContainerJumpMetrics<{
   speed?: number;
@@ -107,48 +109,87 @@ export const useCanvasDragging = (
 
   const reflow = useRef<ReflowInterface>();
   reflow.current = useReflow(draggingSpaces, widgetId || "", gridProps);
+
+  const cleanUpTempStyles = () => {
+    // reset display of all dragged blocks
+    const els = document.querySelectorAll(`.auto-layout-parent-${widgetId}`);
+    if (els && els.length) {
+      els.forEach((el) => {
+        (el as any).classList.remove("auto-temp-no-display");
+        (el as any).style.transform = null;
+      });
+    }
+
+    // reset state
+    dragBlocksSize = 0;
+    lastTranslatedIndex = -10;
+  };
+
+  if (!isDragging) {
+    cleanUpTempStyles();
+  }
+
   const offsets: number[] = [];
-  const siblings: { [key: string]: number } = {};
+  // let siblings: { [key: string]: number } = {};
+  const siblingElements: any[] = [];
   const calculateHighlightOffsets = () => {
+    if (isNewWidget) dragBlocksSize = blocksToDraw[0].height;
     if (useAutoLayout && isDragging) {
+      console.log(isCurrentDraggedCanvas);
+      console.log(isChildOfCanvas);
       // Get all children of current auto layout container
       const els = document.querySelectorAll(`.auto-layout-parent-${widgetId}`);
       if (els && els.length && offsets.length !== els.length) {
         // Get widget ids of all widgets being dragged
         // console.log(els);
         const blocks = blocksToDraw.map((block) => block.widgetId);
+        console.log("*********");
         els.forEach((el) => {
           // console.log((el as any).offsetParent);
           // Extract widget id of current widget
-          const mClass = el.className.split("auto-layout-child-")[1];
+          const mClass = el.className
+            .split("auto-layout-child-")[1]
+            .split(" ")[0];
+          console.log(`parentId: ${widgetId}`);
+          console.log(`widgetID: ${mClass}`);
+          console.log(`blocks: ${blocks}`);
+          console.log(blocks);
           /**
            * If the widget is also being dragged,
            * then discount its presence from offset calculation.
            */
-          if (blocks && blocks.length && blocks.indexOf(mClass) !== -1) return;
-          const mOffset =
-            direction === LayoutDirection.Vertical
-              ? (el as any).offsetTop
-              : (el as any).offsetLeft;
-          offsets.push(mOffset);
-          siblings[mClass] = mOffset;
+          if (blocks && blocks.length && blocks.indexOf(mClass) !== -1) {
+            // Temporarily hide the dragged widget
+            dragBlocksSize += (el as any).clientHeight;
+            (el as any).classList.add("auto-temp-no-display");
+            return;
+          } else {
+            const mOffset =
+              direction === LayoutDirection.Vertical
+                ? (el as any).offsetTop
+                : (el as any).offsetLeft;
+            console.log(`offset: ${mOffset}`);
+            offsets.push(mOffset);
+            console.log(offsets);
+            // siblings[mClass] = mOffset;
+            siblingElements.push(el);
+          }
         });
         offsets.push(
           direction === LayoutDirection.Vertical
-            ? (els[els.length - 1] as any).offsetTop +
-                els[els.length - 1].clientHeight +
+            ? (siblingElements[siblingElements.length - 1] as any).offsetTop +
+                siblingElements[siblingElements.length - 1].clientHeight +
                 8
-            : (els[els.length - 1] as any).offsetLeft +
-                els[els.length - 1].clientWidth +
+            : (siblingElements[siblingElements.length - 1] as any).offsetLeft +
+                siblingElements[siblingElements.length - 1].clientWidth +
                 8,
         );
+        console.log(offsets);
       }
     }
   };
   calculateHighlightOffsets();
-  // console.log("*********");
-  // console.log(offsets);
-  // console.log(siblings);
+
   const {
     setDraggingCanvas,
     setDraggingNewWidget,
@@ -340,10 +381,11 @@ export const useCanvasDragging = (
                 ? currentRectanglesToDraw[0].top
                 : currentRectanglesToDraw[0].left,
             );
-            // console.log(`pos: ${pos}`);
-            if (pos !== undefined && useAutoLayout)
+            console.log(`#### pos: ${pos}`);
+            if (pos !== undefined && useAutoLayout) {
+              // cleanUpTempStyles();
               updateChildrenPositions(pos, currentRectanglesToDraw);
-            else
+            } else
               onDrop(currentRectanglesToDraw, reflowedPositionsUpdatesWidgets);
           }
           startPoints.top = defaultHandlePositions.top;
@@ -604,6 +646,25 @@ export const useCanvasDragging = (
             onFirstMoveOnCanvas(e);
           }
         };
+        const translateSiblings = (position: number): void => {
+          let dropIndex = 0;
+          if (isNumber(position)) dropIndex = offsets.indexOf(position);
+
+          if (dropIndex === lastTranslatedIndex) return;
+          // Get all siblings after the highlighted drop position
+          const arr = [...siblingElements];
+
+          // translate each element in the appropriate direction
+          const x =
+            direction === LayoutDirection.Horizontal ? dragBlocksSize : 0;
+          const y = direction === LayoutDirection.Vertical ? dragBlocksSize : 0;
+          arr.forEach((each, index) => {
+            if (index < dropIndex) {
+              each.style.transform = null;
+            } else each.style.transform = `translate(${x}px, ${y}px)`;
+          });
+          lastTranslatedIndex = dropIndex;
+        };
         const highlightDropPosition = (e: any) => {
           if (!useAutoLayout) return;
           const pos: number | undefined = getHighlightPosition(e);
@@ -615,6 +676,7 @@ export const useCanvasDragging = (
               dropPositionRef.current.style.top = pos - 6 + "px";
             else dropPositionRef.current.style.left = pos - 6 + "px";
           }
+          translateSiblings(pos);
         };
         const getHighlightPosition = (e: any, val?: number) => {
           let base: number[] = [];

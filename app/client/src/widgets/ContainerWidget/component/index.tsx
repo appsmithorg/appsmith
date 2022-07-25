@@ -58,6 +58,10 @@ const StyledContainerComponent = styled.div<
         : props.backgroundColor;
     }};
   }
+
+  .auto-temp-no-display {
+    display: none;
+  }
 `;
 
 export const FlexContainer = styled.div<{
