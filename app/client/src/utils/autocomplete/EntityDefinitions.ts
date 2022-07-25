@@ -3,7 +3,7 @@ import {
   DataTreeAction,
   DataTreeAppsmith,
 } from "entities/DataTree/dataTreeFactory";
-import _, { pick } from "lodash";
+import _ from "lodash";
 import { EVALUATION_PATH } from "utils/DynamicBindingUtils";
 import { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
 import { ButtonGroupWidgetProps } from "widgets/ButtonGroupWidget/widget";
@@ -12,18 +12,6 @@ import { MapWidgetProps } from "widgets/MapWidget/widget";
 const isVisible = {
   "!type": "bool",
   "!doc": "Boolean value indicating if the widget is in visible state",
-};
-
-type PartialGroupButton = {
-  isVisible: boolean;
-  isDisabled: boolean;
-  menuItems: {
-    index: number;
-    isVisible?: boolean;
-    isDisabled?: boolean;
-    label?: string;
-  };
-  label: string;
 };
 
 export const entityDefinitions = {
