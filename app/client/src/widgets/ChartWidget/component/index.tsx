@@ -267,8 +267,28 @@ class ChartComponent extends React.Component<ChartComponentProps> {
       yAxisName: this.props.yAxisName,
       theme: "fusion",
       captionAlignment: "left",
-      captionHorizontalPadding: 10,
       alignCaptionWithCanvas: 0,
+
+      // Caption styling =======================
+      captionFontSize: "30",
+      captionPadding: "60",
+      captionFontColor: Colors.CODE_GRAY,
+
+      // legend position styling ==========
+      legendPosition: "absolute",
+      legendItemFontSize: "12",
+      legendXPosition: "10",
+      legendYPosition: "70",
+
+      // Canvas styles ========
+      canvasTopPadding: "20",
+      canvasLeftPadding: "60",
+      canvasRightPadding: "60",
+      canvasBottomPadding: "10",
+
+      // Chart styling =======
+      chartBottomMargin: "15",
+
       bgColor: this.props.backgroundColor || Colors.WHITE,
       setAdaptiveYMin: this.props.setAdaptiveYMin ? "1" : "0",
     };
