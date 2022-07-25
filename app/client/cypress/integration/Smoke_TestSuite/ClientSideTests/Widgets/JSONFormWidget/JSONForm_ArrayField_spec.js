@@ -1,5 +1,6 @@
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const dslWithSchema = require("../../../../../fixtures/jsonFormDslWithSchema.json");
+const jsonFormDslWithSchemaAndWithoutSourceData = require("../../../../../fixtures/jsonFormDslWithSchemaAndWithoutSourceData.json");
 
 const fieldPrefix = ".t--jsonformfield";
 const education = `${fieldPrefix}-education`;
@@ -7,11 +8,56 @@ const addButton = ".t--jsonformfield-array-add-btn";
 const deleteButton = ".t--jsonformfield-array-delete-btn";
 
 describe("JSON Form Widget Array Field", () => {
-  before(() => {
-    cy.addDsl(dslWithSchema);
+  it("can remove default items when default value changes from undefined to an array", () => {
+    cy.addDsl(jsonFormDslWithSchemaAndWithoutSourceData);
+
+    const sourceData = {
+      name: "John",
+      age: 30,
+      dob: "10/12/1992",
+      migrant: false,
+      address: {
+        street: "Koramangala",
+        city: "Bangalore",
+      },
+      education: [
+        {
+          college: "MIT",
+          year: "20/10/2014",
+        },
+      ],
+    };
+
+    cy.openPropertyPane("jsonformwidget");
+    cy.testJsontext("sourcedata", JSON.stringify(sourceData));
+    cy.closePropertyPane();
+
+    cy.get(`${education} ${addButton}`).click({ force: true });
+    cy.get(`${education}-item`).should("have.length", 2);
+
+    cy.get(`${education}-item`).within(() => {
+      cy.get(`${education}-1--college input`).type("Dummy college");
+      cy.get(`${education}-1--year input`).type("10/08/2010");
+    });
+
+    cy.get(`${education}-item.t--item-0`)
+      .find(deleteButton)
+      .click({ force: true });
+
+    cy.get(`${education}-item`).should("have.length", 1);
+
+    cy.get(`${education}-item`).within(() => {
+      cy.get(`${education}-0--college input`).should(
+        "have.value",
+        "Dummy college",
+      );
+      cy.get(`${education}-0--year input`).should("have.value", "10/08/2010");
+    });
   });
 
   it("can add more items to the field", () => {
+    cy.addDsl(dslWithSchema);
+
     cy.openPropertyPane("jsonformwidget");
 
     cy.get(`${education}-item`)

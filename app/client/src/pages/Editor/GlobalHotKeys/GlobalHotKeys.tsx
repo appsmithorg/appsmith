@@ -17,7 +17,7 @@ import {
   selectAllWidgetsInCanvasInitAction,
 } from "actions/widgetSelectionActions";
 import { setGlobalSearchCategory } from "actions/globalSearchActions";
-import { isMac } from "utils/helpers";
+import { isMacOrIOS } from "utils/helpers";
 import { getSelectedWidget, getSelectedWidgets } from "selectors/ui";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import { getSelectedText } from "utils/helpers";
@@ -232,7 +232,7 @@ class GlobalHotKeys extends React.Component<Props> {
           group="Canvas"
           label="Delete Widget"
           onKeyDown={(e: any) => {
-            if (this.stopPropagationIfWidgetSelected(e) && isMac()) {
+            if (this.stopPropagationIfWidgetSelected(e) && isMacOrIOS()) {
               this.props.deleteSelectedWidget();
             }
           }}
