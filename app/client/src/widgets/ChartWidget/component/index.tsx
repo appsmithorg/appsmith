@@ -261,6 +261,20 @@ class ChartComponent extends React.Component<ChartComponentProps> {
   };
 
   getChartConfig = () => {
+    const isMultiSeriesData =
+      Object.keys(this.props.chartData).length > 1 ? true : false;
+    const legendConfig = isMultiSeriesData
+      ? {
+          legendPosition: "absolute",
+          legendItemFontSize: "12",
+          legendXPosition: "10",
+          legendYPosition: "70",
+          captionPadding: "60",
+        }
+      : {
+          captionPadding: "15",
+        };
+
     let config = {
       caption: this.props.chartName,
       xAxisName: this.props.xAxisName,
@@ -271,14 +285,13 @@ class ChartComponent extends React.Component<ChartComponentProps> {
 
       // Caption styling =======================
       captionFontSize: "30",
-      captionPadding: "60",
       captionFontColor: Colors.CODE_GRAY,
 
       // legend position styling ==========
-      legendPosition: "absolute",
-      legendItemFontSize: "12",
-      legendXPosition: "10",
-      legendYPosition: "70",
+      legendIconSides: "4",
+      legendIconBgAlpha: "100",
+      legendIconAlpha: "100",
+      ...legendConfig,
 
       // Canvas styles ========
       canvasTopPadding: "20",
@@ -288,6 +301,12 @@ class ChartComponent extends React.Component<ChartComponentProps> {
 
       // Chart styling =======
       chartBottomMargin: "15",
+
+      // Axis name styling ======
+      xAxisNameFontSize: "16",
+      xAxisValueFontColor: Colors.DOVE_GRAY2,
+      yAxisNameFontSize: "16",
+      yAxisValueFontColor: Colors.DOVE_GRAY2,
 
       bgColor: this.props.backgroundColor || Colors.WHITE,
       setAdaptiveYMin: this.props.setAdaptiveYMin ? "1" : "0",
