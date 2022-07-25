@@ -351,8 +351,8 @@ class CodeEditor extends Component<Props, State> {
   }
 
   componentDidUpdate(prevProps: Props): void {
-    if (this.state.isFocused) return;
     this.editor.operation(() => {
+      if (this.state.isFocused) return;
       // const currentMode = this.editor.getOption("mode");
       const editorValue = this.editor.getValue();
       // Safe update of value of the editor when value updated outside the editor
