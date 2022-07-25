@@ -437,7 +437,6 @@ public class GitServiceCEImpl implements GitServiceCE {
                             });
                 })
                 .then(applicationService.findByBranchNameAndDefaultApplicationId(branchName, defaultApplicationId, MANAGE_APPLICATIONS))
-                .flatMap(branchedApplication -> publishAndOrGetApplication(branchedApplication.getId(), commitDTO.getDoPush()))
                 .flatMap(branchedApplication -> {
                     GitApplicationMetadata gitApplicationMetadata = branchedApplication.getGitApplicationMetadata();
                     if (gitApplicationMetadata == null) {
@@ -557,6 +556,11 @@ public class GitServiceCEImpl implements GitServiceCE {
                                 .zipWith(Mono.just(childApplication));
                     }
                     return Mono.zip(Mono.just(result.toString()), Mono.just(childApplication));
+                })
+                .flatMap(tuple -> {
+                    Application childApplication = tuple.getT2();
+                    String status = tuple.getT1();
+                    return Mono.zip(Mono.just(status), publishAndOrGetApplication(childApplication.getId(), commitDTO.getDoPush()));
                 })
                 // Add BE analytics
                 .flatMap(tuple -> {

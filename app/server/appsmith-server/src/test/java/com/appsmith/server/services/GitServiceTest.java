@@ -22,6 +22,7 @@ import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.PluginType;
 import com.appsmith.server.domains.Theme;
 import com.appsmith.server.domains.Workspace;
+import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.ApplicationImportDTO;
@@ -1781,6 +1782,52 @@ public class GitServiceTest {
                 .assertNext(commitAndPushMsg -> {
                     assertThat(commitAndPushMsg).contains(EMPTY_COMMIT_ERROR_MESSAGE);
                     assertThat(commitAndPushMsg).contains("pushed successfully");
+                })
+                .verifyComplete();
+    }
+
+    /**
+     * To verify when a git push fails the application is not deployed
+     */
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void commitApplication_pushFails_verifyAppNotPublished_throwUpstreamChangesFoundException() throws GitAPIException, IOException {
+
+        // Create and fetch the application state before adding new page
+        Application testApplication = createApplicationConnectedToGit("gitConnectedPushFailApplication", DEFAULT_BRANCH);
+        Application preCommitApplication = applicationService.getApplicationByDefaultApplicationIdAndDefaultBranch(testApplication.getId()).block();
+
+        // Creating a new page to commit to git
+        PageDTO testPage = new PageDTO();
+        testPage.setName("GitServiceTestPageGitPushFail");
+        testPage.setApplicationId(preCommitApplication.getId());
+        PageDTO createdPage = applicationPageService.createPage(testPage).block();
+
+        GitCommitDTO commitDTO = new GitCommitDTO();
+        commitDTO.setDoPush(true);
+        commitDTO.setCommitMessage("New page added");
+        Mono<String> commitMono = gitService.commitApplication(commitDTO, preCommitApplication.getId(), DEFAULT_BRANCH);
+
+        Mono<Application> committedApplicationMono = applicationService.getApplicationByDefaultApplicationIdAndDefaultBranch(preCommitApplication.getId());
+
+        // Mocking a git push failure
+        Mockito.when(gitExecutor.pushApplication(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any()))
+                .thenReturn(Mono.error(new AppsmithException(AppsmithError.GIT_UPSTREAM_CHANGES)));
+
+        StepVerifier
+                .create(commitMono)
+                .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
+                        throwable.getMessage().equals((new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "push", AppsmithError.GIT_UPSTREAM_CHANGES.getMessage())).getMessage()))
+                .verify();
+
+        StepVerifier
+                .create(committedApplicationMono)
+                .assertNext(application -> {
+                    List<ApplicationPage> publishedPages = application.getPublishedPages();
+                    assertThat(application.getPublishedPages().size()).isEqualTo(preCommitApplication.getPublishedPages().size());
+                    publishedPages.forEach(publishedPage -> {
+                        assertThat(publishedPage.getId().equals(createdPage.getId())).isFalse();
+                    });
                 })
                 .verifyComplete();
     }
