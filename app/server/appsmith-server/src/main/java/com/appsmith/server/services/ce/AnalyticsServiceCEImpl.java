@@ -193,6 +193,7 @@ public class AnalyticsServiceCEImpl implements AnalyticsServiceCE {
                     analyticsProperties.put("oid", object.getId());
                     if (extraProperties != null) {
                         analyticsProperties.putAll(extraProperties);
+                        // To avoid sending extra audit data to analytics
                         analyticsProperties.remove(FieldName.AUDIT_DATA);
                     }
 
