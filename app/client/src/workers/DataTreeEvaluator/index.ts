@@ -167,7 +167,7 @@ export default class DataTreeEvaluator {
     const evaluateEnd = performance.now();
     // Validate Widgets
     const validateStart = performance.now();
-    this.evalTree = getValidatedTree(evaluatedTree);
+    this.evalTree = getValidatedTree(evaluatedTree, localUnEvalTree);
     const validateEnd = performance.now();
 
     this.oldUnEvalTree = klona(localUnEvalTree);
@@ -987,6 +987,7 @@ export default class DataTreeEvaluator {
       evalPropertyValue,
       widget,
       propertyPath,
+      unEvalPropertyValue,
     );
 
     const evaluatedValue = isValid
@@ -1033,6 +1034,7 @@ export default class DataTreeEvaluator {
       const { isValid, messages } = validateActionProperty(
         validationConfig,
         evalPropertyValue,
+        unEvalPropertyValue,
       );
       if (!isValid) {
         const evalErrors: EvaluationError[] =
