@@ -9,6 +9,8 @@ public enum AnalyticsEvents {
     ARCHIVE,
     APPLY,
     FIRST_LOGIN,
+    USER_LOGIN,
+    USER_LOGOUT,
     EXECUTE_ACTION("execute_ACTION_TRIGGERED"),
     UPDATE_LAYOUT,
     PUBLISH_APPLICATION("publish_APPLICATION"),

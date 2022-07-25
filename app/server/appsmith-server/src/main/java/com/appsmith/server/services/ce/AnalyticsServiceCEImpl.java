@@ -181,8 +181,8 @@ public class AnalyticsServiceCEImpl implements AnalyticsServiceCE {
         return userMono
                 .map(user -> {
 
-                    // In case the user is anonymous, don't raise an event, unless it's a signup event.
-                    if (user.isAnonymous() && !(object instanceof User && event == AnalyticsEvents.CREATE)) {
+                    // In case the user is anonymous, don't raise an event, unless it's a signup or logout event.
+                    if (user.isAnonymous() && !(object instanceof User && (event == AnalyticsEvents.CREATE || event == AnalyticsEvents.USER_LOGOUT))) {
                         return object;
                     }
 

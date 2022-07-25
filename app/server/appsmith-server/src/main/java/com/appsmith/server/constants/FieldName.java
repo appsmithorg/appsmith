@@ -116,4 +116,6 @@ public class FieldName {
     public static final String EDIT_MODE_THEME = "editModeTheme";
     public static final String FLOW_NAME = "flowName";
     public static final String AUDIT_DATA = "auditData";
+    public static final String MODE_OF_LOGIN = "modeOfLogin";
+    public static final String FORM_LOGIN = "FormLogin";
 }
