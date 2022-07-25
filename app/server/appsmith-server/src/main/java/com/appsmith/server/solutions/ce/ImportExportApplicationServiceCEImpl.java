@@ -1152,7 +1152,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
 
         // Import Application is currently a slow API because it needs to import and create application, pages, actions
         // and action collection. This process may take time and the client may cancel the request. This leads to the flow
-        // getting stopped mid way producing corrupted objects in DB. The following ensures that even though the client may have
+        // getting stopped midway producing corrupted objects in DB. The following ensures that even though the client may have
         // cancelled the flow, the importing the application should proceed uninterrupted and whenever the user refreshes
         // the page, the imported application is available and is in sane state.
         // To achieve this, we use a synchronous sink which does not take subscription cancellations into account. This

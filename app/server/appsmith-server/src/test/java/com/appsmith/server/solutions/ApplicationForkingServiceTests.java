@@ -50,7 +50,6 @@ import org.apache.commons.lang.StringUtils;
 import org.junit.Before;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
-import org.junit.jupiter.api.RepeatedTest;
 import org.junit.runner.RunWith;
 import org.junit.runners.MethodSorters;
 import org.mockito.Mockito;
@@ -527,25 +526,25 @@ public class ApplicationForkingServiceTests {
         String uniqueString = UUID.randomUUID().toString();
         Workspace workspace = new Workspace();
         workspace.setName("org_" + uniqueString);
-
+        String debugIdentifier = "TestDebug T2() ";
         Mono<Tuple4<Theme, Theme, Application, Application>> tuple4Mono = workspaceService.create(workspace)
                 .flatMap(createdOrg -> {
-                    log.debug("Created source workspace: " + createdOrg);
+                    log.debug(debugIdentifier + "Created source workspace: " + createdOrg);
                     Application application = new Application();
                     application.setName("app_" + uniqueString);
                     return applicationPageService.createApplication(application, createdOrg.getId());
                 }).flatMap(srcApplication -> {
-                    log.debug("Created source application: " + srcApplication);
+                    log.debug(debugIdentifier + "Created source application: " + srcApplication);
                     Theme theme = new Theme();
                     theme.setDisplayName("theme_" + uniqueString);
-                    log.debug("Updating theme: " + theme);
+                    log.debug(debugIdentifier + "Updating theme: " + theme);
                     return themeService.updateTheme(srcApplication.getId(), null, theme)
                             .then(applicationService.findById(srcApplication.getId()));
                 }).flatMap(srcApplication -> {
                     Workspace desOrg = new Workspace();
                     desOrg.setName("org_dest_" + uniqueString);
                     return workspaceService.create(desOrg).flatMap(createdOrg -> {
-                        log.debug("Created destination workspace: " + createdOrg);
+                        log.debug(debugIdentifier + "Created destination workspace: " + createdOrg);
                         return applicationForkingService.forkApplicationToWorkspace(srcApplication.getId(), createdOrg.getId());
                     }).zipWith(Mono.just(srcApplication));
                 }).flatMap(applicationTuple2 -> {
@@ -564,10 +563,10 @@ public class ApplicationForkingServiceTests {
             Theme publishedModeTheme = objects.getT2();
             Application forkedApp = objects.getT3();
             Application srcApp = objects.getT4();
-            log.debug("Source application: " + srcApp);
-            log.debug("Forked application: " + forkedApp);
-            log.debug("Edit mode theme:" + editModeTheme);
-            log.debug("Published mode theme" + publishedModeTheme);
+            log.debug(debugIdentifier + "Source application: " + srcApp);
+            log.debug(debugIdentifier + "Forked application: " + forkedApp);
+            log.debug(debugIdentifier + "Edit mode theme:" + editModeTheme);
+            log.debug(debugIdentifier + "Published mode theme" + publishedModeTheme);
 
             assertThat(forkedApp.getEditModeThemeId()).isEqualTo(editModeTheme.getId());
             assertThat(forkedApp.getPublishedModeThemeId()).isEqualTo(publishedModeTheme.getId());
@@ -602,15 +601,17 @@ public class ApplicationForkingServiceTests {
         String uniqueString = UUID.randomUUID().toString();
         Workspace workspace = new Workspace();
         workspace.setName("org_" + uniqueString);
-
+        String debugText = "Debug T3() ";
         Mono<Tuple3<Theme, Application, Application>> tuple3Mono = workspaceService.create(workspace)
                 .flatMap(createdOrg -> {
+                    log.debug(debugText + "Workspace created");
                     Application application = new Application();
                     application.setName("app_" + uniqueString);
                     return applicationPageService.createApplication(application, createdOrg.getId());
                 }).flatMap(srcApplication -> {
                     Workspace desOrg = new Workspace();
                     desOrg.setName("org_dest_" + uniqueString);
+                    log.debug(debugText + "Forking application");
                     return workspaceService.create(desOrg).flatMap(createdOrg ->
                             applicationForkingService.forkApplicationToWorkspace(srcApplication.getId(), createdOrg.getId())
                     ).zipWith(Mono.just(srcApplication));
@@ -628,6 +629,7 @@ public class ApplicationForkingServiceTests {
             Theme editModeTheme = objects.getT1();
             Application forkedApp = objects.getT2();
             Application srcApp = objects.getT3();
+            log.debug(debugText + "Stepverifier");
 
             // same theme should be set to edit mode and published mode
             assertThat(forkedApp.getEditModeThemeId()).isEqualTo(editModeTheme.getId());
@@ -645,11 +647,11 @@ public class ApplicationForkingServiceTests {
             // forked application should have same theme set
             assertThat(srcApp.getEditModeThemeId()).isEqualTo(forkedApp.getEditModeThemeId());
         }).verifyComplete();
+        log.debug(debugText + "Completed");
     }
 
     @Test
     @WithUserDetails("api_user")
-    @RepeatedTest(100)
     public void forkApplicationToWorkspace_WhenAppHasCustomSavedTheme_NewCustomThemeCreated() {
         log.debug("Running forkApplicationToWorkspace_WhenAppHasCustomSavedTheme_NewCustomThemeCreated");
         String uniqueString = UUID.randomUUID().toString();
