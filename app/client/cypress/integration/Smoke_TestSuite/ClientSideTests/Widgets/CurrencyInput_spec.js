@@ -1,5 +1,6 @@
 const dsl = require("../../../../fixtures/emptyDSL.json");
 const explorer = require("../../../../locators/explorerlocators.json");
+const themelocators = require("../../../../locators/ThemeLocators.json");
 
 const widgetName = "currencyinputwidget";
 const widgetInput = `.t--widget-${widgetName} input`;
@@ -271,5 +272,12 @@ describe("Currency widget - ", () => {
     cy.updateCodeInput(".t--property-control-defaulttext", "5");
     // Check if isDirty is reset to false
     cy.get(".t--widget-textwidget").should("contain", "false");
+  });
+
+  it("Should check that widget input is not showing any errors on input", function() {
+    cy.get(widgetInput).type("123456789");
+    cy.focused().then(() => {
+      cy.get(themelocators.popover).should("not.exist");
+    });
   });
 });
