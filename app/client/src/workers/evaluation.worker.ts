@@ -268,7 +268,7 @@ ctx.addEventListener(
       case EVAL_WORKER_ACTIONS.VALIDATE_PROPERTY: {
         const { property, props, validation, value } = requestData;
         return removeFunctions(
-          validateWidgetProperty(validation, value, props, property),
+          validateWidgetProperty(validation, value, props, property, ""),
         );
       }
       case EVAL_WORKER_ACTIONS.UNDO: {

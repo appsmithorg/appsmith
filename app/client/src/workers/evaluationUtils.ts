@@ -487,6 +487,7 @@ export function validateWidgetProperty(
   value: unknown,
   props: Record<string, unknown>,
   propertyPath: string,
+  unEvalValue = "",
 ) {
   if (!config) {
     return {
@@ -494,12 +495,13 @@ export function validateWidgetProperty(
       parsed: value,
     };
   }
-  return validate(config, value, props, propertyPath);
+  return validate(config, value, props, propertyPath, unEvalValue);
 }
 
 export function validateActionProperty(
   config: ValidationConfig,
   value: unknown,
+  unEvalValue = "",
 ) {
   if (!config) {
     return {
@@ -507,24 +509,27 @@ export function validateActionProperty(
       parsed: value,
     };
   }
-  return validate(config, value, {}, "");
+  return validate(config, value, {}, "", unEvalValue);
 }
 
-export function getValidatedTree(tree: DataTree) {
+export function getValidatedTree(tree: DataTree, unEvalTree: DataTree) {
   return Object.keys(tree).reduce((tree, entityKey: string) => {
     const entity = tree[entityKey] as DataTreeWidget;
+    const unEvalEntity = unEvalTree[entityKey];
     if (!isWidget(entity)) {
       return tree;
     }
     const parsedEntity = { ...entity };
     Object.entries(entity.validationPaths).forEach(([property, validation]) => {
       const value = _.get(entity, property);
+      const unEvalValue = _.get(unEvalEntity, property);
       // Pass it through parse
       const { isValid, messages, parsed, transformed } = validateWidgetProperty(
         validation,
         value,
         entity,
         property,
+        unEvalValue,
       );
       _.set(parsedEntity, property, parsed);
       const evaluatedValue = isValid
@@ -625,6 +630,7 @@ export function getSafeToRenderDataTree(
         value,
         entity,
         property,
+        value,
       );
       _.set(safeToRenderEntity, property, parsed);
     });
