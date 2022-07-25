@@ -1426,6 +1426,8 @@ public class DatabaseChangelog2 {
             Query query = new Query(Criteria.where(fieldName(QApplication.application.editModeThemeId)).is(editModeThemeId))
                     .addCriteria(where(fieldName(QApplication.application.deleted)).is(false))
                     .addCriteria(where(fieldName(QApplication.application.gitApplicationMetadata)).exists(true));
+            query.fields().include(fieldName(QApplication.application.id));
+
             List<Application> applicationList = mongockTemplate.find(query, Application.class);
             if(applicationList.size() > 1) { // same custom theme is set to more than one application
                 // Remove one as we will create a  new theme for all the other branch apps
@@ -1441,8 +1443,11 @@ public class DatabaseChangelog2 {
                     newTheme.setId(null);
                     newTheme.setSystemTheme(false);
                     newTheme = mongockTemplate.insert(newTheme);
-                    application.setEditModeThemeId(newTheme.getId());
-                    mongockTemplate.save(application);
+                    mongockTemplate.updateFirst(
+                            new Query(Criteria.where(fieldName(QApplication.application.id)).is(application.getId())),
+                            new Update().set(fieldName(QApplication.application.editModeThemeId), newTheme.getId()),
+                            Application.class
+                    );
                 }
             }
         }
