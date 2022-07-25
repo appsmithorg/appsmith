@@ -482,6 +482,7 @@ export function ReflowResizable(props: ResizableProps) {
     reflowedPosition?.height === undefined
       ? newDimensions.height
       : reflowedPosition.height - 2 * WIDGET_PADDING;
+
   return (
     <Spring
       config={{

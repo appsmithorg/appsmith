@@ -325,7 +325,12 @@ export const useBlocksToBeDraggedOnCanvas = ({
         snapColumnSpace,
         snapRowSpace,
         newWidget.detachFromLayout ? MAIN_CONTAINER_WIDGET_ID : widgetId,
-        { width: each.width, height: each.height },
+        {
+          width: each.width,
+          height: each.height,
+        },
+        direction === LayoutDirection.Vertical &&
+          alignItems === AlignItems.Stretch,
       );
       return {
         ...each,

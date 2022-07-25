@@ -99,10 +99,17 @@ export const ResizableComponent = memo(function ResizableComponent(
     focusedWidget === props.widgetId ||
     selectedWidget === props.widgetId ||
     selectedWidgets.includes(props.widgetId);
-
+  // if (props.widgetName.toLowerCase().includes("vertical")) {
+  //   console.log(`#### ${props.widgetName}`);
+  //   console.log(props);
+  // }
   useEffect(() => {
     // Set initial dimensions
-    // console.log(`#### ${props.widgetName} : Initial dimensions`);
+    if (
+      props.widgetName.toLowerCase().includes("vertical") ||
+      props.widgetName.toLowerCase().includes("button")
+    )
+      console.log(`#### ${props.widgetName} : Initial dimensions`);
     setComponentWidth(
       props.useAutoLayout &&
         props.direction === LayoutDirection.Vertical &&
@@ -118,7 +125,11 @@ export const ResizableComponent = memo(function ResizableComponent(
   }, [props.useAutoLayout, props.direction, props.alignItems]);
 
   useEffect(() => {
-    // console.log(`#### ${props.widgetName} : Manual resize`);
+    if (
+      props.widgetName.toLowerCase().includes("vertical") ||
+      props.widgetName.toLowerCase().includes("button")
+    )
+      console.log(`#### ${props.widgetName} : Manual resize`);
     setComponentWidth(
       props.useAutoLayout &&
         props.direction === LayoutDirection.Vertical &&
@@ -134,8 +145,13 @@ export const ResizableComponent = memo(function ResizableComponent(
   }, [props.topRow, props.bottomRow, props.leftColumn, props.rightColumn]);
 
   useEffect(() => {
-    // console.log(`#### ${props.widgetName} : Parent resize`);
+    if (
+      props.widgetName.toLowerCase().includes("vertical") ||
+      props.widgetName.toLowerCase().includes("button")
+    )
+      console.log(`#### ${props.widgetName} : Parent resize`);
     if (!props.useAutoLayout) {
+      console.log(`#### ${props.widgetName} : Parent resize relayout`);
       setComponentWidth(
         (props.rightColumn - props.leftColumn) * props.parentColumnSpace -
           2 * props.paddingOffset,
@@ -152,11 +168,6 @@ export const ResizableComponent = memo(function ResizableComponent(
         setComponentWidth(
           64 * props.parentColumnSpace - 2 * props.paddingOffset,
         );
-      } else if (
-        props.direction === LayoutDirection.Vertical &&
-        props.alignItems === AlignItems.Stretch
-      ) {
-        setComponentHeight(64 * props.parentRowSpace - 2 * props.paddingOffset);
       }
     }
   }, [props.parentColumnSpace, props.parentRowSpace, props.useAutoLayout]);
@@ -188,13 +199,20 @@ export const ResizableComponent = memo(function ResizableComponent(
       height: newDimensions.height - componentHeight,
       width: newDimensions.width - componentWidth,
     };
-    // console.log(newDimensions);
-    // console.log(`#### ${props.widgetName} : delta - ${delta.height}`);
+    if (
+      props.widgetName.toLowerCase().includes("vertical") ||
+      props.widgetName.toLowerCase().includes("button")
+    ) {
+      console.log("#### resize position");
+      console.log(newDimensions);
+      console.log(`#### ${props.widgetName} : delta - ${delta.height}`);
+    }
     const newRowCols: WidgetRowCols = computeRowCols(delta, position, props);
     let canResizeHorizontally = true,
       canResizeVertically = true;
 
     // this is required for list widget so that template have no collision
+    console.log(props.parentColumnSpace);
     if (props.ignoreCollision)
       return {
         canResizeHorizontally,

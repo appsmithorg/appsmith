@@ -110,7 +110,10 @@ export const useCanvasDragging = (
   const offsets: number[] = [];
   const siblings: { [key: string]: number } = {};
   const calculateHighlightOffsets = () => {
-    if (useAutoLayout && isDragging) {
+    if (useAutoLayout && isDragging && isCurrentDraggedCanvas) {
+      console.log(widgetId);
+      console.log(slidingArenaRef.current);
+      console.log(isCurrentDraggedCanvas);
       // Get all children of current auto layout container
       const els = document.querySelectorAll(`.auto-layout-parent-${widgetId}`);
       if (els && els.length && offsets.length !== els.length) {
@@ -591,7 +594,7 @@ export const useCanvasDragging = (
               renderNewRows(delta);
             } else if (!isUpdatingRows) {
               triggerReflow(e, firstMove);
-              highlightDropPosition(e);
+              isCurrentDraggedCanvas && highlightDropPosition(e);
               renderBlocks();
             }
             scrollObj.lastMouseMoveEvent = {

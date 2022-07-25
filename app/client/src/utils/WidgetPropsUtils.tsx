@@ -234,6 +234,7 @@ export const widgetOperationParams = (
     width: number;
     height: number;
   },
+  fullWidth = false,
 ): WidgetOperationParams => {
   const [leftColumn, topRow] = getDropZoneOffsets(
     parentColumnSpace,
@@ -253,9 +254,11 @@ export const widgetOperationParams = (
         bottomRow: Math.round(
           topRow + widgetSizeUpdates.height / parentRowSpace,
         ),
-        rightColumn: Math.round(
-          leftColumn + widgetSizeUpdates.width / parentColumnSpace,
-        ),
+        rightColumn: fullWidth
+          ? 64
+          : Math.round(
+              leftColumn + widgetSizeUpdates.width / parentColumnSpace,
+            ),
         parentId: widget.parentId,
         newParentId: parentWidgetId,
       },
@@ -264,7 +267,7 @@ export const widgetOperationParams = (
     // Therefore, this is an operation to add child to this container
   }
   const widgetDimensions = {
-    columns: widget.columns,
+    columns: fullWidth ? 64 : widget.columns,
     rows: widget.rows,
   };
 
