@@ -7,6 +7,7 @@ import TernServer, {
 import { MockCodemirrorEditor } from "../../../test/__mocks__/CodeMirrorEditorMock";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import _ from "lodash";
+import { AutocompleteSorter, ScoredCompletion } from "./AutocompleteSortRules";
 
 describe("Tern server", () => {
   it("Check whether the correct value is being sent to tern", () => {
@@ -196,8 +197,8 @@ describe("Tern server sorting", () => {
     subType: "TABLE_WIDGET_V2",
   });
 
-  const sameTypeCompletion: Completion = {
-    text: "sameType.selectedRow",
+  const priorityCompletion: Completion = {
+    text: "selectedRow",
     type: AutocompleteDataType.OBJECT,
     origin: "DATA_TREE",
     data: {
@@ -297,7 +298,7 @@ describe("Tern server sorting", () => {
 
   const completions = [
     sameEntityCompletion,
-    sameTypeCompletion,
+    priorityCompletion,
     contextCompletion,
     libCompletion,
     unknownCompletion,
@@ -308,29 +309,54 @@ describe("Tern server sorting", () => {
     dataTreeCompletion,
   ];
 
-  // it("shows best match results", () => {
-  //   TernServer.setEntityInformation({
-  //     entityName: "sameEntity",
-  //     entityType: ENTITY_TYPE.WIDGET,
-  //     expectedType: AutocompleteDataType.OBJECT,
-  //   });
-  //   TernServer.defEntityInformation = defEntityInformation;
-  //   const sortedCompletions = TernServer.sortAndFilterCompletions(
-  //     _.shuffle(completions),
-  //     true,
-  //     "",
-  //   );
-  //   expect(sortedCompletions[0]).toStrictEqual(contextCompletion);
-  //   expect(sortedCompletions).toEqual(
-  //     expect.arrayContaining([
-  //       createCompletionHeader("Best Match"),
-  //       sameTypeDiffEntityTypeCompletion,
-  //       createCompletionHeader("Search Results"),
-  //       dataTreeCompletion,
-  //     ]),
-  //   );
-  //   expect(sortedCompletions).toEqual(
-  //     expect.not.arrayContaining([diffTypeCompletion]),
-  //   );
-  // });
+  it("shows best match results", () => {
+    TernServer.setEntityInformation({
+      entityName: "sameEntity",
+      entityType: ENTITY_TYPE.WIDGET,
+      expectedType: AutocompleteDataType.OBJECT,
+    });
+    TernServer.defEntityInformation = defEntityInformation;
+    const sortedCompletions = AutocompleteSorter.sort(
+      _.shuffle(completions),
+      {
+        entityName: "sameEntity",
+        entityType: ENTITY_TYPE.WIDGET,
+        expectedType: AutocompleteDataType.STRING,
+      },
+      {
+        type: ENTITY_TYPE.WIDGET,
+        subType: "TABLE_WIDGET",
+      },
+    );
+    expect(sortedCompletions[1]).toStrictEqual(contextCompletion);
+    expect(sortedCompletions).toEqual(
+      expect.arrayContaining([
+        createCompletionHeader("Best Match"),
+        sameTypeDiffEntityTypeCompletion,
+        createCompletionHeader("Search Results"),
+        dataTreeCompletion,
+      ]),
+    );
+  });
+
+  it("tests score of completions", function() {
+    AutocompleteSorter.entityDefInfo = {
+      type: ENTITY_TYPE.WIDGET,
+      subType: "TABLE_WIDGET",
+    };
+    AutocompleteSorter.currentFieldInfo = {
+      entityName: "sameEntity",
+      entityType: ENTITY_TYPE.WIDGET,
+      expectedType: AutocompleteDataType.STRING,
+    };
+    //completion that matches type and is present in dataTree.
+    const scoredCompletion1 = new ScoredCompletion(dataTreeCompletion);
+    expect(scoredCompletion1.score).toEqual(2 ** 5 + 2 ** 4 + 2 ** 3);
+    //completion that belongs to the same entity.
+    const scoredCompletion2 = new ScoredCompletion(sameEntityCompletion);
+    expect(scoredCompletion2.score).toEqual(-Infinity);
+    //completion that is a priority.
+    const scoredCompletion3 = new ScoredCompletion(priorityCompletion);
+    expect(scoredCompletion3.score).toBe(2 ** 6 + 2 ** 4 + 2 ** 3);
+  });
 });
