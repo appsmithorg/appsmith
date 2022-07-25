@@ -545,7 +545,8 @@ public class ApplicationForkingServiceTests {
                     desOrg.setName("org_dest_" + uniqueString);
                     return workspaceService.create(desOrg).flatMap(createdOrg -> {
                         log.debug("Created destination workspace: " + createdOrg);
-                        return applicationForkingService.forkApplicationToWorkspace(srcApplication.getId(), createdOrg.getId());
+                        applicationForkingService.forkApplicationToWorkspace(srcApplication.getId(), createdOrg.getId()).block();
+                        return Mono.just(srcApplication);
                     }).zipWith(Mono.just(srcApplication));
                 }).flatMap(applicationTuple2 -> {
                     Application forkedApp = applicationTuple2.getT1();
@@ -673,7 +674,8 @@ public class ApplicationForkingServiceTests {
                     desOrg.setName("org_dest_" + uniqueString);
                     return workspaceService.create(desOrg).flatMap(createdOrg -> {
                         log.debug("Created destination workspace: " + createdOrg);
-                        return applicationForkingService.forkApplicationToWorkspace(srcApplication.getId(), createdOrg.getId());
+                        applicationForkingService.forkApplicationToWorkspace(srcApplication.getId(), createdOrg.getId()).block();
+                        return Mono.just(srcApplication);
                     }).zipWith(Mono.just(srcApplication));
                 }).flatMap(applicationTuple2 -> {
                     Application forkedApp = applicationTuple2.getT1();
