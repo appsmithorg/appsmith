@@ -169,7 +169,7 @@ export const getConflictFoundDocUrlMerge = (state: AppState) =>
 
 // git disconnect learn more doc url
 export const getDisconnectDocUrl = () =>
-  "https://docs.appsmith.com/advanced-concepts/version-control-with-git#disconnecting-the-git-repository";
+  "https://docs.appsmith.com/advanced-concepts/version-control-with-git/disconnect-the-git-repository";
 
 export const getConnectingErrorDocUrl = (state: AppState) =>
   state.ui.gitSync.connectError?.error.referenceDoc ||
