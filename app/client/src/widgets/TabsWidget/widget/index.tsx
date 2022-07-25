@@ -292,31 +292,11 @@ class TabsWidget extends BaseWidget<
 
   componentDidUpdate(prevProps: TabsWidgetProps<TabContainerWidgetProps>) {
     const visibleTabs = this.getVisibleTabs();
-    if (this.props.defaultTab !== prevProps.defaultTab) {
-      this.setDefaultSelectedTabWidgetId();
-    } else if (
-      this.props.selectedTabWidgetId !== prevProps.selectedTabWidgetId
-    ) {
-      if (this.props.selectedTabWidgetId) {
-        if (visibleTabs.length > 0) {
-          const selectedTabWithinTabs = find(visibleTabs, {
-            widgetId: this.props.selectedTabWidgetId,
-          });
-          // try to select default else select first
-          !selectedTabWithinTabs && this.setDefaultSelectedTabWidgetId();
-        } else {
-          this.props.updateWidgetMetaProperty("selectedTabWidgetId", undefined);
-        }
-      } else if (!this.props.selectedTabWidgetId) {
-        visibleTabs.length > 0 && this.setDefaultSelectedTabWidgetId();
-      }
-    } else if (
-      this.props.selectedTabWidgetId &&
-      !some(visibleTabs, {
-        widgetId: this.props.selectedTabWidgetId,
-      })
-    ) {
-      // For when the we remove the selected tab from the Tabslist(PropertyPaneContrl)
+    const selectedTab = find(visibleTabs, {
+      widgetId: this.props.selectedTabWidgetId,
+    });
+
+    if (this.props.defaultTab !== prevProps.defaultTab || !selectedTab) {
       this.setDefaultSelectedTabWidgetId();
     }
   }
