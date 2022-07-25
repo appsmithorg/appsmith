@@ -100,7 +100,6 @@ const MemInitialState = () => {
 export const FeedbackState = MemInitialState();
 
 export default function DHFeedbacks() {
-  console.log("MOUNTED");
   const [isOpen, setOpen] = useState(true);
   const [state, setState] = useState(() => {
     try {

@@ -159,6 +159,8 @@ class SliderControl extends BaseControl<SliderControlProps> {
         return this.renderAbhishekSuggestion();
       }
     }
+
+    return this.renderMain();
   }
 
   onFeedbackChange = (state: any) => {
