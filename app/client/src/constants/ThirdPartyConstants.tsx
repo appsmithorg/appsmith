@@ -20,4 +20,4 @@ export const SAML_SIGNUP_SETUP_DOC =
 export const EMAIL_SETUP_DOC =
   "https://docs.appsmith.com/getting-started/setup/instance-configuration/email";
 export const SIGNUP_RESTRICTION_DOC =
-  "https://docs.appsmith.com/getting-started/setup/instance-configuration/disable-user-signup";
+  "https://docs.appsmith.com/getting-started/setup/instance-configuration/disable-user-signup#disable-sign-up";

@@ -80,7 +80,7 @@ export function changeInfoSinceLastCommit(
 export const GIT_DOC_URLs = {
   base: "https://docs.appsmith.com/advanced-concepts/version-control-with-git",
   import:
-    "https://docs.appsmith.com/advanced-concepts/version-control-with-git/connecting-to-git-repository#importing-from-a-repository",
+    "https://docs.appsmith.com/advanced-concepts/version-control-with-git/import-from-repository",
   connect:
     "https://docs.appsmith.com/advanced-concepts/version-control-with-git/connecting-to-git-repository",
 };
