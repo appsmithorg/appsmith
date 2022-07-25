@@ -50,12 +50,8 @@ init_env_file() {
       tr -dc A-Za-z0-9 </dev/urandom | head -c 13
       echo ''
     )
-    local generated_keycloak_password=$(
-      tr -dc A-Za-z0-9 </dev/urandom | head -c 13
-      echo ""
-    )
 
-    bash "$TEMPLATES_PATH/docker.env.sh" "$default_appsmith_mongodb_user" "$generated_appsmith_mongodb_password" "$generated_appsmith_encryption_password" "$generated_appsmith_encription_salt" "$generated_appsmith_supervisor_password" "$generated_keycloak_password" > "$ENV_PATH"
+    bash "$TEMPLATES_PATH/docker.env.sh" "$default_appsmith_mongodb_user" "$generated_appsmith_mongodb_password" "$generated_appsmith_encryption_password" "$generated_appsmith_encription_salt" "$generated_appsmith_supervisor_password" > "$ENV_PATH"
   fi
 
 
@@ -194,14 +190,29 @@ chmod-mongodb-key() {
 }
 
 init_keycloak() {
+	if ! isset KEYCLOAK_ADMIN_USERNAME; then
+		export KEYCLOAK_ADMIN_USERNAME=admin
+		echo $'\nKEYCLOAK_ADMIN_USERNAME='"$KEYCLOAK_ADMIN_USERNAME" >> "$stacks_path/configuration/docker.env"
+	fi
+
+	if ! isset KEYCLOAK_ADMIN_PASSWORD; then
+    KEYCLOAK_ADMIN_PASSWORD="$(
+      tr -dc A-Za-z0-9 </dev/urandom | head -c 13
+      echo ""
+    )"
+		export KEYCLOAK_ADMIN_USERNAME
+		echo "KEYCLOAK_ADMIN_PASSWORD=$KEYCLOAK_ADMIN_PASSWORD" >> "$stacks_path/configuration/docker.env"
+	fi
+
   echo "Initializing keycloak"
-  if ! out="$(/opt/keycloak/bin/add-user-keycloak.sh --user "${KEYCLOAK_ADMIN_USERNAME-admin}" --password "$KEYCLOAK_ADMIN_PASSWORD" 2>&1 )"; then
+  if ! out="$(/opt/keycloak/bin/add-user-keycloak.sh --user "$KEYCLOAK_ADMIN_USERNAME" --password "$KEYCLOAK_ADMIN_PASSWORD" 2>&1 )"; then
     if [[ $out != "User with username 'admin' already added to '/opt/keycloak/standalone/configuration/keycloak-add-user.json'" ]]; then # Ignore failure
     echo "$out" >&2
     exit 1
     fi
   fi
   echo "$out"
+
   # Make keycloak persistent across reboots
   ln --verbose --force --symbolic --no-target-directory /appsmith-stacks/data/keycloak /opt/keycloak/standalone/data
 }
