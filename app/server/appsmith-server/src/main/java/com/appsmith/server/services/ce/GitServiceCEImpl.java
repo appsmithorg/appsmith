@@ -432,11 +432,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                 .flatMap(application -> {
                     GitApplicationMetadata gitData = application.getGitApplicationMetadata();
                     if(Boolean.TRUE.equals(isFileLock)) {
-                        return redisUtils.addFileLock(gitData.getDefaultApplicationId())
-                                .retryWhen(Retry.fixedDelay(MAX_RETRIES, RETRY_DELAY)
-                                        .onRetryExhaustedThrow((retryBackoffSpec, retrySignal) -> {
-                                            throw new AppsmithException(AppsmithError.GIT_FILE_IN_USE);
-                                        }))
+                        return addFileLock(gitData.getDefaultApplicationId())
                                 .then(Mono.just(application));
                     }
                     return Mono.just(application);
@@ -1196,13 +1192,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                     Path repoSuffix = Paths.get(srcApplication.getWorkspaceId(), srcBranchGitData.getDefaultApplicationId(), srcBranchGitData.getRepoName());
                     // Create a new branch from the parent checked out branch
 
-                    Mono<Boolean> fileLockMono = redisUtils.releaseFileLock(srcBranchGitData.getDefaultApplicationId());
-
-                    return redisUtils.addFileLock(srcBranchGitData.getDefaultApplicationId())
-                            .retryWhen(Retry.fixedDelay(MAX_RETRIES, RETRY_DELAY)
-                                    .onRetryExhaustedThrow((retryBackoffSpec, retrySignal) -> {
-                                        throw new AppsmithException(AppsmithError.GIT_FILE_IN_USE);
-                                    }))
+                    return addFileLock(srcBranchGitData.getDefaultApplicationId())
                             .flatMap(status -> gitExecutor.checkoutToBranch(repoSuffix, srcBranch))
                             .onErrorResume(error -> Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "checkout", "Unable to find " + srcBranch)))
                             .zipWhen(isCheckedOut -> gitExecutor.fetchRemote(repoSuffix, defaultGitAuth.getPublicKey(), defaultGitAuth.getPrivateKey(), false, srcBranch, true)
@@ -1428,11 +1418,7 @@ public class GitServiceCEImpl implements GitServiceCE {
         Mono<GitPullDTO> pullMono = getApplicationById(defaultApplicationId)
                 .flatMap(application -> {
                     GitApplicationMetadata gitData = application.getGitApplicationMetadata();
-                    return redisUtils.addFileLock(gitData.getDefaultApplicationId())
-                            .retryWhen(Retry.fixedDelay(MAX_RETRIES, RETRY_DELAY)
-                                    .onRetryExhaustedThrow((retryBackoffSpec, retrySignal) -> {
-                                        throw new AppsmithException(AppsmithError.GIT_FILE_IN_USE);
-                                    }))
+                    return addFileLock(gitData.getDefaultApplicationId())
                             .then(Mono.just(application));
                 })
                 .flatMap(defaultApplication -> {
@@ -1623,7 +1609,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                                 Mono.just(repoSuffix)
                         );
                     } catch (IOException | GitAPIException e) {
-                        return redisUtils.releaseFileLock(gitData.getDefaultApplicationId()).then(Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "status", e.getMessage())));
+                        return Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "status", e.getMessage()));
                     }
                 })
                 .flatMap(tuple -> {
@@ -1633,12 +1619,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                                 .then(branchedStatusMono)
                                 // Remove any files which are copied by hard resetting the repo
                                 .then(gitExecutor.resetToLastCommit(tuple.getT3(), branchName))
-                                .flatMap(status -> {
-                                    if(Boolean.TRUE.equals(isFileLock)) {
-                                        return branchedStatusMono;
-                                    }
-                                    return branchedStatusMono;
-                                })
+                                .then(branchedStatusMono)
                                 .onErrorResume(error -> Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "status", error.getMessage())));
                     } catch (GitAPIException | IOException e) {
                         return Mono.error(new AppsmithException(AppsmithError.GIT_GENERIC_ERROR, e.getMessage()));
@@ -1679,11 +1660,7 @@ public class GitServiceCEImpl implements GitServiceCE {
         Mono<MergeStatusDTO> mergeMono = getApplicationById(defaultApplicationId)
                 .flatMap(application -> {
                     GitApplicationMetadata gitData = application.getGitApplicationMetadata();
-                    return redisUtils.addFileLock(gitData.getDefaultApplicationId())
-                            .retryWhen(Retry.fixedDelay(MAX_RETRIES, RETRY_DELAY)
-                                    .onRetryExhaustedThrow((retryBackoffSpec, retrySignal) -> {
-                                        throw new AppsmithException(AppsmithError.GIT_FILE_IN_USE);
-                                    }))
+                    return addFileLock(gitData.getDefaultApplicationId())
                             .then(Mono.just(application));
                 })
                 .flatMap(defaultApplication -> {
@@ -1717,7 +1694,7 @@ public class GitServiceCEImpl implements GitServiceCE {
 
                     return Mono.zip(Mono.just(defaultApplication), pathToFile)
                             .onErrorResume(error -> {
-                                log.error("Error in repo status check application " + defaultApplicationId, error);
+                                log.error("Error in repo status check for application " + defaultApplicationId, error);
                                 if (error instanceof AppsmithException) {
                                     return Mono.error(error);
                                 }
@@ -1792,7 +1769,8 @@ public class GitServiceCEImpl implements GitServiceCE {
                             AnalyticsEvents.GIT_MERGE.getEventName(),
                             application,
                             application.getGitApplicationMetadata().getIsRepoPrivate()
-                    ).thenReturn(mergeStatusDTO);
+                    )
+                            .thenReturn(mergeStatusDTO);
                 });
 
         return Mono.create(sink -> mergeMono
@@ -2469,7 +2447,6 @@ public class GitServiceCEImpl implements GitServiceCE {
 
         return branchedApplicationMono
             .flatMap(branchedApplication -> {
-                Mono<Boolean> fileLock = redisUtils.releaseFileLock(gitData.getDefaultApplicationId());
                 // git checkout and pull origin branchName
                 try {
                     Mono<MergeStatusDTO> pullStatusMono = gitExecutor.checkoutToBranch(repoSuffix, branchName)
@@ -2482,15 +2459,14 @@ public class GitServiceCEImpl implements GitServiceCE {
                             ))
                             .onErrorResume(error -> {
                                 if(error.getMessage().contains("conflict")) {
-                                    return fileLock.then(Mono.error(new AppsmithException(AppsmithError.GIT_PULL_CONFLICTS, error.getMessage())));
-                                }
-                                else if (error.getMessage().contains("Nothing to fetch")) {
+                                    return Mono.error(new AppsmithException(AppsmithError.GIT_PULL_CONFLICTS, error.getMessage()));
+                                } else if (error.getMessage().contains("Nothing to fetch")) {
                                     MergeStatusDTO mergeStatus = new MergeStatusDTO();
                                     mergeStatus.setStatus("Nothing to fetch from remote. All changes are up to date.");
                                     mergeStatus.setMergeAble(true);
                                     return Mono.just(mergeStatus);
                                 }
-                                return fileLock.then(Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "pull", error.getMessage())));
+                                return Mono.error(new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "pull", error.getMessage()));
                             })
                             .cache();
                     // Rehydrate the application from file system
@@ -2506,7 +2482,7 @@ public class GitServiceCEImpl implements GitServiceCE {
 
                     return Mono.zip(pullStatusMono, Mono.just(branchedApplication), applicationJsonMono);
                 } catch (IOException e) {
-                    return fileLock.then(Mono.error(new AppsmithException(AppsmithError.GIT_FILE_SYSTEM_ERROR, e.getMessage())));
+                    return Mono.error(new AppsmithException(AppsmithError.GIT_FILE_SYSTEM_ERROR, e.getMessage()));
                 }
             })
             .flatMap(tuple -> {
@@ -2582,5 +2558,13 @@ public class GitServiceCEImpl implements GitServiceCE {
                     analyticsService.sendEvent(eventName, user.getUsername(), analyticsProps);
                     return application;
                 });
+    }
+
+    private Mono<Boolean> addFileLock(String defaultApplicationId) {
+        return redisUtils.addFileLock(defaultApplicationId)
+                .retryWhen(Retry.fixedDelay(MAX_RETRIES, RETRY_DELAY)
+                        .onRetryExhaustedThrow((retryBackoffSpec, retrySignal) -> {
+                            throw new AppsmithException(AppsmithError.GIT_FILE_IN_USE);
+                        }));
     }
 }
