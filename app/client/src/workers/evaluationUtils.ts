@@ -25,7 +25,7 @@ import { WidgetTypeConfigMap } from "utils/WidgetFactory";
 import { ValidationConfig } from "constants/PropertyControlConstants";
 import { Severity } from "entities/AppsmithConsole";
 import { PluginType } from "entities/Action";
-import { klona } from "klona";
+import { klona } from "klona/full";
 import { warn as logWarn } from "loglevel";
 import { EvalMetaUpdates } from "./DataTreeEvaluator/types";
 

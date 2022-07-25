@@ -1,5 +1,6 @@
 import isEqual from "lodash/isEqual";
 import { klona } from "klona";
+import { klona as klonaFull } from "klona/full";
 import moment from "moment";
 
 describe("Klona clone test", () => {

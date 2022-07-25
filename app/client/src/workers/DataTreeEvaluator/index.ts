@@ -78,7 +78,7 @@ import {
   ValidationConfig,
 } from "constants/PropertyControlConstants";
 // import { parseJSObjectWithAST, isFunctionNode } from "workers/ast";
-import { klona } from "klona";
+import { klona } from "klona/full";
 import { EvalMetaUpdates } from "./types";
 import {
   getJSEntities,
