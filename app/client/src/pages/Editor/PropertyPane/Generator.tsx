@@ -12,6 +12,7 @@ import PropertySection from "./PropertySection";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import Boxed from "../GuidedTour/Boxed";
 import { GUIDED_TOUR_STEPS } from "../GuidedTour/constants";
+import DHFeedbacks from "./DHFeedbacks";
 
 export type PropertyControlsGeneratorProps = {
   id: string;
@@ -79,6 +80,7 @@ export function PropertyControlsGenerator(
   return (
     <div className="px-3">
       {generatePropertyControl(config as readonly PropertyPaneConfig[], props)}
+      <DHFeedbacks />
     </div>
   );
 }
