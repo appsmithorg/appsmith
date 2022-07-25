@@ -157,10 +157,6 @@ public class ApplicationForkingServiceTests {
 
     private static boolean isSetupDone = false;
 
-    @BeforeClass
-    public static void init() {
-        StepVerifier.setDefaultTimeout(Duration.ofMillis(1000));
-    }
 
     @SneakyThrows
     @Before
@@ -523,6 +519,68 @@ public class ApplicationForkingServiceTests {
                 })
                 .verifyComplete();
 
+    }
+
+
+    @Test
+    @WithUserDetails("api_user")
+    public void forkApplicationToWorkspace_WhenAppHasUnsavedThemeCustomization_ForkedWithCustomizationsSync() {
+        log.debug("Running forkApplicationToWorkspace_WhenAppHasUnsavedThemeCustomization_ForkedWithCustomizationsSync");
+        String uniqueString = UUID.randomUUID().toString();
+        Workspace srcWorkspace = new Workspace();
+        srcWorkspace.setName("ws_" + uniqueString);
+        String debugIdentifier = "TestDebug T2_Sync() ";
+
+        Workspace createdSrcWorkspace = workspaceService.create(srcWorkspace).block();
+
+        Application srcApplication = new Application();
+        srcApplication.setName("app_" + uniqueString);
+
+        Application createdSrcApplication = applicationPageService.createApplication(srcApplication, createdSrcWorkspace.getId()).block();
+
+        Theme theme = new Theme();
+        theme.setDisplayName("theme_" + uniqueString);
+        Theme createdTheme = themeService.updateTheme(createdSrcApplication.getId(), null, theme).block();
+
+        Workspace destWorkspace = new Workspace();
+        destWorkspace.setName("ws_dest_" + uniqueString);
+        Workspace createdDestWorkspace = workspaceService.create(destWorkspace).block();
+
+        Application forkedApplication = applicationForkingService.forkApplicationToWorkspace(createdSrcApplication.getId(), createdDestWorkspace.getId()).block();
+
+        Theme editModeTheme = themeService.getApplicationTheme(forkedApplication.getId(), ApplicationMode.EDIT, null).block();
+        Theme publishedModeTheme = themeService.getApplicationTheme(forkedApplication.getId(), ApplicationMode.PUBLISHED, null).block();
+
+        log.debug(debugIdentifier + "Source application: " + createdSrcApplication);
+        log.debug(debugIdentifier + "Forked application: " + forkedApplication);
+        log.debug(debugIdentifier + "Edit mode theme:" + editModeTheme);
+        log.debug(debugIdentifier + "Published mode theme" + publishedModeTheme);
+
+        assertThat(forkedApplication.getEditModeThemeId()).isEqualTo(editModeTheme.getId());
+        assertThat(forkedApplication.getPublishedModeThemeId()).isEqualTo(publishedModeTheme.getId());
+        assertThat(forkedApplication.getEditModeThemeId()).isNotEqualTo(forkedApplication.getPublishedModeThemeId());
+
+        // published mode should have the custom theme as we publish after forking the app
+        assertThat(publishedModeTheme.isSystemTheme()).isFalse();
+        // published mode theme will have no application id and org id set as the customizations were not saved
+        assertThat(publishedModeTheme.getWorkspaceId()).isNullOrEmpty();
+        assertThat(publishedModeTheme.getApplicationId()).isNullOrEmpty();
+
+        // edit mode theme should be a custom one
+        assertThat(editModeTheme.isSystemTheme()).isFalse();
+        // edit mode theme will have no application id and org id set as the customizations were not saved
+        assertThat(editModeTheme.getWorkspaceId()).isNullOrEmpty();
+        assertThat(editModeTheme.getApplicationId()).isNullOrEmpty();
+
+        // forked theme should have the same name as src theme
+        assertThat(editModeTheme.getDisplayName()).isEqualTo("theme_" + uniqueString);
+        assertThat(publishedModeTheme.getDisplayName()).isEqualTo("theme_" + uniqueString);
+
+        // forked application should have a new edit mode theme created, should not be same as src app theme
+        assertThat(createdSrcApplication.getEditModeThemeId()).isNotEqualTo(forkedApplication.getEditModeThemeId());
+        assertThat(createdSrcApplication.getPublishedModeThemeId()).isNotEqualTo(forkedApplication.getPublishedModeThemeId());
+
+        log.debug("Completed forkApplicationToWorkspace_WhenAppHasUnsavedThemeCustomization_ForkedWithCustomizationsSync");
     }
 
     @Test
