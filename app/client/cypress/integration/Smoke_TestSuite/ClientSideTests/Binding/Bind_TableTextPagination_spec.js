@@ -20,6 +20,7 @@ describe("Test Create Api and Bind to Table widget", function() {
 
   it("Table-Text, Validate Server Side Pagination of Paginate with Table Page No", function() {
     cy.SearchEntityandOpen("Table1");
+    cy.EnableAllCodeEditors();
     /**Bind Api1 with Table widget */
     cy.testJsontext("tabledata", "{{Api1.data.users}}");
     cy.CheckWidgetProperties(commonlocators.serverSidePaginationCheckbox);

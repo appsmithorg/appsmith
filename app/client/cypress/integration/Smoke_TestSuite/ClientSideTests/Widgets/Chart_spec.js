@@ -27,12 +27,14 @@ describe("Chart Widget Functionality", function() {
       viewWidgetsPage.chartWidget,
       commonlocators.containerInnerText,
     );
+    cy.EnableAllCodeEditors();
     //changing the Chart Title
     /**
      * @param{Text} Random Input Value
      */
     cy.testCodeMirror(this.data.chartIndata);
     cy.get(viewWidgetsPage.chartInnerText)
+      .click()
       .contains("App Sign Up")
       .should("have.text", "App Sign Up");
 
