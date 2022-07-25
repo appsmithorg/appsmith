@@ -1452,19 +1452,22 @@ public class DatabaseChangelog2 {
                     applicationList.remove(applicationList.size() - 1);
 
                     Query themeQuery = new Query(Criteria.where(fieldName(QTheme.theme.id)).is(id))
-                            .addCriteria(where(fieldName(QTheme.theme.deleted)).is(false));
+                            .addCriteria(where(fieldName(QTheme.theme.deleted)).is(false))
+                            .addCriteria(where(fieldName(QTheme.theme.isSystemTheme)).is(false));
                     Theme theme = mongockTemplate.findOne(themeQuery, Theme.class);
 
-                    for (Application application : applicationList) {
-                        Theme newTheme = new Theme();
-                        copyNewFieldValuesIntoOldObject(theme, newTheme);
-                        newTheme.setId(null);
-                        newTheme = mongockTemplate.insert(newTheme);
+                    if (!StringUtils.isEmpty(theme.getId())) {
+                        for (Application application : applicationList) {
+                            Theme newTheme = new Theme();
+                            copyNewFieldValuesIntoOldObject(theme, newTheme);
+                            newTheme.setId(null);
+                            newTheme = mongockTemplate.insert(newTheme);
 
-                        application.setEditModeThemeId(newTheme.getId());
-                        application.setPublishedModeThemeId(newTheme.getId());
+                            application.setEditModeThemeId(newTheme.getId());
+                            application.setPublishedModeThemeId(newTheme.getId());
 
-                        mongockTemplate.save(application);
+                            mongockTemplate.save(application);
+                        }
                     }
                 }
             }
