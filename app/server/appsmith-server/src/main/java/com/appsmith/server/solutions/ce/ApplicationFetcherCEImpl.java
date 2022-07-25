@@ -110,12 +110,6 @@ public class ApplicationFetcherCEImpl implements ApplicationFetcherCE {
                     UserHomepageDTO userHomepageDTO = new UserHomepageDTO();
                     userHomepageDTO.setUser(user);
 
-                    Set<String> workspaceIdss = user.getWorkspaceIds();
-                    if(CollectionUtils.isEmpty(workspaceIdss)) {
-                        userHomepageDTO.setWorkspaceApplications(new ArrayList<>());
-                        return Mono.just(userHomepageDTO);
-                    }
-
                     // Collect all the applications as a map with workspace id as a key
                     Flux<Application> applicationFlux = applicationRepository
                             .findAll(READ_APPLICATIONS)
