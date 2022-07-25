@@ -44,9 +44,7 @@ import com.github.cloudyrock.mongock.ChangeLog;
 import com.github.cloudyrock.mongock.ChangeSet;
 import com.github.cloudyrock.mongock.driver.mongodb.springdata.v3.decorator.impl.MongockTemplate;
 import com.google.gson.Gson;
-import com.mongodb.client.AggregateIterable;
 import lombok.extern.slf4j.Slf4j;
-import org.bson.Document;
 import org.springframework.data.mongodb.core.aggregation.AggregationUpdate;
 import org.springframework.data.mongodb.core.aggregation.Fields;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -61,7 +59,6 @@ import reactor.core.publisher.Flux;
 
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -83,7 +80,6 @@ import static com.appsmith.server.repositories.BaseAppsmithRepositoryImpl.fieldN
 import static java.lang.Boolean.TRUE;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 import static org.springframework.data.mongodb.core.query.Query.query;
-import static com.mongodb.client.model.Aggregates.*;
 
 
 @Slf4j
@@ -1425,50 +1421,28 @@ public class DatabaseChangelog2 {
                 .and(fieldName(QTheme.theme.deleted)).is(true);
 
         mongockTemplate.updateMulti(new Query(deletedCustomThemes), update, Theme.class);
-    }
 
+        for(String editModeThemeId: customizedEditModeThemeIds) {
+            Query query = new Query(Criteria.where(fieldName(QApplication.application.editModeThemeId)).is(editModeThemeId))
+                    .addCriteria(where(fieldName(QApplication.application.deleted)).is(false))
+                    .addCriteria(where(fieldName(QApplication.application.gitApplicationMetadata)).exists(true));
+            List<Application> applicationList = mongockTemplate.find(query, Application.class);
+            if(applicationList.size() > 1) { // same custom theme is set to more than one application
+                // Remove one as we will create a  new theme for all the other branch apps
+                applicationList.remove(applicationList.size() - 1);
 
-    @ChangeSet(order = "023", id = "clone-themes-for-branched-applications", author = "")
-    public void cloneThemesForTheBranchedApplicationsUsingTheSameTheme(MongockTemplate mongockTemplate) {
-        Arrays.asList(new Document("$group",
-                new Document("_id", "$publishedModeThemeId")));
-
-        // Collect all the duplicate editModeThemes
-        AggregateIterable<Document> duplicateEditModeThemeIds = mongockTemplate.getCollection("application").aggregate(Arrays.asList(new Document("$group",
-                new Document("_id", "$publishedModeThemeId"))));
-
-        for (Document document : duplicateEditModeThemeIds) {
-            if (!StringUtils.isEmpty(document.toJson())) {
-                String id = document.toJson().split(":")[1];
-                id = id.replace("}", "").replace("\"", "").replace(" ", "");
-
-                Query query = new Query(Criteria.where(fieldName(QApplication.application.editModeThemeId)).is(id))
-                        .addCriteria(where(fieldName(QApplication.application.deleted)).is(false));
-                List<Application> applicationList = mongockTemplate.find(query, Application.class);
-
-                if (applicationList.size() > 1) {
-
-                    // Remove one as we will create a  new theme for all the other branch apps
-                    applicationList.remove(applicationList.size() - 1);
-
-                    Query themeQuery = new Query(Criteria.where(fieldName(QTheme.theme.id)).is(id))
-                            .addCriteria(where(fieldName(QTheme.theme.deleted)).is(false))
-                            .addCriteria(where(fieldName(QTheme.theme.isSystemTheme)).is(false));
-                    Theme theme = mongockTemplate.findOne(themeQuery, Theme.class);
-
-                    if (!StringUtils.isEmpty(theme.getId())) {
-                        for (Application application : applicationList) {
-                            Theme newTheme = new Theme();
-                            copyNewFieldValuesIntoOldObject(theme, newTheme);
-                            newTheme.setId(null);
-                            newTheme = mongockTemplate.insert(newTheme);
-
-                            application.setEditModeThemeId(newTheme.getId());
-                            application.setPublishedModeThemeId(newTheme.getId());
-
-                            mongockTemplate.save(application);
-                        }
-                    }
+                // clone the custom theme for each of these applications
+                Query themeQuery = new Query(Criteria.where(fieldName(QTheme.theme.id)).is(editModeThemeId))
+                        .addCriteria(where(fieldName(QTheme.theme.deleted)).is(false));
+                Theme theme = mongockTemplate.findOne(themeQuery, Theme.class);
+                for (Application application : applicationList) {
+                    Theme newTheme = new Theme();
+                    copyNewFieldValuesIntoOldObject(theme, newTheme);
+                    newTheme.setId(null);
+                    newTheme.setSystemTheme(false);
+                    newTheme = mongockTemplate.insert(newTheme);
+                    application.setEditModeThemeId(newTheme.getId());
+                    mongockTemplate.save(application);
                 }
             }
         }
