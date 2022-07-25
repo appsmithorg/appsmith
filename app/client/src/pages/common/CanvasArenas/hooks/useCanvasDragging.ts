@@ -135,25 +135,23 @@ export const useCanvasDragging = (
   const calculateHighlightOffsets = () => {
     if (isNewWidget) dragBlocksSize = blocksToDraw[0].height;
     if (useAutoLayout && isDragging) {
-      console.log(isCurrentDraggedCanvas);
-      console.log(isChildOfCanvas);
       // Get all children of current auto layout container
       const els = document.querySelectorAll(`.auto-layout-parent-${widgetId}`);
       if (els && els.length && offsets.length !== els.length) {
         // Get widget ids of all widgets being dragged
         // console.log(els);
         const blocks = blocksToDraw.map((block) => block.widgetId);
-        console.log("*********");
+        // console.log("*********");
         els.forEach((el) => {
           // console.log((el as any).offsetParent);
           // Extract widget id of current widget
           const mClass = el.className
             .split("auto-layout-child-")[1]
             .split(" ")[0];
-          console.log(`parentId: ${widgetId}`);
-          console.log(`widgetID: ${mClass}`);
-          console.log(`blocks: ${blocks}`);
-          console.log(blocks);
+          // console.log(`parentId: ${widgetId}`);
+          // console.log(`widgetID: ${mClass}`);
+          // console.log(`blocks: ${blocks}`);
+          // console.log(blocks);
           /**
            * If the widget is also being dragged,
            * then discount its presence from offset calculation.
@@ -168,9 +166,9 @@ export const useCanvasDragging = (
               direction === LayoutDirection.Vertical
                 ? (el as any).offsetTop
                 : (el as any).offsetLeft;
-            console.log(`offset: ${mOffset}`);
+            // console.log(`offset: ${mOffset}`);
             offsets.push(mOffset);
-            console.log(offsets);
+            // console.log(offsets);
             // siblings[mClass] = mOffset;
             siblingElements.push(el);
           }
@@ -184,7 +182,7 @@ export const useCanvasDragging = (
                 siblingElements[siblingElements.length - 1].clientWidth +
                 8,
         );
-        console.log(offsets);
+        // console.log(offsets);
       }
     }
   };
