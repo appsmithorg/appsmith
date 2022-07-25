@@ -646,7 +646,6 @@ class CodeEditor extends Component<Props, State> {
     let hinterOpen = false;
     for (let i = 0; i < this.hinters.length; i++) {
       hinterOpen = this.hinters[i].showHint(cm, entityInformation, {
-        dataTreeForAutoComplete: this.props.dynamicData,
         datasources: this.props.datasources.list,
         pluginIdToImageLocation: this.props.pluginIdToImageLocation,
         recentEntities: this.props.recentEntities,

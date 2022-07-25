@@ -279,20 +279,11 @@ export const entityDefinitions = {
     recaptchaToken: "string",
   },
   BUTTON_GROUP_WIDGET: (widget: ButtonGroupWidgetProps) => {
-    const groupButtons: Record<string, PartialGroupButton> = {};
-    Object.entries(widget.groupButtons).forEach(([buttonLabel, button]) => {
-      groupButtons[buttonLabel] = (pick(button, [
-        "isVisible",
-        "isDisabled",
-        "menuItems",
-        "label",
-      ]) as unknown) as PartialGroupButton;
-    });
     return {
       "!doc":
         "The Button group widget represents a set of buttons in a group. Group can have simple buttons or menu buttons with drop-down items.",
       "!url": "https://docs.appsmith.com/widget-reference/button-group",
-      groupButtons: generateTypeDef(groupButtons),
+      groupButtons: generateTypeDef(widget.groupButtons),
     };
   },
   DATE_PICKER_WIDGET: {
