@@ -3,7 +3,8 @@ import { SubmissionError } from "redux-form";
 export type InviteUsersToWorkspaceByRoleValues = {
   id: string;
   users?: string;
-  role?: string;
+  permissionGroupId?: string;
+  permissionGroupName?: string;
   roles?: any[];
 };
 export type InviteUsersToWorkspaceFormValues = {
@@ -37,7 +38,7 @@ export const inviteUsersToWorkspaceSubmitHandler = (
   dispatch: any,
 ): Promise<any> => {
   const data = values.usersByRole.map((value) => ({
-    roleId: value.role,
+    permissionGroupId: value.permissionGroupId,
     emails: value.users ? value.users.split(",") : [],
   }));
   return new Promise((resolve, reject) => {
@@ -59,7 +60,7 @@ export const inviteUsersToWorkspace = (
   dispatch: any,
 ): Promise<any> => {
   const data = {
-    roleName: values.role,
+    permissionGroupId: values.permissionGroupId,
     usernames: values.users ? values.users.split(",") : [],
     workspaceId: values.workspaceId,
   };

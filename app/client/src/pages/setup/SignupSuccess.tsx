@@ -106,7 +106,7 @@ export function SignupSuccess() {
   if (
     (!cloudHosting && !isCypressEnv) ||
     user?.isSuperUser ||
-    (user?.role && user?.useCase) ||
+    (user?.permissionGroupName && user?.useCase) ||
     shouldEnableFirstTimeUserOnboarding !== "true"
   ) {
     redirectUsingQueryParam();

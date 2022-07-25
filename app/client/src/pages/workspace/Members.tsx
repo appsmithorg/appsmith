@@ -260,19 +260,20 @@ export default function MemberSettings(props: PageProps) {
     },
     {
       Header: "Role",
-      accessor: "roleName",
+      accessor: "permissionGroupName",
       Cell: function DropdownCell(cellProps: any) {
         const allRoles = useSelector(getAllRoles);
         const roles = allRoles
-          ? Object.keys(allRoles).map((role) => {
+          ? allRoles.map((role: any) => {
               return {
-                name: role,
-                desc: allRoles[role],
+                id: role.id,
+                name: role.name,
+                desc: role.description,
               };
             })
           : [];
         const index = roles.findIndex(
-          (role: { name: string; desc: string }) =>
+          (role: { id: string; name: string; desc: string }) =>
             role.name === cellProps.cell.value,
         );
         if (cellProps.cell.row.values.username === currentUser?.username) {
@@ -288,7 +289,7 @@ export default function MemberSettings(props: PageProps) {
             onSelect={(option) => {
               dispatch(
                 changeWorkspaceUserRole(
-                  workspaceId,
+                  // workspaceId,
                   option.name,
                   cellProps.cell.row.values.username,
                 ),
@@ -347,7 +348,7 @@ export default function MemberSettings(props: PageProps) {
     : [];
 
   const selectRole = (option: any, username: any) => {
-    dispatch(changeWorkspaceUserRole(workspaceId, option, username));
+    dispatch(changeWorkspaceUserRole(/*workspaceId,*/ option, username));
   };
   return (
     <MembersWrapper isMobile={isMobile}>
@@ -381,8 +382,9 @@ export default function MemberSettings(props: PageProps) {
             <UserCardContainer>
               {allUsers.map((user, index) => {
                 const role =
-                  roles.find((role) => role.value === user.roleName) ||
-                  roles[0];
+                  roles.find(
+                    (role) => role.value === user.permissionGroupName,
+                  ) || roles[0];
                 const isOwner = user.username === currentUser?.username;
                 return (
                   <UserCard key={index}>
@@ -400,7 +402,7 @@ export default function MemberSettings(props: PageProps) {
                     </Text>
                     {isOwner && (
                       <Text className="user-role" type={TextType.P1}>
-                        {user.roleName}
+                        {user.permissionGroupName}
                       </Text>
                     )}
                     {!isOwner && (

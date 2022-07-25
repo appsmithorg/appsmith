@@ -17,7 +17,8 @@ export type User = {
   commentOnboardingState?: CommentsOnboardingState | null;
   photoId?: string;
   isSuperUser: boolean;
-  role?: string;
+  permissionGroupId?: string;
+  permissionGroupName?: string;
   useCase?: string;
   isConfigurable: boolean;
   enableTelemetry: boolean;
