@@ -48,6 +48,7 @@ import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
 import org.apache.commons.lang.StringUtils;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -155,6 +156,11 @@ public class ApplicationForkingServiceTests {
     private static String testUserWorkspaceId;
 
     private static boolean isSetupDone = false;
+
+    @BeforeClass
+    public static void init() {
+        StepVerifier.setDefaultTimeout(Duration.ofMillis(1000));
+    }
 
     @SneakyThrows
     @Before
