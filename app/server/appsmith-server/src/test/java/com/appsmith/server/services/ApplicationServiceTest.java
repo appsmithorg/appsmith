@@ -8,7 +8,6 @@ import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.JSValue;
 import com.appsmith.external.models.Policy;
 import com.appsmith.external.plugins.PluginExecutor;
-import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
@@ -210,9 +209,12 @@ public class ApplicationServiceTest {
         if (workspaceId == null) {
             Workspace workspace = workspaceService.create(toCreate, apiUser).block();
             workspaceId = workspace.getId();
-        }
 
-        if (StringUtils.isEmpty(gitConnectedApp.getId())) {
+            if (StringUtils.hasLength(gitConnectedApp.getId())) {
+                applicationPageService.deleteApplication(gitConnectedApp.getId()).block();
+            }
+
+            gitConnectedApp = new Application();
             gitConnectedApp.setWorkspaceId(workspaceId);
             GitApplicationMetadata gitData = new GitApplicationMetadata();
             gitData.setBranchName("testBranch");
@@ -653,9 +655,7 @@ public class ApplicationServiceTest {
                             Application application = workspaceApplicationDTO.getApplications().get(0);
                             assertThat(application.getUserPermissions()).contains("read:applications");
                             assertThat(application.isAppIsExample()).isFalse();
-
-                            assertThat(workspaceApplicationDTO.getUserRoles().get(0).getRole().getName()).isEqualTo("Administrator");
-                            log.debug(workspaceApplicationDTO.getUserRoles().toString());
+                            assertThat(workspaceApplicationDTO.getUsers().get(0).getPermissionGroupName().startsWith(FieldName.ADMINISTRATOR));
                         }
                     }
 
@@ -692,6 +692,7 @@ public class ApplicationServiceTest {
                 .assertNext(tuple -> {
                     UserHomepageDTO userHomepageDTO = tuple.getT1();
                     List<Application> gitConnectedApps = tuple.getT2();
+
                     assertThat(userHomepageDTO).isNotNull();
                     //In case of anonymous user, we should have errored out. Assert that the user is not anonymous.
                     assertThat(userHomepageDTO.getUser().getIsAnonymous()).isFalse();
@@ -1047,18 +1048,43 @@ public class ApplicationServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void makeApplicationPrivate_applicationWithGitMetadata_success() {
+
+        Mono<Workspace> workspaceResponse = workspaceService.findById(workspaceId, READ_WORKSPACES);
+
+        List<PermissionGroup> permissionGroups = workspaceResponse
+                .flatMapMany(savedWorkspace -> {
+                    Set<String> defaultPermissionGroups = savedWorkspace.getDefaultPermissionGroups();
+                    return permissionGroupRepository.findAllById(defaultPermissionGroups);
+                })
+                .collectList()
+                .block();
+
+        PermissionGroup adminPermissionGroup = permissionGroups.stream()
+                .filter(permissionGroup -> permissionGroup.getName().startsWith(ADMINISTRATOR))
+                .findFirst().get();
+
+        PermissionGroup developerPermissionGroup = permissionGroups.stream()
+                .filter(permissionGroup -> permissionGroup.getName().startsWith(DEVELOPER))
+                .findFirst().get();
+
+        PermissionGroup viewerPermissionGroup = permissionGroups.stream()
+                .filter(permissionGroup -> permissionGroup.getName().startsWith(VIEWER))
+                .findFirst().get();
+
         Policy manageAppPolicy = Policy.builder().permission(MANAGE_APPLICATIONS.getValue())
-                .users(Set.of("api_user"))
+                .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId()))
                 .build();
         Policy readAppPolicy = Policy.builder().permission(READ_APPLICATIONS.getValue())
-                .users(Set.of("api_user"))
+                .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId(),
+                        viewerPermissionGroup.getId()))
                 .build();
 
         Policy managePagePolicy = Policy.builder().permission(MANAGE_PAGES.getValue())
-                .users(Set.of("api_user"))
+                .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId()))
                 .build();
         Policy readPagePolicy = Policy.builder().permission(READ_PAGES.getValue())
-                .users(Set.of("api_user"))
+                .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId(),
+                        viewerPermissionGroup.getId()))
                 .build();
 
         // Create a branch
@@ -2965,11 +2991,9 @@ public class ApplicationServiceTest {
     public void generateSshKeyPair_WhenDefaultApplicationIdNotSet_CurrentAppUpdated() {
         Application unsavedApplication = new Application();
         unsavedApplication.setWorkspaceId(workspaceId);
-        Map<String, Policy> policyMap = policyUtils.generatePolicyFromPermission(Set.of(MANAGE_APPLICATIONS), "api_user");
-        unsavedApplication.setPolicies(Set.copyOf(policyMap.values()));
         unsavedApplication.setName("ssh-test-app");
 
-        Mono<Application> applicationMono = applicationRepository.save(unsavedApplication)
+        Mono<Application> applicationMono = applicationPageService.createApplication(unsavedApplication)
                 .flatMap(savedApplication -> applicationService.createOrUpdateSshKeyPair(savedApplication.getId(), null)
                         .thenReturn(savedApplication.getId())
                 ).flatMap(testApplicationId -> applicationRepository.findById(testApplicationId, MANAGE_APPLICATIONS));
@@ -2988,25 +3012,22 @@ public class ApplicationServiceTest {
     @WithUserDetails("api_user")
     @Test
     public void generateSshKeyPair_WhenDefaultApplicationIdSet_DefaultApplicationUpdated() {
-        AclPermission perm = MANAGE_APPLICATIONS;
-        Map<String, Policy> policyMap = policyUtils.generatePolicyFromPermission(Set.of(perm), "api_user");
-        Set<Policy> policies = Set.copyOf(policyMap.values());
 
         Application unsavedMainApp = new Application();
-        unsavedMainApp.setPolicies(policies);
         unsavedMainApp.setName("ssh-key-master-app");
         unsavedMainApp.setWorkspaceId(workspaceId);
 
-        Mono<Tuple2<Application, Application>> tuple2Mono = applicationRepository.save(unsavedMainApp)
-                .flatMap(savedApplication -> applicationService.createOrUpdateSshKeyPair(savedApplication.getId(), null).thenReturn(savedApplication))
+        Application savedApplication = applicationPageService.createApplication(unsavedMainApp, workspaceId).block();
+
+        Mono<Tuple2<Application, Application>> tuple2Mono = applicationService.createOrUpdateSshKeyPair(savedApplication.getId(), null)
+                .thenReturn(savedApplication)
                 .flatMap(savedMainApp -> {
                     Application unsavedChildApp = new Application();
                     unsavedChildApp.setGitApplicationMetadata(new GitApplicationMetadata());
                     unsavedChildApp.getGitApplicationMetadata().setDefaultApplicationId(savedMainApp.getId());
-                    unsavedChildApp.setPolicies(policies);
                     unsavedChildApp.setName("ssh-key-child-app");
                     unsavedChildApp.setWorkspaceId(workspaceId);
-                    return applicationRepository.save(unsavedChildApp);
+                    return applicationPageService.createApplication(unsavedChildApp, workspaceId);
                 })
                 .flatMap(savedChildApp ->
                         applicationService.createOrUpdateSshKeyPair(savedChildApp.getId(), null).thenReturn(savedChildApp)
@@ -3014,8 +3035,8 @@ public class ApplicationServiceTest {
                 .flatMap(savedChildApp -> {
                     // fetch and return both child and main applications
                     String mainApplicationId = savedChildApp.getGitApplicationMetadata().getDefaultApplicationId();
-                    Mono<Application> childAppMono = applicationRepository.findById(savedChildApp.getId(), perm);
-                    Mono<Application> mainAppMono = applicationRepository.findById(mainApplicationId, perm);
+                    Mono<Application> childAppMono = applicationRepository.findById(savedChildApp.getId(), MANAGE_APPLICATIONS);
+                    Mono<Application> mainAppMono = applicationRepository.findById(mainApplicationId, MANAGE_APPLICATIONS);
                     return Mono.zip(childAppMono, mainAppMono);
                 });
 

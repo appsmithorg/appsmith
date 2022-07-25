@@ -19,6 +19,8 @@ import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.services.UserService;
+import com.appsmith.server.services.UserWorkspaceService;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -72,6 +74,9 @@ public class ApplicationFetcherUnitTest {
     @MockBean
     ApplicationService applicationService;
 
+    @MockBean
+    UserWorkspaceService userWorkspaceService;
+
     User testUser;
 
     final static String defaultPageId = "defaultPageId";
@@ -86,8 +91,8 @@ public class ApplicationFetcherUnitTest {
                 applicationRepository,
                 releaseNotesService,
                 responseUtils,
-                newPageService
-                );
+                newPageService,
+                userWorkspaceService);
     }
 
     private List<Application> createDummyApplications(int orgCount, int appCount) {
