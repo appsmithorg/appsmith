@@ -301,7 +301,7 @@ export const validate = (
   value: unknown,
   props: Record<string, unknown>,
   propertyPath = "",
-  unEvalValue: string,
+  unEvalValue = "",
 ): ValidationResponse => {
   const _result = VALIDATORS[config.type as ValidationTypes](
     config,
