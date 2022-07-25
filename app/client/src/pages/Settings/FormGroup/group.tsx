@@ -130,7 +130,8 @@ export default function Group({
               case SettingTypes.CHECKBOX:
                 return (
                   <div
-                    className={setting.isHidden ? "hide" : ""}
+                    className={`admin-settings-group-${setting.name ||
+                      setting.id} ${setting.isHidden ? "hide" : ""}`}
                     data-testid="admin-settings-group-checkbox"
                     key={setting.name || setting.id}
                   >
