@@ -14,7 +14,7 @@ import {
 } from "utils/hooks/dragResizeHooks";
 import { getParentToOpenIfAny } from "utils/hooks/useClickToSelectWidget";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
-import { WidgetProps } from "widgets/BaseWidget";
+import { BaseStyle, WidgetProps } from "widgets/BaseWidget";
 
 const StyledDynamicHeightOverlay = styled.div`
   width: 100%;
@@ -48,6 +48,7 @@ interface MinMaxHeightProps {
 const StyledOverlayHandles = styled.div`
   position: absolute;
   right: -16px;
+  pointer-events: all;
 `;
 
 const OverlayHandleLabel = styled.div`
@@ -85,10 +86,12 @@ interface DragFunctions {
   onStart: () => void;
   onStop: () => void;
   onUpdate: (x: number, y: number) => void;
+  onHover: () => void;
 }
 
 const DraggableOverlayHandleDot: React.FC<DragFunctions> = ({
   children,
+  onHover,
   onStart,
   onStop,
   onUpdate,
@@ -250,6 +253,7 @@ const OverlayHandles: React.FC<OverlayHandlesProps> = ({
 interface DynamicHeightOverlayProps extends MinMaxHeightProps, WidgetProps {
   onMaxHeightSet: (height: number) => void;
   onMinHeightSet: (height: number) => void;
+  style: BaseStyle;
 }
 
 const getSnappedValues = (
@@ -322,6 +326,7 @@ const DynamicHeightOverlay: React.FC<DynamicHeightOverlayProps> = memo(
     minDynamicHeight,
     onMaxHeightSet,
     onMinHeightSet,
+    style,
     ...props
   }) => {
     const widgetId = props.widgetId;
@@ -522,8 +527,22 @@ const DynamicHeightOverlay: React.FC<DynamicHeightOverlayProps> = memo(
 
     const isWidgetSelected = selectedWidget === widgetId;
 
+    function onDotHover() {
+      console.log("onDotHover");
+    }
+
     return (
-      <StyledDynamicHeightOverlay>
+      <StyledDynamicHeightOverlay
+        style={{
+          position: "absolute",
+          height: style.componentHeight,
+          width: style.componentWidth,
+          left: style.xPosition,
+          top: style.yPosition,
+          zIndex: 3,
+          pointerEvents: "none",
+        }}
+      >
         <OverlayDisplay
           isActive={
             isMinDotDragging ||
@@ -535,15 +554,11 @@ const DynamicHeightOverlay: React.FC<DynamicHeightOverlayProps> = memo(
           }
           maxY={finalMaxY}
         />
-        <OverlayLabels
-          isActive={isWidgetSelected}
-          maxRows={maxDynamicHeight}
-          minRows={minDynamicHeight}
-        />
-        {/* <OverlayHandles
+        <OverlayHandles
           isMaxDotActive={isMaxDotDragging || isMaxDotActive}
           isMinDotActive={isMinDotDragging || isMinDotActive}
           maxDragFunctions={{
+            onHover: onDotHover,
             onUpdate: onMaxUpdate,
             onStop: onMaxStop,
             onStart: onMaxDotStart,
@@ -551,6 +566,7 @@ const DynamicHeightOverlay: React.FC<DynamicHeightOverlayProps> = memo(
           maxHoverFns={maxHoverFns}
           maxY={finalMaxY}
           minDragFunctions={{
+            onHover: onDotHover,
             onUpdate: onMinUpdate,
             onStop: onMinStop,
             onStart: onMinDotStart,
@@ -559,7 +575,7 @@ const DynamicHeightOverlay: React.FC<DynamicHeightOverlayProps> = memo(
           minY={finalMinY}
           onMaxHeightSet={onMaxHeightSet}
           onMinHeightSet={onMinHeightSet}
-        /> */}
+        />
         {children}
       </StyledDynamicHeightOverlay>
     );
