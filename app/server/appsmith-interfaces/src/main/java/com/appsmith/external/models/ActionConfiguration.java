@@ -21,7 +21,7 @@ import static com.appsmith.external.constants.ActionConstants.DEFAULT_ACTION_EXE
 @Document
 public class ActionConfiguration implements AppsmithDomain {
     private static final int MIN_TIMEOUT_VALUE = 0;     // in Milliseconds
-    private static final int MAX_TIMEOUT_VALUE = 60000; // in Milliseconds
+    private static final int MAX_TIMEOUT_VALUE = 600000 ; // in Milliseconds
     private static final String TIMEOUT_OUT_OF_RANGE_MESSAGE = "'Query timeout' field must be an integer between "
             + MIN_TIMEOUT_VALUE + " and " + MAX_TIMEOUT_VALUE;
     /*

@@ -18,12 +18,12 @@ import java.util.stream.Collectors;
 
 import static com.external.plugins.RedshiftPlugin.JDBC_DRIVER;
 
-public class DatasourceUtils {
+public class RedshiftDatasourceUtils {
 
     private static final int MINIMUM_POOL_SIZE = 1;
     private static final int MAXIMUM_POOL_SIZE = 5;
     private static final long LEAK_DETECTION_TIME_MS = 60 * 1000;
-    private static final String JDBC_PROTOCOL = "jdbc:redshift://";
+    private static final String JDBC_PROTOCOL = "jdbc:postgresql://";
 
 
     public static HikariDataSource createConnectionPool(DatasourceConfiguration datasourceConfiguration) throws AppsmithPluginException {
@@ -66,6 +66,7 @@ public class DatasourceUtils {
         // Configuring leak detection threshold for 60 seconds. Any connection which hasn't been released in 60 seconds
         // should get tracked (may be falsely for long running queries) as leaked connection
         config.setLeakDetectionThreshold(LEAK_DETECTION_TIME_MS);
+        config.setConnectionTimeout(60 * 1000);
 
         // Set read only mode if applicable
         switch (configurationConnection.getMode()) {

@@ -48,12 +48,12 @@ import java.util.stream.Collectors;
 import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_BODY;
 import static com.appsmith.external.helpers.PluginUtils.getColumnsListForJdbcPlugin;
 import static com.appsmith.external.helpers.PluginUtils.getIdenticalColumns;
-import static com.external.utils.DatasourceUtils.createConnectionPool;
-import static com.external.utils.DatasourceUtils.getConnectionFromConnectionPool;
+import static com.external.utils.RedshiftDatasourceUtils.createConnectionPool;
+import static com.external.utils.RedshiftDatasourceUtils.getConnectionFromConnectionPool;
 
 
 public class RedshiftPlugin extends BasePlugin {
-    public static final String JDBC_DRIVER = "com.amazon.redshift.jdbc.Driver";
+    public static final String JDBC_DRIVER = "org.postgresql.Driver";
     private static final String DATE_COLUMN_TYPE_NAME = "date";
 
     public RedshiftPlugin(PluginWrapper wrapper) {
@@ -199,17 +199,6 @@ public class RedshiftPlugin extends BasePlugin {
             return row;
         }
 
-        /*
-         * 1. This method can throw SQLException via connection.isClosed() or connection.isValid(...)
-         * 2. StaleConnectionException thrown by this method needs to be propagated to upper layers so that a retry
-         *    can be triggered.
-         */
-        private void checkConnectionValidity(Connection connection) throws SQLException {
-            if (connection == null || connection.isClosed()) {
-                throw new StaleConnectionException();
-            }
-        }
-
         @Override
         public Mono<ActionExecutionResult> execute(HikariDataSource connectionPool,
                                                    DatasourceConfiguration datasourceConfiguration,
@@ -233,10 +222,17 @@ public class RedshiftPlugin extends BasePlugin {
                 try {
                     connection = getConnectionFromConnectionPool(connectionPool, datasourceConfiguration);
                 } catch (SQLException | StaleConnectionException e) {
+                    if (e.getCause().getClass().equals(InterruptedException.class)) {
+                        System.out.println("========== xxxxxxxxxxxx ===============");
+                        System.out.println("Timed out");
+                        return Mono.error(e);
+                    }
+
                     // The function can throw either StaleConnectionException or SQLException. The underlying hikari
                     // library throws SQLException in case the pool is closed or there is an issue initializing
                     // the connection pool which can also be translated in our world to StaleConnectionException
                     // and should then trigger the destruction and recreation of the pool.
+                    e.printStackTrace();
                     return Mono.error(e instanceof StaleConnectionException ? e : new StaleConnectionException());
                 }
 
@@ -298,6 +294,14 @@ public class RedshiftPlugin extends BasePlugin {
                             statement.close();
                         } catch (SQLException e) {
                             log.warn("Error closing Redshift Statement", e);
+                        }
+                    }
+
+                    if (connection != null) {
+                        try {
+                            connection.close();
+                        } catch (SQLException e) {
+                            System.out.println("Error closing individual connection: " + e);
                         }
                     }
                 }
