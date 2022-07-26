@@ -532,7 +532,13 @@ export const entityDefinitions = {
       "Map Chart widget shows the graphical representation of your data on the map.",
     "!url": "https://docs.appsmith.com/widget-reference/map-chart",
     isVisible: isVisible,
-    selectedDataPoint: "$__mapChartDataPoint__$",
+    selectedDataPoint: generateTypeDef({
+      id: "string",
+      label: "string",
+      originalId: "string",
+      shortLabel: "string",
+      value: "number",
+    }),
   },
   INPUT_WIDGET_V2: {
     "!doc":
@@ -643,13 +649,6 @@ export const GLOBAL_DEFS = {
     dataFormat: "string",
     name: "text",
     type: "file",
-  },
-  $__mapChartDataPoint__$: {
-    id: "string",
-    label: "string",
-    originalId: "string",
-    shortLabel: "string",
-    value: "number",
   },
 };
 
