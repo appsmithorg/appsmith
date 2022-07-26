@@ -180,6 +180,8 @@ export const getUpstreamErrorDocUrl = (state: AppState) =>
   FALLBACK_GIT_SYNC_DOCS_URL;
 
 export const getSshKeyPair = (state: AppState) => state.ui.gitSync.SSHKeyPair;
+export const getSupportedKeyTypes = (state: AppState) =>
+  state.ui.gitSync.supportedKeyTypes;
 
 export const getIsImportingApplicationViaGit = (state: AppState) =>
   state.ui.gitSync.isImportingApplicationViaGit;

@@ -122,6 +122,7 @@ describe("Git sync apps", function() {
     cy.wait(1000);
     // create a get api call
     cy.NavigateToAPI_Panel();
+    cy.wait(2000);
     cy.CreateAPI("get_data");
     // creating get request using echo
     cy.enterDatasourceAndPath("https://mock-api.appsmith.com/echo", "/get");
@@ -131,6 +132,7 @@ describe("Git sync apps", function() {
     cy.get(apiwidget.headerValue).type("This is a test", {
       parseSpecialCharSequences: false,
     });
+    cy.wait(2000);
     cy.SaveAndRunAPI();
     cy.ResponseStatusCheck("200");
     cy.get(".bp3-icon-chevron-left").click();
@@ -162,12 +164,14 @@ describe("Git sync apps", function() {
     // bind input widgets to the api calls responses
     cy.dragAndDropToCanvas("inputwidgetv2", { x: 300, y: 300 });
     cy.get(".t--widget-inputwidgetv2").should("exist");
+    cy.EnableAllCodeEditors();
     cy.get(dynamicInputLocators.input)
       .eq(1)
       .click({ force: true })
       .type("{{Api1.data.body.name}}", { parseSpecialCharSequences: false });
     cy.dragAndDropToCanvas("inputwidgetv2", { x: 300, y: 500 });
     cy.get(".t--widget-inputwidgetv2").should("exist");
+    cy.EnableAllCodeEditors();
     cy.get(dynamicInputLocators.input)
       .eq(1)
       .click({ force: true })
@@ -315,12 +319,14 @@ describe("Git sync apps", function() {
     // bind input widgets to the jsObject and query response
     cy.dragAndDropToCanvas("inputwidgetv2", { x: 300, y: 300 });
     cy.get(".t--widget-inputwidgetv2").should("exist");
+    cy.EnableAllCodeEditors();
     cy.get(dynamicInputLocators.input)
       .eq(1)
       .click({ force: true })
       .type("{{JSObject1.myFun1()}}", { parseSpecialCharSequences: false });
     cy.dragAndDropToCanvas("inputwidgetv2", { x: 300, y: 500 });
     cy.get(".t--widget-inputwidgetv2").should("exist");
+    cy.EnableAllCodeEditors();
     cy.get(dynamicInputLocators.input)
       .eq(1)
       .click({ force: true })

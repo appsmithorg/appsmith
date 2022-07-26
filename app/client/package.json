@@ -242,7 +242,7 @@
     "cypress-file-upload": "^4.1.1",
     "cypress-image-snapshot": "^4.0.1",
     "cypress-multi-reporters": "^1.2.4",
-    "cypress-real-events": "^1.5.1",
+    "cypress-real-events": "^1.7.1",
     "cypress-wait-until": "^1.7.2",
     "cypress-xpath": "^1.4.0",
     "dotenv": "^8.1.0",
@@ -278,7 +278,7 @@
   },
   "husky": {
     "hooks": {
-      "pre-commit": "lint-staged"
+      "pre-commit": "lint-staged && git-secrets --scan --untracked && git-secrets --scan -r"
     }
   },
   "resolutions": {
