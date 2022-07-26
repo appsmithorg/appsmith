@@ -144,7 +144,7 @@ export const getUseGlobalProfile = (state: AppState) =>
   state.ui.gitSync.useGlobalProfile;
 
 const FALLBACK_GIT_SYNC_DOCS_URL =
-  "https://docs.appsmith.com/core-concepts/version-control-with-git";
+  "https://docs.appsmith.com/advanced-concepts/version-control-with-git";
 
 export const getDiscardDocUrl = (state: AppState) =>
   state.ui.gitSync.gitStatus?.discardDocUrl || FALLBACK_GIT_SYNC_DOCS_URL;
@@ -169,7 +169,7 @@ export const getConflictFoundDocUrlMerge = (state: AppState) =>
 
 // git disconnect learn more doc url
 export const getDisconnectDocUrl = () =>
-  "https://docs.appsmith.com/core-concepts/git-sync#disconnecting-the-git-repository";
+  "https://docs.appsmith.com/advanced-concepts/version-control-with-git/disconnect-the-git-repository";
 
 export const getConnectingErrorDocUrl = (state: AppState) =>
   state.ui.gitSync.connectError?.error.referenceDoc ||

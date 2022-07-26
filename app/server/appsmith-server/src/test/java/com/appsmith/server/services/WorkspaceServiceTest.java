@@ -636,7 +636,7 @@ public class WorkspaceServiceTest {
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "application by name")));
 
         Mono<Workspace> readWorkspaceByNameMono = workspaceRepository.findByName("Member Management Admin Test Workspace")
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "organization by name")));
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "workspace by name")));
 
         Mono<Datasource> readDatasourceByNameMono = workspaceMono.flatMap(workspace1 ->
                 datasourceRepository.findByNameAndWorkspaceId("test datasource", workspace1.getId(),READ_DATASOURCES)
@@ -730,7 +730,7 @@ public class WorkspaceServiceTest {
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "application by name")));
 
         Mono<Workspace> readWorkspaceByNameMono = workspaceRepository.findByName("Member Management Viewer Test Workspace")
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "organization by name")));
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "workspace by name")));
 
         Mono<Tuple2<Application, Workspace>> testMono = workspaceMono
                 .then(applicationMono)
