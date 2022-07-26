@@ -667,7 +667,7 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
       value === null ||
       (isString(value) && value.trim().length === 0)
     ) {
-      if (config.params && config.params.required) {
+      if ((config.params && config.params.required) || unEvalValue) {
         return {
           isValid: false,
           parsed: config.params?.default || {},
@@ -733,6 +733,9 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
       messages: [`${WIDGET_TYPE_VALIDATION_ERROR} ${getExpectedType(config)}`],
     };
     if (value === undefined || value === null || value === "") {
+      if (unEvalValue) {
+        return invalidResponse;
+      }
       if (
         config.params &&
         config.params.required &&

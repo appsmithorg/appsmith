@@ -987,6 +987,7 @@ export default class DataTreeEvaluator {
       evalPropertyValue,
       widget,
       propertyPath,
+      unEvalPropertyValue,
     );
 
     const evaluatedValue = isValid
