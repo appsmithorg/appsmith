@@ -16,8 +16,6 @@ import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.PaginationField;
 import com.appsmith.external.models.PaginationType;
 import com.appsmith.external.models.Property;
-import com.appsmith.external.models.SSLDetails;
-import com.appsmith.external.models.UploadedFile;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.external.plugins.SmartSubstitutionInterface;
@@ -56,7 +54,6 @@ import reactor.core.Exceptions;
 import reactor.core.publisher.Mono;
 import reactor.netty.http.client.HttpClient;
 import reactor.netty.resources.ConnectionProvider;
-import reactor.netty.tcp.DefaultSslContextSpec;
 import reactor.util.function.Tuple2;
 
 import javax.crypto.SecretKey;
@@ -68,9 +65,6 @@ import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.cert.CertificateException;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -302,25 +296,8 @@ public class RestApiPlugin extends BasePlugin {
                     .build();
 
             HttpClient httpClient = HttpClient.create(provider)
-                    .secure(sslContextSpec -> {
-
-                        final DefaultSslContextSpec sslContextSpec1 = DefaultSslContextSpec.forClient();
-
-                        if (datasourceConfiguration.getConnection() != null &&
-                                datasourceConfiguration.getConnection().getSsl() != null &&
-                                datasourceConfiguration.getConnection().getSsl().getAuthType() == SSLDetails.AuthType.SELF_SIGNED_CERTIFICATE) {
-
-                            sslContextSpec1.configure(sslContextBuilder -> {
-                                try {
-                                    final UploadedFile certificateFile = datasourceConfiguration.getConnection().getSsl().getCertificateFile();
-                                    sslContextBuilder.trustManager(SSLHelper.getSslTrustManagerFactory(certificateFile));
-                                } catch (CertificateException | KeyStoreException | IOException | NoSuchAlgorithmException e) {
-                                    e.printStackTrace();
-                                }
-                            });
-                        }
-                        sslContextSpec.sslContext(sslContextSpec1);
-                    }).compress(true);
+                    .secure(SSLHelper.sslCheckForHttpClient(datasourceConfiguration))
+                    .compress(true);
 
             if ("true".equals(System.getProperty("java.net.useSystemProxies"))
                     && (!System.getProperty("http.proxyHost", "").isEmpty() || !System.getProperty("https.proxyHost", "").isEmpty())) {
@@ -620,7 +597,7 @@ public class RestApiPlugin extends BasePlugin {
 
         @Override
         public Mono<APIConnection> datasourceCreate(DatasourceConfiguration datasourceConfiguration) {
-            return APIConnectionFactory.createConnection(datasourceConfiguration.getAuthentication());
+            return APIConnectionFactory.createConnection(datasourceConfiguration);
         }
 
         @Override

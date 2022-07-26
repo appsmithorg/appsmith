@@ -49,6 +49,7 @@ import {
 } from "sagas/ActionExecution/GetCurrentLocationSaga";
 import { requestModalConfirmationSaga } from "sagas/UtilSagas";
 import { ModalType } from "reducers/uiReducers/modalActionReducer";
+import { get, set, size } from "lodash";
 
 export type TriggerMeta = {
   source?: TriggerSource;
@@ -67,7 +68,7 @@ export function* executeActionTriggers(
   triggerMeta: TriggerMeta,
 ): any {
   // when called via a promise, a trigger can return some value to be used in .then
-  let response: unknown[] = [];
+  let response: unknown[] = [{ success: true }];
   switch (trigger.type) {
     case ActionTriggerType.RUN_PLUGIN_ACTION:
       response = yield call(
@@ -117,6 +118,8 @@ export function* executeActionTriggers(
         eventType,
         triggerMeta,
       );
+      // response return only one object into array
+      set(response, "0.success", true);
       break;
 
     case ActionTriggerType.WATCH_CURRENT_LOCATION:
@@ -126,10 +129,14 @@ export function* executeActionTriggers(
         eventType,
         triggerMeta,
       );
+      // response return only one object into array
+      set(response, "0.success", true);
       break;
 
     case ActionTriggerType.STOP_WATCHING_CURRENT_LOCATION:
       response = yield call(stopWatchCurrentLocation, eventType, triggerMeta);
+      // response return only one object into array
+      set(response, "0.success", true);
       break;
     case ActionTriggerType.CONFIRMATION_MODAL:
       const payloadInfo = {
@@ -149,7 +156,7 @@ export function* executeActionTriggers(
   return response;
 }
 
-export function* executeAppAction(payload: ExecuteTriggerPayload) {
+export function* executeAppAction(payload: ExecuteTriggerPayload): any {
   const {
     callbackData,
     dynamicString,
@@ -163,7 +170,7 @@ export function* executeAppAction(payload: ExecuteTriggerPayload) {
     throw new Error("Executing undefined action");
   }
 
-  yield call(
+  return yield call(
     evaluateAndExecuteDynamicTrigger,
     dynamicString,
     type,
@@ -181,9 +188,16 @@ function* initiateActionTriggerExecution(
   // it will be created again while execution
   AppsmithConsole.deleteError(`${source?.id}-${triggerPropertyName}`);
   try {
-    yield call(executeAppAction, action.payload);
+    const res: unknown[] = yield call(executeAppAction, action.payload);
     if (event.callback) {
-      event.callback({ success: true });
+      /**
+       * result.success flag added to fire notification after successfully trigger
+       * size of triggers checked for dependent action trigger i.e call success message after getting current location
+       */
+      const success = !!(
+        get(res, "result.success") || size(get(res, "triggers"))
+      );
+      event.callback({ success });
     }
   } catch (e) {
     if (e instanceof UncaughtPromiseError || e instanceof TriggerFailureError) {
