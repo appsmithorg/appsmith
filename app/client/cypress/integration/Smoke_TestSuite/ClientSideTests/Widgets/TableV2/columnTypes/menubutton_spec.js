@@ -53,7 +53,48 @@ describe("Custom column alias functionality", () => {
     );
   });
 
-  it("2. should check that menuitems isDisabled property has access to currentRow", () => {
+  it("2. should check that menuitems text color property has access to currentRow", () => {
+    cy.get("[data-colindex='1'][data-rowindex='0'] .bp3-button").click({
+      force: true,
+    });
+    cy.get(".table-menu-button-popover li a").should(
+      "have.css",
+      "color",
+      "rgb(24, 32, 38)",
+    );
+    cy.get("[data-colindex='1'][data-rowindex='1'] .bp3-button").click({
+      force: true,
+    });
+    cy.get(".table-menu-button-popover li a").should(
+      "have.css",
+      "color",
+      "rgb(24, 32, 38)",
+    );
+    cy.get(".t--property-control-textcolor .t--js-toggle").click();
+    propPane.UpdatePropertyFieldValue(
+      "Text color",
+      "{{currentRow.step === '#1' ? '#f00' : '#0f0'}}",
+    );
+    cy.wait(2000);
+    cy.get("[data-colindex='1'][data-rowindex='0'] .bp3-button").click({
+      force: true,
+    });
+    cy.get(".table-menu-button-popover li a").should(
+      "have.css",
+      "color",
+      "rgb(255, 0, 0)",
+    );
+    cy.get("[data-colindex='1'][data-rowindex='1'] .bp3-button").click({
+      force: true,
+    });
+    cy.get(".table-menu-button-popover li a").should(
+      "have.css",
+      "color",
+      "rgb(0, 255, 0)",
+    );
+  });
+
+  it("3. should check that menuitems isDisabled property has access to currentRow", () => {
     cy.get("[data-colindex='1'][data-rowindex='0'] .bp3-button").click({
       force: true,
     });
@@ -94,7 +135,7 @@ describe("Custom column alias functionality", () => {
     );
   });
 
-  it("3. should check that menuitems visible property has access to currentRow", () => {
+  it("4. should check that menuitems visible property has access to currentRow", () => {
     cy.get("[data-colindex='1'][data-rowindex='0'] .bp3-button").click({
       force: true,
     });
