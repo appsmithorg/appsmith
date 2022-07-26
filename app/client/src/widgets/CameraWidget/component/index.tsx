@@ -1,4 +1,10 @@
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import styled, { css } from "styled-components";
 import { Button, Icon, Menu, MenuItem } from "@blueprintjs/core";
 import { Popover2 } from "@blueprintjs/popover2";
@@ -262,6 +268,14 @@ function ControlPanel(props: ControlPanelProps) {
     false,
   );
 
+  // disable the camera and audio during the video recording
+  const isDisableCameraAndAudioMenu = useMemo(() => {
+    return (
+      mode === CameraModeTypes.VIDEO &&
+      status === MediaCaptureStatusTypes.VIDEO_RECORDING
+    );
+  }, [mode, status]);
+
   // Close the device menu by user click anywhere on the screen when fullscreen is true
   useEffect(() => {
     if (fullScreenHandle.active) {
@@ -366,6 +380,7 @@ function ControlPanel(props: ControlPanelProps) {
           <DevicePopover
             deviceType={DeviceTypes.MICROPHONE}
             disabled={audioMuted}
+            disabledMenu={isDisableCameraAndAudioMenu}
             fullScreenHandle={fullScreenHandle}
             isMenuOpen={isOpenAudioDeviceMenu}
             items={audioInputs}
@@ -377,6 +392,7 @@ function ControlPanel(props: ControlPanelProps) {
         <DevicePopover
           deviceType={DeviceTypes.CAMERA}
           disabled={videoMuted}
+          disabledMenu={isDisableCameraAndAudioMenu}
           fullScreenHandle={fullScreenHandle}
           isMenuOpen={isOpenVideoDeviceMenu}
           items={videoInputs}
@@ -707,6 +723,7 @@ function DeviceMenu(props: DeviceMenuProps) {
 export interface DevicePopoverProps {
   deviceType: DeviceType;
   disabled?: boolean;
+  disabledMenu?: boolean;
   fullScreenHandle: FullScreenHandle;
   isMenuOpen: boolean;
   items: MediaDeviceInfo[];
@@ -719,6 +736,7 @@ function DevicePopover(props: DevicePopoverProps) {
   const {
     deviceType,
     disabled,
+    disabledMenu,
     fullScreenHandle,
     isMenuOpen,
     items,
@@ -756,10 +774,12 @@ function DevicePopover(props: DevicePopoverProps) {
       {!fullScreenHandle.active ? (
         <Popover2
           content={<DeviceMenu items={items} onItemClick={onItemClick} />}
+          disabled={disabledMenu}
           minimal
           portalContainer={document.getElementById("art-board") || undefined}
         >
           <Button
+            disabled={disabledMenu}
             minimal
             rightIcon={<Icon color="white" icon="caret-down" />}
           />
@@ -767,6 +787,7 @@ function DevicePopover(props: DevicePopoverProps) {
       ) : (
         <DeviceButtonContainer>
           <Button
+            disabled={disabledMenu}
             minimal
             onClick={() => onMenuClick(!isMenuOpen)}
             rightIcon={<Icon color="white" icon="caret-down" />}
