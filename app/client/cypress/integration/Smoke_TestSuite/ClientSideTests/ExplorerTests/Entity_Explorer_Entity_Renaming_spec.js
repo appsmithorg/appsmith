@@ -6,7 +6,7 @@ const firstApiName = "First";
 const secondApiName = "Second";
 
 describe("Api Naming conflict on a page test", function() {
-  it("expects actions on the same page cannot have identical names", function() {
+  it("1. Expects actions on the same page cannot have identical names", function() {
     cy.log("Login Successful");
     // create an API
     cy.NavigateToAPI_Panel();
@@ -40,7 +40,7 @@ describe("Api Naming conflict on a page test", function() {
 });
 
 describe("Api Naming conflict on different pages test", function() {
-  it("it expects actions on different pages can have identical names", function() {
+  it("2. It expects actions on different pages can have identical names", function() {
     cy.log("Login Successful");
     // create a new API
     cy.CreateAPI(firstApiName);
@@ -69,7 +69,7 @@ describe("Api Naming conflict on different pages test", function() {
 });
 
 describe("Entity Naming conflict test", function() {
-  it("expects JS objects and actions to not have identical names on the same page.", function() {
+  it("3. Expects JS objects and actions to not have identical names on the same page.", function() {
     cy.log("Login Successful");
     ee.ExpandCollapseEntity("QUERIES/JS", true);
     // create JS object and name it
@@ -81,7 +81,9 @@ describe("Entity Naming conflict test", function() {
     cy.selectAction("Edit Name");
     cy.get(explorer.editEntity)
       .last()
-      .type(firstApiName, { force: true });
+      .type(firstApiName, { force: true })
+      .type("{enter}");
+    cy.wait(2000); //for the changed JS name to reflect
 
     cy.CreateAPI(secondApiName);
 

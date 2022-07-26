@@ -4,15 +4,18 @@ import com.appsmith.external.constants.Authentication;
 import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
 import com.appsmith.external.models.AuthenticationDTO;
 import com.appsmith.external.models.AuthenticationResponse;
+import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.OAuth2;
 import com.appsmith.external.models.UpdatableConnection;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.bson.internal.Base64;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
+import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.reactive.function.BodyExtractors;
@@ -24,6 +27,7 @@ import org.springframework.web.reactive.function.client.ExchangeStrategies;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriComponentsBuilder;
 import reactor.core.publisher.Mono;
+import reactor.netty.http.client.HttpClient;
 
 import java.net.URI;
 import java.time.Clock;
@@ -44,10 +48,11 @@ public class OAuth2ClientCredentials extends APIConnection implements UpdatableC
     private Object tokenResponse;
     private static final int MAX_IN_MEMORY_SIZE = 10 * 1024 * 1024; // 10 MB
 
-    public static Mono<OAuth2ClientCredentials> create(OAuth2 oAuth2) {
-        if (oAuth2 == null) {
+    public static Mono<OAuth2ClientCredentials> create(DatasourceConfiguration datasourceConfiguration) {
+        if (datasourceConfiguration == null) {
             return Mono.empty();
         }
+        final OAuth2 oAuth2 = (OAuth2) datasourceConfiguration.getAuthentication();
         // Create OAuth2Connection
         OAuth2ClientCredentials connection = new OAuth2ClientCredentials();
 
@@ -64,7 +69,7 @@ public class OAuth2ClientCredentials extends APIConnection implements UpdatableC
                     return now.isBefore(expiresAt.minus(Duration.ofMinutes(1)));
                 })
                 // If invalid, regenerate token
-                .switchIfEmpty(connection.generateOAuth2Token(oAuth2))
+                .switchIfEmpty(connection.generateOAuth2Token(datasourceConfiguration))
                 // Store valid token
                 .flatMap(token -> {
                     connection.setToken(token.getAuthenticationResponse().getToken());
@@ -76,15 +81,28 @@ public class OAuth2ClientCredentials extends APIConnection implements UpdatableC
                 });
     }
 
-    private Mono<OAuth2> generateOAuth2Token(OAuth2 oAuth2) {
+    private Mono<OAuth2> generateOAuth2Token(DatasourceConfiguration datasourceConfiguration) {
+        final OAuth2 oAuth2 = (OAuth2) datasourceConfiguration.getAuthentication();
+        final HttpClient securedHttpClient = this.getSecuredHttpClient(datasourceConfiguration);
+
         // Webclient
-        WebClient webClient = WebClient.builder()
+        final WebClient.Builder webClientBuilder = WebClient.builder()
+                .clientConnector(new ReactorClientHttpConnector(securedHttpClient))
                 .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED_VALUE)
                 .exchangeStrategies(ExchangeStrategies
                         .builder()
                         .codecs(configurer -> configurer.defaultCodecs().maxInMemorySize(MAX_IN_MEMORY_SIZE))
-                        .build())
-                .build();
+                        .build());
+
+        if (Boolean.TRUE.equals(oAuth2.getIsAuthorizationHeader())) {
+            byte[] clientCredentials = (oAuth2.getClientId() + ":" + oAuth2.getClientSecret()).getBytes();
+            final String authorizationHeader = "Basic " + Base64.encode(clientCredentials);
+            webClientBuilder.defaultHeader("Authorization", authorizationHeader);
+        }
+
+
+        // Webclient
+        WebClient webClient = webClientBuilder.build();
 
         // Send oauth2 generic request
         return webClient
@@ -162,9 +180,12 @@ public class OAuth2ClientCredentials extends APIConnection implements UpdatableC
 
     private BodyInserters.FormInserter<String> clientCredentialsTokenBody(OAuth2 oAuth2) {
         BodyInserters.FormInserter<String> body = BodyInserters
-                .fromFormData(Authentication.GRANT_TYPE, Authentication.CLIENT_CREDENTIALS)
-                .with(Authentication.CLIENT_ID, oAuth2.getClientId())
-                .with(Authentication.CLIENT_SECRET, oAuth2.getClientSecret());
+                .fromFormData(Authentication.GRANT_TYPE, Authentication.CLIENT_CREDENTIALS);
+
+        if (Boolean.FALSE.equals(oAuth2.getIsAuthorizationHeader())) {
+            body.with(Authentication.CLIENT_ID, oAuth2.getClientId())
+                    .with(Authentication.CLIENT_SECRET, oAuth2.getClientSecret());
+        }
 
         // Adding optional audience parameter
         if (!StringUtils.isEmpty(oAuth2.getAudience())) {

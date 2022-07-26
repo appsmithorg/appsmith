@@ -58,7 +58,7 @@ export const VerticalHandleStyles = css<{
   showLightBorder: boolean;
 }>`
   ${EdgeHandleStyles}
-  top:-${WIDGET_PADDING - 1}px;
+  top:${~(WIDGET_PADDING - 1) + 1}px;
   height: calc(100% + ${2 * WIDGET_PADDING - 1}px);
   ${(props) => (!props.showAsBorder ? "cursor: col-resize;" : "")}
   &:before {
@@ -74,7 +74,7 @@ export const HorizontalHandleStyles = css<{
   showLightBorder: boolean;
 }>`
   ${EdgeHandleStyles}
-  left: -${WIDGET_PADDING}px;
+  left: ${~WIDGET_PADDING + 1}px;
   width: calc(100% + ${2 * WIDGET_PADDING}px);
   ${(props) => (!props.showAsBorder ? "cursor: row-resize;" : "")}
   &:before {

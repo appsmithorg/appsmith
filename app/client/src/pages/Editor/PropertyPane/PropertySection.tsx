@@ -11,12 +11,18 @@ import { Collapse } from "@blueprintjs/core";
 import { useSelector } from "react-redux";
 import { getWidgetPropsForPropertyPane } from "selectors/propertyPaneSelectors";
 import styled from "constants/DefaultTheme";
+import { getWidgetParent } from "sagas/selectors";
+import { WidgetProps } from "widgets/BaseWidget";
 
 const SectionWrapper = styled.div`
   position: relative;
   .${Classes.COLLAPSE_BODY} {
     z-index: 1;
     position: relative;
+  }
+
+  .bp3-collapse {
+    transition: none;
   }
 `;
 const SectionTitle = styled.div`
@@ -38,7 +44,7 @@ const SectionTitle = styled.div`
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: transform 0.2s;
+    transition: none;
     &.open-collapse {
       transform: rotate(90deg);
     }
@@ -49,7 +55,11 @@ type PropertySectionProps = {
   id: string;
   name: string;
   children?: ReactNode;
-  hidden?: (props: any, propertyPath: string) => boolean;
+  hidden?: (
+    props: any,
+    propertyPath: string,
+    widgetParentProps?: WidgetProps,
+  ) => boolean;
   isDefaultOpen?: boolean;
   propertyPath?: string;
 };
@@ -65,8 +75,15 @@ export const PropertySection = memo((props: PropertySectionProps) => {
   const { isDefaultOpen = true } = props;
   const [isOpen, open] = useState(!!isDefaultOpen);
   const widgetProps: any = useSelector(getWidgetPropsForPropertyPane);
+  /**
+   * get actual parent of widget
+   * for button inside form, button's parent is form
+   * for button on canvas, parent is main container
+   */
+  const parentWidget = useSelector(getWidgetParent(widgetProps.widgetId));
+
   if (props.hidden) {
-    if (props.hidden(widgetProps, props.propertyPath || "")) {
+    if (props.hidden(widgetProps, props.propertyPath || "", parentWidget)) {
       return null;
     }
   }
@@ -87,7 +104,7 @@ export const PropertySection = memo((props: PropertySectionProps) => {
         />
       </SectionTitle>
       {props.children && (
-        <Collapse isOpen={isOpen} keepChildrenMounted>
+        <Collapse isOpen={isOpen} keepChildrenMounted transitionDuration={0}>
           <div
             className={`t--property-pane-section-${className}`}
             style={{ position: "relative", zIndex: 1 }}

@@ -1,7 +1,8 @@
 import { Popover2, Classes as Popover2Classes } from "@blueprintjs/popover2";
 import { useLocation } from "react-router";
 import { setTemplateNotificationSeenAction } from "actions/templateActions";
-import { TextType, Text, Classes } from "components/ads";
+import { Classes } from "components/ads";
+import { TextType, Text } from "design-system";
 import Icon, { IconSize } from "components/ads/Icon";
 import { Colors } from "constants/Colors";
 import { matchTemplatesPath } from "constants/routes";
