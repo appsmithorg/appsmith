@@ -15,12 +15,15 @@ export function RemoteBranchList(
   return (
     <div data-testid="t--git-remote-branch-list-container">
       {remoteBranches?.length > 0 && (
-        <SegmentHeader hideStyledHr title={createMessage(REMOTE_BRANCHES)} />
+        <SegmentHeader
+          data-testid="t--branch-list-header-remote"
+          hideStyledHr
+          title={createMessage(REMOTE_BRANCHES)}
+        />
       )}
       {remoteBranches.map((branch: string) => (
         <RemoteBranchListItem
           branch={branch}
-          className="t--branch-item"
           key={branch}
           onClick={() => switchBranch(branch)}
         />

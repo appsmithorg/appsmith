@@ -61,7 +61,7 @@ describe("Modal Widget Functionality", function() {
     cy.get('.bp3-collapse-body > [step="0"]')
       .eq(1)
       .children()
-      .should("have.length", 2);
+      .should("have.length", 3);
     //make sure modalis open on paste
     cy.get(".t--modal-widget").should("have.length", 1);
   });
