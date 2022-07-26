@@ -275,6 +275,7 @@ export default {
       propertyName: "menuVariant",
       label: "Menu Variant",
       controlType: "DROP_DOWN",
+      customJSControl: "TABLE_COMPUTE_VALUE",
       helpText: "Sets the variant of the menu button",
       options: [
         {
@@ -298,14 +299,17 @@ export default {
       isBindProperty: true,
       isTriggerProperty: false,
       validation: {
-        type: ValidationTypes.TEXT,
+        type: ValidationTypes.TABLE_PROPERTY,
         params: {
-          default: ButtonVariantTypes.PRIMARY,
-          allowedValues: [
-            ButtonVariantTypes.PRIMARY,
-            ButtonVariantTypes.SECONDARY,
-            ButtonVariantTypes.TERTIARY,
-          ],
+          type: ValidationTypes.TEXT,
+          params: {
+            default: ButtonVariantTypes.PRIMARY,
+            allowedValues: [
+              ButtonVariantTypes.PRIMARY,
+              ButtonVariantTypes.SECONDARY,
+              ButtonVariantTypes.TERTIARY,
+            ],
+          },
         },
       },
     },
