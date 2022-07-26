@@ -120,7 +120,7 @@ public class UserSignupCEImpl implements UserSignupCE {
                     boolean createApplication = StringUtils.isEmpty(redirectQueryParamValue) && !StringUtils.isEmpty(workspaceId);
                     // need to create default application
                     return authenticationSuccessHandler
-                            .onAuthenticationSuccess(webFilterExchange, authentication, createApplication, true)
+                            .onAuthenticationSuccess(webFilterExchange, authentication, createApplication, true, workspaceId)
                             .thenReturn(savedUser);
                 });
     }
