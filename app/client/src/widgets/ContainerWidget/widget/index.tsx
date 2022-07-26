@@ -266,8 +266,4 @@ export interface ContainerWidgetProps<T extends WidgetProps>
   noPad?: boolean;
 }
 
-interface ContainerWidgetState<T extends WidgetProps> extends WidgetState {
-  items?: T[];
-}
-
 export default ContainerWidget;

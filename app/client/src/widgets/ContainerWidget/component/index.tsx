@@ -1,10 +1,4 @@
-import React, {
-  ReactElement,
-  ReactNode,
-  useRef,
-  useEffect,
-  RefObject,
-} from "react";
+import React, { ReactNode, useRef, useEffect, RefObject } from "react";
 import styled, { css } from "styled-components";
 import tinycolor from "tinycolor2";
 import { invisible } from "constants/DefaultTheme";

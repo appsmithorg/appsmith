@@ -10,7 +10,7 @@ import {
 } from "reducers/entityReducers/canvasWidgetsReducer";
 import { all, call, put, select, takeLatest } from "redux-saga/effects";
 import log from "loglevel";
-import { cloneDeep, isNumber } from "lodash";
+import { cloneDeep } from "lodash";
 import { updateAndSaveLayout, WidgetAddChild } from "actions/pageActions";
 import { calculateDropTargetRows } from "components/editorComponents/DropTargetUtils";
 import { GridDefaults } from "constants/WidgetConstants";
