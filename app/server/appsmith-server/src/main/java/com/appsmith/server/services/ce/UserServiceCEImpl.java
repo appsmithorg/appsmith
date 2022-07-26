@@ -748,7 +748,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                    return Mono.empty();
                });
 
-        return Mono.zip(bulkAddUserResultMono, sendAnalyticsEventMono).then(inviteUsersMono);
+        return bulkAddUserResultMono.then(sendAnalyticsEventMono).then(inviteUsersMono);
     }
 
     private Mono<? extends User> createNewUserAndSendInviteEmail(String email, String originHeader,
