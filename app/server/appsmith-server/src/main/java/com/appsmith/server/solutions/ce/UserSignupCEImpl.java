@@ -117,6 +117,12 @@ public class UserSignupCEImpl implements UserSignupCE {
                     MultiValueMap<String, String> queryParams = exchange.getRequest().getQueryParams();
                     String redirectQueryParamValue = queryParams.getFirst(REDIRECT_URL_QUERY_PARAM);
 
+                    /* TODO
+                       - Add testcases for SignUp service
+                            - Verify that Workspace is created for the user
+                            - Verify that first application is created inside created workspace when “redirectUrl” query parameter is not present in the request
+                            - Verify that first application is not created when “redirectUrl” query parameter is present in the request
+                     */
                     boolean createApplication = StringUtils.isEmpty(redirectQueryParamValue) && !StringUtils.isEmpty(workspaceId);
                     // need to create default application
                     return authenticationSuccessHandler
