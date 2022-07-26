@@ -14,8 +14,7 @@
 		"json": false
 	},
 	"ignoreTestFiles": [
-		"**/Smoke_TestSuite/Application/PgAdmin_spec*.js",
-		"**/Smoke_TestSuite/Application/PromisesApp_spec.js"
+		"**/Smoke_TestSuite/Application/PgAdmin_spec*.js"
 	],
 	"chromeWebSecurity": false,
 	"viewportHeight": 1100,
