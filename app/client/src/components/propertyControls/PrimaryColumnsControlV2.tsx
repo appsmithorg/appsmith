@@ -21,7 +21,7 @@ import {
   reorderColumns,
 } from "widgets/TableWidgetV2/widget/utilities";
 import { DataTree } from "entities/DataTree/dataTreeFactory";
-import { getDataTree } from "selectors/dataTreeSelectors";
+import { getDataTreeForAutocomplete } from "selectors/dataTreeSelectors";
 import {
   EvaluationError,
   getEvalErrorPath,
@@ -541,7 +541,7 @@ class EvaluatedValuePopupWrapperClass extends Component<
   };
 }
 const mapStateToProps = (state: AppState): ReduxStateProps => ({
-  dynamicData: getDataTree(state),
+  dynamicData: getDataTreeForAutocomplete(state),
   datasources: state.entities.datasources,
 });
 

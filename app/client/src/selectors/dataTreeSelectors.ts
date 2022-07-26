@@ -13,7 +13,6 @@ import "url-search-params-polyfill";
 import { getPageList } from "./appViewSelectors";
 import { AppState } from "reducers";
 import { getSelectedAppThemeProperties } from "./appThemingSelectors";
-import { getDataTreeWithoutPrivateWidgets } from "workers/evaluationUtils";
 
 export const getUnevaluatedDataTree = createSelector(
   getActionsForCurrentPage,
@@ -72,7 +71,6 @@ export const getDataTreeForAutocomplete = createSelector(
   getActionsForCurrentPage,
   getJSCollectionsForCurrentPage,
   (tree: DataTree, actions: ActionDataState) => {
-    const dataTreeWithoutPrivateWidget = getDataTreeWithoutPrivateWidgets(tree);
     //js actions needs to be added
     const cachedResponses: Record<string, any> = {};
     if (actions && actions.length) {
@@ -88,6 +86,6 @@ export const getDataTreeForAutocomplete = createSelector(
         }
       });
     }
-    return dataTreeWithoutPrivateWidget;
+    return tree;
   },
 );
