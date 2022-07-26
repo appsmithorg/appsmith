@@ -18,7 +18,6 @@ import {
   DataTreeAction,
   DataTreeEntity,
   DataTreeJSAction,
-  DataTreeObjectEntity,
   DataTreeWidget,
   ENTITY_TYPE,
   EvaluationSubstitutionType,
@@ -804,10 +803,7 @@ export default class DataTreeEvaluator {
 
       let entityType = "UNKNOWN";
       const entityName = node.split(".")[0];
-      const entity = _.get(
-        this.oldUnEvalTree,
-        entityName,
-      ) as DataTreeObjectEntity;
+      const entity = _.get(this.oldUnEvalTree, entityName);
       if (entity && isWidget(entity)) {
         entityType = entity.type;
       } else if (entity && isAction(entity)) {

@@ -152,11 +152,15 @@ export const getFunctionsArgsType = (args: Variable[]): string => {
     (accumulatedArgType, argName, currentIndex) => {
       switch (currentIndex) {
         case 0:
-          return `${argName}: ?`;
+          return argName ? `${argName}: ?` : "";
         case 1:
-          return `${accumulatedArgType}, ${argName}: ?`;
+          return argName
+            ? `${accumulatedArgType}, ${argName}: ?`
+            : accumulatedArgType;
         default:
-          return `${accumulatedArgType}, ${argName}: ?`;
+          return argName
+            ? `${accumulatedArgType}, ${argName}: ?`
+            : accumulatedArgType;
       }
     },
     argNamesArray[0],

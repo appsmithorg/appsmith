@@ -514,9 +514,8 @@ class CodeEditor extends Component<Props, State> {
   handleEditorFocus = (cm: CodeMirror.Editor) => {
     this.setState({ isFocused: true });
 
-    const entityInformation = this.getEntityInformation();
-
     if (!cm.state.completionActive) {
+      const entityInformation = this.getEntityInformation();
       this.hinters
         .filter((hinter) => hinter.fireOnFocus)
         .forEach(

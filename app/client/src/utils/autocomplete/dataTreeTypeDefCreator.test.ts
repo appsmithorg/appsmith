@@ -131,6 +131,7 @@ describe("getFunctionsArgsType", () => {
         { name: "b", value: undefined },
         { name: "c", value: undefined },
         { name: "d", value: undefined },
+        { name: "", value: undefined },
       ],
       expectedOutput: "fn(a: ?, b: ?, c: ?, d: ?)",
     },
@@ -142,6 +143,8 @@ describe("getFunctionsArgsType", () => {
       arguments: [
         { name: "a", value: undefined },
         { name: "b", value: undefined },
+        { name: "", value: undefined },
+        { name: "", value: undefined },
       ],
       expectedOutput: "fn(a: ?, b: ?)",
     },
