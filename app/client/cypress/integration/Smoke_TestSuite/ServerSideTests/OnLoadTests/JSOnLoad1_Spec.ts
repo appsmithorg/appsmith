@@ -403,6 +403,7 @@ describe("JSObjects OnLoad Actions tests", function() {
     agHelper.AssertElementVisible(jsEditor._dialogBody("CatFacts"));
     agHelper.ClickButton("Yes");
     cy.get(locator._toastMsg).contains(/Your cat fact|Oh No/g);
+    deployMode.NavigateBacktoEditor();
   });
 
   it("11. Tc #1646, 60 - Honouring the order of execution & Bug 13826 + Bug 13646", () => {
