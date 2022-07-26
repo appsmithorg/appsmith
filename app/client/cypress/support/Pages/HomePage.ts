@@ -343,8 +343,7 @@ export class HomePage {
     this.agHelper.GetNClick(this._workspaceImport, 0, true);
     this.agHelper.AssertElementVisible(this._workspaceImportAppModal);
     cy.xpath(this._uploadFile).attachFile(fixtureJson);
-    this.agHelper.Sleep(2000);
-    this.agHelper.AssertElementAbsence(this._workspaceImportAppModal);
+    this.agHelper.Sleep(3500);
   }
 
   public DeleteWorkspace(workspaceNameToDelete: string) {
