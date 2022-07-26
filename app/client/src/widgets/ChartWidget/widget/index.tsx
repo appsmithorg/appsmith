@@ -14,6 +14,9 @@ import {
 
 import { WidgetType } from "constants/WidgetConstants";
 import { ChartComponentProps } from "../component";
+import { AppState } from "reducers";
+import { getSelectedAppTheme } from "selectors/appThemingSelectors";
+import { connect } from "react-redux";
 
 const ChartComponent = lazy(() =>
   retryPromise(() =>
@@ -53,19 +56,19 @@ class ChartWidget extends BaseWidget<ChartWidgetProps, WidgetState> {
       <Suspense fallback={<Skeleton />}>
         <ChartComponent
           allowScroll={this.props.allowScroll}
-          backgroundColor={this.props.backgroundColor}
           borderRadius={this.props.borderRadius}
           boxShadow={this.props.boxShadow}
           chartData={this.props.chartData}
           chartName={this.props.chartName}
           chartType={this.props.chartType}
           customFusionChartConfig={this.props.customFusionChartConfig}
+          fontFamily={this.props.selectedTheme.properties.fontFamily.appFont}
           isLoading={this.props.isLoading}
           isVisible={this.props.isVisible}
           key={this.props.widgetId}
           labelOrientation={this.props.labelOrientation}
           onDataPointClick={this.onDataPointClick}
-          primaryColor={"#FFFF00"}
+          primaryColor={this.props.selectedTheme.properties.colors.primaryColor}
           setAdaptiveYMin={this.props.setAdaptiveYMin}
           widgetId={this.props.widgetId}
           xAxisName={this.props.xAxisName}
@@ -80,6 +83,11 @@ class ChartWidget extends BaseWidget<ChartWidgetProps, WidgetState> {
   }
 }
 
+const mapStateToProps = (state: AppState) => {
+  return {
+    selectedTheme: getSelectedAppTheme(state),
+  };
+};
 export interface ChartWidgetProps extends WidgetProps {
   chartType: ChartType;
   chartData: AllChartData;
@@ -89,10 +97,10 @@ export interface ChartWidgetProps extends WidgetProps {
   chartName: string;
   isVisible?: boolean;
   allowScroll: boolean;
-  backgroundColor: string;
   borderRadius: string;
   boxShadow?: string;
   primaryColor?: string;
+  fontFamily?: string;
 }
 
 type ChartComponentPartialProps = Omit<ChartComponentProps, "onDataPointClick">;
@@ -102,4 +110,4 @@ export interface ChartWidgetProps
   onDataPointClick?: string;
 }
 
-export default ChartWidget;
+export default connect(mapStateToProps, {})(ChartWidget as any);

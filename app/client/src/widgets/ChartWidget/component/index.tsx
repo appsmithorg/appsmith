@@ -60,10 +60,10 @@ export interface ChartComponentProps {
   widgetId: string;
   xAxisName: string;
   yAxisName: string;
-  backgroundColor: string;
   borderRadius: string;
   boxShadow?: string;
   primaryColor?: string;
+  fontFamily?: string;
 }
 
 const CanvasContainer = styled.div<
@@ -74,7 +74,7 @@ const CanvasContainer = styled.div<
 
   height: 100%;
   width: 100%;
-  background: ${({ backgroundColor }) => `${backgroundColor || Colors.WHITE}`};
+  background: ${Colors.WHITE};
   overflow: hidden;
   position: relative;
   ${(props) => (!props.isVisible ? invisible : "")};
@@ -265,14 +265,12 @@ class ChartComponent extends React.Component<ChartComponentProps> {
       Object.keys(this.props.chartData).length > 1 ? true : false;
     const legendConfig = isMultiSeriesData
       ? {
-          legendPosition: "absolute",
-          legendItemFontSize: "12",
-          legendXPosition: "10",
-          legendYPosition: "70",
-          captionPadding: "60",
+          legendPosition: "top",
+          captionPadding: "100",
         }
       : {
           captionPadding: "15",
+          palettecolors: [this.props.primaryColor],
         };
 
     let config = {
@@ -294,7 +292,7 @@ class ChartComponent extends React.Component<ChartComponentProps> {
       ...legendConfig,
 
       // Canvas styles ========
-      canvasTopPadding: "20",
+      canvasTopPadding: "0",
       canvasLeftPadding: "60",
       canvasRightPadding: "60",
       canvasBottomPadding: "10",
@@ -308,7 +306,13 @@ class ChartComponent extends React.Component<ChartComponentProps> {
       yAxisNameFontSize: "16",
       yAxisValueFontColor: Colors.DOVE_GRAY2,
 
-      bgColor: this.props.backgroundColor || Colors.WHITE,
+      // Base configurations ======
+      baseFont:
+        this.props.fontFamily === "System Default"
+          ? "inherit"
+          : this.props.fontFamily,
+
+      bgColor: Colors.WHITE,
       setAdaptiveYMin: this.props.setAdaptiveYMin ? "1" : "0",
     };
 
