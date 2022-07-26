@@ -39,7 +39,7 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
     private final ResponseUtils responseUtils;
 
     public Mono<Application> forkApplicationToWorkspace(String srcApplicationId, String targetWorkspaceId) {
-        final Mono<Application> sourceApplicationMono = applicationService.findById(srcApplicationId, AclPermission.MANAGE_APPLICATIONS)
+        final Mono<Application> sourceApplicationMono = applicationService.findById(srcApplicationId, AclPermission.READ_APPLICATIONS)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, srcApplicationId)));
 
         final Mono<Workspace> targetWorkspaceMono = workspaceService.findById(targetWorkspaceId, AclPermission.WORKSPACE_MANAGE_APPLICATIONS)
@@ -58,8 +58,7 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
 
                     boolean allowFork = (
                             // Is this a non-anonymous user that has access to this application?
-                            !user.isAnonymous()
-                                    /*&& policyUtils.isPermissionPresentForUser(application.getPolicies(), AclPermission.MANAGE_APPLICATIONS.getValue(), user.getEmail()) */
+                            !user.isAnonymous() && application.getUserPermissions().contains(AclPermission.MANAGE_APPLICATIONS.getValue())
                     )
                             || Boolean.TRUE.equals(application.getForkingEnabled());
 
