@@ -548,12 +548,12 @@ public class ApplicationForkingServiceTests {
         Workspace destWorkspace = new Workspace();
         destWorkspace.setName("ws_dest_" + uniqueString);
         Workspace createdDestWorkspace = workspaceService.create(destWorkspace).block();
-        Application forkedApplication = applicationForkingService.forkApplicationToWorkspace(srcApplication.getId(), createdDestWorkspace.getId()).block();
+        Application forkedApplication = applicationForkingService.forkApplicationToWorkspace(createdSrcApplication.getId(), createdDestWorkspace.getId()).block();
 
         Theme forkedApplicationEditModeTheme = themeService.getApplicationTheme(forkedApplication.getId(), ApplicationMode.EDIT, null).block();
         Theme forkedApplicationPublishedModeTheme = themeService.getApplicationTheme(forkedApplication.getId(), ApplicationMode.PUBLISHED, null).block();
 
-        final Mono<Tuple4<Theme, Theme, Application, Application>> tuple4Mono = Mono.zip(Mono.just(forkedApplicationEditModeTheme), Mono.just(forkedApplicationPublishedModeTheme), Mono.just(forkedApplication), Mono.just(srcApplication));
+        final Mono<Tuple4<Theme, Theme, Application, Application>> tuple4Mono = Mono.zip(Mono.just(forkedApplicationEditModeTheme), Mono.just(forkedApplicationPublishedModeTheme), Mono.just(forkedApplication), Mono.just(createdSrcApplication));
 
         StepVerifier.create(tuple4Mono).assertNext(objects -> {
             Theme editModeTheme = objects.getT1();
