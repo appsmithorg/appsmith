@@ -19,7 +19,7 @@ import { renderDatasourceSection } from "pages/Editor/DataSourceEditor/Datasourc
 import { setDatsourceEditorMode } from "actions/datasourceActions";
 import { getQueryParams } from "utils/AppsmithUtils";
 import Menu from "components/ads/Menu";
-import Icon, { IconSize } from "components/ads/Icon";
+import { Icon, IconSize } from "design-system";
 import MenuItem from "components/ads/MenuItem";
 import { deleteDatasource } from "actions/datasourceActions";
 import {

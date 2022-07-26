@@ -15,7 +15,7 @@ import {
   UseSpreadSheetsReturn,
   UseSheetColumnHeadersReturn,
 } from "./hooks";
-import Icon, { IconSize } from "components/ads/Icon";
+import { Icon, IconSize } from "design-system";
 import { Colors } from "constants/Colors";
 import { getTypographyByKey } from "constants/DefaultTheme";
 import { debounce } from "lodash";

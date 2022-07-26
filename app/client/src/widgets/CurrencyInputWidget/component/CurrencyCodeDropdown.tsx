@@ -2,7 +2,7 @@ import React from "react";
 import styled, { createGlobalStyle } from "styled-components";
 import Dropdown, { DropdownOption } from "components/ads/Dropdown";
 import { CurrencyTypeOptions, CurrencyOptionProps } from "constants/Currency";
-import Icon, { IconSize } from "components/ads/Icon";
+import { Icon, IconSize } from "design-system";
 import { Classes } from "@blueprintjs/core";
 import { countryToFlag } from "./utilities";
 import { Colors } from "constants/Colors";

@@ -42,7 +42,7 @@ import {
 } from "selectors/gitSyncSelectors";
 import SpinnerLoader from "pages/common/SpinnerLoader";
 import { inGuidedTour } from "selectors/onboardingSelectors";
-import Icon, { IconName, IconSize } from "components/ads/Icon";
+import { Icon, IconName, IconSize } from "design-system";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { selectFeatureFlags } from "selectors/usersSelectors";
 

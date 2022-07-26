@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import styled from "styled-components";
 
 import Spinner from "components/ads/Spinner";
-import { IconSize } from "components/ads/Icon";
+import { IconSize } from "design-system";
 
 import {
   notificationsSelector,

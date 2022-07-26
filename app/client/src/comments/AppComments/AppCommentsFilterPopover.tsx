@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import styled, { withTheme } from "styled-components";
-import Icon, { IconSize } from "components/ads/Icon";
+import { Icon, IconSize } from "design-system";
 import { Popover2 } from "@blueprintjs/popover2";
 import RadioGroup, { Radio } from "components/ads/Radio";
 import { Theme } from "constants/DefaultTheme";

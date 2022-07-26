@@ -1,5 +1,5 @@
 import React from "react";
-import Icon, { IconSize } from "components/ads/Icon";
+import { Icon, IconSize } from "design-system";
 import {
   getIsRestartFailed,
   getRestartingState,

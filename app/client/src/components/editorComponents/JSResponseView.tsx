@@ -40,7 +40,7 @@ import { DebugButton } from "./Debugger/DebugCTA";
 import { setCurrentTab } from "actions/debuggerActions";
 import { DEBUGGER_TAB_KEYS } from "./Debugger/helpers";
 import EntityBottomTabs from "./EntityBottomTabs";
-import Icon from "components/ads/Icon";
+import { Icon } from "design-system";
 import { TAB_MIN_HEIGHT } from "components/ads/Tabs";
 import { theme } from "constants/DefaultTheme";
 import { Button, Size } from "components/ads";

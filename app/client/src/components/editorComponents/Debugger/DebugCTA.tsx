@@ -7,7 +7,7 @@ import { Classes, Variant } from "components/ads/common";
 import { getAppMode } from "selectors/applicationSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getTypographyByKey } from "constants/DefaultTheme";
-import Icon, { IconSize } from "components/ads/Icon";
+import { Icon, IconSize } from "design-system";
 import { Message } from "entities/AppsmithConsole";
 import ContextualMenu from "./ContextualMenu";
 import { Position } from "@blueprintjs/core";

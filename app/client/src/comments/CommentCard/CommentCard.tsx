@@ -14,7 +14,7 @@ import { getTypographyByKey } from "constants/DefaultTheme";
 import CommentContextMenu from "./CommentContextMenu";
 import ResolveCommentButton from "comments/CommentCard/ResolveCommentButton";
 import { MentionComponent } from "components/ads/MentionsInput";
-import Icon, { IconSize } from "components/ads/Icon";
+import { Icon, IconSize } from "design-system";
 import EmojiReactions, {
   Reaction as ComponentReaction,
   Reactions,

@@ -12,7 +12,7 @@ import { RouteComponentProps } from "react-router";
 import FormDialogComponent from "components/editorComponents/form/FormDialogComponent";
 import { getCurrentUser } from "selectors/usersSelectors";
 import Table from "components/ads/Table";
-import Icon, { IconSize } from "components/ads/Icon";
+import { Icon, IconSize } from "design-system";
 import {
   fetchUsersForWorkspace,
   fetchRolesForWorkspace,

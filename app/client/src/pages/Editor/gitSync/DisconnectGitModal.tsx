@@ -11,7 +11,7 @@ import {
   setIsDisconnectGitModalOpen,
 } from "actions/gitSyncActions";
 import { Classes, MENU_HEIGHT } from "./constants";
-import Icon, { IconSize } from "components/ads/Icon";
+import { Icon, IconSize } from "design-system";
 
 import styled, { useTheme } from "styled-components";
 import { get } from "lodash";

@@ -60,9 +60,6 @@ export { default as FilePickerV2 } from "./FilePickerV2";
 
 export { default as GifPlayerComponent } from "./GifPlayerComponent";
 
-export { default as Icon } from "./Icon";
-export * from "./Icon";
-
 export { default as IconSelector } from "./IconSelector";
 export * from "./IconSelector";
 

@@ -38,7 +38,7 @@ import ProfileDropdown from "pages/common/ProfileDropdown";
 import { getCurrentUser, selectFeatureFlags } from "selectors/usersSelectors";
 import { ANONYMOUS_USERNAME, User } from "constants/userConstants";
 import Button, { Size } from "components/ads/Button";
-import Icon, { IconSize } from "components/ads/Icon";
+import { Icon, IconSize } from "design-system";
 import { Profile } from "pages/common/ProfileImage";
 import { getTypographyByKey } from "constants/DefaultTheme";
 import HelpBar from "components/editorComponents/GlobalSearch/HelpBar";

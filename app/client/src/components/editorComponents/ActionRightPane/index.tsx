@@ -1,7 +1,7 @@
 import React, { useCallback, useMemo } from "react";
 import styled from "styled-components";
 import { Collapse, Classes as BPClasses } from "@blueprintjs/core";
-import Icon, { IconSize } from "components/ads/Icon";
+import { Icon, IconSize } from "design-system";
 import { Classes, Variant } from "components/ads/common";
 import { Text, TextType } from "design-system";
 import { useState } from "react";

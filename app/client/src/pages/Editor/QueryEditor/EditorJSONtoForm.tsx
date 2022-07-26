@@ -25,7 +25,7 @@ import { Variant } from "components/ads/common";
 import { Text, TextType } from "design-system";
 import styled from "constants/DefaultTheme";
 import { TabComponent } from "components/ads/Tabs";
-import AdsIcon, { IconSize } from "components/ads/Icon";
+import { Icon as AdsIcon, IconSize } from "design-system";
 import { Classes } from "components/ads/common";
 import FormRow from "components/editorComponents/FormRow";
 import EditorButton from "components/editorComponents/Button";

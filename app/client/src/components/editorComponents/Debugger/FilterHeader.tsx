@@ -3,7 +3,7 @@ import { get } from "lodash";
 import Dropdown, { DropdownOption } from "components/ads/Dropdown";
 import TextInput from "components/ads/TextInput";
 import styled, { useTheme } from "styled-components";
-import Icon, { IconSize } from "components/ads/Icon";
+import { Icon, IconSize } from "design-system";
 import { useDispatch } from "react-redux";
 
 import { clearLogs } from "actions/debuggerActions";

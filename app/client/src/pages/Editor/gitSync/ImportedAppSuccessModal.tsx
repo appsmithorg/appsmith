@@ -9,7 +9,7 @@ import {
   APPLICATION_IMPORT_SUCCESS,
   APPLICATION_IMPORT_SUCCESS_DESCRIPTION,
 } from "@appsmith/constants/messages";
-import Icon from "components/ads/Icon";
+import { Icon } from "design-system";
 import { Theme } from "constants/DefaultTheme";
 import { getCurrentUser } from "selectors/usersSelectors";
 import { Button, Category, Size } from "components/ads";

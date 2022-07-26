@@ -1,16 +1,20 @@
 import React, { memo, useMemo, useCallback, useEffect, useRef } from "react";
 import styled from "styled-components";
-import Icon, { IconSize } from "components/ads/Icon";
 import Dropdown, {
   DefaultDropDownValueNodeProps,
   DropdownOption,
 } from "components/ads/Dropdown";
-import { TooltipComponent as Tooltip } from "design-system";
 import { AppState } from "reducers";
 import { useDispatch, useSelector } from "react-redux";
 import { getDataTree } from "selectors/dataTreeSelectors";
 import { isAction, isWidget } from "workers/evaluationUtils";
-import { Text, TextType } from "design-system";
+import {
+  Icon,
+  IconSize,
+  Text,
+  TextType,
+  TooltipComponent as Tooltip,
+} from "design-system";
 import { Classes } from "components/ads/common";
 import { useEntityLink } from "components/editorComponents/Debugger/hooks/debuggerHooks";
 import { useGetEntityInfo } from "components/editorComponents/Debugger/hooks/useGetEntityInfo";

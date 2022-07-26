@@ -19,7 +19,7 @@ import MenuItemCheckBox, {
   InputContainer,
 } from "./index.styled";
 import { RenderMode, TextSize } from "constants/WidgetConstants";
-import Icon from "components/ads/Icon";
+import { Icon } from "design-system";
 import { Alignment, Button, Classes, InputGroup } from "@blueprintjs/core";
 import { labelMargin, WidgetContainerDiff } from "widgets/WidgetUtils";
 import { Colors } from "constants/Colors";

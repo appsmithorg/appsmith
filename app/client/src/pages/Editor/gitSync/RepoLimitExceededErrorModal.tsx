@@ -27,7 +27,7 @@ import {
   REPOSITORY_LIMIT_REACHED_INFO,
   REVOKE_ACCESS,
 } from "@appsmith/constants/messages";
-import Icon, { IconSize } from "components/ads/Icon";
+import { Icon, IconSize } from "design-system";
 import Link from "./components/Link";
 import { get } from "lodash";
 import { Theme } from "constants/DefaultTheme";

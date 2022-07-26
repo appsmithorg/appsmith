@@ -24,7 +24,7 @@ import { getQueryParams } from "utils/AppsmithUtils";
 import { getIsGeneratingTemplatePage } from "selectors/pageListSelectors";
 import DataSourceOption from "../DataSourceOption";
 import { getQueryStringfromObject } from "RouteBuilder";
-import { IconName, IconSize } from "components/ads/Icon";
+import { IconName, IconSize } from "design-system";
 import GoogleSheetForm from "./GoogleSheetForm";
 import {
   GENERATE_PAGE_FORM_TITLE,
@@ -53,7 +53,7 @@ import {
 import { TooltipComponent as Tooltip } from "design-system";
 import { Bold, Label, SelectWrapper } from "./styles";
 import { GeneratePagePayload } from "./types";
-import Icon from "components/ads/Icon";
+import { Icon } from "design-system";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 

@@ -22,7 +22,7 @@ import {
 } from "@appsmith/constants/messages";
 import { Text, TextType } from "design-system";
 import { Text as BlueprintText } from "@blueprintjs/core";
-import Icon from "components/ads/Icon";
+import { Icon } from "design-system";
 import { Classes, Variant } from "components/ads/common";
 import { EditorTheme } from "./CodeEditor/EditorConfig";
 import Callout from "components/ads/Callout";

@@ -19,8 +19,7 @@ import { getCurrentUser } from "selectors/usersSelectors";
 import { useSelector } from "react-redux";
 import bootIntercom from "utils/bootIntercom";
 import { Colors } from "constants/Colors";
-import Icon from "components/ads/Icon";
-import { TooltipComponent } from "design-system";
+import { TooltipComponent, Icon } from "design-system";
 import { adminSettingsCategoryUrl } from "RouteBuilder";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 

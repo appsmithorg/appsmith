@@ -1,6 +1,6 @@
 import React from "react";
 import styled, { withTheme } from "styled-components";
-import Icon, { IconSize } from "components/ads/Icon";
+import { Icon, IconSize } from "design-system";
 import { Theme } from "constants/DefaultTheme";
 import { TooltipComponent as Tooltip } from "design-system";
 import {

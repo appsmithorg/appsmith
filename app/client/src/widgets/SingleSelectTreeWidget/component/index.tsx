@@ -20,7 +20,7 @@ import { TreeNodeProps } from "rc-tree-select/lib/TreeNode";
 import { RenderMode, TextSize } from "constants/WidgetConstants";
 import { Alignment, Button, Classes, InputGroup } from "@blueprintjs/core";
 import { labelMargin, WidgetContainerDiff } from "widgets/WidgetUtils";
-import Icon from "components/ads/Icon";
+import { Icon } from "design-system";
 import { Colors } from "constants/Colors";
 import { LabelPosition } from "components/constants";
 import LabelWithTooltip from "components/ads/LabelWithTooltip";

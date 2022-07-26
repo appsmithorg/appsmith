@@ -10,7 +10,7 @@ import { StyledDialog, ButtonWrapper, SpinnerWrapper } from "./ForkModalStyles";
 import { getIsFetchingApplications } from "selectors/applicationSelectors";
 import { useLocation } from "react-router";
 import Spinner from "components/ads/Spinner";
-import { IconSize } from "components/ads/Icon";
+import { IconSize } from "design-system";
 import { matchViewerForkPath } from "constants/routes";
 import { Colors } from "constants/Colors";
 import { Dropdown } from "components/ads";

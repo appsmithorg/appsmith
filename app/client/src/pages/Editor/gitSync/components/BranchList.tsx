@@ -30,7 +30,7 @@ import {
   SYNC_BRANCHES,
 } from "@appsmith/constants/messages";
 import { Space } from "./StyledComponents";
-import Icon, { IconSize, IconWrapper } from "components/ads/Icon";
+import { Icon, IconSize, IconWrapper } from "design-system";
 import { get } from "lodash";
 import { TooltipComponent as Tooltip } from "design-system";
 import Spinner from "components/ads/Spinner";

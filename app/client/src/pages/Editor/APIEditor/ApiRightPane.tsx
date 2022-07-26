@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useMemo } from "react";
 import styled from "styled-components";
-import Icon, { IconSize } from "components/ads/Icon";
+import { Icon, IconSize } from "design-system";
 import { StyledSeparator } from "pages/Applications/ProductUpdatesModal/ReleaseComponent";
 import history from "utils/history";
 import { TabComponent } from "components/ads/Tabs";

@@ -19,7 +19,7 @@ import { Colors } from "constants/Colors";
 import { TextSize } from "constants/WidgetConstants";
 import Fuse from "fuse.js";
 import { WidgetContainerDiff } from "widgets/WidgetUtils";
-import Icon from "components/ads/Icon";
+import { Icon } from "design-system";
 import { LabelPosition } from "components/constants";
 import LabelWithTooltip, {
   labelLayoutStyles,
