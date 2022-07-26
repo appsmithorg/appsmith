@@ -27,25 +27,20 @@
         <plugin.dependencies/>
     </properties>
 
-    <!--<repositories>
+    <repositories>
         <repository>
             <id>redshift</id>
             <url>http://redshift-maven-repository.s3-website-us-east-1.amazonaws.com/release</url>
         </repository>
-    </repositories>-->
+    </repositories>
 
     <dependencies>
 
-        <!--<dependency>
+        <dependency>
             <groupId>com.amazon.redshift</groupId>
             <artifactId>redshift-jdbc42</artifactId>
             <version>2.1.0.9</version>
             <scope>runtime</scope>
-        </dependency>-->
-        <dependency>
-            <groupId>org.postgresql</groupId>
-            <artifactId>postgresql</artifactId>
-            <version>42.3.3</version>
         </dependency>
         <dependency>
             <groupId>com.zaxxer</groupId>

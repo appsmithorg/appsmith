@@ -53,7 +53,7 @@ import static com.external.utils.RedshiftDatasourceUtils.getConnectionFromConnec
 
 
 public class RedshiftPlugin extends BasePlugin {
-    public static final String JDBC_DRIVER = "org.postgresql.Driver";
+    public static final String JDBC_DRIVER = "com.amazon.redshift.jdbc.Driver";
     private static final String DATE_COLUMN_TYPE_NAME = "date";
 
     public RedshiftPlugin(PluginWrapper wrapper) {

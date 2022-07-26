@@ -23,7 +23,7 @@ public class RedshiftDatasourceUtils {
     private static final int MINIMUM_POOL_SIZE = 1;
     private static final int MAXIMUM_POOL_SIZE = 5;
     private static final long LEAK_DETECTION_TIME_MS = 60 * 1000;
-    private static final String JDBC_PROTOCOL = "jdbc:postgresql://";
+    private static final String JDBC_PROTOCOL = "jdbc:redshift://";
 
 
     public static HikariDataSource createConnectionPool(DatasourceConfiguration datasourceConfiguration) throws AppsmithPluginException {
