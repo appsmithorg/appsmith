@@ -55,7 +55,7 @@ function execCommand(cmd, options) {
         return;
       }
       isPromiseDone = true;
-      log.error('Error rynning command', err);
+      log.error('Error running command', err);
       reject();
     })
   })
@@ -76,12 +76,12 @@ async function listLocalBackupFiles(){ // Ascending order
 
 async function updateLastBackupErrorMailSentInMilliSec(ts) {
   await fsPromises.mkdir(Constants.BACKUP_PATH, { recursive: true });
-  await fsPromises.writeFile(Constants.BACKUP_PATH  + '/last-error-mail-ts', ts.toString());
+  await fsPromises.writeFile(Constants.LAST_ERROR_MAIL_TS, ts.toString());
 }
 
 async function getLastBackupErrorMailSentInMilliSec() {
   try {
-    const ts = await fsPromises.readFile(BACKUP_PATH + '/last-error-mail-ts');
+    const ts = await fsPromises.readFile(Constants.LAST_ERROR_MAIL_TS);
     return parseInt(ts, 10);
   } catch (error) {
     return 0;
