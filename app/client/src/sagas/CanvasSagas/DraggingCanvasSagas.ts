@@ -10,7 +10,7 @@ import {
 } from "reducers/entityReducers/canvasWidgetsReducer";
 import { all, call, put, select, takeLatest } from "redux-saga/effects";
 import log from "loglevel";
-import { cloneDeep, isNumber } from "lodash";
+import { cloneDeep } from "lodash";
 import { updateAndSaveLayout, WidgetAddChild } from "actions/pageActions";
 import { calculateDropTargetRows } from "components/editorComponents/DropTargetUtils";
 import { GridDefaults } from "constants/WidgetConstants";
@@ -330,7 +330,7 @@ function* autolayoutReorderSaga(
     yield put(updateAndSaveLayout(updatedWidgets));
     log.debug("reorder computations took", performance.now() - start, "ms");
   } catch (e) {
-    console.error(e);
+    // console.error(e);
   }
 }
 
@@ -409,7 +409,7 @@ function* addWidgetAndReorderSaga(
     yield put(updateAndSaveLayout(updatedWidgetsOnMove));
     log.debug("reorder computations took", performance.now() - start, "ms");
   } catch (e) {
-    console.error(e);
+    // console.error(e);
   }
 }
 

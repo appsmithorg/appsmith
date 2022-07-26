@@ -45,7 +45,6 @@ import { GridDefaults } from "constants/WidgetConstants";
 import { DropTargetContext } from "./DropTargetComponent";
 import { XYCord } from "pages/common/CanvasArenas/hooks/useCanvasDragging";
 import { AlignItems, LayoutDirection } from "components/constants";
-import { AutoLayoutContext } from "widgets/AutoLayoutContainerWidget/widget";
 
 export type ResizableComponentProps = WidgetProps & {
   paddingOffset: number;
