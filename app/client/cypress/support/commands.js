@@ -396,9 +396,8 @@ Cypress.Commands.add(
 Cypress.Commands.add("WaitAutoSave", () => {
   // wait for save query to trigger
   // eslint-disable-next-line cypress/no-unnecessary-waiting
-  cy.wait(2000);
+  cy.wait(3000);
   cy.wait("@saveAction");
-  //cy.wait("@postExecute");
 });
 
 Cypress.Commands.add("SelectAction", (action) => {

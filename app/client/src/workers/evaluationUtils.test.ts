@@ -1,4 +1,8 @@
-import { DependencyMap } from "utils/DynamicBindingUtils";
+import {
+  DependencyMap,
+  EVAL_ERROR_PATH,
+  PropertyEvaluationErrorType,
+} from "utils/DynamicBindingUtils";
 import { RenderModes } from "constants/WidgetConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import {
@@ -16,11 +20,12 @@ import {
   getDataTreeWithoutPrivateWidgets,
   isPrivateEntityPath,
   makeParentsDependOnChildren,
+  removeLintErrorsFromEntityProperty,
   translateDiffEventToDataTreeDiffEvent,
 } from "./evaluationUtils";
 import { warn as logWarn } from "loglevel";
 import { Diff } from "deep-diff";
-import _, { flatten } from "lodash";
+import _, { get, flatten } from "lodash";
 import { overrideWidgetProperties } from "./evaluationUtils";
 import { DataTree } from "entities/DataTree/dataTreeFactory";
 import { EvalMetaUpdates } from "./DataTreeEvaluator/types";
@@ -30,6 +35,7 @@ import InputWidget, {
   CONFIG as InputWidgetV2Config,
 } from "widgets/InputWidgetV2";
 import { registerWidget } from "utils/WidgetRegisterHelpers";
+import { Severity } from "entities/AppsmithConsole";
 
 // to check if logWarn was called.
 // use jest.unmock, if the mock needs to be removed.
@@ -124,6 +130,25 @@ const testDataTree: Record<string, DataTreeWidget> = {
     ...BASE_WIDGET,
     privateWidgets: {
       Text3: true,
+    },
+  },
+  Button1: {
+    ...BASE_WIDGET,
+    text: "undefined",
+    __evaluation__: {
+      errors: {
+        text: [
+          {
+            errorType: PropertyEvaluationErrorType.LINT,
+            raw:
+              " function closedFunction () { const result = Api24 return result; } closedFunction.call(THIS_CONTEXT) ",
+            severity: Severity.ERROR,
+            errorMessage: "'Api24' is not defined.",
+            errorSegment: " const result = Api24",
+            originalBinding: "Api24",
+          },
+        ],
+      },
     },
   },
 };
@@ -242,6 +267,25 @@ describe("privateWidgets", () => {
         ...BASE_WIDGET,
         privateWidgets: {
           Text3: true,
+        },
+      },
+      Button1: {
+        ...BASE_WIDGET,
+        text: "undefined",
+        __evaluation__: {
+          errors: {
+            text: [
+              {
+                errorType: PropertyEvaluationErrorType.LINT,
+                raw:
+                  " function closedFunction () { const result = Api24 return result; } closedFunction.call(THIS_CONTEXT) ",
+                severity: Severity.ERROR,
+                errorMessage: "'Api24' is not defined.",
+                errorSegment: " const result = Api24",
+                originalBinding: "Api24",
+              },
+            ],
+          },
         },
       },
     };
@@ -709,5 +753,14 @@ describe("overrideWidgetProperties", () => {
       //@ts-expect-error: selectedRowIndex does not exits on type DataTreeEntity
       expect(currentTree.Table1.selectedRowIndex).toStrictEqual(0);
     });
+  });
+});
+
+describe("removeLintErrorsFromEntityProperty", () => {
+  it("returns correct result", function() {
+    const dataTree: DataTree = { ...testDataTree };
+    const path = "Button1.text";
+    removeLintErrorsFromEntityProperty(dataTree, path);
+    expect(get(dataTree, `Button1.${EVAL_ERROR_PATH}[text]`)).toEqual([]);
   });
 });
