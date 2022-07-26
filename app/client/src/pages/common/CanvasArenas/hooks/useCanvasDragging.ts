@@ -132,8 +132,12 @@ export const useCanvasDragging = (
   const offsets: number[] = [];
   // let siblings: { [key: string]: number } = {};
   const siblingElements: any[] = [];
+  const isVertical = direction === LayoutDirection.Vertical;
   const calculateHighlightOffsets = () => {
-    if (isNewWidget) dragBlocksSize = blocksToDraw[0].height;
+    if (isNewWidget)
+      dragBlocksSize = isVertical
+        ? blocksToDraw[0].height
+        : blocksToDraw[0].width;
     if (useAutoLayout && isDragging) {
       // Get all children of current auto layout container
       const els = document.querySelectorAll(`.auto-layout-parent-${widgetId}`);
@@ -158,14 +162,16 @@ export const useCanvasDragging = (
            */
           if (blocks && blocks.length && blocks.indexOf(mClass) !== -1) {
             // Temporarily hide the dragged widget
-            dragBlocksSize += (el as any).clientHeight;
+            dragBlocksSize += isVertical
+              ? (el as any).clientHeight
+              : (el as any).clientWidth;
+            // console.log(`block size: ${dragBlocksSize}`);
             (el as any).classList.add("auto-temp-no-display");
             return;
           } else {
-            const mOffset =
-              direction === LayoutDirection.Vertical
-                ? (el as any).offsetTop
-                : (el as any).offsetLeft;
+            const mOffset = isVertical
+              ? (el as any).offsetTop
+              : (el as any).offsetLeft;
             // console.log(`offset: ${mOffset}`);
             offsets.push(mOffset);
             // console.log(offsets);
@@ -174,7 +180,7 @@ export const useCanvasDragging = (
           }
         });
         offsets.push(
-          direction === LayoutDirection.Vertical
+          isVertical
             ? (siblingElements[siblingElements.length - 1] as any).offsetTop +
                 siblingElements[siblingElements.length - 1].clientHeight +
                 8
@@ -375,11 +381,11 @@ export const useCanvasDragging = (
             // console.log(currentRectanglesToDraw);
             // console.log(reflowedPositionsUpdatesWidgets);
             const pos = getDropPosition(
-              direction === LayoutDirection.Vertical
+              isVertical
                 ? currentRectanglesToDraw[0].top
                 : currentRectanglesToDraw[0].left,
             );
-            console.log(`#### pos: ${pos}`);
+            // console.log(`#### pos: ${pos}`);
             if (pos !== undefined && useAutoLayout) {
               // cleanUpTempStyles();
               updateChildrenPositions(pos, currentRectanglesToDraw);
@@ -653,13 +659,15 @@ export const useCanvasDragging = (
           const arr = [...siblingElements];
 
           // translate each element in the appropriate direction
-          const x =
-            direction === LayoutDirection.Horizontal ? dragBlocksSize : 0;
-          const y = direction === LayoutDirection.Vertical ? dragBlocksSize : 0;
+          const x = !isVertical ? dragBlocksSize : 0;
+          const y = isVertical ? dragBlocksSize : 0;
           arr.forEach((each, index) => {
             if (index < dropIndex) {
               each.style.transform = null;
-            } else each.style.transform = `translate(${x}px, ${y}px)`;
+            } else {
+              each.style.transform = `translate(${x}px, ${y}px)`;
+              each.style.transitionDuration = "0.2s";
+            }
           });
           lastTranslatedIndex = dropIndex;
         };
@@ -670,8 +678,7 @@ export const useCanvasDragging = (
           // console.log(`#### ref: ${dropPositionRef.current}`);
           if (dropPositionRef && dropPositionRef.current) {
             dropPositionRef.current.style.opacity = "1";
-            if (direction === LayoutDirection.Vertical)
-              dropPositionRef.current.style.top = pos - 6 + "px";
+            if (isVertical) dropPositionRef.current.style.top = pos - 6 + "px";
             else dropPositionRef.current.style.left = pos - 6 + "px";
           }
           translateSiblings(pos);
@@ -680,10 +687,7 @@ export const useCanvasDragging = (
           let base: number[] = [];
           if (!offsets || !offsets.length) base = [8];
           else base = offsets;
-          const pos =
-            (direction === LayoutDirection.Vertical
-              ? e?.offsetY
-              : e?.offsetX) || val;
+          const pos = (isVertical ? e?.offsetY : e?.offsetX) || val;
           // console.log(e);
           // console.log(pos);
           const arr = [...base].sort((a, b) => {

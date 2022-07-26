@@ -213,7 +213,6 @@ export const ResizableComponent = memo(function ResizableComponent(
     ) {
       canResizeVertically = false;
     }
-    if (props.useAutoLayout) canResizeVertically = true;
 
     const resizedPositions = {
       id: props.widgetId,
