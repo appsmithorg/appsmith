@@ -1,5 +1,5 @@
 import React from "react";
-import { find, some } from "lodash";
+import { find } from "lodash";
 import TabsComponent from "../component";
 import BaseWidget, { WidgetState } from "../../BaseWidget";
 import WidgetFactory from "utils/WidgetFactory";
