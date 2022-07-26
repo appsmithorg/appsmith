@@ -672,7 +672,6 @@ public class FilterDataServiceCE implements IFilterDataServiceCE {
             }
             //We are setting incompatible datatypes of each row to Null, rather allowing it and exit with error.
             if (dataTypeConversionMap != null && inputDataType != dataType && !datatypeCompatibilityMap.getOrDefault(dataType, Set.of()).contains(inputDataType)) {
-                log.debug("DataType Error : [" + inputDataType + "] " + value + " is not of type " + dataType + " which is the datatype of the column, hence ignored in filter.");
                 dataType = DataType.NULL;
             }
         }
