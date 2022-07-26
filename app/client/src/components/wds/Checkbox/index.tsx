@@ -1,5 +1,9 @@
 import styled from "styled-components";
 import { Alignment, Checkbox as BlueprintCheckbox } from "@blueprintjs/core";
+import CheckIcon from "assets/icons/widget/checkbox/check-icon.svg";
+import DisabledCheckIcon from "assets/icons/widget/checkbox/disabledcheck-icon.svg";
+import IndeterminateIcon from "assets/icons/widget/checkbox/indeterminate-icon.svg";
+import DisabledIndeterminate from "assets/icons/widget/checkbox//disabled-indeterminate-icon.svg";
 
 import { darkenColor } from "widgets/WidgetUtils";
 
@@ -110,7 +114,7 @@ const Checkbox = styled(BlueprintCheckbox)<StyledCheckboxProps>`
 
     &.bp3-control.bp3-checkbox input:indeterminate:disabled ~ .bp3-control-indicator {
       background-color: var(--wds-color-bg-disabled) !important;
-      box-shadow: none;
+      box-shadow: 0px 0px 0px 1px var(--wds-color-border-disabled);
     }
 
     // blueprint specific issues
@@ -120,22 +124,22 @@ const Checkbox = styled(BlueprintCheckbox)<StyledCheckboxProps>`
 
     // checked + disabled icon
     &.bp3-control.bp3-checkbox input:checked:disabled ~ .bp3-control-indicator::before {
-      background-image: url(/widgets/disabledcheck-icon.svg);
+      background-image: url(${DisabledCheckIcon});
     }
 
     // indeterminate icon
     &.bp3-control.bp3-checkbox input:indeterminate ~ .bp3-control-indicator::before {
-      background-image: url(/widgets/indeterminate-icon.svg);
+      background-image: url(${IndeterminateIcon});
     }
 
     // indeterminate + disabled icon
     &.bp3-control.bp3-checkbox input:indeterminate:disabled ~ .bp3-control-indicator::before {
-      background-image: url(/widgets/disabled-indeterminate-icon.svg);
+      background-image: url(${DisabledIndeterminate});
     }
 
     // checked icon
     &.bp3-control.bp3-checkbox input:checked ~ .bp3-control-indicator::before {
-      background-image: url(/widgets/check-icon.svg);
+      background-image: url(${CheckIcon})
     }
   `}
 `;
