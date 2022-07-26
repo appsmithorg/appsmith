@@ -23,24 +23,39 @@ const widgetsToTest = {
     widgetName: "MultiSelect1",
     widgetPrefixName: "MultiSelect1",
     textBindingValue: "{{MultiSelect1.selectedOptionValues}}",
-    WIDGET_TYPE: {
-      action: () => {
-        cy.toggleJsAndUpdate();
-      },
+    action: () => {
+      cy.chooseColMultiSelectAndReset();
     },
   },
-  [WIDGET.TREESELECT_WIDGET]: {
+  [WIDGET.TAB]: {
     testCases: [
       {
-        input:
-          '{{resetWidget("TreeSelect1",true).then(() => showAlert("success"))}}',
+        input: '{{resetWidget("Tabs1",true).then(() => showAlert("success"))}}',
         expected: "success",
         clearBeforeType: true,
       },
     ],
-    widgetName: "TreeSelect1",
-    widgetPrefixName: "TreeSelect1",
-    textBindingValue: "{{TreeSelect1.selectedOptionValue}}",
+    widgetName: "Tabs1",
+    widgetPrefixName: "Tabs1",
+    textBindingValue: testdata.tabBindingValue,
+    action: () => {
+      cy.selectTabAndReset();
+    },
+  },
+  [WIDGET.TABLE]: {
+    testCases: [
+      {
+        input: '{{resetWidget("Tabs1",true).then(() => showAlert("success"))}}',
+        expected: "success",
+        clearBeforeType: true,
+      },
+    ],
+    widgetName: "Table1",
+    widgetPrefixName: "Table1",
+    textBindingValue: testdata.tableBindingValue,
+    action: () => {
+      cy.selectTableAndReset();
+    },
   },
 };
 
@@ -70,15 +85,19 @@ Object.entries(widgetsToTest).forEach(([widgetSelector, testConfig]) => {
       // Bind to stored value above
       cy.openPropertyPane(WIDGET.TEXT);
       cy.updateCodeInput(PROPERTY_SELECTOR.text, testConfig.textBindingValue);
-      /*
-      cy.closePropertyPane();
+    });
 
-
-      const inputs = testConfig.testCases;
-      cy.get(getWidgetSelector(WIDGET.BUTTON_WIDGET)).click();
-      cy.wait("@updateLayout");
+    it("3. Publish the app and check the reset action", () => {
+      // Set onClick action, storing value
+      cy.PublishtheApp();
+      testConfig.action();
       cy.get(".t--toast-action span").contains("success");
-      */
+    });
+
+    it("4. Delete all the widgets on canvas", () => {
+      cy.goToEditFromPublish();
+      cy.get(getWidgetSelector(widgetSelector)).click();
+      cy.get("body").type(`{del}`, { force: true });
     });
   });
 });

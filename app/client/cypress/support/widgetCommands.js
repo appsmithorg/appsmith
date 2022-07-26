@@ -1453,3 +1453,45 @@ Cypress.Commands.add("discardTableRow", (x, y) => {
     `[data-colindex="${x}"][data-rowindex="${y}"] button span:contains('Discard')`,
   ).click({ force: true });
 });
+
+Cypress.Commands.add("chooseColMultiSelectAndReset", () => {
+  cy.get(".rc-select-selection-overflow").click({ force: true });
+  cy.get(".rc-select-item-option-content:contains('Blue')").click({
+    force: true,
+  });
+  cy.wait(1000);
+  cy.get(".t--text-widget-container").each((item, index, list) => {
+    cy.wrap(item).should("contain.text", "BLUE");
+  });
+  cy.get("button:contains('Submit')").click({ force: true });
+  cy.wait(1000);
+  cy.get(".t--text-widget-container").each((item, index, list) => {
+    cy.wrap(item).should("not.contain.text", "BLUE");
+  });
+});
+
+Cypress.Commands.add("selectTabAndReset", () => {
+  cy.get(".t--tabid-tab2").click({ force: true });
+  cy.wait(1000);
+  cy.get(".t--text-widget-container").each((item, index, list) => {
+    cy.wrap(item).should("contain.text", "Tab 2");
+  });
+  cy.get("button:contains('Submit')").click({ force: true });
+  cy.wait(1000);
+  cy.get(".t--text-widget-container").each((item, index, list) => {
+    cy.wrap(item).should("not.contain.text", "Tab 2");
+  });
+});
+
+Cypress.Commands.add("selectTableAndReset", () => {
+  cy.isSelectRow(1);
+  cy.wait(1000);
+  cy.get(".t--text-widget-container").each((item, index, list) => {
+    cy.wrap(item).should("contain.text", "#2");
+  });
+  cy.get("button:contains('Submit')").click({ force: true });
+  cy.wait(1000);
+  cy.get(".t--text-widget-container").each((item, index, list) => {
+    cy.wrap(item).should("contain.text", "#1");
+  });
+});
