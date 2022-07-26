@@ -208,7 +208,7 @@ describe("Klona clone test", () => {
     // Symbol
     const key = Symbol("key");
     const input = { foo: 123, [key]: 456 };
-    const result = klona(input);
+    const result = klonaFull(input);
 
     expect(result[key]).toStrictEqual(456);
 
