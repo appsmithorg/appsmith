@@ -19,6 +19,8 @@ import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.services.UserService;
+import com.appsmith.server.services.UserWorkspaceService;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -72,6 +74,9 @@ public class ApplicationFetcherUnitTest {
     @MockBean
     ApplicationService applicationService;
 
+    @MockBean
+    UserWorkspaceService userWorkspaceService;
+
     User testUser;
 
     final static String defaultPageId = "defaultPageId";
@@ -86,8 +91,8 @@ public class ApplicationFetcherUnitTest {
                 applicationRepository,
                 releaseNotesService,
                 responseUtils,
-                newPageService
-                );
+                newPageService,
+                userWorkspaceService);
     }
 
     private List<Application> createDummyApplications(int orgCount, int appCount) {
@@ -173,7 +178,7 @@ public class ApplicationFetcherUnitTest {
 
         Mockito.when(sessionUserService.getCurrentUser()).thenReturn(Mono.just(testUser));
         Mockito.when(userService.findByEmail(testUser.getEmail())).thenReturn(Mono.just(testUser));
-        Mockito.when(workspaceService.findByIdsIn(testUser.getWorkspaceIds(), defaultTenantId, READ_WORKSPACES))
+        Mockito.when(workspaceService.getAll(READ_WORKSPACES))
                 .thenReturn(Flux.fromIterable(createDummyWorkspaces()));
         Mockito.when(releaseNotesService.getReleaseNodes()).thenReturn(Mono.empty());
         Mockito.when(releaseNotesService.computeNewFrom(any())).thenReturn("0");
@@ -191,8 +196,7 @@ public class ApplicationFetcherUnitTest {
         List<Application> applications = createDummyApplications(4,4);
         List<NewPage> pageList = createDummyPages(4, 4);
 
-        Mockito.when(applicationRepository.findByMultipleWorkspaceIds(
-                testUser.getWorkspaceIds(), READ_APPLICATIONS)
+        Mockito.when(applicationRepository.findAll(READ_APPLICATIONS)
         ).thenReturn(Flux.fromIterable(applications));
 
         Mockito.when(newPageService.findPageSlugsByApplicationIds(anyList(), eq(READ_PAGES)))
@@ -238,8 +242,7 @@ public class ApplicationFetcherUnitTest {
         List<Application> applications = createDummyApplications(4,4);
         List<NewPage> pageList = createDummyPages(4, 4);
 
-        Mockito.when(applicationRepository.findByMultipleWorkspaceIds(
-                testUser.getWorkspaceIds(), READ_APPLICATIONS)
+        Mockito.when(applicationRepository.findAll(READ_APPLICATIONS)
         ).thenReturn(Flux.fromIterable(applications));
 
         Mockito.when(newPageService.findPageSlugsByApplicationIds(anyList(), eq(READ_PAGES)))
@@ -375,8 +378,7 @@ public class ApplicationFetcherUnitTest {
         List<Application> applications = createDummyApplications(4,4);
         List<NewPage> pageList = createDummyPages(4, 4);
 
-        Mockito.when(applicationRepository.findByMultipleWorkspaceIds(
-                testUser.getWorkspaceIds(), READ_APPLICATIONS)
+        Mockito.when(applicationRepository.findAll(READ_APPLICATIONS)
         ).thenReturn(Flux.fromIterable(applications));
 
         Mockito.when(newPageService.findPageSlugsByApplicationIds(anyList(), eq(READ_PAGES)))
@@ -428,8 +430,7 @@ public class ApplicationFetcherUnitTest {
         List<Application> applications = createDummyApplications(3,3);
         List<NewPage> pageList = createDummyPages(4, 4);
 
-        Mockito.when(applicationRepository.findByMultipleWorkspaceIds(
-                testUser.getWorkspaceIds(), READ_APPLICATIONS)
+        Mockito.when(applicationRepository.findAll(READ_APPLICATIONS)
         ).thenReturn(Flux.fromIterable(applications));
 
         Mockito.when(newPageService.findPageSlugsByApplicationIds(anyList(), eq(READ_PAGES)))

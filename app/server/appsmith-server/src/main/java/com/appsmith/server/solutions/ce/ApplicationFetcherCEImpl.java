@@ -10,6 +10,7 @@ import com.appsmith.server.domains.UserData;
 import com.appsmith.server.dtos.WorkspaceApplicationsDTO;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.dtos.ReleaseNode;
+import com.appsmith.server.dtos.UserAndPermissionGroupDTO;
 import com.appsmith.server.dtos.UserHomepageDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
@@ -20,6 +21,7 @@ import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.services.UserService;
+import com.appsmith.server.services.UserWorkspaceService;
 import com.appsmith.server.solutions.ReleaseNotesService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -27,10 +29,12 @@ import org.apache.commons.lang.StringUtils;
 import org.springframework.util.CollectionUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.util.function.Tuple2;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -60,12 +64,13 @@ public class ApplicationFetcherCEImpl implements ApplicationFetcherCE {
     private final ReleaseNotesService releaseNotesService;
     private final ResponseUtils responseUtils;
     private final NewPageService newPageService;
+    private final UserWorkspaceService userWorkspaceService;
 
     private <Domain extends BaseDomain> Flux<Domain> sortDomain(Flux<Domain> domainFlux, List<String> sortOrder) {
         if (CollectionUtils.isEmpty(sortOrder)) {
             return domainFlux;
         }
-        return domainFlux.collectMap(Domain::getId, Function.identity())
+        return domainFlux.collect(Collectors.toMap(Domain::getId, Function.identity(), (key1, key2) -> key1, LinkedHashMap::new))
         .map(domainMap -> {
             List<Domain> sortedDomains = new ArrayList<>();
             for (String id : sortOrder) {
@@ -110,12 +115,6 @@ public class ApplicationFetcherCEImpl implements ApplicationFetcherCE {
                     UserHomepageDTO userHomepageDTO = new UserHomepageDTO();
                     userHomepageDTO.setUser(user);
 
-                    Set<String> workspaceIdss = user.getWorkspaceIds();
-                    if(CollectionUtils.isEmpty(workspaceIdss)) {
-                        userHomepageDTO.setWorkspaceApplications(new ArrayList<>());
-                        return Mono.just(userHomepageDTO);
-                    }
-
                     // Collect all the applications as a map with workspace id as a key
                     Flux<Application> applicationFlux = applicationRepository
                             .findAll(READ_APPLICATIONS)
@@ -137,17 +136,28 @@ public class ApplicationFetcherCEImpl implements ApplicationFetcherCE {
                             Application::getWorkspaceId, Function.identity()
                     );
 
-                    return workspaceService
-                            .getAll(READ_WORKSPACES)
+                    Mono<List<Workspace>> workspaceListMono = workspaceService.getAll(READ_WORKSPACES)
                             //sort transformation
                             .transform(domainFlux -> sortDomain(domainFlux, userData.getRecentlyUsedWorkspaceIds()))
                             //collect to list to keep the order of the workspaces
                             .collectList()
-                            .zipWith(applicationsMapMono)
+                            .cache();
+
+                    Mono<Map<String, List<UserAndPermissionGroupDTO>>> userAndPermissionGroupMapDTO = workspaceListMono
+                            .flatMapMany(Flux::fromIterable)
+                            .flatMap(workspace -> {
+                                return Mono.zip(Mono.just(workspace), userWorkspaceService
+                                        .getWorkspaceMembers(workspace.getId()));
+                            })
+                            .collectMap(tuple -> tuple.getT1().getId(), tuple -> tuple.getT2());
+
+                    return Mono.zip(workspaceListMono, applicationsMapMono, userAndPermissionGroupMapDTO)
                             .map(tuple -> {
                                 List<Workspace> workspaces = tuple.getT1();
 
                                 Map<String, Collection<Application>> applicationsCollectionByWorkspaceId = tuple.getT2();
+
+                                Map<String, List<UserAndPermissionGroupDTO>> userAndPermissionGroupMapDTOByWorkspaceId = tuple.getT3();
 
                                 List<WorkspaceApplicationsDTO> workspaceApplicationsDTOS = new ArrayList<>();
 
@@ -162,8 +172,7 @@ public class ApplicationFetcherCEImpl implements ApplicationFetcherCE {
                                     WorkspaceApplicationsDTO workspaceApplicationsDTO = new WorkspaceApplicationsDTO();
                                     workspaceApplicationsDTO.setWorkspace(workspace);
                                     workspaceApplicationsDTO.setApplications(applicationList);
-                                    //TODO: If required change to UserAnPermissionGroupDTO and fetch using UserWorkspaceServiceCE
-                                    workspaceApplicationsDTO.setUserRoles(workspace.getUserRoles());
+                                    workspaceApplicationsDTO.setUsers(userAndPermissionGroupMapDTOByWorkspaceId.get(workspace.getId()));
 
                                     workspaceApplicationsDTOS.add(workspaceApplicationsDTO);
                                 }
