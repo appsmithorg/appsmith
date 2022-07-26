@@ -235,7 +235,9 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
 
         AclPermission permission = viewMode ? READ_PAGES : MANAGE_PAGES;
         return newPageService.findByBranchNameAndDefaultPageId(branchName, defaultPageId, permission)
-                .flatMap(newPage -> getPage(newPage.getId(), viewMode))
+                .flatMap(newPage -> {
+                    return sendPageViewAnalyticsEvent(newPage, viewMode).then(getPage(newPage.getId(), viewMode));
+                })
                 .map(responseUtils::updatePageDTOWithDefaultResources);
     }
 
@@ -1138,4 +1140,26 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                 });
     }
 
+    /**
+     * To send analytics event for page views
+     * @param newPage Page being accessed
+     * @param viewMode Page is accessed in view mode or not
+     * @return NewPage
+     */
+    private Mono<NewPage> sendPageViewAnalyticsEvent(NewPage newPage, boolean viewMode) {
+        if (!viewMode) {
+           return Mono.empty();
+        }
+
+        //TODO: Add more audit data
+        final Map<String, Object> auditData = Map.of(
+                FieldName.PAGE, newPage
+        );
+
+        final Map<String, Object> data = Map.of(
+                FieldName.AUDIT_DATA, auditData
+        );
+
+        return analyticsService.sendObjectEvent(AnalyticsEvents.VIEW, newPage, data);
+    }
 }

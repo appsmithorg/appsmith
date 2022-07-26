@@ -7,6 +7,7 @@ public enum AnalyticsEvents {
     UPDATE,
     DELETE,
     ARCHIVE,
+    VIEW,
     APPLY,
     FIRST_LOGIN,
     USER_LOGIN,

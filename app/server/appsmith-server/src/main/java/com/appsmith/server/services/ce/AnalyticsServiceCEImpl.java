@@ -5,6 +5,7 @@ import com.appsmith.external.models.BaseDomain;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.constants.FieldName;
+import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserData;
 import com.appsmith.server.helpers.PolicyUtils;
@@ -181,8 +182,11 @@ public class AnalyticsServiceCEImpl implements AnalyticsServiceCE {
         return userMono
                 .map(user -> {
 
-                    // In case the user is anonymous, don't raise an event, unless it's a signup or logout event.
-                    if (user.isAnonymous() && !(object instanceof User && (event == AnalyticsEvents.CREATE || event == AnalyticsEvents.USER_LOGOUT))) {
+                    // In case the user is anonymous, don't raise an event, unless it's a signup, logout or page view event.
+                    boolean isEventUserSignUpOrLogout = object instanceof User && (event == AnalyticsEvents.CREATE || event == AnalyticsEvents.USER_LOGOUT);
+                    boolean isEventPageView = object instanceof NewPage && event == AnalyticsEvents.VIEW;
+                    boolean isAnonymousUserEventLogged = user.isAnonymous() && (isEventUserSignUpOrLogout || isEventPageView);
+                    if (!isAnonymousUserEventLogged) {
                         return object;
                     }
 
