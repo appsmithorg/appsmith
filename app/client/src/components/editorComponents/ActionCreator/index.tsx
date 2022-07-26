@@ -19,7 +19,6 @@ import {
 import {
   getActionsForCurrentPage,
   getJSCollectionsForCurrentPage,
-  getPageListAsOptions,
 } from "selectors/entitiesSelector";
 import {
   getModalDropdownList,
@@ -62,6 +61,7 @@ import { ActionDataState } from "reducers/entityReducers/actionsReducer";
 import { selectFeatureFlags } from "selectors/usersSelectors";
 import FeatureFlags from "entities/FeatureFlags";
 import { Switch } from "components/ads/Switcher";
+import { connect } from "react-redux";
 
 /* eslint-disable @typescript-eslint/ban-types */
 /* TODO: Function and object types need to be updated to enable the lint rule */
@@ -582,6 +582,7 @@ type ActionCreatorProps = {
   value: string;
   onValueChange: (newValue: string, isUpdatedViaKeyboard: boolean) => void;
   additionalAutoComplete?: Record<string, Record<string, unknown>>;
+  pageDropdownOptions: TreeDropdownOption[];
 };
 
 const NAVIGATE_TO_TAB_OPTIONS = {
@@ -589,7 +590,7 @@ const NAVIGATE_TO_TAB_OPTIONS = {
   URL: "url",
 };
 
-export const ActionCreator = React.forwardRef(
+const ActionCreator = React.forwardRef(
   (props: ActionCreatorProps, ref: any) => {
     const NAVIGATE_TO_TAB_SWITCHER: Array<Switch> = [
       {
@@ -615,7 +616,6 @@ export const ActionCreator = React.forwardRef(
     const integrationOptionTree = useIntegrationsOptionTree();
     const widgetOptionTree = useSelector(getWidgetOptionsTree);
     const modalDropdownList = useModalDropdownList();
-    const pageDropdownOptions = useSelector(getPageListAsOptions);
     const fields = getFieldFromValue(
       props.value,
       activeTabNavigateTo,
@@ -634,7 +634,7 @@ export const ActionCreator = React.forwardRef(
           modalDropdownList={modalDropdownList}
           navigateToSwitches={NAVIGATE_TO_TAB_SWITCHER}
           onValueChange={props.onValueChange}
-          pageDropdownOptions={pageDropdownOptions}
+          pageDropdownOptions={props.pageDropdownOptions}
           value={props.value}
           widgetOptionTree={widgetOptionTree}
         />
@@ -642,3 +642,17 @@ export const ActionCreator = React.forwardRef(
     );
   },
 );
+
+const getPageListAsOptions = (state: AppState) => {
+  return state.entities.pageList.pages.map((page) => ({
+    label: page.pageName,
+    id: page.pageId,
+    value: `'${page.pageName}'`,
+  }));
+};
+
+const mapStateToProps = (state: AppState) => ({
+  pageDropdownOptions: getPageListAsOptions(state),
+});
+
+export default connect(mapStateToProps)(ActionCreator);

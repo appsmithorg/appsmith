@@ -1,7 +1,7 @@
 import React from "react";
 import BaseControl, { ControlData, ControlProps } from "./BaseControl";
 // import DynamicActionCreator from "components/editorComponents/DynamicActionCreator";
-import { ActionCreator } from "components/editorComponents/ActionCreator";
+import ActionCreator from "components/editorComponents/ActionCreator";
 import {
   DSEventDetail,
   DSEventTypes,

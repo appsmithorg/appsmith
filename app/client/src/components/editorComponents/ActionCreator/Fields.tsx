@@ -924,6 +924,7 @@ function Fields(props: {
   activeNavigateToTab: Switch;
 }) {
   const { fields, ...otherProps } = props;
+
   if (fields[0].field === FieldType.ACTION_SELECTOR_FIELD) {
     const remainingFields = fields.slice(1);
     if (
