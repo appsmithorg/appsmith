@@ -69,7 +69,10 @@ class NoSelfReferenceRule implements AutocompleteRule {
     let score = 0;
     const entityName = AutocompleteSorter.currentFieldInfo.entityName;
     if (!entityName) return score;
-    if (completion.text.startsWith(entityName))
+    if (
+      completion.text === entityName ||
+      completion.text.startsWith(`${entityName}.`)
+    )
       score = NoSelfReferenceRule.threshold;
     return score;
   }
