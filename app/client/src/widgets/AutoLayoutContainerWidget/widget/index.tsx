@@ -1,4 +1,4 @@
-import React, { Context, createContext } from "react";
+import React from "react";
 import { compact, map, sortBy } from "lodash";
 
 import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
@@ -6,21 +6,8 @@ import WidgetFactory, { DerivedPropertiesMap } from "utils/WidgetFactory";
 
 import AutoLayoutContainerComponent from "../component";
 import { ValidationTypes } from "constants/WidgetValidation";
-import {
-  AlignItems,
-  JustifyContent,
-  LayoutDirection,
-} from "components/constants";
+import { JustifyContent, LayoutDirection } from "components/constants";
 import { ContainerStyle } from "widgets/ContainerWidget/component";
-
-export const AutoLayoutContext: Context<{
-  useAutoLayout?: boolean;
-  direction?: LayoutDirection;
-  justifyContent?: JustifyContent;
-  overflow?: string;
-  disabledResizeHandles?: string[];
-  alignItems?: AlignItems;
-}> = createContext({});
 
 class AutoLayoutContainerWidget extends BaseWidget<
   AutoLayoutContainerWidgetProps<WidgetProps>,

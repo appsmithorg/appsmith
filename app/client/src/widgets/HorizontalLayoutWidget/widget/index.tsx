@@ -11,7 +11,6 @@ import {
   JustifyContent,
   LayoutDirection,
 } from "components/constants";
-import { AutoLayoutContext } from "widgets/AutoLayoutContainerWidget/widget";
 import { getCanvasSnapRows } from "utils/WidgetPropsUtils";
 import { ValidationTypes } from "constants/WidgetValidation";
 import {
@@ -23,6 +22,7 @@ import {
 import { map } from "lodash";
 import { ContainerStyle } from "widgets/ContainerWidget/component";
 import WidgetsMultiSelectBox from "pages/Editor/WidgetsMultiSelectBox";
+import { AutoLayoutContext } from "utils/autoLayoutContext";
 
 class HorizontalLayoutWidget extends BaseWidget<
   HorizontalLayoutWidgetProps<WidgetProps>,

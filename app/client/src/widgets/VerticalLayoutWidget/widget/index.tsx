@@ -22,7 +22,7 @@ import {
 import WidgetsMultiSelectBox from "pages/Editor/WidgetsMultiSelectBox";
 import { getCanvasSnapRows } from "utils/WidgetPropsUtils";
 import { ValidationTypes } from "constants/WidgetValidation";
-import { AutoLayoutContext } from "widgets/AutoLayoutContainerWidget/widget";
+import { AutoLayoutContext } from "utils/autoLayoutContext";
 
 class VerticalLayoutWidget extends BaseWidget<
   VerticalLayoutWidgetProps<WidgetProps>,

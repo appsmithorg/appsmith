@@ -45,6 +45,7 @@ import { GridDefaults } from "constants/WidgetConstants";
 import { DropTargetContext } from "./DropTargetComponent";
 import { XYCord } from "pages/common/CanvasArenas/hooks/useCanvasDragging";
 import { AlignItems, LayoutDirection } from "components/constants";
+import { AutoLayoutContext } from "utils/autoLayoutContext";
 
 export type ResizableComponentProps = WidgetProps & {
   paddingOffset: number;
@@ -57,12 +58,14 @@ export const ResizableComponent = memo(function ResizableComponent(
   const [componentHeight, setComponentHeight] = useState<number>(0);
   // Fetch information from the context
   const { updateWidget } = useContext(EditorContext);
-  // const {
-  //   alignItems,
-  //   direction,
-  //   disabledResizeHandles,
-  //   useAutoLayout,
-  // } = useContext(AutoLayoutContext || null);
+  const {
+    alignItems,
+    direction,
+    disabledResizeHandles,
+    useAutoLayout,
+  } = useContext(AutoLayoutContext || null);
+  const isHorizontallyStretched =
+    direction === LayoutDirection.Vertical && alignItems === AlignItems.Stretch;
   const canvasWidgets = useSelector(getCanvasWidgets);
 
   const isCommentMode = useSelector(commentModeSelector);
@@ -104,11 +107,10 @@ export const ResizableComponent = memo(function ResizableComponent(
   // }
   useEffect(() => {
     // Set initial dimensions
-    // console.log(`#### ${props.widgetName} : Initial dimensions`);
+    // if (props.widgetName.toLowerCase().includes("button"))
+    //   console.log(`#### ${props.widgetName} : Initial dimensions`);
     setComponentWidth(
-      props.useAutoLayout &&
-        props.direction === LayoutDirection.Vertical &&
-        props.alignItems === AlignItems.Stretch
+      useAutoLayout && isHorizontallyStretched
         ? 64 * props.parentColumnSpace - 2 * props.paddingOffset
         : (props.rightColumn - props.leftColumn) * props.parentColumnSpace -
             2 * props.paddingOffset,
@@ -117,14 +119,13 @@ export const ResizableComponent = memo(function ResizableComponent(
       (props.bottomRow - props.topRow) * props.parentRowSpace -
         2 * props.paddingOffset,
     );
-  }, [props.useAutoLayout, props.direction, props.alignItems]);
+  }, [useAutoLayout, direction, alignItems]);
 
   useEffect(() => {
-    // console.log(`#### ${props.widgetName} : Manual resize`);
+    // if (props.widgetName.toLowerCase().includes("button"))
+    //   console.log(`#### ${props.widgetName} : Manual resize`);
     setComponentWidth(
-      props.useAutoLayout &&
-        props.direction === LayoutDirection.Vertical &&
-        props.alignItems === AlignItems.Stretch
+      useAutoLayout && isHorizontallyStretched
         ? 64 * props.parentColumnSpace - 2 * props.paddingOffset
         : (props.rightColumn - props.leftColumn) * props.parentColumnSpace -
             2 * props.paddingOffset,
@@ -136,8 +137,9 @@ export const ResizableComponent = memo(function ResizableComponent(
   }, [props.topRow, props.bottomRow, props.leftColumn, props.rightColumn]);
 
   useEffect(() => {
-    // console.log(`#### ${props.widgetName} : Parent resize`);
-    if (!props.useAutoLayout) {
+    // if (props.widgetName.toLowerCase().includes("button"))
+    //   console.log(`#### ${props.widgetName} : Parent resize`);
+    if (!useAutoLayout) {
       setComponentWidth(
         (props.rightColumn - props.leftColumn) * props.parentColumnSpace -
           2 * props.paddingOffset,
@@ -147,24 +149,21 @@ export const ResizableComponent = memo(function ResizableComponent(
           2 * props.paddingOffset,
       );
     } else {
-      if (
-        props.direction === LayoutDirection.Vertical &&
-        props.alignItems === AlignItems.Stretch
-      ) {
+      if (isHorizontallyStretched) {
         setComponentWidth(
           64 * props.parentColumnSpace - 2 * props.paddingOffset,
         );
       }
     }
-  }, [props.parentColumnSpace, props.parentRowSpace, props.useAutoLayout]);
+  }, [props.parentColumnSpace, props.parentRowSpace, useAutoLayout]);
 
   // Calculate the dimensions of the widget,
   // The ResizableContainer's size prop is controlled
   // const dimensions: UIElementSize = {
   //   width:
-  //     props.useAutoLayout &&
-  //     props.direction === LayoutDirection.Vertical &&
-  //     props.alignItems === AlignItems.Stretch
+  //     useAutoLayout &&
+  //     direction === LayoutDirection.Vertical &&
+  //     alignItems === AlignItems.Stretch
   //       ? 64 * props.parentColumnSpace - 2 * props.paddingOffset
   //       : (props.rightColumn - props.leftColumn) * props.parentColumnSpace -
   //         2 * props.paddingOffset,
@@ -318,9 +317,11 @@ export const ResizableComponent = memo(function ResizableComponent(
       topRight: TopRightHandleStyles,
       bottomLeft: BottomLeftHandleStyles,
     };
-
-    return omit(allHandles, get(props, "disabledResizeHandles", []));
-  }, [props]);
+    let handlesToOmit = get(props, "disabledResizeHandles", []);
+    if (disabledResizeHandles && disabledResizeHandles.length)
+      handlesToOmit = [...handlesToOmit, ...disabledResizeHandles];
+    return omit(allHandles, handlesToOmit);
+  }, [props, disabledResizeHandles]);
 
   const isEnabled =
     !isDragging &&
@@ -369,6 +370,7 @@ export const ResizableComponent = memo(function ResizableComponent(
       parentId={props.parentId}
       snapGrid={{ x: props.parentColumnSpace, y: props.parentRowSpace }}
       updateBottomRow={updateBottomRow}
+      useAutoLayout={useAutoLayout}
       widgetId={props.widgetId}
       // Used only for performance tracking, can be removed after optimization.
       zWidgetId={props.widgetId}

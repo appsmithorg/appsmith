@@ -155,6 +155,7 @@ type ResizableProps = {
   gridProps: GridProps;
   zWidgetType?: string;
   zWidgetId?: string;
+  useAutoLayout?: boolean;
 };
 
 export function ReflowResizable(props: ResizableProps) {
@@ -473,13 +474,13 @@ export function ReflowResizable(props: ResizableProps) {
       snapGrid={props.snapGrid}
     />
   ));
-
+  // Don't alter dimensions on temp reflow in children of auto layouts
   const widgetWidth =
-    reflowedPosition?.width === undefined
+    reflowedPosition?.width === undefined || props?.useAutoLayout
       ? newDimensions.width
       : reflowedPosition.width - 2 * WIDGET_PADDING;
   const widgetHeight =
-    reflowedPosition?.height === undefined
+    reflowedPosition?.height === undefined || props?.useAutoLayout
       ? newDimensions.height
       : reflowedPosition.height - 2 * WIDGET_PADDING;
 
