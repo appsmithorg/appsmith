@@ -17,11 +17,11 @@ describe("JSObjects OnLoad Actions tests", function() {
     cy.fixture("tablev1NewDsl").then((val: any) => {
       dsl = val;
     });
-    agHelper.AddDsl(dsl);
-    ee.NavigateToSwitcher("explorer");
   });
 
   it("1. Create Postgress DS & the query", function() {
+    agHelper.AddDsl(dsl);
+    ee.NavigateToSwitcher("explorer");
     agHelper.GenerateUUID();
     cy.get("@guid").then((uid) => {
       dataSources.NavigateToDSCreateNew();
