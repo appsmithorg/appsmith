@@ -330,7 +330,7 @@ function* autolayoutReorderSaga(
     yield put(updateAndSaveLayout(updatedWidgets));
     log.debug("reorder computations took", performance.now() - start, "ms");
   } catch (e) {
-    console.error(e);
+    // console.error(e);
   }
 }
 
@@ -409,7 +409,7 @@ function* addWidgetAndReorderSaga(
     yield put(updateAndSaveLayout(updatedWidgetsOnMove));
     log.debug("reorder computations took", performance.now() - start, "ms");
   } catch (e) {
-    console.error(e);
+    // console.error(e);
   }
 }
 
