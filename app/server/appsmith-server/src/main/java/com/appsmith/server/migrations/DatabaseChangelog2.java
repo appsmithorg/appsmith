@@ -74,6 +74,7 @@ import java.util.stream.Stream;
 
 import static com.appsmith.server.acl.AclPermission.MANAGE_INSTANCE_CONFIGURATION;
 import static com.appsmith.server.acl.AclPermission.MANAGE_INSTANCE_ENV;
+import static com.appsmith.server.acl.AclPermission.READ_INSTANCE_CONFIGURATION;
 import static com.appsmith.server.migrations.DatabaseChangelog.dropIndexIfExists;
 import static com.appsmith.server.migrations.DatabaseChangelog.ensureIndexes;
 import static com.appsmith.server.migrations.DatabaseChangelog.makeIndex;
@@ -1071,10 +1072,10 @@ public class DatabaseChangelog2 {
         }
     }
 
-    @ChangeSet(order = "21", id = "add-instance-admin-config", author = "")
-    public void addInstanceAdminConfiguration(MongockTemplate mongockTemplate) {
+    @ChangeSet(order = "21", id = "add-instance-config-object", author = "")
+    public void addInstanceConfigurationPlaceHolder(MongockTemplate mongockTemplate) {
         Query instanceConfigurationQuery = new Query();
-        instanceConfigurationQuery.addCriteria(where(fieldName(QConfig.config1.name)).is(FieldName.INSTANCE_ADMIN));
+        instanceConfigurationQuery.addCriteria(where(fieldName(QConfig.config1.name)).is(FieldName.INSTANCE_CONFIG));
         Config instanceAdminConfiguration = mongockTemplate.findOne(instanceConfigurationQuery, Config.class);
 
         if (instanceAdminConfiguration != null) {
@@ -1082,7 +1083,7 @@ public class DatabaseChangelog2 {
         }
 
         instanceAdminConfiguration = new Config();
-        instanceAdminConfiguration.setName(FieldName.INSTANCE_ADMIN);
+        instanceAdminConfiguration.setName(FieldName.INSTANCE_CONFIG);
         Config savedInstanceConfig = mongockTemplate.save(instanceAdminConfiguration);
 
         // Create instance management permission group
@@ -1108,11 +1109,14 @@ public class DatabaseChangelog2 {
         // Update the instance config with the permission group id
         savedInstanceConfig.setConfig(new JSONObject(Map.of("defaultPermissionGroup", savedPermissionGroup.getId())));
 
-        Policy configPolicy = Policy.builder().permission(MANAGE_INSTANCE_CONFIGURATION.getValue())
+        Policy editConfigPolicy = Policy.builder().permission(MANAGE_INSTANCE_CONFIGURATION.getValue())
+                .permissionGroups(Set.of(savedPermissionGroup.getId()))
+                .build();
+        Policy readConfigPolicy = Policy.builder().permission(READ_INSTANCE_CONFIGURATION.getValue())
                 .permissionGroups(Set.of(savedPermissionGroup.getId()))
                 .build();
 
-        savedInstanceConfig.setPolicies(Set.of(configPolicy));
+        savedInstanceConfig.setPolicies(Set.of(editConfigPolicy, readConfigPolicy));
 
         mongockTemplate.save(savedInstanceConfig);
     }

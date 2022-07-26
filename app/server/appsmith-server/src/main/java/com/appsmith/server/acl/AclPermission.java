@@ -23,8 +23,9 @@ public enum AclPermission {
      */
 
     // Instance level permissions
-    // Does this user have permission to access Instance Config UI?
+    // Does this user have permission to edit/read Instance Config UI?
     MANAGE_INSTANCE_CONFIGURATION("manageInstanceConfiguration:config", Config.class),
+    READ_INSTANCE_CONFIGURATION("readInstanceConfiguration:config", Config.class),
 
     // Does the user have manage workspace permission
     USER_MANAGE_WORKSPACES("manage:userWorkspace", User.class),
