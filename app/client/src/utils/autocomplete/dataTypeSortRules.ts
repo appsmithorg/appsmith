@@ -1,8 +1,8 @@
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 
 export const PriorityOrder: Record<AutocompleteDataType, string[]> = {
-  STRING: ["selectedRow", "data"],
-  NUMBER: ["selectedRow", "data"],
+  STRING: ["selectedRow", "data", "text"],
+  NUMBER: ["selectedRow", "data", "text"],
   OBJECT: [],
   ARRAY: [],
   FUNCTION: ["run()"],

@@ -163,11 +163,13 @@ class PriorityMatchRule implements AutocompleteRule {
   computeScore(completion: Completion): number {
     let score = 0;
     const { currentFieldInfo } = AutocompleteSorter;
-    if (
+    if (!completion.text) return score;
+    const relevantText = completion.text.split(".").pop();
+    const priorities =
       PriorityOrder[
         currentFieldInfo.expectedType || AutocompleteDataType.UNKNOWN
-      ].includes(completion.text)
-    )
+      ];
+    if (relevantText && priorities.includes(relevantText))
       score += PriorityMatchRule.threshold;
     return score;
   }
