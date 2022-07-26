@@ -65,10 +65,13 @@ export const dataTreeTypeDefCreator = (
       const jsProperty: Def = {};
 
       for (const key in metaObj) {
-        const jsFunctionObj = metaObj[key];
-        const { arguments: args } = jsFunctionObj;
-        const argsTypeString = getFunctionsArgsType(args);
+        // const jsFunctionObj = metaObj[key];
+        // const { arguments: args } = jsFunctionObj;
+        // const argsTypeString = getFunctionsArgsType(args);
+        // As we don't show args we avoid to get args def of function
+        // we will also need to check performance implications here
 
+        const argsTypeString = getFunctionsArgsType([]);
         jsProperty[key] = argsTypeString;
       }
 
@@ -141,26 +144,28 @@ export const flattenDef = (def: Def, entityName: string): Def => {
   return flattenedDef;
 };
 
+const VALID_VARIABLE_NAME_REGEX = /^([a-zA-Z_$][a-zA-Z\d_$]*)$/;
+
+const isValidVariableName = (variableName: string) =>
+  VALID_VARIABLE_NAME_REGEX.test(variableName);
+
 export const getFunctionsArgsType = (args: Variable[]): string => {
   // skip same name args to avoiding creating invalid type
   const argNames = new Set<string>();
-  args.map((arg) => {
-    argNames.add(arg.name);
+  // skip invalid args name
+  args.forEach((arg) => {
+    if (arg.name && isValidVariableName(arg.name)) argNames.add(arg.name);
   });
   const argNamesArray = [...argNames];
   const argsTypeString = argNamesArray.reduce(
     (accumulatedArgType, argName, currentIndex) => {
       switch (currentIndex) {
         case 0:
-          return argName ? `${argName}: ?` : "";
+          return `${argName}: ?`;
         case 1:
-          return argName
-            ? `${accumulatedArgType}, ${argName}: ?`
-            : accumulatedArgType;
+          return `${accumulatedArgType}, ${argName}: ?`;
         default:
-          return argName
-            ? `${accumulatedArgType}, ${argName}: ?`
-            : accumulatedArgType;
+          return `${accumulatedArgType}, ${argName}: ?`;
       }
     },
     argNamesArray[0],

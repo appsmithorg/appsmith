@@ -360,18 +360,18 @@ export const entityDefinitions = {
   },
   MAP_WIDGET: () => ({
     isVisible: isVisible,
-    center: generateTypeDef({
+    center: {
       lat: "number",
       long: "number",
       title: "string",
-    }),
+    },
     markers: "[$__mapMarker__$]",
-    selectedMarker: generateTypeDef({
+    selectedMarker: {
       lat: "number",
       long: "number",
       title: "string",
       description: "string",
-    }),
+    },
   }),
   FILE_PICKER_WIDGET: {
     "!doc":
@@ -531,19 +531,19 @@ export const entityDefinitions = {
     videoDataURL: "string",
     videoRawBinary: "string",
   },
-  MAP_CHART_WIDGET: () => ({
+  MAP_CHART_WIDGET: {
     "!doc":
       "Map Chart widget shows the graphical representation of your data on the map.",
     "!url": "https://docs.appsmith.com/widget-reference/map-chart",
     isVisible: isVisible,
-    selectedDataPoint: generateTypeDef({
+    selectedDataPoint: {
       id: "string",
       label: "string",
       originalId: "string",
       shortLabel: "string",
       value: "number",
-    }),
-  }),
+    },
+  },
   INPUT_WIDGET_V2: {
     "!doc":
       "An input text field is used to capture a users textual input such as their names, numbers, emails etc. Inputs are used in forms and can have custom validations.",
