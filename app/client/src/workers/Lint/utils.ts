@@ -27,6 +27,11 @@ import {
 } from "components/editorComponents/CodeEditor/lintHelpers";
 import { ECMA_VERSION } from "constants/ast";
 import { IGNORED_LINT_ERRORS } from "components/editorComponents/CodeEditor/constants";
+import {
+  extractInvalidTopLevelMemberExpressionsFromCode,
+  isLiteralNode,
+  MemberExpressionData,
+} from "workers/ast";
 
 export const pathRequiresLinting = (
   dataTree: DataTree,
@@ -135,22 +140,63 @@ export const getLintingErrors = (
 
   jshint(script, options);
 
-  return getValidLintErrors(jshint.errors, scriptPos).map((lintError) => {
-    const ch = lintError.character;
-    return {
-      errorType: PropertyEvaluationErrorType.LINT,
-      raw: script,
-      severity: getLintSeverity(lintError.code),
-      errorMessage: getLintErrorMessage(lintError.reason),
-      errorSegment: lintError.evidence,
-      originalBinding,
-      // By keeping track of these variables we can highlight the exact text that caused the error.
-      variables: [lintError.a, lintError.b, lintError.c, lintError.d],
-      code: lintError.code,
-      line: lintError.line - scriptPos.line,
-      ch: lintError.line === scriptPos.line ? ch - scriptPos.ch : ch,
-    };
-  });
+  const jshintErrors = getValidLintErrors(jshint.errors, scriptPos).map(
+    (lintError) => {
+      const ch = lintError.character;
+      return {
+        errorType: PropertyEvaluationErrorType.LINT,
+        raw: script,
+        severity: getLintSeverity(lintError.code),
+        errorMessage: getLintErrorMessage(lintError.reason),
+        errorSegment: lintError.evidence,
+        originalBinding,
+        // By keeping track of these variables we can highlight the exact text that caused the error.
+        variables: [lintError.a, lintError.b, lintError.c, lintError.d],
+        code: lintError.code,
+        line: lintError.line - scriptPos.line,
+        ch: lintError.line === scriptPos.line ? ch - scriptPos.ch : ch,
+      };
+    },
+  );
+
+  let invalidTopLevelMemberExpressions: MemberExpressionData[] = [];
+  try {
+    invalidTopLevelMemberExpressions = extractInvalidTopLevelMemberExpressionsFromCode(
+      script,
+      data,
+    );
+  } catch (e) {}
+
+  const invalidPropertyErrors = invalidTopLevelMemberExpressions.map(
+    ({ object, property }) => {
+      const propertyName = isLiteralNode(property)
+        ? property.value
+        : property.name;
+      const objectStartLine = object.loc.start.line - 1;
+      const propertyStartColumn = !isLiteralNode(property)
+        ? property.loc.start.column + 1
+        : property.loc.start.column + 2;
+      return {
+        errorType: PropertyEvaluationErrorType.LINT,
+        raw: script,
+        severity: getLintSeverity("CUSTOM"),
+        errorMessage: getLintErrorMessage(
+          `"${propertyName}" doesn't exist in ${object.name}`,
+        ),
+        errorSegment: `${object.name}.${propertyName}`,
+        originalBinding,
+        variables: [object.name, propertyName, null, null],
+        code: "CUSTOM",
+        line: objectStartLine - scriptPos.line,
+        ch:
+          objectStartLine === scriptPos.line
+            ? propertyStartColumn - scriptPos.ch
+            : propertyStartColumn,
+      };
+    },
+  );
+
+  return jshintErrors.concat(invalidPropertyErrors);
 };
 
 const getValidLintErrors = (lintErrors: LintError[], scriptPos: Position) => {

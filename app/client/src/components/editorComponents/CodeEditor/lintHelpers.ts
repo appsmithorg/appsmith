@@ -171,7 +171,10 @@ export const getLintAnnotations = (
           bindingLocation.line !== currentLine ? ch : bindingLocation.ch + ch;
         // Jshint counts \t as two characters and codemirror counts it as 1.
         // So we need to subtract number of tabs to get accurate position
-        const tabs = lineContent.slice(0, currentCh).match(/\t/g)?.length || 0;
+        const tabs =
+          error.code === "CUSTOM"
+            ? 0
+            : lineContent.slice(0, currentCh).match(/\t/g)?.length || 0;
         const from = {
           line: currentLine,
           ch: currentCh - tabs - 1,
