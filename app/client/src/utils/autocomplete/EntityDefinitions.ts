@@ -7,7 +7,6 @@ import _ from "lodash";
 import { EVALUATION_PATH } from "utils/DynamicBindingUtils";
 import { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
 import { ButtonGroupWidgetProps } from "widgets/ButtonGroupWidget/widget";
-import { MapWidgetProps } from "widgets/MapWidget/widget";
 
 const isVisible = {
   "!type": "bool",
@@ -359,22 +358,27 @@ export const entityDefinitions = {
     isDisabled: "bool",
     recaptchaToken: "string",
   },
-  MAP_WIDGET: (widget: MapWidgetProps) => ({
+  MAP_WIDGET: () => ({
     isVisible: isVisible,
     center: generateTypeDef({
       lat: "number",
       long: "number",
       title: "string",
     }),
-    markers: generateTypeDef(widget.markers),
-    selectedMarker: generateTypeDef(widget.selectedMarker),
+    markers: "[$__mapMarker__$]",
+    selectedMarker: generateTypeDef({
+      lat: "number",
+      long: "number",
+      title: "string",
+      description: "string",
+    }),
   }),
   FILE_PICKER_WIDGET: {
     "!doc":
       "Filepicker widget is used to allow users to upload files from their local machines to any cloud storage via API. Cloudinary and Amazon S3 have simple APIs for cloud storage uploads",
     "!url": "https://docs.appsmith.com/widget-reference/filepicker",
     isVisible: isVisible,
-    files: "[file]",
+    files: "[$__file__$]",
     isDisabled: "bool",
   },
   FILE_PICKER_WIDGET_V2: {
@@ -382,7 +386,7 @@ export const entityDefinitions = {
       "Filepicker widget is used to allow users to upload files from their local machines to any cloud storage via API. Cloudinary and Amazon S3 have simple APIs for cloud storage uploads",
     "!url": "https://docs.appsmith.com/widget-reference/filepicker",
     isVisible: isVisible,
-    files: "[file]",
+    files: "[$__file__$]",
     isDisabled: "bool",
   },
   LIST_WIDGET: (widget: any) => ({
@@ -527,7 +531,7 @@ export const entityDefinitions = {
     videoDataURL: "string",
     videoRawBinary: "string",
   },
-  MAP_CHART_WIDGET: {
+  MAP_CHART_WIDGET: () => ({
     "!doc":
       "Map Chart widget shows the graphical representation of your data on the map.",
     "!url": "https://docs.appsmith.com/widget-reference/map-chart",
@@ -539,7 +543,7 @@ export const entityDefinitions = {
       shortLabel: "string",
       value: "number",
     }),
-  },
+  }),
   INPUT_WIDGET_V2: {
     "!doc":
       "An input text field is used to capture a users textual input such as their names, numbers, emails etc. Inputs are used in forms and can have custom validations.",
@@ -649,6 +653,12 @@ export const GLOBAL_DEFS = {
     dataFormat: "string",
     name: "text",
     type: "file",
+  },
+  $__mapMarker__$: {
+    lat: "number",
+    long: "number",
+    title: "string",
+    description: "string",
   },
 };
 

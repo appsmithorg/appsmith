@@ -141,35 +141,7 @@ export const flattenDef = (def: Def, entityName: string): Def => {
   return flattenedDef;
 };
 
-/*
-test cases 
-const metaObj: typeof entity.meta = {
-        myFunc1: {
-          confirmBeforeExecute: false,
-          isAsync: false,
-          arguments: [
-            { name: "a", value: undefined },
-            { name: "b", value: undefined },
-            { name: "d", value: undefined },
-            { name: "er", value: undefined },
-          ],
-        },
-        myFunc2: {
-          confirmBeforeExecute: false,
-          isAsync: false,
-          arguments: [],
-        },
-        myFunc12: {
-          confirmBeforeExecute: false,
-          isAsync: false,
-          arguments: [
-            { name: "a", value: undefined },
-            { name: "b", value: undefined },
-          ],
-        },
-      };
-*/
-const getFunctionsArgsType = (args: Variable[]): string => {
+export const getFunctionsArgsType = (args: Variable[]): string => {
   // skip same name args to avoiding creating invalid type
   const argNames = new Set<string>();
   args.map((arg) => {
