@@ -4,7 +4,7 @@ import {
 } from "@appsmith/constants/ReduxActionConstants";
 import { AppsmithNotification } from "entities/Notification";
 import { uniqBy } from "lodash";
-import { createReducer } from "utils/AppsmithUtils";
+import { createReducer } from "utils/ReducerUtils";
 
 const initialState: NotificationReducerState = {
   unreadNotificationsCount: 0,

@@ -1,5 +1,5 @@
 import _ from "lodash";
-import { createReducer } from "utils/AppsmithUtils";
+import { createReducer } from "utils/ReducerUtils";
 import {
   ReduxAction,
   ReduxActionTypes,

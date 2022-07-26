@@ -18,6 +18,7 @@ import "codemirror/addon/mode/multiplex";
 import "codemirror/addon/tern/tern.css";
 import "codemirror/addon/lint/lint";
 import "codemirror/addon/lint/lint.css";
+import store from "store";
 
 import { getDataTreeForAutocomplete } from "selectors/dataTreeSelectors";
 import EvaluatedValuePopup from "components/editorComponents/CodeEditor/EvaluatedValuePopup";
@@ -102,7 +103,6 @@ import { interactionAnalyticsEvent } from "utils/AppsmithUtils";
 import { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTypeDefCreator";
 
 interface ReduxStateProps {
-  dynamicData: DataTree;
   datasources: any;
   pluginIdToImageLocation: Record<string, string>;
   recentEntities: string[];
@@ -203,6 +203,11 @@ type State = {
   changeStarted: boolean;
   // state of lint errors in editor
   hasLintError: boolean;
+};
+
+const selectDataTreeFromStore = () => {
+  const state = store.getState();
+  return getDataTreeForAutocomplete(state);
 };
 
 class CodeEditor extends Component<Props, State> {
@@ -332,10 +337,12 @@ class CodeEditor extends Component<Props, State> {
 
         CodeEditor.updateMarkings(editor, this.props.marking);
 
+        const dataTree = selectDataTreeFromStore();
+
         this.hinters = CodeEditor.startAutocomplete(
           editor,
           this.props.hinting,
-          this.props.dynamicData,
+          dataTree,
           this.props.additionalDynamicData,
         );
 
@@ -608,7 +615,8 @@ class CodeEditor extends Component<Props, State> {
   };
 
   getEntityInformation = (): FieldEntityInformation => {
-    const { dataTreePath, dynamicData, expected } = this.props;
+    const { dataTreePath, expected } = this.props;
+    const dynamicData = selectDataTreeFromStore();
     const entityInformation: FieldEntityInformation = {
       expectedType: expected?.autocompleteDataType,
     };
@@ -699,9 +707,10 @@ class CodeEditor extends Component<Props, State> {
     const {
       additionalDynamicData: contextData,
       dataTreePath,
-      dynamicData,
       isJSObject,
     } = this.props;
+
+    const dynamicData = selectDataTreeFromStore();
 
     if (!dataTreePath || !this.updateLintingCallback || !editor) {
       return;
@@ -742,7 +751,6 @@ class CodeEditor extends Component<Props, State> {
   }
 
   getPropertyValidation = (
-    dataTree: DataTree,
     dataTreePath?: string,
   ): {
     isInvalid: boolean;
@@ -756,6 +764,8 @@ class CodeEditor extends Component<Props, State> {
         pathEvaluatedValue: undefined,
       };
     }
+
+    const dataTree = selectDataTreeFromStore();
 
     const errors = _.get(
       dataTree,
@@ -786,12 +796,6 @@ class CodeEditor extends Component<Props, State> {
     };
   };
 
-  shouldComponentUpdate(nextProps: Props, nextState: State) {
-    if (this.props.dynamicData !== nextProps.dynamicData)
-      return nextState.isFocused;
-    return true;
-  }
-
   render() {
     const {
       border,
@@ -800,7 +804,6 @@ class CodeEditor extends Component<Props, State> {
       codeEditorVisibleOverflow,
       dataTreePath,
       disabled,
-      dynamicData,
       evaluatedValue,
       evaluationSubstitutionType,
       expected,
@@ -814,7 +817,7 @@ class CodeEditor extends Component<Props, State> {
       theme,
       useValidationMessage,
     } = this.props;
-    const validations = this.getPropertyValidation(dynamicData, dataTreePath);
+    const validations = this.getPropertyValidation(dataTreePath);
     let { errors, isInvalid } = validations;
     const { pathEvaluatedValue } = validations;
     let evaluated = evaluatedValue;
@@ -951,7 +954,6 @@ class CodeEditor extends Component<Props, State> {
 }
 
 const mapStateToProps = (state: AppState): ReduxStateProps => ({
-  dynamicData: getDataTreeForAutocomplete(state),
   datasources: state.entities.datasources,
   pluginIdToImageLocation: getPluginIdToImageLocation(state),
   recentEntities: getRecentEntityIds(state),

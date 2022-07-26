@@ -2,7 +2,7 @@ import {
   ReduxAction,
   ReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
-import { createReducer } from "utils/AppsmithUtils";
+import { createReducer } from "utils/ReducerUtils";
 import { get, uniqBy } from "lodash";
 import handleCreateNewCommentThreadSuccess from "./handleCreateNewCommentThreadSuccess";
 import handleAddCommentToThreadSuccess from "./handleAddCommentToThreadSuccess";
