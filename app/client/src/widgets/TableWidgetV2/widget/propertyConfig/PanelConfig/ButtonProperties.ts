@@ -298,6 +298,7 @@ export default {
       },
       isBindProperty: true,
       isTriggerProperty: false,
+      defaultValue: ButtonVariantTypes.PRIMARY,
       validation: {
         type: ValidationTypes.TABLE_PROPERTY,
         params: {
