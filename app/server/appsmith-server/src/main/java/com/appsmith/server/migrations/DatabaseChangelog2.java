@@ -71,6 +71,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNestedNonNullProperties;
 import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNewFieldValuesIntoOldObject;
 import static com.appsmith.server.migrations.DatabaseChangelog.dropIndexIfExists;
 import static com.appsmith.server.migrations.DatabaseChangelog.ensureIndexes;
@@ -1439,7 +1440,7 @@ public class DatabaseChangelog2 {
                 Theme theme = mongockTemplate.findOne(themeQuery, Theme.class);
                 for (Application application : applicationList) {
                     Theme newTheme = new Theme();
-                    copyNewFieldValuesIntoOldObject(theme, newTheme);
+                    copyNestedNonNullProperties(theme, newTheme);
                     newTheme.setId(null);
                     newTheme.setSystemTheme(false);
                     newTheme = mongockTemplate.insert(newTheme);
