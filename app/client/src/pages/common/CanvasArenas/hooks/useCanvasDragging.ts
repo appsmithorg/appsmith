@@ -128,7 +128,6 @@ export const useCanvasDragging = (
   if (!isDragging) {
     cleanUpTempStyles();
   }
-
   const offsets: number[] = [];
   // let siblings: { [key: string]: number } = {};
   const siblingElements: any[] = [];
@@ -138,7 +137,12 @@ export const useCanvasDragging = (
       dragBlocksSize = isVertical
         ? blocksToDraw[0].height
         : blocksToDraw[0].width;
-    if (useAutoLayout && isDragging) {
+    if (
+      useAutoLayout &&
+      isDragging &&
+      isCurrentDraggedCanvas &&
+      isChildOfCanvas
+    ) {
       // Get all children of current auto layout container
       const els = document.querySelectorAll(`.auto-layout-parent-${widgetId}`);
       if (els && els.length && offsets.length !== els.length) {
@@ -180,13 +184,16 @@ export const useCanvasDragging = (
           }
         });
         offsets.push(
-          isVertical
-            ? (siblingElements[siblingElements.length - 1] as any).offsetTop +
+          siblingElements.length
+            ? isVertical
+              ? (siblingElements[siblingElements.length - 1] as any).offsetTop +
                 siblingElements[siblingElements.length - 1].clientHeight +
                 8
-            : (siblingElements[siblingElements.length - 1] as any).offsetLeft +
+              : (siblingElements[siblingElements.length - 1] as any)
+                  .offsetLeft +
                 siblingElements[siblingElements.length - 1].clientWidth +
-                8,
+                8
+            : 8,
         );
         // console.log(offsets);
       }

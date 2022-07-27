@@ -3,6 +3,11 @@ import styled from "styled-components";
 import React, { ReactNode, useCallback } from "react";
 import { useClickToSelectWidget } from "utils/hooks/useClickToSelectWidget";
 import { AlignItems, LayoutDirection } from "./constants";
+import { useSelector } from "react-redux";
+import { AppState } from "reducers";
+import { checkIsDropTarget } from "./designSystems/appsmith/PositionedContainer";
+import { getSelectedWidgets } from "selectors/ui";
+import { Layers } from "constants/Layers";
 
 export type AutoLayoutProps = {
   children: ReactNode;
@@ -33,6 +38,11 @@ const AutoLayout = styled("div")<{
   min-height: 30px;
 `;
 
+const ZIndexContainer = styled.div<{ zIndex: number }>`
+  position: relative;
+  z-index: ${({ zIndex }) => zIndex || Layers.positionedWidget};
+`;
+
 export function AutoLayoutWrapper(props: AutoLayoutProps) {
   const clickToSelectWidget = useClickToSelectWidget();
   const onClickFn = useCallback(
@@ -42,6 +52,19 @@ export function AutoLayoutWrapper(props: AutoLayoutProps) {
     [props.widgetId, clickToSelectWidget],
   );
 
+  const isDropTarget = checkIsDropTarget(props.widgetType);
+  const isDragging = useSelector(
+    (state: AppState) => state.ui.widgetDragResize.isDragging,
+  );
+  const selectedWidgets = useSelector(getSelectedWidgets);
+  const isThisWidgetDragging =
+    isDragging && selectedWidgets.includes(props.widgetId);
+
+  const zIndex =
+    isDragging && !(!isThisWidgetDragging && isDropTarget)
+      ? -1
+      : Layers.positionedWidget + 1;
+
   return (
     <AutoLayout
       alignItems={props.alignItems}
@@ -50,7 +73,7 @@ export function AutoLayoutWrapper(props: AutoLayoutProps) {
       onClickCapture={onClickFn}
       useAutoLayout={props.useAutoLayout}
     >
-      {props.children}
+      <ZIndexContainer zIndex={zIndex}>{props.children}</ZIndexContainer>
     </AutoLayout>
   );
 }
