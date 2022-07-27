@@ -2,12 +2,13 @@ import React from "react";
 import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import { WidgetType } from "constants/WidgetConstants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
+import derivedProperties from "./parseDerivedProperties";
 import {
   isArray,
   isEqual,
   isFinite,
+  isPlainObject,
   isString,
-  isNumber,
   LoDashStatic,
   xorWith,
 } from "lodash";
@@ -35,10 +36,16 @@ export function defaultOptionValueValidation(
   let isValid = false;
   let parsed: any[] = [];
   let message = "";
+  const isServerSideFiltered = props.serverSideFiltering;
+  // TODO: options shouldn't get un-eval values;
+  const options = Array.isArray(props.options) ? props.options : [];
 
   const DEFAULT_ERROR_MESSAGE =
     "value should match: Array<string | number> | Array<{label: string, value: string | number}>";
-
+  const MISSING_FROM_OPTIONS =
+    "Some or all default values are missing from options. Please update the values.";
+  const MISSING_FROM_OPTIONS_AND_WRONG_FORMAT =
+    "Default value is missing in options. Please use [{label : <string | num>, value : < string | num>}] format to show default for server side data";
   /*
    * Function to check if the object has `label` and `value`
    */
@@ -117,18 +124,10 @@ export function defaultOptionValueValidation(
       parsed = [];
       message = DEFAULT_ERROR_MESSAGE;
     }
-
-    return {
-      isValid,
-      parsed,
-      messages: [message],
-    };
-  }
-
-  /*
-   * When value is an empty string
-   */
-  if (_.isString(value) && value.trim() === "") {
+  } else if (_.isString(value) && value.trim() === "") {
+    /*
+     * When value is an empty string
+     */
     isValid = true;
     parsed = [];
   } else if (_.isNumber(value) || _.isString(value)) {
@@ -145,6 +144,32 @@ export function defaultOptionValueValidation(
     message = DEFAULT_ERROR_MESSAGE;
   }
 
+  if (isValid && !_.isNil(parsed) && !_.isEmpty(parsed)) {
+    const parsedValue = parsed;
+    const areValuesPresent = parsedValue.every((value) => {
+      const index = _.findIndex(
+        options,
+        (option) => option.value === value || option.value === value.value,
+      );
+      if (index === -1) {
+        return false;
+      }
+      return true;
+    });
+
+    if (!areValuesPresent) {
+      isValid = false;
+      if (!isServerSideFiltered) {
+        message = MISSING_FROM_OPTIONS;
+      } else {
+        if (!parsed.every(hasLabelValue)) {
+          message = MISSING_FROM_OPTIONS_AND_WRONG_FORMAT;
+        } else {
+          message = MISSING_FROM_OPTIONS;
+        }
+      }
+    }
+  }
   return {
     isValid,
     parsed,
@@ -521,10 +546,10 @@ class MultiSelectWidget extends BaseWidget<
 
   static getDerivedPropertiesMap() {
     return {
-      selectedOptionLabels: `{{ this.selectedOptions ? this.selectedOptions.map((o) => _.isNil(o.label) ? o : o.label ) : [] }}`,
-      selectedOptionValues: `{{ this.selectedOptions ? this.selectedOptions.map((o) =>  _.isNil(o.value) ? o : o.value  ) : [] }}`,
-      isValid: `{{this.isRequired ? !!this.selectedOptionValues && this.selectedOptionValues.length > 0 : true}}`,
       value: `{{this.selectedOptionValues}}`,
+      isValid: `{{(()=>{${derivedProperties.getIsValid}})()}}`,
+      selectedOptionValues: `{{(()=>{${derivedProperties.getSelectedOptionValues}})()}}`,
+      selectedOptionLabels: `{{(()=>{${derivedProperties.getSelectedOptionLabels}})()}}`,
     };
   }
 
@@ -574,11 +599,7 @@ class MultiSelectWidget extends BaseWidget<
     const options = isArray(this.props.options) ? this.props.options : [];
     const minDropDownWidth = MinimumPopupRows * this.props.parentColumnSpace;
     const { componentWidth } = this.getComponentDimensions();
-    const values: LabelValueType[] = this.props.selectedOptions
-      ? this.props.selectedOptions.map((o) =>
-          isString(o) || isNumber(o) ? { value: o } : { value: o.value },
-        )
-      : [];
+    const values = this.mergeLabelAndValue();
     const isInvalid =
       "isValid" in this.props && !this.props.isValid && !!this.props.isDirty;
     return (
@@ -634,6 +655,43 @@ class MultiSelectWidget extends BaseWidget<
     if (!this.props.isDirty) {
       this.props.updateWidgetMetaProperty("isDirty", true);
     }
+  };
+
+  /*
+   * Function to check if the object has `label` and `value`
+   */
+  hasLabelValue = (obj: LabelValueType) => {
+    return (
+      isPlainObject(obj) &&
+      obj.hasOwnProperty("label") &&
+      obj.hasOwnProperty("value") &&
+      isString(obj.label) &&
+      (isString(obj.value) || isFinite(obj.value))
+    );
+  };
+
+  // { label , value } is needed in the widget
+  mergeLabelAndValue = (): LabelValueType[] => {
+    const labels = [...this.props.selectedOptionLabels];
+    const values = [...this.props.selectedOptionValues];
+    let mergedValues: LabelValueType[];
+
+    if (
+      this.props.isDirty &&
+      this.props.selectedOptions.every(this.hasLabelValue)
+    ) {
+      mergedValues = this.props.selectedOptions.map((o) => ({
+        value: o.value,
+        label: o.label,
+      }));
+    } else {
+      mergedValues = values.map((value, index) => ({
+        value,
+        label: labels[index],
+      }));
+    }
+
+    return mergedValues;
   };
 
   onFilterChange = (value: string) => {
