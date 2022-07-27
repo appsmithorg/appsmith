@@ -23,6 +23,7 @@ import org.apache.http.entity.ContentType;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.message.BasicHeader;
 import org.apache.http.nio.entity.NStringEntity;
+import org.eclipse.jgit.util.SystemReader;
 import org.elasticsearch.client.Request;
 import org.elasticsearch.client.Response;
 import org.elasticsearch.client.RestClient;
@@ -45,6 +46,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_BODY;
 import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_PATH;
@@ -60,6 +62,15 @@ public class ElasticSearchPlugin extends BasePlugin {
     public static class ElasticSearchPluginExecutor implements PluginExecutor<RestClient> {
 
         private final Scheduler scheduler = Schedulers.elastic();
+
+        public static final String esDatasourceNotFoundMessage = "404 Error: The Page you are tyring to access does not exist";
+
+        public static final String esDatasourceUnauthorizedMessage = "401 Error: Your Username or Password is not correct";
+
+        public static final String esDatasourceUnauthorizedPattern = ".*unauthorized.*";
+
+        public static final String esDatasourceNotFoundPattern = ".*timeout.*";
+
 
         @Override
         public Mono<ActionExecutionResult> execute(RestClient client,
@@ -260,6 +271,23 @@ public class ElasticSearchPlugin extends BasePlugin {
                         try {
                             response = client.performRequest(request);
                         } catch (IOException e) {
+
+                            /* since the 401, and 403 are registered as IOException, but for the given connection it
+                             * in the current rest-client. We will figure out with matching patterns with regexes.
+                            */
+
+                            Pattern patternForUnauthorized = Pattern.compile(esDatasourceUnauthorizedPattern, Pattern.CASE_INSENSITIVE);
+                            Pattern patterForNotFound = Pattern.compile(esDatasourceNotFoundPattern,Pattern.CASE_INSENSITIVE);
+
+                            if (patternForUnauthorized.matcher(e.getMessage()).find()){
+                                return new DatasourceTestResult(esDatasourceUnauthorizedMessage);
+                            }
+
+                            if (patterForNotFound.matcher(e.getMessage()).find()){
+                                return new DatasourceTestResult(esDatasourceNotFoundMessage);
+                            }
+
+
                             return new DatasourceTestResult("Error running HEAD request: " + e.getMessage());
                         }
 
@@ -272,6 +300,10 @@ public class ElasticSearchPlugin extends BasePlugin {
                         }
                         // earlier it was 404 and 200, now it has been changed to just expect 200 status code
                         // here it checks if it is anything else than 200, even 404 is not allowed!
+                        if (statusLine.getStatusCode() == 404){
+                            return new DatasourceTestResult(esDatasourceNotFoundMessage);
+                        }
+
                         if (statusLine.getStatusCode() != 200) {
                             return new DatasourceTestResult(
                                     "Unexpected response from ElasticSearch: " + statusLine);
