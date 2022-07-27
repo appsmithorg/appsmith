@@ -77,14 +77,14 @@ const InputComponentWrapper = styled((props) => (
 
   .${Classes.INPUT_GROUP} {
     display: flex;
-    background-color: white;
+    background-color: initial;
+
+    span, input {
+      background: ${(props) =>
+        props.disabled ? "var(--wds-color-bg-disabled)" : Colors.WHITE};
+    }
 
     > {
-
-      &:first-child:not(input) {
-        background: ${(props) =>
-          props.disabled ? Colors.GREY_1 : Colors.WHITE};
-      }
       input:not(:first-child) {
         padding-left: 0rem;
         z-index: 16;
@@ -167,7 +167,6 @@ const InputComponentWrapper = styled((props) => (
     }
 
     .${Classes.INPUT} {
-      background: ${Colors.WHITE};
       box-shadow: none;
       border-radius: 0;
       height: ${(props) => (props.multiline === "true" ? "100%" : "inherit")};
@@ -182,7 +181,7 @@ const InputComponentWrapper = styled((props) => (
         cursor: pointer;
 
         .password-input {
-          color: ${Colors.GREY_6};
+          color: var(--wds-color-icon);
           justify-content: center;
           height: 100%;
           svg {
@@ -203,7 +202,7 @@ const InputComponentWrapper = styled((props) => (
       margin: 0;
       .bp3-tag {
         background-color: transparent;
-        color: #5c7080;
+        color: red;
       }
 
       .${Classes.INPUT_ACTION} {
@@ -225,6 +224,7 @@ const InputComponentWrapper = styled((props) => (
         align-items: center;
         padding: 0 10px;
         position: relative;
+        color: var(--wds-color-icon);
 
         svg {
           width: 14px;
@@ -278,7 +278,7 @@ const StyledNumericInput = styled(NumericInput)`
         }
       }
       span {
-        color: ${Colors.GREY_6};
+        color: var(--wds-color-icon);
         svg {
           width: 14px;
         }
@@ -303,11 +303,34 @@ const TextInputWrapper = styled.div<{
   height: 100%;
   border: 1px solid;
   overflow: hidden;
-  border-color: ${({ hasError }) =>
-    hasError ? `${Colors.DANGER_SOLID} !important;` : `${Colors.GREY_3};`}
+  border-color: ${({ disabled, hasError }) => {
+    if (disabled) {
+      return "var(--wds-color-border-disabled)";
+    }
+
+    if (hasError) {
+      return "var(--wds-color-border-danger)";
+    }
+
+    return "var(--wds-color-border)";
+  }};
   border-radius: ${({ borderRadius }) => borderRadius} !important;
   box-shadow: ${({ boxShadow }) => `${boxShadow}`} !important;
   min-height: 32px;
+
+  &:hover {
+    border-color: ${({ disabled, hasError }) => {
+      if (disabled) {
+        return "var(--wds-color-border-disabled)";
+      }
+
+      if (hasError) {
+        return "var(--wds-color-border-danger-hover)";
+      }
+
+      return "var(--wds-color-border-hover)";
+    }};
+  }
 
   &:focus-within {
     outline: 0;
@@ -607,6 +630,7 @@ class BaseInputComponent extends React.Component<
           borderRadius={this.props.borderRadius}
           boxShadow={this.props.boxShadow}
           compact={compactMode}
+          disabled={this.props.disabled}
           hasError={this.props.isInvalid}
           inputHtmlType={inputHTMLType}
           labelPosition={labelPosition}

@@ -20,7 +20,7 @@ const DropdownTriggerIconWrapper = styled.button`
   gap: 0.25rem;
   padding: 0 0.75rem;
   height: 100%;
-  margin-right: 0.625rem;
+  margin-right: 0.625remq;
 
   &:focus {
     background-color: ${Colors.GREY_1};
