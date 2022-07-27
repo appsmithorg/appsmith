@@ -420,6 +420,4 @@ myFun2: async () => {
     cy.get("div.CodeMirror").type("{cmd+leftArrow}");
     cy.get("div.CodeMirror").matchImageSnapshot("jsObjAfterGoLineStartSmart5");
   });
-
-
 });
