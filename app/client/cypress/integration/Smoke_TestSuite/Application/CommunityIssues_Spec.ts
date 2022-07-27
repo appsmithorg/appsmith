@@ -158,7 +158,7 @@ describe("AForce - Community Issues page validations", function() {
     table.WaitUntilTableLoad();
 
     ee.SelectEntityByName("Table1", "WIDGETS");
-    jsEditor.RemoveText("defaultsearchtext");
+    propPane.RemoveText("defaultsearchtext");
     table.WaitUntilTableLoad();
   });
 

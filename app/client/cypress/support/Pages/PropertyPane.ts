@@ -146,4 +146,19 @@ export class PropertyPane {
       },
     );
   }
+
+  public RemoveText(endp: string) {
+    cy.get(
+      this.locator._propertyControl +
+        endp +
+        " " +
+        this.locator._codeMirrorTextArea,
+    )
+      .first()
+      .focus()
+      .type("{uparrow}", { force: true })
+      .type("{ctrl}{shift}{downarrow}", { force: true })
+      .type("{del}", { force: true });
+    this.agHelper.AssertAutoSave();
+  }
 }

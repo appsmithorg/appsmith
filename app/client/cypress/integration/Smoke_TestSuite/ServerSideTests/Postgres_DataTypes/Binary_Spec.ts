@@ -11,16 +11,7 @@ const agHelper = ObjectsRegistry.AggregateHelper,
 
 describe("Binary Datatype tests", function() {
   before(() => {
-    agHelper.GenerateUUID();
-    cy.get("@guid").then((uid) => {
-      dataSources.NavigateToDSCreateNew();
-      dataSources.CreatePlugIn("PostgreSQL");
-      guid = uid;
-      agHelper.RenameWithInPane("Postgres " + guid, false);
-      dataSources.FillPostgresDSForm();
-      dataSources.TestSaveDatasource();
-      cy.wrap("Postgres " + guid).as("dsName");
-    });
+    dataSources.CreateDataSource("Postgres");
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;
     });

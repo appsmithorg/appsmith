@@ -51,17 +51,7 @@ describe("Linting", () => {
   before(() => {
     ee.DragDropWidgetNVerify("buttonwidget", 300, 300);
     ee.NavigateToSwitcher("explorer");
-
-    agHelper.GenerateUUID();
-    cy.get("@guid").then((uid) => {
-      dataSources.NavigateToDSCreateNew();
-      dataSources.CreatePlugIn("MySQL");
-      guid = uid;
-      agHelper.RenameWithInPane("MySQL " + guid, false);
-      dataSources.FillMySqlDSForm();
-      dataSources.TestSaveDatasource();
-      cy.wrap("MySQL " + guid).as("dsName");
-    });
+    dataSources.CreateDataSource("MySql");
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;
     });

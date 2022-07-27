@@ -22,15 +22,7 @@ describe("JSObjects OnLoad Actions tests", function() {
   it("1. Create Postgress DS & the query", function() {
     agHelper.AddDsl(dsl);
     ee.NavigateToSwitcher("explorer");
-    agHelper.GenerateUUID();
-    cy.get("@guid").then((uid) => {
-      dataSources.NavigateToDSCreateNew();
-      dataSources.CreatePlugIn("PostgreSQL");
-      guid = uid;
-      agHelper.RenameWithInPane(guid, false);
-      dataSources.FillPostgresDSForm();
-      dataSources.TestSaveDatasource();
-    });
+    dataSources.CreateDataSource("Postgres");
   });
 
   it("2. Tc 54, 55 - Verify User enables only 'Before Function calling' & OnPage Load is Automatically enable after mapping done on JSOBject", function() {
@@ -173,7 +165,8 @@ describe("JSObjects OnLoad Actions tests", function() {
     ee.ActionContextMenuByEntityName(
       jsName as string,
       "Delete",
-      "Are you sure?", true
+      "Are you sure?",
+      true,
     );
 
     ee.ActionContextMenuByEntityName("GetUser", "Delete", "Are you sure?");
@@ -223,7 +216,8 @@ describe("JSObjects OnLoad Actions tests", function() {
       ee.ActionContextMenuByEntityName(
         jsName as string,
         "Delete",
-        "Are you sure?", true
+        "Are you sure?",
+        true,
       );
     });
   });
@@ -564,13 +558,12 @@ describe("JSObjects OnLoad Actions tests", function() {
     ee.ActionContextMenuByEntityName(
       jsName as string,
       "Delete",
-      "Are you sure?", true
+      "Are you sure?",
+      true,
     );
   });
 
-  it.skip("13. Tc # 57 - Multiple functions set to true for OnPageLoad & Confirmation before running + Bug 15340", () => {
-
-  });
+  it.skip("13. Tc # 57 - Multiple functions set to true for OnPageLoad & Confirmation before running + Bug 15340", () => {});
 
   function VerifyFunctionDropdown(
     syncFunctions: string[],

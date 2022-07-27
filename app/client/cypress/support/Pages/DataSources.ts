@@ -1,5 +1,12 @@
 import datasourceFormData from "../../fixtures/datasources.json";
 import { ObjectsRegistry } from "../Objects/Registry";
+
+var DataTypes = {
+  Postgres: "PostgreSQL",
+  Mongo: "MongoDB",
+  MySql: "MySQL",
+};
+
 export class DataSources {
   private agHelper = ObjectsRegistry.AggregateHelper;
   private table = ObjectsRegistry.Table;
@@ -339,10 +346,7 @@ export class DataSources {
     }
   }
 
-  public ReconnectDataSource(
-    dbName: string,
-    dsName: "PostgreSQL" | "MySQL",
-  ) {
+  public ReconnectDataSource(dbName: string, dsName: "PostgreSQL" | "MySQL") {
     this.agHelper.AssertElementVisible(this._reconnectModal);
     cy.xpath(this._activeDSListReconnectModal(dsName)).should("be.visible");
     cy.xpath(this._activeDSListReconnectModal(dbName)).should("be.visible"); //.click()
@@ -429,5 +433,32 @@ export class DataSources {
     this.agHelper.AssertElementVisible(
       this._queryRecordResult(expectdRecordCount),
     );
+  }
+
+  public CreateDataSource(dsType: "Postgres" | "Mongo" | "MySql") {
+    let guid: any;
+    this.agHelper.GenerateUUID();
+    cy.get("@guid").then((uid) => {
+      this.NavigateToDSCreateNew();
+      this.CreatePlugIn(DataTypes[dsType]);
+      guid = uid;
+      this.agHelper.RenameWithInPane(dsType + " " + guid, false);
+      if (DataTypes[dsType] == "PostgreSQL") this.FillPostgresDSForm();
+      else if (DataTypes[dsType] == "MySQL") this.FillMySqlDSForm();
+      else if (DataTypes[dsType] == "MongoDB") this.FillMongoDSForm();
+      this.TestSaveDatasource();
+      cy.wrap(dsType + " " + guid).as("dsName");
+    });
+  }
+
+  public CreateNewQueryInDS(
+    dsName: string,
+    query: string,
+    queryName: string = "",
+  ) {
+    this.ee.CreateNewDsQuery(dsName);
+    if (queryName) this.agHelper.RenameWithInPane(queryName);
+    this.agHelper.GetNClick(this._templateMenu);
+    this.EnterQuery(query);
   }
 }

@@ -1,6 +1,6 @@
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 
-let guid: any, jsName: any, dsl: any;
+let datasourceName: any;
 const agHelper = ObjectsRegistry.AggregateHelper,
   ee = ObjectsRegistry.EntityExplorer,
   dataSources = ObjectsRegistry.DataSources,
@@ -76,8 +76,110 @@ describe("JSObjects OnLoad Actions tests", function() {
     homePage.DeleteApplication("JSOnLoadFailureTest (1)");
     homePage.DeleteApplication("JSOnLoadFailureTest Copy");
     agHelper.WaitUntilToastDisappear("Deleting application...");
-    homePage.DeleteWorkspace("JSOnLoadTest");
+    //homePage.DeleteWorkspace("JSOnLoadTest");
   });
+
+  it("6. Tc #1910 - Verify the Number of confirmation models of JS object on page load", () => {
+    homePage.CreateAppInWorkspace("JSOnLoadTest");
+    ee.DragDropWidgetNVerify("buttonwidget", 100, 100);
+    ee.NavigateToSwitcher("explorer");
+    dataSources.CreateDataSource("Postgres");
+    cy.get("@dsName").then((dsName) => {
+      datasourceName = dsName;
+      dataSources.CreateNewQueryInDS(
+        datasourceName,
+        `SELECT * FROM public."astronauts" LIMIT 1;`,
+        "getastronauts",
+      );
+      dataSources.CreateNewQueryInDS(
+        datasourceName,
+        `SELECT * FROM public."category" LIMIT 1;`,
+        "getcategory",
+      );
+      dataSources.CreateNewQueryInDS(
+        datasourceName,
+        `SELECT * FROM public."city" LIMIT 1;`,
+        "getcity",
+      );
+      dataSources.CreateNewQueryInDS(
+        datasourceName,
+        `SELECT * FROM public."film" LIMIT 1;`,
+        "getfilm",
+      );
+      dataSources.CreateNewQueryInDS(
+        datasourceName,
+        `SELECT * FROM public."hogwartsstudents" LIMIT 1;`,
+        "gethogwartsstudents",
+      );
+    });
+
+    jsEditor.CreateJSObject(
+      `export default {
+        astros: () => {
+          return getastronauts.run();	},
+        city: () => {
+          return getcity.run()
+        }
+      }`,
+      {
+        paste: true,
+        completeReplace: true,
+        toRun: false,
+        shouldCreateNewJSObj: true,
+      },
+    );
+
+    jsEditor.EnableDisableAsyncFuncSettings("astros", true, true);
+    jsEditor.EnableDisableAsyncFuncSettings("city", true, true);
+
+    jsEditor.CreateJSObject(
+      `export default {
+        cat: () => {
+          return getcategory.run();	},
+        hogwartsstudents: () => {
+          return gethogwartsstudents.run();
+        }
+      }`,
+      {
+        paste: true,
+        completeReplace: true,
+        toRun: false,
+        shouldCreateNewJSObj: true,
+      },
+    );
+
+    jsEditor.EnableDisableAsyncFuncSettings("cat", true, true);
+    jsEditor.EnableDisableAsyncFuncSettings("hogwartsstudents", true, true);
+
+    jsEditor.CreateJSObject(
+      `export default {
+        film: async () => {
+          return getfilm.run();
+        }
+      }`,
+      {
+        paste: true,
+        completeReplace: true,
+        toRun: false,
+        shouldCreateNewJSObj: true,
+      },
+    );
+    jsEditor.EnableDisableAsyncFuncSettings("film", true, true);
+
+    deployMode.DeployApp();
+    for (let dialog = 1; dialog <= 5; dialog++) {
+      agHelper.ClickButton("Yes");
+      agHelper.Sleep(2000);
+    }
+    deployMode.NavigateBacktoEditor();
+    for (let dialog = 1; dialog <= 5; dialog++) {
+      agHelper.ClickButton("Yes");
+      agHelper.Sleep(2000);
+    }
+  });
+
+  // it("7. Tc #1645 + Bug 13197 Previously set async function made sync should not run on page", () => {
+  // });
 
   function AssertJSOnPageLoad(
     jsMethod: string,

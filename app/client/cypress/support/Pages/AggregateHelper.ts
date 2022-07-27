@@ -505,7 +505,7 @@ export class AggregateHelper {
   }
 
   public ActionContextMenuWithInPane(
-    action: "Copy to page" | "Move to page" | "Delete",
+    action: "Copy to page" | "Move to page" | "Delete" | "Prettify Code",
     subAction = "",
     jsDelete = false,
   ) {

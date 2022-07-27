@@ -36,14 +36,8 @@ export class HomePage {
   private _homeIcon = ".t--appsmith-logo";
   private _appContainer = ".t--applications-container";
   private _homePageAppCreateBtn = this._appContainer + " .createnew";
-  private _newWorkspaceCreateNewApp = (newWorkspaceName: string) =>
-    "//span[text()='" +
-    newWorkspaceName +
-    "']/ancestor::div[contains(@class, 't--workspace-name-text')]/parent::div/following-sibling::div//button[contains(@class, 't--new-button')]";
   private _existingWorkspaceCreateNewApp = (existingWorkspaceName: string) =>
-    "//span[text()='" +
-    existingWorkspaceName +
-    "']/ancestor::div[contains(@class, 't--workspace-name-text')]/following-sibling::div//button[contains(@class, 't--new-button')]";
+    `//span[text()='${existingWorkspaceName}']/ancestor::div[contains(@class, 't--workspace-section')]//button[contains(@class, 't--new-button')]`;
   private _applicationName = ".t--application-name";
   private _editAppName = "bp3-editable-text-editing";
   private _appMenu = ".t--editor-appname-menu-portal .bp3-menu-item";
@@ -184,25 +178,17 @@ export class HomePage {
   }
 
   //Maps to CreateAppForWorkspace in command.js
-  public CreateAppInWorkspace(workspaceName: string, appname: string) {
-    cy.xpath(this._newWorkspaceCreateNewApp(workspaceName))
+  public CreateAppInWorkspace(workspaceName: string, appname: string = "") {
+    cy.xpath(this._existingWorkspaceCreateNewApp(workspaceName))
       .scrollIntoView()
       .should("be.visible")
       .click({ force: true });
-    cy.wait("@createNewApplication").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      201,
-    );
+    this.agHelper.ValidateNetworkStatus("@createNewApplication", 201);
     cy.get(this.locator._loading).should("not.exist");
     this.agHelper.Sleep(2000);
-    this.RenameApplication(appname);
+    if(appname) this.RenameApplication(appname);
     cy.get(this._buildFromScratchActionCard).click();
-    cy.wait("@updateApplication").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      200,
-    );
+    //this.agHelper.ValidateNetworkStatus("@updateApplication", 200);
   }
 
   //Maps to AppSetupForRename in command.js
@@ -377,7 +363,7 @@ export class HomePage {
   public DuplicateApplication(appliName: string) {
     this.agHelper.GetNClick(this._applicationContextMenu(appliName));
     this.agHelper.GetNClick(this._duplicateApp);
-    this.agHelper.WaitUntilToastDisappear("Duplicating application...")
+    this.agHelper.WaitUntilToastDisappear("Duplicating application...");
   }
 
   public DeleteApplication(appliName: string) {
