@@ -377,6 +377,7 @@ export class HomePage {
   public DuplicateApplication(appliName: string) {
     this.agHelper.GetNClick(this._applicationContextMenu(appliName));
     this.agHelper.GetNClick(this._duplicateApp);
+    this.agHelper.WaitUntilToastDisappear("Duplicating application...")
   }
 
   public DeleteApplication(appliName: string) {

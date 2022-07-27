@@ -24,35 +24,47 @@ describe("JSObjects OnLoad Actions tests", function() {
       agHelper.Sleep();
       dataSources.ReconnectDataSource("MySQL-Ds", "MySQL");
     });
-    AssertJSOnPageLoad(true);
+    AssertJSOnPageLoad("runSpaceCraftImages", true);
   });
 
   it("2. Tc #58 Verify JSOnPageload with ConfirmBefore calling - while forked & duplicated", () => {
     homePage.NavigateToHome();
     homePage.ForkApplication("JSOnloadImportTest");
-    AssertJSOnPageLoad();
+    AssertJSOnPageLoad("runSpaceCraftImages");
 
     homePage.NavigateToHome();
     homePage.DuplicateApplication("JSOnloadImportTest");
-    AssertJSOnPageLoad();
+    AssertJSOnPageLoad("runSpaceCraftImages");
   });
 
   it("3. Tc #59 Verify JSOnPageload with ConfirmBefore calling - while imported - failing JSObj", () => {
     homePage.ImportApp("ImportApps/JSOnLoadFailureTest.json", "JSOnLoadTest");
     cy.wait("@importNewApplication").then(() => {
       homePage.AssertImportToast();
-      AssertJSOnPageLoadFailure();
+      AssertJSOnPageLoad(
+        "runWorldCountries",
+        false,
+        "UncaughtPromiseRejection: getWorldCountries is not defined",
+      );
     });
   });
 
   it("4. Tc #59 Verify JSOnPageload with ConfirmBefore calling - while forked & duplicated- failing JSObj", () => {
     homePage.NavigateToHome();
     homePage.ForkApplication("JSOnLoadFailureTest");
-    AssertJSOnPageLoadFailure();
+    AssertJSOnPageLoad(
+      "runWorldCountries",
+      false,
+      "UncaughtPromiseRejection: getWorldCountries is not defined",
+    );
 
     homePage.NavigateToHome();
     homePage.DuplicateApplication("JSOnLoadFailureTest");
-    AssertJSOnPageLoadFailure();
+    AssertJSOnPageLoad(
+      "runWorldCountries",
+      false,
+      "UncaughtPromiseRejection: getWorldCountries is not defined",
+    );
   });
 
   it("5. Delete the applications & workspace - Success/failing JSObj", () => {
@@ -67,9 +79,13 @@ describe("JSObjects OnLoad Actions tests", function() {
     homePage.DeleteWorkspace("JSOnLoadTest");
   });
 
-  function AssertJSOnPageLoad(shouldCheckImport = false) {
+  function AssertJSOnPageLoad(
+    jsMethod: string,
+    shouldCheckImport = false,
+    faliureMsg: string = "",
+  ) {
     agHelper.AssertElementVisible(
-      jsEditor._dialogBody("JSObject1.runSpaceCraftImages"),
+      jsEditor._dialogBody("JSObject1." + jsMethod),
     );
     agHelper.ClickButton("No");
     agHelper.Sleep(1000);
@@ -78,32 +94,11 @@ describe("JSObjects OnLoad Actions tests", function() {
 
     deployMode.DeployApp();
     agHelper.AssertElementVisible(
-      jsEditor._dialogBody("JSObject1.runSpaceCraftImages"),
+      jsEditor._dialogBody("JSObject1." + jsMethod),
     );
     agHelper.ClickButton("Yes");
-    agHelper.Sleep(3000);
-    deployMode.NavigateBacktoEditor();
-    agHelper.ClickButton("No");
-  }
-
-  function AssertJSOnPageLoadFailure() {
-    agHelper.AssertElementVisible(
-      jsEditor._dialogBody("JSObject1.runWorldCountries"),
-    );
-    agHelper.ClickButton("No");
-    agHelper.Sleep(1000);
-    agHelper.WaitUntilToastDisappear(
-      "Failed to execute actions during page load",
-    );
-    deployMode.DeployApp();
-    agHelper.AssertElementVisible(
-      jsEditor._dialogBody("JSObject1.runWorldCountries"),
-    );
-    agHelper.ClickButton("Yes");
-    agHelper.Sleep(2000);
-    agHelper.WaitUntilToastDisappear(
-      "UncaughtPromiseRejection: getWorldCountries is not defined",
-    );
+    if (faliureMsg) agHelper.WaitUntilToastDisappear(faliureMsg);
+    else agHelper.Sleep(3000);
     deployMode.NavigateBacktoEditor();
     agHelper.ClickButton("No");
   }
