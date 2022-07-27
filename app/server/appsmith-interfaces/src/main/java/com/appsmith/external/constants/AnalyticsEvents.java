@@ -7,7 +7,13 @@ public enum AnalyticsEvents {
     UPDATE,
     DELETE,
     ARCHIVE,
+    VIEW,
     APPLY,
+    IMPORT,
+    EXPORT,
+    CLONE,
+    LOGIN,
+    LOGOUT,
     FIRST_LOGIN,
     EXECUTE_ACTION("execute_ACTION_TRIGGERED"),
     UPDATE_LAYOUT,
@@ -50,8 +56,6 @@ public enum AnalyticsEvents {
 
     // Events to log execution time
     GIT_SERIALIZE_APP_RESOURCES_TO_LOCAL_FILE,
-    IMPORT_APPLICATION,
-    EXPORT_APPLICATION,
     GIT_DESERIALIZE_APP_RESOURCES_FROM_FILE,
     ;
 
