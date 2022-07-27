@@ -300,7 +300,7 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
                 .collect(Collectors.toSet());
         // The administrator should also be able to assign any of the three permissions groups
         Set<Permission> permissionGroupPermissions = permissionGroups.stream()
-                .map(permissionGroup -> new Permission(permissionGroup.getId(), ASSIGN_PERMISSION_GROUPS))
+                .map(permissionGroup -> new Permission(permissionGroup.getId(), AclPermission.MANAGE_PERMISSION_GROUPS))
                 .collect(Collectors.toSet());
 
 
