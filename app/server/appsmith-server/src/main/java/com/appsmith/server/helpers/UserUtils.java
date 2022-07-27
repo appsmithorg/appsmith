@@ -19,7 +19,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static com.appsmith.server.acl.AclPermission.ASSIGN_PERMISSION_GROUPS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_INSTANCE_CONFIGURATION;
+import static com.appsmith.server.acl.AclPermission.MANAGE_PERMISSION_GROUPS;
 import static com.appsmith.server.acl.AclPermission.READ_INSTANCE_CONFIGURATION;
 import static com.appsmith.server.constants.FieldName.DEFAULT_PERMISSION_GROUP;
 import static com.appsmith.server.constants.FieldName.INSTANCE_CONFIG;
@@ -116,8 +118,34 @@ public class UserUtils {
 
                                 savedInstanceConfig.setPolicies(Set.of(editConfigPolicy, readConfigPolicy));
 
-                                return configRepository.save(savedInstanceConfig);
+                                return configRepository.save(savedInstanceConfig).zipWith(Mono.just(savedPermissionGroup));
                             });
+                })
+                .flatMap(tuple -> {
+                    Config finalInstanceConfig = tuple.getT1();
+                    PermissionGroup savedPermissionGroup = tuple.getT2();
+
+                    Set<Permission> permissions = new HashSet<>(savedPermissionGroup.getPermissions());
+                    permissions.addAll(
+                            Set.of(
+                                    new Permission(savedPermissionGroup.getId(), MANAGE_PERMISSION_GROUPS),
+                                    new Permission(savedPermissionGroup.getId(), ASSIGN_PERMISSION_GROUPS)
+                            )
+                    );
+                    savedPermissionGroup.setPermissions(permissions);
+
+                    // Also give the permission group permission to update & assign to itself
+                    Policy updatePermissionGroupPolicy = Policy.builder().permission(MANAGE_PERMISSION_GROUPS.getValue())
+                            .permissionGroups(Set.of(savedPermissionGroup.getId()))
+                            .build();
+
+                    Policy assignPermissionGroupPolicy = Policy.builder().permission(ASSIGN_PERMISSION_GROUPS.getValue())
+                            .permissionGroups(Set.of(savedPermissionGroup.getId()))
+                            .build();
+
+                    savedPermissionGroup.setPolicies(Set.of(updatePermissionGroupPolicy, assignPermissionGroupPolicy));
+
+                    return permissionGroupRepository.save(savedPermissionGroup).thenReturn(finalInstanceConfig);
                 });
     }
 

@@ -72,8 +72,10 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static com.appsmith.server.acl.AclPermission.ASSIGN_PERMISSION_GROUPS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_INSTANCE_CONFIGURATION;
 import static com.appsmith.server.acl.AclPermission.MANAGE_INSTANCE_ENV;
+import static com.appsmith.server.acl.AclPermission.MANAGE_PERMISSION_GROUPS;
 import static com.appsmith.server.acl.AclPermission.READ_INSTANCE_CONFIGURATION;
 import static com.appsmith.server.constants.FieldName.DEFAULT_PERMISSION_GROUP;
 import static com.appsmith.server.migrations.DatabaseChangelog.dropIndexIfExists;
@@ -1120,5 +1122,27 @@ public class DatabaseChangelog2 {
         savedInstanceConfig.setPolicies(Set.of(editConfigPolicy, readConfigPolicy));
 
         mongockTemplate.save(savedInstanceConfig);
+
+        // Also give the permission group permission to update & assign to itself
+        Policy updatePermissionGroupPolicy = Policy.builder().permission(MANAGE_PERMISSION_GROUPS.getValue())
+                .permissionGroups(Set.of(savedPermissionGroup.getId()))
+                .build();
+
+        Policy assignPermissionGroupPolicy = Policy.builder().permission(ASSIGN_PERMISSION_GROUPS.getValue())
+                .permissionGroups(Set.of(savedPermissionGroup.getId()))
+                .build();
+
+        savedPermissionGroup.setPolicies(Set.of(updatePermissionGroupPolicy, assignPermissionGroupPolicy));
+
+        Set<Permission> permissions = new HashSet<>(savedPermissionGroup.getPermissions());
+        permissions.addAll(
+                Set.of(
+                        new Permission(savedPermissionGroup.getId(), MANAGE_PERMISSION_GROUPS),
+                        new Permission(savedPermissionGroup.getId(), ASSIGN_PERMISSION_GROUPS)
+                )
+        );
+        savedPermissionGroup.setPermissions(permissions);
+
+        mongockTemplate.save(savedPermissionGroup);
     }
 }
