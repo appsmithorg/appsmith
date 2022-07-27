@@ -8,6 +8,7 @@ import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.helpers.RedirectHelper;
+import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.StringUtils;
@@ -54,6 +55,9 @@ public class SecurityConfig {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private AnalyticsService analyticsService;
 
     @Autowired
     private CommonConfig commonConfig;
@@ -163,7 +167,7 @@ public class SecurityConfig {
                 .authorizedClientRepository(new ClientUserRepository(userService, commonConfig))
                 .and().logout()
                 .logoutUrl(Url.LOGOUT_URL)
-                .logoutSuccessHandler(new LogoutSuccessHandler(objectMapper))
+                .logoutSuccessHandler(new LogoutSuccessHandler(objectMapper, analyticsService))
                 .and().build();
     }
 
