@@ -30,9 +30,6 @@ public class RedshiftDatasourceUtils {
         HikariConfig config = new HikariConfig();
 
         config.setDriverClassName(JDBC_DRIVER);
-
-        // Set SSL property
-        com.appsmith.external.models.Connection configurationConnection = datasourceConfiguration.getConnection();
         config.setMinimumIdle(MINIMUM_POOL_SIZE);
         config.setMaximumPoolSize(MAXIMUM_POOL_SIZE);
 
@@ -69,6 +66,7 @@ public class RedshiftDatasourceUtils {
         config.setConnectionTimeout(60 * 1000);
 
         // Set read only mode if applicable
+        com.appsmith.external.models.Connection configurationConnection = datasourceConfiguration.getConnection();
         switch (configurationConnection.getMode()) {
             case READ_WRITE: {
                 config.setReadOnly(false);
@@ -95,8 +93,7 @@ public class RedshiftDatasourceUtils {
         return datasource;
     }
 
-    public static Connection getConnectionFromConnectionPool(HikariDataSource connectionPool,
-                                                              DatasourceConfiguration datasourceConfiguration) throws SQLException {
+    public static Connection getConnectionFromConnectionPool(HikariDataSource connectionPool) throws SQLException {
 
         if (connectionPool == null || connectionPool.isClosed() || !connectionPool.isRunning()) {
             System.out.println(Thread.currentThread().getName() +
@@ -104,13 +101,6 @@ public class RedshiftDatasourceUtils {
             throw new StaleConnectionException();
         }
 
-        Connection connection = connectionPool.getConnection();
-
-        com.appsmith.external.models.Connection configurationConnection = datasourceConfiguration.getConnection();
-        if (configurationConnection == null) {
-            return connection;
-        }
-
-        return connection;
+        return connectionPool.getConnection();
     }
 }
