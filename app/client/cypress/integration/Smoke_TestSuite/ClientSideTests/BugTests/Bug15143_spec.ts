@@ -1,6 +1,5 @@
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 const commonLocators = require("../../../../locators/commonlocators.json");
-const jsEditorLocators = require("../../../../locators/JSEditor.json");
 
 const {
   AggregateHelper: agHelper,
@@ -11,12 +10,11 @@ const {
 
 describe("Copy Action/JS objects to different pages", () => {
   it("1. copies Action object to a different page from the additional menu in Queries/JS section", () => {
-    cy.Createpage("Page2");
-    cy.NavigateToAPI_Panel();
-    apiPage.CreateApi("get_data");
+    entityExplorer.AddNewPage();
+    apiPage.CreateAndFillApi("https://randomuser.me/api/", "get_data");
     cy.wait(3000);
 
-    cy.CheckAndUnfoldEntityItem("QUERIES/JS");
+    entityExplorer.ExpandCollapseEntity("QUERIES/JS");
     entityExplorer.ActionContextMenuByEntityName("get_data", "Copy to page");
     cy.get(`${commonLocators.chooseAction}:contains("Page1")`).click({
       force: true,
@@ -29,25 +27,24 @@ describe("Copy Action/JS objects to different pages", () => {
   });
 
   it("2. copies action object to a different page from the additional menu on Api Editor page", () => {
-    cy.Createpage("Page2");
+    entityExplorer.AddNewPage();
 
-    cy.NavigateToAPI_Panel();
-    apiPage.CreateApi("get_data");
+    apiPage.CreateAndFillApi("https://randomuser.me/api/", "get_data");
     cy.wait(3000);
 
     cy.get(".t--more-action-menu")
       .first()
-      .click();
+      .click({ force: true });
 
-    cy.selectAction("Copy to page");
-    cy.selectAction("Page1");
+    agHelper.SelectDropDown("Copy to page");
+    agHelper.SelectDropDown("Page1");
     agHelper.ValidateToastMessage(
       "get_data action copied to page Page1 successfully",
     );
   });
 
   it("3. copies JS object to a different page from the additional menu in Queries/JS section", () => {
-    cy.Createpage("Page2");
+    entityExplorer.AddNewPage();
 
     cy.get(`${commonLocators.entityItem}:contains(Page1)`)
       .first()
@@ -60,7 +57,7 @@ describe("Copy Action/JS objects to different pages", () => {
       cy.get(commonLocators.entityContextMenu).click({ force: true });
     });
 
-    cy.selectAction("Copy to page");
+    agHelper.SelectDropDown("Copy to page");
     cy.get(`${commonLocators.chooseAction}:contains("Page2")`).click({
       force: true,
     });
@@ -72,7 +69,7 @@ describe("Copy Action/JS objects to different pages", () => {
   });
 
   it("4. copies JS object to a different page from the additional menu on JS Editor page", () => {
-    cy.Createpage("Page2");
+    entityExplorer.AddNewPage();
 
     jsEditor.CreateJSObject('return "Hello World";');
     cy.wait(3000);
@@ -81,12 +78,12 @@ describe("Copy Action/JS objects to different pages", () => {
       .eq(1)
       .click({ force: true });
 
-    cy.get(jsEditorLocators.jsActionMenu)
+    cy.get(".t--more-action-menu")
       .first()
-      .click();
+      .click({ force: true });
 
-    cy.selectAction("Copy to page");
-    cy.selectAction("Page1");
+    agHelper.SelectDropDown("Copy to page");
+    agHelper.SelectDropDown("Page1");
     agHelper.ValidateToastMessage(
       "JSObject1 copied to page Page1 successfully",
     );
