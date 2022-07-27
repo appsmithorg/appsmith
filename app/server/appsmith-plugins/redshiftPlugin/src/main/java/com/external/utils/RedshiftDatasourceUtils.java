@@ -48,7 +48,7 @@ public class RedshiftDatasourceUtils {
         List<String> hosts = datasourceConfiguration
                 .getEndpoints()
                 .stream()
-                .map(endpoint -> endpoint.getHost() + ":" + ObjectUtils.defaultIfNull(endpoint.getPort(), 5432L))
+                .map(endpoint -> endpoint.getHost() + ":" + ObjectUtils.defaultIfNull(endpoint.getPort(), 5439L))
                 .collect(Collectors.toList());
 
         urlBuilder.append(String.join(",", hosts)).append("/");
