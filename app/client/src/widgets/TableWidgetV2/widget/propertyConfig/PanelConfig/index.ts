@@ -5,6 +5,7 @@ import MenuItems from "./MenuItems";
 import Events from "./Events";
 import SaveButtonProperties from "./SaveButtonProperties";
 import DiscardButtonproperties from "./DiscardButtonproperties";
+import InlineEditingValidation from "./InlineEditingValidation";
 
 export default {
   editableTitle: true,
@@ -13,6 +14,7 @@ export default {
   dependencies: ["primaryColumns", "columnOrder"],
   children: [
     ColumnControl,
+    InlineEditingValidation,
     ButtonProperties,
     SaveButtonProperties,
     DiscardButtonproperties,

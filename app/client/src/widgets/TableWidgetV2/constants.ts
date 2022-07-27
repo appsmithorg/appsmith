@@ -163,3 +163,10 @@ export enum DateInputFormat {
   EPOCH = "Epoch",
   MILLISECONDS = "Milliseconds",
 }
+
+export const defaultEditableCell = {
+  column: "",
+  index: -1,
+  value: "",
+  initialValue: "",
+};

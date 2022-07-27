@@ -246,6 +246,7 @@ export interface ColumnProperties {
   discardActionIconName?: string;
   isDiscardVisible?: boolean;
   isDiscardDisabled?: boolean;
+  isCellValid?: boolean;
 }
 
 export const ConditionFunctions: {

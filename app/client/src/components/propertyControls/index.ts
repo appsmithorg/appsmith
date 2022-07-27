@@ -65,6 +65,9 @@ import ComputeTablePropertyControlV2, {
 import PrimaryColumnColorPickerControlV2, {
   PrimaryColumnColorPickerControlPropsV2,
 } from "components/propertyControls/PrimaryColumnColorPickerControlV2";
+import TableInlineEditValidationControlProperty, {
+  TableInlineEditValidationControlProps,
+} from "./TableInlineEditValidation";
 
 export const PropertyControls = {
   InputTextControl,
@@ -101,6 +104,7 @@ export const PropertyControls = {
   NumericInputControl,
   PrimaryColumnColorPickerControl,
   PrimaryColumnColorPickerControlV2,
+  TableInlineEditValidationControlProperty,
 };
 
 export type PropertyControlPropsType =
@@ -120,7 +124,8 @@ export type PropertyControlPropsType =
   | PrimaryColumnColorPickerControlProps
   | ComputeTablePropertyControlPropsV2
   | PrimaryColumnDropdownControlProps
-  | PrimaryColumnColorPickerControlPropsV2;
+  | PrimaryColumnColorPickerControlPropsV2
+  | TableInlineEditValidationControlProps;
 
 export const getPropertyControlTypes = (): { [key: string]: string } => {
   const _types: { [key: string]: string } = {};

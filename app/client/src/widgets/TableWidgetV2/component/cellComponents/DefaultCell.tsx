@@ -27,6 +27,7 @@ export type RenderDefaultPropsType = BaseCellComponentProps & {
   hasUnsavedChanged?: boolean;
   displayText?: string;
   disabledEditIcon: boolean;
+  isCellValid: boolean;
 };
 
 type editPropertyType = {
@@ -69,6 +70,7 @@ function DefaultCell(props: RenderDefaultPropsType & editPropertyType) {
     horizontalAlignment,
     isCellEditable,
     isCellEditMode,
+    isCellValid,
     isCellVisible,
     isHidden,
     onCellTextChange,
@@ -138,6 +140,7 @@ function DefaultCell(props: RenderDefaultPropsType & editPropertyType) {
       horizontalAlignment={horizontalAlignment}
       isCellEditMode={isCellEditMode}
       isCellEditable={isCellEditable}
+      isCellValid={isCellValid}
       isCellVisible={isCellVisible}
       isHidden={isHidden}
       onCellTextChange={onCellTextChange}

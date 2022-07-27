@@ -1,3 +1,4 @@
+import { Colors } from "constants/Colors";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import styled from "styled-components";
 import BaseInputComponent from "widgets/BaseInputWidget/component";
@@ -10,9 +11,11 @@ const Wrapper = styled.div<{
   allowCellWrapping?: boolean;
   verticalAlignment?: VerticalAlignment;
   textSize?: string;
+  isCellValid: boolean;
 }>`
   padding: 1px;
-  border: 1px solid ${(props) => props.accentColor};
+  border: 1px solid
+    ${(props) => (props.isCellValid ? props.accentColor : Colors.DANGER_SOLID)};
   background: #fff;
   position: absolute;
   width: 100%;
@@ -81,12 +84,14 @@ type InlineEditorPropsType = {
   allowCellWrapping?: boolean;
   verticalAlignment?: VerticalAlignment;
   textSize?: string;
+  isCellValid: boolean;
 };
 
 export function InlineCellEditor({
   accentColor,
   compactMode,
   inputType = InputTypes.TEXT,
+  isCellValid,
   multiline,
   onChange,
   onDiscard,
@@ -147,6 +152,7 @@ export function InlineCellEditor({
       allowCellWrapping={allowCellWrapping}
       className="t--inlined-cell-editor"
       compactMode={compactMode}
+      isCellValid={isCellValid}
       textSize={textSize}
       verticalAlignment={verticalAlignment}
     >
