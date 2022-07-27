@@ -302,16 +302,12 @@ describe("Lint error reporting", () => {
     agHelper.AssertElementAbsence(locator._lintErrorElement);
   });
 
-  function MouseHoverNVerify(
-    lintOn: string,
-    debugMsg: string,
-    isError = true,
-  ) {
+  function MouseHoverNVerify(lintOn: string, debugMsg: string, isError = true) {
     agHelper.Sleep();
-    let element = isError
+    const element = isError
       ? cy.get(locator._lintErrorElement)
       : cy.get(locator._lintWarningElement);
-      element
+    element
       .contains(lintOn)
       .should("exist")
       .first()

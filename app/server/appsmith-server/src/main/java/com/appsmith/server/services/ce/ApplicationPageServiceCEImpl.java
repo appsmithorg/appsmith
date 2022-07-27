@@ -786,7 +786,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
 
         // Clone Application is currently a slow API because it needs to create application, clone all the pages, and then
         // clone all the actions. This process may take time and the client may cancel the request. This leads to the flow
-        // getting stopped mid way producing corrupted clones. The following ensures that even though the client may have
+        // getting stopped midway producing corrupted clones. The following ensures that even though the client may have
         // cancelled the flow, the cloning of the application should proceed uninterrupted and whenever the user refreshes
         // the page, the cloned application is available and is in sane state.
         // To achieve this, we use a synchronous sink which does not take subscription cancellations into account. This

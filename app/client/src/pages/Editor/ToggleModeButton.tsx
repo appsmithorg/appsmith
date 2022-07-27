@@ -9,9 +9,8 @@ import CommentIcon from "remixicon-react/MessageLineIcon";
 import { Indices } from "constants/Layers";
 
 import {
-  setCommentMode as setCommentModeAction,
   fetchApplicationCommentsRequest,
-  showCommentsIntroCarousel,
+  setCommentMode as setCommentModeAction,
 } from "actions/commentActions";
 import {
   commentModeSelector,
@@ -40,7 +39,7 @@ import {
   commentsTourStepsPublishedModeTypes,
 } from "comments/tour/commentsTourSteps";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { getAppMode } from "../../selectors/applicationSelectors";
+import { getAppMode } from "selectors/applicationSelectors";
 import { setPreviewModeAction } from "actions/editorActions";
 import {
   getCurrentApplicationId,
@@ -51,6 +50,7 @@ import {
 import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
 import { isExploringSelector } from "selectors/onboardingSelectors";
 import { getIsInitialized } from "selectors/appViewSelectors";
+import { Toaster, Variant } from "components/ads";
 
 const ModeButton = styled.div<{
   active: boolean;
@@ -142,9 +142,15 @@ const useUpdateCommentMode = async (currentUser?: User) => {
     }
 
     if (updatedIsCommentMode && !currentUser?.commentOnboardingState) {
-      AnalyticsUtil.logEvent("COMMENTS_ONBOARDING_MODAL_TRIGGERED");
-      dispatch(showCommentsIntroCarousel());
-      setCommentModeInUrl(false);
+      // Deprecating. Do not onboard more users
+      // TODO Remove after deprecation of comments
+      Toaster.show({
+        text: "Show error here",
+        variant: Variant.warning,
+      });
+      // AnalyticsUtil.logEvent("COMMENTS_ONBOARDING_MODAL_TRIGGERED");
+      // dispatch(showCommentsIntroCarousel());
+      // setCommentModeInUrl(false);
     } else {
       setCommentModeInStore(updatedIsCommentMode);
     }
@@ -274,10 +280,14 @@ function CommentModeBtn({
     >
       <TooltipComponent
         content={
-          <>
-            Comment Mode
-            <span style={{ color: "#fff", marginLeft: 20 }}>C</span>
-          </>
+          <div style={{ display: "flex" }}>
+            <span>
+              Comment Mode
+              <br />
+              (Deprecating soon)
+            </span>
+            <span>C</span>
+          </div>
         }
         hoverOpenDelay={1000}
         position="bottom"
