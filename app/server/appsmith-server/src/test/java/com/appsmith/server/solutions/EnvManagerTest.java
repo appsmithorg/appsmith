@@ -1,6 +1,5 @@
 package com.appsmith.server.solutions;
 
-import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.configurations.EmailConfig;
 import com.appsmith.server.configurations.GoogleRecaptchaConfig;
@@ -9,11 +8,14 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.FileUtils;
 import com.appsmith.server.helpers.PolicyUtils;
+import com.appsmith.server.helpers.UserUtils;
 import com.appsmith.server.notifications.EmailSender;
 import com.appsmith.server.repositories.UserRepository;
+import com.appsmith.server.services.AnalyticsService;
+import com.appsmith.server.services.ConfigService;
+import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserService;
-import com.appsmith.server.services.AnalyticsService;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Before;
 import org.junit.Test;
@@ -61,6 +63,13 @@ public class EnvManagerTest {
     private GoogleRecaptchaConfig googleRecaptchaConfig;
     @MockBean
     private FileUtils fileUtils;
+    @MockBean
+    private ConfigService configService;
+    @MockBean
+    private PermissionGroupService permissionGroupService;
+
+    @MockBean
+    private UserUtils userUtils;
 
     EnvManager envManager;
 
@@ -76,7 +85,10 @@ public class EnvManagerTest {
                 emailConfig,
                 javaMailSender,
                 googleRecaptchaConfig,
-                fileUtils);
+                fileUtils,
+                permissionGroupService,
+                configService,
+                userUtils);
     }
 
     @Test
@@ -261,9 +273,7 @@ public class EnvManagerTest {
         user.setEmail("sample-super-user");
         Mockito.when(sessionUserService.getCurrentUser()).thenReturn(Mono.just(user));
         Mockito.when(userService.findByEmail(user.getEmail())).thenReturn(Mono.just(user));
-        Mockito.when(policyUtils.isPermissionPresentForUser(
-                user.getPolicies(), AclPermission.MANAGE_INSTANCE_ENV.getValue(), user.getEmail())
-        ).thenReturn(false);
+        Mockito.when(userUtils.isCurrentUserSuperUser()).thenReturn(Mono.just(false));
 
         ServerWebExchange exchange = Mockito.mock(ServerWebExchange.class);
         ServerHttpResponse response = Mockito.mock(ServerHttpResponse.class);
@@ -280,9 +290,7 @@ public class EnvManagerTest {
         user.setEmail("sample-super-user");
         Mockito.when(sessionUserService.getCurrentUser()).thenReturn(Mono.just(user));
         Mockito.when(userService.findByEmail(user.getEmail())).thenReturn(Mono.just(user));
-        Mockito.when(policyUtils.isPermissionPresentForUser(
-                user.getPolicies(), AclPermission.MANAGE_INSTANCE_ENV.getValue(), user.getEmail())
-        ).thenReturn(true);
+        Mockito.when(userUtils.isCurrentUserSuperUser()).thenReturn(Mono.just(true));
 
         // create a temp file for docker env
         File file = File.createTempFile( "envmanager-test-docker-file", "env");
@@ -311,9 +319,7 @@ public class EnvManagerTest {
         user.setEmail("sample-super-user");
         Mockito.when(sessionUserService.getCurrentUser()).thenReturn(Mono.just(user));
         Mockito.when(userService.findByEmail(user.getEmail())).thenReturn(Mono.just(user));
-        Mockito.when(policyUtils.isPermissionPresentForUser(
-                user.getPolicies(), AclPermission.MANAGE_INSTANCE_ENV.getValue(), user.getEmail())
-        ).thenReturn(false);
+        Mockito.when(userUtils.isCurrentUserSuperUser()).thenReturn(Mono.just(false));
 
         StepVerifier.create(envManager.sendTestEmail(null))
                 .expectErrorMessage(AppsmithError.UNAUTHORIZED_ACCESS.getMessage())

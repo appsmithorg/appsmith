@@ -44,7 +44,7 @@ public abstract class BaseAppsmithRepositoryImpl<T extends BaseDomain> {
 
     protected final ReactiveMongoOperations mongoOperations;
 
-    private final Class<T> genericDomain;
+    protected final Class<T> genericDomain;
 
     protected final MongoConverter mongoConverter;
 
