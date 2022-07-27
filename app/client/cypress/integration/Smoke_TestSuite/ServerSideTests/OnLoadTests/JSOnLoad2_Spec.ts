@@ -97,7 +97,7 @@ describe("JSObjects OnLoad Actions tests", function() {
       jsEditor._dialogBody("JSObject1." + jsMethod),
     );
     agHelper.ClickButton("Yes");
-    if (faliureMsg) agHelper.WaitUntilToastDisappear(faliureMsg);
+    if (faliureMsg) agHelper.ValidateToastMessage(faliureMsg);
     else agHelper.Sleep(3000);
     deployMode.NavigateBacktoEditor();
     agHelper.ClickButton("No");
