@@ -80,9 +80,7 @@ describe("Theme validation usecases", function() {
         .eq(2)
         .then(($childElem) => {
           cy.get($childElem).click({ force: true });
-          cy.get(
-            ".t--draggable-buttonwidget button :contains('Submit')",
-          ).should(
+          cy.get(".t--draggable-buttonwidget button :contains('Sub')").should(
             "have.css",
             "font-family",
             $childElem
@@ -140,7 +138,7 @@ describe("Theme validation usecases", function() {
 
   it("Publish the App and validate Font across the app", function() {
     cy.PublishtheApp();
-    cy.get(".bp3-button:contains('Submit')").should(
+    cy.get(".bp3-button:contains('Sub')").should(
       "have.css",
       "font-family",
       themeFont,
@@ -188,7 +186,7 @@ describe("Theme validation usecases", function() {
       .first()
       .invoke("css", "background-color")
       .then((CurrentBackgroudColor) => {
-        cy.get(".bp3-button:contains('Submit')")
+        cy.get(".bp3-button:contains('Sub')")
           .last()
           .invoke("css", "background-color")
           .then((selectedBackgroudColor) => {
@@ -205,7 +203,7 @@ describe("Theme validation usecases", function() {
           .should("have.css", "background-color")
           .and("eq", "rgb(21, 128, 61)");
           */
-    cy.get(".bp3-button:contains('Submit')")
+    cy.get(".bp3-button:contains('Sub')")
       .invoke("css", "background-color")
       .then((CurrentBackgroudColor) => {
         cy.get(".bp3-button:contains('Edit App')")
@@ -314,7 +312,7 @@ describe("Theme validation usecases", function() {
             .should("have.css", "background-color")
             .and("eq", "rgb(255, 193, 61)");
             */
-    cy.get(".bp3-button:contains('Submit')")
+    cy.get(".bp3-button:contains('Sub')")
       .invoke("css", "background-color")
       .then((CurrentBackgroudColor) => {
         cy.get(".bp3-button:contains('Edit App')")
