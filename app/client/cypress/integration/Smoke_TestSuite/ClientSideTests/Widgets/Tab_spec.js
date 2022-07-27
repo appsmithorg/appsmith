@@ -70,7 +70,6 @@ describe("Tab widget test", function() {
     cy.get(publish.tabWidget).should("be.visible");
     cy.get(publish.backToEditor).click();
   });
-
   it("Tab Widget Functionality To Check tab invisiblity", function() {
     cy.openPropertyPane("tabswidget");
     cy.get(Layoutpage.tabEdit)
@@ -88,7 +87,6 @@ describe("Tab widget test", function() {
       .should("not.exist");
     cy.get(publish.backToEditor).click();
   });
-
   it("Tab Widget Functionality To Check tab visibility", function() {
     cy.openPropertyPane("tabswidget");
     cy.get(Layoutpage.tabEdit)
@@ -148,6 +146,27 @@ describe("Tab widget test", function() {
     cy.get(leftNavButtonSelector).click({ force: true });
     // Should show off left navigation arrow
     cy.get(rightNavButtonSelector).should("exist");
+  });
+  it("Tab Widget Functionality To Check Default Tab selected After Selected Tab Delete", function() {
+    cy.testJsontext("defaulttab", "Tab 2");
+    cy.tabVerify(3, "Tab3-for-testing-scroll-navigation-controls");
+    cy.get(Layoutpage.tabWidget)
+      .contains("Tab3-for-testing-scroll-navigation-controls")
+      .should("have.class", "is-selected");
+    cy.get(Layoutpage.tabDelete)
+      .eq(3)
+      .click({ force: true });
+    cy.get(Layoutpage.tabWidget)
+      .contains("Tab 2")
+      .should("have.class", "is-selected");
+  });
+  it("Tab Widget Functionality To Check First Tab Selected After Selected Tab(Default one) Delete", function() {
+    cy.get(Layoutpage.tabDelete)
+      .eq(2)
+      .click({ force: true });
+    cy.get(Layoutpage.tabWidget)
+      .contains("Aditya")
+      .should("have.class", "is-selected");
   });
 });
 
