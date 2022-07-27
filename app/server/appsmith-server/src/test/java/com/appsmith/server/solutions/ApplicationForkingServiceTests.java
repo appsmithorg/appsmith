@@ -14,12 +14,14 @@ import com.appsmith.server.domains.GitAuth;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
+import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.PluginType;
 import com.appsmith.server.domains.Theme;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.ActionDTO;
+import com.appsmith.server.dtos.InviteUsersDTO;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
@@ -34,6 +36,7 @@ import com.appsmith.server.services.LayoutActionService;
 import com.appsmith.server.services.LayoutCollectionService;
 import com.appsmith.server.services.NewActionService;
 import com.appsmith.server.services.NewPageService;
+import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.ThemeService;
 import com.appsmith.server.services.UserService;
@@ -147,6 +150,9 @@ public class ApplicationForkingServiceTests {
     @Autowired
     private ThemeService themeService;
 
+    @Autowired
+    private PermissionGroupService permissionGroupService;
+
     private static String sourceAppId;
 
     private static String testUserWorkspaceId;
@@ -166,7 +172,7 @@ public class ApplicationForkingServiceTests {
 
         Workspace sourceWorkspace = new Workspace();
         sourceWorkspace.setName("Source Workspace");
-        workspaceService.create(sourceWorkspace).map(Workspace::getId).block();
+        sourceWorkspace = workspaceService.create(sourceWorkspace).block();
 
         Application app1 = new Application();
         app1.setName("1 - public app");
@@ -253,17 +259,17 @@ public class ApplicationForkingServiceTests {
         // Running TC in a sequence is a bad practice for unit TCs but here we are testing the invite user and then fork
         // application as a part of this flow.
         // We need to test with VIEW user access so that any user should be able to fork template applications
-//        UserGroup userGroup = userGroupService.getDefaultUserGroups(sourceWorkspace.getId())
-//                .collectList().block()
-//                .stream()
-//                .filter(userGroup1 -> userGroup1.getName().startsWith(FieldName.VIEWER))
-//                .findFirst().get();
-//        InviteUsersDTO inviteUsersDTO = new InviteUsersDTO();
-//        ArrayList<String> users = new ArrayList<>();
-//        users.add("usertest@usertest.com");
-//        inviteUsersDTO.setUsernames(users);
-//        inviteUsersDTO.setUserGroupId(userGroup.getId());
-//        userService.inviteUsers(inviteUsersDTO, "http://localhost:8080").block();
+       PermissionGroup permissionGroup = permissionGroupService.getByDefaultWorkspace(sourceWorkspace)
+               .collectList().block()
+               .stream()
+               .filter(permissionGroupElem -> permissionGroupElem.getName().startsWith(FieldName.VIEWER))
+               .findFirst().get();
+       InviteUsersDTO inviteUsersDTO = new InviteUsersDTO();
+       ArrayList<String> users = new ArrayList<>();
+       users.add("usertest@usertest.com");
+       inviteUsersDTO.setUsernames(users);
+       inviteUsersDTO.setPermissionGroupId(permissionGroup.getId());
+       userService.inviteUsers(inviteUsersDTO, "http://localhost:8080").block();
 
         isSetupDone = true;
     }
