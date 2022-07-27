@@ -227,9 +227,10 @@ public class RedshiftPlugin extends BasePlugin {
                     /**
                      * When the user configured time limit for the query execution is over, and the query is still
                      * queued in the connectionPool then InterruptedException is thrown as the execution thread is
-                     * prepared for termination.
+                     * prepared for termination. This exception is wrapped inside SQLException and hence needs to be
+                     * checked via getCause method. This exception does not indicate a Stale connection.
                      */
-                    if (e.getCause() !=null && e.getCause().getClass().equals(InterruptedException.class)) {
+                    if (e.getCause() != null && e.getCause().getClass().equals(InterruptedException.class)) {
                         return Mono.error(e);
                     }
 
@@ -602,11 +603,23 @@ public class RedshiftPlugin extends BasePlugin {
                 try {
                     connection = getConnectionFromConnectionPool(connectionPool);
                 } catch (SQLException | StaleConnectionException e) {
+                    e.printStackTrace();
+
+                    /**
+                     * When the user configured time limit for the query execution is over, and the query is still
+                     * queued in the connectionPool then InterruptedException is thrown as the execution thread is
+                     * prepared for termination. This exception is wrapped inside SQLException and hence needs to be
+                     * checked via getCause method. This exception does not indicate a Stale connection.
+                     */
+                    if (e.getCause() != null && e.getCause().getClass().equals(InterruptedException.class)) {
+                        return Mono.error(e);
+                    }
+
                     // The function can throw either StaleConnectionException or SQLException. The underlying hikari
                     // library throws SQLException in case the pool is closed or there is an issue initializing
                     // the connection pool which can also be translated in our world to StaleConnectionException
                     // and should then trigger the destruction and recreation of the pool.
-                    return Mono.error(e instanceof StaleConnectionException ? e : new StaleConnectionException());
+                    return Mono.error(new StaleConnectionException());
                 }
 
                 /**
