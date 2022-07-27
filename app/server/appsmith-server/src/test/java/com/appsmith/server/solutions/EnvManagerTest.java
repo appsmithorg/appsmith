@@ -1,6 +1,5 @@
 package com.appsmith.server.solutions;
 
-import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.configurations.EmailConfig;
 import com.appsmith.server.configurations.GoogleRecaptchaConfig;
@@ -274,9 +273,7 @@ public class EnvManagerTest {
         user.setEmail("sample-super-user");
         Mockito.when(sessionUserService.getCurrentUser()).thenReturn(Mono.just(user));
         Mockito.when(userService.findByEmail(user.getEmail())).thenReturn(Mono.just(user));
-        Mockito.when(policyUtils.isPermissionPresentForUser(
-                user.getPolicies(), AclPermission.MANAGE_INSTANCE_ENV.getValue(), user.getEmail())
-        ).thenReturn(false);
+        Mockito.when(userUtils.isCurrentUserSuperUser()).thenReturn(Mono.just(false));
 
         ServerWebExchange exchange = Mockito.mock(ServerWebExchange.class);
         ServerHttpResponse response = Mockito.mock(ServerHttpResponse.class);
@@ -293,9 +290,7 @@ public class EnvManagerTest {
         user.setEmail("sample-super-user");
         Mockito.when(sessionUserService.getCurrentUser()).thenReturn(Mono.just(user));
         Mockito.when(userService.findByEmail(user.getEmail())).thenReturn(Mono.just(user));
-        Mockito.when(policyUtils.isPermissionPresentForUser(
-                user.getPolicies(), AclPermission.MANAGE_INSTANCE_ENV.getValue(), user.getEmail())
-        ).thenReturn(true);
+        Mockito.when(userUtils.isCurrentUserSuperUser()).thenReturn(Mono.just(true));
 
         // create a temp file for docker env
         File file = File.createTempFile( "envmanager-test-docker-file", "env");
@@ -324,9 +319,7 @@ public class EnvManagerTest {
         user.setEmail("sample-super-user");
         Mockito.when(sessionUserService.getCurrentUser()).thenReturn(Mono.just(user));
         Mockito.when(userService.findByEmail(user.getEmail())).thenReturn(Mono.just(user));
-        Mockito.when(policyUtils.isPermissionPresentForUser(
-                user.getPolicies(), AclPermission.MANAGE_INSTANCE_ENV.getValue(), user.getEmail())
-        ).thenReturn(false);
+        Mockito.when(userUtils.isCurrentUserSuperUser()).thenReturn(Mono.just(false));
 
         StepVerifier.create(envManager.sendTestEmail(null))
                 .expectErrorMessage(AppsmithError.UNAUTHORIZED_ACCESS.getMessage())
