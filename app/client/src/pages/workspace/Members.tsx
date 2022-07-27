@@ -352,7 +352,7 @@ export default function MemberSettings(props: PageProps) {
 
   const columns = [
     {
-      Header: `Users / User Groups (${membersData?.length})`,
+      Header: `Users / User Groups (${filteredData?.length})`,
       accessor: "users",
       Cell: function UserCell(props: any) {
         const member = props.cell.row.original;
