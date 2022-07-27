@@ -15,7 +15,7 @@ export type RenderDefaultPropsType = BaseCellComponentProps & {
   tableWidth: number;
   isCellEditable: boolean;
   isCellEditMode?: boolean;
-  onCellTextChange: (data: string) => void;
+  onCellTextChange: (value: string | number | null, inputValue: string) => void;
   toggleCellEditMode: (
     enable: boolean,
     rowIndex: number,
@@ -27,6 +27,8 @@ export type RenderDefaultPropsType = BaseCellComponentProps & {
   hasUnsavedChanged?: boolean;
   displayText?: string;
   disabledEditIcon: boolean;
+  isEditableCellValid: boolean;
+  validationErrorMessage: string;
 };
 
 type editPropertyType = {
@@ -70,6 +72,7 @@ function DefaultCell(props: RenderDefaultPropsType & editPropertyType) {
     isCellEditable,
     isCellEditMode,
     isCellVisible,
+    isEditableCellValid,
     isHidden,
     onCellTextChange,
     onDiscardString,
@@ -79,13 +82,15 @@ function DefaultCell(props: RenderDefaultPropsType & editPropertyType) {
     textColor,
     textSize,
     toggleCellEditMode,
+    validationErrorMessage,
     value,
     verticalAlignment,
   } = props;
 
   const editEvents = useMemo(
     () => ({
-      onChange: (text: string) => onCellTextChange(text),
+      onChange: (value: string | number | null, inputValue: string) =>
+        onCellTextChange(value, inputValue),
       onDiscard: () =>
         toggleCellEditMode(
           false,
@@ -122,6 +127,8 @@ function DefaultCell(props: RenderDefaultPropsType & editPropertyType) {
       alias,
       onDiscardString,
       onSubmitString,
+      isEditableCellValid,
+      validationErrorMessage,
     ],
   );
 
@@ -139,6 +146,7 @@ function DefaultCell(props: RenderDefaultPropsType & editPropertyType) {
       isCellEditMode={isCellEditMode}
       isCellEditable={isCellEditable}
       isCellVisible={isCellVisible}
+      isEditableCellValid={isEditableCellValid}
       isHidden={isHidden}
       onCellTextChange={onCellTextChange}
       onChange={editEvents.onChange}
@@ -149,6 +157,7 @@ function DefaultCell(props: RenderDefaultPropsType & editPropertyType) {
       textColor={textColor}
       textSize={textSize}
       toggleCellEditMode={toggleCellEditMode}
+      validationErrorMessage={validationErrorMessage}
       value={getCellText(value, columnType, displayText)}
       verticalAlignment={verticalAlignment}
     />

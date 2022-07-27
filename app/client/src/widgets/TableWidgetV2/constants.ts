@@ -17,8 +17,9 @@ import { ButtonVariant } from "components/constants";
 export type EditableCell = {
   column: string;
   index: number;
-  value: string;
+  value: string | number;
   initialValue: string;
+  inputValue: string;
 };
 
 export enum EditableCellActions {
@@ -78,6 +79,7 @@ export interface TableWidgetProps extends WidgetProps, WithMeta, TableStyles {
   boxShadow?: string;
   inlineEditingSaveOption?: InlineEditingSaveOptions;
   showInlineEditingOptionDropdown?: boolean;
+  isEditableCellValid: boolean;
 }
 
 export const getCurrentRowBinding = (
@@ -85,7 +87,7 @@ export const getCurrentRowBinding = (
   userInput: string,
   withBinding = true,
 ) => {
-  let rowBinding = `${entityName}.sanatizedTableData.map((currentRow) => ( ${userInput}))`;
+  let rowBinding = `${entityName}.processedTableData.map((currentRow, currentIndex) => ( ${userInput}))`;
   if (withBinding) rowBinding = `{{${rowBinding}}}`;
   return rowBinding;
 };
@@ -165,3 +167,11 @@ export enum DateInputFormat {
   EPOCH = "Epoch",
   MILLISECONDS = "Milliseconds",
 }
+
+export const defaultEditableCell = {
+  column: "",
+  index: -1,
+  inputValue: "",
+  value: "",
+  initialValue: "",
+};

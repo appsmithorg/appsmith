@@ -89,7 +89,7 @@ const Content = styled.div`
 `;
 
 interface PropType extends RenderDefaultPropsType {
-  onChange: (text: string) => void;
+  onChange: (value: string | number | null, inputValue: string) => void;
   onDiscard: () => void;
   onSave: () => void;
   onEdit: () => void;
@@ -108,6 +108,7 @@ export function TextCell({
   isCellEditable,
   isCellEditMode,
   isCellVisible,
+  isEditableCellValid,
   isHidden,
   onChange,
   onDiscard,
@@ -117,6 +118,7 @@ export function TextCell({
   textColor,
   textSize,
   toggleCellEditMode,
+  validationErrorMessage,
   value,
   verticalAlignment,
 }: PropType) {
@@ -149,11 +151,13 @@ export function TextCell({
             ? InputTypes.NUMBER
             : InputTypes.TEXT
         }
+        isEditableCellValid={isEditableCellValid}
         multiline={isMultiline}
         onChange={onChange}
         onDiscard={onDiscard}
         onSave={onSave}
         textSize={textSize}
+        validationErrorMessage={validationErrorMessage}
         value={value}
         verticalAlignment={verticalAlignment}
       />

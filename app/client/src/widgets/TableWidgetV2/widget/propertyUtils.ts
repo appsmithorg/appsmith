@@ -624,3 +624,67 @@ export const replacePropertyName = (
   path.pop();
   return `${path.join(".")}.${targetPropertyName}`;
 };
+
+export function minValueValidation(min: any, props: TableWidgetProps, _?: any) {
+  const max = props.maxNum;
+  const value = min;
+  min = Number(min);
+
+  if (_?.isNil(value) || value === "") {
+    return {
+      isValid: true,
+      parsed: undefined,
+      messages: [""],
+    };
+  } else if (!Number.isFinite(min)) {
+    return {
+      isValid: false,
+      parsed: undefined,
+      messages: ["This value must be number"],
+    };
+  } else if (max !== undefined && min >= max) {
+    return {
+      isValid: false,
+      parsed: undefined,
+      messages: ["This value must be lesser than max value"],
+    };
+  } else {
+    return {
+      isValid: true,
+      parsed: Number(min),
+      messages: [""],
+    };
+  }
+}
+
+export function maxValueValidation(max: any, props: TableWidgetProps, _?: any) {
+  const min = props.minNum;
+  const value = max;
+  max = Number(max);
+
+  if (_?.isNil(value) || value === "") {
+    return {
+      isValid: true,
+      parsed: undefined,
+      messages: [""],
+    };
+  } else if (!Number.isFinite(max)) {
+    return {
+      isValid: false,
+      parsed: undefined,
+      messages: ["This value must be number"],
+    };
+  } else if (min !== undefined && max <= min) {
+    return {
+      isValid: false,
+      parsed: undefined,
+      messages: ["This value must be greater than min value"],
+    };
+  } else {
+    return {
+      isValid: true,
+      parsed: Number(max),
+      messages: [""],
+    };
+  }
+}
