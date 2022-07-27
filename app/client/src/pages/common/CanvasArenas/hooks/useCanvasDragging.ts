@@ -39,7 +39,6 @@ export interface XYCord {
 const CONTAINER_JUMP_ACC_THRESHOLD = 8000;
 const CONTAINER_JUMP_SPEED_THRESHOLD = 800;
 
-let dragBlocksSize = 0;
 let lastTranslatedIndex: number;
 //Since useCanvasDragging's Instance changes during container jump, metrics is stored outside
 const containerJumpThresholdMetrics = new ContainerJumpMetrics<{
@@ -110,24 +109,7 @@ export const useCanvasDragging = (
   const reflow = useRef<ReflowInterface>();
   reflow.current = useReflow(draggingSpaces, widgetId || "", gridProps);
 
-  const cleanUpTempStyles = () => {
-    // reset display of all dragged blocks
-    const els = document.querySelectorAll(`.auto-layout-parent-${widgetId}`);
-    if (els && els.length) {
-      els.forEach((el) => {
-        (el as any).classList.remove("auto-temp-no-display");
-        (el as any).style.transform = null;
-      });
-    }
-
-    // reset state
-    dragBlocksSize = 0;
-    lastTranslatedIndex = -10;
-  };
-
-  if (!isDragging) {
-    cleanUpTempStyles();
-  }
+  let dragBlocksSize = 0;
   const offsets: number[] = [];
   // let siblings: { [key: string]: number } = {};
   const siblingElements: any[] = [];
@@ -147,38 +129,30 @@ export const useCanvasDragging = (
       const els = document.querySelectorAll(`.auto-layout-parent-${widgetId}`);
       if (els && els.length && offsets.length !== els.length) {
         // Get widget ids of all widgets being dragged
-        console.log(els);
+        // console.log(els);
         const blocks = blocksToDraw.map((block) => block.widgetId);
         // console.log("*********");
-        els.forEach((el, index) => {
+        els.forEach((el) => {
           // console.log((el as any).offsetParent);
           // Extract widget id of current widget
           const mClass = el.className
             .split("auto-layout-child-")[1]
             .split(" ")[0];
           // console.log(`parentId: ${widgetId}`);
-          console.log(`widgetID: ${mClass}`);
+          // console.log(`widgetID: ${mClass}`);
           // console.log(`blocks: ${blocks}`);
           // console.log(blocks);
           /**
            * If the widget is also being dragged,
            * then discount its presence from offset calculation.
            */
-          const width = (el as any).clientWidth || (el as any).offsetWidth;
-          const height = (el as any).clientHeight || (el as any).offsetHeight;
           if (blocks && blocks.length && blocks.indexOf(mClass) !== -1) {
             // Temporarily hide the dragged widget
-            console.log(el as any);
-            console.log((el as any).offsetWidth);
-            console.log((el as any).clientWidth);
-            console.log((el as any).clientHeight);
-            console.log((el as any).offsetHeight);
-            console.log((el as any).getBoundingClientRect());
-            console.log(els[index].clientWidth);
-            console.log(width);
-            console.log(height);
-            dragBlocksSize += isVertical ? height : width;
-            console.log(`block size: ${dragBlocksSize}`);
+            const currentBlock = blocksToDraw[blocks.indexOf(mClass)];
+            dragBlocksSize += isVertical
+              ? currentBlock.height
+              : currentBlock.width;
+            // console.log(`block size: ${dragBlocksSize}`);
             (el as any).classList.add("auto-temp-no-display");
             return;
           } else {
@@ -209,6 +183,25 @@ export const useCanvasDragging = (
     }
   };
   calculateHighlightOffsets();
+
+  const cleanUpTempStyles = () => {
+    // reset display of all dragged blocks
+    const els = document.querySelectorAll(`.auto-layout-parent-${widgetId}`);
+    if (els && els.length) {
+      els.forEach((el) => {
+        (el as any).classList.remove("auto-temp-no-display");
+        (el as any).style.transform = null;
+      });
+    }
+
+    // reset state
+    dragBlocksSize = 0;
+    lastTranslatedIndex = -10;
+  };
+
+  if (!isDragging) {
+    cleanUpTempStyles();
+  }
 
   const {
     setDraggingCanvas,
