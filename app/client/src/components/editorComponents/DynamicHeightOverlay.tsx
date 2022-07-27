@@ -531,7 +531,7 @@ const DynamicHeightOverlay: React.FC<DynamicHeightOverlayProps> = memo(
       console.log("onDotHover");
     }
 
-    return (
+    return isWidgetSelected ? (
       <StyledDynamicHeightOverlay
         style={{
           position: "absolute",
@@ -578,7 +578,7 @@ const DynamicHeightOverlay: React.FC<DynamicHeightOverlayProps> = memo(
         />
         {children}
       </StyledDynamicHeightOverlay>
-    );
+    ) : null;
   },
 );
 
