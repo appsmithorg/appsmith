@@ -110,7 +110,6 @@ export const translateDiffEventToDataTreeDiffEvent = (
   difference: Diff<any, any>,
   unEvalDataTree: DataTree,
 ): DataTreeDiff | DataTreeDiff[] => {
-  console.log("$$$-difference", difference);
   let result: DataTreeDiff | DataTreeDiff[] = {
     payload: {
       propertyPath: "",
