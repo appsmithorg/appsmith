@@ -79,7 +79,7 @@ describe("JSObjects OnLoad Actions tests", function() {
     //homePage.DeleteWorkspace("JSOnLoadTest");
   });
 
-  it("6. Tc #1910 - Verify the Number of confirmation models of JS object on page load", () => {
+  it("6. Tc #1910 - Verify the Number of confirmation models of JS object on page load + Tc #1909", () => {
     homePage.CreateAppInWorkspace("JSOnLoadTest");
     ee.DragDropWidgetNVerify("buttonwidget", 100, 100);
     ee.NavigateToSwitcher("explorer");
