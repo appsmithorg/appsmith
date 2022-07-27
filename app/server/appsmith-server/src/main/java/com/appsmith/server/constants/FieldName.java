@@ -134,4 +134,6 @@ public class FieldName {
 
     public static final String INSTACE_ADMIN_ROLE = "Instance Administrator Role";
 
+    public static final String DEFAULT_PERMISSION_GROUP = "defaultPermissionGroup";
+
 }
