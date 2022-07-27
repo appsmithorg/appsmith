@@ -64,6 +64,17 @@ export interface ChartComponentProps {
   boxShadow?: string;
   primaryColor?: string;
   fontFamily?: string;
+  xAxisNameFontSize?: string;
+  yAxisNameFontSize?: string;
+  xAxisNameColor?: string;
+  yAxisNameColor?: string;
+  xAxisValueColor?: string;
+  yAxisValueColor?: string;
+  captionPadding?: string;
+  captionFontSize?: string;
+  captionFontColor?: string;
+  captionAlignment?: string;
+  canvasPadding?: string;
 }
 
 const CanvasContainer = styled.div<
@@ -266,24 +277,30 @@ class ChartComponent extends React.Component<ChartComponentProps> {
     const legendConfig = isMultiSeriesData
       ? {
           legendPosition: "top",
-          captionPadding: "100",
+          captionPadding: this.props.captionPadding,
         }
       : {
           captionPadding: "15",
           palettecolors: [this.props.primaryColor],
         };
 
+    const canvasPadding = this.props.canvasPadding
+      ? (this.props.canvasPadding
+          ?.split(",")
+          .map((item) => item.trim()) as string[])
+      : "60, 0, 60, 10";
+
     let config = {
       caption: this.props.chartName,
       xAxisName: this.props.xAxisName,
       yAxisName: this.props.yAxisName,
       theme: "fusion",
-      captionAlignment: "left",
+      captionAlignment: this.props.captionAlignment,
       alignCaptionWithCanvas: 0,
 
       // Caption styling =======================
-      captionFontSize: "30",
-      captionFontColor: Colors.CODE_GRAY,
+      captionFontSize: this.props.captionFontSize,
+      captionFontColor: this.props.captionFontColor,
 
       // legend position styling ==========
       legendIconSides: "4",
@@ -292,19 +309,22 @@ class ChartComponent extends React.Component<ChartComponentProps> {
       ...legendConfig,
 
       // Canvas styles ========
-      canvasTopPadding: "0",
-      canvasLeftPadding: "60",
-      canvasRightPadding: "60",
-      canvasBottomPadding: "10",
+      canvasTopPadding: canvasPadding[1],
+      canvasLeftPadding: canvasPadding[0],
+      canvasRightPadding: canvasPadding[2],
+      canvasBottomPadding: canvasPadding[3],
 
       // Chart styling =======
       chartBottomMargin: "15",
 
       // Axis name styling ======
-      xAxisNameFontSize: "16",
-      xAxisValueFontColor: Colors.DOVE_GRAY2,
-      yAxisNameFontSize: "16",
-      yAxisValueFontColor: Colors.DOVE_GRAY2,
+      xAxisNameFontSize: this.props.xAxisNameFontSize,
+      xAxisNameFontColor: this.props.xAxisNameColor,
+      xAxisValueFontColor: this.props.xAxisValueColor,
+
+      yAxisNameFontSize: this.props.yAxisNameFontSize,
+      yAxisValueFontColor: this.props.yAxisValueColor,
+      yAxisNameFontColor: this.props.yAxisNameColor,
 
       // Base configurations ======
       baseFont:

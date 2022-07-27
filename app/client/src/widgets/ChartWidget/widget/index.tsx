@@ -58,6 +58,11 @@ class ChartWidget extends BaseWidget<ChartWidgetProps, WidgetState> {
           allowScroll={this.props.allowScroll}
           borderRadius={this.props.borderRadius}
           boxShadow={this.props.boxShadow}
+          canvasPadding={this.props.canvasPadding}
+          captionAlignment={this.props.captionAlignment}
+          captionFontColor={this.props.captionFontColor}
+          captionFontSize={this.props.captionFontSize}
+          captionPadding={this.props.captionPadding}
           chartData={this.props.chartData}
           chartName={this.props.chartName}
           chartType={this.props.chartType}
@@ -72,7 +77,13 @@ class ChartWidget extends BaseWidget<ChartWidgetProps, WidgetState> {
           setAdaptiveYMin={this.props.setAdaptiveYMin}
           widgetId={this.props.widgetId}
           xAxisName={this.props.xAxisName}
+          xAxisNameColor={this.props.xAxisNameColor}
+          xAxisNameFontSize={this.props.xAxisNameFontSize}
+          xAxisValueColor={this.props.xAxisValueColor}
           yAxisName={this.props.yAxisName}
+          yAxisNameColor={this.props.yAxisNameColor}
+          yAxisNameFontSize={this.props.yAxisNameFontSize}
+          yAxisValueColor={this.props.yAxisValueColor}
         />
       </Suspense>
     );
@@ -89,6 +100,12 @@ const mapStateToProps = (state: AppState) => {
   };
 };
 export interface ChartWidgetProps extends WidgetProps {
+  captionPadding?: string;
+  captionFontSize?: string;
+  captionFontColor?: string;
+  captionAlignment?: string;
+  canvasPadding?: string;
+
   chartType: ChartType;
   chartData: AllChartData;
   customFusionChartConfig: CustomFusionChartConfig;
@@ -101,6 +118,12 @@ export interface ChartWidgetProps extends WidgetProps {
   boxShadow?: string;
   primaryColor?: string;
   fontFamily?: string;
+  xAxisNameFontSize?: string;
+  yAxisNameFontSize?: string;
+  xAxisNameColor?: string;
+  yAxisNameColor?: string;
+  xAxisValueColor?: string;
+  yAxisValueColor?: string;
 }
 
 type ChartComponentPartialProps = Omit<ChartComponentProps, "onDataPointClick">;

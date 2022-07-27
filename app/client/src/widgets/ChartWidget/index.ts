@@ -1,3 +1,4 @@
+import { Colors } from "constants/Colors";
 import { generateReactKey } from "widgets/WidgetUtils";
 import { LabelOrientation } from "./constants";
 import IconSVG from "./icon.svg";
@@ -18,6 +19,16 @@ export const CONFIG = {
     allowScroll: false,
     version: 1,
     animateLoading: true,
+    xAxisNameFontSize: "16",
+    yAxisNameFontSize: "16",
+    xAxisNameColor: "#be185d",
+    yAxisNameColor: "#be185d",
+    xAxisValueColor: "#cacaca",
+    yAxisValueColor: "#cacaca",
+    captionPadding: "15",
+    captionFontSize: "30",
+    captionAlignment: "left",
+    canvasPadding: "60, 0, 60, 10",
     chartData: {
       [generateReactKey()]: {
         seriesName: "Sales",
@@ -48,6 +59,32 @@ export const CONFIG = {
           xAxisName: "Product Line",
           yAxisName: "Revenue($)",
           theme: "fusion",
+          captionAlignment: "left",
+          alignCaptionWithCanvas: 0,
+          // Caption styling =======================
+          captionFontSize: "30",
+          captionFontColor: Colors.CODE_GRAY,
+          // legend position styling ==========
+          legendIconSides: "4",
+          legendIconBgAlpha: "100",
+          legendIconAlpha: "100",
+          legendPosition: "top",
+          captionPadding: "15",
+          // Canvas styles ========
+          canvasTopPadding: "0",
+          canvasLeftPadding: "60",
+          canvasRightPadding: "60",
+          canvasBottomPadding: "10",
+          // Chart styling =======
+          chartBottomMargin: "15",
+          // Axis name styling ======
+          xAxisNameFontSize: "16",
+          xAxisValueFontColor: Colors.DOVE_GRAY2,
+          yAxisNameFontSize: "16",
+          yAxisValueFontColor: Colors.DOVE_GRAY2,
+          // Base configurations ======
+          // bgColor: Colors.WHITE,
+          // setAdaptiveYMin: this.props.setAdaptiveYMin ? "1" : "0",
         },
         data: [
           {

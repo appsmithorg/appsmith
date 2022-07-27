@@ -3,6 +3,7 @@ import { ValidationTypes } from "constants/WidgetValidation";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { CUSTOM_CHART_TYPES, LabelOrientation } from "../constants";
 import { isLabelOrientationApplicableFor } from "../component";
+import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 
 export default [
   {
@@ -342,6 +343,152 @@ export default [
         isBindProperty: true,
         isTriggerProperty: false,
         validation: { type: ValidationTypes.TEXT },
+      },
+    ],
+  },
+  {
+    sectionName: "Chart Controls - For Feedback Only",
+    hidden: (x: any) => x.chartType === "CUSTOM_FUSION_CHART",
+    dependencies: ["chartType"],
+    children: [
+      {
+        propertyName: "xAxisNameFontSize",
+        label: "X Axis Name Font-size",
+        helpText: "Set the font size of the x-axis name",
+        controlType: "INPUT_TEXT",
+        isJSConvertible: true,
+        isBindProperty: true,
+        isTriggerProperty: false,
+        validation: { type: ValidationTypes.TEXT },
+      },
+      {
+        propertyName: "yAxisNameFontSize",
+        label: "Y Axis Name Font-size",
+        helpText: "Set the font size of the y-axis name",
+        controlType: "INPUT_TEXT",
+        isJSConvertible: true,
+        isBindProperty: true,
+        isTriggerProperty: false,
+        validation: { type: ValidationTypes.TEXT },
+      },
+      {
+        propertyName: "xAxisNameColor",
+        helpText: "Changes the color of the X-axis name",
+        label: "X-axis name color",
+        controlType: "COLOR_PICKER",
+        isJSConvertible: true,
+        isBindProperty: true,
+        isTriggerProperty: false,
+        validation: { type: ValidationTypes.TEXT },
+      },
+      {
+        propertyName: "yAxisNameColor",
+        helpText: "Changes the color of the Y-axis name",
+        label: "Y-axis name color",
+        controlType: "COLOR_PICKER",
+        isJSConvertible: true,
+        isBindProperty: true,
+        isTriggerProperty: false,
+        validation: { type: ValidationTypes.TEXT },
+      },
+      {
+        propertyName: "xAxisValueColor",
+        helpText: "Changes the color of the X-axis values",
+        label: "X-axis value color",
+        controlType: "COLOR_PICKER",
+        isJSConvertible: true,
+        isBindProperty: true,
+        isTriggerProperty: false,
+        validation: { type: ValidationTypes.TEXT },
+      },
+      {
+        propertyName: "yAxisValueColor",
+        helpText: "Changes the color of the Y-axis values",
+        label: "Y-axis value color",
+        controlType: "COLOR_PICKER",
+        isJSConvertible: true,
+        isBindProperty: true,
+        isTriggerProperty: false,
+        validation: { type: ValidationTypes.TEXT },
+      },
+
+      {
+        propertyName: "captionPadding",
+        helpText: "Change the captions/chart title's padding",
+        label: "Caption/Chart Title Padding",
+        controlType: "INPUT_TEXT",
+        isJSConvertible: true,
+        isBindProperty: true,
+        isTriggerProperty: false,
+        validation: { type: ValidationTypes.TEXT },
+      },
+      {
+        propertyName: "captionFontSize",
+        helpText: "Change the captions/chart title's font-size",
+        label: "Caption/Chart Title Font Size",
+        controlType: "INPUT_TEXT",
+        isJSConvertible: true,
+        isBindProperty: true,
+        isTriggerProperty: false,
+        validation: { type: ValidationTypes.TEXT },
+      },
+      {
+        propertyName: "captionFontColor",
+        helpText: "Change the captions/chart title's font-color",
+        label: "Caption/Chart Title Font Color",
+        controlType: "COLOR_PICKER",
+        isJSConvertible: true,
+        isBindProperty: true,
+        isTriggerProperty: false,
+        validation: { type: ValidationTypes.TEXT },
+      },
+      {
+        helpText: "Changes the caption/chart title's alignment",
+        propertyName: "captionAlignment",
+        label: "Chart Title Alignment",
+        controlType: "DROP_DOWN",
+        options: [
+          {
+            label: "LEFT",
+            value: "left",
+          },
+          {
+            label: "RIGHT",
+            value: "right",
+          },
+          {
+            label: "CENTER",
+            value: "center",
+          },
+        ],
+        isJSConvertible: true,
+        isBindProperty: true,
+        isTriggerProperty: false,
+        validation: {
+          type: ValidationTypes.TEXT,
+          params: {
+            allowedValues: ["left", "right", "center"],
+          },
+        },
+      },
+      {
+        propertyName: "canvasPadding",
+        helpText: "Change the padding of chart canvas",
+        label: "Canvas padding",
+        controlType: "INPUT_TEXT",
+        isJSConvertible: true,
+        isBindProperty: true,
+        isTriggerProperty: false,
+        validation: {
+          type: ValidationTypes.TEXT,
+          params: {
+            expected: {
+              type: "leftPadding, topPadding, rightPadding, bottomPadding",
+              example: "60, 0, 60, 10",
+              autocompleteDataType: AutocompleteDataType.STRING,
+            },
+          },
+        },
       },
     ],
   },
