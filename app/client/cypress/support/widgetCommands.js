@@ -1495,3 +1495,195 @@ Cypress.Commands.add("selectTableAndReset", () => {
     cy.wrap(item).should("contain.text", "#1");
   });
 });
+
+Cypress.Commands.add("selectSwitchGroupAndReset", () => {
+  cy.get(".bp3-control-indicator")
+    .last()
+    .click({ force: true });
+  cy.get(".t--text-widget-container").each((item, index, list) => {
+    cy.wrap(item).should("contain.text", "RED");
+  });
+  cy.get("button:contains('Submit')").click({ force: true });
+  cy.wait(1000);
+  cy.get(".t--text-widget-container").each((item, index, list) => {
+    cy.wrap(item).should("not.contain.text", "RED");
+  });
+});
+
+Cypress.Commands.add("selectSwitchAndReset", () => {
+  cy.get(".bp3-control-indicator")
+    .last()
+    .click({ force: true });
+  cy.get(".t--switch-widget-active").should("not.exist");
+  cy.get("button:contains('Submit')").click({ force: true });
+  cy.wait(1000);
+  cy.get(".t--toast-action span").contains("success");
+  cy.get(".t--switch-widget-active").should("be.visible");
+});
+
+Cypress.Commands.add("selectAndReset", () => {
+  cy.get(".select-button").click({ force: true });
+  cy.get(".menu-item-text")
+    .contains("Blue")
+    .click({ force: true });
+  cy.wait(3000);
+  cy.get(".t--text-widget-container").each((item, index, list) => {
+    cy.wrap(item).should("contain.text", "BLUE");
+  });
+  cy.get("button:contains('Submit')").click({ force: true });
+  cy.wait(1000);
+  cy.get(".t--text-widget-container").each((item, index, list) => {
+    cy.wrap(item).should("not.contain.text", "BLUE");
+  });
+});
+
+Cypress.Commands.add("selectCurrencyInputAndReset", () => {
+  cy.get(".bp3-input")
+    .click({ force: true })
+    .type("123");
+  cy.wait(3000);
+  cy.get(".t--text-widget-container").each((item, index, list) => {
+    cy.wrap(item).should("contain.text", "123");
+  });
+  cy.get("button:contains('Submit')").click({ force: true });
+  cy.wait(1000);
+  cy.get(".t--text-widget-container").each((item, index, list) => {
+    cy.wrap(item).should("not.contain.text", "123");
+  });
+});
+
+Cypress.Commands.add("multiTreeSelectAndReset", () => {
+  cy.get(".rc-tree-select-selection-overflow").click({ force: true });
+  cy.get(".rc-tree-select-tree-title:contains('Red')").click({
+    force: true,
+  });
+  cy.wait(1000);
+  cy.get(".t--text-widget-container").each((item, index, list) => {
+    cy.wrap(item).should("contain.text", "RED");
+  });
+  cy.get("button:contains('Submit')").click({ force: true });
+  cy.wait(1000);
+  cy.get(".t--text-widget-container").each((item, index, list) => {
+    cy.wrap(item).should("contain.text", "GREEN");
+  });
+});
+
+Cypress.Commands.add("radiogroupAndReset", () => {
+  cy.get("input")
+    .last()
+    .click({ force: true });
+  cy.wait(3000);
+  cy.get(".t--text-widget-container").each((item, index, list) => {
+    cy.wrap(item).should("contain.text", "N");
+  });
+  cy.get("button:contains('Submit')").click({ force: true });
+  cy.wait(1000);
+  cy.get(".t--text-widget-container").each((item, index, list) => {
+    cy.wrap(item).should("contain.text", "Y");
+  });
+});
+
+Cypress.Commands.add("listwidgetAndReset", () => {
+  cy.get(".t--widget-containerwidget")
+    .eq(1)
+    .click({ force: true });
+  cy.wait(3000);
+  cy.get(".t--text-widget-container").should("contain.text", "002");
+  cy.get("button:contains('Submit')").click({ force: true });
+  cy.wait(1000);
+  cy.get(".t--text-widget-container").should("contain.text", "001");
+});
+
+Cypress.Commands.add("ratingwidgetAndReset", () => {
+  cy.get(".bp3-icon-star svg")
+    .last()
+    .click({ force: true });
+  cy.wait(3000);
+  cy.get(".t--text-widget-container").each((item, index, list) => {
+    cy.wrap(item).should("not.contain.text", "3");
+  });
+  cy.get("button:contains('Submit')").click({ force: true });
+  cy.wait(1000);
+  cy.get(".t--text-widget-container").each((item, index, list) => {
+    cy.wrap(item).should("contain.text", "3");
+  });
+});
+
+Cypress.Commands.add("checkboxGroupAndReset", () => {
+  cy.get("input")
+    .last()
+    .click({ force: true });
+  cy.wait(3000);
+  cy.get(".t--text-widget-container").each((item, index, list) => {
+    cy.wrap(item).should("contain.text", "RED");
+  });
+  cy.get("button:contains('Submit')").click({ force: true });
+  cy.wait(1000);
+  cy.get(".t--text-widget-container").each((item, index, list) => {
+    cy.wrap(item).should("not.contain.text", "RED");
+  });
+});
+
+Cypress.Commands.add("checkboxAndReset", () => {
+  cy.get("input")
+    .last()
+    .click({ force: true });
+  cy.wait(3000);
+  cy.get(".t--text-widget-container").each((item, index, list) => {
+    cy.wrap(item).should("contain.text", "false");
+  });
+  cy.get("button:contains('Submit')").click({ force: true });
+  cy.wait(1000);
+  cy.get(".t--text-widget-container").each((item, index, list) => {
+    cy.wrap(item).should("contain.text", "true");
+  });
+});
+
+Cypress.Commands.add("audioWidgetAndReset", () => {
+  cy.get(".t--text-widget-container").each((item, index, list) => {
+    cy.wrap(item).should("contain.text", "false");
+  });
+  cy.get("button:contains('Submit')").click({ force: true });
+  cy.wait(1000);
+});
+
+Cypress.Commands.add("audioRecorderWidgetAndReset", () => {
+  cy.get(".t--text-widget-container").each((item, index, list) => {
+    cy.wrap(item).should("contain.text", "true");
+  });
+  cy.get("button:contains('Submit')").click({ force: true });
+  cy.wait(1000);
+});
+
+Cypress.Commands.add("phoneInputWidgetAndReset", () => {
+  cy.get(".bp3-input").type("1234");
+  cy.get(".t--text-widget-container").each((item, index, list) => {
+    cy.wrap(item).should("contain.text", "1234");
+  });
+  cy.get("button:contains('Submit')").click({ force: true });
+  cy.wait(1000);
+  cy.get(".t--toast-action span").contains("success");
+  cy.get(".t--text-widget-container").each((item, index, list) => {
+    cy.wrap(item).should("contain.text", "");
+  });
+});
+
+Cypress.Commands.add("filePickerWidgetAndReset", () => {
+  cy.get(".t--text-widget-container").each((item, index, list) => {
+    cy.wrap(item).should("contain.text", "false");
+  });
+  cy.get(commonlocators.filePickerInput)
+    .first()
+    .attachFile("testFile.mov");
+  //eslint-disable-next-line cypress/no-unnecessary-waiting
+  cy.wait(500);
+  cy.get(".t--text-widget-container").each((item, index, list) => {
+    cy.wrap(item).should("contain.text", "true");
+  });
+  cy.get("button:contains('Submit')").click({ force: true });
+  cy.wait(1000);
+  cy.get(".t--toast-action span").contains("success");
+  cy.get(".t--text-widget-container").each((item, index, list) => {
+    cy.wrap(item).should("contain.text", "false");
+  });
+});
