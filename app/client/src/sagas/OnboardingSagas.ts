@@ -60,7 +60,10 @@ import { setPreviewModeAction } from "actions/editorActions";
 import { FlattenedWidgetProps } from "widgets/constants";
 import { ActionData } from "reducers/entityReducers/actionsReducer";
 import { batchUpdateMultipleWidgetProperties } from "actions/controlActions";
-import { setExplorerPinnedAction } from "actions/explorerActions";
+import {
+  setExplorerActiveAction,
+  setExplorerPinnedAction,
+} from "actions/explorerActions";
 import { selectWidgetInitAction } from "actions/widgetSelectionActions";
 import { hideIndicator } from "pages/Editor/GuidedTour/utils";
 import { updateWidgetName } from "actions/propertyPaneActions";
@@ -175,6 +178,7 @@ function* setUpTourAppSaga() {
   );
   // Hide the explorer initialy
   yield put(setExplorerPinnedAction(false));
+  yield put(setExplorerActiveAction(false));
   yield put(toggleLoader(false));
   if (!query) return;
   history.push(

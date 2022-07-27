@@ -281,6 +281,7 @@ Cypress.Commands.add("EvaluateDataType", (dataType) => {
 });
 
 Cypress.Commands.add("getCodeMirror", () => {
+  cy.EnableAllCodeEditors();
   return cy
     .get(".CodeMirror textarea")
     .first()
@@ -289,6 +290,7 @@ Cypress.Commands.add("getCodeMirror", () => {
 });
 
 Cypress.Commands.add("testCodeMirror", (value) => {
+  cy.EnableAllCodeEditors();
   cy.get(".CodeMirror textarea")
     .first()
     .focus()
@@ -317,6 +319,7 @@ Cypress.Commands.add("testCodeMirror", (value) => {
 });
 
 Cypress.Commands.add("updateComputedValue", (value) => {
+  cy.EnableAllCodeEditors();
   cy.get(".CodeMirror textarea")
     .first()
     .focus({ force: true })
@@ -386,10 +389,11 @@ Cypress.Commands.add("updateComputedValueV2", (value) => {
 });
 
 Cypress.Commands.add("testCodeMirrorLast", (value) => {
+  cy.EnableAllCodeEditors();
   cy.get(".CodeMirror textarea")
     .last()
     .focus()
-    .type("{ctrl}{shift}{downarrow}")
+    .type("{ctrl}{shift}{downarrow}", { force: true })
     .then(($cm) => {
       if ($cm.val() !== "") {
         cy.get(".CodeMirror textarea")
@@ -401,6 +405,7 @@ Cypress.Commands.add("testCodeMirrorLast", (value) => {
 
       cy.get(".CodeMirror textarea")
         .last()
+        .type("{ctrl}{shift}{downarrow}", { force: true })
         .clear({ force: true })
         .type(value, {
           force: true,
@@ -415,6 +420,7 @@ Cypress.Commands.add("testCodeMirrorLast", (value) => {
 });
 
 Cypress.Commands.add("testJsontext", (endp, value, paste = true) => {
+  cy.EnableAllCodeEditors();
   cy.get(".t--property-control-" + endp + " .CodeMirror textarea")
     .first()
     .focus({ force: true })
@@ -478,7 +484,10 @@ Cypress.Commands.add("testJsontextclear", (endp, value, paste = true) => {
  *
  */
 Cypress.Commands.add("updateCodeInput", ($selector, value) => {
+  cy.EnableAllCodeEditors();
   cy.get($selector)
+    .first()
+    .click({ force: true })
     .find(".CodeMirror")
     .first()
     .then((ins) => {
@@ -507,6 +516,7 @@ Cypress.Commands.add("selectColor", (GivenProperty, colorOffset = -15) => {
 });
 
 Cypress.Commands.add("toggleJsAndUpdate", (endp, value) => {
+  cy.EnableAllCodeEditors();
   cy.get(".CodeMirror textarea")
     .last()
     .focus({ force: true })
@@ -784,6 +794,7 @@ Cypress.Commands.add("SetDateToToday", () => {
 });
 
 Cypress.Commands.add("enterActionValue", (value) => {
+  cy.EnableAllCodeEditors();
   cy.get(".CodeMirror textarea")
     .last()
     .focus()
@@ -1105,12 +1116,13 @@ Cypress.Commands.add("copyWidget", (widget, widgetLocator) => {
       originalWidget = originalWidget.replaceAll(/\u200B/g, "");
       cy.log(originalWidget);
       cy.get(widgetsPage.copyWidget).click({ force: true });
-      cy.wait(2000);
+      cy.wait(3000);
       cy.reload();
       // Wait for the widget to be appear in the DOM and press Ctrl/Cmd + V to paste the button.
       cy.get(widgetLocator).should("be.visible");
+      cy.wait(1000);
       cy.get("body").type(`{${modifierKey}}v`);
-      cy.wait(2000);
+      cy.wait(3000);
       cy.openPropertyPaneCopy(widget);
       cy.get(widgetsPage.propertypaneText)
         .children()
@@ -1308,6 +1320,7 @@ Cypress.Commands.add(
 );
 
 Cypress.Commands.add("clearPropertyValue", (value) => {
+  cy.EnableAllCodeEditors();
   cy.get(".CodeMirror textarea")
     .eq(value)
     .focus({ force: true })
@@ -1357,6 +1370,23 @@ Cypress.Commands.add(
     }
   },
 );
+
+Cypress.Commands.add("EnableAllCodeEditors", () => {
+  cy.wait(2000);
+  cy.get("body").then(($body) => {
+    if ($body.get(commonlocators.codeEditorWrapper)?.length > 0) {
+      let count = $body.get(commonlocators.codeEditorWrapper)?.length || 0;
+      while (count) {
+        $body
+          .get(commonlocators.codeEditorWrapper)
+          ?.eq(0)
+          .then(($el) => $el.click({ force: true }).wait(100));
+        count = $body.find(commonlocators.codeEditorWrapper)?.length || 0;
+      }
+    }
+  });
+  cy.wait(1000);
+});
 
 Cypress.Commands.add("getTableCellHeight", (x, y) => {
   return cy
