@@ -2,7 +2,6 @@ import {
   fetchAppThemesAction,
   fetchSelectedAppThemeAction,
 } from "actions/appThemingActions";
-import { fetchCommentThreadsInit } from "actions/commentActions";
 import { fetchJSCollectionsForView } from "actions/jsActionActions";
 import {
   fetchAllPageEntityCompletion,
@@ -41,7 +40,6 @@ export default class AppViewerEngine extends AppEngine {
   }
 
   *completeChore() {
-    yield put(fetchCommentThreadsInit());
     yield put({
       type: ReduxActionTypes.INITIALIZE_PAGE_VIEWER_SUCCESS,
     });
