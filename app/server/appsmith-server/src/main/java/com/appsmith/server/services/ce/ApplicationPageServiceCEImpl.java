@@ -786,9 +786,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                                                 ).thenReturn(application);
                                             })
                             )
-                            .flatMap(application -> {
-                                return sendCloneApplicationAnalyticsEvent(sourceApplication, application);
-                            });
+                            .flatMap(application -> sendCloneApplicationAnalyticsEvent(sourceApplication, application));
                 });
 
         // Clone Application is currently a slow API because it needs to create application, clone all the pages, and then
@@ -1136,7 +1134,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                             FieldName.AUDIT_DATA, auditData
                     );
 
-                    return analyticsService.sendObjectEvent(AnalyticsEvents.CLONE_APPLICATION, application, data);
+                    return analyticsService.sendObjectEvent(AnalyticsEvents.CLONE, application, data);
                 });
     }
 
@@ -1148,7 +1146,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
      */
     private Mono<NewPage> sendPageViewAnalyticsEvent(NewPage newPage, boolean viewMode) {
         if (!viewMode) {
-           return Mono.empty();
+            return Mono.empty();
         }
 
         //TODO: Add more audit data

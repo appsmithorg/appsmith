@@ -42,7 +42,7 @@ public class LogoutSuccessHandlerCE implements ServerLogoutSuccessHandler {
             String responseStr = objectMapper.writeValueAsString(responseBody);
             DataBuffer buffer = exchange.getResponse().bufferFactory().allocateBuffer().write(responseStr.getBytes());
             return analyticsService.sendObjectEvent(
-                        AnalyticsEvents.USER_LOGOUT,
+                        AnalyticsEvents.LOGOUT,
                         (User) authentication.getPrincipal()
                     )
                     .then(response.writeWith(Mono.just(buffer)));

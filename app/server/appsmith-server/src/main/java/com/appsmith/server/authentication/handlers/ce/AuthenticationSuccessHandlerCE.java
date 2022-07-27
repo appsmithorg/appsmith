@@ -154,7 +154,7 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
                     }
 
                     monos.add(analyticsService.sendObjectEvent(
-                            AnalyticsEvents.USER_LOGIN,
+                            AnalyticsEvents.LOGIN,
                             currentUser,
                             Map.of(
                                     FieldName.MODE_OF_LOGIN, modeOfLogin
