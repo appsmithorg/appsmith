@@ -23,7 +23,7 @@ import { failFastApiCalls } from "sagas/InitSagas";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
-import AppEngine, { AppEnginePayload } from ".";
+import AppEngine, { ActionsNotFoundError, AppEnginePayload } from ".";
 
 export default class AppViewerEngine extends AppEngine {
   constructor(mode: APP_MODE) {
@@ -93,7 +93,10 @@ export default class AppViewerEngine extends AppEngine {
       ],
     );
 
-    if (!resultOfPrimaryCalls) return;
+    if (!resultOfPrimaryCalls)
+      throw new ActionsNotFoundError(
+        `Unable to fetch actions for the application: ${applicationId}`,
+      );
 
     yield put(fetchAllPageEntityCompletion([executePageLoadActions()]));
   }
