@@ -115,23 +115,19 @@ export const useCanvasDragging = (
   const siblingElements: any[] = [];
   const isVertical = direction === LayoutDirection.Vertical;
   const calculateHighlightOffsets = () => {
-    if (isNewWidget)
-      dragBlocksSize = isVertical
-        ? blocksToDraw[0].height
-        : blocksToDraw[0].width;
-    if (
-      useAutoLayout &&
-      isDragging &&
-      isCurrentDraggedCanvas &&
-      isChildOfCanvas
-    ) {
+    if (useAutoLayout && isDragging && isCurrentDraggedCanvas) {
+      // calculate total drag size to translate siblings by
+      blocksToDraw?.map((each) => {
+        dragBlocksSize += isVertical ? each.height : each.width;
+      });
       // Get all children of current auto layout container
       const els = document.querySelectorAll(`.auto-layout-parent-${widgetId}`);
       if (els && els.length && offsets.length !== els.length) {
         // Get widget ids of all widgets being dragged
-        // console.log(els);
+        console.log(els);
+        console.log(blocksToDraw);
         const blocks = blocksToDraw.map((block) => block.widgetId);
-        // console.log("*********");
+        console.log("*********");
         els.forEach((el) => {
           // console.log((el as any).offsetParent);
           // Extract widget id of current widget
@@ -148,11 +144,6 @@ export const useCanvasDragging = (
            */
           if (blocks && blocks.length && blocks.indexOf(mClass) !== -1) {
             // Temporarily hide the dragged widget
-            const currentBlock = blocksToDraw[blocks.indexOf(mClass)];
-            dragBlocksSize += isVertical
-              ? currentBlock.height
-              : currentBlock.width;
-            // console.log(`block size: ${dragBlocksSize}`);
             (el as any).classList.add("auto-temp-no-display");
             return;
           } else {
@@ -178,7 +169,7 @@ export const useCanvasDragging = (
                 8
             : 8,
         );
-        // console.log(offsets);
+        console.log(offsets);
       }
     }
   };
@@ -668,6 +659,7 @@ export const useCanvasDragging = (
           const arr = [...siblingElements];
 
           // translate each element in the appropriate direction
+          console.log(`dragblocksize: ${dragBlocksSize}`);
           const x = !isVertical ? dragBlocksSize : 0;
           const y = isVertical ? dragBlocksSize : 0;
           arr.forEach((each, index) => {
