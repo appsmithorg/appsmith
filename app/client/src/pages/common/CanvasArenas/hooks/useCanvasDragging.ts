@@ -124,10 +124,10 @@ export const useCanvasDragging = (
       const els = document.querySelectorAll(`.auto-layout-parent-${widgetId}`);
       if (els && els.length && offsets.length !== els.length) {
         // Get widget ids of all widgets being dragged
-        console.log(els);
-        console.log(blocksToDraw);
+        // console.log(els);
+        // console.log(blocksToDraw);
         const blocks = blocksToDraw.map((block) => block.widgetId);
-        console.log("*********");
+        // console.log("*********");
         els.forEach((el) => {
           // console.log((el as any).offsetParent);
           // Extract widget id of current widget
@@ -169,7 +169,7 @@ export const useCanvasDragging = (
                 8
             : 8,
         );
-        console.log(offsets);
+        // console.log(offsets);
       }
     }
   };
@@ -659,7 +659,7 @@ export const useCanvasDragging = (
           const arr = [...siblingElements];
 
           // translate each element in the appropriate direction
-          console.log(`dragblocksize: ${dragBlocksSize}`);
+          // console.log(`dragblocksize: ${dragBlocksSize}`);
           const x = !isVertical ? dragBlocksSize : 0;
           const y = isVertical ? dragBlocksSize : 0;
           arr.forEach((each, index) => {
