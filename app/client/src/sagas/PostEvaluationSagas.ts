@@ -364,7 +364,8 @@ export function* updateTernDefinitions(
     shouldUpdate = some(updates, (update) => {
       return (
         update.event === DataTreeDiffEvent.NEW ||
-        update.event === DataTreeDiffEvent.DELETE
+        update.event === DataTreeDiffEvent.DELETE ||
+        update.event === DataTreeDiffEvent.EDIT_WIDGET_PROPERTY_LABEL
       );
     });
   }

@@ -31,6 +31,7 @@ import { warn as logWarn } from "loglevel";
 import { EvalMetaUpdates } from "./DataTreeEvaluator/types";
 import { isObject } from "lodash";
 import { DataTreeObjectEntity } from "entities/DataTree/dataTreeFactory";
+import { isWidgetPropertyNamePath } from "widgets/WidgetUtils";
 
 // Dropdown1.options[1].value -> Dropdown1.options[1]
 // Dropdown1.options[1] -> Dropdown1.options
@@ -42,6 +43,7 @@ export enum DataTreeDiffEvent {
   DELETE = "DELETE",
   EDIT = "EDIT",
   NOOP = "NOOP",
+  EDIT_WIDGET_PROPERTY_LABEL = "EDIT_WIDGET_PROPERTY_LABEL",
 }
 
 export type DataTreeDiff = {
@@ -108,6 +110,7 @@ export const translateDiffEventToDataTreeDiffEvent = (
   difference: Diff<any, any>,
   unEvalDataTree: DataTree,
 ): DataTreeDiff | DataTreeDiff[] => {
+  console.log("$$$-difference", difference);
   let result: DataTreeDiff | DataTreeDiff[] = {
     payload: {
       propertyPath: "",
@@ -144,17 +147,10 @@ export const translateDiffEventToDataTreeDiffEvent = (
       break;
     }
     case "E": {
-      let rhsChange, lhsChange;
-      if (isJsAction) {
-        rhsChange = typeof difference.rhs === "string";
-        lhsChange = typeof difference.lhs === "string";
-      } else {
-        rhsChange =
-          typeof difference.rhs === "string" && isDynamicValue(difference.rhs);
-
-        lhsChange =
-          typeof difference.lhs === "string" && isDynamicValue(difference.lhs);
-      }
+      const rhsTypeString = typeof difference.rhs === "string";
+      const isRHSDynamicValue = isDynamicValue(difference.rhs);
+      const lhsTypeString = typeof difference.lhs === "string";
+      const isLHSDynamicValue = isDynamicValue(difference.lhs);
 
       // JsObject function renaming
       // remove .data from a String instance manually
@@ -162,7 +158,7 @@ export const translateDiffEventToDataTreeDiffEvent = (
       // source for .data in a String instance -> `updateLocalUnEvalTree`
       if (
         isJsAction &&
-        rhsChange &&
+        rhsTypeString &&
         difference.lhs instanceof String &&
         _.get(difference.lhs, "data")
       ) {
@@ -181,7 +177,10 @@ export const translateDiffEventToDataTreeDiffEvent = (
             },
           },
         ];
-      } else if (rhsChange || lhsChange) {
+      } else if (
+        (rhsTypeString && isRHSDynamicValue) ||
+        (lhsTypeString && isLHSDynamicValue)
+      ) {
         result = [
           {
             event: DataTreeDiffEvent.EDIT,
@@ -216,6 +215,19 @@ export const translateDiffEventToDataTreeDiffEvent = (
               },
             });
           });
+        }
+      } else if (isWidget(entity) && (rhsTypeString || lhsTypeString)) {
+        if (isWidgetPropertyNamePath(entity, propertyPath)) {
+          // EDIT_WIDGET_PROPERTY_LABEL is used to store edit event for triggering ternDefinitionUpdate and should be skipped in dependencyMap modification and evaluation
+          result = [
+            {
+              event: DataTreeDiffEvent.EDIT_WIDGET_PROPERTY_LABEL,
+              payload: {
+                propertyPath,
+                value: difference.rhs,
+              },
+            },
+          ];
         }
       } else if (difference.lhs === undefined || difference.rhs === undefined) {
         // Handle static value changes that change structure that can lead to
