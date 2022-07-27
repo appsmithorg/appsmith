@@ -25,7 +25,16 @@ const AutoLayout = styled("div")<{
   useAutoLayout?: boolean;
 }>`
   position: unset;
-  margin: 8px;
+`;
+
+const ZIndexContainer = styled.div<{
+  alignItems?: AlignItems;
+  direction?: LayoutDirection;
+  zIndex: number;
+}>`
+  position: relative;
+  z-index: ${({ zIndex }) => zIndex || Layers.positionedWidget};
+
   width: ${({ alignItems, direction }) =>
     alignItems === AlignItems.Stretch && direction === LayoutDirection.Vertical
       ? "calc(100% - 16px)"
@@ -36,11 +45,7 @@ const AutoLayout = styled("div")<{
       ? "calc(100% - 16px)"
       : "auto"};
   min-height: 30px;
-`;
-
-const ZIndexContainer = styled.div<{ zIndex: number }>`
-  position: relative;
-  z-index: ${({ zIndex }) => zIndex || Layers.positionedWidget};
+  margin: 8px;
 `;
 
 export function AutoLayoutWrapper(props: AutoLayoutProps) {
@@ -68,12 +73,18 @@ export function AutoLayoutWrapper(props: AutoLayoutProps) {
   return (
     <AutoLayout
       alignItems={props.alignItems}
-      className={`auto-layout-parent-${props.parentId} auto-layout-child-${props.widgetId}`}
       direction={props.direction}
       onClickCapture={onClickFn}
       useAutoLayout={props.useAutoLayout}
     >
-      <ZIndexContainer zIndex={zIndex}>{props.children}</ZIndexContainer>
+      <ZIndexContainer
+        alignItems={props.alignItems}
+        className={`auto-layout-parent-${props.parentId} auto-layout-child-${props.widgetId}`}
+        direction={props.direction}
+        zIndex={zIndex}
+      >
+        {props.children}
+      </ZIndexContainer>
     </AutoLayout>
   );
 }

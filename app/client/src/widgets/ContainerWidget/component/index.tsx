@@ -54,7 +54,8 @@ const StyledContainerComponent = styled.div<
   }
 
   .auto-temp-no-display {
-    display: none;
+    position: absolute;
+    left: -9999px;
   }
 `;
 

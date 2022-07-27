@@ -147,29 +147,38 @@ export const useCanvasDragging = (
       const els = document.querySelectorAll(`.auto-layout-parent-${widgetId}`);
       if (els && els.length && offsets.length !== els.length) {
         // Get widget ids of all widgets being dragged
-        // console.log(els);
+        console.log(els);
         const blocks = blocksToDraw.map((block) => block.widgetId);
         // console.log("*********");
-        els.forEach((el) => {
+        els.forEach((el, index) => {
           // console.log((el as any).offsetParent);
           // Extract widget id of current widget
           const mClass = el.className
             .split("auto-layout-child-")[1]
             .split(" ")[0];
           // console.log(`parentId: ${widgetId}`);
-          // console.log(`widgetID: ${mClass}`);
+          console.log(`widgetID: ${mClass}`);
           // console.log(`blocks: ${blocks}`);
           // console.log(blocks);
           /**
            * If the widget is also being dragged,
            * then discount its presence from offset calculation.
            */
+          const width = (el as any).clientWidth || (el as any).offsetWidth;
+          const height = (el as any).clientHeight || (el as any).offsetHeight;
           if (blocks && blocks.length && blocks.indexOf(mClass) !== -1) {
             // Temporarily hide the dragged widget
-            dragBlocksSize += isVertical
-              ? (el as any).clientHeight
-              : (el as any).clientWidth;
-            // console.log(`block size: ${dragBlocksSize}`);
+            console.log(el as any);
+            console.log((el as any).offsetWidth);
+            console.log((el as any).clientWidth);
+            console.log((el as any).clientHeight);
+            console.log((el as any).offsetHeight);
+            console.log((el as any).getBoundingClientRect());
+            console.log(els[index].clientWidth);
+            console.log(width);
+            console.log(height);
+            dragBlocksSize += isVertical ? height : width;
+            console.log(`block size: ${dragBlocksSize}`);
             (el as any).classList.add("auto-temp-no-display");
             return;
           } else {
@@ -644,7 +653,7 @@ export const useCanvasDragging = (
               renderNewRows(delta);
             } else if (!isUpdatingRows) {
               triggerReflow(e, firstMove);
-              highlightDropPosition(e);
+              isCurrentDraggedCanvas && highlightDropPosition(e);
               renderBlocks();
             }
             scrollObj.lastMouseMoveEvent = {
