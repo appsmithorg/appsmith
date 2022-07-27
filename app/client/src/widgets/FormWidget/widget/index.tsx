@@ -6,10 +6,9 @@ import ContainerWidget, {
   ContainerWidgetProps,
 } from "widgets/ContainerWidget/widget";
 import { ContainerComponentProps } from "widgets/ContainerWidget/component";
-import { CanvasWidgetStructure } from "widgets/constants";
 
 class FormWidget extends ContainerWidget {
-  checkInvalidChildren = (children: CanvasWidgetStructure[]): boolean => {
+  checkInvalidChildren = (children: WidgetProps[]): boolean => {
     return some(children, (child) => {
       if ("children" in child) {
         return this.checkInvalidChildren(child.children || []);
@@ -107,9 +106,6 @@ class FormWidget extends ContainerWidget {
       );
     }
 
-    // TODO(Ashit): Fix this
-    // eslint-disable-next-line
-    // @ts-ignore
     return super.renderChildWidget(childContainer);
   }
 

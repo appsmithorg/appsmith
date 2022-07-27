@@ -10,26 +10,27 @@ import {
 import {
   getMainCanvasProps,
   computeMainContainerWidget,
-  createCanvasWidget,
   getChildWidgets,
-  createLoadingWidget,
   getRenderMode,
 } from "selectors/editorSelectors";
 import { AppState } from "reducers";
-import { CanvasWidgetStructure } from "./constants";
-import { getCanvasWidget } from "selectors/entitiesSelector";
 import { useSelector } from "react-redux";
+import { getWidget } from "sagas/selectors";
+import {
+  createCanvasWidget,
+  createLoadingWidget,
+} from "utils/widgetRenderUtils";
 
 const WIDGETS_WITH_CHILD_WIDGETS = ["LIST_WIDGET", "FORM_WIDGET"];
 
 function withWidgetProps(WrappedWidget: typeof BaseWidget) {
   function WrappedPropsComponent(
-    props: CanvasWidgetStructure & { skipWidgetPropsHydration?: boolean },
+    props: WidgetProps & { skipWidgetPropsHydration?: boolean },
   ) {
     const { children, skipWidgetPropsHydration, type, widgetId } = props;
 
     const canvasWidget = useSelector((state: AppState) =>
-      getCanvasWidget(state, widgetId),
+      getWidget(state, widgetId),
     );
     const mainCanvasProps = useSelector((state: AppState) =>
       getMainCanvasProps(state),
@@ -72,20 +73,17 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
         canvasWidgetProps.isVisible ??
         canvasWidgetProps.type !== "MODAL_WIDGET";
 
-      if (widgetId === MAIN_CONTAINER_WIDGET_ID) {
-        widgetProps.rightColumn = canvasWidgetProps.rightColumn;
-        widgetProps.bottomRow = canvasWidgetProps.bottomRow;
-        widgetProps.minHeight = canvasWidgetProps.minHeight;
-        widgetProps.parentColumnSpace = canvasWidgetProps.parentColumnSpace;
-        widgetProps.parentRowSpace = canvasWidgetProps.parentRowSpace;
-      } else if (props.type === "CANVAS_WIDGET") {
+      if (
+        props.type === "CANVAS_WIDGET" &&
+        widgetId !== MAIN_CONTAINER_WIDGET_ID
+      ) {
         widgetProps.rightColumn = props.rightColumn;
         widgetProps.bottomRow = props.bottomRow;
         widgetProps.minHeight = props.minHeight;
         widgetProps.shouldScrollContents = props.shouldScrollContents;
         widgetProps.canExtend = props.canExtend;
         widgetProps.parentId = props.parentId;
-      } else {
+      } else if (widgetId !== MAIN_CONTAINER_WIDGET_ID) {
         widgetProps.parentColumnSpace = props.parentColumnSpace;
         widgetProps.parentRowSpace = props.parentRowSpace;
         widgetProps.parentId = props.parentId;

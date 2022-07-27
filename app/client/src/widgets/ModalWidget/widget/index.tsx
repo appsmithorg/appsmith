@@ -16,7 +16,6 @@ import { commentModeSelector } from "selectors/commentsSelectors";
 import { getCanvasWidth, snipingModeSelector } from "selectors/editorSelectors";
 import { deselectAllInitAction } from "actions/widgetSelectionActions";
 import { ValidationTypes } from "constants/WidgetValidation";
-import { CanvasWidgetStructure } from "widgets/constants";
 
 const minSize = 100;
 
@@ -112,7 +111,7 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
     return Math.min(this.getMaxModalWidth(), width);
   }
 
-  renderChildWidget = (childWidgetData: CanvasWidgetStructure): ReactNode => {
+  renderChildWidget = (childWidgetData: WidgetProps): ReactNode => {
     childWidgetData.parentId = this.props.widgetId;
     childWidgetData.shouldScrollContents = false;
     childWidgetData.canExtend = this.props.shouldScrollContents;
@@ -259,7 +258,7 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
 export interface ModalWidgetProps extends WidgetProps {
   renderMode: RenderMode;
   isOpen?: boolean;
-  children?: CanvasWidgetStructure[];
+  children?: WidgetProps[];
   canOutsideClickClose?: boolean;
   width: number;
   height: number;

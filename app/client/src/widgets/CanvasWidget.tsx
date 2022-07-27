@@ -8,7 +8,6 @@ import DropTargetComponent from "components/editorComponents/DropTargetComponent
 import { getCanvasSnapRows } from "utils/WidgetPropsUtils";
 import { getCanvasClassName } from "utils/generators";
 import WidgetFactory, { DerivedPropertiesMap } from "utils/WidgetFactory";
-import { klona } from "klona";
 import { CanvasWidgetStructure } from "./constants";
 import { CANVAS_DEFAULT_MIN_HEIGHT_PX } from "constants/AppConstants";
 
@@ -48,7 +47,7 @@ class CanvasWidget extends ContainerWidget {
   renderChildWidget(childWidgetData: CanvasWidgetStructure): React.ReactNode {
     if (!childWidgetData) return null;
 
-    const childWidget = klona(childWidgetData);
+    const childWidget = { ...childWidgetData };
 
     const snapSpaces = this.getSnapSpaces();
 

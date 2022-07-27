@@ -3,6 +3,7 @@ import {
   widgetCanvasFactory,
 } from "test/factories/WidgetFactoryUtils";
 import { render, fireEvent } from "test/testUtils";
+import * as widgetRenderUtils from "utils/widgetRenderUtils";
 import * as dataTreeSelectors from "selectors/dataTreeSelectors";
 import * as editorSelectors from "selectors/editorSelectors";
 import Canvas from "pages/Editor/Canvas";
@@ -21,7 +22,7 @@ describe("Tabs widget functional cases", () => {
     .spyOn(editorSelectors, "computeMainContainerWidget")
     .mockImplementation((widget) => widget as any);
   jest
-    .spyOn(editorSelectors, "createCanvasWidget")
+    .spyOn(widgetRenderUtils, "createCanvasWidget")
     .mockImplementation(mockCreateCanvasWidget);
 
   it("Should render 2 tabs by default", () => {

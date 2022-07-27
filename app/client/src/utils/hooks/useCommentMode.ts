@@ -23,6 +23,7 @@ export const useCommentMode = () => {
     window.location.pathname,
     commentMode,
     (window as any).isCommentModeForced,
+    setCommentMode,
   ]);
 
   return isCommentMode;

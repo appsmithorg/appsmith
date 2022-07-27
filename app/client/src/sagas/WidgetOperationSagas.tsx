@@ -596,7 +596,7 @@ function* batchUpdateWidgetPropertySaga(
     "ms",
   );
   // Save the layout
-  yield put(updateAndSaveLayout(widgets, undefined, shouldReplay));
+  yield put(updateAndSaveLayout(widgets, { shouldReplay }));
 }
 
 function* batchUpdateMultipleWidgetsPropertiesSaga(
@@ -630,12 +630,9 @@ function* batchUpdateMultipleWidgetsPropertiesSaga(
 
   // Save the layout
   yield put(
-    updateAndSaveLayout(
-      updatedStateWidgets,
-      undefined,
-      undefined,
+    updateAndSaveLayout(updatedStateWidgets, {
       updatedWidgetIds,
-    ),
+    }),
   );
 }
 

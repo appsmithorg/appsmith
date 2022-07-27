@@ -466,12 +466,6 @@ export const getAppStoreData = (state: AppState): AppStoreState =>
 export const getCanvasWidgets = (state: AppState): CanvasWidgetsReduxState =>
   state.entities.canvasWidgets;
 
-export const getCanvasWidget = createSelector(
-  [getCanvasWidgets, (_state: AppState, widgetId: string) => widgetId],
-  (canvasWidgets: CanvasWidgetsReduxState, widgetId: string) =>
-    canvasWidgets[widgetId],
-);
-
 export const getCanvasWidgetsStructure = (state: AppState) =>
   state.entities.canvasWidgetsStructure;
 

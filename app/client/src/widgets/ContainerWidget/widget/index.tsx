@@ -19,7 +19,6 @@ import { compact, map, sortBy } from "lodash";
 
 import { CanvasDraggingArena } from "pages/common/CanvasArenas/CanvasDraggingArena";
 import { getCanvasSnapRows } from "utils/WidgetPropsUtils";
-import { CanvasWidgetStructure } from "widgets/constants";
 
 class ContainerWidget extends BaseWidget<
   ContainerWidgetProps<WidgetProps>,
@@ -162,7 +161,7 @@ class ContainerWidget extends BaseWidget<
     };
   };
 
-  renderChildWidget(childWidgetData: CanvasWidgetStructure): React.ReactNode {
+  renderChildWidget(childWidgetData: WidgetProps): React.ReactNode {
     const childWidget = { ...childWidgetData };
 
     const { componentHeight, componentWidth } = this.getComponentDimensions();

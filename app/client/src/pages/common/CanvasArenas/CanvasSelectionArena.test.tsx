@@ -19,6 +19,7 @@ import { sagasToRunForTests } from "test/sagas";
 import GlobalHotKeys from "pages/Editor/GlobalHotKeys";
 import { UpdatedMainContainer } from "test/testMockedWidgets";
 import { MemoryRouter } from "react-router-dom";
+import * as widgetRenderUtils from "utils/widgetRenderUtils";
 import * as utilities from "selectors/editorSelectors";
 import Canvas from "pages/Editor/Canvas";
 import * as dataTreeSelectors from "selectors/dataTreeSelectors";
@@ -31,7 +32,7 @@ describe("Canvas selection test cases", () => {
     .spyOn(utilities, "computeMainContainerWidget")
     .mockImplementation((widget) => widget as any);
   jest
-    .spyOn(utilities, "createCanvasWidget")
+    .spyOn(widgetRenderUtils, "createCanvasWidget")
     .mockImplementation(mockCreateCanvasWidget);
 
   it("Should select using canvas draw", () => {

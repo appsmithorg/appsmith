@@ -4,6 +4,7 @@ import {
   ReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
+import { areArraysEqual } from "utils/widgetRenderUtils";
 
 const initialState: WidgetDragResizeState = {
   isDraggingDisabled: false,
@@ -142,20 +143,6 @@ export const widgetDraggingReducer = createImmerReducer(initialState, {
     state.selectedWidgetAncestry = action.payload;
   },
 });
-
-/**
- * checks if array of strings are equal
- * @param arr1
- * @param arr2
- * @returns
- */
-function areArraysEqual(arr1: string[], arr2: string[]) {
-  if (arr1.length !== arr2.length) return false;
-
-  if (arr1.sort().join(",") === arr2.sort().join(",")) return true;
-
-  return false;
-}
 
 type DraggingGroupCenter = {
   widgetId?: string;

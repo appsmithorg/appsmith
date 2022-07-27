@@ -21,7 +21,7 @@ class WidgetFactory {
   static widgetTypes: Record<string, string> = {};
   static widgetMap: Map<
     WidgetType,
-    WidgetBuilder<WidgetProps, WidgetState>
+    WidgetBuilder<CanvasWidgetStructure, WidgetState>
   > = new Map();
   static widgetDerivedPropertiesGetterMap: Map<
     WidgetType,
@@ -103,9 +103,6 @@ class WidgetFactory {
     };
     const widgetBuilder = this.widgetMap.get(widgetData.type);
     if (widgetBuilder) {
-      // TODO validate props here
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
       const widget = widgetBuilder.buildWidget(widgetProps);
       return widget;
     } else {

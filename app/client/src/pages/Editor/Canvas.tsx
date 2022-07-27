@@ -20,10 +20,9 @@ import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
 import { getSelectedAppTheme } from "selectors/appThemingSelectors";
 import { getPageLevelSocketRoomId } from "sagas/WebsocketSagas/utils";
 import { previewModeSelector } from "selectors/editorSelectors";
-import { CanvasWidgetsStructureReduxState } from "reducers/entityReducers/canvasWidgetsStructureReducer";
 
 interface CanvasProps {
-  widgetsStructure: CanvasWidgetsStructureReduxState;
+  widgetsStructure: CanvasWidgetStructure;
   pageId: string;
   canvasWidth: number;
 }
@@ -125,7 +124,7 @@ const Canvas = memo((props: CanvasProps) => {
       >
         {props.widgetsStructure.widgetId &&
           WidgetFactory.createWidget(
-            props.widgetsStructure as CanvasWidgetStructure,
+            props.widgetsStructure,
             RenderModes.CANVAS,
           )}
         {isMultiplayerEnabledForUser && (

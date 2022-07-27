@@ -19,8 +19,7 @@ const generateWidget = memoize(function getWidgetComponent(
   needsMeta: boolean,
 ) {
   let widget = needsMeta ? withMeta(Widget) : Widget;
-  // eslint-disable-next-line
-  // @ts-ignore
+  //@ts-expect-error: type mismatch
   widget = withWidgetProps(widget);
   return Sentry.withProfiler(
     // @ts-expect-error: Types are not available

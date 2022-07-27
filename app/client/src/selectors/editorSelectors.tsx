@@ -18,25 +18,22 @@ import {
 import {
   MAIN_CONTAINER_WIDGET_ID,
   RenderModes,
-  WIDGET_STATIC_PROPS,
 } from "constants/WidgetConstants";
 import CanvasWidgetsNormalizer from "normalizers/CanvasWidgetsNormalizer";
-import {
-  DataTree,
-  DataTreeWidget,
-  ENTITY_TYPE,
-} from "entities/DataTree/dataTreeFactory";
+import { DataTree, DataTreeWidget } from "entities/DataTree/dataTreeFactory";
 import { ContainerWidgetProps } from "widgets/ContainerWidget/widget";
-import { find, pick, sortBy } from "lodash";
-import WidgetFactory from "utils/WidgetFactory";
+import { find, sortBy } from "lodash";
 import { APP_MODE } from "entities/App";
 import { getDataTree, getLoadingEntities } from "selectors/dataTreeSelectors";
 import { Page } from "@appsmith/constants/ReduxActionConstants";
 import { PLACEHOLDER_APP_SLUG, PLACEHOLDER_PAGE_SLUG } from "constants/routes";
 import { ApplicationVersion } from "actions/applicationActions";
 import { MainCanvasReduxState } from "reducers/uiReducers/mainCanvasReducer";
-import { LoadingEntitiesState } from "reducers/evaluationReducers/loadingEntitiesReducer";
-import _ from "lodash";
+import {
+  buildChildWidgetTree,
+  createCanvasWidget,
+  createLoadingWidget,
+} from "utils/widgetRenderUtils";
 
 const getIsDraggingOrResizing = (state: AppState) =>
   state.ui.widgetDragResize.isResizing || state.ui.widgetDragResize.isDragging;
@@ -320,63 +317,6 @@ export const getChildWidgets = createSelector(
   buildChildWidgetTree,
 );
 
-function getWidgetSpecificChildProps(type: string) {
-  if (type === "FORM_WIDGET") {
-    return ["value", "isDirty", "isValid", "isLoading", "children"];
-  }
-}
-
-/**
- * Method to build a child widget tree
- * @param canvasWidgets
- * @param evaluatedDataTree
- * @param loadingEntities
- * @param widgetId
- * @param requiredWidgetProps
- * @returns
- */
-function buildChildWidgetTree(
-  canvasWidgets: CanvasWidgetsReduxState,
-  evaluatedDataTree: DataTree,
-  loadingEntities: LoadingEntitiesState,
-  widgetId: string,
-  requiredWidgetProps?: string[],
-) {
-  const parentWidget = canvasWidgets[widgetId];
-
-  const specificChildProps =
-    requiredWidgetProps ||
-    getWidgetSpecificChildProps(canvasWidgets[widgetId].type);
-
-  if (parentWidget.children) {
-    return parentWidget.children.map((childWidgetId) => {
-      const childWidget = canvasWidgets[childWidgetId];
-      const evaluatedWidget = evaluatedDataTree[
-        childWidget.widgetName
-      ] as DataTreeWidget;
-      const widget = evaluatedWidget
-        ? createCanvasWidget(childWidget, evaluatedWidget, specificChildProps)
-        : createLoadingWidget(childWidget);
-
-      widget.isLoading = loadingEntities.has(childWidget.widgetName);
-
-      if (widget?.children?.length > 0) {
-        widget.children = buildChildWidgetTree(
-          canvasWidgets,
-          evaluatedDataTree,
-          loadingEntities,
-          childWidgetId,
-          specificChildProps,
-        );
-      }
-
-      return widget;
-    });
-  }
-
-  return [];
-}
-
 const getOccupiedSpacesForContainer = (
   containerWidgetId: string,
   widgets: FlattenedWidgetProps[],
@@ -478,7 +418,7 @@ export const getOccupiedSpacesWhileMoving = createSelector(
 const generateOccupiedSpacesForContainer = (
   widgets: CanvasWidgetsReduxState,
   fetchNow: boolean,
-  containerId: string,
+  containerId: string | undefined,
 ): OccupiedSpace[] | undefined => {
   if (containerId === null || containerId === undefined || !fetchNow)
     return undefined;
@@ -506,10 +446,9 @@ const generateOccupiedSpacesForContainer = (
 export function getOccupiedSpacesSelectorForContainer(
   containerId: string | undefined,
 ) {
-  return createSelector(
-    getWidgets,
-    _.bind(generateOccupiedSpacesForContainer, null, _, true, containerId),
-  );
+  return createSelector(getWidgets, (widgets: CanvasWidgetsReduxState) => {
+    return generateOccupiedSpacesForContainer(widgets, true, containerId);
+  });
 }
 
 /**
@@ -522,7 +461,7 @@ export function getOccupiedSpacesSelectorForContainer(
 const generateWidgetSpacesForContainer = (
   widgets: CanvasWidgetsReduxState,
   fetchNow: boolean,
-  containerId: string,
+  containerId: string | undefined,
 ): WidgetSpace[] | undefined => {
   if (containerId === null || containerId === undefined || !fetchNow)
     return undefined;
@@ -553,7 +492,13 @@ export function getContainerOccupiedSpacesSelectorWhileResizing(
   return createSelector(
     getWidgets,
     getIsResizing,
-    _.bind(generateOccupiedSpacesForContainer, null, _, _, containerId),
+    (widgets: CanvasWidgetsReduxState, isResizing: boolean) => {
+      return generateOccupiedSpacesForContainer(
+        widgets,
+        isResizing,
+        containerId,
+      );
+    },
   );
 }
 
@@ -561,10 +506,9 @@ export function getContainerOccupiedSpacesSelectorWhileResizing(
 export function getContainerWidgetSpacesSelector(
   containerId: string | undefined,
 ) {
-  return createSelector(
-    getWidgets,
-    _.bind(generateWidgetSpacesForContainer, null, _, true, containerId),
-  );
+  return createSelector(getWidgets, (widgets: CanvasWidgetsReduxState) => {
+    return generateWidgetSpacesForContainer(widgets, true, containerId);
+  });
 }
 
 // same as getOccupiedSpaces but gets only the container specific occupied Spaces
@@ -574,7 +518,13 @@ export function getContainerWidgetSpacesSelectorWhileMoving(
   return createSelector(
     getWidgets,
     getIsDraggingOrResizing,
-    _.bind(generateWidgetSpacesForContainer, null, _, _, containerId),
+    (widgets: CanvasWidgetsReduxState, isDraggingOrResizing: boolean) => {
+      return generateWidgetSpacesForContainer(
+        widgets,
+        isDraggingOrResizing,
+        containerId,
+      );
+    },
   );
 }
 export const getActionById = createSelector(
@@ -588,52 +538,6 @@ export const getActionById = createSelector(
     }
   },
 );
-
-export const createCanvasWidget = (
-  canvasWidget: FlattenedWidgetProps,
-  evaluatedWidget: DataTreeWidget,
-  specificChildProps?: string[],
-) => {
-  const widgetStaticProps = pick(
-    canvasWidget,
-    Object.keys(WIDGET_STATIC_PROPS),
-  );
-
-  //Pick required only contents for specific widgets
-  const evaluatedStaticProps = specificChildProps
-    ? pick(evaluatedWidget, specificChildProps)
-    : evaluatedWidget;
-
-  return {
-    ...evaluatedStaticProps,
-    ...widgetStaticProps,
-  } as DataTreeWidget;
-};
-
-const WidgetTypes = WidgetFactory.widgetTypes;
-export const createLoadingWidget = (
-  canvasWidget: FlattenedWidgetProps,
-): DataTreeWidget => {
-  const widgetStaticProps = pick(
-    canvasWidget,
-    Object.keys(WIDGET_STATIC_PROPS),
-  ) as WidgetProps;
-  return {
-    ...widgetStaticProps,
-    type: WidgetTypes.SKELETON_WIDGET,
-    ENTITY_TYPE: ENTITY_TYPE.WIDGET,
-    bindingPaths: {},
-    reactivePaths: {},
-    triggerPaths: {},
-    validationPaths: {},
-    logBlackList: {},
-    isLoading: true,
-    propertyOverrideDependency: {},
-    overridingPropertyPaths: {},
-    privateWidgets: {},
-    meta: {},
-  };
-};
 
 export const getJSCollectionById = createSelector(
   [

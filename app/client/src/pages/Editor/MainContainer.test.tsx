@@ -6,6 +6,7 @@ import {
 import { act, render, fireEvent } from "test/testUtils";
 import GlobalHotKeys from "./GlobalHotKeys";
 import { MemoryRouter } from "react-router-dom";
+import * as widgetRenderUtils from "utils/widgetRenderUtils";
 import * as utilities from "selectors/editorSelectors";
 import * as dataTreeSelectors from "selectors/dataTreeSelectors";
 import store from "store";
@@ -94,7 +95,7 @@ describe("Drag and Drop widgets into Main container", () => {
   const spyGetCanvasWidgetDsl = jest.spyOn(utilities, "getCanvasWidgetDsl");
 
   jest
-    .spyOn(utilities, "createCanvasWidget")
+    .spyOn(widgetRenderUtils, "createCanvasWidget")
     .mockImplementation(mockCreateCanvasWidget);
   jest
     .spyOn(dataTreeSelectors, "getWidgetEvalValues")

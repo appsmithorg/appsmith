@@ -53,10 +53,10 @@ const canvasWidgetsReducer = createImmerReducer(initialState, {
       listOfUpdatedWidgets = action.payload.updatedWidgetIds;
     } // else diff out the widgets that need to be updated
     else {
-      const updateLayoutDiff = diff(state, action.payload.widgets);
-      if (!updateLayoutDiff) return state;
+      const updatedLayoutDiffs = diff(state, action.payload.widgets);
+      if (!updatedLayoutDiffs) return state;
 
-      listOfUpdatedWidgets = getUpdatedWidgetLists(updateLayoutDiff);
+      listOfUpdatedWidgets = getUpdatedWidgetLists(updatedLayoutDiffs);
     }
 
     //update only the widgets that need to be updated.

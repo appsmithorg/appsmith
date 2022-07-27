@@ -48,22 +48,6 @@ export type CanvasWidgetStructure = Pick<
   keyof typeof staticProps
 > & {
   children?: CanvasWidgetStructure[];
-
-  containerStyle?: string;
-  shouldScrollContents?: boolean;
-  canExtend?: boolean;
-  isVisible?: boolean;
-  // List widget
-  noPad?: boolean;
-
-  //  TODO (Ashit): Statbox widget - remove
-  onClick?: any;
-  boxShadow?: string;
-
-  // Form widget
-  isFormValid?: boolean;
-  onReset?: any;
-  isValid?: boolean;
 };
 
 export enum FileDataTypes {

@@ -9,6 +9,7 @@ import { act, render, fireEvent, waitFor } from "test/testUtils";
 import GlobalHotKeys from "./GlobalHotKeys";
 import MainContainer from "../MainContainer";
 import { MemoryRouter } from "react-router-dom";
+import * as widgetRenderUtils from "utils/widgetRenderUtils";
 import * as utilities from "selectors/editorSelectors";
 import * as dataTreeSelectors from "selectors/dataTreeSelectors";
 import store from "store";
@@ -45,7 +46,10 @@ describe("Canvas Hot Keys", () => {
   const mockGetIsFetchingPage = jest.spyOn(utilities, "getIsFetchingPage");
   const spyGetCanvasWidgetDsl = jest.spyOn(utilities, "getCanvasWidgetDsl");
   const spyGetChildWidgets = jest.spyOn(utilities, "getChildWidgets");
-  const spyCreateCanvasWidget = jest.spyOn(utilities, "createCanvasWidget");
+  const spyCreateCanvasWidget = jest.spyOn(
+    widgetRenderUtils,
+    "createCanvasWidget",
+  );
 
   function UpdatedMainContainer({ dsl }: any) {
     useMockDsl(dsl);
@@ -75,7 +79,7 @@ describe("Canvas Hot Keys", () => {
 
   describe("Select all hotkey", () => {
     jest
-      .spyOn(utilities, "createCanvasWidget")
+      .spyOn(widgetRenderUtils, "createCanvasWidget")
       .mockImplementation(mockCreateCanvasWidget);
     jest
       .spyOn(dataTreeSelectors, "getWidgetEvalValues")

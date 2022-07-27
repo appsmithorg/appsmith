@@ -37,6 +37,12 @@ export interface CreatePageActionPayload {
   blockNavigation?: boolean;
 }
 
+export type updateLayoutOptions = {
+  isRetry?: boolean;
+  shouldReplay?: boolean;
+  updatedWidgetIds?: string[];
+};
+
 export const fetchPage = (
   pageId: string,
   isFirstLoad = false,
@@ -130,10 +136,9 @@ export const deletePageSuccess = () => {
 
 export const updateAndSaveLayout = (
   widgets: CanvasWidgetsReduxState,
-  isRetry?: boolean,
-  shouldReplay?: boolean,
-  updatedWidgetIds?: string[],
+  options: updateLayoutOptions = {},
 ) => {
+  const { isRetry, shouldReplay, updatedWidgetIds } = options;
   return {
     type: ReduxActionTypes.UPDATE_LAYOUT,
     payload: { widgets, isRetry, shouldReplay, updatedWidgetIds },

@@ -263,11 +263,11 @@ class TabsWidget extends BaseWidget<
 
   renderComponent = () => {
     const selectedTabWidgetId = this.props.selectedTabWidgetId;
-    const childWidgetData = this.props.children
-      ?.filter(Boolean)
-      .filter((item) => {
+    const childWidgetData = {
+      ...this.props.children?.filter(Boolean).filter((item) => {
         return selectedTabWidgetId === item.widgetId;
-      })[0];
+      })[0],
+    };
     if (!childWidgetData) {
       return null;
     }
