@@ -1034,6 +1034,7 @@ export default class DataTreeEvaluator {
       const { isValid, messages } = validateActionProperty(
         validationConfig,
         evalPropertyValue,
+        unEvalPropertyValue,
       );
       if (!isValid) {
         const evalErrors: EvaluationError[] =

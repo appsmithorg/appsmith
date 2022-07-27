@@ -487,7 +487,7 @@ export function validateWidgetProperty(
   value: unknown,
   props: Record<string, unknown>,
   propertyPath: string,
-  unEvalValue = "",
+  unEvalValue: string,
 ) {
   if (!config) {
     return {
@@ -501,7 +501,7 @@ export function validateWidgetProperty(
 export function validateActionProperty(
   config: ValidationConfig,
   value: unknown,
-  unEvalValue = "",
+  unEvalValue: string,
 ) {
   if (!config) {
     return {
