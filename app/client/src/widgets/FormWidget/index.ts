@@ -47,7 +47,7 @@ export const CONFIG = {
                   },
                 },
                 {
-                  type: "FORM_BUTTON_WIDGET",
+                  type: "BUTTON_WIDGET",
                   size: {
                     rows: 4,
                     cols: 16,
@@ -66,7 +66,7 @@ export const CONFIG = {
                   },
                 },
                 {
-                  type: "FORM_BUTTON_WIDGET",
+                  type: "BUTTON_WIDGET",
                   size: {
                     rows: 4,
                     cols: 16,

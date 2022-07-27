@@ -231,10 +231,10 @@ const SingleSelectTreeComponent = React.forwardRef<
       // Clear the search input on closing the widget
       setFilter("");
     };
-
     return (
       <TreeSelectContainer
         accentColor={accentColor}
+        allowClear={allowClear}
         borderRadius={borderRadius}
         boxShadow={boxShadow}
         compactMode={compactMode}

@@ -39,6 +39,9 @@ server {
   include /appsmith-stacks/data/certificate/conf/options-ssl-nginx.conf;
   ssl_dhparam /appsmith-stacks/data/certificate/conf/ssl-dhparams.pem;
 
+  # https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy/frame-ancestors
+  add_header Content-Security-Policy "frame-ancestors ${APPSMITH_ALLOWED_FRAME_ANCESTORS-'self'}";
+
   location = /supervisor {
     return 301 /supervisor/;
   }
@@ -60,7 +63,7 @@ server {
   }
 
   proxy_set_header X-Forwarded-Proto \$origin_scheme;
-  proxy_set_header X-Forwarded-Host \$host;  
+  proxy_set_header X-Forwarded-Host \$host;
 
   client_max_body_size 100m;
 
@@ -72,7 +75,6 @@ server {
   location /.well-known/acme-challenge/ {
     root /appsmith-stacks/data/certificate/certbot;
   }
-
 
   location / {
     try_files \$uri /index.html =404;

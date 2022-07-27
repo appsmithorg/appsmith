@@ -79,7 +79,7 @@
     "loglevel": "^1.7.1",
     "lottie-web": "^5.7.4",
     "mammoth": "^1.4.19",
-    "marked": "^3.0.8",
+    "marked": "^4.0.18",
     "memoize-one": "^5.2.1",
     "micro-memoize": "^4.0.10",
     "moment": "2.29.4",
@@ -186,8 +186,7 @@
     "not op_mini all"
   ],
   "devDependencies": {
-    "@babel/helper-builder-react-jsx": "^7.18.6",
-    "@babel/helper-builder-react-jsx-experimental": "^7.12.11",
+    "@babel/helper-create-regexp-features-plugin": "^7.18.6",
     "@sentry/webpack-plugin": "^1.18.9",
     "@testing-library/jest-dom": "5.16.1",
     "@testing-library/react": "12.1.2",
@@ -204,7 +203,7 @@
     "@types/js-beautify": "^1.13.2",
     "@types/jshint": "^2.12.0",
     "@types/lodash": "^4.14.120",
-    "@types/marked": "^3.0.3",
+    "@types/marked": "^4.0.3",
     "@types/moment-timezone": "^0.5.10",
     "@types/nanoid": "^2.0.0",
     "@types/node": "^10.12.18",
@@ -246,7 +245,7 @@
     "cypress-file-upload": "^4.1.1",
     "cypress-image-snapshot": "^4.0.1",
     "cypress-multi-reporters": "^1.2.4",
-    "cypress-real-events": "^1.5.1",
+    "cypress-real-events": "^1.7.1",
     "cypress-wait-until": "^1.7.2",
     "cypress-xpath": "^1.4.0",
     "dotenv": "^8.1.0",
@@ -282,7 +281,7 @@
   },
   "husky": {
     "hooks": {
-      "pre-commit": "lint-staged"
+      "pre-commit": "lint-staged && git-secrets --scan --untracked && git-secrets --scan -r"
     }
   },
   "resolutions": {

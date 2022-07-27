@@ -13,7 +13,7 @@ describe("Validate Datasource Panel Styles", function() {
       .last()
       .should("be.visible")
       .click({ force: true });
-    cy.createMockDatasource();
+    cy.createMockDatasource("Users");
     cy.get(pages.integrationCreateNew).click();
   });
 
