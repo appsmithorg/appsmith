@@ -30,10 +30,12 @@ import static com.appsmith.server.acl.AclPermission.MAKE_PUBLIC_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_DATASOURCES;
+import static com.appsmith.server.acl.AclPermission.MANAGE_INSTANCE_CONFIGURATION;
 import static com.appsmith.server.acl.AclPermission.MANAGE_WORKSPACES;
 import static com.appsmith.server.acl.AclPermission.MANAGE_PAGES;
 import static com.appsmith.server.acl.AclPermission.MANAGE_THEMES;
 import static com.appsmith.server.acl.AclPermission.MANAGE_USERS;
+import static com.appsmith.server.acl.AclPermission.READ_INSTANCE_CONFIGURATION;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_EXPORT_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_MANAGE_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_PUBLISH_APPLICATIONS;
@@ -78,6 +80,7 @@ public class PolicyGeneratorCE {
                     lateralGraph.addVertex(permission);
                 });
 
+        createInstancePolicyGraph();
         createUserPolicyGraph();
         createWorkspacePolicyGraph();
         createDatasourcePolicyGraph();
@@ -86,6 +89,10 @@ public class PolicyGeneratorCE {
         createActionPolicyGraph();
         createCommentPolicyGraph();
         createThemePolicyGraph();
+    }
+
+    private void createInstancePolicyGraph() {
+        lateralGraph.addEdge(MANAGE_INSTANCE_CONFIGURATION, READ_INSTANCE_CONFIGURATION);
     }
 
     /**

@@ -117,4 +117,14 @@ public class PermissionGroupServiceCEImpl extends BaseService<PermissionGroupRep
                     return repository.updateById(pg.getId(), pg, AclPermission.MANAGE_PERMISSION_GROUPS);
                 });
     }
+
+    @Override
+    public Mono<PermissionGroup> bulkUnassignFromUsers(PermissionGroup permissionGroup, List<User> users) {
+        return repository.findById(permissionGroup.getId(), AclPermission.MANAGE_PERMISSION_GROUPS)
+                .flatMap(pg -> {
+                    ensureAssignedToUserIds(pg);
+                    pg.getAssignedToUserIds().removeAll(users.stream().map(User::getId).collect(Collectors.toList()));
+                    return repository.updateById(pg.getId(), pg, AclPermission.MANAGE_PERMISSION_GROUPS);
+                });
+    }
 }
