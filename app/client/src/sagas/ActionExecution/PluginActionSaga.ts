@@ -206,6 +206,8 @@ function* resolvingBlobUrls(
   value: any,
   executeActionRequest?: any,
   index?: number,
+  arrDatatype?: string[],
+  isArray?: boolean,
 ) {
   console.log("ondhu 1", executeActionRequest);
   const dataType = trueTypeOf(value);
@@ -222,11 +224,17 @@ function* resolvingBlobUrls(
       const resolvedBlobValue: unknown = yield call(readBlob, blobUrl);
       set(value, blobUrlPath, resolvedBlobValue);
     }
+    executeActionRequest.paramProperties.push({ [`k${index}`]: "file" });
   } else {
-    executeActionRequest.paramProperties.push({ [`k${index}`]: dataType });
     if (isBlobUrl(value)) {
       // @ts-expect-error: Values can take many types
       value = yield call(readBlob, value);
+    } else {
+      isArray
+        ? arrDatatype?.push(dataType)
+        : executeActionRequest.paramProperties.push({
+            [`k${index}`]: dataType,
+          });
     }
   }
   return value;
@@ -281,6 +289,7 @@ function* evaluateActionParams(
 
     if (isArray(value)) {
       const tempArr = [];
+      const arrDatatype: string[] = [];
       // array of objects containing blob urls that is loops and individual object is checked for resolution of blob urls.
       for (const val of value) {
         const newVal: unknown = yield call(
@@ -288,9 +297,14 @@ function* evaluateActionParams(
           val,
           executeActionRequest,
           i,
+          arrDatatype,
+          true,
         );
         tempArr.push(newVal);
       }
+      executeActionRequest.paramProperties.push({
+        [`k${i}`]: { array: arrDatatype },
+      });
       value = tempArr;
     } else {
       // @ts-expect-error: Values can take many types
