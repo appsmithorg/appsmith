@@ -600,10 +600,10 @@ ${({ dropDownWidth, id }) => `
 	display: inline-block;
 }
 
-  }
 `;
 
 export const TreeSelectContainer = styled.div<{
+  allowClear?: boolean;
   compactMode: boolean;
   isValid: boolean;
   labelPosition?: LabelPosition;
@@ -747,7 +747,10 @@ export const TreeSelectContainer = styled.div<{
       white-space: nowrap;
       text-overflow: ellipsis;
       font-size: 14px;
-      width: calc(100% - 40px);
+      ${(props) =>
+        props.allowClear
+          ? `width: calc(100% - 58px)`
+          : `width: calc(100% - 40px)`}
     }
   }
   .rc-tree-select-multiple {
@@ -855,18 +858,13 @@ export const TreeSelectContainer = styled.div<{
       height: 100%;
       display: flex;
       align-items: center;
-      z-index: -1;
       .rc-tree-select-clear-icon {
         font-size: 18px;
         font-weight: bold;
       }
     }
   }
-  .rc-tree-select-allow-clear.rc-tree-select-focused {
-    .rc-tree-select-clear {
-      z-index: 1;
-    }
-  }
+
   .rc-tree-select-show-arrow.rc-tree-select-multiple {
     .rc-tree-select-selector {
       padding-right: 20px;
@@ -920,6 +918,7 @@ export const TreeSelectContainer = styled.div<{
           height: 20px;
         }
       fill: ${Colors.SLATE_GRAY};
+      }
     }
     .rc-tree-select-arrow-icon {
       &::after {
@@ -944,7 +943,6 @@ export const TreeSelectContainer = styled.div<{
       }
     }
   }
-
 `;
 export const StyledCheckbox = styled(Checkbox)`
   &&.${Classes.CHECKBOX}.${Classes.CONTROL} {

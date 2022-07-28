@@ -220,6 +220,7 @@ function SingleSelectTreeComponent({
   return (
     <TreeSelectContainer
       accentColor={accentColor}
+      allowClear={allowClear}
       borderRadius={borderRadius}
       boxShadow={boxShadow}
       compactMode={compactMode}

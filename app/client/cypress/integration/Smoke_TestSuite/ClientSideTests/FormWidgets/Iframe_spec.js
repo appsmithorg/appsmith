@@ -21,10 +21,12 @@ describe("Iframe Widget functionality", function() {
   };
 
   it("Tests Iframe post message props correctly exposed or not", () => {
+    cy.wait(3000);
     getIframeBody()
       .find("button")
       .should("have.text", "Click me")
       .click();
+    cy.wait(1000);
     cy.get(".t--draggable-textwidget .bp3-ui-text span").should(
       "contain.text",
       `{"lastEventId":"","origin":"https://dev.appsmith.com","ports":[]}`,
