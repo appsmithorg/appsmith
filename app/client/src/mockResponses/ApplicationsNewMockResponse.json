@@ -159,6 +159,7 @@
           "users":[
             {
               "username":"b1@appsmith.com",
+              "permissionGroupId": "62e2291af980b36927705076",
               "permissionGroupName":"Administrator"
             }
           ]
@@ -284,6 +285,7 @@
           "users":[
             {
               "username":"b1@appsmith.com",
+              "permissionGroupId": "62e2291af980b36927705076",
               "permissionGroupName":"Administrator"
             }
           ]
