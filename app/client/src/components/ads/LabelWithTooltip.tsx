@@ -173,7 +173,9 @@ export const StyledLabel = styled(Label)<StyledLabelProps>`
     }};
 
     ${({ color, disabled, fontSize, fontStyle }) => `
-      color: ${disabled ? Colors.GREY_8 : color || "inherit"};
+      color: ${
+        disabled ? "var(--wds-color-text-disabled)" : color || "inherit"
+      };
       font-size: ${fontSize ?? "inherit"};
       font-weight: ${
         fontStyle?.includes(FontStyleTypes.BOLD) ? "bold" : "normal"

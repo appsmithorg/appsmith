@@ -25,11 +25,12 @@ const DropdownTriggerIconWrapper = styled.button<
   letter-spacing: -0.24px;
   color: #090707;
   cursor: pointer;
-  position: ${(props) => props.disabled && "absolute"};
+  position: relative;
   z-index: 2;
   pointer-events: ${(props) => !props.allowDialCodeChange && "none"};
-  ${(props) => (props.disabled ? `background-color: ${Colors.GREY_1};` : "")};
-  border-right: 1px solid ${Colors.GREY_3};
+  ${(props) =>
+    props.disabled ? `background-color: var(--wds-color-bg-disabled);` : ""};
+  border-right: 1px solid var(--wds-color-border);
   gap: 0.25rem;
   padding: 0 0.75rem;
   margin-right: 0.625rem;
@@ -102,6 +103,27 @@ export const PopoverStyles = createGlobalStyle<{
 
     .${props.portalClassName} .ads-dropdown-options-wrapper {
       border: 0px solid !important;
+      box-shadow: none !important;
+    }
+
+    .${props.portalClassName} .dropdown-search {
+      margin: 10px !important;
+      width: calc(100% - 20px);
+
+      input {
+        border: 1px solid var(--wds-color-border);
+        padding-right: 36px !important;
+        padding-left: 10px !important;
+      }
+
+      .bp3-icon-search {
+        right: 4px;
+        left: auto;
+      }
+
+      input:hover {
+        border: 1px solid var(--wds-color-border-hover);
+      }
     }
   `}
 `;

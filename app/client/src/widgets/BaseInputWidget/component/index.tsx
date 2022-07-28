@@ -74,9 +74,10 @@ const InputComponentWrapper = styled((props) => (
   accentColor?: string;
 }>`
   ${labelLayoutStyles}
-
+  cursor: ${({ disabled }) => (disabled ? "not-allowed" : "auto")};
   .${Classes.INPUT_GROUP} {
     display: flex;
+    pointer-events: ${({ disabled }) => (disabled ? "none" : "auto")};
     background: ${(props) =>
       props.disabled ? "var(--wds-color-bg-disabled)" : "initial"};
 
@@ -177,7 +178,7 @@ const InputComponentWrapper = styled((props) => (
       ::placeholder {
         color: ${({ disabled }) => {
           if (disabled) {
-            return "var(--wds-color-text-disabled) !important";
+            return "var(--wds-color-text-disabled-light) !important";
           }
 
           return "var(--wds-color-text)";
@@ -193,7 +194,12 @@ const InputComponentWrapper = styled((props) => (
         cursor: pointer;
 
         .password-input {
-          color: var(--wds-color-icon);
+          color:
+            ${
+              props.disabled
+                ? "var(--wds-color-icon-disabled)"
+                : "var(--wds-color-icon)"
+            };
           justify-content: center;
           height: 100%;
           svg {

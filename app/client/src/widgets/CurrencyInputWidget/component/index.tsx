@@ -66,9 +66,7 @@ class CurrencyInputComponent extends React.Component<
         leftIcon={
           <CurrencyTypeDropdown
             accentColor={this.props.accentColor}
-            allowCurrencyChange={
-              this.props.allowCurrencyChange && !this.props.disabled
-            }
+            allowCurrencyChange={this.props.allowCurrencyChange}
             borderRadius={this.props.borderRadius}
             isDisabled={this.props.disabled}
             onCurrencyTypeChange={this.props.onCurrencyTypeChange}

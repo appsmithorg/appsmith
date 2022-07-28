@@ -84,6 +84,27 @@ export const PopoverStyles = createGlobalStyle<{
 
     .${props.portalClassName} .ads-dropdown-options-wrapper {
       border: 0px solid !important;
+      box-shadow: none !important;
+    }
+
+    .${props.portalClassName} .dropdown-search {
+      margin: 10px !important;
+      width: calc(100% - 20px);
+
+      input {
+        border: 1px solid var(--wds-color-border);
+        padding-right: 36px !important;
+        padding-left: 10px !important;
+      }
+
+      .bp3-icon-search {
+        right: 4px;
+        left: auto;
+      }
+
+      input:hover {
+        border: 1px solid var(--wds-color-border-hover);
+      }
     }
   `}
 `;
