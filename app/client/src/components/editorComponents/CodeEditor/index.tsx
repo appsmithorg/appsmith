@@ -645,11 +645,7 @@ class CodeEditor extends Component<Props, State> {
         if (isActionEntity(entity))
           entityInformation.entityId = entity.actionId;
         if (isWidgetEntity(entity)) {
-          const isTriggerPath =
-            entity.dynamicTriggerPathList &&
-            entity.dynamicTriggerPathList
-              .map((path) => path.key)
-              .includes(propertyPath);
+          const isTriggerPath = entity.triggerPaths[propertyPath];
           entityInformation.entityId = entity.widgetId;
           if (isTriggerPath)
             entityInformation.expectedType = AutocompleteDataType.FUNCTION;
