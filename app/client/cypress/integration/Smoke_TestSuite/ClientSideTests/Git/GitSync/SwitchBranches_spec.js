@@ -230,12 +230,12 @@ describe("Git sync:", function() {
       cy.CheckAndUnfoldEntityItem("PAGES");
       cy.Createpage(uuid);
       cy.get(gitSyncLocators.branchButton).click({ force: true });
-      cy.get(gitSyncLocators.branchSearchInput).type(`{selectall}${branch}`);
+      cy.get(gitSyncLocators.branchSearchInput).type("{selectall}master");
       cy.wait(400);
       cy.get(gitSyncLocators.branchListItem)
         .contains("master")
         .click();
-      cy.wait(8000);
+      cy.wait(4000);
       cy.contains("Page not found");
     });
   });
