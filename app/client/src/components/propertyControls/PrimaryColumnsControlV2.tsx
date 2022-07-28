@@ -30,7 +30,7 @@ import {
   PropertyEvaluationErrorType,
 } from "utils/DynamicBindingUtils";
 import { DraggableListCard } from "components/ads/DraggableListCard";
-import { Checkbox, CheckboxType } from "components/ads";
+import { Checkbox, CheckboxType } from "design-system";
 import { ColumnTypes } from "widgets/TableWidgetV2/constants";
 import { Colors } from "constants/Colors";
 

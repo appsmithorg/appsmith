@@ -13,7 +13,7 @@ import Dropdown from "components/ads/Dropdown";
 import { IconWrapper } from "constants/IconConstants";
 import { InputWrapper } from "components/ads/TextInput";
 import useInteractionAnalyticsEvent from "utils/hooks/useInteractionAnalyticsEvent";
-import Checkbox from "components/ads/Checkbox";
+import { Checkbox } from "design-system";
 
 type ControlWrapperProps = {
   orientation?: ContainerOrientation;

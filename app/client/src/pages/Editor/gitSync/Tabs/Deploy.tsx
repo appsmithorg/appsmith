@@ -17,7 +17,7 @@ import {
 import styled, { useTheme } from "styled-components";
 import TextInput from "components/ads/TextInput";
 import Button, { Category, Size } from "components/ads/Button";
-import { LabelContainer } from "components/ads/Checkbox";
+import { LabelContainer } from "design-system";
 
 import {
   getConflictFoundDocUrlDeploy,
