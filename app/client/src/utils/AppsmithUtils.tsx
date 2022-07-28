@@ -127,6 +127,11 @@ export const getNextEntityName = (
   existingNames: string[],
   startWithoutIndex?: boolean,
 ) => {
+  // if prefix exists in existingName, append copy to the prefix and return it
+  if (existingNames.includes(prefix)) {
+    return prefix + "Copy";
+  }
+
   const regex = new RegExp(`^${prefix}(\\d+)$`);
 
   const usedIndices: number[] = existingNames.map((name) => {
