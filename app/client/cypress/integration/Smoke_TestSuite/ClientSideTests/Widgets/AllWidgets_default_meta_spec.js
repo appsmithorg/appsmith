@@ -12,260 +12,376 @@ import {
 
 const widgetsToTest = {
   [WIDGET.MULTISELECT_WIDGET]: {
-    testCases: [
-      {
-        input:
-          '{{resetWidget("MultiSelect1",true).then(() => showAlert("success"))}}',
-        expected: "success",
-        clearBeforeType: true,
-      },
-    ],
-    widgetName: "MultiSelect1",
+    widgetName: "MultiSelect",
     widgetPrefixName: "MultiSelect1",
     textBindingValue: "{{MultiSelect1.selectedOptionValues}}",
     action: () => {
-      cy.chooseColMultiSelectAndReset();
+      chooseColMultiSelectAndReset();
     },
   },
   [WIDGET.TAB]: {
-    testCases: [
-      {
-        input: '{{resetWidget("Tabs1",true).then(() => showAlert("success"))}}',
-        expected: "success",
-        clearBeforeType: true,
-      },
-    ],
-    widgetName: "Tabs1",
+    widgetName: "Tab",
     widgetPrefixName: "Tabs1",
     textBindingValue: testdata.tabBindingValue,
     action: () => {
-      cy.selectTabAndReset();
+      selectTabAndReset();
     },
   },
   [WIDGET.TABLE]: {
-    testCases: [
-      {
-        expected: "success",
-      },
-    ],
-    widgetName: "Table1",
+    widgetName: "Table",
     widgetPrefixName: "Table1",
     textBindingValue: testdata.tableBindingValue,
     action: () => {
-      cy.selectTableAndReset();
+      selectTableAndReset();
     },
   },
   [WIDGET.SWITCHGROUP]: {
-    testCases: [
-      {
-        input: '{{resetWidget("Tabs1",true).then(() => showAlert("success"))}}',
-        expected: "success",
-        clearBeforeType: true,
-      },
-    ],
-    widgetName: "SwitchGroup1",
+    widgetName: "SwitchGroup",
     widgetPrefixName: "SwitchGroup1",
     textBindingValue: testdata.switchGroupBindingValue,
     action: () => {
-      cy.selectSwitchGroupAndReset();
+      selectSwitchGroupAndReset();
     },
   },
   [WIDGET.SWITCH]: {
-    testCases: [
-      {
-        input: '{{resetWidget("Tabs1",true).then(() => showAlert("success"))}}',
-        expected: "success",
-        clearBeforeType: true,
-      },
-    ],
-    widgetName: "Switch1",
+    widgetName: "Switch",
     widgetPrefixName: "Switch1",
     textBindingValue: testdata.switchBindingValue,
     action: () => {
-      cy.selectSwitchAndReset();
+      selectSwitchAndReset();
     },
   },
   [WIDGET.SELECT]: {
-    testCases: [
-      {
-        input: '{{resetWidget("Tabs1",true).then(() => showAlert("success"))}}',
-        expected: "success",
-        clearBeforeType: true,
-      },
-    ],
-    widgetName: "Select1",
+    widgetName: "Select",
     widgetPrefixName: "Select1",
     textBindingValue: testdata.selectBindingValue,
     action: () => {
-      cy.selectAndReset();
+      selectAndReset();
     },
   },
   [WIDGET.CURRENCY_INPUT_WIDGET]: {
-    testCases: [
-      {
-        input: '{{resetWidget("Tabs1",true).then(() => showAlert("success"))}}',
-        expected: "success",
-        clearBeforeType: true,
-      },
-    ],
-    widgetName: "CurrencyInput1",
+    widgetName: "CurrencyInput",
     widgetPrefixName: "CurrencyInput1",
     textBindingValue: testdata.currencyBindingValue,
     action: () => {
-      cy.selectCurrencyInputAndReset();
+      selectCurrencyInputAndReset();
     },
   },
   [WIDGET.MULTITREESELECT]: {
-    testCases: [
-      {
-        input: '{{resetWidget("Tabs1",true).then(() => showAlert("success"))}}',
-        expected: "success",
-        clearBeforeType: true,
-      },
-    ],
-    widgetName: "MultiTreeSelect1",
+    widgetName: "MultiTreeSelect",
     widgetPrefixName: "MultiTreeSelect1",
     textBindingValue: testdata.multitreeselectBindingValue,
     action: () => {
-      cy.multiTreeSelectAndReset();
+      multiTreeSelectAndReset();
     },
   },
   [WIDGET.RADIO_GROUP]: {
-    testCases: [
-      {
-        input: '{{resetWidget("Tabs1",true).then(() => showAlert("success"))}}',
-        expected: "success",
-        clearBeforeType: true,
-      },
-    ],
-    widgetName: "RadioGroup1",
+    widgetName: "RadioGroup",
     widgetPrefixName: "RadioGroup1",
     textBindingValue: testdata.radiogroupselectBindingValue,
     action: () => {
-      cy.radiogroupAndReset();
+      radiogroupAndReset();
     },
   },
   [WIDGET.LIST]: {
-    testCases: [
-      {
-        input: '{{resetWidget("Tabs1",true).then(() => showAlert("success"))}}',
-        expected: "success",
-        clearBeforeType: true,
-      },
-    ],
-    widgetName: "List1",
+    widgetName: "List",
     widgetPrefixName: "List1",
     textBindingValue: testdata.listBindingValue,
     action: () => {
-      cy.listwidgetAndReset();
+      listwidgetAndReset();
     },
   },
   [WIDGET.RATING]: {
-    testCases: [
-      {
-        input: '{{resetWidget("Tabs1",true).then(() => showAlert("success"))}}',
-        expected: "success",
-        clearBeforeType: true,
-      },
-    ],
-    widgetName: "Rating1",
+    widgetName: "Rating",
     widgetPrefixName: "Rating1",
     textBindingValue: testdata.ratingBindingValue,
     action: () => {
-      cy.ratingwidgetAndReset();
+      ratingwidgetAndReset();
     },
   },
   [WIDGET.CHECKBOXGROUP]: {
-    testCases: [
-      {
-        input: '{{resetWidget("Tabs1",true).then(() => showAlert("success"))}}',
-        expected: "success",
-        clearBeforeType: true,
-      },
-    ],
-    widgetName: "CheckboxGroup1",
+    widgetName: "CheckboxGroup",
     widgetPrefixName: "CheckboxGroup1",
     textBindingValue: testdata.checkboxGroupBindingValue,
     action: () => {
-      cy.checkboxGroupAndReset();
+      checkboxGroupAndReset();
     },
   },
   [WIDGET.CHECKBOX]: {
-    testCases: [
-      {
-        input: '{{resetWidget("Tabs1",true).then(() => showAlert("success"))}}',
-        expected: "success",
-        clearBeforeType: true,
-      },
-    ],
-    widgetName: "Checkbox1",
+    widgetName: "Checkbox",
     widgetPrefixName: "Checkbox1",
     textBindingValue: testdata.checkboxBindingValue,
     action: () => {
-      cy.checkboxAndReset();
+      checkboxAndReset();
     },
   },
   [WIDGET.AUDIO]: {
-    testCases: [
-      {
-        input: '{{resetWidget("Tabs1",true).then(() => showAlert("success"))}}',
-        expected: "success",
-        clearBeforeType: true,
-      },
-    ],
-    widgetName: "Audio1",
+    widgetName: "Audio",
     widgetPrefixName: "Audio1",
     textBindingValue: testdata.audioBindingValue,
     action: () => {
-      cy.audioWidgetAndReset();
+      audioWidgetAndReset();
     },
   },
   [WIDGET.AUDIORECORDER]: {
-    testCases: [
-      {
-        input: '{{resetWidget("Tabs1",true).then(() => showAlert("success"))}}',
-        expected: "success",
-        clearBeforeType: true,
-      },
-    ],
-    widgetName: "AudioRecorder1",
+    widgetName: "AudioRecorder",
     widgetPrefixName: "AudioRecorder1",
     textBindingValue: testdata.audioRecorderBindingValue,
     action: () => {
-      cy.audioRecorderWidgetAndReset();
+      audioRecorderWidgetAndReset();
     },
   },
   [WIDGET.PHONEINPUT]: {
-    testCases: [
-      {
-        input: '{{resetWidget("Tabs1",true).then(() => showAlert("success"))}}',
-        expected: "success",
-        clearBeforeType: true,
-      },
-    ],
-    widgetName: "PhoneInput1",
+    widgetName: "PhoneInput",
     widgetPrefixName: "PhoneInput1",
     textBindingValue: testdata.phoneBindingValue,
     action: () => {
-      cy.phoneInputWidgetAndReset();
+      phoneInputWidgetAndReset();
     },
   },
   [WIDGET.FILEPICKER]: {
-    testCases: [
-      {
-        input: '{{resetWidget("Tabs1",true).then(() => showAlert("success"))}}',
-        expected: "success",
-        clearBeforeType: true,
-      },
-    ],
-    widgetName: "FilePicker1",
+    widgetName: "FilePicker",
     widgetPrefixName: "FilePicker1",
     textBindingValue: testdata.fileBindingValue,
     action: () => {
-      cy.filePickerWidgetAndReset();
+      filePickerWidgetAndReset();
     },
   },
 };
+
+function chooseColMultiSelectAndReset() {
+  cy.get(".rc-select-selection-overflow").click({ force: true });
+  cy.get(".rc-select-item-option-content:contains('Blue')").click({
+    force: true,
+  });
+  cy.wait(1000);
+  cy.get(".t--text-widget-container").each((item, index, list) => {
+    cy.wrap(item).should("contain.text", "BLUE");
+  });
+  cy.get("button:contains('Submit')").click({ force: true });
+  cy.wait(1000);
+  cy.get(".t--text-widget-container").each((item, index, list) => {
+    cy.wrap(item).should("not.contain.text", "BLUE");
+  });
+}
+
+function selectTabAndReset() {
+  cy.get(".t--tabid-tab2").click({ force: true });
+  cy.wait(1000);
+  cy.get(".t--text-widget-container").each((item, index, list) => {
+    cy.wrap(item).should("contain.text", "Tab 2");
+  });
+  cy.get("button:contains('Submit')").click({ force: true });
+  cy.wait(1000);
+  cy.get(".t--text-widget-container").each((item, index, list) => {
+    cy.wrap(item).should("not.contain.text", "Tab 2");
+  });
+}
+
+function selectTableAndReset() {
+  cy.isSelectRow(1);
+  cy.wait(1000);
+  cy.get(".t--text-widget-container").each((item, index, list) => {
+    cy.wrap(item).should("contain.text", "#2");
+  });
+  cy.get("button:contains('Submit')").click({ force: true });
+  cy.wait(1000);
+  cy.get(".t--text-widget-container").each((item, index, list) => {
+    cy.wrap(item).should("contain.text", "#1");
+  });
+}
+
+function selectSwitchGroupAndReset() {
+  cy.get(".bp3-control-indicator")
+    .last()
+    .click({ force: true });
+  cy.get(".t--text-widget-container").each((item, index, list) => {
+    cy.wrap(item).should("contain.text", "RED");
+  });
+  cy.get("button:contains('Submit')").click({ force: true });
+  cy.wait(1000);
+  cy.get(".t--text-widget-container").each((item, index, list) => {
+    cy.wrap(item).should("not.contain.text", "RED");
+  });
+}
+
+function selectSwitchAndReset() {
+  cy.get(".bp3-control-indicator")
+    .last()
+    .click({ force: true });
+  cy.get(".t--switch-widget-active").should("not.exist");
+  cy.get("button:contains('Submit')").click({ force: true });
+  cy.wait(1000);
+  cy.get(".t--toast-action span").contains("success");
+  cy.get(".t--switch-widget-active").should("be.visible");
+}
+
+function selectAndReset() {
+  cy.get(".select-button").click({ force: true });
+  cy.get(".menu-item-text")
+    .contains("Blue")
+    .click({ force: true });
+  cy.wait(3000);
+  cy.get(".t--text-widget-container").each((item, index, list) => {
+    cy.wrap(item).should("contain.text", "BLUE");
+  });
+  cy.get("button:contains('Submit')").click({ force: true });
+  cy.wait(1000);
+  cy.get(".t--text-widget-container").each((item, index, list) => {
+    cy.wrap(item).should("not.contain.text", "BLUE");
+  });
+}
+
+function selectCurrencyInputAndReset() {
+  cy.get(".bp3-input")
+    .click({ force: true })
+    .type("123");
+  cy.wait(3000);
+  cy.get(".t--text-widget-container").each((item, index, list) => {
+    cy.wrap(item).should("contain.text", "123");
+  });
+  cy.get("button:contains('Submit')").click({ force: true });
+  cy.wait(1000);
+  cy.get(".t--text-widget-container").each((item, index, list) => {
+    cy.wrap(item).should("not.contain.text", "123");
+  });
+}
+
+function multiTreeSelectAndReset() {
+  cy.get(".rc-tree-select-selection-overflow").click({ force: true });
+  cy.get(".rc-tree-select-tree-title:contains('Red')").click({
+    force: true,
+  });
+  cy.wait(1000);
+  cy.get(".t--text-widget-container").each((item, index, list) => {
+    cy.wrap(item).should("contain.text", "RED");
+  });
+  cy.get("button:contains('Submit')").click({ force: true });
+  cy.wait(1000);
+  cy.get(".t--text-widget-container").each((item, index, list) => {
+    cy.wrap(item).should("contain.text", "GREEN");
+  });
+}
+
+function radiogroupAndReset() {
+  cy.get("input")
+    .last()
+    .click({ force: true });
+  cy.wait(3000);
+  cy.get(".t--text-widget-container").each((item, index, list) => {
+    cy.wrap(item).should("contain.text", "N");
+  });
+  cy.get("button:contains('Submit')").click({ force: true });
+  cy.wait(1000);
+  cy.get(".t--text-widget-container").each((item, index, list) => {
+    cy.wrap(item).should("contain.text", "Y");
+  });
+}
+
+function listwidgetAndReset() {
+  cy.get(".t--widget-containerwidget")
+    .eq(1)
+    .click({ force: true });
+  cy.wait(3000);
+  cy.get(".t--text-widget-container").should("contain.text", "002");
+  cy.get("button:contains('Submit')").click({ force: true });
+  cy.wait(1000);
+  cy.get(".t--text-widget-container").should("contain.text", "001");
+}
+
+function ratingwidgetAndReset() {
+  cy.get(".bp3-icon-star svg")
+    .last()
+    .click({ force: true });
+  cy.wait(3000);
+  cy.get(".t--text-widget-container").each((item, index, list) => {
+    cy.wrap(item).should("not.contain.text", "3");
+  });
+  cy.get("button:contains('Submit')").click({ force: true });
+  cy.wait(1000);
+  cy.get(".t--text-widget-container").each((item, index, list) => {
+    cy.wrap(item).should("contain.text", "3");
+  });
+}
+
+function checkboxGroupAndReset() {
+  cy.get("input")
+    .last()
+    .click({ force: true });
+  cy.wait(3000);
+  cy.get(".t--text-widget-container").each((item, index, list) => {
+    cy.wrap(item).should("contain.text", "RED");
+  });
+  cy.get("button:contains('Submit')").click({ force: true });
+  cy.wait(1000);
+  cy.get(".t--text-widget-container").each((item, index, list) => {
+    cy.wrap(item).should("not.contain.text", "RED");
+  });
+}
+
+function checkboxAndReset() {
+  cy.get("input")
+    .last()
+    .click({ force: true });
+  cy.wait(3000);
+  cy.get(".t--text-widget-container").each((item, index, list) => {
+    cy.wrap(item).should("contain.text", "false");
+  });
+  cy.get("button:contains('Submit')").click({ force: true });
+  cy.wait(1000);
+  cy.get(".t--text-widget-container").each((item, index, list) => {
+    cy.wrap(item).should("contain.text", "true");
+  });
+}
+
+function audioWidgetAndReset() {
+  cy.get(".t--text-widget-container").each((item, index, list) => {
+    cy.wrap(item).should("contain.text", "false");
+  });
+  cy.get("button:contains('Submit')").click({ force: true });
+  cy.wait(1000);
+}
+
+function audioRecorderWidgetAndReset() {
+  cy.get(".t--text-widget-container").each((item, index, list) => {
+    cy.wrap(item).should("contain.text", "true");
+  });
+  cy.get("button:contains('Submit')").click({ force: true });
+  cy.wait(1000);
+}
+
+function phoneInputWidgetAndReset() {
+  cy.get(".bp3-input").type("1234");
+  cy.get(".t--text-widget-container").each((item, index, list) => {
+    cy.wrap(item).should("contain.text", "1234");
+  });
+  cy.get("button:contains('Submit')").click({ force: true });
+  cy.wait(1000);
+  cy.get(".t--toast-action span").contains("success");
+  cy.get(".t--text-widget-container").each((item, index, list) => {
+    cy.wrap(item).should("contain.text", "");
+  });
+}
+
+function filePickerWidgetAndReset() {
+  cy.get(".t--text-widget-container").each((item, index, list) => {
+    cy.wrap(item).should("contain.text", "false");
+  });
+  cy.get(commonlocators.filePickerInput)
+    .first()
+    .attachFile("testFile.mov");
+  //eslint-disable-next-line cypress/no-unnecessary-waiting
+  cy.wait(500);
+  cy.get(".t--text-widget-container").each((item, index, list) => {
+    cy.wrap(item).should("contain.text", "true");
+  });
+  cy.get("button:contains('Submit')").click({ force: true });
+  cy.wait(1000);
+  cy.get(".t--toast-action span").contains("success");
+  cy.get(".t--text-widget-container").each((item, index, list) => {
+    cy.wrap(item).should("contain.text", "false");
+  });
+}
 
 Object.entries(widgetsToTest).forEach(([widgetSelector, testConfig]) => {
   describe(`${testConfig.widgetName} widget test for validating reset action`, () => {
