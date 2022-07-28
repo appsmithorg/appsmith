@@ -490,6 +490,25 @@ export default [
           },
         },
       },
+      {
+        propertyName: "chartMargin",
+        helpText: "Change the margin of chart canvas",
+        label: "Canvas margin",
+        controlType: "INPUT_TEXT",
+        isJSConvertible: true,
+        isBindProperty: true,
+        isTriggerProperty: false,
+        validation: {
+          type: ValidationTypes.TEXT,
+          params: {
+            expected: {
+              type: "leftMargin, topMargin, rightMargin, bottomMargin",
+              example: "10, 10, 10, 10",
+              autocompleteDataType: AutocompleteDataType.STRING,
+            },
+          },
+        },
+      },
     ],
   },
 ];

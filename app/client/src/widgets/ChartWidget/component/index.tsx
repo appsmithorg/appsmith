@@ -49,6 +49,7 @@ FusionCharts.options.license({
 export interface ChartComponentProps {
   allowScroll: boolean;
   chartData: AllChartData;
+  chartMargin?: string;
   chartName: string;
   chartType: ChartType;
   customFusionChartConfig: CustomFusionChartConfig;
@@ -280,7 +281,7 @@ class ChartComponent extends React.Component<ChartComponentProps> {
           captionPadding: this.props.captionPadding,
         }
       : {
-          captionPadding: "15",
+          captionPadding: this.props.captionPadding,
           palettecolors: [this.props.primaryColor],
         };
 
@@ -289,6 +290,12 @@ class ChartComponent extends React.Component<ChartComponentProps> {
           ?.split(",")
           .map((item) => item.trim()) as string[])
       : "60, 0, 60, 10";
+
+    const chartMargin = this.props.chartMargin
+      ? (this.props.chartMargin
+          ?.split(",")
+          .map((item) => item.trim()) as string[])
+      : "10, 10, 10, 10";
 
     let config = {
       caption: this.props.chartName,
@@ -315,7 +322,10 @@ class ChartComponent extends React.Component<ChartComponentProps> {
       canvasBottomPadding: canvasPadding[3],
 
       // Chart styling =======
-      chartBottomMargin: "15",
+      chartLeftMargin: chartMargin[0],
+      chartTopMargin: chartMargin[1],
+      chartRightMargin: chartMargin[2],
+      chartBottomMargin: chartMargin[3],
 
       // Axis name styling ======
       xAxisNameFontSize: this.props.xAxisNameFontSize,

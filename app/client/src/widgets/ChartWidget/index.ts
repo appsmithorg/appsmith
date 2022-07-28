@@ -29,6 +29,7 @@ export const CONFIG = {
     captionFontSize: "30",
     captionAlignment: "left",
     canvasPadding: "60, 0, 60, 10",
+    chartMargin: "10, 10, 10, 10",
     chartData: {
       [generateReactKey()]: {
         seriesName: "Sales",

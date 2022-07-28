@@ -64,6 +64,7 @@ class ChartWidget extends BaseWidget<ChartWidgetProps, WidgetState> {
           captionFontSize={this.props.captionFontSize}
           captionPadding={this.props.captionPadding}
           chartData={this.props.chartData}
+          chartMargin={this.props.chartMargin}
           chartName={this.props.chartName}
           chartType={this.props.chartType}
           customFusionChartConfig={this.props.customFusionChartConfig}
@@ -105,7 +106,7 @@ export interface ChartWidgetProps extends WidgetProps {
   captionFontColor?: string;
   captionAlignment?: string;
   canvasPadding?: string;
-
+  chartMargin?: string;
   chartType: ChartType;
   chartData: AllChartData;
   customFusionChartConfig: CustomFusionChartConfig;
