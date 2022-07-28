@@ -73,7 +73,7 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
       "Connect New Datasource",
     );
 
-    dataSources.CreateDataSource("MySql");
+    dataSources.CreateDataSource("MySql", false);
 
     agHelper.ValidateNetworkStatus("@getDatasourceStructure"); //Making sure table dropdown is populated
     agHelper.GetNClick(dataSources._selectTableDropdown);
