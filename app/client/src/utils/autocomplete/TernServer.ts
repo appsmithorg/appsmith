@@ -508,7 +508,7 @@ class TernServer {
 
   request(
     cm: CodeMirror.Editor,
-    query: RequestQuery,
+    query: RequestQuery | string,
     callbackFn: (error: any, data: any) => void,
     pos?: CodeMirror.Position,
   ) {
@@ -545,14 +545,14 @@ class TernServer {
 
   buildRequest(
     doc: TernDoc,
-    query: Partial<RequestQuery>,
+    query: Partial<RequestQuery> | string,
     pos?: CodeMirror.Position,
   ) {
     const files = [];
     let offsetLines = 0;
+    if (typeof query == "string") query = { type: query };
     const allowFragments = !query.fullDocs;
     if (!allowFragments) delete query.fullDocs;
-    if (typeof query == "string") query = { type: query };
     query.lineCharPositions = true;
     if (query.end == null) {
       query.end = pos || doc.doc.getCursor("end");

@@ -358,7 +358,7 @@ export const entityDefinitions = {
     isDisabled: "bool",
     recaptchaToken: "string",
   },
-  MAP_WIDGET: () => ({
+  MAP_WIDGET: {
     isVisible: isVisible,
     center: {
       lat: "number",
@@ -372,7 +372,7 @@ export const entityDefinitions = {
       title: "string",
       description: "string",
     },
-  }),
+  },
   FILE_PICKER_WIDGET: {
     "!doc":
       "Filepicker widget is used to allow users to upload files from their local machines to any cloud storage via API. Cloudinary and Amazon S3 have simple APIs for cloud storage uploads",
