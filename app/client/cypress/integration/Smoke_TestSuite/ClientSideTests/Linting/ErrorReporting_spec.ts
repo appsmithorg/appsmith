@@ -315,4 +315,18 @@ describe("Lint error reporting", () => {
       .trigger("mouseover");
     agHelper.AssertContains(debugMsg);
   }
+
+  after(() => {
+    //deleting all test data
+    ee.ActionContextMenuByEntityName("Api1", "Delete", "Are you sure?");
+    ee.ActionContextMenuByEntityName("Api2", "Delete", "Are you sure?");
+    ee.ActionContextMenuByEntityName("Api3", "Delete", "Are you sure?");
+    ee.ActionContextMenuByEntityName("Api4", "Delete", "Are you sure?");
+    ee.ActionContextMenuByEntityName("Api5", "Delete", "Are you sure?");
+    ee.ActionContextMenuByEntityName("JSObject1", "Delete", "Are you sure?");
+    ee.ActionContextMenuByEntityName("JSObject2", "Delete", "Are you sure?");
+    ee.ActionContextMenuByEntityName("JSObject3", "Delete", "Are you sure?");
+    ee.ActionContextMenuByEntityName("JSObject4", "Delete", "Are you sure?");
+    ee.ActionContextMenuByEntityName("JSObject5", "Delete", "Are you sure?");
+  });
 });

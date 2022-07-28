@@ -152,11 +152,12 @@ describe("JS Function Execution", function() {
     const invalidJSObjectStartToastMessage = "Start object with export default";
     const jsComment = "// This is a comment";
     const jsObjectStartLine = "export default{";
+    const jsObjectStartLineWithSpace = `export  default{`;
     const jsObjectStartingWithAComment = `${jsComment}
   ${jsObjectStartLine}
         fun1:()=>true
       }`;
-    const jsObjectStartingWithASpace = ` ${jsObjectStartLine}
+    const jsObjectStartingWithASpace = `${jsObjectStartLineWithSpace}
         fun1:()=>true
       }`;
 
@@ -188,8 +189,9 @@ describe("JS Function Execution", function() {
 
     assertInvalidJSObjectStart(jsObjectStartingWithAComment, jsComment);
     assertInvalidJSObjectStart(jsObjectStartingWithANewLine, jsObjectStartLine);
-    assertInvalidJSObjectStart(jsObjectStartingWithASpace, jsObjectStartLine);
+    assertInvalidJSObjectStart(jsObjectStartingWithASpace, jsObjectStartLineWithSpace);
   });
+
   it("5. Verify that js function execution errors are logged in debugger and removed when function is deleted", () => {
     const JS_OBJECT_WITH_PARSE_ERROR = `export default {
       myVar1: [],
