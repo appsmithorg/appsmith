@@ -17,13 +17,12 @@ import {
   changeWorkspaceUserRole,
   deleteWorkspaceUser,
 } from "actions/workspaceActions";
-import Button, { Size, Category } from "components/ads/Button";
+// import Button, { Size, Category } from "components/ads/Button";
 import TableDropdown from "components/ads/TableDropdown";
 import Dropdown from "components/ads/Dropdown";
 import { Text, TextType } from "design-system";
 import styled from "styled-components";
-import { Classes, Position } from "@blueprintjs/core";
-import { Menu, MenuItem } from "components/ads";
+import { Classes } from "@blueprintjs/core";
 import { Classes as AppClass } from "components/ads/common";
 import DeleteConfirmationModal from "./DeleteConfirmationModal";
 import { useMediaQuery } from "react-responsive";
@@ -32,8 +31,6 @@ import ProfileImage from "pages/common/ProfileImage";
 import { USER_PHOTO_URL } from "constants/userConstants";
 import { Colors } from "constants/Colors";
 import { HighlightText } from "components/utils/HighlightText";
-import { HelpPopoverStyle } from "./helperComponents";
-import { createMessage, ARE_YOU_SURE } from "ce/constants/messages";
 import {
   WorkspaceUser,
   WorkspaceUserGroup,
@@ -237,8 +234,6 @@ const allUserGroups: WorkspaceUserGroup[] = [
   },
 ];
 
-type MembersListing = WorkspaceUser | WorkspaceUserGroup;
-
 export default function MemberSettings(props: PageProps) {
   const {
     match: {
@@ -291,6 +286,7 @@ export default function MemberSettings(props: PageProps) {
   };
 
   const {
+    deletingUserInfo,
     isFetchingAllRoles,
     isFetchingAllUsers,
     roleChangingUserInfo,
@@ -331,7 +327,7 @@ export default function MemberSettings(props: PageProps) {
     [allUserGroups, userTableData],
   );
 
-  const [filteredData, setFilteredData] = useState<MembersListing[]>([]);
+  const [filteredData, setFilteredData] = useState<WorkspaceUser[]>([]);
 
   const getFilteredUsers = () =>
     membersData.filter((member) => {
@@ -352,7 +348,7 @@ export default function MemberSettings(props: PageProps) {
 
   const columns = [
     {
-      Header: `Users / User Groups (${filteredData?.length})`,
+      Header: `Users (${filteredData?.length})`,
       accessor: "users",
       Cell: function UserCell(props: any) {
         const member = props.cell.row.original;
@@ -430,66 +426,27 @@ export default function MemberSettings(props: PageProps) {
     {
       Header: "",
       accessor: "actions",
-      Cell: function ActionsCell(props: any) {
-        const data = props.cell.row.original;
-        const [showOptions, setShowOptions] = useState(false);
-        const [showConfirmationText, setShowConfirmationText] = useState(false);
-        const isUserGroup = data.hasOwnProperty("users");
-        const memberToBeDeleted = {
-          name: isUserGroup ? data.name : data.username,
-          username: isUserGroup ? data.name : data.username,
-          workspaceId,
-        };
-        const onOptionSelect = () => {
-          if (showConfirmationText) {
-            onDeleteMember(memberToBeDeleted);
-          } else {
-            setShowOptions(true);
-            setShowConfirmationText(true);
-          }
-        };
-
+      Cell: function DeleteCell(cellProps: any) {
         return (
-          <Menu
-            canEscapeKeyClose
-            canOutsideClickClose
-            className="t--menu-actions-icon"
-            data-testid="actions-cell-menu-options"
-            isOpen={showOptions}
-            menuItemWrapperWidth={"auto"}
-            onClose={() => setShowOptions(false)}
-            onClosing={() => {
-              setShowConfirmationText(false);
-              setShowOptions(false);
-            }}
-            onOpening={() => setShowOptions(true)}
-            position={Position.BOTTOM_RIGHT}
-            target={
-              <Icon
-                className={`actions-icon ${showOptions && "active"}`}
-                data-testid="actions-cell-menu-icon"
-                name="more-2-fill"
-                onClick={() => setShowOptions(!showOptions)}
-                size={IconSize.XXL}
-              />
+          <Icon
+            className="t--deleteUser"
+            cypressSelector="t--deleteUser"
+            fillColor="#FF6786"
+            hoverFillColor="#FF6786"
+            isLoading={
+              deletingUserInfo &&
+              deletingUserInfo.username === cellProps.cell.row.original.username
             }
-          >
-            <HelpPopoverStyle />
-            <MenuItem
-              className={"delete-menu-item"}
-              icon={"delete-blank"}
-              key={"Delete User"}
-              onSelect={() => {
-                onOptionSelect();
-              }}
-              text={
-                showConfirmationText
-                  ? createMessage(ARE_YOU_SURE)
-                  : `Delete ${isUserGroup ? "User Group" : "User"}`
-              }
-              {...(showConfirmationText ? { type: "warning" } : {})}
-            />
-          </Menu>
+            name="trash-outline"
+            onClick={() => {
+              onConfirmMemberDeletion(
+                cellProps.cell.row.original.username,
+                cellProps.cell.row.original.username,
+                workspaceId,
+              );
+            }}
+            size={IconSize.LARGE}
+          />
         );
       },
     },
@@ -573,12 +530,12 @@ export default function MemberSettings(props: PageProps) {
                         width="140px"
                       />
                     )}
-                    <Button
+                    {/* <Button
                       category={Category.primary}
                       className="approve-btn"
                       size={Size.xxs}
                       text="Approve"
-                    />
+                    /> */}
                     <DeleteIcon
                       className="t--deleteUser"
                       cypressSelector="t--deleteUser"
