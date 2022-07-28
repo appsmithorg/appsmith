@@ -63,8 +63,7 @@ describe("Copy Action/JS objects to different pages", () => {
 
   after(() => {
     //Deleting test data
-    ee.ActionContextMenuByEntityName("Page1", "Delete", "Are you sure?");
-    ee.ActionContextMenuByEntityName("Page2", "Delete", "Are you sure?");
+    ee.ActionContextMenuByEntityName("Page2", "Delete", "Are you sure?");//No page1 since its home page
     ee.ActionContextMenuByEntityName("Page3", "Delete", "Are you sure?");
   });
 });
