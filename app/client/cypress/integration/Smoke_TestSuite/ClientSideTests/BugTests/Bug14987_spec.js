@@ -12,16 +12,7 @@ describe("Verify setting tab form controls not to have tooltip and tooltip (unde
   });
 
   it("1. Creates a new Mongo datasource", function() {
-    agHelper.GenerateUUID();
-    cy.get("@guid").then((uid) => {
-      dataSources.NavigateToDSCreateNew();
-      dataSources.CreatePlugIn("MongoDB");
-      guid = uid;
-      agHelper.RenameWithInPane("Mongo " + guid, false);
-      dataSources.FillMongoDSForm();
-      dataSources.TestSaveDatasource();
-      cy.wrap("Mongo " + guid).as("dsName");
-    });
+    dataSources.CreateDataSource("Mongo");
     cy.get("@dsName").then(($dsName) => {
       datasourceName = $dsName;
     });
