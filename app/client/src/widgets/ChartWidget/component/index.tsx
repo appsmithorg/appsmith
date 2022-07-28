@@ -330,7 +330,7 @@ class ChartComponent extends React.Component<ChartComponentProps> {
       // Axis name styling ======
       xAxisNameFontSize: this.props.xAxisNameFontSize,
       xAxisNameFontColor: this.props.xAxisNameColor,
-      xAxisValueFontColor: this.props.xAxisValueColor,
+      labelFontColor: this.props.xAxisValueColor,
 
       yAxisNameFontSize: this.props.yAxisNameFontSize,
       yAxisValueFontColor: this.props.yAxisValueColor,
