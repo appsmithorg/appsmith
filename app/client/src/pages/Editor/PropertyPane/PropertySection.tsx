@@ -13,32 +13,8 @@ import { useSelector } from "react-redux";
 import { getWidgetPropsForPropertyPane } from "selectors/propertyPaneSelectors";
 import styled from "constants/DefaultTheme";
 import { Colors } from "constants/Colors";
-
-const SectionWrapper = styled.div`
-  position: relative;
-  border-top: 1px solid ${Colors.GREY_4};
-  padding: 4px 16px 8px 16px;
-
-  &:first-of-type {
-    border-top: 0;
-  }
-
-  /* Referring to a nested SectionWrapper */
-  & & {
-    padding: 0;
-    margin-top: 8px;
-  }
-
-  .${Classes.COLLAPSE_BODY} {
-    z-index: 1;
-    position: relative;
-    padding-bottom: 4px;
-  }
-
-  .bp3-collapse {
-    transition: none;
-  }
-`;
+import { getWidgetParent } from "sagas/selectors";
+import { WidgetProps } from "widgets/BaseWidget";
 
 const SectionTitle = styled.div`
   display: grid;
@@ -66,12 +42,48 @@ const SectionTitle = styled.div`
   }
 `;
 
+const SectionWrapper = styled.div`
+  position: relative;
+  border-top: 1px solid ${Colors.GREY_4};
+  padding: 4px 16px 8px 16px;
+
+  &:first-of-type {
+    border-top: 0;
+  }
+
+  /* Referring to a nested SectionWrapper */
+  & & {
+    padding: 0;
+  }
+
+  & & ${SectionTitle} span {
+    color: ${Colors.GRAY_700};
+    text-transform: uppercase;
+    font-size: 14px;
+    font-weight: 600;
+  }
+
+  .${Classes.COLLAPSE_BODY} {
+    z-index: 1;
+    position: relative;
+    padding-bottom: 4px;
+  }
+
+  .bp3-collapse {
+    transition: none;
+  }
+`;
+
 type PropertySectionProps = {
   id: string;
   name: string;
   collapsible?: boolean;
   children?: ReactNode;
-  hidden?: (props: any, propertyPath: string) => boolean;
+  hidden?: (
+    props: any,
+    propertyPath: string,
+    widgetParentProps?: WidgetProps,
+  ) => boolean;
   isDefaultOpen?: boolean;
   propertyPath?: string;
 };
@@ -90,9 +102,15 @@ export const PropertySection = memo((props: PropertySectionProps) => {
   const handleSectionTitleClick = useCallback(() => {
     if (props.collapsible) setIsOpen((x) => !x);
   }, []);
+  /**
+   * get actual parent of widget
+   * for button inside form, button's parent is form
+   * for button on canvas, parent is main container
+   */
+  const parentWidget = useSelector(getWidgetParent(widgetProps.widgetId));
 
   if (props.hidden) {
-    if (props.hidden(widgetProps, props.propertyPath || "")) {
+    if (props.hidden(widgetProps, props.propertyPath || "", parentWidget)) {
       return null;
     }
   }

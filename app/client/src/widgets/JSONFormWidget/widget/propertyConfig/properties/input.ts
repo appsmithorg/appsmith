@@ -546,7 +546,7 @@ const PROPERTIES = {
       },
       {
         propertyName: "allowDialCodeChange",
-        label: "Allow country code change",
+        label: "Allow Country Code Change",
         helpText: "Search by country",
         controlType: "SWITCH",
         isJSConvertible: false,
@@ -561,7 +561,7 @@ const PROPERTIES = {
       },
       {
         propertyName: "allowCurrencyChange",
-        label: "Allow currency change",
+        label: "Allow Currency Change",
         helpText: "Search by currency or country",
         controlType: "SWITCH",
         isBindProperty: true,
@@ -574,7 +574,7 @@ const PROPERTIES = {
       {
         propertyName: "decimalsInCurrency",
         helpText: "No. of decimals in currency input",
-        label: "Decimals",
+        label: "Decimals Allowed",
         controlType: "DROP_DOWN",
         options: [
           {
@@ -692,19 +692,6 @@ const PROPERTIES = {
         dependencies: ["schema"],
       },
       {
-        propertyName: "isSpellCheck",
-        label: "Spellcheck",
-        helpText:
-          "Defines whether the text input may be checked for spelling errors",
-        controlType: "SWITCH",
-        isBindProperty: true,
-        isTriggerProperty: false,
-        validation: { type: ValidationTypes.BOOLEAN },
-        hidden: (...args: HiddenFnParams) =>
-          getSchemaItem(...args).fieldTypeNotMatches(FieldType.TEXT_INPUT),
-        dependencies: ["schema"],
-      },
-      {
         propertyName: "regex",
         helpText:
           "Adds a validation to the input which displays an error on failure",
@@ -751,6 +738,19 @@ const PROPERTIES = {
           getSchemaItem(...args).fieldTypeNotIncludes(INPUT_TYPES),
         dependencies: ["schema"],
       },
+      {
+        propertyName: "isSpellCheck",
+        label: "Spellcheck",
+        helpText:
+          "Defines whether the text input may be checked for spelling errors",
+        controlType: "SWITCH",
+        isBindProperty: true,
+        isTriggerProperty: false,
+        validation: { type: ValidationTypes.BOOLEAN },
+        hidden: (...args: HiddenFnParams) =>
+          getSchemaItem(...args).fieldTypeNotMatches(FieldType.TEXT_INPUT),
+        dependencies: ["schema"],
+      },
     ],
     events: [
       {
@@ -786,7 +786,7 @@ const PROPERTIES = {
     icon: [
       {
         propertyName: "iconName",
-        label: "Select Icon",
+        label: "Icon",
         helpText: "Sets the icon to be used in input field",
         controlType: "ICON_SELECT",
         isBindProperty: false,
@@ -803,8 +803,8 @@ const PROPERTIES = {
       },
       {
         propertyName: "iconAlign",
-        label: "Alignment",
-        helpText: "Sets the icon alignment of input field",
+        label: "Position",
+        helpText: "Sets the icon position of input field",
         controlType: "ICON_TABS",
         options: [
           {

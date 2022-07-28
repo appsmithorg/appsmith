@@ -633,7 +633,7 @@ const COMMON_PROPERTIES = {
     label: [
       {
         propertyName: "labelTextColor",
-        label: "Text Color",
+        label: "Font Color",
         controlType: "COLOR_PICKER",
         isJSConvertible: true,
         isBindProperty: true,
@@ -649,7 +649,7 @@ const COMMON_PROPERTIES = {
       },
       {
         propertyName: "labelTextSize",
-        label: "Text Size",
+        label: "Font Size",
         defaultValue: "0.875rem",
         controlType: "DROP_DOWN",
         options: [

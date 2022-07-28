@@ -363,9 +363,10 @@ const PROPERTIES = {
     ],
     general: [
       {
-        propertyName: "closeOnSelection",
-        label: "Close On Selection",
-        helpText: "Calender should close when a date is selected",
+        propertyName: "convertToISO",
+        label: "Convert to ISO format",
+        helpText:
+          "Enabling this always converts the value in ISO form in the formData irrespective of the 'Date Format' selected",
         controlType: "SWITCH",
         isJSConvertible: false,
         isBindProperty: true,
@@ -391,10 +392,9 @@ const PROPERTIES = {
         dependencies: ["schema"],
       },
       {
-        propertyName: "convertToISO",
-        label: "Convert to ISO format",
-        helpText:
-          "Enabling this always converts the value in ISO form in the formData irrespective of the 'Date Format' selected",
+        propertyName: "closeOnSelection",
+        label: "Close On Selection",
+        helpText: "Calender should close when a date is selected",
         controlType: "SWITCH",
         isJSConvertible: false,
         isBindProperty: true,

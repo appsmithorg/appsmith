@@ -46,6 +46,8 @@ import java.net.ConnectException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.time.Instant;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Map;
 
 import static com.appsmith.external.constants.Authentication.ACCESS_TOKEN;
@@ -422,6 +424,14 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
                                         .setAuthenticationStatus(AuthenticationDTO.AuthenticationStatus.SUCCESS);
                                 OAuth2 oAuth2 = (OAuth2) datasource.getDatasourceConfiguration().getAuthentication();
                                 oAuth2.setAuthenticationResponse(authenticationResponse);
+                                final Map tokenResponse = (Map) authenticationResponse.getTokenResponse();
+                                if (tokenResponse != null && tokenResponse.containsKey("scope")) {
+                                    if (!new HashSet<>(Arrays.asList(String.valueOf(tokenResponse.get("scope")).split(" "))).containsAll(
+                                            oAuth2.getScope())) {
+                                        return Mono.error(new AppsmithException(AppsmithError.AUTHENTICATION_FAILURE,
+                                                "Please provide access to all the requested scopes to use the integration correctly."));
+                                    }
+                                }
                                 datasource.getDatasourceConfiguration().setAuthentication(oAuth2);
                                 return Mono.just(datasource);
                             });

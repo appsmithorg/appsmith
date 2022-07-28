@@ -79,8 +79,8 @@ const PROPERTIES = {
     label: [
       {
         propertyName: "alignWidget",
-        helpText: "Sets the alignment of the field",
-        label: "Alignment",
+        helpText: "Sets the Position of the field",
+        label: "Position",
         controlType: "DROP_DOWN",
         options: [
           {
