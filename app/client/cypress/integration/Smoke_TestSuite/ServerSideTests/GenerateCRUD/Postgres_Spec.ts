@@ -68,7 +68,7 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
       dataSources._dropdownOption,
       "Connect New Datasource",
     );
-    dataSources.CreateDataSource("Postgres");
+    dataSources.CreateDataSource("Postgres", false);
     agHelper.ValidateNetworkStatus("@getDatasourceStructure"); //Making sure table dropdown is populated
     agHelper.GetNClick(dataSources._selectTableDropdown);
     agHelper.GetNClickByContains(dataSources._dropdownOption, "suppliers");
