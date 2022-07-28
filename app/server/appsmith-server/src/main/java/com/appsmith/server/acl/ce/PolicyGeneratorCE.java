@@ -89,6 +89,7 @@ public class PolicyGeneratorCE {
         createActionPolicyGraph();
         createCommentPolicyGraph();
         createThemePolicyGraph();
+        createPermissionGroupPolicyGraph();
     }
 
     private void createInstancePolicyGraph() {
@@ -167,6 +168,12 @@ public class PolicyGeneratorCE {
         hierarchyGraph.addEdge(MANAGE_APPLICATIONS, MANAGE_THEMES);
         hierarchyGraph.addEdge(READ_APPLICATIONS, READ_THEMES);
         lateralGraph.addEdge(MANAGE_THEMES, READ_THEMES);
+    }
+
+    private void createPermissionGroupPolicyGraph() {
+        lateralGraph.addEdge(AclPermission.MANAGE_PERMISSION_GROUPS, AclPermission.ASSIGN_PERMISSION_GROUPS);
+        lateralGraph.addEdge(AclPermission.MANAGE_PERMISSION_GROUPS, AclPermission.READ_PERMISSION_GROUPS);
+        lateralGraph.addEdge(AclPermission.ASSIGN_PERMISSION_GROUPS, AclPermission.READ_PERMISSION_GROUPS);
     }
 
     public Set<Policy> getLateralPolicies(AclPermission permission, Set<String> permissionGroups, Class<? extends BaseDomain> destinationEntity) {
