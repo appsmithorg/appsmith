@@ -41,12 +41,12 @@ import {
 import { setAppViewHeaderHeight } from "actions/appViewActions";
 import { showPostCompletionMessage } from "selectors/onboardingSelectors";
 import { CANVAS_SELECTOR } from "constants/WidgetConstants";
-import { getShowBrandingBadge } from "@appsmith/selectors/workspaceSelectors";
 import { fetchPublishedPage } from "actions/pageActions";
 import usePrevious from "utils/hooks/usePrevious";
 import { getIsBranchUpdated } from "../utils";
 import { APP_MODE } from "entities/App";
 import { initAppViewer } from "actions/initActions";
+import { getAppsmithConfigs } from "@appsmith/configs";
 
 const AppViewerBody = styled.section<{
   hasPages: boolean;
@@ -97,9 +97,9 @@ function AppViewer(props: Props) {
   );
   const showGuidedTourMessage = useSelector(showPostCompletionMessage);
   const headerHeight = useSelector(getAppViewHeaderHeight);
-  const showBrandingBadge = useSelector(getShowBrandingBadge);
   const branch = getSearchQuery(search, GIT_BRANCH_QUERY_KEY);
   const prevValues = usePrevious({ branch, location: props.location, pageId });
+  const { hideWatermark } = getAppsmithConfigs();
 
   /**
    * initializes the widgets factory and registers all widgets
@@ -262,7 +262,16 @@ function AppViewer(props: Props) {
               >
                 {isInitialized && registered && <AppViewerPageContainer />}
               </AppViewerBody>
-              {showBrandingBadge && <BrandingBadge />}
+              {!hideWatermark && (
+                <a
+                  className="fixed hidden right-8 bottom-4 z-2 hover:no-underline md:flex"
+                  href="https://appsmith.com"
+                  rel="noreferrer"
+                  target="_blank"
+                >
+                  <BrandingBadge />
+                </a>
+              )}
             </AppViewerBodyContainer>
           </ContainerWithComments>
           <AddCommentTourComponent />
