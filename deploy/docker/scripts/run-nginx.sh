@@ -41,6 +41,15 @@ ssbzSibBsu/6iGtCOGEoXJf//////////wIBAg==
 -----END DH PARAMETERS-----
 EOF
 
+if [[ -z "${APPSMITH_ALLOWED_FRAME_ANCESTORS-}" ]]; then
+	# https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy/frame-ancestors
+	export APPSMITH_ALLOWED_FRAME_ANCESTORS="'self'"
+else
+	# Remove any extra rules that may be present in the frame ancestors value. This is to prevent this env variable from
+	# being used to inject more rules to the CSP header. If needed, that should be supported/solved separately.
+	export APPSMITH_ALLOWED_FRAME_ANCESTORS="${APPSMITH_ALLOWED_FRAME_ANCESTORS%;*}"
+fi
+
 # Check exist certificate with given custom domain
 # Heroku not support for custom domain, only generate HTTP config if deploying on Heroku
 if [[ -n ${APPSMITH_CUSTOM_DOMAIN-} ]] && [[ -z ${DYNO-} ]]; then
