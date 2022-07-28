@@ -1,6 +1,6 @@
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 
-let guid: any, jsName: any, dsl: any;
+let dsName: any, jsName: any, dsl: any;
 const agHelper = ObjectsRegistry.AggregateHelper,
   ee = ObjectsRegistry.EntityExplorer,
   dataSources = ObjectsRegistry.DataSources,
@@ -23,6 +23,9 @@ describe("JSObjects OnLoad Actions tests", function() {
     agHelper.AddDsl(dsl);
     ee.NavigateToSwitcher("explorer");
     dataSources.CreateDataSource("Postgres");
+    cy.get("@dsName").then(($dsName) => {
+      dsName = $dsName;
+    });
   });
 
   it("2. Tc 54, 55 - Verify User enables only 'Before Function calling' & OnPage Load is Automatically enable after mapping done on JSOBject", function() {
@@ -40,7 +43,7 @@ describe("JSObjects OnLoad Actions tests", function() {
       },
     );
     jsEditor.EnableDisableAsyncFuncSettings("getId", false, true); //Only before calling confirmation is enabled by User here
-    dataSources.NavigateFromActiveDS(guid, true);
+    dataSources.NavigateFromActiveDS(dsName, true);
     agHelper.GetNClick(dataSources._templateMenu);
     agHelper.RenameWithInPane("GetUser");
     cy.get("@jsObjName").then((jsObjName) => {
@@ -414,7 +417,7 @@ describe("JSObjects OnLoad Actions tests", function() {
     //apiPage.OnPageLoadRun(true); //OnPageLoad made true after mapping to JSONForm
     apiPage.ToggleConfirmBeforeRunningApi(true);
 
-    dataSources.NavigateFromActiveDS(guid, true);
+    dataSources.NavigateFromActiveDS(dsName, true);
     agHelper.GetNClick(dataSources._templateMenu);
     agHelper.RenameWithInPane("getCitiesList");
     dataSources.EnterQuery(
