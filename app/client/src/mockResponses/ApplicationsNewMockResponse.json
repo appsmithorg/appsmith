@@ -156,10 +156,11 @@
           "applications":[
             
           ],
-          "userRoles":[
+          "users":[
             {
               "username":"b1@appsmith.com",
-              "roleName":"Administrator"
+              "permissionGroupId": "62e2291af980b36927705076",
+              "permissionGroupName":"Administrator"
             }
           ]
         },
@@ -281,10 +282,11 @@
           "applications":[
             
           ],
-          "userRoles":[
+          "users":[
             {
               "username":"b1@appsmith.com",
-              "roleName":"Administrator"
+              "permissionGroupId": "62e2291af980b36927705076",
+              "permissionGroupName":"Administrator"
             }
           ]
         }
