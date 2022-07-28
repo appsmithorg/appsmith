@@ -128,6 +128,7 @@ export default function Settings() {
           onSearch={onSearch}
           pageMenuItems={pageMenuItems}
           searchPlaceholder="Search"
+          showMoreOptions={false}
           title={pageTitle}
         />
         <TabsWrapper data-testid="t--user-edit-tabs-wrapper">

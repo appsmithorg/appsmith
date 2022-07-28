@@ -2,6 +2,7 @@ import React from "react";
 import { Icon, IconSize, SearchInput } from "components/ads";
 import styled, { createGlobalStyle } from "styled-components";
 import { useHistory } from "react-router-dom";
+import { truncateTextUsingEllipsis } from "constants/DefaultTheme";
 
 export const TabsWrapper = styled.div`
   margin: 36px 0 0;
@@ -52,6 +53,15 @@ export const StyledSearchInput = styled(SearchInput)`
         0px 1px 3px rgba(0, 0, 0, 0.1);
     }
   }
+`;
+
+export const SettingsHeader = styled.h2`
+  font-size: 24px;
+  font-weight: 500;
+  text-transform: capitalize;
+  margin-bottom: 0px;
+  width: 365px;
+  ${truncateTextUsingEllipsis}
 `;
 
 export function BackButton({ goTo }: { goTo?: string }) {
