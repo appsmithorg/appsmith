@@ -132,7 +132,7 @@ describe("Git sync apps", function() {
     cy.get(apiwidget.headerValue).type("This is a test", {
       parseSpecialCharSequences: false,
     });
-    cy.wait(2000);
+    cy.wait(8000);
     cy.SaveAndRunAPI();
     cy.ResponseStatusCheck("200");
     cy.get(".bp3-icon-chevron-left").click();

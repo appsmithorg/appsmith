@@ -9,6 +9,7 @@ const agHelper = ObjectsRegistry.AggregateHelper,
 describe("Create a mongo query from explorer", () => {
   it("Create a mongo query from explorer when actively on a mongo query page", () => {
     cy.get(explorerLocators.addEntityAPI).click();
+    cy.wait(2000);
     dataSources.NavigateToDSCreateNew();
     cy.createMockDatasource("Movies");
     cy.get(datasourceLocators.datasourceCard)
