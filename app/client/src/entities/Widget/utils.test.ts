@@ -521,6 +521,18 @@ describe("getAllPathsFromPropertyConfig", () => {
       setAdaptiveYMin: EvaluationSubstitutionType.TEMPLATE,
       borderRadius: EvaluationSubstitutionType.TEMPLATE,
       boxShadow: EvaluationSubstitutionType.TEMPLATE,
+      canvasPadding: EvaluationSubstitutionType.TEMPLATE,
+      captionAlignment: EvaluationSubstitutionType.TEMPLATE,
+      captionFontColor: EvaluationSubstitutionType.TEMPLATE,
+      captionFontSize: EvaluationSubstitutionType.TEMPLATE,
+      captionPadding: EvaluationSubstitutionType.TEMPLATE,
+      chartMargin: EvaluationSubstitutionType.TEMPLATE,
+      xAxisNameColor: EvaluationSubstitutionType.TEMPLATE,
+      xAxisNameFontSize: EvaluationSubstitutionType.TEMPLATE,
+      xAxisValueColor: EvaluationSubstitutionType.TEMPLATE,
+      yAxisNameColor: EvaluationSubstitutionType.TEMPLATE,
+      yAxisNameFontSize: EvaluationSubstitutionType.TEMPLATE,
+      yAxisValueColor: EvaluationSubstitutionType.TEMPLATE,
     };
 
     const expected = {
@@ -598,6 +610,59 @@ describe("getAllPathsFromPropertyConfig", () => {
         },
         boxShadow: {
           type: ValidationTypes.TEXT,
+        },
+        canvasPadding: {
+          params: {
+            expected: {
+              autocompleteDataType: "STRING",
+              example: "60, 0, 60, 10",
+              type: "leftPadding, topPadding, rightPadding, bottomPadding",
+            },
+          },
+          type: "TEXT",
+        },
+        captionAlignment: {
+          params: {
+            allowedValues: ["left", "right", "center"],
+          },
+          type: "TEXT",
+        },
+        captionFontColor: {
+          type: "TEXT",
+        },
+        captionFontSize: {
+          type: "TEXT",
+        },
+        captionPadding: {
+          type: "TEXT",
+        },
+        chartMargin: {
+          params: {
+            expected: {
+              autocompleteDataType: "STRING",
+              example: "10, 10, 10, 10",
+              type: "leftMargin, topMargin, rightMargin, bottomMargin",
+            },
+          },
+          type: "TEXT",
+        },
+        xAxisNameColor: {
+          type: "TEXT",
+        },
+        xAxisNameFontSize: {
+          type: "TEXT",
+        },
+        xAxisValueColor: {
+          type: "TEXT",
+        },
+        yAxisNameColor: {
+          type: "TEXT",
+        },
+        yAxisNameFontSize: {
+          type: "TEXT",
+        },
+        yAxisValueColor: {
+          type: "TEXT",
         },
       },
     };
