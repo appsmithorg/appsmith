@@ -218,17 +218,21 @@ const allUserGroups: WorkspaceUserGroup[] = [
     users: [
       {
         isChangingRole: false,
-        roleName: "Developer",
         isDeleting: false,
         name: "Ankita Kinger",
         username: "techak@appsmith.com",
+        userId: "5e8f8f8f-f8f8-f8f8-f8f8-f8f8f8f8f8f8",
+        permissionGroupId: "5e8f8f8f-f8f8-f8f8-f8f8-f8f8f8f8f8f8",
+        permissionGroupName: "Developer",
       },
       {
         isChangingRole: false,
-        roleName: "Developer",
         isDeleting: false,
         name: "Hello",
         username: "hello123@appsmith.com",
+        userId: "5e8f8f8f-f8f8-f8f8-f8f8-f8f8f8f8fwwww8f8",
+        permissionGroupId: "5e8f8f8f-f8f8-f8f8-f8f8-fwwf8f8f8f8f8f8",
+        permissionGroupName: "Developer",
       },
     ],
   },
@@ -381,20 +385,21 @@ export default function MemberSettings(props: PageProps) {
     },
     {
       Header: "Role",
-      accessor: "roleName",
+      accessor: "permissionGroupName",
       Cell: function DropdownCell(cellProps: any) {
         const data = cellProps.cell.row.original;
         const allRoles = useSelector(getAllRoles);
         const roles = allRoles
-          ? Object.keys(allRoles).map((role) => {
+          ? allRoles.map((role: any) => {
               return {
-                name: role,
-                desc: allRoles[role],
+                id: role.id,
+                name: role.name,
+                desc: role.description,
               };
             })
           : [];
         const index = roles.findIndex(
-          (role: { name: string; desc: string }) =>
+          (role: { id: string; name: string; desc: string }) =>
             role.name === cellProps.cell.value,
         );
         if (data.username === currentUser?.username) {
@@ -407,13 +412,8 @@ export default function MemberSettings(props: PageProps) {
               roleChangingUserInfo.username === data.username
             }
             onSelect={(option) => {
-              const isUserGroup = data.hasOwnProperty("users");
               dispatch(
-                changeWorkspaceUserRole(
-                  workspaceId,
-                  option.name,
-                  isUserGroup ? data.name : data.username,
-                ),
+                changeWorkspaceUserRole(workspaceId, option.id, data.username),
               );
             }}
             options={roles}
@@ -485,8 +485,9 @@ export default function MemberSettings(props: PageProps) {
               {membersData.map((member, index) => {
                 const isUserGroup = member.hasOwnProperty("users");
                 const role =
-                  roles.find((role) => role.value === member.roleName) ||
-                  roles[0];
+                  roles.find(
+                    (role) => role.value === member.permissionGroupName,
+                  ) || roles[0];
                 const isOwner = member.username === currentUser?.username;
                 return (
                   <UserCard key={index}>
@@ -510,7 +511,7 @@ export default function MemberSettings(props: PageProps) {
                     )}
                     {isOwner && (
                       <Text className="user-role" type={TextType.P1}>
-                        {member.roleName}
+                        {member.permissionGroupName}
                       </Text>
                     )}
                     {!isOwner && (
@@ -519,11 +520,8 @@ export default function MemberSettings(props: PageProps) {
                         className="t--user-status"
                         defaultIcon="downArrow"
                         height="31px"
-                        onSelect={(value) => {
-                          selectRole(
-                            value,
-                            isUserGroup ? member.name : member.username,
-                          );
+                        onSelect={(value, option) => {
+                          selectRole(option.id, member.username);
                         }}
                         options={roles}
                         selected={role}

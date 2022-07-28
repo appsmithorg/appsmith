@@ -8,11 +8,10 @@ import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.InviteUser;
 import com.appsmith.server.domains.LoginSource;
-import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.domains.PasswordResetToken;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserData;
-import com.appsmith.server.dtos.InviteUsersDTO;
+import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ResetUserPasswordDTO;
 import com.appsmith.server.dtos.UserSignupDTO;
 import com.appsmith.server.dtos.UserUpdateDTO;
@@ -434,36 +433,40 @@ public class UserServiceTest {
                 .create(workspace)
                 .cache();
 
-        String newUserEmail = "inviteUserToApplicationWithoutExisting@test.com";
-
-        workspaceMono
-                .flatMap(workspace1 -> {
-                    // Add user to workspace
-                    InviteUsersDTO inviteUsersDTO = new InviteUsersDTO();
-                    ArrayList<String> users = new ArrayList<>();
-                    users.add(newUserEmail);
-                    inviteUsersDTO.setUsernames(users);
-                    inviteUsersDTO.setWorkspaceId(workspace1.getId());
-                    inviteUsersDTO.setRoleName(AppsmithRole.ORGANIZATION_VIEWER.getName());
-
-                    return userService.inviteUsers(inviteUsersDTO, "http://localhost:8080");
-                }).block();
-
-        // Now Sign Up as the new user
-        User signUpUser = new User();
-        signUpUser.setEmail(newUserEmail);
-        signUpUser.setPassword("123456");
-
-        Mono<User> invitedUserSignUpMono =
-                userService.createUserAndSendEmail(signUpUser, "http://localhost:8080")
-                        .map(UserSignupDTO::getUser);
-
-        StepVerifier.create(invitedUserSignUpMono)
-                .assertNext(user -> {
-                    assertTrue(user.getIsEnabled());
-                    assertTrue(passwordEncoder.matches("123456", user.getPassword()));
-                })
-                .verifyComplete();
+//        Mono<UserGroup> viewerGroupMono = workspaceMono.flatMapMany(workspace1 -> userGroupService.getDefaultUserGroups(workspace1.getId()))
+//                .filter(userGroup -> userGroup.getName().startsWith(FieldName.VIEWER))
+//                .single()
+//                .cache();
+//
+//        String newUserEmail = "inviteUserToApplicationWithoutExisting@test.com";
+//
+//        viewerGroupMono
+//                .flatMap(userGroup -> {
+//                    // Add user to workspace
+//                    InviteUsersDTO inviteUsersDTO = new InviteUsersDTO();
+//                    ArrayList<String> users = new ArrayList<>();
+//                    users.add(newUserEmail);
+//                    inviteUsersDTO.setUsernames(users);
+//                    inviteUsersDTO.setUserGroupId(userGroup.getId());
+//
+//                    return userService.inviteUsers(inviteUsersDTO, "http://localhost:8080");
+//                }).block();
+//
+//        // Now Sign Up as the new user
+//        User signUpUser = new User();
+//        signUpUser.setEmail(newUserEmail);
+//        signUpUser.setPassword("123456");
+//
+//        Mono<User> invitedUserSignUpMono =
+//                userService.createUserAndSendEmail(signUpUser, "http://localhost:8080")
+//                        .map(UserSignupDTO::getUser);
+//
+//        StepVerifier.create(invitedUserSignUpMono)
+//                .assertNext(user -> {
+//                    assertThat(user.getIsEnabled().equals(true));
+//                    assertThat(passwordEncoder.matches("123456", user.getPassword())).isTrue();
+//                })
+//                .verifyComplete();
 
     }
 

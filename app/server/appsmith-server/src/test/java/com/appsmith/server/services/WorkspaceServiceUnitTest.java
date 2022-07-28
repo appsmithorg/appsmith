@@ -2,19 +2,23 @@ package com.appsmith.server.services;
 
 import com.appsmith.server.acl.RoleGraph;
 import com.appsmith.server.constants.FieldName;
+import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.Workspace;
-import com.appsmith.server.domains.UserRole;
+import com.appsmith.server.dtos.PermissionGroupInfoDTO;
+import com.appsmith.server.dtos.UserAndPermissionGroupDTO;
 import com.appsmith.server.exceptions.AppsmithError;
+import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.AssetRepository;
-import com.appsmith.server.repositories.WorkspaceRepository;
 import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.repositories.UserRepository;
+import com.appsmith.server.repositories.WorkspaceRepository;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
+import org.modelmapper.ModelMapper;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
@@ -46,15 +50,36 @@ public class WorkspaceServiceUnitTest {
     @MockBean AnalyticsService analyticsService;
     @MockBean ApplicationRepository applicationRepository;
 
+    @MockBean PermissionGroupService permissionGroupService;
+
+    @MockBean PolicyUtils policyUtils;
+
+    @MockBean UserService userService;
+
     WorkspaceService workspaceService;
+
+    ModelMapper modelMapper;
 
     @Before
     public void setUp() {
+        modelMapper = new ModelMapper();
         workspaceService = new WorkspaceServiceImpl(scheduler, validator, mongoConverter, reactiveMongoTemplate,
                 workspaceRepository, analyticsService, pluginRepository, sessionUserService, userWorkspaceService,
-                userRepository, roleGraph, assetRepository, assetService,
-                applicationRepository);
+                userRepository, roleGraph, assetRepository, assetService, applicationRepository,
+                permissionGroupService, policyUtils, modelMapper);
     }
+
+   @Test
+   public void whenMapPermissionGroup_thenConvertsToPermissionGroupInfoDTO() {
+       PermissionGroup permissionGroup = new PermissionGroup();
+       permissionGroup.setName("Test");
+       permissionGroup.setId("123");
+       permissionGroup.setDescription("Test");
+       PermissionGroupInfoDTO permissionGroupInfoDTO = modelMapper.map(permissionGroup, PermissionGroupInfoDTO.class);
+       Assert.assertEquals(permissionGroup.getName(), permissionGroupInfoDTO.getName());
+       Assert.assertEquals(permissionGroup.getId(), permissionGroupInfoDTO.getId());
+       Assert.assertEquals(permissionGroup.getDescription(), permissionGroupInfoDTO.getDescription());
+   }
 
     @Test
     public void getWorkspaceMembers_WhenRoleIsNull_ReturnsEmptyList() {
@@ -69,11 +94,11 @@ public class WorkspaceServiceUnitTest {
         Mockito.when(workspaceRepository.findById("test-org-id", WORKSPACE_INVITE_USERS))
                 .thenReturn(Mono.just(testWorkspace));
 
-        Mono<List<UserRole>> workspaceMembers = workspaceService.getWorkspaceMembers(testWorkspace.getId());
+        Mono<List<UserAndPermissionGroupDTO>> workspaceMembers = userWorkspaceService.getWorkspaceMembers(testWorkspace.getId());
         StepVerifier
                 .create(workspaceMembers)
-                .assertNext(userRoles -> {
-                    Assert.assertEquals(0, userRoles.size());
+                .assertNext(userAndGroupDTOs -> {
+                    Assert.assertEquals(0, userAndGroupDTOs.size());
                 })
                 .verifyComplete();
     }
@@ -85,7 +110,7 @@ public class WorkspaceServiceUnitTest {
         Mockito.when(workspaceRepository.findById(sampleWorkspaceId, WORKSPACE_INVITE_USERS))
                 .thenReturn(Mono.empty());
 
-        Mono<List<UserRole>> workspaceMembers = workspaceService.getWorkspaceMembers(sampleWorkspaceId);
+        Mono<List<UserAndPermissionGroupDTO>> workspaceMembers = userWorkspaceService.getWorkspaceMembers(sampleWorkspaceId);
         StepVerifier
                 .create(workspaceMembers)
                 .expectErrorMessage(AppsmithError.NO_RESOURCE_FOUND.getMessage(FieldName.WORKSPACE, sampleWorkspaceId))

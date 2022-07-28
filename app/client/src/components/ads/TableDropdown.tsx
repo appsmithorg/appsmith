@@ -11,6 +11,7 @@ import Spinner from "./Spinner";
 import { Text, TextType } from "design-system";
 
 type DropdownOption = {
+  id: string;
   name: string;
   desc: string;
 };

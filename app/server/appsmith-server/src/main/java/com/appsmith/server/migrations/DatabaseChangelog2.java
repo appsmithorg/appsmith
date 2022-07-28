@@ -2,6 +2,7 @@ package com.appsmith.server.migrations;
 
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.Datasource;
+import com.appsmith.external.models.Policy;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.models.QBaseDomain;
 import com.appsmith.external.models.QDatasource;
@@ -11,15 +12,18 @@ import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.domains.Comment;
 import com.appsmith.server.domains.CommentThread;
+import com.appsmith.server.domains.Config;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Organization;
+import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.PricingPlan;
 import com.appsmith.server.domains.QActionCollection;
 import com.appsmith.server.domains.QApplication;
 import com.appsmith.server.domains.QComment;
 import com.appsmith.server.domains.QCommentThread;
+import com.appsmith.server.domains.QConfig;
 import com.appsmith.server.domains.QNewAction;
 import com.appsmith.server.domains.QNewPage;
 import com.appsmith.server.domains.QOrganization;
@@ -36,6 +40,7 @@ import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserData;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ActionDTO;
+import com.appsmith.server.dtos.Permission;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.TextUtils;
@@ -45,6 +50,7 @@ import com.github.cloudyrock.mongock.ChangeSet;
 import com.github.cloudyrock.mongock.driver.mongodb.springdata.v3.decorator.impl.MongockTemplate;
 import com.google.gson.Gson;
 import lombok.extern.slf4j.Slf4j;
+import net.minidev.json.JSONObject;
 import org.springframework.data.mongodb.core.aggregation.AggregationUpdate;
 import org.springframework.data.mongodb.core.aggregation.Fields;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -71,7 +77,12 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNewFieldValuesIntoOldObject;
+import static com.appsmith.server.acl.AclPermission.ASSIGN_PERMISSION_GROUPS;
+import static com.appsmith.server.acl.AclPermission.MANAGE_INSTANCE_CONFIGURATION;
+import static com.appsmith.server.acl.AclPermission.MANAGE_INSTANCE_ENV;
+import static com.appsmith.server.acl.AclPermission.MANAGE_PERMISSION_GROUPS;
+import static com.appsmith.server.acl.AclPermission.READ_INSTANCE_CONFIGURATION;
+import static com.appsmith.server.constants.FieldName.DEFAULT_PERMISSION_GROUP;
 import static com.appsmith.server.migrations.DatabaseChangelog.dropIndexIfExists;
 import static com.appsmith.server.migrations.DatabaseChangelog.ensureIndexes;
 import static com.appsmith.server.migrations.DatabaseChangelog.getUpdatedDynamicBindingPathList;
@@ -1451,5 +1462,100 @@ public class DatabaseChangelog2 {
                 }
             }
         }
+    }
+
+    @ChangeSet(order = "20", id = "add-anonymousUser", author = "")
+    public void addAnonymousUser(MongockTemplate mongockTemplate) {
+        Query tenantQuery = new Query();
+        tenantQuery.addCriteria(where(fieldName(QTenant.tenant.slug)).is("default"));
+        Tenant tenant = mongockTemplate.findOne(tenantQuery, Tenant.class);
+
+        Query userQuery = new Query();
+        userQuery.addCriteria(where(fieldName(QUser.user.email)).is(FieldName.ANONYMOUS_USER))
+                .addCriteria(where(fieldName(QUser.user.tenantId)).is(tenant.getId()));
+        User anonymousUser = mongockTemplate.findOne(userQuery, User.class);
+
+        if (anonymousUser == null) {
+            anonymousUser = new User();
+            anonymousUser.setName(FieldName.ANONYMOUS_USER);
+            anonymousUser.setEmail(FieldName.ANONYMOUS_USER);
+            anonymousUser.setCurrentWorkspaceId("");
+            anonymousUser.setWorkspaceIds(new HashSet<>());
+            anonymousUser.setIsAnonymous(true);
+            anonymousUser.setTenantId(tenant.getId());
+
+            mongockTemplate.save(anonymousUser);
+        }
+    }
+
+    @ChangeSet(order = "21", id = "add-instance-config-object", author = "")
+    public void addInstanceConfigurationPlaceHolder(MongockTemplate mongockTemplate) {
+        Query instanceConfigurationQuery = new Query();
+        instanceConfigurationQuery.addCriteria(where(fieldName(QConfig.config1.name)).is(FieldName.INSTANCE_CONFIG));
+        Config instanceAdminConfiguration = mongockTemplate.findOne(instanceConfigurationQuery, Config.class);
+
+        if (instanceAdminConfiguration != null) {
+            return;
+        }
+
+        instanceAdminConfiguration = new Config();
+        instanceAdminConfiguration.setName(FieldName.INSTANCE_CONFIG);
+        Config savedInstanceConfig = mongockTemplate.save(instanceAdminConfiguration);
+
+        // Create instance management permission group
+        PermissionGroup instanceManagerPermissionGroup = new PermissionGroup();
+        instanceManagerPermissionGroup.setName(FieldName.INSTACE_ADMIN_ROLE);
+        instanceManagerPermissionGroup.setPermissions(
+                Set.of(
+                        new Permission(savedInstanceConfig.getId(), MANAGE_INSTANCE_CONFIGURATION)
+                )
+        );
+
+        Query adminUserQuery = new Query();
+        adminUserQuery.addCriteria(where(fieldName(QBaseDomain.baseDomain.policies))
+                        .elemMatch(where("permission").is(MANAGE_INSTANCE_ENV.getValue())));
+        List<User> adminUsers = mongockTemplate.find(adminUserQuery, User.class);
+
+        instanceManagerPermissionGroup.setAssignedToUserIds(
+                adminUsers.stream().map(User::getId).collect(Collectors.toSet())
+        );
+
+        PermissionGroup savedPermissionGroup = mongockTemplate.save(instanceManagerPermissionGroup);
+
+        // Update the instance config with the permission group id
+        savedInstanceConfig.setConfig(new JSONObject(Map.of(DEFAULT_PERMISSION_GROUP, savedPermissionGroup.getId())));
+
+        Policy editConfigPolicy = Policy.builder().permission(MANAGE_INSTANCE_CONFIGURATION.getValue())
+                .permissionGroups(Set.of(savedPermissionGroup.getId()))
+                .build();
+        Policy readConfigPolicy = Policy.builder().permission(READ_INSTANCE_CONFIGURATION.getValue())
+                .permissionGroups(Set.of(savedPermissionGroup.getId()))
+                .build();
+
+        savedInstanceConfig.setPolicies(Set.of(editConfigPolicy, readConfigPolicy));
+
+        mongockTemplate.save(savedInstanceConfig);
+
+        // Also give the permission group permission to update & assign to itself
+        Policy updatePermissionGroupPolicy = Policy.builder().permission(MANAGE_PERMISSION_GROUPS.getValue())
+                .permissionGroups(Set.of(savedPermissionGroup.getId()))
+                .build();
+
+        Policy assignPermissionGroupPolicy = Policy.builder().permission(ASSIGN_PERMISSION_GROUPS.getValue())
+                .permissionGroups(Set.of(savedPermissionGroup.getId()))
+                .build();
+
+        savedPermissionGroup.setPolicies(Set.of(updatePermissionGroupPolicy, assignPermissionGroupPolicy));
+
+        Set<Permission> permissions = new HashSet<>(savedPermissionGroup.getPermissions());
+        permissions.addAll(
+                Set.of(
+                        new Permission(savedPermissionGroup.getId(), MANAGE_PERMISSION_GROUPS),
+                        new Permission(savedPermissionGroup.getId(), ASSIGN_PERMISSION_GROUPS)
+                )
+        );
+        savedPermissionGroup.setPermissions(permissions);
+
+        mongockTemplate.save(savedPermissionGroup);
     }
 }

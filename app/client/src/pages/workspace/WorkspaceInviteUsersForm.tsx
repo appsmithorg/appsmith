@@ -233,6 +233,7 @@ export const InviteButtonWidth = "88px";
 
 function WorkspaceInviteUsersForm(props: any) {
   const [emailError, setEmailError] = useState("");
+  const [selectedOption, setSelectedOption] = useState<any>({});
   const userRef = React.createRef<HTMLDivElement>();
   const {
     allUsers,
@@ -279,7 +280,13 @@ function WorkspaceInviteUsersForm(props: any) {
   const allUsersProfiles = React.useMemo(
     () =>
       allUsers.map(
-        (user: { username: string; roleName: string; name: string }) => {
+        (user: {
+          userId: string;
+          username: string;
+          permissionGroupId: string;
+          permissionGroupName: string;
+          name: string;
+        }) => {
           const details = getInitialsAndColorCode(
             user.name || user.username,
             theme.colors.appCardColors,
@@ -310,7 +317,11 @@ function WorkspaceInviteUsersForm(props: any) {
           // update state to show success message correctly
           updateNumberOfUsersInvited(usersAsStringsArray.length);
           return inviteUsersToWorkspace(
-            { ...values, workspaceId: props.workspaceId },
+            {
+              ...values,
+              permissionGroupId: selectedOption.id,
+              workspaceId: props.workspaceId,
+            },
             dispatch,
           );
         })}
@@ -330,6 +341,7 @@ function WorkspaceInviteUsersForm(props: any) {
             <SelectField
               data-cy="t--invite-role-input"
               name="role"
+              onSelect={(value, option) => setSelectedOption(option)}
               options={styledRoles}
               outline={false}
               placeholder="Select a role"
@@ -369,7 +381,8 @@ function WorkspaceInviteUsersForm(props: any) {
                 (user: {
                   username: string;
                   name: string;
-                  roleName: string;
+                  permissionGroupId: string;
+                  permissionGroupName: string;
                   initials: string;
                 }) => {
                   return (
@@ -386,7 +399,9 @@ function WorkspaceInviteUsersForm(props: any) {
                           </UserName>
                         </UserInfo>
                         <UserRole>
-                          <Text type={TextType.P1}>{user.roleName}</Text>
+                          <Text type={TextType.P1}>
+                            {user.permissionGroupName}
+                          </Text>
                         </UserRole>
                       </User>
 

@@ -1,18 +1,16 @@
 package com.appsmith.server.solutions;
 
 import com.appsmith.external.models.ActionConfiguration;
+import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.Policy;
-import com.appsmith.server.acl.AppsmithRole;
+import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
-import com.appsmith.external.models.Datasource;
-import com.appsmith.server.domains.NewAction;
-import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.domains.Plugin;
-import com.appsmith.server.domains.UserRole;
+import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.InviteUsersDTO;
-import com.appsmith.server.dtos.PageDTO;
+import com.appsmith.server.dtos.PermissionGroupInfoDTO;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.repositories.ApplicationRepository;
@@ -22,9 +20,9 @@ import com.appsmith.server.services.DatasourceService;
 import com.appsmith.server.services.LayoutActionService;
 import com.appsmith.server.services.NewActionService;
 import com.appsmith.server.services.NewPageService;
-import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.services.PluginService;
 import com.appsmith.server.services.UserService;
+import com.appsmith.server.services.WorkspaceService;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Before;
 import org.junit.Test;
@@ -37,28 +35,16 @@ import org.springframework.http.HttpMethod;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringRunner;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
-import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 
 import static com.appsmith.server.acl.AclPermission.MAKE_PUBLIC_APPLICATIONS;
-import static com.appsmith.server.acl.AclPermission.MANAGE_ACTIONS;
-import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
-import static com.appsmith.server.acl.AclPermission.MANAGE_WORKSPACES;
-import static com.appsmith.server.acl.AclPermission.MANAGE_PAGES;
-import static com.appsmith.server.acl.AclPermission.WORKSPACE_INVITE_USERS;
-import static com.appsmith.server.acl.AclPermission.WORKSPACE_MANAGE_APPLICATIONS;
-import static com.appsmith.server.acl.AclPermission.READ_ACTIONS;
-import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_WORKSPACES;
-import static com.appsmith.server.acl.AclPermission.READ_PAGES;
+import static com.appsmith.server.acl.AclPermission.WORKSPACE_INVITE_USERS;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(SpringRunner.class)
@@ -120,22 +106,33 @@ public class ShareWorkspacePermissionTests {
         savedApplication = applicationPageService.createApplication(application, workspaceId).block();
 
         InviteUsersDTO inviteUsersDTO = new InviteUsersDTO();
-        inviteUsersDTO.setWorkspaceId(workspaceId);
         ArrayList<String> emails = new ArrayList<>();
 
-        // Invite Admin
-        emails.add("admin@solutiontest.com");
-        inviteUsersDTO.setUsernames(emails);
-        inviteUsersDTO.setRoleName(AppsmithRole.ORGANIZATION_ADMIN.getName());
-        userService.inviteUsers(inviteUsersDTO, "http://localhost:8080").block();
-
-        emails.clear();
-
-        // Invite Developer
-        emails.add("developer@solutiontest.com");
-        inviteUsersDTO.setUsernames(emails);
-        inviteUsersDTO.setRoleName(AppsmithRole.ORGANIZATION_DEVELOPER.getName());
-        userService.inviteUsers(inviteUsersDTO, "http://localhost:8080").block();
+//        UserGroup adminUserGroup = userGroupService.getDefaultUserGroups(savedWorkspace.getId())
+//                .collectList().block()
+//                .stream()
+//                .filter(userGroup1 -> userGroup1.getName().startsWith(FieldName.ADMINISTRATOR))
+//                .findFirst().get();
+//
+//        UserGroup developerUserGroup = userGroupService.getDefaultUserGroups(savedWorkspace.getId())
+//                .collectList().block()
+//                .stream()
+//                .filter(userGroup1 -> userGroup1.getName().startsWith(FieldName.DEVELOPER))
+//                .findFirst().get();
+//
+//        // Invite Admin
+//        emails.add("admin@solutiontest.com");
+//        inviteUsersDTO.setUsernames(emails);
+//        inviteUsersDTO.setUserGroupId(adminUserGroup.getId());
+//        userService.inviteUsers(inviteUsersDTO, "http://localhost:8080").block();
+//
+//        emails.clear();
+//
+//        // Invite Developer
+//        emails.add("developer@solutiontest.com");
+//        inviteUsersDTO.setUsernames(emails);
+//        inviteUsersDTO.setUserGroupId(developerUserGroup.getId());
+//        userService.inviteUsers(inviteUsersDTO, "http://localhost:8080").block();
     }
 
     @Test
@@ -168,13 +165,14 @@ public class ShareWorkspacePermissionTests {
     @WithUserDetails(value = "admin@solutiontest.com")
     public void testAdminInviteRoles() {
 
-        Set<String> roles = Set.of("Administrator", "Developer", "App Viewer");
-        Mono<Map<String, String>> userRolesForWorkspace = workspaceService.getUserRolesForWorkspace(workspaceId);
+        Mono<List<PermissionGroupInfoDTO>> userRolesForWorkspace = workspaceService.getPermissionGroupsForWorkspace(workspaceId);
 
         StepVerifier.create(userRolesForWorkspace)
-                .assertNext(rolesMap -> {
-                    Set<String> rolesNames = rolesMap.keySet();
-                    assertThat(rolesNames).containsAll(roles);
+                .assertNext(userGroupInfos -> {
+                    assertThat(userGroupInfos).isNotEmpty();
+                    assertThat(userGroupInfos).anyMatch(userGroupInfo -> userGroupInfo.getName().startsWith(FieldName.ADMINISTRATOR));
+                    assertThat(userGroupInfos).anyMatch(userGroupInfo -> userGroupInfo.getName().startsWith(FieldName.VIEWER));
+                    assertThat(userGroupInfos).anyMatch(userGroupInfo -> userGroupInfo.getName().startsWith(FieldName.DEVELOPER));
                 })
                 .verifyComplete();
     }
@@ -200,13 +198,14 @@ public class ShareWorkspacePermissionTests {
     @WithUserDetails(value = "developer@solutiontest.com")
     public void testDeveloperInviteRoles() {
 
-        Set<String> roles = Set.of("Developer", "App Viewer");
-        Mono<Map<String, String>> userRolesForWorkspace = workspaceService.getUserRolesForWorkspace(workspaceId);
+        Mono<List<PermissionGroupInfoDTO>> userRolesForWorkspace = workspaceService.getPermissionGroupsForWorkspace(workspaceId);
 
         StepVerifier.create(userRolesForWorkspace)
-                .assertNext(rolesMap -> {
-                    Set<String> rolesNames = rolesMap.keySet();
-                    assertThat(rolesNames).containsAll(roles);
+                .assertNext(userGroupInfos -> {
+                    assertThat(userGroupInfos).isNotEmpty();
+                    assertThat(userGroupInfos).noneMatch(userGroupInfo -> userGroupInfo.getName().startsWith(FieldName.ADMINISTRATOR));
+                    assertThat(userGroupInfos).anyMatch(userGroupInfo -> userGroupInfo.getName().startsWith(FieldName.VIEWER));
+                    assertThat(userGroupInfos).anyMatch(userGroupInfo -> userGroupInfo.getName().startsWith(FieldName.DEVELOPER));
                 })
                 .verifyComplete();
     }
@@ -265,126 +264,131 @@ public class ShareWorkspacePermissionTests {
 
         ActionDTO savedAction3 = layoutActionService.createSingleAction(action3).block();
 
-        InviteUsersDTO inviteUsersDTO = new InviteUsersDTO();
-        inviteUsersDTO.setWorkspaceId(savedWorkspace.getId());
-        ArrayList<String> emails = new ArrayList<>();
-
-        // Test invite
-        String email = "inviteCancellationTestEmail@solutionText.com";
-        emails.add(email);
-        inviteUsersDTO.setUsernames(emails);
-        inviteUsersDTO.setRoleName(AppsmithRole.ORGANIZATION_ADMIN.getName());
-
-        // Now trigger the invite flow and cancel it almost immediately!
-        // NOTE : This is the main test flow. Invite would be triggered and is expected now to run
-        // to completion even though its timing out in 5 milli seconds.
-        userService.inviteUsers(inviteUsersDTO, "http://localhost:8080")
-                .timeout(Duration.ofMillis(5))
-                .subscribe();
-
-        // Before fetching any objects from the database, to avoid flaky tests, first sleep for 10 seconds. This
-        // ensures that we are guaranteed that the invite flow (which was cancelled in 5 ms) has run to completion
-        // before we fetch the org, app, pages and actions
-        Mono<Workspace> workspaceMono = Mono.just(savedWorkspace.getId())
-                .flatMap(workspaceId -> {
-                    try {
-                        // Before fetching the updated organzation, sleep for 10 seconds to ensure that the invite finishes
-                        Thread.sleep(10000);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                    return workspaceService.findById(workspaceId, READ_WORKSPACES);
-                })
-                .cache();
-
-        Mono<Application> fetchApplicationFromDbMono = workspaceMono
-                .then(Mono.just(savedApplication))
-                .flatMap(originalApp -> applicationService.findById(savedApplication.getId()))
-                .cache();
-
-        Mono<List<NewAction>> actionsMono = fetchApplicationFromDbMono
-                .flatMap(appFromDb -> newActionService
-                        .findAllByApplicationIdAndViewMode(appFromDb.getId(), false, READ_ACTIONS, null)
-                        .collectList()
-                );
-
-        Mono<List<PageDTO>> pagesMono = fetchApplicationFromDbMono
-                .flatMapMany(appFromDb -> Flux.fromIterable(appFromDb.getPages()))
-                .flatMap(applicationPage -> newPageService.findPageById(applicationPage.getId(), READ_PAGES, false))
-                .collectList();
-
-        StepVerifier
-                .create(Mono.zip(workspaceMono, fetchApplicationFromDbMono, actionsMono, pagesMono))
-                .assertNext(tuple -> {
-                    Workspace updatedWorkspace = tuple.getT1();
-                    Application updatedApp = tuple.getT2();
-                    List<NewAction> updatedActions = tuple.getT3();
-                    List<PageDTO> updatedPageDTOs = tuple.getT4();
-
-                    Set<String> userSet = Set.of("api_user", "invitecancellationtestemail@solutiontext.com");
-
-                    // Assert the policy for the invited user in workspace
-                    Policy manageOrgAppPolicy = Policy.builder().permission(WORKSPACE_MANAGE_APPLICATIONS.getValue())
-                            .users(userSet)
-                            .build();
-
-                    Policy manageOrgPolicy = Policy.builder().permission(MANAGE_WORKSPACES.getValue())
-                            .users(userSet)
-                            .build();
-
-                    Policy readOrgPolicy = Policy.builder().permission(READ_WORKSPACES.getValue())
-                            .users(userSet)
-                            .build();
-
-                    assertThat(updatedWorkspace.getPolicies()).isNotEmpty();
-                    assertThat(updatedWorkspace.getPolicies()).containsAll(Set.of(manageOrgAppPolicy, manageOrgPolicy, readOrgPolicy));
-
-                    // Assert the user role in the workspace
-                    List<UserRole> userRoles = updatedWorkspace.getUserRoles();
-                    assertThat(userRoles).isNotEmpty();
-                    Optional<UserRole> userRoleOptional = userRoles.stream().filter(userRole -> userRole.getUsername().equals(email.toLowerCase())).findFirst();
-                    assertThat(userRoleOptional.isPresent()).isTrue();
-                    UserRole userRole = userRoleOptional.get();
-                    assertThat(userRole.getRoleName()).isEqualTo(AppsmithRole.ORGANIZATION_ADMIN.getName());
-
-                    // Assert the policy for the invited user in the workspace application
-                    Policy manageAppPolicy = Policy.builder().permission(MANAGE_APPLICATIONS.getValue())
-                            .users(userSet)
-                            .build();
-                    Policy readAppPolicy = Policy.builder().permission(READ_APPLICATIONS.getValue())
-                            .users(userSet)
-                            .build();
-
-                    assertThat(updatedApp.getPolicies()).isNotEmpty();
-                    assertThat(updatedApp.getPolicies()).containsAll(Set.of(manageAppPolicy, readAppPolicy));
-
-                    // Assert the policy for the invited user in the application pages
-                    Policy managePagePolicy = Policy.builder().permission(MANAGE_PAGES.getValue())
-                            .users(userSet)
-                            .build();
-                    Policy readPagePolicy = Policy.builder().permission(READ_PAGES.getValue())
-                            .users(userSet)
-                            .build();
-
-                    for (PageDTO page : updatedPageDTOs) {
-                        assertThat(page.getPolicies()).isNotEmpty();
-                        assertThat(page.getPolicies()).containsAll(Set.of(managePagePolicy, readPagePolicy));
-                    }
-
-                    // Assert the policy for the invited user in the application actions
-                    Policy manageActionPolicy = Policy.builder().permission(MANAGE_ACTIONS.getValue())
-                            .users(userSet)
-                            .build();
-                    Policy readActionPolicy = Policy.builder().permission(READ_ACTIONS.getValue())
-                            .users(userSet)
-                            .build();
-
-                    for (NewAction action : updatedActions) {
-                        assertThat(action.getPolicies()).isNotEmpty();
-                        assertThat(action.getPolicies()).containsAll(Set.of(manageActionPolicy, readActionPolicy));
-                    }
-
-                })
-                .verifyComplete();
+//        UserGroup adminUserGroup = userGroupService.getDefaultUserGroups(savedWorkspace.getId())
+//                .collectList().block()
+//                .stream()
+//                .filter(userGroup1 -> userGroup1.getName().startsWith(FieldName.ADMINISTRATOR))
+//                .findFirst().get();
+//
+//        InviteUsersDTO inviteUsersDTO = new InviteUsersDTO();
+//        ArrayList<String> emails = new ArrayList<>();
+//
+//        // Test invite
+//        String email = "inviteCancellationTestEmail@solutionText.com";
+//        emails.add(email);
+//        inviteUsersDTO.setUsernames(emails);
+//        inviteUsersDTO.setUserGroupId(adminUserGroup.getId());
+//
+//        // Now trigger the invite flow and cancel it almost immediately!
+//        // NOTE : This is the main test flow. Invite would be triggered and is expected now to run
+//        // to completion even though its timing out in 5 milli seconds.
+//        userService.inviteUsers(inviteUsersDTO, "http://localhost:8080")
+//                .timeout(Duration.ofMillis(5))
+//                .subscribe();
+//
+//        // Before fetching any objects from the database, to avoid flaky tests, first sleep for 10 seconds. This
+//        // ensures that we are guaranteed that the invite flow (which was cancelled in 5 ms) has run to completion
+//        // before we fetch the org, app, pages and actions
+//        Mono<Workspace> workspaceMono = Mono.just(savedWorkspace.getId())
+//                .flatMap(workspaceId -> {
+//                    try {
+//                        // Before fetching the updated organzation, sleep for 10 seconds to ensure that the invite finishes
+//                        Thread.sleep(10000);
+//                    } catch (InterruptedException e) {
+//                        e.printStackTrace();
+//                    }
+//                    return workspaceService.findById(workspaceId, READ_WORKSPACES);
+//                })
+//                .cache();
+//
+//        Mono<Application> fetchApplicationFromDbMono = workspaceMono
+//                .then(Mono.just(savedApplication))
+//                .flatMap(originalApp -> applicationService.findById(savedApplication.getId()))
+//                .cache();
+//
+//        Mono<List<NewAction>> actionsMono = fetchApplicationFromDbMono
+//                .flatMap(appFromDb -> newActionService
+//                        .findAllByApplicationIdAndViewMode(appFromDb.getId(), false, READ_ACTIONS, null)
+//                        .collectList()
+//                );
+//
+//        Mono<List<PageDTO>> pagesMono = fetchApplicationFromDbMono
+//                .flatMapMany(appFromDb -> Flux.fromIterable(appFromDb.getPages()))
+//                .flatMap(applicationPage -> newPageService.findPageById(applicationPage.getId(), READ_PAGES, false))
+//                .collectList();
+//
+//        StepVerifier
+//                .create(Mono.zip(workspaceMono, fetchApplicationFromDbMono, actionsMono, pagesMono))
+//                .assertNext(tuple -> {
+//                    Workspace updatedWorkspace = tuple.getT1();
+//                    Application updatedApp = tuple.getT2();
+//                    List<NewAction> updatedActions = tuple.getT3();
+//                    List<PageDTO> updatedPageDTOs = tuple.getT4();
+//
+//                    Set<String> userSet = Set.of("api_user", "invitecancellationtestemail@solutiontext.com");
+//
+//                    // Assert the policy for the invited user in workspace
+//                    Policy manageOrgAppPolicy = Policy.builder().permission(WORKSPACE_MANAGE_APPLICATIONS.getValue())
+//                            .users(userSet)
+//                            .build();
+//
+//                    Policy manageOrgPolicy = Policy.builder().permission(MANAGE_WORKSPACES.getValue())
+//                            .users(userSet)
+//                            .build();
+//
+//                    Policy readOrgPolicy = Policy.builder().permission(READ_WORKSPACES.getValue())
+//                            .users(userSet)
+//                            .build();
+//
+//                    assertThat(updatedWorkspace.getPolicies()).isNotEmpty();
+//                    assertThat(updatedWorkspace.getPolicies()).containsAll(Set.of(manageOrgAppPolicy, manageOrgPolicy, readOrgPolicy));
+//
+//                    // Assert the user role in the workspace
+//                    List<UserRole> userRoles = updatedWorkspace.getUserRoles();
+//                    assertThat(userRoles).isNotEmpty();
+//                    Optional<UserRole> userRoleOptional = userRoles.stream().filter(userRole -> userRole.getUsername().equals(email.toLowerCase())).findFirst();
+//                    assertThat(userRoleOptional.isPresent()).isTrue();
+//                    UserRole userRole = userRoleOptional.get();
+//                    assertThat(userRole.getRoleName()).isEqualTo(AppsmithRole.ORGANIZATION_ADMIN.getName());
+//
+//                    // Assert the policy for the invited user in the workspace application
+//                    Policy manageAppPolicy = Policy.builder().permission(MANAGE_APPLICATIONS.getValue())
+//                            .users(userSet)
+//                            .build();
+//                    Policy readAppPolicy = Policy.builder().permission(READ_APPLICATIONS.getValue())
+//                            .users(userSet)
+//                            .build();
+//
+//                    assertThat(updatedApp.getPolicies()).isNotEmpty();
+//                    assertThat(updatedApp.getPolicies()).containsAll(Set.of(manageAppPolicy, readAppPolicy));
+//
+//                    // Assert the policy for the invited user in the application pages
+//                    Policy managePagePolicy = Policy.builder().permission(MANAGE_PAGES.getValue())
+//                            .users(userSet)
+//                            .build();
+//                    Policy readPagePolicy = Policy.builder().permission(READ_PAGES.getValue())
+//                            .users(userSet)
+//                            .build();
+//
+//                    for (PageDTO page : updatedPageDTOs) {
+//                        assertThat(page.getPolicies()).isNotEmpty();
+//                        assertThat(page.getPolicies()).containsAll(Set.of(managePagePolicy, readPagePolicy));
+//                    }
+//
+//                    // Assert the policy for the invited user in the application actions
+//                    Policy manageActionPolicy = Policy.builder().permission(MANAGE_ACTIONS.getValue())
+//                            .users(userSet)
+//                            .build();
+//                    Policy readActionPolicy = Policy.builder().permission(READ_ACTIONS.getValue())
+//                            .users(userSet)
+//                            .build();
+//
+//                    for (NewAction action : updatedActions) {
+//                        assertThat(action.getPolicies()).isNotEmpty();
+//                        assertThat(action.getPolicies()).containsAll(Set.of(manageActionPolicy, readActionPolicy));
+//                    }
+//
+//                })
+//                .verifyComplete();
     }
 }
