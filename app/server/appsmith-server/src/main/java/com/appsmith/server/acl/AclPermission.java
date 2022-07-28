@@ -28,8 +28,10 @@ public enum AclPermission {
     READ_INSTANCE_CONFIGURATION("readInstanceConfiguration:config", Config.class),
 
     // Does the user have manage workspace permission
+    @Deprecated
     USER_MANAGE_WORKSPACES("manage:userWorkspace", User.class),
     //Does the user have read workspace permissions
+    @Deprecated
     USER_READ_WORKSPACES("read:userWorkspace", User.class),
 
     // Does this user have permission to access Instance Config UI?

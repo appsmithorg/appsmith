@@ -9,6 +9,7 @@ import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.InviteUser;
 import com.appsmith.server.domains.LoginSource;
 import com.appsmith.server.domains.PasswordResetToken;
+import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserData;
 import com.appsmith.server.domains.Workspace;
@@ -18,6 +19,7 @@ import com.appsmith.server.dtos.UserUpdateDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.repositories.PasswordResetTokenRepository;
+import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.solutions.UserSignup;
 import lombok.extern.slf4j.Slf4j;
@@ -56,6 +58,7 @@ import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_USERS;
 import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_USERS;
+import static com.appsmith.server.acl.AclPermission.RESET_PASSWORD_USERS;
 import static com.appsmith.server.acl.AclPermission.USER_MANAGE_WORKSPACES;
 import static com.appsmith.server.acl.AclPermission.USER_READ_WORKSPACES;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -96,6 +99,9 @@ public class UserServiceTest {
 
     @Autowired
     UserSignup userSignup;
+
+    @Autowired
+    PermissionGroupRepository permissionGroupRepository;
 
     @Before
     public void setup() {
@@ -205,37 +211,45 @@ public class UserServiceTest {
         newUser.setEmail("new-user-email@email.com");
         newUser.setPassword("new-user-test-password");
 
-        Policy manageUserPolicy = Policy.builder()
-                .permission(MANAGE_USERS.getValue())
-                .users(Set.of(newUser.getUsername())).build();
+        Mono<User> userCreateMono = userService.create(newUser).cache();
 
-        Policy manageUserOrgPolicy = Policy.builder()
-                .permission(USER_MANAGE_WORKSPACES.getValue())
-                .users(Set.of(newUser.getUsername())).build();
+        Mono<PermissionGroup> permissionGroupMono = userCreateMono
+                .flatMap(user -> {
+                    Set<Policy> userPolicies = user.getPolicies();
+                    assertThat(userPolicies.size()).isNotZero();
+                    Policy policy = userPolicies.stream().findFirst().get();
+                    String permissionGroupId = policy.getPermissionGroups().stream().findFirst().get();
 
-        Policy readUserPolicy = Policy.builder()
-                .permission(READ_USERS.getValue())
-                .users(Set.of(newUser.getUsername())).build();
+                    return permissionGroupRepository.findById(permissionGroupId);
+                });
 
-        Policy readUserOrgPolicy = Policy.builder()
-                .permission(USER_READ_WORKSPACES.getValue())
-                .users(Set.of(newUser.getUsername())).build();
+        StepVerifier.create(Mono.zip(userCreateMono, permissionGroupMono))
+                .assertNext(tuple -> {
+                    User user = tuple.getT1();
+                    PermissionGroup permissionGroup = tuple.getT2();
 
-        Mono<User> userMono = userService.create(newUser);
-
-        StepVerifier.create(userMono)
-                .assertNext(user -> {
                     assertThat(user).isNotNull();
                     assertThat(user.getId()).isNotNull();
                     assertThat(user.getEmail()).isEqualTo("new-user-email@email.com");
                     assertThat(user.getName()).isNullOrEmpty();
-                    assertThat(user.getPolicies()).isNotEmpty();
-                    assertThat(user.getPolicies()).containsAll(Set.of(manageUserPolicy, manageUserOrgPolicy, readUserPolicy, readUserOrgPolicy));
-                    // Since there is a template workspace, the user won't have an empty default workspace. They
-                    // will get a clone of the default workspace when they first login. So, we expect it to be
-                    // empty here.
-                    assertThat(user.getWorkspaceIds()).hasSize(1);
                     assertThat(user.getTenantId() != null);
+
+                    Set<Policy> userPolicies = user.getPolicies();
+                    assertThat(userPolicies).isNotEmpty();
+                    Policy manageUserPolicy = Policy.builder()
+                            .permission(MANAGE_USERS.getValue())
+                            .permissionGroups(Set.of(permissionGroup.getId())).build();
+
+                    Policy readUserPolicy = Policy.builder()
+                            .permission(READ_USERS.getValue())
+                            .permissionGroups(Set.of(permissionGroup.getId())).build();
+
+                    Policy resetPasswordPolicy = Policy.builder()
+                            .permission(RESET_PASSWORD_USERS.getValue())
+                            .permissionGroups(Set.of(permissionGroup.getId())).build();
+
+                    assertThat(userPolicies).containsAll(Set.of(manageUserPolicy, readUserPolicy, resetPasswordPolicy));
+                    assertThat(permissionGroup.getAssignedToUserIds()).containsAll(Set.of(user.getId()));
                 })
                 .verifyComplete();
     }

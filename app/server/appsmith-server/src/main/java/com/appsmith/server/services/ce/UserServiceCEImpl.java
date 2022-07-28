@@ -19,6 +19,7 @@ import com.appsmith.server.domains.UserData;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.EmailTokenDTO;
 import com.appsmith.server.dtos.InviteUsersDTO;
+import com.appsmith.server.dtos.Permission;
 import com.appsmith.server.dtos.ResetUserPasswordDTO;
 import com.appsmith.server.dtos.UserProfileDTO;
 import com.appsmith.server.dtos.UserSignupDTO;
@@ -66,7 +67,6 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -76,7 +76,6 @@ import java.util.stream.Collectors;
 
 import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_USERS;
-import static com.appsmith.server.acl.AclPermission.USER_MANAGE_WORKSPACES;
 import static com.appsmith.server.helpers.ValidationUtils.LOGIN_PASSWORD_MAX_LENGTH;
 import static com.appsmith.server.helpers.ValidationUtils.LOGIN_PASSWORD_MIN_LENGTH;
 import static com.appsmith.server.repositories.BaseAppsmithRepositoryImpl.fieldName;
@@ -274,13 +273,14 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
      * This method checks whether the reset request limit has been exceeded.
      * If the limit has been exceeded, it raises an Exception.
      * Otherwise, it'll update the counter and date in the resetToken object
+     *
      * @param resetToken {@link PasswordResetToken}
      */
     private void validateResetLimit(PasswordResetToken resetToken) {
-        if(resetToken.getRequestCount() >= 3) {
+        if (resetToken.getRequestCount() >= 3) {
             Duration duration = Duration.between(resetToken.getFirstRequestTime(), Instant.now());
             long l = duration.toHours();
-            if(l >= 24) { // ok, reset the counter
+            if (l >= 24) { // ok, reset the counter
                 resetToken.setRequestCount(1);
                 resetToken.setFirstRequestTime(Instant.now());
             } else { // too many requests, raise an exception
@@ -288,7 +288,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
             }
         } else {
             resetToken.setRequestCount(resetToken.getRequestCount() + 1);
-            if(resetToken.getFirstRequestTime() == null) {
+            if (resetToken.getFirstRequestTime() == null) {
                 resetToken.setFirstRequestTime(Instant.now());
             }
         }
@@ -322,7 +322,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
      * This function can only be called via the forgot password route.
      *
      * @param encryptedToken The one-time token provided to the user for resetting the password
-     * @param user  The user object that contains the email & password fields in order to save the new password for the user
+     * @param user           The user object that contains the email & password fields in order to save the new password for the user
      * @return
      */
     @Override
@@ -349,7 +349,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                         .findByEmail(emailAddress)
                         .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.USER, emailAddress)))
                         .flatMap(userFromDb -> {
-                            if(!ValidationUtils.validateLoginPassword(user.getPassword())){
+                            if (!ValidationUtils.validateLoginPassword(user.getPassword())) {
                                 return Mono.error(new AppsmithException(
                                         AppsmithError.INVALID_PASSWORD_LENGTH, LOGIN_PASSWORD_MIN_LENGTH, LOGIN_PASSWORD_MAX_LENGTH)
                                 );
@@ -451,14 +451,6 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
         return createUserAndSendEmail(user, null).map(UserSignupDTO::getUser);
     }
 
-    private Set<Policy> crudUserPolicy(User user) {
-
-        Set<AclPermission> aclPermissions = Set.of(MANAGE_USERS, USER_MANAGE_WORKSPACES);
-
-        Map<String, Policy> userPolicies = policyUtils.generatePolicyFromPermission(aclPermissions, user);
-
-        return new HashSet<>(userPolicies.values());
-    }
 
     @Override
     public Mono<User> userCreate(User user, boolean isAdminUser) {
@@ -466,9 +458,6 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
 
         // convert the user email to lowercase
         user.setEmail(user.getEmail().toLowerCase());
-
-        // Set the permissions for the user
-        user.getPolicies().addAll(crudUserPolicy(user));
 
         Mono<User> userWithTenantMono = Mono.just(user)
                 .flatMap(userBeforeSave -> {
@@ -487,18 +476,46 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
         return userWithTenantMono
                 .flatMap(this::validateObject)
                 .flatMap(repository::save)
-                .flatMap(savedUser -> {
-                    if (isAdminUser) {
-                        return userUtils.makeSuperUser(List.of(savedUser))
-                                .then(Mono.just(savedUser));
-                    }
-                    return Mono.just(savedUser);
-                })
+                .flatMap(savedUser -> addUserPolicies(savedUser, isAdminUser))
                 .then(Mono.zip(
                         repository.findByEmail(user.getUsername()),
                         userDataService.getForUserEmail(user.getUsername())
                 ))
                 .flatMap(tuple -> analyticsService.identifyUser(tuple.getT1(), tuple.getT2()));
+    }
+
+    private Mono<User> addUserPolicies(User savedUser, Boolean isAdminUser) {
+
+        // Create user management permission group
+        PermissionGroup userManagementPermissionGroup = new PermissionGroup();
+        userManagementPermissionGroup.setName(savedUser.getUsername() + " User Management");
+        // Add CRUD permissions for user to the group
+        userManagementPermissionGroup.setPermissions(
+                Set.of(
+                        new Permission(savedUser.getId(), MANAGE_USERS)
+                )
+        );
+
+        // Assign the permission group to the user
+        userManagementPermissionGroup.setAssignedToUserIds(Set.of(savedUser.getId()));
+
+        return permissionGroupService.save(userManagementPermissionGroup)
+                .flatMap(savedPermissionGroup -> {
+
+                    Map<String, Policy> crudUserPolicies = policyUtils.generatePolicyFromPermissionGroupForObject(savedPermissionGroup,
+                            savedUser.getId());
+
+                    User updatedWithPolicies = policyUtils.addPoliciesToExistingObject(crudUserPolicies, savedUser);
+
+                    return repository.save(updatedWithPolicies);
+                })
+                .flatMap(crudUser -> {
+                    if (isAdminUser) {
+                        return userUtils.makeSuperUser(List.of(crudUser))
+                                .then(Mono.just(crudUser));
+                    }
+                    return Mono.just(crudUser);
+                });
     }
 
     /**
@@ -658,89 +675,89 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
     @Override
     public Mono<List<User>> inviteUsers(InviteUsersDTO inviteUsersDTO, String originHeader) {
 
-       if (originHeader == null || originHeader.isBlank()) {
-           return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ORIGIN));
-       }
+        if (originHeader == null || originHeader.isBlank()) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ORIGIN));
+        }
 
-       List<String> originalUsernames = inviteUsersDTO.getUsernames();
+        List<String> originalUsernames = inviteUsersDTO.getUsernames();
 
-       if (CollectionUtils.isEmpty(originalUsernames)) {
-           return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.USERNAMES));
-       }
+        if (CollectionUtils.isEmpty(originalUsernames)) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.USERNAMES));
+        }
 
-       if (!StringUtils.hasText(inviteUsersDTO.getPermissionGroupId())) {
-           return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.PERMISSION_GROUP_ID));
-       }
+        if (!StringUtils.hasText(inviteUsersDTO.getPermissionGroupId())) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.PERMISSION_GROUP_ID));
+        }
 
-       List<String> usernames = new ArrayList<>();
-       for (String username : originalUsernames) {
-           usernames.add(username.toLowerCase());
-       }
+        List<String> usernames = new ArrayList<>();
+        for (String username : originalUsernames) {
+            usernames.add(username.toLowerCase());
+        }
 
-       Mono<User> currentUserMono = sessionUserService.getCurrentUser().cache();
+        Mono<User> currentUserMono = sessionUserService.getCurrentUser().cache();
 
-       // Check if the current user has assign permissions to the permission group and permission group is workspace's default permission group.
-       Mono<PermissionGroup> permissionGroupMono = permissionGroupService.getById(inviteUsersDTO.getPermissionGroupId(), AclPermission.ASSIGN_PERMISSION_GROUPS)
-               .filter(permissionGroup -> StringUtils.hasText(permissionGroup.getDefaultWorkspaceId()))
-               .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.USER_GROUP)))
-               .cache();
+        // Check if the current user has assign permissions to the permission group and permission group is workspace's default permission group.
+        Mono<PermissionGroup> permissionGroupMono = permissionGroupService.getById(inviteUsersDTO.getPermissionGroupId(), AclPermission.ASSIGN_PERMISSION_GROUPS)
+                .filter(permissionGroup -> StringUtils.hasText(permissionGroup.getDefaultWorkspaceId()))
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.USER_GROUP)))
+                .cache();
 
-       // Get workspace from the default group.
-       Mono<Workspace> workspaceMono = permissionGroupMono.flatMap(userGroup -> workspaceService.getById(userGroup.getDefaultWorkspaceId())).cache();
+        // Get workspace from the default group.
+        Mono<Workspace> workspaceMono = permissionGroupMono.flatMap(userGroup -> workspaceService.getById(userGroup.getDefaultWorkspaceId())).cache();
 
-       // Check if the invited user exists. If yes, return the user, else create a new user by triggering
-       // createNewUserAndSendInviteEmail. In both the cases, send the appropriate emails
-       Mono<List<User>> inviteUsersMono = Flux.fromIterable(usernames)
-               .flatMap(username -> Mono.zip(Mono.just(username), workspaceMono, currentUserMono, permissionGroupMono))
-               .flatMap(tuple -> {
-                   String username = tuple.getT1();
-                   Workspace workspace = tuple.getT2();
-                   User currentUser = tuple.getT3();
-                   PermissionGroup userGroup = tuple.getT4();
+        // Check if the invited user exists. If yes, return the user, else create a new user by triggering
+        // createNewUserAndSendInviteEmail. In both the cases, send the appropriate emails
+        Mono<List<User>> inviteUsersMono = Flux.fromIterable(usernames)
+                .flatMap(username -> Mono.zip(Mono.just(username), workspaceMono, currentUserMono, permissionGroupMono))
+                .flatMap(tuple -> {
+                    String username = tuple.getT1();
+                    Workspace workspace = tuple.getT2();
+                    User currentUser = tuple.getT3();
+                    PermissionGroup userGroup = tuple.getT4();
 
-                   return repository.findByEmail(username)
-                           .flatMap(existingUser -> {
-                               // The user already existed, just send an email informing that the user has been added
-                               // to a new workspace
-                               log.debug("Going to send email to user {} informing that the user has been added to new workspace {}",
-                                       existingUser.getEmail(), workspace.getName());
+                    return repository.findByEmail(username)
+                            .flatMap(existingUser -> {
+                                // The user already existed, just send an email informing that the user has been added
+                                // to a new workspace
+                                log.debug("Going to send email to user {} informing that the user has been added to new workspace {}",
+                                        existingUser.getEmail(), workspace.getName());
 
-                               // Email template parameters initialization below.
-                               Map<String, String> params = getEmailParams(workspace, currentUser, originHeader, false);
+                                // Email template parameters initialization below.
+                                Map<String, String> params = getEmailParams(workspace, currentUser, originHeader, false);
 
-                               Mono<Boolean> emailMono = emailSender.sendMail(existingUser.getEmail(),
-                                       "Appsmith: You have been added to a new organization",
-                                       USER_ADDED_TO_WORKSPACE_EMAIL_TEMPLATE, params);
+                                Mono<Boolean> emailMono = emailSender.sendMail(existingUser.getEmail(),
+                                        "Appsmith: You have been added to a new organization",
+                                        USER_ADDED_TO_WORKSPACE_EMAIL_TEMPLATE, params);
 
-                               return emailMono
-                                       .thenReturn(existingUser);
-                           })
-                           .switchIfEmpty(createNewUserAndSendInviteEmail(username, originHeader, workspace, currentUser, userGroup.getName()));
-               })
-               .collectList()
-               .cache();
+                                return emailMono
+                                        .thenReturn(existingUser);
+                            })
+                            .switchIfEmpty(createNewUserAndSendInviteEmail(username, originHeader, workspace, currentUser, userGroup.getName()));
+                })
+                .collectList()
+                .cache();
 
-       // assign permission group to the invited users.
-       Mono<PermissionGroup> bulkAddUserResultMono = Mono.zip(permissionGroupMono, inviteUsersMono)
-               .flatMap(tuple -> {
-                   PermissionGroup permissionGroup = tuple.getT1();
-                   List<User> users = tuple.getT2();
-                   return permissionGroupService.bulkAssignToUsers(permissionGroup, users);
-               }).cache();
+        // assign permission group to the invited users.
+        Mono<PermissionGroup> bulkAddUserResultMono = Mono.zip(permissionGroupMono, inviteUsersMono)
+                .flatMap(tuple -> {
+                    PermissionGroup permissionGroup = tuple.getT1();
+                    List<User> users = tuple.getT2();
+                    return permissionGroupService.bulkAssignToUsers(permissionGroup, users);
+                }).cache();
 
-       // Send analytics event and don't wait for the result
-       Mono<Object> sendAnalyticsEventMono = Mono.zip(currentUserMono, inviteUsersMono)
-               .flatMap(tuple -> {
-                   User currentUser = tuple.getT1();
-                   List<User> users = tuple.getT2();
-                   Map<String, Object> analyticsProperties = new HashMap<>();
-                   long numberOfUsers = users.size();
-                   List<String> invitedUsers = users.stream().map(User::getEmail).collect(Collectors.toList());
-                   analyticsProperties.put("numberOfUsersInvited", numberOfUsers);
-                   analyticsProperties.put("userEmails", invitedUsers);
-                   analyticsService.sendEvent("execute_INVITE_USERS", currentUser.getEmail(), analyticsProperties);
-                   return Mono.empty();
-               });
+        // Send analytics event and don't wait for the result
+        Mono<Object> sendAnalyticsEventMono = Mono.zip(currentUserMono, inviteUsersMono)
+                .flatMap(tuple -> {
+                    User currentUser = tuple.getT1();
+                    List<User> users = tuple.getT2();
+                    Map<String, Object> analyticsProperties = new HashMap<>();
+                    long numberOfUsers = users.size();
+                    List<String> invitedUsers = users.stream().map(User::getEmail).collect(Collectors.toList());
+                    analyticsProperties.put("numberOfUsersInvited", numberOfUsers);
+                    analyticsProperties.put("userEmails", invitedUsers);
+                    analyticsService.sendEvent("execute_INVITE_USERS", currentUser.getEmail(), analyticsProperties);
+                    return Mono.empty();
+                });
 
         return bulkAddUserResultMono.then(sendAnalyticsEventMono).then(inviteUsersMono);
     }
@@ -905,7 +922,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
         List<NameValuePair> nameValuePairs = URLEncodedUtils.parse(decryptString, StandardCharsets.UTF_8);
         Map<String, String> params = new HashMap<>();
 
-        for(NameValuePair nameValuePair : nameValuePairs) {
+        for (NameValuePair nameValuePair : nameValuePairs) {
             params.put(nameValuePair.getName(), nameValuePair.getValue());
         }
         return new EmailTokenDTO(params.get("email"), params.get("token"));
