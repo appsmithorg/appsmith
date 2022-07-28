@@ -18,6 +18,7 @@ export enum ActionTriggerType {
   WATCH_CURRENT_LOCATION = "WATCH_CURRENT_LOCATION",
   STOP_WATCHING_CURRENT_LOCATION = "STOP_WATCHING_CURRENT_LOCATION",
   CONFIRMATION_MODAL = "CONFIRMATION_MODAL",
+  LISTEN_TO_PARENT_MESSAGES = "LISTEN_TO_PARENT_MESSAGES",
 }
 
 export const ActionTriggerFunctionNames: Record<ActionTriggerType, string> = {
@@ -37,6 +38,15 @@ export const ActionTriggerFunctionNames: Record<ActionTriggerType, string> = {
   [ActionTriggerType.WATCH_CURRENT_LOCATION]: "watchLocation",
   [ActionTriggerType.STOP_WATCHING_CURRENT_LOCATION]: "stopWatch",
   [ActionTriggerType.CONFIRMATION_MODAL]: "ConfirmationModal",
+  [ActionTriggerType.LISTEN_TO_PARENT_MESSAGES]: "listenToParentMessages",
+};
+
+export type ParentMessageListenerDescription = {
+  type: ActionTriggerType.LISTEN_TO_PARENT_MESSAGES;
+  payload: {
+    acceptedOrigin: string;
+    callback: () => void;
+  };
 };
 
 export type RunPluginActionDescription = {
