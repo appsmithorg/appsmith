@@ -76,7 +76,7 @@ const AppCommentsFilter = withTheme(({ theme }: { theme: Theme }) => {
             backgroundColor={theme.colors.comments.commentsFilter}
             isDefaultChecked={shouldShowResolved}
             label={label}
-            onCheckChange={(isChecked) =>
+            onCheckChange={(isChecked: boolean) =>
               dispatch(setShouldShowResolvedComments(isChecked))
             }
           />
