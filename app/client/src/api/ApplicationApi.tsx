@@ -127,12 +127,15 @@ export interface ApplicationObject {
   userPermissions: string[];
 }
 
-export interface UserRoles {
+export interface PermissionGroup {
+  permissionGroupId: string;
+  permissionGroupName: string;
+}
+
+export interface UserRoles extends PermissionGroup {
   name: string;
   username: string;
   userId: string;
-  permissionGroupId: string;
-  permissionGroupName: string;
 }
 
 export interface WorkspaceApplicationObject {

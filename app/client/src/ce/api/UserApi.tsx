@@ -54,8 +54,7 @@ export interface InviteUserRequest {
 export interface UpdateUserRequest {
   name?: string;
   email?: string;
-  permissionGroupId?: string;
-  permissionGroupName?: string;
+  role?: string;
   useCase?: string;
 }
 
@@ -78,7 +77,7 @@ export interface CreateSuperUserRequest {
   state: "ACTIVATED";
   isEnabled: boolean;
   password: string;
-  permissionGroupName: "Developer";
+  role: "Developer";
   companyName: string;
   allowCollectingAnonymousData: boolean;
   signupForNewsletter: boolean;
