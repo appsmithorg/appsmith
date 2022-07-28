@@ -5,7 +5,7 @@ import Icon, { IconSize } from "components/ads/Icon";
 import { Popover2 } from "@blueprintjs/popover2";
 import RadioGroup, { Radio } from "components/ads/Radio";
 import { Theme } from "constants/DefaultTheme";
-import Checkbox from "design-system";
+import { Checkbox } from "design-system";
 
 import {
   shouldShowResolved as shouldShowResolvedSelector,
