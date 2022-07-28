@@ -24,6 +24,7 @@ import ForkApplicationModal from "pages/Applications/ForkApplicationModal";
 import { getAllApplications } from "actions/applicationActions";
 import { viewerURL } from "RouteBuilder";
 import { useHistory } from "react-router";
+import { useHref } from "pages/Editor/utils";
 
 /**
  * ---------------------------------------------------------------------------------------------------
@@ -53,17 +54,18 @@ function PrimaryCTA(props: Props) {
   const userPermissions = currentApplication?.userPermissions ?? [];
   const canEdit = isPermitted(userPermissions, permissionRequired);
 
+  const appViewerURL = useHref(viewerURL, {
+    pageId: currentPageID,
+    suffix: "fork",
+  });
+
   // get the fork url
   const forkURL = useMemo(() => {
     const encodedForkRedirectURL = `${encodeURIComponent(
-      `${window.location.origin}${viewerURL({
-        applicationId: currentApplication?.applicationId,
-        pageId: currentPageID,
-        suffix: "fork",
-      })}`,
+      `${window.location.origin}${appViewerURL}`,
     )}`;
     return `${AUTH_LOGIN_URL}?redirectUrl=${encodedForkRedirectURL}`;
-  }, [currentApplication?.applicationId, currentPageID]);
+  }, [appViewerURL]);
 
   const LOGIN_URL = `${AUTH_LOGIN_URL}?redirectUrl=${encodeURIComponent(
     window.location.href,
@@ -71,6 +73,7 @@ function PrimaryCTA(props: Props) {
 
   /**
    * returns the cta to be used based on user login status
+   *
    *
    * 1. if user can edit the app -> the back to edit app button
    * 2. if forking app is enabled and app is public but the user is not logged  -> fork button
@@ -151,7 +154,12 @@ function PrimaryCTA(props: Props) {
         />
       );
     }
-  }, [url, canEdit]);
+  }, [
+    url,
+    canEdit,
+    selectedTheme.properties.colors.primaryColor,
+    selectedTheme.properties.borderRadius.appBorderRadius,
+  ]);
 
   return <div>{PrimaryCTA}</div>;
 }

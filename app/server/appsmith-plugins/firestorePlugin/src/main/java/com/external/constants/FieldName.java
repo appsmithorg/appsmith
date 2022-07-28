@@ -2,19 +2,19 @@ package com.external.constants;
 
 public class FieldName {
 
-    public static final String PATH = "path.data";
-    public static final String BODY = "body.data";
-    public static final String NEXT = "next.data";
-    public static final String PREV = "prev.data";
+    public static final String PATH = "path";
+    public static final String BODY = "body";
+    public static final String NEXT = "next";
+    public static final String PREV = "prev";
 
-    public static final String COMMAND = "command.data";
-    public static final String TIMESTAMP_VALUE_PATH = "timestampValuePath.data";
-    public static final String DELETE_KEY_PATH = "deleteKeyPath.data";
-    public static final String LIMIT_DOCUMENTS = "limitDocuments.data";
-    public static final String ORDER_BY = "orderBy.data";
-    public static final String START_AFTER = "startAfter.data";
-    public static final String END_BEFORE = "endBefore.data";
-    public static final String WHERE = "where.data";
+    public static final String COMMAND = "command";
+    public static final String TIMESTAMP_VALUE_PATH = "timestampValuePath";
+    public static final String DELETE_KEY_PATH = "deleteKeyPath";
+    public static final String LIMIT_DOCUMENTS = "limitDocuments";
+    public static final String ORDER_BY = "orderBy";
+    public static final String START_AFTER = "startAfter";
+    public static final String END_BEFORE = "endBefore";
+    public static final String WHERE = "where";
     public static final String CHILDREN = "children";
     public static final String SMART_SUBSTITUTION = "smartSubstitution";
 

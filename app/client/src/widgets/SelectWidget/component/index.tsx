@@ -152,6 +152,14 @@ class SelectComponent extends React.Component<
       return this.handleActiveItemChange(
         this.props.options[this.props.selectedIndex],
       );
+    } else {
+      /**
+       * Clear the search input on closing the widget
+       * and when serverSideFiltering is off
+       */
+      if (!this.props.serverSideFiltering) {
+        this.onQueryChange("");
+      }
     }
   };
   noResultsUI = (
@@ -280,6 +288,7 @@ class SelectComponent extends React.Component<
 
     return (
       <DropdownContainer
+        className={this.props.className}
         compactMode={compactMode}
         data-testid="select-container"
         labelPosition={labelPosition}
@@ -358,6 +367,7 @@ class SelectComponent extends React.Component<
               popoverClassName: `select-popover-wrapper select-popover-width-${this.props.widgetId}`,
             }}
             query={this.props.filterText}
+            resetOnClose={!this.props.serverSideFiltering}
             scrollToActiveItem
             value={this.props.value as string}
           >
@@ -378,6 +388,7 @@ class SelectComponent extends React.Component<
 }
 
 export interface SelectComponentProps extends ComponentProps {
+  className?: string;
   disabled?: boolean;
   onOptionSelected: (optionSelected: DropdownOption) => void;
   placeholder?: string;

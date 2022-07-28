@@ -184,6 +184,7 @@ export function* undoRedoSaga(action: ReduxAction<UndoRedoPayload>) {
     const pathname = history.location.pathname;
     const { id, type } = getEntityInCurrentPath(pathname);
     const entityId = type === "page" ? "canvas" : id;
+    // @ts-expect-error: workerResponse is of type unknown
     const workerResponse = yield call(
       workerComputeUndoRedo,
       action.payload.operation,

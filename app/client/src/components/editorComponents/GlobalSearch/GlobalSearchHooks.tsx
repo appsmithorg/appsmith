@@ -136,15 +136,9 @@ export const useFilteredFileOperations = (query = "") => {
           </EntityIcon>
         ),
         kind: SEARCH_ITEM_TYPES.actionOperation,
-        redirect: (
-          applicationSlug: string,
-          pageSlug: string,
-          pageId: string,
-        ) => {
+        redirect: (pageId: string) => {
           history.push(
             integrationEditorURL({
-              applicationSlug,
-              pageSlug,
               pageId,
               selectedTab: INTEGRATION_TABS.NEW,
             }),

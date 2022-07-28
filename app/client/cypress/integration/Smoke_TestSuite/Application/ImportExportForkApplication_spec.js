@@ -2,9 +2,9 @@ const homePage = require("../../../locators/HomePage");
 const reconnectDatasourceModal = require("../../../locators/ReconnectLocators");
 
 describe("Import, Export and Fork application and validate data binding", function() {
-  let orgid;
+  let workspaceId;
   let appid;
-  let newOrganizationName;
+  let newWorkspaceName;
   let appName;
   it("Import application from json and validate data on pageload", function() {
     // import application
@@ -12,8 +12,8 @@ describe("Import, Export and Fork application and validate data binding", functi
     cy.get(homePage.optionsIcon)
       .first()
       .click();
-    cy.get(homePage.orgImportAppOption).click({ force: true });
-    cy.get(homePage.orgImportAppModal).should("be.visible");
+    cy.get(homePage.workspaceImportAppOption).click({ force: true });
+    cy.get(homePage.workspaceImportAppModal).should("be.visible");
     cy.xpath(homePage.uploadLogo).attachFile("forkedApp.json");
     cy.get(homePage.importAppProgressWrapper).should("be.visible");
     cy.wait("@importNewApplication").then((interception) => {
@@ -42,8 +42,15 @@ describe("Import, Export and Fork application and validate data binding", functi
       cy.get(homePage.applicationName)
         .clear()
         .type(appName);
-      cy.wrap(appName).as("appname");
+      cy.get("body").click(0, 0);
+      cy.wait("@updateApplication").should(
+        "have.nested.property",
+        "response.body.responseMeta.status",
+        200,
+      );
       cy.wait(2000);
+      cy.wrap(appName).as("appname");
+      cy.wait(3000);
       // validating data binding for the imported application
       cy.xpath("//input[@value='Submit']").should("be.visible");
       cy.xpath("//span[text()='schema_name']").should("be.visible");
@@ -57,7 +64,7 @@ describe("Import, Export and Fork application and validate data binding", functi
     // fork application
     cy.get(homePage.homeIcon).click();
     cy.get(homePage.searchInput).type(`${appName}`);
-    cy.wait(2000);
+    cy.wait(3000);
     cy.get(homePage.applicationCard)
       .first()
       .trigger("mouseover");
@@ -65,7 +72,7 @@ describe("Import, Export and Fork application and validate data binding", functi
       .first()
       .click({ force: true });
     cy.get(homePage.forkAppFromMenu).click({ force: true });
-    cy.get(homePage.forkAppOrgButton).click({ force: true });
+    cy.get(homePage.forkAppWorkspaceButton).click({ force: true });
     cy.wait(4000);
     // validating data binding for the forked application
     cy.xpath("//input[@value='Submit']").should("be.visible");
@@ -100,19 +107,20 @@ describe("Import, Export and Fork application and validate data binding", functi
         );
         cy.writeFile("cypress/fixtures/exportedApp.json", body, "utf-8");
         cy.generateUUID().then((uid) => {
-          orgid = uid;
-          localStorage.setItem("OrgName", orgid);
-          cy.createOrg();
-          cy.wait("@createOrg").then((createOrgInterception) => {
-            newOrganizationName = createOrgInterception.response.body.data.name;
-            cy.renameOrg(newOrganizationName, orgid);
-            cy.get(homePage.orgImportAppOption).click({ force: true });
+          workspaceId = uid;
+          localStorage.setItem("WorkspaceName", workspaceId);
+          cy.createWorkspace();
+          cy.wait("@createWorkspace").then((createWorkspaceInterception) => {
+            newWorkspaceName =
+              createWorkspaceInterception.response.body.data.name;
+            cy.renameWorkspace(newWorkspaceName, workspaceId);
+            cy.get(homePage.workspaceImportAppOption).click({ force: true });
 
-            cy.get(homePage.orgImportAppModal).should("be.visible");
+            cy.get(homePage.workspaceImportAppModal).should("be.visible");
             // cy.get(".t--import-json-card input").attachFile("exportedApp.json");
             cy.xpath(homePage.uploadLogo).attachFile("exportedApp.json");
-            // import exported application in new organization
-            // cy.get(homePage.orgImportAppButton).click({ force: true });
+            // import exported application in new workspace
+            // cy.get(homePage.workspaceImportAppButton).click({ force: true });
             cy.wait("@importNewApplication").then((interception) => {
               const { isPartialImport } = interception.response.body.data;
               if (isPartialImport) {

@@ -20,8 +20,14 @@ export const ERROR_EMPTY_APPLICATION_NAME = () =>
   `Application name can't be empty`;
 export const API_PATH_START_WITH_SLASH_ERROR = () => `Path cannot start with /`;
 export const FIELD_REQUIRED_ERROR = () => `This field is required`;
-export const INPUT_DEFAULT_TEXT_MAX_CHAR_ERROR = () =>
-  `Default Text length must be less than Max Chars allowed`;
+export const INPUT_DEFAULT_TEXT_MAX_CHAR_ERROR = (max: number) =>
+  `Default text length must be less than ${max} characters`;
+export const INPUT_TEXT_MAX_CHAR_ERROR = (max: number) =>
+  `Input text length must be less than ${max} characters`;
+export const INPUT_DEFAULT_TEXT_MAX_NUM_ERROR = () =>
+  `Default Text value must be less than Max number allowed`;
+export const INPUT_DEFAULT_TEXT_MIN_NUM_ERROR = () =>
+  `Default Text value must be greater than Min number allowed`;
 export const VALID_FUNCTION_NAME_ERROR = () =>
   `Must be a valid variable name (camelCase)`;
 export const UNIQUE_NAME_ERROR = () => `Name must be unique`;
@@ -39,7 +45,7 @@ export const FORM_VALIDATION_PASSWORD_RULE = () =>
   `Please provide a password between 6 and 42 characters`;
 export const FORM_VALIDATION_INVALID_PASSWORD = FORM_VALIDATION_PASSWORD_RULE;
 
-export const LOGIN_PAGE_SUBTITLE = () => `Use your organization email`;
+export const LOGIN_PAGE_SUBTITLE = () => `Use your workspace email`;
 export const LOGIN_PAGE_TITLE = () => `Sign in to your account`;
 export const LOGIN_PAGE_EMAIL_INPUT_LABEL = () => `Email`;
 export const LOGIN_PAGE_PASSWORD_INPUT_LABEL = () => `Password`;
@@ -58,7 +64,7 @@ export const LOGIN_PAGE_FORGOT_PASSWORD_TEXT = () => `Forgot Password`;
 export const LOGIN_PAGE_REMEMBER_ME_LABEL = () => `Remember`;
 export const LOGIN_PAGE_SIGN_UP_LINK_TEXT = () => `Sign up`;
 export const SIGNUP_PAGE_TITLE = () => `Create your free account`;
-export const SIGNUP_PAGE_SUBTITLE = () => `Use your organization email`;
+export const SIGNUP_PAGE_SUBTITLE = () => `Use your workspace email`;
 export const SIGNUP_PAGE_EMAIL_INPUT_LABEL = () => `Email`;
 export const SIGNUP_PAGE_EMAIL_INPUT_PLACEHOLDER = () => `Email`;
 export const SIGNUP_PAGE_NAME_INPUT_PLACEHOLDER = () => `Name`;
@@ -184,7 +190,7 @@ export const SIGN_IN = () => `Sign in`;
 export const CREATE_NEW_APPLICATION = () => `Create new`;
 export const SEARCH_APPS = () => `Search for apps...`;
 export const GETTING_STARTED = () => `GETTING STARTED`;
-export const ORGANIZATIONS_HEADING = () => `ORGANIZATIONS`;
+export const WORKSPACES_HEADING = () => `WORKSPACES`;
 export const WELCOME_TOUR = () => `Welcome Tour`;
 export const NO_APPS_FOUND = () =>
   `Whale! Whale! This name doesn't ring a bell!`;
@@ -505,7 +511,7 @@ export const SELECT_A_METHOD_TO_ADD_CREDENTIALS = () =>
   "Select a method to add credentials";
 export const DELETE_CONFIRMATION_MODAL_TITLE = () => `Are you sure?`;
 export const DELETE_CONFIRMATION_MODAL_SUBTITLE = (name?: string | null) =>
-  `You want to remove ${name} from this organization`;
+  `You want to remove ${name} from this workspace`;
 export const PARSING_ERROR = () =>
   "Syntax Error: Unable to parse code, please check error logs to debug";
 export const PARSING_WARNING = () =>
@@ -639,7 +645,11 @@ export const COMMIT_TO = () => "Commit to";
 export const COMMIT_AND_PUSH = () => "Commit & push";
 export const PULL_CHANGES = () => "PULL CHANGES";
 export const DEPLOY_KEY_TITLE = () => "Deployed Key";
-export const REGENERATE_SSH_KEY = () => "Regenerate SSH Key";
+export const REGENERATE_SSH_KEY = (keyType: string, keySize: number) =>
+  `Regenerate ${keyType} ${keySize} key`;
+export const GENERATE_SSH_KEY = (keyType: string, keySize: number) =>
+  `${keyType} ${keySize} key`;
+export const SSH_KEY_PLATFORM = (name: string) => ` (${name})`;
 export const SSH_KEY = () => "SSH Key";
 export const COPY_SSH_KEY = () => "Copy SSH Key";
 export const SSH_KEY_GENERATED = () => "SSH Key generated";
@@ -704,8 +714,8 @@ export const DISCONNECT_EXISTING_REPOSITORIES = () =>
 export const DISCONNECT_EXISTING_REPOSITORIES_INFO = () =>
   "To make space for newer repositories you can remove existing repositories.";
 export const CONTACT_SUPPORT = () => "Contact Support";
-export const CONTACT_SALES_MESSAGE_ON_INTERCOM = (orgName: string) =>
-  `Hey there, Thanks for getting in touch! We understand that you’d like to extend the number of private repos for your ${orgName}. Could you tell us how many private repos you’d require and why? We'll get back to you in a short while.`;
+export const CONTACT_SALES_MESSAGE_ON_INTERCOM = (workspaceName: string) =>
+  `Hey there, Thanks for getting in touch! We understand that you’d like to extend the number of private repos for your ${workspaceName}. Could you tell us how many private repos you’d require and why? We'll get back to you in a short while.`;
 export const REPOSITORY_LIMIT_REACHED = () => "Repository Limit Reached";
 export const REPOSITORY_LIMIT_REACHED_INFO = () =>
   "Adding and using upto 3 repositories is free. To add more repositories kindly upgrade.";
@@ -764,6 +774,8 @@ export const DISCARD_CHANGES = () => "Discard changes";
 // GIT DEPLOY begin
 export const DEPLOY = () => "Deploy";
 export const DEPLOY_YOUR_APPLICATION = () => "Deploy your application";
+export const CHANGES_SINCE_LAST_DEPLOYMENT = () =>
+  "Changes since last deployment";
 export const CHANGES_ONLY_USER = () => "Changes since last commit";
 export const CHANGES_MADE_SINCE_LAST_COMMIT = () =>
   "Changes made since last commit";
@@ -771,7 +783,18 @@ export const CHANGES_ONLY_MIGRATION = () =>
   "Appsmith update changes since last commit";
 export const CHANGES_USER_AND_MIGRATION = () =>
   "Appsmith update and user changes since last commit";
+export const CURRENT_PAGE_DISCARD_WARNING = (page: string) =>
+  `Current page (${page}) is in the discard list.`;
 // GIT DEPLOY end
+
+// GIT CHANGE LIST begin
+export const CHANGES_FROM_APPSMITH = () =>
+  "Some changes are platform upgrades from Appsmith.";
+export const TRY_TO_PULL = () =>
+  "We will try to pull before pushing your changes.";
+export const NOT_PUSHED_YET = () =>
+  "These are the commits that haven't been pushed to remote yet.";
+// GIT CHANGE LIST end
 
 // GIT DELETE BRANCH begin
 export const DELETE = () => "Delete";
@@ -1043,11 +1066,15 @@ export const QUERY_CONFIRMATION_MODAL_MESSAGE = () =>
 export const ENTITY_EXPLORER_TITLE = () => "NAVIGATION";
 export const MULTI_SELECT_PROPERTY_PANE_MESSAGE = () =>
   `Select a widget to see it's properties`;
-export const WIDGET_DEPRECATION_WARNING = (widgetName: string) =>
-  `A new version of the ${widgetName}widget is available. Upgrade to enjoy an enhanced experience.`;
-export const WIDGET_DEPRECATION_WARNING_HEADER = () => "Stay up-to-date";
+export const WIDGET_DEPRECATION_MESSAGE = (widgetName: string) =>
+  `The ${widgetName}widget you are currently using is now deprecated.`;
+export const DEPRECATION_WIDGET_REPLACEMENT_MESSAGE = (
+  replacingWidgetName: string,
+) =>
+  ` You can drag a new ${replacingWidgetName} widget and configure it in place of the deprecated widget.`;
 export const LOCK_ENTITY_EXPLORER_MESSAGE = () => `Lock sidebar open`;
 export const CLOSE_ENTITY_EXPLORER_MESSAGE = () => `Close sidebar`;
+export const JS_TOGGLE_DISABLED_MESSAGE = "Clear the field to toggle back";
 
 // API Pane
 export const API_PANE_NO_BODY = () => "This request does not have a body";
@@ -1061,7 +1088,8 @@ export const ADD_QUERY_JS_TOOLTIP = () => "Create New";
 export const GENERATE_APPLICATION_TITLE = () => "Generate Page";
 export const GENERATE_APPLICATION_DESCRIPTION = () =>
   "Quickly generate a page to perform CRUD operations on your database tables";
-export const DELETE_ORG_SUCCESSFUL = () => "Organization deleted successfully";
+export const DELETE_WORKSPACE_SUCCESSFUL = () =>
+  "Workspace deleted successfully";
 // theming
 export const CHANGE_APP_THEME = (name: string) => `Theme ${name} Applied`;
 export const SAVE_APP_THEME = (name: string) => `Theme ${name} Saved`;
@@ -1074,6 +1102,7 @@ export const APP_THEME_BETA_CARD_CONTENT = () =>
 
 export const UPGRADE_TO_EE = (authLabel: string) =>
   `Hello, I would like to upgrade and start using ${authLabel} authentication.`;
+export const UPGRADE_TO_EE_GENERIC = () => `Hello, I would like to upgrade`;
 export const ADMIN_AUTH_SETTINGS_TITLE = () => "Select Authentication Method";
 export const ADMIN_AUTH_SETTINGS_SUBTITLE = () =>
   "Select a protocol you want to authenticate users with";
@@ -1134,7 +1163,7 @@ export const END_TUTORIAL = () => "END TUTORIAL";
 export const TITLE = () =>
   "In this tutorial we’ll build a tool to display customer information";
 export const DESCRIPTION = () =>
-  "This tool has a table that displays customer data and a form to update a particular customer record. Try out the tool below before you start building this.";
+  "This tool has a table that displays customer data and a form to update a particular customer record. Try out the tool below before you start building.";
 export const BUTTON_TEXT = () => "Start Building";
 // -- Rating --
 export const RATING_TITLE = () =>
@@ -1174,7 +1203,7 @@ export const EMPTY_DATASOURCE_BUTTON_TEXT = () => "NEW DATASOURCE";
 export const MORE = () => "MORE";
 export const SHOW_LESS = () => "SHOW LESS";
 export const CHOOSE_WHERE_TO_FORK = () => "Choose where to fork the template";
-export const SELECT_ORGANISATION = () => "Select Organization";
+export const SELECT_WORKSPACE = () => "Select Workspace";
 export const FORK_TEMPLATE = () => "FORK TEMPLATE";
 export const TEMPLATES = () => "TEMPLATES";
 export const FORK_THIS_TEMPLATE = () => "Fork this template";
@@ -1207,9 +1236,9 @@ export const ENTITY_ID_TOOLTIP = () =>
   "This URL will be used while configuring your Identity Provider's Entity ID URL";
 
 export const FORK_APP_MODAL_LOADING_TITLE = () =>
-  "Fetching organisations to fork to...";
+  "Fetching workspaces to fork to...";
 export const FORK_APP_MODAL_EMPTY_TITLE = () =>
-  "No organisation available to fork to";
+  "No workspace available to fork to";
 export const FORK_APP_MODAL_SUCCESS_TITLE = () =>
   "Choose where to fork the app";
 export const FORK = () => `FORK`;

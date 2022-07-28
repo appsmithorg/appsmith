@@ -3,9 +3,7 @@ import { isString } from "lodash";
 
 import BaseControl, { ControlProps } from "./BaseControl";
 import { StyledDynamicInput } from "./StyledControls";
-import CodeEditor, {
-  CodeEditorExpected,
-} from "components/editorComponents/CodeEditor";
+import { CodeEditorExpected } from "components/editorComponents/CodeEditor";
 import {
   EditorModes,
   EditorSize,
@@ -24,6 +22,7 @@ import {
   Schema,
   SchemaItem,
 } from "widgets/JSONFormWidget/constants";
+import CodeEditor from "components/editorComponents/LazyCodeEditorWrapper";
 
 const PromptMessage = styled.span`
   line-height: 17px;
@@ -178,8 +177,10 @@ export const JSToString = (js: string): string => {
 };
 
 class JSONFormComputeControl extends BaseControl<JSONFormComputeControlProps> {
-  getInputComputedValue = (propertyValue: string) => {
-    const { widgetName } = this.props.widgetProperties;
+  static getInputComputedValue = (
+    propertyValue: string,
+    widgetName: string,
+  ) => {
     const { prefixTemplate, suffixTemplate } = getBindingTemplate(widgetName);
 
     const value = propertyValue.substring(
@@ -236,7 +237,11 @@ class JSONFormComputeControl extends BaseControl<JSONFormComputeControlProps> {
 
     const value = (() => {
       if (propertyValue && isDynamicValue(propertyValue)) {
-        return this.getInputComputedValue(propertyValue);
+        const { widgetName } = this.props.widgetProperties;
+        return JSONFormComputeControl.getInputComputedValue(
+          propertyValue,
+          widgetName,
+        );
       }
 
       return propertyValue || defaultValue;

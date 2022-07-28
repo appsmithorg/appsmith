@@ -2,6 +2,7 @@ package com.appsmith.server.authentication.handlers.ce;
 
 import com.appsmith.server.authentication.handlers.CustomServerOAuth2AuthorizationRequestResolver;
 import com.appsmith.external.constants.AnalyticsEvents;
+import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.Security;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.LoginSource;
@@ -123,6 +124,11 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
                     List<Mono<?>> monos = new ArrayList<>();
                     monos.add(userDataService.ensureViewedCurrentVersionReleaseNotes(currentUser));
 
+                    String modeOfLogin = FieldName.FORM_LOGIN;
+                    if(authentication instanceof OAuth2AuthenticationToken) {
+                        modeOfLogin = ((OAuth2AuthenticationToken) authentication).getAuthorizedClientRegistrationId();
+                    }
+
                     if (isFromSignupFinal) {
                         final String inviteToken = currentUser.getInviteToken();
                         final boolean isFromInvite = inviteToken != null;
@@ -130,7 +136,7 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
                         // This should hold the role of the user, e.g., `App Viewer`, `Developer`, etc.
                         final String invitedAs = inviteToken == null ? "" : inviteToken.split(":", 2)[0];
 
-                        String modeOfLogin = "FormSignUp";
+                        modeOfLogin = "FormSignUp";
                         if(authentication instanceof OAuth2AuthenticationToken) {
                             modeOfLogin = ((OAuth2AuthenticationToken) authentication).getAuthorizedClientRegistrationId();
                         }
@@ -141,11 +147,19 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
                                 Map.of(
                                         "isFromInvite", isFromInvite,
                                         "invitedAs", invitedAs,
-                                        "modeOfLogin", modeOfLogin
+                                        FieldName.MODE_OF_LOGIN, modeOfLogin
                                 )
                         ));
                         monos.add(examplesWorkspaceCloner.cloneExamplesWorkspace());
                     }
+
+                    monos.add(analyticsService.sendObjectEvent(
+                            AnalyticsEvents.LOGIN,
+                            currentUser,
+                            Map.of(
+                                    FieldName.MODE_OF_LOGIN, modeOfLogin
+                            )
+                    ));
 
                     return Mono.whenDelayError(monos);
                 })
@@ -154,10 +168,10 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
 
     private Mono<Application> createDefaultApplication(User user) {
         // need to create default application
-        String workspaceId = user.getOrganizationIds().iterator().next();
+        String workspaceId = user.getWorkspaceIds().iterator().next();
 
         Application application = new Application();
-        application.setOrganizationId(workspaceId);
+        application.setWorkspaceId(workspaceId);
         application.setName("My first application");
         return applicationPageService.createApplication(application);
     }
@@ -181,11 +195,10 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
         ServerWebExchange exchange = webFilterExchange.getExchange();
         String state = exchange.getRequest().getQueryParams().getFirst(Security.QUERY_PARAMETER_STATE);
         String redirectUrl = RedirectHelper.DEFAULT_REDIRECT_URL;
-        String prefix = Security.STATE_PARAMETER_ORIGIN + "=";
         if (state != null && !state.isEmpty()) {
             String[] stateArray = state.split(",");
             for (String stateVar : stateArray) {
-                if (stateVar != null && stateVar.startsWith(prefix)) {
+                if (stateVar != null && stateVar.startsWith(Security.STATE_PARAMETER_ORIGIN)) {
                     // This is the origin of the request that we want to redirect to
                     redirectUrl = stateVar.split("=", 2)[1];
                 }

@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -20,7 +21,7 @@ public class ReleaseNotesServiceTest {
 
     @Test
     public void testComputeNewReleases() {
-        List<ReleaseNode> releaseNodes = releaseNotesService.getReleaseNodesCache();
+        List<ReleaseNode> releaseNodes = new ArrayList<>();
         releaseNodes.addAll(List.of(
                 new ReleaseNode("v3"),
                 new ReleaseNode("v2"),

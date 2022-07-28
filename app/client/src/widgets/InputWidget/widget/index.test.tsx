@@ -3,6 +3,8 @@ import _ from "lodash";
 
 describe("#defaultValueValidation", () => {
   const defaultInputWidgetProps: InputWidgetProps = {
+    backgroundColor: "",
+    borderRadius: "",
     bottomRow: 2,
     inputType: "NUMBER",
     inputValidators: [],
@@ -12,6 +14,7 @@ describe("#defaultValueValidation", () => {
     leftColumn: 0,
     parentColumnSpace: 71.75,
     parentRowSpace: 38,
+    primaryColor: "",
     renderMode: "CANVAS",
     rightColumn: 100,
     text: "",

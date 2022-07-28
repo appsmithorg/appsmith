@@ -50,14 +50,14 @@ import Statusbar, {
   StatusbarWrapper,
 } from "pages/Editor/gitSync/components/Statusbar";
 import GitChangesList from "../components/GitChangesList";
-import Tooltip from "components/ads/Tooltip";
-import Text, { TextType } from "components/ads/Text";
+import { TooltipComponent as Tooltip } from "design-system";
+import { Text, TextType } from "design-system";
 import InfoWrapper from "../components/InfoWrapper";
 import Link from "../components/Link";
 import ConflictInfo from "../components/ConflictInfo";
 import Icon, { IconSize } from "components/ads/Icon";
 
-import { isMac } from "utils/helpers";
+import { isMacOrIOS } from "utils/helpers";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import {
   getApplicationLastDeployedAt,
@@ -69,9 +69,10 @@ import { Space, Title } from "../components/StyledComponents";
 import { Variant } from "components/ads";
 import DiscardChangesWarning from "../components/DiscardChangesWarning";
 import { changeInfoSinceLastCommit } from "../utils";
+import ScrollIndicator from "../../../../components/ads/ScrollIndicator";
 
 const Section = styled.div`
-  margin-top: ${(props) => props.theme.spaces[11]}px;
+  margin-top: 0;
   margin-bottom: ${(props) => props.theme.spaces[11]}px;
 `;
 
@@ -95,7 +96,20 @@ const SectionTitle = styled.div`
 `;
 
 const Container = styled.div`
-  width: 100%;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar-thumb {
+    background-color: transparent;
+  }
+
+  &::-webkit-scrollbar {
+    width: 0;
+  }
 
   && ${LabelContainer} span {
     color: ${Colors.CHARCOAL};
@@ -106,7 +120,7 @@ const Container = styled.div`
   }
 `;
 
-const INITIAL_COMMIT = "Initial Commit";
+const FIRST_COMMIT = "First Commit";
 const NO_CHANGES_TO_COMMIT = "No changes to commit";
 
 function SubmitWrapper(props: {
@@ -114,7 +128,7 @@ function SubmitWrapper(props: {
   onSubmit: () => void;
 }) {
   const onKeyDown = (e: React.KeyboardEvent) => {
-    const triggerSubmit = isMac()
+    const triggerSubmit = isMacOrIOS()
       ? e.metaKey && e.key === "Enter"
       : e.ctrlKey && e.key === "Enter";
     if (triggerSubmit) props.onSubmit();
@@ -149,7 +163,7 @@ function Deploy() {
   const upstreamErrorDocumentUrl = useSelector(getUpstreamErrorDocUrl);
   const discardDocUrl = useSelector(getDiscardDocUrl);
   const [commitMessage, setCommitMessage] = useState(
-    gitMetaData?.remoteUrl && lastDeployedAt ? "" : INITIAL_COMMIT,
+    gitMetaData?.remoteUrl && lastDeployedAt ? "" : FIRST_COMMIT,
   );
   const [shouldDiscard, setShouldDiscard] = useState(false);
   const [isDiscarding, setIsDiscarding] = useState(isDiscardInProgress);
@@ -175,7 +189,7 @@ function Deploy() {
     if (currentBranch) {
       dispatch(
         commitToRepoInit({
-          commitMessage,
+          commitMessage: commitMessage.trim(),
           doPush,
         }),
       );
@@ -199,9 +213,9 @@ function Deploy() {
       dispatch(clearCommitSuccessfulState());
     };
   }, []);
-  const commitButtonDisabled = !hasChangesToCommit || !commitMessage;
+  const commitButtonDisabled =
+    !hasChangesToCommit || !commitMessage || commitMessage.trim().length < 1;
   const commitButtonLoading = isCommittingInProgress;
-  const commitInputDisabled = !hasChangesToCommit || isCommittingInProgress;
 
   const commitRequired =
     !!gitStatus?.modifiedPages ||
@@ -209,7 +223,12 @@ function Deploy() {
     !!gitStatus?.modifiedJSObjects ||
     !!gitStatus?.modifiedDatasources;
   const isConflicting = !isFetchingGitStatus && !!pullFailed;
-
+  const commitInputDisabled =
+    isConflicting ||
+    !hasChangesToCommit ||
+    isCommittingInProgress ||
+    isCommitAndPushSuccessful ||
+    isDiscarding;
   const pullRequired =
     gitError?.code === GIT_ERROR_CODES.PUSH_FAILED_REMOTE_COUNTERPART_IS_AHEAD;
 
@@ -268,8 +287,21 @@ function Deploy() {
     setShowDiscardWarning(false);
     setShouldDiscard(false);
   };
+
+  const scrollWrapperRef = React.createRef<HTMLDivElement>();
+  useEffect(() => {
+    if (scrollWrapperRef.current) {
+      setTimeout(() => {
+        const top = scrollWrapperRef.current?.scrollHeight || 0;
+        scrollWrapperRef.current?.scrollTo({
+          top: top,
+        });
+      }, 100);
+    }
+  }, [scrollWrapperRef]);
+
   return (
-    <Container data-testid={"t--deploy-tab-container"}>
+    <Container data-testid={"t--deploy-tab-container"} ref={scrollWrapperRef}>
       <Title>{createMessage(DEPLOY_YOUR_APPLICATION)}</Title>
       <Section>
         {hasChangesToCommit && (
@@ -280,7 +312,7 @@ function Deploy() {
             {changeReasonText}
           </Text>
         )}
-        <GitChangesList />
+        <GitChangesList isAutoUpdate={isAutoUpdate} />
         <Row>
           <SectionTitle>
             <span>{createMessage(COMMIT_TO)}</span>
@@ -349,14 +381,6 @@ function Deploy() {
               width="max-content"
             />
           )}
-          {isConflicting && (
-            <ConflictInfo
-              browserSupportedRemoteUrl={
-                gitMetaData?.browserSupportedRemoteUrl || ""
-              }
-              learnMoreLink={gitConflictDocumentUrl}
-            />
-          )}
 
           {showCommitButton && (
             <Tooltip
@@ -400,7 +424,14 @@ function Deploy() {
             />
           )}
         </ActionsContainer>
-
+        {isConflicting && (
+          <ConflictInfo
+            browserSupportedRemoteUrl={
+              gitMetaData?.browserSupportedRemoteUrl || ""
+            }
+            learnMoreLink={gitConflictDocumentUrl}
+          />
+        )}
         {isCommitting && !isDiscarding && (
           <StatusbarWrapper>
             <Statusbar
@@ -431,6 +462,7 @@ function Deploy() {
       {!pullRequired && !isConflicting && (
         <DeployPreview showSuccess={isCommitAndPushSuccessful} />
       )}
+      <ScrollIndicator containerRef={scrollWrapperRef} mode="DARK" top="37px" />
     </Container>
   );
 }

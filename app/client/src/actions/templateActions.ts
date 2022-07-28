@@ -17,14 +17,14 @@ export const setTemplateSearchQuery = (query: string) => ({
   payload: query,
 });
 
-export const importTemplateToOrganisation = (
+export const importTemplateToWorkspace = (
   templateId: string,
-  organizationId: string,
+  workspaceId: string,
 ) => ({
-  type: ReduxActionTypes.IMPORT_TEMPLATE_TO_ORGANISATION_INIT,
+  type: ReduxActionTypes.IMPORT_TEMPLATE_TO_WORKSPACE_INIT,
   payload: {
     templateId,
-    organizationId,
+    workspaceId,
   },
 });
 

@@ -42,7 +42,7 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
         final Mono<Application> sourceApplicationMono = applicationService.findById(srcApplicationId, AclPermission.READ_APPLICATIONS)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, srcApplicationId)));
 
-        final Mono<Workspace> targetWorkspaceMono = workspaceService.findById(targetWorkspaceId, AclPermission.ORGANIZATION_MANAGE_APPLICATIONS)
+        final Mono<Workspace> targetWorkspaceMono = workspaceService.findById(targetWorkspaceId, AclPermission.WORKSPACE_MANAGE_APPLICATIONS)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.WORKSPACE, targetWorkspaceId)));
 
         Mono<User> userMono = sessionUserService.getCurrentUser();
@@ -81,7 +81,7 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
 
         // Fork application is currently a slow API because it needs to create application, clone all the pages, and then
         // copy all the actions and collections. This process may take time and the client may cancel the request.
-        // This leads to the flow getting stopped mid way producing corrupted DB objects. The following ensures that even
+        // This leads to the flow getting stopped midway producing corrupted DB objects. The following ensures that even
         // though the client may have cancelled the flow, the forking of the application should proceed uninterrupted
         // and whenever the user refreshes the page, the sane forked application is available.
         // To achieve this, we use a synchronous sink which does not take subscription cancellations into account. This
@@ -116,13 +116,13 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
                 .map(responseUtils::updateApplicationWithDefaultResources);
     }
 
-    private Mono<Application> sendForkApplicationAnalyticsEvent(String applicationId, String orgId, Application application) {
+    private Mono<Application> sendForkApplicationAnalyticsEvent(String applicationId, String workspaceId, Application application) {
         return applicationService.findById(applicationId, AclPermission.READ_APPLICATIONS)
                 .flatMap(sourceApplication -> {
 
                     final Map<String, Object> data = Map.of(
                             "forkedFromAppId", applicationId,
-                            "forkedToOrgId", orgId,
+                            "forkedToOrgId", workspaceId,
                             "forkedFromAppName", sourceApplication.getName()
                     );
 

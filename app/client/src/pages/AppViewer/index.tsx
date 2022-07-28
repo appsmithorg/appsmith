@@ -40,12 +40,13 @@ import {
 } from "actions/controlActions";
 import { setAppViewHeaderHeight } from "actions/appViewActions";
 import { showPostCompletionMessage } from "selectors/onboardingSelectors";
+import { CANVAS_SELECTOR } from "constants/WidgetConstants";
 import { fetchPublishedPage } from "actions/pageActions";
 import usePrevious from "utils/hooks/usePrevious";
 import { getIsBranchUpdated } from "../utils";
 import { APP_MODE } from "entities/App";
 import { initAppViewer } from "actions/initActions";
-import { getShowBrandingBadge } from "@appsmith/selectors/organizationSelectors";
+import { getAppsmithConfigs } from "@appsmith/configs";
 
 const AppViewerBody = styled.section<{
   hasPages: boolean;
@@ -57,6 +58,7 @@ const AppViewerBody = styled.section<{
   align-items: stretch;
   justify-content: flex-start;
   height: calc(100vh - ${({ headerHeight }) => headerHeight}px);
+  --view-mode-header-height: ${({ headerHeight }) => headerHeight}px;
 `;
 
 const ContainerWithComments = styled.div`
@@ -95,9 +97,9 @@ function AppViewer(props: Props) {
   );
   const showGuidedTourMessage = useSelector(showPostCompletionMessage);
   const headerHeight = useSelector(getAppViewHeaderHeight);
-  const showBrandingBadge = useSelector(getShowBrandingBadge);
   const branch = getSearchQuery(search, GIT_BRANCH_QUERY_KEY);
   const prevValues = usePrevious({ branch, location: props.location, pageId });
+  const { hideWatermark } = getAppsmithConfigs();
 
   /**
    * initializes the widgets factory and registers all widgets
@@ -184,6 +186,10 @@ function AppViewer(props: Props) {
     }
 
     document.body.style.fontFamily = appFontFamily;
+
+    return function reset() {
+      document.body.style.fontFamily = "inherit";
+    };
   }, [selectedTheme.properties.fontFamily.appFont]);
 
   /**
@@ -249,13 +255,23 @@ function AppViewer(props: Props) {
               backgroundColor={selectedTheme.properties.colors.backgroundColor}
             >
               <AppViewerBody
+                className={CANVAS_SELECTOR}
                 hasPages={pages.length > 1}
                 headerHeight={headerHeight}
                 showGuidedTourMessage={showGuidedTourMessage}
               >
                 {isInitialized && registered && <AppViewerPageContainer />}
               </AppViewerBody>
-              {showBrandingBadge && <BrandingBadge />}
+              {!hideWatermark && (
+                <a
+                  className="fixed hidden right-8 bottom-4 z-2 hover:no-underline md:flex"
+                  href="https://appsmith.com"
+                  rel="noreferrer"
+                  target="_blank"
+                >
+                  <BrandingBadge />
+                </a>
+              )}
             </AppViewerBodyContainer>
           </ContainerWithComments>
           <AddCommentTourComponent />

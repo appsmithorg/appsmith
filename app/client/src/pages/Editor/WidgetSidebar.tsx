@@ -4,28 +4,35 @@ import WidgetCard from "./WidgetCard";
 import { getWidgetCards } from "selectors/editorSelectors";
 import ExplorerSearch from "./Explorer/ExplorerSearch";
 import { debounce } from "lodash";
-import produce from "immer";
 import {
   createMessage,
   WIDGET_SIDEBAR_CAPTION,
 } from "@appsmith/constants/messages";
+import Fuse from "fuse.js";
+import { WidgetCardProps } from "widgets/BaseWidget";
 
 function WidgetSidebar({ isActive }: { isActive: boolean }) {
   const cards = useSelector(getWidgetCards);
   const [filteredCards, setFilteredCards] = useState(cards);
   const searchInputRef = useRef<HTMLInputElement | null>(null);
+
+  let fuse: Fuse<WidgetCardProps, Fuse.FuseOptions<WidgetCardProps>>;
+
+  useEffect(() => {
+    fuse = new Fuse(cards, {
+      keys: ["displayName", "searchTags"],
+      threshold: 0.5,
+      distance: 20,
+    });
+  }, [cards]);
+
   const filterCards = (keyword: string) => {
-    let filteredCards = cards;
     if (keyword.trim().length > 0) {
-      filteredCards = produce(cards, (draft) => {
-        cards.forEach((card, index) => {
-          if (card.displayName.toLowerCase().indexOf(keyword) === -1) {
-            delete draft[index];
-          }
-        });
-      });
+      const searchResult = fuse.search(keyword);
+      setFilteredCards(searchResult as WidgetCardProps[]);
+    } else {
+      setFilteredCards(cards);
     }
-    setFilteredCards(filteredCards);
   };
 
   useEffect(() => {

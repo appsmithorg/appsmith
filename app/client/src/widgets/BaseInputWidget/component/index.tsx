@@ -429,6 +429,14 @@ class BaseInputComponent extends React.Component<
     }
   };
 
+  onKeyUp = (
+    e:
+      | React.KeyboardEvent<HTMLTextAreaElement>
+      | React.KeyboardEvent<HTMLInputElement>,
+  ) => {
+    this.props.onKeyUp?.(e);
+  };
+
   private numericInputComponent = () => {
     const leftIcon = this.getLeftIcon();
     const conditionalProps: Record<string, number> = {};
@@ -459,6 +467,7 @@ class BaseInputComponent extends React.Component<
         onBlur={() => this.setFocusState(false)}
         onFocus={() => this.setFocusState(true)}
         onKeyDown={this.onKeyDown}
+        onKeyUp={this.onKeyUp}
         onValueChange={this.onNumberChange}
         placeholder={this.props.placeholder}
         stepSize={this.props.stepSize}
@@ -481,6 +490,7 @@ class BaseInputComponent extends React.Component<
       onChange={this.onTextChange}
       onFocus={() => this.setFocusState(true)}
       onKeyDown={this.onKeyDownTextArea}
+      onKeyUp={this.onKeyUp}
       placeholder={this.props.placeholder}
       style={{ resize: "none" }}
       value={this.props.value}
@@ -507,6 +517,7 @@ class BaseInputComponent extends React.Component<
         onChange={this.onTextChange}
         onFocus={() => this.setFocusState(true)}
         onKeyDown={this.onKeyDown}
+        onKeyUp={this.onKeyUp}
         placeholder={this.props.placeholder}
         rightElement={
           this.props.inputType === "PASSWORD" ? (
@@ -606,6 +617,7 @@ class BaseInputComponent extends React.Component<
           accentColor={this.props.accentColor}
           borderRadius={this.props.borderRadius}
           boxShadow={this.props.boxShadow}
+          className="text-input-wrapper"
           compact={compactMode}
           hasError={this.props.isInvalid}
           inputHtmlType={inputHTMLType}
@@ -663,6 +675,11 @@ export interface BaseInputComponentProps extends ComponentProps {
   onFocusChange: (state: boolean) => void;
   disableNewLineOnPressEnterKey?: boolean;
   onKeyDown?: (
+    e:
+      | React.KeyboardEvent<HTMLTextAreaElement>
+      | React.KeyboardEvent<HTMLInputElement>,
+  ) => void;
+  onKeyUp?: (
     e:
       | React.KeyboardEvent<HTMLTextAreaElement>
       | React.KeyboardEvent<HTMLInputElement>,

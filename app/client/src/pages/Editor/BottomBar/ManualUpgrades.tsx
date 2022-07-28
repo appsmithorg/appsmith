@@ -9,10 +9,8 @@ import {
   IconSize,
   IconWrapper,
   Size,
-  Text,
-  TextType,
 } from "components/ads";
-import TooltipComponent from "components/ads/Tooltip";
+import { TooltipComponent, Text, TextType } from "design-system";
 import ModalComponent from "components/designSystems/appsmith/ModalComponent";
 import { Colors } from "constants/Colors";
 import React, { useState } from "react";

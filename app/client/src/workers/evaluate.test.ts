@@ -11,6 +11,7 @@ import {
 import { RenderModes } from "constants/WidgetConstants";
 
 describe("evaluateSync", () => {
+  // @ts-expect-error: meta property not provided
   const widget: DataTreeWidget = {
     bottomRow: 0,
     isLoading: false,
@@ -58,8 +59,7 @@ describe("evaluateSync", () => {
     expect(response.result).toBe("1\n2\n3");
   });
   it("throws error for undefined js", () => {
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
+    // @ts-expect-error: Types are not available
     expect(() => evaluate(undefined, {})).toThrow(TypeError);
   });
   it("Returns for syntax errors", () => {
@@ -67,24 +67,6 @@ describe("evaluateSync", () => {
     expect(response1).toStrictEqual({
       result: undefined,
       errors: [
-        {
-          ch: 1,
-          code: "W117",
-          errorMessage: "'wrongJS' is not defined.",
-          errorSegment: "    const result = wrongJS",
-          errorType: "LINT",
-          line: 0,
-          raw: `
-  function closedFunction () {
-    const result = wrongJS
-    return result;
-  }
-  closedFunction.call(THIS_CONTEXT)
-  `,
-          severity: "error",
-          originalBinding: "wrongJS",
-          variables: ["wrongJS", undefined, undefined, undefined],
-        },
         {
           errorMessage: "ReferenceError: wrongJS is not defined",
           errorType: "PARSE",

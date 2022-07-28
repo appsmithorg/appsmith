@@ -61,7 +61,7 @@ public class CustomThemeRepositoryTest {
                 .then(themeRepository.getSystemThemes().collectList());
 
         StepVerifier.create(systemThemesMono).assertNext(themes -> {
-            assertThat(themes.size()).isEqualTo(4); // 4 system themes were created from db migration
+            assertThat(themes.size()).isEqualTo(8); // 8 system themes were created from db migration
         }).verifyComplete();
     }
 
@@ -83,16 +83,16 @@ public class CustomThemeRepositoryTest {
                 .then(themeRepository.getApplicationThemes(testAppId, READ_THEMES).collectList());
 
         StepVerifier.create(systemThemesMono).assertNext(themes -> {
-            assertThat(themes.size()).isEqualTo(5); // 4 system themes were created from db migration
+            assertThat(themes.size()).isEqualTo(9); // 8 system themes were created from db migration
         }).verifyComplete();
     }
 
     @WithUserDetails("api_user")
     @Test
     public void getSystemThemeByName_WhenNameMatches_ReturnsTheme() {
-        StepVerifier.create(themeRepository.getSystemThemeByName("classic"))
+        StepVerifier.create(themeRepository.getSystemThemeByName(Theme.DEFAULT_THEME_NAME))
                 .assertNext(theme -> {
-                    assertThat(theme.getName()).isEqualTo("Classic");
+                    assertThat(theme.getName()).isEqualToIgnoringCase(Theme.DEFAULT_THEME_NAME);
                     assertThat(theme.isSystemTheme()).isTrue();
                 }).verifyComplete();
     }
@@ -127,7 +127,7 @@ public class CustomThemeRepositoryTest {
         Flux<Theme> systemThemesFlux = existingThemesMono.filter(Theme::isSystemTheme);
         Flux<Theme> applicationThemesFlux = existingThemesMono.filter(theme -> !theme.isSystemTheme());
 
-        StepVerifier.create(systemThemesFlux).expectNextCount(4).verifyComplete();
+        StepVerifier.create(systemThemesFlux).expectNextCount(8).verifyComplete();
         StepVerifier.create(applicationThemesFlux.collectMultimap(Theme::getApplicationId))
                 .assertNext(themesListByApplicationId -> {
                     assertThat(themesListByApplicationId.size()).isEqualTo(2);
@@ -156,8 +156,8 @@ public class CustomThemeRepositoryTest {
                     return themeRepository.archiveDraftThemesById(customDraftTheme.getId(), systemTheme.getId());
                 })
                 .thenMany(themeRepository.findAll());
-        // we should get 4 system themes and no custom draft theme
-        StepVerifier.create(existingThemeFlux).expectNextCount(4).verifyComplete();
+        // we should get 8 system themes and no custom draft theme
+        StepVerifier.create(existingThemeFlux).expectNextCount(8).verifyComplete();
     }
 
     @WithUserDetails("api_user")
@@ -177,7 +177,7 @@ public class CustomThemeRepositoryTest {
                     return themeRepository.archiveDraftThemesById(customDraftTheme.getId(), systemTheme.getId());
                 })
                 .thenMany(themeRepository.findAll());
-        // we should get 4 system themes and one custom draft theme
-        StepVerifier.create(existingThemeFlux).expectNextCount(5).verifyComplete();
+        // we should get 8 system themes and one custom draft theme
+        StepVerifier.create(existingThemeFlux).expectNextCount(9).verifyComplete();
     }
 }
