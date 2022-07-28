@@ -63,13 +63,13 @@ public class ElasticSearchPlugin extends BasePlugin {
 
         private final Scheduler scheduler = Schedulers.elastic();
 
-        public static final String esDatasourceNotFoundMessage = "404 Error: The Page you are tyring to access does not exist";
+        public static final String esDatasourceNotFoundMessage = "The Page you are tyring to access does not exist";
 
-        public static final String esDatasourceUnauthorizedMessage = "401 Error: Your Username or Password is not correct";
+        public static final String esDatasourceUnauthorizedMessage = "Your Username or Password is not correct";
 
         public static final String esDatasourceUnauthorizedPattern = ".*unauthorized.*";
 
-        public static final String esDatasourceNotFoundPattern = ".*timeout.*";
+        public static final String esDatasourceNotFoundPattern = ".*(?:not.?found)|(?:refused)|(?:not.?known)|(?:timed?\\s?out).*";
 
 
         @Override

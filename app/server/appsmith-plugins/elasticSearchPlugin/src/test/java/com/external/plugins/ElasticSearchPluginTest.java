@@ -328,8 +328,6 @@ public class ElasticSearchPluginTest {
     public void itShouldTestDatasource() {
         StepVerifier.create(pluginExecutor.testDatasource(dsConfig))
                 .assertNext(result -> {
-                    for (String message: result.getInvalids())System.out.println("------- meow" +message);
-                    System.out.println(elasticInstanceCredentials.getAuthenticationType());
                     assertTrue(result.getInvalids().isEmpty());
                 })
                 .verifyComplete();
