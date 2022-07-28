@@ -243,10 +243,6 @@ public class PolicyGeneratorCE {
 
                 mergedPolicy.setPermissionGroups(Sets.union(mergedPolicy.getPermissionGroups(), policy.getPermissionGroups()));
 
-                HashSet<String> permissionGroups = new HashSet<>(mergedPolicy.getPermissionGroups());
-                permissionGroups.addAll(policy.getPermissionGroups());
-                mergedPolicy.setPermissionGroups(permissionGroups);
-
                 policyMap.put(policy.getPermission(), mergedPolicy);
             } else {
                 policyMap.put(policy.getPermission(), policy);

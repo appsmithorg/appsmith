@@ -29,4 +29,10 @@ public class CustomPermissionGroupRepositoryCEImpl extends BaseAppsmithRepositor
         Criteria defaultWorkspaceIdCriteria = where(fieldName(QPermissionGroup.permissionGroup.defaultWorkspaceId)).is(workspaceId);
         return queryAll(List.of(assignedToUserIdCriteria, defaultWorkspaceIdCriteria), permission);
     }
+
+    @Override
+    public Flux<PermissionGroup> findByDefaultWorkspaceId(String workspaceId, AclPermission permission) {
+        Criteria defaultWorkspaceIdCriteria = where(fieldName(QPermissionGroup.permissionGroup.defaultWorkspaceId)).is(workspaceId);
+        return queryAll(List.of(defaultWorkspaceIdCriteria), permission);
+    }
 }

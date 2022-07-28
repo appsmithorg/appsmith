@@ -1167,11 +1167,15 @@ public class DatabaseChangelog2 {
         Set<Permission> permissionGroupPermissions = permissionGroups.stream()
                 .map(permissionGroup -> new Permission(permissionGroup.getId(), AclPermission.MANAGE_PERMISSION_GROUPS))
                 .collect(Collectors.toSet());
+        Set<Permission> readPermissionGroupPermissions = permissionGroups.stream()
+                .map(permissionGroup -> new Permission(permissionGroup.getId(), AclPermission.READ_PERMISSION_GROUPS))
+                .collect(Collectors.toSet());
 
 
         Set<Permission> permissions = new HashSet<>();
         permissions.addAll(workspacePermissions);
         permissions.addAll(permissionGroupPermissions);
+        permissions.addAll(readPermissionGroupPermissions);
         adminPermissionGroup.setPermissions(permissions);
 
         // Assign admin user ids to the administrator permission group
@@ -1197,6 +1201,7 @@ public class DatabaseChangelog2 {
         permissions = new HashSet<>();
         permissions.addAll(workspacePermissions);
         permissions.addAll(permissionGroupPermissions);
+        permissions.addAll(readPermissionGroupPermissions);
         developerPermissionGroup.setPermissions(permissions);
 
         // Assign developer user ids to the developer permission group
@@ -1284,20 +1289,24 @@ public class DatabaseChangelog2 {
 
     @ChangeSet(order = "022", id = "inherit-policies-to-every-child-object", author = "")
     public void inheritPoliciesToEveryChildObject(MongockTemplate mongockTemplate, @NonLockGuarded PolicyGenerator policyGenerator) {
+        //Temporarily mark public applications
+        mongockTemplate.updateMulti(new Query().addCriteria(Criteria.where("policies").elemMatch(Criteria.where("permission").is(AclPermission.READ_APPLICATIONS.getValue()).and("users").is("anonymousUser"))),
+            new Update().set("makePublic", true),
+            Application.class);
         mongockTemplate.stream(new Query(), Workspace.class)
                 .stream()
                 .forEach(workspace -> {
                     // Process applications
                     Set<Policy> applicationPolicies = policyGenerator.getAllChildPolicies(workspace.getPolicies(), Workspace.class, Application.class);
-                    mongockTemplate.findAndModify(new Query().addCriteria(Criteria.where(fieldName(QApplication.application.workspaceId)).is(workspace.getId())),
+                    mongockTemplate.updateMulti(new Query().addCriteria(Criteria.where(fieldName(QApplication.application.workspaceId)).is(workspace.getId())),
                             new Update().set("policies", applicationPolicies),
-                            Workspace.class);
+                            Application.class);
 
                     // Process datasources
                     Set<Policy> datasourcePolicies = policyGenerator.getAllChildPolicies(workspace.getPolicies(), Workspace.class, Datasource.class);
-                    mongockTemplate.findAndModify(new Query().addCriteria(Criteria.where(fieldName(QDatasource.datasource.workspaceId)).is(workspace.getId())),
+                    mongockTemplate.updateMulti(new Query().addCriteria(Criteria.where(fieldName(QDatasource.datasource.workspaceId)).is(workspace.getId())),
                             new Update().set("policies", datasourcePolicies),
-                            Workspace.class);
+                            Datasource.class);
 
                     // Get application ids
                     Set<String> applicationIds = mongockTemplate.stream(new Query().addCriteria(Criteria.where(fieldName(QApplication.application.workspaceId)).is(workspace.getId())), Application.class)
@@ -1307,24 +1316,24 @@ public class DatabaseChangelog2 {
 
                     // Update pages
                     Set<Policy> pagePolicies = policyGenerator.getAllChildPolicies(applicationPolicies, Application.class, Page.class);
-                    mongockTemplate.findAndModify(new Query().addCriteria(Criteria.where(fieldName(QNewPage.newPage.applicationId)).in(applicationIds)),
+                    mongockTemplate.updateMulti(new Query().addCriteria(Criteria.where(fieldName(QNewPage.newPage.applicationId)).in(applicationIds)),
                             new Update().set("policies", pagePolicies),
                             NewPage.class);
 
                     // Update NewActions
                     Set<Policy> actionPolicies = policyGenerator.getAllChildPolicies(pagePolicies, Page.class, Action.class);
-                    mongockTemplate.findAndModify(new Query().addCriteria(Criteria.where(fieldName(QNewAction.newAction.applicationId)).in(applicationIds)),
+                    mongockTemplate.updateMulti(new Query().addCriteria(Criteria.where(fieldName(QNewAction.newAction.applicationId)).in(applicationIds)),
                             new Update().set("policies", actionPolicies),
                             NewAction.class);
 
                     // Update ActionCollections
-                    mongockTemplate.findAndModify(new Query().addCriteria(Criteria.where(fieldName(QActionCollection.actionCollection.applicationId)).in(applicationIds)),
+                    mongockTemplate.updateMulti(new Query().addCriteria(Criteria.where(fieldName(QActionCollection.actionCollection.applicationId)).in(applicationIds)),
                             new Update().set("policies", actionPolicies),
                             ActionCollection.class);
 
                     // Update Themes
                     Set<Policy> themePolicies = policyGenerator.getAllChildPolicies(applicationPolicies, Application.class, Theme.class);
-                    mongockTemplate.findAndModify(new Query().addCriteria(Criteria.where(fieldName(QTheme.theme.applicationId)).in(applicationIds)),
+                    mongockTemplate.updateMulti(new Query().addCriteria(Criteria.where(fieldName(QTheme.theme.applicationId)).in(applicationIds)),
                             new Update().set("policies", themePolicies),
                             Theme.class);
                 });
@@ -1396,24 +1405,24 @@ public class DatabaseChangelog2 {
 
         // Update pages
         Set<Policy> pagePolicies = policyGenerator.getAllChildPolicies(applicationPolicies, Application.class, Page.class);
-        mongockTemplate.findAndModify(new Query().addCriteria(Criteria.where(fieldName(QNewPage.newPage.applicationId)).is(application.getId())),
+        mongockTemplate.updateMulti(new Query().addCriteria(Criteria.where(fieldName(QNewPage.newPage.applicationId)).is(application.getId())),
                 new Update().set("policies", pagePolicies),
                 NewPage.class);
 
         // Update NewActions
         Set<Policy> actionPolicies = policyGenerator.getAllChildPolicies(pagePolicies, Page.class, Action.class);
-        mongockTemplate.findAndModify(new Query().addCriteria(Criteria.where(fieldName(QNewAction.newAction.applicationId)).is(application.getId())),
+        mongockTemplate.updateMulti(new Query().addCriteria(Criteria.where(fieldName(QNewAction.newAction.applicationId)).is(application.getId())),
                 new Update().set("policies", actionPolicies),
                 NewAction.class);
 
         // Update ActionCollections
-        mongockTemplate.findAndModify(new Query().addCriteria(Criteria.where(fieldName(QActionCollection.actionCollection.applicationId)).is(application.getId())),
+        mongockTemplate.updateMulti(new Query().addCriteria(Criteria.where(fieldName(QActionCollection.actionCollection.applicationId)).is(application.getId())),
                 new Update().set("policies", actionPolicies),
                 ActionCollection.class);
 
         // Update Themes
         Set<Policy> themePolicies = policyGenerator.getAllChildPolicies(applicationPolicies, Application.class, Theme.class);
-        mongockTemplate.findAndModify(new Query().addCriteria(Criteria.where(fieldName(QTheme.theme.applicationId)).is(application.getId())),
+        mongockTemplate.updateMulti(new Query().addCriteria(Criteria.where(fieldName(QTheme.theme.applicationId)).is(application.getId())),
                 new Update().set("policies", themePolicies),
                 Theme.class);
     }
@@ -1421,12 +1430,16 @@ public class DatabaseChangelog2 {
     @ChangeSet(order = "023", id = "make-applications-public", author = "")
     public void makeApplicationsPublic(MongockTemplate mongockTemplate, @NonLockGuarded PolicyUtils policyUtils, @NonLockGuarded PolicyGenerator policyGenerator, NewPageRepository newPageRepository) {
         User anonymousUser = mongockTemplate.findOne(new Query().addCriteria(Criteria.where(fieldName(QUser.user.email)).is(FieldName.ANONYMOUS_USER)), User.class);
-        mongockTemplate.stream(new Query().addCriteria(Criteria.where("policies").elemMatch(Criteria.where("users").is("anonymousUser"))), Application.class)
+        mongockTemplate.stream(new Query().addCriteria(Criteria.where("makePublic").is(true)), Application.class)
                 .stream()
                 .forEach(application -> {
                     Workspace workspace = mongockTemplate.findOne(new Query().addCriteria(Criteria.where(fieldName(QBaseDomain.baseDomain.id)).is(application.getWorkspaceId())), Workspace.class);
                     makeApplicationPublic(policyUtils, policyGenerator, newPageRepository, application, workspace, mongockTemplate, anonymousUser);
                 });
+        //unmark public applications
+        mongockTemplate.updateMulti(new Query().addCriteria(Criteria.where("makePublic").is(true)),
+            new Update().unset("makePublic"),
+            Application.class);
     }
 
     @ChangeSet(order = "024", id = "add-instance-config-object", author = "")

@@ -15,7 +15,7 @@ public interface PermissionGroupServiceCE extends CrudService<PermissionGroup, S
 
     Flux<PermissionGroup> findAllByIds(Set<String> ids);
 
-    Flux<PermissionGroup> getByDefaultWorkspace(Workspace workspace);
+    Flux<PermissionGroup> getByDefaultWorkspace(Workspace workspace, AclPermission permission);
 
     Mono<PermissionGroup> save(PermissionGroup permissionGroup);
 

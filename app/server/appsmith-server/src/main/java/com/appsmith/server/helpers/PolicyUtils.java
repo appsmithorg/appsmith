@@ -160,7 +160,7 @@ public class PolicyUtils {
                     return policiesForPermissionGroup;
                 })
                 .flatMap(Collection::stream)
-                .collect(Collectors.toMap(Policy::getPermission, Function.identity()));
+                .collect(Collectors.toMap(Policy::getPermission, Function.identity(), (policy1, policy2) -> policy1));
     }
 
     public Map<String, Policy> generatePolicyFromPermissionWithPermissionGroup(AclPermission permission, String permissionGroupId) {

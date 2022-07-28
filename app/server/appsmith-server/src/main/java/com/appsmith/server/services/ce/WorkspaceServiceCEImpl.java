@@ -302,11 +302,15 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
         Set<Permission> permissionGroupPermissions = permissionGroups.stream()
                 .map(permissionGroup -> new Permission(permissionGroup.getId(), AclPermission.MANAGE_PERMISSION_GROUPS))
                 .collect(Collectors.toSet());
+        Set<Permission> readPermissionGroupPermissions = permissionGroups.stream()
+                .map(permissionGroup -> new Permission(permissionGroup.getId(), AclPermission.READ_PERMISSION_GROUPS))
+                .collect(Collectors.toSet());
 
 
         Set<Permission> permissions = new HashSet<>();
         permissions.addAll(workspacePermissions);
         permissions.addAll(permissionGroupPermissions);
+        permissions.addAll(readPermissionGroupPermissions);
         adminPermissionGroup.setPermissions(permissions);
 
         // Assign the user creating the permission group to this permission group
@@ -326,6 +330,7 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
         permissions = new HashSet<>();
         permissions.addAll(workspacePermissions);
         permissions.addAll(permissionGroupPermissions);
+        permissions.addAll(readPermissionGroupPermissions);
         developerPermissionGroup.setPermissions(permissions);
 
         // App Viewer Permissions
@@ -342,6 +347,7 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
         permissions = new HashSet<>();
         permissions.addAll(workspacePermissions);
         permissions.addAll(permissionGroupPermissions);
+        permissions.addAll(readPermissionGroupPermissions);
         viewerPermissionGroup.setPermissions(permissions);
 
         return Flux.fromIterable(permissionGroups)
@@ -467,7 +473,7 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
 
        // Get default permission groups
        Flux<PermissionGroup> permissionGroupFlux = workspaceMono
-               .flatMapMany(workspace -> permissionGroupService.getByDefaultWorkspace(workspace));
+               .flatMapMany(workspace -> permissionGroupService.getByDefaultWorkspace(workspace, AclPermission.ASSIGN_PERMISSION_GROUPS));
 
        // Map to PermissionGroupInfoDTO
        Flux<PermissionGroupInfoDTO> permissionGroupInfoFlux = permissionGroupFlux
