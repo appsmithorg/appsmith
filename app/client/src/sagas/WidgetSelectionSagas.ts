@@ -324,7 +324,6 @@ function* selectMultipleWidgetsSaga(
 }
 
 function* canPerformSelectionSaga(saga: any, action: any) {
-  debugger;
   const isDragging: boolean = yield select(
     (state: AppState) => state.ui.widgetDragResize.isDragging,
   );
