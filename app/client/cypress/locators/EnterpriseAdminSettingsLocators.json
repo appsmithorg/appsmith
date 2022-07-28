@@ -9,4 +9,6 @@
   "samlXmlTab": "[data-cy='t--tab-XML']",
   "samlIdpTab": "[data-cy='t--tab-IDP_DATA']",
   "disconnectBtn": "[data-testid='disconnect-service-button']"
+  "hideAppsmithWatermarkSetting": ".admin-settings-group-appsmith-hide-watermark"
 }
+
