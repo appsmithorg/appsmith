@@ -478,4 +478,44 @@ describe("JS Function Execution", function() {
     agHelper.GetNClick(jsEditor._settingsTab);
     assertAsyncFunctionsOrder(FUNCTIONS_SETTINGS_RENAMED_DATA);
   });
+
+  it("10. Verify converting async functions to sync resets all settings", () => {
+    const asyncJSCode = `export default {
+      myFun1 : async ()=>{
+        return "yes"
+      }
+    }`;
+
+    const syncJSCode = `export default {
+      myFun1 : ()=>{
+        return "yes"
+      }
+    }`;
+
+    jsEditor.CreateJSObject(asyncJSCode, {
+      paste: true,
+      completeReplace: true,
+      toRun: false,
+      shouldCreateNewJSObj: true,
+    });
+
+    cy.get("@jsObjName").then((jsObjName: any) => {
+      jsObj = jsObjName;
+    });
+
+    // Switch to settings tab
+    agHelper.GetNClick(jsEditor._settingsTab);
+    // Enable all settings
+    jsEditor.EnableDisableAsyncFuncSettings("myFun1", true, true);
+
+    // Modify js object
+    jsEditor.CreateJSObject(syncJSCode, {
+      paste: true,
+      completeReplace: true,
+      toRun: false,
+      shouldCreateNewJSObj: false,
+    });
+
+    agHelper.RefreshPage();
+  });
 });
