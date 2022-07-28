@@ -226,14 +226,6 @@ export class AggregateHelper {
     );
   }
 
-  public SelectPropertiesDropDown(endpoint: string, dropdownOption: string) {
-    cy.xpath(this.locator._selectPropDropdown(endpoint))
-      .first()
-      .scrollIntoView()
-      .click();
-    cy.get(this.locator._dropDownValue(dropdownOption)).click();
-  }
-
   public SelectDropDown(dropdownOption: string, endpoint = "selectwidget") {
     const mode = window.localStorage.getItem("inDeployedMode");
     if (mode == "false") {

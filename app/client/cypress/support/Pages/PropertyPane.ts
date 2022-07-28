@@ -128,12 +128,20 @@ export class PropertyPane {
     this.agHelper.AssertAutoSave();
   }
 
+  public SelectPropertiesDropDown(endpoint: string, dropdownOption: string) {
+    cy.xpath(this.locator._selectPropDropdown(endpoint))
+      .first()
+      .scrollIntoView()
+      .click();
+    cy.get(this.locator._dropDownValue(dropdownOption)).click();
+  }
+
   public SelectJSFunctionToExecute(
     eventName: string,
     jsName: string,
     funcName: string,
   ) {
-    this.agHelper.SelectPropertiesDropDown(eventName, "Execute a JS function");
+    this.SelectPropertiesDropDown(eventName, "Execute a JS function");
     this.agHelper.GetNClick(this.locator._dropDownValue(jsName), 0, true);
     this.agHelper.GetNClick(this.locator._dropDownValue(funcName), 0, true);
     this.agHelper.AssertAutoSave();

@@ -495,19 +495,18 @@ describe("JSObjects OnLoad Actions tests", function() {
       // );
 
       ee.SelectEntityByName("Image1");
-      jsEditor.EnterJSContext(
-        "onClick",
-        `{{` + jsObjName + `.callBooks()}}`,
-        true,
-        true,
-      ); //callBooks confirmation also does not appear due to 13646
 
-      //Not working, to check later!
-      // agHelper.SelectPropertiesDropDown("onclick", "Execute a JS function");
-      // agHelper.Sleep(500)
-      // agHelper.GetNClick(locator._dropDownValue(jsName as string));
-      // agHelper.Sleep(500)
-      // agHelper.GetNClick(locator._dropDownValue("callBooks"));
+      // jsEditor.EnterJSContext(
+      //   "onClick",
+      //   `{{` + jsObjName + `.callBooks()}}`,
+      //   true,
+      //   true,
+      // );
+        propPane.SelectJSFunctionToExecute(
+          "onClick",
+          jsName as string,
+          "callBooks",
+        );//callBooks confirmation also does not appear due to 13646
 
       ee.SelectEntityByName("JSONForm1");
       propPane.UpdatePropertyFieldValue("Source Data", "{{getBooks.data}}");
