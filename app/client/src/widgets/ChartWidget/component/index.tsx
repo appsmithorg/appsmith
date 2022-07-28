@@ -273,6 +273,11 @@ class ChartComponent extends React.Component<ChartComponentProps> {
           palettecolors: [this.props.primaryColor],
         };
 
+    const fontFamily =
+      this.props.fontFamily === "System Default"
+        ? "inherit"
+        : this.props.fontFamily;
+
     let config = {
       caption: this.props.chartName,
       xAxisName: this.props.xAxisName,
@@ -282,13 +287,14 @@ class ChartComponent extends React.Component<ChartComponentProps> {
       alignCaptionWithCanvas: 0,
 
       // Caption styling =======================
-      captionFontSize: "30",
+      captionFontSize: "28",
       captionFontColor: Colors.CODE_GRAY,
 
       // legend position styling ==========
       legendIconSides: "4",
       legendIconBgAlpha: "100",
       legendIconAlpha: "100",
+      legendItemFont: fontFamily,
       ...legendConfig,
 
       // Canvas styles ========
@@ -301,16 +307,13 @@ class ChartComponent extends React.Component<ChartComponentProps> {
       chartBottomMargin: "15",
 
       // Axis name styling ======
-      xAxisNameFontSize: "16",
+      xAxisNameFontSize: "14",
       xAxisValueFontColor: Colors.DOVE_GRAY2,
-      yAxisNameFontSize: "16",
+      yAxisNameFontSize: "14",
       yAxisValueFontColor: Colors.DOVE_GRAY2,
 
       // Base configurations ======
-      baseFont:
-        this.props.fontFamily === "System Default"
-          ? "inherit"
-          : this.props.fontFamily,
+      baseFont: fontFamily,
 
       bgColor: Colors.WHITE,
       setAdaptiveYMin: this.props.setAdaptiveYMin ? "1" : "0",

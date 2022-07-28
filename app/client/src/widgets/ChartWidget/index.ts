@@ -1,3 +1,4 @@
+import { Colors } from "constants/Colors";
 import { generateReactKey } from "widgets/WidgetUtils";
 import { LabelOrientation } from "./constants";
 import IconSVG from "./icon.svg";
@@ -43,12 +44,6 @@ export const CONFIG = {
     customFusionChartConfig: {
       type: "column2d",
       dataSource: {
-        chart: {
-          caption: "Sales Report",
-          xAxisName: "Product Line",
-          yAxisName: "Revenue($)",
-          theme: "fusion",
-        },
         data: [
           {
             label: "Product1",
@@ -63,6 +58,35 @@ export const CONFIG = {
             value: 32000,
           },
         ],
+        chart: {
+          caption: "Sales Report",
+          xAxisName: "Product Line",
+          yAxisName: "Revenue($)",
+          theme: "fusion",
+          captionAlignment: "left",
+          alignCaptionWithCanvas: 0,
+          // Caption styling =======================
+          captionFontSize: "30",
+          captionFontColor: Colors.CODE_GRAY,
+          // legend position styling ==========
+          legendIconSides: "4",
+          legendIconBgAlpha: "100",
+          legendIconAlpha: "100",
+          legendPosition: "top",
+          captionPadding: "15",
+          // Canvas styles ========
+          canvasTopPadding: "0",
+          canvasLeftPadding: "60",
+          canvasRightPadding: "60",
+          canvasBottomPadding: "10",
+          // Chart styling =======
+          chartBottomMargin: "15",
+          // Axis name styling ======
+          xAxisNameFontSize: "16",
+          xAxisValueFontColor: Colors.DOVE_GRAY2,
+          yAxisNameFontSize: "16",
+          yAxisValueFontColor: Colors.DOVE_GRAY2,
+        },
       },
     },
   },
