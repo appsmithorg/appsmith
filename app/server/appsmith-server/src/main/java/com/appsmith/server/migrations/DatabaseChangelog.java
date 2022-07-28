@@ -2902,7 +2902,7 @@ public class DatabaseChangelog {
                 try {
                     documentPtr = documentPtr.get(pathKeys[i], Document.class);
                 } catch (ClassCastException e) {
-                    System.out.println("Failed to cast document for path: " + path);
+                    log.debug("Failed to cast document for path: " + path);
                     e.printStackTrace();
                     return null;
                 }
@@ -3520,7 +3520,7 @@ public class DatabaseChangelog {
                         try {
                             oldListOfConditions = (List<Map<String, Object>>) value;
                         } catch (ClassCastException e) {
-                            System.out.println("value: " + value);
+                            log.debug("value: " + value);
                             oldListOfConditions = new ArrayList<>();
                         }
 
