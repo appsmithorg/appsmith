@@ -4,6 +4,7 @@ import {
   ValidationTypes,
   ValidationResponse,
   Validator,
+  ValidatorParams,
 } from "constants/WidgetValidation";
 import _, {
   compact,
@@ -54,13 +55,8 @@ function getPropertyEntry(
   }
 }
 
-function validatePlainObject(
-  config: ValidationConfig,
-  value: Record<string, unknown>,
-  props: Record<string, unknown>,
-  propertyPath: string,
-  unEvalValue: string,
-) {
+function validatePlainObject(params: ValidatorParams<Record<string, unknown>>) {
+  const { config, propertyPath, props, unEvalValue, value } = params;
   if (config.params?.allowedKeys) {
     let _valid = true;
     const _messages: string[] = [];
@@ -69,13 +65,13 @@ function validatePlainObject(
       const entryName = getPropertyEntry(value, entry.name, ignoreCase);
 
       if (value.hasOwnProperty(entryName)) {
-        const { isValid, messages, parsed } = validate(
-          entry,
-          value[entryName],
+        const { isValid, messages, parsed } = validate({
+          config: entry,
+          value: value[entryName],
           props,
           propertyPath,
           unEvalValue,
-        );
+        });
         if (!isValid) {
           value[entryName] = parsed;
           _valid = isValid;
@@ -109,13 +105,8 @@ function validatePlainObject(
   };
 }
 
-function validateArray(
-  config: ValidationConfig,
-  value: unknown[],
-  props: Record<string, unknown>,
-  propertyPath: string,
-  unEvalValue: string,
-) {
+function validateArray(params: ValidatorParams<unknown[]>) {
+  const { config, propertyPath, props, unEvalValue, value } = params;
   let _isValid = true; // Let's first assume that this is valid
   const _messages: string[] = []; // Initialise messages array
 
@@ -221,13 +212,13 @@ function validateArray(
     // validate using validation config
     if (shouldValidateChildren && childrenValidationConfig) {
       // Validate this entry
-      const childValidationResult = validate(
-        childrenValidationConfig,
-        entry,
+      const childValidationResult = validate({
+        config: childrenValidationConfig,
+        value: entry,
         props,
-        `${propertyPath}[${index}]`,
+        propertyPath: `${propertyPath}[${index}]`,
         unEvalValue,
-      );
+      });
 
       // If invalid, append to messages
       if (!childValidationResult.isValid) {
@@ -297,20 +288,10 @@ function validateObjectValues(obj: any): any {
 
 //TODO: parameter props may not be in use
 export const validate = (
-  config: ValidationConfig,
-  value: unknown,
-  props: Record<string, unknown>,
-  propertyPath = "",
-  unEvalValue = "",
+  params: ValidatorParams<unknown>,
 ): ValidationResponse => {
-  const _result = VALIDATORS[config.type as ValidationTypes](
-    config,
-    value,
-    props,
-    propertyPath,
-    unEvalValue,
-  );
-
+  const { config } = params;
+  const _result = VALIDATORS[config.type](params);
   return _result;
 };
 
@@ -386,10 +367,9 @@ export function getExpectedType(config?: ValidationConfig): string | undefined {
 
 export const VALIDATORS: Record<ValidationTypes, Validator> = {
   [ValidationTypes.TEXT]: (
-    config: ValidationConfig,
-    value: unknown,
-    props: Record<string, unknown>,
+    params: ValidatorParams<unknown>,
   ): ValidationResponse => {
+    const { config, value } = params;
     if (value === undefined || value === null || value === "") {
       if (config.params && config.params.required) {
         return {
@@ -495,20 +475,12 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
   },
   // TODO(abhinav): The original validation does not make sense fix this.
   [ValidationTypes.REGEX]: (
-    config: ValidationConfig,
-    value: unknown,
-    props: Record<string, unknown>,
-    propertyPath: string,
-    unEvalValue: string,
+    params: ValidatorParams<unknown>,
   ): ValidationResponse => {
+    const { config } = params;
     const { isValid, messages, parsed } = VALIDATORS[ValidationTypes.TEXT](
-      config,
-      value,
-      props,
-      propertyPath,
-      unEvalValue,
+      params,
     );
-
     if (!isValid) {
       return {
         isValid: false,
@@ -522,10 +494,9 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
     return { isValid, parsed, messages };
   },
   [ValidationTypes.NUMBER]: (
-    config: ValidationConfig,
-    value: unknown,
-    props: Record<string, unknown>,
+    params: ValidatorParams<unknown>,
   ): ValidationResponse => {
+    const { config, value } = params;
     if (value === undefined || value === null || value === "") {
       if (config.params?.required) {
         return {
@@ -611,11 +582,8 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
       parsed,
     };
   },
-  [ValidationTypes.BOOLEAN]: (
-    config: ValidationConfig,
-    value: unknown,
-    props: Record<string, unknown>,
-  ): ValidationResponse => {
+  [ValidationTypes.BOOLEAN]: (params: ValidatorParams): ValidationResponse => {
+    const { config, value } = params;
     if (value === undefined || value === null || value === "") {
       if (config.params && config.params.required) {
         return {
@@ -655,13 +623,8 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
 
     return { isValid, parsed };
   },
-  [ValidationTypes.OBJECT]: (
-    config: ValidationConfig,
-    value: unknown,
-    props: Record<string, unknown>,
-    propertyPath: string,
-    unEvalValue: string,
-  ): ValidationResponse => {
+  [ValidationTypes.OBJECT]: (params: ValidatorParams): ValidationResponse => {
+    const { config, propertyPath, props, unEvalValue, value } = params;
     if (
       value === undefined ||
       value === null ||
@@ -683,25 +646,25 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
     }
 
     if (isPlainObject(value)) {
-      return validatePlainObject(
+      return validatePlainObject({
         config,
-        value as Record<string, unknown>,
+        value: value as Record<string, unknown>,
         props,
         propertyPath,
         unEvalValue,
-      );
+      });
     }
 
     try {
       const result = { parsed: JSON.parse(value as string), isValid: true };
       if (isPlainObject(result.parsed)) {
-        return validatePlainObject(
+        return validatePlainObject({
           config,
-          result.parsed,
+          value: result.parsed,
           props,
           propertyPath,
           unEvalValue,
-        );
+        });
       }
       return {
         isValid: false,
@@ -720,13 +683,8 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
       };
     }
   },
-  [ValidationTypes.ARRAY]: (
-    config: ValidationConfig,
-    value: unknown,
-    props: Record<string, unknown>,
-    propertyPath: string,
-    unEvalValue: string,
-  ): ValidationResponse => {
+  [ValidationTypes.ARRAY]: (params: ValidatorParams): ValidationResponse => {
+    const { config, propertyPath, props, unEvalValue, value } = params;
     const invalidResponse = {
       isValid: false,
       parsed: config.params?.default || [],
@@ -769,13 +727,13 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
       try {
         const _value = JSON.parse(value);
         if (Array.isArray(_value)) {
-          const result = validateArray(
+          const result = validateArray({
             config,
-            _value,
+            value: _value,
             props,
             propertyPath,
             unEvalValue,
-          );
+          });
           return result;
         }
       } catch (e) {
@@ -784,16 +742,15 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
     }
 
     if (Array.isArray(value)) {
-      return validateArray(config, value, props, propertyPath, unEvalValue);
+      return validateArray({ config, value, props, propertyPath, unEvalValue });
     }
 
     return invalidResponse;
   },
   [ValidationTypes.OBJECT_ARRAY]: (
-    config: ValidationConfig,
-    value: unknown,
-    props: Record<string, unknown>,
+    params: ValidatorParams,
   ): ValidationResponse => {
+    const { config, value } = params;
     const invalidResponse = {
       isValid: false,
       parsed: config.params?.default || [{}],
@@ -851,24 +808,15 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
   },
 
   [ValidationTypes.NESTED_OBJECT_ARRAY]: (
-    config: ValidationConfig,
-    value: unknown,
-    props: Record<string, unknown>,
-    propertyPath: string,
-    unEvalValue: string,
+    params: ValidatorParams,
   ): ValidationResponse => {
+    const { config } = params;
     let response: ValidationResponse = {
       isValid: false,
       parsed: config.params?.default || [],
       messages: [`${WIDGET_TYPE_VALIDATION_ERROR} ${getExpectedType(config)}`],
     };
-    response = VALIDATORS.ARRAY(
-      config,
-      value,
-      props,
-      propertyPath,
-      unEvalValue,
-    );
+    response = VALIDATORS.ARRAY(params);
 
     if (!response.isValid) {
       return response;
@@ -896,10 +844,9 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
     return response;
   },
   [ValidationTypes.DATE_ISO_STRING]: (
-    config: ValidationConfig,
-    value: unknown,
-    props: Record<string, unknown>,
+    params: ValidatorParams,
   ): ValidationResponse => {
+    const { config, value } = params;
     let isValid = false;
     let parsed = value;
     let message = "";
@@ -951,12 +898,8 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
 
     return result;
   },
-  [ValidationTypes.FUNCTION]: (
-    config: ValidationConfig,
-    value: unknown,
-    props: Record<string, unknown>,
-    propertyPath: string,
-  ): ValidationResponse => {
+  [ValidationTypes.FUNCTION]: (params: ValidatorParams): ValidationResponse => {
+    const { config, propertyPath, props, value } = params;
     const invalidResponse = {
       isValid: false,
       parsed: undefined,
@@ -980,10 +923,9 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
     return invalidResponse;
   },
   [ValidationTypes.IMAGE_URL]: (
-    config: ValidationConfig,
-    value: unknown,
-    props: Record<string, unknown>,
+    params: ValidatorParams,
   ): ValidationResponse => {
+    const { config, value } = params;
     const invalidResponse = {
       isValid: false,
       parsed: config.params?.default || "",
@@ -1016,10 +958,8 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
     }
     return invalidResponse;
   },
-  [ValidationTypes.SAFE_URL]: (
-    config: ValidationConfig,
-    value: unknown,
-  ): ValidationResponse => {
+  [ValidationTypes.SAFE_URL]: (params: ValidatorParams): ValidationResponse => {
+    const { config, value } = params;
     const invalidResponse = {
       isValid: false,
       parsed: config?.params?.default || "",
@@ -1045,12 +985,9 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
    *
    */
   [ValidationTypes.TABLE_PROPERTY]: (
-    config: ValidationConfig,
-    value: unknown,
-    props: Record<string, unknown>,
-    propertyPath: string,
-    unEvalValue: string,
+    params: ValidatorParams,
   ): ValidationResponse => {
+    const { config, propertyPath, props, unEvalValue, value } = params;
     if (!config.params?.type)
       return {
         isValid: false,
@@ -1059,26 +996,26 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
       };
 
     // Validate when JS mode is disabled
-    const result = VALIDATORS[config.params.type as ValidationTypes](
-      config.params as ValidationConfig,
+    const result = VALIDATORS[config.params.type as ValidationTypes]({
+      config: config.params as ValidationConfig,
       value,
       props,
       propertyPath,
       unEvalValue,
-    );
+    });
     if (result.isValid) return result;
 
     // Validate when JS mode is enabled
     const resultValue = [];
     if (_.isArray(value)) {
       for (const item of value) {
-        const result = VALIDATORS[config.params.type](
-          config.params as ValidationConfig,
-          item,
+        const result = VALIDATORS[config.params.type]({
+          config: config.params as ValidationConfig,
+          value: item,
           props,
           propertyPath,
           unEvalValue,
-        );
+        });
         if (!result.isValid) return result;
         resultValue.push(result.parsed);
       }

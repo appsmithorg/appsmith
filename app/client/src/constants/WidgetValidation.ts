@@ -25,13 +25,15 @@ export type ValidationResponse = {
   transformed?: any;
 };
 
-export type Validator = (
-  config: ValidationConfig,
-  value: unknown,
-  props: Record<string, unknown>,
-  propertyPath: string,
-  unEvalValue: string,
-) => ValidationResponse;
+export type ValidatorParams<T = unknown> = {
+  config: ValidationConfig;
+  value: T;
+  props: Record<string, unknown>;
+  propertyPath: string;
+  unEvalValue: string;
+};
+
+export type Validator = (params: ValidatorParams) => ValidationResponse;
 
 export const ISO_DATE_FORMAT = "YYYY-MM-DDTHH:mm:ss.sssZ";
 

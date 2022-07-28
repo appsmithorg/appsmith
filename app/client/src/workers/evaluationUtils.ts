@@ -495,7 +495,7 @@ export function validateWidgetProperty(
       parsed: value,
     };
   }
-  return validate(config, value, props, propertyPath, unEvalValue);
+  return validate({ config, value, props, propertyPath, unEvalValue });
 }
 
 export function validateActionProperty(
@@ -509,7 +509,7 @@ export function validateActionProperty(
       parsed: value,
     };
   }
-  return validate(config, value, {}, "", unEvalValue);
+  return validate({ config, value, props: {}, propertyPath: "", unEvalValue });
 }
 
 export function getValidatedTree(tree: DataTree, unEvalTree: DataTree) {

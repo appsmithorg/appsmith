@@ -82,7 +82,13 @@ describe("Validate Validators", () => {
       },
     ];
     inputs.forEach((input, index) => {
-      const result = validate(validation, input, DUMMY_WIDGET);
+      const result = validate({
+        config: validation,
+        value: input,
+        props: DUMMY_WIDGET,
+        propertyPath: "",
+        unEvalValue: "",
+      });
       expect(result).toStrictEqual(expected[index]);
     });
   });
@@ -126,7 +132,13 @@ describe("Validate Validators", () => {
       },
     ];
     inputs.forEach((input, index) => {
-      const result = validate(validation, input, DUMMY_WIDGET);
+      const result = validate({
+        config: validation,
+        value: input,
+        props: DUMMY_WIDGET,
+        propertyPath: "",
+        unEvalValue: "",
+      });
       expect(result).toStrictEqual(expected[index]);
     });
   });
@@ -174,7 +186,13 @@ describe("Validate Validators", () => {
       },
     ];
     inputs.forEach((input, index) => {
-      const result = validate(validation, input, DUMMY_WIDGET);
+      const result = validate({
+        config: validation,
+        value: input,
+        props: DUMMY_WIDGET,
+        propertyPath: "",
+        unEvalValue: "",
+      });
       expect(result).toStrictEqual(expected[index]);
     });
   });
@@ -195,7 +213,13 @@ describe("Validate Validators", () => {
       },
     ];
     inputs.forEach((input, index) => {
-      const result = validate(validation, input, DUMMY_WIDGET);
+      const result = validate({
+        config: validation,
+        value: input,
+        props: DUMMY_WIDGET,
+        unEvalValue: "",
+        propertyPath: "",
+      });
       expect(result).toStrictEqual(expected[index]);
     });
   });
@@ -230,7 +254,13 @@ describe("Validate Validators", () => {
       },
     ];
     inputs.forEach((input, index) => {
-      const result = validate(validation, input, DUMMY_WIDGET);
+      const result = validate({
+        config: validation,
+        value: input,
+        props: DUMMY_WIDGET,
+        unEvalValue: "",
+        propertyPath: "",
+      });
       expect(result).toStrictEqual(expected[index]);
     });
   });
@@ -279,7 +309,13 @@ describe("Validate Validators", () => {
     ];
 
     inputs.forEach((input, index) => {
-      const result = validate(config, input, DUMMY_WIDGET);
+      const result = validate({
+        config,
+        value: input,
+        props: DUMMY_WIDGET,
+        unEvalValue: "",
+        propertyPath: "",
+      });
       expect(result).toStrictEqual(expected[index]);
     });
   });
@@ -340,7 +376,13 @@ describe("Validate Validators", () => {
       },
     ];
     inputs.forEach((input, index) => {
-      const result = validate(config, input, DUMMY_WIDGET);
+      const result = validate({
+        config,
+        value: input,
+        props: DUMMY_WIDGET,
+        unEvalValue: "",
+        propertyPath: "",
+      });
       expect(result).toStrictEqual(expected[index]);
     });
   });
@@ -371,7 +413,13 @@ describe("Validate Validators", () => {
       },
     ];
     inputs.forEach((input, index) => {
-      const result = validate(config, input, DUMMY_WIDGET);
+      const result = validate({
+        config,
+        value: input,
+        props: DUMMY_WIDGET,
+        unEvalValue: "",
+        propertyPath: "",
+      });
       expect(result).toStrictEqual(expected[index]);
     });
   });
@@ -430,7 +478,13 @@ describe("Validate Validators", () => {
     ];
 
     inputs.forEach((input, index) => {
-      const result = validate(config, input, DUMMY_WIDGET);
+      const result = validate({
+        config,
+        value: input,
+        props: DUMMY_WIDGET,
+        unEvalValue: "",
+        propertyPath: "",
+      });
       expect(result).toStrictEqual(expected[index]);
     });
   });
@@ -451,7 +505,13 @@ describe("Validate Validators", () => {
     ];
 
     inputs.forEach((input, index) => {
-      const result = validate(config, input, DUMMY_WIDGET);
+      const result = validate({
+        config,
+        value: input,
+        props: DUMMY_WIDGET,
+        unEvalValue: "",
+        propertyPath: "",
+      });
       expect(result).toStrictEqual(expected[index]);
     });
   });
@@ -541,7 +601,13 @@ describe("Validate Validators", () => {
       },
     ];
     inputs.forEach((input, index) => {
-      const result = validate(config, input, DUMMY_WIDGET);
+      const result = validate({
+        config,
+        value: input,
+        props: DUMMY_WIDGET,
+        unEvalValue: "",
+        propertyPath: "",
+      });
       expect(result).toStrictEqual(expected[index]);
     });
   });
@@ -599,7 +665,13 @@ describe("Validate Validators", () => {
       },
     ];
     inputs.forEach((input, index) => {
-      const result = validate(config, input, DUMMY_WIDGET);
+      const result = validate({
+        config,
+        value: input,
+        props: DUMMY_WIDGET,
+        unEvalValue: "",
+        propertyPath: "",
+      });
       expect(result).toStrictEqual(expected[index]);
     });
   });
@@ -658,7 +730,13 @@ describe("Validate Validators", () => {
       },
     ];
     inputs.forEach((input, index) => {
-      const result = validate(config, input, DUMMY_WIDGET);
+      const result = validate({
+        config,
+        value: input,
+        props: DUMMY_WIDGET,
+        unEvalValue: "",
+        propertyPath: "",
+      });
       expect(result).toStrictEqual(expected[index]);
     });
   });
@@ -711,7 +789,13 @@ describe("Validate Validators", () => {
       ],
     };
 
-    const result = validate(config, input, DUMMY_WIDGET);
+    const result = validate({
+      config,
+      value: input,
+      props: DUMMY_WIDGET,
+      unEvalValue: "",
+      propertyPath: "",
+    });
     expect(result).toStrictEqual(expected);
   });
 
@@ -825,7 +909,13 @@ describe("Validate Validators", () => {
       },
     ];
     inputs.forEach((input, index) => {
-      const result = validate(config, input, DUMMY_WIDGET);
+      const result = validate({
+        config,
+        value: input,
+        props: DUMMY_WIDGET,
+        unEvalValue: "",
+        propertyPath: "",
+      });
       expect(result).toStrictEqual(expected[index]);
     });
   });
@@ -852,7 +942,13 @@ describe("Validate Validators", () => {
       },
     ];
     inputs.forEach((input, index) => {
-      const result = validate(config, input, DUMMY_WIDGET);
+      const result = validate({
+        config,
+        value: input,
+        props: DUMMY_WIDGET,
+        unEvalValue: "",
+        propertyPath: "",
+      });
       expect(result).toStrictEqual(expected[index]);
     });
   });
@@ -939,7 +1035,13 @@ describe("Validate Validators", () => {
       },
     ];
     inputs.forEach((input, index) => {
-      const result = validate(config, input, DUMMY_WIDGET);
+      const result = validate({
+        config,
+        value: input,
+        props: DUMMY_WIDGET,
+        unEvalValue: "",
+        propertyPath: "",
+      });
       expect(result).toStrictEqual(expected[index]);
     });
   });
@@ -979,7 +1081,13 @@ describe("Validate Validators", () => {
       },
     ];
     inputs.forEach((input, index) => {
-      const result = validate(config, input, DUMMY_WIDGET);
+      const result = validate({
+        config,
+        value: input,
+        props: DUMMY_WIDGET,
+        unEvalValue: "",
+        propertyPath: "",
+      });
       expect(result).toStrictEqual(expected[index]);
     });
   });
@@ -1035,7 +1143,13 @@ describe("Validate Validators", () => {
     ];
 
     inputs.forEach((input, index) => {
-      const result = validate(config, input, DUMMY_WIDGET);
+      const result = validate({
+        config,
+        value: input,
+        props: DUMMY_WIDGET,
+        unEvalValue: "",
+        propertyPath: "",
+      });
       expect(result).toStrictEqual(expected[index]);
     });
   });
@@ -1060,7 +1174,13 @@ describe("Validate Validators", () => {
     ];
 
     inputs.forEach((input, index) => {
-      const result = validate(config, input, DUMMY_WIDGET);
+      const result = validate({
+        config,
+        value: input,
+        props: DUMMY_WIDGET,
+        unEvalValue: "",
+        propertyPath: "",
+      });
       expect(result).toStrictEqual(expected[index]);
       expect(result).not.toStrictEqual(defaultDate);
     });
@@ -1160,7 +1280,13 @@ describe("Validate Validators", () => {
     ];
 
     inputs.forEach((input, index) => {
-      const result = validate(config, input, DUMMY_WIDGET);
+      const result = validate({
+        config,
+        value: input,
+        props: DUMMY_WIDGET,
+        unEvalValue: "",
+        propertyPath: "",
+      });
       expect(result).toStrictEqual(expected[index]);
     });
   });
@@ -1184,7 +1310,13 @@ describe("Validate Validators", () => {
     ];
 
     inputs.forEach((input, index) => {
-      const result = validate(config, input, DUMMY_WIDGET);
+      const result = validate({
+        config,
+        value: input,
+        props: DUMMY_WIDGET,
+        unEvalValue: "",
+        propertyPath: "",
+      });
       expect(result).toStrictEqual(expected[index]);
     });
   });
@@ -1208,7 +1340,13 @@ describe("Validate Validators", () => {
     ];
 
     inputs.forEach((input, index) => {
-      const result = validate(config, input, DUMMY_WIDGET);
+      const result = validate({
+        config,
+        value: input,
+        props: DUMMY_WIDGET,
+        unEvalValue: "",
+        propertyPath: "",
+      });
       expect(result).toStrictEqual(expected[index]);
     });
   });
@@ -1249,7 +1387,13 @@ describe("Validate Validators", () => {
     ];
 
     inputs.forEach((input, index) => {
-      const result = validate(config, input, DUMMY_WIDGET);
+      const result = validate({
+        config,
+        value: input,
+        props: DUMMY_WIDGET,
+        unEvalValue: "",
+        propertyPath: "",
+      });
       expect(result).toStrictEqual(expected[index]);
     });
   });
@@ -1268,7 +1412,13 @@ describe("Validate Validators", () => {
       parsed: [],
     };
     inputs.forEach((input) => {
-      const result = validate(config, input, DUMMY_WIDGET);
+      const result = validate({
+        config,
+        value: input,
+        props: DUMMY_WIDGET,
+        unEvalValue: "",
+        propertyPath: "",
+      });
       expect(result).toStrictEqual(expected);
     });
   });
@@ -1316,7 +1466,13 @@ describe("Validate Validators", () => {
       ],
     };
 
-    const result = validate(config, input, DUMMY_WIDGET);
+    const result = validate({
+      config,
+      value: input,
+      props: DUMMY_WIDGET,
+      unEvalValue: "",
+      propertyPath: "",
+    });
     expect(result).toStrictEqual(expected);
   });
 
@@ -1364,7 +1520,13 @@ describe("Validate Validators", () => {
       },
     ];
     inputs.forEach((input, i) => {
-      const result = validate(config, input, DUMMY_WIDGET);
+      const result = validate({
+        config,
+        value: input,
+        props: DUMMY_WIDGET,
+        unEvalValue: "",
+        propertyPath: "",
+      });
       expect(result).toStrictEqual(expected[i]);
     });
   });
