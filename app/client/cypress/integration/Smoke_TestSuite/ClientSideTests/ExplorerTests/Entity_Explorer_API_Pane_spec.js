@@ -16,7 +16,7 @@ describe("Entity explorer API pane related testcases", function() {
     cy.reload();
   });
 
-  it.only("Move to page / edit API name /properties validation", function() {
+  it("Move to page / edit API name /properties validation", function() {
     cy.log("Login Successful");
     cy.NavigateToAPI_Panel();
     cy.log("Navigation to API Panel screen successful");
