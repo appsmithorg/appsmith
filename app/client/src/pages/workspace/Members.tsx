@@ -289,8 +289,8 @@ export default function MemberSettings(props: PageProps) {
             onSelect={(option) => {
               dispatch(
                 changeWorkspaceUserRole(
-                  // workspaceId,
-                  option.name,
+                  workspaceId,
+                  option.id,
                   cellProps.cell.row.values.username,
                 ),
               );
@@ -348,7 +348,7 @@ export default function MemberSettings(props: PageProps) {
     : [];
 
   const selectRole = (option: any, username: any) => {
-    dispatch(changeWorkspaceUserRole(/*workspaceId,*/ option, username));
+    dispatch(changeWorkspaceUserRole(workspaceId, option, username));
   };
   return (
     <MembersWrapper isMobile={isMobile}>
@@ -411,8 +411,8 @@ export default function MemberSettings(props: PageProps) {
                         className="t--user-status"
                         defaultIcon="downArrow"
                         height="31px"
-                        onSelect={(value) => {
-                          selectRole(value, user.username);
+                        onSelect={(value, option) => {
+                          selectRole(option.id, user.username);
                         }}
                         options={roles}
                         selected={role}

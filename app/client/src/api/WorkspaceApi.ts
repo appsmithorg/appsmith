@@ -108,7 +108,7 @@ class WorkspaceApi extends Api {
       WorkspaceApi.workspacesURL +
         "/" +
         request.workspaceId +
-        "/permissionGroups",
+        "/permissionGroup",
       {
         username: request.username,
         newPermissionGroupId: request.newPermissionGroupId,
