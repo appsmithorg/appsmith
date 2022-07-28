@@ -16,32 +16,6 @@ import { Colors } from "constants/Colors";
 import { getWidgetParent } from "sagas/selectors";
 import { WidgetProps } from "widgets/BaseWidget";
 
-const SectionWrapper = styled.div`
-  position: relative;
-  border-top: 1px solid ${Colors.GREY_4};
-  padding: 4px 16px 8px 16px;
-
-  &:first-of-type {
-    border-top: 0;
-  }
-
-  /* Referring to a nested SectionWrapper */
-  & & {
-    padding: 0;
-    margin-top: 8px;
-  }
-
-  .${Classes.COLLAPSE_BODY} {
-    z-index: 1;
-    position: relative;
-    padding-bottom: 4px;
-  }
-
-  .bp3-collapse {
-    transition: none;
-  }
-`;
-
 const SectionTitle = styled.div`
   display: grid;
   grid-template-columns: 1fr 30px;
@@ -65,6 +39,38 @@ const SectionTitle = styled.div`
     &.open-collapse {
       transform: rotate(90deg);
     }
+  }
+`;
+
+const SectionWrapper = styled.div`
+  position: relative;
+  border-top: 1px solid ${Colors.GREY_4};
+  padding: 4px 16px 8px 16px;
+
+  &:first-of-type {
+    border-top: 0;
+  }
+
+  /* Referring to a nested SectionWrapper */
+  & & {
+    padding: 0;
+  }
+
+  & & ${SectionTitle} span {
+    color: ${Colors.GRAY_700};
+    text-transform: uppercase;
+    font-size: 14px;
+    font-weight: 600;
+  }
+
+  .${Classes.COLLAPSE_BODY} {
+    z-index: 1;
+    position: relative;
+    padding-bottom: 4px;
+  }
+
+  .bp3-collapse {
+    transition: none;
   }
 `;
 

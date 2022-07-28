@@ -574,7 +574,7 @@ const PROPERTIES = {
       {
         propertyName: "decimalsInCurrency",
         helpText: "No. of decimals in currency input",
-        label: "Decimals",
+        label: "Decimals Allowed",
         controlType: "DROP_DOWN",
         options: [
           {

@@ -263,16 +263,6 @@ export const contentConfig = [
     sectionName: "Data",
     children: [
       {
-        propertyName: "title",
-        label: "Title",
-        helpText: "Sets the title of the form",
-        controlType: "INPUT_TEXT",
-        placeholderText: "Update Order",
-        isBindProperty: true,
-        isTriggerProperty: false,
-        validation: { type: ValidationTypes.TEXT },
-      },
-      {
         propertyName: "sourceData",
         helpText: "Input JSON sample for default form layout",
         label: "Source Data",
@@ -339,6 +329,37 @@ export const contentConfig = [
     sectionName: "General",
     children: [
       {
+        propertyName: "title",
+        label: "Title",
+        helpText: "Sets the title of the form",
+        controlType: "INPUT_TEXT",
+        placeholderText: "Update Order",
+        isBindProperty: true,
+        isTriggerProperty: false,
+        validation: { type: ValidationTypes.TEXT },
+      },
+      {
+        propertyName: "isVisible",
+        helpText: "Controls the visibility of the widget",
+        label: "Visible",
+        controlType: "SWITCH",
+        isJSConvertible: true,
+        isBindProperty: true,
+        isTriggerProperty: false,
+        validation: { type: ValidationTypes.BOOLEAN },
+      },
+      {
+        propertyName: "animateLoading",
+        label: "Animate Loading",
+        controlType: "SWITCH",
+        helpText: "Controls the loading of the widget",
+        defaultValue: true,
+        isJSConvertible: true,
+        isBindProperty: true,
+        isTriggerProperty: false,
+        validation: { type: ValidationTypes.BOOLEAN },
+      },
+      {
         propertyName: "disabledWhenInvalid",
         helpText:
           "Disables the submit button when the parent form has a required widget that is not filled",
@@ -373,27 +394,6 @@ export const contentConfig = [
         helpText: "Show/Hide reset form button",
         label: "Show Reset",
         controlType: "SWITCH",
-        isJSConvertible: true,
-        isBindProperty: true,
-        isTriggerProperty: false,
-        validation: { type: ValidationTypes.BOOLEAN },
-      },
-      {
-        propertyName: "isVisible",
-        helpText: "Controls the visibility of the widget",
-        label: "Visible",
-        controlType: "SWITCH",
-        isJSConvertible: true,
-        isBindProperty: true,
-        isTriggerProperty: false,
-        validation: { type: ValidationTypes.BOOLEAN },
-      },
-      {
-        propertyName: "animateLoading",
-        label: "Animate Loading",
-        controlType: "SWITCH",
-        helpText: "Controls the loading of the widget",
-        defaultValue: true,
         isJSConvertible: true,
         isBindProperty: true,
         isTriggerProperty: false,
@@ -437,70 +437,77 @@ export const contentConfig = [
 
 const generateButtonStyleControlsV2For = (prefix: string) => [
   {
-    propertyName: `${prefix}.buttonColor`,
-    helpText: "Changes the color of the button",
-    label: "Button Color",
-    controlType: "COLOR_PICKER",
-    isJSConvertible: true,
-    isBindProperty: true,
-    isTriggerProperty: false,
-    validation: { type: ValidationTypes.TEXT },
-  },
-  {
-    propertyName: `${prefix}.buttonVariant`,
-    label: "Button Variant",
-    controlType: "DROP_DOWN",
-    helpText: "Sets the variant of the icon button",
-    options: [
+    sectionName: "General",
+    collapsible: false,
+    children: [
       {
-        label: "Primary",
-        value: ButtonVariantTypes.PRIMARY,
+        propertyName: `${prefix}.buttonColor`,
+        helpText: "Changes the color of the button",
+        label: "Button Color",
+        controlType: "COLOR_PICKER",
+        isJSConvertible: true,
+        isBindProperty: true,
+        isTriggerProperty: false,
+        validation: { type: ValidationTypes.TEXT },
       },
       {
-        label: "Secondary",
-        value: ButtonVariantTypes.SECONDARY,
+        propertyName: `${prefix}.buttonVariant`,
+        label: "Button Variant",
+        controlType: "DROP_DOWN",
+        helpText: "Sets the variant of the icon button",
+        options: [
+          {
+            label: "Primary",
+            value: ButtonVariantTypes.PRIMARY,
+          },
+          {
+            label: "Secondary",
+            value: ButtonVariantTypes.SECONDARY,
+          },
+          {
+            label: "Tertiary",
+            value: ButtonVariantTypes.TERTIARY,
+          },
+        ],
+        isJSConvertible: true,
+        isBindProperty: true,
+        isTriggerProperty: false,
+        validation: {
+          type: ValidationTypes.TEXT,
+          params: {
+            allowedValues: [
+              ButtonVariantTypes.PRIMARY,
+              ButtonVariantTypes.SECONDARY,
+              ButtonVariantTypes.TERTIARY,
+            ],
+            default: ButtonVariantTypes.PRIMARY,
+          },
+        },
       },
       {
-        label: "Tertiary",
-        value: ButtonVariantTypes.TERTIARY,
+        propertyName: `${prefix}.borderRadius`,
+        label: "Border Radius",
+        helpText: "Rounds the corners of the icon button's outer border edge",
+        controlType: "BORDER_RADIUS_OPTIONS",
+        isJSConvertible: true,
+        isBindProperty: true,
+        isTriggerProperty: false,
+        validation: { type: ValidationTypes.TEXT },
+      },
+      {
+        propertyName: `${prefix}.boxShadow`,
+        label: "Box Shadow",
+        helpText:
+          "Enables you to cast a drop shadow from the frame of the widget",
+        controlType: "BOX_SHADOW_OPTIONS",
+        isJSConvertible: true,
+        isBindProperty: true,
+        isTriggerProperty: false,
+        validation: {
+          type: ValidationTypes.TEXT,
+        },
       },
     ],
-    isJSConvertible: true,
-    isBindProperty: true,
-    isTriggerProperty: false,
-    validation: {
-      type: ValidationTypes.TEXT,
-      params: {
-        allowedValues: [
-          ButtonVariantTypes.PRIMARY,
-          ButtonVariantTypes.SECONDARY,
-          ButtonVariantTypes.TERTIARY,
-        ],
-        default: ButtonVariantTypes.PRIMARY,
-      },
-    },
-  },
-  {
-    propertyName: `${prefix}.borderRadius`,
-    label: "Border Radius",
-    helpText: "Rounds the corners of the icon button's outer border edge",
-    controlType: "BORDER_RADIUS_OPTIONS",
-    isJSConvertible: true,
-    isBindProperty: true,
-    isTriggerProperty: false,
-    validation: { type: ValidationTypes.TEXT },
-  },
-  {
-    propertyName: `${prefix}.boxShadow`,
-    label: "Box Shadow",
-    helpText: "Enables you to cast a drop shadow from the frame of the widget",
-    controlType: "BOX_SHADOW_OPTIONS",
-    isJSConvertible: true,
-    isBindProperty: true,
-    isTriggerProperty: false,
-    validation: {
-      type: ValidationTypes.TEXT,
-    },
   },
   {
     sectionName: "Icon",
@@ -530,6 +537,31 @@ const generateButtonStyleControlsV2For = (prefix: string) => [
         },
         validation: {
           type: ValidationTypes.TEXT,
+        },
+      },
+      {
+        propertyName: `${prefix}.iconAlign`,
+        label: "Position",
+        helpText: "Sets the icon alignment of the button",
+        controlType: "ICON_TABS",
+        options: [
+          {
+            icon: "VERTICAL_LEFT",
+            value: "left",
+          },
+          {
+            icon: "VERTICAL_RIGHT",
+            value: "right",
+          },
+        ],
+        isJSConvertible: true,
+        isBindProperty: true,
+        isTriggerProperty: false,
+        validation: {
+          type: ValidationTypes.TEXT,
+          params: {
+            allowedValues: ["center", "left", "right"],
+          },
         },
       },
       {
@@ -564,31 +596,6 @@ const generateButtonStyleControlsV2For = (prefix: string) => [
               ButtonPlacementTypes.CENTER,
             ],
             default: ButtonPlacementTypes.CENTER,
-          },
-        },
-      },
-      {
-        propertyName: `${prefix}.iconAlign`,
-        label: "Icon Alignment",
-        helpText: "Sets the icon alignment of the button",
-        controlType: "ICON_TABS",
-        options: [
-          {
-            icon: "VERTICAL_LEFT",
-            value: "left",
-          },
-          {
-            icon: "VERTICAL_RIGHT",
-            value: "right",
-          },
-        ],
-        isJSConvertible: true,
-        isBindProperty: true,
-        isTriggerProperty: false,
-        validation: {
-          type: ValidationTypes.TEXT,
-          params: {
-            allowedValues: ["center", "left", "right"],
           },
         },
       },
