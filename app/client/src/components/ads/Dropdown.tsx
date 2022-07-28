@@ -5,9 +5,15 @@ import React, {
   ReactElement,
   useRef,
 } from "react";
-import Icon, { IconName, IconSize } from "./Icon";
 import { CommonComponentProps, Classes } from "./common";
-import { Text, TextProps, TextType } from "design-system";
+import {
+  Icon,
+  IconName,
+  IconSize,
+  Text,
+  TextProps,
+  TextType,
+} from "design-system";
 import { Popover, PopperBoundary, Position } from "@blueprintjs/core";
 import { getTypographyByKey, Theme } from "constants/DefaultTheme";
 import styled from "constants/DefaultTheme";

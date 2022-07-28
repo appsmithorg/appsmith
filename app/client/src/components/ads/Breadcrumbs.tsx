@@ -1,7 +1,7 @@
 import React, { ReactNode } from "react";
 import { Link, useLocation } from "react-router-dom";
 import styled from "styled-components";
-import Icon from "./Icon";
+import { Icon } from "design-system";
 import { Colors } from "constants/Colors";
 
 export interface BreadcrumbsProps {

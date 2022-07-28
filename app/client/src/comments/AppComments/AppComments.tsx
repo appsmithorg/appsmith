@@ -5,7 +5,7 @@ import { commentModeSelector } from "selectors/commentsSelectors";
 import AppCommentsHeader from "./AppCommentsHeader";
 import AppCommentThreads from "./AppCommentThreads";
 import { Colors } from "constants/Colors";
-import { IconSize } from "components/ads";
+import { IconSize } from "design-system";
 import { BannerMessage } from "components/ads/BannerMessage";
 
 function AppComments() {
