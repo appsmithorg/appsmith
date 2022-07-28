@@ -9,7 +9,6 @@ import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DefaultResources;
 import com.appsmith.external.models.JSValue;
-import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
@@ -21,6 +20,7 @@ import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.PluginType;
 import com.appsmith.server.domains.Theme;
+import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.ActionDTO;
@@ -142,6 +142,9 @@ public class GitServiceTest {
     @Autowired
     private ThemeService themeService;
 
+    @Autowired
+    UserService userService;
+
     @MockBean
     GitExecutor gitExecutor;
 
@@ -169,11 +172,17 @@ public class GitServiceTest {
     public void setup() throws IOException, GitAPIException {
 
         if (StringUtils.isEmpty(workspaceId)) {
-            workspaceId = workspaceRepository
-                    .findByName("Another Test Workspace", AclPermission.READ_WORKSPACES)
-                    .block()
-                    .getId();
+
+            User apiUser = userService.findByEmail("api_user").block();
+            Workspace toCreate = new Workspace();
+            toCreate.setName("Git Service Test");
+
+            if (!org.springframework.util.StringUtils.hasLength(workspaceId)) {
+                Workspace workspace = workspaceService.create(toCreate, apiUser).block();
+                workspaceId = workspace.getId();
+            }
         }
+
         Mockito
                 .when(gitCloudServicesUtils.getPrivateRepoLimitForOrg(eq(workspaceId), Mockito.anyBoolean()))
                 .thenReturn(Mono.just(-1));

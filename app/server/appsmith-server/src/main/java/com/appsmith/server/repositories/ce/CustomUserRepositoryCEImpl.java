@@ -1,6 +1,7 @@
 package com.appsmith.server.repositories.ce;
 
 import com.appsmith.server.acl.AclPermission;
+import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.QUser;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
@@ -64,16 +65,19 @@ public class CustomUserRepositoryCEImpl extends BaseAppsmithRepositoryImpl<User>
     }
 
     /**
-     * Fetch minmal information from *a* user document in the database, and if found, return `true`, if empty, return `false`.
+     * Fetch minmal information from *a* user document in the database, limit to two documents, filter anonymousUser
+     * If no documents left return true otherwise return false.
      * @return Boolean, indicated where there exists at least one user in the system or not.
      */
     @Override
     public Mono<Boolean> isUsersEmpty() {
         final Query q = query(new Criteria());
         q.fields().include(fieldName(QUser.user.email));
-        return mongoOperations.findOne(q, User.class)
-                .map(ignored -> false)
-                .defaultIfEmpty(true);
+        q.limit(2);
+        return mongoOperations.find(q, User.class)
+                .filter(user -> !user.getEmail().equals(FieldName.ANONYMOUS_USER))
+                .count()
+                .map(count -> count == 0);
     }
 
 }

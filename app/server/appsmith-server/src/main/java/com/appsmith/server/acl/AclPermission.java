@@ -1,17 +1,17 @@
 package com.appsmith.server.acl;
 
 import com.appsmith.external.models.BaseDomain;
+import com.appsmith.external.models.Datasource;
 import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Comment;
 import com.appsmith.server.domains.CommentThread;
-import com.appsmith.external.models.Datasource;
-import com.appsmith.server.domains.PermissionGroup;
-import com.appsmith.server.domains.Tenant;
-import com.appsmith.server.domains.Workspace;
+import com.appsmith.server.domains.Config;
 import com.appsmith.server.domains.Page;
+import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.Theme;
 import com.appsmith.server.domains.User;
+import com.appsmith.server.domains.Workspace;
 import lombok.Getter;
 
 @Getter
@@ -22,10 +22,10 @@ public enum AclPermission {
      * For example, USER_MANAGE_WORKSPACES, WORKSPACE_MANAGE_APPLICATIONS, etc.
      */
 
-    // Tenant level permissions
-    CREATE_WORKSPACES("create:workspace", Tenant.class),
-    CREATE_USER_GROUPS("create:userGroups", Tenant.class),
-    CREATE_PERMISSION_GROUPS("create:permissionGroups", Tenant.class),
+    // Instance level permissions
+    // Does this user have permission to edit/read Instance Config UI?
+    MANAGE_INSTANCE_CONFIGURATION("manageInstanceConfiguration:config", Config.class),
+    READ_INSTANCE_CONFIGURATION("readInstanceConfiguration:config", Config.class),
 
     // Does the user have manage workspace permission
     USER_MANAGE_WORKSPACES("manage:userWorkspace", User.class),
@@ -33,6 +33,7 @@ public enum AclPermission {
     USER_READ_WORKSPACES("read:userWorkspace", User.class),
 
     // Does this user have permission to access Instance Config UI?
+    @Deprecated
     MANAGE_INSTANCE_ENV("manage:instanceEnv", User.class),
 
     // TODO: Add these permissions to PolicyGenerator to assign them to the user when they sign up

@@ -26,15 +26,14 @@ import com.appsmith.server.dtos.UserUpdateDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.PolicyUtils;
+import com.appsmith.server.helpers.UserUtils;
 import com.appsmith.server.helpers.ValidationUtils;
 import com.appsmith.server.notifications.EmailSender;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.PasswordResetTokenRepository;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.services.AnalyticsService;
-import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.BaseService;
-import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.TenantService;
@@ -76,7 +75,6 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
-import static com.appsmith.server.acl.AclPermission.MANAGE_INSTANCE_ENV;
 import static com.appsmith.server.acl.AclPermission.MANAGE_USERS;
 import static com.appsmith.server.acl.AclPermission.USER_MANAGE_WORKSPACES;
 import static com.appsmith.server.helpers.ValidationUtils.LOGIN_PASSWORD_MAX_LENGTH;
@@ -100,6 +98,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
     private final UserDataService userDataService;
     private final TenantService tenantService;
     private final PermissionGroupService permissionGroupService;
+    private final UserUtils userUtils;
 
     private static final String WELCOME_USER_EMAIL_TEMPLATE = "email/welcomeUserTemplate.html";
     private static final String FORGOT_PASSWORD_EMAIL_TEMPLATE = "email/forgotPasswordTemplate.html";
@@ -122,15 +121,14 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                              EmailSender emailSender,
                              ApplicationRepository applicationRepository,
                              PolicyUtils policyUtils,
-                             ConfigService configService,
                              CommonConfig commonConfig,
                              EmailConfig emailConfig,
                              UserChangedHandler userChangedHandler,
                              EncryptionService encryptionService,
-                             ApplicationPageService applicationPageService,
                              UserDataService userDataService,
                              TenantService tenantService,
-                             PermissionGroupService permissionGroupService) {
+                             PermissionGroupService permissionGroupService,
+                             UserUtils userUtils) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.workspaceService = workspaceService;
         this.sessionUserService = sessionUserService;
@@ -146,6 +144,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
         this.userDataService = userDataService;
         this.tenantService = tenantService;
         this.permissionGroupService = permissionGroupService;
+        this.userUtils = userUtils;
     }
 
     @Override
@@ -461,15 +460,6 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
         return new HashSet<>(userPolicies.values());
     }
 
-    private Set<Policy> adminUserPolicy(User user) {
-
-        Set<AclPermission> aclPermissions = Set.of(MANAGE_INSTANCE_ENV);
-
-        Map<String, Policy> userPolicies = policyUtils.generatePolicyFromPermission(aclPermissions, user);
-
-        return new HashSet<>(userPolicies.values());
-    }
-
     @Override
     public Mono<User> userCreate(User user, boolean isAdminUser) {
         // It is assumed here that the user's password has already been encoded.
@@ -479,9 +469,6 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
 
         // Set the permissions for the user
         user.getPolicies().addAll(crudUserPolicy(user));
-        if(isAdminUser) {
-            user.getPolicies().addAll(adminUserPolicy(user));
-        }
 
         Mono<User> userWithTenantMono = Mono.just(user)
                 .flatMap(userBeforeSave -> {
@@ -500,6 +487,13 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
         return userWithTenantMono
                 .flatMap(this::validateObject)
                 .flatMap(repository::save)
+                .flatMap(savedUser -> {
+                    if (isAdminUser) {
+                        return userUtils.makeSuperUser(List.of(savedUser))
+                                .then(Mono.just(savedUser));
+                    }
+                    return Mono.just(savedUser);
+                })
                 .then(Mono.zip(
                         repository.findByEmail(user.getUsername()),
                         userDataService.getForUserEmail(user.getUsername())
@@ -748,7 +742,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                    return Mono.empty();
                });
 
-        return Mono.zip(bulkAddUserResultMono, sendAnalyticsEventMono).then(inviteUsersMono);
+        return bulkAddUserResultMono.then(sendAnalyticsEventMono).then(inviteUsersMono);
     }
 
     private Mono<? extends User> createNewUserAndSendInviteEmail(String email, String originHeader,
@@ -864,15 +858,24 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
 
     @Override
     public Mono<UserProfileDTO> buildUserProfileDTO(User user) {
+
+        Mono<User> userFromDbMono = findByEmail(user.getEmail())
+                .cache();
+
+        Mono<Boolean> isSuperUserMono = userFromDbMono
+                .flatMap(userUtils::isSuperUser);
+
         return Mono.zip(
                         isUsersEmpty(),
-                        user.isAnonymous() ? Mono.just(user) : findByEmail(user.getEmail()),
-                        userDataService.getForCurrentUser().defaultIfEmpty(new UserData())
+                        userFromDbMono,
+                        userDataService.getForCurrentUser().defaultIfEmpty(new UserData()),
+                        isSuperUserMono
                 )
                 .map(tuple -> {
                     final boolean isUsersEmpty = Boolean.TRUE.equals(tuple.getT1());
                     final User userFromDb = tuple.getT2();
                     final UserData userData = tuple.getT3();
+                    Boolean isSuperUser = tuple.getT4();
 
                     final UserProfileDTO profile = new UserProfileDTO();
 
@@ -890,11 +893,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                     profile.setPhotoId(userData.getProfilePhotoAssetId());
                     profile.setEnableTelemetry(!commonConfig.isTelemetryDisabled());
 
-                    profile.setSuperUser(policyUtils.isPermissionPresentForUser(
-                            userFromDb.getPolicies(),
-                            AclPermission.MANAGE_INSTANCE_ENV.getValue(),
-                            userFromDb.getUsername()
-                    ));
+                    profile.setSuperUser(isSuperUser);
                     profile.setConfigurable(!StringUtils.isEmpty(commonConfig.getEnvFilePath()));
 
                     return profile;

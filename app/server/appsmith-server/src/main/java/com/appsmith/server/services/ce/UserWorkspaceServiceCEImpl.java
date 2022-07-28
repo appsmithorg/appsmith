@@ -26,11 +26,14 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 
 @Slf4j
@@ -115,7 +118,7 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
                 .cache();
 
         // Get the user
-        Mono<User> userMono = userRepository.findByEmail(changeUserGroupDTO.getUsername(), AclPermission.READ_USERS)
+        Mono<User> userMono = userRepository.findByEmail(changeUserGroupDTO.getUsername())
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.USER, changeUserGroupDTO.getUsername())))
                 .cache();
 
@@ -123,8 +126,9 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
                .flatMapMany(tuple -> {
                    Workspace workspace = tuple.getT1();
                    User user = tuple.getT2();
-                   return permissionGroupService.getAllByAssignedToUserAndDefaultWorkspace(user, workspace, AclPermission.READ_PERMISSION_GROUPS);
+                   return permissionGroupService.getAllByAssignedToUserAndDefaultWorkspace(user, workspace, AclPermission.MANAGE_PERMISSION_GROUPS);
                })
+               .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACTION_IS_NOT_AUTHORIZED, "Change permissionGroup of a member")))
                //TODO do we handle case of multiple default permission group ids
                .single()
                .flatMap(permissionGroup -> {
@@ -132,9 +136,7 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
                        return Mono.error(new AppsmithException(AppsmithError.REMOVE_LAST_WORKSPACE_ADMIN_ERROR));
                    }
                    return Mono.just(permissionGroup);
-               })
-               // If we cannot find the groups, user has not been assigned any default permission group
-               .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACTION_IS_NOT_AUTHORIZED, "Change permissionGroup of a member")));
+               });
 
        // Unassigned old pernmission group from user
        Mono<PermissionGroup> permissionGroupUnassignedMono = oldDefaultPermissionGroupMono
@@ -142,13 +144,13 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
                .flatMap(pair -> permissionGroupService.unassignFromUser(pair.getT1(), pair.getT2()));
 
        // If new permission group id is not present, just unassign old permission group and return PermissionAndGroupDTO
-       if(!StringUtils.hasText(changeUserGroupDTO.getNewPermissionGroup())) {
+       if(!StringUtils.hasText(changeUserGroupDTO.getNewPermissionGroupId())) {
            return permissionGroupUnassignedMono.then(userMono)
                    .map(user ->UserAndPermissionGroupDTO.builder().username(user.getUsername()).name(user.getName()).build());
        }
 
        // Get the new permission group
-       Mono<PermissionGroup> newDefaultPermissionGroupMono = permissionGroupService.getById(changeUserGroupDTO.getNewPermissionGroup(), AclPermission.ASSIGN_PERMISSION_GROUPS)
+       Mono<PermissionGroup> newDefaultPermissionGroupMono = permissionGroupService.getById(changeUserGroupDTO.getNewPermissionGroupId(), AclPermission.ASSIGN_PERMISSION_GROUPS)
                // If we cannot find the group, that means either newGroupId is not a default group or current user has no access to the group
                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACTION_IS_NOT_AUTHORIZED, "Change permissionGroup of a member")));
 
@@ -193,20 +195,22 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
                .map(UserAndPermissionGroupDTO::getUserId)
                .collect(Collectors.toSet())
                .flatMapMany(userIds -> userRepository.findAllById(userIds))
-               .collectMap(User::getUsername)
+               .collectMap(User::getId)
                .cache();
 
        // Update name and username in the list of UserAndGroupDTO
        userAndPermissionGroupDTOsMono = userAndPermissionGroupDTOsMono
-               .flatMapMany(Flux::fromIterable)
                .zipWith(userMapMono)
                .map(tuple -> {
-                   UserAndPermissionGroupDTO userAndPermissionGroupDTO = tuple.getT1();
+                   List<UserAndPermissionGroupDTO> userAndPermissionGroupDTOList = tuple.getT1();
                    Map<String, User> userMap = tuple.getT2();
-                   userAndPermissionGroupDTO.setUsername(userMap.get(userAndPermissionGroupDTO.getUserId()).getUsername()); // update name
-                   userAndPermissionGroupDTO.setName(userMap.get(userAndPermissionGroupDTO.getUserId()).getName()); // update name
-                   return userAndPermissionGroupDTO;
-               }).collectList().cache();
+                   userAndPermissionGroupDTOList.forEach(userAndPermissionGroupDTO -> {
+                          User user = userMap.get(userAndPermissionGroupDTO.getUserId());
+                          userAndPermissionGroupDTO.setName(Optional.ofNullable(user.getName()).orElse(""));
+                          userAndPermissionGroupDTO.setUsername(user.getUsername());
+                   });
+                   return userAndPermissionGroupDTOList;
+               }).cache();
 
        return userAndPermissionGroupDTOsMono;
     }
@@ -215,7 +219,7 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
        Set<String> userIds = new HashSet<>(); // Set of already collected users
        List<UserAndPermissionGroupDTO> userAndGroupDTOList = new ArrayList<>();
        permissionGroupList.forEach(permissionGroup -> {
-           permissionGroup.getAssignedToUserIds().stream().filter(userId -> !userIds.contains(userId)).forEach(userId -> {
+           Stream.ofNullable(permissionGroup.getAssignedToUserIds()).flatMap(Collection::stream).filter(userId -> !userIds.contains(userId)).forEach(userId -> {
                userAndGroupDTOList.add(UserAndPermissionGroupDTO.builder()
                        .userId(userId)
                        .permissionGroupName(permissionGroup.getName())
