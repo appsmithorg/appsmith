@@ -31,7 +31,7 @@ import { warn as logWarn } from "loglevel";
 import { EvalMetaUpdates } from "./DataTreeEvaluator/types";
 import { isObject } from "lodash";
 import { DataTreeObjectEntity } from "entities/DataTree/dataTreeFactory";
-import { isWidgetPropertyNamePath } from "widgets/WidgetUtils";
+import { isWidgetPropertyNamePath } from "workers/widgetEvalUtils";
 
 // Dropdown1.options[1].value -> Dropdown1.options[1]
 // Dropdown1.options[1] -> Dropdown1.options
