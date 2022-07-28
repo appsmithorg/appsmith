@@ -1,11 +1,11 @@
 import datasourceFormData from "../../fixtures/datasources.json";
 import { ObjectsRegistry } from "../Objects/Registry";
 
-var DataTypes = {
+var DataSourceKVP = {
   Postgres: "PostgreSQL",
   Mongo: "MongoDB",
   MySql: "MySQL",
-};
+};//DataSources KeyValuePair
 
 export class DataSources {
   private agHelper = ObjectsRegistry.AggregateHelper;
@@ -440,12 +440,12 @@ export class DataSources {
     this.agHelper.GenerateUUID();
     cy.get("@guid").then((uid) => {
       navigateToCreateNewDs && this.NavigateToDSCreateNew();
-      this.CreatePlugIn(DataTypes[dsType]);
+      this.CreatePlugIn(DataSourceKVP[dsType]);
       guid = uid;
       this.agHelper.RenameWithInPane(dsType + " " + guid, false);
-      if (DataTypes[dsType] == "PostgreSQL") this.FillPostgresDSForm();
-      else if (DataTypes[dsType] == "MySQL") this.FillMySqlDSForm();
-      else if (DataTypes[dsType] == "MongoDB") this.FillMongoDSForm();
+      if (DataSourceKVP[dsType] == "PostgreSQL") this.FillPostgresDSForm();
+      else if (DataSourceKVP[dsType] == "MySQL") this.FillMySqlDSForm();
+      else if (DataSourceKVP[dsType] == "MongoDB") this.FillMongoDSForm();
       this.TestSaveDatasource();
       cy.wrap(dsType + " " + guid).as("dsName");
     });
