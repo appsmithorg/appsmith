@@ -32,7 +32,7 @@ describe("Validate Mongo Query Pane Validations", () => {
       dataSources._dropdownOption,
       "Connect New Datasource",
     );
-    dataSources.CreateDataSource("Mongo");
+    dataSources.CreateDataSource("Mongo", false);
 
     agHelper.ValidateNetworkStatus("@getDatasourceStructure"); //Making sure table dropdown is populated
     agHelper.GetNClick(dataSources._selectTableDropdown);

@@ -435,11 +435,11 @@ export class DataSources {
     );
   }
 
-  public CreateDataSource(dsType: "Postgres" | "Mongo" | "MySql") {
+  public CreateDataSource(dsType: "Postgres" | "Mongo" | "MySql", navigateToCreateNewDs = true) {
     let guid: any;
     this.agHelper.GenerateUUID();
     cy.get("@guid").then((uid) => {
-      this.NavigateToDSCreateNew();
+      navigateToCreateNewDs && this.NavigateToDSCreateNew();
       this.CreatePlugIn(DataTypes[dsType]);
       guid = uid;
       this.agHelper.RenameWithInPane(dsType + " " + guid, false);
