@@ -54,30 +54,6 @@ describe("<UserGroupListing />", () => {
       `/settings/user-groups/${userGroupTableData[0].id}`,
     );
   });
-  it("should render appsmith badge for appsmith provided user group", () => {
-    renderComponent();
-    const userGroup = screen.getAllByTestId("t--usergroup-cell");
-    const appsmithBadge = screen.getAllByTestId("t--appsmith-badge");
-    const appsmithProvided = userGroupTableData.filter(
-      (group) => group.isAppsmithProvided,
-    );
-    expect(appsmithBadge.length).toEqual(appsmithProvided.length);
-    userGroupTableData.map((group, index) => {
-      if (!group.isAppsmithProvided) {
-        expect(
-          userGroup[index].querySelectorAll(
-            "[data-testid='t--appsmith-badge']",
-          ),
-        ).toHaveLength(0);
-      } else {
-        expect(
-          userGroup[index].querySelectorAll(
-            "[data-testid='t--appsmith-badge']",
-          ),
-        ).not.toHaveLength(0);
-      }
-    });
-  });
   it("should test new group gets created on Add group button click", () => {
     renderComponent();
     const button = screen.getAllByTestId("t--acl-page-header-input");

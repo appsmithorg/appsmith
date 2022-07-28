@@ -6,7 +6,6 @@ MONGO_PASSWORD="$2"
 ENCRYPTION_PASSWORD="$3"
 ENCRYPTION_SALT="$4"
 SUPERVISOR_PASSWORD="$5"
-KEYCLOAK_PASSWORD="$6"
 
 cat <<EOF
 # Sentry
@@ -64,7 +63,7 @@ APPSMITH_MAIL_SMTP_AUTH=
 APPSMITH_MAIL_SMTP_TLS_ENABLED=
 
 # Disable all telemetry
-# Note: This only takes effect in self-hosted scenarios. 
+# Note: This only takes effect in self-hosted scenarios.
 # Please visit: https://docs.appsmith.com/telemetry to read more about anonymized data collected by Appsmith
 APPSMITH_DISABLE_TELEMETRY=false
 #APPSMITH_SENTRY_DSN=
@@ -87,10 +86,6 @@ APPSMITH_ENCRYPTION_SALT=$ENCRYPTION_SALT
 
 APPSMITH_CUSTOM_DOMAIN=
 
-# Keycloak master credentials
-KEYCLOAK_ADMIN_USERNAME=admin
-KEYCLOAK_ADMIN_PASSWORD=$KEYCLOAK_PASSWORD
-
 # Java command line arguments, as space-delimited string. Ex: "-Xms800M -Xmx800M"
 APPSMITH_JAVA_ARGS=
 
@@ -100,4 +95,10 @@ APPSMITH_JAVA_ARGS=
 
 APPSMITH_SUPERVISOR_USER=appsmith
 APPSMITH_SUPERVISOR_PASSWORD=$SUPERVISOR_PASSWORD
+
+# Set this to a space separated list of addresses that should be allowed to load Appsmith in a frame.
+# Example: "https://mydomain.com https://another-trusted-domain.com" will allow embedding on those two domains.
+# Default value, if commented or not set, is "'none'", which disables embedding completely.
+# https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy/frame-ancestors
+APPSMITH_ALLOWED_FRAME_ANCESTORS="'self'"
 EOF

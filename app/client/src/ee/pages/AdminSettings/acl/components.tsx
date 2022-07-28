@@ -1,6 +1,13 @@
 import React from "react";
-import { Button, Category, Icon, IconSize, SearchInput } from "components/ads";
+import { Button, Category, SearchInput } from "components/ads";
 import styled, { createGlobalStyle } from "styled-components";
+import { Spinner } from "@blueprintjs/core";
+import {
+  createMessage,
+  BOTTOM_BAR_CLEAR_BTN,
+  BOTTOM_BAR_SAVE_BTN,
+  BOTTOM_BAR_SAVE_MESSAGE,
+} from "@appsmith/constants/messages";
 
 export const AclWrapper = styled.div`
   flex-basis: calc(100% - ${(props) => props.theme.homePage.leftPane.width}px);
@@ -64,16 +71,6 @@ export const AppsmithIcon = styled.div`
   font-weight: 600;
 `;
 
-export const StyledBackButton = styled.div`
-  display: flex;
-  cursor: pointer;
-  margin: 0 0 20px 0;
-`;
-
-export const BackButtonText = styled.span`
-  margin: 0 0 0 8px;
-`;
-
 export const StyledSearchInput = styled(SearchInput)`
   > div {
     border-radius: 1px;
@@ -124,22 +121,6 @@ const ButtonsWrapper = styled.div`
   flex-shrink: 0;
 `;
 
-export function BackButton() {
-  const onBack = () => {
-    history.back();
-  };
-
-  return (
-    <StyledBackButton
-      className="t--admin-settings-back-button"
-      onClick={onBack}
-    >
-      <Icon name="chevron-left" size={IconSize.XS} />
-      <BackButtonText>Back</BackButtonText>
-    </StyledBackButton>
-  );
-}
-
 export function SaveButtonBar({
   onClear,
   onSave,
@@ -150,8 +131,7 @@ export function SaveButtonBar({
   return (
     <SaveButtonBarWrapper>
       <SaveButtonBarText>
-        These changes will affect the users ability to interact with various
-        aspects of the application. Are you sure ?
+        {createMessage(BOTTOM_BAR_SAVE_MESSAGE)}
       </SaveButtonBarText>
       <ButtonsWrapper>
         <StyledSaveButton
@@ -164,7 +144,7 @@ export function SaveButtonBar({
             onSave();
           }}
           tag="button"
-          text="Save Changes"
+          text={createMessage(BOTTOM_BAR_SAVE_BTN)}
         />
         <StyledClearButton
           category={Category.tertiary}
@@ -175,9 +155,36 @@ export function SaveButtonBar({
             onClear();
           }}
           tag="button"
-          text="Clear"
+          text={createMessage(BOTTOM_BAR_CLEAR_BTN)}
         />
       </ButtonsWrapper>
     </SaveButtonBarWrapper>
   );
 }
+
+export const LoaderContainer = styled.div`
+  justify-content: center;
+  width: 100%;
+
+  .bp3-spinner {
+    svg {
+      width: 24px;
+      height: 24px;
+    }
+  }
+`;
+
+export const LoaderText = styled.div`
+  font-size: 16px;
+  color: var(--appsmith-color-black-700);
+  line-height: 1.5;
+  text-align: center;
+`;
+
+export const Loader = () => {
+  return (
+    <LoaderContainer>
+      <Spinner />
+    </LoaderContainer>
+  );
+};

@@ -143,7 +143,7 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
                 .anyMatch(policy -> policy.getPermission().equals(USER_MANAGE_WORKSPACES.getValue()));
 
         if (!isManageOrgPolicyPresent) {
-            return Mono.error(new AppsmithException(AppsmithError.ACTION_IS_NOT_AUTHORIZED, "Create organization"));
+            return Mono.error(new AppsmithException(AppsmithError.ACTION_IS_NOT_AUTHORIZED, "Create workspace"));
         }
 
         if (workspace.getEmail() == null) {

@@ -5,6 +5,7 @@ import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.services.EncryptionService;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.external.models.Datasource;
+import com.appsmith.server.domains.DatasourceContext;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.helpers.MockPluginExecutor;
@@ -19,10 +20,18 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.context.junit4.SpringRunner;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
+import reactor.util.function.Tuple2;
+
+import static org.junit.Assert.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.when;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -43,6 +52,9 @@ public class DatasourceContextServiceTest {
 
     @MockBean
     PluginExecutorHelper pluginExecutorHelper;
+
+    @SpyBean
+    DatasourceContextServiceImpl datasourceContextService;
 
     String workspaceId = "";
 
@@ -132,4 +144,37 @@ public class DatasourceContextServiceTest {
                 .verifyComplete();
     }
 
+    /**
+     * This test checks that if `getCachedDatasourceCreate` method is called two times for the same datasource id, then
+     * the datasource creation only happens once.
+     */
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testCachedDatasourceCreate() {
+        doReturn(false).doReturn(false).when(datasourceContextService).getIsStale(any());
+
+        MockPluginExecutor mockPluginExecutor = new MockPluginExecutor();
+        MockPluginExecutor spyMockPluginExecutor = spy(mockPluginExecutor);
+        /* Return two different connection objects if `datasourceCreate` method is called twice */
+        doReturn(Mono.just("connection_1")).doReturn(Mono.just("connection_2")).when(spyMockPluginExecutor).datasourceCreate(any());
+
+        Datasource datasource = new Datasource();
+        datasource.setId("id");
+
+        Object monitor = new Object();
+        Mono<DatasourceContext> dsContextMono1 = datasourceContextService.getCachedDatasourceContextMono(datasource,
+                spyMockPluginExecutor, monitor);
+        Mono<DatasourceContext> dsContextMono2 = datasourceContextService.getCachedDatasourceContextMono(datasource,
+                spyMockPluginExecutor, monitor);
+        Mono<Tuple2<DatasourceContext, DatasourceContext>> zipMono = Mono.zip(dsContextMono1, dsContextMono2);
+        StepVerifier.create(zipMono)
+                .assertNext(tuple -> {
+                    DatasourceContext dsContext1 = tuple.getT1();
+                    DatasourceContext dsContext2 = tuple.getT2();
+                    /* They can only be equal if the `datasourceCreate` method was called only once */
+                    assertEquals(dsContext1.getConnection(), dsContext2.getConnection());
+                    assertEquals("connection_1", dsContext1.getConnection());
+                })
+                .verifyComplete();
+    }
 }

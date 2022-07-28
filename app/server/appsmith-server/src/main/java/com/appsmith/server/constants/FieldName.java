@@ -113,4 +113,16 @@ public class FieldName {
     public static final String THEME = "theme";
     public static final String EDIT_MODE_THEME = "editModeTheme";
     public static final String FLOW_NAME = "flowName";
+    public static final String APPSMITH_VERSION = "appsmithVersion";
+    public static final String AUDIT_LOG_EVENT_DELIMITER = ".";
+    public static final String CREATED = "created";
+    public static final String UPDATED = "updated";
+    public static final String DESTROYED = "destroyed";
+    public static final String IMPORTED = "imported";
+    public static final String EXPORTED = "exported";
+    public static final String CLONED = "cloned";
+    public static final String FORKED = "forked";
+    public static final String EXECUTED = "executed";
+    public static final String QUERY = "query";
+
 }

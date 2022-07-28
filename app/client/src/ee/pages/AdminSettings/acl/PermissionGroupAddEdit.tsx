@@ -3,11 +3,21 @@ import { useHistory } from "react-router";
 import { MenuItemProps, Toaster, Variant } from "components/ads";
 import { TabComponent, TabProp } from "components/ads/Tabs";
 import { PageHeader } from "./PageHeader";
-import { BackButton, SaveButtonBar, TabsWrapper } from "./components";
+import { SaveButtonBar, TabsWrapper } from "./components";
 import { debounce } from "lodash";
 import PermissionGroupsTree from "./PermissionGroupsTree";
+import { BackButton } from "pages/Settings/components";
 import EmptyDataState from "components/utils/EmptyDataState";
 import { response2 } from "./mocks/mockPermissionTreeResponse";
+import {
+  CLONE_PERMISSION_GROUP,
+  createMessage,
+  DELETE_PERMISSION_GROUP,
+  RENAME_PERMISSION_GROUP,
+  RENAME_SUCCESSFUL,
+  SEARCH_PLACEHOLDER,
+  SUCCESSFULLY_SAVED,
+} from "@appsmith/constants/messages";
 
 export type PermissionGroupProps = {
   isEditing: boolean;
@@ -48,7 +58,7 @@ export function PermissionGroupAddEdit(props: PermissionGroupEditProps) {
   const onSaveChanges = () => {
     /*console.log("hello save");*/
     Toaster.show({
-      text: "Successfully Saved",
+      text: createMessage(SUCCESSFULLY_SAVED),
       variant: Variant.success,
     });
   };
@@ -150,6 +160,10 @@ export function PermissionGroupAddEdit(props: PermissionGroupEditProps) {
 
   const onEditTitle = (name: string) => {
     setPageTitle(name);
+    Toaster.show({
+      text: createMessage(RENAME_SUCCESSFUL),
+      variant: Variant.success,
+    });
   };
 
   const menuItems: MenuItemProps[] = [
@@ -157,20 +171,20 @@ export function PermissionGroupAddEdit(props: PermissionGroupEditProps) {
       className: "clone-menu-item",
       icon: "duplicate",
       onSelect: () => onCloneHandler(),
-      text: "Clone Permission Group",
+      text: createMessage(CLONE_PERMISSION_GROUP),
       label: "clone",
     },
     {
       className: "rename-menu-item",
       icon: "edit-underline",
-      text: "Rename Permission Group",
+      text: createMessage(RENAME_PERMISSION_GROUP),
       label: "rename",
     },
     {
       className: "delete-menu-item",
       icon: "delete-blank",
       onSelect: () => onDeleteHandler(),
-      text: "Delete Permission Group",
+      text: createMessage(DELETE_PERMISSION_GROUP),
       label: "delete",
     },
   ];
@@ -184,7 +198,7 @@ export function PermissionGroupAddEdit(props: PermissionGroupEditProps) {
         onEditTitle={onEditTitle}
         onSearch={onSearch}
         pageMenuItems={menuItems}
-        searchPlaceholder="Search"
+        searchPlaceholder={createMessage(SEARCH_PLACEHOLDER)}
         title={pageTitle}
       />
       <TabsWrapper>

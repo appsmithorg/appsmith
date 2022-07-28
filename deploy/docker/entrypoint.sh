@@ -50,12 +50,8 @@ init_env_file() {
       tr -dc A-Za-z0-9 </dev/urandom | head -c 13
       echo ''
     )
-    local generated_keycloak_password=$(
-      tr -dc A-Za-z0-9 </dev/urandom | head -c 13
-      echo ""
-    )
 
-    bash "$TEMPLATES_PATH/docker.env.sh" "$default_appsmith_mongodb_user" "$generated_appsmith_mongodb_password" "$generated_appsmith_encryption_password" "$generated_appsmith_encription_salt" "$generated_appsmith_supervisor_password" "$generated_keycloak_password" > "$ENV_PATH"
+    bash "$TEMPLATES_PATH/docker.env.sh" "$default_appsmith_mongodb_user" "$generated_appsmith_mongodb_password" "$generated_appsmith_encryption_password" "$generated_appsmith_encription_salt" "$generated_appsmith_supervisor_password" > "$ENV_PATH"
   fi
 
 
@@ -129,15 +125,16 @@ check_mongodb_uri() {
 init_mongodb() {
   if [[ $isUriLocal -eq 0 ]]; then
     echo "Initializing local database"
-    MONGO_DB_PATH="/appsmith-stacks/data/mongodb"
+    MONGO_DB_PATH="$stacks_path/data/mongodb"
     MONGO_LOG_PATH="$MONGO_DB_PATH/log"
     MONGO_DB_KEY="$MONGO_DB_PATH/key"
     mkdir -p "$MONGO_DB_PATH"
     touch "$MONGO_LOG_PATH"
 
-    if [[ -f "$MONGO_DB_KEY" ]]; then
-      chmod-mongodb-key "$MONGO_DB_KEY"
+    if [[ ! -f "$MONGO_DB_KEY" ]]; then
+      openssl rand -base64 756 > "$MONGO_DB_KEY"
     fi
+    chmod-mongodb-key "$MONGO_DB_KEY"
   fi
 }
 
@@ -166,8 +163,6 @@ init_replica_set() {
     mongo "127.0.0.1/appsmith" /appsmith-stacks/configuration/mongo-init.js
     echo "Enabling Replica Set"
     mongod --dbpath "$MONGO_DB_PATH" --shutdown || true
-    openssl rand -base64 756 > "$MONGO_DB_KEY"
-    chmod-mongodb-key "$MONGO_DB_KEY"
     mongod --fork --port 27017 --dbpath "$MONGO_DB_PATH" --logpath "$MONGO_LOG_PATH" --replSet mr1 --keyFile "$MONGO_DB_KEY" --bind_ip localhost
     echo "Waiting 10s for MongoDB to start with Replica Set"
     sleep 10
@@ -195,14 +190,29 @@ chmod-mongodb-key() {
 }
 
 init_keycloak() {
+	if ! isset KEYCLOAK_ADMIN_USERNAME; then
+		export KEYCLOAK_ADMIN_USERNAME=admin
+		echo $'\nKEYCLOAK_ADMIN_USERNAME='"$KEYCLOAK_ADMIN_USERNAME" >> "$stacks_path/configuration/docker.env"
+	fi
+
+	if ! isset KEYCLOAK_ADMIN_PASSWORD; then
+    KEYCLOAK_ADMIN_PASSWORD="$(
+      tr -dc A-Za-z0-9 </dev/urandom | head -c 13
+      echo ""
+    )"
+		export KEYCLOAK_ADMIN_USERNAME
+		echo "KEYCLOAK_ADMIN_PASSWORD=$KEYCLOAK_ADMIN_PASSWORD" >> "$stacks_path/configuration/docker.env"
+	fi
+
   echo "Initializing keycloak"
-  if ! out="$(/opt/keycloak/bin/add-user-keycloak.sh --user "${KEYCLOAK_ADMIN_USERNAME-admin}" --password "$KEYCLOAK_ADMIN_PASSWORD" 2>&1 )"; then
+  if ! out="$(/opt/keycloak/bin/add-user-keycloak.sh --user "$KEYCLOAK_ADMIN_USERNAME" --password "$KEYCLOAK_ADMIN_PASSWORD" 2>&1 )"; then
     if [[ $out != "User with username 'admin' already added to '/opt/keycloak/standalone/configuration/keycloak-add-user.json'" ]]; then # Ignore failure
     echo "$out" >&2
     exit 1
     fi
   fi
   echo "$out"
+
   # Make keycloak persistent across reboots
   ln --verbose --force --symbolic --no-target-directory /appsmith-stacks/data/keycloak /opt/keycloak/standalone/data
 }

@@ -9,6 +9,12 @@ import {
 import { Colors } from "constants/Colors";
 import { ContentWrapper } from "./components";
 import { HighlightText } from "./helpers/HighlightText";
+import {
+  createMessage,
+  ACTIVE_GROUPS,
+  ALL_GROUPS,
+  NO_PERMISSION_GROUPS_MESSAGE,
+} from "@appsmith/constants/messages";
 
 const ActiveGroups = styled.div``;
 
@@ -148,7 +154,7 @@ export function ActiveAllGroupsList(props: ActiveAllGroupsProps) {
             size={IconSize.XXXL}
           />
           <Title data-testid="t--active-groups-title">
-            {props.title ?? "Active Groups"}
+            {props.title ?? createMessage(ACTIVE_GROUPS)}
           </Title>
         </TitleWrapper>
         {activeGroups && activeGroups.length > 0 ? (
@@ -180,8 +186,7 @@ export function ActiveAllGroupsList(props: ActiveAllGroupsProps) {
           })
         ) : (
           <EmptyActiveGroups>
-            There are no permission assigned yet. Choose from the list of
-            permission below to add them.
+            {createMessage(NO_PERMISSION_GROUPS_MESSAGE)}
           </EmptyActiveGroups>
         )}
       </ActiveGroups>
@@ -193,7 +198,7 @@ export function ActiveAllGroupsList(props: ActiveAllGroupsProps) {
               name="group-2-line"
               size={IconSize.XXXXL}
             />
-            <Title>All Groups</Title>
+            <Title>{createMessage(ALL_GROUPS)}</Title>
           </TitleWrapper>
           {allGroups?.map((group: any) => {
             const addedGroup = addedAllGroups?.includes(group);

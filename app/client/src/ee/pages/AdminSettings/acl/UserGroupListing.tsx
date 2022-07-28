@@ -3,17 +3,28 @@ import { useParams, useHistory } from "react-router";
 import styled from "styled-components";
 import debounce from "lodash/debounce";
 import { Listing } from "./Listing";
-import { MenuItemProps } from "components/ads";
+import { MenuItemProps, Toaster, Variant } from "components/ads";
 import { PageHeader } from "./PageHeader";
 import { BottomSpace } from "pages/Settings/components";
 import { Link } from "react-router-dom";
 import { HighlightText } from "./helpers/HighlightText";
 import { UserGroupAddEdit } from "./UserGroupAddEdit";
-import { AclWrapper, AppsmithIcon } from "./components";
+import { AclWrapper } from "./components";
 import { User } from "./UserListing";
 import uniqueId from "lodash/uniqueId";
 import { adminSettingsCategoryUrl } from "RouteBuilder";
 import { SettingCategories } from "@appsmith/pages/AdminSettings/config/types";
+import {
+  createMessage,
+  ADD_GROUP,
+  GROUP_DELETED,
+  GROUP_CLONED,
+  COPY_OF_GROUP,
+  CLONE_USER_GROUP,
+  EDIT_USER_GROUP,
+  DELETE_USER_GROUP,
+  SEARCH_USER_GROUPS_PLACEHOLDER,
+} from "@appsmith/constants/messages";
 
 const CellContainer = styled.div`
   display: flex;
@@ -25,7 +36,6 @@ export type UserGroup = {
   isEditing: boolean;
   isDeleting: boolean;
   rolename: string;
-  isAppsmithProvided: boolean;
   id: string;
   allPermissions: string[];
   activePermissions: string[];
@@ -38,7 +48,6 @@ export const userGroupTableData: UserGroup[] = [
     isEditing: false,
     isDeleting: false,
     rolename: "Eng_New",
-    isAppsmithProvided: false,
     id: "123",
     allPermissions: [
       "devops_eng_nov",
@@ -53,7 +62,6 @@ export const userGroupTableData: UserGroup[] = [
     isEditing: false,
     isDeleting: false,
     rolename: "Design",
-    isAppsmithProvided: false,
     id: "456",
     allPermissions: [
       "HR_Appsmith",
@@ -85,7 +93,6 @@ export const userGroupTableData: UserGroup[] = [
     isEditing: false,
     isDeleting: false,
     rolename: "contractors_ruby",
-    isAppsmithProvided: false,
     id: "789",
     allPermissions: [
       "HR_Appsmith",
@@ -118,7 +125,6 @@ export const userGroupTableData: UserGroup[] = [
     isEditing: false,
     isDeleting: false,
     rolename: "marketing_newsletter",
-    isAppsmithProvided: false,
     id: "103",
     allPermissions: [
       "HR_Appsmith",
@@ -151,7 +157,6 @@ export const userGroupTableData: UserGroup[] = [
     isEditing: false,
     isDeleting: false,
     rolename: "Administrator",
-    isAppsmithProvided: true,
     id: "120",
     allPermissions: [
       "HR_Appsmith",
@@ -185,7 +190,6 @@ export const userGroupTableData: UserGroup[] = [
     isEditing: false,
     isDeleting: false,
     rolename: "App Viewer",
-    isAppsmithProvided: true,
     id: "125",
     allPermissions: [
       "HR_Appsmith",
@@ -235,7 +239,6 @@ export function UserGroupListing() {
         isEditing: false,
         isDeleting: false,
         rolename: "Untitled User Group",
-        isAppsmithProvided: false,
         isNew: true,
         id: "10109",
         allPermissions: [
@@ -267,17 +270,24 @@ export function UserGroupListing() {
       return userGroup.id !== id;
     });
     setData(updatedData);
+    Toaster.show({
+      text: createMessage(GROUP_DELETED),
+      variant: Variant.success,
+    });
   };
 
   const onCloneHandler = (selected: UserGroup) => {
     const clonedData = {
       ...selected,
       id: uniqueId(),
-      rolename: `Copy of ${selected.rolename}`,
-      isAppsmithProvided: false,
+      rolename: createMessage(COPY_OF_GROUP, selected.rolename),
     };
     userGroupTableData.push(clonedData);
     setData([...userGroupTableData]);
+    Toaster.show({
+      text: createMessage(GROUP_CLONED),
+      variant: Variant.success,
+    });
   };
 
   const columns = [
@@ -298,9 +308,6 @@ export function UserGroupListing() {
                 highlight={searchValue}
                 text={cellProps.cell.row.values.rolename}
               />
-              {cellProps.cell.row.original.isAppsmithProvided && (
-                <AppsmithIcon data-testid="t--appsmith-badge">A</AppsmithIcon>
-              )}
             </CellContainer>
           </Link>
         );
@@ -317,10 +324,9 @@ export function UserGroupListing() {
         selectedUserGroup &&
           onCloneHandler({
             ...selectedUserGroup,
-            isAppsmithProvided: false,
           });
       },
-      text: "Clone User Group",
+      text: createMessage(CLONE_USER_GROUP),
     },
     {
       className: "edit-menu-item",
@@ -328,7 +334,7 @@ export function UserGroupListing() {
       onSelect: (e, key) => {
         history.push(`/settings/user-groups/${key}`);
       },
-      text: "Edit User Group",
+      text: createMessage(EDIT_USER_GROUP),
     },
     {
       label: "delete",
@@ -337,7 +343,7 @@ export function UserGroupListing() {
       onSelect: (e, key: string) => {
         onDeleteHandler(key);
       },
-      text: "Delete User Group",
+      text: createMessage(DELETE_USER_GROUP),
     },
   ];
 
@@ -383,11 +389,11 @@ export function UserGroupListing() {
       ) : (
         <>
           <PageHeader
-            buttonText="Add Group"
+            buttonText={createMessage(ADD_GROUP)}
             onButtonClick={onAddButtonClick}
             onSearch={onSearch}
             pageMenuItems={pageMenuItems}
-            searchPlaceholder="Search user groups"
+            searchPlaceholder={createMessage(SEARCH_USER_GROUPS_PLACEHOLDER)}
           />
           <Listing
             columns={columns}

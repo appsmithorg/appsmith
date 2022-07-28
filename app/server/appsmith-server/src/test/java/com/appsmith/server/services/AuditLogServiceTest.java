@@ -28,7 +28,7 @@ class AuditLogServiceTest {
         auditLog2.setUserId("testUserId2");
 
         Flux<AuditLog> auditLogFlux = Flux.just(auditLog1, auditLog2);
-        Mockito.when(auditLogService.get()).thenReturn(auditLogFlux);
+        Mockito.when(auditLogService.get()).thenReturn(auditLogFlux.collectList());
 
         StepVerifier.create(auditLogFlux)
                 .expectNext(auditLog1, auditLog2)
