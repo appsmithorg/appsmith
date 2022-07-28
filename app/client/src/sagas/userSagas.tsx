@@ -255,7 +255,6 @@ export function* invitedUserSignupSaga(
 
 type InviteUserPayload = {
   email: string;
-  // workspaceId: string;
   permissionGroupId: string;
 };
 
@@ -283,7 +282,6 @@ export function* inviteUsers(
   try {
     const response: ApiResponse = yield callAPI(UserApi.inviteUser, {
       usernames: data.usernames,
-      // workspaceId: data.workspaceId,
       permissionGroupId: data.permissionGroupId,
     });
     const isValidResponse: boolean = yield validateResponse(response);

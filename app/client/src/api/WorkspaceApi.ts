@@ -105,10 +105,7 @@ class WorkspaceApi extends Api {
     request: ChangeUserRoleRequest,
   ): AxiosPromise<ApiResponse> {
     return Api.put(
-      WorkspaceApi.workspacesURL +
-        "/" +
-        request.workspaceId +
-        "/permissionGroup",
+      `${WorkspaceApi.workspacesURL}/${request.workspaceId}/permissionGroup`,
       {
         username: request.username,
         newPermissionGroupId: request.newPermissionGroupId,
@@ -119,10 +116,7 @@ class WorkspaceApi extends Api {
     request: DeleteWorkspaceUserRequest,
   ): AxiosPromise<ApiResponse> {
     return Api.put(
-      WorkspaceApi.workspacesURL +
-        "/" +
-        request.workspaceId +
-        "/permissionGroups",
+      `${WorkspaceApi.workspacesURL}/${request.workspaceId}/permissionGroup`,
       {
         username: request.username,
         permissionGroupId: null,
