@@ -6,6 +6,7 @@ import org.springframework.util.MultiValueMap;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.util.Map;
 import java.util.Set;
 
 public interface CrudService<T extends BaseDomain, ID> {
@@ -31,4 +32,6 @@ public interface CrudService<T extends BaseDomain, ID> {
     Mono<T> addPolicies(ID id, Set<Policy> policies);
 
     Mono<T> removePolicies(ID id, Set<Policy> policies);
+
+    Map<String, Object> getAnalyticsProperties(T savedResource);
 }
