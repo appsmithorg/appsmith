@@ -35,6 +35,7 @@ describe("Lint error reporting", () => {
       shouldCreateNewJSObj: true,
     });
     MouseHoverNVerify("name", "'name' is defined but never used.", false);
+    agHelper.Escape();
     agHelper.GetNClick(locator._errorTab);
     agHelper.AssertContains("'name' is defined but never used.", "not.exist");
 
