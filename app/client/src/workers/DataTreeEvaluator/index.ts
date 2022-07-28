@@ -80,14 +80,6 @@ import {
   createDependencyMap,
 } from "workers/DependencyMap";
 import {
-  extractReferencesFromBinding,
-  getEntityReferencesFromPropertyBindings,
-} from "workers/DependencyMap/utils";
-import {
-  updateDependencyMap,
-  createDependencyMap,
-} from "workers/DependencyMap";
-import {
   getJSEntities,
   getUpdatedLocalUnEvalTreeAfterJSUpdates,
   parseJSActions,
