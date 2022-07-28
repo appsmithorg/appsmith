@@ -60,4 +60,11 @@ describe("Copy Action/JS objects to different pages", () => {
     ee.AssertEntityPresenceInExplorer("JSObject1");
     ee.AssertEntityAbsenceInExplorer("JSObject1Copy");
   });
+
+  after(() => {
+    //Deleting test data
+    ee.ActionContextMenuByEntityName("Page1", "Delete", "Are you sure?");
+    ee.ActionContextMenuByEntityName("Page2", "Delete", "Are you sure?");
+    ee.ActionContextMenuByEntityName("Page3", "Delete", "Are you sure?");
+  });
 });
