@@ -70,6 +70,7 @@ class CurrencyInputComponent extends React.Component<
               this.props.allowCurrencyChange && !this.props.disabled
             }
             borderRadius={this.props.borderRadius}
+            isDisabled={this.props.disabled}
             onCurrencyTypeChange={this.props.onCurrencyTypeChange}
             options={CurrencyDropdownOptions}
             selected={this.props.currencyCode}

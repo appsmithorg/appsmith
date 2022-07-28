@@ -16,11 +16,11 @@ const DropdownTriggerIconWrapper = styled.button`
   line-height: normal;
   letter-spacing: -0.24px;
   color: #090707;
-  border-right: 1px solid ${Colors.GREY_3};
+  border-right: 1px solid var(--wds-color-border);
   gap: 0.25rem;
   padding: 0 0.75rem;
   height: 100%;
-  margin-right: 0.625remq;
+  margin-right: 0.625rem;
 
   &:focus {
     background-color: ${Colors.GREY_1};
@@ -35,6 +35,11 @@ const DropdownTriggerIconWrapper = styled.button`
         fill: ${Colors.GREY_10} !important;
       }
     }
+  }
+
+  &:disabled {
+    border-right: 1px solid var(--wds-color-border-disabled);
+    background-color: var(--wds-color-bg-disabled);
   }
 `;
 
@@ -145,6 +150,7 @@ interface CurrencyDropdownProps {
   accentColor?: string;
   borderRadius?: string;
   widgetId: string;
+  isDisabled?: boolean;
 }
 
 export default function CurrencyTypeDropdown(props: CurrencyDropdownProps) {
@@ -153,6 +159,7 @@ export default function CurrencyTypeDropdown(props: CurrencyDropdownProps) {
   const dropdownTrigger = (
     <DropdownTriggerIconWrapper
       className="t--input-currency-change currency-change-dropdown-trigger"
+      disabled={props.isDisabled}
       tabIndex={0}
       type="button"
     >

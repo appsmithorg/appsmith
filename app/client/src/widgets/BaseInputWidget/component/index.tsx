@@ -77,7 +77,8 @@ const InputComponentWrapper = styled((props) => (
 
   .${Classes.INPUT_GROUP} {
     display: flex;
-    background-color: initial;
+    background: ${(props) =>
+      props.disabled ? "var(--wds-color-bg-disabled)" : "initial"};
 
     span, input {
       background: ${(props) =>
@@ -139,6 +140,7 @@ const InputComponentWrapper = styled((props) => (
             ? `${Colors.DANGER_SOLID} !important;`
             : `${Colors.GREY_3};`;
         }}
+
         ${(props) =>
           props.numeric &&
           `
@@ -171,6 +173,16 @@ const InputComponentWrapper = styled((props) => (
       border-radius: 0;
       height: ${(props) => (props.multiline === "true" ? "100%" : "inherit")};
       width: 100%;
+
+      ::placeholder {
+        color: ${({ disabled }) => {
+          if (disabled) {
+            return "var(--wds-color-text-disabled) !important";
+          }
+
+          return "var(--wds-color-text)";
+        }};
+      }
 
       ${(props) =>
         props.inputType === "PASSWORD" &&
@@ -234,7 +246,8 @@ const InputComponentWrapper = styled((props) => (
 
       &.${Classes.DISABLED} + .bp3-button-group.bp3-vertical {
         button {
-          background: ${Colors.GREY_1};
+          background: var(--wds-color-bg-disabled);
+          color: var(--wds-color-icon-disabled) !important;
         }
       }
     }
