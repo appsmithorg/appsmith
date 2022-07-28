@@ -1,91 +1,63 @@
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
-const commonLocators = require("../../../../locators/commonlocators.json");
 
 const {
   AggregateHelper: agHelper,
   ApiPage: apiPage,
-  EntityExplorer: entityExplorer,
+  EntityExplorer: ee,
   JSEditor: jsEditor,
 } = ObjectsRegistry;
 
 describe("Copy Action/JS objects to different pages", () => {
-  it("1. copies Action object to a different page from the additional menu in Queries/JS section", () => {
-    entityExplorer.AddNewPage();
+  it("1. Copies Action object to a different page from the additional menu in Queries/JS section", () => {
+    ee.AddNewPage(); //Page2
     apiPage.CreateAndFillApi("https://randomuser.me/api/", "get_data");
-    cy.wait(3000);
-
-    entityExplorer.ExpandCollapseEntity("QUERIES/JS");
-    entityExplorer.ActionContextMenuByEntityName("get_data", "Copy to page");
-    cy.get(`${commonLocators.chooseAction}:contains("Page1")`).click({
-      force: true,
-    });
-
-    cy.wait(2000);
-    agHelper.ValidateToastMessage(
+    ee.ExpandCollapseEntity("QUERIES/JS");
+    ee.ActionContextMenuByEntityName("get_data", "Copy to page", "Page1");
+    agHelper.WaitUntilToastDisappear(
       "get_data action copied to page Page1 successfully",
     );
+    ee.SelectEntityByName("Page1");
+    ee.AssertEntityPresenceInExplorer("get_data");
+    ee.AssertEntityAbsenceInExplorer("get_dataCopy");
   });
 
-  it("2. copies action object to a different page from the additional menu on Api Editor page", () => {
-    entityExplorer.AddNewPage();
-
-    apiPage.CreateAndFillApi("https://randomuser.me/api/", "get_data");
-    cy.wait(3000);
-
-    cy.get(".t--more-action-menu")
-      .first()
-      .click({ force: true });
-
-    agHelper.SelectDropDown("Copy to page");
-    agHelper.SelectDropDown("Page1");
-    agHelper.ValidateToastMessage(
-      "get_data action copied to page Page1 successfully",
+  it("2. Copies action object to a different page from the additional menu on Api Editor page", () => {
+    ee.AddNewPage(); //Page3
+    ee.SelectEntityByName("Page2");
+    ee.SelectEntityByName("get_data", "QUERIES/JS");
+    agHelper.ActionContextMenuWithInPane("Copy to page", "Page3");
+    agHelper.WaitUntilToastDisappear(
+      "get_data action copied to page Page3 successfully",
     );
+    ee.SelectEntityByName("Page3");
+    ee.ExpandCollapseEntity("QUERIES/JS");
+    ee.AssertEntityPresenceInExplorer("get_data");
+    ee.AssertEntityAbsenceInExplorer("get_dataCopy");
   });
 
-  it("3. copies JS object to a different page from the additional menu in Queries/JS section", () => {
-    entityExplorer.AddNewPage();
-
-    cy.get(`${commonLocators.entityItem}:contains(Page1)`)
-      .first()
-      .click();
-    cy.wait("@getPage");
-
+  it("3. Copies JS object to a different page from the additional menu in Queries/JS section", () => {
+    ee.SelectEntityByName("Page1");
     jsEditor.CreateJSObject('return "Hello World";');
-
-    cy.get(`${commonLocators.entityItem}:contains('JSObject1')`).within(() => {
-      cy.get(commonLocators.entityContextMenu).click({ force: true });
-    });
-
-    agHelper.SelectDropDown("Copy to page");
-    cy.get(`${commonLocators.chooseAction}:contains("Page2")`).click({
-      force: true,
-    });
-
-    cy.wait(2000);
-    agHelper.ValidateToastMessage(
+    ee.ExpandCollapseEntity("QUERIES/JS");
+    ee.ActionContextMenuByEntityName("JSObject1", "Copy to page", "Page2");
+    agHelper.WaitUntilToastDisappear(
       "JSObject1 copied to page Page2 successfully",
     );
+    ee.SelectEntityByName("Page2");
+    ee.AssertEntityPresenceInExplorer("JSObject1");
+    ee.AssertEntityAbsenceInExplorer("JSObject1Copy");
   });
 
-  it("4. copies JS object to a different page from the additional menu on JS Editor page", () => {
-    entityExplorer.AddNewPage();
-
-    jsEditor.CreateJSObject('return "Hello World";');
-    cy.wait(3000);
-
-    cy.get(commonLocators.expandMore)
-      .eq(1)
-      .click({ force: true });
-
-    cy.get(".t--more-action-menu")
-      .first()
-      .click({ force: true });
-
-    agHelper.SelectDropDown("Copy to page");
-    agHelper.SelectDropDown("Page1");
-    agHelper.ValidateToastMessage(
-      "JSObject1 copied to page Page1 successfully",
+  it("4. Copies JS object to a different page from the additional menu on JS Editor page", () => {
+    ee.SelectEntityByName("Page2");
+    ee.SelectEntityByName("JSObject1", "QUERIES/JS");
+    agHelper.ActionContextMenuWithInPane("Copy to page", "Page3");
+    agHelper.WaitUntilToastDisappear(
+      "JSObject1 copied to page Page3 successfully",
     );
+    ee.SelectEntityByName("Page3");
+    ee.ExpandCollapseEntity("QUERIES/JS");
+    ee.AssertEntityPresenceInExplorer("JSObject1");
+    ee.AssertEntityAbsenceInExplorer("JSObject1Copy");
   });
 });

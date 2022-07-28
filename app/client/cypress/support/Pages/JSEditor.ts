@@ -185,6 +185,7 @@ export class JSEditor {
         this.agHelper.Sleep(2000);
       });
       cy.get(this.locator._empty).should("not.exist");
+      this.agHelper.WaitUntilToastDisappear("ran successfully");
     }
     this.GetJSObjectName();
   }
