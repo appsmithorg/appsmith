@@ -270,6 +270,20 @@ class GlobalHotKeys extends React.Component<Props> {
           }}
         />
         <Hotkey
+          combo="esc"
+          global
+          group="Canvas"
+          label="Deselect all Widget"
+          onKeyDown={(e: any) => {
+            this.props.resetSnipingMode();
+            this.props.deselectAllWidgets();
+            this.props.closeProppane();
+            this.props.closeTableFilterProppane();
+            e.preventDefault();
+            this.props.setPreviewModeAction(false);
+          }}
+        />
+        <Hotkey
           combo="v"
           global
           label="Edit Mode"
