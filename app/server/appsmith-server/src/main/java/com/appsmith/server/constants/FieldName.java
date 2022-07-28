@@ -130,4 +130,10 @@ public class FieldName {
     public static final Object NEW_GROUP_ID = "newGroupId";
     public static final Object PERMISSION_GROUP_ID = null;
 
+    public static final String INSTANCE_CONFIG = "instanceConfig";
+
+    public static final String INSTACE_ADMIN_ROLE = "Instance Administrator Role";
+
+    public static final String DEFAULT_PERMISSION_GROUP = "defaultPermissionGroup";
+
 }

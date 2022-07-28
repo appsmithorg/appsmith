@@ -44,7 +44,7 @@ public abstract class BaseAppsmithRepositoryImpl<T extends BaseDomain> {
 
     protected final ReactiveMongoOperations mongoOperations;
 
-    private final Class<T> genericDomain;
+    protected final Class<T> genericDomain;
 
     protected final MongoConverter mongoConverter;
 
@@ -76,12 +76,10 @@ public abstract class BaseAppsmithRepositoryImpl<T extends BaseDomain> {
     }
 
     protected Mono<Set<String>> getPermissionGroupsOfUser(User user) {
+        Criteria assignedToUserIdsCriteria = Criteria.where(fieldName(QPermissionGroup.permissionGroup.assignedToUserIds)).is(user.getId());
 
         Query query = new Query();
-
-        query.fields()
-                .elemMatch(fieldName(QPermissionGroup.permissionGroup.assignedToUserIds),
-                        new Criteria("$eq").is(user.getId()));
+        query.addCriteria(assignedToUserIdsCriteria);
 
         return mongoOperations.find(query, PermissionGroup.class)
                 .map(permissionGroup -> permissionGroup.getId())

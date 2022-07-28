@@ -30,10 +30,12 @@ import static com.appsmith.server.acl.AclPermission.MAKE_PUBLIC_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_DATASOURCES;
+import static com.appsmith.server.acl.AclPermission.MANAGE_INSTANCE_CONFIGURATION;
 import static com.appsmith.server.acl.AclPermission.MANAGE_WORKSPACES;
 import static com.appsmith.server.acl.AclPermission.MANAGE_PAGES;
 import static com.appsmith.server.acl.AclPermission.MANAGE_THEMES;
 import static com.appsmith.server.acl.AclPermission.MANAGE_USERS;
+import static com.appsmith.server.acl.AclPermission.READ_INSTANCE_CONFIGURATION;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_EXPORT_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_MANAGE_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_PUBLISH_APPLICATIONS;
@@ -78,6 +80,7 @@ public class PolicyGeneratorCE {
                     lateralGraph.addVertex(permission);
                 });
 
+        createInstancePolicyGraph();
         createUserPolicyGraph();
         createWorkspacePolicyGraph();
         createDatasourcePolicyGraph();
@@ -86,6 +89,11 @@ public class PolicyGeneratorCE {
         createActionPolicyGraph();
         createCommentPolicyGraph();
         createThemePolicyGraph();
+        createPermissionGroupPolicyGraph();
+    }
+
+    private void createInstancePolicyGraph() {
+        lateralGraph.addEdge(MANAGE_INSTANCE_CONFIGURATION, READ_INSTANCE_CONFIGURATION);
     }
 
     /**
@@ -160,6 +168,12 @@ public class PolicyGeneratorCE {
         hierarchyGraph.addEdge(MANAGE_APPLICATIONS, MANAGE_THEMES);
         hierarchyGraph.addEdge(READ_APPLICATIONS, READ_THEMES);
         lateralGraph.addEdge(MANAGE_THEMES, READ_THEMES);
+    }
+
+    private void createPermissionGroupPolicyGraph() {
+        lateralGraph.addEdge(AclPermission.MANAGE_PERMISSION_GROUPS, AclPermission.ASSIGN_PERMISSION_GROUPS);
+        lateralGraph.addEdge(AclPermission.MANAGE_PERMISSION_GROUPS, AclPermission.READ_PERMISSION_GROUPS);
+        lateralGraph.addEdge(AclPermission.ASSIGN_PERMISSION_GROUPS, AclPermission.READ_PERMISSION_GROUPS);
     }
 
     public Set<Policy> getLateralPolicies(AclPermission permission, Set<String> permissionGroups, Class<? extends BaseDomain> destinationEntity) {
