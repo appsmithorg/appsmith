@@ -215,7 +215,7 @@ export const translateDiffEventToDataTreeDiffEvent = (
             });
           });
         }
-      } else if (isWidget(entity) && (rhsTypeString || lhsTypeString)) {
+      } else if (isWidget(entity) && rhsTypeString && lhsTypeString) {
         if (isWidgetPropertyNamePath(entity, propertyPath)) {
           // EDIT_WIDGET_PROPERTY_LABEL is used to store edit event for triggering ternDefinitionUpdate and should be skipped in dependencyMap modification and evaluation
           result = [
