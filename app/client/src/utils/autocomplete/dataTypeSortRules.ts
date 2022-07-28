@@ -9,3 +9,11 @@ export const PriorityOrder: Record<AutocompleteDataType, string[]> = {
   BOOLEAN: ["selectedRow", "data"],
   UNKNOWN: ["selectedRow", "data", "run()"],
 };
+
+export const DataTreeFunctionSortOrder = [
+  "storeValue()",
+  "showAlert()",
+  "navigateTo()",
+  "showModal()",
+  "setInterval()",
+];

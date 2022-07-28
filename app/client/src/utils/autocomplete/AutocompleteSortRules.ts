@@ -1,5 +1,5 @@
 import { FieldEntityInformation } from "components/editorComponents/CodeEditor/EditorConfig";
-import { PriorityOrder } from "./dataTypeSortRules";
+import { DataTreeFunctionSortOrder, PriorityOrder } from "./dataTypeSortRules";
 import {
   AutocompleteDataType,
   Completion,
@@ -119,6 +119,10 @@ class DataTreeFunctionRule implements AutocompleteRule {
     let score = 0;
     if (!(completion.origin === "DATA_TREE.APPSMITH.FUNCTIONS")) return score;
     score += DataTreeFunctionRule.threshold;
+    const rankInSortedList =
+      DataTreeFunctionSortOrder.indexOf(completion.text) + 1;
+    if (rankInSortedList === 0) return score;
+    score += 1 / (DataTreeFunctionRule.threshold * rankInSortedList);
     return score;
   }
 }
