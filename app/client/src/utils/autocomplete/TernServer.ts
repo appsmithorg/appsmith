@@ -241,7 +241,7 @@ class TernServer {
     }
 
     const shouldComputeBestMatch =
-      this.fieldEntityInformation.entityType !== "JSACTION";
+      this.fieldEntityInformation.entityType !== ENTITY_TYPE.JSACTION;
 
     completions = AutocompleteSorter.sort(
       completions,

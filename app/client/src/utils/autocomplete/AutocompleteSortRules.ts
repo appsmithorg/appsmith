@@ -80,7 +80,7 @@ class NoSelfReferenceRule implements AutocompleteRule {
 
 /**
  * Set's threshold value for completions like atob(), btoa() etc.
- * Max score - 10^2
+ * Max score - 10 - binary
  * Min score - 0
  */
 class GlobalJSRule implements AutocompleteRule {
@@ -95,11 +95,11 @@ class GlobalJSRule implements AutocompleteRule {
 
 /**
  * Set's threshold value for completions like _, moment() etc.
- * Max score - 10^2
+ * Max score - 100 - binary
  * Min score - 0
  */
 class JSLibraryRule implements AutocompleteRule {
-  static threshold = 1 << 3;
+  static threshold = 1 << RuleWeight.JSLibrary;
   computeScore(completion: Completion): number {
     const score = 0;
     if (!completion.origin) return score;
@@ -110,7 +110,7 @@ class JSLibraryRule implements AutocompleteRule {
 
 /**
  * Set's threshold value for completions like setInterval, clearInterval etc.
- * Max score - 10^4
+ * Max score - 1000 - binary
  * Min score - 0
  */
 class DataTreeFunctionRule implements AutocompleteRule {
@@ -126,7 +126,7 @@ class DataTreeFunctionRule implements AutocompleteRule {
 /**
  * Set's threshold value for completions that belong to the dataTree and sets higher score for
  * completions that are not functions
- * Max score - 10^5 + 10^4
+ * Max score - 11000 - binary
  * Min score - 0
  */
 class DataTreeRule implements AutocompleteRule {
@@ -142,7 +142,7 @@ class DataTreeRule implements AutocompleteRule {
 
 /**
  * Set's threshold value for completions that match the expectedValue of the current field.
- * Max score - 10^6
+ * Max score - 100000 - binary
  * Min score - 0
  */
 class TypeMatchRule implements AutocompleteRule {
@@ -158,7 +158,7 @@ class TypeMatchRule implements AutocompleteRule {
 
 /**
  * Set's threshold value for completions that resides in PriorityOrder, eg. selectedRow for Table1.
- * Max score - 10^7
+ * Max score - 1000000 - binary
  * Min score - 0
  */
 class PriorityMatchRule implements AutocompleteRule {
@@ -180,7 +180,7 @@ class PriorityMatchRule implements AutocompleteRule {
 
 /**
  * Sets threshold value.to completions from the same scop.
- * Max score - 10^8
+ * Max score - 10000000 - binary
  * Min score - 0
  */
 class ScopeMatchRule implements AutocompleteRule {
