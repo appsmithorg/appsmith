@@ -242,7 +242,10 @@ const InputComponentWrapper = styled((props) => (
         align-items: center;
         padding: 0 10px;
         position: relative;
-        color: var(--wds-color-icon);
+        color: ${({ disabled }) =>
+          disabled
+            ? "var(--wds-color-icon-disabled)"
+            : "var(--wds-color-icon)"};
 
         svg {
           width: 14px;
