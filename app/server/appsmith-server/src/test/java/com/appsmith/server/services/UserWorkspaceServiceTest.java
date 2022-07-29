@@ -6,12 +6,10 @@ import com.appsmith.server.acl.AppsmithRole;
 import com.appsmith.server.acl.PolicyGenerator;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
-import com.appsmith.server.domains.CommentThread;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserData;
 import com.appsmith.server.domains.UserRole;
 import com.appsmith.server.domains.Workspace;
-import com.appsmith.server.dtos.UpdatePermissionGroupDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.repositories.ApplicationRepository;
@@ -35,8 +33,6 @@ import java.util.Map;
 import java.util.Set;
 
 import static com.appsmith.server.acl.AppsmithRole.ORGANIZATION_ADMIN;
-import static com.appsmith.server.acl.AppsmithRole.ORGANIZATION_DEVELOPER;
-import static org.assertj.core.api.Assertions.assertThat;
 
 @Slf4j
 @SpringBootTest
@@ -213,99 +209,5 @@ public class UserWorkspaceServiceTest {
 //                    assertEquals(currentUser.getUsername(), userRole1.getUsername());
 //                }
 //        ).verifyComplete();
-    }
-
-    private Application createTestApplicationForCommentThreadTests() {
-        // add a two roles to the workspace
-        User devUser = new User();
-        devUser.setEmail("test_developer");
-        userRepository.findByEmail("test_developer")
-                .switchIfEmpty(userRepository.save(devUser))
-                .block();
-
-        UserRole adminRole = createUserRole("api_user", "api_user", ORGANIZATION_ADMIN);
-        UserRole devRole = createUserRole("test_developer", "test_developer", ORGANIZATION_DEVELOPER);
-
-        List<UserRole> userRoles = new ArrayList<>(2);
-        userRoles.add(adminRole);
-        userRoles.add(devRole);
-
-        addRolesToWorkspace(userRoles);
-
-        // create a test application
-        Application application = new Application();
-        application.setWorkspaceId(this.workspace.getId());
-        application.setName("Test application");
-        Set<Policy> documentPolicies = policyGenerator.getAllChildPolicies(
-                workspace.getPolicies(), Workspace.class, Application.class
-        );
-        application.setPolicies(documentPolicies);
-        return application;
-    }
-
-    @Test
-    @WithUserDetails("api_user")
-    public void updateRoleForMember_WhenCommentThreadExists_ThreadPoliciesUnchanged() {
-        // create a test application
-//        Mono<CommentThread> commentThreadMono = applicationRepository.save(createTestApplicationForCommentThreadTests())
-//                .flatMap(savedApplication -> {
-//                    CommentThread commentThread = new CommentThread();
-//                    commentThread.setApplicationId(savedApplication.getId());
-//                    commentThread.setPolicies(policyGenerator.getAllChildPolicies(
-//                            savedApplication.getPolicies(), Application.class, CommentThread.class
-//                    ));
-//                    Flux<UserGroup> userGroupFlux = userGroupService.getDefaultUserGroups(workspace.getId()).cache();
-//                    return commentThreadRepository.save(commentThread).zipWith(userGroupFlux.filter(userGroup -> userGroup.getName().startsWith(FieldName.VIEWER)).single());
-//                }).flatMap(tuple -> {
-//                    CommentThread commentThread = tuple.getT1();
-//                    UserGroup adminGroup = tuple.getT2();
-//                    // update an user's role
-//                    //UserRole updatedRole = createUserRole("test_developer", "test_developer", ORGANIZATION_VIEWER);
-//                    return userWorkspaceService.updateUserGroupForMember(
-//                            workspace.getId(), UpdateUserGroupDTO.builder().username("test_developer").newGroupId(adminGroup.getId()).build(), null
-//                    ).thenReturn(commentThread);
-//                }).flatMap(commentThread ->
-//                    commentThreadRepository.findById(commentThread.getId())
-//                );
-//
-//        StepVerifier.create(commentThreadMono).assertNext(commentThread -> {
-//            Set<Policy> policies = commentThread.getPolicies();
-//            assertThat(policyUtils.isPermissionPresentForUser(
-//                    policies, AclPermission.READ_THREADS.getValue(), "test_developer"
-//            )).isTrue();
-//            assertThat(policyUtils.isPermissionPresentForUser(
-//                    policies, AclPermission.READ_THREADS.getValue(), "api_user"
-//            )).isTrue();
-//        }).verifyComplete();
-    }
-
-    @Test
-    @WithUserDetails("api_user")
-    public void updateRoleForMember_WhenCommentThreadExistsAndUserRemoved_UserRemovedFromThreadPolicies() {
-        Mono<CommentThread> commentThreadMono = applicationRepository.save(createTestApplicationForCommentThreadTests())
-                .flatMap(savedApplication -> {
-                    CommentThread commentThread = new CommentThread();
-                    commentThread.setApplicationId(savedApplication.getId());
-                    commentThread.setPolicies(policyGenerator.getAllChildPolicies(
-                            savedApplication.getPolicies(), Application.class, CommentThread.class
-                    ));
-                    return commentThreadRepository.save(commentThread);
-                }).flatMap(commentThread -> {
-                    // remove the test_developer user from the workspace
-                    return userWorkspaceService.updatePermissionGroupForMember(workspace.getId(), UpdatePermissionGroupDTO.builder().username("test_developer").build(), null)
-                            .thenReturn(commentThread);
-                }).flatMap(commentThread ->
-                        commentThreadRepository.findById(commentThread.getId())
-                );
-
-        StepVerifier.create(commentThreadMono).assertNext(commentThread -> {
-            Set<Policy> policies = commentThread.getPolicies();
-            assertThat(policyUtils.isPermissionPresentForUser(
-                    policies, AclPermission.READ_THREADS.getValue(), "test_developer"
-            )).isFalse();
-            assertThat(policyUtils.isPermissionPresentForUser(
-                    policies, AclPermission.READ_THREADS.getValue(), "api_user"
-            )).isTrue();
-        }).verifyComplete();
     }
 }
