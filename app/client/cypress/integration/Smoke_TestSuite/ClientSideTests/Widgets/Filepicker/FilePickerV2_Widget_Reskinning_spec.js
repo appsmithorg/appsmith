@@ -1,13 +1,13 @@
-const commonlocators = require("../../../../locators/commonlocators.json");
-const themeLocator = require("../../../../locators/ThemeLocators.json");
-const dsl = require("../../../../fixtures/filePickerV2WidgetReskinDsl.json");
+const commonlocators = require("../../../../../locators/commonlocators.json");
+const themeLocator = require("../../../../../locators/ThemeLocators.json");
+const dsl = require("../../../../../fixtures/filePickerV2WidgetReskinDsl.json");
 
 describe("Checkbox Widget Functionality", function() {
   before(() => {
     cy.addDsl(dsl);
   });
 
-  it("Elements inside upload modal should follow theme border radius", () => {
+  it("1. Elements inside upload modal should follow theme border radius", () => {
     // Click on canvas to get global theme settings
     cy.get(commonlocators.canvas).click({ force: true });
 
@@ -68,7 +68,7 @@ describe("Checkbox Widget Functionality", function() {
     );
   });
 
-  it("Check colors inside the modal", () => {
+  it("2. Check colors inside the modal", () => {
     cy.get(".uppy-Dashboard-close").click({ force: true });
     cy.wait(300);
 
@@ -101,7 +101,7 @@ describe("Checkbox Widget Functionality", function() {
       });
   });
 
-  it("Check the font-family inside the modal", () => {
+  it("3. Check the font-family inside the modal", () => {
     cy.get(".uppy-Dashboard-close").click({ force: true });
     cy.get(commonlocators.canvas).click({ force: true });
     cy.wait(300);
