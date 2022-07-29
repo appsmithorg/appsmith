@@ -21,9 +21,7 @@ import Fuse from "fuse.js";
 import { WidgetContainerDiff } from "widgets/WidgetUtils";
 import Icon from "components/ads/Icon";
 import { LabelPosition } from "components/constants";
-import LabelWithTooltip, {
-  labelLayoutStyles,
-} from "components/ads/LabelWithTooltip";
+import { LabelWithTooltip, labelLayoutStyles } from "design-system";
 
 const FUSE_OPTIONS = {
   shouldSort: true,

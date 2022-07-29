@@ -24,7 +24,7 @@ import { labelMargin, WidgetContainerDiff } from "widgets/WidgetUtils";
 import Icon from "components/ads/Icon";
 import { Colors } from "constants/Colors";
 import { LabelPosition } from "components/constants";
-import LabelWithTooltip from "components/ads/LabelWithTooltip";
+import { LabelWithTooltip } from "design-system";
 import useDropdown from "widgets/useDropdown";
 
 export interface TreeSelectProps

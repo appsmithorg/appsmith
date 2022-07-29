@@ -28,10 +28,11 @@ import Icon from "components/ads/Icon";
 import { InputType } from "widgets/InputWidget/constants";
 import { getBaseWidgetClassName } from "constants/componentClassNameConstants";
 import { LabelPosition } from "components/constants";
-import LabelWithTooltip, {
+import {
+  LabelWithTooltip,
   labelLayoutStyles,
   LABEL_CONTAINER_CLASS,
-} from "components/ads/LabelWithTooltip";
+} from "design-system";
 import { lightenColor } from "widgets/WidgetUtils";
 
 /**

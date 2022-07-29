@@ -14,10 +14,11 @@ import { TextSize } from "constants/WidgetConstants";
 // Alternatively, they need to be replicated.
 import { StyledCheckbox } from "widgets/CheckboxWidget/component";
 import { OptionProps, SelectAllState, SelectAllStates } from "../constants";
-import LabelWithTooltip, {
+import {
+  LabelWithTooltip,
   labelLayoutStyles,
   LABEL_CONTAINER_CLASS,
-} from "components/ads/LabelWithTooltip";
+} from "design-system";
 
 export interface InputContainerProps {
   inline?: boolean;

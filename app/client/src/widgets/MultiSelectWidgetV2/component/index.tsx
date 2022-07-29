@@ -25,7 +25,7 @@ import { labelMargin, WidgetContainerDiff } from "widgets/WidgetUtils";
 import { Colors } from "constants/Colors";
 import { LabelPosition } from "components/constants";
 import { uniqBy } from "lodash";
-import LabelWithTooltip from "components/ads/LabelWithTooltip";
+import { LabelWithTooltip } from "design-system";
 import useDropdown from "widgets/useDropdown";
 
 const menuItemSelectedIcon = (props: { isSelected: boolean }) => {
