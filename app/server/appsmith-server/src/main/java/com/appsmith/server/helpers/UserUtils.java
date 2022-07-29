@@ -5,11 +5,13 @@ import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Config;
 import com.appsmith.server.domains.PermissionGroup;
+import com.appsmith.server.domains.QPermissionGroup;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.Permission;
 import com.appsmith.server.repositories.ConfigRepository;
 import com.appsmith.server.repositories.PermissionGroupRepository;
 import net.minidev.json.JSONObject;
+import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
@@ -25,6 +27,7 @@ import static com.appsmith.server.acl.AclPermission.MANAGE_PERMISSION_GROUPS;
 import static com.appsmith.server.acl.AclPermission.READ_INSTANCE_CONFIGURATION;
 import static com.appsmith.server.constants.FieldName.DEFAULT_PERMISSION_GROUP;
 import static com.appsmith.server.constants.FieldName.INSTANCE_CONFIG;
+import static com.appsmith.server.repositories.BaseAppsmithRepositoryImpl.fieldName;
 
 @Component
 public class UserUtils {
@@ -59,11 +62,21 @@ public class UserUtils {
                     return permissionGroupRepository.findById(defaultPermissionGroup);
                 })
                 .flatMap(permissionGroup -> {
-                    if (permissionGroup.getAssignedToUserIds() == null) {
-                        permissionGroup.setAssignedToUserIds(new HashSet<>());
+
+                    Set<String> permissionGroups = new HashSet<>();
+
+                    if (permissionGroup.getAssignedToUserIds() != null) {
+                        permissionGroups.addAll(permissionGroup.getAssignedToUserIds());
                     }
-                    permissionGroup.getAssignedToUserIds().addAll(users.stream().map(User::getId).collect(Collectors.toList()));
-                    return permissionGroupRepository.updateById(permissionGroup.getId(), permissionGroup, AclPermission.ASSIGN_PERMISSION_GROUPS);
+                    permissionGroups.addAll(users.stream().map(User::getId).collect(Collectors.toList()));
+                    Update updateObj = new Update();
+                    String path = String.format("%s.%s", fieldName(QPermissionGroup.permissionGroup),
+                            fieldName(QPermissionGroup.permissionGroup.assignedToUserIds)
+                    );
+
+                    updateObj.set(path, permissionGroups);
+                    // Make Super User is called before the first administrator is created.
+                    return permissionGroupRepository.updateById(permissionGroup.getId(), updateObj);
                 })
                 .then(Mono.just(Boolean.TRUE));
     }
