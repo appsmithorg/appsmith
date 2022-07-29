@@ -79,9 +79,7 @@ export class EntityExplorer {
   }
 
   public AssertEntityAbsenceInExplorer(entityNameinLeftSidebar: string) {
-    cy.xpath(this._entityNameInExplorer(entityNameinLeftSidebar)).should(
-      "not.exist",
-    );
+    this.agHelper.AssertElementAbsence(this._entityNameInExplorer(entityNameinLeftSidebar));
   }
 
   public ExpandCollapseEntity(entityName: string, expand = true) {

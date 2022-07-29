@@ -64,6 +64,11 @@ describe("Text Field Property Control", () => {
     cy.testJsontext("errormessage", "Custom error message");
     cy.get(`${fieldPrefix}-name input`).click({ force: true });
     cy.get(".bp3-popover-content").contains("Custom error message");
+
+    // Reset the error message
+    cy.testJsontext("errormessage", "");
+    // Reset valid
+    cy.testJsontext("valid", "");
   });
 
   it("hides field when visible switched off", () => {
@@ -81,6 +86,19 @@ describe("Text Field Property Control", () => {
     });
 
     cy.togglebarDisable(`.t--property-control-disabled input`);
+  });
+
+  it("throws error when REGEX does not match the input value", () => {
+    cy.testJsontext("regex", "^\\d+$");
+    cy.get(`${fieldPrefix}-name input`)
+      .clear()
+      .type("abcd");
+    cy.get(".bp3-popover-content").contains("Invalid input");
+
+    cy.get(`${fieldPrefix}-name input`)
+      .clear()
+      .type("1234");
+    cy.get(".bp3-popover-content").should("not.exist");
   });
 });
 
