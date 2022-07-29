@@ -11,16 +11,7 @@ const agHelper = ObjectsRegistry.AggregateHelper,
 
 describe("Binary Datatype tests", function() {
   before(() => {
-    agHelper.GenerateUUID();
-    cy.get("@guid").then((uid) => {
-      dataSources.NavigateToDSCreateNew();
-      dataSources.CreatePlugIn("PostgreSQL");
-      guid = uid;
-      agHelper.RenameWithInPane("Postgres " + guid, false);
-      dataSources.FillPostgresDSForm();
-      dataSources.TestSaveDatasource();
-      cy.wrap("Postgres " + guid).as("dsName");
-    });
+    dataSources.CreateDataSource("Postgres");
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;
     });
@@ -196,7 +187,7 @@ describe("Binary Datatype tests", function() {
     agHelper.AssertElementAbsence(locator._toastMsg); //Assert that Update did not fail
     agHelper.AssertElementVisible(locator._spanButton("Run UpdateQuery"));
     table.WaitUntilTableLoad();
-    agHelper.Sleep(5000); //for the update row to appear at last
+    agHelper.Sleep(10000); //for the update row to appear at last
     table.ReadTableRowColumnData(2, 0, 2000).then(($cellData) => {
       expect($cellData).to.eq("2"); //asserting serial column is inserting fine in sequence
     });
@@ -344,7 +335,7 @@ describe("Binary Datatype tests", function() {
     agHelper.ClickButton("DeleteQuery", 1);
     agHelper.ValidateNetworkStatus("@postExecute", 200);
     agHelper.ValidateNetworkStatus("@postExecute", 200);
-    agHelper.Sleep(6000); //Allwowing time for delete to be success
+    agHelper.Sleep(10000); //Allwowing time for delete to be success
     table.ReadTableRowColumnData(1, 0, 2000).then(($cellData) => {
       expect($cellData).not.to.eq("3"); //asserting 2nd record is deleted
     });

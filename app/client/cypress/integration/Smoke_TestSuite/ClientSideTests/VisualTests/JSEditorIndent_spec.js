@@ -398,6 +398,7 @@ myFun2: async () => {
       .trigger("click")
       .wait(1000);
     cy.get("div.CodeMirror").matchImageSnapshot("jsObjAfterPrettify4_1");
+    agHelper.WaitUntilToastDisappear("ran successfully");
   });
 
   it("5. TC 1862 - JSEditor validation for goLineStartSmart with no errors, triggered by keyboard shortcut", () => {
@@ -420,6 +421,4 @@ myFun2: async () => {
     cy.get("div.CodeMirror").type("{cmd+leftArrow}");
     cy.get("div.CodeMirror").matchImageSnapshot("jsObjAfterGoLineStartSmart5");
   });
-
-
 });

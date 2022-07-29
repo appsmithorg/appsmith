@@ -32,8 +32,8 @@ describe("Postgres datasource test cases", function() {
   });
 
   it("3. Create a new query from the datasource editor", function() {
-    // cy.get(datasource.createQuerty).click();
-    cy.get(`${datasourceEditor.datasourceCard} ${datasource.createQuerty}`)
+    // cy.get(datasource.createQuery).click();
+    cy.get(`${datasourceEditor.datasourceCard} ${datasource.createQuery}`)
       .last()
       .click();
     cy.wait("@createNewApi").should(

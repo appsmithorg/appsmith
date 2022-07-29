@@ -226,14 +226,6 @@ export class AggregateHelper {
     );
   }
 
-  public SelectPropertiesDropDown(endpoint: string, dropdownOption: string) {
-    cy.xpath(this.locator._selectPropDropdown(endpoint))
-      .first()
-      .scrollIntoView()
-      .click();
-    cy.get(this.locator._dropDownValue(dropdownOption)).click();
-  }
-
   public SelectDropDown(dropdownOption: string, endpoint = "selectwidget") {
     const mode = window.localStorage.getItem("inDeployedMode");
     if (mode == "false") {
@@ -505,7 +497,7 @@ export class AggregateHelper {
   }
 
   public ActionContextMenuWithInPane(
-    action: "Copy to page" | "Move to page" | "Delete",
+    action: "Copy to page" | "Move to page" | "Delete" | "Prettify Code",
     subAction = "",
     jsDelete = false,
   ) {
@@ -748,6 +740,13 @@ export class AggregateHelper {
       : cy.get(selector);
     if (index) locator.eq(index).should("have.length", length);
     else locator.should("have.length", length);
+  }
+
+  public FocusElement(selector: string) {
+    const locator = selector.startsWith("//")
+      ? cy.xpath(selector)
+      : cy.get(selector);
+    locator.focus();
   }
 
   public AssertContains(text: string, exists: "exist" | "not.exist" = "exist") {

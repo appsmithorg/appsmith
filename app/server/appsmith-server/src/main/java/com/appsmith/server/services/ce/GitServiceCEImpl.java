@@ -1852,7 +1852,7 @@ public class GitServiceCEImpl implements GitServiceCE {
         }
 
         if (StringUtils.isEmptyOrNull(workspaceId)) {
-            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "Invalid organization id"));
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "Invalid workspace id"));
         }
 
         final String repoName = GitUtils.getRepoName(gitConnectDTO.getRemoteUrl());

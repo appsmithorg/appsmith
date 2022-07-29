@@ -2420,7 +2420,7 @@ public class GitServiceTest {
         StepVerifier
                 .create(applicationMono)
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException
-                        && throwable.getMessage().contains(AppsmithError.INVALID_PARAMETER.getMessage("Invalid organization id")))
+                        && throwable.getMessage().contains(AppsmithError.INVALID_PARAMETER.getMessage("Invalid workspace id")))
                 .verify();
     }
 
