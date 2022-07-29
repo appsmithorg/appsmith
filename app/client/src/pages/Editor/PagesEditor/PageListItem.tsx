@@ -34,7 +34,8 @@ import {
   selectApplicationVersion,
 } from "selectors/editorSelectors";
 import { ApplicationVersion } from "actions/applicationActions";
-import { Button, Category, TextInput } from "components/ads";
+import { Button, Category } from "components/ads";
+import { TextInput } from "design-system";
 import { AppState } from "reducers";
 
 export const Container = styled.div`
