@@ -218,7 +218,6 @@ class CodeEditor extends Component<Props, State> {
   annotations: Annotation[] = [];
   updateLintingCallback: UpdateLintingCallback | undefined;
   private editorWrapperRef = React.createRef<HTMLDivElement>();
-  dynamicData: DataTree;
   constructor(props: Props) {
     super(props);
     this.state = {
@@ -230,7 +229,6 @@ class CodeEditor extends Component<Props, State> {
       hasLintError: false,
     };
     this.updatePropertyValue = this.updatePropertyValue.bind(this);
-    this.dynamicData = getDataTreeForAutocomplete(store.getState());
   }
   componentDidMount(): void {
     if (this.codeEditorTarget.current) {
@@ -334,10 +332,12 @@ class CodeEditor extends Component<Props, State> {
 
         CodeEditor.updateMarkings(editor, this.props.marking);
 
+        const dataTree = getDataTreeForAutocomplete(store.getState());
+
         this.hinters = CodeEditor.startAutocomplete(
           editor,
           this.props.hinting,
-          this.dynamicData,
+          dataTree,
           this.props.additionalDynamicData,
         );
 
@@ -615,12 +615,14 @@ class CodeEditor extends Component<Props, State> {
       expectedType: expected?.autocompleteDataType,
     };
 
+    const dataTree = getDataTreeForAutocomplete(store.getState());
+
     if (dataTreePath) {
       const { entityName, propertyPath } = getEntityNameAndPropertyPath(
         dataTreePath,
       );
       entityInformation.entityName = entityName;
-      const entity = this.dynamicData[entityName];
+      const entity = dataTree[entityName];
 
       if (entity) {
         if ("ENTITY_TYPE" in entity) {
@@ -704,11 +706,13 @@ class CodeEditor extends Component<Props, State> {
       isJSObject,
     } = this.props;
 
+    const dataTree = getDataTreeForAutocomplete(store.getState());
+
     if (!dataTreePath || !this.updateLintingCallback || !editor) {
       return;
     }
     const errors = _.get(
-      this.dynamicData,
+      dataTree,
       getEvalErrorPath(dataTreePath),
       [],
     ) as EvaluationError[];
@@ -757,8 +761,10 @@ class CodeEditor extends Component<Props, State> {
       };
     }
 
+    const dataTree = getDataTreeForAutocomplete(store.getState());
+
     const errors = _.get(
-      this.dynamicData,
+      dataTree,
       getEvalErrorPath(dataTreePath),
       [],
     ) as EvaluationError[];
@@ -777,10 +783,7 @@ class CodeEditor extends Component<Props, State> {
       this.state.hasLintError && this.setState({ hasLintError: false });
     }
 
-    const pathEvaluatedValue = _.get(
-      this.dynamicData,
-      getEvalValuePath(dataTreePath),
-    );
+    const pathEvaluatedValue = _.get(dataTree, getEvalValuePath(dataTreePath));
 
     return {
       isInvalid: filteredLintErrors.length > 0,
@@ -810,7 +813,7 @@ class CodeEditor extends Component<Props, State> {
       theme,
       useValidationMessage,
     } = this.props;
-    this.dynamicData = getDataTreeForAutocomplete(store.getState());
+
     const validations = this.getPropertyValidation(dataTreePath);
     let { errors, isInvalid } = validations;
     const { pathEvaluatedValue } = validations;
