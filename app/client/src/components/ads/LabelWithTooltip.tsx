@@ -100,11 +100,7 @@ export const labelLayoutStyles = css<{
     if (compactMode) return "center";
     return "flex-start";
   }};
-  justify-content: ${({ compactMode, labelPosition }) => {
-    if (labelPosition && labelPosition !== LabelPosition.Left && !compactMode) {
-      return "space-between";
-    }
-  }};
+  justify-content: flex-start;
 `;
 
 export const multiSelectInputContainerStyles = css<{
