@@ -20,7 +20,7 @@ describe("Git sync modal: merge tab", function() {
     });
   });
 
-  it("Verify the functionally of the default dropdown under merge tab", function() {
+  it("Verify the functionality of the default dropdown under merge tab", function() {
     cy.get(commonLocators.canvas).click({ force: true });
     cy.createGitBranch(childBranchKey);
 
@@ -36,7 +36,7 @@ describe("Git sync modal: merge tab", function() {
     cy.get(commonLocators.dropdownmenu)
       .contains(mainBranch)
       .click();
-
+    cy.wait(2000);
     cy.get(gitSyncLocators.mergeButton).should("be.enabled");
     cy.get(gitSyncLocators.closeGitSyncModal).click();
   });
