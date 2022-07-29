@@ -1,6 +1,6 @@
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 
-let guid: any, dsName: any, query: string, imageNameToUpload: string;
+let dsName: any, query: string, imageNameToUpload: string;
 const agHelper = ObjectsRegistry.AggregateHelper,
   ee = ObjectsRegistry.EntityExplorer,
   dataSources = ObjectsRegistry.DataSources,
