@@ -67,7 +67,7 @@ import EditableText, {
   EditInteractionKind,
   SavingState,
 } from "components/ads/EditableText";
-import { notEmptyValidator } from "components/ads/TextInput";
+import { notEmptyValidator } from "design-system";
 import { deleteWorkspace, saveWorkspace } from "actions/workspaceActions";
 import { leaveWorkspace } from "actions/userActions";
 import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";

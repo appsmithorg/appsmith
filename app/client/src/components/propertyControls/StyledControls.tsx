@@ -8,10 +8,10 @@ import { AnyStyledComponent, css } from "styled-components";
 import { ControlIcons } from "icons/ControlIcons";
 import { FormIcons } from "icons/FormIcons";
 import Button from "components/ads/Button";
-import TextInput, { TextInputProps } from "components/ads/TextInput";
+import { TextInput, TextInputProps } from "design-system";
 import Dropdown from "components/ads/Dropdown";
 import { IconWrapper } from "constants/IconConstants";
-import { InputWrapper } from "components/ads/TextInput";
+import { InputWrapper } from "design-system";
 import useInteractionAnalyticsEvent from "utils/hooks/useInteractionAnalyticsEvent";
 import Checkbox from "components/ads/Checkbox";
 

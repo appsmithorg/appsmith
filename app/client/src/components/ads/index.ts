@@ -129,9 +129,6 @@ export { default as TableDropdown } from "./TableDropdown";
 
 export { default as TagInputComponent } from "./TagInputComponent";
 
-export { default as TextInput } from "./TextInput";
-// export * from "./TextInput"; conflict on names
-
 export * from "./Toast";
 
 export { default as Toggle } from "./Toggle";

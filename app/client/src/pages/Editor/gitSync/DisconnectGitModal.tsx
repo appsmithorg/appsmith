@@ -29,7 +29,7 @@ import {
   REVOKE,
 } from "@appsmith/constants/messages";
 import Link from "./components/Link";
-import TextInput from "components/ads/TextInput";
+import { TextInput } from "design-system";
 import Button, { Category, Size } from "components/ads/Button";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { Subtitle, Title } from "./components/StyledComponents";

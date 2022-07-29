@@ -13,10 +13,10 @@ import {
 } from "@appsmith/constants/messages";
 import { Text, TextType } from "design-system";
 import { Classes } from "@blueprintjs/core";
-import TextInput, { notEmptyValidator } from "components/ads/TextInput";
+import { TextInput, notEmptyValidator } from "design-system";
 import Button, { Category, Size } from "components/ads/Button";
 import { useDispatch, useSelector } from "react-redux";
-import { emailValidator } from "components/ads/TextInput";
+import { emailValidator } from "design-system";
 import { Toaster } from "components/ads/Toast";
 import {
   getGlobalGitConfig,

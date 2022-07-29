@@ -1,7 +1,7 @@
 import React, { MutableRefObject, useRef } from "react";
 import { get } from "lodash";
 import Dropdown, { DropdownOption } from "components/ads/Dropdown";
-import TextInput from "components/ads/TextInput";
+import { TextInput } from "design-system";
 import styled, { useTheme } from "styled-components";
 import Icon, { IconSize } from "components/ads/Icon";
 import { useDispatch } from "react-redux";

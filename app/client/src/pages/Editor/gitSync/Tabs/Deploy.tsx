@@ -15,7 +15,7 @@ import {
   READ_DOCUMENTATION,
 } from "@appsmith/constants/messages";
 import styled, { useTheme } from "styled-components";
-import TextInput from "components/ads/TextInput";
+import { TextInput } from "design-system";
 import Button, { Category, Size } from "components/ads/Button";
 import { LabelContainer } from "components/ads/Checkbox";
 
