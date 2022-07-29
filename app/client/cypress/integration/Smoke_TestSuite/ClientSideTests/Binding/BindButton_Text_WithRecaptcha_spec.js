@@ -145,7 +145,6 @@ describe("Binding the Button widget with Text widget using Recpatcha v3", functi
   });
 
   //This test to be enabled once the product bug is fixed
-
   it("Validate the Button binding with Text Widget with Recaptcha Token with invalid key", function() {
     cy.get("button")
       .contains("Submit")
