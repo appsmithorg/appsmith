@@ -8,6 +8,7 @@ describe("Autocomplete using slash command and mustache tests", function() {
 
   it("Slash command and mustache autocomplete validation for button widget", function() {
     cy.openPropertyPane("buttonwidget");
+    cy.EnableAllCodeEditors();
     cy.testCodeMirror("/").then(() => {
       cy.get(dynamicInputLocators.hints).should("exist");
       // validates all autocomplete commands on entering / in label field
@@ -21,7 +22,6 @@ describe("Autocomplete using slash command and mustache tests", function() {
         .last()
         .should("have.text", "New Datasource");
     });
-    cy.EnableAllCodeEditors();
     cy.get(dynamicInputLocators.input)
       .first()
       .click({ force: true })
