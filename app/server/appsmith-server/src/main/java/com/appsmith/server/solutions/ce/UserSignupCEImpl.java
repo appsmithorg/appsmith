@@ -221,6 +221,7 @@ public class UserSignupCEImpl implements UserSignupCE {
                                                 false
                                         );
                                         analyticsService.identifyInstance(instanceId, userData.getRole(), userData.getUseCase());
+                                        return instanceId;
                                     }),
                             envManager.applyChanges(Map.of(
                                     APPSMITH_DISABLE_TELEMETRY.name(),
