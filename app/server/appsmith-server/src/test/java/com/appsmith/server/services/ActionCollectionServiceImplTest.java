@@ -121,11 +121,27 @@ public class ActionCollectionServiceImplTest {
                 .thenAnswer(invocationOnMock -> Mono.justOrEmpty(invocationOnMock.getArguments()[0]));
 
         Mockito
+                .when(analyticsService.sendCreateEvent(Mockito.any(), Mockito.any()))
+                .thenAnswer(invocationOnMock -> Mono.justOrEmpty(invocationOnMock.getArguments()[0]));
+
+        Mockito
                 .when(analyticsService.sendUpdateEvent(Mockito.any()))
                 .thenAnswer(invocationOnMock -> Mono.justOrEmpty(invocationOnMock.getArguments()[0]));
 
         Mockito
-                .when(analyticsService.sendDeleteEvent(Mockito.any()))
+                .when(analyticsService.sendUpdateEvent(Mockito.any(), Mockito.any()))
+                .thenAnswer(invocationOnMock -> Mono.justOrEmpty(invocationOnMock.getArguments()[0]));
+
+        Mockito
+                .when(analyticsService.sendDeleteEvent(Mockito.any(), Mockito.any()))
+                .thenAnswer(invocationOnMock -> Mono.justOrEmpty(invocationOnMock.getArguments()[0]));
+
+        Mockito
+                .when(analyticsService.sendDeleteEvent(Mockito.any(), Mockito.any()))
+                .thenAnswer(invocationOnMock -> Mono.justOrEmpty(invocationOnMock.getArguments()[0]));
+
+        Mockito
+                .when(analyticsService.sendArchiveEvent(Mockito.any(), Mockito.any()))
                 .thenAnswer(invocationOnMock -> Mono.justOrEmpty(invocationOnMock.getArguments()[0]));
     }
 

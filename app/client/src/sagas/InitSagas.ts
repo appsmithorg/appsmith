@@ -32,8 +32,8 @@ import { getIsInitialized as getIsViewerInitialized } from "selectors/appViewSel
 import { enableGuidedTour } from "actions/onboardingActions";
 import { setPreviewModeAction } from "actions/editorActions";
 import AppEngine, {
+  AppEngineApiError,
   AppEnginePayload,
-  PageNotFoundError,
 } from "entities/Engine";
 import AppEngineFactory from "entities/Engine/factory";
 import { ApplicationPagePayload } from "api/ApplicationApi";
@@ -95,8 +95,8 @@ export function* startAppEngine(action: ReduxAction<AppEnginePayload>) {
     engine.stopPerformanceTracking();
   } catch (e) {
     log.error(e);
+    if (e instanceof AppEngineApiError) return;
     Sentry.captureException(e);
-    if (e instanceof PageNotFoundError) return;
     yield put({
       type: ReduxActionTypes.SAFE_CRASH_APPSMITH_REQUEST,
       payload: {

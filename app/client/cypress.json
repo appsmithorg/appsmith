@@ -6,6 +6,7 @@
 	"pageLoadTimeout": 40000,
 	"video": true,
 	"videoUploadOnPasses": false,
+  "videoCompression": false,
 	"reporter": "mochawesome",
 	"reporterOptions": {
 		"reportDir": "results",
@@ -14,7 +15,9 @@
 		"json": false
 	},
 	"ignoreTestFiles": [
-		"**/Smoke_TestSuite/Application/PgAdmin_spec*.js"
+		"**/Smoke_TestSuite/Application/PgAdmin_spec*.js",
+    "**/Smoke_TestSuite/ClientSideTests/Git/GitSync/Comments_spec*.js",
+    "**/Smoke_TestSuite/ClientSideTests/OtherUIFeatures/AddComments_spec*.js"
 	],
 	"chromeWebSecurity": false,
 	"viewportHeight": 1100,
