@@ -17,6 +17,7 @@ import { IconNames } from "@blueprintjs/icons";
 import styled from "constants/DefaultTheme";
 import { Colors } from "constants/Colors";
 import { entityTooltipCSS } from "./Entity";
+import { useCloseMenuOnScroll } from "./hooks";
 
 export type TreeDropdownOption = DropdownOption & {
   onSelect?: (value: TreeDropdownOption, setter?: Setter) => void;
@@ -129,6 +130,7 @@ export default function TreeDropdown(props: TreeDropdownProps) {
   );
 
   const [isOpen, setIsOpen] = useState<boolean>(false);
+  useCloseMenuOnScroll(isOpen, () => setIsOpen(false));
 
   const handleSelect = (option: TreeDropdownOption) => {
     if (option.onSelect) {

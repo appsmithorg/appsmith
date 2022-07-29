@@ -10,6 +10,7 @@ import QueryTemplates from "./QueryTemplates";
 import DatasourceField from "./DatasourceField";
 import { DatasourceTable } from "entities/Datasource";
 import { Colors } from "constants/Colors";
+import { useCloseMenuOnScroll } from "../hooks";
 
 const Wrapper = styled(EntityTogglesWrapper)`
   &&&& {
@@ -47,6 +48,7 @@ export function DatasourceStructure(props: DatasourceStructureProps) {
   };
   let templateMenu = null;
   const [active, setActive] = useState(false);
+  useCloseMenuOnScroll(active, () => setActive(false));
 
   const lightningMenu = (
     <Wrapper
