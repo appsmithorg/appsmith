@@ -215,6 +215,11 @@ init_keycloak() {
 
   # Make keycloak persistent across reboots
   ln --verbose --force --symbolic --no-target-directory /appsmith-stacks/data/keycloak /opt/keycloak/standalone/data
+
+  # Change proxy config in Keycloak's standalone configuration.
+  # From: <http-listener name="default" socket-binding="http" redirect-socket="https" enable-http2="true"/>
+  # To:   <http-listener name="default" socket-binding="http" redirect-socket="https" enable-http2="true" https-redirect-port="8443"/>
+  sed -i '/<http-listener name="default" / s/\/>/ proxy-address-forwarding="true"\0/' /opt/keycloak/standalone/configuration/standalone.xml
 }
 
 # Keep Let's Encrypt directory persistent
