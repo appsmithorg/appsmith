@@ -26,16 +26,17 @@ describe("AForce - Community Issues page validations", function() {
 
   let selectedRow: number;
   it("1. Import application json and validate headers", () => {
-    cy.visit("/applications");
+    homePage.NavigateToHome();
     homePage.ImportApp("CommunityIssuesExport.json");
     cy.wait("@importNewApplication").then((interception: any) => {
       agHelper.Sleep();
       const { isPartialImport } = interception.response.body.data;
       if (isPartialImport) {
         // should reconnect modal
-        dataSources.ReconnectDataSourcePostgres("AForceDB");
+        dataSources.ReconnectDataSource("AForceDB", "PostgreSQL");
+        homePage.AssertNCloseImport();
       } else {
-        homePage.AssertImport();
+        homePage.AssertImportToast();
       }
       //Validate table is not empty!
       table.WaitUntilTableLoad();
@@ -157,7 +158,7 @@ describe("AForce - Community Issues page validations", function() {
     table.WaitUntilTableLoad();
 
     ee.SelectEntityByName("Table1", "WIDGETS");
-    jsEditor.RemoveText("defaultsearchtext");
+    propPane.RemoveText("defaultsearchtext");
     table.WaitUntilTableLoad();
   });
 
