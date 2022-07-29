@@ -11,13 +11,12 @@ import PropertySection from "./PropertySection";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import Boxed from "../GuidedTour/Boxed";
 import { GUIDED_TOUR_STEPS } from "../GuidedTour/constants";
-import { IconNames } from "@blueprintjs/icons";
-import { Icon, IconSize } from "components/ads";
 import styled from "styled-components";
 import { Colors } from "constants/Colors";
 import { searchProperty } from "./helpers";
+import { EmptySearchResult } from "./EmptySearchResult";
 
-const EmptySearchResultWrapper = styled.div`
+export const EmptySearchResultWrapper = styled.div`
   color: ${Colors.GRAY_700};
 
   svg {
@@ -86,21 +85,6 @@ const generatePropertyControl = (
     throw Error("Unknown configuration provided: " + props.type);
   });
 };
-
-function EmptySearchResult() {
-  return (
-    <EmptySearchResultWrapper className="mt-12 p-3">
-      <Icon
-        className="flex justify-center"
-        name={IconNames.SEARCH}
-        size={IconSize.XXXL}
-      />
-      <p className="pt-3 text-center">
-        No Properties found based on your search
-      </p>
-    </EmptySearchResultWrapper>
-  );
-}
 
 function PropertyControlsGenerator(props: PropertyControlsGeneratorProps) {
   const searchResults = searchProperty(props.config, props.searchQuery);
