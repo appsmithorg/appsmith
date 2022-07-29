@@ -270,7 +270,12 @@ public class GraphQLPlugin extends BasePlugin {
          */
         @Override
         public Set<String> getSelfReferencingDataPaths() {
-            return Set.of("pluginSpecifiedTemplates[" + PAGINATION_DATA_INDEX + "].value");
+            return Set.of("pluginSpecifiedTemplates[" + PAGINATION_DATA_INDEX + "].value.limitBased.limit.value",
+                    "pluginSpecifiedTemplates[" + PAGINATION_DATA_INDEX + "].value.limitBased.offset.value",
+                    "pluginSpecifiedTemplates[" + PAGINATION_DATA_INDEX + "].value.cursorBased.next.limit.value",
+                    "pluginSpecifiedTemplates[" + PAGINATION_DATA_INDEX + "].value.cursorBased.next.cursor.value",
+                    "pluginSpecifiedTemplates[" + PAGINATION_DATA_INDEX + "].value.cursorBased.previous.limit.value",
+                    "pluginSpecifiedTemplates[" + PAGINATION_DATA_INDEX + "].value.cursorBased.previous.cursor.value");
         }
     }
 }
