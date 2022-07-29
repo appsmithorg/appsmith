@@ -1397,11 +1397,11 @@ Cypress.Commands.add("typeValueNValidate", (valueToType, fieldName = "") => {
   // })
 });
 
-Cypress.Commands.add("clickButton", (btnVisibleText) => {
+Cypress.Commands.add("clickButton", (btnVisibleText, toForceClick = true) => {
   cy.xpath("//span[text()='" + btnVisibleText + "']/parent::button")
     .first()
     .scrollIntoView()
-    .click();
+    .click({ force: toForceClick });
 });
 
 Cypress.Commands.add(
