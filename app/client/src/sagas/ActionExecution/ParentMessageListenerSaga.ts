@@ -18,7 +18,6 @@ interface MessageChannelPayload {
 const subscriptionsMap = new Map<
   string,
   {
-    // messageChannel: Channel<MessageChannelPayload>;
     windowListenerUnSubscribe: () => void;
     spawnedTask: Task;
     triggerMeta: TriggerMeta;
@@ -39,7 +38,7 @@ function* messageChannelHandler(channel: Channel<MessageChannelPayload>) {
       });
     }
   } finally {
-    console.log("------------- cancelled task");
+    // console.log("------------- cancelled task");
     channel.close();
   }
 }
@@ -49,7 +48,7 @@ export function* listenToParentMessages(
   eventType: EventType,
   triggerMeta: TriggerMeta,
 ) {
-  console.log("------------- Parent listener called");
+  // console.log("------------- Parent listener called");
   const existingSubscription = subscriptionsMap.get(
     actionPayload.acceptedOrigin,
   );
@@ -87,7 +86,6 @@ export function* listenToParentMessages(
   window.addEventListener("message", messageHandler);
 
   subscriptionsMap.set(actionPayload.acceptedOrigin, {
-    // messageChannel,
     windowListenerUnSubscribe: () =>
       window.removeEventListener("message", messageHandler),
     spawnedTask,
@@ -110,7 +108,6 @@ export function* unsubscribeParentMessages(
   }
 
   existingSubscription.windowListenerUnSubscribe();
-  // existingSubscription.messageChannel.close();
   yield cancel(existingSubscription.spawnedTask);
   subscriptionsMap.delete(actionPayload.origin);
 }
