@@ -50,6 +50,10 @@ import {
 import { requestModalConfirmationSaga } from "sagas/UtilSagas";
 import { ModalType } from "reducers/uiReducers/modalActionReducer";
 import { get, set, size } from "lodash";
+import {
+  listenToParentMessages,
+  unsubscribeParentMessages,
+} from "./ParentMessageListenerSaga";
 
 export type TriggerMeta = {
   source?: TriggerSource;
@@ -148,6 +152,21 @@ export function* executeActionTriggers(
       if (!flag) {
         throw new UserCancelledActionExecutionError();
       }
+      break;
+    case ActionTriggerType.SUBSCRIBE_PARENT_MESSAGES:
+      response = yield call(
+        listenToParentMessages,
+        trigger.payload,
+        eventType,
+        triggerMeta,
+      );
+      break;
+    case ActionTriggerType.UNSUBSCRIBE_PARENT_MESSAGES:
+      response = yield call(
+        unsubscribeParentMessages,
+        trigger.payload,
+        triggerMeta,
+      );
       break;
     default:
       log.error("Trigger type unknown", trigger);

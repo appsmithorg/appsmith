@@ -261,6 +261,25 @@ export const DATA_TREE_FUNCTIONS: Record<
         };
       },
   },
+  subscribeParentMessages: function(origin: string, callback: Function) {
+    return {
+      type: ActionTriggerType.SUBSCRIBE_PARENT_MESSAGES,
+      payload: {
+        acceptedOrigin: origin,
+        callbackString: callback.toString(),
+      },
+      executionType: ExecutionType.TRIGGER,
+    };
+  },
+  unsubscribeParentMessages: function(origin: string) {
+    return {
+      type: ActionTriggerType.UNSUBSCRIBE_PARENT_MESSAGES,
+      payload: {
+        origin,
+      },
+      executionType: ExecutionType.TRIGGER,
+    };
+  },
 };
 
 export const enhanceDataTreeWithFunctions = (

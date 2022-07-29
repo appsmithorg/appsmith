@@ -695,6 +695,14 @@ export const GLOBAL_FUNCTIONS = {
     "!doc": "Stop executing a setInterval with id",
     "!type": "fn(id: string) -> void",
   },
+  subscribeParentMessages: {
+    "!doc": "Subscribe to messages from parent window",
+    "!type": "fn(origin: string, callback: fn) -> void",
+  },
+  unsubscribeParentMessages: {
+    "!doc": "Unsubscribe to messages from parent window",
+    "!type": "fn(origin: string) -> void",
+  },
 };
 
 export const getPropsForJSActionEntity = ({

@@ -18,7 +18,8 @@ export enum ActionTriggerType {
   WATCH_CURRENT_LOCATION = "WATCH_CURRENT_LOCATION",
   STOP_WATCHING_CURRENT_LOCATION = "STOP_WATCHING_CURRENT_LOCATION",
   CONFIRMATION_MODAL = "CONFIRMATION_MODAL",
-  LISTEN_TO_PARENT_MESSAGES = "LISTEN_TO_PARENT_MESSAGES",
+  SUBSCRIBE_PARENT_MESSAGES = "LISTEN_TO_PARENT_MESSAGES",
+  UNSUBSCRIBE_PARENT_MESSAGES = "UNSUBSCRIBE_PARENT_LISTENER",
 }
 
 export const ActionTriggerFunctionNames: Record<ActionTriggerType, string> = {
@@ -38,15 +39,8 @@ export const ActionTriggerFunctionNames: Record<ActionTriggerType, string> = {
   [ActionTriggerType.WATCH_CURRENT_LOCATION]: "watchLocation",
   [ActionTriggerType.STOP_WATCHING_CURRENT_LOCATION]: "stopWatch",
   [ActionTriggerType.CONFIRMATION_MODAL]: "ConfirmationModal",
-  [ActionTriggerType.LISTEN_TO_PARENT_MESSAGES]: "listenToParentMessages",
-};
-
-export type ParentMessageListenerDescription = {
-  type: ActionTriggerType.LISTEN_TO_PARENT_MESSAGES;
-  payload: {
-    acceptedOrigin: string;
-    callback: () => void;
-  };
+  [ActionTriggerType.SUBSCRIBE_PARENT_MESSAGES]: "subscribeParentMessages",
+  [ActionTriggerType.UNSUBSCRIBE_PARENT_MESSAGES]: "unsubscribeParentMessages",
 };
 
 export type RunPluginActionDescription = {
@@ -176,6 +170,21 @@ export type ConfirmationModal = {
   payload?: Record<string, any>;
 };
 
+export type SubscribeParentDescription = {
+  type: ActionTriggerType.SUBSCRIBE_PARENT_MESSAGES;
+  payload: {
+    acceptedOrigin: string;
+    callbackString: string;
+  };
+};
+
+export type UnsubscribeParentDescription = {
+  type: ActionTriggerType.UNSUBSCRIBE_PARENT_MESSAGES;
+  payload: {
+    origin: string;
+  };
+};
+
 export type ActionDescription =
   | RunPluginActionDescription
   | ClearPluginActionDescription
@@ -192,4 +201,6 @@ export type ActionDescription =
   | GetCurrentLocationDescription
   | WatchCurrentLocationDescription
   | StopWatchingCurrentLocationDescription
-  | ConfirmationModal;
+  | ConfirmationModal
+  | SubscribeParentDescription
+  | UnsubscribeParentDescription;
