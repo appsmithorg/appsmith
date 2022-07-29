@@ -16,12 +16,13 @@ import { GeneralSettings } from "./General";
 import * as Sentry from "@sentry/react";
 import { getAllApplications } from "actions/applicationActions";
 import { useMediaQuery } from "react-responsive";
-import { BackButton, TabsWrapper } from "./helperComponents";
+import { BackButton, TabsWrapper } from "components/utils/helperComponents";
 import { debounce } from "lodash";
 import { MenuItemProps } from "components/ads";
 import FormDialogComponent from "components/editorComponents/form/FormDialogComponent";
 import WorkspaceInviteUsersForm from "./WorkspaceInviteUsersForm";
 import { SettingsPageHeader } from "./SettingsPageHeader";
+import { navigateToTab } from "./helpers";
 const SentryRoute = Sentry.withSentryRouting(Route);
 
 const SettingsWrapper = styled.div<{
@@ -97,11 +98,15 @@ export default function Settings() {
       key: "members",
       title: "Users",
       panelComponent: SettingsRenderer,
+      // icon: "gear",
+      // iconSize: IconSize.XL,
     },
     {
       key: "general",
       title: "General Settings",
       panelComponent: SettingsRenderer,
+      // icon: "user-2",
+      // iconSize: IconSize.XL,
     },
   ];
 
@@ -133,21 +138,9 @@ export default function Settings() {
         />
         <TabsWrapper data-testid="t--user-edit-tabs-wrapper">
           <TabComponent
-            onSelect={(index: number) => {
-              const settingsStartIndex = location.pathname.indexOf("settings");
-              const settingsEndIndex = settingsStartIndex + "settings".length;
-              const hasSlash = location.pathname[settingsEndIndex] === "/";
-              let newUrl = "";
-
-              if (hasSlash) {
-                newUrl = `${location.pathname.slice(0, settingsEndIndex)}/${
-                  tabArr[index].key
-                }`;
-              } else {
-                newUrl = `${location.pathname}/${tabArr[index].key}`;
-              }
-              history.push(newUrl);
-            }}
+            onSelect={(index: number) =>
+              navigateToTab(tabArr[index].key, location, history)
+            }
             selectedIndex={isMembersPage ? 0 : 1}
             tabs={tabArr}
           />

@@ -16,7 +16,7 @@ import {
   HelpPopoverStyle,
   StyledSearchInput,
   SettingsHeader,
-} from "./helperComponents";
+} from "components/utils/helperComponents";
 import { ARE_YOU_SURE, createMessage } from "@appsmith/constants/messages";
 import { useMediaQuery } from "react-responsive";
 

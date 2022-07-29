@@ -17,7 +17,6 @@ import {
   changeWorkspaceUserRole,
   deleteWorkspaceUser,
 } from "actions/workspaceActions";
-// import Button, { Size, Category } from "components/ads/Button";
 import TableDropdown from "components/ads/TableDropdown";
 import Dropdown from "components/ads/Dropdown";
 import styled from "styled-components";
@@ -496,12 +495,6 @@ export default function MemberSettings(props: PageProps) {
                         width="140px"
                       />
                     )}
-                    {/* <Button
-                      category={Category.primary}
-                      className="approve-btn"
-                      size={Size.xxs}
-                      text="Approve"
-                    /> */}
                     <DeleteIcon
                       className="t--deleteUser"
                       cypressSelector="t--deleteUser"
