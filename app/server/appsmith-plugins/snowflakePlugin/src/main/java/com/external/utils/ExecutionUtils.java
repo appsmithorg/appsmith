@@ -3,6 +3,7 @@ package com.external.utils;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
+import lombok.extern.slf4j.Slf4j;
 import net.snowflake.client.jdbc.SnowflakeReauthenticationRequest;
 
 import java.sql.Connection;
@@ -15,6 +16,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+@Slf4j
 public class ExecutionUtils {
     /**
      * Execute query and return the resulting table as a list of rows.
@@ -57,7 +59,7 @@ public class ExecutionUtils {
             if (e instanceof SnowflakeReauthenticationRequest) {
                 throw new StaleConnectionException();
             }
-            e.printStackTrace();
+            log.error("Exception caught when executing Snowflake query. Cause: ", e);
             throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, e.getMessage());
 
         } finally {
@@ -65,14 +67,14 @@ public class ExecutionUtils {
                 try {
                     resultSet.close();
                 } catch (SQLException e) {
-                    e.printStackTrace();
+                    log.error("Unable to close Snowflake resultset. Cause: ", e);
                 }
             }
             if (statement != null) {
                 try {
                     statement.close();
                 } catch (SQLException e) {
-                    e.printStackTrace();
+                    log.error("Unable to close Snowflake statement. Cause: ", e);
                 }
             }
         }

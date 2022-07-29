@@ -105,7 +105,7 @@ public class SnowflakePlugin extends BasePlugin {
                         try {
                             conn = DriverManager.getConnection("jdbc:snowflake://" + datasourceConfiguration.getUrl() + ".snowflakecomputing.com", properties);
                         } catch (SQLException e) {
-                            e.printStackTrace();
+                            log.error("Exception caught when connecting to Snowflake endpoint: " + datasourceConfiguration.getUrl() + ". Cause: ", e);
                             throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR, e.getMessage());
                         }
                         if (conn == null) {
@@ -122,7 +122,7 @@ public class SnowflakePlugin extends BasePlugin {
                 try {
                     connection.close();
                 } catch (SQLException throwable) {
-                    throwable.printStackTrace();
+                    log.error("Exception caught when closing Snowflake connection. Cause: ", throwable);
                 }
             }
         }
@@ -192,7 +192,7 @@ public class SnowflakePlugin extends BasePlugin {
                                 }
                                 connection.close();
                             } catch (SQLException throwable) {
-                                throwable.printStackTrace();
+                                log.error("Exception caught while testing Snowflake datasource. Cause: ", throwable);
                                 return Mono.error(throwable);
                             }
                         }
@@ -245,7 +245,7 @@ public class SnowflakePlugin extends BasePlugin {
                                 table.getKeys().sort(Comparator.naturalOrder());
                             }
                         } catch (SQLException throwable) {
-                            throwable.printStackTrace();
+                            log.error("Exception caught while fetching structure of Snowflake datasource. Cause: ", throwable);
                             throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, throwable.getMessage());
                         }
                         return structure;
