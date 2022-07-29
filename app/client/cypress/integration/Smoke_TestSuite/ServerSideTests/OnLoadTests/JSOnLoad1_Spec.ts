@@ -335,7 +335,7 @@ describe("JSObjects OnLoad Actions tests", function() {
       agHelper.AssertElementVisible(jsEditor._dialogBody("WhatTrumpThinks")); //Since JS call is Yes, dependent confirmation should appear aswell!
       agHelper.ClickButton("Yes");
 
-      agHelper.Sleep(2000); //to let the api's call be finished & populate the text fields before validation!
+      agHelper.Sleep(4000); //to let the api's call be finished & populate the text fields before validation!
       agHelper
         .GetText(locator._textAreainputWidgetv2InDeployed, "text", 1)
         .then(($quote) => cy.wrap($quote).should("not.be.empty"));

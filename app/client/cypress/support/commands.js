@@ -1401,7 +1401,7 @@ Cypress.Commands.add("clickButton", (btnVisibleText) => {
   cy.xpath("//span[text()='" + btnVisibleText + "']/parent::button")
     .first()
     .scrollIntoView()
-    .click({ force: true });
+    .click();
 });
 
 Cypress.Commands.add(

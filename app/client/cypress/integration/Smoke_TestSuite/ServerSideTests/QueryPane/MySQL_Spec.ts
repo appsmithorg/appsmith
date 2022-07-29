@@ -7,10 +7,6 @@ let agHelper = ObjectsRegistry.AggregateHelper,
   dataSources = ObjectsRegistry.DataSources;
 
 describe("Validate MySQL query UI flows - Bug 14054", () => {
-  before(() => {
-    dataSources.StartDataSourceRoutes();
-  });
-
   it("1. Create a new MySQL DS", () => {
     dataSources.CreateDataSource("MySql");
     cy.get("@dsName").then(($dsName) => {
