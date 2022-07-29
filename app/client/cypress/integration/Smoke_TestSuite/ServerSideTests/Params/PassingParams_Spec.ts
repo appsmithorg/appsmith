@@ -64,7 +64,7 @@ describe("[Bug] - 10784 - Passing params from JS to SQL query should not break",
     agHelper.SelectDropDown("7");
     agHelper.ClickButton("Submit");
     agHelper.ValidateNetworkExecutionSuccess("@postExecute");
-    table.ReadTableRowColumnData(0, 0, 2000).then((cellData) => {
+    table.ReadTableRowColumnData(0, 0, 3000).then((cellData) => {
       expect(cellData).to.be.equal("7");
     });
 
