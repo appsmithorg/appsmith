@@ -40,7 +40,7 @@ import Callout from "components/ads/Callout";
 import { getInitialsAndColorCode } from "utils/AppsmithUtils";
 import ProfileImage from "pages/common/ProfileImage";
 import ManageUsers from "./ManageUsers";
-import ScrollIndicator from "components/ads/ScrollIndicator";
+import { ScrollIndicator } from "design-system";
 import UserApi from "@appsmith/api/UserApi";
 import { Colors } from "constants/Colors";
 

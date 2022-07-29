@@ -55,7 +55,7 @@ import { bindingMarker } from "components/editorComponents/CodeEditor/markHelper
 import { bindingHint } from "components/editorComponents/CodeEditor/hintHelpers";
 import BindingPrompt from "./BindingPrompt";
 import { showBindingPrompt } from "./BindingPromptHelper";
-import ScrollIndicator from "components/ads/ScrollIndicator";
+import { ScrollIndicator } from "design-system";
 import "codemirror/addon/fold/brace-fold";
 import "codemirror/addon/fold/foldgutter";
 import "codemirror/addon/fold/foldgutter.css";

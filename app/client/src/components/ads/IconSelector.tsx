@@ -3,7 +3,7 @@ import styled from "styled-components";
 import AppIcon, { AppIconName, AppIconCollection } from "./AppIcon";
 import { Size } from "./Button";
 import { CommonComponentProps, Classes } from "./common";
-import ScrollIndicator from "components/ads/ScrollIndicator";
+import { ScrollIndicator } from "design-system";
 
 export type IconSelectorProps = CommonComponentProps & {
   onSelect?: (icon: AppIconName) => void;

@@ -69,7 +69,7 @@ import { Space, Title } from "../components/StyledComponents";
 import { Variant } from "components/ads";
 import DiscardChangesWarning from "../components/DiscardChangesWarning";
 import { changeInfoSinceLastCommit } from "../utils";
-import ScrollIndicator from "../../../../components/ads/ScrollIndicator";
+import { ScrollIndicator } from "design-system";
 
 const Section = styled.div`
   margin-top: 0;
