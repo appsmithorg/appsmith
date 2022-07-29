@@ -5,10 +5,14 @@ const pageid = "MyPage";
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 let ee = ObjectsRegistry.EntityExplorer,
   agHelper = ObjectsRegistry.AggregateHelper,
-  locator = ObjectsRegistry.CommonLocators;
+  locator = ObjectsRegistry.CommonLocators,
+  homePage = ObjectsRegistry.HomePage;
 
 describe("Entity explorer API pane related testcases", function() {
   it("Empty Message validation for Widgets/API/Queries", function() {
+    homePage.NavigateToHome();
+    homePage.CreateNewWorkspace("EmptyMsgCheck");
+    homePage.CreateAppInWorkspace("EmptyMsgCheck");
     ee.ExpandCollapseEntity("WIDGETS");
     agHelper.AssertElementVisible(
       locator._visibleTextSpan("No widget to display"),
@@ -29,9 +33,7 @@ describe("Entity explorer API pane related testcases", function() {
   });
 
   it("Move to page / edit API name /properties validation", function() {
-    cy.log("Login Successful");
     cy.NavigateToAPI_Panel();
-    cy.log("Navigation to API Panel screen successful");
     cy.CreateAPI("FirstAPI");
     cy.log("Creation of FirstAPI Action successful");
     cy.enterDatasourceAndPath(testdata.baseUrl, testdata.methods);
