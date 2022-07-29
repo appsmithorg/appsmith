@@ -5,12 +5,14 @@ export interface ICreateJSObjectOptions {
   completeReplace: boolean;
   toRun: boolean;
   shouldCreateNewJSObj: boolean;
+  lineNumber?: number;
 }
 const DEFAULT_CREATE_JS_OBJECT_OPTIONS = {
   paste: true,
   completeReplace: false,
   toRun: true,
   shouldCreateNewJSObj: true,
+  lineNumber: 4,
 };
 
 export class JSEditor {
@@ -118,14 +120,23 @@ export class JSEditor {
     JSCode: string,
     options: ICreateJSObjectOptions = DEFAULT_CREATE_JS_OBJECT_OPTIONS,
   ) {
-    const { completeReplace, paste, shouldCreateNewJSObj, toRun } = options;
+    const {
+      completeReplace,
+      lineNumber = 4,
+      paste,
+      shouldCreateNewJSObj,
+      toRun,
+    } = options;
 
     shouldCreateNewJSObj && this.NavigateToNewJSEditor();
     if (!completeReplace) {
+      const downKeys = Array.from(new Array(lineNumber), () => "{downarrow}")
+        .toString()
+        .replaceAll(",", "");
       cy.get(this.locator._codeMirrorTextArea)
         .first()
         .focus()
-        .type("{downarrow}{downarrow}{downarrow}{downarrow}  ");
+        .type(`${downKeys}  `);
     } else {
       cy.get(this.locator._codeMirrorTextArea)
         .first()
