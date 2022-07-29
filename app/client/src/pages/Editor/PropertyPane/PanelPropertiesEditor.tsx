@@ -224,7 +224,7 @@ export function PanelPropertiesEditor(
         panelConfigs && (
           <PanelWrapper>
             <PropertyControlsGenerator
-              config={panelConfig.children}
+              config={panelConfigs}
               id={widgetProperties.widgetId}
               panel={panel}
               searchQuery={searchText}
