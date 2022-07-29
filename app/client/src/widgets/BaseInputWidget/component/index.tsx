@@ -79,7 +79,7 @@ const InputComponentWrapper = styled((props) => (
     display: flex;
     pointer-events: ${({ disabled }) => (disabled ? "none" : "auto")};
     background: ${(props) =>
-      props.disabled ? "var(--wds-color-bg-disabled)" : "initial"};
+      props.disabled ? "var(--wds-color-bg-disabled)" : "white"};
 
     span, input {
       background: ${(props) =>
@@ -181,7 +181,7 @@ const InputComponentWrapper = styled((props) => (
             return "var(--wds-color-text-disabled-light) !important";
           }
 
-          return "var(--wds-color-text)";
+          return "var(--wds-color-text-light)";
         }};
       }
 
