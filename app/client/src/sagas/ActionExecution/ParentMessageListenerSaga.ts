@@ -56,7 +56,12 @@ export function* listenToParentMessages(
   if (existingSubscription) {
     logActionExecutionError(
       `Already listening to ${actionPayload.acceptedOrigin}. 
-      ${existingSubscription.triggerMeta.source} -> ${existingSubscription.triggerMeta.triggerPropertyName}`,
+      ${
+        existingSubscription.triggerMeta.source?.name &&
+        existingSubscription.triggerMeta.triggerPropertyName
+          ? `${existingSubscription.triggerMeta.source?.name} -> ${existingSubscription.triggerMeta.triggerPropertyName}`
+          : ""
+      }`,
       triggerMeta.source,
       triggerMeta.triggerPropertyName,
     );
