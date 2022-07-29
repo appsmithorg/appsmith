@@ -26,7 +26,7 @@ import {
   QUERIES_EDITOR_ID_PATH,
 } from "constants/routes";
 import { SAAS_EDITOR_API_ID_PATH } from "../SaaSEditor/constants";
-import { ENTITY_EXPLORER_ID } from "constants/Explorer";
+import { SIDEBAR_ID } from "constants/Explorer";
 
 const findWidgets = (widgets: CanvasStructure, keyword: string) => {
   if (!widgets || !widgets.widgetName) return widgets;
@@ -399,15 +399,15 @@ export function useActiveAction() {
 }
 
 export const useCloseMenuOnScroll = (open: boolean, onClose: () => void) => {
-  const explorer = document.getElementById(ENTITY_EXPLORER_ID);
+  const sidebar = document.getElementById(SIDEBAR_ID);
 
   useEffect(() => {
     if (open) {
-      explorer?.addEventListener("scroll", onClose, true);
+      sidebar?.addEventListener("scroll", onClose, true);
     }
 
     return () => {
-      explorer?.removeEventListener("scroll", onClose);
+      sidebar?.removeEventListener("scroll", onClose);
     };
   }, [open]);
 };

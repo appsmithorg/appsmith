@@ -20,6 +20,6 @@ describe("Entity explorer context menu", function() {
     ee.ExpandCollapseEntity("public.users");
 
     cy.get(globalSearch.createNew).click();
-    cy.get("#entity-explorer").scrollTo("top");
+    cy.get(".t--entity-explorer-wrapper").scrollTo("top");
   });
 });

@@ -28,7 +28,7 @@ import Files from "./Files";
 import ExplorerWidgetGroup from "./Widgets/WidgetGroup";
 import { builderURL } from "RouteBuilder";
 import history from "utils/history";
-import { SEARCH_ENTITY, ENTITY_EXPLORER_ID } from "constants/Explorer";
+import { SEARCH_ENTITY } from "constants/Explorer";
 import { getCurrentPageId } from "selectors/editorSelectors";
 
 const Wrapper = styled.div`
@@ -113,8 +113,9 @@ function EntityExplorer({ isActive }: { isActive: boolean }) {
 
   return (
     <Wrapper
-      className={`relative overflow-y-auto ${isActive ? "" : "hidden"}`}
-      id={ENTITY_EXPLORER_ID}
+      className={`t--entity-explorer-wrapper relative overflow-y-auto ${
+        isActive ? "" : "hidden"
+      }`}
       ref={explorerRef}
     >
       {/* SEARCH */}
