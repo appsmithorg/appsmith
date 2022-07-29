@@ -18,7 +18,6 @@ import "codemirror/addon/mode/multiplex";
 import "codemirror/addon/tern/tern.css";
 import "codemirror/addon/lint/lint";
 import "codemirror/addon/lint/lint.css";
-import store from "store";
 
 import { getDataTreeForAutocomplete } from "selectors/dataTreeSelectors";
 import EvaluatedValuePopup from "components/editorComponents/CodeEditor/EvaluatedValuePopup";
@@ -104,6 +103,7 @@ import { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTypeDefC
 
 interface ReduxStateProps {
   datasources: any;
+  dynamicData: DataTree;
   pluginIdToImageLocation: Record<string, string>;
   recentEntities: string[];
 }
@@ -332,12 +332,10 @@ class CodeEditor extends Component<Props, State> {
 
         CodeEditor.updateMarkings(editor, this.props.marking);
 
-        const dataTree = getDataTreeForAutocomplete(store.getState());
-
         this.hinters = CodeEditor.startAutocomplete(
           editor,
           this.props.hinting,
-          dataTree,
+          this.props.dynamicData,
           this.props.additionalDynamicData,
         );
 
@@ -350,6 +348,12 @@ class CodeEditor extends Component<Props, State> {
       // put that code into `options.finishInit()`.
     }
     window.addEventListener("keydown", this.handleKeydown);
+  }
+
+  shouldComponentUpdate(nextProps: Props, nextState: State) {
+    if (this.props.dynamicData !== nextProps.dynamicData)
+      return nextState.isFocused;
+    return true;
   }
 
   componentDidUpdate(prevProps: Props): void {
@@ -610,19 +614,17 @@ class CodeEditor extends Component<Props, State> {
   };
 
   getEntityInformation = (): FieldEntityInformation => {
-    const { dataTreePath, expected } = this.props;
+    const { dataTreePath, dynamicData, expected } = this.props;
     const entityInformation: FieldEntityInformation = {
       expectedType: expected?.autocompleteDataType,
     };
-
-    const dataTree = getDataTreeForAutocomplete(store.getState());
 
     if (dataTreePath) {
       const { entityName, propertyPath } = getEntityNameAndPropertyPath(
         dataTreePath,
       );
       entityInformation.entityName = entityName;
-      const entity = dataTree[entityName];
+      const entity = dynamicData[entityName];
 
       if (entity) {
         if ("ENTITY_TYPE" in entity) {
@@ -703,16 +705,15 @@ class CodeEditor extends Component<Props, State> {
     const {
       additionalDynamicData: contextData,
       dataTreePath,
+      dynamicData,
       isJSObject,
     } = this.props;
-
-    const dataTree = getDataTreeForAutocomplete(store.getState());
 
     if (!dataTreePath || !this.updateLintingCallback || !editor) {
       return;
     }
     const errors = _.get(
-      dataTree,
+      dynamicData,
       getEvalErrorPath(dataTreePath),
       [],
     ) as EvaluationError[];
@@ -761,10 +762,8 @@ class CodeEditor extends Component<Props, State> {
       };
     }
 
-    const dataTree = getDataTreeForAutocomplete(store.getState());
-
     const errors = _.get(
-      dataTree,
+      this.props.dynamicData,
       getEvalErrorPath(dataTreePath),
       [],
     ) as EvaluationError[];
@@ -783,7 +782,10 @@ class CodeEditor extends Component<Props, State> {
       this.state.hasLintError && this.setState({ hasLintError: false });
     }
 
-    const pathEvaluatedValue = _.get(dataTree, getEvalValuePath(dataTreePath));
+    const pathEvaluatedValue = _.get(
+      this.props.dynamicData,
+      getEvalValuePath(dataTreePath),
+    );
 
     return {
       isInvalid: filteredLintErrors.length > 0,
@@ -949,6 +951,7 @@ class CodeEditor extends Component<Props, State> {
 }
 
 const mapStateToProps = (state: AppState): ReduxStateProps => ({
+  dynamicData: getDataTreeForAutocomplete(state),
   datasources: state.entities.datasources,
   pluginIdToImageLocation: getPluginIdToImageLocation(state),
   recentEntities: getRecentEntityIds(state),
