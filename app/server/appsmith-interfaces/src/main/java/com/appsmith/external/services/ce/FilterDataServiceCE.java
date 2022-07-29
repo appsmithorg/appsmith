@@ -78,6 +78,17 @@ public class FilterDataServiceCE implements IFilterDataServiceCE {
             ConditionalOperator.NOT_IN, "NOT IN"
     );
 
+    private static final Map<DataType, Set<DataType>> datatypeCompatibilityMap = Map.of(
+            DataType.INTEGER, Set.of(),
+            DataType.LONG, Set.of(DataType.INTEGER),
+            DataType.FLOAT, Set.of(DataType.INTEGER, DataType.LONG),
+            DataType.DOUBLE, Set.of(DataType.INTEGER, DataType.LONG, DataType.FLOAT),
+            DataType.BOOLEAN, Set.of(),
+            DataType.STRING, Set.of(DataType.INTEGER, DataType.LONG, DataType.FLOAT, DataType.DOUBLE, DataType.BOOLEAN, DataType.DATE, DataType.TIME, DataType.TIMESTAMP),
+            DataType.DATE, Set.of(),
+            DataType.TIMESTAMP, Set.of()
+    );
+
     public FilterDataServiceCE() {
 
         objectMapper = new ObjectMapper();
@@ -119,7 +130,7 @@ public class FilterDataServiceCE implements IFilterDataServiceCE {
         insertAllData(tableName, items, schema, dataTypeConversionMap);
 
         // Filter the data
-        List<Map<String, Object>> finalResults = executeFilterQueryNew(tableName, schema, uqiDataFilterParams);
+        List<Map<String, Object>> finalResults = executeFilterQueryNew(tableName, schema, uqiDataFilterParams, dataTypeConversionMap);
 
         // Now that the data has been filtered. Clean Up. Drop the table
         dropTable(tableName);
@@ -130,7 +141,8 @@ public class FilterDataServiceCE implements IFilterDataServiceCE {
     }
 
     private List<Map<String, Object>> executeFilterQueryNew(String tableName, Map<String, DataType> schema,
-                                                            UQIDataFilterParams uqiDataFilterParams) {
+                                                            UQIDataFilterParams uqiDataFilterParams,
+                                                            Map<DataType, DataType> dataTypeConversionMap) {
 
         Condition condition = uqiDataFilterParams.getCondition();
         List<String> projectionColumns = uqiDataFilterParams.getProjectionColumns();
@@ -187,7 +199,7 @@ public class FilterDataServiceCE implements IFilterDataServiceCE {
                 PreparedStatementValueDTO dataInfo = iterator.next();
                 String value = dataInfo.getValue();
                 DataType dataType = dataInfo.getDataType();
-                setValueInStatement(preparedStatement, i + 1, value, dataType);
+                setValueInStatement(preparedStatement, i + 1, value, dataType, null);
             }
 
             ResultSet resultSet = preparedStatement.executeQuery();
@@ -659,8 +671,7 @@ public class FilterDataServiceCE implements IFilterDataServiceCE {
                 dataType = DataType.NULL;
             }
             //We are setting incompatible datatypes of each row to Null, rather allowing it and exit with error.
-            if (dataTypeConversionMap != null && inputDataType != dataType) {
-                log.debug("DataType Error : [" + inputDataType + "] " + value + " is not of type " + dataType + " which is the datatype of the column, hence ignored in filter.");
+            if (dataTypeConversionMap != null && inputDataType != dataType && !datatypeCompatibilityMap.getOrDefault(dataType, Set.of()).contains(inputDataType)) {
                 dataType = DataType.NULL;
             }
         }
