@@ -113,8 +113,8 @@ export function SettingsPageHeader(props: PageHeaderProps) {
         <SearchWrapper>
           {onSearch && (
             <StyledSearchInput
-              className="acl-search-input"
-              data-testid={"t--acl-search-input"}
+              className="search-input"
+              data-testid={"t--search-input"}
               onChange={handleSearch}
               placeholder={searchPlaceholder}
               variant={SearchVariant.BACKGROUND}
@@ -126,7 +126,7 @@ export function SettingsPageHeader(props: PageHeaderProps) {
         <ActionsWrapper>
           {buttonText && (
             <StyledButton
-              data-testid={"t--acl-page-header-input"}
+              data-testid={"t--page-header-input"}
               height="36"
               onClick={props.onButtonClick}
               tag="button"
