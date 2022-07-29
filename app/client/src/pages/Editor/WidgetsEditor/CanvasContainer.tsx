@@ -25,6 +25,7 @@ import useGoogleFont from "utils/hooks/useGoogleFont";
 import { IconSize } from "components/ads/Icon";
 import { useDynamicAppLayout } from "utils/hooks/useDynamicAppLayout";
 import { getCurrentThemeDetails } from "selectors/themeSelectors";
+import { WidgetGlobaStyles } from "globalStyles/WidgetGlobalStyles";
 
 const Container = styled.section<{
   background: string;
@@ -103,6 +104,10 @@ function CanvasContainer() {
         fontFamily: fontFamily,
       }}
     >
+      <WidgetGlobaStyles
+        fontFamily={selectedTheme.properties.fontFamily.appFont}
+        primaryColor={selectedTheme.properties.colors.primaryColor}
+      />
       {isAppThemeChanging && (
         <div className="fixed top-0 bottom-0 left-0 right-0 flex items-center justify-center bg-white/70 z-[2]">
           <Spinner size={IconSize.XXL} />

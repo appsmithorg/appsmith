@@ -46,6 +46,7 @@ export interface INJECTED_CONFIGS {
   cloudServicesBaseUrl: string;
   googleRecaptchaSiteKey: string;
   supportEmail: string;
+  hideWatermark: boolean;
 }
 
 const capitalizeText = (text: string) => {
@@ -124,6 +125,9 @@ export const getConfigsFromEnvVars = (): INJECTED_CONFIGS => {
     googleRecaptchaSiteKey:
       process.env.REACT_APP_GOOGLE_RECAPTCHA_SITE_KEY || "",
     supportEmail: process.env.APPSMITH_SUPPORT_EMAIL || "support@appsmith.com",
+    hideWatermark: process.env.REACT_APP_APPSMITH_HIDE_WATERMARK
+      ? process.env.REACT_APP_APPSMITH_HIDE_WATERMARK.length > 0
+      : false,
   };
 };
 
@@ -270,5 +274,7 @@ export const getAppsmithConfigs = (): AppsmithUIConfigs => {
       ENV_CONFIG.cloudServicesBaseUrl ||
       APPSMITH_FEATURE_CONFIGS.cloudServicesBaseUrl,
     appsmithSupportEmail: ENV_CONFIG.supportEmail,
+    hideWatermark:
+      ENV_CONFIG.hideWatermark || APPSMITH_FEATURE_CONFIGS.hideWatermark,
   };
 };

@@ -34,5 +34,7 @@ public interface AnalyticsServiceCE {
 
     <T extends BaseDomain> Mono<T> sendDeleteEvent(T object, Map<String, Object> extraProperties);
 
+    <T extends BaseDomain> Mono<T> sendArchiveEvent(T object, Map<String, Object> extraProperties);
+
     <T extends BaseDomain> Mono<T> sendDeleteEvent(T object);
 }
