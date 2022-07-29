@@ -179,10 +179,10 @@ export const PropertyPaneConfigTemplates = {
       },
       {
         propertyName: "minDynamicHeight",
-        onRelease: () => {
+        onBlur: () => {
           EventEmitter.emit('property_pane_input_blurred', 'minDynamicHeight');
         },
-        onChange: () => {
+        onFocus: () => {
           EventEmitter.emit('property_pane_input_focused', 'minDynamicHeight');
         },
         label: "Min Height (in rows)",
@@ -208,10 +208,10 @@ export const PropertyPaneConfigTemplates = {
       },
       {
         propertyName: "maxDynamicHeight",
-        onChange: () => {
+        onFocus: () => {
           EventEmitter.emit('property_pane_input_focused', 'maxDynamicHeight');
         },
-        onRelease: () => {
+        onBlur: () => {
           EventEmitter.emit('property_pane_input_blurred', 'maxDynamicHeight');
         },
         label: "Max Height (in rows)",

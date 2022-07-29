@@ -36,7 +36,7 @@ const OverlayDisplay = styled.div<OverlayDisplayProps>`
   left: 0;
   width: 100%;
   height: ${(props) => props.maxY}px;
-  // border-bottom: 1px solid ${OVERLAY_COLOR};
+  border-bottom: 1px solid ${OVERLAY_COLOR};
   background-color: rgba(243, 43, 139, 0.1);
 `;
 
@@ -47,7 +47,7 @@ interface MinMaxHeightProps {
 
 const StyledOverlayHandles = styled.div`
   position: absolute;
-  right: -16px;
+  right: -6px;
   pointer-events: all;
 `;
 
@@ -86,12 +86,10 @@ interface DragFunctions {
   onStart: () => void;
   onStop: () => void;
   onUpdate: (x: number, y: number) => void;
-  onHover: () => void;
 }
 
 const DraggableOverlayHandleDot: React.FC<DragFunctions> = ({
   children,
-  onHover,
   onStart,
   onStop,
   onUpdate,
@@ -148,9 +146,10 @@ const MinHeightOverlayHandle = styled(OverlayHandle)<OverlayHandleProps>`
 
 const MinHeightOverlayHandleDot = styled(OverlayHandleDot)<{
   isActive: boolean;
+  isDragging: boolean;
 }>`
-  width: 6px;
-  height: 6px;
+  width: ${(props) => (props.isDragging ? "10px" : "6px")};
+  height: ${(props) => (props.isDragging ? "10px" : "6px")};
   border: 1px solid ${OVERLAY_COLOR};
   background-color: ${(props) => (props.isActive ? OVERLAY_COLOR : "none")};
 `;
@@ -191,6 +190,8 @@ function useHoverState(): UseHoverStateReturnType {
 interface OverlayHandlesProps {
   isMaxDotActive: boolean;
   isMinDotActive: boolean;
+  isMaxDotDragging: boolean;
+  isMinDotDragging: boolean;
   maxY: number;
   minY: number;
   maxDragFunctions: DragFunctions;
@@ -203,7 +204,9 @@ interface OverlayHandlesProps {
 
 const OverlayHandles: React.FC<OverlayHandlesProps> = ({
   isMaxDotActive,
+  isMaxDotDragging,
   isMinDotActive,
+  isMinDotDragging,
   maxDragFunctions,
   maxHoverFns,
   maxY,
@@ -222,6 +225,7 @@ const OverlayHandles: React.FC<OverlayHandlesProps> = ({
         <DraggableOverlayHandleDot {...minDragFunctions}>
           <MinHeightOverlayHandleDot
             isActive={isMinDotActive}
+            isDragging={isMinDotDragging}
             {...minHoverFns}
           />
         </DraggableOverlayHandleDot>
@@ -238,7 +242,11 @@ const OverlayHandles: React.FC<OverlayHandlesProps> = ({
         y={maxY}
       >
         <DraggableOverlayHandleDot {...maxDragFunctions}>
-          <MaxHeightOverlayHandleDot {...maxHoverFns} />
+          <MinHeightOverlayHandleDot
+            isActive={isMaxDotActive}
+            isDragging={isMaxDotDragging}
+            {...maxHoverFns}
+          />
         </DraggableOverlayHandleDot>
         <OverlayHandleLabel
           style={{ display: isMaxDotActive ? "initial" : "none" }}
@@ -355,9 +363,15 @@ const DynamicHeightOverlay: React.FC<DynamicHeightOverlayProps> = memo(
     const finalMaxY = maxY + maxdY;
     const finalMinY = minY + mindY;
 
-    const [isPropertyPaneFieldFocues, setPropertyPaneFieldFocused] = useState(
-      false,
-    );
+    const [
+      isPropertyPaneMinFieldFocused,
+      setPropertyPaneMinFieldFocused,
+    ] = useState(false);
+
+    const [
+      isPropertyPaneMaxFieldFocused,
+      setPropertyPaneMaxFieldFocused,
+    ] = useState(false);
 
     useEffect(() => {
       setMaxY(maxDynamicHeight * 10);
@@ -485,21 +499,21 @@ const DynamicHeightOverlay: React.FC<DynamicHeightOverlayProps> = memo(
 
     function onPropertPaneFocusedFocusedHandler(propertyName: string) {
       if (propertyName === "maxDynamicHeight") {
-        setIsResizing && !isResizing && setIsResizing(true);
+        setPropertyPaneMaxFieldFocused(true);
       }
 
       if (propertyName === "minDynamicHeight") {
-        setIsResizing && !isResizing && setIsResizing(true);
+        setPropertyPaneMinFieldFocused(true);
       }
     }
 
     function onPropertFieldBlurredHandler(propertyName: string) {
       if (propertyName === "maxDynamicHeight") {
-        setIsResizing && setIsResizing(false);
+        setPropertyPaneMaxFieldFocused(false);
       }
 
       if (propertyName === "minDynamicHeight") {
-        setIsResizing && setIsResizing(false);
+        setPropertyPaneMinFieldFocused(false);
       }
     }
 
@@ -527,10 +541,6 @@ const DynamicHeightOverlay: React.FC<DynamicHeightOverlayProps> = memo(
 
     const isWidgetSelected = selectedWidget === widgetId;
 
-    function onDotHover() {
-      console.log("onDotHover");
-    }
-
     return isWidgetSelected ? (
       <StyledDynamicHeightOverlay
         style={{
@@ -545,20 +555,22 @@ const DynamicHeightOverlay: React.FC<DynamicHeightOverlayProps> = memo(
       >
         <OverlayDisplay
           isActive={
-            isMinDotDragging ||
-            isMaxDotDragging ||
-            isMinDotActive ||
-            isMaxDotActive ||
-            isPropertyPaneFieldFocues ||
-            isWidgetSelected
+            isMinDotDragging || isMinDotActive || isPropertyPaneMinFieldFocused
+          }
+          maxY={finalMinY}
+        />
+        <OverlayDisplay
+          isActive={
+            isMaxDotDragging || isMaxDotActive || isPropertyPaneMaxFieldFocused
           }
           maxY={finalMaxY}
         />
         <OverlayHandles
           isMaxDotActive={isMaxDotDragging || isMaxDotActive}
+          isMaxDotDragging={isMaxDotDragging}
           isMinDotActive={isMinDotDragging || isMinDotActive}
+          isMinDotDragging={isMinDotDragging}
           maxDragFunctions={{
-            onHover: onDotHover,
             onUpdate: onMaxUpdate,
             onStop: onMaxStop,
             onStart: onMaxDotStart,
@@ -566,7 +578,6 @@ const DynamicHeightOverlay: React.FC<DynamicHeightOverlayProps> = memo(
           maxHoverFns={maxHoverFns}
           maxY={finalMaxY}
           minDragFunctions={{
-            onHover: onDotHover,
             onUpdate: onMinUpdate,
             onStop: onMinStop,
             onStart: onMinDotStart,
