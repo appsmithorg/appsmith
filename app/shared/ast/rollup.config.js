@@ -25,10 +25,7 @@ export default {
     commonjs(),
     typescript({ useTsconfigDeclarationDir: true }),
     generatePackageJson({
-      baseContents: (pkg) => ({
-        ...pkg,
-        name: "@appsmith/ast",
-      }),
+      baseContents: (pkg) => pkg,
     }),
   ],
 };

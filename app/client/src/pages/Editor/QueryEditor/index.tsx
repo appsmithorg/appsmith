@@ -49,7 +49,7 @@ import { integrationEditorURL } from "RouteBuilder";
 import { getConfigInitialValues } from "components/formControls/utils";
 import { isArray, merge } from "lodash";
 import { getPathAndValueFromActionDiffObject } from "../../../utils/getPathAndValueFromActionDiffObject";
-import { isNullOrWhitespace } from "@shared/ast-build";
+import { isNullOrWhitespace } from "@shared/ast";
 
 const EmptyStateContainer = styled.div`
   display: flex;
@@ -255,7 +255,11 @@ class QueryEditor extends React.Component<Props> {
     } = this.props;
     const { pageId } = this.props.match.params;
 
-    console.log("hereeee", isNullOrWhitespace("shitttttt"), "bitch");
+    console.log(
+      "hereeee",
+      isNullOrWhitespace("shitttttt"),
+      isNullOrWhitespace(null),
+    );
 
     // custom function to return user to integrations page if action is not found
     const goToDatasourcePage = () =>
