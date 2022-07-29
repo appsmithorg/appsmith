@@ -11,6 +11,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 import org.bson.internal.Base64;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -38,6 +39,7 @@ import java.util.Map;
 @Setter
 @Getter
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
+@Slf4j
 public class OAuth2ClientCredentials extends APIConnection implements UpdatableConnection {
 
     private final Clock clock = Clock.systemUTC();
@@ -137,7 +139,7 @@ public class OAuth2ClientCredentials extends APIConnection implements UpdatableC
                     authenticationResponse.setIssuedAt(issuedAt);
                     authenticationResponse.setToken(String.valueOf(mappedResponse.get(Authentication.ACCESS_TOKEN)));
                     oAuth2.setAuthenticationResponse(authenticationResponse);
-                    System.out.println("Entered token generation...");
+                    log.debug("Entered token generation...");
                     return oAuth2;
                 });
     }
