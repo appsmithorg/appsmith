@@ -205,11 +205,6 @@ type State = {
   hasLintError: boolean;
 };
 
-const selectDataTreeFromStore = () => {
-  const state = store.getState();
-  return getDataTreeForAutocomplete(state);
-};
-
 class CodeEditor extends Component<Props, State> {
   static defaultProps = {
     marking: [bindingMarker],
@@ -223,6 +218,7 @@ class CodeEditor extends Component<Props, State> {
   annotations: Annotation[] = [];
   updateLintingCallback: UpdateLintingCallback | undefined;
   private editorWrapperRef = React.createRef<HTMLDivElement>();
+  dynamicData: DataTree;
   constructor(props: Props) {
     super(props);
     this.state = {
@@ -234,6 +230,7 @@ class CodeEditor extends Component<Props, State> {
       hasLintError: false,
     };
     this.updatePropertyValue = this.updatePropertyValue.bind(this);
+    this.dynamicData = getDataTreeForAutocomplete(store.getState());
   }
   componentDidMount(): void {
     if (this.codeEditorTarget.current) {
@@ -337,12 +334,10 @@ class CodeEditor extends Component<Props, State> {
 
         CodeEditor.updateMarkings(editor, this.props.marking);
 
-        const dataTree = selectDataTreeFromStore();
-
         this.hinters = CodeEditor.startAutocomplete(
           editor,
           this.props.hinting,
-          dataTree,
+          this.dynamicData,
           this.props.additionalDynamicData,
         );
 
@@ -616,7 +611,6 @@ class CodeEditor extends Component<Props, State> {
 
   getEntityInformation = (): FieldEntityInformation => {
     const { dataTreePath, expected } = this.props;
-    const dynamicData = selectDataTreeFromStore();
     const entityInformation: FieldEntityInformation = {
       expectedType: expected?.autocompleteDataType,
     };
@@ -626,7 +620,7 @@ class CodeEditor extends Component<Props, State> {
         dataTreePath,
       );
       entityInformation.entityName = entityName;
-      const entity = dynamicData[entityName];
+      const entity = this.dynamicData[entityName];
 
       if (entity) {
         if ("ENTITY_TYPE" in entity) {
@@ -710,13 +704,11 @@ class CodeEditor extends Component<Props, State> {
       isJSObject,
     } = this.props;
 
-    const dynamicData = selectDataTreeFromStore();
-
     if (!dataTreePath || !this.updateLintingCallback || !editor) {
       return;
     }
     const errors = _.get(
-      dynamicData,
+      this.dynamicData,
       getEvalErrorPath(dataTreePath),
       [],
     ) as EvaluationError[];
@@ -765,10 +757,8 @@ class CodeEditor extends Component<Props, State> {
       };
     }
 
-    const dataTree = selectDataTreeFromStore();
-
     const errors = _.get(
-      dataTree,
+      this.dynamicData,
       getEvalErrorPath(dataTreePath),
       [],
     ) as EvaluationError[];
@@ -787,7 +777,10 @@ class CodeEditor extends Component<Props, State> {
       this.state.hasLintError && this.setState({ hasLintError: false });
     }
 
-    const pathEvaluatedValue = _.get(dataTree, getEvalValuePath(dataTreePath));
+    const pathEvaluatedValue = _.get(
+      this.dynamicData,
+      getEvalValuePath(dataTreePath),
+    );
 
     return {
       isInvalid: filteredLintErrors.length > 0,
@@ -824,7 +817,7 @@ class CodeEditor extends Component<Props, State> {
     if (dataTreePath) {
       evaluated = pathEvaluatedValue;
     }
-
+    this.dynamicData = getDataTreeForAutocomplete(store.getState());
     const entityInformation = this.getEntityInformation();
     /* Evaluation results for snippet arguments. The props below can be used to set the validation errors when computed from parent component */
     if (this.props.errors) {
@@ -834,7 +827,6 @@ class CodeEditor extends Component<Props, State> {
       isInvalid = Boolean(this.props.isInvalid);
     }
     /*  Evaluation results for snippet snippets */
-
     this.lintCode(this.editor);
 
     const showEvaluatedValue =
