@@ -142,13 +142,16 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepositoryCE, Theme, St
                                 if (StringUtils.hasLength(currentTheme.getId()) && !currentTheme.isSystemTheme()
                                         && !StringUtils.hasLength(currentTheme.getApplicationId())) {
                                     // current theme is neither a system theme nor app theme, delete the user customizations
-                                    return repository.delete(currentTheme).then(applicationRepository.setAppTheme(
-                                            application.getId(), savedTheme.getId(), null, MANAGE_APPLICATIONS
-                                    )).thenReturn(savedTheme);
+                                    return repository.delete(currentTheme)
+                                            .then(applicationRepository.setAppTheme(
+                                                    application.getId(), savedTheme.getId(), null, MANAGE_APPLICATIONS
+                                            ))
+                                            .thenReturn(savedTheme);
                                 } else {
                                     return applicationRepository.setAppTheme(
-                                            application.getId(), savedTheme.getId(), null, MANAGE_APPLICATIONS
-                                    ).thenReturn(savedTheme);
+                                                    application.getId(), savedTheme.getId(), null, MANAGE_APPLICATIONS
+                                            )
+                                            .thenReturn(savedTheme);
                                 }
                             }).flatMap(savedTheme ->
                                     analyticsService.sendObjectEvent(AnalyticsEvents.APPLY, savedTheme)
@@ -279,7 +282,6 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepositoryCE, Theme, St
 
     @Override
     public Mono<Theme> persistCurrentTheme(String applicationId, String branchName, Theme resource) {
-        // Creates a custom theme and applies it to the application
 
         return applicationService.findByBranchNameAndDefaultApplicationId(branchName, applicationId, MANAGE_APPLICATIONS)
                 .switchIfEmpty(Mono.error(
