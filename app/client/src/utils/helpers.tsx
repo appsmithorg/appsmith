@@ -269,6 +269,56 @@ export const isMacOrIOS = () => {
   return platformOS === PLATFORM_OS.MAC || platformOS === PLATFORM_OS.IOS;
 };
 
+export const getBrowserInfo = () => {
+  const userAgent =
+    typeof navigator !== "undefined" ? navigator.userAgent : null;
+
+  if (userAgent) {
+    let specificMatch;
+    let match =
+      userAgent.match(
+        /(opera|chrome|safari|firefox|msie|CriOS|trident(?=\/))\/?\s*(\d+)/i,
+      ) || [];
+
+    // browser
+    if (/CriOS/i.test(match[1])) match[1] = "Chrome";
+
+    if (/trident/i.test(match[1])) {
+      specificMatch = /\brv[ :]+(\d+)/g.exec(userAgent) || [];
+      return `IE ${specificMatch[1] || ""}`;
+    }
+
+    if (match[1] === "Chrome") {
+      specificMatch = userAgent.match(/\b(OPR|Edge)\/(\d+)/);
+      if (specificMatch) {
+        return specificMatch
+          .slice(1)
+          .join(" ")
+          .replace("OPR", "Opera");
+      }
+
+      specificMatch = userAgent.match(/\b(Edg)\/(\d+)/);
+      if (specificMatch) {
+        return specificMatch
+          .slice(1)
+          .join(" ")
+          .replace("Edg", "Edge (Chromium)");
+      }
+    }
+
+    // version
+    match = match[2]
+      ? [match[1], match[2]]
+      : [navigator.appName, navigator.appVersion, "-?"];
+    const version = userAgent.match(/version\/(\d+)/i);
+
+    version && match.splice(1, 1, version[1]);
+
+    return { browser: match[0], version: match[1] };
+  }
+  return null;
+};
+
 /**
  * Removes the trailing slashes from the path
  * @param path

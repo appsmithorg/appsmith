@@ -29,6 +29,7 @@ import { getCurrentApplicationLayout } from "selectors/editorSelectors";
 import { useSelector } from "store";
 import { Colors } from "constants/Colors";
 import {
+  getBrowserInfo,
   getPlatformOS,
   getSupportedMimeTypes,
   PLATFORM_OS,
@@ -374,6 +375,15 @@ function ControlPanel(props: ControlPanelProps) {
   };
 
   const renderMediaDeviceSelectors = () => {
+    const browserInfo = getBrowserInfo();
+    const isSafari =
+      getPlatformOS() === PLATFORM_OS.IOS ||
+      (getPlatformOS() === PLATFORM_OS.MAC &&
+        typeof browserInfo === "object" &&
+        browserInfo?.browser === "Safari");
+
+    if (isSafari) return null;
+
     return (
       <>
         {mode === CameraModeTypes.VIDEO && (
