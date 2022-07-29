@@ -38,8 +38,7 @@ describe("Autocomplete bug fixes", function() {
       });
   });
 
-  it("Verifies if selectedRow is in best match", function() {
-    cy.get(explorer.addWidget).click();
+  it("Checks if copied widget show up on autocomplete suggestions", function() {
     cy.dragAndDropToCanvas("buttonwidget", { x: 200, y: 200 });
     cy.get(`#div-selection-0`).click({
       force: true,
