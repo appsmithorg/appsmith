@@ -5,7 +5,7 @@ import {
   PropertyPaneSectionConfig,
 } from "constants/PropertyControlConstants";
 import { WidgetType } from "constants/WidgetConstants";
-import React from "react";
+import React, { useEffect, useRef, useState } from "react";
 import PropertyControl from "./PropertyControl";
 import PropertySection from "./PropertySection";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
@@ -33,6 +33,50 @@ export type PropertyControlsGeneratorProps = {
   searchQuery?: string;
 };
 
+type SectionProps = {
+  sectionConfig: PropertyPaneSectionConfig;
+  config: PropertyPaneConfig;
+  generatorProps: PropertyControlsGeneratorProps;
+};
+
+function Section(props: SectionProps) {
+  const { config, generatorProps, sectionConfig } = props;
+  const sectionRef = useRef<HTMLDivElement>(null);
+  const [hidden, setHidden] = useState(false);
+
+  useEffect(() => {
+    if (sectionRef.current?.childElementCount === 0) {
+      // Fix issue where the section is not hidden when it has no children
+      setHidden(true);
+    }
+  }, [generatorProps.searchQuery]);
+
+  return hidden ? null : (
+    <Boxed
+      key={config.id + generatorProps.id}
+      show={
+        sectionConfig.sectionName !== "General" &&
+        generatorProps.type === "TABLE_WIDGET"
+      }
+      step={GUIDED_TOUR_STEPS.TABLE_WIDGET_BINDING}
+    >
+      <PropertySection
+        childrenWrapperRef={sectionRef}
+        collapsible={sectionConfig.collapsible ?? true}
+        hidden={sectionConfig.hidden}
+        id={config.id || sectionConfig.sectionName}
+        isDefaultOpen={sectionConfig.isDefaultOpen}
+        key={config.id + generatorProps.id + generatorProps.searchQuery}
+        name={sectionConfig.sectionName}
+        propertyPath={sectionConfig.propertySectionPath}
+      >
+        {config.children &&
+          generatePropertyControl(config.children, generatorProps)}
+      </PropertySection>
+    </Boxed>
+  );
+}
+
 const generatePropertyControl = (
   propertyPaneConfig: readonly PropertyPaneConfig[],
   props: PropertyControlsGeneratorProps,
@@ -42,27 +86,35 @@ const generatePropertyControl = (
     if ((config as PropertyPaneSectionConfig).sectionName) {
       const sectionConfig: PropertyPaneSectionConfig = config as PropertyPaneSectionConfig;
       return (
-        <Boxed
+        <Section
+          config={config}
+          generatorProps={props}
           key={config.id + props.id}
-          show={
-            sectionConfig.sectionName !== "General" &&
-            props.type === "TABLE_WIDGET"
-          }
-          step={GUIDED_TOUR_STEPS.TABLE_WIDGET_BINDING}
-        >
-          <PropertySection
-            collapsible={sectionConfig.collapsible ?? true}
-            hidden={sectionConfig.hidden}
-            id={config.id || sectionConfig.sectionName}
-            isDefaultOpen={sectionConfig.isDefaultOpen}
-            key={config.id + props.id + props.searchQuery}
-            name={sectionConfig.sectionName}
-            propertyPath={sectionConfig.propertySectionPath}
-          >
-            {config.children && generatePropertyControl(config.children, props)}
-          </PropertySection>
-        </Boxed>
+          sectionConfig={sectionConfig}
+        />
       );
+      // return (
+      //   <Boxed
+      //     key={config.id + props.id}
+      //     show={
+      //       sectionConfig.sectionName !== "General" &&
+      //       props.type === "TABLE_WIDGET"
+      //     }
+      //     step={GUIDED_TOUR_STEPS.TABLE_WIDGET_BINDING}
+      //   >
+      //     <PropertySection
+      //       collapsible={sectionConfig.collapsible ?? true}
+      //       hidden={sectionConfig.hidden}
+      //       id={config.id || sectionConfig.sectionName}
+      //       isDefaultOpen={sectionConfig.isDefaultOpen}
+      //       key={config.id + props.id + props.searchQuery}
+      //       name={sectionConfig.sectionName}
+      //       propertyPath={sectionConfig.propertySectionPath}
+      //     >
+      //       {config.children && generatePropertyControl(config.children, props)}
+      //     </PropertySection>
+      //   </Boxed>
+      // );
     } else if ((config as PropertyPaneControlConfig).controlType) {
       return (
         <Boxed
