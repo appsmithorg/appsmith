@@ -146,7 +146,7 @@ describe("messages without input", () => {
     },
     {
       key: "REMOTE_URL_INPUT_PLACEHOLDER",
-      value: "ssh://example.com:user/repo.git",
+      value: "git@example.com:user/repo.git",
     },
     { key: "COPIED_SSH_KEY", value: "Copied SSH Key" },
     {
