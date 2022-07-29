@@ -1,5 +1,5 @@
 {
-  "name": "@shared/ast-build",
+  "name": "@shared/ast",
   "version": "1.0.0",
   "description": "",
   "main": "build/index.js",
@@ -15,7 +15,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "rollup -c",
     "start": "rollup -c",
-    "link-package": "rollup -c && cd build && yarn link"
+    "link-package": "yarn install && rollup -c && cd build && yarn link"
   },
   "dependencies": {
     "acorn-walk": "^8.2.0",
