@@ -46,6 +46,7 @@ import usePrevious from "utils/hooks/usePrevious";
 import { getIsBranchUpdated } from "../utils";
 import { APP_MODE } from "entities/App";
 import { initAppViewer } from "actions/initActions";
+import { WidgetGlobaStyles } from "globalStyles/WidgetGlobalStyles";
 import { getAppsmithConfigs } from "@appsmith/configs";
 
 const AppViewerBody = styled.section<{
@@ -249,6 +250,10 @@ function AppViewer(props: Props) {
             triggerEvalOnMetaUpdate: triggerEvalOnMetaUpdateCallback,
           }}
         >
+          <WidgetGlobaStyles
+            fontFamily={selectedTheme.properties.fontFamily.appFont}
+            primaryColor={selectedTheme.properties.colors.primaryColor}
+          />
           <ContainerWithComments>
             <AppViewerCommentsSidebar />
             <AppViewerBodyContainer
