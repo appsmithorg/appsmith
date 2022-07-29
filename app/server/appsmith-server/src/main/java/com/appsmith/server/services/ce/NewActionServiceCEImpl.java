@@ -1085,10 +1085,14 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                             "statusCode", ObjectUtils.defaultIfNull(actionExecutionResult.getStatusCode(), ""),
                             "timeElapsed", timeElapsed,
                             "actionCreated", DateUtils.ISO_FORMATTER.format(action.getCreatedAt()),
-                            "actionId", ObjectUtils.defaultIfNull(action.getId(), ""),
+                            "actionId", ObjectUtils.defaultIfNull(action.getId(), "")
+                    ));
+                    data.putAll(Map.of(
                             "dsId", ObjectUtils.defaultIfNull(datasource.getId(), ""),
+                            "dsName", datasource.getName(),
+                            "dsIsTemplate", ObjectUtils.defaultIfNull(datasource.getIsTemplate(), ""),
+                            "dsIsMock", ObjectUtils.defaultIfNull(datasource.getIsMock(), ""),
                             "dsCreatedAt", dsCreatedAt
-
                     ));
 
                     // Add the error message in case of erroneous execution

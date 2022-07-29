@@ -17,23 +17,14 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
   });
 
   it("1. Create DS & then Add new Page and generate CRUD template using created datasource", () => {
-    agHelper.GenerateUUID();
-    cy.get("@guid").then((uid) => {
-      dataSources.NavigateToDSCreateNew();
-      dataSources.CreatePlugIn("PostgreSQL");
-      guid = uid;
-      agHelper.RenameWithInPane("Postgres " + guid, false);
-      dataSources.FillPostgresDSForm();
-      dataSources.TestSaveDatasource();
+    dataSources.CreateDataSource("Postgres");
 
+    cy.get("@dsName").then(($dsName) => {
+      dsName = $dsName;
       ee.AddNewPage();
       agHelper.GetNClick(homePage._buildFromDataTableActionCard);
       agHelper.GetNClick(dataSources._selectDatasourceDropdown);
-      agHelper.GetNClickByContains(
-        dataSources._dropdownOption,
-        "Postgres " + guid,
-      );
-      cy.wrap("Postgres " + guid).as("dsName");
+      agHelper.GetNClickByContains(dataSources._dropdownOption, dsName);
     });
 
     agHelper.ValidateNetworkStatus("@getDatasourceStructure"); //Making sure table dropdown is populated
@@ -77,17 +68,7 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
       dataSources._dropdownOption,
       "Connect New Datasource",
     );
-
-    agHelper.GenerateUUID();
-    cy.get("@guid").then((uid) => {
-      dataSources.CreatePlugIn("PostgreSQL");
-      guid = uid;
-      agHelper.RenameWithInPane("Postgres " + guid, false);
-      dataSources.FillPostgresDSForm();
-      dataSources.TestSaveDatasource();
-      cy.wrap("Postgres " + guid).as("dsName");
-    });
-
+    dataSources.CreateDataSource("Postgres", false);
     agHelper.ValidateNetworkStatus("@getDatasourceStructure"); //Making sure table dropdown is populated
     agHelper.GetNClick(dataSources._selectTableDropdown);
     agHelper.GetNClickByContains(dataSources._dropdownOption, "suppliers");
@@ -165,7 +146,7 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
     agHelper.GetNClick(dataSources._templateMenu);
     agHelper.RenameWithInPane("CreateVessels");
     dataSources.EnterQuery(tableCreateQuery);
-    cy.get(".CodeMirror textarea").focus();
+    agHelper.FocusElement(locator._codeMirrorTextArea);
     //agHelper.VerifyEvaluatedValue(tableCreateQuery); //failing sometimes!
 
     dataSources.RunQueryNVerifyResponseViews();
@@ -690,7 +671,7 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
     agHelper.GetNClick(dataSources._templateMenu);
     agHelper.RenameWithInPane("DropVessels");
     dataSources.EnterQuery(deleteTblQuery);
-    cy.get(".CodeMirror textarea").focus();
+    agHelper.FocusElement(locator._codeMirrorTextArea);
     //agHelper.VerifyEvaluatedValue(tableCreateQuery);
 
     dataSources.RunQueryNVerifyResponseViews();
@@ -707,7 +688,7 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
     agHelper.GetNClick(dataSources._templateMenu);
     agHelper.RenameWithInPane("DropVessels");
     dataSources.EnterQuery(deleteTblQuery);
-    cy.get(locator._codeMirrorTextArea).focus();
+    agHelper.FocusElement(locator._codeMirrorTextArea);
     //agHelper.VerifyEvaluatedValue(tableCreateQuery);
 
     dataSources.RunQuery(false);
