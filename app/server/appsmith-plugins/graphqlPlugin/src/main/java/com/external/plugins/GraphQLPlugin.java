@@ -40,7 +40,8 @@ import static com.external.utils.GraphQLPaginationUtils.updateVariablesWithPagin
 import static com.external.utils.GraphQLBodyUtils.QUERY_VARIABLES_INDEX;
 import static com.external.utils.GraphQLBodyUtils.convertToGraphQLPOSTBodyFormat;
 import static com.external.utils.GraphQLBodyUtils.getGraphQLQueryParamsForBodyAndVariables;
-import static com.external.utils.GraphQLBodyUtils.validateBodyAndVariablesSyntax;
+// TODO: uncomment
+//import static com.external.utils.GraphQLBodyUtils.validateBodyAndVariablesSyntax;
 import static java.lang.Boolean.TRUE;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 
@@ -117,7 +118,8 @@ public class GraphQLPlugin extends BasePlugin {
 
             /* Check if the query body and query variables have the correct GraphQL syntax. */
             try {
-                validateBodyAndVariablesSyntax(actionConfiguration);
+                // TODO: uncomment
+                // validateBodyAndVariablesSyntax(actionConfiguration);
             } catch (AppsmithPluginException e) {
                 return Mono.error(e);
             }
@@ -270,7 +272,12 @@ public class GraphQLPlugin extends BasePlugin {
          */
         @Override
         public Set<String> getSelfReferencingDataPaths() {
-            return Set.of("pluginSpecifiedTemplates[" + PAGINATION_DATA_INDEX + "].value");
+            return Set.of("pluginSpecifiedTemplates[" + PAGINATION_DATA_INDEX + "].value.limitBased.limit.value",
+                    "pluginSpecifiedTemplates[" + PAGINATION_DATA_INDEX + "].value.limitBased.offset.value",
+                    "pluginSpecifiedTemplates[" + PAGINATION_DATA_INDEX + "].value.cursorBased.next.limit.value",
+                    "pluginSpecifiedTemplates[" + PAGINATION_DATA_INDEX + "].value.cursorBased.next.cursor.value",
+                    "pluginSpecifiedTemplates[" + PAGINATION_DATA_INDEX + "].value.cursorBased.previous.limit.value",
+                    "pluginSpecifiedTemplates[" + PAGINATION_DATA_INDEX + "].value.cursorBased.previous.cursor.value");
         }
     }
 }

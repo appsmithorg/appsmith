@@ -4,7 +4,7 @@ import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.Property;
-import graphql.parser.InvalidSyntaxException;
+//import graphql.parser.InvalidSyntaxException;
 import graphql.parser.Parser;
 import org.json.JSONObject;
 import org.json.JSONException;
@@ -42,7 +42,7 @@ public class GraphQLBodyUtils {
         return query.toString();
     }
 
-    public static void validateBodyAndVariablesSyntax(ActionConfiguration actionConfiguration) throws AppsmithPluginException {
+    /*public static void validateBodyAndVariablesSyntax(ActionConfiguration actionConfiguration) throws AppsmithPluginException {
         Parser graphqlParser = new Parser();
         try {
             graphqlParser.parseDocument(actionConfiguration.getBody());
@@ -63,7 +63,7 @@ public class GraphQLBodyUtils {
                 );
             }
         }
-    }
+    }*/
 
     public static List<Property> getGraphQLQueryParamsForBodyAndVariables(ActionConfiguration actionConfiguration) {
         List<Property> queryParams = new ArrayList<>();
