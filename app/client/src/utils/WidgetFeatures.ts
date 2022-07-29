@@ -179,11 +179,11 @@ export const PropertyPaneConfigTemplates = {
       },
       {
         propertyName: "minDynamicHeight",
+        onStart: () => {
+          EventEmitter.emit('property_pane_input_focused', 'minDynamicHeight');
+        },
         onRelease: () => {
           EventEmitter.emit('property_pane_input_blurred', 'minDynamicHeight');
-        },
-        onChange: () => {
-          EventEmitter.emit('property_pane_input_focused', 'minDynamicHeight');
         },
         label: "Min Height (in rows)",
         helpText: "Minimum number of rows to occupy irrespective of contents",
@@ -208,7 +208,7 @@ export const PropertyPaneConfigTemplates = {
       },
       {
         propertyName: "maxDynamicHeight",
-        onChange: () => {
+        onStart: () => {
           EventEmitter.emit('property_pane_input_focused', 'maxDynamicHeight');
         },
         onRelease: () => {
