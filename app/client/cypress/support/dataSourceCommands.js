@@ -335,6 +335,7 @@ Cypress.Commands.add(
       .type(userMockDatabaseUsername);
   },
 );
+
 Cypress.Commands.add(
   "fillSMTPDatasourceForm",
   (shouldAddTrailingSpaces = false) => {
