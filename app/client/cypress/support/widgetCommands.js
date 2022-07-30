@@ -1453,3 +1453,15 @@ Cypress.Commands.add("discardTableRow", (x, y) => {
     `[data-colindex="${x}"][data-rowindex="${y}"] button span:contains('Discard')`,
   ).click({ force: true });
 });
+
+Cypress.Commands.add("changePosition", (position) => {
+  cy.xpath(
+    "//div[contains(@class,'t--property-control-position')]// span[@name='expand-more']",
+  ).click({ force: true });
+  cy.get(".t--dropdown-option")
+    .contains(position)
+    .click({ force: true });
+  cy.get(".label-container label")
+    .invoke("attr", "position")
+    .should("eq", position);
+});
