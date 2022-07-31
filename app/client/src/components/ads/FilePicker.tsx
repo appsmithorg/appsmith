@@ -408,7 +408,7 @@ function FilePickerComponent(props: FilePickerProps) {
         />
         <Button
           category={Category.tertiary}
-          onClick={(el) => ButtonClick(el)}
+          onClick={(el: React.MouseEvent<HTMLElement>) => ButtonClick(el)}
           size={Size.medium}
           text="Browse"
         />
