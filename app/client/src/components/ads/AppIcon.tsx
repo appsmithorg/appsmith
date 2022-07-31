@@ -88,7 +88,7 @@ import OpenNewTabIcon from "remixicon-react/ShareBoxLineIcon";
 import ServerLineIcon from "remixicon-react/ServerLineIcon";
 
 import styled from "styled-components";
-import { Size } from "./Button";
+import { Size } from "design-system";
 import { CommonComponentProps, Classes } from "./common";
 
 export const AppIconCollection = [

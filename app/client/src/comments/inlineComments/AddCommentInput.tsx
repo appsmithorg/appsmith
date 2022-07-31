@@ -8,7 +8,7 @@ import React, {
 } from "react";
 import EmojiPicker from "components/ads/EmojiPicker";
 import MentionsInput, { Trigger } from "components/ads/MentionsInput";
-import Button, { Category } from "components/ads/Button";
+import { Button, Category } from "design-system";
 
 import { BaseEmoji } from "emoji-mart";
 import styled from "styled-components";

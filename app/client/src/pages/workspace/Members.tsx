@@ -12,7 +12,6 @@ import { RouteComponentProps } from "react-router";
 import FormDialogComponent from "components/editorComponents/form/FormDialogComponent";
 import { getCurrentUser } from "selectors/usersSelectors";
 import Table from "components/ads/Table";
-import { Icon, IconSize } from "design-system";
 import {
   fetchUsersForWorkspace,
   fetchRolesForWorkspace,
@@ -20,10 +19,17 @@ import {
   changeWorkspaceUserRole,
   deleteWorkspaceUser,
 } from "actions/workspaceActions";
-import Button, { Size, Category } from "components/ads/Button";
 import TableDropdown from "components/ads/TableDropdown";
 import Dropdown from "components/ads/Dropdown";
-import { Text, TextType } from "design-system";
+import {
+  Button,
+  Category,
+  Icon,
+  IconSize,
+  Size,
+  Text,
+  TextType,
+} from "design-system";
 import { SettingsHeading } from "./General";
 import styled from "styled-components";
 import { Classes } from "@blueprintjs/core";

@@ -1,9 +1,6 @@
 export { default as AppIcon } from "./AppIcon";
 export * from "./AppIcon";
 
-export { default as Button } from "./Button";
-export * from "./Button";
-
 export { default as ButtonTabComponent } from "./ButtonTabComponent";
 export * from "./ButtonTabComponent";
 

@@ -1,6 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
 import styled from "styled-components";
-import Button, { Category, Size } from "./Button";
 import { ReactComponent as UploadSuccessIcon } from "assets/icons/ads/upload_success.svg";
 import { DndProvider, useDrop, DropTargetMonitor } from "react-dnd";
 import HTML5Backend, { NativeTypes } from "react-dnd-html5-backend";
@@ -12,8 +11,11 @@ import {
   REMOVE_FILE_TOOL_TIP,
 } from "@appsmith/constants/messages";
 import {
+  Button,
+  Category,
   Icon,
   IconSize,
+  Size,
   Text,
   TextType,
   TooltipComponent,
@@ -256,7 +258,7 @@ function FilePickerComponent(props: FilePickerProps) {
         {!props.containerClickable && (
           <Button
             category={Category.tertiary}
-            onClick={(el) => ButtonClick(el)}
+            onClick={(el: React.MouseEvent<HTMLElement>) => ButtonClick(el)}
             size={Size.medium}
             text="Browse"
           />

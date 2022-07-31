@@ -2,7 +2,6 @@ import React, { useEffect } from "react";
 import { useHistory } from "react-router-dom";
 import { SettingCategories } from "../types";
 import styled from "styled-components";
-import Button, { Category } from "components/ads/Button";
 import {
   ENABLE,
   ADMIN_AUTH_SETTINGS_SUBTITLE,
@@ -19,7 +18,7 @@ import { getCurrentUser } from "selectors/usersSelectors";
 import { useSelector } from "react-redux";
 import bootIntercom from "utils/bootIntercom";
 import { Colors } from "constants/Colors";
-import { TooltipComponent, Icon } from "design-system";
+import { Button, Category, Icon, TooltipComponent } from "design-system";
 import { adminSettingsCategoryUrl } from "RouteBuilder";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 

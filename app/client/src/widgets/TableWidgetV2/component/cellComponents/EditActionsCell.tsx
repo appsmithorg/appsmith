@@ -5,7 +5,7 @@ import {
   ButtonColumnActions,
   EditableCellActions,
 } from "widgets/TableWidgetV2/constants";
-import { Button } from "./Button";
+import { Button } from "design-system";
 import { BaseCellComponentProps } from "../Constants";
 import { CellWrapper } from "../TableStyledWrappers";
 

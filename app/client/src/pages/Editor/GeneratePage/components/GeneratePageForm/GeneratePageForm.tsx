@@ -3,7 +3,6 @@ import styled from "styled-components";
 import { Colors } from "constants/Colors";
 import Dropdown, { DropdownOption } from "components/ads/Dropdown";
 import { getTypographyByKey } from "constants/DefaultTheme";
-import Button, { Category, Size } from "components/ads/Button";
 import { useSelector, useDispatch } from "react-redux";
 import {
   getDatasources,
@@ -24,7 +23,14 @@ import { getQueryParams } from "utils/AppsmithUtils";
 import { getIsGeneratingTemplatePage } from "selectors/pageListSelectors";
 import DataSourceOption from "../DataSourceOption";
 import { getQueryStringfromObject } from "RouteBuilder";
-import { IconName, IconSize } from "design-system";
+import {
+  Button,
+  Category,
+  IconName,
+  IconSize,
+  Size,
+  TooltipComponent as Tooltip,
+} from "design-system";
 import GoogleSheetForm from "./GoogleSheetForm";
 import {
   GENERATE_PAGE_FORM_TITLE,
@@ -50,7 +56,6 @@ import {
   DROPDOWN_DIMENSION,
   ALLOWED_SEARCH_DATATYPE,
 } from "../constants";
-import { TooltipComponent as Tooltip } from "design-system";
 import { Bold, Label, SelectWrapper } from "./styles";
 import { GeneratePagePayload } from "./types";
 import { Icon } from "design-system";

@@ -20,9 +20,7 @@ import {
   EMPTY_RESPONSE_LAST_HALF,
   INSPECT_ENTITY,
 } from "@appsmith/constants/messages";
-import { Text, TextType } from "design-system";
 import { Text as BlueprintText } from "@blueprintjs/core";
-import { Icon } from "design-system";
 import { Classes, Variant } from "components/ads/common";
 import { EditorTheme } from "./CodeEditor/EditorConfig";
 import Callout from "components/ads/Callout";
@@ -32,7 +30,7 @@ import Resizer, { ResizerCSS } from "./Debugger/Resizer";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { DebugButton } from "./Debugger/DebugCTA";
 import EntityDeps from "./Debugger/EntityDependecies";
-import Button, { Size } from "components/ads/Button";
+import { Button, Icon, Size, Text, TextType } from "design-system";
 import EntityBottomTabs from "./EntityBottomTabs";
 import { DEBUGGER_TAB_KEYS } from "./Debugger/helpers";
 import { setCurrentTab } from "actions/debuggerActions";

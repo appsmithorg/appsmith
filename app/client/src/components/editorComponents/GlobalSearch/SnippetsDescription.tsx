@@ -13,7 +13,7 @@ import {
   TabBehaviour,
 } from "../CodeEditor/EditorConfig";
 import CodeEditor from "../CodeEditor";
-import Button, { Size } from "components/ads/Button";
+import { Button, Size } from "design-system";
 import {
   evaluateArgument,
   evaluateSnippet,

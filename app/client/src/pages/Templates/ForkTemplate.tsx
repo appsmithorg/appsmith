@@ -1,7 +1,7 @@
 import React, { ReactNode, useState } from "react";
 import Dialog from "components/ads/DialogComponent";
 import Dropdown from "components/ads/Dropdown";
-import Button, { Category, Size } from "components/ads/Button";
+import { Button, Category, Size } from "design-system";
 import { useDispatch, useSelector } from "react-redux";
 import { noop } from "lodash";
 import {

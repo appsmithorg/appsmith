@@ -15,7 +15,6 @@ import {
 import { ReactComponent as LeftArrow } from "assets/icons/ads/arrow-left-1.svg";
 
 import styled, { useTheme } from "styled-components";
-import Button, { Size } from "components/ads/Button";
 import { useDispatch, useSelector } from "react-redux";
 import { getCurrentAppGitMetaData } from "selectors/applicationSelectors";
 import {
@@ -45,7 +44,7 @@ import Statusbar, {
 import { getIsStartingWithRemoteBranches } from "pages/Editor/gitSync/utils";
 import { Classes } from "../constants";
 import SuccessTick from "pages/common/SuccessTick";
-import { Text, Case, TextType } from "design-system";
+import { Button, Case, Size, Text, TextType } from "design-system";
 import { Colors } from "constants/Colors";
 import { Theme } from "constants/DefaultTheme";
 import AnalyticsUtil from "utils/AnalyticsUtil";

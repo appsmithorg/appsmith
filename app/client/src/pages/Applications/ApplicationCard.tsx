@@ -25,9 +25,17 @@ import {
   getRandomPaletteColor,
 } from "utils/AppsmithUtils";
 import { noop, omit } from "lodash";
-import { Text, TextType } from "design-system";
-import Button, { Category, Size, IconPositions } from "components/ads/Button";
-import { Icon, IconSize } from "design-system";
+import {
+  Button,
+  Category,
+  IconPositions,
+  Icon,
+  IconSize,
+  Size,
+  Text,
+  TextType,
+  TooltipComponent,
+} from "design-system";
 import Menu from "components/ads/Menu";
 import MenuItem, { MenuItemProps } from "components/ads/MenuItem";
 import AppIcon, { AppIconName } from "components/ads/AppIcon";
@@ -49,7 +57,6 @@ import {
   getIsErroredSavingAppName,
 } from "selectors/applicationSelectors";
 import { Classes as CsClasses } from "components/ads/common";
-import { TooltipComponent } from "design-system";
 import {
   isVerticalEllipsisActive,
   truncateString,

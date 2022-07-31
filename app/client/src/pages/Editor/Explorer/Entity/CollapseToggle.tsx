@@ -1,6 +1,6 @@
 import React from "react";
 import Icon, { AppIconName } from "components/ads/AppIcon";
-import { Size } from "components/ads/Button";
+import { Size } from "design-system";
 
 export function CollapseToggle(props: {
   isOpen: boolean;

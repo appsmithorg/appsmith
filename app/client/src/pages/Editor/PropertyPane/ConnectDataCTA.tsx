@@ -1,5 +1,5 @@
-import Button, { Category, Size } from "components/ads/Button";
 import React, { useCallback } from "react";
+import { Button, Category, Size } from "design-system";
 import { AppState } from "reducers";
 import styled from "styled-components";
 import { useDispatch, useSelector } from "react-redux";

@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import styled from "styled-components";
-import Button, { Category, Size } from "./Button";
+import { Button, Category, Size } from "design-system";
 import axios from "axios";
 import { ReactComponent as UploadIcon } from "assets/icons/ads/upload.svg";
 import { ReactComponent as UploadSuccessIcon } from "assets/icons/ads/upload_success.svg";

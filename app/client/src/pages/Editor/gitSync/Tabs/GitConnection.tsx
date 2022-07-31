@@ -29,14 +29,12 @@ import TextInput, { emailValidator } from "components/ads/TextInput";
 import UserGitProfileSettings from "../components/UserGitProfileSettings";
 import { AUTH_TYPE_OPTIONS } from "../constants";
 import { Colors } from "constants/Colors";
-import Button, { Category, Size } from "components/ads/Button";
 import { useDispatch, useSelector } from "react-redux";
 import copy from "copy-to-clipboard";
 import {
   getCurrentAppGitMetaData,
   getCurrentApplication,
 } from "selectors/applicationSelectors";
-import { Text, TextType } from "design-system";
 import {
   fetchGlobalGitConfigInit,
   fetchLocalGitConfigInit,
@@ -66,7 +64,16 @@ import ScrollIndicator from "components/ads/ScrollIndicator";
 import Keys from "../components/ssh-key";
 import GitConnectError from "../components/GitConnectError";
 import Link from "../components/Link";
-import { Icon, IconSize, TooltipComponent } from "design-system";
+import {
+  Button,
+  Category,
+  Icon,
+  IconSize,
+  Size,
+  Text,
+  TextType,
+  TooltipComponent,
+} from "design-system";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { GIT_DOC_URLs, isValidGitRemoteUrl } from "../utils";
 import { useGitConnect, useSSHKeyPair } from "../hooks";

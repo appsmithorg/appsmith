@@ -2,7 +2,7 @@ import React from "react";
 
 import { CellWrapper } from "../TableStyledWrappers";
 import { BaseCellComponentProps, TABLE_SIZES } from "../Constants";
-import { Button } from "./Button";
+import { Button } from "design-system";
 import { ButtonColumnActions } from "widgets/TableWidgetV2/constants";
 import styled from "styled-components";
 

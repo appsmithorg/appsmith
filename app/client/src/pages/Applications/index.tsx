@@ -46,9 +46,16 @@ import {
   DropdownOnSelectActions,
   getOnSelectAction,
 } from "pages/common/CustomizedDropdown/dropdownHelpers";
-import Button, { Category, Size } from "components/ads/Button";
-import { Text, TextType } from "design-system";
-import { Icon, IconName, IconSize } from "design-system";
+import {
+  Button,
+  Category,
+  Icon,
+  IconName,
+  IconSize,
+  Size,
+  Text,
+  TextType,
+} from "design-system";
 import MenuItem from "components/ads/MenuItem";
 import {
   duplicateApplication,

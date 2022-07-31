@@ -1,5 +1,5 @@
 import React from "react";
-import { Icon, IconSize } from "design-system";
+import { Button, Category, Icon, IconSize, Size } from "design-system";
 import {
   getIsRestartFailed,
   getRestartingState,
@@ -15,7 +15,6 @@ import {
   RESTART_ERROR_HEADER,
 } from "@appsmith/constants/messages";
 import { Colors } from "constants/Colors";
-import Button, { Category, Size } from "components/ads/Button";
 import { hexToRgba } from "components/ads/common";
 import AppIcon from "components/ads/AppIcon";
 import { retryServerRestart } from "@appsmith/actions/settingsAction";

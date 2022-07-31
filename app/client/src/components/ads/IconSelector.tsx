@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import styled from "styled-components";
 import AppIcon, { AppIconName, AppIconCollection } from "./AppIcon";
-import { Size } from "./Button";
+import { Size } from "design-system";
 import { CommonComponentProps, Classes } from "./common";
 import ScrollIndicator from "components/ads/ScrollIndicator";
 
