@@ -1,6 +1,3 @@
-export { default as AppIcon } from "./AppIcon";
-export * from "./AppIcon";
-
 export { default as ButtonTabComponent } from "./ButtonTabComponent";
 export * from "./ButtonTabComponent";
 
@@ -44,11 +41,6 @@ export { default as EditableTextSubComponent } from "./EditableTextSubComponent"
 export * from "./EditableTextSubComponent";
 
 export { default as EditableTextWrapper } from "./EditableTextSubComponent";
-
-export { default as EmojiPicker } from "./EmojiPicker";
-
-export { default as EmojiReactions } from "./EmojiReactions";
-export * from "./EmojiReactions";
 
 export { default as FilePicker } from "./FilePicker";
 export * from "./FilePicker";

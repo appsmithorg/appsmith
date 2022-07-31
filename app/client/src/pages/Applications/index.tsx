@@ -47,6 +47,7 @@ import {
   getOnSelectAction,
 } from "pages/common/CustomizedDropdown/dropdownHelpers";
 import {
+  AppIconCollection,
   Button,
   Category,
   Icon,
@@ -80,7 +81,6 @@ import { leaveWorkspace } from "actions/userActions";
 import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
 import NoSearchImage from "assets/images/NoSearchResult.svg";
 import { getNextEntityName, getRandomPaletteColor } from "utils/AppsmithUtils";
-import { AppIconCollection } from "components/ads/AppIcon";
 import { createWorkspaceSubmitHandler } from "pages/workspace/helpers";
 import ImportApplicationModal from "./ImportApplicationModal";
 import {

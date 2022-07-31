@@ -26,6 +26,8 @@ import {
 } from "utils/AppsmithUtils";
 import { noop, omit } from "lodash";
 import {
+  AppIcon,
+  AppIconName,
   Button,
   Category,
   IconPositions,
@@ -38,7 +40,6 @@ import {
 } from "design-system";
 import Menu from "components/ads/Menu";
 import MenuItem, { MenuItemProps } from "components/ads/MenuItem";
-import AppIcon, { AppIconName } from "components/ads/AppIcon";
 import EditableText, {
   EditInteractionKind,
   SavingState,

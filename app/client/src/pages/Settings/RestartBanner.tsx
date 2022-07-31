@@ -16,7 +16,7 @@ import {
 } from "@appsmith/constants/messages";
 import { Colors } from "constants/Colors";
 import { hexToRgba } from "components/ads/common";
-import AppIcon from "components/ads/AppIcon";
+import { AppIcon } from "design-system";
 import { retryServerRestart } from "@appsmith/actions/settingsAction";
 import { useDispatch } from "react-redux";
 

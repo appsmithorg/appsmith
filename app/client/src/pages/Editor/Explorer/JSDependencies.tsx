@@ -1,12 +1,11 @@
 import React, { useState } from "react";
 import styled from "styled-components";
-import { Size, TooltipComponent } from "design-system";
+import { AppIcon as Icon, Size, TooltipComponent } from "design-system";
 import { Colors } from "constants/Colors";
 import { BindingText } from "pages/Editor/APIEditor/Form";
 import { extraLibraries } from "utils/DynamicBindingUtils";
 import CollapseToggle from "./Entity/CollapseToggle";
 import Collapse from "./Entity/Collapse";
-import Icon from "components/ads/AppIcon";
 
 const Wrapper = styled.div`
   font-size: 14px;
