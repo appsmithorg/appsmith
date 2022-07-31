@@ -182,5 +182,11 @@
   "saveThemeBtn": ".t--save-theme-btn",
   "selectThemeBackBtn": ".t--theme-select-back-btn",
   "themeAppBorderRadiusBtn": ".t--theme-appBorderRadius",
-  "codeEditorWrapper": ".unfocused-code-editor"
+  "codeEditorWrapper": ".unfocused-code-editor",
+  "onFilterUpdateDropdown": ".t--property-control-onfilterupdate .CodeMirror textarea",
+  "fluidView": "//button/span[contains(@name,'fluid')]",
+  "tabletLargeView": "(//button/span[contains(@name,'tablet')])[0]",
+  "tabletSmallView": "(//button/span[contains(@name,'tablet')])[1]",
+  "mobileView": "//button/span[contains(@name,'tablet')]",
+  "desktopView": "//button/span[contains(@name,'desktop')]"
 }

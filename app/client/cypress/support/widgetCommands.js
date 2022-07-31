@@ -756,6 +756,27 @@ Cypress.Commands.add("addEvent", (value) => {
   cy.enterEventValue(value);
 });
 
+
+Cypress.Commands.add("addOnFilterUpdate", (endp, value) => {
+  cy.get(commonlocators.dropdownSelectButton)
+    .last()
+    .click();
+  cy.get(".code-highlight", { timeout: 10000 })
+    .children()
+    .contains("No action")
+    .first()
+    .click({ force: true })
+    .selectOnClickOption("Show message")
+    .get("div.t--property-control-" + endp + " div.CodeMirror-lines")
+    .click()
+    .type(value)
+    .get("button.t--open-dropdown-Select-type")
+    .first()
+    .click({ force: true });
+  cy.enterActionValue(value);
+});
+
+
 Cypress.Commands.add("onTableAction", (value, value1, value2) => {
   cy.get(commonlocators.dropdownSelectButton)
     .eq(value)
@@ -837,6 +858,28 @@ Cypress.Commands.add("enterEventValue", (value) => {
       cy.wait(200);
     });
 });
+
+
+Cypress.Commands.add("enterFilterEventValue", (value) => {
+  cy.get(commonlocators.onFilterUpdateDropdown)
+    .focus()
+    .type("{ctrl}{shift}{downarrow}")
+    .then(($cm) => {
+      if ($cm.val() !== "") {
+        cy.get(commonlocators.onFilterUpdateDropdown).clear({
+          force: true,
+        });
+      }
+
+      cy.get(commonlocators.onFilterUpdateDropdown).type(value, {
+        force: true,
+        parseSpecialCharSequences: false,
+      });
+      // eslint-disable-next-line cypress/no-unnecessary-waiting
+      cy.wait(200);
+    });
+});
+
 
 Cypress.Commands.add("enterNavigatePageName", (value) => {
   cy.get("ul.tree")
@@ -1202,9 +1245,8 @@ Cypress.Commands.add(
   "readTabledataPublish",
   (rowNum, colNum, shouldNotGoOneLeveDeeper) => {
     // const selector = `.t--widget-tablewidget .e-gridcontent.e-lib.e-droppable td[index=${rowNum}][aria-colindex=${colNum}]`;
-    const selector = `.t--widget-tablewidget .tbody .td[data-rowindex=${rowNum}][data-colindex=${colNum}] div ${
-      !shouldNotGoOneLeveDeeper ? "div" : ""
-    }`;
+    const selector = `.t--widget-tablewidget .tbody .td[data-rowindex=${rowNum}][data-colindex=${colNum}] div ${!shouldNotGoOneLeveDeeper ? "div" : ""
+      }`;
     const tabVal = cy.get(selector).invoke("text");
     return tabVal;
   },
@@ -1222,9 +1264,8 @@ Cypress.Commands.add(
 Cypress.Commands.add(
   "readTabledataValidateCSS",
   (rowNum, colNum, cssProperty, cssValue, shouldNotGotOneLeveDeeper) => {
-    const selector = `.t--widget-tablewidget .tbody .td[data-rowindex=${rowNum}][data-colindex=${colNum}] div ${
-      !shouldNotGotOneLeveDeeper ? "div" : ""
-    }`;
+    const selector = `.t--widget-tablewidget .tbody .td[data-rowindex=${rowNum}][data-colindex=${colNum}] div ${!shouldNotGotOneLeveDeeper ? "div" : ""
+      }`;
     cy.get(selector).should("have.css", cssProperty, cssValue);
   },
 );
@@ -1360,8 +1401,8 @@ Cypress.Commands.add(
     if (toChange) {
       cy.xpath(
         "//p[text()='" +
-          ddTitle +
-          "']/parent::label/following-sibling::div/div/div",
+        ddTitle +
+        "']/parent::label/following-sibling::div/div/div",
       ).click(); //to expand the dropdown
       cy.xpath('//span[contains(text(),"' + newValue + '")]')
         .last()
