@@ -504,20 +504,25 @@ public class ThemeServiceTest {
     public void updateTheme_WhenCustomThemeIsSet_ThemeIsOverridden() {
 
         Application application = createApplication();
+        String applicationId = application.getId();
         // publish the app to ensure system theme gets set
         applicationPageService.publish(application.getId(), TRUE).block();
 
+
+        // Create and apply custom theme in edit mode.
         Theme customTheme = new Theme();
         customTheme.setDisplayName("My custom theme");
-        Mono<Theme> createAndApplyCustomThemeMono = themeService.persistCurrentTheme(application.getId(), null, customTheme)
-                .flatMap(theme -> themeService.changeCurrentTheme(theme.getId(), application.getId(), null));
+        themeService.persistCurrentTheme(application.getId(), null, customTheme)
+                .flatMap(theme -> themeService.changeCurrentTheme(theme.getId(), applicationId, null))
+                .block();
+        application = applicationRepository.findById(applicationId).block();
 
+        // Apply theme customization.
         Theme themeCustomization = new Theme();
         themeCustomization.setDisplayName("Updated name");
         Mono<Theme> updateThemeMono = themeService.updateTheme(application.getId(), null, themeCustomization);
 
-        Mono<Tuple3<Theme, Theme, Application>> appThemesMono = createAndApplyCustomThemeMono
-                .then(updateThemeMono)
+        Mono<Tuple3<Theme, Theme, Application>> appThemesMono = updateThemeMono
                 .then(
                         Mono.zip(
                                 themeService.getApplicationTheme(application.getId(), ApplicationMode.EDIT, null),
