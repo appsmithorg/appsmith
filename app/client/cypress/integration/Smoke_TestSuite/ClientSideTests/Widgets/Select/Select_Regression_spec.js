@@ -126,28 +126,28 @@ describe("Select Widget on change action check", function () {
     cy.get("[data-testid=canvas-selection-0]").invoke('attr', 'height')
     .should('eq', '1584');
     cy.get("[data-testid=canvas-selection-0]").invoke('attr', 'width')
-    .should('eq', '1456');
+    .should('eq', '1696');
     
     cy.get(".border-transparent svg").eq(4).click({force:true});
     cy.wait("@updateApplication");
     cy.get("[data-testid=canvas-selection-0]").invoke('attr', 'height')
-    .should('eq', '680');
+    .should('eq', '1584');
     cy.get("[data-testid=canvas-selection-0]").invoke('attr', 'width')
     .should('eq', '900');
   
     cy.get(".border-transparent svg").eq(1).click({force:true});
     cy.wait("@updateApplication");
     cy.get("[data-testid=canvas-selection-0]").invoke('attr', 'height')
-    .should('eq', '668');
+    .should('eq', '1584');
     cy.get("[data-testid=canvas-selection-0]").invoke('attr', 'width')
-    .should('eq', '1456');
+    .should('eq', '1696');
 
     cy.get(".border-transparent svg").eq(0).click({force:true});
     cy.wait("@updateApplication");
     cy.get("[data-testid=canvas-selection-0]").invoke('attr', 'height')
-    .should('eq', '680');
+    .should('eq', '1584');
     cy.get("[data-testid=canvas-selection-0]").invoke('attr', 'width')
-    .should('eq', '1312');
+    .should('eq', '1552');
   });
 
 });
