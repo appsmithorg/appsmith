@@ -351,7 +351,7 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepositoryCE, Theme, St
                 .switchIfEmpty(Mono.error(
                         new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, FieldName.THEME))
                 ).flatMap(theme -> {
-                    if (StringUtils.hasLength(theme.getApplicationId())) { // only persisted themes are allowed to delete
+                    if (StringUtils.hasLength(theme.getApplicationId())) { // only persisted themes are allowed to be deleted
                         return repository.archive(theme);
                     } else {
                         return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));

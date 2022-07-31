@@ -1192,7 +1192,7 @@ public class DatabaseChangelog2 {
         return;
     }
 
-    @ChangeSet(order = "22", id = "create-system-themes-v3", author = "", runAlways = true)
+    @ChangeSet(order = "23", id = "create-system-themes-v3", author = "", runAlways = true)
     public void createSystemThemes3(MongockTemplate mongockTemplate) throws IOException {
         Index systemThemeIndex = new Index()
                 .on(fieldName(QTheme.theme.isSystemTheme), Sort.Direction.ASC)

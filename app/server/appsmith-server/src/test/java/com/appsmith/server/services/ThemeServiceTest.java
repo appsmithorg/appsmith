@@ -7,8 +7,10 @@ import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.Theme;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
+import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.dtos.InviteUsersDTO;
 import com.appsmith.server.dtos.UpdatePermissionGroupDTO;
+import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.repositories.ApplicationRepository;
@@ -25,12 +27,15 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 import reactor.util.function.Tuple2;
 import reactor.util.function.Tuple3;
+import reactor.util.function.Tuple4;
+import reactor.util.function.Tuples;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
 import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
+import static com.appsmith.server.acl.AclPermission.MANAGE_THEMES;
 import static com.appsmith.server.acl.AclPermission.READ_THEMES;
 import static com.appsmith.server.constants.FieldName.ADMINISTRATOR;
 import static com.appsmith.server.constants.FieldName.ANONYMOUS_USER;
@@ -284,17 +289,6 @@ public class ThemeServiceTest {
     @WithUserDetails("api_user")
     @Test
     public void changeCurrentTheme_WhenSystemThemeSetOverCustomTheme_NewThemeNotCreatedAndOldOneDeleted() {
-
-        /*
-        1. Create app -> default system theme set
-        2. Create custom theme using persistCurrentTheme
-        3. Apply custom theme to application
-        4. Apply default theme again to the created application
-
-        Assertion should remain the same.
-
-        Custom theme should not be deleted!
-         */
 
         Application savedApplication = createApplication();
 
@@ -638,82 +632,52 @@ public class ThemeServiceTest {
 
                 }).verifyComplete();
     }
-//
-//    @WithUserDetails("api_user")
-//    @Test
-//    public void persistCurrentTheme_WhenCustomThemeIsSet_NewApplicationThemeCreated() {
-//        Collection<Policy> themePolicies = policyUtils.generatePolicyFromPermission(
-//                Set.of(MANAGE_THEMES), "api_user"
-//        ).values();
-//
-//        Theme customTheme = new Theme();
-//        customTheme.setDisplayName("Classic");
-//        customTheme.setPolicies(Set.copyOf(themePolicies));
-//
-//        Mono<Tuple3<List<Theme>, Theme, Application>> tuple3Mono = themeService.save(customTheme).flatMap(theme -> {
-//            Application application = createApplication();
-//            application.setEditModeThemeId(theme.getId());
-//            application.setWorkspaceId("theme-test-org-id");
-//            return applicationRepository.save(application);
-//        }).flatMap(application -> {
-//            Theme theme = new Theme();
-//            theme.setDisplayName("My custom theme");
-//            return themeService.persistCurrentTheme(application.getId(), null, theme)
-//                    .map(theme1 -> Tuples.of(theme1, application));
-//        }).flatMap(persistedThemeAndApp ->
-//            themeService.getApplicationThemes(persistedThemeAndApp.getT2().getId(), null).collectList()
-//                    .map(themes -> Tuples.of(themes, persistedThemeAndApp.getT1(), persistedThemeAndApp.getT2()))
-//        );
-//
-//        StepVerifier.create(tuple3Mono).assertNext(tuple3 -> {
-//            List<Theme> availableThemes = tuple3.getT1();
-//            Theme persistedTheme = tuple3.getT2();
-//            Application application = tuple3.getT3();
-//            assertThat(availableThemes.size()).isEqualTo(5); // one custom theme + 4 system themes
-//            assertThat(persistedTheme.getApplicationId()).isNotEmpty(); // theme should have application id set
-//            assertThat(persistedTheme.getWorkspaceId()).isEqualTo("theme-test-org-id"); // theme should have org id set
-//            assertThat(policyUtils.isPermissionPresentForUser(
-//                    persistedTheme.getPolicies(), READ_THEMES.getValue(), "api_user")
-//            ).isTrue();
-//            assertThat(policyUtils.isPermissionPresentForUser(
-//                    persistedTheme.getPolicies(), MANAGE_THEMES.getValue(), "api_user")
-//            ).isTrue();
-//            assertThat(application.getEditModeThemeId()).isNotEqualTo(persistedTheme.getId()); // a new copy should be created
-//        }).verifyComplete();
-//    }
-//
-//    @WithUserDetails("api_user")
-//    @Test
-//    public void persistCurrentTheme_WhenSystemThemeIsSet_NewApplicationThemeCreated() {
-//        Application application = createApplication();
-//        application.setWorkspaceId("theme-test-org-id");
-//        Mono<Tuple2<List<Theme>, Theme>> tuple2Mono = themeService.getDefaultThemeId()
-//                .flatMap(defaultThemeId -> {
-//                    application.setEditModeThemeId(defaultThemeId);
-//                    return applicationRepository.save(application);
-//                })
-//                .flatMap(savedApplication -> {
-//                    Theme theme = new Theme();
-//                    theme.setDisplayName("My custom theme");
-//                    return themeService.persistCurrentTheme(savedApplication.getId(), null, theme)
-//                            .map(theme1 -> Tuples.of(theme1, savedApplication.getId()));
-//                }).flatMap(persistedThemeAndAppId ->
-//                        themeService.getApplicationThemes(persistedThemeAndAppId.getT2(), null).collectList()
-//                                .map(themes -> Tuples.of(themes, persistedThemeAndAppId.getT1()))
-//                );
-//
-//        StepVerifier.create(tuple2Mono).assertNext(tuple2 -> {
-//            List<Theme> availableThemes = tuple2.getT1();
-//            Theme currentTheme = tuple2.getT2();
-//            assertThat(availableThemes.size()).isEqualTo(5); // one custom theme + 4 system themes
-//            assertThat(currentTheme.isSystemTheme()).isFalse();
-//            assertThat(currentTheme.getApplicationId()).isNotEmpty(); // theme should have application id set
-//            assertThat(currentTheme.getWorkspaceId()).isEqualTo("theme-test-org-id"); // theme should have org id set
-//            assertThat(policyUtils.isPermissionPresentForUser(currentTheme.getPolicies(), READ_THEMES.getValue(), "api_user")).isTrue();
-//            assertThat(policyUtils.isPermissionPresentForUser(currentTheme.getPolicies(), MANAGE_THEMES.getValue(), "api_user")).isTrue();
-//        }).verifyComplete();
-//    }
-//
+
+    @WithUserDetails("api_user")
+    @Test
+    public void persistCurrentTheme_WhenCustomThemeIsSet_NewApplicationThemeCreated() {
+
+        // App gets created with system theme set in it.
+        Application savedApplication = createApplication();
+
+        Theme theme = new Theme();
+        theme.setDisplayName("My custom theme");
+        Mono<Theme> persistCustomThemeMono = themeService.persistCurrentTheme(savedApplication.getId(), null, theme)
+                .cache();
+
+        Mono<Tuple4<List<Theme>, Theme, Application, Theme>> tuple4Mono = persistCustomThemeMono
+                .then(themeService.getApplicationThemes(savedApplication.getId(), null).collectList())
+                .zipWith(persistCustomThemeMono)
+                .flatMap(tuple -> {
+                    List<Theme> themes = tuple.getT1();
+                    Theme persistedTheme = tuple.getT2();
+
+                    return themeService.getThemeById(persistedTheme.getId(), MANAGE_THEMES)
+                            .map(themeWithEditPermission -> Tuples.of(themes, persistedTheme, savedApplication, themeWithEditPermission));
+                });
+
+        StepVerifier.create(tuple4Mono).assertNext(tuple4 -> {
+            List<Theme> availableThemes = tuple4.getT1();
+            Theme persistedThemeWithReadPermission = tuple4.getT2();
+            Application application = tuple4.getT3();
+            Theme persistedThemeWithEditPermission = tuple4.getT4();
+
+            long systemThemesCount = availableThemes.stream().filter(availableTheme -> availableTheme.isSystemTheme()).count();
+            assertThat(availableThemes.size()).isEqualTo(systemThemesCount + 1); // one custom theme + existing system themes
+
+            // assert permissions by asserting that the themes have been found.
+            assertThat(persistedThemeWithReadPermission.getId()).isNotNull();
+            assertThat(persistedThemeWithEditPermission.getId()).isNotNull();
+
+            assertThat(persistedThemeWithReadPermission.isSystemTheme()).isFalse();
+            assertThat(persistedThemeWithReadPermission.getApplicationId()).isNotEmpty();
+            assertThat(persistedThemeWithReadPermission.getApplicationId()).isNotEmpty(); // theme should have application id set
+            assertThat(persistedThemeWithReadPermission.getWorkspaceId()).isEqualTo(this.workspace.getId()); // theme should have workspace id set
+            assertThat(application.getEditModeThemeId()).isNotEqualTo(persistedThemeWithReadPermission.getId()); // a new copy should be created
+
+        }).verifyComplete();
+    }
+
     @WithUserDetails("api_user")
     @Test
     public void delete_WhenSystemTheme_NotAllowed() {
@@ -721,126 +685,105 @@ public class ThemeServiceTest {
                 .expectError(AppsmithException.class)
                 .verify();
     }
-//
-//    @WithUserDetails("api_user")
-//    @Test
-//    public void delete_WhenUnsavedCustomizedTheme_NotAllowed() {
-//        Application application = createApplication();
-//
-//        Mono<Theme> deleteThemeMono = themeService.getDefaultThemeId()
-//                .flatMap(s -> {
-//                    application.setEditModeThemeId(s);
-//                    return applicationRepository.save(application);
-//                })
-//                .flatMap(savedApplication -> {
-//                    Theme themeCustomization = new Theme();
-//                    themeCustomization.setDisplayName("Updated name");
-//                    return themeService.updateTheme(savedApplication.getId(), null, themeCustomization);
-//                }).flatMap(customizedTheme -> themeService.archiveById(customizedTheme.getId()));
-//
-//        StepVerifier.create(deleteThemeMono)
-//                .expectErrorMessage(AppsmithError.UNSUPPORTED_OPERATION.getMessage())
-//                .verify();
-//    }
-//
-//    @WithUserDetails("api_user")
-//    @Test
-//    public void delete_WhenSavedCustomizedTheme_ThemeIsDeleted() {
-//        Application application = createApplication();
-//
-//        Mono<Theme> deleteThemeMono = themeService.getDefaultThemeId()
-//                .flatMap(s -> {
-//                    application.setEditModeThemeId(s);
-//                    return applicationRepository.save(application);
-//                })
-//                .flatMap(savedApplication -> {
-//                    Theme themeCustomization = new Theme();
-//                    themeCustomization.setDisplayName("Updated name");
-//                    return themeService.persistCurrentTheme(savedApplication.getId(), null, themeCustomization);
-//                })
-//                .flatMap(customizedTheme -> themeService.archiveById(customizedTheme.getId())
-//                        .then(themeService.getThemeById(customizedTheme.getId(), READ_THEMES)));
-//
-//        StepVerifier.create(deleteThemeMono).verifyComplete();
-//    }
-//
-//    @WithUserDetails("api_user")
-//    @Test
-//    public void updateName_WhenSystemTheme_NotAllowed() {
-//        Mono<Theme> updateThemeNameMono = themeService.getDefaultThemeId().flatMap(themeId -> {
-//            Theme theme = new Theme();
-//            theme.setName("My theme");
-//            theme.setDisplayName("My theme");
-//            return themeService.updateName(themeId, theme);
-//        });
-//        StepVerifier.create(updateThemeNameMono).expectError(AppsmithException.class).verify();
-//    }
-//
-//    @WithUserDetails("api_user")
-//    @Test
-//    public void updateName_WhenCustomTheme_NameUpdated() {
-//        Application application = createApplication();
-//        application.setWorkspaceId("test-org");
-//
-//        Mono<Theme> updateThemeNameMono = themeService.getDefaultThemeId()
-//                .flatMap(s -> {
-//                    application.setEditModeThemeId(s);
-//                    return applicationRepository.save(application);
-//                })
-//                .flatMap(savedApplication -> {
-//                    Theme themeCustomization = new Theme();
-//                    themeCustomization.setDisplayName("old name");
-//                    return themeService.persistCurrentTheme(savedApplication.getId(), null, themeCustomization);
-//                })
-//                .flatMap(customizedTheme -> {
-//                    Theme theme = new Theme();
-//                    theme.setName("new name");
-//                    theme.setDisplayName("new display name");
-//                    return themeService.updateName(customizedTheme.getId(), theme)
-//                            .then(themeService.getThemeById(customizedTheme.getId(), READ_THEMES));
-//                });
-//
-//        StepVerifier.create(updateThemeNameMono).assertNext(theme -> {
-//            assertThat(theme.getName()).isEqualTo("new name");
-//            assertThat(theme.getDisplayName()).isEqualTo("new display name");
-//            assertThat(theme.isSystemTheme()).isFalse();
-//            assertThat(theme.getApplicationId()).isNotNull();
-//            assertThat(theme.getWorkspaceId()).isEqualTo("test-org");
-//            assertThat(theme.getConfig()).isNotNull();
-//        }).verifyComplete();
-//    }
-//
-//    @WithUserDetails("api_user")
-//    @Test
-//    public void importThemesToApplication_WhenBothImportedThemesAreCustom_NewThemesCreated() {
-//        Application application = createApplication();
-//        application.setOrganizationId("test-org");
-//
-//        // create a application json with a custom theme set as both edit mode and published mode
-//        ApplicationJson applicationJson = new ApplicationJson();
-//        Theme customTheme = new Theme();
-//        customTheme.setName("Custom theme name");
-//        customTheme.setDisplayName("Custom theme display name");
-//        applicationJson.setEditModeTheme(customTheme);
-//        applicationJson.setPublishedTheme(customTheme);
-//
-//        Mono<Application> applicationMono = themeService.getDefaultThemeId()
-//                .flatMap(defaultThemeId -> {
-//                    application.setEditModeThemeId(defaultThemeId);
-//                    application.setPublishedModeThemeId(defaultThemeId);
-//                    return applicationRepository.save(application);
-//                })
-//                .flatMap(savedApplication ->
-//                        themeService.importThemesToApplication(savedApplication, applicationJson)
-//                                .thenReturn(Objects.requireNonNull(savedApplication.getId()))
-//                )
-//                .flatMap(applicationId ->
-//                    applicationRepository.findById(applicationId, MANAGE_APPLICATIONS)
-//                );
-//
-//        StepVerifier.create(applicationMono).assertNext(app -> {
-//            assertThat(app.getEditModeThemeId().equals(app.getPublishedModeThemeId())).isFalse();
-//        }).verifyComplete();
-//    }
+
+    @WithUserDetails("api_user")
+    @Test
+    public void delete_WhenUnsavedCustomizedTheme_NotAllowed() {
+        Application savedApplication = createApplication();
+
+        Theme themeCustomization = new Theme();
+        themeCustomization.setDisplayName("Updated name");
+        Mono<Theme> deleteThemeMono = themeService.updateTheme(savedApplication.getId(), null, themeCustomization)
+                .flatMap(customizedTheme -> themeService.archiveById(customizedTheme.getId()));
+
+        StepVerifier.create(deleteThemeMono)
+                .expectErrorMessage(AppsmithError.UNSUPPORTED_OPERATION.getMessage())
+                .verify();
+    }
+
+    @WithUserDetails("api_user")
+    @Test
+    public void delete_WhenSavedCustomizedTheme_ThemeIsDeleted() {
+        Application application = createApplication();
+
+        Mono<Theme> deleteThemeMono = Mono.just(application)
+                .flatMap(savedApplication -> {
+                    Theme themeCustomization = new Theme();
+                    themeCustomization.setDisplayName("Updated name");
+                    return themeService.persistCurrentTheme(savedApplication.getId(), null, themeCustomization);
+                })
+                .flatMap(customizedTheme -> themeService.archiveById(customizedTheme.getId())
+                        .then(themeService.getThemeById(customizedTheme.getId(), READ_THEMES)));
+
+        StepVerifier.create(deleteThemeMono).verifyComplete();
+    }
+
+    @WithUserDetails("api_user")
+    @Test
+    public void updateName_WhenSystemTheme_NotAllowed() {
+        Mono<Theme> updateThemeNameMono = themeService.getDefaultThemeId().flatMap(themeId -> {
+            Theme theme = new Theme();
+            theme.setName("My theme");
+            theme.setDisplayName("My theme");
+            return themeService.updateName(themeId, theme);
+        });
+        StepVerifier.create(updateThemeNameMono).expectError(AppsmithException.class).verify();
+    }
+
+    @WithUserDetails("api_user")
+    @Test
+    public void updateName_WhenCustomTheme_NameUpdated() {
+        Application application = createApplication();
+
+        Mono<Theme> updateThemeNameMono = Mono.just(application)
+                .flatMap(savedApplication -> {
+                    Theme themeCustomization = new Theme();
+                    themeCustomization.setDisplayName("old name");
+                    return themeService.persistCurrentTheme(savedApplication.getId(), null, themeCustomization);
+                })
+                .flatMap(customizedTheme -> {
+                    Theme theme = new Theme();
+                    theme.setName("new name");
+                    theme.setDisplayName("new display name");
+                    return themeService.updateName(customizedTheme.getId(), theme)
+                            .then(themeService.getThemeById(customizedTheme.getId(), READ_THEMES));
+                });
+
+        StepVerifier.create(updateThemeNameMono).assertNext(theme -> {
+            assertThat(theme.getName()).isEqualTo("new name");
+            assertThat(theme.getDisplayName()).isEqualTo("new display name");
+            assertThat(theme.isSystemTheme()).isFalse();
+            assertThat(theme.getApplicationId()).isNotNull();
+            assertThat(theme.getWorkspaceId()).isEqualTo(this.workspace.getId());
+            assertThat(theme.getConfig()).isNotNull();
+        }).verifyComplete();
+    }
+
+    @WithUserDetails("api_user")
+    @Test
+    public void importThemesToApplication_WhenBothImportedThemesAreCustom_NewThemesCreated() {
+        Application application = createApplication();
+
+        // create a application json with a custom theme set as both edit mode and published mode
+        ApplicationJson applicationJson = new ApplicationJson();
+        Theme customTheme = new Theme();
+        customTheme.setName("Custom theme name");
+        customTheme.setDisplayName("Custom theme display name");
+        applicationJson.setEditModeTheme(customTheme);
+        applicationJson.setPublishedTheme(customTheme);
+
+        Mono<Application> applicationMono = Mono.just(application)
+                .flatMap(savedApplication ->
+                        themeService.importThemesToApplication(savedApplication, applicationJson)
+                                .thenReturn(savedApplication.getId())
+                )
+                .flatMap(applicationId ->
+                    applicationRepository.findById(applicationId, MANAGE_APPLICATIONS)
+                );
+
+        StepVerifier.create(applicationMono).assertNext(app -> {
+            assertThat(app.getEditModeThemeId().equals(app.getPublishedModeThemeId())).isFalse();
+        }).verifyComplete();
+    }
 
 }
