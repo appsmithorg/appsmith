@@ -1,7 +1,7 @@
 import React, { useCallback, useState } from "react";
 import { Picker, BaseEmoji } from "emoji-mart";
 import { Popover2 } from "@blueprintjs/popover2";
-import Icon, { IconName, IconSize } from "components/ads/Icon";
+import { Icon, IconName, IconSize } from "design-system";
 
 import styled, { withTheme } from "styled-components";
 import { Theme } from "constants/DefaultTheme";

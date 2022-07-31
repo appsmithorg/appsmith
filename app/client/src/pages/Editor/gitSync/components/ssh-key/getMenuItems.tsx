@@ -1,7 +1,7 @@
 import React from "react";
 import { SupportedKeyType } from "./SupportedKeyTypeList";
 import MenuItem from "components/ads/MenuItem";
-import { Icon, IconSize } from "components/ads";
+import { Icon, IconSize } from "design-system";
 
 /**
  * getMenuItems returns a list of options of SSH keys to generate

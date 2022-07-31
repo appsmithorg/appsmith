@@ -10,14 +10,20 @@ import React, {
 import { Classes, CommonComponentProps, hexToRgba } from "./common";
 import { Classes as BlueprintClasses } from "@blueprintjs/core";
 import styled, { withTheme } from "styled-components";
-import { Text, TextType } from "design-system";
+import {
+  Icon,
+  IconCollection,
+  IconName,
+  IconSize,
+  Text,
+  TextType,
+} from "design-system";
 import {
   ERROR_MESSAGE_NAME_EMPTY,
   createMessage,
   FORM_VALIDATION_INVALID_EMAIL,
 } from "@appsmith/constants/messages";
 import { isEmail } from "utils/formhelpers";
-import Icon, { IconCollection, IconName, IconSize } from "./Icon";
 import { AsyncControllableInput } from "@blueprintjs/core/lib/esm/components/forms/asyncControllableInput";
 import _ from "lodash";
 import { replayHighlightClass } from "globalStyles/portals";

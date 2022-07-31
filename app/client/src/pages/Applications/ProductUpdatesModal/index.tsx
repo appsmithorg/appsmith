@@ -10,9 +10,8 @@ import ReleasesAPI from "api/ReleasesAPI";
 import { resetReleasesCount } from "actions/releasesActions";
 import ReleaseComponent, { Release } from "./ReleaseComponent";
 import ScrollIndicator from "components/ads/ScrollIndicator";
-import Button, { Category, Size } from "components/ads/Button";
 import { Colors } from "constants/Colors";
-import { Icon } from "components/ads";
+import { Button, Category, Size, Icon } from "design-system";
 
 const StyledDialog = styled(Dialog)`
   .bp3-dialog-body {

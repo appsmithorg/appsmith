@@ -1,8 +1,15 @@
 import React, { forwardRef, ReactNode, Ref } from "react";
 import { CommonComponentProps, Classes } from "./common";
 import styled from "styled-components";
-import Icon, { IconName, IconSize } from "./Icon";
-import { TooltipComponent, Text, TextType, FontWeight } from "design-system";
+import {
+  Icon,
+  IconName,
+  IconSize,
+  TooltipComponent,
+  Text,
+  TextType,
+  FontWeight,
+} from "design-system";
 import { PopoverPosition } from "@blueprintjs/core/lib/esnext/components/popover/popoverSharedProps";
 
 export type MenuItemProps = CommonComponentProps & {

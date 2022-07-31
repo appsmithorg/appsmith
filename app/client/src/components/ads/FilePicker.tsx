@@ -6,7 +6,14 @@ import { ReactComponent as UploadIcon } from "assets/icons/ads/upload.svg";
 import { ReactComponent as UploadSuccessIcon } from "assets/icons/ads/upload_success.svg";
 import { DndProvider, useDrop, DropTargetMonitor } from "react-dnd";
 import HTML5Backend, { NativeTypes } from "react-dnd-html5-backend";
-import { Text, TextType } from "design-system";
+import {
+  Icon,
+  IconName,
+  IconSize,
+  Text,
+  TextType,
+  TooltipComponent,
+} from "design-system";
 import { Classes, Variant } from "./common";
 import { Toaster } from "./Toast";
 import {
@@ -14,8 +21,6 @@ import {
   ERROR_FILE_TOO_LARGE,
   REMOVE_FILE_TOOL_TIP,
 } from "@appsmith/constants/messages";
-import { TooltipComponent } from "design-system";
-import Icon, { IconName, IconSize } from "./Icon";
 import { error as logError } from "loglevel";
 const CLOUDINARY_PRESETS_NAME = "";
 const CLOUDINARY_CLOUD_NAME = "";

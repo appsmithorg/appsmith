@@ -8,7 +8,7 @@ import React, {
 } from "react";
 import { CommonComponentProps, Classes } from "./common";
 import styled from "styled-components";
-import Icon, { IconSize } from "./Icon";
+import { Icon, IconSize } from "design-system";
 import TextInput from "./TextInput";
 import { IconNames } from "@blueprintjs/icons";
 

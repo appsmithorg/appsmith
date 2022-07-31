@@ -12,7 +12,7 @@ import {
 import { Icon } from "design-system";
 import { Theme } from "constants/DefaultTheme";
 import { getCurrentUser } from "selectors/usersSelectors";
-import { Button, Category, Size } from "components/ads";
+import { Button, Category, Size } from "design-system";
 
 const Container = styled.div`
   height: 461px;
