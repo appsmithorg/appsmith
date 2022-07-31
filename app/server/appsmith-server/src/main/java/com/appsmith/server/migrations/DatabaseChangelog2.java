@@ -49,17 +49,23 @@ import com.github.cloudyrock.mongock.driver.mongodb.springdata.v3.decorator.impl
 import com.google.gson.Gson;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONObject;
+import org.springframework.core.io.DefaultResourceLoader;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.aggregation.AggregationUpdate;
 import org.springframework.data.mongodb.core.aggregation.Fields;
+import org.springframework.data.mongodb.core.index.Index;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.data.redis.core.ReactiveRedisOperations;
 import org.springframework.data.redis.core.script.RedisScript;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StreamUtils;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 
+import java.io.IOException;
+import java.nio.charset.Charset;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -77,7 +83,9 @@ import static com.appsmith.server.acl.AclPermission.MANAGE_INSTANCE_CONFIGURATIO
 import static com.appsmith.server.acl.AclPermission.MANAGE_INSTANCE_ENV;
 import static com.appsmith.server.acl.AclPermission.MANAGE_PERMISSION_GROUPS;
 import static com.appsmith.server.acl.AclPermission.READ_INSTANCE_CONFIGURATION;
+import static com.appsmith.server.acl.AclPermission.READ_THEMES;
 import static com.appsmith.server.constants.FieldName.DEFAULT_PERMISSION_GROUP;
+import static com.appsmith.server.constants.FieldName.PERMISSION_GROUP_ID;
 import static com.appsmith.server.migrations.DatabaseChangelog.dropIndexIfExists;
 import static com.appsmith.server.migrations.DatabaseChangelog.ensureIndexes;
 import static com.appsmith.server.migrations.DatabaseChangelog.makeIndex;
@@ -1144,5 +1152,141 @@ public class DatabaseChangelog2 {
         savedPermissionGroup.setPermissions(permissions);
 
         mongockTemplate.save(savedPermissionGroup);
+    }
+
+    @ChangeSet(order = "22", id = "add-anonymous-user-permission-group", author = "")
+    public void addAnonymousUserPermissionGroup(MongockTemplate mongockTemplate) {
+        Query anonymousUserPermissionConfig = new Query();
+        anonymousUserPermissionConfig.addCriteria(where(fieldName(QConfig.config1.name)).is(FieldName.PUBLIC_PERMISSION_GROUP));
+
+        Config publicPermissionGroupConfig = mongockTemplate.findOne(anonymousUserPermissionConfig, Config.class);
+
+        if (publicPermissionGroupConfig != null) {
+            return;
+        }
+
+        PermissionGroup publicPermissionGroup = new PermissionGroup();
+        publicPermissionGroup.setName(FieldName.PUBLIC_PERMISSION_GROUP);
+        publicPermissionGroup.setDescription("Role for giving accesses for all objects to anonymous users");
+
+        Query tenantQuery = new Query();
+        tenantQuery.addCriteria(where(fieldName(QTenant.tenant.slug)).is("default"));
+        Tenant tenant = mongockTemplate.findOne(tenantQuery, Tenant.class);
+
+        Query userQuery = new Query();
+        userQuery.addCriteria(where(fieldName(QUser.user.email)).is(FieldName.ANONYMOUS_USER))
+                .addCriteria(where(fieldName(QUser.user.tenantId)).is(tenant.getId()));
+        User anonymousUser = mongockTemplate.findOne(userQuery, User.class);
+
+
+        // Give access to anonymous user to the permission group.
+        publicPermissionGroup.setAssignedToUserIds(Set.of(anonymousUser.getId()));
+        PermissionGroup savedPermissionGroup = mongockTemplate.save(publicPermissionGroup);
+
+        publicPermissionGroupConfig = new Config();
+        publicPermissionGroupConfig.setName(FieldName.PUBLIC_PERMISSION_GROUP);
+
+        publicPermissionGroupConfig.setConfig(new JSONObject(Map.of(PERMISSION_GROUP_ID, savedPermissionGroup.getId())));
+
+        Config savedConfig = mongockTemplate.save(publicPermissionGroupConfig);
+        return;
+    }
+
+    @ChangeSet(order = "22", id = "create-system-themes-v3", author = "", runAlways = true)
+    public void createSystemThemes3(MongockTemplate mongockTemplate) throws IOException {
+        Index systemThemeIndex = new Index()
+                .on(fieldName(QTheme.theme.isSystemTheme), Sort.Direction.ASC)
+                .named("system_theme_index")
+                .background();
+
+        Index applicationIdIndex = new Index()
+                .on(fieldName(QTheme.theme.applicationId), Sort.Direction.ASC)
+                .on(fieldName(QTheme.theme.deleted), Sort.Direction.ASC)
+                .named("application_id_index")
+                .background();
+
+        dropIndexIfExists(mongockTemplate, Theme.class, "system_theme_index");
+        dropIndexIfExists(mongockTemplate, Theme.class, "application_id_index");
+        ensureIndexes(mongockTemplate, Theme.class, systemThemeIndex, applicationIdIndex);
+
+        final String themesJson = StreamUtils.copyToString(
+                new DefaultResourceLoader().getResource("system-themes.json").getInputStream(),
+                Charset.defaultCharset()
+        );
+        Theme[] themes = new Gson().fromJson(themesJson, Theme[].class);
+
+        Theme legacyTheme = null;
+        boolean themeExists = false;
+
+        // Make this theme accessible to anonymous users.
+        Query anonymousUserPermissionConfig = new Query();
+        anonymousUserPermissionConfig.addCriteria(where(fieldName(QConfig.config1.name)).is(FieldName.PUBLIC_PERMISSION_GROUP));
+        Config publicPermissionGroupConfig = mongockTemplate.findOne(anonymousUserPermissionConfig, Config.class);
+
+        String permissionGroupId = publicPermissionGroupConfig.getConfig().getAsString(PERMISSION_GROUP_ID);
+
+        PermissionGroup publicPermissionGroup = mongockTemplate.findOne(query(where("_id").is(permissionGroupId)), PermissionGroup.class);
+
+        // Initialize the permissions for the role
+        HashSet<Permission> permissions = new HashSet<>();
+        if (publicPermissionGroup.getPermissions() != null) {
+            permissions.addAll(publicPermissionGroup.getPermissions());
+        }
+
+        Policy policyWithCurrentPermission = Policy.builder()
+                .permission(READ_THEMES.getValue())
+                .permissionGroups(Set.of(publicPermissionGroup.getId()))
+                .build();
+
+        for (Theme theme : themes) {
+            theme.setSystemTheme(true);
+            theme.setCreatedAt(Instant.now());
+            theme.setPolicies(Set.of(policyWithCurrentPermission));
+            Query query = new Query(Criteria.where(fieldName(QTheme.theme.name)).is(theme.getName())
+                    .and(fieldName(QTheme.theme.isSystemTheme)).is(true));
+
+            Theme savedTheme = mongockTemplate.findOne(query, Theme.class);
+            if(savedTheme == null) {  // this theme does not exist, create it
+                savedTheme = mongockTemplate.save(theme);
+            } else { // theme already found, update
+                themeExists = true;
+                savedTheme.setDisplayName(theme.getDisplayName());
+                savedTheme.setPolicies(theme.getPolicies());
+                savedTheme.setConfig(theme.getConfig());
+                savedTheme.setProperties(theme.getProperties());
+                savedTheme.setStylesheet(theme.getStylesheet());
+                if(savedTheme.getCreatedAt() == null) {
+                    savedTheme.setCreatedAt(Instant.now());
+                }
+                mongockTemplate.save(savedTheme);
+            }
+
+            if(theme.getName().equalsIgnoreCase(Theme.LEGACY_THEME_NAME)) {
+                legacyTheme = savedTheme;
+            }
+
+            // Add the access to this theme to the public permission group
+            Theme finalSavedTheme = savedTheme;
+            boolean isThemePermissionPresent = permissions.stream()
+                    .filter(p -> p.getAclPermission().equals(READ_THEMES) && p.getDocumentId().equals(finalSavedTheme.getId()))
+                    .findFirst()
+                    .isPresent();
+            if (!isThemePermissionPresent) {
+                permissions.add(new Permission(finalSavedTheme.getId(), READ_THEMES));
+            }
+        }
+
+        if(!themeExists) { // this is the first time we're running the migration
+            // migrate all applications and set legacy theme to them in both mode
+            Update update = new Update().set(fieldName(QApplication.application.publishedModeThemeId), legacyTheme.getId())
+                    .set(fieldName(QApplication.application.editModeThemeId), legacyTheme.getId());
+            mongockTemplate.updateMulti(
+                    new Query(where(fieldName(QApplication.application.deleted)).is(false)), update, Application.class
+            );
+        }
+
+        // Finally save the role which gives access to all the system themes to the anonymous user.
+        publicPermissionGroup.setPermissions(permissions);
+        mongockTemplate.save(publicPermissionGroup);
     }
 }

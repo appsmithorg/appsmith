@@ -1,9 +1,11 @@
 package com.appsmith.server.services;
 
+import com.appsmith.external.models.Policy;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationMode;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.Theme;
+import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.InviteUsersDTO;
 import com.appsmith.server.dtos.UpdatePermissionGroupDTO;
@@ -28,8 +30,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_THEMES;
 import static com.appsmith.server.constants.FieldName.ADMINISTRATOR;
+import static com.appsmith.server.constants.FieldName.ANONYMOUS_USER;
 import static java.lang.Boolean.TRUE;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -325,7 +329,7 @@ public class ThemeServiceTest {
                     assertThat(currentTheme.isSystemTheme()).isTrue();
                     assertThat(currentTheme.getApplicationId()).isNull();
                     assertThat(currentTheme.getWorkspaceId()).isNull();
-                    assertThat(oldTheme.getId()).isNull();
+                    assertThat(oldTheme.getId()).isNotNull(); // TODO : Change assertion to null if it should be deleted.
                 })
                 .verifyComplete();
     }
@@ -546,87 +550,94 @@ public class ThemeServiceTest {
                 }).verifyComplete();
     }
 
-//    @WithUserDetails("api_user")
-//    @Test
-//    public void publishTheme_WhenNoThemeIsSet_SystemDefaultThemeIsSetToPublishedMode() {
-//
-//        /*
-//        Create app
-//        Set theme in the app to null
-//        Publish app
-//        Assertions should remain the same.
-//         */
-//
-//        Mono<Theme> classicThemeMono = themeService.getSystemTheme(Theme.LEGACY_THEME_NAME);
-//
-//        Mono<Tuple2<Application, Theme>> appAndThemeTuple = applicationRepository.save(
-//                        createApplication()
-//                )
-//                .flatMap(savedApplication ->
-//                        themeService.publishTheme(savedApplication.getId())
-//                                .then(applicationRepository.findById(savedApplication.getId()))
-//                )
-//                .zipWith(classicThemeMono);
-//
-//        StepVerifier.create(appAndThemeTuple)
-//                .assertNext(objects -> {
-//                    Application application = objects.getT1();
-//                    Theme classicSystemTheme = objects.getT2();
-//                    assertThat(application.getPublishedModeThemeId()).isEqualTo(classicSystemTheme.getId());
-//                }).verifyComplete();
-//    }
-//
-//    @WithUserDetails("api_user")
-//    @Test
-//    public void publishTheme_WhenApplicationIsPublic_PublishedThemeIsPublic() {
-//
-//        /*
-//        Create app
-//        Publis app setting system theme in edit mode
-//        Add custom theme to edit mode
-//        Make the app public
-//        Publish the app.
-//
-//        Assertions that the published theme is accessible by anonymous user.
-//         */
-//
-//        Collection<Policy> themePolicies = policyUtils.generatePolicyFromPermission(
-//                Set.of(MANAGE_THEMES), "api_user"
-//        ).values();
-//
-//        Theme customTheme = new Theme();
-//        customTheme.setDisplayName("my-custom-theme");
-//        customTheme.setPolicies(Set.copyOf(themePolicies));
-//
-//        Mono<Theme> appThemesMono = themeService.save(customTheme)
-//                .zipWith(themeService.getSystemTheme("classic"))
-//                .flatMap(themes -> {
-//                    Application application = createApplication(
-//                            Set.of(MAKE_PUBLIC_APPLICATIONS, MANAGE_APPLICATIONS));
-//                    application.setEditModeThemeId(themes.getT1().getId()); // custom theme
-//                    application.setPublishedModeThemeId(themes.getT2().getId()); // system theme
-//                    return applicationRepository.save(application);
-//                })
-//                .flatMap(application -> {
-//                    // make the application public
-//                    ApplicationAccessDTO accessDTO = new ApplicationAccessDTO();
-//                    accessDTO.setPublicAccess(true);
-//                    return applicationService.changeViewAccess(application.getId(), accessDTO);
-//                })
-//                .flatMap(application ->
-//                        themeService.publishTheme(application.getId()).then(
-//                                themeService.getApplicationTheme(application.getId(), ApplicationMode.PUBLISHED, null)
-//                        )
-//                );
-//
-//        StepVerifier.create(appThemesMono)
-//                .assertNext(publishedModeTheme -> {
-//                    Boolean permissionPresentForAnonymousUser = policyUtils.isPermissionPresentForUser(
-//                            publishedModeTheme.getPolicies(), READ_THEMES.getValue(), FieldName.ANONYMOUS_USER
-//                    );
-//                    assertThat(permissionPresentForAnonymousUser).isTrue();
-//                }).verifyComplete();
-//    }
+    @WithUserDetails("api_user")
+    @Test
+    public void publishTheme_WhenNoThemeIsSet_SystemDefaultThemeIsSetToPublishedMode() {
+
+        Application savedApplication = createApplication();
+
+        // Set the default system theme in view mode as well.
+        Application updateApp = new Application();
+        updateApp.setEditModeThemeId(null);
+        applicationRepository.updateById(savedApplication.getId(), updateApp, MANAGE_APPLICATIONS).block();
+
+        applicationPageService.publish(savedApplication.getId(), TRUE).block();
+
+        Mono<Theme> classicThemeMono = themeService.getSystemTheme(Theme.LEGACY_THEME_NAME);
+
+        Mono<Tuple2<Application, Theme>> appAndThemeTuple = themeService.publishTheme(savedApplication.getId())
+                                .then(applicationRepository.findById(savedApplication.getId()))
+                .zipWith(classicThemeMono);
+
+        StepVerifier.create(appAndThemeTuple)
+                .assertNext(objects -> {
+                    Application application = objects.getT1();
+                    Theme classicSystemTheme = objects.getT2();
+                    assertThat(application.getPublishedModeThemeId()).isEqualTo(classicSystemTheme.getId());
+                }).verifyComplete();
+    }
+
+    @WithUserDetails("api_user")
+    @Test
+    public void publishTheme_WhenApplicationIsPublic_PublishedThemeIsPublic() {
+
+        Application savedApplication = createApplication();
+
+        // Set the default system theme in view mode as well.
+        applicationPageService.publish(savedApplication.getId(), TRUE).block();
+
+        // Set a custom theme in edit mode.
+        Theme customTheme = new Theme();
+        customTheme.setName("my-custom-theme");
+        Mono<Theme> createAndApplyCustomThemeMono = themeService.persistCurrentTheme(savedApplication.getId(), null, customTheme)
+                .flatMap(theme -> themeService.changeCurrentTheme(theme.getId(), savedApplication.getId(), null));
+
+        // Make the app public.
+        Mono<Application> makeAppPublicMono = applicationPageService.publish(savedApplication.getId(), TRUE);
+
+        // Publish the theme
+        Mono<Theme> publishThemeMono = themeService.publishTheme(savedApplication.getId());
+
+        Mono<Theme> getPublishedApplicationThemeMono = themeService.getApplicationTheme(savedApplication.getId(), ApplicationMode.PUBLISHED, null)
+                .switchIfEmpty(Mono.just(new Theme()))
+                .cache();
+
+        Mono<User> anonymousUserMono = userService.findByEmail(ANONYMOUS_USER);
+
+        Mono<List<PermissionGroup>> anonymousUserPermissionsMono = Mono.zip(getPublishedApplicationThemeMono, anonymousUserMono)
+                .flatMap(tuple -> {
+                    Theme theme = tuple.getT1();
+                    User anonymousUser = tuple.getT2();
+
+                    Policy readThemePolicy = theme.getPolicies()
+                            .stream()
+                            .filter(themePolicy -> themePolicy.getPermission().equals(READ_THEMES.getValue()))
+                            .findFirst()
+                            .get();
+
+                    return permissionGroupRepository.findAllById(readThemePolicy.getPermissionGroups())
+                            .filter(permissionGroup -> permissionGroup.getAssignedToUserIds().contains(anonymousUser.getId()))
+                            .collectList();
+                });
+
+        Mono<Theme> appThemesMono = createAndApplyCustomThemeMono
+                .then(makeAppPublicMono)
+                .then(publishThemeMono)
+                .then(getPublishedApplicationThemeMono);
+
+        StepVerifier.create(Mono.zip(appThemesMono, anonymousUserPermissionsMono))
+                .assertNext(tuple -> {
+                    Theme publishedModeTheme = tuple.getT1();
+                    List<PermissionGroup> permissionGroups = tuple.getT2();
+
+                    // Assert that the application does have a published theme
+                    assertThat(publishedModeTheme.getId()).isNotNull();
+
+                    // Assert that the published theme is accessible by anonymous user.
+                    assertThat(permissionGroups.size()).isGreaterThan(0);
+
+                }).verifyComplete();
+    }
 //
 //    @WithUserDetails("api_user")
 //    @Test
@@ -703,13 +714,13 @@ public class ThemeServiceTest {
 //        }).verifyComplete();
 //    }
 //
-//    @WithUserDetails("api_user")
-//    @Test
-//    public void delete_WhenSystemTheme_NotAllowed() {
-//        StepVerifier.create(themeService.getDefaultThemeId().flatMap(themeService::archiveById))
-//                .expectError(AppsmithException.class)
-//                .verify();
-//    }
+    @WithUserDetails("api_user")
+    @Test
+    public void delete_WhenSystemTheme_NotAllowed() {
+        StepVerifier.create(themeService.getDefaultThemeId().flatMap(themeService::archiveById))
+                .expectError(AppsmithException.class)
+                .verify();
+    }
 //
 //    @WithUserDetails("api_user")
 //    @Test
