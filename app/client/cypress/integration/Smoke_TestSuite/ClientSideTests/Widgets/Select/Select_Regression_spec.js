@@ -95,9 +95,9 @@ describe("Select Widget on change action check", function () {
 
   it.skip("Enable server side filtering and validate", function () {
     cy.get(".t--property-control-onfilterupdate").should("not.exist");
-    cy.get(".t--property-control-serversidefiltering .bp3-control-indicator").click({force:true});
+    cy.get(".t--property-control-serversidefiltering .bp3-control-indicator").click({ force: true });
     cy.get(".t--property-control-onfilterupdate").should("be.visible");
-    cy.addOnFilterUpdate("onfilterupdate","Success");
+    cy.addOnFilterUpdate("onfilterupdate", "Success");
   });
 
   it.skip("Enable server side filtering and validate in publish mode", function () {
@@ -107,47 +107,37 @@ describe("Select Widget on change action check", function () {
     cy.wait(200);
     cy.get(".bp3-input").type("Red");
     cy.get(".t--toast-action span").contains("Success");
-    cy.get(".bp3-button > .bp3-icon > svg").click({force:true});
+    cy.get(".bp3-button > .bp3-icon > svg").click({ force: true });
     cy.goToEditFromPublish();
   });
 
   it("Update and validate various view types", function () {
-    cy.get("[data-testid=div-selection-0]").click({force:true});
-    
-    cy.get(".border-transparent svg").eq(3).click({force:true});
-    cy.wait("@updateApplication");
-    cy.get("[data-testid=canvas-selection-0]").invoke('attr', 'height')
-    .should('eq', '1596');
-    cy.get("[data-testid=canvas-selection-0]").invoke('attr', 'width')
-    .should('eq', '1600');
-    
-    cy.get(".border-transparent svg").eq(2).click({force:true});
-    cy.wait("@updateApplication");
-    cy.get("[data-testid=canvas-selection-0]").invoke('attr', 'height')
-    .should('eq', '1584');
-    cy.get("[data-testid=canvas-selection-0]").invoke('attr', 'width')
-    .should('eq', '1696');
-    
-    cy.get(".border-transparent svg").eq(4).click({force:true});
-    cy.wait("@updateApplication");
-    cy.get("[data-testid=canvas-selection-0]").invoke('attr', 'height')
-    .should('eq', '1584');
-    cy.get("[data-testid=canvas-selection-0]").invoke('attr', 'width')
-    .should('eq', '900');
-  
-    cy.get(".border-transparent svg").eq(1).click({force:true});
-    cy.wait("@updateApplication");
-    cy.get("[data-testid=canvas-selection-0]").invoke('attr', 'height')
-    .should('eq', '1584');
-    cy.get("[data-testid=canvas-selection-0]").invoke('attr', 'width')
-    .should('eq', '1696');
-
-    cy.get(".border-transparent svg").eq(0).click({force:true});
-    cy.wait("@updateApplication");
-    cy.get("[data-testid=canvas-selection-0]").invoke('attr', 'height')
-    .should('eq', '1584');
-    cy.get("[data-testid=canvas-selection-0]").invoke('attr', 'width')
-    .should('eq', '1552');
+    cy.get("[data-testid=div-selection-0]").click({ force: true });
+    cy.changeView(3, "1596", "1600");
+    cy.PublishtheApp();
+    cy.get(".t--app-viewer-page").invoke('attr', 'width')
+      .should('eq', "800");
+    cy.goToEditFromPublish();
+    cy.changeView(2,"1584","1696");
+    cy.PublishtheApp();
+    cy.get(".t--app-viewer-page").invoke('attr', 'width')
+      .should('eq', "1080");
+    cy.goToEditFromPublish();
+    cy.changeView(4,"1584","900");
+    cy.PublishtheApp();
+    cy.get(".t--app-viewer-page").invoke('attr', 'width')
+      .should('eq', "450");
+    cy.goToEditFromPublish();
+    cy.changeView(1,"1584","1696");
+    cy.PublishtheApp();
+    cy.get(".t--app-viewer-page").invoke('attr', 'width')
+      .should('eq', "1274");
+    cy.goToEditFromPublish();
+    cy.changeView(3,"1584","1552");
+    cy.PublishtheApp();
+    cy.get(".t--app-viewer-page").invoke('attr', 'width')
+      .should('eq', "800");
+    cy.goToEditFromPublish();
   });
 
 });

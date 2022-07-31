@@ -1506,3 +1506,12 @@ Cypress.Commands.add("changePosition", (position) => {
     .invoke("attr", "position")
     .should("eq", position);
 });
+
+Cypress.Commands.add("changeView", (position,height,width) => {
+  cy.get(".border-transparent svg").eq(position).click({force:true});
+  cy.wait("@updateApplication");
+  cy.get("[data-testid=canvas-selection-0]").invoke('attr', 'height')
+  .should('eq', height);
+  cy.get("[data-testid=canvas-selection-0]").invoke('attr', 'width')
+  .should('eq', width);
+});
