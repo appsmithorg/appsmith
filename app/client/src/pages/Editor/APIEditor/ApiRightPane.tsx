@@ -257,7 +257,7 @@ function ApiRightPane(props: any) {
                               )}
                               <Icon
                                 name="edit"
-                                onClick={(e) => {
+                                onClick={(e: React.MouseEvent) => {
                                   e.stopPropagation();
                                   history.push(
                                     datasourcesEditorIdURL({

@@ -200,7 +200,7 @@ function SortingComponent(props: any) {
               <CenteredIcon
                 cypressSelector={`t--sorting-delete-[${index}]`}
                 name="cross"
-                onClick={(e) => {
+                onClick={(e: React.MouseEvent) => {
                   e.stopPropagation();
                   onDeletePressed(index);
                 }}

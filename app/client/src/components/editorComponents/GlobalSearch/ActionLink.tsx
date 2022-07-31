@@ -34,7 +34,7 @@ export const ActionLink = withTheme(
         <Icon
           fillColor={theme.colors.globalSearch.searchItemText}
           name="link"
-          onClick={(e) => {
+          onClick={(e: React.MouseEvent) => {
             e.stopPropagation(); // to prevent toggleModal getting called twice
             searchContext?.handleItemLinkClick(
               null,

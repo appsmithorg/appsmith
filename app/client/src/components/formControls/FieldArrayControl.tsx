@@ -88,7 +88,7 @@ function NestedComponents(props: any) {
               })}
               <CenteredIcon
                 name="delete"
-                onClick={(e) => {
+                onClick={(e: React.MouseEvent) => {
                   e.stopPropagation();
                   props.fields.remove(index);
                 }}
