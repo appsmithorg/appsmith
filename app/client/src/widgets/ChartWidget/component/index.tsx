@@ -266,10 +266,8 @@ class ChartComponent extends React.Component<ChartComponentProps> {
     const legendConfig = isMultiSeriesData
       ? {
           legendPosition: "top",
-          captionPadding: "100",
         }
       : {
-          captionPadding: "15",
           palettecolors: [this.props.primaryColor],
         };
 
@@ -283,34 +281,38 @@ class ChartComponent extends React.Component<ChartComponentProps> {
       xAxisName: this.props.xAxisName,
       yAxisName: this.props.yAxisName,
       theme: "fusion",
-      captionAlignment: "left",
-      alignCaptionWithCanvas: 0,
+      alignCaptionWithCanvas: 1,
 
       // Caption styling =======================
       captionFontSize: "28",
+      captionAlignment: "center",
+      captionPadding: "15",
       captionFontColor: Colors.CODE_GRAY,
 
       // legend position styling ==========
-      legendIconSides: "4",
-      legendIconBgAlpha: "100",
-      legendIconAlpha: "100",
       legendItemFont: fontFamily,
       ...legendConfig,
 
       // Canvas styles ========
-      canvasTopPadding: "0",
-      canvasLeftPadding: "60",
-      canvasRightPadding: "60",
+      canvasTopPadding: "10",
+      canvasLeftPadding: "10",
+      canvasRightPadding: "10",
       canvasBottomPadding: "10",
 
       // Chart styling =======
-      chartBottomMargin: "15",
+      chartLeftMargin: "30",
+      chartTopMargin: "10",
+      chartRightMargin: "10",
+      chartBottomMargin: "10",
 
       // Axis name styling ======
       xAxisNameFontSize: "14",
-      xAxisValueFontColor: Colors.DOVE_GRAY2,
+      labelFontColor: Colors.DOVE_GRAY2,
+      xAxisNameFontColor: Colors.DOVE_GRAY2,
+
       yAxisNameFontSize: "14",
       yAxisValueFontColor: Colors.DOVE_GRAY2,
+      yAxisNameFontColor: Colors.DOVE_GRAY2,
 
       // Base configurations ======
       baseFont: fontFamily,
