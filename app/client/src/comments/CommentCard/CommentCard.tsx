@@ -14,12 +14,14 @@ import { getTypographyByKey } from "constants/DefaultTheme";
 import CommentContextMenu from "./CommentContextMenu";
 import ResolveCommentButton from "comments/CommentCard/ResolveCommentButton";
 import { MentionComponent } from "components/ads/MentionsInput";
-import { Icon, IconSize } from "design-system";
-import EmojiReactions, {
+import {
+  EmojiReactions,
+  Icon,
+  IconSize,
   Reaction as ComponentReaction,
   Reactions,
   ReactionOperation,
-} from "components/ads/EmojiReactions";
+} from "design-system";
 import { Toaster } from "components/ads/Toast";
 import AddCommentInput from "comments/inlineComments/AddCommentInput";
 
