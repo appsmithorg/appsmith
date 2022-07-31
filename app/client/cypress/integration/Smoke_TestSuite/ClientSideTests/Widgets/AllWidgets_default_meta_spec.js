@@ -2,6 +2,7 @@ const explorer = require("../../../../locators/explorerlocators.json");
 const testdata = require("../../../../fixtures/testdata.json");
 const apiwidget = require("../../../../locators/apiWidgetslocator.json");
 const dsl = require("../../../../fixtures/defaultMetaDsl.json");
+const commonlocators = require("../../../../locators/commonlocators.json");
 
 import {
   WIDGET,
