@@ -1188,7 +1188,7 @@ public class DatabaseChangelog2 {
 
         publicPermissionGroupConfig.setConfig(new JSONObject(Map.of(PERMISSION_GROUP_ID, savedPermissionGroup.getId())));
 
-        Config savedConfig = mongockTemplate.save(publicPermissionGroupConfig);
+        mongockTemplate.save(publicPermissionGroupConfig);
         return;
     }
 

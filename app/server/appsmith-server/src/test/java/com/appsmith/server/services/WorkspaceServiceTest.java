@@ -186,7 +186,10 @@ public class WorkspaceServiceTest {
 
                     return permissionGroupRepository.findById(permissionGroup);
                 })
-                .map(PermissionGroup::getAssignedToUserIds);
+                .map(permissionGroup -> {
+                    Set<String> permissionGroupAssignedToUserIds = permissionGroup.getAssignedToUserIds();
+                    return permissionGroupAssignedToUserIds;
+                });
 
 
         StepVerifier.create(Mono.zip(userMono, defaultWorkspaceMono, workspaceAssignedToUsersMono))
