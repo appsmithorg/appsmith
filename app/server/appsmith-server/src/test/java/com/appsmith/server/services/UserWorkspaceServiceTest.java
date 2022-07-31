@@ -10,6 +10,7 @@ import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserRole;
 import com.appsmith.server.domains.Workspace;
+import com.appsmith.server.dtos.UpdatePermissionGroupDTO;
 import com.appsmith.server.dtos.UserAndPermissionGroupDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.helpers.PolicyUtils;
@@ -30,15 +31,16 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.appsmith.server.acl.AppsmithRole.ORGANIZATION_ADMIN;
 import static com.appsmith.server.constants.FieldName.ADMINISTRATOR;
 import static com.appsmith.server.constants.FieldName.DEVELOPER;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertEquals;
 
 
 //@RunWith(SpringRunner.class)
@@ -118,14 +120,6 @@ public class UserWorkspaceServiceTest {
         permissionGroupRepository.save(adminPermissionGroup).block();
         developerPermissionGroup.setAssignedToUserIds(Set.of(api_user.getId()));
         permissionGroupRepository.save(developerPermissionGroup).block();
-
-//        String origin = "http://random-origin.test";
-//
-//        // invite usertest to the workspace
-//        InviteUsersDTO inviteUsersDTO = new InviteUsersDTO();
-//        inviteUsersDTO.setUsernames(List.of("usertest@usertest.com"));
-//        inviteUsersDTO.setPermissionGroupId(developerPermissionGroup.getId());
-//        userService.inviteUsers(inviteUsersDTO, origin).block();
 
     }
 
@@ -217,7 +211,7 @@ public class UserWorkspaceServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void leaveWorkspace_WhenUserDoesNotExistInWorkspace_ThrowsException() {
-        // Leave workspace once removes the user from the default workspace. The second time would reproduce the test
+        // Leave workspace once removes the api_user from the default workspace. The second time would reproduce the test
         // case scenario.
         Mono<User> userMono = userWorkspaceService.leaveWorkspace(workspace.getId())
                 .then(userWorkspaceService.leaveWorkspace(workspace.getId()));
@@ -232,39 +226,83 @@ public class UserWorkspaceServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void updateUserGroupForMember_WhenAdminUserGroupRemovedWithNoOtherAdmin_ThrowsExceptions() {
-        // add the current user as an admin to the workspace first
-        User currentUser = userRepository.findByEmail("api_user").block();
-//        Flux<UserGroup> userGroupFlux = userGroupService.getDefaultUserGroups(workspace.getId()).cache();
-//        UserGroup adminGroupMono = userGroupFlux.filter(userGroup -> userGroup.getName().startsWith(FieldName.ADMINISTRATOR)).single().block();
-//
-//        userGroupService.addUser(adminGroupMono, currentUser).block();
-//
-//        Mono<UserAndGroupDTO> userRoleMono = userWorkspaceService.updateUserGroupForMember(workspace.getId(), UpdateUserGroupDTO.builder().username(currentUser.getUsername()).build(), null);
-//        StepVerifier.create(userRoleMono).expectErrorMessage(
-//                AppsmithError.REMOVE_LAST_WORKSPACE_ADMIN_ERROR.getMessage()
-//        ).verify();
+
+        // Now make api_user an administrator and not a developer
+        Set<String> permissionGroupIds = workspace.getDefaultPermissionGroups();
+
+        List<PermissionGroup> permissionGroups = permissionGroupRepository.findAllById(permissionGroupIds).collectList().block();
+
+        PermissionGroup developerPermissionGroup = permissionGroups.stream()
+                .filter(permissionGroup -> permissionGroup.getName().startsWith(DEVELOPER))
+                .findFirst().get();
+
+        PermissionGroup adminPermissionGroup = permissionGroups.stream()
+                .filter(permissionGroup -> permissionGroup.getName().startsWith(ADMINISTRATOR))
+                .findFirst().get();
+
+        User api_user = userService.findByEmail("api_user").block();
+
+        // Make api_user an administrator
+        // Make api_user not a developer
+        adminPermissionGroup.setAssignedToUserIds(Set.of(api_user.getId()));
+        permissionGroupRepository.save(adminPermissionGroup).block();
+        developerPermissionGroup.setAssignedToUserIds(new HashSet<>());
+        permissionGroupRepository.save(developerPermissionGroup).block();
+
+        UpdatePermissionGroupDTO updatePermissionGroupDTO = new UpdatePermissionGroupDTO();
+        updatePermissionGroupDTO.setUsername("api_user");
+        updatePermissionGroupDTO.setNewPermissionGroupId(developerPermissionGroup.getId());
+        String origin = "http://random-origin.test";
+
+        Mono<UserAndPermissionGroupDTO> updateUserRoleMono = userWorkspaceService.updatePermissionGroupForMember(workspace.getId(), updatePermissionGroupDTO, origin);
+
+        StepVerifier.create(updateUserRoleMono).expectErrorMessage(
+                AppsmithError.REMOVE_LAST_WORKSPACE_ADMIN_ERROR.getMessage()
+        ).verify();
     }
 
     @Test
     @WithUserDetails(value = "api_user")
     public void updateUserGroupForMember_WhenAdminUserGroupRemovedButOtherAdminExists_MemberRemoved() {
-        // add another admin role to the workspace
-        UserRole adminRole = createUserRole("dummy_username2", "dummy_user_id2", ORGANIZATION_ADMIN);
-        this.workspace.getUserRoles().add(adminRole);
-        this.workspace = workspaceRepository.save(this.workspace).block();
 
-        // add the current user as an admin to the workspace
-        User currentUser = userRepository.findByEmail("api_user").block();
-//        Flux<UserGroup> userGroupFlux = userGroupService.getDefaultUserGroups(workspace.getId()).cache();
-//        UserGroup adminGroupMono = userGroupFlux.filter(userGroup -> userGroup.getName().startsWith(FieldName.ADMINISTRATOR)).single().block();
-//        userGroupService.addUser(adminGroupMono, currentUser).block();
-//
-//        // try to remove the user from workspace
-//        Mono<UserAndGroupDTO> userRoleMono = userWorkspaceService.updateUserGroupForMember(workspace.getId(), UpdateUserGroupDTO.builder().username(currentUser.getUsername()).build(), null);
-//        StepVerifier.create(userRoleMono).assertNext(
-//                userRole1 -> {
-//                    assertEquals(currentUser.getUsername(), userRole1.getUsername());
-//                }
-//        ).verifyComplete();
+        // Now make api_user an administrator along with usertest. Remove api_user as a developer
+        Set<String> permissionGroupIds = workspace.getDefaultPermissionGroups();
+
+        List<PermissionGroup> permissionGroups = permissionGroupRepository.findAllById(permissionGroupIds).collectList().block();
+
+        PermissionGroup developerPermissionGroup = permissionGroups.stream()
+                .filter(permissionGroup -> permissionGroup.getName().startsWith(DEVELOPER))
+                .findFirst().get();
+
+        PermissionGroup adminPermissionGroup = permissionGroups.stream()
+                .filter(permissionGroup -> permissionGroup.getName().startsWith(ADMINISTRATOR))
+                .findFirst().get();
+
+        User api_user = userService.findByEmail("api_user").block();
+        User usertest = userService.findByEmail("usertest@usertest.com").block();
+
+        // Make api_user an administrator
+        // Make api_user not a developer
+        adminPermissionGroup.setAssignedToUserIds(Set.of(api_user.getId(), usertest.getId()));
+        permissionGroupRepository.save(adminPermissionGroup).block();
+        developerPermissionGroup.setAssignedToUserIds(new HashSet<>());
+        permissionGroupRepository.save(developerPermissionGroup).block();
+
+        // Make usertest a developer to simulate the test case scenario
+        UpdatePermissionGroupDTO updatePermissionGroupDTO = new UpdatePermissionGroupDTO();
+        updatePermissionGroupDTO.setUsername("usertest@usertest.com");
+        updatePermissionGroupDTO.setNewPermissionGroupId(developerPermissionGroup.getId());
+        String origin = "http://random-origin.test";
+
+        Mono<UserAndPermissionGroupDTO> updateUserRoleMono = userWorkspaceService.updatePermissionGroupForMember(workspace.getId(), updatePermissionGroupDTO, origin);
+
+        StepVerifier.create(updateUserRoleMono)
+                .assertNext(userRole1 -> {
+                            assertEquals(usertest.getUsername(), userRole1.getUsername());
+                            assertEquals(developerPermissionGroup.getId(), userRole1.getPermissionGroupId());
+                            assertEquals(developerPermissionGroup.getName(), userRole1.getPermissionGroupName());
+                        }
+                )
+                .verifyComplete();
     }
 }
