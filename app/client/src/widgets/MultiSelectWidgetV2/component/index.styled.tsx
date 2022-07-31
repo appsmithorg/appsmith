@@ -12,7 +12,7 @@ import {
   labelLayoutStyles,
   LABEL_CONTAINER_CLASS,
   multiSelectInputContainerStyles,
-} from "components/ads/LabelWithTooltip";
+} from "design-system";
 import { lightenColor } from "widgets/WidgetUtils";
 
 const Input = styled.input`

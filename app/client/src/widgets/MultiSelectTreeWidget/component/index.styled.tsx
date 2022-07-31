@@ -3,7 +3,6 @@ import { Checkbox, Classes } from "@blueprintjs/core";
 import styled, { keyframes } from "styled-components";
 import { Colors } from "constants/Colors";
 import { createGlobalStyle } from "constants/DefaultTheme";
-import { Icon } from "design-system";
 import {
   LabelPosition,
   LABEL_MARGIN_OLD_SELECT,
@@ -11,10 +10,11 @@ import {
 } from "components/constants";
 import { CommonSelectFilterStyle } from "widgets/MultiSelectWidgetV2/component/index.styled";
 import {
+  Icon,
   labelLayoutStyles,
   LABEL_CONTAINER_CLASS,
   multiSelectInputContainerStyles,
-} from "components/ads/LabelWithTooltip";
+} from "design-system";
 import { lightenColor } from "widgets/WidgetUtils";
 
 export const StyledIcon = styled(Icon)<{ expanded: boolean }>`
