@@ -13,7 +13,6 @@ import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.repositories.ApplicationRepository;
-import com.appsmith.server.repositories.CommentThreadRepository;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.repositories.WorkspaceRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -53,12 +52,6 @@ public class UserWorkspaceServiceTest {
 
     @Autowired
     private ApplicationRepository applicationRepository;
-
-    @Autowired
-    private CommentService commentService;
-
-    @Autowired
-    private CommentThreadRepository commentThreadRepository;
 
     @Autowired
     private PolicyGenerator policyGenerator;
@@ -168,7 +161,7 @@ public class UserWorkspaceServiceTest {
     public void leaveWorkspace_WhenUserDoesNotExistInWorkspace_ThrowsException() {
         Mono<User> userMono = userWorkspaceService.leaveWorkspace(this.workspace.getId());
         StepVerifier.create(userMono).expectErrorMessage(
-                AppsmithError.NO_RESOURCE_FOUND.getMessage(FieldName.USER + " api_user in the organization", workspace.getName())
+                AppsmithError.NO_RESOURCE_FOUND.getMessage( FieldName.WORKSPACE, this.workspace.getId())
         ).verify();
     }
 
