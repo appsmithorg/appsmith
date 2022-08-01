@@ -180,7 +180,7 @@ class SingleSelectTreeWidget extends BaseWidget<
           },
           {
             propertyName: "allowClear",
-            label: "Clear all Selections",
+            label: "Allow Clearing Value",
             helpText: "Enables Icon to clear all Selections",
             controlType: "SWITCH",
             isJSConvertible: true,

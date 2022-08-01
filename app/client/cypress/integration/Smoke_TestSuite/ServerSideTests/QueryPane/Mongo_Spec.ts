@@ -1,6 +1,6 @@
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 
-let guid: any, dsName: any;
+let dsName: any;
 
 let agHelper = ObjectsRegistry.AggregateHelper,
   ee = ObjectsRegistry.EntityExplorer,
@@ -32,16 +32,7 @@ describe("Validate Mongo Query Pane Validations", () => {
       dataSources._dropdownOption,
       "Connect New Datasource",
     );
-
-    agHelper.GenerateUUID();
-    cy.get("@guid").then((uid) => {
-      dataSources.CreatePlugIn("MongoDB");
-      guid = uid;
-      agHelper.RenameWithInPane("Mongo " + guid, false);
-      dataSources.FillMongoDSForm();
-      dataSources.TestSaveDatasource();
-      cy.wrap("Mongo " + guid).as("dsName");
-    });
+    dataSources.CreateDataSource("Mongo", false);
 
     agHelper.ValidateNetworkStatus("@getDatasourceStructure"); //Making sure table dropdown is populated
     agHelper.GetNClick(dataSources._selectTableDropdown);
@@ -323,7 +314,8 @@ describe("Validate Mongo Query Pane Validations", () => {
   it("3. Validate 'Find' record from new collection & verify query response", () => {
     ee.ActionTemplateMenuByEntityName("AuthorNAwards", "Find");
     dataSources.ValidateNSelectDropdown("Commands", "Find Document(s)");
-    RunQueryNVerify();
+    dataSources.RunQueryNVerifyResponseViews(1, false);
+    agHelper.ActionContextMenuWithInPane("Delete");
   });
 
   it("4. Validate 'Find by ID' record from new collection & verify query response", () => {
@@ -334,7 +326,8 @@ describe("Validate Mongo Query Pane Validations", () => {
       directInput: false,
       inputFieldName: "Query",
     });
-    RunQueryNVerify();
+    dataSources.RunQueryNVerifyResponseViews(1, false);
+    agHelper.ActionContextMenuWithInPane("Delete");
   });
 
   it("5. Validate 'Insert' record from new collection & verify query response", () => {
@@ -606,7 +599,8 @@ describe("Validate Mongo Query Pane Validations", () => {
   it("14. Validate 'Aggregate' record from new collection & verify query response", () => {
     ee.ActionTemplateMenuByEntityName("AuthorNAwards", "Aggregate");
     dataSources.ValidateNSelectDropdown("Commands", "Aggregate");
-    RunQueryNVerify(7);
+    dataSources.RunQueryNVerifyResponseViews(7, false);
+    agHelper.ActionContextMenuWithInPane("Delete");
   });
 
   it("15. Verify Generate CRUD for the new collection & Verify Deploy mode for table - AuthorNAwards", () => {
@@ -646,7 +640,7 @@ describe("Validate Mongo Query Pane Validations", () => {
     agHelper.GetNClick(dataSources._templateMenu);
 
     dataSources.EnterQuery(dropCollection);
-    cy.get(".CodeMirror textarea").focus();
+     agHelper.FocusElement(locator._codeMirrorTextArea);;
     //agHelper.VerifyEvaluatedValue(tableCreateQuery);
 
     dataSources.RunQuery();
@@ -664,7 +658,7 @@ describe("Validate Mongo Query Pane Validations", () => {
     agHelper.GetNClick(dataSources._templateMenu);
     agHelper.RenameWithInPane("DropAuthorNAwards");
     dataSources.EnterQuery(dropCollection);
-    cy.get(locator._codeMirrorTextArea).focus();
+     agHelper.FocusElement(locator._codeMirrorTextArea);;
     //agHelper.VerifyEvaluatedValue(tableCreateQuery);
 
     dataSources.RunQuery(false);
@@ -674,7 +668,7 @@ describe("Validate Mongo Query Pane Validations", () => {
     agHelper.ActionContextMenuWithInPane("Delete");
   });
 
-  it("19. Verfiy application can parse dates before and on or after Jan 1, 1970", () => {
+  it("19. Bug 13285 - Verfiy application can parse dates before and on or after Jan 1, 1970", () => {
     let birthNDeathArray = `[{
       "name": {
         "first": "John",
@@ -754,7 +748,8 @@ describe("Validate Mongo Query Pane Validations", () => {
 
     ee.ActionTemplateMenuByEntityName("BirthNDeath", "Find");
     dataSources.ValidateNSelectDropdown("Commands", "Find Document(s)");
-    RunQueryNVerify(4);
+    dataSources.RunQueryNVerifyResponseViews(4, false);
+    agHelper.ActionContextMenuWithInPane("Delete");
 
     //Drop the collection `BirthNDeath`
     let dropCollection = `{ "drop": "BirthNDeath" }`;
@@ -764,7 +759,7 @@ describe("Validate Mongo Query Pane Validations", () => {
     agHelper.GetNClick(dataSources._templateMenu);
     agHelper.RenameWithInPane("DropBirthNDeath");
     dataSources.EnterQuery(dropCollection);
-    cy.get(".CodeMirror textarea").focus();
+     agHelper.FocusElement(locator._codeMirrorTextArea);;
     dataSources.RunQuery();
   });
 
@@ -816,15 +811,5 @@ describe("Validate Mongo Query Pane Validations", () => {
         });
     });
     dataSources.AssertJSONFormHeader(0, idIndex, "Id", "", true);
-  }
-
-  function RunQueryNVerify(expectdRecordCount = 1) {
-    dataSources.RunQuery();
-    agHelper.AssertElementVisible(dataSources._queryResponse("JSON"));
-    agHelper.AssertElementVisible(dataSources._queryResponse("RAW"));
-    agHelper.AssertElementVisible(
-      dataSources._queryRecordResult(expectdRecordCount),
-    );
-    agHelper.ActionContextMenuWithInPane("Delete");
   }
 });

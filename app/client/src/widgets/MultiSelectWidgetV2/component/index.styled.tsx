@@ -415,6 +415,10 @@ export const MultiSelectContainer = styled.div<{
         appearance: none;
       }
     }
+    .rc-select-selection-overflow-item-suffix {
+      position: relative !important;
+      left: 0px !important;
+    }
   }
   && .rc-select-disabled {
     cursor: not-allowed;

@@ -15,7 +15,6 @@ const loginPage = require("../locators/LoginPage.json");
 const signupPage = require("../locators/SignupPage.json");
 import homePage from "../locators/HomePage";
 const pages = require("../locators/Pages.json");
-const datasourceEditor = require("../locators/DatasourcesEditor.json");
 const datasourceFormData = require("../fixtures/datasources.json");
 const commonlocators = require("../locators/commonlocators.json");
 const queryEditor = require("../locators/QueryEditor.json");
@@ -144,6 +143,7 @@ Cypress.Commands.add(
         );
         expect(firstTxt).to.equal(expectedvalue);
       });
+    cy.testSelfSignedCertificateSettingsInREST(true);
   },
 );
 
@@ -161,8 +161,24 @@ Cypress.Commands.add(
     cy.xpath("//span[text()='Send client credentials in body']").should(
       "be.visible",
     );
+    cy.testSelfSignedCertificateSettingsInREST(true);
   },
 );
+
+Cypress.Commands.add("testSelfSignedCertificateSettingsInREST", (isOAuth2) => {
+  cy.get(datasource.advancedSettings).click();
+  cy.get(datasource.useCertInAuth).should("not.exist");
+  cy.get(datasource.certificateDetails).should("not.exist");
+  cy.TargetDropdownAndSelectOption(datasource.useSelfSignedCert, "Yes");
+  if (isOAuth2) {
+    cy.get(datasource.useCertInAuth).should("exist");
+  } else {
+    cy.get(datasource.useCertInAuth).should("not.exist");
+  }
+  cy.get(datasource.certificateDetails).should("exist");
+  cy.TargetDropdownAndSelectOption(datasource.useSelfSignedCert, "No");
+  cy.get(datasource.advancedSettings).click();
+});
 
 Cypress.Commands.add("addBasicProfileDetails", (username, password) => {
   cy.get(datasource.authType).click();
@@ -380,9 +396,8 @@ Cypress.Commands.add(
 Cypress.Commands.add("WaitAutoSave", () => {
   // wait for save query to trigger
   // eslint-disable-next-line cypress/no-unnecessary-waiting
-  cy.wait(2000);
+  cy.wait(3000);
   cy.wait("@saveAction");
-  //cy.wait("@postExecute");
 });
 
 Cypress.Commands.add("SelectAction", (action) => {
@@ -777,6 +792,7 @@ Cypress.Commands.add("dragAndDropToCanvas", (widgetType, { x, y }) => {
     .trigger("mousemove", x, y, { eventConstructor: "MouseEvent" })
     .trigger("mousemove", x, y, { eventConstructor: "MouseEvent" })
     .trigger("mouseup", x, y, { eventConstructor: "MouseEvent" });
+  cy.assertPageSave();
 });
 
 Cypress.Commands.add(
@@ -816,6 +832,7 @@ Cypress.Commands.add("closePropertyPane", () => {
 });
 
 Cypress.Commands.add("onClickActions", (forSuccess, forFailure, endp) => {
+  cy.EnableAllCodeEditors();
   // Filling the messages for success/failure in the onClickAction of the button widget.
   // For Success
   cy.get(".code-highlight", { timeout: 10000 })
@@ -840,6 +857,7 @@ Cypress.Commands.add("onClickActions", (forSuccess, forFailure, endp) => {
     .last()
     .click({ force: true })
     .selectOnClickOption("Show message")
+    .wait(2000)
     .get("div.t--property-control-" + endp + " div.CodeMirror-lines")
     .last()
     .click()
@@ -1030,6 +1048,8 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   cy.intercept("GET", "/api/v1/git/status/app/*").as("gitStatus");
   cy.intercept("PUT", "/api/v1/layouts/refactor").as("updateWidgetName");
   cy.intercept("GET", "/api/v1/workspaces/*/members").as("getMembers");
+  cy.intercept("POST", "/api/v1/datasources/mocks").as("getMockDb");
+
 });
 
 Cypress.Commands.add("startErrorRoutes", () => {
@@ -1166,7 +1186,7 @@ Cypress.Commands.add("ValidatePaginationInputDataV2", () => {
 });
 
 Cypress.Commands.add("assertPageSave", () => {
-  cy.get(commonlocators.saveStatusSuccess, { timeout: 40000 }).should("exist");
+  cy.get(commonlocators.saveStatusSuccess).should("exist");
 });
 
 Cypress.Commands.add(
@@ -1420,11 +1440,11 @@ Cypress.Commands.add("typeValueNValidate", (valueToType, fieldName = "") => {
   // })
 });
 
-Cypress.Commands.add("clickButton", (btnVisibleText) => {
+Cypress.Commands.add("clickButton", (btnVisibleText, toForceClick = true) => {
   cy.xpath("//span[text()='" + btnVisibleText + "']/parent::button")
     .first()
     .scrollIntoView()
-    .click({ force: true });
+    .click({ force: toForceClick });
 });
 
 Cypress.Commands.add(

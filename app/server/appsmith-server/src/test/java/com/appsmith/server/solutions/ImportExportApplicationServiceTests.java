@@ -2777,7 +2777,7 @@ public class ImportExportApplicationServiceTests {
         Mono<ApplicationJson> applicationJsonMono = createAppJson("test_assets/ImportExportServiceTest/valid-application-without-action-collection.json");
 
         Workspace newWorkspace = new Workspace();
-        newWorkspace.setName("Template Organization");
+        newWorkspace.setName("Template Workspace");
 
         Mono<Workspace> createWorkspaceMono = workspaceService.create(newWorkspace).cache();
         final Mono<Application> importApplicationMono = createWorkspaceMono
