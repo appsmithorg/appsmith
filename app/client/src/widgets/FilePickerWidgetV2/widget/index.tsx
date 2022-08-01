@@ -538,6 +538,16 @@ class FilePickerWidget extends BaseWidget<
         sectionName: "Validation",
         children: [
           {
+            propertyName: "isRequired",
+            label: "Required",
+            helpText: "Makes input to the widget mandatory",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+          },
+          {
             propertyName: "maxFileSize",
             helpText: "Sets the maximum size of each file that can be uploaded",
             label: "Max file size(Mb)",
@@ -550,16 +560,6 @@ class FilePickerWidget extends BaseWidget<
               type: ValidationTypes.NUMBER,
               params: { min: 1, max: 100, default: 5 },
             },
-          },
-          {
-            propertyName: "isRequired",
-            label: "Required",
-            helpText: "Makes input to the widget mandatory",
-            controlType: "SWITCH",
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.BOOLEAN },
           },
         ],
       },

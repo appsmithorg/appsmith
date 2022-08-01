@@ -212,6 +212,14 @@ class AudioRecorderWidget extends BaseWidget<
         sectionName: "Styles",
         children: [
           {
+            propertyName: "iconColor",
+            helpText: "Sets the icon color of the widget",
+            label: "Icon color",
+            controlType: "COLOR_PICKER",
+            isBindProperty: false,
+            isTriggerProperty: false,
+          },
+          {
             propertyName: "accentColor",
             helpText: "Changes the color of the recorder button",
             label: "Button Color",
@@ -220,14 +228,6 @@ class AudioRecorderWidget extends BaseWidget<
             isBindProperty: true,
             isTriggerProperty: false,
             validation: { type: ValidationTypes.TEXT },
-          },
-          {
-            propertyName: "iconColor",
-            helpText: "Sets the icon color of the widget",
-            label: "Icon color",
-            controlType: "COLOR_PICKER",
-            isBindProperty: false,
-            isTriggerProperty: false,
           },
         ],
       },

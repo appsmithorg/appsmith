@@ -429,6 +429,10 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: true,
+            hidden: (props: MapWidgetProps) => {
+              return !props.enableCreateMarker;
+            },
+            dependencies: ["enableCreateMarker"],
           },
         ],
       },
