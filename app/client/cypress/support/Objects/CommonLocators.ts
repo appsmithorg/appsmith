@@ -29,6 +29,7 @@ export class CommonLocators {
     _empty = "span[name='no-response']"
     _contextMenuInPane = "span[name='context-menu']"
     _visibleTextDiv = (divText: string) => "//div[text()='" + divText + "']"
+    _visibleTextSpan = (spanText: string) => "//span[text()='" + spanText + "']";
     _openWidget = ".widgets .t--entity-add-btn"
     _dropHere = "#comment-overlay-wrapper-0"
     _crossBtn = "span.cancel-icon"
@@ -71,6 +72,7 @@ export class CommonLocators {
     _jsonFormHeader = ".t--jsonform-body > div:first-child"
     _jsonFormWidget = ".t--widget-jsonformwidget"
     _lintErrorElement = `span.CodeMirror-lint-mark-error`
+    _lintWarningElement = "span.CodeMirror-lint-mark-warning"
     _codeEditorWrapper = ".unfocused-code-editor"
     _datePicker = (date: number) => "//div[@class ='bp3-datepicker']//div[contains(@class, 'DayPicker-Day')]//div[text()='" + date + "']";
     _inputWidgetValueField= (fieldName: string, input : boolean = true) => `//label[contains(@class, 't--input-widget-label')][text()='${fieldName}']/ancestor::div[@data-testid='input-container']//${input ? "input" : "textarea"}`

@@ -33,7 +33,7 @@ describe("Git discard changes:", function() {
         .should("be.visible")
         .closest(datasource.datasourceCard)
         .within(() => {
-          cy.get(datasource.createQuerty).click();
+          cy.get(datasource.createQuery).click();
         });
     });
     // Create new postgres query
@@ -112,7 +112,7 @@ describe("Git discard changes:", function() {
       .should("be.visible")
       .closest(datasource.datasourceCard)
       .within(() => {
-        cy.get(datasource.createQuerty).click();
+        cy.get(datasource.createQuery).click();
       });
     cy.get(queryLocators.queryNameField).type(`${query2}`);
     cy.get(queryLocators.switch)

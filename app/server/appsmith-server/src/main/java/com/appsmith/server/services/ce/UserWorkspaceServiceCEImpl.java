@@ -236,7 +236,7 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
     private Mono<Workspace> removeUserRoleFromWorkspaceGivenUserObject(Workspace workspace, User user) {
         List<UserRole> userRoles = workspace.getUserRoles();
         if (userRoles == null) {
-            return Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.USER + " in organization", workspace.getName()));
+            return Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.USER + " in workspace", workspace.getName()));
         }
 
         AppsmithRole role = null;
@@ -251,7 +251,7 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
 
         // The user was not found in the workspace.
         if (role == null) {
-            return Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.USER + " in organization", workspace.getName()));
+            return Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.USER + " in workspace", workspace.getName()));
         }
 
         // Generate all the policies for Workspace, Application, Page and Actions
@@ -373,7 +373,7 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
         }
         // The user was not found in the workspace. Return an error
         return Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.USER, user.getUsername()
-                + " in the organization " + workspace.getName()));
+                + " in the workspace " + workspace.getName()));
     }
 
     /**

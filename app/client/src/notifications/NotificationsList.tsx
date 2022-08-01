@@ -33,6 +33,7 @@ import {
 
 import { ReactComponent as EmptyState } from "assets/icons/comments/notifications-empty-state.svg";
 import { Colors } from "constants/Colors";
+import { BannerMessage } from "components/ads/BannerMessage";
 
 const Container = styled.div`
   width: 326px;
@@ -111,6 +112,20 @@ function NotificationsList() {
   return (
     <Container>
       <NotificationsListHeader markAllAsReadDisabled={!notifications.length} />
+      <BannerMessage
+        backgroundColor={Colors.WARNING_ORANGE}
+        className="t--deprecation-warning"
+        ctaText={"Read more about it here"}
+        ctaURL={
+          "https://appsmith.notion.site/Deprecating-real-time-commenting-60a307d2c5e1485b85ff95afebb616eb"
+        }
+        icon="warning-line"
+        iconColor={Colors.WARNING_SOLID}
+        iconSize={IconSize.XXXXL}
+        message={"We are removing comments from Appsmith in v1.7.11"}
+        messageHeader={"Comments are being deprecated"}
+        textColor={Colors.BROWN}
+      />
       {notifications.length > 0 ? (
         <Virtuoso
           components={{

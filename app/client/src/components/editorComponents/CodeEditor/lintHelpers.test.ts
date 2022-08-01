@@ -87,7 +87,7 @@ describe("getLintAnnotations()", () => {
       },
     ];
 
-    const res = getLintAnnotations(value, errors);
+    const res = getLintAnnotations(value, errors, {});
     expect(res).toEqual([
       {
         from: {
@@ -155,7 +155,7 @@ describe("getLintAnnotations()", () => {
       },
     ];
 
-    const res = getLintAnnotations(value, errors);
+    const res = getLintAnnotations(value, errors, {});
 
     expect(res).toEqual([
       {
@@ -181,7 +181,7 @@ describe("getLintAnnotations()", () => {
     `;
     const errors: EvaluationError[] = [];
 
-    const res = getLintAnnotations(value, errors, true);
+    const res = getLintAnnotations(value, errors, { isJSObject: true });
     expect(res).toEqual([
       {
         from: {
