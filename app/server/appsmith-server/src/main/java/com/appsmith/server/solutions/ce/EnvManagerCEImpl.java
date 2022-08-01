@@ -272,7 +272,7 @@ public class EnvManagerCEImpl implements EnvManagerCE {
                     if (changesCopy.containsKey(APPSMITH_ADMIN_EMAILS.name())) {
                         commonConfig.setAdminEmails(changesCopy.remove(APPSMITH_ADMIN_EMAILS.name()));
                         String oldAdminEmailsCsv = originalValues.get(APPSMITH_ADMIN_EMAILS.name());
-                        dependentTasks = dependentTasks.then(updateAdminUserPolicies(oldAdminEmailsCsv));
+                        dependentTasks = dependentTasks.then(updateAdminUserPolicies(oldAdminEmailsCsv)).then();
                     }
 
                     if (changesCopy.containsKey(APPSMITH_MAIL_FROM.name())) {

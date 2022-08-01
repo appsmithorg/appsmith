@@ -5,6 +5,8 @@ import org.springframework.util.MultiValueMap;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.util.Map;
+
 public interface CrudService<T extends BaseDomain, ID> {
 
     Flux<T> get(MultiValueMap<String, String> params);
@@ -24,5 +26,7 @@ public interface CrudService<T extends BaseDomain, ID> {
     default Mono<T> archiveByIdAndBranchName(ID id, String branchName) {
         return this.archiveById(id);
     }
+
+    Map<String, Object> getAnalyticsProperties(T savedResource);
 
 }

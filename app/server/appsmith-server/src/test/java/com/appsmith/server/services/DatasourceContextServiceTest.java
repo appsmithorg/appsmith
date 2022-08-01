@@ -4,6 +4,7 @@ import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.services.EncryptionService;
+import com.appsmith.server.domains.DatasourceContext;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
@@ -29,7 +30,6 @@ import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.when;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -56,6 +56,9 @@ public class DatasourceContextServiceTest {
 
     @MockBean
     PluginExecutorHelper pluginExecutorHelper;
+
+    @SpyBean
+    DatasourceContextServiceImpl datasourceContextService;
 
     @Test
     @WithUserDetails(value = "api_user")

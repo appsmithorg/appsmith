@@ -12,6 +12,7 @@ import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Asset;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.User;
+import com.appsmith.server.domains.UserRole;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.PermissionGroupInfoDTO;
 import com.appsmith.server.dtos.UserAndPermissionGroupDTO;
@@ -44,6 +45,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 import reactor.util.function.Tuple2;
+import reactor.util.function.Tuple3;
 
 import java.io.IOException;
 import java.time.Duration;
@@ -52,7 +54,12 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import static com.appsmith.server.acl.AclPermission.EXECUTE_DATASOURCES;
+import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
+import static com.appsmith.server.acl.AclPermission.MANAGE_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.MANAGE_WORKSPACES;
+import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
+import static com.appsmith.server.acl.AclPermission.READ_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.READ_WORKSPACES;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_MANAGE_APPLICATIONS;
 import static com.appsmith.server.constants.FieldName.ADMINISTRATOR;
@@ -737,7 +744,8 @@ public class WorkspaceServiceTest {
                     UserRole userRole = new UserRole();
                     userRole.setRoleName(AppsmithRole.ORGANIZATION_ADMIN.getName());
                     userRole.setUsername("usertest@usertest.com");
-                    return userWorkspaceService.addUserRoleToWorkspace(workspace1.getId(), userRole);
+//                    return userWorkspaceService.addUserRoleToWorkspace(workspace1.getId(), userRole);
+                    return Mono.just(workspace1);
                 })
                 .map(workspace1 -> {
                     log.debug("Workspace policies after adding user is : {}", workspace1.getPolicies());
@@ -745,7 +753,7 @@ public class WorkspaceServiceTest {
                 });
 
         Mono<Application> readApplicationByNameMono = applicationService.findByName("User Management Admin Test Application",
-                AclPermission.READ_APPLICATIONS)
+                READ_APPLICATIONS)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "application by name")));
 
         Mono<Workspace> readWorkspaceByNameMono = workspaceRepository.findByName("Member Management Admin Test Workspace")
@@ -835,11 +843,12 @@ public class WorkspaceServiceTest {
                     UserRole userRole = new UserRole();
                     userRole.setRoleName(AppsmithRole.ORGANIZATION_VIEWER.getName());
                     userRole.setUsername("usertest@usertest.com");
-                    return userWorkspaceService.addUserRoleToWorkspace(workspace1.getId(), userRole);
+//                    return userWorkspaceService.addUserRoleToWorkspace(workspace1.getId(), userRole);
+                    return Mono.just(workspace1);
                 });
 
         Mono<Application> readApplicationByNameMono = applicationService.findByName("User Management Viewer Test Application",
-                AclPermission.READ_APPLICATIONS)
+                READ_APPLICATIONS)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "application by name")));
 
         Mono<Workspace> readWorkspaceByNameMono = workspaceRepository.findByName("Member Management Viewer Test Workspace")

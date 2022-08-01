@@ -1409,7 +1409,7 @@ public class DatabaseChangelog2 {
         DatabaseChangelog.doClearRedisKeys(reactiveRedisOperations);
     }
 
-    private List<String>  getCustomizedThemeIds(String fieldName, Function<Application, String> getThemeIdMethod, List<String> systemThemeIds, MongockTemplate mongockTemplate) {
+    private List<String> getCustomizedThemeIds(String fieldName, Function<Application, String> getThemeIdMethod, List<String> systemThemeIds, MongockTemplate mongockTemplate) {
         // query to get application having a customized theme in the provided fieldName
         Query getAppsWithCustomTheme = new Query(
                 Criteria.where(fieldName(QApplication.application.gitApplicationMetadata)).exists(true)
@@ -1453,14 +1453,14 @@ public class DatabaseChangelog2 {
 
         mongockTemplate.updateMulti(new Query(deletedCustomThemes), update, Theme.class);
 
-        for(String editModeThemeId: customizedEditModeThemeIds) {
+        for (String editModeThemeId : customizedEditModeThemeIds) {
             Query query = new Query(Criteria.where(fieldName(QApplication.application.editModeThemeId)).is(editModeThemeId))
                     .addCriteria(where(fieldName(QApplication.application.deleted)).is(false))
                     .addCriteria(where(fieldName(QApplication.application.gitApplicationMetadata)).exists(true));
             query.fields().include(fieldName(QApplication.application.id));
 
             List<Application> applicationList = mongockTemplate.find(query, Application.class);
-            if(applicationList.size() > 1) { // same custom theme is set to more than one application
+            if (applicationList.size() > 1) { // same custom theme is set to more than one application
                 // Remove one as we will create a  new theme for all the other branch apps
                 applicationList.remove(applicationList.size() - 1);
 
