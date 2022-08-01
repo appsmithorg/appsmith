@@ -369,9 +369,9 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
   [ValidationTypes.TEXT]: (
     params: ValidatorParams<unknown>,
   ): ValidationResponse => {
-    const { config, value } = params;
+    const { config, unEvalValue, value } = params;
     if (value === undefined || value === null || value === "") {
-      if (config.params && config.params.required) {
+      if (unEvalValue || config.params?.required) {
         return {
           isValid: false,
           parsed: config.params?.default || "",
@@ -496,9 +496,9 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
   [ValidationTypes.NUMBER]: (
     params: ValidatorParams<unknown>,
   ): ValidationResponse => {
-    const { config, value } = params;
+    const { config, unEvalValue, value } = params;
     if (value === undefined || value === null || value === "") {
-      if (config.params?.required) {
+      if (config.params?.required || unEvalValue) {
         return {
           isValid: false,
           parsed: config.params?.default || 0,
@@ -583,9 +583,9 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
     };
   },
   [ValidationTypes.BOOLEAN]: (params: ValidatorParams): ValidationResponse => {
-    const { config, value } = params;
+    const { config, unEvalValue, value } = params;
     if (value === undefined || value === null || value === "") {
-      if (config.params && config.params.required) {
+      if (config.params?.required || unEvalValue) {
         return {
           isValid: false,
           parsed: !!config.params?.default,
@@ -630,7 +630,7 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
       value === null ||
       (isString(value) && value.trim().length === 0)
     ) {
-      if ((config.params && config.params.required) || unEvalValue) {
+      if (config.params?.required || unEvalValue) {
         return {
           isValid: false,
           parsed: config.params?.default || {},
@@ -750,13 +750,13 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
   [ValidationTypes.OBJECT_ARRAY]: (
     params: ValidatorParams,
   ): ValidationResponse => {
-    const { config, value } = params;
+    const { config, unEvalValue, value } = params;
     const invalidResponse = {
       isValid: false,
       parsed: config.params?.default || [{}],
       messages: [`${WIDGET_TYPE_VALIDATION_ERROR} ${getExpectedType(config)}`],
     };
-    if (value === undefined || value === null || value === "") {
+    if (value === undefined || value === null || value === "" || unEvalValue) {
       if (config.params?.required) return invalidResponse;
 
       if (value === "") {
@@ -846,7 +846,7 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
   [ValidationTypes.DATE_ISO_STRING]: (
     params: ValidatorParams,
   ): ValidationResponse => {
-    const { config, value } = params;
+    const { config, unEvalValue, value } = params;
     let isValid = false;
     let parsed = value;
     let message = "";
@@ -854,7 +854,7 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
     if (_.isNil(value) || value === "") {
       parsed = config.params?.default;
 
-      if (config.params?.required) {
+      if (config.params?.required || unEvalValue) {
         isValid = false;
         message = `Value does not match: ${getExpectedType(config)}`;
       } else {
@@ -925,7 +925,7 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
   [ValidationTypes.IMAGE_URL]: (
     params: ValidatorParams,
   ): ValidationResponse => {
-    const { config, value } = params;
+    const { config, unEvalValue, value } = params;
     const invalidResponse = {
       isValid: false,
       parsed: config.params?.default || "",
@@ -939,7 +939,7 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
       value === null ||
       (isString(value) && value.trim().length === 0)
     ) {
-      if (config.params && config.params.required) return invalidResponse;
+      if (config.params?.required || unEvalValue) return invalidResponse;
       return { isValid: true, parsed: value };
     }
     if (isString(value)) {
