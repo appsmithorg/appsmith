@@ -18,7 +18,7 @@ describe("Verify various Table_Filter combinations", function() {
   });
 
   it("1. Adding Data to Table Widget", function() {
-    cy.openPropertyPane("tablewidget");
+    ee.SelectEntityByName("Table1")
     propPane.UpdatePropertyFieldValue(
       "Table Data",
       JSON.stringify(dataSet.TableInput),
@@ -29,7 +29,7 @@ describe("Verify various Table_Filter combinations", function() {
   });
 
   it("2. Table Widget Search Functionality", function() {
-    table.ReadTableRowColumnData(1, 3).then((cellData) => {
+    table.ReadTableRowColumnData(1, 3, 2000).then((cellData) => {
       expect(cellData).to.eq("Lindsay Ferguson");
       table.SearchTable(cellData);
       table.ReadTableRowColumnData(0, 3).then((afterSearch) => {
@@ -646,9 +646,10 @@ describe("Verify various Table_Filter combinations", function() {
   });
 
   it("30. Import TableFilter application & verify all filters for same FirstName (one word column) + Bug 13334", () => {
-    cy.visit("/applications");
+    deployMode.NavigateBacktoEditor();
+    homePage.NavigateToHome();
     homePage.ImportApp("TableFilterImportApp.json");
-    homePage.AssertImport();
+    homePage.AssertImportToast();
     deployMode.DeployApp();
     table.WaitUntilTableLoad();
 
