@@ -575,7 +575,7 @@ describe("Json & JsonB Datatype tests", function() {
       expect($cellData).to.eq("Siddhartha");
     });
     dataSources.ReadQueryTableResponse(1).then(($cellData) => {
-      expect($cellData).to.eq("2022-07-15");
+      expect($cellData).to.contain("15");
     });
 
     //Verifying Top Level key is present
