@@ -64,6 +64,7 @@ export interface LogActionPayload {
   state?: Record<string, any>;
   // Any other data required for analytics
   analytics?: Record<string, any>;
+  timestamp?: string;
 }
 
 export interface Message {
