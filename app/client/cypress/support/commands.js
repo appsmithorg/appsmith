@@ -644,21 +644,6 @@ Cypress.Commands.add("StopTheContainer", (path, containerName) => {
   });
 });
 
-Cypress.Commands.add("CreateLatestContainer", (path, containerName) => {
-  cy.request({
-    method: "GET",
-    url: path,
-    qs: {
-      cmd:
-        "docker run -d --name " +
-        containerName +
-        ' -p 80:80 -v "$PWD/stacks:/appsmith-stacks" appsmith/appsmith-ce:latest',
-    },
-  }).then((res) => {
-    expect(res.status).equal(200);
-  });
-});
-
 Cypress.Commands.add("GetAndVerifyLogs", (path, containerName) => {
   let logs = null;
   cy.request({
@@ -1049,7 +1034,6 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   cy.intercept("PUT", "/api/v1/layouts/refactor").as("updateWidgetName");
   cy.intercept("GET", "/api/v1/workspaces/*/members").as("getMembers");
   cy.intercept("POST", "/api/v1/datasources/mocks").as("getMockDb");
-
 });
 
 Cypress.Commands.add("startErrorRoutes", () => {
@@ -1790,6 +1774,107 @@ Cypress.Commands.add("saveLocalStorageCache", () => {
 Cypress.Commands.add("restoreLocalStorageCache", () => {
   Object.keys(LOCAL_STORAGE_MEMORY).forEach((key) => {
     localStorage.setItem(key, LOCAL_STORAGE_MEMORY[key]);
+  });
+});
+
+Cypress.Commands.add("StopTheContainer", (path, containerName) => {
+  cy.request({
+    method: "GET",
+    url: path,
+    qs: {
+      cmd: "docker stop " + containerName,
+    },
+  }).then((res) => {
+    cy.log(res.body.stderr);
+    cy.log(res.body.stdout);
+    expect(res.status).equal(200);
+  });
+});
+
+Cypress.Commands.add("StartTheContainer", (path, containerName) => {
+  cy.request({
+    method: "GET",
+    url: path,
+    qs: {
+      cmd: "docker start " + containerName,
+    },
+  }).then((res) => {
+    cy.log(res.body.stderr);
+    cy.log(res.body.stdout);
+    expect(res.status).equal(200);
+  });
+});
+
+Cypress.Commands.add(
+  "CreateAContainer",
+  (url, path, version, containerName) => {
+    let comm =
+      "cd " +
+      path +
+      ";docker run -d --name " +
+      containerName +
+      ' -p 80:80 -p 9001:9001 -v "' +
+      path +
+      '/stacks:/appsmith-stacks" appsmith/appsmith-ce:' +
+      version;
+
+    cy.log(comm);
+    cy.request({
+      method: "GET",
+      url: url,
+      qs: {
+        cmd: comm,
+      },
+    }).then((res) => {
+      cy.log(res.body.stderr);
+      cy.log(res.body.stdout);
+      expect(res.status).equal(200);
+    });
+  },
+);
+
+Cypress.Commands.add("GetPath", (path, containerName) => {
+  cy.request({
+    method: "GET",
+    url: path,
+    qs: {
+      cmd:
+        "docker inspect -f '{{ .Mounts }}' " +
+        containerName +
+        "|awk '{print $2}'",
+    },
+  }).then((res) => {
+    expect(res.status).equal(200);
+    return res.body.stdout;
+  });
+});
+
+Cypress.Commands.add("GetCWD", (path) => {
+  cy.request({
+    method: "GET",
+    url: path,
+    qs: {
+      cmd: "pwd",
+    },
+  }).then((res) => {
+    cy.log(res.body.stdout);
+    expect(res.status).equal(200);
+  });
+});
+
+Cypress.Commands.add("GetAndVerifyLogs", (path, containerName) => {
+  let logs = null;
+  cy.request({
+    method: "GET",
+    url: path,
+    qs: {
+      cmd: "docker logs " + containerName + " 2>&1 | grep 'APPLIED'",
+    },
+  }).then((res) => {
+    cy.log(res.body.stderr);
+    cy.log(res.body.stdout);
+    expect(res.status).equal(200);
+    expect(res.body.stdout).not.equal("");
   });
 });
 
