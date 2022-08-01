@@ -20,7 +20,6 @@ import {
 import TableDropdown from "components/ads/TableDropdown";
 import Dropdown from "components/ads/Dropdown";
 import { Text, TextType } from "design-system";
-import { SettingsHeading } from "./General";
 import styled from "styled-components";
 import { Classes } from "@blueprintjs/core";
 import { Classes as AppClass } from "components/ads/common";
@@ -32,7 +31,7 @@ import { USER_PHOTO_URL } from "constants/userConstants";
 import { Colors } from "constants/Colors";
 import { HighlightText } from "components/utils/HighlightText";
 import { WorkspaceUser } from "constants/workspaceConstants";
-import { createMessage, MEMBERS_TAB_TITLE } from "ce/constants/messages";
+import { createMessage, MEMBERS_TAB_TITLE } from "@appsmith/constants/messages";
 
 export type PageProps = RouteComponentProps<{
   workspaceId: string;
