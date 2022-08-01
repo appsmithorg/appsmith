@@ -20,30 +20,30 @@ function getTimeStamp() {
   return moment().format("hh:mm:ss");
 }
 
-function info(ev: LogActionPayload) {
+function info(ev: LogActionPayload, timestamp?: string) {
   log({
     ...ev,
     severity: Severity.INFO,
-    timestamp: getTimeStamp(),
+    timestamp: !!timestamp ? timestamp : getTimeStamp(),
   });
 }
 
-function warning(ev: LogActionPayload) {
+function warning(ev: LogActionPayload, timestamp?: string) {
   log({
     ...ev,
     severity: Severity.WARNING,
-    timestamp: getTimeStamp(),
+    timestamp: !!timestamp ? timestamp : getTimeStamp(),
   });
 }
 
 // This is used to show a log as an error
 // NOTE: These logs won't appear in the errors tab
 // To add errors to the errors tab use the addError method.
-function error(ev: LogActionPayload) {
+function error(ev: LogActionPayload, timestamp?: string) {
   log({
     ...ev,
     severity: Severity.ERROR,
-    timestamp: getTimeStamp(),
+    timestamp: !!timestamp ? timestamp : getTimeStamp(),
   });
 }
 
