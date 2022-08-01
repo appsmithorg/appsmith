@@ -73,10 +73,10 @@ describe("Autocomplete using slash command and mustache tests", function() {
           .should("have.text", "storeValue()");
         cy.get(`${dynamicInputLocators.hints} li`)
           .eq(2)
-          .should("have.text", "showModal()");
+          .should("have.text", "showAlert()");
         cy.get(`${dynamicInputLocators.hints} li`)
           .eq(3)
-          .should("have.text", "showAlert()");
+          .should("have.text", "navigateTo()");
       });
   });
 
@@ -109,10 +109,10 @@ describe("Autocomplete using slash command and mustache tests", function() {
         // validates autocomplete binding on entering {{}} in text field
         cy.get(`${dynamicInputLocators.hints} li`)
           .eq(1)
-          .should("have.text", "Button1.recaptchaToken");
+          .should("have.text", "Button1.text");
         cy.get(`${dynamicInputLocators.hints} li`)
           .eq(2)
-          .should("have.text", "Button1.text");
+          .should("have.text", "Button1.recaptchaToken");
       });
   });
 
