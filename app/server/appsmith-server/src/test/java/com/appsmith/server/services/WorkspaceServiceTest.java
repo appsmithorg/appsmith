@@ -596,7 +596,7 @@ public class WorkspaceServiceTest {
 
         InviteUsersDTO inviteUsersDTO = new InviteUsersDTO();
         ArrayList<String> users = new ArrayList<>();
-        users.add("newEmailWhichShouldntExist1@usertest.com");
+        users.add("newEmailWhichShouldntExist@usertest.com");
         inviteUsersDTO.setUsernames(users);
         inviteUsersDTO.setPermissionGroupId(viewerPermissionGroupId);
 
@@ -899,7 +899,7 @@ public class WorkspaceServiceTest {
     }
 
     /**
-     * This test tests for a multiple new users being added to an organzation as viewer.
+     * This test tests for a multiple new users being added to a workspace as viewers.
      */
     @Test
     @WithUserDetails(value = "api_user")
@@ -913,68 +913,50 @@ public class WorkspaceServiceTest {
                 .create(workspace)
                 .cache();
 
-//        Mono<UserGroup> viewerGroupMono = workspaceMono.flatMapMany(workspace1 -> userGroupService.getDefaultUserGroups(workspace1.getId()))
-//                .filter(userGroup -> userGroup.getName().startsWith(FieldName.VIEWER))
-//                .single()
-//                .cache();
-//
-//        Mono<List<User>> userAddedToWorkspaceMono = viewerGroupMono
-//                .flatMap(userGroup -> {
-//                    // Add user to workspace
-//                    InviteUsersDTO inviteUsersDTO = new InviteUsersDTO();
-//                    ArrayList<String> users = new ArrayList<>();
-//                    users.add("newEmailWhichShouldntExistAsViewer1@usertest.com");
-//                    users.add("newEmailWhichShouldntExistAsViewer2@usertest.com");
-//                    users.add("newEmailWhichShouldntExistAsViewer3@usertest.com");
-//                    inviteUsersDTO.setUsernames(users);
-//                    inviteUsersDTO.setUserGroupId(userGroup.getId());
-//
-//                    return userService.inviteUsers(inviteUsersDTO, "http://localhost:8080");
-//                })
-//                .cache();
-//
-//        Mono<Workspace> readWorkspaceMono = workspaceRepository.findByName("Add Bulk Viewers to Test Workspace");
-//
-//        Mono<Workspace> workspaceAfterUpdateMono = userAddedToWorkspaceMono
-//                .then(readWorkspaceMono);
-//
-//        StepVerifier
-//                .create(Mono.zip(userAddedToWorkspaceMono, workspaceAfterUpdateMono))
-//                .assertNext(tuple -> {
-//                    User user = tuple.getT1().get(0);
-//                    Workspace workspace1 = tuple.getT2();
-//
-//                    assertThat(workspace1).isNotNull();
-//                    assertThat(workspace1.getName()).isEqualTo("Add Bulk Viewers to Test Workspace");
-//                    assertThat(workspace1.getUserRoles().stream()
-//                            .map(userRole -> userRole.getUsername())
-//                            .filter(username -> !username.equals("api_user"))
-//                            .collect(Collectors.toSet())
-//                    ).containsAll(Set.of("newemailwhichshouldntexistasviewer1@usertest.com", "newemailwhichshouldntexistasviewer2@usertest.com",
-//                            "newemailwhichshouldntexistasviewer3@usertest.com"));
-//
-//                    Policy readWorkspaceAppsPolicy = Policy.builder().permission(WORKSPACE_READ_APPLICATIONS.getValue())
-//                            .users(Set.of("api_user", "newemailwhichshouldntexistasviewer1@usertest.com",
-//                                    "newemailwhichshouldntexistasviewer2@usertest.com",
-//                                    "newemailwhichshouldntexistasviewer3@usertest.com"))
-//                            .build();
-//
-//                    Policy readWorkspacePolicy = Policy.builder().permission(READ_WORKSPACES.getValue())
-//                            .users(Set.of("api_user", "newemailwhichshouldntexistasviewer1@usertest.com",
-//                                    "newemailwhichshouldntexistasviewer2@usertest.com",
-//                                    "newemailwhichshouldntexistasviewer3@usertest.com"))
-//                            .build();
-//
-//                    assertThat(workspace1.getPolicies()).isNotEmpty();
-//                    assertThat(workspace1.getPolicies()).containsAll(Set.of(readWorkspaceAppsPolicy, readWorkspacePolicy));
-//
-//                    assertThat(user).isNotNull();
-//                    assertThat(user.getIsEnabled()).isFalse();
-//                    Set<String> workspaceIds = user.getWorkspaceIds();
-//                    assertThat(workspaceIds).contains(workspace1.getId());
-//
-//                })
-//                .verifyComplete();
+        Mono<PermissionGroup> viewerGroupMono = workspaceMono
+                .flatMapMany(workspace1 -> permissionGroupRepository.findAllById(workspace1.getDefaultPermissionGroups()))
+                .filter(userGroup -> userGroup.getName().startsWith(FieldName.VIEWER))
+                .single();
+
+        Mono<List<User>> userAddedToWorkspaceMono = viewerGroupMono
+                .flatMap(permissionGroup -> {
+                    // Add user to workspace
+                    InviteUsersDTO inviteUsersDTO = new InviteUsersDTO();
+                    ArrayList<String> users = new ArrayList<>();
+                    users.add("newEmailWhichShouldntExistAsViewer1@usertest.com");
+                    users.add("newEmailWhichShouldntExistAsViewer2@usertest.com");
+                    users.add("newEmailWhichShouldntExistAsViewer3@usertest.com");
+                    inviteUsersDTO.setUsernames(users);
+                    inviteUsersDTO.setPermissionGroupId(permissionGroup.getId());
+
+                    return userService.inviteUsers(inviteUsersDTO, origin);
+                })
+                .cache();
+
+        Mono<Workspace> readWorkspaceMono = workspaceRepository.findByName("Add Bulk Viewers to Test Workspace");
+
+        Mono<Workspace> workspaceAfterUpdateMono = userAddedToWorkspaceMono
+                .then(readWorkspaceMono);
+
+        StepVerifier
+                .create(Mono.zip(userAddedToWorkspaceMono, workspaceAfterUpdateMono, viewerGroupMono))
+                .assertNext(tuple -> {
+                    List<User> users = tuple.getT1();
+                    Workspace workspace1 = tuple.getT2();
+                    PermissionGroup viewerPermissionGroup = tuple.getT3();
+
+                    assertThat(workspace1).isNotNull();
+                    assertThat(workspace1.getName()).isEqualTo("Add Bulk Viewers to Test Workspace");
+
+                    // assert that the created users are assigned the viewer role
+                    assertThat(viewerPermissionGroup.getAssignedToUserIds()).containsAll(users.stream().map(User::getId).collect(Collectors.toList()));
+
+                    for (User user : users) {
+                        assertThat(user.getId()).isNotNull();
+                        assertThat(user.getIsEnabled()).isFalse();
+                    }
+                })
+                .verifyComplete();
     }
 
     @Test
