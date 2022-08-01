@@ -34,9 +34,12 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static java.lang.Boolean.FALSE;
+import static java.lang.Boolean.TRUE;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
 @Slf4j
@@ -54,6 +57,34 @@ public abstract class BaseAppsmithRepositoryImpl<T extends BaseDomain> {
         this.mongoOperations = mongoOperations;
         this.mongoConverter = mongoConverter;
         this.genericDomain = (Class<T>) GenericTypeResolver.resolveTypeArgument(getClass(), BaseAppsmithRepositoryImpl.class);
+    }
+
+    public Mono<Boolean> isPermissionPresentForUser(Set<Policy> policies, String permission, String username) {
+
+        Query query = new Query(where(fieldName(QUser.user.email)).is(username));
+
+        return mongoOperations.findOne(query, User.class)
+                .flatMap(user -> getAllPermissionGroupsForUser(user))
+                .map(userPermissionGroupIds -> {
+                    Optional<Policy> interestingPolicyOptional = policies.stream()
+                            .filter(policy -> policy.getPermission().equals(permission))
+                            .findFirst();
+                    if (!interestingPolicyOptional.isPresent()) {
+                        return FALSE;
+                    }
+
+                    Policy interestingPolicy = interestingPolicyOptional.get();
+                    Set<String> permissionGroupsIds = interestingPolicy.getPermissionGroups();
+                    if (permissionGroupsIds == null || permissionGroupsIds.isEmpty()) {
+                        return FALSE;
+                    }
+
+                    return userPermissionGroupIds.stream()
+                            .filter(userPermissionGroupId -> permissionGroupsIds.contains(userPermissionGroupId))
+                            .findFirst()
+                            .map(permissionGroup -> TRUE)
+                            .orElse(FALSE);
+                });
     }
 
     /**

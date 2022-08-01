@@ -135,10 +135,10 @@ public class DatasourceServiceCEImpl extends BaseService<DatasourceRepository, D
     private Mono<Datasource> generateAndSetDatasourcePolicies(Mono<User> userMono, Datasource datasource) {
         return userMono
                 .flatMap(user -> {
-                    Mono<Workspace> orgMono = workspaceService.findById(datasource.getWorkspaceId(), WORKSPACE_MANAGE_APPLICATIONS)
+                    Mono<Workspace> workspaceMono = workspaceService.findById(datasource.getWorkspaceId(), WORKSPACE_MANAGE_APPLICATIONS)
                             .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.WORKSPACE, datasource.getWorkspaceId())));
 
-                    return orgMono.map(org -> {
+                    return workspaceMono.map(org -> {
                         Set<Policy> policySet = org.getPolicies().stream()
                                 .filter(policy ->
                                         policy.getPermission().equals(WORKSPACE_MANAGE_APPLICATIONS.getValue()) ||
