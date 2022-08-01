@@ -303,7 +303,7 @@ class ChartComponent extends React.Component<ChartComponentProps> {
       yAxisName: this.props.yAxisName,
       theme: "fusion",
       captionAlignment: this.props.captionAlignment,
-      alignCaptionWithCanvas: 0,
+      alignCaptionWithCanvas: 1,
 
       // Caption styling =======================
       captionFontSize: this.props.captionFontSize,
