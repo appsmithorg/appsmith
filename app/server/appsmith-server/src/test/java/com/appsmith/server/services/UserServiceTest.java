@@ -344,7 +344,7 @@ public class UserServiceTest {
                     ArrayList<String> users = new ArrayList<>();
                     users.add(newUserEmail);
                     inviteUsersDTO.setUsernames(users);
-                    inviteUsersDTO.setPermissionGroupId("");
+                    inviteUsersDTO.setPermissionGroupId(workspace1.getDefaultPermissionGroups().stream().findFirst().get());
 
                     return userService.inviteUsers(inviteUsersDTO, "http://localhost:8080");
                 }).block();
