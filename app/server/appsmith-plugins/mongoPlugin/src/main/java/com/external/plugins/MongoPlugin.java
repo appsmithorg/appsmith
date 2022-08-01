@@ -617,7 +617,7 @@ public class MongoPlugin extends BasePlugin {
                     .map(uriString -> MongoClients.create(
                             MongoClientSettings
                                     .builder()
-                                    .applyToConnectionPoolSettings(pool -> pool.applySettings(ConnectionPoolSettings.builder().minSize(0).build()))
+                                    .applyToConnectionPoolSettings(t -> t.applySettings(ConnectionPoolSettings.builder().minSize(0).build()))
                                     .applyConnectionString(new ConnectionString(uriString))
                                     .build()
                     ))
