@@ -5,6 +5,7 @@ import { ControlIcons } from "icons/ControlIcons";
 import _ from "lodash";
 import { DSEventTypes } from "utils/AppsmithUtils";
 import useDSEvent from "utils/hooks/useDSEvent";
+import { replayHighlightClass } from "globalStyles/portals";
 
 const ItemWrapper = styled.div<{ selected: boolean }>`
   min-width: 32px;
@@ -114,6 +115,7 @@ const ButtonTabComponent = React.forwardRef(
 
     return (
       <FlexWrapper
+        className={replayHighlightClass}
         onBlur={() => setFocusedIndex(-1)}
         onFocus={() => setFocusedIndex(firstValueIndex)}
         onKeyDown={handleKeyDown}

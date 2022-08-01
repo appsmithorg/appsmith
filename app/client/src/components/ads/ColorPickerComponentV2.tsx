@@ -27,6 +27,7 @@ import { TAILWIND_COLORS } from "constants/ThemeConstants";
 import useDSEvent from "utils/hooks/useDSEvent";
 import { DSEventTypes } from "utils/AppsmithUtils";
 const FocusTrap = require("focus-trap-react");
+import { replayHighlightClass } from "globalStyles/portals";
 
 const MAX_COLS = 10;
 
@@ -520,6 +521,7 @@ const ColorPickerComponent = React.forwardRef(
         >
           <StyledInputGroup
             autoFocus={props.autoFocus}
+            className={replayHighlightClass}
             inputRef={inputGroupRef}
             leftIcon={
               <LeftIcon color={color} handleInputClick={handleInputClick} />

@@ -119,9 +119,13 @@ export function* openPropertyPaneSaga(replay: any) {
       yield put(selectWidgetAction(replayWidgetId, false));
     }
 
+    /**
+     * Property Updates - ['widgets', 'hluiy8se0g', 'menuColor']
+     * We take the 1st and 2nd element to generate the element id.
+     */
     flashElementsById(
       btoa(
-        replay.widgets[replayWidgetId].propertyUpdates.slice(0, 2).join("."),
+        replay.widgets[replayWidgetId].propertyUpdates.slice(1, 3).join("."),
       ),
       0,
       1000,
