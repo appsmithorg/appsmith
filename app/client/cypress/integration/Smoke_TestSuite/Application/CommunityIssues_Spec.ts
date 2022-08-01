@@ -307,7 +307,7 @@ describe("AForce - Community Issues page validations", function() {
     table.SelectTableRow(0);
     agHelper.AssertElementVisible(locator._widgetInDeployed("tabswidget"));
     agHelper
-      .GetNClick(locator._inputWidgetv1InDeployed)
+      .GetNClick(locator._inputWidgetv1InDeployed, 0, true, 0)
       .type("-updating title");
     agHelper
       .GetNClick(locator._textAreainputWidgetv1InDeployed)
