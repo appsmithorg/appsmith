@@ -105,7 +105,8 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
                 datasourceContextMap.put(datasourceId, datasourceContext);
             }
 
-            Mono<Object> connectionMono = pluginExecutor.datasourceCreate(datasource.getDatasourceConfiguration());
+            Mono<Object> connectionMono = pluginExecutor.datasourceCreate(datasource.getDatasourceConfiguration()).cache();
+
             Mono<DatasourceContext<Object>> datasourceContextMonoCache = connectionMono
                     .flatMap(connection -> {
                         Mono<Datasource> datasourceMono1 = Mono.just(datasource);
@@ -133,7 +134,11 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
                     )
                     .cache(); /* Cache the value so that further evaluations don't result in new connections */
             if (datasourceId != null) {
-                datasourceContextMonoMap.put(datasourceId, datasourceContextMonoCache);
+                return connectionMono.doOnNext(connection -> {
+                    if(!(connection instanceof UpdatableConnection)) {
+                        datasourceContextMonoMap.put(datasourceId, datasourceContextMonoCache);
+                    }
+                }).then(datasourceContextMonoCache);
             }
             return datasourceContextMonoCache;
         }
