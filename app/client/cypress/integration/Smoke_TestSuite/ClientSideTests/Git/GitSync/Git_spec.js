@@ -110,6 +110,7 @@ describe("Git sync:", function() {
     cy.switchGitBranch(tempBranch1);
 
     cy.get(gitSyncLocators.bottomBarMergeButton).click();
+    cy.wait(5000); // wait for git status call to finish
     cy.get(gitSyncLocators.mergeBranchDropdownDestination).click();
     cy.get(commonlocators.dropdownmenu)
       .contains(mainBranch)

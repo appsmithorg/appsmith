@@ -1344,6 +1344,7 @@ public class PostgresPluginTest {
                 .verifyComplete();
     }
 
+    @Test
     public void testReadOnlyMode() {
         DatasourceConfiguration dsConfig = createDatasourceConfiguration();
         dsConfig.getConnection().setMode(com.appsmith.external.models.Connection.Mode.READ_ONLY);
