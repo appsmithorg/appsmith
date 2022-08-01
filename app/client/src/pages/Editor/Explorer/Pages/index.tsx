@@ -39,6 +39,7 @@ import useResize, {
 } from "utils/hooks/useResize";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { useLocation } from "react-router";
+import { toggleInOnboardingWidgetSelection } from "actions/onboardingActions";
 
 const ENTITY_HEIGHT = 36;
 const MIN_PAGES_HEIGHT = 60;
@@ -106,7 +107,6 @@ function Pages() {
   const switchPage = useCallback(
     (page: Page) => {
       const navigateToUrl = builderURL({
-        pageSlug: page.slug as string,
         pageId: page.pageId,
       });
       AnalyticsUtil.logEvent("PAGE_NAME_CLICK", {
@@ -115,6 +115,7 @@ function Pages() {
         type: "PAGES",
         toUrl: navigateToUrl,
       });
+      dispatch(toggleInOnboardingWidgetSelection(true));
       history.push(navigateToUrl);
     },
     [location.pathname],

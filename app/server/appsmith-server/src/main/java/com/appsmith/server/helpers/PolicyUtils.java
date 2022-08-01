@@ -77,12 +77,12 @@ public class PolicyUtils {
             String permission = policy.getPermission();
             if (policyMap1.containsKey(permission)) {
                 policy.getUsers().addAll(policyMap1.get(permission).getUsers());
-                if (policy.getPermissionGroups() == null) {
-                    policy.setPermissionGroups(new HashSet<>());
-                }
+                Set<String> permissionGroups = new HashSet<>();
+                permissionGroups.addAll(policy.getPermissionGroups());
                 if (policyMap1.get(permission).getPermissionGroups() != null) {
-                    policy.getPermissionGroups().addAll(policyMap1.get(permission).getPermissionGroups());
+                    permissionGroups.addAll(policyMap1.get(permission).getPermissionGroups());
                 }
+                policy.setPermissionGroups(permissionGroups);
                 // Remove this permission from the policyMap as this has been accounted for in the above code
                 policyMap1.remove(permission);
             }
@@ -160,7 +160,7 @@ public class PolicyUtils {
                     return policiesForPermissionGroup;
                 })
                 .flatMap(Collection::stream)
-                .collect(Collectors.toMap(Policy::getPermission, Function.identity()));
+                .collect(Collectors.toMap(Policy::getPermission, Function.identity(), (policy1, policy2) -> policy1));
     }
 
     public Map<String, Policy> generatePolicyFromPermissionWithPermissionGroup(AclPermission permission, String permissionGroupId) {

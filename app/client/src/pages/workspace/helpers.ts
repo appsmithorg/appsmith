@@ -1,5 +1,6 @@
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { SubmissionError } from "redux-form";
+import { RouteChildrenProps, RouteComponentProps } from "react-router-dom";
 export type InviteUsersToWorkspaceByRoleValues = {
   id: string;
   users?: string;
@@ -77,3 +78,21 @@ export const inviteUsersToWorkspace = (
     throw new SubmissionError(error);
   });
 };
+
+export function navigateToTab(
+  tabKey: string,
+  location: RouteChildrenProps["location"],
+  history: RouteComponentProps["history"],
+) {
+  const settingsStartIndex = location.pathname.indexOf("settings");
+  const settingsEndIndex = settingsStartIndex + "settings".length;
+  const hasSlash = location.pathname[settingsEndIndex] === "/";
+  let newUrl = "";
+
+  if (hasSlash) {
+    newUrl = `${location.pathname.slice(0, settingsEndIndex)}/${tabKey}`;
+  } else {
+    newUrl = `${location.pathname}/${tabKey}`;
+  }
+  history.push(newUrl);
+}

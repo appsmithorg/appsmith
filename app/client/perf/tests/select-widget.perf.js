@@ -10,9 +10,9 @@ const SEL = {
   first_option_item: ".menu-item-text:nth-child(1)",
 };
 
-async function testSelectOptionsRender() {
+async function testSelectOptionsRender(iteration) {
+  const perf = new Perf({ iteration });
   try {
-    const perf = new Perf();
     await perf.launch();
     const page = perf.getPage();
 
@@ -34,15 +34,15 @@ async function testSelectOptionsRender() {
     await perf.generateReport();
     await perf.close();
   } catch (e) {
-    console.log(e);
+    await perf.handleRejections(e);
+    await perf.close();
   }
 }
 
 async function runTests() {
-  await testSelectOptionsRender();
-  await testSelectOptionsRender();
-  await testSelectOptionsRender();
-  await testSelectOptionsRender();
-  await testSelectOptionsRender();
+  for (let i = 0; i < 5; i++) {
+    await testSelectOptionsRender(i + 1);
+  }
 }
+
 runTests();

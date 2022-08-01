@@ -1,19 +1,8 @@
 import React from "react";
 import { ApplicationVersion } from "actions/applicationActions";
-import {
-  builderURL,
-  getRouteBuilderParams,
-  updateURLFactory,
-} from "RouteBuilder";
-import {
-  Page,
-  ReduxActionTypes,
-} from "@appsmith/constants/ReduxActionConstants";
-import {
-  getCurrentPageId,
-  getPageById,
-  selectURLSlugs,
-} from "selectors/editorSelectors";
+import { builderURL } from "RouteBuilder";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import { selectURLSlugs } from "selectors/editorSelectors";
 import store from "store";
 import { render } from "test/testUtils";
 import { getUpdatedRoute, isURLDeprecated } from "utils/helpers";
@@ -26,9 +15,7 @@ import {
 } from "./mockData";
 import ManualUpgrades from "pages/Editor/BottomBar/ManualUpgrades";
 import { updateCurrentPage } from "actions/pageActions";
-import { getCurrentApplication } from "selectors/applicationSelectors";
-import { getPageURL } from "utils/AppsmithUtils";
-import { APP_MODE } from "entities/App";
+import urlBuilder from "entities/URLRedirect/URLAssembly";
 
 describe("URL slug names", () => {
   beforeEach(async () => {
@@ -50,14 +37,21 @@ describe("URL slug names", () => {
   it("checks the update slug in URL method", () => {
     const newAppSlug = "modified-app-slug";
     const newPageSlug = "modified-page-slug";
+    const customSlug = "custom-slug";
     const pathname = "/app/my-app/pages-605c435a91dea93f0eaf91ba";
-    const url = getUpdatedRoute(pathname, {
+    const url1 = getUpdatedRoute(pathname, {
       applicationSlug: newAppSlug,
       pageSlug: newPageSlug,
     });
-    expect(url).toBe(
+    expect(url1).toBe(
       `/app/${newAppSlug}/${newPageSlug}-605c435a91dea93f0eaf91ba`,
     );
+    const url2 = getUpdatedRoute(pathname, {
+      applicationSlug: newAppSlug,
+      pageSlug: newPageSlug,
+      customSlug,
+    });
+    expect(url2).toBe(`/app/${customSlug}-605c435a91dea93f0eaf91ba`);
   });
 
   it("checks the isDeprecatedURL method", () => {
@@ -71,6 +65,9 @@ describe("URL slug names", () => {
     const pathname3 = "/app/apSlug/pages-605c435a91dea93f0eaf91ba";
 
     expect(isURLDeprecated(pathname3)).toBe(false);
+
+    const pathname4 = "/app/customSlug-605c435a91dea93f0eaf91ba";
+    expect(isURLDeprecated(pathname4)).toBe(false);
   });
 
   it("verifies that the baseURLBuilder uses applicationVersion", () => {
@@ -79,21 +76,36 @@ describe("URL slug names", () => {
       applicationSlug: "appSlug",
       pageId: "pageId",
       pageSlug: "pageSlug",
+      customSlug: "customSlug",
     };
-    updateURLFactory({ applicationVersion: ApplicationVersion.DEFAULT });
-    const url1 = builderURL(params);
-    updateURLFactory({ applicationVersion: ApplicationVersion.SLUG_URL });
-    const url2 = builderURL(params);
+    urlBuilder.updateURLParams(
+      {
+        applicationVersion: ApplicationVersion.DEFAULT,
+        applicationSlug: params.applicationSlug,
+        applicationId: params.applicationId,
+      },
+      [
+        {
+          pageId: params.pageId,
+          pageSlug: params.pageSlug,
+        },
+      ],
+    );
+    const url1 = builderURL({ pageId: params.pageId });
+    urlBuilder.updateURLParams({
+      applicationVersion: ApplicationVersion.SLUG_URL,
+    });
+    const url2 = builderURL({ pageId: params.pageId });
     store.dispatch({
-      type: ReduxActionTypes.FETCH_APPLICATION_SUCCESS,
+      type: ReduxActionTypes.UPDATE_APPLICATION_SUCCESS,
       payload: { applicationVersion: ApplicationVersion.DEFAULT },
     });
-    const url3 = builderURL(params);
+    const url3 = builderURL({ pageId: params.pageId });
     store.dispatch({
       type: ReduxActionTypes.UPDATE_APPLICATION_SUCCESS,
       payload: { applicationVersion: ApplicationVersion.SLUG_URL },
     });
-    const url4 = builderURL(params);
+    const url4 = builderURL({ pageId: params.pageId });
     expect(url1).toBe("/applications/appId/pages/pageId/edit");
     expect(url2).toBe("/app/appSlug/pageSlug-pageId/edit");
     expect(url3).toBe("/applications/appId/pages/pageId/edit");
@@ -105,6 +117,7 @@ describe("URL slug names", () => {
       type: ReduxActionTypes.FETCH_APPLICATION_SUCCESS,
       payload: {
         ...fetchApplicationMockResponse.data.application,
+        pages: fetchApplicationMockResponse.data.pages,
         applicationVersion: 1,
       },
     });
@@ -117,20 +130,21 @@ describe("URL slug names", () => {
       type: ReduxActionTypes.CURRENT_APPLICATION_NAME_UPDATE,
       payload: updatedApplicationPayload,
     });
-    const { applicationSlug } = getRouteBuilderParams();
-    expect(applicationSlug).toBe(updatedApplicationPayload.slug);
-
     store.dispatch({
       type: ReduxActionTypes.UPDATE_PAGE_SUCCESS,
       payload: updatedPagePayload,
     });
+    const {
+      applicationSlug,
+      pageSlug: updatedPageSlug,
+    } = urlBuilder.getURLParams(updatedPagePayload.id);
 
-    const { pageSlug: updatedPageSlug } = getRouteBuilderParams();
+    expect(applicationSlug).toBe(updatedApplicationPayload.slug);
 
-    expect(updatedPageSlug).toBe("page-1");
+    expect(updatedPageSlug).toBe(updatedPagePayload.slug);
 
     store.dispatch(updateCurrentPage("605c435a91dea93f0eaf91bc", "my-page-2"));
-    const { pageSlug } = getRouteBuilderParams();
+    const { pageSlug } = urlBuilder.getURLParams("605c435a91dea93f0eaf91bc");
 
     expect(pageSlug).toBe("my-page-2");
   });
@@ -149,26 +163,5 @@ describe("URL slug names", () => {
         pageSlug: "page",
       }),
     ).toBe("/app/my-app/page-605c435a91dea93f0eaf91ba/edit");
-  });
-
-  it("tests getPageUrl utility method", () => {
-    const state = store.getState();
-    const currentApplication = getCurrentApplication(state);
-    const currentPageId = getCurrentPageId(state);
-    const page = getPageById(currentPageId)(state) as Page;
-
-    const editPageURL = getPageURL(page, APP_MODE.EDIT, currentApplication);
-    const viewPageURL = getPageURL(
-      page,
-      APP_MODE.PUBLISHED,
-      currentApplication,
-    );
-
-    expect(editPageURL).toBe(
-      `/app/${currentApplication?.slug}/${page.slug}-${page.pageId}/edit`,
-    );
-    expect(viewPageURL).toBe(
-      `/app/${currentApplication?.slug}/${page.slug}-${page.pageId}`,
-    );
   });
 });

@@ -19,13 +19,12 @@ type filedTypeValues =
 
 export class PropertyPane {
   private agHelper = ObjectsRegistry.AggregateHelper;
-  private jsEditor = ObjectsRegistry.JSEditor;
   private locator = ObjectsRegistry.CommonLocators;
 
   _fieldConfig = (fieldName: string) =>
     "//input[@placeholder='Field label'][@value='" +
     fieldName +
-    "']/ancestor::div/following-sibling::div[contains(@class, 't--edit-column-btn')]";
+    "']/ancestor::div/following-sibling::div/div[contains(@class, 't--edit-column-btn')]";
   private _goBackToProperty = "button.t--property-pane-back-btn";
   private _copyWidget = "button.t--copy-widget";
   private _deleteWidget = "button.t--delete-widget";
@@ -72,7 +71,7 @@ export class PropertyPane {
   public ChangeTheme(newTheme: string) {
     this.agHelper.GetNClick(this._changeThemeBtn, 0, true);
     this.agHelper.GetNClick(this._themeCard(newTheme));
-    this.agHelper.ValidateToastMessage("Theme " + newTheme + " Applied");
+    this.agHelper.WaitUntilToastDisappear("Theme " + newTheme + " Applied");
   }
 
   public ChangeColor(
@@ -109,9 +108,9 @@ export class PropertyPane {
         .GetText(this.locator._existingActualValueByName("Property Name"))
         .then(($propName) => {
           placeHolderText = "{{sourceData." + $propName + "}}";
-          this.jsEditor.EnterJSContext("Placeholder", placeHolderText);
+          this.UpdatePropertyFieldValue("Placeholder", placeHolderText);
         });
-      this.jsEditor.EnterJSContext("Default Value", "");
+      this.UpdatePropertyFieldValue("Default Value", "");
       this.NavigateBackToPropertyPane();
     });
   }
@@ -126,6 +125,48 @@ export class PropertyPane {
         .uncheck({ force: true })
         .should("not.be.checked");
     }
+    this.agHelper.AssertAutoSave();
+  }
+
+  public SelectPropertiesDropDown(endpoint: string, dropdownOption: string) {
+    cy.xpath(this.locator._selectPropDropdown(endpoint))
+      .first()
+      .scrollIntoView()
+      .click();
+    cy.get(this.locator._dropDownValue(dropdownOption)).click();
+  }
+
+  public SelectJSFunctionToExecute(
+    eventName: string,
+    jsName: string,
+    funcName: string,
+  ) {
+    this.SelectPropertiesDropDown(eventName, "Execute a JS function");
+    this.agHelper.GetNClick(this.locator._dropDownValue(jsName), 0, true);
+    this.agHelper.GetNClick(this.locator._dropDownValue(funcName), 0, true);
+    this.agHelper.AssertAutoSave();
+  }
+
+  public UpdatePropertyFieldValue(propFieldName: string, valueToEnter: string) {
+    cy.xpath(this.locator._existingFieldTextByName(propFieldName)).then(
+      ($field: any) => {
+        this.agHelper.UpdateCodeInput($field, valueToEnter);
+      },
+    );
+  }
+
+  public RemoveText(endp: string) {
+    cy.get(
+      this.locator._propertyControl +
+        endp +
+        " " +
+        this.locator._codeMirrorTextArea,
+    )
+      .first()
+      .focus()
+      .type("{uparrow}", { force: true })
+      .type("{ctrl}{shift}{downarrow}", { force: true })
+      .type("{del}", { force: true });
     this.agHelper.AssertAutoSave();
   }
 }

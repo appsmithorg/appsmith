@@ -1,5 +1,6 @@
 import homePage from "../../../../../locators/HomePage";
 import gitSyncLocators from "../../../../../locators/gitSyncLocators";
+
 let repoName;
 let branchName;
 describe("Delete branch flow", () => {
@@ -95,12 +96,15 @@ describe("Delete branch flow", () => {
       cy.commitAndPush();
       cy.wait(1000);
       cy.switchGitBranch("master");
+      cy.wait(3000);
       cy.get(gitSyncLocators.branchButton).click();
       cy.get(gitSyncLocators.branchListItem)
         .eq(1)
         .trigger("mouseenter")
         .within(() => {
+          cy.wait(1000);
           cy.get(gitSyncLocators.gitBranchContextMenu).click();
+          cy.wait(1000);
           cy.get(gitSyncLocators.gitBranchDelete).click();
         });
       cy.wait("@deleteBranch").should(

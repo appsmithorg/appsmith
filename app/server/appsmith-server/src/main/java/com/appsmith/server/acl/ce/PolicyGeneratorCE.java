@@ -4,7 +4,6 @@ import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
 import com.google.common.collect.Sets;
-
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -31,27 +30,26 @@ import static com.appsmith.server.acl.AclPermission.MANAGE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.MANAGE_INSTANCE_CONFIGURATION;
-import static com.appsmith.server.acl.AclPermission.MANAGE_WORKSPACES;
 import static com.appsmith.server.acl.AclPermission.MANAGE_PAGES;
 import static com.appsmith.server.acl.AclPermission.MANAGE_THEMES;
 import static com.appsmith.server.acl.AclPermission.MANAGE_USERS;
-import static com.appsmith.server.acl.AclPermission.READ_INSTANCE_CONFIGURATION;
-import static com.appsmith.server.acl.AclPermission.WORKSPACE_EXPORT_APPLICATIONS;
-import static com.appsmith.server.acl.AclPermission.WORKSPACE_MANAGE_APPLICATIONS;
-import static com.appsmith.server.acl.AclPermission.WORKSPACE_PUBLISH_APPLICATIONS;
-import static com.appsmith.server.acl.AclPermission.WORKSPACE_READ_APPLICATIONS;
+import static com.appsmith.server.acl.AclPermission.MANAGE_WORKSPACES;
 import static com.appsmith.server.acl.AclPermission.PUBLISH_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_COMMENTS;
 import static com.appsmith.server.acl.AclPermission.READ_DATASOURCES;
-import static com.appsmith.server.acl.AclPermission.READ_WORKSPACES;
+import static com.appsmith.server.acl.AclPermission.READ_INSTANCE_CONFIGURATION;
 import static com.appsmith.server.acl.AclPermission.READ_PAGES;
 import static com.appsmith.server.acl.AclPermission.READ_THEMES;
 import static com.appsmith.server.acl.AclPermission.READ_THREADS;
 import static com.appsmith.server.acl.AclPermission.READ_USERS;
-import static com.appsmith.server.acl.AclPermission.USER_MANAGE_WORKSPACES;
-import static com.appsmith.server.acl.AclPermission.USER_READ_WORKSPACES;
+import static com.appsmith.server.acl.AclPermission.READ_WORKSPACES;
+import static com.appsmith.server.acl.AclPermission.RESET_PASSWORD_USERS;
+import static com.appsmith.server.acl.AclPermission.WORKSPACE_EXPORT_APPLICATIONS;
+import static com.appsmith.server.acl.AclPermission.WORKSPACE_MANAGE_APPLICATIONS;
+import static com.appsmith.server.acl.AclPermission.WORKSPACE_PUBLISH_APPLICATIONS;
+import static com.appsmith.server.acl.AclPermission.WORKSPACE_READ_APPLICATIONS;
 
 
 @Getter
@@ -100,12 +98,8 @@ public class PolicyGeneratorCE {
      * In this, we add permissions for a user to interact with workspaces and other users inside the said workspaces
      */
     private void createUserPolicyGraph() {
-        hierarchyGraph.addEdge(USER_MANAGE_WORKSPACES, MANAGE_WORKSPACES);
-        hierarchyGraph.addEdge(USER_READ_WORKSPACES, READ_WORKSPACES);
-
-        // If user is given manageOrg permission, they must also be able to read workspaces
-        lateralGraph.addEdge(USER_MANAGE_WORKSPACES, USER_READ_WORKSPACES);
         lateralGraph.addEdge(MANAGE_USERS, READ_USERS);
+        lateralGraph.addEdge(MANAGE_USERS, RESET_PASSWORD_USERS);
     }
 
     private void createWorkspacePolicyGraph() {
@@ -203,6 +197,9 @@ public class PolicyGeneratorCE {
      * @return
      */
     public Set<Policy> getChildPolicies(Policy policy, AclPermission aclPermission, Class<? extends BaseDomain> destinationEntity) {
+        if(policy.getPermissionGroups() == null) {
+            policy.setPermissionGroups(new HashSet<>());
+        }
         // Check the hierarchy graph to derive child permissions that must be given to this
         // document
         Set<Policy> childPolicySet = new HashSet<>();
@@ -239,10 +236,6 @@ public class PolicyGeneratorCE {
                 Policy mergedPolicy = policyMap.get(policy.getPermission());
 
                 mergedPolicy.setPermissionGroups(Sets.union(mergedPolicy.getPermissionGroups(), policy.getPermissionGroups()));
-
-                HashSet<String> permissionGroups = new HashSet<>(mergedPolicy.getPermissionGroups());
-                permissionGroups.addAll(policy.getPermissionGroups());
-                mergedPolicy.setPermissionGroups(permissionGroups);
 
                 policyMap.put(policy.getPermission(), mergedPolicy);
             } else {

@@ -33,8 +33,8 @@ describe("Theme validation usecases", function() {
     //cy.contains("Border").click({ force: true });
     cy.get(themelocator.border).should("have.length", "3");
     cy.borderMouseover(0, "none");
-    cy.borderMouseover(1, "md");
-    cy.borderMouseover(2, "lg");
+    cy.borderMouseover(1, "M");
+    cy.borderMouseover(2, "L");
     cy.get(themelocator.border)
       .eq(2)
       .click({ force: true });
@@ -49,9 +49,9 @@ describe("Theme validation usecases", function() {
     //Shadow validation
     //cy.contains("Shadow").click({ force: true });
     cy.shadowMouseover(0, "none");
-    cy.shadowMouseover(1, "sm");
-    cy.shadowMouseover(2, "md");
-    cy.shadowMouseover(3, "lg");
+    cy.shadowMouseover(1, "S");
+    cy.shadowMouseover(2, "M");
+    cy.shadowMouseover(3, "L");
     cy.xpath(themelocator.shadow)
       .eq(3)
       .click({ force: true });
@@ -73,20 +73,14 @@ describe("Theme validation usecases", function() {
 
       cy.get(themelocator.fontsSelected)
         .eq(0)
-        .should("have.text", "System Default");
+        .should("have.text", "Nunito Sans");
 
-      cy.get(themelocator.fontsSelected).each(($ele, i) => {
-        //cy.log($ele);
-        expect($ele).to.have.text(this.testdata.dropdownValues[i]);
-      });
       cy.get(".ads-dropdown-options-wrapper div")
         .children()
         .eq(2)
         .then(($childElem) => {
           cy.get($childElem).click({ force: true });
-          cy.get(
-            ".t--draggable-formbuttonwidget button :contains('Submit')",
-          ).should(
+          cy.get(".t--draggable-buttonwidget button :contains('Sub')").should(
             "have.css",
             "font-family",
             $childElem
@@ -106,7 +100,7 @@ describe("Theme validation usecases", function() {
     //cy.contains("Color").click({ force: true });
     cy.wait(2000);
     cy.colorMouseover(0, "Primary Color");
-    cy.validateColor(0, "#16a34a");
+    cy.validateColor(0, "#553DE9");
     cy.colorMouseover(1, "Background Color");
     cy.validateColor(1, "#F6F6F6");
 
@@ -144,7 +138,7 @@ describe("Theme validation usecases", function() {
 
   it("Publish the App and validate Font across the app", function() {
     cy.PublishtheApp();
-    cy.get(".bp3-button:contains('Submit')").should(
+    cy.get(".bp3-button:contains('Sub')").should(
       "have.css",
       "font-family",
       themeFont,
@@ -192,7 +186,7 @@ describe("Theme validation usecases", function() {
       .first()
       .invoke("css", "background-color")
       .then((CurrentBackgroudColor) => {
-        cy.get(".bp3-button:contains('Submit')")
+        cy.get(".bp3-button:contains('Sub')")
           .last()
           .invoke("css", "background-color")
           .then((selectedBackgroudColor) => {
@@ -209,7 +203,7 @@ describe("Theme validation usecases", function() {
           .should("have.css", "background-color")
           .and("eq", "rgb(21, 128, 61)");
           */
-    cy.get(".bp3-button:contains('Submit')")
+    cy.get(".bp3-button:contains('Sub')")
       .invoke("css", "background-color")
       .then((CurrentBackgroudColor) => {
         cy.get(".bp3-button:contains('Edit App')")
@@ -318,7 +312,7 @@ describe("Theme validation usecases", function() {
             .should("have.css", "background-color")
             .and("eq", "rgb(255, 193, 61)");
             */
-    cy.get(".bp3-button:contains('Submit')")
+    cy.get(".bp3-button:contains('Sub')")
       .invoke("css", "background-color")
       .then((CurrentBackgroudColor) => {
         cy.get(".bp3-button:contains('Edit App')")

@@ -4,7 +4,6 @@ import {
   Page,
 } from "@appsmith/constants/ReduxActionConstants";
 import { NavLink } from "react-router-dom";
-import { getPageURL } from "utils/AppsmithUtils";
 import {
   getAppMode,
   showAppInviteUsersDialogSelector,
@@ -20,7 +19,11 @@ import { getSelectedAppTheme } from "selectors/appThemingSelectors";
 import BrandingBadge from "./BrandingBadgeMobile";
 import { getAppViewHeaderHeight } from "selectors/appViewSelectors";
 import { useOnClickOutside } from "utils/hooks/useOnClickOutside";
-import { getShowBrandingBadge } from "@appsmith/selectors/workspaceSelectors";
+import { getAppsmithConfigs } from "@appsmith/configs";
+import { useHref } from "pages/Editor/utils";
+import { APP_MODE } from "entities/App";
+import { builderURL, viewerURL } from "RouteBuilder";
+import { trimQueryString } from "utils/helpers";
 
 type AppViewerHeaderProps = {
   isOpen?: boolean;
@@ -33,7 +36,6 @@ type AppViewerHeaderProps = {
 
 export function PageMenu(props: AppViewerHeaderProps) {
   const { application, headerRef, isOpen, pages, setMenuOpen } = props;
-  const appMode = useSelector(getAppMode);
   const menuRef = useRef<any>();
   const selectedTheme = useSelector(getSelectedAppTheme);
   const workspaceID = useSelector(getCurrentWorkspaceId);
@@ -42,7 +44,7 @@ export function PageMenu(props: AppViewerHeaderProps) {
   );
   const headerHeight = useSelector(getAppViewHeaderHeight);
   const [query, setQuery] = useState("");
-  const showBrandingBadge = useSelector(getShowBrandingBadge);
+  const { hideWatermark } = getAppsmithConfigs();
 
   // hide menu on click outside
   useOnClickOutside(
@@ -89,26 +91,14 @@ export function PageMenu(props: AppViewerHeaderProps) {
           "-left-full": !isOpen,
           "left-0": isOpen,
         })}
+        ref={menuRef}
         style={{
           height: `calc(100% - ${headerHeight}px)`,
         }}
       >
-        <div className="flex-grow py-3 overflow-y-auto" ref={menuRef}>
+        <div className="flex-grow py-3 overflow-y-auto">
           {appPages.map((page) => (
-            <NavLink
-              activeClassName="border-r-3 font-semibold"
-              activeStyle={{
-                borderColor: selectedTheme.properties.colors.primaryColor,
-              }}
-              className="flex flex-col px-3 py-2 text-gray-700 no-underline border-transparent border-r-3 hover:no-underline focus:text-gray-700"
-              key={page.pageId}
-              to={{
-                pathname: getPageURL(page, appMode, application),
-                search: query,
-              }}
-            >
-              {page.pageName}
-            </NavLink>
+            <PageNavLink key={page.pageId} page={page} query={query} />
           ))}
         </div>
         <div className="p-3 space-y-3 border-t">
@@ -139,10 +129,45 @@ export function PageMenu(props: AppViewerHeaderProps) {
             />
           )}
           <PrimaryCTA className="t--back-to-editor--mobile" url={props.url} />
-          {showBrandingBadge && <BrandingBadge />}
+          {!hideWatermark && (
+            <a
+              className="flex hover:no-underline"
+              href="https://appsmith.com"
+              rel="noreferrer"
+              target="_blank"
+            >
+              <BrandingBadge />
+            </a>
+          )}
         </div>
       </div>
     </>
+  );
+}
+
+function PageNavLink({ page, query }: { page: Page; query: string }) {
+  const appMode = useSelector(getAppMode);
+  const selectedTheme = useSelector(getSelectedAppTheme);
+  const pathname = useHref(
+    appMode === APP_MODE.PUBLISHED ? viewerURL : builderURL,
+    { pageId: page.pageId },
+  );
+
+  return (
+    <NavLink
+      activeClassName="border-r-3 font-semibold"
+      activeStyle={{
+        borderColor: selectedTheme.properties.colors.primaryColor,
+      }}
+      className="flex flex-col px-4 py-2 text-gray-700 no-underline border-transparent border-r-3 hover:no-underline focus:text-gray-700"
+      key={page.pageId}
+      to={{
+        pathname: trimQueryString(pathname),
+        search: query,
+      }}
+    >
+      {page.pageName}
+    </NavLink>
   );
 }
 

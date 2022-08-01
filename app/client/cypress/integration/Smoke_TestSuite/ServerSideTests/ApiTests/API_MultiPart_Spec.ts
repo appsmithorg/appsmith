@@ -5,7 +5,8 @@ let agHelper = ObjectsRegistry.AggregateHelper,
   jsEditor = ObjectsRegistry.JSEditor,
   apiPage = ObjectsRegistry.ApiPage,
   locator = ObjectsRegistry.CommonLocators,
-  deployMode = ObjectsRegistry.DeployMode;
+  deployMode = ObjectsRegistry.DeployMode,
+  propPane = ObjectsRegistry.PropertyPane;
 
 describe("Validate API request body panel", () => {
   it("1. Check whether input and type dropdown selector exist when multi-part is selected", () => {
@@ -127,7 +128,7 @@ describe("Validate API request body panel", () => {
     );
 
     ee.SelectEntityByName("Image1");
-    jsEditor.EnterJSContext("Image", "{{CloudinaryUploadApi.data.url}}");
+    propPane.UpdatePropertyFieldValue("Image", "{{CloudinaryUploadApi.data.url}}");
 
     ee.SelectEntityByName("CloudinaryUploadApi", "QUERIES/JS");
 
@@ -136,6 +137,7 @@ describe("Validate API request body panel", () => {
     deployMode.DeployApp(locator._spanButton("Select Files"));
     agHelper.ClickButton("Select Files");
     agHelper.UploadFile(imageNameToUpload);
+    agHelper.ValidateNetworkExecutionSuccess("@postExecute");//validating Cloudinary api call
     agHelper.ValidateToastMessage("Image uploaded to Cloudinary successfully");
     agHelper.Sleep();
     cy.xpath(apiPage._imageSrc)
@@ -160,7 +162,8 @@ describe("Validate API request body panel", () => {
     );
     ee.SelectEntityByName("FilePicker1", "WIDGETS");
     agHelper.ClickButton("Select Files");
-    agHelper.UploadFile(imageNameToUpload, false);
+    agHelper.UploadFile(imageNameToUpload);
+    agHelper.ValidateNetworkExecutionSuccess("@postExecute", false);
     agHelper.AssertDebugError(
       "Execution failed with status 400 BAD_REQUEST",
       '{"error":{"message":"Unsupported source URL: {\\"type\\":\\"image/jpeg\\"',
@@ -168,7 +171,8 @@ describe("Validate API request body panel", () => {
 
     deployMode.DeployApp(locator._spanButton("Select Files"));
     agHelper.ClickButton("Select Files");
-    agHelper.UploadFile(imageNameToUpload, false);
+    agHelper.UploadFile(imageNameToUpload);
+    agHelper.ValidateNetworkExecutionSuccess("@postExecute", false);
     agHelper.ValidateToastMessage("CloudinaryUploadApi failed to execute");
     agHelper.AssertElementVisible(locator._spanButton("Select Files")); //verifying if reset in case of failure!
   });

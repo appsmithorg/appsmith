@@ -1,11 +1,11 @@
 package com.appsmith.server.services.ce;
 
 import com.appsmith.external.constants.AnalyticsEvents;
-import com.appsmith.server.configurations.CloudServicesConfig;
 import com.appsmith.external.converters.GsonISOStringToInstantConverter;
+import com.appsmith.server.configurations.CloudServicesConfig;
 import com.appsmith.server.domains.Application;
-import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.domains.UserData;
+import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.dtos.ApplicationTemplate;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
@@ -19,6 +19,8 @@ import com.google.gson.reflect.TypeToken;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.reactive.function.client.ExchangeStrategies;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.DefaultUriBuilderFactory;
 import org.springframework.web.util.UriComponents;
@@ -32,7 +34,6 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.List;
 
 @Service
 public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServiceCE {
@@ -55,10 +56,16 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
     }
 
     @Override
-    public Flux<ApplicationTemplate> getSimilarTemplates(String templateId) {
-        final String apiUrl = String.format("%s/api/v1/app-templates/%s/similar?version=%s",
-                cloudServicesConfig.getBaseUrl(), templateId, releaseNotesService.getReleasedVersion()
-        );
+    public Flux<ApplicationTemplate> getSimilarTemplates(String templateId, MultiValueMap<String, String> params) {
+        UriComponents uriComponents = UriComponentsBuilder
+                .fromUriString(cloudServicesConfig.getBaseUrl())
+                .pathSegment("api/v1/app-templates", templateId, "similar")
+                .queryParams(params)
+                .queryParam("version", releaseNotesService.getReleasedVersion())
+                .build();
+
+        String apiUrl = uriComponents.toUriString();
+
         return WebClient
                 .create(apiUrl)
                 .get()
@@ -144,8 +151,14 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
             /* using a custom url builder factory because default builder always encodes URL.
              It's expected that the appDataUrl is already encoded, so we don't need to encode that again.
              Encoding an encoded URL will not work and end up resulting a 404 error */
+        final int size = 4 * 1024 * 1024; // 4 MB
+        final ExchangeStrategies strategies = ExchangeStrategies.builder()
+                .codecs(codecs -> codecs.defaultCodecs().maxInMemorySize(size))
+                .build();
+
         WebClient webClient = WebClient.builder()
                 .uriBuilderFactory(new NoEncodingUriBuilderFactory(templateUrl))
+                .exchangeStrategies(strategies)
                 .build();
 
         return webClient

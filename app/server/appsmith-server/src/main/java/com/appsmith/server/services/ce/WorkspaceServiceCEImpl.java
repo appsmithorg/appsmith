@@ -157,14 +157,8 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.WORKSPACE));
         }
 
-        // TODO : Replace with a tenant level permission check.
-//        // Does the user have permissions to create a workspace?
-//        boolean isManageOrgPolicyPresent = user.getPolicies().stream()
-//                .anyMatch(policy -> policy.getPermission().equals(USER_MANAGE_WORKSPACES.getValue()));
-//
-//        if (!isManageOrgPolicyPresent) {
-//            return Mono.error(new AppsmithException(AppsmithError.ACTION_IS_NOT_AUTHORIZED, "Create organization"));
-//        }
+        // Does the user have permissions to create a workspace?
+        Mono<Boolean> createWorkspaceAllowedMono = isCreateWorkspaceAllowed();
 
         if (workspace.getEmail() == null) {
             workspace.setEmail(user.getEmail());
@@ -173,7 +167,13 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
         workspace.setSlug(TextUtils.makeSlug(workspace.getName()));
         workspace.setTenantId(user.getTenantId());
 
-        return validateObject(workspace)
+        return createWorkspaceAllowedMono
+                .flatMap(isCreateWorkspaceAllowed -> {
+                    if (!isCreateWorkspaceAllowed) {
+                        return Mono.error(new AppsmithException(AppsmithError.ACTION_IS_NOT_AUTHORIZED, "Create workspace"));
+                    }
+                    return validateObject(workspace);
+                })
                 // Install all the default plugins when the org is created
                 /* TODO: This is a hack. We should ideally use the pluginService.installPlugin() function.
                     Not using it right now because of circular dependency b/w workspaceService and pluginService
@@ -212,6 +212,10 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
                                 return repository.save(createdWorkspace);
                             });
                 });
+    }
+
+    private Mono<Boolean> isCreateWorkspaceAllowed() {
+        return Mono.just(Boolean.TRUE);
     }
 
     private String generateNewDefaultName(String oldName, String workspaceName) {
@@ -302,11 +306,15 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
         Set<Permission> permissionGroupPermissions = permissionGroups.stream()
                 .map(permissionGroup -> new Permission(permissionGroup.getId(), AclPermission.MANAGE_PERMISSION_GROUPS))
                 .collect(Collectors.toSet());
+        Set<Permission> readPermissionGroupPermissions = permissionGroups.stream()
+                .map(permissionGroup -> new Permission(permissionGroup.getId(), AclPermission.READ_PERMISSION_GROUPS))
+                .collect(Collectors.toSet());
 
 
         Set<Permission> permissions = new HashSet<>();
         permissions.addAll(workspacePermissions);
         permissions.addAll(permissionGroupPermissions);
+        permissions.addAll(readPermissionGroupPermissions);
         adminPermissionGroup.setPermissions(permissions);
 
         // Assign the user creating the permission group to this permission group
@@ -326,6 +334,7 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
         permissions = new HashSet<>();
         permissions.addAll(workspacePermissions);
         permissions.addAll(permissionGroupPermissions);
+        permissions.addAll(readPermissionGroupPermissions);
         developerPermissionGroup.setPermissions(permissions);
 
         // App Viewer Permissions
@@ -342,6 +351,7 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
         permissions = new HashSet<>();
         permissions.addAll(workspacePermissions);
         permissions.addAll(permissionGroupPermissions);
+        permissions.addAll(readPermissionGroupPermissions);
         viewerPermissionGroup.setPermissions(permissions);
 
         return Flux.fromIterable(permissionGroups)
@@ -467,7 +477,7 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
 
        // Get default permission groups
        Flux<PermissionGroup> permissionGroupFlux = workspaceMono
-               .flatMapMany(workspace -> permissionGroupService.getByDefaultWorkspace(workspace));
+               .flatMapMany(workspace -> permissionGroupService.getByDefaultWorkspace(workspace, AclPermission.ASSIGN_PERMISSION_GROUPS));
 
        // Map to PermissionGroupInfoDTO
        Flux<PermissionGroupInfoDTO> permissionGroupInfoFlux = permissionGroupFlux
@@ -537,7 +547,8 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
                         .switchIfEmpty(Mono.error(new AppsmithException(
                                 AppsmithError.NO_RESOURCE_FOUND, FieldName.WORKSPACE, workspaceId
                         )))
-                        .flatMap(repository::archive);
+                        .flatMap(repository::archive)
+                        .flatMap(analyticsService::sendDeleteEvent);
             } else {
                 return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
             }

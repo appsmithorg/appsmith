@@ -22,6 +22,7 @@ import com.appsmith.server.services.DatasourceContextService;
 import com.appsmith.server.services.DatasourceService;
 import com.appsmith.server.services.MarketplaceService;
 import com.appsmith.server.services.NewPageService;
+import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.services.PluginService;
 import com.appsmith.server.services.SessionUserService;
 import lombok.extern.slf4j.Slf4j;
@@ -63,10 +64,7 @@ import java.util.Map;
 import java.util.Optional;
 
 import static org.junit.Assert.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.spy;
 
 
 @RunWith(SpringRunner.class)
@@ -113,6 +111,9 @@ public class NewActionServiceCEImplTest {
     ResponseUtils responseUtils;
 
     @MockBean
+    PermissionGroupService permissionGroupService;
+
+    @MockBean
     NewActionRepository newActionRepository;
 
     private BodyExtractor.Context context;
@@ -139,8 +140,8 @@ public class NewActionServiceCEImplTest {
                 policyUtils,
                 authenticationValidator,
                 configService,
-                responseUtils
-        );
+                responseUtils,
+                permissionGroupService);
     }
 
     @Before

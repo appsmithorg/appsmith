@@ -24,28 +24,19 @@ describe("Validate Mongo CRUD with JSON Form", () => {
   });
 
   it("1. Create DS & then Add new Page and generate CRUD template using created datasource", () => {
-    propPane.ChangeTheme("Sharp");
-
-    agHelper.GenerateUUID();
-    cy.get("@guid").then((uid) => {
-      dataSources.NavigateToDSCreateNew();
-      dataSources.CreatePlugIn("MongoDB");
-      guid = uid;
-      agHelper.RenameWithInPane("Mongo " + guid, false);
-      dataSources.FillMongoDSForm();
-      dataSources.TestSaveDatasource();
-
+    propPane.ChangeTheme("Water Lily");
+    dataSources.CreateDataSource("Mongo");
+    cy.get("@dsName").then(($dsName) => {
+      dsName = $dsName;
       ee.AddNewPage();
       agHelper.GetNClick(homePage._buildFromDataTableActionCard);
       agHelper.GetNClick(dataSources._selectDatasourceDropdown);
       agHelper.GetNClickByContains(
         dataSources._dropdownOption,
-        "Mongo " + guid,
-      );
-      cy.wrap("Mongo " + guid).as("dsName");
+        dsName,
+      )
     });
     agHelper.ValidateNetworkStatus("@getDatasourceStructure"); //Making sure table dropdown is populated
-    agHelper.WaitUntilToastDisappear("datasource updated successfully");
     agHelper.GetNClick(dataSources._selectTableDropdown);
     agHelper.GetNClickByContains(dataSources._dropdownOption, "pokemon");
     GenerateCRUDNValidateDeployPage(
@@ -101,7 +92,6 @@ describe("Validate Mongo CRUD with JSON Form", () => {
     agHelper.GetNClick(dataSources._generatePageBtn);
     agHelper.ValidateNetworkStatus("@replaceLayoutWithCRUDPage", 201);
     //agHelper.ValidateToastMessage("Successfully generated a page");// Commenting this since FindQuery failure appears sometimes
-    agHelper.WaitUntilToastDisappear("Successfully generated a page");
     agHelper.ValidateNetworkStatus("@getActions", 200);
     agHelper.ValidateNetworkStatus("@postExecute", 200);
     agHelper.ValidateNetworkStatus("@updateLayout", 200);
@@ -131,15 +121,5 @@ describe("Validate Mongo CRUD with JSON Form", () => {
         });
     });
     dataSources.AssertJSONFormHeader(0, idIndex, "Id", "", true);
-  }
-
-  function RunQueryNVerify(expectdRecordCount = 1) {
-    dataSources.RunQuery();
-    agHelper.AssertElementVisible(dataSources._queryResponse("JSON"));
-    agHelper.AssertElementVisible(dataSources._queryResponse("RAW"));
-    agHelper.AssertElementVisible(
-      dataSources._queryRecordResult(expectdRecordCount),
-    );
-    agHelper.ActionContextMenuWithInPane("Delete");
   }
 });

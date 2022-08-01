@@ -14,7 +14,7 @@ import {
   removeFunctions,
   validateWidgetProperty,
 } from "./evaluationUtils";
-import DataTreeEvaluator from "workers/DataTreeEvaluator/DataTreeEvaluator";
+import DataTreeEvaluator from "workers/DataTreeEvaluator";
 import ReplayEntity from "entities/Replay";
 import evaluate, {
   evaluateAsync,
@@ -67,7 +67,7 @@ function messageEventListener(
               errors: [
                 {
                   type: EvalErrorTypes.CLONE_ERROR,
-                  message: e,
+                  message: (e as Error)?.message,
                   context: JSON.stringify(rest),
                 },
               ],
