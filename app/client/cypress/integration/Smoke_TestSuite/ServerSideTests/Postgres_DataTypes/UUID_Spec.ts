@@ -397,7 +397,7 @@ describe("UUID Datatype tests", function() {
     });
   });
 
-  it("13. Validate Drop of the Newly Created - uuidtype - Table from Postgres datasource", () => {
+  it.only("13. Validate Drop of the Newly Created - uuidtype - Table from Postgres datasource", () => {
     deployMode.NavigateBacktoEditor();
     ee.ExpandCollapseEntity("QUERIES/JS");
     ee.SelectEntityByName("dropTable");
@@ -414,7 +414,7 @@ describe("UUID Datatype tests", function() {
     ee.ExpandCollapseEntity("DATASOURCES", false);
   });
 
-  it("14. Verify Deletion of all created queries", () => {
+  it.only("14. Verify Deletion of all created queries", () => {
     dataSources.DeleteDatasouceFromWinthinDS(dsName, 409); //Since all queries exists
     ee.ExpandCollapseEntity("QUERIES/JS");
     ee.ActionContextMenuByEntityName("createTable", "Delete", "Are you sure?");
@@ -432,9 +432,15 @@ describe("UUID Datatype tests", function() {
       "Are you sure?",
     );
     ee.ActionContextMenuByEntityName("updateRecord", "Delete", "Are you sure?");
+
+    //Deleting APi's also
+    ee.ActionContextMenuByEntityName("guid", "Delete", "Are you sure?");
+    ee.ActionContextMenuByEntityName("nill", "Delete", "Are you sure?");
+    ee.ActionContextMenuByEntityName("version4", "Delete", "Are you sure?");
+    ee.ActionContextMenuByEntityName("version1", "Delete", "Are you sure?");
   });
 
-  it("15. Verify Deletion of datasource", () => {
+  it.only("15. Verify Deletion of datasource", () => {
     deployMode.DeployApp();
     deployMode.NavigateBacktoEditor();
     ee.ExpandCollapseEntity("QUERIES/JS");
