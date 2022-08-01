@@ -1102,6 +1102,7 @@ export const APP_THEME_BETA_CARD_CONTENT = () =>
 
 export const UPGRADE_TO_EE = (authLabel: string) =>
   `Hello, I would like to upgrade and start using ${authLabel} authentication.`;
+export const UPGRADE_TO_EE_GENERIC = () => `Hello, I would like to upgrade`;
 export const ADMIN_AUTH_SETTINGS_TITLE = () => "Select Authentication Method";
 export const ADMIN_AUTH_SETTINGS_SUBTITLE = () =>
   "Select a protocol you want to authenticate users with";

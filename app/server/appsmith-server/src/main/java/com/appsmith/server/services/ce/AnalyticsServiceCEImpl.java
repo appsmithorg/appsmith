@@ -169,7 +169,7 @@ public class AnalyticsServiceCEImpl implements AnalyticsServiceCE {
         // We will create an anonymous user object for event tracking if no user is present
         // Without this, a lot of flows meant for anonymous users will error out
 
-        // In case the event needs to be sent during sign in, then `sessionUserService.getCurrentUser()` returns Mono.emtpy()
+        // In case the event needs to be sent during sign in, then `sessionUserService.getCurrentUser()` returns Mono.empty()
         // Handle the same by returning an anonymous user only for sending events.
         User anonymousUser = new User();
         anonymousUser.setName(FieldName.ANONYMOUS_USER);
@@ -224,6 +224,10 @@ public class AnalyticsServiceCEImpl implements AnalyticsServiceCE {
 
     public <T extends BaseDomain> Mono<T> sendDeleteEvent(T object, Map<String, Object> extraProperties) {
         return sendObjectEvent(AnalyticsEvents.DELETE, object, extraProperties);
+    }
+
+    public <T extends BaseDomain> Mono<T> sendArchiveEvent(T object, Map<String, Object> extraProperties) {
+        return sendObjectEvent(AnalyticsEvents.ARCHIVE, object, extraProperties);
     }
 
     public <T extends BaseDomain> Mono<T> sendDeleteEvent(T object) {
