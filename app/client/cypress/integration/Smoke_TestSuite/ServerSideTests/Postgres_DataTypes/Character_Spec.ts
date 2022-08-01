@@ -1,6 +1,6 @@
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 
-let guid: any, dsName: any, query: string;
+let dsName: any, query: string;
 const agHelper = ObjectsRegistry.AggregateHelper,
   ee = ObjectsRegistry.EntityExplorer,
   dataSources = ObjectsRegistry.DataSources,
@@ -30,7 +30,7 @@ describe("Character Datatype tests", function() {
     agHelper.GetNClick(dataSources._templateMenu);
     agHelper.RenameWithInPane("createTable");
     dataSources.EnterQuery(query);
-     agHelper.FocusElement(locator._codeMirrorTextArea);
+    agHelper.FocusElement(locator._codeMirrorTextArea);
     dataSources.RunQuery();
     ee.ExpandCollapseEntity("DATASOURCES");
     ee.ExpandCollapseEntity(dsName);
@@ -49,15 +49,13 @@ describe("Character Datatype tests", function() {
     dataSources.EnterQuery(query);
   });
 
-  it("4. Creating INSERT query - chartypes", () => {
+  it("4. Creating all queries - chartypes", () => {
     query = `INSERT INTO public."chartypes" ("One(1)", "AsMany", "Limited(4)", "Unlimited")
     VALUES ({{Insertone.text}}, {{Insertasmany.text}}, {{Insertlimited.text}}::varchar(4), {{Insertunlimited.text}});`;
     ee.ActionTemplateMenuByEntityName("public.chartypes", "INSERT");
     agHelper.RenameWithInPane("insertRecord");
     dataSources.EnterQuery(query);
-  });
 
-  it("5. Creating UPDATE query - chartypes", () => {
     query = `UPDATE public."chartypes" SET
     "One(1)" = {{Updateone.text}},
     "AsMany" = {{Updateasmany.text}},
@@ -67,24 +65,18 @@ describe("Character Datatype tests", function() {
     ee.ActionTemplateMenuByEntityName("public.chartypes", "UPDATE");
     agHelper.RenameWithInPane("updateRecord");
     dataSources.EnterQuery(query);
-  });
 
-  it("5. Creating DELETE query with condition - chartypes", () => {
     query = `DELETE FROM public."chartypes"
     WHERE serialId = {{Table1.selectedRow.serialid}};`;
     ee.ActionTemplateMenuByEntityName("public.chartypes", "DELETE");
     agHelper.RenameWithInPane("deleteRecord");
     dataSources.EnterQuery(query);
-  });
 
-  it("6. Creating DELETE query for complete table empty - chartypes", () => {
     query = `DELETE FROM public."chartypes"`;
     ee.ActionTemplateMenuByEntityName("public.chartypes", "DELETE");
     agHelper.RenameWithInPane("deleteAllRecords");
     dataSources.EnterQuery(query);
-  });
 
-  it("7. Creating DROP table query - chartypes", () => {
     query = `drop table public."chartypes"`;
     ee.ActionTemplateMenuByEntityName("public.chartypes", "DELETE");
     agHelper.RenameWithInPane("dropTable");
@@ -93,7 +85,7 @@ describe("Character Datatype tests", function() {
     ee.ExpandCollapseEntity(dsName, false);
   });
 
-  it("8. Inserting record (null values) - chartypes", () => {
+  it("5. Inserting record (null values) - chartypes", () => {
     ee.SelectEntityByName("Page1");
     deployMode.DeployApp();
     table.WaitForTableEmpty(); //asserting table is empty before inserting!
@@ -118,7 +110,7 @@ describe("Character Datatype tests", function() {
     });
   });
 
-  it("9. Inserting record (not null values) - chartypes", () => {
+  it("6. Inserting record (not null values) - chartypes", () => {
     agHelper.ClickButton("Run InsertQuery");
     agHelper.AssertElementVisible(locator._modal);
     agHelper.EnterInputText("One_1_", "a");
@@ -152,7 +144,7 @@ describe("Character Datatype tests", function() {
     });
   });
 
-  it("10. Inserting another record (not null values) - chartypes", () => {
+  it("7. Inserting another record (not null values) - chartypes", () => {
     agHelper.ClickButton("Run InsertQuery");
     agHelper.AssertElementVisible(locator._modal);
     agHelper.EnterInputText("One_1_", "<");
@@ -186,7 +178,7 @@ describe("Character Datatype tests", function() {
     });
   });
 
-  it("11. Updating record (emtying some field) - chartypes", () => {
+  it("8. Updating record (emtying some field) - chartypes", () => {
     table.SelectTableRow(2);
     agHelper.ClickButton("Run UpdateQuery");
     agHelper.AssertElementVisible(locator._modal);
@@ -217,7 +209,7 @@ describe("Character Datatype tests", function() {
     });
   });
 
-  it("12. Deleting records - chartypes", () => {
+  it("9. Deleting records - chartypes", () => {
     table.SelectTableRow(1);
     agHelper.ClickButton("DeleteQuery", 1);
     agHelper.ValidateNetworkStatus("@postExecute", 200);
@@ -231,7 +223,7 @@ describe("Character Datatype tests", function() {
     });
   });
 
-  it("13. Updating record (null inserted record) - chartypes", () => {
+  it("10. Updating record (null inserted record) - chartypes", () => {
     agHelper.ClickButton("Run UpdateQuery");
     agHelper.AssertElementVisible(locator._modal);
     //agHelper.EnterInputText("One_1_", "&");
@@ -266,7 +258,7 @@ describe("Character Datatype tests", function() {
     });
   });
 
-  it("14. Inserting another record (+ve record - to check serial column) - chartypes", () => {
+  it("11. Inserting another record (+ve record - to check serial column) - chartypes", () => {
     agHelper.ClickButton("Run InsertQuery");
     agHelper.AssertElementVisible(locator._modal);
     agHelper.EnterInputText("One_1_", "e");
@@ -299,7 +291,7 @@ describe("Character Datatype tests", function() {
     });
   });
 
-  it("15. Deleting records - chartypes", () => {
+  it("12. Deleting records - chartypes", () => {
     table.SelectTableRow(1);
     agHelper.ClickButton("DeleteQuery", 1);
     agHelper.AssertElementVisible(locator._spanButton("Run InsertQuery"));
@@ -311,14 +303,14 @@ describe("Character Datatype tests", function() {
     });
   });
 
-  it("16. Deleting all records from table - chartypes", () => {
+  it("13. Deleting all records from table - chartypes", () => {
     agHelper.GetNClick(locator._deleteIcon);
     agHelper.AssertElementVisible(locator._spanButton("Run InsertQuery"));
     agHelper.Sleep(2000);
     table.WaitForTableEmpty();
   });
 
-  it("17. Inserting record (null record - to check serial column) - chartypes", () => {
+  it("14. Inserting record (null record - to check serial column) - chartypes", () => {
     agHelper.ClickButton("Run InsertQuery");
     agHelper.AssertElementVisible(locator._modal);
     agHelper.ClickButton("Insert");
@@ -340,7 +332,7 @@ describe("Character Datatype tests", function() {
     });
   });
 
-  it("18. Validate Drop of the Newly Created - chartypes - Table from Postgres datasource", () => {
+  it("15. Validate Drop of the Newly Created - chartypes - Table from Postgres datasource", () => {
     deployMode.NavigateBacktoEditor();
     ee.ExpandCollapseEntity("QUERIES/JS");
     ee.SelectEntityByName("dropTable");
@@ -357,7 +349,7 @@ describe("Character Datatype tests", function() {
     ee.ExpandCollapseEntity("DATASOURCES", false);
   });
 
-  it("19. Verify Deletion of the datasource after all created queries are Deleted", () => {
+  it("16. Verify Deletion of the datasource after all created queries are Deleted", () => {
     dataSources.DeleteDatasouceFromWinthinDS(dsName, 409); //Since all queries exists
     ee.ExpandCollapseEntity("QUERIES/JS");
     ee.ActionContextMenuByEntityName("createTable", "Delete", "Are you sure?");
