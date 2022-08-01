@@ -12,7 +12,7 @@ import {
   WidgetType,
   WIDGET_DSL_STRUCTURE_PROPS,
 } from "constants/WidgetConstants";
-import { CANVAS_DEFAULT_MIN_HEIGHT_ROWS } from "constants/AppConstants";
+import { CANVAS_DEFAULT_MIN_ROWS } from "constants/AppConstants";
 
 export type FlattenedWidgetProps<orType = never> =
   | (WidgetProps & {
@@ -33,7 +33,7 @@ const initialState: CanvasWidgetsStructureReduxState = {
   type: "CANVAS_WIDGET",
   widgetId: MAIN_CONTAINER_WIDGET_ID,
   topRow: 0,
-  bottomRow: CANVAS_DEFAULT_MIN_HEIGHT_ROWS,
+  bottomRow: CANVAS_DEFAULT_MIN_ROWS,
 };
 
 /**
@@ -52,7 +52,7 @@ function denormalize(
     denormalize(childId, widgets),
   );
 
-  const staticProps = [...Object.keys(WIDGET_DSL_STRUCTURE_PROPS)];
+  const staticProps = Object.keys(WIDGET_DSL_STRUCTURE_PROPS);
 
   const structure = pick(rootWidget, staticProps) as CanvasWidgetStructure;
 

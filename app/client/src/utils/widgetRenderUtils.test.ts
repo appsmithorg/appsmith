@@ -1,24 +1,8 @@
 import { DataTree } from "entities/DataTree/dataTreeFactory";
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
-import { areArraysEqual, buildChildWidgetTree } from "./widgetRenderUtils";
+import { buildChildWidgetTree } from "./widgetRenderUtils";
 
 describe("test EditorUtils methods", () => {
-  it("test areArraysEqual method", () => {
-    const OGArray = ["test1", "test2", "test3"];
-
-    let testArray: string[] = [];
-    expect(areArraysEqual(OGArray, testArray)).toBe(false);
-
-    testArray = ["test1", "test3"];
-    expect(areArraysEqual(OGArray, testArray)).toBe(false);
-
-    testArray = ["test1", "test2", "test3"];
-    expect(areArraysEqual(OGArray, testArray)).toBe(true);
-
-    testArray = ["test1", "test3", "test2"];
-    expect(areArraysEqual(OGArray, testArray)).toBe(true);
-  });
-
   describe("should test buildChildWidgetTree method", () => {
     const canvasWidgets = ({
       "1": {
