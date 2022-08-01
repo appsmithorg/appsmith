@@ -2730,7 +2730,7 @@ public class ActionServiceCE_Test {
         mockResult.setIsExecutionSuccess(true);
         mockResult.setBody("response-body");
 
-        Plugin installed_plugin = pluginRepository.findByPackageName("installed-plugin").block();
+        Plugin installed_plugin = pluginRepository.findByPackageName("restapi-plugin").block();
         MockDataSource mockDataSource = new MockDataSource();
         mockDataSource.setName("Users");
         mockDataSource.setWorkspaceId(workspaceId);
