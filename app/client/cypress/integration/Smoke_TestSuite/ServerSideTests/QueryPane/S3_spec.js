@@ -524,8 +524,8 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
     cy.get(generatePage.uploadFilesS3).attachFile(fixturePath);
     cy.wait(2000);
     cy.get(generatePage.uploadBtn).click();
-    cy.wait(1000);
-    cy.clickButton("Upload", false);
+    cy.wait(3000);
+    cy.clickButton("Upload");
     cy.wait(1000);
     cy.wait("@postExecute").should(
       "have.nested.property",
@@ -591,8 +591,8 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
     cy.get(generatePage.uploadFilesS3).attachFile(fixturePath);
     cy.wait(2000);
     cy.get(generatePage.uploadBtn).click();
-    cy.wait(1000);
-    cy.clickButton("Upload", false);
+    cy.wait(3000);
+    cy.clickButton("Upload");
     cy.wait("@postExecute").should(
       "have.nested.property",
       "response.body.data.isExecutionSuccess",
