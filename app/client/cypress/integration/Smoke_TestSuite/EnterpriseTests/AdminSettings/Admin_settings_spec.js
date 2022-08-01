@@ -33,7 +33,7 @@ describe("Admin settings page", function() {
     }
   });
 
-  it.only("should test that Appsmith Watermark setting shows upgrade button", () => {
+  it("should test that Appsmith Watermark setting shows upgrade button", () => {
     cy.visit("/settings/general");
 
     // checking if the setting contains a word 'Upgrade

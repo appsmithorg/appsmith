@@ -11,16 +11,7 @@ const agHelper = ObjectsRegistry.AggregateHelper,
 
 describe("Array Datatype tests", function() {
   before(() => {
-    agHelper.GenerateUUID();
-    cy.get("@guid").then((uid) => {
-      dataSources.NavigateToDSCreateNew();
-      dataSources.CreatePlugIn("PostgreSQL");
-      guid = uid;
-      agHelper.RenameWithInPane("Postgres " + guid, false);
-      dataSources.FillPostgresDSForm();
-      dataSources.TestSaveDatasource();
-      cy.wrap("Postgres " + guid).as("dsName");
-    });
+    dataSources.CreateDataSource("Postgres");
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;
     });
@@ -491,7 +482,7 @@ describe("Array Datatype tests", function() {
     });
 
     //Verifying || with NULL
-    query = `SELECT ARRAY[1, 2] || NULL as "|| with NULL", array_append(ARRAY[1, 2], NULL) as "array_append";;`;
+    query = `SELECT ARRAY[1, 2] || NULL as "|| with NULL", array_append(ARRAY[1, 2], NULL) as "array_append";`;
     dataSources.EnterQuery(query);
     dataSources.RunQuery();
     dataSources.AssertQueryResponseHeaders(["|| with NULL", "array_append"]);
@@ -593,7 +584,7 @@ describe("Array Datatype tests", function() {
     //Verifying error
     query = `SELECT ARRAY[1, 2] || '7';`;
     dataSources.EnterQuery(query);
-    cy.get(locator._codeMirrorTextArea).focus();
+    agHelper.FocusElement(locator._codeMirrorTextArea);
     dataSources.RunQuery();
     agHelper
       .GetText(dataSources._queryError)
