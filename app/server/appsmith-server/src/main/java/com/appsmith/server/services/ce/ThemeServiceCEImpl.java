@@ -142,13 +142,16 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepositoryCE, Theme, St
                                 if (StringUtils.hasLength(currentTheme.getId()) && !currentTheme.isSystemTheme()
                                         && !StringUtils.hasLength(currentTheme.getApplicationId())) {
                                     // current theme is neither a system theme nor app theme, delete the user customizations
-                                    return repository.delete(currentTheme).then(applicationRepository.setAppTheme(
-                                            application.getId(), savedTheme.getId(), null, MANAGE_APPLICATIONS
-                                    )).thenReturn(savedTheme);
+                                    return repository.delete(currentTheme)
+                                            .then(applicationRepository.setAppTheme(
+                                                    application.getId(), savedTheme.getId(), null, MANAGE_APPLICATIONS
+                                            ))
+                                            .thenReturn(savedTheme);
                                 } else {
                                     return applicationRepository.setAppTheme(
-                                            application.getId(), savedTheme.getId(), null, MANAGE_APPLICATIONS
-                                    ).thenReturn(savedTheme);
+                                                    application.getId(), savedTheme.getId(), null, MANAGE_APPLICATIONS
+                                            )
+                                            .thenReturn(savedTheme);
                                 }
                             }).flatMap(savedTheme ->
                                     analyticsService.sendObjectEvent(AnalyticsEvents.APPLY, savedTheme)
@@ -279,6 +282,7 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepositoryCE, Theme, St
 
     @Override
     public Mono<Theme> persistCurrentTheme(String applicationId, String branchName, Theme resource) {
+
         return applicationService.findByBranchNameAndDefaultApplicationId(branchName, applicationId, MANAGE_APPLICATIONS)
                 .switchIfEmpty(Mono.error(
                         new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, applicationId))
@@ -347,7 +351,7 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepositoryCE, Theme, St
                 .switchIfEmpty(Mono.error(
                         new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, FieldName.THEME))
                 ).flatMap(theme -> {
-                    if (StringUtils.hasLength(theme.getApplicationId())) { // only persisted themes are allowed to delete
+                    if (StringUtils.hasLength(theme.getApplicationId())) { // only persisted themes are allowed to be deleted
                         return repository.archive(theme);
                     } else {
                         return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));

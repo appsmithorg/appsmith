@@ -23,17 +23,14 @@ import com.appsmith.server.domains.Page;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.PricingPlan;
-import com.appsmith.server.domains.QAction;
 import com.appsmith.server.domains.QActionCollection;
 import com.appsmith.server.domains.QApplication;
 import com.appsmith.server.domains.QComment;
 import com.appsmith.server.domains.QCommentThread;
-import com.appsmith.server.domains.QDocumentation;
 import com.appsmith.server.domains.QConfig;
 import com.appsmith.server.domains.QNewAction;
 import com.appsmith.server.domains.QNewPage;
 import com.appsmith.server.domains.QOrganization;
-import com.appsmith.server.domains.QPage;
 import com.appsmith.server.domains.QPlugin;
 import com.appsmith.server.domains.QTenant;
 import com.appsmith.server.domains.QTheme;
@@ -54,29 +51,31 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.helpers.TextUtils;
 import com.appsmith.server.repositories.NewPageRepository;
-import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.WorkspaceService;
 import com.github.cloudyrock.mongock.ChangeLog;
 import com.github.cloudyrock.mongock.ChangeSet;
 import com.github.cloudyrock.mongock.driver.mongodb.springdata.v3.decorator.impl.MongockTemplate;
 import com.google.gson.Gson;
-
 import io.changock.migration.api.annotations.NonLockGuarded;
 import lombok.extern.slf4j.Slf4j;
-
-import org.bson.BsonArray;
 import net.minidev.json.JSONObject;
+import org.springframework.core.io.DefaultResourceLoader;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.aggregation.AggregationUpdate;
 import org.springframework.data.mongodb.core.aggregation.Fields;
+import org.springframework.data.mongodb.core.index.Index;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.data.redis.core.ReactiveRedisOperations;
 import org.springframework.data.redis.core.script.RedisScript;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StreamUtils;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 
+import java.io.IOException;
+import java.nio.charset.Charset;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -94,7 +93,9 @@ import static com.appsmith.server.acl.AclPermission.MANAGE_INSTANCE_CONFIGURATIO
 import static com.appsmith.server.acl.AclPermission.MANAGE_INSTANCE_ENV;
 import static com.appsmith.server.acl.AclPermission.MANAGE_PERMISSION_GROUPS;
 import static com.appsmith.server.acl.AclPermission.READ_INSTANCE_CONFIGURATION;
+import static com.appsmith.server.acl.AclPermission.READ_THEMES;
 import static com.appsmith.server.constants.FieldName.DEFAULT_PERMISSION_GROUP;
+import static com.appsmith.server.constants.FieldName.PERMISSION_GROUP_ID;
 import static com.appsmith.server.migrations.DatabaseChangelog.dropIndexIfExists;
 import static com.appsmith.server.migrations.DatabaseChangelog.ensureIndexes;
 import static com.appsmith.server.migrations.DatabaseChangelog.makeIndex;
@@ -781,7 +782,7 @@ public class DatabaseChangelog2 {
                         fieldName(QBaseDomain.baseDomain.gitSyncId),
                         fieldName(QBaseDomain.baseDomain.deleted)
                 )
-                .named("defaultApplicationId_gitSyncId_deleted_compound_index")
+                        .named("defaultApplicationId_gitSyncId_deleted_compound_index")
         );
 
         ensureIndexes(mongockTemplate, NewAction.class,
@@ -790,7 +791,7 @@ public class DatabaseChangelog2 {
                         fieldName(QBaseDomain.baseDomain.gitSyncId),
                         fieldName(QBaseDomain.baseDomain.deleted)
                 )
-                .named("defaultApplicationId_gitSyncId_deleted_compound_index")
+                        .named("defaultApplicationId_gitSyncId_deleted_compound_index")
         );
 
         ensureIndexes(mongockTemplate, NewPage.class,
@@ -799,7 +800,7 @@ public class DatabaseChangelog2 {
                         fieldName(QBaseDomain.baseDomain.gitSyncId),
                         fieldName(QBaseDomain.baseDomain.deleted)
                 )
-                .named("defaultApplicationId_gitSyncId_deleted_compound_index")
+                        .named("defaultApplicationId_gitSyncId_deleted_compound_index")
         );
     }
 
@@ -807,6 +808,7 @@ public class DatabaseChangelog2 {
     /**
      * We'll remove the uniqe index on organization slugs. We'll also regenerate the slugs for all organizations as
      * most of them are outdated
+     *
      * @param mongockTemplate MongockTemplate instance
      */
     @ChangeSet(order = "008", id = "update-organization-slugs", author = "")
@@ -838,8 +840,8 @@ public class DatabaseChangelog2 {
         //Call stream instead of findAll to avoid out of memory if the collection is big
         //stream implementation lazy loads the data using underlying cursor open on the collection
         //the data is loaded as as and when needed by the pipeline
-        try(Stream<Organization> stream = mongockTemplate.stream(new Query().cursorBatchSize(10000), Organization.class)
-            .stream()) { 
+        try (Stream<Organization> stream = mongockTemplate.stream(new Query().cursorBatchSize(10000), Organization.class)
+                .stream()) {
             stream.forEach((organization) -> {
                 Workspace workspace = gson.fromJson(gson.toJson(organization), Workspace.class);
                 mongockTemplate.insert(workspace);
@@ -855,7 +857,7 @@ public class DatabaseChangelog2 {
     @ChangeSet(order = "010", id = "add-workspace-indexes", author = "")
     public void addWorkspaceIndexes(MongockTemplate mongockTemplate) {
         ensureIndexes(mongockTemplate, Workspace.class,
-            makeIndex("createdAt")
+                makeIndex("createdAt")
         );
     }
 
@@ -864,7 +866,7 @@ public class DatabaseChangelog2 {
         for (Sequence sequence : mongockTemplate.findAll(Sequence.class)) {
             String oldName = sequence.getName();
             String newName = oldName.replaceAll("(.*) for organization with _id : (.*)", "$1 for workspace with _id : $2");
-            if(!newName.equals(oldName)) {
+            if (!newName.equals(oldName)) {
                 //Using strings in the field names instead of QSequence becauce Sequence is not a AppsmithDomain
                 mongockTemplate.updateFirst(query(where("name").is(oldName)),
                         Update.update("name", newName),
@@ -901,7 +903,7 @@ public class DatabaseChangelog2 {
         Query tenantQuery = new Query();
         tenantQuery.addCriteria(where(fieldName(QTenant.tenant.slug)).is("default"));
         Tenant defaultTenant = mongockTemplate.findOne(tenantQuery, Tenant.class);
-        assert(defaultTenant != null);
+        assert (defaultTenant != null);
 
         // Set all the workspaces to be under the default tenant
         mongockTemplate.updateMulti(
@@ -913,12 +915,12 @@ public class DatabaseChangelog2 {
     }
 
     @ChangeSet(order = "014", id = "add-tenant-to-all-users-and-flush-redis", author = "")
-    public void addTenantToUsersAndFlushRedis(MongockTemplate mongockTemplate, ReactiveRedisOperations<String, String>reactiveRedisOperations) {
+    public void addTenantToUsersAndFlushRedis(MongockTemplate mongockTemplate, ReactiveRedisOperations<String, String> reactiveRedisOperations) {
 
         Query tenantQuery = new Query();
         tenantQuery.addCriteria(where(fieldName(QTenant.tenant.slug)).is("default"));
         Tenant defaultTenant = mongockTemplate.findOne(tenantQuery, Tenant.class);
-        assert(defaultTenant != null);
+        assert (defaultTenant != null);
 
         // Set all the users to be under the default tenant
         mongockTemplate.updateMulti(
@@ -938,34 +940,34 @@ public class DatabaseChangelog2 {
     }
 
     @ChangeSet(order = "015", id = "migrate-organizationId-to-workspaceId-in-domain-objects", author = "")
-    public void migrateOrganizationIdToWorkspaceIdInDomainObjects(MongockTemplate mongockTemplate, ReactiveRedisOperations<String, String>reactiveRedisOperations) {
+    public void migrateOrganizationIdToWorkspaceIdInDomainObjects(MongockTemplate mongockTemplate, ReactiveRedisOperations<String, String> reactiveRedisOperations) {
         mongockTemplate.updateMulti(new Query(),
-            AggregationUpdate.update().set(fieldName(QDatasource.datasource.workspaceId)).toValueOf(Fields.field(fieldName(QDatasource.datasource.organizationId))),
-            Datasource.class);
+                AggregationUpdate.update().set(fieldName(QDatasource.datasource.workspaceId)).toValueOf(Fields.field(fieldName(QDatasource.datasource.organizationId))),
+                Datasource.class);
         mongockTemplate.updateMulti(new Query(),
-            AggregationUpdate.update().set(fieldName(QActionCollection.actionCollection.workspaceId)).toValueOf(Fields.field(fieldName(QActionCollection.actionCollection.organizationId))),
-            ActionCollection.class);
+                AggregationUpdate.update().set(fieldName(QActionCollection.actionCollection.workspaceId)).toValueOf(Fields.field(fieldName(QActionCollection.actionCollection.organizationId))),
+                ActionCollection.class);
         mongockTemplate.updateMulti(new Query(),
-            AggregationUpdate.update().set(fieldName(QApplication.application.workspaceId)).toValueOf(Fields.field(fieldName(QApplication.application.organizationId))),
-            Application.class);
+                AggregationUpdate.update().set(fieldName(QApplication.application.workspaceId)).toValueOf(Fields.field(fieldName(QApplication.application.organizationId))),
+                Application.class);
         mongockTemplate.updateMulti(new Query(),
-            AggregationUpdate.update().set(fieldName(QNewAction.newAction.workspaceId)).toValueOf(Fields.field(fieldName(QNewAction.newAction.organizationId))),
-            NewAction.class);
+                AggregationUpdate.update().set(fieldName(QNewAction.newAction.workspaceId)).toValueOf(Fields.field(fieldName(QNewAction.newAction.organizationId))),
+                NewAction.class);
         mongockTemplate.updateMulti(new Query(),
-            AggregationUpdate.update().set(fieldName(QTheme.theme.workspaceId)).toValueOf(Fields.field(fieldName(QTheme.theme.organizationId))),
-            Theme.class);
+                AggregationUpdate.update().set(fieldName(QTheme.theme.workspaceId)).toValueOf(Fields.field(fieldName(QTheme.theme.organizationId))),
+                Theme.class);
         mongockTemplate.updateMulti(new Query(),
-            AggregationUpdate.update().set(fieldName(QUserData.userData.recentlyUsedWorkspaceIds)).toValueOf(Fields.field(fieldName(QUserData.userData.recentlyUsedOrgIds))),
-            UserData.class);
+                AggregationUpdate.update().set(fieldName(QUserData.userData.recentlyUsedWorkspaceIds)).toValueOf(Fields.field(fieldName(QUserData.userData.recentlyUsedOrgIds))),
+                UserData.class);
         mongockTemplate.updateMulti(new Query(),
-            AggregationUpdate.update().set(fieldName(QWorkspace.workspace.isAutoGeneratedWorkspace)).toValueOf(Fields.field(fieldName(QWorkspace.workspace.isAutoGeneratedOrganization))),
-            Workspace.class);
+                AggregationUpdate.update().set(fieldName(QWorkspace.workspace.isAutoGeneratedWorkspace)).toValueOf(Fields.field(fieldName(QWorkspace.workspace.isAutoGeneratedOrganization))),
+                Workspace.class);
         mongockTemplate.updateMulti(new Query(),
-            AggregationUpdate.update()
-                .set(fieldName(QUser.user.workspaceIds)).toValueOf(Fields.field(fieldName(QUser.user.organizationIds)))
-                .set(fieldName(QUser.user.currentWorkspaceId)).toValueOf(Fields.field(fieldName(QUser.user.currentOrganizationId)))
-                .set(fieldName(QUser.user.examplesWorkspaceId)).toValueOf(Fields.field(fieldName(QUser.user.examplesOrganizationId))),
-            User.class);
+                AggregationUpdate.update()
+                        .set(fieldName(QUser.user.workspaceIds)).toValueOf(Fields.field(fieldName(QUser.user.organizationIds)))
+                        .set(fieldName(QUser.user.currentWorkspaceId)).toValueOf(Fields.field(fieldName(QUser.user.currentOrganizationId)))
+                        .set(fieldName(QUser.user.examplesWorkspaceId)).toValueOf(Fields.field(fieldName(QUser.user.examplesOrganizationId))),
+                User.class);
 
         // Now sign out all the existing users since this change impacts the user object.
         final String script =
@@ -977,11 +979,11 @@ public class DatabaseChangelog2 {
         flushdb.subscribe();
 
         mongockTemplate.updateMulti(new Query(),
-            AggregationUpdate.update().set(fieldName(QComment.comment.workspaceId)).toValueOf(Fields.field(fieldName(QComment.comment.workspaceId))),
-            Comment.class);
+                AggregationUpdate.update().set(fieldName(QComment.comment.workspaceId)).toValueOf(Fields.field(fieldName(QComment.comment.workspaceId))),
+                Comment.class);
         mongockTemplate.updateMulti(new Query(),
-            AggregationUpdate.update().set(fieldName(QCommentThread.commentThread.workspaceId)).toValueOf(Fields.field(fieldName(QCommentThread.commentThread.workspaceId))),
-            CommentThread.class);
+                AggregationUpdate.update().set(fieldName(QCommentThread.commentThread.workspaceId)).toValueOf(Fields.field(fieldName(QCommentThread.commentThread.workspaceId))),
+                CommentThread.class);
     }
 
     @ChangeSet(order = "016", id = "organization-to-workspace-indexes-recreate", author = "")
@@ -995,17 +997,17 @@ public class DatabaseChangelog2 {
 
         ensureIndexes(mongockTemplate, Application.class,
                 makeIndex(
-                    fieldName(QApplication.application.workspaceId),
-                    fieldName(QApplication.application.name),
-                    fieldName(QApplication.application.deletedAt),
-                    "gitApplicationMetadata.remoteUrl",
-                    "gitApplicationMetadata.branchName")
+                        fieldName(QApplication.application.workspaceId),
+                        fieldName(QApplication.application.name),
+                        fieldName(QApplication.application.deletedAt),
+                        "gitApplicationMetadata.remoteUrl",
+                        "gitApplicationMetadata.branchName")
                         .unique().named("workspace_application_deleted_gitApplicationMetadata_compound_index")
         );
         ensureIndexes(mongockTemplate, Datasource.class,
                 makeIndex(fieldName(QDatasource.datasource.workspaceId),
-                    fieldName(QDatasource.datasource.name),
-                    fieldName(QDatasource.datasource.deletedAt))
+                        fieldName(QDatasource.datasource.name),
+                        fieldName(QDatasource.datasource.deletedAt))
                         .unique().named("workspace_datasource_deleted_compound_index")
         );
     }
@@ -1013,59 +1015,59 @@ public class DatabaseChangelog2 {
     @ChangeSet(order = "017", id = "migrate-permission-in-user", author = "")
     public void migratePermissionsInUser(MongockTemplate mongockTemplate) {
         mongockTemplate.updateMulti(
-            new Query().addCriteria(where("policies.permission").is("manage:userOrganization")),
-            new Update().set("policies.$.permission", "manage:userWorkspace"),
-            User.class);
+                new Query().addCriteria(where("policies.permission").is("manage:userOrganization")),
+                new Update().set("policies.$.permission", "manage:userWorkspace"),
+                User.class);
         mongockTemplate.updateMulti(
-            new Query().addCriteria(where("policies.permission").is("read:userOrganization")),
-            new Update().set("policies.$.permission", "read:userWorkspace"),
-            User.class);
+                new Query().addCriteria(where("policies.permission").is("read:userOrganization")),
+                new Update().set("policies.$.permission", "read:userWorkspace"),
+                User.class);
         mongockTemplate.updateMulti(
-            new Query().addCriteria(where("policies.permission").is("read:userOrganization")),
-            new Update().set("policies.$.permission", "read:userWorkspace"),
-            User.class);
+                new Query().addCriteria(where("policies.permission").is("read:userOrganization")),
+                new Update().set("policies.$.permission", "read:userWorkspace"),
+                User.class);
     }
 
     @ChangeSet(order = "018", id = "migrate-permission-in-workspace", author = "")
     public void migratePermissionsInWorkspace(MongockTemplate mongockTemplate) {
         mongockTemplate.updateMulti(
-            new Query().addCriteria(where("policies.permission").is("manage:organizations")),
-            new Update().set("policies.$.permission", "manage:workspaces"),
-            Workspace.class);
+                new Query().addCriteria(where("policies.permission").is("manage:organizations")),
+                new Update().set("policies.$.permission", "manage:workspaces"),
+                Workspace.class);
         mongockTemplate.updateMulti(
-            new Query().addCriteria(where("policies.permission").is("read:organizations")),
-            new Update().set("policies.$.permission", "read:workspaces"),
-            Workspace.class);
+                new Query().addCriteria(where("policies.permission").is("read:organizations")),
+                new Update().set("policies.$.permission", "read:workspaces"),
+                Workspace.class);
         mongockTemplate.updateMulti(
-            new Query().addCriteria(where("policies.permission").is("manage:orgApplications")),
-            new Update().set("policies.$.permission", "manage:workspaceApplications"),
-            Workspace.class);
+                new Query().addCriteria(where("policies.permission").is("manage:orgApplications")),
+                new Update().set("policies.$.permission", "manage:workspaceApplications"),
+                Workspace.class);
         mongockTemplate.updateMulti(
-            new Query().addCriteria(where("policies.permission").is("read:orgApplications")),
-            new Update().set("policies.$.permission", "read:workspaceApplications"),
-            Workspace.class);
+                new Query().addCriteria(where("policies.permission").is("read:orgApplications")),
+                new Update().set("policies.$.permission", "read:workspaceApplications"),
+                Workspace.class);
         mongockTemplate.updateMulti(
-            new Query().addCriteria(where("policies.permission").is("publish:orgApplications")),
-            new Update().set("policies.$.permission", "publish:workspaceApplications"),
-            Workspace.class);
+                new Query().addCriteria(where("policies.permission").is("publish:orgApplications")),
+                new Update().set("policies.$.permission", "publish:workspaceApplications"),
+                Workspace.class);
         mongockTemplate.updateMulti(
-            new Query().addCriteria(where("policies.permission").is("export:orgApplications")),
-            new Update().set("policies.$.permission", "export:workspaceApplications"),
-            Workspace.class);
+                new Query().addCriteria(where("policies.permission").is("export:orgApplications")),
+                new Update().set("policies.$.permission", "export:workspaceApplications"),
+                Workspace.class);
         mongockTemplate.updateMulti(
-            new Query().addCriteria(where("policies.permission").is("inviteUsers:organization")),
-            new Update().set("policies.$.permission", "inviteUsers:workspace"),
-            Workspace.class);
+                new Query().addCriteria(where("policies.permission").is("inviteUsers:organization")),
+                new Update().set("policies.$.permission", "inviteUsers:workspace"),
+                Workspace.class);
     }
 
     @ChangeSet(order = "019", id = "migrate-organizationId-to-workspaceId-in-newaction-datasource", author = "")
-    public void migrateOrganizationIdToWorkspaceIdInNewActionDatasource(MongockTemplate mongockTemplate, ReactiveRedisOperations<String, String>reactiveRedisOperations) {
+    public void migrateOrganizationIdToWorkspaceIdInNewActionDatasource(MongockTemplate mongockTemplate, ReactiveRedisOperations<String, String> reactiveRedisOperations) {
         mongockTemplate.updateMulti(new Query(Criteria.where("unpublishedAction.datasource.organizationId").exists(true)),
-            AggregationUpdate.update().set("unpublishedAction.datasource.workspaceId").toValueOf(Fields.field("unpublishedAction.datasource.organizationId")),
-            NewAction.class);
+                AggregationUpdate.update().set("unpublishedAction.datasource.workspaceId").toValueOf(Fields.field("unpublishedAction.datasource.organizationId")),
+                NewAction.class);
         mongockTemplate.updateMulti(new Query(Criteria.where("publishedAction.datasource.organizationId").exists(true)),
-            AggregationUpdate.update().set("publishedAction.datasource.workspaceId").toValueOf(Fields.field("publishedAction.datasource.organizationId")),
-            NewAction.class);
+                AggregationUpdate.update().set("publishedAction.datasource.workspaceId").toValueOf(Fields.field("publishedAction.datasource.organizationId")),
+                NewAction.class);
     }
 
     @ChangeSet(order = "020", id = "add-anonymousUser", author = "")
@@ -1184,7 +1186,7 @@ public class DatabaseChangelog2 {
                 .filter(userRole -> userRole.getRole().equals(AppsmithRole.ORGANIZATION_ADMIN))
                 .map(UserRole::getUserId)
                 .collect(Collectors.toSet());
-            
+
         adminPermissionGroup.setAssignedToUserIds(adminUserIds);
 
         // Developer Permissions
@@ -1244,7 +1246,7 @@ public class DatabaseChangelog2 {
         for (PermissionGroup permissionGroup : savedPermissionGroups) {
             for (PermissionGroup nestedPermissionGroup : savedPermissionGroups) {
                 Map<String, Policy> policyMap = policyUtils.generatePolicyFromPermissionGroupForObject(permissionGroup, nestedPermissionGroup.getId());
-                 policyUtils.addPoliciesToExistingObject(policyMap, nestedPermissionGroup);
+                policyUtils.addPoliciesToExistingObject(policyMap, nestedPermissionGroup);
             }
         }
 
@@ -1264,7 +1266,7 @@ public class DatabaseChangelog2 {
         mongockTemplate.stream(new Query(), Workspace.class)
                 .stream()
                 .forEach(workspace -> {
-                    if(workspace.getUserRoles() != null) {
+                    if (workspace.getUserRoles() != null) {
                         // Clear permission groups inside policies
                         // This ensures that migration can run again if aborted in between
                         workspace.getPolicies().forEach(policy -> {
@@ -1291,8 +1293,8 @@ public class DatabaseChangelog2 {
     public void inheritPoliciesToEveryChildObject(MongockTemplate mongockTemplate, @NonLockGuarded PolicyGenerator policyGenerator) {
         //Temporarily mark public applications
         mongockTemplate.updateMulti(new Query().addCriteria(Criteria.where("policies").elemMatch(Criteria.where("permission").is(AclPermission.READ_APPLICATIONS.getValue()).and("users").is("anonymousUser"))),
-            new Update().set("makePublic", true),
-            Application.class);
+                new Update().set("makePublic", true),
+                Application.class);
         mongockTemplate.stream(new Query(), Workspace.class)
                 .stream()
                 .forEach(workspace -> {
@@ -1362,7 +1364,7 @@ public class DatabaseChangelog2 {
         publicPermissionGroup = mongockTemplate.save(publicPermissionGroup);
 
         application.setDefaultPermissionGroup(publicPermissionGroup.getId());
-        
+
         String permissionGroupId = publicPermissionGroup.getId();
 
         Map<String, Policy> applicationPolicyMap = policyUtils
@@ -1438,8 +1440,8 @@ public class DatabaseChangelog2 {
                 });
         //unmark public applications
         mongockTemplate.updateMulti(new Query().addCriteria(Criteria.where("makePublic").is(true)),
-            new Update().unset("makePublic"),
-            Application.class);
+                new Update().unset("makePublic"),
+                Application.class);
     }
 
     @ChangeSet(order = "024", id = "add-instance-config-object", author = "")
@@ -1467,7 +1469,7 @@ public class DatabaseChangelog2 {
 
         Query adminUserQuery = new Query();
         adminUserQuery.addCriteria(where(fieldName(QBaseDomain.baseDomain.policies))
-                        .elemMatch(where("permission").is(MANAGE_INSTANCE_ENV.getValue())));
+                .elemMatch(where("permission").is(MANAGE_INSTANCE_ENV.getValue())));
         List<User> adminUsers = mongockTemplate.find(adminUserQuery, User.class);
 
         instanceManagerPermissionGroup.setAssignedToUserIds(
@@ -1511,5 +1513,141 @@ public class DatabaseChangelog2 {
         savedPermissionGroup.setPermissions(permissions);
 
         mongockTemplate.save(savedPermissionGroup);
+    }
+
+    @ChangeSet(order = "25", id = "add-anonymous-user-permission-group", author = "")
+    public void addAnonymousUserPermissionGroup(MongockTemplate mongockTemplate) {
+        Query anonymousUserPermissionConfig = new Query();
+        anonymousUserPermissionConfig.addCriteria(where(fieldName(QConfig.config1.name)).is(FieldName.PUBLIC_PERMISSION_GROUP));
+
+        Config publicPermissionGroupConfig = mongockTemplate.findOne(anonymousUserPermissionConfig, Config.class);
+
+        if (publicPermissionGroupConfig != null) {
+            return;
+        }
+
+        PermissionGroup publicPermissionGroup = new PermissionGroup();
+        publicPermissionGroup.setName(FieldName.PUBLIC_PERMISSION_GROUP);
+        publicPermissionGroup.setDescription("Role for giving accesses for all objects to anonymous users");
+
+        Query tenantQuery = new Query();
+        tenantQuery.addCriteria(where(fieldName(QTenant.tenant.slug)).is("default"));
+        Tenant tenant = mongockTemplate.findOne(tenantQuery, Tenant.class);
+
+        Query userQuery = new Query();
+        userQuery.addCriteria(where(fieldName(QUser.user.email)).is(FieldName.ANONYMOUS_USER))
+                .addCriteria(where(fieldName(QUser.user.tenantId)).is(tenant.getId()));
+        User anonymousUser = mongockTemplate.findOne(userQuery, User.class);
+
+
+        // Give access to anonymous user to the permission group.
+        publicPermissionGroup.setAssignedToUserIds(Set.of(anonymousUser.getId()));
+        PermissionGroup savedPermissionGroup = mongockTemplate.save(publicPermissionGroup);
+
+        publicPermissionGroupConfig = new Config();
+        publicPermissionGroupConfig.setName(FieldName.PUBLIC_PERMISSION_GROUP);
+
+        publicPermissionGroupConfig.setConfig(new JSONObject(Map.of(PERMISSION_GROUP_ID, savedPermissionGroup.getId())));
+
+        mongockTemplate.save(publicPermissionGroupConfig);
+        return;
+    }
+
+    @ChangeSet(order = "26", id = "create-system-themes-v3", author = "", runAlways = true)
+    public void createSystemThemes3(MongockTemplate mongockTemplate) throws IOException {
+        Index systemThemeIndex = new Index()
+                .on(fieldName(QTheme.theme.isSystemTheme), Sort.Direction.ASC)
+                .named("system_theme_index")
+                .background();
+
+        Index applicationIdIndex = new Index()
+                .on(fieldName(QTheme.theme.applicationId), Sort.Direction.ASC)
+                .on(fieldName(QTheme.theme.deleted), Sort.Direction.ASC)
+                .named("application_id_index")
+                .background();
+
+        dropIndexIfExists(mongockTemplate, Theme.class, "system_theme_index");
+        dropIndexIfExists(mongockTemplate, Theme.class, "application_id_index");
+        ensureIndexes(mongockTemplate, Theme.class, systemThemeIndex, applicationIdIndex);
+
+        final String themesJson = StreamUtils.copyToString(
+                new DefaultResourceLoader().getResource("system-themes.json").getInputStream(),
+                Charset.defaultCharset()
+        );
+        Theme[] themes = new Gson().fromJson(themesJson, Theme[].class);
+
+        Theme legacyTheme = null;
+        boolean themeExists = false;
+
+        // Make this theme accessible to anonymous users.
+        Query anonymousUserPermissionConfig = new Query();
+        anonymousUserPermissionConfig.addCriteria(where(fieldName(QConfig.config1.name)).is(FieldName.PUBLIC_PERMISSION_GROUP));
+        Config publicPermissionGroupConfig = mongockTemplate.findOne(anonymousUserPermissionConfig, Config.class);
+
+        String permissionGroupId = publicPermissionGroupConfig.getConfig().getAsString(PERMISSION_GROUP_ID);
+
+        PermissionGroup publicPermissionGroup = mongockTemplate.findOne(query(where("_id").is(permissionGroupId)), PermissionGroup.class);
+
+        // Initialize the permissions for the role
+        HashSet<Permission> permissions = new HashSet<>();
+        if (publicPermissionGroup.getPermissions() != null) {
+            permissions.addAll(publicPermissionGroup.getPermissions());
+        }
+
+        Policy policyWithCurrentPermission = Policy.builder()
+                .permission(READ_THEMES.getValue())
+                .permissionGroups(Set.of(publicPermissionGroup.getId()))
+                .build();
+
+        for (Theme theme : themes) {
+            theme.setSystemTheme(true);
+            theme.setCreatedAt(Instant.now());
+            theme.setPolicies(Set.of(policyWithCurrentPermission));
+            Query query = new Query(Criteria.where(fieldName(QTheme.theme.name)).is(theme.getName())
+                    .and(fieldName(QTheme.theme.isSystemTheme)).is(true));
+
+            Theme savedTheme = mongockTemplate.findOne(query, Theme.class);
+            if (savedTheme == null) {  // this theme does not exist, create it
+                savedTheme = mongockTemplate.save(theme);
+            } else { // theme already found, update
+                themeExists = true;
+                savedTheme.setDisplayName(theme.getDisplayName());
+                savedTheme.setPolicies(theme.getPolicies());
+                savedTheme.setConfig(theme.getConfig());
+                savedTheme.setProperties(theme.getProperties());
+                savedTheme.setStylesheet(theme.getStylesheet());
+                if (savedTheme.getCreatedAt() == null) {
+                    savedTheme.setCreatedAt(Instant.now());
+                }
+                mongockTemplate.save(savedTheme);
+            }
+
+            if (theme.getName().equalsIgnoreCase(Theme.LEGACY_THEME_NAME)) {
+                legacyTheme = savedTheme;
+            }
+
+            // Add the access to this theme to the public permission group
+            Theme finalSavedTheme = savedTheme;
+            boolean isThemePermissionPresent = permissions.stream()
+                    .filter(p -> p.getAclPermission().equals(READ_THEMES) && p.getDocumentId().equals(finalSavedTheme.getId()))
+                    .findFirst()
+                    .isPresent();
+            if (!isThemePermissionPresent) {
+                permissions.add(new Permission(finalSavedTheme.getId(), READ_THEMES));
+            }
+        }
+
+        if (!themeExists) { // this is the first time we're running the migration
+            // migrate all applications and set legacy theme to them in both mode
+            Update update = new Update().set(fieldName(QApplication.application.publishedModeThemeId), legacyTheme.getId())
+                    .set(fieldName(QApplication.application.editModeThemeId), legacyTheme.getId());
+            mongockTemplate.updateMulti(
+                    new Query(where(fieldName(QApplication.application.deleted)).is(false)), update, Application.class
+            );
+        }
+
+        // Finally save the role which gives access to all the system themes to the anonymous user.
+        publicPermissionGroup.setPermissions(permissions);
+        mongockTemplate.save(publicPermissionGroup);
     }
 }

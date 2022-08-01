@@ -30,6 +30,7 @@ import reactor.test.StepVerifier;
 import javax.validation.Validator;
 import java.util.List;
 
+import static com.appsmith.server.acl.AclPermission.READ_WORKSPACES;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_INVITE_USERS;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -91,7 +92,7 @@ public class WorkspaceServiceUnitTest {
         testWorkspace.setId("test-org-id");
 
         // mock repository methods so that they return the objects we've created
-        Mockito.when(workspaceRepository.findById("test-org-id", WORKSPACE_INVITE_USERS))
+        Mockito.when(workspaceRepository.findById("test-org-id", READ_WORKSPACES))
                 .thenReturn(Mono.just(testWorkspace));
 
         Mono<List<UserAndPermissionGroupDTO>> workspaceMembers = userWorkspaceService.getWorkspaceMembers(testWorkspace.getId());

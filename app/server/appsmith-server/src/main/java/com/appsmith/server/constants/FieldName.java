@@ -128,12 +128,14 @@ public class FieldName {
     public static final Object GROUP_ID = "groupId";
     public static final Object USERNAME = "username";
     public static final Object NEW_GROUP_ID = "newGroupId";
-    public static final Object PERMISSION_GROUP_ID = null;
+    public static final String PERMISSION_GROUP_ID = "permissionGroupId";
 
     public static final String INSTANCE_CONFIG = "instanceConfig";
 
     public static final String INSTACE_ADMIN_ROLE = "Instance Administrator Role";
 
     public static final String DEFAULT_PERMISSION_GROUP = "defaultPermissionGroup";
+
+    public static final String PUBLIC_PERMISSION_GROUP = "publicPermissionGroup";
 
 }
