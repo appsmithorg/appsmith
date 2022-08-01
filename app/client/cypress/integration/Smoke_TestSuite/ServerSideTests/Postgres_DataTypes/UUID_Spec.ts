@@ -187,7 +187,7 @@ describe("UUID Datatype tests", function() {
 
   it.only("8. Updating record - uuidtype - updating only v1", () => {
     table.SelectTableRow(2); //As Table Selected row has issues due to fast selction
-    agHelper.Sleep(2000)//for table selection to be captured
+    agHelper.Sleep(2000); //for table selection to be captured
 
     table.ReadTableRowColumnData(2, 1, 200).then(($oldV1) => {
       table.ReadTableRowColumnData(2, 2, 2000).then(($oldV4) => {
@@ -209,6 +209,43 @@ describe("UUID Datatype tests", function() {
         });
         table.ReadTableRowColumnData(2, 2, 200).then(($newV4) => {
           expect($oldV4).to.eq($newV4); //making sure new v4 is not updated
+        });
+      });
+    });
+  });
+
+  it.only("9. Updating record - uuidtype - updating v4, guid", () => {
+    table.SelectTableRow(2); //As Table Selected row has issues due to fast selction
+    agHelper.Sleep(2000); //for table selection to be captured
+
+    table.ReadTableRowColumnData(2, 1, 200).then(($oldV1) => {
+      table.ReadTableRowColumnData(2, 2, 2000).then(($oldV4) => {
+        table.ReadTableRowColumnData(2, 3, 2000).then(($oldguid) => {
+          agHelper.ClickButton("Run UpdateQuery");
+          agHelper.AssertElementVisible(locator._modal);
+
+          agHelper.ClickButton("Generate new v4");
+          agHelper.WaitUntilToastDisappear("New V4 UUID available!");
+
+          agHelper.ClickButton("Generate new GUID");
+          agHelper.WaitUntilToastDisappear("New GUID available!");
+
+          agHelper.ClickButton("Update");
+          agHelper.AssertElementAbsence(locator._toastMsg); //Assert that Update did not fail
+          agHelper.AssertElementVisible(locator._spanButton("Run UpdateQuery"));
+          table.WaitUntilTableLoad();
+          table.ReadTableRowColumnData(2, 0, 2000).then(($cellData) => {
+            expect($cellData).to.eq("3"); //asserting serial column is inserting fine in sequence
+          });
+          table.ReadTableRowColumnData(2, 1, 200).then(($newV1) => {
+            expect($oldV1).to.eq($newV1); //making sure v1 is same
+          });
+          table.ReadTableRowColumnData(2, 2, 200).then(($newV4) => {
+            expect($oldV4).to.not.eq($newV4); //making sure new v4 is updated
+          });
+          table.ReadTableRowColumnData(2, 3, 200).then(($newguid) => {
+            expect($oldguid).to.not.eq($newguid); //making sure new guid is updated
+          });
         });
       });
     });
