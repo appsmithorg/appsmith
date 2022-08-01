@@ -20,6 +20,8 @@ import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.repositories.TenantRepository;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.repositories.WorkspaceRepository;
+import com.appsmith.server.services.UserService;
+
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Bean;
@@ -60,7 +62,8 @@ public class SeedMongoData {
                            PageRepository pageRepository,
                            PluginRepository pluginRepository,
                            ReactiveMongoTemplate mongoTemplate,
-                           TenantRepository tenantRepository) {
+                           TenantRepository tenantRepository,
+                           UserService userService) {
 
         log.info("Seeding the data");
         final String API_USER_EMAIL = "api_user";
@@ -304,6 +307,12 @@ public class SeedMongoData {
                             .flatMap(pageRepository::save)
                     )
                     .blockLast();
+            // Create user@appsmith.com using UserService
+            User newUser = new User();
+            newUser.setEmail("user@appsmith.com");
+            newUser.setPassword("new-user-test-password");
+            userService.create(newUser).block();
         };
+        
     }
 }
