@@ -18,8 +18,7 @@ import { renderDatasourceSection } from "pages/Editor/DataSourceEditor/Datasourc
 import { setDatsourceEditorMode } from "actions/datasourceActions";
 import { getQueryParams } from "utils/AppsmithUtils";
 import Menu from "components/ads/Menu";
-import { Button, Category, Icon, IconSize } from "design-system";
-import MenuItem from "components/ads/MenuItem";
+import { Button, Category, Icon, IconSize, MenuItem } from "design-system";
 import { deleteDatasource } from "actions/datasourceActions";
 import {
   getGenerateCRUDEnabledPluginMap,

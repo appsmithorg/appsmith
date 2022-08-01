@@ -53,11 +53,11 @@ import {
   Icon,
   IconName,
   IconSize,
+  MenuItem,
   Size,
   Text,
   TextType,
 } from "design-system";
-import MenuItem from "components/ads/MenuItem";
 import {
   duplicateApplication,
   updateApplication,

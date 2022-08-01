@@ -39,7 +39,7 @@ import {
   TooltipComponent,
 } from "design-system";
 import Menu from "components/ads/Menu";
-import MenuItem, { MenuItemProps } from "components/ads/MenuItem";
+import { MenuItem, MenuItemProps } from "design-system";
 import EditableText, {
   EditInteractionKind,
   SavingState,
