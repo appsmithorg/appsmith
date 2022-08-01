@@ -188,6 +188,9 @@ public class ApplicationServiceTest {
 
     @Autowired
     UserRepository userRepository;
+    
+    @Autowired
+    SessionUserService sessionUserService;
 
     String workspaceId;
 
@@ -200,6 +203,13 @@ public class ApplicationServiceTest {
     @Before
     @WithUserDetails(value = "api_user")
     public void setup() {
+
+        User currentUser = sessionUserService.getCurrentUser().block();
+        if (!currentUser.getEmail().equals("api_user")) {
+            // Don't do any setups
+            return;
+        }
+
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
         User apiUser = userService.findByEmail("api_user").block();
 
