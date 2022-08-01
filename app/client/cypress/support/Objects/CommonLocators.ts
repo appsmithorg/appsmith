@@ -29,6 +29,7 @@ export class CommonLocators {
     _empty = "span[name='no-response']"
     _contextMenuInPane = "span[name='context-menu']"
     _visibleTextDiv = (divText: string) => "//div[text()='" + divText + "']"
+    _visibleTextSpan = (spanText: string) => "//span[text()='" + spanText + "']";
     _openWidget = ".widgets .t--entity-add-btn"
     _dropHere = "#comment-overlay-wrapper-0"
     _crossBtn = "span.cancel-icon"
