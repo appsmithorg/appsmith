@@ -2,7 +2,6 @@ package com.appsmith.server.services;
 
 import com.appsmith.server.configurations.WithMockAppsmithUser;
 import com.appsmith.server.domains.LoginSource;
-import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
@@ -22,6 +21,7 @@ import reactor.test.StepVerifier;
 
 import java.util.Set;
 
+import static com.appsmith.server.constants.FieldName.ADMINISTRATOR;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @Slf4j
@@ -92,7 +92,7 @@ public class UserServiceWithDisabledSignupTest {
 
                     return permissionGroupRepository.findById(permissionGroup);
                 })
-                .map(PermissionGroup::getAssignedToUserIds);
+                .map(permissionGroup -> permissionGroup.getAssignedToUserIds());
 
         StepVerifier.create(Mono.zip(userMono, assignedToUsersMono))
                 .assertNext(tuple -> {
@@ -122,12 +122,10 @@ public class UserServiceWithDisabledSignupTest {
                     String workspaceName = user.computeFirstName() + "'s apps";
                     return workspaceRepository.findByName(workspaceName);
                 })
-                .flatMap(workspace -> {
-                    String permissionGroup = workspace.getDefaultPermissionGroups().stream().findFirst().get();
-
-                    return permissionGroupRepository.findById(permissionGroup);
-                })
-                .map(PermissionGroup::getAssignedToUserIds);
+                .flatMapMany(workspace -> permissionGroupRepository.findAllById(workspace.getDefaultPermissionGroups()))
+                .filter(permissionGroup -> permissionGroup.getName().startsWith(ADMINISTRATOR))
+                .single()
+                .map(permissionGroup -> permissionGroup.getAssignedToUserIds());
 
         StepVerifier.create(Mono.zip(userMono, assignedToUsersMono))
                 .assertNext(tuple -> {
