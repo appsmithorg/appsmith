@@ -36,6 +36,7 @@ import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.ActionViewDTO;
 import com.appsmith.server.dtos.LayoutActionUpdateDTO;
+import com.appsmith.server.dtos.Permission;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.DateUtils;
@@ -52,11 +53,13 @@ import com.appsmith.server.services.DatasourceContextService;
 import com.appsmith.server.services.DatasourceService;
 import com.appsmith.server.services.MarketplaceService;
 import com.appsmith.server.services.NewPageService;
+import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.services.PluginService;
 import com.appsmith.server.services.SessionUserService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.Sets;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang3.ObjectUtils;
@@ -139,6 +142,8 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
     private final ConfigService configService;
     private final ResponseUtils responseUtils;
 
+    private final PermissionGroupService permissionGroupService;
+
     public NewActionServiceCEImpl(Scheduler scheduler,
                                   Validator validator,
                                   MongoConverter mongoConverter,
@@ -157,7 +162,8 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                                   PolicyUtils policyUtils,
                                   AuthenticationValidator authenticationValidator,
                                   ConfigService configService,
-                                  ResponseUtils responseUtils) {
+                                  ResponseUtils responseUtils,
+                                  PermissionGroupService permissionGroupService) {
 
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.repository = repository;
@@ -173,6 +179,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
         this.policyUtils = policyUtils;
         this.authenticationValidator = authenticationValidator;
         this.configService = configService;
+        this.permissionGroupService = permissionGroupService;
         this.objectMapper = new ObjectMapper();
         this.responseUtils = responseUtils;
     }
@@ -1761,7 +1768,19 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                                                     policyUtils.addPoliciesToExistingObject(datasourcePolicyMap, datasource);
 
 
-                                            return datasourceService.save(updatedDatasource);
+                                            // Update the permission group to store the datasource execute permission
+                                            return permissionGroupService.findById(defaultPermissionGroup)
+                                                    .flatMap(permissionGroup -> {
+                                                        Set<Permission> permissions = permissionGroup.getPermissions();
+                                                        Permission datasourcePermission = new Permission(datasource.getId(), EXECUTE_DATASOURCES);
+
+                                                        permissionGroup.setPermissions(
+                                                                Sets.union(permissions, Sets.newHashSet(datasourcePermission))
+                                                        );
+
+                                                        return permissionGroupService.save(permissionGroup)
+                                                                .then(datasourceService.save(updatedDatasource));
+                                                    });
                                         });
                             });
                 });
