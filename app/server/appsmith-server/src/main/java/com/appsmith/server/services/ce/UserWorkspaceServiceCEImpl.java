@@ -198,9 +198,10 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
         // Read the workspace
         Mono<Workspace> workspaceMono = workspaceRepository.findById(workspaceId, AclPermission.READ_WORKSPACES);
 
+
         // Get default permission groups
         Flux<PermissionGroup> permissionGroupFlux = workspaceMono
-                .flatMapMany(workspace -> permissionGroupService.getByDefaultWorkspace(workspace));
+                .flatMapMany(workspace -> permissionGroupService.getByDefaultWorkspace(workspace, AclPermission.READ_PERMISSION_GROUPS));
 
         // Create a list of UserAndGroupDTO
         Mono<List<UserAndPermissionGroupDTO>> userAndPermissionGroupDTOsMono = permissionGroupFlux

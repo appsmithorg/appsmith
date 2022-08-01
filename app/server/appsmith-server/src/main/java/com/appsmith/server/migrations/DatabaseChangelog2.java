@@ -5,7 +5,11 @@ import com.appsmith.external.models.Policy;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.models.QBaseDomain;
 import com.appsmith.external.models.QDatasource;
+import com.appsmith.server.acl.AclPermission;
+import com.appsmith.server.acl.AppsmithRole;
+import com.appsmith.server.acl.PolicyGenerator;
 import com.appsmith.server.constants.FieldName;
+import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationPage;
@@ -15,17 +19,21 @@ import com.appsmith.server.domains.Config;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Organization;
+import com.appsmith.server.domains.Page;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.PricingPlan;
+import com.appsmith.server.domains.QAction;
 import com.appsmith.server.domains.QActionCollection;
 import com.appsmith.server.domains.QApplication;
 import com.appsmith.server.domains.QComment;
 import com.appsmith.server.domains.QCommentThread;
+import com.appsmith.server.domains.QDocumentation;
 import com.appsmith.server.domains.QConfig;
 import com.appsmith.server.domains.QNewAction;
 import com.appsmith.server.domains.QNewPage;
 import com.appsmith.server.domains.QOrganization;
+import com.appsmith.server.domains.QPage;
 import com.appsmith.server.domains.QPlugin;
 import com.appsmith.server.domains.QTenant;
 import com.appsmith.server.domains.QTheme;
@@ -37,17 +45,26 @@ import com.appsmith.server.domains.Tenant;
 import com.appsmith.server.domains.Theme;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserData;
+import com.appsmith.server.domains.UserRole;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.Permission;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.helpers.TextUtils;
+import com.appsmith.server.repositories.NewPageRepository;
+import com.appsmith.server.services.ApplicationService;
+import com.appsmith.server.services.WorkspaceService;
 import com.github.cloudyrock.mongock.ChangeLog;
 import com.github.cloudyrock.mongock.ChangeSet;
 import com.github.cloudyrock.mongock.driver.mongodb.springdata.v3.decorator.impl.MongockTemplate;
 import com.google.gson.Gson;
+
+import io.changock.migration.api.annotations.NonLockGuarded;
 import lombok.extern.slf4j.Slf4j;
+
+import org.bson.BsonArray;
 import net.minidev.json.JSONObject;
 import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.data.domain.Sort;
@@ -1059,7 +1076,7 @@ public class DatabaseChangelog2 {
             NewAction.class);
     }
 
-    @ChangeSet(order = "20", id = "add-anonymousUser", author = "")
+    @ChangeSet(order = "020", id = "add-anonymousUser", author = "")
     public void addAnonymousUser(MongockTemplate mongockTemplate) {
         Query tenantQuery = new Query();
         tenantQuery.addCriteria(where(fieldName(QTenant.tenant.slug)).is("default"));
@@ -1083,7 +1100,357 @@ public class DatabaseChangelog2 {
         }
     }
 
-    @ChangeSet(order = "21", id = "add-instance-config-object", author = "")
+    private String getDefaultNameForGroupInWorkspace(String prefix, String workspaceName) {
+        return prefix + " - " + workspaceName;
+    }
+
+    private Set<PermissionGroup> generateDefaultPermissionGroupsWithoutPermissions(MongockTemplate mongockTemplate, Workspace workspace) {
+        String workspaceName = workspace.getName();
+        String workspaceId = workspace.getId();
+        // Administrator permission group
+        PermissionGroup adminPermissionGroup = new PermissionGroup();
+        adminPermissionGroup.setName(getDefaultNameForGroupInWorkspace(FieldName.ADMINISTRATOR, workspaceName));
+        adminPermissionGroup.setDefaultWorkspaceId(workspaceId);
+        adminPermissionGroup.setTenantId(workspace.getTenantId());
+        adminPermissionGroup.setDescription(FieldName.WORKSPACE_ADMINISTRATOR_DESCRIPTION);
+        Set<Permission> workspacePermissions = AppsmithRole.ORGANIZATION_ADMIN
+                .getPermissions()
+                .stream()
+                .filter(aclPermission -> aclPermission.getEntity().equals(Workspace.class))
+                .map(aclPermission -> new Permission(workspace.getId(), aclPermission))
+                .collect(Collectors.toSet());
+        adminPermissionGroup.setPermissions(workspacePermissions);
+        adminPermissionGroup = mongockTemplate.save(adminPermissionGroup);
+
+        // Developer permission group
+        PermissionGroup developerPermissionGroup = new PermissionGroup();
+        developerPermissionGroup.setName(getDefaultNameForGroupInWorkspace(FieldName.DEVELOPER, workspaceName));
+        developerPermissionGroup.setDefaultWorkspaceId(workspaceId);
+        developerPermissionGroup.setTenantId(workspace.getTenantId());
+        developerPermissionGroup.setDescription(FieldName.WORKSPACE_DEVELOPER_DESCRIPTION);
+        workspacePermissions = AppsmithRole.ORGANIZATION_DEVELOPER
+                .getPermissions()
+                .stream()
+                .map(aclPermission -> new Permission(workspace.getId(), aclPermission))
+                .collect(Collectors.toSet());
+        developerPermissionGroup.setPermissions(workspacePermissions);
+        developerPermissionGroup = mongockTemplate.save(developerPermissionGroup);
+
+        // App viewer permission group
+        PermissionGroup viewerPermissionGroup = new PermissionGroup();
+        viewerPermissionGroup.setName(getDefaultNameForGroupInWorkspace(FieldName.VIEWER, workspaceName));
+        viewerPermissionGroup.setDefaultWorkspaceId(workspaceId);
+        viewerPermissionGroup.setTenantId(workspace.getTenantId());
+        viewerPermissionGroup.setDescription(FieldName.WORKSPACE_VIEWER_DESCRIPTION);
+        workspacePermissions = AppsmithRole.ORGANIZATION_VIEWER
+                .getPermissions()
+                .stream()
+                .map(aclPermission -> new Permission(workspace.getId(), aclPermission))
+                .collect(Collectors.toSet());
+        viewerPermissionGroup.setPermissions(workspacePermissions);
+        viewerPermissionGroup = mongockTemplate.save(viewerPermissionGroup);
+
+        return Set.of(adminPermissionGroup, developerPermissionGroup, viewerPermissionGroup);
+    }
+
+    private Set<PermissionGroup> generatePermissionsForDefaultPermissionGroups(MongockTemplate mongockTemplate, PolicyUtils policyUtils, Set<PermissionGroup> permissionGroups, Workspace workspace) {
+        PermissionGroup adminPermissionGroup = permissionGroups.stream()
+                .filter(permissionGroup -> permissionGroup.getName().startsWith(FieldName.ADMINISTRATOR))
+                .findFirst().get();
+        PermissionGroup developerPermissionGroup = permissionGroups.stream()
+                .filter(permissionGroup -> permissionGroup.getName().startsWith(FieldName.DEVELOPER))
+                .findFirst().get();
+        PermissionGroup viewerPermissionGroup = permissionGroups.stream()
+                .filter(permissionGroup -> permissionGroup.getName().startsWith(FieldName.VIEWER))
+                .findFirst().get();
+
+        // Administrator permissions
+        Set<Permission> workspacePermissions = AppsmithRole.ORGANIZATION_ADMIN
+                .getPermissions()
+                .stream()
+                .filter(aclPermission -> aclPermission.getEntity().equals(Workspace.class))
+                .map(aclPermission -> new Permission(workspace.getId(), aclPermission))
+                .collect(Collectors.toSet());
+        // The administrator should also be able to manage any of the three permissions groups
+        Set<Permission> permissionGroupPermissions = permissionGroups.stream()
+                .map(permissionGroup -> new Permission(permissionGroup.getId(), AclPermission.MANAGE_PERMISSION_GROUPS))
+                .collect(Collectors.toSet());
+        Set<Permission> readPermissionGroupPermissions = permissionGroups.stream()
+                .map(permissionGroup -> new Permission(permissionGroup.getId(), AclPermission.READ_PERMISSION_GROUPS))
+                .collect(Collectors.toSet());
+
+
+        Set<Permission> permissions = new HashSet<>();
+        permissions.addAll(workspacePermissions);
+        permissions.addAll(permissionGroupPermissions);
+        permissions.addAll(readPermissionGroupPermissions);
+        adminPermissionGroup.setPermissions(permissions);
+
+        // Assign admin user ids to the administrator permission group
+        Set<String> adminUserIds = workspace.getUserRoles()
+                .stream()
+                .filter(userRole -> userRole.getRole().equals(AppsmithRole.ORGANIZATION_ADMIN))
+                .map(UserRole::getUserId)
+                .collect(Collectors.toSet());
+            
+        adminPermissionGroup.setAssignedToUserIds(adminUserIds);
+
+        // Developer Permissions
+        workspacePermissions = AppsmithRole.ORGANIZATION_DEVELOPER
+                .getPermissions()
+                .stream()
+                .filter(aclPermission -> aclPermission.getEntity().equals(Workspace.class))
+                .map(aclPermission -> new Permission(workspace.getId(), aclPermission))
+                .collect(Collectors.toSet());
+        // The developer should also be able to assign developer & viewer permission groups
+        permissionGroupPermissions = Set.of(developerPermissionGroup, viewerPermissionGroup).stream()
+                .map(permissionGroup -> new Permission(permissionGroup.getId(), AclPermission.ASSIGN_PERMISSION_GROUPS))
+                .collect(Collectors.toSet());
+        permissions = new HashSet<>();
+        permissions.addAll(workspacePermissions);
+        permissions.addAll(permissionGroupPermissions);
+        permissions.addAll(readPermissionGroupPermissions);
+        developerPermissionGroup.setPermissions(permissions);
+
+        // Assign developer user ids to the developer permission group
+        Set<String> developerUserIds = workspace.getUserRoles()
+                .stream()
+                .filter(userRole -> userRole.getRole().equals(AppsmithRole.ORGANIZATION_DEVELOPER))
+                .map(UserRole::getUserId)
+                .collect(Collectors.toSet());
+
+        developerPermissionGroup.setAssignedToUserIds(developerUserIds);
+
+        // App Viewer Permissions
+        workspacePermissions = AppsmithRole.ORGANIZATION_VIEWER
+                .getPermissions()
+                .stream()
+                .filter(aclPermission -> aclPermission.getEntity().equals(Workspace.class))
+                .map(aclPermission -> new Permission(workspace.getId(), aclPermission))
+                .collect(Collectors.toSet());
+        // The app viewers should also be able to assign to viewer permission groups
+        permissionGroupPermissions = Set.of(viewerPermissionGroup).stream()
+                .map(permissionGroup -> new Permission(permissionGroup.getId(), AclPermission.ASSIGN_PERMISSION_GROUPS))
+                .collect(Collectors.toSet());
+        permissions = new HashSet<>();
+        permissions.addAll(workspacePermissions);
+        permissions.addAll(permissionGroupPermissions);
+        viewerPermissionGroup.setPermissions(permissions);
+
+        // Assign viewer user ids to the viewer permission group
+        Set<String> viewerUserIds = workspace.getUserRoles()
+                .stream()
+                .filter(userRole -> userRole.getRole().equals(AppsmithRole.ORGANIZATION_VIEWER))
+                .map(UserRole::getUserId)
+                .collect(Collectors.toSet());
+
+        viewerPermissionGroup.setAssignedToUserIds(viewerUserIds);
+
+        Set<PermissionGroup> savedPermissionGroups = Set.of(adminPermissionGroup, developerPermissionGroup, viewerPermissionGroup);
+
+        // Apply the permissions to the permission groups
+        for (PermissionGroup permissionGroup : savedPermissionGroups) {
+            for (PermissionGroup nestedPermissionGroup : savedPermissionGroups) {
+                Map<String, Policy> policyMap = policyUtils.generatePolicyFromPermissionGroupForObject(permissionGroup, nestedPermissionGroup.getId());
+                 policyUtils.addPoliciesToExistingObject(policyMap, nestedPermissionGroup);
+            }
+        }
+
+        // Save the permission groups
+        adminPermissionGroup = mongockTemplate.save(adminPermissionGroup);
+        developerPermissionGroup = mongockTemplate.save(developerPermissionGroup);
+        viewerPermissionGroup = mongockTemplate.save(viewerPermissionGroup);
+
+        return Set.of(adminPermissionGroup, developerPermissionGroup, viewerPermissionGroup);
+    }
+
+    @ChangeSet(order = "021", id = "add-default-permission-groups", author = "")
+    public void addDefaultPermissionGroups(MongockTemplate mongockTemplate, WorkspaceService workspaceService, @NonLockGuarded PolicyUtils policyUtils) {
+        // Drop PermissionGroup collection
+        // This ensures that migration can run again if aborted in between
+        mongockTemplate.dropCollection(PermissionGroup.class);
+        mongockTemplate.stream(new Query(), Workspace.class)
+                .stream()
+                .forEach(workspace -> {
+                    if(workspace.getUserRoles() != null) {
+                        // Clear permission groups inside policies
+                        // This ensures that migration can run again if aborted in between
+                        workspace.getPolicies().forEach(policy -> {
+                            policy.setPermissionGroups(new HashSet<>());
+                        });
+                        Set<PermissionGroup> permissionGroups = generateDefaultPermissionGroupsWithoutPermissions(mongockTemplate, workspace);
+                        // Set default permission groups
+                        workspace.setDefaultPermissionGroups(permissionGroups.stream().map(PermissionGroup::getId).collect(Collectors.toSet()));
+                        // Generate permissions and policies for the default permission groups
+                        permissionGroups = generatePermissionsForDefaultPermissionGroups(mongockTemplate, policyUtils, permissionGroups, workspace);
+                        // Apply the permissions to the workspace
+                        for (PermissionGroup permissionGroup : permissionGroups) {
+                            // Apply the permissions to the workspace
+                            Map<String, Policy> policyMap = policyUtils.generatePolicyFromPermissionGroupForObject(permissionGroup, workspace.getId());
+                            workspace = policyUtils.addPoliciesToExistingObject(policyMap, workspace);
+                        }
+                        // Save the workspace
+                        mongockTemplate.save(workspace);
+                    }
+                });
+    }
+
+    @ChangeSet(order = "022", id = "inherit-policies-to-every-child-object", author = "")
+    public void inheritPoliciesToEveryChildObject(MongockTemplate mongockTemplate, @NonLockGuarded PolicyGenerator policyGenerator) {
+        //Temporarily mark public applications
+        mongockTemplate.updateMulti(new Query().addCriteria(Criteria.where("policies").elemMatch(Criteria.where("permission").is(AclPermission.READ_APPLICATIONS.getValue()).and("users").is("anonymousUser"))),
+            new Update().set("makePublic", true),
+            Application.class);
+        mongockTemplate.stream(new Query(), Workspace.class)
+                .stream()
+                .forEach(workspace -> {
+                    // Process applications
+                    Set<Policy> applicationPolicies = policyGenerator.getAllChildPolicies(workspace.getPolicies(), Workspace.class, Application.class);
+                    mongockTemplate.updateMulti(new Query().addCriteria(Criteria.where(fieldName(QApplication.application.workspaceId)).is(workspace.getId())),
+                            new Update().set("policies", applicationPolicies),
+                            Application.class);
+
+                    // Process datasources
+                    Set<Policy> datasourcePolicies = policyGenerator.getAllChildPolicies(workspace.getPolicies(), Workspace.class, Datasource.class);
+                    mongockTemplate.updateMulti(new Query().addCriteria(Criteria.where(fieldName(QDatasource.datasource.workspaceId)).is(workspace.getId())),
+                            new Update().set("policies", datasourcePolicies),
+                            Datasource.class);
+
+                    // Get application ids
+                    Set<String> applicationIds = mongockTemplate.stream(new Query().addCriteria(Criteria.where(fieldName(QApplication.application.workspaceId)).is(workspace.getId())), Application.class)
+                            .stream()
+                            .map(Application::getId)
+                            .collect(Collectors.toSet());
+
+                    // Update pages
+                    Set<Policy> pagePolicies = policyGenerator.getAllChildPolicies(applicationPolicies, Application.class, Page.class);
+                    mongockTemplate.updateMulti(new Query().addCriteria(Criteria.where(fieldName(QNewPage.newPage.applicationId)).in(applicationIds)),
+                            new Update().set("policies", pagePolicies),
+                            NewPage.class);
+
+                    // Update NewActions
+                    Set<Policy> actionPolicies = policyGenerator.getAllChildPolicies(pagePolicies, Page.class, Action.class);
+                    mongockTemplate.updateMulti(new Query().addCriteria(Criteria.where(fieldName(QNewAction.newAction.applicationId)).in(applicationIds)),
+                            new Update().set("policies", actionPolicies),
+                            NewAction.class);
+
+                    // Update ActionCollections
+                    mongockTemplate.updateMulti(new Query().addCriteria(Criteria.where(fieldName(QActionCollection.actionCollection.applicationId)).in(applicationIds)),
+                            new Update().set("policies", actionPolicies),
+                            ActionCollection.class);
+
+                    // Update Themes
+                    Set<Policy> themePolicies = policyGenerator.getAllChildPolicies(applicationPolicies, Application.class, Theme.class);
+                    mongockTemplate.updateMulti(new Query().addCriteria(Criteria.where(fieldName(QTheme.theme.applicationId)).in(applicationIds)),
+                            new Update().set("policies", themePolicies),
+                            Theme.class);
+                });
+    }
+
+    private void makeApplicationPublic(PolicyUtils policyUtils, PolicyGenerator policyGenerator, NewPageRepository newPageRepository, Application application, Workspace workspace, MongockTemplate mongockTemplate, User anonymousUser) {
+        PermissionGroup publicPermissionGroup = new PermissionGroup();
+        publicPermissionGroup.setName(application.getName() + " Public");
+        publicPermissionGroup.setTenantId(workspace.getTenantId());
+        publicPermissionGroup.setDescription("Default permissions generated for sharing an application for viewing.");
+
+        Set<Policy> applicationPolicies = application.getPolicies();
+        Policy makePublicPolicy = applicationPolicies.stream()
+                .filter(policy -> policy.getPermission().equals(AclPermission.MAKE_PUBLIC_APPLICATIONS.getValue()))
+                .findFirst()
+                .get();
+
+        // Let this newly created permission group be assignable by everyone who has permission for make public application
+        Policy assignPermissionGroup = Policy.builder()
+                .permission(AclPermission.ASSIGN_PERMISSION_GROUPS.getValue())
+                .permissionGroups(makePublicPolicy.getPermissionGroups())
+                .build();
+
+        publicPermissionGroup.setPolicies(Set.of(assignPermissionGroup));
+        publicPermissionGroup.setAssignedToUserIds(Set.of(anonymousUser.getId()));
+        publicPermissionGroup = mongockTemplate.save(publicPermissionGroup);
+
+        application.setDefaultPermissionGroup(publicPermissionGroup.getId());
+        
+        String permissionGroupId = publicPermissionGroup.getId();
+
+        Map<String, Policy> applicationPolicyMap = policyUtils
+                .generatePolicyFromPermissionWithPermissionGroup(AclPermission.READ_APPLICATIONS, permissionGroupId);
+        Map<String, Policy> datasourcePolicyMap = policyUtils
+                .generatePolicyFromPermissionWithPermissionGroup(AclPermission.EXECUTE_DATASOURCES, permissionGroupId);
+
+        Set<String> datasourceIds = new HashSet<>();
+
+        mongockTemplate.stream(new Query().addCriteria(Criteria.where(fieldName(QNewAction.newAction.applicationId)).is(application.getId())), NewAction.class)
+                .stream()
+                .forEach(newAction -> {
+                    ActionDTO unpublishedAction = newAction.getUnpublishedAction();
+                    ActionDTO publishedAction = newAction.getPublishedAction();
+
+                    if (unpublishedAction.getDatasource() != null &&
+                            unpublishedAction.getDatasource().getId() != null) {
+                        datasourceIds.add(unpublishedAction.getDatasource().getId());
+                    }
+
+                    if (publishedAction != null &&
+                            publishedAction.getDatasource() != null &&
+                            publishedAction.getDatasource().getId() != null) {
+                        datasourceIds.add(publishedAction.getDatasource().getId());
+                    }
+                });
+
+        // Update and save application
+        application = policyUtils.addPoliciesToExistingObject(applicationPolicyMap, application);
+        mongockTemplate.save(application);
+        applicationPolicies = application.getPolicies();
+
+        // Update datasources
+        mongockTemplate.stream(new Query().addCriteria(Criteria.where(fieldName(QDatasource.datasource.id)).in(datasourceIds)), Datasource.class)
+                .stream()
+                .forEach(datasource -> {
+                    datasource = policyUtils.addPoliciesToExistingObject(datasourcePolicyMap, datasource);
+                    mongockTemplate.save(datasource);
+                });
+
+        // Update pages
+        Set<Policy> pagePolicies = policyGenerator.getAllChildPolicies(applicationPolicies, Application.class, Page.class);
+        mongockTemplate.updateMulti(new Query().addCriteria(Criteria.where(fieldName(QNewPage.newPage.applicationId)).is(application.getId())),
+                new Update().set("policies", pagePolicies),
+                NewPage.class);
+
+        // Update NewActions
+        Set<Policy> actionPolicies = policyGenerator.getAllChildPolicies(pagePolicies, Page.class, Action.class);
+        mongockTemplate.updateMulti(new Query().addCriteria(Criteria.where(fieldName(QNewAction.newAction.applicationId)).is(application.getId())),
+                new Update().set("policies", actionPolicies),
+                NewAction.class);
+
+        // Update ActionCollections
+        mongockTemplate.updateMulti(new Query().addCriteria(Criteria.where(fieldName(QActionCollection.actionCollection.applicationId)).is(application.getId())),
+                new Update().set("policies", actionPolicies),
+                ActionCollection.class);
+
+        // Update Themes
+        Set<Policy> themePolicies = policyGenerator.getAllChildPolicies(applicationPolicies, Application.class, Theme.class);
+        mongockTemplate.updateMulti(new Query().addCriteria(Criteria.where(fieldName(QTheme.theme.applicationId)).is(application.getId())),
+                new Update().set("policies", themePolicies),
+                Theme.class);
+    }
+
+    @ChangeSet(order = "023", id = "make-applications-public", author = "")
+    public void makeApplicationsPublic(MongockTemplate mongockTemplate, @NonLockGuarded PolicyUtils policyUtils, @NonLockGuarded PolicyGenerator policyGenerator, NewPageRepository newPageRepository) {
+        User anonymousUser = mongockTemplate.findOne(new Query().addCriteria(Criteria.where(fieldName(QUser.user.email)).is(FieldName.ANONYMOUS_USER)), User.class);
+        mongockTemplate.stream(new Query().addCriteria(Criteria.where("makePublic").is(true)), Application.class)
+                .stream()
+                .forEach(application -> {
+                    Workspace workspace = mongockTemplate.findOne(new Query().addCriteria(Criteria.where(fieldName(QBaseDomain.baseDomain.id)).is(application.getWorkspaceId())), Workspace.class);
+                    makeApplicationPublic(policyUtils, policyGenerator, newPageRepository, application, workspace, mongockTemplate, anonymousUser);
+                });
+        //unmark public applications
+        mongockTemplate.updateMulti(new Query().addCriteria(Criteria.where("makePublic").is(true)),
+            new Update().unset("makePublic"),
+            Application.class);
+    }
+
+    @ChangeSet(order = "024", id = "add-instance-config-object", author = "")
     public void addInstanceConfigurationPlaceHolder(MongockTemplate mongockTemplate) {
         Query instanceConfigurationQuery = new Query();
         instanceConfigurationQuery.addCriteria(where(fieldName(QConfig.config1.name)).is(FieldName.INSTANCE_CONFIG));

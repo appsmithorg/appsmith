@@ -14,4 +14,7 @@ public interface CustomPermissionGroupRepositoryCE extends AppsmithRepository<Pe
     Flux<PermissionGroup> findAllByAssignedToUserIdAndDefaultWorkspaceId(String userId, String workspaceId, AclPermission permission);
 
     Mono<UpdateResult> updateById(String id, Update updateObj);
+
+    Flux<PermissionGroup> findByDefaultWorkspaceId(String workspaceId, AclPermission permission);
+
 }

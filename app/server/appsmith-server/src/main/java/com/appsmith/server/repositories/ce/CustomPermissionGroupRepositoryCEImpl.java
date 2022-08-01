@@ -43,4 +43,10 @@ public class CustomPermissionGroupRepositoryCEImpl extends BaseAppsmithRepositor
         Query query = new Query(Criteria.where("id").is(id));
         return mongoOperations.updateFirst(query, updateObj, this.genericDomain);
     }
+
+    @Override
+    public Flux<PermissionGroup> findByDefaultWorkspaceId(String workspaceId, AclPermission permission) {
+        Criteria defaultWorkspaceIdCriteria = where(fieldName(QPermissionGroup.permissionGroup.defaultWorkspaceId)).is(workspaceId);
+        return queryAll(List.of(defaultWorkspaceIdCriteria), permission);
+    }
 }

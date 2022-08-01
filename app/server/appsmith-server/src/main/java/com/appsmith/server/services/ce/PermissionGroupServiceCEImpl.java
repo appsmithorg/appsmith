@@ -99,11 +99,6 @@ public class PermissionGroupServiceCEImpl extends BaseService<PermissionGroupRep
     }
 
     @Override
-    public Flux<PermissionGroup> getByDefaultWorkspace(Workspace workspace) {
-        return repository.findByDefaultWorkspaceId(workspace.getId());
-    }
-
-    @Override
     public Flux<PermissionGroup> getAllByAssignedToUserAndDefaultWorkspace(User user, Workspace defaultWorkspace, AclPermission permission) {
         return repository.findAllByAssignedToUserIdAndDefaultWorkspaceId(user.getId(), defaultWorkspace.getId(), permission);
     }
@@ -121,5 +116,10 @@ public class PermissionGroupServiceCEImpl extends BaseService<PermissionGroupRep
                     pg.getAssignedToUserIds().removeAll(users.stream().map(User::getId).collect(Collectors.toList()));
                     return repository.updateById(pg.getId(), pg, AclPermission.MANAGE_PERMISSION_GROUPS);
                 });
+    }
+
+    @Override
+    public Flux<PermissionGroup> getByDefaultWorkspace(Workspace workspace, AclPermission permission) {
+        return repository.findByDefaultWorkspaceId(workspace.getId(), permission);
     }
 }

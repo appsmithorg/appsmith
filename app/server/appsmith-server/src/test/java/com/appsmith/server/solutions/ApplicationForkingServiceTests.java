@@ -5,6 +5,7 @@ import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.JSValue;
 import com.appsmith.external.services.EncryptionService;
+import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
@@ -259,7 +260,7 @@ public class ApplicationForkingServiceTests {
         // Running TC in a sequence is a bad practice for unit TCs but here we are testing the invite user and then fork
         // application as a part of this flow.
         // We need to test with VIEW user access so that any user should be able to fork template applications
-       PermissionGroup permissionGroup = permissionGroupService.getByDefaultWorkspace(sourceWorkspace)
+       PermissionGroup permissionGroup = permissionGroupService.getByDefaultWorkspace(sourceWorkspace, AclPermission.READ_PERMISSION_GROUPS)
                .collectList().block()
                .stream()
                .filter(permissionGroupElem -> permissionGroupElem.getName().startsWith(FieldName.VIEWER))
