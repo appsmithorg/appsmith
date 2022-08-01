@@ -682,7 +682,7 @@ public class PageLoadActionsUtilCEImpl implements PageLoadActionsUtilCE {
         actionBindingMap.values().stream().forEach(bindings -> allBindings.addAll(bindings));
 
         // TODO : Throw an error on action save when bindings from dynamic binding path list do not match the json path keys
-        // and get the client to recompute the dynamic bidning pathlist and try again.
+        // and get the client to recompute the dynamic binding path list and try again.
         if (!allBindings.containsAll(action.getJsonPathKeys())) {
             Set<String> invalidBindings = new HashSet<>(action.getJsonPathKeys());
             invalidBindings.removeAll(allBindings);

@@ -4,7 +4,7 @@ import Icon, { IconSize } from "components/ads/Icon";
 import { StyledSeparator } from "pages/Applications/ProductUpdatesModal/ReleaseComponent";
 import history from "utils/history";
 import { TabComponent } from "components/ads/Tabs";
-import Text, { FontWeight, TextType } from "components/ads/Text";
+import { Text, FontWeight, TextType } from "design-system";
 import { TabbedViewContainer } from "./Form";
 import get from "lodash/get";
 import { getQueryParams } from "utils/AppsmithUtils";

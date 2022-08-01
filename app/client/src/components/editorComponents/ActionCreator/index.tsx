@@ -49,7 +49,6 @@ import {
   NAVIGATE_TO,
   NO_ACTION,
   OPEN_MODAL,
-  POST_MESSAGE,
   RESET_WIDGET,
   SET_INTERVAL,
   SHOW_MESSAGE,
@@ -125,10 +124,6 @@ const baseOptions: { label: string; value: string }[] = [
   {
     label: createMessage(STOP_WATCH_GEO_LOCATION),
     value: ActionType.stopWatchGeolocation,
-  },
-  {
-    label: createMessage(POST_MESSAGE),
-    value: ActionType.postMessage,
   },
 ];
 
@@ -378,18 +373,6 @@ function getFieldFromValue(
       field: FieldType.CALLBACK_FUNCTION_FIELD,
     });
   }
-
-  if (value.indexOf("postMessageToTargetWindow") !== -1) {
-    fields.push(
-      {
-        field: FieldType.MESSAGE_FIELD,
-      },
-      {
-        field: FieldType.TARGET_ORIGIN_FIELD,
-      },
-    );
-  }
-
   return fields;
 }
 
@@ -584,31 +567,33 @@ function useIntegrationsOptionTree() {
 
 type ActionCreatorProps = {
   value: string;
-  onValueChange: (newValue: string) => void;
+  onValueChange: (newValue: string, isUpdatedViaKeyboard: boolean) => void;
   additionalAutoComplete?: Record<string, Record<string, unknown>>;
 };
 
-export function ActionCreator(props: ActionCreatorProps) {
-  const dataTree = useSelector(getDataTree);
-  const integrationOptionTree = useIntegrationsOptionTree();
-  const widgetOptionTree = useSelector(getWidgetOptionsTree);
-  const modalDropdownList = useModalDropdownList();
-  const pageDropdownOptions = useSelector(getPageListAsOptions);
-  const fields = getFieldFromValue(props.value, undefined, dataTree);
-  return (
-    <TreeStructure>
-      <Fields
-        additionalAutoComplete={props.additionalAutoComplete}
-        depth={1}
-        fields={fields}
-        integrationOptionTree={integrationOptionTree}
-        maxDepth={1}
-        modalDropdownList={modalDropdownList}
-        onValueChange={props.onValueChange}
-        pageDropdownOptions={pageDropdownOptions}
-        value={props.value}
-        widgetOptionTree={widgetOptionTree}
-      />
-    </TreeStructure>
-  );
-}
+export const ActionCreator = React.forwardRef(
+  (props: ActionCreatorProps, ref: any) => {
+    const dataTree = useSelector(getDataTree);
+    const integrationOptionTree = useIntegrationsOptionTree();
+    const widgetOptionTree = useSelector(getWidgetOptionsTree);
+    const modalDropdownList = useModalDropdownList();
+    const pageDropdownOptions = useSelector(getPageListAsOptions);
+    const fields = getFieldFromValue(props.value, undefined, dataTree);
+    return (
+      <TreeStructure ref={ref}>
+        <Fields
+          additionalAutoComplete={props.additionalAutoComplete}
+          depth={1}
+          fields={fields}
+          integrationOptionTree={integrationOptionTree}
+          maxDepth={1}
+          modalDropdownList={modalDropdownList}
+          onValueChange={props.onValueChange}
+          pageDropdownOptions={pageDropdownOptions}
+          value={props.value}
+          widgetOptionTree={widgetOptionTree}
+        />
+      </TreeStructure>
+    );
+  },
+);

@@ -1,6 +1,9 @@
 import React from "react";
 
-import TreeDropdown, { TreeDropdownOption } from "components/ads/TreeDropdown";
+import TreeDropdown, {
+  Setter,
+  TreeDropdownOption,
+} from "components/ads/TreeDropdown";
 import {
   ControlWrapper,
   FieldWrapper,
@@ -232,7 +235,6 @@ export const ActionType = {
   getGeolocation: "appsmith.geolocation.getCurrentPosition",
   watchGeolocation: "appsmith.geolocation.watchPosition",
   stopWatchGeolocation: "appsmith.geolocation.clearWatch",
-  postMessage: "postMessageToTargetWindow",
 };
 type ActionType = typeof ActionType[keyof typeof ActionType];
 
@@ -278,9 +280,7 @@ const views = {
             defaultText={props.defaultText}
             displayValue={props.displayValue}
             getDefaults={props.getDefaults}
-            onSelect={(value, defaultValue?: string) => {
-              props.set(value, defaultValue);
-            }}
+            onSelect={props.set as Setter}
             optionTree={props.options}
             selectedLabelModifier={props.selectedLabelModifier}
             selectedValue={props.get(props.value, false) as string}
@@ -316,9 +316,9 @@ const views = {
             label={props.label}
             onChange={(event: any) => {
               if (event.target) {
-                props.set(event.target.value);
+                props.set(event.target.value, true);
               } else {
-                props.set(event);
+                props.set(event, true);
               }
             }}
             value={props.get(props.value, props.index, false) as string}
@@ -356,8 +356,6 @@ export enum FieldType {
   DELAY_FIELD = "DELAY_FIELD",
   ID_FIELD = "ID_FIELD",
   CLEAR_INTERVAL_ID_FIELD = "CLEAR_INTERVAL_ID_FIELD",
-  MESSAGE_FIELD = "MESSAGE_FIELD",
-  TARGET_ORIGIN_FIELD = "TARGET_ORIGIN_FIELD",
 }
 
 type FieldConfig = {
@@ -625,24 +623,6 @@ const fieldConfigs: FieldConfigs = {
     },
     view: ViewTypes.TEXT_VIEW,
   },
-  [FieldType.MESSAGE_FIELD]: {
-    getter: (value: string) => {
-      return textGetter(value, 0);
-    },
-    setter: (value: string, currentValue: string) => {
-      return textSetter(value, currentValue, 0);
-    },
-    view: ViewTypes.TEXT_VIEW,
-  },
-  [FieldType.TARGET_ORIGIN_FIELD]: {
-    getter: (value: string) => {
-      return textGetter(value, 1);
-    },
-    setter: (value: string, currentValue: string) => {
-      return textSetter(value, currentValue, 1);
-    },
-    view: ViewTypes.TEXT_VIEW,
-  },
 };
 
 function renderField(props: {
@@ -758,13 +738,17 @@ function renderField(props: {
         options: options,
         label: label,
         get: fieldConfig.getter,
-        set: (value: string | DropdownOption, defaultValue?: string) => {
+        set: (
+          value: string | DropdownOption,
+          defaultValue?: string,
+          isUpdatedViaKeyboard = false,
+        ) => {
           const finalValueToSet = fieldConfig.setter(
             value,
             props.value,
             defaultValue,
           );
-          props.onValueChange(finalValueToSet);
+          props.onValueChange(finalValueToSet, isUpdatedViaKeyboard);
         },
         value: props.value,
         defaultText: defaultText,
@@ -814,8 +798,6 @@ function renderField(props: {
     case FieldType.DELAY_FIELD:
     case FieldType.ID_FIELD:
     case FieldType.CLEAR_INTERVAL_ID_FIELD:
-    case FieldType.MESSAGE_FIELD:
-    case FieldType.TARGET_ORIGIN_FIELD:
       let fieldLabel = "";
       if (fieldType === FieldType.ALERT_TEXT_FIELD) {
         fieldLabel = "Message";
@@ -841,17 +823,13 @@ function renderField(props: {
         fieldLabel = "Id";
       } else if (fieldType === FieldType.CLEAR_INTERVAL_ID_FIELD) {
         fieldLabel = "Id";
-      } else if (fieldType === FieldType.MESSAGE_FIELD) {
-        fieldLabel = "Message";
-      } else if (fieldType === FieldType.TARGET_ORIGIN_FIELD) {
-        fieldLabel = "Target origin";
       }
       viewElement = (view as (props: TextViewProps) => JSX.Element)({
         label: fieldLabel,
         get: fieldConfig.getter,
-        set: (value: string | DropdownOption) => {
+        set: (value: string | DropdownOption, isUpdatedViaKeyboard = false) => {
           const finalValueToSet = fieldConfig.setter(value, props.value);
-          props.onValueChange(finalValueToSet);
+          props.onValueChange(finalValueToSet, isUpdatedViaKeyboard);
         },
         value: props.value,
         additionalAutoComplete: props.additionalAutoComplete,
@@ -909,13 +887,19 @@ function Fields(props: {
                     label={selectorField.label}
                     maxDepth={props.maxDepth}
                     modalDropdownList={props.modalDropdownList}
-                    onValueChange={(value: any) => {
+                    onValueChange={(
+                      value: any,
+                      isUpdatedViaKeyboard: boolean,
+                    ) => {
                       const parentValue =
                         selectorField.getParentValue &&
                         selectorField.getParentValue(
                           value.substring(2, value.length - 2),
                         );
-                      props.onValueChange(parentValue || value);
+                      props.onValueChange(
+                        parentValue || value,
+                        isUpdatedViaKeyboard,
+                      );
                     }}
                     pageDropdownOptions={props.pageDropdownOptions}
                     value={selectorField.value}
@@ -953,11 +937,11 @@ function Fields(props: {
             label={selectorField.label}
             maxDepth={props.maxDepth}
             modalDropdownList={props.modalDropdownList}
-            onValueChange={(value: any) => {
+            onValueChange={(value: any, isUpdatedViaKeyboard: boolean) => {
               const parentValue = selectorField.getParentValue(
                 value.substring(2, value.length - 2),
               );
-              props.onValueChange(parentValue);
+              props.onValueChange(parentValue, isUpdatedViaKeyboard);
             }}
             pageDropdownOptions={props.pageDropdownOptions}
             value={selectorField.value}

@@ -547,7 +547,8 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
                         .switchIfEmpty(Mono.error(new AppsmithException(
                                 AppsmithError.NO_RESOURCE_FOUND, FieldName.WORKSPACE, workspaceId
                         )))
-                        .flatMap(repository::archive);
+                        .flatMap(repository::archive)
+                        .flatMap(analyticsService::sendDeleteEvent);
             } else {
                 return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
             }

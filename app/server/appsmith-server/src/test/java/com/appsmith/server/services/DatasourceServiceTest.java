@@ -32,6 +32,7 @@ import com.appsmith.server.repositories.WorkspaceRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -314,6 +315,9 @@ public class DatasourceServiceTest {
 
                     assertThat(createdDatasource.getPolicies()).isNotEmpty();
                     assertThat(createdDatasource.getPolicies()).containsAll(Set.of(manageDatasourcePolicy, readDatasourcePolicy, executeDatasourcePolicy));
+
+                    Assertions.assertNull(createdDatasource.getIsMock());
+                    Assertions.assertNull(createdDatasource.getIsTemplate());
                 })
                 .verifyComplete();
     }

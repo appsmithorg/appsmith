@@ -91,7 +91,7 @@ public abstract class BaseService<R extends BaseRepository<T, ID> & AppsmithRepo
 
         return mongoTemplate.updateFirst(query, updateObj, resource.getClass())
                 .flatMap(obj -> repository.findById(id))
-                .flatMap(obj -> analyticsService.sendUpdateEvent(obj));
+                .flatMap(savedResource -> analyticsService.sendUpdateEvent(savedResource, getAnalyticsProperties(savedResource)));
     }
 
     protected Flux<T> getWithPermission(MultiValueMap<String, String> params, AclPermission aclPermission) {
@@ -131,7 +131,7 @@ public abstract class BaseService<R extends BaseRepository<T, ID> & AppsmithRepo
         return Mono.just(object)
                 .flatMap(this::validateObject)
                 .flatMap(repository::save)
-                .flatMap(analyticsService::sendCreateEvent);
+                .flatMap(savedResource -> analyticsService.sendCreateEvent(savedResource, getAnalyticsProperties(savedResource)));
     }
 
     protected DBObject getDbObject(Object o) {
@@ -169,5 +169,10 @@ public abstract class BaseService<R extends BaseRepository<T, ID> & AppsmithRepo
                 .stream()
                 .collect(Collectors.groupingBy(Policy::getPermission,
                         Collectors.mapping(Function.identity(), toSet())));
+    }
+
+    @Override
+    public Map<String, Object> getAnalyticsProperties(T savedResource) {
+        return null;
     }
 }

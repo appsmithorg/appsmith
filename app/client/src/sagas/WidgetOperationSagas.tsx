@@ -95,7 +95,6 @@ import {
   createWidgetCopy,
   getNextWidgetName,
   getParentWidgetIdForGrouping,
-  isCopiedModalWidget,
   purgeOrphanedDynamicPaths,
   getReflowedPositions,
   NewPastePositionVariables,
@@ -114,6 +113,7 @@ import {
   isDropTarget,
   getValueFromTree,
   getVerifiedSelectedWidgets,
+  mergeDynamicPropertyPaths,
 } from "./WidgetOperationUtils";
 import { getSelectedWidgets } from "selectors/ui";
 import { widgetSelectionSagas } from "./WidgetSelectionSagas";
@@ -525,7 +525,7 @@ export function getPropertiesToUpdate(
 export function* getPropertiesUpdatedWidget(
   updatesObj: UpdateWidgetPropertyPayload,
 ) {
-  const { updates, widgetId } = updatesObj;
+  const { dynamicUpdates, updates, widgetId } = updatesObj;
 
   const { modify = {}, remove = [], triggerPaths } = updates;
 
@@ -552,6 +552,13 @@ export function* getPropertiesUpdatedWidget(
       );
       widget.dynamicBindingPathList = dynamicBindingPathList;
       widget.dynamicTriggerPathList = dynamicTriggerPathList;
+
+      if (dynamicUpdates?.dynamicPropertyPathList?.length) {
+        widget.dynamicPropertyPathList = mergeDynamicPropertyPaths(
+          widget.dynamicPropertyPathList,
+          dynamicUpdates.dynamicPropertyPathList,
+        );
+      }
     }
   } catch (e) {
     log.debug("Error updating property paths: ", { e });
@@ -1277,8 +1284,6 @@ function* pasteWidgetSaga(
       pastingIntoWidgetId,
       isThereACollision,
     ));
-  } else if (isCopiedModalWidget(copiedWidgetGroups, widgets)) {
-    pastingIntoWidgetId = MAIN_CONTAINER_WIDGET_ID;
   }
 
   if (
@@ -1423,7 +1428,10 @@ function* pasteWidgetSaga(
           }
 
           // Update the table widget column properties
-          if (widget.type === "TABLE_WIDGET") {
+          if (
+            widget.type === "TABLE_WIDGET_V2" ||
+            widget.type === "TABLE_WIDGET"
+          ) {
             try {
               // If the primaryColumns of the table exist
               if (widget.primaryColumns) {
@@ -1452,6 +1460,11 @@ function* pasteWidgetSaga(
 
           // If it is the copied widget, update position properties
           if (widget.widgetId === widgetIdMap[copiedWidget.widgetId]) {
+            //when the widget is a modal widget, it has to paste on the main container
+            const pastingParentId =
+              widget.type === "MODAL_WIDGET"
+                ? MAIN_CONTAINER_WIDGET_ID
+                : pastingIntoWidgetId;
             const {
               bottomRow,
               leftColumn,
@@ -1462,24 +1475,24 @@ function* pasteWidgetSaga(
             widget.topRow = topRow;
             widget.bottomRow = bottomRow;
             widget.rightColumn = rightColumn;
-            widget.parentId = pastingIntoWidgetId;
+            widget.parentId = pastingParentId;
             // Also, update the parent widget in the canvas widgets
             // to include this new copied widget's id in the parent's children
             let parentChildren = [widget.widgetId];
-            const widgetChildren = widgets[pastingIntoWidgetId].children;
+            const widgetChildren = widgets[pastingParentId].children;
             if (widgetChildren && Array.isArray(widgetChildren)) {
               // Add the new child to existing children
               parentChildren = parentChildren.concat(widgetChildren);
             }
             const parentBottomRow = getParentBottomRowAfterAddingWidget(
-              widgets[pastingIntoWidgetId],
+              widgets[pastingParentId],
               widget,
             );
 
             widgets = {
               ...widgets,
-              [pastingIntoWidgetId]: {
-                ...widgets[pastingIntoWidgetId],
+              [pastingParentId]: {
+                ...widgets[pastingParentId],
                 bottomRow: Math.max(parentBottomRow, bottomMostRow || 0),
                 children: parentChildren,
               },
@@ -1487,12 +1500,12 @@ function* pasteWidgetSaga(
             // If the copied widget's boundaries exceed the parent's
             // Make the parent scrollable
             if (
-              widgets[pastingIntoWidgetId].bottomRow *
+              widgets[pastingParentId].bottomRow *
                 widgets[widget.parentId].parentRowSpace <=
-              widget.bottomRow * widget.parentRowSpace
+                widget.bottomRow * widget.parentRowSpace &&
+              !widget.detachFromLayout
             ) {
-              const parentOfPastingWidget =
-                widgets[pastingIntoWidgetId].parentId;
+              const parentOfPastingWidget = widgets[pastingParentId].parentId;
               if (
                 parentOfPastingWidget &&
                 widget.parentId !== MAIN_CONTAINER_WIDGET_ID
@@ -1551,12 +1564,14 @@ function* pasteWidgetSaga(
 
   yield put(updateAndSaveLayout(reflowedWidgets));
 
+  const pageId: string = yield select(getCurrentPageId);
+
   if (
     copiedWidgetGroups &&
     copiedWidgetGroups.length > 0 &&
     matchGeneratePagePath(window.location.pathname)
   ) {
-    history.push(builderURL());
+    history.push(builderURL({ pageId }));
   }
 
   yield put({

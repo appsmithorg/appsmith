@@ -1,8 +1,6 @@
 import { ApplicationPayload } from "@appsmith/constants/ReduxActionConstants";
 import {
-  CHANGES_ONLY_MIGRATION,
-  CHANGES_ONLY_USER,
-  CHANGES_USER_AND_MIGRATION,
+  CHANGES_SINCE_LAST_DEPLOYMENT,
   createMessage,
 } from "@appsmith/constants/messages";
 
@@ -20,7 +18,7 @@ export const getIsStartingWithRemoteBranches = (
   );
 };
 
-const GIT_REMOTE_URL_PATTERN = /^((git|ssh)|(git@[\w\.]+))(:(\/\/)?)([\w\.@\:\/\-~]+)[^\/]$/im;
+const GIT_REMOTE_URL_PATTERN = /^((git|ssh)|(git@[\w\-\.]+))(:(\/\/)?)([\w\.@\:\/\-~\(\)]+)[^\/]$/im;
 
 const gitRemoteUrlRegExp = new RegExp(GIT_REMOTE_URL_PATTERN);
 
@@ -75,11 +73,14 @@ export function changeInfoSinceLastCommit(
 ) {
   const isAutoUpdate = !!currentApplication?.isAutoUpdate;
   const isManualUpdate = !!currentApplication?.isManualUpdate;
-  const changeReason = isAutoUpdate
-    ? isManualUpdate
-      ? CHANGES_USER_AND_MIGRATION
-      : CHANGES_ONLY_MIGRATION
-    : CHANGES_ONLY_USER;
-  const changeReasonText = createMessage(changeReason);
+  const changeReasonText = createMessage(CHANGES_SINCE_LAST_DEPLOYMENT);
   return { isAutoUpdate, isManualUpdate, changeReasonText };
 }
+
+export const GIT_DOC_URLs = {
+  base: "https://docs.appsmith.com/advanced-concepts/version-control-with-git",
+  import:
+    "https://docs.appsmith.com/advanced-concepts/version-control-with-git/import-from-repository",
+  connect:
+    "https://docs.appsmith.com/advanced-concepts/version-control-with-git/connecting-to-git-repository",
+};

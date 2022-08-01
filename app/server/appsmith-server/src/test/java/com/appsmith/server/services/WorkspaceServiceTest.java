@@ -731,77 +731,77 @@ public class WorkspaceServiceTest {
                     return datasourceService.create(datasource);
                 });
 
-//        Mono<Workspace> userAddedToWorkspaceMono = workspaceMono
-//                .flatMap(workspace1 -> {
-//                    // Add user to workspace
-//                    Flux<UserGroup> userGroupFlux = userGroupService.getDefaultUserGroups(workspace1.getId()).cache();
-//                    Mono<UserGroup> adminGroupMono = userGroupFlux.filter(userGroup -> userGroup.getName().startsWith(FieldName.ADMINISTRATOR)).single();
-//                    Mono<User> userMono = userService.findByEmail("usertest@usertest.com");
-//                    return userMono.zipWith(adminGroupMono).flatMap(tuple -> userGroupService.addUser(tuple.getT2(), tuple.getT1())).thenReturn(workspace1);
-//                })
-//                .map(workspace1 -> {
-//                    log.debug("Workspace policies after adding user is : {}", workspace1.getPolicies());
-//                    return workspace1;
-//                });
-//
-//        Mono<Application> readApplicationByNameMono = applicationService.findByName("User Management Admin Test Application",
-//                AclPermission.READ_APPLICATIONS)
-//                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "application by name")));
-//
-//        Mono<Workspace> readWorkspaceByNameMono = workspaceRepository.findByName("Member Management Admin Test Workspace")
-//                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "organization by name")));
-//
-//        Mono<Datasource> readDatasourceByNameMono = workspaceMono.flatMap(workspace1 ->
-//                datasourceRepository.findByNameAndWorkspaceId("test datasource", workspace1.getId(),READ_DATASOURCES)
-//                        .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "Datasource")))
-//        );
-//
-//        Mono<Tuple3<Application, Workspace, Datasource>> testMono = workspaceMono
-//                // create application and datasource
-//                .then(Mono.zip(applicationMono, datasourceMono))
-//                // Now add the user
-//                .then(userAddedToWorkspaceMono)
-//                // Read application, workspace and datasource now to confirm the policies.
-//                .then(Mono.zip(readApplicationByNameMono, readWorkspaceByNameMono, readDatasourceByNameMono));
-//
-//        StepVerifier
-//                .create(testMono)
-//                .assertNext(tuple -> {
-//                    Application application = tuple.getT1();
-//                    Workspace workspace1 = tuple.getT2();
-//                    Datasource datasource = tuple.getT3();
-//                    assertThat(workspace1).isNotNull();
-//                    assertThat(workspace1.getUserRoles().get(1).getUsername()).isEqualTo("usertest@usertest.com");
-//
-//                    Policy manageAppPolicy = Policy.builder().permission(MANAGE_APPLICATIONS.getValue())
-//                            .users(Set.of("api_user", "usertest@usertest.com"))
-//                            .build();
-//                    Policy readAppPolicy = Policy.builder().permission(READ_APPLICATIONS.getValue())
-//                            .users(Set.of("api_user", "usertest@usertest.com"))
-//                            .build();
-//
-//                    assertThat(application.getPolicies()).isNotEmpty();
-//                    assertThat(application.getPolicies()).containsAll(Set.of(manageAppPolicy, readAppPolicy));
-//
-//                    /*
-//                     * Check for datasource permissions after the user addition
-//                     */
-//                    Policy manageDatasourcePolicy = Policy.builder().permission(MANAGE_DATASOURCES.getValue())
-//                            .users(Set.of("api_user", "usertest@usertest.com"))
-//                            .build();
-//                    Policy readDatasourcePolicy = Policy.builder().permission(READ_DATASOURCES.getValue())
-//                            .users(Set.of("api_user", "usertest@usertest.com"))
-//                            .build();
-//                    Policy executeDatasourcePolicy = Policy.builder().permission(EXECUTE_DATASOURCES.getValue())
-//                            .users(Set.of("api_user", "usertest@usertest.com"))
-//                            .build();
-//
-//                    assertThat(datasource.getPolicies()).isNotEmpty();
-//                    assertThat(datasource.getPolicies()).containsAll(Set.of(manageDatasourcePolicy, readDatasourcePolicy,
-//                            executeDatasourcePolicy));
-//
-//                })
-//                .verifyComplete();
+        Mono<Workspace> userAddedToWorkspaceMono = workspaceMono
+                .flatMap(workspace1 -> {
+                    // Add user to workspace
+                    UserRole userRole = new UserRole();
+                    userRole.setRoleName(AppsmithRole.ORGANIZATION_ADMIN.getName());
+                    userRole.setUsername("usertest@usertest.com");
+                    return userWorkspaceService.addUserRoleToWorkspace(workspace1.getId(), userRole);
+                })
+                .map(workspace1 -> {
+                    log.debug("Workspace policies after adding user is : {}", workspace1.getPolicies());
+                    return workspace1;
+                });
+
+        Mono<Application> readApplicationByNameMono = applicationService.findByName("User Management Admin Test Application",
+                AclPermission.READ_APPLICATIONS)
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "application by name")));
+
+        Mono<Workspace> readWorkspaceByNameMono = workspaceRepository.findByName("Member Management Admin Test Workspace")
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "workspace by name")));
+
+        Mono<Datasource> readDatasourceByNameMono = workspaceMono.flatMap(workspace1 ->
+                datasourceRepository.findByNameAndWorkspaceId("test datasource", workspace1.getId(),READ_DATASOURCES)
+                        .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "Datasource")))
+        );
+
+        Mono<Tuple3<Application, Workspace, Datasource>> testMono = workspaceMono
+                // create application and datasource
+                .then(Mono.zip(applicationMono, datasourceMono))
+                // Now add the user
+                .then(userAddedToWorkspaceMono)
+                // Read application, workspace and datasource now to confirm the policies.
+                .then(Mono.zip(readApplicationByNameMono, readWorkspaceByNameMono, readDatasourceByNameMono));
+
+        StepVerifier
+                .create(testMono)
+                .assertNext(tuple -> {
+                    Application application = tuple.getT1();
+                    Workspace workspace1 = tuple.getT2();
+                    Datasource datasource = tuple.getT3();
+                    assertThat(workspace1).isNotNull();
+                    assertThat(workspace1.getUserRoles().get(1).getUsername()).isEqualTo("usertest@usertest.com");
+
+                    Policy manageAppPolicy = Policy.builder().permission(MANAGE_APPLICATIONS.getValue())
+                            .users(Set.of("api_user", "usertest@usertest.com"))
+                            .build();
+                    Policy readAppPolicy = Policy.builder().permission(READ_APPLICATIONS.getValue())
+                            .users(Set.of("api_user", "usertest@usertest.com"))
+                            .build();
+
+                    assertThat(application.getPolicies()).isNotEmpty();
+                    assertThat(application.getPolicies()).containsAll(Set.of(manageAppPolicy, readAppPolicy));
+
+                    /*
+                     * Check for datasource permissions after the user addition
+                     */
+                    Policy manageDatasourcePolicy = Policy.builder().permission(MANAGE_DATASOURCES.getValue())
+                            .users(Set.of("api_user", "usertest@usertest.com"))
+                            .build();
+                    Policy readDatasourcePolicy = Policy.builder().permission(READ_DATASOURCES.getValue())
+                            .users(Set.of("api_user", "usertest@usertest.com"))
+                            .build();
+                    Policy executeDatasourcePolicy = Policy.builder().permission(EXECUTE_DATASOURCES.getValue())
+                            .users(Set.of("api_user", "usertest@usertest.com"))
+                            .build();
+
+                    assertThat(datasource.getPolicies()).isNotEmpty();
+                    assertThat(datasource.getPolicies()).containsAll(Set.of(manageDatasourcePolicy, readDatasourcePolicy,
+                            executeDatasourcePolicy));
+
+                })
+                .verifyComplete();
     }
 
     /**
@@ -829,49 +829,49 @@ public class WorkspaceServiceTest {
                     return applicationPageService.createApplication(application, workspace1.getId());
                 });
 
-//        Mono<Workspace> userAddedToWorkspaceMono = workspaceMono
-//                .flatMap(workspace1 -> {
-//                    // Add user to workspace
-//                    Flux<UserGroup> userGroupFlux = userGroupService.getDefaultUserGroups(workspace1.getId()).cache();
-//                    Mono<UserGroup> adminGroupMono = userGroupFlux.filter(userGroup -> userGroup.getName().startsWith(FieldName.VIEWER)).single();
-//                    Mono<User> userMono = userService.findByEmail("usertest@usertest.com");
-//                    return userMono.zipWith(adminGroupMono).flatMap(tuple -> userGroupService.addUser(tuple.getT2(), tuple.getT1())).thenReturn(workspace1);
-//                });
-//
-//        Mono<Application> readApplicationByNameMono = applicationService.findByName("User Management Viewer Test Application",
-//                AclPermission.READ_APPLICATIONS)
-//                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "application by name")));
-//
-//        Mono<Workspace> readWorkspaceByNameMono = workspaceRepository.findByName("Member Management Viewer Test Workspace")
-//                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "organization by name")));
-//
-//        Mono<Tuple2<Application, Workspace>> testMono = workspaceMono
-//                .then(applicationMono)
-//                .then(userAddedToWorkspaceMono)
-//                .then(Mono.zip(readApplicationByNameMono, readWorkspaceByNameMono));
-//
-//        StepVerifier
-//                .create(testMono)
-//                .assertNext(tuple -> {
-//                    Application application = tuple.getT1();
-//                    Workspace workspace1 = tuple.getT2();
-//                    assertThat(workspace1).isNotNull();
-//                    assertThat(workspace1.getUserRoles().get(1).getUsername()).isEqualTo("usertest@usertest.com");
-//
-//                    log.debug("App policies are {}", application.getPolicies());
-//
-//                    Policy manageAppPolicy = Policy.builder().permission(MANAGE_APPLICATIONS.getValue())
-//                            .users(Set.of("api_user"))
-//                            .build();
-//                    Policy readAppPolicy = Policy.builder().permission(READ_APPLICATIONS.getValue())
-//                            .users(Set.of("usertest@usertest.com", "api_user"))
-//                            .build();
-//
-//                    assertThat(application.getPolicies()).isNotEmpty();
-//                    assertThat(application.getPolicies()).containsAll(Set.of(manageAppPolicy, readAppPolicy));
-//
-//                })
-//                .verifyComplete();
+        Mono<Workspace> userAddedToWorkspaceMono = workspaceMono
+                .flatMap(workspace1 -> {
+                    // Add user to workspace
+                    UserRole userRole = new UserRole();
+                    userRole.setRoleName(AppsmithRole.ORGANIZATION_VIEWER.getName());
+                    userRole.setUsername("usertest@usertest.com");
+                    return userWorkspaceService.addUserRoleToWorkspace(workspace1.getId(), userRole);
+                });
+
+        Mono<Application> readApplicationByNameMono = applicationService.findByName("User Management Viewer Test Application",
+                AclPermission.READ_APPLICATIONS)
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "application by name")));
+
+        Mono<Workspace> readWorkspaceByNameMono = workspaceRepository.findByName("Member Management Viewer Test Workspace")
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "workspace by name")));
+
+        Mono<Tuple2<Application, Workspace>> testMono = workspaceMono
+                .then(applicationMono)
+                .then(userAddedToWorkspaceMono)
+                .then(Mono.zip(readApplicationByNameMono, readWorkspaceByNameMono));
+
+        StepVerifier
+                .create(testMono)
+                .assertNext(tuple -> {
+                    Application application = tuple.getT1();
+                    Workspace workspace1 = tuple.getT2();
+                    assertThat(workspace1).isNotNull();
+                    assertThat(workspace1.getUserRoles().get(1).getUsername()).isEqualTo("usertest@usertest.com");
+
+                    log.debug("App policies are {}", application.getPolicies());
+
+                    Policy manageAppPolicy = Policy.builder().permission(MANAGE_APPLICATIONS.getValue())
+                            .users(Set.of("api_user"))
+                            .build();
+                    Policy readAppPolicy = Policy.builder().permission(READ_APPLICATIONS.getValue())
+                            .users(Set.of("usertest@usertest.com", "api_user"))
+                            .build();
+
+                    assertThat(application.getPolicies()).isNotEmpty();
+                    assertThat(application.getPolicies()).containsAll(Set.of(manageAppPolicy, readAppPolicy));
+
+                })
+                .verifyComplete();
     }
 
     /**

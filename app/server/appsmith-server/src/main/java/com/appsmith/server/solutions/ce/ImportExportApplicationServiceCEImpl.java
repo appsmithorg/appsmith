@@ -25,6 +25,7 @@ import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Theme;
 import com.appsmith.server.domains.User;
+import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.domains.GitApplicationMetadata;
 import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.ActionDTO;
@@ -135,7 +136,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
     public Mono<ApplicationJson> exportApplicationById(String applicationId, SerialiseApplicationObjective serialiseFor) {
 
         // Start the stopwatch to log the execution time
-        Stopwatch stopwatch = new Stopwatch(AnalyticsEvents.EXPORT_APPLICATION.getEventName());
+        Stopwatch stopwatch = new Stopwatch(AnalyticsEvents.EXPORT.getEventName());
         /*
             1. Fetch application by id
             2. Fetch pages from the application
@@ -461,7 +462,9 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                     );
                     analyticsService.sendEvent(AnalyticsEvents.UNIT_EXECUTION_TIME.getEventName(), user.getUsername(), data);
                     return applicationJson;
-                });
+                })
+                .then(sendImportExportApplicationAnalyticsEvent(applicationId, AnalyticsEvents.EXPORT))
+                .thenReturn(applicationJson);
     }
 
     public Mono<ApplicationJson> exportApplicationById(String applicationId, String branchName) {
@@ -701,7 +704,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
         importedApplication.setPages(null);
         importedApplication.setPublishedPages(null);
         // Start the stopwatch to log the execution time
-        Stopwatch stopwatch = new Stopwatch(AnalyticsEvents.IMPORT_APPLICATION.getEventName());
+        Stopwatch stopwatch = new Stopwatch(AnalyticsEvents.IMPORT.getEventName());
         Mono<Application> importedApplicationMono = pluginRepository.findAll()
                 .map(plugin -> {
                     final String pluginReference = plugin.getPluginName() == null ? plugin.getPackageName() : plugin.getPluginName();
@@ -1132,6 +1135,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                             .collectList()
                             .flatMapMany(newPageService::saveAll)
                             .then(applicationService.update(importedApplication.getId(), importedApplication))
+                            .then(sendImportExportApplicationAnalyticsEvent(importedApplication.getId(), AnalyticsEvents.IMPORT))
                             .zipWith(currUserMono)
                             .map(tuple -> {
                                 Application application = tuple.getT1();
@@ -1153,7 +1157,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
 
         // Import Application is currently a slow API because it needs to import and create application, pages, actions
         // and action collection. This process may take time and the client may cancel the request. This leads to the flow
-        // getting stopped mid way producing corrupted objects in DB. The following ensures that even though the client may have
+        // getting stopped midway producing corrupted objects in DB. The following ensures that even though the client may have
         // cancelled the flow, the importing the application should proceed uninterrupted and whenever the user refreshes
         // the page, the imported application is available and is in sane state.
         // To achieve this, we use a synchronous sink which does not take subscription cancellations into account. This
@@ -2091,5 +2095,35 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
             }
             return newToOldToPageNameMap;
         });
+    }
+
+    /**
+     * To send analytics event for import and export of application
+     * @param applicationId Id of application being imported or exported
+     * @param event AnalyticsEvents event
+     * @return The application which is imported or exported
+     */
+    private Mono<Application> sendImportExportApplicationAnalyticsEvent(String applicationId, AnalyticsEvents event) {
+
+        return applicationService.findById(applicationId, AclPermission.READ_APPLICATIONS)
+                .flatMap(application -> {
+                    return Mono.zip(Mono.just(application), workspaceService.getById(application.getWorkspaceId()));
+                })
+                .flatMap(tuple -> {
+                    Application application = tuple.getT1();
+                    Workspace workspace = tuple.getT2();
+                    final Map<String, Object> auditData = Map.of(
+                            FieldName.APPLICATION, application,
+                            FieldName.WORKSPACE, workspace
+                    );
+
+                    final Map<String, Object> data = Map.of(
+                            FieldName.APPLICATION_ID, application.getId(),
+                            FieldName.WORKSPACE_ID, workspace.getId(),
+                            FieldName.AUDIT_DATA, auditData
+                    );
+
+                    return analyticsService.sendObjectEvent(event, application, data);
+                });
     }
 }

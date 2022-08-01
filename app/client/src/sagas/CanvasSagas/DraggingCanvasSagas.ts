@@ -13,14 +13,22 @@ import log from "loglevel";
 import { cloneDeep } from "lodash";
 import { updateAndSaveLayout, WidgetAddChild } from "actions/pageActions";
 import { calculateDropTargetRows } from "components/editorComponents/DropTargetUtils";
-import { GridDefaults } from "constants/WidgetConstants";
+import {
+  GridDefaults,
+  MAIN_CONTAINER_WIDGET_ID,
+} from "constants/WidgetConstants";
 import { WidgetProps } from "widgets/BaseWidget";
-import { getOccupiedSpacesSelectorForContainer } from "selectors/editorSelectors";
+import {
+  getMainCanvasProps,
+  getOccupiedSpacesSelectorForContainer,
+} from "selectors/editorSelectors";
 import { OccupiedSpace } from "constants/CanvasEditorConstants";
 import { collisionCheckPostReflow } from "utils/reflowHookUtils";
 import { WidgetDraggingUpdateParams } from "pages/common/CanvasArenas/hooks/useBlocksToBeDraggedOnCanvas";
 import { getWidget, getWidgets } from "sagas/selectors";
 import { getUpdateDslAfterCreatingChild } from "sagas/WidgetAdditionSagas";
+import { MainCanvasReduxState } from "reducers/uiReducers/mainCanvasReducer";
+import { CANVAS_DEFAULT_MIN_HEIGHT_PX } from "constants/AppConstants";
 
 export type WidgetMoveParams = {
   widgetId: string;
@@ -44,11 +52,24 @@ export function* getCanvasSizeAfterWidgetMove(
   movedWidgetsBottomRow: number,
 ) {
   const canvasWidget: WidgetProps = yield select(getWidget, canvasWidgetId);
+
+  //get mainCanvas's minHeight if the canvasWidget is mianCanvas
+  let mainCanvasMinHeight;
+  if (canvasWidgetId === MAIN_CONTAINER_WIDGET_ID) {
+    const mainCanvasProps: MainCanvasReduxState = yield select(
+      getMainCanvasProps,
+    );
+    mainCanvasMinHeight = mainCanvasProps?.height;
+  }
+
   if (canvasWidget) {
     const occupiedSpacesByChildren: OccupiedSpace[] | undefined = yield select(
       getOccupiedSpacesSelectorForContainer(canvasWidgetId),
     );
-    const canvasMinHeight = canvasWidget.minHeight || 0;
+    const canvasMinHeight =
+      mainCanvasMinHeight ||
+      canvasWidget.minHeight ||
+      CANVAS_DEFAULT_MIN_HEIGHT_PX;
     const newRows = calculateDropTargetRows(
       movedWidgetIds,
       movedWidgetsBottomRow,

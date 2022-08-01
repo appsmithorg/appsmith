@@ -56,6 +56,7 @@ import static com.appsmith.server.acl.AclPermission.RESET_PASSWORD_USERS;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 @Slf4j
 @RunWith(SpringRunner.class)
@@ -289,8 +290,8 @@ public class UserServiceTest {
 
         StepVerifier.create(userMono)
                 .assertNext(user -> {
-                    assertThat(user.getEmail().equals(newUser.getEmail()));
-                    assertThat(user.getSource().equals(LoginSource.FORM));
+                    assertEquals(newUser.getEmail(), user.getEmail());
+                    assertEquals(LoginSource.FORM, user.getSource());
                     assertThat(user.getIsEnabled()).isTrue();
                 })
                 .verifyComplete();
@@ -314,9 +315,9 @@ public class UserServiceTest {
 
         StepVerifier.create(userMono)
                 .assertNext(user -> {
-                    assertThat(user.getEmail().equals(newUser.getEmail()));
-                    assertThat(user.getSource().equals(LoginSource.GOOGLE));
-                    assertThat(user.getIsEnabled()).isTrue();
+                    assertEquals(newUser.getEmail(), user.getEmail());
+                    assertEquals(LoginSource.GOOGLE, user.getSource());
+                    assertTrue(user.getIsEnabled());
                 })
                 .verifyComplete();
     }
@@ -333,40 +334,36 @@ public class UserServiceTest {
                 .create(workspace)
                 .cache();
 
-//        Mono<UserGroup> viewerGroupMono = workspaceMono.flatMapMany(workspace1 -> userGroupService.getDefaultUserGroups(workspace1.getId()))
-//                .filter(userGroup -> userGroup.getName().startsWith(FieldName.VIEWER))
-//                .single()
-//                .cache();
-//
-//        String newUserEmail = "inviteUserToApplicationWithoutExisting@test.com";
-//
-//        viewerGroupMono
-//                .flatMap(userGroup -> {
-//                    // Add user to workspace
-//                    InviteUsersDTO inviteUsersDTO = new InviteUsersDTO();
-//                    ArrayList<String> users = new ArrayList<>();
-//                    users.add(newUserEmail);
-//                    inviteUsersDTO.setUsernames(users);
-//                    inviteUsersDTO.setUserGroupId(userGroup.getId());
-//
-//                    return userService.inviteUsers(inviteUsersDTO, "http://localhost:8080");
-//                }).block();
-//
-//        // Now Sign Up as the new user
-//        User signUpUser = new User();
-//        signUpUser.setEmail(newUserEmail);
-//        signUpUser.setPassword("123456");
-//
-//        Mono<User> invitedUserSignUpMono =
-//                userService.createUserAndSendEmail(signUpUser, "http://localhost:8080")
-//                        .map(UserSignupDTO::getUser);
-//
-//        StepVerifier.create(invitedUserSignUpMono)
-//                .assertNext(user -> {
-//                    assertThat(user.getIsEnabled().equals(true));
-//                    assertThat(passwordEncoder.matches("123456", user.getPassword())).isTrue();
-//                })
-//                .verifyComplete();
+        String newUserEmail = "inviteUserToApplicationWithoutExisting@test.com";
+
+        workspaceMono
+                .flatMap(workspace1 -> {
+                    // Add user to workspace
+                    InviteUsersDTO inviteUsersDTO = new InviteUsersDTO();
+                    ArrayList<String> users = new ArrayList<>();
+                    users.add(newUserEmail);
+                    inviteUsersDTO.setUsernames(users);
+                    inviteUsersDTO.setWorkspaceId(workspace1.getId());
+                    inviteUsersDTO.setRoleName(AppsmithRole.ORGANIZATION_VIEWER.getName());
+
+                    return userService.inviteUsers(inviteUsersDTO, "http://localhost:8080");
+                }).block();
+
+        // Now Sign Up as the new user
+        User signUpUser = new User();
+        signUpUser.setEmail(newUserEmail);
+        signUpUser.setPassword("123456");
+
+        Mono<User> invitedUserSignUpMono =
+                userService.createUserAndSendEmail(signUpUser, "http://localhost:8080")
+                        .map(UserSignupDTO::getUser);
+
+        StepVerifier.create(invitedUserSignUpMono)
+                .assertNext(user -> {
+                    assertTrue(user.getIsEnabled());
+                    assertTrue(passwordEncoder.matches("123456", user.getPassword()));
+                })
+                .verifyComplete();
 
     }
 
@@ -405,7 +402,8 @@ public class UserServiceTest {
             user.setPassword("test-password");
             user.setName("test-name");
             StepVerifier.create(userSignup.signupAndLogin(user, null))
-                    .expectErrorMessage(AppsmithError.INVALID_PARAMETER.getMessage(FieldName.EMAIL));
+                    .expectErrorMessage(AppsmithError.INVALID_PARAMETER.getMessage(FieldName.EMAIL))
+                    .verify();
         }
     }
 
@@ -477,9 +475,8 @@ public class UserServiceTest {
                 .map(UserSignupDTO::getUser);
 
         StepVerifier.create(userAndSendEmail)
-                .expectErrorMessage(
-                        AppsmithError.USER_ALREADY_EXISTS_SIGNUP.getMessage(existingUser.getEmail())
-                );
+                .expectErrorMessage(AppsmithError.USER_ALREADY_EXISTS_SIGNUP.getMessage(existingUser.getEmail()))
+                .verify();
     }
 
     @Test

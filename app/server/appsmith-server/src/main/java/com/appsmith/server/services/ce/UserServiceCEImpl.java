@@ -167,7 +167,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
     @Override
     public Mono<User> switchCurrentWorkspace(String workspaceId) {
         if (workspaceId == null || workspaceId.isEmpty()) {
-            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "organizationId"));
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "workspaceId"));
         }
         return sessionUserService.getCurrentUser()
                 .flatMap(user -> repository.findByEmail(user.getUsername()))
@@ -487,7 +487,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                     if (!savedUser.isEnabled()) {
                         // First enable the user
                         savedUser.setIsEnabled(true);
-
+                        savedUser.setSource(user.getSource());
                         // In case of form login, store the encrypted password.
                         savedUser.setPassword(user.getPassword());
                         return repository.save(savedUser).map(updatedUser -> {
@@ -661,7 +661,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                                 Map<String, String> params = getEmailParams(workspace, currentUser, originHeader, false);
 
                                 Mono<Boolean> emailMono = emailSender.sendMail(existingUser.getEmail(),
-                                        "Appsmith: You have been added to a new organization",
+                                        "Appsmith: You have been added to a new workspace",
                                         USER_ADDED_TO_WORKSPACE_EMAIL_TEMPLATE, params);
 
                                 return emailMono

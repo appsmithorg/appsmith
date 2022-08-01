@@ -9,6 +9,8 @@ import {
 import { getCurrentWorkspace } from "@appsmith/selectors/workspaceSelectors";
 import { useSelector, useDispatch } from "react-redux";
 import { TabComponent, TabProp } from "components/ads/Tabs";
+import { Text, TextType } from "design-system";
+import history from "utils/history";
 import styled from "styled-components";
 
 import MemberSettings from "./Members";
