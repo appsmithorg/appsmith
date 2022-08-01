@@ -32,6 +32,7 @@ import {
   Category,
   IconPositions,
   Icon,
+  IconSelector,
   IconSize,
   Size,
   Text,
@@ -46,7 +47,6 @@ import EditableText, {
 } from "components/ads/EditableText";
 import ColorSelector from "components/ads/ColorSelector";
 import MenuDivider from "components/ads/MenuDivider";
-import IconSelector from "components/ads/IconSelector";
 import { useSelector } from "react-redux";
 import {
   ApplicationPagePayload,

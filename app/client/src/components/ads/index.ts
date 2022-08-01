@@ -49,9 +49,6 @@ export { default as FilePickerV2 } from "./FilePickerV2";
 
 export { default as GifPlayerComponent } from "./GifPlayerComponent";
 
-export { default as IconSelector } from "./IconSelector";
-export * from "./IconSelector";
-
 export { default as ListSegmentHeader } from "./ListSegmentHeader";
 
 export { default as MentionsInput } from "./MentionsInput";
