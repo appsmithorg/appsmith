@@ -1,5 +1,12 @@
 import datasourceFormData from "../../fixtures/datasources.json";
 import { ObjectsRegistry } from "../Objects/Registry";
+
+var DataSourceKVP = {
+  Postgres: "PostgreSQL",
+  Mongo: "MongoDB",
+  MySql: "MySQL",
+};//DataSources KeyValuePair
+
 export class DataSources {
   private agHelper = ObjectsRegistry.AggregateHelper;
   private table = ObjectsRegistry.Table;
@@ -23,9 +30,9 @@ export class DataSources {
   private _saveDs = ".t--save-datasource";
   private _datasourceCard = ".t--datasource";
   _templateMenu = ".t--template-menu";
+  _templateMenuOption = (action: string) =>
+    "//div[contains(@class, 't--template-menu')]//div[text()='" + action + "']";
   private _createQuery = ".t--create-query";
-  private _importSuccessModal = ".t--import-app-success-modal";
-  private _importSuccessModalClose = ".t--import-success-modal-got-it";
   _visibleTextSpan = (spanText: string) =>
     "//span[contains(text(),'" + spanText + "')]";
   _dropdownTitle = (ddTitle: string) =>
@@ -68,6 +75,10 @@ export class DataSources {
     "input[name='actionConfiguration.pluginSpecifiedTemplates[0].value'][type='checkbox']";
   _queriesOnPageText = (dsName: string) =>
     ".t--datasource-name:contains('" + dsName + "') .t--queries-for-DB";
+  _mockDB = (dbName: string) =>
+    "//span[text()='" +
+    dbName +
+    "']/ancestor::div[contains(@class, 't--mock-datasource')][1]";
 
   public StartDataSourceRoutes() {
     cy.intercept("PUT", "/api/v1/datasources/*").as("saveDatasource");
@@ -304,6 +315,18 @@ export class DataSources {
     this.agHelper.Sleep(2000); //for the CreateQuery/GeneratePage page to load
   }
 
+  public CreateQuery(datasourceName: string) {
+    cy.get(this._datasourceCard)
+      .contains(datasourceName)
+      .scrollIntoView()
+      .should("be.visible")
+      .closest(this._datasourceCard)
+      .within(() => {
+        cy.get(this._createQuery).click({ force: true });
+      });
+    this.agHelper.Sleep(2000); //for the CreateQuery
+  }
+
   public ValidateNSelectDropdown(
     ddTitle: string,
     currentValue = "",
@@ -323,17 +346,14 @@ export class DataSources {
     }
   }
 
-  public ReconnectDataSourcePostgres(dbName: string) {
+  public ReconnectDataSource(dbName: string, dsName: "PostgreSQL" | "MySQL") {
     this.agHelper.AssertElementVisible(this._reconnectModal);
-    cy.xpath(this._activeDSListReconnectModal("PostgreSQL")).should(
-      "be.visible",
-    );
+    cy.xpath(this._activeDSListReconnectModal(dsName)).should("be.visible");
     cy.xpath(this._activeDSListReconnectModal(dbName)).should("be.visible"); //.click()
     this.ValidateNSelectDropdown("Connection Mode", "", "Read / Write");
-    this.FillPostgresDSForm();
+    if (dsName == "PostgreSQL") this.FillPostgresDSForm();
+    else if (dsName == "MySQL") this.FillMySqlDSForm();
     cy.get(this._saveDs).click();
-    cy.get(this._importSuccessModal).should("be.visible");
-    cy.get(this._importSuccessModalClose).click({ force: true });
   }
 
   RunQuery(expectedStatus = true) {
@@ -413,5 +433,32 @@ export class DataSources {
     this.agHelper.AssertElementVisible(
       this._queryRecordResult(expectdRecordCount),
     );
+  }
+
+  public CreateDataSource(dsType: "Postgres" | "Mongo" | "MySql", navigateToCreateNewDs = true) {
+    let guid: any;
+    this.agHelper.GenerateUUID();
+    cy.get("@guid").then((uid) => {
+      navigateToCreateNewDs && this.NavigateToDSCreateNew();
+      this.CreatePlugIn(DataSourceKVP[dsType]);
+      guid = uid;
+      this.agHelper.RenameWithInPane(dsType + " " + guid, false);
+      if (DataSourceKVP[dsType] == "PostgreSQL") this.FillPostgresDSForm();
+      else if (DataSourceKVP[dsType] == "MySQL") this.FillMySqlDSForm();
+      else if (DataSourceKVP[dsType] == "MongoDB") this.FillMongoDSForm();
+      this.TestSaveDatasource();
+      cy.wrap(dsType + " " + guid).as("dsName");
+    });
+  }
+
+  public CreateNewQueryInDS(
+    dsName: string,
+    query: string,
+    queryName: string = "",
+  ) {
+    this.ee.CreateNewDsQuery(dsName);
+    if (queryName) this.agHelper.RenameWithInPane(queryName);
+    this.agHelper.GetNClick(this._templateMenu);
+    this.EnterQuery(query);
   }
 }
