@@ -8,56 +8,37 @@ export default {
   //
   getSelectedOptionValues: (props, moment, _) => {
     const options = props.options ?? [];
-    let selectedOptions = props.selectedOptions ?? [];
+    const selectedOptions = props.selectedOptions ?? [];
 
-    let values = selectedOptions.map((o) => o.value ?? o);
-    const filteredValue = values
-      .map((value) => options.find((option) => value === option.value)?.value)
-      .filter((val) => !_.isNil(val));
+    const values = selectedOptions.map((o) => o.value ?? o);
+    const valuesInOptions = options.map((o) => o.value);
+    const filteredValue = values.filter((value) =>
+      valuesInOptions.includes(value),
+    );
 
     if (!props.isDirty && filteredValue.length !== values.length) {
-      values = filteredValue;
+      return filteredValue;
     }
-
     return values;
   },
   //
   getSelectedOptionLabels: (props, moment, _) => {
-    let values = props.selectedOptionValues;
-    let selectedOptions = props.selectedOptions ?? [];
+    const values = props.selectedOptionValues;
+    const selectedOptions = props.selectedOptions ?? [];
+
     const options = props.options ?? [];
 
-    const hasLabelValue = (obj) => {
-      return (
-        _.isPlainObject(obj) &&
-        obj.hasOwnProperty("label") &&
-        obj.hasOwnProperty("value") &&
-        _.isString(obj.label) &&
-        (_.isString(obj.value) || _.isFinite(obj.value))
-      );
-    };
-    let filteredLabels;
-    if (selectedOptions.every(hasLabelValue)) {
-      filteredLabels = values
-        .map((value) => {
-          if (options.find((option) => value === option.value)?.label) {
-            return options.find((option) => value === option.value)?.label;
-          } else {
-            return selectedOptions.find((option) => value === option.value)
-              ?.label;
-          }
-        })
-        .filter((val) => !_.isNil(val));
-    } else {
-      filteredLabels = values
-        .map(
-          (value) =>
-            options.find((option) => value === option.value)?.label ?? value,
-        )
-        .filter((val) => !_.isNil(val));
-    }
-
-    return filteredLabels;
+    return values
+      .map((value) => {
+        if (options.find((option) => value === option.value)?.label) {
+          return options.find((option) => value === option.value)?.label;
+        } else {
+          return selectedOptions.find(
+            (option) => value === (option.value ?? option),
+          )?.label;
+        }
+      })
+      .filter((val) => !_.isNil(val));
   },
   //
 };

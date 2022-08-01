@@ -674,24 +674,10 @@ class MultiSelectWidget extends BaseWidget<
   mergeLabelAndValue = (): LabelValueType[] => {
     const labels = [...this.props.selectedOptionLabels];
     const values = [...this.props.selectedOptionValues];
-    let mergedValues: LabelValueType[];
-
-    if (
-      this.props.isDirty &&
-      this.props.selectedOptions.every(this.hasLabelValue)
-    ) {
-      mergedValues = this.props.selectedOptions.map((o) => ({
-        value: o.value,
-        label: o.label,
-      }));
-    } else {
-      mergedValues = values.map((value, index) => ({
-        value,
-        label: labels[index],
-      }));
-    }
-
-    return mergedValues;
+    return values.map((value, index) => ({
+      value,
+      label: labels[index],
+    }));
   };
 
   onFilterChange = (value: string) => {
