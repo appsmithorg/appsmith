@@ -14,6 +14,7 @@ import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserRole;
 import com.appsmith.server.domains.Workspace;
+import com.appsmith.server.dtos.InviteUsersDTO;
 import com.appsmith.server.dtos.PermissionGroupInfoDTO;
 import com.appsmith.server.dtos.UserAndPermissionGroupDTO;
 import com.appsmith.server.exceptions.AppsmithError;
@@ -45,10 +46,11 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 import reactor.util.function.Tuple2;
-import reactor.util.function.Tuple3;
+import reactor.util.function.Tuple6;
 
 import java.io.IOException;
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -111,6 +113,8 @@ public class WorkspaceServiceTest {
     private PermissionGroupRepository permissionGroupRepository;
 
     Workspace workspace;
+
+    private static String origin = "http://appsmith-local.test";
 
     @Before
     public void setup() {
@@ -721,6 +725,13 @@ public class WorkspaceServiceTest {
                 .create(workspace)
                 .cache();
 
+        Flux<PermissionGroup> permissionGroupFlux = workspaceMono
+                .flatMapMany(workspace1 -> permissionGroupRepository.findAllById(workspace1.getDefaultPermissionGroups()));
+
+        Mono<PermissionGroup> adminPermissionGroupMono = permissionGroupFlux
+                .filter(permissionGroup -> permissionGroup.getName().startsWith(ADMINISTRATOR))
+                .single();
+
         // Create an application for this workspace
         Mono<Application> applicationMono = workspaceMono
                 .flatMap(workspace1 -> {
@@ -738,18 +749,22 @@ public class WorkspaceServiceTest {
                     return datasourceService.create(datasource);
                 });
 
-        Mono<Workspace> userAddedToWorkspaceMono = workspaceMono
-                .flatMap(workspace1 -> {
+        Mono<Workspace> userAddedToWorkspaceMono = Mono.zip(workspaceMono, adminPermissionGroupMono)
+                .flatMap(tuple -> {
+                    Workspace workspace1 = tuple.getT1();
+                    PermissionGroup adminPermissionGroup = tuple.getT2();
                     // Add user to workspace
-                    UserRole userRole = new UserRole();
-                    userRole.setRoleName(AppsmithRole.ORGANIZATION_ADMIN.getName());
-                    userRole.setUsername("usertest@usertest.com");
-//                    return userWorkspaceService.addUserRoleToWorkspace(workspace1.getId(), userRole);
-                    return Mono.just(workspace1);
+                    InviteUsersDTO inviteUsersDTO = new InviteUsersDTO();
+                    ArrayList<String> users = new ArrayList<>();
+                    users.add("usertest@usertest.com");
+                    inviteUsersDTO.setUsernames(users);
+                    inviteUsersDTO.setPermissionGroupId(adminPermissionGroup.getId());
+
+                    return userService.inviteUsers(inviteUsersDTO, origin).zipWith(workspaceMono);
                 })
-                .map(workspace1 -> {
-                    log.debug("Workspace policies after adding user is : {}", workspace1.getPolicies());
-                    return workspace1;
+                .flatMap(tuple -> {
+                    Workspace t2 = tuple.getT2();
+                    return workspaceService.findById(t2.getId(), READ_WORKSPACES);
                 });
 
         Mono<Application> readApplicationByNameMono = applicationService.findByName("User Management Admin Test Application",
@@ -764,13 +779,17 @@ public class WorkspaceServiceTest {
                         .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "Datasource")))
         );
 
-        Mono<Tuple3<Application, Workspace, Datasource>> testMono = workspaceMono
+        Mono<User> userTestMono = userService.findByEmail("usertest@usertest.com");
+        Mono<User> api_userMono = userService.findByEmail("api_user");
+
+        Mono<Tuple6<Application, Workspace, Datasource, List<PermissionGroup>, User, User>> testMono = workspaceMono
                 // create application and datasource
                 .then(Mono.zip(applicationMono, datasourceMono))
                 // Now add the user
                 .then(userAddedToWorkspaceMono)
                 // Read application, workspace and datasource now to confirm the policies.
-                .then(Mono.zip(readApplicationByNameMono, readWorkspaceByNameMono, readDatasourceByNameMono));
+                .then(Mono.zip(readApplicationByNameMono, readWorkspaceByNameMono, readDatasourceByNameMono,
+                        permissionGroupFlux.collectList(), userTestMono, api_userMono));
 
         StepVerifier
                 .create(testMono)
@@ -778,14 +797,34 @@ public class WorkspaceServiceTest {
                     Application application = tuple.getT1();
                     Workspace workspace1 = tuple.getT2();
                     Datasource datasource = tuple.getT3();
+                    List<PermissionGroup> permissionGroups = tuple.getT4();
+                    User userTest = tuple.getT5();
+                    User api_user = tuple.getT6();
+
+                    PermissionGroup adminPermissionGroup = permissionGroups.stream()
+                            .filter(permissionGroup -> permissionGroup.getName().startsWith(ADMINISTRATOR))
+                            .findFirst().get();
+
+                    PermissionGroup developerPermissionGroup = permissionGroups.stream()
+                            .filter(permissionGroup -> permissionGroup.getName().startsWith(DEVELOPER))
+                            .findFirst().get();
+
+                    PermissionGroup viewerPermissionGroup = permissionGroups.stream()
+                            .filter(permissionGroup -> permissionGroup.getName().startsWith(VIEWER))
+                            .findFirst().get();
+
+                    // assert that both the user test and api_user have admin roles
+                    assertThat(adminPermissionGroup.getAssignedToUserIds()).containsAll(Set.of(userTest.getId(), api_user.getId()));
+
                     assertThat(workspace1).isNotNull();
-                    assertThat(workspace1.getUserRoles().get(1).getUsername()).isEqualTo("usertest@usertest.com");
+
+                    // Now assert that the application and datasource have correct permissions in the policies
 
                     Policy manageAppPolicy = Policy.builder().permission(MANAGE_APPLICATIONS.getValue())
-                            .users(Set.of("api_user", "usertest@usertest.com"))
+                            .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId()))
                             .build();
                     Policy readAppPolicy = Policy.builder().permission(READ_APPLICATIONS.getValue())
-                            .users(Set.of("api_user", "usertest@usertest.com"))
+                            .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId(), viewerPermissionGroup.getId()))
                             .build();
 
                     assertThat(application.getPolicies()).isNotEmpty();
@@ -795,13 +834,13 @@ public class WorkspaceServiceTest {
                      * Check for datasource permissions after the user addition
                      */
                     Policy manageDatasourcePolicy = Policy.builder().permission(MANAGE_DATASOURCES.getValue())
-                            .users(Set.of("api_user", "usertest@usertest.com"))
+                            .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId()))
                             .build();
                     Policy readDatasourcePolicy = Policy.builder().permission(READ_DATASOURCES.getValue())
-                            .users(Set.of("api_user", "usertest@usertest.com"))
+                            .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId()))
                             .build();
                     Policy executeDatasourcePolicy = Policy.builder().permission(EXECUTE_DATASOURCES.getValue())
-                            .users(Set.of("api_user", "usertest@usertest.com"))
+                            .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId(), viewerPermissionGroup.getId()))
                             .build();
 
                     assertThat(datasource.getPolicies()).isNotEmpty();
