@@ -31,7 +31,6 @@ import { warn as logWarn } from "loglevel";
 import { EvalMetaUpdates } from "./DataTreeEvaluator/types";
 import { isObject } from "lodash";
 import { DataTreeObjectEntity } from "entities/DataTree/dataTreeFactory";
-import { isWidgetPropertyNamePath } from "workers/widgetEvalUtils";
 
 // Dropdown1.options[1].value -> Dropdown1.options[1]
 // Dropdown1.options[1] -> Dropdown1.options
@@ -43,7 +42,6 @@ export enum DataTreeDiffEvent {
   DELETE = "DELETE",
   EDIT = "EDIT",
   NOOP = "NOOP",
-  EDIT_WIDGET_PROPERTY_LABEL = "EDIT_WIDGET_PROPERTY_LABEL",
 }
 
 export type DataTreeDiff = {
@@ -120,8 +118,10 @@ export const translateDiffEventToDataTreeDiffEvent = (
   if (!difference.path) {
     return result;
   }
-
   const propertyPath = convertPathToString(difference.path);
+
+  result.payload.propertyPath = propertyPath;
+
   //we do not need evaluate these paths coz these are internal paths
   const isUninterestingPathForUpdateTree = isUninterestingChangeForDependencyUpdate(
     propertyPath,
@@ -214,19 +214,6 @@ export const translateDiffEventToDataTreeDiffEvent = (
               },
             });
           });
-        }
-      } else if (isWidget(entity) && rhsTypeString && lhsTypeString) {
-        if (isWidgetPropertyNamePath(entity, propertyPath)) {
-          // EDIT_WIDGET_PROPERTY_LABEL is used to store edit event for triggering ternDefinitionUpdate and should be skipped in dependencyMap modification and evaluation
-          result = [
-            {
-              event: DataTreeDiffEvent.EDIT_WIDGET_PROPERTY_LABEL,
-              payload: {
-                propertyPath,
-                value: difference.rhs,
-              },
-            },
-          ];
         }
       } else if (difference.lhs === undefined || difference.rhs === undefined) {
         // Handle static value changes that change structure that can lead to

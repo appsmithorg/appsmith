@@ -12,13 +12,13 @@ import { DataTreeWidget } from "entities/DataTree/dataTreeFactory";
  */
 export const isWidgetPropertyNamePath = (
   widgetEntity: DataTreeWidget,
-  propertyPath: string,
+  fullPath: string,
 ) => {
   switch (widgetEntity.type) {
     case "TABLE_WIDGET":
     case "TABLE_WIDGET_V2": {
       // TableWidget: Table1.primaryColumns.customColumn1.alias
-      const subPaths = propertyPath.split(".");
+      const subPaths = fullPath.split(".");
       if (subPaths.length === 4) {
         return subPaths[1] === "primaryColumns" && subPaths[3] === "alias";
       }
@@ -26,7 +26,7 @@ export const isWidgetPropertyNamePath = (
     }
     case "BUTTON_GROUP_WIDGET": {
       //  buttonGroup: ButtonGroup1.groupButtons.groupButton8osb9mezmx.label
-      const subPaths = propertyPath.split(".");
+      const subPaths = fullPath.split(".");
       if (subPaths.length === 4) {
         return subPaths[1] === "groupButtons" && subPaths[3] === "label";
       }
@@ -34,7 +34,7 @@ export const isWidgetPropertyNamePath = (
     }
     case "JSON_FORM_WIDGET": {
       //  JSONForm1.schema.__root_schema__.children.customField1.accessor
-      const subPaths = propertyPath.split(".");
+      const subPaths = fullPath.split(".");
       if (subPaths.length === 6) {
         return (
           subPaths[1] === "schema" &&
@@ -46,7 +46,7 @@ export const isWidgetPropertyNamePath = (
     }
     case "MENU_BUTTON_WIDGET": {
       //  MenuButton1.menuItems.menuItemdcoc16pgml.label
-      const subPaths = propertyPath.split(".");
+      const subPaths = fullPath.split(".");
       if (subPaths.length === 4) {
         return subPaths[1] === "menuItems" && subPaths[3] === "label";
       }
@@ -54,7 +54,7 @@ export const isWidgetPropertyNamePath = (
     }
     case "TABS_WIDGET": {
       //  Tabs1.tabsObj.tab0x3cni7xyj.label
-      const subPaths = propertyPath.split(".");
+      const subPaths = fullPath.split(".");
       if (subPaths.length === 4) {
         return subPaths[1] === "tabsObj" && subPaths[3] === "label";
       }
