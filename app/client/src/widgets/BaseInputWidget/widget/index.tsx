@@ -569,6 +569,19 @@ class BaseInputWidget<
             isTriggerProperty: false,
             validation: { type: ValidationTypes.BOOLEAN },
           },
+          {
+            propertyName: "allowFormatting",
+            label: "Enable Formatting",
+            helpText: "Formats the phone number as per the country selected",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+            hidden: (props: BaseInputWidgetProps) => {
+              return props.type !== "PHONE_INPUT_WIDGET";
+            },
+          },
         ],
       },
       {
