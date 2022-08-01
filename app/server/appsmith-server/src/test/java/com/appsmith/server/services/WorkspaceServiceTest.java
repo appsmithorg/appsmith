@@ -2,7 +2,6 @@ package com.appsmith.server.services;
 
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.Policy;
-import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.AppsmithRole;
 import com.appsmith.server.acl.RoleGraph;
 import com.appsmith.server.configurations.WithMockAppsmithUser;
@@ -496,136 +495,79 @@ public class WorkspaceServiceTest {
     }
 
     /**
-     * This test tests for an existing user being added to an workspace as admin.
-     * The workspace object should have permissions to manage the workspace for the invited user.
-     */
-    @Test
-    @WithUserDetails(value = "api_user")
-    public void addExistingUserToWorkspaceAsAdmin() {
-        Mono<Workspace> seedWorkspace = workspaceRepository.findByName("Spring Test Workspace", AclPermission.READ_WORKSPACES)
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND)));
-
-//        Mono<UserGroup> adminGroupMono = seedWorkspace.flatMapMany(workspace1 -> userGroupService.getDefaultUserGroups(workspace1.getId()))
-//                .filter(userGroup -> userGroup.getName().startsWith(FieldName.ADMINISTRATOR))
-//                .single()
-//                .cache();
-//
-//        Mono<List<User>> usersAddedToWorkspaceMono = adminGroupMono
-//                .flatMap(userGroup -> {
-//                    // Add user to workspace
-//                    InviteUsersDTO inviteUsersDTO = new InviteUsersDTO();
-//                    ArrayList<String> users = new ArrayList<>();
-//                    users.add("usertest@usertest.com");
-//                    inviteUsersDTO.setUsernames(users);
-//                    inviteUsersDTO.setUserGroupId(userGroup.getId());
-//
-//                    return userService.inviteUsers(inviteUsersDTO, "http://localhost:8080");
-//                })
-//                .cache();
-//
-//        Mono<Workspace> workspaceAfterUpdateMono = usersAddedToWorkspaceMono
-//                .then(seedWorkspace);
-//
-//        StepVerifier
-//                .create(Mono.zip(usersAddedToWorkspaceMono, workspaceAfterUpdateMono))
-//                .assertNext(tuple -> {
-//                    User user = tuple.getT1().get(0);
-//                    Workspace workspace = tuple.getT2();
-//
-//                    assertThat(workspace).isNotNull();
-//                    assertThat(workspace.getName()).isEqualTo("Spring Test Workspace");
-//                    assertThat(workspace.getUserRoles().get(1).getUsername()).isEqualTo("usertest@usertest.com");
-//
-//                    Policy manageWorkspaceAppPolicy = Policy.builder().permission(WORKSPACE_MANAGE_APPLICATIONS.getValue())
-//                            .users(Set.of("api_user", "usertest@usertest.com"))
-//                            .build();
-//
-//                    Policy manageWorkspacePolicy = Policy.builder().permission(MANAGE_WORKSPACES.getValue())
-//                            .users(Set.of("api_user", "usertest@usertest.com"))
-//                            .build();
-//
-//                    Policy readWorkspacePolicy = Policy.builder().permission(READ_WORKSPACES.getValue())
-//                            .users(Set.of("api_user", "usertest@usertest.com"))
-//                            .build();
-//
-//                    assertThat(workspace.getPolicies()).isNotEmpty();
-//                    assertThat(workspace.getPolicies()).containsAll(Set.of(manageWorkspaceAppPolicy, manageWorkspacePolicy, readWorkspacePolicy));
-//
-//                    Set<String> workspaceIds = user.getWorkspaceIds();
-//                    assertThat(workspaceIds).contains(workspace.getId());
-//
-//                })
-//                .verifyComplete();
-    }
-
-    /**
-     * This test tests for a new user being added to an workspace as admin.
+     * This test tests for a new user being added to a workspace as an admin.
      * The new user must be created at after invite flow and the new user must be disabled.
      */
     @Test
     @WithUserDetails(value = "api_user")
     public void addNewUserToWorkspaceAsAdmin() {
-        Mono<Workspace> seedWorkspace = workspaceRepository.findByName("Another Test Workspace", AclPermission.READ_WORKSPACES)
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND)));
+        Workspace toCreate = new Workspace();
+        toCreate.setName("addNewUserToWorkspaceAsAdmin Workspace");
+        toCreate.setDomain("example.com");
+        toCreate.setWebsite("https://example.com");
 
-//        Mono<UserGroup> adminGroupMono = seedWorkspace.flatMapMany(workspace1 -> userGroupService.getDefaultUserGroups(workspace1.getId()))
-//                .filter(userGroup -> userGroup.getName().startsWith(FieldName.ADMINISTRATOR))
-//                .single()
-//                .cache();
-//
-//        Mono<List<User>> userAddedToWorkspaceMono = adminGroupMono
-//                .flatMap(userGroup -> {
-//                    // Add user to workspace
-//                    InviteUsersDTO inviteUsersDTO = new InviteUsersDTO();
-//                    ArrayList<String> users = new ArrayList<>();
-//                    users.add("newEmailWhichShouldntExist@usertest.com");
-//                    inviteUsersDTO.setUsernames(users);
-//                    inviteUsersDTO.setUserGroupId(userGroup.getId());
-//
-//                    return userService.inviteUsers(inviteUsersDTO, "http://localhost:8080");
-//                })
-//                .cache();
-//
-//        Mono<Workspace> workspaceAfterUpdateMono = userAddedToWorkspaceMono
-//                .then(seedWorkspace);
-//
-//        StepVerifier
-//                .create(Mono.zip(userAddedToWorkspaceMono, workspaceAfterUpdateMono))
-//                .assertNext(tuple -> {
-//                    User user = tuple.getT1().get(0);
-//                    Workspace workspace = tuple.getT2();
-//                    log.debug("org user roles : {}", workspace.getUserRoles());
-//
-//                    assertThat(workspace).isNotNull();
-//                    assertThat(workspace.getName()).isEqualTo("Another Test Workspace");
-//                    assertThat(workspace.getUserRoles().stream()
-//                            .map(role -> role.getUsername())
-//                            .filter(username -> username.equals("newemailwhichshouldntexist@usertest.com"))
-//                            .collect(Collectors.toSet())
-//                    ).hasSize(1);
-//
-//                    Policy manageWorkspaceAppPolicy = Policy.builder().permission(WORKSPACE_MANAGE_APPLICATIONS.getValue())
-//                            .users(Set.of("api_user", "newemailwhichshouldntexist@usertest.com"))
-//                            .build();
-//
-//                    Policy manageWorkspacePolicy = Policy.builder().permission(MANAGE_WORKSPACES.getValue())
-//                            .users(Set.of("api_user", "newemailwhichshouldntexist@usertest.com"))
-//                            .build();
-//
-//                    Policy readWorkspacePolicy = Policy.builder().permission(READ_WORKSPACES.getValue())
-//                            .users(Set.of("api_user", "newemailwhichshouldntexist@usertest.com"))
-//                            .build();
-//
-//                    assertThat(workspace.getPolicies()).isNotEmpty();
-//                    assertThat(workspace.getPolicies()).containsAll(Set.of(manageWorkspaceAppPolicy, manageWorkspacePolicy, readWorkspacePolicy));
-//
-//                    assertThat(user).isNotNull();
-//                    assertThat(user.getIsEnabled()).isFalse();
-//                    Set<String> workspaceIds = user.getWorkspaceIds();
-//                    assertThat(workspaceIds).contains(workspace.getId());
-//
-//                })
-//                .verifyComplete();
+        Workspace workspace = workspaceService
+                .create(toCreate)
+                .block();
+
+        List<PermissionGroup> permissionGroups = permissionGroupRepository
+                .findAllById(workspace.getDefaultPermissionGroups()).collectList().block();
+
+        String adminPermissionGroupId = permissionGroups.stream()
+                .filter(permissionGroup -> permissionGroup.getName().startsWith(ADMINISTRATOR))
+                .findFirst().get()
+                .getId();
+
+        InviteUsersDTO inviteUsersDTO = new InviteUsersDTO();
+        ArrayList<String> users = new ArrayList<>();
+        users.add("newEmailWhichShouldntExist@usertest.com");
+        inviteUsersDTO.setUsernames(users);
+        inviteUsersDTO.setPermissionGroupId(adminPermissionGroupId);
+
+        List<User> createdUsers = userService.inviteUsers(inviteUsersDTO, origin).block();
+
+        List<PermissionGroup> permissionGroupsAfterInvite = permissionGroupRepository
+                .findAllById(workspace.getDefaultPermissionGroups()).collectList().block();
+
+        // Do the assertions now
+        assertThat(workspace).isNotNull();
+        assertThat(workspace.getName()).isEqualTo("addNewUserToWorkspaceAsAdmin Workspace");
+
+        PermissionGroup adminPermissionGroup = permissionGroupsAfterInvite.stream()
+                .filter(permissionGroup -> permissionGroup.getName().startsWith(ADMINISTRATOR))
+                .findFirst().get();
+
+        PermissionGroup developerPermissionGroup = permissionGroupsAfterInvite.stream()
+                .filter(permissionGroup -> permissionGroup.getName().startsWith(DEVELOPER))
+                .findFirst().get();
+
+        PermissionGroup viewerPermissionGroup = permissionGroupsAfterInvite.stream()
+                .filter(permissionGroup -> permissionGroup.getName().startsWith(VIEWER))
+                .findFirst().get();
+
+        User api_user = userService.findByEmail("api_user").block();
+        User newUser = createdUsers.get(0);
+
+        // assert that both the new user and api_user have admin roles
+        assertThat(adminPermissionGroup.getAssignedToUserIds()).containsAll(Set.of(newUser.getId(), api_user.getId()));
+
+        Policy manageWorkspaceAppPolicy = Policy.builder().permission(WORKSPACE_MANAGE_APPLICATIONS.getValue())
+                .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId()))
+                .build();
+
+        Policy manageWorkspacePolicy = Policy.builder().permission(MANAGE_WORKSPACES.getValue())
+                .permissionGroups(Set.of(adminPermissionGroup.getId()))
+                .build();
+
+        Policy readWorkspacePolicy = Policy.builder().permission(READ_WORKSPACES.getValue())
+                .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId(), viewerPermissionGroup.getId()))
+                .build();
+
+        assertThat(workspace.getPolicies()).isNotEmpty();
+        assertThat(workspace.getPolicies()).containsAll(Set.of(manageWorkspaceAppPolicy, manageWorkspacePolicy, readWorkspacePolicy));
+
+        assertThat(newUser).isNotNull();
+        assertThat(newUser.getIsEnabled()).isFalse();
     }
 
     /**
@@ -635,69 +577,75 @@ public class WorkspaceServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void addNewUserToWorkspaceAsViewer() {
-        Workspace workspace = new Workspace();
-        workspace.setName("Add Viewer to Test Workspace");
-        workspace.setDomain("example.com");
-        workspace.setWebsite("https://example.com");
+        Workspace toCreate = new Workspace();
+        toCreate.setName("Add Viewer to Test Workspace");
+        toCreate.setDomain("example.com");
+        toCreate.setWebsite("https://example.com");
 
-        Mono<Workspace> workspaceMono = workspaceService
-                .create(workspace)
-                .cache();
+        Workspace workspace = workspaceService
+                .create(toCreate)
+                .block();
 
-//        Mono<UserGroup> viewerGroupMono = workspaceMono.flatMapMany(workspace1 -> userGroupService.getDefaultUserGroups(workspace1.getId()))
-//                .filter(userGroup -> userGroup.getName().startsWith(FieldName.VIEWER))
-//                .single()
-//                .cache();
-//
-//        Mono<List<User>> userAddedToWorkspaceMono = viewerGroupMono
-//                .flatMap(userGroup -> {
-//                    // Add user to workspace
-//                    InviteUsersDTO inviteUsersDTO = new InviteUsersDTO();
-//                    ArrayList<String> users = new ArrayList<>();
-//                    users.add("newEmailWhichShouldntExistAsViewer@usertest.com");
-//                    inviteUsersDTO.setUsernames(users);
-//                    inviteUsersDTO.setUserGroupId(userGroup.getId());
-//
-//                    return userService.inviteUsers(inviteUsersDTO, "http://localhost:8080");
-//                })
-//                .cache();
-//
-//        Mono<Workspace> readWorkspaceMono = workspaceRepository.findByName("Add Viewer to Test Workspace");
-//
-//        Mono<Workspace> workspaceAfterUpdateMono = userAddedToWorkspaceMono
-//                .then(readWorkspaceMono);
-//
-//        StepVerifier
-//                .create(Mono.zip(userAddedToWorkspaceMono, workspaceAfterUpdateMono))
-//                .assertNext(tuple -> {
-//                    User user = tuple.getT1().get(0);
-//                    Workspace workspace1 = tuple.getT2();
-//
-//                    assertThat(workspace1).isNotNull();
-//                    assertThat(workspace1.getName()).isEqualTo("Add Viewer to Test Workspace");
-//                    assertThat(workspace1.getUserRoles().stream()
-//                            .filter(role -> role.getUsername().equals("newemailwhichshouldntexistasviewer@usertest.com"))
-//                            .collect(Collectors.toSet())
-//                    ).hasSize(1);
-//
-//                    Policy readWorkspaceAppsPolicy = Policy.builder().permission(WORKSPACE_READ_APPLICATIONS.getValue())
-//                            .users(Set.of("api_user", "newemailwhichshouldntexistasviewer@usertest.com"))
-//                            .build();
-//
-//                    Policy readWorkspacePolicy = Policy.builder().permission(READ_WORKSPACES.getValue())
-//                            .users(Set.of("api_user", "newemailwhichshouldntexistasviewer@usertest.com"))
-//                            .build();
-//
-//                    assertThat(workspace1.getPolicies()).isNotEmpty();
-//                    assertThat(workspace1.getPolicies()).containsAll(Set.of(readWorkspaceAppsPolicy, readWorkspacePolicy));
-//
-//                    assertThat(user).isNotNull();
-//                    assertThat(user.getIsEnabled()).isFalse();
-//                    Set<String> workspaceIds = user.getWorkspaceIds();
-//                    assertThat(workspaceIds).contains(workspace1.getId());
-//
-//                })
-//                .verifyComplete();
+        List<PermissionGroup> permissionGroups = permissionGroupRepository
+                .findAllById(workspace.getDefaultPermissionGroups()).collectList().block();
+
+        String viewerPermissionGroupId = permissionGroups.stream()
+                .filter(permissionGroup -> permissionGroup.getName().startsWith(VIEWER))
+                .findFirst().get()
+                .getId();
+
+        InviteUsersDTO inviteUsersDTO = new InviteUsersDTO();
+        ArrayList<String> users = new ArrayList<>();
+        users.add("newEmailWhichShouldntExist1@usertest.com");
+        inviteUsersDTO.setUsernames(users);
+        inviteUsersDTO.setPermissionGroupId(viewerPermissionGroupId);
+
+        List<User> createdUsers = userService.inviteUsers(inviteUsersDTO, origin).block();
+
+        List<PermissionGroup> permissionGroupsAfterInvite = permissionGroupRepository
+                .findAllById(workspace.getDefaultPermissionGroups()).collectList().block();
+
+        // Do the assertions now
+        assertThat(workspace).isNotNull();
+        assertThat(workspace.getName()).isEqualTo("Add Viewer to Test Workspace");
+
+        PermissionGroup adminPermissionGroup = permissionGroupsAfterInvite.stream()
+                .filter(permissionGroup -> permissionGroup.getName().startsWith(ADMINISTRATOR))
+                .findFirst().get();
+
+        PermissionGroup developerPermissionGroup = permissionGroupsAfterInvite.stream()
+                .filter(permissionGroup -> permissionGroup.getName().startsWith(DEVELOPER))
+                .findFirst().get();
+
+        PermissionGroup viewerPermissionGroup = permissionGroupsAfterInvite.stream()
+                .filter(permissionGroup -> permissionGroup.getName().startsWith(VIEWER))
+                .findFirst().get();
+
+        User api_user = userService.findByEmail("api_user").block();
+        User newUser = createdUsers.get(0);
+
+        // assert that new user has viewer role
+        assertThat(viewerPermissionGroup.getAssignedToUserIds()).containsAll(Set.of(newUser.getId()));
+        // assert that api_user has admin role
+        assertThat(adminPermissionGroup.getAssignedToUserIds()).containsAll(Set.of(api_user.getId()));
+
+        Policy manageWorkspaceAppPolicy = Policy.builder().permission(WORKSPACE_MANAGE_APPLICATIONS.getValue())
+                .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId()))
+                .build();
+
+        Policy manageWorkspacePolicy = Policy.builder().permission(MANAGE_WORKSPACES.getValue())
+                .permissionGroups(Set.of(adminPermissionGroup.getId()))
+                .build();
+
+        Policy readWorkspacePolicy = Policy.builder().permission(READ_WORKSPACES.getValue())
+                .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId(), viewerPermissionGroup.getId()))
+                .build();
+
+        assertThat(workspace.getPolicies()).isNotEmpty();
+        assertThat(workspace.getPolicies()).containsAll(Set.of(manageWorkspaceAppPolicy, manageWorkspacePolicy, readWorkspacePolicy));
+
+        assertThat(newUser).isNotNull();
+        assertThat(newUser.getIsEnabled()).isFalse();
     }
 
     /**
