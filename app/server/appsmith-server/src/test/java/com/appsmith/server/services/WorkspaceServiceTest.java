@@ -483,24 +483,16 @@ public class WorkspaceServiceTest {
         Mono<List<UserAndPermissionGroupDTO>> usersMono = createWorkspaceMono
                 .flatMap(workspace -> userWorkspaceService.getWorkspaceMembers(workspace.getId()));
 
-//        Mono<UserGroup> adminUserGroup = createWorkspaceMono
-//                .flatMapMany(workspace -> userGroupService.getDefaultUserGroups(workspace.getId()))
-//                .filter(userGroup -> userGroup.getName().startsWith(FieldName.ADMINISTRATOR))
-//                .single();
-//
-//        StepVerifier
-//                .create(Mono.zip(usersMono, adminUserGroup))
-//                .assertNext(tuple -> {
-//                    List<UserAndGroupDTO> users = tuple.getT1();
-//                    UserGroup userGroup = tuple.getT2();
-//
-//                    assertThat(users).isNotNull();
-//                    UserAndGroupDTO userAndGroupDTO = users.get(0);
-//                    assertThat(userAndGroupDTO.getName()).isEqualTo("api_user");
-//                    assertThat(userAndGroupDTO.getGroupName()).isEqualTo(userGroup.getName());
-//                    assertThat(userAndGroupDTO.getGroupId()).isEqualTo(userGroup.getId());
-//                })
-//                .verifyComplete();
+        StepVerifier
+                .create(usersMono)
+                .assertNext(users -> {
+                    assertThat(users).isNotNull();
+                    assertThat(users.size()).isEqualTo(1);
+                    UserAndPermissionGroupDTO userAndGroupDTO = users.get(0);
+                    assertThat(userAndGroupDTO.getName()).isEqualTo("api_user");
+                    assertThat(userAndGroupDTO.getPermissionGroupName()).startsWith(ADMINISTRATOR);
+                })
+                .verifyComplete();
     }
 
     /**
