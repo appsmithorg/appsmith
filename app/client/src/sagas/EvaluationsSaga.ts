@@ -98,6 +98,8 @@ import { DataTreeDiff } from "workers/evaluationUtils";
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { AppTheme } from "entities/AppTheming";
 import { ActionValidationConfigMap } from "constants/PropertyControlConstants";
+import AppsmithConsole from "utils/AppsmithConsole";
+import { createLogTitleString, Message } from "workers/UserLog";
 
 let widgetTypeConfigMap: WidgetTypeConfigMap;
 
@@ -266,6 +268,14 @@ export function* evaluateAndExecuteDynamicTrigger(
           );
         }
       }
+      if (requestData.result.logs.length) {
+        requestData.result.logs.forEach((log: Message) => {
+          AppsmithConsole.info(
+            { text: createLogTitleString(log.data) },
+            log.timestamp,
+          );
+        });
+      }
       // It is possible to get a few triggers here if the user
       // still uses the old way of action runs and not promises. For that we
       // need to manually execute these triggers outside the promise flow
@@ -361,6 +371,7 @@ export function* executeFunction(
   let response: {
     errors: any[];
     result: any;
+    logs?: any[];
   };
 
   if (isAsync) {
@@ -383,7 +394,21 @@ export function* executeFunction(
     });
   }
 
-  const { errors, result } = response;
+  const { errors, logs, result } = response;
+
+  if (!!logs && logs.length > 0) {
+    logs.forEach((log: Message) => {
+      AppsmithConsole.info({
+        text: createLogTitleString(log.data),
+        timestamp: log.timestamp,
+        source: {
+          type: ENTITY_TYPE.JSACTION,
+          name: collectionName + "." + action.name,
+          id: collectionId,
+        },
+      });
+    });
+  }
   const isDirty = !!errors.length;
 
   yield call(
