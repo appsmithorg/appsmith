@@ -12,11 +12,13 @@ import { enhanceDataTreeWithFunctions } from "./Actions";
 import { isEmpty } from "lodash";
 import { completePromise } from "workers/PromisifyAction";
 import { ActionDescription } from "entities/DataTree/actionTriggers";
+import userLogs from "./UserLog";
 
 export type EvalResult = {
   result: any;
   errors: EvaluationError[];
   triggers?: ActionDescription[];
+  logs?: any[];
 };
 
 export enum EvaluationScriptType {
@@ -230,6 +232,7 @@ export default function evaluateSync(
 ): EvalResult {
   return (function() {
     const errors: EvaluationError[] = [];
+    let logs: any[] = [];
     let result;
     /**** Setting the eval context ****/
     const GLOBAL_DATA: Record<string, any> = createGlobalData({
@@ -276,13 +279,14 @@ export default function evaluateSync(
         originalBinding: userScript,
       });
     } finally {
+      logs = userLogs.flushLogs();
       for (const entity in GLOBAL_DATA) {
         // @ts-expect-error: Types are not available
         delete self[entity];
       }
     }
 
-    return { result, errors };
+    return { result, errors, logs };
   })();
 }
 
@@ -332,6 +336,7 @@ export async function evaluateAsync(
       completePromise(requestId, {
         result,
         errors,
+        logs: userLogs.flushLogs(),
         triggers: Array.from(self.TRIGGER_COLLECTOR),
       });
       for (const entity in GLOBAL_DATA) {
