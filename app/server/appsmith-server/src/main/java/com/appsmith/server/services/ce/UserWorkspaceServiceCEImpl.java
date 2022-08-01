@@ -196,8 +196,8 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
     public Mono<List<UserAndPermissionGroupDTO>> getWorkspaceMembers(String workspaceId) {
 
         // Read the workspace
-        Mono<Workspace> workspaceMono = workspaceRepository.findById(workspaceId, AclPermission.READ_WORKSPACES);
-
+        Mono<Workspace> workspaceMono = workspaceRepository.findById(workspaceId, AclPermission.READ_WORKSPACES)
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.WORKSPACE, workspaceId)));
 
         // Get default permission groups
         Flux<PermissionGroup> permissionGroupFlux = workspaceMono
