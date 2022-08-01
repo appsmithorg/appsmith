@@ -39,17 +39,16 @@ describe("Autocomplete bug fixes", function() {
   });
 
   it("Checks if copied widget show up on autocomplete suggestions", function() {
-    cy.dragAndDropToCanvas("buttonwidget", { x: 200, y: 200 });
     cy.get(`#div-selection-0`).click({
       force: true,
     });
-    cy.get("body").type(`{${modifierKey}}{a}`);
+    cy.openPropertyPane("textwidget");
     cy.wait(500);
     cy.get("body").type(`{${modifierKey}}{c}`);
     cy.wait(500);
     cy.get("body").type(`{${modifierKey}}{v}`);
     cy.wait(500);
-    cy.openPropertyPane("buttonwidget");
+    cy.openPropertyPane("textwidget");
     cy.EnableAllCodeEditors();
     cy.get(".CodeMirror textarea")
       .first()
@@ -65,7 +64,7 @@ describe("Autocomplete bug fixes", function() {
         }
         cy.get(".CodeMirror textarea")
           .first()
-          .type("{{Butto", {
+          .type("{{Text", {
             force: true,
             parseSpecialCharSequences: false,
           });
@@ -76,7 +75,7 @@ describe("Autocomplete bug fixes", function() {
           .should("have.text", "Best Match");
         cy.get(`${dynamicInputLocators.hints} li`)
           .eq(1)
-          .should("have.text", "Button1Copy.text");
+          .should("have.text", "Text1Copy.text");
       });
   });
 });
