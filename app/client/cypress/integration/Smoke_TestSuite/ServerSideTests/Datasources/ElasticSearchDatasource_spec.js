@@ -1,6 +1,4 @@
 const datasource = require("../../../../locators/DatasourcesEditor.json");
-const queryLocators = require("../../../../locators/QueryEditor.json");
-const queryEditor = require("../../../../locators/QueryEditor.json");
 
 let elasticSearchName;
 
@@ -11,7 +9,7 @@ describe("Elastic search datasource tests", function() {
 
   it("1. Create elastic search datasource", function() {
     cy.NavigateToDatasourceEditor();
-    cy.get(datasource.ElasticSearch).click();
+    cy.get(datasource.ElasticSearch).trigger("click", { force: true });
     cy.generateUUID().then((uid) => {
       elasticSearchName = uid;
 

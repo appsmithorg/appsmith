@@ -7,9 +7,6 @@ export function createMessage(
 
 export const YES = () => `Yes`;
 export const ARE_YOU_SURE = () => `Are you sure?`;
-export const ERROR_MESSAGE_SELECT_ACTION = () => `Please select an action`;
-export const ERROR_MESSAGE_SELECT_ACTION_TYPE = () =>
-  `Please select an action type`;
 export const ERROR_ADD_API_INVALID_URL = () =>
   `Unable to create API. Try adding a URL to the datasource`;
 export const ERROR_MESSAGE_NAME_EMPTY = () => `Please select a name`;
@@ -117,11 +114,6 @@ export const ERROR_0 = () =>
   `We could not connect to our servers. Please check your network connection`;
 export const ERROR_401 = () =>
   `We are unable to verify your identity. Please login again.`;
-export const ERROR_403 = () =>
-  `Permission Denied. Please contact your admin to gain access.`;
-export const URL_HTTP_VALIDATION_ERROR = () => `Please enter a valid URL`;
-export const NAVIGATE_TO_VALIDATION_ERROR = () =>
-  `Please enter a valid URL or page name`;
 export const PAGE_NOT_FOUND_ERROR = () =>
   `The page you’re looking for either does not exist, or cannot be found`;
 export const INVALID_URL_ERROR = () => `Invalid URL`;
@@ -137,8 +129,6 @@ export const INVITE_USERS_ROLE_SELECT_LABEL = () => `Role`;
 export const INVITE_USERS_EMAIL_LIST_LABEL = () => `User emails`;
 export const INVITE_USERS_ADD_EMAIL_LIST_FIELD = () => `Add more`;
 export const INVITE_USERS_SUBMIT_BUTTON_TEXT = () => `Invite users`;
-export const INVITE_USERS_SUBMIT_ERROR = () =>
-  `We were unable to invite the users, please try again later`;
 export const INVITE_USERS_SUBMIT_SUCCESS = () =>
   `The users have been invited successfully`;
 export const INVITE_USER_SUBMIT_SUCCESS = () =>
@@ -146,28 +136,12 @@ export const INVITE_USER_SUBMIT_SUCCESS = () =>
 export const INVITE_USERS_VALIDATION_EMAILS_EMPTY = () =>
   `Please enter the user emails`;
 
-export const CREATE_PASSWORD_PAGE_PASSWORD_INPUT_LABEL = () => `New password`;
-export const CREATE_PASSWORD_PAGE_PASSWORD_INPUT_PLACEHOLDER = () =>
-  `New Password`;
-export const CREATE_PASSWORD_LOGIN_LINK_TEXT = () =>
-  `Already know the password? Login`;
-export const CREATE_PASSWORD_PAGE_TITLE = () => `Set password`;
-export const CREATE_PASSWORD_SUBMIT_BUTTON_TEXT = () => `Create`;
-export const CREATE_PASSWORD_PAGE_SUBTITLE = () =>
-  `Set a new password for your account `;
-
 export const CREATE_PASSWORD_RESET_SUCCESS = () => `Your password has been set`;
 export const CREATE_PASSWORD_RESET_SUCCESS_LOGIN_LINK = () => `Login`;
-
-export const CREATE_PASSWORD_EXPIRED_TOKEN = () =>
-  `The invite link has expired. Please try requesting a new invite`;
-export const CREATE_PASSWORD_INVALID_TOKEN = () =>
-  `The invite link is invalid. Please try request a new invite`;
 
 export const DELETING_APPLICATION = () => `Deleting application...`;
 export const DUPLICATING_APPLICATION = () => `Duplicating application...`;
 
-export const CURL_IMPORT_SUCCESS = () => `Curl command imported successfully`;
 export const FORGOT_PASSWORD_PAGE_LOGIN_LINK = () => `Back to sign in`;
 export const ADD_API_TO_PAGE_SUCCESS_MESSAGE = (actionName: string) =>
   `${actionName} API added to page`;
@@ -200,7 +174,7 @@ export const LIGHTNING_MENU_DATA_API = () => `Use data from an API`;
 export const LIGHTNING_MENU_DATA_QUERY = () => `Use data from a query`;
 export const LIGHTNING_MENU_DATA_TOOLTIP = () => `Quick start data binding`;
 export const LIGHTNING_MENU_DATA_WIDGET = () => `Use data from a widget`;
-export const LIGHTNING_MENU_QUERY_CREATE_NEW = () => `Create new Query`;
+export const LIGHTNING_MENU_QUERY_CREATE_NEW = () => `Create new query`;
 export const LIGHTNING_MENU_API_CREATE_NEW = () => `Create new API`;
 
 export const LIGHTNING_MENU_OPTION_TEXT = () => `Plain Text`;
@@ -209,7 +183,6 @@ export const LIGHTNING_MENU_OPTION_HTML = () => `Write HTML`;
 export const CHECK_REQUEST_BODY = () =>
   `Please check your request configuration to debug`;
 export const DONT_SHOW_THIS_AGAIN = () => `Don't show this again`;
-export const SHOW_REQUEST = () => `Show Request`;
 
 export const TABLE_FILTER_COLUMN_TYPE_CALLOUT = () =>
   `Change column datatype to see filter operators`;
@@ -320,7 +293,7 @@ export const LOCAL_STORAGE_QUOTA_EXCEEDED_MESSAGE = () =>
 export const LOCAL_STORAGE_NO_SPACE_LEFT_ON_DEVICE_MESSAGE = () =>
   "Error saving a key in localStorage. You have run out of disk space";
 export const LOCAL_STORAGE_NOT_SUPPORTED_APP_MIGHT_NOT_WORK_AS_EXPECTED = () =>
-  "Localstorage storage is not supported on your device. Some features including the Appsmith store won't work.";
+  "LocalStorage is not supported on your device. Some features including the Appsmith store won't work.";
 
 export const OMNIBAR_PLACEHOLDER = () =>
   `Search Widgets, Queries, Documentation`;
@@ -385,7 +358,7 @@ export const SKIP = () => "SKIP";
 // Debugger
 export const CLICK_ON = () => "🙌 Click on ";
 export const PRESS = () => "🎉 Press ";
-export const OPEN_THE_DEBUGGER = () => " to show / hide the debugger";
+export const OPEN_THE_DEBUGGER = () => " to show/hide the debugger";
 export const DEBUGGER_QUERY_RESPONSE_SECOND_HALF = () =>
   " to see more info in the debugger";
 export const NO_LOGS = () => "No logs to show";
@@ -429,9 +402,9 @@ export const RESET_WIDGET = () => `Reset widget`;
 export const EXECUTE_JS_FUNCTION = () => `Execute a JS function`;
 export const SET_INTERVAL = () => `Set interval`;
 export const CLEAR_INTERVAL = () => `Clear interval`;
-export const GET_GEO_LOCATION = () => `Get Geolocation`;
-export const WATCH_GEO_LOCATION = () => `Watch Geolocation`;
-export const STOP_WATCH_GEO_LOCATION = () => `Stop watching Geolocation`;
+export const GET_GEO_LOCATION = () => `Get geolocation`;
+export const WATCH_GEO_LOCATION = () => `Watch geolocation`;
+export const STOP_WATCH_GEO_LOCATION = () => `Stop watching geolocation`;
 
 //js actions
 export const JS_ACTION_COPY_SUCCESS = (actionName: string, pageName: string) =>
@@ -491,8 +464,8 @@ export const IMPORT_APP_FROM_GIT_TITLE = () => "Import from a Git repo (Beta)";
 export const IMPORT_APP_FROM_FILE_MESSAGE = () =>
   "Drag and drop your file or upload from your computer";
 export const IMPORT_APP_FROM_GIT_MESSAGE = () =>
-  "Import an application from its git repository using its SSH URL";
-export const IMPORT_FROM_GIT_REPOSITORY = () => "Import from git repository";
+  "Import an application from its Git repository using its SSH URL";
+export const IMPORT_FROM_GIT_REPOSITORY = () => "Import from Git repository";
 export const RECONNECT_MISSING_DATASOURCE_CREDENTIALS = () =>
   "Reconnect missing datasource credentials";
 export const RECONNECT_MISSING_DATASOURCE_CREDENTIALS_DESCRIPTION = () =>
@@ -541,10 +514,10 @@ export const BULK_WIDGET_ADDED = (widgetName: string) =>
 // Generate page from DB Messages
 
 export const UNSUPPORTED_PLUGIN_DIALOG_TITLE = () =>
-  `Couldn't auto generate a page from this datasource.`;
+  `Couldn't auto-generate a page from this datasource.`;
 
-export const UNSUPPORTED_PLUGIN_DIALOG_SUBTITLE = () => `You can continue building your app with it using our drag & Drop
-  builder`;
+export const UNSUPPORTED_PLUGIN_DIALOG_SUBTITLE = () =>
+  `You can continue building your app with it using our drag & drop builder`;
 export const UNSUPPORTED_PLUGIN_DIALOG_MAIN_HEADING = () => `Heads up`;
 
 export const BUILD_FROM_SCRATCH_ACTION_SUBTITLE = () =>
@@ -563,7 +536,7 @@ export const GEN_CRUD_SUCCESS_MESSAGE = () =>
   "Hurray! Your application is ready for use.";
 export const GEN_CRUD_INFO_DIALOG_TITLE = () => "How it works?";
 export const GEN_CRUD_INFO_DIALOG_SUBTITLE = () =>
-  "CRUD page is generated from selected datasource. You can use the Form to modify the data. Since all your data is already connected you can add more queries and modify the bindings";
+  "CRUD page is generated from selected datasource. You can use the form to modify data. Since all your data is already connected, you can add more queries and modify the bindings";
 export const GEN_CRUD_COLUMN_HEADER_TITLE = () => "Column headers fetched";
 export const GEN_CRUD_NO_COLUMNS = () => "No columns found";
 export const GEN_CRUD_DATASOURCE_DROPDOWN_LABEL = () => "Select datasource";
@@ -599,25 +572,25 @@ export const SNIPPET_EXECUTE = () => `Hit ⏎ to run`;
 export const APPLY_SEARCH_CATEGORY = () => `⏎ Jump`;
 
 // Git sync
-export const CONNECTED_TO_GIT = () => "Connected to git";
+export const CONNECTED_TO_GIT = () => "Connected to Git";
 
 export const GIT_DISCONNECT_POPUP_TITLE = () =>
-  `This will disconnect the git repository from this application`;
+  `This will disconnect the Git repository from this application`;
 
 export const GIT_DISCONNECT_POPUP_SUBTITLE = () =>
   `Git features will no more be shown for this application`;
-export const GIT_DISCONNECT_POPUP_MAIN_HEADING = () => `Are you sure ?`;
+export const GIT_DISCONNECT_POPUP_MAIN_HEADING = () => `Are you sure?`;
 
 export const GIT_CONNECTION = () => "Git Connection";
 export const GIT_IMPORT = () => "Git Import";
 export const MERGE = () => "Merge";
 export const GIT_SETTINGS = () => "Git Settings";
-export const CONNECT_TO_GIT = () => "Connect to git repository";
+export const CONNECT_TO_GIT = () => "Connect to Git repository";
 export const CONNECT_TO_GIT_SUBTITLE = () =>
   "Checkout branches, make commits, and deploy your application";
 export const REMOTE_URL = () => "Remote URL";
 export const REMOTE_URL_INFO = () =>
-  `Create an empty git repository and paste the remote URL here.`;
+  `Create an empty Git repository and paste the remote URL here.`;
 export const IMPORT_URL_INFO = () => `Paste the remote URL here:`;
 export const REMOTE_URL_VIA = () => "Remote URL via";
 
@@ -644,17 +617,16 @@ export const COMMIT_CHANGES = () => "Commit changes";
 export const COMMIT_TO = () => "Commit to";
 export const COMMIT_AND_PUSH = () => "Commit & push";
 export const PULL_CHANGES = () => "PULL CHANGES";
-export const DEPLOY_KEY_TITLE = () => "Deployed Key";
 export const REGENERATE_SSH_KEY = (keyType: string, keySize: number) =>
   `Regenerate ${keyType} ${keySize} key`;
 export const GENERATE_SSH_KEY = (keyType: string, keySize: number) =>
   `${keyType} ${keySize} key`;
 export const SSH_KEY_PLATFORM = (name: string) => ` (${name})`;
-export const SSH_KEY = () => "SSH Key";
-export const COPY_SSH_KEY = () => "Copy SSH Key";
-export const SSH_KEY_GENERATED = () => "SSH Key generated";
+export const SSH_KEY = () => "SSH key";
+export const COPY_SSH_KEY = () => "Copy SSH key";
+export const SSH_KEY_GENERATED = () => "SSH key generated";
 export const REGENERATE_KEY_CONFIRM_MESSAGE = () =>
-  "This might cause the application to break. This keys needs to be updated in your Git Repo too!";
+  "This might cause the application to break. This key needs to be updated in your Git repository too!";
 export const DEPLOY_KEY_USAGE_GUIDE_MESSAGE = () =>
   "Paste this key in your repository settings and give it write access.";
 export const COMMITTING_AND_PUSHING_CHANGES = () =>
@@ -676,30 +648,30 @@ export const SUBMIT = () => "SUBMIT";
 export const GIT_USER_UPDATED_SUCCESSFULLY = () =>
   "Git user updated successfully";
 export const REMOTE_URL_INPUT_PLACEHOLDER = () =>
-  "ssh://example.com:user/repo.git";
+  "git@example.com:user/repo.git";
 export const GIT_COMMIT_MESSAGE_PLACEHOLDER = () => "Your commit message here";
-export const COPIED_SSH_KEY = () => "Copied SSH Key";
+export const COPIED_SSH_KEY = () => "Copied SSH key";
 export const INVALID_USER_DETAILS_MSG = () => "Please enter valid user details";
 export const PASTE_SSH_URL_INFO = () =>
-  "Please enter valid SSH URL of your repository";
-export const GENERATE_KEY = () => "Generate Key";
+  "Please enter a valid SSH URL of your repository";
+export const GENERATE_KEY = () => "Generate key";
 export const UPDATE_CONFIG = () => "UPDATE CONFIG";
 export const CONNECT_BTN_LABEL = () => "CONNECT";
 export const IMPORT_BTN_LABEL = () => "IMPORT";
-export const FETCH_GIT_STATUS = () => "fetching status...";
+export const FETCH_GIT_STATUS = () => "Fetching status...";
 export const FETCH_MERGE_STATUS = () => "Checking mergeability...";
 export const NO_MERGE_CONFLICT = () =>
-  "This branch has no conflict with the base branch.";
+  "This branch has no conflicts with the base branch.";
 export const MERGE_CONFLICT_ERROR = () => "Merge conflicts found!";
 export const FETCH_MERGE_STATUS_FAILURE = () => "Unable to fetch merge status";
 export const GIT_UPSTREAM_CHANGES = () =>
-  "Looks like there are pending upstream changes. We will pull the changes and push them to your repo.";
+  "Looks like there are pending upstream changes. We will pull the changes and push them to your repository.";
 export const GIT_CONFLICTING_INFO = () =>
-  "Please resolve the conflicts manually on your repository.";
+  "Please resolve the merge conflicts manually on your repository.";
 export const CANNOT_PULL_WITH_LOCAL_UNCOMMITTED_CHANGES = () =>
-  "You have uncommitted changes. Please commit before pulling the remote changes";
+  "You have uncommitted changes. Please commit before pulling the remote changes.";
 export const CANNOT_MERGE_DUE_TO_UNCOMMITTED_CHANGES = () =>
-  "Your current branch has uncommitted changes. Please commit before proceeding to merge";
+  "Your current branch has uncommitted changes. Please commit them before proceeding to merge.";
 
 export const DISCONNECT_SERVICE_SUBHEADER = () =>
   "Changes to this section can disrupt user authentication. Proceed with caution.";
@@ -710,25 +682,25 @@ export const AUTHENTICATION_METHOD_ENABLED = (methodName: string) => `
 `;
 
 export const DISCONNECT_EXISTING_REPOSITORIES = () =>
-  "Disconnect existing Repositories";
+  "Disconnect existing repositories";
 export const DISCONNECT_EXISTING_REPOSITORIES_INFO = () =>
-  "To make space for newer repositories you can remove existing repositories.";
+  "To make space for newer repositories, you can remove existing repositories.";
 export const CONTACT_SUPPORT = () => "Contact Support";
 export const CONTACT_SALES_MESSAGE_ON_INTERCOM = (workspaceName: string) =>
-  `Hey there, Thanks for getting in touch! We understand that you’d like to extend the number of private repos for your ${workspaceName}. Could you tell us how many private repos you’d require and why? We'll get back to you in a short while.`;
-export const REPOSITORY_LIMIT_REACHED = () => "Repository Limit Reached";
+  `Hey there, thanks for getting in touch! We understand that you’d like to extend the number of private repos for your ${workspaceName}. Could you tell us how many private repositories you require and why? We'll get back to you in a short while.`;
+export const REPOSITORY_LIMIT_REACHED = () => "Repository limit reached";
 export const REPOSITORY_LIMIT_REACHED_INFO = () =>
-  "Adding and using upto 3 repositories is free. To add more repositories kindly upgrade.";
+  "Adding and using upto 3 repositories is free. To add more repositories, kindly upgrade.";
 export const APPLICATION_IMPORT_SUCCESS = (username: string) =>
   `${username}! Your application is ready to use.`;
 export const APPLICATION_IMPORT_SUCCESS_DESCRIPTION = () =>
-  "All your datasources are configuered and ready to use.";
+  "All your datasources are configured and ready to use.";
 export const NONE_REVERSIBLE_MESSAGE = () =>
-  "This action is non reversible. Proceed with caution.";
+  "This action is non-reversible. Please proceed with caution.";
 export const CONTACT_SUPPORT_TO_UPGRADE = () =>
-  "Contact support to upgrade. You can add unlimited private repositories in upgraded plan.";
+  "Please contact support to upgrade. You can add unlimited private repositories in upgraded plan.";
 export const DISCONNECT_CAUSE_APPLICATION_BREAK = () =>
-  "Disconnect might cause the application to break.";
+  "Disconnecting your repository might cause the application to break.";
 export const DISCONNECT_GIT = () => "Revoke access";
 export const DISCONNECT = () => "DISCONNECT";
 export const REVOKE = () => "REVOKE";
@@ -740,13 +712,11 @@ export const GIT_REVOKE_ACCESS = (name: string) => `Revoke Access To ${name}`;
 export const GIT_TYPE_REPO_NAME_FOR_REVOKING_ACCESS = (name: string) =>
   `Type “${name}” in the input box to revoke access.`;
 export const APPLICATION_NAME = () => "Application name";
-export const NOT_OPTIONS = () => "Not Options!";
 export const OPEN_REPO = () => "OPEN REPO";
-export const CONNECTING_REPO = () => "Connecting to git repo";
-export const IMPORTING_APP_FROM_GIT = () => "Importing application from git";
-export const ERROR_CONNECTING = () => "Error while connecting";
-export const ERROR_COMMITTING = () => "Error while committing";
-export const CONFIRM_SSH_KEY = () => "Make sure your SSH Key has write access.";
+export const CONNECTING_REPO = () => "Connecting to Git repo";
+export const IMPORTING_APP_FROM_GIT = () => "Importing application from Git";
+export const CONFIRM_SSH_KEY = () =>
+  "Please make sure your SSH key has write access.";
 export const READ_DOCUMENTATION = () => "Read documentation";
 export const LEARN_MORE = () => "Learn More";
 export const GIT_NO_UPDATED_TOOLTIP = () => "No new updates to push";
@@ -755,16 +725,16 @@ export const FIND_OR_CREATE_A_BRANCH = () => "Find or create a branch";
 export const SYNC_BRANCHES = () => "Sync branches";
 
 export const CONFLICTS_FOUND = () =>
-  "Conflicts found, please resolve them and pull again";
+  "Conflicts found. Please resolve them and pull again.";
 export const UNCOMMITTED_CHANGES = () => "You have uncommitted changes";
 export const NO_COMMITS_TO_PULL = () =>
-  "No commits to pull. In sync with the remote repository";
+  "No commits to pull. This branch is in sync with the remote repository";
 export const CONFLICTS_FOUND_WHILE_PULLING_CHANGES = () =>
-  "Conflicts found while pulling changes";
+  "Conflicts found while pulling changes.";
 export const NOT_LIVE_FOR_YOU_YET = () => "It's not live for you yet";
 export const COMING_SOON = () => "Coming Soon!";
 export const CONNECTING_TO_REPO_DISABLED = () =>
-  "Connecting to a git repo is disabled";
+  "Connecting to a Git repository is disabled";
 export const DURING_ONBOARDING_TOUR = () => "during the onboarding tour";
 export const MERGED_SUCCESSFULLY = () => "Merged successfully";
 export const DISCARD_CHANGES_WARNING = () =>
@@ -1102,6 +1072,7 @@ export const APP_THEME_BETA_CARD_CONTENT = () =>
 
 export const UPGRADE_TO_EE = (authLabel: string) =>
   `Hello, I would like to upgrade and start using ${authLabel} authentication.`;
+export const UPGRADE_TO_EE_GENERIC = () => `Hello, I would like to upgrade`;
 export const ADMIN_AUTH_SETTINGS_TITLE = () => "Select Authentication Method";
 export const ADMIN_AUTH_SETTINGS_SUBTITLE = () =>
   "Select a protocol you want to authenticate users with";

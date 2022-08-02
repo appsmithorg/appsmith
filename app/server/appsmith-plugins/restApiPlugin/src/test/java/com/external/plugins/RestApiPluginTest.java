@@ -1027,7 +1027,6 @@ public class RestApiPluginTest {
                 .assertNext(result -> {
                     assertTrue(result.getIsExecutionSuccess());
                     assertNotNull(result.getRequest().getBody());
-                    System.out.println(result.getRequest().getBody());
                 })
                 .verifyComplete();
     }

@@ -6,7 +6,7 @@ describe("Binding the Button widget with Text widget using Recpatcha v3", functi
     cy.addDsl(dsl);
   });
 
-  it("1. Validate the Button binding with Text Widget with Recaptcha token with empty key", function() {
+  it.only("1. Validate the Button binding with Text Widget with Recaptcha token with empty key", function() {
     cy.get("button")
       .contains("Submit")
       .should("be.visible")
@@ -32,7 +32,7 @@ describe("Binding the Button widget with Text widget using Recpatcha v3", functi
   });
 
   //This test to be enabled once the product bug is fixed
-  it.skip("Validate the Button binding with Text Widget with Recaptcha Token with invalid key before using valid key", function() {
+  it("Validate the Button binding with Text Widget with Recaptcha Token with invalid key before using valid key", function() {
     cy.get("button")
       .contains("Submit")
       .should("be.visible")
@@ -70,7 +70,7 @@ describe("Binding the Button widget with Text widget using Recpatcha v3", functi
       });
   });
 
-  it("2. Validate the Button binding with Text Widget with Recaptcha Token with v2Key", function() {
+  it.only("2. Validate the Button binding with Text Widget with Recaptcha Token with v2Key", function() {
     cy.get("button")
       .contains("Submit")
       .should("be.visible")
@@ -107,7 +107,7 @@ describe("Binding the Button widget with Text widget using Recpatcha v3", functi
       });
   });
 
-  it("3. Validate the Button binding with Text Widget with Recaptcha Token with v3Key", function() {
+  it.only("3. Validate the Button binding with Text Widget with Recaptcha Token with v3Key", function() {
     cy.get("button")
       .contains("Submit")
       .should("be.visible")
@@ -145,8 +145,7 @@ describe("Binding the Button widget with Text widget using Recpatcha v3", functi
   });
 
   //This test to be enabled once the product bug is fixed
-
-  it.skip("Validate the Button binding with Text Widget with Recaptcha Token with invalid key", function() {
+  it("Validate the Button binding with Text Widget with Recaptcha Token with invalid key", function() {
     cy.get("button")
       .contains("Submit")
       .should("be.visible")
