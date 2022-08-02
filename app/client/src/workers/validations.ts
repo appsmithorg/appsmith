@@ -370,21 +370,22 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
     params: ValidatorParams<unknown>,
   ): ValidationResponse => {
     const { config, unEvalValue, value } = params;
+    const invalidResponse = {
+      isValid: false,
+      parsed: config.params?.default || "",
+      messages: [`${WIDGET_TYPE_VALIDATION_ERROR} ${getExpectedType(config)}`],
+    };
     if (value === undefined || value === null || value === "") {
-      if (unEvalValue || config.params?.required) {
-        return {
-          isValid: false,
-          parsed: config.params?.default || "",
-          messages: [
-            `${WIDGET_TYPE_VALIDATION_ERROR} ${getExpectedType(config)}`,
-          ],
-        };
+      if (config.params?.required) {
+        return invalidResponse;
       }
-
       return {
         isValid: true,
         parsed: config.params?.default || "",
       };
+    }
+    if ((value === undefined || value === null) && unEvalValue) {
+      return invalidResponse;
     }
     let parsed = value;
 
