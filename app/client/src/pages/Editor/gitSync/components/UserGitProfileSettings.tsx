@@ -189,7 +189,9 @@ function UserGitProfileSettings({
             fill
             isLoading={isFetchingConfig}
             onBlur={() => setNameInputFocused(false)}
-            onChange={(value) => changeHandler(AUTHOR_INFO_LABEL.NAME, value)}
+            onChange={(value: string) =>
+              changeHandler(AUTHOR_INFO_LABEL.NAME, value)
+            }
             onFocus={() => setNameInputFocused(true)}
             trimValue={false}
             value={authorInfo.authorName}
@@ -209,7 +211,9 @@ function UserGitProfileSettings({
             fill
             isLoading={isFetchingConfig}
             onBlur={() => setEmailInputFocused(false)}
-            onChange={(value) => changeHandler(AUTHOR_INFO_LABEL.EMAIL, value)}
+            onChange={(value: string) =>
+              changeHandler(AUTHOR_INFO_LABEL.EMAIL, value)
+            }
             onFocus={() => setEmailInputFocused(true)}
             value={authorInfo.authorEmail}
           />
