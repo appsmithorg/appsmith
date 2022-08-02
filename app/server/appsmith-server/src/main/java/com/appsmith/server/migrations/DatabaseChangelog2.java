@@ -52,6 +52,7 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.helpers.TextUtils;
 import com.appsmith.server.repositories.NewPageRepository;
+import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.services.WorkspaceService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.cloudyrock.mongock.ChangeLog;
@@ -1561,7 +1562,7 @@ public class DatabaseChangelog2 {
         return Set.of(adminPermissionGroup, developerPermissionGroup, viewerPermissionGroup);
     }
 
-    private Set<PermissionGroup> generatePermissionsForDefaultPermissionGroups(MongockTemplate mongockTemplate, PolicyUtils policyUtils, Set<PermissionGroup> permissionGroups, Workspace workspace) {
+    private Set<PermissionGroup> generatePermissionsForDefaultPermissionGroups(MongockTemplate mongockTemplate, PolicyUtils policyUtils, Set<PermissionGroup> permissionGroups, Workspace workspace, Set<String> validUserIds) {
         PermissionGroup adminPermissionGroup = permissionGroups.stream()
                 .filter(permissionGroup -> permissionGroup.getName().startsWith(FieldName.ADMINISTRATOR))
                 .findFirst().get();
@@ -1587,6 +1588,7 @@ public class DatabaseChangelog2 {
                 .map(permissionGroup -> new Permission(permissionGroup.getId(), AclPermission.READ_PERMISSION_GROUPS))
                 .collect(Collectors.toSet());
 
+        List<UserRole> userRoles = workspace.getUserRoles().stream().filter(userRole -> validUserIds.contains(userRole.getUserId())).collect(Collectors.toList());
 
         Set<Permission> permissions = new HashSet<>();
         permissions.addAll(workspacePermissions);
@@ -1595,7 +1597,7 @@ public class DatabaseChangelog2 {
         adminPermissionGroup.setPermissions(permissions);
 
         // Assign admin user ids to the administrator permission group
-        Set<String> adminUserIds = workspace.getUserRoles()
+        Set<String> adminUserIds = userRoles
                 .stream()
                 .filter(userRole -> userRole.getRole().equals(AppsmithRole.ORGANIZATION_ADMIN))
                 .map(UserRole::getUserId)
@@ -1621,7 +1623,7 @@ public class DatabaseChangelog2 {
         developerPermissionGroup.setPermissions(permissions);
 
         // Assign developer user ids to the developer permission group
-        Set<String> developerUserIds = workspace.getUserRoles()
+        Set<String> developerUserIds = userRoles
                 .stream()
                 .filter(userRole -> userRole.getRole().equals(AppsmithRole.ORGANIZATION_DEVELOPER))
                 .map(UserRole::getUserId)
@@ -1646,7 +1648,7 @@ public class DatabaseChangelog2 {
         viewerPermissionGroup.setPermissions(permissions);
 
         // Assign viewer user ids to the viewer permission group
-        Set<String> viewerUserIds = workspace.getUserRoles()
+        Set<String> viewerUserIds = userRoles
                 .stream()
                 .filter(userRole -> userRole.getRole().equals(AppsmithRole.ORGANIZATION_VIEWER))
                 .map(UserRole::getUserId)
@@ -1673,7 +1675,8 @@ public class DatabaseChangelog2 {
     }
 
     @ChangeSet(order = "024", id = "add-default-permission-groups", author = "")
-    public void addDefaultPermissionGroups(MongockTemplate mongockTemplate, WorkspaceService workspaceService, @NonLockGuarded PolicyUtils policyUtils) {
+    public void addDefaultPermissionGroups(MongockTemplate mongockTemplate, WorkspaceService workspaceService, @NonLockGuarded PolicyUtils policyUtils, UserRepository userRepository) {
+        Set<String> validUserIds = mongockTemplate.stream(new Query(), User.class).stream().map(User::getId).collect(Collectors.toCollection(HashSet::new));
         // Drop PermissionGroup collection
         // This ensures that migration can run again if aborted in between
         mongockTemplate.dropCollection(PermissionGroup.class);
@@ -1690,7 +1693,7 @@ public class DatabaseChangelog2 {
                         // Set default permission groups
                         workspace.setDefaultPermissionGroups(permissionGroups.stream().map(PermissionGroup::getId).collect(Collectors.toSet()));
                         // Generate permissions and policies for the default permission groups
-                        permissionGroups = generatePermissionsForDefaultPermissionGroups(mongockTemplate, policyUtils, permissionGroups, workspace);
+                        permissionGroups = generatePermissionsForDefaultPermissionGroups(mongockTemplate, policyUtils, permissionGroups, workspace, validUserIds);
                         // Apply the permissions to the workspace
                         for (PermissionGroup permissionGroup : permissionGroups) {
                             // Apply the permissions to the workspace
