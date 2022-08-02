@@ -2,143 +2,85 @@ import React, { ChangeEventHandler } from "react";
 import BaseControl, { ControlData, ControlProps } from "./BaseControl";
 
 import styled from "constants/DefaultTheme";
-import { ISliderProps, Slider } from "@blueprintjs/core";
+import {
+  IRangeSliderProps,
+  ISliderProps,
+  NumberRange,
+  RangeSlider,
+  Slider,
+} from "@blueprintjs/core";
 import { Colors } from "constants/Colors";
 import { replayHighlightClass } from "globalStyles/portals";
 import { WidgetHeightLimits } from "constants/WidgetConstants";
 
-const StyledSlider = styled.input<{ progress: number }>`
-  & {
-    height: 30px;
-    width: 100%;
-    margin: 0;
-    -webkit-appearance: none;
-    background-color: transparent;
-  }
-
-  &::-moz-focus-outer {
-    border: 0;
-  }
-
-  &:focus {
-    outline: none;
-  }
-
-  &::-webkit-slider-runnable-track {
-    background: linear-gradient(
-      to right,
-      #090707 calc(${(props) => props.progress}%),
-      #dddddd calc(${(props) => props.progress}%)
-    );
+const StyledSlider = styled(RangeSlider)`
+  .bp3-slider-track,
+  .bp3-slider-progress {
     border-radius: 3px;
     height: 3px;
-    will-change: transform;
   }
 
-  &::-moz-range-track {
-    background: linear-gradient(
-      to right,
-      #090707 calc(${(props) => props.progress}%),
-      #dddddd calc(${(props) => props.progress}%)
-    );
-    border-radius: 3px;
-    height: 3px;
-    will-change: transform;
+  .bp3-slider-progress {
+    background: #dddddd;
+
+    &.bp3-intent-primary {
+      background: #090707;
+    }
   }
 
-  &:disabled::-webkit-slider-runnable-track {
-    background: var(--framer-fresco-sliderTrackDisabled-color, #eeeeee);
-  }
-
-  &:disabled::-moz-range-track {
-    background: var(--framer-fresco-sliderTrackDisabled-color, #eeeeee);
-  }
-
-  &::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    background-color: var(--framer-fresco-sliderKnob-color, #ffffff);
-    border: none;
-    border-radius: 50%;
+  .bp3-slider-handle {
+    background-color: #ffffff;
     box-shadow: var(
-      --framer-fresco-sliderKnob-shadow,
+      0 1px 0 1px rgba(0, 0, 0, 0.2),
+      0 0 0 1px rgba(0, 0, 0, 0.2),
       0px 1px 3px 0px rgba(0, 0, 0, 0.2),
       0px 0.5px 0px 0px rgba(0, 0, 0, 0.1)
     );
-    cursor: pointer;
-    height: 12px;
-    margin-top: -5px;
-    opacity: 1;
-    width: 12px;
-    will-change: transform;
-  }
-
-  &::-moz-range-thumb {
-    -webkit-appearance: none;
-    background-color: var(--framer-fresco-sliderKnob-color, #ffffff);
-    border: none;
     border-radius: 50%;
-    box-shadow: var(
-      --framer-fresco-sliderKnob-shadow,
-      0px 1px 3px 0px rgba(0, 0, 0, 0.2),
-      0px 0.5px 0px 0px rgba(0, 0, 0, 0.1)
-    );
     cursor: pointer;
     height: 12px;
-    margin-top: -5px;
-    opacity: 1;
     width: 12px;
-    will-change: transform;
-  }
-
-  &:disabled::-webkit-slider-thumb {
-    display: none;
-  }
-
-  &:disabled::-moz-range-thumb {
-    display: none;
+    border: none;
   }
 `;
 
-interface SliderProps {
-  onChange: (value: number) => void;
-  onRelease: () => void;
-  onStart: () => void;
-  value: number;
-}
-
-function AdsSlider({ onChange, onRelease, onStart, value }: SliderProps) {
-  const handleChange: ChangeEventHandler<HTMLInputElement> = (e) => {
-    onChange(parseInt(e.target.value, 10));
-  };
-
+function AdsSlider(props: IRangeSliderProps) {
   return (
     <StyledSlider
+      {...props}
+      className={
+        props.className
+          ? props.className + " " + replayHighlightClass
+          : replayHighlightClass
+      }
+      labelRenderer={false}
       max={100}
       min={4}
-      onChange={handleChange}
-      onMouseDown={onStart}
-      onMouseUp={onRelease}
-      progress={value}
-      type="range"
-      value={value}
     />
   );
 }
 
 class SliderControl extends BaseControl<SliderControlProps> {
   render() {
+    const value: [number, number] = [
+      this.props.propertyValue,
+      this.props.widgetProperties["maxDynamicHeight"],
+    ];
     return (
       <AdsSlider
+        className={this.props.propertyValue ? "checked" : "unchecked"}
         onChange={this.onToggle}
         onRelease={this.onRelease}
-        onStart={this.onStart}
-        value={this.props.propertyValue}
+        value={value}
       />
     );
   }
 
-  onToggle = (value: number) => {
-    this.updateProperty(this.props.propertyName, value);
+  onToggle = (value: NumberRange) => {
+    this.batchUpdateProperties({
+      minDynamicHeight: value[0],
+      maxDynamicHeight: value[1],
+    });
     if (this.props.onChange) {
       this.props.onChange();
     }

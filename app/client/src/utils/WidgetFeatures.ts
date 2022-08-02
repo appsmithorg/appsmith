@@ -179,17 +179,17 @@ export const PropertyPaneConfigTemplates = {
       },
       {
         propertyName: "minDynamicHeight",
-        onStart: () => {
+        onChange: () => {
           EventEmitter.emit('property_pane_input_focused', 'minDynamicHeight');
         },
         onRelease: () => {
           EventEmitter.emit('property_pane_input_blurred', 'minDynamicHeight');
         },
-        label: "Min Height (in rows)",
+        label: "Min and Max Height (in rows)",
         helpText: "Minimum number of rows to occupy irrespective of contents",
         controlType: "SLIDER",
         hidden: hideDynamicHeightPropertyControl,
-        dependencies: ["dynamicHeight"],
+        dependencies: ["dynamicHeight", "maxDynamicHeight"],
         isJSConvertible: false,
         isBindProperty: true,
         isTriggerProperty: false,
@@ -218,8 +218,9 @@ export const PropertyPaneConfigTemplates = {
         helpText: "Maximum Height, after which contents will scroll",
         controlType: "SLIDER",
         dependencies: ["dynamicHeight"],
-        hidden: hideDynamicHeightPropertyControl,
+        // hidden: hideDynamicHeightPropertyControl,
         updateHook: transformToNumber,
+        hidden: () => true,
         validation: {
           type: ValidationTypes.FUNCTION,
           params: {
