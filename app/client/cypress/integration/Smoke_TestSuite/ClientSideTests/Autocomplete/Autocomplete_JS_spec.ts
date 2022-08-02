@@ -2,7 +2,7 @@ import { getWidgetSelector, WIDGET } from "../../../../locators/WidgetLocators";
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 const explorer = require("../../../../locators/explorerlocators.json");
 
-const { EntityExplorer, JSEditor: jsEditor } = ObjectsRegistry;
+const { CommonLocators, EntityExplorer, JSEditor: jsEditor } = ObjectsRegistry;
 
 const jsObjectBody = `export default {
 	myVar1: [],
@@ -33,19 +33,19 @@ describe("Autocomplete tests", () => {
     const lineNumber = 5;
     cy.get(`:nth-child(${lineNumber}) > .CodeMirror-line`).click();
 
-    cy.get(".CodeMirror textarea")
+    cy.get(CommonLocators._codeMirrorTextArea)
       .focus()
       .type(`ButtonGroup1.`);
 
     cy.get(`.CodeMirror-hints > :nth-child(1)`).contains("groupButtons");
 
-    cy.get(".CodeMirror textarea")
+    cy.get(CommonLocators._codeMirrorTextArea)
       .focus()
       .type(`groupButtons.`);
 
     cy.get(`.CodeMirror-hints > :nth-child(1)`).contains("groupButton1");
 
-    cy.get(".CodeMirror textarea").focus().type(`
+    cy.get(CommonLocators._codeMirrorTextArea).focus().type(`
     eval`);
 
     cy.get(`.CodeMirror-hints > :nth-child(1)`).should(
@@ -77,7 +77,7 @@ describe("Autocomplete tests", () => {
 
     cy.get(`:nth-child(${lineNumber}) > .CodeMirror-line`).click();
 
-    cy.get(".CodeMirror textarea")
+    cy.get(CommonLocators._codeMirrorTextArea)
       .focus()
       .type(`${codeToType}`, { parseSpecialCharSequences: false })
       .type(`{upArrow}{upArrow}`)
@@ -85,7 +85,7 @@ describe("Autocomplete tests", () => {
 
     cy.get(`.CodeMirror-hints > :nth-child(1)`).contains("label");
 
-    cy.get(".CodeMirror textarea")
+    cy.get(CommonLocators._codeMirrorTextArea)
       .focus()
       .type(`label`);
   });
@@ -105,7 +105,7 @@ describe("Autocomplete tests", () => {
 
     cy.get(`:nth-child(${lineNumber}) > .CodeMirror-line`).click();
 
-    cy.get(".CodeMirror textarea")
+    cy.get(CommonLocators._codeMirrorTextArea)
       .focus()
       .type(`${codeToType}`);
 
