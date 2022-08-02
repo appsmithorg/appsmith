@@ -372,12 +372,12 @@ class ChartComponent extends React.Component<ChartComponentProps> {
       config = {
         ...config,
         dataSource: {
-          ...config.dataSource,
           chart: {
             ...config.dataSource.chart,
             caption: this.props.chartName || config.dataSource.chart.caption,
             setAdaptiveYMin: this.props.setAdaptiveYMin ? "1" : "0",
           },
+          ...config.dataSource,
         },
       };
     }
