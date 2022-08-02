@@ -13,12 +13,12 @@ export default {
 
     const values = selectedOptions.map((o) => o.value ?? o);
     const valuesInOptions = options.map((o) => o.value);
-    const filteredValue = values.filter((value) =>
+    const filteredValues = values.filter((value) =>
       valuesInOptions.includes(value),
     );
 
-    if (!props.isDirty && filteredValue.length !== values.length) {
-      return filteredValue;
+    if (!props.isDirty && filteredValues.length !== values.length) {
+      return filteredValues;
     }
     return values;
   },
@@ -31,8 +31,9 @@ export default {
 
     return values
       .map((value) => {
-        if (options.find((option) => value === option.value)?.label) {
-          return options.find((option) => value === option.value)?.label;
+        const label = options.find((option) => value === option.value)?.label;
+        if (label) {
+          return label;
         } else {
           return selectedOptions.find(
             (option) => value === (option.value ?? option),

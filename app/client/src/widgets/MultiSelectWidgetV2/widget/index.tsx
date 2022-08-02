@@ -151,10 +151,7 @@ export function defaultOptionValueValidation(
         options,
         (option) => option.value === value || option.value === value.value,
       );
-      if (index === -1) {
-        return false;
-      }
-      return true;
+      return index !== -1;
     });
 
     if (!areValuesPresent) {
@@ -655,19 +652,6 @@ class MultiSelectWidget extends BaseWidget<
     if (!this.props.isDirty) {
       this.props.updateWidgetMetaProperty("isDirty", true);
     }
-  };
-
-  /*
-   * Function to check if the object has `label` and `value`
-   */
-  hasLabelValue = (obj: LabelValueType) => {
-    return (
-      isPlainObject(obj) &&
-      obj.hasOwnProperty("label") &&
-      obj.hasOwnProperty("value") &&
-      isString(obj.label) &&
-      (isString(obj.value) || isFinite(obj.value))
-    );
   };
 
   // { label , value } is needed in the widget
