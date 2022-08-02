@@ -15,8 +15,6 @@ describe("Test Entity Explorer", function() {
       .should("be.visible")
       .click({ force: true });
 
-    //cy.get(".tab-title").contains("Active");
-    //cy.get(".tab-title:contains('Active')").click();
     //If the datasource does not exist
     cy.createTwilioDatasource();
   });
