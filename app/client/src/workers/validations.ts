@@ -756,8 +756,8 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
       parsed: config.params?.default || [{}],
       messages: [`${WIDGET_TYPE_VALIDATION_ERROR} ${getExpectedType(config)}`],
     };
-    if (value === undefined || value === null || value === "" || unEvalValue) {
-      if (config.params?.required) return invalidResponse;
+    if (value === undefined || value === null || value === "") {
+      if (config.params?.required || unEvalValue) return invalidResponse;
 
       if (value === "") {
         return {
