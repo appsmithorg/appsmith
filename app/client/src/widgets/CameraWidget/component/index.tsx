@@ -382,14 +382,13 @@ function ControlPanel(props: ControlPanelProps) {
         typeof browserInfo === "object" &&
         browserInfo?.browser === "Safari");
 
-    if (isSafari) return null;
-
     return (
       <>
         {mode === CameraModeTypes.VIDEO && (
           <DevicePopover
             deviceType={DeviceTypes.MICROPHONE}
-            disabled={audioMuted}
+            disabled={audioMuted || isSafari}
+            disabledIcon={isSafari}
             disabledMenu={isDisableCameraAndAudioMenu}
             fullScreenHandle={fullScreenHandle}
             isMenuOpen={isOpenAudioDeviceMenu}
@@ -401,7 +400,8 @@ function ControlPanel(props: ControlPanelProps) {
         )}
         <DevicePopover
           deviceType={DeviceTypes.CAMERA}
-          disabled={videoMuted}
+          disabled={videoMuted || isSafari}
+          disabledIcon={isSafari}
           disabledMenu={isDisableCameraAndAudioMenu}
           fullScreenHandle={fullScreenHandle}
           isMenuOpen={isOpenVideoDeviceMenu}
@@ -733,6 +733,7 @@ function DeviceMenu(props: DeviceMenuProps) {
 export interface DevicePopoverProps {
   deviceType: DeviceType;
   disabled?: boolean;
+  disabledIcon?: boolean;
   disabledMenu?: boolean;
   fullScreenHandle: FullScreenHandle;
   isMenuOpen: boolean;
@@ -746,6 +747,7 @@ function DevicePopover(props: DevicePopoverProps) {
   const {
     deviceType,
     disabled,
+    disabledIcon,
     disabledMenu,
     fullScreenHandle,
     isMenuOpen,
@@ -777,6 +779,7 @@ function DevicePopover(props: DevicePopoverProps) {
   return (
     <>
       <Button
+        disabled={disabledIcon}
         icon={renderLeftIcon(deviceType)}
         minimal
         onClick={handleDeviceMute}

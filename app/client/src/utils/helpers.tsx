@@ -283,26 +283,23 @@ export const getBrowserInfo = () => {
     // browser
     if (/CriOS/i.test(match[1])) match[1] = "Chrome";
 
-    if (/trident/i.test(match[1])) {
-      specificMatch = /\brv[ :]+(\d+)/g.exec(userAgent) || [];
-      return `IE ${specificMatch[1] || ""}`;
-    }
-
     if (match[1] === "Chrome") {
       specificMatch = userAgent.match(/\b(OPR|Edge)\/(\d+)/);
       if (specificMatch) {
-        return specificMatch
-          .slice(1)
-          .join(" ")
-          .replace("OPR", "Opera");
+        const opera = specificMatch.slice(1);
+        return {
+          browser: opera[0].replace("OPR", "Opera"),
+          version: opera[1],
+        };
       }
 
       specificMatch = userAgent.match(/\b(Edg)\/(\d+)/);
       if (specificMatch) {
-        return specificMatch
-          .slice(1)
-          .join(" ")
-          .replace("Edg", "Edge (Chromium)");
+        const edge = specificMatch.slice(1);
+        return {
+          browser: edge[0].replace("Edg", "Edge (Chromium)"),
+          version: edge[1],
+        };
       }
     }
 
