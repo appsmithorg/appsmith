@@ -217,7 +217,7 @@ function validateArray(params: ValidatorParams<unknown[]>) {
         value: entry,
         props,
         propertyPath: `${propertyPath}[${index}]`,
-        unEvalValue,
+        unEvalValue: "",
       });
 
       // If invalid, append to messages
