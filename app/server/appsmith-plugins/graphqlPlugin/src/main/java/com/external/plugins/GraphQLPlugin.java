@@ -20,8 +20,11 @@ import com.appsmith.external.services.SharedConfig;
 import com.external.utils.GraphQLBodyDataType;
 import com.external.utils.GraphQLHintMessageUtils;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import graphql.parser.InvalidSyntaxException;
-import graphql.parser.Parser;
+// TODO: refactor
+// TODO: add TC
+// TODO: uncomment
+// import graphql.parser.InvalidSyntaxException;
+// import graphql.parser.Parser;
 import lombok.extern.slf4j.Slf4j;
 import org.pf4j.Extension;
 import org.pf4j.PluginWrapper;
@@ -53,6 +56,7 @@ import static com.external.utils.GraphQLBodyUtils.getGraphQLQueryParamsForBodyAn
 // TODO: uncomment
 //import static com.external.utils.GraphQLBodyUtils.validateBodyAndVariablesSyntax;
 import static java.lang.Boolean.TRUE;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 
 public class GraphQLPlugin extends BasePlugin {
@@ -101,7 +105,7 @@ public class GraphQLPlugin extends BasePlugin {
             Boolean smartSubstitution = this.smartSubstitutionUtils.isSmartSubstitutionEnabled(properties);
             if (TRUE.equals(smartSubstitution)) {
                 /* Apply smart JSON substitution logic to mustache binding values in query variables */
-                if (!isEmpty(variables)) {
+                if (!isBlank(variables)) {
                     List<String> mustacheKeysInOrder = MustacheHelper.extractMustacheKeysInOrder(variables);
                     // Replace all the bindings with a ? as expected in a prepared statement.
                     String updatedVariables = MustacheHelper.replaceMustacheWithPlaceholder(variables, mustacheKeysInOrder);
@@ -121,11 +125,35 @@ public class GraphQLPlugin extends BasePlugin {
                         return Mono.just(errorResult);
                     }
                 }
+
+                String query = actionConfiguration.getBody();
+                if (!isBlank(query)) {
+                    List<String> mustacheKeysInOrder = MustacheHelper.extractMustacheKeysInOrder(query);
+                    // Replace all the bindings with a ? as expected in a prepared statement.
+                    String updatedQuery = MustacheHelper.replaceMustacheWithPlaceholder(query, mustacheKeysInOrder);
+
+                    try {
+                        updatedQuery = (String) smartSubstitutionOfBindings(updatedQuery,
+                                mustacheKeysInOrder,
+                                executeActionDTO.getParams(),
+                                parameters,
+                                true);
+                        System.out.println("=========================");
+                        System.out.println("updatedQuery: " + updatedQuery);
+                        actionConfiguration.setBody(updatedQuery);
+                    } catch (AppsmithPluginException e) {
+                        ActionExecutionResult errorResult = new ActionExecutionResult();
+                        errorResult.setIsExecutionSuccess(false);
+                        errorResult.setErrorInfo(e);
+                        errorResult.setStatusCode(AppsmithPluginError.PLUGIN_ERROR.getAppErrorCode().toString());
+                        return Mono.just(errorResult);
+                    }
+                }
             }
 
             prepareConfigurationsForExecution(executeActionDTO, actionConfiguration, datasourceConfiguration);
 
-            if (isEmpty(variables)) {
+            if (isBlank(variables)) {
                 setValueSafelyInPropertyList(properties, QUERY_VARIABLES_INDEX, "{}");
             }
 
@@ -287,6 +315,8 @@ public class GraphQLPlugin extends BasePlugin {
         public static String smartlyReplaceGraphQLQueryBodyPlaceholderWithValue(String queryBody, String replacement,
                                                                      List<Map.Entry<String, String>> insertedParams) {
             final GraphQLBodyDataType dataType = stringToKnownGraphQLDataTypeConverter(queryBody, replacement);
+            //TODO: remove it.
+            System.out.println("============= type: " + dataType);
             Map.Entry<String, String> parameter = new AbstractMap.SimpleEntry<>(replacement, dataType.toString());
             insertedParams.add(parameter);
 
@@ -309,12 +339,14 @@ public class GraphQLPlugin extends BasePlugin {
                 case GRAPHQL_BODY_FULL:
                 case GRAPHQL_BODY_INTEGER:
                 case GRAPHQL_BODY_BOOLEAN:
-                case GRAPHQL_BODY_PARTIAL:
                 default:
-                    updatedReplacement = String.valueOf(replacement);
+                    updatedReplacement = Matcher.quoteReplacement(replacement);
                     break;
             }
 
+            //TODO: remove it.
+            System.out.println("======= queryBody: " + queryBody);
+            System.out.println("======= uReplacement: " + updatedReplacement);
             queryBody = placeholderPattern.matcher(queryBody).replaceFirst(updatedReplacement);
             return queryBody;
         }
@@ -324,13 +356,14 @@ public class GraphQLPlugin extends BasePlugin {
                 return GraphQLBodyDataType.NULL;
             }
 
-            Parser graphqlParser = new Parser();
+            // TODO: uncomment
+            /*Parser graphqlParser = new Parser();
             try {
                 graphqlParser.parseDocument(replacement);
                 return GraphQLBodyDataType.GRAPHQL_BODY_FULL;
             } catch (InvalidSyntaxException e) {
                // do nothing
-            }
+            }*/
 
             try {
                 Integer.parseInt(replacement);
