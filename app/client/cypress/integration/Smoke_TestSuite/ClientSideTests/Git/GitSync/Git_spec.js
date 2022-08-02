@@ -116,7 +116,7 @@ describe("Git sync:", function() {
       .contains(mainBranch)
       .click();
     // assert conflicting status
-    cy.contains("Please resolve the conflicts manually");
+    cy.contains(Cypress.env("MESSAGES").GIT_CONFLICTING_INFO());
     cy.get(gitSyncLocators.closeGitSyncModal).click();
   });
 
