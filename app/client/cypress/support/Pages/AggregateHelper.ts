@@ -753,6 +753,13 @@ export class AggregateHelper {
     return cy.contains(text).should(exists);
   }
 
+  public AssertElementContains(selector: string, text: string) {
+    const locator = selector.startsWith("//")
+      ? cy.xpath(selector)
+      : cy.get(selector);
+    return locator.contains(text);
+  }
+
   public EnableAllEditors() {
     this.Sleep(2000);
     cy.get("body").then(($body: any) => {
