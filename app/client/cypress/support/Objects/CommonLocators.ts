@@ -80,4 +80,5 @@ export class CommonLocators {
     _datePickerValue = "div[data-testid='datepicker-container'] input"
     _switchToggle = (switchName: string) => "//div[contains(@class, 't--switch-widget-label')][text()='"+switchName+"']/parent::label/span"
     _jsonToggle = (fieldName: string) => `//p[text()='${fieldName}']/parent::div//following-sibling::div//input[@type='checkbox']`;
+    _hints = "ul.CodeMirror-hints";
 }
