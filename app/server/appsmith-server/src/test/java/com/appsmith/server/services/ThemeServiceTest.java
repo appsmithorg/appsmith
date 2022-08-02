@@ -473,6 +473,7 @@ public class ThemeServiceTest {
     public void updateTheme_WhenSystemThemeIsSet_NewThemeCreated() {
 
         Application application = createApplication();
+        Theme systemDefaultTheme = themeService.getThemeById(application.getEditModeThemeId(), READ_THEMES).block();
         // publish the app to ensure system theme gets set
         applicationPageService.publish(application.getId(), TRUE).block();
 
@@ -495,7 +496,7 @@ public class ThemeServiceTest {
                     assertThat(editModeTheme.getId()).isNotEqualTo(publishedModeTheme.getId()); // different id
                     assertThat(editModeTheme.isSystemTheme()).isFalse();
                     assertThat(publishedModeTheme.isSystemTheme()).isTrue();
-                    assertThat(publishedModeTheme.getDisplayName()).isEqualToIgnoringCase("classic");
+                    assertThat(publishedModeTheme.getDisplayName()).isEqualToIgnoringCase(systemDefaultTheme.getDisplayName());
                 }).verifyComplete();
     }
 
@@ -504,6 +505,8 @@ public class ThemeServiceTest {
     public void updateTheme_WhenCustomThemeIsSet_ThemeIsOverridden() {
 
         Application application = createApplication();
+        Theme systemDefaultTheme = themeService.getThemeById(application.getEditModeThemeId(), READ_THEMES).block();
+
         String applicationId = application.getId();
         // publish the app to ensure system theme gets set
         applicationPageService.publish(application.getId(), TRUE).block();
@@ -545,7 +548,7 @@ public class ThemeServiceTest {
                     assertThat(editModeTheme.getDisplayName()).isEqualTo("Updated name");
 
                     assertThat(publishedModeTheme.isSystemTheme()).isTrue();
-                    assertThat(publishedModeTheme.getDisplayName()).isEqualToIgnoringCase("classic");
+                    assertThat(publishedModeTheme.getDisplayName()).isEqualToIgnoringCase(systemDefaultTheme.getDisplayName());
                 }).verifyComplete();
     }
 
