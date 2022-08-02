@@ -1,9 +1,12 @@
+const ObjectsRegistry = require("../../../../../support/Objects/Registry")
+  .ObjectsRegistry;
+let propPane = ObjectsRegistry.PropertyPane;
 const widgetsPage = require("../../../../../locators/Widgets.json");
 const dsl = require("../../../../../fixtures/tableV2NewDsl.json");
 const publish = require("../../../../../locators/publishWidgetspage.json");
 
 describe("Table Widget V2 property pane feature validation", function() {
-  before(() => {
+  beforeEach(() => {
     cy.addDsl(dsl);
   });
 
@@ -64,5 +67,19 @@ describe("Table Widget V2 property pane feature validation", function() {
       "rgb(128, 0, 128)",
     );
     cy.get(publish.backToEditor).click();
+  });
+
+  it("2. check background of the edit action column", function() {
+    cy.openPropertyPane("tablewidgetv2");
+    cy.makeColumnEditable("id");
+    cy.readTableV2dataValidateCSS(0, 5, "background-color", "rgba(0, 0, 0, 0)");
+    cy.get(".t--property-control-cellbackgroundcolor")
+      .find(".t--js-toggle")
+      .click();
+    propPane.UpdatePropertyFieldValue(
+      "Cell Background Color",
+      "rgb(255, 0, 0)",
+    );
+    cy.readTableV2dataValidateCSS(0, 5, "background-color", "rgb(255, 0, 0)");
   });
 });

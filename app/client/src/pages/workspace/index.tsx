@@ -10,7 +10,7 @@ export function Workspace() {
   const { path } = useRouteMatch();
   const location = useLocation();
   return (
-    <PageWrapper displayName="Organization Settings">
+    <PageWrapper displayName="Workspace Settings">
       <Switch location={location}>
         <SentryRoute
           component={Settings}

@@ -1425,6 +1425,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
                 eventType: EventType.ON_CLICK,
               })
             }
+            rowIndex={originalIndex}
             textColor={cellProperties.textColor}
             textSize={cellProperties.textSize}
             verticalAlignment={cellProperties.verticalAlignment}

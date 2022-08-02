@@ -31,7 +31,7 @@ type ActionDispatcherWithExecutionType = (
   ...args: any[]
 ) => ActionDescriptionWithExecutionType;
 
-const DATA_TREE_FUNCTIONS: Record<
+export const DATA_TREE_FUNCTIONS: Record<
   string,
   | ActionDispatcherWithExecutionType
   | {
@@ -286,6 +286,8 @@ const DATA_TREE_FUNCTIONS: Record<
 export const enhanceDataTreeWithFunctions = (
   dataTree: Readonly<DataTree>,
   requestId = "",
+  // Whether not to add functions like "run", "clear" to entity
+  skipEntityFunctions = false,
 ): DataTree => {
   const clonedDT = klona(dataTree);
   self.TRIGGER_COLLECTOR = [];
@@ -294,24 +296,25 @@ export const enhanceDataTreeWithFunctions = (
       typeof funcOrFuncCreator === "object" &&
       "qualifier" in funcOrFuncCreator
     ) {
-      Object.entries(dataTree).forEach(([entityName, entity]) => {
-        if (funcOrFuncCreator.qualifier(entity)) {
-          const func = funcOrFuncCreator.func(entity);
-          const funcName = `${funcOrFuncCreator.path ||
-            `${entityName}.${name}`}`;
-          _.set(
-            clonedDT,
-            funcName,
-            pusher.bind(
-              {
-                TRIGGER_COLLECTOR: self.TRIGGER_COLLECTOR,
-                REQUEST_ID: requestId,
-              },
-              func,
-            ),
-          );
-        }
-      });
+      !skipEntityFunctions &&
+        Object.entries(dataTree).forEach(([entityName, entity]) => {
+          if (funcOrFuncCreator.qualifier(entity)) {
+            const func = funcOrFuncCreator.func(entity);
+            const funcName = `${funcOrFuncCreator.path ||
+              `${entityName}.${name}`}`;
+            _.set(
+              clonedDT,
+              funcName,
+              pusher.bind(
+                {
+                  TRIGGER_COLLECTOR: self.TRIGGER_COLLECTOR,
+                  REQUEST_ID: requestId,
+                },
+                func,
+              ),
+            );
+          }
+        });
     } else {
       _.set(
         clonedDT,

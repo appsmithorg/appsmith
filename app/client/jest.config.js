@@ -77,6 +77,7 @@ module.exports = {
       mailEnabled: parseConfig("__APPSMITH_MAIL_ENABLED__"),
 
       disableTelemetry: "DISABLE_TELEMETRY" === "" || "DISABLE_TELEMETRY",
+      hideWatermark: parseConfig("__APPSMITH_HIDE_WATERMARK__"),
     },
   },
 };

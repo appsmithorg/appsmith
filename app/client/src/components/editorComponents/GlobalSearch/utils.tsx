@@ -23,7 +23,7 @@ import { EventLocation } from "utils/AnalyticsUtil";
 import { getQueryParams } from "utils/AppsmithUtils";
 import history from "utils/history";
 import { curlImportPageURL } from "RouteBuilder";
-import { isMac, modText, shiftText } from "utils/helpers";
+import { isMacOrIOS, modText, shiftText } from "utils/helpers";
 
 export type SelectEvent =
   | React.MouseEvent
@@ -77,7 +77,7 @@ export const comboHelpText = {
   [SEARCH_CATEGORY_ID.INIT]: <>{modText()} K</>,
   [SEARCH_CATEGORY_ID.ACTION_OPERATION]: (
     <>
-      {modText()} {shiftText()} {isMac() ? "+" : "Plus"}
+      {modText()} {shiftText()} {isMacOrIOS() ? "+" : "Plus"}
     </>
   ),
 };
