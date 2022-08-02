@@ -398,6 +398,7 @@ export const entityDefinitions = {
     source: "string",
     title: "string",
     message: generateTypeDef(widget.message),
+    messageMetadata: generateTypeDef(widget.messageMetadata),
   }),
   DIVIDER_WIDGET: {
     "!doc": "Divider is a simple UI widget used as a separator",

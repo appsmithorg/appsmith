@@ -90,6 +90,12 @@ RUN find / \( -path /proc -prune \) -o \( \( -perm -2000 -o -perm -4000 \) -prin
 
 # Update path to load appsmith utils tool as default
 ENV PATH /opt/appsmith/utils/node_modules/.bin:$PATH
+LABEL com.centurylinklabs.watchtower.lifecycle.pre-check=/watchtower-hooks/pre-check.sh
+LABEL com.centurylinklabs.watchtower.lifecycle.pre-update=/watchtower-hooks/pre-update.sh
+COPY ./deploy/docker/watchtower-hooks /watchtower-hooks
+RUN chmod +x /watchtower-hooks/pre-check.sh
+RUN chmod +x /watchtower-hooks/pre-update.sh
+
 
 EXPOSE 80
 EXPOSE 443

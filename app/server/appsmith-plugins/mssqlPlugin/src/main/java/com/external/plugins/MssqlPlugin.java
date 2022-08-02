@@ -70,6 +70,7 @@ import static com.appsmith.external.helpers.SmartSubstitutionHelper.replaceQuest
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
 
+@Slf4j
 public class MssqlPlugin extends BasePlugin {
 
     private static final String JDBC_DRIVER = "com.microsoft.sqlserver.jdbc.SQLServerDriver";
@@ -91,8 +92,6 @@ public class MssqlPlugin extends BasePlugin {
     /**
      * MsSQL plugin receives the query as json of the following format :
      */
-
-    @Slf4j
     @Extension
     public static class MssqlPluginExecutor implements PluginExecutor<HikariDataSource>, SmartSubstitutionInterface {
 
@@ -219,12 +218,8 @@ public class MssqlPlugin extends BasePlugin {
                         int activeConnections = poolProxy.getActiveConnections();
                         int totalConnections = poolProxy.getTotalConnections();
                         int threadsAwaitingConnection = poolProxy.getThreadsAwaitingConnection();
-                        System.out.println(Thread.currentThread().getName() +
-                                ": Before executing postgres query [" + query +  "] " +
-                                " Hikari Pool stats : active - " + activeConnections +
-                                ", idle - " + idleConnections +
-                                ", awaiting - " + threadsAwaitingConnection +
-                                ", total - " + totalConnections);
+                        log.debug("Before executing MsSQL query [{}] Hikari Pool stats : active - {} , idle - {} , awaiting - {} , total - {}",
+                                query, activeConnections, idleConnections, threadsAwaitingConnection, totalConnections);
 
                         try {
                             if (FALSE.equals(preparedStatement)) {
@@ -344,7 +339,7 @@ public class MssqlPlugin extends BasePlugin {
                         result.setBody(objectMapper.valueToTree(rowsList));
                         result.setMessages(populateHintMessages(columnsList));
                         result.setIsExecutionSuccess(true);
-                        log.info(Thread.currentThread().getName() + ": In the MssqlPlugin, got action execution result");
+                        log.debug("In the MssqlPlugin, got action execution result");
                         return Mono.just(result);
                     })
                     .flatMap(obj -> obj)
@@ -389,7 +384,7 @@ public class MssqlPlugin extends BasePlugin {
         @Override
         public Mono<HikariDataSource> datasourceCreate(DatasourceConfiguration datasourceConfiguration) {
             return Mono.fromCallable(() -> {
-                        log.info(Thread.currentThread().getName() + ": Connecting to SQL Server db");
+                        log.debug("Connecting to SQL Server db");
                         return createConnectionPool(datasourceConfiguration);
                     })
                     .subscribeOn(scheduler);
@@ -612,8 +607,7 @@ public class MssqlPlugin extends BasePlugin {
     private static Connection getConnectionFromConnectionPool(HikariDataSource hikariDSConnectionPool) throws SQLException {
 
         if (hikariDSConnectionPool == null || hikariDSConnectionPool.isClosed() || !hikariDSConnectionPool.isRunning()) {
-            System.out.println(Thread.currentThread().getName() +
-                    ": Encountered stale connection pool in SQL Server plugin. Reporting back.");
+            log.debug("Encountered stale connection pool in SQL Server plugin. Reporting back.");
             throw new StaleConnectionException();
         }
 

@@ -17,6 +17,7 @@ describe("Create a rest datasource", function() {
       .trigger("click")
       .wait(1000);
     agHelper.ValidateToastMessage("datasource created"); //verifying there is no error toast, Bug 14566
+    cy.testSelfSignedCertificateSettingsInREST(false);
     cy.saveDatasource();
     cy.contains(".datasource-highlight", "https://mock-api.appsmith.com");
     cy.SaveAndRunAPI();
