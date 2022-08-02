@@ -77,7 +77,7 @@ const Bordered = styled.div<{ y: number }>`
     content: "";
     width: 100%;
     height: 2px;
-    border-bottom: 1px dashed ${OVERLAY_COLOR};
+    border-bottom: 1px solid ${OVERLAY_COLOR};
   }
 `;
 
