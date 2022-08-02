@@ -47,7 +47,7 @@ describe("Binding the list widget with text widget", function() {
     );
     cy.SearchEntityandOpen("Text3");
     cy.wait(1000);
-    propPane.UpdatePropertyFieldValuet(
+    propPane.UpdatePropertyFieldValue(
       "Text",
       '{{currentItem.map(item => item.name).join(", ")}}',
     );
