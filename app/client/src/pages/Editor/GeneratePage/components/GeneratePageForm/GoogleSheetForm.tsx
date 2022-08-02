@@ -6,7 +6,7 @@ import Dropdown, { DropdownOption } from "components/ads/Dropdown";
 import { fetchPluginFormConfig } from "actions/pluginActions";
 import { DROPDOWN_DIMENSION, DEFAULT_DROPDOWN_OPTION } from "../constants";
 import { SelectWrapper, Label, Bold } from "./styles";
-import TextInput from "components/ads/TextInput";
+import { TextInput } from "design-system";
 import { GeneratePagePayload } from "./types";
 import { TooltipComponent as Tooltip } from "design-system";
 import styled from "styled-components";

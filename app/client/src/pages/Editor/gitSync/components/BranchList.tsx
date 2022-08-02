@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
-import TextInput from "components/ads/TextInput";
+import { TextInput } from "design-system";
 import styled, { useTheme } from "styled-components";
 import { getTypographyByKey } from "constants/DefaultTheme";
 import { Colors } from "constants/Colors";

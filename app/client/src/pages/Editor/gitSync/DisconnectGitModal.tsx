@@ -18,6 +18,7 @@ import {
   IconSize,
   Size,
   Text,
+  TextInput,
   TextType,
 } from "design-system";
 
@@ -36,7 +37,6 @@ import {
   REVOKE,
 } from "@appsmith/constants/messages";
 import Link from "./components/Link";
-import TextInput from "components/ads/TextInput";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { Subtitle, Title } from "./components/StyledComponents";
 import { Variant } from "components/ads";

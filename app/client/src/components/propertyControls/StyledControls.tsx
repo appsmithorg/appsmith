@@ -7,11 +7,10 @@ import styled, { Skin } from "constants/DefaultTheme";
 import { AnyStyledComponent, css } from "styled-components";
 import { ControlIcons } from "icons/ControlIcons";
 import { FormIcons } from "icons/FormIcons";
-import { Button } from "design-system";
-import TextInput, { TextInputProps } from "components/ads/TextInput";
+import { Button, TextInput, TextInputProps } from "design-system";
 import Dropdown from "components/ads/Dropdown";
 import { IconWrapper } from "constants/IconConstants";
-import { InputWrapper } from "components/ads/TextInput";
+import { InputWrapper } from "design-system";
 import useInteractionAnalyticsEvent from "utils/hooks/useInteractionAnalyticsEvent";
 import { Checkbox } from "design-system";
 

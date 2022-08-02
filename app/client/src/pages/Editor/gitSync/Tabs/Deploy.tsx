@@ -15,9 +15,13 @@ import {
   READ_DOCUMENTATION,
 } from "@appsmith/constants/messages";
 import styled, { useTheme } from "styled-components";
-import TextInput from "components/ads/TextInput";
-import { Button, Category, LabelContainer, Size } from "design-system";
-
+import {
+  Button,
+  Category,
+  LabelContainer,
+  Size,
+  TextInput,
+} from "design-system";
 import {
   getConflictFoundDocUrlDeploy,
   getDiscardDocUrl,
