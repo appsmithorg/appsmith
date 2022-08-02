@@ -845,7 +845,7 @@ export const TreeSelectContainer = styled.div<{
       }
     }
   }
-  
+
   .rc-tree-select-show-arrow.rc-tree-select-multiple {
     .rc-tree-select-selector {
       padding-right: ${({ allowClear }) => (allowClear ? "40px" : "20px")};
