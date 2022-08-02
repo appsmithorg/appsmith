@@ -1,6 +1,8 @@
+import { getWidgetSelector, WIDGET } from "../../../../locators/WidgetLocators";
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
+const explorer = require("../../../../locators/explorerlocators.json");
 
-const { JSEditor: jsEditor } = ObjectsRegistry;
+const { EntityExplorer, JSEditor: jsEditor } = ObjectsRegistry;
 
 const jsObjectBody = `export default {
 	myVar1: [],
@@ -15,10 +17,80 @@ const jsObjectBody = `export default {
 
 describe("Autocomplete tests", () => {
   before(() => {
-    //
+    cy.get(explorer.addWidget).click();
+    EntityExplorer.DragDropWidgetNVerify(WIDGET.BUTTON_GROUP_WIDGET, 300, 500);
   });
 
-  it("1. JSObject this. autocomplete", () => {
+  it("1. ButtonGroup autocomplete & Eval shouldn't show up", () => {
+    // create js object
+    jsEditor.CreateJSObject(jsObjectBody, {
+      paste: true,
+      completeReplace: true,
+      toRun: false,
+      shouldCreateNewJSObj: true,
+    });
+
+    const lineNumber = 5;
+    cy.get(`:nth-child(${lineNumber}) > .CodeMirror-line`).click();
+
+    cy.get(".CodeMirror textarea")
+      .focus()
+      .type(`ButtonGroup1.`);
+
+    cy.get(`.CodeMirror-hints > :nth-child(1)`).contains("groupButtons");
+
+    cy.get(".CodeMirror textarea")
+      .focus()
+      .type(`groupButtons.`);
+
+    cy.get(`.CodeMirror-hints > :nth-child(1)`).contains("groupButton1");
+
+    cy.get(".CodeMirror textarea").focus().type(`
+    eval`);
+
+    cy.get(`.CodeMirror-hints > :nth-child(1)`).should(
+      "not.have.value",
+      "eval()",
+    );
+  });
+
+  it("2. Local variables autocompletion support", () => {
+    // create js object
+    jsEditor.CreateJSObject(jsObjectBody, {
+      paste: true,
+      completeReplace: true,
+      toRun: false,
+      shouldCreateNewJSObj: true,
+    });
+    const lineNumber = 5;
+
+    const array = [
+      { label: "a", value: "b" },
+      { label: "a", value: "b" },
+    ];
+
+    const codeToType = `
+    const arr = ${JSON.stringify(array)};
+
+    arr.map(callBack)
+    `;
+
+    cy.get(`:nth-child(${lineNumber}) > .CodeMirror-line`).click();
+
+    cy.get(".CodeMirror textarea")
+      .focus()
+      .type(`${codeToType}`, { parseSpecialCharSequences: false })
+      .type(`{upArrow}{upArrow}`)
+      .type(`const callBack = (item) => item.l`);
+
+    cy.get(`.CodeMirror-hints > :nth-child(1)`).contains("label");
+
+    cy.get(".CodeMirror textarea")
+      .focus()
+      .type(`label`);
+  });
+
+  it("3. JSObject this. autocomplete", () => {
     // create js object
     jsEditor.CreateJSObject(jsObjectBody, {
       paste: true,
