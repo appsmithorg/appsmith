@@ -7,9 +7,10 @@ const agHelper = ObjectsRegistry.AggregateHelper,
   propPane = ObjectsRegistry.PropertyPane,
   table = ObjectsRegistry.Table,
   locator = ObjectsRegistry.CommonLocators,
-  deployMode = ObjectsRegistry.DeployMode;
+  deployMode = ObjectsRegistry.DeployMode,
+  apiPage = ObjectsRegistry.ApiPage;
 
-describe("Binary Datatype tests", function() {
+describe("UUID Datatype tests", function() {
   before(() => {
     dataSources.CreateDataSource("Postgres");
     cy.get("@dsName").then(($dsName) => {
@@ -17,66 +18,77 @@ describe("Binary Datatype tests", function() {
     });
   });
 
-  it("0. Importing App & setting theme", () => {
-    cy.fixture("Datatypes/BinaryDTdsl").then((val: any) => {
+  it.only("0. Importing App & setting theme", () => {
+    cy.fixture("Datatypes/UUIDDTdsl").then((val: any) => {
       agHelper.AddDsl(val);
     });
     ee.NavigateToSwitcher("widgets");
-    propPane.ChangeColor(24, "Primary");
-    propPane.ChangeColor(-37, "Background");
+    propPane.ChangeTheme("Earth");
   });
 
-  it("1. Creating table query - binarytype", () => {
-    query = `CREATE table binarytype (serialid SERIAL primary key, imagename TEXT, existingImage bytea, newImage bytea);`;
+  it.only("1. Creating supporting api's for generating random UUID's", () => {
+    apiPage.CreateAndFillApi(
+      "https://www.uuidgenerator.net/api/version1",
+      "version1",
+    );
+    apiPage.CreateAndFillApi(
+      "https://www.uuidgenerator.net/api/version4",
+      "version4",
+    );
+    apiPage.CreateAndFillApi("https://www.uuidgenerator.net/api/guid", "guid");
+    apiPage.CreateAndFillApi(
+      "https://www.uuidgenerator.net/api/version-nil",
+      "nill",
+    );
+  });
+
+  it.only("2. Creating table query - uuidtype", () => {
+    query = `CREATE table uuidtype (serialid SERIAL primary key, v1 uuid, v4 uuid, guid uuid, nil uuid);;`;
     dataSources.NavigateFromActiveDS(dsName, true);
     agHelper.GetNClick(dataSources._templateMenu);
     agHelper.RenameWithInPane("createTable");
     dataSources.EnterQuery(query);
     dataSources.RunQuery();
-
+    ee.ExpandCollapseEntity("DATASOURCES");
     ee.ActionContextMenuByEntityName(dsName, "Refresh");
-    agHelper.AssertElementVisible(
-      ee._entityNameInExplorer("public.binarytype"),
-    );
+    agHelper.AssertElementVisible(ee._entityNameInExplorer("public.uuidtype"));
   });
 
-  it("2. Creating SELECT query - binarytype + Bug 14493", () => {
-    query = `SELECT binarytype.serialid, binarytype.imagename, encode(binarytype.existingimage, 'escape') as "OldImage", encode(binarytype.newimage, 'escape') as "NewImage" from public."binarytype";`;
-    ee.ActionTemplateMenuByEntityName("public.binarytype", "SELECT");
+  it.only("3. Creating SELECT query - uuidtype + Bug 14493", () => {
+    ee.ActionTemplateMenuByEntityName("public.uuidtype", "SELECT");
     agHelper.RenameWithInPane("selectRecords");
     dataSources.RunQuery();
     agHelper
       .GetText(dataSources._noRecordFound)
       .then(($noRecMsg) => expect($noRecMsg).to.eq("No data records to show"));
-    dataSources.EnterQuery(query);
   });
 
-  it("3. Creating all queries - binarytype", () => {
-    query = `INSERT INTO public."binarytype" ("imagename", "existingimage", "newimage") VALUES ('{{Insertimagename.text}}', '{{Insertimage.files[0].data}}', '{{Insertimage.files[0].data}}');`;
+  it.only("4. Creating all queries - uuidtype", () => {
+    query = `INSERT INTO public."uuidtype" ("v1", "v4", "guid", "nil") VALUES ('{{version1.data}}', '{{version4.data}}', '{{guid.data}}', '{{nill.data}}');`;
     ee.CreateNewDsQuery(dsName);
     agHelper.RenameWithInPane("insertRecord");
     agHelper.GetNClick(dataSources._templateMenu);
     dataSources.EnterQuery(query);
 
-    query = `UPDATE public."binarytype" SET "imagename" ='{{Updatename.text}}', "existingimage" = '{{Table1.selectedRow.OldImage}}',  "newimage" = '{{Updateimage.files[0].data}}' WHERE serialid = {{Table1.selectedRow.serialid}};`;
+    query = `UPDATE public."uuidtype" SET "v1" ='{{version1.data ? version1.data : Table1.selectedRow.v1}}', "v4" ='{{version4.data ? version4.data : Table1.selectedRow.v4}}', "guid" ='{{guid.data ? guid.data :  Table1.selectedRow.guid}}', "nil" ='{{nill.data ? nill.data : Table1.selectedRow.nil}}' WHERE serialid = {{Table1.selectedRow.serialid}};`;
     ee.CreateNewDsQuery(dsName);
     agHelper.RenameWithInPane("updateRecord");
     agHelper.GetNClick(dataSources._templateMenu);
     dataSources.EnterQuery(query);
 
-    query = `DELETE FROM public."binarytype" WHERE serialId = {{Table1.selectedRow.serialid}}`;
+    query = `DELETE FROM public."uuidtype" WHERE serialId = {{Table1.selectedRow.serialid}}`;
     ee.CreateNewDsQuery(dsName);
     agHelper.RenameWithInPane("deleteRecord");
     agHelper.GetNClick(dataSources._templateMenu);
     dataSources.EnterQuery(query);
 
-    query = `DELETE FROM public."binarytype"`;
+    query = `DELETE FROM public."uuidtype"`;
     ee.CreateNewDsQuery(dsName);
     agHelper.RenameWithInPane("deleteAllRecords");
     agHelper.GetNClick(dataSources._templateMenu);
     dataSources.EnterQuery(query);
 
-    query = `drop table public."binarytype"`;
+    query = `drop table public."uuidtype"`;
     ee.CreateNewDsQuery(dsName);
     agHelper.RenameWithInPane("dropTable");
     agHelper.GetNClick(dataSources._templateMenu);
@@ -86,123 +98,128 @@ describe("Binary Datatype tests", function() {
     ee.ExpandCollapseEntity(dsName, false);
   });
 
-  it("4. Inserting record - binarytype", () => {
-    imageNameToUpload = "Datatypes/Bridge.jpg";
+  it.only("5. Inserting record - uuidtype", () => {
     ee.SelectEntityByName("Page1");
     deployMode.DeployApp();
     table.WaitForTableEmpty(); //asserting table is empty before inserting!
     agHelper.ClickButton("Run InsertQuery");
     agHelper.AssertElementVisible(locator._modal);
 
-    agHelper.ClickButton("Select New Image");
-    agHelper.UploadFile(imageNameToUpload);
+    agHelper.ClickButton("Generate UUID's");
+    agHelper.WaitUntilToastDisappear("All UUIDs generated & available");
 
     agHelper.ClickButton("Insert");
     agHelper.AssertElementAbsence(locator._toastMsg); //Assert that Insert did not fail
     agHelper.AssertElementVisible(locator._spanButton("Run InsertQuery"));
     table.WaitUntilTableLoad();
-    agHelper.Sleep(2000); //for all rows with images to be populated
     table.ReadTableRowColumnData(0, 0, 2000).then(($cellData) => {
       expect($cellData).to.eq("1"); //asserting serial column is inserting fine in sequence
     });
-    table.ReadTableRowColumnData(0, 1, 200).then(($cellData) => {
-      expect($cellData).to.eq("Bridge.jpg");
+    table.ReadTableRowColumnData(0, 1, 200).then(($v1) => {
+      expect($v1).not.empty;
     });
-    table.AssertTableRowImageColumnIsLoaded(0, 2).then(($oldimage) => {
-      table.AssertTableRowImageColumnIsLoaded(0, 3).then(($newimage) => {
-        expect($oldimage).to.eq($newimage);
-      });
+    table.ReadTableRowColumnData(0, 2, 200).then(($v4) => {
+      expect($v4).not.empty;
+    });
+    table.ReadTableRowColumnData(0, 3, 200).then(($guid) => {
+      expect($guid).not.empty;
+    });
+    table.ReadTableRowColumnData(0, 4, 200).then(($nil) => {
+      expect($nil).not.empty;
     });
   });
 
-  it("5. Inserting another record - binarytype", () => {
-    imageNameToUpload = "Datatypes/Georgia.jpeg";
-
+  it.only("6. Inserting another record - uuidtype", () => {
     agHelper.ClickButton("Run InsertQuery");
     agHelper.AssertElementVisible(locator._modal);
 
-    agHelper.ClickButton("Select New Image");
-    agHelper.UploadFile(imageNameToUpload);
+    agHelper.ClickButton("Generate UUID's");
+    agHelper.WaitUntilToastDisappear("All UUIDs generated & available");
 
     agHelper.ClickButton("Insert");
     agHelper.AssertElementAbsence(locator._toastMsg); //Assert that Insert did not fail
     agHelper.AssertElementVisible(locator._spanButton("Run InsertQuery"));
     table.WaitUntilTableLoad();
-    agHelper.Sleep(2000); //for all rows with images to be populated
     table.ReadTableRowColumnData(1, 0, 2000).then(($cellData) => {
       expect($cellData).to.eq("2"); //asserting serial column is inserting fine in sequence
     });
-    table.ReadTableRowColumnData(1, 1, 200).then(($cellData) => {
-      expect($cellData).to.eq("Georgia.jpeg");
+    table.ReadTableRowColumnData(1, 1, 200).then(($v1) => {
+      expect($v1).not.empty;
     });
-    table.AssertTableRowImageColumnIsLoaded(1, 2).then(($oldimage) => {
-      table.AssertTableRowImageColumnIsLoaded(1, 3).then(($newimage) => {
-        expect($oldimage).to.eq($newimage);
-      });
+    table.ReadTableRowColumnData(1, 2, 200).then(($v4) => {
+      expect($v4).not.empty;
+    });
+    table.ReadTableRowColumnData(1, 3, 200).then(($guid) => {
+      expect($guid).not.empty;
+    });
+    table.ReadTableRowColumnData(1, 4, 200).then(($nil) => {
+      expect($nil).not.empty;
     });
   });
 
-  it("6. Inserting another record - binarytype", () => {
-    imageNameToUpload = "Datatypes/Maine.jpeg";
-
+  it.only("7. Inserting another record - uuidtype", () => {
     agHelper.ClickButton("Run InsertQuery");
     agHelper.AssertElementVisible(locator._modal);
 
-    agHelper.ClickButton("Select New Image");
-    agHelper.UploadFile(imageNameToUpload);
+    agHelper.ClickButton("Generate UUID's");
+    agHelper.WaitUntilToastDisappear("All UUIDs generated & available");
 
     agHelper.ClickButton("Insert");
     agHelper.AssertElementAbsence(locator._toastMsg); //Assert that Insert did not fail
     agHelper.AssertElementVisible(locator._spanButton("Run InsertQuery"));
     table.WaitUntilTableLoad();
-    agHelper.Sleep(2000); //for all rows with images to be populated
     table.ReadTableRowColumnData(2, 0, 2000).then(($cellData) => {
       expect($cellData).to.eq("3"); //asserting serial column is inserting fine in sequence
     });
-    table.ReadTableRowColumnData(2, 1, 200).then(($cellData) => {
-      expect($cellData).to.eq("Maine.jpeg");
+    table.ReadTableRowColumnData(2, 1, 200).then(($v1) => {
+      expect($v1).not.empty;
     });
-    table.AssertTableRowImageColumnIsLoaded(2, 2).then(($oldimage) => {
-      table.AssertTableRowImageColumnIsLoaded(2, 3).then(($newimage) => {
-        expect($oldimage).to.eq($newimage);
+    table.ReadTableRowColumnData(2, 2, 200).then(($v4) => {
+      expect($v4).not.empty;
+    });
+    table.ReadTableRowColumnData(2, 3, 200).then(($guid) => {
+      expect($guid).not.empty;
+    });
+    table.ReadTableRowColumnData(2, 4, 200).then(($nil) => {
+      expect($nil).not.empty;
+    });
+  });
+
+  it.only("8. Updating record - uuidtype - updating only v1", () => {
+    table.SelectTableRow(2); //As Table Selected row has issues due to fast selction
+    agHelper.Sleep(2000)//for table selection to be captured
+
+    table.ReadTableRowColumnData(2, 1, 200).then(($oldV1) => {
+      table.ReadTableRowColumnData(2, 2, 2000).then(($oldV4) => {
+        agHelper.ClickButton("Run UpdateQuery");
+        agHelper.AssertElementVisible(locator._modal);
+
+        agHelper.ClickButton("Generate new v1");
+        agHelper.WaitUntilToastDisappear("New V1 UUID available!");
+
+        agHelper.ClickButton("Update");
+        agHelper.AssertElementAbsence(locator._toastMsg); //Assert that Update did not fail
+        agHelper.AssertElementVisible(locator._spanButton("Run UpdateQuery"));
+        table.WaitUntilTableLoad();
+        table.ReadTableRowColumnData(2, 0, 2000).then(($cellData) => {
+          expect($cellData).to.eq("3"); //asserting serial column is inserting fine in sequence
+        });
+        table.ReadTableRowColumnData(2, 1, 200).then(($newV1) => {
+          expect($oldV1).to.not.eq($newV1); //making sure new v1 is updated
+        });
+        table.ReadTableRowColumnData(2, 2, 200).then(($newV4) => {
+          expect($oldV4).to.eq($newV4); //making sure new v4 is not updated
+        });
       });
     });
   });
 
-  it("7. Updating record - binarytype", () => {
-    imageNameToUpload = "Datatypes/NewJersey.jpeg";
-
-    table.SelectTableRow(1);
-    agHelper.ClickButton("Run UpdateQuery");
-    agHelper.AssertElementVisible(locator._modal);
-
-    agHelper.ClickButton("Select update image");
-    agHelper.UploadFile(imageNameToUpload);
-
-    agHelper.ClickButton("Update");
-    agHelper.AssertElementAbsence(locator._toastMsg); //Assert that Update did not fail
-    agHelper.AssertElementVisible(locator._spanButton("Run UpdateQuery"));
-    table.WaitUntilTableLoad();
-    agHelper.Sleep(10000); //for the update row to appear at last
-    table.ReadTableRowColumnData(2, 0, 2000).then(($cellData) => {
-      expect($cellData).to.eq("2"); //asserting serial column is inserting fine in sequence
-    });
-    table.ReadTableRowColumnData(2, 1, 200).then(($cellData) => {
-      expect($cellData).to.eq("NewJersey.jpeg");
-    });
-    table.AssertTableRowImageColumnIsLoaded(2, 2).then(($oldimage) => {
-      table.AssertTableRowImageColumnIsLoaded(2, 3).then(($newimage) => {
-        expect($oldimage).to.not.eq($newimage);
-      });
-    });
-  });
-
-  it("8. Validating Binary (bytea) - escape, hex, base64 functions", () => {
+  it("9. Validating UUID (bytea) - escape, hex, base64 functions", () => {
     deployMode.NavigateBacktoEditor();
     table.WaitUntilTableLoad();
     ee.ExpandCollapseEntity("QUERIES/JS");
     dataSources.NavigateFromActiveDS(dsName, true);
-    agHelper.RenameWithInPane("verifyBinaryFunctions");
+    agHelper.RenameWithInPane("verifyUUIDFunctions");
 
     //Validating zero octet
     query = `select encode('\\000'::bytea, 'hex') as "zero octet Hex", encode('\\000'::bytea, 'escape') as "zero octet Escape";`;
@@ -298,7 +315,12 @@ describe("Binary Datatype tests", function() {
     dataSources.EnterQuery(query);
     dataSources.RunQuery();
     dataSources.AssertQueryResponseHeaders([
-      "Escape1", "Hex1", "Escape2", "Hex2",  "Escape3", "Hex3"
+      "Escape1",
+      "Hex1",
+      "Escape2",
+      "Hex2",
+      "Escape3",
+      "Hex3",
     ]);
     dataSources.ReadQueryTableResponse(0).then(($cellData) => {
       expect($cellData).to.eq("123abc456");
@@ -323,7 +345,7 @@ describe("Binary Datatype tests", function() {
     ee.ExpandCollapseEntity("QUERIES/JS", false);
   });
 
-  it("9. Deleting records - binarytype", () => {
+  it("10. Deleting records - uuidtype", () => {
     ee.SelectEntityByName("Page1");
     deployMode.DeployApp();
     table.WaitUntilTableLoad();
@@ -340,14 +362,14 @@ describe("Binary Datatype tests", function() {
     });
   });
 
-  it("10. Deleting all records from table - binarytype", () => {
+  it("11. Deleting all records from table - uuidtype", () => {
     agHelper.GetNClick(locator._deleteIcon);
     agHelper.AssertElementVisible(locator._spanButton("Run InsertQuery"));
     agHelper.Sleep(2000);
     table.WaitForTableEmpty();
   });
 
-  it("11. Inserting another record (to check serial column) - binarytype", () => {
+  it("12. Inserting another record (to check serial column) - uuidtype", () => {
     imageNameToUpload = "Datatypes/Massachusetts.jpeg";
 
     agHelper.ClickButton("Run InsertQuery");
@@ -375,7 +397,7 @@ describe("Binary Datatype tests", function() {
     });
   });
 
-  it("12. Validate Drop of the Newly Created - binarytype - Table from Postgres datasource", () => {
+  it.only("13. Validate Drop of the Newly Created - uuidtype - Table from Postgres datasource", () => {
     deployMode.NavigateBacktoEditor();
     ee.ExpandCollapseEntity("QUERIES/JS");
     ee.SelectEntityByName("dropTable");
@@ -387,14 +409,12 @@ describe("Binary Datatype tests", function() {
     ee.ExpandCollapseEntity("DATASOURCES");
     ee.ExpandCollapseEntity(dsName);
     ee.ActionContextMenuByEntityName(dsName, "Refresh");
-    agHelper.AssertElementAbsence(
-      ee._entityNameInExplorer("public.binarytype"),
-    );
+    agHelper.AssertElementAbsence(ee._entityNameInExplorer("public.uuidtype"));
     ee.ExpandCollapseEntity(dsName, false);
     ee.ExpandCollapseEntity("DATASOURCES", false);
   });
 
-  it("13. Verify Deletion of all created queries", () => {
+  it.only("14. Verify Deletion of all created queries", () => {
     dataSources.DeleteDatasouceFromWinthinDS(dsName, 409); //Since all queries exists
     ee.ExpandCollapseEntity("QUERIES/JS");
     ee.ActionContextMenuByEntityName("createTable", "Delete", "Are you sure?");
@@ -412,9 +432,15 @@ describe("Binary Datatype tests", function() {
       "Are you sure?",
     );
     ee.ActionContextMenuByEntityName("updateRecord", "Delete", "Are you sure?");
+
+    //Deleting APi's also
+    ee.ActionContextMenuByEntityName("guid", "Delete", "Are you sure?");
+    ee.ActionContextMenuByEntityName("nill", "Delete", "Are you sure?");
+    ee.ActionContextMenuByEntityName("version4", "Delete", "Are you sure?");
+    ee.ActionContextMenuByEntityName("version1", "Delete", "Are you sure?");
   });
 
-  it("14. Verify Deletion of datasource", () => {
+  it.only("15. Verify Deletion of datasource", () => {
     deployMode.DeployApp();
     deployMode.NavigateBacktoEditor();
     ee.ExpandCollapseEntity("QUERIES/JS");
