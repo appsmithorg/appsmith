@@ -9,9 +9,8 @@ import { LayersContext } from "constants/Layers";
 import ReleasesAPI from "api/ReleasesAPI";
 import { resetReleasesCount } from "actions/releasesActions";
 import ReleaseComponent, { Release } from "./ReleaseComponent";
-import ScrollIndicator from "components/ads/ScrollIndicator";
 import { Colors } from "constants/Colors";
-import { Button, Category, Size, Icon } from "design-system";
+import { Button, Category, ScrollIndicator, Size, Icon } from "design-system";
 
 const StyledDialog = styled(Dialog)`
   .bp3-dialog-body {

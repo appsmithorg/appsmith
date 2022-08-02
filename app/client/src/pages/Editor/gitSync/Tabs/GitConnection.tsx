@@ -60,7 +60,7 @@ import {
 import Statusbar, {
   StatusbarWrapper,
 } from "pages/Editor/gitSync/components/Statusbar";
-import ScrollIndicator from "components/ads/ScrollIndicator";
+import { ScrollIndicator } from "design-system";
 import Keys from "../components/ssh-key";
 import GitConnectError from "../components/GitConnectError";
 import Link from "../components/Link";

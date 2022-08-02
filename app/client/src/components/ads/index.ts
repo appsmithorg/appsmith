@@ -72,9 +72,6 @@ export * from "./Radio";
 
 export { default as RectangularComponent } from "./RectangularSwitcher";
 
-export { default as ScrollIndicator } from "./ScrollIndicator";
-export * from "./ScrollIndicator";
-
 export { default as SearchInput } from "./SearchInput";
 export * from "./SearchInput";
 
