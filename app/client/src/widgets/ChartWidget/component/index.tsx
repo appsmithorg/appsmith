@@ -15,6 +15,7 @@ import {
 } from "../constants";
 import log from "loglevel";
 import { Colors } from "constants/Colors";
+import { TAILWIND_COLORS } from "constants/ThemeConstants";
 // Leaving this require here. Ref: https://stackoverflow.com/questions/41292559/could-not-find-a-declaration-file-for-module-module-name-path-to-module-nam/42505940#42505940
 // FusionCharts comes with its own typings so there is no need to separately import them. But an import from fusioncharts/core still requires a declaration file.
 const FusionCharts = require("fusioncharts");
@@ -261,20 +262,28 @@ class ChartComponent extends React.Component<ChartComponentProps> {
   };
 
   getChartConfig = () => {
-    const isMultiSeriesData =
-      Object.keys(this.props.chartData).length > 1 ? true : false;
-    const legendConfig = isMultiSeriesData
-      ? {
-          legendPosition: "top",
-        }
-      : {
-          palettecolors: [this.props.primaryColor],
-        };
+    const isSingleSeriesData = this.getDatalength() === 1 ? true : false;
+    const paletteColorConfig = isSingleSeriesData &&
+      this.props.chartType !== "PIE_CHART" && {
+        palettecolors: [this.props.primaryColor],
+      };
 
     const fontFamily =
       this.props.fontFamily === "System Default"
         ? "inherit"
         : this.props.fontFamily;
+
+    const canvasPadding =
+      this.props.chartType === "LINE_CHART"
+        ? {
+            canvasLeftPadding: "2",
+            canvasTopPadding: "0",
+            canvasRightPadding: "2",
+            canvasBottomPadding: "0",
+          }
+        : {
+            canvasPadding: "0",
+          };
 
     let config = {
       caption: this.props.chartName,
@@ -284,25 +293,25 @@ class ChartComponent extends React.Component<ChartComponentProps> {
       alignCaptionWithCanvas: 1,
 
       // Caption styling =======================
-      captionFontSize: "28",
+      captionFontSize: "24",
       captionAlignment: "center",
-      captionPadding: "15",
-      captionFontColor: Colors.CODE_GRAY,
+      captionPadding: "20",
+      captionFontColor: TAILWIND_COLORS.gray["700"],
 
       // legend position styling ==========
+      legendIconSides: "4",
+      legendIconBgAlpha: "100",
+      legendIconAlpha: "100",
       legendItemFont: fontFamily,
-      ...legendConfig,
+      legendPosition: "top",
 
       // Canvas styles ========
-      canvasTopPadding: "10",
-      canvasLeftPadding: "10",
-      canvasRightPadding: "10",
-      canvasBottomPadding: "10",
+      ...canvasPadding,
 
       // Chart styling =======
-      chartLeftMargin: "30",
+      chartLeftMargin: "20",
       chartTopMargin: "10",
-      chartRightMargin: "10",
+      chartRightMargin: "40",
       chartBottomMargin: "10",
 
       // Axis name styling ======
@@ -316,7 +325,7 @@ class ChartComponent extends React.Component<ChartComponentProps> {
 
       // Base configurations ======
       baseFont: fontFamily,
-
+      ...paletteColorConfig,
       bgColor: Colors.WHITE,
       setAdaptiveYMin: this.props.setAdaptiveYMin ? "1" : "0",
     };

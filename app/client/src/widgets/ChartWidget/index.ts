@@ -1,4 +1,5 @@
 import { Colors } from "constants/Colors";
+import { TAILWIND_COLORS } from "constants/ThemeConstants";
 import { generateReactKey } from "widgets/WidgetUtils";
 import { LabelOrientation } from "./constants";
 import IconSVG from "./icon.svg";
@@ -65,24 +66,21 @@ export const CONFIG = {
           theme: "fusion",
           alignCaptionWithCanvas: 1,
           // Caption styling =======================
-          captionFontSize: "28",
+          captionFontSize: "24",
           captionAlignment: "center",
-          captionPadding: "15",
-          captionFontColor: Colors.CODE_GRAY,
+          captionPadding: "20",
+          captionFontColor: TAILWIND_COLORS.gray["700"],
           // legend position styling ==========
           legendIconSides: "4",
           legendIconBgAlpha: "100",
           legendIconAlpha: "100",
           legendPosition: "top",
           // Canvas styles ========
-          canvasTopPadding: "10",
-          canvasLeftPadding: "10",
-          canvasRightPadding: "10",
-          canvasBottomPadding: "10",
+          canvasPadding: "0",
           // Chart styling =======
-          chartLeftMargin: "30",
+          chartLeftMargin: "20",
           chartTopMargin: "10",
-          chartRightMargin: "10",
+          chartRightMargin: "40",
           chartBottomMargin: "10",
           // Axis name styling ======
           xAxisNameFontSize: "14",
@@ -92,9 +90,6 @@ export const CONFIG = {
           yAxisNameFontSize: "14",
           yAxisValueFontColor: Colors.DOVE_GRAY2,
           yAxisNameFontColor: Colors.DOVE_GRAY2,
-
-          baseFont: "{{appsmith.theme.fontFamily.appFont}}",
-          palettecolors: "{{appsmith.theme.colors.primaryColor}}",
         },
       },
     },
