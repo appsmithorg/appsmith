@@ -116,6 +116,7 @@ const widgetsToTest = {
       checkboxAndReset();
     },
   },
+  /*
   [WIDGET.AUDIO]: {
     widgetName: "Audio",
     widgetPrefixName: "Audio1",
@@ -132,6 +133,7 @@ const widgetsToTest = {
       audioRecorderWidgetAndReset();
     },
   },
+  */
   [WIDGET.PHONEINPUT]: {
     widgetName: "PhoneInput",
     widgetPrefixName: "PhoneInput1",
