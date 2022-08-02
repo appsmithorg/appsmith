@@ -7,7 +7,6 @@ import {
   isArray,
   isEqual,
   isFinite,
-  isPlainObject,
   isString,
   LoDashStatic,
   xorWith,
