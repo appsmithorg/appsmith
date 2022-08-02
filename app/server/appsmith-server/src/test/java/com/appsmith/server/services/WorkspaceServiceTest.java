@@ -1229,42 +1229,27 @@ public class WorkspaceServiceTest {
                 })
                 .cache();
 
-//        Mono<List<UserGroup>> userGroupsMono = workspaceNameUpdateMono
-//                .flatMap(savedWorkspace -> userGroupRepository.findAllById(savedWorkspace.getDefaultUserGroups()).collectList());
-//
-//        Mono<List<PermissionGroup>> permissionGroupsMono = workspaceNameUpdateMono
-//                .flatMap(savedWorkspace -> permissionGroupRepository.findAllById(savedWorkspace.getDefaultPermissionGroups()).collectList());
-//
-//        StepVerifier.create(Mono.zip(workspaceNameUpdateMono, userGroupsMono, permissionGroupsMono))
-//                .assertNext(tuple -> {
-//                    Workspace savedWorkspace = tuple.getT1();
-//                    List<UserGroup> userGroups = tuple.getT2();
-//                    List<PermissionGroup> permissionGroups = tuple.getT3();
-//                    assertThat(savedWorkspace.getSlug()).isEqualTo(TextUtils.makeSlug(newName));
-//
-//                    for (UserGroup userGroup : userGroups) {
-//                        String name = userGroup.getName();
-//                        if (name.startsWith(ADMINISTRATOR)) {
-//                            assertThat(name).isEqualTo(workspaceService.getDefaultNameForGroupInWorkspace(ADMINISTRATOR, newName));
-//                        } else if (name.startsWith(DEVELOPER)) {
-//                            assertThat(name).isEqualTo(workspaceService.getDefaultNameForGroupInWorkspace(DEVELOPER, newName));
-//                        } else if (name.startsWith(VIEWER)) {
-//                            assertThat(name).isEqualTo(workspaceService.getDefaultNameForGroupInWorkspace(VIEWER, newName));
-//                        }
-//                    }
-//
-//                    for (PermissionGroup permissionGroup : permissionGroups) {
-//                        String name = permissionGroup.getName();
-//                        if (name.startsWith(ADMINISTRATOR)) {
-//                            assertThat(name).isEqualTo(workspaceService.getDefaultNameForGroupInWorkspace(ADMINISTRATOR, newName));
-//                        } else if (name.startsWith(DEVELOPER)) {
-//                            assertThat(name).isEqualTo(workspaceService.getDefaultNameForGroupInWorkspace(DEVELOPER, newName));
-//                        } else if (name.startsWith(VIEWER)) {
-//                            assertThat(name).isEqualTo(workspaceService.getDefaultNameForGroupInWorkspace(VIEWER, newName));
-//                        }
-//                    }
-//
-//                })
-//                .verifyComplete();
+        Mono<List<PermissionGroup>> permissionGroupsMono = workspaceNameUpdateMono
+                .flatMap(savedWorkspace -> permissionGroupRepository.findAllById(savedWorkspace.getDefaultPermissionGroups()).collectList());
+
+        StepVerifier.create(Mono.zip(workspaceNameUpdateMono, permissionGroupsMono))
+                .assertNext(tuple -> {
+                    Workspace savedWorkspace = tuple.getT1();
+                    List<PermissionGroup> permissionGroups = tuple.getT2();
+                    assertThat(savedWorkspace.getSlug()).isEqualTo(TextUtils.makeSlug(newName));
+
+                    for (PermissionGroup permissionGroup : permissionGroups) {
+                        String name = permissionGroup.getName();
+                        if (name.startsWith(ADMINISTRATOR)) {
+                            assertThat(name).isEqualTo(workspaceService.getDefaultNameForGroupInWorkspace(ADMINISTRATOR, newName));
+                        } else if (name.startsWith(DEVELOPER)) {
+                            assertThat(name).isEqualTo(workspaceService.getDefaultNameForGroupInWorkspace(DEVELOPER, newName));
+                        } else if (name.startsWith(VIEWER)) {
+                            assertThat(name).isEqualTo(workspaceService.getDefaultNameForGroupInWorkspace(VIEWER, newName));
+                        }
+                    }
+
+                })
+                .verifyComplete();
     }
 }
