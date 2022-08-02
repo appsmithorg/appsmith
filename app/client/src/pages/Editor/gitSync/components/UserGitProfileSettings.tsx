@@ -11,7 +11,7 @@ import {
 } from "@appsmith/constants/messages";
 import styled from "styled-components";
 import TextInput, { emailValidator } from "components/ads/TextInput";
-import Checkbox from "components/ads/Checkbox";
+import { Checkbox } from "design-system";
 import { Colors } from "constants/Colors";
 import { useSelector } from "react-redux";
 import {

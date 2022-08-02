@@ -16,8 +16,7 @@ import {
 } from "@appsmith/constants/messages";
 import styled, { useTheme } from "styled-components";
 import TextInput from "components/ads/TextInput";
-import { Button, Category, Size } from "design-system";
-import { LabelContainer } from "components/ads/Checkbox";
+import { Button, Category, LabelContainer, Size } from "design-system";
 
 import {
   getConflictFoundDocUrlDeploy,

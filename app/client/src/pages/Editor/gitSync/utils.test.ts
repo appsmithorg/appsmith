@@ -26,6 +26,9 @@ const validUrls = [
   "git@ssh.dev.azure.com:v3/something/other/thing.git",
   "git@ssh.dev.azure.com:v3/something/other/(thing).git",
   "git@ssh.dev.azure.com:v3/(((something)/(other)/(thing).git",
+  "git@abcd.org:org__v3/(((something)/(other)/(thing).git",
+  "git@gitlab-abcd.test.org:org__org/repoName.git",
+  "git@gitlab__abcd.test.org:org__org/repoName.git",
 ];
 
 const invalidUrls = [

@@ -5,7 +5,7 @@ import { Icon, IconSize } from "design-system";
 import { Popover2 } from "@blueprintjs/popover2";
 import RadioGroup, { Radio } from "components/ads/Radio";
 import { Theme } from "constants/DefaultTheme";
-import Checkbox from "components/ads/Checkbox";
+import { Checkbox } from "design-system";
 
 import {
   shouldShowResolved as shouldShowResolvedSelector,
@@ -76,7 +76,7 @@ const AppCommentsFilter = withTheme(({ theme }: { theme: Theme }) => {
             backgroundColor={theme.colors.comments.commentsFilter}
             isDefaultChecked={shouldShowResolved}
             label={label}
-            onCheckChange={(isChecked) =>
+            onCheckChange={(isChecked: boolean) =>
               dispatch(setShouldShowResolvedComments(isChecked))
             }
           />

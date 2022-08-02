@@ -4,9 +4,6 @@ export * from "./ButtonTabComponent";
 export { default as Callout } from "./Callout";
 export * from "./Callout";
 
-export { default as Checkbox } from "./Checkbox";
-export * from "./Checkbox";
-
 export { default as ColorPickerComponent } from "./ColorPickerComponent";
 export * from "./ColorPickerComponent";
 
