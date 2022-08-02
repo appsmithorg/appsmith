@@ -100,13 +100,22 @@ const StyledSlider = styled.input<{ progress: number }>`
 `;
 
 interface SliderProps {
+  onMouseEnter: () => void;
+  onMouseLeave: () => void;
   onChange: (value: number) => void;
   onRelease: () => void;
   onStart: () => void;
   value: number;
 }
 
-function AdsSlider({ onChange, onRelease, onStart, value }: SliderProps) {
+function AdsSlider({
+  onChange,
+  onMouseEnter,
+  onMouseLeave,
+  onRelease,
+  onStart,
+  value,
+}: SliderProps) {
   const handleChange: ChangeEventHandler<HTMLInputElement> = (e) => {
     onChange(parseInt(e.target.value, 10));
   };
@@ -117,6 +126,8 @@ function AdsSlider({ onChange, onRelease, onStart, value }: SliderProps) {
       min={4}
       onChange={handleChange}
       onMouseDown={onStart}
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}
       onMouseUp={onRelease}
       progress={value}
       type="range"
@@ -130,6 +141,8 @@ class SliderControl extends BaseControl<SliderControlProps> {
     return (
       <AdsSlider
         onChange={this.onToggle}
+        onMouseEnter={this.onMouseEnter}
+        onMouseLeave={this.onMouseLeave}
         onRelease={this.onRelease}
         onStart={this.onStart}
         value={this.props.propertyValue}
@@ -141,6 +154,18 @@ class SliderControl extends BaseControl<SliderControlProps> {
     this.updateProperty(this.props.propertyName, value);
     if (this.props.onChange) {
       this.props.onChange();
+    }
+  };
+
+  onMouseEnter = () => {
+    if (this.props.onMouseEnter) {
+      this.props.onMouseEnter();
+    }
+  };
+
+  onMouseLeave = () => {
+    if (this.props.onMouseLeave) {
+      this.props.onMouseLeave();
     }
   };
 
@@ -167,6 +192,8 @@ class SliderControl extends BaseControl<SliderControlProps> {
 
 export interface SliderControlProps extends ControlProps {
   onChange?: () => void;
+  onMouseEnter?: () => void;
+  onMouseLeave?: () => void;
   onRelease?: () => void;
   onStart?: () => void;
 }

@@ -77,23 +77,31 @@ const Bordered = styled.div<{ y: number }>`
     content: "";
     width: 100%;
     height: 2px;
-    border-bottom: 1px dashed ${OVERLAY_COLOR};
+    border-bottom: 1px solid ${OVERLAY_COLOR};
   }
 `;
 
 const OverlayLabels: React.FC<{
   isActive: boolean;
+  isMaxActive: boolean;
+  isMinActive: boolean;
   minRows: number;
   maxRows: number;
-}> = ({ isActive, maxRows, minRows }) => {
+}> = ({ isActive, isMaxActive, isMinActive, maxRows, minRows }) => {
   return (
     <div style={{ display: isActive ? "block" : "none" }}>
-      <Bordered y={minRows * 10}>
+      <Bordered
+        style={{ display: isMinActive ? "block" : "none" }}
+        y={minRows * 10}
+      >
         <OverlayHandleLabelSlider>
           Min-height: {minRows} rows
         </OverlayHandleLabelSlider>
       </Bordered>
-      <Bordered y={maxRows * 10}>
+      <Bordered
+        style={{ display: isMaxActive ? "block" : "none" }}
+        y={maxRows * 10}
+      >
         <OverlayHandleLabelSlider>
           Max-height: {maxRows} rows
         </OverlayHandleLabelSlider>
@@ -141,6 +149,29 @@ const DynamicHeightOverlay: React.FC<DynamicHeightOverlayProps> = memo(
       }
     }
 
+    const [isMinFieldHovered, setMinFieldHovered] = useState(false);
+    const [isMaxFieldHovered, setMaxFieldHovered] = useState(false);
+
+    function onPropertFieldMouseEnterHandler(propertyName: string) {
+      if (propertyName === "maxDynamicHeight") {
+        setMaxFieldHovered(true);
+      }
+
+      if (propertyName === "minDynamicHeight") {
+        setMinFieldHovered(true);
+      }
+    }
+
+    function onPropertFieldMouseLeaveHandler(propertyName: string) {
+      if (propertyName === "maxDynamicHeight") {
+        setMaxFieldHovered(false);
+      }
+
+      if (propertyName === "minDynamicHeight") {
+        setMinFieldHovered(false);
+      }
+    }
+
     useEffect(() => {
       EventEmitter.add(
         "property_pane_input_focused",
@@ -149,6 +180,16 @@ const DynamicHeightOverlay: React.FC<DynamicHeightOverlayProps> = memo(
       EventEmitter.add(
         "property_pane_input_blurred",
         onPropertFieldBlurredHandler,
+      );
+
+      EventEmitter.add(
+        "property_pane_input_mouse_enter",
+        onPropertFieldMouseEnterHandler,
+      );
+
+      EventEmitter.add(
+        "property_pane_input_mouse_leave",
+        onPropertFieldMouseLeaveHandler,
       );
 
       return () => {
@@ -160,6 +201,15 @@ const DynamicHeightOverlay: React.FC<DynamicHeightOverlayProps> = memo(
           "property_pane_input_blurred",
           onPropertFieldBlurredHandler,
         );
+        EventEmitter.remove(
+          "property_pane_input_mouse_enter",
+          onPropertFieldMouseEnterHandler,
+        );
+
+        EventEmitter.remove(
+          "property_pane_input_mouse_leave",
+          onPropertFieldMouseLeaveHandler,
+        );
       };
     }, []);
 
@@ -168,11 +218,17 @@ const DynamicHeightOverlay: React.FC<DynamicHeightOverlayProps> = memo(
     return (
       <StyledDynamicHeightOverlay>
         <OverlayDisplay
-          isActive={isWidgetSelected}
+          isActive={isMinFieldHovered}
+          maxY={minDynamicHeight * 10}
+        />
+        <OverlayDisplay
+          isActive={isMaxFieldHovered}
           maxY={maxDynamicHeight * 10}
         />
         <OverlayLabels
-          isActive={isWidgetSelected}
+          isActive={isMinFieldHovered || isMaxFieldHovered}
+          isMaxActive={isMaxFieldHovered}
+          isMinActive={isMinFieldHovered}
           maxRows={maxDynamicHeight}
           minRows={minDynamicHeight}
         />

@@ -185,6 +185,12 @@ export const PropertyPaneConfigTemplates = {
         onRelease: () => {
           EventEmitter.emit('property_pane_input_blurred', 'minDynamicHeight');
         },
+        onMouseEnter: () => {
+          EventEmitter.emit('property_pane_input_mouse_enter', 'minDynamicHeight');
+        },
+        onMouseLeave: () => {
+          EventEmitter.emit('property_pane_input_mouse_leave', 'minDynamicHeight');
+        },
         label: "Min Height (in rows)",
         helpText: "Minimum number of rows to occupy irrespective of contents",
         controlType: "SLIDER",
@@ -213,6 +219,12 @@ export const PropertyPaneConfigTemplates = {
         },
         onRelease: () => {
           EventEmitter.emit('property_pane_input_blurred', 'maxDynamicHeight');
+        },
+        onMouseEnter: () => {
+          EventEmitter.emit('property_pane_input_mouse_enter', 'maxDynamicHeight');
+        },
+        onMouseLeave: () => {
+          EventEmitter.emit('property_pane_input_mouse_leave', 'maxDynamicHeight');
         },
         label: "Max Height (in rows)",
         helpText: "Maximum Height, after which contents will scroll",
