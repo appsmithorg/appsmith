@@ -15,6 +15,7 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.PermissionGroupRepository;
+import com.appsmith.server.repositories.ThemeRepository;
 import org.junit.Test;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -72,6 +73,9 @@ public class ThemeServiceTest {
 
     @Autowired
     private UserWorkspaceService userWorkspaceService;
+
+    @Autowired
+    private ThemeRepository themeRepository;
 
     Workspace workspace;
 
@@ -198,27 +202,23 @@ public class ThemeServiceTest {
     @Test
     public void changeCurrentTheme_WhenUserHasPermission_ThemesSetInEditMode() {
 
-        // getApplicationTheme_WhenThemeIsSet_ThemesReturned similar
-
         Theme classicTheme = themeService.getSystemTheme("Classic").block();
         Theme roundedTheme = themeService.getSystemTheme("Rounded").block();
 
         Application savedApplication = createApplication();
-
         // Publish app
-        Mono<Application> publishApp = applicationPageService.publish(savedApplication.getId(), TRUE);
+        Application publishedApp = applicationPageService.publish(savedApplication.getId(), TRUE).block();
+
         // apply classic theme to the application
         Mono<Theme> applyClassicTheme = themeService.changeCurrentTheme(classicTheme.getId(), savedApplication.getId(), null);
         // apply rounded theme to the application
         Mono<Theme> applyRoundedTheme = themeService.changeCurrentTheme(roundedTheme.getId(), savedApplication.getId(), null);
 
         Mono<Application> applicationPostThemeUpdatesMono = applyClassicTheme
-                .then(publishApp)
                 .then(applyRoundedTheme)
                 .then(applicationRepository.findById(savedApplication.getId()));
 
-        Mono<Application> oldApplicationMono = Mono.just(savedApplication);
-
+        Mono<Application> oldApplicationMono = Mono.just(publishedApp);
 
         StepVerifier
                 .create(Mono.zip(applicationPostThemeUpdatesMono, oldApplicationMono))
@@ -558,17 +558,17 @@ public class ThemeServiceTest {
 
         Application savedApplication = createApplication();
 
-        // Set the default system theme in view mode as well.
+        // Set the default system theme in edit and view mode as empty strings to remove the themes.
         Application updateApp = new Application();
-        updateApp.setEditModeThemeId(null);
-        applicationRepository.updateById(savedApplication.getId(), updateApp, MANAGE_APPLICATIONS).block();
+        updateApp.setEditModeThemeId("");
+        updateApp.setPublishedModeThemeId("");
+        Application appWithoutTheme = applicationRepository.updateById(savedApplication.getId(), updateApp, MANAGE_APPLICATIONS).block();
 
-        applicationPageService.publish(savedApplication.getId(), TRUE).block();
+        Application publishedApp = applicationPageService.publish(savedApplication.getId(), TRUE).block();
 
-        Mono<Theme> classicThemeMono = themeService.getSystemTheme(Theme.LEGACY_THEME_NAME);
+        Mono<Theme> classicThemeMono = themeRepository.getSystemThemeByName(Theme.LEGACY_THEME_NAME);
 
-        Mono<Tuple2<Application, Theme>> appAndThemeTuple = themeService.publishTheme(savedApplication.getId())
-                                .then(applicationRepository.findById(savedApplication.getId()))
+        Mono<Tuple2<Application, Theme>> appAndThemeTuple = Mono.just(publishedApp)
                 .zipWith(classicThemeMono);
 
         StepVerifier.create(appAndThemeTuple)
