@@ -2,7 +2,7 @@ import React, { ChangeEventHandler } from "react";
 import BaseControl, { ControlData, ControlProps } from "./BaseControl";
 
 import styled from "constants/DefaultTheme";
-import { ISliderProps, Slider } from "@blueprintjs/core";
+import { InputGroup, ISliderProps, Slider } from "@blueprintjs/core";
 import { Colors } from "constants/Colors";
 import { replayHighlightClass } from "globalStyles/portals";
 import { WidgetHeightLimits } from "constants/WidgetConstants";
@@ -99,7 +99,7 @@ const StyledSlider = styled.input<{ progress: number }>`
   }
 `;
 
-interface SliderProps {
+interface SliderProps extends ISliderProps {
   onChange: (value: number) => void;
   onRelease: () => void;
   onStart: () => void;
@@ -126,16 +126,38 @@ function AdsSlider({ onChange, onRelease, onStart, value }: SliderProps) {
 }
 
 class SliderControl extends BaseControl<SliderControlProps> {
+  state = {
+    showSlider: false,
+  };
+
   render() {
     return (
-      <AdsSlider
-        onChange={this.onToggle}
-        onRelease={this.onRelease}
-        onStart={this.onStart}
-        value={this.props.propertyValue}
-      />
+      <div>
+        {this.state.showSlider ? (
+          <AdsSlider
+            className={this.props.propertyValue ? "checked" : "unchecked"}
+            onChange={this.onToggle}
+            onRelease={this.handleRelease}
+            onStart={this.onStart}
+            value={this.props.propertyValue}
+          />
+        ) : null}
+        {this.state.showSlider ? null : (
+          <InputGroup
+            onClick={() => this.setState({ showSlider: true })}
+            value={this.props.propertyValue}
+          />
+        )}
+      </div>
     );
   }
+
+  handleRelease = () => {
+    this.setState({
+      showSlider: false,
+    });
+    this.onRelease();
+  };
 
   onToggle = (value: number) => {
     this.updateProperty(this.props.propertyName, value);
