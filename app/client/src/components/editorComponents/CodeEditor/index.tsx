@@ -352,7 +352,7 @@ class CodeEditor extends Component<Props, State> {
 
   shouldComponentUpdate(nextProps: Props, nextState: State) {
     if (this.props.dynamicData !== nextProps.dynamicData)
-      return nextState.isFocused;
+      return nextState.isFocused || !!nextProps.isJSObject;
     return true;
   }
 
