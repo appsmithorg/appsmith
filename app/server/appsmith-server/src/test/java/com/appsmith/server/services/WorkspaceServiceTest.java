@@ -938,8 +938,14 @@ public class WorkspaceServiceTest {
         Mono<Workspace> workspaceAfterUpdateMono = userAddedToWorkspaceMono
                 .then(readWorkspaceMono);
 
+        Mono<PermissionGroup> viewerGroupMonoAfterInvite = userAddedToWorkspaceMono
+                .then(workspaceMono)
+                .flatMapMany(workspace1 -> permissionGroupRepository.findAllById(workspace1.getDefaultPermissionGroups()))
+                .filter(userGroup -> userGroup.getName().startsWith(FieldName.VIEWER))
+                .single();
+
         StepVerifier
-                .create(Mono.zip(userAddedToWorkspaceMono, workspaceAfterUpdateMono, viewerGroupMono))
+                .create(Mono.zip(userAddedToWorkspaceMono, workspaceAfterUpdateMono, viewerGroupMonoAfterInvite))
                 .assertNext(tuple -> {
                     List<User> users = tuple.getT1();
                     Workspace workspace1 = tuple.getT2();
