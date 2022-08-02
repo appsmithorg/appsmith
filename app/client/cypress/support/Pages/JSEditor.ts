@@ -198,7 +198,12 @@ export class JSEditor {
       });
   }
 
-  public EnterJSContext(endp: string, value: string, toToggleOnJS = true) {
+  public EnterJSContext(
+    endp: string,
+    value: string,
+    toToggleOnJS = true,
+    paste = true,
+  ) {
     cy.get(this.locator._jsToggle(endp.replace(/ +/g, "").toLowerCase()))
       .invoke("attr", "class")
       .then((classes: any) => {
@@ -222,7 +227,8 @@ export class JSEditor {
     //   // .type("{ctrl}{shift}{downarrow}", { force: true })
     //   .type("{del}", { force: true });
 
-    this.propPane.UpdatePropertyFieldValue(endp, value);
+    if (paste) this.propPane.UpdatePropertyFieldValue(endp, value);
+    else this.propPane.TypeTextIntoField(endp, value);
 
     // cy.focused().then(($cm: any) => {
     //   if ($cm.contents != "") {
