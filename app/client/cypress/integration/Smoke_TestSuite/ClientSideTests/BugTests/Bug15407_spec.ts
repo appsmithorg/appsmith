@@ -36,7 +36,7 @@ describe("Linting for incorrect paths", () => {
     propPane.UpdatePropertyFieldValue("Label", `{{JSObject1.unknown}}`);
     propPane.UpdatePropertyFieldValue("Tooltip", `{{Api1.unknown2}}`);
     jsEditor.EnterJSContext("onClick", `{{JSObject1.unknown3()}}`, true, true);
-    cy.contains(locator._lintErrorElement).should("not.exist");
+    cy.get(locator._lintErrorElement).should("not.exist");
 
     ee.ExpandCollapseEntity("QUERIES/JS");
     // Delete JSObject & Api
@@ -44,7 +44,7 @@ describe("Linting for incorrect paths", () => {
     ee.ActionContextMenuByEntityName("Api1", "Delete", "Are you sure?");
 
     ee.SelectEntityByName("Button1");
-    cy.contains(locator._lintErrorElement).should("have.length", 3);
+    cy.get(locator._lintErrorElement).should("have.length", 3);
 
     // Recreate jsobject & Api
     jsEditor.CreateJSObject(JS_OBJECT_BODY, {
@@ -56,13 +56,13 @@ describe("Linting for incorrect paths", () => {
     apiPage.CreateApi();
 
     ee.SelectEntityByName("Button1");
-    cy.contains(locator._lintErrorElement).should("not.exist");
+    cy.get(locator._lintErrorElement).should("not.exist");
 
     ee.DragDropWidgetNVerify("buttonwidget", 500, 600);
     propPane.UpdatePropertyFieldValue("Label", `{{JSObject2.unknown}}`);
 
     ee.SelectEntityByName("Button2");
-    cy.contains(locator._lintErrorElement).should("have.length", 1);
+    cy.get(locator._lintErrorElement).should("have.length", 1);
 
     jsEditor.CreateJSObject(JS_OBJECT_BODY, {
       paste: true,
@@ -71,6 +71,6 @@ describe("Linting for incorrect paths", () => {
       shouldCreateNewJSObj: true,
     });
     ee.SelectEntityByName("Button2");
-    cy.contains(locator._lintErrorElement).should("not.exist");
+    cy.get(locator._lintErrorElement).should("not.exist");
   });
 });
