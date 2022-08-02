@@ -1,5 +1,6 @@
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 import largeJSONData from "../../../../fixtures/largeJSONData.json";
+const dsl = require("../../../../fixtures/tablev1NewDsl.json");
 
 const jsEditor = ObjectsRegistry.JSEditor,
   locator = ObjectsRegistry.CommonLocators,
@@ -49,7 +50,7 @@ describe("JS Function Execution", function() {
   ];
 
   before(() => {
-    ee.DragDropWidgetNVerify("tablewidget", 300, 300);
+    agHelper.AddDsl(dsl);
     ee.NavigateToSwitcher("explorer");
   });
   function assertAsyncFunctionsOrder(data: IFunctionSettingData[]) {
@@ -140,6 +141,8 @@ describe("JS Function Execution", function() {
       shouldCreateNewJSObj: false,
     });
 
+    agHelper.Sleep(2000); // Giving more time for parsing to reduce flakiness!
+
     // Assert presence of parse error callout (entire JS Object is invalid)
     jsEditor.AssertParseError(true, false);
     agHelper.ActionContextMenuWithInPane("Delete", "", true);
@@ -149,11 +152,12 @@ describe("JS Function Execution", function() {
     const invalidJSObjectStartToastMessage = "Start object with export default";
     const jsComment = "// This is a comment";
     const jsObjectStartLine = "export default{";
+    const jsObjectStartLineWithSpace = `export  default{`;
     const jsObjectStartingWithAComment = `${jsComment}
   ${jsObjectStartLine}
         fun1:()=>true
       }`;
-    const jsObjectStartingWithASpace = ` ${jsObjectStartLine}
+    const jsObjectStartingWithASpace = `${jsObjectStartLineWithSpace}
         fun1:()=>true
       }`;
 
@@ -185,8 +189,9 @@ describe("JS Function Execution", function() {
 
     assertInvalidJSObjectStart(jsObjectStartingWithAComment, jsComment);
     assertInvalidJSObjectStart(jsObjectStartingWithANewLine, jsObjectStartLine);
-    assertInvalidJSObjectStart(jsObjectStartingWithASpace, jsObjectStartLine);
+    assertInvalidJSObjectStart(jsObjectStartingWithASpace, jsObjectStartLineWithSpace);
   });
+
   it("5. Verify that js function execution errors are logged in debugger and removed when function is deleted", () => {
     const JS_OBJECT_WITH_PARSE_ERROR = `export default {
       myVar1: [],
@@ -285,7 +290,10 @@ describe("JS Function Execution", function() {
 
     cy.get("@jsObjName").then((jsObjName) => {
       ee.SelectEntityByName("Table1", "WIDGETS");
-      propPane.UpdatePropertyFieldValue("Table Data", `{{${jsObjName}.largeData}}`);
+      propPane.UpdatePropertyFieldValue(
+        "Table Data",
+        `{{${jsObjName}.largeData}}`,
+      );
     });
 
     // Deploy App and test that table loads properly
