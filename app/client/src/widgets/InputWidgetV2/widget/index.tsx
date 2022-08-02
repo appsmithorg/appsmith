@@ -370,7 +370,7 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
               helpText:
                 "Sets the default text of the widget. The text is updated if the default text changes",
               propertyName: "defaultText",
-              label: "Default Text",
+              label: "Default Value",
               controlType: "INPUT_TEXT",
               placeholderText: "John Doe",
               isBindProperty: true,
@@ -410,7 +410,7 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
             {
               helpText: "Sets maximum allowed text length",
               propertyName: "maxChars",
-              label: "Max Chars",
+              label: "Max Characters",
               controlType: "INPUT_TEXT",
               placeholderText: "255",
               isBindProperty: true,
