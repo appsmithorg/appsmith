@@ -519,7 +519,7 @@ export class AggregateHelper {
     }
   }
 
-  public TypeValueNValidate(valueToType: string, fieldName = "") {
+  public EnterValueNValidate(valueToType: string, fieldName = "") {
     this.EnterValue(valueToType, {
       propFieldName: fieldName,
       directInput: false,

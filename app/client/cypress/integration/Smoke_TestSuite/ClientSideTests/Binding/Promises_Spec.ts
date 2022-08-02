@@ -17,9 +17,7 @@ describe("Validate basic Promises", () => {
     ee.SelectEntityByName("Button1", "WIDGETS");
     jsEditor.EnterJSContext(
       "onClick",
-      "{{storeValue('date', Date()).then(() => showAlert(appsmith.store.date))}}",
-      true,
-      true,
+      "{{storeValue('date', Date()).then(() => showAlert(appsmith.store.date))}}"
     );
     deployMode.DeployApp();
     agHelper.ClickButton("Submit");
@@ -42,9 +40,7 @@ describe("Validate basic Promises", () => {
           }).then((res) => {
             showAlert(res, 'success')
           }).catch(err => { showAlert(err, 'error') });
-        }}`,
-      true,
-      true,
+        }}`
     );
     deployMode.DeployApp();
     agHelper.ClickButton("Submit");
@@ -74,9 +70,7 @@ describe("Validate basic Promises", () => {
           await storeValue("Gender", gender);
           await showAlert("Your country is " + JSON.stringify(appsmith.store.Gender.name), 'warning');
           await showAlert("You could be a " + JSON.stringify(appsmith.store.Gender.gender), 'warning');
-        })()}}`,
-      true,
-      true,
+        })()}}`
     );
     deployMode.DeployApp();
     agHelper.ClickButton("Submit");
@@ -107,9 +101,7 @@ describe("Validate basic Promises", () => {
             .then(() => showAlert("You have a beautiful picture", 'success'))
             .catch(() => showAlert('Oops!', 'error'))
         })()
-          }}`,
-      true,
-      true,
+          }}`
     );
     ee.SelectEntityByName("Image1");
     propPane.UpdatePropertyFieldValue("Image", `{{Christmas.data}}`);
@@ -135,9 +127,7 @@ return InspiringQuotes.run().then((res) => { showAlert("Today's quote for " + us
     cy.get("@jsObjName").then((jsObjName) => {
       jsEditor.EnterJSContext(
         "onClick",
-        "{{" + jsObjName + ".myFun1()}}",
-        true,
-        true,
+        "{{" + jsObjName + ".myFun1()}}"
       );
     });
     deployMode.DeployApp();
@@ -164,9 +154,7 @@ return InspiringQuotes.run().then((res) => { showAlert("Today's quote for " + us
     ee.SelectEntityByName("Button1", "WIDGETS");
     jsEditor.EnterJSContext(
       "onClick",
-      `{{ Promise.race([Agify.run({ person: 'Melinda' }), Agify.run({ person: 'Trump' })]).then((res) => { showAlert('Winner is ' + JSON.stringify(res.name), 'success') }) }} `,
-      true,
-      true,
+      `{{ Promise.race([Agify.run({ person: 'Melinda' }), Agify.run({ person: 'Trump' })]).then((res) => { showAlert('Winner is ' + JSON.stringify(res.name), 'success') }) }} `
     );
     deployMode.DeployApp();
     agHelper.ClickButton("Submit");
@@ -214,10 +202,7 @@ return InspiringQuotes.run().then((res) => { showAlert("Today's quote for " + us
       return GetAnime.run({ name: anime })
         .then(() => showAlert("Showing results for : " + anime, 'success'))
     })()
-  }}`,
-      true,
-      true,
-    );
+  }}`);
     deployMode.DeployApp();
     agHelper.ClickButton("Submit");
     agHelper.WaitUntilEleAppear(locator._toastMsg);
@@ -244,9 +229,7 @@ return InspiringQuotes.run().then((res) => { showAlert("Today's quote for " + us
       return Promise.all(agifyy)
         .then((responses) => showAlert(responses.map((res) => res.name).join(',')))
     })()
-  }} `,
-      true,
-      true,
+  }} `
     );
     deployMode.DeployApp();
     agHelper.ClickButton("Submit");
@@ -276,9 +259,7 @@ showAlert("Wonderful! all apis executed", "success")).catch(() => showAlert("Ple
         "onClick",
         "{{storeValue('date', Date()).then(() => { showAlert(appsmith.store.date, 'success'); return " +
           jsObjName +
-          ".myFun1()})}}",
-        true,
-        true,
+          ".myFun1()})}}"
       );
     });
     deployMode.DeployApp();
@@ -325,9 +306,7 @@ showAlert("Wonderful! all apis executed", "success")).catch(() => showAlert("Ple
     cy.get("@jsObjName").then((jsObjName) => {
       jsEditor.EnterJSContext(
         "onClick",
-        "{{" + jsObjName + ".runAny()}}",
-        true,
-        true,
+        "{{" + jsObjName + ".runAny()}}"
       );
     });
     deployMode.DeployApp();
@@ -349,9 +328,7 @@ showAlert("Wonderful! all apis executed", "success")).catch(() => showAlert("Ple
     ee.SelectEntityByName("Button1", "WIDGETS");
     jsEditor.EnterJSContext(
       "onClick",
-      "{{resetWidget('Input1').then(() => showAlert(Input1.text))}}",
-      true,
-      true,
+      "{{resetWidget('Input1').then(() => showAlert(Input1.text))}}"
     );
     deployMode.DeployApp(locator._inputWidgetInDeployed);
     cy.get(locator._inputWidgetInDeployed).type("Update value");
@@ -371,10 +348,7 @@ InspiringQuotes.run().then((res) => { showAlert("Today's quote for " + user + " 
     cy.get("@jsObjName").then((jsObjName) => {
       jsEditor.EnterJSContext(
         "onClick",
-        "{{" + jsObjName + ".myFun1()}}",
-        true,
-        true,
-      );
+        "{{" + jsObjName + ".myFun1()}}");
     });
     agHelper.ClickButton("Submit");
     agHelper.ValidateToastMessage("Today's quote for You");

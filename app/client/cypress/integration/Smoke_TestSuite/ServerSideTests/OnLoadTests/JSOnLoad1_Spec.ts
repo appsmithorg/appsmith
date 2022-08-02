@@ -376,9 +376,7 @@ describe("JSObjects OnLoad Actions tests", function() {
     ee.SelectEntityByName("Image1", "WIDGETS");
     jsEditor.EnterJSContext(
       "onClick",
-      `{{CatFacts.run(() => showAlert('Your cat fact is :'+ CatFacts.data.fact,'success'), () => showAlert('Oh No!','error'))}}`,
-      true,
-      true,
+      `{{CatFacts.run(() => showAlert('Your cat fact is :'+ CatFacts.data.fact,'success'), () => showAlert('Oh No!','error'))}}`
     );
 
     ee.SelectEntityByName("Quotes", "QUERIES/JS");
@@ -417,12 +415,18 @@ describe("JSObjects OnLoad Actions tests", function() {
     //apiPage.OnPageLoadRun(true); //OnPageLoad made true after mapping to JSONForm
     apiPage.ToggleConfirmBeforeRunningApi(true);
 
-    dataSources.NavigateFromActiveDS(dsName, true);
-    agHelper.GetNClick(dataSources._templateMenu);
-    agHelper.RenameWithInPane("getCitiesList");
-    dataSources.EnterQuery(
+    dataSources.CreateNewQueryInDS(
+      dsName,
       "SELECT distinct city FROM public.city order by city ASC",
+      "getCitiesList",
     );
+
+    // dataSources.NavigateFromActiveDS(dsName, true);
+    // agHelper.GetNClick(dataSources._templateMenu);
+    // agHelper.RenameWithInPane("getCitiesList");
+    // dataSources.EnterQuery(
+    //   "SELECT distinct city FROM public.city order by city ASC",
+    // );
 
     jsEditor.CreateJSObject(
       `export default {
@@ -502,11 +506,11 @@ describe("JSObjects OnLoad Actions tests", function() {
       //   true,
       //   true,
       // );
-        propPane.SelectJSFunctionToExecute(
-          "onClick",
-          jsName as string,
-          "callBooks",
-        );//callBooks confirmation also does not appear due to 13646
+      propPane.SelectJSFunctionToExecute(
+        "onClick",
+        jsName as string,
+        "callBooks",
+      ); //callBooks confirmation also does not appear due to 13646
 
       ee.SelectEntityByName("JSONForm1");
       propPane.UpdatePropertyFieldValue("Source Data", "{{getBooks.data}}");

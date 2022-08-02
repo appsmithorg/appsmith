@@ -186,25 +186,33 @@ export class JSEditor {
     this.agHelper.AssertAutoSave();
   }
 
-  public EnterJSContext(
-    endp: string,
-    value: string,
-    paste = true,
-    toToggleOnJS = false,
-  ) {
-    if (toToggleOnJS) {
-      cy.get(this.locator._jsToggle(endp.replace(/ +/g, "").toLowerCase()))
-        .invoke("attr", "class")
-        .then((classes: any) => {
-          if (!classes.includes("is-active")) {
-            cy.get(
-              this.locator._jsToggle(endp.replace(/ +/g, "").toLowerCase()),
-            )
-              .first()
-              .click({ force: true });
-          }
-        });
-    }
+  public DisableJSContext(endp: string) {
+    cy.get(this.locator._jsToggle(endp.replace(/ +/g, "").toLowerCase()))
+      .invoke("attr", "class")
+      .then((classes: any) => {
+        if (classes.includes("is-active"))
+          cy.get(this.locator._jsToggle(endp.replace(/ +/g, "").toLowerCase()))
+            .first()
+            .click({ force: true });
+        else this.agHelper.Sleep(500);
+      });
+  }
+
+  public EnterJSContext(endp: string, value: string, toToggleOnJS = true) {
+    cy.get(this.locator._jsToggle(endp.replace(/ +/g, "").toLowerCase()))
+      .invoke("attr", "class")
+      .then((classes: any) => {
+        if (toToggleOnJS && !classes.includes("is-active"))
+          cy.get(this.locator._jsToggle(endp.replace(/ +/g, "").toLowerCase()))
+            .first()
+            .click({ force: true });
+        else if (!toToggleOnJS && classes.includes("is-active"))
+          cy.get(this.locator._jsToggle(endp.replace(/ +/g, "").toLowerCase()))
+            .first()
+            .click({ force: true });
+        else this.agHelper.Sleep(500);
+      });
+
     // cy.get(this.locator._propertyControl + endp + " " + this.locator._codeMirrorTextArea)
     //   .first()
     //   .focus()
@@ -214,22 +222,7 @@ export class JSEditor {
     //   // .type("{ctrl}{shift}{downarrow}", { force: true })
     //   .type("{del}", { force: true });
 
-    if (paste) {
-      this.propPane.UpdatePropertyFieldValue(endp, value);
-    } else {
-      cy.get(
-        this.locator._propertyControl +
-          endp.replace(/ +/g, "").toLowerCase() +
-          " " +
-          this.locator._codeMirrorTextArea,
-      )
-        .first()
-        .then((el: any) => {
-          cy.get(el).type(value, {
-            parseSpecialCharSequences: false,
-          });
-        });
-    }
+    this.propPane.UpdatePropertyFieldValue(endp, value);
 
     // cy.focused().then(($cm: any) => {
     //   if ($cm.contents != "") {
