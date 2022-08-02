@@ -248,8 +248,8 @@ function generatePanelPropertyConfig(
           );
         },
       },
-      ...OBJECT_PROPERTIES.sections,
-      ...ARRAY_PROPERTIES.sections,
+      ...OBJECT_PROPERTIES.sections.map((x) => ({ ...x, isDefaultOpen: true })),
+      ...ARRAY_PROPERTIES.sections.map((x) => ({ ...x, isDefaultOpen: true })),
     ],
   } as PanelConfig;
 }
