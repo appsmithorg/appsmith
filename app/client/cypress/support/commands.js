@@ -1006,6 +1006,7 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   cy.intercept("GET", "/api/v1/git/status/app/*").as("gitStatus");
   cy.intercept("PUT", "/api/v1/layouts/refactor").as("updateWidgetName");
   cy.intercept("GET", "/api/v1/workspaces/*/members").as("getMembers");
+  cy.intercept("POST", "/api/v1/datasources/mocks").as("getMockDb");
 });
 
 Cypress.Commands.add("startErrorRoutes", () => {
@@ -1388,11 +1389,11 @@ Cypress.Commands.add("typeValueNValidate", (valueToType, fieldName = "") => {
   // })
 });
 
-Cypress.Commands.add("clickButton", (btnVisibleText) => {
+Cypress.Commands.add("clickButton", (btnVisibleText, toForceClick = true) => {
   cy.xpath("//span[text()='" + btnVisibleText + "']/parent::button")
     .first()
     .scrollIntoView()
-    .click({ force: true });
+    .click({ force: toForceClick });
 });
 
 Cypress.Commands.add(
