@@ -47,7 +47,7 @@ describe("DatePicker Widget Property pane tests with js bindings", function() {
       .children()
       .contains("None")
       .click();
-    cy.wait("@updateLayout");
+    // cy.wait("@updateLayout");
     // default in date picker
 
     cy.get(".t--widget-datepickerwidget2 input").click();
@@ -72,7 +72,7 @@ describe("DatePicker Widget Property pane tests with js bindings", function() {
       .children()
       .contains("Second")
       .click();
-    cy.wait("@updateLayout");
+    // cy.wait("@updateLayout");
     // default in date picker
 
     cy.get(".t--widget-datepickerwidget2 input").click();

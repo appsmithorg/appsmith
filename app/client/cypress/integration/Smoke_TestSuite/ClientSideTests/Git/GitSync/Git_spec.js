@@ -140,7 +140,7 @@ describe("Git sync:", function() {
     cy.get(explorerLocators.widgetSwitchId).click();
     cy.wait(2000); // wait for transition
     cy.dragAndDropToCanvas("inputwidgetv2", { x: 300, y: 300 });
-    cy.wait("@updateLayout");
+    // cy.wait("@updateLayout");
 
     cy.commitAndPush();
 

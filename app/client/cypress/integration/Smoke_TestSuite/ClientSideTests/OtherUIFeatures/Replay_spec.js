@@ -174,7 +174,7 @@ describe("Undo/Redo functionality", function() {
     cy.get("body").click({ force: true });
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(500);
-    cy.wait("@updateLayout");
+    // cy.wait("@updateLayout");
     cy.readTextDataValidateCSS("color", "rgb(126, 34, 206)");
 
     cy.get("body").type(`{${modifierKey}}z`);

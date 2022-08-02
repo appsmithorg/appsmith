@@ -116,7 +116,7 @@ describe("Table Widget property pane feature validation", function() {
     cy.wait(1000);
     cy.toggleJsAndUpdateWithIndex("tabledata", testdata.bindingTextColor, 5);
 
-    cy.wait("@updateLayout");
+    // cy.wait("@updateLayout");
     cy.readTabledataValidateCSS("0", "0", "color", "rgb(0, 128, 0)");
     cy.readTabledataValidateCSS("1", "0", "color", "rgb(255, 0, 0)");
   });
@@ -137,7 +137,7 @@ describe("Table Widget property pane feature validation", function() {
     cy.wait(1000);
     cy.toggleJsAndUpdateWithIndex("tabledata", testdata.bindingTextColor, 6);
 
-    cy.wait("@updateLayout");
+    // cy.wait("@updateLayout");
     cy.readTabledataValidateCSS(
       "0",
       "0",

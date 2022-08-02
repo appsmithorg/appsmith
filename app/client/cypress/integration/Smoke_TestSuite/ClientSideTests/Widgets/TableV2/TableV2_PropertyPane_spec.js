@@ -302,13 +302,13 @@ describe("Table Widget V2 property pane feature validation", function() {
     cy.selectColor("textcolor");
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(5000);
-    cy.wait("@updateLayout");
+    // cy.wait("@updateLayout");
     cy.readTableV2dataValidateCSS("1", "0", "color", "rgb(126, 34, 206)");
 
     // Changing text color to PURPLE and validate using JS
     cy.get(widgetsPage.toggleJsColor).click();
     cy.testCodeMirrorLast("purple");
-    cy.wait("@updateLayout");
+    // cy.wait("@updateLayout");
     cy.readTableV2dataValidateCSS("1", "0", "color", "rgb(128, 0, 128)");
 
     // Changing Cell backgroud color to rgb(126, 34, 206) and validate
@@ -323,7 +323,7 @@ describe("Table Widget V2 property pane feature validation", function() {
     // Changing Cell backgroud color to PURPLE and validate using JS
     cy.get(widgetsPage.toggleJsBcgColor).click();
     cy.updateCodeInput(".t--property-control-cellbackground", "purple");
-    cy.wait("@updateLayout");
+    // cy.wait("@updateLayout");
     cy.readTableV2dataValidateCSS(
       "0",
       "0",

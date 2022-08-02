@@ -18,7 +18,7 @@ describe("Table Widget V2 property pane feature validation", function() {
 
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(500);
-    cy.wait("@updateLayout");
+    // cy.wait("@updateLayout");
     // Verify the text color is green
     cy.readTableV2dataValidateCSS("1", "0", "color", "rgb(126, 34, 206)");
     // Change the text color and enter purple in input field
@@ -26,7 +26,7 @@ describe("Table Widget V2 property pane feature validation", function() {
       .scrollIntoView()
       .clear({ force: true })
       .type("purple", { force: true });
-    cy.wait("@updateLayout");
+    // cy.wait("@updateLayout");
     // Verify the text color is purple
     cy.readTableV2dataValidateCSS("1", "0", "color", "rgb(128, 0, 128)");
     // Click on cell background color
@@ -35,7 +35,7 @@ describe("Table Widget V2 property pane feature validation", function() {
     cy.wait(500);
     // select the green color
 
-    cy.wait("@updateLayout");
+    // cy.wait("@updateLayout");
     cy.assertPageSave();
     cy.PublishtheApp();
     cy.wait(4000);
@@ -54,7 +54,7 @@ describe("Table Widget V2 property pane feature validation", function() {
     cy.get(`${widgetsPage.cellBackground} input`)
       .clear({ force: true })
       .type("purple", { force: true });
-    cy.wait("@updateLayout");
+    // cy.wait("@updateLayout");
     cy.assertPageSave();
     cy.PublishtheApp();
     cy.wait(4000);

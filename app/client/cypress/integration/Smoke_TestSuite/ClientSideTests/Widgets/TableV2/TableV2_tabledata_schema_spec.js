@@ -18,7 +18,7 @@ describe("Table Widget", function() {
     cy.dragAndDropToCanvas("switchwidget", { x: 200, y: 200 });
     cy.dragAndDropToCanvas("tablewidgetv2", { x: 200, y: 300 });
     cy.wait(1000);
-    cy.wait("@updateLayout");
+    // cy.wait("@updateLayout");
     cy.get(".t--property-control-tabledata").then(($el) => {
       cy.updateCodeInput($el, jsContext);
     });

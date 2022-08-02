@@ -14,7 +14,7 @@ describe("prevent duplicate column name in table", function() {
   //   cy.tableColumnPopertyUpdate("id", "TestUpdated");
   //   // Updating the column name ; "email" > "TestUpdated"
   //   cy.tableColumnPopertyUpdate("email", "TestUpdated");
-  //   cy.wait("@updateLayout");
+  //   // cy.wait("@updateLayout");
   //   cy.get(commonlocators.evaluatedTypeTitle).should("exist");
 
   //   // Updating the column name ; "userName" > "TestUpdated2"

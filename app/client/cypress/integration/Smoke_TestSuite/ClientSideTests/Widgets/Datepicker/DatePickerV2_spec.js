@@ -144,7 +144,7 @@ describe("DatePicker Widget Property pane tests with js bindings", function() {
       })
       .type("04/05/2021 06:25");
     cy.selectDateFormat("LLL");
-    cy.wait("@updateLayout");
+    // cy.wait("@updateLayout");
     cy.get(".t--draggable-textwidget .bp3-ui-text")
       .first()
       .should("contain.text", "May 4, 2021 6:25 AM");
@@ -180,7 +180,7 @@ describe("DatePicker Widget Property pane tests with js bindings", function() {
         force: true,
       })
       .type("04/05/2021 06:25");
-    cy.wait("@updateLayout");
+    // cy.wait("@updateLayout");
     // Check if isDirty is set to true
     cy.get(".t--widget-textwidget")
       .first()

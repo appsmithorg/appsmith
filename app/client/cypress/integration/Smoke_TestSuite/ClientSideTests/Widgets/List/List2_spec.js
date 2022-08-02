@@ -59,7 +59,7 @@ describe("List Widget Functionality", function() {
       cy.assertPageSave();
       cy.get(`.t--draggable-${widget}`).should("exist");
       cy.get(widgetsPage.removeWidget).click({ force: true });
-      cy.wait("@updateLayout");
+      // cy.wait("@updateLayout");
     });
 
     disallowed.forEach((widget) => {

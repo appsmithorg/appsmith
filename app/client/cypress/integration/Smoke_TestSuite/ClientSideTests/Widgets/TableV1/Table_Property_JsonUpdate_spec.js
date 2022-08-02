@@ -40,7 +40,7 @@ describe("Test Create Api and Bind to Table widget", function() {
     cy.SearchEntityandOpen("Table1");
     // Change the table data
     cy.testJsontext("tabledata", JSON.stringify(this.data.TableInputWithNull));
-    cy.wait("@updateLayout");
+    // cy.wait("@updateLayout");
     // Verify the columns are visible in property pane
     cy.tableColumnDataValidation("id");
     cy.tableColumnDataValidation("email");
@@ -70,12 +70,12 @@ describe("Test Create Api and Bind to Table widget", function() {
     cy.openPropertyPane("tablewidget");
     // Empty first row
     cy.testJsontext("tabledata", "[]");
-    cy.wait("@updateLayout");
+    // cy.wait("@updateLayout");
     const newTableData = [...this.data.TableInput];
     newTableData[0].userName = "";
     // Change table data from empty to some
     cy.testJsontext("tabledata", JSON.stringify(newTableData));
-    cy.wait("@updateLayout");
+    // cy.wait("@updateLayout");
     const selectedRowsSelector = `.t--widget-tablewidget .tbody .tr.selected-row`;
     // Verify selected row resets on table data changes
     cy.get(selectedRowsSelector).should(($p) => {

@@ -21,7 +21,7 @@ describe("Non ASCII character functionality", () => {
   it("1. should test that Non ASCII characters in the tableData are shown in the table column header", () => {
     cy.openPropertyPane("tablewidgetv2");
     propPane.UpdatePropertyFieldValue("Table Data", JSON.stringify(data));
-    cy.wait("@updateLayout");
+    // cy.wait("@updateLayout");
     Object.keys(data[0]).forEach((column) => {
       cy.get(
         `.t--widget-tablewidgetv2 .thead .th[data-header="${column}"]`,

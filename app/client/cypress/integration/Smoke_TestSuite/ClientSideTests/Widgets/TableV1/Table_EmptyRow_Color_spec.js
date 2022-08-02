@@ -15,12 +15,12 @@ describe("Table Widget empty row color validation", function() {
     cy.editColumn("id");
     // Click on cell background color
     cy.selectColor("cellbackground", -27);
-    cy.wait("@updateLayout");
+    // cy.wait("@updateLayout");
     cy.get(commonlocators.editPropBackButton).click({ force: true });
     cy.wait(1000);
     cy.editColumn("email");
     cy.selectColor("cellbackground", -33);
-    cy.wait("@updateLayout");
+    // cy.wait("@updateLayout");
     cy.get(commonlocators.editPropBackButton).click({ force: true });
 
     // Verify the cell background color of first column

@@ -110,7 +110,7 @@ describe("Tab widget test", function() {
       .eq(1)
       .click({ force: true });
     cy.wait(2000);
-    cy.wait("@updateLayout");
+    // cy.wait("@updateLayout");
     cy.get(publish.tabWidget)
       .contains("Tab 1")
       .should("not.exist");
@@ -118,7 +118,7 @@ describe("Tab widget test", function() {
       .should("be.visible")
       .click({ force: true });
     cy.wait(2000);
-    cy.wait("@updateLayout");
+    // cy.wait("@updateLayout");
     cy.get(Layoutpage.tabWidget)
       .contains("Tab 1")
       .should("be.visible");

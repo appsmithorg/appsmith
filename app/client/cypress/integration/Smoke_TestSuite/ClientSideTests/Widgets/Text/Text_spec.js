@@ -28,7 +28,7 @@ describe("Text Widget Functionality", function() {
       commonlocators.headingTextStyle,
       this.data.TextLabelValue,
     );
-    cy.wait("@updateLayout");
+    // cy.wait("@updateLayout");
     cy.PublishtheApp();
     cy.get(commonlocators.headingTextStyle)
       .should("have.text", this.data.TextLabelValue)
@@ -37,7 +37,7 @@ describe("Text Widget Functionality", function() {
 
   it("Text Email Parsing Validation", function() {
     cy.testCodeMirror("ab.end@domain.com");
-    cy.wait("@updateLayout");
+    // cy.wait("@updateLayout");
     cy.PublishtheApp();
     cy.get(commonlocators.headingTextStyle + " a").should(
       "have.attr",

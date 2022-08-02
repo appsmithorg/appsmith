@@ -23,7 +23,7 @@ describe("Table Widget V2 Functionality", function() {
       commonlocators.tableV2Inner,
     );
     cy.testJsontext("tabledata", JSON.stringify(this.data.TableInput));
-    cy.wait("@updateLayout");
+    // cy.wait("@updateLayout");
   });
 
   it("2. Table Widget V2 Functionality To Verify The Data", function() {

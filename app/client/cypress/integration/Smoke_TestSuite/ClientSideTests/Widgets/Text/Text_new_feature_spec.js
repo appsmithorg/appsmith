@@ -25,7 +25,7 @@ describe("Text Widget color/font/alignment Functionality", function() {
     cy.get(".t--property-control-disablelink .bp3-switch").click({
       force: true,
     });
-    cy.wait("@updateLayout");
+    // cy.wait("@updateLayout");
     // check if it's parsed as text
     cy.contains("a", "https://app.appsmith.com").should("not.exist");
     cy.closePropertyPane();
@@ -47,7 +47,7 @@ describe("Text Widget color/font/alignment Functionality", function() {
       commonlocators.headingTextStyle,
       this.data.TextLabelValueScrollable,
     );
-    cy.wait("@updateLayout");
+    // cy.wait("@updateLayout");
     cy.PublishtheApp();
     cy.get(commonlocators.headingTextStyle)
       .should("have.text", this.data.TextLabelValueScrollable)
@@ -76,12 +76,12 @@ describe("Text Widget color/font/alignment Functionality", function() {
     cy.selectColor("textcolor");
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(500);
-    cy.wait("@updateLayout");
+    // cy.wait("@updateLayout");
     cy.readTextDataValidateCSS("color", "rgb(126, 34, 206)");
     cy.get(widgetsPage.textColor)
       .clear({ force: true })
       .type("purple", { force: true });
-    cy.wait("@updateLayout");
+    // cy.wait("@updateLayout");
     cy.readTextDataValidateCSS("color", "rgb(128, 0, 128)");
 
     //Checks the cell background with color picker
@@ -93,7 +93,7 @@ describe("Text Widget color/font/alignment Functionality", function() {
     cy.selectColor("cellbackgroundcolor");
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(500);
-    cy.wait("@updateLayout");
+    // cy.wait("@updateLayout");
     cy.get(`${widgetsPage.textWidget} .bp3-ui-text`).should(
       "have.css",
       "background-color",
@@ -104,7 +104,7 @@ describe("Text Widget color/font/alignment Functionality", function() {
     cy.get(widgetsPage.cellBackgroundToggle).click({ force: true });
     cy.updateCodeInput(widgetsPage.cellBackground, "purple");
 
-    cy.wait("@updateLayout");
+    // cy.wait("@updateLayout");
     cy.readTextDataValidateCSS("color", "rgb(128, 0, 128)");
   });
 
@@ -132,7 +132,7 @@ describe("Text Widget color/font/alignment Functionality", function() {
     cy.get(commonlocators.textOverflowDropdown)
       .last()
       .should("have.text", "Scroll contents");
-    cy.wait("@updateLayout");
+    // cy.wait("@updateLayout");
     cy.get(commonlocators.headingTextStyle).trigger("mouseover", {
       force: true,
     });
@@ -141,7 +141,7 @@ describe("Text Widget color/font/alignment Functionality", function() {
   });
   it("Test border width, color and verity", function() {
     cy.testJsontext("borderwidth", "10");
-    cy.wait("@updateLayout");
+    // cy.wait("@updateLayout");
     cy.get(`${widgetsPage.textWidget} .t--text-widget-container`).should(
       "have.css",
       "border-width",

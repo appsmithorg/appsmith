@@ -53,7 +53,7 @@ describe("Test Create Api and Bind to Table widget", function() {
     cy.toggleJsAndUpdate("tabledata", "Green");
     // Go back to table property pane
     cy.get(".t--property-pane-back-btn").click({ force: true });
-    cy.wait("@updateLayout");
+    // cy.wait("@updateLayout");
     // verify the cell background color
     cy.readTableV2dataValidateCSS(
       "1",
@@ -83,7 +83,7 @@ describe("Test Create Api and Bind to Table widget", function() {
     cy.SearchEntityandOpen("Table1");
     // Change the table data
     cy.testJsontext("tabledata", JSON.stringify(this.data.TableInputUpdate));
-    cy.wait("@updateLayout");
+    // cy.wait("@updateLayout");
     // verify columns are visible or not in the propert pane
     cy.tableV2ColumnDataValidation("id");
     cy.tableV2ColumnDataValidation("email");

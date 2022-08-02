@@ -96,7 +96,7 @@ describe("Text-Table Binding Functionality", function() {
     cy.get(publish.backToEditor).click();
     cy.openPropertyPane("tablewidget");
     cy.testJsontext("defaultselectedrow", "2");
-    cy.wait("@updateLayout");
+    // cy.wait("@updateLayout");
     cy.get(commonlocators.TableRow)
       .find(".tr.selected-row")
       .then((listing) => {

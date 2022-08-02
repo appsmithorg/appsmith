@@ -92,7 +92,7 @@ describe("Table Widget text wrapping functionality", function() {
         .children()
         .contains(data.columnType)
         .click();
-      cy.wait("@updateLayout");
+      // cy.wait("@updateLayout");
       cy.get(".t--property-control-cellwrapping").should(data.expected);
     });
   });
@@ -109,7 +109,7 @@ describe("Table Widget text wrapping functionality", function() {
         .children()
         .contains(data)
         .click();
-      cy.wait("@updateLayout");
+      // cy.wait("@updateLayout");
       cy.getTableCellHeight(0, 0).then((height) => {
         expect(height).to.equal("28px");
       });

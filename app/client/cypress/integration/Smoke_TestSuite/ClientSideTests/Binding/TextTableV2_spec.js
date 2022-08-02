@@ -99,7 +99,7 @@ describe("Text-Table v2 Binding Functionality", function() {
     cy.get(publish.backToEditor).click();
     cy.openPropertyPane("tablewidgetv2");
     cy.testJsontext("defaultselectedrow", "2");
-    cy.wait("@updateLayout");
+    // cy.wait("@updateLayout");
     cy.get(commonlocators.TableV2Row)
       .find(".tr.selected-row")
       .then((listing) => {

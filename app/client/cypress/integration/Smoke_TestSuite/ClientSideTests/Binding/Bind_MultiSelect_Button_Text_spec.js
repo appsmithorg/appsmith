@@ -63,7 +63,7 @@ Object.entries(widgetsToTest).forEach(([widgetSelector, testConfig]) => {
       cy.get(getWidgetSelector(WIDGET.BUTTON_WIDGET))
         .scrollIntoView()
         .click({ force: true });
-      cy.wait("@updateLayout");
+      // cy.wait("@updateLayout");
       cy.get(".t--widget-buttonwidget:contains('Submit')")
         .scrollIntoView()
         .click({ force: true });

@@ -14,7 +14,7 @@ describe("API Panel Test Functionality", function() {
     cy.SearchEntityandOpen("Table1");
     cy.testJsontext("tabledata", "{{PageLoadApi.data.data}}");
 
-    cy.wait("@updateLayout");
+    // cy.wait("@updateLayout");
 
     cy.get(commonlocators.toastMsg).contains(
       `[PageLoadApi] will be executed automatically on page load`,
@@ -44,7 +44,7 @@ describe("API Panel Test Functionality", function() {
     cy.get(".t--global-search-input").type("Table1{enter}", { delay: 300 });
     cy.wait(2000);
     cy.testJsontext("tabledata", "{{PageLoadApi2.data.data}}");
-    cy.wait("@updateLayout");
+    // cy.wait("@updateLayout");
     cy.reload();
     cy.get(commonlocators.toastMsg).contains(
       `The action "PageLoadApi2" has failed.`,

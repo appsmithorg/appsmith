@@ -10,7 +10,7 @@ describe("Table Widget V2 Filtered Table Data in autocomplete", function() {
 
   it("1. Table Widget V2 Functionality", function() {
     cy.openPropertyPane("tablewidgetv2");
-    cy.wait("@updateLayout");
+    // cy.wait("@updateLayout");
   });
 
   it("2. Table Widget V2 Functionality To Filter and search data", function() {

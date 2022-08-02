@@ -30,8 +30,8 @@ describe("Binding the Datepicker and Text Widget", function() {
     cy.getDate(1, "YYYY-MM-DD").then((date) => {
       cy.log("retured date" + date);
       nextDay = date;
-      cy.wait("@updateLayout");
-      cy.wait("@updateLayout");
+      // cy.wait("@updateLayout");
+      // cy.wait("@updateLayout");
 
       cy.PublishtheApp();
 

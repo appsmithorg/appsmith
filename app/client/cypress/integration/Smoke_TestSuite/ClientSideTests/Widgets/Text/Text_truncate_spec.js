@@ -39,7 +39,7 @@ describe("Text Widget Truncate Functionality", function() {
     cy.get(commonlocators.textOverflowDropdown)
       .last()
       .should("have.text", "Truncate text");
-    cy.wait("@updateLayout");
+    // cy.wait("@updateLayout");
     cy.get(
       `.appsmith_widget_${dsl.dsl.children[0].widgetId} .t--widget-textwidget-truncate`,
     ).should("exist");

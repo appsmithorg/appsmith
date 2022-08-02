@@ -168,7 +168,7 @@ describe("Table widget inline editing functionality", () => {
         .children()
         .contains(data.columnType)
         .click();
-      cy.wait("@updateLayout");
+      // cy.wait("@updateLayout");
       cy.get(".t--property-pane-back-btn").click();
       cy.get(`[data-rbd-draggable-id="step"] .t--card-checkbox input`).should(
         data.expected,
@@ -224,7 +224,7 @@ describe("Table widget inline editing functionality", () => {
         .children()
         .contains(data.columnType)
         .click();
-      cy.wait("@updateLayout");
+      // cy.wait("@updateLayout");
       cy.get(".t--property-control-editable").should(data.expected);
     });
   });
@@ -467,7 +467,7 @@ describe("Table widget inline editing functionality", () => {
         .children()
         .contains(data.columnType)
         .click();
-      cy.wait("@updateLayout");
+      // cy.wait("@updateLayout");
       cy.wait(500);
       cy.get(".t--property-control-onsubmit").should(data.expected);
     });
@@ -521,7 +521,7 @@ describe("Table widget inline editing functionality", () => {
         .children()
         .contains(data.columnType)
         .click();
-      cy.wait("@updateLayout");
+      // cy.wait("@updateLayout");
       cy.wait(500);
       cy.get(".t--property-control-onsubmit").should(data.expected);
     });
