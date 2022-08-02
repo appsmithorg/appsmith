@@ -74,6 +74,7 @@ const InputComponentWrapper = styled((props) => (
   accentColor?: string;
 }>`
   ${labelLayoutStyles}
+
   cursor: ${({ disabled }) => (disabled ? "not-allowed" : "auto")};
   .${Classes.INPUT_GROUP} {
     display: flex;
@@ -81,9 +82,13 @@ const InputComponentWrapper = styled((props) => (
     background: ${(props) =>
       props.disabled ? "var(--wds-color-bg-disabled)" : "white"};
 
-    span, input {
+    span, input, textarea {
       background: ${(props) =>
         props.disabled ? "var(--wds-color-bg-disabled)" : Colors.WHITE};
+        color: ${(props) =>
+          props.disabled
+            ? "var(--wds-color-text-disabled)"
+            : "var(--wds-color-text)"};
     }
 
     > {
@@ -167,6 +172,15 @@ const InputComponentWrapper = styled((props) => (
       border: 0px solid !important;
       box-shadow: none !important;
       background: ${Colors.GREY_3};
+    }
+
+    textarea {
+      background: ${(props) =>
+        props.disabled ? "var(--wds-color-bg-disabled)" : Colors.WHITE};
+        color: ${(props) =>
+          props.disabled
+            ? "var(--wds-color-text-disabled)"
+            : "var(--wds-color-text)"};
     }
 
     .${Classes.INPUT} {
@@ -302,7 +316,7 @@ const StyledNumericInput = styled(NumericInput)`
       span {
         color: var(--wds-color-icon);
         svg {
-          width: 14px;
+          width: 12px;
         }
       }
     }
@@ -359,7 +373,7 @@ const TextInputWrapper = styled.div<{
     border-color: ${({ accentColor, hasError }) =>
       hasError ? Colors.DANGER_SOLID : accentColor};
     box-shadow: ${({ accentColor, hasError }) =>
-      `0px 0px 0px 3px ${lightenColor(
+      `0px 0px 0px 2px ${lightenColor(
         hasError ? Colors.DANGER_SOLID : accentColor,
       )} !important;`};
   }

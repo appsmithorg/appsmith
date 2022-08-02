@@ -15,15 +15,33 @@ const DropdownTriggerIconWrapper = styled.button`
   font-size: 14px;
   line-height: normal;
   letter-spacing: -0.24px;
-  color: #090707;
+  color: var(--wds-color-text);
   border-right: 1px solid var(--wds-color-border);
   gap: 0.25rem;
   padding: 0 0.75rem;
   height: 100%;
   margin-right: 0.625rem;
 
+  &:disabled {
+    color: var(--wds-color-text-disabled);
+
+    .dropdown {
+      background: var(--wds-color-bg-disabled);
+
+      svg {
+        path {
+          fill: var(--wds-color-icon-disabled) !important;
+        }
+      }
+    }
+  }
+
   &:focus {
     background-color: ${Colors.GREY_1};
+
+    .dropdown {
+      background: ${Colors.GREY_1};
+    }
   }
 
   .dropdown {
@@ -32,7 +50,7 @@ const DropdownTriggerIconWrapper = styled.button`
       height: 14px;
 
       path {
-        fill: ${Colors.GREY_10} !important;
+        fill: var(--wds-color-icon) !important;
       }
     }
   }
@@ -74,7 +92,7 @@ export const PopoverStyles = createGlobalStyle<{
     props.portalClassName
   }  .${Classes.INPUT}:active {
       border: 1px solid ${props.accentColor} !important;
-      box-shadow: 0px 0px 0px 3px ${lightenColor(props.accentColor)} !important;
+      box-shadow: 0px 0px 0px 2px ${lightenColor(props.accentColor)} !important;
     }
 
     .${props.portalClassName} .t--dropdown-option:hover,
@@ -103,6 +121,7 @@ export const PopoverStyles = createGlobalStyle<{
       }
 
       input:hover {
+        background: white;
         border: 1px solid var(--wds-color-border-hover);
       }
     }
@@ -186,7 +205,7 @@ export default function CurrencyTypeDropdown(props: CurrencyDropdownProps) {
     >
       {selectedCurrency}
       {props.allowCurrencyChange && (
-        <Icon className="dropdown" name="downArrow" size={IconSize.XXS} />
+        <Icon className="dropdown" name="down-arrow" size={IconSize.XXS} />
       )}
     </DropdownTriggerIconWrapper>
   );
