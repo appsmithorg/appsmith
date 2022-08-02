@@ -2,10 +2,17 @@ import React, { ChangeEventHandler } from "react";
 import BaseControl, { ControlData, ControlProps } from "./BaseControl";
 
 import styled from "constants/DefaultTheme";
-import { ISliderProps, Slider } from "@blueprintjs/core";
+import {
+  Classes,
+  INumericInputProps,
+  ISliderProps,
+  NumericInput,
+  Slider,
+} from "@blueprintjs/core";
 import { Colors } from "constants/Colors";
 import { replayHighlightClass } from "globalStyles/portals";
 import { WidgetHeightLimits } from "constants/WidgetConstants";
+import { ThemeProp } from "components/ads";
 
 const StyledSlider = styled.input<{ progress: number }>`
   & {
@@ -99,6 +106,40 @@ const StyledSlider = styled.input<{ progress: number }>`
   }
 `;
 
+const StyledNumericInput = styled(NumericInput)<ThemeProp & INumericInputProps>`
+  &&& {
+    margin-left: 6px;
+    &.bp3-control-group {
+      .${Classes.INPUT} {
+        &:focus {
+          box-shadow: none;
+          border-radius: 0;
+          border: 1px solid var(--appsmith-input-focus-border-color);
+        }
+      }
+      .bp3-input-group {
+        border-radius: 0;
+        width: 50px;
+        align-self: stretch;
+        input {
+          height: 100%;
+        }
+        .bp3-input {
+          font-size: 14px;
+        }
+      }
+      .bp3-button-group {
+        .bp3-button {
+          border-radius: 0;
+          &:focus {
+            border: 1px solid var(--appsmith-input-focus-border-color);
+          }
+        }
+      }
+    }
+  }
+`;
+
 interface SliderProps {
   onChange: (value: number) => void;
   onRelease: () => void;
@@ -127,13 +168,22 @@ function AdsSlider({ onChange, onRelease, onStart, value }: SliderProps) {
 
 class SliderControl extends BaseControl<SliderControlProps> {
   render() {
+    const max = (this.props.propertyValue || 0) + 100;
     return (
-      <AdsSlider
-        onChange={this.onToggle}
-        onRelease={this.onRelease}
-        onStart={this.onStart}
-        value={this.props.propertyValue}
-      />
+      <div style={{ display: "flex" }}>
+        <AdsSlider
+          onChange={this.onToggle}
+          onRelease={this.onRelease}
+          onStart={this.onStart}
+          value={this.props.propertyValue}
+        />
+        <StyledNumericInput
+          max={max}
+          min={4}
+          onValueChange={this.onToggle}
+          value={this.props.propertyValue}
+        />
+      </div>
     );
   }
 
