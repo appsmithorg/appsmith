@@ -1,4 +1,4 @@
-import { getWidgetSelector, WIDGET } from "../../../../locators/WidgetLocators";
+import { WIDGET } from "../../../../locators/WidgetLocators";
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 const explorer = require("../../../../locators/explorerlocators.json");
 
