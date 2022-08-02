@@ -8,7 +8,6 @@ import { convertPathToString } from "../evaluationUtils";
 export const extractReferencesFromBinding = (
   script: string,
   allPaths: Record<string, true>,
-  includeSubpathTopLevelEntities = false,
 ): string[] => {
   const references: Set<string> = new Set<string>();
   const identifiers = extractIdentifiersFromCode(script);
@@ -20,13 +19,10 @@ export const extractReferencesFromBinding = (
       return;
     }
     const subpaths = toPath(identifier);
+    // return early if top level path is not present in allpaths
+    if (!allPaths.hasOwnProperty(subpaths[0])) return;
     let current = "";
-    // We want to keep going till we reach top level, but not add top level
-    // Eg: Input1.text should not depend on entire Table1 unless it explicitly asked for that.
-    // This is mainly to avoid a lot of unnecessary evals. To explicitly include top level entities
-    // set includeSubpathTopLevelEntities to "true"
-    const minSubpathLength = includeSubpathTopLevelEntities ? 0 : 1;
-    while (subpaths.length > minSubpathLength) {
+    while (subpaths.length > 1) {
       current = convertPathToString(subpaths);
       // We've found the dep, add it and return
       if (allPaths.hasOwnProperty(current)) {
@@ -35,6 +31,10 @@ export const extractReferencesFromBinding = (
       }
       subpaths.pop();
     }
+    // If no reference is found in member expression, and top level path is present in allpaths,
+    // Add top level subpath to references.
+    // E.g for {{JSObject1.unknownProperty}}, JSObject1 is added as a reference.
+    references.add(subpaths[0]);
   });
   return Array.from(references);
 };
@@ -58,7 +58,6 @@ export const getEntityReferencesFromPropertyBindings = (
               extractReferencesFromBinding(
                 binding,
                 dataTreeEvalRef.allKeys,
-                true,
               ).map((reference) => reference.split(".")[0]),
             ),
           ];
