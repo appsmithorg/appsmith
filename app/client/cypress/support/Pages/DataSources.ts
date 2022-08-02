@@ -5,7 +5,7 @@ var DataSourceKVP = {
   Postgres: "PostgreSQL",
   Mongo: "MongoDB",
   MySql: "MySQL",
-};//DataSources KeyValuePair
+}; //DataSources KeyValuePair
 
 export class DataSources {
   private agHelper = ObjectsRegistry.AggregateHelper;
@@ -79,6 +79,10 @@ export class DataSources {
     "//span[text()='" +
     dbName +
     "']/ancestor::div[contains(@class, 't--mock-datasource')][1]";
+  _queryDoc = ".t--datasource-documentation-link";
+  _globalSearchModal = ".t--global-search-modal";
+  _globalSearchInput = (inputText: string) =>
+    "//input[@id='global-search'][@value='" + inputText + "']";
 
   public StartDataSourceRoutes() {
     cy.intercept("PUT", "/api/v1/datasources/*").as("saveDatasource");
@@ -435,7 +439,10 @@ export class DataSources {
     );
   }
 
-  public CreateDataSource(dsType: "Postgres" | "Mongo" | "MySql", navigateToCreateNewDs = true) {
+  public CreateDataSource(
+    dsType: "Postgres" | "Mongo" | "MySql",
+    navigateToCreateNewDs = true,
+  ) {
     let guid: any;
     this.agHelper.GenerateUUID();
     cy.get("@guid").then((uid) => {

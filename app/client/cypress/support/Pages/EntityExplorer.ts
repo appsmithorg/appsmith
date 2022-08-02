@@ -79,7 +79,9 @@ export class EntityExplorer {
   }
 
   public AssertEntityAbsenceInExplorer(entityNameinLeftSidebar: string) {
-    this.agHelper.AssertElementAbsence(this._entityNameInExplorer(entityNameinLeftSidebar));
+    this.agHelper.AssertElementAbsence(
+      this._entityNameInExplorer(entityNameinLeftSidebar),
+    );
   }
 
   public ExpandCollapseEntity(entityName: string, expand = true) {
@@ -116,7 +118,7 @@ export class EntityExplorer {
     }
     if (action == "Delete") {
       jsDelete && this.agHelper.ValidateNetworkStatus("@deleteJSCollection");
-      jsDelete && this.agHelper.WaitUntilToastDisappear("deleted successfully");
+      this.agHelper.WaitUntilToastDisappear("deleted successfully");
     }
   }
 

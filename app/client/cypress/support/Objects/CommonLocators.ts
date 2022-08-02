@@ -28,6 +28,7 @@ export class CommonLocators {
     _toastMsg = "div.t--toast-action"
     _empty = "span[name='no-response']"
     _contextMenuInPane = "span[name='context-menu']"
+    _contextMenuSubItemDiv = (item: string) => "//div[text()='" + item + "'][contains(@class, 'bp3-fill')]"
     _visibleTextDiv = (divText: string) => "//div[text()='" + divText + "']"
     _visibleTextSpan = (spanText: string) => "//span[text()='" + spanText + "']";
     _openWidget = ".widgets .t--entity-add-btn"
