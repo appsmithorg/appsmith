@@ -566,9 +566,13 @@ const DynamicHeightOverlay: React.FC<DynamicHeightOverlayProps> = memo(
           maxY={finalMaxY}
         />
         <OverlayHandles
-          isMaxDotActive={isMaxDotDragging || isMaxDotActive}
+          isMaxDotActive={
+            isMaxDotDragging || isMaxDotActive || isPropertyPaneMaxFieldFocused
+          }
           isMaxDotDragging={isMaxDotDragging}
-          isMinDotActive={isMinDotDragging || isMinDotActive}
+          isMinDotActive={
+            isMinDotDragging || isMinDotActive || isPropertyPaneMinFieldFocused
+          }
           isMinDotDragging={isMinDotDragging}
           maxDragFunctions={{
             onUpdate: onMaxUpdate,
