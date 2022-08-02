@@ -19,13 +19,26 @@ describe("Autocomplete tests", () => {
   });
 
   it("1. JSObject this. autocomplete", () => {
-    jsEditor.CreateJSObject(jsObjectBody);
-
-    jsEditor.CreateJSObject("this.", {
-      paste: false,
-      completeReplace: false,
+    // create js object
+    jsEditor.CreateJSObject(jsObjectBody, {
+      paste: true,
+      completeReplace: true,
       toRun: false,
-      shouldCreateNewJSObj: false,
+      shouldCreateNewJSObj: true,
+    });
+
+    const lineNumber = 5;
+
+    const codeToType = "this.";
+
+    cy.get(`:nth-child(${lineNumber}) > .CodeMirror-line`).click();
+
+    cy.get(".CodeMirror textarea")
+      .focus()
+      .type(`${codeToType}`);
+
+    ["myFun1()", "myFun2()", "myVar1", "myVar2"].forEach((element, index) => {
+      cy.get(`.CodeMirror-hints > :nth-child(${index + 1})`).contains(element);
     });
   });
 });

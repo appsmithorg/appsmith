@@ -143,16 +143,6 @@ export class JSEditor {
         .focus()
         .type(this.selectAllJSObjectContentShortcut)
         .type("{backspace}", { force: true });
-
-      // .type("{uparrow}", { force: true })
-      // .type("{ctrl}{shift}{downarrow}", { force: true })
-      // .type("{del}",{ force: true });
-
-      // cy.get(this.locator._codthis.eeditorTarget).contains('export').click().closest(this.locator._codthis.eeditorTarget)
-      //   .type("{uparrow}", { force: true })
-      //   .type("{ctrl}{shift}{downarrow}", { force: true })
-      //   .type("{backspace}",{ force: true });
-      //.type("{downarrow}{downarrow}{downarrow}{downarrow}{downarrow}{downarrow}{downarrow}{downarrow}{downarrow}{downarrow} ")
     }
 
     cy.get(this.locator._codeMirrorTextArea)
