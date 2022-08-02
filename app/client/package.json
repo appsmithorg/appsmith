@@ -176,7 +176,7 @@
     "test:unit": "$(npm bin)/jest -b --colors --no-cache --silent --coverage --collectCoverage=true --coverageDirectory='../../' --coverageReporters='json-summary'",
     "test:jest": "$(npm bin)/jest --watch",
     "generate:widget": "plop --plopfile generators/index.js",
-    "postinstall": "patch-package",
+    "postinstall": "patch-package && CURRENT_SCOPE=client node ../post-install.js",
     "preinstall": "CURRENT_SCOPE=client node ../build-shared-dep.js"
   },
   "browserslist": [
