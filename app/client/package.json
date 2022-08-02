@@ -178,7 +178,7 @@
     "test:jest": "$(npm bin)/jest --watch",
     "generate:widget": "plop --plopfile generators/index.js",
     "postinstall": "patch-package",
-    "preinstall": "../build-shared-dep.sh"
+    "preinstall": "CURRENT_SCOPE=client node ../build-shared-dep.js"
   },
   "browserslist": [
     ">0.2%",
