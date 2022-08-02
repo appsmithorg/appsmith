@@ -190,9 +190,9 @@ public class DatasourceContextServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void testDatasourceCreate_withUpdatableConnection_recreatesConnectionAlways() {
-        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
-
         MockPluginExecutor mockPluginExecutor = new MockPluginExecutor();
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(mockPluginExecutor));
+
         MockPluginExecutor spyMockPluginExecutor = spy(mockPluginExecutor);
         /* Return two different connection objects if `datasourceCreate` method is called twice */
         doReturn(Mono.just((UpdatableConnection) auth -> new DBAuth()))
@@ -201,7 +201,7 @@ public class DatasourceContextServiceTest {
 
         Mono<Plugin> pluginMono = pluginService.findByName("Installed Plugin Name");
         Datasource datasource = new Datasource();
-        datasource.setName("test datasource name for authenticated fields decryption test");
+        datasource.setName("test datasource name for updatable connection test");
         DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
         datasourceConfiguration.setUrl("http://test.com");
         DBAuth authenticationDTO = new DBAuth();
