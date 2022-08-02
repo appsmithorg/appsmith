@@ -215,9 +215,7 @@ describe("UUID Datatype tests", function() {
   });
 
   it.only("9. Updating record - uuidtype - updating v4, guid", () => {
-    table.SelectTableRow(2); //As Table Selected row has issues due to fast selction
-    agHelper.Sleep(2000); //for table selection to be captured
-
+    //table.SelectTableRow(2); //As Table Selected row has issues due to fast selction
     table.ReadTableRowColumnData(2, 1, 200).then(($oldV1) => {
       table.ReadTableRowColumnData(2, 2, 2000).then(($oldV4) => {
         table.ReadTableRowColumnData(2, 3, 2000).then(($oldguid) => {
