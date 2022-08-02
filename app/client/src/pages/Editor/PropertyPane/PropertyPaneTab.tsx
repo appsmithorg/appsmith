@@ -11,6 +11,10 @@ const StyledTabComponent = styled(TabComponent)`
   .react-tabs__tab-list {
     display: none;
   }
+
+  .react-tabs__tab-panel {
+    overflow: initial;
+  }
 `;
 
 const StyledTabs = styled(Tabs)`
