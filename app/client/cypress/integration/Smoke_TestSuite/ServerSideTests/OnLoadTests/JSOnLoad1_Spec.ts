@@ -1,6 +1,6 @@
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 
-let dsName: any, jsName: any, dsl: any;
+let dsName: any, jsName: any;
 const agHelper = ObjectsRegistry.AggregateHelper,
   ee = ObjectsRegistry.EntityExplorer,
   dataSources = ObjectsRegistry.DataSources,
@@ -15,12 +15,11 @@ const agHelper = ObjectsRegistry.AggregateHelper,
 describe("JSObjects OnLoad Actions tests", function() {
   before(() => {
     cy.fixture("tablev1NewDsl").then((val: any) => {
-      dsl = val;
+      agHelper.AddDsl(val);
     });
   });
 
   it("1. Create Postgress DS & the query", function() {
-    agHelper.AddDsl(dsl);
     ee.NavigateToSwitcher("explorer");
     dataSources.CreateDataSource("Postgres");
     cy.get("@dsName").then(($dsName) => {
@@ -376,7 +375,7 @@ describe("JSObjects OnLoad Actions tests", function() {
     ee.SelectEntityByName("Image1", "WIDGETS");
     jsEditor.EnterJSContext(
       "onClick",
-      `{{CatFacts.run(() => showAlert('Your cat fact is :'+ CatFacts.data.fact,'success'), () => showAlert('Oh No!','error'))}}`
+      `{{CatFacts.run(() => showAlert('Your cat fact is :'+ CatFacts.data.fact,'success'), () => showAlert('Oh No!','error'))}}`,
     );
 
     ee.SelectEntityByName("Quotes", "QUERIES/JS");

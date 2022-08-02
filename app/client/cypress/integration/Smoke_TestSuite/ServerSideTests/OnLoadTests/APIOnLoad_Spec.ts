@@ -1,6 +1,6 @@
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 
-let dsl: any, dataSet: any;
+let dataSet: any;
 const ee = ObjectsRegistry.EntityExplorer,
   agHelper = ObjectsRegistry.AggregateHelper,
   propPane = ObjectsRegistry.PropertyPane,
@@ -9,7 +9,7 @@ const ee = ObjectsRegistry.EntityExplorer,
 describe("JSObjects OnLoad Actions tests", function() {
   before(() => {
     cy.fixture("tableWidgetDsl").then((val: any) => {
-      dsl = val;
+      agHelper.AddDsl(val);
     });
     cy.fixture("testdata").then(function(data: any) {
       dataSet = data;
@@ -17,7 +17,6 @@ describe("JSObjects OnLoad Actions tests", function() {
   });
 
   it("1. Api mapping on page load", function() {
-    agHelper.AddDsl(dsl);
     ee.NavigateToSwitcher("explorer");
     apiPage.CreateAndFillApi(dataSet.baseUrl + dataSet.methods, "PageLoadApi");
     ee.ExpandCollapseEntity("Container3");
