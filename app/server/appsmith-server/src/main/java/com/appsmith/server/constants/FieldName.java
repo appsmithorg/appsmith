@@ -116,7 +116,7 @@ public class FieldName {
     public static final String EDIT_MODE_THEME = "editModeTheme";
     public static final String FLOW_NAME = "flowName";
     public static final String ADMINISTRATOR = "Administrator";
-    public static final String WORKSPACE_ADMINISTRATOR_DESCRIPTION = "Can modify all organization settings including " +
+    public static final String WORKSPACE_ADMINISTRATOR_DESCRIPTION = "Can modify all workspace settings including " +
             "editing applications, inviting other users to the organization and exporting applications " +
             "from the organization";
     public static final String DEVELOPER = "Developer";
