@@ -17,7 +17,7 @@ import { ButtonVariant } from "components/constants";
 export type EditableCell = {
   column: string;
   index: number;
-  value: string;
+  value: string | number;
   initialValue: string;
 };
 
@@ -85,7 +85,7 @@ export const getCurrentRowBinding = (
   userInput: string,
   withBinding = true,
 ) => {
-  let rowBinding = `${entityName}.sanatizedTableData.map((currentRow) => ( ${userInput}))`;
+  let rowBinding = `${entityName}.processedTableData.map((currentRow, currentIndex) => ( ${userInput}))`;
   if (withBinding) rowBinding = `{{${rowBinding}}}`;
   return rowBinding;
 };

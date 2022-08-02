@@ -11,11 +11,12 @@ const Wrapper = styled.div<{
   allowCellWrapping?: boolean;
   verticalAlignment?: VerticalAlignment;
   textSize?: string;
-  isCellValid: boolean;
+  isEditableCellValid: boolean;
 }>`
   padding: 1px;
   border: 1px solid
-    ${(props) => (props.isCellValid ? props.accentColor : Colors.DANGER_SOLID)};
+    ${(props) =>
+      props.isEditableCellValid ? props.accentColor : Colors.DANGER_SOLID};
   background: #fff;
   position: absolute;
   width: 100%;
@@ -84,14 +85,14 @@ type InlineEditorPropsType = {
   allowCellWrapping?: boolean;
   verticalAlignment?: VerticalAlignment;
   textSize?: string;
-  isCellValid: boolean;
+  isEditableCellValid: boolean;
 };
 
 export function InlineCellEditor({
   accentColor,
   compactMode,
   inputType = InputTypes.TEXT,
-  isCellValid,
+  isEditableCellValid,
   multiline,
   onChange,
   onDiscard,
@@ -152,7 +153,7 @@ export function InlineCellEditor({
       allowCellWrapping={allowCellWrapping}
       className="t--inlined-cell-editor"
       compactMode={compactMode}
-      isCellValid={isCellValid}
+      isEditableCellValid={isEditableCellValid}
       textSize={textSize}
       verticalAlignment={verticalAlignment}
     >

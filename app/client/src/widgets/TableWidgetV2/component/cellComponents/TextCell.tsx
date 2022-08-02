@@ -107,8 +107,8 @@ export function TextCell({
   horizontalAlignment,
   isCellEditable,
   isCellEditMode,
-  isCellValid,
   isCellVisible,
+  isEditableCellValid,
   isHidden,
   onChange,
   onDiscard,
@@ -150,7 +150,7 @@ export function TextCell({
             ? InputTypes.NUMBER
             : InputTypes.TEXT
         }
-        isCellValid={isCellValid}
+        isEditableCellValid={isEditableCellValid}
         multiline={isMultiline}
         onChange={onChange}
         onDiscard={onDiscard}
