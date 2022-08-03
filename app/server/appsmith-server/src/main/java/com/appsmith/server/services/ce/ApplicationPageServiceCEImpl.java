@@ -41,6 +41,7 @@ import com.appsmith.server.services.NewActionService;
 import com.appsmith.server.services.NewPageService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.ThemeService;
+import com.appsmith.server.services.WorkspaceService;
 import com.google.common.base.Strings;
 import com.mongodb.client.result.UpdateResult;
 import lombok.RequiredArgsConstructor;
@@ -77,6 +78,7 @@ import static org.apache.commons.lang.ObjectUtils.defaultIfNull;
 @RequiredArgsConstructor
 public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
 
+    private final WorkspaceService workspaceService;
     private final ApplicationService applicationService;
     private final SessionUserService sessionUserService;
     private final WorkspaceRepository workspaceRepository;
@@ -233,7 +235,9 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
 
         AclPermission permission = viewMode ? READ_PAGES : MANAGE_PAGES;
         return newPageService.findByBranchNameAndDefaultPageId(branchName, defaultPageId, permission)
-                .flatMap(newPage -> getPage(newPage.getId(), viewMode))
+                .flatMap(newPage -> {
+                    return sendPageViewAnalyticsEvent(newPage, viewMode).then(getPage(newPage.getId(), viewMode));
+                })
                 .map(responseUtils::updatePageDTOWithDefaultResources);
     }
 
@@ -781,7 +785,8 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                                                         application.getId(), editModeThemeId, publishedModeThemeId, MANAGE_APPLICATIONS
                                                 ).thenReturn(application);
                                             })
-                            );
+                            )
+                            .flatMap(application -> sendCloneApplicationAnalyticsEvent(sourceApplication, application));
                 });
 
         // Clone Application is currently a slow API because it needs to create application, clone all the pages, and then
@@ -994,12 +999,8 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                 .flatMap(actionCollectionService::save)
                 .collectList();
 
-        return Mono.when(
-                        publishApplicationAndPages,
-                        publishedActionsListMono,
-                        publishedActionCollectionsListMono,
-                        publishThemeMono
-                )
+        return publishApplicationAndPages
+                .flatMap(newPages -> Mono.zip(publishedActionsListMono, publishedActionCollectionsListMono, publishThemeMono))
                 .then(sendApplicationPublishedEvent(publishApplicationAndPages, publishedActionsListMono, publishedActionCollectionsListMono, applicationId, isPublishedManually));
     }
 
@@ -1107,5 +1108,52 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                 });
     }
 
+    /**
+     * To send analytics event for cloning an application
+     * @param sourceApplication The application from which cloning is done
+     * @param application The newly created application by cloning
+     * @return The newly created application by cloning
+     */
+    private Mono<Application> sendCloneApplicationAnalyticsEvent(Application sourceApplication, Application application) {
+        return workspaceService.getById(application.getWorkspaceId())
+                .flatMap(workspace -> {
+                    final Map<String, Object> auditData = Map.of(
+                            FieldName.SOURCE_APPLICATION, sourceApplication,
+                            FieldName.APPLICATION, application,
+                            FieldName.WORKSPACE, workspace
+                    );
 
+                    final Map<String, Object> data = Map.of(
+                            FieldName.SOURCE_APPLICATION_ID, sourceApplication.getId(),
+                            FieldName.APPLICATION_ID, application.getId(),
+                            FieldName.WORKSPACE_ID, workspace.getId(),
+                            FieldName.AUDIT_DATA, auditData
+                    );
+
+                    return analyticsService.sendObjectEvent(AnalyticsEvents.CLONE, application, data);
+                });
+    }
+
+    /**
+     * To send analytics event for page views
+     * @param newPage Page being accessed
+     * @param viewMode Page is accessed in view mode or not
+     * @return NewPage
+     */
+    private Mono<NewPage> sendPageViewAnalyticsEvent(NewPage newPage, boolean viewMode) {
+        if (!viewMode) {
+            return Mono.empty();
+        }
+
+        //TODO: Add more audit data
+        final Map<String, Object> auditData = Map.of(
+                FieldName.PAGE, newPage
+        );
+
+        final Map<String, Object> data = Map.of(
+                FieldName.AUDIT_DATA, auditData
+        );
+
+        return analyticsService.sendObjectEvent(AnalyticsEvents.VIEW, newPage, data);
+    }
 }

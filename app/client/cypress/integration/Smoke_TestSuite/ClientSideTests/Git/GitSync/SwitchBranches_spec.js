@@ -229,7 +229,13 @@ describe("Git sync:", function() {
       cy.createGitBranch(childBranchKey);
       cy.CheckAndUnfoldEntityItem("PAGES");
       cy.Createpage(uuid);
-      cy.switchGitBranch("master");
+      cy.get(gitSyncLocators.branchButton).click({ force: true });
+      cy.get(gitSyncLocators.branchSearchInput).type("{selectall}master");
+      cy.wait(400);
+      cy.get(gitSyncLocators.branchListItem)
+        .contains("master")
+        .click();
+      cy.wait(4000);
       cy.contains("Page not found");
     });
   });

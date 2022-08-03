@@ -1,12 +1,10 @@
 const queryLocators = require("../../../../locators/QueryEditor.json");
-const generatePage = require("../../../../locators/GeneratePage.json");
-const datasource = require("../../../../locators/DatasourcesEditor.json");
-const formControls = require("../../../../locators/FormControl.json");
-import homePage from "../../../../locators/HomePage";
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
-let ee = ObjectsRegistry.EntityExplorer;
 
-let datasourceName;
+let guid, datasourceName;
+
+let dataSources = ObjectsRegistry.DataSources,
+agHelper = ObjectsRegistry.AggregateHelper;
 
 describe("Verify setting tab form controls not to have tooltip and tooltip (underline) styles", function() {
   beforeEach(() => {
@@ -14,15 +12,10 @@ describe("Verify setting tab form controls not to have tooltip and tooltip (unde
   });
 
   it("1. Creates a new Mongo datasource", function() {
-    cy.NavigateToDatasourceEditor();
-    cy.get(datasource.MongoDB).click();
-    cy.getPluginFormsAndCreateDatasource();
-    cy.fillMongoDatasourceForm();
-    cy.generateUUID().then((uid) => {
-      datasourceName = `Mongo CRUD ds ${uid}`;
-      cy.renameDatasource(datasourceName);
+    dataSources.CreateDataSource("Mongo");
+    cy.get("@dsName").then(($dsName) => {
+      datasourceName = $dsName;
     });
-    cy.testSaveDatasource();
   });
 
   it("2. We make sure the label in the settings tab does not have any underline styles", function() {
@@ -57,5 +50,9 @@ describe("Verify setting tab form controls not to have tooltip and tooltip (unde
           expect(afterBorderBottom).to.equal("");
         });
       });
+
+      agHelper.ActionContextMenuWithInPane("Delete");
+      dataSources.DeleteDatasouceFromActiveTab(datasourceName, 200);
+
   });
 });

@@ -8,5 +8,7 @@
   "samlUrlTab": "[data-cy='t--tab-METADATA_URL']",
   "samlXmlTab": "[data-cy='t--tab-XML']",
   "samlIdpTab": "[data-cy='t--tab-IDP_DATA']",
-  "disconnectBtn": "[data-testid='disconnect-service-button']"
+  "disconnectBtn": "[data-testid='disconnect-service-button']",
+  "hideAppsmithWatermarkSetting": ".admin-settings-group-appsmith-hide-watermark"
 }
+
