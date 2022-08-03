@@ -108,7 +108,6 @@ describe("Canvas Hot Keys", () => {
               getMousePosition={() => {
                 return { x: 0, y: 0 };
               }}
-              isCommentMode={false}
             >
               <UpdatedMainContainer dsl={dsl} />
             </GlobalHotKeys>
@@ -233,7 +232,6 @@ describe("Canvas Hot Keys", () => {
               getMousePosition={() => {
                 return { x: 0, y: 0 };
               }}
-              isCommentMode={false}
             >
               <UpdatedMainContainer dsl={dsl} />
             </GlobalHotKeys>
@@ -282,7 +280,6 @@ describe("Canvas Hot Keys", () => {
               getMousePosition={() => {
                 return { x: 0, y: 0 };
               }}
-              isCommentMode={false}
             >
               <UpdatedMainContainer dsl={dsl} />
             </GlobalHotKeys>
@@ -374,7 +371,6 @@ describe("Canvas Hot Keys", () => {
               getMousePosition={() => {
                 return { x: 0, y: 0 };
               }}
-              isCommentMode={false}
             >
               <UpdatedMainContainer dsl={dsl} />
             </GlobalHotKeys>
@@ -436,7 +432,6 @@ describe("Cut/Copy/Paste hotkey", () => {
           getMousePosition={() => {
             return { x: 0, y: 0 };
           }}
-          isCommentMode={false}
         >
           <MockCanvas />
         </GlobalHotKeys>
@@ -522,7 +517,6 @@ describe("Cut/Copy/Paste hotkey", () => {
           getMousePosition={() => {
             return { x: 0, y: 0 };
           }}
-          isCommentMode={false}
         >
           <MockCanvas />
         </GlobalHotKeys>
@@ -598,7 +592,6 @@ describe("Undo/Redo hotkey", () => {
           getMousePosition={() => {
             return { x: 0, y: 0 };
           }}
-          isCommentMode={false}
         >
           <MockCanvas />
         </GlobalHotKeys>
@@ -629,7 +622,6 @@ describe("Undo/Redo hotkey", () => {
           getMousePosition={() => {
             return { x: 0, y: 0 };
           }}
-          isCommentMode={false}
         >
           <MockCanvas />
         </GlobalHotKeys>
@@ -660,7 +652,6 @@ describe("Undo/Redo hotkey", () => {
           getMousePosition={() => {
             return { x: 0, y: 0 };
           }}
-          isCommentMode={false}
         >
           <MockCanvas />
         </GlobalHotKeys>
@@ -701,7 +692,6 @@ describe("cmd + s hotkey", () => {
           getMousePosition={() => {
             return { x: 0, y: 0 };
           }}
-          isCommentMode={false}
         >
           <div />
         </GlobalHotKeys>

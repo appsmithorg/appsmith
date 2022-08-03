@@ -41,7 +41,7 @@ public class UserSession {
 
     private static final String PASSWORD_PROVIDER = "password";
 
-    private static final Set<String> ALLOWED_OAUTH_PROVIDERS = Set.of("google", "github");
+    private static final Set<String> ALLOWED_OAUTH_PROVIDERS = LoginSource.getNonFormSources();
 
     /**
      * We don't expect this class to be instantiated outside this class. Remove this constructor when needed.

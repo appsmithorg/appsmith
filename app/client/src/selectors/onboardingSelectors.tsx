@@ -13,7 +13,6 @@ import {
 } from "./entitiesSelector";
 import { getSelectedWidget } from "./ui";
 import { GuidedTourEntityNames } from "pages/Editor/GuidedTour/constants";
-import { commentModeSelector } from "./commentsSelectors";
 
 // Signposting selectors
 export const getEnableFirstTimeUserOnboarding = (state: AppState) => {
@@ -55,20 +54,17 @@ export const getIsOnboardingTasksView = createSelector(
   getIsFirstTimeUserOnboardingEnabled,
   getIsOnboardingWidgetSelection,
   previewModeSelector,
-  commentModeSelector,
   (
     widgets,
     enableFirstTimeUserOnboarding,
     isOnboardingWidgetSelection,
     inPreviewMode,
-    inCommentMode,
   ) => {
     return (
       Object.keys(widgets).length == 1 &&
       enableFirstTimeUserOnboarding &&
       !isOnboardingWidgetSelection &&
-      !inPreviewMode &&
-      !inCommentMode
+      !inPreviewMode
     );
   },
 );
