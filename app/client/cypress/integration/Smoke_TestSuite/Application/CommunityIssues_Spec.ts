@@ -310,7 +310,7 @@ describe("AForce - Community Issues page validations", function() {
       .GetNClick(locator._inputWidgetv1InDeployed, 0, true, 0)
       .type("-updating title");
     agHelper
-      .GetNClick(locator._textAreainputWidgetv1InDeployed)
+      .GetNClick(locator._textAreainputWidgetv1InDeployed, 0, true, 0)
       .type("-updating desc");
     agHelper
       .GetNClick(locator._inputWidgetv1InDeployed, 1)
@@ -373,7 +373,7 @@ describe("AForce - Community Issues page validations", function() {
     agHelper.Sleep();
     cy.get(table._trashIcon)
       .closest("div")
-      .click();
+      .click({ force: true });
     agHelper.Sleep(3000); //allowing time to delete!
     agHelper.AssertElementAbsence(locator._widgetInDeployed("tabswidget"));
     table.WaitForTableEmpty();
