@@ -268,10 +268,13 @@ export function* evaluateAndExecuteDynamicTrigger(
           );
         }
       }
+      // Check for any logs in the response and store them in the redux store
       if (requestData.result.logs.length) {
         requestData.result.logs.forEach((log: Message) => {
           AppsmithConsole.info(
-            { text: createLogTitleString(log.data) },
+            {
+              text: createLogTitleString(log.data),
+            },
             log.timestamp,
           );
         });
@@ -371,7 +374,7 @@ export function* executeFunction(
   let response: {
     errors: any[];
     result: any;
-    logs?: any[];
+    logs?: Message[];
   };
 
   if (isAsync) {
@@ -396,6 +399,7 @@ export function* executeFunction(
 
   const { errors, logs, result } = response;
 
+  // Check for any logs in the response and store them in the redux store
   if (!!logs && logs.length > 0) {
     logs.forEach((log: Message) => {
       AppsmithConsole.info({

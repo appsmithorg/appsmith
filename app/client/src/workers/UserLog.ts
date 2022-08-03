@@ -14,6 +14,7 @@ export type Methods =
   | "count"
   | "assert";
 
+// Type of the log object
 export interface Message {
   method: Methods | "result";
   data: any[];
@@ -21,6 +22,7 @@ export interface Message {
   id: string;
 }
 
+// Converts the data from the log object to a string
 export function createLogTitleString(data: any[]) {
   // convert mixed array to string
   return data.reduce((acc, curr) => {
@@ -40,6 +42,7 @@ class UserLog {
     this.initiate();
   }
   private logs: Message[] = [];
+  // initiates the log object with the default methods and their overrides
   private initiate() {
     const { debug, error, info, log, table, warn } = console;
     console = {
@@ -109,8 +112,8 @@ class UserLog {
     }
     return data;
   }
+  // iterates over the data and if data is object/array, then it will remove any functions from it
   public sanitizeData(data: any): any {
-    // iterates over the data and if data is object/array, then it will remove any functions from it
     let returnData = [];
 
     try {
@@ -118,18 +121,19 @@ class UserLog {
         if (typeof item === "object") {
           return this.replaceFunctionWithNamesFromObjects(item);
         }
+
+        // if the item is a function, then remove it from the data and return it as name of the function
         if (typeof item === "function") {
           return item.name;
         }
         return item;
       });
     } catch (e) {
-      returnData = [
-        `There was some error: ${e} ${typeof data} ${JSON.stringify(data)}`,
-      ];
+      returnData = [`There was some error: ${e} ${JSON.stringify(data)}`];
     }
     return returnData;
   }
+  // returns the logs from the function execution after sanitising them
   public flushLogs() {
     const userLogs = this.logs;
     this.resetLogs();
@@ -142,8 +146,9 @@ class UserLog {
     });
     return sanitisedLogs;
   }
+
+  // parses the incoming log and converts it to the log object
   public parseLogs(method: Methods | "result", data: any[]) {
-    // this.logs.push({ method, value: JSON.stringify(args) });
     // Create an ID
     const id = uuid4();
     const timestamp = this.getTimestamp();
