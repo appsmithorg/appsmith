@@ -8,11 +8,6 @@ const {
 } = ObjectsRegistry;
 
 describe("Autocomplete bug fixes", function() {
-  before(() => {
-    EntityExplorer.DragDropWidgetNVerify(WIDGET.TABLE_WIDGET_V2, 200, 200);
-    EntityExplorer.DragDropWidgetNVerify(WIDGET.TEXT, 200, 600);
-  });
-
   const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
   it("1. Bug #12790 Verifies if selectedRow is in best match", function() {
     EntityExplorer.DragDropWidgetNVerify(WIDGET.TABLE_WIDGET_V2, 200, 200);
@@ -49,7 +44,7 @@ describe("Autocomplete bug fixes", function() {
       .should("have.text", "Text1Copy.text");
   });
 
-  it.only("3. Bug #14100 Custom columns name label change should reflect in autocomplete", function() {
+  it("3. Bug #14100 Custom columns name label change should reflect in autocomplete", function() {
     // select table widget
     EntityExplorer.SelectEntityByName("Table1");
     // add new column
