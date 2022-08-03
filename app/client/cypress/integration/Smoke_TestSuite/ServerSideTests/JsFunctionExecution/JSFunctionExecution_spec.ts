@@ -488,7 +488,7 @@ describe("JS Function Execution", function() {
     assertAsyncFunctionsOrder(FUNCTIONS_SETTINGS_RENAMED_DATA);
   });
 
-  it("10. Bug-13197: Verify converting async functions to sync resets all settings", () => {
+  it("10. Bug 13197: Verify converting async functions to sync resets all settings", () => {
     const asyncJSCode = `export default {
       myFun1 : async ()=>{
         return "yes"
