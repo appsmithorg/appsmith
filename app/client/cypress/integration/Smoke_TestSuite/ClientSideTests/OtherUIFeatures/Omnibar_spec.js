@@ -13,7 +13,14 @@ describe("Omnibar functionality test cases", () => {
     cy.addDsl(dsl);
   });
 
-  it("1.Verify omnibar is present across all pages and validate its fields", function() {
+  it("1. Bug #15104 The Data is not displayed in Omnibar after clicking on learn more link from property pane", function() {
+    cy.dragAndDropToCanvas("audiowidget", { x: 300, y: 500 });
+    cy.xpath('//span[text()="Learn more"]').click();
+    cy.get(omnibar.openDocumentationLink).should("be.visible");
+    cy.get("body").click(0, 0);
+  });
+
+  it("2.Verify omnibar is present across all pages and validate its fields", function() {
     cy.get(omnibar.globalSearch)
       .trigger("mouseover")
       .should("have.css", "background-color", "rgb(240, 240, 240)");
@@ -48,7 +55,7 @@ describe("Omnibar functionality test cases", () => {
     cy.get("body").type("{esc}");
   });
 
-  it("2. Verify when user clicks on a debugging error, related documentation should open in omnibar", function() {
+  it("3. Verify when user clicks on a debugging error, related documentation should open in omnibar", function() {
     // click on debugger icon
     cy.get(commonlocators.debugger)
       .should("be.visible")
@@ -71,7 +78,7 @@ describe("Omnibar functionality test cases", () => {
     cy.get(omnibar.globalSearchClose).click();
   });
 
-  it("3. Verify Create New section and its data, also create a new api, new js object and new cURL import from omnibar ", function() {
+  it("4. Verify Create New section and its data, also create a new api, new js object and new cURL import from omnibar ", function() {
     cy.intercept("POST", "/api/v1/actions").as("createNewApi");
     cy.intercept("POST", "/api/v1/collections/actions").as(
       "createNewJSCollection",
@@ -122,7 +129,7 @@ describe("Omnibar functionality test cases", () => {
     cy.get('p:contains("Import from CURL")').should("be.visible");
   });
 
-  it("4. On an invalid search, discord link should be displayed and on clicking that link, should open discord in new tab", function() {
+  it("5. On an invalid search, discord link should be displayed and on clicking that link, should open discord in new tab", function() {
     // typing a random string in search bar
     cy.get(omnibar.globalSearch).click({ force: true });
     cy.wait(1000);
@@ -136,7 +143,7 @@ describe("Omnibar functionality test cases", () => {
         win.location.href = "https://discord.com/invite/rBTTVJp";
       }).as("discordLink");
     });
-    // clicking on discord link should open discord in new tab
+    // clicking on discord link should open discord
     cy.get(omnibar.discordLink).click();
     cy.get("@discordLink").should("be.called");
     cy.wait(500);
@@ -144,7 +151,7 @@ describe("Omnibar functionality test cases", () => {
     cy.wait(2000);
   });
 
-  it("5. Verify Navigate section shows recently opened widgets and datasources", function() {
+  it("6. Verify Navigate section shows recently opened widgets and datasources", function() {
     cy.get(".bp3-icon-chevron-left").click({ force: true });
     cy.openPropertyPane("buttonwidget");
     cy.get(omnibar.globalSearch).click({ force: true });
@@ -169,19 +176,20 @@ describe("Omnibar functionality test cases", () => {
       .should("have.text", "Page1");
   });
 
-  /*it("6. Verify documentation should open in new tab, on clicking open documentation", function() {
-   //cy.get(omnibar.category).click()
-   cy.get(omnibar.globalSearch).click({ force: true });
+  it("7. Verify documentation should open in new tab, on clicking open documentation", function() {
+    //cy.get(omnibar.category).click()
+    cy.get(omnibar.globalSearch).click({ force: true });
     cy.get(omnibar.categoryTitle)
       .eq(3)
       .click({ force: true });
-      cy.window().then((win) => {
-        cy.stub(win, "open", () => {
-          win.location.href = "https://docs.appsmith.com/core-concepts/connecting-to-data-sources";
-        }).as("documentationLink");
-      });
-    cy.get(omnibar.openDocumentationLink).click();
-    cy.get("@documentationLink").should("be.called");
+    cy.get(omnibar.openDocumentationLink)
+      .invoke("removeAttr", "target")
+      .click()
+      .wait(2000);
+    cy.url().should(
+      "eq",
+      "https://docs.appsmith.com/core-concepts/connecting-to-data-sources",
+    ); // => true
     cy.go(-1);
-  }); */
+  });
 });

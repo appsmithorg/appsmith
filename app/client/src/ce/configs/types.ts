@@ -68,4 +68,5 @@ export interface AppsmithUIConfigs {
     apiKey: string;
   };
   appsmithSupportEmail: string;
+  hideWatermark: boolean;
 }

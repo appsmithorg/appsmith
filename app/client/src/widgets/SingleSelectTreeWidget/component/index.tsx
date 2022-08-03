@@ -136,6 +136,7 @@ function SingleSelectTreeComponent({
   const {
     BackDrop,
     getPopupContainer,
+    isOpen,
     onKeyDown,
     onOpen,
     selectRef,
@@ -219,6 +220,7 @@ function SingleSelectTreeComponent({
   return (
     <TreeSelectContainer
       accentColor={accentColor}
+      allowClear={allowClear}
       borderRadius={borderRadius}
       boxShadow={boxShadow}
       compactMode={compactMode}
@@ -283,6 +285,7 @@ function SingleSelectTreeComponent({
           onChange={onSelectionChange}
           onClear={onClear}
           onDropdownVisibleChange={onDropdownVisibleChange}
+          open={isOpen}
           placeholder={placeholder}
           ref={selectRef}
           searchValue={filter}

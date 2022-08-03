@@ -27,12 +27,17 @@ type Props = {
   learnMoreLink: string;
 };
 
+const ConflictInfoContainer = styled.div`
+  margin-top: ${(props) => props.theme.spaces[7]}px;
+  margin-bottom: ${(props) => props.theme.spaces[7]}px;
+`;
+
 export default function ConflictInfo({
   browserSupportedRemoteUrl,
   learnMoreLink,
 }: Props) {
   return (
-    <div data-testid="t--conflict-info-container">
+    <ConflictInfoContainer data-testid="t--conflict-info-container">
       <InfoWrapper data-testid="t--conflict-info-error-warning" isError>
         <Icon fillColor={Colors.CRIMSON} name="info" size={IconSize.XXXL} />
         <div style={{ display: "block" }}>
@@ -58,6 +63,6 @@ export default function ConflictInfo({
           width="max-content"
         />
       </Row>
-    </div>
+    </ConflictInfoContainer>
   );
 }

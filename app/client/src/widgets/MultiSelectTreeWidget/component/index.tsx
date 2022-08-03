@@ -141,6 +141,7 @@ function MultiTreeSelectComponent({
   const {
     BackDrop,
     getPopupContainer,
+    isOpen,
     onKeyDown,
     onOpen,
     selectRef,
@@ -284,6 +285,7 @@ function MultiTreeSelectComponent({
           onChange={onChange}
           onClear={onClear}
           onDropdownVisibleChange={onDropdownVisibleChange}
+          open={isOpen}
           placeholder={placeholder}
           ref={selectRef}
           removeIcon={

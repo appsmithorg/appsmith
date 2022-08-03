@@ -68,6 +68,8 @@ public class GitUtilsTest {
                 .isEqualTo("fort-cheporder");
         assertThat(GitUtils.getRepoName("git@tim.tam.example.com:v3/sladeping/pyhe/SpaceJunk"))
                 .isEqualTo("SpaceJunk");
+        assertThat(GitUtils.getRepoName("git@examplelab-abcd.test.org:org_org/testNewRepo.git"))
+                .isEqualTo("testNewRepo");
     }
 
     @Test

@@ -23,7 +23,6 @@ import org.pf4j.PluginWrapper;
 import org.springframework.http.HttpMethod;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
-
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLDecoder;
@@ -37,13 +36,13 @@ import java.util.Set;
 
 import static java.lang.Boolean.TRUE;
 
+@Slf4j
 public class RestApiPlugin extends BasePlugin {
 
     public RestApiPlugin(PluginWrapper wrapper) {
         super(wrapper);
     }
 
-    @Slf4j
     @Extension
     public static class RestApiPluginExecutor extends BaseRestApiPluginExecutor {
 
