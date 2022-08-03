@@ -4,7 +4,6 @@ const apiwidget = require("../../../../locators/apiWidgetslocator.json");
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 const agHelper = ObjectsRegistry.AggregateHelper;
 
-
 describe("Datasource form OAuth2 authorization code related tests", function() {
   it("Create an API with app url and save as Datasource", function() {
     cy.NavigateToAPI_Panel();
