@@ -215,7 +215,7 @@ function selectSwitchAndReset() {
   cy.get(".t--switch-widget-active").should("not.exist");
   cy.get("button:contains('Submit')").click({ force: true });
   cy.wait(1000);
-  cy.get(".t--toast-assertWidgetReset span").contains("success");
+  cy.get(".t--toast-action span").contains("success");
   cy.get(".t--switch-widget-active").should("be.visible");
 }
 
@@ -360,7 +360,7 @@ function phoneInputWidgetAndReset() {
   });
   cy.get("button:contains('Submit')").click({ force: true });
   cy.wait(1000);
-  cy.get(".t--toast-assertWidgetReset span").contains("success");
+  cy.get(".t--toast-action span").contains("success");
   cy.get(commonlocators.textWidgetContainer).each((item, index, list) => {
     cy.wrap(item).should("contain.text", "");
   });
@@ -380,7 +380,7 @@ function filePickerWidgetAndReset() {
   });
   cy.get("button:contains('Submit')").click({ force: true });
   cy.wait(1000);
-  cy.get(".t--toast-assertWidgetReset span").contains("success");
+  cy.get(".t--toast-action span").contains("success");
   cy.get(commonlocators.textWidgetContainer).each((item, index, list) => {
     cy.wrap(item).should("contain.text", "false");
   });
@@ -418,7 +418,7 @@ Object.entries(widgetsToTest).forEach(([widgetSelector, testConfig]) => {
       // Set onClick assertWidgetReset, storing value
       cy.PublishtheApp();
       testConfig.assertWidgetReset();
-      cy.get(".t--toast-assertWidgetReset span").contains("success");
+      cy.get(".t--toast-action span").contains("success");
     });
 
     it("4. Delete all the widgets on canvas", () => {
