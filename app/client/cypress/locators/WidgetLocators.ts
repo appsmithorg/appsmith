@@ -6,6 +6,23 @@ export const WIDGET = {
   BUTTON_WIDGET: "buttonwidget",
   MULTISELECT_WIDGET: "multiselectwidgetv2",
   BUTTON_GROUP_WIDGET: "buttongroupwidget",
+  TREESELECT_WIDGET: "singleselecttreewidget",
+  TAB: "tabswidget",
+  TABLE: "tablewidgetv2",
+  SWITCHGROUP: "switchgroupwidget",
+  SWITCH: "switchwidget",
+  SELECT: "selectwidget",
+  MULTITREESELECT: "multiselecttreewidget",
+  RADIO_GROUP: "radiogroupwidget",
+  LIST: "listwidget",
+  RATING: "ratewidget",
+  CHECKBOXGROUP: "checkboxgroupwidget",
+  CHECKBOX: "checkboxwidget",
+  AUDIO: "audiowidget",
+  AUDIORECORDER: "audiorecorderwidget",
+  PHONEINPUT: "phoneinputwidget",
+  CAMERA: "camerawidget",
+  FILEPICKER: "filepickerwidgetv2",
 } as const;
 
 export const PROPERTY_SELECTOR = {
