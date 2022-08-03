@@ -1,7 +1,12 @@
 package com.external.plugins;
 
 import com.appsmith.external.constants.Authentication;
-import com.appsmith.external.models.*;
+import com.appsmith.external.models.DatasourceConfiguration;
+import com.appsmith.external.models.Endpoint;
+import com.appsmith.external.models.DBAuth;
+import com.appsmith.external.models.ActionExecutionResult;
+import com.appsmith.external.models.ActionConfiguration;
+import com.appsmith.external.models.RequestParamDTO;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.HttpHost;
 import org.apache.http.auth.AuthScope;
@@ -18,7 +23,6 @@ import org.junit.ClassRule;
 import org.junit.Test;
 import org.springframework.http.HttpMethod;
 import org.testcontainers.elasticsearch.ElasticsearchContainer;
-import org.testcontainers.utility.DockerImageName;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
