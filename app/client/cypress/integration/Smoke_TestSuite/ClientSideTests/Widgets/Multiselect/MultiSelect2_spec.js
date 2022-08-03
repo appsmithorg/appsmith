@@ -69,9 +69,10 @@ describe("MultiSelect Widget Functionality", function() {
       .contains("Option 2")
       .click({ force: true });
     // Assert Option 2 is selected
-    cy.get(".rc-select-selection-item-content")
-      .eq(1)
-      .should("have.text", "Option 2");
+    cy.get(".rc-select-selection-item[title='Option 2']").should(
+      "have.text",
+      "Option 2",
+    );
     // Close the widget
     cy.openPropertyPane("multiselectwidgetv2");
     // Reopen the widget
@@ -207,6 +208,7 @@ describe("MultiSelect Widget Functionality", function() {
         { label: "1", value: "1" },
         { label: "2", value: "2" },
         { label: "3", value: "3" },
+        { label: "4", value: "4" },
       ],
       defaultValue: ["1", "2", "3", "4"],
       optionsToSelect: [],
@@ -217,6 +219,7 @@ describe("MultiSelect Widget Functionality", function() {
         { label: "1", value: "1" },
         { label: "2", value: "2" },
         { label: "3", value: "3" },
+        { label: "4", value: "4" },
       ],
       defaultValue: [],
       optionsToSelect: [],
@@ -227,6 +230,7 @@ describe("MultiSelect Widget Functionality", function() {
         { label: "1", value: "1" },
         { label: "2", value: "2" },
         { label: "3", value: "3" },
+        { label: "4", value: "4" },
       ],
       defaultValue: [{ label: "4", value: "4" }],
       optionsToSelect: [],
