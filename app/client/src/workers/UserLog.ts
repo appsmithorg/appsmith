@@ -28,7 +28,10 @@ export function createLogTitleString(data: any[]) {
     if (typeof curr === "string") {
       return `${acc} ${curr}`;
     }
-    return `${acc} ${JSON.stringify(curr)}`;
+    if (typeof curr === "function") {
+      return `${acc} func() ${curr.name}`;
+    }
+    return `${acc} ${JSON.stringify(curr, null, "\t")}`;
   }, "");
 }
 
@@ -94,10 +97,50 @@ class UserLog {
   public getTimestamp() {
     return moment().format("hh:mm:ss");
   }
+  public replaceFunctionWithNamesFromObjects(data: any) {
+    if (typeof data === "object") {
+      for (const key in data) {
+        if (typeof data[key] === "function") {
+          data[key] = `func() ${data[key].name}`;
+        } else {
+          this.replaceFunctionWithNamesFromObjects(data[key]);
+        }
+      }
+    }
+    return data;
+  }
+  public sanitizeData(data: any): any {
+    // iterates over the data and if data is object/array, then it will remove any functions from it
+    let returnData = [];
+
+    try {
+      returnData = data.map((item: any) => {
+        if (typeof item === "object") {
+          return this.replaceFunctionWithNamesFromObjects(item);
+        }
+        if (typeof item === "function") {
+          return item.name;
+        }
+        return item;
+      });
+    } catch (e) {
+      returnData = [
+        `There was some error: ${e} ${typeof data} ${JSON.stringify(data)}`,
+      ];
+    }
+    return returnData;
+  }
   public flushLogs() {
     const userLogs = this.logs;
     this.resetLogs();
-    return userLogs;
+    // sanitise the data key of the user logs
+    const sanitisedLogs = userLogs.map((log) => {
+      return {
+        ...log,
+        data: this.sanitizeData(log.data),
+      };
+    });
+    return sanitisedLogs;
   }
   public parseLogs(method: Methods | "result", data: any[]) {
     // this.logs.push({ method, value: JSON.stringify(args) });
