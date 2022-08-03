@@ -114,6 +114,7 @@ export type DropdownProps = CommonComponentProps &
     customBadge?: JSX.Element;
     selectedHighlightBg?: string;
     showEmptyOptions?: boolean;
+    portalContainer?: HTMLElement;
   };
 export interface DefaultDropDownValueNodeProps {
   selected: DropdownOption | DropdownOption[];
@@ -1217,6 +1218,7 @@ export default function Dropdown(props: DropdownProps) {
         onInteraction={(state) => !disabled && setIsOpen(state)}
         popoverClassName={`${props.className} none-shadow-popover`}
         portalClassName={props.portalClassName}
+        portalContainer={props.portalContainer}
         position={Position.BOTTOM_LEFT}
         usePortal={!props.dontUsePortal}
       >
