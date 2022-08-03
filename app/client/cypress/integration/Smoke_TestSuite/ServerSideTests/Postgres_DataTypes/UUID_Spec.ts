@@ -43,7 +43,7 @@ describe("UUID Datatype tests", function() {
   });
 
   it.only("2. Creating table query - uuidtype", () => {
-    query = `CREATE table uuidtype (serialid SERIAL primary key, v1 uuid, v4 uuid, guid uuid, nil uuid);;`;
+    query = `CREATE table uuidtype (serialid SERIAL primary key, v1 uuid, v4 uuid, guid uuid, nil uuid);`;
     dataSources.NavigateFromActiveDS(dsName, true);
     agHelper.GetNClick(dataSources._templateMenu);
     agHelper.RenameWithInPane("createTable");
@@ -249,132 +249,66 @@ describe("UUID Datatype tests", function() {
     });
   });
 
-  it("9. Validating UUID (bytea) - escape, hex, base64 functions", () => {
+  it.only("10. Validating UUID functions", () => {
     deployMode.NavigateBacktoEditor();
     table.WaitUntilTableLoad();
     ee.ExpandCollapseEntity("QUERIES/JS");
     dataSources.NavigateFromActiveDS(dsName, true);
     agHelper.RenameWithInPane("verifyUUIDFunctions");
 
-    //Validating zero octet
-    query = `select encode('\\000'::bytea, 'hex') as "zero octet Hex", encode('\\000'::bytea, 'escape') as "zero octet Escape";`;
+    //Validating use of extention
+    query = `CREATE EXTENSION IF NOT EXISTS "uuid-ossp"; CREATE EXTENSION IF NOT EXISTS "pgcrypto"`;
     agHelper.GetNClick(dataSources._templateMenu);
     dataSources.EnterQuery(query);
-    dataSources.RunQuery();
-    dataSources.AssertQueryResponseHeaders([
-      "zero octet Hex",
-      "zero octet Escape",
-    ]);
+    dataSources.RunQueryNVerifyResponseViews(1);
+    dataSources.AssertQueryResponseHeaders(["affectedRows"]);
     dataSources.ReadQueryTableResponse(0).then(($cellData) => {
-      expect($cellData).to.eq("00");
-    });
-    dataSources.ReadQueryTableResponse(1).then(($cellData) => {
-      expect($cellData).to.eq(`\\000`);
+      expect($cellData).to.eq("0");
     });
 
-    //Validating single quote
-    query = `select encode(''''::bytea, 'escape') as "single quote Escape1", encode('\\047'::bytea, 'escape') as "single quote Escape2", encode(''''::bytea, 'hex') as "single quote Hex1", encode('\\047'::bytea, 'hex') as "single quote Hex2", encode(''''::bytea, 'base64') as "single quote Base64";`;
+    //Validating generation of new uuid via the extension package
+    query = `SELECT uuid_generate_v1() as v1, uuid_generate_v4() as v4, gen_random_uuid() as cryptov4, form_uuid1(overlay(overlay(md5(random()::text || ':' || random()::text) placing '4' from 13) placing to_hex(floor(random()*(11-8+1) + 8)::int)::text from 17)::cstring), form_uudi2(md5(random()::text || random()::text)::cstring)`;
     dataSources.EnterQuery(query);
     dataSources.RunQuery();
     dataSources.AssertQueryResponseHeaders([
-      "single quote Escape1",
-      "single quote Escape2",
-      "single quote Hex1",
-      "single quote Hex2",
-      "single quote Base64",
+      "v1",
+      "v4", "cryptov4", "form_uuid1", "form_uuid2"
     ]);
     dataSources.ReadQueryTableResponse(0).then(($cellData) => {
-      expect($cellData).to.eq("'");
+      expect($cellData).not.to.be.empty
     });
     dataSources.ReadQueryTableResponse(1).then(($cellData) => {
-      expect($cellData).to.eq("'");
+      expect($cellData).not.to.be.empty
     });
     dataSources.ReadQueryTableResponse(2).then(($cellData) => {
-      expect($cellData).to.eq("27");
+      expect($cellData).not.to.be.empty
     });
     dataSources.ReadQueryTableResponse(3).then(($cellData) => {
-      expect($cellData).to.eq("27");
+      expect($cellData).not.to.be.empty
     });
     dataSources.ReadQueryTableResponse(4).then(($cellData) => {
-      expect($cellData).to.eq("Jw==");
+      expect($cellData).not.to.be.empty
     });
 
-    //Validating backslash
-    query = `select encode('\\\\'::bytea, 'escape') as "backslash Escape1", encode('\\134'::bytea, 'escape') as "backslash Escape2", encode('\\\\'::bytea, 'hex') as "backslash Hex1", encode('\\134'::bytea, 'hex') as "backslash Hex2", encode('\\\\'::bytea, 'base64') as "backslash Base64";`;
+    //Validating Addition of new column taking default value form package method
+    query = `ALTER TABLE uuidtype ADD COLUMN newUUID uuid DEFAULT uuid_generate_v4();`;
     dataSources.EnterQuery(query);
-    dataSources.RunQuery();
-    dataSources.AssertQueryResponseHeaders([
-      "backslash Escape1",
-      "backslash Escape2",
-      "backslash Hex1",
-      "backslash Hex2",
-      "backslash Base64",
-    ]);
+    dataSources.RunQueryNVerifyResponseViews(1);
+    dataSources.AssertQueryResponseHeaders(["affectedRows"]);
     dataSources.ReadQueryTableResponse(0).then(($cellData) => {
-      expect($cellData).to.eq("\\\\");
+      expect($cellData).to.eq("0");
     });
-    dataSources.ReadQueryTableResponse(1).then(($cellData) => {
-      expect($cellData).to.eq("\\\\");
-    });
-    dataSources.ReadQueryTableResponse(2).then(($cellData) => {
-      expect($cellData).to.eq("5c");
-    });
-    dataSources.ReadQueryTableResponse(3).then(($cellData) => {
-      expect($cellData).to.eq("5c");
-    });
-    dataSources.ReadQueryTableResponse(4).then(($cellData) => {
-      expect($cellData).to.eq("XA==");
-    });
+    //to delpoy & verify
 
-    //Validating random string
-    query = `select encode('abc \\153\\154\\155 \\052\\251\\124'::bytea::bytea, 'escape') as "string bytea_output Escape", encode('abc \\153\\154\\155 \\052\\251\\124'::bytea::bytea, 'hex') as "string bytea_output Hex", encode('abc \\153\\154\\155 \\052\\251\\124'::bytea::bytea, 'base64') as "string bytea_output Base64";`;
+    //Validating altering the new column default value to generate id from pgcrypto package
+    query = `ALTER TABLE uuidtype ALTER COLUMN newUUID SET DEFAULT gen_random_uuid();`;
     dataSources.EnterQuery(query);
-    dataSources.RunQuery();
-    dataSources.AssertQueryResponseHeaders([
-      "string bytea_output Escape",
-      "string bytea_output Hex",
-      "string bytea_output Base64",
-    ]);
+    dataSources.RunQueryNVerifyResponseViews(1);
+    dataSources.AssertQueryResponseHeaders(["affectedRows"]);
     dataSources.ReadQueryTableResponse(0).then(($cellData) => {
-      expect($cellData).to.eq(`abc klm *\\251T`);
+      expect($cellData).to.eq("0");
     });
-    dataSources.ReadQueryTableResponse(1).then(($cellData) => {
-      expect($cellData).to.eq("616263206b6c6d202aa954");
-    });
-    dataSources.ReadQueryTableResponse(2).then(($cellData) => {
-      expect($cellData).to.eq("YWJjIGtsbSAqqVQ=");
-    });
-
-    //Validating text value1
-    query = `select encode(E'123abc456', 'escape') as "Escape1", encode(E'123abc456', 'hex') as "Hex1", encode('abc456', 'escape') as "Escape2", encode('abc456', 'hex') as "Hex2", encode(E'123\\\\000456'::bytea, 'escape') as "Escape3", encode(E'123\\\\000456'::bytea, 'hex') as "Hex3";`;
-    dataSources.EnterQuery(query);
-    dataSources.RunQuery();
-    dataSources.AssertQueryResponseHeaders([
-      "Escape1",
-      "Hex1",
-      "Escape2",
-      "Hex2",
-      "Escape3",
-      "Hex3",
-    ]);
-    dataSources.ReadQueryTableResponse(0).then(($cellData) => {
-      expect($cellData).to.eq("123abc456");
-    });
-    dataSources.ReadQueryTableResponse(1).then(($cellData) => {
-      expect($cellData).to.eq("313233616263343536");
-    });
-    dataSources.ReadQueryTableResponse(2).then(($cellData) => {
-      expect($cellData).to.eq("abc456");
-    });
-    dataSources.ReadQueryTableResponse(3).then(($cellData) => {
-      expect($cellData).to.eq("616263343536");
-    });
-    dataSources.ReadQueryTableResponse(4).then(($cellData) => {
-      expect($cellData).to.eq(`123\\000456`);
-    });
-    dataSources.ReadQueryTableResponse(5).then(($cellData) => {
-      expect($cellData).to.eq("31323300343536");
-    });
+    //to delpoy & verify
 
     agHelper.ActionContextMenuWithInPane("Delete");
     ee.ExpandCollapseEntity("QUERIES/JS", false);
