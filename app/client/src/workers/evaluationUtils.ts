@@ -120,7 +120,11 @@ export const translateDiffEventToDataTreeDiffEvent = (
   }
   const propertyPath = convertPathToString(difference.path);
 
-  result.payload.propertyPath = propertyPath;
+  // add propertyPath to NOOP event
+  result.payload = {
+    propertyPath,
+    value: "",
+  };
 
   //we do not need evaluate these paths coz these are internal paths
   const isUninterestingPathForUpdateTree = isUninterestingChangeForDependencyUpdate(
@@ -146,10 +150,17 @@ export const translateDiffEventToDataTreeDiffEvent = (
       break;
     }
     case "E": {
-      const rhsTypeString = typeof difference.rhs === "string";
-      const isRHSDynamicValue = isDynamicValue(difference.rhs);
-      const lhsTypeString = typeof difference.lhs === "string";
-      const isLHSDynamicValue = isDynamicValue(difference.lhs);
+      let rhsChange, lhsChange;
+      if (isJsAction) {
+        rhsChange = typeof difference.rhs === "string";
+        lhsChange = typeof difference.lhs === "string";
+      } else {
+        rhsChange =
+          typeof difference.rhs === "string" && isDynamicValue(difference.rhs);
+
+        lhsChange =
+          typeof difference.lhs === "string" && isDynamicValue(difference.lhs);
+      }
 
       // JsObject function renaming
       // remove .data from a String instance manually
@@ -157,7 +168,7 @@ export const translateDiffEventToDataTreeDiffEvent = (
       // source for .data in a String instance -> `updateLocalUnEvalTree`
       if (
         isJsAction &&
-        rhsTypeString &&
+        rhsChange &&
         difference.lhs instanceof String &&
         _.get(difference.lhs, "data")
       ) {
@@ -176,10 +187,7 @@ export const translateDiffEventToDataTreeDiffEvent = (
             },
           },
         ];
-      } else if (
-        (rhsTypeString && isRHSDynamicValue) ||
-        (lhsTypeString && isLHSDynamicValue)
-      ) {
+      } else if (rhsChange || lhsChange) {
         result = [
           {
             event: DataTreeDiffEvent.EDIT,
