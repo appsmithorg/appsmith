@@ -52,14 +52,7 @@ export const isWidgetPropertyNamePath = (
       }
       return false;
     }
-    case "TABS_WIDGET": {
-      //  Tabs1.tabsObj.tab0x3cni7xyj.label
-      const subPaths = fullPath.split(".");
-      if (subPaths.length === 4) {
-        return subPaths[1] === "tabsObj" && subPaths[3] === "label";
-      }
-      return false;
-    }
+
     default:
       return false;
   }
