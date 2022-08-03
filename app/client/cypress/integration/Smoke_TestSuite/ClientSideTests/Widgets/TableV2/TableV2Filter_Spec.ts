@@ -641,9 +641,10 @@ describe("Verify various Table_Filter combinations", function() {
   });
 
   it("30. Import TableFilter application & verify all filters for same FirstName (one word column) + Bug 13334", () => {
-    cy.visit("/applications");
+    deployMode.NavigateBacktoEditor();
+    homePage.NavigateToHome();
     homePage.ImportApp("Table/TableFilterImportApp.json");
-    homePage.AssertImport();
+    homePage.AssertImportToast();
     deployMode.DeployApp();
     table.WaitUntilTableLoad();
 

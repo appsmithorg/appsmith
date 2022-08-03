@@ -566,9 +566,7 @@ public class FirestorePlugin extends BasePlugin {
                             return Mono.error(e);
                         }
                         result.setIsExecutionSuccess(true);
-                        System.out.println(
-                                Thread.currentThread().getName()
-                                        + ": In the Firestore Plugin, got action execution result");
+                        log.debug("In the Firestore Plugin, got action execution result");
                         return Mono.just(result);
                     });
         }
@@ -744,10 +742,7 @@ public class FirestorePlugin extends BasePlugin {
                             return Mono.error(e);
                         }
                         result.setIsExecutionSuccess(true);
-                        System.out.println(
-                                Thread.currentThread().getName()
-                                        + ": In the Firestore Plugin, got action execution result for get collection"
-                        );
+                        log.debug("In the Firestore Plugin, got action execution result for get collection");
                         return Mono.just(result);
                     });
         }
@@ -798,10 +793,7 @@ public class FirestorePlugin extends BasePlugin {
                             return Mono.error(e);
                         }
                         result.setIsExecutionSuccess(true);
-                        System.out.println(
-                                Thread.currentThread().getName()
-                                        + ": In the Firestore Plugin, got action execution result for add to collection"
-                        );
+                        log.debug("In the Firestore Plugin, got action execution result for add to collection");
                         return Mono.just(result);
                     });
         }
