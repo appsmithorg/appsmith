@@ -9,6 +9,7 @@ export const TabsWrapper = styled.div`
 
   .react-tabs__tab-list {
     border-bottom: 1px solid var(--appsmith-color-black-200);
+    margin-left: 8px;
   }
 `;
 
@@ -30,7 +31,7 @@ export const HelpPopoverStyle = createGlobalStyle`
 export const StyledBackButton = styled.div`
   display: flex;
   cursor: pointer;
-  margin: 0 0 20px 0;
+  margin: 0 0 20px 8px;
 `;
 
 export const BackButtonText = styled.span`
@@ -56,6 +57,7 @@ export const StyledSearchInput = styled(SearchInput)`
 `;
 
 export const SettingsHeader = styled.h2`
+  padding: 0px 8px;
   font-size: 24px;
   font-weight: 500;
   text-transform: capitalize;
