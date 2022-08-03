@@ -1,6 +1,6 @@
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 
-let guid: any, jsName: any;
+let jsName: any, dsName: any;
 let agHelper = ObjectsRegistry.AggregateHelper,
   dataSources = ObjectsRegistry.DataSources,
   jsEditor = ObjectsRegistry.JSEditor,
@@ -19,40 +19,30 @@ describe("[Bug] - 10784 - Passing params from JS to SQL query should not break",
   });
 
   it("1. With Optional chaining : {{ this?.params?.condition }}", function() {
-    dataSources.NavigateToDSCreateNew();
-    dataSources.CreatePlugIn("PostgreSQL");
-    dataSources.FillPostgresDSForm();
-    agHelper.GenerateUUID();
-    cy.get("@guid").then((uid) => {
-      guid = uid;
-      agHelper.RenameWithInPane(guid, false);
-      dataSources.TestSaveDatasource();
-      cy.log("ds name is :" + guid);
-      dataSources.NavigateFromActiveDS(guid, true);
-      agHelper.GetNClick(dataSources._templateMenu);
-      agHelper.RenameWithInPane("ParamsTest");
-      dataSources.EnterQuery(
+    dataSources.CreateDataSource("Postgres");
+    cy.get("@dsName").then(($dsName) => {
+      dsName = $dsName;
+      dataSources.CreateNewQueryInDS(
+        dsName,
         "SELECT * FROM public.users where id = {{this?.params?.condition || '1=1'}} order by id",
-      );
-      jsEditor.CreateJSObject(
-        'ParamsTest.run(() => {},() => {},{"condition": selRecordFilter.selectedOptionValue})',
-        {
-          paste: true,
-          completeReplace: false,
-          toRun: false,
-          shouldCreateNewJSObj: true,
-        },
+        "ParamsTest",
       );
     });
+
+    jsEditor.CreateJSObject(
+      'ParamsTest.run(() => {},() => {},{"condition": selRecordFilter.selectedOptionValue})',
+      {
+        paste: true,
+        completeReplace: false,
+        toRun: false,
+        shouldCreateNewJSObj: true,
+      },
+    );
+
     ee.SelectEntityByName("Button1", "WIDGETS");
     cy.get("@jsObjName").then((jsObjName) => {
       jsName = jsObjName;
-      jsEditor.EnterJSContext(
-        "onClick",
-        "{{" + jsObjName + ".myFun1()}}",
-        true,
-        true,
-      );
+      propPane.SelectJSFunctionToExecute("onClick", jsName as string, "myFun1")
     });
     ee.SelectEntityByName("Table1");
     propPane.UpdatePropertyFieldValue("Table Data", "{{ParamsTest.data}}");
@@ -231,11 +221,12 @@ describe("[Bug] - 10784 - Passing params from JS to SQL query should not break",
     ee.ActionContextMenuByEntityName(
       jsName as string,
       "Delete",
-      "Are you sure?", true
+      "Are you sure?",
+      true,
     );
     // //Bug 12532
-    // ee.expandCollapseEntity('DATASOURCES')
-    // ee.ActionContextMenuByEntityName(guid, 'Delete', 'Are you sure?')
+    // ee.ExpandCollapseEntity('DATASOURCES')
+    // ee.ActionContextMenuByEntityName(dsName, 'Delete', 'Are you sure?')
     // agHelper.ValidateNetworkStatus("@deleteAction", 200)
   });
 });

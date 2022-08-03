@@ -1,6 +1,6 @@
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 
-let guid: any, dsName: any, query: string, imageNameToUpload: string;
+let dsName: any, query: string, imageNameToUpload: string;
 const agHelper = ObjectsRegistry.AggregateHelper,
   ee = ObjectsRegistry.EntityExplorer,
   dataSources = ObjectsRegistry.DataSources,
@@ -94,7 +94,6 @@ describe("Binary Datatype tests", function() {
     agHelper.ClickButton("Run InsertQuery");
     agHelper.AssertElementVisible(locator._modal);
 
-    agHelper.EnterInputText("Imagename", "Bridge");
     agHelper.ClickButton("Select New Image");
     agHelper.UploadFile(imageNameToUpload);
 
@@ -107,7 +106,7 @@ describe("Binary Datatype tests", function() {
       expect($cellData).to.eq("1"); //asserting serial column is inserting fine in sequence
     });
     table.ReadTableRowColumnData(0, 1, 200).then(($cellData) => {
-      expect($cellData).to.eq("Bridge");
+      expect($cellData).to.eq("Bridge.jpg");
     });
     table.AssertTableRowImageColumnIsLoaded(0, 2).then(($oldimage) => {
       table.AssertTableRowImageColumnIsLoaded(0, 3).then(($newimage) => {
@@ -122,7 +121,6 @@ describe("Binary Datatype tests", function() {
     agHelper.ClickButton("Run InsertQuery");
     agHelper.AssertElementVisible(locator._modal);
 
-    agHelper.EnterInputText("Imagename", "Georgia");
     agHelper.ClickButton("Select New Image");
     agHelper.UploadFile(imageNameToUpload);
 
@@ -135,7 +133,7 @@ describe("Binary Datatype tests", function() {
       expect($cellData).to.eq("2"); //asserting serial column is inserting fine in sequence
     });
     table.ReadTableRowColumnData(1, 1, 200).then(($cellData) => {
-      expect($cellData).to.eq("Georgia");
+      expect($cellData).to.eq("Georgia.jpeg");
     });
     table.AssertTableRowImageColumnIsLoaded(1, 2).then(($oldimage) => {
       table.AssertTableRowImageColumnIsLoaded(1, 3).then(($newimage) => {
@@ -150,7 +148,6 @@ describe("Binary Datatype tests", function() {
     agHelper.ClickButton("Run InsertQuery");
     agHelper.AssertElementVisible(locator._modal);
 
-    agHelper.EnterInputText("Imagename", "Maine");
     agHelper.ClickButton("Select New Image");
     agHelper.UploadFile(imageNameToUpload);
 
@@ -163,7 +160,7 @@ describe("Binary Datatype tests", function() {
       expect($cellData).to.eq("3"); //asserting serial column is inserting fine in sequence
     });
     table.ReadTableRowColumnData(2, 1, 200).then(($cellData) => {
-      expect($cellData).to.eq("Maine");
+      expect($cellData).to.eq("Maine.jpeg");
     });
     table.AssertTableRowImageColumnIsLoaded(2, 2).then(($oldimage) => {
       table.AssertTableRowImageColumnIsLoaded(2, 3).then(($newimage) => {
@@ -179,7 +176,6 @@ describe("Binary Datatype tests", function() {
     agHelper.ClickButton("Run UpdateQuery");
     agHelper.AssertElementVisible(locator._modal);
 
-    agHelper.EnterInputText("Imagename", "New Jersey", true);
     agHelper.ClickButton("Select update image");
     agHelper.UploadFile(imageNameToUpload);
 
@@ -192,7 +188,7 @@ describe("Binary Datatype tests", function() {
       expect($cellData).to.eq("2"); //asserting serial column is inserting fine in sequence
     });
     table.ReadTableRowColumnData(2, 1, 200).then(($cellData) => {
-      expect($cellData).to.eq("New Jersey");
+      expect($cellData).to.eq("NewJersey.jpeg");
     });
     table.AssertTableRowImageColumnIsLoaded(2, 2).then(($oldimage) => {
       table.AssertTableRowImageColumnIsLoaded(2, 3).then(($newimage) => {
@@ -357,7 +353,7 @@ describe("Binary Datatype tests", function() {
     agHelper.ClickButton("Run InsertQuery");
     agHelper.AssertElementVisible(locator._modal);
 
-    agHelper.EnterInputText("Imagename", "Massachusetts");
+    //agHelper.EnterInputText("Imagename", "Massachusetts");
     agHelper.ClickButton("Select New Image");
     agHelper.UploadFile(imageNameToUpload);
 
@@ -370,7 +366,7 @@ describe("Binary Datatype tests", function() {
       expect($cellData).to.eq("4"); //asserting serial column is inserting fine in sequence
     });
     table.ReadTableRowColumnData(0, 1, 200).then(($cellData) => {
-      expect($cellData).to.eq("Massachusetts");
+      expect($cellData).to.eq("Massachusetts.jpeg");
     });
     table.AssertTableRowImageColumnIsLoaded(0, 2).then(($oldimage) => {
       table.AssertTableRowImageColumnIsLoaded(0, 3).then(($newimage) => {
