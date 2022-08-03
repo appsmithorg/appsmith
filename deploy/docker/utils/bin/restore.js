@@ -4,31 +4,51 @@ const os = require('os');
 const readlineSync = require('readline-sync');
 
 const shell = require('shelljs');
+const aws = require('./aws');
 
 const utils = require('./utils');
 const Constants = require('./constants');
 
-async function getBackupFileName() {
-
+async function getBackupFileName(){
   const backupFiles = await utils.listLocalBackupFiles();
-  console.log("\n" + backupFiles.length + " Appsmith backup file(s) found: [Sorted in ascending/chronological order]");
-  if (backupFiles.length == 0) {
-    return;
+  const s3BackupFiles = await aws.listArchivesFromS3Bucket();
+
+  console.log("\n" + backupFiles.length + " local Appsmith backup file(s) found\n" + s3BackupFiles.length + " Appsmith backup file(s) found in S3 bucket.");
+  if (backupFiles.length === 0 && s3BackupFiles === 0){
+    return 
   }
   console.log('----------------------------------------------------------------');
   console.log('Index\t|\tAppsmith Backup Archive File');
   console.log('----------------------------------------------------------------');
-  for (var i = 0; i < backupFiles.length; i++) {
-    if (i === backupFiles.length - 1)
-      console.log(i + '\t|\t' + backupFiles[i] + ' <--Most recent backup');
-    else
-      console.log(i + '\t|\t' + backupFiles[i]);
+
+  if (backupFiles.length > 0){
+    console.log('******** Local archive files (In chronological order) **********');
+    console.log('----------------------------------------------------------------');
   }
+
+  var index = 0
+  for (let i=0; i<backupFiles.length; i++, index++)
+    console.log(index + '\t|\t'+ backupFiles[i]);
+  const s3StartIndex = index;
+  if (s3BackupFiles.length > 0){
+    console.log('----------------------------------------------------------------');
+    console.log('********* S3 bucket archive files (In Chronological Order) *****');
+    console.log('----------------------------------------------------------------');
+  }
+  for (let i=0; i<s3BackupFiles.length; i++, index++)
+    console.log(index + '\t|\t'+ s3BackupFiles[i]);
   console.log('----------------------------------------------------------------');
 
   var backupFileIndex = parseInt(readlineSync.question('Please enter the backup file index: '), 10);
-  if (!isNaN(backupFileIndex) && Number.isInteger(backupFileIndex) && (backupFileIndex >= 0) && (backupFileIndex < backupFiles.length)) {
-    return backupFiles[parseInt(backupFileIndex, 10)];
+  if (!isNaN(backupFileIndex) && Number.isInteger(backupFileIndex) && (backupFileIndex >= 0) && (backupFileIndex < index)){
+    if (backupFileIndex < s3StartIndex){  // local archive
+      return backupFiles[parseInt(backupFileIndex, 10)];
+    }
+    else { // S3 archive
+      const archiveName = s3BackupFiles[parseInt(backupFileIndex, 10) - s3StartIndex];
+      await aws.downloadS3ArchiveFileTolocal(archiveName);
+      return archiveName;
+    }
   }
   else {
     console.log('Invalid input, please try the command again with a valid option');
