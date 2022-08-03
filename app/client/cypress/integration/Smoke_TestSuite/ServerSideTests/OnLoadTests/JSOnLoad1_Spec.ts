@@ -335,7 +335,7 @@ describe("JSObjects OnLoad Actions tests", function() {
       agHelper.AssertElementVisible(jsEditor._dialogBody("WhatTrumpThinks")); //Since JS call is Yes, dependent confirmation should appear aswell!
       agHelper.ClickButton("Yes");
 
-      agHelper.Sleep(2000); //to let the api's call be finished & populate the text fields before validation!
+      agHelper.Sleep(4000); //to let the api's call be finished & populate the text fields before validation!
       agHelper
         .GetText(locator._textAreainputWidgetv2InDeployed, "text", 1)
         .then(($quote) => cy.wrap($quote).should("not.be.empty"));
@@ -536,7 +536,7 @@ describe("JSObjects OnLoad Actions tests", function() {
     agHelper.GetNClick(locator._widgetInDeployed("imagewidget"));
     agHelper.AssertElementVisible(jsEditor._dialogBody("getBooks"));
     agHelper.ClickButton("Yes");
-    agHelper.Sleep(2000);
+    agHelper.Sleep(4000);
     //callBooks, getId confirmations also expected aft bug 13646 is fixed & covering tc 1646
     agHelper
       .GetText(locator._jsonFormInputField("name"), "val")
@@ -565,7 +565,7 @@ describe("JSObjects OnLoad Actions tests", function() {
     );
   });
 
-  it.skip("13. Tc # 57 - Multiple functions set to true for OnPageLoad & Confirmation before running + Bug 15340", () => {});
+  //it.skip("13. Tc # 57 - Multiple functions set to true for OnPageLoad & Confirmation before running + Bug 15340", () => {});
 
   function VerifyFunctionDropdown(
     syncFunctions: string[],

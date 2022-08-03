@@ -10,7 +10,7 @@ const jsEditor = ObjectsRegistry.JSEditor,
 
 const successMessage = "Successful Trigger";
 const errorMessage = "Unsuccessful Trigger";
-let guid: any, dsName: any;
+let dsName: string;
 
 const clickButtonAndAssertLintError = (
   shouldExist: boolean,
@@ -40,11 +40,11 @@ const clickButtonAndAssertLintError = (
 };
 
 const createMySQLDatasourceQuery = () => {
-    // Create Query
-    dataSources.NavigateFromActiveDS(dsName, true);
-    agHelper.GetNClick(dataSources._templateMenu);
-    const tableCreateQuery = `SELECT * FROM spacecrafts LIMIT 10;`;
-    dataSources.EnterQuery(tableCreateQuery);
+  // Create Query
+  dataSources.NavigateFromActiveDS(dsName, true);
+  agHelper.GetNClick(dataSources._templateMenu);
+  const tableCreateQuery = `SELECT * FROM spacecrafts LIMIT 10;`;
+  dataSources.EnterQuery(tableCreateQuery);
 };
 
 describe("Linting", () => {
@@ -53,7 +53,7 @@ describe("Linting", () => {
     ee.NavigateToSwitcher("explorer");
     dataSources.CreateDataSource("MySql");
     cy.get("@dsName").then(($dsName) => {
-      dsName = $dsName;
+      dsName = ($dsName as unknown) as string;
     });
   });
 
@@ -200,7 +200,9 @@ describe("Linting", () => {
       }catch(e){
         showAlert("${errorMessage}")
       }
-    }()}}`, true, true,
+    }()}}`,
+      true,
+      true,
     );
     propPane.UpdatePropertyFieldValue("Tooltip", `{{Query1.name}}`);
     clickButtonAndAssertLintError(true);
@@ -245,7 +247,9 @@ describe("Linting", () => {
         }catch(e){
           showAlert("${errorMessage}")
         }
-      }()}}`, true, true
+      }()}}`,
+      true,
+      true,
     );
     propPane.UpdatePropertyFieldValue(
       "Tooltip",
@@ -289,5 +293,21 @@ describe("Linting", () => {
     createMySQLDatasourceQuery();
 
     clickButtonAndAssertLintError(false);
+  });
+  it("8. Doesn't show lint errors for supported web apis", () => {
+    const JS_OBJECT_WITH_WEB_API = `export default {
+      myFun1: () => {
+          const byteArray = new Uint8Array(1);
+      console.log(crypto.getRandomValues(byteArray));
+      },	
+    }`;
+    jsEditor.CreateJSObject(JS_OBJECT_WITH_WEB_API, {
+      paste: true,
+      completeReplace: true,
+      toRun: false,
+      shouldCreateNewJSObj: true,
+    });
+    // expect no lint error
+    agHelper.AssertElementAbsence(locator._lintErrorElement);
   });
 });
