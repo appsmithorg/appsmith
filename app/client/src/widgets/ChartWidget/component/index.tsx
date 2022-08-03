@@ -15,7 +15,6 @@ import {
 } from "../constants";
 import log from "loglevel";
 import { Colors } from "constants/Colors";
-import { TAILWIND_COLORS } from "constants/ThemeConstants";
 // Leaving this require here. Ref: https://stackoverflow.com/questions/41292559/could-not-find-a-declaration-file-for-module-module-name-path-to-module-nam/42505940#42505940
 // FusionCharts comes with its own typings so there is no need to separately import them. But an import from fusioncharts/core still requires a declaration file.
 const FusionCharts = require("fusioncharts");
@@ -296,7 +295,7 @@ class ChartComponent extends React.Component<ChartComponentProps> {
       captionFontSize: "24",
       captionAlignment: "center",
       captionPadding: "20",
-      captionFontColor: TAILWIND_COLORS.gray["700"],
+      captionFontColor: Colors.THUNDER,
 
       // legend position styling ==========
       legendIconSides: "4",

@@ -1,5 +1,4 @@
 import { Colors } from "constants/Colors";
-import { TAILWIND_COLORS } from "constants/ThemeConstants";
 import { generateReactKey } from "widgets/WidgetUtils";
 import { LabelOrientation } from "./constants";
 import IconSVG from "./icon.svg";
@@ -69,7 +68,7 @@ export const CONFIG = {
           captionFontSize: "24",
           captionAlignment: "center",
           captionPadding: "20",
-          captionFontColor: TAILWIND_COLORS.gray["700"],
+          captionFontColor: Colors.THUNDER,
           // legend position styling ==========
           legendIconSides: "4",
           legendIconBgAlpha: "100",
