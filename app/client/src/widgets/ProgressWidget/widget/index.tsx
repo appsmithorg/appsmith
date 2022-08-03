@@ -197,7 +197,7 @@ class ProgressWidget extends BaseWidget<ProgressWidgetProps, WidgetState> {
           {
             helpText: "Sets the number of steps",
             propertyName: "steps",
-            label: "Number of steps",
+            label: "Number of Steps",
             controlType: "INPUT_TEXT",
             placeholderText: "Enter number of steps",
             isBindProperty: true,

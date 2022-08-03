@@ -247,7 +247,7 @@ class DividerWidget extends BaseWidget<DividerWidgetProps, WidgetState> {
           {
             helpText: "Controls the stroke color of divider",
             propertyName: "dividerColor",
-            label: "Stroke Color",
+            label: "Color",
             controlType: "COLOR_PICKER",
             isBindProperty: true,
             isJSConvertible: true,
@@ -262,7 +262,7 @@ class DividerWidget extends BaseWidget<DividerWidgetProps, WidgetState> {
           {
             helpText: "Controls the style of the divider",
             propertyName: "strokeStyle",
-            label: "Stroke Style",
+            label: "Style",
             controlType: "DROP_DOWN",
             options: [
               {
@@ -292,7 +292,7 @@ class DividerWidget extends BaseWidget<DividerWidgetProps, WidgetState> {
           {
             helpText: "Controls the thickness of divider",
             propertyName: "thickness",
-            label: "Stroke Thickness",
+            label: "Thickness",
             controlType: "INPUT_TEXT",
             placeholderText: "5",
             isBindProperty: true,

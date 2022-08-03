@@ -268,7 +268,7 @@ class TabsWidget extends BaseWidget<
               },
               children: [
                 {
-                  sectionName: "Controls",
+                  sectionName: "General",
                   children: [
                     {
                       propertyName: "isVisible",

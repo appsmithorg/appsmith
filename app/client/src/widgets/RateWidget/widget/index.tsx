@@ -370,7 +370,7 @@ class RateWidget extends BaseWidget<RateWidgetProps, WidgetState> {
         ],
       },
       {
-        sectionName: "Styles",
+        sectionName: "Color",
         children: [
           {
             propertyName: "activeColor",
