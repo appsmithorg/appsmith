@@ -443,12 +443,12 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
       .wait(7000); //for search to finish
     expect(
       cy.xpath(
-        "//div[@data-cy='overlay-comments-wrapper']//span[text()='CRUDNewPageFile']",
+        "//div[@class='positioned-widget']//span[text()='CRUDNewPageFile']",
       ),
     ).to.exist;
 
     cy.xpath(
-      "//div[@data-cy='overlay-comments-wrapper']//span[text()='CRUDNewPageFile']",
+      "//div[@class='positioned-widget']//span[text()='CRUDNewPageFile']",
     ).scrollIntoView();
 
     //Verifying CopyFile URL icon from UI - Browser pop up appearing
@@ -543,16 +543,12 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
       .wait(7000); //for search to finish
     expect(
       cy.xpath(
-        "//div[@data-cy='overlay-comments-wrapper']//span[text()='" +
-          fixturePath +
-          "']",
+        "//div[@class='positioned-widget']//span[text()='" + fixturePath + "']",
       ),
     ).to.exist;
 
     cy.xpath(
-      "//div[@data-cy='overlay-comments-wrapper']//span[text()='" +
-        fixturePath +
-        "']",
+      "//div[@class='positioned-widget']//span[text()='" + fixturePath + "']",
     ).scrollIntoView();
 
     //Verifying DeleteFile icon from UI
@@ -579,9 +575,7 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
     });
 
     cy.xpath(
-      "//div[@data-cy='overlay-comments-wrapper']//span[text()='" +
-        fixturePath +
-        "']",
+      "//div[@class='positioned-widget']//span[text()='" + fixturePath + "']",
     ).should("not.exist"); //verify Deletion of file is success from UI also
 
     //Upload: 2 - Bug verification 9201
@@ -611,16 +605,12 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
       .wait(7000); //for search to finish
     expect(
       cy.xpath(
-        "//div[@data-cy='overlay-comments-wrapper']//span[text()='" +
-          fixturePath +
-          "']",
+        "//div[@class='positioned-widget']//span[text()='" + fixturePath + "']",
       ),
     ).to.exist; //Verifies bug # 9922
 
     cy.xpath(
-      "//div[@data-cy='overlay-comments-wrapper']//span[text()='" +
-        fixturePath +
-        "']",
+      "//div[@class='positioned-widget']//span[text()='" + fixturePath + "']",
     ).scrollIntoView();
 
     cy.wait(3000);
@@ -644,9 +634,7 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
       expect(response.body.data.isExecutionSuccess).to.eq(true);
     });
     cy.xpath(
-      "//div[@data-cy='overlay-comments-wrapper']//span[text()='" +
-        fixturePath +
-        "']",
+      "//div[@class='positioned-widget']//span[text()='" + fixturePath + "']",
     ).should("not.exist"); //verify Deletion of file is success from UI also
 
     //Deleting the page:
