@@ -275,9 +275,9 @@ class ChartComponent extends React.Component<ChartComponentProps> {
     const canvasPadding =
       this.props.chartType === "LINE_CHART"
         ? {
-            canvasLeftPadding: "2",
+            canvasLeftPadding: "5",
             canvasTopPadding: "0",
-            canvasRightPadding: "2",
+            canvasRightPadding: "5",
             canvasBottomPadding: "0",
           }
         : {
@@ -303,6 +303,7 @@ class ChartComponent extends React.Component<ChartComponentProps> {
       legendIconAlpha: "100",
       legendItemFont: fontFamily,
       legendPosition: "top",
+      valueFont: fontFamily,
 
       // Canvas styles ========
       ...canvasPadding,
@@ -315,10 +316,12 @@ class ChartComponent extends React.Component<ChartComponentProps> {
 
       // Axis name styling ======
       xAxisNameFontSize: "14",
+      labelFontSize: "12",
       labelFontColor: Colors.DOVE_GRAY2,
       xAxisNameFontColor: Colors.DOVE_GRAY2,
 
       yAxisNameFontSize: "14",
+      yAxisValueFontSize: "12",
       yAxisValueFontColor: Colors.DOVE_GRAY2,
       yAxisNameFontColor: Colors.DOVE_GRAY2,
 

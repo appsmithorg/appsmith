@@ -83,10 +83,12 @@ export const CONFIG = {
           chartBottomMargin: "10",
           // Axis name styling ======
           xAxisNameFontSize: "14",
+          labelFontSize: "12",
           labelFontColor: Colors.DOVE_GRAY2,
           xAxisNameFontColor: Colors.DOVE_GRAY2,
 
           yAxisNameFontSize: "14",
+          yAxisValueFontSize: "12",
           yAxisValueFontColor: Colors.DOVE_GRAY2,
           yAxisNameFontColor: Colors.DOVE_GRAY2,
         },
