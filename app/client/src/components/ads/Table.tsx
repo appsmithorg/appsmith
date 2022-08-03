@@ -4,6 +4,7 @@ import styled from "styled-components";
 import { ReactComponent as DownArrow } from "assets/icons/ads/down_arrow.svg";
 import { ReactComponent as UpperArrow } from "assets/icons/ads/upper_arrow.svg";
 import { Classes } from "./common";
+import Spinner from "./Spinner";
 
 const Styles = styled.div`
   table {
@@ -84,13 +85,24 @@ const Styles = styled.div`
 const HiddenArrow = styled(DownArrow)`
   visibility: hidden;
 `;
+
+const SpinnerWrapper = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 250px;
+`;
+
 export interface TableProps {
   data: any[];
   columns: any[];
+  isLoading?: boolean;
+  loaderComponent?: JSX.Element;
 }
 
 function Table(props: TableProps) {
-  const { columns, data } = props;
+  const { columns, data, isLoading = false, loaderComponent } = props;
 
   const {
     getTableBodyProps,
@@ -127,24 +139,34 @@ function Table(props: TableProps) {
           ))}
         </thead>
         <tbody {...getTableBodyProps()}>
-          {rows.map((row, index) => {
-            prepareRow(row);
-            return (
-              <tr {...row.getRowProps()} key={index}>
-                {row.cells.map((cell, index) => {
-                  return (
-                    <td
-                      {...cell.getCellProps()}
-                      data-colindex={index}
-                      key={index}
-                    >
-                      {cell.render("Cell")}
-                    </td>
-                  );
-                })}
-              </tr>
-            );
-          })}
+          {isLoading ? (
+            <tr>
+              <td colSpan={columns?.length}>
+                <SpinnerWrapper>
+                  {loaderComponent ? loaderComponent : <Spinner />}
+                </SpinnerWrapper>
+              </td>
+            </tr>
+          ) : (
+            rows.map((row, index) => {
+              prepareRow(row);
+              return (
+                <tr {...row.getRowProps()} key={index}>
+                  {row.cells.map((cell, index) => {
+                    return (
+                      <td
+                        {...cell.getCellProps()}
+                        data-colindex={index}
+                        key={index}
+                      >
+                        {cell.render("Cell")}
+                      </td>
+                    );
+                  })}
+                </tr>
+              );
+            })
+          )}
         </tbody>
       </table>
     </Styles>
