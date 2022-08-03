@@ -183,6 +183,7 @@ export class JSEditor {
       .then((el: JQuery<HTMLElement>) => {
         this.agHelper.Paste(el, newContent);
       });
+    this.agHelper.AssertAutoSave();
   }
 
   public EnterJSContext(
