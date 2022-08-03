@@ -1,9 +1,12 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import styled from "styled-components";
 
 import { Colors } from "constants/Colors";
 import { TabTitle, TabComponent, TabProp } from "components/ads/Tabs";
 import { Tab, TabList, Tabs } from "react-tabs";
+
+// Used as an optimization to avoid mounting of TabPanel unnecessarily
+const WidgetsWithEmptyTabs = new Set(["TABLE_WIDGET_V2"]);
 
 const StyledTabComponent = styled(TabComponent)`
   height: auto;
@@ -84,6 +87,16 @@ export function PropertyPaneTab(props: PropertyPaneTabProps) {
     return arr;
   }, [props.styleComponent, props.contentComponent]);
 
+  const widgetTypeForPanelConfig =
+    props.contentComponent?.props?.children?.props?.type || "";
+
+  const hasEmptyTab = WidgetsWithEmptyTabs.has(widgetTypeForPanelConfig);
+
+  useEffect(() => {
+    const q = document.querySelectorAll(".react-tabs__tab-panel");
+    console.log("bla tabs", widgetTypeForPanelConfig, q);
+  }, [tabs]);
+
   return (
     <>
       <StyledTabs onSelect={setSelectedIndex} selectedIndex={selectedIndex}>
@@ -100,7 +113,11 @@ export function PropertyPaneTab(props: PropertyPaneTabProps) {
           )}
         </TabList>
       </StyledTabs>
-      <StyledTabComponent selectedIndex={selectedIndex} tabs={tabs} />
+      <StyledTabComponent
+        // forceRenderTabPanel={hasEmptyTab}
+        selectedIndex={selectedIndex}
+        tabs={tabs}
+      />
     </>
   );
 }
