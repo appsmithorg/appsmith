@@ -97,12 +97,14 @@ const formToDatasourceAuthentication = (
       headerPrefix: authentication.headerPrefix,
       scopeString: authentication.scopeString,
       clientSecret: authentication.clientSecret,
+      isAuthorizationHeader: authentication.isAuthorizationHeader,
       isTokenHeader: authentication.isTokenHeader,
       audience: authentication.audience,
       resource: authentication.resource,
       sendScopeWithRefreshToken: authentication.sendScopeWithRefreshToken,
       refreshTokenClientCredentialsLocation:
         authentication.refreshTokenClientCredentialsLocation,
+      useSelfSignedCert: authentication.useSelfSignedCert,
     };
     if (isClientCredentials(authType, authentication)) {
       return {
@@ -118,7 +120,6 @@ const formToDatasourceAuthentication = (
         ...oAuth2Common,
         grantType: GrantType.AuthorizationCode,
         authorizationUrl: authentication.authorizationUrl,
-        isAuthorizationHeader: authentication.isAuthorizationHeader,
         isAuthorized: !!authentication.isAuthorized,
         customAuthenticationParameters: cleanupProperties(
           authentication.customAuthenticationParameters,
@@ -185,6 +186,7 @@ const datasourceToFormAuthentication = (
       scopeString: authentication.scopeString || "",
       clientSecret: authentication.clientSecret,
       isTokenHeader: !!authentication.isTokenHeader,
+      isAuthorizationHeader: !!authentication.isAuthorizationHeader,
       audience: authentication.audience || "",
       resource: authentication.resource || "",
       sendScopeWithRefreshToken: authentication.sendScopeWithRefreshToken || "",

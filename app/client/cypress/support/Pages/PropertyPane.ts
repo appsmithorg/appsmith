@@ -24,7 +24,7 @@ export class PropertyPane {
   _fieldConfig = (fieldName: string) =>
     "//input[@placeholder='Field label'][@value='" +
     fieldName +
-    "']/ancestor::div/following-sibling::div[contains(@class, 't--edit-column-btn')]";
+    "']/ancestor::div/following-sibling::div/div[contains(@class, 't--edit-column-btn')]";
   private _goBackToProperty = "button.t--property-pane-back-btn";
   private _copyWidget = "button.t--copy-widget";
   private _deleteWidget = "button.t--delete-widget";
@@ -128,12 +128,20 @@ export class PropertyPane {
     this.agHelper.AssertAutoSave();
   }
 
+  public SelectPropertiesDropDown(endpoint: string, dropdownOption: string) {
+    cy.xpath(this.locator._selectPropDropdown(endpoint))
+      .first()
+      .scrollIntoView()
+      .click();
+    cy.get(this.locator._dropDownValue(dropdownOption)).click();
+  }
+
   public SelectJSFunctionToExecute(
     eventName: string,
     jsName: string,
     funcName: string,
   ) {
-    this.agHelper.SelectPropertiesDropDown(eventName, "Execute a JS function");
+    this.SelectPropertiesDropDown(eventName, "Execute a JS function");
     this.agHelper.GetNClick(this.locator._dropDownValue(jsName), 0, true);
     this.agHelper.GetNClick(this.locator._dropDownValue(funcName), 0, true);
     this.agHelper.AssertAutoSave();
@@ -143,6 +151,22 @@ export class PropertyPane {
     cy.xpath(this.locator._existingFieldTextByName(propFieldName)).then(
       ($field: any) => {
         this.agHelper.UpdateCodeInput($field, valueToEnter);
-      });
+      },
+    );
+  }
+
+  public RemoveText(endp: string) {
+    cy.get(
+      this.locator._propertyControl +
+        endp +
+        " " +
+        this.locator._codeMirrorTextArea,
+    )
+      .first()
+      .focus()
+      .type("{uparrow}", { force: true })
+      .type("{ctrl}{shift}{downarrow}", { force: true })
+      .type("{del}", { force: true });
+    this.agHelper.AssertAutoSave();
   }
 }

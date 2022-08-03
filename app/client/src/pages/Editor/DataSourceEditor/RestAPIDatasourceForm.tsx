@@ -42,9 +42,6 @@ import {
 } from "entities/Datasource/RestAPIForm";
 import {
   createMessage,
-  REST_API_AUTHORIZATION_APPSMITH_ERROR,
-  REST_API_AUTHORIZATION_FAILED,
-  REST_API_AUTHORIZATION_SUCCESSFUL,
   CONTEXT_DELETE,
   CONFIRM_CONTEXT_DELETE,
 } from "@appsmith/constants/messages";
@@ -173,29 +170,11 @@ class DatasourceRestAPIEditor extends React.Component<
     this.state = { confirmDelete: false };
   }
   componentDidMount() {
-    const status = this.props.responseStatus;
-
     // set replay data
     this.props.initializeReplayEntity(
       this.props.datasource.id,
       this.props.initialValues,
     );
-
-    if (status) {
-      // Set default error message
-      let message = REST_API_AUTHORIZATION_FAILED;
-      let variant = Variant.danger;
-      if (status === "success") {
-        message = REST_API_AUTHORIZATION_SUCCESSFUL;
-        variant = Variant.success;
-      } else if (status === "appsmith_error") {
-        message = REST_API_AUTHORIZATION_APPSMITH_ERROR;
-      }
-      Toaster.show({
-        text: this.props.responseMessage || createMessage(message),
-        variant,
-      });
-    }
   }
 
   componentDidUpdate() {
@@ -258,6 +237,12 @@ class DatasourceRestAPIEditor extends React.Component<
     if (_.get(authentication, "grantType") === GrantType.AuthorizationCode) {
       if (_.get(authentication, "isAuthorizationHeader") === undefined) {
         this.props.change("authentication.isAuthorizationHeader", true);
+      }
+    }
+
+    if (_.get(authentication, "grantType") === GrantType.ClientCredentials) {
+      if (_.get(authentication, "isAuthorizationHeader") === undefined) {
+        this.props.change("authentication.isAuthorizationHeader", false);
       }
     }
 
@@ -834,15 +819,39 @@ class DatasourceRestAPIEditor extends React.Component<
             false,
           )}
         </FormInputContainer>
+        <FormInputContainer
+          data-replay-id={btoa("authentication.isAuthorizationHeader")}
+        >
+          {this.renderDropdownControlViaFormControl(
+            "authentication.isAuthorizationHeader",
+            [
+              {
+                label: "Send as Basic Auth header",
+                value: true,
+              },
+              {
+                label: "Send client credentials in body",
+                value: false,
+              },
+            ],
+            "Client Authentication",
+            "",
+            false,
+            "",
+          )}
+        </FormInputContainer>
       </>
     );
   };
 
   renderOauth2AdvancedSettings = () => {
-    const { authentication, authType } = this.props.formData;
+    const { authentication, authType, connection } = this.props.formData;
     const isGrantTypeAuthorizationCode =
       _.get(authentication, "grantType") === GrantType.AuthorizationCode;
     const isAuthenticationTypeOAuth2 = authType === AuthType.OAuth2;
+    const isConnectSelfSigned =
+      _.get(connection, "ssl.authType") === SSLType.SELF_SIGNED_CERTIFICATE;
+
     return (
       <>
         {isAuthenticationTypeOAuth2 && isGrantTypeAuthorizationCode && (
@@ -913,6 +922,16 @@ class DatasourceRestAPIEditor extends React.Component<
             "DEFAULT",
           )}
         </FormInputContainer>
+        {isAuthenticationTypeOAuth2 && isConnectSelfSigned && (
+          <FormInputContainer data-replay-id={btoa("selfsignedcert")}>
+            {this.renderCheckboxViaFormControl(
+              "authentication.useSelfSignedCert",
+              "Use Self-Signed Certificate for Authorization requests",
+              "",
+              false,
+            )}
+          </FormInputContainer>
+        )}
       </>
     );
   };
@@ -993,27 +1012,6 @@ class DatasourceRestAPIEditor extends React.Component<
             "Custom Authentication Parameters",
             "",
             false,
-          )}
-        </FormInputContainer>
-        <FormInputContainer
-          data-replay-id={btoa("authentication.isAuthorizationHeader")}
-        >
-          {this.renderDropdownControlViaFormControl(
-            "authentication.isAuthorizationHeader",
-            [
-              {
-                label: "Send as Basic Auth header",
-                value: true,
-              },
-              {
-                label: "Send client credentials in body",
-                value: false,
-              },
-            ],
-            "Client Authentication",
-            "",
-            false,
-            "",
           )}
         </FormInputContainer>
 
@@ -1142,6 +1140,30 @@ class DatasourceRestAPIEditor extends React.Component<
       />
     );
   }
+
+  renderCheckboxViaFormControl(
+    configProperty: string,
+    label: string,
+    placeholderText: string,
+    isRequired: boolean,
+  ) {
+    return (
+      <FormControl
+        config={{
+          id: "",
+          isValid: false,
+          isRequired: isRequired,
+          controlType: "CHECKBOX",
+          configProperty: configProperty,
+          label: label,
+          conditionals: {},
+          placeholderText: placeholderText,
+          formName: DATASOURCE_REST_API_FORM,
+        }}
+        formName={DATASOURCE_REST_API_FORM}
+      />
+    );
+  }
 }
 
 const mapStateToProps = (state: AppState, props: any) => {
@@ -1150,13 +1172,6 @@ const mapStateToProps = (state: AppState, props: any) => {
   ) as Datasource;
 
   const hintMessages = datasource && datasource.messages;
-  let responseStatus = props.responseStatus;
-  let responseMessage = props.responseMessage;
-  if (props.location) {
-    const search = new URLSearchParams(props.location.search);
-    responseStatus = search.get("response_status");
-    responseMessage = search.get("display_message");
-  }
 
   return {
     initialValues: datasourceToFormValues(datasource),
@@ -1167,8 +1182,6 @@ const mapStateToProps = (state: AppState, props: any) => {
     ) as ApiDatasourceForm,
     formMeta: getFormMeta(DATASOURCE_REST_API_FORM)(state),
     messages: hintMessages,
-    responseStatus,
-    responseMessage,
   };
 };
 

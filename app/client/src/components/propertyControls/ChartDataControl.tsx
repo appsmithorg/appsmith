@@ -5,9 +5,7 @@ import { ControlWrapper, StyledPropertyPaneButton } from "./StyledControls";
 import styled from "constants/DefaultTheme";
 import { FormIcons } from "icons/FormIcons";
 import { AnyStyledComponent } from "styled-components";
-import CodeEditor, {
-  CodeEditorExpected,
-} from "components/editorComponents/CodeEditor";
+import { CodeEditorExpected } from "components/editorComponents/CodeEditor";
 import {
   EditorModes,
   EditorSize,
@@ -18,6 +16,7 @@ import { Size, Category } from "components/ads/Button";
 import { AllChartData, ChartData } from "widgets/ChartWidget/constants";
 import { generateReactKey } from "utils/generators";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
+import CodeEditor from "components/editorComponents/LazyCodeEditorWrapper";
 
 const Wrapper = styled.div`
   background-color: ${(props) =>

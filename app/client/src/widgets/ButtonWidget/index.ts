@@ -23,6 +23,8 @@ export const CONFIG = {
     isDisabled: false,
     isVisible: true,
     isDefaultClickDisabled: true,
+    disabledWhenInvalid: false,
+    resetFormOnClick: false,
     recaptchaType: RecaptchaTypes.V3,
     version: 1,
   },

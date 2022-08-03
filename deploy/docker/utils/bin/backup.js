@@ -50,15 +50,20 @@ async function run() {
 
     await fsPromises.rm(backupRootPath, { recursive: true, force: true });
 
-    console.log('Finished taking a baceup at', archivePath);
-    // console.log('Please remember to also take the `docker.env` separately since it includes sensitive, but critical information.')
+    console.log('Finished taking a backup at', archivePath);
+    await postBackupCleanup();
 
   } catch (err) {
     errorCode = 1;
     await logger.backup_error(err.stack);
 
     if (command_args.includes('--error-mail')) {
-      await mailer.sendBackupErrorToAdmins(err, timestamp);
+      const currentTS = new Date().getTime();
+      const lastMailTS = await utils.getLastBackupErrorMailSentInMilliSec();
+      if ((lastMailTS + Constants.DURATION_BETWEEN_BACKUP_ERROR_MAILS_IN_MILLI_SEC) < currentTS){
+        await mailer.sendBackupErrorToAdmins(err, timestamp);
+        await utils.updateLastBackupErrorMailSentInMilliSec(currentTS);
+      }
     }
   } finally {
     utils.start(['backend', 'rts']);
@@ -119,6 +124,20 @@ async function createFinalArchive(destFolder, timestamp) {
   console.log('Created final archive');
 
   return archive;
+}
+
+async function postBackupCleanup(){
+  console.log('Starting the cleanup task after taking a backup.');
+  let backupArchivesLimit = process.env.APPSMITH_BACKUP_ARCHIVE_LIMIT;
+  if(!backupArchivesLimit)
+    backupArchivesLimit = 4;
+  const backupFiles = await utils.listLocalBackupFiles();
+  while (backupFiles.length > backupArchivesLimit){
+    const fileName = backupFiles.shift();
+    await fsPromises.rm(Constants.BACKUP_PATH + '/' + fileName);
+  }
+  console.log('Cleanup task completed.');
+
 }
 
 module.exports = {
