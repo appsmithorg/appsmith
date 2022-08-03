@@ -31,7 +31,7 @@ export class CommonLocators {
     _visibleTextDiv = (divText: string) => "//div[text()='" + divText + "']"
     _visibleTextSpan = (spanText: string) => "//span[text()='" + spanText + "']";
     _openWidget = ".widgets .t--entity-add-btn"
-    _dropHere = "#comment-overlay-wrapper-0"
+    _dropHere = ".t--drop-target"
     _crossBtn = "span.cancel-icon"
     _createNew = ".t--entity-add-btn.group.files"
     _uploadFiles = "div.uppy-Dashboard-AddFiles input"
@@ -80,4 +80,5 @@ export class CommonLocators {
     _datePickerValue = "div[data-testid='datepicker-container'] input"
     _switchToggle = (switchName: string) => "//div[contains(@class, 't--switch-widget-label')][text()='"+switchName+"']/parent::label/span"
     _jsonToggle = (fieldName: string) => `//p[text()='${fieldName}']/parent::div//following-sibling::div//input[@type='checkbox']`;
+    _hints = "ul.CodeMirror-hints";
 }

@@ -16,7 +16,6 @@ import {
   USER_AUTH_URL,
   USERS_URL,
   PROFILE,
-  UNSUBSCRIBE_EMAIL_URL,
   SETUP,
   VIEWER_PATH,
   VIEWER_CUSTOM_PATH,
@@ -40,7 +39,6 @@ import ErrorPage from "pages/common/ErrorPage";
 import PageNotFound from "pages/common/PageNotFound";
 import PageLoadingBar from "pages/common/PageLoadingBar";
 import ErrorPageHeader from "pages/common/ErrorPageHeader";
-import UnsubscribeEmail from "pages/common/UnsubscribeEmail";
 import { getCurrentThemeDetails, ThemeMode } from "selectors/themeSelectors";
 import { AppState } from "reducers";
 import { setThemeMode } from "actions/themeActions";
@@ -136,10 +134,6 @@ function AppRouter(props: {
                 path={SIGNUP_SUCCESS_URL}
               />
               <SentryRoute component={UserProfile} path={PROFILE} />
-              <SentryRoute
-                component={UnsubscribeEmail}
-                path={UNSUBSCRIBE_EMAIL_URL}
-              />
               <SentryRoute component={Setup} exact path={SETUP} />
 
               <SentryRoute
