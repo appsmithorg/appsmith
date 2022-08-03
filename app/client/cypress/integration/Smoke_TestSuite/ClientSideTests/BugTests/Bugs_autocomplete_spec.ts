@@ -10,7 +10,7 @@ const {
 describe("Autocomplete bug fixes", function() {
   const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
   it("1. Bug #12790 Verifies if selectedRow is in best match", function() {
-    EntityExplorer.DragDropWidgetNVerify(WIDGET.TABLE_WIDGET_V2, 200, 200);
+    EntityExplorer.DragDropWidgetNVerify(WIDGET.TABLE, 200, 200);
     EntityExplorer.DragDropWidgetNVerify(WIDGET.TEXT, 200, 600);
     EntityExplorer.SelectEntityByName("Text1");
     PropertyPane.UpdatePropertyFieldValue("Text", "{{Table1.}}");
