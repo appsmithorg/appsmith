@@ -160,6 +160,8 @@ export class JSEditor {
         }
       });
 
+    this.agHelper.AssertAutoSave();
+    this.agHelper.ActionContextMenuWithInPane("Prettify Code");
     this.agHelper.AssertAutoSave(); //Ample wait due to open bug # 10284
 
     if (toRun) {
@@ -182,6 +184,7 @@ export class JSEditor {
       .then((el: JQuery<HTMLElement>) => {
         this.agHelper.Paste(el, newContent);
       });
+    this.agHelper.AssertAutoSave();
   }
 
   public EnterJSContext(
@@ -260,21 +263,6 @@ export class JSEditor {
     // });
 
     this.agHelper.AssertAutoSave(); //Allowing time for Evaluate value to capture value
-  }
-
-  public RemoveText(endp: string) {
-    cy.get(
-      this.locator._propertyControl +
-        endp +
-        " " +
-        this.locator._codeMirrorTextArea,
-    )
-      .first()
-      .focus()
-      .type("{uparrow}", { force: true })
-      .type("{ctrl}{shift}{downarrow}", { force: true })
-      .type("{del}", { force: true });
-    this.agHelper.AssertAutoSave();
   }
 
   public RenameJSObjFromPane(renameVal: string) {

@@ -999,12 +999,8 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                 .flatMap(actionCollectionService::save)
                 .collectList();
 
-        return Mono.when(
-                        publishApplicationAndPages,
-                        publishedActionsListMono,
-                        publishedActionCollectionsListMono,
-                        publishThemeMono
-                )
+        return publishApplicationAndPages
+                .flatMap(newPages -> Mono.zip(publishedActionsListMono, publishedActionCollectionsListMono, publishThemeMono))
                 .then(sendApplicationPublishedEvent(publishApplicationAndPages, publishedActionsListMono, publishedActionCollectionsListMono, applicationId, isPublishedManually));
     }
 
