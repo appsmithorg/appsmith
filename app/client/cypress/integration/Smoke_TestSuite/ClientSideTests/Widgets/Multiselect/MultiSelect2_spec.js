@@ -69,9 +69,10 @@ describe("MultiSelect Widget Functionality", function() {
       .contains("Option 2")
       .click({ force: true });
     // Assert Option 2 is selected
-    cy.get(".rc-select-selection-item-content")
-      .eq(1)
-      .should("have.text", "Option 2");
+    cy.get(".rc-select-selection-item[title='Option 2']").should(
+      "have.text",
+      "Option 2",
+    );
     // Close the widget
     cy.openPropertyPane("multiselectwidgetv2");
     // Reopen the widget
