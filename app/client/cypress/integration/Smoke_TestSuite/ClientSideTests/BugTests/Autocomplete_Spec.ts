@@ -1,45 +1,32 @@
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
-const {
-  CommonLocators,
-  EntityExplorer,
-  JSEditor,
-  PropertyPane,
-} = ObjectsRegistry;
+
+let agHelper = ObjectsRegistry.AggregateHelper,
+  ee = ObjectsRegistry.EntityExplorer,
+  locator = ObjectsRegistry.CommonLocators,
+  propPane = ObjectsRegistry.PropertyPane;
 
 describe("Autocomplete bug fixes", function() {
-  const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
   it("1. Bug #12790 Verifies if selectedRow is in best match", function() {
-    EntityExplorer.DragDropWidgetNVerify("tablewidgetv2", 200, 200);
-    EntityExplorer.DragDropWidgetNVerify("textwidget", 200, 600);
-    EntityExplorer.SelectEntityByName("Text1");
-    PropertyPane.UpdatePropertyFieldValue("Text", "{{Table1.}}");
-    cy.get("body").type(`{end}{leftArrow}{leftArrow}`);
-    cy.get("body").type(`{ctrl} `);
-    cy.get(CommonLocators._hints).should("exist");
-    cy.get(`${CommonLocators._hints} li`)
-      .eq(0)
-      .should("have.text", "Best Match");
-    cy.get(`${CommonLocators._hints} li`)
-      .eq(1)
-      .should("have.text", "selectedRow");
+    ee.DragDropWidgetNVerify("tablewidgetv2", 200, 200);
+    ee.DragDropWidgetNVerify("textwidget", 200, 600);
+    ee.SelectEntityByName("Text1");
+    propPane.TypeTextIntoField("Text", "{{Table1.");
+    agHelper.AssertElementExist(locator._hints);
+    agHelper.AssertElementText(locator._hints, "Best Match");
+    agHelper.AssertElementText(locator._hints, "selectedRow", 1);
   });
 
   it("2. Bug #14990 Checks if copied widget show up on autocomplete suggestions", function() {
-    cy.get(`#div-selection-0`).click({
-      force: true,
-    });
-    EntityExplorer.SelectEntityByName("Text1");
-    cy.get("body").type(`{${modifierKey}}{c}`);
-    cy.get("body").type(`{${modifierKey}}{v}`);
-    EntityExplorer.SelectEntityByName("Text1");
-    PropertyPane.UpdatePropertyFieldValue("Text", "");
-    JSEditor.EnterJSContext("Text", "{{Te", false);
-    cy.get(CommonLocators._hints).should("exist");
-    cy.get(`${CommonLocators._hints} li`)
-      .eq(0)
-      .should("have.text", "Best Match");
-    cy.get(`${CommonLocators._hints} li`)
-      .eq(1)
-      .should("have.text", "Text1Copy.text");
+    ee.CopyPasteWidget("Text1");
+    ee.SelectEntityByName("Text1");
+    propPane.UpdatePropertyFieldValue("Text", "");
+    propPane.TypeTextIntoField("Text", "{{Te");
+    agHelper.AssertElementExist(locator._hints);
+    agHelper.AssertElementText(locator._hints, "Best Match");
+    agHelper.AssertElementText(
+      locator._hints,
+      "Text1Copy.text",
+      1,
+    );
   });
 });

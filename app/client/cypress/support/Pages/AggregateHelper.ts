@@ -110,6 +110,13 @@ export class AggregateHelper {
     });
   }
 
+  public AssertElementText(selector: string, text: string, index: number = 0) {
+    const locator = selector.startsWith("//")
+      ? cy.xpath(selector)
+      : cy.get(selector);
+    locator.eq(index).should("have.text", text);
+  }
+
   public ValidateToastMessage(text: string, index = 0, length = 1) {
     cy.get(this.locator._toastMsg).should("have.length.at.least", length);
     cy.get(this.locator._toastMsg)
