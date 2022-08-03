@@ -70,19 +70,19 @@ export class DataSources {
   _graphqlQueryEditor = ".t--graphql-query-editor .CodeMirror textarea";
   _graphqlVariableEditor = ".t--graphql-variable-editor .CodeMirror textarea";
   _graphqlPagination = {
-    limitVariable: ".t--apiFormPaginationLimitVariable",
-    limitValue: ".t--apiFormPaginationLimitValue .CodeMirror textarea",
-    offsetVariable: ".t--apiFormPaginationOffsetVariable",
-    offsetValue: ".t--apiFormPaginationOffsetValue .CodeMirror textarea",
-    prevLimitVariable: ".t--apiFormPaginationPrevLimitVariable",
-    prevLimitValue: ".t--apiFormPaginationPrevLimitValue .CodeMirror textarea",
-    prevCursorVariable: ".t--apiFormPaginationPrevCursorVariable",
-    prevCursorValue:
+    _limitVariable: ".t--apiFormPaginationLimitVariable",
+    _limitValue: ".t--apiFormPaginationLimitValue .CodeMirror textarea",
+    _offsetVariable: ".t--apiFormPaginationOffsetVariable",
+    _offsetValue: ".t--apiFormPaginationOffsetValue .CodeMirror textarea",
+    _prevLimitVariable: ".t--apiFormPaginationPrevLimitVariable",
+    _prevLimitValue: ".t--apiFormPaginationPrevLimitValue .CodeMirror textarea",
+    _prevCursorVariable: ".t--apiFormPaginationPrevCursorVariable",
+    _prevCursorValue:
       ".t--apiFormPaginationPrevCursorValue .CodeMirror textarea",
-    nextLimitVariable: ".t--apiFormPaginationNextLimitVariable",
-    nextLimitValue: ".t--apiFormPaginationNextLimitValue .CodeMirror textarea",
-    nextCursorVariable: ".t--apiFormPaginationNextCursorVariable",
-    nextCursorValue:
+    _nextLimitVariable: ".t--apiFormPaginationNextLimitVariable",
+    _nextLimitValue: ".t--apiFormPaginationNextLimitValue .CodeMirror textarea",
+    _nextCursorVariable: ".t--apiFormPaginationNextCursorVariable",
+    _nextCursorValue:
       ".t--apiFormPaginationNextCursorValue .CodeMirror textarea",
   };
 
@@ -228,6 +228,21 @@ export class DataSources {
     cy.get(this._sectionAuthentication).click();
     cy.get(this._username).type(datasourceFormData["mysql-username"]);
     cy.get(this._password).type(datasourceFormData["mysql-password"]);
+  }
+
+  public FillGraphQLDSForm(datasourceName?: string) {
+    if (datasourceName) {
+      // Change the Graphql Datasource name
+      cy.get(".t--edit-datasource-name").click();
+      cy.get(".t--edit-datasource-name input")
+        .clear()
+        .type(datasourceName, { force: true })
+        .should("have.value", datasourceName)
+        .blur();
+    }
+
+    // Adding Graphql Url
+    cy.get("input[name='url']").type(datasourceFormData.graphqlApiUrl);
   }
 
   public TestSaveDatasource(expectedRes = true) {
@@ -418,16 +433,7 @@ export class DataSources {
       201,
     );
 
-    // Change the Graphql Datasource name
-    cy.get(".t--edit-datasource-name").click();
-    cy.get(".t--edit-datasource-name input")
-      .clear()
-      .type(datasourceName, { force: true })
-      .should("have.value", datasourceName)
-      .blur();
-
-    // Adding Graphql Url
-    cy.get("input[name='url']").type(datasourceFormData.graphqlApiUrl);
+    this.FillGraphQLDSForm(datasourceName);
 
     // save datasource
     cy.get(".t--save-datasource").click({ force: true });
@@ -436,5 +442,75 @@ export class DataSources {
       "response.body.responseMeta.status",
       200,
     );
+  }
+
+  public UpdateGraphqlQueryAndVariable(options?: {
+    query?: string, variable?: string
+  }) {
+    if (options?.query) {
+      cy.get(this._graphqlQueryEditor)
+        .first()
+        .focus()
+        .type("{selectAll}{backspace}", { force: true })
+        .type("{backspace}", { force: true })
+        .type(options.query);
+    }
+
+    if (options?.variable) {
+      cy.get(this._graphqlVariableEditor)
+        .first()
+        .focus()
+        .type("{selectAll}{backspace}", { force: true })
+        .type("{backspace}", { force: true })
+        .type(options.variable);
+    }
+
+    this.agHelper.Sleep();
+  }
+
+  public UpdateGraphqlPaginationParams(options: {
+    limit?: {
+      variable: string,
+      value: any,
+    },
+    offset?: {
+      variable: string,
+      value: any,
+    }
+  }) {
+
+    if (options.limit) {
+      // Select Limit Variable from dropdown
+      cy.get(this._graphqlPagination._limitVariable).click({
+        force: true,
+      });
+      cy.get(this._graphqlPagination._limitVariable)
+        .contains(options.limit.variable)
+        .click({ force: true });
+  
+      // Set the Limit Value as 1
+      cy.get(this._graphqlPagination._limitValue)
+        .first()
+        .focus()
+        .type(options.limit.value);
+    }
+
+    if (options.offset) {
+      // Select Offset Variable from dropdown
+      cy.get(this._graphqlPagination._offsetVariable).click({
+        force: true,
+      });
+      cy.get(this._graphqlPagination._offsetVariable)
+        .contains(options.offset.variable)
+        .click({ force: true });
+
+      // Set the Limit Value as 1
+      cy.get(this._graphqlPagination._offsetValue)
+        .first()
+        .focus()
+        .type(options.offset.value);
+    }
+
+    this.agHelper.Sleep();
   }
 }
