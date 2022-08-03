@@ -342,12 +342,10 @@ describe("UUID Datatype tests", function() {
     agHelper.ClickButton("DeleteQuery", 1);
     agHelper.ValidateNetworkStatus("@postExecute", 200);
     agHelper.ValidateNetworkStatus("@postExecute", 200);
-    agHelper.Sleep(10000); //Allwowing time for delete to be success
     table.ReadTableRowColumnData(1, 0, 2000).then(($cellData) => {
-      expect($cellData).not.to.eq("3"); //asserting 2nd record is deleted
-    });
-    table.ReadTableRowColumnData(1, 0, 200).then(($cellData) => {
-      expect($cellData).to.eq("2");
+      expect($cellData)
+        .not.to.eq("2")
+        .to.eq("3"); //asserting 2nd record is deleted
     });
   });
 
