@@ -48,9 +48,6 @@ export { default as GifPlayerComponent } from "./GifPlayerComponent";
 
 export { default as ListSegmentHeader } from "./ListSegmentHeader";
 
-export { default as MentionsInput } from "./MentionsInput";
-export * from "./MentionsInput";
-
 export { default as Menu } from "./Menu";
 export * from "./Menu";
 

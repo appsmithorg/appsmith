@@ -43,9 +43,7 @@ import { getTypographyByKey } from "constants/DefaultTheme";
 import HelpBar from "components/editorComponents/GlobalSearch/HelpBar";
 import HelpButton from "./HelpButton";
 import { getTheme, ThemeMode } from "selectors/themeSelectors";
-import ToggleModeButton, {
-  useHideComments,
-} from "pages/Editor/ToggleModeButton";
+import ToggleModeButton from "pages/Editor/ToggleModeButton";
 import { Colors } from "constants/Colors";
 import { snipingModeSelector } from "selectors/editorSelectors";
 import { setSnipingMode as setSnipingModeAction } from "actions/propertyPaneActions";
@@ -260,7 +258,6 @@ export function EditorHeader(props: EditorHeaderProps) {
   const isErroredSavingName = useSelector(getIsErroredSavingAppName);
   const applicationList = useSelector(getApplicationList);
   const user = useSelector(getCurrentUser);
-  const shouldHideComments = useHideComments();
   const isPreviewMode = useSelector(previewModeSelector);
   const deployLink = useHref(viewerURL, { pageId });
 
@@ -339,7 +336,6 @@ export function EditorHeader(props: EditorHeaderProps) {
   const filteredSharedUserList = props.sharedUserList.filter(
     (user) => user.username !== props.currentUser?.username,
   );
-  const showModes = !shouldHideComments;
 
   return (
     <ThemeProvider theme={theme}>
@@ -435,7 +431,7 @@ export function EditorHeader(props: EditorHeaderProps) {
               setIsPopoverOpen={setIsPopoverOpen}
             />
           </TooltipComponent>
-          {showModes && <ToggleModeButton showSelectedMode={!isPopoverOpen} />}
+          <ToggleModeButton showSelectedMode={!isPopoverOpen} />
         </HeaderSection>
         <HeaderSection
           className={classNames({

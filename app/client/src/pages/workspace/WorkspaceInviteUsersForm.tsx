@@ -42,6 +42,7 @@ import ManageUsers from "./ManageUsers";
 import { ScrollIndicator } from "design-system";
 import UserApi from "@appsmith/api/UserApi";
 import { Colors } from "constants/Colors";
+import { fetchWorkspace } from "actions/workspaceActions";
 
 const CommonTitleTextStyle = css`
   color: ${Colors.CHARCOAL};
@@ -437,12 +438,7 @@ export default connect(
         },
       }),
     fetchCurrentWorkspace: (workspaceId: string) =>
-      dispatch({
-        type: ReduxActionTypes.FETCH_CURRENT_WORKSPACE,
-        payload: {
-          workspaceId,
-        },
-      }),
+      dispatch(fetchWorkspace(workspaceId)),
     fetchUser: (workspaceId: string) =>
       dispatch({
         type: ReduxActionTypes.FETCH_ALL_USERS_INIT,
