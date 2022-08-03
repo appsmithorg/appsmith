@@ -226,6 +226,18 @@ export class AggregateHelper {
     );
   }
 
+  public ValidateNetworkDataAssert(
+    aliasName: string,
+    expectedPath: string,
+    expectedRes: any,
+  ) {
+    cy.wait(aliasName).should(
+      "have.nested.property",
+      expectedPath,
+      expectedRes,
+    );
+  }
+
   public SelectPropertiesDropDown(endpoint: string, dropdownOption: string) {
     cy.xpath(this.locator._selectPropDropdown(endpoint))
       .first()
@@ -336,8 +348,8 @@ export class AggregateHelper {
     //     .click()
   }
 
-  public Escape(){
-    cy.get('body').type("{esc}");
+  public Escape() {
+    cy.get("body").type("{esc}");
   }
 
   public RemoveMultiSelectItems(items: string[]) {

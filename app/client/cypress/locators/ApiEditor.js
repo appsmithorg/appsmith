@@ -34,23 +34,4 @@ export default {
   codeEditorWrapper: ".t--code-editor-wrapper",
   apiSearchHint: ".datasource-hint",
   slashCommandButton: ".commands-button",
-  createGraphQLDatasource: ".t--createBlankApi-graphql-plugin",
-  graphqlQueryEditor: ".t--graphql-query-editor .CodeMirror textarea",
-  graphqlVariableEditor: ".t--graphql-variable-editor .CodeMirror textarea",
-  graphqlPagination: {
-    limitVariable: ".t--apiFormPaginationLimitVariable",
-    limitValue: ".t--apiFormPaginationLimitValue .CodeMirror textarea",
-    offsetVariable: ".t--apiFormPaginationOffsetVariable",
-    offsetValue: ".t--apiFormPaginationOffsetValue .CodeMirror textarea",
-    prevLimitVariable: ".t--apiFormPaginationPrevLimitVariable",
-    prevLimitValue: ".t--apiFormPaginationPrevLimitValue .CodeMirror textarea",
-    prevCursorVariable: ".t--apiFormPaginationPrevCursorVariable",
-    prevCursorValue:
-      ".t--apiFormPaginationPrevCursorValue .CodeMirror textarea",
-    nextLimitVariable: ".t--apiFormPaginationNextLimitVariable",
-    nextLimitValue: ".t--apiFormPaginationNextLimitValue .CodeMirror textarea",
-    nextCursorVariable: ".t--apiFormPaginationNextCursorVariable",
-    nextCursorValue:
-      ".t--apiFormPaginationNextCursorValue .CodeMirror textarea",
-  },
 };

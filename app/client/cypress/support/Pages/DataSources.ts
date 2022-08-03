@@ -66,6 +66,25 @@ export class DataSources {
   _noRecordFound = "span[data-testid='no-data-table-message']";
   _usePreparedStatement =
     "input[name='actionConfiguration.pluginSpecifiedTemplates[0].value'][type='checkbox']";
+  private _createGraphQLDatasource = ".t--createBlankApi-graphql-plugin";
+  _graphqlQueryEditor = ".t--graphql-query-editor .CodeMirror textarea";
+  _graphqlVariableEditor = ".t--graphql-variable-editor .CodeMirror textarea";
+  _graphqlPagination = {
+    limitVariable: ".t--apiFormPaginationLimitVariable",
+    limitValue: ".t--apiFormPaginationLimitValue .CodeMirror textarea",
+    offsetVariable: ".t--apiFormPaginationOffsetVariable",
+    offsetValue: ".t--apiFormPaginationOffsetValue .CodeMirror textarea",
+    prevLimitVariable: ".t--apiFormPaginationPrevLimitVariable",
+    prevLimitValue: ".t--apiFormPaginationPrevLimitValue .CodeMirror textarea",
+    prevCursorVariable: ".t--apiFormPaginationPrevCursorVariable",
+    prevCursorValue:
+      ".t--apiFormPaginationPrevCursorValue .CodeMirror textarea",
+    nextLimitVariable: ".t--apiFormPaginationNextLimitVariable",
+    nextLimitValue: ".t--apiFormPaginationNextLimitValue .CodeMirror textarea",
+    nextCursorVariable: ".t--apiFormPaginationNextCursorVariable",
+    nextCursorValue:
+      ".t--apiFormPaginationNextCursorValue .CodeMirror textarea",
+  };
 
   public StartDataSourceRoutes() {
     cy.intercept("PUT", "/api/v1/datasources/*").as("saveDatasource");
@@ -386,5 +405,36 @@ export class DataSources {
       this.agHelper.UpdateCodeInput($field, query);
     });
     this.agHelper.AssertAutoSave();
+  }
+
+  public CreateGraphqlDatasource(datasourceName: string) {
+    this.NavigateToDSCreateNew();
+    //Click on Authenticated Graphql API
+    cy.get(this._createGraphQLDatasource).click({ force: true });
+    //Verify weather Authenticated Graphql Datasource is successfully created.
+    cy.wait("@createDatasource").should(
+      "have.nested.property",
+      "response.body.responseMeta.status",
+      201,
+    );
+
+    // Change the Graphql Datasource name
+    cy.get(".t--edit-datasource-name").click();
+    cy.get(".t--edit-datasource-name input")
+      .clear()
+      .type(datasourceName, { force: true })
+      .should("have.value", datasourceName)
+      .blur();
+
+    // Adding Graphql Url
+    cy.get("input[name='url']").type(datasourceFormData.graphqlApiUrl);
+
+    // save datasource
+    cy.get(".t--save-datasource").click({ force: true });
+    cy.wait("@saveDatasource").should(
+      "have.nested.property",
+      "response.body.responseMeta.status",
+      200,
+    );
   }
 }
