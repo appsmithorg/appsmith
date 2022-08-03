@@ -465,7 +465,7 @@ class MapChartWidget extends BaseWidget<MapChartWidgetProps, WidgetState> {
   static getPropertyPaneStyleConfig() {
     return [
       {
-        sectionName: "Color",
+        sectionName: "General",
         children: [
           {
             helpText:
