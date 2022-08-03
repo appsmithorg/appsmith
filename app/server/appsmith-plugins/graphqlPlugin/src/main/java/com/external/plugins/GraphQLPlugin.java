@@ -121,8 +121,6 @@ public class GraphQLPlugin extends BasePlugin {
                                 executeActionDTO.getParams(),
                                 parameters,
                                 true);
-                        System.out.println("=========================");
-                        System.out.println("updatedQuery: " + updatedQuery);
                         actionConfiguration.setBody(updatedQuery);
                     } catch (AppsmithPluginException e) {
                         ActionExecutionResult errorResult = new ActionExecutionResult();

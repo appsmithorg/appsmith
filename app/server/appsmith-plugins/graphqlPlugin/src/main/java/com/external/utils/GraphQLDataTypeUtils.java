@@ -4,6 +4,8 @@ import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import graphql.parser.InvalidSyntaxException;
+import graphql.parser.Parser;
 import reactor.core.Exceptions;
 
 import java.util.AbstractMap;
@@ -22,8 +24,6 @@ public class GraphQLDataTypeUtils {
     public static String smartlyReplaceGraphQLQueryBodyPlaceholderWithValue(String queryBody, String replacement,
                                                                             List<Map.Entry<String, String>> insertedParams) {
         final GraphQLBodyDataType dataType = stringToKnownGraphQLDataTypeConverter(queryBody, replacement);
-        //TODO: remove it.
-        System.out.println("============= type: " + dataType);
         Map.Entry<String, String> parameter = new AbstractMap.SimpleEntry<>(replacement, dataType.toString());
         insertedParams.add(parameter);
 
@@ -51,9 +51,6 @@ public class GraphQLDataTypeUtils {
                 break;
         }
 
-        //TODO: remove it.
-        System.out.println("======= queryBody: " + queryBody);
-        System.out.println("======= uReplacement: " + updatedReplacement);
         queryBody = placeholderPattern.matcher(queryBody).replaceFirst(updatedReplacement);
         return queryBody;
     }
@@ -63,14 +60,13 @@ public class GraphQLDataTypeUtils {
             return GraphQLBodyDataType.NULL;
         }
 
-        // TODO: uncomment
-            /*Parser graphqlParser = new Parser();
-            try {
-                graphqlParser.parseDocument(replacement);
-                return GraphQLBodyDataType.GRAPHQL_BODY_FULL;
-            } catch (InvalidSyntaxException e) {
-               // do nothing
-            }*/
+        Parser graphqlParser = new Parser();
+        try {
+            graphqlParser.parseDocument(replacement);
+            return GraphQLBodyDataType.GRAPHQL_BODY_FULL;
+        } catch (InvalidSyntaxException e) {
+           // do nothing
+        }
 
         try {
             Integer.parseInt(replacement);
