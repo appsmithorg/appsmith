@@ -249,7 +249,7 @@ describe("UUID Datatype tests", function() {
     });
   });
 
-  it.only("10. Validating UUID functions", () => {
+  it("10. Validating UUID functions", () => {
     deployMode.NavigateBacktoEditor();
     table.WaitUntilTableLoad();
     ee.ExpandCollapseEntity("QUERIES/JS");
