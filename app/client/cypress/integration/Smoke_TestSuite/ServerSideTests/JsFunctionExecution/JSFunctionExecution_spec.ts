@@ -367,6 +367,7 @@ describe("JS Function Execution", function() {
     jsEditor.EditJSObj(asyncJSCodeWithRenamedFunction2);
     agHelper.AssertElementAbsence(locator._toastMsg);
   });
+
   it("8. Maintains order of async functions in settings tab alphabetically at all times", function() {
     functionsLength = FUNCTIONS_SETTINGS_DEFAULT_DATA.length;
     // Number of functions set to run on page load and should also confirm before execute
@@ -481,5 +482,40 @@ describe("JS Function Execution", function() {
     cy.wait(3000);
     agHelper.GetNClick(jsEditor._settingsTab);
     assertAsyncFunctionsOrder(FUNCTIONS_SETTINGS_RENAMED_DATA);
+  });
+
+  it("10. Bug-13197: Verify converting async functions to sync resets all settings", () => {
+    const asyncJSCode = `export default {
+      myFun1 : async ()=>{
+        return "yes"
+      }
+    }`;
+
+    const syncJSCode = `export default {
+      myFun1 : ()=>{
+        return "yes"
+      }
+    }`;
+
+    jsEditor.CreateJSObject(asyncJSCode, {
+      paste: true,
+      completeReplace: true,
+      toRun: false,
+      shouldCreateNewJSObj: true,
+    });
+
+    // Switch to settings tab
+    agHelper.GetNClick(jsEditor._settingsTab);
+    // Enable all settings
+    jsEditor.EnableDisableAsyncFuncSettings("myFun1", true, true);
+
+    // Modify js object
+    jsEditor.EditJSObj(syncJSCode);
+
+    agHelper.RefreshPage();
+    cy.wait("@jsCollections").then(({ response }) => {
+      expect(response?.body.data.actions[0].executeOnLoad).to.eq(false);
+      expect(response?.body.data.actions[0].confirmBeforeExecute).to.eq(false);
+    });
   });
 });
