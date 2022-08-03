@@ -77,7 +77,7 @@ describe("Validate basic Promises", () => {
     cy.get(locator._toastMsg)
       .first()
       //.should("contain.text", "Your country is");
-      .contains(/Your country is|failed to execute!/g);
+      .contains(/Your country is|failed to execute/g);
 
     //Since sometimes api is failing & no 2nd toast in that case
     // cy.get(locator._toastMsg)
