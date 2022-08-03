@@ -254,23 +254,24 @@ export function* evaluateAndExecuteDynamicTrigger(
     log.debug({ requestData });
     if (requestData.finished) {
       keepAlive = false;
+
+      const { result } = requestData;
+
       /* Handle errors during evaluation
        * A finish event with errors means that the error was not caught by the user code.
        * We raise an error telling the user that an uncaught error has occurred
        * */
-      if (requestData.result.errors.length) {
+      if ("errors" in result && !!result.errors && result.errors.length) {
         if (
-          requestData.result.errors[0].errorMessage !==
+          result.errors[0].errorMessage !==
           "UncaughtPromiseRejection: User cancelled action execution"
         ) {
-          throw new UncaughtPromiseError(
-            requestData.result.errors[0].errorMessage,
-          );
+          throw new UncaughtPromiseError(result.errors[0].errorMessage);
         }
       }
       // Check for any logs in the response and store them in the redux store
-      if (requestData.result.logs.length) {
-        requestData.result.logs.forEach((log: Message) => {
+      if ("logs" in result && !!result.logs && result.logs.length) {
+        result.logs.forEach((log: Message) => {
           AppsmithConsole.info(
             {
               text: createLogTitleString(log.data),
@@ -282,7 +283,7 @@ export function* evaluateAndExecuteDynamicTrigger(
       // It is possible to get a few triggers here if the user
       // still uses the old way of action runs and not promises. For that we
       // need to manually execute these triggers outside the promise flow
-      const { triggers } = requestData.result;
+      const { triggers } = result;
       if (triggers && triggers.length) {
         log.debug({ triggers });
         yield all(
@@ -292,7 +293,7 @@ export function* evaluateAndExecuteDynamicTrigger(
         );
       }
       // Return value of a promise is returned
-      return requestData.result;
+      return result;
     }
     yield call(evalErrorHandler, requestData.errors);
     if (requestData.trigger) {
