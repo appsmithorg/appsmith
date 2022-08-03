@@ -63,10 +63,7 @@ export const getDefaultRole = createSelector(
     return roles?.find((role) => role.isDefault);
   },
 );
+
 export const getCurrentError = (state: AppState) => {
   return state.ui.errors.currentError;
-};
-
-export const getShowBrandingBadge = () => {
-  return true;
 };

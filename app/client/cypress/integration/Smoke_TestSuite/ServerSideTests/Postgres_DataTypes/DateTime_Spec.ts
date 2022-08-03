@@ -1,6 +1,6 @@
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 
-let guid: any, dsName: any, query: string;
+let dsName: any, query: string;
 const agHelper = ObjectsRegistry.AggregateHelper,
   ee = ObjectsRegistry.EntityExplorer,
   dataSources = ObjectsRegistry.DataSources,
@@ -19,16 +19,7 @@ describe("DateTime Datatype tests", function() {
   });
 
   it("1. Create Postgress DS", function() {
-    agHelper.GenerateUUID();
-    cy.get("@guid").then((uid) => {
-      dataSources.NavigateToDSCreateNew();
-      dataSources.CreatePlugIn("PostgreSQL");
-      guid = uid;
-      agHelper.RenameWithInPane("Postgres " + guid, false);
-      dataSources.FillPostgresDSForm();
-      dataSources.TestSaveDatasource();
-      cy.wrap("Postgres " + guid).as("dsName");
-    });
+    dataSources.CreateDataSource("Postgres");
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;
     });
@@ -42,7 +33,7 @@ describe("DateTime Datatype tests", function() {
     agHelper.GetNClick(dataSources._templateMenu);
     agHelper.RenameWithInPane("createTable");
     dataSources.EnterQuery(query);
-    cy.get(".CodeMirror textarea").focus();
+     agHelper.FocusElement(locator._codeMirrorTextArea);
     dataSources.RunQuery();
     ee.ExpandCollapseEntity("DATASOURCES");
     ee.ExpandCollapseEntity(dsName);
@@ -68,16 +59,14 @@ describe("DateTime Datatype tests", function() {
     dataSources.EnterQuery(query);
   });
 
-  it("4. Creating INSERT query - datetimetypes", () => {
+  it("4. Creating all queries - datetimetypes", () => {
     query = `INSERT INTO public."datetimetypes" (ts, tstz, dater, timer, intervaler)
     VALUES('{{Insertts.text}}', '{{Inserttstz.text}}', '{{Insertdater.text}}', '{{Inserttimer.text}}', '{{Insertintervaler.text}}');`;
     ee.ActionTemplateMenuByEntityName("public.datetimetypes", "INSERT");
     agHelper.RenameWithInPane("insertRecord");
     dataSources.EnterQuery(query);
     dataSources.ToggleUsePreparedStatement(false);
-  });
 
-  it("5. Creating UPDATE query - datetimetypes", () => {
     query = `UPDATE public."datetimetypes" SET
     "ts" = '{{Updatets.text}}', "tstz" = '{{Updatetstz.text}}', "dater" = '{{Updatedater.text}}', "timer" = '{{Updatetimer.text}}',
     "intervaler" = '{{Updateintervaler.text}}' WHERE serialid = {{Table1.selectedRow.serialid}};`;
@@ -85,31 +74,25 @@ describe("DateTime Datatype tests", function() {
     agHelper.RenameWithInPane("updateRecord");
     dataSources.EnterQuery(query);
     dataSources.ToggleUsePreparedStatement(false);
-  });
 
-  it("6. Creating DELETE query with condition - datetimetypes", () => {
     query = `DELETE FROM public."datetimetypes"
     WHERE serialId = {{Table1.selectedRow.serialid}};`;
     ee.ActionTemplateMenuByEntityName("public.datetimetypes", "DELETE");
     agHelper.RenameWithInPane("deleteRecord");
     dataSources.EnterQuery(query);
-  });
 
-  it("7. Creating DELETE query for complete table empty - datetimetypes", () => {
     query = `DELETE FROM public."datetimetypes"`;
     ee.ActionTemplateMenuByEntityName("public.datetimetypes", "DELETE");
     agHelper.RenameWithInPane("deleteAllRecords");
     dataSources.EnterQuery(query);
-  });
 
-  it("8. Creating DROP table query - datetimetypes", () => {
     query = `drop table public."datetimetypes"`;
     ee.ActionTemplateMenuByEntityName("public.datetimetypes", "DELETE");
     agHelper.RenameWithInPane("dropTable");
     dataSources.EnterQuery(query);
   });
 
-  it("9. Validating interval methods", () => {
+  it("5. Validating interval methods", () => {
     query = `SELECT
     justify_interval(interval '1 year - 1 hour'),
    justify_days(INTERVAL '30 days'),
@@ -138,7 +121,7 @@ describe("DateTime Datatype tests", function() {
     ee.ExpandCollapseEntity(dsName, false);
   });
 
-  it("10. Inserting record - datetimetypes", () => {
+  it("6. Inserting record - datetimetypes", () => {
     ee.SelectEntityByName("Page1");
     deployMode.DeployApp();
     table.WaitForTableEmpty(); //asserting table is empty before inserting!
@@ -178,7 +161,7 @@ describe("DateTime Datatype tests", function() {
       .then(($count) => expect($count).contain("1"));
   });
 
-  it("11. Inserting another format of record - datetimetypes", () => {
+  it("7. Inserting another format of record - datetimetypes", () => {
     agHelper.ClickButton("Run InsertQuery");
     agHelper.AssertElementVisible(locator._modal);
 
@@ -216,7 +199,7 @@ describe("DateTime Datatype tests", function() {
       .then(($count) => expect($count).contain("2"));
   });
 
-  it("12. Updating record (emtying some field) - datetimetypes", () => {
+  it("8. Updating record (emtying some field) - datetimetypes", () => {
     table.SelectTableRow(1);
     agHelper.ClickButton("Run UpdateQuery");
     agHelper.AssertElementVisible(locator._modal);
@@ -254,7 +237,7 @@ describe("DateTime Datatype tests", function() {
       .then(($count) => expect($count).contain("2"));
   });
 
-  it("13. Deleting records - datetimetypes", () => {
+  it("9. Deleting records - datetimetypes", () => {
     agHelper.ClickButton("DeleteQuery", 1);
     agHelper.ValidateNetworkStatus("@postExecute", 200);
     agHelper.ValidateNetworkStatus("@postExecute", 200);
@@ -264,7 +247,7 @@ describe("DateTime Datatype tests", function() {
       .then(($count) => expect($count).contain("1")); //asserting 2nd record is deleted
   });
 
-  it("14. Inserting another record (+ve record - to check serial column) - datetimetypes", () => {
+  it("10. Inserting another record (+ve record - to check serial column) - datetimetypes", () => {
     agHelper.ClickButton("Run InsertQuery");
     agHelper.AssertElementVisible(locator._modal);
 
@@ -302,14 +285,14 @@ describe("DateTime Datatype tests", function() {
       .then(($count) => expect($count).contain("2"));
   });
 
-  it("15. Deleting all records from table - datetimetypes", () => {
+  it("11. Deleting all records from table - datetimetypes", () => {
     agHelper.GetNClick(locator._deleteIcon);
     agHelper.AssertElementVisible(locator._spanButton("Run InsertQuery"));
     agHelper.Sleep(2000);
     table.WaitForTableEmpty();
   });
 
-  it("16. Validate Drop of the Newly Created - datetimetypes - Table from Postgres datasource", () => {
+  it("12. Validate Drop of the Newly Created - datetimetypes - Table from Postgres datasource", () => {
     deployMode.NavigateBacktoEditor();
     ee.ExpandCollapseEntity("QUERIES/JS");
     ee.SelectEntityByName("dropTable");
@@ -328,7 +311,7 @@ describe("DateTime Datatype tests", function() {
     ee.ExpandCollapseEntity("DATASOURCES", false);
   });
 
-  it("17. Verify Deletion of the datasource after all created queries are Deleted", () => {
+  it("13. Verify Deletion of the datasource after all created queries are Deleted", () => {
     dataSources.DeleteDatasouceFromWinthinDS(dsName, 409); //Since all queries exists
     ee.ExpandCollapseEntity("QUERIES/JS");
     ee.ActionContextMenuByEntityName("createTable", "Delete", "Are you sure?");
