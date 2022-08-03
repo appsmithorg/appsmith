@@ -41,6 +41,32 @@ const templateReducer = createReducer(initialState, {
     state: TemplatesReduxState,
     action: ReduxAction<Template>,
   ) => {
+    // Temp
+    if (action.payload.id === "62221b4900c64549b31b9465")
+      return {
+        ...state,
+        gettingTemplate: false,
+        activeTemplate: {
+          ...action.payload,
+          pages: [
+            {
+              id: "61efa094be698f35db5519a4",
+              name: "Send Messages",
+              slug: "send-messages",
+              isDefault: true,
+              isHidden: false,
+            },
+            {
+              id: "61fb9c012cd3d95ca414b252",
+              name: "Customer Data",
+              slug: "customer-data",
+              isDefault: false,
+              isHidden: false,
+            },
+          ],
+        },
+      };
+
     return {
       ...state,
       gettingTemplate: false,

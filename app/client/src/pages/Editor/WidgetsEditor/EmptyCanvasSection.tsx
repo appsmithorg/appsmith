@@ -7,7 +7,6 @@ import { Colors } from "constants/Colors";
 import { getCanvasWidgets, getPageList } from "selectors/entitiesSelector";
 import { useDispatch, useSelector } from "react-redux";
 import { previewModeSelector, selectURLSlugs } from "selectors/editorSelectors";
-import { commentModeSelector } from "selectors/commentsSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import history from "utils/history";
 import { generateTemplateFormURL } from "RouteBuilder";
@@ -59,19 +58,13 @@ function CanvasTopSection() {
   const dispatch = useDispatch();
   const widgets = useSelector(getCanvasWidgets);
   const inPreviewMode = useSelector(previewModeSelector);
-  const isCommentMode = useSelector(commentModeSelector);
   const pageLength = useSelector(
     (state: AppState) => getPageList(state).length,
   );
   const { pageId } = useParams<ExplorerURLParams>();
   const { applicationSlug, pageSlug } = useSelector(selectURLSlugs);
 
-  if (
-    Object.keys(widgets).length > 1 ||
-    pageLength > 1 ||
-    inPreviewMode ||
-    isCommentMode
-  )
+  if (Object.keys(widgets).length > 1 || pageLength > 1 || inPreviewMode)
     return null;
 
   const showTemplatesModal = () => {

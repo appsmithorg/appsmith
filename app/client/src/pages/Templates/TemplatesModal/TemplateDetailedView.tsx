@@ -44,6 +44,9 @@ import PageSelection from "./PageSelection";
 import TemplateComponent from "../Template";
 import LoadingScreen from "./LoadingScreen";
 import { Template } from "api/TemplatesApi";
+import { generatePath, matchPath } from "react-router";
+import { isURLDeprecated, trimQueryString } from "utils/helpers";
+import { VIEWER_PATH, VIEWER_PATH_DEPRECATED } from "constants/routes";
 
 const breakpointColumnsObject = {
   default: 4,
@@ -90,6 +93,7 @@ type TemplateDetailedViewProps = {
 
 function TemplateDetailedView(props: TemplateDetailedViewProps) {
   const [currentTemplateId, setCurrentTemplateId] = useState(props.templateId);
+  const [previewUrl, setPreviewUrl] = useState("");
   const dispatch = useDispatch();
   const similarTemplates = useSelector(
     (state: AppState) => state.ui.templates.similarTemplates,
@@ -108,6 +112,12 @@ function TemplateDetailedView(props: TemplateDetailedViewProps) {
     dispatch(getTemplateInformation(currentTemplateId));
     dispatch(getSimilarTemplatesInit(currentTemplateId));
   }, [currentTemplateId]);
+
+  useEffect(() => {
+    if (currentTemplate?.appUrl) {
+      setPreviewUrl(currentTemplate.appUrl);
+    }
+  }, [currentTemplate?.id]);
 
   const onSimilarTemplateClick = (id: string) => {
     setCurrentTemplateId(id);
@@ -128,6 +138,22 @@ function TemplateDetailedView(props: TemplateDetailedViewProps) {
     return null;
   }
 
+  // Update the page id in the url
+  const onPageSelection = (pageId: string) => {
+    const url = new URL(currentTemplate.appUrl);
+    const path = isURLDeprecated(url.pathname)
+      ? VIEWER_PATH_DEPRECATED
+      : VIEWER_PATH;
+    const matchViewerPath = matchPath(url.pathname, {
+      path: [trimQueryString(path)],
+    });
+    url.pathname = generatePath(path, {
+      ...matchViewerPath?.params,
+      pageId,
+    });
+    setPreviewUrl(url.toString());
+  };
+
   return (
     <Wrapper ref={containerRef}>
       <div className="flex justify-between">
@@ -146,10 +172,7 @@ function TemplateDetailedView(props: TemplateDetailedViewProps) {
               <div className="round yellow" />
               <div className="round green" />
             </IframeTopBar>
-            <iframe
-              src={`${currentTemplate.appUrl}?embed=true`}
-              width={"100%"}
-            />
+            <iframe src={`${previewUrl}?embed=true`} width={"100%"} />
           </IframeWrapper>
           <DescriptionWrapper>
             <DescriptionColumn>
@@ -249,7 +272,8 @@ function TemplateDetailedView(props: TemplateDetailedViewProps) {
           )}
         </div>
         <PageSelection
-          pageNames={currentTemplate.pageNames || []}
+          onPageSelection={onPageSelection}
+          pages={currentTemplate.pages || []}
           template={currentTemplate}
         />
       </Body>

@@ -9,6 +9,7 @@ import { Button } from "components/ads";
 import { useDispatch } from "react-redux";
 import { importTemplateIntoApplication } from "actions/templateActions";
 import { Template } from "api/TemplatesApi";
+import { ApplicationPagePayload } from "api/ApplicationApi";
 
 const Wrapper = styled.div`
   width: max(300px, 25%);
@@ -91,8 +92,9 @@ const StyledButton = styled(Button)`
 `;
 
 type PageSelectionProps = {
-  pageNames: string[];
+  pages: ApplicationPagePayload[];
   template: Template;
+  onPageSelection: (pageId: string) => void;
 };
 
 type CustomCheckboxProps = {
@@ -120,15 +122,15 @@ function CustomCheckbox(props: CustomCheckboxProps) {
 
 function PageSelection(props: PageSelectionProps) {
   const dispatch = useDispatch();
-  const [selectedPages, setSelectedPages] = useState(props.pageNames);
+  const [selectedPages, setSelectedPages] = useState(
+    props.pages.map((page) => page.name),
+  );
   const pagesText =
-    props.pageNames.length > 1 || props.pageNames.length === 0
-      ? "Pages"
-      : "Page";
+    props.pages.length > 1 || props.pages.length === 0 ? "Pages" : "Page";
 
   useEffect(() => {
-    setSelectedPages(props.pageNames);
-  }, [props.pageNames]);
+    setSelectedPages(props.pages.map((page) => page.name));
+  }, [props.pages]);
 
   const onSelection = (selectedPageName: string, checked: boolean) => {
     if (checked) {
@@ -144,7 +146,7 @@ function PageSelection(props: PageSelectionProps) {
 
   const onSelectAllToggle = (checked: boolean) => {
     if (checked) {
-      setSelectedPages(props.pageNames);
+      setSelectedPages(props.pages.map((page) => page.name));
     } else {
       setSelectedPages([]);
     }
@@ -165,27 +167,30 @@ function PageSelection(props: PageSelectionProps) {
       <Card>
         <CardHeader>
           <Text type={TextType.H1}>
-            {props.pageNames.length} {pagesText}
+            {props.pages.length} {pagesText}
           </Text>
           <div className="flex">
             <Text type={TextType.P4}>Select all</Text>
             <CustomCheckbox
-              checked={selectedPages.length === props.pageNames.length}
+              checked={selectedPages.length === props.pages.length}
               onChange={onSelectAllToggle}
             />
           </div>
         </CardHeader>
         <hr />
-        {props.pageNames.map((pageName) => {
+        {props.pages.map((page) => {
           return (
-            <Page key={pageName}>
-              <div className="flex items-center">
+            <Page key={page.id}>
+              <div
+                className="flex items-center"
+                onClick={() => props.onPageSelection(page.id)}
+              >
                 <Icon name="pages-line" />
-                <Text type={TextType.P4}>{pageName.toUpperCase()}</Text>
+                <Text type={TextType.P4}>{page.name.toUpperCase()}</Text>
               </div>
               <CustomCheckbox
-                checked={selectedPages.includes(pageName)}
-                onChange={(checked) => onSelection(pageName, checked)}
+                checked={selectedPages.includes(page.name)}
+                onChange={(checked) => onSelection(page.name, checked)}
               />
             </Page>
           );

@@ -2,7 +2,10 @@ import { AxiosPromise } from "axios";
 import Api from "api/Api";
 import { ApiResponse } from "./ApiResponses";
 import { WidgetType } from "constants/WidgetConstants";
-import { ApplicationResponsePayload } from "./ApplicationApi";
+import {
+  ApplicationPagePayload,
+  ApplicationResponsePayload,
+} from "./ApplicationApi";
 
 export interface Template {
   id: string;
@@ -16,7 +19,7 @@ export interface Template {
   functions: string[];
   useCases: string[];
   datasources: string[];
-  pageNames: string[];
+  pages: ApplicationPagePayload[];
 }
 
 export type FetchTemplatesResponse = ApiResponse<Template[]>;
