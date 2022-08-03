@@ -21,11 +21,16 @@ import { TooltipComponent as Tooltip } from "design-system";
 import { isEllipsisActive } from "utils/helpers";
 import SegmentHeader from "components/ads/ListSegmentHeader";
 import { useTheme } from "styled-components";
-import { findIndex, isArray } from "lodash";
+import { debounce, findIndex, isArray } from "lodash";
 import { TooltipComponent } from "design-system";
 import { SubTextPosition } from "components/constants";
+import { DSEventTypes, emitDSEvent } from "utils/AppsmithUtils";
 
-export type DropdownOnSelect = (value?: string, dropdownOption?: any) => void;
+export type DropdownOnSelect = (
+  value?: string,
+  dropdownOption?: any,
+  isUpdatedViaKeyboard?: boolean,
+) => void;
 
 export type DropdownOption = {
   label?: string;
@@ -591,6 +596,16 @@ const scrollIntoViewOptions: ScrollIntoViewOptions = {
   block: "nearest",
 };
 
+function emitKeyPressEvent(element: HTMLDivElement | null, key: string) {
+  emitDSEvent(element, {
+    component: "Dropdown",
+    event: DSEventTypes.KEYPRESS,
+    meta: {
+      key,
+    },
+  });
+}
+
 function TooltipWrappedText(
   props: TextProps & {
     label: string;
@@ -933,6 +948,7 @@ export default function Dropdown(props: DropdownProps) {
     props.selected,
   );
   const [highlight, setHighlight] = useState(-1);
+  const dropdownWrapperRef = useRef<HTMLDivElement>(null);
 
   const closeIfOpen = () => {
     if (isOpen && !props.isMultiSelect) {
@@ -946,7 +962,7 @@ export default function Dropdown(props: DropdownProps) {
   }, [props.selected]);
 
   const optionClickHandler = useCallback(
-    (option: DropdownOption) => {
+    (option: DropdownOption, isUpdatedViaKeyboard?: boolean) => {
       if (option.disabled) {
         return;
       }
@@ -972,7 +988,7 @@ export default function Dropdown(props: DropdownProps) {
         setSelected(option);
         setIsOpen(false);
       }
-      onSelect && onSelect(option.value, option);
+      onSelect && onSelect(option.value, option, isUpdatedViaKeyboard);
       option.onSelect && option.onSelect(option.value, option);
     },
     [onSelect],
@@ -1017,6 +1033,7 @@ export default function Dropdown(props: DropdownProps) {
     (e: React.KeyboardEvent) => {
       switch (e.key) {
         case "Escape":
+          emitKeyPressEvent(dropdownWrapperRef.current, e.key);
           if (isOpen) {
             setSelected((prevSelected) => {
               if (prevSelected != props.selected) return props.selected;
@@ -1027,14 +1044,15 @@ export default function Dropdown(props: DropdownProps) {
           }
           break;
         case " ":
+          emitKeyPressEvent(dropdownWrapperRef.current, e.key);
           if (closeOnSpace) {
             e.preventDefault();
             if (isOpen) {
               if (props.isMultiSelect) {
                 if (highlight >= 0)
-                  optionClickHandler(props.options[highlight]);
+                  optionClickHandler(props.options[highlight], true);
               } else {
-                optionClickHandler(selected as DropdownOption);
+                optionClickHandler(selected as DropdownOption, true);
               }
             } else {
               onClickHandler();
@@ -1042,18 +1060,21 @@ export default function Dropdown(props: DropdownProps) {
           }
           break;
         case "Enter":
+          emitKeyPressEvent(dropdownWrapperRef.current, e.key);
           e.preventDefault();
           if (isOpen) {
             if (props.isMultiSelect) {
-              if (highlight >= 0) optionClickHandler(props.options[highlight]);
+              if (highlight >= 0)
+                optionClickHandler(props.options[highlight], true);
             } else {
-              optionClickHandler(selected as DropdownOption);
+              optionClickHandler(selected as DropdownOption, true);
             }
           } else {
             onClickHandler();
           }
           break;
         case "ArrowUp":
+          emitKeyPressEvent(dropdownWrapperRef.current, e.key);
           e.preventDefault();
           if (isOpen) {
             if (props.isMultiSelect) {
@@ -1084,6 +1105,7 @@ export default function Dropdown(props: DropdownProps) {
           }
           break;
         case "ArrowDown":
+          emitKeyPressEvent(dropdownWrapperRef.current, e.key);
           e.preventDefault();
           if (isOpen) {
             if (props.isMultiSelect) {
@@ -1114,6 +1136,10 @@ export default function Dropdown(props: DropdownProps) {
           }
           break;
         case "Tab":
+          emitKeyPressEvent(
+            dropdownWrapperRef.current,
+            `${e.shiftKey ? "Shift+" : ""}${e.key}`,
+          );
           if (isOpen) {
             setIsOpen(false);
           }
@@ -1123,13 +1149,36 @@ export default function Dropdown(props: DropdownProps) {
     [isOpen, props.options, props.selected, selected, highlight],
   );
 
-  const dropdownWrapperRef = useRef<HTMLDivElement>(null);
-  let dropdownWrapperWidth = "100%";
+  const [dropdownWrapperWidth, setDropdownWrapperWidth] = useState<string>(
+    "100%",
+  );
 
-  if (dropdownWrapperRef.current) {
-    const { width } = dropdownWrapperRef.current.getBoundingClientRect();
-    dropdownWrapperWidth = `${width}px`;
-  }
+  const prevWidth = useRef(0);
+
+  const onParentResize = useCallback(
+    debounce((entries) => {
+      requestAnimationFrame(() => {
+        if (dropdownWrapperRef.current) {
+          const width = entries[0].borderBoxSize?.[0].inlineSize;
+          if (typeof width === "number" && width !== prevWidth.current) {
+            prevWidth.current = width;
+            setDropdownWrapperWidth(`${width}px`);
+          }
+        }
+      });
+    }, 300),
+    [dropdownWrapperRef.current],
+  );
+
+  useEffect(() => {
+    const resizeObserver = new ResizeObserver(onParentResize);
+    if (dropdownWrapperRef.current && props.fillOptions)
+      resizeObserver.observe(dropdownWrapperRef.current);
+
+    return () => {
+      resizeObserver.disconnect();
+    };
+  }, [dropdownWrapperRef.current, props.fillOptions]);
 
   let dropdownHeight = props.isMultiSelect ? "auto" : "36px";
   if (props.height) {

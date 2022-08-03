@@ -52,7 +52,6 @@ export const Layers = {
   portals: Indices.Layer9,
   header: Indices.Layer9,
   snipeableZone: Indices.Layer10,
-  appComments: Indices.Layer7,
   max: Indices.LayerMax,
   sideStickyBar: Indices.Layer7,
   evaluationPopper: Indices.Layer3,
@@ -64,7 +63,6 @@ export const tailwindLayers = {
   propertyPane: "z-[3]",
   entityExplorer: "z-[3]",
   resizer: "z-[4]",
-  appComments: "z-[7]",
 };
 
 export const LayersContext = React.createContext(Layers);

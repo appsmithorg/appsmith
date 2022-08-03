@@ -22,7 +22,8 @@ Cypress.Commands.add("createWorkspace", () => {
 });
 
 Cypress.Commands.add("renameWorkspace", (workspaceName, newWorkspaceName) => {
-  cy.contains(workspaceName)
+  cy.get(".t--applications-container")
+    .contains(workspaceName)
     .closest(homePage.workspaceCompleteSection)
     .find(homePage.workspaceNamePopover)
     .find(homePage.optionsIcon)
@@ -301,6 +302,9 @@ Cypress.Commands.add("CreateAppInFirstListedWorkspace", (appname) => {
     "response.body.responseMeta.status",
     200,
   );
+  // Remove tooltip on the Application Name element
+  cy.get(homePage.applicationName).realHover();
+  cy.get("body").realHover({ position: "topLeft" });
 
   /* The server created app always has an old dsl so the layout will migrate
    * To avoid race conditions between that update layout and this one

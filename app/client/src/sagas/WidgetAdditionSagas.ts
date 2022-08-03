@@ -69,11 +69,21 @@ function* getEntityNames() {
  * @returns
  */
 function* getThemeDefaultConfig(type: string) {
+  const fallbackStylesheet: Record<string, string> = {
+    TABLE_WIDGET_V2: "TABLE_WIDGET",
+  };
+
   const stylesheet: Record<string, unknown> = yield select(
     getSelectedAppThemeStylesheet,
   );
 
-  return stylesheet[type] || themePropertiesDefaults;
+  if (stylesheet[type]) {
+    return stylesheet[type];
+  } else if (fallbackStylesheet[type] && stylesheet[fallbackStylesheet[type]]) {
+    return stylesheet[fallbackStylesheet[type]];
+  } else {
+    return themePropertiesDefaults;
+  }
 }
 
 function* getChildWidgetProps(

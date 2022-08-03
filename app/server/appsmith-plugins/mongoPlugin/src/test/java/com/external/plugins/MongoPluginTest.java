@@ -3,6 +3,7 @@ package com.external.plugins;
 import com.appsmith.external.dtos.ExecuteActionDTO;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
+import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
 import com.appsmith.external.helpers.PluginUtils;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionRequest;
@@ -26,6 +27,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.mongodb.DBRef;
 import com.mongodb.MongoCommandException;
 import com.mongodb.MongoSecurityException;
+import com.mongodb.MongoSocketWriteException;
 import com.mongodb.reactivestreams.client.MongoClient;
 import com.mongodb.reactivestreams.client.MongoClients;
 import com.mongodb.reactivestreams.client.MongoCollection;
@@ -83,6 +85,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
@@ -93,8 +96,7 @@ import static org.mockito.Mockito.when;
  * Unit tests for MongoPlugin
  */
 
-public class    MongoPluginTest {
-
+public class MongoPluginTest {
     MongoPlugin.MongoPluginExecutor pluginExecutor = new MongoPlugin.MongoPluginExecutor();
 
     private static String address;
@@ -2650,5 +2652,187 @@ public class    MongoPluginTest {
                     assertEquals(1, ((ArrayNode) result.getBody()).size());
                 })
                 .verifyComplete();
+    }
+
+    @Test
+    public void testInsertAndFindInvalidDatetime() {
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+
+        Map<String, Object> configMap = new HashMap<>();
+        setDataValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.FALSE);
+        setDataValueSafelyInFormData(configMap, COMMAND, "INSERT");
+        setDataValueSafelyInFormData(configMap, COLLECTION, "users");
+        setDataValueSafelyInFormData(configMap, INSERT_DOCUMENT, "[\n" +
+                "      {\n" +
+                "        \"name\": {\n" +
+                "          \"first\": \"John\",\n" +
+                "          \"last\": \"Backus\"\n" +
+                "        },\n" +
+                "        \"birth\": ISODate(\"0001-01-01T00:00:00.000+00:00\"),\n" +
+                "        \"death\": ISODate(\"2007-03-17T04:00:00Z\"),\n" +
+                "        \"issue\": 13285\n" +
+                "      },\n" +
+                "      {\n" +
+                "        \"name\": {\n" +
+                "          \"first\": \"John\",\n" +
+                "          \"last\": \"McCarthy\"\n" +
+                "        },\n" +
+                "        \"birth\": ISODate(\"1927-09-04T04:00:00Z\"),\n" +
+                "        \"death\": ISODate(\"2011-12-24T05:00:00Z\"),\n" +
+                "        \"issue\": 13285\n" +
+                "      },\n" +
+                "      {\n" +
+                "        \"name\": {\n" +
+                "          \"first\": \"Grace\",\n" +
+                "          \"last\": \"Hopper\"\n" +
+                "        },\n" +
+                "        \"title\": \"Rear Admiral\",\n" +
+                "        \"birth\": ISODate(\"1906-12-09T05:00:00Z\"),\n" +
+                "        \"death\": ISODate(\"1992-01-01T05:00:00Z\"),\n" +
+                "        \"issue\": 13285\n" +
+                "      },\n" +
+                "      {\n" +
+                "        \"name\": {\n" +
+                "          \"first\": \"Kristen\",\n" +
+                "          \"last\": \"Nygaard\"\n" +
+                "        },\n" +
+                "        \"birth\": ISODate(\"1926-08-27T04:00:00Z\"),\n" +
+                "        \"death\": ISODate(\"2002-08-10T04:00:00Z\"),\n" +
+                "        \"issue\": 13285\n" +
+                "      }\n" +
+                "]");
+
+        actionConfiguration.setFormData(configMap);
+
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+        Mono<MongoClient> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
+        Mono<Object> executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.executeParameterized(conn, new ExecuteActionDTO(), dsConfig, actionConfiguration));
+        StepVerifier.create(executeMono)
+                .assertNext(obj -> {
+                    ActionExecutionResult result = (ActionExecutionResult) obj;
+                    assertNotNull(result);
+                    assertTrue(result.getIsExecutionSuccess());
+                    assertNotNull(result.getBody());
+                    assertEquals(
+                            List.of(new ParsedDataType(JSON), new ParsedDataType(RAW)).toString(),
+                            result.getDataTypes().toString()
+                    );
+                })
+                .verifyComplete();
+
+        //Find query
+        configMap.clear();
+        setDataValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.FALSE);
+        setDataValueSafelyInFormData(configMap, COMMAND, "FIND");
+        setDataValueSafelyInFormData(configMap, FIND_QUERY, "{ \"issue\": 13285}");
+        setDataValueSafelyInFormData(configMap, FIND_SORT, "{ id: 1 }");
+        setDataValueSafelyInFormData(configMap, COLLECTION, "users");
+
+        actionConfiguration.setFormData(configMap);
+
+        executeMono = dsConnectionMono.flatMap(conn -> pluginExecutor.executeParameterized(conn, new ExecuteActionDTO(), dsConfig, actionConfiguration));
+        StepVerifier.create(executeMono)
+                .assertNext(obj -> {
+                    ActionExecutionResult result = (ActionExecutionResult) obj;
+                    assertNotNull(result);
+                    assertTrue(result.getIsExecutionSuccess());
+                    assertNotNull(result.getBody());
+                    assertEquals(4, ((ArrayNode) result.getBody()).size());
+                    assertEquals(
+                            List.of(new ParsedDataType(JSON), new ParsedDataType(RAW)).toString(),
+                            result.getDataTypes().toString()
+                    );
+                })
+                .verifyComplete();
+
+        // Clean up this newly inserted values
+        configMap = new HashMap<>();
+        setDataValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.FALSE);
+        setDataValueSafelyInFormData(configMap, COMMAND, "DELETE");
+        setDataValueSafelyInFormData(configMap, COLLECTION, "users");
+        setDataValueSafelyInFormData(configMap, DELETE_QUERY, "{ \"issue\": 13285}");
+        setDataValueSafelyInFormData(configMap, DELETE_LIMIT, "ALL");
+
+        actionConfiguration.setFormData(configMap);
+        // Run the delete command
+        dsConnectionMono.flatMap(conn -> pluginExecutor.executeParameterized(conn, new ExecuteActionDTO(), dsConfig, actionConfiguration)).block();
+    }
+
+    @Test
+    public void testStaleConnectionOnIllegalStateExceptionOnQueryExecution() {
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        Map<String, Object> configMap = new HashMap<>();
+        setDataValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
+        setDataValueSafelyInFormData(configMap, COMMAND, "RAW");
+        setDataValueSafelyInFormData(configMap, BODY, "{\n" +
+                "      find: \"address\",\n" +
+                "      limit: 10,\n" +
+                "    }");
+        actionConfiguration.setFormData(configMap);
+
+        MongoClient spyMongoClient = spy(MongoClient.class);
+        MongoDatabase spyMongoDatabase = spy(MongoDatabase.class);
+        doReturn(spyMongoDatabase).when(spyMongoClient).getDatabase(anyString());
+        doReturn(Mono.error(new IllegalStateException())).when(spyMongoDatabase).runCommand(any());
+
+        Mono<ActionExecutionResult> resultMono = pluginExecutor.executeCommon(spyMongoClient, dsConfig,
+                actionConfiguration, new ArrayList<>());
+        StepVerifier.create(resultMono)
+                .expectErrorMatches(throwable -> throwable instanceof StaleConnectionException)
+                .verify();
+    }
+
+    @Test
+    public void testStaleConnectionOnMongoSocketWriteExceptionOnQueryExecution() {
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        Map<String, Object> configMap = new HashMap<>();
+        setDataValueSafelyInFormData(configMap, SMART_SUBSTITUTION, Boolean.TRUE);
+        setDataValueSafelyInFormData(configMap, COMMAND, "RAW");
+        setDataValueSafelyInFormData(configMap, BODY, "{\n" +
+                "      find: \"address\",\n" +
+                "      limit: 10,\n" +
+                "    }");
+        actionConfiguration.setFormData(configMap);
+
+        MongoClient spyMongoClient = spy(MongoClient.class);
+        MongoDatabase spyMongoDatabase = spy(MongoDatabase.class);
+        doReturn(spyMongoDatabase).when(spyMongoClient).getDatabase(anyString());
+        doReturn(Mono.error(new MongoSocketWriteException("", null, null))).when(spyMongoDatabase).runCommand(any());
+
+        Mono<ActionExecutionResult> resultMono = pluginExecutor.executeCommon(spyMongoClient, dsConfig,
+                actionConfiguration, new ArrayList<>());
+        StepVerifier.create(resultMono)
+                .expectErrorMatches(throwable -> throwable instanceof StaleConnectionException)
+                .verify();
+    }
+
+    @Test
+    public void testStaleConnectionOnIllegalStateExceptionOnGetStructure() {
+        MongoClient spyMongoClient = spy(MongoClient.class);
+        MongoDatabase spyMongoDatabase = spy(MongoDatabase.class);
+        doReturn(spyMongoDatabase).when(spyMongoClient).getDatabase(anyString());
+        doReturn(Mono.error(new IllegalStateException())).when(spyMongoDatabase).listCollectionNames();
+
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+        Mono<DatasourceStructure> structureMono = pluginExecutor.getStructure(spyMongoClient, dsConfig);
+        StepVerifier.create(structureMono)
+                .expectErrorMatches(throwable -> throwable instanceof StaleConnectionException)
+                .verify();
+    }
+
+    @Test
+    public void testStaleConnectionOnMongoSocketWriteExceptionOnGetStructure() {
+        MongoClient spyMongoClient = spy(MongoClient.class);
+        MongoDatabase spyMongoDatabase = spy(MongoDatabase.class);
+        doReturn(spyMongoDatabase).when(spyMongoClient).getDatabase(anyString());
+        doReturn(Mono.error(new MongoSocketWriteException("", null, null))).when(spyMongoDatabase).listCollectionNames();
+
+        DatasourceConfiguration dsConfig = createDatasourceConfiguration();
+        Mono<DatasourceStructure> structureMono = pluginExecutor.getStructure(spyMongoClient, dsConfig);
+        StepVerifier.create(structureMono)
+                .expectErrorMatches(throwable -> throwable instanceof StaleConnectionException)
+                .verify();
     }
 }
