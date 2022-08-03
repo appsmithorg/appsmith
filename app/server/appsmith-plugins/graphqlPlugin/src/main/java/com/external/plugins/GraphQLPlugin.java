@@ -1,6 +1,5 @@
 package com.external.plugins;
 
-import com.appsmith.external.constants.DataType;
 import com.appsmith.external.dtos.ExecuteActionDTO;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
@@ -17,47 +16,34 @@ import com.appsmith.external.models.Property;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.BaseRestApiPluginExecutor;
 import com.appsmith.external.services.SharedConfig;
-import com.external.utils.GraphQLBodyDataType;
 import com.external.utils.GraphQLHintMessageUtils;
-import com.fasterxml.jackson.core.JsonProcessingException;
-// TODO: refactor
-// TODO: add TC
-// TODO: uncomment
-// import graphql.parser.InvalidSyntaxException;
-// import graphql.parser.Parser;
 import lombok.extern.slf4j.Slf4j;
 import org.pf4j.Extension;
 import org.pf4j.PluginWrapper;
 import org.springframework.http.HttpMethod;
 import org.springframework.web.reactive.function.client.WebClient;
-import reactor.core.Exceptions;
 import reactor.core.publisher.Mono;
 
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.UnknownHostException;
-import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.regex.Matcher;
 
-import static com.appsmith.external.helpers.DataTypeStringUtils.placeholderPattern;
 import static com.appsmith.external.helpers.PluginUtils.getValueSafelyFromPropertyList;
 import static com.appsmith.external.helpers.PluginUtils.setValueSafelyInPropertyList;
-import static com.appsmith.external.helpers.SmartSubstitutionHelper.APPSMITH_SUBSTITUTION_PLACEHOLDER;
 import static com.external.utils.GraphQLBodyUtils.PAGINATION_DATA_INDEX;
+import static com.external.utils.GraphQLDataTypeUtils.smartlyReplaceGraphQLQueryBodyPlaceholderWithValue;
 import static com.external.utils.GraphQLPaginationUtils.updateVariablesWithPaginationValues;
 import static com.external.utils.GraphQLBodyUtils.QUERY_VARIABLES_INDEX;
 import static com.external.utils.GraphQLBodyUtils.convertToGraphQLPOSTBodyFormat;
 import static com.external.utils.GraphQLBodyUtils.getGraphQLQueryParamsForBodyAndVariables;
-// TODO: uncomment
-//import static com.external.utils.GraphQLBodyUtils.validateBodyAndVariablesSyntax;
+import static com.external.utils.GraphQLBodyUtils.validateBodyAndVariablesSyntax;
 import static java.lang.Boolean.TRUE;
 import static org.apache.commons.lang3.StringUtils.isBlank;
-import static org.apache.commons.lang3.StringUtils.isEmpty;
 
 public class GraphQLPlugin extends BasePlugin {
 
@@ -68,8 +54,6 @@ public class GraphQLPlugin extends BasePlugin {
     @Slf4j
     @Extension
     public static class GraphQLPluginExecutor extends BaseRestApiPluginExecutor {
-
-        public static final String GRAPHQL_BODY_ENDS_WITH_PARAM_REGEX = "[\\w\\W]+:$";
 
         public GraphQLPluginExecutor(SharedConfig sharedConfig) {
             super(sharedConfig);
@@ -99,8 +83,6 @@ public class GraphQLPlugin extends BasePlugin {
             final List<Property> properties = actionConfiguration.getPluginSpecifiedTemplates();
             List<Map.Entry<String, String>> parameters = new ArrayList<>();
 
-            // TODO: handle smart substitution for query body
-
             String variables = getValueSafelyFromPropertyList(properties, QUERY_VARIABLES_INDEX, String.class);
             Boolean smartSubstitution = this.smartSubstitutionUtils.isSmartSubstitutionEnabled(properties);
             if (TRUE.equals(smartSubstitution)) {
@@ -126,6 +108,7 @@ public class GraphQLPlugin extends BasePlugin {
                     }
                 }
 
+                /* Apply smart substitution logic to query body */
                 String query = actionConfiguration.getBody();
                 if (!isBlank(query)) {
                     List<String> mustacheKeysInOrder = MustacheHelper.extractMustacheKeysInOrder(query);
@@ -159,8 +142,7 @@ public class GraphQLPlugin extends BasePlugin {
 
             /* Check if the query body and query variables have the correct GraphQL syntax. */
             try {
-                // TODO: uncomment
-                // validateBodyAndVariablesSyntax(actionConfiguration);
+                validateBodyAndVariablesSyntax(actionConfiguration);
             } catch (AppsmithPluginException e) {
                 return Mono.error(e);
             }
@@ -310,87 +292,6 @@ public class GraphQLPlugin extends BasePlugin {
                 String queryBody = (String) input;
                 return smartlyReplaceGraphQLQueryBodyPlaceholderWithValue(queryBody, value, insertedParams);
             }
-        }
-
-        public static String smartlyReplaceGraphQLQueryBodyPlaceholderWithValue(String queryBody, String replacement,
-                                                                     List<Map.Entry<String, String>> insertedParams) {
-            final GraphQLBodyDataType dataType = stringToKnownGraphQLDataTypeConverter(queryBody, replacement);
-            //TODO: remove it.
-            System.out.println("============= type: " + dataType);
-            Map.Entry<String, String> parameter = new AbstractMap.SimpleEntry<>(replacement, dataType.toString());
-            insertedParams.add(parameter);
-
-            String updatedReplacement;
-            switch (dataType) {
-                case GRAPHQL_BODY_STRING:
-                    try {
-                        String valueAsString = objectMapper.writeValueAsString(replacement);
-                        updatedReplacement = Matcher.quoteReplacement(valueAsString);
-                    } catch (JsonProcessingException e) {
-                        throw Exceptions.propagate(
-                                new AppsmithPluginException(
-                                        AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
-                                        replacement,
-                                        e.getMessage()
-                                )
-                        );
-                    }
-                    break;
-                case GRAPHQL_BODY_FULL:
-                case GRAPHQL_BODY_INTEGER:
-                case GRAPHQL_BODY_BOOLEAN:
-                default:
-                    updatedReplacement = Matcher.quoteReplacement(replacement);
-                    break;
-            }
-
-            //TODO: remove it.
-            System.out.println("======= queryBody: " + queryBody);
-            System.out.println("======= uReplacement: " + updatedReplacement);
-            queryBody = placeholderPattern.matcher(queryBody).replaceFirst(updatedReplacement);
-            return queryBody;
-        }
-
-        public static GraphQLBodyDataType stringToKnownGraphQLDataTypeConverter(String queryBody, String replacement) {
-            if (replacement == null) {
-                return GraphQLBodyDataType.NULL;
-            }
-
-            // TODO: uncomment
-            /*Parser graphqlParser = new Parser();
-            try {
-                graphqlParser.parseDocument(replacement);
-                return GraphQLBodyDataType.GRAPHQL_BODY_FULL;
-            } catch (InvalidSyntaxException e) {
-               // do nothing
-            }*/
-
-            try {
-                Integer.parseInt(replacement);
-                return GraphQLBodyDataType.GRAPHQL_BODY_INTEGER;
-            } catch (NumberFormatException e) {
-                // do nothing
-            }
-
-            try {
-                Float.parseFloat(replacement);
-                return GraphQLBodyDataType.GRAPHQL_BODY_FLOAT;
-            } catch (NumberFormatException e2) {
-                // Not float
-            }
-
-            // Creating a copy of the input in lower case form to do simple string equality to check for boolean/null types.
-            String copyInput = String.valueOf(replacement).toLowerCase().trim();
-            if (copyInput.equals("true") || copyInput.equals("false")) {
-                return GraphQLBodyDataType.GRAPHQL_BODY_BOOLEAN;
-            }
-
-            String prefix = replacement.split(APPSMITH_SUBSTITUTION_PLACEHOLDER)[0].trim();
-            if (prefix.matches(GRAPHQL_BODY_ENDS_WITH_PARAM_REGEX)) {
-                return GraphQLBodyDataType.GRAPHQL_BODY_STRING;
-            }
-
-            return GraphQLBodyDataType.GRAPHQL_BODY_PARTIAL;
         }
 
         /**
