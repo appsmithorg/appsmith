@@ -14,6 +14,7 @@ import {
 
 import { WidgetType } from "constants/WidgetConstants";
 import { ChartComponentProps } from "../component";
+import { Colors } from "constants/Colors";
 
 const ChartComponent = lazy(() =>
   retryPromise(() =>
@@ -59,13 +60,13 @@ class ChartWidget extends BaseWidget<ChartWidgetProps, WidgetState> {
           chartName={this.props.chartName}
           chartType={this.props.chartType}
           customFusionChartConfig={this.props.customFusionChartConfig}
-          fontFamily={this.props.fontFamily}
+          fontFamily={this.props.fontFamily ?? "Nunito Sans"}
           isLoading={this.props.isLoading}
           isVisible={this.props.isVisible}
           key={this.props.widgetId}
           labelOrientation={this.props.labelOrientation}
           onDataPointClick={this.onDataPointClick}
-          primaryColor={this.props.accentColor}
+          primaryColor={this.props.accentColor ?? Colors.ROYAL_BLUE_2}
           setAdaptiveYMin={this.props.setAdaptiveYMin}
           widgetId={this.props.widgetId}
           xAxisName={this.props.xAxisName}
