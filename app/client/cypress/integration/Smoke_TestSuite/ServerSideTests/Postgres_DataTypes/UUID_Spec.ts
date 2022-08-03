@@ -18,7 +18,7 @@ describe("UUID Datatype tests", function() {
     });
   });
 
-  it.only("0. Importing App & setting theme", () => {
+  it("0. Importing App & setting theme", () => {
     cy.fixture("Datatypes/UUIDDTdsl").then((val: any) => {
       agHelper.AddDsl(val);
     });
@@ -26,7 +26,7 @@ describe("UUID Datatype tests", function() {
     propPane.ChangeTheme("Earth");
   });
 
-  it.only("1. Creating supporting api's for generating random UUID's", () => {
+  it("1. Creating supporting api's for generating random UUID's", () => {
     apiPage.CreateAndFillApi(
       "https://www.uuidgenerator.net/api/version1",
       "version1",
@@ -42,7 +42,7 @@ describe("UUID Datatype tests", function() {
     );
   });
 
-  it.only("2. Creating table query - uuidtype", () => {
+  it("2. Creating table query - uuidtype", () => {
     query = `CREATE table uuidtype (serialid SERIAL primary key, v1 uuid, v4 uuid, guid uuid, nil uuid);`;
     dataSources.NavigateFromActiveDS(dsName, true);
     agHelper.GetNClick(dataSources._templateMenu);
@@ -54,7 +54,7 @@ describe("UUID Datatype tests", function() {
     agHelper.AssertElementVisible(ee._entityNameInExplorer("public.uuidtype"));
   });
 
-  it.only("3. Creating SELECT query - uuidtype + Bug 14493", () => {
+  it("3. Creating SELECT query - uuidtype + Bug 14493", () => {
     ee.ActionTemplateMenuByEntityName("public.uuidtype", "SELECT");
     agHelper.RenameWithInPane("selectRecords");
     dataSources.RunQuery();
@@ -63,7 +63,7 @@ describe("UUID Datatype tests", function() {
       .then(($noRecMsg) => expect($noRecMsg).to.eq("No data records to show"));
   });
 
-  it.only("4. Creating all queries - uuidtype", () => {
+  it("4. Creating all queries - uuidtype", () => {
     query = `INSERT INTO public."uuidtype" ("v1", "v4", "guid", "nil") VALUES ('{{version1.data}}', '{{version4.data}}', '{{guid.data}}', '{{nill.data}}');`;
     ee.CreateNewDsQuery(dsName);
     agHelper.RenameWithInPane("insertRecord");
@@ -98,7 +98,7 @@ describe("UUID Datatype tests", function() {
     ee.ExpandCollapseEntity(dsName, false);
   });
 
-  it.only("5. Inserting record - uuidtype", () => {
+  it("5. Inserting record - uuidtype", () => {
     ee.SelectEntityByName("Page1");
     deployMode.DeployApp();
     table.WaitForTableEmpty(); //asserting table is empty before inserting!
@@ -129,7 +129,7 @@ describe("UUID Datatype tests", function() {
     });
   });
 
-  it.only("6. Inserting another record - uuidtype", () => {
+  it("6. Inserting another record - uuidtype", () => {
     agHelper.ClickButton("Run InsertQuery");
     agHelper.AssertElementVisible(locator._modal);
 
@@ -157,7 +157,7 @@ describe("UUID Datatype tests", function() {
     });
   });
 
-  it.only("7. Inserting another record - uuidtype", () => {
+  it("7. Inserting another record - uuidtype", () => {
     agHelper.ClickButton("Run InsertQuery");
     agHelper.AssertElementVisible(locator._modal);
 
@@ -185,7 +185,7 @@ describe("UUID Datatype tests", function() {
     });
   });
 
-  it.only("8. Updating record - uuidtype - updating only v1", () => {
+  it("8. Updating record - uuidtype - updating only v1", () => {
     table.SelectTableRow(2); //As Table Selected row has issues due to fast selction
     agHelper.Sleep(2000); //for table selection to be captured
 
@@ -214,7 +214,7 @@ describe("UUID Datatype tests", function() {
     });
   });
 
-  it.only("9. Updating record - uuidtype - updating v4, guid", () => {
+  it("9. Updating record - uuidtype - updating v4, guid", () => {
     //table.SelectTableRow(2); //As Table Selected row has issues due to fast selction
     table.ReadTableRowColumnData(2, 1, 200).then(($oldV1) => {
       table.ReadTableRowColumnData(2, 2, 2000).then(($oldV4) => {
@@ -267,27 +267,30 @@ describe("UUID Datatype tests", function() {
     });
 
     //Validating generation of new uuid via the extension package
-    query = `SELECT uuid_generate_v1() as v1, uuid_generate_v4() as v4, gen_random_uuid() as cryptov4, form_uuid1(overlay(overlay(md5(random()::text || ':' || random()::text) placing '4' from 13) placing to_hex(floor(random()*(11-8+1) + 8)::int)::text from 17)::cstring), form_uudi2(md5(random()::text || random()::text)::cstring)`;
+    query = `SELECT uuid_generate_v1() as v1, uuid_generate_v4() as v4, gen_random_uuid() as cryptov4, uuid_in(overlay(overlay(md5(random()::text || ':' || random()::text) placing '4' from 13) placing to_hex(floor(random()*(11-8+1) + 8)::int)::text from 17)::cstring) as form_uuid1, uuid_in(md5(random()::text || random()::text)::cstring) as form_uuid2;`;
     dataSources.EnterQuery(query);
     dataSources.RunQuery();
     dataSources.AssertQueryResponseHeaders([
       "v1",
-      "v4", "cryptov4", "form_uuid1", "form_uuid2"
+      "v4",
+      "cryptov4",
+      "form_uuid1",
+      "form_uuid2",
     ]);
     dataSources.ReadQueryTableResponse(0).then(($cellData) => {
-      expect($cellData).not.to.be.empty
+      expect($cellData).not.to.be.empty;
     });
     dataSources.ReadQueryTableResponse(1).then(($cellData) => {
-      expect($cellData).not.to.be.empty
+      expect($cellData).not.to.be.empty;
     });
     dataSources.ReadQueryTableResponse(2).then(($cellData) => {
-      expect($cellData).not.to.be.empty
+      expect($cellData).not.to.be.empty;
     });
     dataSources.ReadQueryTableResponse(3).then(($cellData) => {
-      expect($cellData).not.to.be.empty
+      expect($cellData).not.to.be.empty;
     });
     dataSources.ReadQueryTableResponse(4).then(($cellData) => {
-      expect($cellData).not.to.be.empty
+      expect($cellData).not.to.be.empty;
     });
 
     //Validating Addition of new column taking default value form package method
@@ -298,23 +301,40 @@ describe("UUID Datatype tests", function() {
     dataSources.ReadQueryTableResponse(0).then(($cellData) => {
       expect($cellData).to.eq("0");
     });
-    //to delpoy & verify
+    deployMode.DeployApp();
+    table.WaitUntilTableLoad();
+    table.ReadTableRowColumnData(1, 5, 200).then(($newFormedguid1) => {
+      expect($newFormedguid1).not.to.be.empty; //making sure new guid is set for row
 
-    //Validating altering the new column default value to generate id from pgcrypto package
-    query = `ALTER TABLE uuidtype ALTER COLUMN newUUID SET DEFAULT gen_random_uuid();`;
-    dataSources.EnterQuery(query);
-    dataSources.RunQueryNVerifyResponseViews(1);
-    dataSources.AssertQueryResponseHeaders(["affectedRows"]);
-    dataSources.ReadQueryTableResponse(0).then(($cellData) => {
-      expect($cellData).to.eq("0");
+      deployMode.NavigateBacktoEditor();
+      table.WaitUntilTableLoad();
+      ee.ExpandCollapseEntity("QUERIES/JS");
+      ee.SelectEntityByName("verifyUUIDFunctions");
+
+      //Validating altering the new column default value to generate id from pgcrypto package
+      query = `ALTER TABLE uuidtype ALTER COLUMN newUUID SET DEFAULT gen_random_uuid();`;
+      dataSources.EnterQuery(query);
+      dataSources.RunQueryNVerifyResponseViews(1);
+      dataSources.AssertQueryResponseHeaders(["affectedRows"]);
+      dataSources.ReadQueryTableResponse(0).then(($cellData) => {
+        expect($cellData).to.eq("0");
+      });
+      deployMode.DeployApp();
+      table.WaitUntilTableLoad();
+      table.ReadTableRowColumnData(1, 5, 200).then(($newFormedguid2) => {
+        expect($newFormedguid1).to.eq($newFormedguid2);
+      });
     });
-    //to delpoy & verify
 
+    deployMode.NavigateBacktoEditor();
+    table.WaitUntilTableLoad();
+    ee.ExpandCollapseEntity("QUERIES/JS");
+    ee.SelectEntityByName("verifyUUIDFunctions");
     agHelper.ActionContextMenuWithInPane("Delete");
     ee.ExpandCollapseEntity("QUERIES/JS", false);
   });
 
-  it("10. Deleting records - uuidtype", () => {
+  it("11. Deleting records - uuidtype", () => {
     ee.SelectEntityByName("Page1");
     deployMode.DeployApp();
     table.WaitUntilTableLoad();
@@ -331,42 +351,45 @@ describe("UUID Datatype tests", function() {
     });
   });
 
-  it("11. Deleting all records from table - uuidtype", () => {
+  it("12. Deleting all records from table - uuidtype", () => {
     agHelper.GetNClick(locator._deleteIcon);
     agHelper.AssertElementVisible(locator._spanButton("Run InsertQuery"));
     agHelper.Sleep(2000);
     table.WaitForTableEmpty();
   });
 
-  it("12. Inserting another record (to check serial column) - uuidtype", () => {
-    imageNameToUpload = "Datatypes/Massachusetts.jpeg";
-
+  it("13. Inserting another record (to check serial column) - uuidtype", () => {
     agHelper.ClickButton("Run InsertQuery");
     agHelper.AssertElementVisible(locator._modal);
 
-    //agHelper.EnterInputText("Imagename", "Massachusetts");
-    agHelper.ClickButton("Select New Image");
-    agHelper.UploadFile(imageNameToUpload);
+    agHelper.ClickButton("Generate UUID's");
+    agHelper.WaitUntilToastDisappear("All UUIDs generated & available");
 
     agHelper.ClickButton("Insert");
     agHelper.AssertElementAbsence(locator._toastMsg); //Assert that Insert did not fail
     agHelper.AssertElementVisible(locator._spanButton("Run InsertQuery"));
     table.WaitUntilTableLoad();
-    agHelper.Sleep(2000); //for all rows with images to be populated
     table.ReadTableRowColumnData(0, 0, 2000).then(($cellData) => {
       expect($cellData).to.eq("4"); //asserting serial column is inserting fine in sequence
     });
-    table.ReadTableRowColumnData(0, 1, 200).then(($cellData) => {
-      expect($cellData).to.eq("Massachusetts.jpeg");
+    table.ReadTableRowColumnData(0, 1, 200).then(($v1) => {
+      expect($v1).not.empty;
     });
-    table.AssertTableRowImageColumnIsLoaded(0, 2).then(($oldimage) => {
-      table.AssertTableRowImageColumnIsLoaded(0, 3).then(($newimage) => {
-        expect($oldimage).to.eq($newimage);
-      });
+    table.ReadTableRowColumnData(0, 2, 200).then(($v4) => {
+      expect($v4).not.empty;
+    });
+    table.ReadTableRowColumnData(0, 3, 200).then(($guid) => {
+      expect($guid).not.empty;
+    });
+    table.ReadTableRowColumnData(0, 4, 200).then(($nil) => {
+      expect($nil).not.empty;
+    });
+    table.ReadTableRowColumnData(0, 5, 200).then(($newGenUUID) => {
+      expect($newGenUUID).not.empty;
     });
   });
 
-  it.only("13. Validate Drop of the Newly Created - uuidtype - Table from Postgres datasource", () => {
+  it("14. Validate Drop of the Newly Created - uuidtype - Table from Postgres datasource", () => {
     deployMode.NavigateBacktoEditor();
     ee.ExpandCollapseEntity("QUERIES/JS");
     ee.SelectEntityByName("dropTable");
@@ -383,7 +406,7 @@ describe("UUID Datatype tests", function() {
     ee.ExpandCollapseEntity("DATASOURCES", false);
   });
 
-  it.only("14. Verify Deletion of all created queries", () => {
+  it("15. Verify Deletion of all created queries", () => {
     dataSources.DeleteDatasouceFromWinthinDS(dsName, 409); //Since all queries exists
     ee.ExpandCollapseEntity("QUERIES/JS");
     ee.ActionContextMenuByEntityName("createTable", "Delete", "Are you sure?");
@@ -409,7 +432,7 @@ describe("UUID Datatype tests", function() {
     ee.ActionContextMenuByEntityName("version1", "Delete", "Are you sure?");
   });
 
-  it.only("15. Verify Deletion of datasource", () => {
+  it("16. Verify Deletion of datasource", () => {
     deployMode.DeployApp();
     deployMode.NavigateBacktoEditor();
     ee.ExpandCollapseEntity("QUERIES/JS");
