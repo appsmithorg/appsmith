@@ -6,7 +6,6 @@ import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionExceptio
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.UpdatableConnection;
 import com.appsmith.external.plugins.PluginExecutor;
-import com.appsmith.external.services.EncryptionService;
 import com.appsmith.server.domains.DatasourceContext;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.helpers.PluginExecutorHelper;
@@ -34,19 +33,16 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
     private final DatasourceService datasourceService;
     private final PluginService pluginService;
     private final PluginExecutorHelper pluginExecutorHelper;
-    private final EncryptionService encryptionService;
     private final ConfigService configService;
 
     @Autowired
     public DatasourceContextServiceCEImpl(DatasourceService datasourceService,
                                           PluginService pluginService,
                                           PluginExecutorHelper pluginExecutorHelper,
-                                          EncryptionService encryptionService,
                                           ConfigService configService) {
         this.datasourceService = datasourceService;
         this.pluginService = pluginService;
         this.pluginExecutorHelper = pluginExecutorHelper;
-        this.encryptionService = encryptionService;
         this.datasourceContextMap = new ConcurrentHashMap<>();
         this.datasourceContextMonoMap = new ConcurrentHashMap<>();
         this.datasourceContextSynchronizationMonitorMap = new ConcurrentHashMap<>();
@@ -80,11 +76,14 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
                 final Object connection = datasourceContextMap.get(datasourceId).getConnection();
                 if (connection != null) {
                     try {
+                        // Basically remove entry from both cache maps
                         pluginExecutor.datasourceDestroy(connection);
                     } catch (Exception e) {
                         log.info("Error destroying stale datasource connection", e);
                     }
                 }
+                datasourceContextMonoMap.remove(datasourceId);
+                datasourceContextMap.remove(datasourceId);
             }
 
             /*
@@ -105,7 +104,8 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
                 datasourceContextMap.put(datasourceId, datasourceContext);
             }
 
-            Mono<Object> connectionMono = pluginExecutor.datasourceCreate(datasource.getDatasourceConfiguration());
+            Mono<Object> connectionMono = pluginExecutor.datasourceCreate(datasource.getDatasourceConfiguration()).cache();
+
             Mono<DatasourceContext<Object>> datasourceContextMonoCache = connectionMono
                     .flatMap(connection -> {
                         Mono<Datasource> datasourceMono1 = Mono.just(datasource);
