@@ -344,8 +344,7 @@ describe("UUID Datatype tests", function() {
     agHelper.ValidateNetworkStatus("@postExecute", 200);
     table.ReadTableRowColumnData(1, 0, 2000).then(($cellData) => {
       expect($cellData)
-        .not.to.eq("2")
-        .to.eq("3"); //asserting 2nd record is deleted
+        .not.to.eq("2"); //asserting 2nd record is deleted
     });
   });
 
@@ -356,7 +355,7 @@ describe("UUID Datatype tests", function() {
     table.WaitForTableEmpty();
   });
 
-  it("13. Inserting another record (to check serial column) - uuidtype", () => {
+  it("13. Inserting another record (to check serial column & new default column added) - uuidtype", () => {
     agHelper.ClickButton("Run InsertQuery");
     agHelper.AssertElementVisible(locator._modal);
 
