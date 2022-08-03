@@ -25,6 +25,7 @@ function MenuButton({
   menuItems,
   menuVariant,
   onCommandClick,
+  rowIndex,
 }: MenuButtonProps): JSX.Element {
   const handlePropagation = (
     e: React.MouseEvent<HTMLDivElement, MouseEvent>,
@@ -53,6 +54,7 @@ function MenuButton({
         menuItems={{ ...menuItems }}
         menuVariant={menuVariant}
         onItemClicked={onItemClicked}
+        rowIndex={rowIndex}
       />
     </div>
   );
@@ -71,6 +73,7 @@ export interface RenderMenuButtonProps extends BaseCellComponentProps {
   boxShadow?: string;
   iconName?: IconName;
   iconAlign?: Alignment;
+  rowIndex: number;
 }
 
 export function MenuButtonCell(props: RenderMenuButtonProps) {

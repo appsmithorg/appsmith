@@ -25,6 +25,10 @@ import { MenuItems } from "../Constants";
 import tinycolor from "tinycolor2";
 import { Colors } from "constants/Colors";
 import orderBy from "lodash/orderBy";
+import {
+  getBooleanPropertyValue,
+  getPropertyValue,
+} from "widgets/TableWidgetV2/widget/utilities";
 
 const MenuButtonContainer = styled.div`
   width: 100%;
@@ -197,15 +201,16 @@ interface PopoverContentProps {
   menuItems: MenuItems;
   onItemClicked: (onClick: string | undefined) => void;
   isCompact?: boolean;
+  rowIndex: number;
 }
 
 function PopoverContent(props: PopoverContentProps) {
-  const { isCompact, menuItems: itemsObj, onItemClicked } = props;
+  const { isCompact, menuItems: itemsObj, onItemClicked, rowIndex } = props;
 
   if (!itemsObj) return <StyledMenu />;
   const visibleItems = Object.keys(itemsObj)
     .map((itemKey) => itemsObj[itemKey])
-    .filter((item) => item.isVisible);
+    .filter((item) => getBooleanPropertyValue(item.isVisible, rowIndex));
 
   const items = orderBy(visibleItems, ["index"], ["asc"]);
 
@@ -224,8 +229,10 @@ function PopoverContent(props: PopoverContentProps) {
 
     return (
       <BaseMenuItem
-        backgroundColor={backgroundColor || "#FFFFFF"}
-        disabled={isDisabled}
+        backgroundColor={
+          getPropertyValue(backgroundColor, rowIndex) || "#FFFFFF"
+        }
+        disabled={getBooleanPropertyValue(isDisabled, rowIndex)}
         icon={
           iconAlign !== Alignment.RIGHT ? (
             <Icon color={iconColor} icon={iconName || undefined} />
@@ -244,7 +251,7 @@ function PopoverContent(props: PopoverContentProps) {
         }
         onClick={() => onItemClicked(onClick)}
         text={label}
-        textColor={textColor}
+        textColor={getPropertyValue(textColor, rowIndex)}
       />
     );
   });
@@ -306,6 +313,7 @@ export interface MenuButtonComponentProps {
   iconName?: IconName;
   iconAlign?: Alignment;
   onItemClicked: (onClick: string | undefined) => void;
+  rowIndex: number;
 }
 
 function MenuButtonTableComponent(props: MenuButtonComponentProps) {
@@ -322,6 +330,7 @@ function MenuButtonTableComponent(props: MenuButtonComponentProps) {
     menuItems,
     menuVariant,
     onItemClicked,
+    rowIndex,
   } = props;
 
   return (
@@ -341,6 +350,7 @@ function MenuButtonTableComponent(props: MenuButtonComponentProps) {
             isCompact={isCompact}
             menuItems={menuItems}
             onItemClicked={onItemClicked}
+            rowIndex={rowIndex}
           />
         }
         disabled={isDisabled}

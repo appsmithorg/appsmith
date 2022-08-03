@@ -45,6 +45,7 @@ Cypress.on("fail", (error) => {
 Cypress.env("MESSAGES", MESSAGES);
 
 before(function() {
+  this.timeout(1140000);
   //console.warn = () => {};
   initLocalstorage();
   initLocalstorageRegistry();

@@ -405,8 +405,8 @@ function WorkspaceInviteUsersForm(props: any) {
               fill
               text={
                 numberOfUsersInvited > 1
-                  ? INVITE_USERS_SUBMIT_SUCCESS()
-                  : INVITE_USER_SUBMIT_SUCCESS()
+                  ? createMessage(INVITE_USERS_SUBMIT_SUCCESS)
+                  : createMessage(INVITE_USER_SUBMIT_SUCCESS)
               }
               variant={Variant.success}
             />

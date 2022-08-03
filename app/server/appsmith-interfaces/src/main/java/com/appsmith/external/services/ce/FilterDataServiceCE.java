@@ -25,6 +25,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.sql.Types;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -192,8 +193,7 @@ public class FilterDataServiceCE implements IFilterDataServiceCE {
         String selectQuery = sb.toString();
         log.debug("{} : Executing Query on H2 : {}", Thread.currentThread().getName(), selectQuery);
 
-        try {
-            PreparedStatement preparedStatement = conn.prepareStatement(selectQuery);
+        try (PreparedStatement preparedStatement = conn.prepareStatement(selectQuery)) {
             Iterator<PreparedStatementValueDTO> iterator = values.iterator();
             for (int i = 0; iterator.hasNext(); i++) {
                 PreparedStatementValueDTO dataInfo = iterator.next();
@@ -433,8 +433,8 @@ public class FilterDataServiceCE implements IFilterDataServiceCE {
         Connection conn = checkAndGetConnection();
         log.debug("{} : Executing Query on H2 : {}", Thread.currentThread().getName(), query);
 
-        try {
-            conn.createStatement().execute(query);
+        try (Statement statement = conn.createStatement()) {
+            statement.execute(query);
         } catch (SQLException e) {
             log.error(e.getMessage());
             // Getting a SQL Exception here means that our generated query is incorrect. Raise an alarm!
@@ -452,9 +452,7 @@ public class FilterDataServiceCE implements IFilterDataServiceCE {
 
         String finalInsertQuery = insertQueryBuilder.toString();
 
-        try {
-            PreparedStatement preparedStatement = conn.prepareStatement(finalInsertQuery);
-
+        try (PreparedStatement preparedStatement = conn.prepareStatement(finalInsertQuery)) {
             int valueCounter = 0;
             while (valueCounter < inOrderValues.size()) {
 
@@ -589,7 +587,7 @@ public class FilterDataServiceCE implements IFilterDataServiceCE {
                                     } else {
                                         DataType foundDataType = stringToKnownDataTypeConverter(value);
                                         DataType convertedDataType = foundDataType;
-                                        if (name != "rowIndex" && dataTypeConversionMap != null) {
+                                        if (!"rowIndex".equals(name) && dataTypeConversionMap != null) {
                                             convertedDataType = dataTypeConversionMap.getOrDefault(foundDataType, foundDataType);
                                         }
                                         return convertedDataType;
