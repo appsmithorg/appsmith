@@ -13,7 +13,7 @@ import {
 import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
 
 const agHelper = ObjectsRegistry.AggregateHelper,
-  jsEditor = ObjectsRegistry.JSEditor;
+  propPane = ObjectsRegistry.PropertyPane;
 
 describe("MultiSelect Widget Functionality", function() {
   before(() => {
@@ -249,10 +249,10 @@ describe("MultiSelect Widget Functionality", function() {
 
       cy.openPropertyPane("multiselectwidgetv2");
       // set options
-      jsEditor.EnterJSContext("Options", JSON.stringify(options));
-      cy.get("body").type("{esc}");
+      propPane.UpdatePropertyFieldValue("Options", JSON.stringify(options))
+      agHelper.Escape();
       // set default value
-      jsEditor.EnterJSContext(
+      propPane.UpdatePropertyFieldValue(
         "Default Value",
         JSON.stringify(defaultValue, null, 2),
       );
@@ -278,12 +278,12 @@ describe("MultiSelect Widget Functionality", function() {
   it("9. Verify MultiSelect deselection behavior", function() {
     cy.openPropertyPane("multiselectwidgetv2");
     // set options
-    jsEditor.EnterJSContext(
+    propPane.UpdatePropertyFieldValue(
       "Options",
       JSON.stringify([{ label: "RED", value: "RED" }]),
     );
-    cy.get("body").type("{esc}");
-    jsEditor.EnterJSContext("Default Value", '["RED"]');
+    agHelper.Escape();
+    propPane.UpdatePropertyFieldValue("Default Value", '["RED"]');
     agHelper.RemoveMultiSelectItems(["RED"]);
 
     // verify value is equal to default value
