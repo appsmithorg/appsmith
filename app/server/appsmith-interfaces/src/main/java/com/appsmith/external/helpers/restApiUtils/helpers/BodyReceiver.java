@@ -111,7 +111,7 @@ public class BodyReceiver {
 
     static class MinimalHttpOutputMessage implements ClientHttpRequest {
 
-        public static MinimalHttpOutputMessage INSTANCE = new MinimalHttpOutputMessage();
+        public static final MinimalHttpOutputMessage INSTANCE = new MinimalHttpOutputMessage();
 
         private MinimalHttpOutputMessage() {
         }

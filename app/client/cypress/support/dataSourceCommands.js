@@ -336,6 +336,7 @@ Cypress.Commands.add(
       .type(userMockDatabaseUsername);
   },
 );
+
 Cypress.Commands.add(
   "fillSMTPDatasourceForm",
   (shouldAddTrailingSpaces = false) => {
@@ -504,9 +505,9 @@ Cypress.Commands.add("createGraphqlDatasource", (datasourceName) => {
   );
 });
 
-Cypress.Commands.add("createMockDatasource", () => {
+Cypress.Commands.add("createMockDatasource", (datasourceName) => {
   cy.get(".t--mock-datasource")
-    .contains("Users")
+    .contains(datasourceName)
     .click();
 });
 

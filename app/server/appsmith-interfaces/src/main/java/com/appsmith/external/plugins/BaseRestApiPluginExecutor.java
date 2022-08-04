@@ -64,7 +64,7 @@ public class BaseRestApiPluginExecutor implements PluginExecutor<APIConnection>,
 
     @Override
     public Mono<APIConnection> datasourceCreate(DatasourceConfiguration datasourceConfiguration) {
-        return APIConnectionFactory.createConnection(datasourceConfiguration.getAuthentication());
+        return APIConnectionFactory.createConnection(datasourceConfiguration);
     }
 
     @Override

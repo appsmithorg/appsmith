@@ -302,25 +302,8 @@ public class TriggerUtils {
                 .build();
 
         HttpClient httpClient = HttpClient.create(provider)
-                .secure(sslContextSpec -> {
-
-                    final DefaultSslContextSpec sslContextSpec1 = DefaultSslContextSpec.forClient();
-
-                    if (datasourceConfiguration.getConnection() != null &&
-                            datasourceConfiguration.getConnection().getSsl() != null &&
-                            datasourceConfiguration.getConnection().getSsl().getAuthType() == SSLDetails.AuthType.SELF_SIGNED_CERTIFICATE) {
-
-                        sslContextSpec1.configure(sslContextBuilder -> {
-                            try {
-                                final UploadedFile certificateFile = datasourceConfiguration.getConnection().getSsl().getCertificateFile();
-                                sslContextBuilder.trustManager(SSLHelper.getSslTrustManagerFactory(certificateFile));
-                            } catch (CertificateException | KeyStoreException | IOException | NoSuchAlgorithmException e) {
-                                e.printStackTrace();
-                            }
-                        });
-                    }
-                    sslContextSpec.sslContext(sslContextSpec1);
-                }).compress(true);
+                .secure(SSLHelper.sslCheckForHttpClient(datasourceConfiguration))
+                .compress(true);
 
         if ("true".equals(System.getProperty("java.net.useSystemProxies"))
                 && (!System.getProperty("http.proxyHost", "").isEmpty() || !System.getProperty("https.proxyHost", "").isEmpty())) {
