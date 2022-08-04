@@ -32,6 +32,7 @@ import com.appsmith.server.domains.QConfig;
 import com.appsmith.server.domains.QNewAction;
 import com.appsmith.server.domains.QNewPage;
 import com.appsmith.server.domains.QOrganization;
+import com.appsmith.server.domains.QPermissionGroup;
 import com.appsmith.server.domains.QPlugin;
 import com.appsmith.server.domains.QTenant;
 import com.appsmith.server.domains.QTheme;
@@ -73,8 +74,8 @@ import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.data.redis.core.ReactiveRedisOperations;
 import org.springframework.data.redis.core.script.RedisScript;
 import org.springframework.util.CollectionUtils;
-import org.springframework.util.StreamUtils;
 import org.springframework.util.ObjectUtils;
+import org.springframework.util.StreamUtils;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 
@@ -94,6 +95,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNestedNonNullProperties;
 import static com.appsmith.server.acl.AclPermission.ASSIGN_PERMISSION_GROUPS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_INSTANCE_CONFIGURATION;
 import static com.appsmith.server.acl.AclPermission.MANAGE_INSTANCE_ENV;
@@ -102,8 +104,6 @@ import static com.appsmith.server.acl.AclPermission.READ_INSTANCE_CONFIGURATION;
 import static com.appsmith.server.acl.AclPermission.READ_THEMES;
 import static com.appsmith.server.constants.FieldName.DEFAULT_PERMISSION_GROUP;
 import static com.appsmith.server.constants.FieldName.PERMISSION_GROUP_ID;
-import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNestedNonNullProperties;
-import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNewFieldValuesIntoOldObject;
 import static com.appsmith.server.migrations.DatabaseChangelog.dropIndexIfExists;
 import static com.appsmith.server.migrations.DatabaseChangelog.ensureIndexes;
 import static com.appsmith.server.migrations.DatabaseChangelog.getUpdatedDynamicBindingPathList;
@@ -2066,5 +2066,22 @@ public class DatabaseChangelog2 {
         // Finally save the role which gives access to all the system themes to the anonymous user.
         publicPermissionGroup.setPermissions(permissions);
         mongockTemplate.save(publicPermissionGroup);
+    }
+
+    @ChangeSet(order = "30", id = "create-permission-group-index", author = "")
+    public void addPermissionGroupIndex(MongockTemplate mongockTemplate) {
+
+        dropIndexIfExists(mongockTemplate, PermissionGroup.class, "permission_group_workspace_deleted_assignedToUserIds_compound_index");
+
+        Index permissionGroupIndex = makeIndex(
+                fieldName(QPermissionGroup.permissionGroup.defaultWorkspaceId),
+                fieldName(QPermissionGroup.permissionGroup.deleted),
+                fieldName(QPermissionGroup.permissionGroup.assignedToUserIds)
+                )
+                .named("permission_group_workspace_deleted_assignedToUserIds_compound_index");
+
+        ensureIndexes(mongockTemplate, PermissionGroup.class,
+                permissionGroupIndex
+        );
     }
 }
