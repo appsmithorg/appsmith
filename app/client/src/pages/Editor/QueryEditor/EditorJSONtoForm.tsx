@@ -81,7 +81,7 @@ import { UpdateActionPropertyActionPayload } from "actions/pluginActionActions";
 import Guide from "pages/Editor/GuidedTour/Guide";
 import { inGuidedTour } from "selectors/onboardingSelectors";
 import { EDITOR_TABS } from "constants/QueryEditorConstants";
-import Spinner from "components/ads/Spinner";
+import { Spinner } from "design-system";
 import {
   FormEvalOutput,
   isValidFormConfig,
@@ -134,7 +134,7 @@ export const TabbedViewContainer = styled.div`
   }
   .react-tabs__tab-list {
     margin: 0px;
-   
+
   }
   &&& {
     ul.react-tabs__tab-list {

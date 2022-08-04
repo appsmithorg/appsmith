@@ -9,7 +9,7 @@ import Button, { Category, Size } from "components/ads/Button";
 import { StyledDialog, ButtonWrapper, SpinnerWrapper } from "./ForkModalStyles";
 import { getIsFetchingApplications } from "selectors/applicationSelectors";
 import { useLocation } from "react-router";
-import Spinner from "components/ads/Spinner";
+import { Spinner } from "design-system";
 import { IconSize } from "components/ads/Icon";
 import { matchViewerForkPath } from "constants/routes";
 import { Colors } from "constants/Colors";

@@ -7,7 +7,7 @@ import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import { Classes, CommonComponentProps } from "./common";
 import Icon, { IconSize } from "./Icon";
-import Spinner from "./Spinner";
+import { Spinner } from "design-system";
 import { Text, TextType } from "design-system";
 
 type DropdownOption = {

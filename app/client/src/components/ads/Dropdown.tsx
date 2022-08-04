@@ -13,7 +13,7 @@ import { getTypographyByKey, Theme } from "constants/DefaultTheme";
 import styled from "constants/DefaultTheme";
 import SearchComponent from "components/designSystems/appsmith/SearchComponent";
 import { Colors } from "constants/Colors";
-import Spinner from "./Spinner";
+import { Spinner } from "design-system";
 import { ReactComponent as Check } from "assets/icons/control/checkmark.svg";
 import { ReactComponent as Close } from "assets/icons/control/remove.svg";
 import { replayHighlightClass } from "globalStyles/portals";

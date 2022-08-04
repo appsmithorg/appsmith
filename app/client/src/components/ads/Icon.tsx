@@ -67,7 +67,7 @@ import styled from "styled-components";
 import { Classes, CommonComponentProps } from "./common";
 import { noop } from "lodash";
 import { theme } from "constants/DefaultTheme";
-import Spinner from "./Spinner";
+import { Spinner } from "design-system";
 import { ControlIcons } from "icons/ControlIcons";
 
 // remix icons

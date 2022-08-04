@@ -8,7 +8,7 @@ import {
 } from "./common";
 import styled, { css } from "styled-components";
 import Icon, { IconName, IconSize } from "./Icon";
-import Spinner from "./Spinner";
+import { Spinner } from "design-system";
 import { mediumButton, smallButton, largeButton } from "constants/DefaultTheme";
 import _ from "lodash";
 
