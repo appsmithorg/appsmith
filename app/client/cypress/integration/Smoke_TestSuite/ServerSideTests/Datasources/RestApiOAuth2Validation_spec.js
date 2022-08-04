@@ -27,7 +27,7 @@ describe("Datasource form OAuth2 client credentials related tests", function() {
   });
 
   it("3. Create an API with app url and save as Datasource for Authorization code details test", function() {
-    apiPage.CreateAndFillApi(testdata.appUrl, "TestOAuth")
+    apiPage.CreateAndFillApi(testdata.appUrl, "TestOAuth");
     agHelper.GetNClick(apiPage._saveAsDS);
     agHelper.ValidateToastMessage("datasource created"); //verifying there is no error toast, Bug 14566
   });

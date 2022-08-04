@@ -5,7 +5,7 @@ import {
   SettingsReduxState,
 } from "ce/reducers/settingsReducer";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import { createReducer } from "utils/AppsmithUtils";
+import { createReducer } from "utils/ReducerUtils";
 
 const handlers = {
   ...CE_handlers,
