@@ -29,7 +29,8 @@ import history from "utils/history";
 import { INTEGRATION_EDITOR_MODES, INTEGRATION_TABS } from "constants/routes";
 import { initialize, autofill, change } from "redux-form";
 import { Property } from "api/ActionAPI";
-import { createNewApiName, getQueryParams } from "utils/AppsmithUtils";
+import { createNewApiName } from "utils/AppsmithUtils";
+import { getQueryParams } from "utils/URLUtils";
 import { getPluginIdOfPackageName } from "sagas/selectors";
 import { getAction, getActions, getPlugin } from "selectors/entitiesSelector";
 import {

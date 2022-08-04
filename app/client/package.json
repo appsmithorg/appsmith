@@ -135,7 +135,7 @@
     "react-transition-group": "^4.3.0",
     "react-use-gesture": "^7.0.4",
     "react-virtuoso": "^1.9.0",
-    "react-webcam": "^6.0.0",
+    "react-webcam": "^7.0.1",
     "react-window": "^1.8.6",
     "react-zoom-pan-pinch": "^1.6.1",
     "redux": "^4.0.1",
