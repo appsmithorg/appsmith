@@ -62,9 +62,7 @@ describe("Lint error reporting", () => {
       `{{
         () => {
         await showAlert('test')
-    }}}`,
-      true,
-      true,
+    }}}`
     );
 
     MouseHoverNVerify(
@@ -118,9 +116,7 @@ describe("Lint error reporting", () => {
           myVar2: {}
           myFun1: () => {
           }
-        }}}`,
-      true,
-      true,
+        }}}`
     );
     MouseHoverNVerify(
       "myFun1",
@@ -173,9 +169,7 @@ describe("Lint error reporting", () => {
           myVar2: {};
           myFun1: () => {
           }
-        }}}`,
-      true,
-      true,
+        }}}`
     );
     MouseHoverNVerify(
       ";",
