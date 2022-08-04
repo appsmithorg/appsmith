@@ -18,6 +18,8 @@ export interface WidgetConfiguration {
   searchTags?: string[];
   properties: {
     config: PropertyPaneConfig[];
+    contentConfig?: PropertyPaneConfig[];
+    styleConfig?: PropertyPaneConfig[];
     default: Record<string, string>;
     meta: Record<string, any>;
     derived: DerivedPropertiesMap;
