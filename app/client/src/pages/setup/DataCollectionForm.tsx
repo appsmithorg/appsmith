@@ -58,7 +58,7 @@ export default memo(function DataCollectionForm() {
               <Toggle
                 className="t--welcome-form-datacollection"
                 name="allowCollectingAnonymousData"
-                onToggle={(value) => setAllowCollection(value)}
+                onToggle={(value: boolean) => setAllowCollection(value)}
                 value={allowCollection}
               />
             </AllowToggle>
