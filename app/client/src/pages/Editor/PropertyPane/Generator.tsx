@@ -5,13 +5,24 @@ import {
   PropertyPaneSectionConfig,
 } from "constants/PropertyControlConstants";
 import { WidgetType } from "constants/WidgetConstants";
-import React from "react";
-import WidgetFactory from "utils/WidgetFactory";
+import React, { useEffect, useRef, useState } from "react";
 import PropertyControl from "./PropertyControl";
 import PropertySection from "./PropertySection";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import Boxed from "../GuidedTour/Boxed";
 import { GUIDED_TOUR_STEPS } from "../GuidedTour/constants";
+import styled from "styled-components";
+import { Colors } from "constants/Colors";
+import { searchProperty } from "./helpers";
+import { EmptySearchResult } from "./EmptySearchResult";
+
+export const EmptySearchResultWrapper = styled.div`
+  color: ${Colors.GRAY_700};
+
+  svg {
+    fill: ${Colors.GRAY_400};
+  }
+`;
 
 export enum PropertyPaneGroup {
   CONTENT,
@@ -20,13 +31,58 @@ export enum PropertyPaneGroup {
 
 export type PropertyControlsGeneratorProps = {
   id: string;
-  group?: PropertyPaneGroup;
+  config: readonly PropertyPaneConfig[];
   type: WidgetType;
   panel: IPanelProps;
   theme: EditorTheme;
+  searchQuery?: string;
 };
 
-export const generatePropertyControl = (
+type SectionProps = {
+  sectionConfig: PropertyPaneSectionConfig;
+  config: PropertyPaneConfig;
+  generatorProps: PropertyControlsGeneratorProps;
+};
+
+function Section(props: SectionProps) {
+  const { config, generatorProps, sectionConfig } = props;
+  const sectionRef = useRef<HTMLDivElement>(null);
+  const [hidden, setHidden] = useState(false);
+
+  useEffect(() => {
+    if (sectionRef.current?.childElementCount === 0) {
+      // Fix issue where the section is not hidden when it has no children
+      setHidden(true);
+    }
+  }, [generatorProps.searchQuery]);
+
+  return hidden ? null : (
+    <Boxed
+      key={config.id + generatorProps.id}
+      show={
+        sectionConfig.sectionName !== "General" &&
+        generatorProps.type === "TABLE_WIDGET"
+      }
+      step={GUIDED_TOUR_STEPS.TABLE_WIDGET_BINDING}
+    >
+      <PropertySection
+        childrenWrapperRef={sectionRef}
+        collapsible={sectionConfig.collapsible ?? true}
+        hidden={sectionConfig.hidden}
+        id={config.id || sectionConfig.sectionName}
+        isDefaultOpen={sectionConfig.isDefaultOpen}
+        key={config.id + generatorProps.id + generatorProps.searchQuery}
+        name={sectionConfig.sectionName}
+        propertyPath={sectionConfig.propertySectionPath}
+      >
+        {config.children &&
+          generatePropertyControl(config.children, generatorProps)}
+      </PropertySection>
+    </Boxed>
+  );
+}
+
+const generatePropertyControl = (
   propertyPaneConfig: readonly PropertyPaneConfig[],
   props: PropertyControlsGeneratorProps,
 ) => {
@@ -35,27 +91,35 @@ export const generatePropertyControl = (
     if ((config as PropertyPaneSectionConfig).sectionName) {
       const sectionConfig: PropertyPaneSectionConfig = config as PropertyPaneSectionConfig;
       return (
-        <Boxed
+        <Section
+          config={config}
+          generatorProps={props}
           key={config.id + props.id}
-          show={
-            sectionConfig.sectionName !== "General" &&
-            props.type === "TABLE_WIDGET"
-          }
-          step={GUIDED_TOUR_STEPS.TABLE_WIDGET_BINDING}
-        >
-          <PropertySection
-            collapsible={sectionConfig.collapsible ?? true}
-            hidden={sectionConfig.hidden}
-            id={config.id || sectionConfig.sectionName}
-            isDefaultOpen={sectionConfig.isDefaultOpen}
-            key={config.id + props.id}
-            name={sectionConfig.sectionName}
-            propertyPath={sectionConfig.propertySectionPath}
-          >
-            {config.children && generatePropertyControl(config.children, props)}
-          </PropertySection>
-        </Boxed>
+          sectionConfig={sectionConfig}
+        />
       );
+      // return (
+      //   <Boxed
+      //     key={config.id + props.id}
+      //     show={
+      //       sectionConfig.sectionName !== "General" &&
+      //       props.type === "TABLE_WIDGET"
+      //     }
+      //     step={GUIDED_TOUR_STEPS.TABLE_WIDGET_BINDING}
+      //   >
+      //     <PropertySection
+      //       collapsible={sectionConfig.collapsible ?? true}
+      //       hidden={sectionConfig.hidden}
+      //       id={config.id || sectionConfig.sectionName}
+      //       isDefaultOpen={sectionConfig.isDefaultOpen}
+      //       key={config.id + props.id + props.searchQuery}
+      //       name={sectionConfig.sectionName}
+      //       propertyPath={sectionConfig.propertySectionPath}
+      //     >
+      //       {config.children && generatePropertyControl(config.children, props)}
+      //     </PropertySection>
+      //   </Boxed>
+      // );
     } else if ((config as PropertyPaneControlConfig).controlType) {
       return (
         <Boxed
@@ -79,23 +143,22 @@ export const generatePropertyControl = (
   });
 };
 
-export function PropertyControlsGenerator(
-  props: PropertyControlsGeneratorProps,
-) {
-  let config;
-  switch (props.group) {
-    case PropertyPaneGroup.CONTENT:
-      config = WidgetFactory.getWidgetPropertyPaneContentConfig(props.type);
-      break;
-    case PropertyPaneGroup.STYLE:
-      config = WidgetFactory.getWidgetPropertyPaneStyleConfig(props.type);
-      break;
-    default:
-      config = WidgetFactory.getWidgetPropertyPaneConfig(props.type);
-  }
-  return (
+function PropertyControlsGenerator(props: PropertyControlsGeneratorProps) {
+  const searchResults = searchProperty(props.config, props.searchQuery);
+
+  const isSearchResultEmpty =
+    props.searchQuery &&
+    props.searchQuery.length > 0 &&
+    searchResults.length === 0;
+
+  return isSearchResultEmpty ? (
+    <EmptySearchResult />
+  ) : (
     <>
-      {generatePropertyControl(config as readonly PropertyPaneConfig[], props)}
+      {generatePropertyControl(
+        searchResults as readonly PropertyPaneConfig[],
+        props,
+      )}
     </>
   );
 }

@@ -11,7 +11,7 @@ import { getWidgetPropsForPropertyPaneView } from "selectors/propertyPaneSelecto
 import { IPanelProps, Position } from "@blueprintjs/core";
 
 import PropertyPaneTitle from "pages/Editor/PropertyPaneTitle";
-import PropertyControlsGenerator, { PropertyPaneGroup } from "./Generator";
+import PropertyControlsGenerator from "./Generator";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import { deleteSelectedWidget, copyWidget } from "actions/widgetActions";
 import ConnectDataCTA, { actionsExist } from "./ConnectDataCTA";
@@ -34,6 +34,7 @@ import WidgetFactory from "utils/WidgetFactory";
 import styled from "styled-components";
 import { InputWrapper } from "components/ads/TextInput";
 import { PropertyPaneTab } from "./PropertyPaneTab";
+import { useSearchText } from "./helpers";
 
 export const StyledSearchInput = styled(SearchInput)`
   position: sticky;
@@ -84,6 +85,7 @@ function PropertyPaneView(
 
     return true;
   }, [widgetProperties?.type, excludeList]);
+  const { searchText, setSearchText } = useSearchText("");
 
   const handleKbdEvent = (e: Event) => {
     const event = e as CustomEvent<InteractionAnalyticsEventDetail>;
@@ -240,7 +242,9 @@ function PropertyPaneView(
         (isContentConfigAvailable || isStyleConfigAvailable) ? (
           <>
             <StyledSearchInput
+              className="propertyPaneSearch"
               fill
+              onChange={setSearchText}
               placeholder="Search for controls, labels etc"
               variant={SearchVariant.BACKGROUND}
             />
@@ -248,9 +252,12 @@ function PropertyPaneView(
               contentComponent={
                 isContentConfigAvailable ? (
                   <PropertyControlsGenerator
-                    group={PropertyPaneGroup.CONTENT}
+                    config={WidgetFactory.getWidgetPropertyPaneContentConfig(
+                      widgetProperties.type,
+                    )}
                     id={widgetProperties.widgetId}
                     panel={panel}
+                    searchQuery={searchText}
                     theme={EditorTheme.LIGHT}
                     type={widgetProperties.type}
                   />
@@ -259,9 +266,12 @@ function PropertyPaneView(
               styleComponent={
                 isStyleConfigAvailable ? (
                   <PropertyControlsGenerator
-                    group={PropertyPaneGroup.STYLE}
+                    config={WidgetFactory.getWidgetPropertyPaneStyleConfig(
+                      widgetProperties.type,
+                    )}
                     id={widgetProperties.widgetId}
                     panel={panel}
+                    searchQuery={searchText}
                     theme={EditorTheme.LIGHT}
                     type={widgetProperties.type}
                   />
@@ -271,8 +281,12 @@ function PropertyPaneView(
           </>
         ) : (
           <PropertyControlsGenerator
+            config={WidgetFactory.getWidgetPropertyPaneConfig(
+              widgetProperties.type,
+            )}
             id={widgetProperties.widgetId}
             panel={panel}
+            searchQuery={searchText}
             theme={EditorTheme.LIGHT}
             type={widgetProperties.type}
           />

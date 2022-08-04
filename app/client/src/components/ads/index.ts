@@ -48,11 +48,6 @@ export * from "./EditableTextSubComponent";
 
 export { default as EditableTextWrapper } from "./EditableTextSubComponent";
 
-export { default as EmojiPicker } from "./EmojiPicker";
-
-export { default as EmojiReactions } from "./EmojiReactions";
-export * from "./EmojiReactions";
-
 export { default as FilePicker } from "./FilePicker";
 export * from "./FilePicker";
 
@@ -67,9 +62,6 @@ export { default as IconSelector } from "./IconSelector";
 export * from "./IconSelector";
 
 export { default as ListSegmentHeader } from "./ListSegmentHeader";
-
-export { default as MentionsInput } from "./MentionsInput";
-export * from "./MentionsInput";
 
 export { default as Menu } from "./Menu";
 export * from "./Menu";

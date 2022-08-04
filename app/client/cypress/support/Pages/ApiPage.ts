@@ -39,6 +39,7 @@ export class ApiPage {
   private _onPageLoad = "input[name='executeOnLoad'][type='checkbox']";
   private _confirmBeforeRunningAPI =
     "input[name='confirmBeforeExecute'][type='checkbox']";
+  _saveAsDS = ".t--store-as-datasource";
 
   CreateApi(
     apiName: string = "",
@@ -165,7 +166,7 @@ export class ApiPage {
     this.SelectPaneTab("Settings");
     cy.xpath(this._queryTimeout)
       .clear()
-      .type(timeout.toString(),  {delay: 0});//Delay 0 to work like paste!
+      .type(timeout.toString(), { delay: 0 }); //Delay 0 to work like paste!
     this.agHelper.AssertAutoSave();
     this.SelectPaneTab("Headers");
   }
