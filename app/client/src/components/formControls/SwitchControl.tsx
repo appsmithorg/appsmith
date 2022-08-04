@@ -1,6 +1,6 @@
 import React from "react";
 import BaseControl, { ControlProps } from "./BaseControl";
-import Toggle from "components/ads/Toggle";
+import { Toggle } from "design-system";
 import { ControlType } from "constants/PropertyControlConstants";
 import { Field, WrappedFieldProps } from "redux-form";
 import styled from "styled-components";
