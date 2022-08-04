@@ -87,6 +87,14 @@ const Page = styled.div`
   margin-top: 23px;
 `;
 
+const PageName = styled.div`
+  cursor: pointer;
+  &:hover {
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+`;
+
 const StyledButton = styled(Button)`
   margin-top: 22px;
 `;
@@ -181,13 +189,13 @@ function PageSelection(props: PageSelectionProps) {
         {props.pages.map((page) => {
           return (
             <Page key={page.id}>
-              <div
+              <PageName
                 className="flex items-center"
                 onClick={() => props.onPageSelection(page.id)}
               >
                 <Icon name="pages-line" />
                 <Text type={TextType.P4}>{page.name.toUpperCase()}</Text>
-              </div>
+              </PageName>
               <CustomCheckbox
                 checked={selectedPages.includes(page.name)}
                 onChange={(checked) => onSelection(page.name, checked)}
