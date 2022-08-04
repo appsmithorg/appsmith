@@ -1,6 +1,3 @@
-export { default as ButtonTabComponent } from "./ButtonTabComponent";
-export * from "./ButtonTabComponent";
-
 export { default as Callout } from "./Callout";
 export * from "./Callout";
 
