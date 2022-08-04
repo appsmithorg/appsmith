@@ -39,6 +39,7 @@ export class ApiPage {
   private _onPageLoad = "input[name='executeOnLoad'][type='checkbox']";
   private _confirmBeforeRunningAPI =
     "input[name='confirmBeforeExecute'][type='checkbox']";
+  private _paginationTypeLabels = ".t--apiFormPaginationType label";
 
   CreateApi(
     apiName: string = "",
@@ -156,9 +157,33 @@ export class ApiPage {
     this.agHelper.AssertAutoSave();
   }
 
-  RunAPI() {
+  RunAPI(
+    validationType: "Execution" | "Data" | "Network" = "Execution",
+    option?: {
+      expectedRes?: any;
+      expectedPath?: string;
+      expectedStatus?: number;
+    },
+  ) {
     cy.get(this._apiRunBtn).click({ force: true });
-    this.agHelper.ValidateNetworkExecutionSuccess("@postExecute");
+    if (validationType === "Execution") {
+      this.agHelper.ValidateNetworkExecutionSuccess("@postExecute");
+    } else if (validationType === "Data") {
+      if (option?.expectedPath && option?.expectedRes) {
+        this.agHelper.ValidateNetworkDataAssert(
+          "@postExecute",
+          option.expectedPath,
+          option.expectedRes,
+        );
+      }
+    } else if (validationType === "Network") {
+      if (option?.expectedStatus) {
+        this.agHelper.ValidateNetworkStatus(
+          "@postExecute",
+          option?.expectedStatus,
+        );
+      }
+    }
   }
 
   SetAPITimeout(timeout: number) {
@@ -256,5 +281,11 @@ export class ApiPage {
     cy.xpath(this._verbToSelect(verb))
       .should("be.visible")
       .click();
+  }
+
+  public SelectPaginationTypeViaIndex(index: number) {
+    cy.get(this._paginationTypeLabels)
+      .eq(index)
+      .click({ force: true });
   }
 }
