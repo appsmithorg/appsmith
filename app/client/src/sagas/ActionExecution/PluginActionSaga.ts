@@ -267,8 +267,11 @@ function* evaluateActionParams(
   executeActionRequest: any,
   executionParams?: Record<string, any> | string,
 ) {
-  if (_.isNil(bindings) || bindings.length === 0) return [];
-
+  if (_.isNil(bindings) || bindings.length === 0) {
+    executeActionRequest.paramProperties = {};
+    formData.append("executeActionDTO", JSON.stringify(executeActionRequest));
+    return [];
+  }
   // Evaluated all bindings of the actions. Pass executionParams if any
   // @ts-expect-error: Values can take many types
   const values = yield call(evaluateActionBindings, bindings, executionParams);
@@ -317,6 +320,9 @@ function* evaluateActionParams(
     {},
     ...executeActionRequest.paramProperties,
   );
+  if (Object.keys(executeActionRequest.paramProperties).length === 0) {
+    executeActionRequest.paramProperties = {};
+  }
   formData.append("executeActionDTO", JSON.stringify(executeActionRequest));
   formData.append("parameterMap", JSON.stringify(bindingsMap));
   bindingBlob?.forEach((item) => formData.append(item.name, item.value));
