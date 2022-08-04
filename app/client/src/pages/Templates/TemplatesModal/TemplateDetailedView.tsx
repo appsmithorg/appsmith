@@ -77,7 +77,7 @@ const CloseIcon = styled(Icon)`
 
 const Body = styled.div`
   margin-top: 42px;
-  padding: 0 52px;
+  padding: 0 25px;
 `;
 
 const StyledSimilarTemplatesWrapper = styled(SimilarTemplatesWrapper)`

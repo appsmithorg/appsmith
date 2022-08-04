@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import { Text, TextType } from "design-system";
-import { Checkmark } from "components/ads/Checkbox";
+import { CheckboxType, Checkmark } from "components/ads/Checkbox";
 import { Classes, Size } from "components/ads";
 import Icon from "components/ads/Icon";
 import { Colors } from "constants/Colors";
@@ -13,7 +13,7 @@ import { ApplicationPagePayload } from "api/ApplicationApi";
 
 const Wrapper = styled.div`
   width: max(300px, 25%);
-  padding: 0px 20px;
+  padding-left: 20px;
   position: sticky;
   top: 0;
   position: -webkit-sticky;
@@ -123,6 +123,7 @@ function CustomCheckbox(props: CustomCheckboxProps) {
       <StyledCheckMark
         backgroundColor={Colors.GREY_900}
         isChecked={props.checked}
+        type={CheckboxType.PRIMARY}
       />
     </CheckboxWrapper>
   );
@@ -209,6 +210,7 @@ function PageSelection(props: PageSelectionProps) {
           size={Size.large}
           tag="button"
           text="ADD SELECTED PAGES"
+          width="100%"
         />
       </Card>
     </Wrapper>
