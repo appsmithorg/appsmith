@@ -5,7 +5,6 @@ import styled from "constants/DefaultTheme";
 import { ISliderProps, Slider } from "@blueprintjs/core";
 import { Colors } from "constants/Colors";
 import { replayHighlightClass } from "globalStyles/portals";
-import { WidgetHeightLimits } from "constants/WidgetConstants";
 
 const StyledSlider = styled(Slider)`
   &&&&& input:checked ~ span {
@@ -18,6 +17,7 @@ const StyledSlider = styled(Slider)`
 `;
 
 function AdsSlider(props: ISliderProps) {
+  const max = (props.value || 0) + 100;
   return (
     <StyledSlider
       {...props}
@@ -26,9 +26,9 @@ function AdsSlider(props: ISliderProps) {
           ? props.className + " " + replayHighlightClass
           : replayHighlightClass
       }
-      labelStepSize={25}
-      max={100}
-      min={0}
+      labelStepSize={Math.floor(max / 4)}
+      max={max}
+      min={4}
     />
   );
 }

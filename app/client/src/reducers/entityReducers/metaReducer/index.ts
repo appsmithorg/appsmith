@@ -1,6 +1,9 @@
 import { set } from "lodash";
 import { createReducer } from "utils/AppsmithUtils";
-import { UpdateWidgetMetaPropertyPayload } from "actions/metaActions";
+import {
+  UpdateWidgetMetaPropertyPayload,
+  ResetWidgetMetaPayload,
+} from "actions/metaActions";
 
 import {
   ReduxActionTypes,
@@ -9,8 +12,10 @@ import {
 } from "@appsmith/constants/ReduxActionConstants";
 import produce from "immer";
 import { EvalMetaUpdates } from "workers/DataTreeEvaluator/types";
+import { klona } from "klona";
 
-export type MetaState = Record<string, Record<string, unknown>>;
+export type WidgetMetaState = Record<string, unknown>;
+export type MetaState = Record<string, WidgetMetaState>;
 
 export const initialState: MetaState = {};
 
@@ -93,11 +98,31 @@ export const metaReducer = createReducer(initialState, {
   },
   [ReduxActionTypes.RESET_WIDGET_META]: (
     state: MetaState,
-    action: ReduxAction<{ widgetId: string }>,
+    action: ReduxAction<ResetWidgetMetaPayload>,
   ) => {
-    const widgetId = action.payload.widgetId;
+    const { evaluatedWidget, widgetId } = action.payload;
+
     if (widgetId in state) {
-      return { ...state, [widgetId]: {} };
+      // only reset widgets whose meta properties were changed.
+      // reset widget: sets the meta values to current default values of widget
+      const resetMetaObj: WidgetMetaState = {};
+
+      // evaluatedWidget is widget data inside dataTree, this will have latest default values of widget
+      if (evaluatedWidget) {
+        const { propertyOverrideDependency } = evaluatedWidget;
+        // propertyOverrideDependency has defaultProperty name for each meta property of widget
+        Object.entries(propertyOverrideDependency).map(
+          ([propertyName, dependency]) => {
+            const defaultPropertyValue =
+              dependency.DEFAULT && evaluatedWidget[dependency.DEFAULT];
+            if (defaultPropertyValue !== undefined) {
+              // cloning data to avoid mutation
+              resetMetaObj[propertyName] = klona(defaultPropertyValue);
+            }
+          },
+        );
+      }
+      return { ...state, [widgetId]: resetMetaObj };
     }
     return state;
   },

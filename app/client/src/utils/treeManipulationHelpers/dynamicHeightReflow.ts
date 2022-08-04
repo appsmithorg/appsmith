@@ -31,10 +31,11 @@ export function generateTree(spaces: NodeSpace[]): Record<string, TreeNode> {
     space.bottom + MAX_BOX_SIZE,
   ]);
 
+  // TODO(abhinav): create an alternative function which uses brute force.
+
   // boxes.sort((a, b) => a[1] - b[1]);
 
   const overlaps = boxIntersect(boxes);
-
   const { aboveMap, belowMap } = getOverlapMap(overlaps);
 
   const tree: Record<string, TreeNode> = {};
@@ -43,13 +44,19 @@ export function generateTree(spaces: NodeSpace[]): Record<string, TreeNode> {
     tree[space.id] = {
       aboves: (aboveMap[i] || []).map((id) => spaces[id].id),
       belows: (belowMap[i] || []).map((id) => spaces[id].id),
-      topRow: space.top,
-      bottomRow: space.bottom,
+      topRow: Math.floor(space.top),
+      bottomRow: Math.ceil(space.bottom),
     };
   }
 
   return tree;
 }
+
+// export function generateTreeBruteForce(
+//   spaces: NodeSpace[],
+// ): Record<string, TreeNode> {
+//   spaces.sort((a, b) => a.top - b.top);
+// }
 
 // Gets a list of widgets below and above for each widget
 // Namely, the belowMap and aboveMap respectively.
@@ -71,16 +78,16 @@ function getOverlapMap(arr: [number, number][]) {
   return { belowMap, aboveMap };
 }
 
-function getEffectedWidgets(
+function getEffectedBoxes(
   id: string,
   tree: Record<string, TreeNode>,
-  effectedWidgets = [],
+  effectedBoxes = [],
 ): string[] {
   const belows = tree[id].belows;
   belows.forEach((belowId) => {
-    (effectedWidgets as string[]).push(belowId);
+    (effectedBoxes as string[]).push(belowId);
   });
-  return effectedWidgets;
+  return effectedBoxes;
 }
 
 // TODO: DEBUG(abhinav): This probably doesn't take in to account the following:
@@ -101,7 +108,7 @@ export function computeChangeInPositionBasedOnDelta(
   // This is expensive, we need to figure out a better algorithm
 
   for (const boxId in delta) {
-    const effectedIds = getEffectedWidgets(boxId, tree);
+    const effectedIds = getEffectedBoxes(boxId, tree);
     // These effectedIds may not be necessary.
     effectedIds.forEach((effectedId) => {
       effectedBoxMap[effectedId] = [
@@ -152,6 +159,7 @@ export function computeChangeInPositionBasedOnDelta(
       }
     }
     if (_offset === undefined) {
+      // TODO(abhinav): If this is the topmost widget, why does it need the reduce?
       _offset = effectedBoxMap[effectedBoxId].reduce(
         (prev, next) => prev + next,
         0,

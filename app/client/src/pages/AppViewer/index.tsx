@@ -59,6 +59,7 @@ const AppViewerBody = styled.section<{
   align-items: stretch;
   justify-content: flex-start;
   height: calc(100vh - ${({ headerHeight }) => headerHeight}px);
+  --view-mode-header-height: ${({ headerHeight }) => headerHeight}px;
 `;
 
 const ContainerWithComments = styled.div`

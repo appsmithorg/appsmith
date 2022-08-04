@@ -61,12 +61,11 @@ import { MainCanvasReduxState } from "./uiReducers/mainCanvasReducer";
 import SettingsReducer, {
   SettingsReduxState,
 } from "@appsmith/reducers/settingsReducer";
+import { TriggerValuesEvaluationState } from "./evaluationReducers/triggerReducer";
 
-// eslint-disable-next-line prettier/prettier
-import type { CanvasLevelsReduxState } from "./entityReducers/dynamicHeightReducers/canvasLevelsReducer";
+import { CanvasLevelsReduxState } from "./entityReducers/dynamicHeightReducers/canvasLevelsReducer";
 
-// eslint-disable-next-line prettier/prettier
-import type { DynamicHeightLayoutTreeReduxState } from "./entityReducers/dynamicHeightReducers/dynamicHeightLayoutTreeReducer";
+import { DynamicHeightLayoutTreeReduxState } from "./entityReducers/dynamicHeightReducers/dynamicHeightLayoutTreeReducer";
 
 const appReducer = combineReducers({
   entities: entityReducer,
@@ -134,13 +133,14 @@ export interface AppState {
     app: AppDataState;
     jsActions: JSCollectionDataState;
     dynamicHeightLayoutTree: DynamicHeightLayoutTreeReduxState;
-    canvasLevels: CanvasLevelsReduxState
+    canvasLevels: CanvasLevelsReduxState;
   };
   evaluations: {
     tree: EvaluatedTreeState;
     dependencies: EvaluationDependencyState;
     loadingEntities: LoadingEntitiesState;
     formEvaluation: FormEvaluationState;
+    triggers: TriggerValuesEvaluationState;
   };
   form: {
     [key: string]: any;

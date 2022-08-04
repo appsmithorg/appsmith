@@ -145,6 +145,7 @@ const SingleSelectTreeComponent = React.forwardRef<
     const {
       BackDrop,
       getPopupContainer,
+      isOpen,
       onKeyDown,
       onOpen,
       selectRef,
@@ -167,7 +168,6 @@ const SingleSelectTreeComponent = React.forwardRef<
       [],
     );
     const onClear = useCallback(() => onChange([], []), []);
-
     const clearButton = useMemo(
       () =>
         filter ? (
@@ -225,6 +225,12 @@ const SingleSelectTreeComponent = React.forwardRef<
       ),
       [loading, isFilterable, filter, onQueryChange],
     );
+
+    const onDropdownVisibleChange = (open: boolean) => {
+      onOpen(open);
+      // Clear the search input on closing the widget
+      setFilter("");
+    };
 
     return (
       <TreeSelectContainer
@@ -293,7 +299,8 @@ const SingleSelectTreeComponent = React.forwardRef<
             notFoundContent="No Results Found"
             onChange={onSelectionChange}
             onClear={onClear}
-            onDropdownVisibleChange={onOpen}
+            onDropdownVisibleChange={onDropdownVisibleChange}
+            open={isOpen}
             placeholder={placeholder}
             ref={selectRef}
             searchValue={filter}

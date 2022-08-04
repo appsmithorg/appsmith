@@ -10,14 +10,12 @@ import IconSVG from "./icon.svg";
 import Widget from "./widget";
 
 export const CONFIG = {
-  features: {
-    dynamicHeight: true,
-  },
   type: Widget.getWidgetType(),
   name: "Table",
   iconSVG: IconSVG,
   needsMeta: true,
   searchTags: ["datagrid"],
+  hideCard: true,
   defaults: {
     rows: 28,
     columns: 34,

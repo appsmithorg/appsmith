@@ -1,6 +1,13 @@
-import React, { ReactElement, useCallback, useMemo } from "react";
+import React, {
+  ReactElement,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+} from "react";
+import equal from "fast-deep-equal/es6";
 import { useDispatch, useSelector } from "react-redux";
-import { getWidgetPropsForPropertyPane } from "selectors/propertyPaneSelectors";
+import { getWidgetPropsForPropertyPaneView } from "selectors/propertyPaneSelectors";
 import { IPanelProps, Position } from "@blueprintjs/core";
 
 import PropertyPaneTitle from "pages/Editor/PropertyPaneTitle";
@@ -12,6 +19,12 @@ import PropertyPaneConnections from "./PropertyPaneConnections";
 import CopyIcon from "remixicon-react/FileCopyLineIcon";
 import DeleteIcon from "remixicon-react/DeleteBinLineIcon";
 import { WidgetType } from "constants/WidgetConstants";
+import {
+  InteractionAnalyticsEventDetail,
+  INTERACTION_ANALYTICS_EVENT,
+} from "utils/AppsmithUtils";
+import { emitInteractionAnalyticsEvent } from "utils/AppsmithUtils";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 import { buildDeprecationWidgetMessage, isWidgetDeprecated } from "../utils";
 import { BannerMessage } from "components/ads/BannerMessage";
 import { Colors } from "constants/Colors";
@@ -41,8 +54,12 @@ function PropertyPaneView(
 ) {
   const dispatch = useDispatch();
   const { ...panel } = props;
-  const widgetProperties: any = useSelector(getWidgetPropsForPropertyPane);
+  const widgetProperties = useSelector(
+    getWidgetPropsForPropertyPaneView,
+    equal,
+  );
   const doActionsExist = useSelector(actionsExist);
+  const containerRef = useRef<HTMLDivElement>(null);
   const hideConnectDataCTA = useMemo(() => {
     if (widgetProperties) {
       return excludeList.includes(widgetProperties.type);
@@ -50,6 +67,29 @@ function PropertyPaneView(
 
     return true;
   }, [widgetProperties?.type, excludeList]);
+
+  const handleKbdEvent = (e: Event) => {
+    const event = e as CustomEvent<InteractionAnalyticsEventDetail>;
+    AnalyticsUtil.logEvent("PROPERTY_PANE_KEYPRESS", {
+      key: event.detail.key,
+      propertyName: event.detail.propertyName,
+      propertyType: event.detail.propertyType,
+      widgetType: event.detail.widgetType,
+    });
+  };
+
+  useEffect(() => {
+    containerRef.current?.addEventListener(
+      INTERACTION_ANALYTICS_EVENT,
+      handleKbdEvent,
+    );
+    return () => {
+      containerRef.current?.removeEventListener(
+        INTERACTION_ANALYTICS_EVENT,
+        handleKbdEvent,
+      );
+    };
+  }, []);
 
   /**
    * on delete button click
@@ -62,6 +102,19 @@ function PropertyPaneView(
    * on  copy button click
    */
   const onCopy = useCallback(() => dispatch(copyWidget(false)), [dispatch]);
+
+  const handleTabKeyDownForButton = useCallback(
+    (propertyName: string) => (e: React.KeyboardEvent) => {
+      if (e.key === "Tab")
+        emitInteractionAnalyticsEvent(containerRef?.current, {
+          key: e.key,
+          propertyName,
+          propertyType: "BUTTON",
+          widgetType: widgetProperties?.type,
+        });
+    },
+    [],
+  );
 
   /**
    * actions shown on the right of title
@@ -79,6 +132,7 @@ function PropertyPaneView(
           <button
             className="p-1 hover:bg-warmGray-100 focus:bg-warmGray-100 group t--copy-widget"
             onClick={onCopy}
+            onKeyDown={handleTabKeyDownForButton("widgetCopy")}
           >
             <CopyIcon className="w-4 h-4 text-gray-500" />
           </button>
@@ -91,13 +145,14 @@ function PropertyPaneView(
           <button
             className="p-1 hover:bg-warmGray-100 focus:bg-warmGray-100 group t--delete-widget"
             onClick={onDelete}
+            onKeyDown={handleTabKeyDownForButton("widgetDelete")}
           >
             <DeleteIcon className="w-4 h-4 text-gray-500" />
           </button>
         ),
       },
     ];
-  }, [onCopy, onDelete]);
+  }, [onCopy, onDelete, handleTabKeyDownForButton]);
 
   if (!widgetProperties) return null;
 
@@ -117,6 +172,7 @@ function PropertyPaneView(
     <div
       className="relative flex flex-col w-full pt-3 overflow-y-auto"
       key={`property-pane-${widgetProperties.widgetId}`}
+      ref={containerRef}
     >
       <PropertyPaneTitle
         actions={actions}
@@ -137,7 +193,10 @@ function PropertyPaneView(
             widgetType={widgetProperties?.type}
           />
         )}
-        <PropertyPaneConnections widgetName={widgetProperties.widgetName} />
+        <PropertyPaneConnections
+          widgetName={widgetProperties.widgetName}
+          widgetType={widgetProperties.type}
+        />
         {isDeprecated && (
           <BannerMessage
             backgroundColor={Colors.WARNING_ORANGE}

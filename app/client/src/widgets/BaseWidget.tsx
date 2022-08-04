@@ -17,7 +17,7 @@ import {
   WIDGET_PADDING,
 } from "constants/WidgetConstants";
 import React, { Component, ReactNode } from "react";
-import { get, memoize } from "lodash";
+import { debounce, get, memoize } from "lodash";
 import DraggableComponent from "components/editorComponents/DraggableComponent";
 import SnipeableComponent from "components/editorComponents/SnipeableComponent";
 import ResizableComponent from "components/editorComponents/ResizableComponent";
@@ -175,7 +175,6 @@ abstract class BaseWidget<
   */
   updateDynamicHeight(height: number): void {
     const shouldUpdate = this.shouldUpdateDynamicHeight(height);
-
     const { updateWidgetDynamicHeight } = this.context;
     if (updateWidgetDynamicHeight) {
       const { widgetId } = this.props;
@@ -193,6 +192,17 @@ abstract class BaseWidget<
       expectedHeight / GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
     );
 
+    log.debug(
+      "Dynamic height: Checking if we should update:",
+      { props: this.props },
+      { currentHeightInRows },
+      { expectedHeightInRows },
+      { diff: Math.abs(currentHeightInRows - expectedHeightInRows) },
+    );
+
+    // If the diff is of less than 2 rows, do nothing. If it is actually 2 rows,
+    // then we need to compute.
+    if (Math.abs(currentHeightInRows - expectedHeightInRows) < 2) return false;
     // Does this widget have dynamic height enabled
     const isDynamicHeightEnabled = isDynamicHeightEnabledForWidget(this.props);
 
@@ -213,7 +223,7 @@ abstract class BaseWidget<
     // We're trying to see if we can increase the height
     if (currentHeightInRows < expectedHeightInRows) {
       // If we're not already at the max height, we can increase height
-      if (maxDynamicHeightInRows > currentHeightInRows) {
+      if (maxDynamicHeightInRows >= currentHeightInRows) {
         return true;
       }
     }
@@ -223,7 +233,7 @@ abstract class BaseWidget<
     if (currentHeightInRows > expectedHeightInRows) {
       // If our attempt to reduce does not go below the min possible height
       // We can safely reduce the height
-      if (minDynamicHeightInRows < expectedHeightInRows) {
+      if (minDynamicHeightInRows <= expectedHeightInRows) {
         return true;
       }
     }
@@ -412,13 +422,13 @@ abstract class BaseWidget<
   }
 
   addDynamicHeightOverlay(content: ReactNode) {
-    const onMaxHeightSet = (height: number) => {
+    const onMaxHeightSet = debounce((height: number) => {
       this.updateWidgetProperty("maxDynamicHeight", Math.floor(height / 10));
-    };
+    }, 250);
 
-    const onMinHeightSet = (height: number) => {
+    const onMinHeightSet = debounce((height: number) => {
       this.updateWidgetProperty("minDynamicHeight", Math.floor(height / 10));
-    };
+    }, 250);
 
     console.log(this.getPositionStyle(), "minDynamicHeight");
 
@@ -453,7 +463,7 @@ abstract class BaseWidget<
           if (
             this.props.dynamicHeight === DynamicHeight.AUTO_HEIGHT_WITH_LIMITS
           ) {
-            console.log(
+            log.debug(
               "AUTO_HEIGHT_WITH_LIMITS",
               this.props.maxDynamicHeight,
               this.props.minDynamicHeight,

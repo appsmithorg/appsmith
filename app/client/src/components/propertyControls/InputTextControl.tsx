@@ -120,7 +120,7 @@ class InputTextControl extends BaseControl<InputControlProps> {
     if (typeof event !== "string") {
       value = event.target.value;
     }
-    this.updateProperty(this.props.propertyName, value);
+    this.updateProperty(this.props.propertyName, value, true);
   };
 
   static getControlType() {

@@ -1,37 +1,74 @@
 package com.appsmith.git.helpers;
 
-import com.appsmith.external.git.GitExecutor;
+import com.appsmith.external.models.ApplicationGitReference;
 import com.appsmith.git.configurations.GitServiceConfig;
+import com.appsmith.git.service.GitExecutorImpl;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import junit.framework.TestCase;
 import org.apache.commons.io.FileUtils;
+import org.eclipse.jgit.api.errors.GitAPIException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mockito;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
+import reactor.core.publisher.Mono;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static com.appsmith.git.constants.GitDirectories.PAGE_DIRECTORY;
+import static com.appsmith.git.constants.GitDirectories.ACTION_COLLECTION_DIRECTORY;
 import static com.appsmith.git.constants.GitDirectories.ACTION_DIRECTORY;
+import static com.appsmith.git.constants.GitDirectories.PAGE_DIRECTORY;
 
+@ExtendWith(SpringExtension.class)
 public class FileUtilsImplTest extends TestCase {
     private FileUtilsImpl fileUtils;
+    @MockBean
+    private GitExecutorImpl gitExecutor;
     private GitServiceConfig gitServiceConfig;
-    private GitExecutor gitExecutor;
 
     @BeforeEach
     public void setUp() {
+        gitServiceConfig = new GitServiceConfig();
+        gitServiceConfig.setGitRootPath(localTestDirectoryPath.toString());
         fileUtils = new FileUtilsImpl(gitServiceConfig, gitExecutor);
     }
 
     private static final String localTestDirectory = "localTestDirectory";
     private static final Path localTestDirectoryPath = Path.of(localTestDirectory);
+
+    @Test
+    public void saveApplicationRef_removeActionAndActionCollectionDirectoryCreatedInV1FileFormat_success() throws GitAPIException, IOException {
+        Path actionDirectoryPath = localTestDirectoryPath.resolve(ACTION_DIRECTORY);
+        Path actionCollectionDirectoryPath = localTestDirectoryPath.resolve(ACTION_COLLECTION_DIRECTORY);
+        Files.createDirectories(actionDirectoryPath);
+        Files.createDirectories(actionCollectionDirectoryPath);
+
+        Mockito.when(gitExecutor.resetToLastCommit(Mockito.any(Path.class), Mockito.any()))
+                        .thenReturn(Mono.just(true));
+
+        ApplicationGitReference applicationGitReference = new ApplicationGitReference();
+        applicationGitReference.setApplication(new Object());
+        applicationGitReference.setMetadata(new Object());
+        applicationGitReference.setPages(new HashMap<>());
+        applicationGitReference.setActions(new HashMap<>());
+        applicationGitReference.setActionCollections(new HashMap<>());
+        applicationGitReference.setDatasources(new HashMap<>());
+        fileUtils.saveApplicationToGitRepo(Path.of(""), applicationGitReference, "branch").block();
+
+        Assertions.assertFalse(actionDirectoryPath.toFile().exists());
+        Assertions.assertFalse(actionCollectionDirectoryPath.toFile().exists());
+    }
 
     @Test
     public void testScanAndDeleteDirectoryForDeletedResources() {

@@ -40,6 +40,7 @@ export type FetchPageResponseData = {
   applicationId: string;
   layouts: Array<PageLayout>;
   lastUpdatedTime: number;
+  customSlug?: string;
 };
 
 export type FetchPublishedPageResponseData = FetchPageResponseData;
@@ -64,8 +65,9 @@ export type CreatePageRequest = Omit<
 
 export type UpdatePageRequest = {
   id: string;
-  name: string;
+  name?: string;
   isHidden?: boolean;
+  customSlug?: string;
 };
 
 export type SetPageOrderRequest = {
@@ -83,7 +85,7 @@ export type FetchPageListResponseData = {
     isDefault: boolean;
     isHidden?: boolean;
     layouts: Array<PageLayout>;
-    slug?: string;
+    slug: string;
   }>;
   workspaceId: string;
 };

@@ -48,10 +48,13 @@ const Container = styled.div<{
         z-index: ${(props) => props.zIndex || 2 - 1};
       }
       position: fixed;
-      top: 0;
+      top: var(--view-mode-header-height, 0);
       right: 0;
       bottom: 0;
-      height: 100vh;
+      height: ${(props) =>
+        props.isEditMode
+          ? "100vh"
+          : `calc(100vh - var(--view-mode-header-height, 0))`};
       z-index: ${(props) => props.zIndex};
       width: 100%;
       display: flex;
@@ -66,7 +69,7 @@ const Container = styled.div<{
 
           return `95%`;
         }};
-        max-height: 85%;
+        max-height: ${(props) => (props.isEditMode ? "85%" : "95%")};
         width: ${(props) => (props.width ? `${props.width}px` : "auto")};
         height: ${(props) => (props.height ? `${props.height}px` : "auto")};
         min-height: ${(props) => `${props.minSize}px`};

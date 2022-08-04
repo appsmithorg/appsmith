@@ -37,6 +37,7 @@ import {
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import {
   Wrapper,
+  BackButton,
   BottomSpace,
   HeaderWrapper,
   SettingsHeader,
@@ -132,14 +133,19 @@ export function SettingsForm(
     _.forEach(props.settingsConfig, (value, settingName) => {
       const setting = AdminConfig.settingsMap[settingName];
       if (setting && setting.controlType == SettingTypes.TOGGLE) {
-        props.settingsConfig[settingName] =
-          props.settingsConfig[settingName].toString() == "true";
+        const settingsStr = props.settingsConfig[settingName].toString();
+        if (settingName.toLowerCase().includes("enable")) {
+          props.settingsConfig[settingName] =
+            settingsStr === "" || settingsStr === "true";
+        } else {
+          props.settingsConfig[settingName] = settingsStr === "true";
+        }
       }
     });
     props.initialize(props.settingsConfig);
   };
 
-  useEffect(onClear, []);
+  useEffect(onClear, [subCategory]);
 
   const onReleaseNotesClose = useCallback(() => {
     dispatch({
@@ -177,6 +183,7 @@ export function SettingsForm(
 
   return (
     <Wrapper>
+      {subCategory && <BackButton />}
       <SettingsFormWrapper>
         <HeaderWrapper>
           <SettingsHeader>{pageTitle}</SettingsHeader>

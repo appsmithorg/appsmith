@@ -1,10 +1,8 @@
-import { PropertyPaneConfig } from "constants/PropertyControlConstants";
 import { WidgetHeightLimits } from "constants/WidgetConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { WidgetProps } from "widgets/BaseWidget";
 
-// eslint-disable-next-line prettier/prettier
-import type { AutocompleteDataType } from "./autocomplete/TernServer";
+import { AutocompleteDataType } from "./autocomplete/TernServer";
 import EventEmitter from "./EventEmitter";
 
 export interface WidgetFeatures {
@@ -14,7 +12,7 @@ export interface WidgetFeatures {
 export enum DynamicHeight {
   AUTO_HEIGHT = "AUTO_HEIGHT",
   FIXED = "FIXED",
-  AUTO_HEIGHT_WITH_LIMITS = "AUTO_HEIGHT_WITH_LIMITS"
+  AUTO_HEIGHT_WITH_LIMITS = "AUTO_HEIGHT_WITH_LIMITS",
 }
 
 /* This contains all properties which will be added 
@@ -48,7 +46,9 @@ function validateMinHeight(value: unknown, props: WidgetProps) {
   if (isNaN(_value) || _value <= 2) {
     return {
       isValid: false,
-      messages: [`Value should be a positive integer greater than ${WidgetHeightLimits.MIN_HEIGHT_IN_ROWS}`],
+      messages: [
+        `Value should be a positive integer greater than ${WidgetHeightLimits.MIN_HEIGHT_IN_ROWS}`,
+      ],
       parsed: 4,
     };
   } else if (_value > _maxHeight) {
@@ -66,27 +66,27 @@ function validateMinHeight(value: unknown, props: WidgetProps) {
   };
 }
 
-function validateMaxHeight(value: unknown, props:WidgetProps) {
+function validateMaxHeight(value: unknown, props: WidgetProps) {
   const _value: number = parseInt(value as string, 10);
   const _minHeight: number = parseInt(props.minDynamicHeight as string, 10);
-  if(isNaN(_value) || _value <= 2) {
+  if (isNaN(_value) || _value <= 2) {
     return {
       isValid: false,
       messages: [`Value should be a positive integer greater than 2`],
       parsed: 9000,
-    }
+    };
   } else if (_value < _minHeight) {
     return {
       isValid: false,
       messages: [`Value should be greater than or equal Min. Height`],
-      parsed: _minHeight || 4
-    }
+      parsed: _minHeight || 4,
+    };
   }
   return {
     isValid: true,
     parsed: _value,
-    messages: []
-  }
+    messages: [],
+  };
 }
 // TODO (abhinav): ADD_UNIT_TESTS
 function updateMinMaxDynamicHeight(
@@ -94,63 +94,84 @@ function updateMinMaxDynamicHeight(
   propertyName: string,
   propertyValue: unknown,
 ) {
-  const updates = [{
-    propertyPath: propertyName,
-    propertyValue: propertyValue,
-  }];
-  if(propertyValue === DynamicHeight.AUTO_HEIGHT_WITH_LIMITS) {
+  const updates = [
+    {
+      propertyPath: propertyName,
+      propertyValue: propertyValue,
+    },
+  ];
+
+  if (propertyValue === DynamicHeight.AUTO_HEIGHT_WITH_LIMITS) {
     const minDynamicHeight = parseInt(props.minDynamicHeight, 10);
-    if(isNaN(minDynamicHeight) || minDynamicHeight < WidgetHeightLimits.MIN_HEIGHT_IN_ROWS){
-    updates.push({
-      propertyPath: "minDynamicHeight",
-      propertyValue: WidgetHeightLimits.MIN_HEIGHT_IN_ROWS
-    })            
+
+    if (
+      isNaN(minDynamicHeight) ||
+      minDynamicHeight < WidgetHeightLimits.MIN_HEIGHT_IN_ROWS
+    ) {
+      updates.push({
+        propertyPath: "minDynamicHeight",
+        propertyValue: WidgetHeightLimits.MIN_HEIGHT_IN_ROWS,
+      });
     }
     const maxDynamicHeight = parseInt(props.maxDynamicHeight, 10);
-    if(isNaN(maxDynamicHeight) || maxDynamicHeight < (props.bottomRow - props.topRow)) {
+    if (
+      isNaN(maxDynamicHeight) ||
+      maxDynamicHeight > props.bottomRow - props.topRow
+    ) {
       updates.push({
         propertyPath: "maxDynamicHeight",
-        propertyValue: WidgetHeightLimits.MAX_HEIGHT_IN_ROWS
-      })
+        propertyValue: props.bottomRow - props.topRow,
+      });
     }
-  } else if(propertyValue === DynamicHeight.AUTO_HEIGHT) {
-    updates.push({
-      propertyPath: "minDynamicHeight",
-      propertyValue: WidgetHeightLimits.MIN_HEIGHT_IN_ROWS
-    }, {
-      propertyPath: "maxDynamicHeight",
-      propertyValue: WidgetHeightLimits.MAX_HEIGHT_IN_ROWS
-    })
-  }
-  
-  if (
-    (propertyValue === DynamicHeight.AUTO_HEIGHT || propertyValue === DynamicHeight.AUTO_HEIGHT_WITH_LIMITS) &&
-    props.shouldScrollContents === false
-  ) {
+  } else if (propertyValue === DynamicHeight.AUTO_HEIGHT) {
     updates.push(
       {
-        propertyPath: "shouldScrollContents",
-        propertyValue: true,
-      })
+        propertyPath: "minDynamicHeight",
+        propertyValue: WidgetHeightLimits.MIN_HEIGHT_IN_ROWS,
+      },
+      {
+        propertyPath: "maxDynamicHeight",
+        propertyValue: WidgetHeightLimits.MAX_HEIGHT_IN_ROWS,
+      },
+    );
+  }
+
+  if (
+    (propertyValue === DynamicHeight.AUTO_HEIGHT ||
+      propertyValue === DynamicHeight.AUTO_HEIGHT_WITH_LIMITS) &&
+    props.shouldScrollContents === false
+  ) {
+    updates.push({
+      propertyPath: "shouldScrollContents",
+      propertyValue: true,
+    });
   }
 
   return updates;
 }
 
-function transformToNumber(props: WidgetProps,
+function transformToNumber(
+  props: WidgetProps,
   propertyName: string,
-  propertyValue: string) {
-    return [{
+  propertyValue: string,
+) {
+  return [
+    {
       propertyPath: propertyName,
-      propertyValue: parseInt(propertyValue, 10)
-    }]
-  }
+      propertyValue: parseInt(propertyValue, 10),
+    },
+  ];
+}
 // TODO FEATURE:(abhinav) Add validations to these properties
 
 export const PropertyPaneConfigTemplates = {
   DYNAMIC_HEIGHT: {
     sectionName: "Layout Features",
-    hidden:(props: any) => { if(props.type === "TABLE_WIDGET") return !props.serverSidePaginationEnabled; else return false; },
+    hidden: (props: WidgetProps) => {
+      if (props.type === "TABLE_WIDGET_V2")
+        return !props.serverSidePaginationEnabled;
+      else return false;
+    },
     children: [
       {
         helpText:
@@ -160,7 +181,13 @@ export const PropertyPaneConfigTemplates = {
         controlType: "DROP_DOWN",
         isBindProperty: false,
         isTriggerProperty: false,
-        dependencies: ["shouldScrollContents"],
+        dependencies: [
+          "shouldScrollContents",
+          "maxDynamicHeight",
+          "minDynamicHeight",
+          "bottomRow",
+          "topRow",
+        ],
         updateHook: updateMinMaxDynamicHeight,
         options: [
           {
@@ -180,10 +207,10 @@ export const PropertyPaneConfigTemplates = {
       {
         propertyName: "minDynamicHeight",
         onBlur: () => {
-          EventEmitter.emit('property_pane_input_blurred', 'minDynamicHeight');
+          EventEmitter.emit("property_pane_input_blurred", "minDynamicHeight");
         },
         onFocus: () => {
-          EventEmitter.emit('property_pane_input_focused', 'minDynamicHeight');
+          EventEmitter.emit("property_pane_input_focused", "minDynamicHeight");
         },
         label: "Min Height (in rows)",
         helpText: "Minimum number of rows to occupy irrespective of contents",
@@ -209,10 +236,10 @@ export const PropertyPaneConfigTemplates = {
       {
         propertyName: "maxDynamicHeight",
         onFocus: () => {
-          EventEmitter.emit('property_pane_input_focused', 'maxDynamicHeight');
+          EventEmitter.emit("property_pane_input_focused", "maxDynamicHeight");
         },
         onBlur: () => {
-          EventEmitter.emit('property_pane_input_blurred', 'maxDynamicHeight');
+          EventEmitter.emit("property_pane_input_blurred", "maxDynamicHeight");
         },
         label: "Max Height (in rows)",
         helpText: "Maximum Height, after which contents will scroll",

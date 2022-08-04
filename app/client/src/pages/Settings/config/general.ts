@@ -63,7 +63,7 @@ export const config: AdminConfigType = {
       label: "Share anonymous usage data",
       subText: "Share anonymous usage data to help improve the product",
       toggleText: (value: boolean) =>
-        value ? "Share Anonymous Telemetry" : "Don't share any data",
+        value ? "Don't share any data" : "Share Anonymous Telemetry",
     },
   ],
 } as AdminConfigType;

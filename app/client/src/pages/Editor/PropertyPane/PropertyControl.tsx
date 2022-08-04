@@ -5,9 +5,8 @@ import * as log from "loglevel";
 import {
   ControlPropertyLabelContainer,
   ControlWrapper,
-  JSToggleButton,
 } from "components/propertyControls/StyledControls";
-import { ControlIcons } from "icons/ControlIcons";
+import { JSToggleButton } from "components/ads";
 import PropertyControlFactory from "utils/PropertyControlFactory";
 import PropertyHelpLabel from "pages/Editor/PropertyPane/PropertyHelpLabel";
 import { useDispatch, useSelector } from "react-redux";
@@ -19,10 +18,14 @@ import {
   setWidgetDynamicProperty,
   UpdateWidgetPropertyPayload,
 } from "actions/controlActions";
-import { PropertyPaneControlConfig } from "constants/PropertyControlConstants";
+import {
+  PropertyHookUpdates,
+  PropertyPaneControlConfig,
+} from "constants/PropertyControlConstants";
 import { IPanelProps } from "@blueprintjs/core";
 import PanelPropertiesEditor from "./PanelPropertiesEditor";
 import {
+  DynamicPath,
   getEvalValuePath,
   isDynamicValue,
   isPathADynamicProperty,
@@ -41,9 +44,8 @@ import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import { getExpectedValue } from "utils/validation/common";
 import { ControlData } from "components/propertyControls/BaseControl";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
-import { Tooltip } from "components/ads";
 import { getSelectedAppTheme } from "selectors/appThemingSelectors";
-import TooltipComponent from "components/ads/Tooltip";
+import { TooltipComponent } from "design-system";
 import { ReactComponent as ResetIcon } from "assets/icons/control/undo_2.svg";
 import { AppTheme } from "entities/AppTheming";
 import { JS_TOGGLE_DISABLED_MESSAGE } from "@appsmith/constants/messages";
@@ -196,13 +198,8 @@ const PropertyControl = memo((props: Props) => {
   const getWidgetsOwnUpdatesOnPropertyChange = (
     propertyName: string,
     propertyValue: any,
-  ) => {
-    let propertiesToUpdate:
-      | Array<{
-          propertyPath: string;
-          propertyValue: any;
-        }>
-      | undefined;
+  ): UpdateWidgetPropertyPayload | undefined => {
+    let propertiesToUpdate: Array<PropertyHookUpdates> | undefined;
     // To support updating multiple properties of same widget.
     if (props.updateHook) {
       propertiesToUpdate = props.updateHook(
@@ -213,6 +210,8 @@ const PropertyControl = memo((props: Props) => {
     }
     if (propertiesToUpdate) {
       const allUpdates: Record<string, unknown> = {};
+      const allDeletions: string[] = [];
+      const allDynamicPropertyPathUpdate: DynamicPath[] = [];
       // TODO(abhinav): DEBUG: Ask Rahul and Ashok, if this causes issues anywhere else.
 
       // We add the current updated first, so that the updatehooks can override the value
@@ -220,10 +219,27 @@ const PropertyControl = memo((props: Props) => {
       // the INPUT_TEXT control uses string as default, we can convert this into a number
       // by calling an updateHook which runs the parseInt over this value.
       allUpdates[propertyName] = propertyValue;
-      propertiesToUpdate.forEach(({ propertyPath, propertyValue }) => {
-        allUpdates[propertyPath] = propertyValue;
-      });
+      propertiesToUpdate.forEach(
+        ({
+          isDynamicPropertyPath,
+          propertyPath,
+          propertyValue,
+          shouldDeleteProperty,
+        }) => {
+          if (shouldDeleteProperty) {
+            allDeletions.push(propertyPath);
+          } else {
+            allUpdates[propertyPath] = propertyValue;
+          }
 
+          if (isDynamicPropertyPath) {
+            allDynamicPropertyPathUpdate.push({
+              key: propertyPath,
+            });
+          }
+        },
+      );
+      allUpdates[propertyName] = propertyValue;
       AppsmithConsole.info({
         logType: LOG_TYPE.WIDGET_UPDATE,
         text: "Widget properties were updated",
@@ -241,6 +257,10 @@ const PropertyControl = memo((props: Props) => {
         widgetId: widgetProperties.widgetId,
         updates: {
           modify: allUpdates,
+          remove: allDeletions,
+        },
+        dynamicUpdates: {
+          dynamicPropertyPathList: allDynamicPropertyPathUpdate,
         },
       };
     }
@@ -335,12 +355,17 @@ const PropertyControl = memo((props: Props) => {
    * It also calls the beforeChildPropertyUpdate hook
    */
   const onPropertyChange = useCallback(
-    (propertyName: string, propertyValue: any) => {
+    (
+      propertyName: string,
+      propertyValue: any,
+      isUpdatedViaKeyboard?: boolean,
+    ) => {
       AnalyticsUtil.logEvent("WIDGET_PROPERTY_UPDATE", {
         widgetType: widgetProperties.type,
         widgetName: widgetProperties.widgetName,
         propertyName: propertyName,
         updatedValue: propertyValue,
+        isUpdatedViaKeyboard,
       });
 
       const selfUpdates:
@@ -489,22 +514,39 @@ const PropertyControl = memo((props: Props) => {
       config.controlType,
     );
 
+    const customJSControl = getCustomJSControl();
+
     let isToggleDisabled = false;
     if (
-      isDynamic && // JS mode is enabled
-      propertyValue !== "" && // value is not empty
-      !canDisplayValueInUI?.(config, propertyValue) // value can't be represented in UI mode
+      isDynamic // JS toggle button is ON
     ) {
-      isToggleDisabled = true;
-    }
+      if (
+        // Check if value is not empty
+        propertyValue !== undefined &&
+        propertyValue !== ""
+      ) {
+        let value = propertyValue;
+        // extract out the value from binding, if there is custom JS control (Table & JSONForm widget)
+        if (customJSControl && isDynamicValue(value)) {
+          const extractValue = PropertyControlFactory.inputComputedValueMap.get(
+            customJSControl,
+          );
+          if (extractValue)
+            value = extractValue(value, widgetProperties.widgetName);
+        }
 
-    // Checks if the value is same as the one defined in theme stylesheet.
-    if (
-      typeof propertyStylesheetValue === "string" &&
-      THEME_BINDING_REGEX.test(propertyStylesheetValue) &&
-      propertyStylesheetValue === propertyValue
-    ) {
-      isToggleDisabled = false;
+        // disable button if value can't be represented in UI mode
+        if (!canDisplayValueInUI?.(config, value)) isToggleDisabled = true;
+      }
+
+      // Enable button if the value is same as the one defined in theme stylesheet.
+      if (
+        typeof propertyStylesheetValue === "string" &&
+        THEME_BINDING_REGEX.test(propertyStylesheetValue) &&
+        propertyStylesheetValue === propertyValue
+      ) {
+        isToggleDisabled = false;
+      }
     }
 
     try {
@@ -527,7 +569,7 @@ const PropertyControl = memo((props: Props) => {
               tooltip={props.helpText}
             />
             {isConvertible && (
-              <Tooltip
+              <TooltipComponent
                 content={JS_TOGGLE_DISABLED_MESSAGE}
                 disabled={!isToggleDisabled}
                 hoverOpenDelay={200}
@@ -535,16 +577,13 @@ const PropertyControl = memo((props: Props) => {
                 position="auto"
               >
                 <JSToggleButton
-                  active={isDynamic}
-                  className={`focus:ring-2 t--js-toggle ${
-                    isDynamic ? "is-active" : ""
-                  }`}
-                  disabled={isToggleDisabled}
-                  onClick={() => toggleDynamicProperty(propertyName, isDynamic)}
-                >
-                  <ControlIcons.JS_TOGGLE />
-                </JSToggleButton>
-              </Tooltip>
+                  handleClick={() =>
+                    toggleDynamicProperty(propertyName, isDynamic)
+                  }
+                  isActive={isDynamic}
+                  isToggleDisabled={isToggleDisabled}
+                />
+              </TooltipComponent>
             )}
             {isPropertyDeviatedFromTheme && (
               <>
@@ -580,7 +619,7 @@ const PropertyControl = memo((props: Props) => {
               theme: props.theme,
             },
             isDynamic,
-            getCustomJSControl(),
+            customJSControl,
             additionAutocomplete,
             hideEvaluatedValue(),
           )}

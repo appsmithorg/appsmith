@@ -5,12 +5,14 @@ import {
 import { setDynamicHeightLayoutTree } from "actions/canvasActions";
 import { UpdateWidgetDynamicHeightPayload } from "actions/controlActions";
 import { updateMultipleWidgetProperties } from "actions/widgetActions";
-import { checkContainersForDynamicHeightUpdate } from "actions/dynamicHeightActions";
+import {
+  checkContainersForDynamicHeightUpdate,
+  generateDynamicHeightComputationTree,
+} from "actions/dynamicHeightActions";
 import {
   CANVAS_MIN_HEIGHT,
   GridDefaults,
   MAIN_CONTAINER_WIDGET_ID,
-  WidgetHeightLimits,
 } from "constants/WidgetConstants";
 import { groupBy } from "lodash";
 import log from "loglevel";
@@ -22,13 +24,11 @@ import { CanvasLevelsReduxState } from "reducers/entityReducers/dynamicHeightRed
 import { DynamicHeightLayoutTreeReduxState } from "reducers/entityReducers/dynamicHeightReducers/dynamicHeightLayoutTreeReducer";
 import {
   all,
-  cancel,
   put,
   select,
   takeEvery,
   takeLatest,
-  fork,
-  delay,
+  debounce,
 } from "redux-saga/effects";
 import {
   getCanvasHeightOffset,
@@ -60,14 +60,15 @@ import { getWidgets } from "./selectors";
  *
  * TODO: PERF_TRACK(abhinav): Make sure to benchmark the computations. We need to propagate changes within 10ms
  */
-export function* updateWidgetDynamicHeightSaga(
-  updates: Record<string, number>,
-) {
-  // Wait for 100 ms while all updates come through
-  yield delay(100);
+export function* updateWidgetDynamicHeightSaga() {
+  const updates = dynamicHeightUpdateWidgets;
   const start = performance.now();
 
-  log.debug("Dynamic height: Call for updates: ", { updates });
+  log.debug(
+    "Dynamic height: Computing debounced: ",
+    { updates },
+    { timeStamp: performance.now() },
+  );
 
   // Get all widgets from canvasWidgetsReducer
   const stateWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
@@ -109,18 +110,21 @@ export function* updateWidgetDynamicHeightSaga(
       if (newHeightInPixels > maxDynamicHeightInPixels) {
         newHeightInPixels = maxDynamicHeightInPixels;
       }
+
       // Push the updates into the initialised array.
       expectedUpdates.push({
         widgetId,
         expectedHeightinPx: newHeightInPixels,
-        expectedChangeInHeightInRows:
+        expectedChangeInHeightInRows: Math.ceil(
           newHeightInPixels / GridDefaults.DEFAULT_GRID_ROW_HEIGHT -
-          (widget.bottomRow - widget.topRow),
+            (widget.bottomRow - widget.topRow),
+        ),
         currentTopRow: widget.topRow,
         currentBottomRow: widget.bottomRow,
-        expectedBottomRow:
+        expectedBottomRow: Math.ceil(
           widget.topRow +
-          newHeightInPixels / GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
+            newHeightInPixels / GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
+        ),
         parentId: widget.parentId,
       });
     }
@@ -150,8 +154,6 @@ export function* updateWidgetDynamicHeightSaga(
     };
 
     let maxLevel = 0;
-    // TODO (abhinav): So far it seems like expectedUpdatesGroupedByParent is only used here
-    // If this turns out to be case, remove this variable and compute directly from expetedUpdates
 
     // For each canvas widget which has updates.
     for (const parentCanvasWidgetId in expectedUpdatesGroupedByParentCanvasWidget) {
@@ -193,12 +195,12 @@ export function* updateWidgetDynamicHeightSaga(
         parentCanvasWidgetsGroupedByLevel[level];
       const delta: Record<string, number> = {};
 
-      log.debug(
-        "Dynamic height considering: ",
-        { level },
-        { parentCanvasWidgetsToConsider },
-        { expectedUpdatesGroupedByParentCanvasWidget },
-      );
+      // log.debug(
+      //   "Dynamic height considering: ",
+      //   { level },
+      //   { parentCanvasWidgetsToConsider },
+      //   { expectedUpdatesGroupedByParentCanvasWidget },
+      // );
 
       // For each canvas widget at this level.
       parentCanvasWidgetsToConsider.forEach((parentCanvasWidgetId) => {
@@ -223,12 +225,12 @@ export function* updateWidgetDynamicHeightSaga(
         dynamicHeightLayoutTree,
         delta,
       );
-      log.debug("Dynamic height: Computing sibling updates:", {
-        siblingWidgetsToUpdate,
-        dynamicHeightLayoutTree,
-        delta,
-        parentCanvasWidgetsToConsider,
-      });
+      // log.debug("Dynamic height: Computing sibling updates:", {
+      //   siblingWidgetsToUpdate,
+      //   dynamicHeightLayoutTree,
+      //   delta,
+      //   parentCanvasWidgetsToConsider,
+      // });
 
       // Add to the changes so far, the changes computed for this canvas widget's children.
       changesSoFar = Object.assign(changesSoFar, siblingWidgetsToUpdate);
@@ -250,9 +252,10 @@ export function* updateWidgetDynamicHeightSaga(
           // enabled.
           if (isDynamicHeightEnabledForWidget(parentContainerLikeWidget)) {
             // Get the minimum number of rows this parent must have
-            let minHeightInRows =
-              parentContainerLikeWidget.minDynamicHeight ||
-              WidgetHeightLimits.MIN_HEIGHT_IN_ROWS;
+
+            let minHeightInRows = getWidgetMinDynamicHeight(
+              parentContainerLikeWidget,
+            );
 
             // Get the array of children ids.
             // This cannot be [], because we came to this point due to an update
@@ -284,7 +287,7 @@ export function* updateWidgetDynamicHeightSaga(
               }
             }
 
-            minHeightInRows = Math.ceil(minHeightInRows);
+            minHeightInRows = minHeightInRows;
 
             // Add extra rows, this is to accommodate for padding and margins in the parent
             minHeightInRows =
@@ -358,6 +361,8 @@ export function* updateWidgetDynamicHeightSaga(
             // For example, if this is a ModalWidget
             // We need to make sure that we change properties other than bottomRow and topRow
             // In this case we're updating minHeight and height as well.
+
+            // TODO(abhinav): Why do we need another offset for Modal widget particularly.
             if (parentContainerLikeWidget.detachFromLayout) {
               widgetsToUpdate[parentContainerLikeWidget.widgetId] = [
                 {
@@ -427,12 +432,11 @@ export function* updateWidgetDynamicHeightSaga(
         }
       }
     }
-
     // Get all children of the MainContainer
+    // TODO(abhinav): MainContainer should cut off only in view mode.
     const mainCanvasChildren =
       stateWidgets[MAIN_CONTAINER_WIDGET_ID].children || [];
     // Let's consider the minimum Canvas Height
-    // TODO (abhinav): Move this value (100) to WidgetConstants or some other such place
     let maxCanvasHeight = CANVAS_MIN_HEIGHT;
     // The same logic to compute the minimum height of the MainContainer
     // Based on how many rows are being occuped by children.
@@ -449,10 +453,13 @@ export function* updateWidgetDynamicHeightSaga(
       } else {
         const childWidget = stateWidgets[childWidgetId];
         const detachFromLayout = stateWidgets[childWidgetId];
+
+        const bottomRow =
+          dynamicHeightLayoutTree[childWidget.widgetId].bottomRow;
         if (!detachFromLayout) {
           maxCanvasHeight = Math.max(
             maxCanvasHeight,
-            childWidget.bottomRow * GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
+            bottomRow * GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
           );
         }
       }
@@ -490,6 +497,8 @@ export function* updateWidgetDynamicHeightSaga(
     // Note that we're not calling `UPDATE_LAYOUT`
     // as we don't need to trigger an eval
     yield put(updateMultipleWidgetProperties(widgetsToUpdate));
+    dynamicHeightUpdateWidgets = {};
+    yield put(generateDynamicHeightComputationTree(false));
 
     log.debug(
       "Dynamic Height: Overall time taken: ",
@@ -499,21 +508,17 @@ export function* updateWidgetDynamicHeightSaga(
   }
 }
 
-let dynamicHeightUpdateQueue: any;
-const dynamicHeightUpdateWidgets: Record<string, number> = {};
+let dynamicHeightUpdateWidgets: Record<string, number> = {};
 function* batchCallsToUpdateWidgetDynamicHeightSaga(
   action: ReduxAction<UpdateWidgetDynamicHeightPayload>,
 ) {
   const { height, widgetId } = action.payload;
+
   dynamicHeightUpdateWidgets[widgetId] = height;
-  if (dynamicHeightUpdateQueue) {
-    yield cancel(dynamicHeightUpdateQueue);
-  }
-  // @ts-expect-error: type is any
-  dynamicHeightUpdateQueue = yield fork(
-    updateWidgetDynamicHeightSaga,
-    dynamicHeightUpdateWidgets,
-  );
+  yield put({
+    type: ReduxActionTypes.PROCESS_DYNAMIC_HEIGHT_UPDATES,
+    payload: dynamicHeightUpdateWidgets,
+  });
 }
 
 function* generateTreeForDynamicHeightComputations(
@@ -620,7 +625,16 @@ function* dynamicallyUpdateContainersSaga() {
     "ms",
   );
   if (Object.keys(updates).length > 0) {
-    yield fork(updateWidgetDynamicHeightSaga, updates);
+    // TODO(abhinav): Make sure there are no race conditions or scenarios where these updates are not considered.
+    for (const widgetId in updates) {
+      yield put({
+        type: ReduxActionTypes.UPDATE_WIDGET_DYNAMIC_HEIGHT,
+        payload: {
+          widgetId,
+          height: updates[widgetId],
+        },
+      });
+    }
   }
 }
 
@@ -631,11 +645,14 @@ export default function* widgetOperationSagas() {
       ReduxActionTypes.UPDATE_WIDGET_DYNAMIC_HEIGHT,
       batchCallsToUpdateWidgetDynamicHeightSaga,
     ),
+    debounce(
+      200,
+      ReduxActionTypes.PROCESS_DYNAMIC_HEIGHT_UPDATES,
+      updateWidgetDynamicHeightSaga,
+    ),
     takeLatest(
       [
         ReduxActionTypes.GENERATE_DYNAMIC_HEIGHT_COMPUTATION_TREE, // add, move, paste, cut, delete, undo/redo
-        ReduxActionTypes.UPDATE_MULTIPLE_WIDGET_PROPERTIES,
-        ReduxActionTypes.INIT_CANVAS_LAYOUT,
       ],
       generateTreeForDynamicHeightComputations,
     ),

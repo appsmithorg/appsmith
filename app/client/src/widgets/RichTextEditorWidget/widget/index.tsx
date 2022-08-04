@@ -9,6 +9,8 @@ import { retryPromise } from "utils/AppsmithUtils";
 import { LabelPosition } from "components/constants";
 import { Alignment } from "@blueprintjs/core";
 import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
+import { isDynamicHeightEnabledForWidget } from "widgets/WidgetUtils";
+
 import showdown from "showdown";
 
 export enum RTEFormats {
@@ -21,6 +23,7 @@ const RichTextEditorComponent = lazy(() =>
   ),
 );
 
+const converter = new showdown.Converter();
 class RichTextEditorWidget extends BaseWidget<
   RichTextEditorWidgetProps,
   WidgetState
@@ -185,11 +188,11 @@ class RichTextEditorWidget extends BaseWidget<
         ],
       },
       {
-        sectionName: "Styles",
+        sectionName: "Label Styles",
         children: [
           {
             propertyName: "labelTextColor",
-            label: "Label Text Color",
+            label: "Text Color",
             controlType: "COLOR_PICKER",
             isJSConvertible: true,
             isBindProperty: true,
@@ -198,7 +201,7 @@ class RichTextEditorWidget extends BaseWidget<
           },
           {
             propertyName: "labelTextSize",
-            label: "Label Text Size",
+            label: "Text Size",
             controlType: "DROP_DOWN",
             defaultValue: "0.875rem",
             options: [
@@ -305,7 +308,6 @@ class RichTextEditorWidget extends BaseWidget<
   static getMetaPropertiesMap(): Record<string, any> {
     return {
       text: undefined,
-      shouldReset: false,
       isDirty: false,
     };
   }
@@ -323,27 +325,17 @@ class RichTextEditorWidget extends BaseWidget<
     };
   }
 
-  componentDidMount(): void {
-    if (this.props.defaultText) {
-      this.props.updateWidgetMetaProperty("shouldReset", true);
-    }
-  }
-
   componentDidUpdate(prevProps: RichTextEditorWidgetProps): void {
+    super.componentDidUpdate(prevProps);
     if (this.props.defaultText !== prevProps.defaultText) {
       if (this.props.isDirty) {
         this.props.updateWidgetMetaProperty("isDirty", false);
-      }
-      if (this.props.defaultText) {
-        this.props.updateWidgetMetaProperty("shouldReset", true);
       }
     }
   }
 
   onValueChange = (text: string) => {
-    if (this.props.shouldReset) {
-      this.props.updateWidgetMetaProperty("shouldReset", false);
-    } else if (!this.props.isDirty) {
+    if (!this.props.isDirty) {
       this.props.updateWidgetMetaProperty("isDirty", true);
     }
 
@@ -359,7 +351,6 @@ class RichTextEditorWidget extends BaseWidget<
   getPageView() {
     let value = this.props.text ?? "";
     if (this.props.inputType === RTEFormats.MARKDOWN) {
-      const converter = new showdown.Converter();
       value = converter.makeHtml(value);
     }
 
@@ -376,6 +367,7 @@ class RichTextEditorWidget extends BaseWidget<
             )
           }
           isDisabled={this.props.isDisabled}
+          isDynamicHeightEnabled={isDynamicHeightEnabledForWidget(this.props)}
           isMarkdown={this.props.inputType === RTEFormats.MARKDOWN}
           isToolbarHidden={!!this.props.isToolbarHidden}
           isValid={this.props.isValid}
@@ -390,6 +382,7 @@ class RichTextEditorWidget extends BaseWidget<
           labelWidth={this.getLabelWidth()}
           onValueChange={this.onValueChange}
           placeholder={this.props.placeholder}
+          ref={this.contentRef}
           value={value}
           widgetId={this.props.widgetId}
         />
