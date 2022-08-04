@@ -165,7 +165,7 @@ public class AnalyticsServiceCEImpl implements AnalyticsServiceCE {
         }
 
         // In case of action execution, event.getEventName() only is used to support backward compatibility of event name
-        final String eventTag = event.equals(AnalyticsEvents.EXECUTE_ACTION) ? event.getEventName() : event.getEventName() + "_" + object.getClass().getSimpleName().toUpperCase();
+        final String eventTag = AnalyticsEvents.EXECUTE_ACTION.equals(event) ? event.getEventName() : event.getEventName() + "_" + object.getClass().getSimpleName().toUpperCase();
 
         // We will create an anonymous user object for event tracking if no user is present
         // Without this, a lot of flows meant for anonymous users will error out
