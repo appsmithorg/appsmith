@@ -1,4 +1,5 @@
-import { areArraysEqual, createImmerReducer } from "utils/AppsmithUtils";
+import { areArraysEqual } from "utils/AppsmithUtils";
+import { createImmerReducer } from "utils/ReducerUtils";
 import {
   ReduxAction,
   ReduxActionTypes,

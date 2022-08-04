@@ -40,6 +40,14 @@ class WidgetFactory {
     WidgetType,
     readonly PropertyPaneConfig[]
   > = new Map();
+  static propertyPaneContentConfigsMap: Map<
+    WidgetType,
+    readonly PropertyPaneConfig[]
+  > = new Map();
+  static propertyPaneStyleConfigsMap: Map<
+    WidgetType,
+    readonly PropertyPaneConfig[]
+  > = new Map();
 
   static widgetConfigMap: Map<
     WidgetType,
@@ -53,6 +61,8 @@ class WidgetFactory {
     defaultPropertiesMap: Record<string, string>,
     metaPropertiesMap: Record<string, any>,
     propertyPaneConfig?: PropertyPaneConfig[],
+    propertyPaneContentConfig?: PropertyPaneConfig[],
+    propertyPaneStyleConfig?: PropertyPaneConfig[],
     features?: WidgetFeatures,
   ) {
     if (!this.widgetTypes[widgetType]) {
@@ -77,6 +87,46 @@ class WidgetFactory {
         );
 
         this.propertyPaneConfigsMap.set(
+          widgetType,
+          Object.freeze(finalPropertyPaneConfig),
+        );
+      }
+
+      if (propertyPaneContentConfig) {
+        const enhancedPropertyPaneConfig = enhancePropertyPaneConfig(
+          propertyPaneContentConfig,
+          features,
+        );
+
+        const serializablePropertyPaneConfig = convertFunctionsToString(
+          enhancedPropertyPaneConfig,
+        );
+
+        const finalPropertyPaneConfig = addPropertyConfigIds(
+          serializablePropertyPaneConfig,
+        );
+
+        this.propertyPaneContentConfigsMap.set(
+          widgetType,
+          Object.freeze(finalPropertyPaneConfig),
+        );
+      }
+
+      if (propertyPaneStyleConfig) {
+        const enhancedPropertyPaneConfig = enhancePropertyPaneConfig(
+          propertyPaneStyleConfig,
+          features,
+        );
+
+        const serializablePropertyPaneConfig = convertFunctionsToString(
+          enhancedPropertyPaneConfig,
+        );
+
+        const finalPropertyPaneConfig = addPropertyConfigIds(
+          serializablePropertyPaneConfig,
+        );
+
+        this.propertyPaneStyleConfigsMap.set(
           widgetType,
           Object.freeze(finalPropertyPaneConfig),
         );
@@ -158,6 +208,28 @@ class WidgetFactory {
     const map = this.propertyPaneConfigsMap.get(type);
     if (!map) {
       log.error("Widget property pane configs not defined", type);
+      return [];
+    }
+    return map;
+  }
+
+  static getWidgetPropertyPaneContentConfig(
+    type: WidgetType,
+  ): readonly PropertyPaneConfig[] {
+    const map = this.propertyPaneContentConfigsMap.get(type);
+    if (!map) {
+      log.error("Widget property pane content configs not defined", type);
+      return [];
+    }
+    return map;
+  }
+
+  static getWidgetPropertyPaneStyleConfig(
+    type: WidgetType,
+  ): readonly PropertyPaneConfig[] {
+    const map = this.propertyPaneStyleConfigsMap.get(type);
+    if (!map) {
+      log.error("Widget property pane style configs not defined", type);
       return [];
     }
     return map;

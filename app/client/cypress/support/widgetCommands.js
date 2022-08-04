@@ -496,7 +496,7 @@ Cypress.Commands.add("updateCodeInput", ($selector, value) => {
       input.focus();
       cy.wait(200);
       input.setValue(value);
-      cy.wait(200); //time for value to set
+      cy.wait(1000); //time for value to set
       //input.focus();
     });
 });
