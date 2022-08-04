@@ -42,9 +42,6 @@ export { default as GifPlayerComponent } from "./GifPlayerComponent";
 
 export { default as ListSegmentHeader } from "./ListSegmentHeader";
 
-export { default as Menu } from "./Menu";
-export * from "./Menu";
-
 export { default as MenuDivider } from "./MenuDivider";
 
 export { default as MultiSwitch } from "./MultiSwitch";
