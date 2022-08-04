@@ -5,6 +5,7 @@ import com.appsmith.external.converters.GsonISOStringToInstantConverter;
 import com.appsmith.server.configurations.CloudServicesConfig;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.UserData;
+import com.appsmith.server.dtos.ApplicationImportDTO;
 import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.dtos.ApplicationTemplate;
 import com.appsmith.server.exceptions.AppsmithError;
@@ -181,18 +182,20 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
     }
 
     @Override
-    public Mono<Application> importApplicationFromTemplate(String templateId, String workspaceId) {
-        return getApplicationJsonFromTemplate(templateId).flatMap(applicationJson ->
-            importExportApplicationService.importApplicationInWorkspace(workspaceId, applicationJson)
-        ).flatMap(application -> {
-            ApplicationTemplate applicationTemplate = new ApplicationTemplate();
-            applicationTemplate.setId(templateId);
-            Map<String, Object>  extraProperties = new HashMap<>();
-            extraProperties.put("templateAppName", application.getName());
-            return userDataService.addTemplateIdToLastUsedList(templateId).then(
+    public Mono<ApplicationImportDTO> importApplicationFromTemplate(String templateId, String workspaceId) {
+        return getApplicationJsonFromTemplate(templateId)
+                .flatMap(applicationJson -> importExportApplicationService.importApplicationInWorkspace(workspaceId, applicationJson))
+                .flatMap(application -> importExportApplicationService.getApplicationImportDTO(application.getId(), application.getWorkspaceId(), application))
+                .flatMap(applicationImportDTO -> {
+                    Application application = applicationImportDTO.getApplication();
+                    ApplicationTemplate applicationTemplate = new ApplicationTemplate();
+                    applicationTemplate.setId(templateId);
+                    Map<String, Object> extraProperties = new HashMap<>();
+                    extraProperties.put("templateAppName", application.getName());
+                    return userDataService.addTemplateIdToLastUsedList(templateId).then(
                             analyticsService.sendObjectEvent(AnalyticsEvents.FORK, applicationTemplate, extraProperties)
-            ).thenReturn(application);
-        });
+                    ).thenReturn(applicationImportDTO);
+                });
     }
 
     @Override

@@ -577,19 +577,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                             });
                 })
                 // Add un-configured datasource to the list to response
-                .flatMap(application -> findDatasourceByApplicationId(application.getId(), workspaceId)
-                        .map(datasources -> {
-                            ApplicationImportDTO applicationImportDTO = new ApplicationImportDTO();
-                            applicationImportDTO.setApplication(application);
-                            Long unConfiguredDatasource = datasources.stream().filter(datasource -> Boolean.FALSE.equals(datasource.getIsConfigured())).count();
-                            if (unConfiguredDatasource != 0) {
-                                applicationImportDTO.setIsPartialImport(true);
-                                applicationImportDTO.setUnConfiguredDatasourceList(datasources);
-                            } else {
-                                applicationImportDTO.setIsPartialImport(false);
-                            }
-                            return applicationImportDTO;
-                        }));
+                .flatMap(application -> getApplicationImportDTO(application.getId(), application.getWorkspaceId(), application));
 
         return Mono.create(sink -> importedApplicationMono
                 .subscribe(sink::success, sink::error, null, sink.currentContext())
@@ -1987,6 +1975,23 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                     datasourceList.removeIf(datasource -> !usedDatasource.contains(datasource.getId()));
 
                     return Mono.just(datasourceList);
+                });
+    }
+
+    @Override
+    public Mono<ApplicationImportDTO> getApplicationImportDTO(String applicationId, String workspaceId, Application application) {
+        return findDatasourceByApplicationId(applicationId, workspaceId)
+                .map(datasources -> {
+                    ApplicationImportDTO applicationImportDTO = new ApplicationImportDTO();
+                    applicationImportDTO.setApplication(application);
+                    Boolean isUnConfiguredDatasource = datasources.stream().anyMatch(datasource -> Boolean.FALSE.equals(datasource.getIsConfigured()));
+                    if (Boolean.TRUE.equals(isUnConfiguredDatasource)) {
+                        applicationImportDTO.setIsPartialImport(true);
+                        applicationImportDTO.setUnConfiguredDatasourceList(datasources);
+                    } else {
+                        applicationImportDTO.setIsPartialImport(false);
+                    }
+                    return applicationImportDTO;
                 });
     }
 
