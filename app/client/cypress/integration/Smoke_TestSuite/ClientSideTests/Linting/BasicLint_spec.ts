@@ -68,9 +68,7 @@ describe("Linting", () => {
         }catch(e){
           showAlert("${errorMessage}")
         }
-      }()}}`,
-      true,
-      true,
+      }()}}`
     );
 
     propPane.UpdatePropertyFieldValue("Tooltip", "{{Api1.name}}");
@@ -123,9 +121,7 @@ describe("Linting", () => {
         }catch(e){
           showAlert("${errorMessage}")
         }
-      }()}}`,
-      true,
-      true,
+      }()}}`
     );
     propPane.UpdatePropertyFieldValue("Tooltip", `{{JSObject1.myVar1}}`);
 
@@ -200,9 +196,7 @@ describe("Linting", () => {
       }catch(e){
         showAlert("${errorMessage}")
       }
-    }()}}`,
-      true,
-      true,
+    }()}}`
     );
     propPane.UpdatePropertyFieldValue("Tooltip", `{{Query1.name}}`);
     clickButtonAndAssertLintError(true);
@@ -247,9 +241,7 @@ describe("Linting", () => {
         }catch(e){
           showAlert("${errorMessage}")
         }
-      }()}}`,
-      true,
-      true,
+      }()}}`
     );
     propPane.UpdatePropertyFieldValue(
       "Tooltip",
@@ -299,7 +291,7 @@ describe("Linting", () => {
       myFun1: () => {
           const byteArray = new Uint8Array(1);
       console.log(crypto.getRandomValues(byteArray));
-      },	
+      },
     }`;
     jsEditor.CreateJSObject(JS_OBJECT_WITH_WEB_API, {
       paste: true,
