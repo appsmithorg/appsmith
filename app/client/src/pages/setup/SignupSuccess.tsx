@@ -25,7 +25,8 @@ import Landing from "./Welcome";
 import { error } from "loglevel";
 import { matchPath } from "react-router";
 import { Center } from "pages/setup/common";
-import { IconSize, Spinner } from "components/ads";
+import { IconSize } from "components/ads";
+import { Spinner } from "design-system";
 
 export function SignupSuccess() {
   const dispatch = useDispatch();
