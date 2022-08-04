@@ -102,9 +102,8 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
       widgetProps.childWidgets = childWidgets;
     }
 
-    if (widgetProps) {
-      widgetProps.renderMode = renderMode;
-    }
+    //merging with original props
+    widgetProps = { ...props, ...widgetProps, renderMode };
 
     // isVisible prop defines whether to render a detached widget
     if (widgetProps.detachFromLayout && !widgetProps.isVisible) {
@@ -116,7 +115,7 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
       return null;
     }
 
-    return <WrappedWidget {...props} {...widgetProps} />;
+    return <WrappedWidget {...widgetProps} />;
   }
 
   return WrappedPropsComponent;
