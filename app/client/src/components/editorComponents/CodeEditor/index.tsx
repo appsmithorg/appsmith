@@ -307,7 +307,10 @@ class CodeEditor extends Component<Props, State> {
       }
 
       // @ts-expect-error: Types are not available
-      options.finishInit = (editor: CodeMirror.Editor) => {
+      options.finishInit = function(
+        this: CodeEditor,
+        editor: CodeMirror.Editor,
+      ) {
         // If you need to do something with the editor right after it’s been created,
         // put that code here.
         //
@@ -340,7 +343,7 @@ class CodeEditor extends Component<Props, State> {
         );
 
         this.lintCode(editor);
-      };
+      }.bind(this);
 
       // Finally create the Codemirror editor
       this.editor = CodeMirror(this.codeEditorTarget.current, options);
@@ -641,8 +644,12 @@ class CodeEditor extends Component<Props, State> {
         }
         if (isActionEntity(entity))
           entityInformation.entityId = entity.actionId;
-        if (isWidgetEntity(entity))
+        if (isWidgetEntity(entity)) {
+          const isTriggerPath = entity.triggerPaths[propertyPath];
           entityInformation.entityId = entity.widgetId;
+          if (isTriggerPath)
+            entityInformation.expectedType = AutocompleteDataType.FUNCTION;
+        }
       }
       entityInformation.propertyPath = propertyPath;
     }

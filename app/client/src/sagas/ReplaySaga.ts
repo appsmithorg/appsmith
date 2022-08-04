@@ -35,7 +35,6 @@ import {
 } from "utils/replayHelpers";
 import { updateAndSaveLayout } from "actions/pageActions";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { commentModeSelector } from "selectors/commentsSelectors";
 import {
   getCurrentApplicationId,
   snipingModeSelector,
@@ -174,11 +173,10 @@ export function* postUndoRedoSaga(replay: any) {
  * @returns
  */
 export function* undoRedoSaga(action: ReduxAction<UndoRedoPayload>) {
-  const isCommentMode: boolean = yield select(commentModeSelector);
   const isSnipingMode: boolean = yield select(snipingModeSelector);
 
   // if the app is in snipping or comments mode, don't do anything
-  if (isCommentMode || isSnipingMode) return;
+  if (isSnipingMode) return;
   try {
     const history = createBrowserHistory();
     const pathname = history.location.pathname;
