@@ -89,9 +89,6 @@ export * from "./ShowcaseCarousel";
 
 export { default as SearchSnippets } from "./SnippetButton";
 
-export { default as Spinner } from "./Spinner";
-export * from "./Spinner";
-
 export { default as OnboardingStatusbar } from "./Statusbar";
 export * from "./Statusbar";
 
