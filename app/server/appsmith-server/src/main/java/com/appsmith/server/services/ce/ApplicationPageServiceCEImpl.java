@@ -820,11 +820,8 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.PAGE, id)))
                 .flatMap(page -> {
                     log.debug("Going to archive pageId: {} for applicationId: {}", page.getId(), page.getApplicationId());
-                    // For collecting all the possible audit data
-                    Map<String, Object> auditData = new HashMap<>();
                     Mono<Application> applicationMono = applicationService.getById(page.getApplicationId())
                             .flatMap(application -> {
-                                auditData.put(FieldName.APPLICATION, application);
                                 application.getPages().removeIf(p -> p.getId().equals(page.getId()));
                                 return applicationService.save(application);
                             });
@@ -839,11 +836,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                     }
 
                     Mono<PageDTO> archivedPageMono = newPageMono
-                            .map(newPage -> {
-                                Map<String, Object> analyticsProperties = Map.of(FieldName.AUDIT_DATA, auditData);
-                                analyticsService.sendDeleteEvent(newPage, analyticsProperties);
-                                return newPage;
-                            })
+                            .flatMap(analyticsService::sendDeleteEvent)
                             .flatMap(newPage -> newPageService.getPageByViewMode(newPage, false));
 
                     /**
@@ -1152,7 +1145,6 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
             return Mono.empty();
         }
 
-        //TODO: Add more audit data
         final Map<String, Object> auditData = Map.of(
                 FieldName.PAGE, newPage
         );

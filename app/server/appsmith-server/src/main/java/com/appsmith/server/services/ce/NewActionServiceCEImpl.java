@@ -980,12 +980,6 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
             Long timeElapsed
     ) {
 
-        // Since we're loading the application from DB *only* for analytics, we check if analytics is
-        // active before making the call to DB.
-        if (!analyticsService.isActive()) {
-            return Mono.empty();
-        }
-
         ActionExecutionRequest actionExecutionRequest = actionExecutionResult.getRequest();
         ActionExecutionRequest request;
         if (actionExecutionRequest != null) {
@@ -1112,8 +1106,18 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                                 "statusCode", actionExecutionResult.getStatusCode()
                         ));
                     }
-
-                    analyticsService.sendEvent(AnalyticsEvents.EXECUTE_ACTION.getEventName(), user.getUsername(), data);
+                    final Map<String, Object> auditData = Map.of(
+                            FieldName.ACTION, action,
+                            FieldName.DATASOURCE, datasource,
+                            FieldName.VIEW_MODE, viewMode,
+                            FieldName.ACTION_EXECUTION_RESULT, actionExecutionResult,
+                            FieldName.ACTION_EXECUTION_TIME, timeElapsed,
+                            FieldName.ACTION_EXECUTION_REQUEST, request,
+                            FieldName.APPLICATION, application,
+                            FieldName.PLUGIN, plugin
+                    );
+                    data.put(FieldName.AUDIT_DATA, auditData);
+                    analyticsService.sendObjectEvent(AnalyticsEvents.EXECUTE_ACTION, action, data);
                     return request;
                 })
                 .onErrorResume(error -> {
@@ -1849,7 +1853,10 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
         if (!StringUtils.hasLength(savedAction.getUnpublishedAction().getPluginName())) {
             savedAction.getUnpublishedAction().setPluginName(datasource.getPluginName());
         }
-        return this.getAnalyticsProperties(savedAction);
+        Map<String, Object> analyticsProperties = this.getAnalyticsProperties(savedAction);
+        Map<String, Object> auditData = Map.of(FieldName.DATASOURCE, datasource);
+        analyticsProperties.put(FieldName.AUDIT_DATA, auditData);
+        return analyticsProperties;
     }
 
     @Override

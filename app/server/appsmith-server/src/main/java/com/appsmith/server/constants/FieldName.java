@@ -118,4 +118,8 @@ public class FieldName {
     public static final String AUDIT_DATA = "auditData";
     public static final String MODE_OF_LOGIN = "modeOfLogin";
     public static final String FORM_LOGIN = "FormLogin";
+    public static final String VIEW_MODE = "viewMode";
+    public static final String ACTION_EXECUTION_REQUEST = "actionExecutionRequest";
+    public static final String ACTION_EXECUTION_RESULT = "actionExecutionResult";
+    public static final String ACTION_EXECUTION_TIME = "actionExecutionTime";
 }
