@@ -423,17 +423,16 @@ abstract class BaseWidget<
     console.log(this.getPositionStyle(), "minDynamicHeight");
 
     return (
-      <div>
-        <DynamicHeightOverlay
-          {...this.props}
-          maxDynamicHeight={this.props.maxDynamicHeight}
-          minDynamicHeight={this.props.minDynamicHeight}
-          onMaxHeightSet={onMaxHeightSet}
-          onMinHeightSet={onMinHeightSet}
-          style={this.getPositionStyle()}
-        />
+      <DynamicHeightOverlay
+        {...this.props}
+        maxDynamicHeight={this.props.maxDynamicHeight}
+        minDynamicHeight={this.props.minDynamicHeight}
+        onMaxHeightSet={onMaxHeightSet}
+        onMinHeightSet={onMinHeightSet}
+        style={this.getPositionStyle()}
+      >
         {content}
-      </div>
+      </DynamicHeightOverlay>
     );
   }
 
@@ -450,11 +449,7 @@ abstract class BaseWidget<
         if (!this.props.detachFromLayout) {
           if (!this.props.resizeDisabled) content = this.makeResizable(content);
           content = this.showWidgetName(content);
-          content = this.makeDraggable(content);
 
-          content = this.makeSnipeable(content);
-          // NOTE: In sniping mode we are not blocking onClick events from PositionWrapper.
-          content = this.makePositioned(content);
           if (
             this.props.dynamicHeight === DynamicHeight.AUTO_HEIGHT_WITH_LIMITS
           ) {
@@ -465,6 +460,11 @@ abstract class BaseWidget<
             );
             content = this.addDynamicHeightOverlay(content);
           }
+
+          content = this.makeDraggable(content);
+          content = this.makeSnipeable(content);
+          // NOTE: In sniping mode we are not blocking onClick events from PositionWrapper.
+          content = this.makePositioned(content);
         }
 
         return content;
