@@ -141,7 +141,7 @@ function DisconnectGitModal() {
               <TextInput
                 className="t--git-app-name-input"
                 fill
-                onBlur={(event) => {
+                onBlur={(event: React.FocusEvent<any, Element>) => {
                   AnalyticsUtil.logEvent(
                     "GS_MATCHING_REPO_NAME_ON_GIT_DISCONNECT_MODAL",
                     {
@@ -150,7 +150,7 @@ function DisconnectGitModal() {
                     },
                   );
                 }}
-                onChange={(value) => setAppName(value)}
+                onChange={(value: string) => setAppName(value)}
                 trimValue={false}
                 value={appName}
               />
