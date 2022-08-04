@@ -1,13 +1,13 @@
-export type PermissionTableResponse = {
-  data: PermissionTable[];
+export type RoleTableResponse = {
+  data: RoleTable[];
   permission: string[];
   name: string;
 };
 
-export interface PermissionTable {
+export interface RoleTable {
   id: string;
   name: string;
   permission: number[];
-  subRows?: PermissionTable[];
+  subRows?: RoleTable[];
   treeOpen?: boolean;
 }

@@ -1,6 +1,6 @@
-import { PermissionTableResponse } from "../types";
+import { RoleTableResponse } from "../types";
 
-export const response2: PermissionTableResponse[] = [
+export const response2: RoleTableResponse[] = [
   {
     data: [
       {
@@ -5304,7 +5304,7 @@ export const response2: PermissionTableResponse[] = [
       },
     ],
     permission: ["create", "edit", "delete", "view"],
-    name: "User & Permission Groups",
+    name: "Groups & Roles",
   },
   {
     data: [

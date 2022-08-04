@@ -7,7 +7,7 @@ import { HighlightText } from "./helpers/HighlightText";
 import { getParentId } from "./utils/reactTableUtils";
 // import { replayHighlightClass } from "globalStyles/portals";
 
-export type PermissionGroupProps = {
+export type RoleProps = {
   tabData: any;
   expanded?: any;
   searchValue?: string;
@@ -1268,7 +1268,7 @@ function Table({
   };
 
   return (
-    <StyledTable {...getTableProps()} data-testid="t--permission-table">
+    <StyledTable {...getTableProps()} data-testid="t--role-table">
       <thead className="table-header">
         {headerGroups.map((headerGroup, index) => (
           <tr {...headerGroup.getHeaderGroupProps()} key={index}>
@@ -1304,7 +1304,7 @@ function Table({
   );
 }
 
-export default function PermissionGroupsTree(props: PermissionGroupProps) {
+export default function RolesTree(props: RoleProps) {
   const { tabData } = props;
   const columns: Array<Column> = [
     {

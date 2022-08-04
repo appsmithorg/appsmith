@@ -8,7 +8,7 @@ import { PageHeader } from "./PageHeader";
 import { BottomSpace } from "pages/Settings/components";
 import { Link } from "react-router-dom";
 import { HighlightText } from "./helpers/HighlightText";
-import { UserGroupAddEdit } from "./UserGroupAddEdit";
+import { GroupAddEdit } from "./GroupAddEdit";
 import { AclWrapper } from "./components";
 import { User } from "./UserListing";
 import uniqueId from "lodash/uniqueId";
@@ -20,10 +20,10 @@ import {
   GROUP_DELETED,
   GROUP_CLONED,
   COPY_OF_GROUP,
-  CLONE_USER_GROUP,
-  EDIT_USER_GROUP,
-  DELETE_USER_GROUP,
-  SEARCH_USER_GROUPS_PLACEHOLDER,
+  CLONE_GROUP,
+  EDIT_GROUP,
+  DELETE_GROUP,
+  SEARCH_GROUPS_PLACEHOLDER,
 } from "@appsmith/constants/messages";
 
 const CellContainer = styled.div`
@@ -107,7 +107,7 @@ export const userGroupTableData: UserGroup[] = [
         isCurrentUser: true,
         isDeleting: false,
         name: "Ankita Kinger",
-        allRoles: ["Administrator", "Test_Admin", "HR_Admin"],
+        allGroups: ["Administrator", "Test_Admin", "HR_Admin"],
         username: "techak@appsmith.com",
         userId: "123",
       },
@@ -139,7 +139,7 @@ export const userGroupTableData: UserGroup[] = [
         isCurrentUser: true,
         isDeleting: false,
         name: "Ankita Kinger",
-        allRoles: ["Administrator", "Test_Admin", "HR_Admin"],
+        allGroups: ["Administrator", "Test_Admin", "HR_Admin"],
         username: "techak@appsmith.com",
         userId: "123",
       },
@@ -172,7 +172,7 @@ export const userGroupTableData: UserGroup[] = [
         isCurrentUser: true,
         isDeleting: false,
         name: "Ankita Kinger",
-        allRoles: ["Administrator", "Test_Admin", "HR_Admin"],
+        allGroups: ["Administrator", "Test_Admin", "HR_Admin"],
         username: "techak@appsmith.com",
         userId: "123",
       },
@@ -220,7 +220,7 @@ export const userGroupTableData: UserGroup[] = [
   },
 ];
 
-export function UserGroupListing() {
+export function GroupListing() {
   const [data, setData] = useState<UserGroup[]>([]);
   const [searchValue, setSearchValue] = useState("");
   const params = useParams() as any;
@@ -238,7 +238,7 @@ export function UserGroupListing() {
       setSelectedUserGroup({
         isEditing: false,
         isDeleting: false,
-        rolename: "Untitled User Group",
+        rolename: "Untitled Group",
         isNew: true,
         id: "10109",
         allPermissions: [
@@ -299,7 +299,7 @@ export function UserGroupListing() {
           <Link
             data-testid="t--usergroup-cell"
             to={adminSettingsCategoryUrl({
-              category: SettingCategories.USER_GROUP_LISTING,
+              category: SettingCategories.GROUPS_LISTING,
               selected: cellProps.cell.row.original.id,
             })}
           >
@@ -326,15 +326,15 @@ export function UserGroupListing() {
             ...selectedUserGroup,
           });
       },
-      text: createMessage(CLONE_USER_GROUP),
+      text: createMessage(CLONE_GROUP),
     },
     {
       className: "edit-menu-item",
       icon: "edit-underline",
       onSelect: (e, key) => {
-        history.push(`/settings/user-groups/${key}`);
+        history.push(`/settings/groups/${key}`);
       },
-      text: createMessage(EDIT_USER_GROUP),
+      text: createMessage(EDIT_GROUP),
     },
     {
       label: "delete",
@@ -343,7 +343,7 @@ export function UserGroupListing() {
       onSelect: (e, key: string) => {
         onDeleteHandler(key);
       },
-      text: createMessage(DELETE_USER_GROUP),
+      text: createMessage(DELETE_GROUP),
     },
   ];
 
@@ -360,7 +360,7 @@ export function UserGroupListing() {
 
   const onAddButtonClick = () => {
     setIsNewGroup(true);
-    history.push(`/settings/user-groups/10109`);
+    history.push(`/settings/groups/10109`);
   };
 
   const onSearch = debounce((search: string) => {
@@ -379,9 +379,9 @@ export function UserGroupListing() {
   }, 300);
 
   return (
-    <AclWrapper data-testid="t--user-group-listing-wrapper">
+    <AclWrapper data-testid="t--group-listing-wrapper">
       {selectedUserGroup ? (
-        <UserGroupAddEdit
+        <GroupAddEdit
           onClone={onCloneHandler}
           onDelete={onDeleteHandler}
           selected={selectedUserGroup}
@@ -393,7 +393,7 @@ export function UserGroupListing() {
             onButtonClick={onAddButtonClick}
             onSearch={onSearch}
             pageMenuItems={pageMenuItems}
-            searchPlaceholder={createMessage(SEARCH_USER_GROUPS_PLACEHOLDER)}
+            searchPlaceholder={createMessage(SEARCH_GROUPS_PLACEHOLDER)}
           />
           <Listing
             columns={columns}

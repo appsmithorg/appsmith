@@ -26,24 +26,23 @@ import { Position } from "@blueprintjs/core";
 import {
   ADD_USERS,
   ARE_YOU_SURE,
-  CLONE_USER_GROUP,
+  CLONE_GROUP,
   createMessage,
   DELETE_USER,
-  DELETE_USER_GROUP,
+  DELETE_GROUP,
   INVITE_USERS_SUBMIT_BUTTON_TEXT,
   NO_USERS_MESSAGE,
-  PERMISSION_GROUPS_UPDATED_SUCCESS,
+  ROLES_UPDATED_SUCCESS,
   RENAME_SUCCESSFUL,
-  RENAME_USER_GROUP,
+  RENAME_GROUP,
   SEARCH_PLACEHOLDER,
 } from "@appsmith/constants/messages";
 import { BackButton } from "pages/Settings/components";
 
-export type UserGroupProps = {
+export type GroupProps = {
   isEditing: boolean;
   isDeleting: boolean;
   rolename: string;
-  // isAppsmithProvided: boolean;
   id: string;
   allUsers: Array<any>;
   allPermissions: Array<any>;
@@ -51,8 +50,8 @@ export type UserGroupProps = {
   isNew?: boolean;
 };
 
-export type UserGroupEditProps = {
-  selected: UserGroupProps;
+export type GroupEditProps = {
+  selected: GroupProps;
   onDelete: any;
   onClone: any;
 };
@@ -111,15 +110,6 @@ const EachUser = styled.div`
   }
 `;
 
-/*const Username = styled.div`
-  margin-left: 8px;
-  font-weight: 400;
-  font-size: 13px;
-  line-height: 17px;
-  letter-spacing: -0.24px;
-  color: var(--appsmith-color-black-800);
-`;*/
-
 const NoUsersWrapper = styled.div`
   display: flex;
   flex-direction: column;
@@ -145,7 +135,7 @@ export type Permissions = {
   allPermissions: string[];
 };
 
-export function UserGroupAddEdit(props: UserGroupEditProps) {
+export function GroupAddEdit(props: GroupEditProps) {
   const { selected } = props;
   const [selectedTabIndex, setSelectedTabIndex] = useState(0);
   const [showModal, setShowModal] = useState(false);
@@ -241,7 +231,7 @@ export function UserGroupAddEdit(props: UserGroupEditProps) {
     setRemovedActiveGroups([]);
     setAddedAllGroups([]);
     Toaster.show({
-      text: createMessage(PERMISSION_GROUPS_UPDATED_SUCCESS),
+      text: createMessage(ROLES_UPDATED_SUCCESS),
       variant: Variant.success,
     });
   };
@@ -373,7 +363,7 @@ export function UserGroupAddEdit(props: UserGroupEditProps) {
     },
     {
       key: "permissions",
-      title: "Permissions",
+      title: "Roles",
       count:
         permissions.activePermissions.length +
         permissions.allPermissions.length,
@@ -393,12 +383,12 @@ export function UserGroupAddEdit(props: UserGroupEditProps) {
 
   const onDeleteHanlder = () => {
     props.onDelete && props.onDelete(selected.id);
-    history.push(`/settings/user-groups`);
+    history.push(`/settings/groups`);
   };
 
   const onCloneHandler = () => {
     props.onClone && props.onClone(selected);
-    history.push(`/settings/user-groups`);
+    history.push(`/settings/groups`);
   };
 
   const menuItems: MenuItemProps[] = [
@@ -406,20 +396,20 @@ export function UserGroupAddEdit(props: UserGroupEditProps) {
       className: "clone-menu-item",
       icon: "duplicate",
       onSelect: () => onCloneHandler(),
-      text: createMessage(CLONE_USER_GROUP),
+      text: createMessage(CLONE_GROUP),
       label: "clone",
     },
     {
       className: "rename-menu-item",
       icon: "edit-underline",
-      text: createMessage(RENAME_USER_GROUP),
+      text: createMessage(RENAME_GROUP),
       label: "rename",
     },
     {
       className: "delete-menu-item",
       icon: "delete-blank",
       onSelect: () => onDeleteHanlder(),
-      text: createMessage(DELETE_USER_GROUP),
+      text: createMessage(DELETE_GROUP),
       label: "delete",
     },
   ];

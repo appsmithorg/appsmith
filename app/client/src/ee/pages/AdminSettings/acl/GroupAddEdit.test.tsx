@@ -1,8 +1,8 @@
 import React from "react";
 import "@testing-library/jest-dom";
 import { render, screen, waitFor } from "test/testUtils";
-import { UserGroupAddEdit, UserGroupEditProps } from "./UserGroupAddEdit";
-import { userGroupTableData } from "./UserGroupListing";
+import { GroupAddEdit, GroupEditProps } from "./GroupAddEdit";
+import { userGroupTableData } from "./GroupsListing";
 import userEvent from "@testing-library/user-event";
 
 let container: any = null;
@@ -12,45 +12,45 @@ const listMenuItems = [
     className: "clone-menu-item",
     icon: "duplicate",
     onSelect: jest.fn(),
-    text: "Clone User Group",
+    text: "Clone Group",
     label: "clone",
   },
   {
     className: "rename-menu-item",
     icon: "edit-underline",
-    text: "Rename User Group",
+    text: "Rename Group",
     label: "rename",
   },
   {
     className: "delete-menu-item",
     icon: "delete-blank",
     onSelect: jest.fn(),
-    text: "Delete User Group",
+    text: "Delete Group",
     label: "delete",
   },
 ];
 
-const props: UserGroupEditProps = {
+const props: GroupEditProps = {
   selected: userGroupTableData[0],
   onClone: jest.fn(),
   onDelete: jest.fn(),
 };
 
 function renderComponent() {
-  return render(<UserGroupAddEdit {...props} />);
+  return render(<GroupAddEdit {...props} />);
 }
 
-describe("<UserGroupAddEdit />", () => {
+describe("<GroupAddEdit />", () => {
   beforeEach(() => {
     container = document.createElement("div");
     document.body.appendChild(container);
   });
   it("is rendered", () => {
     renderComponent();
-    const userGroup = screen.queryAllByTestId("t--user-edit-wrapper");
-    expect(userGroup).toHaveLength(1);
+    const group = screen.queryAllByTestId("t--user-edit-wrapper");
+    expect(group).toHaveLength(1);
   });
-  it("should render the selected user group name as title", () => {
+  it("should render the selected group name as title", () => {
     renderComponent();
     const title = screen.queryAllByTestId("t--editatble-title");
     expect(title[0]).toHaveTextContent(props.selected.rolename);
@@ -77,7 +77,7 @@ describe("<UserGroupAddEdit />", () => {
       onClone: jest.fn(),
       onDelete: jest.fn(),
     };
-    render(<UserGroupAddEdit {...props} />);
+    render(<GroupAddEdit {...props} />);
     const searchInput = screen.getAllByTestId("t--acl-search-input");
     expect(searchInput).toHaveLength(1);
 
@@ -114,18 +114,18 @@ describe("<UserGroupAddEdit />", () => {
       );
     });
   });
-  it("should search and filter permission groups on search", async () => {
+  it("should search and filter roles on search", async () => {
     const selectedGroup = userGroupTableData[1];
     const props = {
       selected: selectedGroup,
       onClone: jest.fn(),
       onDelete: jest.fn(),
     };
-    render(<UserGroupAddEdit {...props} />);
+    render(<GroupAddEdit {...props} />);
     const searchInput = screen.getAllByTestId("t--acl-search-input");
     expect(searchInput).toHaveLength(1);
 
-    const tab = screen.getByText(`Permissions`);
+    const tab = screen.getByText(`Roles`);
     userEvent.click(tab);
 
     const tabs = screen.getAllByRole("tab");
@@ -149,7 +149,7 @@ describe("<UserGroupAddEdit />", () => {
     const mockedSearchResults = ["1", "1"];
 
     await waitFor(() => {
-      const count = screen.getByText("Permissions");
+      const count = screen.getByText("Roles");
       return expect(count).toBeTruthy();
     });
 
@@ -191,7 +191,7 @@ describe("<UserGroupAddEdit />", () => {
     await userEvent.click(cloneOption[0]);
     await waitFor(
       () => {
-        expect(window.location.pathname).toEqual("/settings/user-groups");
+        expect(window.location.pathname).toEqual("/settings/groups");
         const clonedGroup = screen.queryByText(
           `Copy of ${props.selected.rolename}`,
         );
@@ -216,7 +216,7 @@ describe("<UserGroupAddEdit />", () => {
     const moreMenu = getAllByTestId("t--page-header-actions");
     await userEvent.click(moreMenu[0]);
     const deleteOption = document.getElementsByClassName("delete-menu-item");
-    expect(deleteOption[0]).toHaveTextContent("Delete User Group");
+    expect(deleteOption[0]).toHaveTextContent("Delete Group");
     expect(deleteOption[0]).not.toHaveTextContent("Are you sure?");
     await userEvent.click(deleteOption[0]);
     const confirmationText = document.getElementsByClassName(
@@ -226,7 +226,7 @@ describe("<UserGroupAddEdit />", () => {
     await userEvent.dblClick(deleteOption[0]);
     await waitFor(
       () => {
-        expect(window.location.pathname).toEqual("/settings/user-groups");
+        expect(window.location.pathname).toEqual("/settings/groups");
         const deletedGroup = screen.queryByText(props.selected.rolename);
         return expect(deletedGroup).toBeFalsy();
       },
@@ -238,7 +238,7 @@ describe("<UserGroupAddEdit />", () => {
     const tabs = screen.getAllByRole("tab");
     expect(tabs.length).toEqual(2);
     expect(tabs[0]).toHaveTextContent("Users");
-    expect(tabs[1]).toHaveTextContent("Permissions");
+    expect(tabs[1]).toHaveTextContent("Roles");
   });
   it("should mark group to be removed", () => {
     renderComponent();

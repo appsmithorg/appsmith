@@ -1,19 +1,14 @@
 import React from "react";
 import styled from "styled-components";
-import {
-  // Button,
-  // Category,
-  Icon,
-  IconSize,
-} from "components/ads";
+import { Icon, IconSize } from "components/ads";
 import { Colors } from "constants/Colors";
 import { ContentWrapper } from "./components";
 import { HighlightText } from "./helpers/HighlightText";
 import {
   createMessage,
-  ACTIVE_GROUPS,
-  ALL_GROUPS,
-  NO_PERMISSION_GROUPS_MESSAGE,
+  ACTIVE_ROLES,
+  ALL_ROLES,
+  NO_ROLES_MESSAGE,
 } from "@appsmith/constants/messages";
 
 const ActiveGroups = styled.div``;
@@ -89,29 +84,6 @@ const EachGroup = styled.div`
   }
 `;
 
-/*const Group = styled.div``;
-
-const StyledButton = styled(Button)`
-  font-weight: 600;
-  font-size: 12px;
-  line-height: 12px;
-  text-align: center;
-  letter-spacing: 0.4px;
-  text-transform: uppercase;
-  color: var(--appsmith-color-black-700);
-  border: 1px solid var(--appsmith-color-black-700);
-  visibility: hidden;
-  min-width: 68px;
-`;
-
-const Wrapper = styled.div`
-  display: flex;
-
-  .remixicon-icon {
-    margin-right: 12px;
-  }
-`;*/
-
 const EmptyActiveGroups = styled.div`
   text-align: center;
   margin: 32px;
@@ -154,7 +126,7 @@ export function ActiveAllGroupsList(props: ActiveAllGroupsProps) {
             size={IconSize.XXXL}
           />
           <Title data-testid="t--active-groups-title">
-            {props.title ?? createMessage(ACTIVE_GROUPS)}
+            {props.title ?? createMessage(ACTIVE_ROLES)}
           </Title>
         </TitleWrapper>
         {activeGroups && activeGroups.length > 0 ? (
@@ -171,22 +143,12 @@ export function ActiveAllGroupsList(props: ActiveAllGroupsProps) {
               >
                 <Icon fillColor={"#E32525"} name="minus" />
                 <HighlightText highlight={searchValue} text={group} />
-                {/* <StyledButton
-                category={Category.tertiary}
-                className="action-button"
-                data-testid="t--group-remove-btn"
-                onClick={() => {
-                  onRemoveGroup(group);
-                }}
-                tag="button"
-                text={"Remove"}
-              /> */}
               </EachGroup>
             );
           })
         ) : (
           <EmptyActiveGroups>
-            {createMessage(NO_PERMISSION_GROUPS_MESSAGE)}
+            {createMessage(NO_ROLES_MESSAGE)}
           </EmptyActiveGroups>
         )}
       </ActiveGroups>
@@ -198,7 +160,7 @@ export function ActiveAllGroupsList(props: ActiveAllGroupsProps) {
               name="group-2-line"
               size={IconSize.XXXXL}
             />
-            <Title>{createMessage(ALL_GROUPS)}</Title>
+            <Title>{createMessage(ALL_ROLES)}</Title>
           </TitleWrapper>
           {allGroups?.map((group: any) => {
             const addedGroup = addedAllGroups?.includes(group);
@@ -213,16 +175,6 @@ export function ActiveAllGroupsList(props: ActiveAllGroupsProps) {
               >
                 <Icon fillColor={"#03B365"} name="plus" />
                 <HighlightText highlight={searchValue} text={group} />
-                {/* <StyledButton
-                  category={Category.tertiary}
-                  className="action-button"
-                  data-testid="t--group-add-btn"
-                  onClick={() => {
-                    onAddGroup(group);
-                  }}
-                  tag="button"
-                  text={"Add"}
-                /> */}
               </EachGroup>
             );
           })}

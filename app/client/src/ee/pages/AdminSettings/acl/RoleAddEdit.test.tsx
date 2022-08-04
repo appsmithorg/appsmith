@@ -1,14 +1,11 @@
 import React from "react";
 import "@testing-library/jest-dom";
 import { render, screen, waitFor } from "test/testUtils";
-import {
-  PermissionGroupAddEdit,
-  PermissionGroupEditProps,
-} from "./PermissionGroupAddEdit";
-import { permissionGroupTableData } from "./PermissionGroupListing";
-import { hashtable } from "./PermissionGroupsTree";
+import { RoleAddEdit, RoleEditProps } from "./RoleAddEdit";
+import { rolesTableData } from "./RolesListing";
+import { hashtable } from "./RolesTree";
 import userEvent from "@testing-library/user-event";
-import { response2 } from "./mocks/mockPermissionTreeResponse";
+import { response2 } from "./mocks/mockRoleTreeResponse";
 
 let container: any = null;
 
@@ -51,7 +48,7 @@ const searchResultsMock = [
     count: 1,
   },
   {
-    name: "User & Permission Groups",
+    name: "Groups & Roles",
     data: [
       {
         id: "query1",
@@ -84,47 +81,45 @@ const listMenuItems = [
     className: "clone-menu-item",
     icon: "duplicate",
     onSelect: jest.fn(),
-    text: "Clone Permission Group",
+    text: "Clone Role",
     label: "clone",
   },
   {
     className: "rename-menu-item",
     icon: "edit-underline",
-    text: "Rename Permission Group",
+    text: "Rename Role",
     label: "rename",
   },
   {
     className: "delete-menu-item",
     icon: "delete-blank",
     onSelect: jest.fn(),
-    text: "Delete Permission Group",
+    text: "Delete Role",
     label: "delete",
   },
 ];
 
-const props: PermissionGroupEditProps = {
-  selected: permissionGroupTableData[0],
+const props: RoleEditProps = {
+  selected: rolesTableData[0],
   onClone: jest.fn(),
   onDelete: jest.fn(),
 };
 
 function renderComponent() {
-  return render(<PermissionGroupAddEdit {...props} />);
+  return render(<RoleAddEdit {...props} />);
 }
 
-describe("<PermissionGroupAddEdit />", () => {
+describe("<RoleAddEdit />", () => {
   beforeEach(() => {
     container = document.createElement("div");
     document.body.appendChild(container);
   });
   it("is rendered", () => {
     renderComponent();
-    const permissionGroup = screen.queryAllByTestId(
-      "t--permission-edit-wrapper",
-    );
-    expect(permissionGroup).toHaveLength(1);
+    const role = screen.queryAllByTestId("t--role-edit-wrapper");
+    expect(role).toHaveLength(1);
   });
-  it("should render the selected permission group name as title", () => {
+  it("should render the selected role name as title", () => {
     renderComponent();
     const title = screen.queryAllByTestId("t--editatble-title");
     expect(title[0]).toHaveTextContent(props.selected.permissionName);
@@ -266,7 +261,7 @@ describe("<PermissionGroupAddEdit />", () => {
     await userEvent.click(cloneOption[0]);
     await waitFor(
       () => {
-        expect(window.location.pathname).toEqual("/settings/permission-groups");
+        expect(window.location.pathname).toEqual("/settings/roles");
         const clonedGroup = screen.queryByText(
           `Copy of ${props.selected.permissionName}`,
         );
@@ -291,7 +286,7 @@ describe("<PermissionGroupAddEdit />", () => {
     const moreMenu = getAllByTestId("t--page-header-actions");
     await userEvent.click(moreMenu[0]);
     const deleteOption = document.getElementsByClassName("delete-menu-item");
-    expect(deleteOption[0]).toHaveTextContent("Delete Permission Group");
+    expect(deleteOption[0]).toHaveTextContent("Delete Role");
     expect(deleteOption[0]).not.toHaveTextContent("Are you sure?");
     await userEvent.click(deleteOption[0]);
     const confirmationText = document.getElementsByClassName(
@@ -301,7 +296,7 @@ describe("<PermissionGroupAddEdit />", () => {
     await userEvent.dblClick(deleteOption[0]);
     await waitFor(
       () => {
-        expect(window.location.pathname).toEqual("/settings/permission-groups");
+        expect(window.location.pathname).toEqual("/settings/roles");
         const deletedGroup = screen.queryByText(props.selected.permissionName);
         return expect(deletedGroup).toBeFalsy();
       },

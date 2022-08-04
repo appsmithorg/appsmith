@@ -26,7 +26,7 @@ import {
   ARE_YOU_SURE,
   createMessage,
   DELETE_USER,
-  USER_GROUPS_UPDATED_SUCCESS,
+  SUCCESSFULLY_SAVED,
 } from "@appsmith/constants/messages";
 import { BackButton } from "pages/Settings/components";
 
@@ -35,7 +35,8 @@ type UserProps = {
   isCurrentUser: boolean;
   isDeleting: boolean;
   name: string;
-  allRoles: Array<string>;
+  allGroups: Array<string>;
+  allPermissions: Array<string>;
   username: string;
   userId: string;
   roleName?: string;
@@ -112,55 +113,93 @@ export function UserEdit(props: UserEditProps) {
   const [showConfirmationText, setShowConfirmationText] = useState(false);
   const [selectedTabIndex, setSelectedTabIndex] = useState(0);
   const history = useHistory();
-  const [data, setData] = useState<string[]>([]);
+  const [userGroups, setUserGroups] = useState<string[]>([]);
+  const [permissionGroups, setPermissionGroups] = useState<string[]>([]);
   const [searchValue, setSearchValue] = useState("");
-  const [removedActiveGroups, setRemovedActiveGroups] = useState<Array<any>>(
-    [],
-  );
+  const [removedActiveUserGroups, setRemovedActiveUserGroups] = useState<
+    Array<any>
+  >([]);
+  const [
+    removedActivePermissionGroups,
+    setRemovedActivePermissionGroups,
+  ] = useState<Array<any>>([]);
   const [isSaving, setIsSaving] = useState(false);
   const { searchPlaceholder, selectedUser } = props;
 
   useEffect(() => {
-    setData(selectedUser.allRoles);
+    setUserGroups(selectedUser.allGroups);
+    setPermissionGroups(selectedUser.allPermissions);
   }, []);
 
   useEffect(() => {
-    setIsSaving(removedActiveGroups.length > 0);
-  }, [removedActiveGroups]);
+    setIsSaving(
+      removedActiveUserGroups.length > 0 ||
+        removedActivePermissionGroups.length > 0,
+    );
+  }, [removedActiveUserGroups, removedActivePermissionGroups]);
 
   const onRemoveGroup = (group: any) => {
-    const updateGroups = removedActiveGroups.includes(group)
-      ? removedActiveGroups.filter((grp) => grp !== group)
-      : [...removedActiveGroups, group];
-    setRemovedActiveGroups(updateGroups);
+    if (selectedTabIndex === 0) {
+      const updateUserGroups = removedActiveUserGroups.includes(group)
+        ? removedActiveUserGroups.filter((grp) => grp !== group)
+        : [...removedActiveUserGroups, group];
+      setRemovedActiveUserGroups(updateUserGroups);
+    } else if (selectedTabIndex === 1) {
+      const updatePermissionGroups = removedActivePermissionGroups.includes(
+        group,
+      )
+        ? removedActivePermissionGroups.filter((grp) => grp !== group)
+        : [...removedActivePermissionGroups, group];
+      setRemovedActivePermissionGroups(updatePermissionGroups);
+    }
   };
 
   const onSaveChanges = () => {
-    const updatedGroups = selectedUser.allRoles.filter(
-      (role) => !removedActiveGroups.includes(role),
+    const updatedUserGroups = selectedUser.allGroups.filter(
+      (group) => !removedActiveUserGroups.includes(group),
     );
-    setData(updatedGroups);
-    setRemovedActiveGroups([]);
+    setUserGroups(updatedUserGroups);
+    const updatedPermissionGroups = selectedUser.allPermissions.filter(
+      (permission) => !removedActivePermissionGroups.includes(permission),
+    );
+    setPermissionGroups(updatedPermissionGroups);
+    setRemovedActiveUserGroups([]);
+    setRemovedActivePermissionGroups([]);
     Toaster.show({
-      text: createMessage(USER_GROUPS_UPDATED_SUCCESS),
+      text: createMessage(SUCCESSFULLY_SAVED),
       variant: Variant.success,
     });
   };
 
   const onClearChanges = () => {
-    setRemovedActiveGroups([]);
+    setRemovedActiveUserGroups([]);
+    setRemovedActivePermissionGroups([]);
   };
 
   const tabs: TabProp[] = [
     {
-      key: "user-groups",
-      title: "User Groups",
+      key: "groups",
+      title: "Groups",
       panelComponent: (
         <ActiveAllGroupsList
-          activeGroups={data}
+          activeGroups={userGroups}
           activeOnly
           onRemoveGroup={onRemoveGroup}
-          removedActiveGroups={removedActiveGroups}
+          removedActiveGroups={removedActiveUserGroups}
+          searchValue={searchValue}
+          title="Active Groups"
+        />
+      ),
+    },
+    {
+      key: "roles",
+      title: "Roles",
+      panelComponent: (
+        <ActiveAllGroupsList
+          activeGroups={permissionGroups}
+          activeOnly
+          onRemoveGroup={onRemoveGroup}
+          removedActiveGroups={removedActivePermissionGroups}
           searchValue={searchValue}
         />
       ),
@@ -192,14 +231,14 @@ export function UserEdit(props: UserEditProps) {
     if (search && search.trim().length > 0) {
       setSearchValue(search);
       const results =
-        selectedUser.allRoles &&
-        selectedUser.allRoles.filter((role) =>
-          role?.toLocaleUpperCase().includes(search.toLocaleUpperCase()),
+        selectedUser.allGroups &&
+        selectedUser.allGroups.filter((group) =>
+          group?.toLocaleUpperCase().includes(search.toLocaleUpperCase()),
         );
-      setData(results);
+      setUserGroups(results);
     } else {
       setSearchValue("");
-      setData(selectedUser.allRoles);
+      setUserGroups(selectedUser.allGroups);
     }
   }, 300);
 

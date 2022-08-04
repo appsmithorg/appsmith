@@ -12,17 +12,17 @@ import { AclWrapper, AppsmithIcon } from "./components";
 import uniqueId from "lodash/uniqueId";
 import { adminSettingsCategoryUrl } from "RouteBuilder";
 import { SettingCategories } from "@appsmith/pages/AdminSettings/config/types";
-import { PermissionGroupAddEdit } from "./PermissionGroupAddEdit";
+import { RoleAddEdit } from "./RoleAddEdit";
 import {
-  ADD_GROUP,
-  CLONE_PERMISSION_GROUP,
+  ADD_ROLE,
+  CLONE_ROLE,
   COPY_OF_GROUP,
   createMessage,
-  DELETE_PERMISSION_GROUP,
-  EDIT_PERMISSION_GROUP,
+  DELETE_ROLE,
+  EDIT_ROLE,
   GROUP_CLONED,
   GROUP_DELETED,
-  SEARCH_PERMISSION_GROUPS_PLACEHOLDER,
+  SEARCH_ROLES_PLACEHOLDER,
 } from "@appsmith/constants/messages";
 
 const CellContainer = styled.div`
@@ -31,7 +31,7 @@ const CellContainer = styled.div`
   cursor: pointer;
 `;
 
-type PermissionGroupProps = {
+type RoleProps = {
   isEditing: boolean;
   isDeleting: boolean;
   permissionName: string;
@@ -40,7 +40,7 @@ type PermissionGroupProps = {
   isNew?: boolean;
 };
 
-export const permissionGroupTableData: PermissionGroupProps[] = [
+export const rolesTableData: RoleProps[] = [
   {
     id: "1",
     isEditing: false,
@@ -91,12 +91,12 @@ export const permissionGroupTableData: PermissionGroupProps[] = [
   },
 ];
 
-export function PermissionGroupListing() {
-  const [data, setData] = useState<PermissionGroupProps[]>([]);
+export function RolesListing() {
+  const [data, setData] = useState<RoleProps[]>([]);
   const [searchValue, setSearchValue] = useState("");
   const params = useParams() as any;
   const selectedPermGrpId = params?.selected;
-  const selPermissionGroup = permissionGroupTableData.find(
+  const selPermissionGroup = rolesTableData.find(
     (group) => group.id === selectedPermGrpId,
   );
   const [selectedPermissionGroup, setSelectedPermissionGroup] = useState(
@@ -112,12 +112,12 @@ export function PermissionGroupListing() {
         id: "10102",
         isEditing: false,
         isDeleting: false,
-        permissionName: "Untitled Permission Group",
+        permissionName: "Untitled Role",
         isAppsmithProvided: false,
         isNew: true,
       });
     } else {
-      const selPermissionGroup = permissionGroupTableData.find(
+      const selPermissionGroup = rolesTableData.find(
         (group) => group.id === selectedPermGrpId,
       );
       setSelectedPermissionGroup(selPermissionGroup);
@@ -126,12 +126,12 @@ export function PermissionGroupListing() {
   }, [params]);
 
   useEffect(() => {
-    setData(permissionGroupTableData);
-  }, [permissionGroupTableData]);
+    setData(rolesTableData);
+  }, [rolesTableData]);
 
   const onDeleteHandler = (id: string) => {
-    const updatedData = data.filter((permissionGroup) => {
-      return permissionGroup.id !== id;
+    const updatedData = data.filter((role) => {
+      return role.id !== id;
     });
     setData(updatedData);
     Toaster.show({
@@ -140,15 +140,15 @@ export function PermissionGroupListing() {
     });
   };
 
-  const onCloneHandler = (permission: PermissionGroupProps) => {
+  const onCloneHandler = (role: RoleProps) => {
     const clonedData = {
-      ...permission,
+      ...role,
       id: uniqueId("pg"),
-      permissionName: createMessage(COPY_OF_GROUP, permission.permissionName),
+      permissionName: createMessage(COPY_OF_GROUP, role.permissionName),
       isAppsmithProvided: false,
     };
-    permissionGroupTableData.push(clonedData);
-    setData([...permissionGroupTableData]);
+    rolesTableData.push(clonedData);
+    setData([...rolesTableData]);
     Toaster.show({
       text: createMessage(GROUP_CLONED),
       variant: Variant.success,
@@ -157,14 +157,14 @@ export function PermissionGroupListing() {
 
   const columns = [
     {
-      Header: `Groups (${data.length})`,
+      Header: `Roles (${data.length})`,
       accessor: "permissionName",
       Cell: function GroupCell(cellProps: any) {
         return (
           <Link
-            data-testid="t--permissionGroup-cell"
+            data-testid="t--roles-cell"
             to={adminSettingsCategoryUrl({
-              category: SettingCategories.PERMISSION_GROUP_LISTING,
+              category: SettingCategories.ROLES_LISTING,
               selected: cellProps.cell.row.original.id,
             })}
           >
@@ -188,22 +188,20 @@ export function PermissionGroupListing() {
       className: "clone-menu-item",
       icon: "duplicate",
       onSelect: (e, id: string) => {
-        const selectedPermission = data.find(
-          (permission) => permission.id === id,
-        );
+        const selectedPermission = data.find((role) => role.id === id);
         selectedPermission &&
           onCloneHandler({ ...selectedPermission, isAppsmithProvided: false });
       },
-      text: createMessage(CLONE_PERMISSION_GROUP),
+      text: createMessage(CLONE_ROLE),
       label: "clone",
     },
     {
       className: "edit-menu-item",
       icon: "edit-underline",
       onSelect: (e, key) => {
-        history.push(`/settings/permission-groups/${key}`);
+        history.push(`/settings/roles/${key}`);
       },
-      text: createMessage(EDIT_PERMISSION_GROUP),
+      text: createMessage(EDIT_ROLE),
       label: "edit",
     },
     {
@@ -213,7 +211,7 @@ export function PermissionGroupListing() {
       onSelect: (e, key: string) => {
         onDeleteHandler(key);
       },
-      text: createMessage(DELETE_PERMISSION_GROUP),
+      text: createMessage(DELETE_ROLE),
     },
   ];
 
@@ -230,28 +228,28 @@ export function PermissionGroupListing() {
 
   const onAddButtonClick = () => {
     setIsNewGroup(true);
-    history.push(`/settings/permission-groups/10102`);
+    history.push(`/settings/roles/10102`);
   };
 
   const onSearch = debounce((search: string) => {
     if (search && search.trim().length > 0) {
       setSearchValue(search);
       const results =
-        permissionGroupTableData &&
-        permissionGroupTableData.filter((permissionGroup) =>
-          permissionGroup.permissionName?.toLocaleUpperCase().includes(search),
+        rolesTableData &&
+        rolesTableData.filter((role) =>
+          role.permissionName?.toLocaleUpperCase().includes(search),
         );
       setData(results);
     } else {
       setSearchValue("");
-      setData(permissionGroupTableData);
+      setData(rolesTableData);
     }
   }, 300);
 
   return (
-    <AclWrapper data-testid="t--permission-group-listing-wrapper">
+    <AclWrapper data-testid="t--roles-listing-wrapper">
       {selectedPermissionGroup ? (
-        <PermissionGroupAddEdit
+        <RoleAddEdit
           onClone={onCloneHandler}
           onDelete={onDeleteHandler}
           selected={selectedPermissionGroup}
@@ -259,13 +257,11 @@ export function PermissionGroupListing() {
       ) : (
         <>
           <PageHeader
-            buttonText={createMessage(ADD_GROUP)}
+            buttonText={createMessage(ADD_ROLE)}
             onButtonClick={onAddButtonClick}
             onSearch={onSearch}
             pageMenuItems={pageMenuItems}
-            searchPlaceholder={createMessage(
-              SEARCH_PERMISSION_GROUPS_PLACEHOLDER,
-            )}
+            searchPlaceholder={createMessage(SEARCH_ROLES_PLACEHOLDER)}
           />
           <Listing
             columns={columns}

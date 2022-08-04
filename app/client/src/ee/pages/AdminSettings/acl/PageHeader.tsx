@@ -65,12 +65,6 @@ const StyledButton = styled(Button)`
   min-width: 88px;
 `;
 
-/*const VerticalDelimeter = styled.div`
-  margin: 0 16px;
-  border-right: 2px solid var(--appsmith-color-black-200);
-  height: 36px;
-`;*/
-
 function getSettingLabel(name = "") {
   return name.replace(/-/g, "");
 }
@@ -154,7 +148,6 @@ export function PageHeader(props: PageHeaderProps) {
             width={"376px"}
           />
         )}
-        {/* <VerticalDelimeter /> */}
         {buttonText && (
           <StyledButton
             data-testid={"t--acl-page-header-input"}

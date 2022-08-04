@@ -3,12 +3,12 @@ import {
   SettingCategories,
   SettingTypes,
 } from "@appsmith/pages/AdminSettings/config/types";
-import { UserGroupListing } from "../acl/UserGroupListing";
+import { RolesListing } from "../acl/RolesListing";
 
 export const config: AdminConfigType = {
-  type: SettingCategories.USER_GROUP_LISTING,
+  type: SettingCategories.ROLES_LISTING,
   controlType: SettingTypes.PAGE,
-  component: UserGroupListing,
-  title: "User Groups",
+  component: RolesListing,
+  title: "Roles",
   canSave: false,
 } as AdminConfigType;

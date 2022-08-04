@@ -3,12 +3,12 @@ import {
   SettingCategories,
   SettingTypes,
 } from "@appsmith/pages/AdminSettings/config/types";
-import { PermissionGroupListing } from "../acl/PermissionGroupListing";
+import { GroupListing } from "../acl/GroupsListing";
 
 export const config: AdminConfigType = {
-  type: SettingCategories.PERMISSION_GROUP_LISTING,
+  type: SettingCategories.GROUPS_LISTING,
   controlType: SettingTypes.PAGE,
-  component: PermissionGroupListing,
-  title: "Permission Groups",
+  component: GroupListing,
+  title: "Groups",
   canSave: false,
 } as AdminConfigType;

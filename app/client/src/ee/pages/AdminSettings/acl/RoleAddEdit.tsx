@@ -5,21 +5,21 @@ import { TabComponent, TabProp } from "components/ads/Tabs";
 import { PageHeader } from "./PageHeader";
 import { SaveButtonBar, TabsWrapper } from "./components";
 import { debounce } from "lodash";
-import PermissionGroupsTree from "./PermissionGroupsTree";
+import RolesTree from "./RolesTree";
 import { BackButton } from "pages/Settings/components";
 import EmptyDataState from "components/utils/EmptyDataState";
-import { response2 } from "./mocks/mockPermissionTreeResponse";
+import { response2 } from "./mocks/mockRoleTreeResponse";
 import {
-  CLONE_PERMISSION_GROUP,
   createMessage,
-  DELETE_PERMISSION_GROUP,
-  RENAME_PERMISSION_GROUP,
+  CLONE_ROLE,
+  DELETE_ROLE,
+  RENAME_ROLE,
   RENAME_SUCCESSFUL,
   SEARCH_PLACEHOLDER,
   SUCCESSFULLY_SAVED,
 } from "@appsmith/constants/messages";
 
-export type PermissionGroupProps = {
+export type RoleProps = {
   isEditing: boolean;
   isDeleting: boolean;
   permissionName: string;
@@ -28,13 +28,13 @@ export type PermissionGroupProps = {
   isNew?: boolean;
 };
 
-export type PermissionGroupEditProps = {
-  selected: PermissionGroupProps;
+export type RoleEditProps = {
+  selected: RoleProps;
   onClone: any;
   onDelete: any;
 };
 
-export function PermissionGroupAddEdit(props: PermissionGroupEditProps) {
+export function RoleAddEdit(props: RoleEditProps) {
   const { selected } = props;
   const [selectedTabIndex, setSelectedTabIndex] = useState(0);
   const [isSaving, setIsSaving] = useState(false);
@@ -56,7 +56,6 @@ export function PermissionGroupAddEdit(props: PermissionGroupEditProps) {
   };*/
 
   const onSaveChanges = () => {
-    /*console.log("hello save");*/
     Toaster.show({
       text: createMessage(SUCCESSFULLY_SAVED),
       variant: Variant.success,
@@ -64,7 +63,6 @@ export function PermissionGroupAddEdit(props: PermissionGroupEditProps) {
   };
 
   const onClearChanges = () => {
-    /*console.log("hello clear");*/
     setPageTitle(selected.permissionName);
   };
 
@@ -110,7 +108,7 @@ export function PermissionGroupAddEdit(props: PermissionGroupEditProps) {
     }
   }, 300);
 
-  const tabs: TabProp[] = response2.map((tab, index) => {
+  const tabs: TabProp[] = response2.map((tab: any, index: any) => {
     const count = searchValue && filteredData ? filteredData[index]?.count : 0;
     return {
       key: tab.name,
@@ -120,7 +118,7 @@ export function PermissionGroupAddEdit(props: PermissionGroupEditProps) {
         searchValue && count === 0 ? (
           <EmptyDataState />
         ) : (
-          <PermissionGroupsTree searchValue={searchValue} tabData={tab} />
+          <RolesTree searchValue={searchValue} tabData={tab} />
         ),
     };
   });
@@ -138,7 +136,7 @@ export function PermissionGroupAddEdit(props: PermissionGroupEditProps) {
     },
     {
       key: "user-permission-groups",
-      title: "User & Permission Groups",
+      title: "Groups & Roles",
       panelComponent: <div>TAB</div>,
     },
     {
@@ -150,12 +148,12 @@ export function PermissionGroupAddEdit(props: PermissionGroupEditProps) {
 
   const onDeleteHandler = () => {
     props.onDelete && props.onDelete(selected.id);
-    history.push(`/settings/permission-groups`);
+    history.push(`/settings/roles`);
   };
 
   const onCloneHandler = () => {
     props.onClone && props.onClone(selected);
-    history.push(`/settings/permission-groups`);
+    history.push(`/settings/roles`);
   };
 
   const onEditTitle = (name: string) => {
@@ -171,26 +169,26 @@ export function PermissionGroupAddEdit(props: PermissionGroupEditProps) {
       className: "clone-menu-item",
       icon: "duplicate",
       onSelect: () => onCloneHandler(),
-      text: createMessage(CLONE_PERMISSION_GROUP),
+      text: createMessage(CLONE_ROLE),
       label: "clone",
     },
     {
       className: "rename-menu-item",
       icon: "edit-underline",
-      text: createMessage(RENAME_PERMISSION_GROUP),
+      text: createMessage(RENAME_ROLE),
       label: "rename",
     },
     {
       className: "delete-menu-item",
       icon: "delete-blank",
       onSelect: () => onDeleteHandler(),
-      text: createMessage(DELETE_PERMISSION_GROUP),
+      text: createMessage(DELETE_ROLE),
       label: "delete",
     },
   ];
 
   return (
-    <div data-testid="t--permission-edit-wrapper">
+    <div data-testid="t--role-edit-wrapper">
       <BackButton />
       <PageHeader
         isEditingTitle={selected.isNew}
