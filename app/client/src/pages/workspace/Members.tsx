@@ -140,7 +140,7 @@ const ListUsers = styled.div`
         line-height: 1.5 !important;
         text-align: left !important;
         color: var(--appsmith-color-black-700) !important;
-        padding-left:0 !important;
+        padding-left: 12px !important;
         }
       }
     }
@@ -149,7 +149,7 @@ const ListUsers = styled.div`
   tbody {
     tr {
       td {
-        padding: 10px 0 !important;
+        padding: 10px 12px !important;
         .actions-icon {
           visibility: hidden;
           justify-content: end;

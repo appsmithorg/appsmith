@@ -225,7 +225,7 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
                     Map<String, User> userMap = tuple.getT2();
                     userAndPermissionGroupDTOList.forEach(userAndPermissionGroupDTO -> {
                         User user = userMap.get(userAndPermissionGroupDTO.getUserId());
-                        userAndPermissionGroupDTO.setName(Optional.ofNullable(user.getName()).orElse(""));
+                        userAndPermissionGroupDTO.setName(Optional.ofNullable(user.getName()).orElse(user.computeFirstName()));
                         userAndPermissionGroupDTO.setUsername(user.getUsername());
                     });
                     return userAndPermissionGroupDTOList;
