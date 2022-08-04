@@ -1562,7 +1562,7 @@ public class DatabaseChangelog2 {
         return Set.of(adminPermissionGroup, developerPermissionGroup, viewerPermissionGroup);
     }
 
-    private Set<PermissionGroup> generatePermissionsForDefaultPermissionGroups(MongockTemplate mongockTemplate, PolicyUtils policyUtils, Set<PermissionGroup> permissionGroups, Workspace workspace, Set<String> validUserIds) {
+    private Set<PermissionGroup> generatePermissionsForDefaultPermissionGroups(MongockTemplate mongockTemplate, PolicyUtils policyUtils, Set<PermissionGroup> permissionGroups, Workspace workspace, Map<String, String> userIdForEmail, Set<String> validUserIds) {
         PermissionGroup adminPermissionGroup = permissionGroups.stream()
                 .filter(permissionGroup -> permissionGroup.getName().startsWith(FieldName.ADMINISTRATOR))
                 .findFirst().get();
@@ -1588,7 +1588,25 @@ public class DatabaseChangelog2 {
                 .map(permissionGroup -> new Permission(permissionGroup.getId(), AclPermission.READ_PERMISSION_GROUPS))
                 .collect(Collectors.toSet());
 
-        List<UserRole> userRoles = workspace.getUserRoles().stream().filter(userRole -> validUserIds.contains(userRole.getUserId())).collect(Collectors.toList());
+        List<UserRole> userRoles = workspace.getUserRoles()
+                .stream()
+                .map(userRole -> {
+                    // If userId is not valid populate it with the userId mapped to the email
+                    // This happens if user is deleted manually from database and re-added again
+                    if(!validUserIds.contains(userRole.getUserId())) {
+                        if(userIdForEmail.containsKey(userRole.getUsername())) {
+                            userRole.setUserId(userIdForEmail.get(userRole.getUsername()));
+                        } else {
+                            // Set userId to null if even email is not found
+                            userRole.setUserId(null);
+                        }
+                    }
+                    return userRole;
+                })
+                //filter out the users who are still not valid
+                .filter(userRole -> userRole.getUserId() != null)
+                //collect the user roles into a list
+                .collect(Collectors.toList());
 
         Set<Permission> permissions = new HashSet<>();
         permissions.addAll(workspacePermissions);
@@ -1676,7 +1694,10 @@ public class DatabaseChangelog2 {
 
     @ChangeSet(order = "024", id = "add-default-permission-groups", author = "")
     public void addDefaultPermissionGroups(MongockTemplate mongockTemplate, WorkspaceService workspaceService, @NonLockGuarded PolicyUtils policyUtils, UserRepository userRepository) {
-        Set<String> validUserIds = mongockTemplate.stream(new Query(), User.class).stream().map(User::getId).collect(Collectors.toCollection(HashSet::new));
+        Map<String, String> userIdForEmail = mongockTemplate.stream(new Query(), User.class)
+                .stream()
+                .collect(Collectors.toMap(User::getEmail, User::getId, (value1, value2) -> value1, HashMap::new));
+        Set<String> validUserIds = userIdForEmail.values().stream().collect(Collectors.toCollection(HashSet::new));
         // Drop PermissionGroup collection
         // This ensures that migration can run again if aborted in between
         mongockTemplate.dropCollection(PermissionGroup.class);
@@ -1693,7 +1714,7 @@ public class DatabaseChangelog2 {
                         // Set default permission groups
                         workspace.setDefaultPermissionGroups(permissionGroups.stream().map(PermissionGroup::getId).collect(Collectors.toSet()));
                         // Generate permissions and policies for the default permission groups
-                        permissionGroups = generatePermissionsForDefaultPermissionGroups(mongockTemplate, policyUtils, permissionGroups, workspace, validUserIds);
+                        permissionGroups = generatePermissionsForDefaultPermissionGroups(mongockTemplate, policyUtils, permissionGroups, workspace, userIdForEmail, validUserIds);
                         // Apply the permissions to the workspace
                         for (PermissionGroup permissionGroup : permissionGroups) {
                             // Apply the permissions to the workspace
