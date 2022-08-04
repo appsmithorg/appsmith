@@ -25,10 +25,9 @@ import {
   getRandomPaletteColor,
 } from "utils/AppsmithUtils";
 import { noop, omit } from "lodash";
-import { Text, TextType } from "design-system";
+import { Menu, Text, TextType } from "design-system";
 import Button, { Category, Size, IconPositions } from "components/ads/Button";
 import Icon, { IconSize } from "components/ads/Icon";
-import Menu from "components/ads/Menu";
 import MenuItem, { MenuItemProps } from "components/ads/MenuItem";
 import AppIcon, { AppIconName } from "components/ads/AppIcon";
 import EditableText, {

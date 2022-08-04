@@ -3,7 +3,7 @@ import { Colors } from "constants/Colors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { IconSize, Toaster, Variant } from "components/ads";
 import Icon from "components/ads/Icon";
-import Menu from "components/ads/Menu";
+import { Menu } from "design-system";
 import { deleteBranchInit } from "actions/gitSyncActions";
 import { useDispatch, useSelector } from "react-redux";
 import {

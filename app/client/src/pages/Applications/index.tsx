@@ -47,7 +47,7 @@ import {
   getOnSelectAction,
 } from "pages/common/CustomizedDropdown/dropdownHelpers";
 import Button, { Category, Size } from "components/ads/Button";
-import { Text, TextType } from "design-system";
+import { Menu, Text, TextType } from "design-system";
 import Icon, { IconName, IconSize } from "components/ads/Icon";
 import MenuItem from "components/ads/MenuItem";
 import {
@@ -55,7 +55,6 @@ import {
   updateApplication,
 } from "actions/applicationActions";
 import { Classes } from "components/ads/common";
-import Menu from "components/ads/Menu";
 import { Position } from "@blueprintjs/core/lib/esm/common/position";
 import { UpdateApplicationPayload } from "api/ApplicationApi";
 import PerformanceTracker, {
