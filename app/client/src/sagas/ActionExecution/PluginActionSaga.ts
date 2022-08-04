@@ -103,7 +103,7 @@ import { CURL_IMPORT_FORM } from "constants/forms";
 import { submitCurlImportForm } from "actions/importActions";
 import { curlImportFormValues } from "pages/Editor/APIEditor/helpers";
 import { matchBasePath } from "pages/Editor/Explorer/helpers";
-import { isTrueObject } from "workers/evaluationUtils";
+import { isTrueObject, findDatatype } from "workers/evaluationUtils";
 import { handleExecuteJSFunctionSaga } from "sagas/JSPaneSagas";
 import { Plugin } from "api/PluginApi";
 import { setDefaultActionDisplayFormat } from "./PluginActionSagaUtils";
@@ -186,13 +186,6 @@ function* readBlob(blobUrl: string): any {
   });
 }
 
-function trueTypeOf(obj: any) {
-  return Object.prototype.toString
-    .call(obj)
-    .slice(8, -1)
-    .toLowerCase();
-}
-
 /**
  * This function resolves :
  * - individual objects containing blob urls
@@ -209,8 +202,7 @@ function* resolvingBlobUrls(
   arrDatatype?: string[],
   isArray?: boolean,
 ) {
-  console.log("ondhu 1", executeActionRequest);
-  const dataType = trueTypeOf(value);
+  const dataType: string = findDatatype(value);
   if (isTrueObject(value)) {
     const blobUrlPaths: string[] = [];
     Object.keys(value).forEach((propertyName) => {
@@ -224,7 +216,7 @@ function* resolvingBlobUrls(
       const resolvedBlobValue: unknown = yield call(readBlob, blobUrl);
       set(value, blobUrlPath, resolvedBlobValue);
     }
-    executeActionRequest.paramProperties.push({ [`k${index}`]: "file" });
+    executeActionRequest.paramProperties.push({ [`k${index}`]: dataType });
   } else {
     if (isBlobUrl(value)) {
       // @ts-expect-error: Values can take many types

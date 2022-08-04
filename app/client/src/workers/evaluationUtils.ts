@@ -698,6 +698,19 @@ export const isTrueObject = (
   return Object.prototype.toString.call(item) === "[object Object]";
 };
 
+/**
+ * This function finds the true datatype of the given value.
+ * typeof, lodash and others will return false positives for things like array, wrapper objects, etc
+ * @param value
+ * @returns datatype of the received value as string
+ */
+export const findDatatype = (value: unknown) => {
+  return Object.prototype.toString
+    .call(value)
+    .slice(8, -1)
+    .toLowerCase();
+};
+
 export const isDynamicLeaf = (unEvalTree: DataTree, propertyPath: string) => {
   const [entityName, ...propPathEls] = _.toPath(propertyPath);
   // Framework feature: Top level items are never leaves
