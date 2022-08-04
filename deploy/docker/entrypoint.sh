@@ -190,19 +190,19 @@ chmod-mongodb-key() {
 }
 
 init_keycloak() {
-	if ! isset KEYCLOAK_ADMIN_USERNAME; then
-		export KEYCLOAK_ADMIN_USERNAME=admin
-		echo $'\nKEYCLOAK_ADMIN_USERNAME='"$KEYCLOAK_ADMIN_USERNAME" >> "$stacks_path/configuration/docker.env"
-	fi
+  if [[ -z ${KEYCLOAK_ADMIN_USERNAME-} ]]; then
+    export KEYCLOAK_ADMIN_USERNAME=admin
+    echo $'\nKEYCLOAK_ADMIN_USERNAME='"$KEYCLOAK_ADMIN_USERNAME" >> "$stacks_path/configuration/docker.env"
+  fi
 
-	if ! isset KEYCLOAK_ADMIN_PASSWORD; then
+  if [[ -z ${KEYCLOAK_ADMIN_PASSWORD-} ]]; then
     KEYCLOAK_ADMIN_PASSWORD="$(
       tr -dc A-Za-z0-9 </dev/urandom | head -c 13
       echo ""
     )"
-		export KEYCLOAK_ADMIN_USERNAME
-		echo "KEYCLOAK_ADMIN_PASSWORD=$KEYCLOAK_ADMIN_PASSWORD" >> "$stacks_path/configuration/docker.env"
-	fi
+    export KEYCLOAK_ADMIN_USERNAME
+    echo "KEYCLOAK_ADMIN_PASSWORD=$KEYCLOAK_ADMIN_PASSWORD" >> "$stacks_path/configuration/docker.env"
+  fi
 
   echo "Initializing keycloak"
   if ! out="$(/opt/keycloak/bin/add-user-keycloak.sh --user "$KEYCLOAK_ADMIN_USERNAME" --password "$KEYCLOAK_ADMIN_PASSWORD" 2>&1 )"; then
