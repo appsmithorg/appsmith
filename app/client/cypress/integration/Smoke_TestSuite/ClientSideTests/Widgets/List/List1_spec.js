@@ -3,7 +3,7 @@ const publish = require("../../../../../locators/publishWidgetspage.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
 import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
 
-let jsEditor = ObjectsRegistry.JSEditor;
+let propPane = ObjectsRegistry.PropertyPane;
 
 describe("Binding the list widget with text widget", function() {
   //const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
@@ -12,7 +12,7 @@ describe("Binding the list widget with text widget", function() {
     cy.addDsl(dsl);
   });
 
-  it("Validate text widget data based on changes in list widget Data1", function() {
+  it("1. Validate text widget data based on changes in list widget Data1", function() {
     cy.PublishtheApp();
     cy.wait(2000);
     cy.get(".t--widget-textwidget span:contains('Vivek')").should(
@@ -34,9 +34,9 @@ describe("Binding the list widget with text widget", function() {
     );
   });
 
-  it("Validate text widget data based on changes in list widget Data2", function() {
+  it("2. Validate text widget data based on changes in list widget Data2", function() {
     cy.SearchEntityandOpen("List1");
-    jsEditor.EnterJSContext(
+    propPane.UpdatePropertyFieldValue(
       "Items",
       '[[{ "name": "pawan"}, { "name": "Vivek" }], [{ "name": "Ashok"}, {"name": "rahul"}]]',
     );
@@ -47,7 +47,7 @@ describe("Binding the list widget with text widget", function() {
     );
     cy.SearchEntityandOpen("Text3");
     cy.wait(1000);
-    jsEditor.EnterJSContext(
+    propPane.UpdatePropertyFieldValue(
       "Text",
       '{{currentItem.map(item => item.name).join(", ")}}',
     );
@@ -69,9 +69,9 @@ describe("Binding the list widget with text widget", function() {
     cy.get(publish.backToEditor).click({ force: true });
   });
 
-  it("Validate text widget data based on changes in list widget Data3", function() {
+  it("3. Validate text widget data based on changes in list widget Data3", function() {
     cy.SearchEntityandOpen("List1");
-    jsEditor.EnterJSContext(
+    propPane.UpdatePropertyFieldValue(
       "Items",
       '[{ "name": "pawan"}, { "name": "Vivek" }]',
     );
@@ -82,7 +82,7 @@ describe("Binding the list widget with text widget", function() {
     );
     cy.SearchEntityandOpen("Text3");
     cy.wait(1000);
-    jsEditor.EnterJSContext("Text", "{{currentItem.name}}");
+    propPane.UpdatePropertyFieldValue("Text", "{{currentItem.name}}");
     cy.wait("@updateLayout").should(
       "have.nested.property",
       "response.body.responseMeta.status",
@@ -101,7 +101,7 @@ describe("Binding the list widget with text widget", function() {
     cy.get(publish.backToEditor).click({ force: true });
   });
 
-  it("Validate delete widget action from side bar", function() {
+  it("4. Validate delete widget action from side bar", function() {
     cy.openPropertyPane("listwidget");
     cy.verifyUpdatedWidgetName("Test");
     cy.get(commonlocators.editWidgetName)

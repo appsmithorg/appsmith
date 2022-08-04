@@ -32,7 +32,7 @@
         <dependency>
             <groupId>org.elasticsearch.client</groupId>
             <artifactId>elasticsearch-rest-client</artifactId>
-            <version>7.9.2</version>
+            <version>7.17.5</version>
         </dependency>
 
         <!-- Test Dependencies -->

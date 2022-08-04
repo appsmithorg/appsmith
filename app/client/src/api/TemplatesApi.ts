@@ -3,9 +3,10 @@ import Api from "api/Api";
 import { ApiResponse } from "./ApiResponses";
 import { WidgetType } from "constants/WidgetConstants";
 import {
-  ApplicationPagePayload,
   ApplicationResponsePayload,
+  ApplicationPagePayload,
 } from "./ApplicationApi";
+import { Datasource } from "entities/Datasource";
 
 export interface Template {
   id: string;
@@ -27,7 +28,11 @@ export type FilterKeys = "widgets" | "datasources";
 
 export type FetchTemplateResponse = ApiResponse<Template>;
 
-export type ImportTemplateResponse = ApiResponse<ApplicationResponsePayload>;
+export type ImportTemplateResponse = ApiResponse<{
+  isPartialImport: boolean;
+  unConfiguredDatasourceList: Datasource[];
+  application: ApplicationResponsePayload;
+}>;
 
 export interface TemplateFiltersResponse extends ApiResponse {
   data: {

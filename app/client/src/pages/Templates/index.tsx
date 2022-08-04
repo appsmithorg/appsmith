@@ -35,6 +35,7 @@ import { createMessage, SEARCH_TEMPLATES } from "@appsmith/constants/messages";
 import LeftPaneBottomSection from "pages/Home/LeftPaneBottomSection";
 import { Template } from "api/TemplatesApi";
 import LoadingScreen from "./TemplatesModal/LoadingScreen";
+import ReconnectDatasourceModal from "pages/Editor/gitSync/ReconnectDatasourceModal";
 const SentryRoute = Sentry.withSentryRouting(Route);
 
 const PageWrapper = styled.div`
@@ -201,6 +202,7 @@ function Templates() {
     <PageWrapper>
       <SidebarWrapper>
         <SecondaryWrapper>
+          <ReconnectDatasourceModal />
           <Filters />
           <LeftPaneBottomSection />
         </SecondaryWrapper>

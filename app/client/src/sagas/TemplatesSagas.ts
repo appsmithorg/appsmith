@@ -46,6 +46,7 @@ import { Variant } from "components/ads/common";
 import { fetchDatasources } from "actions/datasourceActions";
 import { fetchPluginFormConfigs } from "actions/pluginActions";
 import { fetchAllPageEntityCompletion } from "actions/pageActions";
+import { showReconnectDatasourceModal } from "actions/applicationActions";
 
 function* getAllTemplatesSaga() {
   try {
@@ -81,17 +82,31 @@ function* importTemplateToWorkspaceSaga(
     const isValid: boolean = yield validateResponse(response);
     if (isValid) {
       const application: ApplicationPayload = {
-        ...response.data,
-        defaultPageId: getDefaultPageId(response.data.pages) as string,
+        ...response.data.application,
+        defaultPageId: getDefaultPageId(
+          response.data.application.pages,
+        ) as string,
       };
       yield put({
         type: ReduxActionTypes.IMPORT_TEMPLATE_TO_WORKSPACE_SUCCESS,
-        payload: response.data,
+        payload: response.data.application,
       });
-      const pageURL = builderURL({
-        pageId: application.defaultPageId,
-      });
-      history.push(pageURL);
+
+      if (response.data.isPartialImport) {
+        yield put(
+          showReconnectDatasourceModal({
+            application: response.data.application,
+            unConfiguredDatasourceList:
+              response.data.unConfiguredDatasourceList,
+            workspaceId: action.payload.workspaceId,
+          }),
+        );
+      } else {
+        const pageURL = builderURL({
+          pageId: application.defaultPageId,
+        });
+        history.push(pageURL);
+      }
     }
   } catch (error) {
     yield put({
@@ -230,7 +245,7 @@ function* forkTemplateToApplicationSaga(
     const isValid: boolean = yield validateResponse(response);
 
     if (isValid) {
-      const postImportPageList = response.data.pages.map((page) => {
+      const postImportPageList = response.data.application.pages.map((page) => {
         return { pageId: page.id, ...page };
       });
       const newPages = differenceBy(
