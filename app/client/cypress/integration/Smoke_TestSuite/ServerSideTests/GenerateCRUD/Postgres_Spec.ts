@@ -1,6 +1,6 @@
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 
-let guid: any, dsName: any, newCallsign: any;
+let dsName: any, newCallsign: any;
 
 const agHelper = ObjectsRegistry.AggregateHelper,
   ee = ObjectsRegistry.EntityExplorer,
@@ -12,13 +12,8 @@ const agHelper = ObjectsRegistry.AggregateHelper,
   deployMode = ObjectsRegistry.DeployMode;
 
 describe("Validate Postgres Generate CRUD with JSON Form", () => {
-  before(() => {
-    dataSources.StartDataSourceRoutes();
-  });
-
   it("1. Create DS & then Add new Page and generate CRUD template using created datasource", () => {
     dataSources.CreateDataSource("Postgres");
-
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;
       ee.AddNewPage();

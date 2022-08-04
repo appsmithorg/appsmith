@@ -12,7 +12,6 @@ import { RenderMode, WIDGET_PADDING } from "constants/WidgetConstants";
 import { generateClassName } from "utils/generators";
 import { ClickContentToOpenPropPane } from "utils/hooks/useClickToSelectWidget";
 import { AppState } from "reducers";
-import { commentModeSelector } from "selectors/commentsSelectors";
 import { getCanvasWidth, snipingModeSelector } from "selectors/editorSelectors";
 import { deselectAllInitAction } from "actions/widgetSelectionActions";
 import { ValidationTypes } from "constants/WidgetValidation";
@@ -190,7 +189,6 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
     const portalContainer = isEditMode && artBoard ? artBoard : undefined;
     const {
       focusedWidget,
-      isCommentMode,
       isDragging,
       isSnipingMode,
       selectedWidget,
@@ -204,11 +202,7 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
       selectedWidgets.includes(widgetId);
 
     const isResizeEnabled =
-      !isDragging &&
-      isWidgetFocused &&
-      isEditMode &&
-      !isCommentMode &&
-      !isSnipingMode;
+      !isDragging && isWidgetFocused && isEditMode && !isSnipingMode;
 
     return (
       <ModalComponent
@@ -297,7 +291,6 @@ const mapDispatchToProps = (dispatch: any) => ({
 const mapStateToProps = (state: AppState) => {
   const props = {
     mainCanvasWidth: getCanvasWidth(state),
-    isCommentMode: commentModeSelector(state),
     isSnipingMode: snipingModeSelector(state),
     selectedWidget: state.ui.widgetDragResize.lastSelectedWidget,
     selectedWidgets: state.ui.widgetDragResize.selectedWidgets,
