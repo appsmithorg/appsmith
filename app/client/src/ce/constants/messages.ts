@@ -1012,6 +1012,8 @@ export const DEPRECATION_WIDGET_REPLACEMENT_MESSAGE = (
 export const LOCK_ENTITY_EXPLORER_MESSAGE = () => `Lock sidebar open`;
 export const CLOSE_ENTITY_EXPLORER_MESSAGE = () => `Close sidebar`;
 export const JS_TOGGLE_DISABLED_MESSAGE = "Clear the field to toggle back";
+export const PROPERTY_PANE_EMPTY_SEARCH_RESULT_MESSAGE =
+  "No Properties found based on your search";
 
 // API Pane
 export const API_PANE_NO_BODY = () => "This request does not have a body";
