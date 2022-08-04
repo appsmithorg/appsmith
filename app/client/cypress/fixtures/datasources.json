@@ -43,5 +43,7 @@
     "mockDatabaseUsername": "fakeapi",
     "mockDatabasePassword": "LimitedAccess123#",
     "readonly":"readonly",
-    "authenticatedApiUrl": "https://fakeapi.com"
+    "authenticatedApiUrl": "https://fakeapi.com",
+    "twilio-username": "AC505c15cd10e0c3a86dbf9c59a2a19f1d",
+    "twilio-password": "802e414f9556ec9394c135b99cc420de"
 }
