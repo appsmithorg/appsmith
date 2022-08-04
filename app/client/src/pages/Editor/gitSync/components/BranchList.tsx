@@ -80,7 +80,8 @@ const CreateNewBranchContainer = styled.div`
   }
 
   & div {
-    display: inline-block;
+    margin-left: ${(props) => props.theme.spaces[4]}px;
+    display: block;
     word-break: break-all;
   }
 
@@ -139,8 +140,8 @@ function CreateNewBranch({
         size={IconSize.XXXL}
       />
       <CreateNewBranchContainer className={className} ref={itemRef}>
-        <div className="large-text">{`Create Branch: ${branch} `}</div>
-        <div className="small-text">{`from \`${currentBranch}\``}</div>
+        <div className="large-text">{`Create branch: ${branch} `}</div>
+        <div className="small-text">{`from '${currentBranch}'`}</div>
       </CreateNewBranchContainer>
       <SpinnerContainer>{isCreatingNewBranch && <Spinner />}</SpinnerContainer>
     </div>

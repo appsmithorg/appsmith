@@ -238,14 +238,6 @@ export class AggregateHelper {
     );
   }
 
-  public SelectPropertiesDropDown(endpoint: string, dropdownOption: string) {
-    cy.xpath(this.locator._selectPropDropdown(endpoint))
-      .first()
-      .scrollIntoView()
-      .click();
-    cy.get(this.locator._dropDownValue(dropdownOption)).click();
-  }
-
   public SelectDropDown(dropdownOption: string, endpoint = "selectwidget") {
     const mode = window.localStorage.getItem("inDeployedMode");
     if (mode == "false") {
@@ -389,12 +381,11 @@ export class AggregateHelper {
       cy.xpath(this.locator._actionTextArea(actionName))
         .first()
         .then((el: any) => {
-          const input = cy.get(el);
           if (paste) {
             //input.invoke("val", value);
             this.Paste(el, value);
           } else {
-            input.type(value, {
+            cy.get(el).type(value, {
               parseSpecialCharSequences: false,
             });
           }
@@ -518,7 +509,7 @@ export class AggregateHelper {
   }
 
   public ActionContextMenuWithInPane(
-    action: "Copy to page" | "Move to page" | "Delete",
+    action: "Copy to page" | "Move to page" | "Delete" | "Prettify Code",
     subAction = "",
     jsDelete = false,
   ) {
@@ -607,7 +598,10 @@ export class AggregateHelper {
   }
 
   public UpdateCodeInput(selector: string, value: string) {
+    this.EnableAllEditors();
     cy.wrap(selector)
+      .click({ force: true })
+      .wait(1000)
       .find(".CodeMirror")
       .first()
       .then((ins: any) => {
@@ -689,7 +683,6 @@ export class AggregateHelper {
     cy.get(this.locator._uploadBtn)
       .click()
       .wait(3000);
-    this.ValidateNetworkExecutionSuccess("@postExecute", execStat);
   }
 
   public AssertDebugError(label: string, messgae: string) {
@@ -759,6 +752,34 @@ export class AggregateHelper {
       : cy.get(selector);
     if (index) locator.eq(index).should("have.length", length);
     else locator.should("have.length", length);
+  }
+
+  public FocusElement(selector: string) {
+    const locator = selector.startsWith("//")
+      ? cy.xpath(selector)
+      : cy.get(selector);
+    locator.focus();
+  }
+
+  public AssertContains(text: string, exists: "exist" | "not.exist" = "exist") {
+    return cy.contains(text).should(exists);
+  }
+
+  public EnableAllEditors() {
+    this.Sleep(2000);
+    cy.get("body").then(($body: any) => {
+      if ($body.get(this.locator._codeEditorWrapper)?.length > 0) {
+        let count = $body.get(this.locator._codeEditorWrapper)?.length || 0;
+        while (count) {
+          $body
+            .get(this.locator._codeEditorWrapper)
+            ?.eq(0)
+            .then(($el: any) => $el.click({ force: true }).wait(100));
+          count = $body.find(this.locator._codeEditorWrapper)?.length || 0;
+        }
+      }
+    });
+    this.Sleep();
   }
 
   //Not used:

@@ -190,7 +190,7 @@ export class ApiPage {
     this.SelectPaneTab("Settings");
     cy.xpath(this._queryTimeout)
       .clear()
-      .type(timeout.toString());
+      .type(timeout.toString(),  {delay: 0});//Delay 0 to work like paste!
     this.agHelper.AssertAutoSave();
     this.SelectPaneTab("Headers");
   }

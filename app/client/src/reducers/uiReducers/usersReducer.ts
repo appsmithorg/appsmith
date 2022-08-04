@@ -6,11 +6,7 @@ import {
   ReduxActionErrorTypes,
 } from "@appsmith/constants/ReduxActionConstants";
 
-import {
-  CommentsOnboardingState,
-  DefaultCurrentUserDetails,
-  User,
-} from "constants/userConstants";
+import { DefaultCurrentUserDetails, User } from "constants/userConstants";
 import FeatureFlags from "entities/FeatureFlags";
 
 const initialState: UsersReduxState = {
@@ -176,16 +172,6 @@ const usersReducer = createReducer(initialState, {
     featureFlag: {
       data: {},
       isFetched: true,
-    },
-  }),
-  [ReduxActionTypes.UPDATE_USERS_COMMENTS_ONBOARDING_STATE]: (
-    state: UsersReduxState,
-    action: ReduxAction<CommentsOnboardingState>,
-  ) => ({
-    ...state,
-    currentUser: {
-      ...state.currentUser,
-      commentOnboardingState: action.payload,
     },
   }),
 });
