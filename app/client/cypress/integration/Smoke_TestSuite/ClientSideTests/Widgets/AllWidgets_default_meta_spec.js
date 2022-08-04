@@ -3,6 +3,8 @@ const testdata = require("../../../../fixtures/testdata.json");
 const apiwidget = require("../../../../locators/apiWidgetslocator.json");
 const dsl = require("../../../../fixtures/defaultMetaDsl.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
+const homePage = require("../../../../locators/HomePage");
+
 
 import {
   WIDGET,
@@ -84,7 +86,7 @@ const widgetsToTest = {
       radiogroupAndReset();
     },
   },
-  /*
+  
   [WIDGET.LIST]: {
     widgetName: "List",
     widgetPrefixName: "List1",
@@ -93,7 +95,7 @@ const widgetsToTest = {
       listwidgetAndReset();
     },
   },
-  */
+  /*
   [WIDGET.RATING]: {
     widgetName: "Rating",
     widgetPrefixName: "Rating1",
@@ -102,6 +104,7 @@ const widgetsToTest = {
       ratingwidgetAndReset();
     },
   },
+  */
   [WIDGET.CHECKBOXGROUP]: {
     widgetName: "CheckboxGroup",
     widgetPrefixName: "CheckboxGroup1",
@@ -153,6 +156,20 @@ const widgetsToTest = {
     },
   },
 };
+
+function PublishtheApp(){
+  // Stubbing window.open to open in the same tab
+  cy.window().then((window) => {
+    cy.stub(window, "open").callsFake((url) => {
+      window.location.href = Cypress.config().baseUrl + url.substring(1);
+      window.location.target = "_self";
+    });
+  });
+  cy.get(homePage.publishButton).click();
+  cy.wait("@publishApp");
+  cy.log("pagename: " + localStorage.getItem("PageName"));
+  cy.wait(1000); //wait time for page to load!
+}
 
 function chooseColMultiSelectAndReset() {
   cy.get(".rc-select-selection-overflow").click({ force: true });
@@ -418,7 +435,7 @@ Object.entries(widgetsToTest).forEach(([widgetSelector, testConfig]) => {
 
     it("3. Publish the app and check the reset assertWidgetReset", () => {
       // Set onClick assertWidgetReset, storing value
-      cy.PublishtheApp();
+      PublishtheApp();
       testConfig.assertWidgetReset();
       cy.get(".t--toast-action span").contains("success");
     });
