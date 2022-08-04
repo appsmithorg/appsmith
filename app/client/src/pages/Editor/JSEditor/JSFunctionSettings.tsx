@@ -4,7 +4,8 @@ import {
   createMessage,
   NO_ASYNC_FUNCTIONS,
 } from "ce/constants/messages";
-import { AppIcon, Radio, RadioComponent } from "components/ads";
+import { AppIcon } from "components/ads";
+import { Radio, RadioComponent } from "design-system";
 import { TooltipComponent } from "design-system";
 import { JSAction } from "entities/JSCollection";
 import React, { useState } from "react";
@@ -38,7 +39,7 @@ const SettingRow = styled.div<{ isHeading?: boolean; noBorder?: boolean }>`
 
   ${(props) =>
     props.isHeading &&
-    `   
+    `
   background: #f8f8f8;
   font-size: ${props.theme.typography.h5.fontSize}px;
   `};

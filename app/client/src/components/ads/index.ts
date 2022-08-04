@@ -73,9 +73,6 @@ export { default as NumberedStep } from "./NumberedStep";
 export { default as ProgressiveImage } from "./ProgressiveImage";
 export * from "./ProgressiveImage";
 
-export { default as RadioComponent } from "./Radio";
-export * from "./Radio";
-
 export { default as RectangularComponent } from "./RectangularSwitcher";
 
 export { default as ScrollIndicator } from "./ScrollIndicator";
