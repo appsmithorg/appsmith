@@ -312,43 +312,10 @@ export const BACK_TO_HOMEPAGE = () => "Go back to homepage";
 
 export const PAGE_NOT_FOUND = () => "Page not found";
 
-export const RESOLVE = () => "Resolve";
-export const UNRESOLVE = () => "Unresolve";
-
 // comments
-export const ADD_COMMENT_PLACEHOLDER = () => "Add a comment. Use @ to mention";
-export const PIN_COMMENT = () => "Pin comment";
-export const UNPIN_COMMENT = () => "Unpin comment";
-export const COPY_LINK = () => "Copy link";
-export const DELETE_COMMENT = () => "Delete comment";
-export const COMMENT_HAS_BEEN_DELETED = () => "Comment not found";
-export const DELETE_THREAD = () => "Delete thread";
-export const EDIT_COMMENT = () => "Edit comment";
-export const COMMENTS = () => "Comments";
-export const VIEW_LATEST = () => "View latest";
 export const POST = () => "Post";
 export const CANCEL = () => "Cancel";
-export const NO_COMMENTS_CLICK_ON_CANVAS_TO_ADD = () =>
-  `No comments. \n Click anywhere on the canvas \nto start a conversation.`;
-export const LINK_COPIED_SUCCESSFULLY = () => "Link copied to clipboard";
-export const FULL_NAME = () => "Full Name";
-export const DISPLAY_NAME = () => "Display Name";
-export const EMAIL_ADDRESS = () => "Email Address";
-export const FIRST_AND_LAST_NAME = () => "First and last name";
-export const MARK_ALL_AS_READ = () => "Mark all as read";
-export const INVITE_A_NEW_USER = () => "Invite a new user";
 export const REMOVE = () => "Remove";
-export const NO_NOTIFICATIONS_TO_SHOW = () => "No notifications to show";
-export const UNREAD_MESSAGE = () => "Unread conversation";
-export const UNSUBSCRIBE_EMAIL_SUCCESS = () =>
-  "You have successfully unsubscribed from the corresponding comment thread";
-export const UNSUBSCRIBE_EMAIL_MSG_1 = () =>
-  "You will not receive any more email notifications for the corresponding comment thread.";
-export const UNSUBSCRIBE_EMAIL_MSG_2 = () =>
-  "Please note that you will be subscribed again if someone tags you in a comment or you reply to a comment.";
-export const UNSUBSCRIBE_EMAIL_CONFIRM_MSG = () =>
-  "Are you sure you want to unsubscribe?";
-export const UNSUBSCRIBE_BUTTON_LABEL = () => "Unsubscribe me";
 
 // Showcase Carousel
 export const NEXT = () => "NEXT";

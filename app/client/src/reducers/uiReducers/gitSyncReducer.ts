@@ -529,7 +529,6 @@ export type GitDiscardResponse = {
     default: boolean;
   }[];
   appIsExample: boolean;
-  unreadCommentThreads: number;
   color: string;
   icon: string;
   slug: string;
