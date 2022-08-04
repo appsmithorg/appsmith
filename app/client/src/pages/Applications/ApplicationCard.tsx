@@ -34,13 +34,14 @@ import {
   Icon,
   IconSelector,
   IconSize,
+  Menu,
+  MenuItem,
+  MenuItemProps,
   Size,
   Text,
   TextType,
   TooltipComponent,
 } from "design-system";
-import Menu from "components/ads/Menu";
-import { MenuItem, MenuItemProps } from "design-system";
 import EditableText, {
   EditInteractionKind,
   SavingState,
