@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { find, noop } from "lodash";
 import { DropdownOption } from "components/constants";
 import { StyledDropDownContainer } from "components/propertyControls/StyledControls";
-import { StyledMenu } from "components/ads/TreeDropdown";
+import { StyledMenu } from "design-system";
 import {
   Button as BlueprintButton,
   PopoverInteractionKind,
