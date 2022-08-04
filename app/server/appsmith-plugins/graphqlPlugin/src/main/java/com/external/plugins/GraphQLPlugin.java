@@ -36,13 +36,14 @@ import java.util.Set;
 import static com.appsmith.external.helpers.PluginUtils.getValueSafelyFromPropertyList;
 import static com.appsmith.external.helpers.PluginUtils.setValueSafelyInPropertyList;
 import static com.external.utils.GraphQLBodyUtils.PAGINATION_DATA_INDEX;
+import static com.external.utils.GraphQLDataTypeUtils.smartlyReplaceGraphQLQueryBodyPlaceholderWithValue;
 import static com.external.utils.GraphQLPaginationUtils.updateVariablesWithPaginationValues;
 import static com.external.utils.GraphQLBodyUtils.QUERY_VARIABLES_INDEX;
 import static com.external.utils.GraphQLBodyUtils.convertToGraphQLPOSTBodyFormat;
 import static com.external.utils.GraphQLBodyUtils.getGraphQLQueryParamsForBodyAndVariables;
 import static com.external.utils.GraphQLBodyUtils.validateBodyAndVariablesSyntax;
 import static java.lang.Boolean.TRUE;
-import static org.apache.commons.lang3.StringUtils.isEmpty;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 
 public class GraphQLPlugin extends BasePlugin {
 
@@ -82,13 +83,11 @@ public class GraphQLPlugin extends BasePlugin {
             final List<Property> properties = actionConfiguration.getPluginSpecifiedTemplates();
             List<Map.Entry<String, String>> parameters = new ArrayList<>();
 
-            // TODO: handle smart substitution for query body
-
             String variables = getValueSafelyFromPropertyList(properties, QUERY_VARIABLES_INDEX, String.class);
             Boolean smartSubstitution = this.smartSubstitutionUtils.isSmartSubstitutionEnabled(properties);
             if (TRUE.equals(smartSubstitution)) {
                 /* Apply smart JSON substitution logic to mustache binding values in query variables */
-                if (!isEmpty(variables)) {
+                if (!isBlank(variables)) {
                     List<String> mustacheKeysInOrder = MustacheHelper.extractMustacheKeysInOrder(variables);
                     // Replace all the bindings with a ? as expected in a prepared statement.
                     String updatedVariables = MustacheHelper.replaceMustacheWithPlaceholder(variables, mustacheKeysInOrder);
@@ -97,8 +96,32 @@ public class GraphQLPlugin extends BasePlugin {
                         updatedVariables = (String) smartSubstitutionOfBindings(updatedVariables,
                                 mustacheKeysInOrder,
                                 executeActionDTO.getParams(),
-                                parameters);
+                                parameters,
+                                false);
                         setValueSafelyInPropertyList(properties, QUERY_VARIABLES_INDEX, updatedVariables);
+                    } catch (AppsmithPluginException e) {
+                        ActionExecutionResult errorResult = new ActionExecutionResult();
+                        errorResult.setIsExecutionSuccess(false);
+                        errorResult.setErrorInfo(e);
+                        errorResult.setStatusCode(AppsmithPluginError.PLUGIN_ERROR.getAppErrorCode().toString());
+                        return Mono.just(errorResult);
+                    }
+                }
+
+                /* Apply smart substitution logic to query body */
+                String query = actionConfiguration.getBody();
+                if (!isBlank(query)) {
+                    List<String> mustacheKeysInOrder = MustacheHelper.extractMustacheKeysInOrder(query);
+                    // Replace all the bindings with a ? as expected in a prepared statement.
+                    String updatedQuery = MustacheHelper.replaceMustacheWithPlaceholder(query, mustacheKeysInOrder);
+
+                    try {
+                        updatedQuery = (String) smartSubstitutionOfBindings(updatedQuery,
+                                mustacheKeysInOrder,
+                                executeActionDTO.getParams(),
+                                parameters,
+                                true);
+                        actionConfiguration.setBody(updatedQuery);
                     } catch (AppsmithPluginException e) {
                         ActionExecutionResult errorResult = new ActionExecutionResult();
                         errorResult.setIsExecutionSuccess(false);
@@ -111,7 +134,7 @@ public class GraphQLPlugin extends BasePlugin {
 
             prepareConfigurationsForExecution(executeActionDTO, actionConfiguration, datasourceConfiguration);
 
-            if (isEmpty(variables)) {
+            if (isBlank(variables)) {
                 setValueSafelyInPropertyList(properties, QUERY_VARIABLES_INDEX, "{}");
             }
 
@@ -258,8 +281,15 @@ public class GraphQLPlugin extends BasePlugin {
                                              Object input,
                                              List<Map.Entry<String, String>> insertedParams,
                                              Object... args) {
-            String jsonBody = (String) input;
-            return DataTypeStringUtils.jsonSmartReplacementPlaceholderWithValue(jsonBody, value, null, insertedParams, null);
+            boolean isInputQueryBody = (boolean) args[0];
+            if (!isInputQueryBody) {
+                String queryVariables = (String) input;
+                return DataTypeStringUtils.jsonSmartReplacementPlaceholderWithValue(queryVariables, value, null, insertedParams, null);
+            }
+            else {
+                String queryBody = (String) input;
+                return smartlyReplaceGraphQLQueryBodyPlaceholderWithValue(queryBody, value, insertedParams);
+            }
         }
 
         /**
