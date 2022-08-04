@@ -295,7 +295,7 @@ function* evaluateActionParams(
         tempArr.push(newVal);
       }
       executeActionRequest.paramProperties.push({
-        [`k${i}`]: { array: arrDatatype },
+        [`k${i}`]: "array",
       });
       value = tempArr;
     } else {
@@ -313,6 +313,10 @@ function* evaluateActionParams(
     //formData.append(`k${i}`, value);
     //formData.append(encodeURIComponent(key), value);
   }
+  executeActionRequest.paramProperties = Object.assign(
+    {},
+    ...executeActionRequest.paramProperties,
+  );
   formData.append("executeActionDTO", JSON.stringify(executeActionRequest));
   formData.append("parameterMap", JSON.stringify(bindingsMap));
   bindingBlob?.forEach((item) => formData.append(item.name, item.value));
