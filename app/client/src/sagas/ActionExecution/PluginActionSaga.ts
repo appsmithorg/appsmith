@@ -139,10 +139,10 @@ const createActionExecutionResponse = (
   response: ActionExecutionResponse,
 ): ActionResponse => {
   const payload = response.data;
-  if (payload.statusCode === "200 OK" && payload.hasOwnProperty("headers")) {
+  if (payload.statusCode === "200 OK" && Object.prototype.hasOwnProperty.call(payload, 'headers')) {
     const respHeaders = payload.headers;
     if (
-      respHeaders.hasOwnProperty(RESP_HEADER_DATATYPE) &&
+      Object.prototype.hasOwnProperty.call(respHeaders, RESP_HEADER_DATATYPE) &&
       respHeaders[RESP_HEADER_DATATYPE].length > 0 &&
       respHeaders[RESP_HEADER_DATATYPE][0] === ActionResponseDataTypes.BINARY &&
       getType(payload.body) === Types.STRING
@@ -678,7 +678,7 @@ function* executeOnPageLoadJSAction(pageAction: PageAction) {
 }
 
 function* executePageLoadAction(pageAction: PageAction) {
-  if (pageAction.hasOwnProperty("collectionId")) {
+  if (Object.prototype.hasOwnProperty.call(pageAction, 'collectionId')) {
     yield call(executeOnPageLoadJSAction, pageAction);
   } else {
     const pageId: string | undefined = yield select(getCurrentPageId);

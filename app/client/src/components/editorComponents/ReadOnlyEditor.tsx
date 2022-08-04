@@ -32,7 +32,7 @@ function ReadOnlyEditor(props: Props) {
     theme: EditorTheme.LIGHT,
     height: props.height,
     showLightningMenu: false,
-    showLineNumbers: props.hasOwnProperty("showLineNumbers")
+    showLineNumbers: Object.prototype.hasOwnProperty.call(props, 'showLineNumbers')
       ? props.showLineNumbers
       : true,
     borderLess: true,

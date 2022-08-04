@@ -361,19 +361,19 @@ export const extractConditionalOutput = (
 ): ConditionalOutput => {
   let conditionalOutput: ConditionalOutput = {};
   if (
-    section.hasOwnProperty("propertyName") &&
-    formEvaluationState.hasOwnProperty(section.propertyName)
+    Object.prototype.hasOwnProperty.call(section, 'propertyName') &&
+    Object.prototype.hasOwnProperty.call(formEvaluationState, )
   ) {
     conditionalOutput = formEvaluationState[section.propertyName];
   } else if (
-    section.hasOwnProperty("configProperty") &&
-    formEvaluationState.hasOwnProperty(section.configProperty)
+    Object.prototype.hasOwnProperty.call(section, 'configProperty') &&
+    Object.prototype.hasOwnProperty.call(formEvaluationState, )
   ) {
     conditionalOutput = formEvaluationState[section.configProperty];
   } else if (
-    section.hasOwnProperty("identifier") &&
+    Object.prototype.hasOwnProperty.call(section, 'identifier') &&
     !!section.identifier &&
-    formEvaluationState.hasOwnProperty(section.identifier)
+    Object.prototype.hasOwnProperty.call(formEvaluationState, )
   ) {
     conditionalOutput = formEvaluationState[section.identifier];
   }
@@ -388,18 +388,16 @@ export const checkIfSectionCanRender = (
   // The evaluation state disallows the section to render if the condition is not met. (Checkout formEval.ts)
   let allowToRender = true;
   if (
-    conditionalOutput.hasOwnProperty("visible") &&
+    Object.prototype.hasOwnProperty.call(conditionalOutput, 'visible') &&
     typeof conditionalOutput.visible === "boolean"
   ) {
     allowToRender = conditionalOutput.visible;
   }
 
   if (
-    conditionalOutput.hasOwnProperty("evaluateFormConfig") &&
+    Object.prototype.hasOwnProperty.call(conditionalOutput, 'evaluateFormConfig') &&
     !!conditionalOutput.evaluateFormConfig &&
-    conditionalOutput.evaluateFormConfig.hasOwnProperty(
-      "updateEvaluatedConfig",
-    ) &&
+    Object.prototype.hasOwnProperty.call(conditionalOutput.evaluateFormConfig, 'updateEvaluatedConfig') &&
     typeof conditionalOutput.evaluateFormConfig.updateEvaluatedConfig ===
       "boolean"
   ) {
@@ -416,7 +414,7 @@ export const checkIfSectionIsEnabled = (
   // The evaluation state disables the section if the condition is not met. (Checkout formEval.ts)
   let enabled = true;
   if (
-    conditionalOutput.hasOwnProperty("enabled") &&
+    Object.prototype.hasOwnProperty.call(conditionalOutput, 'enabled') &&
     typeof conditionalOutput.enabled === "boolean"
   ) {
     enabled = conditionalOutput.enabled;
@@ -450,11 +448,9 @@ export const updateEvaluatedSectionConfig = (
   const updatedSection = klona(section);
   let evaluatedConfig: FormConfigEvalObject = {};
   if (
-    conditionalOutput.hasOwnProperty("evaluateFormConfig") &&
+    Object.prototype.hasOwnProperty.call(conditionalOutput, 'evaluateFormConfig') &&
     !!conditionalOutput.evaluateFormConfig &&
-    conditionalOutput.evaluateFormConfig.hasOwnProperty(
-      "updateEvaluatedConfig",
-    ) &&
+    Object.prototype.hasOwnProperty.call(conditionalOutput.evaluateFormConfig, 'updateEvaluatedConfig') &&
     typeof conditionalOutput.evaluateFormConfig.updateEvaluatedConfig ===
       "boolean" &&
     conditionalOutput.evaluateFormConfig.updateEvaluatedConfig
@@ -492,7 +488,7 @@ export function fixActionPayloadForMongoQuery(
         //This property is present in initialValues but not in action object
         if (
           actionObjectDiff &&
-          actionObjectDiff[i].hasOwnProperty("kind") &&
+          Object.prototype.hasOwnProperty.call(actionObjectDiff.i, 'kind') &&
           actionObjectDiff[i].path &&
           Array.isArray(actionObjectDiff[i].path) &&
           actionObjectDiff[i]?.path?.length &&

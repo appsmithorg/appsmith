@@ -433,13 +433,13 @@ function* savePageSaga(action: ReduxAction<{ isRetry?: boolean }>) {
       // Update actions
       if (actionUpdates && actionUpdates.length > 0) {
         const actions = actionUpdates.filter(
-          (d) => !d.hasOwnProperty("collectionId"),
+          (d) => !Object.prototype.hasOwnProperty.call(d, 'collectionId'),
         );
         if (actions && actions.length) {
           yield put(setActionsToExecuteOnPageLoad(actions));
         }
         const jsActions = actionUpdates.filter((d) =>
-          d.hasOwnProperty("collectionId"),
+          Object.prototype.hasOwnProperty.call(d, 'collectionId'),
         );
         if (jsActions && jsActions.length) {
           yield put(setJSActionsToExecuteOnPageLoad(jsActions));
@@ -754,13 +754,13 @@ export function* updateWidgetNameSaga(
       }
     > = yield select((state: AppState) => {
       // Check if this widget exists in the canvas widgets
-      if (state.entities.canvasWidgets.hasOwnProperty(action.payload.id)) {
+      if (Object.prototype.hasOwnProperty.call(state.entities.canvasWidgets, )) {
         // If it does assign it to a variable
         const widget = state.entities.canvasWidgets[action.payload.id];
         // Check if this widget has a parent in the canvas widgets
         if (
           widget.parentId &&
-          state.entities.canvasWidgets.hasOwnProperty(widget.parentId)
+          Object.prototype.hasOwnProperty.call(state.entities.canvasWidgets, )
         ) {
           // If the parent exists assign it to a variable
           const parent = state.entities.canvasWidgets[widget.parentId];

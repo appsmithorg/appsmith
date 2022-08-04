@@ -467,7 +467,7 @@ const generateKeyToIndexMap = (keys: string[]) => {
     const match = key.match(/\d+$/);
     let prefix = key;
     let suffix = 0;
-    const isKeyPresentInMap = map.hasOwnProperty(prefix);
+    const isKeyPresentInMap = Object.prototype.hasOwnProperty.call(map, prefix);
 
     if (match) {
       prefix = key.slice(0, match.index); // key123 -> key
@@ -512,7 +512,7 @@ export const sanitizeKey = (key: string, options?: SanitizeOptions) => {
       prefix = sanitizedKey.slice(0, match.index); // key123 -> key
     }
 
-    if (keyToIndexMap.hasOwnProperty(prefix)) {
+    if (Object.prototype.hasOwnProperty.call(keyToIndexMap, prefix)) {
       return `${prefix}${keyToIndexMap[prefix] + 1}`;
     }
 

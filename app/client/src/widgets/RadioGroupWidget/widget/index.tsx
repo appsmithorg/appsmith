@@ -42,7 +42,7 @@ export function optionsCustomValidation(
         valueType = typeof value;
       }
       //Checks the uniqueness all the values in the options
-      if (!uniqueLabels.hasOwnProperty(value)) {
+      if (!Object.prototype.hasOwnProperty.call(uniqueLabels, value)) {
         uniqueLabels[value] = "";
       } else {
         _isValid = false;

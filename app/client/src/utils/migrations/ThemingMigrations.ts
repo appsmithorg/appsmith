@@ -123,14 +123,14 @@ export const migrateStylingPropertiesForTheming = (
         default:
           child.textSize = THEMEING_TEXT_SIZES.sm;
       }
-      if (child.hasOwnProperty("primaryColumns")) {
+      if (Object.prototype.hasOwnProperty.call(child, 'primaryColumns')) {
         Object.keys(child.primaryColumns).forEach((key: string) => {
           /**
            * Migrates the textSize property present at the primaryColumn and derivedColumn level.
            */
           const column = child.primaryColumns[key];
           const isDerivedColumn =
-            child.hasOwnProperty("derivedColumns") &&
+            Object.prototype.hasOwnProperty.call(child, 'derivedColumns') &&
             key in child.derivedColumns;
           const derivedColumn = child.derivedColumns[key];
           switch (column.textSize) {

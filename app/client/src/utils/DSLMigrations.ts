@@ -250,7 +250,7 @@ const singleChartDataMigration = (
   currentDSL.children = currentDSL.children?.map((child) => {
     if (child.type === "CHART_WIDGET") {
       // Check if chart widget has the deprecated singleChartData property
-      if (child.hasOwnProperty("singleChartData")) {
+      if (Object.prototype.hasOwnProperty.call(child, 'singleChartData')) {
         // This is to make sure that the format of the chartData is accurate
         if (
           Array.isArray(child.singleChartData) &&
@@ -1118,7 +1118,7 @@ const migrateButtonVariant = (
     }
   }
   if (currentDSL.type === "TABLE_WIDGET") {
-    if (currentDSL.hasOwnProperty("primaryColumns")) {
+    if (Object.prototype.hasOwnProperty.call(currentDSL, 'primaryColumns')) {
       Object.keys(currentDSL.primaryColumns).forEach((column) => {
         if (currentDSL.primaryColumns[column].columnType === "iconButton") {
           let newVariant = ButtonVariantTypes.PRIMARY;
@@ -1168,7 +1168,7 @@ export const revertButtonStyleToButtonColor = (
     currentDSL.type === "FORM_BUTTON_WIDGET" ||
     currentDSL.type === "ICON_BUTTON_WIDGET"
   ) {
-    if (currentDSL.hasOwnProperty("buttonStyle")) {
+    if (Object.prototype.hasOwnProperty.call(currentDSL, 'buttonStyle')) {
       switch (currentDSL.buttonStyle) {
         case ButtonStyleTypes.DANGER:
           currentDSL.buttonColor = Colors.DANGER_SOLID;
@@ -1203,7 +1203,7 @@ export const revertButtonStyleToButtonColor = (
     }
   }
   if (currentDSL.type === "MENU_BUTTON_WIDGET") {
-    if (currentDSL.hasOwnProperty("menuStyle")) {
+    if (Object.prototype.hasOwnProperty.call(currentDSL, 'menuStyle')) {
       switch (currentDSL.menuStyle) {
         case ButtonStyleTypes.DANGER:
           currentDSL.menuColor = Colors.DANGER_SOLID;
@@ -1229,7 +1229,7 @@ export const revertButtonStyleToButtonColor = (
     }
   }
   if (currentDSL.type === "TABLE_WIDGET") {
-    if (currentDSL.hasOwnProperty("primaryColumns")) {
+    if (Object.prototype.hasOwnProperty.call(currentDSL, 'primaryColumns')) {
       Object.keys(currentDSL.primaryColumns).forEach((column) => {
         if (currentDSL.primaryColumns[column].columnType === "button") {
           currentDSL.primaryColumns[column].buttonColor =
@@ -1310,11 +1310,11 @@ const addIsDisabledToButtonColumn = (
         currentDSL.primaryColumns as Record<string, ColumnProperties>,
       )) {
         if (currentDSL.primaryColumns[key].columnType === "button") {
-          if (!currentDSL.primaryColumns[key].hasOwnProperty("isDisabled")) {
+          if (!Object.prototype.hasOwnProperty.call(currentDSL.primaryColumns.key, 'isDisabled')) {
             currentDSL.primaryColumns[key]["isDisabled"] = false;
           }
         }
-        if (!currentDSL.primaryColumns[key].hasOwnProperty("isCellVisible")) {
+        if (!Object.prototype.hasOwnProperty.call(currentDSL.primaryColumns.key, 'isCellVisible')) {
           currentDSL.primaryColumns[key]["isCellVisible"] = true;
         }
       }
@@ -1412,8 +1412,8 @@ const migrateWidgetsWithoutLeftRightColumns = (
   if (
     currentDSL.widgetId !== MAIN_CONTAINER_WIDGET_ID &&
     !(
-      currentDSL.hasOwnProperty("leftColumn") &&
-      currentDSL.hasOwnProperty("rightColumn")
+      Object.prototype.hasOwnProperty.call(currentDSL, 'leftColumn') &&
+      Object.prototype.hasOwnProperty.call(currentDSL, 'rightColumn')
     )
   ) {
     try {
@@ -1536,7 +1536,7 @@ const addFilterDefaultValue = (
   currentDSL: ContainerWidgetProps<WidgetProps>,
 ) => {
   if (currentDSL.type === "DROP_DOWN_WIDGET") {
-    if (!currentDSL.hasOwnProperty("isFilterable")) {
+    if (!Object.prototype.hasOwnProperty.call(currentDSL, 'isFilterable')) {
       currentDSL.isFilterable = true;
     }
   }

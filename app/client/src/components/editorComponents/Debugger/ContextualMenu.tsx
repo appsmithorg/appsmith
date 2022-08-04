@@ -112,7 +112,7 @@ const getOptions = (type?: string, subType?: string) => {
 const isFieldEntityInformation = (
   entity: FieldEntityInformation | SourceEntity,
 ): entity is FieldEntityInformation => {
-  return entity.hasOwnProperty("entityType");
+  return Object.prototype.hasOwnProperty.call(entity, 'entityType');
 };
 
 const getSnippetArgs = function(

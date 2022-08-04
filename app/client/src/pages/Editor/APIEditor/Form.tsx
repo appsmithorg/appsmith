@@ -796,7 +796,7 @@ export default connect((state: AppState, props: { pluginId: string }) => {
   const actionConfigurationParams =
     selector(state, "actionConfiguration.queryParameters") || [];
   let datasourceFromAction = selector(state, "datasource");
-  if (datasourceFromAction && datasourceFromAction.hasOwnProperty("id")) {
+  if (datasourceFromAction && Object.prototype.hasOwnProperty.call(datasourceFromAction, 'id')) {
     datasourceFromAction = state.entities.datasources.list.find(
       (d) => d.id === datasourceFromAction.id,
     );

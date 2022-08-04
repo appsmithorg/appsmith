@@ -88,7 +88,7 @@ export enum AUTOCOMPLETE_CLOSE_KEY {
 }
 
 export const isCloseKey = (key: any): key is AUTOCOMPLETE_CLOSE_KEY => {
-  return AUTOCOMPLETE_CLOSE_KEY.hasOwnProperty(key);
+  return Object.prototype.hasOwnProperty.call(AUTOCOMPLETE_CLOSE_KEY, key);
 };
 
 export enum MODIFIER {
@@ -99,7 +99,7 @@ export enum MODIFIER {
 }
 
 export const isModifierKey = (key: any): key is MODIFIER => {
-  return MODIFIER.hasOwnProperty(key);
+  return Object.prototype.hasOwnProperty.call(MODIFIER, key);
 };
 
 export enum AUTOCOMPLETE_NAVIGATION {
@@ -116,5 +116,5 @@ export const INDENTATION_CHARACTERS = {
 };
 
 export const isNavKey = (key: any): key is AUTOCOMPLETE_NAVIGATION => {
-  return AUTOCOMPLETE_NAVIGATION.hasOwnProperty(key);
+  return Object.prototype.hasOwnProperty.call(AUTOCOMPLETE_NAVIGATION, key);
 };

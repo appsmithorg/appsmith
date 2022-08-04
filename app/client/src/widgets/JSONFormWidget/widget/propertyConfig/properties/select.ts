@@ -27,8 +27,8 @@ export function defaultOptionValueValidation(
   ): obj is { value: string | number; label: string } => {
     return (
       _.isPlainObject(obj) &&
-      obj.hasOwnProperty("label") &&
-      obj.hasOwnProperty("value") &&
+      Object.prototype.hasOwnProperty.call(obj, 'label') &&
+      Object.prototype.hasOwnProperty.call(obj, 'value') &&
       _.isString(obj.label) &&
       (_.isString(obj.value) || _.isFinite(obj.value))
     );

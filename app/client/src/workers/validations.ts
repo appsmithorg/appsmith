@@ -67,7 +67,7 @@ function validatePlainObject(
       const ignoreCase = !!entry.params?.ignoreCase;
       const entryName = getPropertyEntry(value, entry.name, ignoreCase);
 
-      if (value.hasOwnProperty(entryName)) {
+      if (Object.prototype.hasOwnProperty.call(value, entryName)) {
         const { isValid, messages, parsed } = validate(
           entry,
           value[entryName],

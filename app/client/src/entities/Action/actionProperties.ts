@@ -108,7 +108,7 @@ export const getBindingAndReactivePathsOfAction = (
         ) => {
           if (
             actionValue &&
-            actionValue.hasOwnProperty("children") &&
+            Object.prototype.hasOwnProperty.call(actionValue, 'children') &&
             Array.isArray(actionValue.children)
           ) {
             actionValue.children.forEach((value: any, index: number) => {
@@ -120,7 +120,7 @@ export const getBindingAndReactivePathsOfAction = (
               recursiveFindBindingPathsForWhereClause(childrenPath, value);
             });
           } else {
-            if (actionValue.hasOwnProperty("key")) {
+            if (Object.prototype.hasOwnProperty.call(actionValue, 'key')) {
               const keyPath = getBindingOrConfigPathsForWhereClauseControl(
                 newConfigPath,
                 WhereClauseSubComponent.Key,
@@ -130,7 +130,7 @@ export const getBindingAndReactivePathsOfAction = (
                 formConfig.evaluationSubstitutionType,
               );
             }
-            if (actionValue.hasOwnProperty("value")) {
+            if (Object.prototype.hasOwnProperty.call(actionValue, 'value')) {
               const valuePath = getBindingOrConfigPathsForWhereClauseControl(
                 newConfigPath,
                 WhereClauseSubComponent.Value,
@@ -146,7 +146,7 @@ export const getBindingAndReactivePathsOfAction = (
         const actionValue = _.get(action, formConfig.configProperty);
         if (
           actionValue &&
-          actionValue.hasOwnProperty("children") &&
+          Object.prototype.hasOwnProperty.call(actionValue, 'children') &&
           Array.isArray(actionValue.children)
         ) {
           actionValue.children.forEach((value: any, index: number) => {

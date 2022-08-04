@@ -156,7 +156,7 @@ export function EntityProperties() {
               actionProperty = actionProperty + "()";
             }
             if (actionProperty === "data") {
-              if (isEmpty(entity.data) || !entity.data.hasOwnProperty("body")) {
+              if (isEmpty(entity.data) || !Object.prototype.hasOwnProperty.call(entity.data, 'body')) {
                 value = {};
               } else {
                 value = entity.data.body;

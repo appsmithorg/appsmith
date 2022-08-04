@@ -342,7 +342,7 @@ export const CurrentValueViewer = memo(
             colorTheme={props.theme}
           >
             {content}
-            {props.hasOwnProperty("evaluatedValue") && (
+            {Object.prototype.hasOwnProperty.call(props, 'evaluatedValue') && (
               <CopyIconWrapper
                 colorTheme={props.theme}
                 minimal

@@ -43,8 +43,8 @@ export function defaultOptionValueValidation(
   const hasLabelValue = (obj: any) => {
     return (
       _.isPlainObject(value) &&
-      obj.hasOwnProperty("label") &&
-      obj.hasOwnProperty("value") &&
+      Object.prototype.hasOwnProperty.call(obj, 'label') &&
+      Object.prototype.hasOwnProperty.call(obj, 'value') &&
       _.isString(obj.label) &&
       (_.isString(obj.value) || _.isFinite(obj.value))
     );

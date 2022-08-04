@@ -26,7 +26,7 @@ export function getPathAndValueFromActionDiffObject(actionObjectDiff: any) {
       //This property is present in initialValues but not in action object
       if (
         actionObjectDiff &&
-        actionObjectDiff[i].hasOwnProperty("kind") &&
+        Object.prototype.hasOwnProperty.call(actionObjectDiff.i, 'kind') &&
         actionObjectDiff[i].path &&
         Array.isArray(actionObjectDiff[i].path) &&
         actionObjectDiff[i].path.length &&

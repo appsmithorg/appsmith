@@ -211,7 +211,7 @@ class QueryEditor extends React.Component<Props> {
       (!prevProps.formData ||
         (this.props.formData.hasOwnProperty("actionConfiguration") &&
           !!prevProps.formData &&
-          prevProps.formData.hasOwnProperty("actionConfiguration") &&
+          Object.prototype.hasOwnProperty.call(prevProps.formData, 'actionConfiguration') &&
           !!formDataDiff))
     ) {
       this.props.runFormEvaluation(

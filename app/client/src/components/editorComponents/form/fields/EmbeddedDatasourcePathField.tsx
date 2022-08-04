@@ -237,7 +237,7 @@ class EmbeddedDatasourcePathComponent extends React.Component<
         path: "",
       };
     }
-    if (datasource && datasource.hasOwnProperty("id")) {
+    if (datasource && Object.prototype.hasOwnProperty.call(datasource, 'id')) {
       const datasourceUrl = get(datasource, "datasourceConfiguration.url", "");
       if (value.includes(datasourceUrl)) {
         return {

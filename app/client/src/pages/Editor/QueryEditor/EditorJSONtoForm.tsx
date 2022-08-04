@@ -571,7 +571,7 @@ export function EditorJSONtoForm(props: Props) {
       if (uiComponent === UIComponentTypes.UQIDbEditorForm) {
         // If the formEvaluation is not ready yet, just show loading state.
         if (
-          props.hasOwnProperty("formEvaluationState") &&
+          Object.prototype.hasOwnProperty.call(props, 'formEvaluationState') &&
           !!props.formEvaluationState &&
           Object.keys(props.formEvaluationState).length > 0
         ) {
@@ -650,11 +650,11 @@ export function EditorJSONtoForm(props: Props) {
       enabled = checkIfSectionIsEnabled(conditionalOutput);
       if (!isValidFormConfig(section)) return null;
     }
-    if (section.hasOwnProperty("controlType")) {
+    if (Object.prototype.hasOwnProperty.call(section, 'controlType')) {
       // If component is type section, render it's children
       if (
         section.controlType === "SECTION" &&
-        section.hasOwnProperty("children")
+        Object.prototype.hasOwnProperty.call(section, 'children')
       ) {
         return section.children.map((section: any, idx: number) => {
           return renderEachConfigV2(formName, section, idx);
@@ -684,7 +684,7 @@ export function EditorJSONtoForm(props: Props) {
     return section.children.map(
       (formControlOrSection: ControlProps, idx: number) => {
         if (isHidden(props.formData, section.hidden)) return null;
-        if (formControlOrSection.hasOwnProperty("children")) {
+        if (Object.prototype.hasOwnProperty.call(formControlOrSection, 'children')) {
           return renderEachConfig(formName)(formControlOrSection);
         } else {
           try {

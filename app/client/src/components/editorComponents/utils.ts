@@ -34,23 +34,23 @@ export function getJSResponseViewState(
     return JSResponseState.IsUpdating;
   if (isExecuting[currentFunction.id]) return JSResponseState.IsExecuting;
   if (
-    !responses.hasOwnProperty(currentFunction.id) &&
-    !isExecuting.hasOwnProperty(currentFunction.id)
+    !Object.prototype.hasOwnProperty.call(responses, ) &&
+    !Object.prototype.hasOwnProperty.call(isExecuting, )
   )
     return JSResponseState.NoResponse;
   if (
-    responses.hasOwnProperty(currentFunction.id) &&
+    Object.prototype.hasOwnProperty.call(responses, ) &&
     isDirty[currentFunction.id]
   )
     return JSResponseState.IsDirty;
 
   if (
-    responses.hasOwnProperty(currentFunction.id) &&
+    Object.prototype.hasOwnProperty.call(responses, ) &&
     responses[currentFunction.id] === undefined
   )
     return JSResponseState.NoReturnValue;
 
-  if (responses.hasOwnProperty(currentFunction.id))
+  if (Object.prototype.hasOwnProperty.call(responses, ))
     return JSResponseState.ShowResponse;
 
   // Default state

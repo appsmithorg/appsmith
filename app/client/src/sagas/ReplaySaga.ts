@@ -347,7 +347,7 @@ function* replayDatasourceSaga(
   /**
    * Reinitialize redux form
    * Attribute "datasourceId" is used as a differentiator between rest-api datasources and the others */
-  if (replayEntity.hasOwnProperty("datasourceId")) {
+  if (Object.prototype.hasOwnProperty.call(replayEntity, 'datasourceId')) {
     yield put(initialize(DATASOURCE_REST_API_FORM, replayEntity));
   } else {
     yield put(initialize(DATASOURCE_DB_FORM, _.omit(replayEntity, ["name"])));

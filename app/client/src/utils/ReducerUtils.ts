@@ -6,7 +6,7 @@ export const createReducer = (
   handlers: { [type: string]: (state: any, action: any) => any },
 ) => {
   return function reducer(state = initialState, action: ReduxAction<any>) {
-    if (handlers.hasOwnProperty(action.type)) {
+    if (Object.prototype.hasOwnProperty.call(handlers, )) {
       return handlers[action.type](state, action);
     } else {
       return state;
@@ -19,7 +19,7 @@ export const createImmerReducer = (
   handlers: { [type: string]: any },
 ) => {
   return function reducer(state = initialState, action: ReduxAction<any>) {
-    if (handlers.hasOwnProperty(action.type)) {
+    if (Object.prototype.hasOwnProperty.call(handlers, )) {
       return produce(handlers[action.type])(state, action);
     } else {
       return state;

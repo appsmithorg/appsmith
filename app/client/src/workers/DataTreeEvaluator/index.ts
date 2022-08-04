@@ -211,7 +211,7 @@ export default class DataTreeEvaluator {
   isJSObjectFunction(dataTree: DataTree, jsObjectName: string, key: string) {
     const entity = dataTree[jsObjectName];
     if (isJSAction(entity)) {
-      return entity.meta.hasOwnProperty(key);
+      return Object.prototype.hasOwnProperty.call(entity.meta, key);
     }
     return false;
   }

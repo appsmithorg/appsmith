@@ -31,7 +31,7 @@ export const updateJSCollectionInUnEvalTree = (
   if (parsedBody.actions && parsedBody.actions.length > 0) {
     for (let i = 0; i < parsedBody.actions.length; i++) {
       const action = parsedBody.actions[i];
-      if (jsCollection.hasOwnProperty(action.name)) {
+      if (Object.prototype.hasOwnProperty.call(jsCollection, )) {
         if (jsCollection[action.name] !== action.body) {
           const data = get(
             modifiedUnEvalTree,

@@ -22,7 +22,7 @@ import { getSubstringBetweenTwoWords } from "utils/helpers";
 
 export const isSortableMigration = (currentDSL: DSLWidget) => {
   currentDSL.children = currentDSL.children?.map((child: WidgetProps) => {
-    if (child.type === "TABLE_WIDGET" && !child.hasOwnProperty("isSortable")) {
+    if (child.type === "TABLE_WIDGET" && !Object.prototype.hasOwnProperty.call(child, 'isSortable')) {
       child["isSortable"] = true;
     } else if (child.children && child.children.length > 0) {
       child = isSortableMigration(child);

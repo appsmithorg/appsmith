@@ -42,9 +42,9 @@ export const getParentWidget = createSelector(
   getCanvasWidgets,
   (state: AppState, widgetId: string) => widgetId,
   (canvasWidgets, widgetId: string): FlattenedWidgetProps | undefined => {
-    if (canvasWidgets.hasOwnProperty(widgetId)) {
+    if (Object.prototype.hasOwnProperty.call(canvasWidgets, widgetId)) {
       const widget = canvasWidgets[widgetId];
-      if (widget.parentId && canvasWidgets.hasOwnProperty(widget.parentId)) {
+      if (widget.parentId && Object.prototype.hasOwnProperty.call(canvasWidgets, )) {
         const parent = canvasWidgets[widget.parentId];
         return parent;
       }

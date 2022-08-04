@@ -319,7 +319,7 @@ export const updateDependencyMap = ({
 
                   // Filter only the paths which exist in the appsmith world to avoid cyclical dependencies
                   const filteredEntityDependencies = entityDependenciesName.filter(
-                    (path) => dataTreeEvalRef.allKeys.hasOwnProperty(path),
+                    (path) => Object.prototype.hasOwnProperty.call(dataTreeEvalRef.allKeys, path),
                   );
 
                   // Now assign these existing dependent paths to the property path in dependencyMap

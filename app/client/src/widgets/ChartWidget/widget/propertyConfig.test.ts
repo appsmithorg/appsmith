@@ -20,7 +20,7 @@ const validateControl = (control: Record<string, unknown>) => {
     "isTriggerProperty",
   ];
   properties.forEach((prop: string) => {
-    if (!control.hasOwnProperty(prop)) {
+    if (!Object.prototype.hasOwnProperty.call(control, prop)) {
       return false;
     }
     const value = control[prop];
@@ -31,7 +31,7 @@ const validateControl = (control: Record<string, unknown>) => {
 
 const validateSection = (section: Record<string, unknown>) => {
   if (typeof section !== "object") return false;
-  if (!section.hasOwnProperty("sectionName")) return false;
+  if (!Object.prototype.hasOwnProperty.call(section, 'sectionName')) return false;
   const name = section.sectionName;
   if ((name as string).length === 0) return false;
   if (section.children) {

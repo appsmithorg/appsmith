@@ -177,7 +177,7 @@ function SetupForm(props: SetupFormProps) {
         const toTouch = [];
         // We fetch the fields which are invalid
         for (const key in props.formSyncErrors) {
-          props.formSyncErrors.hasOwnProperty(key) && toTouch.push(key);
+          Object.prototype.hasOwnProperty.call(props.formSyncErrors, key) && toTouch.push(key);
         }
         props.touch(...toTouch);
         // prevent submitting the form on enter if the values are invalid

@@ -172,8 +172,8 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
            * NOTE: For the new table widget, these conditions needs to be removed so that table widget later on uses only cellProperties.boxShadow.
            */
           const conditionalBoxShadow =
-            (columnProperties.hasOwnProperty("boxShadowColor") ||
-            (columnProperties.hasOwnProperty("boxShadow") &&
+            (Object.prototype.hasOwnProperty.call(columnProperties, 'boxShadowColor') ||
+            (Object.prototype.hasOwnProperty.call(columnProperties, 'boxShadow') &&
               cellProperties.boxShadow.includes("VARIANT"))
               ? boxShadowMigration(
                   this.props.dynamicBindingPathList as DynamicPath[],

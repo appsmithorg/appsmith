@@ -288,7 +288,7 @@ export function getWidgetChildrenIds(
   const { children = [] } = widget;
   if (children && children.length) {
     for (const childIndex in children) {
-      if (children.hasOwnProperty(childIndex)) {
+      if (Object.prototype.hasOwnProperty.call(children, childIndex)) {
         const child = children[childIndex];
         childrenIds.push(child);
         const grandChildren = getWidgetChildrenIds(canvasWidgets, child);
@@ -323,7 +323,7 @@ export function getWidgetChildren(
   const { children = [] } = widget;
   if (children && children.length) {
     for (const childIndex in children) {
-      if (children.hasOwnProperty(childIndex)) {
+      if (Object.prototype.hasOwnProperty.call(children, childIndex)) {
         const childWidgetId = children[childIndex];
 
         const childCanvasWidget = _.get(canvasWidgets, childWidgetId);
@@ -1632,7 +1632,7 @@ export function getValueFromTree(
     while (pathArray.length) {
       const currentPath = pathArray.join(".");
 
-      if (obj.hasOwnProperty(currentPath)) {
+      if (Object.prototype.hasOwnProperty.call(obj, currentPath)) {
         const currentValue = obj[currentPath];
 
         if (!poppedPath.length) {

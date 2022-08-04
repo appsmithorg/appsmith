@@ -312,7 +312,7 @@ function evaluate(
 ) {
   Object.keys(currentEvalState).forEach((key: string) => {
     try {
-      if (currentEvalState[key].hasOwnProperty("conditionals")) {
+      if (Object.prototype.hasOwnProperty.call(currentEvalState.key, 'conditionals')) {
         const conditionBlock = currentEvalState[key].conditionals;
         if (!!conditionBlock) {
           Object.keys(conditionBlock).forEach((conditionType: string) => {
@@ -327,7 +327,7 @@ function evaluate(
               currentEvalState[key].enabled = output;
             } else if (
               conditionType === ConditionType.FETCH_DYNAMIC_VALUES &&
-              currentEvalState[key].hasOwnProperty("fetchDynamicValues") &&
+              Object.prototype.hasOwnProperty.call(currentEvalState.key, 'fetchDynamicValues') &&
               !!currentEvalState[key].fetchDynamicValues
             ) {
               // this boolean value represents if the current action diff path is a dependency to the form config.
@@ -380,7 +380,7 @@ function evaluate(
               }
             } else if (
               conditionType === ConditionType.EVALUATE_FORM_CONFIG &&
-              currentEvalState[key].hasOwnProperty("evaluateFormConfig") &&
+              Object.prototype.hasOwnProperty.call(currentEvalState.key, 'evaluateFormConfig') &&
               !!currentEvalState[key].evaluateFormConfig
             ) {
               (currentEvalState[key]
@@ -412,7 +412,7 @@ function getFormEvaluation(
   hasRouteChanged?: boolean,
 ): FormEvaluationState {
   // Only change the form evaluation state if the form ID is same or the evaluation state is present
-  if (!!currentEvalState && currentEvalState.hasOwnProperty(formId)) {
+  if (!!currentEvalState && Object.prototype.hasOwnProperty.call(currentEvalState, formId)) {
     const currentFormIdEvalState = currentEvalState[formId];
     // specific conditions to be evaluated
     let conditionToBeEvaluated = {};

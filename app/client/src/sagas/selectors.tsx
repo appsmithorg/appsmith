@@ -169,7 +169,7 @@ export const getWidgetImmediateChildren = createSelector(
     const { children = [] } = widget;
     if (children && children.length) {
       for (const childIndex in children) {
-        if (children.hasOwnProperty(childIndex)) {
+        if (Object.prototype.hasOwnProperty.call(children, childIndex)) {
           const child = children[childIndex];
           childrenIds.push(child);
         }

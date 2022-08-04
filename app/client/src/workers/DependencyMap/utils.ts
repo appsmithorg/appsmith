@@ -14,7 +14,7 @@ export const extractReferencesFromBinding = (
 
   identifiers.forEach((identifier: string) => {
     // If the identifier exists directly, add it and return
-    if (allPaths.hasOwnProperty(identifier)) {
+    if (Object.prototype.hasOwnProperty.call(allPaths, identifier)) {
       references.add(identifier);
       return;
     }
@@ -27,7 +27,7 @@ export const extractReferencesFromBinding = (
     while (subpaths.length > 1) {
       current = convertPathToString(subpaths);
       // We've found the dep, add it and return
-      if (allPaths.hasOwnProperty(current)) {
+      if (Object.prototype.hasOwnProperty.call(allPaths, current)) {
         references.add(current);
         return;
       }
