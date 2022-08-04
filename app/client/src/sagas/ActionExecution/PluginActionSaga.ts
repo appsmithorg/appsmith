@@ -308,7 +308,7 @@ function* evaluateActionParams(
     }
 
     value = new Blob([value], { type: "text/plain" });
-    bindingsMap[`k${i}`] = encodeURIComponent(key);
+    bindingsMap[encodeURIComponent(key)] = `k${i}`;
     bindingBlob.push({ name: `k${i}`, value: value });
     //formData.append(`k${i}`, value);
     //formData.append(encodeURIComponent(key), value);
