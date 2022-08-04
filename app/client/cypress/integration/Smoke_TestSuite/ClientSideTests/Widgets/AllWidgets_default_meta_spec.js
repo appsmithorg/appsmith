@@ -157,7 +157,7 @@ const widgetsToTest = {
   },
 };
 
-function PublishtheApp(){
+function PublishApp(){
   // Stubbing window.open to open in the same tab
   cy.window().then((window) => {
     cy.stub(window, "open").callsFake((url) => {
@@ -435,7 +435,7 @@ Object.entries(widgetsToTest).forEach(([widgetSelector, testConfig]) => {
 
     it("3. Publish the app and check the reset assertWidgetReset", () => {
       // Set onClick assertWidgetReset, storing value
-      PublishtheApp();
+      PublishApp();
       testConfig.assertWidgetReset();
       cy.get(".t--toast-action span").contains("success");
     });
