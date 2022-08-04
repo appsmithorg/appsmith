@@ -11,6 +11,7 @@ import TemplatesAPI, {
   ImportTemplateResponse,
   FetchTemplateResponse,
   TemplateFiltersResponse,
+  ImportTemplateToApplicationResponse,
 } from "api/TemplatesApi";
 import history from "utils/history";
 import { getDefaultPageId } from "./ApplicationSagas";
@@ -227,7 +228,7 @@ function* forkTemplateToApplicationSaga(
       : undefined;
     const applicationId: string = yield select(getCurrentApplicationId);
     const orgId: string = yield select(getCurrentWorkspaceId);
-    const response: ImportTemplateResponse = yield call(
+    const response: ImportTemplateToApplicationResponse = yield call(
       TemplatesAPI.importTemplateToApplication,
       action.payload.templateId,
       applicationId,
@@ -245,7 +246,7 @@ function* forkTemplateToApplicationSaga(
     const isValid: boolean = yield validateResponse(response);
 
     if (isValid) {
-      const postImportPageList = response.data.application.pages.map((page) => {
+      const postImportPageList = response.data.pages.map((page) => {
         return { pageId: page.id, ...page };
       });
       const newPages = differenceBy(

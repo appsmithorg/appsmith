@@ -34,6 +34,10 @@ export type ImportTemplateResponse = ApiResponse<{
   application: ApplicationResponsePayload;
 }>;
 
+export type ImportTemplateToApplicationResponse = ApiResponse<
+  ApplicationResponsePayload
+>;
+
 export interface TemplateFiltersResponse extends ApiResponse {
   data: {
     functions: string[];
@@ -72,7 +76,7 @@ class TemplatesAPI extends Api {
     applicationId: string,
     organizationId: string,
     body?: string[],
-  ): AxiosPromise<ImportTemplateResponse> {
+  ): AxiosPromise<ImportTemplateToApplicationResponse> {
     return Api.post(
       TemplatesAPI.baseUrl +
         `/app-templates/${templateId}/merge/${applicationId}/${organizationId}`,
