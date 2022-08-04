@@ -6,7 +6,7 @@ import { klona } from "klona";
 
 import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import JSONFormComponent from "../component";
-import propertyConfig from "./propertyConfig";
+import propertyConfig, { contentConfig, styleConfig } from "./propertyConfig";
 import { AppState } from "reducers";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
 import {
@@ -94,6 +94,14 @@ class JSONFormWidget extends BaseWidget<
 
   static getPropertyPaneConfig() {
     return propertyConfig;
+  }
+
+  static getPropertyPaneContentConfig() {
+    return contentConfig;
+  }
+
+  static getPropertyPaneStyleConfig() {
+    return styleConfig;
   }
 
   static getDerivedPropertiesMap(): DerivedPropertiesMap {
