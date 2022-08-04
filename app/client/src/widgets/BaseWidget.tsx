@@ -206,14 +206,6 @@ abstract class BaseWidget<
   }, JSON.stringify);
 
   render() {
-    if (this.props.detachFromLayout && !this.props.isVisible) {
-      return null;
-    }
-
-    if (this.props.renderMode === RenderModes.PAGE && !this.props.isVisible) {
-      return null;
-    }
-
     return this.getWidgetView();
   }
 

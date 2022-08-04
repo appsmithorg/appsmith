@@ -2,7 +2,10 @@ import equal from "fast-deep-equal/es6";
 import React from "react";
 
 import BaseWidget, { WidgetProps } from "./BaseWidget";
-import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
+import {
+  MAIN_CONTAINER_WIDGET_ID,
+  RenderModes,
+} from "constants/WidgetConstants";
 import {
   getWidgetEvalValues,
   getIsWidgetLoading,
@@ -101,6 +104,16 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
 
     if (widgetProps) {
       widgetProps.renderMode = renderMode;
+    }
+
+    // isVisible prop defines whether to render a detached widget
+    if (widgetProps.detachFromLayout && !widgetProps.isVisible) {
+      return null;
+    }
+
+    // We don't render invisible widgets in view mode
+    if (renderMode === RenderModes.PAGE && !widgetProps.isVisible) {
+      return null;
     }
 
     return <WrappedWidget {...props} {...widgetProps} />;
