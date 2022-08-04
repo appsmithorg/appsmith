@@ -1,5 +1,6 @@
 package com.appsmith.server.repositories;
 
+import com.appsmith.caching.components.CacheManager;
 import com.appsmith.server.repositories.ce.CustomNewPageRepositoryCEImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
@@ -11,8 +12,8 @@ import org.springframework.stereotype.Component;
 public class CustomNewPageRepositoryImpl extends CustomNewPageRepositoryCEImpl
         implements CustomNewPageRepository {
 
-    public CustomNewPageRepositoryImpl(ReactiveMongoOperations mongoOperations, MongoConverter mongoConverter) {
-        super(mongoOperations, mongoConverter);
+    public CustomNewPageRepositoryImpl(ReactiveMongoOperations mongoOperations, MongoConverter mongoConverter, CacheManager cacheManager) {
+        super(mongoOperations, mongoConverter, cacheManager);
     }
 
 }

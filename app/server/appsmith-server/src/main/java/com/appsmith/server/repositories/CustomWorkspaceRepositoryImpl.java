@@ -1,5 +1,6 @@
 package com.appsmith.server.repositories;
 
+import com.appsmith.caching.components.CacheManager;
 import com.appsmith.server.repositories.ce.CustomWorkspaceRepositoryCEImpl;
 import com.appsmith.server.services.SessionUserService;
 
@@ -14,8 +15,8 @@ public class CustomWorkspaceRepositoryImpl extends CustomWorkspaceRepositoryCEIm
         implements CustomWorkspaceRepository {
 
     public CustomWorkspaceRepositoryImpl(ReactiveMongoOperations mongoOperations, MongoConverter mongoConverter,
-            SessionUserService sessionUserService) {
-        super(mongoOperations, mongoConverter, sessionUserService);
+            SessionUserService sessionUserService, CacheManager cacheManager) {
+        super(mongoOperations, mongoConverter, sessionUserService, cacheManager);
     }
 
 }

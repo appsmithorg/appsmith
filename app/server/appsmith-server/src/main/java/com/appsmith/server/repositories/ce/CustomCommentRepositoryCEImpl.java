@@ -1,5 +1,6 @@
 package com.appsmith.server.repositories.ce;
 
+import com.appsmith.caching.components.CacheManager;
 import com.appsmith.server.domains.Comment;
 import com.appsmith.server.domains.QComment;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
@@ -18,8 +19,8 @@ import static org.springframework.data.mongodb.core.query.Criteria.where;
 @Slf4j
 public class CustomCommentRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Comment> implements CustomCommentRepositoryCE {
 
-    public CustomCommentRepositoryCEImpl(ReactiveMongoOperations mongoOperations, MongoConverter mongoConverter) {
-        super(mongoOperations, mongoConverter);
+    public CustomCommentRepositoryCEImpl(ReactiveMongoOperations mongoOperations, MongoConverter mongoConverter, CacheManager cacheManager) {
+        super(mongoOperations, mongoConverter, cacheManager);
     }
 
     /**

@@ -1,5 +1,6 @@
 package com.appsmith.server.repositories.ce;
 
+import com.appsmith.caching.components.CacheManager;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.domains.QWorkspace;
@@ -28,8 +29,8 @@ public class CustomWorkspaceRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
     private final SessionUserService sessionUserService;
 
     public CustomWorkspaceRepositoryCEImpl(ReactiveMongoOperations mongoOperations, MongoConverter mongoConverter,
-                    SessionUserService sessionUserService) {
-        super(mongoOperations, mongoConverter);
+                    SessionUserService sessionUserService, CacheManager cacheManager) {
+        super(mongoOperations, mongoConverter, cacheManager);
         this.sessionUserService = sessionUserService;
     }
 

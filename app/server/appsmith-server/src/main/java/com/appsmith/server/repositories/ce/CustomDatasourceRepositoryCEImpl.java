@@ -1,5 +1,6 @@
 package com.appsmith.server.repositories.ce;
 
+import com.appsmith.caching.components.CacheManager;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.QDatasource;
@@ -22,8 +23,8 @@ import static org.springframework.data.mongodb.core.query.Query.query;
 
 public class CustomDatasourceRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Datasource> implements CustomDatasourceRepositoryCE {
 
-    public CustomDatasourceRepositoryCEImpl(ReactiveMongoOperations mongoOperations, MongoConverter mongoConverter) {
-        super(mongoOperations, mongoConverter);
+    public CustomDatasourceRepositoryCEImpl(ReactiveMongoOperations mongoOperations, MongoConverter mongoConverter, CacheManager cacheManager) {
+        super(mongoOperations, mongoConverter, cacheManager);
     }
 
     @Override

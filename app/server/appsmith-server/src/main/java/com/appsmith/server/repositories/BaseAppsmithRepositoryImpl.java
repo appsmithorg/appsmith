@@ -1,5 +1,7 @@
 package com.appsmith.server.repositories;
 
+import com.appsmith.caching.annotations.Cache;
+import com.appsmith.caching.components.CacheManager;
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.Policy;
 import com.appsmith.external.models.QBaseDomain;
@@ -17,6 +19,7 @@ import com.mongodb.client.result.UpdateResult;
 import com.querydsl.core.types.Path;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.core.GenericTypeResolver;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
@@ -43,6 +46,7 @@ import static java.lang.Boolean.TRUE;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
 @Slf4j
+@EnableCaching
 public abstract class BaseAppsmithRepositoryImpl<T extends BaseDomain> {
 
     protected final ReactiveMongoOperations mongoOperations;
@@ -52,10 +56,15 @@ public abstract class BaseAppsmithRepositoryImpl<T extends BaseDomain> {
     protected final MongoConverter mongoConverter;
 
     @Autowired
+    protected final CacheManager cacheManager;
+
+    @Autowired
     public BaseAppsmithRepositoryImpl(ReactiveMongoOperations mongoOperations,
-                                      MongoConverter mongoConverter) {
+                                      MongoConverter mongoConverter,
+                                      CacheManager cacheManager) {
         this.mongoOperations = mongoOperations;
         this.mongoConverter = mongoConverter;
+        this.cacheManager = cacheManager;
         this.genericDomain = (Class<T>) GenericTypeResolver.resolveTypeArgument(getClass(), BaseAppsmithRepositoryImpl.class);
     }
 
@@ -94,7 +103,10 @@ public abstract class BaseAppsmithRepositoryImpl<T extends BaseDomain> {
      * @param user
      * @return
      */
+
+    @Cache(cacheName = "userPermissionGroups")
     protected Mono<Set<String>> getAllPermissionGroupsForUser(User user) {
+        cacheManager.logStats();
         return Mono.zip(getPermissionGroupsOfUser(user), getAnonymousUserPermissionGroups())
                 .map(tuple -> {
                     Set<String> currentUserPermissionGroups = tuple.getT1();

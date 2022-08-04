@@ -1,5 +1,6 @@
 package com.appsmith.server.repositories.ce;
 
+import com.appsmith.caching.components.CacheManager;
 import com.appsmith.server.domains.QUserData;
 import com.appsmith.server.domains.UserData;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
@@ -17,8 +18,8 @@ import static org.springframework.data.mongodb.core.query.Query.query;
 
 public class CustomUserDataRepositoryCEImpl extends BaseAppsmithRepositoryImpl<UserData> implements CustomUserDataRepositoryCE {
 
-    public CustomUserDataRepositoryCEImpl(ReactiveMongoOperations mongoOperations, MongoConverter mongoConverter) {
-        super(mongoOperations, mongoConverter);
+    public CustomUserDataRepositoryCEImpl(ReactiveMongoOperations mongoOperations, MongoConverter mongoConverter, CacheManager cacheManager) {
+        super(mongoOperations, mongoConverter, cacheManager);
     }
 
     @Override

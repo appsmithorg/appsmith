@@ -1,5 +1,6 @@
 package com.appsmith.server.repositories.ce;
 
+import com.appsmith.caching.components.CacheManager;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.QTheme;
 import com.appsmith.server.domains.Theme;
@@ -24,8 +25,8 @@ import static org.springframework.data.mongodb.core.query.Criteria.where;
 @Component
 @Slf4j
 public class CustomThemeRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Theme> implements CustomThemeRepositoryCE {
-    public CustomThemeRepositoryCEImpl(ReactiveMongoOperations mongoOperations, MongoConverter mongoConverter) {
-        super(mongoOperations, mongoConverter);
+    public CustomThemeRepositoryCEImpl(ReactiveMongoOperations mongoOperations, MongoConverter mongoConverter, CacheManager cacheManager) {
+        super(mongoOperations, mongoConverter, cacheManager);
     }
 
 

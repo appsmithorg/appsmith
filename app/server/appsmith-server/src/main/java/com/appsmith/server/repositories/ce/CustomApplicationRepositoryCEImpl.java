@@ -1,5 +1,6 @@
 package com.appsmith.server.repositories.ce;
 
+import com.appsmith.caching.components.CacheManager;
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.Application;
@@ -7,18 +8,13 @@ import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.domains.GitAuth;
 import com.appsmith.server.domains.QApplication;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
-import com.mongodb.BasicDBObject;
-import com.mongodb.DBObject;
-import com.mongodb.client.model.Filters;
 import com.mongodb.client.result.UpdateResult;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
-import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
-import org.springframework.data.mongodb.core.query.BasicQuery;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
@@ -26,7 +22,6 @@ import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.io.File;
 import java.time.Instant;
 import java.util.List;
 import java.util.Set;
@@ -39,8 +34,8 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
 
     @Autowired
     public CustomApplicationRepositoryCEImpl(@NonNull ReactiveMongoOperations mongoOperations,
-                                             @NonNull MongoConverter mongoConverter) {
-        super(mongoOperations, mongoConverter);
+                                             @NonNull MongoConverter mongoConverter, CacheManager cacheManager) {
+        super(mongoOperations, mongoConverter, cacheManager);
     }
 
     @Override

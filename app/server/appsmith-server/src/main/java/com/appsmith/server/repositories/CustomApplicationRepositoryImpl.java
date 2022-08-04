@@ -1,5 +1,6 @@
 package com.appsmith.server.repositories;
 
+import com.appsmith.caching.components.CacheManager;
 import com.appsmith.server.repositories.ce.CustomApplicationRepositoryCEImpl;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
@@ -15,8 +16,8 @@ public class CustomApplicationRepositoryImpl extends CustomApplicationRepository
 
     @Autowired
     public CustomApplicationRepositoryImpl(@NonNull ReactiveMongoOperations mongoOperations,
-                                           @NonNull MongoConverter mongoConverter) {
-        super(mongoOperations, mongoConverter);
+                                           @NonNull MongoConverter mongoConverter, CacheManager cacheManager) {
+        super(mongoOperations, mongoConverter, cacheManager);
     }
 
 }

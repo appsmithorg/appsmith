@@ -1,5 +1,6 @@
 package com.appsmith.server.repositories.ce;
 
+import com.appsmith.caching.components.CacheManager;
 import com.appsmith.server.domains.Group;
 import com.appsmith.server.domains.QGroup;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
@@ -17,8 +18,8 @@ import static org.springframework.data.mongodb.core.query.Criteria.where;
 public class CustomGroupRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Group>
         implements CustomGroupRepositoryCE {
 
-    public CustomGroupRepositoryCEImpl(ReactiveMongoOperations mongoOperations, MongoConverter mongoConverter) {
-        super(mongoOperations, mongoConverter);
+    public CustomGroupRepositoryCEImpl(ReactiveMongoOperations mongoOperations, MongoConverter mongoConverter, CacheManager cacheManager) {
+        super(mongoOperations, mongoConverter, cacheManager);
     }
 
     @Override

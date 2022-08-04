@@ -1,5 +1,6 @@
 package com.appsmith.server.repositories;
 
+import com.appsmith.caching.components.CacheManager;
 import com.appsmith.server.repositories.ce.CustomUserRepositoryCEImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
@@ -10,8 +11,8 @@ import org.springframework.stereotype.Component;
 @Slf4j
 public class CustomUserRepositoryImpl extends CustomUserRepositoryCEImpl implements CustomUserRepository {
 
-    public CustomUserRepositoryImpl(ReactiveMongoOperations mongoOperations, MongoConverter mongoConverter) {
-        super(mongoOperations, mongoConverter);
+    public CustomUserRepositoryImpl(ReactiveMongoOperations mongoOperations, MongoConverter mongoConverter, CacheManager cacheManager) {
+        super(mongoOperations, mongoConverter, cacheManager);
     }
 
 }

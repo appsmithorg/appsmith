@@ -1,5 +1,6 @@
 package com.appsmith.server.repositories;
 
+import com.appsmith.caching.components.CacheManager;
 import com.appsmith.server.repositories.ce.CustomCollectionRepositoryCEImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
@@ -10,7 +11,7 @@ import org.springframework.stereotype.Component;
 public class CustomCollectionRepositoryImpl extends CustomCollectionRepositoryCEImpl implements CustomCollectionRepository {
 
     @Autowired
-    public CustomCollectionRepositoryImpl(ReactiveMongoOperations mongoOperations, MongoConverter mongoConverter) {
-        super(mongoOperations, mongoConverter);
+    public CustomCollectionRepositoryImpl(ReactiveMongoOperations mongoOperations, MongoConverter mongoConverter, CacheManager cacheManager) {
+        super(mongoOperations, mongoConverter, cacheManager);
     }
 }

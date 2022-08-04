@@ -1,5 +1,6 @@
 package com.appsmith.server.repositories.ce;
 
+import com.appsmith.caching.components.CacheManager;
 import com.appsmith.external.models.QActionConfiguration;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
@@ -29,8 +30,8 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
         implements CustomNewActionRepositoryCE {
 
     public CustomNewActionRepositoryCEImpl(ReactiveMongoOperations mongoOperations,
-                                         MongoConverter mongoConverter) {
-        super(mongoOperations, mongoConverter);
+                                         MongoConverter mongoConverter, CacheManager cacheManager) {
+        super(mongoOperations, mongoConverter, cacheManager);
     }
 
     @Override

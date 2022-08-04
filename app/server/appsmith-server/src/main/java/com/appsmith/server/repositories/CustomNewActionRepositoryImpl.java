@@ -1,5 +1,6 @@
 package com.appsmith.server.repositories;
 
+import com.appsmith.caching.components.CacheManager;
 import com.appsmith.server.repositories.ce.CustomNewActionRepositoryCEImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
@@ -12,8 +13,8 @@ public class CustomNewActionRepositoryImpl extends CustomNewActionRepositoryCEIm
         implements CustomNewActionRepository {
 
     public CustomNewActionRepositoryImpl(ReactiveMongoOperations mongoOperations,
-                                         MongoConverter mongoConverter) {
-        super(mongoOperations, mongoConverter);
+                                         MongoConverter mongoConverter, CacheManager cacheManager) {
+        super(mongoOperations, mongoConverter, cacheManager);
     }
 
 }

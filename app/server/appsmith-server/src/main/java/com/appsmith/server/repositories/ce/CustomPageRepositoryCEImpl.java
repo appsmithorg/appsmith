@@ -1,5 +1,6 @@
 package com.appsmith.server.repositories.ce;
 
+import com.appsmith.caching.components.CacheManager;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.Page;
 import com.appsmith.server.domains.QLayout;
@@ -18,8 +19,8 @@ import static org.springframework.data.mongodb.core.query.Criteria.where;
 public class CustomPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Page>
         implements CustomPageRepositoryCE {
 
-    public CustomPageRepositoryCEImpl(ReactiveMongoOperations mongoOperations, MongoConverter mongoConverter) {
-        super(mongoOperations, mongoConverter);
+    public CustomPageRepositoryCEImpl(ReactiveMongoOperations mongoOperations, MongoConverter mongoConverter, CacheManager cacheManager) {
+        super(mongoOperations, mongoConverter, cacheManager);
     }
 
 

@@ -2089,20 +2089,31 @@ public class DatabaseChangelog2 {
         mongockTemplate.save(publicPermissionGroup);
     }
 
-    @ChangeSet(order = "30", id = "create-permission-group-index", author = "")
+    @ChangeSet(order = "30", id = "create-indices-for-performance", author = "", runAlways = true)
     public void addPermissionGroupIndex(MongockTemplate mongockTemplate) {
 
-        dropIndexIfExists(mongockTemplate, PermissionGroup.class, "permission_group_workspace_deleted_assignedToUserIds_compound_index");
+        dropIndexIfExists(mongockTemplate, PermissionGroup.class, "permission_group_workspace_deleted_compound_index");
+        dropIndexIfExists(mongockTemplate, PermissionGroup.class, "permission_group_assignedUserIds_deleted_compound_index");
 
-        Index permissionGroupIndex = makeIndex(
+        Index workspace_deleted_compound_index = makeIndex(
                 fieldName(QPermissionGroup.permissionGroup.defaultWorkspaceId),
-                fieldName(QPermissionGroup.permissionGroup.deleted),
-                fieldName(QPermissionGroup.permissionGroup.assignedToUserIds)
+                fieldName(QPermissionGroup.permissionGroup.deleted)
                 )
-                .named("permission_group_workspace_deleted_assignedToUserIds_compound_index");
+                .named("permission_group_workspace_deleted_compound_index");
+
+        Index assignedToUserIds_deleted_compound_index = makeIndex(
+                fieldName(QPermissionGroup.permissionGroup.assignedToUserIds),
+                fieldName(QPermissionGroup.permissionGroup.deleted)
+        )
+                .named("permission_group_assignedUserIds_deleted_compound_index");
 
         ensureIndexes(mongockTemplate, PermissionGroup.class,
-                permissionGroupIndex
+                workspace_deleted_compound_index
         );
+        ensureIndexes(mongockTemplate, PermissionGroup.class,
+                assignedToUserIds_deleted_compound_index
+        );
+
+
     }
 }

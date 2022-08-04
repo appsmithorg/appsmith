@@ -5,8 +5,9 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
-@SpringBootApplication
+@SpringBootApplication(scanBasePackages = {"com.appsmith.server", "com.appsmith.caching"})
 @EnableScheduling
+//@ComponentScan(basePackages = { "com.demo.xyz.A", "com.demo.xyz.B"})
 public class ServerApplication {
 
     public static void main(String[] args) {

@@ -1,5 +1,6 @@
 package com.appsmith.server.repositories.ce;
 
+import com.appsmith.caching.components.CacheManager;
 import com.appsmith.external.models.QActionConfiguration;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.Action;
@@ -20,8 +21,8 @@ import static org.springframework.data.mongodb.core.query.Criteria.where;
 
 public class CustomActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Action> implements CustomActionRepositoryCE {
 
-    public CustomActionRepositoryCEImpl(ReactiveMongoOperations mongoOperations, MongoConverter mongoConverter) {
-        super(mongoOperations, mongoConverter);
+    public CustomActionRepositoryCEImpl(ReactiveMongoOperations mongoOperations, MongoConverter mongoConverter, CacheManager cacheManager) {
+        super(mongoOperations, mongoConverter, cacheManager);
     }
 
     @Override

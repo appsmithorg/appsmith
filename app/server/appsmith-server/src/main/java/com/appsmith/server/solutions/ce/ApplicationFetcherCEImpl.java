@@ -222,6 +222,11 @@ public class ApplicationFetcherCEImpl implements ApplicationFetcherCE {
 
                     return userDataService.ensureViewedCurrentVersionReleaseNotes(user)
                             .thenReturn(userHomepageDTO);
+                })
+                .elapsed()
+                .map(tuple -> {
+                    log.debug("Everything took {} ms", tuple.getT1());
+                    return tuple.getT2();
                 });
     }
 

@@ -1,5 +1,6 @@
 package com.appsmith.server.repositories.ce;
 
+import com.appsmith.caching.components.CacheManager;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.ApplicationMode;
 import com.appsmith.server.domains.CommentThread;
@@ -28,8 +29,8 @@ import static org.springframework.data.mongodb.core.query.Criteria.where;
 public class CustomCommentThreadRepositoryCEImpl extends BaseAppsmithRepositoryImpl<CommentThread>
         implements CustomCommentThreadRepositoryCE {
 
-    public CustomCommentThreadRepositoryCEImpl(ReactiveMongoOperations mongoOperations, MongoConverter mongoConverter) {
-        super(mongoOperations, mongoConverter);
+    public CustomCommentThreadRepositoryCEImpl(ReactiveMongoOperations mongoOperations, MongoConverter mongoConverter, CacheManager cacheManager) {
+        super(mongoOperations, mongoConverter, cacheManager);
     }
 
     @Override

@@ -1,5 +1,6 @@
 package com.appsmith.server.repositories.ce;
 
+import com.appsmith.caching.components.CacheManager;
 import com.appsmith.server.domains.Notification;
 import com.appsmith.server.domains.QComment;
 import com.appsmith.server.domains.QNotification;
@@ -20,8 +21,8 @@ import static org.springframework.data.mongodb.core.query.Query.query;
 public class CustomNotificationRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Notification>
         implements CustomNotificationRepositoryCE {
 
-    public CustomNotificationRepositoryCEImpl(ReactiveMongoOperations mongoOperations, MongoConverter mongoConverter) {
-        super(mongoOperations, mongoConverter);
+    public CustomNotificationRepositoryCEImpl(ReactiveMongoOperations mongoOperations, MongoConverter mongoConverter, CacheManager cacheManager) {
+        super(mongoOperations, mongoConverter, cacheManager);
     }
 
     @Override

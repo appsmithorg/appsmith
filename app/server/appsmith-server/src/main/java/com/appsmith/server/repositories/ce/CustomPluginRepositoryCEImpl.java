@@ -1,5 +1,6 @@
 package com.appsmith.server.repositories.ce;
 
+import com.appsmith.caching.components.CacheManager;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.QPlugin;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
@@ -12,8 +13,8 @@ import java.util.List;
 
 public class CustomPluginRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Plugin> implements CustomPluginRepositoryCE {
 
-    public CustomPluginRepositoryCEImpl(ReactiveMongoOperations mongoOperations, MongoConverter mongoConverter) {
-        super(mongoOperations, mongoConverter);
+    public CustomPluginRepositoryCEImpl(ReactiveMongoOperations mongoOperations, MongoConverter mongoConverter, CacheManager cacheManager) {
+        super(mongoOperations, mongoConverter, cacheManager);
     }
 
     @Override
