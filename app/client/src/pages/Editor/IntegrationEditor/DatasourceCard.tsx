@@ -16,7 +16,7 @@ import { Position } from "@blueprintjs/core/lib/esm/common/position";
 
 import { renderDatasourceSection } from "pages/Editor/DataSourceEditor/DatasourceSection";
 import { setDatsourceEditorMode } from "actions/datasourceActions";
-import { getQueryParams } from "utils/AppsmithUtils";
+import { getQueryParams } from "utils/URLUtils";
 import Menu from "components/ads/Menu";
 import { Button, Category, Icon, IconSize, MenuItem } from "design-system";
 import { deleteDatasource } from "actions/datasourceActions";
