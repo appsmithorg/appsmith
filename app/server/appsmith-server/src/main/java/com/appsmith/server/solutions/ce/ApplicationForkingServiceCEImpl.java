@@ -48,13 +48,13 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
 
         Mono<User> userMono = sessionUserService.getCurrentUser();
 
+        // For collecting all the possible audit data
         Map<String, Object> auditData = new HashMap<>();
         Mono<Application> forkApplicationMono = Mono.zip(sourceApplicationMono, targetWorkspaceMono, userMono)
                 .flatMap(tuple -> {
                     final Application application = tuple.getT1();
                     final Workspace targetWorkspace = tuple.getT2();
                     final User user = tuple.getT3();
-                    // For collecting all the possible audit data
                     auditData.put(FieldName.WORKSPACE, targetWorkspace);
 
                     //If the forking application is connected to git, do not copy those data to the new forked application
