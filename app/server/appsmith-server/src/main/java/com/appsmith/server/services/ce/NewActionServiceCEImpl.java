@@ -533,7 +533,18 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
         Mono<NewAction> updatedActionMono = repository.findById(id, MANAGE_ACTIONS)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ACTION, id)))
                 .map(dbAction -> {
-                    copyNewFieldValuesIntoOldObject(action, dbAction.getUnpublishedAction());
+                    final ActionDTO unpublishedAction = dbAction.getUnpublishedAction();
+                    copyNewFieldValuesIntoOldObject(action, unpublishedAction);
+
+                    // In case this update is for an action that represents a JS function,
+                    // perform a check to reset values for sync functions
+                    final boolean isSyncJSFunction = PluginType.JS.equals(action.getPluginType()) &&
+                            FALSE.equals(action.getActionConfiguration().getIsAsync());
+                    if (isSyncJSFunction) {
+                        unpublishedAction.setUserSetOnLoad(false);
+                        unpublishedAction.setConfirmBeforeExecute(false);
+                        unpublishedAction.setExecuteOnLoad(false);
+                    }
                     return dbAction;
                 })
                 .flatMap(this::extractAndSetNativeQueryFromFormData)
@@ -1085,10 +1096,14 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                             "statusCode", ObjectUtils.defaultIfNull(actionExecutionResult.getStatusCode(), ""),
                             "timeElapsed", timeElapsed,
                             "actionCreated", DateUtils.ISO_FORMATTER.format(action.getCreatedAt()),
-                            "actionId", ObjectUtils.defaultIfNull(action.getId(), ""),
+                            "actionId", ObjectUtils.defaultIfNull(action.getId(), "")
+                    ));
+                    data.putAll(Map.of(
                             "dsId", ObjectUtils.defaultIfNull(datasource.getId(), ""),
+                            "dsName", datasource.getName(),
+                            "dsIsTemplate", ObjectUtils.defaultIfNull(datasource.getIsTemplate(), ""),
+                            "dsIsMock", ObjectUtils.defaultIfNull(datasource.getIsMock(), ""),
                             "dsCreatedAt", dsCreatedAt
-
                     ));
 
                     // Add the error message in case of erroneous execution

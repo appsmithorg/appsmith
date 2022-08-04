@@ -29,8 +29,9 @@ export class CommonLocators {
     _empty = "span[name='no-response']"
     _contextMenuInPane = "span[name='context-menu']"
     _visibleTextDiv = (divText: string) => "//div[text()='" + divText + "']"
+    _visibleTextSpan = (spanText: string) => "//span[text()='" + spanText + "']";
     _openWidget = ".widgets .t--entity-add-btn"
-    _dropHere = "#comment-overlay-wrapper-0"
+    _dropHere = ".t--drop-target"
     _crossBtn = "span.cancel-icon"
     _createNew = ".t--entity-add-btn.group.files"
     _uploadFiles = "div.uppy-Dashboard-AddFiles input"
@@ -44,7 +45,7 @@ export class CommonLocators {
     _entityProperties = (entityNameinLeftSidebar: string) => "//div[text()='" + entityNameinLeftSidebar + "']/ancestor::div[contains(@class, 't--entity-item')]/following-sibling::div//div[contains(@class, 't--entity-property')]//code"
     _entityNameEditing = (entityNameinLeftSidebar: string) => "//span[text()='" + entityNameinLeftSidebar + "']/parent::div[contains(@class, 't--entity-name editing')]/input"
     _jsToggle = (controlToToggle: string) => ".t--property-control-" + controlToToggle + " .t--js-toggle"
-    _spanButton = (btnVisibleText: string) => "//span[text()='" + btnVisibleText + "']/parent::button"
+    _spanButton = (btnVisibleText: string) => `//span[text()="${btnVisibleText}"]/parent::button`
     _selectPropDropdown = (ddName: string) => "//div[contains(@class, 't--property-control-" + ddName.replace(/ +/g, "").toLowerCase() + "')]//button[contains(@class, 't--open-dropdown-Select-Action')]"
     _dropDownValue = (dropdownOption: string) => ".single-select:contains('" + dropdownOption + "')"
     _selectOptionValue = (dropdownOption: string) => ".menu-item-link:contains('" + dropdownOption + "')"
@@ -79,4 +80,5 @@ export class CommonLocators {
     _datePickerValue = "div[data-testid='datepicker-container'] input"
     _switchToggle = (switchName: string) => "//div[contains(@class, 't--switch-widget-label')][text()='"+switchName+"']/parent::label/span"
     _jsonToggle = (fieldName: string) => `//p[text()='${fieldName}']/parent::div//following-sibling::div//input[@type='checkbox']`;
+    _hints = "ul.CodeMirror-hints";
 }

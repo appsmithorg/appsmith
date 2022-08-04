@@ -9,6 +9,10 @@ export class HomePage {
   private _workspaceCompleteSection = ".t--workspace-section";
   private _workspaceName = ".t--workspace-name";
   private _optionsIcon = ".t--options-icon";
+  private _optionsIconInWorkspace = (workspaceName: string) =>
+    "//span[text()='" +
+    workspaceName +
+    "']/ancestor::div[contains(@class, 't--workspace-section')]//span[contains(@class, 't--options-icon')]";
   private _renameWorkspaceInput = "[data-cy=t--workspace-rename-input]";
   private _workspaceList = (workspaceName: string) =>
     ".t--workspace-section:contains(" + workspaceName + ")";
@@ -32,14 +36,8 @@ export class HomePage {
   private _homeIcon = ".t--appsmith-logo";
   private _appContainer = ".t--applications-container";
   private _homePageAppCreateBtn = this._appContainer + " .createnew";
-  private _newWorkspaceCreateNewApp = (newWorkspaceName: string) =>
-    "//span[text()='" +
-    newWorkspaceName +
-    "']/ancestor::div[contains(@class, 't--workspace-name-text')]/parent::div/following-sibling::div//button[contains(@class, 't--new-button')]";
   private _existingWorkspaceCreateNewApp = (existingWorkspaceName: string) =>
-    "//span[text()='" +
-    existingWorkspaceName +
-    "']/ancestor::div[contains(@class, 't--workspace-name-text')]/following-sibling::div//button[contains(@class, 't--new-button')]";
+    `//span[text()='${existingWorkspaceName}']/ancestor::div[contains(@class, 't--workspace-section')]//button[contains(@class, 't--new-button')]`;
   private _applicationName = ".t--application-name";
   private _editAppName = "bp3-editable-text-editing";
   private _appMenu = ".t--editor-appname-menu-portal .bp3-menu-item";
@@ -69,6 +67,19 @@ export class HomePage {
   _usersEmailList = "[data-colindex='1']";
   private _workspaceImport = "[data-cy=t--workspace-import-app]";
   private _uploadFile = "//div/form/input";
+  private _importSuccessModal = ".t--import-app-success-modal";
+  private _forkModal = ".fork-modal";
+  private _importSuccessModalGotit = ".t--import-success-modal-got-it";
+  private _applicationContextMenu = (applicationName: string) =>
+    "//span[text()='" +
+    applicationName +
+    "']/ancestor::div[contains(@class, 't--application-card')]//span[@name= 'context-menu']";
+  private _forkApp = '[data-cy="t--fork-app"]';
+  private _duplicateApp = '[data-cy="t--duplicate"]';
+  private _deleteApp = '[data-cy="t--delete-confirm"]';
+  private _deleteAppConfirm = '[data-cy="t--delete"]';
+  private _wsAction = (action: string) =>
+    "//span[text()='" + action + "']/ancestor::a";
 
   public CreateNewWorkspace(workspaceNewName: string) {
     let oldName: string = "";
@@ -125,13 +136,8 @@ export class HomePage {
   ) {
     const successMessage = "The user has been invited successfully";
     this.StubPostHeaderReq();
-    cy.get(this._workspaceList(workspaceName))
-      .scrollIntoView()
-      .should("be.visible");
-    cy.get(this._shareWorkspace(workspaceName))
-      .first()
-      .should("be.visible")
-      .click({ force: true });
+    this.agHelper.AssertElementVisible(this._workspaceList(workspaceName));
+    this.agHelper.GetNClick(this._shareWorkspace(workspaceName), 0, true);
     cy.xpath(this._email)
       .click({ force: true })
       .type(email);
@@ -172,25 +178,17 @@ export class HomePage {
   }
 
   //Maps to CreateAppForWorkspace in command.js
-  public CreateAppInWorkspace(workspaceName: string, appname: string) {
-    cy.xpath(this._newWorkspaceCreateNewApp(workspaceName))
+  public CreateAppInWorkspace(workspaceName: string, appname: string = "") {
+    cy.xpath(this._existingWorkspaceCreateNewApp(workspaceName))
       .scrollIntoView()
       .should("be.visible")
       .click({ force: true });
-    cy.wait("@createNewApplication").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      201,
-    );
+    this.agHelper.ValidateNetworkStatus("@createNewApplication", 201);
     cy.get(this.locator._loading).should("not.exist");
     this.agHelper.Sleep(2000);
-    this.RenameApplication(appname);
+    if(appname) this.RenameApplication(appname);
     cy.get(this._buildFromScratchActionCard).click();
-    cy.wait("@updateApplication").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      200,
-    );
+    //this.agHelper.ValidateNetworkStatus("@updateApplication", 200);
   }
 
   //Maps to AppSetupForRename in command.js
@@ -323,22 +321,54 @@ export class HomePage {
     this.NavigateToHome();
   }
 
-  public ImportApp(fixtureJson: string) {
+  public ImportApp(fixtureJson: string, intoWorkspaceName = "") {
     cy.get(this._homeIcon).click();
-    cy.get(this._optionsIcon)
-      .first()
-      .click();
-    cy.get(this._workspaceImport).click({ force: true });
-    cy.get(this._workspaceImportAppModal).should("be.visible");
-    cy.xpath(this._uploadFile)
-      .attachFile(fixtureJson)
-      .wait(500);
-    cy.get(this._workspaceImportAppModal).should("not.exist");
+    if (intoWorkspaceName)
+      this.agHelper.GetNClick(this._optionsIconInWorkspace(intoWorkspaceName));
+    else this.agHelper.GetNClick(this._optionsIcon);
+    this.agHelper.GetNClick(this._workspaceImport, 0, true);
+    this.agHelper.AssertElementVisible(this._workspaceImportAppModal);
+    cy.xpath(this._uploadFile).attachFile(fixtureJson);
+    this.agHelper.Sleep(3500);
   }
 
-  public AssertImport() {
-    this.agHelper.ValidateToastMessage("Application imported successfully");
+  public DeleteWorkspace(workspaceNameToDelete: string) {
+    cy.get(this._homeIcon).click();
+    this.agHelper.GetNClick(
+      this._optionsIconInWorkspace(workspaceNameToDelete),
+    );
+    this.agHelper.GetNClick(this._wsAction("Delete Workspace")); //Are you sure?
+    this.agHelper.GetNClick(this._wsAction("Are you sure?")); //
+    this.agHelper.ValidateToastMessage("Workspace deleted successfully");
+  }
+
+  public AssertNCloseImport() {
+    this.agHelper.AssertElementVisible(this._importSuccessModal);
+    this.agHelper.GetNClick(this._importSuccessModalGotit, 0, true);
+  }
+
+  public AssertImportToast() {
+    this.agHelper.WaitUntilToastDisappear("Application imported successfully");
     this.agHelper.Sleep(5000); //for imported app to settle!
     cy.get(this.locator._loading).should("not.exist");
+  }
+
+  public ForkApplication(appliName: string) {
+    this.agHelper.GetNClick(this._applicationContextMenu(appliName));
+    this.agHelper.GetNClick(this._forkApp);
+    this.agHelper.AssertElementVisible(this._forkModal);
+    this.agHelper.ClickButton("FORK");
+  }
+
+  public DuplicateApplication(appliName: string) {
+    this.agHelper.GetNClick(this._applicationContextMenu(appliName));
+    this.agHelper.GetNClick(this._duplicateApp);
+    this.agHelper.WaitUntilToastDisappear("Duplicating application...");
+  }
+
+  public DeleteApplication(appliName: string) {
+    this.agHelper.GetNClick(this._applicationContextMenu(appliName));
+    this.agHelper.GetNClick(this._deleteApp);
+    this.agHelper.GetNClick(this._deleteAppConfirm);
   }
 }
