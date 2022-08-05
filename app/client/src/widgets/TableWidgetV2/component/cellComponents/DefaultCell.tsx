@@ -28,6 +28,7 @@ export type RenderDefaultPropsType = BaseCellComponentProps & {
   displayText?: string;
   disabledEditIcon: boolean;
   isEditableCellValid: boolean;
+  validationErrorMessage: string;
 };
 
 type editPropertyType = {
@@ -81,6 +82,7 @@ function DefaultCell(props: RenderDefaultPropsType & editPropertyType) {
     textColor,
     textSize,
     toggleCellEditMode,
+    validationErrorMessage,
     value,
     verticalAlignment,
   } = props;
@@ -152,6 +154,7 @@ function DefaultCell(props: RenderDefaultPropsType & editPropertyType) {
       textColor={textColor}
       textSize={textSize}
       toggleCellEditMode={toggleCellEditMode}
+      validationErrorMessage={validationErrorMessage}
       value={getCellText(value, columnType, displayText)}
       verticalAlignment={verticalAlignment}
     />

@@ -118,6 +118,7 @@ export function TextCell({
   textColor,
   textSize,
   toggleCellEditMode,
+  validationErrorMessage,
   value,
   verticalAlignment,
 }: PropType) {
@@ -156,6 +157,7 @@ export function TextCell({
         onDiscard={onDiscard}
         onSave={onSave}
         textSize={textSize}
+        validationErrorMessage={validationErrorMessage}
         value={value}
         verticalAlignment={verticalAlignment}
       />

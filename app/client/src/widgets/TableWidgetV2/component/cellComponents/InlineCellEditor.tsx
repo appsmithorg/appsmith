@@ -86,6 +86,7 @@ type InlineEditorPropsType = {
   verticalAlignment?: VerticalAlignment;
   textSize?: string;
   isEditableCellValid: boolean;
+  validationErrorMessage: string;
 };
 
 export function InlineCellEditor({
@@ -101,6 +102,7 @@ export function InlineCellEditor({
   value,
   allowCellWrapping,
   verticalAlignment,
+  validationErrorMessage,
 }: InlineEditorPropsType) {
   const inputRef = useRef<HTMLTextAreaElement | HTMLInputElement>(null);
   const [cursorPos, setCursorPos] = useState(value.length);
@@ -162,10 +164,11 @@ export function InlineCellEditor({
         autoFocus
         compactMode
         disableNewLineOnPressEnterKey={false}
+        errorMessage={validationErrorMessage}
         inputHTMLType={inputType}
         inputRef={inputRef}
         inputType={inputType}
-        isInvalid={false}
+        isInvalid={!isEditableCellValid}
         isLoading={false}
         label=""
         multiline={multiline}

@@ -60,7 +60,7 @@ import { IconName } from "@blueprintjs/icons";
 import { Colors } from "constants/Colors";
 import { IconNames } from "@blueprintjs/core/node_modules/@blueprintjs/icons";
 import equal from "fast-deep-equal/es6";
-import { CreateRegex, sanitizeKey } from "widgets/WidgetUtils";
+import { sanitizeKey } from "widgets/WidgetUtils";
 import DefaultCell from "../component/cellComponents/DefaultCell";
 import { ButtonCell } from "../component/cellComponents/ButtonCell";
 import { MenuButtonCell } from "../component/cellComponents/MenuButtonCell";
@@ -119,6 +119,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
       updatedRows: `{{(()=>{ ${derivedProperties.getUpdatedRows}})()}}`,
       updatedRowIndices: `{{(()=>{ ${derivedProperties.getUpdatedRowIndices}})()}}`,
       updatedRow: `{{this.triggeredRow}}`,
+      isEditableCellValid: `{{(()=>{ ${derivedProperties.getEditableCellValidity}})()}}`,
     };
   }
 
@@ -775,6 +776,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
           handleReorderColumn={this.handleReorderColumn}
           handleResizeColumn={this.handleResizeColumn}
           height={componentHeight}
+          isEditableCellValid={this.props.isEditableCellValid}
           isLoading={this.props.isLoading}
           isSortable={this.props.isSortable ?? true}
           isVisibleDownload={isVisibleDownload}
@@ -1284,7 +1286,8 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
                   cellProperties.saveBorderRadius || this.props.borderRadius,
                 isVisible: cellProperties.isSaveVisible,
                 isDisabled:
-                  cellProperties.isSaveDisabled || !this.isEditableCellValid(),
+                  cellProperties.isSaveDisabled ||
+                  !this.props.isEditableCellValid,
                 boxShadow: cellProperties.boxShadow,
               },
               {
@@ -1302,7 +1305,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
                 isVisible: cellProperties.isDiscardVisible,
                 isDisabled:
                   cellProperties.isDiscardDisabled ||
-                  !this.isEditableCellValid(),
+                  !this.props.isEditableCellValid,
                 boxShadow: cellProperties.boxShadow,
               },
             ]}
@@ -1527,7 +1530,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
                 InlineEditingSaveOptions.ROW_LEVEL &&
                 this.props.updatedRowIndices.length &&
                 this.props.updatedRowIndices.indexOf(originalIndex) === -1) ||
-              !this.isEditableCellValid()
+              !this.props.isEditableCellValid
             }
             displayText={cellProperties.displayText}
             fontStyle={cellProperties.fontStyle}
@@ -1538,12 +1541,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
               (isColumnEditable && cellProperties.isCellEditable) ?? false
             }
             isCellVisible={cellProperties.isCellVisible ?? true}
-            isEditableCellValid={
-              !this.isColumnCellEditable(
-                props.cell.column.columnProperties,
-                rowIndex,
-              ) || this.isEditableCellValid()
-            }
+            isEditableCellValid={this.props.isEditableCellValid}
             isHidden={isHidden}
             onCellTextChange={this.onEditableCellTextChange}
             onDiscardString={props.cell.column.columnProperties.onDiscard}
@@ -1553,6 +1551,9 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
             textColor={cellProperties.textColor}
             textSize={cellProperties.textSize}
             toggleCellEditMode={this.toggleCellEditMode}
+            validationErrorMessage={
+              props.column.columnProperties.validation.errorMessage
+            }
             value={props.cell.value}
             verticalAlignment={cellProperties.verticalAlignment}
           />
@@ -1600,8 +1601,9 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
           this.props.updateWidgetMetaProperty("selectedRowIndex", -1);
         }
       }
-    } else if (this.isEditableCellValid()) {
+    } else {
       if (
+        this.props.isEditableCellValid &&
         action === EditableCellActions.SAVE &&
         value !== this.props.editableCell.initialValue
       ) {
@@ -1622,19 +1624,25 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
             },
           });
         }
-      }
 
-      /*
-       * We need to let the evaulations compute derived property (filteredTableData)
-       * before we clear the editableCell to avoid the text flickering
-       */
-      this.editTimer = setTimeout(() => {
-        this.props.updateWidgetMetaProperty(
-          "editableCell",
-          defaultEditableCell,
-        );
-      }, 100);
+        this.clearEdtiableCell();
+      } else if (
+        action === EditableCellActions.DISCARD ||
+        value === this.props.editableCell.initialValue
+      ) {
+        this.clearEdtiableCell();
+      }
     }
+  };
+
+  clearEdtiableCell = () => {
+    /*
+     * We need to let the evaulations compute derived property (filteredTableData)
+     * before we clear the editableCell to avoid the text flickering
+     */
+    this.editTimer = setTimeout(() => {
+      this.props.updateWidgetMetaProperty("editableCell", defaultEditableCell);
+    }, 100);
   };
 
   isColumnCellEditable = (column: ColumnProperties, rowIndex: number) => {
@@ -1642,44 +1650,6 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
       column.alias === this.props.editableCell.column &&
       rowIndex === this.props.editableCell.index
     );
-  };
-
-  /*
-   * Function to check is the editableCell is valid
-   * against the validation configurations
-   */
-  isEditableCellValid = () => {
-    const editedColumn = this.getColumnByAlias(this.props.editableCell.column);
-    const value = this.props.editableCell.value;
-
-    if (editedColumn && editedColumn.validation) {
-      const validation = editedColumn.validation;
-
-      // General validations
-      if (
-        (!isNil(validation.isEditableCellValid) &&
-          !validation.isEditableCellValid) ||
-        (validation.regex &&
-          !CreateRegex(validation.regex).test(value.toString())) ||
-        (validation.isEditableCellRequired && value === "")
-      ) {
-        return false;
-      }
-
-      //Column based validations
-      switch (editedColumn.columnType) {
-        case ColumnTypes.NUMBER:
-          if (!isNil(validation.min) && validation.min > value) {
-            return false;
-          }
-
-          if (!isNil(validation.max) && validation.max < value) {
-            return false;
-          }
-      }
-    }
-
-    return true;
   };
 }
 

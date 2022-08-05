@@ -14,7 +14,7 @@ export default [
   },
   {
     helpText: "Shows the validity of the cell validity",
-    propertyName: "validation.isEditableCellValid",
+    propertyName: "validation.isColumnEditableCellValid",
     label: "Valid",
     controlType: "TABLE_INLINE_EDIT_VALIDATION",
     isJSConvertible: false,
@@ -40,7 +40,7 @@ export default [
     validation: { type: ValidationTypes.TEXT },
   },
   {
-    propertyName: "validation.isEditableCellRequired",
+    propertyName: "validation.isColumnEditableCellRequired",
     label: "Required",
     helpText: "Makes input to the widget mandatory",
     controlType: "SWITCH",

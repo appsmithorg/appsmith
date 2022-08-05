@@ -78,6 +78,7 @@ export interface TableWidgetProps extends WidgetProps, WithMeta, TableStyles {
   boxShadow?: string;
   inlineEditingSaveOption?: InlineEditingSaveOptions;
   showInlineEditingOptionDropdown?: boolean;
+  isEditableCellValid: boolean;
 }
 
 export const getCurrentRowBinding = (

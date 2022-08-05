@@ -577,4 +577,78 @@ export default {
     }
   },
   //
+  getEditableCellValidity: (props, moment, _) => {
+    if (!props.editableCell.column || !props.primaryColumns) {
+      return true;
+    }
+
+    const CreateRegex = (regex) => {
+      if (!regex) {
+        return new RegExp("//");
+      }
+
+      /*
+       * break up the regexp pattern into 4 parts: given regex, regex prefix , regex pattern, regex flags
+       * Example /test/i will be split into ["/test/gi", "/", "test", "gi"]
+       */
+      const regexParts = regex.match(/(\/?)(.+)\\1([a-z]*)/i);
+      let parsedRegex;
+
+      if (!regexParts) {
+        parsedRegex = new RegExp(regex);
+      } else {
+        /*
+         * if we don't have a regex flags (gmisuy), convert provided string into regexp directly
+         */
+        if (
+          regexParts[3] &&
+          !/^(?!.*?(.).*?\\1)[gmisuy]+$/.test(regexParts[3])
+        ) {
+          parsedRegex = RegExp(regex);
+        } else {
+          /*
+           * if we have a regex flags, use it to form regexp
+           */
+          parsedRegex = new RegExp(regexParts[2], regexParts[3]);
+        }
+      }
+
+      return parsedRegex;
+    };
+
+    const editedColumn = Object.values(props.primaryColumns).find(
+      (column) => column.alias === props.editableCell.column,
+    );
+    const value = props.editableCell.value;
+
+    if (editedColumn && editedColumn.validation) {
+      const validation = editedColumn.validation;
+
+      /* General validations */
+      if (
+        (!_.isNil(validation.isColumnEditableCellValid) &&
+          !validation.isColumnEditableCellValid) ||
+        (validation.regex &&
+          !CreateRegex(validation.regex).test(value.toString())) ||
+        (validation.isColumnEditableCellRequired && value === "")
+      ) {
+        return false;
+      }
+
+      /* Column type related validations */
+      switch (editedColumn.columnType) {
+        case "number":
+          if (!_.isNil(validation.min) && validation.min > value) {
+            return false;
+          }
+
+          if (!_.isNil(validation.max) && validation.max < value) {
+            return false;
+          }
+      }
+    }
+
+    return true;
+  },
+  //
 };

@@ -589,37 +589,3 @@ export function composePropertyUpdateHook(
     }
   };
 }
-
-/*
- * Function to create a Regex from a given string.
- */
-export const CreateRegex = (regex: string) => {
-  if (!regex) {
-    return new RegExp("//");
-  }
-
-  /*
-   * break up the regexp pattern into 4 parts: given regex, regex prefix , regex pattern, regex flags
-   * Example /test/i will be split into ["/test/gi", "/", "test", "gi"]
-   */
-  const regexParts = regex.match(/(\/?)(.+)\\1([a-z]*)/i);
-  let parsedRegex;
-
-  if (!regexParts) {
-    parsedRegex = new RegExp(regex);
-  } else {
-    /*
-     * if we don't have a regex flags (gmisuy), convert provided string into regexp directly
-     */
-    if (regexParts[3] && !/^(?!.*?(.).*?\\1)[gmisuy]+$/.test(regexParts[3])) {
-      parsedRegex = RegExp(regex);
-    } else {
-      /*
-       * if we have a regex flags, use it to form regexp
-       */
-      parsedRegex = new RegExp(regexParts[2], regexParts[3]);
-    }
-  }
-
-  return parsedRegex;
-};
