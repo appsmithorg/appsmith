@@ -49,6 +49,7 @@ public class AmazonS3ErrorUtils extends AppsmithPluginErrorUtils {
      */
     @Override
     public String getReadableError(Throwable error) {
+
         Throwable externalError;
         if (error instanceof AppsmithPluginException) {
             if (((AppsmithPluginException) error).getExternalError() == null) {
@@ -69,7 +70,7 @@ public class AmazonS3ErrorUtils extends AppsmithPluginErrorUtils {
              *
              * Return string: null
              */
-            return amazonS3Exception.getErrorMessage().split("\\(")[0].trim();
+            return amazonS3Exception.getErrorCode() + ": " + amazonS3Exception.getErrorMessage();
         }
         else if (externalError instanceof AmazonServiceException) {
             AmazonServiceException amazonServiceException = (AmazonServiceException) externalError;
@@ -82,7 +83,7 @@ public class AmazonS3ErrorUtils extends AppsmithPluginErrorUtils {
              *
              * Return string: The request signature we calculated does not match the signature you provided. Check your key and signing method.
              */
-            return amazonServiceException.getErrorMessage().split("\\(")[0].trim();
+            return amazonServiceException.getErrorCode() + ": " + amazonServiceException.getErrorMessage();
         }
 
         return error.getMessage().split("\\.")[0].trim() + ".";
