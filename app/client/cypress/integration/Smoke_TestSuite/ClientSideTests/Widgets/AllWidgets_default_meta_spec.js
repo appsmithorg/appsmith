@@ -5,6 +5,7 @@ const dsl = require("../../../../fixtures/defaultMetaDsl.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
 const homePage = require("../../../../locators/HomePage");
 
+
 import {
   WIDGET,
   PROPERTY_SELECTOR,
@@ -13,7 +14,7 @@ import {
 } from "../../../../locators/WidgetLocators";
 
 const widgetsToTest = {
-  [WIDGET.MULTISELECT]: {
+  [WIDGET.MULTISELECT_WIDGET]: {
     widgetName: "MultiSelect",
     widgetPrefixName: "MultiSelect1",
     textBindingValue: "{{MultiSelect1.selectedOptionValues}}",
@@ -61,7 +62,7 @@ const widgetsToTest = {
       selectAndReset();
     },
   },
-  [WIDGET.CURRENCY_INPUT]: {
+  [WIDGET.CURRENCY_INPUT_WIDGET]: {
     widgetName: "CurrencyInput",
     widgetPrefixName: "CurrencyInput1",
     textBindingValue: testdata.currencyBindingValue,
@@ -85,7 +86,7 @@ const widgetsToTest = {
       radiogroupAndReset();
     },
   },
-
+  
   [WIDGET.LIST]: {
     widgetName: "List",
     widgetPrefixName: "List1",
@@ -94,7 +95,7 @@ const widgetsToTest = {
       listwidgetAndReset();
     },
   },
-
+  
   [WIDGET.RATING]: {
     widgetName: "Rating",
     widgetPrefixName: "Rating1",
@@ -103,7 +104,7 @@ const widgetsToTest = {
       ratingwidgetAndReset();
     },
   },
-
+  
   [WIDGET.CHECKBOXGROUP]: {
     widgetName: "CheckboxGroup",
     widgetPrefixName: "CheckboxGroup1",
@@ -156,7 +157,8 @@ const widgetsToTest = {
   },
 };
 
-function dragDropToCanvas(widgetType, { x, y }) {
+
+function dragDropToCanvas (widgetType, { x, y }){
   const selector = `.t--widget-card-draggable-${widgetType}`;
   cy.wait(500);
   cy.get(selector)
@@ -168,7 +170,7 @@ function dragDropToCanvas(widgetType, { x, y }) {
     .trigger("mouseup", x, y, { eventConstructor: "MouseEvent" });
 }
 
-function PublishApp() {
+function PublishApp(){
   // Stubbing window.open to open in the same tab
   cy.window().then((window) => {
     cy.stub(window, "open").callsFake((url) => {
@@ -338,19 +340,15 @@ function ratingwidgetAndReset() {
 }
 
 function checkboxGroupAndReset() {
-  cy.wait(2000);
-  cy.get("[data-cy=checkbox-group-container] > :nth-child(3)")
+  cy.get("input")
     .last()
-    .should("be.visible")
     .click({ force: true });
-  cy.wait(2000);
+  cy.wait(3000);
   cy.get(commonlocators.textWidgetContainer).each((item, index, list) => {
     cy.wrap(item).should("contain.text", "RED");
   });
   cy.get("button:contains('Submit')").click({ force: true });
   cy.wait(1000);
-  cy.get("button:contains('Submit')").click({ force: true });
-  cy.wait(2000);
   cy.get(commonlocators.textWidgetContainer).each((item, index, list) => {
     cy.wrap(item).should("not.contain.text", "RED");
   });
@@ -389,33 +387,32 @@ function audioRecorderWidgetAndReset() {
 
 function phoneInputWidgetAndReset() {
   cy.get(".bp3-input").type("1234");
-  cy.wait(1000);
   cy.get(commonlocators.textWidgetContainer).each((item, index, list) => {
     cy.wrap(item).should("contain.text", "1234");
   });
   cy.get("button:contains('Submit')").click({ force: true });
   cy.wait(1000);
+  //cy.get(".t--toast-action span").contains("success");
   cy.get(commonlocators.textWidgetContainer).each((item, index, list) => {
     cy.wrap(item).should("contain.text", "");
   });
 }
 
 function filePickerWidgetAndReset() {
-  cy.wait(2000);
-  cy.get(".t--widget-filepickerwidgetv2").should("be.visible");
-  cy.wait(2000);
+  cy.get(commonlocators.textWidgetContainer).each((item, index, list) => {
+    cy.wrap(item).should("contain.text", "false");
+  });
   cy.get(commonlocators.filePickerInput)
     .first()
     .attachFile("testFile.mov");
   //eslint-disable-next-line cypress/no-unnecessary-waiting
-  cy.wait(1000);
+  cy.wait(500);
   cy.get(commonlocators.textWidgetContainer).each((item, index, list) => {
     cy.wrap(item).should("contain.text", "true");
   });
   cy.get("button:contains('Submit')").click({ force: true });
   cy.wait(1000);
-  cy.get("button:contains('Submit')").click({ force: true });
-  cy.wait(2000);
+  //cy.get(".t--toast-action span").contains("success");
   cy.get(commonlocators.textWidgetContainer).each((item, index, list) => {
     cy.wrap(item).should("contain.text", "false");
   });
@@ -435,7 +432,7 @@ Object.entries(widgetsToTest).forEach(([widgetSelector, testConfig]) => {
 
     it("2. Bind Button on click  and Text widget content", () => {
       // Set onClick assertWidgetReset, storing value
-      cy.openPropertyPane(WIDGET.BUTTON);
+      cy.openPropertyPane(WIDGET.BUTTON_WIDGET);
 
       cy.get(PROPERTY_SELECTOR.onClick)
         .find(".t--js-toggle")
