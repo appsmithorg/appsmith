@@ -52,11 +52,29 @@ export const TableWrapper = styled.div<{
     width: ${(props) => props.width}px;
     overflow-x: auto;
     ${hideScrollbar};
+    .track-horizontal {
+      height: 6px;
+      bottom: 1px;
+      width: 100%;
+      opacity: 0;
+      transition: opacity 200ms ease-in;
+      &:active {
+        opacity: 1;
+      }
+    }
+    &:hover {
+      .track-horizontal {
+        opacity: 1;
+      }
+    }
     .thumb-horizontal {
       height: 4px !important;
       border-radius: ${(props) => props.theme.radii[3]}px;
       background: ${(props) => props.theme.colors.scrollbarLight} !important;
       &:hover {
+        height: 6px !important;
+      }
+      &:active {
         height: 6px !important;
       }
     }
@@ -489,11 +507,29 @@ export const TableHeaderWrapper = styled.div<{
   min-height: ${(props) => props.tableSizes.TABLE_HEADER_HEIGHT}px;
   overflow-x: auto;
   ${hideScrollbar};
+  .track-horizontal {
+    height: 6px;
+    bottom: 1px;
+    width: 100%;
+    opacity: 0;
+    transition: opacity 200ms ease-in;
+    &:active {
+      opacity: 1;
+    }
+  }
+  &:hover {
+    .track-horizontal {
+      opacity: 1;
+    }
+  }
   .thumb-horizontal {
     height: 4px !important;
     border-radius: ${(props) => props.theme.radii[3]}px;
     background: ${(props) => props.theme.colors.scrollbarLight};
     &:hover {
+      height: 6px !important;
+    }
+    &:active {
       height: 6px !important;
     }
   }

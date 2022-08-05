@@ -100,6 +100,10 @@ function ScrollbarHorizontalThumb(props: any) {
   return <div {...props} className="thumb-horizontal" />;
 }
 
+function ScrollbarHorizontalTrack(props: any) {
+  return <div {...props} className="track-horizontal" />;
+}
+
 export function Table(props: TableProps) {
   const isResizingColumn = React.useRef(false);
 
@@ -246,9 +250,9 @@ export function Table(props: TableProps) {
           width={props.width}
         >
           <Scrollbars
-            autoHide
             renderThumbHorizontal={ScrollbarHorizontalThumb}
             renderThumbVertical={ScrollbarVerticalThumb}
+            renderTrackHorizontal={ScrollbarHorizontalTrack}
             style={style}
           >
             <TableHeaderInnerWrapper
@@ -295,8 +299,8 @@ export function Table(props: TableProps) {
         ref={tableWrapperRef}
       >
         <Scrollbars
-          autoHide
           renderThumbHorizontal={ScrollbarHorizontalThumb}
+          renderTrackHorizontal={ScrollbarHorizontalTrack}
           style={{
             width: props.width,
             height: isHeaderVisible ? props.height - 48 : props.height,
@@ -423,6 +427,7 @@ export function Table(props: TableProps) {
       <ScrollIndicator
         containerRef={tableBodyRef}
         mode="LIGHT"
+        showScrollbarOnHover
         top={props.editMode ? "70px" : "73px"}
       />
     </TableWrapper>
