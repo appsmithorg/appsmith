@@ -35,6 +35,9 @@ import {
 import { HeaderCell } from "./cellComponents/HeaderCell";
 import { EditableCell } from "../constants";
 
+const OFFSET_WITHOUT_HEADER = 40;
+const OFFSET_WITH_HEADER = 80;
+
 interface TableProps {
   width: number;
   height: number;
@@ -228,8 +231,141 @@ export const Table = React.forwardRef<HTMLDivElement, TableProps>(
       [props.width],
     );
 
+    const shouldScroll =
+      !props.serverSidePaginationEnabled || !props.isDynamicHeightEnabled;
+
+    let bodyHeight = "auto";
+    if (shouldScroll) {
+      if (isHeaderVisible) {
+        bodyHeight = `${props.height - OFFSET_WITH_HEADER}px`;
+      } else {
+        bodyHeight = `${props.height - OFFSET_WITHOUT_HEADER}px`;
+      }
+    }
+
+    const tableBody = (
+      <div {...getTableProps()} className="table">
+        <div
+          className="thead"
+          onMouseLeave={props.enableDrag}
+          onMouseOver={props.disableDrag}
+        >
+          {headerGroups.map((headerGroup: any, index: number) => {
+            const headerRowProps = {
+              ...headerGroup.getHeaderGroupProps(),
+              style: { display: "flex" },
+            };
+            return (
+              <div {...headerRowProps} className="tr" key={index}>
+                {props.multiRowSelection &&
+                  renderHeaderCheckBoxCell(
+                    handleAllRowSelectClick,
+                    rowSelectionState,
+                    props.accentColor,
+                    props.borderRadius,
+                  )}
+                {headerGroup.headers.map((column: any, columnIndex: number) => {
+                  return (
+                    <HeaderCell
+                      column={column}
+                      columnIndex={columnIndex}
+                      columnName={column.Header}
+                      editMode={props.editMode}
+                      isAscOrder={column.isAscOrder}
+                      isHidden={column.isHidden}
+                      isResizingColumn={isResizingColumn.current}
+                      isSortable={props.isSortable}
+                      key={columnIndex}
+                      sortTableColumn={props.sortTableColumn}
+                      width={column.width}
+                    />
+                  );
+                })}
+              </div>
+            );
+          })}
+          {headerGroups.length === 0 &&
+            renderEmptyRows(
+              1,
+              props.columns,
+              props.width,
+              subPage,
+              prepareRow,
+              props.multiRowSelection,
+              props.accentColor,
+              props.borderRadius,
+            )}
+        </div>
+        <div
+          {...getTableBodyProps()}
+          className={`tbody ${
+            props.pageSize > subPage.length ? "no-scroll" : ""
+          }`}
+          ref={tableBodyRef}
+        >
+          {subPage.map((row, rowIndex) => {
+            prepareRow(row);
+            const rowProps = {
+              ...row.getRowProps(),
+              style: { display: "flex" },
+            };
+            const isRowSelected = props.multiRowSelection
+              ? selectedRowIndices.includes(row.index)
+              : row.index === selectedRowIndex;
+            return (
+              <div
+                {...rowProps}
+                className={"tr" + `${isRowSelected ? " selected-row" : ""}`}
+                key={rowIndex}
+                onClick={(e) => {
+                  row.toggleRowSelected();
+                  props.selectTableRow(row);
+                  e.stopPropagation();
+                }}
+              >
+                {props.multiRowSelection &&
+                  renderBodyCheckBoxCell(
+                    isRowSelected,
+                    props.accentColor,
+                    props.borderRadius,
+                  )}
+                {row.cells.map((cell, cellIndex) => {
+                  return (
+                    <div
+                      {...cell.getCellProps()}
+                      className="td"
+                      data-colindex={cellIndex}
+                      data-rowindex={rowIndex}
+                      key={cellIndex}
+                    >
+                      {cell.render("Cell")}
+                    </div>
+                  );
+                })}
+              </div>
+            );
+          })}
+          {props.pageSize > subPage.length &&
+            !(
+              props.isDynamicHeightEnabled && props.serverSidePaginationEnabled
+            ) &&
+            renderEmptyRows(
+              props.pageSize - subPage.length,
+              props.columns,
+              props.width,
+              subPage,
+              prepareRow,
+              props.multiRowSelection,
+              props.accentColor,
+              props.borderRadius,
+            )}
+        </div>
+      </div>
+    );
+
     return (
       <TableWrapper
+        $height={bodyHeight}
         $isDynamicHeightEnabled={
           props.serverSidePaginationEnabled && props.isDynamicHeightEnabled
         }
@@ -237,7 +373,6 @@ export const Table = React.forwardRef<HTMLDivElement, TableProps>(
         backgroundColor={Colors.ATHENS_GRAY_DARKER}
         borderRadius={props.borderRadius}
         boxShadow={props.boxShadow}
-        height={props.height}
         id={`table${props.widgetId}`}
         isHeaderVisible={isHeaderVisible}
         ref={ref}
@@ -304,138 +439,28 @@ export const Table = React.forwardRef<HTMLDivElement, TableProps>(
           className={props.isLoading ? Classes.SKELETON : "tableWrap"}
           ref={tableWrapperRef}
         >
-          <Scrollbars
-            renderThumbHorizontal={ScrollbarHorizontalThumb}
-            style={{
-              width: props.width,
-              height: isHeaderVisible ? props.height - 48 : props.height,
-            }}
-          >
-            <div {...getTableProps()} className="table">
-              <div
-                className="thead"
-                onMouseLeave={props.enableDrag}
-                onMouseOver={props.disableDrag}
-              >
-                {headerGroups.map((headerGroup: any, index: number) => {
-                  const headerRowProps = {
-                    ...headerGroup.getHeaderGroupProps(),
-                    style: { display: "flex" },
-                  };
-                  return (
-                    <div {...headerRowProps} className="tr" key={index}>
-                      {props.multiRowSelection &&
-                        renderHeaderCheckBoxCell(
-                          handleAllRowSelectClick,
-                          rowSelectionState,
-                          props.accentColor,
-                          props.borderRadius,
-                        )}
-                      {headerGroup.headers.map(
-                        (column: any, columnIndex: number) => {
-                          return (
-                            <HeaderCell
-                              column={column}
-                              columnIndex={columnIndex}
-                              columnName={column.Header}
-                              editMode={props.editMode}
-                              isAscOrder={column.isAscOrder}
-                              isHidden={column.isHidden}
-                              isResizingColumn={isResizingColumn.current}
-                              isSortable={props.isSortable}
-                              key={columnIndex}
-                              sortTableColumn={props.sortTableColumn}
-                              width={column.width}
-                            />
-                          );
-                        },
-                      )}
-                    </div>
-                  );
-                })}
-                {headerGroups.length === 0 &&
-                  renderEmptyRows(
-                    1,
-                    props.columns,
-                    props.width,
-                    subPage,
-                    prepareRow,
-                    props.multiRowSelection,
-                    props.accentColor,
-                    props.borderRadius,
-                  )}
-              </div>
-              <div
-                {...getTableBodyProps()}
-                className={`tbody ${
-                  props.pageSize > subPage.length ? "no-scroll" : ""
-                }`}
-                ref={tableBodyRef}
-              >
-                {subPage.map((row, rowIndex) => {
-                  prepareRow(row);
-                  const rowProps = {
-                    ...row.getRowProps(),
-                    style: { display: "flex" },
-                  };
-                  const isRowSelected = props.multiRowSelection
-                    ? selectedRowIndices.includes(row.index)
-                    : row.index === selectedRowIndex;
-                  return (
-                    <div
-                      {...rowProps}
-                      className={
-                        "tr" + `${isRowSelected ? " selected-row" : ""}`
-                      }
-                      key={rowIndex}
-                      onClick={(e) => {
-                        row.toggleRowSelected();
-                        props.selectTableRow(row);
-                        e.stopPropagation();
-                      }}
-                    >
-                      {props.multiRowSelection &&
-                        renderBodyCheckBoxCell(
-                          isRowSelected,
-                          props.accentColor,
-                          props.borderRadius,
-                        )}
-                      {row.cells.map((cell, cellIndex) => {
-                        return (
-                          <div
-                            {...cell.getCellProps()}
-                            className="td"
-                            data-colindex={cellIndex}
-                            data-rowindex={rowIndex}
-                            key={cellIndex}
-                          >
-                            {cell.render("Cell")}
-                          </div>
-                        );
-                      })}
-                    </div>
-                  );
-                })}
-                {props.pageSize > subPage.length &&
-                  renderEmptyRows(
-                    props.pageSize - subPage.length,
-                    props.columns,
-                    props.width,
-                    subPage,
-                    prepareRow,
-                    props.multiRowSelection,
-                    props.accentColor,
-                    props.borderRadius,
-                  )}
-              </div>
-            </div>
-          </Scrollbars>
+          {shouldScroll && (
+            <Scrollbars
+              renderThumbHorizontal={ScrollbarHorizontalThumb}
+              style={{
+                width: props.width,
+                height: isHeaderVisible ? props.height - 48 : props.height,
+              }}
+            >
+              {tableBody}
+            </Scrollbars>
+          )}
+          {!shouldScroll && tableBody}
         </div>
-        <ScrollIndicator
-          containerRef={tableBodyRef}
-          mode="LIGHT"
-          top={props.editMode ? "70px" : "73px"}
-        />
+        {!(
+          props.isDynamicHeightEnabled && props.serverSidePaginationEnabled
+        ) && (
+          <ScrollIndicator
+            containerRef={tableBodyRef}
+            mode="LIGHT"
+            top={props.editMode ? "70px" : "73px"}
+          />
+        )}
       </TableWrapper>
     );
   },

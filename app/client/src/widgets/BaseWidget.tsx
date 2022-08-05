@@ -200,9 +200,9 @@ abstract class BaseWidget<
       { diff: Math.abs(currentHeightInRows - expectedHeightInRows) },
     );
 
-    // If the diff is of less than 2 rows, do nothing. If it is actually 2 rows,
-    // then we need to compute.
-    if (Math.abs(currentHeightInRows - expectedHeightInRows) < 2) return false;
+    // // If the diff is of less than 2 rows, do nothing. If it is actually 2 rows,
+    // // then we need to compute.
+    // const diff = Math.abs(currentHeightInRows - expectedHeightInRows);
     // Does this widget have dynamic height enabled
     const isDynamicHeightEnabled = isDynamicHeightEnabledForWidget(this.props);
 
@@ -210,12 +210,14 @@ abstract class BaseWidget<
     if (!isDynamicHeightEnabled) return false;
 
     const maxDynamicHeightInRows =
-      DynamicHeight.AUTO_HEIGHT_WITH_LIMITS && this.props.maxDynamicHeight
+      this.props.dynamicHeioght === DynamicHeight.AUTO_HEIGHT_WITH_LIMITS &&
+      this.props.maxDynamicHeight > 0
         ? this.props.maxDynamicHeight
         : WidgetHeightLimits.MAX_HEIGHT_IN_ROWS;
 
     const minDynamicHeightInRows =
-      DynamicHeight.AUTO_HEIGHT_WITH_LIMITS && this.props.minDynamicHeight
+      this.props.dynamicHeioght === DynamicHeight.AUTO_HEIGHT_WITH_LIMITS &&
+      this.props.minDynamicHeight > 0
         ? this.props.minDynamicHeight
         : WidgetHeightLimits.MIN_HEIGHT_IN_ROWS;
 
@@ -223,7 +225,10 @@ abstract class BaseWidget<
     // We're trying to see if we can increase the height
     if (currentHeightInRows < expectedHeightInRows) {
       // If we're not already at the max height, we can increase height
-      if (maxDynamicHeightInRows >= currentHeightInRows) {
+      if (
+        maxDynamicHeightInRows >= currentHeightInRows &&
+        Math.abs(maxDynamicHeightInRows - expectedHeightInRows) >= 2
+      ) {
         return true;
       }
     }
@@ -233,7 +238,10 @@ abstract class BaseWidget<
     if (currentHeightInRows > expectedHeightInRows) {
       // If our attempt to reduce does not go below the min possible height
       // We can safely reduce the height
-      if (minDynamicHeightInRows <= expectedHeightInRows) {
+      if (
+        minDynamicHeightInRows <= expectedHeightInRows &&
+        Math.abs(minDynamicHeightInRows - expectedHeightInRows) >= 2
+      ) {
         return true;
       }
     }

@@ -17,14 +17,13 @@ import { lightenColor, darkenColor } from "widgets/WidgetUtils";
 import { FontStyleTypes } from "constants/WidgetConstants";
 import { Classes } from "@blueprintjs/core";
 
-const OFFSET_WITHOUT_HEADER = 40;
-const OFFSET_WITH_HEADER = 80;
 const BORDER_RADIUS = "border-radius: 4px;";
 const HEADER_CONTROL_FONT_SIZE = "12px";
 
 export const TableWrapper = styled.div<{
   width: number;
-  height: number;
+  $height: string;
+  $isDynamicHeightEnabled: boolean;
   tableSizes: TableSizes;
   accentColor: string;
   backgroundColor?: Color;
@@ -32,10 +31,11 @@ export const TableWrapper = styled.div<{
   isHeaderVisible?: boolean;
   borderRadius: string;
   boxShadow?: string;
-  $isDynamicHeightEnabled: boolean;
 }>`
   width: 100%;
-  height: 100%;
+  &&& {
+    height: ${(props) => (props.$isDynamicHeightEnabled ? `auto` : `100%`)};
+  }
   background: white;
   border: ${({ boxShadow }) =>
     boxShadow === "none" ? `1px solid ${Colors.GEYSER_LIGHT}` : `none`};
@@ -47,7 +47,7 @@ export const TableWrapper = styled.div<{
   flex-direction: column;
   overflow: hidden;
   .tableWrap {
-    height: 100%;
+    height: ${(props) => (props.$isDynamicHeightEnabled ? `auto` : `100%`)};
     display: block;
     position: relative;
     width: ${(props) => props.width}px;
@@ -75,10 +75,7 @@ export const TableWrapper = styled.div<{
       overflow: hidden;
     }
     .tbody {
-      height: ${(props) =>
-        props.isHeaderVisible
-          ? props.height - OFFSET_WITH_HEADER
-          : props.height - OFFSET_WITHOUT_HEADER}px;
+      height: ${(props) => props.$height}
       width: 100%;
       overflow-y: auto;
       ${hideScrollbar};
