@@ -571,7 +571,17 @@ const DynamicHeightOverlay: React.FC<DynamicHeightOverlayProps> = memo(
     const isWidgetSelected = selectedWidget === widgetId;
 
     return (
-      <StyledDynamicHeightOverlay>
+      <StyledDynamicHeightOverlay
+        style={{
+          position: "absolute",
+          height: style.componentHeight,
+          width: style.componentWidth,
+          left: style.xPosition,
+          top: style.yPosition,
+          zIndex: 3,
+          pointerEvents: "none",
+        }}
+      >
         <div
           style={{
             display: isWidgetSelected ? "block" : "none",
