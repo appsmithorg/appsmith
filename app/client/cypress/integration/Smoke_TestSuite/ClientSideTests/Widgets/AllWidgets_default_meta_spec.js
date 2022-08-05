@@ -95,7 +95,7 @@ const widgetsToTest = {
       listwidgetAndReset();
     },
   },
-  /*
+  
   [WIDGET.RATING]: {
     widgetName: "Rating",
     widgetPrefixName: "Rating1",
@@ -104,7 +104,7 @@ const widgetsToTest = {
       ratingwidgetAndReset();
     },
   },
-  */
+  
   [WIDGET.CHECKBOXGROUP]: {
     widgetName: "CheckboxGroup",
     widgetPrefixName: "CheckboxGroup1",
