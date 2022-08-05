@@ -2,6 +2,7 @@ package com.appsmith.server.controllers.ce;
 
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
+import com.appsmith.server.dtos.ApplicationImportDTO;
 import com.appsmith.server.dtos.ApplicationTemplate;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.services.ApplicationTemplateService;
@@ -52,8 +53,8 @@ public class ApplicationTemplateControllerCE {
     }
 
     @PostMapping("{templateId}/import/{workspaceId}")
-    public Mono<ResponseDTO<Application>> importApplicationFromTemplate(@PathVariable String templateId,
-                                                           @PathVariable String workspaceId) {
+    public Mono<ResponseDTO<ApplicationImportDTO>> importApplicationFromTemplate(@PathVariable String templateId,
+                                                                                 @PathVariable String workspaceId) {
         return applicationTemplateService.importApplicationFromTemplate(templateId, workspaceId)
                 .map(importedApp -> new ResponseDTO<>(HttpStatus.OK.value(), importedApp, null));
     }
