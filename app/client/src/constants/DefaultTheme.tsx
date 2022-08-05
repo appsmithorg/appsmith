@@ -82,18 +82,42 @@ export const BlueprintControlTransform = css`
         box-shadow: none;
         border: 1px solid ${(props) => props.theme.colors.primaryOld};
       }
-      input:disabled ~ .${Classes.CONTROL_INDICATOR} {
-        opacity: 0.5;
+
+      &
+        input:invalid:not(:disabled):not(:checked)
+        ~ .${Classes.CONTROL_INDICATOR} {
+        border: 1px solid var(--wds-color-border-danger);
       }
+
+      &:hover
+        input:invalid:not(:disabled):not(:checked)
+        ~ .${Classes.CONTROL_INDICATOR} {
+        border: 1px solid var(--wds-color-border-danger-hover) !important;
+      }
+
       & input:disabled:not(:checked) ~ .${Classes.CONTROL_INDICATOR} {
-        border: 1px solid ${Colors.GREY_5};
+        background-color: var(--wds-color-bg-disabled) !important;
+        border: 1px solid var(--wds-color-border-disabled) !important;
+      }
+
+      & input:disabled:checked ~ .${Classes.CONTROL_INDICATOR} {
+        background-color: var(--wds-color-bg-disabled) !important;
+        border: 1px solid var(--wds-color-border-disabled) !important;
+      }
+
+      &:hover {
+        & input:not(:checked):not(:disabled) ~ .bp3-control-indicator {
+          border: 1px solid ${Colors.GREY_6} !important;
+        }
       }
     }
 
     .${Classes.SWITCH} {
-      & .${Classes.CONTROL_INDICATOR} {
+      & input ~ .${Classes.CONTROL_INDICATOR} {
+        transition: none;
+
         &::before {
-          box-shadow: -2px 2px 5px rgba(67, 86, 100, 0.1);
+          box-shadow: none;
         }
       }
       input:checked ~ .${Classes.CONTROL_INDICATOR} {
@@ -102,8 +126,22 @@ export const BlueprintControlTransform = css`
         }
       }
       input:not(:checked) ~ .${Classes.CONTROL_INDICATOR} {
-        background: ${Colors.GREY_3};
-        border: 1px solid ${Colors.GREY_5};
+        background: var(--wds-color-bg-strong);
+        border: 1px solid var(--wds-color-border);
+      }
+
+      input:disabled ~ .${Classes.CONTROL_INDICATOR} {
+        background: var(--wds-color-bg-disabled) !important;
+        &::before {
+          background: var(--wds-color-bg-disabled-strong);
+        }
+      }
+
+      &:hover {
+        & input:not(:checked):not(:disabled) ~ .bp3-control-indicator {
+          background: var(--wds-color-bg-strong-hover);
+          border: 1px solid var(--wds-color-border-hover) !important;
+        }
       }
     }
 
@@ -342,16 +380,10 @@ export const BlueprintRadioSwitchGroupTransform = css<{
     }
     .bp3-control-indicator {
       margin-top: 0;
-      border: 1px solid ${Colors.GREY_3};
-    }
-    input:checked ~ .bp3-control-indicator,
-    &:hover input:checked ~ .bp3-control-indicator {
-      background-color: ${Colors.GREEN};
-    }
-    &:hover {
-      & input:not(:checked) ~ .bp3-control-indicator {
-        border: 1px solid ${Colors.GREY_5} !important;
-      }
+      border: 1px solid ${Colors.GREY_5};
+      box-shadow: none;
+      background-image: none;
+      background-color: white;
     }
   }
 `;
