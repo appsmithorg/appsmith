@@ -502,5 +502,5 @@ describe("Migration Validate", function() {
       .invoke("attr", "value")
       .should("contain", "#FFC13D");
     cy.validateCodeEditorContent(".t--property-control-textsize", "1.5rem");
-  });// Add dsl and Validate Migration on pageload
+  }); // Add dsl and Validate Migration on pageload
 });

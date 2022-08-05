@@ -134,7 +134,8 @@ describe("AForce - Community Issues page validations", function() {
 
   it.skip("5. Verify Default search text in table as per 'Default Search Text' property set + Bug 12228", () => {
     ee.SelectEntityByName("Table1", "WIDGETS");
-    jsEditor.EnterJSContext("Default Search Text", "Bug", false);
+    //jsEditor.EnterJSContext("Default Search Text", "Bug", false);
+    propPane.TypeTextIntoField("Default Search Text", "Bug");
     deployMode.DeployApp();
     table.AssertSearchText("Bug");
     table.WaitUntilTableLoad();
@@ -142,7 +143,9 @@ describe("AForce - Community Issues page validations", function() {
     deployMode.NavigateBacktoEditor();
 
     ee.SelectEntityByName("Table1", "WIDGETS");
-    jsEditor.EnterJSContext("Default Search Text", "Question", false);
+    //jsEditor.EnterJSContext("Default Search Text", "Question", false);
+    propPane.TypeTextIntoField("Default Search Text", "Question");
+
     deployMode.DeployApp();
     table.AssertSearchText("Question");
     table.WaitUntilTableLoad();
@@ -150,7 +153,8 @@ describe("AForce - Community Issues page validations", function() {
     table.WaitUntilTableLoad();
 
     ee.SelectEntityByName("Table1", "WIDGETS");
-    jsEditor.EnterJSContext("Default Search Text", "Epic", false); //Bug 12228 - Searching based on hidden column value should not be allowed
+    //jsEditor.EnterJSContext("Default Search Text", "Epic", false);
+    propPane.TypeTextIntoField("Default Search Text", "Epic"); //Bug 12228 - Searching based on hidden column value should not be allowed
     deployMode.DeployApp();
     table.AssertSearchText("Epic");
     table.WaitForTableEmpty();

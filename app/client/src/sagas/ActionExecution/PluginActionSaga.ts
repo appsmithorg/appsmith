@@ -406,14 +406,9 @@ export default function* executePluginActionTriggerSaga(
         callbackData: [payload.body, params],
         ...triggerMeta,
       });
-      return [{ success: true }];
     }
   }
-  // added success flag for successfull api execution and handle callback
-  return [
-    set((payload.body || {}) as Record<string, unknown>, "success", true),
-    params,
-  ];
+  return [payload.body, params];
 }
 
 function* runActionShortcutSaga() {
