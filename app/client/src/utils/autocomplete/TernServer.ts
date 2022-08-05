@@ -35,6 +35,7 @@ const DEFS: Def[] = [
 const bigDoc = 250;
 const cls = "CodeMirror-Tern-";
 const hintDelay = 1700;
+const FILE_NOT_FOUND_ERROR = "file not found";
 
 export type Completion = Hint & {
   origin: string;
@@ -201,7 +202,15 @@ class TernServer {
   }
 
   requestCallback(error: any, data: any, cm: CodeMirror.Editor, resolve: any) {
-    if (error) return this.showError(cm, error);
+    if (error) {
+      switch (error) {
+        case FILE_NOT_FOUND_ERROR:
+          return;
+        default:
+          this.showError(cm, error);
+      }
+      return;
+    }
     if (data.completions.length === 0) {
       return this.showError(cm, "No suggestions");
     }
@@ -367,8 +376,14 @@ class TernServer {
   ) {
     const doc = this.findDoc(cm.getDoc());
     const request = this.buildRequest(doc, query, pos);
-    // @ts-expect-error: Types are not available
-    this.server.request(request, callbackFn);
+
+    // only if files exist then request
+    if (request.files.length) {
+      // @ts-expect-error: Types are not available
+      this.server.request(request, callbackFn);
+    } else {
+      callbackFn(FILE_NOT_FOUND_ERROR, { completions: [] });
+    }
   }
 
   findDoc(doc: CodeMirror.Doc, name?: string): TernDoc {
