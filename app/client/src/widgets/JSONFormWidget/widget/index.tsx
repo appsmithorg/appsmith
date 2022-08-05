@@ -6,7 +6,7 @@ import { klona } from "klona";
 
 import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import JSONFormComponent from "../component";
-import propertyConfig from "./propertyConfig";
+import propertyConfig, { contentConfig, styleConfig } from "./propertyConfig";
 import { AppState } from "reducers";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
 import {
@@ -14,6 +14,7 @@ import {
   ExecuteTriggerPayload,
 } from "constants/AppsmithActionConstants/ActionConstants";
 import {
+  ActionUpdateDependency,
   FieldState,
   FieldThemeStylesheet,
   ROOT_SCHEMA_KEY,
@@ -66,6 +67,10 @@ export type JSONFormWidgetState = {
   metaInternalFieldState: MetaInternalFieldState;
 };
 
+export type Action = ExecuteTriggerPayload & {
+  updateDependencyType?: ActionUpdateDependency;
+};
+
 const SAVE_FIELD_STATE_DEBOUNCE_TIMEOUT = 400;
 
 class JSONFormWidget extends BaseWidget<
@@ -74,6 +79,7 @@ class JSONFormWidget extends BaseWidget<
 > {
   debouncedParseAndSaveFieldState: any;
   isWidgetMounting: boolean;
+  actionQueue: Action[];
 
   constructor(props: JSONFormWidgetProps) {
     super(props);
@@ -84,6 +90,7 @@ class JSONFormWidget extends BaseWidget<
     );
 
     this.isWidgetMounting = true;
+    this.actionQueue = [];
   }
 
   state = {
@@ -94,6 +101,14 @@ class JSONFormWidget extends BaseWidget<
 
   static getPropertyPaneConfig() {
     return propertyConfig;
+  }
+
+  static getPropertyPaneContentConfig() {
+    return contentConfig;
+  }
+
+  static getPropertyPaneStyleConfig() {
+    return styleConfig;
   }
 
   static getDerivedPropertiesMap(): DerivedPropertiesMap {
@@ -215,6 +230,23 @@ class JSONFormWidget extends BaseWidget<
     }
 
     this.props.updateWidgetMetaProperty("formData", formData);
+
+    if (this.actionQueue.length) {
+      this.actionQueue.forEach(({ updateDependencyType, ...actionPayload }) => {
+        if (updateDependencyType === ActionUpdateDependency.FORM_DATA) {
+          const payload = this.applyGlobalContextToAction(actionPayload, {
+            formData,
+          });
+
+          super.executeAction(payload);
+        }
+      });
+
+      this.actionQueue = this.actionQueue.filter(
+        ({ updateDependencyType }) =>
+          updateDependencyType !== ActionUpdateDependency.FORM_DATA,
+      );
+    }
   };
 
   parseAndSaveFieldState = (
@@ -225,20 +257,8 @@ class JSONFormWidget extends BaseWidget<
     const fieldState = generateFieldState(schema, metaInternalFieldState);
     const action = klona(afterUpdateAction);
 
-    /**
-     * globalContext from the afterUpdateAction takes precedence as it may have a different
-     * fieldState value than the one returned from generateFieldState.
-     * */
-    if (action) {
-      action.globalContext = merge(
-        {
-          fieldState,
-        },
-        action?.globalContext,
-      );
-    }
-
-    const actionPayload = action && this.applyGlobalContextToAction(action);
+    const actionPayload =
+      action && this.applyGlobalContextToAction(action, { fieldState });
 
     if (!equal(fieldState, this.props.fieldState)) {
       this.props.updateWidgetMetaProperty(
@@ -275,7 +295,10 @@ class JSONFormWidget extends BaseWidget<
     });
   };
 
-  applyGlobalContextToAction = (actionPayload: ExecuteTriggerPayload) => {
+  applyGlobalContextToAction = (
+    actionPayload: ExecuteTriggerPayload,
+    context: Record<string, unknown> = {},
+  ) => {
     const payload = klona(actionPayload);
     const { globalContext } = payload;
 
@@ -290,16 +313,23 @@ class JSONFormWidget extends BaseWidget<
         fieldState: this.props.fieldState,
         sourceData: this.props.sourceData,
       },
+      context,
       globalContext,
     );
 
     return payload;
   };
 
-  onExecuteAction = (actionPayload: ExecuteTriggerPayload) => {
-    const payload = this.applyGlobalContextToAction(actionPayload);
+  onExecuteAction = (action: Action) => {
+    const { updateDependencyType, ...actionPayload } = action;
 
-    super.executeAction(payload);
+    if (!updateDependencyType) {
+      const payload = this.applyGlobalContextToAction(actionPayload);
+
+      super.executeAction(payload);
+    } else {
+      this.actionQueue.push(action);
+    }
   };
 
   onUpdateWidgetProperty = (propertyName: string, propertyValue: any) => {
