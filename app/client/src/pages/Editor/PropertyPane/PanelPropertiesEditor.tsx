@@ -14,7 +14,6 @@ import QuestionIcon from "remixicon-react/QuestionLineIcon";
 import { SearchVariant } from "components/ads";
 import { StyledSearchInput } from "./PropertyPaneView";
 import { PropertyPaneTab } from "./PropertyPaneTab";
-import { selectFeatureFlags } from "selectors/usersSelectors";
 import styled from "styled-components";
 import { updateConfigPaths, useSearchText } from "./helpers";
 
@@ -57,7 +56,6 @@ export function PanelPropertiesEditor(
     PanelPropertiesEditorPanelProps &
     IPanelProps,
 ) {
-  const featureFlags = useSelector(selectFeatureFlags);
   const widgetProperties: any = useSelector(getWidgetPropsForPropertyPane);
 
   const {
@@ -179,9 +177,8 @@ export function PanelPropertiesEditor(
         title={panelProps[panelConfig.titlePropertyName]}
         updatePropertyTitle={updatePropertyTitle}
       />
-      {featureFlags.PROPERTY_PANE_GROUPING &&
-      (panelConfigsWithStyleAndContent?.content ||
-        panelConfigsWithStyleAndContent?.style) ? (
+      {panelConfigsWithStyleAndContent?.content ||
+      panelConfigsWithStyleAndContent?.style ? (
         <>
           <StyledSearchInput
             fill
