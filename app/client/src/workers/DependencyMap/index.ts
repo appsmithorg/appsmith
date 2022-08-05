@@ -237,7 +237,6 @@ export const updateDependencyMap = ({
               }
             },
           );
-
           if (entityName === dataTreeDiff.payload.propertyPath) {
             if (isWidget(entity)) {
               entity.dynamicTriggerPathList?.forEach((triggerFieldName) => {
