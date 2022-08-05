@@ -61,7 +61,7 @@ import { useParams } from "react-router";
 import { AppState } from "reducers";
 import { ExplorerURLParams } from "../Explorer/helpers";
 import MoreActionsMenu from "../Explorer/Actions/MoreActionsMenu";
-import Button, { Size } from "components/ads/Button";
+import Button, { Size, Category } from "components/ads/Button";
 import { thinScrollbar } from "constants/DefaultTheme";
 import ActionRightPane, {
   useEntityDependencies,
@@ -90,7 +90,14 @@ import {
   responseTabComponent,
   InlineButton,
   TableCellHeight,
+  SectionDivider,
+  CancelRequestButton,
+  LoadingOverlayContainer,
+  handleCancelActionExecution,
+  ActionExecutionResizerHeight,
 } from "components/editorComponents/ApiResponseView";
+import LoadingOverlayScreen from "components/editorComponents/LoadingOverlayScreen";
+import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 
 const QueryFormContainer = styled.form`
   flex: 1;
@@ -472,6 +479,7 @@ export function EditorJSONtoForm(props: Props) {
   );
 
   const params = useParams<{ apiId?: string; queryId?: string }>();
+  const theme = EditorTheme.LIGHT;
 
   const actions: Action[] = useSelector((state: AppState) =>
     state.entities.actions.map((action) => action.config),
@@ -1003,12 +1011,39 @@ export function EditorJSONtoForm(props: Props) {
 
             <TabbedViewContainer ref={panelRef}>
               <Resizable
+                openResizer={isRunning}
                 panelRef={panelRef}
                 setContainerDimensions={(height: number) =>
                   // TableCellHeight in this case is the height of one table cell in pixels.
                   setTableBodyHeightHeight(height - TableCellHeight)
                 }
+                snapToHeight={ActionExecutionResizerHeight}
               />
+              <SectionDivider />
+              {isRunning && (
+                <>
+                  <LoadingOverlayScreen theme={theme} />
+                  <LoadingOverlayContainer>
+                    <div>
+                      <Text textAlign={"center"} type={TextType.P1}>
+                        Sending the API Request{" "}
+                      </Text>
+                      <CancelRequestButton
+                        category={Category.tertiary}
+                        className={`t--cancel-action-button`}
+                        onClick={() => {
+                          handleCancelActionExecution();
+                        }}
+                        size={Size.medium}
+                        tag="button"
+                        text="Cancel Request"
+                        type="button"
+                      />
+                    </div>
+                  </LoadingOverlayContainer>
+                </>
+              )}
+
               {output && !!output.length && (
                 <ResultsCount>
                   <Text type={TextType.P3}>
