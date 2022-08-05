@@ -82,7 +82,7 @@ function IframeComponent(props: IframeComponentProps) {
 
   const frameRef = useRef<HTMLIFrameElement>(null);
 
-  const isFirstURLRender = useRef(true);
+  const isFirstSrcURLRender = useRef(true);
   const isFirstSrcDocRender = useRef(true);
 
   const [message, setMessage] = useState("");
@@ -103,8 +103,8 @@ function IframeComponent(props: IframeComponentProps) {
   }, []);
 
   useEffect(() => {
-    if (isFirstURLRender.current) {
-      isFirstURLRender.current = false;
+    if (isFirstSrcURLRender.current) {
+      isFirstSrcURLRender.current = false;
       return;
     }
     onURLChanged(source);
