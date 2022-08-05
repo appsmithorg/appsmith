@@ -1,8 +1,4 @@
-import {
-  ApplicationPayload,
-  Page,
-  ReduxAction,
-} from "@appsmith/constants/ReduxActionConstants";
+import { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import * as Sentry from "@sentry/react";
 import AnalyticsUtil from "./AnalyticsUtil";
@@ -17,10 +13,8 @@ import { AppIconCollection, AppIconName } from "components/ads/AppIcon";
 import { ERROR_CODES } from "@appsmith/constants/ApiConstants";
 import { createMessage, ERROR_500 } from "@appsmith/constants/messages";
 import localStorage from "utils/localStorage";
-import { APP_MODE } from "entities/App";
-import { trimQueryString } from "./helpers";
-import { PLACEHOLDER_APP_SLUG, PLACEHOLDER_PAGE_SLUG } from "constants/routes";
-import { builderURL, viewerURL } from "RouteBuilder";
+import { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
+import { osName } from "react-device-detect";
 
 export const createReducer = (
   initialState: any,
@@ -115,6 +109,56 @@ export const mapToPropList = (map: Record<string, string>): Property[] => {
   });
 };
 
+export const INTERACTION_ANALYTICS_EVENT = "INTERACTION_ANALYTICS_EVENT";
+
+export type InteractionAnalyticsEventDetail = {
+  key?: string;
+  propertyName?: string;
+  propertyType?: string;
+  widgetType?: string;
+};
+
+export const interactionAnalyticsEvent = (
+  detail: InteractionAnalyticsEventDetail = {},
+) =>
+  new CustomEvent(INTERACTION_ANALYTICS_EVENT, {
+    bubbles: true,
+    detail,
+  });
+
+export function emitInteractionAnalyticsEvent<T extends HTMLElement>(
+  element: T | null,
+  args: Record<string, unknown>,
+) {
+  element?.dispatchEvent(interactionAnalyticsEvent(args));
+}
+
+export const DS_EVENT = "DS_EVENT";
+
+export enum DSEventTypes {
+  KEYPRESS = "KEYPRESS",
+}
+
+export type DSEventDetail = {
+  component: string;
+  event: DSEventTypes;
+  meta: Record<string, unknown>;
+};
+
+export function createDSEvent(detail: DSEventDetail) {
+  return new CustomEvent(DS_EVENT, {
+    bubbles: true,
+    detail,
+  });
+}
+
+export function emitDSEvent<T extends HTMLElement>(
+  element: T | null,
+  args: DSEventDetail,
+) {
+  element?.dispatchEvent(createDSEvent(args));
+}
+
 export const getNextEntityName = (
   prefix: string,
   existingNames: string[],
@@ -172,7 +216,7 @@ export const createNewApiName = (actions: ActionDataState, pageId: string) => {
 };
 
 export const createNewJSFunctionName = (
-  jsActions: ActionDataState,
+  jsActions: JSCollectionData[],
   pageId: string,
 ) => {
   const pageJsFunctionNames = jsActions
@@ -347,7 +391,7 @@ export const isBlobUrl = (url: string) => {
  * @param type string file type
  * @returns string containing blob id and type
  */
-export const createBlobUrl = (data: Blob | string, type: string) => {
+export const createBlobUrl = (data: Blob | MediaSource, type: string) => {
   let url = URL.createObjectURL(data);
   url = url.replace(
     `${window.location.protocol}//${window.location.hostname}/`,
@@ -389,39 +433,6 @@ export const getCamelCaseString = (sourceString: string) => {
   return out;
 };
 
-/*
- * gets the page url
- *
- * Note: for edit mode, the page will have different url ( contains '/edit' at the end )
- *
- * @param page
- * @returns
- */
-export const getPageURL = (
-  page: Page,
-  appMode: APP_MODE | undefined,
-  currentApplicationDetails: ApplicationPayload | undefined,
-) => {
-  if (appMode === APP_MODE.PUBLISHED) {
-    return trimQueryString(
-      viewerURL({
-        applicationSlug:
-          currentApplicationDetails?.slug || PLACEHOLDER_APP_SLUG,
-        pageSlug: page.slug || PLACEHOLDER_PAGE_SLUG,
-        pageId: page.pageId,
-      }),
-    );
-  }
-
-  return trimQueryString(
-    builderURL({
-      applicationSlug: currentApplicationDetails?.slug || PLACEHOLDER_APP_SLUG,
-      pageSlug: page.slug || PLACEHOLDER_PAGE_SLUG,
-      pageId: page.pageId,
-    }),
-  );
-};
-
 /**
  * Convert Base64 string to Blob
  * @param base64Data
@@ -451,4 +462,9 @@ export const base64ToBlob = (
 
   const blob = new Blob(byteArrays, { type: contentType });
   return blob;
+};
+
+// util function to detect current os is Mac
+export const isMacOs = () => {
+  return osName === "Mac OS";
 };

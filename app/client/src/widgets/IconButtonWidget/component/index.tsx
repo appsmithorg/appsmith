@@ -1,6 +1,6 @@
 import React, { useMemo } from "react";
 import styled from "styled-components";
-import { Button } from "@blueprintjs/core";
+import { Button, Position } from "@blueprintjs/core";
 import { IconName } from "@blueprintjs/icons";
 
 import { ComponentProps } from "widgets/BaseComponent";
@@ -22,6 +22,31 @@ import {
   getCustomHoverColor,
   getComplementaryGrayscaleColor,
 } from "widgets/WidgetUtils";
+import { createGlobalStyle } from "constants/DefaultTheme";
+import Interweave from "interweave";
+import { Popover2 } from "@blueprintjs/popover2";
+
+const ToolTipWrapper = styled.div`
+  height: 100%;
+  && .bp3-popover2-target {
+    height: 100%;
+    width: 100%;
+    & > div {
+      height: 100%;
+    }
+  }
+`;
+
+const TooltipStyles = createGlobalStyle`
+  .iconBtnTooltipContainer {
+    .bp3-popover2-content {
+      max-width: 350px;
+      overflow-wrap: anywhere;
+      padding: 10px 12px;
+      border-radius: 0px;
+    }
+  }
+`;
 
 type IconButtonContainerProps = {
   disabled?: boolean;
@@ -196,6 +221,7 @@ export interface IconButtonComponentProps extends ComponentProps {
   onClick: () => void;
   renderMode: RenderMode;
   height: number;
+  tooltip?: string;
   width: number;
 }
 
@@ -210,6 +236,7 @@ function IconButtonComponent(props: IconButtonComponentProps) {
     isDisabled,
     onClick,
     renderMode,
+    tooltip,
     width,
   } = props;
 
@@ -226,7 +253,7 @@ function IconButtonComponent(props: IconButtonComponentProps) {
     return width - WIDGET_PADDING * 2;
   }, [width, height]);
 
-  return (
+  const iconBtnWrapper = (
     <IconButtonContainer
       buttonColor={buttonColor}
       buttonVariant={buttonVariant}
@@ -250,6 +277,24 @@ function IconButtonComponent(props: IconButtonComponentProps) {
         large
       />
     </IconButtonContainer>
+  );
+
+  if (!tooltip) return iconBtnWrapper;
+
+  return (
+    <ToolTipWrapper>
+      <TooltipStyles />
+      <Popover2
+        autoFocus={false}
+        content={<Interweave content={tooltip} />}
+        hoverOpenDelay={200}
+        interactionKind="hover"
+        portalClassName="iconBtnTooltipContainer"
+        position={Position.TOP}
+      >
+        {iconBtnWrapper}
+      </Popover2>
+    </ToolTipWrapper>
   );
 }
 

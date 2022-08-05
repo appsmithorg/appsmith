@@ -16,7 +16,7 @@ import {
   Droppable,
   DropResult,
 } from "react-beautiful-dnd";
-import { PageListPayload } from "@appsmith/constants/ReduxActionConstants";
+import { Page } from "@appsmith/constants/ReduxActionConstants";
 import TreeDropdown from "pages/Editor/Explorer/TreeDropdown";
 import { theme } from "constants/DefaultTheme";
 import { Colors } from "constants/Colors";
@@ -176,7 +176,7 @@ const StyledAddButton = styled(Button)<IIconProps>`
 `;
 
 interface ReduxStateProps {
-  pages: PageListPayload;
+  pages: Page[];
 }
 
 type Item = { id: string; name: string; pageId: string };

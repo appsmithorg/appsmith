@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import styled from "styled-components";
 import { useDispatch, useSelector } from "react-redux";
-import TooltipComponent from "components/ads/Tooltip";
+import { TooltipComponent } from "design-system";
 import TourTooltipWrapper from "components/ads/tour/TourTooltipWrapper";
 import Pen from "remixicon-react/PencilFillIcon";
 import Eye from "remixicon-react/EyeLineIcon";
@@ -9,9 +9,8 @@ import CommentIcon from "remixicon-react/MessageLineIcon";
 import { Indices } from "constants/Layers";
 
 import {
-  setCommentMode as setCommentModeAction,
   fetchApplicationCommentsRequest,
-  showCommentsIntroCarousel,
+  setCommentMode as setCommentModeAction,
 } from "actions/commentActions";
 import {
   commentModeSelector,
@@ -21,7 +20,6 @@ import {
 import { getCurrentUser } from "selectors/usersSelectors";
 import { useLocation } from "react-router";
 import history from "utils/history";
-import { Position } from "@blueprintjs/core/lib/esm/common/position";
 import { TourType } from "entities/Tour";
 import useProceedToNextTourStep, {
   useIsTourStepActive,
@@ -41,7 +39,7 @@ import {
   commentsTourStepsPublishedModeTypes,
 } from "comments/tour/commentsTourSteps";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { getAppMode } from "../../selectors/applicationSelectors";
+import { getAppMode } from "selectors/applicationSelectors";
 import { setPreviewModeAction } from "actions/editorActions";
 import {
   getCurrentApplicationId,
@@ -52,6 +50,7 @@ import {
 import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
 import { isExploringSelector } from "selectors/onboardingSelectors";
 import { getIsInitialized } from "selectors/appViewSelectors";
+import { Toaster, Variant } from "components/ads";
 
 const ModeButton = styled.div<{
   active: boolean;
@@ -143,9 +142,15 @@ const useUpdateCommentMode = async (currentUser?: User) => {
     }
 
     if (updatedIsCommentMode && !currentUser?.commentOnboardingState) {
-      AnalyticsUtil.logEvent("COMMENTS_ONBOARDING_MODAL_TRIGGERED");
-      dispatch(showCommentsIntroCarousel());
-      setCommentModeInUrl(false);
+      // Deprecating. Do not onboard more users
+      // TODO Remove after deprecation of comments
+      Toaster.show({
+        text: "Show error here",
+        variant: Variant.warning,
+      });
+      // AnalyticsUtil.logEvent("COMMENTS_ONBOARDING_MODAL_TRIGGERED");
+      // dispatch(showCommentsIntroCarousel());
+      // setCommentModeInUrl(false);
     } else {
       setCommentModeInStore(updatedIsCommentMode);
     }
@@ -189,7 +194,7 @@ function EditModeReset() {
         </>
       }
       hoverOpenDelay={1000}
-      position={Position.BOTTOM}
+      position="bottom"
     >
       <Pen size={20} />
     </TooltipComponent>
@@ -206,7 +211,7 @@ function ViewModeReset() {
         </>
       }
       hoverOpenDelay={1000}
-      position={Position.BOTTOM}
+      position="bottom"
     >
       <Eye size={20} />
     </TooltipComponent>
@@ -275,13 +280,17 @@ function CommentModeBtn({
     >
       <TooltipComponent
         content={
-          <>
-            Comment Mode
-            <span style={{ color: "#fff", marginLeft: 20 }}>C</span>
-          </>
+          <div style={{ display: "flex" }}>
+            <span>
+              Comment Mode
+              <br />
+              (Deprecating soon)
+            </span>
+            <span>C</span>
+          </div>
         }
         hoverOpenDelay={1000}
-        position={Position.BOTTOM}
+        position="bottom"
       >
         <div className="relative">
           <CommentIcon className="w-5 h-5 text-gray-900" />
@@ -418,7 +427,7 @@ function ToggleCommentModeButton({
                 </>
               }
               hoverOpenDelay={1000}
-              position={Position.BOTTOM}
+              position="bottom"
             >
               <ModeButton
                 active={isPreviewMode}

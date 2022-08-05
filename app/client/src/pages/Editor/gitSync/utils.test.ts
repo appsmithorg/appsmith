@@ -24,9 +24,15 @@ const validUrls = [
   "ssh://host.xz/~/path/to/repo.git",
   "git@ssh.dev.azure.com:v3/something/other/thing",
   "git@ssh.dev.azure.com:v3/something/other/thing.git",
+  "git@ssh.dev.azure.com:v3/something/other/(thing).git",
+  "git@ssh.dev.azure.com:v3/(((something)/(other)/(thing).git",
+  "git@abcd.org:org__v3/(((something)/(other)/(thing).git",
+  "git@gitlab-abcd.test.org:org__org/repoName.git",
+  "git@gitlab__abcd.test.org:org__org/repoName.git",
 ];
 
 const invalidUrls = [
+  "git@ssh.dev.azure.(com):v3/(((something)/(other)/(thing).git",
   "git@ssh.dev.azure.com:v3/something/other/thing/",
   "gitclonegit://a@b:c/d.git",
   "https://github.com/user/project.git",
@@ -214,16 +220,17 @@ describe("gitSync utils", () => {
         appIsExample: false,
         applicationVersion: ApplicationVersion.DEFAULT,
         defaultPageId: "",
+        slug: "",
         id: "",
         isAutoUpdate: false,
         isManualUpdate: false,
         name: "",
-        organizationId: "",
+        workspaceId: "",
         pages: [],
       };
       const actual = changeInfoSinceLastCommit(applicationData);
       const expected = {
-        changeReasonText: "Changes since last commit",
+        changeReasonText: "Changes since last deployment",
         isAutoUpdate: false,
         isManualUpdate: false,
       };
@@ -235,15 +242,16 @@ describe("gitSync utils", () => {
         applicationVersion: ApplicationVersion.DEFAULT,
         defaultPageId: "",
         id: "",
+        slug: "",
         isAutoUpdate: true,
         isManualUpdate: false,
         name: "",
-        organizationId: "",
+        workspaceId: "",
         pages: [],
       };
       const actual = changeInfoSinceLastCommit(applicationData);
       const expected = {
-        changeReasonText: "Appsmith update changes since last commit",
+        changeReasonText: "Changes since last deployment",
         isAutoUpdate: true,
         isManualUpdate: false,
       };
@@ -255,15 +263,16 @@ describe("gitSync utils", () => {
         applicationVersion: ApplicationVersion.DEFAULT,
         defaultPageId: "",
         id: "",
+        slug: "",
         isAutoUpdate: true,
         isManualUpdate: true,
         name: "",
-        organizationId: "",
+        workspaceId: "",
         pages: [],
       };
       const actual = changeInfoSinceLastCommit(applicationData);
       const expected = {
-        changeReasonText: "Appsmith update and user changes since last commit",
+        changeReasonText: "Changes since last deployment",
         isAutoUpdate: true,
         isManualUpdate: true,
       };
@@ -275,15 +284,16 @@ describe("gitSync utils", () => {
         applicationVersion: ApplicationVersion.DEFAULT,
         defaultPageId: "",
         id: "",
+        slug: "",
         isAutoUpdate: false,
         isManualUpdate: true,
         name: "",
-        organizationId: "",
+        workspaceId: "",
         pages: [],
       };
       const actual = changeInfoSinceLastCommit(applicationData);
       const expected = {
-        changeReasonText: "Changes since last commit",
+        changeReasonText: "Changes since last deployment",
         isAutoUpdate: false,
         isManualUpdate: true,
       };

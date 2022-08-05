@@ -289,11 +289,14 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
   }
 
   onPageChange = (page: number) => {
+    const currentPage = this.props.pageNo;
+    const eventType =
+      currentPage > page ? EventType.ON_PREV_PAGE : EventType.ON_NEXT_PAGE;
     this.props.updateWidgetMetaProperty("pageNo", page, {
       triggerPropertyName: "onPageChange",
       dynamicString: this.props.onPageChange,
       event: {
-        type: EventType.ON_LIST_PAGE_CHANGE,
+        type: eventType,
       },
     });
   };

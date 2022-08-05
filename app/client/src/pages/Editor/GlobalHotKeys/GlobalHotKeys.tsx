@@ -17,7 +17,7 @@ import {
   selectAllWidgetsInCanvasInitAction,
 } from "actions/widgetSelectionActions";
 import { setGlobalSearchCategory } from "actions/globalSearchActions";
-import { isMac } from "utils/helpers";
+import { isMacOrIOS } from "utils/helpers";
 import { getSelectedWidget, getSelectedWidgets } from "selectors/ui";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import { getSelectedText } from "utils/helpers";
@@ -50,7 +50,7 @@ import { getExplorerPinned } from "selectors/explorerSelector";
 import { setExplorerPinnedAction } from "actions/explorerActions";
 import { setIsGitSyncModalOpen } from "actions/gitSyncActions";
 import { GitSyncModalTab } from "entities/GitSync";
-import { matchBuilderPath } from "constants/routes";
+import { matchBuilderPath, matchGeneratePagePath } from "constants/routes";
 import { commentModeSelector } from "selectors/commentsSelectors";
 
 type Props = {
@@ -216,9 +216,14 @@ class GlobalHotKeys extends React.Component<Props> {
           group="Canvas"
           label="Paste Widget"
           onKeyDown={() => {
-            this.props.pasteCopiedWidget(
-              this.props.getMousePosition() || { x: 0, y: 0 },
-            );
+            if (
+              matchBuilderPath(window.location.pathname) ||
+              matchGeneratePagePath(window.location.pathname)
+            ) {
+              this.props.pasteCopiedWidget(
+                this.props.getMousePosition() || { x: 0, y: 0 },
+              );
+            }
           }}
         />
         <Hotkey
@@ -227,7 +232,7 @@ class GlobalHotKeys extends React.Component<Props> {
           group="Canvas"
           label="Delete Widget"
           onKeyDown={(e: any) => {
-            if (this.stopPropagationIfWidgetSelected(e) && isMac()) {
+            if (this.stopPropagationIfWidgetSelected(e) && isMacOrIOS()) {
               this.props.deleteSelectedWidget();
             }
           }}

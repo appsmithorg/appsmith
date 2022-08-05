@@ -32,8 +32,7 @@ import {
 import { Space } from "./StyledComponents";
 import Icon, { IconSize, IconWrapper } from "components/ads/Icon";
 import { get } from "lodash";
-import Tooltip from "components/ads/Tooltip";
-import { Position } from "@blueprintjs/core";
+import { TooltipComponent as Tooltip } from "design-system";
 import Spinner from "components/ads/Spinner";
 import {
   isLocalBranch,
@@ -81,7 +80,8 @@ const CreateNewBranchContainer = styled.div`
   }
 
   & div {
-    display: inline-block;
+    margin-left: ${(props) => props.theme.spaces[4]}px;
+    display: block;
     word-break: break-all;
   }
 
@@ -140,8 +140,8 @@ function CreateNewBranch({
         size={IconSize.XXXL}
       />
       <CreateNewBranchContainer className={className} ref={itemRef}>
-        <div className="large-text">{`Create Branch: ${branch} `}</div>
-        <div className="small-text">{`from \`${currentBranch}\``}</div>
+        <div className="large-text">{`Create branch: ${branch} `}</div>
+        <div className="small-text">{`from '${currentBranch}'`}</div>
       </CreateNewBranchContainer>
       <SpinnerContainer>{isCreatingNewBranch && <Spinner />}</SpinnerContainer>
     </div>
@@ -199,7 +199,7 @@ export function Header({
             modifiers={{
               flip: { enabled: false },
             }}
-            position={Position.TOP}
+            position="top"
           >
             <Icon
               className="t--sync-branches"

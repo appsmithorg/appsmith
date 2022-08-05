@@ -28,11 +28,11 @@ public class GitCloudServicesUtils {
 
     private final static Map<String, GitConnectionLimitDTO> gitLimitCache = new HashMap<>();
 
-    public Mono<Integer> getPrivateRepoLimitForOrg(String orgId, boolean isClearCache) {
+    public Mono<Integer> getPrivateRepoLimitForOrg(String workspaceId, boolean isClearCache) {
         final String baseUrl = cloudServicesConfig.getBaseUrl();
         return configService.getInstanceId().map(instanceId -> {
             if (commonConfig.isCloudHosting()) {
-                return instanceId + "_" + orgId;
+                return instanceId + "_" + workspaceId;
             } else {
                 return instanceId;
             }

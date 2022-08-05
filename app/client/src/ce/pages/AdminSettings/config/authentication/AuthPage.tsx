@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { useHistory } from "react-router-dom";
 import { SettingCategories } from "../types";
 import styled from "styled-components";
@@ -15,13 +15,9 @@ import {
 } from "@appsmith/constants/messages";
 import { Callout, CalloutType } from "components/ads/CalloutV2";
 import { getAppsmithConfigs } from "@appsmith/configs";
-import { getCurrentUser } from "selectors/usersSelectors";
-import { useSelector } from "react-redux";
-import bootIntercom from "utils/bootIntercom";
 import { Colors } from "constants/Colors";
 import Icon from "components/ads/Icon";
-import TooltipComponent from "components/ads/Tooltip";
-import { Position } from "@blueprintjs/core";
+import { TooltipComponent } from "design-system";
 import { adminSettingsCategoryUrl } from "RouteBuilder";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 
@@ -135,11 +131,6 @@ const Label = styled.span<{ enterprise?: boolean }>`
 
 export function AuthPage({ authMethods }: { authMethods: AuthMethodType[] }) {
   const history = useHistory();
-  const user = useSelector(getCurrentUser);
-
-  useEffect(() => {
-    bootIntercom(user);
-  }, [user?.email]);
 
   const triggerIntercom = (authLabel: string) => {
     if (intercomAppID && window.Intercom) {
@@ -163,7 +154,7 @@ export function AuthPage({ authMethods }: { authMethods: AuthMethodType[] }) {
       history.push(
         adminSettingsCategoryUrl({
           category: SettingCategories.AUTHENTICATION,
-          subCategory: method.category,
+          selected: method.category,
         }),
       );
     } else {
@@ -207,7 +198,7 @@ export function AuthPage({ authMethods }: { authMethods: AuthMethodType[] }) {
                         hoverOpenDelay={0}
                         minWidth={"180px"}
                         openOnTargetFocus={false}
-                        position={Position.RIGHT}
+                        position="right"
                       >
                         <Icon
                           className={`${method.category}-green-check`}

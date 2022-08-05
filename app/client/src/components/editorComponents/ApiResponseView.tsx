@@ -20,7 +20,7 @@ import {
   EMPTY_RESPONSE_LAST_HALF,
   INSPECT_ENTITY,
 } from "@appsmith/constants/messages";
-import Text, { TextType } from "components/ads/Text";
+import { Text, TextType } from "design-system";
 import { Text as BlueprintText } from "@blueprintjs/core";
 import Icon from "components/ads/Icon";
 import { Classes, Variant } from "components/ads/common";
@@ -340,7 +340,7 @@ function ApiResponseView(props: Props) {
         title: dataType.title,
         panelComponent: responseTabComponent(
           dataType.key,
-          response.body,
+          response?.body,
           tableBodyHeight,
         ),
       };
@@ -407,12 +407,12 @@ function ApiResponseView(props: Props) {
               </NoResponseContainer>
             ) : (
               <ResponseBodyContainer>
-                {isString(response.body) && isHtml(response.body) ? (
+                {isString(response?.body) && isHtml(response?.body) ? (
                   <ReadOnlyEditor
                     folding
                     height={"100%"}
                     input={{
-                      value: response.body,
+                      value: response?.body,
                     }}
                     isReadOnly
                   />
@@ -475,7 +475,7 @@ function ApiResponseView(props: Props) {
                 folding
                 height={"100%"}
                 input={{
-                  value: response.body
+                  value: response?.body
                     ? JSON.stringify(responseHeaders, null, 2)
                     : "",
                 }}
@@ -547,12 +547,12 @@ function ApiResponseView(props: Props) {
                   </Text>
                 </Flex>
               )}
-              {!isEmpty(response.body) && Array.isArray(response.body) && (
+              {!isEmpty(response?.body) && Array.isArray(response?.body) && (
                 <Flex>
                   <Text type={TextType.P3}>Result: </Text>
                   <Text type={TextType.H5}>
-                    {`${response.body.length} Record${
-                      response.body.length > 1 ? "s" : ""
+                    {`${response?.body.length} Record${
+                      response?.body.length > 1 ? "s" : ""
                     }`}
                   </Text>
                 </Flex>

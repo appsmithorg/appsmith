@@ -3,7 +3,9 @@ package com.appsmith.server.constants;
 public class FieldName {
     public static final String EMAIL = "email";
     public static final String PASSWORD = "password";
+    @Deprecated
     public static final String ORGANIZATION_ID = "organizationId";
+    public static final String WORKSPACE_ID = "workspaceId";
     public static final String DELETED = "deleted";
     public static final String CREATED_AT = "createdAt";
     public static final String DELETED_AT = "deletedAt";
@@ -18,6 +20,7 @@ public class FieldName {
     public static String PAGE_ID = "pageId";
     public static String LAYOUT_ID = "layoutId";
     public static String APPLICATION_ID = "applicationId";
+    public static String SOURCE_APPLICATION_ID = "sourceApplicationId";
     public static final String DEFAULT_RESOURCES = "defaultResources";
     public static String PLUGIN_ID = "pluginId";
     public static String DATASOURCE = "datasource";
@@ -69,6 +72,7 @@ public class FieldName {
     public static String ACTIONS = "actions";
     public static String ASSET = "asset";
     public static String APPLICATION = "application";
+    public static String SOURCE_APPLICATION = "sourceApplication";
     public static String COMMENT = "comment";
     public static String COMMENT_THREAD = "commentThread";
     public static String PUBLISHED_APPLICATION = "deployed application";
@@ -111,4 +115,7 @@ public class FieldName {
     public static final String THEME = "theme";
     public static final String EDIT_MODE_THEME = "editModeTheme";
     public static final String FLOW_NAME = "flowName";
+    public static final String AUDIT_DATA = "auditData";
+    public static final String MODE_OF_LOGIN = "modeOfLogin";
+    public static final String FORM_LOGIN = "FormLogin";
 }

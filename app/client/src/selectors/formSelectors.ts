@@ -12,13 +12,15 @@ import { DataTree } from "entities/DataTree/dataTreeFactory";
 import { Action } from "entities/Action";
 import { EvaluationError } from "utils/DynamicBindingUtils";
 import { getActionIdFromURL } from "pages/Editor/Explorer/helpers";
+import { extractConditionalOutput } from "components/formControls/utils";
 
-type GetFormData = (
-  state: AppState,
-  formName: string,
-) => { initialValues: any; values: any; valid: boolean };
+export type GetFormData = {
+  initialValues: Record<string, unknown>;
+  values: any;
+  valid: boolean;
+};
 
-export const getFormData: GetFormData = (state, formName) => {
+export const getFormData = (state: AppState, formName: string): GetFormData => {
   const initialValues = getFormInitialValues(formName)(state);
   const values = getFormValues(formName)(state);
   const valid = isValid(formName)(state);
@@ -38,11 +40,16 @@ export const getFormEvaluationState = (state: AppState): FormEvaluationState =>
 // have the fetchOptionsDynamically option set to true
 export const getDynamicFetchedValues = (
   state: AppState,
-  configProperty: string,
-): DynamicValues =>
-  state.evaluations.formEvaluation[getActionIdFromURL() as string][
-    configProperty
-  ].fetchDynamicValues as DynamicValues;
+  config: any,
+): DynamicValues => {
+  const conditionalOutput = extractConditionalOutput(
+    config,
+    state.evaluations.triggers[getActionIdFromURL() as string],
+  );
+  return !!conditionalOutput.fetchDynamicValues
+    ? conditionalOutput.fetchDynamicValues
+    : ({} as DynamicValues);
+};
 
 type ConfigErrorProps = { configProperty: string; formName: string };
 

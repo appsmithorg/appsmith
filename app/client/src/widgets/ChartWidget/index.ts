@@ -8,6 +8,7 @@ export const CONFIG = {
   name: "Chart",
   iconSVG: IconSVG,
   needsMeta: true,
+  searchTags: ["graph", "visuals", "visualisations"],
   defaults: {
     rows: 32,
     columns: 24,

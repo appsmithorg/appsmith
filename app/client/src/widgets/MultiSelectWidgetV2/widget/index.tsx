@@ -311,6 +311,32 @@ class MultiSelectWidget extends BaseWidget<
         ],
       },
       {
+        sectionName: "Events",
+        children: [
+          {
+            helpText: "Triggers an action when a user selects an option",
+            propertyName: "onOptionChange",
+            label: "onOptionChange",
+            controlType: "ACTION_SELECTOR",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: true,
+          },
+          {
+            helpText: "Trigger an action on change of filterText",
+            hidden: (props: MultiSelectWidgetProps) =>
+              !props.serverSideFiltering,
+            dependencies: ["serverSideFiltering"],
+            propertyName: "onFilterUpdate",
+            label: "onFilterUpdate",
+            controlType: "ACTION_SELECTOR",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: true,
+          },
+        ],
+      },
+      {
         sectionName: "Label",
         children: [
           {
@@ -490,32 +516,6 @@ class MultiSelectWidget extends BaseWidget<
           },
         ],
       },
-      {
-        sectionName: "Actions",
-        children: [
-          {
-            helpText: "Triggers an action when a user selects an option",
-            propertyName: "onOptionChange",
-            label: "onOptionChange",
-            controlType: "ACTION_SELECTOR",
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: true,
-          },
-          {
-            helpText: "Trigger an action on change of filterText",
-            hidden: (props: MultiSelectWidgetProps) =>
-              !props.serverSideFiltering,
-            dependencies: ["serverSideFiltering"],
-            propertyName: "onFilterUpdate",
-            label: "onFilterUpdate",
-            controlType: "ACTION_SELECTOR",
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: true,
-          },
-        ],
-      },
     ];
   }
 
@@ -531,7 +531,6 @@ class MultiSelectWidget extends BaseWidget<
   static getDefaultPropertiesMap(): Record<string, string> {
     return {
       selectedOptions: "defaultOptionValue",
-      filterText: "",
     };
   }
 
@@ -615,6 +614,7 @@ class MultiSelectWidget extends BaseWidget<
         onFilterChange={this.onFilterChange}
         options={options}
         placeholder={this.props.placeholderText as string}
+        renderMode={this.props.renderMode}
         serverSideFiltering={this.props.serverSideFiltering}
         value={values}
         widgetId={this.props.widgetId}

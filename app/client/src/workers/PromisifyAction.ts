@@ -62,17 +62,16 @@ export const promisifyAction = (
         } else {
           self.ALLOW_ASYNC = true;
           // Reset the global data with the correct request id for this promise
-          const globalData = createGlobalData(
-            dataTreeEvaluator.evalTree,
-            dataTreeEvaluator.resolvedFunctions,
-            true,
-            {
+          const globalData = createGlobalData({
+            dataTree: dataTreeEvaluator.evalTree,
+            resolvedFunctions: dataTreeEvaluator.resolvedFunctions,
+            isTriggerBased: true,
+            context: {
               requestId: workerRequestId,
             },
-          );
+          });
           for (const entity in globalData) {
-            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-            // @ts-ignore
+            // @ts-expect-error: Types are not available
             self[entity] = globalData[entity];
           }
 

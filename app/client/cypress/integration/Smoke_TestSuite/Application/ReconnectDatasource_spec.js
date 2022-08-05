@@ -2,22 +2,22 @@ const homePage = require("../../../locators/HomePage");
 const reconnectDatasourceModal = require("../../../locators/ReconnectLocators");
 
 describe("Reconnect Datasource Modal validation while importing application", function() {
-  let orgid;
+  let workspaceId;
   let appid;
-  let newOrganizationName;
+  let newWorkspaceName;
   let appName;
   it("Import application from json with one postgres and success modal", function() {
     cy.NavigateToHome();
     // import application
     cy.generateUUID().then((uid) => {
-      orgid = uid;
-      localStorage.setItem("OrgName", orgid);
-      cy.createOrg();
-      cy.wait("@createOrg").then((createOrgInterception) => {
-        newOrganizationName = createOrgInterception.response.body.data.name;
-        cy.renameOrg(newOrganizationName, orgid);
-        cy.get(homePage.orgImportAppOption).click({ force: true });
-        cy.get(homePage.orgImportAppModal).should("be.visible");
+      workspaceId = uid;
+      localStorage.setItem("WorkspaceName", workspaceId);
+      cy.createWorkspace();
+      cy.wait("@createWorkspace").then((createWorkspaceInterception) => {
+        newWorkspaceName = createWorkspaceInterception.response.body.data.name;
+        cy.renameWorkspace(newWorkspaceName, workspaceId);
+        cy.get(homePage.workspaceImportAppOption).click({ force: true });
+        cy.get(homePage.workspaceImportAppModal).should("be.visible");
         cy.xpath(homePage.uploadLogo).attachFile("one_postgres.json");
         cy.wait("@importNewApplication").then((interception) => {
           cy.wait(100);
@@ -70,7 +70,7 @@ describe("Reconnect Datasource Modal validation while importing application", fu
           cy.get(".t--import-app-success-modal").should("be.visible");
           cy.get(".t--import-app-success-modal").should(
             "contain",
-            "All your datasources are configuered and ready to use.",
+            "All your datasources are configured and ready to use.",
           );
           cy.get(".t--import-success-modal-got-it").click({ force: true });
           cy.get(".t--import-app-success-modal").should("not.exist");

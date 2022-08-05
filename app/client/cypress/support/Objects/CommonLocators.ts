@@ -29,41 +29,39 @@ export class CommonLocators {
     _empty = "span[name='no-response']"
     _contextMenuInPane = "span[name='context-menu']"
     _visibleTextDiv = (divText: string) => "//div[text()='" + divText + "']"
+    _visibleTextSpan = (spanText: string) => "//span[text()='" + spanText + "']";
     _openWidget = ".widgets .t--entity-add-btn"
     _dropHere = "#comment-overlay-wrapper-0"
-    _activeTab = "span:contains('Active')"
     _crossBtn = "span.cancel-icon"
     _createNew = ".t--entity-add-btn.group.files"
     _uploadFiles = "div.uppy-Dashboard-AddFiles input"
     _uploadBtn = "button.uppy-StatusBar-actionBtn--upload"
     _debuggerIcon = ".t--debugger svg"
     _errorTab = "[data-cy=t--tab-ERROR]"
+    _responseTab = "[data-cy=t--tab-response]"
     _debugErrorMsg = ".t--debugger-message"
     _debuggerLabel = "span.debugger-label"
     _modal = ".t--modal-widget"
-    _entityNameInExplorer = (entityNameinLeftSidebar: string) => "//div[contains(@class, 't--entity-name')][text()='" + entityNameinLeftSidebar + "']"
-    _expandCollapseArrow = (entityNameinLeftSidebar: string) => "//div[text()='" + entityNameinLeftSidebar + "']/ancestor::div/preceding-sibling::a[contains(@class, 't--entity-collapse-toggle')]"
     _entityProperties = (entityNameinLeftSidebar: string) => "//div[text()='" + entityNameinLeftSidebar + "']/ancestor::div[contains(@class, 't--entity-item')]/following-sibling::div//div[contains(@class, 't--entity-property')]//code"
-    _contextMenu = (entityNameinLeftSidebar: string) => "//div[text()='" + entityNameinLeftSidebar + "']/ancestor::div[1]/following-sibling::div//div[contains(@class, 'entity-context-menu-icon')]"
-    _contextMenuItem = (item: string) => "//div[text()='" + item + "']/ancestor::a[contains(@class, 'single-select')]"
     _entityNameEditing = (entityNameinLeftSidebar: string) => "//span[text()='" + entityNameinLeftSidebar + "']/parent::div[contains(@class, 't--entity-name editing')]/input"
     _jsToggle = (controlToToggle: string) => ".t--property-control-" + controlToToggle + " .t--js-toggle"
-    _spanButton = (btnVisibleText: string) => "//span[text()='" + btnVisibleText + "']/parent::button"
-    _selectPropDropdown = (ddName: string) => "//div[contains(@class, 't--property-control-" + ddName + "')]//button[contains(@class, 't--open-dropdown-Select-Action')]"
-    _dropDownValue = (ddOption: string) => ".single-select:contains('" + ddOption + "')"
-    _selectOptionValue = (ddOption: string) => ".menu-item-link:contains('" + ddOption + "')"
+    _spanButton = (btnVisibleText: string) => `//span[text()="${btnVisibleText}"]/parent::button`
+    _selectPropDropdown = (ddName: string) => "//div[contains(@class, 't--property-control-" + ddName.replace(/ +/g, "").toLowerCase() + "')]//button[contains(@class, 't--open-dropdown-Select-Action')]"
+    _dropDownValue = (dropdownOption: string) => ".single-select:contains('" + dropdownOption + "')"
+    _selectOptionValue = (dropdownOption: string) => ".menu-item-link:contains('" + dropdownOption + "')"
     _selectedDropdownValue = "//button[contains(@class, 'select-button')]/span[@class='bp3-button-text']"
     _actionTextArea = (actionName: string) => "//label[text()='" + actionName + "']/following-sibling::div//div[contains(@class, 'CodeMirror')]//textarea"
     _existingDefaultTextInput = ".t--property-control-defaulttext .CodeMirror-code"
     _widgetPageIcon = (widgetType: string) => `.t--widget-card-draggable-${widgetType}`
-    _propertyToggle = (controlToToggle: string) => ".t--property-control-" + controlToToggle + " input[type='checkbox']"
     _propertyToggleValue = (controlToToggle: string) => "//div[contains(@class, 't--property-control-" + controlToToggle + "')]//input[@type='checkbox']/parent::label"
     _openNavigationTab = (tabToOpen: string) => `#switcher--${tabToOpen}`
     _selectWidgetDropdown = (widgetType: string) => `//div[contains(@class, 't--draggable-${widgetType}')]//button`
     _selectWidgetDropdownInDeployed = (widgetType: string) => `//div[contains(@class, 't--widget-${widgetType}')]//button`
-    _inputFieldByName = (fieldName: string) => "//p[text()='" + fieldName + "']/parent::label/following-sibling::div"
+    _inputFieldByName = (fieldName: string) => "//p[text()='" + fieldName + "']/ancestor::label/parent::div/following-sibling::div"
     _existingFieldTextByName = (fieldName: string) => "//label[text()='" + fieldName + "']/ancestor::div[contains(@class, 't--property-control-" + fieldName.replace(/ +/g, "").toLowerCase() + "')]"
     _existingFieldValueByName = (fieldName: string) => this._existingFieldTextByName(fieldName) + "//div[contains(@class,'CodeMirror-code')]"
+    _existingActualValueByName = (fieldName: string) => this._existingFieldValueByName(fieldName) + "//span/span"
+    _codeMirrorValue = "//div[contains(@class,'CodeMirror-code')]//span/span"
     _evaluatedCurrentValue = "div:last-of-type .t--CodeEditor-evaluatedValue > div:last-of-type pre"
     _multiSelectOptions = (option: string) => "div[title='" + option + "'] input[type='checkbox']"
     _divWithClass = (className: string) => "//div[contains(@class, '" + className + "')]"
@@ -71,5 +69,15 @@ export class CommonLocators {
     _listWidget = "div[type='LIST_WIDGET']"
     _dropdownText = ".t--dropdown-option"
     _jsonFormInputField = (fieldName: string) =>  `.t--jsonformfield-${fieldName} input`
+    _jsonFormHeader = ".t--jsonform-body > div:first-child"
+    _jsonFormWidget = ".t--widget-jsonformwidget"
     _lintErrorElement = `span.CodeMirror-lint-mark-error`
+    _lintWarningElement = "span.CodeMirror-lint-mark-warning"
+    _codeEditorWrapper = ".unfocused-code-editor"
+    _datePicker = (date: number) => "//div[@class ='bp3-datepicker']//div[contains(@class, 'DayPicker-Day')]//div[text()='" + date + "']";
+    _inputWidgetValueField= (fieldName: string, input : boolean = true) => `//label[contains(@class, 't--input-widget-label')][text()='${fieldName}']/ancestor::div[@data-testid='input-container']//${input ? "input" : "textarea"}`
+    _deleteIcon = "button .bp3-icon-delete"
+    _datePickerValue = "div[data-testid='datepicker-container'] input"
+    _switchToggle = (switchName: string) => "//div[contains(@class, 't--switch-widget-label')][text()='"+switchName+"']/parent::label/span"
+    _jsonToggle = (fieldName: string) => `//p[text()='${fieldName}']/parent::div//following-sibling::div//input[@type='checkbox']`;
 }

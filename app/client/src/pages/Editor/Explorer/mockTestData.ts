@@ -3,7 +3,7 @@ export const mockDatasources = [
     id: "61e0f447cd5225210fa81dd8",
     name: "09bd6b2f",
     pluginId: "5c9f512f96c1a50004819786",
-    organizationId: "607d2c9c1a5f642a171ebd9b",
+    workspaceId: "607d2c9c1a5f642a171ebd9b",
     datasourceConfiguration: {
       connection: {
         mode: "READ_WRITE",
@@ -36,7 +36,7 @@ export const mockDatasources = [
     id: "61e0e47bcd5225210fa81d59",
     name: "2dcc265f",
     pluginId: "5c9f512f96c1a50004819786",
-    organizationId: "607d2c9c1a5f642a171ebd9b",
+    workspaceId: "607d2c9c1a5f642a171ebd9b",
     datasourceConfiguration: {
       connection: {
         mode: "READ_WRITE",
@@ -62,7 +62,7 @@ export const mockDatasources = [
     id: "61e0f171cd5225210fa81dad",
     name: "f688c404",
     pluginId: "5c9f512f96c1a50004819786",
-    organizationId: "607d2c9c1a5f642a171ebd9b",
+    workspaceId: "607d2c9c1a5f642a171ebd9b",
     datasourceConfiguration: {
       connection: {
         mode: "READ_WRITE",
@@ -88,7 +88,7 @@ export const mockDatasources = [
     id: "61e0e47bcd5225210fa81d59",
     name: "2dcc265f",
     pluginId: "5c9f512f96c1a50004819786",
-    organizationId: "607d2c9c1a5f642a171ebd9b",
+    workspaceId: "607d2c9c1a5f642a171ebd9b",
     datasourceConfiguration: {
       connection: {
         mode: "READ_WRITE",
@@ -114,7 +114,7 @@ export const mockDatasources = [
     id: "61e0f171cd5225210fa81dad",
     name: "f688c404",
     pluginId: "5c9f512f96c1a50004819786",
-    organizationId: "607d2c9c1a5f642a171ebd9b",
+    workspaceId: "607d2c9c1a5f642a171ebd9b",
     datasourceConfiguration: {
       connection: {
         mode: "READ_WRITE",
@@ -140,7 +140,7 @@ export const mockDatasources = [
     id: "61e0e47bcd5225210fa81d59",
     name: "qwerty12",
     pluginId: "5c9f512f96c1a50004819786",
-    organizationId: "607d2c9c1a5f642a171ebd9b",
+    workspaceId: "607d2c9c1a5f642a171ebd9b",
     datasourceConfiguration: {
       connection: {
         mode: "READ_WRITE",
@@ -166,7 +166,7 @@ export const mockDatasources = [
     id: "61e0f171cd5225210f121dad",
     name: "poiuyt09",
     pluginId: "5c9f512f96c1a50004819786",
-    organizationId: "607d2c9c1a5f642a171ebd9b",
+    workspaceId: "607d2c9c1a5f642a171ebd9b",
     datasourceConfiguration: {
       connection: {
         mode: "READ_WRITE",

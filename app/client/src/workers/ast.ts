@@ -1,8 +1,9 @@
 import { parse, Node } from "acorn";
-import { ancestor } from "acorn-walk";
+import { ancestor, simple } from "acorn-walk";
 import { ECMA_VERSION, NodeTypes } from "constants/ast";
-import _ from "lodash";
+import { isFinite, isString } from "lodash";
 import { sanitizeScript } from "./evaluate";
+import { generate } from "astring";
 
 /*
  * Valuable links:
@@ -24,7 +25,7 @@ import { sanitizeScript } from "./evaluate";
  */
 
 type Pattern = IdentifierNode | AssignmentPatternNode;
-
+type Expression = Node;
 // doc: https://github.com/estree/estree/blob/master/es5.md#memberexpression
 interface MemberExpressionNode extends Node {
   type: NodeTypes.MemberExpression;
@@ -45,6 +46,7 @@ interface IdentifierNode extends Node {
 interface VariableDeclaratorNode extends Node {
   type: NodeTypes.VariableDeclarator;
   id: IdentifierNode;
+  init: Expression | null;
 }
 
 // doc: https://github.com/estree/estree/blob/master/es5.md#functions
@@ -59,8 +61,17 @@ interface FunctionDeclarationNode extends Node, Function {
 }
 
 // doc: https://github.com/estree/estree/blob/master/es5.md#functionexpression
-interface FunctionExpressionNode extends Node, Function {
+interface FunctionExpressionNode extends Expression, Function {
   type: NodeTypes.FunctionExpression;
+}
+
+interface ArrowFunctionExpressionNode extends Expression, Function {
+  type: NodeTypes.ArrowFunctionExpression;
+}
+
+export interface ObjectExpression extends Expression {
+  type: NodeTypes.ObjectExpression;
+  properties: Array<PropertyNode>;
 }
 
 // doc: https://github.com/estree/estree/blob/master/es2015.md#assignmentpattern
@@ -104,6 +115,10 @@ const isFunctionExpression = (node: Node): node is FunctionExpressionNode => {
   return node.type === NodeTypes.FunctionExpression;
 };
 
+const isObjectExpression = (node: Node): node is ObjectExpression => {
+  return node.type === NodeTypes.ObjectExpression;
+};
+
 const isAssignmentPatternNode = (node: Node): node is AssignmentPatternNode => {
   return node.type === NodeTypes.AssignmentPattern;
 };
@@ -116,12 +131,21 @@ export const isPropertyNode = (node: Node): node is PropertyNode => {
   return node.type === NodeTypes.Property;
 };
 
+export const isPropertyAFunctionNode = (
+  node: Node,
+): node is ArrowFunctionExpressionNode | FunctionExpressionNode => {
+  return (
+    node.type === NodeTypes.ArrowFunctionExpression ||
+    node.type === NodeTypes.FunctionExpression
+  );
+};
+
 const isArrayAccessorNode = (node: Node): node is MemberExpressionNode => {
   return (
     isMemberExpressionNode(node) &&
     node.computed &&
     isLiteralNode(node.property) &&
-    _.isFinite(node.property.value)
+    isFinite(node.property.value)
   );
 };
 
@@ -149,7 +173,7 @@ export const extractIdentifiersFromCode = (code: string): string[] => {
   // List of variables declared within the script. This will be removed from identifier list
   const variableDeclarations = new Set<string>();
   // List of functionalParams found. This will be removed from the identifier list
-  let functionalParams = new Set<string>();
+  let functionalParams = new Set<functionParams>();
   let ast: Node = { end: 0, start: 0, type: "" };
   try {
     const sanitizedScript = sanitizeScript(code);
@@ -252,21 +276,39 @@ export const extractIdentifiersFromCode = (code: string): string[] => {
 
   // Remove declared variables and function params
   variableDeclarations.forEach((variable) => identifiers.delete(variable));
-  functionalParams.forEach((param) => identifiers.delete(param));
+  functionalParams.forEach((param) => identifiers.delete(param.paramName));
 
   return Array.from(identifiers);
 };
 
+type functionParams = { paramName: string; defaultValue: unknown };
+
 const getFunctionalParamsFromNode = (
-  node: FunctionDeclarationNode | FunctionExpressionNode,
-): Set<string> => {
-  const functionalParams = new Set<string>();
+  node:
+    | FunctionDeclarationNode
+    | FunctionExpressionNode
+    | ArrowFunctionExpressionNode,
+  needValue = false,
+): Set<functionParams> => {
+  const functionalParams = new Set<functionParams>();
   node.params.forEach((paramNode) => {
     if (isIdentifierNode(paramNode)) {
-      functionalParams.add(paramNode.name);
+      functionalParams.add({
+        paramName: paramNode.name,
+        defaultValue: undefined,
+      });
     } else if (isAssignmentPatternNode(paramNode)) {
       if (isIdentifierNode(paramNode.left)) {
-        functionalParams.add(paramNode.left.name);
+        const paramName = paramNode.left.name;
+        if (!needValue) {
+          functionalParams.add({ paramName, defaultValue: undefined });
+        } else {
+          // figure out how to get value of paramNode.right for each node type
+          // currently we don't use params value, hence skipping it
+          // functionalParams.add({
+          //   defaultValue: paramNode.right.value,
+          // });
+        }
       }
     }
   });
@@ -290,11 +332,80 @@ const constructFinalMemberExpIdentifier = (
 const getPropertyAccessor = (propertyNode: IdentifierNode | LiteralNode) => {
   if (isIdentifierNode(propertyNode)) {
     return `.${propertyNode.name}`;
-  } else if (isLiteralNode(propertyNode) && _.isString(propertyNode.value)) {
+  } else if (isLiteralNode(propertyNode) && isString(propertyNode.value)) {
     // is string literal search a['b']
     return `.${propertyNode.value}`;
-  } else if (isLiteralNode(propertyNode) && _.isFinite(propertyNode.value)) {
+  } else if (isLiteralNode(propertyNode) && isFinite(propertyNode.value)) {
     // is array index search - a[9]
     return `[${propertyNode.value}]`;
   }
+};
+
+export const isTypeOfFunction = (type: string) => {
+  return (
+    type === NodeTypes.ArrowFunctionExpression ||
+    type === NodeTypes.FunctionExpression
+  );
+};
+
+type JsObjectProperty = {
+  key: string;
+  value: string;
+  type: string;
+  arguments?: Array<functionParams>;
+};
+
+export const parseJSObjectWithAST = (
+  jsObjectBody: string,
+): Array<JsObjectProperty> => {
+  /* 
+    jsObjectVariableName value is added such actual js code would never name same variable name. 
+    if the variable name will be same then also we won't have problem here as jsObjectVariableName will be last node in VariableDeclarator hence overriding the previous JSObjectProperties.
+    Keeping this just for sanity check if any caveat was missed.
+  */
+  const jsObjectVariableName =
+    "____INTERNAL_JS_OBJECT_NAME_USED_FOR_PARSING_____";
+  const jsCode = `var ${jsObjectVariableName} = ${jsObjectBody}`;
+
+  const ast = parse(jsCode, { ecmaVersion: ECMA_VERSION });
+
+  const parsedObjectProperties = new Set<JsObjectProperty>();
+  let JSObjectProperties: Array<PropertyNode> = [];
+
+  simple(ast, {
+    VariableDeclarator(node: Node) {
+      if (
+        isVariableDeclarator(node) &&
+        node.id.name === jsObjectVariableName &&
+        node.init &&
+        isObjectExpression(node.init)
+      ) {
+        JSObjectProperties = node.init.properties;
+      }
+    },
+  });
+  JSObjectProperties.forEach((node) => {
+    let params = new Set<functionParams>();
+    const propertyNode = node;
+    let property: JsObjectProperty = {
+      key: generate(propertyNode.key),
+      value: generate(propertyNode.value),
+      type: propertyNode.value.type,
+    };
+
+    if (isPropertyAFunctionNode(propertyNode.value)) {
+      // if in future we need default values of each param, we could implement that in getFunctionalParamsFromNode
+      // currently we don't consume it anywhere hence avoiding to calculate that.
+      params = getFunctionalParamsFromNode(propertyNode.value);
+      property = {
+        ...property,
+        arguments: [...params],
+      };
+    }
+
+    // here we use `generate` function to convert our AST Node to JSCode
+    parsedObjectProperties.add(property);
+  });
+
+  return [...parsedObjectProperties];
 };

@@ -9,7 +9,8 @@ import {
   BASE_SIGNUP_URL,
   BASE_URL,
   BUILDER_PATH,
-  ORG_URL,
+  BUILDER_CUSTOM_PATH,
+  WORKSPACE_URL,
   SIGN_UP_URL,
   SIGNUP_SUCCESS_URL,
   USER_AUTH_URL,
@@ -18,6 +19,7 @@ import {
   UNSUBSCRIBE_EMAIL_URL,
   SETUP,
   VIEWER_PATH,
+  VIEWER_CUSTOM_PATH,
   ADMIN_SETTINGS_PATH,
   ADMIN_SETTINGS_CATEGORY_PATH,
   ADMIN_SETTINGS_CATEGORY_DEFAULT_PATH,
@@ -27,7 +29,7 @@ import {
   VIEWER_PATCH_PATH,
   BUILDER_PATCH_PATH,
 } from "constants/routes";
-import OrganizationLoader from "pages/organization/loader";
+import WorkspaceLoader from "pages/workspace/loader";
 import ApplicationListLoader from "pages/Applications/loader";
 import EditorLoader from "pages/Editor/loader";
 import AppViewerLoader from "pages/AppViewer/loader";
@@ -119,7 +121,7 @@ function AppRouter(props: {
               <SentryRoute component={LandingScreen} exact path={BASE_URL} />
               <Redirect exact from={BASE_LOGIN_URL} to={AUTH_LOGIN_URL} />
               <Redirect exact from={BASE_SIGNUP_URL} to={SIGN_UP_URL} />
-              <SentryRoute component={OrganizationLoader} path={ORG_URL} />
+              <SentryRoute component={WorkspaceLoader} path={WORKSPACE_URL} />
               <SentryRoute component={Users} exact path={USERS_URL} />
               <SentryRoute component={UserAuth} path={USER_AUTH_URL} />
               <SentryRoute component={WDSPage} path="/wds" />
@@ -154,15 +156,23 @@ function AppRouter(props: {
                 exact
                 path={ADMIN_SETTINGS_CATEGORY_PATH}
               />
-              <SentryRoute component={EditorLoader} path={BUILDER_PATH} />
               <SentryRoute
                 component={EditorLoader}
                 path={BUILDER_PATH_DEPRECATED}
               />
-              <SentryRoute component={AppViewerLoader} path={VIEWER_PATH} />
               <SentryRoute
                 component={AppViewerLoader}
                 path={VIEWER_PATH_DEPRECATED}
+              />
+              <SentryRoute component={EditorLoader} path={BUILDER_PATH} />
+              <SentryRoute
+                component={EditorLoader}
+                path={BUILDER_CUSTOM_PATH}
+              />
+              <SentryRoute component={AppViewerLoader} path={VIEWER_PATH} />
+              <SentryRoute
+                component={AppViewerLoader}
+                path={VIEWER_CUSTOM_PATH}
               />
               <Redirect from={BUILDER_PATCH_PATH} to={BUILDER_PATH} />
               <Redirect from={VIEWER_PATCH_PATH} to={VIEWER_PATH} />
