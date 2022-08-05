@@ -114,10 +114,17 @@ export interface TableProps {
   columns: any[];
   isLoading?: boolean;
   loaderComponent?: JSX.Element;
+  noDataComponent?: JSX.Element;
 }
 
 function Table(props: TableProps) {
-  const { columns, data, isLoading = false, loaderComponent } = props;
+  const {
+    columns,
+    data,
+    isLoading = false,
+    loaderComponent,
+    noDataComponent,
+  } = props;
 
   const {
     getTableBodyProps,
@@ -189,7 +196,7 @@ function Table(props: TableProps) {
             <tr>
               <td className="no-border" colSpan={columns?.length}>
                 <CentralizedWrapper>
-                  <EmptyDataState />
+                  {noDataComponent ? noDataComponent : <EmptyDataState />}
                 </CentralizedWrapper>
               </td>
             </tr>
