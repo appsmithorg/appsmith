@@ -157,6 +157,19 @@ const widgetsToTest = {
   },
 };
 
+
+function dragDropToCanvas (widgetType, { x, y }){
+  const selector = `.t--widget-card-draggable-${widgetType}`;
+  cy.wait(500);
+  cy.get(selector)
+    .trigger("dragstart", { force: true })
+    .trigger("mousemove", x, y, { force: true });
+  cy.get(explorer.dropHere)
+    .trigger("mousemove", x, y, { eventConstructor: "MouseEvent" })
+    .trigger("mousemove", x, y, { eventConstructor: "MouseEvent" })
+    .trigger("mouseup", x, y, { eventConstructor: "MouseEvent" });
+}
+
 function PublishApp(){
   // Stubbing window.open to open in the same tab
   cy.window().then((window) => {
@@ -413,7 +426,7 @@ Object.entries(widgetsToTest).forEach(([widgetSelector, testConfig]) => {
 
     it(`1. DragDrop Widget ${testConfig.widgetName}`, () => {
       cy.get(explorer.addWidget).click();
-      cy.dragAndDropToCanvas(widgetSelector, { x: 300, y: 200 });
+      dragDropToCanvas(widgetSelector, { x: 300, y: 200 });
       cy.get(getWidgetSelector(widgetSelector)).should("exist");
     });
 
