@@ -238,14 +238,6 @@ export const updateDependencyMap = ({
             },
           );
           if (entityName === dataTreeDiff.payload.propertyPath) {
-            if (isWidget(entity)) {
-              entity.dynamicTriggerPathList?.forEach((triggerFieldName) => {
-                delete dataTreeEvalRef.triggerFieldDependencyMap[
-                  `${entityName}.${triggerFieldName.key}`
-                ];
-                didUpdateTriggerDependencyMap = true;
-              });
-            }
             // When deleted entity is referenced in a trigger field, remove deleted entity from it's triggerfieldDependencyMap
             if (
               entityName in dataTreeEvalRef.triggerFieldInverseDependencyMap
@@ -262,6 +254,16 @@ export const updateDependencyMap = ({
                 ] = dataTreeEvalRef.triggerFieldDependencyMap[
                   triggerField
                 ].filter((field) => field !== entityName);
+              });
+            }
+
+            // Remove deleted trigger fields from triggerFieldDependencyMap
+            if (isWidget(entity)) {
+              entity.dynamicTriggerPathList?.forEach((triggerFieldName) => {
+                delete dataTreeEvalRef.triggerFieldDependencyMap[
+                  `${entityName}.${triggerFieldName.key}`
+                ];
+                didUpdateTriggerDependencyMap = true;
               });
             }
           }
