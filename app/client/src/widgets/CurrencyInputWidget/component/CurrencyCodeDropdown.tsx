@@ -114,13 +114,26 @@ export const PopoverStyles = createGlobalStyle<{
 
       input {
         border: 1px solid var(--wds-color-border);
-        padding-right: 36px !important;
-        padding-left: 10px !important;
+        padding-left: 36px !important;
+        padding-right: 10px !important;
       }
 
       .bp3-icon-search {
-        right: 4px;
-        left: auto;
+        left: 4px;
+        right: auto;
+      }
+
+      .bp3-input-group + div {
+        display: flex;
+        height: 100%;
+        top: 0;
+        bottom: 0;
+        align-items: center;
+
+        svg {
+          position: relative;
+          top: 0;
+        }
       }
 
       input:hover {
