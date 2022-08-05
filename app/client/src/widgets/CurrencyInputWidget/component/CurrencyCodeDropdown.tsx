@@ -127,6 +127,7 @@ export const PopoverStyles = createGlobalStyle<{
         display: flex;
         height: 100%;
         top: 0;
+        right: 7px;
         bottom: 0;
         align-items: center;
 
