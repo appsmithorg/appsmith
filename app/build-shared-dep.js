@@ -42,24 +42,6 @@ async function main() {
             })
         )
       );
-
-      // // Linking Dependencies
-      // await Promise.all(dependencies.map((dependencyFolder) =>
-      //   new Promise((resolve, reject) => {
-      //     console.log("\x1b[0m", `Linking Dependency for \x1b[34m${dependencyFolder} to ${SCOPE_DIRECTORY}`);
-      //     exec(`
-      //       cd ${CURRENT_DIRECTORY}/${SCOPE_DIRECTORY};
-      //       yarn link ${dependencyFolder};
-      //     `, (err) => {
-      //       if (err) {
-      //         reject(err);
-      //       }
-
-      //       console.log("\x1b[0m", `Linked Dependency for \x1b[34m${dependencyFolder} to ${SCOPE_DIRECTORY} ✔`);
-      //       resolve();
-      //     });
-      //   })
-      // ));
     } catch (error) {
       console.log(
         "\x1b[31m",
