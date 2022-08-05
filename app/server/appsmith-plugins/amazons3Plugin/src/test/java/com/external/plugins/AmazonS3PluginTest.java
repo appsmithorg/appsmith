@@ -3,7 +3,12 @@ package com.external.plugins;
 import com.amazonaws.AmazonServiceException;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
-import com.amazonaws.services.s3.model.*;
+import com.amazonaws.services.s3.model.S3ObjectSummary;
+import com.amazonaws.services.s3.model.ObjectListing;
+import com.amazonaws.services.s3.model.S3Object;
+import com.amazonaws.services.s3.model.S3ObjectInputStream;
+import com.amazonaws.services.s3.model.Bucket;
+import com.amazonaws.services.s3.model.DeleteObjectsResult;
 import com.amazonaws.util.Base64;
 import com.appsmith.external.dtos.ExecuteActionDTO;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
@@ -74,7 +79,12 @@ import static com.external.utils.TemplateUtils.FILE_PICKER_MULTIPLE_FILES_DATA_E
 import static com.external.utils.TemplateUtils.LIST_FILES_TEMPLATE_NAME;
 import static com.external.utils.TemplateUtils.LIST_OF_FILES_STRING;
 import static com.external.utils.TemplateUtils.READ_FILE_TEMPLATE_NAME;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doNothing;
@@ -238,7 +248,7 @@ public class AmazonS3PluginTest {
     @Test
     public void testExecuteCommonForAmazonServiceException() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
         DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
-        String signatureError = "The request signature we calculated does not match the signature you provided.(service";
+        String signatureError = "The request signature we calculated does not match the signature you provided";
         ActionConfiguration mockAction = Mockito.mock(ActionConfiguration.class);
         AmazonS3 mockConnection = Mockito.mock(AmazonS3.class);
         when(mockAction.getFormData()).thenThrow(new AmazonServiceException(signatureError));
@@ -250,7 +260,7 @@ public class AmazonS3PluginTest {
         Mono<ActionExecutionResult> invoke = (Mono<ActionExecutionResult>) executeCommon
                 .invoke(pluginExecutor, mockConnection, datasourceConfiguration, mockAction);
         ActionExecutionResult actionExecutionResult = invoke.block();
-        assertEquals("The request signature we calculated does not match the signature you provided.", actionExecutionResult.getReadableError());
+        assertEquals(null + ": The request signature we calculated does not match the signature you provided", actionExecutionResult.getReadableError());
     }
 
     @Test
