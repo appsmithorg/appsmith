@@ -47,6 +47,13 @@ const StyledRadioGroup = styled(RadioGroup)<StyledRadioGroupProps>`
       background: ${({ accentColor }) => `${accentColor}`} !important;
       border: 1px solid ${({ accentColor }) => `${accentColor}`} !important;
     }
+
+    & input:disabled:checked ~ .${Classes.CONTROL_INDICATOR} {
+      &:before {
+       opacity: 1;
+       background-image: radial-gradient(var( --wds-color-bg-disabled-strong), var( --wds-color-bg-disabled-strong) 28%, transparent 32%)
+      }
+    }
   }
 
   .${Classes.SWITCH} {
@@ -76,9 +83,9 @@ const RadioGroupComponent = React.forwardRef<
     labelTextSize,
     labelWidth,
     loading,
-    maxDynamicHeight,
     onRadioSelectionChange,
     options,
+    required,
     selectedOptionValue,
   } = props;
 
@@ -90,16 +97,6 @@ const RadioGroupComponent = React.forwardRef<
     },
     [onRadioSelectionChange],
   );
-
-  const clientHeight = (ref as React.RefObject<HTMLDivElement>)?.current
-    ?.clientHeight;
-  const maxHeight = (maxDynamicHeight || 1000) * 10;
-
-  let toOverflowOrNot = false;
-
-  if (clientHeight) {
-    toOverflowOrNot = maxHeight < clientHeight;
-  }
 
   const finalComponent = (
     <RadioGroupContainer
@@ -146,6 +143,7 @@ const RadioGroupComponent = React.forwardRef<
               inline={inline}
               key={optInd}
               label={option.label}
+              required={required}
               value={option.value}
             />
           );
@@ -155,11 +153,7 @@ const RadioGroupComponent = React.forwardRef<
   );
 
   if (isDynamicHeightEnabled) {
-    return (
-      <div style={toOverflowOrNot ? { overflow: "auto" } : undefined}>
-        {finalComponent}
-      </div>
-    );
+    return <div style={{ overflow: "auto" }}>{finalComponent}</div>;
   } else {
     return finalComponent;
   }
@@ -188,6 +182,7 @@ export interface RadioGroupComponentProps extends ComponentProps {
   height?: number;
   accentColor: string;
   maxDynamicHeight?: number;
+  required?: boolean;
 }
 
 RadioGroupComponent.displayName = "RadioGroupComponent";

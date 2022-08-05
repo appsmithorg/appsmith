@@ -47,7 +47,7 @@ public class GitUtils {
      */
     public static String getRepoName(String remoteUrl) {
         // Pattern to match git SSH URL
-        final Matcher matcher = Pattern.compile("((git|ssh|http(s)?)|(git@[\\w.]+))(:(\\/\\/)?)([\\w.@:/\\-~]+)(\\.git|)(\\/)?").matcher(remoteUrl);
+        final Matcher matcher = Pattern.compile("((git|ssh|http(s)?)|(git@[\\w\\-\\.]+))(:(\\/\\/)?)([\\w.@:/\\-~]+)(\\.git|)(\\/)?").matcher(remoteUrl);
         if (matcher.find()) {
             // To trim the postfix and prefix
             return matcher.group(7)

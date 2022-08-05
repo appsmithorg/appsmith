@@ -517,13 +517,11 @@ class CheckboxGroupWidget extends BaseWidget<
         labelTextColor={this.props.labelTextColor}
         labelTextSize={this.props.labelTextSize}
         labelWidth={this.getLabelWidth()}
-        maxDynamicHeight={this.props.maxDynamicHeight}
         onChange={this.handleCheckboxChange}
         onSelectAllChange={this.handleSelectAllChange}
         optionAlignment={this.props.optionAlignment}
         options={compact(this.props.options)}
         ref={this.contentRef}
-        rowSpace={this.props.parentRowSpace}
         selectedValues={this.props.selectedValues || []}
         widgetId={this.props.widgetId}
       />

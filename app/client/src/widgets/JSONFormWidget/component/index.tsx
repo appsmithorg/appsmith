@@ -7,7 +7,6 @@ import WidgetStyleContainer, {
   BoxShadow,
 } from "components/designSystems/appsmith/WidgetStyleContainer";
 import { Color } from "constants/Colors";
-import { ExecuteTriggerPayload } from "constants/AppsmithActionConstants/ActionConstants";
 import {
   FIELD_MAP,
   MAX_ALLOWED_FIELDS,
@@ -17,7 +16,7 @@ import {
 import { FormContextProvider } from "../FormContext";
 import { isEmpty, pick } from "lodash";
 import { RenderMode, RenderModes, TEXT_SIZES } from "constants/WidgetConstants";
-import { JSONFormWidgetState } from "../widget";
+import { Action, JSONFormWidgetState } from "../widget";
 import { ButtonStyleProps } from "widgets/ButtonWidget/component";
 
 type StyledContainerProps = {
@@ -32,7 +31,7 @@ export type JSONFormComponentProps<TValues = any> = {
   boxShadow?: BoxShadow;
   boxShadowColor?: string;
   disabledWhenInvalid?: boolean;
-  executeAction: (actionPayload: ExecuteTriggerPayload) => void;
+  executeAction: (action: Action) => void;
   fieldLimitExceeded: boolean;
   fixedFooter: boolean;
   getFormData: () => TValues;
