@@ -27,7 +27,7 @@ export const CONFIG = {
 
     rows: 8,
     columns: 35,
-    widgetName: "SingleSliderWidget",
+    widgetName: "SingleSlider",
     shouldScroll: false,
     shouldTruncate: false,
     version: 1,

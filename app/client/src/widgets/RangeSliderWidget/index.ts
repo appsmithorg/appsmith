@@ -29,7 +29,7 @@ export const CONFIG = {
 
     rows: 8,
     columns: 35,
-    widgetName: "RangeSliderWidget",
+    widgetName: "RangeSlider",
     shouldScroll: false,
     shouldTruncate: false,
     version: 1,
