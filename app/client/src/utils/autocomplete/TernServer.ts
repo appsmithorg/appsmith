@@ -35,7 +35,6 @@ const DEFS: Def[] = [
 const bigDoc = 250;
 const cls = "CodeMirror-Tern-";
 const hintDelay = 1700;
-const FILE_NOT_FOUND_ERROR = "file not found";
 
 export type Completion = Hint & {
   origin: string;
@@ -202,15 +201,7 @@ class TernServer {
   }
 
   requestCallback(error: any, data: any, cm: CodeMirror.Editor, resolve: any) {
-    if (error) {
-      switch (error) {
-        case FILE_NOT_FOUND_ERROR:
-          return;
-        default:
-          this.showError(cm, error);
-      }
-      return;
-    }
+    if (error) return this.showError(cm, error);
     if (data.completions.length === 0) {
       return this.showError(cm, "No suggestions");
     }
@@ -377,13 +368,8 @@ class TernServer {
     const doc = this.findDoc(cm.getDoc());
     const request = this.buildRequest(doc, query, pos);
 
-    // only if files exist then request
-    if (request.files.length) {
-      // @ts-expect-error: Types are not available
-      this.server.request(request, callbackFn);
-    } else {
-      callbackFn(FILE_NOT_FOUND_ERROR, { completions: [] });
-    }
+    // @ts-expect-error: Types are not available
+    this.server.request(request, callbackFn);
   }
 
   findDoc(doc: CodeMirror.Doc, name?: string): TernDoc {
@@ -456,10 +442,18 @@ class TernServer {
       }
     } else {
       query.file = doc.name;
+      // this code is different from tern.js code
+      // we noticed error `TernError: file doesn't contain line x`
+      // which was due to file not being present for the case when a codeEditor is opened and 1st character is typed
+      files.push({
+        type: "full",
+        name: doc.name,
+        text: this.docValue(doc),
+      });
     }
     for (const name in this.docs) {
       const cur = this.docs[name];
-      if (cur.changed && cur != doc) {
+      if (cur.changed && (cur != doc || cur.name != doc.name)) {
         files.push({
           type: "full",
           name: cur.name,
