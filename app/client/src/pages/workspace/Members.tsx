@@ -58,12 +58,21 @@ const MembersWrapper = styled.div<{
           font-weight: 500;
           line-height: 1.5;
           color: var(--appsmith-color-black-700);
-          padding: 5px 20px;
+          padding: 8px 20px 4px 20px;
           text-align: center;
+
+            svg {
+              margin: auto;
+            }
 
             &:first-child {
               text-align: left;
+
+              svg {
+                margin-left: 8px;
+              }
             }
+
           }
         }
       }
