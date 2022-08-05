@@ -49,10 +49,59 @@ const MembersWrapper = styled.div<{
 }>`
   ${(props) => (props.isMobile ? "width: 100%; margin: auto" : null)}
   table {
+    margin-top: 12px;
+    thead {
+      tr {
+        border-bottom: 1px solid #E8E8E8;
+        th {
+          font-size: 14px;
+          font-weight: 500;
+          line-height: 1.5;
+          color: var(--appsmith-color-black-700);
+          padding: 8px 20px 4px 20px;
+          text-align: center;
+
+            svg {
+              margin: auto;
+            }
+
+            &:first-child {
+              text-align: left;
+
+              svg {
+                margin-left: 8px;
+              }
+            }
+
+          }
+        }
+      }
+    }
+
     tbody {
       tr {
-        td:first-child {
-          word-break: break-word;
+        td {
+          text-align: center;
+
+          &:first-child {
+            text-align: left;
+            word-break: break-word;
+          }
+
+          .t--deleteUser {
+            justify-content: center;
+          }
+
+          .selected-item {
+            justify-content: center;
+            .cs-text {
+              width: auto;
+            }
+          }
+
+          .cs-text {
+            text-align: left;
+          }
         }
       }
     }
@@ -128,58 +177,6 @@ const UserCard = styled(Card)`
   }
 `;
 
-const ListUsers = styled.div`
-  margin-top: 4px;
-
-  thead {
-    tr {
-      background-color: transparent !important;
-      th {
-        font-size: 14px !important;
-        font-weight: 500 !important;
-        line-height: 1.5 !important;
-        text-align: left !important;
-        color: var(--appsmith-color-black-700) !important;
-        padding-left: 12px !important;
-        }
-      }
-    }
-  }
-
-  tbody {
-    tr {
-      td {
-        padding: 10px 12px !important;
-        .actions-icon {
-          visibility: hidden;
-          justify-content: end;
-          > svg {
-            path {
-              fill: var(--appsmith-color-black-400);
-            }
-            &:hover {
-              path {
-                fill: var(--appsmith-color-black-700);
-              }
-            }
-          }
-          &.active {
-            visibility: visible;
-          }
-        }
-      }
-
-      &:hover {
-        td {
-          .actions-icon {
-            visibility: visible;
-          }
-        }
-      }
-    }
-  }
-`;
-
 const EachUser = styled.div`
   display: flex;
   align-items: center;
@@ -217,18 +214,6 @@ export default function MemberSettings(props: PageProps) {
     dispatch(fetchRolesForWorkspace(workspaceId));
     dispatch(fetchWorkspace(workspaceId));
   }, [dispatch, workspaceId]);
-
-  // const isFirstRender = useRef(true);
-
-  // useEffect(() => {
-  //   if (isFirstRender.current) {
-  //     isFirstRender.current = false;
-  //   } else {
-  //     dispatch(fetchUsersForWorkspace(workspaceId));
-  //     dispatch(fetchRolesForWorkspace(workspaceId));
-  //     dispatch(fetchWorkspace(workspaceId));
-  //   }
-  // }, [dispatch, workspaceId]);
 
   const [
     showMemberDeletionConfirmation,
@@ -329,7 +314,16 @@ export default function MemberSettings(props: PageProps) {
         const isUserGroup = member.hasOwnProperty("users");
         return (
           <EachUser>
-            {!isUserGroup ? (
+            {isUserGroup ? (
+              <>
+                <Icon
+                  className="user-icons"
+                  name="group-line"
+                  size={IconSize.XXL}
+                />
+                <HighlightText highlight={searchValue} text={member.name} />
+              </>
+            ) : (
               <>
                 <ProfileImage
                   className="user-icons"
@@ -338,15 +332,6 @@ export default function MemberSettings(props: PageProps) {
                   userName={member.username}
                 />
                 <HighlightText highlight={searchValue} text={member.username} />
-              </>
-            ) : (
-              <>
-                <Icon
-                  className="user-icons"
-                  name="group-line"
-                  size={IconSize.XXL}
-                />
-                <HighlightText highlight={searchValue} text={member.name} />
               </>
             )}
           </EachUser>
@@ -394,7 +379,7 @@ export default function MemberSettings(props: PageProps) {
       },
     },
     {
-      Header: "",
+      Header: "Actions",
       accessor: "actions",
       Cell: function DeleteCell(cellProps: any) {
         return (
@@ -443,39 +428,53 @@ export default function MemberSettings(props: PageProps) {
       ) : (
         <>
           {!isMobile && (
-            <ListUsers>
-              <Table
-                columns={columns}
-                data={filteredData}
-                data-testid="listing-table"
-              />
-            </ListUsers>
+            <Table
+              columns={columns}
+              data={filteredData}
+              data-testid="listing-table"
+            />
           )}
           {isMobile && (
             <UserCardContainer>
-              {membersData.map((member, index) => {
+              {filteredData.map((member, index) => {
                 const role =
                   roles.find(
                     (role: any) => role.value === member.permissionGroupName,
                   ) || roles[0];
                 const isOwner = member.username === currentUser?.username;
+                const isUserGroup = member.hasOwnProperty("users");
                 return (
                   <UserCard key={index}>
-                    <ProfileImage
-                      className="avatar"
-                      size={71}
-                      source={`/api/${USER_PHOTO_URL}/${member.username}`}
-                      userName={member.username}
-                    />
-                    {
-                      // <Icon name="group-line" size={IconSize.XXL} />
-                    }
-                    <Text className="user-name" type={TextType.P1}>
-                      {member.username}
-                    </Text>
-                    <Text className="user-email" type={TextType.P1}>
-                      {member.username}
-                    </Text>
+                    {isUserGroup ? (
+                      <>
+                        <Icon
+                          className="user-icons"
+                          name="group-line"
+                          size={IconSize.XXL}
+                        />
+                        <HighlightText
+                          highlight={searchValue}
+                          text={member.name}
+                        />
+                      </>
+                    ) : (
+                      <>
+                        <ProfileImage
+                          className="avatar"
+                          size={71}
+                          source={`/api/${USER_PHOTO_URL}/${member.username}`}
+                          userName={member.username}
+                        />
+                        <HighlightText
+                          className="user-email"
+                          highlight={searchValue}
+                          text={member.username}
+                        />
+                        <Text className="user-email" type={TextType.P1}>
+                          {member.username}
+                        </Text>
+                      </>
+                    )}
                     {isOwner && (
                       <Text className="user-role" type={TextType.P1}>
                         {member.permissionGroupName}
@@ -492,7 +491,6 @@ export default function MemberSettings(props: PageProps) {
                         }}
                         options={roles}
                         selected={role}
-                        width="140px"
                       />
                     )}
                     <DeleteIcon
