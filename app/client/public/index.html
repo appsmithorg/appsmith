@@ -21,7 +21,6 @@
     // '' (empty strings), 'false' are falsy
     // could return either boolean or string based on value
     const parseConfig = (config) => {
-      console.log({ config });
       if (config.indexOf("__") === 0 || config.indexOf("$") === 0 || config.indexOf("%") === 0)
         return "";
 
