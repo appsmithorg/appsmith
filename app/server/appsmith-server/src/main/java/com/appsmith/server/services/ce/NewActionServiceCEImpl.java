@@ -1106,7 +1106,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                                 "statusCode", actionExecutionResult.getStatusCode()
                         ));
                     }
-                    final Map<String, Object> auditData = Map.of(
+                    final Map<String, Object> eventData = Map.of(
                             FieldName.ACTION, action,
                             FieldName.DATASOURCE, datasource,
                             FieldName.VIEW_MODE, viewMode,
@@ -1116,7 +1116,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                             FieldName.APPLICATION, application,
                             FieldName.PLUGIN, plugin
                     );
-                    data.put(FieldName.AUDIT_DATA, auditData);
+                    data.put(FieldName.EVENT_DATA, eventData);
                     analyticsService.sendObjectEvent(AnalyticsEvents.EXECUTE_ACTION, action, data);
                     return request;
                 })
@@ -1854,8 +1854,8 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
             savedAction.getUnpublishedAction().setPluginName(datasource.getPluginName());
         }
         Map<String, Object> analyticsProperties = this.getAnalyticsProperties(savedAction);
-        Map<String, Object> auditData = Map.of(FieldName.DATASOURCE, datasource);
-        analyticsProperties.put(FieldName.AUDIT_DATA, auditData);
+        Map<String, Object> eventData = Map.of(FieldName.DATASOURCE, datasource);
+        analyticsProperties.put(FieldName.EVENT_DATA, eventData);
         return analyticsProperties;
     }
 
