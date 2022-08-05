@@ -5,6 +5,8 @@ import { ReactComponent as DownArrow } from "assets/icons/ads/down_arrow.svg";
 import { ReactComponent as UpperArrow } from "assets/icons/ads/upper_arrow.svg";
 import { Classes } from "./common";
 import Spinner from "./Spinner";
+import { IconSize } from "./Icon";
+import EmptyDataState from "components/utils/EmptyDataState";
 
 const Styles = styled.div`
   table {
@@ -46,11 +48,6 @@ const Styles = styled.div`
 
     tbody {
       tr {
-        td:first-child {
-          color: ${(props) => props.theme.colors.table.rowTitle};
-          font-weight: ${(props) => props.theme.fontWeights[1]};
-        }
-
         td {
           padding: ${(props) => props.theme.spaces[4]}px
             ${(props) => props.theme.spaces[9]}px;
@@ -61,6 +58,19 @@ const Styles = styled.div`
             props.theme.typography.p1.letterSpacing}px;
           font-weight: normal;
           border-bottom: 1px solid ${(props) => props.theme.colors.table.border};
+
+          &:first-child {
+            color: ${(props) => props.theme.colors.table.rowTitle};
+            font-weight: ${(props) => props.theme.fontWeights[1]};
+          }
+
+          &.no-border {
+            border: none;
+
+            .no-data-title {
+              color: ${(props) => props.theme.colors.table.rowData};
+            }
+          }
         }
 
         &:hover {
@@ -70,11 +80,16 @@ const Styles = styled.div`
               fill: ${(props) => props.theme.colors.table.hover.rowTitle};
             }
           }
-          td:first-child {
-            color: ${(props) => props.theme.colors.table.hover.rowTitle};
-          }
           td {
             color: ${(props) => props.theme.colors.table.hover.rowData};
+
+            &:first-child {
+              color: ${(props) => props.theme.colors.table.hover.rowTitle};
+            }
+
+            &.no-border {
+              background-color: var(--appsmith-color-black-0);
+            }
           }
         }
       }
@@ -86,7 +101,7 @@ const HiddenArrow = styled(DownArrow)`
   visibility: hidden;
 `;
 
-const SpinnerWrapper = styled.div`
+const CentralizedWrapper = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
@@ -141,13 +156,17 @@ function Table(props: TableProps) {
         <tbody {...getTableBodyProps()}>
           {isLoading ? (
             <tr>
-              <td colSpan={columns?.length}>
-                <SpinnerWrapper>
-                  {loaderComponent ? loaderComponent : <Spinner />}
-                </SpinnerWrapper>
+              <td className="no-border" colSpan={columns?.length}>
+                <CentralizedWrapper>
+                  {loaderComponent ? (
+                    loaderComponent
+                  ) : (
+                    <Spinner size={IconSize.XXL} />
+                  )}
+                </CentralizedWrapper>
               </td>
             </tr>
-          ) : (
+          ) : rows.length > 0 ? (
             rows.map((row, index) => {
               prepareRow(row);
               return (
@@ -166,6 +185,14 @@ function Table(props: TableProps) {
                 </tr>
               );
             })
+          ) : (
+            <tr>
+              <td className="no-border" colSpan={columns?.length}>
+                <CentralizedWrapper>
+                  <EmptyDataState />
+                </CentralizedWrapper>
+              </td>
+            </tr>
           )}
         </tbody>
       </table>
