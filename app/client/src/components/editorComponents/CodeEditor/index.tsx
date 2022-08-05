@@ -132,6 +132,7 @@ export type EditorStyleProps = {
   evaluationSubstitutionType?: EvaluationSubstitutionType;
   popperPlacement?: Placement;
   popperZIndex?: Indices;
+  blockCompletions?: FieldEntityInformation["blockCompletions"];
 };
 /**
  *  line => Line to which the gutter is added
@@ -517,10 +518,13 @@ class CodeEditor extends Component<Props, State> {
 
     if (!cm.state.completionActive) {
       const entityInformation = this.getEntityInformation();
+      const { blockCompletions } = this.props;
       this.hinters
         .filter((hinter) => hinter.fireOnFocus)
         .forEach(
-          (hinter) => hinter.showHint && hinter.showHint(cm, entityInformation),
+          (hinter) =>
+            hinter.showHint &&
+            hinter.showHint(cm, entityInformation, blockCompletions),
         );
     }
   };
@@ -647,9 +651,11 @@ class CodeEditor extends Component<Props, State> {
   handleAutocompleteVisibility = (cm: CodeMirror.Editor) => {
     if (!this.state.isFocused) return;
     const entityInformation = this.getEntityInformation();
+    const { blockCompletions } = this.props;
     let hinterOpen = false;
     for (let i = 0; i < this.hinters.length; i++) {
       hinterOpen = this.hinters[i].showHint(cm, entityInformation, {
+        blockCompletions,
         datasources: this.props.datasources.list,
         pluginIdToImageLocation: this.props.pluginIdToImageLocation,
         recentEntities: this.props.recentEntities,

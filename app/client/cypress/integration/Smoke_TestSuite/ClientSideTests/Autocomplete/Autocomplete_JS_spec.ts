@@ -62,6 +62,7 @@ describe("Autocomplete tests", () => {
       toRun: false,
       shouldCreateNewJSObj: true,
     });
+
     const lineNumber = 5;
 
     const array = [
@@ -74,6 +75,10 @@ describe("Autocomplete tests", () => {
 
     arr.map(callBack)
     `;
+
+    // component re-render cause DOM element of cy.get to lost
+    // added wait to finish re-render before cy.get
+    cy.wait(100);
 
     cy.get(`:nth-child(${lineNumber}) > .CodeMirror-line`).click();
 
@@ -109,7 +114,7 @@ describe("Autocomplete tests", () => {
       .focus()
       .type(`${codeToType}`);
 
-    ["myFun1()", "myFun2()", "myVar1", "myVar2"].forEach((element, index) => {
+    ["myFun2()", "myVar1", "myVar2"].forEach((element, index) => {
       cy.get(`.CodeMirror-hints > :nth-child(${index + 1})`).contains(element);
     });
   });

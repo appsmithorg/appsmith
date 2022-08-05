@@ -48,6 +48,7 @@ export type FieldEntityInformation = {
   entityType?: ENTITY_TYPE;
   entityId?: string;
   propertyPath?: string;
+  blockCompletions?: Array<{ parentPath: string; subPath: string }>;
 };
 
 export type HintHelper = (
