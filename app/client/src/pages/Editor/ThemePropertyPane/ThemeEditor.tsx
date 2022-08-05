@@ -8,11 +8,11 @@ import ArrowGoBackIcon from "remixicon-react/ArrowGoBackFillIcon";
 
 import ThemeCard from "./ThemeCard";
 import {
-  Dropdown,
+  DropdownV2,
   DropdownList,
   DropdownItem,
   DropdownTrigger,
-} from "components/ads/DropdownV2";
+} from "design-system";
 import {
   AppThemingMode,
   getAppThemingStack,
@@ -126,7 +126,7 @@ function ThemeEditor() {
               <BetaCard />
             </div>
             <div>
-              <Dropdown position="bottom-right">
+              <DropdownV2 position="bottom-right">
                 <DropdownTrigger>
                   <button className="p-1 hover:bg-gray-100 active:bg-gray-100">
                     <MoreIcon className="w-5 h-5" />
@@ -146,7 +146,7 @@ function ThemeEditor() {
                     text="Reset widget styles"
                   />
                 </DropdownList>
-              </Dropdown>
+              </DropdownV2>
             </div>
           </div>
 
