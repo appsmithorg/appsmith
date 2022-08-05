@@ -551,14 +551,17 @@ class FilePickerWidget extends BaseWidget<
        * Uppy provides an argument called reason. It helps us to distinguish on which event the file-removed event was called.
        * Refer to the following issue to know about reason prop: https://github.com/transloadit/uppy/pull/2323
        */
-      if (reason !== "cancel-all") {
-        const updatedFiles = this.props.selectedFiles
+      let updatedFiles = [];
+      if (reason === "removed-by-user") {
+        updatedFiles = this.props.selectedFiles
           ? this.props.selectedFiles.filter((dslFile) => {
               return file.id !== dslFile.id;
             })
           : [];
-        this.props.updateWidgetMetaProperty("selectedFiles", updatedFiles);
+      } else if (reason === "cancel-all") {
+        updatedFiles = [];
       }
+      this.props.updateWidgetMetaProperty("selectedFiles", updatedFiles);
     });
 
     this.state.uppy.on("files-added", (files: any[]) => {
