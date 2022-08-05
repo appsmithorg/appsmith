@@ -39,11 +39,8 @@ import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.external.plugins.SmartSubstitutionInterface;
 import com.appsmith.external.services.FilterDataService;
 import com.external.plugins.constants.AmazonS3Action;
-<<<<<<< HEAD
 import com.external.utils.AmazonS3ErrorUtils;
-=======
 import com.fasterxml.jackson.core.type.TypeReference;
->>>>>>> release
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import lombok.extern.slf4j.Slf4j;
 import org.pf4j.Extension;

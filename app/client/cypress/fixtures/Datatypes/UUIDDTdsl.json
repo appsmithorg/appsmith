@@ -255,7 +255,7 @@
                 "resetFormOnClick": false,
                 "boxShadow": "none",
                 "widgetName": "Button3",
-                "onClick": "{{guid.run(() => showAlert('New V1 GUID available!','success'), () => {})}}",
+                "onClick": "{{guid.run(() => showAlert('New GUID available!','success'), () => {})}}",
                 "buttonColor": "{{appsmith.theme.colors.primaryColor}}",
                 "displayName": "Button",
                 "iconSVG": "/static/media/icon.cca026338f1c8eb6df8ba03d084c2fca.svg",
