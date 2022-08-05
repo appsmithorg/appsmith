@@ -213,7 +213,14 @@ interface OverlayHandlesProps {
 }
 
 const Border = styled.div`
-  border: 1px dashed ${OVERLAY_COLOR};
+  background-image: linear-gradient(
+    to right,
+    ${OVERLAY_COLOR} 50%,
+    rgba(255, 255, 255, 0) 0%
+  );
+  background-position: bottom;
+  background-size: 22px 1px;
+  background-repeat: repeat-x;
   position: absolute;
   left: 0;
   right: 0;
@@ -363,10 +370,6 @@ const DynamicHeightOverlay: React.FC<DynamicHeightOverlayProps> = memo(
     const { selectWidget } = useWidgetSelection();
     const selectedWidget = useSelector(
       (state: AppState) => state.ui.widgetDragResize.lastSelectedWidget,
-    );
-
-    const focusedWidgetId = useSelector(
-      (state: AppState) => state.ui.widgetDragResize.focusedWidget,
     );
 
     const canvasWidgets = useSelector(getCanvasWidgets);
@@ -566,13 +569,12 @@ const DynamicHeightOverlay: React.FC<DynamicHeightOverlayProps> = memo(
     }, []);
 
     const isWidgetSelected = selectedWidget === widgetId;
-    const isWidgetFocused = focusedWidgetId === widgetId;
 
     return (
       <StyledDynamicHeightOverlay>
         <div
           style={{
-            display: isWidgetSelected || isWidgetFocused ? "block" : "none",
+            display: isWidgetSelected ? "block" : "none",
           }}
         >
           <OverlayDisplay
