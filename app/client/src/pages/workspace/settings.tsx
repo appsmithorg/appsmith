@@ -67,7 +67,7 @@ export default function Settings() {
   }, [dispatch, currentWorkspace]);
 
   const SettingsRenderer = (
-    <div>
+    <>
       <SentryRoute
         component={GeneralSettings}
         location={location}
@@ -83,7 +83,7 @@ export default function Settings() {
         location={location}
         path={`${path}/members`}
       />
-    </div>
+    </>
   );
 
   const onSearch = debounce((search: string) => {
