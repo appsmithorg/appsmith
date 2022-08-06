@@ -1,4 +1,7 @@
-import { generateTypeDef } from "utils/autocomplete/dataTreeTypeDefCreator";
+import {
+  ExtraDef,
+  generateTypeDef,
+} from "utils/autocomplete/dataTreeTypeDefCreator";
 import {
   DataTreeAction,
   DataTreeAppsmith,
@@ -6,6 +9,7 @@ import {
 import _ from "lodash";
 import { EVALUATION_PATH } from "utils/DynamicBindingUtils";
 import { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
+import { Def } from "tern";
 
 const isVisible = {
   "!type": "bool",
@@ -38,11 +42,13 @@ export const entityDefinitions = {
     }
     return generatedTypeDef;
   },
-  ACTION: (entity: DataTreeAction) => {
-    const dataDef = generateTypeDef(entity.data);
-    let data: Record<string, any> = {
+  ACTION: (entity: DataTreeAction, extraDefsToDefine?: ExtraDef) => {
+    const dataDef = generateTypeDef(entity.data, extraDefsToDefine);
+
+    let data: Def = {
       "!doc": "The response of the action",
     };
+
     if (_.isString(dataDef)) {
       data["!type"] = dataDef;
     } else {
@@ -58,8 +64,7 @@ export const entityDefinitions = {
         "!doc": "The response meta of the action",
         "!type": "?",
       },
-      run:
-        "fn(onSuccess: fn() -> void, onError: fn() -> void) -> +Promise[:t=[!0.<i>.:t]]",
+      run: "fn(params: ?) -> +Promise[:t=[!0.<i>.:t]]",
       clear: "fn() -> +Promise[:t=[!0.<i>.:t]]",
     };
   },
@@ -101,17 +106,17 @@ export const entityDefinitions = {
       "!doc": "Selected country code for Currency type input",
     },
   },
-  TABLE_WIDGET: (widget: any) => ({
+  TABLE_WIDGET: (widget: any, extraDefsToDefine?: ExtraDef) => ({
     "!doc":
       "The Table is the hero widget of Appsmith. You can display data from an API in a table, trigger an action when a user selects a row and even work with large paginated data sets",
     "!url": "https://docs.appsmith.com/widget-reference/table",
-    selectedRow: generateTypeDef(widget.selectedRow),
-    selectedRows: generateTypeDef(widget.selectedRows),
+    selectedRow: generateTypeDef(widget.selectedRow, extraDefsToDefine),
+    selectedRows: generateTypeDef(widget.selectedRows, extraDefsToDefine),
     selectedRowIndices: generateTypeDef(widget.selectedRowIndices),
     triggeredRow: generateTypeDef(widget.triggeredRow),
     selectedRowIndex: "number",
-    tableData: generateTypeDef(widget.tableData),
-    filteredTableData: generateTypeDef(widget.filteredTableData),
+    tableData: generateTypeDef(widget.tableData, extraDefsToDefine),
+    // filteredTableData: generateTypeDef(widget.filteredTableData), user should not be exposed to this property
     pageNo: "number",
     pageSize: "number",
     isVisible: isVisible,
@@ -122,17 +127,17 @@ export const entityDefinitions = {
       order: ["asc", "desc"],
     },
   }),
-  TABLE_WIDGET_V2: (widget: any) => ({
+  TABLE_WIDGET_V2: (widget: any, extraDefsToDefine?: ExtraDef) => ({
     "!doc":
       "The Table is the hero widget of Appsmith. You can display data from an API in a table, trigger an action when a user selects a row and even work with large paginated data sets",
     "!url": "https://docs.appsmith.com/widget-reference/table",
-    selectedRow: generateTypeDef(widget.selectedRow),
-    selectedRows: generateTypeDef(widget.selectedRows),
+    selectedRow: generateTypeDef(widget.selectedRow, extraDefsToDefine),
+    selectedRows: generateTypeDef(widget.selectedRows, extraDefsToDefine),
     selectedRowIndices: generateTypeDef(widget.selectedRowIndices),
     triggeredRow: generateTypeDef(widget.triggeredRow),
     updatedRow: generateTypeDef(widget.updatedRow),
     selectedRowIndex: "number",
-    tableData: generateTypeDef(widget.tableData),
+    tableData: generateTypeDef(widget.tableData, extraDefsToDefine),
     pageNo: "number",
     pageSize: "number",
     isVisible: isVisible,
@@ -142,7 +147,7 @@ export const entityDefinitions = {
       column: "string",
       order: ["asc", "desc"],
     },
-    updatedRows: generateTypeDef(widget.updatedRows),
+    updatedRows: generateTypeDef(widget.updatedRows, extraDefsToDefine),
     updatedRowIndices: generateTypeDef(widget.updatedRowIndices),
     triggeredRowIndex: generateTypeDef(widget.triggeredRowIndex),
   }),
@@ -329,12 +334,12 @@ export const entityDefinitions = {
     yAxisName: "string",
     selectedDataPoint: "chartDataPoint",
   },
-  FORM_WIDGET: (widget: any) => ({
+  FORM_WIDGET: (widget: any, extraDefsToDefine?: ExtraDef) => ({
     "!doc":
       "Form is used to capture a set of data inputs from a user. Forms are used specifically because they reset the data inputs when a form is submitted and disable submission for invalid data inputs",
     "!url": "https://docs.appsmith.com/widget-reference/form",
     isVisible: isVisible,
-    data: generateTypeDef(widget.data),
+    data: generateTypeDef(widget.data, extraDefsToDefine),
     hasChanges: "bool",
   }),
   FORM_BUTTON_WIDGET: {
@@ -368,7 +373,7 @@ export const entityDefinitions = {
     files: "[file]",
     isDisabled: "bool",
   },
-  LIST_WIDGET: (widget: any) => ({
+  LIST_WIDGET: (widget: any, extraDefsToDefine?: ExtraDef) => ({
     "!doc":
       "Containers are used to group widgets together to form logical higher order widgets. Containers let you organize your page better and move all the widgets inside them together.",
     "!url": "https://docs.appsmith.com/widget-reference/list",
@@ -379,8 +384,8 @@ export const entityDefinitions = {
     isVisible: isVisible,
     gridGap: "number",
     selectedItem: generateTypeDef(widget.selectedItem),
-    items: generateTypeDef(widget.items),
-    listData: generateTypeDef(widget.listData),
+    items: generateTypeDef(widget.items, extraDefsToDefine),
+    listData: generateTypeDef(widget.listData, extraDefsToDefine),
     pageNo: generateTypeDef(widget.pageNo),
     pageSize: generateTypeDef(widget.pageSize),
   }),
