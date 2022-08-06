@@ -22,7 +22,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
-
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -232,6 +231,55 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
                 }).cache();
 
         return userAndPermissionGroupDTOsMono;
+    }
+
+    @Override
+    public Mono<Map<String, List<UserAndPermissionGroupDTO>>> getWorkspaceMembers(Set<String> workspaceIds) {
+
+        // Get default permission groups
+        Flux<PermissionGroup> permissionGroupFlux = permissionGroupService.getByDefaultWorkspaces(workspaceIds, AclPermission.READ_PERMISSION_GROUPS)
+                .cache();
+
+        Mono<Map<String, Collection<PermissionGroup>>> permissionGroupsByWorkspacesMono = permissionGroupFlux
+                .collectMultimap(permissionGroup -> permissionGroup.getDefaultWorkspaceId(), permissionGroup -> permissionGroup)
+                .cache();
+
+        Mono<Map<String, User>> userMapMono = permissionGroupFlux
+                .flatMapIterable(PermissionGroup::getAssignedToUserIds)
+                .collect(Collectors.toSet())
+                .flatMapMany(userIds -> userRepository.findAllById(userIds))
+                .collectMap(User::getId)
+                .cache();
+
+        Flux<Map<String, Collection<PermissionGroup>>> permissionGroupsByWorkspaceFlux = permissionGroupsByWorkspacesMono
+                .repeat();
+
+        Mono<Map<String, List<UserAndPermissionGroupDTO>>> workspaceMembersMono = permissionGroupsByWorkspacesMono
+                .flatMapMany(permissionGroupsByWorkspaces -> Flux.fromIterable(permissionGroupsByWorkspaces.keySet()))
+                .zipWith(permissionGroupsByWorkspaceFlux)
+                .flatMap(tuple -> {
+                    String workspaceId = tuple.getT1();
+                    Map<String, Collection<PermissionGroup>> collectionMap = tuple.getT2();
+                    List<PermissionGroup> permissionGroups = collectionMap.get(workspaceId).stream().collect(Collectors.toList());
+
+                    Mono<List<UserAndPermissionGroupDTO>> userAndPermissionGroupDTOsMono = Mono.just(mapPermissionGroupListToUserAndPermissionGroupDTOList(permissionGroups))
+                            .zipWith(userMapMono)
+                            .map(tuple1 -> {
+                                List<UserAndPermissionGroupDTO> userAndPermissionGroupDTOList = tuple1.getT1();
+                                Map<String, User> userMap = tuple1.getT2();
+                                userAndPermissionGroupDTOList.forEach(userAndPermissionGroupDTO -> {
+                                    User user = userMap.get(userAndPermissionGroupDTO.getUserId());
+                                    userAndPermissionGroupDTO.setName(Optional.ofNullable(user.getName()).orElse(user.computeFirstName()));
+                                    userAndPermissionGroupDTO.setUsername(user.getUsername());
+                                });
+                                return userAndPermissionGroupDTOList;
+                            });
+
+                    return Mono.zip(Mono.just(workspaceId), userAndPermissionGroupDTOsMono);
+                })
+                .collectMap(tuple -> tuple.getT1(), tuple -> tuple.getT2());
+
+        return workspaceMembersMono;
     }
 
     private List<UserAndPermissionGroupDTO> mapPermissionGroupListToUserAndPermissionGroupDTOList(List<PermissionGroup> permissionGroupList) {

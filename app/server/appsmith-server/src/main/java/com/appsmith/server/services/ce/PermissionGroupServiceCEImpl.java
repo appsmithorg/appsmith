@@ -122,4 +122,9 @@ public class PermissionGroupServiceCEImpl extends BaseService<PermissionGroupRep
     public Flux<PermissionGroup> getByDefaultWorkspace(Workspace workspace, AclPermission permission) {
         return repository.findByDefaultWorkspaceId(workspace.getId(), permission);
     }
+
+    @Override
+    public Flux<PermissionGroup> getByDefaultWorkspaces(Set<String> workspaceIds, AclPermission permission) {
+        return repository.findByDefaultWorkspaceIds(workspaceIds, permission);
+    }
 }
