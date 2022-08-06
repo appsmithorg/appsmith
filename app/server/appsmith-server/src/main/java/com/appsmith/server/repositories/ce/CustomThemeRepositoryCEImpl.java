@@ -56,7 +56,7 @@ public class CustomThemeRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Them
         return ReactiveSecurityContextHolder.getContext()
                 .map(ctx -> ctx.getAuthentication())
                 .map(auth -> auth.getPrincipal())
-                .flatMap(principal -> cacheableRepositoryHelper.getAllPermissionGroupsForUser((User) principal))
+                .flatMap(principal -> getAllPermissionGroupsForUser((User) principal))
                 .flatMap(permissionGroups -> {
                     Criteria permissionCriteria = userAcl(permissionGroups, AclPermission.MANAGE_THEMES);
 

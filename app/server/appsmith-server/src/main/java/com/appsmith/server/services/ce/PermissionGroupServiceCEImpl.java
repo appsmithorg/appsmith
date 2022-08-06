@@ -68,7 +68,23 @@ public class PermissionGroupServiceCEImpl extends BaseService<PermissionGroupRep
     }
     
     public Mono<Void> delete(String id) {
-        return repository.deleteById(id);
+
+        return repository.findById(id)
+                .flatMap(permissionGroup -> {
+
+                    Mono<Void> returnMono = null;
+
+                    Set<String> assignedToUserIds = permissionGroup.getAssignedToUserIds();
+
+                    if (assignedToUserIds == null || assignedToUserIds.isEmpty()) {
+                        returnMono = repository.deleteById(id);
+                    } else {
+                        returnMono = bulkUnassignFromUserIds(permissionGroup, List.copyOf(assignedToUserIds))
+                                .then(repository.deleteById(id));
+                    }
+
+                    return returnMono;
+                });
     }
 
     @Override
@@ -142,6 +158,16 @@ public class PermissionGroupServiceCEImpl extends BaseService<PermissionGroupRep
                     );
                 })
                 .map(tuple -> tuple.getT1());
+    }
+
+    Mono<PermissionGroup> bulkUnassignFromUserIds(PermissionGroup pg, List<String> userIds) {
+        ensureAssignedToUserIds(pg);
+        pg.getAssignedToUserIds().removeAll(userIds);
+        return Mono.zip(
+                repository.updateById(pg.getId(), pg, AclPermission.MANAGE_PERMISSION_GROUPS),
+                cleanPermissionGroupCacheForUsers(userIds).thenReturn(TRUE)
+        )
+            .map(tuple -> tuple.getT1());
     }
 
     @Override

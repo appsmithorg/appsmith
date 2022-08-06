@@ -64,6 +64,7 @@ import static com.appsmith.server.acl.AclPermission.ASSIGN_PERMISSION_GROUPS;
 import static com.appsmith.server.acl.AclPermission.EXECUTE_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.MAKE_PUBLIC_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
+import static com.appsmith.server.acl.AclPermission.MANAGE_PERMISSION_GROUPS;
 import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
 import static com.appsmith.server.constants.FieldName.ANONYMOUS_USER;
 import static java.lang.Boolean.FALSE;
@@ -414,13 +415,19 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
                 .findFirst()
                 .get();
 
+
         // Let this newly created permission group be assignable by everyone who has permission for make public application
         Policy assignPermissionGroup = Policy.builder()
                 .permission(ASSIGN_PERMISSION_GROUPS.getValue())
                 .permissionGroups(makePublicPolicy.getPermissionGroups())
                 .build();
+        // Let this newly created permission group also be manageable by everyone who has permission for make public application
+        Policy managePermissionGroup = Policy.builder()
+                .permission(MANAGE_PERMISSION_GROUPS.getValue())
+                .permissionGroups(makePublicPolicy.getPermissionGroups())
+                .build();
 
-        publicPermissionGroup.setPolicies(Set.of(assignPermissionGroup));
+        publicPermissionGroup.setPolicies(Set.of(assignPermissionGroup, managePermissionGroup));
 
         return permissionGroupService.create(publicPermissionGroup);
     }

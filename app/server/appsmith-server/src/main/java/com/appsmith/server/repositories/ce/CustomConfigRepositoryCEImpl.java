@@ -31,7 +31,7 @@ public class CustomConfigRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Con
     @Override
     public Mono<Config> findByNameAsUser(String name, User user, AclPermission permission) {
 
-        return cacheableRepositoryHelper.getAllPermissionGroupsForUser(user)
+        return getAllPermissionGroupsForUser(user)
                 .flatMap(permissionGroups -> {
                     Criteria nameCriteria = where(fieldName(QConfig.config1.name)).is(name);
                     Query query = new Query(nameCriteria);

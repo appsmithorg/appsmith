@@ -22,28 +22,9 @@ import static com.appsmith.server.repositories.BaseAppsmithRepositoryImpl.fieldN
 public class CacheableRepositoryHelperCEImpl implements CacheableRepositoryHelperCE {
     private final ReactiveMongoOperations mongoOperations;
 
-    /**
-     * 1. Get all the user groups associated with the user
-     * 2. Get all the permission groups associated with anonymous user
-     * 3. Return the set of all the permission groups.
-     * @param user
-     * @return
-     */
     @Cache(cacheName = "permissionGroupsForUser", key="{#user.email + #user.tenantId}")
     @Override
-    public Mono<Set<String>> getAllPermissionGroupsForUser(User user) {
-        return Mono.zip(getPermissionGroupsOfUser(user), getAnonymousUserPermissionGroups())
-                .map(tuple -> {
-                    Set<String> currentUserPermissionGroups = tuple.getT1();
-                    Set<String> anonymousUserPermissionGroups = tuple.getT2();
-
-                    currentUserPermissionGroups.addAll(anonymousUserPermissionGroups);
-
-                    return currentUserPermissionGroups;
-                });
-    }
-
-    protected Mono<Set<String>> getPermissionGroupsOfUser(User user) {
+    public Mono<Set<String>> getPermissionGroupsOfUser(User user) {
         Criteria assignedToUserIdsCriteria = Criteria.where(fieldName(QPermissionGroup.permissionGroup.assignedToUserIds)).is(user.getId());
 
         Query query = new Query();
@@ -54,14 +35,15 @@ public class CacheableRepositoryHelperCEImpl implements CacheableRepositoryHelpe
                 .collect(Collectors.toSet());
     }
 
-    protected Mono<Set<String>> getAnonymousUserPermissionGroups() {
+    @Override
+    public Mono<Set<String>> getAnonymousUserPermissionGroups() {
         Criteria anonymousUserCriteria = Criteria.where(fieldName(QUser.user.email)).is(FieldName.ANONYMOUS_USER);
 
         Query query = new Query();
         query.addCriteria(anonymousUserCriteria);
 
         return mongoOperations.findOne(query, User.class)
-                .flatMap(anonymousUser -> getPermissionGroupsOfUser(anonymousUser));
+                .flatMap(anonymousUser -> this.getPermissionGroupsOfUser(anonymousUser));
     }
 
     @CacheEvict(cacheName = "permissionGroupsForUser", key="{#email + #tenantId}")

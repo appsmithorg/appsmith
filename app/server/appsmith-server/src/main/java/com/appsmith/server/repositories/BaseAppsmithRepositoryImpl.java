@@ -64,7 +64,7 @@ public abstract class BaseAppsmithRepositoryImpl<T extends BaseDomain> {
         Query query = new Query(where(fieldName(QUser.user.email)).is(username));
 
         return mongoOperations.findOne(query, User.class)
-                .flatMap(user -> cacheableRepositoryHelper.getAllPermissionGroupsForUser(user))
+                .flatMap(user -> getAllPermissionGroupsForUser(user))
                 .map(userPermissionGroupIds -> {
                     Optional<Policy> interestingPolicyOptional = policies.stream()
                             .filter(policy -> policy.getPermission().equals(permission))
@@ -136,7 +136,7 @@ public abstract class BaseAppsmithRepositoryImpl<T extends BaseDomain> {
         return ReactiveSecurityContextHolder.getContext()
                 .map(ctx -> ctx.getAuthentication())
                 .map(auth -> auth.getPrincipal())
-                .flatMap(principal -> cacheableRepositoryHelper.getAllPermissionGroupsForUser((User) principal))
+                .flatMap(principal -> getAllPermissionGroupsForUser((User) principal))
                 .flatMap(permissionGroups -> {
                     Query query = new Query(getIdCriteria(id));
                     query.addCriteria(new Criteria().andOperator(notDeleted(), userAcl(permissionGroups, permission)));
@@ -155,7 +155,7 @@ public abstract class BaseAppsmithRepositoryImpl<T extends BaseDomain> {
         return ReactiveSecurityContextHolder.getContext()
                 .map(ctx -> ctx.getAuthentication())
                 .map(auth -> auth.getPrincipal())
-                .zipWhen(principal -> cacheableRepositoryHelper.getAllPermissionGroupsForUser((User) principal))
+                .zipWhen(principal -> getAllPermissionGroupsForUser((User) principal))
                 .flatMap(touple -> {
                     User user = (User) touple.getT1();
                     Set<String> permissionGroups = touple.getT2();
@@ -190,7 +190,7 @@ public abstract class BaseAppsmithRepositoryImpl<T extends BaseDomain> {
         return ReactiveSecurityContextHolder.getContext()
                 .map(ctx -> ctx.getAuthentication())
                 .map(auth -> auth.getPrincipal())
-                .flatMap(principal -> cacheableRepositoryHelper.getAllPermissionGroupsForUser((User) principal))
+                .flatMap(principal -> getAllPermissionGroupsForUser((User) principal))
                 .flatMap(permissionGroups -> {
                     Query query = new Query(Criteria.where("id").is(id));
                     query.addCriteria(new Criteria().andOperator(notDeleted(), userAcl(permissionGroups, permission)));
@@ -212,7 +212,7 @@ public abstract class BaseAppsmithRepositoryImpl<T extends BaseDomain> {
         return ReactiveSecurityContextHolder.getContext()
                 .map(ctx -> ctx.getAuthentication())
                 .map(auth -> auth.getPrincipal())
-                .flatMap(principal -> cacheableRepositoryHelper.getAllPermissionGroupsForUser((User) principal))
+                .flatMap(principal -> getAllPermissionGroupsForUser((User) principal))
                 .flatMap(permissionGroups -> {
                     return mongoOperations.query(this.genericDomain)
                             .matching(createQueryWithPermission(criterias, permissionGroups, aclPermission))
@@ -225,7 +225,7 @@ public abstract class BaseAppsmithRepositoryImpl<T extends BaseDomain> {
         return ReactiveSecurityContextHolder.getContext()
                 .map(ctx -> ctx.getAuthentication())
                 .map(auth -> auth.getPrincipal())
-                .flatMap(principal -> cacheableRepositoryHelper.getAllPermissionGroupsForUser((User) principal))
+                .flatMap(principal -> getAllPermissionGroupsForUser((User) principal))
                 .flatMap(permissionGroups -> {
                     return mongoOperations.query(this.genericDomain)
                             .matching(createQueryWithPermission(criterias, permissionGroups, aclPermission))
@@ -250,11 +250,11 @@ public abstract class BaseAppsmithRepositoryImpl<T extends BaseDomain> {
         return ReactiveSecurityContextHolder.getContext()
                 .map(ctx -> ctx.getAuthentication())
                 .map(auth -> auth.getPrincipal())
-                .flatMap(principal -> cacheableRepositoryHelper.getAllPermissionGroupsForUser((User) principal))
+                .flatMap(principal -> getAllPermissionGroupsForUser((User) principal))
                 .flatMap(permissionGroups ->
-                    mongoOperations.count(
-                            createQueryWithPermission(criterias, permissionGroups, aclPermission), this.genericDomain
-                    )
+                        mongoOperations.count(
+                                createQueryWithPermission(criterias, permissionGroups, aclPermission), this.genericDomain
+                        )
                 );
     }
 
@@ -277,11 +277,11 @@ public abstract class BaseAppsmithRepositoryImpl<T extends BaseDomain> {
         return ReactiveSecurityContextHolder.getContext()
                 .map(ctx -> ctx.getAuthentication())
                 .map(auth -> auth.getPrincipal())
-                .flatMap(principal -> cacheableRepositoryHelper.getAllPermissionGroupsForUser((User) principal))
+                .flatMap(principal -> getAllPermissionGroupsForUser((User) principal))
                 .flatMapMany(permissionGroups -> {
                     Query query = new Query();
-                    if(!CollectionUtils.isEmpty(includeFields)) {
-                        for(String includeField: includeFields) {
+                    if (!CollectionUtils.isEmpty(includeFields)) {
+                        for (String includeField : includeFields) {
                             query.fields().include(includeField);
                         }
                     }
@@ -309,7 +309,7 @@ public abstract class BaseAppsmithRepositoryImpl<T extends BaseDomain> {
     public T setUserPermissionsInObject(T obj, Set<String> permissionGroups) {
         Set<String> permissions = new HashSet<>();
 
-        if(CollectionUtils.isEmpty(obj.getPolicies())) {
+        if (CollectionUtils.isEmpty(obj.getPolicies())) {
             return obj;
         }
 
@@ -335,6 +335,40 @@ public abstract class BaseAppsmithRepositoryImpl<T extends BaseDomain> {
         Criteria defaultAppIdCriteria = where(defaultResources + "." + FieldName.APPLICATION_ID).is(defaultApplicationId);
         Criteria gitSyncIdCriteria = where(FieldName.GIT_SYNC_ID).is(gitSyncId);
         return queryFirst(List.of(defaultAppIdCriteria, gitSyncIdCriteria), permission);
+    }
+
+    /**
+     * 1. Get all the user groups associated with the user
+     * 2. Get all the permission groups associated with anonymous user
+     * 3. Return the set of all the permission groups.
+     *
+     * @param user
+     * @return
+     */
+
+    protected Mono<Set<String>> getAllPermissionGroupsForUser(User user) {
+        return Mono.zip(
+                        cacheableRepositoryHelper.getPermissionGroupsOfUser(user),
+                        getAnonymousUserPermissionGroups()
+                )
+                .map(tuple -> {
+                    Set<String> currentUserPermissionGroups = tuple.getT1();
+                    Set<String> anonymousUserPermissionGroups = tuple.getT2();
+
+                    currentUserPermissionGroups.addAll(anonymousUserPermissionGroups);
+
+                    return currentUserPermissionGroups;
+                });
+    }
+
+    protected Mono<Set<String>> getAnonymousUserPermissionGroups() {
+        Criteria anonymousUserCriteria = Criteria.where(fieldName(QUser.user.email)).is(FieldName.ANONYMOUS_USER);
+
+        Query query = new Query();
+        query.addCriteria(anonymousUserCriteria);
+
+        return mongoOperations.findOne(query, User.class)
+                .flatMap(anonymousUser -> cacheableRepositoryHelper.getPermissionGroupsOfUser(anonymousUser));
     }
 
 }
