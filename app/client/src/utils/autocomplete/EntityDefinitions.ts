@@ -605,6 +605,12 @@ export const entityDefinitions = {
     isVisible: isVisible,
     progress: "number",
   },
+  DOCUMENT_VIEWER_WIDGET: {
+    "!doc": "Document viewer widget is used to show documents on a page",
+    "!url": "https://docs.appsmith.com/reference/widgets/document-viewer",
+    isVisible: isVisible,
+    docUrl: "string",
+  },
 };
 
 export const GLOBAL_DEFS = {
