@@ -78,48 +78,41 @@ describe("Test Query Pane  ", function() {
   });
 
   it("4. Test the user is displayed appropriate error messages on the wrong field data", function() {
-    cy.get(ApiEditor.dropdownActions).click();
-    cy.get(ApiEditor.dropdownOption)
-      .contains("List Message")
-      .click();
     const runQueryBtn = ".t--run-query";
 
     cy.get(runQueryBtn).click();
 
     cy.get(".t--query-error").contains(
-      '"message":"The requested resource /2010-04-01/Accounts/Messages.json was not found"',
+      '"message":"The requested resource /2010-04-01/Accounts/Messages.json was not found',
     );
 
-    cy.get(".CodeMirror-code") /*Datasent*/
-      .eq(2)
-      .type("twilio-test");
-
-    cy.get(".CodeMirror-code") /*Twilio Account SID*/
-      .last()
+    cy.get(".CodeMirror-code")
+      .first()
       .type(datasource["twilio-username"]);
-
-    cy.wait(3000);
-
-    cy.get(runQueryBtn).click();
-
-    cy.get(".t--query-error").contains('"message":"Invalid date value."');
-
-    cy.get(ApiEditor.dropdownActions).click();
-    cy.get(ApiEditor.dropdownOption)
-      .contains("Fetch Message")
-      .click();
-
-    cy.get(".CodeMirror-code") /*Message SID*/
-      .last()
-      .type("test");
-
-    cy.wait(3000);
 
     cy.get(runQueryBtn).click();
 
     cy.get(".t--query-error").contains(
-      '"message":"The requested resource /2010-04-01/Accounts/ACb034e9f7135d130efb8b65827f1d2b99/Messages/test.json was not found"',
+      '"message":"A \'To\' phone number is required."',
     );
+
+    cy.get(".CodeMirror-code") /*To*/
+      .eq(1)
+      .type("+14108675310");
+
+    cy.get(runQueryBtn).click();
+
+    cy.get(".t--query-error").contains(
+      '"message":"A \'From\' phone number is required."',
+    );
+
+    cy.get(".CodeMirror-code") /*From*/
+      .eq(2)
+      .type("+15005550006");
+
+    cy.get(runQueryBtn).click();
+
+    cy.get(".t--query-error").contains('"message":"Message body is required."');
   });
 
   it("5. Test Ensure Long body form is added", function() {
