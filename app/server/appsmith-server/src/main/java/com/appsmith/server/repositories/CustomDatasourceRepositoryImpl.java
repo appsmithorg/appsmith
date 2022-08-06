@@ -8,8 +8,8 @@ import org.springframework.stereotype.Component;
 @Component
 public class CustomDatasourceRepositoryImpl extends CustomDatasourceRepositoryCEImpl implements CustomDatasourceRepository {
 
-    public CustomDatasourceRepositoryImpl(ReactiveMongoOperations mongoOperations, MongoConverter mongoConverter) {
-        super(mongoOperations, mongoConverter);
+    public CustomDatasourceRepositoryImpl(ReactiveMongoOperations mongoOperations, MongoConverter mongoConverter, CacheableRepositoryHelper cacheableRepositoryHelper) {
+        super(mongoOperations, mongoConverter, cacheableRepositoryHelper);
     }
 
 }

@@ -1,8 +1,9 @@
 package com.appsmith.caching.aspects;
 
-import java.lang.reflect.Method;
-import java.util.List;
-
+import com.appsmith.caching.annotations.Cache;
+import com.appsmith.caching.annotations.CacheEvict;
+import com.appsmith.caching.components.CacheManager;
+import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -14,14 +15,11 @@ import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.ExpressionParser;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
-
-import com.appsmith.caching.annotations.CacheEvict;
-import com.appsmith.caching.annotations.Cache;
-import com.appsmith.caching.components.CacheManager;
-
-import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+
+import java.lang.reflect.Method;
+import java.util.List;
 
 /**
  * CacheAspect is an aspect that is used to cache the results of a method call annotated with Cache.
@@ -139,7 +137,7 @@ public class CacheAspect {
      * @return Result of the method call, either cached or after calling the original method
      * @throws Throwable
      */
-    @Around("execution(public * *(..)) && @annotation(com.appsmith.caching.annotations.Cache)")
+    @Around("@annotation(com.appsmith.caching.annotations.Cache)")
     public Object cacheable(ProceedingJoinPoint joinPoint) throws Throwable {
         MethodSignature signature = (MethodSignature) joinPoint.getSignature();
         Method method = signature.getMethod();
@@ -165,7 +163,7 @@ public class CacheAspect {
         }
         
         //If method does not returns Mono<T> or Flux<T> raise exception
-        throw new RuntimeException("Invalid usage of @Cache annotation. Only reactive objects Mono and Flux are supported for caching.");
+        throw new IllegalAccessException("Invalid usage of @Cache annotation. Only reactive objects Mono and Flux are supported for caching.");
     }
 
     /**
