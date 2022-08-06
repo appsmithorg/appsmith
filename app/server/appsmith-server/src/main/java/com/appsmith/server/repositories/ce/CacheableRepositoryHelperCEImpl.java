@@ -1,6 +1,7 @@
 package com.appsmith.server.repositories.ce;
 
 import com.appsmith.caching.annotations.Cache;
+import com.appsmith.caching.annotations.CacheEvict;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.QPermissionGroup;
@@ -61,5 +62,11 @@ public class CacheableRepositoryHelperCEImpl implements CacheableRepositoryHelpe
 
         return mongoOperations.findOne(query, User.class)
                 .flatMap(anonymousUser -> getPermissionGroupsOfUser(anonymousUser));
+    }
+
+    @CacheEvict(cacheName = "permissionGroupsForUser", key="{#email + #tenantId}")
+    @Override
+    public Mono<Void> evictPermissionGroupsUser(String email, String tenantId) {
+        return Mono.empty();
     }
 }

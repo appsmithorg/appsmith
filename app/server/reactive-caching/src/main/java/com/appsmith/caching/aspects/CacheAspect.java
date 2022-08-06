@@ -173,7 +173,7 @@ public class CacheAspect {
      * @return Mono<Void> that will complete after evicting the key from the cache
      * @throws Throwable
      */
-    @Around("execution(public * *(..)) && @annotation(com.appsmith.caching.annotations.CacheEvict)")
+    @Around("@annotation(com.appsmith.caching.annotations.CacheEvict)")
     public Object cacheEvict(ProceedingJoinPoint joinPoint) throws Throwable {
         MethodSignature signature = (MethodSignature) joinPoint.getSignature();
         Method method = signature.getMethod();

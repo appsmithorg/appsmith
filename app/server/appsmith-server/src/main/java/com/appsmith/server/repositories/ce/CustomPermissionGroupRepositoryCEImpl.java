@@ -57,4 +57,9 @@ public class CustomPermissionGroupRepositoryCEImpl extends BaseAppsmithRepositor
         Criteria defaultWorkspaceIdCriteria = where(fieldName(QPermissionGroup.permissionGroup.defaultWorkspaceId)).in(workspaceIds);
         return queryAll(List.of(defaultWorkspaceIdCriteria), permission);
     }
+
+    @Override
+    public Mono<Void> evictPermissionGroupsUser(String email, String tenantId) {
+        return cacheableRepositoryHelper.evictPermissionGroupsUser(email, tenantId);
+    }
 }
