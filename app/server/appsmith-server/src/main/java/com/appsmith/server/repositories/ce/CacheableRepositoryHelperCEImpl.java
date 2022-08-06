@@ -28,7 +28,7 @@ public class CacheableRepositoryHelperCEImpl implements CacheableRepositoryHelpe
      * @param user
      * @return
      */
-    @Cache(cacheName = "permissionGroupsForUser")
+    @Cache(cacheName = "permissionGroupsForUser", key="{#user.email + #user.tenantId}")
     @Override
     public Mono<Set<String>> getAllPermissionGroupsForUser(User user) {
         return Mono.zip(getPermissionGroupsOfUser(user), getAnonymousUserPermissionGroups())
