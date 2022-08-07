@@ -210,6 +210,7 @@ class TernServer {
     ) {
       after = '"]';
     }
+    const cursorHorizontalPos = start.ch + 2;
     for (let i = 0; i < data.completions.length; ++i) {
       const completion = data.completions[i];
       let className = typeToIcon(completion.type, completion.isKeyword);
@@ -239,6 +240,7 @@ class TernServer {
         };
         const keywordCompletions = getCompletionsForKeyword(
           codeMirrorCompletion,
+          cursorHorizontalPos,
         );
 
         completions = [...completions, ...keywordCompletions];
