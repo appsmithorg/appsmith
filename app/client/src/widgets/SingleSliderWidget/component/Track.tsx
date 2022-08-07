@@ -9,7 +9,7 @@ interface TrackProps {
   filled: number;
   offset: number;
   marksOffset?: number;
-  marks: { value: number; label: string }[];
+  marks?: { value: number; label: string }[];
   color: string;
   size: SliderSizes;
   min: number;

@@ -4,7 +4,7 @@ import styled from "styled-components";
 import { getPosition, isMarkedFilled, sizeMap, SliderSizes } from "../utils";
 
 interface MarksProps {
-  marks: { value: number; label: string }[];
+  marks?: { value: number; label: string }[];
   marksOffset?: number;
   color: string;
   size: SliderSizes;
@@ -29,7 +29,6 @@ const Mark = styled.div<
 >(({ color, disabled, isMarkFilled, size }) => ({
   boxSizing: "border-box",
   border: `${sizeMap[size] >= 8 ? "2px" : "1px"} solid #e9ecef`,
-  // border: "2px solid #e9ecef",
   height: `${sizeMap[size]}px`,
   width: `${sizeMap[size]}px`,
   borderRadius: 1000,
@@ -43,44 +42,52 @@ const MarkLabel = styled.div({
   fontSize: "14px",
   color: "#868e96",
   marginTop: "5px",
-  whiteSpace: "nowrap",
+  overflowWrap: "break-word",
 });
 
-export function Marks({
-  color,
-  disabled,
-  marks,
-  marksOffset,
-  max,
-  min,
-  onChange,
-  size,
-  value,
-}: MarksProps) {
-  const items = marks.map((mark, index) => (
-    <MarkWrapper key={index} max={max} min={min} value={mark.value}>
-      <Mark
-        color={color}
-        disabled={disabled}
-        isMarkFilled={isMarkedFilled({ mark, offset: marksOffset, value })}
-        size={size}
-      />
-      {mark.label && (
-        <MarkLabel
-          onMouseDown={(event) => {
-            event.stopPropagation();
-            onChange(mark.value);
-          }}
-          onTouchStart={(event) => {
-            event.stopPropagation();
-            onChange(mark.value);
-          }}
-        >
-          {mark.label}
-        </MarkLabel>
-      )}
-    </MarkWrapper>
-  ));
+export const Marks = React.memo(
+  ({
+    color,
+    disabled,
+    marks,
+    marksOffset,
+    max,
+    min,
+    onChange,
+    size,
+    value,
+  }: MarksProps) => {
+    if (!marks) return null;
 
-  return <div>{items}</div>;
-}
+    const items = marks.map((mark, index) => {
+      if (mark.value > max || mark.value < min) return null;
+
+      return (
+        <MarkWrapper key={index} max={max} min={min} value={mark.value}>
+          <Mark
+            color={color}
+            disabled={disabled}
+            isMarkFilled={isMarkedFilled({ mark, offset: marksOffset, value })}
+            size={size}
+          />
+          {mark.label && (
+            <MarkLabel
+              onMouseDown={(event) => {
+                event.stopPropagation();
+                onChange(mark.value);
+              }}
+              onTouchStart={(event) => {
+                event.stopPropagation();
+                onChange(mark.value);
+              }}
+            >
+              {mark.label}
+            </MarkLabel>
+          )}
+        </MarkWrapper>
+      );
+    });
+
+    return <div>{items}</div>;
+  },
+);

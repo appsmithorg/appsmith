@@ -40,8 +40,11 @@ export interface RangeSliderComponentProps
   /** Amount of digits after the decimal point */
   precision?: number;
 
-  /** Current value for controlled slider */
-  sliderValue: Value;
+  /** Start value for the range slider */
+  startValue: number;
+
+  /** End value for the range slider */
+  endValue: number;
 
   /** Called when user stops dragging slider or changes value with arrows */
   onChangeEnd?(value: Value): void;
@@ -50,7 +53,7 @@ export interface RangeSliderComponentProps
   name: string;
 
   /** Marks which will be placed on the track */
-  marks: { value: number; label: string }[];
+  marks?: { value: number; label: string }[];
 
   /** If true label will be not be hidden when user stops dragging */
   labelAlwaysOn?: boolean;
@@ -66,6 +69,7 @@ const RangeSliderComponent = (props: RangeSliderComponentProps) => {
   const {
     color,
     disabled = false,
+    endValue,
     labelAlwaysOn = false,
     marks,
     max,
@@ -76,7 +80,7 @@ const RangeSliderComponent = (props: RangeSliderComponentProps) => {
     precision,
     showLabelOnHover = true,
     sliderSize,
-    sliderValue,
+    startValue,
     step,
     ...others
   } = props;
@@ -84,7 +88,7 @@ const RangeSliderComponent = (props: RangeSliderComponentProps) => {
   const [focused, setFocused] = useState(-1);
   const [hovered, setHovered] = useState(false);
 
-  const [_value, setValue] = useState(sliderValue);
+  const [_value, setValue] = useState<Value>([startValue, endValue]);
 
   const valueRef = useRef(_value);
   const thumbs = useRef<HTMLDivElement[]>([]);
@@ -104,8 +108,8 @@ const RangeSliderComponent = (props: RangeSliderComponentProps) => {
    * an Input widget set our internal state.
    */
   useEffect(() => {
-    _setValue(sliderValue);
-  }, [sliderValue]);
+    _setValue([startValue, endValue]);
+  }, [startValue, endValue]);
 
   const setRangedValue = (
     val: number,

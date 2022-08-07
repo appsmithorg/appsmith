@@ -55,18 +55,18 @@ export interface SingleSliderComponentProps
 const SingleSliderComponent = (props: SingleSliderComponentProps) => {
   const {
     color,
-    sliderValue,
-    onChangeEnd,
-    min,
-    max,
-    step,
-    sliderSize,
-    precision,
-    name,
-    marks = [],
-    labelAlwaysOn = false,
-    showLabelOnHover = true,
     disabled = false,
+    labelAlwaysOn = false,
+    marks,
+    max,
+    min,
+    name,
+    onChangeEnd,
+    precision,
+    showLabelOnHover = true,
+    sliderSize,
+    sliderValue,
+    step,
   } = props;
 
   const [_value, setValue] = useState(sliderValue);

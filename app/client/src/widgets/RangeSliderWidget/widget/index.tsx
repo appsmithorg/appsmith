@@ -250,8 +250,9 @@ class RangeSliderWidget extends BaseWidget<
       <div className="flex items-center">
         <RangeSliderComponent
           color={this.props.fillColor}
+          endValue={this.props.end || 20}
           labelAlwaysOn={this.props.labelAlwaysOn}
-          marks={this.props.marks || []}
+          marks={this.props.marks}
           max={this.props.max || 100}
           min={this.props.min || 0}
           minRange={this.props.minRange || 10}
@@ -259,7 +260,7 @@ class RangeSliderWidget extends BaseWidget<
           onChangeEnd={this.onChangeEnd}
           showLabelOnHover={this.props.showLabelOnHover}
           sliderSize={this.props.sliderSize || "md"}
-          sliderValue={[this.props.start || 0, this.props.end || 20]}
+          startValue={this.props.start || 0}
           step={this.props.step || 1}
         />
       </div>

@@ -221,7 +221,7 @@ class SingleSliderWidget extends BaseWidget<
         <SingleSliderComponent
           color={this.props.fillColor}
           labelAlwaysOn={this.props.labelAlwaysOn}
-          marks={this.props.marks || []}
+          marks={this.props.marks}
           max={this.props.max || 100}
           min={this.props.min || 0}
           name={this.props.widgetName}
