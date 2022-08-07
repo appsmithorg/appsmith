@@ -19,7 +19,7 @@ import {
 import { FieldEntityInformation } from "components/editorComponents/CodeEditor/EditorConfig";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { AutocompleteSorter } from "./AutocompleteSortRules";
-import { getCompletionTextForKeyword } from "./keywordCompletion";
+import { getCompletionsForKeyword } from "./keywordCompletion";
 
 const DEFS: Def[] = [
   // @ts-expect-error: Types are not available
@@ -39,7 +39,7 @@ const hintDelay = 1700;
 
 export type Completion = Hint & {
   origin: string;
-  type: AutocompleteDataType;
+  type: AutocompleteDataType | string;
   data: {
     doc: string;
   };
@@ -237,9 +237,11 @@ class TernServer {
           element.setAttribute("keyword", data.displayText);
           element.innerHTML = data.displayText;
         };
-        codeMirrorCompletion.text = getCompletionTextForKeyword(
-          completion.name,
+        const keywordCompletions = getCompletionsForKeyword(
+          codeMirrorCompletion,
         );
+
+        completions = [...completions, ...keywordCompletions];
       }
       completions.push(codeMirrorCompletion);
     }
