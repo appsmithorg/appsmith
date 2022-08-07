@@ -19,6 +19,7 @@ import {
   EMPTY_RESPONSE_FIRST_HALF,
   EMPTY_RESPONSE_LAST_HALF,
   INSPECT_ENTITY,
+  ACTION_EXECUTION_MESSAGE,
 } from "@appsmith/constants/messages";
 import { Text, TextType } from "design-system";
 import { Text as BlueprintText } from "@blueprintjs/core";
@@ -546,7 +547,7 @@ function ApiResponseView(props: Props) {
           <LoadingOverlayContainer>
             <div>
               <Text textAlign={"center"} type={TextType.P1}>
-                Sending the API Request{" "}
+                {ACTION_EXECUTION_MESSAGE("API")}
               </Text>
               <CancelRequestButton
                 category={Category.tertiary}

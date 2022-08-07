@@ -56,6 +56,7 @@ import {
   DOCUMENTATION,
   DOCUMENTATION_TOOLTIP,
   INSPECT_ENTITY,
+  ACTION_EXECUTION_MESSAGE,
 } from "@appsmith/constants/messages";
 import { useParams } from "react-router";
 import { AppState } from "reducers";
@@ -1026,7 +1027,7 @@ export function EditorJSONtoForm(props: Props) {
                   <LoadingOverlayContainer>
                     <div>
                       <Text textAlign={"center"} type={TextType.P1}>
-                        Sending the API Request{" "}
+                        {ACTION_EXECUTION_MESSAGE("Query")}
                       </Text>
                       <CancelRequestButton
                         category={Category.tertiary}
