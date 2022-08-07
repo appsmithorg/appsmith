@@ -1454,3 +1454,13 @@ Cypress.Commands.add("discardTableRow", (x, y) => {
     `[data-colindex="${x}"][data-rowindex="${y}"] button span:contains('Discard')`,
   ).click({ force: true });
 });
+
+
+Cypress.Commands.add("moveToStyleTab", () => {
+  cy.get(commonlocators.propertyStyle).first().click({force:true})
+});
+
+
+Cypress.Commands.add("moveToContentTab", () => {
+  cy.get(commonlocators.propertyContent).first().click({force:true})
+});
