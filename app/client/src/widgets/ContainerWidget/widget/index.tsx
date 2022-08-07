@@ -171,7 +171,6 @@ class ContainerWidget extends BaseWidget<
       ? childWidget.bottomRow
       : componentHeight;
     childWidget.minHeight = componentHeight;
-    // childWidget.isVisible = this.props.isVisible;
     childWidget.shouldScrollContents = false;
     childWidget.canExtend = this.props.shouldScrollContents;
 

@@ -118,7 +118,6 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
     childData.bottomRow = this.props.shouldScrollContents
       ? Math.max(childData.bottomRow, this.props.height)
       : this.props.height;
-    childData.isVisible = this.props.isVisible;
     childData.containerStyle = "none";
     childData.minHeight = this.props.height;
     childData.rightColumn =
