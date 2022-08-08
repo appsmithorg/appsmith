@@ -4,9 +4,6 @@ export * from "./Callout";
 export { default as ColorPickerComponent } from "./ColorPickerComponent";
 export * from "./ColorPickerComponent";
 
-export { default as ColorSelector } from "./ColorSelector";
-export * from "./ColorSelector";
-
 export * from "./common";
 
 export { default as DialogComponent } from "./DialogComponent";

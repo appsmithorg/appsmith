@@ -30,6 +30,7 @@ import {
   AppIconName,
   Button,
   Category,
+  ColorSelector,
   IconPositions,
   Icon,
   IconSelector,
@@ -47,7 +48,6 @@ import EditableText, {
   EditInteractionKind,
   SavingState,
 } from "components/ads/EditableText";
-import ColorSelector from "components/ads/ColorSelector";
 import { useSelector } from "react-redux";
 import {
   ApplicationPagePayload,
