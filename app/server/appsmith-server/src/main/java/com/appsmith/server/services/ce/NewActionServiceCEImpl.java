@@ -566,8 +566,16 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                     final Datasource datasource = zippedData.getT2();
                     final NewAction newAction1 = zippedActions.getT2();
 
+                    final Map<String, Object> data = this.getAnalyticsProperties(newAction1, datasource);
+
+                    final Map<String, Object> auditData = Map.of(
+                            FieldName.VIEW_MODE, "edit",
+                            FieldName.ACTION, newAction1
+                    );
+                    data.put(FieldName.AUDIT_DATA, auditData);
+
                     return analyticsService
-                            .sendUpdateEvent(newAction1, this.getAnalyticsProperties(newAction1, datasource))
+                            .sendUpdateEvent(newAction1, data)
                             .thenReturn(zippedActions.getT1());
 
                 });
@@ -1293,9 +1301,15 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                                 .flatMap(zippedActions -> {
                                     final Datasource datasource = zippedActions.getT2();
                                     final NewAction newAction1 = zippedActions.getT1();
+                                    final Map<String, Object> data = this.getAnalyticsProperties(newAction1, datasource);
+                                    final Map<String, Object> auditData = Map.of(
+                                            FieldName.VIEW_MODE, "edit",
+                                            FieldName.ACTION, newAction1
+                                    );
+                                    data.put(FieldName.AUDIT_DATA, auditData);
 
                                     return analyticsService
-                                            .sendArchiveEvent(newAction1, this.getAnalyticsProperties(newAction1, datasource))
+                                            .sendArchiveEvent(newAction1, data)
                                             .thenReturn(zippedActions.getT1());
 
                                 })
@@ -1316,9 +1330,15 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                                 .flatMap(zippedActions -> {
                                     final Datasource datasource = zippedActions.getT2();
                                     final NewAction newAction1 = zippedActions.getT1();
+                                    final Map<String, Object> data = this.getAnalyticsProperties(newAction1, datasource);
+                                    final Map<String, Object> auditData = Map.of(
+                                            FieldName.VIEW_MODE, "edit",
+                                            FieldName.ACTION, newAction1
+                                    );
+                                    data.put(FieldName.AUDIT_DATA, auditData);
 
                                     return analyticsService
-                                            .sendDeleteEvent(newAction1, this.getAnalyticsProperties(newAction1, datasource))
+                                            .sendDeleteEvent(newAction1, data)
                                             .thenReturn(zippedActions.getT1());
 
                                 })
@@ -1746,9 +1766,15 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                         .flatMap(zippedActions -> {
                             final Datasource datasource = zippedActions.getT2();
                             final NewAction newAction1 = zippedActions.getT1();
+                            final Map<String, Object> data = this.getAnalyticsProperties(newAction1, datasource);
+                            final Map<String, Object> auditData = Map.of(
+                                    FieldName.VIEW_MODE, "edit",
+                                    FieldName.ACTION, newAction1
+                            );
+                            data.put(FieldName.AUDIT_DATA, auditData);
 
                             return analyticsService
-                                    .sendDeleteEvent(newAction1, this.getAnalyticsProperties(newAction1, datasource))
+                                    .sendDeleteEvent(newAction1, data)
                                     .thenReturn(zippedActions.getT1());
 
                         })
