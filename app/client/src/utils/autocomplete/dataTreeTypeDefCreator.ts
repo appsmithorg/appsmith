@@ -15,6 +15,7 @@ import {
   isWidget,
 } from "workers/evaluationUtils";
 import { DataTreeDefEntityInformation } from "utils/autocomplete/TernServer";
+import { klona } from "klona";
 // When there is a complex data type, we store it in extra def and refer to it
 // in the def
 let extraDefs: any = {};
@@ -93,6 +94,7 @@ export const dataTreeTypeDefCreator = (
 export function generateTypeDef(
   obj: any,
 ): string | Record<string, string | Record<string, unknown>> {
+  const objCopy = klona(obj);
   const type = getType(obj);
   switch (type) {
     case Types.ARRAY: {
@@ -101,9 +103,11 @@ export function generateTypeDef(
     }
     case Types.OBJECT: {
       const objType: Record<string, string | Record<string, unknown>> = {};
-      Object.keys(obj).forEach((k) => {
-        objType[k] = generateTypeDef(obj[k]);
-      });
+      if (!objCopy.isVisited)
+        Object.keys(objCopy).forEach((k) => {
+          objType[k] = generateTypeDef(objCopy[k]);
+        });
+      objCopy.isVisited = true;
       return objType;
     }
     case Types.STRING:

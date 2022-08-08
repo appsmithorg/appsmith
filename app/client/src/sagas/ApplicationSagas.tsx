@@ -25,7 +25,17 @@ import ApplicationApi, {
   SetDefaultPageRequest,
   UpdateApplicationRequest,
 } from "api/ApplicationApi";
-import { all, call, put, select, takeLatest } from "redux-saga/effects";
+import {
+  actionChannel,
+  ActionChannelEffect,
+  ActionPattern,
+  all,
+  call,
+  put,
+  select,
+  take,
+  takeLatest,
+} from "redux-saga/effects";
 
 import { validateResponse } from "./ErrorSagas";
 import { getUserApplicationsWorkspacesList } from "selectors/applicationSelectors";
@@ -95,6 +105,8 @@ import { getPluginForm } from "selectors/entitiesSelector";
 import { getConfigInitialValues } from "components/formControls/utils";
 import DatasourcesApi from "api/DatasourcesApi";
 import { resetApplicationWidgets } from "actions/pageActions";
+import { installScript } from "./EvaluationsSaga";
+import { Action } from "redux";
 
 export const getDefaultPageId = (
   pages?: ApplicationPagePayload[],
@@ -827,6 +839,18 @@ function* initDatasourceConnectionDuringImport(action: ReduxAction<string>) {
   yield put(initDatasourceConnectionDuringImportSuccess());
 }
 
+function* runInstallLibrarySaga() {
+  const requestChan: ActionPattern<Action<any>> = yield actionChannel(
+    "INSTALL_SCRIPT",
+  );
+  while (true) {
+    // 2- take from the channel
+    const { payload } = yield take(requestChan);
+    // 3- Note that we're using a blocking call
+    yield call(installScript, payload);
+  }
+}
+
 export default function* applicationSagas() {
   yield all([
     takeLatest(
@@ -869,5 +893,6 @@ export default function* applicationSagas() {
       ReduxActionTypes.FETCH_UNCONFIGURED_DATASOURCE_LIST,
       fetchUnconfiguredDatasourceList,
     ),
+    runInstallLibrarySaga(),
   ]);
 }

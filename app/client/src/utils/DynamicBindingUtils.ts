@@ -144,6 +144,7 @@ export enum EVAL_WORKER_ACTIONS {
   SET_EVALUATION_VERSION = "SET_EVALUATION_VERSION",
   INIT_FORM_EVAL = "INIT_FORM_EVAL",
   EXECUTE_SYNC_JS = "EXECUTE_SYNC_JS",
+  INSTALL_SCRIPT = "INSTALL_SCRIPT",
 }
 
 export type ExtraLibrary = {
@@ -152,6 +153,7 @@ export type ExtraLibrary = {
   displayName: string;
   accessor: string;
   lib: any;
+  tag: "default" | "cdnjs" | "npm";
 };
 
 export const extraLibraries: ExtraLibrary[] = [
@@ -161,6 +163,7 @@ export const extraLibraries: ExtraLibrary[] = [
     version: lodashVersion,
     docsURL: `https://lodash.com/docs/${lodashVersion}`,
     displayName: "lodash",
+    tag: "default",
   },
   {
     accessor: "moment",
@@ -168,6 +171,7 @@ export const extraLibraries: ExtraLibrary[] = [
     version: moment.version,
     docsURL: `https://momentjs.com/docs/`,
     displayName: "moment",
+    tag: "default",
   },
   {
     accessor: "xmlParser",
@@ -175,6 +179,7 @@ export const extraLibraries: ExtraLibrary[] = [
     version: "3.17.5",
     docsURL: "https://github.com/NaturalIntelligence/fast-xml-parser",
     displayName: "xmlParser",
+    tag: "default",
   },
   {
     accessor: "forge",
@@ -184,6 +189,7 @@ export const extraLibraries: ExtraLibrary[] = [
     version: "1.3.0",
     docsURL: "https://github.com/digitalbazaar/forge",
     displayName: "forge",
+    tag: "default",
   },
 ];
 
@@ -321,7 +327,6 @@ export const unsafeFunctionForEval = [
   "clearInterval",
   "setImmediate",
   "XMLHttpRequest",
-  "importScripts",
   "Navigator",
 ];
 

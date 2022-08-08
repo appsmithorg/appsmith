@@ -1,13 +1,18 @@
-import React, { useState } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import styled from "styled-components";
-import { TooltipComponent } from "design-system";
+import { Text, TextType, TooltipComponent } from "design-system";
 import { Colors } from "constants/Colors";
 import { BindingText } from "pages/Editor/APIEditor/Form";
 import { extraLibraries } from "utils/DynamicBindingUtils";
-import CollapseToggle from "./Entity/CollapseToggle";
-import Collapse from "./Entity/Collapse";
 import Icon from "components/ads/AppIcon";
 import { Size } from "components/ads/Button";
+import { TextInput } from "components/ads";
+import { useDispatch } from "react-redux";
+import Entity from "./Entity";
+import {
+  createMessage,
+  CREATE_DATASOURCE_TOOLTIP,
+} from "ce/constants/messages";
 
 const Wrapper = styled.div`
   font-size: 14px;
@@ -65,26 +70,72 @@ const Title = styled.div`
   }
 `;
 
-function JSDependencies() {
-  const [isOpen, setIsOpen] = useState(false);
-  const openDocs = (name: string, url: string) => () => window.open(url, name);
-  const dependencyList = extraLibraries.map((lib) => {
-    return (
-      <ListItem
-        key={lib.displayName}
-        onClick={openDocs(lib.displayName, lib.docsURL)}
-      >
-        <Name>{lib.displayName}</Name>
-        <Version className="t--package-version">{lib.version}</Version>
-        <Icon className="t--open-new-tab" name="open-new-tab" size={Size.xxs} />
-      </ListItem>
-    );
-  });
+const Tag = styled.div<{ bgColor: string }>`
+  background: ${(props) => props.bgColor};
+  padding: 1px 2px;
+  color: white;
+`;
 
-  const toggleDependencies = React.useCallback(
-    () => setIsOpen((open) => !open),
+const tagColors: any = {
+  cdnjs: "orange",
+  npm: "green",
+  default: "blue",
+};
+
+function JSDependencies() {
+  const openDocs = (name: string, url: string) => () => window.open(url, name);
+  const [results, setResults] = useState<any[]>([]);
+  const dispatch = useDispatch();
+  const defaultLibrariesNames = extraLibraries.map((lib) => lib.displayName);
+  const dependencyList = useMemo(
+    () =>
+      extraLibraries.map((lib) => {
+        return (
+          <ListItem
+            key={lib.displayName}
+            onClick={openDocs(lib.displayName, lib.docsURL)}
+          >
+            <Name>{lib.displayName}</Name>
+            <Version className="t--package-version">{lib.version}</Version>
+            <Icon
+              className="t--open-new-tab"
+              name="open-new-tab"
+              size={Size.xxs}
+            />
+          </ListItem>
+        );
+      }),
     [],
   );
+
+  const searchResults = useMemo(
+    () =>
+      results.map((lib: any) => {
+        return (
+          <div
+            className="flex flex-col hover:bg-gray-100 hover:cursor-pointer px-2 py-1"
+            key={lib.name}
+            onClick={() => installLibrary(lib)}
+          >
+            <div className="flex flex-row justify-between">
+              <div className="flex flex-row items-start gap-1">
+                <Text type={TextType.P4}>{lib.name}</Text>
+                <Tag bgColor={tagColors[lib.tag]}>{lib.tag}</Tag>
+              </div>
+              <Text type={TextType.P2}>{lib.version}</Text>
+            </div>
+            <Text type={TextType.P2}>{lib.description}</Text>
+          </div>
+        );
+      }),
+    [results],
+  );
+
+  const installLibrary = useCallback((lib) => {
+    const payload = lib.tag === "cdnjs" ? lib.latest : lib.name;
+    dispatch({ type: "INSTALL_SCRIPT", payload });
+  }, []);
+
   const showDocs = React.useCallback((e: any) => {
     window.open(
       "https://docs.appsmith.com/v/v1.2.1/core-concepts/writing-code/ext-libraries",
@@ -102,30 +153,58 @@ function JSDependencies() {
       <BindingText>{`{{ _.add(1,1) }}`}</BindingText>
     </div>
   );
+
+  const searchLibraries = useMemo(() => {
+    return async function(val: string) {
+      const [cdnCall, npmCall] = await Promise.all([
+        fetch(
+          `https://api.cdnjs.com/libraries?search=${val}&fields=name,latest,description,version&limit=10`,
+        ),
+        fetch(`https://api.npms.io/v2/search?q=${val}`),
+      ]);
+      const [cdnResults, npmCallResults] = await Promise.all([
+        cdnCall.json(),
+        npmCall.json(),
+      ]);
+
+      setResults([
+        ...(cdnResults.results || [])
+          .filter((lib: any) => !defaultLibrariesNames.includes(lib))
+          .map((res: any) => {
+            res.tag = "cdnjs";
+            return res;
+          }),
+        ...(npmCallResults.results || [])
+          .map((pack: any) => pack.package)
+          .filter((lib: any) => !defaultLibrariesNames.includes(lib))
+          .map((res: any) => {
+            res.tag = "npm";
+            return res;
+          }),
+      ]);
+    };
+  }, []);
+
   return (
-    <Wrapper>
-      <Title onClick={toggleDependencies}>
-        <CollapseToggle
-          className={""}
-          disabled={false}
-          isOpen={isOpen}
-          isVisible={!!dependencyList}
-          onClick={toggleDependencies}
+    <Entity
+      addButtonHelptext={createMessage(CREATE_DATASOURCE_TOOLTIP)}
+      entityId="dependencies_section"
+      icon={null}
+      isDefaultExpanded={false}
+      isSticky
+      name="LIBRARIES"
+      searchKeyword={""}
+      step={0}
+    >
+      <div className="flex flex-col p-2 overflow-auto">
+        <TextInput
+          height="28px"
+          onChange={(val) => searchLibraries(val)}
+          width="100%"
         />
-        <span className="text-gray-900 ml-1 font-medium">DEPENDENCIES</span>
-        <TooltipComponent content={TooltipContent} hoverOpenDelay={200}>
-          <Icon
-            className="t--help-icon"
-            name="help"
-            onClick={showDocs}
-            size={Size.xxs}
-          />
-        </TooltipComponent>
-      </Title>
-      <Collapse isOpen={isOpen} step={0}>
-        {dependencyList}
-      </Collapse>
-    </Wrapper>
+      </div>
+      {searchResults.length ? searchResults : dependencyList}
+    </Entity>
   );
 }
 

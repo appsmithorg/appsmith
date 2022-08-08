@@ -98,6 +98,8 @@ import { DataTreeDiff } from "workers/evaluationUtils";
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { AppTheme } from "entities/AppTheming";
 import { ActionValidationConfigMap } from "constants/PropertyControlConstants";
+import TernServer from "utils/autocomplete/TernServer";
+import { Toast } from "@blueprintjs/core";
 
 let widgetTypeConfigMap: WidgetTypeConfigMap;
 
@@ -655,6 +657,28 @@ export function* workerComputeUndoRedo(operation: string, entityId: string) {
     entityId,
   });
   return workerResponse;
+}
+
+export function* installScript(payload: string) {
+  const workerResponse: { accessor: string; backupDefs: any } = yield call(
+    worker.request,
+    "INSTALL_SCRIPT",
+    payload,
+  );
+  if (workerResponse.accessor) {
+    fetch(`http://localhost:8081/getDef?url=${payload}`)
+      .then((res) => res.json())
+      .then((res) => {
+        if (Object.keys(res).length === 1) {
+          res = { ...res, ...workerResponse.backupDefs };
+        }
+        TernServer.updateDef(workerResponse.accessor, res);
+        Toaster.show({
+          text: `Library installed. You can access it via ${workerResponse.accessor}`,
+          variant: Variant.success,
+        });
+      });
+  }
 }
 
 // Type to represent the state of the evaluation reducer

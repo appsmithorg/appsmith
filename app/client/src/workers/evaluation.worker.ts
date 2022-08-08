@@ -26,6 +26,7 @@ import { setFormEvaluationSaga } from "./formEval";
 import { isEmpty } from "lodash";
 import { EvalMetaUpdates } from "./DataTreeEvaluator/types";
 import { EvalTreePayload } from "../sagas/EvaluationsSaga";
+import { generateTypeDef } from "utils/autocomplete/dataTreeTypeDefCreator";
 
 const CANVAS = "canvas";
 
@@ -328,6 +329,34 @@ ctx.addEventListener(
         const { currentEvalState, payload, type } = requestData;
         const response = setFormEvaluationSaga(type, payload, currentEvalState);
         return response;
+      case EVAL_WORKER_ACTIONS.INSTALL_SCRIPT:
+        try {
+          const url = requestData.startsWith("http")
+            ? requestData
+            : `http://localhost:9999/standalone/${requestData}@latest`;
+          const oldKeys = Object.keys(self);
+          //@ts-expect-error test
+          self.importScripts(url);
+          const newKeys = Object.keys(self);
+          const latestKey = newKeys.filter((key) => !oldKeys.includes(key));
+          //@ts-expect-error test
+          const entity = self[latestKey[0]];
+          const backupDefs = {
+            [latestKey[0]]: Object.keys(entity).reduce((acc, key) => {
+              acc[key] = acc[key] || {};
+              acc[key] = {
+                "!type":
+                  typeof entity[key] === "function"
+                    ? "fn()"
+                    : typeof entity[key],
+              };
+              return acc;
+            }, {} as any),
+          };
+          return { accessor: latestKey[0], backupDefs };
+        } catch (e) {
+          return {};
+        }
       default: {
         console.error("Action not registered on worker", method);
       }

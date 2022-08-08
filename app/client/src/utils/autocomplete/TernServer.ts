@@ -121,6 +121,9 @@ class TernServer {
     this.server = new tern.Server({
       async: true,
       defs: DEFS,
+      plugins: {
+        modules: {},
+      },
     });
   }
 
@@ -170,9 +173,15 @@ class TernServer {
     def: Def,
     entityInfo?: Map<string, DataTreeDefEntityInformation>,
   ) {
+    const start = performance.now();
     this.server.deleteDefs(name);
     // @ts-expect-error: Types are not available
     this.server.addDefs(def);
+    console.log(
+      "Update Tern definitions:: *** ",
+      performance.now() - start,
+      "ms",
+    );
     if (entityInfo) this.defEntityInformation = entityInfo;
   }
 
