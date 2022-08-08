@@ -71,7 +71,7 @@ function SaveThemeModal(props: SaveThemeModalProps) {
       errorMessage = createMessage(UNIQUE_NAME_ERROR);
     }
 
-    if (/[^a-zA-Z0-9\-\/]/.test(value)) {
+    if (/[^a-zA-Z0-9\-\/\ ]/.test(value)) {
       isValid = false;
       errorMessage = createMessage(SPECIAL_CHARACTER_ERROR);
     }
