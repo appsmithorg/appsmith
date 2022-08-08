@@ -4,7 +4,7 @@ import {
   WrappedFieldMetaProps,
   WrappedFieldInputProps,
 } from "redux-form";
-import TagInputComponent from "components/ads/TagInputComponent";
+import { TagInputComponent } from "design-system";
 import { FormGroup } from "./Common";
 import { Intent } from "constants/DefaultTheme";
 import { Setting } from "@appsmith/pages/AdminSettings/config/types";
