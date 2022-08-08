@@ -16,7 +16,7 @@ const Wrapper = styled.div`
   align-items: center;
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: ${(props) => props.theme.spaces[9]}px;
 `;
 
 type LoadingScreenProps = {

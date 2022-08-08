@@ -1123,6 +1123,8 @@ export const CONTEXT_NO_PAGE = () => "No pages";
 export const CONTEXT_REFRESH = () => "Refresh";
 export const CONTEXT_CLONE = () => "Clone";
 export const CONTEXT_SET_AS_HOME_PAGE = () => "Set as Home Page";
+export const PAGE = () => "Page";
+export const PAGES = () => "Pages";
 
 // Entity explorer
 export const ADD_DATASOURCE_BUTTON = () => "ADD DATASOURCE";
@@ -1166,6 +1168,8 @@ export const FILTERS = () => "FILTERS";
 export const TEMPLATE_CARD_TITLE = () => "Start from a template";
 export const TEMPLATE_CARD_DESCRIPTION = () =>
   "Create app from template by selecting pages";
+export const FILTER_SELECTALL = () => "Select all";
+export const FILTER_SELECT_PAGES = () => "ADD SELECTED PAGES";
 
 export const IMAGE_LOAD_ERROR = () => "Unable to display the image";
 

@@ -10,10 +10,17 @@ import { useDispatch } from "react-redux";
 import { importTemplateIntoApplication } from "actions/templateActions";
 import { Template } from "api/TemplatesApi";
 import { ApplicationPagePayload } from "api/ApplicationApi";
+import {
+  createMessage,
+  FILTER_SELECTALL,
+  FILTER_SELECT_PAGES,
+  PAGE,
+  PAGES,
+} from "ce/constants/messages";
 
 const Wrapper = styled.div`
   width: max(300px, 25%);
-  padding-left: 20px;
+  padding-left: ${(props) => props.theme.spaces[9]}px;
   position: sticky;
   top: 0;
   position: -webkit-sticky;
@@ -23,12 +30,12 @@ const Wrapper = styled.div`
 const Card = styled.div`
   box-shadow: 0 2px 4px -2px rgba(0, 0, 0, 0.06),
     0 4px 8px -2px rgba(0, 0, 0, 0.1);
-  padding: 20px;
-  border: solid 1px #e7e7e7;
+  padding: ${(props) => props.theme.spaces[9]}px;
+  border: solid 1px ${Colors.GREY_4};
 
   hr {
-    background-color: #b3b3b3;
-    margin-top: 8px;
+    background-color: ${Colors.GRAY_400};
+    margin-top: ${(props) => props.theme.spaces[3]}px;
   }
 `;
 
@@ -38,7 +45,7 @@ const CardHeader = styled.div`
   align-items: center;
 
   .checkbox {
-    margin-left: 8px;
+    margin-left: ${(props) => props.theme.spaces[9]}px;
   }
 `;
 
@@ -79,12 +86,12 @@ const Page = styled.div`
       height: 20px;
       width: 20px;
     }
-    margin-right: 4px;
+    margin-right: ${(props) => props.theme.spaces[1]}px;
   }
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-top: 23px;
+  margin-top: ${(props) => props.theme.spaces[11]}px;
 `;
 
 const PageName = styled.div`
@@ -96,7 +103,7 @@ const PageName = styled.div`
 `;
 
 const StyledButton = styled(Button)`
-  margin-top: 22px;
+  margin-top: ${(props) => props.theme.spaces[11]}px;
 `;
 
 type PageSelectionProps = {
@@ -135,7 +142,9 @@ function PageSelection(props: PageSelectionProps) {
     props.pages.map((page) => page.name),
   );
   const pagesText =
-    props.pages.length > 1 || props.pages.length === 0 ? "Pages" : "Page";
+    props.pages.length > 1 || props.pages.length === 0
+      ? createMessage(PAGES)
+      : createMessage(PAGE);
 
   useEffect(() => {
     setSelectedPages(props.pages.map((page) => page.name));
@@ -179,7 +188,7 @@ function PageSelection(props: PageSelectionProps) {
             {props.pages.length} {pagesText}
           </Text>
           <div className="flex">
-            <Text type={TextType.P4}>Select all</Text>
+            <Text type={TextType.P4}>{createMessage(FILTER_SELECTALL)}</Text>
             <CustomCheckbox
               checked={selectedPages.length === props.pages.length}
               onChange={onSelectAllToggle}
@@ -209,7 +218,7 @@ function PageSelection(props: PageSelectionProps) {
           onClick={importPagesToApp}
           size={Size.large}
           tag="button"
-          text="ADD SELECTED PAGES"
+          text={createMessage(FILTER_SELECT_PAGES)}
           width="100%"
         />
       </Card>
