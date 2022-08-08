@@ -191,18 +191,26 @@ function* readBlob(blobUrl: string): any {
  * - individual objects containing blob urls
  * - blob urls directly
  * - else returns the value unchanged
+ * - finds datatype of evaluated value
+ * - binds dataype to payload
  *
  * @param value
  */
 
 function* resolvingBlobUrls(
   value: any,
-  executeActionRequest?: any,
-  index?: number,
-  arrDatatype?: string[],
+  executeActionRequest: ExecuteActionRequest,
+  index: number,
   isArray?: boolean,
+  arrDatatype?: string[],
 ) {
+  //Get datatypes of evaluated value.
   const dataType: string = findDatatype(value);
+  //If array elements then dont push datatypes to payload.
+  isArray
+    ? arrDatatype?.push(dataType)
+    : (executeActionRequest.paramProperties[`k${index}`] = dataType);
+
   if (isTrueObject(value)) {
     const blobUrlPaths: string[] = [];
     Object.keys(value).forEach((propertyName) => {
@@ -216,19 +224,11 @@ function* resolvingBlobUrls(
       const resolvedBlobValue: unknown = yield call(readBlob, blobUrl);
       set(value, blobUrlPath, resolvedBlobValue);
     }
-    executeActionRequest.paramProperties.push({ [`k${index}`]: dataType });
-  } else {
-    if (isBlobUrl(value)) {
-      // @ts-expect-error: Values can take many types
-      value = yield call(readBlob, value);
-    } else {
-      isArray
-        ? arrDatatype?.push(dataType)
-        : executeActionRequest.paramProperties.push({
-            [`k${index}`]: dataType,
-          });
-    }
+  } else if (isBlobUrl(value)) {
+    // @ts-expect-error: Values can take many types
+    value = yield call(readBlob, value);
   }
+
   return value;
 }
 
@@ -264,19 +264,20 @@ function* resolvingBlobUrls(
 function* evaluateActionParams(
   bindings: string[] | undefined,
   formData: FormData,
-  executeActionRequest: any,
+  executeActionRequest: ExecuteActionRequest,
   executionParams?: Record<string, any> | string,
 ) {
   if (_.isNil(bindings) || bindings.length === 0) {
-    executeActionRequest.paramProperties = {};
     formData.append("executeActionDTO", JSON.stringify(executeActionRequest));
     return [];
   }
   // Evaluated all bindings of the actions. Pass executionParams if any
   // @ts-expect-error: Values can take many types
   const values = yield call(evaluateActionBindings, bindings, executionParams);
-  const bindingsMap: any = {};
+
+  const bindingsMap: Record<string, string> = {};
   const bindingBlob = [];
+
   // Add keys values to formData for the multipart submission
   for (let i = 0; i < bindings.length; i++) {
     const key = bindings[i];
@@ -292,14 +293,12 @@ function* evaluateActionParams(
           val,
           executeActionRequest,
           i,
-          arrDatatype,
           true,
+          arrDatatype,
         );
         tempArr.push(newVal);
       }
-      executeActionRequest.paramProperties.push({
-        [`k${i}`]: "array",
-      });
+      executeActionRequest.paramProperties[`k${i}`] = "array";
       value = tempArr;
     } else {
       // @ts-expect-error: Values can take many types
@@ -313,16 +312,8 @@ function* evaluateActionParams(
     value = new Blob([value], { type: "text/plain" });
     bindingsMap[encodeURIComponent(key)] = `k${i}`;
     bindingBlob.push({ name: `k${i}`, value: value });
-    //formData.append(`k${i}`, value);
-    //formData.append(encodeURIComponent(key), value);
   }
-  executeActionRequest.paramProperties = Object.assign(
-    {},
-    ...executeActionRequest.paramProperties,
-  );
-  if (Object.keys(executeActionRequest.paramProperties).length === 0) {
-    executeActionRequest.paramProperties = {};
-  }
+
   formData.append("executeActionDTO", JSON.stringify(executeActionRequest));
   formData.append("parameterMap", JSON.stringify(bindingsMap));
   bindingBlob?.forEach((item) => formData.append(item.name, item.value));
@@ -907,7 +898,7 @@ function* executePluginActionSaga(
   const executeActionRequest: ExecuteActionRequest = {
     actionId: actionId,
     viewMode: appMode === APP_MODE.PUBLISHED,
-    paramProperties: [],
+    paramProperties: {},
   };
 
   if (paginationField) {
@@ -915,7 +906,7 @@ function* executePluginActionSaga(
   }
 
   const formData = new FormData();
-  //formData.append("executeActionDTO", JSON.stringify(executeActionRequest));
+
   yield call(
     evaluateActionParams,
     pluginAction.jsonPathKeys,
