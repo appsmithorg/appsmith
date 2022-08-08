@@ -182,27 +182,27 @@ export class GracefulWorkerService {
     const workerRequestId = `${method}__${_.uniqueId()}`;
     // The worker channel is the main channel
     // where the web worker messages will get posted
-    const workerChannel = channel();
-    this._channels.set(workerRequestId, workerChannel);
+    const mainChannel = channel();
+    this._channels.set(workerRequestId, mainChannel);
     // The main thread will listen to the
     // request channel where it will get worker messages
-    const mainThreadRequestChannel = channel();
+    const requestForExecutionChannel = channel();
     // The main thread will respond back on the
     // response channel which will be relayed to the worker
-    const mainThreadResponseChannel = channel();
+    const responseFromExecutionChannel = channel();
 
     // We spawn both the main thread request and response handler
     yield spawn(
       this.duplexRequestHandler,
-      workerChannel,
-      mainThreadRequestChannel,
-      mainThreadResponseChannel,
+      mainChannel,
+      requestForExecutionChannel,
+      responseFromExecutionChannel,
     );
     yield spawn(
       this.duplexResponseHandler,
       workerRequestId,
-      workerChannel,
-      mainThreadResponseChannel,
+      mainChannel,
+      responseFromExecutionChannel,
     );
 
     // And post the first message to the worker
@@ -214,15 +214,15 @@ export class GracefulWorkerService {
 
     // Returning these channels to the main thread so that they can listen and post on it
     return {
-      responseChannel: mainThreadResponseChannel,
-      requestChannel: mainThreadRequestChannel,
+      responseFromExecutionChannel: responseFromExecutionChannel,
+      requestForExecutionChannel: requestForExecutionChannel,
     };
   }
 
   *duplexRequestHandler(
-    workerChannel: Channel<any>,
-    requestChannel: Channel<any>,
-    responseChannel: Channel<any>,
+    mainChannel: Channel<any>,
+    requestForExecutionChannel: Channel<any>,
+    responseFromExecutionChannel: Channel<any>,
   ) {
     if (!this._evaluationWorker) return;
     try {
@@ -233,15 +233,15 @@ export class GracefulWorkerService {
           responseData: {
             finished: unknown;
           };
-        } = yield take(workerChannel);
+        } = yield take(mainChannel);
         const { responseData } = workerResponse;
         // post that message to the request channel so the main thread can read it
-        requestChannel.put({ requestData: responseData });
+        requestForExecutionChannel.put({ requestData: responseData });
         // If we get a finished flag, the worker is requesting to end the request
         if (responseData.finished) {
           keepAlive = false;
           // Relay the finished flag to the response channel as well
-          responseChannel.put({
+          responseFromExecutionChannel.put({
             finished: true,
           });
         }
@@ -250,21 +250,23 @@ export class GracefulWorkerService {
       log.error(e);
     } finally {
       // Cleanup
-      requestChannel.close();
+      requestForExecutionChannel.close();
     }
   }
 
   *duplexResponseHandler(
     workerRequestId: string,
-    workerChannel: Channel<any>,
-    responseChannel: Channel<any>,
+    mainChannel: Channel<any>,
+    responseFromExecutionChannel: Channel<any>,
   ) {
     if (!this._evaluationWorker) return;
     try {
       let keepAlive = true;
       while (keepAlive) {
         // Wait for the main thread to respond back after a request
-        const response: { finished: unknown } = yield take(responseChannel);
+        const response: { finished: unknown } = yield take(
+          responseFromExecutionChannel,
+        );
         // If we get a finished flag, the worker is requesting to end the request
         if (response.finished) {
           keepAlive = false;
@@ -280,8 +282,8 @@ export class GracefulWorkerService {
       log.error(e);
     } finally {
       // clean up everything
-      responseChannel.close();
-      workerChannel.close();
+      responseFromExecutionChannel.close();
+      mainChannel.close();
       this._channels.delete(workerRequestId);
     }
   }

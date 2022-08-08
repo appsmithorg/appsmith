@@ -240,15 +240,19 @@ export function* evaluateAndExecuteDynamicTrigger(
   const unEvalTree: DataTree = yield select(getUnevaluatedDataTree);
   log.debug({ execute: dynamicTrigger });
 
-  const { requestChannel, responseChannel } = yield call(
-    worker.duplexRequest,
-    EVAL_WORKER_ACTIONS.EVAL_TRIGGER,
-    { dataTree: unEvalTree, dynamicTrigger, callbackData, globalContext },
-  );
+  const {
+    requestForExecutionChannel,
+    responseFromExecutionChannel,
+  } = yield call(worker.duplexRequest, EVAL_WORKER_ACTIONS.EVAL_TRIGGER, {
+    dataTree: unEvalTree,
+    dynamicTrigger,
+    callbackData,
+    globalContext,
+  });
   let keepAlive = true;
 
   while (keepAlive) {
-    const { requestData } = yield take(requestChannel);
+    const { requestData } = yield take(requestForExecutionChannel);
     log.debug({ requestData });
     if (requestData.finished) {
       keepAlive = false;
@@ -289,7 +293,7 @@ export function* evaluateAndExecuteDynamicTrigger(
         executeTriggerRequestSaga,
         requestData,
         eventType,
-        responseChannel,
+        responseFromExecutionChannel,
         triggerMeta,
       );
     }
@@ -312,7 +316,7 @@ interface ResponsePayload {
 function* executeTriggerRequestSaga(
   requestData: { trigger: ActionDescription; subRequestId: string },
   eventType: EventType,
-  responseChannel: Channel<unknown>,
+  responseFromExecutionChannel: Channel<unknown>,
   triggerMeta: TriggerMeta,
 ) {
   const responsePayload: ResponsePayload = {
@@ -339,7 +343,7 @@ function* executeTriggerRequestSaga(
     responsePayload.data.reason = error;
     responsePayload.success = false;
   }
-  responseChannel.put({
+  responseFromExecutionChannel.put({
     method: EVAL_WORKER_ACTIONS.PROCESS_TRIGGER,
     ...responsePayload,
   });
