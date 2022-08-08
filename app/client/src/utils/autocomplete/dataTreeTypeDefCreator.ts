@@ -1,8 +1,4 @@
-import {
-  DataTree,
-  ENTITY_TYPE,
-  MetaArgs,
-} from "entities/DataTree/dataTreeFactory";
+import { DataTree, ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { uniqueId, get, isFunction } from "lodash";
 import { entityDefinitions } from "utils/autocomplete/EntityDefinitions";
 import { getType, Types } from "utils/TypeHelpers";
@@ -17,6 +13,8 @@ import {
 import { DataTreeDefEntityInformation } from "utils/autocomplete/TernServer";
 
 export type ExtraDef = Record<string, Def | string>;
+
+import { Variable } from "entities/JSCollection";
 
 // Def names are encoded with information about the entity
 // This so that we have more info about them
@@ -35,6 +33,7 @@ export const dataTreeTypeDefCreator = (
     "!name": "DATA_TREE",
   };
   const entityMap: Map<string, DataTreeDefEntityInformation> = new Map();
+
   Object.entries(dataTree).forEach(([entityName, entity]) => {
     if (isWidget(entity)) {
       const widgetType = entity.type;
@@ -65,11 +64,18 @@ export const dataTreeTypeDefCreator = (
         subType: ENTITY_TYPE.APPSMITH,
       });
     } else if (isJSAction(entity) && isJSEditorEnabled) {
-      const metaObj: Record<string, MetaArgs> = entity.meta;
+      const metaObj = entity.meta;
       const jsPropertiesDef: Def = {};
+
       for (const key in metaObj) {
-        jsPropertiesDef[key] =
-          "fn(onSuccess: fn() -> void, onError: fn() -> void) -> void";
+        // const jsFunctionObj = metaObj[key];
+        // const { arguments: args } = jsFunctionObj;
+        // const argsTypeString = getFunctionsArgsType(args);
+        // As we don't show args we avoid to get args def of function
+        // we will also need to check performance implications here
+
+        const argsTypeString = getFunctionsArgsType([]);
+        jsPropertiesDef[key] = argsTypeString;
       }
 
       for (let i = 0; i < entity.variables.length; i++) {
@@ -89,6 +95,7 @@ export const dataTreeTypeDefCreator = (
       def["!define"] = { ...extraDefsToDefine };
     }
   });
+
   return { def, entityInfo: entityMap };
 };
 
@@ -149,4 +156,33 @@ export const flattenDef = (def: Def, entityName: string): Def => {
     });
   }
   return flattenedDef;
+};
+
+const VALID_VARIABLE_NAME_REGEX = /^([a-zA-Z_$][a-zA-Z\d_$]*)$/;
+
+const isValidVariableName = (variableName: string) =>
+  VALID_VARIABLE_NAME_REGEX.test(variableName);
+
+export const getFunctionsArgsType = (args: Variable[]): string => {
+  // skip same name args to avoiding creating invalid type
+  const argNames = new Set<string>();
+  // skip invalid args name
+  args.forEach((arg) => {
+    if (arg.name && isValidVariableName(arg.name)) argNames.add(arg.name);
+  });
+  const argNamesArray = [...argNames];
+  const argsTypeString = argNamesArray.reduce(
+    (accumulatedArgType, argName, currentIndex) => {
+      switch (currentIndex) {
+        case 0:
+          return `${argName}: ?`;
+        case 1:
+          return `${accumulatedArgType}, ${argName}: ?`;
+        default:
+          return `${accumulatedArgType}, ${argName}: ?`;
+      }
+    },
+    argNamesArray[0],
+  );
+  return argsTypeString ? `fn(${argsTypeString})` : `fn()`;
 };

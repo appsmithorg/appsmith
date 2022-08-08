@@ -5,6 +5,7 @@ export const WIDGET = {
   CURRENCY_INPUT_WIDGET: "currencyinputwidget",
   BUTTON_WIDGET: "buttonwidget",
   MULTISELECT_WIDGET: "multiselectwidgetv2",
+  BUTTON_GROUP_WIDGET: "buttongroupwidget",
   TREESELECT_WIDGET: "singleselecttreewidget",
   TAB: "tabswidget",
   TABLE: "tablewidgetv2",
@@ -21,7 +22,7 @@ export const WIDGET = {
   AUDIORECORDER: "audiorecorderwidget",
   PHONEINPUT: "phoneinputwidget",
   CAMERA: "camerawidget",
-  FILEPICKER: "filepickerwidgetv2"
+  FILEPICKER: "filepickerwidgetv2",
 } as const;
 
 export const PROPERTY_SELECTOR = {
