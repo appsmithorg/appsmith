@@ -3,11 +3,18 @@ import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 const {
   AggregateHelper: agHelper,
   ApiPage: apiPage,
+  DataSources: dataSources,
   EntityExplorer: ee,
   JSEditor: jsEditor,
 } = ObjectsRegistry;
 
+let guid: any, dsName: any;
+
 describe("Move objects/actions/queries to different pages", () => {
+  before(() => {
+    dataSources.StartDataSourceRoutes();
+  });
+
   it("1. Appends copy to name of JS object when it already exist in another page", () => {
     // create object in page 1
     jsEditor.CreateJSObject('return "Hello World";', {
@@ -66,4 +73,31 @@ describe("Move objects/actions/queries to different pages", () => {
     ee.SelectEntityByName("Page2");
     ee.AssertEntityAbsenceInExplorer("Api1");
   });
+
+  it("3. Create a new MySQL DS", () => {
+    dataSources.CreateDataSource("MySql");
+    cy.get("@dsName").then(($dsName) => {
+      dsName = $dsName;
+    });
+  });
+
+  it("4. Appends copy to name of Query when it already exist in another page", () => {
+    dataSources.NavigateFromActiveDS(dsName, true);
+    agHelper.GetNClick(dataSources._templateMenu);
+    agHelper.RenameWithInPane("verifyDescribe");
+    runQueryNValidate("Describe customers;", [
+      "Field",
+      "Type",
+      "Null",
+      "Key",
+      "Default",
+      "Extra",
+    ]);
+  });
 });
+
+function runQueryNValidate(query: string, columnHeaders: string[]) {
+  dataSources.EnterQuery(query);
+  dataSources.RunQuery();
+  dataSources.AssertQueryResponseHeaders(columnHeaders);
+}
