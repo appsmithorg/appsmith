@@ -12,9 +12,6 @@ export * from "./common";
 export { default as CopyToClipboard } from "./CopyToClipBoard";
 export * from "./CopyToClipBoard";
 
-export { default as DatePickerComponent } from "./DatePickerComponent";
-export * from "./DatePickerComponent";
-
 export { default as DialogComponent } from "./DialogComponent";
 export * from "./DialogComponent";
 
