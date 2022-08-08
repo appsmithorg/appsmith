@@ -1,21 +1,29 @@
 package com.external.plugins;
 
+import com.appsmith.external.constants.Authentication;
+import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionResult;
+import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.Endpoint;
 import com.appsmith.external.models.RequestParamDTO;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.HttpHost;
+import org.apache.http.auth.AuthScope;
+import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.client.CredentialsProvider;
+import org.apache.http.impl.client.BasicCredentialsProvider;
+import org.apache.http.impl.nio.client.HttpAsyncClientBuilder;
 import org.elasticsearch.client.Request;
 import org.elasticsearch.client.RestClient;
+import org.elasticsearch.client.RestClientBuilder;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.springframework.http.HttpMethod;
 import org.testcontainers.elasticsearch.ElasticsearchContainer;
-import org.testcontainers.utility.DockerImageName;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
@@ -39,20 +47,36 @@ public class ElasticSearchPluginTest {
 
     @ClassRule
     public static final ElasticsearchContainer container = new ElasticsearchContainer("docker.elastic.co/elasticsearch/elasticsearch:7.12.1")
-            .withEnv("discovery.type", "single-node");
-
+            .withEnv("discovery.type", "single-node")
+            .withPassword("esPassword");
+    private static String username = "elastic";
+    private static String password = "esPassword";
     private static final DatasourceConfiguration dsConfig = new DatasourceConfiguration();
+    private static DBAuth elasticInstanceCredentials = new DBAuth(DBAuth.Type.USERNAME_PASSWORD, username, password, null);
     private static String host;
     private static Integer port;
+
 
     @BeforeClass
     public static void setUp() throws IOException {
         port = container.getMappedPort(9200);
         host = "http://" + container.getContainerIpAddress();
 
-        final RestClient client = RestClient.builder(
-                new HttpHost(container.getContainerIpAddress(), port, "http")
-        ).build();
+        final CredentialsProvider credentialsProvider =
+                new BasicCredentialsProvider();
+        credentialsProvider.setCredentials(AuthScope.ANY,
+                new UsernamePasswordCredentials(username, password));
+
+        RestClient client = RestClient.builder(
+                        new HttpHost(container.getContainerIpAddress(), port, "http"))
+                .setHttpClientConfigCallback(new RestClientBuilder.HttpClientConfigCallback() {
+                    @Override
+                    public HttpAsyncClientBuilder customizeHttpClient(
+                            HttpAsyncClientBuilder httpClientBuilder) {
+                        return httpClientBuilder
+                                .setDefaultCredentialsProvider(credentialsProvider);
+                    }
+                }).build();
 
         Request request;
 
@@ -69,8 +93,11 @@ public class ElasticSearchPluginTest {
         client.performRequest(request);
 
         client.close();
-
+        elasticInstanceCredentials.setAuthenticationType(Authentication.BASIC);
+        elasticInstanceCredentials.setUsername(username);
+        elasticInstanceCredentials.setPassword(password);
         dsConfig.setEndpoints(List.of(new Endpoint(host, port.longValue())));
+        dsConfig.setAuthentication(elasticInstanceCredentials);
     }
 
     private Mono<ActionExecutionResult> execute(HttpMethod method, String path, String body) {
@@ -130,7 +157,7 @@ public class ElasticSearchPluginTest {
                     expectedRequestParams.add(new RequestParamDTO("actionConfiguration.httpMethod", HttpMethod.GET.toString(),
                             null, null, null));
                     expectedRequestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_PATH, "/planets/_mget", null, null, null));
-                    expectedRequestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_BODY,  contentJson, null, null, null));
+                    expectedRequestParams.add(new RequestParamDTO(ACTION_CONFIGURATION_BODY, contentJson, null, null, null));
                     assertEquals(result.getRequest().getRequestParams().toString(), expectedRequestParams.toString());
                 })
                 .verifyComplete();
@@ -208,12 +235,12 @@ public class ElasticSearchPluginTest {
     public void testBulkWithDirectBody() {
         final String contentJson =
                 "{ \"index\" : { \"_index\" : \"test2\", \"_type\": \"doc\", \"_id\" : \"1\" } }\n" +
-                "{ \"field1\" : \"value1\" }\n" +
-                "{ \"delete\" : { \"_index\" : \"test2\", \"_type\": \"doc\", \"_id\" : \"2\" } }\n" +
-                "{ \"create\" : { \"_index\" : \"test2\", \"_type\": \"doc\", \"_id\" : \"3\" } }\n" +
-                "{ \"field1\" : \"value3\" }\n" +
-                "{ \"update\" : {\"_id\" : \"1\", \"_type\": \"doc\", \"_index\" : \"test2\"} }\n" +
-                "{ \"doc\" : {\"field2\" : \"value2\"} }\n";
+                        "{ \"field1\" : \"value1\" }\n" +
+                        "{ \"delete\" : { \"_index\" : \"test2\", \"_type\": \"doc\", \"_id\" : \"2\" } }\n" +
+                        "{ \"create\" : { \"_index\" : \"test2\", \"_type\": \"doc\", \"_id\" : \"3\" } }\n" +
+                        "{ \"field1\" : \"value3\" }\n" +
+                        "{ \"update\" : {\"_id\" : \"1\", \"_type\": \"doc\", \"_index\" : \"test2\"} }\n" +
+                        "{ \"doc\" : {\"field2\" : \"value2\"} }\n";
 
         StepVerifier.create(execute(HttpMethod.POST, "/_bulk", contentJson))
                 .assertNext(result -> {
@@ -230,6 +257,7 @@ public class ElasticSearchPluginTest {
     @Test
     public void itShouldValidateDatasourceWithNoEndpoints() {
         DatasourceConfiguration invalidDatasourceConfiguration = new DatasourceConfiguration();
+        invalidDatasourceConfiguration.setAuthentication(elasticInstanceCredentials);
 
         Assert.assertEquals(Set.of("No endpoint provided. Please provide a host:port where ElasticSearch is reachable."),
                 pluginExecutor.validateDatasource(invalidDatasourceConfiguration));
@@ -238,6 +266,7 @@ public class ElasticSearchPluginTest {
     @Test
     public void itShouldValidateDatasourceWithEmptyPort() {
         DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
+        datasourceConfiguration.setAuthentication(elasticInstanceCredentials);
         Endpoint endpoint = new Endpoint();
         endpoint.setHost(host);
         datasourceConfiguration.setEndpoints(Collections.singletonList(endpoint));
@@ -249,6 +278,7 @@ public class ElasticSearchPluginTest {
     @Test
     public void itShouldValidateDatasourceWithEmptyHost() {
         DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
+        datasourceConfiguration.setAuthentication(elasticInstanceCredentials);
         Endpoint endpoint = new Endpoint();
         endpoint.setPort(Long.valueOf(port));
         datasourceConfiguration.setEndpoints(Collections.singletonList(endpoint));
@@ -260,7 +290,7 @@ public class ElasticSearchPluginTest {
     @Test
     public void itShouldValidateDatasourceWithMissingEndpoint() {
         DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
-
+        datasourceConfiguration.setAuthentication(elasticInstanceCredentials);
         Endpoint endpoint = new Endpoint();
         datasourceConfiguration.setEndpoints(Collections.singletonList(endpoint));
 
@@ -272,6 +302,7 @@ public class ElasticSearchPluginTest {
     public void itShouldValidateDatasourceWithEndpointNoProtocol() {
         DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
         Endpoint endpoint = new Endpoint();
+        datasourceConfiguration.setAuthentication(elasticInstanceCredentials);
         endpoint.setHost("localhost");
         endpoint.setPort(Long.valueOf(port));
         datasourceConfiguration.setEndpoints(Collections.singletonList(endpoint));
@@ -284,6 +315,7 @@ public class ElasticSearchPluginTest {
     @Test
     public void itShouldTestDatasourceWithInvalidEndpoint() {
         DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
+        datasourceConfiguration.setAuthentication(elasticInstanceCredentials);
         Endpoint endpoint = new Endpoint();
         endpoint.setHost("localhost");
         endpoint.setPort(Long.valueOf(port));
@@ -303,5 +335,131 @@ public class ElasticSearchPluginTest {
                     assertTrue(result.getInvalids().isEmpty());
                 })
                 .verifyComplete();
+    }
+
+    @Test
+    public void shouldVerifyUnauthorized() {
+        final Integer secureHostPort = container.getMappedPort(9200);
+        final String secureHostEndpoint = "http://" + container.getHttpHostAddress();
+        DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
+        Endpoint endpoint = new Endpoint(secureHostEndpoint, Long.valueOf(secureHostPort));
+        datasourceConfiguration.setEndpoints(Collections.singletonList(endpoint));
+
+
+        StepVerifier.create(pluginExecutor.testDatasource(datasourceConfiguration)
+                        .map(result -> {
+                            return (Set<String>) result.getInvalids();
+                        }))
+                .expectNext(Set.of(ElasticSearchPlugin.ElasticSearchPluginExecutor.esDatasourceUnauthorizedMessage))
+                .verifyComplete();
+
+    }
+
+
+    @Test
+    public void shouldVerifyNotFound() {
+        final Integer secureHostPort = container.getMappedPort(9200);
+        final String secureHostEndpoint = "http://esdatabasenotfound.co";
+        DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
+        Endpoint endpoint = new Endpoint(secureHostEndpoint, Long.valueOf(secureHostPort));
+        datasourceConfiguration.setEndpoints(Collections.singletonList(endpoint));
+
+        StepVerifier.create(pluginExecutor.testDatasource(datasourceConfiguration)
+                        .map(result -> {
+                            return (Set<String>) result.getInvalids();
+                        }))
+                .expectNext(Set.of(ElasticSearchPlugin.ElasticSearchPluginExecutor.esDatasourceNotFoundMessage))
+                .verifyComplete();
+
+    }
+
+    @Test
+    public void itShouldDenyTestDatasourceWithInstanceMetadataAws() {
+        DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
+        datasourceConfiguration.setAuthentication(elasticInstanceCredentials);
+        Endpoint endpoint = new Endpoint();
+        endpoint.setHost("http://169.254.169.254");
+        endpoint.setPort(Long.valueOf(port));
+        datasourceConfiguration.setEndpoints(Collections.singletonList(endpoint));
+
+        StepVerifier.create(pluginExecutor.testDatasource(datasourceConfiguration))
+                .assertNext(result -> {
+                    assertFalse(result.getInvalids().isEmpty());
+                    assertTrue(result.getInvalids().contains("Invalid host provided."));
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void itShouldDenyTestDatasourceWithInstanceMetadataGcp() {
+        DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
+        datasourceConfiguration.setAuthentication(elasticInstanceCredentials);
+        Endpoint endpoint = new Endpoint();
+        endpoint.setHost("http://metadata.google.internal");
+        endpoint.setPort(Long.valueOf(port));
+        datasourceConfiguration.setEndpoints(Collections.singletonList(endpoint));
+
+        StepVerifier.create(pluginExecutor.testDatasource(datasourceConfiguration))
+                .assertNext(result -> {
+                    assertFalse(result.getInvalids().isEmpty());
+                    assertTrue(result.getInvalids().contains("Invalid host provided."));
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void itShouldDenyCreateDatasourceWithInstanceMetadataAws() {
+        DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
+        datasourceConfiguration.setAuthentication(elasticInstanceCredentials);
+        Endpoint endpoint = new Endpoint();
+        endpoint.setHost("http://169.254.169.254");
+        endpoint.setPort(Long.valueOf(port));
+        datasourceConfiguration.setEndpoints(Collections.singletonList(endpoint));
+
+        StepVerifier.create(pluginExecutor.datasourceCreate(datasourceConfiguration))
+                .verifyErrorSatisfies(e -> {
+                    assertTrue(e instanceof AppsmithPluginException);
+                    assertEquals("Invalid host provided.", e.getMessage());
+                });
+    }
+
+    @Test
+    public void itShouldDenyCreateDatasourceWithInstanceMetadataGcp() {
+        DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
+        datasourceConfiguration.setAuthentication(elasticInstanceCredentials);
+        Endpoint endpoint = new Endpoint();
+        endpoint.setHost("https://metadata.google.internal");
+        endpoint.setPort(Long.valueOf(port));
+        datasourceConfiguration.setEndpoints(Collections.singletonList(endpoint));
+
+        StepVerifier.create(pluginExecutor.datasourceCreate(datasourceConfiguration))
+                .verifyErrorSatisfies(e -> {
+                    assertTrue(e instanceof AppsmithPluginException);
+                    assertEquals("Invalid host provided.", e.getMessage());
+                });
+    }
+
+    @Test
+    public void itShouldValidateDatasourceWithInstanceMetadataAws() {
+        DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
+        datasourceConfiguration.setAuthentication(elasticInstanceCredentials);
+        Endpoint endpoint = new Endpoint();
+        endpoint.setHost("http://169.254.169.254");
+        endpoint.setPort(Long.valueOf(port));
+        datasourceConfiguration.setEndpoints(Collections.singletonList(endpoint));
+
+        Assert.assertEquals(Set.of("Invalid host provided."), pluginExecutor.validateDatasource(datasourceConfiguration));
+    }
+
+    @Test
+    public void itShouldValidateDatasourceWithInstanceMetadataGcp() {
+        DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
+        datasourceConfiguration.setAuthentication(elasticInstanceCredentials);
+        Endpoint endpoint = new Endpoint();
+        endpoint.setHost("https://metadata.google.internal");
+        endpoint.setPort(Long.valueOf(port));
+        datasourceConfiguration.setEndpoints(Collections.singletonList(endpoint));
+
+        Assert.assertEquals(Set.of("Invalid host provided."), pluginExecutor.validateDatasource(datasourceConfiguration));
     }
 }
