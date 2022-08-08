@@ -26,6 +26,7 @@ import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.ActionProvider;
 import com.appsmith.server.domains.Application;
+import com.appsmith.server.domains.ApplicationMode;
 import com.appsmith.server.domains.DatasourceContext;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
@@ -568,11 +569,11 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
 
                     final Map<String, Object> data = this.getAnalyticsProperties(newAction1, datasource);
 
-                    final Map<String, Object> auditData = Map.of(
-                            FieldName.VIEW_MODE, "edit",
+                    final Map<String, Object> eventData = Map.of(
+                            FieldName.APP_MODE, ApplicationMode.EDIT.toString(),
                             FieldName.ACTION, newAction1
                     );
-                    data.put(FieldName.AUDIT_DATA, auditData);
+                    data.put(FieldName.AUDIT_DATA, eventData);
 
                     return analyticsService
                             .sendUpdateEvent(newAction1, data)
@@ -1086,7 +1087,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                             ),
                             "orgId", application.getWorkspaceId(),
                             "appId", action.getApplicationId(),
-                            "appMode", TRUE.equals(viewMode) ? "view" : "edit",
+                            "appMode", TRUE.equals(viewMode) ? "view" : ApplicationMode.EDIT.toString(),
                             "appName", application.getName(),
                             "isExampleApp", application.isAppIsExample()
                     ));
@@ -1302,11 +1303,11 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                                     final Datasource datasource = zippedActions.getT2();
                                     final NewAction newAction1 = zippedActions.getT1();
                                     final Map<String, Object> data = this.getAnalyticsProperties(newAction1, datasource);
-                                    final Map<String, Object> auditData = Map.of(
-                                            FieldName.VIEW_MODE, "edit",
+                                    final Map<String, Object> eventData = Map.of(
+                                            FieldName.APP_MODE, ApplicationMode.EDIT.toString(),
                                             FieldName.ACTION, newAction1
                                     );
-                                    data.put(FieldName.AUDIT_DATA, auditData);
+                                    data.put(FieldName.AUDIT_DATA, eventData);
 
                                     return analyticsService
                                             .sendArchiveEvent(newAction1, data)
@@ -1331,11 +1332,11 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                                     final Datasource datasource = zippedActions.getT2();
                                     final NewAction newAction1 = zippedActions.getT1();
                                     final Map<String, Object> data = this.getAnalyticsProperties(newAction1, datasource);
-                                    final Map<String, Object> auditData = Map.of(
-                                            FieldName.VIEW_MODE, "edit",
+                                    final Map<String, Object> eventData = Map.of(
+                                            FieldName.APP_MODE, ApplicationMode.EDIT.toString(),
                                             FieldName.ACTION, newAction1
                                     );
-                                    data.put(FieldName.AUDIT_DATA, auditData);
+                                    data.put(FieldName.AUDIT_DATA, eventData);
 
                                     return analyticsService
                                             .sendDeleteEvent(newAction1, data)
@@ -1767,11 +1768,11 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                             final Datasource datasource = zippedActions.getT2();
                             final NewAction newAction1 = zippedActions.getT1();
                             final Map<String, Object> data = this.getAnalyticsProperties(newAction1, datasource);
-                            final Map<String, Object> auditData = Map.of(
-                                    FieldName.VIEW_MODE, "edit",
+                            final Map<String, Object> eventData = Map.of(
+                                    FieldName.APP_MODE, ApplicationMode.EDIT.toString(),
                                     FieldName.ACTION, newAction1
                             );
-                            data.put(FieldName.AUDIT_DATA, auditData);
+                            data.put(FieldName.AUDIT_DATA, eventData);
 
                             return analyticsService
                                     .sendDeleteEvent(newAction1, data)

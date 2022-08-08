@@ -118,6 +118,6 @@ public class FieldName {
     public static final String AUDIT_DATA = "auditData";
     public static final String MODE_OF_LOGIN = "modeOfLogin";
     public static final String FORM_LOGIN = "FormLogin";
-    public static final String VIEW_MODE = "viewMode";
+    public static final String APP_MODE = "appMode";
     public static final String PAGE_ORDER = "order";
 }
