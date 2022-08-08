@@ -14,7 +14,7 @@ import apiPaneSagas from "./ApiPaneSagas";
 import jsPaneSagas from "./JSPaneSagas";
 import userSagas from "./userSagas";
 import pluginSagas from "./PluginSagas";
-import orgSagas from "./OrgSagas";
+import workspaceSagas from "./WorkspaceSagas";
 import importedCollectionsSagas from "./CollectionSagas";
 import providersSagas from "./ProvidersSaga";
 import curlImportSagas from "./CurlImportSagas";
@@ -30,11 +30,8 @@ import saaSPaneSagas from "./SaaSPaneSagas";
 import actionExecutionChangeListeners from "./WidgetLoadingSaga";
 import globalSearchSagas from "./GlobalSearchSagas";
 import recentEntitiesSagas from "./RecentEntitiesSagas";
-import commentSagas from "./CommentSagas";
 import websocketSagas from "./WebsocketSagas/WebsocketSagas";
 import debuggerSagas from "./DebuggerSagas";
-import tourSagas from "./TourSagas";
-import notificationsSagas from "./NotificationsSagas";
 import replaySaga from "./ReplaySaga";
 import selectionCanvasSagas from "./CanvasSagas/SelectionCanvasSagas";
 import draggingCanvasSagas from "./CanvasSagas/DraggingCanvasSagas";
@@ -62,7 +59,7 @@ const sagas = [
   userSagas,
   templateSagas,
   pluginSagas,
-  orgSagas,
+  workspaceSagas,
   importedCollectionsSagas,
   providersSagas,
   curlImportSagas,
@@ -78,12 +75,9 @@ const sagas = [
   utilSagas,
   globalSearchSagas,
   recentEntitiesSagas,
-  commentSagas,
   websocketSagas,
   debuggerSagas,
   saaSPaneSagas,
-  tourSagas,
-  notificationsSagas,
   selectionCanvasSagas,
   replaySaga,
   draggingCanvasSagas,

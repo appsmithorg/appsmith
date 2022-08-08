@@ -7,7 +7,7 @@ import Dropdown, {
 import Button, { Size } from "components/ads/Button";
 import FlagBadge from "components/utils/FlagBadge";
 import { JSCollection } from "entities/JSCollection";
-import Tooltip from "components/ads/Tooltip";
+import { TooltipComponent as Tooltip } from "design-system";
 import { createMessage, NO_JS_FUNCTION_TO_RUN } from "ce/constants/messages";
 import { StyledButton } from "components/ads/Button";
 import { JSActionDropdownOption } from "./utils";
@@ -65,6 +65,7 @@ export function JSFunctionRun({
     <DropdownWithCTAWrapper isDisabled={disabled}>
       <Dropdown
         customBadge={<FlagBadge name="Async" />}
+        cypressSelector="function-select-dropdown"
         height={RUN_BUTTON_DEFAULTS.HEIGHT}
         onSelect={onSelect}
         options={options}

@@ -3,6 +3,7 @@ import Api from "api/Api";
 import { ApiResponse } from "./ApiResponses";
 import { WidgetType } from "constants/WidgetConstants";
 import { ApplicationResponsePayload } from "./ApplicationApi";
+import { Datasource } from "entities/Datasource";
 
 export interface Template {
   id: string;
@@ -18,19 +19,16 @@ export interface Template {
   datasources: string[];
 }
 
+export type FetchTemplatesResponse = ApiResponse<Template[]>;
 export type FilterKeys = "widgets" | "datasources";
 
-export interface FetchTemplatesResponse extends ApiResponse {
-  data: Template[];
-}
+export type FetchTemplateResponse = ApiResponse<Template>;
 
-export interface FetchTemplateResponse extends ApiResponse {
-  data: Template;
-}
-
-export interface ImportTemplateResponse extends ApiResponse {
-  data: ApplicationResponsePayload;
-}
+export type ImportTemplateResponse = ApiResponse<{
+  isPartialImport: boolean;
+  unConfiguredDatasourceList: Datasource[];
+  application: ApplicationResponsePayload;
+}>;
 
 class TemplatesAPI extends Api {
   static baseUrl = "v1";
@@ -52,11 +50,11 @@ class TemplatesAPI extends Api {
   }
   static importTemplate(
     templateId: string,
-    organizationId: string,
+    workspaceId: string,
   ): AxiosPromise<ImportTemplateResponse> {
     return Api.post(
       TemplatesAPI.baseUrl +
-        `/app-templates/${templateId}/import/${organizationId}`,
+        `/app-templates/${templateId}/import/${workspaceId}`,
     );
   }
 }

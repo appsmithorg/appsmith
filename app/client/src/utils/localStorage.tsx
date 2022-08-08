@@ -64,8 +64,8 @@ export const getLocalStorage = () => {
         throw new LocalStorageNotSupportedError();
       }
       return storage.getItem(key);
-    } catch (e) {
-      handleError(e);
+    } catch (error) {
+      handleError(error as Error);
     }
     return null;
   };
@@ -76,8 +76,8 @@ export const getLocalStorage = () => {
         throw new LocalStorageNotSupportedError();
       }
       storage.setItem(key, value);
-    } catch (e) {
-      handleError(e);
+    } catch (error) {
+      handleError(error as Error);
     }
   };
 
@@ -87,8 +87,8 @@ export const getLocalStorage = () => {
         throw new LocalStorageNotSupportedError();
       }
       storage.removeItem(key);
-    } catch (e) {
-      handleError(e);
+    } catch (error) {
+      handleError(error as Error);
     }
   };
 
@@ -98,8 +98,8 @@ export const getLocalStorage = () => {
         throw new LocalStorageNotSupportedError();
       }
       storage.clear();
-    } catch (e) {
-      handleError(e);
+    } catch (error) {
+      handleError(error as Error);
     }
   };
 

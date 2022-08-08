@@ -20,8 +20,10 @@ import {
   createMessage,
   FIELD_REQUIRED_ERROR,
   INPUT_DEFAULT_TEXT_MAX_CHAR_ERROR,
+  INPUT_TEXT_MAX_CHAR_ERROR,
 } from "@appsmith/constants/messages";
 import {
+  ActionUpdateDependency,
   BaseFieldComponentProps,
   FieldComponentBaseProps,
   FieldEventProps,
@@ -297,6 +299,7 @@ function BaseInputField<TSchemaItem extends SchemaItem>({
           event: {
             type: EventType.ON_TEXT_CHANGE,
           },
+          updateDependencyType: ActionUpdateDependency.FORM_DATA,
         });
       }
     },
@@ -305,7 +308,6 @@ function BaseInputField<TSchemaItem extends SchemaItem>({
 
   const conditionalProps = useMemo(() => {
     const { errorMessage, isRequired, maxChars } = schemaItem;
-
     const isInvalid = !isValueValid; // valid property in property pane
     const props = {
       errorMessage,
@@ -330,7 +332,18 @@ function BaseInputField<TSchemaItem extends SchemaItem>({
         inputDefaultValue?.toString()?.length > maxChars
       ) {
         props.isInvalid = true;
-        props.errorMessage = createMessage(INPUT_DEFAULT_TEXT_MAX_CHAR_ERROR);
+        props.errorMessage = createMessage(
+          INPUT_DEFAULT_TEXT_MAX_CHAR_ERROR,
+          maxChars,
+        );
+      } else if (
+        inputText &&
+        typeof inputText === "string" &&
+        inputDefaultValue !== inputText &&
+        inputText?.toString()?.length > maxChars
+      ) {
+        props.isInvalid = true;
+        props.errorMessage = createMessage(INPUT_TEXT_MAX_CHAR_ERROR, maxChars);
       }
     }
 

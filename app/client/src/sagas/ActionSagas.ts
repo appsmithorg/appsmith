@@ -16,8 +16,8 @@ import {
 } from "redux-saga/effects";
 import { Datasource } from "entities/Datasource";
 import ActionAPI, { ActionCreateUpdateResponse } from "api/ActionAPI";
-import { GenericApiResponse } from "api/ApiResponses";
-import PageApi from "api/PageApi";
+import { ApiResponse } from "api/ApiResponses";
+import PageApi, { FetchPageResponse } from "api/PageApi";
 import { updateCanvasWithDSL } from "sagas/PageSagas";
 import {
   copyActionError,
@@ -38,11 +38,7 @@ import {
 import { getDynamicBindingsChangesSaga } from "utils/DynamicBindingUtils";
 import { validateResponse } from "./ErrorSagas";
 import { transformRestAction } from "transformers/RestActionTransformer";
-import {
-  getActionById,
-  getCurrentPageId,
-  selectPageSlugById,
-} from "selectors/editorSelectors";
+import { getActionById, getCurrentPageId } from "selectors/editorSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import {
   Action,
@@ -90,11 +86,8 @@ import AppsmithConsole from "utils/AppsmithConsole";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import { createNewApiAction } from "actions/apiPaneActions";
-import {
-  createNewApiName,
-  createNewQueryName,
-  getQueryParams,
-} from "utils/AppsmithUtils";
+import { createNewApiName, createNewQueryName } from "utils/AppsmithUtils";
+import { getQueryParams } from "utils/URLUtils";
 import { DEFAULT_API_ACTION_CONFIG } from "constants/ApiEditorConstants";
 import {
   setGlobalSearchCategory,
@@ -113,6 +106,7 @@ import { Plugin } from "api/PluginApi";
 import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
 import { SnippetAction } from "reducers/uiReducers/globalSearchReducer";
 import * as log from "loglevel";
+import { shouldBeDefined } from "utils/helpers";
 import {
   apiEditorIdURL,
   builderURL,
@@ -130,19 +124,22 @@ export function* createActionSaga(
   try {
     let payload = actionPayload.payload;
     if (actionPayload.payload.pluginId) {
-      const editorConfig = yield select(
+      const editorConfig: any[] = yield select(
         getEditorConfig,
         actionPayload.payload.pluginId,
       );
 
-      const settingConfig = yield select(
+      const settingConfig: any[] = yield select(
         getSettingConfig,
         actionPayload.payload.pluginId,
       );
 
-      let initialValues = yield call(getConfigInitialValues, editorConfig);
+      let initialValues: Record<string, unknown> = yield call(
+        getConfigInitialValues,
+        editorConfig,
+      );
       if (settingConfig) {
-        const settingInitialValues = yield call(
+        const settingInitialValues: Record<string, unknown> = yield call(
           getConfigInitialValues,
           settingConfig,
         );
@@ -151,18 +148,19 @@ export function* createActionSaga(
       payload = merge(initialValues, actionPayload.payload);
     }
 
-    const response: ActionCreateUpdateResponse = yield ActionAPI.createAction(
+    const response: ApiResponse<ActionCreateUpdateResponse> = yield ActionAPI.createAction(
       payload,
     );
-    const isValidResponse = yield validateResponse(response);
+    const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
-      const pageName = yield select(
+      const pageName: string = yield select(
         getCurrentPageNameByActionId,
         response.data.id,
       );
 
       AnalyticsUtil.logEvent("CREATE_ACTION", {
         id: response.data.id,
+        // @ts-expect-error: name does not exists on type ActionCreateUpdateResponse
         actionName: response.data.name,
         pageName: pageName,
         ...actionPayload.payload.eventData,
@@ -173,11 +171,13 @@ export function* createActionSaga(
         source: {
           type: ENTITY_TYPE.ACTION,
           id: response.data.id,
+          // @ts-expect-error: name does not exists on type ActionCreateUpdateResponse
           name: response.data.name,
         },
       });
 
       const newAction = response.data;
+      // @ts-expect-error: type mismatch ActionCreateUpdateResponse vs Action
       yield put(createActionSuccess(newAction));
     }
   } catch (error) {
@@ -197,10 +197,10 @@ export function* fetchActionsSaga(
     { mode: "EDITOR", appId: applicationId },
   );
   try {
-    const response: GenericApiResponse<Action[]> = yield ActionAPI.fetchActions(
+    const response: ApiResponse<Action[]> = yield ActionAPI.fetchActions(
       applicationId,
     );
-    const isValidResponse = yield validateResponse(response);
+    const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
       yield put({
         type: ReduxActionTypes.FETCH_ACTIONS_SUCCESS,
@@ -232,7 +232,7 @@ export function* fetchActionsForViewModeSaga(
     { mode: "VIEWER", appId: applicationId },
   );
   try {
-    const response: GenericApiResponse<ActionViewMode[]> = yield ActionAPI.fetchActionsForViewMode(
+    const response: ApiResponse<ActionViewMode[]> = yield ActionAPI.fetchActionsForViewMode(
       applicationId,
     );
     const isValidResponse: boolean = yield validateResponse(response);
@@ -279,15 +279,14 @@ export function* fetchActionsForPageSaga(
     { pageId: pageId },
   );
   try {
-    const response: GenericApiResponse<Action[]> = yield call(
+    const response: ApiResponse<Action[]> = yield call(
       ActionAPI.fetchActionsByPageId,
       pageId,
     );
-    const isValidResponse = yield validateResponse(response);
+    const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
-      yield put(
-        fetchActionsForPageSuccess(response.data, action.postEvalActions),
-      );
+      yield put(fetchActionsForPageSuccess(response.data));
+      // wait for success of
       PerformanceTracker.stopAsyncTracking(
         PerformanceTransactionName.FETCH_PAGE_ACTIONS_API,
       );
@@ -321,18 +320,16 @@ export function* updateActionSaga(
     }
 
     /* NOTE: This  is fix for a missing command config */
-    const plugin = yield select(getPlugin, action.pluginId);
-    if (action && plugin.packageName === PLUGIN_PACKAGE_MONGO) {
-      /* eslint-disable-next-line */
-      //@ts-ignore
+    const plugin: Plugin | undefined = yield select(getPlugin, action.pluginId);
+    if (action && plugin && plugin.packageName === PLUGIN_PACKAGE_MONGO) {
+      // @ts-expect-error: Types are not available
       action = fixActionPayloadForMongoQuery(action);
     }
-    const response: GenericApiResponse<Action> = yield ActionAPI.updateAction(
-      /* eslint-disable-next-line */
-      //@ts-ignore
+    const response: ApiResponse<Action> = yield ActionAPI.updateAction(
+      // @ts-expect-error: Types are not available
       action,
     );
-    const isValidResponse = yield validateResponse(response);
+    const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
       const pageName: string = yield select(
         getCurrentPageNameByActionId,
@@ -393,16 +390,15 @@ export function* deleteActionSaga(
     const isApi = action.pluginType === PluginType.API;
     const isQuery = action.pluginType === PluginType.DB;
     const isSaas = action.pluginType === PluginType.SAAS;
+    const pageId: string = yield select(getCurrentPageId);
 
-    const response: GenericApiResponse<Action> = yield ActionAPI.deleteAction(
-      id,
-    );
-    const isValidResponse = yield validateResponse(response);
+    const response: ApiResponse<Action> = yield ActionAPI.deleteAction(id);
+    const isValidResponse: boolean = yield validateResponse(response);
     if (!isValidResponse) {
       return;
     }
     if (isApi) {
-      const pageName = yield select(getCurrentPageNameByActionId, id);
+      const pageName: string = yield select(getCurrentPageNameByActionId, id);
       AnalyticsUtil.logEvent("DELETE_API", {
         apiName: name,
         pageName,
@@ -410,7 +406,7 @@ export function* deleteActionSaga(
       });
     }
     if (isSaas) {
-      const pageName = yield select(getCurrentPageNameByActionId, id);
+      const pageName: string = yield select(getCurrentPageNameByActionId, id);
       AnalyticsUtil.logEvent("DELETE_SAAS", {
         apiName: name,
         pageName,
@@ -428,6 +424,7 @@ export function* deleteActionSaga(
     } else {
       history.push(
         integrationEditorURL({
+          pageId,
           selectedTab: INTEGRATION_TABS.NEW,
         }),
       );
@@ -463,9 +460,12 @@ function* moveActionSaga(
     name: string;
   }>,
 ) {
-  const actionObject: Action = yield select(getAction, action.payload.id);
+  const actionObject = shouldBeDefined<Action>(
+    yield select(getAction, action.payload.id),
+    `Action not found for id - ${action.payload.id}`,
+  );
   try {
-    const response = yield ActionAPI.moveAction({
+    const response: ApiResponse = yield ActionAPI.moveAction({
       action: {
         ...actionObject,
         pageId: action.payload.originalPageId,
@@ -474,20 +474,28 @@ function* moveActionSaga(
       destinationPageId: action.payload.destinationPageId,
     });
 
-    const isValidResponse = yield validateResponse(response);
-    const pageName = yield select(getPageNameByPageId, response.data.pageId);
+    const isValidResponse: boolean = yield validateResponse(response);
+    const pageName: string = yield select(
+      getPageNameByPageId,
+      // @ts-expect-error: response is of type unknown
+      response.data.pageId,
+    );
     if (isValidResponse) {
       Toaster.show({
+        // @ts-expect-error: response is of type unknown
         text: createMessage(ACTION_MOVE_SUCCESS, response.data.name, pageName),
         variant: Variant.success,
       });
     }
 
     AnalyticsUtil.logEvent("MOVE_API", {
+      // @ts-expect-error: response is of type unknown
       apiName: response.data.name,
       pageName: pageName,
+      // @ts-expect-error: response is of type unknown
       apiID: response.data.id,
     });
+    // @ts-expect-error: response is of type unknown
     yield put(moveActionSuccess(response.data));
   } catch (e) {
     Toaster.show({
@@ -515,11 +523,17 @@ function* copyActionSaga(
       pageId: action.payload.destinationPageId,
     }) as Partial<Action>;
     delete copyAction.id;
-    const response = yield ActionAPI.createAction(copyAction);
-    const datasources = yield select(getDatasources);
+    const response: ApiResponse<ActionCreateUpdateResponse> = yield ActionAPI.createAction(
+      copyAction,
+    );
+    const datasources: Datasource[] = yield select(getDatasources);
 
-    const isValidResponse = yield validateResponse(response);
-    const pageName = yield select(getPageNameByPageId, response.data.pageId);
+    const isValidResponse: boolean = yield validateResponse(response);
+    const pageName: string = yield select(
+      getPageNameByPageId,
+      // @ts-expect-error: pageId not present on ActionCreateUpdateResponse
+      response.data.pageId,
+    );
     if (isValidResponse) {
       Toaster.show({
         text: createMessage(ACTION_COPY_SUCCESS, actionObject.name, pageName),
@@ -528,6 +542,7 @@ function* copyActionSaga(
     }
 
     AnalyticsUtil.logEvent("DUPLICATE_API", {
+      // @ts-expect-error: name not present on ActionCreateUpdateResponse
       apiName: response.data.name,
       pageName: pageName,
       apiID: response.data.id,
@@ -535,15 +550,18 @@ function* copyActionSaga(
 
     // checking if there is existing datasource to be added to the action payload
     const existingDatasource = datasources.find(
+      // @ts-expect-error: datasource not present on ActionCreateUpdateResponse
       (d: Datasource) => d.id === response.data.datasource.id,
     );
 
     let payload = response.data;
 
     if (existingDatasource) {
+      // @ts-expect-error: datasource not present on ActionCreateUpdateResponse
       payload = { ...payload, datasource: existingDatasource };
     }
 
+    // @ts-expect-error: type mismatch Action vs ActionCreateUpdateResponse
     yield put(copyActionSuccess(payload));
   } catch (e) {
     const actionName = actionObject ? actionObject.name : "";
@@ -566,16 +584,16 @@ export function* refactorActionName(
     PerformanceTransactionName.REFACTOR_ACTION_NAME,
     { actionId: id },
   );
-  const pageResponse = yield call(PageApi.fetchPage, {
+  const pageResponse: FetchPageResponse = yield call(PageApi.fetchPage, {
     id: pageId,
   });
   // check if page request is successful
-  const isPageRequestSuccessful = yield validateResponse(pageResponse);
+  const isPageRequestSuccessful: boolean = yield validateResponse(pageResponse);
   if (isPageRequestSuccessful) {
     // get the layoutId from the page response
     const layoutId = pageResponse.data.layouts[0].id;
     // call to refactor action
-    const refactorResponse = yield ActionAPI.updateActionName({
+    const refactorResponse: ApiResponse = yield ActionAPI.updateActionName({
       layoutId,
       actionId: id,
       pageId: pageId,
@@ -583,9 +601,11 @@ export function* refactorActionName(
       newName: newName,
     });
 
-    const isRefactorSuccessful = yield validateResponse(refactorResponse);
+    const isRefactorSuccessful: boolean = yield validateResponse(
+      refactorResponse,
+    );
 
-    const currentPageId = yield select(getCurrentPageId);
+    const currentPageId: string = yield select(getCurrentPageId);
 
     PerformanceTracker.stopAsyncTracking(
       PerformanceTransactionName.REFACTOR_ACTION_NAME,
@@ -599,6 +619,7 @@ export function* refactorActionName(
         },
       });
       if (currentPageId === pageId) {
+        // @ts-expect-error: refactorResponse is of type unknown
         yield updateCanvasWithDSL(refactorResponse.data, pageId, layoutId);
       } else {
         yield put(fetchActionsForPage(pageId));
@@ -629,11 +650,15 @@ function* bindDataOnCanvasSaga(
 function* saveActionName(action: ReduxAction<{ id: string; name: string }>) {
   // Takes from state, checks if the name isValid, saves
   const apiId = action.payload.id;
-  const api = yield select((state) =>
-    state.entities.actions.find(
-      (action: ActionData) => action.config.id === apiId,
+  const api = shouldBeDefined<ActionData>(
+    yield select((state) =>
+      state.entities.actions.find(
+        (action: ActionData) => action.config.id === apiId,
+      ),
     ),
+    `Api not found for apiId - ${apiId}`,
   );
+
   try {
     yield refactorActionName(
       api.config.id,
@@ -715,12 +740,12 @@ function* toggleActionExecuteOnLoadSaga(
   action: ReduxAction<{ actionId: string; shouldExecute: boolean }>,
 ) {
   try {
-    const response = yield call(
+    const response: ApiResponse = yield call(
       ActionAPI.toggleActionExecuteOnLoad,
       action.payload.actionId,
       action.payload.shouldExecute,
     );
-    const isValidResponse = yield validateResponse(response);
+    const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
       yield put({
         type: ReduxActionTypes.TOGGLE_ACTION_EXECUTE_ON_LOAD_SUCCESS,
@@ -740,12 +765,10 @@ function* handleMoveOrCopySaga(actionPayload: ReduxAction<{ id: string }>) {
   const isApi = action.pluginType === PluginType.API;
   const isQuery = action.pluginType === PluginType.DB;
   const isSaas = action.pluginType === PluginType.SAAS;
-  const pageSlug: string = yield select(selectPageSlugById(action.pageId));
 
   if (isApi) {
     history.push(
       apiEditorIdURL({
-        pageSlug,
         pageId: action.pageId,
         apiId: action.id,
       }),
@@ -754,17 +777,18 @@ function* handleMoveOrCopySaga(actionPayload: ReduxAction<{ id: string }>) {
   if (isQuery) {
     history.push(
       queryEditorIdURL({
-        pageSlug,
         pageId: action.pageId,
         queryId: action.id,
       }),
     );
   }
   if (isSaas) {
-    const plugin: Plugin = yield select(getPlugin, action.pluginId);
+    const plugin = shouldBeDefined<Plugin>(
+      yield select(getPlugin, action.pluginId),
+      `Plugin not found for pluginId - ${action.pluginId}`,
+    );
     history.push(
       saasEditorApiIdURL({
-        pageSlug,
         pageId: action.pageId,
         pluginPackageName: plugin.packageName,
         apiId: action.id,
@@ -910,6 +934,7 @@ function* executeCommandSaga(actionPayload: ReduxAction<SlashCommandPayload>) {
     case SlashCommand.NEW_INTEGRATION:
       history.push(
         integrationEditorURL({
+          pageId,
           selectedTab: INTEGRATION_TABS.NEW,
         }),
       );
@@ -946,11 +971,13 @@ function* executeCommandSaga(actionPayload: ReduxAction<SlashCommandPayload>) {
         };
       }
       yield put(createActionRequest(nextPayload));
+      // @ts-expect-error: QUERY is of type unknown
       const QUERY = yield take(ReduxActionTypes.CREATE_ACTION_SUCCESS);
       if (callback) callback(`{{${QUERY.payload.name}.data}}`);
       break;
     case SlashCommand.NEW_API:
       yield put(createNewApiAction(pageId, "QUICK_COMMANDS"));
+      // @ts-expect-error: QUERY is of type unknown
       const API = yield take(ReduxActionTypes.CREATE_ACTION_SUCCESS);
       if (callback) callback(`{{${API.payload.name}.data}}`);
       break;

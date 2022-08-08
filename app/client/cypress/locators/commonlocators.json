@@ -11,7 +11,7 @@
   "Alerttypedropdown": ".t--open-dropdown-Select-type",
   "dropdownmenu": ".t--dropdown-option",
   "containerInnerText": ".t--draggable-containerwidget span.t--widget-name",
-  "optionchangetextDropdown": " .t--property-control-onoptionchange .CodeMirror-code",
+  "optionchangetextDropdown": " .t--property-control-onoptionchange .CodeMirror textarea",
   "optionchangetextDatePicker": " .t--property-control-ondateselected .CodeMirror-code",
   "optionchangetextCheckbox": ".t--property-control-oncheckchange .CodeMirror-code",
   "optionchangetextSwitch": ".t--property-control-onchange .CodeMirror textarea",
@@ -41,11 +41,13 @@
   "dropDownIcon": ".t--property-control-textsize .bp3-popover-target",
   "onDateSelectedField": ".t--property-control-ondateselected",
   "TableRow": ".t--draggable-tablewidget .tbody",
+  "TableV2Row": ".t--draggable-tablewidgetv2 .tbody",
   "Disablejs": ".t--property-control-disabled",
   "spellCheck": ".t--property-control-spellcheck",
   "requiredjs": ".t--property-control-required",
   "allowScroll": ".t--property-control-allowscroll input",
   "tableInner": ".t--draggable-tablewidget span.t--widget-name",
+  "tableV2Inner": ".t--draggable-tablewidgetv2 span.t--widget-name",
   "buttonInner": ".t--draggable-buttonwidget span.t--widget-name",
   "inputWidgetInner": ".t--draggable-inputwidgetv2 span.t--widget-name",
   "pdfSupport": ".t--property-control-pdfexport input",
@@ -179,5 +181,7 @@
   "themeCard": ".t--theme-card",
   "saveThemeBtn": ".t--save-theme-btn",
   "selectThemeBackBtn": ".t--theme-select-back-btn",
-  "themeAppBorderRadiusBtn": ".t--theme-appBorderRadius"
+  "themeAppBorderRadiusBtn": ".t--theme-appBorderRadius",
+  "codeEditorWrapper": ".unfocused-code-editor",
+  "textWidgetContainer": ".t--text-widget-container"
 }

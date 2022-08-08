@@ -9,15 +9,16 @@ import {
   BASE_SIGNUP_URL,
   BASE_URL,
   BUILDER_PATH,
-  ORG_URL,
+  BUILDER_CUSTOM_PATH,
+  WORKSPACE_URL,
   SIGN_UP_URL,
   SIGNUP_SUCCESS_URL,
   USER_AUTH_URL,
   USERS_URL,
   PROFILE,
-  UNSUBSCRIBE_EMAIL_URL,
   SETUP,
   VIEWER_PATH,
+  VIEWER_CUSTOM_PATH,
   ADMIN_SETTINGS_PATH,
   ADMIN_SETTINGS_CATEGORY_PATH,
   ADMIN_SETTINGS_CATEGORY_DEFAULT_PATH,
@@ -27,7 +28,7 @@ import {
   VIEWER_PATCH_PATH,
   BUILDER_PATCH_PATH,
 } from "constants/routes";
-import OrganizationLoader from "pages/organization/loader";
+import WorkspaceLoader from "pages/workspace/loader";
 import ApplicationListLoader from "pages/Applications/loader";
 import EditorLoader from "pages/Editor/loader";
 import AppViewerLoader from "pages/AppViewer/loader";
@@ -38,7 +39,6 @@ import ErrorPage from "pages/common/ErrorPage";
 import PageNotFound from "pages/common/PageNotFound";
 import PageLoadingBar from "pages/common/PageLoadingBar";
 import ErrorPageHeader from "pages/common/ErrorPageHeader";
-import UnsubscribeEmail from "pages/common/UnsubscribeEmail";
 import { getCurrentThemeDetails, ThemeMode } from "selectors/themeSelectors";
 import { AppState } from "reducers";
 import { setThemeMode } from "actions/themeActions";
@@ -119,7 +119,7 @@ function AppRouter(props: {
               <SentryRoute component={LandingScreen} exact path={BASE_URL} />
               <Redirect exact from={BASE_LOGIN_URL} to={AUTH_LOGIN_URL} />
               <Redirect exact from={BASE_SIGNUP_URL} to={SIGN_UP_URL} />
-              <SentryRoute component={OrganizationLoader} path={ORG_URL} />
+              <SentryRoute component={WorkspaceLoader} path={WORKSPACE_URL} />
               <SentryRoute component={Users} exact path={USERS_URL} />
               <SentryRoute component={UserAuth} path={USER_AUTH_URL} />
               <SentryRoute component={WDSPage} path="/wds" />
@@ -134,10 +134,6 @@ function AppRouter(props: {
                 path={SIGNUP_SUCCESS_URL}
               />
               <SentryRoute component={UserProfile} path={PROFILE} />
-              <SentryRoute
-                component={UnsubscribeEmail}
-                path={UNSUBSCRIBE_EMAIL_URL}
-              />
               <SentryRoute component={Setup} exact path={SETUP} />
 
               <SentryRoute
@@ -154,15 +150,23 @@ function AppRouter(props: {
                 exact
                 path={ADMIN_SETTINGS_CATEGORY_PATH}
               />
-              <SentryRoute component={EditorLoader} path={BUILDER_PATH} />
               <SentryRoute
                 component={EditorLoader}
                 path={BUILDER_PATH_DEPRECATED}
               />
-              <SentryRoute component={AppViewerLoader} path={VIEWER_PATH} />
               <SentryRoute
                 component={AppViewerLoader}
                 path={VIEWER_PATH_DEPRECATED}
+              />
+              <SentryRoute component={EditorLoader} path={BUILDER_PATH} />
+              <SentryRoute
+                component={EditorLoader}
+                path={BUILDER_CUSTOM_PATH}
+              />
+              <SentryRoute component={AppViewerLoader} path={VIEWER_PATH} />
+              <SentryRoute
+                component={AppViewerLoader}
+                path={VIEWER_CUSTOM_PATH}
               />
               <Redirect from={BUILDER_PATCH_PATH} to={BUILDER_PATH} />
               <Redirect from={VIEWER_PATCH_PATH} to={VIEWER_PATH} />

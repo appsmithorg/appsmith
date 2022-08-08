@@ -7,6 +7,7 @@ import { ComponentProps } from "widgets/BaseComponent";
 import { AlignWidgetTypes } from "widgets/constants";
 import { Colors } from "constants/Colors";
 import { FontStyleTypes } from "constants/WidgetConstants";
+import { darkenColor } from "widgets/WidgetUtils";
 
 export interface SwitchComponentProps extends ComponentProps {
   label: string;
@@ -55,6 +56,7 @@ const SwitchLabel = styled.div<{
 
 export const StyledSwitch = styled(Switch)<{
   accentColor: string;
+  inline?: boolean;
 }>`
   &.${Classes.CONTROL} {
     margin: 0;
@@ -65,10 +67,17 @@ export const StyledSwitch = styled(Switch)<{
       background: ${({ accentColor }) => `${accentColor}`} !important;
       border: 1px solid ${({ accentColor }) => `${accentColor}`} !important;
     }
+
+    &:hover input:checked:not(:disabled) ~ .bp3-control-indicator {
+      background: ${({ accentColor }) =>
+        `${darkenColor(accentColor)}`} !important;
+      border: 1px solid ${({ accentColor }) =>
+        `${darkenColor(accentColor)}`} !important;
+    }
   }
 
   &.${Classes.SWITCH} {
-    width: 100%;
+    ${({ inline }) => (!!inline ? "" : "width: 100%;")}
     & input:not(:disabled):active:checked ~ .${Classes.CONTROL_INDICATOR} {
       background: ${({ accentColor }) => `${accentColor}`} !important;
     }

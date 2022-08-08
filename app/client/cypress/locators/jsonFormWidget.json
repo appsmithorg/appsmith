@@ -1,0 +1,17 @@
+{
+    "settings": ".t--edit-column-btn",
+    "propertyName": ".t--code-editor-wrapper",
+    "jsformInput": ".t--jsonformfield-name input",
+    "jsformDOB": ".t--jsonformfield-date_of_birth input",
+    "jsformEmpID": ".t--jsonformfield-employee_id input",
+    "msg": ".bp3-popover-content",
+    "submit": "button:contains('Submit')",
+    "mandatoryAsterisk": ".t--jsonformfield-name div :contains('*')",
+    "mandatoryFieldControl": ".t--property-control-required .bp3-control-indicator",
+    "keyInput": ".t--jsonformfield-Key input",
+    "emailField": "//input[@type='email']",
+    "switchStatus": ".t--switch-widget-active",
+    "calendarPopup": ".DayPicker-Months",
+    "datepickerContainer": "//div[@data-testid='datepicker-container']"
+  }
+  

@@ -79,4 +79,14 @@ public abstract class BaseDomain implements Persistable<String>, AppsmithDomain 
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @JsonIgnore
     String gitSyncId;
+
+    public void sanitiseToExportBaseObject() {
+        this.setDefaultResources(null);
+        this.setCreatedAt(null);
+        this.setUpdatedAt(null);
+        this.setUserPermissions(null);
+        this.setPolicies(null);
+        this.setCreatedBy(null);
+        this.setModifiedBy(null);
+    }
 }

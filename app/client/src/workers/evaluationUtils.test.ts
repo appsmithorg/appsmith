@@ -1,7 +1,12 @@
-import { DependencyMap } from "utils/DynamicBindingUtils";
+import {
+  DependencyMap,
+  EVAL_ERROR_PATH,
+  PropertyEvaluationErrorType,
+} from "utils/DynamicBindingUtils";
 import { RenderModes } from "constants/WidgetConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import {
+  DataTreeEntity,
   DataTreeWidget,
   ENTITY_TYPE,
   EvaluationSubstitutionType,
@@ -15,11 +20,12 @@ import {
   getDataTreeWithoutPrivateWidgets,
   isPrivateEntityPath,
   makeParentsDependOnChildren,
+  removeLintErrorsFromEntityProperty,
   translateDiffEventToDataTreeDiffEvent,
 } from "./evaluationUtils";
 import { warn as logWarn } from "loglevel";
 import { Diff } from "deep-diff";
-import { flatten } from "lodash";
+import _, { get, flatten } from "lodash";
 import { overrideWidgetProperties } from "./evaluationUtils";
 import { DataTree } from "entities/DataTree/dataTreeFactory";
 import { EvalMetaUpdates } from "./DataTreeEvaluator/types";
@@ -29,6 +35,7 @@ import InputWidget, {
   CONFIG as InputWidgetV2Config,
 } from "widgets/InputWidgetV2";
 import { registerWidget } from "utils/WidgetRegisterHelpers";
+import { Severity } from "entities/AppsmithConsole";
 
 // to check if logWarn was called.
 // use jest.unmock, if the mock needs to be removed.
@@ -123,6 +130,25 @@ const testDataTree: Record<string, DataTreeWidget> = {
     ...BASE_WIDGET,
     privateWidgets: {
       Text3: true,
+    },
+  },
+  Button1: {
+    ...BASE_WIDGET,
+    text: "undefined",
+    __evaluation__: {
+      errors: {
+        text: [
+          {
+            errorType: PropertyEvaluationErrorType.LINT,
+            raw:
+              " function closedFunction () { const result = Api24 return result; } closedFunction.call(THIS_CONTEXT) ",
+            severity: Severity.ERROR,
+            errorMessage: "'Api24' is not defined.",
+            errorSegment: " const result = Api24",
+            originalBinding: "Api24",
+          },
+        ],
+      },
     },
   },
 };
@@ -241,6 +267,25 @@ describe("privateWidgets", () => {
         ...BASE_WIDGET,
         privateWidgets: {
           Text3: true,
+        },
+      },
+      Button1: {
+        ...BASE_WIDGET,
+        text: "undefined",
+        __evaluation__: {
+          errors: {
+            text: [
+              {
+                errorType: PropertyEvaluationErrorType.LINT,
+                raw:
+                  " function closedFunction () { const result = Api24 return result; } closedFunction.call(THIS_CONTEXT) ",
+                severity: Severity.ERROR,
+                errorMessage: "'Api24' is not defined.",
+                errorSegment: " const result = Api24",
+                originalBinding: "Api24",
+              },
+            ],
+          },
         },
       },
     };
@@ -404,6 +449,151 @@ describe("translateDiffEvent", () => {
 
     expect(expectedTranslations).toStrictEqual(actualTranslations);
   });
+
+  it("handles JsObject function renaming", () => {
+    // cyclic dependency case
+    const lhs = new String("() => {}");
+    _.set(lhs, "data", {});
+    const diffs: Diff<any, any>[] = [
+      {
+        kind: "E",
+        path: ["JsObject", "myFun1"],
+        rhs: "() => {}",
+        lhs,
+      },
+    ];
+
+    const expectedTranslations: DataTreeDiff[] = [
+      {
+        event: DataTreeDiffEvent.DELETE,
+        payload: {
+          propertyPath: "JsObject.myFun1.data",
+        },
+      },
+      {
+        event: DataTreeDiffEvent.EDIT,
+        payload: {
+          propertyPath: "JsObject.myFun1",
+          value: "() => {}",
+        },
+      },
+    ];
+
+    const actualTranslations = flatten(
+      diffs.map((diff) =>
+        translateDiffEventToDataTreeDiffEvent(diff, {
+          JsObject: ({
+            ENTITY_TYPE: ENTITY_TYPE.JSACTION,
+          } as unknown) as DataTreeEntity,
+        }),
+      ),
+    );
+
+    expect(expectedTranslations).toStrictEqual(actualTranslations);
+  });
+
+  it("lists array accessors when object is replaced by an array", () => {
+    const diffs: Diff<any, any>[] = [
+      {
+        kind: "E",
+        path: ["Api1", "data"],
+        lhs: {},
+        rhs: [{ id: 1 }, { id: 2 }],
+      },
+    ];
+
+    const expectedTranslations: DataTreeDiff[] = [
+      {
+        payload: {
+          propertyPath: "Api1.data[0]",
+        },
+        event: DataTreeDiffEvent.NEW,
+      },
+      {
+        payload: {
+          propertyPath: "Api1.data[1]",
+        },
+        event: DataTreeDiffEvent.NEW,
+      },
+    ];
+
+    const actualTranslations = flatten(
+      diffs.map((diff) => translateDiffEventToDataTreeDiffEvent(diff, {})),
+    );
+
+    expect(expectedTranslations).toStrictEqual(actualTranslations);
+  });
+
+  it("lists array accessors when array is replaced by an object", () => {
+    const diffs: Diff<any, any>[] = [
+      {
+        kind: "E",
+        path: ["Api1", "data"],
+        lhs: [{ id: 1 }, { id: 2 }],
+        rhs: {},
+      },
+    ];
+
+    const expectedTranslations: DataTreeDiff[] = [
+      {
+        payload: {
+          propertyPath: "Api1.data[0]",
+        },
+        event: DataTreeDiffEvent.DELETE,
+      },
+      {
+        payload: {
+          propertyPath: "Api1.data[1]",
+        },
+        event: DataTreeDiffEvent.DELETE,
+      },
+    ];
+
+    const actualTranslations = flatten(
+      diffs.map((diff) => translateDiffEventToDataTreeDiffEvent(diff, {})),
+    );
+
+    expect(expectedTranslations).toStrictEqual(actualTranslations);
+  });
+
+  it("deletes member expressions when Array changes to string", () => {
+    const diffs: Diff<any, any>[] = [
+      {
+        kind: "E",
+        path: ["Api1", "data"],
+        lhs: [{ id: "{{a}}" }, { id: "{{a}}" }],
+        rhs: `{ id: "{{a}}" }, { id: "{{a}}" }`,
+      },
+    ];
+
+    const expectedTranslations: DataTreeDiff[] = [
+      {
+        payload: {
+          propertyPath: "Api1.data",
+          value: `{ id: "{{a}}" }, { id: "{{a}}" }`,
+        },
+        event: DataTreeDiffEvent.EDIT,
+      },
+      {
+        payload: {
+          propertyPath: "Api1.data[0]",
+        },
+        event: DataTreeDiffEvent.DELETE,
+      },
+      {
+        payload: {
+          propertyPath: "Api1.data[1]",
+        },
+        event: DataTreeDiffEvent.DELETE,
+      },
+    ];
+
+    const actualTranslations = flatten(
+      diffs.map((diff) => translateDiffEventToDataTreeDiffEvent(diff, {})),
+    );
+
+    expect(expectedTranslations).toEqual(actualTranslations);
+  });
 });
 
 describe("overrideWidgetProperties", () => {
@@ -421,6 +611,15 @@ describe("overrideWidgetProperties", () => {
           widgetId: "egwwwfgab",
           widgetName: "Input1",
           children: [],
+          bottomRow: 0,
+          isLoading: false,
+          parentColumnSpace: 0,
+          parentRowSpace: 0,
+          version: 1,
+          leftColumn: 0,
+          renderMode: RenderModes.CANVAS,
+          rightColumn: 0,
+          topRow: 0,
         },
         {},
       );
@@ -441,17 +640,20 @@ describe("overrideWidgetProperties", () => {
 
       expect(evalMetaUpdates).toStrictEqual([
         {
+          //@ts-expect-error: widgetId does not exits on type DataTreeEntity
           widgetId: currentTree.Input1.widgetId,
           metaPropertyPath: ["inputText"],
           value: "abcde",
         },
         {
+          //@ts-expect-error: widgetId does not exits on type DataTreeEntity
           widgetId: currentTree.Input1.widgetId,
           metaPropertyPath: ["text"],
           value: "abcde",
         },
       ]);
 
+      //@ts-expect-error: meta does not exits on type DataTreeEntity
       expect(currentTree.Input1.meta).toStrictEqual({
         text: "abcde",
         inputText: "abcde",
@@ -472,6 +674,7 @@ describe("overrideWidgetProperties", () => {
 
       expect(evalMetaUpdates).toStrictEqual([]);
 
+      //@ts-expect-error: text does not exits on type DataTreeEntity
       expect(currentTree.Input1.text).toStrictEqual("abcdefg");
     });
   });
@@ -485,6 +688,15 @@ describe("overrideWidgetProperties", () => {
           widgetId: "random",
           widgetName: "Table1",
           children: [],
+          bottomRow: 0,
+          isLoading: false,
+          parentColumnSpace: 0,
+          parentRowSpace: 0,
+          version: 1,
+          leftColumn: 0,
+          renderMode: RenderModes.CANVAS,
+          rightColumn: 0,
+          topRow: 0,
         },
         {},
       );
@@ -505,18 +717,22 @@ describe("overrideWidgetProperties", () => {
 
       expect(evalMetaUpdates).toStrictEqual([
         {
+          //@ts-expect-error: widgetId does not exits on type DataTreeEntity
           widgetId: currentTree.Table1.widgetId,
           metaPropertyPath: ["selectedRowIndex"],
           value: [0, 1],
         },
         {
+          //@ts-expect-error: widgetId does not exits on type DataTreeEntity
           widgetId: currentTree.Table1.widgetId,
           metaPropertyPath: ["selectedRowIndices"],
           value: [0, 1],
         },
       ]);
 
+      //@ts-expect-error: meta does not exits on type DataTreeEntity
       expect(currentTree.Table1.meta.selectedRowIndex).toStrictEqual([0, 1]);
+      //@ts-expect-error: meta does not exits on type DataTreeEntity
       expect(currentTree.Table1.meta.selectedRowIndices).toStrictEqual([0, 1]);
     });
     // When meta.selectedRowIndex is re-evaluated it will override values selectedRowIndex
@@ -534,7 +750,17 @@ describe("overrideWidgetProperties", () => {
 
       expect(evalMetaUpdates).toStrictEqual([]);
 
+      //@ts-expect-error: selectedRowIndex does not exits on type DataTreeEntity
       expect(currentTree.Table1.selectedRowIndex).toStrictEqual(0);
     });
+  });
+});
+
+describe("removeLintErrorsFromEntityProperty", () => {
+  it("returns correct result", function() {
+    const dataTree: DataTree = { ...testDataTree };
+    const path = "Button1.text";
+    removeLintErrorsFromEntityProperty(dataTree, path);
+    expect(get(dataTree, `Button1.${EVAL_ERROR_PATH}[text]`)).toEqual([]);
   });
 });

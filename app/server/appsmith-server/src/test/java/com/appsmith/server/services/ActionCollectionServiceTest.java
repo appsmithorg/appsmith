@@ -11,11 +11,11 @@ import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewAction;
-import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.PluginType;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserRole;
+import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.ActionCollectionViewDTO;
 import com.appsmith.server.dtos.ActionDTO;
@@ -26,8 +26,8 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
-import com.appsmith.server.repositories.WorkspaceRepository;
 import com.appsmith.server.repositories.PluginRepository;
+import com.appsmith.server.repositories.WorkspaceRepository;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
@@ -111,15 +111,15 @@ public class ActionCollectionServiceTest {
 
     Datasource datasource;
 
-    String orgId;
+    String workspaceId;
 
     @Before
     @WithUserDetails(value = "api_user")
     public void setup() {
         User apiUser = userService.findByEmail("api_user").block();
         assert apiUser != null;
-        orgId = apiUser.getOrganizationIds().iterator().next();
-        Workspace workspace = workspaceService.getById(orgId).block();
+        workspaceId = apiUser.getWorkspaceIds().iterator().next();
+        Workspace workspace = workspaceService.getById(workspaceId).block();
 
         if (testApp == null && testPage == null) {
             //Create application and page which will be used by the tests to create actions for.
@@ -156,12 +156,12 @@ public class ActionCollectionServiceTest {
             layout.setPublishedDsl(dsl);
         }
 
-        Workspace testWorkspace = workspaceRepository.findByName("Another Test Workspace", AclPermission.READ_ORGANIZATIONS).block();
+        Workspace testWorkspace = workspaceRepository.findByName("Another Test Workspace", AclPermission.READ_WORKSPACES).block();
         assert testWorkspace != null;
-        orgId = testWorkspace.getId();
+        workspaceId = testWorkspace.getId();
         datasource = new Datasource();
         datasource.setName("Default Database");
-        datasource.setOrganizationId(orgId);
+        datasource.setWorkspaceId(workspaceId);
         Plugin installedJsPlugin = pluginRepository.findByPackageName("installed-js-plugin").block();
         assert installedJsPlugin != null;
         datasource.setPluginId(installedJsPlugin.getId());
@@ -190,7 +190,7 @@ public class ActionCollectionServiceTest {
         ActionCollectionDTO actionCollectionDTO = new ActionCollectionDTO();
         actionCollectionDTO.setName("testActionCollection");
         actionCollectionDTO.setApplicationId(testApp.getId());
-        actionCollectionDTO.setOrganizationId(testApp.getOrganizationId());
+        actionCollectionDTO.setWorkspaceId(testApp.getWorkspaceId());
         actionCollectionDTO.setPageId(testPage.getId());
         actionCollectionDTO.setPluginId(datasource.getPluginId());
         actionCollectionDTO.setPluginType(PluginType.JS);
@@ -216,7 +216,7 @@ public class ActionCollectionServiceTest {
         ActionCollectionDTO actionCollectionDTO = new ActionCollectionDTO();
         actionCollectionDTO.setName("testActionCollection");
         actionCollectionDTO.setApplicationId(testApp.getId());
-        actionCollectionDTO.setOrganizationId(testApp.getOrganizationId());
+        actionCollectionDTO.setWorkspaceId(testApp.getWorkspaceId());
         actionCollectionDTO.setPageId(testPage.getId());
         actionCollectionDTO.setPluginId(datasource.getPluginId());
         actionCollectionDTO.setPluginType(PluginType.JS);
@@ -227,7 +227,7 @@ public class ActionCollectionServiceTest {
         userRole.setRoleName(AppsmithRole.ORGANIZATION_ADMIN.getName());
         userRole.setUsername("usertest@usertest.com");
 
-        userWorkspaceService.addUserRoleToWorkspace(testApp.getOrganizationId(), userRole).block();
+        userWorkspaceService.addUserRoleToWorkspace(testApp.getWorkspaceId(), userRole).block();
 
         assert actionCollection != null;
         Mono<ActionCollection> readActionCollectionMono =
@@ -275,7 +275,7 @@ public class ActionCollectionServiceTest {
         actionCollectionDTO1.setName("testCollection1");
         actionCollectionDTO1.setPageId(testPage.getId());
         actionCollectionDTO1.setApplicationId(testApp.getId());
-        actionCollectionDTO1.setOrganizationId(orgId);
+        actionCollectionDTO1.setWorkspaceId(workspaceId);
         actionCollectionDTO1.setPluginId(datasource.getPluginId());
         ActionDTO action1 = new ActionDTO();
         action1.setName("testAction1");
@@ -290,7 +290,7 @@ public class ActionCollectionServiceTest {
         actionCollectionDTO2.setName("testCollection2");
         actionCollectionDTO2.setPageId(testPage.getId());
         actionCollectionDTO2.setApplicationId(testApp.getId());
-        actionCollectionDTO2.setOrganizationId(orgId);
+        actionCollectionDTO2.setWorkspaceId(workspaceId);
         actionCollectionDTO2.setPluginId(datasource.getPluginId());
         ActionDTO action2 = new ActionDTO();
         action2.setActionConfiguration(new ActionConfiguration());
@@ -353,7 +353,7 @@ public class ActionCollectionServiceTest {
         actionCollectionDTO1.setName("testCollection1");
         actionCollectionDTO1.setPageId(testPage.getId());
         actionCollectionDTO1.setApplicationId(testApp.getId());
-        actionCollectionDTO1.setOrganizationId(orgId);
+        actionCollectionDTO1.setWorkspaceId(workspaceId);
         actionCollectionDTO1.setPluginId(datasource.getPluginId());
         ActionDTO action1 = new ActionDTO();
         action1.setName("run");
@@ -368,7 +368,7 @@ public class ActionCollectionServiceTest {
         actionCollectionDTO2.setName("testCollection2");
         actionCollectionDTO2.setPageId(testPage.getId());
         actionCollectionDTO2.setApplicationId(testApp.getId());
-        actionCollectionDTO2.setOrganizationId(orgId);
+        actionCollectionDTO2.setWorkspaceId(workspaceId);
         actionCollectionDTO2.setPluginId(datasource.getPluginId());
         ActionDTO action2 = new ActionDTO();
         action2.setActionConfiguration(new ActionConfiguration());
@@ -431,7 +431,7 @@ public class ActionCollectionServiceTest {
         actionCollectionDTO.setName("testCollection1");
         actionCollectionDTO.setPageId(testPage.getId());
         actionCollectionDTO.setApplicationId(testApp.getId());
-        actionCollectionDTO.setOrganizationId(orgId);
+        actionCollectionDTO.setWorkspaceId(workspaceId);
         actionCollectionDTO.setPluginId(datasource.getPluginId());
         actionCollectionDTO.setVariables(List.of(new JSValue("test", "String", "test", true)));
         actionCollectionDTO.setBody("collectionBody");
@@ -439,6 +439,7 @@ public class ActionCollectionServiceTest {
         action1.setName("testAction1");
         action1.setActionConfiguration(new ActionConfiguration());
         action1.getActionConfiguration().setBody("mockBody");
+        action1.getActionConfiguration().setIsValid(false);
         actionCollectionDTO.setActions(List.of(action1));
         actionCollectionDTO.setPluginType(PluginType.JS);
 
@@ -494,7 +495,7 @@ public class ActionCollectionServiceTest {
         actionCollectionDTO.setName("deleteTestCollection1");
         actionCollectionDTO.setPageId(testPage.getId());
         actionCollectionDTO.setApplicationId(testApp.getId());
-        actionCollectionDTO.setOrganizationId(orgId);
+        actionCollectionDTO.setWorkspaceId(workspaceId);
         actionCollectionDTO.setPluginId(datasource.getPluginId());
         actionCollectionDTO.setVariables(List.of(new JSValue("test", "String", "test", true)));
         actionCollectionDTO.setBody("collectionBody");
@@ -520,5 +521,69 @@ public class ActionCollectionServiceTest {
                 })
                 .verifyComplete();
 
+    }
+
+    /**
+     * For a given collection testActionCollection,
+     * When the collection is updated after creation such that the JS function becomes sync,
+     * The executeOnLoad, confirmBeforeExecute and userSetOnLoad should be reset to false
+     */
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testUpdateActionCollection_fromAsyncToSync_resetsSyncFunctionFields() {
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(pluginExecutor));
+        Mockito.when(pluginExecutor.getHintMessages(Mockito.any(), Mockito.any()))
+                .thenReturn(Mono.zip(Mono.just(new HashSet<>()), Mono.just(new HashSet<>())));
+
+        ActionCollectionDTO actionCollectionDTO = new ActionCollectionDTO();
+        actionCollectionDTO.setName("testCollection1");
+        actionCollectionDTO.setPageId(testPage.getId());
+        actionCollectionDTO.setApplicationId(testApp.getId());
+        actionCollectionDTO.setWorkspaceId(workspaceId);
+        actionCollectionDTO.setPluginId(datasource.getPluginId());
+        actionCollectionDTO.setVariables(List.of(new JSValue("test", "String", "test", true)));
+        actionCollectionDTO.setBody("collectionBody");
+        ActionDTO action1 = new ActionDTO();
+        action1.setName("testAction1");
+        action1.setActionConfiguration(new ActionConfiguration());
+        action1.getActionConfiguration().setBody("mockBody");
+        action1.getActionConfiguration().setIsValid(false);
+        action1.getActionConfiguration().setIsAsync(true);
+        action1.setExecuteOnLoad(true);
+        action1.setUserSetOnLoad(true);
+        action1.setConfirmBeforeExecute(true);
+        actionCollectionDTO.setPluginType(PluginType.JS);
+        actionCollectionDTO.setActions(List.of(action1));
+
+        ActionCollection createdActionCollection = layoutCollectionService.createCollection(actionCollectionDTO)
+                .flatMap(createdCollection -> {
+                    // Delay after creating(before updating) record to get different updatedAt time
+                    try {
+                        Thread.sleep(5000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    return actionCollectionService.findById(createdCollection.getId(), READ_ACTIONS);
+                }).block();
+
+        action1.getActionConfiguration().setIsAsync(false);
+        final Mono<List<ActionCollectionViewDTO>> viewModeCollectionsMono = layoutCollectionService.updateUnpublishedActionCollection(createdActionCollection.getId(), actionCollectionDTO, null)
+                .flatMap(updatedCollection -> applicationPageService.publish(testApp.getId(), true))
+                .thenMany(actionCollectionService.getActionCollectionsForViewMode(testApp.getId(), null))
+                .collectList();
+
+        StepVerifier.create(viewModeCollectionsMono)
+                .assertNext(viewModeCollections -> {
+                    assertThat(viewModeCollections.size()).isEqualTo(1);
+
+                    final ActionCollectionViewDTO actionCollectionViewDTO = viewModeCollections.get(0);
+                    final List<ActionDTO> actions = actionCollectionViewDTO.getActions();
+                    Assert.assertFalse(actions.isEmpty());
+                    final ActionDTO actionDTO = actions.get(0);
+                    Assert.assertFalse(actionDTO.getExecuteOnLoad());
+                    Assert.assertFalse(actionDTO.getUserSetOnLoad());
+                    Assert.assertFalse(actionDTO.getConfirmBeforeExecute());
+                })
+                .verifyComplete();
     }
 }

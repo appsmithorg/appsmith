@@ -17,7 +17,7 @@ import {
   selectAllWidgetsInCanvasInitAction,
 } from "actions/widgetSelectionActions";
 import { setGlobalSearchCategory } from "actions/globalSearchActions";
-import { isMac } from "utils/helpers";
+import { isMacOrIOS } from "utils/helpers";
 import { getSelectedWidget, getSelectedWidgets } from "selectors/ui";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import { getSelectedText } from "utils/helpers";
@@ -26,7 +26,6 @@ import { WIDGETS_SEARCH_ID } from "constants/Explorer";
 import { resetSnipingMode as resetSnipingModeAction } from "actions/propertyPaneActions";
 import { showDebugger } from "actions/debuggerActions";
 
-import { setCommentModeInUrl } from "pages/Editor/ToggleModeButton";
 import { runActionViaShortcut } from "actions/pluginActionActions";
 import {
   filterCategories,
@@ -50,8 +49,7 @@ import { getExplorerPinned } from "selectors/explorerSelector";
 import { setExplorerPinnedAction } from "actions/explorerActions";
 import { setIsGitSyncModalOpen } from "actions/gitSyncActions";
 import { GitSyncModalTab } from "entities/GitSync";
-import { matchBuilderPath } from "constants/routes";
-import { commentModeSelector } from "selectors/commentsSelectors";
+import { matchBuilderPath, matchGeneratePagePath } from "constants/routes";
 
 type Props = {
   copySelectedWidget: () => void;
@@ -74,7 +72,6 @@ type Props = {
   undo: () => void;
   redo: () => void;
   appMode?: APP_MODE;
-  isCommentMode: boolean;
   isPreviewMode: boolean;
   setPreviewModeAction: (shouldSet: boolean) => void;
   isExplorerPinned: boolean;
@@ -216,9 +213,14 @@ class GlobalHotKeys extends React.Component<Props> {
           group="Canvas"
           label="Paste Widget"
           onKeyDown={() => {
-            this.props.pasteCopiedWidget(
-              this.props.getMousePosition() || { x: 0, y: 0 },
-            );
+            if (
+              matchBuilderPath(window.location.pathname) ||
+              matchGeneratePagePath(window.location.pathname)
+            ) {
+              this.props.pasteCopiedWidget(
+                this.props.getMousePosition() || { x: 0, y: 0 },
+              );
+            }
           }}
         />
         <Hotkey
@@ -227,7 +229,7 @@ class GlobalHotKeys extends React.Component<Props> {
           group="Canvas"
           label="Delete Widget"
           onKeyDown={(e: any) => {
-            if (this.stopPropagationIfWidgetSelected(e) && isMac()) {
+            if (this.stopPropagationIfWidgetSelected(e) && isMacOrIOS()) {
               this.props.deleteSelectedWidget();
             }
           }}
@@ -273,14 +275,6 @@ class GlobalHotKeys extends React.Component<Props> {
           group="Canvas"
           label="Deselect all Widget"
           onKeyDown={(e: any) => {
-            if (this.props.isCommentMode) {
-              AnalyticsUtil.logEvent("COMMENTS_TOGGLE_MODE", {
-                mode: this.props.appMode,
-                source: "HOTKEY",
-                combo: "esc",
-              });
-              setCommentModeInUrl(false);
-            }
             this.props.resetSnipingMode();
             this.props.deselectAllWidgets();
             this.props.closeProppane();
@@ -294,29 +288,8 @@ class GlobalHotKeys extends React.Component<Props> {
           global
           label="Edit Mode"
           onKeyDown={(e: any) => {
-            if (this.props.isCommentMode)
-              AnalyticsUtil.logEvent("COMMENTS_TOGGLE_MODE", {
-                mode: this.props.appMode,
-                source: "HOTKEY",
-                combo: "v",
-              });
-            setCommentModeInUrl(false);
             this.props.resetSnipingMode();
             e.preventDefault();
-          }}
-        />
-        <Hotkey
-          combo="c"
-          global
-          label="Comment Mode"
-          onKeyDown={() => {
-            if (!this.props.isCommentMode)
-              AnalyticsUtil.logEvent("COMMENTS_TOGGLE_MODE", {
-                mode: "COMMENT",
-                source: "HOTKEY",
-                combo: "c",
-              });
-            setCommentModeInUrl(true);
           }}
         />
         <Hotkey
@@ -381,7 +354,6 @@ class GlobalHotKeys extends React.Component<Props> {
           global
           label="Preview Mode"
           onKeyDown={() => {
-            setCommentModeInUrl(false);
             this.props.setPreviewModeAction(!this.props.isPreviewMode);
           }}
         />
@@ -415,7 +387,6 @@ const mapStateToProps = (state: AppState) => ({
   selectedWidgets: getSelectedWidgets(state),
   isDebuggerOpen: state.ui.debugger.isOpen,
   appMode: getAppMode(state),
-  isCommentMode: commentModeSelector(state),
   isPreviewMode: previewModeSelector(state),
   isExplorerPinned: getExplorerPinned(state),
 });

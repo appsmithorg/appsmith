@@ -1,13 +1,13 @@
 package com.appsmith.server.services.ce;
 
+import com.appsmith.external.constants.AnalyticsEvents;
+import com.appsmith.external.helpers.AppsmithBeanUtils;
 import com.appsmith.external.helpers.AppsmithEventContext;
 import com.appsmith.external.helpers.AppsmithEventContextType;
-import com.appsmith.external.helpers.AppsmithBeanUtils;
 import com.appsmith.external.helpers.MustacheHelper;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DefaultResources;
-import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionDependencyEdge;
 import com.appsmith.server.domains.Layout;
@@ -32,6 +32,7 @@ import com.appsmith.server.services.ActionCollectionService;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ApplicationService;
 import com.appsmith.server.services.CollectionService;
+import com.appsmith.server.services.DatasourceService;
 import com.appsmith.server.services.NewActionService;
 import com.appsmith.server.services.NewPageService;
 import com.appsmith.server.services.SessionUserService;
@@ -52,6 +53,7 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.util.function.Tuple2;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -86,6 +88,7 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
     private final CollectionService collectionService;
     private final ApplicationService applicationService;
     private final ResponseUtils responseUtils;
+    private final DatasourceService datasourceService;
 
 
     /*
@@ -1126,14 +1129,14 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
                     // Set the application id in the main domain
                     newAction.setApplicationId(page.getApplicationId());
 
-                    // If the datasource is embedded, check for organizationId and set it in action
+                    // If the datasource is embedded, check for workspaceId and set it in action
                     if (action.getDatasource() != null &&
                             action.getDatasource().getId() == null) {
                         Datasource datasource = action.getDatasource();
-                        if (datasource.getOrganizationId() == null) {
-                            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ORGANIZATION_ID));
+                        if (datasource.getWorkspaceId() == null) {
+                            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.WORKSPACE_ID));
                         }
-                        newAction.setOrganizationId(datasource.getOrganizationId());
+                        newAction.setWorkspaceId(datasource.getWorkspaceId());
                     }
 
                     // New actions will never be set to auto-magical execution, unless it is triggered via a
@@ -1172,7 +1175,29 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
 
                     return Mono.just(newAction);
                 })
-                .flatMap(newActionService::validateAndSaveActionToRepository);
+                .flatMap(savedNewAction -> newActionService.validateAndSaveActionToRepository(savedNewAction).zipWith(Mono.just(savedNewAction)))
+                .zipWith(Mono.defer(() -> {
+                    if (action.getDatasource() != null &&
+                            action.getDatasource().getId() != null) {
+                        return datasourceService.findById(action.getDatasource().getId());
+                    } else {
+                        return Mono.justOrEmpty(action.getDatasource());
+                    }
+                }))
+                .flatMap(zippedData -> {
+
+                    final Tuple2<ActionDTO, NewAction> zippedActions = zippedData.getT1();
+                    final Datasource datasource = zippedData.getT2();
+                    final NewAction newAction1 = zippedActions.getT2();
+                    final Datasource embeddedDatasource = newAction1.getUnpublishedAction().getDatasource();
+                    embeddedDatasource.setIsMock(datasource.getIsMock());
+                    embeddedDatasource.setIsTemplate(datasource.getIsTemplate());
+
+                    return analyticsService
+                            .sendCreateEvent(newAction1, newActionService.getAnalyticsProperties(newAction1))
+                            .thenReturn(zippedActions.getT1());
+
+                });
     }
 
 }

@@ -78,11 +78,9 @@ const pages = {};
 function pushChildPages(masterPage) {
   if (masterPage.pages) {
     masterPage.pages.forEach(page => {
-      if (masterPage.path)
-        page.path = (masterPage.path || masterPage.ref) + "/" + page.path;
       pushChildPages(page);
       page.pages = undefined;
-      pages[page.uid] = page;
+      pages[page.id] = page;
     });
   }
 }
@@ -146,11 +144,11 @@ exports.handler = async (event, context, callback) => {
           getAllPages(Object.keys(pages)).then(updatedPages => {
             // console.log("fetched all pages ", Object.keys(pages));
             updatedPages.forEach((page, index) => {
-              // console.log("update page fullpath", page.uid);
-              page.path = pages[page.uid].path;
+              // console.log("update page fullpath", page.id);
+              page.path = pages[page.id].path;
               delete page.pages;
-              page.objectID = page.uid;
-              delete page.uid;
+              page.objectID = page.id;
+              delete page.id;
             });
             updatedPages.sort((pageA, pageB) => {
               const orderA = orderMap[pageA.path] || 999;

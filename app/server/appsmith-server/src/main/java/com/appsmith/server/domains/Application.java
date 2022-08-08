@@ -18,7 +18,10 @@ import java.io.Serializable;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
+import static com.appsmith.server.constants.ResourceModes.EDIT;
+import static com.appsmith.server.constants.ResourceModes.VIEW;
 import static com.appsmith.server.helpers.DateUtils.ISO_FORMATTER;
 
 @Getter
@@ -32,7 +35,11 @@ public class Application extends BaseDomain {
     @NotNull
     String name;
 
+    //Organizations migrated to workspaces, kept the field as deprecated to support the old migration
+    @Deprecated
     String organizationId;
+
+    String workspaceId;
 
     /*
     TODO: remove default values from application.
@@ -147,7 +154,7 @@ public class Application extends BaseDomain {
     // initialized newly or is left up to the calling function to set.
     public Application(Application application) {
         super();
-        this.organizationId = application.getOrganizationId();
+        this.workspaceId = application.getWorkspaceId();
         this.pages = new ArrayList<>();
         this.publishedPages = new ArrayList<>();
         this.clonedFromApplicationId = application.getId();
@@ -155,6 +162,33 @@ public class Application extends BaseDomain {
         this.icon = application.getIcon();
         this.unpublishedAppLayout = application.getUnpublishedAppLayout() == null ? null : new AppLayout(application.getUnpublishedAppLayout().type);
         this.publishedAppLayout = application.getPublishedAppLayout() == null ? null : new AppLayout(application.getPublishedAppLayout().type);
+    }
+
+    public void exportApplicationPages(final Map<String, String> pageIdToNameMap) {
+        for (ApplicationPage applicationPage : this.getPages()) {
+            applicationPage.setId(pageIdToNameMap.get(applicationPage.getId() + EDIT));
+            applicationPage.setDefaultPageId(null);
+        }
+        for (ApplicationPage applicationPage : this.getPublishedPages()) {
+            applicationPage.setId(pageIdToNameMap.get(applicationPage.getId() + VIEW));
+            applicationPage.setDefaultPageId(null);
+        }
+    }
+
+    public void sanitiseToExportDBObject() {
+        this.setWorkspaceId(null);
+        this.setOrganizationId(null);
+        this.setModifiedBy(null);
+        this.setCreatedBy(null);
+        this.setLastDeployedAt(null);
+        this.setLastEditedAt(null);
+        this.setGitApplicationMetadata(null);
+        this.setEditModeThemeId(null);
+        this.setPublishedModeThemeId(null);
+        this.setClientSchemaVersion(null);
+        this.setServerSchemaVersion(null);
+        this.setIsManualUpdate(false);
+        this.sanitiseToExportBaseObject();
     }
 
     public List<ApplicationPage> getPages() {

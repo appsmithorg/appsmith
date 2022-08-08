@@ -7,6 +7,12 @@ const pages = require("../locators/Pages.json");
 const datasourceEditor = require("../locators/DatasourcesEditor.json");
 const datasourceFormData = require("../fixtures/datasources.json");
 const explorer = require("../locators/explorerlocators.json");
+const apiWidgetslocator = require("../locators/apiWidgetslocator.json");
+
+const backgroundColorBlack = "rgb(0, 0, 0)";
+const backgroundColorGray1 = "rgb(250, 250, 250)";
+const backgroundColorGray2 = "rgb(240, 240, 240)";
+const backgroundColorGray8 = "rgb(113, 110, 110)";
 
 export const initLocalstorage = () => {
   cy.window().then((window) => {
@@ -14,23 +20,6 @@ export const initLocalstorage = () => {
     window.localStorage.setItem("updateDismissed", "true");
   });
 };
-
-Cypress.Commands.add("firestoreDatasourceForm", () => {
-  cy.get(datasourceEditor.datasourceConfigUrl).type(
-    datasourceFormData["database-url"],
-  );
-  cy.get(datasourceEditor.projectID).type(datasourceFormData["projectID"]);
-  cy.get(datasourceEditor.serviceAccCredential)
-    .clear()
-    .type(datasourceFormData["serviceAccCredentials"]);
-});
-
-Cypress.Commands.add("amazonDatasourceForm", () => {
-  cy.get(datasourceEditor.projectID).type(datasourceFormData["access_key"]);
-  cy.get(datasourceEditor.serviceAccCredential)
-    .clear()
-    .type(datasourceFormData["secret_key"]);
-});
 
 Cypress.Commands.add("testSaveDeleteDatasource", () => {
   // Instead of deleting the last datasource on the active datasources list,
@@ -74,6 +63,15 @@ Cypress.Commands.add("NavigateToDatasourceEditor", () => {
     .last()
     .click({ force: true });
   cy.get(pages.integrationCreateNew)
+    .should("be.visible")
+    .click({ force: true });
+});
+
+Cypress.Commands.add("NavigateToActiveDatasources", () => {
+  cy.get(explorer.addDBQueryEntity)
+    .last()
+    .click({ force: true });
+  cy.get(pages.integrationActiveTab)
     .should("be.visible")
     .click({ force: true });
 });
@@ -320,6 +318,7 @@ Cypress.Commands.add(
       .type(userMockDatabaseUsername);
   },
 );
+
 Cypress.Commands.add(
   "fillSMTPDatasourceForm",
   (shouldAddTrailingSpaces = false) => {
@@ -340,6 +339,12 @@ Cypress.Commands.add("createPostgresDatasource", () => {
   //cy.getPluginFormsAndCreateDatasource();
   cy.fillPostgresDatasourceForm();
   cy.testSaveDatasource();
+});
+
+// this can be modified further when google sheets automation is done.
+Cypress.Commands.add("createGoogleSheetsDatasource", () => {
+  cy.NavigateToDatasourceEditor();
+  cy.get(datasourceEditor.GoogleSheets).click();
 });
 
 Cypress.Commands.add("deleteDatasource", (datasourceName) => {
@@ -398,4 +403,121 @@ Cypress.Commands.add("fillMongoDatasourceFormWithURI", () => {
 
 Cypress.Commands.add("ReconnectDatasource", (datasource) => {
   cy.xpath(`//span[text()='${datasource}']`).click();
+});
+
+Cypress.Commands.add("createNewAuthApiDatasource", (renameVal) => {
+  cy.NavigateToAPI_Panel();
+  //Click on Authenticated API
+  cy.get(apiWidgetslocator.createAuthApiDatasource).click();
+  //Verify weather Authenticated API is successfully created.
+  cy.wait("@createDatasource").should(
+    "have.nested.property",
+    "response.body.responseMeta.status",
+    201,
+  );
+  cy.get(datasourceEditor.datasourceTitleLocator).click();
+  cy.get(`${datasourceEditor.datasourceTitleLocator} input`)
+    .clear()
+    .type(renameVal, { force: true })
+    .blur();
+  //Fill dummy inputs and save
+  cy.fillAuthenticatedAPIForm();
+  cy.saveDatasource();
+  // Added because api name edit takes some time to
+  // reflect in api sidebar after the call passes.
+  // eslint-disable-next-line cypress/no-unnecessary-waiting
+  cy.wait(2000);
+});
+
+Cypress.Commands.add("deleteAuthApiDatasource", (renameVal) => {
+  //Navigate to active datasources panel.
+  cy.get(pages.addEntityAPI)
+    .last()
+    .should("be.visible")
+    .click({ force: true });
+  cy.get(pages.integrationActiveTab)
+    .should("be.visible")
+    .click({ force: true });
+  cy.get("#loading").should("not.exist");
+  //Select the datasource to delete
+  cy.get(".t--datasource-name")
+    .contains(renameVal)
+    .click();
+  //Click on delete and later confirm
+  cy.get(".t--delete-datasource").click();
+  cy.get(".t--delete-datasource")
+    .contains("Are you sure?")
+    .click();
+  //Verify the status of deletion
+  cy.wait("@deleteDatasource").should(
+    "have.nested.property",
+    "response.body.responseMeta.status",
+    200,
+  );
+});
+
+Cypress.Commands.add("createMockDatasource", (datasourceName) => {
+  cy.get(".t--mock-datasource")
+    .contains(datasourceName)
+    .click();
+});
+
+Cypress.Commands.add("datasourceCardContainerStyle", (tag) => {
+  cy.get(tag)
+    .should("have.css", "min-width", "150px")
+    .and("have.css", "border-radius", "4px")
+    .and("have.css", "align-items", "center");
+});
+
+Cypress.Commands.add("datasourceCardStyle", (tag) => {
+  cy.get(tag)
+    .should("have.css", "display", "flex")
+    .and("have.css", "justify-content", "space-between")
+    .and("have.css", "align-items", "center")
+    .and("have.css", "height", "64px")
+    .realHover()
+    .should("have.css", "background-color", backgroundColorGray1)
+    .and("have.css", "cursor", "pointer");
+});
+
+Cypress.Commands.add("datasourceImageStyle", (tag) => {
+  cy.get(tag)
+    .should("have.css", "height", "28px")
+    .and("have.css", "max-width", "100%");
+});
+
+Cypress.Commands.add("datasourceContentWrapperStyle", (tag) => {
+  cy.get(tag)
+    .should("have.css", "display", "flex")
+    .and("have.css", "align-items", "center")
+    .and("have.css", "gap", "13px")
+    .and("have.css", "padding-left", "13.5px");
+});
+
+Cypress.Commands.add("datasourceIconWrapperStyle", (tag) => {
+  cy.get(tag)
+    .should("have.css", "background-color", backgroundColorGray2)
+    .and("have.css", "width", "48px")
+    .and("have.css", "height", "48px")
+    .and("have.css", "border-radius", "50%")
+    .and("have.css", "display", "flex")
+    .and("have.css", "align-items", "center");
+});
+
+Cypress.Commands.add("datasourceNameStyle", (tag) => {
+  cy.get(tag)
+    .should("have.css", "color", backgroundColorBlack)
+    .and("have.css", "font-size", "16px")
+    .and("have.css", "font-weight", "400")
+    .and("have.css", "line-height", "24px")
+    .and("have.css", "letter-spacing", "-0.24px");
+});
+
+Cypress.Commands.add("mockDatasourceDescriptionStyle", (tag) => {
+  cy.get(tag)
+    .should("have.css", "color", backgroundColorGray8)
+    .and("have.css", "font-size", "13px")
+    .and("have.css", "font-weight", "400")
+    .and("have.css", "line-height", "17px")
+    .and("have.css", "letter-spacing", "-0.24px");
 });

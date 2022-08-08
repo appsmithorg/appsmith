@@ -5,7 +5,7 @@ import styled from "styled-components";
 import moment from "moment/moment";
 
 import { AppState } from "reducers";
-import TooltipComponent from "components/ads/Tooltip";
+import { TooltipComponent } from "design-system";
 import { HeaderIcons } from "icons/HeaderIcons";
 import { getIsPageSaving, getPageSavingError } from "selectors/editorSelectors";
 import {

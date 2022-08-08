@@ -62,10 +62,11 @@ describe("isChildPropertyPath function", () => {
 
 describe("DynamicBindingPathlist", () => {
   it("Properly updates the dynamicBindingPathlist", () => {
+    // @ts-expect-error: Action type mismatch
     const action: Action = {
       cacheResponse: "",
       id: "61810f59a0f5113e30ba72ac",
-      organizationId: "61800c6bd504bf710747bf9a",
+      workspaceId: "61800c6bd504bf710747bf9a",
       pluginType: PluginType.API,
       pluginId: "5ca385dc81b37f0004b4db85",
       name: "Api1",
@@ -73,7 +74,7 @@ describe("DynamicBindingPathlist", () => {
         // userPermissions: [],
         name: "DEFAULT_REST_DATASOURCE",
         pluginId: "5ca385dc81b37f0004b4db85",
-        organizationId: "61800c6bd504bf710747bf9a",
+        workspaceId: "61800c6bd504bf710747bf9a",
         datasourceConfiguration: {
           url: "https://thatcopy.pw",
         },
@@ -123,7 +124,7 @@ describe("DynamicBindingPathlist", () => {
       ],
       isValid: true,
       invalids: [],
-      // messages: [],
+      messages: [],
       jsonPathKeys: ["Create_users.data", "Button1.text"],
       confirmBeforeExecute: false,
       // userPermissions: ["read:actions", "execute:actions", "manage:actions"],

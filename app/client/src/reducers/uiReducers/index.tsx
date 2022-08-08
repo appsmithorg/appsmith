@@ -7,7 +7,7 @@ import applicationsReducer from "./applicationsReducer";
 import apiPaneReducer from "./apiPaneReducer";
 import datasourcePaneReducer from "./datasourcePaneReducer";
 import authReducer from "./authReducer";
-import orgReducer from "./orgReducer";
+import workspaceReducer from "./workspaceReducer";
 import templateReducer from "./templateReducer";
 import usersReducer from "./usersReducer";
 import { widgetDraggingReducer } from "./dragResizeReducer";
@@ -26,13 +26,11 @@ import pageWidgetsReducer from "./pageWidgetsReducer";
 import onBoardingReducer from "./onBoardingReducer";
 import globalSearchReducer from "./globalSearchReducer";
 import releasesReducer from "./releasesReducer";
-import commentsReducer from "./commentsReducer/commentsReducer";
 import websocketReducer from "./websocketReducer";
 import debuggerReducer from "./debuggerReducer";
 import tourReducer from "./tourReducer";
 import tableFilterPaneReducer from "./tableFilterPaneReducer";
 import jsPaneReducer from "./jsPaneReducer";
-import notificationsReducer from "./notificationsReducer";
 import appCollabReducer from "./appCollabReducer";
 import canvasSelectionReducer from "./canvasSelectionReducer";
 import gitSyncReducer from "./gitSyncReducer";
@@ -52,7 +50,7 @@ const uiReducer = combineReducers({
   apiPane: apiPaneReducer,
   auth: authReducer,
   templates: templateReducer,
-  orgs: orgReducer,
+  workspaces: workspaceReducer,
   users: usersReducer,
   widgetDragResize: widgetDraggingReducer,
   importedCollections: importedCollectionsReducer,
@@ -71,13 +69,11 @@ const uiReducer = combineReducers({
   onBoarding: onBoardingReducer,
   globalSearch: globalSearchReducer,
   releases: releasesReducer,
-  comments: commentsReducer,
   websocket: websocketReducer,
   debugger: debuggerReducer,
   tour: tourReducer,
   jsPane: jsPaneReducer,
   jsObjectName: jsObjectNameReducer,
-  notifications: notificationsReducer,
   canvasSelection: canvasSelectionReducer,
   gitSync: gitSyncReducer,
   appCollab: appCollabReducer,

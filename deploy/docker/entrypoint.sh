@@ -2,7 +2,9 @@
 
 set -e
 
-function get_maximum_heap(){ 
+stacks_path=/appsmith-stacks
+
+function get_maximum_heap() {
     resource=$(ulimit -u)
     echo "Resource : $resource"
     if [[ "$resource" -le 256 ]]; then
@@ -12,7 +14,7 @@ function get_maximum_heap(){
     fi
 }
 
-function setup_backend_heap_arg(){
+function setup_backend_heap_arg() {
     if [[ ! -z ${maximum_heap} ]]; then
       export APPSMITH_JAVA_HEAP_ARG="-Xmx${maximum_heap}m"
     fi
@@ -25,7 +27,7 @@ init_env_file() {
 
   # Build an env file with current env variables. We single-quote the values, as well as escaping any single-quote characters.
   printenv | grep -E '^APPSMITH_|^MONGO_' | sed "s/'/'\"'\"'/; s/=/='/; s/$/'/" > "$TEMPLATES_PATH/pre-define.env"
-  
+
   echo "Initialize .env file"
   if ! [[ -e "$ENV_PATH" ]]; then
     # Generate new docker.env file when initializing container for first time or in Heroku which does not have persistent volume
@@ -57,6 +59,24 @@ init_env_file() {
   . "$ENV_PATH"
   . "$TEMPLATES_PATH/pre-define.env"
   set +o allexport
+}
+
+setup_proxy_variables() {
+  export NO_PROXY="${NO_PROXY-localhost,127.0.0.1}"
+
+  # If one of HTTPS_PROXY or https_proxy are set, copy it to the other. If both are set, prefer HTTPS_PROXY.
+  if [[ -n ${HTTPS_PROXY-} ]]; then
+    export https_proxy="$HTTPS_PROXY"
+  elif [[ -n ${https_proxy-} ]]; then
+    export HTTPS_PROXY="$https_proxy"
+  fi
+
+  # If one of HTTP_PROXY or http_proxy are set, copy it to the other. If both are set, prefer HTTP_PROXY.
+  if [[ -n ${HTTP_PROXY-} ]]; then
+    export http_proxy="$HTTP_PROXY"
+  elif [[ -n ${http_proxy-} ]]; then
+    export HTTP_PROXY="$http_proxy"
+  fi
 }
 
 unset_unused_variables() {
@@ -99,15 +119,16 @@ check_mongodb_uri() {
 init_mongodb() {
   if [[ $isUriLocal -eq 0 ]]; then
     echo "Initializing local database"
-    MONGO_DB_PATH="/appsmith-stacks/data/mongodb"
+    MONGO_DB_PATH="$stacks_path/data/mongodb"
     MONGO_LOG_PATH="$MONGO_DB_PATH/log"
     MONGO_DB_KEY="$MONGO_DB_PATH/key"
     mkdir -p "$MONGO_DB_PATH"
     touch "$MONGO_LOG_PATH"
 
-    if [[ -f "$MONGO_DB_KEY" ]]; then
-      chmod-mongodb-key "$MONGO_DB_KEY"
+    if [[ ! -f "$MONGO_DB_KEY" ]]; then
+      openssl rand -base64 756 > "$MONGO_DB_KEY"
     fi
+    chmod-mongodb-key "$MONGO_DB_KEY"
   fi
 }
 
@@ -136,8 +157,6 @@ init_replica_set() {
     mongo "127.0.0.1/appsmith" /appsmith-stacks/configuration/mongo-init.js
     echo "Enabling Replica Set"
     mongod --dbpath "$MONGO_DB_PATH" --shutdown || true
-    openssl rand -base64 756 > "$MONGO_DB_KEY"
-    chmod-mongodb-key "$MONGO_DB_KEY"
     mongod --fork --port 27017 --dbpath "$MONGO_DB_PATH" --logpath "$MONGO_LOG_PATH" --replSet mr1 --keyFile "$MONGO_DB_KEY" --bind_ip localhost
     echo "Waiting 10s for MongoDB to start with Replica Set"
     sleep 10
@@ -170,6 +189,42 @@ mount_letsencrypt_directory() {
   rm -rf /etc/letsencrypt
   mkdir -p /appsmith-stacks/{letsencrypt,ssl}
   ln -s /appsmith-stacks/letsencrypt /etc/letsencrypt
+}
+
+is_empty_directory() {
+  [[ -d $1 && -z "$(ls -A "$1")" ]]
+}
+
+check_setup_custom_ca_certificates() {
+  local stacks_ca_certs_path
+  stacks_ca_certs_path="$stacks_path/ca-certs"
+
+  local container_ca_certs_path
+  container_ca_certs_path="/usr/local/share/ca-certificates"
+
+  if [[ -d $stacks_ca_certs_path ]]; then
+    if [[ ! -L $container_ca_certs_path ]]; then
+      if is_empty_directory "$container_ca_certs_path"; then
+        rmdir -v "$container_ca_certs_path"
+      else
+        echo "The 'ca-certificates' directory inside the container is not empty. Please clear it and restart to use certs from 'stacks/ca-certs' directory." >&2
+        return
+      fi
+    fi
+
+    ln --verbose --force --symbolic --no-target-directory "$stacks_ca_certs_path" "$container_ca_certs_path"
+
+  elif [[ ! -e $container_ca_certs_path ]]; then
+    rm -vf "$container_ca_certs_path"  # If it exists as a broken symlink, this will be needed.
+    mkdir -v "$container_ca_certs_path"
+
+  fi
+
+  if [[ -n "$(ls "$stacks_ca_certs_path"/*.pem 2>/dev/null)" ]]; then
+    echo "Looks like you have some '.pem' files in your 'ca-certs' folder. Please rename them to '.crt' to be picked up autatically.".
+  fi
+
+  update-ca-certificates --fresh
 }
 
 configure_supervisord() {
@@ -218,19 +273,25 @@ check_redis_compatible_page_size() {
 
 # Main Section
 init_env_file
+setup_proxy_variables
 unset_unused_variables
+
 check_mongodb_uri
 if [[ -z "${DYNO}" ]]; then
   # Don't run MongoDB if running in a Heroku dyno.
   init_mongodb
   init_replica_set
-else 
+else
   # These functions are used to limit heap size for Backend process when deployed on Heroku
   get_maximum_heap
   setup_backend_heap_arg
 fi
+
+check_setup_custom_ca_certificates
 mount_letsencrypt_directory
+
 check_redis_compatible_page_size
+
 configure_supervisord
 
 CREDENTIAL_PATH="/etc/nginx/passwords"

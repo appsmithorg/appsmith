@@ -112,7 +112,7 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
                     if (action.getId() == null) {
                         // Make sure that the proper values are used for the new action
                         // Scope the actions' fully qualified names by collection name
-                        action.getDatasource().setOrganizationId(collection.getOrganizationId());
+                        action.getDatasource().setWorkspaceId(collection.getWorkspaceId());
                         action.getDatasource().setPluginId(collection.getPluginId());
                         action.getDatasource().setName(FieldName.UNUSED_DATASOURCE);
                         action.setFullyQualifiedName(collection.getName() + "." + action.getName());
@@ -143,7 +143,7 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
 
                     ActionCollection actionCollection = new ActionCollection();
                     actionCollection.setApplicationId(collection.getApplicationId());
-                    actionCollection.setOrganizationId(collection.getOrganizationId());
+                    actionCollection.setWorkspaceId(collection.getWorkspaceId());
                     actionCollection.setUnpublishedCollection(collection);
                     actionCollection.setDefaultResources(collection.getDefaultResources());
                     actionCollectionService.generateAndSetPolicies(newPage, actionCollection);
@@ -466,7 +466,7 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
                             actionDTO.setApplicationId(branchedActionCollection.getApplicationId());
                             if (actionDTO.getId() == null) {
                                 actionDTO.setCollectionId(branchedActionCollection.getId());
-                                actionDTO.getDatasource().setOrganizationId(actionCollectionDTO.getOrganizationId());
+                                actionDTO.getDatasource().setWorkspaceId(actionCollectionDTO.getWorkspaceId());
                                 actionDTO.getDatasource().setPluginId(actionCollectionDTO.getPluginId());
                                 actionDTO.getDatasource().setName(FieldName.UNUSED_DATASOURCE);
                                 actionDTO.setFullyQualifiedName(actionCollectionDTO.getName() + "." + actionDTO.getName());
@@ -501,7 +501,7 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
                             actionDTO.setDeletedAt(Instant.now());
                             actionDTO.setPageId(branchedActionCollection.getUnpublishedCollection().getPageId());
                             if (actionDTO.getId() == null) {
-                                actionDTO.getDatasource().setOrganizationId(actionCollectionDTO.getOrganizationId());
+                                actionDTO.getDatasource().setWorkspaceId(actionCollectionDTO.getWorkspaceId());
                                 actionDTO.getDatasource().setPluginId(actionCollectionDTO.getPluginId());
                                 actionDTO.getDatasource().setName(FieldName.UNUSED_DATASOURCE);
                                 actionDTO.setFullyQualifiedName(actionCollectionDTO.getName() + "." + actionDTO.getName());
@@ -579,12 +579,12 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
                             });
                 })
                 .flatMap(actionCollection -> actionCollectionService.update(actionCollection.getId(), actionCollection))
-                .flatMap(analyticsService::sendUpdateEvent)
+                .flatMap(savedActionCollection -> analyticsService.sendUpdateEvent(savedActionCollection, actionCollectionService.getAnalyticsProperties(savedActionCollection)))
                 .flatMap(actionCollection -> actionCollectionService.generateActionCollectionByViewMode(actionCollection, false)
                         .flatMap(actionCollectionDTO1 -> actionCollectionService.populateActionCollectionByViewMode(
                                 actionCollection.getUnpublishedCollection(),
                                 false)))
-                .map(actionCollectionDTO1 -> responseUtils.updateCollectionDTOWithDefaultResources(actionCollectionDTO1));
+                .map(responseUtils::updateCollectionDTOWithDefaultResources);
     }
 
     @Override

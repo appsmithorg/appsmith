@@ -42,16 +42,7 @@ import { ReactComponent as MobileIcon } from "assets/icons/ads/mobile.svg";
 import { ReactComponent as TabletIcon } from "assets/icons/ads/tablet.svg";
 import { ReactComponent as FluidIcon } from "assets/icons/ads/fluid.svg";
 import { ReactComponent as CardContextMenu } from "assets/icons/ads/card-context-menu.svg";
-import { ReactComponent as SendButton } from "assets/icons/comments/send-button.svg";
-import { ReactComponent as Pin } from "assets/icons/comments/pin.svg";
 import { ReactComponent as TrashOutline } from "assets/icons/form/trash.svg";
-import { ReactComponent as ReadPin } from "assets/icons/comments/read-pin.svg";
-import { ReactComponent as UnreadPin } from "assets/icons/comments/unread-pin.svg";
-// import { ReactComponent as DownArrow2 } from "assets/icons/comments/down-arrow.svg";
-import { ReactComponent as Chat } from "assets/icons/comments/chat.svg";
-import { ReactComponent as Unpin } from "assets/icons/comments/unpinIcon.svg";
-import { ReactComponent as Reaction } from "assets/icons/comments/reaction.svg";
-import { ReactComponent as Reaction2 } from "assets/icons/comments/reaction-2.svg";
 import { ReactComponent as Upload } from "assets/icons/ads/upload.svg";
 // import { ReactComponent as Download } from "assets/icons/ads/download.svg";
 import { ReactComponent as ArrowForwardIcon } from "assets/icons/control/arrow_forward.svg";
@@ -66,7 +57,7 @@ import { ReactComponent as GearIcon } from "assets/icons/ads/gear.svg";
 import { ReactComponent as UserV2Icon } from "assets/icons/ads/user-v2.svg";
 import { ReactComponent as SupportIcon } from "assets/icons/ads/support.svg";
 import { ReactComponent as Snippet } from "assets/icons/ads/snippet.svg";
-import { ReactComponent as WorkspaceIcon } from "assets/icons/ads/organizationIcon.svg";
+import { ReactComponent as WorkspaceIcon } from "assets/icons/ads/workspaceIcon.svg";
 import { ReactComponent as SettingIcon } from "assets/icons/control/settings.svg";
 import { ReactComponent as DropdownIcon } from "assets/icons/ads/dropdown.svg";
 import { ReactComponent as ChatIcon } from "assets/icons/ads/app-icons/chat.svg";
@@ -131,6 +122,7 @@ import OvalCheck from "remixicon-react/CheckboxCircleLineIcon";
 import OvalCheckFill from "remixicon-react/CheckboxCircleFillIcon";
 import Pin3 from "remixicon-react/Pushpin2FillIcon";
 import QueryIcon from "remixicon-react/CodeSSlashLineIcon";
+import RemoveIcon from "remixicon-react/SubtractLineIcon";
 import RightArrowIcon from "remixicon-react/ArrowRightLineIcon";
 import RightArrowIcon2 from "remixicon-react/ArrowRightSLineIcon";
 import RocketIcon from "remixicon-react/RocketLineIcon";
@@ -158,6 +150,8 @@ import HamburgerIcon from "remixicon-react/MenuLineIcon";
 import MagicLineIcon from "remixicon-react/MagicLineIcon";
 import UserHeartLineIcon from "remixicon-react/UserHeartLineIcon";
 import DvdLineIcon from "remixicon-react/DvdLineIcon";
+import Group2LineIcon from "remixicon-react/Group2LineIcon";
+import CodeViewIcon from "remixicon-react/CodeViewIcon";
 
 export enum IconSize {
   XXS = "extraExtraSmall",
@@ -293,11 +287,8 @@ const ICON_LOOKUP = {
   "oval-check": <OvalCheck />,
   "oval-check-fill": <OvalCheckFill />,
   "pin-3": <Pin3 />,
-  "reaction-2": <Reaction2 />,
-  "read-pin": <ReadPin />,
   "right-arrow": <RightArrowIcon />,
   "right-arrow-2": <RightArrowIcon2 />,
-  "send-button": <SendButton />,
   "settings-2-line": <Settings2LineIcon />,
   "share-2": <ShareIcon2 />,
   "share-box": <ShareBoxFillIcon />,
@@ -307,7 +298,6 @@ const ICON_LOOKUP = {
   "swap-horizontal": <ArrowLeftRightIcon />,
   "trash-outline": <TrashOutline />,
   "trending-flat": <TrendingFlat />,
-  "unread-pin": <UnreadPin />,
   "upload-cloud": <UploadCloud2LineIcon />,
   "user-2": <UserV2Icon />,
   "user-heart-line": <UserHeartLineIcon />,
@@ -316,12 +306,13 @@ const ICON_LOOKUP = {
   "warning-line": <WarningLineIcon />,
   "warning-triangle": <WarningTriangleIcon />,
   "chat-help": <ChatIcon />,
+  "group-2-line": <Group2LineIcon />,
   billing: <BillingIcon />,
   book: <BookIcon />,
   bug: <BugIcon />,
   cancel: <CancelIcon />,
-  chat: <Chat />,
   close: <CloseIcon />,
+  code: <CodeViewIcon />,
   column: <ColumnIcon />,
   cross: <CrossIcon />,
   danger: <ErrorIcon />,
@@ -354,13 +345,12 @@ const ICON_LOOKUP = {
   logout: <LogoutIcon />,
   manage: <ManageIcon />,
   member: <UserHeartLineIcon />,
+  minus: <RemoveIcon />,
   mobile: <MobileIcon />,
   open: <OpenIcon />,
-  pin: <Pin />,
   play: <PlayIcon />,
   plus: <CreateNewIcon />,
   query: <QueryIcon />,
-  reaction: <Reaction />,
   refresh: <RefreshLineIcon />,
   rocket: <RocketIcon />,
   search: <SearchIcon />,
@@ -373,7 +363,6 @@ const ICON_LOOKUP = {
   tables: <TableIcon />,
   tablet: <TabletIcon />,
   trash: <Trash />,
-  unpin: <Unpin />,
   upArrow: <UpArrow />,
   upload: <Upload />,
   user: <UserIcon />,

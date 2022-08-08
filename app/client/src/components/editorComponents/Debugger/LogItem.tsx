@@ -1,4 +1,4 @@
-import { Collapse, Position } from "@blueprintjs/core";
+import { Collapse } from "@blueprintjs/core";
 import { get } from "lodash";
 import { Classes as BPPopover2Classes } from "@blueprintjs/popover2";
 import { isString } from "lodash";
@@ -10,9 +10,9 @@ import ReactJson from "react-json-view";
 import styled, { useTheme } from "styled-components";
 import EntityLink, { DebuggerLinkUI } from "./EntityLink";
 import { SeverityIcon } from "./helpers";
-import Text, { TextType } from "components/ads/Text";
+import { Text, TextType } from "design-system";
 import { getTypographyByKey } from "constants/DefaultTheme";
-import TooltipComponent from "components/ads/Tooltip";
+import { TooltipComponent } from "design-system";
 import {
   createMessage,
   TROUBLESHOOT_ISSUE,
@@ -275,7 +275,7 @@ function LogItem(props: LogItemProps) {
                   </Text>
                 }
                 minimal
-                position={Position.BOTTOM_LEFT}
+                position="bottom-left"
               >
                 <StyledSearchIcon
                   className={`${Classes.ICON} search-menu`}

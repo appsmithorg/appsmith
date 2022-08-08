@@ -37,11 +37,11 @@ import StoreAsDatasource, {
 import { urlGroupsRegexExp } from "constants/AppsmithActionConstants/ActionConstants";
 import styled from "styled-components";
 import Icon, { IconSize } from "components/ads/Icon";
-import Text, { FontWeight, TextType } from "components/ads/Text";
+import { Text, FontWeight, TextType } from "design-system";
 import history from "utils/history";
 import { getDatasourceInfo } from "pages/Editor/APIEditor/ApiRightPane";
 import * as FontFamilies from "constants/Fonts";
-import { getQueryParams } from "utils/AppsmithUtils";
+import { getQueryParams } from "utils/URLUtils";
 import { AuthType } from "entities/Datasource/RestAPIForm";
 import { setDatsourceEditorMode } from "actions/datasourceActions";
 
@@ -61,7 +61,7 @@ import {
 import { datasourcesEditorIdURL } from "RouteBuilder";
 
 type ReduxStateProps = {
-  orgId: string;
+  workspaceId: string;
   datasource: Datasource | EmbeddedRestDatasource;
   datasourceList: Datasource[];
   currentPageId?: string;
@@ -199,14 +199,14 @@ class EmbeddedDatasourcePathComponent extends React.Component<
   }
 
   handleDatasourceUrlUpdate = (datasourceUrl: string) => {
-    const { datasource, orgId, pluginId } = this.props;
+    const { datasource, pluginId, workspaceId } = this.props;
     const urlHasUpdated =
       datasourceUrl !== datasource.datasourceConfiguration?.url;
     if (urlHasUpdated) {
       const isDatasourceRemoved =
         datasourceUrl.indexOf(datasource.datasourceConfiguration?.url) === -1;
       let newDatasource = isDatasourceRemoved
-        ? { ...DEFAULT_DATASOURCE(pluginId, orgId) }
+        ? { ...DEFAULT_DATASOURCE(pluginId, workspaceId) }
         : { ...datasource };
       newDatasource = {
         ...newDatasource,
@@ -551,7 +551,7 @@ const mapStateToProps = (
   }
 
   return {
-    orgId: state.ui.orgs.currentOrg.id,
+    workspaceId: state.ui.workspaces.currentWorkspace.id,
     datasource: datasourceMerged,
     datasourceList: getDatasourcesByPluginId(state, ownProps.pluginId),
     currentPageId: state.entities.pageList.currentPageId,

@@ -344,7 +344,7 @@ class ButtonGroupWidget extends BaseWidget<
                             ],
                           },
                           {
-                            sectionName: "Actions",
+                            sectionName: "Events",
                             children: [
                               {
                                 helpText:
@@ -396,7 +396,7 @@ class ButtonGroupWidget extends BaseWidget<
                   ],
                 },
                 {
-                  sectionName: "Actions",
+                  sectionName: "Events",
                   hidden: (
                     props: ButtonGroupWidgetProps,
                     propertyPath: string,
@@ -505,13 +505,14 @@ class ButtonGroupWidget extends BaseWidget<
     ];
   }
 
-  handleClick = (onClick: string | undefined): void => {
+  handleClick = (onClick: string | undefined, callback: () => void): void => {
     if (onClick) {
       super.executeAction({
         triggerPropertyName: "onClick",
         dynamicString: onClick,
         event: {
           type: EventType.ON_CLICK,
+          callback,
         },
       });
     }

@@ -102,7 +102,7 @@ public class UserSignupCEImpl implements UserSignupCE {
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.INTERNAL_SERVER_ERROR)))
                 .flatMap(tuple -> {
                     final User savedUser = tuple.getT1().getUser();
-                    final String organizationId = tuple.getT1().getDefaultOrganizationId();
+                    final String workspaceId = tuple.getT1().getDefaultWorkspaceId();
                     final WebSession session = tuple.getT2();
                     final SecurityContext securityContext = tuple.getT3();
 
@@ -117,7 +117,7 @@ public class UserSignupCEImpl implements UserSignupCE {
                     MultiValueMap<String, String> queryParams = exchange.getRequest().getQueryParams();
                     String redirectQueryParamValue = queryParams.getFirst(REDIRECT_URL_QUERY_PARAM);
 
-                    boolean createApplication = StringUtils.isEmpty(redirectQueryParamValue) && !StringUtils.isEmpty(organizationId);
+                    boolean createApplication = StringUtils.isEmpty(redirectQueryParamValue) && !StringUtils.isEmpty(workspaceId);
                     // need to create default application
                     return authenticationSuccessHandler
                             .onAuthenticationSuccess(webFilterExchange, authentication, createApplication, true)
@@ -204,9 +204,10 @@ public class UserSignupCEImpl implements UserSignupCE {
                     userData.setUseCase(userFromRequest.getUseCase());
 
                     return Mono.when(
-                            userDataService.updateForUser(user, userData)
-                                    .then(configService.getInstanceId())
-                                    .doOnSuccess(instanceId -> {
+                            userDataService.updateForUser(user, userData),
+                            configService.getInstanceId()
+                                    .map(instanceId -> {
+                                        log.debug("Installation setup complete.");
                                         analyticsService.sendEvent(
                                                 AnalyticsEvents.INSTALLATION_SETUP_COMPLETE.getEventName(),
                                                 instanceId,
@@ -220,6 +221,7 @@ public class UserSignupCEImpl implements UserSignupCE {
                                                 false
                                         );
                                         analyticsService.identifyInstance(instanceId, userData.getRole(), userData.getUseCase());
+                                        return instanceId;
                                     }),
                             envManager.applyChanges(Map.of(
                                     APPSMITH_DISABLE_TELEMETRY.name(),

@@ -1,6 +1,14 @@
-import { io } from "socket.io-client";
-import { eventChannel } from "redux-saga";
-import { fork, take, call, cancel, put, delay } from "redux-saga/effects";
+import { io, Socket } from "socket.io-client";
+import { EventChannel, eventChannel, Task } from "redux-saga";
+import {
+  fork,
+  take,
+  call,
+  cancel,
+  put,
+  delay,
+  ChannelTakeEffect,
+} from "redux-saga/effects";
 import {
   ReduxActionTypes,
   ReduxSagaChannels,
@@ -28,6 +36,10 @@ import { SOCKET_CONNECTION_EVENTS } from "./socketEvents";
 function connect(namespace?: string) {
   const options = {
     path: RTS_BASE_PATH,
+    // The default transports is ["polling", "websocket"], so polling is tried first. But polling
+    //   needs sticky session to be turned on, in a clustered environment, even for it to upgrade to websockets.
+    // Ref: <https://github.com/socketio/socket.io/issues/2140>.
+    transports: ["websocket"],
   };
   const socket = !!namespace ? io(namespace, options) : io(options);
 
@@ -39,7 +51,7 @@ function connect(namespace?: string) {
   });
 }
 
-function listenToSocket(socket: any) {
+function listenToSocket(socket: Socket) {
   return eventChannel((emit) => {
     socket.onAny((event: any, ...args: any) => {
       emit({
@@ -60,9 +72,9 @@ function listenToSocket(socket: any) {
 }
 
 function* readFromAppSocket(socket: any) {
-  const channel = yield call(listenToSocket, socket);
+  const channel: EventChannel<unknown> = yield call(listenToSocket, socket);
   while (true) {
-    const action = yield take(channel);
+    const action: ChannelTakeEffect<unknown> = yield take(channel);
     switch (action.type) {
       case WEBSOCKET_EVENTS.DISCONNECTED:
         yield put(setIsAppLevelWebsocketConnected(false));
@@ -115,12 +127,12 @@ function* openAppLevelSocketConnection() {
        * We only need to retry incase the socket connection isn't made
        * in the first attempt itself
        */
-      const socket = yield call(connect);
-      const task = yield fork(handleAppSocketIO, socket);
+      const socket: Socket = yield call(connect);
+      const task: Task = yield fork(handleAppSocketIO, socket);
       yield put(setIsAppLevelWebsocketConnected(true));
       yield take([ReduxActionTypes.LOGOUT_USER_INIT]);
       yield cancel(task);
-      socket.disconnect();
+      socket?.disconnect();
     } catch (e) {
       // this has to be non blocking
       yield fork(function*() {
@@ -132,9 +144,9 @@ function* openAppLevelSocketConnection() {
 }
 
 function* readFromPageSocket(socket: any) {
-  const channel = yield call(listenToSocket, socket);
+  const channel: EventChannel<unknown> = yield call(listenToSocket, socket);
   while (true) {
-    const action = yield take(channel);
+    const action: ChannelTakeEffect<unknown> = yield take(channel);
     switch (action.type) {
       case WEBSOCKET_EVENTS.DISCONNECTED:
         yield put(setIsPageLevelWebsocketConnected(false));
@@ -180,8 +192,8 @@ function* openPageLevelSocketConnection() {
       ReduxActionTypes.RETRY_PAGE_LEVEL_WEBSOCKET_CONNECTION, // for manually triggering reconnection
     ]);
     try {
-      const socket = yield call(connect, WEBSOCKET_NAMESPACE.PAGE_EDIT);
-      const task = yield fork(handlePageSocketIO, socket);
+      const socket: Socket = yield call(connect, WEBSOCKET_NAMESPACE.PAGE_EDIT);
+      const task: Task = yield fork(handlePageSocketIO, socket);
       yield put(setIsPageLevelWebsocketConnected(true));
       yield take([ReduxActionTypes.LOGOUT_USER_INIT]);
       yield cancel(task);

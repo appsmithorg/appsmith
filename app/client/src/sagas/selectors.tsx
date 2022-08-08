@@ -1,17 +1,21 @@
 import { AppState } from "reducers";
 import { createSelector } from "reselect";
-import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
+import {
+  CanvasWidgetsReduxState,
+  FlattenedWidgetProps,
+} from "reducers/entityReducers/canvasWidgetsReducer";
 import { WidgetProps } from "widgets/BaseWidget";
 import _ from "lodash";
-import { WidgetType } from "constants/WidgetConstants";
+import {
+  WidgetType,
+  MAIN_CONTAINER_WIDGET_ID,
+} from "constants/WidgetConstants";
 import { ActionData } from "reducers/entityReducers/actionsReducer";
 import { Page } from "@appsmith/constants/ReduxActionConstants";
 import { getActions, getPlugins } from "selectors/entitiesSelector";
 import { Plugin } from "api/PluginApi";
 
-export const getWidgets = (
-  state: AppState,
-): { [widgetId: string]: FlattenedWidgetProps } => {
+export const getWidgets = (state: AppState): CanvasWidgetsReduxState => {
   return state.entities.canvasWidgets;
 };
 
@@ -62,7 +66,7 @@ export const getEditorConfigs = (
   return { pageId, layoutId };
 };
 
-export const getDefaultPageId = (state: AppState): string | undefined =>
+export const getDefaultPageId = (state: AppState): string =>
   state.entities.pageList.defaultPageId;
 
 export const getExistingWidgetNames = createSelector(
@@ -141,7 +145,9 @@ export const getDragDetails = (state: AppState) => {
   return state.ui.widgetDragResize.dragDetails;
 };
 
-export const getSelectedWidget = (state: AppState) => {
+export const getSelectedWidget = (
+  state: AppState,
+): FlattenedWidgetProps | undefined => {
   const selectedWidgetId = state.ui.widgetDragResize.lastSelectedWidget;
   if (!selectedWidgetId) return;
   return state.entities.canvasWidgets[selectedWidgetId];
@@ -172,3 +178,30 @@ export const getWidgetImmediateChildren = createSelector(
     return childrenIds;
   },
 );
+
+/**
+ * get actual parent of widget based on widgetId
+ * for button inside form, button's parent is form
+ * for button on canvas, parent is main container
+ */
+export const getWidgetParent = (widgetId: string) => {
+  return createSelector(
+    getWidgets,
+    (canvasWidgets: CanvasWidgetsReduxState) => {
+      let widget = canvasWidgets[widgetId];
+      // While this widget has a parent
+      while (widget?.parentId) {
+        // Get parent widget props
+        const parent = _.get(canvasWidgets, widget.parentId, undefined);
+        // keep walking up the tree to find the parent untill parent exist or parent is the main container
+        if (parent?.parentId && parent.parentId !== MAIN_CONTAINER_WIDGET_ID) {
+          widget = canvasWidgets[widget.parentId];
+          continue;
+        } else {
+          return parent;
+        }
+      }
+      return;
+    },
+  );
+};

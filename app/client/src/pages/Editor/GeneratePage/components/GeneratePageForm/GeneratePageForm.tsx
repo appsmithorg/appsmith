@@ -20,10 +20,10 @@ import { useParams, useLocation } from "react-router";
 import { ExplorerURLParams } from "../../../Explorer/helpers";
 import { INTEGRATION_TABS } from "constants/routes";
 import history from "utils/history";
-import { getQueryParams } from "utils/AppsmithUtils";
+import { getQueryParams } from "utils/URLUtils";
 import { getIsGeneratingTemplatePage } from "selectors/pageListSelectors";
 import DataSourceOption from "../DataSourceOption";
-import { convertToQueryParams } from "RouteBuilder";
+import { getQueryStringfromObject } from "RouteBuilder";
 import { IconName, IconSize } from "components/ads/Icon";
 import GoogleSheetForm from "./GoogleSheetForm";
 import {
@@ -50,7 +50,7 @@ import {
   DROPDOWN_DIMENSION,
   ALLOWED_SEARCH_DATATYPE,
 } from "../constants";
-import Tooltip from "components/ads/Tooltip";
+import { TooltipComponent as Tooltip } from "design-system";
 import { Bold, Label, SelectWrapper } from "./styles";
 import { GeneratePagePayload } from "./types";
 import Icon from "components/ads/Icon";
@@ -465,7 +465,7 @@ function GeneratePageForm() {
         delete queryParams.datasourceId;
         delete queryParams.new_page;
         const redirectURL =
-          window.location.pathname + convertToQueryParams(queryParams);
+          window.location.pathname + getQueryStringfromObject(queryParams);
         history.replace(redirectURL);
       }
     }

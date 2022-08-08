@@ -19,7 +19,7 @@ import { ApiPaneReduxState } from "./uiReducers/apiPaneReducer";
 import { QueryPaneReduxState } from "./uiReducers/queryPaneReducer";
 import { PluginDataState } from "reducers/entityReducers/pluginsReducer";
 import { AuthState } from "reducers/uiReducers/authReducer";
-import { OrgReduxState } from "reducers/uiReducers/orgReducer";
+import { WorkspaceReduxState } from "reducers/uiReducers/workspaceReducer";
 import { UsersReduxState } from "reducers/uiReducers/usersReducer";
 import { ThemeState } from "reducers/uiReducers/themeReducer";
 import { WidgetDragResizeState } from "reducers/uiReducers/dragResizeReducer";
@@ -41,14 +41,12 @@ import { OnboardingState } from "./uiReducers/onBoardingReducer";
 import { GlobalSearchReduxState } from "./uiReducers/globalSearchReducer";
 import { ReleasesState } from "./uiReducers/releasesReducer";
 import { LoadingEntitiesState } from "./evaluationReducers/loadingEntitiesReducer";
-import { CommentsReduxState } from "./uiReducers/commentsReducer/interfaces";
 import { WebsocketReducerState } from "./uiReducers/websocketReducer";
 import { DebuggerReduxState } from "./uiReducers/debuggerReducer";
 import { TourReducerState } from "./uiReducers/tourReducer";
 import { TableFilterPaneReduxState } from "./uiReducers/tableFilterPaneReducer";
 import { JsPaneReduxState } from "./uiReducers/jsPaneReducer";
 import { JSCollectionDataState } from "./entityReducers/jsActionsReducer";
-import { NotificationReducerState } from "./uiReducers/notificationsReducer";
 import { CanvasSelectionState } from "./uiReducers/canvasSelectionReducer";
 import { JSObjectNameReduxState } from "./uiReducers/jsObjectNameReducer";
 import { GitSyncReducerState } from "./uiReducers/gitSyncReducer";
@@ -61,6 +59,7 @@ import { MainCanvasReduxState } from "./uiReducers/mainCanvasReducer";
 import SettingsReducer, {
   SettingsReduxState,
 } from "@appsmith/reducers/settingsReducer";
+import { TriggerValuesEvaluationState } from "./evaluationReducers/triggerReducer";
 
 const appReducer = combineReducers({
   entities: entityReducer,
@@ -83,7 +82,7 @@ export interface AppState {
     apiPane: ApiPaneReduxState;
     auth: AuthState;
     templates: TemplatesReduxState;
-    orgs: OrgReduxState;
+    workspaces: WorkspaceReduxState;
     users: UsersReduxState;
     widgetDragResize: WidgetDragResizeState;
     importedCollections: ImportedCollectionsReduxState;
@@ -102,12 +101,10 @@ export interface AppState {
     onBoarding: OnboardingState;
     globalSearch: GlobalSearchReduxState;
     releases: ReleasesState;
-    comments: CommentsReduxState;
     websocket: WebsocketReducerState;
     debugger: DebuggerReduxState;
     tour: TourReducerState;
     jsPane: JsPaneReduxState;
-    notifications: NotificationReducerState;
     canvasSelection: CanvasSelectionState;
     jsObjectName: JSObjectNameReduxState;
     gitSync: GitSyncReducerState;
@@ -133,6 +130,7 @@ export interface AppState {
     dependencies: EvaluationDependencyState;
     loadingEntities: LoadingEntitiesState;
     formEvaluation: FormEvaluationState;
+    triggers: TriggerValuesEvaluationState;
   };
   form: {
     [key: string]: any;

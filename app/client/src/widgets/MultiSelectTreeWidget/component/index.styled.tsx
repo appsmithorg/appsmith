@@ -380,8 +380,9 @@ border: 1px solid #E8E8E8;
     top: 7px;
     left: 3px;
     right: 3px;
-    background-color: ${Colors.WHITE};
+    background-color: ${Colors.WHITE} !important;
     position: absolute;
+    transform: unset;
   }
 }
 
@@ -531,6 +532,9 @@ border: 1px solid #E8E8E8;
 	background: ${({ accentColor }) => lightenColor(accentColor)};
   .rc-tree-select-tree-title {
     color: ${Colors.GREY_9};
+  }
+  .rc-tree-select-tree-checkbox-indeterminate .rc-tree-select-tree-checkbox-inner {
+    background-color: ${({ accentColor }) => accentColor} !important;
   }
   :not(.rc-tree-select-tree-treenode-checkbox-checked) .rc-tree-select-tree-checkbox-inner {
     background-color:  ${({ accentColor }) => lightenColor(accentColor)};
@@ -835,18 +839,13 @@ export const TreeSelectContainer = styled.div<{
       height: 100%;
       display: flex;
       align-items: center;
-      z-index: -1;
       .rc-tree-select-clear-icon {
         font-size: 18px;
         font-weight: bold;
       }
     }
   }
-  .rc-tree-select-allow-clear.rc-tree-select-focused {
-    .rc-tree-select-clear {
-      z-index: 1;
-    }
-  }
+  
   .rc-tree-select-show-arrow.rc-tree-select-multiple {
     .rc-tree-select-selector {
       padding-right: ${({ allowClear }) => (allowClear ? "40px" : "20px")};
@@ -920,8 +919,8 @@ export const TreeSelectContainer = styled.div<{
         transform: translateY(5px);
       }
     }
+    }
   }
-
 `;
 
 export const StyledCheckbox = styled(Checkbox)`

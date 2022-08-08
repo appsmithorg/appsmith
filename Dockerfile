@@ -15,7 +15,7 @@ RUN apt-get update \
   && DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y \
     supervisor curl cron certbot nginx gnupg wget netcat openssh-client \
     software-properties-common gettext openjdk-11-jre \
-    python3-pip python-setuptools git \
+    python3-pip python-setuptools git ca-certificates-java \
   && pip install --no-cache-dir git+https://github.com/coderanger/supervisor-stdout@973ba19967cdaf46d9c1634d1675fc65b9574f6e \
   && apt-get remove -y git python3-pip
 
@@ -90,6 +90,12 @@ RUN find / \( -path /proc -prune \) -o \( \( -perm -2000 -o -perm -4000 \) -prin
 
 # Update path to load appsmith utils tool as default
 ENV PATH /opt/appsmith/utils/node_modules/.bin:$PATH
+LABEL com.centurylinklabs.watchtower.lifecycle.pre-check=/watchtower-hooks/pre-check.sh
+LABEL com.centurylinklabs.watchtower.lifecycle.pre-update=/watchtower-hooks/pre-update.sh
+COPY ./deploy/docker/watchtower-hooks /watchtower-hooks
+RUN chmod +x /watchtower-hooks/pre-check.sh
+RUN chmod +x /watchtower-hooks/pre-update.sh
+
 
 EXPOSE 80
 EXPOSE 443

@@ -1,11 +1,11 @@
-import { createReducer } from "utils/AppsmithUtils";
+import { createReducer } from "utils/ReducerUtils";
 import {
   ReduxAction,
   ReduxActionErrorTypes,
   ReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
 import { GitConfig, GitSyncModalTab, MergeStatus } from "entities/GitSync";
-import { GetSSHKeyResponseData } from "actions/gitSyncActions";
+import { GetSSHKeyResponseData, SSHKeyType } from "actions/gitSyncActions";
 
 const initialState: GitSyncReducerState = {
   isGitSyncModalOpen: false,
@@ -371,6 +371,7 @@ const gitSyncReducer = createReducer(initialState, {
       ...state,
       SSHKeyPair: action.payload.publicKey,
       deployKeyDocUrl: action.payload.docUrl,
+      supportedKeyTypes: action.payload?.gitSupportedSSHKeyType,
     };
   },
   [ReduxActionErrorTypes.FETCH_SSH_KEY_PAIR_ERROR]: (
@@ -380,6 +381,7 @@ const gitSyncReducer = createReducer(initialState, {
       ...state,
       SSHKeyPair: null,
       deployKeyDocUrl: "",
+      supportedKeyTypes: null,
     };
   },
   [ReduxActionTypes.CREATE_APPLICATION_SUCCESS]: (
@@ -401,7 +403,9 @@ const gitSyncReducer = createReducer(initialState, {
       deployKeyDocUrl: action.payload.docUrl,
     };
   },
-  [ReduxActionTypes.SET_ORG_ID_FOR_IMPORT]: (state: GitSyncReducerState) => {
+  [ReduxActionTypes.SET_WORKSPACE_ID_FOR_IMPORT]: (
+    state: GitSyncReducerState,
+  ) => {
     return {
       ...state,
       SSHKeyPair: "",
@@ -466,6 +470,14 @@ const gitSyncReducer = createReducer(initialState, {
     ...state,
     deletingBranch: action.payload,
   }),
+  [ReduxActionTypes.GIT_DISCARD_CHANGES_SUCCESS]: (
+    state: GitSyncReducerState,
+    action: ReduxAction<any>,
+  ) => ({
+    ...state,
+    isDiscarding: false,
+    discard: action.payload,
+  }),
 });
 
 export type GitStatusData = {
@@ -501,6 +513,45 @@ export type GitBranchDeleteState = {
   deleteBranchError?: any;
   deleteBranchWarning?: any;
   deletingBranch?: boolean;
+};
+
+export type GitDiscardResponse = {
+  id: string;
+  modifiedBy: string;
+  userPermissions: string[];
+  name: string;
+  workspaceId: string;
+  isPublic: boolean;
+  pages: {
+    id: string;
+    isDefault: boolean;
+    defaultPageId: string;
+    default: boolean;
+  }[];
+  appIsExample: boolean;
+  color: string;
+  icon: string;
+  slug: string;
+  gitApplicationMetadata: {
+    branchName: string;
+    defaultBranchName: string;
+    remoteUrl: string;
+    browserSupportedRemoteUrl: string;
+    isRepoPrivate: boolean;
+    repoName: string;
+    defaultApplicationId: string;
+    lastCommittedAt: string;
+  };
+  lastDeployedAt: string;
+  evaluationVersion: number;
+  applicationVersion: number;
+  isManualUpdate: boolean;
+  isAutoUpdate: boolean;
+  appLayout: {
+    type: string;
+  };
+  new: boolean;
+  modifiedAt: string;
 };
 
 export type GitSyncReducerState = GitBranchDeleteState & {
@@ -544,12 +595,14 @@ export type GitSyncReducerState = GitBranchDeleteState & {
 
   SSHKeyPair?: string;
   deployKeyDocUrl?: string;
+  supportedKeyTypes?: SSHKeyType[];
 
   isImportingApplicationViaGit?: boolean;
 
   gitImportError?: any;
 
   isDiscarding?: boolean;
+  discard?: GitDiscardResponse;
 };
 
 export default gitSyncReducer;

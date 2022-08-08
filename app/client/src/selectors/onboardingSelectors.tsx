@@ -4,11 +4,16 @@ import {
 } from "pages/Applications/permissionHelpers";
 import { AppState } from "reducers";
 import { createSelector } from "reselect";
-import { getUserApplicationsOrgs } from "./applicationSelectors";
+import { getUserApplicationsWorkspaces } from "./applicationSelectors";
 import { getWidgets } from "sagas/selectors";
-import { getActionResponses, getActions } from "./entitiesSelector";
+import {
+  getActionResponses,
+  getActions,
+  getCanvasWidgets,
+} from "./entitiesSelector";
 import { getSelectedWidget } from "./ui";
 import { GuidedTourEntityNames } from "pages/Editor/GuidedTour/constants";
+import { previewModeSelector } from "./editorSelectors";
 
 // Signposting selectors
 export const getEnableFirstTimeUserOnboarding = (state: AppState) => {
@@ -37,6 +42,29 @@ export const getIsFirstTimeUserOnboardingEnabled = createSelector(
 
 export const getInOnboardingWidgetSelection = (state: AppState) =>
   state.ui.onBoarding.inOnboardingWidgetSelection;
+
+export const getIsOnboardingWidgetSelection = (state: AppState) =>
+  state.ui.onBoarding.inOnboardingWidgetSelection;
+
+export const getIsOnboardingTasksView = createSelector(
+  getCanvasWidgets,
+  getIsFirstTimeUserOnboardingEnabled,
+  getIsOnboardingWidgetSelection,
+  previewModeSelector,
+  (
+    widgets,
+    enableFirstTimeUserOnboarding,
+    isOnboardingWidgetSelection,
+    inPreviewMode,
+  ) => {
+    return (
+      Object.keys(widgets).length == 1 &&
+      enableFirstTimeUserOnboarding &&
+      !isOnboardingWidgetSelection &&
+      !inPreviewMode
+    );
+  },
+);
 
 // Guided Tour selectors
 export const isExploringSelector = (state: AppState) =>
@@ -177,19 +205,6 @@ export const countryInputSelector = createSelector(
     return countryInput ? countryInput.widgetId === selectedWidgetId : false;
   },
 );
-// Check if ImageWidget is selected
-export const imageWidgetSelector = createSelector(
-  getWidgets,
-  getSelectedWidget,
-  (widgets, selectedWidgetId) => {
-    const widgetValues = Object.values(widgets);
-    const imageWidget = widgetValues.find((widget) => {
-      return widget.widgetName === GuidedTourEntityNames.DISPLAY_IMAGE;
-    });
-
-    return imageWidget ? imageWidget.widgetId === selectedWidgetId : false;
-  },
-);
 
 export const isCountryInputBound = createSelector(
   getTableWidget,
@@ -238,28 +253,6 @@ export const isEmailInputBound = createSelector(
   },
 );
 
-export const isImageWidgetBound = createSelector(
-  getTableWidget,
-  getWidgets,
-  (tableWidget, widgets) => {
-    if (tableWidget) {
-      const widgetValues = Object.values(widgets);
-      const imageWidget = widgetValues.find((widget) => {
-        if (widget.widgetName === GuidedTourEntityNames.DISPLAY_IMAGE) {
-          return (
-            widget.image === `{{${tableWidget.widgetName}.selectedRow.image}}`
-          );
-        }
-
-        return false;
-      });
-
-      if (imageWidget) return true;
-    }
-
-    return false;
-  },
-);
 export const isButtonWidgetPresent = createSelector(getWidgets, (widgets) => {
   const widgetValues = Object.values(widgets);
   const buttonWidget = widgetValues.find((widget) => {
@@ -310,14 +303,14 @@ export const showInfoMessageSelector = (state: AppState) =>
 
 export const loading = (state: AppState) => state.ui.onBoarding.loading;
 
-// To find an organisation where the user has permission to create an
+// To find an workspace where the user has permission to create an
 // application
-export const getOnboardingOrganisations = createSelector(
-  getUserApplicationsOrgs,
-  (userOrgs) => {
-    return userOrgs.filter((userOrg) =>
+export const getOnboardingWorkspaces = createSelector(
+  getUserApplicationsWorkspaces,
+  (userWorkspaces) => {
+    return userWorkspaces.filter((userWorkspace) =>
       isPermitted(
-        userOrg.organization.userPermissions || [],
+        userWorkspace.workspace.userPermissions || [],
         PERMISSION_TYPE.CREATE_APPLICATION,
       ),
     );

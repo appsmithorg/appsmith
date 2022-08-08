@@ -2,15 +2,15 @@ import React from "react";
 import { Datasource, EmbeddedRestDatasource } from "entities/Datasource";
 import { get, merge } from "lodash";
 import styled from "styled-components";
-import { connect, useDispatch } from "react-redux";
+import { connect, useDispatch, useSelector } from "react-redux";
 import Button, { Category, Size } from "components/ads/Button";
 import {
   setDatsourceEditorMode,
   storeAsDatasource,
 } from "actions/datasourceActions";
 import history from "utils/history";
-import { getQueryParams } from "utils/AppsmithUtils";
-import Text, { TextType } from "components/ads/Text";
+import { getQueryParams } from "utils/URLUtils";
+import { Text, TextType } from "design-system";
 import { AuthType } from "entities/Datasource/RestAPIForm";
 import { API_EDITOR_FORM_NAME } from "constants/forms";
 import { formValueSelector } from "redux-form";
@@ -27,6 +27,7 @@ import {
   createMessage,
 } from "@appsmith/constants/messages";
 import { datasourcesEditorIdURL } from "RouteBuilder";
+import { getCurrentPageId } from "selectors/editorSelectors";
 interface ReduxStateProps {
   datasource: EmbeddedRestDatasource | Datasource;
 }
@@ -87,6 +88,7 @@ function ApiAuthentication(props: Props): JSX.Element {
     "datasourceConfiguration.authentication.authenticationType",
     "",
   );
+  const pageId = useSelector(getCurrentPageId);
 
   const datasourceUrl = get(datasource, "datasourceConfiguration.url", "");
 
@@ -102,6 +104,7 @@ function ApiAuthentication(props: Props): JSX.Element {
       props.setDatasourceEditorMode(id, false);
       history.push(
         datasourcesEditorIdURL({
+          pageId,
           datasourceId: id,
           params: getQueryParams(),
         }),

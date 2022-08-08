@@ -6,6 +6,7 @@ export const CONFIG = {
   name: "Audio",
   iconSVG: IconSVG,
   needsMeta: true,
+  searchTags: ["mp3", "sound", "wave", "player"],
   defaults: {
     rows: 4,
     columns: 28,
@@ -20,6 +21,7 @@ export const CONFIG = {
     default: Widget.getDefaultPropertiesMap(),
     meta: Widget.getMetaPropertiesMap(),
     config: Widget.getPropertyPaneConfig(),
+    contentConfig: Widget.getPropertyPaneContentConfig(),
   },
 };
 

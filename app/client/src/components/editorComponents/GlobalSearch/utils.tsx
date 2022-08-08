@@ -20,10 +20,10 @@ import { CurlIconV2, JsFileIconV2 } from "pages/Editor/Explorer/ExplorerIcons";
 import { createNewApiAction } from "actions/apiPaneActions";
 import { createNewJSCollection } from "actions/jsPaneActions";
 import { EventLocation } from "utils/AnalyticsUtil";
-import { getQueryParams } from "utils/AppsmithUtils";
+import { getQueryParams } from "utils/URLUtils";
 import history from "utils/history";
 import { curlImportPageURL } from "RouteBuilder";
-import { isMac, modText, shiftText } from "utils/helpers";
+import { isMacOrIOS, modText, shiftText } from "utils/helpers";
 
 export type SelectEvent =
   | React.MouseEvent
@@ -77,7 +77,7 @@ export const comboHelpText = {
   [SEARCH_CATEGORY_ID.INIT]: <>{modText()} K</>,
   [SEARCH_CATEGORY_ID.ACTION_OPERATION]: (
     <>
-      {modText()} {shiftText()} {isMac() ? "+" : "Plus"}
+      {modText()} {shiftText()} {isMacOrIOS() ? "+" : "Plus"}
     </>
   ),
 };
@@ -333,12 +333,7 @@ export type ActionOperation = {
   icon?: any;
   kind: SEARCH_ITEM_TYPES;
   action?: (pageId: string, location: EventLocation) => any;
-  redirect?: (
-    applicationSlug: string,
-    pageSlug: string,
-    pageId: string,
-    from: EventLocation,
-  ) => any;
+  redirect?: (pageId: string, from: EventLocation) => any;
   pluginId?: string;
 };
 
@@ -362,16 +357,9 @@ export const actionOperations: ActionOperation[] = [
     desc: "Import a cURL Request",
     kind: SEARCH_ITEM_TYPES.actionOperation,
     icon: <CurlIconV2 />,
-    redirect: (
-      applicationSlug: string,
-      pageSlug: string,
-      pageId: string,
-      from: EventLocation,
-    ) => {
+    redirect: (pageId: string, from: EventLocation) => {
       const queryParams = getQueryParams();
       const curlImportURL = curlImportPageURL({
-        applicationSlug,
-        pageSlug,
         pageId,
         params: {
           from,
