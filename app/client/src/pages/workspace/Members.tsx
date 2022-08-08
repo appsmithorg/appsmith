@@ -18,13 +18,13 @@ import {
 } from "actions/workspaceActions";
 import {
   Dropdown,
+  HighlightText,
   Icon,
   IconSize,
   TableDropdown,
+  TableDropdownOption,
   Text,
   TextType,
-  HighlightText,
-  TableDropdownOption,
 } from "design-system";
 import styled from "styled-components";
 import { Classes as AppClass } from "components/ads/common";
