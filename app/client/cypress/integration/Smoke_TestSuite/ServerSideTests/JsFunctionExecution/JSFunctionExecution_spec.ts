@@ -1,6 +1,5 @@
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 import largeJSONData from "../../../../fixtures/largeJSONData.json";
-const dsl = require("../../../../fixtures/tablev1NewDsl.json");
 
 const jsEditor = ObjectsRegistry.JSEditor,
   locator = ObjectsRegistry.CommonLocators,
@@ -50,7 +49,9 @@ describe("JS Function Execution", function() {
   ];
 
   before(() => {
-    agHelper.AddDsl(dsl);
+    cy.fixture("tablev1NewDsl").then((val: any) => {
+      agHelper.AddDsl(val);
+    });
     ee.NavigateToSwitcher("explorer");
   });
   function assertAsyncFunctionsOrder(data: IFunctionSettingData[]) {
@@ -189,7 +190,10 @@ describe("JS Function Execution", function() {
 
     assertInvalidJSObjectStart(jsObjectStartingWithAComment, jsComment);
     assertInvalidJSObjectStart(jsObjectStartingWithANewLine, jsObjectStartLine);
-    assertInvalidJSObjectStart(jsObjectStartingWithASpace, jsObjectStartLineWithSpace);
+    assertInvalidJSObjectStart(
+      jsObjectStartingWithASpace,
+      jsObjectStartLineWithSpace,
+    );
   });
 
   it("5. Verify that js function execution errors are logged in debugger and removed when function is deleted", () => {
@@ -484,7 +488,7 @@ describe("JS Function Execution", function() {
     assertAsyncFunctionsOrder(FUNCTIONS_SETTINGS_RENAMED_DATA);
   });
 
-  it("10. Bug-13197: Verify converting async functions to sync resets all settings", () => {
+  it("10. Bug 13197: Verify converting async functions to sync resets all settings", () => {
     const asyncJSCode = `export default {
       myFun1 : async ()=>{
         return "yes"

@@ -21,6 +21,9 @@ spec:
       {{- end }}
       labels:
         {{- include "appsmith.selectorLabels" . | nindent 8 }}
+        {{- if .Values.podLabels }}
+        {{- toYaml .Values.podLabels | nindent 8 }}
+        {{- end }}
     spec:
       {{- if .Values.schedulerName }}
       schedulerName: {{ .Values.schedulerName | quote }}
@@ -56,6 +59,11 @@ spec:
             - name: supervisord
               containerPort: 9001
               protocol: TCP
+          startupProbe:
+            # The `livenessProbe` and `readinessProbe` will be disabled until the `startupProbe` is successful.
+            httpGet:
+              path: /
+              port: http
           livenessProbe:
             httpGet:
               path: /

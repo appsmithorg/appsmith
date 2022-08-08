@@ -518,7 +518,6 @@ class CheckboxGroupWidget extends BaseWidget<
         onSelectAllChange={this.handleSelectAllChange}
         optionAlignment={this.props.optionAlignment}
         options={compact(this.props.options)}
-        rowSpace={this.props.parentRowSpace}
         selectedValues={this.props.selectedValues || []}
         widgetId={this.props.widgetId}
       />

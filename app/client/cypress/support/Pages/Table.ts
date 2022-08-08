@@ -29,6 +29,7 @@ type columnTypeValues =
 export class Table {
   public agHelper = ObjectsRegistry.AggregateHelper;
   public deployMode = ObjectsRegistry.DeployMode;
+  public locator = ObjectsRegistry.CommonLocators;
 
   private _tableWrap = "//div[@class='tableWrap']";
   private _tableHeader =
@@ -255,19 +256,13 @@ export class Table {
     if (operator) {
       this.agHelper.GetNClick(this._addFilter);
       this.agHelper.GetNClick(this._filterOperatorDropdown);
-      cy.get(this._dropdownText)
-        .contains(operator)
-        .click();
+      this.agHelper.GetNClickByContains(this.locator._dropdownText, operator);
     } else this.OpenFilter();
 
     this.agHelper.GetNClick(this._filterColumnsDropdown, index);
-    cy.get(this._dropdownText)
-      .contains(colName)
-      .click();
+    this.agHelper.GetNClickByContains(this.locator._dropdownText, colName);
     this.agHelper.GetNClick(this._filterConditionDropdown, index);
-    cy.get(this._dropdownText)
-      .contains(colCondition)
-      .click();
+    this.agHelper.GetNClickByContains(this.locator._dropdownText, colCondition);
 
     if (inputText)
       this.agHelper
