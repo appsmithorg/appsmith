@@ -45,9 +45,12 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 
 import javax.validation.Validator;
+
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -483,8 +486,28 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
        Flux<PermissionGroupInfoDTO> permissionGroupInfoFlux = permissionGroupFlux
                .map(userGroup -> modelMapper.map(userGroup, PermissionGroupInfoDTO.class));
 
-       // Convert to List and return
-       return permissionGroupInfoFlux.collectList();
+        Mono<List<PermissionGroupInfoDTO>> permissionGroupInfoDTOListMono = permissionGroupInfoFlux.collectList()
+                .map(list -> {
+                    PermissionGroupInfoDTO[] permissionGroupInfoDTOArray = new PermissionGroupInfoDTO[3];
+                    
+                    // populate array with admin at index 0, developer at index 1 and viewer at index 2
+                    list.forEach(item -> {
+                        if(item.getName().startsWith(FieldName.ADMINISTRATOR)) {
+                            permissionGroupInfoDTOArray[0] = item;
+                        } else if(item.getName().startsWith(FieldName.DEVELOPER)) {
+                            permissionGroupInfoDTOArray[1] = item;
+                        } else if(item.getName().startsWith(FieldName.VIEWER)) {
+                            permissionGroupInfoDTOArray[2] = item;
+                        }
+                    });
+
+                    // Convert to list removing null elements
+                    return Arrays.asList(permissionGroupInfoDTOArray).stream()
+                            .filter(Objects::nonNull)
+                            .collect(Collectors.toList());
+                });
+
+       return permissionGroupInfoDTOListMono;
     }
 
     @Override
