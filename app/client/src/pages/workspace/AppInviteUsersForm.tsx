@@ -4,7 +4,7 @@ import { connect, useSelector } from "react-redux";
 import { AppState } from "reducers";
 import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import CopyToClipBoard from "components/ads/CopyToClipBoard";
+import { CopyToClipboard } from "design-system";
 import {
   isPermitted,
   PERMISSION_TYPE,
@@ -20,7 +20,7 @@ import { viewerURL } from "RouteBuilder";
 import { fetchWorkspace } from "actions/workspaceActions";
 import useWorkspace from "utils/hooks/useWorkspace";
 
-const StyledCopyToClipBoard = styled(CopyToClipBoard)`
+const StyledCopyToClipBoard = styled(CopyToClipboard)`
   margin-bottom: 24px;
 `;
 

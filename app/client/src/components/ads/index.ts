@@ -9,9 +9,6 @@ export * from "./ColorSelector";
 
 export * from "./common";
 
-export { default as CopyToClipboard } from "./CopyToClipBoard";
-export * from "./CopyToClipBoard";
-
 export { default as DialogComponent } from "./DialogComponent";
 export * from "./DialogComponent";
 
