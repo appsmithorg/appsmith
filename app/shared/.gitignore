@@ -1,2 +1,4 @@
-build
-node_modules
+**build
+**node_modules
+yarn-error.log
+yarn.lock
