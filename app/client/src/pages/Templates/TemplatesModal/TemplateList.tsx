@@ -3,11 +3,11 @@ import React from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { isFetchingTemplatesSelector } from "selectors/templatesSelectors";
 import styled from "styled-components";
-import Icon from "components/ads/Icon";
 import { TemplatesContent } from "..";
 import Filters from "../Filters";
 import LoadingScreen from "./LoadingScreen";
 import { Template } from "api/TemplatesApi";
+import TemplateModalHeader from "./Header";
 
 const Wrapper = styled.div`
   display: flex;
@@ -24,13 +24,6 @@ const FilterWrapper = styled.div`
 const ListWrapper = styled.div`
   height: 80vh;
   overflow: auto;
-`;
-
-const CloseIcon = styled(Icon)`
-  svg {
-    height: 24px;
-    width: 24px;
-  }
 `;
 
 type TemplateListProps = {
@@ -51,9 +44,7 @@ function TemplateList(props: TemplateListProps) {
 
   return (
     <Wrapper className="flex flex-col">
-      <div className="flex justify-end">
-        <CloseIcon name="close-x" onClick={props.onClose} />
-      </div>
+      <TemplateModalHeader hideBackButton onClose={props.onClose} />
       <div className="flex">
         <FilterWrapper>
           <Filters />

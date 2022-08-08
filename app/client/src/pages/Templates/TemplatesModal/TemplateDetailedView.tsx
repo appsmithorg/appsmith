@@ -47,6 +47,7 @@ import { Template } from "api/TemplatesApi";
 import { generatePath, matchPath } from "react-router";
 import { isURLDeprecated, trimQueryString } from "utils/helpers";
 import { VIEWER_PATH, VIEWER_PATH_DEPRECATED } from "constants/routes";
+import TemplateModalHeader from "./Header";
 
 const breakpointColumnsObject = {
   default: 4,
@@ -57,7 +58,8 @@ const breakpointColumnsObject = {
 
 const Wrapper = styled.div`
   height: 85vh;
-  overflow: auto;
+  display: flex;
+  flex-direction: column;
 `;
 
 const BackButtonWrapper = styled.div<{ width?: number }>`
@@ -68,16 +70,11 @@ const BackButtonWrapper = styled.div<{ width?: number }>`
   ${(props) => props.width && `width: ${props.width};`}
 `;
 
-const CloseIcon = styled(Icon)`
-  svg {
-    height: 24px;
-    width: 24px;
-  }
-`;
-
 const Body = styled.div`
   margin-top: 42px;
   padding: 0 25px;
+  height: 80vh;
+  overflow: auto;
 `;
 
 const StyledSimilarTemplatesWrapper = styled(SimilarTemplatesWrapper)`
@@ -156,15 +153,12 @@ function TemplateDetailedView(props: TemplateDetailedViewProps) {
 
   return (
     <Wrapper ref={containerRef}>
-      <div className="flex justify-between">
-        <BackButtonWrapper onClick={props.onBackPress}>
-          <Icon name="view-less" size={IconSize.XL} />
-          <Text type={TextType.P4}>BACK TO TEMPLATES</Text>
-        </BackButtonWrapper>
-        <CloseIcon name="close-x" onClick={props.onClose} />
-      </div>
+      <TemplateModalHeader
+        onBackPress={props.onBackPress}
+        onClose={props.onClose}
+      />
       <Body className="flex flex-row">
-        <div className="flex flex-1 flex-col">
+        <div className="flex flex-col flex-1">
           <Text type={TextType.DANGER_HEADING}>{currentTemplate.title}</Text>
           <IframeWrapper>
             <IframeTopBar>
@@ -172,7 +166,7 @@ function TemplateDetailedView(props: TemplateDetailedViewProps) {
               <div className="round yellow" />
               <div className="round green" />
             </IframeTopBar>
-            <iframe src={`${previewUrl}?embed=true`} width={"100%"} />
+            <iframe src={`${previewUrl}?embed=true`} />
           </IframeWrapper>
           <DescriptionWrapper>
             <DescriptionColumn>
