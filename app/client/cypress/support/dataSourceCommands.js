@@ -21,23 +21,6 @@ export const initLocalstorage = () => {
   });
 };
 
-Cypress.Commands.add("firestoreDatasourceForm", () => {
-  cy.get(datasourceEditor.datasourceConfigUrl).type(
-    datasourceFormData["database-url"],
-  );
-  cy.get(datasourceEditor.projectID).type(datasourceFormData["projectID"]);
-  cy.get(datasourceEditor.serviceAccCredential)
-    .clear()
-    .type(datasourceFormData["serviceAccCredentials"]);
-});
-
-Cypress.Commands.add("amazonDatasourceForm", () => {
-  cy.get(datasourceEditor.projectID).type(datasourceFormData["access_key"]);
-  cy.get(datasourceEditor.serviceAccCredential)
-    .clear()
-    .type(datasourceFormData["secret_key"]);
-});
-
 Cypress.Commands.add("testSaveDeleteDatasource", () => {
   // Instead of deleting the last datasource on the active datasources list,
   // we delete the datasource that was just created (identified by its title)
