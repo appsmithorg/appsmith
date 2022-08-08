@@ -1172,6 +1172,7 @@ export const FILTER_SELECTALL = () => "Select all";
 export const FILTER_SELECT_PAGES = () => "ADD SELECTED PAGES";
 export const FORKING_TEMPLATE = () => "Setting up the template";
 export const FETCHING_TEMPLATES = () => "Loading template details";
+export const TEMPLATES_BACK_BUTTON = () => "BACK TO TEMPLATES";
 
 export const IMAGE_LOAD_ERROR = () => "Unable to display the image";
 

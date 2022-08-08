@@ -1,12 +1,10 @@
 import React, { useEffect, useRef } from "react";
 import styled from "styled-components";
-import Masonry from "react-masonry-css";
 import { Classes } from "@blueprintjs/core";
 import { useParams } from "react-router";
 import { useDispatch, useSelector } from "react-redux";
-import { Text, FontWeight, TextType } from "design-system";
+import { Text, TextType } from "design-system";
 import EntityNotFoundPane from "pages/Editor/EntityNotFoundPane";
-import Template from "./Template";
 import { Template as TemplateInterface } from "api/TemplatesApi";
 import {
   getActiveTemplateSelector,
@@ -21,16 +19,12 @@ import { Icon, IconSize } from "components/ads";
 import history from "utils/history";
 import { TEMPLATES_PATH } from "constants/routes";
 import { Colors } from "constants/Colors";
-import {
-  createMessage,
-  GO_BACK,
-  SIMILAR_TEMPLATES,
-  VIEW_ALL_TEMPLATES,
-} from "@appsmith/constants/messages";
+import { createMessage, GO_BACK } from "@appsmith/constants/messages";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { templateIdUrl } from "RouteBuilder";
 import ReconnectDatasourceModal from "pages/Editor/gitSync/ReconnectDatasourceModal";
-import TemplateDescription, { Section } from "./Template/TemplateDescription";
+import TemplateDescription from "./Template/TemplateDescription";
+import SimilarTemplates from "./Template/SimilarTemplates";
+import { templateIdUrl } from "RouteBuilder";
 
 const breakpointColumnsObject = {
   default: 4,
@@ -76,22 +70,6 @@ export const IframeWrapper = styled.div`
       0px 8px 8px -4px rgba(16, 24, 40, 0.04);
     width: 100%;
     height: 734px;
-  }
-`;
-
-export const SimilarTemplatesWrapper = styled.div`
-  padding-right: 132px;
-  padding-left: 132px;
-  background-color: rgba(248, 248, 248, 0.5);
-
-  .grid {
-    display: flex;
-    margin-left: ${(props) => -props.theme.spaces[9]}px;
-    margin-top: ${(props) => props.theme.spaces[12]}px;
-  }
-
-  .grid_column {
-    padding-left: ${(props) => props.theme.spaces[9]}px;
   }
 `;
 
@@ -150,12 +128,6 @@ const LoadingWrapper = styled.div`
   }
 `;
 
-export const SimilarTemplatesTitleWrapper = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-`;
-
 function TemplateViewLoader() {
   return (
     <LoadingWrapper>
@@ -208,6 +180,7 @@ function TemplateView() {
         name: template.title,
       },
     });
+    history.push(templateIdUrl({ id: template.id }));
   };
 
   return (
@@ -245,40 +218,12 @@ function TemplateView() {
             </IframeWrapper>
             <TemplateDescription template={currentTemplate} />
           </TemplateViewWrapper>
-
-          {!!similarTemplates.length && (
-            <SimilarTemplatesWrapper>
-              <Section>
-                <SimilarTemplatesTitleWrapper>
-                  <Text type={TextType.H1} weight={FontWeight.BOLD}>
-                    {createMessage(SIMILAR_TEMPLATES)}
-                  </Text>
-                  <BackButtonWrapper onClick={goToTemplateListView}>
-                    <Text type={TextType.P4}>
-                      {createMessage(VIEW_ALL_TEMPLATES)}
-                    </Text>
-                    <Icon name="view-all" size={IconSize.XL} />
-                  </BackButtonWrapper>
-                </SimilarTemplatesTitleWrapper>
-                <Masonry
-                  breakpointCols={breakpointColumnsObject}
-                  className="grid"
-                  columnClassName="grid_column"
-                >
-                  {similarTemplates.map((template) => (
-                    <Template
-                      key={template.id}
-                      onClick={() => {
-                        onSimilarTemplateClick(template);
-                        history.push(templateIdUrl({ id: template.id }));
-                      }}
-                      template={template}
-                    />
-                  ))}
-                </Masonry>
-              </Section>
-            </SimilarTemplatesWrapper>
-          )}
+          <SimilarTemplates
+            breakpointCols={breakpointColumnsObject}
+            onBackPress={goToTemplateListView}
+            onClick={onSimilarTemplateClick}
+            similarTemplates={similarTemplates}
+          />
         </Wrapper>
       )}
     </PageWrapper>

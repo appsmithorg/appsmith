@@ -2,19 +2,15 @@ import {
   createMessage,
   FETCHING_TEMPLATES,
   FORKING_TEMPLATE,
-  SIMILAR_TEMPLATES,
-  VIEW_ALL_TEMPLATES,
 } from "@appsmith/constants/messages";
 import {
   getSimilarTemplatesInit,
   getTemplateInformation,
   importTemplateIntoApplication,
 } from "actions/templateActions";
-import Icon, { IconSize } from "components/ads/Icon";
-import { Text, FontWeight, TextType } from "design-system";
+import { Text, TextType } from "design-system";
 import React, { useEffect, useState, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import Masonry from "react-masonry-css";
 import { AppState } from "reducers";
 import {
   getActiveTemplateSelector,
@@ -22,21 +18,16 @@ import {
   isImportingTemplateToAppSelector,
 } from "selectors/templatesSelectors";
 import styled from "styled-components";
-import {
-  IframeTopBar,
-  IframeWrapper,
-  SimilarTemplatesTitleWrapper,
-  SimilarTemplatesWrapper,
-} from "../TemplateView";
+import { IframeTopBar, IframeWrapper } from "../TemplateView";
 import PageSelection from "./PageSelection";
-import TemplateComponent from "../Template";
 import LoadingScreen from "./LoadingScreen";
 import { Template } from "api/TemplatesApi";
 import { generatePath, matchPath } from "react-router";
 import { isURLDeprecated, trimQueryString } from "utils/helpers";
 import { VIEWER_PATH, VIEWER_PATH_DEPRECATED } from "constants/routes";
 import TemplateModalHeader from "./Header";
-import TemplateDescription, { Section } from "../Template/TemplateDescription";
+import TemplateDescription from "../Template/TemplateDescription";
+import SimilarTemplates from "../Template/SimilarTemplates";
 
 const breakpointColumns = {
   default: 4,
@@ -51,14 +42,6 @@ const Wrapper = styled.div`
   flex-direction: column;
 `;
 
-const BackButtonWrapper = styled.div<{ width?: number }>`
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: ${(props) => props.theme.spaces[2]}px;
-  ${(props) => props.width && `width: ${props.width};`}
-`;
-
 const Body = styled.div`
   margin-top: ${(props) => props.theme.spaces[15]}px;
   padding: 0 ${(props) => props.theme.spaces[11]}px;
@@ -66,9 +49,8 @@ const Body = styled.div`
   overflow: auto;
 `;
 
-const StyledSimilarTemplatesWrapper = styled(SimilarTemplatesWrapper)`
-  padding-left: 0px;
-  padding-right: 0px;
+const StyledSimilarTemplatesWrapper = styled(SimilarTemplates)`
+  padding: 0px;
 `;
 
 type TemplateDetailedViewProps = {
@@ -105,8 +87,8 @@ function TemplateDetailedView(props: TemplateDetailedViewProps) {
     }
   }, [currentTemplate?.id]);
 
-  const onSimilarTemplateClick = (id: string) => {
-    setCurrentTemplateId(id);
+  const onSimilarTemplateClick = (template: Template) => {
+    setCurrentTemplateId(template.id);
     if (containerRef.current) {
       containerRef.current.scrollTo({ top: 0 });
     }
@@ -158,39 +140,13 @@ function TemplateDetailedView(props: TemplateDetailedViewProps) {
             <iframe src={`${previewUrl}?embed=true`} />
           </IframeWrapper>
           <TemplateDescription hideForkButton template={currentTemplate} />
-          {!!similarTemplates.length && (
-            <StyledSimilarTemplatesWrapper>
-              <Section>
-                <SimilarTemplatesTitleWrapper>
-                  <Text type={TextType.H1} weight={FontWeight.BOLD}>
-                    {createMessage(SIMILAR_TEMPLATES)}
-                  </Text>
-                  <BackButtonWrapper onClick={props.onBackPress}>
-                    <Text type={TextType.P4}>
-                      {createMessage(VIEW_ALL_TEMPLATES)}
-                    </Text>
-                    <Icon name="view-all" size={IconSize.XL} />
-                  </BackButtonWrapper>
-                </SimilarTemplatesTitleWrapper>
-                <Masonry
-                  breakpointCols={breakpointColumns}
-                  className="grid"
-                  columnClassName="grid_column"
-                >
-                  {similarTemplates.map((template) => (
-                    <TemplateComponent
-                      key={template.id}
-                      onClick={() => {
-                        onSimilarTemplateClick(template.id);
-                      }}
-                      onForkTemplateClick={() => onForkTemplateClick(template)}
-                      template={template}
-                    />
-                  ))}
-                </Masonry>
-              </Section>
-            </StyledSimilarTemplatesWrapper>
-          )}
+          <StyledSimilarTemplatesWrapper
+            breakpointCols={breakpointColumns}
+            onBackPress={props.onBackPress}
+            onClick={onSimilarTemplateClick}
+            onFork={onForkTemplateClick}
+            similarTemplates={similarTemplates}
+          />
         </div>
         <PageSelection
           onPageSelection={onPageSelection}

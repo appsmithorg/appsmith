@@ -1,3 +1,4 @@
+import { createMessage, TEMPLATES_BACK_BUTTON } from "ce/constants/messages";
 import { Icon, IconSize } from "components/ads";
 import { Text, TextType } from "design-system";
 import React from "react";
@@ -33,7 +34,7 @@ function TemplateModalHeader(props: TemplateModalHeaderProps) {
         onClick={props.onBackPress}
       >
         <Icon name="view-less" size={IconSize.XL} />
-        <Text type={TextType.P4}>BACK TO TEMPLATES</Text>
+        <Text type={TextType.P4}>{createMessage(TEMPLATES_BACK_BUTTON)}</Text>
       </BackButtonWrapper>
       <CloseIcon name="close-x" onClick={props.onClose} />
     </div>
