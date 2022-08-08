@@ -9,7 +9,7 @@ import { get, isNumber, isPlainObject, isString } from "lodash";
 import { IPanelProps } from "@blueprintjs/core";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import PropertyPaneTitle from "../PropertyPaneTitle";
-import { SearchVariant } from "components/ads";
+import { SearchVariant } from "design-system";
 import { StyledSearchInput } from "./PropertyPaneView";
 import { PropertyPaneTab } from "./PropertyPaneTab";
 import { selectFeatureFlags } from "selectors/usersSelectors";
