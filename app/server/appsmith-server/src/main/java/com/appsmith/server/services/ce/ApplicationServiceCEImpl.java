@@ -243,8 +243,19 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
                             }
                             return Mono.error(error);
                         })
-                        .flatMap(analyticsService::sendUpdateEvent)
-                );
+                        .flatMap(application1 -> {
+                            final Map<String, Object> data = Map.of(
+                                    "applicationId", application.getId(),
+                                    "organizationId", application.getWorkspaceId()
+                            );
+
+                            final Map<String, Object> auditData = Map.of(
+                                    FieldName.VIEW_MODE, "edit",
+                                    FieldName.APPLICATION, application
+                            );
+                            data.put(FieldName.AUDIT_DATA, auditData);
+                            return analyticsService.sendObjectEvent(AnalyticsEvents.UPDATE, application, data);
+                        }));
     }
 
     public Mono<Application> update(String defaultApplicationId, Application application, String branchName) {
@@ -476,6 +487,11 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
                             "isRegeneratedKey", gitAuth.isRegeneratedKey()
                     );
 
+                    final Map<String, Object> auditData = Map.of(
+                            FieldName.VIEW_MODE, "edit",
+                            FieldName.APPLICATION, application
+                    );
+                    data.put(FieldName.AUDIT_DATA, auditData);
                     return analyticsService.sendObjectEvent(AnalyticsEvents.GENERATE_SSH_KEY, application, data)
                             .onErrorResume(e -> {
                                 log.warn("Error sending ssh key generation data point", e);

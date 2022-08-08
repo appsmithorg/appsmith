@@ -3,6 +3,7 @@ package com.appsmith.server.services.ce;
 import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.external.converters.GsonISOStringToInstantConverter;
 import com.appsmith.server.configurations.CloudServicesConfig;
+import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.UserData;
 import com.appsmith.server.dtos.ApplicationJson;
@@ -189,9 +190,20 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
             applicationTemplate.setId(templateId);
             Map<String, Object>  extraProperties = new HashMap<>();
             extraProperties.put("templateAppName", application.getName());
-            return userDataService.addTemplateIdToLastUsedList(templateId).then(
-                            analyticsService.sendObjectEvent(AnalyticsEvents.FORK, applicationTemplate, extraProperties)
-            ).thenReturn(application);
+            return userDataService.addTemplateIdToLastUsedList(templateId)
+                    .flatMap(userData -> {
+                        final Map<String, Object> data = Map.of(
+                                "applicationId", application.getId(),
+                                "organizationId", application.getWorkspaceId()
+                        );
+
+                        final Map<String, Object> auditData = Map.of(
+                                FieldName.VIEW_MODE, "edit",
+                                FieldName.APPLICATION, application
+                        );
+                        data.put(FieldName.AUDIT_DATA, auditData);
+                        return analyticsService.sendObjectEvent(AnalyticsEvents.FORK, applicationTemplate, data);
+                    }).thenReturn(application);
         });
     }
 
