@@ -1666,6 +1666,7 @@ public class DatabaseChangelog2 {
         permissions = new HashSet<>();
         permissions.addAll(workspacePermissions);
         permissions.addAll(permissionGroupPermissions);
+        permissions.addAll(readPermissionGroupPermissions);
         viewerPermissionGroup.setPermissions(permissions);
 
         // Assign viewer user ids to the viewer permission group
