@@ -58,7 +58,7 @@ describe("JSEditor tests", function() {
     );
     cy.CheckAndUnfoldEntityItem("PAGES");
     cy.get(`.t--entity-name:contains("Page1")`).click();
-    cy.wait(2000);
+    cy.wait(4000);
     // verify text in the text widget
     cy.get(".t--draggable-textwidget span")
       .eq(2)
@@ -72,11 +72,6 @@ describe("JSEditor tests", function() {
     cy.get(".t--switch-widget-active .bp3-control-indicator").click({
       force: true,
     });
-    cy.get(homePage.toastMessage).should(
-      "contain",
-      "Switch widget has changed",
-    );
-
     // select an option from select widget
     cy.get(".bp3-button.select-button").click({ force: true });
     cy.get(".menu-item-text")
@@ -88,9 +83,7 @@ describe("JSEditor tests", function() {
       .eq(2)
       .invoke("text")
       .then((text) => {
-        expect(text).to.equal(
-          "Step 4: Value is Red and will default to undefined",
-        );
+        expect(text).to.equal("Step 4: Value is Red and will default to RED");
       });
     // move to page  2 on table widget
     cy.get(commonlocators.tableNextPage).click();
@@ -99,45 +92,111 @@ describe("JSEditor tests", function() {
     });
     cy.wait(3000);
     // hit audio play button and trigger actions
-    /* cy.openPropertyPane("audiowidget");
+    cy.openPropertyPane("audiowidget");
     cy.get(widgetsPage.autoPlay).click({ force: true });
     cy.wait("@postExecute").should(
       "have.nested.property",
       "response.body.responseMeta.status",
       200,
     );
-    cy.wait(1000)
-     // verify text is visible
-     cy.get(".t--draggable-textwidget span")
-     .eq(2)
-     .invoke("text")
-     .then((text) => {
-       expect(text).to.equal("Step 4: Value is Green and will default to Green");
-     });
-     cy.get(commonlocators.tableNextPage).click()
-     cy.get('.t--table-widget-page-input').within(()=>{
-       cy.get('input.bp3-input').should('have.value', '1')
-     })
+    cy.wait(1000);
     cy.get(homePage.toastMessage).should(
       "contain",
       "Success running API query",
       "GREEN",
-    ); */
-  });
-  it.skip("Testing dynamic widgets display using consecutive storeValue calls", () => {
-    cy.CheckAndUnfoldEntityItem("QUERIES/JS");
-    cy.get(".t--entity-item:contains(JSObject1)");
-    cy.xpath("//span[name='expand-more']").click();
-    cy.get("[data-cy='t--dropdown-option-clearStore']").click();
-    cy.get(jsEditorLocators.runButton)
-      .first()
-      .click();
-    cy.wait("@postExecute").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      200,
     );
+    cy.wait(3000);
+    // verify text is visible
+    cy.get(".t--draggable-textwidget span")
+      .eq(2)
+      .invoke("text")
+      .then((text) => {
+        expect(text).to.equal(
+          "Step 4: Value is Green and will default to GREEN",
+        );
+      });
+    cy.get(".t--table-widget-page-input").within(() => {
+      cy.get("input.bp3-input").should("have.value", "1");
+    });
+  });
+  it("Testing dynamic widgets display using consecutive storeValue calls", () => {
+    cy.NavigateToAPI_Panel();
+    cy.CreateAPI("GenerateRecords");
+    cy.enterDatasourceAndPath(
+      "http://host.docker.internal:5001/v1/dynamicrecords",
+      "/generaterecords?records=10",
+    );
+    cy.SaveAndRunAPI();
+    cy.NavigateToAPI_Panel();
+    cy.CreateAPI("randomUserGenerator");
+    cy.enterDatasourceAndPath(
+      "http://host.docker.internal:5001/v1/dynamicrecords",
+      "/getstudents",
+    );
+    cy.SaveAndRunAPI();
+    cy.CreateAPI("failedQuery");
+    cy.enterDatasourceAndPath("falseapi", "/getstudents");
+    jsEditor.CreateJSObject(
+      `export default {
+        myFun1: () => { 
+          // TC1.clearStore()
+          return randomUserGenerator.run()
+            .then((res) => {
+            let values =
+                [
+                  storeValue('pic', res[0].image),
+                  storeValue('phone', res[0].phone),
+                  storeValue('email', res[0].email),
+                  storeValue('lat', res[0].latitude),
+                  storeValue('long', res[0].longitude),
+                  storeValue('title', res[0].name),
+                  storeValue('password', res[0].postalcode)
+                ]
+            return Promise.all(values)
+              .then(() => {	
+              showAlert("completed storing all values and now displaying fetched data on appropriate widgets") })
+              .catch((err) => { 
+              console.log("Could not store values ", err.toString())
+              showAlert('Could not store values ', err.toString())		}) })
+        },
+        myFun2: async () => {
+          return failedQuery.run()
+            .then(() => showAlert("Query run was successful"))
+            .catch(() => {
+            return randomUserGenerator.run()
+              .then((res) => {
+              let values =
+                  [
+                    storeValue('pic', res[0].image),
+                    storeValue('phone', res[0].phone),
+                    storeValue('email', res[0].email),
+                    storeValue('lat', res[0].latitude),
+                    storeValue('long', res[0].longitude),
+                    storeValue('title', res[0].name)
+                  ]
+              return Promise.all(values)
+                .then(() => {	
+                showAlert("completed storing all values and now displaying all values on appropriate widgets") })
+                .catch((err) => { 
+                console.log("Could not store value in store ", err.toString())
+                showAlert('Could not store values in store ', err.toString())		
+              }) 
+            })
+          })
+        }}`,
+      {
+        paste: true,
+        completeReplace: true,
+        toRun: false,
+        shouldCreateNewJSObj: true,
+      },
+    );
+    cy.CheckAndUnfoldEntityItem("PAGES");
+    cy.get(`.t--entity-name:contains("Page1")`).click();
+    cy.wait(10000);
     cy.xpath("//span[text()='Clear store']").click({ force: true });
+    cy.wait(5000);
+    cy.pause();
     cy.get(".t--draggable-textwidget span")
       .eq(2)
       .invoke("text")
@@ -146,5 +205,60 @@ describe("JSEditor tests", function() {
           "Step 4: Value is Green and will default to undefined",
         );
       });
+    // verify the clear store, cleared the values
+    cy.get(".t--draggable-textwidget .bp3-ui-text span")
+      .last()
+      .should("contain.text", "undefined");
+    cy.get(".t--draggable-inputwidgetv2")
+      .first()
+      .find(".bp3-input")
+      .should("have.value", "undefined");
+
+    cy.get(".t--draggable-inputwidgetv2")
+      .last()
+      .find(".bp3-input")
+      .should("have.value", "undefined");
+
+    cy.get(".t--draggable-phoneinputwidget")
+      .find(".bp3-input")
+      .should("have.value", "undefined");
+    cy.xpath("//span[text()='Store values using promise.all']").click({
+      force: true,
+    });
+    // values should be filled
+    cy.wait("@postExecute").should(
+      "have.nested.property",
+      "response.body.responseMeta.status",
+      200,
+    );
+    cy.get(homePage.toastMessage).should(
+      "contain",
+      "completed storing all values and now displaying fetched data on appropriate widgets",
+    );
+    cy.get(".t--draggable-textwidget .bp3-ui-text span")
+      .last()
+      .should("contain.text", "undefined");
+    cy.get(".t--draggable-inputwidgetv2")
+      .first()
+      .find(".bp3-input")
+      .should("have.value", "undefined");
+
+    cy.get(".t--draggable-inputwidgetv2")
+      .last()
+      .find(".bp3-input")
+      .should("have.value", "undefined");
+
+    cy.get(".t--draggable-phoneinputwidget")
+      .find(".bp3-input")
+      .should("have.value", "undefined");
+
+    cy.xpath("//span[text()='Store values using then/catch']").click({
+      force: true,
+    });
+    cy.get(homePage.toastMessage).should(
+      "contain",
+      "completed storing all values and now displaying fetched data on appropriate widgets",
+    );
+    cy.pause();
   });
 });

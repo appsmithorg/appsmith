@@ -1454,3 +1454,16 @@ Cypress.Commands.add("discardTableRow", (x, y) => {
     `[data-colindex="${x}"][data-rowindex="${y}"] button span:contains('Discard')`,
   ).click({ force: true });
 });
+Cypress.Commands.add("autocompleteSuggestions", () => {
+  cy.get(dynamicInputLocators.hints).should("exist");
+  // validates all autocomplete commands on entering / in label field
+  cy.get(`${dynamicInputLocators.hints} li`)
+    .eq(1)
+    .should("have.text", "New Binding");
+  cy.get(`${dynamicInputLocators.hints} li`)
+    .eq(2)
+    .should("have.text", "Insert Snippet");
+  cy.get(`${dynamicInputLocators.hints} li`)
+    .last()
+    .should("have.text", "New Datasource");
+});
