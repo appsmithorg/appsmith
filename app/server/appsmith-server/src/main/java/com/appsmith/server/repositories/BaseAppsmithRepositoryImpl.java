@@ -362,12 +362,7 @@ public abstract class BaseAppsmithRepositoryImpl<T extends BaseDomain> {
     }
 
     protected Mono<Set<String>> getAnonymousUserPermissionGroups() {
-        Criteria anonymousUserCriteria = Criteria.where(fieldName(QUser.user.email)).is(FieldName.ANONYMOUS_USER);
-
-        Query query = new Query();
-        query.addCriteria(anonymousUserCriteria);
-
-        return mongoOperations.findOne(query, User.class)
+        return cacheableRepositoryHelper.getAnonymousUser()
                 .flatMap(anonymousUser -> cacheableRepositoryHelper.getPermissionGroupsOfUser(anonymousUser));
     }
 
