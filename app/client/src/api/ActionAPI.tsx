@@ -47,7 +47,7 @@ export interface ExecuteActionRequest extends APIRequest {
   params?: Property[];
   paginationField?: PaginationField;
   viewMode: boolean;
-  paramProperties: any[];
+  paramProperties: Record<string, string>;
 }
 
 export type ExecuteActionResponse = ApiResponse & {

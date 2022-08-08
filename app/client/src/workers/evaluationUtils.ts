@@ -699,7 +699,7 @@ export const isTrueObject = (
 };
 
 /**
- * This function finds the true datatype of the given value.
+ * This function finds the datatype of the given value.
  * typeof, lodash and others will return false positives for things like array, wrapper objects, etc
  * @param value
  * @returns datatype of the received value as string

@@ -1417,7 +1417,8 @@
 
 "@blueprintjs/datetime@3.23.6", "@blueprintjs/datetime@^3.23.6":
   version "3.23.6"
-  resolved "https://registry.npmjs.org/@blueprintjs/datetime/-/datetime-3.23.6.tgz"
+  resolved "https://registry.yarnpkg.com/@blueprintjs/datetime/-/datetime-3.23.6.tgz#5d9588ae4537e87a6d14d765db722b9a2f449d95"
+  integrity sha512-OACqjo7HQQnEvILj9L/4w0jbM34+aAP8g78eqcOl8E/R+W4U/V9ePBrlcY2eknkgalyueOkx5/0Ee852v5FL/w==
   dependencies:
     "@blueprintjs/core" "^3.47.0"
     classnames "^2.2"
@@ -6127,10 +6128,10 @@ depd@~1.1.2:
   version "1.1.2"
   resolved "https://registry.npmjs.org/depd/-/depd-1.1.2.tgz"
 
-"design-system@npm:@appsmithorg/design-system@1.0.7":
-  version "1.0.7"
-  resolved "https://registry.yarnpkg.com/@appsmithorg/design-system/-/design-system-1.0.7.tgz#f698649435b9976e32ca54c42ac07fa7a867b239"
-  integrity sha512-irwuAb7+nVYkCBrlPLWlxp2p8QDNNeB7dJYlX+AM/2lu+qIQIEw+9+ymZaYAARTm3XVsgQc5vHYga2MS5a/lPA==
+"design-system@npm:@appsmithorg/design-system@1.0.8":
+  version "1.0.8"
+  resolved "https://registry.yarnpkg.com/@appsmithorg/design-system/-/design-system-1.0.8.tgz#85bd7d28dd66f4f62e1f50cb3d3c0e9e2abf6e14"
+  integrity sha512-NlngH4vSioIT0CWCBjrAMWjazcr1irjuThVy7AipYmQGFJWycBKICpotuRQdu2MyFoCUABQNCn4nGGmHDvIiow==
   dependencies:
     "@blueprintjs/datetime" "3.23.6"
     "@types/redux-form" "8.3.0"
