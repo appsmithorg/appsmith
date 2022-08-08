@@ -37,8 +37,10 @@ import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
 
 import java.io.IOException;
+import java.net.InetAddress;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -255,6 +257,8 @@ public class ElasticSearchPlugin extends BasePlugin {
                             new URL(endpoint.getHost());
                         } catch (MalformedURLException e) {
                             invalids.add("Invalid host provided. It should be of the form http(s)://your-es-url.com");
+                        } catch (UnknownHostException e) {
+                            invalids.add(esDatasourceNotFoundMessage);
                         }
                     }
 
