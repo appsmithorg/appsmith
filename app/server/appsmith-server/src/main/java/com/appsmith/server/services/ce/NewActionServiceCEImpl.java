@@ -979,7 +979,15 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
             ActionExecutionResult actionExecutionResult,
             Long timeElapsed
     ) {
-
+        // Since we're loading the application from DB *only* for analytics, we check if analytics is
+        // active before making the call to DB.
+        if (!analyticsService.isActive()) {
+            // This is to have consistency in how the AnalyticsService is being called.
+            // Even though sendObjectEvent is triggered, AnalyticsService would still reject this and prevent the event
+            // from being sent to analytics provider if telemetry is disabled.
+            analyticsService.sendObjectEvent(AnalyticsEvents.EXECUTE_ACTION, action);
+            return Mono.empty();
+        }
         ActionExecutionRequest actionExecutionRequest = actionExecutionResult.getRequest();
         ActionExecutionRequest request;
         if (actionExecutionRequest != null) {
