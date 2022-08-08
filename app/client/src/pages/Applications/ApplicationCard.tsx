@@ -35,6 +35,7 @@ import {
   IconSelector,
   IconSize,
   Menu,
+  MenuDivider,
   MenuItem,
   MenuItemProps,
   Size,
@@ -47,7 +48,6 @@ import EditableText, {
   SavingState,
 } from "components/ads/EditableText";
 import ColorSelector from "components/ads/ColorSelector";
-import MenuDivider from "components/ads/MenuDivider";
 import { useSelector } from "react-redux";
 import {
   ApplicationPagePayload,

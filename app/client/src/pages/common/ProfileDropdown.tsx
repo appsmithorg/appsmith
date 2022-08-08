@@ -1,9 +1,15 @@
 import React from "react";
 import { CommonComponentProps, Classes } from "components/ads/common";
-import { MenuItem, Text, TextType } from "design-system";
+import {
+  Menu,
+  MenuDivider,
+  MenuItem,
+  Text,
+  TextType,
+  TooltipComponent,
+} from "design-system";
 import styled from "styled-components";
 import { Position, Classes as BlueprintClasses } from "@blueprintjs/core";
-import MenuDivider from "components/ads/MenuDivider";
 import {
   getOnSelectAction,
   DropdownOnSelectActions,
@@ -16,7 +22,6 @@ import {
   ADMIN_SETTINGS_CATEGORY_DEFAULT_PATH,
 } from "constants/routes";
 import { Colors } from "constants/Colors";
-import { Menu, TooltipComponent } from "design-system";
 import {
   ACCOUNT_TOOLTIP,
   createMessage,
