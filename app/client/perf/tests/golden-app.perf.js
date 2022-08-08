@@ -22,8 +22,6 @@ const SEL = {
   modalTitle: "#reyoxo4oec",
   closeModal:
     "#comment-overlay-wrapper-lryg8kw537 > div > div > div > div > button",
-  commentsPageLink: "div[data-guided-tour-iid='Comments']",
-  commentsTableTitle: "#urzv99hdc8",
 };
 
 async function testGoldenApp(iteration) {

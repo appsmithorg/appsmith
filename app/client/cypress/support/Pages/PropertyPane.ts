@@ -153,12 +153,13 @@ export class PropertyPane {
         this.agHelper.UpdateCodeInput($field, valueToEnter);
       },
     );
+    this.agHelper.AssertAutoSave(); //Allowing time for saving entered value
   }
 
   public RemoveText(endp: string) {
     cy.get(
       this.locator._propertyControl +
-        endp +
+        endp.replace(/ +/g, "").toLowerCase() +
         " " +
         this.locator._codeMirrorTextArea,
     )
@@ -168,5 +169,24 @@ export class PropertyPane {
       .type("{ctrl}{shift}{downarrow}", { force: true })
       .type("{del}", { force: true });
     this.agHelper.AssertAutoSave();
+  }
+
+  public TypeTextIntoField(endp: string, value: string) {
+    this.RemoveText(endp);
+    cy.get(
+      this.locator._propertyControl +
+        endp.replace(/ +/g, "").toLowerCase() +
+        " " +
+        this.locator._codeMirrorTextArea,
+    )
+      .first()
+      .then((el: any) => {
+        cy.get(el).type(value, {
+          parseSpecialCharSequences: false,
+          force: true,
+        });
+      });
+
+    this.agHelper.AssertAutoSave(); //Allowing time for saving entered value
   }
 }

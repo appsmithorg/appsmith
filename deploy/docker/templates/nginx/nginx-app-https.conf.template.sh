@@ -68,6 +68,9 @@ server {
   client_max_body_size 100m;
 
   gzip on;
+  gzip_types *;
+
+  server_tokens off;
 
   root /opt/appsmith/editor;
   index index.html index.htm;

@@ -23,9 +23,6 @@ describe("<DividerWidget />", () => {
       debugger: {
         errors: {},
       },
-      comments: {
-        dragPointerOffset: null,
-      },
       editor: {
         isPreviewMode: false,
       },
