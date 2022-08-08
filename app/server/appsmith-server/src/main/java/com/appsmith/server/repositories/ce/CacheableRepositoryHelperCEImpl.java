@@ -85,7 +85,7 @@ public class CacheableRepositoryHelperCEImpl implements CacheableRepositoryHelpe
 
     @Override
     public Mono<User> getAnonymousUser() {
-        if (defaultTenantId != null || !defaultTenantId.isEmpty()) {
+        if (defaultTenantId != null && !defaultTenantId.isEmpty()) {
             return getAnonymousUser(defaultTenantId);
         }
 
