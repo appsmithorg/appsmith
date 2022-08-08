@@ -68,8 +68,6 @@ export * from "./Statusbar";
 export { default as StepComponent } from "./StepComponent";
 export * from "./StepComponent";
 
-export { default as Switch } from "./Switch";
-
 export { default as Switcher } from "./Switcher";
 export * from "./Switcher";
 
