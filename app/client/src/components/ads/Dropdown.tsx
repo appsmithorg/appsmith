@@ -11,7 +11,7 @@ import { Text, TextProps, TextType } from "design-system";
 import { Popover, PopperBoundary, Position } from "@blueprintjs/core";
 import { getTypographyByKey, Theme } from "constants/DefaultTheme";
 import styled from "constants/DefaultTheme";
-import SearchComponent from "components/designSystems/appsmith/SearchComponent";
+import { SearchComponent } from "design-system";
 import { Colors } from "constants/Colors";
 import Spinner from "./Spinner";
 import { ReactComponent as Check } from "assets/icons/control/checkmark.svg";
