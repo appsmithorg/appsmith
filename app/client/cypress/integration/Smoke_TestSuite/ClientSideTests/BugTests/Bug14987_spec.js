@@ -4,7 +4,7 @@ import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 let guid, datasourceName;
 
 let dataSources = ObjectsRegistry.DataSources,
-agHelper = ObjectsRegistry.AggregateHelper;
+  agHelper = ObjectsRegistry.AggregateHelper;
 
 describe("Verify setting tab form controls not to have tooltip and tooltip (underline) styles", function() {
   beforeEach(() => {
@@ -51,8 +51,7 @@ describe("Verify setting tab form controls not to have tooltip and tooltip (unde
         });
       });
 
-      agHelper.ActionContextMenuWithInPane("Delete");
-      dataSources.DeleteDatasouceFromActiveTab(datasourceName, 200);
-
+    agHelper.ActionContextMenuWithInPane("Delete");
+    dataSources.DeleteDatasouceFromActiveTab(datasourceName, 200);
   });
 });

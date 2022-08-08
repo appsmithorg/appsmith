@@ -61,4 +61,6 @@ public interface ImportExportApplicationServiceCE {
 
     Mono<List<Datasource>> findDatasourceByApplicationId(String applicationId, String orgId);
 
+    Mono<ApplicationImportDTO> getApplicationImportDTO(String applicationId, String workspaceId, Application application);
+
 }

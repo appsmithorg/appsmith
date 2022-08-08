@@ -157,6 +157,10 @@ export type FieldThemeStylesheet = Record<
   { [key: string]: string }
 >;
 
+export enum ActionUpdateDependency {
+  FORM_DATA = "FORM_DATA",
+}
+
 export const ARRAY_ITEM_KEY = "__array_item__";
 export const ROOT_SCHEMA_KEY = "__root_schema__";
 
