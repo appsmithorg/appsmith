@@ -5,6 +5,7 @@ import com.appsmith.external.converters.GsonISOStringToInstantConverter;
 import com.appsmith.server.configurations.CloudServicesConfig;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
+import com.appsmith.server.domains.ApplicationMode;
 import com.appsmith.server.domains.UserData;
 import com.appsmith.server.dtos.ApplicationImportDTO;
 import com.appsmith.server.dtos.ApplicationJson;
@@ -192,13 +193,13 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
                     ApplicationTemplate applicationTemplate = new ApplicationTemplate();
                     applicationTemplate.setId(templateId);
                     final Map<String, Object> data = Map.of(
-                            "applicationId", application.getId(),
-                            "organizationId", application.getWorkspaceId(),
+                            FieldName.APPLICATION_ID, application.getId(),
+                            FieldName.WORKSPACE_ID, application.getWorkspaceId(),
                             "templateAppName", application.getName()
                     );
 
                     final Map<String, Object> auditData = Map.of(
-                            FieldName.VIEW_MODE, "edit",
+                            FieldName.APP_MODE, ApplicationMode.EDIT.toString(),
                             FieldName.APPLICATION, application
                     );
                     data.put(FieldName.AUDIT_DATA, auditData);
