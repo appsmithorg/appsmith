@@ -1170,6 +1170,8 @@ export const TEMPLATE_CARD_DESCRIPTION = () =>
   "Create app from template by selecting pages";
 export const FILTER_SELECTALL = () => "Select all";
 export const FILTER_SELECT_PAGES = () => "ADD SELECTED PAGES";
+export const FORKING_TEMPLATE = () => "Setting up the template";
+export const FETCHING_TEMPLATES = () => "Loading template details";
 
 export const IMAGE_LOAD_ERROR = () => "Unable to display the image";
 

@@ -1,14 +1,9 @@
 import {
   createMessage,
-  DATASOURCES,
-  FUNCTION,
-  INDUSTRY,
-  NOTE,
-  NOTE_MESSAGE,
-  OVERVIEW,
+  FETCHING_TEMPLATES,
+  FORKING_TEMPLATE,
   SIMILAR_TEMPLATES,
   VIEW_ALL_TEMPLATES,
-  WIDGET_USED,
 } from "@appsmith/constants/messages";
 import {
   getSimilarTemplatesInit,
@@ -28,18 +23,11 @@ import {
 } from "selectors/templatesSelectors";
 import styled from "styled-components";
 import {
-  DescriptionColumn,
-  DescriptionWrapper,
   IframeTopBar,
   IframeWrapper,
-  Section,
   SimilarTemplatesTitleWrapper,
   SimilarTemplatesWrapper,
-  StyledDatasourceChip,
-  TemplateDatasources,
-  TemplatesWidgetList,
 } from "../TemplateView";
-import WidgetInfo from "../WidgetInfo";
 import PageSelection from "./PageSelection";
 import TemplateComponent from "../Template";
 import LoadingScreen from "./LoadingScreen";
@@ -48,8 +36,9 @@ import { generatePath, matchPath } from "react-router";
 import { isURLDeprecated, trimQueryString } from "utils/helpers";
 import { VIEWER_PATH, VIEWER_PATH_DEPRECATED } from "constants/routes";
 import TemplateModalHeader from "./Header";
+import TemplateDescription, { Section } from "../Template/TemplateDescription";
 
-const breakpointColumnsObject = {
+const breakpointColumns = {
   default: 4,
   2100: 3,
   1600: 2,
@@ -71,8 +60,8 @@ const BackButtonWrapper = styled.div<{ width?: number }>`
 `;
 
 const Body = styled.div`
-  margin-top: 42px;
-  padding: 0 25px;
+  margin-top: ${(props) => props.theme.spaces[15]}px;
+  padding: 0 ${(props) => props.theme.spaces[11]}px;
   height: 80vh;
   overflow: auto;
 `;
@@ -102,8 +91,8 @@ function TemplateDetailedView(props: TemplateDetailedViewProps) {
   const currentTemplate = useSelector(getActiveTemplateSelector);
   const containerRef = useRef<HTMLDivElement>(null);
   const LoadingText = isImportingTemplateToApp
-    ? "Setting up the template"
-    : "Loading template details";
+    ? createMessage(FORKING_TEMPLATE)
+    : createMessage(FETCHING_TEMPLATES);
 
   useEffect(() => {
     dispatch(getTemplateInformation(currentTemplateId));
@@ -168,69 +157,7 @@ function TemplateDetailedView(props: TemplateDetailedViewProps) {
             </IframeTopBar>
             <iframe src={`${previewUrl}?embed=true`} />
           </IframeWrapper>
-          <DescriptionWrapper>
-            <DescriptionColumn>
-              <Section>
-                <Text type={TextType.H1}>{createMessage(OVERVIEW)}</Text>
-                <div className="section-content">
-                  <Text type={TextType.H4} weight={FontWeight.NORMAL}>
-                    {currentTemplate.description}
-                  </Text>
-                </div>
-              </Section>
-              <Section>
-                <Text type={TextType.H1}>{createMessage(FUNCTION)}</Text>
-                <div className="section-content">
-                  <Text type={TextType.H4} weight={FontWeight.NORMAL}>
-                    {currentTemplate.functions.join(" • ")}
-                  </Text>
-                </div>
-              </Section>
-              <Section>
-                <Text type={TextType.H1}>{createMessage(INDUSTRY)}</Text>
-                <div className="section-content">
-                  <Text type={TextType.H4} weight={FontWeight.NORMAL}>
-                    {currentTemplate.useCases.join(" • ")}
-                  </Text>
-                </div>
-              </Section>
-            </DescriptionColumn>
-            <DescriptionColumn>
-              <Section>
-                <Text type={TextType.H1}>{createMessage(DATASOURCES)}</Text>
-                <div className="section-content">
-                  <TemplateDatasources>
-                    {currentTemplate.datasources.map((packageName) => {
-                      return (
-                        <StyledDatasourceChip
-                          key={packageName}
-                          pluginPackageName={packageName}
-                        />
-                      );
-                    })}
-                  </TemplateDatasources>
-                  <div className="datasource-note">
-                    <Text type={TextType.H4}>{createMessage(NOTE)} </Text>
-                    <Text type={TextType.H4} weight={FontWeight.NORMAL}>
-                      {createMessage(NOTE_MESSAGE)}
-                    </Text>
-                  </div>
-                </div>
-              </Section>
-              <Section>
-                <Text type={TextType.H1}>{createMessage(WIDGET_USED)}</Text>
-                <div className="section-content">
-                  <TemplatesWidgetList>
-                    {currentTemplate.widgets.map((widgetType) => {
-                      return (
-                        <WidgetInfo key={widgetType} widgetType={widgetType} />
-                      );
-                    })}
-                  </TemplatesWidgetList>
-                </div>
-              </Section>
-            </DescriptionColumn>
-          </DescriptionWrapper>
+          <TemplateDescription hideForkButton template={currentTemplate} />
           {!!similarTemplates.length && (
             <StyledSimilarTemplatesWrapper>
               <Section>
@@ -246,7 +173,7 @@ function TemplateDetailedView(props: TemplateDetailedViewProps) {
                   </BackButtonWrapper>
                 </SimilarTemplatesTitleWrapper>
                 <Masonry
-                  breakpointCols={breakpointColumnsObject}
+                  breakpointCols={breakpointColumns}
                   className="grid"
                   columnClassName="grid_column"
                 >
