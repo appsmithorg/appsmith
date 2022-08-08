@@ -41,21 +41,17 @@ export const dataTreeTypeDefCreator = (
     if (isWidget(entity)) {
       const widgetType = entity.type;
       if (widgetType in entityDefinitions) {
-        const definition = (get(entityDefinitions, widgetType) as unknown) as (
-          entity: DataTreeWidget,
-          extraDefsToDefine?: ExtraDef | undefined,
-        ) => Def;
-
+        const definition = get(entityDefinitions, widgetType);
         if (isFunction(definition)) {
-          def[entityName] = definition(entity, extraDefsToDefine);
-          flattenDef(def, entityName);
-          entityMap.set(entityName, {
-            type: ENTITY_TYPE.WIDGET,
-            subType: widgetType,
-          });
+          def[entityName] = definition(entity);
         } else {
-          debug(`Entity type definition for ${widgetType} missing`);
+          def[entityName] = definition;
         }
+        flattenDef(def, entityName);
+        entityMap.set(entityName, {
+          type: ENTITY_TYPE.WIDGET,
+          subType: widgetType,
+        });
       }
     } else if (isAction(entity)) {
       def[entityName] = entityDefinitions.ACTION(entity, extraDefsToDefine);
