@@ -1,6 +1,5 @@
 import {
   DataTree,
-  DataTreeWidget,
   ENTITY_TYPE,
   MetaArgs,
 } from "entities/DataTree/dataTreeFactory";
@@ -16,7 +15,6 @@ import {
   isWidget,
 } from "workers/evaluationUtils";
 import { DataTreeDefEntityInformation } from "utils/autocomplete/TernServer";
-import { debug } from "loglevel";
 
 export type ExtraDef = Record<string, Def | string>;
 
