@@ -57,9 +57,6 @@ export { default as RectangularComponent } from "./RectangularSwitcher";
 export { default as SearchInput } from "./SearchInput";
 export * from "./SearchInput";
 
-export { default as ShowcaseCarousel } from "./ShowcaseCarousel";
-export * from "./ShowcaseCarousel";
-
 export { default as SearchSnippets } from "./SnippetButton";
 
 export { default as OnboardingStatusbar } from "./Statusbar";
