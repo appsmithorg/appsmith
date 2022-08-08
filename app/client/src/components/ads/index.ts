@@ -21,8 +21,6 @@ export * from "./DialogComponent";
 export { default as DisplayImageUpload } from "./DisplayImageUpload";
 export * from "./DisplayImageUpload";
 
-export { default as DraggableList } from "./DraggableList";
-
 export { DroppableComponent } from "./DraggableListComponent";
 
 export { default as EditableText } from "./EditableText";
