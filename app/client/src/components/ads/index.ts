@@ -18,9 +18,6 @@ export * from "./DatePickerComponent";
 export { default as DialogComponent } from "./DialogComponent";
 export * from "./DialogComponent";
 
-export { default as DisplayImageUpload } from "./DisplayImageUpload";
-export * from "./DisplayImageUpload";
-
 export { DroppableComponent } from "./DraggableListComponent";
 
 export { default as EditableText } from "./EditableText";
