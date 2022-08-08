@@ -1,11 +1,14 @@
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 
-let jsEditor = ObjectsRegistry.JSEditor;
+const {
+  AggregateHelper: agHelper,
+  ApiPage: apiPage,
+  JSEditor: jsEditor,
+} = ObjectsRegistry;
 
 describe("[Bug]: Catch block was not triggering in Safari/firefox", () => {
   it("1. Triggers the catch block when the API hits a 404", () => {
-    cy.NavigateToAPI_Panel();
-    cy.createAndFillApi("https://swapi.dev/api/people/18261826");
+    apiPage.CreateAndFillApi("https://swapi.dev/api/people/18261826", "Api1");
     cy.wait(3000);
 
     jsEditor.CreateJSObject(
@@ -21,8 +24,6 @@ describe("[Bug]: Catch block was not triggering in Safari/firefox", () => {
         shouldCreateNewJSObj: true,
       },
     );
-
-    cy.validateToastMessage("fun ran successfully");
-    cy.validateToastMessage("404 hit");
+    agHelper.WaitUntilToastDisappear("404 hit");
   });
 });
