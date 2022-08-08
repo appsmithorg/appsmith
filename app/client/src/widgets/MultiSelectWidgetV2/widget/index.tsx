@@ -38,6 +38,7 @@ export function defaultOptionValueValidation(
   const isServerSideFiltered = props.serverSideFiltering;
   // TODO: options shouldn't get un-eval values;
   let options = props.options;
+
   const DEFAULT_ERROR_MESSAGE =
     "value should match: Array<string | number> | Array<{label: string, value: string | number}>";
   const MISSING_FROM_OPTIONS =
@@ -157,6 +158,7 @@ export function defaultOptionValueValidation(
         }
       }
     }
+
     const parsedValue = parsed;
     const areValuesPresent = parsedValue.every((value) => {
       const index = _.findIndex(

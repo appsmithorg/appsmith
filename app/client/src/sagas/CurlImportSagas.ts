@@ -8,15 +8,9 @@ import { validateResponse } from "sagas/ErrorSagas";
 import CurlImportApi, { CurlImportRequest } from "api/ImportApi";
 import { ApiResponse } from "api/ApiResponses";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import {
-  createMessage,
-  CURL_IMPORT_SUCCESS,
-} from "@appsmith/constants/messages";
 import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
 import transformCurlImport from "transformers/CurlImportTransformer";
 import history from "utils/history";
-import { Toaster } from "components/ads/Toast";
-import { Variant } from "components/ads/common";
 import { CURL } from "constants/AppsmithActionConstants/ActionConstants";
 import { apiEditorIdURL } from "RouteBuilder";
 
@@ -42,10 +36,6 @@ export function* curlImportSaga(action: ReduxAction<CurlImportRequest>) {
         importSource: CURL,
       });
 
-      Toaster.show({
-        text: createMessage(CURL_IMPORT_SUCCESS),
-        variant: Variant.success,
-      });
       yield put({
         type: ReduxActionTypes.SUBMIT_CURL_FORM_SUCCESS,
         payload: response.data,
