@@ -59,6 +59,11 @@ spec:
             - name: supervisord
               containerPort: 9001
               protocol: TCP
+          startupProbe:
+            # The `livenessProbe` and `readinessProbe` will be disabled until the `startupProbe` is successful.
+            httpGet:
+              path: /
+              port: http
           livenessProbe:
             httpGet:
               path: /
