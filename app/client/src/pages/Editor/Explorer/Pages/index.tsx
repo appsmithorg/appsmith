@@ -129,9 +129,6 @@ function Pages() {
   );
 
   const [isMenuOpen, openMenu] = useState(false);
-  // const onCreate = useCallback(() => {
-  //   openMenu(true);
-  // }, [dispatch, openMenu]);
 
   const createPageCallback = useCallback(() => {
     const name = getNextEntityName(

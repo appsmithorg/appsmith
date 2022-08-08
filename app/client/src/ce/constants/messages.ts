@@ -1163,6 +1163,9 @@ export const WIDGET_USED = () => "Widgets Used";
 export const SIMILAR_TEMPLATES = () => "Similar Templates";
 export const VIEW_ALL_TEMPLATES = () => "VIEW ALL TEMPLATES";
 export const FILTERS = () => "FILTERS";
+export const TEMPLATE_CARD_TITLE = () => "Start from a template";
+export const TEMPLATE_CARD_DESCRIPTION = () =>
+  "Create app from template by selecting pages";
 
 export const IMAGE_LOAD_ERROR = () => "Unable to display the image";
 
@@ -1195,4 +1198,6 @@ export const CLEAN_URL_UPDATE = {
 
 export const CREATE_PAGE = () => "Create a blank page";
 export const GENERATE_PAGE = () => "Generate page from data table";
+export const GENERATE_PAGE_DESCRIPTION = () =>
+  "Start app with a simple CRUD UI and customize it";
 export const ADD_PAGE_FROM_TEMPLATE = () => "Add page from template";

@@ -14,17 +14,26 @@ import { useParams } from "react-router";
 import { ExplorerURLParams } from "../Explorer/helpers";
 import { showTemplatesModal as showTemplatesModalAction } from "actions/templateActions";
 import { AppState } from "reducers";
+import {
+  createMessage,
+  GENERATE_PAGE,
+  GENERATE_PAGE_DESCRIPTION,
+  TEMPLATE_CARD_DESCRIPTION,
+  TEMPLATE_CARD_TITLE,
+} from "ce/constants/messages";
 
 const Wrapper = styled.div`
-  margin: 16px 33px 0px 33px;
+  margin: ${(props) =>
+    `${props.theme.spaces[7]}px ${props.theme.spaces[13]}px 0px ${props.theme.spaces[13]}px`};
   display: flex;
   flex-direction: row;
-  gap: 16px;
+  gap: ${(props) => props.theme.spaces[7]}px;
 `;
 
 const Card = styled.div`
-  padding: 10px 20px;
-  border: solid 1px #e7e7e7;
+  padding: ${(props) =>
+    `${props.theme.spaces[5]}px ${props.theme.spaces[9]}px`};
+  border: solid 1px ${Colors.GREY_4};
   background-color: #fff;
   flex: 1;
   display: flex;
@@ -33,14 +42,14 @@ const Card = styled.div`
   cursor: pointer;
 
   &:hover {
-    background-color: #f1f1f1;
+    background-color: ${Colors.GREY_2};
   }
 `;
 
 const Content = styled.div`
   display: flex;
   flex-direction: column;
-  padding-left: 16px;
+  padding-left: ${(props) => props.theme.spaces[7]}px;
 `;
 
 type routeId = {
@@ -77,10 +86,10 @@ function CanvasTopSection() {
         <Layout />
         <Content>
           <Text color={Colors.COD_GRAY} type={TextType.P1}>
-            Start from a template
+            {createMessage(TEMPLATE_CARD_TITLE)}
           </Text>
           <Text type={TextType.P3}>
-            Create app from template by selecting pages
+            {createMessage(TEMPLATE_CARD_DESCRIPTION)}
           </Text>
         </Content>
       </Card>
@@ -91,10 +100,10 @@ function CanvasTopSection() {
         <Database />
         <Content>
           <Text color={Colors.COD_GRAY} type={TextType.P1}>
-            Generate from data table
+            {createMessage(GENERATE_PAGE)}
           </Text>
           <Text type={TextType.P3}>
-            Start app with simple CRUD UI and customize it
+            {createMessage(GENERATE_PAGE_DESCRIPTION)}
           </Text>
         </Content>
       </Card>
