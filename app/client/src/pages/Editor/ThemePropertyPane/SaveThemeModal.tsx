@@ -11,7 +11,7 @@ import { getAppThemes } from "selectors/appThemingSelectors";
 import {
   createMessage,
   ERROR_MESSAGE_NAME_EMPTY,
-  SPECIAL_CHARACTER_ERROR,
+  APLHANUMERIC_HYPHEN_SLASH_SPACE_ERROR,
   UNIQUE_NAME_ERROR,
 } from "ce/constants/messages";
 
@@ -73,7 +73,7 @@ function SaveThemeModal(props: SaveThemeModalProps) {
 
     if (/[^a-zA-Z0-9\-\/\ ]/.test(value)) {
       isValid = false;
-      errorMessage = createMessage(SPECIAL_CHARACTER_ERROR);
+      errorMessage = createMessage(APLHANUMERIC_HYPHEN_SLASH_SPACE_ERROR);
     }
 
     return {
