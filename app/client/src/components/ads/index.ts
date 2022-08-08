@@ -76,9 +76,6 @@ export { default as TabItemBackgroundFill } from "./TabItemBackgroundFill";
 export { default as Table } from "./Table";
 export * from "./Table";
 
-export { default as TableDropdown } from "./TableDropdown";
-// export * from "./TableDropdown"; conflict on names
-
 // export * from "./Tabs"; conflict on names
 
 export { default as TagInputComponent } from "./TagInputComponent";
