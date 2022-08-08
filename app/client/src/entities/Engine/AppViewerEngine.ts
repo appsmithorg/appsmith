@@ -2,7 +2,6 @@ import {
   fetchAppThemesAction,
   fetchSelectedAppThemeAction,
 } from "actions/appThemingActions";
-import { fetchCommentThreadsInit } from "actions/commentActions";
 import { fetchJSCollectionsForView } from "actions/jsActionActions";
 import {
   fetchAllPageEntityCompletion,
@@ -23,7 +22,7 @@ import { failFastApiCalls } from "sagas/InitSagas";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
-import AppEngine, { AppEnginePayload } from ".";
+import AppEngine, { ActionsNotFoundError, AppEnginePayload } from ".";
 
 export default class AppViewerEngine extends AppEngine {
   constructor(mode: APP_MODE) {
@@ -41,7 +40,6 @@ export default class AppViewerEngine extends AppEngine {
   }
 
   *completeChore() {
-    yield put(fetchCommentThreadsInit());
     yield put({
       type: ReduxActionTypes.INITIALIZE_PAGE_VIEWER_SUCCESS,
     });
@@ -93,7 +91,10 @@ export default class AppViewerEngine extends AppEngine {
       ],
     );
 
-    if (!resultOfPrimaryCalls) return;
+    if (!resultOfPrimaryCalls)
+      throw new ActionsNotFoundError(
+        `Unable to fetch actions for the application: ${applicationId}`,
+      );
 
     yield put(fetchAllPageEntityCompletion([executePageLoadActions()]));
   }
