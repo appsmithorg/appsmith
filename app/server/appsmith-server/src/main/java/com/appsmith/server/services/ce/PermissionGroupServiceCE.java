@@ -38,4 +38,6 @@ public interface PermissionGroupServiceCE extends CrudService<PermissionGroup, S
     Mono<PermissionGroup> bulkUnassignFromUsers(PermissionGroup permissionGroup, List<User> users);
 
     Flux<PermissionGroup> getByDefaultWorkspaces(Set<String> workspaceIds, AclPermission permission);
+
+    Mono<Void> cleanPermissionGroupCacheForUsers(List<String> userIds);
 }

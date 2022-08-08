@@ -180,7 +180,8 @@ public class PermissionGroupServiceCEImpl extends BaseService<PermissionGroupRep
         return repository.findByDefaultWorkspaceIds(workspaceIds, permission);
     }
 
-    private Mono<Void> cleanPermissionGroupCacheForUsers(List<String> userIds) {
+    @Override
+    public Mono<Void> cleanPermissionGroupCacheForUsers(List<String> userIds) {
 
         Mono<Map<String, String>> userMapMono = userRepository.findAllById(userIds)
                 .collectMap(user -> user.getId(), user -> user.getEmail());

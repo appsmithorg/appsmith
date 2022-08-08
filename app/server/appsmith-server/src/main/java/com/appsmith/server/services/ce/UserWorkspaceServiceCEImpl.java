@@ -245,7 +245,13 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
                 .cache();
 
         Mono<Map<String, User>> userMapMono = permissionGroupFlux
-                .flatMapIterable(PermissionGroup::getAssignedToUserIds)
+                .flatMapIterable(permissionGroup -> {
+                    Set<String> assignedToUserIds = permissionGroup.getAssignedToUserIds();
+                    if (assignedToUserIds == null || assignedToUserIds.isEmpty()) {
+                        return new HashSet<>();
+                    }
+                    return assignedToUserIds;
+                })
                 .collect(Collectors.toSet())
                 .flatMapMany(userIds -> userRepository.findAllById(userIds))
                 .collectMap(User::getId)
