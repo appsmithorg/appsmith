@@ -137,7 +137,7 @@ public class CacheAspect {
      * @return Result of the method call, either cached or after calling the original method
      * @throws Throwable
      */
-    @Around("@annotation(com.appsmith.caching.annotations.Cache)")
+    @Around("execution(public * *(..)) && @annotation(com.appsmith.caching.annotations.Cache)")
     public Object cacheable(ProceedingJoinPoint joinPoint) throws Throwable {
         MethodSignature signature = (MethodSignature) joinPoint.getSignature();
         Method method = signature.getMethod();
@@ -173,7 +173,7 @@ public class CacheAspect {
      * @return Mono<Void> that will complete after evicting the key from the cache
      * @throws Throwable
      */
-    @Around("@annotation(com.appsmith.caching.annotations.CacheEvict)")
+    @Around("execution(public * *(..)) && @annotation(com.appsmith.caching.annotations.CacheEvict)")
     public Object cacheEvict(ProceedingJoinPoint joinPoint) throws Throwable {
         MethodSignature signature = (MethodSignature) joinPoint.getSignature();
         Method method = signature.getMethod();
