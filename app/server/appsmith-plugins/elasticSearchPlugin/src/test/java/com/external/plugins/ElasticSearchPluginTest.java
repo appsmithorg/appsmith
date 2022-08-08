@@ -438,4 +438,28 @@ public class ElasticSearchPluginTest {
                     assertEquals("Invalid host provided.", e.getMessage());
                 });
     }
+
+    @Test
+    public void itShouldValidateDatasourceWithInstanceMetadataAws() {
+        DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
+        datasourceConfiguration.setAuthentication(elasticInstanceCredentials);
+        Endpoint endpoint = new Endpoint();
+        endpoint.setHost("http://169.254.169.254");
+        endpoint.setPort(Long.valueOf(port));
+        datasourceConfiguration.setEndpoints(Collections.singletonList(endpoint));
+
+        Assert.assertEquals(Set.of("Invalid host provided."), pluginExecutor.validateDatasource(datasourceConfiguration));
+    }
+
+    @Test
+    public void itShouldValidateDatasourceWithInstanceMetadataGcp() {
+        DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
+        datasourceConfiguration.setAuthentication(elasticInstanceCredentials);
+        Endpoint endpoint = new Endpoint();
+        endpoint.setHost("https://metadata.google.internal");
+        endpoint.setPort(Long.valueOf(port));
+        datasourceConfiguration.setEndpoints(Collections.singletonList(endpoint));
+
+        Assert.assertEquals(Set.of("Invalid host provided."), pluginExecutor.validateDatasource(datasourceConfiguration));
+    }
 }

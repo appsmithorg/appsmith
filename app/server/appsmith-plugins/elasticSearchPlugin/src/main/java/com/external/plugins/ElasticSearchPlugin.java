@@ -62,11 +62,11 @@ public class ElasticSearchPlugin extends BasePlugin {
     @Extension
     public static class ElasticSearchPluginExecutor implements PluginExecutor<RestClient> {
 
-        private final Scheduler scheduler = Schedulers.elastic();
+        private final Scheduler scheduler = Schedulers.boundedElastic();
 
-        public static final String esDatasourceNotFoundMessage = "The Page you are tyring to access does not exist";
+        public static final String esDatasourceNotFoundMessage = "Either your host URL is invalid or the page you are trying to access does not exist";
 
-        public static final String esDatasourceUnauthorizedMessage = "Your Username or Password is not correct";
+        public static final String esDatasourceUnauthorizedMessage = "Your username or password is not correct";
 
         public static final String esDatasourceUnauthorizedPattern = ".*unauthorized.*";
 
@@ -178,12 +178,15 @@ public class ElasticSearchPlugin extends BasePlugin {
                 try {
                     url = new URL(endpoint.getHost());
                     if (DISALLOWED_HOSTS.contains(url.getHost())
-                            || DISALLOWED_HOSTS.contains(InetAddress.getByName(endpoint.getHost()).getHostAddress())) {
+                            || DISALLOWED_HOSTS.contains(InetAddress.getByName(url.getHost()).getHostAddress())) {
                         return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, "Invalid host provided."));
                     }
-                } catch (MalformedURLException | UnknownHostException e) {
+                } catch (MalformedURLException e) {
                     return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
                             "Invalid host provided. It should be of the form http(s)://your-es-url.com"));
+                } catch (UnknownHostException e) {
+                    return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
+                            esDatasourceNotFoundMessage));
                 }
                 String scheme = "http";
                 if (url.getProtocol() != null) {
@@ -243,21 +246,21 @@ public class ElasticSearchPlugin extends BasePlugin {
                 invalids.add("No endpoint provided. Please provide a host:port where ElasticSearch is reachable.");
             } else {
                 for (Endpoint endpoint : datasourceConfiguration.getEndpoints()) {
-                    try {
-                        if (endpoint.getHost() == null) {
-                            invalids.add("Missing host for endpoint");
-                        } else if (DISALLOWED_HOSTS.contains(endpoint.getHost())
-                                || DISALLOWED_HOSTS.contains(InetAddress.getByName(endpoint.getHost()).getHostAddress())) {
-                            invalids.add("Invalid host provided.");
-                        } else {
-                            try {
-                                URL url = new URL(endpoint.getHost());
-                            } catch (MalformedURLException e) {
-                                invalids.add("Invalid host provided. It should be of the form http(s)://your-es-url.com");
+
+                    if (endpoint.getHost() == null) {
+                        invalids.add("Missing host for endpoint");
+                    } else {
+                        try {
+                            URL url = new URL(endpoint.getHost());
+                            if (DISALLOWED_HOSTS.contains(url.getHost())
+                                    || DISALLOWED_HOSTS.contains(InetAddress.getByName(url.getHost()).getHostAddress())) {
+                                invalids.add("Invalid host provided.");
                             }
+                        } catch (MalformedURLException e) {
+                            invalids.add("Invalid host provided. It should be of the form http(s)://your-es-url.com");
+                        } catch (UnknownHostException e) {
+                            invalids.add(esDatasourceNotFoundMessage);
                         }
-                    } catch (UnknownHostException e) {
-                        invalids.add("Unable to resolve endpoint. Please check the host provided.");
                     }
 
                     if (endpoint.getPort() == null) {
