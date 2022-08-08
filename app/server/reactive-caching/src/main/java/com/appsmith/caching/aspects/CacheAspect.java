@@ -9,11 +9,11 @@ import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.interceptor.SimpleKey;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.ExpressionParser;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
+import org.springframework.stereotype.Component;
 
 import com.appsmith.caching.annotations.CacheEvict;
 import com.appsmith.caching.annotations.Cache;
@@ -28,7 +28,7 @@ import reactor.core.publisher.Mono;
  * It is also possible to evict the cached result by annotating method with CacheEvict.
  */
 @Aspect
-@Configuration
+@Component
 @Slf4j
 public class CacheAspect {
 
