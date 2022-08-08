@@ -65,12 +65,6 @@ export { default as SearchSnippets } from "./SnippetButton";
 export { default as OnboardingStatusbar } from "./Statusbar";
 export * from "./Statusbar";
 
-export { default as StepComponent } from "./StepComponent";
-export * from "./StepComponent";
-
-export { default as Switcher } from "./Switcher";
-export * from "./Switcher";
-
 export { default as TabItemBackgroundFill } from "./TabItemBackgroundFill";
 
 export { default as Table } from "./Table";
