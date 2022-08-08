@@ -249,7 +249,7 @@ describe("MultiSelect Widget Functionality", function() {
 
       cy.openPropertyPane("multiselectwidgetv2");
       // set options
-      propPane.UpdatePropertyFieldValue("Options", JSON.stringify(options))
+      propPane.UpdatePropertyFieldValue("Options", JSON.stringify(options));
       agHelper.Escape();
       // set default value
       propPane.UpdatePropertyFieldValue(
