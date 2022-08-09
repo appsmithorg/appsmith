@@ -138,6 +138,145 @@ class ProgressWidget extends BaseWidget<ProgressWidgetProps, WidgetState> {
     ];
   }
 
+  static getPropertyPaneContentConfig() {
+    return [
+      {
+        sectionName: "Basic",
+        children: [
+          {
+            helpText:
+              "Determines if progress indicator will be determinate or not",
+            propertyName: "isIndeterminate",
+            label: "Infinite Loading",
+            controlType: "SWITCH",
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+          },
+          {
+            helpText: "Determines the shape of the progress indicator",
+            propertyName: "progressType",
+            label: "Type",
+            controlType: "DROP_DOWN",
+            options: [
+              {
+                label: "Circular",
+                value: ProgressType.CIRCULAR,
+              },
+              {
+                label: "Linear",
+                value: ProgressType.LINEAR,
+              },
+            ],
+            defaultValue: ProgressType.LINEAR,
+            isBindProperty: false,
+            isTriggerProperty: false,
+          },
+          {
+            helpText: "Sets the value of the progress indicator",
+            propertyName: "progress",
+            label: "Progress",
+            controlType: "INPUT_TEXT",
+            placeholderText: "Enter progress value",
+            isBindProperty: true,
+            isTriggerProperty: false,
+            isJSConvertible: true,
+            defaultValue: 50,
+            validation: {
+              type: ValidationTypes.NUMBER,
+              params: { min: 0, max: 100, default: 50 },
+            },
+            hidden: (props: ProgressWidgetProps) => props.isIndeterminate,
+            dependencies: ["isIndeterminate"],
+          },
+        ],
+      },
+      {
+        sectionName: "General",
+        children: [
+          {
+            helpText: "Sets the number of steps",
+            propertyName: "steps",
+            label: "Number of Steps",
+            controlType: "INPUT_TEXT",
+            placeholderText: "Enter number of steps",
+            isBindProperty: true,
+            isTriggerProperty: false,
+            isJSConvertible: true,
+            validation: {
+              type: ValidationTypes.NUMBER,
+              params: { min: 1, max: 100, default: 1, natural: true },
+            },
+            hidden: (props: ProgressWidgetProps) => props.isIndeterminate,
+            dependencies: ["isIndeterminate"],
+          },
+          {
+            helpText: "Controls the visibility of the widget",
+            propertyName: "isVisible",
+            label: "Visible",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+          },
+          {
+            propertyName: "counterClockwise",
+            helpText: "Whether to rotate in counterclockwise direction",
+            label: "Counterclockwise",
+            controlType: "SWITCH",
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+            hidden: (props: ProgressWidgetProps) =>
+              props.progressType === ProgressType.LINEAR ||
+              props.isIndeterminate,
+            dependencies: ["isIndeterminate", "progressType"],
+          },
+          {
+            helpText:
+              "Controls the visibility with the value of progress indicator",
+            propertyName: "showResult",
+            label: "Show Result",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+            hidden: (props: ProgressWidgetProps) => props.isIndeterminate,
+            dependencies: ["isIndeterminate"],
+          },
+        ],
+      },
+    ];
+  }
+
+  static getPropertyPaneStyleConfig() {
+    return [
+      {
+        sectionName: "Color",
+        children: [
+          {
+            helpText: "Sets the color of the progress indicator",
+            propertyName: "fillColor",
+            label: "Fill Color",
+            controlType: "COLOR_PICKER",
+            defaultColor: Colors.GREEN,
+            isBindProperty: true,
+            isJSConvertible: true,
+            isTriggerProperty: false,
+            validation: {
+              type: ValidationTypes.TEXT,
+              params: {
+                regex: /^(?![<|{{]).+/,
+              },
+            },
+          },
+        ],
+      },
+    ];
+  }
+
   static getDerivedPropertiesMap(): DerivedPropertiesMap {
     return {};
   }
