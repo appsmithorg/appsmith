@@ -129,3 +129,9 @@ export enum AlignItems {
   Center = "center",
   Stretch = "stretch",
 }
+
+export enum Positioning {
+  Fixed = "fixed",
+  Horizontal = "horizontal",
+  Vertical = "vertical",
+}
