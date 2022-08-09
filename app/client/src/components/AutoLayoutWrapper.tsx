@@ -25,6 +25,7 @@ const AutoLayout = styled("div")<{
   useAutoLayout?: boolean;
 }>`
   position: unset;
+  width: fit-content;
 `;
 
 const ZIndexContainer = styled.div<{

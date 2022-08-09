@@ -19,14 +19,37 @@ import { compact, map, sortBy } from "lodash";
 
 import { CanvasDraggingArena } from "pages/common/CanvasArenas/CanvasDraggingArena";
 import { getCanvasSnapRows } from "utils/WidgetPropsUtils";
+import {
+  JustifyContent,
+  LayoutDirection,
+  Positioning,
+} from "components/constants";
+import { AutoLayoutContext } from "utils/autoLayoutContext";
 
 class ContainerWidget extends BaseWidget<
   ContainerWidgetProps<WidgetProps>,
-  WidgetState
+  ContainerWidgetState
 > {
   constructor(props: ContainerWidgetProps<WidgetProps>) {
     super(props);
+    this.state = {
+      useAutoLayout: false,
+      direction: LayoutDirection.Horizontal,
+    };
     this.renderChildWidget = this.renderChildWidget.bind(this);
+  }
+
+  componentDidUpdate(prevProps: ContainerWidgetProps<WidgetProps>): void {
+    if (!this.props.positioning || this.props.positioning === Positioning.Fixed)
+      this.setState({ useAutoLayout: false });
+    else
+      this.setState({
+        useAutoLayout: true,
+        direction:
+          this.props.positioning === Positioning.Horizontal
+            ? LayoutDirection.Horizontal
+            : LayoutDirection.Vertical,
+      });
   }
 
   static getPropertyPaneConfig() {
@@ -62,6 +85,22 @@ class ContainerWidget extends BaseWidget<
             controlType: "SWITCH",
             isBindProperty: false,
             isTriggerProperty: false,
+          },
+          {
+            helpText: "Position styles to be applied to the children",
+            propertyName: "positioning",
+            label: "Positioning",
+            controlType: "DROP_DOWN",
+            defaultValue: Positioning.Fixed,
+            options: [
+              { label: "Fixed", value: Positioning.Fixed },
+              { label: "Horizontal stack", value: Positioning.Horizontal },
+              { label: "Vertical stack", value: Positioning.Vertical },
+            ],
+            isJSConvertible: false,
+            isBindProperty: true,
+            isTriggerProperty: true,
+            validation: { type: ValidationTypes.TEXT },
           },
         ],
       },
@@ -180,10 +219,11 @@ class ContainerWidget extends BaseWidget<
 
     childWidgetData.parentId = this.props.widgetId;
     // Pass layout controls to children
-    childWidgetData.useAutoLayout = this.props.useAutoLayout;
-    childWidgetData.direction = this.props.direction;
+    childWidgetData.useAutoLayout = this.state.useAutoLayout;
+    childWidgetData.direction = this.state.direction;
     childWidgetData.justifyContent = this.props.justifyContent;
     childWidgetData.alignItems = this.props.alignItems;
+    childWidgetData.positioning = this.props.positioning;
 
     return WidgetFactory.createWidget(childWidgetData, this.props.renderMode);
   }
@@ -193,7 +233,7 @@ class ContainerWidget extends BaseWidget<
       // sort by row so stacking context is correct
       // TODO(abhinav): This is hacky. The stacking context should increase for widgets rendered top to bottom, always.
       // Figure out a way in which the stacking context is consistent.
-      this.props.useAutoLayout
+      this.state.useAutoLayout
         ? this.props.children
         : sortBy(compact(this.props.children), (child) => child.topRow),
       this.renderChildWidget,
@@ -212,12 +252,12 @@ class ContainerWidget extends BaseWidget<
               {...this.getSnapSpaces()}
               alignItems={props.alignItems}
               canExtend={props.canExtend}
-              direction={props.direction}
+              direction={this.props.direction}
               dropDisabled={!!props.dropDisabled}
               noPad={this.props.noPad}
               parentId={props.parentId}
               snapRows={snapRows}
-              useAutoLayout={props.useAutoLayout}
+              useAutoLayout={this.props.useAutoLayout}
               widgetId={props.widgetId}
             />
             <CanvasSelectionArena
@@ -239,9 +279,9 @@ class ContainerWidget extends BaseWidget<
         {/* without the wrapping div onClick events are triggered twice */}
         <FlexBox
           alignItems={this.props.alignItems}
-          direction={this.props.direction}
+          direction={this.state.direction}
           justifyContent={this.props.justifyContent}
-          useAutoLayout={this.props.useAutoLayout}
+          useAutoLayout={this.state.useAutoLayout}
         >
           {this.renderChildren()}
         </FlexBox>
@@ -264,6 +304,12 @@ export interface ContainerWidgetProps<T extends WidgetProps>
   containerStyle?: ContainerStyle;
   shouldScrollContents?: boolean;
   noPad?: boolean;
+  positioning?: Positioning;
+}
+
+export interface ContainerWidgetState extends WidgetState {
+  useAutoLayout: boolean;
+  direction: LayoutDirection;
 }
 
 export default ContainerWidget;
