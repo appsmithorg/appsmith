@@ -220,20 +220,4 @@ describe("Autocomplete tests", () => {
 
     agHelper.AssertElementText(CommonLocators._hints, "email");
   });
-
-  it.skip("6. Code snippet completion test", () => {
-    // create js object
-    jsEditor.CreateJSObject(jsObjectBody, {
-      paste: true,
-      completeReplace: true,
-      toRun: false,
-      shouldCreateNewJSObj: true,
-    });
-
-    cy.get(`:nth-child(${5}) > .CodeMirror-line`).click();
-
-    cy.get(CommonLocators._codeMirrorTextArea)
-      .focus()
-      .type("for");
-  });
 });
