@@ -585,7 +585,11 @@ public class RestApiPlugin extends BasePlugin {
                             URI redirectUri = null;
                             try {
                                 redirectUri = new URI(redirectUrl);
-                            } catch (URISyntaxException e) {
+                                if (DISALLOWED_HOSTS.contains(redirectUri.getHost())
+                                        || DISALLOWED_HOSTS.contains(InetAddress.getByName(redirectUri.getHost()).getHostAddress())) {
+                                    return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, "Host not allowed."));
+                                }
+                            } catch (URISyntaxException | UnknownHostException e) {
                                 return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, e));
                             }
                             return httpCall(webClient, httpMethod, redirectUri, finalRequestBody, iteration + 1,
