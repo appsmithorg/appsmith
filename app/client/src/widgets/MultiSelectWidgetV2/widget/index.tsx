@@ -144,18 +144,16 @@ export function defaultOptionValueValidation(
   }
 
   if (isValid && !_.isNil(parsed) && !_.isEmpty(parsed)) {
-    if (!Array.isArray(options)) {
-      if (typeof options === "string") {
-        try {
-          const parsedOptions = JSON.parse(options);
-          if (Array.isArray(parsedOptions)) {
-            options = parsedOptions;
-          } else {
-            options = [];
-          }
-        } catch (e) {
+    if (!Array.isArray(options) && typeof options === "string") {
+      try {
+        const parsedOptions = JSON.parse(options);
+        if (Array.isArray(parsedOptions)) {
+          options = parsedOptions;
+        } else {
           options = [];
         }
+      } catch (e) {
+        options = [];
       }
     }
 
