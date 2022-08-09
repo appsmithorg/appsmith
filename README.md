@@ -69,6 +69,7 @@ You can create apps in 4 basic steps using Appsmith: <br>
 </a>
 </p>
 <br/>
+
 ## Features
 
 Appsmith makes it easy to create powerful utility applications organized across multiple workspaces. Here are a few notable features of Appsmith. We ship new features, bug fixes, and performance improvements regularly. Read our [release notes](https://github.com/appsmithorg/appsmith/releases) to stay updated.
