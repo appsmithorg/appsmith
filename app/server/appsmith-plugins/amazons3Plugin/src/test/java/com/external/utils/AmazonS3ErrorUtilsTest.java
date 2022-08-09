@@ -1,34 +1,19 @@
 package com.external.utils;
 
 import com.amazonaws.AmazonServiceException;
-import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.AmazonS3Exception;
-import com.appsmith.external.dtos.ExecuteActionDTO;
-import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
-import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.models.Endpoint;
-import com.appsmith.external.models.ActionExecutionResult;
-import com.external.plugins.AmazonS3Plugin;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mockito;
-import reactor.core.publisher.Mono;
-import reactor.test.StepVerifier;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.util.Map;
-import java.util.HashMap;
 import java.util.ArrayList;
-import java.util.Set;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.mockito.Mockito.when;
 
 public class AmazonS3ErrorUtilsTest {
 
@@ -37,7 +22,6 @@ public class AmazonS3ErrorUtilsTest {
     private String region;
     private String serviceProvider;
 
-    private Map<String,String> errorDescription;
     @Before
     public void setUp(){
         accessKey   = "access_key";
@@ -88,58 +72,5 @@ public class AmazonS3ErrorUtilsTest {
         assertEquals(returnedErrorMessage,errorCode+": "+errorMessage);
 
     }
-
-    @Test
-    public void testExecuteCommonForAmazonS3Exception() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
-
-        String errorMessage = "The requested range is not valid for the request. Try another range.";
-        String errorCode = "InvalidRange";
-        AmazonS3Exception amazonS3Exception = new AmazonS3Exception(errorMessage);
-        amazonS3Exception.setErrorCode(errorCode);
-
-        DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
-        AmazonS3Plugin.S3PluginExecutor pluginExecutor = new AmazonS3Plugin.S3PluginExecutor();
-        AmazonS3 mockConnection = Mockito.mock(AmazonS3.class);
-        Method executeCommon = AmazonS3Plugin.S3PluginExecutor.class
-                .getDeclaredMethod("executeCommon", AmazonS3.class,
-                        DatasourceConfiguration.class, ActionConfiguration.class);
-        executeCommon.setAccessible(true);
-
-        ActionConfiguration mockAction = Mockito.mock(ActionConfiguration.class);
-        when(mockAction.getFormData()).thenThrow(amazonS3Exception);
-        Mono<ActionExecutionResult> invoke = (Mono<ActionExecutionResult>) executeCommon
-                    .invoke(pluginExecutor, mockConnection, datasourceConfiguration, mockAction);
-        ActionExecutionResult actionExecutionResult = invoke.block();
-        assertEquals(actionExecutionResult.getReadableError(),errorCode+": "+errorMessage);
-
-
-
-
-    }
-
-    @Test
-    public void testExecuteCommonForAmazonServiceException() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
-        String errorMessage =  "The version ID specified in the request does not match an existing version.";
-        String errorCode = "NoSuchVersion";
-        AmazonServiceException amazonServiceException = new AmazonServiceException(errorMessage);
-        amazonServiceException.setErrorCode(errorCode);
-
-        DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
-        AmazonS3Plugin.S3PluginExecutor pluginExecutor = new AmazonS3Plugin.S3PluginExecutor();
-        AmazonS3 mockConnection = Mockito.mock(AmazonS3.class);
-        Method executeCommon = AmazonS3Plugin.S3PluginExecutor.class
-                .getDeclaredMethod("executeCommon", AmazonS3.class,
-                        DatasourceConfiguration.class, ActionConfiguration.class);
-        executeCommon.setAccessible(true);
-
-        ActionConfiguration mockAction = Mockito.mock(ActionConfiguration.class);
-        when(mockAction.getFormData()).thenThrow(amazonServiceException);
-        Mono<ActionExecutionResult> invoke = (Mono<ActionExecutionResult>) executeCommon
-                .invoke(pluginExecutor, mockConnection, datasourceConfiguration, mockAction);
-        ActionExecutionResult actionExecutionResult = invoke.block();
-        assertEquals(actionExecutionResult.getReadableError(),errorCode+": "+errorMessage);
-
-    }
-
 
 }

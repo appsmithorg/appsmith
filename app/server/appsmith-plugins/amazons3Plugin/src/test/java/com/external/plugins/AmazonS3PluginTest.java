@@ -3,12 +3,7 @@ package com.external.plugins;
 import com.amazonaws.AmazonServiceException;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
-import com.amazonaws.services.s3.model.S3ObjectSummary;
-import com.amazonaws.services.s3.model.ObjectListing;
-import com.amazonaws.services.s3.model.S3Object;
-import com.amazonaws.services.s3.model.S3ObjectInputStream;
-import com.amazonaws.services.s3.model.Bucket;
-import com.amazonaws.services.s3.model.DeleteObjectsResult;
+import com.amazonaws.services.s3.model.*;
 import com.amazonaws.util.Base64;
 import com.appsmith.external.dtos.ExecuteActionDTO;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
@@ -245,23 +240,6 @@ public class AmazonS3PluginTest {
                 .verifyComplete();
     }
 
-    @Test
-    public void testExecuteCommonForAmazonServiceException() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
-        DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
-        String signatureError = "The request signature we calculated does not match the signature you provided";
-        ActionConfiguration mockAction = Mockito.mock(ActionConfiguration.class);
-        AmazonS3 mockConnection = Mockito.mock(AmazonS3.class);
-        when(mockAction.getFormData()).thenThrow(new AmazonServiceException(signatureError));
-        Method executeCommon = AmazonS3Plugin.S3PluginExecutor.class
-                .getDeclaredMethod("executeCommon", AmazonS3.class,
-                        DatasourceConfiguration.class, ActionConfiguration.class);
-        executeCommon.setAccessible(true);
-        AmazonS3Plugin.S3PluginExecutor pluginExecutor = new AmazonS3Plugin.S3PluginExecutor();
-        Mono<ActionExecutionResult> invoke = (Mono<ActionExecutionResult>) executeCommon
-                .invoke(pluginExecutor, mockConnection, datasourceConfiguration, mockAction);
-        ActionExecutionResult actionExecutionResult = invoke.block();
-        assertEquals(null + ": The request signature we calculated does not match the signature you provided", actionExecutionResult.getReadableError());
-    }
 
     @Test
     public void testStaleConnectionExceptionFromExecuteMethod() {
@@ -1255,5 +1233,54 @@ public class AmazonS3PluginTest {
                     assertEquals(expectedRequestParams.toString(), result.getRequest().getRequestParams().toString());
                 })
                 .verifyComplete();
+    }
+
+    @Test
+    public void testExecuteCommonForAmazonS3Exception() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+
+        String errorMessage = "The requested range is not valid for the request. Try another range.";
+        String errorCode = "InvalidRange";
+        AmazonS3Exception amazonS3Exception = new AmazonS3Exception(errorMessage);
+        amazonS3Exception.setErrorCode(errorCode);
+
+        DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
+        AmazonS3Plugin.S3PluginExecutor pluginExecutor = new AmazonS3Plugin.S3PluginExecutor();
+        AmazonS3 mockConnection = Mockito.mock(AmazonS3.class);
+        Method executeCommon = AmazonS3Plugin.S3PluginExecutor.class
+                .getDeclaredMethod("executeCommon", AmazonS3.class,
+                        DatasourceConfiguration.class, ActionConfiguration.class);
+        executeCommon.setAccessible(true);
+
+        ActionConfiguration mockAction = Mockito.mock(ActionConfiguration.class);
+        when(mockAction.getFormData()).thenThrow(amazonS3Exception);
+        Mono<ActionExecutionResult> invoke = (Mono<ActionExecutionResult>) executeCommon
+                .invoke(pluginExecutor, mockConnection, datasourceConfiguration, mockAction);
+        ActionExecutionResult actionExecutionResult = invoke.block();
+        assertEquals(actionExecutionResult.getReadableError(),errorCode+": "+errorMessage);
+
+    }
+
+    @Test
+    public void testExecuteCommonForAmazonServiceException() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+        String errorMessage =  "The version ID specified in the request does not match an existing version.";
+        String errorCode = "NoSuchVersion";
+        AmazonServiceException amazonServiceException = new AmazonServiceException(errorMessage);
+        amazonServiceException.setErrorCode(errorCode);
+
+        DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
+        AmazonS3Plugin.S3PluginExecutor pluginExecutor = new AmazonS3Plugin.S3PluginExecutor();
+        AmazonS3 mockConnection = Mockito.mock(AmazonS3.class);
+        Method executeCommon = AmazonS3Plugin.S3PluginExecutor.class
+                .getDeclaredMethod("executeCommon", AmazonS3.class,
+                        DatasourceConfiguration.class, ActionConfiguration.class);
+        executeCommon.setAccessible(true);
+
+        ActionConfiguration mockAction = Mockito.mock(ActionConfiguration.class);
+        when(mockAction.getFormData()).thenThrow(amazonServiceException);
+        Mono<ActionExecutionResult> invoke = (Mono<ActionExecutionResult>) executeCommon
+                .invoke(pluginExecutor, mockConnection, datasourceConfiguration, mockAction);
+        ActionExecutionResult actionExecutionResult = invoke.block();
+        assertEquals(actionExecutionResult.getReadableError(),errorCode+": "+errorMessage);
+
     }
 }
