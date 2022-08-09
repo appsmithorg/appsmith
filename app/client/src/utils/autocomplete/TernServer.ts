@@ -232,7 +232,15 @@ class TernServer {
     ) {
       after = '"]';
     }
-    const cursorHorizontalPos = start.ch + 2;
+    // Actual char space
+    const trimmedFocusedValueLength = focusedValue.trim().length;
+    // end.ch counts tab space as 1 instead of 2 space chars in string
+    // For eg: lets take string `  ab`. Here, end.ch = 3 & trimmedFocusedValueLength = 2
+    // hence tabSpacesCount = end.ch - trimmedFocusedValueLength
+    const tabSpacesCount = end.ch - trimmedFocusedValueLength;
+    const cursorHorizontalPos =
+      tabSpacesCount * 2 + trimmedFocusedValueLength - 2;
+
     for (let i = 0; i < data.completions.length; ++i) {
       const completion = data.completions[i];
       let className = typeToIcon(completion.type, completion.isKeyword);
@@ -260,11 +268,11 @@ class TernServer {
           element.setAttribute("keyword", data.displayText);
           element.innerHTML = data.displayText;
         };
+        // Add relevant keyword completions
         const keywordCompletions = getCompletionsForKeyword(
           codeMirrorCompletion,
           cursorHorizontalPos,
         );
-
         completions = [...completions, ...keywordCompletions];
       }
       completions.push(codeMirrorCompletion);

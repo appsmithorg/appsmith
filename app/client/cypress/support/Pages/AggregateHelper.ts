@@ -110,7 +110,7 @@ export class AggregateHelper {
     });
   }
 
-  public AssertElementText(selector: string, text: string, index: number = 0) {
+  public AssertElementText(selector: string, text: string, index = 0) {
     const locator = selector.startsWith("//")
       ? cy.xpath(selector)
       : cy.get(selector);

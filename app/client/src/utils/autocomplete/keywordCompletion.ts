@@ -6,6 +6,7 @@ export const getCompletionsForKeyword = (
 ) => {
   const keywordName = completion.text;
   const indentationSpace = " ".repeat(cursorHorizontalPos);
+
   const completions = [];
   switch (keywordName) {
     // loops
@@ -22,10 +23,19 @@ export const getCompletionsForKeyword = (
       completions.push({
         ...completion,
         name: "for-in-loop",
-        text: `for (const key in object) {\n${indentationSpace}}`,
+        text: `for(const key in object) {\n${indentationSpace}}`,
         render: (element: HTMLElement) => {
           element.setAttribute("keyword", "For-in Loop");
           element.innerHTML = "forin";
+        },
+      });
+      completions.push({
+        ...completion,
+        name: "for-of-loop",
+        text: `for(const iterator of object){\n${indentationSpace}}`,
+        render: (element: HTMLElement) => {
+          element.setAttribute("keyword", "For-of Loop");
+          element.innerHTML = "forof";
         },
       });
       break;
@@ -34,7 +44,7 @@ export const getCompletionsForKeyword = (
       completions.push({
         ...completion,
         name: "while-loop",
-        text: `while (condition) {\n${indentationSpace}}`,
+        text: `while(condition){\n${indentationSpace}}`,
         render: (element: HTMLElement) => {
           element.setAttribute("keyword", "While Statement");
           element.innerHTML = completion.text;
@@ -46,7 +56,7 @@ export const getCompletionsForKeyword = (
       completions.push({
         ...completion,
         name: "do-while-statement",
-        text: `do {\n\n${indentationSpace}} while (condition);`,
+        text: `do{\n\n${indentationSpace}} while (condition);`,
         render: (element: HTMLElement) => {
           element.setAttribute("keyword", "do-While Statement");
           element.innerHTML = completion.text;
@@ -59,7 +69,7 @@ export const getCompletionsForKeyword = (
       completions.push({
         ...completion,
         name: "if-statement",
-        text: `if (condition) {\n\n${indentationSpace}}`,
+        text: `if(condition){\n\n${indentationSpace}}`,
         render: (element: HTMLElement) => {
           element.setAttribute("keyword", "if Statement");
           element.innerHTML = completion.text;
@@ -71,7 +81,7 @@ export const getCompletionsForKeyword = (
       completions.push({
         ...completion,
         name: "switch-statement",
-        text: `switch (key) {\n${indentationSpace}\tcase value:\n${indentationSpace}\t\tbreak;\n${indentationSpace}\tdefault:\n${indentationSpace}\t\tbreak;\n${indentationSpace}}`,
+        text: `switch(key){\n${indentationSpace}\tcase value:\n${indentationSpace}\t\tbreak;\n${indentationSpace}\tdefault:\n${indentationSpace}\t\tbreak;\n${indentationSpace}}`,
         render: (element: HTMLElement) => {
           element.setAttribute("keyword", "Switch Statement");
           element.innerHTML = completion.text;
@@ -83,7 +93,7 @@ export const getCompletionsForKeyword = (
       completions.push({
         ...completion,
         name: "function-statement",
-        text: `function name(params) {\n\n${indentationSpace}}`,
+        text: `function name(params){\n\n${indentationSpace}}`,
         render: (element: HTMLElement) => {
           element.setAttribute("keyword", "Function Statement");
           element.innerHTML = completion.text;
@@ -95,7 +105,7 @@ export const getCompletionsForKeyword = (
       completions.push({
         ...completion,
         name: "try-catch",
-        text: `try {\n\n${indentationSpace}} catch (error) {\n\n${indentationSpace}}`,
+        text: `try{\n\n${indentationSpace}}catch(error){\n\n${indentationSpace}}`,
         render: (element: HTMLElement) => {
           element.setAttribute("keyword", "Try-catch Statement");
           element.innerHTML = "try-catch";
