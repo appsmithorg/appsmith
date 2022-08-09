@@ -16,6 +16,7 @@ import TemplatesAPI, {
 import history from "utils/history";
 import { getDefaultPageId } from "./ApplicationSagas";
 import {
+  getAllTemplates,
   setTemplateNotificationSeenAction,
   showTemplatesModal,
 } from "actions/templateActions";
@@ -108,6 +109,7 @@ function* importTemplateToWorkspaceSaga(
         });
         history.push(pageURL);
       }
+      yield put(getAllTemplates());
     }
   } catch (error) {
     yield put({
@@ -273,6 +275,7 @@ function* forkTemplateToApplicationSaga(
         type: ReduxActionTypes.IMPORT_TEMPLATE_TO_APPLICATION_SUCCESS,
         payload: response.data,
       });
+      yield put(getAllTemplates());
 
       Toaster.show({
         text: `Pages from '${action.payload.templateName}' template added successfully`,
