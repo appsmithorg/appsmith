@@ -136,12 +136,18 @@ describe("Test Query Pane  ", function() {
   });
 
   it("6. Test use the method from the drop-down", function() {
-    const dropdown = '[style="width: 100%;"] > .Text-sc-19bppua-0';
-    cy.contains(dropdown, "Create Message").click();
+    const dropdown = '[style="width: 100%;"]';
+    cy.contains(dropdown, "Create Message")
+      .should("exist")
+      .click();
     cy.contains(ApiEditor.dropdownOption, "Schedule Message").click();
+    cy.contains(dropdown, "Schedule Message")
+      .should("exist")
+      .click();
+    cy.contains(ApiEditor.dropdownOption, "Create Message").click();
 
-    cy.contains(dropdown, "Create Message").should("not.exist");
-    cy.contains(dropdown, "Schedule Message").should("exist");
+    cy.contains(dropdown, "Create Message").should("exist");
+    cy.contains(dropdown, "Schedule Message").should("not.exist");
   });
 
   it("7. Test user is able to change the name from the pane", function() {
@@ -247,7 +253,7 @@ describe("Test Query Pane  ", function() {
 
     cy.get(".CodeMirror-code")
       .first()
-      .type("+608205620");
+      .type("+123456789");
     cy.get(".CodeMirror-code")
       .last()
       .type("ACXXXXXXXXX");
@@ -256,7 +262,7 @@ describe("Test Query Pane  ", function() {
 
     cy.contains(".t--entity-item", "Test").click();
 
-    cy.contains(".CodeMirror-code", "+608205620")
+    cy.contains(".CodeMirror-code", "+123456789")
       .first()
       .should("exist");
     cy.contains(".CodeMirror-code", "ACXXXXXXXXX")
