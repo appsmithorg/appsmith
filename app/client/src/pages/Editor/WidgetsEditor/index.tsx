@@ -107,20 +107,17 @@ function WidgetsEditor() {
       ) : (
         <>
           {guidedTourEnabled && <Guide />}
-          <div className="relative flex flex-row w-full overflow-hidden">
-            <div
-              className="relative flex flex-row w-full overflow-hidden"
-              data-testid="widgets-editor"
-              draggable
-              onClick={handleWrapperClick}
-              onDragStart={onDragStart}
-            >
-              <PageTabs />
-              <CanvasContainer />
-              <CrudInfoModal />
-              <Debugger />
-            </div>
-            <PropertyPaneContainer />
+          <div
+            className="relative flex flex-row w-full overflow-hidden"
+            data-testid="widgets-editor"
+            draggable
+            onClick={handleWrapperClick}
+            onDragStart={onDragStart}
+          >
+            <PageTabs />
+            <CanvasContainer />
+            <CrudInfoModal />
+            <Debugger />
           </div>
         </>
       )}

@@ -17,6 +17,7 @@ import {
 import EntityExplorerSidebar from "components/editorComponents/Sidebar";
 import classNames from "classnames";
 import { previewModeSelector } from "selectors/editorSelectors";
+import PropertyPaneContainer from "pages/Editor/WidgetsEditor/PropertyPaneContainer";
 
 const SentryRoute = Sentry.withSentryRouting(Route);
 
@@ -62,24 +63,31 @@ function MainContainer() {
           onWidthChange={onLeftSidebarWidthChange}
           width={sidebarWidth}
         />
+        <div className="relative flex flex-col w-1/2 overflow-auto">
+          <SentryRoute component={EditorsRouter} />
+          <Switch key={BUILDER_PATH}>
+            <SentryRoute
+              component={PropertyPaneContainer}
+              exact
+              path={BUILDER_PATH_DEPRECATED}
+            />
+            <SentryRoute
+              component={PropertyPaneContainer}
+              exact
+              path={BUILDER_PATH}
+            />
+            <SentryRoute
+              component={PropertyPaneContainer}
+              exact
+              path={BUILDER_CUSTOM_PATH}
+            />
+          </Switch>
+        </div>
         <div
           className="relative flex flex-col w-full overflow-auto"
           id="app-body"
         >
-          <Switch key={BUILDER_PATH}>
-            <SentryRoute
-              component={WidgetsEditor}
-              exact
-              path={BUILDER_PATH_DEPRECATED}
-            />
-            <SentryRoute component={WidgetsEditor} exact path={BUILDER_PATH} />
-            <SentryRoute
-              component={WidgetsEditor}
-              exact
-              path={BUILDER_CUSTOM_PATH}
-            />
-            <SentryRoute component={EditorsRouter} />
-          </Switch>
+          <WidgetsEditor />
         </div>
       </Container>
       <BottomBar

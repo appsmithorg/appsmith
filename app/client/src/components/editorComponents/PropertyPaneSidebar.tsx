@@ -110,7 +110,7 @@ export const PropertyPaneSidebar = memo((props: Props) => {
         className={classNames({
           [`js-property-pane-sidebar t--property-pane-sidebar bg-white flex h-full  border-l border-gray-200 transform transition duration-300 ${tailwindLayers.propertyPane}`]: true,
           "relative ": !isPreviewMode,
-          "fixed translate-x-full right-0": isPreviewMode,
+          "fixed translate-x-full left-0": isPreviewMode,
         })}
         ref={sidebarRef}
       >
@@ -128,12 +128,7 @@ export const PropertyPaneSidebar = memo((props: Props) => {
             })}
           />
         </div>
-        <div
-          className="h-full p-0 overflow-y-auto min-w-72 max-w-104"
-          style={{ width: props.width }}
-        >
-          {propertyPane}
-        </div>
+        <div className="h-full p-0 overflow-y-auto w-full">{propertyPane}</div>
       </div>
     </div>
   );
