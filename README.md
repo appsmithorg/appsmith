@@ -38,7 +38,7 @@ You can create apps in 4 basic steps using Appsmith: <br>
 
 <p align="center">
 <a href="https://docs.appsmith.com/core-concepts/connecting-to-data-sources?utm_source=github&utm_medium=organic&utm_campaign=readme">
-<img alt="connect-data" src="static/Build-UI.gif" />
+<img alt="connect-data" src="static/gifs/Build-UI.gif" />
 </a>
 </p>
 <br/>
@@ -47,7 +47,7 @@ You can create apps in 4 basic steps using Appsmith: <br>
 
 <p align="center">
 <a href="https://docs.appsmith.com/core-concepts/connecting-to-data-sources?utm_source=github&utm_medium=organic&utm_campaign=readme">
-<img alt="connect-data" src="static/Connect-Data.gif" />
+<img alt="connect-data" src="static/gifs/Connect-Data.gif" />
 </a>
 </p>
 <br/>
@@ -56,7 +56,7 @@ You can create apps in 4 basic steps using Appsmith: <br>
 
 <p align="center">
 <a href="https://docs.appsmith.com/core-concepts/connecting-to-data-sources?utm_source=github&utm_medium=organic&utm_campaign=readme">
-<img alt="connect-data" src="static/Bind-Data.gif" />
+<img alt="connect-data" src="static/gifs/Bind-Data.gif" />
 </a>
 </p>
 <br/>
@@ -65,7 +65,7 @@ You can create apps in 4 basic steps using Appsmith: <br>
 
 <p align="center">
 <a href="https://docs.appsmith.com/core-concepts/connecting-to-data-sources?utm_source=github&utm_medium=organic&utm_campaign=readme">
-<img alt="connect-data" src="static/Share-Apps.gif" />
+<img alt="connect-data" src="static/gifs/Share-Apps.gif" />
 </a>
 </p>
 <br/>
