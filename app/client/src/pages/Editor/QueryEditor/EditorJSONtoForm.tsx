@@ -480,7 +480,6 @@ export function EditorJSONtoForm(props: Props) {
   );
 
   const params = useParams<{ apiId?: string; queryId?: string }>();
-  const theme = EditorTheme.LIGHT;
 
   const actions: Action[] = useSelector((state: AppState) =>
     state.entities.actions.map((action) => action.config),
@@ -1023,7 +1022,7 @@ export function EditorJSONtoForm(props: Props) {
               <SectionDivider />
               {isRunning && (
                 <>
-                  <LoadingOverlayScreen theme={theme} />
+                  <LoadingOverlayScreen theme={EditorTheme.LIGHT} />
                   <LoadingOverlayContainer>
                     <div>
                       <Text textAlign={"center"} type={TextType.P1}>
