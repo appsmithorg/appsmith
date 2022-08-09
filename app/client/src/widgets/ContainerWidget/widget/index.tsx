@@ -19,12 +19,7 @@ import { compact, map, sortBy } from "lodash";
 
 import { CanvasDraggingArena } from "pages/common/CanvasArenas/CanvasDraggingArena";
 import { getCanvasSnapRows } from "utils/WidgetPropsUtils";
-import {
-  JustifyContent,
-  LayoutDirection,
-  Positioning,
-} from "components/constants";
-import { AutoLayoutContext } from "utils/autoLayoutContext";
+import { LayoutDirection, Positioning } from "components/constants";
 
 class ContainerWidget extends BaseWidget<
   ContainerWidgetProps<WidgetProps>,
@@ -39,7 +34,7 @@ class ContainerWidget extends BaseWidget<
     this.renderChildWidget = this.renderChildWidget.bind(this);
   }
 
-  componentDidUpdate(prevProps: ContainerWidgetProps<WidgetProps>): void {
+  componentDidUpdate(): void {
     if (!this.props.positioning || this.props.positioning === Positioning.Fixed)
       this.setState({ useAutoLayout: false });
     else

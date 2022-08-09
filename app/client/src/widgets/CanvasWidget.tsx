@@ -64,17 +64,12 @@ class CanvasWidget extends ContainerWidget {
     if (this.props.noPad) childWidgetData.noContainerOffset = true;
     childWidgetData.parentId = this.props.widgetId;
     // Pass layout controls to children
-    // TODO: remove the hard check on widget name
-    if (this.props.widgetName !== "MainContainer") {
-      childWidgetData.useAutoLayout = this.state.useAutoLayout;
-      childWidgetData.direction = this.state.direction;
-      childWidgetData.justifyContent = this.props.justifyContent;
-      childWidgetData.alignItems = this.props.alignItems;
-      childWidgetData.positioning = this.props.positioning;
-      // console.log(
-      //   `${childWidgetData.widgetName} : ${childWidgetData.widgetId} =======`,
-      // );
-    }
+    childWidgetData.positioning =
+      childWidgetData?.positioning || this.props.positioning;
+    childWidgetData.useAutoLayout = this.state.useAutoLayout;
+    childWidgetData.direction = this.state.direction;
+    childWidgetData.justifyContent = this.props.justifyContent;
+    childWidgetData.alignItems = this.props.alignItems;
 
     return WidgetFactory.createWidget(childWidgetData, this.props.renderMode);
   }
