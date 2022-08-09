@@ -8,7 +8,6 @@ const {
   CommonLocators,
   EntityExplorer,
   JSEditor: jsEditor,
-  PropertyPane,
 } = ObjectsRegistry;
 
 const jsObjectBody = `export default {
