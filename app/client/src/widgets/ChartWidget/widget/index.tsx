@@ -4,7 +4,7 @@ import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import Skeleton from "components/utils/Skeleton";
 import { retryPromise } from "utils/AppsmithUtils";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import propertyConfig from "./propertyConfig";
+import propertyConfig, { contentConfig, styleConfig } from "./propertyConfig";
 import {
   ChartType,
   CustomFusionChartConfig,
@@ -32,6 +32,14 @@ class ChartWidget extends BaseWidget<ChartWidgetProps, WidgetState> {
 
   static getPropertyPaneConfig() {
     return propertyConfig;
+  }
+
+  static getPropertyPaneContentConfig() {
+    return contentConfig;
+  }
+
+  static getPropertyPaneStyleConfig() {
+    return styleConfig;
   }
 
   onDataPointClick = (selectedDataPoint: ChartSelectedDataPoint) => {

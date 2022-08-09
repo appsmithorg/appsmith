@@ -2116,7 +2116,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                 .flatMap(tuple -> {
                     Application application = tuple.getT1();
                     Workspace workspace = tuple.getT2();
-                    final Map<String, Object> auditData = Map.of(
+                    final Map<String, Object> eventData = Map.of(
                             FieldName.APPLICATION, application,
                             FieldName.WORKSPACE, workspace
                     );
@@ -2124,7 +2124,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                     final Map<String, Object> data = Map.of(
                             FieldName.APPLICATION_ID, application.getId(),
                             FieldName.WORKSPACE_ID, workspace.getId(),
-                            FieldName.AUDIT_DATA, auditData
+                            FieldName.EVENT_DATA, eventData
                     );
 
                     return analyticsService.sendObjectEvent(event, application, data);
