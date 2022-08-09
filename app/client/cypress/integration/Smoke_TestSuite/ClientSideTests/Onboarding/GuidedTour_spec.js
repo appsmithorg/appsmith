@@ -72,7 +72,6 @@ describe("Guided Tour", function() {
     cy.get(guidedTourLocators.successButton).click();
     // Step 9: Deploy
     cy.PublishtheApp();
-    cy.wait("@getWorkspace");
     cy.get(guidedTourLocators.rating).should("be.visible");
     cy.get(guidedTourLocators.rating)
       .eq(4)
