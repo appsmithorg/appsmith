@@ -7,6 +7,7 @@ import base64 from "constants/defs/base64-js.json";
 import moment from "constants/defs/moment.json";
 import xmlJs from "constants/defs/xmlParser.json";
 import forge from "constants/defs/forge.json";
+import browser from "constants/defs/browser.json";
 import CodeMirror, { Hint, Pos, cmpPos } from "codemirror";
 import {
   getDynamicStringSegments,
@@ -24,6 +25,7 @@ import { getCompletionsForKeyword } from "./keywordCompletion";
 const DEFS: Def[] = [
   // @ts-expect-error: Types are not available
   ecma,
+  browser,
   GLOBAL_FUNCTIONS,
   GLOBAL_DEFS,
   lodash,
