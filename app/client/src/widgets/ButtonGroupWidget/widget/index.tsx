@@ -662,38 +662,6 @@ class ButtonGroupWidget extends BaseWidget<
                         ],
                         styleChildren: [
                           {
-                            sectionName: "Color",
-                            children: [
-                              {
-                                propertyName: "backgroundColor",
-                                helpText:
-                                  "Sets the background color of a menu item",
-                                label: "Background Color",
-                                controlType: "COLOR_PICKER",
-                                isJSConvertible: true,
-                                isBindProperty: true,
-                                isTriggerProperty: false,
-                                validation: { type: ValidationTypes.TEXT },
-                              },
-                              {
-                                propertyName: "iconColor",
-                                helpText: "Sets the icon color of a menu item",
-                                label: "Icon Color",
-                                controlType: "COLOR_PICKER",
-                                isBindProperty: false,
-                                isTriggerProperty: false,
-                              },
-                              {
-                                propertyName: "textColor",
-                                helpText: "Sets the text color of a menu item",
-                                label: "Text Color",
-                                controlType: "COLOR_PICKER",
-                                isBindProperty: false,
-                                isTriggerProperty: false,
-                              },
-                            ],
-                          },
-                          {
                             sectionName: "Icon",
                             children: [
                               {
@@ -725,6 +693,38 @@ class ButtonGroupWidget extends BaseWidget<
                                 isBindProperty: false,
                                 isTriggerProperty: false,
                                 validation: { type: ValidationTypes.TEXT },
+                              },
+                            ],
+                          },
+                          {
+                            sectionName: "Color",
+                            children: [
+                              {
+                                propertyName: "backgroundColor",
+                                helpText:
+                                  "Sets the background color of a menu item",
+                                label: "Background Color",
+                                controlType: "COLOR_PICKER",
+                                isJSConvertible: true,
+                                isBindProperty: true,
+                                isTriggerProperty: false,
+                                validation: { type: ValidationTypes.TEXT },
+                              },
+                              {
+                                propertyName: "iconColor",
+                                helpText: "Sets the icon color of a menu item",
+                                label: "Icon Color",
+                                controlType: "COLOR_PICKER",
+                                isBindProperty: false,
+                                isTriggerProperty: false,
+                              },
+                              {
+                                propertyName: "textColor",
+                                helpText: "Sets the text color of a menu item",
+                                label: "Text Color",
+                                controlType: "COLOR_PICKER",
+                                isBindProperty: false,
+                                isTriggerProperty: false,
                               },
                             ],
                           },
@@ -801,22 +801,6 @@ class ButtonGroupWidget extends BaseWidget<
               ],
               styleChildren: [
                 {
-                  sectionName: "Color",
-                  children: [
-                    {
-                      getStylesheetValue,
-                      propertyName: "buttonColor",
-                      helpText: "Changes the color of the button",
-                      label: "Button Color",
-                      controlType: "COLOR_PICKER",
-                      isJSConvertible: true,
-                      isBindProperty: true,
-                      isTriggerProperty: false,
-                      validation: { type: ValidationTypes.TEXT },
-                    },
-                  ],
-                },
-                {
                   sectionName: "Icon",
                   children: [
                     {
@@ -881,6 +865,22 @@ class ButtonGroupWidget extends BaseWidget<
                           default: ButtonPlacementTypes.CENTER,
                         },
                       },
+                    },
+                  ],
+                },
+                {
+                  sectionName: "Color",
+                  children: [
+                    {
+                      getStylesheetValue,
+                      propertyName: "buttonColor",
+                      helpText: "Changes the color of the button",
+                      label: "Button Color",
+                      controlType: "COLOR_PICKER",
+                      isJSConvertible: true,
+                      isBindProperty: true,
+                      isTriggerProperty: false,
+                      validation: { type: ValidationTypes.TEXT },
                     },
                   ],
                 },

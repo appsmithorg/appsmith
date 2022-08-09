@@ -654,44 +654,6 @@ class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
   static getPropertyPaneStyleConfig() {
     return [
       {
-        sectionName: "General",
-        children: [
-          {
-            propertyName: "alignment",
-            helpText: "Sets the alignment of the widget",
-            label: "Alignment",
-            controlType: "DROP_DOWN",
-            isBindProperty: true,
-            isTriggerProperty: false,
-            options: [
-              {
-                label: "Left",
-                value: Alignment.LEFT,
-              },
-              {
-                label: "Right",
-                value: Alignment.RIGHT,
-              },
-            ],
-          },
-        ],
-      },
-      {
-        sectionName: "Color",
-        children: [
-          {
-            propertyName: "accentColor",
-            helpText: "Sets the accent color of the widget",
-            label: "Accent color",
-            controlType: "COLOR_PICKER",
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.TEXT },
-          },
-        ],
-      },
-      {
         sectionName: "Label Styles",
         children: [
           {
@@ -759,6 +721,44 @@ class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
                 value: "ITALIC",
               },
             ],
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
+        ],
+      },
+      {
+        sectionName: "General",
+        children: [
+          {
+            propertyName: "alignment",
+            helpText: "Sets the alignment of the widget",
+            label: "Alignment",
+            controlType: "DROP_DOWN",
+            isBindProperty: true,
+            isTriggerProperty: false,
+            options: [
+              {
+                label: "Left",
+                value: Alignment.LEFT,
+              },
+              {
+                label: "Right",
+                value: Alignment.RIGHT,
+              },
+            ],
+          },
+        ],
+      },
+      {
+        sectionName: "Color",
+        children: [
+          {
+            propertyName: "accentColor",
+            helpText: "Sets the accent color of the widget",
+            label: "Accent color",
+            controlType: "COLOR_PICKER",
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,

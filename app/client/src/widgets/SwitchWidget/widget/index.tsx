@@ -334,21 +334,6 @@ class SwitchWidget extends BaseWidget<SwitchWidgetProps, WidgetState> {
   static getPropertyPaneStyleConfig() {
     return [
       {
-        sectionName: "Color",
-        children: [
-          {
-            propertyName: "accentColor",
-            helpText: "Sets the background color of the widget",
-            label: "Accent Color",
-            controlType: "COLOR_PICKER",
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.TEXT },
-          },
-        ],
-      },
-      {
         sectionName: "Label Styles",
         children: [
           {
@@ -421,6 +406,21 @@ class SwitchWidget extends BaseWidget<SwitchWidgetProps, WidgetState> {
                 value: "ITALIC",
               },
             ],
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
+        ],
+      },
+      {
+        sectionName: "Color",
+        children: [
+          {
+            propertyName: "accentColor",
+            helpText: "Sets the background color of the widget",
+            label: "Accent Color",
+            controlType: "COLOR_PICKER",
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,

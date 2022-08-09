@@ -441,6 +441,7 @@ class MenuButtonWidget extends BaseWidget<MenuButtonWidgetProps, WidgetState> {
                   },
                 ];
               },
+              // TODO(aswathkk): Delete the following
               children: [
                 {
                   sectionName: "General",
@@ -610,35 +611,6 @@ class MenuButtonWidget extends BaseWidget<MenuButtonWidgetProps, WidgetState> {
               ],
               styleChildren: [
                 {
-                  sectionName: "Color",
-                  children: [
-                    {
-                      propertyName: "iconColor",
-                      helpText: "Sets the icon color of a menu item",
-                      label: "Icon color",
-                      controlType: "COLOR_PICKER",
-                      isBindProperty: false,
-                      isTriggerProperty: false,
-                    },
-                    {
-                      propertyName: "textColor",
-                      helpText: "Sets the text color of a menu item",
-                      label: "Text color",
-                      controlType: "COLOR_PICKER",
-                      isBindProperty: false,
-                      isTriggerProperty: false,
-                    },
-                    {
-                      propertyName: "backgroundColor",
-                      helpText: "Sets the background color of a menu item",
-                      label: "Background color",
-                      controlType: "COLOR_PICKER",
-                      isBindProperty: false,
-                      isTriggerProperty: false,
-                    },
-                  ],
-                },
-                {
                   sectionName: "Icon",
                   children: [
                     {
@@ -668,6 +640,35 @@ class MenuButtonWidget extends BaseWidget<MenuButtonWidgetProps, WidgetState> {
                       isBindProperty: false,
                       isTriggerProperty: false,
                       validation: { type: ValidationTypes.TEXT },
+                    },
+                  ],
+                },
+                {
+                  sectionName: "Color",
+                  children: [
+                    {
+                      propertyName: "iconColor",
+                      helpText: "Sets the icon color of a menu item",
+                      label: "Icon color",
+                      controlType: "COLOR_PICKER",
+                      isBindProperty: false,
+                      isTriggerProperty: false,
+                    },
+                    {
+                      propertyName: "textColor",
+                      helpText: "Sets the text color of a menu item",
+                      label: "Text color",
+                      controlType: "COLOR_PICKER",
+                      isBindProperty: false,
+                      isTriggerProperty: false,
+                    },
+                    {
+                      propertyName: "backgroundColor",
+                      helpText: "Sets the background color of a menu item",
+                      label: "Background color",
+                      controlType: "COLOR_PICKER",
+                      isBindProperty: false,
+                      isTriggerProperty: false,
                     },
                   ],
                 },
@@ -862,7 +863,7 @@ class MenuButtonWidget extends BaseWidget<MenuButtonWidgetProps, WidgetState> {
           {
             propertyName: "menuColor",
             helpText: "Sets the style of the Menu button",
-            label: "Menu Color",
+            label: "Button Color",
             controlType: "COLOR_PICKER",
             isJSConvertible: true,
             isBindProperty: true,

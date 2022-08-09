@@ -551,45 +551,7 @@ class SwitchGroupWidget extends BaseWidget<
   static getPropertyPaneStyleConfig() {
     return [
       {
-        sectionName: "General",
-        children: [
-          {
-            propertyName: "alignment",
-            helpText: "Sets the alignment of the widget",
-            label: "Alignment",
-            controlType: "DROP_DOWN",
-            isBindProperty: true,
-            isTriggerProperty: false,
-            options: [
-              {
-                label: "Left",
-                value: Alignment.LEFT,
-              },
-              {
-                label: "Right",
-                value: Alignment.RIGHT,
-              },
-            ],
-          },
-        ],
-      },
-      {
-        sectionName: "Color",
-        children: [
-          {
-            propertyName: "accentColor",
-            helpText: "Sets the background color of the widget",
-            label: "Accent Color",
-            controlType: "COLOR_PICKER",
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.TEXT },
-          },
-        ],
-      },
-      {
-        sectionName: "Label",
+        sectionName: "Label Styles",
         children: [
           {
             propertyName: "labelTextColor",
@@ -656,6 +618,44 @@ class SwitchGroupWidget extends BaseWidget<
                 value: "ITALIC",
               },
             ],
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
+        ],
+      },
+      {
+        sectionName: "General",
+        children: [
+          {
+            propertyName: "alignment",
+            helpText: "Sets the alignment of the widget",
+            label: "Alignment",
+            controlType: "DROP_DOWN",
+            isBindProperty: true,
+            isTriggerProperty: false,
+            options: [
+              {
+                label: "Left",
+                value: Alignment.LEFT,
+              },
+              {
+                label: "Right",
+                value: Alignment.RIGHT,
+              },
+            ],
+          },
+        ],
+      },
+      {
+        sectionName: "Color",
+        children: [
+          {
+            propertyName: "accentColor",
+            helpText: "Sets the background color of the widget",
+            label: "Accent Color",
+            controlType: "COLOR_PICKER",
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,

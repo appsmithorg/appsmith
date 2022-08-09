@@ -667,21 +667,6 @@ class CheckboxGroupWidget extends BaseWidget<
   static getPropertyPaneStyleConfig() {
     return [
       {
-        sectionName: "Color",
-        children: [
-          {
-            propertyName: "accentColor",
-            helpText: "Sets the checked state color of the checkbox",
-            label: "Accent Color",
-            controlType: "COLOR_PICKER",
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.TEXT },
-          },
-        ],
-      },
-      {
         sectionName: "Label Styles",
         children: [
           {
@@ -806,6 +791,21 @@ class CheckboxGroupWidget extends BaseWidget<
                 ],
               },
             },
+          },
+        ],
+      },
+      {
+        sectionName: "Color",
+        children: [
+          {
+            propertyName: "accentColor",
+            helpText: "Sets the checked state color of the checkbox",
+            label: "Accent Color",
+            controlType: "COLOR_PICKER",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
           },
         ],
       },
