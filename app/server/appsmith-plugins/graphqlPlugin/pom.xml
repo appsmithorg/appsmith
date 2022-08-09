@@ -32,21 +32,21 @@
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-core</artifactId>
-            <version>5.2.3.RELEASE</version>
+            <version>5.3.20</version>
             <scope>provided</scope>
         </dependency>
 
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-web</artifactId>
-            <version>5.3.15</version>
+            <version>5.3.20</version>
             <scope>provided</scope>
         </dependency>
 
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-webflux</artifactId>
-            <version>5.2.3.RELEASE</version>
+            <version>5.3.20</version>
             <exclusions>
                 <exclusion>
                     <groupId>io.projectreactor</groupId>
@@ -66,7 +66,7 @@
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
-            <version>2.10.5.1</version>
+            <version>2.12.6.1</version>
             <scope>provided</scope>
         </dependency>
 
@@ -98,11 +98,17 @@
             <version>0.11.2</version>
         </dependency>
 
+        <!--
+            Ideally this dependency should have been added with 'compile' scope here. But that is causing 'java.lang
+            .NoClassDefFoundError'. After trying to fix it right way many times, I decided to move the dependency to
+            the main server module's pom.xml file and keep the dependency here with 'provided' scope. This seems to
+            fix the problem for now.
+         -->
         <dependency>
             <groupId>com.graphql-java</groupId>
             <artifactId>graphql-java</artifactId>
-            <version>17.3</version>
-            <scope>compile</scope>
+            <version>19.0</version>
+            <scope>provided</scope>
             <exclusions>
                 <exclusion>
                     <groupId>org.slf4j</groupId>
@@ -158,13 +164,13 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-webflux</artifactId>
-            <version>2.5.5</version>
+            <version>2.7.0</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-test</artifactId>
-            <version>5.2.3.RELEASE</version>
+            <version>5.3.20</version>
             <scope>test</scope>
         </dependency>
         <dependency>
