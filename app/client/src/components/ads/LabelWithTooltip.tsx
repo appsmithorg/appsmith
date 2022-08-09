@@ -130,6 +130,7 @@ export const LabelContainer = styled.div<LabelContainerProps>`
   }
 
   ${({ alignment, compact, inline, optionCount, position, width }) => `
+    ${width && `width: ${width}px`};
     ${
       position !== LabelPosition.Top &&
       (position === LabelPosition.Left || compact)
@@ -141,7 +142,6 @@ export const LabelContainer = styled.div<LabelContainerProps>`
       ${!width && `width: ${LABEL_DEFAULT_WIDTH_RATE}%`};
       ${alignment === Alignment.RIGHT && `justify-content: flex-end`};
       label {
-        ${width && `width: ${width}px`};
         ${
           alignment === Alignment.RIGHT
             ? `text-align: right`

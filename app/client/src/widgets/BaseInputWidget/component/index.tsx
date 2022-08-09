@@ -221,8 +221,7 @@ const InputComponentWrapper = styled((props) => (
             height: 20px;
           }
           &:hover {
-            background-color: ${Colors.GREY_2};
-            color: ${Colors.GREY_10};
+            background-color: var(--wds-color-bg-hover);
           }
         }
       }
