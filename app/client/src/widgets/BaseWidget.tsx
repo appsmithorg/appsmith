@@ -361,13 +361,15 @@ abstract class BaseWidget<
           content = this.makeDraggable(content);
           content = this.makeSnipeable(content);
           // NOTE: In sniping mode we are not blocking onClick events from PositionWrapper.
-          if (
-            this.props.useAutoLayout &&
-            !this.props.widgetName.toUpperCase().includes("AUTO")
-          ) {
+          // if (
+          //   this.props.useAutoLayout &&
+          //   !this.props.widgetName.toUpperCase().includes("AUTO")
+          // ) {
+          //   content = this.addAutoLayoutWrapper(content);
+          // } else content = this.makePositioned(content);
+          content = this.makePositioned(content);
+          if (this.props.useAutoLayout)
             content = this.addAutoLayoutWrapper(content);
-          } else content = this.makePositioned(content);
-          // content = this.makePositioned(content);
         }
         return content;
 
