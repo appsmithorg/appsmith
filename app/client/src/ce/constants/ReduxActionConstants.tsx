@@ -658,7 +658,6 @@ export const ReduxActionTypes = {
   FETCH_TRIGGER_VALUES_INIT: "FETCH_TRIGGER_VALUES_INIT",
   FETCH_TRIGGER_VALUES_SUCCESS: "FETCH_TRIGGER_VALUES_SUCCESS",
   SET_FOCUS_HISTORY: "SET_FOCUS_HISTORY",
-  FOCUS_HISTORY_SUCCESS: "FOCUS_HISTORY_SUCCESS",
 };
 
 export type ReduxActionType = typeof ReduxActionTypes[keyof typeof ReduxActionTypes];

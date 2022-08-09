@@ -7,8 +7,8 @@ import {
   reduxForm,
 } from "redux-form";
 import {
-  HTTP_METHOD_OPTIONS,
   API_EDITOR_TABS,
+  HTTP_METHOD_OPTIONS,
 } from "constants/ApiEditorConstants";
 import styled from "styled-components";
 import FormLabel from "components/editorComponents/FormLabel";
@@ -38,15 +38,15 @@ import Icon, { IconSize } from "components/ads/Icon";
 import Button, { Size } from "components/ads/Button";
 import { TabComponent } from "components/ads/Tabs";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
-import { Text, Case, TextType } from "design-system";
+import { Case, Text, TextType, TooltipComponent } from "design-system";
 import { Classes, Variant } from "components/ads/common";
 import Callout from "components/ads/Callout";
 import { useLocalStorage } from "utils/hooks/localstorage";
 import {
   API_EDITOR_TAB_TITLES,
+  API_PANE_NO_BODY,
   createMessage,
   WIDGET_BIND_HELP,
-  API_PANE_NO_BODY,
 } from "@appsmith/constants/messages";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import CloseEditor from "components/editorComponents/CloseEditor";
@@ -55,9 +55,9 @@ import get from "lodash/get";
 import DataSourceList from "./ApiRightPane";
 import { Datasource } from "entities/Datasource";
 import {
-  getActionResponses,
-  getActionData,
   getAction,
+  getActionData,
+  getActionResponses,
 } from "selectors/entitiesSelector";
 import { isEmpty, isEqual } from "lodash";
 
@@ -65,10 +65,11 @@ import { Colors } from "constants/Colors";
 import SearchSnippets from "components/ads/SnippetButton";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import ApiAuthentication from "./ApiAuthentication";
-import { TooltipComponent } from "design-system";
 import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
 import { Classes as BluePrintClasses } from "@blueprintjs/core";
 import { replayHighlightClass } from "globalStyles/portals";
+import { setFocusHistory } from "actions/focusHistoryActions";
+import { FocusEntity } from "navigation/FocusableEntity";
 
 const Form = styled.form`
   position: relative;
@@ -529,6 +530,15 @@ function ImportedDatas(props: { data: any; attributeName: string }) {
   );
 }
 
+const editorTabs = [
+  API_EDITOR_TABS.HEADERS,
+  API_EDITOR_TABS.PARAMS,
+  API_EDITOR_TABS.BODY,
+  API_EDITOR_TABS.PAGINATION,
+  API_EDITOR_TABS.AUTHENTICATION,
+  API_EDITOR_TABS.SETTINGS,
+];
+
 function ApiEditorForm(props: Props) {
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [
@@ -576,6 +586,21 @@ function ApiEditorForm(props: Props) {
     dispatch(setGlobalSearchQuery("capturing data"));
     dispatch(toggleShowGlobalSearchModal());
     AnalyticsUtil.logEvent("OPEN_OMNIBAR", { source: "LEARN_HOW_DATASOURCE" });
+  };
+
+  const setSelectedTab = (selectedIndex: number) => {
+    setSelectedIndex(selectedIndex);
+    if (params.apiId) {
+      const key = `${FocusEntity.ApiPane}.${params.apiId}`;
+      dispatch(
+        setFocusHistory(key, {
+          entity: FocusEntity.ApiPane,
+          entityId: params.apiId,
+          elementName: editorTabs[selectedIndex],
+          moreInfo: {},
+        }),
+      );
+    }
   };
 
   return (
@@ -648,7 +673,7 @@ function ApiEditorForm(props: Props) {
           <SecondaryWrapper>
             <TabbedViewContainer>
               <TabComponent
-                onSelect={setSelectedIndex}
+                onSelect={setSelectedTab}
                 selectedIndex={selectedIndex}
                 tabs={[
                   {
