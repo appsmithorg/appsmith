@@ -8,14 +8,14 @@ const ERROR_ACTION_EXECUTE_FAIL = (actionName) =>
   `${actionName} action returned an error response`;
 
 describe("Abort Action Execution", function() {
-  it("Cancel Request button should abort action execution", function() {
+  it("Cancel Request button should abort API action execution", function() {
     cy.createAndFillApi(testApiUrl, "");
     cy.RunAPIWithoutWaitingForResolution();
     cy.get(commonlocators.cancelActionExecution).click();
     cy.VerifyErrorMsgPresence(ERROR_ACTION_EXECUTE_FAIL("Api1"));
   });
 
-  it("Cancel Request button should abort action execution", function() {
+  it("Cancel Request button should abort Query action execution", function() {
     cy.NavigateToDatasourceEditor();
     cy.get(datasource.MongoDB).click();
     cy.fillMongoDatasourceForm();
