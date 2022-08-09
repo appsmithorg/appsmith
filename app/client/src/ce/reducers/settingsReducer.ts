@@ -3,7 +3,7 @@ import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
-import { createReducer } from "utils/ReducerUtils";
+import { createReducer } from "utils/AppsmithUtils";
 
 export const initialState: SettingsReduxState = {
   isLoading: false,
