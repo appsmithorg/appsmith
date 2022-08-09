@@ -252,12 +252,12 @@ class ContainerWidget extends BaseWidget<
               {...this.getSnapSpaces()}
               alignItems={props.alignItems}
               canExtend={props.canExtend}
-              direction={this.props.direction}
+              direction={this.state.direction}
               dropDisabled={!!props.dropDisabled}
               noPad={this.props.noPad}
               parentId={props.parentId}
               snapRows={snapRows}
-              useAutoLayout={this.props.useAutoLayout}
+              useAutoLayout={this.state.useAutoLayout}
               widgetId={props.widgetId}
             />
             <CanvasSelectionArena

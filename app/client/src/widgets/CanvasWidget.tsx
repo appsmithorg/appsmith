@@ -66,10 +66,11 @@ class CanvasWidget extends ContainerWidget {
     // Pass layout controls to children
     // TODO: remove the hard check on widget name
     if (this.props.widgetName !== "MainContainer") {
-      childWidgetData.useAutoLayout = this.props.useAutoLayout;
-      childWidgetData.direction = this.props.direction;
+      childWidgetData.useAutoLayout = this.state.useAutoLayout;
+      childWidgetData.direction = this.state.direction;
       childWidgetData.justifyContent = this.props.justifyContent;
       childWidgetData.alignItems = this.props.alignItems;
+      childWidgetData.positioning = this.props.positioning;
       // console.log(
       //   `${childWidgetData.widgetName} : ${childWidgetData.widgetId} =======`,
       // );

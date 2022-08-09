@@ -13,6 +13,7 @@ import { WidgetProperties } from "selectors/propertyPaneSelectors";
 import { WIDGET_PADDING } from "constants/WidgetConstants";
 import derivedProperties from "./parseDerivedProperties";
 import { isEqual, find } from "lodash";
+import { Positioning } from "components/constants";
 
 export function selectedTabValidation(
   value: unknown,
@@ -100,6 +101,28 @@ class TabsWidget extends BaseWidget<
                       isBindProperty: true,
                       isTriggerProperty: false,
                       validation: { type: ValidationTypes.BOOLEAN },
+                    },
+                    {
+                      helpText: "Position styles to be applied to the children",
+                      propertyName: "positioning",
+                      label: "Positioning",
+                      controlType: "DROP_DOWN",
+                      defaultValue: Positioning.Fixed,
+                      options: [
+                        { label: "Fixed", value: Positioning.Fixed },
+                        {
+                          label: "Horizontal stack",
+                          value: Positioning.Horizontal,
+                        },
+                        {
+                          label: "Vertical stack",
+                          value: Positioning.Vertical,
+                        },
+                      ],
+                      isJSConvertible: false,
+                      isBindProperty: true,
+                      isTriggerProperty: true,
+                      validation: { type: ValidationTypes.TEXT },
                     },
                   ],
                 },
@@ -282,6 +305,9 @@ class TabsWidget extends BaseWidget<
       : componentHeight - 1;
     childWidgetData.parentId = this.props.widgetId;
     childWidgetData.minHeight = componentHeight;
+    childWidgetData.positioning = Object.values(this.props.tabsObj)?.filter(
+      (item) => item.widgetId === selectedTabWidgetId,
+    )[0]?.positioning;
 
     return WidgetFactory.createWidget(childWidgetData, this.props.renderMode);
   };
