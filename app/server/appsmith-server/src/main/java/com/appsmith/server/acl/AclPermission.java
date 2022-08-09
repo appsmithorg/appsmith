@@ -114,6 +114,7 @@ public enum AclPermission {
     MANAGE_PERMISSION_GROUPS("manage:permissionGroups", PermissionGroup.class),
     READ_PERMISSION_GROUPS("read:permissionGroups", PermissionGroup.class),
     ASSIGN_PERMISSION_GROUPS("assign:permissionGroups", PermissionGroup.class),
+    UNASSIGN_PERMISSION_GROUPS("unassign:permissionGroups", PermissionGroup.class),
 
     ;
 

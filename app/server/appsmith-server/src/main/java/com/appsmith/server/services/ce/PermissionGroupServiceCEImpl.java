@@ -1,11 +1,14 @@
 package com.appsmith.server.services.ce;
 
+import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
+import com.appsmith.server.dtos.Permission;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.BaseService;
@@ -21,6 +24,7 @@ import reactor.core.scheduler.Scheduler;
 import javax.validation.Validator;
 
 import java.util.List;
+import java.util.Map;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -30,6 +34,7 @@ public class PermissionGroupServiceCEImpl extends BaseService<PermissionGroupRep
         implements PermissionGroupServiceCE {
 
     private final SessionUserService sessionUserService;
+    private final PolicyUtils policyUtils;
 
     public PermissionGroupServiceCEImpl(Scheduler scheduler,
                                         Validator validator,
@@ -37,10 +42,28 @@ public class PermissionGroupServiceCEImpl extends BaseService<PermissionGroupRep
                                         ReactiveMongoTemplate reactiveMongoTemplate,
                                         PermissionGroupRepository repository,
                                         AnalyticsService analyticsService,
-                                        SessionUserService sessionUserService) {
+                                        SessionUserService sessionUserService,
+                                        PolicyUtils policyUtils) {
 
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.sessionUserService = sessionUserService;
+        this.policyUtils = policyUtils;
+    }
+
+    @Override
+    public Mono<PermissionGroup> create(PermissionGroup permissionGroup) {
+        return super.create(permissionGroup)
+                .map(pg -> {
+                    Set<Permission> permissions = new HashSet<>(pg.getPermissions());
+                    // Permission to unassign self is always given
+                    // so user can unassign himself from permission group
+                    permissions.add(new Permission(pg.getId(), AclPermission.UNASSIGN_PERMISSION_GROUPS));
+                    pg.setPermissions(permissions);
+                    Map<String, Policy> policyMap = policyUtils.generatePolicyFromPermissionGroupForObject(pg, pg.getId());
+                    policyUtils.addPoliciesToExistingObject(policyMap, pg);
+                    return pg;
+                })
+                .flatMap(pg -> repository.save(pg));
     }
 
     @Override
@@ -89,16 +112,6 @@ public class PermissionGroupServiceCEImpl extends BaseService<PermissionGroupRep
     }
 
     @Override
-    public Mono<PermissionGroup> unassignFromSelf(PermissionGroup permissionGroup) {
-        return sessionUserService.getCurrentUser()
-                .flatMap(user -> {
-                    ensureAssignedToUserIds(permissionGroup);
-                    permissionGroup.getAssignedToUserIds().remove(user.getId());
-                    return repository.updateById(permissionGroup.getId(), permissionGroup, AclPermission.READ_PERMISSION_GROUPS);
-                });
-    }
-
-    @Override
     public Flux<PermissionGroup> getAllByAssignedToUserAndDefaultWorkspace(User user, Workspace defaultWorkspace, AclPermission permission) {
         return repository.findAllByAssignedToUserIdAndDefaultWorkspaceId(user.getId(), defaultWorkspace.getId(), permission);
     }
@@ -110,11 +123,11 @@ public class PermissionGroupServiceCEImpl extends BaseService<PermissionGroupRep
 
     @Override
     public Mono<PermissionGroup> bulkUnassignFromUsers(PermissionGroup permissionGroup, List<User> users) {
-        return repository.findById(permissionGroup.getId(), AclPermission.MANAGE_PERMISSION_GROUPS)
+        return repository.findById(permissionGroup.getId(), AclPermission.UNASSIGN_PERMISSION_GROUPS)
                 .flatMap(pg -> {
                     ensureAssignedToUserIds(pg);
                     pg.getAssignedToUserIds().removeAll(users.stream().map(User::getId).collect(Collectors.toList()));
-                    return repository.updateById(pg.getId(), pg, AclPermission.MANAGE_PERMISSION_GROUPS);
+                    return repository.updateById(pg.getId(), pg, AclPermission.UNASSIGN_PERMISSION_GROUPS);
                 });
     }
 

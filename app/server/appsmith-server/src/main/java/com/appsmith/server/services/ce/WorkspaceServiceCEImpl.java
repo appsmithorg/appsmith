@@ -248,13 +248,7 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
         adminPermissionGroup.setDefaultWorkspaceId(workspaceId);
         adminPermissionGroup.setTenantId(workspace.getTenantId());
         adminPermissionGroup.setDescription(WORKSPACE_ADMINISTRATOR_DESCRIPTION);
-        Set<Permission> workspacePermissions = AppsmithRole.ORGANIZATION_ADMIN
-                .getPermissions()
-                .stream()
-                .filter(aclPermission -> aclPermission.getEntity().equals(Workspace.class))
-                .map(aclPermission -> new Permission(workspace.getId(), aclPermission))
-                .collect(Collectors.toSet());
-        adminPermissionGroup.setPermissions(workspacePermissions);
+        adminPermissionGroup.setPermissions(Set.of());
 
         // Developer permission group
         PermissionGroup developerPermissionGroup = new PermissionGroup();
@@ -262,12 +256,7 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
         developerPermissionGroup.setDefaultWorkspaceId(workspaceId);
         developerPermissionGroup.setTenantId(workspace.getTenantId());
         developerPermissionGroup.setDescription(WORKSPACE_DEVELOPER_DESCRIPTION);
-        workspacePermissions = AppsmithRole.ORGANIZATION_DEVELOPER
-                .getPermissions()
-                .stream()
-                .map(aclPermission -> new Permission(workspace.getId(), aclPermission))
-                .collect(Collectors.toSet());
-        developerPermissionGroup.setPermissions(workspacePermissions);
+        developerPermissionGroup.setPermissions(Set.of());
 
         // App viewer permission group
         PermissionGroup viewerPermissionGroup = new PermissionGroup();
@@ -275,12 +264,7 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
         viewerPermissionGroup.setDefaultWorkspaceId(workspaceId);
         viewerPermissionGroup.setTenantId(workspace.getTenantId());
         viewerPermissionGroup.setDescription(WORKSPACE_VIEWER_DESCRIPTION);
-        workspacePermissions = AppsmithRole.ORGANIZATION_VIEWER
-                .getPermissions()
-                .stream()
-                .map(aclPermission -> new Permission(workspace.getId(), aclPermission))
-                .collect(Collectors.toSet());
-        viewerPermissionGroup.setPermissions(workspacePermissions);
+        viewerPermissionGroup.setPermissions(Set.of());
 
         return Flux.fromIterable(List.of(adminPermissionGroup, developerPermissionGroup, viewerPermissionGroup))
                 .flatMap(permissionGroup1 -> permissionGroupService.create(permissionGroup1))
@@ -306,18 +290,22 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
                 .map(aclPermission -> new Permission(workspace.getId(), aclPermission))
                 .collect(Collectors.toSet());
         // The administrator should also be able to assign any of the three permissions groups
-        Set<Permission> permissionGroupPermissions = permissionGroups.stream()
-                .map(permissionGroup -> new Permission(permissionGroup.getId(), AclPermission.MANAGE_PERMISSION_GROUPS))
+        Set<Permission> assignPermissionGroupPermissions = permissionGroups.stream()
+                .map(permissionGroup -> new Permission(permissionGroup.getId(), AclPermission.ASSIGN_PERMISSION_GROUPS))
                 .collect(Collectors.toSet());
         Set<Permission> readPermissionGroupPermissions = permissionGroups.stream()
                 .map(permissionGroup -> new Permission(permissionGroup.getId(), AclPermission.READ_PERMISSION_GROUPS))
+                .collect(Collectors.toSet());
+        Set<Permission> unassignPermissionGroupPermissions = permissionGroups.stream()
+                .map(permissionGroup -> new Permission(permissionGroup.getId(), AclPermission.UNASSIGN_PERMISSION_GROUPS))
                 .collect(Collectors.toSet());
 
 
         Set<Permission> permissions = new HashSet<>();
         permissions.addAll(workspacePermissions);
-        permissions.addAll(permissionGroupPermissions);
+        permissions.addAll(assignPermissionGroupPermissions);
         permissions.addAll(readPermissionGroupPermissions);
+        permissions.addAll(unassignPermissionGroupPermissions);
         adminPermissionGroup.setPermissions(permissions);
 
         // Assign the user creating the permission group to this permission group
@@ -331,12 +319,12 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
                 .map(aclPermission -> new Permission(workspace.getId(), aclPermission))
                 .collect(Collectors.toSet());
         // The developer should also be able to assign developer & viewer permission groups
-        permissionGroupPermissions = Set.of(developerPermissionGroup, viewerPermissionGroup).stream()
+        assignPermissionGroupPermissions = Set.of(developerPermissionGroup, viewerPermissionGroup).stream()
                 .map(permissionGroup -> new Permission(permissionGroup.getId(), ASSIGN_PERMISSION_GROUPS))
                 .collect(Collectors.toSet());
         permissions = new HashSet<>();
         permissions.addAll(workspacePermissions);
-        permissions.addAll(permissionGroupPermissions);
+        permissions.addAll(assignPermissionGroupPermissions);
         permissions.addAll(readPermissionGroupPermissions);
         developerPermissionGroup.setPermissions(permissions);
 
@@ -348,12 +336,12 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
                 .map(aclPermission -> new Permission(workspace.getId(), aclPermission))
                 .collect(Collectors.toSet());
         // The app viewers should also be able to assign to viewer permission groups
-        permissionGroupPermissions = Set.of(viewerPermissionGroup).stream()
+        assignPermissionGroupPermissions = Set.of(viewerPermissionGroup).stream()
                 .map(permissionGroup -> new Permission(permissionGroup.getId(), ASSIGN_PERMISSION_GROUPS))
                 .collect(Collectors.toSet());
         permissions = new HashSet<>();
         permissions.addAll(workspacePermissions);
-        permissions.addAll(permissionGroupPermissions);
+        permissions.addAll(assignPermissionGroupPermissions);
         permissions.addAll(readPermissionGroupPermissions);
         viewerPermissionGroup.setPermissions(permissions);
 
