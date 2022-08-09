@@ -256,7 +256,8 @@ const ResponseDataContainer = styled.div`
 `;
 
 export const TableCellHeight = 39;
-export const ActionExecutionResizerHeight = 464;
+// When action execution is triggered, open response container to height specified by this variable.
+export const ActionExecutionResizerHeight = 307;
 
 export const responseTabComponent = (
   responseType: string,
@@ -292,9 +293,7 @@ export const responseTabComponent = (
 };
 
 export const handleCancelActionExecution = () => {
-  ActionAPI.abortActionExecutionTokenSource.cancel(
-    "User cancelled action execution",
-  );
+  ActionAPI.abortActionExecutionTokenSource.cancel();
 };
 
 function ApiResponseView(props: Props) {

@@ -914,7 +914,7 @@ export const API_EDITOR_TAB_TITLES = {
   SETTINGS: () => "Settings",
 };
 export const ACTION_EXECUTION_MESSAGE = (actionType: string) =>
-  `Sending the ${actionType} Request`;
+  `Sending the ${actionType} request`;
 
 export const WELCOME_FORM_HEADER = () => "Let us get to know you better!";
 export const WELCOME_FORM_FULL_NAME = () => "Full Name";
