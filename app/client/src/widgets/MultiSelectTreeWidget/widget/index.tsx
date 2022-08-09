@@ -694,7 +694,7 @@ class MultiSelectTreeWidget extends BaseWidget<
           },
           {
             propertyName: "expandAll",
-            label: "Expand all by default",
+            label: "Expand all by Default",
             helpText: "Expand All nested options",
             controlType: "SWITCH",
             isJSConvertible: true,
