@@ -10,7 +10,7 @@ import {
   EditorTheme,
   TabBehaviour,
 } from "components/editorComponents/CodeEditor/EditorConfig";
-import { getDynamicBindings } from "utils/DynamicBindingUtils";
+import { getDynamicBindings, isDynamicValue } from "utils/DynamicBindingUtils";
 import { isString } from "utils/helpers";
 
 export const getBindingTemplate = (widgetName: string) => {
@@ -99,7 +99,7 @@ class SelectDefaultValueControl extends BaseControl<
       theme,
     } = this.props;
     const value = (() => {
-      if (propertyValue) {
+      if (propertyValue && isDynamicValue(propertyValue)) {
         const { widgetName } = this.props.widgetProperties;
         return this.getInputComputedValue(propertyValue, widgetName);
       }
