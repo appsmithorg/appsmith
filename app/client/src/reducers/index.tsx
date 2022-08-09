@@ -60,6 +60,7 @@ import SettingsReducer, {
   SettingsReduxState,
 } from "@appsmith/reducers/settingsReducer";
 import { TriggerValuesEvaluationState } from "./evaluationReducers/triggerReducer";
+import { GuidedTourState } from "./uiReducers/guidedTourReducer";
 
 const appReducer = combineReducers({
   entities: entityReducer,
@@ -98,6 +99,7 @@ export interface AppState {
     modalAction: ModalActionReduxState;
     datasourceName: DatasourceNameReduxState;
     theme: ThemeState;
+    guidedTour: GuidedTourState;
     onBoarding: OnboardingState;
     globalSearch: GlobalSearchReduxState;
     releases: ReleasesState;
