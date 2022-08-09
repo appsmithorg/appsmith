@@ -1,12 +1,9 @@
 package com.external.utils;
 
-import com.amazonaws.AmazonClientException;
 import com.amazonaws.AmazonServiceException;
-import com.amazonaws.services.s3.model.AmazonS3Exception;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.plugins.AppsmithPluginErrorUtils;
 
-import java.io.Serializable;
 
 
 public class AmazonS3ErrorUtils extends AppsmithPluginErrorUtils {
@@ -60,33 +57,31 @@ public class AmazonS3ErrorUtils extends AppsmithPluginErrorUtils {
         else {
             externalError = error;
         }
-        if (externalError instanceof AmazonS3Exception) {
-            AmazonS3Exception amazonS3Exception = (AmazonS3Exception) externalError;
-            /**
-             * parsing the unreadable AmazonS3Exception error messages into readable
-             *
-             * Sample external error message:
-             * null (Service : Amazon S3; Status Code : 404)
-             *
-             * Return string: null
-             */
-            return amazonS3Exception.getErrorCode() + ": " + amazonS3Exception.getErrorMessage();
-        }
-        else if (externalError instanceof AmazonServiceException) {
+
+        if (externalError instanceof AmazonServiceException) {
             AmazonServiceException amazonServiceException = (AmazonServiceException) externalError;
             /**
              * parsing the unreadable AmazonServiceException error messages into readable
              *
              * Sample external error message:
-             * The request signature we calculated does not match the signature you provided. Check your key and signing method.
-             * (Service : Amazon S3; Status Code : 403)
-             *
-             * Return string: The request signature we calculated does not match the signature you provided. Check your key and signing method.
+             * The specified access point name or account is not valid.
+             * Sample external error code:
+             * InvalidAccessPoint
+             * Return string: InvalidAccessPoint: The specified access point name or account is not valid.
              */
+
             return amazonServiceException.getErrorCode() + ": " + amazonServiceException.getErrorMessage();
         }
 
-        return error.getMessage().split("\\.")[0].trim() + ".";
+        /**
+         * Base case when the error is not an instance of AmazonServiceException or of its subclasses.
+         * Sample external error message:
+         * An unescaped quote was found while parsing the CSV file. To allow quoted record delimiters, set AllowQuotedRecordDelimiter to 'TRUE'.
+         * Return String
+         * An unescaped quote was found while parsing the CSV file. To allow quoted record delimiters, set AllowQuotedRecordDelimiter to 'TRUE'.
+         **/
+
+        return error.getMessage();
     }
 }
 
