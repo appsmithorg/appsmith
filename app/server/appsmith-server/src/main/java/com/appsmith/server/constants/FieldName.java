@@ -14,7 +14,7 @@ public class FieldName {
     public static final String PLUGIN_TYPE = "pluginType";
     public static final String COLLECTION_ID = "collectionId";
     public static final String ACTION_ID = "actionId";
-    public static String WORKSPACE = "organization";
+    public static String WORKSPACE = "workspace";
     public static String ID = "id";
     public static final String NAME = "name";
     public static String PAGE_ID = "pageId";
@@ -117,11 +117,11 @@ public class FieldName {
     public static final String FLOW_NAME = "flowName";
     public static final String ADMINISTRATOR = "Administrator";
     public static final String WORKSPACE_ADMINISTRATOR_DESCRIPTION = "Can modify all workspace settings including " +
-            "editing applications, inviting other users to the organization and exporting applications " +
-            "from the organization";
+            "editing applications, inviting other users to the workspace and exporting applications " +
+            "from the workspace";
     public static final String DEVELOPER = "Developer";
     public static String WORKSPACE_DEVELOPER_DESCRIPTION = "Can edit and view applications along with inviting other " +
-            "users to the organization";
+            "users to the workspace";
     public static final String VIEWER = "App Viewer";
     public static final String WORKSPACE_VIEWER_DESCRIPTION = "Can view applications and invite other users to view " +
             "applications";
