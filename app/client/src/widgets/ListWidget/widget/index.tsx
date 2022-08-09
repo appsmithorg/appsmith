@@ -39,7 +39,8 @@ import { entityDefinitions } from "utils/autocomplete/EntityDefinitions";
 import { escapeSpecialChars } from "../../WidgetUtils";
 import { PrivateWidgets } from "entities/DataTree/dataTreeFactory";
 
-import { klona } from "klona";
+import { klona } from "klona/json";
+import equal from "fast-deep-equal";
 
 const LIST_WIDGET_PAGINATION_HEIGHT = 36;
 
@@ -272,7 +273,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
     }
 
     // Update privateWidget field if there is a change in the List widget children
-    if (!isEqual(currentListWidgetChildren, previousListWidgetChildren)) {
+    if (!equal(currentListWidgetChildren, previousListWidgetChildren)) {
       this.addPrivateWidgetsForChildren(this.props);
     }
   }
@@ -714,7 +715,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
       this.props.listData
     ) {
       const { page } = this.state;
-      const children = removeFalsyEntries(klona(this.props.childWidgets));
+      const children = removeFalsyEntries(this.props.childWidgets);
       const childCanvas = children[0];
 
       const canvasChildren = childCanvas.children;
@@ -731,6 +732,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
           page,
           gridGap,
           this.props.itemBackgroundColor,
+          this.props.pageSize,
         );
       } catch (e) {
         log.error(e);
@@ -753,11 +755,12 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       itemBackgroundColor,
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      pageSize,
     ) => {
       const canvasChildrenList = [];
       if (listData.length > 0) {
-        for (let i = 0; i < listData.length; i++) {
-          canvasChildrenList[i] = JSON.parse(JSON.stringify(template));
+        for (let i = 0; i < pageSize; i++) {
+          canvasChildrenList[i] = klona(template);
         }
         canvasChildren = this.updateGridChildrenProps(canvasChildrenList);
       } else {
@@ -776,7 +779,8 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
         prev[3] === next[3] &&
         prev[4] === next[4] &&
         prev[5] === next[6] &&
-        prev[6] === next[6]
+        prev[6] === next[6] &&
+        prev[7] === next[7]
       );
     },
   );
