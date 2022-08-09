@@ -19,6 +19,7 @@ import {
 import { FieldEntityInformation } from "components/editorComponents/CodeEditor/EditorConfig";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { AutocompleteSorter } from "./AutocompleteSortRules";
+import { getCompletionsForKeyword } from "./keywordCompletion";
 
 const DEFS: Def[] = [
   // @ts-expect-error: Types are not available
@@ -38,7 +39,7 @@ const hintDelay = 1700;
 
 export type Completion = Hint & {
   origin: string;
-  type: AutocompleteDataType;
+  type: AutocompleteDataType | string;
   data: {
     doc: string;
   };
@@ -229,6 +230,7 @@ class TernServer {
     ) {
       after = '"]';
     }
+    const cursorHorizontalPos = start.ch + 2;
     for (let i = 0; i < data.completions.length; ++i) {
       const completion = data.completions[i];
       let className = typeToIcon(completion.type, completion.isKeyword);
@@ -256,6 +258,12 @@ class TernServer {
           element.setAttribute("keyword", data.displayText);
           element.innerHTML = data.displayText;
         };
+        const keywordCompletions = getCompletionsForKeyword(
+          codeMirrorCompletion,
+          cursorHorizontalPos,
+        );
+
+        completions = [...completions, ...keywordCompletions];
       }
       completions.push(codeMirrorCompletion);
     }
