@@ -546,7 +546,7 @@ function ApiResponseView(props: Props) {
           <LoadingOverlayContainer>
             <div>
               <Text textAlign={"center"} type={TextType.P1}>
-                {ACTION_EXECUTION_MESSAGE("API")}
+                {createMessage(ACTION_EXECUTION_MESSAGE, "API")}
               </Text>
               <CancelRequestButton
                 category={Category.tertiary}
