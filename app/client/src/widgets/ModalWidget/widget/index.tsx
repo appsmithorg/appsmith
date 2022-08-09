@@ -16,6 +16,7 @@ import { commentModeSelector } from "selectors/commentsSelectors";
 import { getCanvasWidth, snipingModeSelector } from "selectors/editorSelectors";
 import { deselectAllInitAction } from "actions/widgetSelectionActions";
 import { ValidationTypes } from "constants/WidgetValidation";
+import { Positioning } from "components/constants";
 
 const minSize = 100;
 
@@ -25,6 +26,22 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
       {
         sectionName: "General",
         children: [
+          {
+            helpText: "Position styles to be applied to the children",
+            propertyName: "positioning",
+            label: "Positioning",
+            controlType: "DROP_DOWN",
+            defaultValue: Positioning.Fixed,
+            options: [
+              { label: "Fixed", value: Positioning.Fixed },
+              { label: "Horizontal stack", value: Positioning.Horizontal },
+              { label: "Vertical stack", value: Positioning.Vertical },
+            ],
+            isJSConvertible: false,
+            isBindProperty: true,
+            isTriggerProperty: true,
+            validation: { type: ValidationTypes.TEXT },
+          },
           {
             helpText: "Enables scrolling for content inside the widget",
             propertyName: "shouldScrollContents",
@@ -123,6 +140,7 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
     childWidgetData.minHeight = this.props.height;
     childWidgetData.rightColumn =
       this.getModalWidth(this.props.width) + WIDGET_PADDING * 2;
+    childWidgetData.positioning = this.props.positioning;
     return WidgetFactory.createWidget(childWidgetData, this.props.renderMode);
   };
 
@@ -271,6 +289,7 @@ export interface ModalWidgetProps extends WidgetProps {
   backgroundColor: string;
   borderRadius: string;
   mainCanvasWidth: number;
+  positioning?: Positioning;
 }
 
 const mapDispatchToProps = (dispatch: any) => ({
