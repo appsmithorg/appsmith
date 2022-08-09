@@ -5,7 +5,6 @@ const dsl = require("../../../../fixtures/defaultMetaDsl.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
 const homePage = require("../../../../locators/HomePage");
 
-
 import {
   WIDGET,
   PROPERTY_SELECTOR,
@@ -14,7 +13,7 @@ import {
 } from "../../../../locators/WidgetLocators";
 
 const widgetsToTest = {
-  [WIDGET.MULTISELECT_WIDGET]: {
+  [WIDGET.MULTISELECT]: {
     widgetName: "MultiSelect",
     widgetPrefixName: "MultiSelect1",
     textBindingValue: "{{MultiSelect1.selectedOptionValues}}",
@@ -62,7 +61,7 @@ const widgetsToTest = {
       selectAndReset();
     },
   },
-  [WIDGET.CURRENCY_INPUT_WIDGET]: {
+  [WIDGET.CURRENCY_INPUT]: {
     widgetName: "CurrencyInput",
     widgetPrefixName: "CurrencyInput1",
     textBindingValue: testdata.currencyBindingValue,
@@ -86,7 +85,7 @@ const widgetsToTest = {
       radiogroupAndReset();
     },
   },
-  
+
   [WIDGET.LIST]: {
     widgetName: "List",
     widgetPrefixName: "List1",
@@ -95,7 +94,7 @@ const widgetsToTest = {
       listwidgetAndReset();
     },
   },
-  
+
   [WIDGET.RATING]: {
     widgetName: "Rating",
     widgetPrefixName: "Rating1",
@@ -104,7 +103,7 @@ const widgetsToTest = {
       ratingwidgetAndReset();
     },
   },
-  
+
   [WIDGET.CHECKBOXGROUP]: {
     widgetName: "CheckboxGroup",
     widgetPrefixName: "CheckboxGroup1",
@@ -157,8 +156,7 @@ const widgetsToTest = {
   },
 };
 
-
-function dragDropToCanvas (widgetType, { x, y }){
+function dragDropToCanvas(widgetType, { x, y }) {
   const selector = `.t--widget-card-draggable-${widgetType}`;
   cy.wait(500);
   cy.get(selector)
@@ -170,7 +168,7 @@ function dragDropToCanvas (widgetType, { x, y }){
     .trigger("mouseup", x, y, { eventConstructor: "MouseEvent" });
 }
 
-function PublishApp(){
+function PublishApp() {
   // Stubbing window.open to open in the same tab
   cy.window().then((window) => {
     cy.stub(window, "open").callsFake((url) => {
@@ -432,7 +430,7 @@ Object.entries(widgetsToTest).forEach(([widgetSelector, testConfig]) => {
 
     it("2. Bind Button on click  and Text widget content", () => {
       // Set onClick assertWidgetReset, storing value
-      cy.openPropertyPane(WIDGET.BUTTON_WIDGET);
+      cy.openPropertyPane(WIDGET.BUTTON);
 
       cy.get(PROPERTY_SELECTOR.onClick)
         .find(".t--js-toggle")

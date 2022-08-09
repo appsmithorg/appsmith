@@ -2,7 +2,12 @@ import { WIDGET } from "../../../../locators/WidgetLocators";
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 const explorer = require("../../../../locators/explorerlocators.json");
 
-const { CommonLocators, EntityExplorer, JSEditor: jsEditor } = ObjectsRegistry;
+const {
+  AggregateHelper: agHelper,
+  CommonLocators,
+  EntityExplorer,
+  JSEditor: jsEditor,
+} = ObjectsRegistry;
 
 const jsObjectBody = `export default {
 	myVar1: [],
@@ -18,10 +23,11 @@ const jsObjectBody = `export default {
 describe("Autocomplete tests", () => {
   before(() => {
     cy.get(explorer.addWidget).click();
-    EntityExplorer.DragDropWidgetNVerify(WIDGET.BUTTON_GROUP_WIDGET, 300, 500);
+    EntityExplorer.DragDropWidgetNVerify(WIDGET.BUTTON_GROUP, 200, 200);
+    EntityExplorer.DragDropWidgetNVerify(WIDGET.DOCUMENT_VIEWER, 200, 500);
   });
 
-  it("1. ButtonGroup autocomplete & Eval shouldn't show up", () => {
+  it("1. ButtonGroup & Document viewer widget autocomplete & Eval shouldn't show up", () => {
     // create js object
     jsEditor.CreateJSObject(jsObjectBody, {
       paste: true,
@@ -33,6 +39,7 @@ describe("Autocomplete tests", () => {
     const lineNumber = 5;
     cy.get(`:nth-child(${lineNumber}) > .CodeMirror-line`).click();
 
+    // 1. Button group widget autocomplete verification
     cy.get(CommonLocators._codeMirrorTextArea)
       .focus()
       .type(`ButtonGroup1.`);
@@ -45,8 +52,20 @@ describe("Autocomplete tests", () => {
 
     cy.get(`.CodeMirror-hints > :nth-child(1)`).contains("groupButton1");
 
-    cy.get(CommonLocators._codeMirrorTextArea).focus().type(`
-    eval`);
+    // 2. Document view widget autocomplete verification
+    cy.get(CommonLocators._codeMirrorTextArea)
+      .focus()
+      .type("{backspace}".repeat("ButtonGroup1.groupButtons.".length)) // remove "ButtonGroup1.groupButtons."
+      .wait(20)
+      .type(`DocumentViewer1.`);
+    agHelper.AssertElementText(CommonLocators._hints, "docUrl");
+
+    // 3. Eval verification
+    cy.get(CommonLocators._codeMirrorTextArea)
+      .focus()
+      .type("{backspace}".repeat("DocumentViewer1.".length)) // remove "ButtonGroup1.groupButtons."
+      .wait(20)
+      .type(`eval`);
 
     cy.get(`.CodeMirror-hints > :nth-child(1)`).should(
       "not.have.value",
