@@ -28,4 +28,6 @@ public class PermissionGroup extends BaseDomain {
     Set<Permission> permissions = new HashSet<>();
 
     Set<String> assignedToUserIds;
+
+    Set<String> assignedToGroupIds;
 }
