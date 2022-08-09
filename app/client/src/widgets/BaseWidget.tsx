@@ -160,6 +160,18 @@ abstract class BaseWidget<
   componentDidMount(): void {}
   /* eslint-enable @typescript-eslint/no-empty-function */
 
+  addPseudoWidget = (pseudoWidgetProps: WidgetProps | WidgetProps[]) => {
+    this.context.addPseudoWidget?.(this.props.widgetId, pseudoWidgetProps);
+  };
+
+  updatePseudoWidget = (pseudoWidgetProps: WidgetProps | WidgetProps[]) => {
+    this.context.updatePseudoWidget?.(pseudoWidgetProps);
+  };
+
+  deletePseudoWidget = (pseudoWidgetId: string | string[]) => {
+    this.context.deletePseudoWidget?.(pseudoWidgetId);
+  };
+
   getComponentDimensions = () => {
     return this.calculateWidgetBounds(
       this.props.rightColumn,

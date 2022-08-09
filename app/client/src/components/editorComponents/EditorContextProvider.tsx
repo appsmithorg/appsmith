@@ -1,7 +1,7 @@
 import React, { Context, createContext, ReactNode, useMemo } from "react";
 import { connect } from "react-redux";
 
-import { WidgetOperation } from "widgets/BaseWidget";
+import { WidgetOperation, WidgetProps } from "widgets/BaseWidget";
 
 import { updateWidget } from "actions/pageActions";
 import { executeTrigger, disableDragAction } from "actions/widgetActions";
@@ -20,6 +20,11 @@ import {
   syncUpdateWidgetMetaProperty,
   triggerEvalOnMetaUpdate,
 } from "actions/metaActions";
+import {
+  addPseudoWidget,
+  deletePseudoWidget,
+  updatePseudoWidget,
+} from "actions/pseudoWidgetActions";
 
 export type EditorContextType = {
   executeAction?: (triggerPayload: ExecuteTriggerPayload) => void;
@@ -48,6 +53,12 @@ export type EditorContextType = {
     propertyName: string,
     propertyValue: any,
   ) => void;
+  addPseudoWidget?: (
+    parentWidgetId: string,
+    widgetProps: WidgetProps | WidgetProps[],
+  ) => void;
+  updatePseudoWidget?: (payload: WidgetProps | WidgetProps[]) => void;
+  deletePseudoWidget?: (payload: string | string[]) => void;
 };
 export const EditorContext: Context<EditorContextType> = createContext({});
 
@@ -57,14 +68,17 @@ type EditorContextProviderProps = EditorContextType & {
 
 function EditorContextProvider(props: EditorContextProviderProps) {
   const {
+    addPseudoWidget,
     batchUpdateWidgetProperty,
     children,
+    deletePseudoWidget,
     deleteWidgetProperty,
     disableDrag,
     executeAction,
     resetChildrenMetaProperty,
     syncUpdateWidgetMetaProperty,
     triggerEvalOnMetaUpdate,
+    updatePseudoWidget,
     updateWidget,
     updateWidgetProperty,
   } = props;
@@ -82,6 +96,9 @@ function EditorContextProvider(props: EditorContextProviderProps) {
       deleteWidgetProperty,
       batchUpdateWidgetProperty,
       triggerEvalOnMetaUpdate,
+      addPseudoWidget,
+      updatePseudoWidget,
+      deletePseudoWidget,
     }),
     [
       executeAction,
@@ -93,6 +110,9 @@ function EditorContextProvider(props: EditorContextProviderProps) {
       deleteWidgetProperty,
       batchUpdateWidgetProperty,
       triggerEvalOnMetaUpdate,
+      addPseudoWidget,
+      updatePseudoWidget,
+      deletePseudoWidget,
     ],
   );
   return (
@@ -121,6 +141,9 @@ const mapDispatchToProps = {
   deleteWidgetProperty: deletePropertyAction,
   batchUpdateWidgetProperty: batchUpdatePropertyAction,
   triggerEvalOnMetaUpdate: triggerEvalOnMetaUpdate,
+  addPseudoWidget,
+  deletePseudoWidget,
+  updatePseudoWidget,
 };
 
 export default connect(null, mapDispatchToProps)(EditorContextProvider);
