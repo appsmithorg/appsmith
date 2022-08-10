@@ -181,7 +181,27 @@ function* evaluateTreeSaga(
   const updatedDataTree: DataTree = yield select(getDataTree);
   log.debug({ jsUpdates: jsUpdates });
   log.debug({ dataTree: updatedDataTree });
-  logs?.forEach((evalLog: any) => log.debug(evalLog));
+  logs?.forEach((evalLog: any) => {
+    if (
+      typeof evalLog === "object" &&
+      "source" in evalLog &&
+      "logObject" in evalLog &&
+      evalLog.logObject.length > 0
+    ) {
+      evalLog.logObject.forEach((log: any) => {
+        AppsmithConsole.info(
+          {
+            text: createLogTitleString(log.data),
+            source: evalLog.source,
+          },
+          log.timestamp,
+        );
+      });
+    }
+    // else {
+    log.debug(evalLog);
+    // }
+  });
   // Added type as any due to https://github.com/redux-saga/redux-saga/issues/1482
   yield call(evalErrorHandler as any, errors, updatedDataTree, evaluationOrder);
 
