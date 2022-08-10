@@ -20,6 +20,18 @@ function getTimeStamp() {
   return moment().format("hh:mm:ss");
 }
 
+function addLog(
+  ev: LogActionPayload,
+  severity = Severity.INFO,
+  timestamp = getTimeStamp(),
+) {
+  log({
+    ...ev,
+    severity,
+    timestamp,
+  });
+}
+
 function info(ev: LogActionPayload, timestamp?: string) {
   log({
     ...ev,
@@ -64,6 +76,7 @@ function deleteError(id: string, analytics?: Log["analytics"]) {
 }
 
 export default {
+  addLog,
   info,
   warning,
   error,
