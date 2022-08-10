@@ -110,15 +110,10 @@ export class PropertyPane {
       field = $filedName;
       this.agHelper.GetNClick(this._fieldConfig(field as string));
       this.agHelper
-        //.GetText(this.locator._existingActualValueByName("Property Name"))
-        .GetText(this.locator._existingActualValueByName("Default Value"))
+        .GetText(this.locator._existingActualValueByName("Property Name"))
         .then(($propName) => {
-          //placeHolderText = "{{sourceData." + $propName + "}}";
-          this.UpdatePropertyFieldValue(
-            "Placeholder",
-            $propName as string,
-            false,
-          );
+          placeHolderText = "{{sourceData." + $propName + "}}";
+          this.UpdatePropertyFieldValue("Placeholder", placeHolderText, false);
         });
       this.RemoveText("Default Value");
       //this.UpdatePropertyFieldValue("Default Value", "");
