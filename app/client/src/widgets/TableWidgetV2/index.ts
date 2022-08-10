@@ -17,6 +17,7 @@ export const CONFIG = {
   iconSVG: IconSVG,
   needsMeta: true,
   defaults: {
+    stretchOnMobile: true,
     rows: 28,
     columns: 34,
     animateLoading: true,

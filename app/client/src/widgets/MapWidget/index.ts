@@ -21,6 +21,7 @@ export const CONFIG = {
     isClickedMarkerCentered: true,
     version: 1,
     animateLoading: true,
+    stretchOnMobile: true,
   },
   properties: {
     derived: Widget.getDerivedPropertiesMap(),

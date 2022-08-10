@@ -13,6 +13,7 @@ export const CONFIG = {
     inputType: "TEXT",
     widgetName: "Input",
     version: 2,
+    stretchOnMobile: true,
   },
   properties: {
     derived: Widget.getDerivedPropertiesMap(),

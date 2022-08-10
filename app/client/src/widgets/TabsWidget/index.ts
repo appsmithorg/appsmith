@@ -10,6 +10,7 @@ export const CONFIG = {
   needsMeta: true,
   isCanvas: true,
   defaults: {
+    stretchOnMobile: true,
     rows: 40,
     columns: 24,
     shouldScrollContents: false,

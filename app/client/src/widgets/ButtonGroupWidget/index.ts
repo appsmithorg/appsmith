@@ -22,6 +22,7 @@ export const CONFIG = {
     isVisible: true,
     version: 1,
     animateLoading: true,
+    stretchOnMobile: true,
     groupButtons: {
       groupButton1: {
         label: "Favorite",

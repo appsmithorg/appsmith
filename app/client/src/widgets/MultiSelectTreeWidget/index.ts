@@ -46,6 +46,7 @@ export const CONFIG = {
     labelAlignment: Alignment.LEFT,
     labelWidth: 5,
     labelTextSize: "0.875rem",
+    stretchOnMobile: true,
   },
   properties: {
     derived: Widget.getDerivedPropertiesMap(),

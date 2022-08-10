@@ -284,11 +284,13 @@ class ContainerWidget extends BaseWidget<
   }
 
   componentDidMount(): void {
+    super.componentDidMount();
     this.updatePositioningInformation();
     this.checkIsMobile();
   }
 
   componentDidUpdate(prevProps: ContainerWidgetProps<any>): void {
+    super.componentDidUpdate(prevProps);
     this.updatePositioningInformation();
   }
 

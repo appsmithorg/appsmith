@@ -25,6 +25,7 @@ export const CONFIG = {
     animateLoading: true,
     gridType: "vertical",
     template: {},
+    stretchOnMobile: true,
     enhancements: {
       child: {
         autocomplete: (parentProps: any) => {

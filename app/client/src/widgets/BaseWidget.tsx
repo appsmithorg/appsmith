@@ -462,6 +462,7 @@ export interface WidgetPositionProps extends WidgetRowCols {
   useAutoLayout?: boolean;
   direction?: LayoutDirection;
   alignItems?: AlignItems;
+  stretchOnMobile?: boolean;
 }
 
 export const WIDGET_STATIC_PROPS = {

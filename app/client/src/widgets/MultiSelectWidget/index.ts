@@ -31,6 +31,7 @@ export const CONFIG = {
     isRequired: false,
     isDisabled: false,
     placeholderText: "Select option(s)",
+    stretchOnMobile: true,
   },
   properties: {
     derived: Widget.getDerivedPropertiesMap(),
