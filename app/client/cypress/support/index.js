@@ -97,6 +97,7 @@ before(function() {
 });
 
 beforeEach(function() {
+  cy.window().then(win => win.onbeforeunload = undefined);
   initLocalstorage();
   Cypress.Cookies.preserveOnce("SESSION", "remember_token");
   cy.startServerAndRoutes();
