@@ -43,6 +43,11 @@ export class PropertyPane {
   _colorPickerV2Color = ".t--colorpicker-v2-color";
   _colorRing = ".border-2";
 
+  private isMac = Cypress.platform === "darwin";
+  private selectAllJSObjectContentShortcut = `${
+    this.isMac ? "{cmd}{a}" : "{ctrl}{a}"
+  }`;
+
   public OpenJsonFormFieldSettings(fieldName: string) {
     this.agHelper.GetNClick(this._fieldConfig(fieldName));
   }
@@ -108,9 +113,10 @@ export class PropertyPane {
         .GetText(this.locator._existingActualValueByName("Property Name"))
         .then(($propName) => {
           placeHolderText = "{{sourceData." + $propName + "}}";
-          this.UpdatePropertyFieldValue("Placeholder", placeHolderText);
+          this.UpdatePropertyFieldValue("Placeholder", placeHolderText, false);
         });
-      this.UpdatePropertyFieldValue("Default Value", "");
+      this.RemoveText("Default Value");
+      //this.UpdatePropertyFieldValue("Default Value", "");
       this.NavigateBackToPropertyPane();
     });
   }
@@ -147,13 +153,17 @@ export class PropertyPane {
     this.agHelper.AssertAutoSave();
   }
 
-  public UpdatePropertyFieldValue(propFieldName: string, valueToEnter: string) {
+  public UpdatePropertyFieldValue(
+    propFieldName: string,
+    valueToEnter: string,
+    toVerifySave = true,
+  ) {
     cy.xpath(this.locator._existingFieldTextByName(propFieldName)).then(
       ($field: any) => {
         this.agHelper.UpdateCodeInput($field, valueToEnter);
       },
     );
-    this.agHelper.AssertAutoSave(); //Allowing time for saving entered value
+    toVerifySave && this.agHelper.AssertAutoSave(); //Allowing time for saving entered value
   }
 
   public RemoveText(endp: string) {
@@ -165,9 +175,11 @@ export class PropertyPane {
     )
       .first()
       .focus()
-      .type("{uparrow}", { force: true })
-      .type("{ctrl}{shift}{downarrow}", { force: true })
-      .type("{del}", { force: true });
+      .type(this.selectAllJSObjectContentShortcut)
+      .type("{backspace}", { force: true });
+    // .type("{uparrow}", { force: true })
+    // .type("{ctrl}{shift}{downarrow}", { force: true })
+    // .type("{del}", { force: true });
     this.agHelper.AssertAutoSave();
   }
 
