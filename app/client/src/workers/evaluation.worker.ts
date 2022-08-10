@@ -333,7 +333,7 @@ ctx.addEventListener(
         try {
           const url = requestData.startsWith("http")
             ? requestData
-            : `http://localhost:9999/standalone/${requestData}@latest`;
+            : `https://appsmith-browserify.herokuapp.com/standalone/${requestData}@latest`;
           const oldKeys = Object.keys(self);
           //@ts-expect-error test
           self.importScripts(url);
@@ -355,7 +355,9 @@ ctx.addEventListener(
           };
           return { accessor: latestKey[0], backupDefs };
         } catch (e) {
-          return {};
+          return {
+            error: `Installation failed. Appsmith cannot run this library`,
+          };
         }
       default: {
         console.error("Action not registered on worker", method);

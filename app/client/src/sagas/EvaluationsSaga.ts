@@ -660,13 +660,20 @@ export function* workerComputeUndoRedo(operation: string, entityId: string) {
 }
 
 export function* installScript(payload: string) {
-  const workerResponse: { accessor: string; backupDefs: any } = yield call(
-    worker.request,
-    "INSTALL_SCRIPT",
-    payload,
-  );
+  const workerResponse: {
+    accessor: string;
+    backupDefs: any;
+    error?: string;
+  } = yield call(worker.request, "INSTALL_SCRIPT", payload);
+  if (workerResponse.error) {
+    Toaster.show({
+      text: `${workerResponse.error}`,
+      variant: Variant.danger,
+    });
+    return;
+  }
   if (workerResponse.accessor) {
-    fetch(`http://localhost:8081/getDef?url=${payload}`)
+    fetch(`https://appsmith-ternclear.herokuapp.com/getDef?url=${payload}`)
       .then((res) => res.json())
       .then((res) => {
         if (Object.keys(res).length === 1) {

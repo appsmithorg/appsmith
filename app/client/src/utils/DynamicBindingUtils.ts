@@ -154,6 +154,7 @@ export type ExtraLibrary = {
   accessor: string;
   lib: any;
   tag: "default" | "cdnjs" | "npm";
+  description: string;
 };
 
 export const extraLibraries: ExtraLibrary[] = [
@@ -164,6 +165,8 @@ export const extraLibraries: ExtraLibrary[] = [
     docsURL: `https://lodash.com/docs/${lodashVersion}`,
     displayName: "lodash",
     tag: "default",
+    description:
+      "A utility library delivering consistency, customization, performance, & extras.",
   },
   {
     accessor: "moment",
@@ -172,6 +175,7 @@ export const extraLibraries: ExtraLibrary[] = [
     docsURL: `https://momentjs.com/docs/`,
     displayName: "moment",
     tag: "default",
+    description: "Parse, validate, manipulate, and display dates",
   },
   {
     accessor: "xmlParser",
@@ -180,6 +184,7 @@ export const extraLibraries: ExtraLibrary[] = [
     docsURL: "https://github.com/NaturalIntelligence/fast-xml-parser",
     displayName: "xmlParser",
     tag: "default",
+    description: "xml2json package for nodejs",
   },
   {
     accessor: "forge",
@@ -190,6 +195,8 @@ export const extraLibraries: ExtraLibrary[] = [
     docsURL: "https://github.com/digitalbazaar/forge",
     displayName: "forge",
     tag: "default",
+    description:
+      "JavaScript implementations of network transports, cryptography, ciphers, PKI, message digests, and various utilities.",
   },
 ];
 

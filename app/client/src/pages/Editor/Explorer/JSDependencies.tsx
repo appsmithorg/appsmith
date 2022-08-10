@@ -4,8 +4,6 @@ import { Text, TextType, TooltipComponent } from "design-system";
 import { Colors } from "constants/Colors";
 import { BindingText } from "pages/Editor/APIEditor/Form";
 import { extraLibraries } from "utils/DynamicBindingUtils";
-import Icon from "components/ads/AppIcon";
-import { Size } from "components/ads/Button";
 import { TextInput } from "components/ads";
 import { useDispatch } from "react-redux";
 import Entity from "./Entity";
@@ -72,7 +70,8 @@ const Title = styled.div`
 
 const Tag = styled.div<{ bgColor: string }>`
   background: ${(props) => props.bgColor};
-  padding: 1px 2px;
+  padding: 0 2px;
+  font-size: 11px;
   color: white;
 `;
 
@@ -85,24 +84,27 @@ const tagColors: any = {
 function JSDependencies() {
   const openDocs = (name: string, url: string) => () => window.open(url, name);
   const [results, setResults] = useState<any[]>([]);
+  const [search, setSearch] = useState("");
   const dispatch = useDispatch();
   const defaultLibrariesNames = extraLibraries.map((lib) => lib.displayName);
   const dependencyList = useMemo(
     () =>
       extraLibraries.map((lib) => {
         return (
-          <ListItem
-            key={lib.displayName}
-            onClick={openDocs(lib.displayName, lib.docsURL)}
+          <div
+            className="flex flex-col hover:bg-gray-100 hover:cursor-pointer px-2 py-1"
+            key={`${lib.displayName}${lib.tag}`}
+            // onClick={() => openDocs(lib.displayName, lib.docsURL)}
           >
-            <Name>{lib.displayName}</Name>
-            <Version className="t--package-version">{lib.version}</Version>
-            <Icon
-              className="t--open-new-tab"
-              name="open-new-tab"
-              size={Size.xxs}
-            />
-          </ListItem>
+            <div className="flex flex-row justify-between">
+              <div className="flex flex-row items-start gap-1">
+                <Text type={TextType.P4}>{lib.displayName}</Text>
+                <Tag bgColor={tagColors[lib.tag]}>{lib.tag}</Tag>
+              </div>
+              <Text type={TextType.P2}>{lib.version}</Text>
+            </div>
+            <Text type={TextType.P2}>{lib.description}</Text>
+          </div>
         );
       }),
     [],
@@ -114,7 +116,7 @@ function JSDependencies() {
         return (
           <div
             className="flex flex-col hover:bg-gray-100 hover:cursor-pointer px-2 py-1"
-            key={lib.name}
+            key={`${lib.name}${lib.tag}`}
             onClick={() => installLibrary(lib)}
           >
             <div className="flex flex-row justify-between">
@@ -167,16 +169,23 @@ function JSDependencies() {
         npmCall.json(),
       ]);
 
+      setSearch(val);
       setResults([
         ...(cdnResults.results || [])
-          .filter((lib: any) => !defaultLibrariesNames.includes(lib))
+          .filter(
+            (lib: any) =>
+              !defaultLibrariesNames.find((name) => lib.name.startsWith(name)),
+          )
           .map((res: any) => {
             res.tag = "cdnjs";
             return res;
           }),
         ...(npmCallResults.results || [])
           .map((pack: any) => pack.package)
-          .filter((lib: any) => !defaultLibrariesNames.includes(lib))
+          .filter(
+            (lib: any) =>
+              !defaultLibrariesNames.find((name) => lib.name.startsWith(name)),
+          )
           .map((res: any) => {
             res.tag = "npm";
             return res;
@@ -199,11 +208,12 @@ function JSDependencies() {
       <div className="flex flex-col p-2 overflow-auto">
         <TextInput
           height="28px"
-          onChange={(val) => searchLibraries(val)}
+          onChange={(val: string) => searchLibraries(val)}
+          placeholder="Paste URL or search libraries from CDNJS and NPM"
           width="100%"
         />
       </div>
-      {searchResults.length ? searchResults : dependencyList}
+      {searchResults.length && search ? searchResults : dependencyList}
     </Entity>
   );
 }
