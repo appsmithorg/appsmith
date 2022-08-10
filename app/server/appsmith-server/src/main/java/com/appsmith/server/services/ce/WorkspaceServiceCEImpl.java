@@ -496,7 +496,7 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
 
         // Map to PermissionGroupInfoDTO
         Flux<PermissionGroupInfoDTO> permissionGroupInfoFlux = permissionGroupFlux
-                .map(userGroup -> modelMapper.map(userGroup, PermissionGroupInfoDTO.class));
+                .map(permissionGroup -> modelMapper.map(permissionGroup, PermissionGroupInfoDTO.class));
 
         Mono<List<PermissionGroupInfoDTO>> permissionGroupInfoDTOListMono = permissionGroupInfoFlux.collectList()
                 .map(list -> {

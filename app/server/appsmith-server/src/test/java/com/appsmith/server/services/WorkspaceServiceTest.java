@@ -186,8 +186,11 @@ public class WorkspaceServiceTest {
         String workspaceName = user.computeFirstName() + "'s apps";
         Workspace defaultWorkspace = workspaceRepository.findByName(workspaceName).block();
 
-        String permissionGroupId = defaultWorkspace.getDefaultPermissionGroups().stream().findFirst().get();
-        PermissionGroup permissionGroup = permissionGroupRepository.findById(permissionGroupId).block();
+        Set<String> permissionGroupdId = defaultWorkspace.getDefaultPermissionGroups();
+        Set<PermissionGroup> permissionGroups = permissionGroupRepository.findAllById(permissionGroupdId).collect(Collectors.toSet()).block();
+        PermissionGroup permissionGroup = permissionGroups.stream()
+                .filter(permissionGroup1 -> permissionGroup1.getName().startsWith(ADMINISTRATOR))
+                .findFirst().get();
         Set<String> workspaceAssignedToUsers = permissionGroup.getAssignedToUserIds();
 
         assertThat(user.getId()).isNotNull();
