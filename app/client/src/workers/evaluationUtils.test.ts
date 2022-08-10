@@ -409,7 +409,7 @@ describe("translateDiffEvent", () => {
       },
       {
         payload: {
-          propertyPath: "",
+          propertyPath: "Widget2.name",
           value: "",
         },
         event: DataTreeDiffEvent.NOOP,
@@ -436,7 +436,7 @@ describe("translateDiffEvent", () => {
     const expectedTranslations: DataTreeDiff[] = [
       {
         payload: {
-          propertyPath: "",
+          propertyPath: "Widget2.name",
           value: "",
         },
         event: DataTreeDiffEvent.NOOP,
@@ -446,7 +446,6 @@ describe("translateDiffEvent", () => {
     const actualTranslations = flatten(
       diffs.map((diff) => translateDiffEventToDataTreeDiffEvent(diff, {})),
     );
-
     expect(expectedTranslations).toStrictEqual(actualTranslations);
   });
 
