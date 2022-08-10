@@ -24,8 +24,10 @@ export type LogObject = {
   severity: Severity;
 };
 
-const truncate = (input: string, truncLen = 100) =>
-  input.length > truncLen ? `${input.substring(0, truncLen)}...` : input;
+const truncate = (input: string, suffix = "", truncLen = 100) =>
+  input.length > truncLen
+    ? `${input.substring(0, truncLen)}...${suffix}`
+    : input;
 
 // Converts the data from the log object to a string
 export function createLogTitleString(data: any[]) {
@@ -38,7 +40,13 @@ export function createLogTitleString(data: any[]) {
     if (typeof curr === "function") {
       return `${acc}, func() ${curr.name}`;
     }
-    return `${acc}, ${truncate(JSON.stringify(curr, null, "\t"))}}`;
+    if (typeof curr === "object") {
+      let suffix = "}";
+      if (Array.isArray(curr)) {
+        suffix = "]";
+      }
+      return `${acc}, ${truncate(JSON.stringify(curr, null, "\t"), suffix)}`;
+    }
   }, "");
 }
 
