@@ -3,6 +3,7 @@ import { FocusableElement } from "navigation/FocusableElement";
 export enum FocusEntity {
   ApiPane = "ApiPane",
   PropertyPane = "PropertyPane",
+  Widget = "Widget",
 }
 
 export interface FocusableEntity {

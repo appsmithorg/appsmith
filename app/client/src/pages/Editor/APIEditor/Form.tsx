@@ -68,8 +68,7 @@ import ApiAuthentication from "./ApiAuthentication";
 import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
 import { Classes as BluePrintClasses } from "@blueprintjs/core";
 import { replayHighlightClass } from "globalStyles/portals";
-import { setFocusHistory } from "actions/focusHistoryActions";
-import { FocusEntity } from "navigation/FocusableEntity";
+import { useFocusable } from "navigation/FocusableElement";
 
 const Form = styled.form`
   position: relative;
@@ -540,12 +539,6 @@ const editorTabs = [
 ];
 
 function ApiEditorForm(props: Props) {
-  const [selectedIndex, setSelectedIndex] = useState(0);
-  const [
-    apiBindHelpSectionVisible,
-    setApiBindHelpSectionVisible,
-  ] = useLocalStorage("apiBindHelpSectionVisible", "true");
-
   const {
     actionConfigurationHeaders,
     actionConfigurationParams,
@@ -565,6 +558,13 @@ function ApiEditorForm(props: Props) {
     updateDatasource,
   } = props;
   const dispatch = useDispatch();
+  const [isHeadersFocused, setFocus] = useFocusable(API_EDITOR_TABS.HEADERS);
+  console.log("Testing", isHeadersFocused);
+  const [selectedIndex, setSelectedIndex] = useState(0);
+  const [
+    apiBindHelpSectionVisible,
+    setApiBindHelpSectionVisible,
+  ] = useLocalStorage("apiBindHelpSectionVisible", "true");
   const allowPostBody = httpMethodFromForm;
 
   const params = useParams<{ apiId?: string; queryId?: string }>();
@@ -590,17 +590,7 @@ function ApiEditorForm(props: Props) {
 
   const setSelectedTab = (selectedIndex: number) => {
     setSelectedIndex(selectedIndex);
-    if (params.apiId) {
-      const key = `${FocusEntity.ApiPane}.${params.apiId}`;
-      dispatch(
-        setFocusHistory(key, {
-          entity: FocusEntity.ApiPane,
-          entityId: params.apiId,
-          elementName: editorTabs[selectedIndex],
-          moreInfo: {},
-        }),
-      );
-    }
+    setFocus();
   };
 
   return (
