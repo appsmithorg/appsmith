@@ -17,6 +17,9 @@ class CanvasWidget extends ContainerWidget {
   static getWidgetType() {
     return "CANVAS_WIDGET";
   }
+  componentDidMount(): void {
+    super.componentDidMount();
+  }
 
   getCanvasProps(): ContainerWidgetProps<WidgetProps> {
     return {
@@ -59,7 +62,6 @@ class CanvasWidget extends ContainerWidget {
     }
 
     const snapSpaces = this.getSnapSpaces();
-
     childWidgetData.parentColumnSpace = snapSpaces.snapColumnSpace;
     childWidgetData.parentRowSpace = snapSpaces.snapRowSpace;
     if (this.props.noPad) childWidgetData.noContainerOffset = true;
@@ -71,6 +73,11 @@ class CanvasWidget extends ContainerWidget {
     childWidgetData.direction = this.state.direction;
     childWidgetData.justifyContent = this.props.justifyContent;
     childWidgetData.alignItems = this.props.alignItems;
+
+    if (childWidgetData?.stretchOnMobile && this.state.isMobile) {
+      childWidgetData.leftColumn = 0;
+      childWidgetData.rightColumn = 64;
+    }
 
     return WidgetFactory.createWidget(childWidgetData, this.props.renderMode);
   }

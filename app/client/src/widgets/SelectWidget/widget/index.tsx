@@ -620,6 +620,7 @@ export interface SelectWidgetProps extends WidgetProps {
   onFilterUpdate: string;
   isDirty?: boolean;
   filterText: string;
+  stretchOnMobile?: boolean;
 }
 
 export default SelectWidget;

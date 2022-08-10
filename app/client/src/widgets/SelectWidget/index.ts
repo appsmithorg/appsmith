@@ -31,6 +31,7 @@ export const CONFIG = {
     isDisabled: false,
     animateLoading: true,
     labelTextSize: "0.875rem",
+    stretchOnMobile: true,
   },
   properties: {
     derived: Widget.getDerivedPropertiesMap(),

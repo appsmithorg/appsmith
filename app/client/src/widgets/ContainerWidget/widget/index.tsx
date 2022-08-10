@@ -36,21 +36,9 @@ class ContainerWidget extends BaseWidget<
     this.state = {
       useAutoLayout: false,
       direction: LayoutDirection.Horizontal,
+      isMobile: false,
     };
     this.renderChildWidget = this.renderChildWidget.bind(this);
-  }
-
-  componentDidUpdate(prevProps: ContainerWidgetProps<any>): void {
-    if (!this.props.positioning || this.props.positioning === Positioning.Fixed)
-      this.setState({ useAutoLayout: false });
-    else
-      this.setState({
-        useAutoLayout: true,
-        direction:
-          this.props.positioning === Positioning.Horizontal
-            ? LayoutDirection.Horizontal
-            : LayoutDirection.Vertical,
-      });
   }
 
   static getPropertyPaneConfig() {
@@ -102,6 +90,18 @@ class ContainerWidget extends BaseWidget<
             isBindProperty: true,
             isTriggerProperty: true,
             validation: { type: ValidationTypes.TEXT },
+          },
+          {
+            helpText:
+              "Should the children take up the complete width on mobile",
+            propertyName: "stretchOnMobile",
+            label: "Stretch On Mobile",
+            controlType: "SWITCH",
+            defaultValue: false,
+            isJSConvertible: false,
+            isBindProperty: false,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
           },
         ],
       },
@@ -283,6 +283,32 @@ class ContainerWidget extends BaseWidget<
     return {};
   }
 
+  componentDidMount(): void {
+    this.updatePositioningInformation();
+    this.checkIsMobile();
+  }
+
+  componentDidUpdate(prevProps: ContainerWidgetProps<any>): void {
+    this.updatePositioningInformation();
+  }
+
+  checkIsMobile = (): void => {
+    if (window.innerWidth < 767) this.setState({ isMobile: true });
+  };
+
+  updatePositioningInformation = (): void => {
+    if (!this.props.positioning || this.props.positioning === Positioning.Fixed)
+      this.setState({ useAutoLayout: false });
+    else
+      this.setState({
+        useAutoLayout: true,
+        direction:
+          this.props.positioning === Positioning.Horizontal
+            ? LayoutDirection.Horizontal
+            : LayoutDirection.Vertical,
+      });
+  };
+
   getSnapSpaces = () => {
     const { componentWidth } = this.getComponentDimensions();
     // For all widgets inside a container, we remove both container padding as well as widget padding from component width
@@ -422,11 +448,13 @@ export interface ContainerWidgetProps<T extends WidgetProps>
   shouldScrollContents?: boolean;
   noPad?: boolean;
   positioning?: Positioning;
+  stretchOnMobile?: boolean;
 }
 
 export interface ContainerWidgetState extends WidgetState {
   useAutoLayout: boolean;
   direction: LayoutDirection;
+  isMobile: boolean;
 }
 
 export default ContainerWidget;
