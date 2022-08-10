@@ -50,6 +50,7 @@ import static com.appsmith.external.helpers.PluginUtils.setDataValueSafelyInForm
 import static com.appsmith.external.helpers.PluginUtils.validConfigurationPresentInFormData;
 import static java.lang.Boolean.TRUE;
 
+@Slf4j
 public class GoogleSheetsPlugin extends BasePlugin {
 
     // Setting max content length. This would've been coming from `spring.codec.max-in-memory-size` property if the
@@ -63,7 +64,6 @@ public class GoogleSheetsPlugin extends BasePlugin {
         super(wrapper);
     }
 
-    @Slf4j
     @Extension
     public static class GoogleSheetsPluginExecutor implements PluginExecutor<Void>, SmartSubstitutionInterface {
 
@@ -241,7 +241,7 @@ public class GoogleSheetsPlugin extends BasePlugin {
                                 })
                                 .onErrorResume(e -> {
                                     errorResult.setBody(Exceptions.unwrap(e).getMessage());
-                                    System.out.println(e.getMessage());
+                                    log.debug("Received error on Google Sheets action execution", e);
                                     return Mono.just(errorResult);
                                 });
                     })

@@ -122,15 +122,24 @@ describe("Git sync apps", function() {
     cy.wait(1000);
     // create a get api call
     cy.NavigateToAPI_Panel();
+    cy.wait(2000);
     cy.CreateAPI("get_data");
     // creating get request using echo
-    cy.enterDatasourceAndPath("https://mock-api.appsmith.com/echo", "/get");
+    cy.get(apiwidget.resourceUrl)
+      .first()
+      .click({ force: true })
+      .type("https://mock-api.appsmith.com/echo/get", {
+        parseSpecialCharSequences: false,
+      });
+    //.type("{esc}}");
+    cy.wait(5000);
     cy.get(apiwidget.headerKey).type("info");
     cy.xpath("//span[text()='Key']").click();
     // entering the data in header
     cy.get(apiwidget.headerValue).type("This is a test", {
       parseSpecialCharSequences: false,
     });
+    cy.wait(2000);
     cy.SaveAndRunAPI();
     cy.ResponseStatusCheck("200");
     cy.get(".bp3-icon-chevron-left").click();
@@ -279,7 +288,7 @@ describe("Git sync apps", function() {
       .should("be.visible")
       .closest(datasource.datasourceCard)
       .within(() => {
-        cy.get(datasource.createQuerty).click();
+        cy.get(datasource.createQuery).click();
       });
     cy.get(queryLocators.queryNameField).type("get_users");
     cy.get(queryLocators.switch)

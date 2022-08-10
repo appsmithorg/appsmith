@@ -1,6 +1,9 @@
 package com.appsmith.server.authentication.handlers.ce;
 
+import com.appsmith.external.constants.AnalyticsEvents;
+import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.ResponseDTO;
+import com.appsmith.server.services.AnalyticsService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
@@ -19,9 +22,11 @@ import reactor.core.publisher.Mono;
 public class LogoutSuccessHandlerCE implements ServerLogoutSuccessHandler {
 
     private final ObjectMapper objectMapper;
+    private final AnalyticsService analyticsService;
 
-    public LogoutSuccessHandlerCE(ObjectMapper objectMapper) {
+    public LogoutSuccessHandlerCE(ObjectMapper objectMapper, AnalyticsService analyticsService) {
         this.objectMapper = objectMapper;
+        this.analyticsService = analyticsService;
     }
 
     @Override
@@ -36,7 +41,11 @@ public class LogoutSuccessHandlerCE implements ServerLogoutSuccessHandler {
             ResponseDTO<Boolean> responseBody = new ResponseDTO<>(HttpStatus.OK.value(), true, null);
             String responseStr = objectMapper.writeValueAsString(responseBody);
             DataBuffer buffer = exchange.getResponse().bufferFactory().allocateBuffer().write(responseStr.getBytes());
-            return response.writeWith(Mono.just(buffer));
+            return analyticsService.sendObjectEvent(
+                        AnalyticsEvents.LOGOUT,
+                        (User) authentication.getPrincipal()
+                    )
+                    .then(response.writeWith(Mono.just(buffer)));
         } catch (JsonProcessingException e) {
             log.error("Unable to write to response json. Cause: ", e);
             // Returning a hard-coded failure json

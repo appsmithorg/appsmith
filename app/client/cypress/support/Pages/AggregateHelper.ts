@@ -110,6 +110,13 @@ export class AggregateHelper {
     });
   }
 
+  public AssertElementText(selector: string, text: string, index: number = 0) {
+    const locator = selector.startsWith("//")
+      ? cy.xpath(selector)
+      : cy.get(selector);
+    locator.eq(index).should("have.text", text);
+  }
+
   public ValidateToastMessage(text: string, index = 0, length = 1) {
     cy.get(this.locator._toastMsg).should("have.length.at.least", length);
     cy.get(this.locator._toastMsg)
@@ -224,14 +231,6 @@ export class AggregateHelper {
       "response.body.responseMeta.status",
       expectedStatus,
     );
-  }
-
-  public SelectPropertiesDropDown(endpoint: string, dropdownOption: string) {
-    cy.xpath(this.locator._selectPropDropdown(endpoint))
-      .first()
-      .scrollIntoView()
-      .click();
-    cy.get(this.locator._dropDownValue(dropdownOption)).click();
   }
 
   public SelectDropDown(dropdownOption: string, endpoint = "selectwidget") {
@@ -377,12 +376,11 @@ export class AggregateHelper {
       cy.xpath(this.locator._actionTextArea(actionName))
         .first()
         .then((el: any) => {
-          const input = cy.get(el);
           if (paste) {
             //input.invoke("val", value);
             this.Paste(el, value);
           } else {
-            input.type(value, {
+            cy.get(el).type(value, {
               parseSpecialCharSequences: false,
             });
           }
@@ -506,19 +504,19 @@ export class AggregateHelper {
   }
 
   public ActionContextMenuWithInPane(
-    action: "Copy to page" | "Move to page" | "Delete",
+    action: "Copy to page" | "Move to page" | "Delete" | "Prettify Code",
     subAction = "",
     jsDelete = false,
   ) {
     cy.get(this.locator._contextMenuInPane).click();
-    cy.xpath(this.locator._visibleTextDiv(action))
+    cy.xpath(this.locator._contextMenuSubItemDiv(action))
       .should("be.visible")
       .click();
     if (action == "Delete") {
       subAction = "Are you sure?";
     }
     if (subAction) {
-      cy.xpath(this.locator._visibleTextDiv(subAction)).click();
+      cy.xpath(this.locator._contextMenuSubItemDiv(subAction)).click();
       this.Sleep(500);
     }
     if (action == "Delete") {
@@ -528,7 +526,7 @@ export class AggregateHelper {
     }
   }
 
-  public TypeValueNValidate(valueToType: string, fieldName = "") {
+  public EnterValueNValidate(valueToType: string, fieldName = "") {
     this.EnterValue(valueToType, {
       propFieldName: fieldName,
       directInput: false,
@@ -751,8 +749,22 @@ export class AggregateHelper {
     else locator.should("have.length", length);
   }
 
+  public FocusElement(selector: string) {
+    const locator = selector.startsWith("//")
+      ? cy.xpath(selector)
+      : cy.get(selector);
+    locator.focus();
+  }
+
   public AssertContains(text: string, exists: "exist" | "not.exist" = "exist") {
     return cy.contains(text).should(exists);
+  }
+
+  public AssertElementContains(selector: string, text: string) {
+    const locator = selector.startsWith("//")
+      ? cy.xpath(selector)
+      : cy.get(selector);
+    return locator.contains(text);
   }
 
   public EnableAllEditors() {

@@ -336,6 +336,15 @@ public class MongoPlugin extends BasePlugin {
                                     error.getErrorMessage()
                             )
                     )
+                    /**
+                     * This is to catch the cases when Mongo connection pool closes for some reason and hence throws
+                     * IllegalStateException when query is run.
+                     * Ref: https://github.com/appsmithorg/appsmith/issues/15548
+                     */
+                    .onErrorMap(
+                            IllegalStateException.class,
+                            error -> new StaleConnectionException()
+                    )
                     // This is an experimental fix to handle the scenario where after a period of inactivity, the mongo
                     // database drops the connection which makes the client throw the following exception.
                     .onErrorMap(
@@ -810,6 +819,21 @@ public class MongoPlugin extends BasePlugin {
                     })
                     .collectList()
                     .thenReturn(structure)
+                    /**
+                     * This is to catch the cases when Mongo connection pool closes for some reason and hence throws
+                     * IllegalStateException when query is run.
+                     * Ref: https://github.com/appsmithorg/appsmith/issues/15548
+                     */
+                    .onErrorMap(
+                            IllegalStateException.class,
+                            error -> new StaleConnectionException()
+                    )
+                    // This is an experimental fix to handle the scenario where after a period of inactivity, the mongo
+                    // database drops the connection which makes the client throw the following exception.
+                    .onErrorMap(
+                            MongoSocketWriteException.class,
+                            error -> new StaleConnectionException()
+                    )
                     .onErrorMap(
                             MongoCommandException.class,
                             error -> {

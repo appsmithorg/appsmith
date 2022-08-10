@@ -1852,7 +1852,7 @@ public class GitServiceCEImpl implements GitServiceCE {
         }
 
         if (StringUtils.isEmptyOrNull(workspaceId)) {
-            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "Invalid organization id"));
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "Invalid workspace id"));
         }
 
         final String repoName = GitUtils.getRepoName(gitConnectDTO.getRemoteUrl());
@@ -1999,19 +1999,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                             });
                 })
                 // Add un-configured datasource to the list to response
-                .flatMap(application -> importExportApplicationService.findDatasourceByApplicationId(application.getId(), application.getWorkspaceId())
-                        .map(datasources -> {
-                            ApplicationImportDTO applicationImportDTO = new ApplicationImportDTO();
-                            applicationImportDTO.setApplication(application);
-                            long unConfiguredDatasource = datasources.stream().filter(datasource -> Boolean.FALSE.equals(datasource.getIsConfigured())).count();
-                            if (unConfiguredDatasource != 0) {
-                                applicationImportDTO.setIsPartialImport(true);
-                                applicationImportDTO.setUnConfiguredDatasourceList(datasources);
-                            } else {
-                                applicationImportDTO.setIsPartialImport(false);
-                            }
-                            return applicationImportDTO;
-                        }))
+                .flatMap(application -> importExportApplicationService.getApplicationImportDTO(application.getId(), application.getWorkspaceId(), application))
                 // Add analytics event
                 .flatMap(applicationImportDTO -> {
                     Application application = applicationImportDTO.getApplication();
