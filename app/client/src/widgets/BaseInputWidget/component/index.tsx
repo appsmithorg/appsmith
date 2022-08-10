@@ -233,7 +233,7 @@ const InputComponentWrapper = styled((props) => (
       margin: 0;
       .bp3-tag {
         background-color: transparent;
-        color: red;
+        color: var(--wds-color-text-danger);
       }
 
       .${Classes.INPUT_ACTION} {
