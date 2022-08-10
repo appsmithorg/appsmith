@@ -505,7 +505,6 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
     testTimeout(seconds(600));
     ee.ExpandCollapseEntity("WIDGETS");
     ee.ExpandCollapseEntity("Insert_Modal");
-    //ee.ActionContextMenuByEntityName("JSONForm1Copy", "Delete")
     ee.SelectEntityByName("insert_form");
     agHelper.Sleep(2000);
 
