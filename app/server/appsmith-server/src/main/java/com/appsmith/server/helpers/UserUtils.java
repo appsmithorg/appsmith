@@ -55,7 +55,7 @@ public class UserUtils {
 
     public Mono<Boolean> makeSuperUser(List<User> users) {
         return configRepository.findByName(INSTANCE_CONFIG)
-                .switchIfEmpty(createInstanceConfigForSuperUser())
+                .switchIfEmpty(Mono.defer(() -> createInstanceConfigForSuperUser()))
                 .flatMap(instanceConfig -> {
                     JSONObject config = instanceConfig.getConfig();
                     String defaultPermissionGroup = (String) config.getOrDefault(DEFAULT_PERMISSION_GROUP, "");
@@ -63,18 +63,16 @@ public class UserUtils {
                 })
                 .flatMap(permissionGroup -> {
 
-                    Set<String> permissionGroups = new HashSet<>();
+                    Set<String> assignedToUserIds = new HashSet<>();
 
                     if (permissionGroup.getAssignedToUserIds() != null) {
-                        permissionGroups.addAll(permissionGroup.getAssignedToUserIds());
+                        assignedToUserIds.addAll(permissionGroup.getAssignedToUserIds());
                     }
-                    permissionGroups.addAll(users.stream().map(User::getId).collect(Collectors.toList()));
+                    assignedToUserIds.addAll(users.stream().map(User::getId).collect(Collectors.toList()));
                     Update updateObj = new Update();
-                    String path = String.format("%s.%s", fieldName(QPermissionGroup.permissionGroup),
-                            fieldName(QPermissionGroup.permissionGroup.assignedToUserIds)
-                    );
+                    String path = fieldName(QPermissionGroup.permissionGroup.assignedToUserIds);
 
-                    updateObj.set(path, permissionGroups);
+                    updateObj.set(path, assignedToUserIds);
                     // Make Super User is called before the first administrator is created.
                     return permissionGroupRepository.updateById(permissionGroup.getId(), updateObj);
                 })
