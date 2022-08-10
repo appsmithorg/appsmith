@@ -13,7 +13,6 @@ const agHelper = ObjectsRegistry.AggregateHelper,
   deployMode = ObjectsRegistry.DeployMode;
 
 describe("Validate Postgres Generate CRUD with JSON Form", () => {
-
   it("1. Create DS & then Add new Page and generate CRUD template using created datasource", () => {
     dataSources.CreateDataSource("Postgres");
     cy.get("@dsName").then(($dsName) => {
@@ -663,22 +662,24 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
       "Are you sure?",
     );
     agHelper.ValidateNetworkStatus("@deletePage", 200);
+  });
 
+  it("17. Validate Drop of the Newly Created - Vessels - Table from Postgres datasource", () => {
     const deleteTblQuery = "DROP TABLE Vessels;";
     dataSources.NavigateFromActiveDS(dsName, true);
     agHelper.GetNClick(dataSources._templateMenu);
     agHelper.RenameWithInPane("DropVessels");
     dataSources.EnterQuery(deleteTblQuery);
     agHelper.FocusElement(locator._codeMirrorTextArea);
-    //agHelper.VerifyEvaluatedValue(tableCreateQuery);
 
     dataSources.RunQueryNVerifyResponseViews();
-    //agHelper.ActionContextMenuWithInPane("Delete");
     ee.ExpandCollapseEntity("DATASOURCES");
     ee.ExpandCollapseEntity(dsName);
     ee.ActionContextMenuByEntityName(dsName, "Refresh");
     agHelper.AssertElementAbsence(ee._entityNameInExplorer("public.vessels"));
+  });
 
+  it("18. Verify application does not break when user runs the query with wrong table name", function() {
     ee.SelectEntityByName("DropVessels", "QUERIES/JS");
     dataSources.RunQuery(false);
     agHelper
@@ -689,23 +690,7 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
     agHelper.ActionContextMenuWithInPane("Delete");
   });
 
-  // it("16. Validate Drop of the Newly Created - Vessels - Table from Postgres datasource", () => {
-
-  // });
-
-  // it("17. Verify application does not break when user runs the query with wrong table name", function() {
-  //   const deleteTblQuery = "DROP TABLE vessels;";
-  //   dataSources.NavigateFromActiveDS(dsName, true);
-  //   agHelper.GetNClick(dataSources._templateMenu);
-  //   agHelper.RenameWithInPane("DropVessels");
-  //   dataSources.EnterQuery(deleteTblQuery);
-  //   agHelper.FocusElement(locator._codeMirrorTextArea);
-  //   //agHelper.VerifyEvaluatedValue(tableCreateQuery);
-
-
-  // });
-
-  it("17. Verify Deletion of the datasource when Pages/Actions associated are not removed yet", () => {
+  it("19. Verify Deletion of the datasource when Pages/Actions associated are not removed yet", () => {
     dataSources.DeleteDatasouceFromWinthinDS(dsName, 409); //ProductLines, Employees pages are still using this ds
   });
 
