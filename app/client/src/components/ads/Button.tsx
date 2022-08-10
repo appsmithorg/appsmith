@@ -516,7 +516,7 @@ function LinkButtonComponent(props: ButtonProps) {
       className={props.className}
       data-cy={props.cypressSelector}
       href={props.href}
-      {...props}
+      {..._.omit(props, ["fill"])}
       onClick={(e: React.MouseEvent<HTMLElement>) =>
         props.onClick && props.onClick(e)
       }
