@@ -8,16 +8,16 @@ export const GITHUB_RELEASE_URL =
 export const GET_RELEASE_NOTES_URL = (tagName: string) =>
   `${GITHUB_RELEASE_URL}/${tagName}`;
 export const GOOGLE_MAPS_SETUP_DOC =
-  "https://docs.appsmith.com/setup/instance-configuration/google-maps";
+  "https://docs.appsmith.com/getting-started/setup/instance-configuration/google-maps";
 export const GOOGLE_SIGNUP_SETUP_DOC =
-  "https://docs.appsmith.com/setup/instance-configuration/single-sign-on-sso/google-login";
+  "https://docs.appsmith.com/getting-started/setup/instance-configuration/authentication/google-login";
 export const GITHUB_SIGNUP_SETUP_DOC =
-  "https://docs.appsmith.com/setup/instance-configuration/single-sign-on-sso/github-login";
+  "https://docs.appsmith.com/getting-started/setup/instance-configuration/authentication/github-login";
 export const OIDC_SIGNUP_SETUP_DOC =
-  "https://docs.appsmith.com/setup/instance-configuration/single-sign-on-sso/openid-connect-oidc";
+  "https://docs.appsmith.com/getting-started/setup/instance-configuration/authentication/openid-connect-oidc";
 export const SAML_SIGNUP_SETUP_DOC =
-  "https://docs.appsmith.com/setup/instance-configuration/single-sign-on-sso/security-assertion-markup-language-saml";
+  "https://docs.appsmith.com/getting-started/setup/instance-configuration/authentication/security-assertion-markup-language-saml";
 export const EMAIL_SETUP_DOC =
-  "https://docs.appsmith.com/setup/instance-configuration/email";
+  "https://docs.appsmith.com/getting-started/setup/instance-configuration/email";
 export const SIGNUP_RESTRICTION_DOC =
-  "https://docs.appsmith.com/setup/instance-configuration/disable-user-signup#disable-sign-up";
+  "https://docs.appsmith.com/getting-started/setup/instance-configuration/disable-user-signup#disable-sign-up";

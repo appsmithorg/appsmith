@@ -10,9 +10,17 @@ import { CodeEditorExpected } from "components/editorComponents/CodeEditor";
 
 // eslint-disable-next-line @typescript-eslint/ban-types
 class BaseControl<P extends ControlProps, S = {}> extends Component<P, S> {
-  updateProperty(propertyName: string, propertyValue: any) {
+  updateProperty(
+    propertyName: string,
+    propertyValue: any,
+    isUpdatedViaKeyboard?: boolean,
+  ) {
     if (!_.isNil(this.props.onPropertyChange))
-      this.props.onPropertyChange(propertyName, propertyValue);
+      this.props.onPropertyChange(
+        propertyName,
+        propertyValue,
+        isUpdatedViaKeyboard,
+      );
   }
   deleteProperties(propertyPaths: string[]) {
     if (this.props.deleteProperties) {
@@ -24,6 +32,9 @@ class BaseControl<P extends ControlProps, S = {}> extends Component<P, S> {
       this.props.onBatchUpdateProperties(updates);
     }
   };
+  static getControlType() {
+    return "BASE_CONTROL";
+  }
 
   // Checks whether a particular value can be displayed UI from JS edit mode
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -59,7 +70,11 @@ export interface ControlData
   additionalDynamicData: Record<string, Record<string, unknown>>;
 }
 export interface ControlFunctions {
-  onPropertyChange?: (propertyName: string, propertyValue: string) => void;
+  onPropertyChange?: (
+    propertyName: string,
+    propertyValue: string,
+    isUpdatedViaKeyboard?: boolean,
+  ) => void;
   onBatchUpdateProperties?: (updates: Record<string, unknown>) => void;
   openNextPanel: (props: any) => void;
   deleteProperties: (propertyPaths: string[]) => void;

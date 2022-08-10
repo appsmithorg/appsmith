@@ -1,4 +1,10 @@
-import React, { ReactElement, useCallback, useMemo } from "react";
+import React, {
+  ReactElement,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+} from "react";
 import equal from "fast-deep-equal/es6";
 import { useDispatch, useSelector } from "react-redux";
 import { getWidgetPropsForPropertyPaneView } from "selectors/propertyPaneSelectors";
@@ -13,10 +19,33 @@ import PropertyPaneConnections from "./PropertyPaneConnections";
 import CopyIcon from "remixicon-react/FileCopyLineIcon";
 import DeleteIcon from "remixicon-react/DeleteBinLineIcon";
 import { WidgetType } from "constants/WidgetConstants";
+import {
+  InteractionAnalyticsEventDetail,
+  INTERACTION_ANALYTICS_EVENT,
+} from "utils/AppsmithUtils";
+import { emitInteractionAnalyticsEvent } from "utils/AppsmithUtils";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 import { buildDeprecationWidgetMessage, isWidgetDeprecated } from "../utils";
 import { BannerMessage } from "components/ads/BannerMessage";
 import { Colors } from "constants/Colors";
-import { IconSize } from "components/ads";
+import { IconSize, SearchInput, SearchVariant } from "components/ads";
+import { selectFeatureFlags } from "selectors/usersSelectors";
+import WidgetFactory from "utils/WidgetFactory";
+import styled from "styled-components";
+import { InputWrapper } from "components/ads/TextInput";
+import { PropertyPaneTab } from "./PropertyPaneTab";
+import { useSearchText } from "./helpers";
+
+export const StyledSearchInput = styled(SearchInput)`
+  position: sticky;
+  top: 52px;
+  z-index: 3;
+
+  ${InputWrapper} {
+    background: ${Colors.GRAY_50};
+    padding: 0 8px;
+  }
+`;
 
 // TODO(abhinav): The widget should add a flag in their configuration if they donot subscribe to data
 // Widgets where we do not want to show the CTA
@@ -47,6 +76,8 @@ function PropertyPaneView(
     equal,
   );
   const doActionsExist = useSelector(actionsExist);
+  const featureFlags = useSelector(selectFeatureFlags);
+  const containerRef = useRef<HTMLDivElement>(null);
   const hideConnectDataCTA = useMemo(() => {
     if (widgetProperties) {
       return excludeList.includes(widgetProperties.type);
@@ -54,6 +85,30 @@ function PropertyPaneView(
 
     return true;
   }, [widgetProperties?.type, excludeList]);
+  const { searchText, setSearchText } = useSearchText("");
+
+  const handleKbdEvent = (e: Event) => {
+    const event = e as CustomEvent<InteractionAnalyticsEventDetail>;
+    AnalyticsUtil.logEvent("PROPERTY_PANE_KEYPRESS", {
+      key: event.detail.key,
+      propertyName: event.detail.propertyName,
+      propertyType: event.detail.propertyType,
+      widgetType: event.detail.widgetType,
+    });
+  };
+
+  useEffect(() => {
+    containerRef.current?.addEventListener(
+      INTERACTION_ANALYTICS_EVENT,
+      handleKbdEvent,
+    );
+    return () => {
+      containerRef.current?.removeEventListener(
+        INTERACTION_ANALYTICS_EVENT,
+        handleKbdEvent,
+      );
+    };
+  }, []);
 
   /**
    * on delete button click
@@ -66,6 +121,19 @@ function PropertyPaneView(
    * on  copy button click
    */
   const onCopy = useCallback(() => dispatch(copyWidget(false)), [dispatch]);
+
+  const handleTabKeyDownForButton = useCallback(
+    (propertyName: string) => (e: React.KeyboardEvent) => {
+      if (e.key === "Tab")
+        emitInteractionAnalyticsEvent(containerRef?.current, {
+          key: e.key,
+          propertyName,
+          propertyType: "BUTTON",
+          widgetType: widgetProperties?.type,
+        });
+    },
+    [],
+  );
 
   /**
    * actions shown on the right of title
@@ -83,6 +151,7 @@ function PropertyPaneView(
           <button
             className="p-1 hover:bg-warmGray-100 focus:bg-warmGray-100 group t--copy-widget"
             onClick={onCopy}
+            onKeyDown={handleTabKeyDownForButton("widgetCopy")}
           >
             <CopyIcon className="w-4 h-4 text-gray-500" />
           </button>
@@ -95,13 +164,14 @@ function PropertyPaneView(
           <button
             className="p-1 hover:bg-warmGray-100 focus:bg-warmGray-100 group t--delete-widget"
             onClick={onDelete}
+            onKeyDown={handleTabKeyDownForButton("widgetDelete")}
           >
             <DeleteIcon className="w-4 h-4 text-gray-500" />
           </button>
         ),
       },
     ];
-  }, [onCopy, onDelete]);
+  }, [onCopy, onDelete, handleTabKeyDownForButton]);
 
   if (!widgetProperties) return null;
 
@@ -117,10 +187,19 @@ function PropertyPaneView(
     widgetReplacedWith,
   );
 
+  const isContentConfigAvailable = WidgetFactory.getWidgetPropertyPaneContentConfig(
+    widgetProperties.type,
+  ).length;
+
+  const isStyleConfigAvailable = WidgetFactory.getWidgetPropertyPaneStyleConfig(
+    widgetProperties.type,
+  ).length;
+
   return (
     <div
-      className="relative flex flex-col w-full pt-3 overflow-y-auto"
+      className="w-full overflow-y-scroll"
       key={`property-pane-${widgetProperties.widgetId}`}
+      ref={containerRef}
     >
       <PropertyPaneTitle
         actions={actions}
@@ -130,10 +209,11 @@ function PropertyPaneView(
         widgetType={widgetProperties?.type}
       />
 
-      <div
-        className="pt-3 pb-24 overflow-x-hidden overflow-y-scroll t--property-pane-view"
-        data-guided-tour-id="property-pane"
-      >
+      <div style={{ marginTop: "52px" }}>
+        <PropertyPaneConnections
+          widgetName={widgetProperties.widgetName}
+          widgetType={widgetProperties.type}
+        />
         {!doActionsExist && !hideConnectDataCTA && (
           <ConnectDataCTA
             widgetId={widgetProperties.widgetId}
@@ -141,7 +221,6 @@ function PropertyPaneView(
             widgetType={widgetProperties?.type}
           />
         )}
-        <PropertyPaneConnections widgetName={widgetProperties.widgetName} />
         {isDeprecated && (
           <BannerMessage
             backgroundColor={Colors.WARNING_ORANGE}
@@ -153,12 +232,65 @@ function PropertyPaneView(
             textColor={Colors.BROWN}
           />
         )}
-        <PropertyControlsGenerator
-          id={widgetProperties.widgetId}
-          panel={panel}
-          theme={EditorTheme.LIGHT}
-          type={widgetProperties.type}
-        />
+      </div>
+
+      <div
+        className="t--property-pane-view"
+        data-guided-tour-id="property-pane"
+      >
+        {featureFlags.PROPERTY_PANE_GROUPING &&
+        (isContentConfigAvailable || isStyleConfigAvailable) ? (
+          <>
+            <StyledSearchInput
+              className="propertyPaneSearch"
+              fill
+              onChange={setSearchText}
+              placeholder="Search for controls, labels etc"
+              variant={SearchVariant.BACKGROUND}
+            />
+            <PropertyPaneTab
+              contentComponent={
+                isContentConfigAvailable ? (
+                  <PropertyControlsGenerator
+                    config={WidgetFactory.getWidgetPropertyPaneContentConfig(
+                      widgetProperties.type,
+                    )}
+                    id={widgetProperties.widgetId}
+                    panel={panel}
+                    searchQuery={searchText}
+                    theme={EditorTheme.LIGHT}
+                    type={widgetProperties.type}
+                  />
+                ) : null
+              }
+              styleComponent={
+                isStyleConfigAvailable ? (
+                  <PropertyControlsGenerator
+                    config={WidgetFactory.getWidgetPropertyPaneStyleConfig(
+                      widgetProperties.type,
+                    )}
+                    id={widgetProperties.widgetId}
+                    panel={panel}
+                    searchQuery={searchText}
+                    theme={EditorTheme.LIGHT}
+                    type={widgetProperties.type}
+                  />
+                ) : null
+              }
+            />
+          </>
+        ) : (
+          <PropertyControlsGenerator
+            config={WidgetFactory.getWidgetPropertyPaneConfig(
+              widgetProperties.type,
+            )}
+            id={widgetProperties.widgetId}
+            panel={panel}
+            searchQuery={searchText}
+            theme={EditorTheme.LIGHT}
+            type={widgetProperties.type}
+          />
+        )}
       </div>
     </div>
   );

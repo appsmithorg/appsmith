@@ -20,7 +20,7 @@ import { useParams, useLocation } from "react-router";
 import { ExplorerURLParams } from "../../../Explorer/helpers";
 import { INTEGRATION_TABS } from "constants/routes";
 import history from "utils/history";
-import { getQueryParams } from "utils/AppsmithUtils";
+import { getQueryParams } from "utils/URLUtils";
 import { getIsGeneratingTemplatePage } from "selectors/pageListSelectors";
 import DataSourceOption from "../DataSourceOption";
 import { getQueryStringfromObject } from "RouteBuilder";

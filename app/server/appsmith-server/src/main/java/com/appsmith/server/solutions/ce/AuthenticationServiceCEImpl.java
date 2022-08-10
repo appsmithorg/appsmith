@@ -3,6 +3,7 @@ package com.appsmith.server.solutions.ce;
 import com.appsmith.external.constants.Authentication;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
+import com.appsmith.external.helpers.SSLHelper;
 import com.appsmith.external.models.AuthenticationDTO;
 import com.appsmith.external.models.AuthenticationResponse;
 import com.appsmith.external.models.Datasource;
@@ -30,6 +31,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.bson.internal.Base64;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
+import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -38,11 +40,14 @@ import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriComponentsBuilder;
 import reactor.core.publisher.Mono;
+import reactor.netty.http.client.HttpClient;
 
 import java.net.ConnectException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.time.Instant;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Map;
 
 import static com.appsmith.external.constants.Authentication.ACCESS_TOKEN;
@@ -164,7 +169,15 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
                 .flatMap(datasourceService::getById)
                 .flatMap(datasource -> {
                     OAuth2 oAuth2 = (OAuth2) datasource.getDatasourceConfiguration().getAuthentication();
-                    WebClient.Builder builder = WebClient.builder().baseUrl(oAuth2.getAccessTokenUrl());
+                    final HttpClient httpClient = HttpClient.create();
+
+                    if (oAuth2.isUseSelfSignedCert()) {
+                        httpClient.secure(SSLHelper.sslCheckForHttpClient(datasource.getDatasourceConfiguration()));
+                    }
+
+                    WebClient.Builder builder = WebClient.builder()
+                            .clientConnector(new ReactorClientHttpConnector(httpClient))
+                            .baseUrl(oAuth2.getAccessTokenUrl());
 
                     MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
 
@@ -411,6 +424,14 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
                                         .setAuthenticationStatus(AuthenticationDTO.AuthenticationStatus.SUCCESS);
                                 OAuth2 oAuth2 = (OAuth2) datasource.getDatasourceConfiguration().getAuthentication();
                                 oAuth2.setAuthenticationResponse(authenticationResponse);
+                                final Map tokenResponse = (Map) authenticationResponse.getTokenResponse();
+                                if (tokenResponse != null && tokenResponse.containsKey("scope")) {
+                                    if (!new HashSet<>(Arrays.asList(String.valueOf(tokenResponse.get("scope")).split(" "))).containsAll(
+                                            oAuth2.getScope())) {
+                                        return Mono.error(new AppsmithException(AppsmithError.AUTHENTICATION_FAILURE,
+                                                "Please provide access to all the requested scopes to use the integration correctly."));
+                                    }
+                                }
                                 datasource.getDatasourceConfiguration().setAuthentication(oAuth2);
                                 return Mono.just(datasource);
                             });

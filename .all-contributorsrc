@@ -439,6 +439,15 @@
         "code",
         "bug"
       ]
+    },
+    {
+      "login": "dhruvikn",
+      "name": "Dhruvik Neharia",
+      "avatar_url": "https://avatars.githubusercontent.com/u/22471214?v=4",
+      "profile": "https://dhruvikneharia.netlify.com/",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "contributorsPerLine": 7,

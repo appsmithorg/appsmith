@@ -59,7 +59,6 @@ export interface AppsmithUIConfigs {
   };
   intercomAppID: string;
   mailEnabled: boolean;
-  commentsTestModeEnabled: boolean;
 
   cloudServicesBaseUrl: string;
 
@@ -68,4 +67,5 @@ export interface AppsmithUIConfigs {
     apiKey: string;
   };
   appsmithSupportEmail: string;
+  hideWatermark: boolean;
 }

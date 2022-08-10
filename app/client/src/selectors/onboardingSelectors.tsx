@@ -14,7 +14,6 @@ import {
 import { getSelectedWidget } from "./ui";
 import { GuidedTourEntityNames } from "pages/Editor/GuidedTour/constants";
 import { previewModeSelector } from "./editorSelectors";
-import { commentModeSelector } from "./commentsSelectors";
 
 // Signposting selectors
 export const getEnableFirstTimeUserOnboarding = (state: AppState) => {
@@ -52,20 +51,17 @@ export const getIsOnboardingTasksView = createSelector(
   getIsFirstTimeUserOnboardingEnabled,
   getIsOnboardingWidgetSelection,
   previewModeSelector,
-  commentModeSelector,
   (
     widgets,
     enableFirstTimeUserOnboarding,
     isOnboardingWidgetSelection,
     inPreviewMode,
-    inCommentMode,
   ) => {
     return (
       Object.keys(widgets).length == 1 &&
       enableFirstTimeUserOnboarding &&
       !isOnboardingWidgetSelection &&
-      !inPreviewMode &&
-      !inCommentMode
+      !inPreviewMode
     );
   },
 );
@@ -209,19 +205,6 @@ export const countryInputSelector = createSelector(
     return countryInput ? countryInput.widgetId === selectedWidgetId : false;
   },
 );
-// Check if ImageWidget is selected
-export const imageWidgetSelector = createSelector(
-  getWidgets,
-  getSelectedWidget,
-  (widgets, selectedWidgetId) => {
-    const widgetValues = Object.values(widgets);
-    const imageWidget = widgetValues.find((widget) => {
-      return widget.widgetName === GuidedTourEntityNames.DISPLAY_IMAGE;
-    });
-
-    return imageWidget ? imageWidget.widgetId === selectedWidgetId : false;
-  },
-);
 
 export const isCountryInputBound = createSelector(
   getTableWidget,
@@ -270,28 +253,6 @@ export const isEmailInputBound = createSelector(
   },
 );
 
-export const isImageWidgetBound = createSelector(
-  getTableWidget,
-  getWidgets,
-  (tableWidget, widgets) => {
-    if (tableWidget) {
-      const widgetValues = Object.values(widgets);
-      const imageWidget = widgetValues.find((widget) => {
-        if (widget.widgetName === GuidedTourEntityNames.DISPLAY_IMAGE) {
-          return (
-            widget.image === `{{${tableWidget.widgetName}.selectedRow.image}}`
-          );
-        }
-
-        return false;
-      });
-
-      if (imageWidget) return true;
-    }
-
-    return false;
-  },
-);
 export const isButtonWidgetPresent = createSelector(getWidgets, (widgets) => {
   const widgetValues = Object.values(widgets);
   const buttonWidget = widgetValues.find((widget) => {

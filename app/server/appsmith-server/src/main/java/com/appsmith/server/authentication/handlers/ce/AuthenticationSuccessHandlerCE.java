@@ -2,6 +2,7 @@ package com.appsmith.server.authentication.handlers.ce;
 
 import com.appsmith.server.authentication.handlers.CustomServerOAuth2AuthorizationRequestResolver;
 import com.appsmith.external.constants.AnalyticsEvents;
+import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.Security;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.LoginSource;
@@ -123,6 +124,11 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
                     List<Mono<?>> monos = new ArrayList<>();
                     monos.add(userDataService.ensureViewedCurrentVersionReleaseNotes(currentUser));
 
+                    String modeOfLogin = FieldName.FORM_LOGIN;
+                    if(authentication instanceof OAuth2AuthenticationToken) {
+                        modeOfLogin = ((OAuth2AuthenticationToken) authentication).getAuthorizedClientRegistrationId();
+                    }
+
                     if (isFromSignupFinal) {
                         final String inviteToken = currentUser.getInviteToken();
                         final boolean isFromInvite = inviteToken != null;
@@ -130,7 +136,7 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
                         // This should hold the role of the user, e.g., `App Viewer`, `Developer`, etc.
                         final String invitedAs = inviteToken == null ? "" : inviteToken.split(":", 2)[0];
 
-                        String modeOfLogin = "FormSignUp";
+                        modeOfLogin = "FormSignUp";
                         if(authentication instanceof OAuth2AuthenticationToken) {
                             modeOfLogin = ((OAuth2AuthenticationToken) authentication).getAuthorizedClientRegistrationId();
                         }
@@ -141,11 +147,19 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
                                 Map.of(
                                         "isFromInvite", isFromInvite,
                                         "invitedAs", invitedAs,
-                                        "modeOfLogin", modeOfLogin
+                                        FieldName.MODE_OF_LOGIN, modeOfLogin
                                 )
                         ));
                         monos.add(examplesWorkspaceCloner.cloneExamplesWorkspace());
                     }
+
+                    monos.add(analyticsService.sendObjectEvent(
+                            AnalyticsEvents.LOGIN,
+                            currentUser,
+                            Map.of(
+                                    FieldName.MODE_OF_LOGIN, modeOfLogin
+                            )
+                    ));
 
                     return Mono.whenDelayError(monos);
                 })

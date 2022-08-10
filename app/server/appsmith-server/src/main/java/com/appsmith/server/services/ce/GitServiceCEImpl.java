@@ -437,7 +437,6 @@ public class GitServiceCEImpl implements GitServiceCE {
                             });
                 })
                 .then(applicationService.findByBranchNameAndDefaultApplicationId(branchName, defaultApplicationId, MANAGE_APPLICATIONS))
-                .flatMap(branchedApplication -> publishAndOrGetApplication(branchedApplication.getId(), commitDTO.getDoPush()))
                 .flatMap(branchedApplication -> {
                     GitApplicationMetadata gitApplicationMetadata = branchedApplication.getGitApplicationMetadata();
                     if (gitApplicationMetadata == null) {
@@ -557,6 +556,11 @@ public class GitServiceCEImpl implements GitServiceCE {
                                 .zipWith(Mono.just(childApplication));
                     }
                     return Mono.zip(Mono.just(result.toString()), Mono.just(childApplication));
+                })
+                .flatMap(tuple -> {
+                    Application childApplication = tuple.getT2();
+                    String status = tuple.getT1();
+                    return Mono.zip(Mono.just(status), publishAndOrGetApplication(childApplication.getId(), commitDTO.getDoPush()));
                 })
                 // Add BE analytics
                 .flatMap(tuple -> {
@@ -1848,7 +1852,7 @@ public class GitServiceCEImpl implements GitServiceCE {
         }
 
         if (StringUtils.isEmptyOrNull(workspaceId)) {
-            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "Invalid organization id"));
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "Invalid workspace id"));
         }
 
         final String repoName = GitUtils.getRepoName(gitConnectDTO.getRemoteUrl());
@@ -1995,19 +1999,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                             });
                 })
                 // Add un-configured datasource to the list to response
-                .flatMap(application -> importExportApplicationService.findDatasourceByApplicationId(application.getId(), application.getWorkspaceId())
-                        .map(datasources -> {
-                            ApplicationImportDTO applicationImportDTO = new ApplicationImportDTO();
-                            applicationImportDTO.setApplication(application);
-                            long unConfiguredDatasource = datasources.stream().filter(datasource -> Boolean.FALSE.equals(datasource.getIsConfigured())).count();
-                            if (unConfiguredDatasource != 0) {
-                                applicationImportDTO.setIsPartialImport(true);
-                                applicationImportDTO.setUnConfiguredDatasourceList(datasources);
-                            } else {
-                                applicationImportDTO.setIsPartialImport(false);
-                            }
-                            return applicationImportDTO;
-                        }))
+                .flatMap(application -> importExportApplicationService.getApplicationImportDTO(application.getId(), application.getWorkspaceId(), application))
                 // Add analytics event
                 .flatMap(applicationImportDTO -> {
                     Application application = applicationImportDTO.getApplication();
