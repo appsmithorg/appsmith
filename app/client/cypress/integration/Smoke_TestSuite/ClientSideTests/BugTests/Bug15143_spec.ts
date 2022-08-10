@@ -3,9 +3,12 @@ import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 const {
   AggregateHelper: agHelper,
   ApiPage: apiPage,
+  DataSources: dataSources,
   EntityExplorer: ee,
   JSEditor: jsEditor,
 } = ObjectsRegistry;
+
+let dsName: any;
 
 describe("Copy Action/JS objects to different pages", () => {
   it("1. Copies Action object to a different page from the additional menu in Queries/JS section", () => {
@@ -61,9 +64,49 @@ describe("Copy Action/JS objects to different pages", () => {
     ee.AssertEntityAbsenceInExplorer("JSObject1Copy");
   });
 
+  it("5. Copies Queries to a different page from the additional menu in Queries/JS section", () => {
+    ee.SelectEntityByName("Page1");
+    dataSources.CreateDataSource("MySql");
+    cy.get("@dsName").then(($dsName) => {
+      dsName = $dsName;
+      dataSources.CreateNewQueryInDS(
+        dsName,
+        "SELECT * FROM lightHouses LIMIT 10;",
+      );
+      dataSources.RunQueryNVerifyResponseViews(10);
+
+      ee.ExpandCollapseEntity("QUERIES/JS");
+      ee.ActionContextMenuByEntityName("Query1", "Copy to page", "Page2");
+
+      ee.SelectEntityByName("Page2");
+
+      // check that the copy and original objects both exist in page 1
+      ee.AssertEntityPresenceInExplorer("Query1");
+      ee.AssertEntityAbsenceInExplorer("Query1Copy");
+
+      // check that js object no longer exists in page 2
+      ee.SelectEntityByName("Page1");
+      ee.AssertEntityAbsenceInExplorer("Query1");
+    });
+  });
+
+  it("6. Copies Queries to a different page from the additional menu on Query Editor page", () => {
+    ee.SelectEntityByName("Page2");
+    ee.SelectEntityByName("Query1", "QUERIES/JS");
+    agHelper.ActionContextMenuWithInPane("Copy to page", "Page3");
+    agHelper.WaitUntilToastDisappear(
+      "Query1 copied to page Page3 successfully",
+    );
+    ee.SelectEntityByName("Page3");
+    ee.ExpandCollapseEntity("QUERIES/JS");
+    ee.AssertEntityPresenceInExplorer("JSObject1");
+    ee.AssertEntityAbsenceInExplorer("JSObject1Copy");
+  });
+
   after(() => {
     //Deleting test data
-    ee.ActionContextMenuByEntityName("Page2", "Delete", "Are you sure?");//No page1 since its home page
+    ee.ActionContextMenuByEntityName("Page2", "Delete", "Are you sure?"); //No page1 since its home page
     ee.ActionContextMenuByEntityName("Page3", "Delete", "Are you sure?");
+    dataSources.DeleteDatasouceFromActiveTab(dsName);
   });
 });
