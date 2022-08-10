@@ -99,7 +99,7 @@ import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsRe
 import { AppTheme } from "entities/AppTheming";
 import { ActionValidationConfigMap } from "constants/PropertyControlConstants";
 import AppsmithConsole from "utils/AppsmithConsole";
-import { createLogTitleString, Message } from "workers/UserLog";
+import { createLogTitleString, LogObject } from "workers/UserLog";
 
 let widgetTypeConfigMap: WidgetTypeConfigMap;
 
@@ -188,12 +188,13 @@ function* evaluateTreeSaga(
       "logObject" in evalLog &&
       evalLog.logObject.length > 0
     ) {
-      evalLog.logObject.forEach((log: any) => {
-        AppsmithConsole.info(
+      evalLog.logObject.forEach((log: LogObject) => {
+        AppsmithConsole.addLog(
           {
             text: createLogTitleString(log.data),
             source: evalLog.source,
           },
+          log.severity,
           log.timestamp,
         );
       });
@@ -298,8 +299,8 @@ export function* evaluateAndExecuteDynamicTrigger(
         // If not removed, these will show up on page load action executions
         eventType !== EventType.ON_JS_FUNCTION_EXECUTE
       ) {
-        result.logs.forEach((log: Message) => {
-          AppsmithConsole.info(
+        result.logs.forEach((log: LogObject) => {
+          AppsmithConsole.addLog(
             {
               text: createLogTitleString(log.data),
               source: {
@@ -308,6 +309,7 @@ export function* evaluateAndExecuteDynamicTrigger(
                 id: triggerMeta.source?.id || "",
               },
             },
+            log.severity,
             log.timestamp,
           );
         });
@@ -407,7 +409,7 @@ export function* executeFunction(
   let response: {
     errors: any[];
     result: any;
-    logs?: Message[];
+    logs?: LogObject[];
   };
 
   if (isAsync) {
@@ -434,16 +436,19 @@ export function* executeFunction(
 
   // Check for any logs in the response and store them in the redux store
   if (!!logs && logs.length > 0) {
-    logs.forEach((log: Message) => {
-      AppsmithConsole.info({
-        text: createLogTitleString(log.data),
-        timestamp: log.timestamp,
-        source: {
-          type: ENTITY_TYPE.JSACTION,
-          name: collectionName + "." + action.name,
-          id: collectionId,
+    logs.forEach((log: LogObject) => {
+      AppsmithConsole.addLog(
+        {
+          text: createLogTitleString(log.data),
+          source: {
+            type: ENTITY_TYPE.JSACTION,
+            name: collectionName + "." + action.name,
+            id: collectionId,
+          },
         },
-      });
+        log.severity,
+        log.timestamp,
+      );
     });
   }
   const isDirty = !!errors.length;
