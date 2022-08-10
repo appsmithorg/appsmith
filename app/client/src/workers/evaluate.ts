@@ -266,6 +266,7 @@ export default function evaluateSync(
     }
 
     try {
+      // userLogs object has to be cleared before next eval can happen to make sure there are no roll overs from last evals
       userLogs.resetLogs();
       result = eval(script);
     } catch (error) {
@@ -321,6 +322,7 @@ export async function evaluateAsync(
     });
 
     try {
+      // userLogs object has to be cleared before next eval can happen to make sure there are no roll overs from last evals
       userLogs.resetLogs();
       result = await eval(script);
     } catch (error) {
