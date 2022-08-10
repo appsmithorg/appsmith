@@ -120,11 +120,6 @@ public class MongoPluginUtils {
             databaseName = authentication.getDatabaseName();
         }
 
-        // In case both default DB and authsource are absent, Mongo would default to the admin db
-        if (!StringUtils.hasLength(databaseName)) {
-            databaseName = "admin";
-        }
-
         return databaseName;
     }
 
