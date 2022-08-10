@@ -310,7 +310,7 @@ function* evaluateActionParams(
     }
 
     value = new Blob([value], { type: "text/plain" });
-    bindingsMap[encodeURIComponent(key)] = `k${i}`;
+    bindingsMap[key] = `k${i}`;
     bindingBlob.push({ name: `k${i}`, value: value });
   }
 
