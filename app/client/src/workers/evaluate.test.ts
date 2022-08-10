@@ -68,24 +68,6 @@ describe("evaluateSync", () => {
       result: undefined,
       errors: [
         {
-          ch: 1,
-          code: "W117",
-          errorMessage: "'wrongJS' is not defined.",
-          errorSegment: "    const result = wrongJS",
-          errorType: "LINT",
-          line: 0,
-          raw: `
-  function closedFunction () {
-    const result = wrongJS
-    return result;
-  }
-  closedFunction.call(THIS_CONTEXT)
-  `,
-          severity: "error",
-          originalBinding: "wrongJS",
-          variables: ["wrongJS", undefined, undefined, undefined],
-        },
-        {
           errorMessage: "ReferenceError: wrongJS is not defined",
           errorType: "PARSE",
           raw: `

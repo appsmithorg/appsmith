@@ -45,18 +45,21 @@ export const useSSHKeyPair = () => {
     setFailedGeneratingSSHKey(true);
   }, [setIsGeneratingSSHKey]);
 
-  const generateSSHKey = useCallback(() => {
-    // if (currentApplication?.id) {
-    setIsGeneratingSSHKey(true);
-    setFailedGeneratingSSHKey(false);
+  const generateSSHKey = useCallback(
+    (keyType = "ECDSA") => {
+      // if (currentApplication?.id) {
+      setIsGeneratingSSHKey(true);
+      setFailedGeneratingSSHKey(false);
 
-    dispatch(
-      generateSSHKeyPair({
-        onErrorCallback: onGenerateSSHKeyFailure,
-      }),
-    );
-    // }
-  }, [onGenerateSSHKeyFailure, setIsGeneratingSSHKey]);
+      dispatch(
+        generateSSHKeyPair({
+          onErrorCallback: onGenerateSSHKeyFailure,
+          payload: { keyType },
+        }),
+      );
+    },
+    [onGenerateSSHKeyFailure, setIsGeneratingSSHKey],
+  );
 
   return {
     generatingSSHKey,

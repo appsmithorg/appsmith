@@ -1,7 +1,6 @@
 import { AxiosPromise } from "axios";
 import Api from "api/Api";
 import { ApiResponse } from "api/ApiResponses";
-import { CommentsOnboardingState } from "constants/userConstants";
 
 export interface LoginUserRequest {
   email: string;
@@ -58,10 +57,6 @@ export interface UpdateUserRequest {
   useCase?: string;
 }
 
-export interface CommentsOnboardingStateRequest {
-  commentOnboardingState: CommentsOnboardingState;
-}
-
 export interface SendTestEmailPayload {
   smtpHost: string;
   fromEmail: string;
@@ -98,7 +93,6 @@ export class UserApi extends Api {
   static photoURL = "v1/users/photo";
   static featureFlagsURL = "v1/users/features";
   static superUserURL = "v1/users/super";
-  static commentsOnboardingStateURL = `${UserApi.usersURL}/comment/state`;
   static adminSettingsURL = "v1/admin/env";
   static restartServerURL = "v1/admin/restart";
   static downloadConfigURL = "v1/admin/env/download";
@@ -198,12 +192,6 @@ export class UserApi extends Api {
     request: CreateSuperUserRequest,
   ): AxiosPromise<CreateUserResponse> {
     return Api.post(UserApi.superUserURL, request);
-  }
-
-  static updateUsersCommentOnboardingState(
-    request: CommentsOnboardingStateRequest,
-  ): AxiosPromise<ApiResponse> {
-    return Api.patch(UserApi.commentsOnboardingStateURL, request);
   }
 
   /*
