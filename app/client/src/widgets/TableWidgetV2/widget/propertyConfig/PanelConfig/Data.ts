@@ -8,16 +8,12 @@ import { get } from "lodash";
 import {
   getBasePropertyPath,
   hideByColumnType,
-  SelectColumnOptionsValidations,
   showByColumnType,
   uniqueColumnAliasValidation,
-  updateColumnLevelEditability,
-  updateInlineEditingOptionDropdownVisibilityHook,
   updateNumberColumnTypeTextAlignment,
   updateThemeStylesheetsInColumns,
 } from "../../propertyUtils";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
-import { isColumnTypeEditable } from "../../utilities";
 import { composePropertyUpdateHook } from "widgets/WidgetUtils";
 
 export default {

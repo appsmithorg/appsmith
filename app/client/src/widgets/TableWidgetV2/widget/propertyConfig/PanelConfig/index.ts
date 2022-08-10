@@ -1,7 +1,6 @@
 import { ValidationTypes } from "constants/WidgetValidation";
 import {
   ColumnTypes,
-  DateInputFormat,
   ICON_NAMES,
   TableWidgetProps,
 } from "widgets/TableWidgetV2/constants";
@@ -10,18 +9,8 @@ import {
   getBasePropertyPath,
   hideByColumnType,
   removeBoxShadowColorProp,
-  SelectColumnOptionsValidations,
-  showByColumnType,
-  uniqueColumnAliasValidation,
-  updateColumnLevelEditability,
   updateIconAlignment,
-  updateInlineEditingOptionDropdownVisibilityHook,
-  updateNumberColumnTypeTextAlignment,
-  updateThemeStylesheetsInColumns,
 } from "../../propertyUtils";
-import { AutocompleteDataType } from "utils/autocomplete/TernServer";
-import { isColumnTypeEditable } from "../../utilities";
-import { composePropertyUpdateHook } from "widgets/WidgetUtils";
 
 import ColumnControl from "./ColumnControl";
 import Styles from "./Styles";
@@ -229,7 +218,7 @@ export default {
             true,
           )
         ) {
-          return false;
+          return true;
         } else {
           const columnType = get(props, `${propertyPath}.columnType`, "");
           const isEditable = get(props, `${propertyPath}.isEditable`, "");
@@ -700,14 +689,6 @@ export default {
             },
           },
           isTriggerProperty: false,
-          hidden: (props: TableWidgetProps, propertyPath: string) => {
-            return hideByColumnType(props, propertyPath, [
-              ColumnTypes.TEXT,
-              ColumnTypes.DATE,
-              ColumnTypes.NUMBER,
-              ColumnTypes.URL,
-            ]);
-          },
         },
         {
           propertyName: "textColor",

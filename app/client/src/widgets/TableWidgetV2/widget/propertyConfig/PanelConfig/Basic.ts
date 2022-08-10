@@ -4,26 +4,19 @@ import {
   ICON_NAMES,
   TableWidgetProps,
 } from "widgets/TableWidgetV2/constants";
-import { ButtonVariantTypes } from "components/constants";
-import {
-  hideByColumnType,
-  removeBoxShadowColorProp,
-  showByColumnType,
-  updateIconAlignment,
-} from "../../propertyUtils";
+import { hideByColumnType, updateIconAlignment } from "../../propertyUtils";
 import { IconNames } from "@blueprintjs/icons";
 
 export default {
   sectionName: "Basic",
   hidden: (props: TableWidgetProps, propertyPath: string) => {
-    console.log("bla Basic", props, propertyPath);
-    return showByColumnType(props, propertyPath, [
-      ColumnTypes.BUTTON,
-      ColumnTypes.ICON_BUTTON,
-      ColumnTypes.MENU_BUTTON,
-    ]);
+    return hideByColumnType(
+      props,
+      propertyPath,
+      [ColumnTypes.BUTTON, ColumnTypes.ICON_BUTTON, ColumnTypes.MENU_BUTTON],
+      true,
+    );
   },
-  dependencies: ["columnType"],
   children: [
     {
       propertyName: "iconName",

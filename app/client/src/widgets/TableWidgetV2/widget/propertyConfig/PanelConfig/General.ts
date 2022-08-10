@@ -1,22 +1,12 @@
 import { ValidationTypes } from "constants/WidgetValidation";
-import {
-  ColumnTypes,
-  DateInputFormat,
-  TableWidgetProps,
-} from "widgets/TableWidgetV2/constants";
+import { ColumnTypes, TableWidgetProps } from "widgets/TableWidgetV2/constants";
 import { get } from "lodash";
 import {
   getBasePropertyPath,
   hideByColumnType,
-  SelectColumnOptionsValidations,
-  showByColumnType,
-  uniqueColumnAliasValidation,
   updateColumnLevelEditability,
   updateInlineEditingOptionDropdownVisibilityHook,
-  updateNumberColumnTypeTextAlignment,
-  updateThemeStylesheetsInColumns,
 } from "../../propertyUtils";
-import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 import { isColumnTypeEditable } from "../../utilities";
 import { composePropertyUpdateHook } from "widgets/WidgetUtils";
 
