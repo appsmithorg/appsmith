@@ -1161,7 +1161,7 @@ export const INDUSTRY = () => "Industry";
 export const DATASOURCES = () => "Datasources";
 export const NOTE = () => "Note:";
 export const NOTE_MESSAGE = () => "You can add your datasources as well";
-export const WIDGET_USED = () => "Widgets Used";
+export const WIDGET_USED = () => "Widgets";
 export const SIMILAR_TEMPLATES = () => "Similar Templates";
 export const VIEW_ALL_TEMPLATES = () => "VIEW ALL TEMPLATES";
 export const FILTERS = () => "FILTERS";
