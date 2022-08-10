@@ -118,8 +118,14 @@ export const translateDiffEventToDataTreeDiffEvent = (
   if (!difference.path) {
     return result;
   }
-
   const propertyPath = convertPathToString(difference.path);
+
+  // add propertyPath to NOOP event
+  result.payload = {
+    propertyPath,
+    value: "",
+  };
+
   //we do not need evaluate these paths coz these are internal paths
   const isUninterestingPathForUpdateTree = isUninterestingChangeForDependencyUpdate(
     propertyPath,
