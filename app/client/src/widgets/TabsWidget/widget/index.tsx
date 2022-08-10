@@ -13,7 +13,6 @@ import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 import { WidgetProperties } from "selectors/propertyPaneSelectors";
 import { WIDGET_PADDING } from "constants/WidgetConstants";
 import derivedProperties from "./parseDerivedProperties";
-import { isEqual, find } from "lodash";
 import { Positioning } from "components/constants";
 
 export function selectedTabValidation(
