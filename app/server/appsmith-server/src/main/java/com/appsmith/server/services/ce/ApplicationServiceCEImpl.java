@@ -486,7 +486,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
                             FieldName.APPLICATION, application
                     );
                     final Map<String, Object> data = Map.of(
-                            "applicationId", application.getId(),
+                            FieldName.APPLICATION_ID, application.getId(),
                             "organizationId", application.getWorkspaceId(),
                             "isRegeneratedKey", gitAuth.isRegeneratedKey(),
                             FieldName.AUDIT_DATA, eventData

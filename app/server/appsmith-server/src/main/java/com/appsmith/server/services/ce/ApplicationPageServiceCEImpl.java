@@ -442,7 +442,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                             FieldName.AUDIT_DATA, eventData
                     );
 
-                    return analyticsService.sendObjectEvent(AnalyticsEvents.DELETE, deletedApplication, data);
+                    return analyticsService.sendDeleteEvent(deletedApplication, data);
                 });
     }
 
@@ -854,7 +854,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                                         FieldName.AUDIT_DATA, eventData
                                 );
 
-                                return analyticsService.sendObjectEvent(AnalyticsEvents.DELETE, newPage, data);
+                                return analyticsService.sendDeleteEvent(newPage, data);
                             })
                             .flatMap(newPage -> newPageService.getPageByViewMode(newPage, false));
 

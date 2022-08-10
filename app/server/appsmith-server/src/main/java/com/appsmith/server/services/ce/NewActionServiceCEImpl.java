@@ -1087,7 +1087,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                             ),
                             "orgId", application.getWorkspaceId(),
                             "appId", action.getApplicationId(),
-                            "appMode", TRUE.equals(viewMode) ? "view" : ApplicationMode.EDIT.toString(),
+                            "appMode", TRUE.equals(viewMode) ? ApplicationMode.PUBLISHED.toString() : ApplicationMode.EDIT.toString(),
                             "appName", application.getName(),
                             "isExampleApp", application.isAppIsExample()
                     ));
