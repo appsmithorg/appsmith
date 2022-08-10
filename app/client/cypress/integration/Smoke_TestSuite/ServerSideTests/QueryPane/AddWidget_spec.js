@@ -1,6 +1,5 @@
 const queryLocators = require("../../../../locators/QueryEditor.json");
 const queryEditor = require("../../../../locators/QueryEditor.json");
-import { seconds, testTimeout } from "../../../../support/timeout";
 
 let datasourceName;
 
@@ -14,7 +13,6 @@ describe("Add widget - Postgress DataSource", function() {
   });
 
   it("1. Verify 'Add to widget [Widget Suggestion]' functionality - Postgress", () => {
-    testTimeout(seconds(5))
     cy.NavigateToActiveDSQueryPane(datasourceName);
     cy.get(queryLocators.templateMenu).click();
     cy.get(".CodeMirror textarea")
