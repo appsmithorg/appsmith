@@ -61,7 +61,11 @@ import evaluateSync, {
   evaluateAsync,
 } from "workers/evaluate";
 import { substituteDynamicBindingWithValues } from "workers/evaluationSubstitution";
-import { Severity } from "entities/AppsmithConsole";
+import {
+  Severity,
+  SourceEntity,
+  ENTITY_TYPE as CONSOLE_ENTITY_TYPE,
+} from "entities/AppsmithConsole";
 import { error as logError } from "loglevel";
 import { JSUpdate } from "utils/JSPaneUtils";
 
@@ -865,6 +869,39 @@ export default class DataTreeEvaluator {
           );
           if (fullPropertyPath && result.errors.length) {
             addErrorToEntityProperty(result.errors, data, fullPropertyPath);
+          }
+          // if there are any console outputs found from the evaluation, extract them and add them to the logs array
+          if (!!entity && !!result.logs && result.logs.length > 0) {
+            let type = CONSOLE_ENTITY_TYPE.WIDGET;
+            let id = "";
+
+            // extracting the id and type of the entity from the entity for logs object
+            if ("ENTITY_TYPE" in entity) {
+              switch (entity.ENTITY_TYPE) {
+                case ENTITY_TYPE.WIDGET:
+                  type = CONSOLE_ENTITY_TYPE.WIDGET;
+                  id = entity.widgetId;
+                  break;
+                case ENTITY_TYPE.ACTION:
+                  type = CONSOLE_ENTITY_TYPE.ACTION;
+                  id = entity.actionId;
+                  break;
+                case ENTITY_TYPE.JSACTION:
+                  type = CONSOLE_ENTITY_TYPE.JSACTION;
+                  id = entity.actionId;
+                  break;
+              }
+            }
+            // This is the object that will help to associate the log with the origin entity
+            const source: SourceEntity = {
+              type,
+              name: fullPropertyPath?.split(".")[0] || "Widget",
+              id,
+            };
+            this.logs.push({
+              logObject: result.logs,
+              source,
+            });
           }
           return result.result;
         } else {
