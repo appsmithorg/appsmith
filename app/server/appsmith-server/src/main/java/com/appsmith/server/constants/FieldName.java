@@ -115,9 +115,12 @@ public class FieldName {
     public static final String THEME = "theme";
     public static final String EDIT_MODE_THEME = "editModeTheme";
     public static final String FLOW_NAME = "flowName";
-    public static final String AUDIT_DATA = "auditData";
+    public static final String EVENT_DATA = "eventData";
     public static final String MODE_OF_LOGIN = "modeOfLogin";
     public static final String FORM_LOGIN = "FormLogin";
     public static final String APP_MODE = "appMode";
     public static final String PAGE_ORDER = "order";
+    public static final String ACTION_EXECUTION_REQUEST = "actionExecutionRequest";
+    public static final String ACTION_EXECUTION_RESULT = "actionExecutionResult";
+    public static final String ACTION_EXECUTION_TIME = "actionExecutionTime";
 }

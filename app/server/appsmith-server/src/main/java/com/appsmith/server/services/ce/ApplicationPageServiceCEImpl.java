@@ -439,7 +439,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                             FieldName.APPLICATION, deletedApplication
                     );
                     final Map<String, Object> data = Map.of(
-                            FieldName.AUDIT_DATA, eventData
+                            FieldName.EVENT_DATA, eventData
                     );
 
                     return analyticsService.sendDeleteEvent(deletedApplication, data);
@@ -851,7 +851,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                                         FieldName.APP_MODE, ApplicationMode.EDIT.toString()
                                 );
                                 final Map<String, Object> data = Map.of(
-                                        FieldName.AUDIT_DATA, eventData
+                                        FieldName.EVENT_DATA, eventData
                                 );
 
                                 return analyticsService.sendDeleteEvent(newPage, data);
@@ -1051,7 +1051,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                             FieldName.APPLICATION, application,
                             FieldName.APP_MODE, ApplicationMode.EDIT.toString()
                     );
-                    extraProperties.put(FieldName.AUDIT_DATA, eventData);
+                    extraProperties.put(FieldName.EVENT_DATA, eventData);
 
                     return analyticsService.sendObjectEvent(AnalyticsEvents.PUBLISH_APPLICATION, application, extraProperties);
                 });
@@ -1154,7 +1154,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                             FieldName.SOURCE_APPLICATION_ID, sourceApplication.getId(),
                             FieldName.APPLICATION_ID, application.getId(),
                             FieldName.WORKSPACE_ID, workspace.getId(),
-                            FieldName.AUDIT_DATA, eventData
+                            FieldName.EVENT_DATA, eventData
                     );
 
                     return analyticsService.sendObjectEvent(AnalyticsEvents.CLONE, application, data);
@@ -1168,7 +1168,6 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
      * @return NewPage
      */
     private Mono<NewPage> sendPageViewAnalyticsEvent(NewPage newPage, boolean viewMode) {
-        //TODO: Add more audit data
         final Map<String, Object> eventData = Map.of(
                 FieldName.PAGE, newPage
         );
@@ -1176,7 +1175,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
         eventData.put(FieldName.APP_MODE, view);
 
         final Map<String, Object> data = Map.of(
-                FieldName.AUDIT_DATA, eventData
+                FieldName.EVENT_DATA, eventData
         );
 
         return analyticsService.sendObjectEvent(AnalyticsEvents.VIEW, newPage, data);
@@ -1193,7 +1192,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                 FieldName.WORKSPACE_ID, application.getWorkspaceId(),
                 FieldName.PAGE_ID, pageId,
                 FieldName.PAGE_ORDER, order,
-                FieldName.AUDIT_DATA, eventData,
+                FieldName.EVENT_DATA, eventData,
                 FieldName.BRANCH_NAME, defaultIfNull(branchName, "")
         );
 

@@ -252,7 +252,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
                             final Map<String, Object> data = Map.of(
                                     FieldName.APPLICATION_ID, application.getId(),
                                     FieldName.WORKSPACE_ID, application.getWorkspaceId(),
-                                    FieldName.AUDIT_DATA, eventData
+                                    FieldName.EVENT_DATA, eventData
                             );
                             return analyticsService.sendUpdateEvent(application, data);
                         }));
@@ -489,7 +489,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
                             FieldName.APPLICATION_ID, application.getId(),
                             "organizationId", application.getWorkspaceId(),
                             "isRegeneratedKey", gitAuth.isRegeneratedKey(),
-                            FieldName.AUDIT_DATA, eventData
+                            FieldName.EVENT_DATA, eventData
                     );
                     return analyticsService.sendObjectEvent(AnalyticsEvents.GENERATE_SSH_KEY, application, data)
                             .onErrorResume(e -> {

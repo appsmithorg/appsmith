@@ -2479,7 +2479,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                 FieldName.APP_MODE, ApplicationMode.EDIT.toString(),
                 FieldName.APPLICATION, application
         );
-        analyticsProps.put(FieldName.AUDIT_DATA, auditData);
+        analyticsProps.put(FieldName.EVENT_DATA, auditData);
         return sessionUserService.getCurrentUser()
                 .map(user -> {
                     analyticsService.sendEvent(eventName, user.getUsername(), analyticsProps);

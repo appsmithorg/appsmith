@@ -202,7 +202,7 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
                             FieldName.APP_MODE, ApplicationMode.EDIT.toString(),
                             FieldName.APPLICATION, application
                     );
-                    data.put(FieldName.AUDIT_DATA, auditData);
+                    data.put(FieldName.EVENT_DATA, auditData);
                     return analyticsService.sendObjectEvent(AnalyticsEvents.FORK, applicationTemplate, data)
                             .thenReturn(applicationImportDTO);
                 });
