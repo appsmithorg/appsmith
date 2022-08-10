@@ -31,7 +31,6 @@ const viewWidgetsPage = require("../locators/ViewWidgets.json");
 const generatePage = require("../locators/GeneratePage.json");
 const jsEditorLocators = require("../locators/JSEditor.json");
 const commonLocators = require("../locators/commonlocators.json");
-import commentsLocators from "../locators/CommentsLocators";
 const queryLocators = require("../locators/QueryEditor.json");
 const welcomePage = require("../locators/welcomePage.json");
 const publishWidgetspage = require("../locators/publishWidgetspage.json");
@@ -999,6 +998,7 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   cy.route("POST", "/api/v1/collections/actions").as("createNewJSCollection");
   cy.route("DELETE", "/api/v1/collections/actions/*").as("deleteJSCollection");
   cy.route("POST", "/api/v1/pages/crud-page").as("replaceLayoutWithCRUDPage");
+  cy.intercept("PUT", "api/v1/collections/actions/*").as("jsCollections");
 
   cy.intercept("POST", "/api/v1/users/super").as("createSuperUser");
   cy.intercept("POST", "/api/v1/actions/execute").as("postExecute");
@@ -1008,7 +1008,6 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   cy.intercept("PUT", "/api/v1/layouts/refactor").as("updateWidgetName");
   cy.intercept("GET", "/api/v1/workspaces/*/members").as("getMembers");
   cy.intercept("POST", "/api/v1/datasources/mocks").as("getMockDb");
-
 });
 
 Cypress.Commands.add("startErrorRoutes", () => {
@@ -1349,14 +1348,6 @@ Cypress.Commands.add("replaceApplicationIdForInterceptPages", (fixtureFile) => {
       cy.writeFile(fixtureFile, JSON.stringify(data));
     });
   });
-});
-
-Cypress.Commands.add("skipCommentsOnboarding", () => {
-  cy.get(commonLocators.canvas);
-  cy.get(commentsLocators.switchToCommentModeBtn).click({ force: true });
-  cy.contains("SKIP").click({ force: true });
-  cy.get("input[name='displayName']").type("Skip User");
-  cy.get("button[type='submit']").click();
 });
 
 Cypress.Commands.add(

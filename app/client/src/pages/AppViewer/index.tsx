@@ -24,13 +24,9 @@ import {
 import { editorInitializer } from "utils/EditorUtils";
 import * as Sentry from "@sentry/react";
 import { getViewModePageList } from "selectors/editorSelectors";
-import AddCommentTourComponent from "comments/tour/AddCommentTourComponent";
-import CommentShowCaseCarousel from "comments/CommentsShowcaseCarousel";
 import { getThemeDetails, ThemeMode } from "selectors/themeSelectors";
-import GlobalHotKeys from "./GlobalHotKeys";
 import webfontloader from "webfontloader";
 import { getSearchQuery } from "utils/helpers";
-import AppViewerCommentsSidebar from "./AppViewerComemntsSidebar";
 import { getSelectedAppTheme } from "selectors/appThemingSelectors";
 import { useSelector } from "react-redux";
 import BrandingBadge from "./BrandingBadge";
@@ -60,13 +56,6 @@ const AppViewerBody = styled.section<{
   justify-content: flex-start;
   height: calc(100vh - ${({ headerHeight }) => headerHeight}px);
   --view-mode-header-height: ${({ headerHeight }) => headerHeight}px;
-`;
-
-const ContainerWithComments = styled.div`
-  display: flex;
-  width: 100%;
-  height: 100%;
-  background: ${(props) => props.theme.colors.artboard};
 `;
 
 const AppViewerBodyContainer = styled.div<{
@@ -240,49 +229,42 @@ function AppViewer(props: Props) {
 
   return (
     <ThemeProvider theme={lightTheme}>
-      <GlobalHotKeys>
-        <EditorContext.Provider
-          value={{
-            executeAction: executeActionCallback,
-            resetChildrenMetaProperty: resetChildrenMetaPropertyCallback,
-            batchUpdateWidgetProperty: batchUpdateWidgetPropertyCallback,
-            syncUpdateWidgetMetaProperty: syncUpdateWidgetMetaPropertyCallback,
-            triggerEvalOnMetaUpdate: triggerEvalOnMetaUpdateCallback,
-          }}
+      <EditorContext.Provider
+        value={{
+          executeAction: executeActionCallback,
+          resetChildrenMetaProperty: resetChildrenMetaPropertyCallback,
+          batchUpdateWidgetProperty: batchUpdateWidgetPropertyCallback,
+          syncUpdateWidgetMetaProperty: syncUpdateWidgetMetaPropertyCallback,
+          triggerEvalOnMetaUpdate: triggerEvalOnMetaUpdateCallback,
+        }}
+      >
+        <WidgetGlobaStyles
+          fontFamily={selectedTheme.properties.fontFamily.appFont}
+          primaryColor={selectedTheme.properties.colors.primaryColor}
+        />
+        <AppViewerBodyContainer
+          backgroundColor={selectedTheme.properties.colors.backgroundColor}
         >
-          <WidgetGlobaStyles
-            fontFamily={selectedTheme.properties.fontFamily.appFont}
-            primaryColor={selectedTheme.properties.colors.primaryColor}
-          />
-          <ContainerWithComments>
-            <AppViewerCommentsSidebar />
-            <AppViewerBodyContainer
-              backgroundColor={selectedTheme.properties.colors.backgroundColor}
+          <AppViewerBody
+            className={CANVAS_SELECTOR}
+            hasPages={pages.length > 1}
+            headerHeight={headerHeight}
+            showGuidedTourMessage={showGuidedTourMessage}
+          >
+            {isInitialized && registered && <AppViewerPageContainer />}
+          </AppViewerBody>
+          {!hideWatermark && (
+            <a
+              className="fixed hidden right-8 bottom-4 z-2 hover:no-underline md:flex"
+              href="https://appsmith.com"
+              rel="noreferrer"
+              target="_blank"
             >
-              <AppViewerBody
-                className={CANVAS_SELECTOR}
-                hasPages={pages.length > 1}
-                headerHeight={headerHeight}
-                showGuidedTourMessage={showGuidedTourMessage}
-              >
-                {isInitialized && registered && <AppViewerPageContainer />}
-              </AppViewerBody>
-              {!hideWatermark && (
-                <a
-                  className="fixed hidden right-8 bottom-4 z-2 hover:no-underline md:flex"
-                  href="https://appsmith.com"
-                  rel="noreferrer"
-                  target="_blank"
-                >
-                  <BrandingBadge />
-                </a>
-              )}
-            </AppViewerBodyContainer>
-          </ContainerWithComments>
-          <AddCommentTourComponent />
-          <CommentShowCaseCarousel />
-        </EditorContext.Provider>
-      </GlobalHotKeys>
+              <BrandingBadge />
+            </a>
+          )}
+        </AppViewerBodyContainer>
+      </EditorContext.Provider>
     </ThemeProvider>
   );
 }
