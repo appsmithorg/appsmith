@@ -42,6 +42,50 @@ export default {
       },
     },
     {
+      propertyName: "isDisabled",
+      label: "Disabled",
+      defaultValue: false,
+      controlType: "SWITCH",
+      customJSControl: "TABLE_COMPUTE_VALUE",
+      isJSConvertible: true,
+      isBindProperty: true,
+      isTriggerProperty: false,
+      validation: {
+        type: ValidationTypes.TABLE_PROPERTY,
+        params: {
+          type: ValidationTypes.BOOLEAN,
+        },
+      },
+      dependencies: ["primaryColumns", "columnOrder"],
+      hidden: (props: TableWidgetProps, propertyPath: string) => {
+        return hideByColumnType(props, propertyPath, [
+          ColumnTypes.ICON_BUTTON,
+          ColumnTypes.MENU_BUTTON,
+          ColumnTypes.BUTTON,
+        ]);
+      },
+    },
+    {
+      propertyName: "isCompact",
+      helpText: "Decides if menu items will consume lesser space",
+      label: "Compact",
+      controlType: "SWITCH",
+      customJSControl: "TABLE_COMPUTE_VALUE",
+      isJSConvertible: true,
+      isBindProperty: true,
+      validation: {
+        type: ValidationTypes.TABLE_PROPERTY,
+        params: {
+          type: ValidationTypes.BOOLEAN,
+        },
+      },
+      isTriggerProperty: false,
+      dependencies: ["primaryColumns", "columnOrder"],
+      hidden: (props: TableWidgetProps, propertyPath: string) => {
+        return hideByColumnType(props, propertyPath, [ColumnTypes.MENU_BUTTON]);
+      },
+    },
+    {
       propertyName: "allowCellWrapping",
       dependencies: ["primaryColumns", "columnType"],
       label: "Cell Wrapping",

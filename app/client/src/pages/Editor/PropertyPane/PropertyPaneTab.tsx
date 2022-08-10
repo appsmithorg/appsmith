@@ -94,7 +94,7 @@ export function PropertyPaneTab(props: PropertyPaneTabProps) {
 
   useEffect(() => {
     const q = document.querySelectorAll(".react-tabs__tab-panel");
-    console.log("bla tabs", widgetTypeForPanelConfig, q);
+    // console.log("bla tabs", widgetTypeForPanelConfig, q);
   }, [tabs]);
 
   return (

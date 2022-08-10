@@ -79,19 +79,6 @@ export default {
       },
     },
     {
-      propertyName: "displayText",
-      label: "Display Text",
-      controlType: "TABLE_COMPUTE_VALUE",
-      hidden: (props: TableWidgetProps, propertyPath: string) => {
-        const baseProperty = getBasePropertyPath(propertyPath);
-        const columnType = get(props, `${baseProperty}.columnType`, "");
-        return columnType !== "url";
-      },
-      dependencies: ["primaryColumns", "columnOrder"],
-      isBindProperty: false,
-      isTriggerProperty: false,
-    },
-    {
       helpText: "The alias that you use in selectedrow",
       propertyName: "alias",
       label: "Property Name",
@@ -130,6 +117,19 @@ export default {
           fnString: uniqueColumnAliasValidation.toString(),
         },
       },
+    },
+    {
+      propertyName: "displayText",
+      label: "Display Text",
+      controlType: "TABLE_COMPUTE_VALUE",
+      hidden: (props: TableWidgetProps, propertyPath: string) => {
+        const baseProperty = getBasePropertyPath(propertyPath);
+        const columnType = get(props, `${baseProperty}.columnType`, "");
+        return columnType !== "url";
+      },
+      dependencies: ["primaryColumns", "columnOrder"],
+      isBindProperty: false,
+      isTriggerProperty: false,
     },
     {
       helpText:
