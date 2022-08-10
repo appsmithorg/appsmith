@@ -184,7 +184,7 @@ class UserLog {
       }
     }
   }
-  private resetLogs() {
+  public resetLogs() {
     this.logs = [];
   }
 }
