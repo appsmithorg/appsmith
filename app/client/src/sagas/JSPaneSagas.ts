@@ -23,7 +23,8 @@ import {
   JSCollectionData,
   JSCollectionDataState,
 } from "reducers/entityReducers/jsActionsReducer";
-import { createNewJSFunctionName, getQueryParams } from "utils/AppsmithUtils";
+import { createNewJSFunctionName } from "utils/AppsmithUtils";
+import { getQueryParams } from "utils/URLUtils";
 import { JSCollection, JSAction } from "entities/JSCollection";
 import { createJSCollectionRequest } from "actions/jsActionActions";
 import history from "utils/history";
@@ -453,7 +454,6 @@ function* handleUpdateJSCollectionBody(
   );
   // @ts-expect-error: Object jsCollection is possibly undefined
   jsCollection["body"] = actionPayload.payload.body;
-
   try {
     if (jsCollection) {
       const response: JSCollectionCreateUpdateResponse = yield JSActionAPI.updateJSCollection(

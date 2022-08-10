@@ -32,7 +32,6 @@ import {
   BottomRightHandleStyles,
 } from "./ResizeStyledComponents";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { commentModeSelector } from "selectors/commentsSelectors";
 import {
   previewModeSelector,
   snipingModeSelector,
@@ -68,7 +67,6 @@ export const ResizableComponent = memo(function ResizableComponent(
     direction === LayoutDirection.Vertical && alignItems === AlignItems.Stretch;
   const canvasWidgets = useSelector(getCanvasWidgets);
 
-  const isCommentMode = useSelector(commentModeSelector);
   const isSnipingMode = useSelector(snipingModeSelector);
   const isPreviewMode = useSelector(previewModeSelector);
 
@@ -327,7 +325,6 @@ export const ResizableComponent = memo(function ResizableComponent(
     !isDragging &&
     isWidgetFocused &&
     !props.resizeDisabled &&
-    !isCommentMode &&
     !isSnipingMode &&
     !isPreviewMode;
   const isMultiSelectedWidget =

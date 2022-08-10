@@ -235,10 +235,85 @@ export const resolveAsSpaceChar = (value: string, limit?: number) => {
     .slice(0, limit || 30);
 };
 
-export const isMac = () => {
-  const platform =
-    typeof navigator !== "undefined" ? navigator.platform : undefined;
-  return !platform ? false : /Mac|iPod|iPhone|iPad/.test(platform);
+export const PLATFORM_OS = {
+  MAC: "MAC",
+  IOS: "IOS",
+  LINUX: "LINUX",
+  ANDROID: "ANDROID",
+  WINDOWS: "WINDOWS",
+};
+
+const platformOSRegex = {
+  [PLATFORM_OS.MAC]: /mac.*/i,
+  [PLATFORM_OS.IOS]: /(?:iphone|ipod|ipad|Pike v.*)/i,
+  [PLATFORM_OS.LINUX]: /(?:linux.*)/i,
+  [PLATFORM_OS.ANDROID]: /android.*|aarch64|arm.*/i,
+  [PLATFORM_OS.WINDOWS]: /win.*/i,
+};
+
+export const getPlatformOS = () => {
+  const browserPlatform =
+    typeof navigator !== "undefined" ? navigator.platform : null;
+  if (browserPlatform) {
+    const platformOSList = Object.entries(platformOSRegex);
+    const platform = platformOSList.find(([, regex]) =>
+      regex.test(browserPlatform),
+    );
+    return platform ? platform[0] : null;
+  }
+  return null;
+};
+
+export const isMacOrIOS = () => {
+  const platformOS = getPlatformOS();
+  return platformOS === PLATFORM_OS.MAC || platformOS === PLATFORM_OS.IOS;
+};
+
+export const getBrowserInfo = () => {
+  const userAgent =
+    typeof navigator !== "undefined" ? navigator.userAgent : null;
+
+  if (userAgent) {
+    let specificMatch;
+    let match =
+      userAgent.match(
+        /(opera|chrome|safari|firefox|msie|CriOS|trident(?=\/))\/?\s*(\d+)/i,
+      ) || [];
+
+    // browser
+    if (/CriOS/i.test(match[1])) match[1] = "Chrome";
+
+    if (match[1] === "Chrome") {
+      specificMatch = userAgent.match(/\b(OPR|Edge)\/(\d+)/);
+      if (specificMatch) {
+        const opera = specificMatch.slice(1);
+        return {
+          browser: opera[0].replace("OPR", "Opera"),
+          version: opera[1],
+        };
+      }
+
+      specificMatch = userAgent.match(/\b(Edg)\/(\d+)/);
+      if (specificMatch) {
+        const edge = specificMatch.slice(1);
+        return {
+          browser: edge[0].replace("Edg", "Edge (Chromium)"),
+          version: edge[1],
+        };
+      }
+    }
+
+    // version
+    match = match[2]
+      ? [match[1], match[2]]
+      : [navigator.appName, navigator.appVersion, "-?"];
+    const version = userAgent.match(/version\/(\d+)/i);
+
+    version && match.splice(1, 1, version[1]);
+
+    return { browser: match[0], version: match[1] };
+  }
+  return null;
 };
 
 /**
@@ -555,14 +630,15 @@ export const truncateString = (
  *
  * @returns
  */
-export const modText = () => (isMac() ? <span>&#8984;</span> : "Ctrl +");
-export const altText = () => (isMac() ? <span>&#8997;</span> : "Alt +");
-export const shiftText = () => (isMac() ? <span>&#8682;</span> : "Shift +");
+export const modText = () => (isMacOrIOS() ? <span>&#8984;</span> : "Ctrl +");
+export const altText = () => (isMacOrIOS() ? <span>&#8997;</span> : "Alt +");
+export const shiftText = () =>
+  isMacOrIOS() ? <span>&#8682;</span> : "Shift +";
 
 export const undoShortCut = () => <span>{modText()} Z</span>;
 
 export const redoShortCut = () =>
-  isMac() ? (
+  isMacOrIOS() ? (
     <span>
       {modText()} {shiftText()} Z
     </span>
@@ -779,6 +855,54 @@ export const updateSlugNamesInURL = (params: Record<string, string>) => {
   if (isURLDeprecated(pathname)) return;
   const newURL = getUpdatedRoute(pathname, params);
   history.replace(newURL + search);
+};
+
+/**
+ * Function to get valid supported mimeType for different browsers
+ * @param media "video" | "audio"
+ * @returns mimeType string
+ */
+export const getSupportedMimeTypes = (media: "video" | "audio") => {
+  const videoTypes = ["webm", "ogg", "mp4", "x-matroska"];
+  const audioTypes = ["webm", "ogg", "mp3", "x-matroska"];
+  const codecs = [
+    "should-not-be-supported",
+    "vp9",
+    "vp9.0",
+    "vp8",
+    "vp8.0",
+    "avc1",
+    "av1",
+    "h265",
+    "h.265",
+    "h264",
+    "h.264",
+    "opus",
+    "pcm",
+    "aac",
+    "mpeg",
+    "mp4a",
+  ];
+  const supported: Array<string> = [];
+  const isSupported = MediaRecorder.isTypeSupported;
+  const types = media === "video" ? videoTypes : audioTypes;
+
+  types.forEach((type: string) => {
+    const mimeType = `${media}/${type}`;
+    // without codecs
+    isSupported(mimeType) && supported.push(mimeType);
+
+    // with codecs
+    codecs.forEach((codec) =>
+      [
+        `${mimeType};codecs=${codec}`,
+        `${mimeType};codecs=${codec.toUpperCase()}`,
+      ].forEach(
+        (variation) => isSupported(variation) && supported.push(variation),
+      ),
+    );
+  });
+  return supported[0];
 };
 
 export function AutoBind(target: any, _: string, descriptor: any) {

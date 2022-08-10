@@ -20,10 +20,11 @@ public class LayoutActionServiceImpl extends LayoutActionServiceCEImpl implement
                                    ActionCollectionService actionCollectionService,
                                    CollectionService collectionService,
                                    ApplicationService applicationService,
-                                   ResponseUtils responseUtils) {
+                                   ResponseUtils responseUtils,
+                                   DatasourceService datasourceService) {
 
         super(objectMapper, analyticsService, newPageService, newActionService, pageLoadActionsUtil, sessionUserService,
-                actionCollectionService, collectionService, applicationService, responseUtils);
+                actionCollectionService, collectionService, applicationService, responseUtils, datasourceService);
 
     }
 }

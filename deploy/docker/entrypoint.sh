@@ -119,15 +119,16 @@ check_mongodb_uri() {
 init_mongodb() {
   if [[ $isUriLocal -eq 0 ]]; then
     echo "Initializing local database"
-    MONGO_DB_PATH="/appsmith-stacks/data/mongodb"
+    MONGO_DB_PATH="$stacks_path/data/mongodb"
     MONGO_LOG_PATH="$MONGO_DB_PATH/log"
     MONGO_DB_KEY="$MONGO_DB_PATH/key"
     mkdir -p "$MONGO_DB_PATH"
     touch "$MONGO_LOG_PATH"
 
-    if [[ -f "$MONGO_DB_KEY" ]]; then
-      chmod-mongodb-key "$MONGO_DB_KEY"
+    if [[ ! -f "$MONGO_DB_KEY" ]]; then
+      openssl rand -base64 756 > "$MONGO_DB_KEY"
     fi
+    chmod-mongodb-key "$MONGO_DB_KEY"
   fi
 }
 
@@ -156,8 +157,6 @@ init_replica_set() {
     mongo "127.0.0.1/appsmith" /appsmith-stacks/configuration/mongo-init.js
     echo "Enabling Replica Set"
     mongod --dbpath "$MONGO_DB_PATH" --shutdown || true
-    openssl rand -base64 756 > "$MONGO_DB_KEY"
-    chmod-mongodb-key "$MONGO_DB_KEY"
     mongod --fork --port 27017 --dbpath "$MONGO_DB_PATH" --logpath "$MONGO_LOG_PATH" --replSet mr1 --keyFile "$MONGO_DB_KEY" --bind_ip localhost
     echo "Waiting 10s for MongoDB to start with Replica Set"
     sleep 10
