@@ -1,5 +1,3 @@
-import { TAILWIND_COLORS } from "constants/ThemeConstants";
-
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
 
@@ -20,7 +18,6 @@ export const CONFIG = {
       { value: 75, label: "75%" },
       { value: 100, label: "100%" },
     ],
-    fillColor: TAILWIND_COLORS.green["600"],
     isVisible: true,
     labelAlwaysOn: false,
     showLabelOnHover: true,

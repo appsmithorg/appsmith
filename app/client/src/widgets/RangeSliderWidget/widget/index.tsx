@@ -2,7 +2,7 @@ import * as React from "react";
 
 import { ValidationTypes } from "constants/WidgetValidation";
 import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
-import { AutocompleteDataType } from "utils/autocomplete/TernServer";
+import { TAILWIND_COLORS } from "constants/ThemeConstants";
 import RangeSliderComponent, {
   RangeSliderComponentProps,
 } from "../component/RangeSlider";
@@ -161,23 +161,12 @@ class RangeSliderWidget extends BaseWidget<
         sectionName: "Styles",
         children: [
           {
-            propertyName: "fillColor",
+            propertyName: "accentColor",
             label: "Fill Color",
             controlType: "COLOR_PICKER",
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: {
-              type: ValidationTypes.TEXT,
-              params: {
-                regex: /^((?![<|{{]).+){0,1}/,
-                expected: {
-                  type: "string (HTML color name or HEX value)",
-                  example: `red | #9C0D38`,
-                  autocompleteDataType: AutocompleteDataType.STRING,
-                },
-              },
-            },
           },
           {
             propertyName: "sliderSize",
@@ -185,11 +174,6 @@ class RangeSliderWidget extends BaseWidget<
             controlType: "DROP_DOWN",
             defaultValue: "md",
             options: [
-              {
-                label: "xs",
-                value: "xs",
-                subText: "4px",
-              },
               {
                 label: "sm",
                 value: "sm",
@@ -204,11 +188,6 @@ class RangeSliderWidget extends BaseWidget<
                 label: "lg",
                 value: "lg",
                 subText: "10px",
-              },
-              {
-                label: "xl",
-                value: "xl",
-                subText: "12px",
               },
             ],
             isJSConvertible: true,
@@ -249,7 +228,7 @@ class RangeSliderWidget extends BaseWidget<
     return (
       <div className="flex items-center">
         <RangeSliderComponent
-          color={this.props.fillColor}
+          color={this.props.accentColor || TAILWIND_COLORS.green["600"]}
           endValue={this.props.end || 20}
           labelAlwaysOn={this.props.labelAlwaysOn}
           marks={this.props.marks}

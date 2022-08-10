@@ -77,19 +77,15 @@ export function isMarkedFilled({ mark, offset, value }: IsMarkedFilled) {
 }
 
 export const thumbSizeMap = {
-  xs: "8px",
   sm: "12px",
   md: "16px",
   lg: "20px",
-  xl: "24px",
 };
 
 export const sizeMap = {
-  xs: 4,
   sm: 6,
   md: 8,
   lg: 10,
-  xl: 12,
 };
 
-export type SliderSizes = "xs" | "sm" | "md" | "lg" | "xl";
+export type SliderSizes = "sm" | "md" | "lg";
