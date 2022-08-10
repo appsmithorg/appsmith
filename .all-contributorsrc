@@ -439,6 +439,24 @@
         "code",
         "bug"
       ]
+    },
+    {
+      "login": "dhruvikn",
+      "name": "Dhruvik Neharia",
+      "avatar_url": "https://avatars.githubusercontent.com/u/22471214?v=4",
+      "profile": "https://dhruvikneharia.netlify.com/",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "vishnu-gp",
+      "name": "Vishnu Gp",
+      "avatar_url": "https://avatars.githubusercontent.com/u/9128194?v=4",
+      "profile": "http://www.vannucherum.com",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "contributorsPerLine": 7,

@@ -84,18 +84,20 @@ describe("Shopping cart App", function() {
     // cy.get(".t--dropdown-option")
     //   .eq(1)
     //   .click();
+    const documentText = [
+      {
+        title: "{{Title.text}}",
+        description: "{{Description.text}}",
+        price: "{{Price.text}}",
+        quantity: "{{Quantity.text}}",
+      },
+    ];
     cy.get(".CodeEditorTarget")
       .first()
       .type("Productnames", { parseSpecialCharSequences: false });
     cy.get(".CodeEditorTarget")
       .eq(1)
-      .type(
-        `[{"title" : "{{Title.text}}",
-        "description": "{{Description.text}}",
-        "price" : {{Price.text}},
-        "quantity" : {{Quantity.text}}`,
-        { parseSpecialCharSequences: false },
-      );
+      .type(JSON.stringify(documentText), { parseSpecialCharSequences: false });
     cy.assertPageSave();
     cy.get(appPage.dropdownChevronLeft).click();
     // delete product
