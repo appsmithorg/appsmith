@@ -893,7 +893,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                 .flatMap(part -> {
                     final Param param = new Param();
                     String pseudoBindingName = part.name();
-                    param.setKey(URLDecoder.decode(dto.getInvertParameterMap().get(pseudoBindingName), StandardCharsets.UTF_8));
+                    param.setKey(dto.getInvertParameterMap().get(pseudoBindingName));
                     return DataBufferUtils
                             .join(part.content())
                             .map(dataBuffer -> {
