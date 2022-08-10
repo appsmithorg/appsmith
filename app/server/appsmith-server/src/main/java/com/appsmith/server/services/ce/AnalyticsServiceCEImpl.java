@@ -94,6 +94,10 @@ public class AnalyticsServiceCEImpl implements AnalyticsServiceCE {
     }
 
     public void identifyInstance(String instanceId, String role, String useCase) {
+        if (!isActive()) {
+            return;
+        }
+
         analytics.enqueue(IdentifyMessage.builder()
                 .userId(instanceId)
                 .traits(Map.of(

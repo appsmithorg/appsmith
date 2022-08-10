@@ -216,6 +216,7 @@ public class UserSignupCEImpl implements UserSignupCE {
 
                     return signupAndLogin(user, exchange);
                 })
+                .flatMap(user -> userUtils.makeSuperUser(List.of(user)).thenReturn(user))
                 .flatMap(user -> {
                     final UserData userData = new UserData();
                     userData.setRole(userFromRequest.getRole());
@@ -249,9 +250,7 @@ public class UserSignupCEImpl implements UserSignupCE {
                                     APPSMITH_ADMIN_EMAILS.name(),
                                     user.getEmail()
                             )),
-                            analyticsService.sendObjectEvent(AnalyticsEvents.CREATE_SUPERUSER, user, null),
-                            // make the user the superuser
-                            userUtils.makeSuperUser(List.of(user))
+                            analyticsService.sendObjectEvent(AnalyticsEvents.CREATE_SUPERUSER, user, null)
                     ).thenReturn(user);
                 });
     }
