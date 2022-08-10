@@ -22,6 +22,9 @@ public class ApplicationPage {
     @Transient
     String slug;
 
+    @Transient
+    String customSlug;
+
     // This field will represent the root pageId in git system where we are connecting resources among the branches
     @JsonIgnore
     String defaultPageId;
