@@ -189,7 +189,6 @@ export const StyledLabel = styled(Label)<StyledLabelProps>`
 
 const ToolTipIcon = styled(IconWrapper)<TooltipIconProps>`
   cursor: help;
-  margin-top: 1.5px;
   &&&:hover {
     svg {
       path {
