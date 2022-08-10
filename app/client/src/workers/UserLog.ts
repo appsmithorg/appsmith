@@ -1,4 +1,5 @@
 import { uuid4 } from "@sentry/utils";
+import { Severity } from "entities/AppsmithConsole";
 import moment from "moment";
 
 export type Methods =
@@ -15,12 +16,13 @@ export type Methods =
   | "assert";
 
 // Type of the log object
-export interface Message {
+export type LogObject = {
   method: Methods | "result";
   data: any[];
-  timestamp?: string;
+  timestamp: string;
   id: string;
-}
+  severity: Severity;
+};
 
 const truncate = (input: string, truncLen = 100) =>
   input.length > truncLen ? `${input.substring(0, truncLen)}...` : input;
@@ -44,7 +46,7 @@ class UserLog {
   constructor() {
     this.initiate();
   }
-  private logs: Message[] = [];
+  private logs: LogObject[] = [];
   // initiates the log object with the default methods and their overrides
   private initiate() {
     const { debug, error, info, log, table, warn } = console;
@@ -137,7 +139,7 @@ class UserLog {
     return returnData;
   }
   // returns the logs from the function execution after sanitising them
-  public flushLogs() {
+  public flushLogs(): LogObject[] {
     const userLogs = this.logs;
     this.resetLogs();
     // sanitise the data key of the user logs
@@ -151,38 +153,34 @@ class UserLog {
   }
 
   // parses the incoming log and converts it to the log object
-  public parseLogs(method: Methods | "result", data: any[]) {
+  public parseLogs(method: Methods, data: any[]): LogObject {
     // Create an ID
     const id = uuid4();
     const timestamp = this.getTimestamp();
     // Parse the methods
-    switch (method) {
-      case "error": {
-        const errors = data.map((error) => {
-          try {
-            return error.stack || error;
-          } catch (e) {
-            return error;
-          }
-        });
-
-        return {
-          method,
-          id,
-          data: errors,
-          timestamp,
-        };
-      }
-
-      default: {
-        return {
-          method,
-          id,
-          data,
-          timestamp,
-        };
-      }
+    let output = data;
+    // For logs UI we only keep 3 levels of severity, info, warn, error
+    let severity = Severity.INFO;
+    if (method === "error") {
+      severity = Severity.ERROR;
+      output = data.map((error) => {
+        try {
+          return error.stack || error;
+        } catch (e) {
+          return error;
+        }
+      });
+    } else if (method === "warn") {
+      severity = Severity.WARNING;
     }
+
+    return {
+      method,
+      id,
+      data: output,
+      timestamp,
+      severity,
+    };
   }
   public resetLogs() {
     this.logs = [];

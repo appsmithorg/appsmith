@@ -12,13 +12,13 @@ import { enhanceDataTreeWithFunctions } from "./Actions";
 import { isEmpty } from "lodash";
 import { completePromise } from "workers/PromisifyAction";
 import { ActionDescription } from "entities/DataTree/actionTriggers";
-import userLogs, { Message } from "./UserLog";
+import userLogs, { LogObject } from "./UserLog";
 
 export type EvalResult = {
   result: any;
   errors: EvaluationError[];
   triggers?: ActionDescription[];
-  logs?: Message[];
+  logs?: LogObject[];
 };
 
 export enum EvaluationScriptType {
@@ -232,7 +232,7 @@ export default function evaluateSync(
 ): EvalResult {
   return (function() {
     const errors: EvaluationError[] = [];
-    let logs: Message[] = [];
+    let logs: LogObject[] = [];
     let result;
     /**** Setting the eval context ****/
     const GLOBAL_DATA: Record<string, any> = createGlobalData({
