@@ -87,6 +87,7 @@ function FilterItem({ item, onSelect, selected }: FilterItemProps) {
     <FilterItemWrapper>
       <Checkbox
         backgroundColor={Colors.GREY_900}
+        isDefaultChecked={selected}
         label={item.label}
         onCheckChange={onClick}
       />
