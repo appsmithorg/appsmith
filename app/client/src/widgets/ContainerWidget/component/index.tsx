@@ -73,7 +73,7 @@ export const FlexContainer = styled.div<{
   flex-wrap: wrap;
 
   width: 100%;
-  height: auto;
+  height: 100%;
 `;
 
 function ContainerComponentWrapper(props: ContainerComponentProps) {
