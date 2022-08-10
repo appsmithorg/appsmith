@@ -1,16 +1,16 @@
 import React, { useEffect, useRef, useState } from "react";
 import throttle from "lodash/throttle";
 
-import { useMove } from "../../SingleSliderWidget/use-move";
+import { useMove } from "../../SliderWidget/use-move";
 import {
   getClientPosition,
   getPosition,
   getChangeValue,
   SliderSizes,
-} from "../../SingleSliderWidget/utils";
-import { Thumb } from "../../SingleSliderWidget/component/Thumb";
-import { Track } from "../../SingleSliderWidget/component/Track";
-import { SliderRoot } from "../../SingleSliderWidget/component/SilderRoot";
+} from "../../SliderWidget/utils";
+import { Thumb } from "../../SliderWidget/component/Thumb";
+import { Track } from "../../SliderWidget/component/Track";
+import { SliderRoot } from "../../SliderWidget/component/SilderRoot";
 
 type Value = [number, number];
 

@@ -605,7 +605,7 @@ export const entityDefinitions = {
     isVisible: isVisible,
     progress: "number",
   },
-  SINGLE_SLIDER_WIDGET: {
+  SLIDER_WIDGET: {
     "!doc": "Circular Progress is a simple UI widget used to show progress",
     "!url": "https://docs.appsmith.com/widget-reference/circular-progress",
     isVisible: isVisible,

@@ -5,7 +5,7 @@ import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import { TAILWIND_COLORS } from "constants/ThemeConstants";
 import SingleSliderComponent, {
   SingleSliderComponentProps,
-} from "../component/SingleSlider";
+} from "../component/Slider";
 
 interface SingleSliderWidgetProps
   extends WidgetProps,
@@ -28,7 +28,6 @@ class SingleSliderWidget extends BaseWidget<
             placeholderText: "Value:",
             isBindProperty: true,
             isTriggerProperty: false,
-            isJSConvertible: true,
             validation: { type: ValidationTypes.NUMBER },
           },
           {
@@ -39,7 +38,6 @@ class SingleSliderWidget extends BaseWidget<
             placeholderText: "100",
             isBindProperty: true,
             isTriggerProperty: false,
-            isJSConvertible: true,
             validation: { type: ValidationTypes.NUMBER },
           },
           {
@@ -50,7 +48,6 @@ class SingleSliderWidget extends BaseWidget<
             placeholderText: "0",
             isBindProperty: true,
             isTriggerProperty: false,
-            isJSConvertible: true,
             validation: { type: ValidationTypes.NUMBER },
           },
           {
@@ -61,7 +58,6 @@ class SingleSliderWidget extends BaseWidget<
             placeholderText: "10",
             isBindProperty: true,
             isTriggerProperty: false,
-            isJSConvertible: true,
             validation: { type: ValidationTypes.NUMBER },
           },
           {
@@ -69,6 +65,27 @@ class SingleSliderWidget extends BaseWidget<
             helpText: "Controls the visibility of the widget",
             label: "Visible",
             controlType: "SWITCH",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+          },
+          {
+            propertyName: "isDisabled",
+            label: "Disabled",
+            controlType: "SWITCH",
+            helpText: "Disables clicks to this widget",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+          },
+          {
+            propertyName: "animateLoading",
+            label: "Animate Loading",
+            controlType: "SWITCH",
+            helpText: "Controls the loading of the widget",
+            defaultValue: true,
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
@@ -145,35 +162,35 @@ class SingleSliderWidget extends BaseWidget<
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
+          {
+            propertyName: "sliderSize",
+            label: "Slider Size",
+            controlType: "DROP_DOWN",
+            defaultValue: "md",
+            options: [
+              {
+                label: "sm",
+                value: "sm",
+                subText: "6px",
+              },
+              {
+                label: "md",
+                value: "md",
+                subText: "8px",
+              },
+              {
+                label: "lg",
+                value: "lg",
+                subText: "10px",
+              },
+            ],
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
           },
         ],
-      },
-      {
-        propertyName: "sliderSize",
-        label: "Slider Size",
-        controlType: "DROP_DOWN",
-        defaultValue: "md",
-        options: [
-          {
-            label: "sm",
-            value: "sm",
-            subText: "6px",
-          },
-          {
-            label: "md",
-            value: "md",
-            subText: "8px",
-          },
-          {
-            label: "lg",
-            value: "lg",
-            subText: "10px",
-          },
-        ],
-        isJSConvertible: true,
-        isBindProperty: true,
-        isTriggerProperty: false,
-        validation: { type: ValidationTypes.TEXT },
       },
     ];
   }
@@ -215,7 +232,7 @@ class SingleSliderWidget extends BaseWidget<
   }
 
   static getWidgetType() {
-    return "SINGLE_SLIDER_WIDGET";
+    return "SLIDER_WIDGET";
   }
 }
 

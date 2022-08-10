@@ -3,9 +3,10 @@ import Widget from "./widget";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
-  name: "Single Slider Widget",
+  name: "Slider Widget",
   needsMeta: true,
-  replacement: "SINGLE_SLIDER_WIDGET",
+  searchTags: ["range"],
+  replacement: "SLIDER_WIDGET",
   iconSVG: IconSVG,
   defaults: {
     defaultValue: 50,
@@ -21,10 +22,9 @@ export const CONFIG = {
     isVisible: true,
     labelAlwaysOn: false,
     showLabelOnHover: true,
-
     rows: 8,
     columns: 35,
-    widgetName: "SingleSlider",
+    widgetName: "Slider",
     shouldScroll: false,
     shouldTruncate: false,
     version: 1,

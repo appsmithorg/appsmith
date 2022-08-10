@@ -28,7 +28,6 @@ class RangeSliderWidget extends BaseWidget<
             placeholderText: "Start Value:",
             isBindProperty: true,
             isTriggerProperty: false,
-            isJSConvertible: true,
             validation: { type: ValidationTypes.NUMBER },
           },
           {
@@ -39,7 +38,6 @@ class RangeSliderWidget extends BaseWidget<
             placeholderText: "End Value:",
             isBindProperty: true,
             isTriggerProperty: false,
-            isJSConvertible: true,
             validation: { type: ValidationTypes.NUMBER },
           },
           {
@@ -50,7 +48,6 @@ class RangeSliderWidget extends BaseWidget<
             placeholderText: "100",
             isBindProperty: true,
             isTriggerProperty: false,
-            isJSConvertible: true,
             validation: { type: ValidationTypes.NUMBER },
           },
           {
@@ -61,7 +58,6 @@ class RangeSliderWidget extends BaseWidget<
             placeholderText: "0",
             isBindProperty: true,
             isTriggerProperty: false,
-            isJSConvertible: true,
             validation: { type: ValidationTypes.NUMBER },
           },
           {
@@ -72,7 +68,6 @@ class RangeSliderWidget extends BaseWidget<
             placeholderText: "10",
             isBindProperty: true,
             isTriggerProperty: false,
-            isJSConvertible: true,
             validation: { type: ValidationTypes.NUMBER },
           },
           {
@@ -83,7 +78,6 @@ class RangeSliderWidget extends BaseWidget<
             placeholderText: "10",
             isBindProperty: true,
             isTriggerProperty: false,
-            isJSConvertible: true,
             validation: { type: ValidationTypes.NUMBER },
           },
           {
@@ -91,6 +85,27 @@ class RangeSliderWidget extends BaseWidget<
             helpText: "Controls the visibility of the widget",
             label: "Visible",
             controlType: "SWITCH",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+          },
+          {
+            propertyName: "isDisabled",
+            label: "Disabled",
+            controlType: "SWITCH",
+            helpText: "Disables clicks to this widget",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+          },
+          {
+            propertyName: "animateLoading",
+            label: "Animate Loading",
+            controlType: "SWITCH",
+            helpText: "Controls the loading of the widget",
+            defaultValue: true,
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
@@ -167,6 +182,7 @@ class RangeSliderWidget extends BaseWidget<
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
           },
           {
             propertyName: "sliderSize",
@@ -190,7 +206,6 @@ class RangeSliderWidget extends BaseWidget<
                 subText: "10px",
               },
             ],
-            isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
             validation: { type: ValidationTypes.TEXT },
