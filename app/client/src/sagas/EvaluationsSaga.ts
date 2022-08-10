@@ -270,11 +270,23 @@ export function* evaluateAndExecuteDynamicTrigger(
         }
       }
       // Check for any logs in the response and store them in the redux store
-      if ("logs" in result && !!result.logs && result.logs.length) {
+      if (
+        "logs" in result &&
+        !!result.logs &&
+        result.logs.length &&
+        // Remove on js execute event logs since they are already being handeled
+        // If not removed, these will show up on page load action executions
+        eventType !== EventType.ON_JS_FUNCTION_EXECUTE
+      ) {
         result.logs.forEach((log: Message) => {
           AppsmithConsole.info(
             {
               text: createLogTitleString(log.data),
+              source: {
+                type: ENTITY_TYPE.WIDGET,
+                name: triggerMeta.source?.name || "Widget",
+                id: triggerMeta.source?.id || "",
+              },
             },
             log.timestamp,
           );
