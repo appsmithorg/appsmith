@@ -13,9 +13,11 @@ import {
   take,
 } from "redux-saga/effects";
 import {
+  getGuidedTourState,
   setEnableFirstTimeUserOnboarding as storeEnableFirstTimeUserOnboarding,
   setFirstTimeUserOnboardingApplicationId as storeFirstTimeUserOnboardingApplicationId,
   setFirstTimeUserOnboardingIntroModalVisibility as storeFirstTimeUserOnboardingIntroModalVisibility,
+  setGuidedTourState,
 } from "utils/storage";
 
 import { getCurrentUser } from "selectors/usersSelectors";
@@ -35,6 +37,7 @@ import { Workspaces } from "constants/workspaceConstants";
 import {
   enableGuidedTour,
   focusWidgetProperty,
+  loadGuidedTour,
   setCurrentStep,
   toggleLoader,
 } from "actions/onboardingActions";
@@ -75,6 +78,7 @@ import { builderURL, queryEditorIdURL } from "RouteBuilder";
 import { GuidedTourEntityNames } from "pages/Editor/GuidedTour/constants";
 import { navigateToCanvas } from "pages/Editor/Explorer/Widgets/utils";
 import { shouldBeDefined } from "utils/helpers";
+import { GuidedTourState } from "reducers/uiReducers/guidedTourReducer";
 
 function* createApplication() {
   // If we are starting onboarding from the editor wait for the editor to reset.
@@ -120,6 +124,29 @@ function* createApplication() {
   yield put(setPreviewModeAction(true));
 }
 
+function* syncGuidedTourStateSaga() {
+  const applicationId: string = yield select(getCurrentApplicationId);
+  const guidedTourState: GuidedTourState = yield select(
+    (state) => state.ui.guidedTour,
+  );
+  yield call(
+    setGuidedTourState,
+    JSON.stringify({ applicationId, guidedTourState }),
+  );
+}
+
+function* loadGuidedTourInitSaga() {
+  const applicationId: string = yield select(getCurrentApplicationId);
+  const guidedTourState:
+    | undefined
+    | { applicationId: string; guidedTourState: GuidedTourState } = yield call(
+    getGuidedTourState,
+  );
+  if (guidedTourState && guidedTourState.applicationId === applicationId) {
+    yield put(loadGuidedTour(guidedTourState.guidedTourState));
+  }
+}
+
 function* setCurrentStepSaga(action: ReduxAction<number>) {
   const hadReachedStep: number = yield select(getHadReachedStep);
   // Log only once when we reach that step
@@ -129,6 +156,7 @@ function* setCurrentStepSaga(action: ReduxAction<number>) {
     });
   }
 
+  yield call(syncGuidedTourStateSaga);
   yield put(setCurrentStep(action.payload));
 }
 
@@ -424,6 +452,7 @@ export default function* onboardingActionSagas() {
     takeLatest(ReduxActionTypes.ENABLE_GUIDED_TOUR, endGuidedTourSaga),
     takeLatest(ReduxActionTypes.GUIDED_TOUR_FOCUS_WIDGET, selectWidgetSaga),
     takeLatest(ReduxActionTypes.FOCUS_WIDGET_PROPERTY, focusWidgetPropertySaga),
+    takeLatest(ReduxActionTypes.LOAD_GUIDED_TOUR_INIT, loadGuidedTourInitSaga),
     takeLatest(
       ReduxActionTypes.SET_ENABLE_FIRST_TIME_USER_ONBOARDING,
       setEnableFirstTimeUserOnboarding,

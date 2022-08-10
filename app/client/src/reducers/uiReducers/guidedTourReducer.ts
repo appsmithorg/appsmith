@@ -35,57 +35,6 @@ export interface GuidedTourState {
 }
 
 const guidedTourReducer = createReducer(initialState, {
-  [ReduxActionTypes.TOGGLE_ONBOARDING_WIDGET_SELECTION]: (
-    state: GuidedTourState,
-    action: ReduxAction<boolean>,
-  ) => {
-    return {
-      ...state,
-      inOnboardingWidgetSelection: action.payload,
-    };
-  },
-  [ReduxActionTypes.SET_ENABLE_FIRST_TIME_USER_ONBOARDING]: (
-    state: GuidedTourState,
-    action: ReduxAction<boolean>,
-  ) => {
-    return {
-      ...state,
-      enableFirstTimeUserOnboarding: action.payload,
-    };
-  },
-  [ReduxActionTypes.SET_FIRST_TIME_USER_ONBOARDING_APPLICATION_ID]: (
-    state: GuidedTourState,
-    action: ReduxAction<string>,
-  ) => {
-    return {
-      ...state,
-      firstTimeUserOnboardingApplicationId: action.payload,
-    };
-  },
-  [ReduxActionTypes.SET_FIRST_TIME_USER_ONBOARDING_COMPLETE]: (
-    state: GuidedTourState,
-    action: ReduxAction<boolean>,
-  ) => {
-    return {
-      ...state,
-      firstTimeUserOnboardingComplete: action.payload,
-    };
-  },
-  [ReduxActionTypes.SET_SHOW_FIRST_TIME_USER_ONBOARDING_MODAL]: (
-    state: GuidedTourState,
-    action: ReduxAction<boolean>,
-  ) => {
-    return {
-      ...state,
-      showFirstTimeUserOnboardingModal: action.payload,
-    };
-  },
-  [ReduxActionTypes.SET_FORCE_WIDGET_PANEL_OPEN]: (
-    state: GuidedTourState,
-    action: ReduxAction<boolean>,
-  ) => {
-    return { ...state, forceOpenWidgetPanel: action.payload };
-  },
   [ReduxActionTypes.ENABLE_GUIDED_TOUR]: (
     state: GuidedTourState,
     action: ReduxAction<boolean>,
@@ -183,6 +132,15 @@ const guidedTourReducer = createReducer(initialState, {
     return {
       ...state,
       forceShowContent: action.payload,
+    };
+  },
+  [ReduxActionTypes.LOAD_GUIDED_TOUR]: (
+    state: GuidedTourState,
+    action: ReduxAction<GuidedTourState>,
+  ) => {
+    return {
+      ...state,
+      ...action.payload,
     };
   },
 });
