@@ -357,7 +357,7 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
       expect($cellData).to.eq("17.6");
     });
     table.ReadTableRowColumnData(5, 12, 100).then(($cellData) => {
-      expect($cellData).not.eq("");
+      expect($cellData).to.contain(23);
     });
     table.ReadTableRowColumnData(5, 13, 100).then(($cellData) => {
       expect($cellData).to.eq("303");
