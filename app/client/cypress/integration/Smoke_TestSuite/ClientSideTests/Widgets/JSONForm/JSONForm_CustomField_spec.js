@@ -14,7 +14,7 @@ describe("JSON Form Widget Custom Field", () => {
     cy.openPropertyPane("jsonformwidget");
 
     // Add new custom field
-    cy.get(".t--property-pane-section-general button")
+    cy.get(".t--add-column-btn")
       .contains("Add a new field")
       .click({ force: true });
 
