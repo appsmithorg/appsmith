@@ -74,14 +74,13 @@ describe("Move objects/actions/queries to different pages", () => {
     ee.AssertEntityAbsenceInExplorer("Api1");
   });
 
-  it("3. Create a new MySQL DS", () => {
+  it("3. Appends copy to name of Query when it already exist in another page", () => {
+    ee.SelectEntityByName("Page1");
     dataSources.CreateDataSource("MySql");
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;
     });
-  });
 
-  it("4. Appends copy to name of Query when it already exist in another page", () => {
     dataSources.NavigateFromActiveDS(dsName, true);
     agHelper.GetNClick(dataSources._templateMenu);
     agHelper.RenameWithInPane("verifyDescribe");
@@ -93,6 +92,35 @@ describe("Move objects/actions/queries to different pages", () => {
       "Default",
       "Extra",
     ]);
+
+    ee.SelectEntityByName("Page2");
+    dataSources.CreateDataSource("MySql");
+    cy.get("@dsName").then(($dsName) => {
+      dsName = $dsName;
+    });
+
+    dataSources.NavigateFromActiveDS(dsName, true);
+    agHelper.GetNClick(dataSources._templateMenu);
+    agHelper.RenameWithInPane("verifyDescribe");
+    runQueryNValidate("Describe customers;", [
+      "Field",
+      "Type",
+      "Null",
+      "Key",
+      "Default",
+      "Extra",
+    ]);
+
+    ee.ExpandCollapseEntity("QUERIES/JS");
+    ee.ActionContextMenuByEntityName("Query1", "Move to page", "Page1");
+
+    // check that the copy and original objects both exist in page 1
+    ee.AssertEntityPresenceInExplorer("Query1Copy");
+    ee.AssertEntityPresenceInExplorer("Query1");
+
+    // check that js object no longer exists in page 2
+    ee.SelectEntityByName("Page2");
+    ee.AssertEntityAbsenceInExplorer("Query1");
   });
 });
 
