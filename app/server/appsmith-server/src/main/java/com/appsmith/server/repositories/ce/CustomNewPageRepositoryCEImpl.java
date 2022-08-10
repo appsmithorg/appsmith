@@ -154,14 +154,20 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
         String unpublishedSlugFieldPath = String.format(
                 "%s.%s", fieldName(QNewPage.newPage.unpublishedPage), fieldName(QNewPage.newPage.unpublishedPage.slug)
         );
+        String unpublishedCustomSlugFieldPath = String.format(
+                "%s.%s", fieldName(QNewPage.newPage.unpublishedPage), fieldName(QNewPage.newPage.unpublishedPage.customSlug)
+        );
         String publishedSlugFieldPath = String.format(
                 "%s.%s", fieldName(QNewPage.newPage.publishedPage), fieldName(QNewPage.newPage.publishedPage.slug)
+        );
+        String publishedCustomSlugFieldPath = String.format(
+                "%s.%s", fieldName(QNewPage.newPage.publishedPage), fieldName(QNewPage.newPage.publishedPage.customSlug)
         );
         String applicationIdFieldPath = fieldName(QNewPage.newPage.applicationId);
 
         return queryAll(
                 List.of(applicationIdCriteria),
-                List.of(unpublishedSlugFieldPath, publishedSlugFieldPath, applicationIdFieldPath),
+                List.of(unpublishedSlugFieldPath, unpublishedCustomSlugFieldPath, publishedSlugFieldPath, publishedCustomSlugFieldPath, applicationIdFieldPath),
                 aclPermission,
                 null
         );
