@@ -266,6 +266,7 @@ export default function evaluateSync(
     }
 
     try {
+      userLogs.resetLogs();
       result = eval(script);
     } catch (error) {
       const errorMessage = `${(error as Error).name}: ${
@@ -320,6 +321,7 @@ export async function evaluateAsync(
     });
 
     try {
+      userLogs.resetLogs();
       result = await eval(script);
     } catch (error) {
       const errorMessage = `UncaughtPromiseRejection: ${
