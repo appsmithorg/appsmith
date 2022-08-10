@@ -1868,13 +1868,13 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                                                 return Mono.error(new AppsmithException(AppsmithError.PUBLIC_APP_NO_PERMISSION_GROUP));
                                             }
 
-                                            Map<String, Policy> datasourcePolicyMap =
+                                            Set<Policy> datasourcePolicySet =
                                                     policyUtils.generatePolicyFromPermissionWithPermissionGroup(
                                                             EXECUTE_DATASOURCES, defaultPermissionGroup
                                                     );
 
                                             Datasource updatedDatasource =
-                                                    policyUtils.addPoliciesToExistingObject(datasourcePolicyMap, datasource);
+                                                    policyUtils.addPoliciesToExistingObject(datasourcePolicySet, datasource);
 
 
                                             // Update the permission group to store the datasource execute permission

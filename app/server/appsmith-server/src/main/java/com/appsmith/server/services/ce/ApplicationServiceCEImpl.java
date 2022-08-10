@@ -480,24 +480,24 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
 
         String permissionGroupId = permissionGroup.getId();
 
-        Map<String, Policy> applicationPolicyMap = policyUtils
+        Set<Policy> applicationPolicySet = policyUtils
                 .generatePolicyFromPermissionWithPermissionGroup(READ_APPLICATIONS, permissionGroupId);
-        Map<String, Policy> pagePolicyMap = policyUtils
-                .generateInheritedPoliciesFromSourcePolicies(applicationPolicyMap, Application.class, Page.class);
-        Map<String, Policy> actionPolicyMap = policyUtils
-                .generateInheritedPoliciesFromSourcePolicies(pagePolicyMap, Page.class, Action.class);
-        Map<String, Policy> datasourcePolicyMap = policyUtils
+        Set<Policy> pagePolicySet = policyUtils
+                .generateInheritedPoliciesFromSourcePolicies(applicationPolicySet, Application.class, Page.class);
+        Set<Policy> actionPolicySet = policyUtils
+                .generateInheritedPoliciesFromSourcePolicies(pagePolicySet, Page.class, Action.class);
+        Set<Policy> datasourcePolicySet = policyUtils
                 .generatePolicyFromPermissionWithPermissionGroup(EXECUTE_DATASOURCES, permissionGroupId);
-        Map<String, Policy> themePolicyMap = policyUtils.generateInheritedPoliciesFromSourcePolicies(
-                applicationPolicyMap, Application.class, Theme.class
+        Set<Policy> themePolicySet = policyUtils.generateInheritedPoliciesFromSourcePolicies(
+                applicationPolicySet, Application.class, Theme.class
         );
 
         final Flux<NewPage> updatedPagesFlux = policyUtils
-                .updateWithApplicationPermissionsToAllItsPages(application.getId(), pagePolicyMap, addViewAccess);
+                .updateWithApplicationPermissionsToAllItsPages(application.getId(), pagePolicySet, addViewAccess);
         // Use the same policy map as actions for action collections since action collections have the same kind of permissions
         final Flux<ActionCollection> updatedActionCollectionsFlux = policyUtils
-                .updateWithPagePermissionsToAllItsActionCollections(application.getId(), actionPolicyMap, addViewAccess);
-        Flux<Theme> updatedThemesFlux = policyUtils.updateThemePolicies(application, themePolicyMap, addViewAccess);
+                .updateWithPagePermissionsToAllItsActionCollections(application.getId(), actionPolicySet, addViewAccess);
+        Flux<Theme> updatedThemesFlux = policyUtils.updateThemePolicies(application, themePolicySet, addViewAccess);
         final Flux<NewAction> updatedActionsFlux = updatedPagesFlux
                 .collectList()
                 .thenMany(updatedActionCollectionsFlux)
@@ -505,7 +505,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
                 .then(Mono.justOrEmpty(application.getId()))
                 .thenMany(updatedThemesFlux)
                 .collectList()
-                .flatMapMany(applicationId -> policyUtils.updateWithPagePermissionsToAllItsActions(application.getId(), actionPolicyMap, addViewAccess));
+                .flatMapMany(applicationId -> policyUtils.updateWithPagePermissionsToAllItsActions(application.getId(), actionPolicySet, addViewAccess));
 
         return updatedActionsFlux
                 .collectList()
@@ -528,7 +528,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
                     }
                     Mono<List<Datasource>> updatedDatasourcesMono =
                             policyUtils.updateWithNewPoliciesToDatasourcesByDatasourceIds(datasourceIds,
-                                            datasourcePolicyMap, addViewAccess)
+                                            datasourcePolicySet, addViewAccess)
                                     .collectList();
 
 
@@ -555,9 +555,9 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
                     Application updatedApplication;
 
                     if (addViewAccess) {
-                        updatedApplication = policyUtils.addPoliciesToExistingObject(applicationPolicyMap, application);
+                        updatedApplication = policyUtils.addPoliciesToExistingObject(applicationPolicySet, application);
                     } else {
-                        updatedApplication = policyUtils.removePoliciesFromExistingObject(applicationPolicyMap, application);
+                        updatedApplication = policyUtils.removePoliciesFromExistingObject(applicationPolicySet, application);
                     }
 
                     return repository.save(updatedApplication);

@@ -233,10 +233,10 @@ public class CommentServiceCEImpl extends BaseService<CommentRepository, Comment
                             Application.class,
                             CommentThread.class
                     ));
-                    policies.add(policyUtils.generatePolicyFromPermission(
-                            Set.of(AclPermission.MANAGE_THREADS),
-                            commentThread.getAuthorUsername()
-                    ).get(AclPermission.MANAGE_THREADS.getValue()));
+                    // policies.add(policyUtils.generatePolicyFromPermission(
+                    //         Set.of(AclPermission.MANAGE_THREADS),
+                    //         commentThread.getAuthorUsername()
+                    // ).get(AclPermission.MANAGE_THREADS.getValue()));
                     commentThread.setPolicies(policies);
                     return commentThread;
                 });
@@ -265,10 +265,10 @@ public class CommentServiceCEImpl extends BaseService<CommentRepository, Comment
                 CommentThread.class,
                 Comment.class
         );
-        policies.add(policyUtils.generatePolicyFromPermission(
-                Set.of(AclPermission.MANAGE_COMMENTS),
-                user
-        ).get(AclPermission.MANAGE_COMMENTS.getValue()));
+        // policies.add(policyUtils.generatePolicyFromPermission(
+        //         Set.of(AclPermission.MANAGE_COMMENTS),
+        //         user
+        // ).get(AclPermission.MANAGE_COMMENTS.getValue()));
         comment.setPolicies(policies);
 
         Mono<Comment> commentMono;
@@ -589,9 +589,10 @@ public class CommentServiceCEImpl extends BaseService<CommentRepository, Comment
                     User currentUser = objects.getT2();
 
                     // if user is app viewer, return the comments in published mode only
-                    Boolean permissionPresentForUser = policyUtils.isPermissionPresentForUser(
-                            application.getPolicies(), MANAGE_APPLICATIONS.getValue(), currentUser.getUsername()
-                    );
+                    Boolean permissionPresentForUser = false;
+                    // policyUtils.isPermissionPresentForUser(
+                    //         application.getPolicies(), MANAGE_APPLICATIONS.getValue(), currentUser.getUsername()
+                    // );
                     if(!permissionPresentForUser) {
                         // user is app viewer, show only PUBLISHED comment threads
                         commentThreadFilterDTO.setMode(ApplicationMode.PUBLISHED);
@@ -717,11 +718,11 @@ public class CommentServiceCEImpl extends BaseService<CommentRepository, Comment
         final Set<Policy> policies = new HashSet<>();
         Mono<Long> commentSeq;
         if (TRUE.equals(commentThread.getIsPrivate())) {
-            Collection<Policy> policyCollection = policyUtils.generatePolicyFromPermission(
-                    Set.of(AclPermission.MANAGE_THREADS, AclPermission.COMMENT_ON_THREADS),
-                    user
-            ).values();
-            policies.addAll(policyCollection);
+            // Collection<Policy> policyCollection = policyUtils.generatePolicyFromPermission(
+            //         Set.of(AclPermission.MANAGE_THREADS, AclPermission.COMMENT_ON_THREADS),
+            //         user
+            // ).values();
+            // policies.addAll(policyCollection);
             commentSeq = Mono.just(0L);
         } else {
             policies.addAll(policyGenerator.getAllChildPolicies(
@@ -729,10 +730,10 @@ public class CommentServiceCEImpl extends BaseService<CommentRepository, Comment
                     Application.class,
                     CommentThread.class
             ));
-            policies.add(policyUtils.generatePolicyFromPermission(
-                    Set.of(AclPermission.MANAGE_THREADS),
-                    user
-            ).get(AclPermission.MANAGE_THREADS.getValue()));
+            // policies.add(policyUtils.generatePolicyFromPermission(
+            //         Set.of(AclPermission.MANAGE_THREADS),
+            //         user
+            // ).get(AclPermission.MANAGE_THREADS.getValue()));
             commentSeq = sequenceService.getNext(CommentThread.class, application.getId());
         }
         commentThread.setPolicies(policies);
@@ -755,10 +756,10 @@ public class CommentServiceCEImpl extends BaseService<CommentRepository, Comment
                 CommentThread.class,
                 Comment.class
         );
-        policies.add(policyUtils.generatePolicyFromPermission(
-                Set.of(AclPermission.MANAGE_COMMENTS),
-                user
-        ).get(AclPermission.MANAGE_COMMENTS.getValue()));
+        // policies.add(policyUtils.generatePolicyFromPermission(
+        //         Set.of(AclPermission.MANAGE_COMMENTS),
+        //         user
+        // ).get(AclPermission.MANAGE_COMMENTS.getValue()));
         comment.setPolicies(policies);
 
         Comment.Block block = new Comment.Block();

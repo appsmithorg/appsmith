@@ -208,9 +208,9 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
 
                                 // Apply the permissions to the workspace
                                 for (PermissionGroup permissionGroup : permissionGroups) {
-                                    Map<String, Policy> policyMap = policyUtils.generatePolicyFromPermissionGroupForObject(permissionGroup, createdWorkspace.getId());
+                                    Set<Policy> policySet = policyUtils.generatePolicyFromPermissionGroupForObject(permissionGroup, createdWorkspace.getId());
 
-                                    createdWorkspace = policyUtils.addPoliciesToExistingObject(policyMap, createdWorkspace);
+                                    createdWorkspace = policyUtils.addPoliciesToExistingObject(policySet, createdWorkspace);
                                 }
 
                                 return repository.save(createdWorkspace);
@@ -354,8 +354,8 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
                     // Apply the permissions to the permission groups
                     for (PermissionGroup permissionGroup : savedPermissionGroups) {
                         for (PermissionGroup nestedPermissionGroup : savedPermissionGroups) {
-                            Map<String, Policy> policyMap = policyUtils.generatePolicyFromPermissionGroupForObject(permissionGroup, nestedPermissionGroup.getId());
-                            policyUtils.addPoliciesToExistingObject(policyMap, nestedPermissionGroup);
+                            Set<Policy> policySet = policyUtils.generatePolicyFromPermissionGroupForObject(permissionGroup, nestedPermissionGroup.getId());
+                            policyUtils.addPoliciesToExistingObject(policySet, nestedPermissionGroup);
                         }
                     }
 

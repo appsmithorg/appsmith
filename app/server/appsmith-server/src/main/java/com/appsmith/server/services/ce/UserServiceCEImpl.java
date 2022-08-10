@@ -434,7 +434,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
         return permissionGroupService.save(userManagementPermissionGroup)
                 .flatMap(savedPermissionGroup -> {
 
-                    Map<String, Policy> crudUserPolicies = policyUtils.generatePolicyFromPermissionGroupForObject(savedPermissionGroup,
+                    Set<Policy> crudUserPolicies = policyUtils.generatePolicyFromPermissionGroupForObject(savedPermissionGroup,
                             savedUser.getId());
 
                     User updatedWithPolicies = policyUtils.addPoliciesToExistingObject(crudUserPolicies, savedUser);

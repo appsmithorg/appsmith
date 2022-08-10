@@ -12,7 +12,6 @@ import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.Theme;
-import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.Permission;
 import com.appsmith.server.repositories.ActionCollectionRepository;
 import com.appsmith.server.repositories.ApplicationRepository;
@@ -30,14 +29,10 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static com.appsmith.server.acl.AclPermission.MANAGE_DATASOURCES;
@@ -57,94 +52,124 @@ public class PolicyUtils {
     private final ActionCollectionRepository actionCollectionRepository;
     private final ThemeRepository themeRepository;
 
-    public <T extends BaseDomain> T addPoliciesToExistingObject(Map<String, Policy> policyMap, T obj) {
-        // Making a deep copy here so we don't modify the `policyMap` object.
-        // TODO: Investigate a solution without using deep-copy.
-        // TODO: Do we need to return the domain object?
-        final Map<String, Policy> policyMap1 = new HashMap<>();
-        for (Map.Entry<String, Policy> entry : policyMap.entrySet()) {
-            Policy entryValue = entry.getValue();
-            Policy policy = Policy.builder()
-                    .permission(entryValue.getPermission())
-                    .permissionGroups(new HashSet<>(entryValue.getPermissionGroups()))
-                    .build();
-            policyMap1.put(entry.getKey(), policy);
+    /**
+     * This method will add a Set of policies to the given domain.
+     * @param domain The domain to which the policies will be added
+     * @param policySet The policies to be added to the domain
+     */
+    public <T extends BaseDomain> T addPoliciesToExistingObject(Set<Policy> policySet, T domain) {
+        // If policies set is null initialize it with empty set
+        if(domain.getPolicies() == null) {
+            domain.setPolicies(new HashSet<>());
         }
-
-        // Append the user to the existing permission policy if it already exists.
-        for (Policy policy : obj.getPolicies()) {
-            String permission = policy.getPermission();
-            if (policyMap1.containsKey(permission)) {
-                Set<String> permissionGroups = new HashSet<>();
-                if(policy.getPermissionGroups() != null) {
-                    permissionGroups.addAll(policy.getPermissionGroups());
-                }
-                if (policyMap1.get(permission).getPermissionGroups() != null) {
-                    permissionGroups.addAll(policyMap1.get(permission).getPermissionGroups());
-                }
-                policy.setPermissionGroups(permissionGroups);
-                // Remove this permission from the policyMap as this has been accounted for in the above code
-                policyMap1.remove(permission);
-            }
-        }
-
-        obj.getPolicies().addAll(policyMap1.values());
-        return obj;
-    }
-
-    public <T extends BaseDomain> T removePoliciesFromExistingObject(Map<String, Policy> policyMap, T obj) {
-        // Making a deep copy here so we don't modify the `policyMap` object.
-        // TODO: Investigate a solution without using deep-copy.
-        final Map<String, Policy> policyMap1 = new HashMap<>();
-        for (Map.Entry<String, Policy> entry : policyMap.entrySet()) {
-            policyMap1.put(entry.getKey(), entry.getValue());
-        }
-
-        // Remove the user from the existing permission policy if it exists.
-        for (Policy policy : obj.getPolicies()) {
-            String permission = policy.getPermission();
-            if (policyMap1.containsKey(permission)) {
-                if (policy.getPermissionGroups() == null) {
+        
+        // Create a map of permission to policy set on obj
+        Map<String, Policy> policiesMap = domain.getPolicies().stream().collect(Collectors.toMap(
+            policy -> policy.getPermission(),
+            policy -> {
+                // If permission groups Set is null initialize it with empty set
+                if(policy.getPermissionGroups() == null) {
                     policy.setPermissionGroups(new HashSet<>());
                 }
-                if (policyMap1.get(permission).getPermissionGroups() != null) {
-                    policy.getPermissionGroups().removeAll(policyMap1.get(permission).getPermissionGroups());
-                }
-                // Remove this permission from the policyMap as this has been accounted for in the above code
-                policyMap1.remove(permission);
-            }
-        }
+                return policy;
+            },
+            //Function to merge another policy if exist with the same permission
+            //This should not happen so warn about it
+            (policy1, policy2) -> {
+                log.warn("Duplicate policy found for permission {} for ObjectId {} of type {} in addPoliciesToExistingObject",
+                    policy1.getPermission(), domain.getId(), domain.getClass().getSimpleName());
+                // merge the two policies by adding the permission groups to the existing policy
+                policy1.getPermissionGroups().addAll(policy2.getPermissionGroups());
+                return policy1;
+            },
+            HashMap::new));
 
-        return obj;
+        policySet.forEach(policy -> {
+            if (policiesMap.containsKey(policy.getPermission())) {
+                // If permission exists in the map, merge the permission groups
+                policiesMap.get(policy.getPermission()).getPermissionGroups().addAll(policy.getPermissionGroups());
+            } else {
+                // If permission does not exist in the map, add the new policy to the map
+                policiesMap.put(policy.getPermission(), Policy.builder().permission(policy.getPermission()).permissionGroups(new HashSet<>(policy.getPermissionGroups())).build());
+            }
+        });
+
+        // Set the new policies to the object by creating a new Set of values from the map
+        domain.setPolicies(policiesMap.values()
+                .stream()
+                // Remove the policies with no permission groups
+                // This filter is probably not required here
+                // but since added logic to initialize null permission groups in the policy with empty set
+                // this is here for safety
+                .filter(policy -> !policy.getPermissionGroups().isEmpty())
+                // Convert the policies to a HashSet
+                .collect(Collectors.toCollection(HashSet::new))
+        );
+        
+        // Return the object with the new policies
+        return domain;
     }
 
     /**
-     * Given a set of AclPermissions, generate all policies (including policies from lateral permissions) for the user.
-     *
-     * @param permissions
-     * @param user
-     * @return
+     * This method will remove a Set of policies from the given domain.
+     * @param domain The domain from which the policies will be removed
+     * @param policySet The policies to be removed from the domain
      */
-    public Map<String, Policy> generatePolicyFromPermission(Set<AclPermission> permissions, User user) {
-        return generatePolicyFromPermission(permissions, user.getUsername());
+    public <T extends BaseDomain> T removePoliciesFromExistingObject(Set<Policy> policySet, T domain) {
+        // If policies set is null initialize it with empty set
+        if(domain.getPolicies() == null) {
+            domain.setPolicies(new HashSet<>());
+        }
+
+        // Create a map of permission to policy
+        Map<String, Policy> policiesMap = domain.getPolicies().stream().collect(Collectors.toMap(
+            policy -> policy.getPermission(),
+            policy -> {
+                if(policy.getPermissionGroups() == null) {
+                    // If permission groups Set is null initialize it with empty set
+                    policy.setPermissionGroups(new HashSet<>());
+                }
+                return policy;
+            },
+            //Function to merge another policy if exist with the same permission
+            //This should not happen so warn about it
+            (policy1, policy2) -> {
+                log.warn("Duplicate policy found for permission {} for ObjectId {} of type {} in removePoliciesFromExistingObject",
+                    policy1.getPermission(), domain.getId(), domain.getClass().getSimpleName());
+                // merge the two policies by adding the permission groups to the existing policy
+                policy1.getPermissionGroups().addAll(policy2.getPermissionGroups());
+                return policy1;
+            },
+            HashMap::new));
+
+        // Remove the permission groups from matching policies
+        policySet.forEach(policy -> {
+            if (policiesMap.containsKey(policy.getPermission())) {
+                policiesMap.get(policy.getPermission()).getPermissionGroups().removeAll(policy.getPermissionGroups());
+            }
+        });
+
+        // Set the new policies to the object by creating a new Set of values in the map
+        // drop the policies with no permission groups
+        domain.setPolicies(policiesMap.values()
+                .stream()
+                // Remove the policies with no permission groups
+                .filter(policy -> !policy.getPermissionGroups().isEmpty())
+                // Convert the policies to a HashSet
+                .collect(Collectors.toCollection(HashSet::new))
+        );
+        
+        // Return the object with the new policies
+        return domain;
     }
 
-    public Map<String, Policy> generatePolicyFromPermission(Set<AclPermission> permissions, String username) {
-        return permissions.stream()
-                .map(perm -> {
-                    // Create a policy for the invited user using the permission as per the role
-                    Policy policyWithCurrentPermission = Policy.builder().permission(perm.getValue())
-                            .users(Set.of(username)).build();
-                    // Generate any and all lateral policies that might come with the current permission
-                    Set<Policy> policiesForUser = policyGenerator.getLateralPolicies(perm, Set.of(username), null);
-                    policiesForUser.add(policyWithCurrentPermission);
-                    return policiesForUser;
-                })
-                .flatMap(Collection::stream)
-                .collect(Collectors.toMap(Policy::getPermission, Function.identity()));
-    }
-
-    public Map<String, Policy> generatePolicyFromPermissionGroupForObject(PermissionGroup permissionGroup, String objectId) {
+    /**
+     * This method will generate the Set of policies for the given domainId using Permissions
+     * in the given PermissionGroup. This includes lateral policies.
+     * @param permissionGroup The PermissionGroup to be used to generate the policies
+     * @param domainId The domainId for which the policies will be generated
+     */
+    public Set<Policy> generatePolicyFromPermissionGroupForObject(PermissionGroup permissionGroup, String objectId) {
         Set<Permission> permissions = permissionGroup.getPermissions();
         return permissions.stream()
                 .filter(perm -> perm.getDocumentId().equals(objectId))
@@ -159,10 +184,16 @@ public class PolicyUtils {
                     return policiesForPermissionGroup;
                 })
                 .flatMap(Collection::stream)
-                .collect(Collectors.toMap(Policy::getPermission, Function.identity(), (policy1, policy2) -> policy1));
+                .collect(Collectors.toSet());
     }
 
-    public Map<String, Policy> generatePolicyFromPermissionWithPermissionGroup(AclPermission permission, String permissionGroupId) {
+    /**
+     * This method will generate the Set of policies providing the given permission for the given permissionGroupId
+     * This includes lateral policies.
+     * @param permission The Permission to be used to generate the policies
+     * @param permissionGroupId The permissionGroupId to which the permission will be given
+     */
+    public Set<Policy> generatePolicyFromPermissionWithPermissionGroup(AclPermission permission, String permissionGroupId) {
 
         Policy policyWithCurrentPermission = Policy.builder().permission(permission.getValue())
                 .permissionGroups(Set.of(permissionGroupId))
@@ -170,29 +201,10 @@ public class PolicyUtils {
         // Generate any and all lateral policies that might come with the current permission
         Set<Policy> policiesForPermission = policyGenerator.getLateralPolicies(permission, Set.of(permissionGroupId), null);
         policiesForPermission.add(policyWithCurrentPermission);
-        return policiesForPermission.stream()
-                .collect(Collectors.toMap(Policy::getPermission, Function.identity()));
+        return policiesForPermission;
     }
 
-
-    public Map<String, Policy> generatePolicyFromPermissionForMultipleUsers(Set<AclPermission> permissions, List<User> users) {
-        Set<String> usernames = users.stream().map(user -> user.getUsername()).collect(Collectors.toSet());
-
-        return permissions.stream()
-                .map(perm -> {
-                    // Create a policy for the invited user using the permission as per the role
-                    Policy policyWithCurrentPermission = Policy.builder().permission(perm.getValue())
-                            .users(usernames).build();
-                    // Generate any and all lateral policies that might come with the current permission
-                    Set<Policy> policiesForUser = policyGenerator.getLateralPolicies(perm, usernames, null);
-                    policiesForUser.add(policyWithCurrentPermission);
-                    return policiesForUser;
-                })
-                .flatMap(Collection::stream)
-                .collect(Collectors.toMap(Policy::getPermission, Function.identity()));
-    }
-
-    public Flux<Datasource> updateWithNewPoliciesToDatasourcesByWorkspaceId(String workspaceId, Map<String, Policy> newPoliciesMap, boolean addPolicyToObject) {
+    public Flux<Datasource> updateWithNewPoliciesToDatasourcesByWorkspaceId(String workspaceId, Set<Policy> newPolicySet, boolean addPolicyToObject) {
 
         return datasourceRepository
                 // fetch datasources with execute permissions so that app viewers can invite other app viewers
@@ -201,16 +213,16 @@ public class PolicyUtils {
                 .switchIfEmpty(Mono.empty())
                 .map(datasource -> {
                     if (addPolicyToObject) {
-                        return addPoliciesToExistingObject(newPoliciesMap, datasource);
+                        return addPoliciesToExistingObject(newPolicySet, datasource);
                     } else {
-                        return removePoliciesFromExistingObject(newPoliciesMap, datasource);
+                        return removePoliciesFromExistingObject(newPolicySet, datasource);
                     }
                 })
                 .collectList()
                 .flatMapMany(updatedDatasources -> datasourceRepository.saveAll(updatedDatasources));
     }
 
-    public Flux<Datasource> updateWithNewPoliciesToDatasourcesByDatasourceIds(Set<String> ids, Map<String, Policy> datasourcePolicyMap, boolean addPolicyToObject) {
+    public Flux<Datasource> updateWithNewPoliciesToDatasourcesByDatasourceIds(Set<String> ids, Set<Policy> datasourcePolicySet, boolean addPolicyToObject) {
 
         return datasourceRepository
                 .findAllByIds(ids, MANAGE_DATASOURCES)
@@ -219,9 +231,9 @@ public class PolicyUtils {
                 .flatMap(datasource -> {
                     Datasource updatedDatasource;
                     if (addPolicyToObject) {
-                        updatedDatasource = addPoliciesToExistingObject(datasourcePolicyMap, datasource);
+                        updatedDatasource = addPoliciesToExistingObject(datasourcePolicySet, datasource);
                     } else {
-                        updatedDatasource = removePoliciesFromExistingObject(datasourcePolicyMap, datasource);
+                        updatedDatasource = removePoliciesFromExistingObject(datasourcePolicySet, datasource);
                     }
 
                     return Mono.just(updatedDatasource);
@@ -230,7 +242,7 @@ public class PolicyUtils {
                 .flatMapMany(datasources -> datasourceRepository.saveAll(datasources));
     }
 
-    public Flux<Application> updateWithNewPoliciesToApplicationsByWorkspaceId(String workspaceId, Map<String, Policy> newAppPoliciesMap, boolean addPolicyToObject) {
+    public Flux<Application> updateWithNewPoliciesToApplicationsByWorkspaceId(String workspaceId, Set<Policy> newAppPoliciesSet, boolean addPolicyToObject) {
 
         return applicationRepository
                 // fetch applications with read permissions so that app viewers can invite other app viewers
@@ -239,16 +251,16 @@ public class PolicyUtils {
                 .switchIfEmpty(Mono.empty())
                 .map(application -> {
                     if (addPolicyToObject) {
-                        return addPoliciesToExistingObject(newAppPoliciesMap, application);
+                        return addPoliciesToExistingObject(newAppPoliciesSet, application);
                     } else {
-                        return removePoliciesFromExistingObject(newAppPoliciesMap, application);
+                        return removePoliciesFromExistingObject(newAppPoliciesSet, application);
                     }
                 })
                 .collectList()
                 .flatMapMany(updatedApplications -> applicationRepository.saveAll(updatedApplications));
     }
 
-    public Flux<NewPage> updateWithApplicationPermissionsToAllItsPages(String applicationId, Map<String, Policy> newPagePoliciesMap, boolean addPolicyToObject) {
+    public Flux<NewPage> updateWithApplicationPermissionsToAllItsPages(String applicationId, Set<Policy> newPagePoliciesSet, boolean addPolicyToObject) {
 
         // Instead of fetching pages from the application object, we fetch pages from the page repository. This ensures that all the published
         // AND the unpublished pages are updated with the new policy change [This covers the edge cases where a page may exist
@@ -260,9 +272,9 @@ public class PolicyUtils {
                 .switchIfEmpty(Mono.empty())
                 .map(page -> {
                     if (addPolicyToObject) {
-                        return addPoliciesToExistingObject(newPagePoliciesMap, page);
+                        return addPoliciesToExistingObject(newPagePoliciesSet, page);
                     } else {
-                        return removePoliciesFromExistingObject(newPagePoliciesMap, page);
+                        return removePoliciesFromExistingObject(newPagePoliciesSet, page);
                     }
                 })
                 .collectList()
@@ -270,7 +282,7 @@ public class PolicyUtils {
                         .saveAll(updatedPages));
     }
 
-    public Flux<Theme> updateThemePolicies(Application application, Map<String, Policy> themePolicyMap, boolean addPolicyToObject) {
+    public Flux<Theme> updateThemePolicies(Application application, Set<Policy> themePolicySet, boolean addPolicyToObject) {
         Flux<Theme> applicationThemes = themeRepository.getApplicationThemes(application.getId(), READ_THEMES);
         if(StringUtils.hasLength(application.getEditModeThemeId())) {
             applicationThemes = applicationThemes.concatWith(
@@ -286,9 +298,9 @@ public class PolicyUtils {
                 .filter(theme -> !theme.isSystemTheme()) // skip the system themes
                 .map(theme -> {
                     if (addPolicyToObject) {
-                        return addPoliciesToExistingObject(themePolicyMap, theme);
+                        return addPoliciesToExistingObject(themePolicySet, theme);
                     } else {
-                        return removePoliciesFromExistingObject(themePolicyMap, theme);
+                        return removePoliciesFromExistingObject(themePolicySet, theme);
                     }
                 })
                 .collectList()
@@ -296,7 +308,7 @@ public class PolicyUtils {
     }
 
     public Flux<CommentThread> updateCommentThreadPermissions(
-            String applicationId, Map<String, Policy> commentThreadPolicyMap, String username, boolean addPolicyToObject) {
+            String applicationId, Set<Policy> commentThreadPolicySet, String username, boolean addPolicyToObject) {
 
         return
                 // fetch comment threads with read permissions
@@ -305,12 +317,12 @@ public class PolicyUtils {
                 .map(thread -> {
                     if(!Boolean.TRUE.equals(thread.getIsPrivate())) {
                         if (addPolicyToObject) {
-                            return addPoliciesToExistingObject(commentThreadPolicyMap, thread);
+                            return addPoliciesToExistingObject(commentThreadPolicySet, thread);
                         } else {
                             if(CollectionUtils.isNotEmpty(thread.getSubscribers())) {
                                 thread.getSubscribers().remove(username);
                             }
-                            return removePoliciesFromExistingObject(commentThreadPolicyMap, thread);
+                            return removePoliciesFromExistingObject(commentThreadPolicySet, thread);
                         }
                     }
                     return thread;
@@ -327,86 +339,47 @@ public class PolicyUtils {
      * actions by applicationId ensures that we update ALL the actions and don't have to do special handling for the same.
      *
      * @param applicationId
-     * @param newActionPoliciesMap
+     * @param newActionPoliciesSet
      * @param addPolicyToObject
      * @return
      */
-    public Flux<NewAction> updateWithPagePermissionsToAllItsActions(String applicationId, Map<String, Policy> newActionPoliciesMap, boolean addPolicyToObject) {
+    public Flux<NewAction> updateWithPagePermissionsToAllItsActions(String applicationId, Set<Policy> newActionPoliciesSet, boolean addPolicyToObject) {
 
         return newActionRepository
                 .findByApplicationId(applicationId)
                 .switchIfEmpty(Mono.empty())
                 .map(action -> {
                     if (addPolicyToObject) {
-                        return addPoliciesToExistingObject(newActionPoliciesMap, action);
+                        return addPoliciesToExistingObject(newActionPoliciesSet, action);
                     } else {
-                        return removePoliciesFromExistingObject(newActionPoliciesMap, action);
+                        return removePoliciesFromExistingObject(newActionPoliciesSet, action);
                     }
                 })
                 .collectList()
                 .flatMapMany(newActionRepository::saveAll);
     }
 
-    public Flux<ActionCollection> updateWithPagePermissionsToAllItsActionCollections(String applicationId, Map<String, Policy> newActionPoliciesMap, boolean addPolicyToObject) {
+    public Flux<ActionCollection> updateWithPagePermissionsToAllItsActionCollections(String applicationId, Set<Policy> newActionPoliciesSet, boolean addPolicyToObject) {
 
         return actionCollectionRepository
                 .findByApplicationId(applicationId)
                 .switchIfEmpty(Mono.empty())
                 .map(action -> {
                     if (addPolicyToObject) {
-                        return addPoliciesToExistingObject(newActionPoliciesMap, action);
+                        return addPoliciesToExistingObject(newActionPoliciesSet, action);
                     } else {
-                        return removePoliciesFromExistingObject(newActionPoliciesMap, action);
+                        return removePoliciesFromExistingObject(newActionPoliciesSet, action);
                     }
                 })
                 .collectList()
                 .flatMapMany(actionCollectionRepository::saveAll);
     }
 
-    public Map<String, Policy> generateInheritedPoliciesFromSourcePolicies(Map<String, Policy> sourcePolicyMap,
+    public Set<Policy> generateInheritedPoliciesFromSourcePolicies(Set<Policy> sourcePolicySet,
                                                                            Class<? extends BaseDomain> sourceEntity,
                                                                            Class<? extends BaseDomain> destinationEntity) {
-        Set<Policy> extractedInterestingPolicySet = new HashSet<>(sourcePolicyMap.values());
+        Set<Policy> extractedInterestingPolicySet = new HashSet<>(sourcePolicySet);
 
-        return policyGenerator.getAllChildPolicies(extractedInterestingPolicySet, sourceEntity, destinationEntity)
-                .stream()
-                .collect(Collectors.toMap(Policy::getPermission, Function.identity()));
+        return policyGenerator.getAllChildPolicies(extractedInterestingPolicySet, sourceEntity, destinationEntity);
     }
-
-    public Boolean isPermissionPresentForUser(Set<Policy> policies, String permission, String username) {
-
-        if (policies == null || policies.isEmpty()) {
-            return false;
-        }
-
-        Optional<Policy> requestedPermissionPolicyOptional = policies.stream().filter(policy -> {
-            if (policy.getPermission().equals(permission)) {
-                Set<String> users = policy.getUsers();
-                if (users.contains(username)) {
-                    return true;
-                }
-            }
-            return false;
-        }).findFirst();
-
-        if (requestedPermissionPolicyOptional.isPresent()) {
-            return true;
-        }
-
-        return false;
-    }
-
-    public Set<String> findUsernamesWithPermission(Set<Policy> policies, AclPermission permission) {
-        if (CollectionUtils.isNotEmpty(policies) && permission != null) {
-            final String permissionString = permission.getValue();
-            for (Policy policy : policies) {
-                if (permissionString.equals(policy.getPermission())) {
-                    return policy.getUsers();
-                }
-            }
-        }
-
-        return Collections.emptySet();
-    }
-
 }

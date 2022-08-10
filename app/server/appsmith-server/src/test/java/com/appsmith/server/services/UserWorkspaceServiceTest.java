@@ -123,30 +123,6 @@ public class UserWorkspaceServiceTest {
 
     }
 
-    private UserRole createUserRole(String username, String userId, AppsmithRole role) {
-        UserRole userRole = new UserRole();
-        userRole.setUsername(username);
-        userRole.setUserId(userId);
-        userRole.setName(username);
-        if (role != null) {
-            userRole.setRoleName(role.getName());
-            userRole.setRole(role);
-        }
-        return userRole;
-    }
-
-    private void addRolesToWorkspace(List<UserRole> roles) {
-        this.workspace.setUserRoles(roles);
-        for (UserRole userRole : roles) {
-            Set<AclPermission> rolePermissions = userRole.getRole().getPermissions();
-            Map<String, Policy> workspacePolicyMap = policyUtils.generatePolicyFromPermission(
-                    rolePermissions, userRole.getUsername()
-            );
-            this.workspace = policyUtils.addPoliciesToExistingObject(workspacePolicyMap, workspace);
-        }
-        this.workspace = workspaceRepository.save(workspace).block();
-    }
-
     @After
     public void clear() {
         User currentUser = userRepository.findByEmail("api_user").block();

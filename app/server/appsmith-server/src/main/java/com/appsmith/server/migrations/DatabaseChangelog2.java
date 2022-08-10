@@ -1678,8 +1678,8 @@ public class DatabaseChangelog2 {
         // Apply the permissions to the permission groups
         for (PermissionGroup permissionGroup : savedPermissionGroups) {
             for (PermissionGroup nestedPermissionGroup : savedPermissionGroups) {
-                Map<String, Policy> policyMap = policyUtils.generatePolicyFromPermissionGroupForObject(permissionGroup, nestedPermissionGroup.getId());
-                policyUtils.addPoliciesToExistingObject(policyMap, nestedPermissionGroup);
+                Set<Policy> policySet = policyUtils.generatePolicyFromPermissionGroupForObject(permissionGroup, nestedPermissionGroup.getId());
+                policyUtils.addPoliciesToExistingObject(policySet, nestedPermissionGroup);
             }
         }
 
@@ -1746,8 +1746,8 @@ public class DatabaseChangelog2 {
                         // Apply the permissions to the workspace
                         for (PermissionGroup permissionGroup : permissionGroups) {
                             // Apply the permissions to the workspace
-                            Map<String, Policy> policyMap = policyUtils.generatePolicyFromPermissionGroupForObject(permissionGroup, workspace.getId());
-                            workspace = policyUtils.addPoliciesToExistingObject(policyMap, workspace);
+                            Set<Policy> policySet = policyUtils.generatePolicyFromPermissionGroupForObject(permissionGroup, workspace.getId());
+                            workspace = policyUtils.addPoliciesToExistingObject(policySet, workspace);
                         }
                         // Save the workspace
                         mongockTemplate.save(workspace);
@@ -1894,9 +1894,9 @@ public class DatabaseChangelog2 {
 
         String permissionGroupId = publicPermissionGroup.getId();
 
-        Map<String, Policy> applicationPolicyMap = policyUtils
+        Set<Policy> applicationPolicySet = policyUtils
                 .generatePolicyFromPermissionWithPermissionGroup(AclPermission.READ_APPLICATIONS, permissionGroupId);
-        Map<String, Policy> datasourcePolicyMap = policyUtils
+        Set<Policy> datasourcePolicySet = policyUtils
                 .generatePolicyFromPermissionWithPermissionGroup(AclPermission.EXECUTE_DATASOURCES, permissionGroupId);
 
         Set<String> datasourceIds = new HashSet<>();
@@ -1920,7 +1920,7 @@ public class DatabaseChangelog2 {
                 });
 
         // Update and save application
-        application = policyUtils.addPoliciesToExistingObject(applicationPolicyMap, application);
+        application = policyUtils.addPoliciesToExistingObject(applicationPolicySet, application);
         mongockTemplate.save(application);
         applicationPolicies = application.getPolicies();
 
@@ -1928,7 +1928,7 @@ public class DatabaseChangelog2 {
         mongockTemplate.stream(new Query().addCriteria(Criteria.where(fieldName(QDatasource.datasource.id)).in(datasourceIds)), Datasource.class)
                 .stream()
                 .forEach(datasource -> {
-                    datasource = policyUtils.addPoliciesToExistingObject(datasourcePolicyMap, datasource);
+                    datasource = policyUtils.addPoliciesToExistingObject(datasourcePolicySet, datasource);
                     mongockTemplate.save(datasource);
                 });
 

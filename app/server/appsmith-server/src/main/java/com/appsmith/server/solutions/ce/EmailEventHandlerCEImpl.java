@@ -135,9 +135,10 @@ public class EmailEventHandlerCEImpl implements EmailEventHandlerCE {
     }
 
     private String getCommentThreadLink(Application application, String pageId, String threadId, String username, String originHeader) {
-        Boolean canManageApplication = policyUtils.isPermissionPresentForUser(
-                application.getPolicies(), MANAGE_APPLICATIONS.getValue(), username
-        );
+        Boolean canManageApplication = false;
+        // policyUtils.isPermissionPresentForUser(
+        //         application.getPolicies(), MANAGE_APPLICATIONS.getValue(), username
+        // );
         String urlPostfix = "/edit";
         if (Boolean.FALSE.equals(canManageApplication)) {  // user has no permission to manage application
             urlPostfix = "";
