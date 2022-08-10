@@ -533,7 +533,18 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
         Mono<NewAction> updatedActionMono = repository.findById(id, MANAGE_ACTIONS)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ACTION, id)))
                 .map(dbAction -> {
-                    copyNewFieldValuesIntoOldObject(action, dbAction.getUnpublishedAction());
+                    final ActionDTO unpublishedAction = dbAction.getUnpublishedAction();
+                    copyNewFieldValuesIntoOldObject(action, unpublishedAction);
+
+                    // In case this update is for an action that represents a JS function,
+                    // perform a check to reset values for sync functions
+                    final boolean isSyncJSFunction = PluginType.JS.equals(action.getPluginType()) &&
+                            FALSE.equals(action.getActionConfiguration().getIsAsync());
+                    if (isSyncJSFunction) {
+                        unpublishedAction.setUserSetOnLoad(false);
+                        unpublishedAction.setConfirmBeforeExecute(false);
+                        unpublishedAction.setExecuteOnLoad(false);
+                    }
                     return dbAction;
                 })
                 .flatMap(this::extractAndSetNativeQueryFromFormData)
@@ -979,13 +990,15 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
             ActionExecutionResult actionExecutionResult,
             Long timeElapsed
     ) {
-
         // Since we're loading the application from DB *only* for analytics, we check if analytics is
         // active before making the call to DB.
         if (!analyticsService.isActive()) {
+            // This is to have consistency in how the AnalyticsService is being called.
+            // Even though sendObjectEvent is triggered, AnalyticsService would still reject this and prevent the event
+            // from being sent to analytics provider if telemetry is disabled.
+            analyticsService.sendObjectEvent(AnalyticsEvents.EXECUTE_ACTION, action);
             return Mono.empty();
         }
-
         ActionExecutionRequest actionExecutionRequest = actionExecutionResult.getRequest();
         ActionExecutionRequest request;
         if (actionExecutionRequest != null) {
@@ -1112,8 +1125,18 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                                 "statusCode", actionExecutionResult.getStatusCode()
                         ));
                     }
-
-                    analyticsService.sendEvent(AnalyticsEvents.EXECUTE_ACTION.getEventName(), user.getUsername(), data);
+                    final Map<String, Object> eventData = Map.of(
+                            FieldName.ACTION, action,
+                            FieldName.DATASOURCE, datasource,
+                            FieldName.VIEW_MODE, viewMode,
+                            FieldName.ACTION_EXECUTION_RESULT, actionExecutionResult,
+                            FieldName.ACTION_EXECUTION_TIME, timeElapsed,
+                            FieldName.ACTION_EXECUTION_REQUEST, request,
+                            FieldName.APPLICATION, application,
+                            FieldName.PLUGIN, plugin
+                    );
+                    data.put(FieldName.EVENT_DATA, eventData);
+                    analyticsService.sendObjectEvent(AnalyticsEvents.EXECUTE_ACTION, action, data);
                     return request;
                 })
                 .onErrorResume(error -> {
@@ -1849,7 +1872,10 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
         if (!StringUtils.hasLength(savedAction.getUnpublishedAction().getPluginName())) {
             savedAction.getUnpublishedAction().setPluginName(datasource.getPluginName());
         }
-        return this.getAnalyticsProperties(savedAction);
+        Map<String, Object> analyticsProperties = this.getAnalyticsProperties(savedAction);
+        Map<String, Object> eventData = Map.of(FieldName.DATASOURCE, datasource);
+        analyticsProperties.put(FieldName.EVENT_DATA, eventData);
+        return analyticsProperties;
     }
 
     @Override

@@ -1,10 +1,10 @@
 {
   "identifier": "GET_COLLECTION",
-  "controlType" : "SECTION",
+  "controlType": "SECTION",
   "conditionals": {
     "show": "{{actionConfiguration.formData.command.data === 'GET_COLLECTION'}}"
   },
-  "children" : [
+  "children": [
     {
       "label": "Collection/Document Path",
       "configProperty": "actionConfiguration.formData.path.data",
@@ -16,7 +16,7 @@
     {
       "label": "Order By (JSON array of field names to order by)",
       "configProperty": "actionConfiguration.formData.orderBy.data",
-      "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+      "controlType": "QUERY_DYNAMIC_TEXT",
       "evaluationSubstitutionType": "TEMPLATE",
       "isRequired": false,
       "initialValue": "",

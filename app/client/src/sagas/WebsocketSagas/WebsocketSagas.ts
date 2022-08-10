@@ -36,6 +36,10 @@ import { SOCKET_CONNECTION_EVENTS } from "./socketEvents";
 function connect(namespace?: string) {
   const options = {
     path: RTS_BASE_PATH,
+    // The default transports is ["polling", "websocket"], so polling is tried first. But polling
+    //   needs sticky session to be turned on, in a clustered environment, even for it to upgrade to websockets.
+    // Ref: <https://github.com/socketio/socket.io/issues/2140>.
+    transports: ["websocket"],
   };
   const socket = !!namespace ? io(namespace, options) : io(options);
 

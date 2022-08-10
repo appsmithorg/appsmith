@@ -1,8 +1,6 @@
 import React from "react";
 import BaseControl, { ControlData, ControlProps } from "./BaseControl";
-import ButtonTabComponent, {
-  ButtonTabOption,
-} from "components/ads/ButtonTabComponent";
+import { ButtonTab, ButtonTabOption } from "design-system";
 import {
   DSEventDetail,
   DSEventTypes,
@@ -54,7 +52,7 @@ class IconTabControl extends BaseControl<IconTabControlProps> {
   render() {
     const { options, propertyValue } = this.props;
     return (
-      <ButtonTabComponent
+      <ButtonTab
         options={options}
         ref={this.componentRef}
         selectButton={this.selectOption}

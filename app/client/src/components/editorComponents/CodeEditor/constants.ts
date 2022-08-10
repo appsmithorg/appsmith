@@ -36,3 +36,7 @@ export const VALID_JS_OBJECT_BINDING_POSITION: Position = {
   line: 0,
   ch: JS_OBJECT_START_STATEMENT.length,
 };
+export const SUPPORTED_WEB_APIS = {
+  console: true,
+  crypto: true,
+};
