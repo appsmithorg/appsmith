@@ -26,11 +26,14 @@ export const WIDGET = {
   DOCUMENT_VIEWER: "documentviewerwidget",
 } as const;
 
+// property pane element selector are maintained here
 export const PROPERTY_SELECTOR = {
+  // input
   onClick: ".t--property-control-onclick",
   onSubmit: ".t--property-control-onsubmit",
   text: ".t--property-control-text",
   defaultValue: ".t--property-control-defaultvalue",
+  propertyName: ".t--property-control-propertyname",
 };
 type ValueOf<T> = T[keyof T];
 
