@@ -1,4 +1,4 @@
-import { createReducer } from "utils/ReducerUtils";
+import { createImmerReducer } from "utils/ReducerUtils";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { FocusEntity } from "navigation/FocusableEntity";
 import { cursorState, evaluatedPaneState } from "navigation/FocusableElement";
@@ -13,9 +13,11 @@ export type FocusState = {
   };
 };
 
-export type FocusHistoryState = Record<string, FocusState>;
+export type FocusHistory = Record<string, FocusState>;
 
-const initialState: { focusInfo: FocusHistoryState } = {
+export type FocusHistoryState = { focusInfo: FocusHistory };
+
+const initialState: FocusHistoryState = {
   focusInfo: {},
 };
 
@@ -25,16 +27,13 @@ const initialState: { focusInfo: FocusHistoryState } = {
  * 3. Quick search for focus state of a entity
  * */
 
-const focusHistoryReducer = createReducer(initialState, {
+const focusHistoryReducer = createImmerReducer(initialState, {
   [ReduxActionTypes.SET_FOCUS_HISTORY]: (
-    state,
+    state: FocusHistoryState,
     action: { payload: { key: string; focusState: FocusState } },
   ) => {
     const { focusState, key } = action.payload;
-    return {
-      ...state,
-      focusInfo: { ...state.focusInfo, [key]: focusState },
-    };
+    state.focusInfo[key] = focusState;
   },
 });
 
