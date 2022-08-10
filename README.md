@@ -34,7 +34,7 @@
 ---
 
 You can create apps in 4 basic steps using Appsmith: <br>
-**1. Build your UI** with our low-code, drag and drop UI builder. Use 45+ pre-built, customizable widgets including tables, charts, lists, modals, forms, and more. [Docs](https://docs.appsmith.com/core-concepts/dynamic-ui?utm_source=github&utm_medium=organic&utm_campaign=readme)
+**1. Build your UI** with our drag and drop UI builder. Use 45+ pre-built, customizable widgets including tables, charts, lists, modals, forms, and more. [Docs](https://docs.appsmith.com/core-concepts/dynamic-ui?utm_source=github&utm_medium=organic&utm_campaign=readme)
 
 <p align="center">
 <a href="https://docs.appsmith.com/core-concepts/connecting-to-data-sources?utm_source=github&utm_medium=organic&utm_campaign=readme">
