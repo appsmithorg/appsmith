@@ -201,6 +201,7 @@ We love our contributors! We're committed to fostering an open and welcoming env
     <td align="center"><a href="https://github.com/ganganimaulik"><img src="https://avatars.githubusercontent.com/u/10296400?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Maulik</b></sub></a><br /><a href="https://github.com/appsmithorg/appsmith/commits?author=ganganimaulik" title="Code">💻</a></td>
     <td align="center"><a href="https://loopbackweb.wordpress.com/"><img src="https://avatars.githubusercontent.com/u/12005551?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Anagh Hegde</b></sub></a><br /><a href="https://github.com/appsmithorg/appsmith/commits?author=AnaghHegde" title="Code">💻</a> <a href="https://github.com/appsmithorg/appsmith/issues?q=author%3AAnaghHegde" title="Bug reports">🐛</a></td>
     <td align="center"><a href="https://dhruvikneharia.netlify.com/"><img src="https://avatars.githubusercontent.com/u/22471214?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Dhruvik Neharia</b></sub></a><br /><a href="https://github.com/appsmithorg/appsmith/commits?author=dhruvikn" title="Code">💻</a></td>
+    <td align="center"><a href="http://www.vannucherum.com"><img src="https://avatars.githubusercontent.com/u/9128194?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Vishnu Gp</b></sub></a><br /><a href="https://github.com/appsmithorg/appsmith/commits?author=vishnu-gp" title="Code">💻</a></td>
   </tr>
 </table>
 
