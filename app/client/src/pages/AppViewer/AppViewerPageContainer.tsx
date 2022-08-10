@@ -20,11 +20,9 @@ import {
 } from "../Applications/permissionHelpers";
 import { builderURL } from "RouteBuilder";
 
-const Section = styled.section<{
-  height: number;
-}>`
+const Section = styled.section`
   height: 100%;
-  min-height: ${({ height }) => height}px;
+  width: 100%;
   margin: 0 auto;
   position: relative;
   overflow-x: auto;
@@ -91,7 +89,7 @@ function AppViewerPageContainer(props: AppViewerPageContainerProps) {
   if (!(widgets.children && widgets.children.length > 0)) return pageNotFound;
 
   return (
-    <Section height={widgets.bottomRow}>
+    <Section>
       <AppPage
         appName={currentApplication?.name}
         dsl={widgets}

@@ -164,7 +164,8 @@ public class AnalyticsServiceCEImpl implements AnalyticsServiceCE {
             return Mono.just(object);
         }
 
-        final String eventTag = event.getEventName() + "_" + object.getClass().getSimpleName().toUpperCase();
+        // In case of action execution, event.getEventName() only is used to support backward compatibility of event name
+        final String eventTag = AnalyticsEvents.EXECUTE_ACTION.equals(event) ? event.getEventName() : event.getEventName() + "_" + object.getClass().getSimpleName().toUpperCase();
 
         // We will create an anonymous user object for event tracking if no user is present
         // Without this, a lot of flows meant for anonymous users will error out
@@ -197,8 +198,8 @@ public class AnalyticsServiceCEImpl implements AnalyticsServiceCE {
                     analyticsProperties.put("oid", object.getId());
                     if (extraProperties != null) {
                         analyticsProperties.putAll(extraProperties);
-                        // To avoid sending extra audit data to analytics
-                        analyticsProperties.remove(FieldName.AUDIT_DATA);
+                        // To avoid sending extra event data to analytics
+                        analyticsProperties.remove(FieldName.EVENT_DATA);
                     }
 
                     sendEvent(eventTag, username, analyticsProperties);

@@ -593,11 +593,13 @@ export class AggregateHelper {
   }
 
   public UpdateCodeInput(selector: string, value: string) {
-    this.EnableAllEditors();
+    //this.EnableAllEditors();
     cy.wrap(selector)
-      .click({ force: true })
-      .wait(1000)
+      //.click({ force: true })
+      //.wait(1000)
       .find(".CodeMirror")
+      .find('textarea')
+      .parents('.CodeMirror')
       .first()
       .then((ins: any) => {
         const input = ins[0].CodeMirror;
