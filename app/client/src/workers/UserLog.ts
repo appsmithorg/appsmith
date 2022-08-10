@@ -22,18 +22,21 @@ export interface Message {
   id: string;
 }
 
+const truncate = (input: string, truncLen = 100) =>
+  input.length > truncLen ? `${input.substring(0, truncLen)}...` : input;
+
 // Converts the data from the log object to a string
 export function createLogTitleString(data: any[]) {
   // convert mixed array to string
   return data.reduce((acc, curr) => {
     // curr can be a string or an object
     if (typeof curr === "string") {
-      return `${acc} ${curr}`;
+      return `${acc} ${truncate(curr)}`;
     }
     if (typeof curr === "function") {
-      return `${acc} func() ${curr.name}`;
+      return `${acc}, func() ${curr.name}`;
     }
-    return `${acc} ${JSON.stringify(curr, null, "\t")}`;
+    return `${acc}, ${truncate(JSON.stringify(curr, null, "\t"))}}`;
   }, "");
 }
 
