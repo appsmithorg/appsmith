@@ -365,12 +365,13 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
                                         PermissionGroup permissionGroup = tuple.getT2();
                                         return permissionGroupService
                                                 .assignToUser(permissionGroup, anonymousUser);
-                                    });
+                                    })
+                                    .cache();
                         } else {
                             updatedPermissionGroupMono = permissionGroupMono;
                         }
 
-                        Mono<Application> updatedApplicationMono = permissionGroupMono
+                        Mono<Application> updatedApplicationMono = updatedPermissionGroupMono
                                 .zipWith(applicationMono)
                                 .flatMap(tuple -> {
                                     PermissionGroup permissionGroup = tuple.getT1();
