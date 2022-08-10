@@ -120,6 +120,10 @@ public class MongoPluginUtils {
             databaseName = authentication.getDatabaseName();
         }
 
+        if (databaseName == null) {
+            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR, "Missing default database name.");
+        }
+
         return databaseName;
     }
 
