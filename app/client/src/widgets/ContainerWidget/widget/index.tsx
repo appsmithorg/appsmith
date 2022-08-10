@@ -413,23 +413,28 @@ class ContainerWidget extends BaseWidget<
           widgetType={this.props.type}
         />
         {/* without the wrapping div onClick events are triggered twice */}
-        <FlexBox
-          alignItems={this.props.alignItems}
-          direction={this.state.direction}
-          justifyContent={this.props.justifyContent}
-          useAutoLayout={this.state.useAutoLayout}
-        >
-          <AutoLayoutContext.Provider
-            value={{
-              useAutoLayout: this.state.useAutoLayout,
-              direction: this.state.direction,
-              justifyContent: JustifyContent.FlexStart,
-              alignItems: AlignItems.FlexStart,
-            }}
+        {props.type === "CANVAS_WIDGET" ? (
+          <FlexBox
+            alignItems={this.props.alignItems}
+            direction={this.state.direction}
+            justifyContent={this.props.justifyContent}
+            renderMode={this.props.renderMode}
+            useAutoLayout={this.state.useAutoLayout}
           >
-            {this.renderChildren()}
-          </AutoLayoutContext.Provider>
-        </FlexBox>
+            <AutoLayoutContext.Provider
+              value={{
+                useAutoLayout: this.state.useAutoLayout,
+                direction: this.state.direction,
+                justifyContent: JustifyContent.FlexStart,
+                alignItems: AlignItems.FlexStart,
+              }}
+            >
+              {this.renderChildren()}
+            </AutoLayoutContext.Provider>
+          </FlexBox>
+        ) : (
+          <>{this.renderChildren()}</>
+        )}
       </ContainerComponent>
     );
   }

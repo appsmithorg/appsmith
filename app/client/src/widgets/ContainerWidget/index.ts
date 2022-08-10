@@ -1,4 +1,4 @@
-import { ButtonBoxShadowTypes } from "components/constants";
+import { ButtonBoxShadowTypes, Positioning } from "components/constants";
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
 
@@ -34,6 +34,7 @@ export const CONFIG = {
       ],
     },
     version: 1,
+    positioning: Positioning.Fixed,
   },
   properties: {
     derived: Widget.getDerivedPropertiesMap(),

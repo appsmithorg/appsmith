@@ -10,7 +10,10 @@ import WidgetStyleContainer, {
 } from "components/designSystems/appsmith/WidgetStyleContainer";
 import { pick } from "lodash";
 import { ComponentProps } from "widgets/BaseComponent";
-import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
+import {
+  MAIN_CONTAINER_WIDGET_ID,
+  RenderModes,
+} from "constants/WidgetConstants";
 import { JustifyContent, LayoutDirection } from "components/constants";
 
 const scrollContents = css`
@@ -64,6 +67,7 @@ export const FlexContainer = styled.div<{
   direction?: string;
   justifyContent?: JustifyContent;
   alignItems?: string;
+  renderMode?: string;
 }>`
   display: ${({ useAutoLayout }) => (useAutoLayout ? "flex" : "block")};
   flex-direction: ${({ direction }) =>
@@ -73,7 +77,8 @@ export const FlexContainer = styled.div<{
   flex-wrap: wrap;
 
   width: 100%;
-  height: 100%;
+  height: ${({ renderMode }) =>
+    renderMode === RenderModes.PAGE ? "auto" : "100%"};
 `;
 
 function ContainerComponentWrapper(props: ContainerComponentProps) {
