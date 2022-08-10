@@ -107,13 +107,22 @@ public class MongoPluginUtils {
     }
 
     public static String getDatabaseName(DatasourceConfiguration datasourceConfiguration) {
+        String databaseName = null;
+
         // Explicitly set default database.
-        String databaseName = datasourceConfiguration.getConnection().getDefaultDatabaseName();
+        if (datasourceConfiguration.getConnection() != null) {
+            databaseName = datasourceConfiguration.getConnection().getDefaultDatabaseName();
+        }
 
         // If that's not available, pick the authentication database.
         final DBAuth authentication = (DBAuth) datasourceConfiguration.getAuthentication();
-        if (StringUtils.isEmpty(databaseName) && authentication != null) {
+        if (!StringUtils.hasLength(databaseName) && authentication != null) {
             databaseName = authentication.getDatabaseName();
+        }
+
+        // In case both default DB and authsource are absent, Mongo would default to the admin db
+        if (!StringUtils.hasLength(databaseName)) {
+            databaseName = "admin";
         }
 
         return databaseName;
