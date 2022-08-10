@@ -39,6 +39,8 @@ function ReadOnlyEditor(props: Props) {
     folding: props.folding,
     isReadOnly: props.isReadOnly,
     isRawView: props.isRawView,
+    dynamicData: {},
+    entityInformation: {},
   };
   return <CodeEditor {...editorProps} />;
 }

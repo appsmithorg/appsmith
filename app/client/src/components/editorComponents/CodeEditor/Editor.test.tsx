@@ -6,7 +6,7 @@ import { ThemeProvider } from "constants/DefaultTheme";
 import { lightTheme } from "selectors/themeSelectors";
 import userEvent from "@testing-library/user-event";
 import store from "store";
-import CodeEditor from "./index";
+import CodeEditor from "./Editor";
 import {
   EditorSize,
   EditorTheme,
@@ -23,6 +23,8 @@ describe("<CodeEditor /> - Keyboard navigation", () => {
       <ThemeProvider theme={lightTheme}>
         <CodeEditor
           additionalDynamicData={{}}
+          dynamicData={{}}
+          entityInformation={{}}
           hideEvaluatedValue={false}
           input={{
             value: "",

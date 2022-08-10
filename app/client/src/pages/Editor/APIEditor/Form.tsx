@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { connect, useDispatch, useSelector } from "react-redux";
 import {
   change,
@@ -558,9 +558,14 @@ function ApiEditorForm(props: Props) {
     updateDatasource,
   } = props;
   const dispatch = useDispatch();
-  const [isHeadersFocused, setFocus] = useFocusable(API_EDITOR_TABS.HEADERS);
-  console.log("Testing", isHeadersFocused);
-  const [selectedIndex, setSelectedIndex] = useState(0);
+  const [focusedState, setFocus] = useFocusable();
+  const [focusedEditorState, _] = useFocusable("codeEditor");
+  console.log("Testing", focusedState);
+  const defaultSelectedIndex =
+    editorTabs.indexOf(focusedState?.elementName as API_EDITOR_TABS) >= 0
+      ? editorTabs.indexOf(focusedState?.elementName as API_EDITOR_TABS)
+      : 0;
+  const [selectedIndex, setSelectedIndex] = useState(defaultSelectedIndex);
   const [
     apiBindHelpSectionVisible,
     setApiBindHelpSectionVisible,
@@ -590,8 +595,23 @@ function ApiEditorForm(props: Props) {
 
   const setSelectedTab = (selectedIndex: number) => {
     setSelectedIndex(selectedIndex);
-    setFocus();
+    setFocus(editorTabs[selectedIndex]);
   };
+
+  useEffect(() => {
+    if (focusedEditorState?.elementName) {
+      setTimeout(() => {
+        const codeEditorToFocus: HTMLElement | null = document.querySelector(
+          `[data-code-editor-id=${btoa(
+            focusedEditorState.elementName,
+          ).replaceAll("=", "")}] .CodeEditorTarget textarea`,
+        );
+
+        codeEditorToFocus?.scrollIntoView();
+        codeEditorToFocus?.focus();
+      });
+    }
+  }, []);
 
   return (
     <>

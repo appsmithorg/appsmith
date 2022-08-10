@@ -1,10 +1,10 @@
 import { FocusEntity } from "navigation/FocusableEntity";
-import { useParams, useRouteMatch } from "react-router";
+import { useParams } from "react-router";
 import { AppState } from "reducers";
 import { useDispatch, useSelector } from "react-redux";
 import { setFocusHistory } from "actions/focusHistoryActions";
 import { FocusState } from "reducers/uiReducers/focusHistoryReducer";
-import { useEffect } from "react";
+import { getCurrentFocusInfo } from "selectors/focusHistorySelectors";
 
 export type FocusInformation = {
   entity: FocusEntity;
@@ -20,7 +20,7 @@ export interface FocusableElement {
 }
 
 export type cursorState = {
-  ln: number;
+  line: number;
   ch: number;
 };
 
@@ -47,13 +47,13 @@ type matchParams = {
 
 const getKeyFromRoute = (
   matchParams: matchParams,
-  elementName: string,
+  elementName?: string,
 ): { entity: FocusEntity; key: string; entityId: string } => {
   let key = "";
   if (matchParams.apiId) {
     key = key + `.${FocusEntity.ApiPane}.${matchParams.apiId}`;
     return {
-      key: key + `.${elementName}`,
+      key: key + `${elementName ? `.${elementName}` : ""}`,
       entityId: matchParams.apiId,
       entity: FocusEntity.ApiPane,
     };
@@ -61,30 +61,41 @@ const getKeyFromRoute = (
   return { key, entityId: "", entity: FocusEntity.Widget };
 };
 
-const getFocusStates = (state: AppState) => state.ui.focusHistory.focusInfo;
+//const getFocusStates = (state: AppState) => state.ui.focusHistory.focusInfo;
 
-export function useFocusable(elementName: string): [boolean, () => void] {
+export type SetFocusMethod = (
+  childElementName?: string,
+  moreInfo?: FocusState["moreInfo"],
+) => void;
+
+export function useFocusable(
+  elementName?: string,
+): [FocusState, SetFocusMethod] {
   const params = useParams();
   const { entity, entityId, key } = getKeyFromRoute(params, elementName);
-  const focusStates = useSelector(getFocusStates, () => true);
-  const isFocused = key in focusStates;
+  const focusedState = useSelector(
+    (state: AppState) => getCurrentFocusInfo(state, key),
+    () => true,
+  );
   const dispatch = useDispatch();
 
   const setFocus = function(
     childElementName?: string,
     moreInfo: FocusState["moreInfo"] = {},
   ) {
-    dispatch(
-      setFocusHistory(key, {
-        entity,
-        entityId,
-        elementName: childElementName || elementName,
-        moreInfo,
-      }),
-    );
+    if (childElementName) {
+      dispatch(
+        setFocusHistory(key, {
+          entity,
+          entityId,
+          elementName: childElementName, // || elementName,
+          moreInfo,
+        }),
+      );
+    }
   };
 
-  return [isFocused, setFocus];
+  return [focusedState, setFocus];
 }
 
 export interface FocusableInput extends FocusableElement {
