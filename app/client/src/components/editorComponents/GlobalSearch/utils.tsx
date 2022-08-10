@@ -20,7 +20,7 @@ import { CurlIconV2, JsFileIconV2 } from "pages/Editor/Explorer/ExplorerIcons";
 import { createNewApiAction } from "actions/apiPaneActions";
 import { createNewJSCollection } from "actions/jsPaneActions";
 import { EventLocation } from "utils/AnalyticsUtil";
-import { getQueryParams } from "utils/AppsmithUtils";
+import { getQueryParams } from "utils/URLUtils";
 import history from "utils/history";
 import { curlImportPageURL } from "RouteBuilder";
 import { isMacOrIOS, modText, shiftText } from "utils/helpers";

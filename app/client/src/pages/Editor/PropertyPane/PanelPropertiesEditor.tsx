@@ -2,13 +2,8 @@ import React, { useEffect, useMemo } from "react";
 import { useSelector } from "react-redux";
 
 import { WidgetProps } from "widgets/BaseWidget";
-import {
-  PanelConfig,
-  PropertyPaneConfig,
-  PropertyPaneControlConfig,
-  PropertyPaneSectionConfig,
-} from "constants/PropertyControlConstants";
-import { generatePropertyControl } from "./Generator";
+import { PanelConfig } from "constants/PropertyControlConstants";
+import PropertyControlsGenerator from "./Generator";
 import { getWidgetPropsForPropertyPane } from "selectors/propertyPaneSelectors";
 import { get, isNumber, isPlainObject, isString } from "lodash";
 import { IPanelProps } from "@blueprintjs/core";
@@ -21,6 +16,7 @@ import { StyledSearchInput } from "./PropertyPaneView";
 import { PropertyPaneTab } from "./PropertyPaneTab";
 import { selectFeatureFlags } from "selectors/usersSelectors";
 import styled from "styled-components";
+import { updateConfigPaths, useSearchText } from "./helpers";
 
 const PanelWrapper = styled.div`
   margin-top: 52px;
@@ -55,25 +51,6 @@ function PanelHeader(props: PanelHeaderProps) {
     </div>
   );
 }
-
-const updateConfigPaths = (config: PropertyPaneConfig[], basePath: string) => {
-  return config.map((_childConfig) => {
-    const childConfig = Object.assign({}, _childConfig);
-    // TODO(abhinav): Figure out a better way to differentiate between section and control
-    if (
-      (childConfig as PropertyPaneSectionConfig).sectionName &&
-      childConfig.children
-    ) {
-      (childConfig as PropertyPaneSectionConfig).propertySectionPath = basePath;
-      childConfig.children = updateConfigPaths(childConfig.children, basePath);
-    } else {
-      (childConfig as PropertyPaneControlConfig).propertyName = `${basePath}.${
-        (childConfig as PropertyPaneControlConfig).propertyName
-      }`;
-    }
-    return childConfig;
-  });
-};
 
 export function PanelPropertiesEditor(
   props: PanelPropertiesEditorProps &
@@ -125,7 +102,6 @@ export function PanelPropertiesEditor(
     }
   }, [currentIndex, panelConfig, panelParentPropertyPath]);
 
-  // TODO(aswathkk): Once we remove the PROPERTY_PANE_GROUPING flag, rename this to panelConfigs
   const panelConfigsWithStyleAndContent = useMemo(() => {
     if (
       currentIndex !== undefined &&
@@ -162,6 +138,8 @@ export function PanelPropertiesEditor(
       props.closePanel();
     }
   }, [widgetProperties.widgetId]);
+
+  const { searchText, setSearchText } = useSearchText("");
 
   if (!widgetProperties) return null;
   const updatePropertyTitle = (title: string) => {
@@ -207,6 +185,7 @@ export function PanelPropertiesEditor(
         <>
           <StyledSearchInput
             fill
+            onChange={setSearchText}
             placeholder="Search for controls, labels etc"
             variant={SearchVariant.BACKGROUND}
           />
@@ -214,30 +193,28 @@ export function PanelPropertiesEditor(
             contentComponent={
               panelConfigsWithStyleAndContent?.content ? (
                 <PanelWrapper>
-                  {generatePropertyControl(
-                    panelConfigsWithStyleAndContent?.content as PropertyPaneConfig[],
-                    {
-                      id: widgetProperties.widgetId,
-                      type: widgetProperties.type,
-                      panel,
-                      theme,
-                    },
-                  )}
+                  <PropertyControlsGenerator
+                    config={panelConfigsWithStyleAndContent.content}
+                    id={widgetProperties.widgetId}
+                    panel={panel}
+                    searchQuery={searchText}
+                    theme={theme}
+                    type={widgetProperties.type}
+                  />
                 </PanelWrapper>
               ) : null
             }
             styleComponent={
               panelConfigsWithStyleAndContent.style ? (
                 <PanelWrapper>
-                  {generatePropertyControl(
-                    panelConfigsWithStyleAndContent?.style as PropertyPaneConfig[],
-                    {
-                      id: widgetProperties.widgetId,
-                      type: widgetProperties.type,
-                      panel,
-                      theme,
-                    },
-                  )}
+                  <PropertyControlsGenerator
+                    config={panelConfigsWithStyleAndContent.style}
+                    id={widgetProperties.widgetId}
+                    panel={panel}
+                    searchQuery={searchText}
+                    theme={theme}
+                    type={widgetProperties.type}
+                  />
                 </PanelWrapper>
               ) : null
             }
@@ -246,12 +223,14 @@ export function PanelPropertiesEditor(
       ) : (
         panelConfigs && (
           <PanelWrapper>
-            {generatePropertyControl(panelConfigs as PropertyPaneConfig[], {
-              id: widgetProperties.widgetId,
-              type: widgetProperties.type,
-              panel,
-              theme,
-            })}
+            <PropertyControlsGenerator
+              config={panelConfigs}
+              id={widgetProperties.widgetId}
+              panel={panel}
+              searchQuery={searchText}
+              theme={theme}
+              type={widgetProperties.type}
+            />
           </PanelWrapper>
         )
       )}

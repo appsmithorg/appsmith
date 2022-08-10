@@ -79,6 +79,7 @@ type PropertySectionProps = {
   name: string;
   collapsible?: boolean;
   children?: ReactNode;
+  childrenWrapperRef?: React.RefObject<HTMLDivElement>;
   hidden?: (
     props: any,
     propertyPath: string,
@@ -137,6 +138,7 @@ export const PropertySection = memo((props: PropertySectionProps) => {
         <Collapse isOpen={isOpen} keepChildrenMounted transitionDuration={0}>
           <div
             className={`t--property-pane-section-${className}`}
+            ref={props.childrenWrapperRef}
             style={{ position: "relative", zIndex: 1 }}
           >
             <CollapseContext.Provider value={isOpen}>
