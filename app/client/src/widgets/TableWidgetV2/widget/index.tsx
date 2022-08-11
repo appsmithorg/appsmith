@@ -1552,7 +1552,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
             textSize={cellProperties.textSize}
             toggleCellEditMode={this.toggleCellEditMode}
             validationErrorMessage={
-              props.column.columnProperties.validation.errorMessage
+              props.column.columnProperties.validation?.errorMessage
             }
             value={props.cell.value}
             verticalAlignment={cellProperties.verticalAlignment}

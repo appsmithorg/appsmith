@@ -126,6 +126,8 @@ function DefaultCell(props: RenderDefaultPropsType & editPropertyType) {
       alias,
       onDiscardString,
       onSubmitString,
+      isEditableCellValid,
+      validationErrorMessage,
     ],
   );
 

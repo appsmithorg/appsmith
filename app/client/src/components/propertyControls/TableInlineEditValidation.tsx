@@ -85,7 +85,7 @@ function InputText(props: InputTextProp) {
 
 const bindingPrefix = `{{
   (
-    (editedCell, currentRow, currentIndex) => (
+    (editableCell, currentRow, currentIndex) => (
 `;
 const getBindingSuffix = (tableId: string) => `
   ))

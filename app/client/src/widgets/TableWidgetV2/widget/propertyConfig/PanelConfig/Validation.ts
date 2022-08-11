@@ -10,12 +10,13 @@ export default {
     const isEditable = get(props, `${propertyPath}.isEditable`, "");
 
     return (
-      !hideByColumnType(
+      !isEditable ||
+      hideByColumnType(
         props,
         propertyPath,
         [ColumnTypes.TEXT, ColumnTypes.NUMBER],
         true,
-      ) && !isEditable
+      )
     );
   },
   children: [...numberTypeValidations, ...commonValidations],

@@ -153,7 +153,8 @@ export function InlineCellEditor({
     <Wrapper
       accentColor={accentColor}
       allowCellWrapping={allowCellWrapping}
-      className="t--inlined-cell-editor"
+      className={`t--inlined-cell-editor ${!isEditableCellValid &&
+        "t--inlined-cell-editor-has-error"}`}
       compactMode={compactMode}
       isEditableCellValid={isEditableCellValid}
       textSize={textSize}

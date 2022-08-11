@@ -625,7 +625,9 @@ export default {
       const validation = editedColumn.validation;
 
       /* General validations */
-      if (
+      if (!validation.isColumnEditableCellRequired && value === "") {
+        return true;
+      } else if (
         (!_.isNil(validation.isColumnEditableCellValid) &&
           !validation.isColumnEditableCellValid) ||
         (validation.regex &&
