@@ -9,7 +9,7 @@ import React, { useState } from "react";
 import ReactJson from "react-json-view";
 import styled, { useTheme } from "styled-components";
 import EntityLink, { DebuggerLinkUI } from "./EntityLink";
-import { SeverityIcon } from "./helpers";
+import { getLogIcon, SeverityIcon } from "./helpers";
 import { Text, TextType } from "design-system";
 import { getTypographyByKey } from "constants/DefaultTheme";
 import { TooltipComponent } from "design-system";
@@ -20,7 +20,7 @@ import {
 import ContextualMenu from "./ContextualMenu";
 
 const Wrapper = styled.div<{ collapsed: boolean }>`
-  padding: 9px 30px;
+  padding: 9px 8px 9px 16px;
   display: flex;
 
   &.${Severity.INFO} {
@@ -91,13 +91,13 @@ const Wrapper = styled.div<{ collapsed: boolean }>`
 
   .debugger-time {
     ${(props) => getTypographyByKey(props, "h6")}
-    line-height: 17px;
+    line-height: 16px;
     color: ${(props) => props.theme.colors.debugger.time};
-    margin-left: 10px;
+    margin-left: 8px;
+    margin-right: 18px;
   }
   .debugger-description {
     display: inline-block;
-    margin-left: 7px;
     overflow-wrap: anywhere;
     word-break: break-word;
     .debugger-toggle {
@@ -107,8 +107,7 @@ const Wrapper = styled.div<{ collapsed: boolean }>`
 
     .debugger-label {
       color: ${(props) => props.theme.colors.debugger.label};
-      margin-left: 5px;
-      ${(props) => getTypographyByKey(props, "p2")}
+      ${(props) => getTypographyByKey(props, "p1")}
     }
     .debugger-entity {
       color: ${(props) => props.theme.colors.debugger.entity};
@@ -135,9 +134,9 @@ const Wrapper = styled.div<{ collapsed: boolean }>`
 
   .debugger-entity-link {
     margin-left: auto;
-    ${(props) => getTypographyByKey(props, "p2")}
+    ${(props) => getTypographyByKey(props, "btnMedium")}
     color: ${(props) => props.theme.colors.debugger.entityLink};
-    text-decoration-line: underline;
+    text-transform: uppercase;
     cursor: pointer;
   }
 `;
@@ -185,7 +184,7 @@ const MessageWrapper = styled.div`
 
 export const getLogItemProps = (e: Log) => {
   return {
-    icon: SeverityIcon[e.severity] as IconName,
+    icon: getLogIcon(e) as IconName,
     timestamp: e.timestamp,
     source: e.source,
     label: e.text,
@@ -241,27 +240,18 @@ function LogItem(props: LogItemProps) {
         if (!isOpen) setIsOpen(true);
       }}
     >
+      <Icon
+        className={`${Classes.ICON} debugger-toggle`}
+        fillColor={get(theme, "colors.debugger.jsonIcon")}
+        invisible={!showToggleIcon}
+        name={"down-arrow"}
+        onClick={() => setIsOpen(!isOpen)}
+        size={IconSize.XXXXL}
+      />
       <Icon keepColors name={props.icon} size={IconSize.XL} />
       <span className="debugger-time">{props.timestamp}</span>
       <div className="debugger-description">
         <RowWrapper>
-          {showToggleIcon && (
-            <Icon
-              className={`${Classes.ICON} debugger-toggle`}
-              fillColor={get(theme, "colors.debugger.jsonIcon")}
-              name={"down-arrow"}
-              onClick={() => setIsOpen(!isOpen)}
-              size={IconSize.XXL}
-            />
-          )}
-          {props.source && (
-            <EntityLink
-              id={props.source.id}
-              name={props.source.name}
-              type={props.source.type}
-              uiComponent={DebuggerLinkUI.ENTITY_TYPE}
-            />
-          )}
           <span className="debugger-label">{props.text}</span>
           {props.timeTaken && (
             <span className="debugger-timetaken">{props.timeTaken}</span>

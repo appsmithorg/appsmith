@@ -17,31 +17,29 @@ const Wrapper = styled.div`
   flex-direction: row;
   display: flex;
   justify-content: flex-start;
-  margin-left: 30px;
-  padding: 5px 0;
-  & > div {
-    width: 160px;
-    margin: 0 16px;
-  }
+  padding: 8px 0;
+  margin-left: 16px;
 
   .debugger-search {
-    height: 28px;
-    width: 160px;
-    padding-right: 25px;
+    height: 32px;
+    width: 560px;
   }
 
   .debugger-filter {
-    border: none;
-    box-shadow: none;
-    width: 110px;
-    height: 28px;
-    margin-top: ${(props) => props.theme.spaces[1]}px;
+    /* border: none;
+    box-shadow: none; */
+    width: 260px;
+    height: 32px;
+    margin-left: 24px;
+    min-height: 32px;
   }
 
   .input-container {
-    position: relative;
     display: flex;
+    width: 560px;
+    height: 32px;
     align-items: center;
+    margin-left: 24px;
     .${Classes.ICON} {
       position: absolute;
       right: 9px;
@@ -85,11 +83,11 @@ function FilterHeader(props: FilterHeaderProps) {
           className="debugger-search"
           cypressSelector="t--debugger-search"
           defaultValue={props.defaultValue}
-          height="28px"
+          height="32px"
           onChange={props.onChange}
           placeholder="Filter"
           ref={searchRef}
-          width="160px"
+          width="560px"
         />
         {props.searchQuery && (
           <Icon
@@ -108,12 +106,13 @@ function FilterHeader(props: FilterHeaderProps) {
       </div>
       <Dropdown
         className="debugger-filter"
+        height="32px"
         onSelect={props.onSelect}
-        optionWidth="115px"
+        optionWidth="260px"
         options={props.options}
         selected={props.selected}
         showLabelOnly
-        width="115px"
+        width="260px"
       />
     </Wrapper>
   );
