@@ -12,7 +12,7 @@ import { enhanceDataTreeWithFunctions } from "./Actions";
 import { isEmpty } from "lodash";
 import { completePromise } from "workers/PromisifyAction";
 import { ActionDescription } from "entities/DataTree/actionTriggers";
-import { klona } from "klona";
+import { klona } from "klona/full";
 
 export type EvalResult = {
   result: any;
