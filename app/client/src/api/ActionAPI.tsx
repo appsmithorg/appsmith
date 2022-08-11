@@ -170,9 +170,6 @@ class ActionAPI extends API {
     executeAction: FormData,
     timeout?: number,
   ): AxiosPromise<ActionExecutionResponse> {
-    if (ActionAPI.abortActionExecutionTokenSource) {
-      ActionAPI.abortActionExecutionTokenSource.cancel();
-    }
     ActionAPI.abortActionExecutionTokenSource = axios.CancelToken.source();
     return API.post(ActionAPI.url + "/execute", executeAction, undefined, {
       timeout: timeout || DEFAULT_EXECUTE_ACTION_TIMEOUT_MS,
