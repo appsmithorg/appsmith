@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState, useMemo } from "react";
 import styled from "styled-components";
 import { isUndefined } from "lodash";
-import { Severity } from "entities/AppsmithConsole";
+import { LOG_CATEGORY, Severity } from "entities/AppsmithConsole";
 import FilterHeader from "./FilterHeader";
 import { BlankState } from "./helpers";
 import LogItem, { getLogItemProps } from "./LogItem";
@@ -36,9 +36,9 @@ const LOGS_FILTER_OPTIONS = [
     label: "All",
     value: "",
   },
-  { label: "Success", value: Severity.INFO },
-  { label: "Warnings", value: Severity.WARNING },
   { label: "Errors", value: Severity.ERROR },
+  { label: "Console logs", value: LOG_CATEGORY.USER_GENERATED },
+  { label: "System logs", value: LOG_CATEGORY.PLATFORM_GENERATED },
 ];
 
 function DebbuggerLogs(props: Props) {
