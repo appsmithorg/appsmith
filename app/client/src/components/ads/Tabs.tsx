@@ -300,7 +300,6 @@ export type TabbedViewComponentType = CommonComponentProps & {
   containerRef?: RefObject<HTMLElement>;
   // height of container when expanded
   expandedHeight?: string;
-  forceRenderTabPanel?: boolean;
 };
 
 // Props required to support a collapsible (foldable) tab component
@@ -397,7 +396,6 @@ export function TabComponent(
       )}
 
       <Tabs
-        forceRenderTabPanel={props.forceRenderTabPanel}
         onSelect={(index: number) => {
           props.onSelect && props.onSelect(index);
           setSelectedIndex(index);
