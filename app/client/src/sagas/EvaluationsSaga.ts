@@ -99,7 +99,11 @@ import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsRe
 import { AppTheme } from "entities/AppTheming";
 import { ActionValidationConfigMap } from "constants/PropertyControlConstants";
 import AppsmithConsole from "utils/AppsmithConsole";
-import { createLogTitleString, LogObject } from "workers/UserLog";
+import {
+  createLogTitleString,
+  LogObject,
+  UserLogObject,
+} from "workers/UserLog";
 
 let widgetTypeConfigMap: WidgetTypeConfigMap;
 
@@ -113,6 +117,7 @@ export type EvalTreePayload = {
   evaluationOrder: string[];
   jsUpdates: Record<string, JSUpdate>;
   logs: any[];
+  userLogs?: UserLogObject[];
   unEvalUpdates: DataTreeDiff[];
   isCreateFirstTree: boolean;
 };
@@ -155,6 +160,7 @@ function* evaluateTreeSaga(
     evaluationOrder,
     jsUpdates,
     logs,
+    userLogs,
     unEvalUpdates,
     isCreateFirstTree = false,
   }: EvalTreePayload = workerResponse;
@@ -179,30 +185,23 @@ function* evaluateTreeSaga(
   log.debug({ evalMetaUpdatesLength: evalMetaUpdates.length });
 
   const updatedDataTree: DataTree = yield select(getDataTree);
-  log.debug({ jsUpdates: jsUpdates });
-  log.debug({ dataTree: updatedDataTree });
-  logs?.forEach((evalLog: any) => {
-    if (
-      typeof evalLog === "object" &&
-      "source" in evalLog &&
-      "logObject" in evalLog &&
-      evalLog.logObject.length > 0
-    ) {
-      evalLog.logObject.forEach((log: LogObject) => {
+  if (!!userLogs && userLogs.length > 0) {
+    userLogs.forEach((log: UserLogObject) => {
+      log.logObject.forEach((logObject: LogObject) => {
         AppsmithConsole.addLog(
           {
-            text: createLogTitleString(log.data),
-            source: evalLog.source,
+            text: createLogTitleString(logObject.data),
+            source: log.source,
           },
-          log.severity,
-          log.timestamp,
+          logObject.severity,
+          logObject.timestamp,
         );
       });
-    }
-    // else {
-    log.debug(evalLog);
-    // }
-  });
+    });
+  }
+  log.debug({ jsUpdates: jsUpdates });
+  log.debug({ dataTree: updatedDataTree });
+  logs?.forEach((evalLog: any) => log.debug(evalLog));
   // Added type as any due to https://github.com/redux-saga/redux-saga/issues/1482
   yield call(evalErrorHandler as any, errors, updatedDataTree, evaluationOrder);
 
