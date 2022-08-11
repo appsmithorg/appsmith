@@ -354,6 +354,7 @@ class SliderWidget extends BaseWidget<SliderWidgetProps, WidgetState> {
     return (
       <SliderComponent
         color={this.props.accentColor || TAILWIND_COLORS.green["600"]}
+        disabled={this.props.isDisabled || false}
         labelAlignment={this.props.labelAlignment}
         labelAlwaysOn={this.props.labelAlwaysOn}
         labelPosition={this.props.labelPosition}

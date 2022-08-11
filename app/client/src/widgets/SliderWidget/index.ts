@@ -23,6 +23,7 @@ export const CONFIG = {
       { value: 100, label: "100%" },
     ],
     isVisible: true,
+    isDisabled: false,
     labelAlwaysOn: false,
     showLabelOnHover: true,
     rows: 8,

@@ -389,6 +389,7 @@ class RangeSliderWidget extends BaseWidget<
     return (
       <RangeSliderComponent
         color={this.props.accentColor || TAILWIND_COLORS.green["600"]}
+        disabled={this.props.isDisabled || false}
         endValue={this.props.end || 20}
         labelAlignment={this.props.labelAlignment}
         labelAlwaysOn={this.props.labelAlwaysOn}
