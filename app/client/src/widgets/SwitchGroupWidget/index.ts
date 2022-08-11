@@ -11,7 +11,7 @@ export const CONFIG = {
   isCanvas: false, // Defines if this widget has a canvas within in which we can drop other widgets
   defaults: {
     widgetName: "SwitchGroup",
-    rows: 6,
+    rows: 4,
     columns: 26,
     options: [
       { label: "Blue", value: "BLUE" },

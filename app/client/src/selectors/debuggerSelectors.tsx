@@ -1,20 +1,30 @@
 import { matchDatasourcePath } from "constants/routes";
+import { Log } from "entities/AppsmithConsole";
 import { DataTree, DataTreeWidget } from "entities/DataTree/dataTreeFactory";
+import { isEmpty } from "lodash";
 import { AppState } from "reducers";
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { createSelector } from "reselect";
 import { getWidgets } from "sagas/selectors";
 import { isWidget } from "workers/evaluationUtils";
 import { getDataTree } from "./dataTreeSelectors";
+
+type ErrorObejct = {
+  [k: string]: Log;
+};
+
 export const getDebuggerErrors = (state: AppState) => state.ui.debugger.errors;
 export const hideErrors = (state: AppState) => state.ui.debugger.hideErrors;
+const emptyErrorObejct: ErrorObejct = {};
+
 export const getFilteredErrors = createSelector(
   getDebuggerErrors,
   hideErrors,
   getWidgets,
   getDataTree,
   (errors, hideErrors, canvasWidgets, dataTree: DataTree) => {
-    if (hideErrors) return {};
+    if (hideErrors) return emptyErrorObejct;
+    if (isEmpty(errors)) return emptyErrorObejct;
 
     const alwaysShowEntities: Record<string, boolean> = {};
     Object.entries(errors).forEach(([, error]) => {
