@@ -33,8 +33,11 @@
 
 ---
 
-You can create apps in 4 basic steps using Appsmith: <br>
-**1. Build your UI** with our drag and drop UI builder. Use 45+ pre-built, customizable widgets including tables, charts, lists, modals, forms, and more. [Docs](https://docs.appsmith.com/core-concepts/dynamic-ui?utm_source=github&utm_medium=organic&utm_campaign=readme)
+## Build Apps in 4 Steps:
+
+### 1. Build your UI
+
+Build your UI with our drag and drop UI builder. Use 45+ pre-built, customizable widgets including tables, charts, lists, modals, forms, and more. [Docs](https://docs.appsmith.com/core-concepts/dynamic-ui?utm_source=github&utm_medium=organic&utm_campaign=readme)
 
 <p align="center">
 <a href="https://docs.appsmith.com/core-concepts/connecting-to-data-sources?utm_source=github&utm_medium=organic&utm_campaign=readme">
@@ -43,7 +46,9 @@ You can create apps in 4 basic steps using Appsmith: <br>
 </p>
 <br/>
 
-**2. Connect to your data** with our connectors: databases (PostgresQL, MongoDB, Amazon S3, and many more), SaaS providers (like Google Sheets, Airtable, Twilio) or any GraphQL/REST API. [Docs](https://docs.appsmith.com/core-concepts/connecting-to-data-sources?utm_source=github&utm_medium=organic&utm_campaign=readme)
+### 2. Connect to your data
+
+Connect to your data with our connectors: databases (PostgresQL, MongoDB, Amazon S3, and many more), SaaS providers (like Google Sheets, Airtable, Twilio) or any GraphQL/REST API. [Docs](https://docs.appsmith.com/core-concepts/connecting-to-data-sources?utm_source=github&utm_medium=organic&utm_campaign=readme)
 
 <p align="center">
 <a href="https://docs.appsmith.com/core-concepts/connecting-to-data-sources?utm_source=github&utm_medium=organic&utm_campaign=readme">
@@ -52,7 +57,9 @@ You can create apps in 4 basic steps using Appsmith: <br>
 </p>
 <br/>
 
-**3. Connect the data to the UI** by binding the query results to the UI components with configuration. Where needed, you can use the Javascript IDE to create more advanced features and data transformations. [Docs](https://docs.appsmith.com/core-concepts/connecting-to-data-sources/querying-a-database?utm_source=github&utm_medium=organic&utm_campaign=readme)
+### Connect the data to the UI
+
+Connect the data to the UI by configuring the components. Where needed, you can use the Javascript IDE to create more advanced features and data transformations - the sky is the limit! [Docs](https://docs.appsmith.com/core-concepts/connecting-to-data-sources/querying-a-database?utm_source=github&utm_medium=organic&utm_campaign=readme)
 
 <p align="center">
 <a href="https://docs.appsmith.com/core-concepts/connecting-to-data-sources?utm_source=github&utm_medium=organic&utm_campaign=readme">
@@ -61,7 +68,9 @@ You can create apps in 4 basic steps using Appsmith: <br>
 </p>
 <br/>
 
-**4. Deploy your app** on our free, cloud-hosted version or to any platform of your choice - Docker, Kubernetes, AWS, DigitalOcean, Heroku, and more. [Docs](https://docs.appsmith.com/setup?utm_source=github&utm_medium=organic&utm_campaign=readme&utm_content=step4)
+### Deploy your app
+
+Deploy your app on our free, cloud-hosted version or to any platform of your choice - Docker, Kubernetes, AWS, DigitalOcean, Heroku, and more. [Docs](https://docs.appsmith.com/setup?utm_source=github&utm_medium=organic&utm_campaign=readme&utm_content=step4)
 
 <p align="center">
 <a href="https://docs.appsmith.com/core-concepts/connecting-to-data-sources?utm_source=github&utm_medium=organic&utm_campaign=readme">
