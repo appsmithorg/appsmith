@@ -79,6 +79,7 @@ import static com.external.helpers.HintMessageUtils.getActionHintMessages;
 import static com.external.helpers.HintMessageUtils.getDatasourceHintMessages;
 import static java.lang.Boolean.TRUE;
 
+@Slf4j
 public class RestApiPlugin extends BasePlugin {
     private static final int MAX_REDIRECTS = 5;
 
@@ -88,7 +89,6 @@ public class RestApiPlugin extends BasePlugin {
         super(wrapper);
     }
 
-    @Slf4j
     @Extension
     public static class RestApiPluginExecutor implements PluginExecutor<APIConnection>, SmartSubstitutionInterface {
 
@@ -451,7 +451,7 @@ public class RestApiPlugin extends BasePlugin {
                                     result.setBody(objectMapper.readTree(jsonBody));
                                     responseDataType = ResponseDataType.JSON;
                                 } catch (IOException e) {
-                                    System.out.println("Unable to parse response JSON. Setting response body as string.");
+                                    log.debug("Unable to parse response JSON. Setting response body as string.");
                                     String bodyString = new String(body, StandardCharsets.UTF_8);
                                     result.setBody(bodyString.trim());
 
@@ -585,7 +585,11 @@ public class RestApiPlugin extends BasePlugin {
                             URI redirectUri = null;
                             try {
                                 redirectUri = new URI(redirectUrl);
-                            } catch (URISyntaxException e) {
+                                if (DISALLOWED_HOSTS.contains(redirectUri.getHost())
+                                        || DISALLOWED_HOSTS.contains(InetAddress.getByName(redirectUri.getHost()).getHostAddress())) {
+                                    return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, "Host not allowed."));
+                                }
+                            } catch (URISyntaxException | UnknownHostException e) {
                                 return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, e));
                             }
                             return httpCall(webClient, httpMethod, redirectUri, finalRequestBody, iteration + 1,
