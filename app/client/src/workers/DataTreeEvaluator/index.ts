@@ -890,22 +890,17 @@ export default class DataTreeEvaluator {
             let id = "";
 
             // extracting the id and type of the entity from the entity for logs object
-            if ("ENTITY_TYPE" in entity) {
-              switch (entity.ENTITY_TYPE) {
-                case ENTITY_TYPE.WIDGET:
-                  type = CONSOLE_ENTITY_TYPE.WIDGET;
-                  id = entity.widgetId;
-                  break;
-                case ENTITY_TYPE.ACTION:
-                  type = CONSOLE_ENTITY_TYPE.ACTION;
-                  id = entity.actionId;
-                  break;
-                case ENTITY_TYPE.JSACTION:
-                  type = CONSOLE_ENTITY_TYPE.JSACTION;
-                  id = entity.actionId;
-                  break;
-              }
+            if (isWidget(entity)) {
+              type = CONSOLE_ENTITY_TYPE.WIDGET;
+              id = entity.widgetId;
+            } else if (isAction(entity)) {
+              type = CONSOLE_ENTITY_TYPE.ACTION;
+              id = entity.actionId;
+            } else if (isJSAction(entity)) {
+              type = CONSOLE_ENTITY_TYPE.JSACTION;
+              id = entity.actionId;
             }
+
             // This is the object that will help to associate the log with the origin entity
             const source: SourceEntity = {
               type,
