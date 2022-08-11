@@ -1,5 +1,5 @@
 import { uuid4 } from "@sentry/utils";
-import { Severity } from "entities/AppsmithConsole";
+import { Severity, SourceEntity } from "entities/AppsmithConsole";
 import moment from "moment";
 
 export type Methods =
@@ -14,6 +14,8 @@ export type Methods =
   | "timeEnd"
   | "count"
   | "assert";
+
+export type UserLogObject = { logObject: LogObject[]; source: SourceEntity };
 
 // Type of the log object
 export type LogObject = {
