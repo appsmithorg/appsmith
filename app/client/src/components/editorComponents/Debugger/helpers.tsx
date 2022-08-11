@@ -1,4 +1,4 @@
-import { Log, Severity } from "entities/AppsmithConsole";
+import { Log, LOG_CATEGORY, Severity } from "entities/AppsmithConsole";
 import React from "react";
 import styled from "styled-components";
 import { getTypographyByKey } from "constants/DefaultTheme";
@@ -62,6 +62,22 @@ export const SeverityIcon: Record<Severity, string> = {
   [Severity.INFO]: "success",
   [Severity.ERROR]: "error",
   [Severity.WARNING]: "warning",
+};
+
+export const getLogIcon = (log: Log) => {
+  if (log.severity === Severity.ERROR) {
+    return SeverityIcon[log.severity];
+  }
+
+  if (log.category === LOG_CATEGORY.PLATFORM_GENERATED) {
+    return "desktop";
+  }
+
+  if (log.category === LOG_CATEGORY.USER_GENERATED) {
+    return "user-2";
+  }
+
+  return SeverityIcon[log.severity];
 };
 
 export function getDependenciesFromInverseDependencies(
