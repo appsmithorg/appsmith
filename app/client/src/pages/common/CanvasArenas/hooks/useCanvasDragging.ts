@@ -495,7 +495,9 @@ export const useCanvasDragging = (
           const canReflowBasedOnMouseSpeed = canReflowForCurrentMouseMove();
           const isReflowing = !isEmpty(currentReflowParams.movementMap);
           const canReflow =
-            !currentRectanglesToDraw[0].detachFromLayout && !dropDisabled;
+            !currentRectanglesToDraw[0].detachFromLayout &&
+            !dropDisabled &&
+            false;
           const currentBlock = currentRectanglesToDraw[0];
           const [leftColumn, topRow] = getDropZoneOffsets(
             snapColumnSpace,

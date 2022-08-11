@@ -250,6 +250,13 @@ export function ReflowResizable(props: ResizableProps) {
           movementLimitMap: MovementLimitMap | undefined = {};
 
         if (resizedPositions) {
+          const isColliding = checkForCollision(resizedPositions);
+          if (isColliding) {
+            return prevState;
+          }
+        }
+
+        if (resizedPositions) {
           //calling reflow to update movements of reflowing widgets and get movementLimit of current resizing widget
           ({ bottomMostRow, movementLimitMap } = reflow(
             [resizedPositions],
