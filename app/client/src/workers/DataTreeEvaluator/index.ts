@@ -89,6 +89,7 @@ import {
   parseJSActions,
 } from "workers/JSObject";
 import { lintTree } from "workers/Lint";
+import { UserLogObject } from "workers/UserLog";
 
 export default class DataTreeEvaluator {
   dependencyMap: DependencyMap = {};
@@ -103,7 +104,10 @@ export default class DataTreeEvaluator {
   resolvedFunctions: Record<string, any> = {};
   currentJSCollectionState: Record<string, any> = {};
   logs: unknown[] = [];
-  allActionValidationConfig?: { [actionId: string]: ActionValidationConfigMap };
+  userLogs: UserLogObject[] = [];
+  allActionValidationConfig?: {
+    [actionId: string]: ActionValidationConfigMap;
+  };
   triggerFieldDependencyMap: DependencyMap = {};
   triggerFieldInverseDependencyMap: DependencyMap = {};
   public hasCyclicalDependency = false;
@@ -209,7 +213,11 @@ export default class DataTreeEvaluator {
       lint: (lintStop - lintStart).toFixed(2),
     };
     this.logs.push({ timeTakenForFirstTree });
-    return { evalTree: this.evalTree, jsUpdates, evalMetaUpdates };
+    return {
+      evalTree: this.evalTree,
+      jsUpdates,
+      evalMetaUpdates,
+    };
   }
 
   isJSObjectFunction(dataTree: DataTree, jsObjectName: string, key: string) {
@@ -494,7 +502,10 @@ export default class DataTreeEvaluator {
     Object.keys(dataTree).forEach((entityName) => {
       const entity = dataTree[entityName];
       if (isWidget(entity) && !_.isEmpty(entity.privateWidgets)) {
-        privateWidgets = { ...privateWidgets, ...entity.privateWidgets };
+        privateWidgets = {
+          ...privateWidgets,
+          ...entity.privateWidgets,
+        };
       }
     });
     return privateWidgets;
@@ -613,7 +624,10 @@ export default class DataTreeEvaluator {
     oldUnevalTree: DataTree,
     resolvedFunctions: Record<string, any>,
     sortedDependencies: Array<string>,
-  ): { evaluatedTree: DataTree; evalMetaUpdates: EvalMetaUpdates } {
+  ): {
+    evaluatedTree: DataTree;
+    evalMetaUpdates: EvalMetaUpdates;
+  } {
     const tree = klona(oldUnevalTree);
     const evalMetaUpdates: EvalMetaUpdates = [];
     try {
@@ -898,7 +912,7 @@ export default class DataTreeEvaluator {
               name: fullPropertyPath?.split(".")[0] || "Widget",
               id,
             };
-            this.logs.push({
+            this.userLogs.push({
               logObject: result.logs,
               source,
             });
@@ -1322,8 +1336,12 @@ export default class DataTreeEvaluator {
         EvaluationSubstitutionType.TEMPLATE,
         // params can be accessed via "this.params" or "executionParams"
         {
-          thisContext: { [THIS_DOT_PARAMS_KEY]: evaluatedExecutionParams },
-          globalContext: { [EXECUTION_PARAM_KEY]: evaluatedExecutionParams },
+          thisContext: {
+            [THIS_DOT_PARAMS_KEY]: evaluatedExecutionParams,
+          },
+          globalContext: {
+            [EXECUTION_PARAM_KEY]: evaluatedExecutionParams,
+          },
         },
       );
     });
@@ -1335,6 +1353,7 @@ export default class DataTreeEvaluator {
 
   clearLogs() {
     this.logs = [];
+    this.userLogs = [];
   }
 }
 
