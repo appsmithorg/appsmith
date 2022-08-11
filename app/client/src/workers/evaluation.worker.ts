@@ -350,6 +350,7 @@ ctx.addEventListener(
             backupDefs: { [latestKey[0]]: generateDefs(entity) },
           };
         } catch (e) {
+          console.log(e);
           return {
             error: `Installation failed. Appsmith cannot run this library`,
           };
@@ -385,8 +386,23 @@ function generateDefs(obj: Record<string, any>) {
       cachedValues.push(def[key]);
     }
   }
-  generate(obj, def);
-  generate(obj.prototype, protoDef);
+  try {
+    generate(obj, def);
+    generate(obj.prototype, protoDef);
+  } catch (e) {
+    return Object.keys(obj).reduce((acc, key) => {
+      acc[key] = acc[key] || {};
+      acc[key] = {
+        "!type":
+          typeof obj[key] === "function"
+            ? "fn()"
+            : typeof obj[key] === "boolean"
+            ? "bool"
+            : typeof obj[key],
+      };
+      return acc;
+    }, {} as any);
+  }
   return { ...def, prototype: protoDef };
 }
 
