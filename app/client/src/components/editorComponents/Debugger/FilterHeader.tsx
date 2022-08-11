@@ -30,7 +30,6 @@ const Wrapper = styled.div`
     box-shadow: none; */
     width: 260px;
     height: 32px;
-    margin-left: 24px;
     min-height: 32px;
   }
 
@@ -39,10 +38,10 @@ const Wrapper = styled.div`
     width: 560px;
     height: 32px;
     align-items: center;
-    margin-left: 24px;
+    margin: 0px 24px;
     .${Classes.ICON} {
-      position: absolute;
-      right: 9px;
+      margin-left: -32px;
+      z-index: 2;
     }
   }
 
@@ -93,14 +92,14 @@ function FilterHeader(props: FilterHeaderProps) {
           <Icon
             fillColor={get(theme, "colors.debugger.jsonIcon")}
             hoverFillColor={get(theme, "colors.debugger.message")}
-            name="close-circle"
+            name="cross"
             onClick={() => {
               if (searchRef.current) {
                 props.onChange("");
                 searchRef.current.value = "";
               }
             }}
-            size={IconSize.XXL}
+            size={IconSize.LARGE}
           />
         )}
       </div>
