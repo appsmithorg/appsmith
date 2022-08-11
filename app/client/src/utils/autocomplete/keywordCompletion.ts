@@ -5,7 +5,9 @@ export const getCompletionsForKeyword = (
   cursorHorizontalPos: number,
 ) => {
   const keywordName = completion.text;
-  const indentationSpace = " ".repeat(cursorHorizontalPos);
+  // indentation needs to be positive number
+  const indentation = cursorHorizontalPos < 0 ? 0 : cursorHorizontalPos;
+  const indentationSpace = " ".repeat(indentation);
 
   const completions = [];
   switch (keywordName) {
