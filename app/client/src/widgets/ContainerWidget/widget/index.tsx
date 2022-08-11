@@ -418,7 +418,7 @@ class ContainerWidget extends BaseWidget<
             alignItems={this.props.alignItems}
             direction={this.state.direction}
             justifyContent={this.props.justifyContent}
-            renderMode={this.props.renderMode}
+            stretchHeight={!this.props.children || !this.props.children?.length}
             useAutoLayout={this.state.useAutoLayout}
           >
             <AutoLayoutContext.Provider
