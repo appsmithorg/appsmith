@@ -237,6 +237,6 @@ describe("Date Field", () => {
       .type("10/08/2010");
 
     // Check for alert
-    cy.get(commonlocators.toastmsg).contains("10/08/2010");
+    cy.contains("10/08/2010").should('be.visible');
   });
 });
