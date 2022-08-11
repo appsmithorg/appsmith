@@ -2,8 +2,8 @@
 	"baseUrl": "https://dev.appsmith.com/",
 	"defaultCommandTimeout": 20000,
 	"requestTimeout": 21000,
-	"responseTimeout": 30000,
-	"pageLoadTimeout": 40000,
+	"responseTimeout": 20000,
+	"pageLoadTimeout": 30000,
 	"video": true,
 	"videoUploadOnPasses": false,
   "videoCompression": false,
@@ -15,9 +15,7 @@
 		"json": false
 	},
 	"ignoreTestFiles": [
-		"**/Smoke_TestSuite/Application/PgAdmin_spec*.js",
-    "**/Smoke_TestSuite/ClientSideTests/Git/GitSync/Comments_spec*.js",
-    "**/Smoke_TestSuite/ClientSideTests/OtherUIFeatures/AddComments_spec*.js"
+		"**/Smoke_TestSuite/Application/PgAdmin_spec*.js"
 	],
 	"chromeWebSecurity": false,
 	"viewportHeight": 1100,
