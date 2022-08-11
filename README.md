@@ -7,7 +7,7 @@
 </p>
 <br />
 
-<p>Appsmith is an open-source, low-code platform to build, deploy, and maintain internal apps. You can build anything from simple CRUD apps, admin panels, dashboards to custom business apps and complicated multi-step workflows.</p>
+<p>Appsmith is an open-source platform to build, deploy, and maintain internal apps. You can build anything from simple CRUD apps, admin panels, dashboards to custom business apps and complicated multi-step workflows.</p>
 
 <p align="center">
 <a href="https://discord.gg/rBTTVJp">
@@ -119,7 +119,7 @@ Appsmith makes it easy to create powerful utility applications organized across 
 
 🔑 [**Solid 256-bit encryption**](https://docs.appsmith.com/security?utm_source=github&utm_medium=organic&utm_campaign=readme). Appsmith apps are secure by default. All connections are TLS-encrypted, and credentials are encrypted with AES-256 so we can't see any of your data. For added security, try our [self-hosted options](https://docs.appsmith.com/setup?utm_source=github&utm_medium=organic&utm_campaign=readme&utm_content=features).
 
-[![Watch the video](https://img.youtube.com/vi/Dxe_NzdGzL4/maxresdefault.jpg)](https://youtu.be/T-D1KVIuvjA)
+[![Watch the video](https://img.youtube.com/vi/Dxe_NzdGzL4/maxresdefault.jpg)](https://youtu.be/Dxe_NzdGzL4)
 
 ## Support and Community
 
@@ -157,8 +157,6 @@ We ❤️ our contributors. We're committed to fostering an open, welcoming, and
 Lets build great software together.
 
 #### Top Contributors (36)
-
-_**Vihar - will need your help in updating this section**_
 
 <!-- ALL-CONTRIBUTORS-LIST:START - Do not remove / modify this section -->
 <!-- prettier-ignore-start -->
