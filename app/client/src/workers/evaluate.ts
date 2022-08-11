@@ -12,11 +12,13 @@ import { enhanceDataTreeWithFunctions } from "./Actions";
 import { isEmpty } from "lodash";
 import { completePromise } from "workers/PromisifyAction";
 import { ActionDescription } from "entities/DataTree/actionTriggers";
+import userLogs, { LogObject } from "./UserLog";
 
 export type EvalResult = {
   result: any;
   errors: EvaluationError[];
   triggers?: ActionDescription[];
+  logs?: LogObject[];
 };
 
 export enum EvaluationScriptType {
@@ -112,6 +114,9 @@ export interface createGlobalDataArgs {
 }
 
 export const createGlobalData = (args: createGlobalDataArgs) => {
+  // userLogs object has to be cleared before next eval can happen to make sure there are no roll overs from last evals
+  userLogs.resetLogs();
+
   const {
     context,
     dataTree,
@@ -230,6 +235,7 @@ export default function evaluateSync(
 ): EvalResult {
   return (function() {
     const errors: EvaluationError[] = [];
+    let logs: LogObject[] = [];
     let result;
     /**** Setting the eval context ****/
     const GLOBAL_DATA: Record<string, any> = createGlobalData({
@@ -276,13 +282,14 @@ export default function evaluateSync(
         originalBinding: userScript,
       });
     } finally {
+      logs = userLogs.flushLogs();
       for (const entity in GLOBAL_DATA) {
         // @ts-expect-error: Types are not available
         delete self[entity];
       }
     }
 
-    return { result, errors };
+    return { result, errors, logs };
   })();
 }
 
@@ -332,6 +339,7 @@ export async function evaluateAsync(
       completePromise(requestId, {
         result,
         errors,
+        logs: userLogs.flushLogs(),
         triggers: Array.from(self.TRIGGER_COLLECTOR),
       });
       for (const entity in GLOBAL_DATA) {

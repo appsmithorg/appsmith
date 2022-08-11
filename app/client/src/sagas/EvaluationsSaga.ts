@@ -98,6 +98,12 @@ import { DataTreeDiff } from "workers/evaluationUtils";
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { AppTheme } from "entities/AppTheming";
 import { ActionValidationConfigMap } from "constants/PropertyControlConstants";
+import AppsmithConsole from "utils/AppsmithConsole";
+import {
+  createLogTitleString,
+  LogObject,
+  UserLogObject,
+} from "workers/UserLog";
 
 let widgetTypeConfigMap: WidgetTypeConfigMap;
 
@@ -111,6 +117,7 @@ export type EvalTreePayload = {
   evaluationOrder: string[];
   jsUpdates: Record<string, JSUpdate>;
   logs: any[];
+  userLogs?: UserLogObject[];
   unEvalUpdates: DataTreeDiff[];
   isCreateFirstTree: boolean;
 };
@@ -153,6 +160,7 @@ function* evaluateTreeSaga(
     evaluationOrder,
     jsUpdates,
     logs,
+    userLogs,
     unEvalUpdates,
     isCreateFirstTree = false,
   }: EvalTreePayload = workerResponse;
@@ -177,6 +185,20 @@ function* evaluateTreeSaga(
   log.debug({ evalMetaUpdatesLength: evalMetaUpdates.length });
 
   const updatedDataTree: DataTree = yield select(getDataTree);
+  if (!!userLogs && userLogs.length > 0) {
+    userLogs.forEach((log: UserLogObject) => {
+      log.logObject.forEach((logObject: LogObject) => {
+        AppsmithConsole.addLog(
+          {
+            text: createLogTitleString(logObject.data),
+            source: log.source,
+          },
+          logObject.severity,
+          logObject.timestamp,
+        );
+      });
+    });
+  }
   log.debug({ jsUpdates: jsUpdates });
   log.debug({ dataTree: updatedDataTree });
   logs?.forEach((evalLog: any) => log.debug(evalLog));
@@ -252,24 +274,49 @@ export function* evaluateAndExecuteDynamicTrigger(
     log.debug({ requestData });
     if (requestData.finished) {
       keepAlive = false;
+
+      const { result } = requestData;
+
       /* Handle errors during evaluation
        * A finish event with errors means that the error was not caught by the user code.
        * We raise an error telling the user that an uncaught error has occurred
        * */
-      if (requestData.result.errors.length) {
+      if ("errors" in result && !!result.errors && result.errors.length) {
         if (
-          requestData.result.errors[0].errorMessage !==
+          result.errors[0].errorMessage !==
           "UncaughtPromiseRejection: User cancelled action execution"
         ) {
-          throw new UncaughtPromiseError(
-            requestData.result.errors[0].errorMessage,
-          );
+          throw new UncaughtPromiseError(result.errors[0].errorMessage);
         }
+      }
+      // Check for any logs in the response and store them in the redux store
+      if (
+        "logs" in result &&
+        !!result.logs &&
+        result.logs.length &&
+        // Remove on js execute event logs since they are already being handeled
+        // If not removed, these will show up on page load action executions
+        eventType !== EventType.ON_JS_FUNCTION_EXECUTE
+      ) {
+        result.logs.forEach((log: LogObject) => {
+          AppsmithConsole.addLog(
+            {
+              text: createLogTitleString(log.data),
+              source: {
+                type: ENTITY_TYPE.WIDGET,
+                name: triggerMeta.source?.name || "Widget",
+                id: triggerMeta.source?.id || "",
+              },
+            },
+            log.severity,
+            log.timestamp,
+          );
+        });
       }
       // It is possible to get a few triggers here if the user
       // still uses the old way of action runs and not promises. For that we
       // need to manually execute these triggers outside the promise flow
-      const { triggers } = requestData.result;
+      const { triggers } = result;
       if (triggers && triggers.length) {
         log.debug({ triggers });
         yield all(
@@ -279,7 +326,7 @@ export function* evaluateAndExecuteDynamicTrigger(
         );
       }
       // Return value of a promise is returned
-      return requestData.result;
+      return result;
     }
     yield call(evalErrorHandler, requestData.errors);
     if (requestData.trigger) {
@@ -361,6 +408,7 @@ export function* executeFunction(
   let response: {
     errors: any[];
     result: any;
+    logs?: LogObject[];
   };
 
   if (isAsync) {
@@ -383,7 +431,25 @@ export function* executeFunction(
     });
   }
 
-  const { errors, result } = response;
+  const { errors, logs, result } = response;
+
+  // Check for any logs in the response and store them in the redux store
+  if (!!logs && logs.length > 0) {
+    logs.forEach((log: LogObject) => {
+      AppsmithConsole.addLog(
+        {
+          text: createLogTitleString(log.data),
+          source: {
+            type: ENTITY_TYPE.JSACTION,
+            name: collectionName + "." + action.name,
+            id: collectionId,
+          },
+        },
+        log.severity,
+        log.timestamp,
+      );
+    });
+  }
   const isDirty = !!errors.length;
 
   yield call(
