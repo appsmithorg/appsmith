@@ -117,7 +117,7 @@ export const entityDefinitions = {
     triggeredRow: generateTypeDef(widget.triggeredRow),
     selectedRowIndex: "number",
     tableData: generateTypeDef(widget.tableData, extraDefsToDefine),
-    // filteredTableData: generateTypeDef(widget.filteredTableData), user should not be exposed to this property
+    filteredTableData: generateTypeDef(widget.filteredTableData),
     pageNo: "number",
     pageSize: "number",
     isVisible: isVisible,
