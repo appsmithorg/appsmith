@@ -45,7 +45,7 @@ Cypress.on("fail", (error) => {
 Cypress.env("MESSAGES", MESSAGES);
 
 before(function() {
-  //console.warn = () => {};
+  //console.warn = () => {}; //to remove all warnings in cypress console
   initLocalstorage();
   initLocalstorageRegistry();
   cy.startServerAndRoutes();
@@ -97,6 +97,10 @@ before(function() {
 });
 
 beforeEach(function() {
+  //cy.window().then((win) => (win.onbeforeunload = undefined));
+  if (!navigator.userAgent.includes("Cypress")) {
+    window.addEventListener("beforeunload", this.beforeunloadFunction);
+  }
   initLocalstorage();
   Cypress.Cookies.preserveOnce("SESSION", "remember_token");
   cy.startServerAndRoutes();
