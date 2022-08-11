@@ -14,7 +14,7 @@ describe("[Bug]: Catch block was not triggering in Safari/firefox", () => {
     jsEditor.CreateJSObject(
       `export default {
       fun: async () => {
-        return await Api1.run().catch(() => showAlert("404 hit"));
+        return await Api1.run().catch((e) => showAlert("404 hit : " + e.message));
       }
     }`,
       {
@@ -24,6 +24,6 @@ describe("[Bug]: Catch block was not triggering in Safari/firefox", () => {
         shouldCreateNewJSObj: true,
       },
     );
-    agHelper.WaitUntilToastDisappear("404 hit");
+    agHelper.WaitUntilToastDisappear("404 hit : Api1 failed to execute");
   });
 });
