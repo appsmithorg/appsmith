@@ -34,18 +34,25 @@ export function createLogTitleString(data: any[]) {
   // convert mixed array to string
   return data.reduce((acc, curr) => {
     // curr can be a string or an object
+    let joiningChar = ",";
+    if (acc.length === 0) {
+      joiningChar = "";
+    }
     if (typeof curr === "string") {
-      return `${acc} ${truncate(curr)}`;
+      return `${acc}${joiningChar} ${truncate(curr)}`;
     }
     if (typeof curr === "function") {
-      return `${acc}, func() ${curr.name}`;
+      return `${acc}${joiningChar} func() ${curr.name}`;
     }
     if (typeof curr === "object") {
       let suffix = "}";
       if (Array.isArray(curr)) {
         suffix = "]";
       }
-      return `${acc}, ${truncate(JSON.stringify(curr, null, "\t"), suffix)}`;
+      return `${acc}${joiningChar} ${truncate(
+        JSON.stringify(curr, null, "\t"),
+        suffix,
+      )}`;
     }
   }, "");
 }
