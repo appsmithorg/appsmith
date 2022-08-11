@@ -14,6 +14,7 @@ export default {
           ColumnTypes.ICON_BUTTON,
           ColumnTypes.IMAGE,
           ColumnTypes.EDIT_ACTIONS,
+          ColumnTypes.CHECKBOX,
         ],
         true,
       )
@@ -98,6 +99,18 @@ export default {
         const columnType = get(props, `${baseProperty}.columnType`, "");
         const isEditable = get(props, `${baseProperty}.isEditable`, "");
         return columnType !== ColumnTypes.SELECT || !isEditable;
+      },
+      dependencies: ["primaryColumns"],
+      isJSConvertible: true,
+      isBindProperty: true,
+      isTriggerProperty: true,
+    },
+    {
+      propertyName: "onCheckChange",
+      label: "onCheckChange",
+      controlType: "ACTION_SELECTOR",
+      hidden: (props: TableWidgetProps, propertyPath: string) => {
+        return hideByColumnType(props, propertyPath, [ColumnTypes.CHECKBOX]);
       },
       dependencies: ["primaryColumns"],
       isJSConvertible: true,

@@ -64,6 +64,10 @@ export default {
           label: "Icon Button",
           value: "iconButton",
         },
+        {
+          label: "Checkbox",
+          value: "checkbox",
+        },
       ],
       updateHook: composePropertyUpdateHook([
         updateNumberColumnTypeTextAlignment,
@@ -145,6 +149,7 @@ export default {
           ColumnTypes.TEXT,
           ColumnTypes.VIDEO,
           ColumnTypes.URL,
+          ColumnTypes.CHECKBOX,
         ]);
       },
       dependencies: ["primaryColumns", "columnOrder"],
@@ -250,6 +255,7 @@ export default {
           ColumnTypes.ICON_BUTTON,
           ColumnTypes.MENU_BUTTON,
           ColumnTypes.BUTTON,
+          ColumnTypes.CHECKBOX,
         ]);
       },
     },

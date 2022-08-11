@@ -425,6 +425,7 @@ const EdtiableColumnTypes: string[] = [
   ColumnTypes.TEXT,
   ColumnTypes.NUMBER,
   ColumnTypes.SELECT,
+  ColumnTypes.CHECKBOX,
 ];
 
 export function isColumnTypeEditable(columnType: string) {

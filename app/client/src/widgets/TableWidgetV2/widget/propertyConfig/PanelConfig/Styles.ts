@@ -8,7 +8,13 @@ export default {
     return hideByColumnType(
       props,
       propertyPath,
-      [ColumnTypes.TEXT, ColumnTypes.DATE, ColumnTypes.NUMBER, ColumnTypes.URL],
+      [
+        ColumnTypes.TEXT,
+        ColumnTypes.DATE,
+        ColumnTypes.NUMBER,
+        ColumnTypes.URL,
+        ColumnTypes.CHECKBOX,
+      ],
       true,
     );
   },
@@ -53,6 +59,7 @@ export default {
           ColumnTypes.DATE,
           ColumnTypes.NUMBER,
           ColumnTypes.URL,
+          ColumnTypes.CHECKBOX,
         ]);
       },
     },
@@ -180,6 +187,7 @@ export default {
           ColumnTypes.NUMBER,
           ColumnTypes.URL,
           ColumnTypes.EDIT_ACTIONS,
+          ColumnTypes.CHECKBOX,
         ]);
       },
     },
@@ -235,6 +243,7 @@ export default {
           ColumnTypes.NUMBER,
           ColumnTypes.URL,
           ColumnTypes.EDIT_ACTIONS,
+          ColumnTypes.CHECKBOX,
         ]);
       },
     },
