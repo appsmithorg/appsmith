@@ -183,27 +183,41 @@ export class JSEditor {
       .then((el: JQuery<HTMLElement>) => {
         this.agHelper.Paste(el, newContent);
       });
+    this.agHelper.AssertAutoSave();
+  }
+
+  public DisableJSContext(endp: string) {
+    cy.get(this.locator._jsToggle(endp.replace(/ +/g, "").toLowerCase()))
+      .invoke("attr", "class")
+      .then((classes: any) => {
+        if (classes.includes("is-active"))
+          cy.get(this.locator._jsToggle(endp.replace(/ +/g, "").toLowerCase()))
+            .first()
+            .click({ force: true });
+        else this.agHelper.Sleep(500);
+      });
   }
 
   public EnterJSContext(
     endp: string,
     value: string,
+    toToggleOnJS = true,
     paste = true,
-    toToggleOnJS = false,
   ) {
-    if (toToggleOnJS) {
-      cy.get(this.locator._jsToggle(endp.replace(/ +/g, "").toLowerCase()))
-        .invoke("attr", "class")
-        .then((classes: any) => {
-          if (!classes.includes("is-active")) {
-            cy.get(
-              this.locator._jsToggle(endp.replace(/ +/g, "").toLowerCase()),
-            )
-              .first()
-              .click({ force: true });
-          }
-        });
-    }
+    cy.get(this.locator._jsToggle(endp.replace(/ +/g, "").toLowerCase()))
+      .invoke("attr", "class")
+      .then((classes: any) => {
+        if (toToggleOnJS && !classes.includes("is-active"))
+          cy.get(this.locator._jsToggle(endp.replace(/ +/g, "").toLowerCase()))
+            .first()
+            .click({ force: true });
+        else if (!toToggleOnJS && classes.includes("is-active"))
+          cy.get(this.locator._jsToggle(endp.replace(/ +/g, "").toLowerCase()))
+            .first()
+            .click({ force: true });
+        else this.agHelper.Sleep(500);
+      });
+
     // cy.get(this.locator._propertyControl + endp + " " + this.locator._codeMirrorTextArea)
     //   .first()
     //   .focus()
@@ -213,22 +227,8 @@ export class JSEditor {
     //   // .type("{ctrl}{shift}{downarrow}", { force: true })
     //   .type("{del}", { force: true });
 
-    if (paste) {
-      this.propPane.UpdatePropertyFieldValue(endp, value);
-    } else {
-      cy.get(
-        this.locator._propertyControl +
-          endp.replace(/ +/g, "").toLowerCase() +
-          " " +
-          this.locator._codeMirrorTextArea,
-      )
-        .first()
-        .then((el: any) => {
-          cy.get(el).type(value, {
-            parseSpecialCharSequences: false,
-          });
-        });
-    }
+    if (paste) this.propPane.UpdatePropertyFieldValue(endp, value);
+    else this.propPane.TypeTextIntoField(endp, value);
 
     // cy.focused().then(($cm: any) => {
     //   if ($cm.contents != "") {
@@ -386,9 +386,7 @@ export class JSEditor {
 
   public SelectFunctionDropdown(funName: string) {
     cy.get(this._funcDropdown).click();
-    cy.get(this.locator._dropdownText)
-      .contains(funName)
-      .click();
+    this.agHelper.GetNClickByContains(this.locator._dropdownText, funName);
   }
 
   //#endregion

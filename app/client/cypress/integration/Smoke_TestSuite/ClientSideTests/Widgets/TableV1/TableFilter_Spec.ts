@@ -1,5 +1,4 @@
 import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
-const dsl = require("../../../../../fixtures/tablev1NewDsl.json");
 
 let dataSet: any;
 const agHelper = ObjectsRegistry.AggregateHelper,
@@ -14,11 +13,13 @@ describe("Verify various Table_Filter combinations", function() {
     cy.fixture("example").then(function(data: any) {
       dataSet = data;
     });
-    agHelper.AddDsl(dsl);
+    cy.fixture("tablev1NewDsl").then((val: any) => {
+      agHelper.AddDsl(val);
+    });
   });
 
   it("1. Adding Data to Table Widget", function() {
-    ee.SelectEntityByName("Table1")
+    ee.SelectEntityByName("Table1");
     propPane.UpdatePropertyFieldValue(
       "Table Data",
       JSON.stringify(dataSet.TableInput),
@@ -647,6 +648,7 @@ describe("Verify various Table_Filter combinations", function() {
 
   it("30. Import TableFilter application & verify all filters for same FirstName (one word column) + Bug 13334", () => {
     deployMode.NavigateBacktoEditor();
+    table.WaitUntilTableLoad();
     homePage.NavigateToHome();
     homePage.ImportApp("TableFilterImportApp.json");
     homePage.AssertImportToast();

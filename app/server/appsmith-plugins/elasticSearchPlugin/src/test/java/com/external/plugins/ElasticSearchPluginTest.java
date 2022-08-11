@@ -2,11 +2,11 @@ package com.external.plugins;
 
 import com.appsmith.external.constants.Authentication;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
-import com.appsmith.external.models.ActionConfiguration;
-import com.appsmith.external.models.ActionExecutionResult;
-import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.Endpoint;
+import com.appsmith.external.models.DBAuth;
+import com.appsmith.external.models.ActionExecutionResult;
+import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.RequestParamDTO;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.HttpHost;
