@@ -144,20 +144,11 @@ import VideoWidget, {
 import ProgressWidget, {
   CONFIG as PROGRESS_WIDGET_CONFIG,
 } from "widgets/ProgressWidget";
-import AutoLayoutContainerWidget, {
-  CONFIG as AUTO_LAYOUT_CONFIG,
-} from "widgets/AutoLayoutContainerWidget";
-import VerticalLayoutWidget, {
-  CONFIG as VERTICAL_LAYOUT_CONFIG,
-} from "widgets/VerticalLayoutWidget";
 import { registerWidget } from "./WidgetRegisterHelpers";
 import { WidgetConfiguration } from "widgets/constants";
 import TableWidgetV2, {
   CONFIG as TABLE_WIDGET_CONFIG_V2,
 } from "widgets/TableWidgetV2";
-import HorizontalLayoutWidget, {
-  CONFIG as HORIZONTAL_LAYOUT_CONFIG,
-} from "widgets/HorizontalLayoutWidget";
 
 export const ALL_WIDGETS_AND_CONFIG = [
   [CanvasWidget, CANVAS_WIDGET_CONFIG],
@@ -205,9 +196,6 @@ export const ALL_WIDGETS_AND_CONFIG = [
   [CurrencyInputWidget, CURRENCY_INPUT_WIDGET_V2_CONFIG],
   [JSONFormWidget, JSON_FORM_WIDGET_CONFIG],
   [TableWidgetV2, TABLE_WIDGET_CONFIG_V2],
-  [AutoLayoutContainerWidget, AUTO_LAYOUT_CONFIG],
-  [VerticalLayoutWidget, VERTICAL_LAYOUT_CONFIG],
-  [HorizontalLayoutWidget, HORIZONTAL_LAYOUT_CONFIG],
 
   //Deprecated Widgets
   [InputWidget, INPUT_WIDGET_CONFIG],
