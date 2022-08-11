@@ -1,6 +1,10 @@
 import React, { useEffect, useRef, useState } from "react";
 import throttle from "lodash/throttle";
 
+import LabelWithTooltip from "components/ads/LabelWithTooltip";
+import { LabelPosition } from "components/constants";
+import { Alignment } from "@blueprintjs/core";
+import { TextSize } from "constants/WidgetConstants";
 import { useMove } from "../../SliderWidget/use-move";
 import {
   getClientPosition,
@@ -11,6 +15,7 @@ import {
 import { Thumb } from "../../SliderWidget/component/Thumb";
 import { Track } from "../../SliderWidget/component/Track";
 import { SliderRoot } from "../../SliderWidget/component/SilderRoot";
+import { SliderContainer } from "widgets/SliderWidget/component/Container";
 
 type Value = [number, number];
 
@@ -63,6 +68,29 @@ export interface RangeSliderComponentProps
 
   /** Disables slider */
   disabled?: boolean;
+  /** Label text  */
+  labelText: string;
+
+  /** Position of the Label Top, Left, Auto */
+  labelPosition?: LabelPosition;
+
+  /** Alignment of the Label Left, Right */
+  labelAlignment?: Alignment;
+
+  /** Width of the Label, used only when Position is Left   */
+  labelWidth?: number;
+
+  /** Color for the Label text  */
+  labelTextColor?: string;
+
+  /** Font Size for the Label text  */
+  labelTextSize?: TextSize;
+
+  /** Font Style for the Label text  */
+  labelStyle?: string;
+
+  /** Loading property internal to every widget  */
+  loading: boolean;
 }
 
 const RangeSliderComponent = (props: RangeSliderComponentProps) => {
@@ -70,7 +98,15 @@ const RangeSliderComponent = (props: RangeSliderComponentProps) => {
     color,
     disabled = false,
     endValue,
+    labelAlignment,
     labelAlwaysOn = false,
+    labelPosition,
+    labelStyle,
+    labelText,
+    labelTextColor,
+    labelTextSize,
+    labelWidth,
+    loading,
     marks,
     max,
     min,
@@ -279,81 +315,97 @@ const RangeSliderComponent = (props: RangeSliderComponentProps) => {
   };
 
   return (
-    <SliderRoot
-      {...others}
-      disabled={disabled}
-      onKeyDownCapture={handleTrackKeydownCapture}
-      onMouseDownCapture={handleTrackMouseDownCapture}
-      onMouseUpCapture={() => {
-        thumbIndex.current = -1;
-      }}
-      onTouchEndCapture={() => {
-        thumbIndex.current = -1;
-      }}
-      onTouchStartCapture={handleTrackMouseDownCapture}
-      // @ts-expect-error: MutableRefObject not assignable to Ref
-      ref={container}
-      size={sliderSize}
-    >
-      <Track
-        color={color}
-        disabled={disabled}
-        filled={positions[1] - positions[0]}
-        marks={marks}
-        marksOffset={_value[0]}
-        max={max}
-        min={min}
-        offset={positions[0]}
-        onChange={(val) => {
-          const nearestValue =
-            Math.abs(_value[0] - val) > Math.abs(_value[1] - val) ? 1 : 0;
-          const clone: Value = [..._value];
-          clone[nearestValue] = val;
-          _setValue(clone);
-        }}
-        onMouseEnter={showLabelOnHover ? () => setHovered(true) : undefined}
-        onMouseLeave={showLabelOnHover ? () => setHovered(false) : undefined}
-        size={sliderSize}
-        value={_value[1]}
-      >
-        <Thumb
-          {...sharedThumbProps}
+    <SliderContainer compactMode labelPosition={labelPosition}>
+      {labelText && (
+        <LabelWithTooltip
+          alignment={labelAlignment}
+          color={labelTextColor}
+          compact
           disabled={disabled}
-          dragging={active}
-          label={_value[0].toString()}
-          onFocus={() => setFocused(0)}
-          onMouseDown={(event) => handleThumbMouseDown(event, 0)}
-          position={positions[0]}
-          ref={(node) => {
-            // @ts-expect-error: HTMLDivElement
-            thumbs.current[0] = node;
-          }}
-          showLabelOnHover={showLabelOnHover && hovered}
-          size={sliderSize}
-          value={_value[0]}
+          fontSize={labelTextSize}
+          fontStyle={labelStyle}
+          loading={loading}
+          position={labelPosition}
+          text={labelText}
+          width={labelWidth}
         />
-
-        <Thumb
-          {...sharedThumbProps}
+      )}
+      <SliderRoot
+        {...others}
+        disabled={disabled}
+        onKeyDownCapture={handleTrackKeydownCapture}
+        onMouseDownCapture={handleTrackMouseDownCapture}
+        onMouseUpCapture={() => {
+          thumbIndex.current = -1;
+        }}
+        onTouchEndCapture={() => {
+          thumbIndex.current = -1;
+        }}
+        onTouchStartCapture={handleTrackMouseDownCapture}
+        // @ts-expect-error: MutableRefObject not assignable to Ref
+        ref={container}
+        size={sliderSize}
+      >
+        <Track
+          color={color}
           disabled={disabled}
-          dragging={active}
-          label={_value[1].toString()}
-          onFocus={() => setFocused(1)}
-          onMouseDown={(event) => handleThumbMouseDown(event, 1)}
-          position={positions[1]}
-          ref={(node) => {
-            // @ts-expect-error: HTMLDivElement
-            thumbs.current[1] = node;
+          filled={positions[1] - positions[0]}
+          marks={marks}
+          marksOffset={_value[0]}
+          max={max}
+          min={min}
+          offset={positions[0]}
+          onChange={(val) => {
+            const nearestValue =
+              Math.abs(_value[0] - val) > Math.abs(_value[1] - val) ? 1 : 0;
+            const clone: Value = [..._value];
+            clone[nearestValue] = val;
+            _setValue(clone);
           }}
-          showLabelOnHover={showLabelOnHover && hovered}
+          onMouseEnter={showLabelOnHover ? () => setHovered(true) : undefined}
+          onMouseLeave={showLabelOnHover ? () => setHovered(false) : undefined}
           size={sliderSize}
           value={_value[1]}
-        />
-      </Track>
+        >
+          <Thumb
+            {...sharedThumbProps}
+            disabled={disabled}
+            dragging={active}
+            label={_value[0].toString()}
+            onFocus={() => setFocused(0)}
+            onMouseDown={(event) => handleThumbMouseDown(event, 0)}
+            position={positions[0]}
+            ref={(node) => {
+              // @ts-expect-error: HTMLDivElement
+              thumbs.current[0] = node;
+            }}
+            showLabelOnHover={showLabelOnHover && hovered}
+            size={sliderSize}
+            value={_value[0]}
+          />
 
-      <input name={`${name}_from`} type="hidden" value={_value[0]} />
-      <input name={`${name}_to`} type="hidden" value={_value[1]} />
-    </SliderRoot>
+          <Thumb
+            {...sharedThumbProps}
+            disabled={disabled}
+            dragging={active}
+            label={_value[1].toString()}
+            onFocus={() => setFocused(1)}
+            onMouseDown={(event) => handleThumbMouseDown(event, 1)}
+            position={positions[1]}
+            ref={(node) => {
+              // @ts-expect-error: HTMLDivElement
+              thumbs.current[1] = node;
+            }}
+            showLabelOnHover={showLabelOnHover && hovered}
+            size={sliderSize}
+            value={_value[1]}
+          />
+        </Track>
+
+        <input name={`${name}_from`} type="hidden" value={_value[0]} />
+        <input name={`${name}_to`} type="hidden" value={_value[1]} />
+      </SliderRoot>
+    </SliderContainer>
   );
 };
 

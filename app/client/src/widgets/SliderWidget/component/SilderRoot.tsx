@@ -12,10 +12,11 @@ export interface SliderRootProps extends React.ComponentPropsWithoutRef<"div"> {
 const SliderWrapper = styled.div<SliderRootProps>(({ disabled, size }) => ({
   WebkitTapHighlightColor: "transparent",
   outline: 0,
-  flex: 1,
   height: `${sizeMap[size] * 2}px`,
   display: "flex",
   alignItems: "center",
+  flex: 1,
+  width: "100%",
   cursor: disabled ? "not-allowed" : "pointer",
 }));
 

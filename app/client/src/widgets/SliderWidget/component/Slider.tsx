@@ -1,11 +1,16 @@
 import React, { useRef, useState, useCallback, useEffect } from "react";
 import throttle from "lodash/throttle";
 
+import LabelWithTooltip from "components/ads/LabelWithTooltip";
+import { LabelPosition } from "components/constants";
+import { Alignment } from "@blueprintjs/core";
+import { TextSize } from "constants/WidgetConstants";
 import { getChangeValue, getPosition, SliderSizes } from "../utils";
 import { useMove } from "../use-move";
-import { Thumb } from "./Thumb";
-import { Track } from "./Track";
+import { SliderContainer } from "./Container";
 import { SliderRoot } from "./SilderRoot";
+import { Track } from "./Track";
+import { Thumb } from "./Thumb";
 
 export interface SingleSliderComponentProps
   extends Omit<
@@ -50,13 +55,45 @@ export interface SingleSliderComponentProps
 
   /** Disables slider */
   disabled?: boolean;
+
+  /** Label text  */
+  labelText: string;
+
+  /** Position of the Label Top, Left, Auto */
+  labelPosition?: LabelPosition;
+
+  /** Alignment of the Label Left, Right */
+  labelAlignment?: Alignment;
+
+  /** Width of the Label, used only when Position is Left   */
+  labelWidth?: number;
+
+  /** Color for the Label text  */
+  labelTextColor?: string;
+
+  /** Font Size for the Label text  */
+  labelTextSize?: TextSize;
+
+  /** Font Style for the Label text  */
+  labelStyle?: string;
+
+  /** Loading property internal to every widget  */
+  loading: boolean;
 }
 
 const SingleSliderComponent = (props: SingleSliderComponentProps) => {
   const {
     color,
     disabled = false,
+    labelAlignment,
     labelAlwaysOn = false,
+    labelPosition,
+    labelStyle,
+    labelText,
+    labelTextColor,
+    labelTextSize,
+    labelWidth,
+    loading,
     marks,
     max,
     min,
@@ -167,48 +204,64 @@ const SingleSliderComponent = (props: SingleSliderComponentProps) => {
   };
 
   return (
-    <SliderRoot
-      disabled={disabled}
-      onKeyDownCapture={handleTrackKeydownCapture}
-      onMouseDownCapture={() => container.current?.focus()}
-      // @ts-expect-error: MutableRefObject not assignable to Ref
-      ref={container}
-      size={sliderSize}
-    >
-      <Track
-        color={color}
+    <SliderContainer compactMode labelPosition={labelPosition}>
+      {labelText && (
+        <LabelWithTooltip
+          alignment={labelAlignment}
+          color={labelTextColor}
+          compact
+          disabled={disabled}
+          fontSize={labelTextSize}
+          fontStyle={labelStyle}
+          loading={loading}
+          position={labelPosition}
+          text={labelText}
+          width={labelWidth}
+        />
+      )}
+      <SliderRoot
         disabled={disabled}
-        filled={position}
-        marks={marks}
-        max={max}
-        min={min}
-        offset={0}
-        onChange={setValue}
-        onMouseEnter={showLabelOnHover ? () => setHovered(true) : undefined}
-        onMouseLeave={showLabelOnHover ? () => setHovered(false) : undefined}
+        onKeyDownCapture={handleTrackKeydownCapture}
+        onMouseDownCapture={() => container.current?.focus()}
+        // @ts-expect-error: MutableRefObject not assignable to Ref
+        ref={container}
         size={sliderSize}
-        value={_value}
       >
-        <Thumb
+        <Track
           color={color}
           disabled={disabled}
-          dragging={active}
-          label={_value.toString()}
-          labelAlwaysOn={labelAlwaysOn}
+          filled={position}
+          marks={marks}
           max={max}
           min={min}
-          onMouseDown={handleThumbMouseDown}
-          position={position}
-          // @ts-expect-error: MutableRefObject not assignable to Ref
-          ref={thumb}
-          showLabelOnHover={showLabelOnHover && hovered}
+          offset={0}
+          onChange={setValue}
+          onMouseEnter={showLabelOnHover ? () => setHovered(true) : undefined}
+          onMouseLeave={showLabelOnHover ? () => setHovered(false) : undefined}
           size={sliderSize}
           value={_value}
-        />
-      </Track>
+        >
+          <Thumb
+            color={color}
+            disabled={disabled}
+            dragging={active}
+            label={_value.toString()}
+            labelAlwaysOn={labelAlwaysOn}
+            max={max}
+            min={min}
+            onMouseDown={handleThumbMouseDown}
+            position={position}
+            // @ts-expect-error: MutableRefObject not assignable to Ref
+            ref={thumb}
+            showLabelOnHover={showLabelOnHover && hovered}
+            size={sliderSize}
+            value={_value}
+          />
+        </Track>
 
-      <input name={name} type="hidden" value={_value} />
-    </SliderRoot>
+        <input name={name} type="hidden" value={_value} />
+      </SliderRoot>
+    </SliderContainer>
   );
 };
 

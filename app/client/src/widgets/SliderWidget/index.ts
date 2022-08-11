@@ -1,3 +1,6 @@
+import { LabelPosition } from "components/constants";
+import { Alignment } from "@blueprintjs/core";
+
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
 
@@ -29,6 +32,11 @@ export const CONFIG = {
     shouldTruncate: false,
     version: 1,
     animateLoading: true,
+    labelText: "Label",
+    labelPosition: LabelPosition.Left,
+    labelAlignment: Alignment.LEFT,
+    labelWidth: 5,
+    labelTextSize: "0.875rem",
   },
   properties: {
     derived: Widget.getDerivedPropertiesMap(),

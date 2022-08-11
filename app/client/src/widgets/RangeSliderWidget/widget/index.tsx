@@ -3,13 +3,18 @@ import * as React from "react";
 import { ValidationTypes } from "constants/WidgetValidation";
 import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import { TAILWIND_COLORS } from "constants/ThemeConstants";
+import { LabelPosition } from "components/constants";
+import { Alignment } from "@blueprintjs/core";
 import RangeSliderComponent, {
   RangeSliderComponentProps,
 } from "../component/RangeSlider";
 
 interface RangeSliderWidgetProps
   extends WidgetProps,
-    RangeSliderComponentProps {}
+    RangeSliderComponentProps {
+  /** Color from theme.colors */
+  accentColor?: string;
+}
 
 class RangeSliderWidget extends BaseWidget<
   RangeSliderWidgetProps,
@@ -173,6 +178,147 @@ class RangeSliderWidget extends BaseWidget<
         ],
       },
       {
+        sectionName: "Label",
+        children: [
+          {
+            helpText: "Sets the label text of the widget",
+            propertyName: "labelText",
+            label: "Text",
+            controlType: "INPUT_TEXT",
+            placeholderText: "Enter label text",
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
+          {
+            helpText: "Sets the label position of the widget",
+            propertyName: "labelPosition",
+            label: "Position",
+            controlType: "DROP_DOWN",
+            options: [
+              { label: "Left", value: LabelPosition.Left },
+              { label: "Top", value: LabelPosition.Top },
+              { label: "Auto", value: LabelPosition.Auto },
+            ],
+            isBindProperty: false,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
+          {
+            helpText: "Sets the label alignment of the widget",
+            propertyName: "labelAlignment",
+            label: "Alignment",
+            controlType: "LABEL_ALIGNMENT_OPTIONS",
+            options: [
+              {
+                icon: "LEFT_ALIGN",
+                value: Alignment.LEFT,
+              },
+              {
+                icon: "RIGHT_ALIGN",
+                value: Alignment.RIGHT,
+              },
+            ],
+            isBindProperty: false,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+            hidden: (props: RangeSliderWidgetProps) =>
+              props.labelPosition !== LabelPosition.Left,
+            dependencies: ["labelPosition"],
+          },
+          {
+            helpText:
+              "Sets the label width of the widget as the number of columns",
+            propertyName: "labelWidth",
+            label: "Width (in columns)",
+            controlType: "NUMERIC_INPUT",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            min: 0,
+            validation: {
+              type: ValidationTypes.NUMBER,
+              params: {
+                natural: true,
+              },
+            },
+            hidden: (props: RangeSliderWidgetProps) =>
+              props.labelPosition !== LabelPosition.Left,
+            dependencies: ["labelPosition"],
+          },
+          {
+            propertyName: "labelTextColor",
+            label: "Label Text Color",
+            controlType: "COLOR_PICKER",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
+          {
+            propertyName: "labelTextSize",
+            label: "Label Text Size",
+            controlType: "DROP_DOWN",
+            defaultValue: "0.875rem",
+            options: [
+              {
+                label: "S",
+                value: "0.875rem",
+                subText: "0.875rem",
+              },
+              {
+                label: "M",
+                value: "1rem",
+                subText: "1rem",
+              },
+              {
+                label: "L",
+                value: "1.25rem",
+                subText: "1.25rem",
+              },
+              {
+                label: "XL",
+                value: "1.875rem",
+                subText: "1.875rem",
+              },
+              {
+                label: "XXL",
+                value: "3rem",
+                subText: "3rem",
+              },
+              {
+                label: "3XL",
+                value: "3.75rem",
+                subText: "3.75rem",
+              },
+            ],
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
+          {
+            propertyName: "labelStyle",
+            label: "Label Font Style",
+            controlType: "BUTTON_TABS",
+            options: [
+              {
+                icon: "BOLD_FONT",
+                value: "BOLD",
+              },
+              {
+                icon: "ITALICS_FONT",
+                value: "ITALIC",
+              },
+            ],
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
+        ],
+      },
+      {
         sectionName: "Styles",
         children: [
           {
@@ -241,23 +387,29 @@ class RangeSliderWidget extends BaseWidget<
 
   getPageView() {
     return (
-      <div className="flex items-center">
-        <RangeSliderComponent
-          color={this.props.accentColor || TAILWIND_COLORS.green["600"]}
-          endValue={this.props.end || 20}
-          labelAlwaysOn={this.props.labelAlwaysOn}
-          marks={this.props.marks}
-          max={this.props.max || 100}
-          min={this.props.min || 0}
-          minRange={this.props.minRange || 10}
-          name={this.props.widgetName}
-          onChangeEnd={this.onChangeEnd}
-          showLabelOnHover={this.props.showLabelOnHover}
-          sliderSize={this.props.sliderSize || "md"}
-          startValue={this.props.start || 0}
-          step={this.props.step || 1}
-        />
-      </div>
+      <RangeSliderComponent
+        color={this.props.accentColor || TAILWIND_COLORS.green["600"]}
+        endValue={this.props.end || 20}
+        labelAlignment={this.props.labelAlignment}
+        labelAlwaysOn={this.props.labelAlwaysOn}
+        labelPosition={this.props.labelPosition}
+        labelStyle={this.props.labelStyle}
+        labelText={this.props.labelText}
+        labelTextColor={this.props.labelTextColor}
+        labelTextSize={this.props.labelTextSize}
+        labelWidth={this.getLabelWidth()}
+        loading={this.props.isLoading}
+        marks={this.props.marks}
+        max={this.props.max || 100}
+        min={this.props.min || 0}
+        minRange={this.props.minRange || 10}
+        name={this.props.widgetName}
+        onChangeEnd={this.onChangeEnd}
+        showLabelOnHover={this.props.showLabelOnHover}
+        sliderSize={this.props.sliderSize || "md"}
+        startValue={this.props.start || 0}
+        step={this.props.step || 1}
+      />
     );
   }
 
