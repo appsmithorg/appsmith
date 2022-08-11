@@ -14,8 +14,8 @@ public class CustomWorkspaceRepositoryImpl extends CustomWorkspaceRepositoryCEIm
         implements CustomWorkspaceRepository {
 
     public CustomWorkspaceRepositoryImpl(ReactiveMongoOperations mongoOperations, MongoConverter mongoConverter,
-            SessionUserService sessionUserService) {
-        super(mongoOperations, mongoConverter, sessionUserService);
+            SessionUserService sessionUserService, CacheableRepositoryHelper cacheableRepositoryHelper) {
+        super(mongoOperations, mongoConverter, sessionUserService, cacheableRepositoryHelper);
     }
 
 }

@@ -62,6 +62,7 @@ import static com.appsmith.server.constants.FieldName.VIEWER;
 import static com.appsmith.server.constants.FieldName.WORKSPACE_ADMINISTRATOR_DESCRIPTION;
 import static com.appsmith.server.constants.FieldName.WORKSPACE_DEVELOPER_DESCRIPTION;
 import static com.appsmith.server.constants.FieldName.WORKSPACE_VIEWER_DESCRIPTION;
+import static java.lang.Boolean.TRUE;
 
 @Slf4j
 public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Workspace, String>
@@ -218,7 +219,7 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
     }
 
     private Mono<Boolean> isCreateWorkspaceAllowed() {
-        return Mono.just(Boolean.TRUE);
+        return Mono.just(TRUE);
     }
 
     private String generateNewDefaultName(String oldName, String workspaceName) {
@@ -357,7 +358,7 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
         permissions.addAll(readPermissionGroupPermissions);
         viewerPermissionGroup.setPermissions(permissions);
 
-        return Flux.fromIterable(permissionGroups)
+        Mono<Set<PermissionGroup>> savedPermissionGroupsMono = Flux.fromIterable(permissionGroups)
                 .flatMap(permissionGroup -> permissionGroupService.save(permissionGroup))
                 .collect(Collectors.toSet())
                 .flatMapMany(savedPermissionGroups -> {
@@ -365,7 +366,7 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
                     for (PermissionGroup permissionGroup : savedPermissionGroups) {
                         for (PermissionGroup nestedPermissionGroup : savedPermissionGroups) {
                             Map<String, Policy> policyMap = policyUtils.generatePolicyFromPermissionGroupForObject(permissionGroup, nestedPermissionGroup.getId());
-                             policyUtils.addPoliciesToExistingObject(policyMap, nestedPermissionGroup);
+                            policyUtils.addPoliciesToExistingObject(policyMap, nestedPermissionGroup);
                         }
                     }
 
@@ -373,6 +374,17 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
                 })
                 .flatMap(permissionGroup -> permissionGroupService.save(permissionGroup))
                 .collect(Collectors.toSet());
+
+        // Also evict the cache entry for the user creating the workspace to ensure that the user cache has the latest permissions
+        Mono<Boolean> cleanPermissionGroupCacheForCurrentUser =
+                permissionGroupService.cleanPermissionGroupCacheForUsers(List.of(user.getId()))
+                        .thenReturn(TRUE);
+
+        return Mono.zip(
+                        savedPermissionGroupsMono,
+                        cleanPermissionGroupCacheForCurrentUser
+                )
+                .map(tuple -> tuple.getT1());
     }
 
     private Mono<Set<PermissionGroup>> generateDefaultPermissionGroups(Workspace workspace, User user) {
@@ -471,20 +483,20 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
 
     @Override
     public Mono<List<PermissionGroupInfoDTO>> getPermissionGroupsForWorkspace(String workspaceId) {
-       if (!StringUtils.hasLength(workspaceId)) {
-           return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.WORKSPACE_ID));
-       }
+        if (!StringUtils.hasLength(workspaceId)) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.WORKSPACE_ID));
+        }
 
-       // Read the workspace
-       Mono<Workspace> workspaceMono = repository.findById(workspaceId, AclPermission.READ_WORKSPACES);
+        // Read the workspace
+        Mono<Workspace> workspaceMono = repository.findById(workspaceId, AclPermission.READ_WORKSPACES);
 
-       // Get default permission groups
-       Flux<PermissionGroup> permissionGroupFlux = workspaceMono
-               .flatMapMany(workspace -> permissionGroupService.getByDefaultWorkspace(workspace, AclPermission.ASSIGN_PERMISSION_GROUPS));
+        // Get default permission groups
+        Flux<PermissionGroup> permissionGroupFlux = workspaceMono
+                .flatMapMany(workspace -> permissionGroupService.getByDefaultWorkspace(workspace, AclPermission.ASSIGN_PERMISSION_GROUPS));
 
-       // Map to PermissionGroupInfoDTO
-       Flux<PermissionGroupInfoDTO> permissionGroupInfoFlux = permissionGroupFlux
-               .map(userGroup -> modelMapper.map(userGroup, PermissionGroupInfoDTO.class));
+        // Map to PermissionGroupInfoDTO
+        Flux<PermissionGroupInfoDTO> permissionGroupInfoFlux = permissionGroupFlux
+                .map(permissionGroup -> modelMapper.map(permissionGroup, PermissionGroupInfoDTO.class));
 
         Mono<List<PermissionGroupInfoDTO>> permissionGroupInfoDTOListMono = permissionGroupInfoFlux.collectList()
                 .map(list -> {

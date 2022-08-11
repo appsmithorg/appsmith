@@ -15,6 +15,8 @@ public interface PermissionGroupServiceCE extends CrudService<PermissionGroup, S
 
     Flux<PermissionGroup> findAllByIds(Set<String> ids);
 
+    Mono<PermissionGroup> bulkUnassignFromUsers(String permissionGroupId, List<User> users);
+
     Flux<PermissionGroup> getByDefaultWorkspace(Workspace workspace, AclPermission permission);
 
     Mono<PermissionGroup> save(PermissionGroup permissionGroup);
@@ -24,6 +26,8 @@ public interface PermissionGroupServiceCE extends CrudService<PermissionGroup, S
     Mono<PermissionGroup> assignToUser(PermissionGroup permissionGroup, User user);
 
     Mono<PermissionGroup> bulkAssignToUsers(PermissionGroup permissionGroup, List<User> users);
+
+    Mono<PermissionGroup> bulkAssignToUsers(String permissionGroupId, List<User> users);
 
     Mono<PermissionGroup> unassignFromSelf(PermissionGroup permissionGroup);
 
@@ -36,4 +40,8 @@ public interface PermissionGroupServiceCE extends CrudService<PermissionGroup, S
     Mono<PermissionGroup> findById(String permissionGroupId);
 
     Mono<PermissionGroup> bulkUnassignFromUsers(PermissionGroup permissionGroup, List<User> users);
+
+    Flux<PermissionGroup> getByDefaultWorkspaces(Set<String> workspaceIds, AclPermission permission);
+
+    Mono<Void> cleanPermissionGroupCacheForUsers(List<String> userIds);
 }

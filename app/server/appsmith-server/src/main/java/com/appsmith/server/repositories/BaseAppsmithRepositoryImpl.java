@@ -5,8 +5,6 @@ import com.appsmith.external.models.Policy;
 import com.appsmith.external.models.QBaseDomain;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
-import com.appsmith.server.domains.PermissionGroup;
-import com.appsmith.server.domains.QPermissionGroup;
 import com.appsmith.server.domains.QUser;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.exceptions.AppsmithError;
@@ -36,7 +34,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
@@ -51,11 +48,14 @@ public abstract class BaseAppsmithRepositoryImpl<T extends BaseDomain> {
 
     protected final MongoConverter mongoConverter;
 
+    protected final CacheableRepositoryHelper cacheableRepositoryHelper;
+
     @Autowired
     public BaseAppsmithRepositoryImpl(ReactiveMongoOperations mongoOperations,
-                                      MongoConverter mongoConverter) {
+                                      MongoConverter mongoConverter, CacheableRepositoryHelper cacheableRepositoryHelper) {
         this.mongoOperations = mongoOperations;
         this.mongoConverter = mongoConverter;
+        this.cacheableRepositoryHelper = cacheableRepositoryHelper;
         this.genericDomain = (Class<T>) GenericTypeResolver.resolveTypeArgument(getClass(), BaseAppsmithRepositoryImpl.class);
     }
 
@@ -85,46 +85,6 @@ public abstract class BaseAppsmithRepositoryImpl<T extends BaseDomain> {
                             .map(permissionGroup -> TRUE)
                             .orElse(FALSE);
                 });
-    }
-
-    /**
-     * 1. Get all the user groups associated with the user
-     * 2. Get all the permission groups associated with anonymous user
-     * 3. Return the set of all the permission groups.
-     * @param user
-     * @return
-     */
-    protected Mono<Set<String>> getAllPermissionGroupsForUser(User user) {
-        return Mono.zip(getPermissionGroupsOfUser(user), getAnonymousUserPermissionGroups())
-                .map(tuple -> {
-                    Set<String> currentUserPermissionGroups = tuple.getT1();
-                    Set<String> anonymousUserPermissionGroups = tuple.getT2();
-
-                    currentUserPermissionGroups.addAll(anonymousUserPermissionGroups);
-
-                    return currentUserPermissionGroups;
-                });
-    }
-
-    protected Mono<Set<String>> getPermissionGroupsOfUser(User user) {
-        Criteria assignedToUserIdsCriteria = Criteria.where(fieldName(QPermissionGroup.permissionGroup.assignedToUserIds)).is(user.getId());
-
-        Query query = new Query();
-        query.addCriteria(assignedToUserIdsCriteria);
-
-        return mongoOperations.find(query, PermissionGroup.class)
-                .map(permissionGroup -> permissionGroup.getId())
-                .collect(Collectors.toSet());
-    }
-
-    protected Mono<Set<String>> getAnonymousUserPermissionGroups() {
-        Criteria anonymousUserCriteria = Criteria.where(fieldName(QUser.user.email)).is(FieldName.ANONYMOUS_USER);
-
-        Query query = new Query();
-        query.addCriteria(anonymousUserCriteria);
-
-        return mongoOperations.findOne(query, User.class)
-                .flatMap(anonymousUser -> getPermissionGroupsOfUser(anonymousUser));
     }
 
     public static final String fieldName(Path path) {
@@ -292,9 +252,9 @@ public abstract class BaseAppsmithRepositoryImpl<T extends BaseDomain> {
                 .map(auth -> auth.getPrincipal())
                 .flatMap(principal -> getAllPermissionGroupsForUser((User) principal))
                 .flatMap(permissionGroups ->
-                    mongoOperations.count(
-                            createQueryWithPermission(criterias, permissionGroups, aclPermission), this.genericDomain
-                    )
+                        mongoOperations.count(
+                                createQueryWithPermission(criterias, permissionGroups, aclPermission), this.genericDomain
+                        )
                 );
     }
 
@@ -320,8 +280,8 @@ public abstract class BaseAppsmithRepositoryImpl<T extends BaseDomain> {
                 .flatMap(principal -> getAllPermissionGroupsForUser((User) principal))
                 .flatMapMany(permissionGroups -> {
                     Query query = new Query();
-                    if(!CollectionUtils.isEmpty(includeFields)) {
-                        for(String includeField: includeFields) {
+                    if (!CollectionUtils.isEmpty(includeFields)) {
+                        for (String includeField : includeFields) {
                             query.fields().include(includeField);
                         }
                     }
@@ -349,7 +309,7 @@ public abstract class BaseAppsmithRepositoryImpl<T extends BaseDomain> {
     public T setUserPermissionsInObject(T obj, Set<String> permissionGroups) {
         Set<String> permissions = new HashSet<>();
 
-        if(CollectionUtils.isEmpty(obj.getPolicies())) {
+        if (CollectionUtils.isEmpty(obj.getPolicies())) {
             return obj;
         }
 
@@ -375,6 +335,35 @@ public abstract class BaseAppsmithRepositoryImpl<T extends BaseDomain> {
         Criteria defaultAppIdCriteria = where(defaultResources + "." + FieldName.APPLICATION_ID).is(defaultApplicationId);
         Criteria gitSyncIdCriteria = where(FieldName.GIT_SYNC_ID).is(gitSyncId);
         return queryFirst(List.of(defaultAppIdCriteria, gitSyncIdCriteria), permission);
+    }
+
+    /**
+     * 1. Get all the user groups associated with the user
+     * 2. Get all the permission groups associated with anonymous user
+     * 3. Return the set of all the permission groups.
+     *
+     * @param user
+     * @return
+     */
+
+    protected Mono<Set<String>> getAllPermissionGroupsForUser(User user) {
+        return Mono.zip(
+                        cacheableRepositoryHelper.getPermissionGroupsOfUser(user),
+                        getAnonymousUserPermissionGroups()
+                )
+                .map(tuple -> {
+                    Set<String> currentUserPermissionGroups = tuple.getT1();
+                    Set<String> anonymousUserPermissionGroups = tuple.getT2();
+
+                    currentUserPermissionGroups.addAll(anonymousUserPermissionGroups);
+
+                    return currentUserPermissionGroups;
+                });
+    }
+
+    protected Mono<Set<String>> getAnonymousUserPermissionGroups() {
+        return cacheableRepositoryHelper.getAnonymousUser()
+                .flatMap(anonymousUser -> cacheableRepositoryHelper.getPermissionGroupsOfUser(anonymousUser));
     }
 
 }
