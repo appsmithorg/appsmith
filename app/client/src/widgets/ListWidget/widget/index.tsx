@@ -25,7 +25,10 @@ import ListComponent, {
 } from "../component";
 // import { ContainerStyle } from "components/designSystems/appsmith/ContainerComponent";
 // import { ContainerWidgetProps } from "../ContainerWidget";
-import propertyPaneConfig from "./propertyConfig";
+import propertyPaneConfig, {
+  PropertyPaneContentConfig,
+  PropertyPaneStyleConfig,
+} from "./propertyConfig";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { getDynamicBindings } from "utils/DynamicBindingUtils";
 import ListPagination, {
@@ -58,6 +61,14 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
    */
   static getPropertyPaneConfig() {
     return propertyPaneConfig;
+  }
+
+  static getPropertyPaneContentConfig() {
+    return PropertyPaneContentConfig;
+  }
+
+  static getPropertyPaneStyleConfig() {
+    return PropertyPaneStyleConfig;
   }
 
   static getDerivedPropertiesMap() {

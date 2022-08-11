@@ -218,7 +218,6 @@ class WidgetFactory {
   ): readonly PropertyPaneConfig[] {
     const map = this.propertyPaneContentConfigsMap.get(type);
     if (!map) {
-      log.error("Widget property pane content configs not defined", type);
       return [];
     }
     return map;
@@ -229,7 +228,6 @@ class WidgetFactory {
   ): readonly PropertyPaneConfig[] {
     const map = this.propertyPaneStyleConfigsMap.get(type);
     if (!map) {
-      log.error("Widget property pane style configs not defined", type);
       return [];
     }
     return map;

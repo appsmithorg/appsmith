@@ -19,11 +19,9 @@ import { builderURL } from "RouteBuilder";
 import { getCanvasWidgetsStructure } from "selectors/entitiesSelector";
 import { isEqual } from "lodash";
 
-const Section = styled.section<{
-  height: number;
-}>`
+const Section = styled.section`
   height: 100%;
-  min-height: ${({ height }) => height}px;
+  width: 100%;
   margin: 0 auto;
   position: relative;
   overflow-x: auto;
@@ -92,7 +90,7 @@ function AppViewerPageContainer(props: AppViewerPageContainerProps) {
     return pageNotFound;
 
   return (
-    <Section height={widgetsStructure.bottomRow}>
+    <Section>
       <AppPage
         appName={currentApplication?.name}
         canvasWidth={canvasWidth}
