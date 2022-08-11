@@ -9,6 +9,7 @@ import {
   getBasePropertyPath,
   hideByColumnType,
   removeBoxShadowColorProp,
+  showByColumnType,
   updateIconAlignment,
 } from "../../propertyUtils";
 
@@ -47,9 +48,12 @@ export default {
     {
       sectionName: "Save Button",
       hidden: (props: TableWidgetProps, propertyPath: string) => {
-        return hideByColumnType(props, propertyPath, [
-          ColumnTypes.EDIT_ACTIONS,
-        ]);
+        return hideByColumnType(
+          props,
+          propertyPath,
+          [ColumnTypes.EDIT_ACTIONS],
+          true,
+        );
       },
       children: [
         {
@@ -126,9 +130,12 @@ export default {
     {
       sectionName: "Discard Button",
       hidden: (props: TableWidgetProps, propertyPath: string) => {
-        return hideByColumnType(props, propertyPath, [
-          ColumnTypes.EDIT_ACTIONS,
-        ]);
+        return hideByColumnType(
+          props,
+          propertyPath,
+          [ColumnTypes.EDIT_ACTIONS],
+          true,
+        );
       },
       children: [
         {
@@ -205,20 +212,8 @@ export default {
     {
       sectionName: "Events",
       hidden: (props: TableWidgetProps, propertyPath: string) => {
-        if (
-          !hideByColumnType(
-            props,
-            propertyPath,
-            [
-              ColumnTypes.BUTTON,
-              ColumnTypes.ICON_BUTTON,
-              ColumnTypes.IMAGE,
-              ColumnTypes.EDIT_ACTIONS,
-            ],
-            true,
-          )
-        ) {
-          return true;
+        if (showByColumnType(props, propertyPath, [ColumnTypes.IMAGE], true)) {
+          return false;
         } else {
           const columnType = get(props, `${propertyPath}.columnType`, "");
           const isEditable = get(props, `${propertyPath}.isEditable`, "");
@@ -722,9 +717,12 @@ export default {
     {
       sectionName: "Save Button",
       hidden: (props: TableWidgetProps, propertyPath: string) => {
-        return hideByColumnType(props, propertyPath, [
-          ColumnTypes.EDIT_ACTIONS,
-        ]);
+        return hideByColumnType(
+          props,
+          propertyPath,
+          [ColumnTypes.EDIT_ACTIONS],
+          true,
+        );
       },
       children: [
         {
@@ -868,9 +866,12 @@ export default {
     {
       sectionName: "Discard Button",
       hidden: (props: TableWidgetProps, propertyPath: string) => {
-        return hideByColumnType(props, propertyPath, [
-          ColumnTypes.EDIT_ACTIONS,
-        ]);
+        return hideByColumnType(
+          props,
+          propertyPath,
+          [ColumnTypes.EDIT_ACTIONS],
+          true,
+        );
       },
       children: [
         {
