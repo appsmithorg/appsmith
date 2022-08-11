@@ -12,7 +12,7 @@ import { SliderRoot } from "./SilderRoot";
 import { Track } from "./Track";
 import { Thumb } from "./Thumb";
 
-export interface SingleSliderComponentProps
+export interface SliderComponentProps
   extends Omit<
     React.ComponentPropsWithoutRef<"div">,
     "value" | "onChange" | "key"
@@ -81,7 +81,7 @@ export interface SingleSliderComponentProps
   loading: boolean;
 }
 
-const SingleSliderComponent = (props: SingleSliderComponentProps) => {
+const SliderComponent = (props: SliderComponentProps) => {
   const {
     color,
     disabled = false,
@@ -265,4 +265,4 @@ const SingleSliderComponent = (props: SingleSliderComponentProps) => {
   );
 };
 
-export default SingleSliderComponent;
+export default SliderComponent;

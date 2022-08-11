@@ -5,21 +5,14 @@ import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import { TAILWIND_COLORS } from "constants/ThemeConstants";
 import { LabelPosition } from "components/constants";
 import { Alignment } from "@blueprintjs/core";
-import SingleSliderComponent, {
-  SingleSliderComponentProps,
-} from "../component/Slider";
+import SliderComponent, { SliderComponentProps } from "../component/Slider";
 
-interface SingleSliderWidgetProps
-  extends WidgetProps,
-    SingleSliderComponentProps {
+interface SliderWidgetProps extends WidgetProps, SliderComponentProps {
   /** Color from theme.colors */
   accentColor?: string;
 }
 
-class SingleSliderWidget extends BaseWidget<
-  SingleSliderWidgetProps,
-  WidgetState
-> {
+class SliderWidget extends BaseWidget<SliderWidgetProps, WidgetState> {
   static getPropertyPaneConfig() {
     return [
       {
@@ -202,7 +195,7 @@ class SingleSliderWidget extends BaseWidget<
             isBindProperty: false,
             isTriggerProperty: false,
             validation: { type: ValidationTypes.TEXT },
-            hidden: (props: SingleSliderWidgetProps) =>
+            hidden: (props: SliderWidgetProps) =>
               props.labelPosition !== LabelPosition.Left,
             dependencies: ["labelPosition"],
           },
@@ -222,7 +215,7 @@ class SingleSliderWidget extends BaseWidget<
                 natural: true,
               },
             },
-            hidden: (props: SingleSliderWidgetProps) =>
+            hidden: (props: SliderWidgetProps) =>
               props.labelPosition !== LabelPosition.Left,
             dependencies: ["labelPosition"],
           },
@@ -359,7 +352,7 @@ class SingleSliderWidget extends BaseWidget<
 
   getPageView() {
     return (
-      <SingleSliderComponent
+      <SliderComponent
         color={this.props.accentColor || TAILWIND_COLORS.green["600"]}
         labelAlignment={this.props.labelAlignment}
         labelAlwaysOn={this.props.labelAlwaysOn}
@@ -388,4 +381,4 @@ class SingleSliderWidget extends BaseWidget<
   }
 }
 
-export default SingleSliderWidget;
+export default SliderWidget;
