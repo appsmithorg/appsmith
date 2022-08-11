@@ -5,6 +5,7 @@ export const WIDGET = {
   CURRENCY_INPUT_WIDGET: "currencyinputwidget",
   BUTTON_WIDGET: "buttonwidget",
   MULTISELECT_WIDGET: "multiselectwidgetv2",
+  BUTTON_GROUP_WIDGET: "buttongroupwidget",
   TREESELECT_WIDGET: "singleselecttreewidget",
   TAB: "tabswidget",
   TABLE: "tablewidgetv2",
