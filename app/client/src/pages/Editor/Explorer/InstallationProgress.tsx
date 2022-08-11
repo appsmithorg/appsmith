@@ -1,8 +1,7 @@
-import { ReduxActionTypes } from "ce/constants/ReduxActionConstants";
 import classNames from "classnames";
 import { Text, TextType } from "design-system";
-import React, { useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import React from "react";
+import { useSelector } from "react-redux";
 import { AppState } from "reducers";
 
 const installationMessages = [
@@ -12,7 +11,6 @@ const installationMessages = [
 ];
 
 export default function InstallationProgress() {
-  const dispatch = useDispatch();
   const installationQueue = useSelector(
     (state: AppState) => state.ui.applications.installationQueue,
   );

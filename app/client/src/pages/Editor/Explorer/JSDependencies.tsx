@@ -1,7 +1,7 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import styled from "styled-components";
 import { Text, TextType } from "design-system";
-import { BindingText } from "pages/Editor/APIEditor/Form";
+// import { BindingText } from "pages/Editor/APIEditor/Form";
 import { extraLibraries } from "utils/DynamicBindingUtils";
 import { Button, Category, Size, TextInput } from "components/ads";
 import Icon from "components/ads/AppIcon";
@@ -13,7 +13,6 @@ import {
 } from "ce/constants/messages";
 import { AppState } from "reducers";
 import { ReduxActionTypes } from "ce/constants/ReduxActionConstants";
-import { isURL } from "utils/TypeHelpers";
 
 const Tag = styled.div<{ bgColor: string }>`
   background: ${(props) => props.bgColor};
@@ -108,14 +107,14 @@ function JSDependencies() {
     dispatch({ type: ReduxActionTypes.INSTALL_SCRIPT, payload: lib });
   }, []);
 
-  const TooltipContent = (
-    <div>
-      <span>Access these JS libraries to transform data within </span>
-      <BindingText>{`{{ }}`}</BindingText>
-      <span>. Try </span>
-      <BindingText>{`{{ _.add(1,1) }}`}</BindingText>
-    </div>
-  );
+  // const TooltipContent = (
+  //   <div>
+  //     <span>Access these JS libraries to transform data within </span>
+  //     <BindingText>{`{{ }}`}</BindingText>
+  //     <span>. Try </span>
+  //     <BindingText>{`{{ _.add(1,1) }}`}</BindingText>
+  //   </div>
+  // );
 
   const searchLibraries = useMemo(() => {
     return async function(val: string) {
