@@ -46,7 +46,6 @@ const ZIndexContainer = styled.div<{
       ? "calc(100% - 16px)"
       : "auto"};
   min-height: 30px;
-  margin: 8px;
 `;
 
 export function AutoLayoutWrapper(props: AutoLayoutProps) {
