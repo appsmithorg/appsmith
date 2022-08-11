@@ -1,72 +1,19 @@
-import React, { useCallback, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import styled from "styled-components";
-import { Text, TextType, TooltipComponent } from "design-system";
-import { Colors } from "constants/Colors";
+import { Text, TextType } from "design-system";
 import { BindingText } from "pages/Editor/APIEditor/Form";
 import { extraLibraries } from "utils/DynamicBindingUtils";
-import { TextInput } from "components/ads";
-import { useDispatch } from "react-redux";
+import { Button, Category, Size, TextInput } from "components/ads";
+import Icon from "components/ads/AppIcon";
+import { useDispatch, useSelector } from "react-redux";
 import Entity from "./Entity";
 import {
   createMessage,
   CREATE_DATASOURCE_TOOLTIP,
 } from "ce/constants/messages";
-
-const Wrapper = styled.div`
-  font-size: 14px;
-`;
-const ListItem = styled.li`
-  list-style: none;
-  color: ${Colors.GREY_8};
-  height: 36px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  cursor: pointer;
-  padding: 0 12px 0 20px;
-  position: relative;
-  &:hover {
-    background: ${Colors.ALABASTER_ALT};
-
-    & .t--open-new-tab {
-      display: block;
-    }
-
-    & .t--package-version {
-      display: none;
-    }
-  }
-
-  & .t--open-new-tab {
-    position: absolute;
-    right: 8px;
-    display: none;
-  }
-
-  & .t--package-version {
-    display: block;
-  }
-`;
-const Name = styled.span``;
-const Version = styled.span``;
-const Title = styled.div`
-  display: grid;
-  grid-template-columns: 20px auto 20px;
-  cursor: pointer;
-  height: 32px;
-  align-items: center;
-  padding-right: 4px;
-  padding-left: 0.25rem;
-  font-size: 14px;
-  &:hover {
-    background: ${Colors.ALABASTER_ALT};
-  }
-  & .t--help-icon {
-    svg {
-      position: relative;
-    }
-  }
-`;
+import { AppState } from "reducers";
+import { ReduxActionTypes } from "ce/constants/ReduxActionConstants";
+import { isURL } from "utils/TypeHelpers";
 
 const Tag = styled.div<{ bgColor: string }>`
   background: ${(props) => props.bgColor};
@@ -76,53 +23,77 @@ const Tag = styled.div<{ bgColor: string }>`
 `;
 
 const tagColors: any = {
-  cdnjs: "orange",
-  npm: "green",
-  default: "blue",
+  cdnjs: "#f86a2b",
+  npm: "#03B364",
+  default: "#393939",
+  custom: "#fec518",
 };
 
 function JSDependencies() {
-  const openDocs = (name: string, url: string) => () => window.open(url, name);
   const [results, setResults] = useState<any[]>([]);
   const [search, setSearch] = useState("");
   const dispatch = useDispatch();
   const defaultLibrariesNames = extraLibraries.map((lib) => lib.displayName);
+  const installationQueue = useSelector(
+    (state: AppState) => state.ui.applications.installationQueue,
+  );
+  const installedLibraries = useSelector(
+    (state: AppState) => state.ui.applications.installedLibraries,
+  );
+  const isURL = useMemo(() => {
+    try {
+      new URL(search);
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }, [search]);
   const dependencyList = useMemo(
     () =>
-      extraLibraries.map((lib) => {
-        return (
-          <div
-            className="flex flex-col hover:bg-gray-100 hover:cursor-pointer px-2 py-1"
-            key={`${lib.displayName}${lib.tag}`}
-            // onClick={() => openDocs(lib.displayName, lib.docsURL)}
-          >
-            <div className="flex flex-row justify-between">
-              <div className="flex flex-row items-start gap-1">
-                <Text type={TextType.P4}>{lib.displayName}</Text>
-                <Tag bgColor={tagColors[lib.tag]}>{lib.tag}</Tag>
+      [...installationQueue, ...installedLibraries, ...extraLibraries].map(
+        (lib) => {
+          return (
+            <div
+              className="flex flex-col hover:bg-gray-100 hover:cursor-pointer px-3 py-2"
+              key={`${lib.name || lib.displayName}${lib.tag}`}
+            >
+              <div className="flex flex-row justify-between">
+                <div className="flex flex-row items-start gap-1">
+                  <Tag bgColor={tagColors[lib.tag]}>{lib.tag}</Tag>
+                  <Text type={TextType.P4}>{lib.name || lib.displayName}</Text>
+                </div>
+                <Text type={TextType.P2}>{lib.version}</Text>
               </div>
-              <Text type={TextType.P2}>{lib.version}</Text>
+              <Text type={TextType.P2}>{lib.description}</Text>
             </div>
-            <Text type={TextType.P2}>{lib.description}</Text>
-          </div>
-        );
-      }),
-    [],
+          );
+        },
+      ),
+    [installedLibraries, installationQueue],
   );
+
+  const showDocs = React.useCallback((e?: any) => {
+    window.open(
+      "https://docs.appsmith.com/v/v1.2.1/core-concepts/writing-code/ext-libraries",
+      "appsmith-docs:working-with-js-libraries",
+    );
+    e?.stopPropagation();
+    e?.preventDefault();
+  }, []);
 
   const searchResults = useMemo(
     () =>
       results.map((lib: any) => {
         return (
           <div
-            className="flex flex-col hover:bg-gray-100 hover:cursor-pointer px-2 py-1"
+            className="flex flex-col hover:bg-gray-100 hover:cursor-pointer px-3 py-2"
             key={`${lib.name}${lib.tag}`}
             onClick={() => installLibrary(lib)}
           >
             <div className="flex flex-row justify-between">
               <div className="flex flex-row items-start gap-1">
-                <Text type={TextType.P4}>{lib.name}</Text>
                 <Tag bgColor={tagColors[lib.tag]}>{lib.tag}</Tag>
+                <Text type={TextType.P4}>{lib.name}</Text>
               </div>
               <Text type={TextType.P2}>{lib.version}</Text>
             </div>
@@ -134,17 +105,7 @@ function JSDependencies() {
   );
 
   const installLibrary = useCallback((lib) => {
-    const payload = lib.tag === "cdnjs" ? lib.latest : lib.name;
-    dispatch({ type: "INSTALL_SCRIPT", payload });
-  }, []);
-
-  const showDocs = React.useCallback((e: any) => {
-    window.open(
-      "https://docs.appsmith.com/v/v1.2.1/core-concepts/writing-code/ext-libraries",
-      "appsmith-docs:working-with-js-libraries",
-    );
-    e.stopPropagation();
-    e.preventDefault();
+    dispatch({ type: ReduxActionTypes.INSTALL_SCRIPT, payload: lib });
   }, []);
 
   const TooltipContent = (
@@ -197,6 +158,14 @@ function JSDependencies() {
   return (
     <Entity
       addButtonHelptext={createMessage(CREATE_DATASOURCE_TOOLTIP)}
+      customAddButton={
+        <div
+          className="flex flex-row items-center justify-center w-[30px] hover:text-gray-900"
+          onClick={showDocs}
+        >
+          <Icon className="t--help-icon" name="help" size={Size.xxs} />
+        </div>
+      }
       entityId="dependencies_section"
       icon={null}
       isDefaultExpanded={false}
@@ -205,7 +174,7 @@ function JSDependencies() {
       searchKeyword={""}
       step={0}
     >
-      <div className="flex flex-col p-2 overflow-auto">
+      <div className="flex flex-col py-2 px-3 overflow-auto">
         <TextInput
           height="28px"
           onChange={(val: string) => searchLibraries(val)}
@@ -213,7 +182,20 @@ function JSDependencies() {
           width="100%"
         />
       </div>
-      {searchResults.length && search ? searchResults : dependencyList}
+      {isURL ? (
+        <Button
+          category={Category.tertiary}
+          className="mx-3"
+          height="24"
+          onClick={() => installLibrary(search)}
+          text="Download and Install"
+          type="button"
+        />
+      ) : searchResults.length && search ? (
+        searchResults
+      ) : (
+        dependencyList
+      )}
     </Entity>
   );
 }

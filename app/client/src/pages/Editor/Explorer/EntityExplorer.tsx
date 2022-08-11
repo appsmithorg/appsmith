@@ -30,6 +30,7 @@ import { builderURL } from "RouteBuilder";
 import history from "utils/history";
 import { SEARCH_ENTITY } from "constants/Explorer";
 import { getCurrentPageId } from "selectors/editorSelectors";
+import InstallationProgress from "./InstallationProgress";
 
 const Wrapper = styled.div`
   height: 100%;
@@ -141,6 +142,7 @@ function EntityExplorer({ isActive }: { isActive: boolean }) {
       <StyledDivider />
       <Datasources />
       <JSDependencies />
+      <InstallationProgress />
       <ScrollIndicator containerRef={explorerRef} />
     </Wrapper>
   );

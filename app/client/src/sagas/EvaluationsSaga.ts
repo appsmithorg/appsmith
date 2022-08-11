@@ -17,6 +17,7 @@ import {
   ReduxAction,
   ReduxActionType,
   ReduxActionTypes,
+  ReduxActionErrorTypes,
 } from "@appsmith/constants/ReduxActionConstants";
 import {
   getDataTree,
@@ -29,6 +30,7 @@ import Worker from "worker-loader!../workers/evaluation.worker";
 import {
   EvalError,
   EVAL_WORKER_ACTIONS,
+  ExtraLibrary,
   PropertyEvaluationErrorType,
 } from "utils/DynamicBindingUtils";
 import log from "loglevel";
@@ -659,7 +661,15 @@ export function* workerComputeUndoRedo(operation: string, entityId: string) {
   return workerResponse;
 }
 
-export function* installScript(payload: string) {
+export function* installScript(payload: string, lib?: ExtraLibrary) {
+  const library = lib || {
+    name: payload
+      .split("/")
+      .slice(-1)
+      .pop(),
+    tag: "custom",
+    description: `Downloaded from ${payload}`,
+  };
   const workerResponse: {
     accessor: string;
     backupDefs: any;
@@ -670,21 +680,34 @@ export function* installScript(payload: string) {
       text: `${workerResponse.error}`,
       variant: Variant.danger,
     });
+    yield put({ type: ReduxActionErrorTypes.INSTALL_SCRIPT_FAILED });
     return;
   }
+  yield put({ type: ReduxActionTypes.UPDATE_INSTALL_PROGRESS });
   if (workerResponse.accessor) {
-    fetch(`https://appsmith-ternclear.herokuapp.com/getDef?url=${payload}`)
-      .then((res) => res.json())
-      .then((res) => {
-        if (Object.keys(res).length === 1) {
-          res = { ...res, ...workerResponse.backupDefs };
-        }
-        TernServer.updateDef(workerResponse.accessor, res);
-        Toaster.show({
-          text: `Library installed. You can access it via ${workerResponse.accessor}`,
-          variant: Variant.success,
-        });
+    try {
+      const apiCall: unknown = yield fetch(
+        `https://appsmith-ternclear.herokuapp.com/getDef?url=${payload}`,
+      );
+      //@ts-expect-error test
+      let res: Record<string, any> = yield apiCall.json();
+      yield put({ type: ReduxActionTypes.UPDATE_INSTALL_PROGRESS });
+      if (Object.keys(res).length === 1) {
+        res = { ...res, ...workerResponse.backupDefs };
+      }
+      TernServer.updateDef(workerResponse.accessor, res);
+      yield put({ type: ReduxActionTypes.UPDATE_INSTALL_PROGRESS });
+      yield put({
+        type: ReduxActionTypes.INSTALL_SCRIPT_SUCCESS,
+        payload: library,
       });
+      Toaster.show({
+        text: `Library installed. You can access it via ${workerResponse.accessor}`,
+        variant: Variant.success,
+      });
+    } catch (e) {
+      yield put({ type: ReduxActionErrorTypes.INSTALL_SCRIPT_FAILED });
+    }
   }
 }
 

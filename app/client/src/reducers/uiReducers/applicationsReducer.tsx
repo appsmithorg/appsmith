@@ -14,6 +14,7 @@ import { UpdateApplicationRequest } from "api/ApplicationApi";
 import { CreateApplicationFormValues } from "pages/Applications/helpers";
 import { AppLayoutConfig } from "reducers/entityReducers/pageListReducer";
 import { ConnectToGitResponse } from "actions/gitSyncActions";
+import { ExtraLibrary } from "utils/DynamicBindingUtils";
 
 const initialState: ApplicationsReduxState = {
   isFetchingApplications: false,
@@ -33,6 +34,8 @@ const initialState: ApplicationsReduxState = {
   showAppInviteUsersDialog: false,
   isImportAppModalOpen: false,
   workspaceIdForImport: null,
+  installationQueue: [],
+  installedLibraries: [],
 };
 
 const applicationsReducer = createReducer(initialState, {
@@ -487,6 +490,50 @@ const applicationsReducer = createReducer(initialState, {
       applicationList: [...state.applicationList, action.payload],
     };
   },
+  [ReduxActionTypes.INSTALL_SCRIPT]: (
+    state: ApplicationsReduxState,
+    action: ReduxAction<ExtraLibrary>,
+  ) => {
+    return {
+      ...state,
+      installationQueue: [
+        ...state.installationQueue,
+        { ...action.payload, step: 0 },
+      ],
+    };
+  },
+  [ReduxActionTypes.UPDATE_INSTALL_PROGRESS]: (
+    state: ApplicationsReduxState,
+  ) => {
+    return {
+      ...state,
+      installationQueue: [
+        {
+          ...state.installationQueue[0],
+          step: state.installationQueue[0].step + 1,
+        },
+        ...state.installationQueue.slice(1),
+      ],
+    };
+  },
+  [ReduxActionErrorTypes.INSTALL_SCRIPT_FAILED]: (
+    state: ApplicationsReduxState,
+  ) => {
+    return {
+      ...state,
+      installationQueue: [...state.installationQueue.slice(1)],
+    };
+  },
+  [ReduxActionTypes.INSTALL_SCRIPT_SUCCESS]: (
+    state: ApplicationsReduxState,
+    action: ReduxAction<ExtraLibrary>,
+  ) => {
+    return {
+      ...state,
+      installationQueue: [...state.installationQueue.slice(1)],
+      installedLibraries: [...state.installedLibraries, action.payload],
+    };
+  },
 });
 
 export type creatingApplicationMap = Record<string, boolean>;
@@ -513,6 +560,8 @@ export interface ApplicationsReduxState {
   isImportAppModalOpen: boolean;
   workspaceIdForImport: any;
   isDatasourceConfigForImportFetched?: boolean;
+  installationQueue: (ExtraLibrary & { step: number })[];
+  installedLibraries: ExtraLibrary[];
 }
 
 export interface Application {

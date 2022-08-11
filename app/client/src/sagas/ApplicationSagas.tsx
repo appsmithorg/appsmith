@@ -841,13 +841,21 @@ function* initDatasourceConnectionDuringImport(action: ReduxAction<string>) {
 
 function* runInstallLibrarySaga() {
   const requestChan: ActionPattern<Action<any>> = yield actionChannel(
-    "INSTALL_SCRIPT",
+    ReduxActionTypes.INSTALL_SCRIPT,
   );
   while (true) {
-    // 2- take from the channel
     const { payload } = yield take(requestChan);
-    // 3- Note that we're using a blocking call
-    yield call(installScript, payload);
+    const scriptPayload =
+      payload.tag === "npm"
+        ? payload.name
+        : payload.tag === "cdnjs"
+        ? payload.latest
+        : payload;
+    yield call(
+      installScript,
+      scriptPayload,
+      typeof payload === "string" ? null : payload,
+    );
   }
 }
 

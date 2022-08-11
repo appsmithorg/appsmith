@@ -106,6 +106,7 @@ export const getLintingErrors = (
     globalData[dataKey] = true;
   }
   // Jshint shouldn't throw errors for additional libraries
+  //@ts-expect-error test
   extraLibraries.forEach((lib) => (globalData[lib.accessor] = true));
   // JSHint shouldn't throw errors for supported web apis
   Object.keys(SUPPORTED_WEB_APIS).forEach(

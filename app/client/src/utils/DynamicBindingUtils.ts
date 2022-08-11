@@ -149,12 +149,14 @@ export enum EVAL_WORKER_ACTIONS {
 
 export type ExtraLibrary = {
   version: string;
-  docsURL: string;
-  displayName: string;
-  accessor: string;
-  lib: any;
+  docsURL?: string;
+  displayName?: string;
+  name?: string;
+  accessor?: string;
+  lib?: any;
   tag: "default" | "cdnjs" | "npm";
   description: string;
+  progress?: number;
 };
 
 export const extraLibraries: ExtraLibrary[] = [

@@ -26,7 +26,6 @@ import { setFormEvaluationSaga } from "./formEval";
 import { isEmpty } from "lodash";
 import { EvalMetaUpdates } from "./DataTreeEvaluator/types";
 import { EvalTreePayload } from "../sagas/EvaluationsSaga";
-import { generateTypeDef } from "utils/autocomplete/dataTreeTypeDefCreator";
 
 const CANVAS = "canvas";
 
@@ -331,9 +330,13 @@ ctx.addEventListener(
         return response;
       case EVAL_WORKER_ACTIONS.INSTALL_SCRIPT:
         try {
-          const url = requestData.startsWith("http")
-            ? requestData
-            : `https://appsmith-browserify.herokuapp.com/standalone/${requestData}@latest`;
+          let url = "";
+          try {
+            new URL(requestData);
+            url = requestData;
+          } catch (e) {
+            url = `https://appsmith-browserify.herokuapp.com/standalone/${requestData}@latest`;
+          }
           const oldKeys = Object.keys(self);
           //@ts-expect-error test
           self.importScripts(url);
@@ -341,19 +344,11 @@ ctx.addEventListener(
           const latestKey = newKeys.filter((key) => !oldKeys.includes(key));
           //@ts-expect-error test
           const entity = self[latestKey[0]];
-          const backupDefs = {
-            [latestKey[0]]: Object.keys(entity).reduce((acc, key) => {
-              acc[key] = acc[key] || {};
-              acc[key] = {
-                "!type":
-                  typeof entity[key] === "function"
-                    ? "fn()"
-                    : typeof entity[key],
-              };
-              return acc;
-            }, {} as any),
+
+          return {
+            accessor: latestKey[0],
+            backupDefs: { [latestKey[0]]: generateDefs(entity) },
           };
-          return { accessor: latestKey[0], backupDefs };
         } catch (e) {
           return {
             error: `Installation failed. Appsmith cannot run this library`,
@@ -365,3 +360,50 @@ ctx.addEventListener(
     }
   }),
 );
+
+function generateDefs(obj: Record<string, any>) {
+  const cachedObjs: any = [];
+  const cachedValues: any = [];
+  const def = {};
+  const protoDef = {};
+  function generate(obj: Record<string, any>, def: Record<string, any>) {
+    const keys = Object.keys(obj);
+    for (const key of keys) {
+      const cached = cachedObjs.findIndex((c: any) => c == obj[key]);
+      if (cached > -1) {
+        def[key] = cachedValues[cached];
+        continue;
+      } else if (typeof obj[key] === "object") {
+        def[key] = {};
+        generate(obj[key], def[key]);
+      } else {
+        def[key] = {
+          "!type": getTernDocType(obj[key]),
+        };
+      }
+      cachedObjs.push(obj[key]);
+      cachedValues.push(def[key]);
+    }
+  }
+  generate(obj, def);
+  generate(obj.prototype, protoDef);
+  return { ...def, prototype: protoDef };
+}
+
+function getTernDocType(obj: any) {
+  const type = typeof obj;
+  switch (type) {
+    case "string":
+      return "string";
+    case "number":
+      return "number";
+    case "boolean":
+      return "bool";
+    case "undefined":
+      return "?";
+    case "function":
+      return "fn()";
+    default:
+      return "?";
+  }
+}
