@@ -191,6 +191,7 @@ function* evaluateTreeSaga(
         AppsmithConsole.addLog(
           {
             text: createLogTitleString(logObject.data),
+            logData: logObject.data,
             source: log.source,
           },
           logObject.severity,
@@ -302,6 +303,7 @@ export function* evaluateAndExecuteDynamicTrigger(
           AppsmithConsole.addLog(
             {
               text: createLogTitleString(log.data),
+              logData: log.data,
               source: {
                 type: ENTITY_TYPE.WIDGET,
                 name: triggerMeta.source?.name || "Widget",
@@ -439,6 +441,7 @@ export function* executeFunction(
       AppsmithConsole.addLog(
         {
           text: createLogTitleString(log.data),
+          logData: log.data,
           source: {
             type: ENTITY_TYPE.JSACTION,
             name: collectionName + "." + action.name,
