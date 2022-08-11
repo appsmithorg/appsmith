@@ -24,7 +24,9 @@ export const useFilteredLogs = (query: string, filter?: any) => {
   let logs = useSelector((state: AppState) => state.ui.debugger.logs);
 
   if (filter) {
-    logs = logs.filter((log) => log.severity === filter);
+    logs = logs.filter(
+      (log) => log.severity === filter || log.category === filter,
+    );
   }
 
   if (query) {
