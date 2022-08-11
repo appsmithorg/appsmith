@@ -13,6 +13,7 @@ import {
   take,
 } from "redux-saga/effects";
 import {
+  deleteGuidedTourState,
   getGuidedTourState,
   setEnableFirstTimeUserOnboarding as storeEnableFirstTimeUserOnboarding,
   setFirstTimeUserOnboardingApplicationId as storeFirstTimeUserOnboardingApplicationId,
@@ -336,6 +337,7 @@ function* focusWidgetPropertySaga(action: ReduxAction<string>) {
 function* endGuidedTourSaga(action: ReduxAction<boolean>) {
   if (!action.payload) {
     yield call(hideIndicator);
+    yield call(deleteGuidedTourState);
   }
 }
 

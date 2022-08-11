@@ -112,6 +112,16 @@ export const setGuidedTourState = async (guidedTourState: string) => {
   }
 };
 
+export const deleteGuidedTourState = async () => {
+  try {
+    await store.removeItem(STORAGE_KEYS.GUIDED_TOUR_STATE);
+    return true;
+  } catch (error) {
+    log.error("An error occurred when deleting guided tour state", error);
+    return false;
+  }
+};
+
 export const getGuidedTourState = async () => {
   try {
     const guidedTourState: string | null = await store.getItem(
