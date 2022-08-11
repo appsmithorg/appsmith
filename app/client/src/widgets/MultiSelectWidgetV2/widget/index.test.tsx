@@ -56,6 +56,25 @@ describe("defaultOptionValueValidation - ", () => {
     });
   });
 
+  it("should get tested with array of strings and stringified options", () => {
+    const input = ["green", "red"];
+
+    expect(
+      defaultOptionValueValidation(
+        input,
+        {
+          ...props,
+          options: JSON.stringify(props.options) as unknown,
+        } as MultiSelectWidgetProps,
+        _,
+      ),
+    ).toEqual({
+      isValid: false,
+      parsed: input,
+      messages: [MISSING_FROM_OPTIONS],
+    });
+  });
+
   it("should get tested with a number", () => {
     const input = 2022;
 
