@@ -43,6 +43,13 @@ const StyledRadioGroup = styled(RadioGroup)<StyledRadioGroupProps>`
       background: ${({ accentColor }) => `${accentColor}`} !important;
       border: 1px solid ${({ accentColor }) => `${accentColor}`} !important;
     }
+
+    & input:disabled:checked ~ .${Classes.CONTROL_INDICATOR} {
+      &:before {
+       opacity: 1;
+       background-image: radial-gradient(var( --wds-color-bg-disabled-strong), var( --wds-color-bg-disabled-strong) 28%, transparent 32%)
+      }
+    }
   }
 
   .${Classes.SWITCH} {
@@ -70,6 +77,7 @@ function RadioGroupComponent(props: RadioGroupComponentProps) {
     loading,
     onRadioSelectionChange,
     options,
+    required,
     selectedOptionValue,
   } = props;
 
@@ -125,6 +133,7 @@ function RadioGroupComponent(props: RadioGroupComponentProps) {
               inline={inline}
               key={optInd}
               label={option.label}
+              required={required}
               value={option.value}
             />
           );
@@ -153,6 +162,7 @@ export interface RadioGroupComponentProps extends ComponentProps {
   widgetId: string;
   height?: number;
   accentColor: string;
+  required?: boolean;
 }
 
 export default RadioGroupComponent;
