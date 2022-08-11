@@ -62,7 +62,6 @@ describe("Autocomplete tests", () => {
   });
 
   it("2. Verify browser JavaScript APIs in autocomplete ", () => {
-    cy.wait(100);
     // create js object
     jsEditor.CreateJSObject(jsObjectBody, {
       paste: true,
@@ -93,6 +92,21 @@ describe("Autocomplete tests", () => {
         type: "eval",
         expected: "eval()",
         shouldBePresent: false,
+      },
+      {
+        type: "Blob",
+        expected: "Blob()",
+        shouldBePresent: true,
+      },
+      {
+        type: "FormData",
+        expected: "FormData()",
+        shouldBePresent: true,
+      },
+      {
+        type: "FileReader",
+        expected: "FileReader()",
+        shouldBePresent: true,
       },
     ];
 
