@@ -83,13 +83,22 @@ function InputText(props: InputTextProp) {
   );
 }
 
-const bindingPrefix = `{{
+const getBindingPrefix = (tableId: string) => `{{
   (
     (editableCell, currentRow, currentIndex) => (
 `;
 const getBindingSuffix = (tableId: string) => `
   ))
-  (${tableId}.editableCell, ${tableId}.processedTableData[${tableId}.editableCell.index], ${tableId}.editableCell.index)
+  (
+    ${tableId}.editableCell,
+    ${tableId}.processedTableData[${tableId}.editableCell.index] ||
+      Object.keys(${tableId}.processedTableData[0])
+        .filter(key => ["__originalIndex__", "__primaryKey__"].indexOf(key) === -1)
+        .reduce((prev, curr) => {
+          prev[curr] = "";
+          return prev;
+        }, {}),
+    ${tableId}.editableCell.index)
 }}
 `;
 
@@ -124,18 +133,21 @@ class TableInlineEditValidationControlProperty extends BaseControl<
     if (value && !propertyValue) {
       this.onTextChange(value);
     }
+
+    const additionalDynamicData = {
+      currentRow,
+      currentIndex: -1,
+      editableCell: {
+        value: undefined,
+        index: undefined,
+        initialValue: undefined,
+        column: undefined,
+      },
+    };
+
     return (
       <InputText
-        additionalDynamicData={{
-          currentRow,
-          currentIndex: -1,
-          editableCell: {
-            value: undefined,
-            index: undefined,
-            initialValue: undefined,
-            column: undefined,
-          },
-        }}
+        additionalDynamicData={additionalDynamicData}
         dataTreePath={dataTreePath}
         expected={expected}
         label={label}
@@ -148,7 +160,7 @@ class TableInlineEditValidationControlProperty extends BaseControl<
 
   getInputComputedValue = (propertyValue: string, tableId: string) => {
     const value = `${propertyValue.substring(
-      bindingPrefix.length,
+      getBindingPrefix(tableId).length,
       propertyValue.length - getBindingSuffix(tableId).length,
     )}`;
     const stringValue = JSToString(value);
@@ -161,7 +173,9 @@ class TableInlineEditValidationControlProperty extends BaseControl<
     if (stringToEvaluate === "") {
       return stringToEvaluate;
     }
-    return `${bindingPrefix}${stringToEvaluate}${getBindingSuffix(tableId)}`;
+    return `${getBindingPrefix(tableId)}${stringToEvaluate}${getBindingSuffix(
+      tableId,
+    )}`;
   };
 
   onTextChange = (event: React.ChangeEvent<HTMLTextAreaElement> | string) => {
