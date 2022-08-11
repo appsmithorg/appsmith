@@ -174,7 +174,7 @@ function GeneratePageForm() {
 
   const datasources: Datasource[] = useSelector(getDatasources);
   const isGeneratingTemplatePage = useSelector(getIsGeneratingTemplatePage);
-  const currentMode = useRef(GENERATE_PAGE_MODE.REPLACE_EMPTY);
+  const currentMode = useRef(GENERATE_PAGE_MODE.NEW);
 
   const [datasourceIdToBeSelected, setDatasourceIdToBeSelected] = useState<
     string

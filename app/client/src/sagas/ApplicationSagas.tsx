@@ -86,7 +86,7 @@ import {
 import { failFastApiCalls } from "./InitSagas";
 import { Datasource } from "entities/Datasource";
 import { GUIDED_TOUR_STEPS } from "pages/Editor/GuidedTour/constants";
-import { builderURL, generateTemplateURL, viewerURL } from "RouteBuilder";
+import { builderURL, viewerURL } from "RouteBuilder";
 import { getDefaultPageId as selectDefaultPageId } from "./selectors";
 import PageApi from "api/PageApi";
 import { identity, merge, pickBy } from "lodash";
@@ -549,7 +549,6 @@ export function* createApplicationSaga(
         const FirstTimeUserOnboardingApplicationId: string = yield select(
           getFirstTimeUserOnboardingApplicationId,
         );
-        let pageURL;
         if (
           isFirstTimeUserOnboardingEnabled &&
           FirstTimeUserOnboardingApplicationId === ""
@@ -559,15 +558,12 @@ export function* createApplicationSaga(
               ReduxActionTypes.SET_FIRST_TIME_USER_ONBOARDING_APPLICATION_ID,
             payload: application.id,
           });
-          pageURL = builderURL({
-            pageId: application.defaultPageId as string,
-          });
-        } else {
-          pageURL = generateTemplateURL({
-            pageId: application.defaultPageId as string,
-          });
         }
-        history.push(pageURL);
+        history.push(
+          builderURL({
+            pageId: application.defaultPageId as string,
+          }),
+        );
 
         // subscribe to newly created application
         // users join rooms on connection, so reconnecting

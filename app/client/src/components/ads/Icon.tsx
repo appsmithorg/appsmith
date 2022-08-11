@@ -151,6 +151,7 @@ import MagicLineIcon from "remixicon-react/MagicLineIcon";
 import UserHeartLineIcon from "remixicon-react/UserHeartLineIcon";
 import DvdLineIcon from "remixicon-react/DvdLineIcon";
 import Group2LineIcon from "remixicon-react/Group2LineIcon";
+import PagesLineIcon from "remixicon-react/PagesLineIcon";
 import CodeViewIcon from "remixicon-react/CodeViewIcon";
 
 export enum IconSize {
@@ -286,6 +287,7 @@ const ICON_LOOKUP = {
   "no-response": <NoResponseIcon />,
   "oval-check": <OvalCheck />,
   "oval-check-fill": <OvalCheckFill />,
+  "pages-line": <PagesLineIcon />,
   "pin-3": <Pin3 />,
   "right-arrow": <RightArrowIcon />,
   "right-arrow-2": <RightArrowIcon2 />,
