@@ -335,9 +335,11 @@ function* executeTriggerRequestSaga(
     // When error occurs in execution of triggers,
     // a success: false is sent to reject the promise
 
+    responsePayload.success = false;
     if (error instanceof Error) {
       responsePayload.data.reason = new Error(error.message);
-      responsePayload.success = false;
+    } else {
+      responsePayload.data.reason = new Error("Unknown error");
     }
   }
   responseChannel.put({
