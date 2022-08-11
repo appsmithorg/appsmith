@@ -43,7 +43,7 @@ describe("Test Query Pane  ", function() {
         3) From                   4) Body
     */
 
-    cy.contains(ApiEditor.dropdownOption, "Create Message").click();
+    cy.contains("Create Message").click();
     cy.get(ApiEditor.labelAuth)
       .contains("Twilio Account SID")
       .should("exist");
@@ -59,22 +59,13 @@ describe("Test Query Pane  ", function() {
   });
 
   it("3. Test mandatory Fields are added in Created", function() {
-    cy.get(ApiEditor.labelAuth)
-      .contains("Twilio Account SID")
-      .should("exist");
+    cy.contains('Twilio Account SID').contains("*");
 
-    cy.get(
-      ".StyledFormComponents__StyledFormLabel-kjor6s-6:contains('Twilio Account SID')",
-    ).contains("*");
-    cy.get(
-      ".StyledFormComponents__StyledFormLabel-kjor6s-6:contains('To')",
-    ).contains("*");
-    cy.get(
-      ".StyledFormComponents__StyledFormLabel-kjor6s-6:contains('From')",
-    ).contains("*");
-    cy.get(
-      ".StyledFormComponents__StyledFormLabel-kjor6s-6:contains('Body')",
-    ).contains("*");
+    cy.contains('To').contains("*");
+
+    cy.contains('From').contains("*");
+
+    cy.contains('Body').contains("*");
   });
 
   it("4. Test the user is displayed appropriate error messages on the wrong field data", function() {
@@ -82,9 +73,9 @@ describe("Test Query Pane  ", function() {
 
     cy.get(runQueryBtn).click();
 
-    cy.get(".t--query-error").contains(
+    cy.contains(
       '"message":"The requested resource /2010-04-01/Accounts/Messages.json was not found',
-    );
+    ).should("exist");
 
     cy.get(".CodeMirror-code")
       .first()
@@ -92,9 +83,9 @@ describe("Test Query Pane  ", function() {
 
     cy.get(runQueryBtn).click();
 
-    cy.get(".t--query-error").contains(
+    cy.contains(
       '"message":"A \'To\' phone number is required."',
-    );
+    ).should("exist");
 
     cy.get(".CodeMirror-code") /*To*/
       .eq(1)
@@ -102,9 +93,9 @@ describe("Test Query Pane  ", function() {
 
     cy.get(runQueryBtn).click();
 
-    cy.get(".t--query-error").contains(
+    cy.contains(
       '"message":"A \'From\' phone number is required."',
-    );
+    ).should("exist");
 
     cy.get(".CodeMirror-code") /*From*/
       .eq(2)
@@ -112,7 +103,7 @@ describe("Test Query Pane  ", function() {
 
     cy.get(runQueryBtn).click();
 
-    cy.get(".t--query-error").contains('"message":"Message body is required."');
+    cy.contains('"message":"Message body is required."').should("exist");
   });
 
   it("5. Test Ensure Long body form is added", function() {
@@ -130,24 +121,17 @@ describe("Test Query Pane  ", function() {
     cy.get(ApiEditor.backBtn).click();
 
     cy.contains(".t--entity-item", "Test").click();
-    cy.contains(".CodeMirror-code", longBody)
-      .last()
-      .should("exist");
+    cy.contains(longBody).should("exist");
   });
 
   it("6. Test use the method from the drop-down", function() {
-    const dropdown = '[style="width: 100%;"]';
-    cy.contains(dropdown, "Create Message")
-      .should("exist")
-      .click();
-    cy.contains(ApiEditor.dropdownOption, "Schedule Message").click();
-    cy.contains(dropdown, "Schedule Message")
-      .should("exist")
-      .click();
-    cy.contains(ApiEditor.dropdownOption, "Create Message").click();
+    cy.contains("Create Message").should("exist").click();
+    cy.contains("Schedule Message").click();
+    cy.contains("Schedule Message").should("exist").click();
+    cy.contains("Create Message").click();
 
-    cy.contains(dropdown, "Create Message").should("exist");
-    cy.contains(dropdown, "Schedule Message").should("not.exist");
+    cy.contains("Create Message").should("exist");
+    cy.contains("Schedule Message").should("not.exist");
   });
 
   it("7. Test user is able to change the name from the pane", function() {
@@ -175,7 +159,7 @@ describe("Test Query Pane  ", function() {
 
     cy.get(ApiEditor.twilioImage).click(); //Only to save the query name
 
-    cy.contains(".t--entity-item", "CREATE_MESSAGE_TEST1").should("exist");
+    cy.contains("CREATE_MESSAGE_TEST1").should("exist");
   });
 
   it("9. Test user is able to add special characters to the name from Pane", function() {
@@ -226,7 +210,7 @@ describe("Test Query Pane  ", function() {
 
     cy.get(ApiEditor.twilioImage).click(); //Only to save the query name
 
-    cy.contains(".t--entity-item", "CREATE_MESSAGE_TEST").should("exist");
+    cy.contains("CREATE_MESSAGE_TEST").should("exist");
     cy.wait(2000);
   });
 
@@ -234,7 +218,7 @@ describe("Test Query Pane  ", function() {
     cy.get(ApiEditor.backBtn).click();
     cy.contains(".t--entity-item", "CREATE_MESSAGE_TEST").click();
     cy.get(ApiEditor.twilioImage).should("exist");
-    cy.contains(".bp3-editable-text-content", "CREATE_MESSAGE_TEST");
+    cy.contains("CREATE_MESSAGE_TEST").should("exist");
   });
 
   it("12. Test user is able to edit the query pane and the changes get saved", function() {
@@ -249,7 +233,7 @@ describe("Test Query Pane  ", function() {
     cy.get(queryLocators.queryNameField).type("Test");
     cy.get(ApiEditor.twilioImage).click(); //Only to save the query name
     cy.get(ApiEditor.dropdownActions).click();
-    cy.contains(ApiEditor.dropdownOption, "List Message").click();
+    cy.contains("List Message").click();
 
     cy.get(".CodeMirror-code")
       .first()
@@ -262,12 +246,8 @@ describe("Test Query Pane  ", function() {
 
     cy.contains(".t--entity-item", "Test").click();
 
-    cy.contains(".CodeMirror-code", "+123456789")
-      .first()
-      .should("exist");
-    cy.contains(".CodeMirror-code", "ACXXXXXXXXX")
-      .first()
-      .should("exist");
+    cy.contains("+123456789").should("exist");
+    cy.contains("ACXXXXXXXXX").should("exist");
   });
 
   it("13. Test user is able to COPY query into the same page from Query Pane", function() {
@@ -318,7 +298,7 @@ describe("Test Query Pane  ", function() {
 
     cy.openDropdown("QUERIES/JS");
 
-    cy.contains(".t--entity-item", "CREATE_MESSAGE_TEST").should("exist");
+    cy.contains("CREATE_MESSAGE_TEST").should("exist");
   });
 
   it("16. Test user is able to Name conventions that are appropriate when moved/Copied", function() {
