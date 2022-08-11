@@ -427,7 +427,7 @@ export function Table(props: TableProps) {
       <ScrollIndicator
         containerRef={tableBodyRef}
         mode="LIGHT"
-        showScrollbarOnHover
+        showScrollbarOnlyOnHover
         top={props.editMode ? "70px" : "73px"}
       />
     </TableWrapper>

@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef, useCallback } from "react";
 import styled from "styled-components";
 import _ from "lodash";
 import { animated, useSpring, to } from "react-spring";
@@ -49,7 +49,7 @@ interface Props {
   bottom?: string;
   right?: string;
   alwaysShowScrollbar?: boolean;
-  showScrollbarOnHover?: boolean;
+  showScrollbarOnlyOnHover?: boolean;
   mode?: "DARK" | "LIGHT";
 }
 function ScrollIndicator({
@@ -57,7 +57,7 @@ function ScrollIndicator({
   bottom,
   containerRef,
   right,
-  showScrollbarOnHover = false,
+  showScrollbarOnlyOnHover = false,
   top,
 }: Props) {
   const [{ thumbPosition }, setThumbPosition] = useSpring<{
@@ -108,9 +108,11 @@ function ScrollIndicator({
   }, []);
 
   useEffect(() => {
-    // showScrollbarOnHover prop if true will bypass hideScrollbar functionality
-    // as hideScrollbar behaviour conflicts with "hover to show scrollbar" functionality
-    if (showScrollbarOnHover) {
+    /*
+      showScrollbarOnlyOnHover prop if true will bypass hideScrollbar functionality
+      as hideScrollbar behaviour conflicts with showScrollbarOnlyOnHover functionality
+    */
+    if (showScrollbarOnlyOnHover) {
       return;
     }
     if (isScrollVisible) {
@@ -122,19 +124,28 @@ function ScrollIndicator({
     setIsScrollVisible(alwaysShowScrollbar || false);
   }, 1500);
 
+  const setScrollVisibilityOnHover = useCallback((e) => {
+    if (e?.type === "mouseenter") {
+      setIsScrollVisible(true);
+    } else if (e?.type === "mouseleave") {
+      setIsScrollVisible(false);
+    }
+  }, []);
+
   useEffect(() => {
-    // This useEffect adds events to show/hide scrollbar when showScrollBarOnHover prop is true
-    if (showScrollbarOnHover) {
-      containerRef.current?.setAttribute("hoverListeners", "true");
-      containerRef.current?.addEventListener("mouseenter", () =>
-        setIsScrollVisible(true),
+    /* This useEffect adds events to show/hide scrollbar when showScrollbarOnlyOnHover prop is true */
+    if (showScrollbarOnlyOnHover) {
+      containerRef.current?.addEventListener(
+        "mouseenter",
+        setScrollVisibilityOnHover,
       );
-      containerRef.current?.addEventListener("mouseleave", () =>
-        setIsScrollVisible(false),
+      containerRef.current?.addEventListener(
+        "mouseleave",
+        setScrollVisibilityOnHover,
       );
     }
     return () => {
-      if (containerRef.current?.getAttribute("hoverListeners")) {
+      if (showScrollbarOnlyOnHover) {
         containerRef.current?.removeEventListener("mouseenter", () =>
           setIsScrollVisible(true),
         );
@@ -143,7 +154,7 @@ function ScrollIndicator({
         );
       }
     };
-  }, []);
+  }, [containerRef, showScrollbarOnlyOnHover]);
 
   return (
     <ScrollTrack
