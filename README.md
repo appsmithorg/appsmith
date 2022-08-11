@@ -44,7 +44,6 @@ Build your UI with our drag and drop UI builder. Use 45+ pre-built, customizable
 <img alt="connect-data" src="static/gifs/Build-UI.gif" />
 </a>
 </p>
-<br/>
 
 ### 2. Connect to your data
 
@@ -55,7 +54,6 @@ Connect to your data with our connectors: databases (PostgresQL, MongoDB, Amazon
 <img alt="connect-data" src="static/gifs/Connect-Data.gif" />
 </a>
 </p>
-<br/>
 
 ### 3. Connect the data to the UI
 
@@ -66,7 +64,6 @@ Connect the data to the UI by configuring the components. Where needed, you can 
 <img alt="connect-data" src="static/gifs/Bind-Data.gif" />
 </a>
 </p>
-<br/>
 
 ### 4. Deploy your app
 
@@ -77,7 +74,6 @@ Deploy your app on our free, cloud-hosted version or to any platform of your cho
 <img alt="connect-data" src="static/gifs/Share-Apps.gif" />
 </a>
 </p>
-<br/>
 
 ## Features
 
