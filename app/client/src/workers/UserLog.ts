@@ -155,7 +155,7 @@ class UserLog {
     }
     return returnData;
   }
-  // returns the logs from the function execution after sanitising them
+  // returns the logs from the function execution after sanitising them and resets the logs object after that
   public flushLogs(): LogObject[] {
     const userLogs = this.logs;
     this.resetLogs();
