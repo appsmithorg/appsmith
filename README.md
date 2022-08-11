@@ -33,7 +33,7 @@
 
 ---
 
-## Build Apps in 4 Steps:
+## Build Apps in 4 Steps
 
 ### 1. Build your UI
 
@@ -57,7 +57,7 @@ Connect to your data with our connectors: databases (PostgresQL, MongoDB, Amazon
 </p>
 <br/>
 
-### Connect the data to the UI
+### 3. Connect the data to the UI
 
 Connect the data to the UI by configuring the components. Where needed, you can use the Javascript IDE to create more advanced features and data transformations - the sky is the limit! [Docs](https://docs.appsmith.com/core-concepts/connecting-to-data-sources/querying-a-database?utm_source=github&utm_medium=organic&utm_campaign=readme)
 
@@ -68,7 +68,7 @@ Connect the data to the UI by configuring the components. Where needed, you can 
 </p>
 <br/>
 
-### Deploy your app
+### 4. Deploy your app
 
 Deploy your app on our free, cloud-hosted version or to any platform of your choice - Docker, Kubernetes, AWS, DigitalOcean, Heroku, and more. [Docs](https://docs.appsmith.com/setup?utm_source=github&utm_medium=organic&utm_campaign=readme&utm_content=step4)
 
