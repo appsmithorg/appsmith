@@ -4,7 +4,13 @@ import { Classes as BPPopover2Classes } from "@blueprintjs/popover2";
 import { isString } from "lodash";
 import { Classes } from "components/ads/common";
 import Icon, { IconName, IconSize } from "components/ads/Icon";
-import { Log, Message, Severity, SourceEntity } from "entities/AppsmithConsole";
+import {
+  Log,
+  LOG_CATEGORY,
+  Message,
+  Severity,
+  SourceEntity,
+} from "entities/AppsmithConsole";
 import React, { useState } from "react";
 import ReactJson from "react-json-view";
 import styled, { useTheme } from "styled-components";
@@ -89,6 +95,12 @@ const Wrapper = styled.div<{ collapsed: boolean }>`
     display: inline-block;
   }
 
+  .debugger-toggle {
+      ${(props) => props.collapsed && `transform: rotate(-90deg);`}
+      margin-left: -5px;
+      height: 24px;
+      width: 24px;
+    }
   .debugger-time {
     ${(props) => getTypographyByKey(props, "h6")}
     line-height: 16px;
@@ -100,14 +112,14 @@ const Wrapper = styled.div<{ collapsed: boolean }>`
     display: inline-block;
     overflow-wrap: anywhere;
     word-break: break-word;
-    .debugger-toggle {
-      ${(props) => props.collapsed && `transform: rotate(-90deg);`}
-      margin-left: -5px;
-    }
+    max-width: 60%;
 
     .debugger-label {
       color: ${(props) => props.theme.colors.debugger.label};
       ${(props) => getTypographyByKey(props, "p1")}
+      text-overflow: ellipsis;
+      overflow: hidden;
+      white-space: nowrap;
     }
     .debugger-entity {
       color: ${(props) => props.theme.colors.debugger.entity};
@@ -188,6 +200,8 @@ export const getLogItemProps = (e: Log) => {
     timestamp: e.timestamp,
     source: e.source,
     label: e.text,
+    logData: e.logData,
+    category: e.category,
     timeTaken: e.timeTaken ? `${e.timeTaken}ms` : "",
     severity: e.severity,
     text: e.text,
@@ -204,6 +218,8 @@ type LogItemProps = {
   timeTaken: string;
   severity: Severity;
   text: string;
+  category: LOG_CATEGORY;
+  logData?: any[];
   state?: Record<string, any>;
   id?: string;
   source?: SourceEntity;
@@ -223,7 +239,17 @@ function LogItem(props: LogItemProps) {
     },
     collapsed: 1,
   };
-  const showToggleIcon = props.state || props.messages;
+  const showToggleIcon = () => {
+    let output = !!props.state || !!props.messages;
+    if (props.logData && props.logData.length > 0) {
+      if (props.logData.length === 1) {
+        output = typeof props.logData[0] === "object";
+      } else {
+        output = true;
+      }
+    }
+    return output;
+  };
   // The error to sent to the contextual menu
   const errorToSearch =
     props.messages && props.messages.length
@@ -243,7 +269,7 @@ function LogItem(props: LogItemProps) {
       <Icon
         className={`${Classes.ICON} debugger-toggle`}
         fillColor={get(theme, "colors.debugger.jsonIcon")}
-        invisible={!showToggleIcon}
+        invisible={!showToggleIcon()}
         name={"down-arrow"}
         onClick={() => setIsOpen(!isOpen)}
         size={IconSize.XXXXL}
@@ -251,33 +277,40 @@ function LogItem(props: LogItemProps) {
       <Icon keepColors name={props.icon} size={IconSize.XL} />
       <span className="debugger-time">{props.timestamp}</span>
       <div className="debugger-description">
-        <RowWrapper>
-          <span className="debugger-label">{props.text}</span>
-          {props.timeTaken && (
-            <span className="debugger-timetaken">{props.timeTaken}</span>
-          )}
-          {props.severity !== Severity.INFO && (
-            <ContextualMenu entity={props.source} error={errorToSearch}>
-              <TooltipComponent
-                content={
-                  <Text style={{ color: "#ffffff" }} type={TextType.P3}>
-                    {createMessage(TROUBLESHOOT_ISSUE)}
-                  </Text>
-                }
-                minimal
-                position="bottom-left"
-              >
-                <StyledSearchIcon
-                  className={`${Classes.ICON} search-menu`}
-                  name={"wand"}
-                  size={IconSize.MEDIUM}
-                />
-              </TooltipComponent>
-            </ContextualMenu>
-          )}
-        </RowWrapper>
+        {!(
+          props.category === LOG_CATEGORY.USER_GENERATED &&
+          showToggleIcon() &&
+          isOpen
+        ) && (
+          <RowWrapper>
+            <span className="debugger-label">{props.text}</span>
 
-        {showToggleIcon && (
+            {props.timeTaken && (
+              <span className="debugger-timetaken">{props.timeTaken}</span>
+            )}
+            {props.severity !== Severity.INFO && (
+              <ContextualMenu entity={props.source} error={errorToSearch}>
+                <TooltipComponent
+                  content={
+                    <Text style={{ color: "#ffffff" }} type={TextType.P3}>
+                      {createMessage(TROUBLESHOOT_ISSUE)}
+                    </Text>
+                  }
+                  minimal
+                  position="bottom-left"
+                >
+                  <StyledSearchIcon
+                    className={`${Classes.ICON} search-menu`}
+                    name={"help"}
+                    size={IconSize.MEDIUM}
+                  />
+                </TooltipComponent>
+              </ContextualMenu>
+            )}
+          </RowWrapper>
+        )}
+
+        {showToggleIcon() && (
           <StyledCollapse isOpen={isOpen} keepChildrenMounted>
             {messages.map((e) => {
               return (
@@ -300,6 +333,27 @@ function LogItem(props: LogItemProps) {
                 <ReactJson src={props.state} {...reactJsonProps} />
               </JsonWrapper>
             )}
+            {props.logData &&
+              props.logData.length > 0 &&
+              props.logData.map((logDatum: any) => {
+                if (typeof logDatum === "object") {
+                  return (
+                    <JsonWrapper
+                      className="t--debugger-console-log-data"
+                      key={Math.random()}
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <ReactJson src={logDatum} {...reactJsonProps} />
+                    </JsonWrapper>
+                  );
+                } else {
+                  return (
+                    <span className="debugger-label" key={Math.random()}>
+                      {logDatum}
+                    </span>
+                  );
+                }
+              })}
           </StyledCollapse>
         )}
       </div>
