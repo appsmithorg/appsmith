@@ -748,8 +748,13 @@ export const useCanvasDragging = (
             const height = getAbsolutePixels(
               stickyCanvasRef.current.style.height,
             );
+            const currentSpaces = getDraggingSpacesFromBlocks(
+              currentRectanglesToDraw,
+              snapColumnSpace,
+              snapRowSpace,
+            );
             const alignmentLines = getAlignmentLines(
-              getBoundariesFromDraggingWidgets(draggingSpaces),
+              getBoundariesFromDraggingWidgets(currentSpaces),
               occSpaces,
               {
                 topRow: topOffset / 10,
