@@ -6,7 +6,7 @@
 	"pageLoadTimeout": 30000,
 	"videoUploadOnPasses": false,
   "videoCompression": false,
-	"reporter": "mochawesome",
+  "numTestsKeptInMemory": 10,
 	"reporterOptions": {
 		"reportDir": "results",
 		"overwrite": false,
