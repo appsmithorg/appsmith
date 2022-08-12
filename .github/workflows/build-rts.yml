@@ -39,6 +39,9 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Set up Depot CLI
+        uses: depot/setup-action@v1
+
       - name: Use Node.js 16.14.0
         uses: actions/setup-node@v1
         with:
