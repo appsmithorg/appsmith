@@ -181,6 +181,24 @@ function JSEditorForm({ jsCollection: currentJSCollection }: Props) {
     }
     setSelectedJSActionOption(getJSActionOption(activeJSAction, jsActions));
   }, [parseErrors, jsActions, activeJSActionId]);
+
+  const blockCompletions = useMemo(() => {
+    if (selectedJSActionOption.label) {
+      const funcName = `${selectedJSActionOption.label}()`;
+      return [
+        {
+          parentPath: "this",
+          subPath: funcName,
+        },
+        {
+          parentPath: currentJSCollection.name,
+          subPath: funcName,
+        },
+      ];
+    }
+    return [];
+  }, [selectedJSActionOption.label, currentJSCollection.name]);
+
   return (
     <FormWrapper>
       <JSObjectHotKeys runActiveJSFunction={handleRunAction}>
@@ -224,6 +242,7 @@ function JSEditorForm({ jsCollection: currentJSCollection }: Props) {
                     title: "Code",
                     panelComponent: (
                       <CodeEditor
+                        blockCompletions={blockCompletions}
                         className={"js-editor"}
                         customGutter={JSGutters}
                         dataTreePath={`${currentJSCollection.name}.body`}
