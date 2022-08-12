@@ -49,13 +49,17 @@ const TagInputWrapper = styled.div<{ intent?: Intent }>`
 `;
 
 const SuggestionsWrapper = styled.div`
-  border: 1px solid var(--appsmith-color-black-250);
   margin-top: 4px;
-  position: absolute;
+  position: relative;
   left: 4px;
-  top: 40px;
   width: 100%;
-  background: var(--appsmith-color-black-0);
+
+  > div {
+    position: absolute;
+    border: 1px solid var(--appsmith-color-black-250);
+    width: 100%;
+    background: var(--appsmith-color-black-0);
+  }
 `;
 
 const Suggestion = styled.div`
@@ -235,14 +239,16 @@ function TagInputComponent(props: TagInputProps) {
       />
       {suggestions?.length > 0 && showSuggestions && (
         <SuggestionsWrapper>
-          {suggestions.map((each: any) => (
-            <Suggestion
-              key={each.id}
-              onClick={() => handleSuggestionClick(each.name)}
-            >
-              <HighlightText highlight={currentValue} text={each.name} />
-            </Suggestion>
-          ))}
+          <div>
+            {suggestions.map((each: any) => (
+              <Suggestion
+                key={each.id}
+                onClick={() => handleSuggestionClick(each.name)}
+              >
+                <HighlightText highlight={currentValue} text={each.name} />
+              </Suggestion>
+            ))}
+          </div>
         </SuggestionsWrapper>
       )}
     </TagInputWrapper>
