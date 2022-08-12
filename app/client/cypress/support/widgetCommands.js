@@ -171,6 +171,7 @@ Cypress.Commands.add("createModal", (ModalName) => {
 
   cy.get(widgetsPage.textWidget + " " + commonlocators.editIcon).click();
   cy.testCodeMirror(ModalName);
+  cy.moveToStyleTab();
   cy.get(widgetsPage.textCenterAlign).click({ force: true });
   cy.assertPageSave();
   cy.get(".bp3-overlay-backdrop").click({ force: true });

@@ -57,7 +57,7 @@
     "deleteWidget": ".t--modal-widget>div .t--widget-delete-control",
     "textbuttonWidget": ".t--draggable-buttonwidget button.bp3-button[type='button']",
     "textInputval": ".t--draggable-textwidget span.t--widget-name",
-    "textCenterAlign": ".t--property-control-textalign .t--button-tab-CENTER",
+    "textCenterAlign": ".t--property-control-alignment .t--button-tab-CENTER",
     "ColumnAction": ".t--property-control-rowbutton button",
     "SearchTextChangeAction": ".t--property-control-onsearchtextchanged button",
     "tableSearchTextChangeSelected": ".t--property-control-onsearchtextchanged",
