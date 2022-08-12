@@ -72,7 +72,7 @@ function FilePickerComponent(props: FilePickerComponentProps) {
         {modalIsOpen && (
           <QrReader
             ViewFinder={ViewFinder}
-            constraints={{ facingMode: "user" }}
+            constraints={{ facingMode: "environment" }}
             onResult={(result, error) => {
               if (!!result) {
                 setIsOpen(false);
