@@ -37,7 +37,11 @@ import { BatchPropertyUpdatePayload } from "actions/controlActions";
 import AppsmithConsole from "utils/AppsmithConsole";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import PreviewModeComponent from "components/editorComponents/PreviewModeComponent";
-import { AlignItems, LayoutDirection } from "components/constants";
+import {
+  AlignItems,
+  LayoutDirection,
+  ResponsiveBehavior,
+} from "components/constants";
 import { AutoLayoutWrapper } from "components/AutoLayoutWrapper";
 
 /***
@@ -462,7 +466,7 @@ export interface WidgetPositionProps extends WidgetRowCols {
   useAutoLayout?: boolean;
   direction?: LayoutDirection;
   alignItems?: AlignItems;
-  stretchOnMobile?: boolean;
+  responsiveBehavior?: ResponsiveBehavior;
 }
 
 export const WIDGET_STATIC_PROPS = {

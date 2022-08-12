@@ -10,7 +10,7 @@ import {
 } from "constants/WidgetValidation";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { MinimumPopupRows, GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
-import { LabelPosition } from "components/constants";
+import { LabelPosition, ResponsiveBehavior } from "components/constants";
 import { Alignment } from "@blueprintjs/core";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 import {
@@ -23,6 +23,7 @@ import {
   LoDashStatic,
 } from "lodash";
 import derivedProperties from "./parseDerivedProperties";
+import { generateResponsiveBehaviorConfig } from "utils/ResposniveBehaviorConfig";
 
 export function defaultOptionValueValidation(
   value: unknown,
@@ -246,6 +247,7 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
             isTriggerProperty: false,
             validation: { type: ValidationTypes.BOOLEAN },
           },
+          { ...generateResponsiveBehaviorConfig(ResponsiveBehavior.Fill) },
         ],
       },
       {
@@ -620,7 +622,6 @@ export interface SelectWidgetProps extends WidgetProps {
   onFilterUpdate: string;
   isDirty?: boolean;
   filterText: string;
-  stretchOnMobile?: boolean;
 }
 
 export default SelectWidget;

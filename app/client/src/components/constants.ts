@@ -135,3 +135,8 @@ export enum Positioning {
   Horizontal = "horizontal",
   Vertical = "vertical",
 }
+
+export enum ResponsiveBehavior {
+  Fill = "fill",
+  Hug = "hug",
+}

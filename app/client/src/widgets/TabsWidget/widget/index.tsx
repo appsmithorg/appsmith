@@ -13,7 +13,8 @@ import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 import { WidgetProperties } from "selectors/propertyPaneSelectors";
 import { WIDGET_PADDING } from "constants/WidgetConstants";
 import derivedProperties from "./parseDerivedProperties";
-import { Positioning } from "components/constants";
+import { Positioning, ResponsiveBehavior } from "components/constants";
+import { generateResponsiveBehaviorConfig } from "utils/ResposniveBehaviorConfig";
 
 export function selectedTabValidation(
   value: unknown,
@@ -188,7 +189,23 @@ class TabsWidget extends BaseWidget<
             isTriggerProperty: false,
             validation: { type: ValidationTypes.BOOLEAN },
           },
+          { ...generateResponsiveBehaviorConfig(ResponsiveBehavior.Fill) },
         ],
+      },
+      {
+        helpText: "Should the children take up the complete width on mobile",
+        propertyName: "responsiveBehavior",
+        label: "Responsive behavior",
+        controlType: "DROP_DOWN",
+        defaultValue: ResponsiveBehavior.Fill,
+        options: [
+          { label: "Fill", value: ResponsiveBehavior.Fill },
+          { label: "Hug", value: ResponsiveBehavior.Hug },
+        ],
+        isJSConvertible: true,
+        isBindProperty: false,
+        isTriggerProperty: true,
+        validation: { type: ValidationTypes.TEXT },
       },
       {
         sectionName: "Events",

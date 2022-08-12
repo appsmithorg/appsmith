@@ -2,6 +2,7 @@ import Widget from "./widget";
 import IconSVG from "./icon.svg";
 import { CONFIG as BaseConfig } from "widgets/BaseInputWidget";
 import { getDefaultCurrency } from "./component/CurrencyCodeDropdown";
+import { ResponsiveBehavior } from "components/constants";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
@@ -16,7 +17,7 @@ export const CONFIG = {
     allowCurrencyChange: false,
     defaultCurrencyCode: getDefaultCurrency().currency,
     decimals: 0,
-    stretchOnMobile: true,
+    responsiveBehavior: ResponsiveBehavior.Fill,
   },
   properties: {
     derived: Widget.getDerivedPropertiesMap(),

@@ -9,6 +9,7 @@ import { getCanvasSnapRows } from "utils/WidgetPropsUtils";
 import { getCanvasClassName } from "utils/generators";
 import WidgetFactory, { DerivedPropertiesMap } from "utils/WidgetFactory";
 import { CANVAS_DEFAULT_MIN_HEIGHT_PX } from "constants/AppConstants";
+import { ResponsiveBehavior } from "components/constants";
 
 class CanvasWidget extends ContainerWidget {
   static getPropertyPaneConfig() {
@@ -74,7 +75,10 @@ class CanvasWidget extends ContainerWidget {
     childWidgetData.justifyContent = this.props.justifyContent;
     childWidgetData.alignItems = this.props.alignItems;
 
-    if (childWidgetData?.stretchOnMobile && this.state.isMobile) {
+    if (
+      childWidgetData?.responsiveBehavior === ResponsiveBehavior.Fill &&
+      this.state.isMobile
+    ) {
       childWidgetData.leftColumn = 0;
       childWidgetData.rightColumn = 64;
     }

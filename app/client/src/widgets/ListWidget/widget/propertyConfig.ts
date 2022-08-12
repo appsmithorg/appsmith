@@ -6,6 +6,8 @@ import { ValidationTypes } from "constants/WidgetValidation";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { EVAL_VALUE_PATH } from "utils/DynamicBindingUtils";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
+import { generateResponsiveBehaviorConfig } from "utils/ResposniveBehaviorConfig";
+import { ResponsiveBehavior } from "components/constants";
 
 const PropertyPaneConfig = [
   {
@@ -55,6 +57,7 @@ const PropertyPaneConfig = [
         isTriggerProperty: false,
         validation: { type: ValidationTypes.BOOLEAN },
       },
+      { ...generateResponsiveBehaviorConfig(ResponsiveBehavior.Fill) },
     ],
   },
   {

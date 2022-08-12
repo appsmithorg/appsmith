@@ -10,10 +10,12 @@ import {
   ButtonPlacementTypes,
   ButtonPlacement,
   ButtonVariantTypes,
+  ResponsiveBehavior,
 } from "components/constants";
 import ButtonGroupComponent from "../component";
 import { MinimumPopupRows } from "widgets/constants";
 import { getStylesheetValue } from "./helpers";
+import { generateResponsiveBehaviorConfig } from "utils/ResposniveBehaviorConfig";
 
 class ButtonGroupWidget extends BaseWidget<
   ButtonGroupWidgetProps,
@@ -74,6 +76,7 @@ class ButtonGroupWidget extends BaseWidget<
             isTriggerProperty: false,
             validation: { type: ValidationTypes.BOOLEAN },
           },
+          { ...generateResponsiveBehaviorConfig(ResponsiveBehavior.Fill) },
         ],
       },
       {

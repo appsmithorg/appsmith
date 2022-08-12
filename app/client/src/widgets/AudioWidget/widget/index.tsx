@@ -7,6 +7,8 @@ import Skeleton from "components/utils/Skeleton";
 import { retryPromise } from "utils/AppsmithUtils";
 import ReactPlayer from "react-player";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
+import { ResponsiveBehavior } from "components/constants";
+import { generateResponsiveBehaviorConfig } from "utils/ResposniveBehaviorConfig";
 
 const AudioComponent = lazy(() => retryPromise(() => import("../component")));
 
@@ -75,6 +77,7 @@ class AudioWidget extends BaseWidget<AudioWidgetProps, WidgetState> {
             isTriggerProperty: false,
             validation: { type: ValidationTypes.BOOLEAN },
           },
+          { ...generateResponsiveBehaviorConfig(ResponsiveBehavior.Hug) },
         ],
       },
       {

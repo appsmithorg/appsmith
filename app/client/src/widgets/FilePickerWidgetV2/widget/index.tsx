@@ -21,6 +21,8 @@ import { createGlobalStyle } from "styled-components";
 import UpIcon from "assets/icons/ads/up-arrow.svg";
 import CloseIcon from "assets/icons/ads/cross.svg";
 import { Colors } from "constants/Colors";
+import { generateResponsiveBehaviorConfig } from "utils/ResposniveBehaviorConfig";
+import { ResponsiveBehavior } from "components/constants";
 
 const FilePickerGlobalStyles = createGlobalStyle<{
   borderRadius?: string;
@@ -362,6 +364,7 @@ class FilePickerWidget extends BaseWidget<
             isTriggerProperty: false,
             validation: { type: ValidationTypes.BOOLEAN },
           },
+          { ...generateResponsiveBehaviorConfig(ResponsiveBehavior.Fill) },
         ],
       },
       {

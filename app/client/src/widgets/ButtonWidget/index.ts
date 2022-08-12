@@ -2,6 +2,7 @@ import {
   ButtonPlacementTypes,
   ButtonVariantTypes,
   RecaptchaTypes,
+  ResponsiveBehavior,
 } from "components/constants";
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
@@ -27,6 +28,7 @@ export const CONFIG = {
     resetFormOnClick: false,
     recaptchaType: RecaptchaTypes.V3,
     version: 1,
+    responsiveBehavior: ResponsiveBehavior.Hug,
   },
   properties: {
     derived: Widget.getDerivedPropertiesMap(),

@@ -1,5 +1,6 @@
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
+import { ResponsiveBehavior } from "components/constants";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
@@ -21,7 +22,7 @@ export const CONFIG = {
     isClickedMarkerCentered: true,
     version: 1,
     animateLoading: true,
-    stretchOnMobile: true,
+    responsiveBehavior: ResponsiveBehavior.Fill,
   },
   properties: {
     derived: Widget.getDerivedPropertiesMap(),

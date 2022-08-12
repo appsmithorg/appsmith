@@ -6,11 +6,16 @@ import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { JSONFormWidgetProps } from ".";
 import { ROOT_SCHEMA_KEY } from "../constants";
 import { ValidationTypes } from "constants/WidgetValidation";
-import { ButtonVariantTypes, ButtonPlacementTypes } from "components/constants";
+import {
+  ButtonVariantTypes,
+  ButtonPlacementTypes,
+  ResponsiveBehavior,
+} from "components/constants";
 import { ButtonWidgetProps } from "widgets/ButtonWidget/widget";
 import { OnButtonClickProps } from "components/propertyControls/ButtonControl";
 import { ComputedSchemaStatus, computeSchema } from "./helper";
 import { EVALUATION_PATH } from "utils/DynamicBindingUtils";
+import { generateResponsiveBehaviorConfig } from "utils/ResposniveBehaviorConfig";
 
 const MAX_NESTING_LEVEL = 5;
 
@@ -833,6 +838,7 @@ export default [
         isTriggerProperty: false,
         validation: { type: ValidationTypes.TEXT },
       },
+      { ...generateResponsiveBehaviorConfig(ResponsiveBehavior.Fill) },
     ],
   },
   {

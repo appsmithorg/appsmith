@@ -24,6 +24,7 @@ import {
   JustifyContent,
   LayoutDirection,
   Positioning,
+  ResponsiveBehavior,
 } from "components/constants";
 import { AutoLayoutContext } from "utils/autoLayoutContext";
 
@@ -94,14 +95,18 @@ class ContainerWidget extends BaseWidget<
           {
             helpText:
               "Should the children take up the complete width on mobile",
-            propertyName: "stretchOnMobile",
-            label: "Stretch On Mobile",
-            controlType: "SWITCH",
-            defaultValue: false,
-            isJSConvertible: false,
+            propertyName: "responsiveBehavior",
+            label: "Responsive behavior",
+            controlType: "DROP_DOWN",
+            defaultValue: ResponsiveBehavior.Fill,
+            options: [
+              { label: "Fill", value: ResponsiveBehavior.Fill },
+              { label: "Hug", value: ResponsiveBehavior.Hug },
+            ],
+            isJSConvertible: true,
             isBindProperty: false,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.BOOLEAN },
+            isTriggerProperty: true,
+            validation: { type: ValidationTypes.TEXT },
           },
         ],
       },
@@ -455,7 +460,6 @@ export interface ContainerWidgetProps<T extends WidgetProps>
   shouldScrollContents?: boolean;
   noPad?: boolean;
   positioning?: Positioning;
-  stretchOnMobile?: boolean;
 }
 
 export interface ContainerWidgetState extends WidgetState {

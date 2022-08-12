@@ -1,3 +1,4 @@
+import { ResponsiveBehavior } from "components/constants";
 import { Colors } from "constants/Colors";
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
@@ -20,6 +21,7 @@ export const CONFIG = {
     isVisible: true,
     version: 1,
     animateLoading: true,
+    responsiveBehavior: ResponsiveBehavior.Fill,
   },
   properties: {
     derived: Widget.getDerivedPropertiesMap(),

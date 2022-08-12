@@ -3,6 +3,8 @@ import { ValidationTypes } from "constants/WidgetValidation";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { CUSTOM_CHART_TYPES, LabelOrientation } from "../constants";
 import { isLabelOrientationApplicableFor } from "../component";
+import { generateResponsiveBehaviorConfig } from "utils/ResposniveBehaviorConfig";
+import { ResponsiveBehavior } from "components/constants";
 
 export default [
   {
@@ -236,6 +238,7 @@ export default [
           x.chartType === "CUSTOM_FUSION_CHART" || x.chartType === "PIE_CHART",
         dependencies: ["chartType"],
       },
+      { ...generateResponsiveBehaviorConfig(ResponsiveBehavior.Hug) },
     ],
   },
   {

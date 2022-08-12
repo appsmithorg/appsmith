@@ -30,6 +30,8 @@ import {
 import * as Sentry from "@sentry/react";
 import log from "loglevel";
 import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
+import { generateResponsiveBehaviorConfig } from "utils/ResposniveBehaviorConfig";
+import { ResponsiveBehavior } from "components/constants";
 
 export function defaultValueValidation(
   value: any,
@@ -131,6 +133,7 @@ class PhoneInputWidget extends BaseInputWidget<
               isTriggerProperty: false,
               validation: { type: ValidationTypes.BOOLEAN },
             },
+            { ...generateResponsiveBehaviorConfig(ResponsiveBehavior.Fill) },
           ],
         },
       ],

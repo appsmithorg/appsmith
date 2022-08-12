@@ -8,6 +8,8 @@ import AudioRecorderComponent from "../component";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
 import { createBlobUrl } from "utils/AppsmithUtils";
 import { FileDataTypes } from "widgets/constants";
+import { generateResponsiveBehaviorConfig } from "utils/ResposniveBehaviorConfig";
+import { ResponsiveBehavior } from "components/constants";
 
 export interface AudioRecorderWidgetProps extends WidgetProps {
   accentColor: string;
@@ -66,6 +68,7 @@ class AudioRecorderWidget extends BaseWidget<
             isTriggerProperty: false,
             validation: { type: ValidationTypes.BOOLEAN },
           },
+          { ...generateResponsiveBehaviorConfig(ResponsiveBehavior.Hug) },
         ],
       },
       {

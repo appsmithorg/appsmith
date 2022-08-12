@@ -15,12 +15,14 @@ import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import {
   CheckboxGroupAlignmentTypes,
   LabelPosition,
+  ResponsiveBehavior,
 } from "components/constants";
 import { Alignment } from "@blueprintjs/core";
 import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
 
 import CheckboxGroupComponent from "../component";
 import { OptionProps, SelectAllState, SelectAllStates } from "../constants";
+import { generateResponsiveBehaviorConfig } from "utils/ResposniveBehaviorConfig";
 
 export function defaultSelectedValuesValidation(
   value: unknown,
@@ -192,6 +194,7 @@ class CheckboxGroupWidget extends BaseWidget<
             isTriggerProperty: false,
             validation: { type: ValidationTypes.BOOLEAN },
           },
+          { ...generateResponsiveBehaviorConfig(ResponsiveBehavior.Fill) },
         ],
       },
       {

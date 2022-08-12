@@ -2,6 +2,7 @@ import IconSVG from "./icon.svg";
 import Widget, { JSONFormWidgetProps } from "./widget";
 import { ButtonVariantTypes } from "components/constants";
 import { BlueprintOperationTypes } from "widgets/constants";
+import { ResponsiveBehavior } from "components/constants";
 
 const SUBMIT_BUTTON_DEFAULT_STYLES = {
   buttonVariant: ButtonVariantTypes.PRIMARY,
@@ -17,7 +18,7 @@ export const CONFIG = {
   iconSVG: IconSVG,
   needsMeta: true,
   defaults: {
-    stretchOnMobile: true,
+    responsiveBehavior: ResponsiveBehavior.Fill,
     animateLoading: true,
     backgroundColor: "#fff",
     columns: 25,

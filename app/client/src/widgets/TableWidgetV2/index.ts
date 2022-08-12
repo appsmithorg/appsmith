@@ -10,6 +10,7 @@ import { InlineEditingSaveOptions } from "./constants";
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
 import { escapeString } from "./widget/utilities";
+import { ResponsiveBehavior } from "components/constants";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
@@ -17,7 +18,7 @@ export const CONFIG = {
   iconSVG: IconSVG,
   needsMeta: true,
   defaults: {
-    stretchOnMobile: true,
+    responsiveBehavior: ResponsiveBehavior.Fill,
     rows: 28,
     columns: 34,
     animateLoading: true,

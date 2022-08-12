@@ -2,6 +2,7 @@ import Widget from "./widget";
 import IconSVG from "./icon.svg";
 import { LabelPosition } from "components/constants";
 import { Alignment } from "@blueprintjs/core";
+import { ResponsiveBehavior } from "components/constants";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
@@ -31,7 +32,7 @@ export const CONFIG = {
     isDisabled: false,
     animateLoading: true,
     labelTextSize: "0.875rem",
-    stretchOnMobile: true,
+    responsiveBehavior: ResponsiveBehavior.Fill,
   },
   properties: {
     derived: Widget.getDerivedPropertiesMap(),

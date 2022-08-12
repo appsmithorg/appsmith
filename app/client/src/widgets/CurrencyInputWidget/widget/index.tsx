@@ -33,6 +33,8 @@ import {
 } from "../component/utilities";
 import { mergeWidgetConfig } from "utils/helpers";
 import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
+import { generateResponsiveBehaviorConfig } from "utils/ResposniveBehaviorConfig";
+import { ResponsiveBehavior } from "components/constants";
 
 export function defaultValueValidation(
   value: any,
@@ -172,6 +174,7 @@ class CurrencyInputWidget extends BaseInputWidget<
               },
               dependencies: ["decimals"],
             },
+            { ...generateResponsiveBehaviorConfig(ResponsiveBehavior.Fill) },
           ],
         },
       ],

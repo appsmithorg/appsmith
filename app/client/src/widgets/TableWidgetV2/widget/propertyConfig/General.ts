@@ -18,6 +18,8 @@ import {
 } from "@appsmith/constants/messages";
 import panelConfig from "./PanelConfig";
 import { composePropertyUpdateHook } from "widgets/WidgetUtils";
+import { generateResponsiveBehaviorConfig } from "utils/ResposniveBehaviorConfig";
+import { ResponsiveBehavior } from "components/constants";
 
 export default {
   sectionName: "General",
@@ -273,5 +275,6 @@ export default {
       isBindProperty: false,
       isTriggerProperty: false,
     },
+    { ...generateResponsiveBehaviorConfig(ResponsiveBehavior.Fill) },
   ],
 };

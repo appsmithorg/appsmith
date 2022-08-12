@@ -25,6 +25,8 @@ import { BaseInputWidgetProps } from "widgets/BaseInputWidget/widget";
 import { mergeWidgetConfig } from "utils/helpers";
 import { InputTypes } from "widgets/BaseInputWidget/constants";
 import { getParsedText } from "./Utilities";
+import { generateResponsiveBehaviorConfig } from "utils/ResposniveBehaviorConfig";
+import { ResponsiveBehavior } from "components/constants";
 
 export function defaultValueValidation(
   value: any,
@@ -292,6 +294,7 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
               },
               dependencies: ["inputType"],
             },
+            { ...generateResponsiveBehaviorConfig(ResponsiveBehavior.Fill) },
           ],
         },
         {
