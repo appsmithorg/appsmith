@@ -2,21 +2,10 @@ import React from "react";
 import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import { WidgetType } from "constants/WidgetConstants";
 import FilePickerComponent from "../component";
-import Uppy from "@uppy/core";
-import GoogleDrive from "@uppy/google-drive";
-import Webcam from "@uppy/webcam";
-import Url from "@uppy/url";
-import OneDrive from "@uppy/onedrive";
 import { ValidationTypes } from "constants/WidgetValidation";
-import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
-import Dashboard from "@uppy/dashboard";
-import shallowequal from "shallowequal";
-import _, { findIndex } from "lodash";
 import FileDataTypes from "../constants";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
-import { createBlobUrl, isBlobUrl } from "utils/AppsmithUtils";
-import log from "loglevel";
 import { createGlobalStyle } from "styled-components";
 import UpIcon from "assets/icons/ads/up-arrow.svg";
 import CloseIcon from "assets/icons/ads/cross.svg";
@@ -193,14 +182,6 @@ class QRScannerWidget extends BaseWidget<
   QRScannerWidgetProps,
   QRScannerWidgetState
 > {
-  constructor(props: QRScannerWidgetProps) {
-    super(props);
-    this.state = {
-      isLoading: false,
-      uppy: this.initializeUppy(),
-    };
-  }
-
   static getPropertyPaneConfig() {
     return [
       {
@@ -684,283 +665,27 @@ class QRScannerWidget extends BaseWidget<
     };
   }
 
-  /**
-   * if uppy is not initialized before, initialize it
-   * else setState of uppy instance
-   */
-  initializeUppy = () => {
-    const uppyState = {
-      id: this.props.widgetId,
-      autoProceed: false,
-      allowMultipleUploads: true,
-      debug: false,
-      restrictions: {
-        maxFileSize: this.props.maxFileSize
-          ? this.props.maxFileSize * 1024 * 1024
-          : null,
-        maxNumberOfFiles: this.props.maxNumFiles,
-        minNumberOfFiles: null,
-        allowedFileTypes:
-          this.props.allowedFileTypes &&
-          (this.props.allowedFileTypes.includes("*") ||
-            _.isEmpty(this.props.allowedFileTypes))
-            ? null
-            : this.props.allowedFileTypes,
-      },
-    };
-
-    return Uppy(uppyState);
+  updateData = (data: any) => {
+    this.props.updateWidgetMetaProperty("data", data);
   };
-
-  /**
-   * set states on the uppy instance with new values
-   */
-  reinitializeUppy = (props: QRScannerWidgetProps) => {
-    const uppyState = {
-      id: props.widgetId,
-      autoProceed: false,
-      allowMultipleUploads: true,
-      debug: false,
-      restrictions: {
-        maxFileSize: props.maxFileSize ? props.maxFileSize * 1024 * 1024 : null,
-        maxNumberOfFiles: props.maxNumFiles,
-        minNumberOfFiles: null,
-        allowedFileTypes:
-          props.allowedFileTypes &&
-          (this.props.allowedFileTypes.includes("*") ||
-            _.isEmpty(props.allowedFileTypes))
-            ? null
-            : props.allowedFileTypes,
-      },
-    };
-
-    this.state.uppy.setOptions(uppyState);
-  };
-
-  /**
-   * add all uppy events listeners needed
-   */
-  initializeUppyEventListeners = () => {
-    this.state.uppy
-      .use(Dashboard, {
-        target: "body",
-        metaFields: [],
-        inline: false,
-        width: 750,
-        height: 550,
-        thumbnailWidth: 280,
-        showLinkToFileUploadResult: true,
-        showProgressDetails: false,
-        hideUploadButton: false,
-        hideProgressAfterFinish: false,
-        note: null,
-        closeAfterFinish: true,
-        closeModalOnClickOutside: true,
-        disableStatusBar: false,
-        disableInformer: false,
-        disableThumbnailGenerator: false,
-        disablePageScrollWhenModalOpen: true,
-        proudlyDisplayPoweredByUppy: false,
-        onRequestCloseModal: () => {
-          const plugin = this.state.uppy.getPlugin("Dashboard");
-
-          if (plugin) {
-            plugin.closeModal();
-          }
-        },
-        locale: {
-          strings: {
-            closeModal: "Close",
-          },
-        },
-      })
-      .use(GoogleDrive, { companionUrl: "https://companion.uppy.io" })
-      .use(Url, { companionUrl: "https://companion.uppy.io" })
-      .use(OneDrive, {
-        companionUrl: "https://companion.uppy.io/",
-      });
-
-    if (location.protocol === "https:") {
-      this.state.uppy.use(Webcam, {
-        onBeforeSnapshot: () => Promise.resolve(),
-        countdown: false,
-        mirror: true,
-        facingMode: "user",
-        locale: {},
-      });
-    }
-
-    this.state.uppy.on("file-removed", (file: any, reason: any) => {
-      /**
-       * The below line will not update the selectedFiles meta prop when cancel-all event is triggered.
-       * cancel-all event occurs when close or reset function of uppy is executed.
-       * Uppy provides an argument called reason. It helps us to distinguish on which event the file-removed event was called.
-       * Refer to the following issue to know about reason prop: https://github.com/transloadit/uppy/pull/2323
-       */
-      let updatedFiles = [];
-      if (reason === "removed-by-user") {
-        updatedFiles = this.props.selectedFiles
-          ? this.props.selectedFiles.filter((dslFile) => {
-              return file.id !== dslFile.id;
-            })
-          : [];
-      } else if (reason === "cancel-all") {
-        updatedFiles = [];
-      }
-      this.props.updateWidgetMetaProperty("selectedFiles", updatedFiles);
-    });
-
-    this.state.uppy.on("files-added", (files: any[]) => {
-      const dslFiles = this.props.selectedFiles
-        ? [...this.props.selectedFiles]
-        : [];
-
-      const fileCount = this.props.selectedFiles?.length || 0;
-      const fileReaderPromises = files.map((file, index) => {
-        return new Promise((resolve) => {
-          if (file.size < 5000 * 1000) {
-            const reader = new FileReader();
-            if (this.props.fileDataType === FileDataTypes.Base64) {
-              reader.readAsDataURL(file.data);
-            } else if (this.props.fileDataType === FileDataTypes.Binary) {
-              reader.readAsBinaryString(file.data);
-            } else {
-              reader.readAsText(file.data);
-            }
-            reader.onloadend = () => {
-              const newFile = {
-                type: file.type,
-                id: file.id,
-                data: reader.result,
-                name: file.meta ? file.meta.name : `File-${index + fileCount}`,
-                size: file.size,
-                dataFormat: this.props.fileDataType,
-              };
-              resolve(newFile);
-            };
-          } else {
-            const data = createBlobUrl(file.data, this.props.fileDataType);
-            const newFile = {
-              type: file.type,
-              id: file.id,
-              data: data,
-              name: file.meta ? file.meta.name : `File-${index + fileCount}`,
-              size: file.size,
-              dataFormat: this.props.fileDataType,
-            };
-            resolve(newFile);
-          }
-        });
-      });
-
-      Promise.all(fileReaderPromises).then((files) => {
-        if (!this.props.isDirty) {
-          this.props.updateWidgetMetaProperty("isDirty", true);
-        }
-
-        this.props.updateWidgetMetaProperty(
-          "selectedFiles",
-          dslFiles.concat(files),
-        );
-      });
-    });
-
-    this.state.uppy.on("upload", () => {
-      this.onFilesSelected();
-    });
-  };
-
-  /**
-   * this function is called when user selects the files and it do two things:
-   * 1. calls the action if any
-   * 2. set isLoading prop to true when calling the action
-   */
-  onFilesSelected = () => {
-    if (this.props.onFilesSelected) {
-      this.executeAction({
-        triggerPropertyName: "onFilesSelected",
-        dynamicString: this.props.onFilesSelected,
-        event: {
-          type: EventType.ON_FILES_SELECTED,
-          callback: this.handleActionComplete,
-        },
-      });
-
-      this.setState({ isLoading: true });
-    }
-  };
-
-  handleActionComplete = () => {
-    this.setState({ isLoading: false });
-  };
-
-  componentDidUpdate(prevProps: QRScannerWidgetProps) {
-    super.componentDidUpdate(prevProps);
-    const { selectedFiles: previousSelectedFiles = [] } = prevProps;
-    const { selectedFiles = [] } = this.props;
-    if (previousSelectedFiles.length && selectedFiles.length === 0) {
-      this.state.uppy.reset();
-    } else if (
-      !shallowequal(prevProps.allowedFileTypes, this.props.allowedFileTypes) ||
-      prevProps.maxNumFiles !== this.props.maxNumFiles ||
-      prevProps.maxFileSize !== this.props.maxFileSize
-    ) {
-      this.reinitializeUppy(this.props);
-    }
-    this.clearFilesFromMemory(prevProps.selectedFiles);
-  }
-  // Reclaim the memory used by blobs.
-  clearFilesFromMemory(previousFiles: any[] = []) {
-    const { selectedFiles: newFiles = [] } = this.props;
-    previousFiles.forEach((file: any) => {
-      let { data: blobUrl } = file;
-      if (isBlobUrl(blobUrl)) {
-        if (findIndex(newFiles, (f) => f.data === blobUrl) === -1) {
-          blobUrl = blobUrl.split("?")[0];
-          URL.revokeObjectURL(blobUrl);
-        }
-      }
-    });
-  }
-
-  componentDidMount() {
-    super.componentDidMount();
-
-    try {
-      this.initializeUppyEventListeners();
-    } catch (e) {
-      log.debug("Error in initializing uppy");
-    }
-  }
-
-  componentWillUnmount() {
-    this.state.uppy.close();
-  }
 
   getPageView() {
     return (
-      <>
-        <FilePickerComponent
-          borderRadius={this.props.borderRadius}
-          boxShadow={this.props.boxShadow}
-          buttonColor={this.props.buttonColor}
-          files={this.props.selectedFiles || []}
-          isDisabled={this.props.isDisabled}
-          isLoading={this.props.isLoading || this.state.isLoading}
-          key={this.props.widgetId}
-          label={this.props.label}
-          uppy={this.state.uppy}
-          widgetId={this.props.widgetId}
-        />
-        {this.state.uppy && this.state.uppy.getID() === this.props.widgetId && (
-          <FilePickerGlobalStyles borderRadius={this.props.borderRadius} />
-        )}
-      </>
+      <FilePickerComponent
+        borderRadius={this.props.borderRadius}
+        boxShadow={this.props.boxShadow}
+        buttonColor={this.props.buttonColor}
+        isDisabled={this.props.isDisabled}
+        key={this.props.widgetId}
+        label={this.props.label}
+        updateData={this.updateData}
+        widgetId={this.props.widgetId}
+      />
     );
   }
 
   static getWidgetType(): WidgetType {
-    return "FILE_PICKER_WIDGET_V2";
+    return "QR_SCANNER_WIDGET";
   }
 }
 
