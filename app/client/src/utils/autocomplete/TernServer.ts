@@ -78,6 +78,26 @@ type ArgHints = {
   doc: CodeMirror.Doc;
 };
 
+type RequestQuery = {
+  type: string;
+  types?: boolean;
+  docs?: boolean;
+  urls?: boolean;
+  origins?: boolean;
+  caseInsensitive?: boolean;
+  preferFunction?: boolean;
+  end?: CodeMirror.Position;
+  guess?: boolean;
+  inLiteral?: boolean;
+  fullDocs?: any;
+  lineCharPositions?: any;
+  start?: any;
+  file?: any;
+  includeKeywords?: boolean;
+  depth?: number;
+  sort?: boolean;
+};
+
 export type DataTreeDefEntityInformation = {
   type: ENTITY_TYPE;
   subType: string;
@@ -341,23 +361,13 @@ class TernServer {
 
   request(
     cm: CodeMirror.Editor,
-    query: {
-      type: string;
-      types?: boolean;
-      docs?: boolean;
-      urls?: boolean;
-      origins?: boolean;
-      caseInsensitive?: boolean;
-      preferFunction?: boolean;
-      end?: CodeMirror.Position;
-      guess?: boolean;
-      inLiteral?: boolean;
-    },
+    query: RequestQuery | string,
     callbackFn: (error: any, data: any) => void,
     pos?: CodeMirror.Position,
   ) {
     const doc = this.findDoc(cm.getDoc());
     const request = this.buildRequest(doc, query, pos);
+
     // @ts-expect-error: Types are not available
     this.server.request(request, callbackFn);
   }
@@ -389,55 +399,28 @@ class TernServer {
 
   buildRequest(
     doc: TernDoc,
-    query: {
-      type?: string;
-      types?: boolean;
-      docs?: boolean;
-      urls?: boolean;
-      origins?: boolean;
-      fullDocs?: any;
-      lineCharPositions?: any;
-      end?: any;
-      start?: any;
-      file?: any;
-      includeKeywords?: boolean;
-      inLiteral?: boolean;
-      depth?: number;
-      sort?: boolean;
-    },
+    query: Partial<RequestQuery> | string,
     pos?: CodeMirror.Position,
   ) {
     const files = [];
     let offsetLines = 0;
+    if (typeof query == "string") query = { type: query };
     const allowFragments = !query.fullDocs;
     if (!allowFragments) delete query.fullDocs;
     query.lineCharPositions = true;
     query.includeKeywords = true;
     query.depth = 0;
     query.sort = true;
-    if (!query.end) {
-      const lineValue = this.lineValue(doc);
-      const focusedValue = this.getFocusedDynamicValue(doc);
-      const index = lineValue.indexOf(focusedValue);
-
-      const positions = pos || doc.doc.getCursor("end");
-      const queryChPosition = positions.ch - index;
-
-      query.end = {
-        ...positions,
-        line: 0,
-        ch: queryChPosition,
-      };
-
-      if (doc.doc.somethingSelected()) {
-        query.start = doc.doc.getCursor("start");
-      }
+    if (query.end == null) {
+      query.end = pos || doc.doc.getCursor("end");
+      if (doc.doc.somethingSelected()) query.start = doc.doc.getCursor("start");
     }
     const startPos = query.start || query.end;
+
     if (doc.changed) {
       if (
         doc.doc.lineCount() > bigDoc &&
-        allowFragments &&
+        allowFragments !== false &&
         doc.changed.to - doc.changed.from < 100 &&
         doc.changed.from <= startPos.line &&
         doc.changed.to > query.end.line
@@ -445,29 +428,36 @@ class TernServer {
         files.push(this.getFragmentAround(doc, startPos, query.end));
         query.file = "#0";
         offsetLines = files[0].offsetLines;
-        if (query.start) {
+        if (query.start != null)
           query.start = Pos(query.start.line - -offsetLines, query.start.ch);
-        }
         query.end = Pos(query.end.line - offsetLines, query.end.ch);
       } else {
         files.push({
           type: "full",
           name: doc.name,
-          text: this.getFocusedDynamicValue(doc),
+          text: this.docValue(doc),
         });
         query.file = doc.name;
         doc.changed = null;
       }
     } else {
       query.file = doc.name;
+      // this code is different from tern.js code
+      // we noticed error `TernError: file doesn't contain line x`
+      // which was due to file not being present for the case when a codeEditor is opened and 1st character is typed
+      files.push({
+        type: "full",
+        name: doc.name,
+        text: this.docValue(doc),
+      });
     }
     for (const name in this.docs) {
       const cur = this.docs[name];
-      if (cur.changed && cur !== doc) {
+      if (cur.changed && (cur != doc || cur.name != doc.name)) {
         files.push({
           type: "full",
           name: cur.name,
-          text: this.getFocusedDynamicValue(cur),
+          text: this.docValue(cur),
         });
         cur.changed = null;
       }
