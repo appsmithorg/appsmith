@@ -108,7 +108,7 @@ export const entityDefinitions = {
       "!doc": "Selected country code for Currency type input",
     },
   },
-  TABLE_WIDGET: (widget: any, extraDefsToDefine: ExtraDef) => ({
+  TABLE_WIDGET: (widget: any, extraDefsToDefine?: ExtraDef) => ({
     "!doc":
       "The Table is the hero widget of Appsmith. You can display data from an API in a table, trigger an action when a user selects a row and even work with large paginated data sets",
     "!url": "https://docs.appsmith.com/widget-reference/table",
@@ -129,7 +129,7 @@ export const entityDefinitions = {
       order: ["asc", "desc"],
     },
   }),
-  TABLE_WIDGET_V2: (widget: any, extraDefsToDefine: ExtraDef) => ({
+  TABLE_WIDGET_V2: (widget: any, extraDefsToDefine?: ExtraDef) => ({
     "!doc":
       "The Table is the hero widget of Appsmith. You can display data from an API in a table, trigger an action when a user selects a row and even work with large paginated data sets",
     "!url": "https://docs.appsmith.com/widget-reference/table",
@@ -347,7 +347,7 @@ export const entityDefinitions = {
     yAxisName: "string",
     selectedDataPoint: "$__chartDataPoint__$",
   },
-  FORM_WIDGET: (widget: any, extraDefsToDefine: ExtraDef) => ({
+  FORM_WIDGET: (widget: any, extraDefsToDefine?: ExtraDef) => ({
     "!doc":
       "Form is used to capture a set of data inputs from a user. Forms are used specifically because they reset the data inputs when a form is submitted and disable submission for invalid data inputs",
     "!url": "https://docs.appsmith.com/widget-reference/form",
@@ -395,7 +395,7 @@ export const entityDefinitions = {
     files: "[$__file__$]",
     isDisabled: "bool",
   },
-  LIST_WIDGET: (widget: any, extraDefsToDefine: ExtraDef) => ({
+  LIST_WIDGET: (widget: any, extraDefsToDefine?: ExtraDef) => ({
     "!doc":
       "Containers are used to group widgets together to form logical higher order widgets. Containers let you organize your page better and move all the widgets inside them together.",
     "!url": "https://docs.appsmith.com/widget-reference/list",
