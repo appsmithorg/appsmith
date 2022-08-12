@@ -17,7 +17,7 @@ import { ButtonVariant } from "components/constants";
 export type EditableCell = {
   column: string;
   index: number;
-  value: string | number;
+  value: string | number | null;
   initialValue: string;
   inputValue: string;
 };

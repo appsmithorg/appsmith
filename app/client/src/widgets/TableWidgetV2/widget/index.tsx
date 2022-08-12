@@ -1697,17 +1697,17 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
           });
         }
 
-        this.clearEdtiableCell();
+        this.clearEditableCell();
       } else if (
         action === EditableCellActions.DISCARD ||
         value === this.props.editableCell.initialValue
       ) {
-        this.clearEdtiableCell();
+        this.clearEditableCell();
       }
     }
   };
 
-  clearEdtiableCell = () => {
+  clearEditableCell = () => {
     /*
      * We need to let the evaulations compute derived property (filteredTableData)
      * before we clear the editableCell to avoid the text flickering
