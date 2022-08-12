@@ -97,6 +97,12 @@ Cypress.Commands.add("onlyQueryRun", () => {
     .wait(1000);
 });
 
+Cypress.Commands.add("RunQueryWithoutWaitingForResolution", () => {
+  cy.xpath(queryEditor.runQuery)
+    .last()
+    .click({ force: true });
+});
+
 Cypress.Commands.add("hoverAndClick", () => {
   cy.xpath(apiwidget.popover)
     .last()
