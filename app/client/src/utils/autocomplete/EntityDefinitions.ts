@@ -18,9 +18,10 @@ const isVisible = {
 };
 
 export const entityDefinitions = {
-  APPSMITH: (entity: DataTreeAppsmith) => {
+  APPSMITH: (entity: DataTreeAppsmith, extraDefsToDefine) => {
     const generatedTypeDef = generateTypeDef(
       _.omit(entity, "ENTITY_TYPE", EVALUATION_PATH),
+      extraDefsToDefine,
     );
     if (
       typeof generatedTypeDef === "object" &&

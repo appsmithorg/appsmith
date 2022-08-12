@@ -1,5 +1,5 @@
 import { DataTree, ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
-import { uniqueId, get, isFunction } from "lodash";
+import { uniqueId, get, isFunction, isObject } from "lodash";
 import { entityDefinitions } from "utils/autocomplete/EntityDefinitions";
 import { getType, Types } from "utils/TypeHelpers";
 import { Def } from "tern";
@@ -40,7 +40,7 @@ export const dataTreeTypeDefCreator = (
       if (widgetType in entityDefinitions) {
         const definition = get(entityDefinitions, widgetType);
         if (isFunction(definition)) {
-          def[entityName] = definition(entity);
+          def[entityName] = definition(entity, extraDefsToDefine);
         } else {
           def[entityName] = definition;
         }
@@ -58,7 +58,7 @@ export const dataTreeTypeDefCreator = (
         subType: "ACTION",
       });
     } else if (isAppsmithEntity(entity)) {
-      def.appsmith = entityDefinitions.APPSMITH(entity);
+      def.appsmith = entityDefinitions.APPSMITH(entity, extraDefsToDefine);
       entityMap.set("appsmith", {
         type: ENTITY_TYPE.APPSMITH,
         subType: ENTITY_TYPE.APPSMITH,
@@ -81,7 +81,7 @@ export const dataTreeTypeDefCreator = (
       for (let i = 0; i < entity.variables.length; i++) {
         const varKey = entity.variables[i];
         const varValue = entity[varKey];
-        jsPropertiesDef[varKey] = generateTypeDef(varValue);
+        jsPropertiesDef[varKey] = generateTypeDef(varValue, extraDefsToDefine);
       }
 
       def[entityName] = jsPropertiesDef;
@@ -91,10 +91,11 @@ export const dataTreeTypeDefCreator = (
         subType: "JSACTION",
       });
     }
-    if (Object.keys(extraDefsToDefine)) {
-      def["!define"] = { ...extraDefsToDefine };
-    }
   });
+
+  if (Object.keys(extraDefsToDefine)) {
+    def["!define"] = { ...extraDefsToDefine };
+  }
 
   return { def, entityInfo: entityMap };
 };
@@ -107,21 +108,24 @@ export function generateTypeDef(
   switch (getType(value)) {
     case Types.ARRAY: {
       const array = value as [unknown];
-      if (depth > 4) {
+      if (depth > 5) {
         return `[?]`;
       }
+
       const arrayType = generateTypeDef(array[0], extraDefsToDefine, depth + 1);
-      const uniqueDefName = uniqueId("def_");
 
-      if (extraDefsToDefine) extraDefsToDefine[uniqueDefName] = arrayType;
-
-      return `[${uniqueDefName}]`;
+      if (extraDefsToDefine && isObject(arrayType)) {
+        const uniqueDefName = uniqueId("def_");
+        extraDefsToDefine[uniqueDefName] = arrayType;
+        return `[${uniqueDefName}]`;
+      }
+      return `[${arrayType}]`;
     }
     case Types.OBJECT: {
       const objType: Def = {};
       const object = value as Record<string, unknown>;
       Object.keys(object).forEach((k) => {
-        objType[k] = generateTypeDef(object[k], extraDefsToDefine, depth + 1);
+        objType[k] = generateTypeDef(object[k], extraDefsToDefine, depth);
       });
       return objType;
     }
