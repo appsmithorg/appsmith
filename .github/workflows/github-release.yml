@@ -197,6 +197,9 @@ jobs:
       - name: Checkout the merged commit from PR and base branch
         uses: actions/checkout@v2
 
+      - name: Set up Depot CLI
+        uses: depot/setup-action@v1
+
       - name: Download the client build artifact
         uses: actions/download-artifact@v2
         with:
