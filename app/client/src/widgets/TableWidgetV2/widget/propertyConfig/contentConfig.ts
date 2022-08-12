@@ -119,7 +119,6 @@ export default [
   },
   {
     sectionName: "Pagination",
-    collapsible: false,
     children: [
       {
         propertyName: "isVisiblePagination",
@@ -312,7 +311,6 @@ export default [
   },
   {
     sectionName: "Sorting",
-    collapsible: false,
     children: [
       {
         helpText: "Controls sorting in View Mode",
