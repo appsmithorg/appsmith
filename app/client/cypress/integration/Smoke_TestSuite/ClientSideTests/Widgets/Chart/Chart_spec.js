@@ -305,6 +305,9 @@ describe("Chart Widget Functionality", function() {
   });
 
   it("Check Chart widget reskinning config", function() {
+    cy.get(widgetsPage.toggleChartType).click({ force: true });
+    cy.UpdateChartType("Column Chart");
+
     // Check plot fill color
     cy.get("g[class*='plot-group'] rect").should(
       "have.css",
