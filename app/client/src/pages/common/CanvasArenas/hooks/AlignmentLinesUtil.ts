@@ -168,24 +168,24 @@ function addToLines(
       distance = occupiedSpace.left - draggingSpace.right;
       line = [
         {
-          x: matchingNumber,
-          y: occupiedSpace.left,
+          y: matchingNumber,
+          x: occupiedSpace.left,
         },
         {
-          x: matchingNumber,
-          y: draggingSpace.right,
+          y: matchingNumber,
+          x: draggingSpace.right,
         },
       ];
     } else {
       distance = draggingSpace.left - occupiedSpace.right;
       line = [
         {
-          x: matchingNumber,
-          y: occupiedSpace.right,
+          y: matchingNumber,
+          x: occupiedSpace.right,
         },
         {
-          x: matchingNumber,
-          y: draggingSpace.left,
+          y: matchingNumber,
+          x: draggingSpace.left,
         },
       ];
     }
