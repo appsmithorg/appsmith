@@ -1,5 +1,4 @@
 import { OccupiedSpace } from "constants/CanvasEditorConstants";
-import { getOccupiedSpacesFromProps } from "sagas/WidgetOperationUtils";
 
 type Point = {
   x: number;
