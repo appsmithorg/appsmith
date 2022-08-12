@@ -27,7 +27,6 @@ import {
 } from "selectors/onboardingSelectors";
 import EditorContextProvider from "components/editorComponents/EditorContextProvider";
 import Guide from "../GuidedTour/Guide";
-import PropertyPaneContainer from "./PropertyPaneContainer";
 
 /* eslint-disable react/display-name */
 function WidgetsEditor() {
