@@ -74,7 +74,8 @@ export const getAlignmentLines = (
         horizontalLines,
         occipiedSpace,
         draggingSpace,
-        Math.abs((draggingSpace.top - draggingSpace.bottom) / 2),
+        Math.abs((draggingSpace.top - draggingSpace.bottom) / 2) +
+          draggingSpace.top,
         true,
       );
     }
