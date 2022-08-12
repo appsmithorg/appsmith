@@ -124,7 +124,7 @@ export default [
       {
         propertyName: "isVisiblePagination",
         helpText: "Toggle visibility of the pagination",
-        label: "Pagination",
+        label: "Show Pagination",
         controlType: "SWITCH",
         isJSConvertible: true,
         isBindProperty: true,
@@ -145,7 +145,7 @@ export default [
       {
         helpText: createMessage(TABLE_WIDGET_TOTAL_RECORD_TOOLTIP),
         propertyName: "totalRecordsCount",
-        label: "Total Record Count",
+        label: "Total Records",
         controlType: "INPUT_TEXT",
         placeholderText: "Enter total record count",
         isBindProperty: true,
@@ -195,7 +195,7 @@ export default [
       {
         propertyName: "isVisibleSearch",
         helpText: "Toggle visibility of the search box",
-        label: "Search",
+        label: "Allow Searching",
         controlType: "SWITCH",
         isJSConvertible: true,
         isBindProperty: true,
@@ -235,7 +235,7 @@ export default [
       {
         propertyName: "isVisibleFilters",
         helpText: "Toggle visibility of the filters",
-        label: "Filters",
+        label: "Allow Filtering",
         controlType: "SWITCH",
         isJSConvertible: true,
         isBindProperty: true,
@@ -371,7 +371,7 @@ export default [
       {
         propertyName: "isVisibleDownload",
         helpText: "Toggle visibility of the data download",
-        label: "Download",
+        label: "Allow Download",
         controlType: "SWITCH",
         isJSConvertible: true,
         isBindProperty: true,
