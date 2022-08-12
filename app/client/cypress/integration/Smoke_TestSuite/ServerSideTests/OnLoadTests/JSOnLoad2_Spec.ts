@@ -203,5 +203,6 @@ describe("JSObjects OnLoad Actions tests", function() {
     else agHelper.Sleep(3000);
     deployMode.NavigateBacktoEditor();
     agHelper.ClickButton("No");
+    agHelper.Sleep(3000);
   }
 });
