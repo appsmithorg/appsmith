@@ -8,6 +8,7 @@ describe("Text Widget Cell Background and Text Size Validation", function() {
   });
   it("Change the cell background color", function() {
     cy.openPropertyPane("textwidget");
+    cy.moveToStyleTab();
     /**
      * @param{Text} Random Text
      * @param{CheckboxWidget}Mouseover
@@ -15,7 +16,7 @@ describe("Text Widget Cell Background and Text Size Validation", function() {
      */
 
     //Check if the cell background is #03b365
-    cy.selectColor("cellbackgroundcolor");
+    cy.selectColor("backgroundcolor");
 
     cy.get(`${widgetsPage.textWidget} .bp3-ui-text`).should(
       "have.css",
@@ -66,6 +67,7 @@ describe("Text Widget Cell Background and Text Size Validation", function() {
 
   it("Change the text sizes", function() {
     cy.openPropertyPane("textwidget");
+    cy.moveToStyleTab();
 
     //Check the label text size with dropdown
     cy.get(widgetsPage.textSize)
@@ -87,7 +89,7 @@ describe("Text Widget Cell Background and Text Size Validation", function() {
       .wait(200);
 
     //Check if the typed size HEADING2 is reflecting in the background color and in the evaluated value
-    cy.updateCodeInput(".t--property-control-textsize", "18px");
+    cy.updateCodeInput(".t--property-control-fontsize", "18px");
 
     cy.get(`${widgetsPage.textWidget} .bp3-ui-text`).should(
       "have.css",
@@ -96,7 +98,7 @@ describe("Text Widget Cell Background and Text Size Validation", function() {
     );
 
     //Check for if the text size changes to default size when set to blank in JS mode:
-    cy.updateCodeInput(".t--property-control-textsize", "");
+    cy.updateCodeInput(".t--property-control-fontsize", "");
 
     cy.get(`${widgetsPage.textWidget} .bp3-ui-text`).should(
       "have.css",
