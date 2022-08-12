@@ -205,22 +205,18 @@ class TernServer {
     if (data.completions.length === 0) {
       return this.showError(cm, "No suggestions");
     }
-    const doc = this.findDoc(cm.getDoc());
     const cursor = cm.getCursor();
-    const lineValue = this.lineValue(doc);
-    const focusedValue = this.getFocusedDynamicValue(doc);
-    const index = lineValue.indexOf(focusedValue);
     let completions: Completion[] = [];
     let after = "";
     const { end, start } = data;
     const from = {
       ...start,
-      ch: start.ch + index,
+      ch: cursor.ch,
       line: cursor.line,
     };
     const to = {
       ...end,
-      ch: end.ch + index,
+      ch: cursor.ch,
       line: cursor.line,
     };
     if (
@@ -392,7 +388,7 @@ class TernServer {
 
   addDoc(name: string, doc: CodeMirror.Doc) {
     const data = { doc: doc, name: name, changed: null };
-    this.server.addFile(name, this.getFocusedDynamicValue(data));
+    this.server.addFile(name, this.getFocusedDocValueAndPos(data).value);
     CodeMirror.on(doc, "change", this.trackChange.bind(this));
     return (this.docs[name] = data);
   }
@@ -412,7 +408,14 @@ class TernServer {
     query.depth = 0;
     query.sort = true;
     if (query.end == null) {
-      query.end = pos || doc.doc.getCursor("end");
+      const positions = pos || doc.doc.getCursor("end");
+      const { ch, line } = this.getFocusedDocValueAndPos(doc);
+      query.end = {
+        ...positions,
+        line,
+        ch,
+      };
+
       if (doc.doc.somethingSelected()) query.start = doc.doc.getCursor("start");
     }
     const startPos = query.start || query.end;
@@ -435,7 +438,7 @@ class TernServer {
         files.push({
           type: "full",
           name: doc.name,
-          text: this.docValue(doc),
+          text: this.getFocusedDocValueAndPos(doc).value,
         });
         query.file = doc.name;
         doc.changed = null;
@@ -448,7 +451,7 @@ class TernServer {
       files.push({
         type: "full",
         name: doc.name,
-        text: this.docValue(doc),
+        text: this.getFocusedDocValueAndPos(doc).value,
       });
     }
     for (const name in this.docs) {
@@ -457,7 +460,7 @@ class TernServer {
         files.push({
           type: "full",
           name: cur.name,
-          text: this.docValue(cur),
+          text: this.getFocusedDocValueAndPos(cur).value,
         });
         cur.changed = null;
       }
@@ -508,7 +511,7 @@ class TernServer {
           {
             type: "full",
             name: doc.name,
-            text: this.getFocusedDynamicValue(doc),
+            text: this.getFocusedDocValueAndPos(doc).value,
           },
         ],
       },
@@ -529,23 +532,55 @@ class TernServer {
     return doc.doc.getValue();
   }
 
-  getFocusedDynamicValue(doc: TernDoc) {
-    const cursor = doc.doc.getCursor();
-    const value = this.lineValue(doc);
+  getFocusedDocValueAndPos(
+    doc: TernDoc,
+  ): { value: string; line: number; ch: number } {
+    const cursor = doc.doc.getCursor("end");
+    const value = this.docValue(doc);
+    const lineValue = this.lineValue(doc);
+
+    let dynamicString = value;
+    let newCursorLine = cursor.line;
+    let newCursorPosition = cursor.ch;
     const stringSegments = getDynamicStringSegments(value);
-    const dynamicStrings = stringSegments.filter((segment) => {
-      if (isDynamicValue(segment)) {
-        const index = value.indexOf(segment);
 
-        if (cursor.ch >= index && cursor.ch <= index + segment.length) {
-          return true;
-        }
+    // if doesn't have dynamic binding `{{}}` then return complete value
+    if (stringSegments.length === 1) {
+      return {
+        value: dynamicString,
+        line: newCursorLine,
+        ch: newCursorPosition,
+      };
+    }
+
+    let segmentStartLine = 0;
+
+    for (let index = 0; index < stringSegments.length; index++) {
+      // segment is divided according to binding {{}}
+      const segment = stringSegments[index];
+      // subSegment is segment further divided by EOD char (\n)
+      const subSegments = segment.split("\n");
+      const countEODCharInSegment = subSegments.length - 1;
+      const segmentEndLine = countEODCharInSegment + segmentStartLine;
+      if (
+        cursor.line >= segmentStartLine &&
+        cursor.line <= segmentEndLine &&
+        isDynamicValue(segment)
+      ) {
+        dynamicString = segment;
+        newCursorLine = cursor.line - segmentStartLine;
+        const focusedSubSegmentIndex = cursor.line - segmentStartLine;
+        const focusedSubSegment = subSegments[focusedSubSegmentIndex];
+        const extraChars = lineValue.length - focusedSubSegment.length;
+        const chPos =
+          cursor.ch > extraChars ? cursor.ch - extraChars + 1 : cursor.ch;
+        newCursorPosition = chPos;
+        break;
       }
+      segmentStartLine = segmentEndLine;
+    }
 
-      return false;
-    });
-
-    return dynamicStrings.length ? dynamicStrings[0] : value;
+    return { value: dynamicString, line: newCursorLine, ch: newCursorPosition };
   }
 
   getFragmentAround(
