@@ -117,6 +117,7 @@ class ActionAPI extends API {
   static url = "v1/actions";
   static apiUpdateCancelTokenSource: CancelTokenSource;
   static queryUpdateCancelTokenSource: CancelTokenSource;
+  static abortActionExecutionTokenSource: CancelTokenSource;
 
   static createAction(
     apiConfig: Partial<Action>,
@@ -169,12 +170,14 @@ class ActionAPI extends API {
     executeAction: FormData,
     timeout?: number,
   ): AxiosPromise<ActionExecutionResponse> {
+    ActionAPI.abortActionExecutionTokenSource = axios.CancelToken.source();
     return API.post(ActionAPI.url + "/execute", executeAction, undefined, {
       timeout: timeout || DEFAULT_EXECUTE_ACTION_TIMEOUT_MS,
       headers: {
         accept: "application/json",
         "Content-Type": "multipart/form-data",
       },
+      cancelToken: ActionAPI.abortActionExecutionTokenSource.token,
     });
   }
 
