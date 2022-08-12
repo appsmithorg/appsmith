@@ -10,7 +10,7 @@ describe("Label feature", () => {
       widgetName: "checkboxgroupwidget",
       parentColumnSpace: 11.9375,
       containerSelector: "[data-testid='checkboxgroup-container']",
-      isCompact: false,
+      isCompact: true,
       labelText: "Name",
       labelWidth: 4,
     };
@@ -101,7 +101,7 @@ describe("Label feature", () => {
       widgetName: "radiogroupwidget",
       parentColumnSpace: 11.9375,
       containerSelector: "[data-testid='radiogroup-container']",
-      isCompact: false,
+      isCompact: true,
       labelText: "Name",
       labelWidth: 4,
     };
@@ -153,7 +153,7 @@ describe("Label feature", () => {
       widgetName: "switchgroupwidget",
       parentColumnSpace: 11.9375,
       containerSelector: "[data-testid='switchgroup-container']",
-      isCompact: false,
+      isCompact: true,
       labelText: "Name",
       labelWidth: 4,
     };

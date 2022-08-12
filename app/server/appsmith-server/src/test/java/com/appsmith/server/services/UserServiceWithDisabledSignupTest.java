@@ -87,11 +87,9 @@ public class UserServiceWithDisabledSignupTest {
                     String workspaceName = user.computeFirstName() + "'s apps";
                     return workspaceRepository.findByName(workspaceName);
                 })
-                .flatMap(workspace -> {
-                    String permissionGroup = workspace.getDefaultPermissionGroups().stream().findFirst().get();
-
-                    return permissionGroupRepository.findById(permissionGroup);
-                })
+                .flatMapMany(workspace -> permissionGroupRepository.findAllById(workspace.getDefaultPermissionGroups()))
+                .filter(permissionGroup -> permissionGroup.getName().startsWith(ADMINISTRATOR))
+                .single()
                 .map(permissionGroup -> permissionGroup.getAssignedToUserIds());
 
         StepVerifier.create(Mono.zip(userMono, assignedToUsersMono))

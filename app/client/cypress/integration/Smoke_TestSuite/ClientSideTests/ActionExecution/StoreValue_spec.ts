@@ -2,10 +2,10 @@ import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 
 const {
   AggregateHelper: agHelper,
+
+  DeployMode: deployMode,
   EntityExplorer: ee,
   JSEditor: jsEditor,
-  CommonLocators: locator,
-  DeployMode: deployMode,
   PropertyPane: propPane,
 } = ObjectsRegistry;
 
@@ -43,7 +43,7 @@ describe("storeValue Action test", () => {
     });
 
     ee.SelectEntityByName("Button1", "WIDGETS");
-    propPane.UpdatePropertyFieldValue("Label", "StoreTest");
+    propPane.TypeTextIntoField("Label", "StoreTest");
     cy.get("@jsObjName").then((jsObj: any) => {
       propPane.SelectJSFunctionToExecute(
         "onClick",

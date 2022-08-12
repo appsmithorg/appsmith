@@ -4,24 +4,24 @@ import com.appsmith.external.models.BaseDomain;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.domains.NewPage;
-import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserData;
-import com.appsmith.server.dtos.WorkspaceApplicationsDTO;
+import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.dtos.ReleaseNode;
 import com.appsmith.server.dtos.UserAndPermissionGroupDTO;
 import com.appsmith.server.dtos.UserHomepageDTO;
+import com.appsmith.server.dtos.WorkspaceApplicationsDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.services.NewPageService;
-import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.services.UserService;
 import com.appsmith.server.services.UserWorkspaceService;
+import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.solutions.ReleaseNotesService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -29,7 +29,6 @@ import org.apache.commons.lang.StringUtils;
 import org.springframework.util.CollectionUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import reactor.util.function.Tuple2;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -38,13 +37,12 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
-import static com.appsmith.server.acl.AclPermission.READ_WORKSPACES;
 import static com.appsmith.server.acl.AclPermission.READ_PAGES;
+import static com.appsmith.server.acl.AclPermission.READ_WORKSPACES;
 
 
 @Slf4j
@@ -136,20 +134,20 @@ public class ApplicationFetcherCEImpl implements ApplicationFetcherCE {
                             Application::getWorkspaceId, Function.identity()
                     );
 
-                    Mono<List<Workspace>> workspaceListMono = workspaceService.getAll(READ_WORKSPACES)
+                    Flux<Workspace> workspacesFromRepoFlux = workspaceService.getAll(READ_WORKSPACES)
+                            .cache();
+
+                    Mono<List<Workspace>> workspaceListMono = workspacesFromRepoFlux
                             //sort transformation
                             .transform(domainFlux -> sortDomain(domainFlux, userData.getRecentlyUsedWorkspaceIds()))
                             //collect to list to keep the order of the workspaces
                             .collectList()
                             .cache();
 
-                    Mono<Map<String, List<UserAndPermissionGroupDTO>>> userAndPermissionGroupMapDTO = workspaceListMono
-                            .flatMapMany(Flux::fromIterable)
-                            .flatMap(workspace -> {
-                                return Mono.zip(Mono.just(workspace), userWorkspaceService
-                                        .getWorkspaceMembers(workspace.getId()));
-                            })
-                            .collectMap(tuple -> tuple.getT1().getId(), tuple -> tuple.getT2());
+                    Mono<Map<String, List<UserAndPermissionGroupDTO>>> userAndPermissionGroupMapDTO = workspacesFromRepoFlux
+                            .map(Workspace::getId)
+                            .collect(Collectors.toSet())
+                            .flatMap(workspaceIds -> userWorkspaceService.getWorkspaceMembers(workspaceIds));
 
                     return Mono.zip(workspaceListMono, applicationsMapMono, userAndPermissionGroupMapDTO)
                             .map(tuple -> {
@@ -250,6 +248,7 @@ public class ApplicationFetcherCEImpl implements ApplicationFetcherCE {
                         PageDTO pageDTO = getPage.apply(newPage);
                         if(pageDTO != null) {
                             defaultPage.setSlug(pageDTO.getSlug());
+                            defaultPage.setCustomSlug(pageDTO.getCustomSlug());
                         } else {
                             log.error("page dto missing for application {} page {}", application.getId(), defaultPage.getId());
                         }

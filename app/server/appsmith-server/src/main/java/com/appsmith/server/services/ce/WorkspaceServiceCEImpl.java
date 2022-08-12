@@ -45,9 +45,12 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 
 import javax.validation.Validator;
+
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -59,6 +62,7 @@ import static com.appsmith.server.constants.FieldName.VIEWER;
 import static com.appsmith.server.constants.FieldName.WORKSPACE_ADMINISTRATOR_DESCRIPTION;
 import static com.appsmith.server.constants.FieldName.WORKSPACE_DEVELOPER_DESCRIPTION;
 import static com.appsmith.server.constants.FieldName.WORKSPACE_VIEWER_DESCRIPTION;
+import static java.lang.Boolean.TRUE;
 
 @Slf4j
 public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Workspace, String>
@@ -215,7 +219,7 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
     }
 
     private Mono<Boolean> isCreateWorkspaceAllowed() {
-        return Mono.just(Boolean.TRUE);
+        return Mono.just(TRUE);
     }
 
     private String generateNewDefaultName(String oldName, String workspaceName) {
@@ -354,7 +358,7 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
         permissions.addAll(readPermissionGroupPermissions);
         viewerPermissionGroup.setPermissions(permissions);
 
-        return Flux.fromIterable(permissionGroups)
+        Mono<Set<PermissionGroup>> savedPermissionGroupsMono = Flux.fromIterable(permissionGroups)
                 .flatMap(permissionGroup -> permissionGroupService.save(permissionGroup))
                 .collect(Collectors.toSet())
                 .flatMapMany(savedPermissionGroups -> {
@@ -362,7 +366,7 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
                     for (PermissionGroup permissionGroup : savedPermissionGroups) {
                         for (PermissionGroup nestedPermissionGroup : savedPermissionGroups) {
                             Map<String, Policy> policyMap = policyUtils.generatePolicyFromPermissionGroupForObject(permissionGroup, nestedPermissionGroup.getId());
-                             policyUtils.addPoliciesToExistingObject(policyMap, nestedPermissionGroup);
+                            policyUtils.addPoliciesToExistingObject(policyMap, nestedPermissionGroup);
                         }
                     }
 
@@ -370,6 +374,17 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
                 })
                 .flatMap(permissionGroup -> permissionGroupService.save(permissionGroup))
                 .collect(Collectors.toSet());
+
+        // Also evict the cache entry for the user creating the workspace to ensure that the user cache has the latest permissions
+        Mono<Boolean> cleanPermissionGroupCacheForCurrentUser =
+                permissionGroupService.cleanPermissionGroupCacheForUsers(List.of(user.getId()))
+                        .thenReturn(TRUE);
+
+        return Mono.zip(
+                        savedPermissionGroupsMono,
+                        cleanPermissionGroupCacheForCurrentUser
+                )
+                .map(tuple -> tuple.getT1());
     }
 
     private Mono<Set<PermissionGroup>> generateDefaultPermissionGroups(Workspace workspace, User user) {
@@ -468,23 +483,43 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
 
     @Override
     public Mono<List<PermissionGroupInfoDTO>> getPermissionGroupsForWorkspace(String workspaceId) {
-       if (!StringUtils.hasLength(workspaceId)) {
-           return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.WORKSPACE_ID));
-       }
+        if (!StringUtils.hasLength(workspaceId)) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.WORKSPACE_ID));
+        }
 
-       // Read the workspace
-       Mono<Workspace> workspaceMono = repository.findById(workspaceId, AclPermission.READ_WORKSPACES);
+        // Read the workspace
+        Mono<Workspace> workspaceMono = repository.findById(workspaceId, AclPermission.READ_WORKSPACES);
 
-       // Get default permission groups
-       Flux<PermissionGroup> permissionGroupFlux = workspaceMono
-               .flatMapMany(workspace -> permissionGroupService.getByDefaultWorkspace(workspace, AclPermission.ASSIGN_PERMISSION_GROUPS));
+        // Get default permission groups
+        Flux<PermissionGroup> permissionGroupFlux = workspaceMono
+                .flatMapMany(workspace -> permissionGroupService.getByDefaultWorkspace(workspace, AclPermission.ASSIGN_PERMISSION_GROUPS));
 
-       // Map to PermissionGroupInfoDTO
-       Flux<PermissionGroupInfoDTO> permissionGroupInfoFlux = permissionGroupFlux
-               .map(userGroup -> modelMapper.map(userGroup, PermissionGroupInfoDTO.class));
+        // Map to PermissionGroupInfoDTO
+        Flux<PermissionGroupInfoDTO> permissionGroupInfoFlux = permissionGroupFlux
+                .map(permissionGroup -> modelMapper.map(permissionGroup, PermissionGroupInfoDTO.class));
 
-       // Convert to List and return
-       return permissionGroupInfoFlux.collectList();
+        Mono<List<PermissionGroupInfoDTO>> permissionGroupInfoDTOListMono = permissionGroupInfoFlux.collectList()
+                .map(list -> {
+                    PermissionGroupInfoDTO[] permissionGroupInfoDTOArray = new PermissionGroupInfoDTO[3];
+                    
+                    // populate array with admin at index 0, developer at index 1 and viewer at index 2
+                    list.forEach(item -> {
+                        if(item.getName().startsWith(FieldName.ADMINISTRATOR)) {
+                            permissionGroupInfoDTOArray[0] = item;
+                        } else if(item.getName().startsWith(FieldName.DEVELOPER)) {
+                            permissionGroupInfoDTOArray[1] = item;
+                        } else if(item.getName().startsWith(FieldName.VIEWER)) {
+                            permissionGroupInfoDTOArray[2] = item;
+                        }
+                    });
+
+                    // Convert to list removing null elements
+                    return Arrays.asList(permissionGroupInfoDTOArray).stream()
+                            .filter(Objects::nonNull)
+                            .collect(Collectors.toList());
+                });
+
+       return permissionGroupInfoDTOListMono;
     }
 
     @Override

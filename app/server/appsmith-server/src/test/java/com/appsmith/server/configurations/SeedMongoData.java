@@ -31,11 +31,14 @@ import org.springframework.data.mongodb.core.query.Query;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import javax.swing.Spring;
 
 import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_PAGES;
@@ -63,7 +66,8 @@ public class SeedMongoData {
                            PluginRepository pluginRepository,
                            ReactiveMongoTemplate mongoTemplate,
                            TenantRepository tenantRepository,
-                           UserService userService) {
+                           UserService userService,
+                           CommonConfig commonConfig) {
 
         log.info("Seeding the data");
         final String API_USER_EMAIL = "api_user";
@@ -308,10 +312,12 @@ public class SeedMongoData {
                     )
                     .blockLast();
             // Create user@appsmith.com using UserService
-            User newUser = new User();
-            newUser.setEmail("user@appsmith.com");
-            newUser.setPassword("new-user-test-password");
-            userService.create(newUser).block();
+            if(!commonConfig.isSignupDisabled()) {
+                User newUser = new User();
+                newUser.setEmail("user@appsmith.com");
+                newUser.setPassword("new-user-test-password");
+                userService.create(newUser).block();
+            }
         };
         
     }
