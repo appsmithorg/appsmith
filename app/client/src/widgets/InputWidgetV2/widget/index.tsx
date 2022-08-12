@@ -334,6 +334,194 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
     );
   }
 
+  static getPropertyPaneContentConfig() {
+    return mergeWidgetConfig(
+      [
+        {
+          sectionName: "Data",
+          children: [
+            {
+              helpText: "Changes the type of data captured in the input",
+              propertyName: "inputType",
+              label: "Data Type",
+              controlType: "DROP_DOWN",
+              options: [
+                {
+                  label: "Text",
+                  value: "TEXT",
+                },
+                {
+                  label: "Number",
+                  value: "NUMBER",
+                },
+                {
+                  label: "Password",
+                  value: "PASSWORD",
+                },
+                {
+                  label: "Email",
+                  value: "EMAIL",
+                },
+              ],
+              isBindProperty: false,
+              isTriggerProperty: false,
+            },
+            {
+              helpText:
+                "Sets the default text of the widget. The text is updated if the default text changes",
+              propertyName: "defaultText",
+              label: "Default Value",
+              controlType: "INPUT_TEXT",
+              placeholderText: "John Doe",
+              isBindProperty: true,
+              isTriggerProperty: false,
+              validation: {
+                type: ValidationTypes.FUNCTION,
+                params: {
+                  fn: defaultValueValidation,
+                  expected: {
+                    type: "string or number",
+                    example: `John | 123`,
+                    autocompleteDataType: AutocompleteDataType.STRING,
+                  },
+                },
+              },
+              dependencies: ["inputType"],
+            },
+          ],
+        },
+        {
+          sectionName: "Label",
+          children: [],
+        },
+        {
+          sectionName: "Validation",
+          children: [
+            {
+              propertyName: "isRequired",
+              label: "Required",
+              helpText: "Makes input to the widget mandatory",
+              controlType: "SWITCH",
+              isJSConvertible: true,
+              isBindProperty: true,
+              isTriggerProperty: false,
+              validation: { type: ValidationTypes.BOOLEAN },
+            },
+            {
+              helpText: "Sets maximum allowed text length",
+              propertyName: "maxChars",
+              label: "Max Characters",
+              controlType: "INPUT_TEXT",
+              placeholderText: "255",
+              isBindProperty: true,
+              isTriggerProperty: false,
+              validation: {
+                type: ValidationTypes.NUMBER,
+                params: { min: 1, natural: true },
+              },
+              hidden: (props: InputWidgetProps) => {
+                return props.inputType !== InputTypes.TEXT;
+              },
+              dependencies: ["inputType"],
+            },
+            {
+              helpText: "Sets the minimum allowed value",
+              propertyName: "minNum",
+              label: "Min",
+              controlType: "INPUT_TEXT",
+              placeholderText: "1",
+              isBindProperty: true,
+              isTriggerProperty: false,
+              validation: {
+                type: ValidationTypes.FUNCTION,
+                params: {
+                  fn: minValueValidation,
+                  expected: {
+                    type: "number",
+                    example: `1`,
+                    autocompleteDataType: AutocompleteDataType.NUMBER,
+                  },
+                },
+              },
+              hidden: (props: InputWidgetProps) => {
+                return props.inputType !== InputTypes.NUMBER;
+              },
+              dependencies: ["inputType"],
+            },
+            {
+              helpText: "Sets the maximum allowed value",
+              propertyName: "maxNum",
+              label: "Max",
+              controlType: "INPUT_TEXT",
+              placeholderText: "100",
+              isBindProperty: true,
+              isTriggerProperty: false,
+              validation: {
+                type: ValidationTypes.FUNCTION,
+                params: {
+                  fn: maxValueValidation,
+                  expected: {
+                    type: "number",
+                    example: `100`,
+                    autocompleteDataType: AutocompleteDataType.NUMBER,
+                  },
+                },
+              },
+              hidden: (props: InputWidgetProps) => {
+                return props.inputType !== InputTypes.NUMBER;
+              },
+              dependencies: ["inputType"],
+            },
+          ],
+        },
+      ],
+      super.getPropertyPaneContentConfig(),
+    );
+  }
+
+  static getPropertyPaneStyleConfig() {
+    return mergeWidgetConfig(
+      [
+        {
+          sectionName: "Icon",
+          children: [
+            {
+              propertyName: "iconName",
+              label: "Icon",
+              helpText: "Sets the icon to be used in input field",
+              controlType: "ICON_SELECT",
+              isBindProperty: false,
+              isTriggerProperty: false,
+              validation: { type: ValidationTypes.TEXT },
+            },
+            {
+              propertyName: "iconAlign",
+              label: "Position",
+              helpText: "Sets the icon alignment of input field",
+              controlType: "ICON_TABS",
+              options: [
+                {
+                  icon: "VERTICAL_LEFT",
+                  value: "left",
+                },
+                {
+                  icon: "VERTICAL_RIGHT",
+                  value: "right",
+                },
+              ],
+              isBindProperty: false,
+              isTriggerProperty: false,
+              validation: { type: ValidationTypes.TEXT },
+              hidden: (props: InputWidgetProps) => !props.iconName,
+              dependencies: ["iconName"],
+            },
+          ],
+        },
+      ],
+      super.getPropertyPaneStyleConfig(),
+    );
+  }
+
   static getDerivedPropertiesMap(): DerivedPropertiesMap {
     return merge(super.getDerivedPropertiesMap(), {
       isValid: `{{(() => {${derivedProperties.isValid}})()}}`,
