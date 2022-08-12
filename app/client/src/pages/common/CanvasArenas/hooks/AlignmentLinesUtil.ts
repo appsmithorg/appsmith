@@ -33,7 +33,10 @@ export const getAlignmentLines = (
   for (const occipiedSpace of currOccupiedSpaces) {
     if (
       occipiedSpace.top === draggingSpace.top ||
-      occipiedSpace.bottom === draggingSpace.top
+      occipiedSpace.bottom === draggingSpace.top ||
+      Math.abs((occipiedSpace.top - occipiedSpace.bottom) / 2) +
+        occipiedSpace.top ===
+        draggingSpace.top
     ) {
       addToLines(
         horizontalLines,
@@ -46,7 +49,10 @@ export const getAlignmentLines = (
 
     if (
       occipiedSpace.top === draggingSpace.bottom ||
-      occipiedSpace.bottom === draggingSpace.bottom
+      occipiedSpace.bottom === draggingSpace.bottom ||
+      Math.abs((occipiedSpace.top - occipiedSpace.bottom) / 2) +
+        occipiedSpace.top ===
+        draggingSpace.bottom
     ) {
       addToLines(
         horizontalLines,
@@ -58,8 +64,28 @@ export const getAlignmentLines = (
     }
 
     if (
+      occipiedSpace.top ===
+        Math.abs((draggingSpace.top - draggingSpace.bottom) / 2) +
+          draggingSpace.top ||
+      occipiedSpace.bottom ===
+        Math.abs((draggingSpace.top - draggingSpace.bottom) / 2) +
+          draggingSpace.top
+    ) {
+      addToLines(
+        horizontalLines,
+        occipiedSpace,
+        draggingSpace,
+        Math.abs((draggingSpace.top - draggingSpace.bottom) / 2),
+        true,
+      );
+    }
+
+    if (
       occipiedSpace.left === draggingSpace.left ||
-      occipiedSpace.right === draggingSpace.left
+      occipiedSpace.right === draggingSpace.left ||
+      Math.abs((occipiedSpace.left - occipiedSpace.right) / 2) +
+        occipiedSpace.left ===
+        draggingSpace.left
     ) {
       addToLines(
         verticalLines,
@@ -72,13 +98,34 @@ export const getAlignmentLines = (
 
     if (
       occipiedSpace.left === draggingSpace.right ||
-      occipiedSpace.right === draggingSpace.right
+      occipiedSpace.right === draggingSpace.right ||
+      Math.abs((occipiedSpace.left - occipiedSpace.right) / 2) +
+        occipiedSpace.left ===
+        draggingSpace.right
     ) {
       addToLines(
         verticalLines,
         occipiedSpace,
         draggingSpace,
         draggingSpace.right,
+        false,
+      );
+    }
+
+    if (
+      occipiedSpace.left ===
+        Math.abs((draggingSpace.left - draggingSpace.right) / 2) +
+          draggingSpace.left ||
+      occipiedSpace.right ===
+        Math.abs((draggingSpace.left - draggingSpace.right) / 2) +
+          draggingSpace.left
+    ) {
+      addToLines(
+        verticalLines,
+        occipiedSpace,
+        draggingSpace,
+        Math.abs((draggingSpace.left - draggingSpace.right) / 2) +
+          draggingSpace.left,
         false,
       );
     }
