@@ -109,6 +109,9 @@ import static com.external.plugins.constants.FieldName.SMART_SUBSTITUTION;
 import static com.external.plugins.constants.FieldName.SUCCESS;
 import static com.external.plugins.constants.FieldName.UPDATE_OPERATION;
 import static com.external.plugins.constants.FieldName.UPDATE_QUERY;
+import static com.external.plugins.utils.DatasourceUtils.KEY_PASSWORD;
+import static com.external.plugins.utils.DatasourceUtils.KEY_URI_DEFAULT_DBNAME;
+import static com.external.plugins.utils.DatasourceUtils.KEY_USERNAME;
 import static com.external.plugins.utils.DatasourceUtils.buildClientURI;
 import static com.external.plugins.utils.DatasourceUtils.buildURIFromExtractedInfo;
 import static com.external.plugins.utils.DatasourceUtils.extractInfoFromConnectionStringURI;
@@ -157,23 +160,17 @@ public class MongoPlugin extends BasePlugin {
      * We use this regex to find usage of special Mongo data types like ObjectId(...) wrapped inside double quotes
      * e.g. "ObjectId(...)". Case for single quotes e.g. 'ObjectId(...)' is not added because the way client sends
      * back the data to the API server it would be extremely uncommon to encounter this case.
-     *
+     * <p>
      * In the given regex E is replaced by the name of special data types before doing the match / find operation.
      * e.g. E will be replaced with ObjectId to find the occurrence of "ObjectId(...)" pattern.
-     *
+     * <p>
      * Example: for "[\"ObjectId('xyz')\"]":
-     *   o group 1 will match "ObjectId(...)"
-     *   o group 2 will match ObjectId(...)
-     *   o group 3 will match 'xyz'
-     *   o group 4 will match xyz
+     * o group 1 will match "ObjectId(...)"
+     * o group 2 will match ObjectId(...)
+     * o group 3 will match 'xyz'
+     * o group 4 will match xyz
      */
     private static final String MONGODB_SPECIAL_TYPE_INSIDE_QUOTES_REGEX_TEMPLATE = "(\\\"(E\\((.*?((\\w|-|:|\\.|,|\\s)+).*?)?\\))\\\")";
-
-    private static final String KEY_USERNAME = "username";
-
-    private static final String KEY_PASSWORD = "password";
-
-    private static final String KEY_URI_DBNAME = "dbName";
 
     private static final int DATASOURCE_CONFIG_MONGO_URI_PROPERTY_INDEX = 1;
 
@@ -640,7 +637,6 @@ public class MongoPlugin extends BasePlugin {
         }
 
 
-
         @Override
         public void datasourceDestroy(MongoClient mongoClient) {
             if (mongoClient != null) {
@@ -668,18 +664,23 @@ public class MongoPlugin extends BasePlugin {
                         if (extractedInfo == null) {
                             invalids.add("Mongo Connection String URI does not seem to be in the correct format. " +
                                     "Please check the URI once.");
-                        } else if (!isAuthenticated(authentication, mongoUri)) {
-                            String mongoUriWithHiddenPassword = buildURIFromExtractedInfo(extractedInfo, "****");
-                            properties.get(DATASOURCE_CONFIG_MONGO_URI_PROPERTY_INDEX).setValue(mongoUriWithHiddenPassword);
-                            authentication = (authentication == null) ? new DBAuth() : authentication;
-                            authentication.setUsername((String) extractedInfo.get(KEY_USERNAME));
-                            authentication.setPassword((String) extractedInfo.get(KEY_PASSWORD));
-                            authentication.setDatabaseName((String) extractedInfo.get(KEY_URI_DBNAME));
-                            datasourceConfiguration.setAuthentication(authentication);
+                        } else {
+                            if (extractedInfo.get(KEY_URI_DEFAULT_DBNAME) == null) {
+                                invalids.add("Missing default database name.");
+                            }
+                            if (!isAuthenticated(authentication, mongoUri)) {
+                                String mongoUriWithHiddenPassword = buildURIFromExtractedInfo(extractedInfo, "****");
+                                properties.get(DATASOURCE_CONFIG_MONGO_URI_PROPERTY_INDEX).setValue(mongoUriWithHiddenPassword);
+                                authentication = (authentication == null) ? new DBAuth() : authentication;
+                                authentication.setUsername((String) extractedInfo.get(KEY_USERNAME));
+                                authentication.setPassword((String) extractedInfo.get(KEY_PASSWORD));
+                                authentication.setDatabaseName((String) extractedInfo.get(KEY_URI_DEFAULT_DBNAME));
+                                datasourceConfiguration.setAuthentication(authentication);
 
-                            // remove any default db set via form auto-fill via browser
-                            if (datasourceConfiguration.getConnection() != null) {
-                                datasourceConfiguration.getConnection().setDefaultDatabaseName(null);
+                                // remove any default db set via form auto-fill via browser
+                                if (datasourceConfiguration.getConnection() != null) {
+                                    datasourceConfiguration.getConnection().setDefaultDatabaseName(null);
+                                }
                             }
                         }
                     }
@@ -720,7 +721,7 @@ public class MongoPlugin extends BasePlugin {
                     }
 
                     if (!StringUtils.hasLength(authentication.getDatabaseName())) {
-                        invalids.add("Missing database name.");
+                        invalids.add("Missing default database name.");
                     }
 
                 }
@@ -860,7 +861,7 @@ public class MongoPlugin extends BasePlugin {
                                              Object... args) {
             String jsonBody = (String) input;
             DataType dataType = stringToKnownMongoDBDataTypeConverter(value);
-            return DataTypeStringUtils.jsonSmartReplacementPlaceholderWithValue(jsonBody, value,dataType, insertedParams, this);
+            return DataTypeStringUtils.jsonSmartReplacementPlaceholderWithValue(jsonBody, value, dataType, insertedParams, this);
         }
 
         /**
@@ -904,6 +905,7 @@ public class MongoPlugin extends BasePlugin {
          * This method coverts Mongo plugin's form data to Mongo's native query. Currently, it is meant to help users
          * switch easily from form based input to raw input mode by providing a readily available translation of the
          * form data to raw query.
+         *
          * @return Mongo's native/raw query set at path `formData.formToNativeQuery.data`
          */
         @Override
