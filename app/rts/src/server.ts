@@ -3,7 +3,7 @@ import path from "path";
 import express from "express";
 import { Server } from "socket.io";
 import log, { LogLevelDesc } from "loglevel";
-import { VERSION as buildVersion } from "./constants/version"; // release version of the api
+import { VERSION as buildVersion } from "./version"; // release version of the api
 import { initializeSockets } from "./sockets";
 
 const RTS_BASE_PATH = "/rts";
