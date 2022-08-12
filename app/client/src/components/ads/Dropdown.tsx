@@ -25,7 +25,6 @@ import { debounce, findIndex, isArray } from "lodash";
 import { TooltipComponent } from "design-system";
 import { SubTextPosition } from "components/constants";
 import { DSEventTypes, emitDSEvent } from "utils/AppsmithUtils";
-import { Link } from "react-router-dom";
 
 export type DropdownOnSelect = (
   value?: string,
@@ -80,7 +79,6 @@ export type RenderOption = ({
 export type DropdownProps = CommonComponentProps &
   DropdownSearchProps & {
     options: DropdownOption[];
-    links?: DropdownOption[];
     selected: DropdownOption | DropdownOption[];
     onSelect?: DropdownOnSelect;
     isMultiSelect?: boolean;
@@ -199,16 +197,6 @@ const SquareBox = styled.div<{
     display: ${(props) => (props.checked ? "block" : "none")};
     width: 14px;
     height: 14px;
-  }
-`;
-
-const LinksWrapper = styled.div`
-  &:before {
-    border-top: 1px solid var(--appsmith-color-black-200);
-    content: "";
-    position: absolute;
-    left: 12px;
-    right: 12px;
   }
 `;
 
@@ -533,7 +521,7 @@ const SelectedDropDownHolder = styled.div<{ enableScroll?: boolean }>`
   }
 `;
 
-const SelectedIcon = styled(Icon)<{ name: string }>`
+const SelectedIcon = styled(Icon)`
   margin-right: 6px;
   & > div:first-child {
     height: 18px;
@@ -553,8 +541,6 @@ const SelectedIcon = styled(Icon)<{ name: string }>`
   }
 
   svg {
-    ${(props) =>
-      props.name === "right-arrow" ? `transform: rotate(-45deg);` : ``}
     path {
       fill: ${(props) =>
         props.fillColor
@@ -763,7 +749,6 @@ interface DropdownOptionsProps extends DropdownProps, DropdownSearchProps {
 
 export function RenderDropdownOptions(props: DropdownOptionsProps) {
   const {
-    links,
     onSearch,
     optionClickHandler,
     optionWidth,
@@ -940,48 +925,6 @@ export function RenderDropdownOptions(props: DropdownOptionsProps) {
             />
           );
         })}
-        {links && links.length > 0 && (
-          <LinksWrapper>
-            {links.map((option: DropdownOption, index: number) => {
-              return (
-                <Link key={index} to={option.link || "/"}>
-                  <OptionWrapper
-                    className={`t--dropdown-link`}
-                    data-cy={`t--dropdown-option-${option?.value}`}
-                    disabled={option.disabled}
-                    role="option"
-                    selected={false}
-                    selectedHighlightBg={props.selectedHighlightBg}
-                    subTextPosition={
-                      option.subTextPosition ?? SubTextPosition.LEFT
-                    }
-                  >
-                    {option.leftElement && (
-                      <LeftIconWrapper>{option.leftElement}</LeftIconWrapper>
-                    )}
-                    {option.icon ? (
-                      <SelectedIcon
-                        fillColor={option?.iconColor}
-                        hoverFillColor={option?.iconColor}
-                        name={option.icon}
-                        size={option.iconSize || IconSize.XL}
-                      />
-                    ) : null}
-                    <Text type={TextType.P1}>{option.value}</Text>
-                    {option.subText ? (
-                      <StyledSubText
-                        subTextPosition={option.subTextPosition}
-                        type={TextType.P3}
-                      >
-                        {option.subText}
-                      </StyledSubText>
-                    ) : null}
-                  </OptionWrapper>
-                </Link>
-              );
-            })}
-          </LinksWrapper>
-        )}
       </DropdownOptionsWrapper>
     </DropdownWrapper>
   );

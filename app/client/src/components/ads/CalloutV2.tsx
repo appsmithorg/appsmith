@@ -19,7 +19,8 @@ export const Wrapper = styled.div<{ type?: CalloutType }>`
       color: ${Colors.ENTERPRISE_DARK};
       background: ${Colors.PALE_BLUE};`
       : props.type === "Warning"
-      ? `color: #c91818; background: ${Colors.FAIR_PINK};`
+      ? `color: ${Colors.NOTIFICATION_BANNER_ERROR_TEXT};
+        background: ${Colors.FAIR_PINK};`
       : `border-left: 5px solid var(--appsmith-color-black-800);
         color: var(--appsmith-color-black-800);
         background: var(--appsmith-color-black-100);`}
