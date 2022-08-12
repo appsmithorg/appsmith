@@ -120,6 +120,7 @@ export enum ReadOnlyColumnTypes {
   IMAGE = "image",
   VIDEO = "video",
   DATE = "date",
+  CHECKBOX = "checkbox",
 }
 
 export const DEFAULT_BUTTON_COLOR = "rgb(3, 179, 101)";

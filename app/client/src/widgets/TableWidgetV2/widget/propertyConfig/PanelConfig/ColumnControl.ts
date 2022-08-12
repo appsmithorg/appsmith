@@ -30,43 +30,43 @@ export default {
       options: [
         {
           label: "Plain Text",
-          value: "text",
+          value: ColumnTypes.TEXT,
         },
         {
           label: "URL",
-          value: "url",
+          value: ColumnTypes.URL,
         },
         {
           label: "Number",
-          value: "number",
+          value: ColumnTypes.NUMBER,
         },
         {
           label: "Image",
-          value: "image",
+          value: ColumnTypes.IMAGE,
         },
         {
           label: "Video",
-          value: "video",
+          value: ColumnTypes.VIDEO,
         },
         {
           label: "Date",
-          value: "date",
+          value: ColumnTypes.DATE,
         },
         {
           label: "Button",
-          value: "button",
+          value: ColumnTypes.BUTTON,
         },
         {
           label: "Menu Button",
-          value: "menuButton",
+          value: ColumnTypes.MENU_BUTTON,
         },
         {
           label: "Icon Button",
-          value: "iconButton",
+          value: ColumnTypes.ICON_BUTTON,
         },
         {
           label: "Checkbox",
-          value: "checkbox",
+          value: ColumnTypes.CHECKBOX,
         },
       ],
       updateHook: composePropertyUpdateHook([
@@ -255,7 +255,6 @@ export default {
           ColumnTypes.ICON_BUTTON,
           ColumnTypes.MENU_BUTTON,
           ColumnTypes.BUTTON,
-          ColumnTypes.CHECKBOX,
         ]);
       },
     },

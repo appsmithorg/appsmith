@@ -68,10 +68,7 @@ import { VideoCell } from "../component/cellComponents/VideoCell";
 import { IconButtonCell } from "../component/cellComponents/IconButtonCell";
 import { EditActionCell } from "../component/cellComponents/EditActionsCell";
 import { klona as clone } from "klona";
-import {
-  Checkbox,
-  CheckboxCellWrapper,
-} from "../component/cellComponents/Checkbox";
+import { CheckboxCell } from "../component/cellComponents/Checkbox";
 
 const ReactTableComponent = lazy(() =>
   retryPromise(() => import("../component")),
@@ -1504,27 +1501,28 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
       case ColumnTypes.CHECKBOX:
         const alias = props.cell.column.columnProperties.alias;
         return (
-          <CheckboxCellWrapper
+          <CheckboxCell
             accentColor={this.props.accentColor}
             allowCellWrapping={cellProperties.allowCellWrapping}
             borderRadius={
               cellProperties.borderRadius || this.props.borderRadius
             }
             cellBackground={cellProperties.cellBackground}
-            columnActions={[
-              {
-                id: column.id,
-                dynamicTrigger: column.onCheckChange || "",
-              },
-            ]}
+            columnAction={{
+              id: column.id,
+              dynamicTrigger: column.onCheckChange || "",
+            }}
             compactMode={compactMode}
             fontStyle={cellProperties.fontStyle}
             horizontalAlignment={cellProperties.horizontalAlignment}
             isCellVisible={cellProperties.isCellVisible ?? true}
-            isDisabled={cellProperties.isDisabled}
+            isDisabled={!cellProperties.isCellEditable}
             isHidden={isHidden}
             onCommandClick={(action: string, onComplete: () => void) => {
-              this.onCheckboxChange(alias, !props.cell.value, rowIndex);
+              this.updateTransientTableData({
+                __original_index__: this.getRowOriginalIndex(rowIndex),
+                [alias]: !props.cell.value,
+              });
               this.onColumnEvent({
                 rowIndex,
                 action,
@@ -1581,13 +1579,6 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
           />
         );
     }
-  };
-
-  onCheckboxChange = (alias: string, value: boolean, rowIndex: number) => {
-    this.updateTransientTableData({
-      __original_index__: this.getRowOriginalIndex(rowIndex),
-      [alias]: value,
-    });
   };
 
   onEditableCellTextChange = (data: string) => {

@@ -14,7 +14,6 @@ export default {
           ColumnTypes.ICON_BUTTON,
           ColumnTypes.IMAGE,
           ColumnTypes.EDIT_ACTIONS,
-          ColumnTypes.CHECKBOX,
         ],
         true,
       )
@@ -25,7 +24,9 @@ export default {
       const isEditable = get(props, `${propertyPath}.isEditable`, "");
       return (
         !(
-          columnType === ColumnTypes.TEXT || columnType === ColumnTypes.NUMBER
+          columnType === ColumnTypes.TEXT ||
+          columnType === ColumnTypes.NUMBER ||
+          columnType === ColumnTypes.CHECKBOX
         ) || !isEditable
       );
     }

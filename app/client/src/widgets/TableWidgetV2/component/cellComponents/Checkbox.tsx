@@ -11,7 +11,7 @@ import { ColumnAction } from "components/propertyControls/ColumnActionSelectorCo
 import { noop } from "lodash";
 
 type renderCellType = BaseCellComponentProps & {
-  columnActions?: ColumnAction[];
+  columnAction: ColumnAction;
   value: boolean;
   accentColor: string;
   isDisabled?: boolean;
@@ -19,54 +19,13 @@ type renderCellType = BaseCellComponentProps & {
   borderRadius: string;
 };
 
-type CheckboxComponentPartialProps = Omit<
-  CheckboxComponentProps,
-  "onCheckChange" | "isChecked"
->;
-
-export const Checkbox = (
-  props: CheckboxComponentPartialProps & {
-    onCommandClick: (dynamicTrigger: string, onComplete: () => void) => void;
-    action: ColumnAction;
-    value: boolean;
-  },
-) => {
-  const {
-    accentColor,
-    action,
-    borderRadius,
-    isDisabled,
-    onCommandClick,
-    value,
-  } = props;
-
-  const handleChange = () => {
-    onCommandClick(action.dynamicTrigger, noop);
-  };
-  return (
-    <CheckboxComponent
-      accentColor={accentColor}
-      borderRadius={borderRadius}
-      isChecked={value}
-      isDisabled={isDisabled}
-      isLoading={false}
-      isRequired={false}
-      label=""
-      labelPosition={LabelPosition.Auto}
-      onCheckChange={handleChange}
-      rowSpace={5}
-      widgetId={""}
-    />
-  );
-};
-
-export const CheckboxCellWrapper = (props: renderCellType) => {
+export const CheckboxCell = (props: renderCellType) => {
   const {
     accentColor,
     allowCellWrapping,
     borderRadius,
     cellBackground,
-    columnActions,
+    columnAction,
     compactMode,
     fontStyle,
     horizontalAlignment,
@@ -80,22 +39,10 @@ export const CheckboxCellWrapper = (props: renderCellType) => {
     verticalAlignment,
   } = props;
 
-  if (!columnActions) {
-    return (
-      <CellWrapper
-        allowCellWrapping={allowCellWrapping}
-        cellBackground={cellBackground}
-        compactMode={compactMode}
-        fontStyle={fontStyle}
-        horizontalAlignment={horizontalAlignment}
-        isCellVisible={isCellVisible}
-        isHidden={isHidden}
-        textColor={textColor}
-        textSize={textSize}
-        verticalAlignment={verticalAlignment}
-      />
-    );
-  }
+  const handleChange = () => {
+    onCommandClick(columnAction.dynamicTrigger, noop);
+  };
+
   return (
     <CellWrapper
       allowCellWrapping={allowCellWrapping}
@@ -109,25 +56,20 @@ export const CheckboxCellWrapper = (props: renderCellType) => {
       textSize={textSize}
       verticalAlignment={verticalAlignment}
     >
-      {columnActions.map((action: ColumnAction, index: number) => {
-        return (
-          <Checkbox
-            accentColor={accentColor}
-            action={action}
-            borderRadius={borderRadius}
-            isDisabled={isDisabled}
-            isLoading={false}
-            isRequired={false}
-            key={index}
-            label=""
-            labelPosition={LabelPosition.Auto}
-            onCommandClick={onCommandClick}
-            rowSpace={5}
-            value={value}
-            widgetId=""
-          />
-        );
-      })}
+      <CheckboxComponent
+        accentColor={accentColor}
+        borderRadius={borderRadius}
+        isChecked={value}
+        isDisabled={isDisabled}
+        isLoading={false}
+        isRequired={false}
+        key={columnAction.id}
+        label=""
+        labelPosition={LabelPosition.Auto}
+        onCheckChange={handleChange}
+        rowSpace={5}
+        widgetId={""}
+      />
     </CellWrapper>
   );
 };
