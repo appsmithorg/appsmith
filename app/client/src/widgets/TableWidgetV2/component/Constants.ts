@@ -373,7 +373,7 @@ export enum CheckboxState {
   PARTIAL = 2,
 }
 
-export const showScrollbarOnHover = `
+export const scrollbarOnHoverCSS = `
   .track-horizontal {
     height: 6px;
     bottom: 1px;
@@ -387,6 +387,14 @@ export const showScrollbarOnHover = `
   &:hover {
     .track-horizontal {
       opacity: 1;
+    }
+  }
+  .thumb-horizontal {
+    &:hover {
+      height: 6px !important;
+    }
+    &:active {
+      height: 6px !important;
     }
   }
 `;

@@ -112,10 +112,7 @@ function ScrollIndicator({
       showScrollbarOnlyOnHover prop if true will bypass hideScrollbar functionality
       as hideScrollbar behaviour conflicts with showScrollbarOnlyOnHover functionality
     */
-    if (showScrollbarOnlyOnHover) {
-      return;
-    }
-    if (isScrollVisible) {
+    if (isScrollVisible && !showScrollbarOnlyOnHover) {
       hideScrollbar();
     }
   }, [isScrollVisible]);
@@ -146,11 +143,13 @@ function ScrollIndicator({
     }
     return () => {
       if (showScrollbarOnlyOnHover) {
-        containerRef.current?.removeEventListener("mouseenter", () =>
-          setIsScrollVisible(true),
+        containerRef.current?.removeEventListener(
+          "mouseenter",
+          setScrollVisibilityOnHover,
         );
-        containerRef.current?.removeEventListener("mouseleave", () =>
-          setIsScrollVisible(false),
+        containerRef.current?.removeEventListener(
+          "mouseleave",
+          setScrollVisibilityOnHover,
         );
       }
     };
