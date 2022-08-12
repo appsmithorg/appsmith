@@ -29,7 +29,6 @@ import { buildDeprecationWidgetMessage, isWidgetDeprecated } from "../utils";
 import { BannerMessage } from "components/ads/BannerMessage";
 import { Colors } from "constants/Colors";
 import { IconSize, SearchInput, SearchVariant } from "components/ads";
-import { selectFeatureFlags } from "selectors/usersSelectors";
 import WidgetFactory from "utils/WidgetFactory";
 import styled from "styled-components";
 import { InputWrapper } from "components/ads/TextInput";
@@ -76,7 +75,6 @@ function PropertyPaneView(
     equal,
   );
   const doActionsExist = useSelector(actionsExist);
-  const featureFlags = useSelector(selectFeatureFlags);
   const containerRef = useRef<HTMLDivElement>(null);
   const hideConnectDataCTA = useMemo(() => {
     if (widgetProperties) {
@@ -238,8 +236,7 @@ function PropertyPaneView(
         className="t--property-pane-view"
         data-guided-tour-id="property-pane"
       >
-        {featureFlags.PROPERTY_PANE_GROUPING &&
-        (isContentConfigAvailable || isStyleConfigAvailable) ? (
+        {isContentConfigAvailable || isStyleConfigAvailable ? (
           <>
             <StyledSearchInput
               className="propertyPaneSearch"

@@ -27,7 +27,6 @@ import { inGuidedTour } from "selectors/onboardingSelectors";
 import { toggleShowDeviationDialog } from "actions/onboardingActions";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { PopoverPosition } from "@blueprintjs/core/lib/esnext/components/popover/popoverSharedProps";
-import { selectFeatureFlags } from "selectors/usersSelectors";
 
 type PropertyPaneTitleProps = {
   title: string;
@@ -48,7 +47,6 @@ const PropertyPaneTitle = memo(function PropertyPaneTitle(
   props: PropertyPaneTitleProps,
 ) {
   const dispatch = useDispatch();
-  const featureFlags = useSelector(selectFeatureFlags);
   const containerRef = useRef<HTMLDivElement>(null);
   const updating = useSelector(
     (state: AppState) => state.ui.editor.loadingStates.updatingWidgetName,
@@ -138,19 +136,10 @@ const PropertyPaneTitle = memo(function PropertyPaneTitle(
       )
         setTimeout(
           () => {
-            if (featureFlags.PROPERTY_PANE_GROUPING) {
-              document
-                .querySelector(".propertyPaneSearch input")
-                // @ts-expect-error: Focus
-                ?.focus();
-            } else {
-              document
-                .querySelector(
-                  '.t--property-pane-section-wrapper [tabindex]:not([tabindex="-1"])',
-                )
-                // @ts-expect-error: Focus
-                ?.focus();
-            }
+            document
+              .querySelector(".propertyPaneSearch input")
+              // @ts-expect-error: Focus
+              ?.focus();
           },
           200, // Adding non zero time out as codemirror imports are loaded using idle callback. pr #13676
         );
