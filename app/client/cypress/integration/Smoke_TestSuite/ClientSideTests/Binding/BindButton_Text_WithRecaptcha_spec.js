@@ -69,15 +69,20 @@ describe("Binding the Button widget with Text widget using Recpatcha v3", functi
     ee.SelectEntityByName("Button1");
     propPane.UpdatePropertyFieldValue("Google reCAPTCHA Key", testdata.v2Key);
     agHelper.ClickButton("Submit");
+    agHelper.Sleep();
     agHelper
       .GetText(locator._widgetInCanvas("textwidget") + " span")
       .then(($text) => expect($text).to.be.empty);
     ee.SelectEntityByName("Button1");
     agHelper.SelectDropdownList("Google reCAPTCHA Version", "reCAPTCHA v2");
     agHelper.ClickButton("Submit");
+    agHelper.Sleep();
     agHelper
       .GetText(locator._widgetInCanvas("textwidget") + " span")
       .then(($text) => expect($text).not.to.be.empty);
+    agHelper.SelectDropdownList("Google reCAPTCHA Version", "reCAPTCHA v3");
+    agHelper.ClickButton("Submit");
+    agHelper.Sleep();
   });
 
   it.only("3. Validate the Button binding with Text Widget with Recaptcha Token with v3Key & v2key for backward compatible", function() {
@@ -85,6 +90,7 @@ describe("Binding the Button widget with Text widget using Recpatcha v3", functi
     propPane.UpdatePropertyFieldValue("Google reCAPTCHA Key", testdata.v3Key);
     agHelper.SelectDropdownList("Google reCAPTCHA Version", "reCAPTCHA v3");
     agHelper.ClickButton("Submit");
+    agHelper.Sleep();
     agHelper
       .GetText(locator._widgetInCanvas("textwidget") + " span")
       .then(($text) => expect($text).not.to.be.empty);
