@@ -149,6 +149,9 @@ import { WidgetConfiguration } from "widgets/constants";
 import TableWidgetV2, {
   CONFIG as TABLE_WIDGET_CONFIG_V2,
 } from "widgets/TableWidgetV2";
+import QRScannerWidget, {
+  CONFIG as QR_SCANNER_WIDGET_CONFIG,
+} from "widgets/QRScannerWidget";
 
 export const ALL_WIDGETS_AND_CONFIG = [
   [CanvasWidget, CANVAS_WIDGET_CONFIG],
@@ -196,6 +199,7 @@ export const ALL_WIDGETS_AND_CONFIG = [
   [CurrencyInputWidget, CURRENCY_INPUT_WIDGET_V2_CONFIG],
   [JSONFormWidget, JSON_FORM_WIDGET_CONFIG],
   [TableWidgetV2, TABLE_WIDGET_CONFIG_V2],
+  [QRScannerWidget, QR_SCANNER_WIDGET_CONFIG],
 
   //Deprecated Widgets
   [InputWidget, INPUT_WIDGET_CONFIG],
