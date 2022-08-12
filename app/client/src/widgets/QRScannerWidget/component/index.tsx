@@ -8,6 +8,7 @@ import { Colors } from "constants/Colors";
 import Modal from "react-modal";
 import { QrReader } from "react-qr-reader";
 import { updateDatasource } from "actions/datasourceActions";
+import { ViewFinder } from "./ViewFinder";
 
 const customStyles = {
   content: {
@@ -36,7 +37,6 @@ const customStyles = {
 Modal.setAppElement("#root");
 function FilePickerComponent(props: FilePickerComponentProps) {
   const [modalIsOpen, setIsOpen] = useState(false);
-  const [data, setData] = useState("No result");
 
   /**
    * opens modal
@@ -45,6 +45,10 @@ function FilePickerComponent(props: FilePickerComponentProps) {
     setIsOpen(true);
     // props.uppy.getPlugin("Dashboard").openModal();
   };
+
+  function closeModal() {
+    setIsOpen(false);
+  }
 
   return (
     <>
@@ -65,21 +69,24 @@ function FilePickerComponent(props: FilePickerComponentProps) {
         style={customStyles}
         // contentLabel="Example Modal"
       >
-        <QrReader
-          constraints={{ facingMode: "user" }}
-          onResult={(result, error) => {
-            if (!!result) {
-              console.log(result);
-              setIsOpen(false);
-              props.updateData(result.getText());
-              // setData(result?.text);
-            }
+        {modalIsOpen && (
+          <QrReader
+            ViewFinder={ViewFinder}
+            constraints={{ facingMode: "user" }}
+            onResult={(result, error) => {
+              if (!!result) {
+                setIsOpen(false);
+                props.updateData(result.getText());
+              }
 
-            if (!!error) {
-              console.info(error);
-            }
-          }}
-        />
+              if (!!error) {
+                console.info(error);
+              }
+            }}
+          />
+        )}
+        <button onClick={closeModal}>close</button>
+
         {/* <p>{data}</p> */}
       </Modal>
     </>
