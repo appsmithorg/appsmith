@@ -128,9 +128,12 @@ export default function RadioComponent(props: RadioProps) {
     setSelected(props.defaultValue);
   }, [props.defaultValue]);
 
-  const onChangeHandler = (value: string) => {
-    setSelected(value);
-    props.onSelect && props.onSelect(value);
+  const onChangeHandler = (e: any) => {
+    if (!e.target?.closest(".t--radioSelectedOptionElement")) {
+      const value: string = e.target.value;
+      setSelected(value);
+      props.onSelect && props.onSelect(value);
+    }
   };
 
   return (
@@ -138,7 +141,7 @@ export default function RadioComponent(props: RadioProps) {
       className={props.className}
       columns={props.columns}
       data-cy={props.cypressSelector}
-      onChange={(e: any) => onChangeHandler(e.target.value)}
+      onChange={onChangeHandler}
       rows={props.rows}
     >
       {props.options.map((option: OptionProps, index: number) => (
@@ -162,7 +165,11 @@ export default function RadioComponent(props: RadioProps) {
             />
             <span className="checkbox" />
           </Radio>
-          {selected === option.value && props.selectedOptionElements?.[index]}
+          {selected === option.value && (
+            <div className="t--radioSelectedOptionElement">
+              {props.selectedOptionElements?.[index]}
+            </div>
+          )}
         </React.Fragment>
       ))}
     </RadioGroup>
