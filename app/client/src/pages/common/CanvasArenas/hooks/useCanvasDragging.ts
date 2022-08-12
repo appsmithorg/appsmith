@@ -23,12 +23,13 @@ import {
   getMousePositionsOnCanvas,
   noCollision,
 } from "utils/WidgetPropsUtils";
+import { getAlignmentLines } from "./AlignmentLinesUtil";
+import ContainerJumpMetrics from "./ContainerJumpMetric";
 import {
   useBlocksToBeDraggedOnCanvas,
   WidgetDraggingBlock,
 } from "./useBlocksToBeDraggedOnCanvas";
 import { useCanvasDragToScroll } from "./useCanvasDragToScroll";
-import ContainerJumpMetrics from "./ContainerJumpMetric";
 
 export interface XYCord {
   x: number;
@@ -613,6 +614,7 @@ export const useCanvasDragging = (
               currentRectanglesToDraw.forEach((each) => {
                 drawBlockOnCanvas(each);
               });
+              drawAlignmentLines(canvasCtx);
             }
             canvasCtx.restore();
           }
@@ -711,6 +713,79 @@ export const useCanvasDragging = (
           }
         };
         const onMouseOver = (e: any) => onFirstMoveOnCanvas(e, true);
+        const getBoundariesFromDraggingWidgets = (
+          selectedWidgets: OccupiedSpace[],
+        ) => {
+          const topMostWidget = selectedWidgets.sort(
+            (a, b) => a.top - b.top,
+          )[0];
+          const leftMostWidget = selectedWidgets.sort(
+            (a, b) => a.left - b.left,
+          )[0];
+          const rightMostWidget = selectedWidgets.sort(
+            (a, b) => b.right - a.right,
+          )[0];
+          const bottomMostWidget = selectedWidgets.sort(
+            (a, b) => b.bottom - a.bottom,
+          )[0];
+
+          return {
+            right: rightMostWidget.right,
+            bottom: bottomMostWidget.bottom,
+            id: "0",
+            top: topMostWidget.top,
+            left: leftMostWidget.left,
+          };
+        };
+        const drawAlignmentLines = (canvasCtx: any) => {
+          if (stickyCanvasRef.current) {
+            const topOffset = getAbsolutePixels(
+              stickyCanvasRef.current.style.top,
+            );
+            const leftOffset = getAbsolutePixels(
+              stickyCanvasRef.current.style.left,
+            );
+            const height = getAbsolutePixels(
+              stickyCanvasRef.current.style.height,
+            );
+            const alignmentLines = getAlignmentLines(
+              getBoundariesFromDraggingWidgets(draggingSpaces),
+              occSpaces,
+              {
+                topRow: topOffset / 10,
+                bottomRow: height + topOffset / 10,
+              },
+            );
+            alignmentLines.forEach(([point1, point2]) => {
+              canvasCtx.strokeStyle = "red";
+              canvasCtx.setLineDash([0]);
+
+              // canvasCtx.lineWidth = 5;
+              canvasCtx.beginPath();
+              canvasCtx.moveTo(
+                point1.x * snapColumnSpace -
+                  leftOffset +
+                  1 +
+                  (noPad ? 0 : CONTAINER_GRID_PADDING),
+                point1.y * snapRowSpace -
+                  topOffset +
+                  1 +
+                  (noPad ? 0 : CONTAINER_GRID_PADDING),
+              );
+              canvasCtx.lineTo(
+                point2.x * snapColumnSpace -
+                  leftOffset +
+                  1 +
+                  (noPad ? 0 : CONTAINER_GRID_PADDING),
+                point2.y * snapRowSpace -
+                  topOffset +
+                  1 +
+                  (noPad ? 0 : CONTAINER_GRID_PADDING),
+              );
+              canvasCtx.stroke();
+            });
+          }
+        };
         const initializeListeners = () => {
           slidingArenaRef.current?.addEventListener(
             "mousemove",
