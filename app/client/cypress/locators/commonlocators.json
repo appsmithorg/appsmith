@@ -38,7 +38,7 @@
   "bodyTextStyle": ".bp3-ui-text span",
   "headingTextStyle": ".bp3-ui-text span",
   "editWidgetName": ".t--property-pane-title",
-  "dropDownIcon": ".t--property-control-textsize .bp3-popover-target",
+  "dropDownIcon": ".t--property-control-fontsize .bp3-popover-target",
   "onDateSelectedField": ".t--property-control-ondateselected",
   "TableRow": ".t--draggable-tablewidget .tbody",
   "TableV2Row": ".t--draggable-tablewidgetv2 .tbody",
