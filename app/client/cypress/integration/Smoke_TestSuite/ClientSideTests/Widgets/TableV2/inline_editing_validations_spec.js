@@ -114,10 +114,7 @@ describe("Table widget inline editing validation functionality", () => {
       cy.openPropertyPane("tablewidgetv2");
       cy.editColumn("step");
       propPane.ToggleOnOrOff("Editable", "On");
-      propPane.UpdatePropertyFieldValue(
-        "Valid",
-        "{{editableCell.value === '#1'}}",
-      );
+      propPane.UpdatePropertyFieldValue("Valid", "{{editedValue === '#1'}}");
       cy.editTableCell(0, 0);
       cy.wait(500);
       cy.get(`.t--inlined-cell-editor-has-error`).should("not.exist");
@@ -227,10 +224,7 @@ describe("Table widget inline editing validation functionality", () => {
     cy.openPropertyPane("tablewidgetv2");
     cy.editColumn("step");
     propPane.ToggleOnOrOff("Editable", "On");
-    propPane.UpdatePropertyFieldValue(
-      "Valid",
-      "{{editableCell.value === '#1'}}",
-    );
+    propPane.UpdatePropertyFieldValue("Valid", "{{editedValue === '#1'}}");
     propPane.UpdatePropertyFieldValue("Error Message", "You got error mate!!");
     cy.editTableCell(0, 0);
     cy.wait(1000);
@@ -252,10 +246,7 @@ describe("Table widget inline editing validation functionality", () => {
       ).click();
       cy.selectShowMsg();
       cy.addSuccessMessage("Saved!!", ".t--property-control-onsubmit");
-      propPane.UpdatePropertyFieldValue(
-        "Valid",
-        "{{editableCell.value === '#1'}}",
-      );
+      propPane.UpdatePropertyFieldValue("Valid", "{{editedValue === '#1'}}");
       cy.editTableCell(0, 0);
       cy.enterTableCellValue(0, 0, "123");
       cy.get(`.t--inlined-cell-editor`).should("exist");
@@ -282,10 +273,7 @@ describe("Table widget inline editing validation functionality", () => {
       cy.openPropertyPane("tablewidgetv2");
       cy.editColumn("step");
       propPane.ToggleOnOrOff("Editable", "On");
-      propPane.UpdatePropertyFieldValue(
-        "Valid",
-        "{{editableCell.value === '#1'}}",
-      );
+      propPane.UpdatePropertyFieldValue("Valid", "{{editedValue === '#1'}}");
       cy.editTableCell(0, 0);
       cy.enterTableCellValue(0, 0, "123");
       cy.get(`.t--inlined-cell-editor`).should("exist");
@@ -316,10 +304,7 @@ describe("Table widget inline editing validation functionality", () => {
     cy.openPropertyPane("tablewidgetv2");
     cy.editColumn("step");
     propPane.ToggleOnOrOff("Editable", "On");
-    propPane.UpdatePropertyFieldValue(
-      "Valid",
-      "{{editableCell.value === '#1'}}",
-    );
+    propPane.UpdatePropertyFieldValue("Valid", "{{editedValue === '#1'}}");
     cy.editTableCell(0, 0);
     cy.enterTableCellValue(0, 0, "123");
     cy.openPropertyPane("tablewidgetv2");
