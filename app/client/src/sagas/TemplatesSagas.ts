@@ -5,13 +5,12 @@ import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
-import { all, put, takeEvery, call, select } from "redux-saga/effects";
+import { all, put, takeEvery, call, select, take } from "redux-saga/effects";
 import { differenceBy } from "lodash";
 import TemplatesAPI, {
   ImportTemplateResponse,
   FetchTemplateResponse,
   TemplateFiltersResponse,
-  ImportTemplateToApplicationResponse,
 } from "api/TemplatesApi";
 import history from "utils/history";
 import { getDefaultPageId } from "./ApplicationSagas";
@@ -47,7 +46,7 @@ import { Toaster } from "components/ads/Toast";
 import { Variant } from "components/ads/common";
 import { fetchDatasources } from "actions/datasourceActions";
 import { fetchPluginFormConfigs } from "actions/pluginActions";
-import { fetchAllPageEntityCompletion } from "actions/pageActions";
+import { fetchAllPageEntityCompletion, saveLayout } from "actions/pageActions";
 import { showReconnectDatasourceModal } from "actions/applicationActions";
 
 function* getAllTemplatesSaga() {
@@ -229,12 +228,12 @@ function* forkTemplateToApplicationSaga(
       ? action.payload.pageNames
       : undefined;
     const applicationId: string = yield select(getCurrentApplicationId);
-    const orgId: string = yield select(getCurrentWorkspaceId);
-    const response: ImportTemplateToApplicationResponse = yield call(
+    const workspaceId: string = yield select(getCurrentWorkspaceId);
+    const response: ImportTemplateResponse = yield call(
       TemplatesAPI.importTemplateToApplication,
       action.payload.templateId,
       applicationId,
-      orgId,
+      workspaceId,
       pagesToImport,
     );
     const currentListOfPages: Page[] = yield select(getPageList);
@@ -248,7 +247,7 @@ function* forkTemplateToApplicationSaga(
     const isValid: boolean = yield validateResponse(response);
 
     if (isValid) {
-      const postImportPageList = response.data.pages.map((page) => {
+      const postImportPageList = response.data.application.pages.map((page) => {
         return { pageId: page.id, ...page };
       });
       const newPages = differenceBy(
@@ -264,6 +263,18 @@ function* forkTemplateToApplicationSaga(
         }
       }
 
+      if (response.data.isPartialImport) {
+        yield put(
+          showReconnectDatasourceModal({
+            application: response.data.application,
+            unConfiguredDatasourceList:
+              response.data.unConfiguredDatasourceList,
+            workspaceId,
+            pageId: newPages[0].pageId,
+            inEditor: true,
+          }),
+        );
+      }
       history.push(
         builderURL({
           pageId: newPages[0].pageId,
@@ -271,9 +282,11 @@ function* forkTemplateToApplicationSaga(
       );
       yield put(showTemplatesModal(false));
 
+      yield take(ReduxActionTypes.UPDATE_CANVAS_STRUCTURE);
+      yield put(saveLayout());
       yield put({
         type: ReduxActionTypes.IMPORT_TEMPLATE_TO_APPLICATION_SUCCESS,
-        payload: response.data,
+        payload: response.data.application,
       });
       yield put(getAllTemplates());
 

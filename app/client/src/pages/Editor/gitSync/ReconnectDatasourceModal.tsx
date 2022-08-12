@@ -6,6 +6,7 @@ import {
   getIsDatasourceConfigForImportFetched,
   getWorkspaceIdForImport,
   getUserApplicationsWorkspacesList,
+  getPageIdForImport,
 } from "selectors/applicationSelectors";
 
 import { useDispatch, useSelector } from "react-redux";
@@ -44,6 +45,7 @@ import {
   initDatasourceConnectionDuringImportRequest,
   resetDatasourceConfigForImportFetchedFlag,
   setIsReconnectingDatasourcesModalOpen,
+  setPageIdForImport,
   setWorkspaceIdForImport,
 } from "actions/applicationActions";
 import { AuthType, Datasource } from "entities/Datasource";
@@ -268,6 +270,7 @@ function ReconnectDatasourceModal() {
   const dispatch = useDispatch();
   const isModalOpen = useSelector(getIsReconnectingDatasourcesModalOpen);
   const workspaceId = useSelector(getWorkspaceIdForImport);
+  const pageIdForImport = useSelector(getPageIdForImport);
   const datasources = useSelector(getUnconfiguredDatasources);
   const pluginImages = useSelector(getPluginImages);
   const pluginNames = useSelector(getPluginNames);
@@ -335,10 +338,12 @@ function ReconnectDatasourceModal() {
             (app: any) => app.id === queryAppId,
           );
           if (application) {
-            dispatch(setWorkspaceIdForImport(workspace.id));
+            dispatch(setWorkspaceIdForImport({ workspaceId: workspace.id }));
             dispatch(setIsReconnectingDatasourcesModalOpen({ isOpen: true }));
             const defaultPageId = getDefaultPageId(application.pages);
-            if (defaultPageId) {
+            if (pageIdForImport) {
+              setPageId(pageIdForImport);
+            } else if (defaultPageId) {
               setPageId(defaultPageId);
             }
             if (!datasources.length) {
@@ -384,7 +389,8 @@ function ReconnectDatasourceModal() {
   const handleClose = useCallback(() => {
     localStorage.setItem("importedAppPendingInfo", "null");
     dispatch(setIsReconnectingDatasourcesModalOpen({ isOpen: false }));
-    dispatch(setWorkspaceIdForImport(""));
+    dispatch(setWorkspaceIdForImport({ workspaceId: "" }));
+    dispatch(setPageIdForImport(""));
     dispatch(resetDatasourceConfigForImportFetchedFlag());
     setSelectedDatasourceId("");
   }, [dispatch, setIsReconnectingDatasourcesModalOpen, isModalOpen]);

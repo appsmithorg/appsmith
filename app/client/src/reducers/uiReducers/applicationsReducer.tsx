@@ -33,6 +33,7 @@ const initialState: ApplicationsReduxState = {
   showAppInviteUsersDialog: false,
   isImportAppModalOpen: false,
   workspaceIdForImport: null,
+  pageIdForImport: "",
 };
 
 const applicationsReducer = createReducer(initialState, {
@@ -465,17 +466,20 @@ const applicationsReducer = createReducer(initialState, {
   }),
   [ReduxActionTypes.SET_WORKSPACE_ID_FOR_IMPORT]: (
     state: ApplicationsReduxState,
-    action: ReduxAction<string>,
+    action: ReduxAction<{ workspaceId: string; inEditor: boolean }>,
   ) => {
-    let currentApplication = state.currentApplication;
-    if (action.payload) {
-      currentApplication = undefined;
-    }
-
     return {
       ...state,
-      currentApplication,
-      workspaceIdForImport: action.payload,
+      workspaceIdForImport: action.payload.workspaceId,
+    };
+  },
+  [ReduxActionTypes.SET_PAGE_ID_FOR_IMPORT]: (
+    state: ApplicationsReduxState,
+    action: ReduxAction<string>,
+  ) => {
+    return {
+      ...state,
+      pageIdForImport: action.payload,
     };
   },
   [ReduxActionTypes.IMPORT_TEMPLATE_TO_WORKSPACE_SUCCESS]: (
@@ -512,6 +516,7 @@ export interface ApplicationsReduxState {
   importedApplication: unknown;
   isImportAppModalOpen: boolean;
   workspaceIdForImport: any;
+  pageIdForImport: string;
   isDatasourceConfigForImportFetched?: boolean;
 }
 

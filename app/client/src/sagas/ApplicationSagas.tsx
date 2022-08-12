@@ -41,6 +41,7 @@ import {
   resetCurrentApplication,
   setDefaultApplicationPageSuccess,
   setIsReconnectingDatasourcesModalOpen,
+  setPageIdForImport,
   setWorkspaceIdForImport,
   showReconnectDatasourceModal,
 } from "actions/applicationActions";
@@ -628,10 +629,14 @@ function* showReconnectDatasourcesModalSaga(
     application: ApplicationResponsePayload;
     unConfiguredDatasourceList: Array<Datasource>;
     workspaceId: string;
+    pageId?: string;
+    inEditor?: boolean;
   }>,
 ) {
   const {
     application,
+    inEditor,
+    pageId,
     unConfiguredDatasourceList,
     workspaceId,
   } = action.payload;
@@ -643,7 +648,8 @@ function* showReconnectDatasourcesModalSaga(
     setUnconfiguredDatasourcesDuringImport(unConfiguredDatasourceList || []),
   );
 
-  yield put(setWorkspaceIdForImport(workspaceId));
+  yield put(setWorkspaceIdForImport({ workspaceId, inEditor }));
+  yield put(setPageIdForImport(pageId));
   yield put(setIsReconnectingDatasourcesModalOpen({ isOpen: true }));
 }
 

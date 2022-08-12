@@ -167,6 +167,9 @@ export const getIsImportingApplication = (state: AppState) =>
 export const getWorkspaceIdForImport = (state: AppState) =>
   state.ui.applications.workspaceIdForImport;
 
+export const getPageIdForImport = (state: AppState) =>
+  state.ui.applications.pageIdForImport;
+
 export const getImportedApplication = (state: AppState) =>
   state.ui.applications.importedApplication;
 

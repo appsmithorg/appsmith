@@ -246,7 +246,7 @@ function ImportApplicationModal(props: ImportApplicationModalProps) {
     dispatch({
       type: ReduxActionTypes.GIT_INFO_INIT,
     });
-    dispatch(setWorkspaceIdForImport(workspaceId));
+    dispatch(setWorkspaceIdForImport({ workspaceId }));
 
     dispatch(
       setIsGitSyncModalOpen({
