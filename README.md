@@ -1,139 +1,160 @@
-<a href="https://app.appsmith.com/signup/?utm_source=github&utm_medium=social&utm_content=website&utm_campaign=null&utm_term=website"><img src="static/git-banner-new.png" width="100%" alt="Appsmith - The Frontend Tool for Any Backend"></a>
-
-<h3 align="center">
-  <b><a href="https://app.appsmith.com/signup/?utm_source=github&utm_medium=social&utm_content=website&utm_campaign=null&utm_term=website">Get Started</a></b>
-  •
-  <a href="https://docs.appsmith.com/?utm_source=github&utm_medium=social&utm_content=appsmith_docs&utm_campaign=null&utm_term=appsmith_docs">Docs</a>
-  •
-  <a href="https://community.appsmith.com/">Community</a>
-  •
-  <a href="https://docs.appsmith.com/tutorials">Tutorials</a>
-  •
-  <a href="https://app.appsmith.com/applications/602b8aef12ba0d29d3ec151c/pages/602b8aef12ba0d29d3ec151e">Events</a>
-  •
-  <a href="https://www.youtube.com/appsmith">Youtube</a>
-  •
-  <a href="https://discord.gg/rBTTVJp">Discord</a>
-  •
-  <a href="./appsmith_templates.md">Templates</a> 
-  </h3>
+<br /><br />
 
 <p align="center">
-Turn any datasource into an internal app in minutes. Appsmith lets you drag-and-drop UI components to build pages, connect to any API, database or GraphQL source and write logic with JavaScript objects.  
+<a href="https://www.appsmith.com?utm_source=github&utm_medium=organic&utm_campaign=readme">
+  <img src="static/appsmith_logo_white.png" alt="Appsmith Logo" width="350">
+</a>
+</p>
 <br />
-<br />
-<img src="static/images/integrations.png" width="320px">
-<br/>
-<br/>
-<img width="100%" alt="MVC-Github-Readme" src="static/how-it-works.svg">
 
+<p>Appsmith is an open-source platform to build, deploy, and maintain internal apps. You can build anything from simple CRUD apps, admin panels, dashboards to custom business apps and complicated multi-step workflows.</p>
+
+<p align="center">
+<a href="https://discord.gg/rBTTVJp">
+<img alt="Discord" src="https://img.shields.io/discord/725602949748752515?color=5865F2&label=Discord&style=for-the-badge" />
+</a>
+
+<a href="https://github.com/appsmithorg/appsmith/releases">
+<img alt="GitHub commit activity" src="https://img.shields.io/github/commit-activity/m/appsmithorg/appsmith?color=00FF0&style=for-the-badge">
+</a>
+
+<a href="https://docs.appsmith.com/getting-started/setup/installation-guides/docker?utm_source=github&utm_medium=organic&utm_campaign=readme&utm_content=badge">
+<img src="https://img.shields.io/docker/pulls/appsmith/appsmith-server?color=4591df&style=for-the-badge">
+</a>
 </p>
 
-## Quick Start
+<h3 align="center">
+  <b><a href="https://app.appsmith.com/signup/">Get Started</a></b>
+  •
+  <b><a href="https://www.youtube.com/appsmith">YouTube</a></b>
+  •
+  <b><a href="https://www.appsmith.com/templates?utm_source=github&utm_medium=organic&utm_campaign=readme&utm_content=top">Templates</a></b> 
+  </h3>
 
-The fastest way to start with Appsmith is the cloud-hosted version. When you're ready, you can also host it yourself.
+---
 
-- Start building apps _immediately_ with [Appsmith Cloud](https://app.appsmith.com/signup/?utm_source=github&utm_medium=social&utm_content=website&utm_campaign=null&utm_term=website) _(Recommended)_
-- Install locally or on a private instance with [Docker](https://docs.appsmith.com/setup/docker?utm_source=github&utm_medium=social&utm_content=appsmith_docs&utm_campaign=null&utm_term=appsmith_docs) _(Recommended)_
-- Deploy on a [Kubernetes](https://docs.appsmith.com/setup/kubernetes?utm_source=github&utm_medium=social&utm_content=appsmith_docs&utm_campaign=null&utm_term=appsmith_docs) cluster
-- Deploy to [AWS with an AMI](https://docs.appsmith.com/setup/aws-ami?utm_source=github&utm_medium=social&utm_content=appsmith_docs&utm_campaign=null&utm_term=appsmith_docs) on the marketplace
-- One-click deploy to [Heroku](https://docs.appsmith.com/setup/heroku?utm_source=github&utm_medium=social&utm_content=appsmith_docs&utm_campaign=null&utm_term=appsmith_docs)
+## Build Apps in 4 Steps
 
-<br><a href="https://www.youtube.com/watch?v=mzqK0QIZRLs" target="_blank"><img src="static/images/build-tool.png" alt="Build an Internal Tool with Appsmith" width="410px" /></a>
+### 1. Build your UI
+
+Build your UI with our drag and drop UI builder. Use 45+ pre-built, customizable widgets including tables, charts, lists, modals, forms, and more. [Docs](https://docs.appsmith.com/core-concepts/dynamic-ui?utm_source=github&utm_medium=organic&utm_campaign=readme)
+
+<p align="center">
+<a href="https://docs.appsmith.com/core-concepts/connecting-to-data-sources?utm_source=github&utm_medium=organic&utm_campaign=readme">
+<img alt="connect-data" src="static/gifs/Build-UI.gif" />
+</a>
+</p>
+
+### 2. Connect to your data
+
+Connect to your data with our connectors: databases (PostgresQL, MongoDB, Amazon S3, and many more), SaaS providers (like Google Sheets, Airtable, Twilio) or any GraphQL/REST API. [Docs](https://docs.appsmith.com/core-concepts/connecting-to-data-sources?utm_source=github&utm_medium=organic&utm_campaign=readme)
+
+<p align="center">
+<a href="https://docs.appsmith.com/core-concepts/connecting-to-data-sources?utm_source=github&utm_medium=organic&utm_campaign=readme">
+<img alt="connect-data" src="static/gifs/Connect-Data.gif" />
+</a>
+</p>
+
+### 3. Connect the data to the UI
+
+Connect the data to the UI by configuring the components. Where needed, you can use the Javascript IDE to create more advanced features and data transformations - the sky is the limit! [Docs](https://docs.appsmith.com/core-concepts/connecting-to-data-sources/querying-a-database?utm_source=github&utm_medium=organic&utm_campaign=readme)
+
+<p align="center">
+<a href="https://docs.appsmith.com/core-concepts/connecting-to-data-sources?utm_source=github&utm_medium=organic&utm_campaign=readme">
+<img alt="connect-data" src="static/gifs/Bind-Data.gif" />
+</a>
+</p>
+
+### 4. Deploy your app
+
+Deploy your app on our free, cloud-hosted version or to any platform of your choice - Docker, Kubernetes, AWS, DigitalOcean, Heroku, and more. [Docs](https://docs.appsmith.com/setup?utm_source=github&utm_medium=organic&utm_campaign=readme&utm_content=step4)
+
+<p align="center">
+<a href="https://docs.appsmith.com/core-concepts/connecting-to-data-sources?utm_source=github&utm_medium=organic&utm_campaign=readme">
+<img alt="connect-data" src="static/gifs/Share-Apps.gif" />
+</a>
+</p>
 
 ## Features
 
-<p>
-  <img src="static/animations/widgets.gif" width="100%">
-</p>
+Appsmith makes it easy to create powerful utility applications organized across multiple workspaces. Here are a few notable features of Appsmith. We ship new features, bug fixes, and performance improvements regularly. Read our [release notes](https://github.com/appsmithorg/appsmith/releases) to stay updated.
 
-Use [ready components](https://docs.appsmith.com/widget-reference/button) to build workflows in record time. Drag common elements like tables, charts, forms and more right into your app.
+🔥 **UI builder** with a library of [45+ widgets](https://docs.appsmith.com/reference/widgets?utm_source=github&utm_medium=organic&utm_campaign=readme) such as
 
-_Includes text, forms, inputs, buttons, tables, images, charts, checkboxes, switches, radio buttons, datepickers, dropdowns, filepickers, containers, maps, modals, rich text editors, tabs & video._ <br>
+- Tables
+- Charts
+- Forms
+- Lists
+- Buttons
+- Checkboxes
+- Filepicker
+- Modals
+  ...and more. All widgets come with properties that can be visually edited to set their data, change their styles, and trigger actions from them.
 
-<p>
-  <img src="static/animations/running-api.gif" width="100%">
-</p>
+❇️ **Native integrations** available with the following databases. You can also connect with most other tools through the RESTful API plugin or using our SaaS connectors.
 
-Appsmith automagically works using any DB, Rest API or GraphQL as a datasource, with support for OAuth 2.0 and CURL. Here's a list of all our [pre-built integrations](https://docs.appsmith.com/core-concepts/connecting-to-data-sources/connecting-to-databases).
+- PostgresSQL
+- MongoDB
+- MySQL
+- Elasticsearch
+- DynamoDB
+- Redis
+- Microsoft SQL Server
+- Firestore
+- Redshift
+- S3
+- Snowflake
+- ArangoDB
+- SMTP
 
-_Currently works with PostgreSQL, MongoDB, MySQL, Firestore, S3, Redshift, Elastic Search, DynamoDB, Redis, and MSFT SQL Server._ <br>
+🛠️ **API client and query builder** lets you run RESTful API, GraphQL, or database queries within connected datasources.
 
-<p>
-  <img src="static/animations/javascript.gif" width="100%">
-</p>
+🚀 **JavaScript code support**. You can use JavaScript inside `{{ }}` anywhere in Appsmith. You can reference every entity in Appsmith as a JavaScript variable and perform all JavaScript functions and operations on them. Our in-built JS editor gives the full IDE experience with multiline editing, autocomplete, linting and debugging.
 
-We'll run JS anywhere! Code interactions between elements, update datasources or manipulate SQL queries—[we'll parse JS anywhere](https://docs.appsmith.com/core-concepts/writing-code).<br>
+🔄 **Version control with Git** allows multiple developers to add their work in a git branch, raise a pull request for code reviews, integrate with CI/CD pipelines, and provide a commit history to go back to a previous version if something were to go wrong. You can connect to any popular version control tool of our liking: GitHub, Gitlab, Bitbucket, AWS Code Commit and more.
 
-<p>
-  <img src="static/animations/invite.gif" width="100%">
-</p>
+🎨 **App theming** to style your app pages and widgets and to customize the visual layout of your app in one click.
 
-[Push a button](https://docs.appsmith.com/core-concepts/access-control) to deploy & share apps with your team, or privately invite your team using OAuth 2.0. Each member can be assigned a role with access to certain parts of the app.<br>
+⚙️ **Access control** available to assign different roles to different team members while sharing the app. Appsmith implements RBAC by assigning a set of permissions to different user roles. These permissions determine the actions users can take on the platform. You can allow external users to access applications built using Appsmith by inviting them to the workspace.
 
-#### 🔑 Solid 256-bit Encryption
+🔑 [**Solid 256-bit encryption**](https://docs.appsmith.com/security?utm_source=github&utm_medium=organic&utm_campaign=readme). Appsmith apps are secure by default. All connections are TLS-encrypted, and credentials are encrypted with AES-256 so we can't see any of your data. For added security, try our [self-hosted options](https://docs.appsmith.com/setup?utm_source=github&utm_medium=organic&utm_campaign=readme&utm_content=features).
 
-Appsmith apps are [secure by default](https://docs.appsmith.com/security). All connections are TLS-encrypted, and credentials are encrypted with AES-256—so we can't see any of your data. For added security, try our [self-hosted options](https://docs.appsmith.com/setup).<br><br>
+[![Watch the video](https://img.youtube.com/vi/Dxe_NzdGzL4/maxresdefault.jpg)](https://youtu.be/Dxe_NzdGzL4)
 
-#### 🎙 Transparent Support
+## Support and Community
 
-Issues are inevitable. When you have one, our entire team is around to help—
+Issues are inevitable. When you have one, our entire team and our active developer community is around to help.<br>
 
-- 💬 Talk to us on [Discord](https://discord.gg/rBTTVJp)
-- 📄 Find a solution in our [Documentation](https://docs.appsmith.com)
-- ⚠️ Open an issue right here on [GitHub](https://github.com/appsmithorg/appsmith/issues/new/choose)
-- 👾 Ask for help on our [Forum](https://community.appsmith.com)
-- Join our Beta users program and give us feedback <a href = "https://www.notion.so/Betasmith-Join-the-Appsmith-Beta-Community-5c288dfd57bd4c4781c3bf02ddf9aa8a">Betasmith Community</a>. Be a part of the community that will help shape the future of Appsmith.
+💬 Talk to us on [Discord](https://discord.gg/rBTTVJp)<br>
+📄 Find a solution in our [Documentation](https://docs.appsmith.com?utm_source=github&utm_medium=organic&utm_campaign=readme)<br>
+⚠️ Open an issue right here on [GitHub](https://github.com/appsmithorg/appsmith/issues/new/choose)<br>
+👾 Ask for help on our [Forum](https://community.appsmith.com)<br>
+💡Use our learning resources: [Templates](https://www.appsmith.com/templates?utm_source=github&utm_medium=organic&utm_campaign=readme&utm_content=support), [Tutorials](https://www.appsmith.com/blog-categories/tutorial?utm_source=github&utm_medium=organic&utm_campaign=readme), and [Videos](https://www.youtube.com/appsmith)<br>
 
 ## Deployment Options
 
-Check out the instructions for deploying Appsmith on different services:
+While you can always start building apps right away using the [cloud-hosted version](https://app.appsmith.com/signup/), here are the resources for deploying Appsmith on different platforms:
 
-| **Cloud Provider** |                                                                                                                 **Link**                                                                                                                 |                                      **Documentation**                                      |
-| :----------------: | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------: | :-----------------------------------------------------------------------------------------: |
-|    DigitalOcean    | [![Deploy to DigitalOcean](https://img.shields.io/badge/Digital_Ocean-0080FF?style=for-the-badge&logo=DigitalOcean&logoColor=white.png)](https://cloud.digitalocean.com/droplets/new?onboarding_origin=marketplace&image=appsmith-18-04) | [Link](https://blog.appsmith.com/self-host-appsmith-in-just-a-few-minutes-on-digital-ocean) |
-|      AWS AMI       |                    [![Deploy to DigitalOcean](https://img.shields.io/badge/Amazon_AWS-232F3E?style=for-the-badge&logo=amazon-aws&logoColor=white.png)](https://aws.amazon.com/marketplace/pp/prodview-mclslaty46ah4)                     |                       [Link](https://docs.appsmith.com/setup/aws-ami)                       |
-|       Docker       |                                                                                                                                                                                                                                          |                       [Link](https://docs.appsmith.com/setup/docker)                        |
-|     Kubernetes     |                                                                                                                                                                                                                                          |                     [Link](https://docs.appsmith.com/setup/kubernetes)                      |
+| Cloud Provider                                                                                                                 | Documentation                                                                                                                                                    |
+| ------------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| ![DigitalOcean](https://img.shields.io/badge/DigitalOcean-%230167ff.svg?style=for-the-badge&logo=digitalOcean&logoColor=white) | [One-Click Install](https://docs.appsmith.com/getting-started/setup/installation-guides/digitalocean?utm_source=github&utm_medium=organic&utm_campaign=readme)   |
+| ![AWS](https://img.shields.io/badge/AWS-%23FF9900.svg?style=for-the-badge&logo=amazon-aws&logoColor=white)                     | [AWS ECS - Docs](https://docs.appsmith.com/getting-started/setup/installation-guides/aws-ecs?utm_source=github&utm_medium=organic&utm_campaign=readme)           |
+| ![AWS](https://img.shields.io/badge/AWS-%23FF9900.svg?style=for-the-badge&logo=amazon-aws&logoColor=white)                     | [AWS AMI - Docs](https://docs.appsmith.com/getting-started/setup/installation-guides/aws-ami?utm_source=github&utm_medium=organic&utm_campaign=readme)           |
+| ![Docker](https://img.shields.io/badge/docker-%230db7ed.svg?style=for-the-badge&logo=docker&logoColor=white)                   | [Local/Cloud - Docs](https://docs.appsmith.com/getting-started/setup/installation-guides/docker?utm_source=github&utm_medium=organic&utm_campaign=readme)        |
+| ![Kubernetes](https://img.shields.io/badge/kubernetes-%23326ce5.svg?style=for-the-badge&logo=kubernetes&logoColor=white)       | [K8's with Helm Charts](https://docs.appsmith.com/getting-started/setup/installation-guides/kubernetes?utm_source=github&utm_medium=organic&utm_campaign=readme) |
+| ![Heroku](https://img.shields.io/badge/heroku-%23430098.svg?style=for-the-badge&logo=heroku&logoColor=white)                   | [One-Click Install](https://docs.appsmith.com/getting-started/setup/installation-guides/heroku?utm_source=github&utm_medium=organic&utm_campaign=readme)         |
+| ![Ansible](https://img.shields.io/badge/ansible-%231A1918.svg?style=for-the-badge&logo=ansible&logoColor=white)                | [Docs](https://docs.appsmith.com/getting-started/setup/installation-guides/ansible?utm_source=github&utm_medium=organic&utm_campaign=readme)                     |
 
-## Demos
+## How to Contribute
 
-Check out some real applications that can be built with Appsmith:
+We ❤️ our contributors. We're committed to fostering an open, welcoming, and safe environment in the community.
 
-- 👩‍💻 [Customer Support Dashboard](https://app.appsmith.com/applications/5f2aeb2580ca1f6faaed4e4a/pages/5f2d61b580ca1f6faaed4e79/?utm_source=github&utm_medium=direct&utm_content=appsmith_apps&utm_campaign=null&utm_term=appsmith_apps)
-- 🗓️ [Calendly in Appsmith](https://app.appsmith.com/applications/600186605b452f525458d6d2/pages/600186605b452f525458d6d4/?utm_source=github&utm_medium=direct&utm_content=appsmith_apps&utm_campaign=null&utm_term=appsmith_apps)
-- 💸 [Fundraising CRM](https://app.appsmith.com/applications/6098bdc65864501cc39c3d2f/pages/6098bdc65864501cc39c3d31/?utm_source=github&utm_medium=direct&utm_content=appsmith_apps&utm_campaign=null&utm_term=appsmith_apps)
-- 📄 [Application Tracking System App](https://app.appsmith.com/applications/5f43bce13697fd5df1c52ce4/pages/5f43c39c3697fd5df1c52d50/?utm_source=github&utm_medium=direct&utm_content=appsmith_apps&utm_campaign=null&utm_term=appsmith_apps)
-- 📦 [All Sample Apps](https://docs.appsmith.com/sample-apps?utm_source=github&utm_medium=direct&utm_content=appsmith_apps&utm_campaign=null&utm_term=appsmith_apps)
+📕 We expect everyone participating in the community to abide by our [Code of Conduct](https://github.com/appsmithorg/appsmith/blob/release/CODE_OF_CONDUCT.md). Please read and follow it. <br>
+🤝 If you'd like to contribute, start by reading our [Contribution Guide](https://github.com/appsmithorg/appsmith/blob/master/CONTRIBUTING.md).<br>
+🧩 [Set up your local environment](https://github.com/appsmithorg/appsmith/blob/master/contributions/CodeContributionsGuidelines.md#-setup-for-local-development).<br>
+👾 Explore some [good first issues](https://github.com/appsmithorg/appsmith/issues?q=is%3Aissue+is%3Aopen+label%3A%22Good+First+Issue%22).<br>
 
-- 🌟 Made something cool? [Share it with the community](https://discord.gg/rBTTVJp)
-  <br><br>
-
-## Tutorials
-
-Here are the latest tutorials and videos for you to learn more about Appsmith:
-
-1. [Build an Investor CRM using Appsmith on Google Sheets](https://www.appsmith.com/blog/build-an-investor-crm-using-appsmith-on-google-sheets)
-2. [Building an Admin Panel on MongoDB using Appsmith](https://blog.appsmith.com/building-an-admin-panel-with-mongodb-using-appsmith) ([Video](https://www.youtube.com/watch?v=tisUaIgI86k))
-3. [Building a Discount Management Dashboard With Postgres](https://blog.appsmith.com/building-a-discount-management-dashboard-with-postgres)
-4. [Building a Customer Support Dashboard in Appsmith](https://www.youtube.com/watch?v=-O_6OLREEzo)
-5. [Building a Store Catalogue Management System using Appsmith and GraphQL](https://blog.appsmith.com/building-a-store-catalogue-management-system-using-appsmith-and-graphql)
-6. [Using the Notion API to Build a Content Management System](https://blog.appsmith.com/using-the-notion-api-to-build-a-content-management-system)
-7. [How to run manual jobs in Gitlab CI/CD](https://blog.appsmith.com/how-to-run-manual-jobs-in-gitlab-cicd) ([Video](https://www.youtube.com/watch?v=CYdeJcD4I8A))
-8. [Building a Calendly Clone in Appsmith](https://blog.appsmith.com/how-to-build-a-calendly-clone-in-30-minutes)
-9. [Building Internal Tools with Appsmith](https://youtu.be/eYYYfuW-kEE) `Community`
-10. [Building an Issue Tracker with Appsmith](https://dev.to/pjmantoss/how-to-build-an-issue-tracker-with-appsmith-204e) `Community`
-
-Visit our [blog](https://blog.appsmith.com/) to explore more.
-
-## Contribute
-
-We love our contributors! We're committed to fostering an open and welcoming environment in the community. If you'd like to contribute anything from a bug-fix to a feature update, start here—
-
-- 📖 Read our [Contribution Guide](https://github.com/appsmithorg/appsmith/blob/master/CONTRIBUTING.md)
-- 🧩 [Set up your local environment](https://github.com/appsmithorg/appsmith/blob/master/contributions/CodeContributionsGuidelines.md#-setup-for-local-development)
-- 👾 Explore some [good first issues](https://github.com/appsmithorg/appsmith/issues?q=is%3Aissue+is%3Aopen+label%3A%22Good+First+Issue%22)
-- 📕 Read our [Code of Conduct](CODE_OF_CONDUCT.md)
+Lets build great software together.
 
 #### Top Contributors (36)
 
