@@ -1,0 +1,4 @@
+{
+  "client": ["@shared/ast"],
+  "rts": []
+}
