@@ -28,8 +28,20 @@ export const bindingHint: HintHelper = (editor, dataTree, customDataTree) => {
     },
   });
   return {
-    showHint: (editor: CodeMirror.Editor, entityInformation): boolean => {
-      TernServer.setEntityInformation(entityInformation);
+    showHint: (
+      editor: CodeMirror.Editor,
+      entityInformation,
+      additionalData,
+    ): boolean => {
+      if (additionalData && additionalData.blockCompletions) {
+        TernServer.setEntityInformation({
+          ...entityInformation,
+          blockCompletions: additionalData.blockCompletions,
+        });
+      } else {
+        TernServer.setEntityInformation(entityInformation);
+      }
+
       const entityType = entityInformation?.entityType;
       let shouldShow = false;
       if (entityType === ENTITY_TYPE.JSACTION) {
