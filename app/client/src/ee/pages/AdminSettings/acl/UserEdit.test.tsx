@@ -65,8 +65,8 @@ describe("<UserEdit />", () => {
     const searchInput = screen.getAllByTestId("t--acl-search-input");
     expect(searchInput).toHaveLength(1);
 
-    const userGroups = screen.queryAllByText("Administrator");
-    expect(userGroups).toHaveLength(1);
+    const groups = screen.queryAllByText("Administrator");
+    expect(groups).toHaveLength(1);
 
     await userEvent.type(searchInput[0], "test");
     expect(searchInput[0]).toHaveValue("test");

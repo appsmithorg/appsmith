@@ -6,8 +6,9 @@ import {
   ActiveAllGroupsList,
   ActiveAllGroupsProps,
 } from "./ActiveAllGroupsList";
-import { UserGroupAddEdit } from "./UserGroupAddEdit";
-import { userGroupTableData } from "./UserGroupListing";
+import { GroupAddEdit } from "./GroupAddEdit";
+import { userGroupTableData } from "./GroupsListing";
+import { createMessage, ACTIVE_ROLES } from "@appsmith/constants/messages";
 
 let container: any = null;
 
@@ -31,30 +32,24 @@ describe("<ActiveAllGroupsList />", () => {
   });
   it("is rendered", () => {
     renderComponent();
-    const userGroup = screen.queryAllByTestId("t--active-groups");
-    expect(userGroup).toHaveLength(1);
+    const group = screen.queryAllByTestId("t--active-groups");
+    expect(group).toHaveLength(1);
   });
-  it("should render Active Groups as title by default, if there is no title given", () => {
+  it("should render Active Roles as title by default, if there is no title given", () => {
     renderComponent();
     const title = screen.getByTestId("t--active-groups-title");
-    expect(title).toHaveTextContent("Active Groups");
+    expect(title).toHaveTextContent(createMessage(ACTIVE_ROLES));
   });
   it("should render the given title", () => {
     const { getByTestId } = render(
-      <ActiveAllGroupsList
-        {...props}
-        title="Permission groups assigned to Design"
-      />,
+      <ActiveAllGroupsList {...props} title="Roles assigned to Design" />,
     );
     const title = getByTestId("t--active-groups-title");
-    expect(title).toHaveTextContent("Permission groups assigned to Design");
+    expect(title).toHaveTextContent("Roles assigned to Design");
   });
   it("should list active groups and all groups from the given props", () => {
     const { getAllByTestId } = render(
-      <ActiveAllGroupsList
-        {...props}
-        title="Permission groups assigned to Design"
-      />,
+      <ActiveAllGroupsList {...props} title="Roles assigned to Design" />,
     );
     const activeGroups = getAllByTestId("t--active-group-row");
     props.activeGroups.map((group, index) => {
@@ -83,7 +78,7 @@ describe("<ActiveAllGroupsList />", () => {
       <ActiveAllGroupsList
         {...props}
         searchValue="devops"
-        title="Permission groups assigned to Design"
+        title="Roles assigned to Design"
       />,
     );
 
@@ -102,11 +97,11 @@ describe("<ActiveAllGroupsList />", () => {
       onBack: jest.fn(),
     };
     const { getAllByTestId, getByText } = render(
-      <UserGroupAddEdit {...userGroupAddEditProps} />,
+      <GroupAddEdit {...userGroupAddEditProps} />,
     );
     const searchInput = getAllByTestId("t--acl-search-input");
-    const permissionsTab = getByText(`Permissions`);
-    await userEvent.click(permissionsTab);
+    const rolesTab = getByText(`Roles`);
+    await userEvent.click(rolesTab);
     await userEvent.type(searchInput[0], "devops");
 
     await waitFor(() => {

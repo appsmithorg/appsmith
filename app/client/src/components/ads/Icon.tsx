@@ -42,16 +42,7 @@ import { ReactComponent as MobileIcon } from "assets/icons/ads/mobile.svg";
 import { ReactComponent as TabletIcon } from "assets/icons/ads/tablet.svg";
 import { ReactComponent as FluidIcon } from "assets/icons/ads/fluid.svg";
 import { ReactComponent as CardContextMenu } from "assets/icons/ads/card-context-menu.svg";
-import { ReactComponent as SendButton } from "assets/icons/comments/send-button.svg";
-import { ReactComponent as Pin } from "assets/icons/comments/pin.svg";
 import { ReactComponent as TrashOutline } from "assets/icons/form/trash.svg";
-import { ReactComponent as ReadPin } from "assets/icons/comments/read-pin.svg";
-import { ReactComponent as UnreadPin } from "assets/icons/comments/unread-pin.svg";
-// import { ReactComponent as DownArrow2 } from "assets/icons/comments/down-arrow.svg";
-import { ReactComponent as Chat } from "assets/icons/comments/chat.svg";
-import { ReactComponent as Unpin } from "assets/icons/comments/unpinIcon.svg";
-import { ReactComponent as Reaction } from "assets/icons/comments/reaction.svg";
-import { ReactComponent as Reaction2 } from "assets/icons/comments/reaction-2.svg";
 import { ReactComponent as Upload } from "assets/icons/ads/upload.svg";
 // import { ReactComponent as Download } from "assets/icons/ads/download.svg";
 import { ReactComponent as ArrowForwardIcon } from "assets/icons/control/arrow_forward.svg";
@@ -296,11 +287,8 @@ const ICON_LOOKUP = {
   "oval-check": <OvalCheck />,
   "oval-check-fill": <OvalCheckFill />,
   "pin-3": <Pin3 />,
-  "reaction-2": <Reaction2 />,
-  "read-pin": <ReadPin />,
   "right-arrow": <RightArrowIcon />,
   "right-arrow-2": <RightArrowIcon2 />,
-  "send-button": <SendButton />,
   "settings-2-line": <Settings2LineIcon />,
   "share-2": <ShareIcon2 />,
   "share-box": <ShareBoxFillIcon />,
@@ -310,7 +298,6 @@ const ICON_LOOKUP = {
   "swap-horizontal": <ArrowLeftRightIcon />,
   "trash-outline": <TrashOutline />,
   "trending-flat": <TrendingFlat />,
-  "unread-pin": <UnreadPin />,
   "upload-cloud": <UploadCloud2LineIcon />,
   "user-2": <UserV2Icon />,
   "user-heart-line": <UserHeartLineIcon />,
@@ -324,7 +311,6 @@ const ICON_LOOKUP = {
   book: <BookIcon />,
   bug: <BugIcon />,
   cancel: <CancelIcon />,
-  chat: <Chat />,
   close: <CloseIcon />,
   code: <CodeViewIcon />,
   column: <ColumnIcon />,
@@ -362,11 +348,9 @@ const ICON_LOOKUP = {
   minus: <RemoveIcon />,
   mobile: <MobileIcon />,
   open: <OpenIcon />,
-  pin: <Pin />,
   play: <PlayIcon />,
   plus: <CreateNewIcon />,
   query: <QueryIcon />,
-  reaction: <Reaction />,
   refresh: <RefreshLineIcon />,
   rocket: <RocketIcon />,
   search: <SearchIcon />,
@@ -379,7 +363,6 @@ const ICON_LOOKUP = {
   tables: <TableIcon />,
   tablet: <TabletIcon />,
   trash: <Trash />,
-  unpin: <Unpin />,
   upArrow: <UpArrow />,
   upload: <Upload />,
   user: <UserIcon />,

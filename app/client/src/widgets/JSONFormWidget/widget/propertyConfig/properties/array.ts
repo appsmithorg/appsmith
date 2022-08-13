@@ -64,6 +64,16 @@ const PROPERTIES = {
           dependencies: ["schema"],
         },
         {
+          propertyName: "borderWidth",
+          helpText: "Enter value for border width",
+          label: "Border Width",
+          placeholderText: "Enter value in px",
+          controlType: "INPUT_TEXT",
+          isBindProperty: true,
+          isTriggerProperty: false,
+          validation: { type: ValidationTypes.NUMBER },
+        },
+        {
           propertyName: "borderColor",
           label: "Border Color",
           helpText: "Changes the border color of Object",
@@ -79,16 +89,6 @@ const PROPERTIES = {
             },
           },
           dependencies: ["schema"],
-        },
-        {
-          propertyName: "borderWidth",
-          helpText: "Enter value for border width",
-          label: "Border Width",
-          placeholderText: "Enter value in px",
-          controlType: "INPUT_TEXT",
-          isBindProperty: true,
-          isTriggerProperty: false,
-          validation: { type: ValidationTypes.NUMBER },
         },
         {
           propertyName: "borderRadius",
@@ -147,6 +147,16 @@ const PROPERTIES = {
           dependencies: ["schema"],
         },
         {
+          propertyName: "cellBorderWidth",
+          helpText: "Enter value for border width of the item",
+          label: "Border Width",
+          placeholderText: "Enter value in px",
+          controlType: "INPUT_TEXT",
+          isBindProperty: true,
+          isTriggerProperty: false,
+          validation: { type: ValidationTypes.NUMBER },
+        },
+        {
           propertyName: "cellBorderColor",
           label: "Border Color",
           helpText: "Changes the border color of the item",
@@ -162,16 +172,6 @@ const PROPERTIES = {
             },
           },
           dependencies: ["schema"],
-        },
-        {
-          propertyName: "cellBorderWidth",
-          helpText: "Enter value for border width of the item",
-          label: "Border Width",
-          placeholderText: "Enter value in px",
-          controlType: "INPUT_TEXT",
-          isBindProperty: true,
-          isTriggerProperty: false,
-          validation: { type: ValidationTypes.NUMBER },
         },
         {
           propertyName: "cellBorderRadius",
@@ -209,6 +209,43 @@ const PROPERTIES = {
       },
     },
   ],
+
+  content: {
+    data: [
+      {
+        helpText:
+          "Sets the default value of the field. The array is updated when the default value changes",
+        propertyName: "defaultValue",
+        label: "Default Value",
+        controlType: "JSON_FORM_COMPUTE_VALUE",
+        placeholderText: "[]",
+        isBindProperty: true,
+        isTriggerProperty: false,
+        validation: {
+          type: ValidationTypes.ARRAY,
+        },
+        hidden: (...args: HiddenFnParams) =>
+          getSchemaItem(...args).fieldTypeNotMatches(FieldType.ARRAY),
+        dependencies: ["schema"],
+      },
+    ],
+    general: [
+      {
+        propertyName: "isCollapsible",
+        label: "Collapsible",
+        helpText: "Makes the array items collapsible",
+        controlType: "SWITCH",
+        isJSConvertible: true,
+        isBindProperty: true,
+        isTriggerProperty: false,
+        customJSControl: "JSON_FORM_COMPUTE_VALUE",
+        validation: { type: ValidationTypes.BOOLEAN },
+        hidden: (...args: HiddenFnParams) =>
+          getSchemaItem(...args).fieldTypeNotMatches(FieldType.ARRAY),
+        dependencies: ["schema"],
+      },
+    ],
+  },
 };
 
 export default PROPERTIES;

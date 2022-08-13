@@ -254,6 +254,16 @@ export const OAUTH_2_0 = () => "OAuth 2.0";
 export const ENABLE = () => "ENABLE";
 export const UPGRADE = () => "UPGRADE";
 export const EDIT = () => "EDIT";
+export const UNEXPECTED_ERROR = () => "An unexpected error occurred";
+export const EXPECTED_ERROR = () => "An error occurred";
+export const NO_DATASOURCE_FOR_QUERY = () =>
+  `Seems like you don’t have any Datasources to create a query`;
+export const ACTION_EDITOR_REFRESH = () => "Refresh";
+export const INVALID_FORM_CONFIGURATION = () => "Invalid form configuration";
+export const ACTION_RUN_BUTTON_MESSAGE_FIRST_HALF = () => "🙌 Click on";
+export const ACTION_RUN_BUTTON_MESSAGE_SECOND_HALF = () =>
+  "after adding your query";
+export const CREATE_NEW_DATASOURCE = () => "Create new datasource";
 
 export const ERROR_EVAL_ERROR_GENERIC = () =>
   `Unexpected error occurred while evaluating the application`;
@@ -312,43 +322,10 @@ export const BACK_TO_HOMEPAGE = () => "Go back to homepage";
 
 export const PAGE_NOT_FOUND = () => "Page not found";
 
-export const RESOLVE = () => "Resolve";
-export const UNRESOLVE = () => "Unresolve";
-
 // comments
-export const ADD_COMMENT_PLACEHOLDER = () => "Add a comment. Use @ to mention";
-export const PIN_COMMENT = () => "Pin comment";
-export const UNPIN_COMMENT = () => "Unpin comment";
-export const COPY_LINK = () => "Copy link";
-export const DELETE_COMMENT = () => "Delete comment";
-export const COMMENT_HAS_BEEN_DELETED = () => "Comment not found";
-export const DELETE_THREAD = () => "Delete thread";
-export const EDIT_COMMENT = () => "Edit comment";
-export const COMMENTS = () => "Comments";
-export const VIEW_LATEST = () => "View latest";
 export const POST = () => "Post";
 export const CANCEL = () => "Cancel";
-export const NO_COMMENTS_CLICK_ON_CANVAS_TO_ADD = () =>
-  `No comments. \n Click anywhere on the canvas \nto start a conversation.`;
-export const LINK_COPIED_SUCCESSFULLY = () => "Link copied to clipboard";
-export const FULL_NAME = () => "Full Name";
-export const DISPLAY_NAME = () => "Display Name";
-export const EMAIL_ADDRESS = () => "Email Address";
-export const FIRST_AND_LAST_NAME = () => "First and last name";
-export const MARK_ALL_AS_READ = () => "Mark all as read";
-export const INVITE_A_NEW_USER = () => "Invite a new user";
 export const REMOVE = () => "Remove";
-export const NO_NOTIFICATIONS_TO_SHOW = () => "No notifications to show";
-export const UNREAD_MESSAGE = () => "Unread conversation";
-export const UNSUBSCRIBE_EMAIL_SUCCESS = () =>
-  "You have successfully unsubscribed from the corresponding comment thread";
-export const UNSUBSCRIBE_EMAIL_MSG_1 = () =>
-  "You will not receive any more email notifications for the corresponding comment thread.";
-export const UNSUBSCRIBE_EMAIL_MSG_2 = () =>
-  "Please note that you will be subscribed again if someone tags you in a comment or you reply to a comment.";
-export const UNSUBSCRIBE_EMAIL_CONFIRM_MSG = () =>
-  "Are you sure you want to unsubscribe?";
-export const UNSUBSCRIBE_BUTTON_LABEL = () => "Unsubscribe me";
 
 // Showcase Carousel
 export const NEXT = () => "NEXT";
@@ -946,6 +923,8 @@ export const API_EDITOR_TAB_TITLES = {
   AUTHENTICATION: () => "Authentication",
   SETTINGS: () => "Settings",
 };
+export const ACTION_EXECUTION_MESSAGE = (actionType: string) =>
+  `Sending the ${actionType} request`;
 
 export const WELCOME_FORM_HEADER = () => "Let us get to know you better!";
 export const WELCOME_FORM_FULL_NAME = () => "Full Name";
@@ -1045,6 +1024,8 @@ export const DEPRECATION_WIDGET_REPLACEMENT_MESSAGE = (
 export const LOCK_ENTITY_EXPLORER_MESSAGE = () => `Lock sidebar open`;
 export const CLOSE_ENTITY_EXPLORER_MESSAGE = () => `Close sidebar`;
 export const JS_TOGGLE_DISABLED_MESSAGE = "Clear the field to toggle back";
+export const PROPERTY_PANE_EMPTY_SEARCH_RESULT_MESSAGE =
+  "No Properties found based on your search";
 
 // API Pane
 export const API_PANE_NO_BODY = () => "This request does not have a body";

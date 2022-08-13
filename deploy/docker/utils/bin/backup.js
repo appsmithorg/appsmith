@@ -1,4 +1,5 @@
 const fsPromises = require('fs/promises');
+const fs = require('fs');
 const path = require('path');
 const os = require('os');
 
@@ -9,6 +10,7 @@ const Constants = require('./constants');
 const logger = require('./logger');
 const mailer = require('./mailer');
 
+const aws = require('./aws');
 const command_args = process.argv.slice(3);
 
 async function run() {
@@ -50,8 +52,29 @@ async function run() {
 
     await fsPromises.rm(backupRootPath, { recursive: true, force: true });
 
-    console.log('Finished taking a backup at', archivePath);
-    await postBackupCleanup();
+    console.log('Finished taking a local backup at', archivePath);
+
+    if (command_args.includes('--upload-to-s3')){
+      await aws.uploadArchiveToS3Bucket(archivePath);
+      const oldArchivePaths = []
+      await fsPromises.readdir(Constants.BACKUP_PATH).then(filenames => {
+        for (let filename of filenames) {
+          if (filename.match(/^appsmith-backup-.*\.tar\.gz$/)) {
+            const filePath = Constants.BACKUP_PATH + '/' + filename;
+            if (filePath !== archivePath){
+              oldArchivePaths.push(filePath)
+            }
+            }}}).catch(err => {
+              console.log(err);
+          });
+      for(let filepath of oldArchivePaths){
+        console.log('Deleteing: ' + filepath)
+        await fsPromises.rm(filepath);
+      }
+    }
+    else{
+      await postBackupCleanup();
+    }
 
   } catch (err) {
     errorCode = 1;

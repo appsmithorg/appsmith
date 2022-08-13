@@ -80,7 +80,8 @@ export const ShowLess = styled.div`
 
 export type User = {
   isCurrentUser: boolean;
-  allRoles: Array<string>;
+  allGroups: Array<string>;
+  allPermissions: Array<string>;
   userId: string;
   username: string;
   name: string;
@@ -96,7 +97,8 @@ export const allUsers: User[] = [
     isDeleting: false,
     name: "Ankita Kinger",
     // roleName: "Administrator + 2 more",
-    allRoles: ["Administrator", "Test_Admin", "HR_Admin"],
+    allGroups: ["Administrator", "Test_Admin", "HR_Admin"],
+    allPermissions: ["Administrator-PG", "Test_Admin-PG", "HR_Admin-PG"],
     username: "techak@appsmith.com",
     userId: "123",
   },
@@ -106,7 +108,8 @@ export const allUsers: User[] = [
     isDeleting: false,
     name: "Sangy Sivan",
     // roleName: "App Viewer + 1 more",
-    allRoles: ["App Viewer", "HR_Admin"],
+    allGroups: ["App Viewer", "HR_Admin"],
+    allPermissions: ["App Viewer-PG", "HR_Admin-PG"],
     username: "sangy@appsmith.com",
     userId: "456",
   },
@@ -116,7 +119,8 @@ export const allUsers: User[] = [
     isDeleting: false,
     name: "SS Sivan",
     // roleName: "App Viewer + 1 more",
-    allRoles: ["App Viewer", "HR_Admin"],
+    allGroups: ["App Viewer", "HR_Admin"],
+    allPermissions: ["App Viewer-PG", "HR_Admin-PG"],
     username: "sangy123@appsmith.com",
     userId: "789",
   },
@@ -189,16 +193,16 @@ export function UserListing() {
       },
     },
     {
-      Header: "User Groups",
-      accessor: "allRoles",
-      Cell: function UserGroupCell(cellProps: any) {
+      Header: "Roles",
+      accessor: "allPermissions",
+      Cell: function RoleCell(cellProps: any) {
         const [showAllGroups, setShowAllGroups] = useState(false);
 
         return (
-          <CellContainer data-testid="user-listing-userGroupCell">
+          <CellContainer data-testid="user-listing-rolesCell">
             {showAllGroups ? (
               <AllGroups>
-                {cellProps.cell.row.values.allRoles.map((group: any) => (
+                {cellProps.cell.row.values.allPermissions.map((group: any) => (
                   <div key={group}>{group}</div>
                 ))}
                 <ShowLess
@@ -210,31 +214,88 @@ export function UserListing() {
               </AllGroups>
             ) : (
               <GroupWrapper>
-                {cellProps.cell.row.values.allRoles[0]}
-                {cellProps.cell.row.values.allRoles[0].length < 30 ? (
+                {cellProps.cell.row.values.allPermissions[0]}
+                {cellProps.cell.row.values.allPermissions[0].length < 40 ? (
                   <>
-                    , {cellProps.cell.row.values.allRoles[1]}
-                    {cellProps.cell.row.values.allRoles.length > 2 && (
+                    , {cellProps.cell.row.values.allPermissions[1]}
+                    {cellProps.cell.row.values.allPermissions.length > 2 && (
                       <MoreGroups
                         data-testid="t--show-more"
                         onClick={() => setShowAllGroups(true)}
                       >
                         {createMessage(
                           SHOW_MORE_GROUPS,
-                          cellProps.cell.row.values.allRoles.length - 2,
+                          cellProps.cell.row.values.allPermissions.length - 2,
                         )}
                       </MoreGroups>
                     )}
                   </>
                 ) : (
-                  cellProps.cell.row.values.allRoles.length > 1 && (
+                  cellProps.cell.row.values.allPermissions.length > 1 && (
                     <MoreGroups
                       data-testid="t--show-more"
                       onClick={() => setShowAllGroups(true)}
                     >
                       {createMessage(
                         SHOW_MORE_GROUPS,
-                        cellProps.cell.row.values.allRoles.length - 1,
+                        cellProps.cell.row.values.allPermissions.length - 1,
+                      )}
+                    </MoreGroups>
+                  )
+                )}
+              </GroupWrapper>
+            )}
+          </CellContainer>
+        );
+      },
+    },
+    {
+      Header: "Groups",
+      accessor: "allGroups",
+      Cell: function GroupCell(cellProps: any) {
+        const [showAllGroups, setShowAllGroups] = useState(false);
+
+        return (
+          <CellContainer data-testid="user-listing-groupCell">
+            {showAllGroups ? (
+              <AllGroups>
+                {cellProps.cell.row.values.allGroups.map((group: any) => (
+                  <div key={group}>{group}</div>
+                ))}
+                <ShowLess
+                  data-testid="t--show-less"
+                  onClick={() => setShowAllGroups(false)}
+                >
+                  {createMessage(SHOW_LESS_GROUPS)}
+                </ShowLess>
+              </AllGroups>
+            ) : (
+              <GroupWrapper>
+                {cellProps.cell.row.values.allGroups[0]}
+                {cellProps.cell.row.values.allGroups[0].length < 40 ? (
+                  <>
+                    , {cellProps.cell.row.values.allGroups[1]}
+                    {cellProps.cell.row.values.allGroups.length > 2 && (
+                      <MoreGroups
+                        data-testid="t--show-more"
+                        onClick={() => setShowAllGroups(true)}
+                      >
+                        {createMessage(
+                          SHOW_MORE_GROUPS,
+                          cellProps.cell.row.values.allGroups.length - 2,
+                        )}
+                      </MoreGroups>
+                    )}
+                  </>
+                ) : (
+                  cellProps.cell.row.values.allGroups.length > 1 && (
+                    <MoreGroups
+                      data-testid="t--show-more"
+                      onClick={() => setShowAllGroups(true)}
+                    >
+                      {createMessage(
+                        SHOW_MORE_GROUPS,
+                        cellProps.cell.row.values.allGroups.length - 1,
                       )}
                     </MoreGroups>
                   )
@@ -255,7 +316,7 @@ export function UserListing() {
       onSelect: (e, userId: string) => {
         userId && history.push(`/settings/users/${userId}`);
       },
-      text: "Edit User Groups",
+      text: "Edit Groups",
     },
     {
       label: "delete",

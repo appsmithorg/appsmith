@@ -81,6 +81,7 @@ COPY ./app/rts/node_modules rts/node_modules
 COPY ./deploy/docker/templates/nginx/* \
   ./deploy/docker/templates/mongo-init.js.sh\
   ./deploy/docker/templates/docker.env.sh \
+  ./deploy/docker/templates/keycloak-standalone.xml \
   templates/
 
 # Add bootstrapfile

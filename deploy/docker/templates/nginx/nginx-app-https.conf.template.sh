@@ -50,7 +50,7 @@ server {
   ssl_dhparam /appsmith-stacks/data/certificate/conf/ssl-dhparams.pem;
 
   # https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy/frame-ancestors
-  add_header Content-Security-Policy "frame-ancestors ${APPSMITH_ALLOWED_FRAME_ANCESTORS-'self'}";
+  add_header Content-Security-Policy "frame-ancestors ${APPSMITH_ALLOWED_FRAME_ANCESTORS-'self' *}";
 
   location = /supervisor {
     return 301 /supervisor/;
@@ -78,6 +78,9 @@ server {
   client_max_body_size 100m;
 
   gzip on;
+  gzip_types *;
+
+  server_tokens off;
 
   root /opt/appsmith/editor;
   index index.html index.htm;

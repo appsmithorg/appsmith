@@ -42,16 +42,16 @@ export const columns = [
     },
   },
   {
-    Header: "User Groups",
-    accessor: "allRoles",
-    Cell: function UserGroupCell(cellProps: any) {
+    Header: "Groups",
+    accessor: "allGroups",
+    Cell: function GroupCell(cellProps: any) {
       const [showAllGroups, setShowAllGroups] = useState(false);
 
       return (
-        <CellContainer data-testid="user-listing-userGroupCell">
+        <CellContainer data-testid="user-listing-groupCell">
           {showAllGroups ? (
             <AllGroups>
-              {cellProps.cell.row.values.allRoles.map((group: any) => (
+              {cellProps.cell.row.values.allGroups.map((group: any) => (
                 <div key={group}>{group}</div>
               ))}
               <ShowLess
@@ -63,14 +63,14 @@ export const columns = [
             </AllGroups>
           ) : (
             <GroupWrapper>
-              {cellProps.cell.row.values.allRoles[0]} ,{" "}
-              {cellProps.cell.row.values.allRoles[1]}
-              {cellProps.cell.row.values.allRoles.length > 2 && (
+              {cellProps.cell.row.values.allGroups[0]} ,{" "}
+              {cellProps.cell.row.values.allGroups[1]}
+              {cellProps.cell.row.values.allGroups.length > 2 && (
                 <MoreGroups
                   data-testid="t--show-more"
                   onClick={() => setShowAllGroups(true)}
                 >
-                  show {cellProps.cell.row.values.allRoles.length - 2} more
+                  show {cellProps.cell.row.values.allGroups.length - 2} more
                 </MoreGroups>
               )}
             </GroupWrapper>

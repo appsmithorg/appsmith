@@ -43,6 +43,11 @@ export class PropertyPane {
   _colorPickerV2Color = ".t--colorpicker-v2-color";
   _colorRing = ".border-2";
 
+  private isMac = Cypress.platform === "darwin";
+  private selectAllJSObjectContentShortcut = `${
+    this.isMac ? "{cmd}{a}" : "{ctrl}{a}"
+  }`;
+
   public OpenJsonFormFieldSettings(fieldName: string) {
     this.agHelper.GetNClick(this._fieldConfig(fieldName));
   }
@@ -108,9 +113,10 @@ export class PropertyPane {
         .GetText(this.locator._existingActualValueByName("Property Name"))
         .then(($propName) => {
           placeHolderText = "{{sourceData." + $propName + "}}";
-          this.UpdatePropertyFieldValue("Placeholder", placeHolderText);
+          this.UpdatePropertyFieldValue("Placeholder", placeHolderText, false);
         });
-      this.UpdatePropertyFieldValue("Default Value", "");
+      this.RemoveText("Default Value");
+      //this.UpdatePropertyFieldValue("Default Value", "");
       this.NavigateBackToPropertyPane();
     });
   }
@@ -147,26 +153,52 @@ export class PropertyPane {
     this.agHelper.AssertAutoSave();
   }
 
-  public UpdatePropertyFieldValue(propFieldName: string, valueToEnter: string) {
+  public UpdatePropertyFieldValue(
+    propFieldName: string,
+    valueToEnter: string,
+    toVerifySave = true,
+  ) {
     cy.xpath(this.locator._existingFieldTextByName(propFieldName)).then(
       ($field: any) => {
         this.agHelper.UpdateCodeInput($field, valueToEnter);
       },
     );
+    toVerifySave && this.agHelper.AssertAutoSave(); //Allowing time for saving entered value
   }
 
   public RemoveText(endp: string) {
     cy.get(
       this.locator._propertyControl +
-        endp +
+        endp.replace(/ +/g, "").toLowerCase() +
         " " +
         this.locator._codeMirrorTextArea,
     )
       .first()
       .focus()
-      .type("{uparrow}", { force: true })
-      .type("{ctrl}{shift}{downarrow}", { force: true })
-      .type("{del}", { force: true });
+      .type(this.selectAllJSObjectContentShortcut)
+      .type("{backspace}", { force: true });
+    // .type("{uparrow}", { force: true })
+    // .type("{ctrl}{shift}{downarrow}", { force: true })
+    // .type("{del}", { force: true });
     this.agHelper.AssertAutoSave();
+  }
+
+  public TypeTextIntoField(endp: string, value: string) {
+    this.RemoveText(endp);
+    cy.get(
+      this.locator._propertyControl +
+        endp.replace(/ +/g, "").toLowerCase() +
+        " " +
+        this.locator._codeMirrorTextArea,
+    )
+      .first()
+      .then((el: any) => {
+        cy.get(el).type(value, {
+          parseSpecialCharSequences: false,
+          force: true,
+        });
+      });
+
+    this.agHelper.AssertAutoSave(); //Allowing time for saving entered value
   }
 }

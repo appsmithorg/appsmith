@@ -17,7 +17,7 @@ const userListingProps = {
       className: "edit-menu-item",
       icon: "edit-underline",
       onSelect: onSelectFn,
-      text: "Edit User Groups",
+      text: "Edit Groups",
     },
     {
       label: "delete",
