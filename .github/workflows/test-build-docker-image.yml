@@ -417,13 +417,17 @@ jobs:
       github.event.review.state == 'approved' &&
       github.event.pull_request.head.repo.full_name == github.repository))
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+
     defaults:
       run:
         shell: bash
     strategy:
       fail-fast: false
       matrix:
-        job: [0, 1,]
+        job: [0, 1]
 
     # Service containers to run with this job. Required for running tests
     services:
@@ -440,6 +444,9 @@ jobs:
           - 27017:27017
 
     steps:
+      - name: Set up Depot CLI
+        uses: depot/setup-action@v1
+
       # Checkout the code
       - name: Checkout the merged commit from PR and base branch
         if: github.event_name == 'pull_request_review'
