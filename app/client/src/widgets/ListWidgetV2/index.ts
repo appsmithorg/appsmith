@@ -303,16 +303,17 @@ export const CONFIG = {
             widgets: { [widgetId: string]: FlattenedWidgetProps },
           ) => {
             // List > Canvas > Container > Canvas > Widgets
+            const mainCanvas = get(widget, "children.0");
             const containerId = get(widget, "children.0.children.0");
             const containerWidget = get(widgets, containerId);
-            const canvasId = (containerWidget?.children || [])[0];
-            const canvasWidget = widgets[canvasId];
+            // const canvasId = (containerWidget?.children || [])[0];
+            // const canvasWidget = widgets[canvasId];
 
             const {
               childrenUpdatePropertyMap,
               dynamicPathMap,
               template,
-            } = computeWidgets(canvasWidget, widgets);
+            } = computeWidgets(containerWidget, widgets);
 
             return [
               ...childrenUpdatePropertyMap,
@@ -333,8 +334,8 @@ export const CONFIG = {
               },
               {
                 widgetId: widget.widgetId,
-                propertyName: "itemCanvasId",
-                propertyValue: canvasId,
+                propertyName: "mainCanvasId",
+                propertyValue: mainCanvas.id,
               },
             ];
           },

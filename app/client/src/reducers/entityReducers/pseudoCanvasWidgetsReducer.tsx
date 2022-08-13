@@ -16,10 +16,7 @@ export type FlattenedWidgetProps<orType = never> =
     })
   | orType;
 
-type AddPseudoWidgetPayload = {
-  parentWidgetId: string;
-  widgetProps: WidgetProps | WidgetProps[];
-};
+type AddPseudoWidgetPayload = Record<string, FlattenedWidgetProps>;
 
 const initialState: PseudoCanvasWidgetsReduxState = {};
 
@@ -28,7 +25,10 @@ const pseudoCanvasWidgetsReducer = createImmerReducer(initialState, {
     state: PseudoCanvasWidgetsReduxState,
     action: ReduxAction<AddPseudoWidgetPayload>,
   ) => {
-    return action.payload;
+    Object.entries(action.payload).forEach(([pseudoWidgetId, widgetProps]) => {
+      state[pseudoWidgetId] = widgetProps;
+    });
+    return state;
   },
   [ReduxActionTypes.UPDATE_PSEUDO_WIDGET]: (
     state: PseudoCanvasWidgetsReduxState,
