@@ -224,6 +224,177 @@ class RateWidget extends BaseWidget<RateWidgetProps, WidgetState> {
     ];
   }
 
+  static getPropertyPaneContentConfig() {
+    return [
+      {
+        sectionName: "Data",
+        children: [
+          {
+            propertyName: "maxCount",
+            helpText: "Sets the maximum allowed rating",
+            label: "Max Rating",
+            controlType: "INPUT_TEXT",
+            placeholderText: "5",
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: {
+              type: ValidationTypes.NUMBER,
+              params: { natural: true },
+            },
+          },
+          {
+            propertyName: "defaultRate",
+            helpText: "Sets the default rating",
+            label: "Default Rating",
+            controlType: "INPUT_TEXT",
+            placeholderText: "2.5",
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: {
+              type: ValidationTypes.FUNCTION,
+              params: {
+                fn: validateDefaultRate,
+                expected: {
+                  type: "number",
+                  example: 5,
+                  autocompleteDataType: AutocompleteDataType.NUMBER,
+                },
+              },
+            },
+            dependencies: ["maxCount", "isAllowHalf"],
+          },
+          {
+            propertyName: "tooltips",
+            helpText: "Sets the tooltip contents of stars",
+            label: "Tooltips",
+            controlType: "INPUT_TEXT",
+            placeholderText: '["Bad", "Neutral", "Good"]',
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: {
+              type: ValidationTypes.ARRAY,
+              params: { children: { type: ValidationTypes.TEXT } },
+            },
+          },
+        ],
+      },
+      {
+        sectionName: "General",
+        children: [
+          {
+            propertyName: "isAllowHalf",
+            helpText: "Controls if user can submit half stars",
+            label: "Allow Half Stars",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+          },
+          {
+            propertyName: "isVisible",
+            helpText: "Controls the visibility of the widget",
+            label: "Visible",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+          },
+          {
+            propertyName: "isDisabled",
+            helpText: "Disables input to the widget",
+            label: "Disabled",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+          },
+          {
+            propertyName: "animateLoading",
+            label: "Animate Loading",
+            controlType: "SWITCH",
+            helpText: "Controls the loading of the widget",
+            defaultValue: true,
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+          },
+        ],
+      },
+      {
+        sectionName: "Events",
+        children: [
+          {
+            helpText: "Triggers an action when the rate is changed",
+            propertyName: "onRateChanged",
+            label: "onChange",
+            controlType: "ACTION_SELECTOR",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: true,
+          },
+        ],
+      },
+    ];
+  }
+
+  static getPropertyPaneStyleConfig() {
+    return [
+      {
+        sectionName: "General",
+        children: [
+          {
+            propertyName: "size",
+            label: "Star Size",
+            controlType: "DROP_DOWN",
+            options: [
+              {
+                label: "Small",
+                value: "SMALL",
+              },
+              {
+                label: "Medium",
+                value: "MEDIUM",
+              },
+              {
+                label: "Large",
+                value: "LARGE",
+              },
+            ],
+            isBindProperty: false,
+            isTriggerProperty: false,
+          },
+        ],
+      },
+      {
+        sectionName: "Color",
+        children: [
+          {
+            propertyName: "activeColor",
+            label: "Active Color",
+            controlType: "COLOR_PICKER",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
+          {
+            propertyName: "inactiveColor",
+            label: "Inactive Color",
+            controlType: "COLOR_PICKER",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
+        ],
+      },
+    ];
+  }
+
   static getDefaultPropertiesMap(): Record<string, string> {
     return {
       rate: "defaultRate",
