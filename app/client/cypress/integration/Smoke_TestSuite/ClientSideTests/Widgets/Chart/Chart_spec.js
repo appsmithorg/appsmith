@@ -31,7 +31,7 @@ describe("Chart Widget Functionality", function() {
     /**
      * @param{Text} Random Input Value
      */
-    cy.testCodeMirror(this.data.chartIndata);
+    cy.testJsontext("title",this.data.chartIndata);
     cy.get(viewWidgetsPage.chartInnerText)
       .click()
       .contains("App Sign Up")
@@ -304,7 +304,9 @@ describe("Chart Widget Functionality", function() {
       .should("exist");
   });
 
+
   afterEach(() => {
     cy.goToEditFromPublish();
   });
+  
 });

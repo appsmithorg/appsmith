@@ -161,13 +161,14 @@ describe("Theme validation usecases", function() {
   });
 
   it("Validate Default Theme change across application", function() {
-    cy.goToEditFromPublish();
+    //cy.goToEditFromPublish();
     cy.get(formWidgetsPage.formD).click();
     cy.widgetText(
       "FormTest",
       formWidgetsPage.formWidget,
       formWidgetsPage.formInner,
     );
+    cy.moveToStyleTab();
     cy.get(widgetsPage.backgroundcolorPickerNew)
       .first()
       .click({ force: true });
@@ -217,13 +218,14 @@ describe("Theme validation usecases", function() {
   });
 
   it("Validate Theme change across application", function() {
-    cy.goToEditFromPublish();
+    //cy.goToEditFromPublish();
     cy.get(formWidgetsPage.formD).click();
     cy.widgetText(
       "FormTest",
       formWidgetsPage.formWidget,
       formWidgetsPage.formInner,
     );
+    cy.moveToStyleTab();
     cy.get(widgetsPage.backgroundcolorPickerNew)
       .first()
       .click({ force: true });
@@ -292,6 +294,7 @@ describe("Theme validation usecases", function() {
       formWidgetsPage.formWidget,
       formWidgetsPage.formInner,
     );
+    cy.moveToStyleTab();
     cy.get(widgetsPage.backgroundcolorPickerNew)
       .first()
       .click({ force: true });
