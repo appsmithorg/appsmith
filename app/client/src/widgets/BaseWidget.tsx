@@ -37,6 +37,7 @@ import { BatchPropertyUpdatePayload } from "actions/controlActions";
 import AppsmithConsole from "utils/AppsmithConsole";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import PreviewModeComponent from "components/editorComponents/PreviewModeComponent";
+import { FlattenedWidgetProps } from "./constants";
 
 /***
  * BaseWidget
@@ -160,12 +161,14 @@ abstract class BaseWidget<
   componentDidMount(): void {}
   /* eslint-enable @typescript-eslint/no-empty-function */
 
-  addPseudoWidget = (pseudoWidgetProps: WidgetProps | WidgetProps[]) => {
-    this.context.addPseudoWidget?.(this.props.widgetId, pseudoWidgetProps);
+  addPseudoWidget = (pseudoWidgets: Record<string, FlattenedWidgetProps>) => {
+    this.context.addPseudoWidget?.(pseudoWidgets);
   };
 
-  updatePseudoWidget = (pseudoWidgetProps: WidgetProps | WidgetProps[]) => {
-    this.context.updatePseudoWidget?.(pseudoWidgetProps);
+  updatePseudoWidget = (
+    pseudoWidgets: Record<string, FlattenedWidgetProps>,
+  ) => {
+    this.context.updatePseudoWidget?.(pseudoWidgets);
   };
 
   deletePseudoWidget = (pseudoWidgetId: string | string[]) => {

@@ -13,33 +13,42 @@ import {
   isEmpty,
   isEqual,
 } from "lodash";
-import memoizeOne from "memoize-one";
-import shallowEqual from "shallowequal";
 import WidgetFactory from "utils/WidgetFactory";
-import { removeFalsyEntries } from "utils/helpers";
 import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import { RenderModes, WidgetType } from "constants/WidgetConstants";
 import ListComponent, {
   ListComponentEmpty,
   ListComponentLoading,
 } from "../component";
-// import { ContainerStyle } from "components/designSystems/appsmith/ContainerComponent";
-// import { ContainerWidgetProps } from "../ContainerWidget";
 import propertyPaneConfig from "./propertyConfig";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import { getDynamicBindings } from "utils/DynamicBindingUtils";
+import {
+  combineDynamicBindings,
+  getDynamicBindings,
+} from "utils/DynamicBindingUtils";
 import ListPagination, {
   ServerSideListPagination,
 } from "../component/ListPagination";
 import { GridDefaults } from "constants/WidgetConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import derivedProperties from "./parseDerivedProperties";
-import { DSLWidget } from "widgets/constants";
+import { DSLWidget, FlattenedWidgetProps } from "widgets/constants";
 import { entityDefinitions } from "utils/autocomplete/EntityDefinitions";
 import { escapeSpecialChars } from "../../WidgetUtils";
 import { PrivateWidgets } from "entities/DataTree/dataTreeFactory";
 
 import { klona } from "klona";
+import { generateReactKey } from "utils/generators";
+
+export type DynamicPathList = Record<string, string[]>;
+
+export type Template = Record<string, FlattenedWidgetProps>;
+
+export type GeneratePseudoWidgetOptions = {
+  parentId: string;
+  widgetId: string;
+  pseudoWidgets?: Template;
+};
 
 const LIST_WIDGET_PAGINATION_HEIGHT = 36;
 
@@ -79,13 +88,87 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
     );
 
     // generate childMetaPropertyMap
-    this.generateChildrenDefaultPropertiesMap(this.props);
-    this.generateChildrenMetaPropertiesMap(this.props);
+    // this.generateChildrenDefaultPropertiesMap(this.props);
+    // this.generateChildrenMetaPropertiesMap(this.props);
     this.generateChildrenEntityDefinitions(this.props);
 
     // add privateWidgets to ListWidget
     this.addPrivateWidgetsForChildren(this.props);
+
+    this.initPseudoWidget();
   }
+
+  initPseudoWidget = () => {
+    const { pageNo, pageSize } = this.props;
+    const startIndex = pageSize * (pageNo - 1) + 1;
+
+    let pseudoWidgets: Record<string, FlattenedWidgetProps> = {};
+
+    Array.from(Array(pageSize).keys()).forEach((idx) => {
+      const index = startIndex + idx;
+
+      pseudoWidgets = {
+        ...pseudoWidgets,
+        ...this.computePseudoWidgets(index),
+      };
+    });
+
+    this.addPseudoWidget(pseudoWidgets);
+  };
+
+  getBinding = (value: string, widgetName: string) => {
+    const { jsSnippets, stringSegments } = getDynamicBindings(value);
+
+    const js = combineDynamicBindings(jsSnippets, stringSegments);
+
+    return `{{((currentItem) => ${js})(${this.props.widgetName}.listData[${widgetName}.__index])}}`;
+  };
+
+  generatePseudoWidgets = (
+    index: number,
+    options: GeneratePseudoWidgetOptions,
+  ) => {
+    const { template, dynamicPathMap = {}, widgetName } = this.props;
+    const { widgetId, parentId, pseudoWidgets = {} } = options;
+    const widget = template[widgetId];
+    const pseudoWidget = klona(widget);
+
+    pseudoWidget.__index = index;
+    pseudoWidget.widgetName = `${widgetName}_${widget.widgetName}_${index}`;
+    pseudoWidget.parentId = parentId;
+    pseudoWidget.widgetId = generateReactKey();
+
+    const dynamicPaths = dynamicPathMap[widgetId] || [];
+
+    dynamicPaths.forEach((dynamicPath) => {
+      const value = get(widget, dynamicPath);
+      const dynamicValue = this.getBinding(value, pseudoWidget.widgetName);
+
+      set(pseudoWidget, dynamicPath, dynamicValue);
+    });
+
+    pseudoWidgets[pseudoWidget.widgetId] = pseudoWidget;
+
+    (widget.children || []).map((childWidgetId) => {
+      this.generatePseudoWidgets(index, {
+        parentId: pseudoWidget.widgetId,
+        pseudoWidgets,
+        widgetId: childWidgetId,
+      });
+    });
+
+    return pseudoWidgets;
+  };
+
+  computePseudoWidgets = (index: number) => {
+    const { itemCanvasId = "", mainContainerId = "" } = this.props;
+    const pseudoWidgets: Template = this.generatePseudoWidgets(index, {
+      parentId: mainContainerId,
+      widgetId: itemCanvasId,
+    });
+
+    return pseudoWidgets;
+  };
 
   /**
    * generates the children entity definitions for children
@@ -140,71 +223,73 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
     super.updateWidgetProperty("privateWidgets", privateWidgets);
   }
 
-  generateChildrenDefaultPropertiesMap = (
-    props: ListWidgetProps<WidgetProps>,
-  ) => {
-    const template = props.template;
-    let childrenDefaultPropertiesMap = {};
+  // generateChildrenDefaultPropertiesMap = (
+  //   props: ListWidgetProps<WidgetProps>,
+  // ) => {
+  //   const template = props.template;
+  //   let childrenDefaultPropertiesMap = {};
 
-    if (template) {
-      Object.keys(template).map((key: string) => {
-        const currentTemplate = template[key];
-        const defaultProperties = WidgetFactory.getWidgetDefaultPropertiesMap(
-          currentTemplate?.type,
-        );
+  //   if (template) {
+  //     Object.keys(template).map((key: string) => {
+  //       const currentTemplate = template[key];
+  //       const defaultProperties = WidgetFactory.getWidgetDefaultPropertiesMap(
+  //         currentTemplate?.type,
+  //       );
 
-        Object.keys(defaultProperties).map((defaultPropertyKey: string) => {
-          childrenDefaultPropertiesMap = {
-            ...childrenDefaultPropertiesMap,
-            [`${key}.${defaultPropertyKey}`]: defaultProperties[
-              defaultPropertyKey
-            ],
-          };
-        });
-      });
-    }
+  //       Object.keys(defaultProperties).map((defaultPropertyKey: string) => {
+  //         childrenDefaultPropertiesMap = {
+  //           ...childrenDefaultPropertiesMap,
+  //           [`${key}.${defaultPropertyKey}`]: defaultProperties[
+  //             defaultPropertyKey
+  //           ],
+  //         };
+  //       });
+  //     });
+  //   }
 
-    if (this.props.updateWidgetMetaProperty) {
-      this.props.updateWidgetMetaProperty(
-        "childrenDefaultPropertiesMap",
-        childrenDefaultPropertiesMap,
-      );
-    }
-  };
+  //   if (this.props.updateWidgetMetaProperty) {
+  //     this.props.updateWidgetMetaProperty(
+  //       "childrenDefaultPropertiesMap",
+  //       childrenDefaultPropertiesMap,
+  //     );
+  //   }
+  // };
 
-  generateChildrenMetaPropertiesMap = (props: ListWidgetProps<WidgetProps>) => {
-    const template = props.template;
-    let childrenMetaPropertiesMap = {};
+  // generateChildrenMetaPropertiesMap = (props: ListWidgetProps<WidgetProps>) => {
+  //   const template = props.template;
+  //   let childrenMetaPropertiesMap = {};
 
-    if (template) {
-      Object.keys(template).map((key: string) => {
-        const currentTemplate = template[key];
-        const metaProperties = WidgetFactory.getWidgetMetaPropertiesMap(
-          currentTemplate?.type,
-        );
+  //   if (template) {
+  //     Object.keys(template).map((key: string) => {
+  //       const currentTemplate = template[key];
+  //       const metaProperties = WidgetFactory.getWidgetMetaPropertiesMap(
+  //         currentTemplate?.type,
+  //       );
 
-        Object.keys(metaProperties).map((metaPropertyKey: string) => {
-          childrenMetaPropertiesMap = {
-            ...childrenMetaPropertiesMap,
-            [`${key}.${metaPropertyKey}`]: currentTemplate[metaPropertyKey],
-          };
-        });
-      });
-    }
+  //       Object.keys(metaProperties).map((metaPropertyKey: string) => {
+  //         childrenMetaPropertiesMap = {
+  //           ...childrenMetaPropertiesMap,
+  //           [`${key}.${metaPropertyKey}`]: currentTemplate[metaPropertyKey],
+  //         };
+  //       });
+  //     });
+  //   }
 
-    if (this.props.updateWidgetMetaProperty) {
-      this.props.updateWidgetMetaProperty(
-        "childrenMetaPropertiesMap",
-        Object.keys(childrenMetaPropertiesMap),
-      );
-    }
-  };
+  //   if (this.props.updateWidgetMetaProperty) {
+  //     this.props.updateWidgetMetaProperty(
+  //       "childrenMetaPropertiesMap",
+  //       Object.keys(childrenMetaPropertiesMap),
+  //     );
+  //   }
+  // };
 
   componentDidUpdate(prevProps: ListWidgetProps<WidgetProps>) {
     const currentListWidgetChildren: WidgetProps[] = get(
       this.props,
       PATH_TO_ALL_WIDGETS_IN_LIST_WIDGET,
     );
+
+    this.initPseudoWidget();
 
     const previousListWidgetChildren: WidgetProps[] = get(
       prevProps,
@@ -217,8 +302,8 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
         Object.keys(get(this.props, "template", {})),
       ).length > 0
     ) {
-      this.generateChildrenDefaultPropertiesMap(this.props);
-      this.generateChildrenMetaPropertiesMap(this.props);
+      // this.generateChildrenDefaultPropertiesMap(this.props);
+      // this.generateChildrenMetaPropertiesMap(this.props);
       this.generateChildrenEntityDefinitions(this.props);
     }
 
@@ -578,86 +663,86 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
   /**
    * @param children
    */
-  useNewValues = (children: DSLWidget[]) => {
-    const updatedChildren = children.map(
-      (listItemContainer: DSLWidget, listItemIndex: number) => {
-        let updatedListItemContainer = listItemContainer;
-        // Get an array of children in the current list item
-        const listItemChildren = get(
-          updatedListItemContainer,
-          "children[0].children",
-          [],
-        );
+  // useNewValues = (children: DSLWidget[]) => {
+  //   const updatedChildren = children.map(
+  //     (listItemContainer: DSLWidget, listItemIndex: number) => {
+  //       let updatedListItemContainer = listItemContainer;
+  //       // Get an array of children in the current list item
+  //       const listItemChildren = get(
+  //         updatedListItemContainer,
+  //         "children[0].children",
+  //         [],
+  //       );
 
-        // If children exist
-        if (listItemChildren.length > 0) {
-          // Update the properties of all the children
-          const updatedListItemChildren = listItemChildren.map(
-            (templateWidget: WidgetProps) => {
-              // This will return the updated child widget
-              return this.updateTemplateWidgetProperties(
-                templateWidget,
-                listItemIndex,
-              );
-            },
-          );
-          // Set the update list of children as the new children for the current list item
-          set(
-            updatedListItemContainer,
-            "children[0].children",
-            updatedListItemChildren,
-          );
-        }
-        // Get the item container's canvas child widget
-        const listItemContainerCanvas = get(
-          updatedListItemContainer,
-          "children[0]",
-        );
-        // Set properties of the container's canvas child widget
-        const updatedListItemContainerCanvas = this.updateNonTemplateWidgetProperties(
-          listItemContainerCanvas,
-          listItemIndex,
-        );
-        // Set the item container's canvas child widget
-        set(
-          updatedListItemContainer,
-          "children[0]",
-          updatedListItemContainerCanvas,
-        );
-        // Set properties of the item container
-        updatedListItemContainer = this.updateNonTemplateWidgetProperties(
-          listItemContainer,
-          listItemIndex,
-        );
+  //       // If children exist
+  //       if (listItemChildren.length > 0) {
+  //         // Update the properties of all the children
+  //         const updatedListItemChildren = listItemChildren.map(
+  //           (templateWidget: WidgetProps) => {
+  //             // This will return the updated child widget
+  //             return this.updateTemplateWidgetProperties(
+  //               templateWidget,
+  //               listItemIndex,
+  //             );
+  //           },
+  //         );
+  //         // Set the update list of children as the new children for the current list item
+  //         set(
+  //           updatedListItemContainer,
+  //           "children[0].children",
+  //           updatedListItemChildren,
+  //         );
+  //       }
+  //       // Get the item container's canvas child widget
+  //       const listItemContainerCanvas = get(
+  //         updatedListItemContainer,
+  //         "children[0]",
+  //       );
+  //       // Set properties of the container's canvas child widget
+  //       const updatedListItemContainerCanvas = this.updateNonTemplateWidgetProperties(
+  //         listItemContainerCanvas,
+  //         listItemIndex,
+  //       );
+  //       // Set the item container's canvas child widget
+  //       set(
+  //         updatedListItemContainer,
+  //         "children[0]",
+  //         updatedListItemContainerCanvas,
+  //       );
+  //       // Set properties of the item container
+  //       updatedListItemContainer = this.updateNonTemplateWidgetProperties(
+  //         listItemContainer,
+  //         listItemIndex,
+  //       );
 
-        set(updatedListItemContainer, `disabledResizeHandles`, [
-          "left",
-          "top",
-          "right",
-          "bottomRight",
-          "topLeft",
-          "topRight",
-          "bottomLeft",
-        ]);
+  //       set(updatedListItemContainer, `disabledResizeHandles`, [
+  //         "left",
+  //         "top",
+  //         "right",
+  //         "bottomRight",
+  //         "topLeft",
+  //         "topRight",
+  //         "bottomLeft",
+  //       ]);
 
-        set(updatedListItemContainer, "ignoreCollision", true);
-        set(updatedListItemContainer, "shouldScrollContents", undefined);
+  //       set(updatedListItemContainer, "ignoreCollision", true);
+  //       set(updatedListItemContainer, "shouldScrollContents", undefined);
 
-        return updatedListItemContainer;
-      },
-    );
+  //       return updatedListItemContainer;
+  //     },
+  //   );
 
-    return updatedChildren;
-  };
+  //   return updatedChildren;
+  // };
 
-  updateGridChildrenProps = (children: DSLWidget[]) => {
-    let updatedChildren = this.useNewValues(children);
-    updatedChildren = this.updateActions(updatedChildren);
-    updatedChildren = this.paginateItems(updatedChildren);
-    updatedChildren = this.updatePosition(updatedChildren);
+  // updateGridChildrenProps = (children: DSLWidget[]) => {
+  //   // let updatedChildren = this.useNewValues(children);
+  //   updatedChildren = this.updateActions(updatedChildren);
+  //   // updatedChildren = this.paginateItems(updatedChildren);
+  //   updatedChildren = this.updatePosition(updatedChildren);
 
-    return updatedChildren;
-  };
+  //   return updatedChildren;
+  // };
 
   updateActions = (children: DSLWidget[]) => {
     return children.map((child: DSLWidget, index) => {
@@ -676,95 +761,95 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
    *
    * @param children
    */
-  paginateItems = (children: DSLWidget[]) => {
-    // return all children if serverside pagination
-    if (this.props.serverSidePaginationEnabled) return children;
-    const { page } = this.state;
-    const { perPage, shouldPaginate } = this.shouldPaginate();
+  // paginateItems = (children: DSLWidget[]) => {
+  //   // return all children if serverside pagination
+  //   if (this.props.serverSidePaginationEnabled) return children;
+  //   const { page } = this.state;
+  //   const { perPage, shouldPaginate } = this.shouldPaginate();
 
-    if (shouldPaginate) {
-      return children.slice((page - 1) * perPage, page * perPage);
-    }
+  //   if (shouldPaginate) {
+  //     return children.slice((page - 1) * perPage, page * perPage);
+  //   }
 
-    return children;
-  };
+  //   return children;
+  // };
 
   /**
    * renders children
    */
-  renderChildren = () => {
-    if (
-      this.props.children &&
-      this.props.children.length > 0 &&
-      this.props.listData
-    ) {
-      const { page } = this.state;
-      const children = removeFalsyEntries(klona(this.props.children));
-      const childCanvas = children[0];
+  // renderChildren = () => {
+  //   if (
+  //     this.props.children &&
+  //     this.props.children.length > 0 &&
+  //     this.props.listData
+  //   ) {
+  //     const { page } = this.state;
+  //     const children = removeFalsyEntries(klona(this.props.children));
+  //     const childCanvas = children[0];
 
-      const canvasChildren = childCanvas.children;
-      const template = canvasChildren.slice(0, 1).shift();
-      const gridGap = this.getGridGap();
-      try {
-        // Passing template instead of deriving from canvasChildren becuase lesser items to compare
-        // in memoize
-        childCanvas.children = this.getCanvasChildren(
-          template,
-          this.props.listData,
-          this.props.template,
-          canvasChildren,
-          page,
-          gridGap,
-          this.props.itemBackgroundColor,
-        );
-      } catch (e) {
-        log.error(e);
-      }
-      return this.renderChild(childCanvas);
-    }
-  };
+  //     const canvasChildren = childCanvas.children;
+  //     const template = canvasChildren.slice(0, 1).shift();
+  //     const gridGap = this.getGridGap();
+  //     try {
+  //       // Passing template instead of deriving from canvasChildren becuase lesser items to compare
+  //       // in memoize
+  //       childCanvas.children = this.getCanvasChildren(
+  //         template,
+  //         this.props.listData,
+  //         this.props.template,
+  //         canvasChildren,
+  //         page,
+  //         gridGap,
+  //         this.props.itemBackgroundColor,
+  //       );
+  //     } catch (e) {
+  //       log.error(e);
+  //     }
+  //     return this.renderChild(childCanvas);
+  //   }
+  // };
 
-  getCanvasChildren = memoizeOne(
-    (
-      template: any,
-      listData: any,
-      staticTemplate: any,
-      canvasChildren: any,
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      page: number,
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      gridGap,
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      itemBackgroundColor,
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    ) => {
-      const canvasChildrenList = [];
-      if (listData.length > 0) {
-        for (let i = 0; i < listData.length; i++) {
-          canvasChildrenList[i] = JSON.parse(JSON.stringify(template));
-        }
-        canvasChildren = this.updateGridChildrenProps(canvasChildrenList);
-      } else {
-        canvasChildren = this.updateGridChildrenProps(canvasChildren);
-      }
+  // getCanvasChildren = memoizeOne(
+  //   (
+  //     template: any,
+  //     listData: any,
+  //     staticTemplate: any,
+  //     canvasChildren: any,
+  //     // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  //     // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  //     page: number,
+  //     // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  //     gridGap,
+  //     // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  //     itemBackgroundColor,
+  //     // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  //   ) => {
+  //     const canvasChildrenList = [];
+  //     if (listData.length > 0) {
+  //       for (let i = 0; i < listData.length; i++) {
+  //         canvasChildrenList[i] = JSON.parse(JSON.stringify(template));
+  //       }
+  //       canvasChildren = this.updateGridChildrenProps(canvasChildrenList);
+  //     } else {
+  //       canvasChildren = this.updateGridChildrenProps(canvasChildren);
+  //     }
 
-      return canvasChildren;
-    },
-    (prev: any, next: any) => {
-      // not comparing canvasChildren becuase template acts as a proxy
+  //     return canvasChildren;
+  //   },
+  //   (prev: any, next: any) => {
+  //     // not comparing canvasChildren becuase template acts as a proxy
 
-      return (
-        shallowEqual(prev[0], next[0]) &&
-        shallowEqual(prev[1], next[1]) &&
-        shallowEqual(prev[2], next[2]) &&
-        prev[3] === next[3] &&
-        prev[4] === next[4] &&
-        prev[5] === next[6] &&
-        prev[6] === next[6]
-      );
-    },
-  );
+  //     return (
+  //       shallowEqual(prev[0], next[0]) &&
+  //       shallowEqual(prev[1], next[1]) &&
+  //       shallowEqual(prev[2], next[2]) &&
+  //       prev[3] === next[3] &&
+  //       prev[4] === next[4] &&
+  //       prev[5] === next[6] &&
+  //       prev[6] === next[6]
+  //     );
+  //   },
+  // );
 
   /**
    * 400
@@ -791,7 +876,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
    * view that is rendered in editor
    */
   getPageView() {
-    const children = this.renderChildren();
+    // const children = this.renderChildren();
     const { componentHeight } = this.getComponentDimensions();
     const { pageNo, serverSidePaginationEnabled } = this.props;
     const { perPage, shouldPaginate } = this.shouldPaginate();
@@ -856,8 +941,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
         key={`list-widget-page-${this.state.page}`}
         listData={this.props.listData || []}
       >
-        {children}
-
+        <div>List RENDERER</div>
         {shouldPaginate &&
           (serverSidePaginationEnabled ? (
             <ServerSideListPagination
@@ -885,20 +969,24 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
    * returns type of the widget
    */
   static getWidgetType(): WidgetType {
-    return "LIST_WIDGET";
+    return "LIST_WIDGET V2";
   }
 }
 
 export interface ListWidgetProps<T extends WidgetProps> extends WidgetProps {
-  children?: T[];
-  shouldScrollContents?: boolean;
-  onListItemClick?: string;
-  listData?: Array<Record<string, unknown>>;
-  currentItemStructure?: Record<string, string>;
+  accentColor: string;
   backgroundColor: string;
   borderRadius: string;
   boxShadow?: string;
-  accentColor: string;
+  children?: T[];
+  currentItemStructure?: Record<string, string>;
+  dynamicPathMap?: Record<string, string[]>;
+  itemCanvasId?: string;
+  listData?: Array<Record<string, unknown>>;
+  mainContainerId?: string;
+  onListItemClick?: string;
+  shouldScrollContents?: boolean;
+  template: Template;
 }
 
 export default ListWidget;

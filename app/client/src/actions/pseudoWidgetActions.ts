@@ -1,27 +1,21 @@
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import { WidgetProps } from "widgets/BaseWidget";
+import { FlattenedWidgetProps } from "widgets/constants";
 
 export const addPseudoWidget = (
-  parentWidgetId: string,
-  widgetProps: WidgetProps | WidgetProps[],
+  payload: Record<string, FlattenedWidgetProps>,
 ) => ({
   type: ReduxActionTypes.ADD_PSEUDO_WIDGET,
-  payload: {
-    parentWidgetId,
-    widgetProps,
-  },
+  payload,
 });
 
-export const updatePseudoWidget = (payload: WidgetProps | WidgetProps[]) => ({
+export const updatePseudoWidget = (
+  payload: Record<string, FlattenedWidgetProps>,
+) => ({
   type: ReduxActionTypes.UPDATE_PSEUDO_WIDGET,
-  payload: {
-    payload,
-  },
+  payload,
 });
 
 export const deletePseudoWidget = (payload: string | string[]) => ({
   type: ReduxActionTypes.DELETE_PSEUDO_WIDGET,
-  payload: {
-    payload,
-  },
+  payload,
 });

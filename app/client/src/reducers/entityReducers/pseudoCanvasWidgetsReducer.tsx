@@ -16,14 +16,19 @@ export type FlattenedWidgetProps<orType = never> =
     })
   | orType;
 
+type AddPseudoWidgetPayload = {
+  parentWidgetId: string;
+  widgetProps: WidgetProps | WidgetProps[];
+};
+
 const initialState: PseudoCanvasWidgetsReduxState = {};
 
 const pseudoCanvasWidgetsReducer = createImmerReducer(initialState, {
   [ReduxActionTypes.ADD_PSEUDO_WIDGET]: (
     state: PseudoCanvasWidgetsReduxState,
-    action: ReduxAction<UpdateCanvasPayload>,
+    action: ReduxAction<AddPseudoWidgetPayload>,
   ) => {
-    return action.payload.widgets;
+    return action.payload;
   },
   [ReduxActionTypes.UPDATE_PSEUDO_WIDGET]: (
     state: PseudoCanvasWidgetsReduxState,

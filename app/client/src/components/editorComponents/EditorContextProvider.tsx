@@ -1,7 +1,7 @@
 import React, { Context, createContext, ReactNode, useMemo } from "react";
 import { connect } from "react-redux";
 
-import { WidgetOperation, WidgetProps } from "widgets/BaseWidget";
+import { WidgetOperation } from "widgets/BaseWidget";
 
 import { updateWidget } from "actions/pageActions";
 import { executeTrigger, disableDragAction } from "actions/widgetActions";
@@ -25,6 +25,7 @@ import {
   deletePseudoWidget,
   updatePseudoWidget,
 } from "actions/pseudoWidgetActions";
+import { FlattenedWidgetProps } from "widgets/constants";
 
 export type EditorContextType = {
   executeAction?: (triggerPayload: ExecuteTriggerPayload) => void;
@@ -54,11 +55,12 @@ export type EditorContextType = {
     propertyValue: any,
   ) => void;
   addPseudoWidget?: (
-    parentWidgetId: string,
-    widgetProps: WidgetProps | WidgetProps[],
+    pseudoWidgets: Record<string, FlattenedWidgetProps>,
   ) => void;
-  updatePseudoWidget?: (payload: WidgetProps | WidgetProps[]) => void;
-  deletePseudoWidget?: (payload: string | string[]) => void;
+  updatePseudoWidget?: (
+    pseudoWidgets: Record<string, FlattenedWidgetProps>,
+  ) => void;
+  deletePseudoWidget?: (widgetId: string | string[]) => void;
 };
 export const EditorContext: Context<EditorContextType> = createContext({});
 
