@@ -528,16 +528,20 @@ jobs:
 
       - name: Build  docker image
         if: success() && github.ref == 'refs/heads/release' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
-        working-directory: "."
-        run: |
-          docker build -t fatcontainer .
+        uses: depot/build-push-action@v1
+        with:
+          context: .
+          push: false
+          load: true
+          tags: |
+            fatcontainer
 
       - name: Load docker image
         if: success() && github.ref == 'refs/heads/release' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
         working-directory: "."
         run: |
           mkdir fatcontainerlocal
-          cd fatcontainerlocal          
+          cd fatcontainerlocal
           docker run -d --name appsmith -p 80:80 -p 9001:9001 \
             -v "$PWD/stacks:/appsmith-stacks" fatcontainer
 
@@ -1263,45 +1267,48 @@ jobs:
       # Build release Docker image and push to Docker Hub
       - name: Push client release image to Docker Hub
         if: success() && github.ref == 'refs/heads/release' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
-        working-directory: app/client
-        run: |
-          docker build -t ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-editor:${{steps.vars.outputs.tag}} .
-      #    docker push ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-editor:${{steps.vars.outputs.tag}}
+        uses: depot/build-push-action@v1
+        with:
+          context: app/client
+          push: false # This is false as the docker push was commented out
+          tags: |
+            ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-editor:${{steps.vars.outputs.tag}}
 
       # Build master Docker image and push to Docker Hub
       - name: Push client master image to Docker Hub with commit tag
         if: success() && github.ref == 'refs/heads/master' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
-        working-directory: app/client
-        run: |
-          docker build -t ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-editor:${GITHUB_SHA} .
-          docker build -t ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-editor:nightly .
-      #    docker push ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-editor:${GITHUB_SHA}
-      #    docker push ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-editor:nightly
+        uses: depot/build-push-action@v1
+        with:
+          context: app/client
+          push: false # This is false as the docker push was commented out
+          tags: |
+            ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-editor:${GITHUB_SHA}
+            ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-editor:nightly
 
       - name: Build and push release image to Docker Hub
         if: success() && github.ref == 'refs/heads/release' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
-        working-directory: "."
-        run: |
-          tag_args="--tag ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-ce:${{steps.vars.outputs.tag}}"
-          docker buildx build \
-            --platform linux/arm64,linux/amd64 \
-            --push \
-            --build-arg APPSMITH_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY_RELEASE }} \
-            $tag_args \
-            .
+        uses: depot/build-push-action@v1
+        with:
+          context: .
+          push: true
+          platforms: linux/arm64,linux/amd64
+          build_args: |
+            APPSMITH_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY_RELEASE }}
+          tags: |
+            ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-ce:${{steps.vars.outputs.tag}}
 
       - name: Build and push master image to Docker Hub with commit tag
         if: success() && github.ref == 'refs/heads/master' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
-        working-directory: "."
-        run: |
-          tag_args="--tag ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-ce:${GITHUB_SHA}"
-          tag_args="$tag_args --tag ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-ce:nightly"
-          docker buildx build \
-            --platform linux/arm64,linux/amd64 \
-            --push \
-            --build-arg APPSMITH_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY }} \
-            $tag_args \
-            .
+        uses: depot/build-push-action@v1
+        with:
+          context: .
+          push: true
+          platforms: linux/arm64,linux/amd64
+          build_args: |
+            APPSMITH_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY }}
+          tags: |
+            ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-ce:${GITHUB_SHA}
+            ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-ce:nightly
 
       # - name: Check and push fat image to Docker Hub with commit tag
       #   if: success() && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/release') && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
@@ -1328,35 +1335,45 @@ jobs:
       # Build release Docker image and push to Docker Hub
       - name: Push server release image to Docker Hub
         if: success() && github.ref == 'refs/heads/release'
-        working-directory: app/server
-        run: |
-          docker build --build-arg APPSMITH_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY_RELEASE }} -t ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-server:${{steps.vars.outputs.tag}} .
-      #    docker push ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-server:${{steps.vars.outputs.tag}}
+        uses: depot/build-push-action@v1
+        with:
+          context: app/server
+          push: false # This is false as the docker push was commented out
+          build_args: |
+            APPSMITH_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY_RELEASE }}
+          tags: |
+            ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-server:${{steps.vars.outputs.tag}}
 
       # Build master Docker image and push to Docker Hub
       - name: Push server master image to Docker Hub with commit tag
         if: success() && github.ref == 'refs/heads/master'
-        working-directory: app/server
-        run: |
-          docker build --build-arg APPSMITH_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY }} -t ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-server:${GITHUB_SHA} .
-          docker build --build-arg APPSMITH_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY }} -t ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-server:nightly .
-      #    docker push ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-server:${GITHUB_SHA}
-      #    docker push ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-server:nightly
+        uses: depot/build-push-action@v1
+        with:
+          context: app/server
+          push: false # This is false as the docker push was commented out
+          build_args: |
+            APPSMITH_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY }}
+          tags: |
+            ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-server:${GITHUB_SHA}
+            ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-server:nightly
 
       # Build release Docker image and push to Docker Hub
       - name: Push RTS release image to Docker Hub
         if: success() && github.ref == 'refs/heads/release'
-        working-directory: app/rts
-        run: |
-          docker build -t ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-rts:${{steps.vars.outputs.tag}} .
-      #    docker push ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-rts:${{steps.vars.outputs.tag}}
+        uses: depot/build-push-action@v1
+        with:
+          context: app/rts
+          push: false # This is false as the docker push was commented out
+          tags: |
+            ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-rts:${{steps.vars.outputs.tag}}
 
       # Build master Docker image and push to Docker Hub
       - name: Push RTS master image to Docker Hub with commit tag
         if: success() && github.ref == 'refs/heads/master'
-        working-directory: app/rts
-        run: |
-          docker build -t ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-rts:${GITHUB_SHA} .
-          docker build -t ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-rts:nightly .
-      #    docker push ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-rts:${GITHUB_SHA}
-      #    docker push ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-rts:nightly
+        uses: depot/build-push-action@v1
+        with:
+          context: app/rts
+          push: false # This is false as the docker push was commented out
+          tags: |
+            ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-rts:${GITHUB_SHA}
+            ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-rts:nightly
