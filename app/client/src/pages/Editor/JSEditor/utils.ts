@@ -7,7 +7,7 @@ import {
   RUN_GUTTER_ID,
   NO_FUNCTION_DROPDOWN_OPTION,
 } from "./constants";
-import { DropdownOption } from "components/ads/Dropdown";
+import { DropdownOption } from "design-system";
 import { find, memoize } from "lodash";
 import { ECMA_VERSION, NodeTypes, SourceType } from "constants/ast";
 import { isLiteralNode, isPropertyNode, PropertyNode } from "workers/ast";

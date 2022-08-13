@@ -1,7 +1,7 @@
 import React from "react";
 import BaseControl, { ControlProps } from "./BaseControl";
 import styled from "styled-components";
-import Dropdown, { DropdownOption } from "components/ads/Dropdown";
+import { Dropdown, DropdownOption } from "design-system";
 import { ControlType } from "constants/PropertyControlConstants";
 import { get, isNil } from "lodash";
 import {

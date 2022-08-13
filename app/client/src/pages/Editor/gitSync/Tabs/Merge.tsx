@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { Caption, Space, Title } from "../components/StyledComponents";
-import Dropdown from "components/ads/Dropdown";
+import { Dropdown } from "design-system";
 
 import {
   CANNOT_MERGE_DUE_TO_UNCOMMITTED_CHANGES,

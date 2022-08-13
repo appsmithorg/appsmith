@@ -25,9 +25,6 @@ export { default as DraggableList } from "./DraggableList";
 
 export { DroppableComponent } from "./DraggableListComponent";
 
-export { default as Dropdown } from "./Dropdown";
-export * from "./Dropdown";
-
 export { default as EditableText } from "./EditableText";
 export * from "./EditableText";
 
