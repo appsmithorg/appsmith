@@ -101,17 +101,8 @@ import { getMoveCursorLeftKey } from "./utils/cursorLeftMovement";
 import { interactionAnalyticsEvent } from "utils/AppsmithUtils";
 import { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTypeDefCreator";
 
-interface ReduxStateProps {
-  datasources: any;
-  dynamicData: DataTree;
-  pluginIdToImageLocation: Record<string, string>;
-  recentEntities: string[];
-}
-
-interface ReduxDispatchProps {
-  executeCommand: (payload: any) => void;
-  startingEntityUpdation: () => void;
-}
+type ReduxStateProps = ReturnType<typeof mapStateToProps>;
+type ReduxDispatchProps = ReturnType<typeof mapDispatchToProps>;
 
 export type CodeEditorExpected = {
   type: string;
@@ -141,6 +132,7 @@ export type EditorStyleProps = {
   evaluationSubstitutionType?: EvaluationSubstitutionType;
   popperPlacement?: Placement;
   popperZIndex?: Indices;
+  blockCompletions?: FieldEntityInformation["blockCompletions"];
 };
 /**
  *  line => Line to which the gutter is added
@@ -190,9 +182,7 @@ export type EditorProps = EditorStyleProps &
     customGutter?: CodeEditorGutter;
   };
 
-type Props = ReduxStateProps &
-  EditorProps &
-  ReduxDispatchProps & { dispatch?: () => void };
+interface Props extends ReduxStateProps, EditorProps, ReduxDispatchProps {}
 
 type State = {
   isFocused: boolean;
@@ -525,12 +515,16 @@ class CodeEditor extends Component<Props, State> {
 
   handleEditorFocus = (cm: CodeMirror.Editor) => {
     this.setState({ isFocused: true });
+
     if (!cm.state.completionActive) {
-      const entityInformation: FieldEntityInformation = this.getEntityInformation();
+      const entityInformation = this.getEntityInformation();
+      const { blockCompletions } = this.props;
       this.hinters
         .filter((hinter) => hinter.fireOnFocus)
         .forEach(
-          (hinter) => hinter.showHint && hinter.showHint(cm, entityInformation),
+          (hinter) =>
+            hinter.showHint &&
+            hinter.showHint(cm, entityInformation, blockCompletions),
         );
     }
   };
@@ -656,10 +650,12 @@ class CodeEditor extends Component<Props, State> {
 
   handleAutocompleteVisibility = (cm: CodeMirror.Editor) => {
     if (!this.state.isFocused) return;
-    const entityInformation: FieldEntityInformation = this.getEntityInformation();
+    const entityInformation = this.getEntityInformation();
+    const { blockCompletions } = this.props;
     let hinterOpen = false;
     for (let i = 0; i < this.hinters.length; i++) {
       hinterOpen = this.hinters[i].showHint(cm, entityInformation, {
+        blockCompletions,
         datasources: this.props.datasources.list,
         pluginIdToImageLocation: this.props.pluginIdToImageLocation,
         recentEntities: this.props.recentEntities,
@@ -957,14 +953,14 @@ class CodeEditor extends Component<Props, State> {
   }
 }
 
-const mapStateToProps = (state: AppState): ReduxStateProps => ({
+const mapStateToProps = (state: AppState) => ({
   dynamicData: getDataTreeForAutocomplete(state),
   datasources: state.entities.datasources,
   pluginIdToImageLocation: getPluginIdToImageLocation(state),
   recentEntities: getRecentEntityIds(state),
 });
 
-const mapDispatchToProps = (dispatch: any): ReduxDispatchProps => ({
+const mapDispatchToProps = (dispatch: any) => ({
   executeCommand: (payload: SlashCommandPayload) =>
     dispatch(executeCommandAction(payload)),
   startingEntityUpdation: () => dispatch(startingEntityUpdation()),
