@@ -405,9 +405,10 @@ function phoneInputWidgetAndReset() {
 
 function filePickerWidgetAndReset() {
   cy.wait(2000);
+  cy.get(".t--widget-filepickerwidgetv2").should("be.visible");
+  cy.wait(2000);
   cy.get(commonlocators.filePickerInput)
     .first()
-    .should("be.visible")
     .attachFile("testFile.mov");
   //eslint-disable-next-line cypress/no-unnecessary-waiting
   cy.wait(1000);
