@@ -111,6 +111,7 @@ export interface CellLayoutProperties {
   borderRadius: string;
   boxShadow: string;
   isCellVisible: boolean;
+  isCellFlexible?: boolean;
   isCompact?: boolean;
   menuItems: MenuItems;
   menuVariant?: ButtonVariant;
@@ -189,6 +190,7 @@ export interface ColumnProperties {
   label?: string;
   columnType: string;
   isVisible: boolean;
+  isCellFlexible?: boolean;
   isDisabled?: boolean;
   index: number;
   width: number;

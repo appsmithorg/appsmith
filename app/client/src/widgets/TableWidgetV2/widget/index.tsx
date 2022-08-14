@@ -189,18 +189,38 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
     }
 
     if (totalColumnWidth < componentWidth) {
-      const lastColumnIndex = columns.length - 1;
+      const flexibleColumns = columns.filter(
+        (c) => c.columnProperties?.isCellFlexible || false,
+      );
+      if (flexibleColumns.length > 0) {
+        let remainingColumnsSize = 0;
+        for (let i = 0; i < columns.length; i++) {
+          if (!(columns[i].columnProperties?.isCellFlexible || false)) {
+            remainingColumnsSize += columns[i].width || DEFAULT_COLUMN_WIDTH;
+          }
+        }
+        if (flexibleColumns.length > 0) {
+          const flexibleColumnWidth = componentWidth - remainingColumnsSize;
+          for (let i = 0; i < columns.length; i++) {
+            if (columns[i].columnProperties.isCellFlexible || false) {
+              columns[i].width = flexibleColumnWidth / flexibleColumns.length;
+            }
+          }
+        }
+      } else {
+        const lastColumnIndex = columns.length - 1;
 
-      if (columns[lastColumnIndex]) {
-        const lastColumnWidth =
-          columns[lastColumnIndex].width || DEFAULT_COLUMN_WIDTH;
-        const remainingWidth = componentWidth - totalColumnWidth;
+        if (columns[lastColumnIndex]) {
+          const lastColumnWidth =
+            columns[lastColumnIndex].width || DEFAULT_COLUMN_WIDTH;
+          const remainingWidth = componentWidth - totalColumnWidth;
 
-        columns[lastColumnIndex].width =
-          lastColumnWidth +
-          (remainingWidth < DEFAULT_COLUMN_WIDTH
-            ? DEFAULT_COLUMN_WIDTH
-            : remainingWidth);
+          columns[lastColumnIndex].width =
+            lastColumnWidth +
+            (remainingWidth < DEFAULT_COLUMN_WIDTH
+              ? DEFAULT_COLUMN_WIDTH
+              : remainingWidth);
+        }
       }
     }
 

@@ -309,6 +309,10 @@ export const getCellProperties = (
       textColor: getPropertyValue(columnProperties.textColor, rowIndex),
       fontStyle: getPropertyValue(columnProperties.fontStyle, rowIndex), //Fix this
       isVisible: getBooleanPropertyValue(columnProperties.isVisible, rowIndex),
+      isCellFlexible: getBooleanPropertyValue(
+        columnProperties.isCellFlexible,
+        rowIndex,
+      ),
       isDisabled: getBooleanPropertyValue(
         columnProperties.isDisabled,
         rowIndex,

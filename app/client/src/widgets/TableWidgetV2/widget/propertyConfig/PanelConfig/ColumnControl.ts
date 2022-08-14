@@ -170,6 +170,24 @@ export default {
       },
     },
     {
+      propertyName: "isCellFlexible",
+      dependencies: ["primaryColumns", "derivedColumns", "columnType"],
+      label: "Flxible Width",
+      helpText: "Allow the cell width to be flexible in the table",
+      defaultValue: false,
+      controlType: "SWITCH",
+      customJSControl: "COMPUTE_VALUE",
+      isJSConvertible: true,
+      isBindProperty: true,
+      isTriggerProperty: false,
+      validation: {
+        type: ValidationTypes.TABLE_PROPERTY,
+        params: {
+          type: ValidationTypes.BOOLEAN,
+        },
+      },
+    },
+    {
       propertyName: "allowCellWrapping",
       dependencies: ["primaryColumns", "columnType"],
       label: "Cell Wrapping",
