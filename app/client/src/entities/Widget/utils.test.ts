@@ -136,8 +136,6 @@ describe("getAllPathsFromPropertyConfig", () => {
         "primaryColumns.status.buttonLabel":
           EvaluationSubstitutionType.TEMPLATE,
         "primaryColumns.status.isDisabled": EvaluationSubstitutionType.TEMPLATE,
-        "primaryColumns.status.isCellFlexible":
-          EvaluationSubstitutionType.TEMPLATE,
         "primaryColumns.status.isCellVisible":
           EvaluationSubstitutionType.TEMPLATE,
         "primaryColumns.createdAt.cellBackground":
@@ -156,8 +154,6 @@ describe("getAllPathsFromPropertyConfig", () => {
           EvaluationSubstitutionType.TEMPLATE,
         "primaryColumns.createdAt.inputFormat":
           EvaluationSubstitutionType.TEMPLATE,
-        "primaryColumns.createdAt.isCellFlexible":
-          EvaluationSubstitutionType.TEMPLATE,
         "primaryColumns.createdAt.isCellVisible":
           EvaluationSubstitutionType.TEMPLATE,
         "primaryColumns.createdAt.computedValue":
@@ -170,8 +166,6 @@ describe("getAllPathsFromPropertyConfig", () => {
         "primaryColumns.name.fontStyle": EvaluationSubstitutionType.TEMPLATE,
         "primaryColumns.name.textSize": EvaluationSubstitutionType.TEMPLATE,
         "primaryColumns.name.horizontalAlignment":
-          EvaluationSubstitutionType.TEMPLATE,
-        "primaryColumns.name.isCellFlexible":
           EvaluationSubstitutionType.TEMPLATE,
         "primaryColumns.name.isCellVisible":
           EvaluationSubstitutionType.TEMPLATE,
@@ -232,10 +226,6 @@ describe("getAllPathsFromPropertyConfig", () => {
           },
         },
         "primaryColumns.status.isDisabled": {
-          type: ValidationTypes.TABLE_PROPERTY,
-          params: { type: "BOOLEAN" },
-        },
-        "primaryColumns.status.isCellFlexible": {
           type: ValidationTypes.TABLE_PROPERTY,
           params: { type: "BOOLEAN" },
         },
@@ -339,10 +329,6 @@ describe("getAllPathsFromPropertyConfig", () => {
             },
           },
         },
-        "primaryColumns.createdAt.isCellFlexible": {
-          type: ValidationTypes.TABLE_PROPERTY,
-          params: { type: "BOOLEAN" },
-        },
         "primaryColumns.createdAt.isCellVisible": {
           type: ValidationTypes.TABLE_PROPERTY,
           params: { type: "BOOLEAN" },
@@ -382,10 +368,6 @@ describe("getAllPathsFromPropertyConfig", () => {
             type: ValidationTypes.TEXT,
             params: { allowedValues: ["LEFT", "CENTER", "RIGHT"] },
           },
-        },
-        "primaryColumns.name.isCellFlexible": {
-          type: ValidationTypes.TABLE_PROPERTY,
-          params: { type: "BOOLEAN" },
         },
         "primaryColumns.name.isCellVisible": {
           type: ValidationTypes.TABLE_PROPERTY,
@@ -430,8 +412,6 @@ describe("getAllPathsFromPropertyConfig", () => {
         "primaryColumns.status.buttonLabel":
           EvaluationSubstitutionType.TEMPLATE,
         "primaryColumns.status.isDisabled": EvaluationSubstitutionType.TEMPLATE,
-        "primaryColumns.status.isCellFlexible":
-          EvaluationSubstitutionType.TEMPLATE,
         "primaryColumns.status.isCellVisible":
           EvaluationSubstitutionType.TEMPLATE,
         "primaryColumns.createdAt.cellBackground":
@@ -450,8 +430,6 @@ describe("getAllPathsFromPropertyConfig", () => {
           EvaluationSubstitutionType.TEMPLATE,
         "primaryColumns.createdAt.inputFormat":
           EvaluationSubstitutionType.TEMPLATE,
-        "primaryColumns.createdAt.isCellFlexible":
-          EvaluationSubstitutionType.TEMPLATE,
         "primaryColumns.createdAt.isCellVisible":
           EvaluationSubstitutionType.TEMPLATE,
         "primaryColumns.createdAt.computedValue":
@@ -464,8 +442,6 @@ describe("getAllPathsFromPropertyConfig", () => {
         "primaryColumns.name.fontStyle": EvaluationSubstitutionType.TEMPLATE,
         "primaryColumns.name.textSize": EvaluationSubstitutionType.TEMPLATE,
         "primaryColumns.name.horizontalAlignment":
-          EvaluationSubstitutionType.TEMPLATE,
-        "primaryColumns.name.isCellFlexible":
           EvaluationSubstitutionType.TEMPLATE,
         "primaryColumns.name.isCellVisible":
           EvaluationSubstitutionType.TEMPLATE,
