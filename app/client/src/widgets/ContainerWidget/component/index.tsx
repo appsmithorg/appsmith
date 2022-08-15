@@ -11,7 +11,11 @@ import WidgetStyleContainer, {
 import { pick } from "lodash";
 import { ComponentProps } from "widgets/BaseComponent";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
-import { AlignItems, FlexDirection, JustifyContent, LayoutDirection } from "components/constants";
+import {
+  AlignItems,
+  FlexDirection,
+  JustifyContent,
+} from "components/constants";
 
 const scrollContents = css`
   overflow-y: auto;

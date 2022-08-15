@@ -21,12 +21,19 @@ import { CanvasDraggingArena } from "pages/common/CanvasArenas/CanvasDraggingAre
 import { getCanvasSnapRows } from "utils/WidgetPropsUtils";
 import {
   AlignItems,
+  Alignment,
   JustifyContent,
   LayoutDirection,
   Positioning,
   ResponsiveBehavior,
+  Spacing,
 } from "components/constants";
 import { AutoLayoutContext } from "utils/autoLayoutContext";
+import {
+  generateResponsiveBehaviorConfig,
+  getLayoutConfig,
+  getLayoutProperties,
+} from "utils/layoutPropertiesUtils";
 
 class ContainerWidget extends BaseWidget<
   ContainerWidgetProps<WidgetProps>,
@@ -76,6 +83,11 @@ class ContainerWidget extends BaseWidget<
             isBindProperty: false,
             isTriggerProperty: false,
           },
+        ],
+      },
+      {
+        sectionName: "Layout",
+        children: [
           {
             helpText: "Position styles to be applied to the children",
             propertyName: "positioning",
@@ -92,22 +104,8 @@ class ContainerWidget extends BaseWidget<
             isTriggerProperty: true,
             validation: { type: ValidationTypes.TEXT },
           },
-          {
-            helpText:
-              "Should the children take up the complete width on mobile",
-            propertyName: "responsiveBehavior",
-            label: "Responsive behavior",
-            controlType: "DROP_DOWN",
-            defaultValue: ResponsiveBehavior.Fill,
-            options: [
-              { label: "Fill", value: ResponsiveBehavior.Fill },
-              { label: "Hug", value: ResponsiveBehavior.Hug },
-            ],
-            isJSConvertible: true,
-            isBindProperty: false,
-            isTriggerProperty: true,
-            validation: { type: ValidationTypes.TEXT },
-          },
+          ...getLayoutConfig(Alignment.Left, Spacing.None),
+          { ...generateResponsiveBehaviorConfig(ResponsiveBehavior.Fill) },
         ],
       },
       {
@@ -362,9 +360,20 @@ class ContainerWidget extends BaseWidget<
     // Pass layout controls to children
     childWidgetData.useAutoLayout = this.state.useAutoLayout;
     childWidgetData.direction = this.state.direction;
-    childWidgetData.justifyContent = this.props.justifyContent;
-    childWidgetData.alignItems = this.props.alignItems;
     childWidgetData.positioning = this.props.positioning;
+    childWidgetData.alignment = this.props.alignment;
+    childWidgetData.spacing = this.props.spacing;
+    if (this.props.positioning !== Positioning.Fixed) {
+      const layoutProps = getLayoutProperties(
+        this.state.direction,
+        this.props.alignment,
+        this.props.spacing,
+      );
+      childWidgetData = {
+        ...childWidgetData,
+        ...layoutProps,
+      };
+    }
 
     return WidgetFactory.createWidget(childWidgetData, this.props.renderMode);
   }
@@ -385,6 +394,11 @@ class ContainerWidget extends BaseWidget<
     // console.log(`${props.widgetName} : ${props.widgetId} =======`);
     // console.log(props);
     const snapRows = getCanvasSnapRows(props.bottomRow, props.canExtend);
+    const stretchFlexBox =
+      !this.props.children || !this.props.children?.length
+        ? true
+        : this.props.alignment === Alignment.Bottom ||
+          this.props.positioning === Positioning.Vertical;
     return (
       <ContainerComponent {...props}>
         {props.type === "CANVAS_WIDGET" && (
@@ -421,9 +435,9 @@ class ContainerWidget extends BaseWidget<
         {props.type === "CANVAS_WIDGET" ? (
           <FlexBox
             alignItems={this.props.alignItems}
-            direction={this.state.direction}
+            direction={this.props.flexDirection}
             justifyContent={this.props.justifyContent}
-            stretchHeight={!this.props.children || !this.props.children?.length}
+            stretchHeight={stretchFlexBox}
             useAutoLayout={this.state.useAutoLayout}
           >
             <AutoLayoutContext.Provider
@@ -459,7 +473,9 @@ export interface ContainerWidgetProps<T extends WidgetProps>
   containerStyle?: ContainerStyle;
   shouldScrollContents?: boolean;
   noPad?: boolean;
-  positioning?: Positioning;
+  positioning: Positioning;
+  alignment: Alignment;
+  spacing: Spacing;
 }
 
 export interface ContainerWidgetState extends WidgetState {

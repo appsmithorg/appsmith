@@ -4,6 +4,7 @@ import {
   FlexDirection,
   JustifyContent,
   LayoutDirection,
+  Positioning,
   ResponsiveBehavior,
   Spacing,
 } from "components/constants";
@@ -104,7 +105,8 @@ export const generateResponsiveBehaviorConfig = (
 
 export const generateAlignmentConfig = (value: Alignment): any => {
   return {
-    helpText: "Alignment of children with respect to this parent",
+    helpText:
+      "Alignment of children with respect to this parent (applies to Stack positioning)",
     propertyName: "alignment",
     label: "Alignment",
     controlType: "DROP_DOWN",
@@ -119,12 +121,13 @@ export const generateAlignmentConfig = (value: Alignment): any => {
     isBindProperty: false,
     isTriggerProperty: true,
     validation: { type: ValidationTypes.TEXT },
+    hidden: (props: any) => props?.positioning === Positioning.Fixed,
   };
 };
 
 export const generateSpacingConfig = (value: Spacing): any => {
   return {
-    helpText: "Spacing between the children",
+    helpText: "Spacing between the children (applies to Stack positioning)",
     propertyName: "spacing",
     label: "Spacing",
     controlType: "DROP_DOWN",
@@ -138,6 +141,7 @@ export const generateSpacingConfig = (value: Spacing): any => {
     isBindProperty: false,
     isTriggerProperty: true,
     validation: { type: ValidationTypes.TEXT },
+    hidden: (props: any) => props?.positioning === Positioning.Fixed,
   };
 };
 
