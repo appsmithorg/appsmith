@@ -8,7 +8,7 @@ import {
   PAGE_ROOM_PREFIX,
   ROOT_NAMESPACE,
 } from "../constants/socket";
-import { VERSION as buildVersion } from "../constants/version";
+import { VERSION as buildVersion } from "../version";
 import {
   subscribeToEditEvents,
   onAppSocketConnected,
