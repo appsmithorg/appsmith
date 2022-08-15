@@ -14,7 +14,6 @@ import {
   isEqual,
 } from "lodash";
 import memoizeOne from "memoize-one";
-import shallowEqual from "shallowequal";
 import WidgetFactory from "utils/WidgetFactory";
 import { removeFalsyEntries } from "utils/helpers";
 import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
@@ -41,6 +40,7 @@ import { DSLWidget } from "widgets/constants";
 import { entityDefinitions } from "utils/autocomplete/EntityDefinitions";
 import { escapeSpecialChars } from "../../WidgetUtils";
 import { PrivateWidgets } from "entities/DataTree/dataTreeFactory";
+import equal from "fast-deep-equal/es6";
 
 import { klona } from "klona";
 
@@ -765,17 +765,22 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
     (prev: any, next: any) => {
       // not comparing canvasChildren becuase template acts as a proxy
 
-      return (
-        shallowEqual(prev[0], next[0]) &&
-        shallowEqual(prev[1], next[1]) &&
-        shallowEqual(prev[2], next[2]) &&
-        prev[3] === next[3] &&
-        prev[4] === next[4] &&
-        prev[5] === next[6] &&
-        prev[6] === next[6]
-      );
+      return this.deepEqual(prev, next);
     },
   );
+
+  // deepEqual
+  deepEqual = (prev: any, next: any) => {
+    return (
+      equal(prev[0], next[0]) &&
+      equal(prev[1], next[1]) &&
+      equal(prev[2], next[2]) &&
+      equal(prev[3], next[3]) &&
+      prev[4] === next[4] &&
+      prev[5] === next[5] &&
+      prev[6] === next[6]
+    );
+  };
 
   /**
    * 400
