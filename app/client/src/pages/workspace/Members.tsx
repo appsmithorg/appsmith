@@ -19,7 +19,7 @@ import {
 } from "actions/workspaceActions";
 import TableDropdown from "components/ads/TableDropdown";
 import Dropdown from "components/ads/Dropdown";
-import { Text, TextType } from "design-system";
+import { Text, TextType, HighlightText } from "design-system";
 import styled from "styled-components";
 import { Classes as AppClass } from "components/ads/common";
 import DeleteConfirmationModal from "./DeleteConfirmationModal";
@@ -28,7 +28,6 @@ import { Card } from "@blueprintjs/core";
 import ProfileImage from "pages/common/ProfileImage";
 import { USER_PHOTO_URL } from "constants/userConstants";
 import { Colors } from "constants/Colors";
-import { HighlightText } from "design-system";
 import { WorkspaceUser } from "constants/workspaceConstants";
 import {
   createMessage,
