@@ -562,10 +562,15 @@ class TernServer {
       const subSegments = segment.split("\n");
       const countEODCharInSegment = subSegments.length - 1;
       const segmentEndLine = countEODCharInSegment + segmentStartLine;
+
+      const segmentStartChar = lineValue.indexOf(segment);
+      // check if segment string is a dynamic value and cursor is pointing to it.
       if (
+        isDynamicValue(segment) &&
         cursor.line >= segmentStartLine &&
         cursor.line <= segmentEndLine &&
-        isDynamicValue(segment)
+        cursor.ch >= segmentStartChar &&
+        cursor.ch <= segmentStartChar + segment.length
       ) {
         dynamicString = segment;
         newCursorLine = cursor.line - segmentStartLine;
@@ -573,7 +578,7 @@ class TernServer {
         const focusedSubSegment = subSegments[focusedSubSegmentIndex];
         const extraChars = lineValue.length - focusedSubSegment.length;
         const chPos =
-          cursor.ch > extraChars ? cursor.ch - extraChars + 1 : cursor.ch;
+          cursor.ch > extraChars ? cursor.ch - extraChars : cursor.ch;
         newCursorPosition = chPos;
         break;
       }
