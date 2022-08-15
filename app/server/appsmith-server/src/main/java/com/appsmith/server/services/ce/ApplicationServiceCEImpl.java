@@ -17,6 +17,7 @@ import com.appsmith.server.domains.Page;
 import com.appsmith.server.domains.QApplication;
 import com.appsmith.server.domains.Theme;
 import com.appsmith.server.domains.User;
+import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.ApplicationAccessDTO;
 import com.appsmith.server.dtos.GitAuthDTO;
@@ -32,6 +33,7 @@ import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.CommentThreadRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.BaseService;
+import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.services.SessionUserService;
 import com.mongodb.client.result.UpdateResult;
@@ -49,6 +51,7 @@ import reactor.core.scheduler.Scheduler;
 import javax.validation.Validator;
 import java.time.Instant;
 import java.util.HashSet;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -67,6 +70,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
     private final CommentThreadRepository commentThreadRepository;
     private final SessionUserService sessionUserService;
     private final ResponseUtils responseUtils;
+    private final WorkspaceService workspaceService;
 
     @Autowired
     public ApplicationServiceCEImpl(Scheduler scheduler,
@@ -79,13 +83,15 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
                                   ConfigService configService,
                                   CommentThreadRepository commentThreadRepository,
                                   SessionUserService sessionUserService,
-                                  ResponseUtils responseUtils) {
+                                  ResponseUtils responseUtils,
+                                  WorkspaceService workspaceService) {
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.policyUtils = policyUtils;
         this.configService = configService;
         this.commentThreadRepository = commentThreadRepository;
         this.sessionUserService = sessionUserService;
         this.responseUtils = responseUtils;
+        this.workspaceService = workspaceService;
     }
 
     @Override
@@ -243,7 +249,8 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
                             }
                             return Mono.error(error);
                         })
-                        .flatMap(analyticsService::sendUpdateEvent)
+                        .flatMap(application1 -> workspaceService.getById(application1.getWorkspaceId()))
+                        .flatMap(workspace -> analyticsService.sendUpdateEvent(application, getAnalyticsProperties(workspace)))
                 );
     }
 
@@ -622,5 +629,20 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
     @Override
     public Mono<Application> getApplicationByDefaultApplicationIdAndDefaultBranch(String defaultApplicationId) {
         return repository.getApplicationByDefaultApplicationIdAndDefaultBranch(defaultApplicationId);
+    }
+
+    /**
+     * To add get extra analytics properties and event data
+     * @param workspace Workspace
+     * @return Analytics Properties
+     */
+    private Map<String, Object> getAnalyticsProperties(Workspace workspace) {
+        Map<String, Object> analyticsProperties = new HashMap<>();
+        Map<String, Object> eventData = Map.of(
+                FieldName.WORKSPACE, workspace
+        );
+        analyticsProperties.put(FieldName.EVENT_DATA, eventData);
+
+        return analyticsProperties;
     }
 }

@@ -433,7 +433,8 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                 .then(newActionService.archiveActionsByApplicationId(application.getId(), MANAGE_ACTIONS))
                 .then(themeService.archiveApplicationThemes(application))
                 .flatMap(applicationService::archive)
-                .flatMap(analyticsService::sendDeleteEvent);
+                .then(workspaceService.getById(application.getWorkspaceId()))
+                .flatMap(workspace -> analyticsService.sendDeleteEvent(application, getAnalyticsProperties(workspace)));
     }
 
     @Override
@@ -896,6 +897,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
      */
     @Override
     public Mono<Application> publish(String applicationId, boolean isPublishedManually) {
+        Map <String, Object> eventData = new HashMap<>();
         Mono<Application> applicationMono = applicationService.findById(applicationId, MANAGE_APPLICATIONS)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, applicationId)))
                 .cache();
@@ -952,8 +954,13 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                     }
                     // Archive the deleted pages and save the application changes and then return the pages so that
                     // the pages can also be published
-                    return Mono.zip(archivePageListMono, applicationService.save(application))
-                            .thenReturn(pages);
+                    List<ApplicationPage> finalPages = pages;
+                    return Mono.zip(archivePageListMono, applicationService.save(application), workspaceService.getById(application.getWorkspaceId()))
+                            .map(tuple -> {
+                                Workspace workspace = tuple.getT3();
+                                eventData.put(FieldName.WORKSPACE, workspace);
+                                return finalPages;
+                            });
                 })
                 .flatMapMany(Flux::fromIterable)
                 //In each page, copy each layout's dsl to publishedDsl field
@@ -1001,13 +1008,14 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
 
         return publishApplicationAndPages
                 .flatMap(newPages -> Mono.zip(publishedActionsListMono, publishedActionCollectionsListMono, publishThemeMono))
-                .then(sendApplicationPublishedEvent(publishApplicationAndPages, publishedActionsListMono, publishedActionCollectionsListMono, applicationId, isPublishedManually));
+                .then(sendApplicationPublishedEvent(publishApplicationAndPages, publishedActionsListMono, publishedActionCollectionsListMono, applicationId, eventData, isPublishedManually));
     }
 
     private Mono<Application> sendApplicationPublishedEvent(Mono<List<NewPage>> publishApplicationAndPages,
                                                             Mono<List<NewAction>> publishedActionsFlux,
                                                             Mono<List<ActionCollection>> publishedActionsCollectionFlux,
                                                             String applicationId,
+                                                            Map<String, Object> eventData,
                                                             boolean isPublishedManually) {
         return Mono.zip(
                         publishApplicationAndPages,
@@ -1027,6 +1035,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                     extraProperties.put("orgId", defaultIfNull(application.getWorkspaceId(), ""));
                     extraProperties.put("isManual", defaultIfNull(isPublishedManually, ""));
                     extraProperties.put("publishedAt", defaultIfNull(application.getLastDeployedAt(), ""));
+                    extraProperties.put(FieldName.EVENT_DATA, eventData);
 
                     return analyticsService.sendObjectEvent(AnalyticsEvents.PUBLISH_APPLICATION, application, extraProperties);
                 });
@@ -1154,5 +1163,20 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
         );
 
         return analyticsService.sendObjectEvent(AnalyticsEvents.VIEW, newPage, data);
+    }
+
+    /**
+     * To add get extra analytics properties and event data
+     * @param workspace Workspace
+     * @return Analytics Properties
+     */
+    private Map<String, Object> getAnalyticsProperties(Workspace workspace) {
+        Map<String, Object> analyticsProperties = new HashMap<>();
+        Map<String, Object> eventData = Map.of(
+                FieldName.WORKSPACE, workspace
+        );
+        analyticsProperties.put(FieldName.EVENT_DATA, eventData);
+
+        return analyticsProperties;
     }
 }
