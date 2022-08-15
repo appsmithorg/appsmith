@@ -304,6 +304,54 @@ describe("Chart Widget Functionality", function() {
       .should("exist");
   });
 
+  it("Check Chart widget reskinning config", function() {
+    cy.get(widgetsPage.toggleChartType).click({ force: true });
+    cy.UpdateChartType("Column Chart");
+
+    // Check plot fill color
+    cy.get("g[class*='plot-group'] rect").should(
+      "have.css",
+      "fill",
+      "rgb(85, 61, 233)",
+    );
+
+    // Check axis name font size
+    cy.get("g[class*='dataset-axis-name'] text").should(
+      "have.css",
+      "font-size",
+      "14px",
+    );
+
+    // Check axis value font size and fill color
+    cy.get("g[class$='dataset-axis'] text")
+      .should("have.css", "font-size", "12px")
+      .should("have.css", "fill", "rgb(113, 110, 110)");
+
+    // Check axis caption's fontSize, and fill color
+    cy.get("g[class$='caption'] text")
+      .should("have.css", "font-size", "24px")
+      .should("have.css", "fill", "rgb(35, 31, 32)");
+
+    // Check base font family
+    cy.get(".fusioncharts-container").should(
+      "have.css",
+      "font-family",
+      '"Nunito Sans"',
+    );
+
+    cy.UpdateChartType("Pie Chart");
+    cy.get("g[class$='item'] text").should(
+      "have.css",
+      "font-family",
+      '"Nunito Sans"',
+    );
+    cy.get("g[class$='labels'] text").should(
+      "have.css",
+      "font-family",
+      '"Nunito Sans"',
+    );
+  });
+
   afterEach(() => {
     cy.goToEditFromPublish();
   });
