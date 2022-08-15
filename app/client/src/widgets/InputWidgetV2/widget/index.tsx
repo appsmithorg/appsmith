@@ -310,7 +310,6 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
                 type: ValidationTypes.TEXT,
                 params: {
                   allowedValues: ICON_NAMES,
-                  default: IconNames.PLUS,
                 },
               },
             },
@@ -505,7 +504,6 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
                 type: ValidationTypes.TEXT,
                 params: {
                   allowedValues: ICON_NAMES,
-                  default: IconNames.PLUS,
                 },
               },
             },

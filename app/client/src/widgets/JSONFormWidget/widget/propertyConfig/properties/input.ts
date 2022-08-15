@@ -429,7 +429,6 @@ const PROPERTIES = {
         type: ValidationTypes.TEXT,
         params: {
           allowedValues: ICON_NAMES,
-          default: IconNames.PLUS,
         },
       },
       hidden: (...args: HiddenFnParams) =>
@@ -805,7 +804,6 @@ const PROPERTIES = {
           type: ValidationTypes.TEXT,
           params: {
             allowedValues: ICON_NAMES,
-            default: IconNames.PLUS,
           },
         },
         hidden: (...args: HiddenFnParams) =>
