@@ -183,5 +183,6 @@
   "selectThemeBackBtn": ".t--theme-select-back-btn",
   "themeAppBorderRadiusBtn": ".t--theme-appBorderRadius",
   "codeEditorWrapper": ".unfocused-code-editor",
-  "textWidgetContainer": ".t--text-widget-container"
+  "textWidgetContainer": ".t--text-widget-container",
+  "cancelActionExecution": ".t--cancel-action-button"
 }
