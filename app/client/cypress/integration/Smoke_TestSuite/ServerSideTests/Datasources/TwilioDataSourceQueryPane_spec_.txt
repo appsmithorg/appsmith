@@ -11,9 +11,8 @@ describe("Test Query Pane  ", function() {
     cy.get(pages.integrationCreateNew)
       .should("be.visible")
       .click({ force: true });
-
-    //If the datasource does not exist
-    cy.createTwilioDatasource();
+ 
+    cy.createTwilioDatasource(); //If the datasource does not exist
   });
 
   it("1. Test user is displayed with following command", function() {
