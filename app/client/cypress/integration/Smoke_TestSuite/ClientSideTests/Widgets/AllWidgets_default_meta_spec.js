@@ -444,12 +444,12 @@ Object.entries(widgetsToTest).forEach(([widgetSelector, testConfig]) => {
       cy.updateCodeInput(PROPERTY_SELECTOR.text, testConfig.textBindingValue);
     });
 
-    it("3. Publish the app and check the reset assertWidgetReset", () => {
+    /*it("3. Publish the app and check the reset assertWidgetReset", () => {
       // Set onClick assertWidgetReset, storing value
       PublishApp();
       testConfig.assertWidgetReset();
       cy.get(".t--toast-action span").contains("success");
-    });
+    });*/
 
     it("4. Delete all the widgets on canvas", () => {
       cy.goToEditFromPublish();

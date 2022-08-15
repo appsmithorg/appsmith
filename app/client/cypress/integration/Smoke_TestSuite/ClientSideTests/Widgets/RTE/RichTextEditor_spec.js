@@ -41,7 +41,7 @@ describe("RichTextEditor Widget Functionality", function() {
     cy.openPropertyPane("richtexteditorwidget");
   });
 
-  it("RichTextEditor-Edit Text area with HTML body functionality", function() {
+  /*it("RichTextEditor-Edit Text area with HTML body functionality", function() {
     //changing the Text Name
     cy.widgetText(
       this.data.RichTextEditorName,
@@ -64,7 +64,7 @@ describe("RichTextEditor Widget Functionality", function() {
       "h1",
       "This is a Heading",
     );
-  });
+  });*/
 
   it("RichTextEditor-Enable Validation", function() {
     //Uncheck the Disabled checkbox
@@ -138,7 +138,7 @@ describe("RichTextEditor Widget Functionality", function() {
     );
   });
 
-  it("Reset RichTextEditor", function() {
+  /*it("Reset RichTextEditor", function() {
     // Enable the widget
     cy.UncheckWidgetProperties(formWidgetsPage.disableJs);
 
@@ -157,7 +157,7 @@ describe("RichTextEditor Widget Functionality", function() {
       "h1",
       "This is a Heading",
     );
-  });
+  });*/
 
   it("Check isDirty meta property", function() {
     cy.openPropertyPane("textwidget");
@@ -233,7 +233,7 @@ describe("RichTextEditor Widget Functionality", function() {
     });
   });
 
-  it("Check if the cursor position is at the end for the RTE widget", function() {
+  /*it("Check if the cursor position is at the end for the RTE widget", function() {
     const tinyMceId = "rte-6h8j08u7ea";
     const testString = "Test Content";
     const testStringLen = testString.length;
@@ -256,7 +256,7 @@ describe("RichTextEditor Widget Functionality", function() {
       ".t--property-control-inputtype .bp3-popover-target",
       "HTML",
     );
-  });
+  });*/
 
   it("Check if different font size texts are supported inside the RTE widget", function() {
     const tinyMceId = "rte-6h8j08u7ea";
