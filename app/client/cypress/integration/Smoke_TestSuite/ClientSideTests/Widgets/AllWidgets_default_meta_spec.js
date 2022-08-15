@@ -13,7 +13,7 @@ import {
 } from "../../../../locators/WidgetLocators";
 
 const widgetsToTest = {
-  /*
+
   [WIDGET.MULTISELECT_WIDGET]: {
     widgetName: "MultiSelect",
     widgetPrefixName: "MultiSelect1",
@@ -104,7 +104,7 @@ const widgetsToTest = {
       ratingwidgetAndReset();
     },
   },
-*/
+
   [WIDGET.CHECKBOXGROUP]: {
     widgetName: "CheckboxGroup",
     widgetPrefixName: "CheckboxGroup1",
@@ -113,7 +113,6 @@ const widgetsToTest = {
       checkboxGroupAndReset();
     },
   },
-  /*
   [WIDGET.CHECKBOX]: {
     widgetName: "Checkbox",
     widgetPrefixName: "Checkbox1",
@@ -122,7 +121,7 @@ const widgetsToTest = {
       checkboxAndReset();
     },
   },
-  
+  /*
   [WIDGET.AUDIO]: {
     widgetName: "Audio",
     widgetPrefixName: "Audio1",
@@ -139,7 +138,7 @@ const widgetsToTest = {
       audioRecorderWidgetAndReset();
     },
   },
-
+  */
   [WIDGET.PHONEINPUT]: {
     widgetName: "PhoneInput",
     widgetPrefixName: "PhoneInput1",
@@ -148,7 +147,6 @@ const widgetsToTest = {
       phoneInputWidgetAndReset();
     },
   },
-  */
   [WIDGET.FILEPICKER]: {
     widgetName: "FilePicker",
     widgetPrefixName: "FilePicker1",
