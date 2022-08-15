@@ -56,12 +56,21 @@ import {
   DOCUMENTATION,
   DOCUMENTATION_TOOLTIP,
   INSPECT_ENTITY,
+  ACTION_EXECUTION_MESSAGE,
+  UNEXPECTED_ERROR,
+  NO_DATASOURCE_FOR_QUERY,
+  ACTION_EDITOR_REFRESH,
+  EXPECTED_ERROR,
+  INVALID_FORM_CONFIGURATION,
+  ACTION_RUN_BUTTON_MESSAGE_FIRST_HALF,
+  ACTION_RUN_BUTTON_MESSAGE_SECOND_HALF,
+  CREATE_NEW_DATASOURCE,
 } from "@appsmith/constants/messages";
 import { useParams } from "react-router";
 import { AppState } from "reducers";
 import { ExplorerURLParams } from "../Explorer/helpers";
 import MoreActionsMenu from "../Explorer/Actions/MoreActionsMenu";
-import Button, { Size } from "components/ads/Button";
+import Button, { Size, Category } from "components/ads/Button";
 import { thinScrollbar } from "constants/DefaultTheme";
 import ActionRightPane, {
   useEntityDependencies,
@@ -90,7 +99,14 @@ import {
   responseTabComponent,
   InlineButton,
   TableCellHeight,
+  SectionDivider,
+  CancelRequestButton,
+  LoadingOverlayContainer,
+  handleCancelActionExecution,
+  ActionExecutionResizerHeight,
 } from "components/editorComponents/ApiResponseView";
+import LoadingOverlayScreen from "components/editorComponents/LoadingOverlayScreen";
+import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 
 const QueryFormContainer = styled.form`
   flex: 1;
@@ -517,7 +533,7 @@ export function EditorJSONtoForm(props: Props) {
         <components.MenuList {...props}>{props.children}</components.MenuList>
         <CreateDatasource onClick={() => onCreateDatasourceClick()}>
           <Icon className="createIcon" icon="plus" iconSize={11} />
-          Create new datasource
+          {createMessage(CREATE_NEW_DATASOURCE)}
         </CreateDatasource>
       </>
     );
@@ -594,7 +610,9 @@ export function EditorJSONtoForm(props: Props) {
       Sentry.captureException(e);
       return (
         <>
-          <ErrorMessage>Invalid form configuration</ErrorMessage>
+          <ErrorMessage>
+            {createMessage(INVALID_FORM_CONFIGURATION)}
+          </ErrorMessage>
           <Tag
             intent="warning"
             interactive
@@ -602,7 +620,7 @@ export function EditorJSONtoForm(props: Props) {
             onClick={() => window.location.reload()}
             round
           >
-            Refresh
+            {createMessage(ACTION_EDITOR_REFRESH)}
           </Tag>
         </>
       );
@@ -753,7 +771,7 @@ export function EditorJSONtoForm(props: Props) {
             <ErrorContainer>
               <AdsIcon keepColors name="warning-triangle" />
               <Text style={{ color: "#F22B2B" }} type={TextType.H3}>
-                An error occurred
+                {createMessage(EXPECTED_ERROR)}
               </Text>
 
               <ErrorDescriptionText
@@ -804,7 +822,7 @@ export function EditorJSONtoForm(props: Props) {
             <NoResponseContainer>
               <AdsIcon name="no-response" />
               <Text type={TextType.P1}>
-                🙌 Click on
+                {createMessage(ACTION_RUN_BUTTON_MESSAGE_FIRST_HALF)}
                 <InlineButton
                   isLoading={isRunning}
                   onClick={responeTabOnRunClick}
@@ -813,7 +831,7 @@ export function EditorJSONtoForm(props: Props) {
                   text="Run"
                   type="button"
                 />
-                after adding your query
+                {createMessage(ACTION_RUN_BUTTON_MESSAGE_SECOND_HALF)}
               </Text>
             </NoResponseContainer>
           )}
@@ -953,7 +971,7 @@ export function EditorJSONtoForm(props: Props) {
                         ) : (
                           <>
                             <ErrorMessage>
-                              An unexpected error occurred
+                              {createMessage(UNEXPECTED_ERROR)}
                             </ErrorMessage>
                             <Tag
                               intent="warning"
@@ -962,15 +980,14 @@ export function EditorJSONtoForm(props: Props) {
                               onClick={() => window.location.reload()}
                               round
                             >
-                              Refresh
+                              {createMessage(ACTION_EDITOR_REFRESH)}
                             </Tag>
                           </>
                         )}
                         {dataSources.length === 0 && (
                           <NoDataSourceContainer>
                             <p className="font18">
-                              Seems like you don’t have any Datasources to
-                              create a query
+                              {createMessage(NO_DATASOURCE_FOR_QUERY)}
                             </p>
                             <EditorButton
                               filled
@@ -1003,12 +1020,39 @@ export function EditorJSONtoForm(props: Props) {
 
             <TabbedViewContainer ref={panelRef}>
               <Resizable
+                openResizer={isRunning}
                 panelRef={panelRef}
                 setContainerDimensions={(height: number) =>
                   // TableCellHeight in this case is the height of one table cell in pixels.
                   setTableBodyHeightHeight(height - TableCellHeight)
                 }
+                snapToHeight={ActionExecutionResizerHeight}
               />
+              <SectionDivider />
+              {isRunning && (
+                <>
+                  <LoadingOverlayScreen theme={EditorTheme.LIGHT} />
+                  <LoadingOverlayContainer>
+                    <div>
+                      <Text textAlign={"center"} type={TextType.P1}>
+                        {createMessage(ACTION_EXECUTION_MESSAGE, "Query")}
+                      </Text>
+                      <CancelRequestButton
+                        category={Category.tertiary}
+                        className={`t--cancel-action-button`}
+                        onClick={() => {
+                          handleCancelActionExecution();
+                        }}
+                        size={Size.medium}
+                        tag="button"
+                        text="Cancel Request"
+                        type="button"
+                      />
+                    </div>
+                  </LoadingOverlayContainer>
+                </>
+              )}
+
               {output && !!output.length && (
                 <ResultsCount>
                   <Text type={TextType.P3}>

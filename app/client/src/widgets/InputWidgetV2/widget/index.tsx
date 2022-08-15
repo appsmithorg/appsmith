@@ -16,7 +16,7 @@ import {
   INPUT_TEXT_MAX_CHAR_ERROR,
 } from "@appsmith/constants/messages";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
-import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
+import { GRID_DENSITY_MIGRATION_V1, ICON_NAMES } from "widgets/constants";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 import BaseInputWidget from "widgets/BaseInputWidget";
 import { isNil, isNumber, merge, toString } from "lodash";
@@ -25,6 +25,7 @@ import { BaseInputWidgetProps } from "widgets/BaseInputWidget/widget";
 import { mergeWidgetConfig } from "utils/helpers";
 import { InputTypes } from "widgets/BaseInputWidget/constants";
 import { getParsedText } from "./Utilities";
+import { IconNames } from "@blueprintjs/icons";
 
 export function defaultValueValidation(
   value: any,
@@ -302,9 +303,16 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
               label: "Icon",
               helpText: "Sets the icon to be used in input field",
               controlType: "ICON_SELECT",
-              isBindProperty: false,
+              isBindProperty: true,
               isTriggerProperty: false,
-              validation: { type: ValidationTypes.TEXT },
+              isJSConvertible: true,
+              validation: {
+                type: ValidationTypes.TEXT,
+                params: {
+                  allowedValues: ICON_NAMES,
+                  default: IconNames.PLUS,
+                },
+              },
             },
             {
               propertyName: "iconAlign",
@@ -490,9 +498,16 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
               label: "Icon",
               helpText: "Sets the icon to be used in input field",
               controlType: "ICON_SELECT",
-              isBindProperty: false,
+              isBindProperty: true,
               isTriggerProperty: false,
-              validation: { type: ValidationTypes.TEXT },
+              isJSConvertible: true,
+              validation: {
+                type: ValidationTypes.TEXT,
+                params: {
+                  allowedValues: ICON_NAMES,
+                  default: IconNames.PLUS,
+                },
+              },
             },
             {
               propertyName: "iconAlign",
