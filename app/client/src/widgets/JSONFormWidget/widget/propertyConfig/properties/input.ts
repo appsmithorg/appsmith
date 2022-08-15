@@ -14,7 +14,6 @@ import {
   ValidationTypes,
 } from "constants/WidgetValidation";
 import { ICON_NAMES } from "widgets/constants";
-import { IconNames } from "@blueprintjs/icons";
 
 function defaultValueValidation(
   value: any,
