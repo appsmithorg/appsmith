@@ -185,5 +185,6 @@
   "codeEditorWrapper": ".unfocused-code-editor",
   "textWidgetContainer": ".t--text-widget-container",
   "propertyStyle": "li:contains('STYLE')",
-  "propertyContent": "li:contains('CONTENT')"
+  "propertyContent": "li:contains('CONTENT'),
+  "cancelActionExecution": ".t--cancel-action-button"
 }

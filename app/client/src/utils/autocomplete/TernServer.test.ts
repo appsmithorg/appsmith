@@ -62,6 +62,7 @@ describe("Tern server", () => {
             getCursor: () => ({ ch: 0, line: 0 }),
             getLine: () => "{{Api.}}",
             somethingSelected: () => false,
+            getValue: () => "",
           } as unknown) as CodeMirror.Doc,
           changed: null,
         },
@@ -71,9 +72,10 @@ describe("Tern server", () => {
         input: {
           name: "test",
           doc: ({
-            getCursor: () => ({ ch: 0, line: 1 }),
+            getCursor: () => ({ ch: 0, line: 0 }),
             getLine: () => "{{Api.}}",
             somethingSelected: () => false,
+            getValue: () => "",
           } as unknown) as CodeMirror.Doc,
           changed: null,
         },
@@ -83,13 +85,14 @@ describe("Tern server", () => {
         input: {
           name: "test",
           doc: ({
-            getCursor: () => ({ ch: 3, line: 1 }),
+            getCursor: () => ({ ch: 3, line: 0 }),
             getLine: () => "g {{Api.}}",
             somethingSelected: () => false,
+            getValue: () => "",
           } as unknown) as CodeMirror.Doc,
           changed: null,
         },
-        expectedOutput: { ch: 1, line: 0 },
+        expectedOutput: { ch: 3, line: 0 },
       },
     ];
 
@@ -126,20 +129,20 @@ describe("Tern server", () => {
         input: {
           codeEditor: {
             value: "\n {{}}",
-            cursor: { ch: 3, line: 1 },
+            cursor: { ch: 3, line: 0 },
             doc: ({
-              getCursor: () => ({ ch: 3, line: 1 }),
+              getCursor: () => ({ ch: 3, line: 0 }),
               getLine: () => " {{}}",
               somethingSelected: () => false,
             } as unknown) as CodeMirror.Doc,
           },
           requestCallbackData: {
             completions: [{ name: "Api1" }],
-            start: { ch: 2, line: 1 },
-            end: { ch: 6, line: 1 },
+            start: { ch: 2, line: 0 },
+            end: { ch: 6, line: 0 },
           },
         },
-        expectedOutput: { ch: 3, line: 1 },
+        expectedOutput: { ch: 3, line: 0 },
       },
     ];
 
