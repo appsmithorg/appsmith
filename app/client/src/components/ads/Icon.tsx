@@ -110,6 +110,7 @@ import GitCommit from "remixicon-react/GitCommitLineIcon";
 import GitPullRequst from "remixicon-react/GitPullRequestLineIcon";
 import GuideIcon from "remixicon-react/GuideFillIcon";
 import HelpIcon from "remixicon-react/QuestionMarkIcon";
+import HelpInCircleIcon from "remixicon-react/QuestionLineIcon";
 // import HelpFillIcon from "remixicon-react/QuestionFillIcon";
 import LightbulbFlashLine from "remixicon-react/LightbulbFlashLineIcon";
 import InfoIcon from "remixicon-react/InformationLineIcon";
@@ -336,6 +337,7 @@ const ICON_LOOKUP = {
   guide: <GuideIcon />,
   hamburger: <HamburgerIcon />,
   help: <HelpIcon />,
+  "help-in-circle": <HelpInCircleIcon />,
   info: <InfoIcon />,
   js: <JsIcon />,
   key: <KeyIcon />,
