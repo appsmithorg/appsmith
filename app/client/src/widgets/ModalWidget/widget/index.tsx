@@ -15,7 +15,8 @@ import { AppState } from "reducers";
 import { getCanvasWidth, snipingModeSelector } from "selectors/editorSelectors";
 import { deselectAllInitAction } from "actions/widgetSelectionActions";
 import { ValidationTypes } from "constants/WidgetValidation";
-import { Positioning } from "components/constants";
+import { Alignment, Positioning, Spacing } from "components/constants";
+import { getLayoutConfig } from "utils/layoutPropertiesUtils";
 
 const minSize = 100;
 
@@ -25,22 +26,6 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
       {
         sectionName: "General",
         children: [
-          {
-            helpText: "Position styles to be applied to the children",
-            propertyName: "positioning",
-            label: "Positioning",
-            controlType: "DROP_DOWN",
-            defaultValue: Positioning.Fixed,
-            options: [
-              { label: "Fixed", value: Positioning.Fixed },
-              { label: "Horizontal stack", value: Positioning.Horizontal },
-              { label: "Vertical stack", value: Positioning.Vertical },
-            ],
-            isJSConvertible: false,
-            isBindProperty: true,
-            isTriggerProperty: true,
-            validation: { type: ValidationTypes.TEXT },
-          },
           {
             helpText: "Enables scrolling for content inside the widget",
             propertyName: "shouldScrollContents",
@@ -68,6 +53,28 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
             isTriggerProperty: false,
             validation: { type: ValidationTypes.BOOLEAN },
           },
+        ],
+      },
+      {
+        sectionName: "Layout",
+        children: [
+          {
+            helpText: "Position styles to be applied to the children",
+            propertyName: "positioning",
+            label: "Positioning",
+            controlType: "DROP_DOWN",
+            defaultValue: Positioning.Fixed,
+            options: [
+              { label: "Fixed", value: Positioning.Fixed },
+              { label: "Horizontal stack", value: Positioning.Horizontal },
+              { label: "Vertical stack", value: Positioning.Vertical },
+            ],
+            isJSConvertible: false,
+            isBindProperty: true,
+            isTriggerProperty: true,
+            validation: { type: ValidationTypes.TEXT },
+          },
+          ...getLayoutConfig(Alignment.Left, Spacing.None),
         ],
       },
       {
@@ -229,6 +236,8 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
     childWidgetData.rightColumn =
       this.getModalWidth(this.props.width) + WIDGET_PADDING * 2;
     childWidgetData.positioning = this.props.positioning;
+    childWidgetData.alignment = this.props.alignment;
+    childWidgetData.spacing = this.props.spacing;
     return WidgetFactory.createWidget(childWidgetData, this.props.renderMode);
   };
 
@@ -373,6 +382,8 @@ export interface ModalWidgetProps extends WidgetProps {
   borderRadius: string;
   mainCanvasWidth: number;
   positioning?: Positioning;
+  alignment: Alignment;
+  spacing: Spacing;
 }
 
 const mapDispatchToProps = (dispatch: any) => ({

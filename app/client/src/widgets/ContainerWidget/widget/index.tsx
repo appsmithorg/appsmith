@@ -32,7 +32,6 @@ import { AutoLayoutContext } from "utils/autoLayoutContext";
 import {
   generateResponsiveBehaviorConfig,
   getLayoutConfig,
-  getLayoutProperties,
 } from "utils/layoutPropertiesUtils";
 
 class ContainerWidget extends BaseWidget<
