@@ -21,7 +21,7 @@ describe("Button Group Widget Functionality", function() {
 
   it("ButtonGroup Widget Functionality on undo after delete", function() {
     // Delete the first Button
-    cy.get(".t--property-control- .t--delete-column-btn")
+    cy.get(".t--property-control-buttons .t--delete-column-btn")
       .eq(0)
       .click({
         force: true,
@@ -47,7 +47,7 @@ describe("Button Group Widget Functionality", function() {
     cy.get(firstButton).contains("Favorite");
 
     // Navigate to the first button property pane
-    cy.get(".t--property-control- .t--edit-column-btn")
+    cy.get(".t--property-control-buttons .t--edit-column-btn")
       .eq(0)
       .click({
         force: true,
@@ -61,7 +61,8 @@ describe("Button Group Widget Functionality", function() {
 
   it("Verify buttons alignments", function() {
     // check first button placement
-    cy.editColumn("groupButton1");
+    cy.editColumn("groupButton2");
+    cy.moveToStyleTab();
     // placement text
     cy.get(
       ".t--property-control-placement .bp3-popover-target span[type='p1']",
@@ -91,7 +92,7 @@ describe("Button Group Widget Functionality", function() {
 
   it("Update icon alignment and Verify buttons alignments", function() {
     // align right
-    cy.get(".t--property-control-iconalignment .t--button-tab-left")
+    cy.get(".t--property-control-position .t--button-tab-left")
       .first()
       .click();
     cy.wait(200);
@@ -100,7 +101,7 @@ describe("Button Group Widget Functionality", function() {
       .eq(0)
       .should("have.css", "flex-direction", "row");
     // align left
-    cy.get(".t--property-control-iconalignment .t--button-tab-right")
+    cy.get(".t--property-control-position .t--button-tab-right")
       .last()
       .click();
     cy.wait(200);

@@ -10,9 +10,9 @@ describe("Table Widget property pane feature validation", function() {
   it("1. Test to validate text color and text background", function() {
     // Open property pane
     cy.openPropertyPane("tablewidget");
+    cy.moveToStyleTab();
     // Click on text color input field
     cy.selectColor("textcolor");
-
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(500);
     cy.wait("@updateLayout");
