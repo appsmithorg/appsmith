@@ -257,8 +257,7 @@ class MultiSelectWidget extends BaseWidget<
                 },
               },
             },
-            evaluationSubstitutionType:
-              EvaluationSubstitutionType.SMART_SUBSTITUTE,
+            dependencies: ["serverSideFiltering", "options"],
           },
           {
             helpText: "Sets a Placeholder Text",
@@ -564,7 +563,7 @@ class MultiSelectWidget extends BaseWidget<
 
   static getDefaultPropertiesMap(): Record<string, string> {
     return {
-      selectedOptions: "defaultOptionValue",
+      defaultOptionValues: "defaultOptionValue",
     };
   }
 
@@ -574,6 +573,13 @@ class MultiSelectWidget extends BaseWidget<
       filterText: "",
       isDirty: false,
     };
+  }
+
+  componentDidMount() {
+    this.props.updateWidgetMetaProperty(
+      "selectedOptions",
+      this.props.defaultOptionValue,
+    );
   }
 
   componentDidUpdate(prevProps: MultiSelectWidgetProps): void {
@@ -601,6 +607,10 @@ class MultiSelectWidget extends BaseWidget<
 
     if (hasChanges && this.props.isDirty) {
       this.props.updateWidgetMetaProperty("isDirty", false);
+      this.props.updateWidgetMetaProperty(
+        "selectedOptions",
+        this.props.defaultOptionValue,
+      );
     }
   }
 

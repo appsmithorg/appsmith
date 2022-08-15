@@ -14,8 +14,8 @@ import { getDynamicBindings, isDynamicValue } from "utils/DynamicBindingUtils";
 import { isString } from "utils/helpers";
 
 export const getBindingTemplate = (widgetName: string) => {
-  const prefixTemplate = `{{ ((options, serverSideFiltering) => ( `;
-  const suffixTemplate = `))(${widgetName}.options, ${widgetName}.serverSideFiltering) }}`;
+  const prefixTemplate = `{{ (() => { ${widgetName}.options; ${widgetName}.serverSideFiltering; return `;
+  const suffixTemplate = `})() }}`;
 
   return { prefixTemplate, suffixTemplate };
 };

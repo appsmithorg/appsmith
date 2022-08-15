@@ -467,8 +467,7 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
 
   static getDefaultPropertiesMap(): Record<string, string> {
     return {
-      value: "defaultOptionValue",
-      label: "defaultOptionValue",
+      defaultValue: "defaultOptionValue",
       filterText: "",
     };
   }
@@ -494,6 +493,9 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
 
   componentDidMount() {
     super.componentDidMount();
+    this.props.updateWidgetMetaProperty("label", this.props.defaultOptionValue);
+
+    this.props.updateWidgetMetaProperty("value", this.props.defaultOptionValue);
   }
 
   componentDidUpdate(prevProps: SelectWidgetProps): void {
@@ -503,6 +505,15 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
       this.props.isDirty
     ) {
       this.props.updateWidgetMetaProperty("isDirty", false);
+      this.props.updateWidgetMetaProperty(
+        "label",
+        this.props.defaultOptionValue,
+      );
+
+      this.props.updateWidgetMetaProperty(
+        "value",
+        this.props.defaultOptionValue,
+      );
     }
   }
 
