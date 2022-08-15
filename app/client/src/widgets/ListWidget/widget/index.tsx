@@ -18,13 +18,15 @@ import shallowEqual from "shallowequal";
 import WidgetFactory from "utils/WidgetFactory";
 import { removeFalsyEntries } from "utils/helpers";
 import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
-import { RenderModes, WidgetType } from "constants/WidgetConstants";
+import {
+  RenderModes,
+  WidgetType,
+  GridDefaults,
+} from "constants/WidgetConstants";
 import ListComponent, {
   ListComponentEmpty,
   ListComponentLoading,
 } from "../component";
-// import { ContainerStyle } from "components/designSystems/appsmith/ContainerComponent";
-// import { ContainerWidgetProps } from "../ContainerWidget";
 import propertyPaneConfig, {
   PropertyPaneContentConfig,
   PropertyPaneStyleConfig,
@@ -34,7 +36,6 @@ import { getDynamicBindings } from "utils/DynamicBindingUtils";
 import ListPagination, {
   ServerSideListPagination,
 } from "../component/ListPagination";
-import { GridDefaults } from "constants/WidgetConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import derivedProperties from "./parseDerivedProperties";
 import { DSLWidget } from "widgets/constants";
@@ -43,7 +44,7 @@ import { escapeSpecialChars } from "../../WidgetUtils";
 import { PrivateWidgets } from "entities/DataTree/dataTreeFactory";
 import equal from "fast-deep-equal/es6";
 
-import { klona } from "klona";
+import { klona } from "klona/lite";
 
 const LIST_WIDGET_PAGINATION_HEIGHT = 36;
 
@@ -757,7 +758,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
       const canvasChildrenList = [];
       if (listData.length > 0) {
         for (let i = 0; i < listData.length; i++) {
-          canvasChildrenList[i] = JSON.parse(JSON.stringify(template));
+          canvasChildrenList[i] = klona(template);
         }
         canvasChildren = this.updateGridChildrenProps(canvasChildrenList);
       } else {
