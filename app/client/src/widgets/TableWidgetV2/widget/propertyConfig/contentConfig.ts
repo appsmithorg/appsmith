@@ -172,8 +172,9 @@ export default [
         isJSConvertible: true,
         isBindProperty: true,
         isTriggerProperty: true,
-        hidden: (props: TableWidgetProps) => !props.isVisiblePagination,
-        dependencies: ["isVisiblePagination"],
+        hidden: (props: TableWidgetProps) =>
+          !props.isVisiblePagination || !props.serverSidePaginationEnabled,
+        dependencies: ["isVisiblePagination", "serverSidePaginationEnabled"],
       },
       {
         helpText: "Triggers an action when a table page size is changed",
@@ -183,8 +184,9 @@ export default [
         isJSConvertible: true,
         isBindProperty: true,
         isTriggerProperty: true,
-        hidden: (props: TableWidgetProps) => !props.isVisiblePagination,
-        dependencies: ["isVisiblePagination"],
+        hidden: (props: TableWidgetProps) =>
+          !props.isVisiblePagination || !props.serverSidePaginationEnabled,
+        dependencies: ["isVisiblePagination", "serverSidePaginationEnabled"],
       },
     ],
   },
