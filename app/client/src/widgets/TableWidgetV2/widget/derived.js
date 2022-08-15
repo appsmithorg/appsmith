@@ -577,4 +577,12 @@ export default {
     }
   },
   //
+  getPageOffset: (props, moment, _) => {
+    if (props.pageNo >= 0 && props.pageSize >= 0) {
+      return (props.pageNo - 1) * props.pageSize;
+    } else {
+      return -1;
+    }
+  },
+  //
 };

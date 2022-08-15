@@ -146,6 +146,7 @@ export const entityDefinitions = {
     updatedRows: generateTypeDef(widget.updatedRows),
     updatedRowIndices: generateTypeDef(widget.updatedRowIndices),
     triggeredRowIndex: generateTypeDef(widget.triggeredRowIndex),
+    pageOffset: generateTypeDef(widget.pageOffset),
   }),
   VIDEO_WIDGET: {
     "!doc":
