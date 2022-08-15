@@ -4,7 +4,7 @@ import { WidgetType } from "constants/WidgetConstants";
 import DividerComponent from "../component";
 
 import { ValidationTypes } from "constants/WidgetValidation";
-import { generateResponsiveBehaviorConfig } from "utils/ResponsiveBehaviorConfig";
+import { generateResponsiveBehaviorConfig } from "utils/layoutPropertiesUtils";
 import { ResponsiveBehavior } from "components/constants";
 
 class DividerWidget extends BaseWidget<DividerWidgetProps, WidgetState> {

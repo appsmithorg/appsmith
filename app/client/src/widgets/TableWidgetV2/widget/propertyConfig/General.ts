@@ -18,7 +18,7 @@ import {
 } from "@appsmith/constants/messages";
 import panelConfig from "./PanelConfig";
 import { composePropertyUpdateHook } from "widgets/WidgetUtils";
-import { generateResponsiveBehaviorConfig } from "utils/ResponsiveBehaviorConfig";
+import { generateResponsiveBehaviorConfig } from "utils/layoutPropertiesUtils";
 import { ResponsiveBehavior } from "components/constants";
 
 export default {

@@ -22,7 +22,7 @@ import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
 
 import CheckboxGroupComponent from "../component";
 import { OptionProps, SelectAllState, SelectAllStates } from "../constants";
-import { generateResponsiveBehaviorConfig } from "utils/ResponsiveBehaviorConfig";
+import { generateResponsiveBehaviorConfig } from "utils/layoutPropertiesUtils";
 
 export function defaultSelectedValuesValidation(
   value: unknown,

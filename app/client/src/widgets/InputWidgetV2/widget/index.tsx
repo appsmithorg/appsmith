@@ -25,7 +25,7 @@ import { BaseInputWidgetProps } from "widgets/BaseInputWidget/widget";
 import { mergeWidgetConfig } from "utils/helpers";
 import { InputTypes } from "widgets/BaseInputWidget/constants";
 import { getParsedText } from "./Utilities";
-import { generateResponsiveBehaviorConfig } from "utils/ResponsiveBehaviorConfig";
+import { generateResponsiveBehaviorConfig } from "utils/layoutPropertiesUtils";
 import { ResponsiveBehavior } from "components/constants";
 import { IconNames } from "@blueprintjs/icons";
 

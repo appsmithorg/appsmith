@@ -12,7 +12,7 @@ import { getBorderCSSShorthand } from "constants/DefaultTheme";
 import { MarkerProps } from "../constants";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
-import { generateResponsiveBehaviorConfig } from "utils/ResponsiveBehaviorConfig";
+import { generateResponsiveBehaviorConfig } from "utils/layoutPropertiesUtils";
 import { ResponsiveBehavior } from "components/constants";
 
 const { google } = getAppsmithConfigs();

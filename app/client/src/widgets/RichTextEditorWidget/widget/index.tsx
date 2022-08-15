@@ -10,7 +10,7 @@ import { LabelPosition, ResponsiveBehavior } from "components/constants";
 import { Alignment } from "@blueprintjs/core";
 import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
 import showdown from "showdown";
-import { generateResponsiveBehaviorConfig } from "utils/ResponsiveBehaviorConfig";
+import { generateResponsiveBehaviorConfig } from "utils/layoutPropertiesUtils";
 
 export enum RTEFormats {
   MARKDOWN = "markdown",

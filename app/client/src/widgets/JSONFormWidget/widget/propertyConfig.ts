@@ -15,7 +15,7 @@ import { ButtonWidgetProps } from "widgets/ButtonWidget/widget";
 import { OnButtonClickProps } from "components/propertyControls/ButtonControl";
 import { ComputedSchemaStatus, computeSchema } from "./helper";
 import { EVALUATION_PATH } from "utils/DynamicBindingUtils";
-import { generateResponsiveBehaviorConfig } from "utils/ResponsiveBehaviorConfig";
+import { generateResponsiveBehaviorConfig } from "utils/layoutPropertiesUtils";
 
 const MAX_NESTING_LEVEL = 5;
 

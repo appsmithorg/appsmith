@@ -15,7 +15,7 @@ import {
 import ButtonGroupComponent from "../component";
 import { MinimumPopupRows } from "widgets/constants";
 import { getStylesheetValue } from "./helpers";
-import { generateResponsiveBehaviorConfig } from "utils/ResponsiveBehaviorConfig";
+import { generateResponsiveBehaviorConfig } from "utils/layoutPropertiesUtils";
 
 class ButtonGroupWidget extends BaseWidget<
   ButtonGroupWidgetProps,

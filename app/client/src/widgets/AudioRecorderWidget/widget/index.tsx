@@ -8,7 +8,7 @@ import AudioRecorderComponent from "../component";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
 import { createBlobUrl } from "utils/AppsmithUtils";
 import { FileDataTypes } from "widgets/constants";
-import { generateResponsiveBehaviorConfig } from "utils/ResponsiveBehaviorConfig";
+import { generateResponsiveBehaviorConfig } from "utils/layoutPropertiesUtils";
 import { ResponsiveBehavior } from "components/constants";
 
 export interface AudioRecorderWidgetProps extends WidgetProps {

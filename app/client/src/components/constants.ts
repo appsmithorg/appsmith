@@ -158,7 +158,7 @@ export enum Alignment {
 }
 
 export enum Spacing {
-  none = "none",
+  None = "none",
   Equal = "equal",
   SpaceBetween = "space-between",
 }

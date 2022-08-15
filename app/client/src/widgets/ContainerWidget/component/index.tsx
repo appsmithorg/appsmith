@@ -11,7 +11,7 @@ import WidgetStyleContainer, {
 import { pick } from "lodash";
 import { ComponentProps } from "widgets/BaseComponent";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
-import { JustifyContent, LayoutDirection } from "components/constants";
+import { AlignItems, FlexDirection, JustifyContent, LayoutDirection } from "components/constants";
 
 const scrollContents = css`
   overflow-y: auto;
@@ -61,14 +61,13 @@ const StyledContainerComponent = styled.div<
 
 export const FlexContainer = styled.div<{
   useAutoLayout?: boolean;
-  direction?: string;
+  direction?: FlexDirection;
   justifyContent?: JustifyContent;
-  alignItems?: string;
+  alignItems?: AlignItems;
   stretchHeight: boolean;
 }>`
   display: ${({ useAutoLayout }) => (useAutoLayout ? "flex" : "block")};
-  flex-direction: ${({ direction }) =>
-    direction === LayoutDirection.Vertical ? "column" : "row"};
+  flex-direction: ${({ direction }) => direction || "row"};
   justify-content: ${({ justifyContent }) => justifyContent || "flex-start"};
   align-items: ${({ alignItems }) => alignItems || "flex-start"};
   flex-wrap: wrap;
