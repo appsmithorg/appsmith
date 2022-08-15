@@ -96,8 +96,11 @@ const Wrapper = styled.div<{ collapsed: boolean }>`
   }
 
   .debugger-toggle {
-      ${(props) => props.collapsed && `transform: rotate(-90deg);`}
-      margin-left: -5px;
+    ${(props) => props.collapsed && `transform: rotate(-90deg);`}
+    ${(props) =>
+      props.collapsed
+        ? `transform: rotate(-90deg); margin-top: -5px; margin-left: -5px; `
+        : `margin-left: -5px; margin-top: -2px;`}
       height: 24px;
       width: 24px;
     }
@@ -241,12 +244,12 @@ function LogItem(props: LogItemProps) {
   };
   const showToggleIcon = () => {
     let output = !!props.state || !!props.messages;
-    if (props.logData && props.logData.length > 0) {
-      if (props.logData.length === 1) {
-        output = typeof props.logData[0] === "object";
-      } else {
-        output = true;
-      }
+    if (!output && props.logData && props.logData.length > 0) {
+      props.logData.forEach((item) => {
+        if (typeof item === "object") {
+          output = true;
+        }
+      });
     }
     return output;
   };
@@ -288,25 +291,26 @@ function LogItem(props: LogItemProps) {
             {props.timeTaken && (
               <span className="debugger-timetaken">{props.timeTaken}</span>
             )}
-            {props.severity !== Severity.INFO && (
-              <ContextualMenu entity={props.source} error={errorToSearch}>
-                <TooltipComponent
-                  content={
-                    <Text style={{ color: "#ffffff" }} type={TextType.P3}>
-                      {createMessage(TROUBLESHOOT_ISSUE)}
-                    </Text>
-                  }
-                  minimal
-                  position="bottom-left"
-                >
-                  <StyledSearchIcon
-                    className={`${Classes.ICON} search-menu`}
-                    name={"help"}
-                    size={IconSize.MEDIUM}
-                  />
-                </TooltipComponent>
-              </ContextualMenu>
-            )}
+            {props.category === LOG_CATEGORY.PLATFORM_GENERATED &&
+              props.severity !== Severity.INFO && (
+                <ContextualMenu entity={props.source} error={errorToSearch}>
+                  <TooltipComponent
+                    content={
+                      <Text style={{ color: "#ffffff" }} type={TextType.P3}>
+                        {createMessage(TROUBLESHOOT_ISSUE)}
+                      </Text>
+                    }
+                    minimal
+                    position="bottom-left"
+                  >
+                    <StyledSearchIcon
+                      className={`${Classes.ICON} search-menu`}
+                      name={"help-in-circle"}
+                      size={IconSize.XL}
+                    />
+                  </TooltipComponent>
+                </ContextualMenu>
+              )}
           </RowWrapper>
         )}
 
@@ -335,7 +339,11 @@ function LogItem(props: LogItemProps) {
             )}
             {props.logData &&
               props.logData.length > 0 &&
-              props.logData.map((logDatum: any) => {
+              props.logData.map((logDatum: any, index: number) => {
+                const joinChar =
+                  props.logData && index === props.logData.length - 1
+                    ? ""
+                    : ",";
                 if (typeof logDatum === "object") {
                   return (
                     <JsonWrapper
@@ -349,7 +357,7 @@ function LogItem(props: LogItemProps) {
                 } else {
                   return (
                     <span className="debugger-label" key={Math.random()}>
-                      {logDatum}
+                      {`${logDatum}${joinChar} `}
                     </span>
                   );
                 }
