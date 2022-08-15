@@ -151,7 +151,11 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
           props: ButtonWidgetProps,
           propertyPath: string,
           widgetParentProps?: WidgetProps,
-        ) => widgetParentProps?.type !== FormWidget.getWidgetType(),
+          widgetParentNames?: string[],
+        ) =>
+          widgetParentNames
+            ? !widgetParentNames.includes(FormWidget.getWidgetType())
+            : true,
         children: [
           {
             helpText:
@@ -458,7 +462,11 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
           props: ButtonWidgetProps,
           propertyPath: string,
           widgetParentProps?: WidgetProps,
-        ) => widgetParentProps?.type !== FormWidget.getWidgetType(),
+          widgetParentNames?: string[],
+        ) =>
+          widgetParentNames
+            ? !widgetParentNames.includes(FormWidget.getWidgetType())
+            : true,
         children: [
           {
             helpText:

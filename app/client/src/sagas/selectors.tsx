@@ -205,3 +205,30 @@ export const getWidgetParent = (widgetId: string) => {
     },
   );
 };
+
+/**
+ * get actual parent of widget names based on widgetId
+ */
+export const getWidgetParentNames = (widgetId: string) => {
+  return createSelector(
+    getWidgets,
+    (canvasWidgets: CanvasWidgetsReduxState) => {
+      let widget = canvasWidgets[widgetId];
+      const parentNames: string[] = [];
+      // While this widget has a parent
+      while (widget?.parentId) {
+        // Get parent widget props
+        const parent = _.get(canvasWidgets, widget.parentId, undefined);
+        parent?.type && parentNames.push(parent?.type);
+        // keep walking up the tree to find the parent untill parent exist or parent is the main container
+        if (parent?.parentId && parent.parentId !== MAIN_CONTAINER_WIDGET_ID) {
+          widget = canvasWidgets[widget.parentId];
+          continue;
+        } else {
+          return parentNames;
+        }
+      }
+      return;
+    },
+  );
+};

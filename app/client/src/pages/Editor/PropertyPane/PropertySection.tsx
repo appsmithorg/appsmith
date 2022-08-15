@@ -13,7 +13,7 @@ import { useSelector } from "react-redux";
 import { getWidgetPropsForPropertyPane } from "selectors/propertyPaneSelectors";
 import styled from "constants/DefaultTheme";
 import { Colors } from "constants/Colors";
-import { getWidgetParent } from "sagas/selectors";
+import { getWidgetParent, getWidgetParentNames } from "sagas/selectors";
 import { WidgetProps } from "widgets/BaseWidget";
 
 const SectionTitle = styled.div`
@@ -84,6 +84,7 @@ type PropertySectionProps = {
     props: any,
     propertyPath: string,
     widgetParentProps?: WidgetProps,
+    widgetParentNames?: string[],
   ) => boolean;
   isDefaultOpen?: boolean;
   propertyPath?: string;
@@ -109,9 +110,19 @@ export const PropertySection = memo((props: PropertySectionProps) => {
    * for button on canvas, parent is main container
    */
   const parentWidget = useSelector(getWidgetParent(widgetProps.widgetId));
+  const parentWidgetNames = useSelector(
+    getWidgetParentNames(widgetProps.widgetId),
+  );
 
   if (props.hidden) {
-    if (props.hidden(widgetProps, props.propertyPath || "", parentWidget)) {
+    if (
+      props.hidden(
+        widgetProps,
+        props.propertyPath || "",
+        parentWidget,
+        parentWidgetNames,
+      )
+    ) {
       return null;
     }
   }

@@ -21,6 +21,7 @@ export type PropertyPaneSectionConfig = {
     props: any,
     propertyPath: string,
     widgetParentProps?: WidgetProps,
+    widgetParentNames?: string[],
   ) => boolean;
   isDefaultOpen?: boolean;
   propertySectionPath?: string;
@@ -73,6 +74,7 @@ export type PropertyPaneControlConfig = {
     props: any,
     propertyPath: string,
     widgetParentProps?: WidgetProps,
+    widgetParentNames?: string[],
   ) => boolean;
   invisible?: boolean;
   isBindProperty: boolean;
