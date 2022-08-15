@@ -16,7 +16,7 @@ import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 import MultiTreeSelectComponent from "../component";
 import { LabelPosition, ResponsiveBehavior } from "components/constants";
 import { Alignment } from "@blueprintjs/core";
-import { generateResponsiveBehaviorConfig } from "utils/ResposniveBehaviorConfig";
+import { generateResponsiveBehaviorConfig } from "utils/ResponsiveBehaviorConfig";
 
 function defaultOptionValueValidation(value: unknown): ValidationResponse {
   let values: string[] = [];

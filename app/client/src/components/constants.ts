@@ -122,12 +122,14 @@ export enum JustifyContent {
   SpaceAround = "space-around",
   SpaceBetween = "space-between",
   SpaceEvenly = "space-evenly",
+  FlexEnd = "flex-end",
 }
 
 export enum AlignItems {
   FlexStart = "flex-start",
   Center = "center",
   Stretch = "stretch",
+  FlexEnd = "flex-end",
 }
 
 export enum Positioning {
@@ -139,4 +141,24 @@ export enum Positioning {
 export enum ResponsiveBehavior {
   Fill = "fill",
   Hug = "hug",
+}
+
+export enum FlexDirection {
+  Row = "row",
+  RowReverse = "row-reverse",
+  Column = "column",
+  ColumnReverse = "column-reverse",
+}
+
+export enum Alignment {
+  Top = "top",
+  Bottom = "bottom",
+  Left = "left",
+  Right = "right",
+}
+
+export enum Spacing {
+  none = "none",
+  Equal = "equal",
+  SpaceBetween = "space-between",
 }

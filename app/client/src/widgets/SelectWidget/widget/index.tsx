@@ -23,7 +23,7 @@ import {
   LoDashStatic,
 } from "lodash";
 import derivedProperties from "./parseDerivedProperties";
-import { generateResponsiveBehaviorConfig } from "utils/ResposniveBehaviorConfig";
+import { generateResponsiveBehaviorConfig } from "utils/ResponsiveBehaviorConfig";
 
 export function defaultOptionValueValidation(
   value: unknown,

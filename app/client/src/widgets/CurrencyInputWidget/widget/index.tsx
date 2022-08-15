@@ -33,7 +33,7 @@ import {
 } from "../component/utilities";
 import { mergeWidgetConfig } from "utils/helpers";
 import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
-import { generateResponsiveBehaviorConfig } from "utils/ResposniveBehaviorConfig";
+import { generateResponsiveBehaviorConfig } from "utils/ResponsiveBehaviorConfig";
 import { ResponsiveBehavior } from "components/constants";
 
 export function defaultValueValidation(

@@ -8,7 +8,7 @@ import { retryPromise } from "utils/AppsmithUtils";
 import ReactPlayer from "react-player";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 import { ResponsiveBehavior } from "components/constants";
-import { generateResponsiveBehaviorConfig } from "utils/ResposniveBehaviorConfig";
+import { generateResponsiveBehaviorConfig } from "utils/ResponsiveBehaviorConfig";
 
 const AudioComponent = lazy(() => retryPromise(() => import("../component")));
 

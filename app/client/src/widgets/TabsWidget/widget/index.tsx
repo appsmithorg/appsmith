@@ -14,7 +14,7 @@ import { WidgetProperties } from "selectors/propertyPaneSelectors";
 import { WIDGET_PADDING } from "constants/WidgetConstants";
 import derivedProperties from "./parseDerivedProperties";
 import { Positioning, ResponsiveBehavior } from "components/constants";
-import { generateResponsiveBehaviorConfig } from "utils/ResposniveBehaviorConfig";
+import { generateResponsiveBehaviorConfig } from "utils/ResponsiveBehaviorConfig";
 
 export function selectedTabValidation(
   value: unknown,
