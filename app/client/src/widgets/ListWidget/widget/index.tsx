@@ -14,6 +14,7 @@ import {
   isEqual,
 } from "lodash";
 import memoizeOne from "memoize-one";
+import shallowEqual from "shallowequal";
 import WidgetFactory from "utils/WidgetFactory";
 import { removeFalsyEntries } from "utils/helpers";
 import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
@@ -712,6 +713,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
       const { page } = this.state;
       const children = removeFalsyEntries(klona(this.props.children));
       const childCanvas = children[0];
+      const { perPage } = this.shouldPaginate();
 
       const canvasChildren = childCanvas.children;
       const template = canvasChildren.slice(0, 1).shift();
@@ -727,6 +729,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
           page,
           gridGap,
           this.props.itemBackgroundColor,
+          perPage,
         );
       } catch (e) {
         log.error(e);
@@ -749,6 +752,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       itemBackgroundColor,
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      perPage,
     ) => {
       const canvasChildrenList = [];
       if (listData.length > 0) {
@@ -762,23 +766,20 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
 
       return canvasChildren;
     },
-    (prev: any, next: any) => {
-      // not comparing canvasChildren becuase template acts as a proxy
-
-      return this.deepEqual(prev, next);
-    },
+    (prev: any, next: any) => this.deepEqual(prev, next),
   );
 
   // deepEqual
-  deepEqual = (prev: any, next: any) => {
+  deepEqual = (prev: any[], next: any[]) => {
     return (
       equal(prev[0], next[0]) &&
-      equal(prev[1], next[1]) &&
+      shallowEqual(prev[1], next[1]) &&
       equal(prev[2], next[2]) &&
       equal(prev[3], next[3]) &&
       prev[4] === next[4] &&
       prev[5] === next[5] &&
-      prev[6] === next[6]
+      prev[6] === next[6] &&
+      prev[7] === next[7]
     );
   };
 
