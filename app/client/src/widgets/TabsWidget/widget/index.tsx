@@ -13,8 +13,16 @@ import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 import { WidgetProperties } from "selectors/propertyPaneSelectors";
 import { WIDGET_PADDING } from "constants/WidgetConstants";
 import derivedProperties from "./parseDerivedProperties";
-import { Positioning, ResponsiveBehavior } from "components/constants";
-import { generateResponsiveBehaviorConfig } from "utils/layoutPropertiesUtils";
+import {
+  Alignment,
+  Positioning,
+  ResponsiveBehavior,
+  Spacing,
+} from "components/constants";
+import {
+  generateResponsiveBehaviorConfig,
+  getLayoutConfig,
+} from "utils/layoutPropertiesUtils";
 
 export function selectedTabValidation(
   value: unknown,
@@ -125,6 +133,7 @@ class TabsWidget extends BaseWidget<
                       isTriggerProperty: true,
                       validation: { type: ValidationTypes.TEXT },
                     },
+                    ...getLayoutConfig(Alignment.Left, Spacing.None),
                   ],
                 },
               ],
@@ -191,21 +200,6 @@ class TabsWidget extends BaseWidget<
           },
           { ...generateResponsiveBehaviorConfig(ResponsiveBehavior.Fill) },
         ],
-      },
-      {
-        helpText: "Should the children take up the complete width on mobile",
-        propertyName: "responsiveBehavior",
-        label: "Responsive behavior",
-        controlType: "DROP_DOWN",
-        defaultValue: ResponsiveBehavior.Fill,
-        options: [
-          { label: "Fill", value: ResponsiveBehavior.Fill },
-          { label: "Hug", value: ResponsiveBehavior.Hug },
-        ],
-        isJSConvertible: true,
-        isBindProperty: false,
-        isTriggerProperty: true,
-        validation: { type: ValidationTypes.TEXT },
       },
       {
         sectionName: "Events",
@@ -511,9 +505,12 @@ class TabsWidget extends BaseWidget<
       : componentHeight - 1;
     childWidgetData.parentId = this.props.widgetId;
     childWidgetData.minHeight = componentHeight;
-    childWidgetData.positioning = Object.values(this.props.tabsObj)?.filter(
+    const selectedTabProps = Object.values(this.props.tabsObj)?.filter(
       (item) => item.widgetId === selectedTabWidgetId,
-    )[0]?.positioning;
+    )[0];
+    childWidgetData.positioning = selectedTabProps?.positioning;
+    childWidgetData.alignment = selectedTabProps?.alignment;
+    childWidgetData.spacing = selectedTabProps?.spacing;
 
     return WidgetFactory.createWidget(childWidgetData, this.props.renderMode);
   };

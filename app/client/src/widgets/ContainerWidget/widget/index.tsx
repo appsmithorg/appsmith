@@ -363,17 +363,6 @@ class ContainerWidget extends BaseWidget<
     childWidgetData.positioning = this.props.positioning;
     childWidgetData.alignment = this.props.alignment;
     childWidgetData.spacing = this.props.spacing;
-    if (this.props.positioning !== Positioning.Fixed) {
-      const layoutProps = getLayoutProperties(
-        this.state.direction,
-        this.props.alignment,
-        this.props.spacing,
-      );
-      childWidgetData = {
-        ...childWidgetData,
-        ...layoutProps,
-      };
-    }
 
     return WidgetFactory.createWidget(childWidgetData, this.props.renderMode);
   }
@@ -434,9 +423,9 @@ class ContainerWidget extends BaseWidget<
         {/* without the wrapping div onClick events are triggered twice */}
         {props.type === "CANVAS_WIDGET" ? (
           <FlexBox
-            alignItems={this.props.alignItems}
-            direction={this.props.flexDirection}
-            justifyContent={this.props.justifyContent}
+            alignment={this.props.alignment || Alignment.Left}
+            direction={this.state.direction}
+            spacing={this.props.spacing || Spacing.None}
             stretchHeight={stretchFlexBox}
             useAutoLayout={this.state.useAutoLayout}
           >
@@ -473,9 +462,9 @@ export interface ContainerWidgetProps<T extends WidgetProps>
   containerStyle?: ContainerStyle;
   shouldScrollContents?: boolean;
   noPad?: boolean;
-  positioning: Positioning;
-  alignment: Alignment;
-  spacing: Spacing;
+  positioning?: Positioning;
+  alignment?: Alignment;
+  spacing?: Spacing;
 }
 
 export interface ContainerWidgetState extends WidgetState {

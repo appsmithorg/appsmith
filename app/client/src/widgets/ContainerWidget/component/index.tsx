@@ -13,9 +13,13 @@ import { ComponentProps } from "widgets/BaseComponent";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import {
   AlignItems,
+  Alignment,
   FlexDirection,
   JustifyContent,
+  LayoutDirection,
+  Spacing,
 } from "components/constants";
+import { getLayoutProperties } from "utils/layoutPropertiesUtils";
 
 const scrollContents = css`
   overflow-y: auto;
@@ -65,13 +69,13 @@ const StyledContainerComponent = styled.div<
 
 export const FlexContainer = styled.div<{
   useAutoLayout?: boolean;
-  direction?: FlexDirection;
+  flexDirection?: FlexDirection;
   justifyContent?: JustifyContent;
   alignItems?: AlignItems;
   stretchHeight: boolean;
 }>`
   display: ${({ useAutoLayout }) => (useAutoLayout ? "flex" : "block")};
-  flex-direction: ${({ direction }) => direction || "row"};
+  flex-direction: ${({ flexDirection }) => flexDirection || "row"};
   justify-content: ${({ justifyContent }) => justifyContent || "flex-start"};
   align-items: ${({ alignItems }) => alignItems || "flex-start"};
   flex-wrap: wrap;
@@ -113,8 +117,21 @@ function ContainerComponentWrapper(props: ContainerComponentProps) {
   );
 }
 
-export function FlexBox(props: any) {
-  return <FlexContainer {...props}>{props.children}</FlexContainer>;
+export function FlexBox(props: FlexBoxProps) {
+  const layoutProps = getLayoutProperties(
+    props.direction,
+    props.alignment,
+    props.spacing,
+  );
+  return (
+    <FlexContainer
+      {...layoutProps}
+      stretchHeight={props.stretchHeight}
+      useAutoLayout={props.useAutoLayout}
+    >
+      {props.children}
+    </FlexContainer>
+  );
 }
 
 function ContainerComponent(props: ContainerComponentProps) {
@@ -157,6 +174,15 @@ export interface ContainerComponentProps
   direction?: string;
   justifyContent?: string;
   alignItems?: string;
+}
+
+export interface FlexBoxProps {
+  alignment: Alignment;
+  direction: LayoutDirection;
+  spacing: Spacing;
+  stretchHeight: boolean;
+  useAutoLayout: boolean;
+  children?: ReactNode;
 }
 
 export default ContainerComponent;

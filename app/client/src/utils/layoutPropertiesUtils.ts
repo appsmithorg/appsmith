@@ -48,7 +48,7 @@ export const verticalAlignment: { [key in Alignment]: LayoutProperties } = {
   bottom: {
     flexDirection: FlexDirection.ColumnReverse,
     justifyContent: JustifyContent.FlexStart,
-    alignItems: AlignItems.FlexStart,
+    alignItems: AlignItems.Center,
   },
   left: {
     flexDirection: FlexDirection.Column,
