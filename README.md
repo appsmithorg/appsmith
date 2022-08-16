@@ -156,7 +156,7 @@ We ❤️ our contributors. We're committed to fostering an open, welcoming, and
 
 Lets build great software together.
 
-#### Top Contributors
+### Top Contributors
 
 [![Nikhil-Nandagopal](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/3897254?v=4&w=50&h=50&mask=circle)](https://github.com/Nikhil-Nandagopal)
 [![mohanarpit](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/458946?v=4&w=50&h=50&mask=circle)](https://github.com/mohanarpit)
