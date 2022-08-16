@@ -1,6 +1,12 @@
 import lottie, { AnimationItem } from "lottie-web";
 import indicator from "assets/lottie/guided-tour-indicator.json";
 import { Classes as GuidedTourClasses } from "pages/Editor/GuidedTour/constants";
+import {
+  setExplorerActiveAction,
+  setExplorerPinnedAction,
+} from "actions/explorerActions";
+import { Dispatch } from "react";
+import { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 
 // data-guided-tour-id - used for the rectangular highlight
 // data-guided-tour-iid - iid(indicator id) used for the lottie animation show near an element
@@ -244,4 +250,9 @@ export function showIndicator(
 
 export function hideIndicator() {
   indicatorHelperInstance.destroy();
+}
+
+export function closeSidebar(dispatch: Dispatch<ReduxAction<any>>) {
+  dispatch(setExplorerPinnedAction(false));
+  dispatch(setExplorerActiveAction(false));
 }

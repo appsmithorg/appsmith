@@ -1,4 +1,3 @@
-import { setExplorerPinnedAction } from "actions/explorerActions";
 import {
   markStepComplete,
   tableWidgetWasSelected,
@@ -28,7 +27,12 @@ import {
 } from "selectors/onboardingSelectors";
 import { getBaseWidgetClassName } from "constants/componentClassNameConstants";
 import { GUIDED_TOUR_STEPS, Steps } from "./constants";
-import { hideIndicator, highlightSection, showIndicator } from "./utils";
+import {
+  closeSidebar,
+  hideIndicator,
+  highlightSection,
+  showIndicator,
+} from "./utils";
 
 function useComputeCurrentStep(showInfoMessage: boolean) {
   let step = 1;
@@ -175,6 +179,7 @@ function useComputeCurrentStep(showInfoMessage: boolean) {
           // Adding a slight delay to wait for the table to be visible
         }, 1000);
       } else {
+        closeSidebar(dispatch);
         showIndicator(`[data-guided-tour-iid='run-query']`, "top");
       }
     }
@@ -204,7 +209,7 @@ function useComputeCurrentStep(showInfoMessage: boolean) {
       step === GUIDED_TOUR_STEPS.TABLE_WIDGET_BINDING &&
       hadReachedStep <= GUIDED_TOUR_STEPS.TABLE_WIDGET_BINDING
     ) {
-      dispatch(setExplorerPinnedAction(false));
+      closeSidebar(dispatch);
       hideIndicator();
       dispatch(markStepComplete());
     }
