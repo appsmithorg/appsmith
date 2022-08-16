@@ -34,6 +34,8 @@ import {
   createCanvasWidget,
   createLoadingWidget,
 } from "utils/widgetRenderUtils";
+import { denormalize } from "reducers/entityReducers/helper";
+import { CanvasWidgetStructure } from "widgets/constants";
 
 const getIsDraggingOrResizing = (state: AppState) =>
   state.ui.widgetDragResize.isResizing || state.ui.widgetDragResize.isDragging;
@@ -195,6 +197,32 @@ export const getCurrentApplicationLayout = (state: AppState) =>
 export const getCanvasWidth = (state: AppState) => state.ui.mainCanvas.width;
 
 export const getMainCanvasProps = (state: AppState) => state.ui.mainCanvas;
+
+export const getPseudoCanvasWidgets = (state: AppState) =>
+  state.entities.pseudoCanvasWidgets;
+
+export const getPseudoCanvasWidget = (pseudoWidgetId: string) =>
+  createSelector(getPseudoCanvasWidgets, (pseudoCanvasWidgets) => {
+    return pseudoCanvasWidgets[pseudoWidgetId];
+  });
+
+export const getPseudoWidgetChildrenStructure = (
+  parentWidgetId: string,
+  isPseudoWidget: boolean,
+) =>
+  createSelector(getPseudoCanvasWidgets, (pseudoCanvasWidgets) => {
+    if (isPseudoWidget) return [];
+
+    const structure: CanvasWidgetStructure[] = [];
+
+    Object.values(pseudoCanvasWidgets).forEach(({ parentId, widgetId }) => {
+      if (parentId === parentWidgetId) {
+        structure.push(denormalize(widgetId, pseudoCanvasWidgets));
+      }
+    });
+
+    return structure;
+  });
 
 export const getCurrentPageName = createSelector(
   getPageListState,

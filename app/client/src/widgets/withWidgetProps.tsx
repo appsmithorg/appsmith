@@ -15,6 +15,8 @@ import {
   computeMainContainerWidget,
   getChildWidgets,
   getRenderMode,
+  getPseudoWidgetChildrenStructure,
+  getPseudoCanvasWidget,
 } from "selectors/editorSelectors";
 import { AppState } from "reducers";
 import { useSelector } from "react-redux";
@@ -45,6 +47,11 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
     const isLoading = useSelector((state: AppState) =>
       getIsWidgetLoading(state, canvasWidget?.widgetName),
     );
+    const pseudoCanvasWidget = useSelector(getPseudoCanvasWidget(widgetId));
+    const isPseudoCanvasWidget = Boolean(pseudoCanvasWidget);
+    const pseudoWidgetChildrenStructure = useSelector(
+      getPseudoWidgetChildrenStructure(widgetId, isPseudoCanvasWidget),
+    );
 
     const childWidgets = useSelector((state: AppState) => {
       if (!WIDGETS_WITH_CHILD_WIDGETS.includes(type)) return undefined;
@@ -58,6 +65,8 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
         if (widgetId === MAIN_CONTAINER_WIDGET_ID) {
           return computeMainContainerWidget(canvasWidget, mainCanvasProps);
         }
+
+        if (isPseudoCanvasWidget) return pseudoCanvasWidget;
 
         return evaluatedWidget
           ? createCanvasWidget(canvasWidget, evaluatedWidget)
@@ -96,7 +105,9 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
         if ("isFormValid" in props) widgetProps.isFormValid = props.isFormValid;
       }
 
-      widgetProps.children = children;
+      widgetProps.children = pseudoWidgetChildrenStructure.length
+        ? pseudoWidgetChildrenStructure
+        : children;
 
       widgetProps.isLoading = isLoading;
       widgetProps.childWidgets = childWidgets;

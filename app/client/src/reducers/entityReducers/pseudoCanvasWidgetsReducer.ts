@@ -27,6 +27,7 @@ const pseudoCanvasWidgetsReducer = createImmerReducer(initialState, {
   ) => {
     Object.entries(action.payload).forEach(([pseudoWidgetId, widgetProps]) => {
       state[pseudoWidgetId] = widgetProps;
+      state[pseudoWidgetId].isPseudoWidget = true;
     });
     return state;
   },

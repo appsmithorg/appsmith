@@ -115,8 +115,20 @@ export const CONFIG = {
         autocomplete: (parentProps: any) => {
           return parentProps.childAutoComplete;
         },
-        updateDataTreePath: (parentProps: any, dataTreePath: string) => {
-          return `${parentProps.widgetName}.template.${dataTreePath}`;
+        updateDataTreePath: (
+          parentProps: ListWidgetProps<WidgetProps>,
+          dataTreePath: string,
+        ) => {
+          const pathChunks = dataTreePath.split(".");
+          const widgetName = pathChunks[0];
+          const path = pathChunks.slice(1, pathChunks.length).join(".");
+          const { template } = parentProps;
+
+          const templateWidget = Object.values(template).find(
+            (w) => w.widgetName === widgetName,
+          );
+
+          return `${parentProps.widgetName}.template.${templateWidget?.widgetId}.${path}`;
         },
         propertyUpdateHook: (
           parentProps: ListWidgetProps<WidgetProps>,
@@ -305,15 +317,12 @@ export const CONFIG = {
             // List > Canvas > Container > Canvas > Widgets
             const mainCanvas = get(widget, "children.0");
             const containerId = get(widget, "children.0.children.0");
-            const containerWidget = get(widgets, containerId);
-            // const canvasId = (containerWidget?.children || [])[0];
-            // const canvasWidget = widgets[canvasId];
 
             const {
               childrenUpdatePropertyMap,
               dynamicPathMap,
               template,
-            } = computeWidgets(containerWidget, widgets);
+            } = computeWidgets(mainCanvas, widgets);
 
             return [
               ...childrenUpdatePropertyMap,
@@ -335,7 +344,7 @@ export const CONFIG = {
               {
                 widgetId: widget.widgetId,
                 propertyName: "mainCanvasId",
-                propertyValue: mainCanvas.id,
+                propertyValue: mainCanvas.widgetId,
               },
             ];
           },

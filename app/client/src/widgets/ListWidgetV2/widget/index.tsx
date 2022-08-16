@@ -1,18 +1,6 @@
 import React from "react";
 import log from "loglevel";
-import {
-  compact,
-  get,
-  set,
-  xor,
-  isNumber,
-  range,
-  toString,
-  isBoolean,
-  omit,
-  isEmpty,
-  isEqual,
-} from "lodash";
+import { get, set, xor, isNumber, range, omit, isEmpty, isEqual } from "lodash";
 import WidgetFactory from "utils/WidgetFactory";
 import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import { RenderModes, WidgetType } from "constants/WidgetConstants";
@@ -30,18 +18,14 @@ import ListPagination, {
   ServerSideListPagination,
 } from "../component/ListPagination";
 import { GridDefaults } from "constants/WidgetConstants";
-import { ValidationTypes } from "constants/WidgetValidation";
 import derivedProperties from "./parseDerivedProperties";
 import { DSLWidget, FlattenedWidgetProps } from "widgets/constants";
 import { entityDefinitions } from "utils/autocomplete/EntityDefinitions";
-import { escapeSpecialChars } from "../../WidgetUtils";
 import { PrivateWidgets } from "entities/DataTree/dataTreeFactory";
 
 import { klona } from "klona";
 import { generateReactKey } from "utils/generators";
-import memoizeOne from "memoize-one";
-import { shallowEqual } from "react-redux";
-import { removeFalsyEntries } from "utils/helpers";
+import equal from "fast-deep-equal/es6";
 
 export type DynamicPathList = Record<string, string[]>;
 
@@ -135,7 +119,12 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
       PATH_TO_ALL_WIDGETS_IN_LIST_WIDGET,
     );
 
-    this.initPseudoWidget();
+    if (
+      !equal(this.props.template, prevProps.template) ||
+      this.props.pageSize !== prevProps.pageSize
+    ) {
+      this.initPseudoWidget();
+    }
 
     const previousListWidgetChildren: WidgetProps[] = get(
       prevProps,
@@ -208,8 +197,20 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
     }
   }
 
+  findChildrenIds = (pseudoWidgets: Template, parentId: string) => {
+    const ids: string[] = [];
+
+    Object.values(pseudoWidgets).forEach((pseudoWidget) => {
+      if (pseudoWidget.parentId === parentId) {
+        ids.push(pseudoWidget.widgetId);
+      }
+    });
+
+    return ids;
+  };
+
   initPseudoWidget = () => {
-    const { pageNo, pageSize, listData = [] } = this.props;
+    const { pageNo, pageSize, listData = [], mainCanvasId } = this.props;
     const startIndex = pageSize * (pageNo - 1);
     const currentViewData = listData.slice(startIndex, pageSize);
 
@@ -227,6 +228,14 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
           ...pseudoWidget,
         };
       });
+
+      if (mainCanvasId) {
+        pseudoWidgets[mainCanvasId] = this.mainCanvasPseudoWidget();
+        pseudoWidgets[mainCanvasId].children = this.findChildrenIds(
+          pseudoWidgets,
+          mainCanvasId,
+        );
+      }
 
       this.addPseudoWidget(pseudoWidgets);
     }
@@ -287,6 +296,21 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
       index * (gap / GridDefaults.DEFAULT_GRID_ROW_HEIGHT);
   };
 
+  // TODO: (ashit) - When key becomes part of property config, remove from here
+  // and access directly from this.props
+  getPseudoWidgetId = (widgetId: string, key: string) => {
+    if (!this.pseudoWidgetIdCache[key]) {
+      this.pseudoWidgetIdCache[key] = {};
+    }
+
+    const pseudoWidgetId =
+      this.pseudoWidgetIdCache[key]?.[widgetId] || generateReactKey();
+
+    this.pseudoWidgetIdCache[key][widgetId] = pseudoWidgetId;
+
+    return pseudoWidgetId;
+  };
+
   generatePseudoWidget = (
     index: number,
     options: GeneratePseudoWidgetOptions,
@@ -298,48 +322,60 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
       mainContainerId,
       pageSize,
       pageNo,
+      renderMode,
     } = this.props;
     const { widgetId, parentId, pseudoWidgets = {}, key } = options;
-    const widget = template[widgetId];
-    const pseudoWidget = klona(widget);
+    const templateWidget = template[widgetId];
+    const pseudoWidget = klona(templateWidget);
     const dynamicPaths = dynamicPathMap[widgetId] || [];
-    const idMap = this.pseudoWidgetIdCache[key];
+    const viewIndex = index - pageSize * (pageNo - 1);
 
-    this.disableWidgetOperations(pseudoWidget);
-    if (widget.widgetId === mainContainerId) {
-      const viewIndex = index - pageSize * (pageNo - 1);
+    if (
+      renderMode === RenderModes.PAGE ||
+      (renderMode === RenderModes.CANVAS && viewIndex !== 0)
+    ) {
+      this.disableWidgetOperations(pseudoWidget);
+
+      const pseudoWidgetId = this.getPseudoWidgetId(widgetId, key);
+
+      pseudoWidget.widgetId = pseudoWidgetId;
+      pseudoWidget.widgetName = `${widgetName}_${templateWidget.widgetName}_${pseudoWidget.widgetId}`;
+    }
+
+    if (templateWidget.widgetId === mainContainerId) {
       this.updateContainerPosition(pseudoWidget, viewIndex);
     }
 
-    if (!idMap) {
-      this.pseudoWidgetIdCache[key] = {};
-    }
-
-    const pseudoWidgetId = idMap?.[widgetId] || generateReactKey();
-    this.pseudoWidgetIdCache[key][widgetId] = pseudoWidgetId;
-
-    pseudoWidget.widgetId = pseudoWidgetId;
     pseudoWidget.__index = index;
-    pseudoWidget.widgetName = `${widgetName}_${widget.widgetName}_${pseudoWidget.widgetId}`;
     pseudoWidget.parentId = parentId;
 
     dynamicPaths.forEach((dynamicPath) => {
-      const value = get(widget, dynamicPath);
-      const dynamicValue = this.getBinding(value, pseudoWidget.widgetName);
+      const templateValue = get(templateWidget, dynamicPath);
+      const dynamicValue = this.getBinding(
+        templateValue,
+        pseudoWidget.widgetName,
+      );
 
       set(pseudoWidget, dynamicPath, dynamicValue);
     });
 
-    pseudoWidgets[pseudoWidget.widgetId] = pseudoWidget;
+    const children: string[] = [];
 
-    (widget.children || []).map((childWidgetId) => {
+    (templateWidget.children || []).map((childWidgetId) => {
       this.generatePseudoWidget(index, {
         parentId: pseudoWidget.widgetId,
         pseudoWidgets,
         widgetId: childWidgetId,
         key,
       });
+      const idMap = this.pseudoWidgetIdCache[key] || {};
+
+      children.push(idMap[childWidgetId] || childWidgetId);
     });
+
+    pseudoWidget.children = children;
+
+    pseudoWidgets[pseudoWidget.widgetId] = pseudoWidget;
 
     return pseudoWidgets;
   };
@@ -353,6 +389,24 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
     });
 
     return pseudoWidgets;
+  };
+
+  mainCanvasPseudoWidget = () => {
+    const { mainCanvasId = "", template = {} } = this.props;
+    const { shouldPaginate } = this.shouldPaginate();
+    const { componentHeight, componentWidth } = this.getComponentDimensions();
+    const pseudoMainCanvas = klona(template[mainCanvasId]) ?? {};
+
+    pseudoMainCanvas.canExtend = undefined;
+    pseudoMainCanvas.isVisible = this.props.isVisible;
+    pseudoMainCanvas.minHeight = componentHeight;
+    pseudoMainCanvas.rightColumn = componentWidth;
+    pseudoMainCanvas.noPad = true;
+    pseudoMainCanvas.bottomRow = shouldPaginate
+      ? componentHeight - LIST_WIDGET_PAGINATION_HEIGHT
+      : componentHeight;
+
+    return pseudoMainCanvas;
   };
 
   /**
@@ -536,11 +590,21 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
     return { shouldPaginate, perPage: pageSize };
   };
 
+  renderChildren = () => {
+    const { componentWidth } = this.getComponentDimensions();
+    return (this.props.children || []).map((childWidget) => {
+      const child = { ...childWidget };
+      child.parentColumnSpace = this.props.parentColumnSpace;
+      // This gets replaced in withWidgetProps.
+      child.rightColumn = componentWidth;
+      return WidgetFactory.createWidget(child, this.props.renderMode);
+    });
+  };
+
   /**
    * view that is rendered in editor
    */
   getPageView() {
-    // const children = this.renderChildren();
     const { componentHeight } = this.getComponentDimensions();
     const { pageNo, serverSidePaginationEnabled } = this.props;
     const { perPage, shouldPaginate } = this.shouldPaginate();
@@ -605,7 +669,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
         key={`list-widget-page-${this.state.page}`}
         listData={this.props.listData || []}
       >
-        <div>List RENDERER</div>
+        {this.renderChildren()}
         {shouldPaginate &&
           (serverSidePaginationEnabled ? (
             <ServerSideListPagination
@@ -633,7 +697,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
    * returns type of the widget
    */
   static getWidgetType(): WidgetType {
-    return "LIST_WIDGET V2";
+    return "LIST_WIDGET_V2";
   }
 }
 
