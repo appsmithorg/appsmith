@@ -82,7 +82,8 @@ function IframeComponent(props: IframeComponentProps) {
 
   const frameRef = useRef<HTMLIFrameElement>(null);
 
-  const isFirstRender = useRef(true);
+  const isFirstSrcURLRender = useRef(true);
+  const isFirstSrcDocRender = useRef(true);
 
   const [message, setMessage] = useState("");
 
@@ -102,8 +103,8 @@ function IframeComponent(props: IframeComponentProps) {
   }, []);
 
   useEffect(() => {
-    if (isFirstRender.current) {
-      isFirstRender.current = false;
+    if (isFirstSrcURLRender.current) {
+      isFirstSrcURLRender.current = false;
       return;
     }
     onURLChanged(source);
@@ -115,8 +116,8 @@ function IframeComponent(props: IframeComponentProps) {
   }, [source]);
 
   useEffect(() => {
-    if (isFirstRender.current) {
-      isFirstRender.current = false;
+    if (isFirstSrcDocRender.current) {
+      isFirstSrcDocRender.current = false;
       return;
     }
     onSrcDocChanged(srcDoc);
