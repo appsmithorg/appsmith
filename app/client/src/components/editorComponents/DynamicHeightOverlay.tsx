@@ -372,6 +372,10 @@ const DynamicHeightOverlay: React.FC<DynamicHeightOverlayProps> = memo(
       (state: AppState) => state.ui.widgetDragResize.lastSelectedWidget,
     );
 
+    const selectedWidgets = useSelector(
+      (state: AppState) => state.ui.widgetDragResize.selectedWidgets,
+    );
+
     const canvasWidgets = useSelector(getCanvasWidgets);
     const parentWidgetToSelect = getParentToOpenIfAny(widgetId, canvasWidgets);
     const showTableFilterPane = useShowTableFilterPane();
@@ -569,6 +573,8 @@ const DynamicHeightOverlay: React.FC<DynamicHeightOverlayProps> = memo(
     }, []);
 
     const isWidgetSelected = selectedWidget === widgetId;
+    const multipleWidgetsSelected = selectedWidgets.length > 1;
+    const isOverlayToBeDisplayed = isWidgetSelected && !multipleWidgetsSelected;
 
     return (
       <StyledDynamicHeightOverlay
@@ -584,7 +590,7 @@ const DynamicHeightOverlay: React.FC<DynamicHeightOverlayProps> = memo(
       >
         <div
           style={{
-            display: isWidgetSelected ? "block" : "none",
+            display: isOverlayToBeDisplayed ? "block" : "none",
           }}
         >
           <OverlayDisplay
