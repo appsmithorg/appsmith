@@ -1355,7 +1355,7 @@ jobs:
         uses: actions/checkout@v3
         with:
           repository: appsmithorg/performance-infra
-          token: ${{ secrets.CYPRESS_GITHUB_PERSONAL_ACCESS_TOKEN }}
+          token: ${{ secrets.APPSMITH_PERF_INFRA_REPO_PAT }}
           ref: main
           path: app/client/perf
 
