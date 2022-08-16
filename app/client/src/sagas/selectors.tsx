@@ -14,9 +14,16 @@ import { ActionData } from "reducers/entityReducers/actionsReducer";
 import { Page } from "@appsmith/constants/ReduxActionConstants";
 import { getActions, getPlugins } from "selectors/entitiesSelector";
 import { Plugin } from "api/PluginApi";
+import { PseudoCanvasWidgetsReduxState } from "reducers/entityReducers/pseudoCanvasWidgetsReducer";
 
 export const getWidgets = (state: AppState): CanvasWidgetsReduxState => {
   return state.entities.canvasWidgets;
+};
+
+export const getPseudoCanvasWidgets = (
+  state: AppState,
+): PseudoCanvasWidgetsReduxState => {
+  return state.entities.pseudoCanvasWidgets;
 };
 
 export const getWidgetsMeta = (state: AppState) => state.entities.meta;

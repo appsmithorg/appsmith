@@ -22,7 +22,7 @@ import {
   getDataTree,
   getUnevaluatedDataTree,
 } from "selectors/dataTreeSelectors";
-import { getWidgets } from "sagas/selectors";
+import { getPseudoCanvasWidgets, getWidgets } from "sagas/selectors";
 import WidgetFactory, { WidgetTypeConfigMap } from "utils/WidgetFactory";
 import { GracefulWorkerService } from "utils/WorkerUtil";
 import Worker from "worker-loader!../workers/evaluation.worker";
@@ -98,6 +98,7 @@ import { DataTreeDiff } from "workers/evaluationUtils";
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { AppTheme } from "entities/AppTheming";
 import { ActionValidationConfigMap } from "constants/PropertyControlConstants";
+import { PseudoCanvasWidgetsReduxState } from "reducers/entityReducers/pseudoCanvasWidgetsReducer";
 
 let widgetTypeConfigMap: WidgetTypeConfigMap;
 
@@ -124,6 +125,9 @@ function* evaluateTreeSaga(
   } = yield select(getAllActionValidationConfig);
   const unevalTree: DataTree = yield select(getUnevaluatedDataTree);
   const widgets: CanvasWidgetsReduxState = yield select(getWidgets);
+  const pseudoCanvasWidgets: PseudoCanvasWidgetsReduxState = yield select(
+    getPseudoCanvasWidgets,
+  );
   const theme: AppTheme = yield select(getSelectedAppTheme);
 
   log.debug({ unevalTree });
@@ -142,6 +146,7 @@ function* evaluateTreeSaga(
       theme,
       shouldReplay,
       allActionValidationConfig,
+      pseudoCanvasWidgets,
     },
   );
 
