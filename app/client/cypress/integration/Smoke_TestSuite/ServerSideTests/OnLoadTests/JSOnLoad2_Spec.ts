@@ -5,12 +5,8 @@ const agHelper = ObjectsRegistry.AggregateHelper,
   ee = ObjectsRegistry.EntityExplorer,
   dataSources = ObjectsRegistry.DataSources,
   jsEditor = ObjectsRegistry.JSEditor,
-  table = ObjectsRegistry.Table,
-  locator = ObjectsRegistry.CommonLocators,
   homePage = ObjectsRegistry.HomePage,
-  apiPage = ObjectsRegistry.ApiPage,
-  deployMode = ObjectsRegistry.DeployMode,
-  propPane = ObjectsRegistry.PropertyPane;
+  deployMode = ObjectsRegistry.DeployMode;
 
 describe("JSObjects OnLoad Actions tests", function() {
   before(() => {
@@ -203,5 +199,6 @@ describe("JSObjects OnLoad Actions tests", function() {
     else agHelper.Sleep(3000);
     deployMode.NavigateBacktoEditor();
     agHelper.ClickButton("No");
+    agHelper.Sleep(2000);
   }
 });
