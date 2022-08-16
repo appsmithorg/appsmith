@@ -35,7 +35,7 @@ describe("Statbox Widget Functionality", function() {
   it("3. Verify Statbox icon button's onClick action and change the icon", () => {
     cy.openPropertyPane("iconbuttonwidget");
     cy.get(".t--property-pane-section-general").then(() => {
-      cy.moveToStyleTab();
+      //cy.moveToStyleTab();
       // changing the icon to arrow-up
       cy.get(".bp3-button-text")
         .first()

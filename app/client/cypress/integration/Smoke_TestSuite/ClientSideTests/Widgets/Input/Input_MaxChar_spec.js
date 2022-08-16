@@ -17,7 +17,7 @@ describe("Input Widget Max Char Functionality", function() {
   it("Text Input maxChar shows error if inputText longer than maxChar", () => {
     cy.openPropertyPane("inputwidgetv2");
     cy.clearComputedValueFirst();
-    cy.testJsontext("defaulttext", "");
+    cy.testJsontext("defaultvalue", "");
     cy.closePropertyPane("inputwidgetv2");
 
     cy.get(widgetsPage.innertext)

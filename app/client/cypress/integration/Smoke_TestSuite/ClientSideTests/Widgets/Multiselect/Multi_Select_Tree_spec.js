@@ -19,7 +19,7 @@ describe("MultiSelectTree Widget Functionality", function() {
     );
     // Change defaultValue
     cy.openPropertyPane("multiselecttreewidget");
-    cy.testJsontext("defaultvalue", "GREEN\n");
+    cy.testJsontext("defaultselectedvalue", "GREEN\n");
     // Check if isDirty is set to false
     cy.get(".t--widget-textwidget").should("contain", "false");
     // Interact with UI
@@ -30,14 +30,14 @@ describe("MultiSelectTree Widget Functionality", function() {
     // Check if isDirty is set to true
     cy.get(".t--widget-textwidget").should("contain", "true");
     // Reset isDirty by changing defaultValue
-    cy.testJsontext("defaultvalue", "BLUE\n");
+    cy.testJsontext("defaultselectedvalue", "BLUE\n");
     // Check if isDirty is set to false
     cy.get(".t--widget-textwidget").should("contain", "false");
   });
 
   it("2. Selects value with enter in default value", () => {
     cy.openPropertyPane("multiselecttreewidget");
-    cy.testJsontext("defaultvalue", "RED\n");
+    cy.testJsontext("defaultselectedvalue", "RED\n");
     cy.get(formWidgetsPage.multiselecttreeWidget)
       .find(".rc-tree-select-selection-item-content")
       .first()
