@@ -16,7 +16,7 @@ describe("Create new workspace and invite user & validate all roles", () => {
       homePage.CheckWorkspaceShareUsersCount(workspaceId, 1);
       homePage.InviteUserToWorkspace(
         workspaceId,
-        "testusername1",
+        Cypress.env("TESTUSERNAME1"),
         "App Viewer",
       );
       cy.xpath(homePage._visibleTextSpan("MANAGE USERS")).click({
