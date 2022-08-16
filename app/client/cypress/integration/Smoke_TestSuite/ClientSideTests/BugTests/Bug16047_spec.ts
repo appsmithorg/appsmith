@@ -1,17 +1,10 @@
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 
 const jsEditor = ObjectsRegistry.JSEditor,
-  ee = ObjectsRegistry.EntityExplorer,
-  agHelper = ObjectsRegistry.AggregateHelper;
+  ee = ObjectsRegistry.EntityExplorer;
 
-describe("Lint error reporting", () => {
-  before(() => {
-    ee.DragDropWidgetNVerify("tablewidgetv2", 300, 500);
-    ee.DragDropWidgetNVerify("buttonwidget", 300, 300);
-    ee.NavigateToSwitcher("explorer");
-  });
-
-  it("1. Shows empty page UI with invalid JS Object page url", () => {
+describe("Invalid page routing", () => {
+  it("1. Shows Invalid URL UI for invalid JS Object page url", () => {
     const JS_OBJECT_BODY = `export default {
         myVar1: [],
         myVar2: {},
@@ -29,10 +22,11 @@ describe("Lint error reporting", () => {
       toRun: false,
       shouldCreateNewJSObj: true,
     });
+
     cy.url().then((url) => {
-      const invalidURL = url + "invalid";
+      const urlWithoutQueryParams = url.split("?")[0];
+      const invalidURL = urlWithoutQueryParams + "invalid";
       cy.visit(invalidURL);
-      agHelper.Sleep(2000);
       cy.contains(`The page you’re looking for either does not exist`).should(
         "exist",
       );
