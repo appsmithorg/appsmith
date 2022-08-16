@@ -61,6 +61,7 @@ import com.appsmith.server.domains.Theme;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserData;
 import com.appsmith.server.domains.UserRole;
+import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.domains.WorkspacePlugin;
 import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.ActionDTO;
@@ -236,8 +237,8 @@ public class DatabaseChangelog {
         return actionDTO;
     }
 
-    private void installPluginToAllOrganizations(MongockTemplate mongockTemplate, String pluginId) {
-        for (Organization organization : mongockTemplate.findAll(Organization.class)) {
+    public static void installPluginToAllOrganizations(MongockTemplate mongockTemplate, String pluginId) {
+        for (Workspace organization : mongockTemplate.findAll(Workspace.class)) {
             if (CollectionUtils.isEmpty(organization.getPlugins())) {
                 organization.setPlugins(new HashSet<>());
             }

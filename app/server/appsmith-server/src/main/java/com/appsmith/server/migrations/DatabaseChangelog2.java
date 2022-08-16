@@ -83,6 +83,7 @@ import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNewFieldValues
 import static com.appsmith.server.migrations.DatabaseChangelog.dropIndexIfExists;
 import static com.appsmith.server.migrations.DatabaseChangelog.ensureIndexes;
 import static com.appsmith.server.migrations.DatabaseChangelog.getUpdatedDynamicBindingPathList;
+import static com.appsmith.server.migrations.DatabaseChangelog.installPluginToAllOrganizations;
 import static com.appsmith.server.migrations.DatabaseChangelog.makeIndex;
 import static com.appsmith.server.repositories.BaseAppsmithRepositoryImpl.fieldName;
 import static java.lang.Boolean.TRUE;
@@ -724,27 +725,8 @@ public class DatabaseChangelog2 {
                 Application.class);
     }
 
-    // TODO: refactor to avoid duplication
-    private void installPluginToAllOrganizations(MongockTemplate mongockTemplate, String pluginId) {
-        for (Organization organization : mongockTemplate.findAll(Organization.class)) {
-            if (CollectionUtils.isEmpty(organization.getPlugins())) {
-                organization.setPlugins(new HashSet<>());
-            }
-
-            final Set<String> installedPlugins = organization.getPlugins()
-                    .stream().map(WorkspacePlugin::getPluginId).collect(Collectors.toSet());
-
-            if (!installedPlugins.contains(pluginId)) {
-                organization.getPlugins()
-                        .add(new WorkspacePlugin(pluginId, WorkspacePluginStatus.FREE));
-            }
-
-            mongockTemplate.save(organization);
-        }
-    }
-
-    // TODO: update the order. Not doing it now to avoid future merge conflicts.
-    @ChangeSet(order = "003", id = "add-graphql-plugin", author = "")
+    // TODO: update the order before merge to release.
+    @ChangeSet(order = "023", id = "add-graphql-plugin", author = "")
     public void addGraphQLPlugin(MongockTemplate mongoTemplate) {
         Plugin plugin = new Plugin();
         plugin.setName("Authenticated GraphQL API");
@@ -764,6 +746,7 @@ public class DatabaseChangelog2 {
 
         installPluginToAllOrganizations(mongoTemplate, plugin.getId());
     }
+    
     @ChangeSet(order = "006", id = "delete-orphan-pages", author = "")
     public void deleteOrphanPages(MongockTemplate mongockTemplate) {
 
