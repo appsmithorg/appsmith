@@ -240,7 +240,7 @@
     "compression-webpack-plugin": "^10.0.0",
     "cra-bundle-analyzer": "^0.1.0",
     "cy-verify-downloads": "^0.0.5",
-    "cypress": "8.7.0",
+    "cypress": "9.7.0",
     "cypress-file-upload": "^4.1.1",
     "cypress-image-snapshot": "^4.0.1",
     "cypress-multi-reporters": "^1.2.4",

@@ -134,7 +134,7 @@ describe("Table Widget property pane feature validation", function() {
       .first()
       .click({ force: true });
     // eslint-disable-next-line cypress/no-unnecessary-waiting
-    cy.wait(1000);
+    cy.wait(2000);
     cy.toggleJsAndUpdateWithIndex("tabledata", testdata.bindingTextColor, 6);
 
     cy.wait("@updateLayout");
