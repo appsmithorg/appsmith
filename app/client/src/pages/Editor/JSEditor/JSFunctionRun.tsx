@@ -1,13 +1,12 @@
 import React from "react";
 import styled from "styled-components";
-import Dropdown, {
-  DropdownOnSelect,
-  DropdownContainer,
-} from "components/ads/Dropdown";
 import FlagBadge from "components/utils/FlagBadge";
 import { JSCollection } from "entities/JSCollection";
 import {
   Button,
+  Dropdown,
+  DropdownOnSelect,
+  DropdownContainer,
   Size,
   StyledButton,
   TooltipComponent as Tooltip,

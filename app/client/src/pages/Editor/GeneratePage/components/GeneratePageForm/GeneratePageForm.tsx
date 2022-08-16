@@ -1,7 +1,6 @@
 import React, { useEffect, useState, useCallback, useRef } from "react";
 import styled from "styled-components";
 import { Colors } from "constants/Colors";
-import Dropdown, { DropdownOption } from "components/ads/Dropdown";
 import { getTypographyByKey } from "constants/DefaultTheme";
 import { useSelector, useDispatch } from "react-redux";
 import {
@@ -26,8 +25,11 @@ import { getQueryStringfromObject } from "RouteBuilder";
 import {
   Button,
   Category,
+  Dropdown,
+  DropdownOption,
   IconName,
   IconSize,
+  RenderDropdownOptionType,
   Size,
   TooltipComponent as Tooltip,
 } from "design-system";
@@ -619,7 +621,11 @@ function GeneratePageForm() {
             onSelect={onSelectDataSource}
             optionWidth={DROPDOWN_DIMENSION.WIDTH}
             options={dataSourceOptions}
-            renderOption={({ isSelectedNode, option, optionClickHandler }) => (
+            renderOption={({
+              isSelectedNode,
+              option,
+              optionClickHandler,
+            }: RenderDropdownOptionType) => (
               <DataSourceOption
                 cypressSelector="t--datasource-dropdown-option"
                 extraProps={{ routeToCreateNewDatasource }}

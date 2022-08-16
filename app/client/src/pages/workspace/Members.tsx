@@ -20,10 +20,10 @@ import {
   deleteWorkspaceUser,
 } from "actions/workspaceActions";
 import TableDropdown from "components/ads/TableDropdown";
-import Dropdown from "components/ads/Dropdown";
 import {
   Button,
   Category,
+  Dropdown,
   Icon,
   IconSize,
   Size,
@@ -415,7 +415,7 @@ export default function MemberSettings(props: PageProps) {
                         className="t--user-status"
                         defaultIcon="downArrow"
                         height="31px"
-                        onSelect={(value) => {
+                        onSelect={(value: string) => {
                           selectRole(value, user.username);
                         }}
                         options={roles}

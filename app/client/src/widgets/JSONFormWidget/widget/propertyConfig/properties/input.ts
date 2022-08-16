@@ -13,6 +13,8 @@ import {
   ValidationResponse,
   ValidationTypes,
 } from "constants/WidgetValidation";
+import { ICON_NAMES } from "widgets/constants";
+import { IconNames } from "@blueprintjs/icons";
 
 function defaultValueValidation(
   value: any,
@@ -420,9 +422,16 @@ const PROPERTIES = {
       label: "Icon",
       helpText: "Sets the icon to be used in input field",
       controlType: "ICON_SELECT",
-      isBindProperty: false,
+      isBindProperty: true,
       isTriggerProperty: false,
-      validation: { type: ValidationTypes.TEXT },
+      isJSConvertible: true,
+      validation: {
+        type: ValidationTypes.TEXT,
+        params: {
+          allowedValues: ICON_NAMES,
+          default: IconNames.PLUS,
+        },
+      },
       hidden: (...args: HiddenFnParams) =>
         getSchemaItem(...args).fieldTypeNotIncludes([
           FieldType.TEXT_INPUT,
@@ -789,9 +798,16 @@ const PROPERTIES = {
         label: "Icon",
         helpText: "Sets the icon to be used in input field",
         controlType: "ICON_SELECT",
-        isBindProperty: false,
+        isBindProperty: true,
         isTriggerProperty: false,
-        validation: { type: ValidationTypes.TEXT },
+        isJSConvertible: true,
+        validation: {
+          type: ValidationTypes.TEXT,
+          params: {
+            allowedValues: ICON_NAMES,
+            default: IconNames.PLUS,
+          },
+        },
         hidden: (...args: HiddenFnParams) =>
           getSchemaItem(...args).fieldTypeNotIncludes([
             FieldType.TEXT_INPUT,

@@ -19,6 +19,7 @@ import {
   EMPTY_RESPONSE_FIRST_HALF,
   EMPTY_RESPONSE_LAST_HALF,
   INSPECT_ENTITY,
+  ACTION_EXECUTION_MESSAGE,
 } from "@appsmith/constants/messages";
 import { Text as BlueprintText } from "@blueprintjs/core";
 import { Classes, Variant } from "components/ads/common";
@@ -41,6 +42,7 @@ import {
   UpdateActionPropertyActionPayload,
 } from "actions/pluginActionActions";
 import { isHtml } from "./utils";
+import ActionAPI from "api/ActionAPI";
 
 type TextStyleProps = {
   accent: "primary" | "secondary" | "error";
@@ -103,7 +105,7 @@ const TabbedViewWrapper = styled.div`
   }
 `;
 
-const SectionDivider = styled.div`
+export const SectionDivider = styled.div`
   height: 1px;
   width: 100%;
   background: ${(props) => props.theme.colors.apiPane.dividerBg};
@@ -172,6 +174,23 @@ const ResponseBodyContainer = styled.div`
   display: grid;
 `;
 
+export const CancelRequestButton = styled(Button)`
+  margin-top: 10px;
+`;
+
+export const LoadingOverlayContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background-color: transparent;
+  position: relative;
+  z-index: 20;
+  width: 100%;
+  height: 100%;
+  margin-top: 5px;
+`;
+
 interface ReduxStateProps {
   responses: Record<string, ActionResponse | undefined>;
   isRunning: Record<string, boolean>;
@@ -235,6 +254,8 @@ const ResponseDataContainer = styled.div`
 `;
 
 export const TableCellHeight = 39;
+// When action execution is triggered, open response container to height specified by this variable.
+export const ActionExecutionResizerHeight = 307;
 
 export const responseTabComponent = (
   responseType: string,
@@ -267,6 +288,10 @@ export const responseTabComponent = (
       />
     ),
   }[responseType];
+};
+
+export const handleCancelActionExecution = () => {
+  ActionAPI.abortActionExecutionTokenSource.cancel();
 };
 
 function ApiResponseView(props: Props) {
@@ -504,17 +529,37 @@ function ApiResponseView(props: Props) {
   return (
     <ResponseContainer ref={panelRef}>
       <Resizer
+        openResizer={isRunning}
         panelRef={panelRef}
         setContainerDimensions={(height: number) =>
           // TableCellHeight in this case is the height of one table cell in pixels.
           setTableBodyHeightHeight(height - TableCellHeight)
         }
+        snapToHeight={ActionExecutionResizerHeight}
       />
       <SectionDivider />
       {isRunning && (
-        <LoadingOverlayScreen theme={props.theme}>
-          Sending Request
-        </LoadingOverlayScreen>
+        <>
+          <LoadingOverlayScreen theme={props.theme} />
+          <LoadingOverlayContainer>
+            <div>
+              <Text textAlign={"center"} type={TextType.P1}>
+                {createMessage(ACTION_EXECUTION_MESSAGE, "API")}
+              </Text>
+              <CancelRequestButton
+                category={Category.tertiary}
+                className={`t--cancel-action-button`}
+                onClick={() => {
+                  handleCancelActionExecution();
+                }}
+                size={Size.medium}
+                tag="button"
+                text="Cancel Request"
+                type="button"
+              />
+            </div>
+          </LoadingOverlayContainer>
+        </>
       )}
       <TabbedViewWrapper>
         {response.statusCode && (
