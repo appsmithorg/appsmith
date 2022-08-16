@@ -1,34 +1,105 @@
 package com.appsmith.server.domains;
 
 import com.appsmith.external.models.BaseDomain;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.ToString;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import java.util.Map;
+import java.time.Instant;
 
-@Getter
-@Setter
+@Data
 @ToString
 @Document
 public class AuditLog extends BaseDomain {
-    String name;
+    String eventName;
 
-    String userId;
+    Instant eventDate;
 
-    String pageId;
+    ApplicationInfo application;
 
-    String newActionId;
+    Git git;
 
-    String appId;
+    WorkspaceInfo workspace;
 
-    String appName;
+    Metadata metadata;
 
-    String workspaceId;
+    Resource resource;
 
-    String datasourceId;
+    UserInfo user;
 
-    // This field will store all the extra details about the event like instance version
-    Map<String, Object> metadata;
+    public AuditLog() {
+        this.application = new ApplicationInfo();
+        this.git = new Git();
+        this.workspace = new WorkspaceInfo();
+        this.metadata = new Metadata();
+        this.resource = new Resource();
+        this.user = new UserInfo();
+    }
+
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public class ApplicationInfo {
+        String id;
+
+        String name;
+
+        Git git;
+    }
+
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public class Git {
+        String branch;
+
+        String defaultBranch;
+    }
+
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public class WorkspaceInfo {
+        String id;
+
+        String name;
+    }
+
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public class Metadata {
+        String ipAddress;
+
+        String appsmithVersion;
+
+        Instant createdAt;
+    }
+
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public class Resource {
+        String id;
+
+        String type;
+
+        String name;
+    }
+
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public class UserInfo {
+        String id;
+
+        String email;
+
+        String name;
+
+        String ipAddress;
+    }
+
 }

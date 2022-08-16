@@ -17,7 +17,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
-import java.util.HashMap;
+import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 
@@ -64,47 +64,68 @@ public class AuditLogServiceImpl implements AuditLogService {
             String resourceName = AuditLogEvents.resourceMap.get(resourceClassName);
             String actionName = AuditLogEvents.eventMap.get(event.getEventName());
             String eventName =  resourceName + FieldName.AUDIT_LOG_EVENT_DELIMITER + actionName;
+            auditLog.setEventName(eventName);
+            auditLog.setEventDate(Instant.now());
 
-            auditLog.setName(eventName);
-            setMetadata(auditLog, properties);
-
-            if (resource instanceof Workspace) {
-                setWorkspaceProperties(auditLog, (Workspace) resource);
-            }
-            else if (resource instanceof Datasource) {
-                setDatasourceProperties(auditLog, (Datasource) resource);
-            }
-            else if (resource instanceof Application) {
-                setApplicationProperties(auditLog, (Application) resource);
-            }
-            else if (resource instanceof NewPage) {
-                setNewPageProperties(auditLog, (NewPage) resource);
-            }
-            else if (resource instanceof NewAction) {
-                setNewActionProperties(auditLog, (NewAction) resource);
+            setResourceProperties(auditLog, resource);
+            //TODO fetch the App and Workspace info from DB or pass it from the respective service class during the analytics event
+            if(properties != null && !properties.isEmpty()) {
+                setApplicationProperties(auditLog, (Application) properties.get(FieldName.APPLICATION));
+                setWorkspaceProperties(auditLog, (Workspace) properties.get(FieldName.WORKSPACE));
             }
 
             return sessionUserService.getCurrentUser()
                     .flatMap(user -> {
-                        auditLog.setUserId(user.getUsername());
-
+                        AuditLog.UserInfo userInfo = auditLog.getUser();
+                        userInfo.setName(user.getUsername());
+                        userInfo.setId(user.getId());
+                        userInfo.setEmail(user.getEmail());
+                        auditLog.setUser(userInfo);
                         return repository.save(auditLog);
                     }); // TODO: Needs to be scheduled in separate thread
         }
     }
 
-    /**
-     * To set metadata from extraProperties and from other sources in the future
-     * @param auditLog AuditLog
-     * @param extraProperties Extra properties related to event
+     /**
+     * @param auditLog AuditLog domain object
+     * @param resource Event data from the Analytics service
+     * This method will add the event to the resource object
+     * Ex: A page was created in the app
+     * The resource object of the Audit log will contain
+     *      page Id as resource id
+     *      type is page
+     *      name is resource name
      */
-    private void setMetadata(AuditLog auditLog, Map<String, Object> extraProperties) {
-        Map<String, Object> metadata = new HashMap<>();
-        metadata.put(FieldName.APPSMITH_VERSION, releaseNotesService.getReleasedVersion());
-        if (extraProperties != null) {
-            metadata.putAll(extraProperties);
+    private void setResourceProperties(AuditLog auditLog, Object resource) {
+        AuditLog.Resource resourceData = auditLog.getResource();
+        resourceData.setType(AuditLogEvents.resourceMap.get(resource.getClass().getSimpleName()));
+
+        // TODO Use view mode for the action and Page, refactor the code to avoid the if else condition
+        if (resource instanceof Workspace) {
+            Workspace workspace = (Workspace) resource;
+            resourceData.setId(workspace.getId());
+            resourceData.setName(workspace.getName());
         }
-        auditLog.setMetadata(metadata);
+        else if (resource instanceof Datasource) {
+            Datasource datasource = (Datasource) resource;
+            resourceData.setId(datasource.getId());
+            resourceData.setName(datasource.getName());
+        }
+        else if (resource instanceof Application) {
+            Application application = (Application) resource;
+            resourceData.setId(application.getId());
+            resourceData.setName(application.getName());
+        }
+        else if (resource instanceof NewPage) {
+            NewPage newPage = (NewPage) resource;
+            resourceData.setId(newPage.getId());
+            resourceData.setName(newPage.getUnpublishedPage().getName());
+        }
+        else if (resource instanceof NewAction) {
+            NewAction newAction = (NewAction) resource;
+            resourceData.setId(newAction.getId());
+            resourceData.setName(newAction.getUnpublishedAction().getName());
+        }
     }
 
     /**
@@ -113,17 +134,10 @@ public class AuditLogServiceImpl implements AuditLogService {
      * @param workspace Workspace
      */
     private void setWorkspaceProperties(AuditLog auditLog, Workspace workspace) {
-        auditLog.setWorkspaceId(workspace.getId());
-    }
-
-    /**
-     * To set the related data if the resource is Datasource
-     * @param auditLog AuditLog
-     * @param datasource Datasource
-     */
-    private void setDatasourceProperties(AuditLog auditLog, Datasource datasource) {
-        auditLog.setWorkspaceId(datasource.getWorkspaceId());
-        auditLog.setDatasourceId(datasource.getId());
+        AuditLog.WorkspaceInfo workspaceInfo = auditLog.getWorkspace();
+        workspaceInfo.setId(workspace.getId());
+        workspaceInfo.setName(workspaceInfo.getName());
+        auditLog.setWorkspace(workspaceInfo);
     }
 
     /**
@@ -132,29 +146,13 @@ public class AuditLogServiceImpl implements AuditLogService {
      * @param application Datasource
      */
     private void setApplicationProperties(AuditLog auditLog, Application application) {
-        auditLog.setWorkspaceId(application.getWorkspaceId());
-        auditLog.setAppId(application.getId());
-        auditLog.setAppName(application.getName());
-    }
-
-    /**
-     * To set the related data if the resource is NewPage
-     * @param auditLog AuditLog
-     * @param newPage NewPage
-     */
-    private void setNewPageProperties(AuditLog auditLog, NewPage newPage) {
-        auditLog.setAppId(newPage.getApplicationId());
-        auditLog.setPageId(newPage.getId());
-    }
-
-    /**
-     * To set the related data if the resource is NewAction
-     * @param auditLog AuditLog
-     * @param newAction NewAction
-     */
-    private void setNewActionProperties(AuditLog auditLog, NewAction newAction) {
-        auditLog.setWorkspaceId(newAction.getWorkspaceId());
-        auditLog.setAppId(newAction.getApplicationId());
-        auditLog.setNewActionId(newAction.getId());
+        AuditLog.ApplicationInfo applicationInfo = auditLog.getApplication();
+        applicationInfo.setId(application.getId());
+        applicationInfo.setName(application.getName());
+        if (application.getGitApplicationMetadata() != null) {
+            applicationInfo.getGit().setBranch(application.getGitApplicationMetadata().getBranchName());
+            applicationInfo.getGit().setDefaultBranch(application.getGitApplicationMetadata().getDefaultBranchName());
+        }
+        auditLog.setApplication(applicationInfo);
     }
 }
