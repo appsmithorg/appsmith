@@ -59,8 +59,44 @@ export default {
           ColumnTypes.DATE,
           ColumnTypes.NUMBER,
           ColumnTypes.URL,
-          ColumnTypes.CHECKBOX,
         ]);
+      },
+    },
+    {
+      propertyName: "horizontalAlignment",
+      label: "Horizontal Alignment",
+      controlType: "ICON_TABS",
+      options: [
+        {
+          icon: "LEFT_ALIGN",
+          value: "LEFT",
+        },
+        {
+          icon: "CENTER_ALIGN",
+          value: "CENTER",
+        },
+        {
+          icon: "RIGHT_ALIGN",
+          value: "RIGHT",
+        },
+      ],
+      defaultValue: "LEFT",
+      isJSConvertible: true,
+      customJSControl: "TABLE_COMPUTE_VALUE",
+      dependencies: ["primaryColumns", "columnOrder"],
+      isBindProperty: true,
+      validation: {
+        type: ValidationTypes.TABLE_PROPERTY,
+        params: {
+          type: ValidationTypes.TEXT,
+          params: {
+            allowedValues: ["LEFT", "CENTER", "RIGHT"],
+          },
+        },
+      },
+      isTriggerProperty: false,
+      hidden: (props: TableWidgetProps, propertyPath: string) => {
+        return hideByColumnType(props, propertyPath, [ColumnTypes.CHECKBOX]);
       },
     },
     {
