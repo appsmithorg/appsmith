@@ -49,8 +49,8 @@ public enum AclPermission {
     DELETE_WORKSPACES("delete:workspace", Workspace.class),
 
     // Resource creation permissions for workspace
-    CREATE_APPLICATION("create:applications", Workspace.class),
-    CREATE_DATASOURCE("create:datasources", Workspace.class),
+    WORKSPACE_CREATE_APPLICATION("create:applications", Workspace.class),
+    WORKSPACE_CREATE_DATASOURCE("create:datasources", Workspace.class),
 
     // Was the user assigned a global permission at the workspace level to manage applications?
     WORKSPACE_MANAGE_APPLICATIONS("manage:workspaceApplications", Workspace.class),
@@ -81,13 +81,13 @@ public enum AclPermission {
     // Can the user create a comment thread on a given application?
     COMMENT_ON_APPLICATIONS("canComment:applications", Application.class),
 
-    CREATE_PAGES("create:pages", Application.class),
+    APPLICATION_CREATE_PAGES("create:pages", Application.class),
 
     MANAGE_PAGES("manage:pages", Page.class),
     READ_PAGES("read:pages", Page.class),
     DELETE_PAGES("delete:pages", Page.class),
 
-    CREATE_PAGE_ACTIONS("create:pageActions", Page.class),
+    PAGE_CREATE_PAGE_ACTIONS("create:pageActions", Page.class),
 
     MANAGE_ACTIONS("manage:actions", Action.class),
     READ_ACTIONS("read:actions", Action.class),
