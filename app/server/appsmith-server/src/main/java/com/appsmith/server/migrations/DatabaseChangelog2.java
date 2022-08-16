@@ -14,7 +14,6 @@ import com.appsmith.server.domains.CommentThread;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.NewPage;
-import com.appsmith.server.domains.Organization;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.PluginType;
 import com.appsmith.server.domains.PricingPlan;
@@ -37,9 +36,7 @@ import com.appsmith.server.domains.Theme;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserData;
 import com.appsmith.server.domains.Workspace;
-import com.appsmith.server.domains.WorkspacePlugin;
 import com.appsmith.server.dtos.ActionDTO;
-import com.appsmith.server.dtos.WorkspacePluginStatus;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.TextUtils;
@@ -68,10 +65,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -79,17 +74,15 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNestedNonNullProperties;
-import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNewFieldValuesIntoOldObject;
 import static com.appsmith.server.migrations.DatabaseChangelog.dropIndexIfExists;
 import static com.appsmith.server.migrations.DatabaseChangelog.ensureIndexes;
 import static com.appsmith.server.migrations.DatabaseChangelog.getUpdatedDynamicBindingPathList;
+import static com.appsmith.server.migrations.DatabaseChangelog.installPluginToAllWorkspaces;
 import static com.appsmith.server.migrations.DatabaseChangelog.makeIndex;
 import static com.appsmith.server.repositories.BaseAppsmithRepositoryImpl.fieldName;
 import static java.lang.Boolean.TRUE;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 import static org.springframework.data.mongodb.core.query.Query.query;
-import static com.appsmith.server.repositories.BaseAppsmithRepositoryImpl.fieldName;
-import static java.lang.Boolean.TRUE;
 
 
 @Slf4j
@@ -724,27 +717,8 @@ public class DatabaseChangelog2 {
                 Application.class);
     }
 
-    // TODO: refactor to avoid duplication
-    private void installPluginToAllOrganizations(MongockTemplate mongockTemplate, String pluginId) {
-        for (Organization organization : mongockTemplate.findAll(Organization.class)) {
-            if (CollectionUtils.isEmpty(organization.getPlugins())) {
-                organization.setPlugins(new HashSet<>());
-            }
-
-            final Set<String> installedPlugins = organization.getPlugins()
-                    .stream().map(WorkspacePlugin::getPluginId).collect(Collectors.toSet());
-
-            if (!installedPlugins.contains(pluginId)) {
-                organization.getPlugins()
-                        .add(new WorkspacePlugin(pluginId, WorkspacePluginStatus.FREE));
-            }
-
-            mongockTemplate.save(organization);
-        }
-    }
-
-    // TODO: update the order. Not doing it now to avoid future merge conflicts.
-    @ChangeSet(order = "003", id = "add-graphql-plugin", author = "")
+    // TODO: update the order before merge to release.
+    @ChangeSet(order = "023", id = "add-graphql-plugin", author = "")
     public void addGraphQLPlugin(MongockTemplate mongoTemplate) {
         Plugin plugin = new Plugin();
         plugin.setName("Authenticated GraphQL API");
@@ -762,8 +736,9 @@ public class DatabaseChangelog2 {
             log.warn(plugin.getPackageName() + " already present in database.");
         }
 
-        installPluginToAllOrganizations(mongoTemplate, plugin.getId());
+        installPluginToAllWorkspaces(mongoTemplate, plugin.getId());
     }
+    
     @ChangeSet(order = "006", id = "delete-orphan-pages", author = "")
     public void deleteOrphanPages(MongockTemplate mongockTemplate) {
 
