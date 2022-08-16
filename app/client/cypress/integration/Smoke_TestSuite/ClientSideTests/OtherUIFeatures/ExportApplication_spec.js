@@ -118,7 +118,7 @@ describe("Export application as a JSON file", function() {
       );
       cy.get("h2").contains("Drag and drop a widget here");
       cy.get(homePage.shareApp).click({ force: true });
-      HomePage.InviteUserToWorkspaceFromAppFromApp(
+      HomePage.InviteUserToWorkspaceFromApp(
         workspaceId,
         Cypress.env("TESTUSERNAME1"),
         "Developer",
