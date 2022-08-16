@@ -524,12 +524,12 @@ export class AggregateHelper {
     cy.get(this.locator._contextMenuInPane).click();
     cy.xpath(this.locator._contextMenuSubItemDiv(action))
       .should("be.visible")
-      .click();
+      .click({ force: true });
     if (action == "Delete") {
       subAction = "Are you sure?";
     }
     if (subAction) {
-      cy.xpath(this.locator._contextMenuSubItemDiv(subAction)).click();
+      cy.xpath(this.locator._contextMenuSubItemDiv(subAction)).click({ force: true });
       this.Sleep(500);
     }
     if (action == "Delete") {
