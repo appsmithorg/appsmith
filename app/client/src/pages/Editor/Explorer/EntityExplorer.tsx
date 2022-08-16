@@ -113,7 +113,9 @@ function EntityExplorer({ isActive }: { isActive: boolean }) {
 
   return (
     <Wrapper
-      className={`relative overflow-y-auto ${isActive ? "" : "hidden"}`}
+      className={`t--entity-explorer-wrapper relative overflow-y-auto ${
+        isActive ? "" : "hidden"
+      }`}
       ref={explorerRef}
     >
       {/* SEARCH */}
