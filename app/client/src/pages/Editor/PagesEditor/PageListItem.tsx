@@ -228,7 +228,7 @@ function PageListItem(props: PageListItemProps) {
               </TooltipComponent>
             </Actions>
           </div>
-          {/* <CustomURLSlug page={item} /> */}
+          <CustomURLSlug page={item} />
         </div>
         {/* Disabling drag on action items as attempting to drag also invokes the click event.
          Clicks events in child elements could be disabled once we upgrade react-use-gesture to
