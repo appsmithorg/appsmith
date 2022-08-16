@@ -31,7 +31,7 @@ import Resizer, { ResizerCSS } from "./Debugger/Resizer";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { DebugButton } from "./Debugger/DebugCTA";
 import EntityDeps from "./Debugger/EntityDependecies";
-import { Button, Icon, Size, Text, TextType } from "design-system";
+import { Button, Category, Icon, Size, Text, TextType } from "design-system";
 import EntityBottomTabs from "./EntityBottomTabs";
 import { DEBUGGER_TAB_KEYS } from "./Debugger/helpers";
 import { setCurrentTab } from "actions/debuggerActions";
