@@ -259,6 +259,7 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepositoryCE, Theme, St
                         currentTheme.setPolicies(policyGenerator.getAllChildPolicies(
                                 application.getPolicies(), Application.class, Theme.class
                         ));
+                        currentTheme.setApplicationId(application.getId());
                         newThemeCreated = true;
                     }
                     return repository.save(currentTheme).zipWith(Mono.just(newThemeCreated));

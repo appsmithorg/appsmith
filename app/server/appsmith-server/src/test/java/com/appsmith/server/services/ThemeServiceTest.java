@@ -495,6 +495,7 @@ public class ThemeServiceTest {
                     assertThat(editModeTheme.getDisplayName()).isEqualTo(updatesToSystemTheme.getDisplayName());
                     assertThat(editModeTheme.getId()).isNotEqualTo(publishedModeTheme.getId()); // different id
                     assertThat(editModeTheme.isSystemTheme()).isFalse();
+                    assertThat(editModeTheme.getApplicationId()).isEqualTo(application.getId());
                     assertThat(publishedModeTheme.isSystemTheme()).isTrue();
                     assertThat(publishedModeTheme.getDisplayName()).isEqualToIgnoringCase(systemDefaultTheme.getDisplayName());
                 }).verifyComplete();
@@ -546,6 +547,7 @@ public class ThemeServiceTest {
                     assertThat(editModeTheme.isSystemTheme()).isFalse();
                     assertThat(editModeTheme.getId()).isNotEqualTo(publishedModeTheme.getId()); // different id
                     assertThat(editModeTheme.getDisplayName()).isEqualTo("Updated name");
+                    assertThat(editModeTheme.getApplicationId()).isEqualTo(applicationId);
 
                     assertThat(publishedModeTheme.isSystemTheme()).isTrue();
                     assertThat(publishedModeTheme.getDisplayName()).isEqualToIgnoringCase(systemDefaultTheme.getDisplayName());

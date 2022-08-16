@@ -60,6 +60,7 @@ import com.github.cloudyrock.mongock.ChangeLog;
 import com.github.cloudyrock.mongock.ChangeSet;
 import com.github.cloudyrock.mongock.driver.mongodb.springdata.v3.decorator.impl.MongockTemplate;
 import com.google.gson.Gson;
+import com.mongodb.client.result.UpdateResult;
 import io.changock.migration.api.annotations.NonLockGuarded;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONObject;
@@ -1484,6 +1485,49 @@ public class DatabaseChangelog2 {
                 }
             }
         }
+    }
+
+    @ChangeSet(order = "023", id = "add-application-id-in-themes", author = "")
+    public void addApplicationIdInThemes(MongockTemplate mongockTemplate) {
+
+        // Find themes which are not system themes and have no application id
+        Query themeQuery = new Query(
+                Criteria.where(fieldName(QTheme.theme.applicationId)).exists(false)
+                        .andOperator(
+                                where(fieldName(QTheme.theme.isSystemTheme)).is(false)
+                        )
+
+        );
+
+        themeQuery.fields().include(fieldName(QTheme.theme.id));
+        List<Theme> themesWithoutApplicationId = mongockTemplate.find(themeQuery, Theme.class);
+
+        Set<String> themeIds = themesWithoutApplicationId.stream().map(Theme::getId).collect(Collectors.toSet());
+
+        Criteria applicationThemeEditCriteria = Criteria.where(fieldName(QApplication.application.editModeThemeId)).in(themeIds);
+        Criteria applicationThemeViewCriteria = Criteria.where(fieldName(QApplication.application.publishedModeThemeId)).in(themeIds);
+
+
+        Query applicationQuery = new Query(new Criteria().orOperator(applicationThemeEditCriteria, applicationThemeViewCriteria));
+        applicationQuery.fields()
+                .include(fieldName(QApplication.application.editModeThemeId))
+                .include(fieldName(QApplication.application.publishedModeThemeId));
+        List<Application> applications = mongockTemplate.find(applicationQuery, Application.class);
+
+        for (Application application : applications) {
+            String applicationId = application.getId();
+            Criteria themeCriteria = Criteria
+                    .where(
+                            fieldName(QTheme.theme.id))
+                    .in(application.getEditModeThemeId(), application.getPublishedModeThemeId());
+            UpdateResult updateResult = mongockTemplate.updateMulti(
+                    new Query(themeCriteria),
+                    new Update().set("applicationId", applicationId),
+                    Theme.class
+            );
+            log.info("Updated {} themes for application {}", updateResult.getModifiedCount(), applicationId);
+        }
+
     }
 
     @ChangeSet(order = "023", id = "add-anonymousUser", author = "")
