@@ -767,11 +767,11 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
 
       return canvasChildren;
     },
-    (prev: any, next: any) => this.deepEqual(prev, next),
+    (prev: any, next: any) => this.compareProps(prev, next),
   );
 
-  // deepEqual
-  deepEqual = (prev: any[], next: any[]) => {
+  // DeepEqual Comparison
+  compareProps = (prev: any[], next: any[]) => {
     return (
       equal(prev[0], next[0]) &&
       shallowEqual(prev[1], next[1]) &&
