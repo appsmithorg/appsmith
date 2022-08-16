@@ -96,7 +96,7 @@ export default {
               {
                 propertyName: "label",
                 helpText: "Sets the label of a menu item",
-                label: "Label",
+                label: "Text",
                 controlType: "INPUT_TEXT",
                 placeholderText: "Enter label",
                 isBindProperty: true,
@@ -107,7 +107,7 @@ export default {
               {
                 helpText: "Triggers an action when the menu item is clicked",
                 propertyName: "onClick",
-                label: "onItemClick",
+                label: "onClick",
                 controlType: "ACTION_SELECTOR",
                 isJSConvertible: true,
                 isBindProperty: true,
