@@ -1536,6 +1536,17 @@ Cypress.Commands.add("VerifyErrorMsgAbsence", (errorMsgToVerifyAbsence) => {
   ).should("not.exist");
 });
 
+Cypress.Commands.add("VerifyErrorMsgPresence", (errorMsgToVerifyAbsence) => {
+  // Give this element 10 seconds to appear
+  //cy.wait(10000)
+  cy.xpath(
+    "//div[@class='Toastify']//span[contains(text(),'" +
+      errorMsgToVerifyAbsence +
+      "')]",
+    { timeout: 0 },
+  ).should("exist");
+});
+
 Cypress.Commands.add("setQueryTimeout", (timeout) => {
   cy.get(queryLocators.settings).click();
   cy.xpath(queryLocators.queryTimeout)

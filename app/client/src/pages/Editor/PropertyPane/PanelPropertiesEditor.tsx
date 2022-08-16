@@ -90,7 +90,7 @@ export function PanelPropertiesEditor(
   }, [widgetProperties, panelParentPropertyPath, panelProps, panelConfig]);
 
   const panelConfigs = useMemo(() => {
-    if (currentIndex !== undefined) {
+    if (currentIndex !== undefined && panelConfig.children) {
       let path: string | undefined = undefined;
       if (isString(currentIndex)) {
         path = `${panelParentPropertyPath}.${currentIndex}`;
