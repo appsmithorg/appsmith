@@ -1821,6 +1821,8 @@ Cypress.Commands.add("GetPath", (path, containerName) => {
         "|awk '{print $2}'",
     },
   }).then((res) => {
+    cy.log(res.body.stderr);
+    cy.log(res.body.stdout);
     expect(res.status).equal(200);
     return res.body.stdout;
   });
