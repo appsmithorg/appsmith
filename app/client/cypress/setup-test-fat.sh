@@ -1,6 +1,6 @@
 #! /bin/sh
 
-# This script is responsible for setting up the local Nginx server for running E2E Cypress tests 
+# This script is responsible for setting up the local Nginx server for running E2E Cypress tests
 # on our CI/CD system. Currently the script is geared towards Github Actions
 
 # Serve the react bundle on a specific port. Nginx will proxy to this port
@@ -18,8 +18,8 @@ touch ./docker/localhost ./docker/localhost.pem
 echo "$APPSMITH_SSL_CERTIFICATE" > ./docker/localhost.pem
 echo "$APPSMITH_SSL_KEY" > ./docker/localhost.pem
 
-echo "Going to run the nginx server"
-#sudo docker pull nginx:latest
+sleep 10
+
 
 echo "Checking if the containers have started"
 sudo docker ps -a
