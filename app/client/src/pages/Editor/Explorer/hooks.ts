@@ -26,7 +26,6 @@ import {
   QUERIES_EDITOR_ID_PATH,
 } from "constants/routes";
 import { SAAS_EDITOR_API_ID_PATH } from "../SaaSEditor/constants";
-import { SIDEBAR_ID } from "constants/Explorer";
 
 const findWidgets = (widgets: CanvasStructure, keyword: string) => {
   if (!widgets || !widgets.widgetName) return widgets;
@@ -398,16 +397,20 @@ export function useActiveAction() {
   }
 }
 
-export const useCloseMenuOnScroll = (open: boolean, onClose: () => void) => {
-  const sidebar = document.getElementById(SIDEBAR_ID);
+export const useCloseMenuOnScroll = (
+  id: string,
+  open: boolean,
+  onClose: () => void,
+) => {
+  const scrollContainer = document.getElementById(id);
 
   useEffect(() => {
     if (open) {
-      sidebar?.addEventListener("scroll", onClose, true);
+      scrollContainer?.addEventListener("scroll", onClose, true);
     }
 
     return () => {
-      sidebar?.removeEventListener("scroll", onClose);
+      scrollContainer?.removeEventListener("scroll", onClose);
     };
   }, [open]);
 };

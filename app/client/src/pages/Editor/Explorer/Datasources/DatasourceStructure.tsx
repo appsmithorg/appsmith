@@ -11,6 +11,7 @@ import DatasourceField from "./DatasourceField";
 import { DatasourceTable } from "entities/Datasource";
 import { Colors } from "constants/Colors";
 import { useCloseMenuOnScroll } from "../hooks";
+import { SIDEBAR_ID } from "constants/Explorer";
 
 const Wrapper = styled(EntityTogglesWrapper)`
   &&&& {
@@ -48,7 +49,7 @@ export function DatasourceStructure(props: DatasourceStructureProps) {
   };
   let templateMenu = null;
   const [active, setActive] = useState(false);
-  useCloseMenuOnScroll(active, () => setActive(false));
+  useCloseMenuOnScroll(SIDEBAR_ID, active, () => setActive(false));
 
   const lightningMenu = (
     <Wrapper

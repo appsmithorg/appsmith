@@ -24,6 +24,7 @@ import { EntityClassNames } from "../Entity";
 import { TooltipComponent } from "design-system";
 import { ADD_QUERY_JS_BUTTON, createMessage } from "ce/constants/messages";
 import { useCloseMenuOnScroll } from "../hooks";
+import { SIDEBAR_ID } from "constants/Explorer";
 
 const SubMenuContainer = styled.div`
   width: 250px;
@@ -73,7 +74,7 @@ export default function ExplorerSubMenu({
   const pluginGroups = useMemo(() => keyBy(plugins, "id"), [plugins]);
   const [activeItemIdx, setActiveItemIdx] = useState(0);
   useEffect(() => setShow(openMenu), [openMenu]);
-  useCloseMenuOnScroll(show, () => setShow(false));
+  useCloseMenuOnScroll(SIDEBAR_ID, show, () => setShow(false));
 
   useEffect(() => {
     setQuery("");
