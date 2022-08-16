@@ -133,6 +133,7 @@ export class HomePage {
     workspaceName: string,
     email: string,
     role: string,
+    shareFromApp : boolean
   ) {
     const successMessage = "The user has been invited successfully";
     this.StubPostHeaderReq();
@@ -331,6 +332,29 @@ export class HomePage {
     cy.xpath(this._uploadFile).attachFile(fixtureJson);
     this.agHelper.Sleep(3500);
   }
+  public InviteUserToWorkspaceFromApp(
+    workspaceName: string,
+    email: string,
+    role: string,
+  ) {
+    const successMessage = "The user has been invited successfully";
+    this.StubPostHeaderReq();
+    cy.xpath(this._email)
+      .click({ force: true })
+      .type(email);
+    cy.xpath(this._selectRole)
+      .first()
+      .click({ force: true });
+    this.agHelper.Sleep(500);
+    cy.xpath(this._userRole(role, workspaceName)).click({ force: true });
+    this.agHelper.ClickButton("Invite");
+    cy.wait("@mockPostInvite")
+      .its("request.headers")
+      .should("have.property", "origin", "Cypress");
+    cy.contains(email, { matchCase: false });
+    cy.contains(successMessage);
+  }
+
 
   public DeleteWorkspace(workspaceNameToDelete: string) {
     cy.get(this._homeIcon).click();
