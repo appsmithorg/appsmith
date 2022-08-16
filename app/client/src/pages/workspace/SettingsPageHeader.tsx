@@ -108,9 +108,9 @@ export function SettingsPageHeader(props: PageHeaderProps) {
   return (
     <Container isMobile={isMobile}>
       <HeaderWrapper margin={`0px`}>
-        <SettingsHeader data-testid="t--page-title">
-          <TooltipComponent content={title}>{title}</TooltipComponent>
-        </SettingsHeader>
+        <TooltipComponent content={title}>
+          <SettingsHeader data-testid="t--page-title">{title}</SettingsHeader>
+        </TooltipComponent>
       </HeaderWrapper>
       <Container isMobile={isMobile}>
         <SearchWrapper>
