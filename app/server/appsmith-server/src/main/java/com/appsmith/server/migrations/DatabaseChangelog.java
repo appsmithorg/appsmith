@@ -237,21 +237,21 @@ public class DatabaseChangelog {
         return actionDTO;
     }
 
-    public static void installPluginToAllOrganizations(MongockTemplate mongockTemplate, String pluginId) {
-        for (Workspace organization : mongockTemplate.findAll(Workspace.class)) {
-            if (CollectionUtils.isEmpty(organization.getPlugins())) {
-                organization.setPlugins(new HashSet<>());
+    public static void installPluginToAllWorkspaces(MongockTemplate mongockTemplate, String pluginId) {
+        for (Workspace workspace : mongockTemplate.findAll(Workspace.class)) {
+            if (CollectionUtils.isEmpty(workspace.getPlugins())) {
+                workspace.setPlugins(new HashSet<>());
             }
 
-            final Set<String> installedPlugins = organization.getPlugins()
+            final Set<String> installedPlugins = workspace.getPlugins()
                     .stream().map(WorkspacePlugin::getPluginId).collect(Collectors.toSet());
 
             if (!installedPlugins.contains(pluginId)) {
-                organization.getPlugins()
+                workspace.getPlugins()
                         .add(new WorkspacePlugin(pluginId, WorkspacePluginStatus.FREE));
             }
 
-            mongockTemplate.save(organization);
+            mongockTemplate.save(workspace);
         }
     }
 
@@ -648,7 +648,7 @@ public class DatabaseChangelog {
             log.warn("mysql-plugin already present in database.");
         }
 
-        installPluginToAllOrganizations(mongoTemplate, plugin1.getId());
+        installPluginToAllWorkspaces(mongoTemplate, plugin1.getId());
     }
 
     @ChangeSet(order = "019", id = "update-database-documentation-links", author = "")
@@ -1057,7 +1057,7 @@ public class DatabaseChangelog {
             log.warn(plugin1.getPackageName() + " already present in database.");
         }
 
-        installPluginToAllOrganizations(mongoTemplate, plugin1.getId());
+        installPluginToAllWorkspaces(mongoTemplate, plugin1.getId());
     }
 
     @ChangeSet(order = "028", id = "add-dynamo-plugin", author = "")
@@ -1077,7 +1077,7 @@ public class DatabaseChangelog {
             log.warn(plugin1.getPackageName() + " already present in database.");
         }
 
-        installPluginToAllOrganizations(mongoTemplate, plugin1.getId());
+        installPluginToAllWorkspaces(mongoTemplate, plugin1.getId());
     }
 
     @ChangeSet(order = "029", id = "use-png-logos", author = "")
@@ -1107,7 +1107,7 @@ public class DatabaseChangelog {
             log.warn(plugin1.getPackageName() + " already present in database.");
         }
 
-        installPluginToAllOrganizations(mongoTemplate, plugin1.getId());
+        installPluginToAllWorkspaces(mongoTemplate, plugin1.getId());
     }
 
     @ChangeSet(order = "031", id = "add-msSql-plugin", author = "")
@@ -1127,7 +1127,7 @@ public class DatabaseChangelog {
             log.warn(plugin1.getPackageName() + " already present in database.");
         }
 
-        installPluginToAllOrganizations(mongoTemplate, plugin1.getId());
+        installPluginToAllWorkspaces(mongoTemplate, plugin1.getId());
     }
 
     @ChangeSet(order = "037", id = "createNewPageIndexAfterDroppingNewPage", author = "")
@@ -1335,7 +1335,7 @@ public class DatabaseChangelog {
             log.warn(plugin.getPackageName() + " already present in database.");
         }
 
-        installPluginToAllOrganizations(mongoTemplate, plugin.getId());
+        installPluginToAllWorkspaces(mongoTemplate, plugin.getId());
     }
 
     @ChangeSet(order = "044", id = "ensure-app-icons-and-colors", author = "")
@@ -1622,7 +1622,7 @@ public class DatabaseChangelog {
             log.warn(plugin.getPackageName() + " already present in database.");
         }
 
-        installPluginToAllOrganizations(mongoTemplate, plugin.getId());
+        installPluginToAllWorkspaces(mongoTemplate, plugin.getId());
     }
 
     @ChangeSet(order = "049", id = "clear-userdata-collection", author = "")
@@ -1686,7 +1686,7 @@ public class DatabaseChangelog {
             log.warn(plugin.getPackageName() + " already present in database.");
         }
 
-        installPluginToAllOrganizations(mongoTemplate, plugin.getId());
+        installPluginToAllWorkspaces(mongoTemplate, plugin.getId());
     }
 
     @ChangeSet(order = "052", id = "add-app-viewer-invite-policy", author = "")
@@ -2161,7 +2161,7 @@ public class DatabaseChangelog {
             log.warn(plugin.getPackageName() + " already present in database.");
         }
 
-        installPluginToAllOrganizations(mongoTemplate, plugin.getId());
+        installPluginToAllWorkspaces(mongoTemplate, plugin.getId());
     }
 
     @ChangeSet(order = "063", id = "mark-instance-unregistered", author = "")
@@ -2545,7 +2545,7 @@ public class DatabaseChangelog {
             log.warn(plugin.getPackageName() + " already present in database.");
         }
 
-        installPluginToAllOrganizations(mongoTemplate, plugin.getId());
+        installPluginToAllWorkspaces(mongoTemplate, plugin.getId());
     }
 
     @ChangeSet(order = "073", id = "mongo-form-merge-update-commands", author = "")
@@ -2816,7 +2816,7 @@ public class DatabaseChangelog {
             log.warn(plugin.getPackageName() + " already present in database.");
         }
 
-        installPluginToAllOrganizations(mongoTemplate, plugin.getId());
+        installPluginToAllWorkspaces(mongoTemplate, plugin.getId());
     }
 
     @ChangeSet(order = "078", id = "set-svg-logo-to-plugins", author = "")
@@ -3039,7 +3039,7 @@ public class DatabaseChangelog {
             log.warn(plugin.getPackageName() + " already present in database.");
         }
 
-        installPluginToAllOrganizations(mongoTemplate, plugin.getId());
+        installPluginToAllWorkspaces(mongoTemplate, plugin.getId());
     }
 
     @ChangeSet(order = "085", id = "update-google-sheet-plugin-smartSubstitution-config", author = "")
@@ -4077,7 +4077,7 @@ public class DatabaseChangelog {
         } catch (DuplicateKeyException e) {
             log.warn(plugin.getPackageName() + " already present in database.");
         }
-        installPluginToAllOrganizations(mongoTemplate, plugin.getId());
+        installPluginToAllWorkspaces(mongoTemplate, plugin.getId());
     }
 
     @ChangeSet(order = "100", id = "update-mockdb-endpoint", author = "")
