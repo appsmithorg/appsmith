@@ -80,6 +80,7 @@ export interface TableWidgetProps extends WidgetProps, WithMeta, TableStyles {
   inlineEditingSaveOption?: InlineEditingSaveOptions;
   showInlineEditingOptionDropdown?: boolean;
   isEditableCellValid: boolean;
+  selectColumnFilterText?: Record<string, string>;
 }
 
 export const ORIGINAL_INDEX_KEY = "__originalIndex__";
@@ -137,6 +138,7 @@ export type OnColumnEventArgs = {
   triggerPropertyName: string;
   eventType: EventType;
   row?: Record<string, unknown>;
+  additionalData?: Record<string, unknown>;
 };
 
 export const ICON_NAMES = Object.keys(IconNames).map(

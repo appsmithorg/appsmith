@@ -1,8 +1,6 @@
-import React, { useCallback, useRef } from "react";
-import styled from "styled-components";
+import React, { Ref, useCallback } from "react";
 import { Tooltip } from "@blueprintjs/core";
-import AutoToolTipComponent from "./AutoToolTipComponent";
-import { RenderDefaultPropsType } from "./DefaultCell";
+import styled from "styled-components";
 import { ReactComponent as EditIcon } from "assets/icons/control/edit-variant1.svg";
 import { InlineCellEditor } from "./InlineCellEditor";
 import { ColumnTypes, EditableCell } from "widgets/TableWidgetV2/constants";
@@ -10,25 +8,7 @@ import { ALIGN_ITEMS, TABLE_SIZES, VerticalAlignment } from "../Constants";
 import { InputTypes } from "widgets/BaseInputWidget/constants";
 import { CELL_WRAPPER_LINE_HEIGHT } from "../TableStyledWrappers";
 import { TooltipContentWrapper } from "../TableStyledWrappers";
-
-const Container = styled.div<{
-  isCellEditMode?: boolean;
-  verticalAlignment?: VerticalAlignment;
-  cellBackground?: string;
-}>`
-  height: 100%;
-  width: 100%;
-  display: flex;
-  align-items: ${(props) =>
-    props.verticalAlignment && ALIGN_ITEMS[props.verticalAlignment]};
-  background: ${(props) => props.cellBackground};
-
-  &:hover {
-    .editable-cell-icon {
-      display: ${(props) => (props.isCellEditMode ? "none" : "block")};
-    }
-  }
-`;
+import AutoToolTipComponent from "./AutoToolTipComponent";
 
 const Wrapper = styled.div<{
   allowWrapping?: boolean;
@@ -41,34 +21,16 @@ const Wrapper = styled.div<{
   width: 100%;
   height: 100%;
   opacity: ${(props) => (props.isCellEditMode ? 0 : 1)};
+
+  &:hover {
+    .editable-cell-icon {
+      display: ${(props) => (props.isCellEditMode ? "none" : "block")};
+    }
+  }
 `;
 
 const StyledAutoToolTipComponent = styled(AutoToolTipComponent)`
   width: 100%;
-`;
-
-const StyledEditIcon = styled.div<{
-  accentColor?: string;
-  backgroundColor?: string;
-  compactMode: string;
-  disabledEditIcon: boolean;
-}>`
-  position: absolute;
-  right: 6px;
-  top: ${(props) => TABLE_SIZES[props.compactMode].EDIT_ICON_TOP}px;
-  background: ${(props) =>
-    props.disabledEditIcon ? "#999" : props.accentColor};
-  padding: 2px;
-  cursor: ${(props) => (props.disabledEditIcon ? "default" : "pointer")};
-  display: none;
-
-  & svg {
-    transform: scale(0.9);
-
-    path {
-      fill: #fff;
-    }
-  }
 `;
 
 const UnsavedChangesMarker = styled.div<{ accentColor: string }>`
@@ -88,100 +50,84 @@ const Content = styled.div`
   text-overflow: ellipsis;
 `;
 
-interface PropType extends RenderDefaultPropsType {
-  onChange: (value: EditableCell["value"], inputValue: string) => void;
-  onDiscard: () => void;
-  onSave: () => void;
-  onEdit: () => void;
-  url?: string;
-}
-
-export function TextCell({
-  accentColor,
-  allowCellWrapping,
-  cellBackground,
-  columnType,
-  compactMode,
-  disabledEditIcon,
-  fontStyle,
-  hasUnsavedChanged,
-  horizontalAlignment,
-  isCellEditable,
-  isCellEditMode,
-  isCellVisible,
-  isEditableCellValid,
-  isHidden,
-  onChange,
-  onDiscard,
-  onEdit,
-  onSave,
-  tableWidth,
-  textColor,
-  textSize,
-  toggleCellEditMode,
-  url,
-  validationErrorMessage,
-  value,
-  verticalAlignment,
-  widgetId,
-}: PropType) {
-  const contentRef = useRef<HTMLDivElement>(null);
-
-  const onEditHandler = useCallback(
-    (e: React.MouseEvent<SVGElement | HTMLDivElement>) => {
-      if (isCellEditable && !disabledEditIcon) {
-        e.stopPropagation();
-        onEdit();
-      }
-    },
-    [toggleCellEditMode, onEdit],
-  );
-
-  let editor;
-
-  if (isCellEditMode) {
-    const isMultiline =
-      !!contentRef.current?.offsetHeight &&
-      contentRef.current?.offsetHeight / CELL_WRAPPER_LINE_HEIGHT > 1;
-
-    editor = (
-      <InlineCellEditor
-        accentColor={accentColor}
-        allowCellWrapping={allowCellWrapping}
-        compactMode={compactMode}
-        inputType={
-          columnType === ColumnTypes.NUMBER
-            ? InputTypes.NUMBER
-            : InputTypes.TEXT
-        }
-        isEditableCellValid={isEditableCellValid}
-        multiline={isMultiline}
-        onChange={onChange}
-        onDiscard={onDiscard}
-        onSave={onSave}
-        textSize={textSize}
-        validationErrorMessage={validationErrorMessage}
-        value={value}
-        verticalAlignment={verticalAlignment}
-        widgetId={widgetId}
-      />
-    );
+const StyledEditIcon = styled.div<{
+  accentColor?: string;
+  backgroundColor?: string;
+  compactMode: string;
+  disabledEditIcon: boolean;
+}>`
+  position: absolute;
+  right: 6px;
+  top: ${(props) => TABLE_SIZES[props.compactMode].EDIT_ICON_TOP}px;
+  background: ${(props) =>
+    props.disabledEditIcon ? "#999" : props.accentColor};
+  padding: 2px;
+  cursor: ${(props) => (props.disabledEditIcon ? "default" : "pointer")};
+  display: none;
+  & svg {
+    transform: scale(0.9);
+    path {
+      fill: #fff;
+    }
   }
+`;
 
-  return (
-    <Container
-      cellBackground={cellBackground}
-      className="t--table-text-cell"
-      isCellEditMode={isCellEditMode}
-      verticalAlignment={verticalAlignment}
-    >
+type PropType = BaseCellComponentProps & {
+  accentColor: string;
+  value: any;
+  columnType: string;
+  tableWidth: number;
+  isCellEditable?: boolean;
+  isCellEditMode?: boolean;
+  hasUnsavedChanges?: boolean;
+  displayText?: string;
+  disabledEditIcon: boolean;
+  onEdit?: () => void;
+};
+
+export const BasicCell = React.forwardRef(
+  (
+    {
+      accentColor,
+      allowCellWrapping,
+      cellBackground,
+      columnType,
+      compactMode,
+      disabledEditIcon,
+      fontStyle,
+      hasUnsavedChanges,
+      horizontalAlignment,
+      isCellEditable,
+      isCellEditMode,
+      isCellVisible,
+      isHidden,
+      onEdit,
+      tableWidth,
+      textColor,
+      textSize,
+      value,
+      verticalAlignment,
+    }: PropType,
+    contentRef: Ref<HTMLDivElement>,
+  ) => {
+    const onEditHandler = useCallback(
+      (e: React.MouseEvent<SVGElement | HTMLDivElement>) => {
+        if (isCellEditable && !disabledEditIcon && onEdit) {
+          e.stopPropagation();
+          onEdit();
+        }
+      },
+      [onEdit],
+    );
+
+    return (
       <Wrapper
         allowWrapping={allowCellWrapping}
         compactMode={compactMode}
         isCellEditMode={isCellEditMode}
         onDoubleClick={onEditHandler}
       >
-        {hasUnsavedChanged && (
+        {hasUnsavedChanges && (
           <UnsavedChangesMarker accentColor={accentColor} />
         )}
         <StyledAutoToolTipComponent
@@ -231,7 +177,6 @@ export function TextCell({
           </StyledEditIcon>
         )}
       </Wrapper>
-      {editor}
-    </Container>
-  );
-}
+    );
+  },
+);

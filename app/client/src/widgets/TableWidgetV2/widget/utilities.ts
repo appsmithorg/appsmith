@@ -420,6 +420,22 @@ export const getCellProperties = (
         columnProperties.isDiscardDisabled,
         rowIndex,
       ),
+      isFilterable: getBooleanPropertyValue(
+        columnProperties.isFilterable,
+        rowIndex,
+      ),
+      serverSideFiltering: getBooleanPropertyValue(
+        columnProperties.serverSideFiltering,
+        rowIndex,
+      ),
+      placeholderText: getPropertyValue(
+        columnProperties.placeholderText,
+        rowIndex,
+      ),
+      resetFilterTextOnClose: getBooleanPropertyValue(
+        columnProperties.resetFilterTextOnClose,
+        rowIndex,
+      ),
     } as CellLayoutProperties;
   }
   return {} as CellLayoutProperties;
