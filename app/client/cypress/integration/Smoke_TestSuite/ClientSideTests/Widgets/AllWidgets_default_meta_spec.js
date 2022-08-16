@@ -13,7 +13,6 @@ import {
 } from "../../../../locators/WidgetLocators";
 
 const widgetsToTest = {
-
   [WIDGET.MULTISELECT_WIDGET]: {
     widgetName: "MultiSelect",
     widgetPrefixName: "MultiSelect1",
