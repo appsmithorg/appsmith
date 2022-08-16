@@ -15,6 +15,11 @@ import static com.appsmith.server.acl.AclPermission.WORKSPACE_PUBLISH_APPLICATIO
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_READ_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_WORKSPACES;
+import static com.appsmith.server.acl.AclPermission.WORKSPACE_CREATE_APPLICATION;
+import static com.appsmith.server.acl.AclPermission.WORKSPACE_CREATE_DATASOURCE;
+import static com.appsmith.server.acl.AclPermission.WORKSPACE_DELETE_DATASOURCES;
+import static com.appsmith.server.acl.AclPermission.WORKSPACE_DELETE_APPLICATIONS;
+import static com.appsmith.server.acl.AclPermission.DELETE_WORKSPACES;
 import static com.appsmith.server.constants.FieldName.ADMINISTRATOR;
 import static com.appsmith.server.constants.FieldName.DEVELOPER;
 import static com.appsmith.server.constants.FieldName.VIEWER;
@@ -27,10 +32,12 @@ public enum AppsmithRole {
     APPLICATION_ADMIN("Application Administrator", "", Set.of(MANAGE_APPLICATIONS)),
     APPLICATION_VIEWER("Application Viewer", "",  Set.of(READ_APPLICATIONS)),
     ORGANIZATION_ADMIN(ADMINISTRATOR, WORKSPACE_ADMINISTRATOR_DESCRIPTION,
-        Set.of(MANAGE_WORKSPACES, WORKSPACE_INVITE_USERS, WORKSPACE_EXPORT_APPLICATIONS)),
+        Set.of(MANAGE_WORKSPACES, WORKSPACE_INVITE_USERS, WORKSPACE_EXPORT_APPLICATIONS, WORKSPACE_CREATE_APPLICATION, WORKSPACE_CREATE_DATASOURCE,
+        WORKSPACE_DELETE_DATASOURCES, WORKSPACE_DELETE_APPLICATIONS, DELETE_WORKSPACES)),
     ORGANIZATION_DEVELOPER(DEVELOPER, WORKSPACE_DEVELOPER_DESCRIPTION,
         Set.of(READ_WORKSPACES, WORKSPACE_MANAGE_APPLICATIONS, WORKSPACE_READ_APPLICATIONS,
-        WORKSPACE_PUBLISH_APPLICATIONS, WORKSPACE_INVITE_USERS)),
+        WORKSPACE_PUBLISH_APPLICATIONS, WORKSPACE_INVITE_USERS, WORKSPACE_CREATE_APPLICATION, WORKSPACE_CREATE_DATASOURCE,
+        WORKSPACE_DELETE_DATASOURCES, WORKSPACE_DELETE_APPLICATIONS)),
     ORGANIZATION_VIEWER(
             VIEWER,
             WORKSPACE_VIEWER_DESCRIPTION,
