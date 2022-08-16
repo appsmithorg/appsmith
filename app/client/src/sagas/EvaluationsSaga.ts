@@ -299,7 +299,7 @@ export function* evaluateAndExecuteDynamicTrigger(
 interface ResponsePayload {
   data: {
     subRequestId: string;
-    reason?: Error;
+    reason?: string;
     resolve?: unknown;
   };
   success: boolean;
@@ -335,12 +335,9 @@ function* executeTriggerRequestSaga(
     // When error occurs in execution of triggers,
     // a success: false is sent to reject the promise
 
+    // @ts-expect-error: reason is of type string
+    responsePayload.data.reason = { message: error.message };
     responsePayload.success = false;
-    if (error instanceof Error) {
-      responsePayload.data.reason = new Error(error.message);
-    } else {
-      responsePayload.data.reason = new Error("Unknown error");
-    }
   }
   responseChannel.put({
     method: EVAL_WORKER_ACTIONS.PROCESS_TRIGGER,
