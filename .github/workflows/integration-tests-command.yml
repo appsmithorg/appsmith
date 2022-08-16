@@ -1330,6 +1330,7 @@ jobs:
     # Only run if the build step is successful
     if: success()
     runs-on: buildjet-4vcpu-ubuntu-2004
+
     defaults:
       run:
         working-directory: app/client
@@ -1350,6 +1351,19 @@ jobs:
           - 27017:27017
 
     steps:
+      - name: Checkout Performance Infra code
+        uses: actions/checkout@v3
+        with:
+          repository: appsmithorg/performance-infra
+          token: ${{ secrets.GITHUB_TOKEN }}
+          ref: main
+          path: app/client/perf
+
+      - name: List files
+        run: ls 
+             ls perf  
+
+
       # Check out merge commitGIT BRANCH
       - name: Fork based /ok-to-test-perf checkout
         uses: actions/checkout@v2
