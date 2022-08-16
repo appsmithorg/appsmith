@@ -59,6 +59,9 @@ import static com.appsmith.server.acl.AclPermission.DELETE_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.DELETE_PAGES;
 import static com.appsmith.server.acl.AclPermission.DELETE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.PAGE_CREATE_PAGE_ACTIONS;
+import static com.appsmith.server.acl.AclPermission.DELETE_WORKSPACES;
+import static com.appsmith.server.acl.AclPermission.WORKSPACE_MANAGE_DATASOURCES;
+import static com.appsmith.server.acl.AclPermission.WORKSPACE_READ_DATASOURCES;
 
 
 @Getter
@@ -113,9 +116,13 @@ public class PolicyGeneratorCE {
 
     private void createWorkspacePolicyGraph() {
         lateralGraph.addEdge(MANAGE_WORKSPACES, READ_WORKSPACES);
+        lateralGraph.addEdge(MANAGE_WORKSPACES, WORKSPACE_MANAGE_DATASOURCES);
+        lateralGraph.addEdge(MANAGE_WORKSPACES, WORKSPACE_READ_DATASOURCES);
         lateralGraph.addEdge(MANAGE_WORKSPACES, WORKSPACE_MANAGE_APPLICATIONS);
         lateralGraph.addEdge(MANAGE_WORKSPACES, WORKSPACE_READ_APPLICATIONS);
         lateralGraph.addEdge(MANAGE_WORKSPACES, WORKSPACE_PUBLISH_APPLICATIONS);
+        lateralGraph.addEdge(DELETE_WORKSPACES, WORKSPACE_DELETE_APPLICATIONS);
+        lateralGraph.addEdge(DELETE_WORKSPACES, WORKSPACE_DELETE_DATASOURCES);
     }
 
     private void createDatasourcePolicyGraph() {

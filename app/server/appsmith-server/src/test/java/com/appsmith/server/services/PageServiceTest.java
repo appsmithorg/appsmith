@@ -6,6 +6,7 @@ import com.appsmith.external.models.DefaultResources;
 import com.appsmith.external.models.JSValue;
 import com.appsmith.external.models.Policy;
 import com.appsmith.external.plugins.PluginExecutor;
+import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
@@ -249,7 +250,17 @@ public class PageServiceTest {
                             .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId(),
                                     viewerPermissionGroup.getId()))
                             .build();
-                    assertThat(page.getPolicies()).containsOnly(managePagePolicy, readPagePolicy);
+
+                    Policy deletePagePolicy = Policy.builder().permission(AclPermission.DELETE_PAGES.getValue())
+                            .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId()))
+                            .build();
+
+                    Policy createPageActionsPolicy = Policy.builder().permission(AclPermission.PAGE_CREATE_PAGE_ACTIONS.getValue())
+                            .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId()))
+                            .build();
+
+                    assertThat(page.getPolicies()).containsOnly(managePagePolicy, readPagePolicy, deletePagePolicy,
+                            createPageActionsPolicy);
 
                     assertThat(page.getLayouts()).isNotEmpty();
                     assertThat(page.getLayouts().get(0).getDsl()).isEqualTo(parsedJson);
@@ -329,7 +340,16 @@ public class PageServiceTest {
                                     viewerPermissionGroup.getId()))
                             .build();
 
-                    assertThat(page.getPolicies()).containsOnly(managePagePolicy, readPagePolicy);
+                    Policy deletePagePolicy = Policy.builder().permission(AclPermission.DELETE_PAGES.getValue())
+                            .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId()))
+                            .build();
+
+                    Policy createPageActionsPolicy = Policy.builder().permission(AclPermission.PAGE_CREATE_PAGE_ACTIONS.getValue())
+                            .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId()))
+                            .build();
+
+                    assertThat(page.getPolicies()).containsOnly(managePagePolicy, readPagePolicy, deletePagePolicy,
+                            createPageActionsPolicy);
 
                 })
                 .verifyComplete();
@@ -395,7 +415,16 @@ public class PageServiceTest {
                                     viewerPermissionGroup.getId()))
                             .build();
 
-                    assertThat(page.getPolicies()).containsOnly(managePagePolicy, readPagePolicy);
+                    Policy deletePagePolicy = Policy.builder().permission(AclPermission.DELETE_PAGES.getValue())
+                            .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId()))
+                            .build();
+
+                    Policy createPageActionsPolicy = Policy.builder().permission(AclPermission.PAGE_CREATE_PAGE_ACTIONS.getValue())
+                            .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId()))
+                            .build();
+
+                    assertThat(page.getPolicies()).containsOnly(managePagePolicy, readPagePolicy, deletePagePolicy,
+                            createPageActionsPolicy);
 
                 })
                 .verifyComplete();
@@ -462,7 +491,17 @@ public class PageServiceTest {
                             .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId(),
                                     viewerPermissionGroup.getId()))
                             .build();
-                    assertThat(page.getPolicies()).containsOnly(managePagePolicy, readPagePolicy);
+
+                    Policy deletePagePolicy = Policy.builder().permission(AclPermission.DELETE_PAGES.getValue())
+                            .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId()))
+                            .build();
+
+                    Policy createPageActionsPolicy = Policy.builder().permission(AclPermission.PAGE_CREATE_PAGE_ACTIONS.getValue())
+                            .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId()))
+                            .build();
+
+                    assertThat(page.getPolicies()).containsOnly(managePagePolicy, readPagePolicy, deletePagePolicy,
+                            createPageActionsPolicy);
 
                 })
                 .verifyComplete();
@@ -599,7 +638,17 @@ public class PageServiceTest {
                             .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId(),
                                     viewerPermissionGroup.getId()))
                             .build();
-                    assertThat(clonedPage.getPolicies()).containsOnly(managePagePolicy, readPagePolicy);
+
+                    Policy deletePagePolicy = Policy.builder().permission(AclPermission.DELETE_PAGES.getValue())
+                            .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId()))
+                            .build();
+
+                    Policy createPageActionsPolicy = Policy.builder().permission(AclPermission.PAGE_CREATE_PAGE_ACTIONS.getValue())
+                            .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId()))
+                            .build();
+
+                    assertThat(clonedPage.getPolicies()).containsOnly(managePagePolicy, readPagePolicy, deletePagePolicy,
+                            createPageActionsPolicy);
 
                     assertThat(clonedPage.getLayouts()).isNotEmpty();
                     assertThat(clonedPage.getLayouts().get(0).getDsl().get("widgetName")).isEqualTo("firstWidget");
@@ -772,7 +821,17 @@ public class PageServiceTest {
                             .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId(),
                                     viewerPermissionGroup.getId()))
                             .build();
-                    assertThat(clonedPage.getPolicies()).containsOnly(managePagePolicy, readPagePolicy);
+
+                    Policy deletePagePolicy = Policy.builder().permission(AclPermission.DELETE_PAGES.getValue())
+                            .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId()))
+                            .build();
+
+                    Policy createPageActionsPolicy = Policy.builder().permission(AclPermission.PAGE_CREATE_PAGE_ACTIONS.getValue())
+                            .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId()))
+                            .build();
+
+                    assertThat(clonedPage.getPolicies()).containsOnly(managePagePolicy, readPagePolicy, deletePagePolicy,
+                            createPageActionsPolicy);
 
                     assertThat(unpublishedPage.getLayouts()).isNotEmpty();
                     assertThat(unpublishedPage.getLayouts().get(0).getDsl().get("widgetName")).isEqualTo("firstWidget");

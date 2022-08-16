@@ -8,6 +8,7 @@ import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.JSValue;
 import com.appsmith.external.models.Policy;
 import com.appsmith.external.plugins.PluginExecutor;
+import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
@@ -341,8 +342,15 @@ public class ApplicationServiceTest {
                     Policy exportAppPolicy = Policy.builder().permission(EXPORT_APPLICATIONS.getValue())
                             .permissionGroups(Set.of(adminPermissionGroup.getId()))
                             .build();
+                    Policy deleteApplicationsPolicy = Policy.builder().permission(AclPermission.DELETE_APPLICATIONS.getValue())
+                            .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId()))
+                            .build();
+                    Policy createPagesPolicy = Policy.builder().permission(AclPermission.APPLICATION_CREATE_PAGES.getValue())
+                            .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId()))
+                            .build();
 
-                    assertThat(application.getPolicies()).containsAll(Set.of(manageAppPolicy, readAppPolicy, publishAppPolicy, exportAppPolicy));
+                    assertThat(application.getPolicies()).containsAll(Set.of(manageAppPolicy, readAppPolicy, publishAppPolicy,
+                            exportAppPolicy, deleteApplicationsPolicy, createPagesPolicy));
                 })
                 .verifyComplete();
     }
