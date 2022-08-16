@@ -1518,7 +1518,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
             isCellVisible={cellProperties.isCellVisible ?? true}
             isDisabled={!cellProperties.isCellEditable}
             isHidden={isHidden}
-            onCommandClick={(action: string, onComplete: () => void) => {
+            onCommandClick={(action: string, onComplete?: () => void) => {
               this.updateTransientTableData({
                 __original_index__: this.getRowOriginalIndex(rowIndex),
                 [alias]: !props.cell.value,

@@ -1,25 +1,37 @@
 import React from "react";
-import { BaseCellComponentProps, CellAlignmentTypes } from "../Constants";
+import {
+  ALIGN_ITEMS,
+  BaseCellComponentProps,
+  JUSTIFY_CONTENT,
+} from "../Constants";
 import { CellWrapper } from "../TableStyledWrappers";
-import CheckboxComponent, {
-  CheckboxComponentProps,
-} from "widgets/CheckboxWidget/component/index";
-import { Colors } from "constants/Colors";
-import { AlignWidgetTypes } from "widgets/constants";
+import CheckboxComponent from "widgets/CheckboxWidget/component/index";
 import { LabelPosition } from "components/constants";
 import { ColumnAction } from "components/propertyControls/ColumnActionSelectorControl";
-import { noop } from "lodash";
+import styled from "styled-components";
 
-type renderCellType = BaseCellComponentProps & {
+const CheckboxCellWrapper = styled(CellWrapper)`
+  & > div {
+    justify-content: ${(props) =>
+      props.horizontalAlignment &&
+      JUSTIFY_CONTENT[props.horizontalAlignment]} !important;
+
+    align-items: ${(props) =>
+      props.verticalAlignment &&
+      ALIGN_ITEMS[props.verticalAlignment]} !important;
+  }
+`;
+
+type CheckboxCellProps = BaseCellComponentProps & {
   columnAction: ColumnAction;
   value: boolean;
   accentColor: string;
   isDisabled?: boolean;
-  onCommandClick: (dynamicTrigger: string, onComplete: () => void) => void;
+  onCommandClick: (dynamicTrigger: string, onComplete?: () => void) => void;
   borderRadius: string;
 };
 
-export const CheckboxCell = (props: renderCellType) => {
+export const CheckboxCell = (props: CheckboxCellProps) => {
   const {
     accentColor,
     allowCellWrapping,
@@ -40,11 +52,11 @@ export const CheckboxCell = (props: renderCellType) => {
   } = props;
 
   const handleChange = () => {
-    onCommandClick(columnAction.dynamicTrigger, noop);
+    onCommandClick(columnAction.dynamicTrigger);
   };
 
   return (
-    <CellWrapper
+    <CheckboxCellWrapper
       allowCellWrapping={allowCellWrapping}
       cellBackground={cellBackground}
       compactMode={compactMode}
@@ -70,6 +82,6 @@ export const CheckboxCell = (props: renderCellType) => {
         rowSpace={5}
         widgetId={""}
       />
-    </CellWrapper>
+    </CheckboxCellWrapper>
   );
 };
