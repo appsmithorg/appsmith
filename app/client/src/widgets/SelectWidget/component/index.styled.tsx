@@ -84,19 +84,25 @@ export const StyledSingleDropDown = styled(SingleDropDown)<{
     box-shadow: ${(props) => props.boxShadow} !important;
     border: 1px solid;
     border-color: ${(props) =>
-      props.hasError ? Colors.DANGER_SOLID : Colors.GREY_3};
+      props.hasError
+        ? "var(--wds-color-border-danger)"
+        : "var(--wds-color-border)"};
     ${(props) =>
       props.isValid
         ? `
         &:hover {
-          border-color: ${Colors.GREY_5};
+          border-color: var(--wds-color-border-hover);
         }
         &:focus {
           outline: 0;
           border-color:
-            ${props.hasError ? Colors.DANGER_SOLID : props.accentColor};
+            ${
+              props.hasError
+                ? "var(--wds-color-border-danger)"
+                : props.accentColor
+            };
           box-shadow:
-            ${`0px 0px 0px 3px ${lightenColor(
+            ${`0px 0px 0px 2px ${lightenColor(
               props.hasError ? Colors.DANGER_SOLID : props.accentColor,
             )} !important;`};
         }
@@ -119,10 +125,13 @@ export const StyledSingleDropDown = styled(SingleDropDown)<{
         : `border: 1px solid ${Colors.DANGER_SOLID};`}
   }
   &&&&& .${Classes.DISABLED} {
-    background-color: ${Colors.GREY_1};
-    border: 1px solid ${Colors.GREY_3};
+    background-color: var(--wds-color-bg-disabled);
+    border: 1px solid var(--wds-color-border-disabled);
     .${Classes.BUTTON_TEXT} {
-      color: ${Colors.GREY_7};
+      color: ${(props) =>
+        !isEmptyOrNill(props.value)
+          ? "var(--wds-color-text-disabled)"
+          : "var(--wds-color-text-disabled-light)"};
     }
   }
   .${Classes.BUTTON_TEXT} {
@@ -134,12 +143,14 @@ export const StyledSingleDropDown = styled(SingleDropDown)<{
     -webkit-line-clamp: 1;
     -webkit-box-orient: vertical;
     color: ${(props) =>
-      !isEmptyOrNill(props.value) ? Colors.GREY_10 : Colors.GREY_6};
+      !isEmptyOrNill(props.value)
+        ? "var(--wds-color-text)"
+        : "var(--wds-color-text-light)"};
   }
   && {
     .${Classes.ICON} {
       width: fit-content;
-      color: ${Colors.SLATE_GRAY};
+      color: var(--wds-color-icon-disabled);
     }
   }
 `;
@@ -158,7 +169,7 @@ ${({ dropDownWidth, id }) => `
 .select-popover-wrapper {
   box-shadow: 0 6px 20px 0px rgba(0, 0, 0, 0.15) !important;
   border-radius: ${({ borderRadius }) =>
-    borderRadius === "1.5rem" ? `0.375rem` : borderRadius} !important;
+    `min(${borderRadius}, 0.375rem) !important`};
   overflow: hidden;
   background: white;
   ${CommonSelectFilterStyle}
