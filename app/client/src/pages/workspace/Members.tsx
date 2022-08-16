@@ -49,27 +49,18 @@ const MembersWrapper = styled.div<{
     margin-top: 12px;
     thead {
       tr {
-        border-bottom: 1px solid #E8E8E8;
+        border-bottom: 1px solid #e8e8e8;
         th {
           font-size: 14px;
           font-weight: 500;
           line-height: 1.5;
           color: var(--appsmith-color-black-700);
-          padding: 8px 20px 4px 20px;
+          padding: 8px 20px;
           text-align: center;
 
-            svg {
-              margin: auto;
-            }
-
-            &:first-child {
-              text-align: left;
-
-              svg {
-                margin-left: 8px;
-              }
-            }
-
+          svg {
+            margin: auto 8px;
+            display: initial;
           }
         }
       }
@@ -79,10 +70,10 @@ const MembersWrapper = styled.div<{
       tr {
         td {
           text-align: center;
+          word-break: break-word;
 
           &:first-child {
             text-align: left;
-            word-break: break-word;
           }
 
           .t--deleteUser {
