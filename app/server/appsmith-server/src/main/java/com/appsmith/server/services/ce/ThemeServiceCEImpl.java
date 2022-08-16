@@ -259,6 +259,7 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepositoryCE, Theme, St
                         currentTheme.setPolicies(policyGenerator.getAllChildPolicies(
                                 application.getPolicies(), Application.class, Theme.class
                         ));
+                        // Not setting the application id in the theme because only the named themes have an application id
                         newThemeCreated = true;
                     }
                     return repository.save(currentTheme).zipWith(Mono.just(newThemeCreated));
@@ -301,6 +302,7 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepositoryCE, Theme, St
                     Application application = themeAndApplicationTuple.getT2();
                     theme.setId(null); // we'll create a copy so setting id to null
                     theme.setSystemTheme(false);
+                    // A named theme differs from a non-named one by having an application id
                     theme.setApplicationId(application.getId());
                     theme.setWorkspaceId(application.getWorkspaceId());
                     theme.setPolicies(policyGenerator.getAllChildPolicies(
