@@ -19,6 +19,7 @@ import {
 } from "components/utils/helperComponents";
 import { ARE_YOU_SURE, createMessage } from "@appsmith/constants/messages";
 import { useMediaQuery } from "react-responsive";
+import { TooltipComponent } from "design-system";
 
 type PageHeaderProps = {
   buttonText?: string;
@@ -107,7 +108,9 @@ export function SettingsPageHeader(props: PageHeaderProps) {
   return (
     <Container isMobile={isMobile}>
       <HeaderWrapper margin={`0px`}>
-        <SettingsHeader data-testid="t--page-title">{title}</SettingsHeader>
+        <TooltipComponent content={title}>
+          <SettingsHeader data-testid="t--page-title">{title}</SettingsHeader>
+        </TooltipComponent>
       </HeaderWrapper>
       <Container isMobile={isMobile}>
         <SearchWrapper>
