@@ -17,10 +17,7 @@ import {
 } from "constants/WidgetValidation";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import MultiSelectComponent from "../component";
-import {
-  DefaultValueType,
-  LabelValueType,
-} from "rc-select/lib/interface/generator";
+import { DraftValueType, LabelInValueType } from "rc-select/lib/Select";
 import { Layers } from "constants/Layers";
 import { MinimumPopupRows, GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
 import { LabelPosition } from "components/constants";
@@ -1041,7 +1038,7 @@ class MultiSelectWidget extends BaseWidget<
     );
   }
 
-  onOptionChange = (value: DefaultValueType) => {
+  onOptionChange = (value: DraftValueType) => {
     this.props.updateWidgetMetaProperty("selectedOptions", value, {
       triggerPropertyName: "onOptionChange",
       dynamicString: this.props.onOptionChange,
@@ -1055,7 +1052,7 @@ class MultiSelectWidget extends BaseWidget<
   };
 
   // { label , value } is needed in the widget
-  mergeLabelAndValue = (): LabelValueType[] => {
+  mergeLabelAndValue = (): LabelInValueType[] => {
     const labels = [...this.props.selectedOptionLabels];
     const values = [...this.props.selectedOptionValues];
     return values.map((value, index) => ({
@@ -1101,7 +1098,7 @@ export interface MultiSelectWidgetProps extends WidgetProps {
   defaultOptionValue: string[] | OptionValue[];
   isRequired: boolean;
   isLoading: boolean;
-  selectedOptions: LabelValueType[];
+  selectedOptions: LabelInValueType[];
   filterText: string;
   selectedOptionValues: string[];
   selectedOptionLabels: string[];
