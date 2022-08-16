@@ -133,7 +133,6 @@ export class HomePage {
     workspaceName: string,
     email: string,
     role: string,
-    shareFromApp : boolean
   ) {
     const successMessage = "The user has been invited successfully";
     this.StubPostHeaderReq();

@@ -24,9 +24,6 @@ describe("Workspace Settings validation spec", function() {
         // checking parent's(<a></a>) since the child(<span>) inherits css from it
         cy.get(homePage.workspaceHeaderName)
           .parent()
-          .then((elem) => {
-            assert.isBelow(elem[0].offsetWidth, elem[0].scrollWidth);
-          })
           .should("have.css", "text-overflow", "ellipsis");
       });
     });
