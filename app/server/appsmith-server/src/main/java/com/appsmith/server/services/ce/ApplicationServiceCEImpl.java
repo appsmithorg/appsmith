@@ -204,7 +204,13 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
         if(!StringUtils.hasLength(application.getColor())) {
             application.setColor(getRandomAppCardColor());
         }
-        return super.create(application);
+        return super.validateObject(application)
+                .zip(repository.save(application), workspaceService.getById(application.getWorkspaceId()))
+                .flatMap(tuple -> {
+                    Application savedApplication = tuple.getT1();
+                    Workspace workspace = tuple.getT2();
+                    return analyticsService.sendCreateEvent(savedApplication, getAnalyticsProperties(workspace));
+                });
     }
 
     @Override
