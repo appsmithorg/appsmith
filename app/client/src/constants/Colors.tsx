@@ -95,6 +95,7 @@ export const Colors = {
   GALLERY_2: "#EDEDED",
   Galliano: "#E0B30E",
   ROYAL_BLUE: "#457AE6",
+  ROYAL_BLUE_2: "#553DE9",
   ALTO2: "#E0DEDE",
   SEA_SHELL: "#F1F1F1",
   DANUBE: "#6A86CE",

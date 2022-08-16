@@ -1,3 +1,4 @@
+import { IconNames } from "@blueprintjs/icons";
 import { PropertyPaneConfig } from "constants/PropertyControlConstants";
 import { WIDGET_STATIC_PROPS } from "constants/WidgetConstants";
 import { omit } from "lodash";
@@ -173,3 +174,7 @@ export const JSON_FORM_WIDGET_CHILD_STYLESHEET = {
 };
 
 export const YOUTUBE_URL_REGEX = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=|\?v=)([^#&?]*).*/;
+
+export const ICON_NAMES = Object.keys(IconNames).map(
+  (name: string) => IconNames[name as keyof typeof IconNames],
+);
