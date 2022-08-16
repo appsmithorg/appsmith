@@ -26,10 +26,10 @@ export class HomePage {
     ") button:contains('Share')";
   private _email = "//input[@type='email']";
   _visibleTextSpan = (spanText: string) => "//span[text()='" + spanText + "']";
-  private _userRole = (role: string) =>
+  private _userRole = (role: string, workspaceName: string) =>
     "//div[contains(@class, 'label-container')]//span[1][text()='" +
-    role +
-    "']";
+    role + ' - ' + workspaceName + "']";
+   
   private _manageUsers = ".manageUsers";
   private _appHome = "//a[@href='/applications']";
   _applicationCard = ".t--application-card";
@@ -50,11 +50,11 @@ export class HomePage {
     "//td[text()='" +
     email +
     "']/following-sibling::td//span[contains(@class, 't--deleteUser')]";
-  private _userRoleDropDown = (email: string, role: string) =>
-    "//td[text()='" +
+  private _userRoleDropDown = (email: string, role: string, workspaceName: string) =>
+    "//span[text()='" +
     email +
     "']/following-sibling::td//span[text()='" +
-    role +
+    role + " - " + workspaceName +
     "']";
   //private _userRoleDropDown = (email: string) => "//td[text()='" + email + "']/following-sibling::td"
   private _leaveWorkspaceConfirmModal = ".t--member-delete-confirmation-modal";
@@ -145,7 +145,7 @@ export class HomePage {
       .first()
       .click({ force: true });
     this.agHelper.Sleep(500);
-    cy.xpath(this._userRole(role)).click({ force: true });
+    cy.xpath(this._userRole(role, workspaceName)).click({ force: true });
     this.agHelper.ClickButton("Invite");
     cy.wait("@mockPostInvite")
       .its("request.headers")
@@ -310,7 +310,7 @@ export class HomePage {
     newRole: string,
   ) {
     this.OpenMembersPageForWorkspace(workspaceName);
-    cy.xpath(this._userRoleDropDown(email, currentRole))
+    cy.xpath(this._userRoleDropDown(email, currentRole, workspaceName))
       .first()
       .trigger("click");
     //cy.xpath(this._userRoleDropDown(email)).first().click({force: true});
@@ -318,7 +318,7 @@ export class HomePage {
       .last()
       .click({ force: true });
     this.agHelper.Sleep();
-    this.NavigateToHome();
+    this.NavigateToHome(); 
   }
 
   public ImportApp(fixtureJson: string, intoWorkspaceName = "") {

@@ -1,5 +1,5 @@
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
-
+import HomePage from "../../../../locators/HomePage";
 let workspaceId: any, appid: any;
 let agHelper = ObjectsRegistry.AggregateHelper,
   homePage = ObjectsRegistry.HomePage;
@@ -16,7 +16,7 @@ describe("Create new workspace and invite user & validate all roles", () => {
       homePage.CheckWorkspaceShareUsersCount(workspaceId, 1);
       homePage.InviteUserToWorkspace(
         workspaceId,
-        Cypress.env("TESTUSERNAME1"),
+        "testusername1",
         "App Viewer",
       );
       cy.xpath(homePage._visibleTextSpan("MANAGE USERS")).click({
@@ -40,9 +40,18 @@ describe("Create new workspace and invite user & validate all roles", () => {
       .first()
       .trigger("mouseover");
     cy.get(homePage._appHoverIcon("edit")).should("not.exist");
+    // verify only viewer role is visible
+    cy.xpath("//span[text()='Share']")
+      .first()
+      .click();
+    // click on selet a role
+    cy.wait(2000)
+    cy.xpath(HomePage.selectRole).click()
+    cy.get('.t--dropdown-option').should('have.length', 1).and('contain.text', `App Viewer - ${workspaceId}`)
+    cy.get(HomePage.closeBtn).click()
     homePage.LaunchAppFromAppHover();
     homePage.LogOutviaAPI();
-  });
+    })
 
   it("3. Login as Workspace owner and Update the Invited user role to Developer", function() {
     homePage.LogintoApp(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
@@ -52,7 +61,8 @@ describe("Create new workspace and invite user & validate all roles", () => {
       Cypress.env("TESTUSERNAME1"),
       "App Viewer",
       "Developer",
-    );
+    ); 
+    cy.xpath("//tbody[@role='rowgroup']").children().find('span').should('have.text', 'testusername1').click()
     homePage.LogOutviaAPI();
   });
 
@@ -70,6 +80,13 @@ describe("Create new workspace and invite user & validate all roles", () => {
       .first()
       .click({ force: true });
     cy.xpath(homePage._editPageLanding).should("exist");
+    cy.xpath("//span[text()='Share']")
+    .first()
+    .click();
+  cy.wait(2000)
+  cy.xpath(HomePage.selectRole).click()
+  cy.get('.t--dropdown-option').should('have.length', 2).and('contain.text', `App Viewer - ${workspaceId}`, `Developer - ${workspaceId}`)
+  cy.get(HomePage.closeBtn).click()
     homePage.LogOutviaAPI();
   });
 
@@ -100,6 +117,13 @@ describe("Create new workspace and invite user & validate all roles", () => {
       Cypress.env("TESTUSERNAME2"),
       "App Viewer",
     );
+    cy.xpath("//span[text()='Share']")
+    .first()
+    .click();
+  cy.wait(2000)
+  cy.xpath(HomePage.selectRole).click()
+  cy.get('.t--dropdown-option').should('have.length', 3).should("contain.text", `App Viewer - ${workspaceId}`, `Developer - ${workspaceId}`)
+  cy.get(HomePage.closeBtn).click()
     homePage.LogOutviaAPI();
   });
 
