@@ -62,6 +62,7 @@ import { selectFeatureFlags } from "selectors/usersSelectors";
 import FeatureFlags from "entities/FeatureFlags";
 import { Switch } from "components/ads/Switcher";
 import { connect } from "react-redux";
+import { isValidURL } from "utils/URLUtils";
 
 /* eslint-disable @typescript-eslint/ban-types */
 /* TODO: Function and object types need to be updated to enable the lint rule */
@@ -286,6 +287,7 @@ function getFieldFromValue(
     fields.push({
       field: FieldType.PAGE_NAME_AND_URL_TAB_SELECTOR_FIELD,
     });
+
     if (activeTabNavigateTo.id === NAVIGATE_TO_TAB_OPTIONS.PAGE_NAME) {
       fields.push({
         field: FieldType.PAGE_SELECTOR_FIELD,
@@ -295,6 +297,7 @@ function getFieldFromValue(
         field: FieldType.URL_FIELD,
       });
     }
+
     fields.push({
       field: FieldType.QUERY_PARAMS_FIELD,
     });
@@ -590,6 +593,17 @@ const NAVIGATE_TO_TAB_OPTIONS = {
   URL: "url",
 };
 
+const isValueValidURL = (value: string) => {
+  const indices = [];
+  for (let i = 0; i < value.length; i++) {
+    if (value[i] === "'") {
+      indices.push(i);
+    }
+  }
+  const str = value.substring(indices[0], indices[1] + 1);
+  return isValidURL(str);
+};
+
 const ActionCreator = React.forwardRef(
   (props: ActionCreatorProps, ref: any) => {
     const NAVIGATE_TO_TAB_SWITCHER: Array<Switch> = [
@@ -610,7 +624,7 @@ const ActionCreator = React.forwardRef(
     ];
 
     const [activeTabNavigateTo, setActiveTabNavigateTo] = useState(
-      NAVIGATE_TO_TAB_SWITCHER[0],
+      NAVIGATE_TO_TAB_SWITCHER[isValueValidURL(props.value) ? 1 : 0],
     );
     const dataTree = useSelector(getDataTree);
     const integrationOptionTree = useIntegrationsOptionTree();
@@ -622,6 +636,7 @@ const ActionCreator = React.forwardRef(
       undefined,
       dataTree,
     );
+
     return (
       <TreeStructure>
         <Fields
