@@ -1822,8 +1822,36 @@ public class DatabaseChangelog2 {
                             ActionCollection.class);
 
                     // Update Themes
+                        // First update all the named themes with the new policies
                     Set<Policy> themePolicies = policyGenerator.getAllChildPolicies(applicationPolicies, Application.class, Theme.class);
                     mongockTemplate.updateMulti(new Query().addCriteria(Criteria.where(fieldName(QTheme.theme.applicationId)).in(applicationIds)),
+                            new Update().set("policies", themePolicies),
+                            Theme.class);
+
+                        // Also update the non-named themes.
+                        // Get the theme ids to update
+                    Set<String> themeIdSet = mongockTemplate.stream(new Query().addCriteria(Criteria.where(fieldName(QApplication.application.workspaceId)).is(workspace.getId())), Application.class)
+                            .stream()
+                            .flatMap(application -> {
+                                Set<String> themeIds = new HashSet<>();
+                                if (application.getEditModeThemeId() != null) {
+                                    themeIds.add(application.getEditModeThemeId());
+                                }
+                                if (application.getPublishedModeThemeId() != null) {
+                                    themeIds.add(application.getPublishedModeThemeId());
+                                }
+                                return themeIds.stream();
+                            })
+                            .collect(Collectors.toSet());
+
+                    Criteria nonSystemThemeCriteria = Criteria.where(fieldName(QTheme.theme.isSystemTheme)).is(false);
+                    Criteria idCriteria = Criteria.where(fieldName(QTheme.theme.id)).in(themeIdSet);
+
+                    Criteria queryCriteria = new Criteria().andOperator(nonSystemThemeCriteria, idCriteria);
+
+                    // Add the policies to the un-named themes as well.
+                    mongockTemplate.updateMulti(
+                            new Query(queryCriteria),
                             new Update().set("policies", themePolicies),
                             Theme.class);
 
