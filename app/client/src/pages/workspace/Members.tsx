@@ -19,9 +19,8 @@ import {
 } from "actions/workspaceActions";
 import TableDropdown from "components/ads/TableDropdown";
 import Dropdown from "components/ads/Dropdown";
-import { Text, TextType } from "design-system";
+import { Text, TextType, HighlightText } from "design-system";
 import styled from "styled-components";
-import { Classes } from "@blueprintjs/core";
 import { Classes as AppClass } from "components/ads/common";
 import DeleteConfirmationModal from "./DeleteConfirmationModal";
 import { useMediaQuery } from "react-responsive";
@@ -29,20 +28,18 @@ import { Card } from "@blueprintjs/core";
 import ProfileImage from "pages/common/ProfileImage";
 import { USER_PHOTO_URL } from "constants/userConstants";
 import { Colors } from "constants/Colors";
-import { HighlightText } from "components/utils/HighlightText";
 import { WorkspaceUser } from "constants/workspaceConstants";
-import { createMessage, MEMBERS_TAB_TITLE } from "@appsmith/constants/messages";
+import {
+  createMessage,
+  MEMBERS_TAB_TITLE,
+  NO_SEARCH_DATA_TEXT,
+} from "@appsmith/constants/messages";
 
 export type PageProps = RouteComponentProps<{
   workspaceId: string;
 }> & {
   searchValue?: string;
 };
-
-const Loader = styled.div`
-  height: 120px;
-  width: 100%;
-`;
 
 const MembersWrapper = styled.div<{
   isMobile?: boolean;
@@ -195,6 +192,13 @@ const DeleteIcon = styled(Icon)`
   position: absolute;
   top: ${(props) => props.theme.spaces[9]}px;
   right: ${(props) => props.theme.spaces[7]}px;
+`;
+
+const NoResultsText = styled.div`
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 24px;
+  color: var(--appsmith-color-black-700);
 `;
 
 export default function MemberSettings(props: PageProps) {
@@ -423,106 +427,107 @@ export default function MemberSettings(props: PageProps) {
 
   return (
     <MembersWrapper data-testid="t--members-wrapper" isMobile={isMobile}>
-      {isFetchingAllUsers && isFetchingAllRoles ? (
-        <Loader className={Classes.SKELETON} />
-      ) : (
-        <>
-          {!isMobile && (
-            <Table
-              columns={columns}
-              data={filteredData}
-              data-testid="listing-table"
-            />
-          )}
-          {isMobile && (
-            <UserCardContainer>
-              {filteredData.map((member, index) => {
-                const role =
-                  roles.find(
-                    (role: any) => role.value === member.permissionGroupName,
-                  ) || roles[0];
-                const isOwner = member.username === currentUser?.username;
-                const isUserGroup = member.hasOwnProperty("users");
-                return (
-                  <UserCard key={index}>
-                    {isUserGroup ? (
-                      <>
-                        <Icon
-                          className="user-icons"
-                          name="group-line"
-                          size={IconSize.XXL}
-                        />
-                        <HighlightText
-                          highlight={searchValue}
-                          text={member.name}
-                        />
-                      </>
-                    ) : (
-                      <>
-                        <ProfileImage
-                          className="avatar"
-                          size={71}
-                          source={`/api/${USER_PHOTO_URL}/${member.username}`}
-                          userName={member.username}
-                        />
-                        <HighlightText
-                          className="user-email"
-                          highlight={searchValue}
-                          text={member.username}
-                        />
-                        <Text className="user-email" type={TextType.P1}>
-                          {member.username}
-                        </Text>
-                      </>
-                    )}
-                    {isOwner && (
-                      <Text className="user-role" type={TextType.P1}>
-                        {member.permissionGroupName}
-                      </Text>
-                    )}
-                    {!isOwner && (
-                      <Dropdown
-                        boundary="viewport"
-                        className="t--user-status"
-                        defaultIcon="downArrow"
-                        height="31px"
-                        onSelect={(value, option) => {
-                          selectRole(option.id, member.username);
-                        }}
-                        options={roles}
-                        selected={role}
-                      />
-                    )}
-                    <DeleteIcon
-                      className="t--deleteUser"
-                      cypressSelector="t--deleteUser"
-                      fillColor={Colors.DANGER_SOLID}
-                      hoverFillColor={Colors.DANGER_SOLID_HOVER}
-                      name="trash-outline"
-                      onClick={() => {
-                        onConfirmMemberDeletion(
-                          member.username,
-                          member.username,
-                          workspaceId,
-                        );
-                      }}
-                      size={IconSize.LARGE}
-                    />
-                  </UserCard>
-                );
-              })}
-            </UserCardContainer>
-          )}
-          <DeleteConfirmationModal
-            isDeletingUser={isDeletingUser}
-            isOpen={showMemberDeletionConfirmation}
-            name={userToBeDeleted && userToBeDeleted.name}
-            onClose={onCloseConfirmationModal}
-            onConfirm={onDeleteMember}
-            username={userToBeDeleted && userToBeDeleted.username}
+      <>
+        {!isMobile && (
+          <Table
+            columns={columns}
+            data={filteredData}
+            data-testid="listing-table"
+            isLoading={isFetchingAllUsers && isFetchingAllRoles}
+            noDataComponent={
+              <NoResultsText>
+                {createMessage(NO_SEARCH_DATA_TEXT)}
+              </NoResultsText>
+            }
           />
-        </>
-      )}
+        )}
+        {isMobile && (
+          <UserCardContainer>
+            {filteredData.map((member, index) => {
+              const role =
+                roles.find(
+                  (role: any) => role.value === member.permissionGroupName,
+                ) || roles[0];
+              const isOwner = member.username === currentUser?.username;
+              const isUserGroup = member.hasOwnProperty("users");
+              return (
+                <UserCard key={index}>
+                  {isUserGroup ? (
+                    <>
+                      <Icon
+                        className="user-icons"
+                        name="group-line"
+                        size={IconSize.XXL}
+                      />
+                      <HighlightText
+                        highlight={searchValue}
+                        text={member.name}
+                      />
+                    </>
+                  ) : (
+                    <>
+                      <ProfileImage
+                        className="avatar"
+                        size={71}
+                        source={`/api/${USER_PHOTO_URL}/${member.username}`}
+                        userName={member.username}
+                      />
+                      <HighlightText
+                        highlight={searchValue}
+                        text={member.username}
+                      />
+                      <Text className="user-email" type={TextType.P1}>
+                        {member.username}
+                      </Text>
+                    </>
+                  )}
+                  {isOwner && (
+                    <Text className="user-role" type={TextType.P1}>
+                      {member.permissionGroupName}
+                    </Text>
+                  )}
+                  {!isOwner && (
+                    <Dropdown
+                      boundary="viewport"
+                      className="t--user-status"
+                      defaultIcon="downArrow"
+                      height="31px"
+                      onSelect={(value, option) => {
+                        selectRole(option.id, member.username);
+                      }}
+                      options={roles}
+                      selected={role}
+                    />
+                  )}
+                  <DeleteIcon
+                    className="t--deleteUser"
+                    cypressSelector="t--deleteUser"
+                    fillColor={Colors.DANGER_SOLID}
+                    hoverFillColor={Colors.DANGER_SOLID_HOVER}
+                    name="trash-outline"
+                    onClick={() => {
+                      onConfirmMemberDeletion(
+                        member.username,
+                        member.username,
+                        workspaceId,
+                      );
+                    }}
+                    size={IconSize.LARGE}
+                  />
+                </UserCard>
+              );
+            })}
+          </UserCardContainer>
+        )}
+        <DeleteConfirmationModal
+          isDeletingUser={isDeletingUser}
+          isOpen={showMemberDeletionConfirmation}
+          name={userToBeDeleted && userToBeDeleted.name}
+          onClose={onCloseConfirmationModal}
+          onConfirm={onDeleteMember}
+          username={userToBeDeleted && userToBeDeleted.username}
+        />
+      </>
     </MembersWrapper>
   );
 }
