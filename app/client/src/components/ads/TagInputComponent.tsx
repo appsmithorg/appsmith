@@ -90,6 +90,10 @@ type TagInputProps = {
   suggestions?: { id: string; name: string; icon?: string }[];
 };
 
+function getValues(inputValues: any) {
+  return inputValues && inputValues.length > 0 ? inputValues.split(",") : [];
+}
+
 /**
  * TagInputComponent
  * Takes in a comma separated set of values (input.value prop) to display in tags
@@ -98,22 +102,27 @@ type TagInputProps = {
  */
 function TagInputComponent(props: TagInputProps) {
   const [values, setValues] = useState<string[]>(
-    props.input.value && props.input.value.length > 0
-      ? props.input.value.split(",")
-      : [],
+    getValues(props?.input?.value),
   );
   const [currentValue, setCurrentValue] = useState<string>("");
   const [showSuggestions, setShowSuggestions] = useState<boolean>(false);
   const [suggestions, setSuggestions] = useState<
     { id: string; name: string }[]
   >(props?.suggestions || []);
+  const shouldShowSuggestions = suggestions?.length > 0 && showSuggestions;
+  const mappedSuggestions =
+    shouldShowSuggestions &&
+    suggestions.map((each: any) => (
+      <Suggestion
+        key={each.id}
+        onClick={() => handleSuggestionClick(each.name)}
+      >
+        <HighlightText highlight={currentValue} text={each.name} />
+      </Suggestion>
+    ));
 
   useEffect(() => {
-    setValues(
-      props.input.value && props.input.value.length > 0
-        ? props.input.value.split(",")
-        : [],
-    );
+    setValues(getValues(props?.input?.value));
   }, [props.input.value]);
 
   const validateEmail = (newValues: string[]) => {
@@ -147,6 +156,7 @@ function TagInputComponent(props: TagInputProps) {
   };
 
   const onKeyDown = (e: any) => {
+    let resetSuggestions = false;
     // Add new values to the tags on comma, return key, space and Tab press
     // only if user has typed something on input
     if (
@@ -159,18 +169,18 @@ function TagInputComponent(props: TagInputProps) {
       const newValues = [...values, e.target.value];
       commitValues(newValues);
       setCurrentValue("");
-      if (props?.suggestions) {
-        setSuggestions(props.suggestions);
-      }
+      resetSuggestions = true;
       e.preventDefault();
     } else if (e.key === "Backspace") {
       if (e.target.value.length === 0) {
         const newValues = values.slice(0, -1);
         commitValues(newValues);
       }
-      if (props?.suggestions) {
-        setSuggestions(props.suggestions);
-      }
+      resetSuggestions = true;
+    }
+
+    if (resetSuggestions && props?.suggestions) {
+      setSuggestions(props.suggestions);
     }
   };
 
@@ -182,7 +192,7 @@ function TagInputComponent(props: TagInputProps) {
       if (props?.suggestions) {
         const results =
           suggestions &&
-          suggestions.filter((sugg) => sugg.name?.includes(e.target.value));
+          suggestions.filter((s) => s.name?.includes(e.target.value));
         setSuggestions(results);
         setShowSuggestions(true);
       }
@@ -196,7 +206,7 @@ function TagInputComponent(props: TagInputProps) {
 
   const handleInputBlur = (e: any) => {
     if (
-      (e.target.value.trim() && !showSuggestions && !suggestions.length) ||
+      (e?.target?.value?.trim() && !showSuggestions && !suggestions.length) ||
       isEmail(e.target.value)
     ) {
       const newValues = [...values, e.target.value];
@@ -211,7 +221,7 @@ function TagInputComponent(props: TagInputProps) {
     setSuggestions(props?.suggestions || []);
     setShowSuggestions(false);
     props?.input?.onChange?.(
-      props.input.value ? `${props.input.value},${value}` : value,
+      [props?.input?.value, value].filter(Boolean).join(","),
     );
   };
 
@@ -237,18 +247,9 @@ function TagInputComponent(props: TagInputProps) {
         })}
         values={values || [""]}
       />
-      {suggestions?.length > 0 && showSuggestions && (
+      {shouldShowSuggestions && (
         <SuggestionsWrapper>
-          <div>
-            {suggestions.map((each: any) => (
-              <Suggestion
-                key={each.id}
-                onClick={() => handleSuggestionClick(each.name)}
-              >
-                <HighlightText highlight={currentValue} text={each.name} />
-              </Suggestion>
-            ))}
-          </div>
+          <div>{mappedSuggestions}</div>
         </SuggestionsWrapper>
       )}
     </TagInputWrapper>
