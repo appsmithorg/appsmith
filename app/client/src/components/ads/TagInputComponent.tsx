@@ -109,17 +109,16 @@ function TagInputComponent(props: TagInputProps) {
   const [suggestions, setSuggestions] = useState<
     { id: string; name: string }[]
   >(props?.suggestions || []);
-  const shouldShowSuggestions = suggestions?.length > 0 && showSuggestions;
-  const mappedSuggestions =
-    shouldShowSuggestions &&
-    suggestions.map((each: any) => (
+  const mappedSuggestions = (showSuggestions ? suggestions : []).map(
+    (each: any) => (
       <Suggestion
         key={each.id}
         onClick={() => handleSuggestionClick(each.name)}
       >
         <HighlightText highlight={currentValue} text={each.name} />
       </Suggestion>
-    ));
+    ),
+  );
 
   useEffect(() => {
     setValues(getValues(props?.input?.value));
@@ -247,7 +246,7 @@ function TagInputComponent(props: TagInputProps) {
         })}
         values={values || [""]}
       />
-      {shouldShowSuggestions && (
+      {showSuggestions && (
         <SuggestionsWrapper>
           <div>{mappedSuggestions}</div>
         </SuggestionsWrapper>
