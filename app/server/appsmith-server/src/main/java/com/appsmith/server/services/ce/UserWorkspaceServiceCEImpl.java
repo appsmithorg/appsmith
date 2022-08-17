@@ -27,6 +27,8 @@ import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -205,7 +207,8 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
         // Create a list of UserAndGroupDTO
         Mono<List<UserAndPermissionGroupDTO>> userAndPermissionGroupDTOsMono = permissionGroupFlux
                 .collectList()
-                .map(this::mapPermissionGroupListToUserAndPermissionGroupDTOList).cache();
+                .map(this::mapPermissionGroupListToUserAndPermissionGroupDTOList)
+                .cache();
 
         // Create a map of User.userId to User
         Mono<Map<String, User>> userMapMono = userAndPermissionGroupDTOsMono
@@ -228,9 +231,42 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
                         userAndPermissionGroupDTO.setUsername(user.getUsername());
                     });
                     return userAndPermissionGroupDTOList;
-                }).cache();
+                });
 
-        return userAndPermissionGroupDTOsMono;
+        // Sort the members by permission group
+        Mono<List<UserAndPermissionGroupDTO>> sortedListMono = userAndPermissionGroupDTOsMono
+                .map(userAndPermissionGroupDTOS -> {
+                    Collections.sort(userAndPermissionGroupDTOS, new Comparator<UserAndPermissionGroupDTO>() {
+                        @Override
+                        public int compare(UserAndPermissionGroupDTO o1, UserAndPermissionGroupDTO o2) {
+                            int order1 = getOrder(o1.getPermissionGroupName());
+                            int order2 = getOrder(o2.getPermissionGroupName());
+
+                            // Administrator > Developer > App viewer
+                            int permissionGroupSortOrder = order1 - order2;
+
+                            if (permissionGroupSortOrder != 0) {
+                                return permissionGroupSortOrder;
+                            }
+
+                            return o1.getName().compareTo(o2.getName());
+                        }
+
+                        private int getOrder(String name) {
+                            if (name.startsWith(FieldName.ADMINISTRATOR)) {
+                                return 0;
+                            } else if (name.startsWith(FieldName.DEVELOPER)) {
+                                return 1;
+                            } else {
+                                return 2;
+                            }
+                        }
+                    });
+
+                    return userAndPermissionGroupDTOS;
+                });
+
+        return sortedListMono;
     }
 
     @Override
