@@ -37,14 +37,25 @@ export const StyledControlGroup = styled(ControlGroup)<{
         svg {
           width: 10px !important;
           height: 10px !important;
+          fill: var(--wds-color-icon);
+
+          path {
+            fill: var(--wds-color-icon);
+            stroke: var(--wds-color-icon) !important;
+          }
         }
       }
       .dropdown-icon {
         width: 20px;
 
         svg {
+          fill: var(--wds-color-icon);
           width: 20px;
           height: 20px;
+
+          path {
+            fill: var(--wds-color-icon);
+          }
         }
       }
     }
