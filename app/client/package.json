@@ -176,7 +176,8 @@
     "test:unit": "$(npm bin)/jest -b --colors --no-cache --silent --coverage --collectCoverage=true --coverageDirectory='../../' --coverageReporters='json-summary'",
     "test:jest": "$(npm bin)/jest --watch",
     "generate:widget": "plop --plopfile generators/index.js",
-    "postinstall": "patch-package"
+    "postinstall": "patch-package && CURRENT_SCOPE=client node ../shared/install-dependencies.js",
+    "preinstall": "CURRENT_SCOPE=client node ../shared/build-shared-dep.js"
   },
   "browserslist": [
     ">0.2%",
@@ -239,7 +240,7 @@
     "compression-webpack-plugin": "^10.0.0",
     "cra-bundle-analyzer": "^0.1.0",
     "cy-verify-downloads": "^0.0.5",
-    "cypress": "8.7.0",
+    "cypress": "9.7.0",
     "cypress-file-upload": "^4.1.1",
     "cypress-image-snapshot": "^4.0.1",
     "cypress-multi-reporters": "^1.2.4",
