@@ -25,7 +25,6 @@ import { BaseInputWidgetProps } from "widgets/BaseInputWidget/widget";
 import { mergeWidgetConfig } from "utils/helpers";
 import { InputTypes } from "widgets/BaseInputWidget/constants";
 import { getParsedText } from "./Utilities";
-import { IconNames } from "@blueprintjs/icons";
 
 export function defaultValueValidation(
   value: any,
@@ -310,7 +309,6 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
                 type: ValidationTypes.TEXT,
                 params: {
                   allowedValues: ICON_NAMES,
-                  default: IconNames.PLUS,
                 },
               },
             },
@@ -505,7 +503,6 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
                 type: ValidationTypes.TEXT,
                 params: {
                   allowedValues: ICON_NAMES,
-                  default: IconNames.PLUS,
                 },
               },
             },

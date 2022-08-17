@@ -76,6 +76,9 @@ export const getJSFunctionStartLineFromCode = (
 
 export const createGutterMarker = (gutterOnclick: () => void) => {
   const marker = document.createElement("button");
+  // For most browsers the default type of button is submit, this causes the page to reload when marker is clicked
+  // Set type to button, to prevent this behaviour
+  marker.type = "button";
   marker.innerHTML = "&#9654;";
   marker.classList.add(RUN_GUTTER_CLASSNAME);
   marker.onmousedown = function(e) {
