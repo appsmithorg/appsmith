@@ -118,7 +118,7 @@ export const StyledSingleDropDown = styled(SingleDropDown)<{
         border-color: ${
           props.hasError ? Colors.DANGER_SOLID : props.accentColor
         };
-        box-shadow: ${`0px 0px 0px 3px ${lightenColor(
+        box-shadow: ${`0px 0px 0px 2px ${lightenColor(
           props.hasError ? Colors.DANGER_SOLID : props.accentColor,
         )} !important;`};
       `
@@ -185,10 +185,10 @@ ${({ dropDownWidth, id }) => `
     border-radius: 0;
     color: ${Colors.GREY_8};
     &:hover{
-      background: ${({ accentColor }) => `${lightenColor(accentColor)}`};
+      background: var(--wds-color-bg-hover);
     }
     &.is-focused{
-      background: ${({ accentColor }) => `${lightenColor(accentColor)}`};
+      background: var(--wds-color-bg-hover);
     }
     &.${Classes.ACTIVE} {
       background: ${({ accentColor }) => `${lightenColor(accentColor)}`};
@@ -239,19 +239,25 @@ export const MenuItem = styled.div<{
     background-color: transparent;
 
     &:hover {
-      background-color: ${({ accentColor }) => lightenColor(accentColor)};
-      color: ${Colors.GREY_10};
+      background-color: var(--wds-color-bg-hover);
+      color: var(--wds-color-text);
       position: relative;
     }
   }
 
   & .menu-item-active {
-    background-color: ${({ accentColor }) => lightenColor(accentColor)};
+    background-color: ${({ accentColor }) =>
+      lightenColor(accentColor)} !important;
   }
 
   && .has-focus {
+    color: var(--wds-color-text);
+    background-color: var(--wds-color-bg-light);
+  }
+
+  && .has-focus.menu-item-active {
     background-color: ${({ accentColor }) =>
-      lightenColor(accentColor)} !important;
+      lightenColor(accentColor, "0.90")} !important;
   }
 
   & .menu-item-text {

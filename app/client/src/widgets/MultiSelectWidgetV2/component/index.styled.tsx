@@ -44,7 +44,7 @@ export const CommonSelectFilterStyle = css<{
     box-shadow: none;
     border-width: 1px;
     border-style: solid;
-    border-color: ${Colors.GREY_3};
+    border-color: var(--wds-color-border);
     border-radius: 0px;
     &::before {
       width: auto;
@@ -56,7 +56,7 @@ export const CommonSelectFilterStyle = css<{
     height: 32px !important;
     padding-left: 29px !important;
     font-size: 14px;
-    color: ${Colors.GREY_10};
+    color: var(--wds-color-text);
     box-shadow: 0px 0px 0px 0px;
     border: none;
   }
@@ -64,7 +64,7 @@ export const CommonSelectFilterStyle = css<{
   & .${Classes.INPUT_GROUP} {
     margin: 12px 12px 8px 12px;
     position: relative;
-    border: 1px solid ${Colors.GREY_3};
+    border: 1px solid var(--wds-color-border);
     border-radius: ${({ borderRadius }) =>
       borderRadius === "1.5rem" ? `0.375rem` : borderRadius};
     overflow: hidden;
@@ -426,10 +426,10 @@ export const MultiSelectContainer = styled.div<{
       cursor: not-allowed;
     }
     & .rc-select-selector {
-      background-color: ${Colors.GREY_1} !important;
-      border: 1px solid ${Colors.GREY_3};
+      background-color: var(--wds-color-bg-disabled) !important;
+      border: 1px solid var(--wds-color-border-disabled) !important;
       .rc-select-selection-item-content {
-        color: ${Colors.GREY_7};
+        color: var(--wds-color-text-disabled) !important;
       }
     }
     & .rc-select-arrow {
@@ -457,7 +457,7 @@ export const MultiSelectContainer = styled.div<{
       display: flex;
       flex-wrap: wrap;
       padding: 1px;
-      background: ${Colors.WHITE};
+      background: var(--wds-color-bg);
       border-radius: ${({ borderRadius }) => borderRadius} !important;
       box-shadow: ${({ boxShadow }) => `${boxShadow}`} !important;
       width: 100%;
@@ -569,17 +569,23 @@ export const MultiSelectContainer = styled.div<{
     .rc-select-selector {
       padding-right: 36px;
       padding-left: 10px;
-      background: ${Colors.WHITE};
+      background: var(--wds-color-bg);
       border-radius: ${({ borderRadius }) => borderRadius};
       box-shadow: ${({ boxShadow }) => `${boxShadow}`} !important;
       height: inherit;
       width: 100%;
       transition: none;
       border: 1px solid
-        ${(props) => (props.isValid ? Colors.GREY_3 : Colors.DANGER_SOLID)};
+        ${(props) =>
+          props.isValid
+            ? "var(--wds-color-border)"
+            : "var(--wds-color-border-danger)"};
       &:hover {
         border: 1px solid
-          ${(props) => (props.isValid ? Colors.GREY_5 : Colors.DANGER_SOLID)};
+        ${(props) =>
+          props.isValid
+            ? "var(--wds-color-border-hover)"
+            : "var(--wds-color-border-danger-hover)"};
       }
     }
   }

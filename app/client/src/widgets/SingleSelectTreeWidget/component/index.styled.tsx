@@ -662,18 +662,18 @@ export const TreeSelectContainer = styled.div<{
     cursor: not-allowed;
     input {
       cursor: not-allowed;
-      background-color: ${Colors.GREY_1} !important;
+      background-color: var(--wds-color-bg-disabled) !important;
     }
     .rc-tree-select-selector {
-      border: 1.2px solid ${Colors.GREY_3} !important;
-      background-color: ${Colors.GREY_1} !important;
+      border: 1px solid var(--wds-color-border-disabled) !important;
+      background-color: var(--wds-color-bg-disabled) !important;
 
       .rc-tree-select-selection-search input {
-        background-color: ${Colors.GREY_1}; // color fix for mozilla
+        background-color: var(--wds-color-bg-disabled) // color fix for mozilla
       }
       .rc-tree-select-selection-item {
-        color: ${Colors.GREY_7};
-        background-color: ${Colors.GREY_1};
+        color: var(--wds-color-text-disabled);
+        background-color: var(--wds-color-bg-disabled) !important;
       }
     }
   }
@@ -697,7 +697,10 @@ export const TreeSelectContainer = styled.div<{
     &:hover {
       .rc-tree-select-selector {
         border: 1.2px solid
-          ${(props) => (props.isValid ? Colors.GREY_5 : Colors.DANGER_SOLID)};
+        ${(props) =>
+          props.isValid
+            ? "var(--wds-color-border-hover)"
+            : "var(--wds-color-danger-hover)"};
       }
     }
   }
@@ -706,9 +709,10 @@ export const TreeSelectContainer = styled.div<{
     flex-wrap: wrap;
     padding-right: 42px;
     border: 1px solid
-      ${(props) => (props.isValid ? Colors.GREY_3 : Colors.DANGER_SOLID)};
+      ${(props) =>
+        props.isValid ? "var(--wds-color-border)" : "var(--wds-color-danger)"};
     box-sizing: border-box;
-    background: ${Colors.WHITE};
+    background: var(--wds-color-bg);
     border-radius: ${({ borderRadius }) => borderRadius};
     box-shadow: ${({ boxShadow }) => `${boxShadow}`} !important;
     overflow: hidden;
