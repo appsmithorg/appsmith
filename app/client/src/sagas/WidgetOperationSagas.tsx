@@ -1458,21 +1458,21 @@ function* pasteWidgetSaga(
             }
           }
 
-          // Update the table widget column properties
+          // Update the Select widget defaultValue properties
           if (
             widget.type === "MULTI_SELECT_WIDGET_V2" ||
             widget.type === "SELECT_WIDGET"
           ) {
             try {
-              // If the primaryColumns of the table exist
+              // If the defaultOptionValue exist
               if (widget.defaultOptionValue) {
-                // For each column
                 const value = widget.defaultOptionValue;
+                // replace All occurrence of old widget name
                 widget.defaultOptionValue = isString(value)
                   ? value.replaceAll(`${oldWidgetName}.`, `${newWidgetName}.`)
                   : value;
               }
-              // Use the new widget name we used to replace the column properties above.
+              // Use the new widget name we used to replace the defaultValue properties above.
               widget.widgetName = newWidgetName;
             } catch (error) {
               log.debug("Error updating widget properties", error);
