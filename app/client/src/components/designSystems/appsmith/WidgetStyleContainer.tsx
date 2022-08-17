@@ -2,7 +2,6 @@ import React, { ReactNode } from "react";
 import styled from "styled-components";
 import { ContainerStyle } from "widgets/ContainerWidget/component";
 import { Color } from "constants/Colors";
-import { LayoutDirection } from "components/constants";
 
 export enum BoxShadowTypes {
   NONE = "NONE",

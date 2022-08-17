@@ -3,7 +3,7 @@ import {
   CONTAINER_GRID_PADDING,
   GridDefaults,
 } from "constants/WidgetConstants";
-import { debounce, isEmpty, isNaN, isNumber, throttle } from "lodash";
+import { debounce, isEmpty, isNaN, throttle } from "lodash";
 import { CanvasDraggingArenaProps } from "pages/common/CanvasArenas/CanvasDraggingArena";
 import React, { useEffect, useRef } from "react";
 import { useSelector } from "react-redux";
@@ -36,10 +36,23 @@ export interface XYCord {
   y: number;
 }
 
+interface HighlightDimension {
+  x: number;
+  y: number;
+  height: number;
+  width: number;
+}
+
 const CONTAINER_JUMP_ACC_THRESHOLD = 8000;
 const CONTAINER_JUMP_SPEED_THRESHOLD = 800;
 
 let lastTranslatedIndex: number;
+let containerDimensions: {
+  top: number;
+  left: number;
+  width: number;
+  height: number;
+};
 //Since useCanvasDragging's Instance changes during container jump, metrics is stored outside
 const containerJumpThresholdMetrics = new ContainerJumpMetrics<{
   speed?: number;
@@ -110,7 +123,7 @@ export const useCanvasDragging = (
   reflow.current = useReflow(draggingSpaces, widgetId || "", gridProps);
 
   let dragBlocksSize = 0;
-  const offsets: number[] = [];
+  const offsets: HighlightDimension[] = [];
   // let siblings: { [key: string]: number } = {};
   const siblingElements: any[] = [];
   const isVertical = direction === LayoutDirection.Vertical;
@@ -122,17 +135,21 @@ export const useCanvasDragging = (
       });
       // Get all children of current auto layout container
       const container = document.querySelector(`.flex-container-qa3j3kll75`);
-      console.log(container);
-      console.log((container as any).offsetTop);
-      const containerOffsetTop = (container as any).offsetTop || 0;
-      const containerOffsetLeft = (container as any).offsetLeft || 0;
+      // console.log(container);
+      // console.log((container as any).offsetTop);
+      containerDimensions = {
+        top: (container as any).offsetTop || 0,
+        left: (container as any).offsetLeft || 0,
+        width: (container as any).clientWidth,
+        height: (container as any).clientHeight,
+      };
       const els = document.querySelectorAll(`.auto-layout-parent-${widgetId}`);
       if (els && els.length && offsets.length !== els.length) {
         // Get widget ids of all widgets being dragged
         // console.log(els);
-        console.log(blocksToDraw);
+        // console.log(blocksToDraw);
         const blocks = blocksToDraw.map((block) => block.widgetId);
-        console.log("*********");
+        // console.log("*********");
         els.forEach((el) => {
           // console.log((el as any).offsetParent);
           // Extract widget id of current widget
@@ -140,9 +157,9 @@ export const useCanvasDragging = (
             .split("auto-layout-child-")[1]
             .split(" ")[0];
           // console.log(`parentId: ${widgetId}`);
-          console.log(`widgetID: ${mClass}`);
-          console.log(`blocks: ${blocks}`);
-          console.log(blocks);
+          // console.log(`widgetID: ${mClass}`);
+          // console.log(`blocks: ${blocks}`);
+          // console.log(blocks);
           /**
            * If the widget is also being dragged,
            * then discount its presence from offset calculation.
@@ -152,32 +169,80 @@ export const useCanvasDragging = (
             (el as any).classList.add("auto-temp-no-display");
             return;
           } else {
-            const mOffset = isVertical
-              ? (el as any).offsetTop - containerOffsetTop
-              : (el as any).offsetLeft - containerOffsetLeft;
-            console.log(el);
-            console.log(`offset: ${mOffset}`);
+            let mOffset: HighlightDimension;
+            if (isVertical) {
+              mOffset = {
+                x: 0,
+                y: (el as any).offsetTop - containerDimensions.top,
+                width: containerDimensions.width,
+                height: 4,
+              };
+            } else {
+              mOffset = {
+                x: (el as any).offsetLeft - containerDimensions.left,
+                y: (el as any).offsetTop - containerDimensions.top,
+                height: (el as any).clientHeight,
+                width: 4,
+              };
+            }
+            // console.log(el);
+            // console.log(`offset: ${mOffset}`);
             offsets.push(mOffset);
-            console.log(offsets);
+            // console.log(offsets);
             // siblings[mClass] = mOffset;
             siblingElements.push(el);
           }
         });
-        offsets.push(
-          siblingElements.length
-            ? isVertical
-              ? (siblingElements[siblingElements.length - 1] as any).offsetTop -
-                containerOffsetTop +
+        let finalOffset: HighlightDimension;
+        if (!siblingElements.length) {
+          if (isVertical) {
+            finalOffset = {
+              x: 0,
+              y: 8,
+              width: containerDimensions.width,
+              height: 4,
+            };
+          } else {
+            finalOffset = {
+              x: 8,
+              y: 0,
+              width: 4,
+              height: containerDimensions.height,
+            };
+          }
+        } else {
+          if (isVertical) {
+            finalOffset = {
+              x: 0,
+              y:
+                (siblingElements[siblingElements.length - 1] as any).offsetTop -
+                containerDimensions.top +
                 siblingElements[siblingElements.length - 1].clientHeight +
-                8
-              : (siblingElements[siblingElements.length - 1] as any)
+                8,
+              width: containerDimensions.width,
+              height: 4,
+            };
+          } else {
+            finalOffset = {
+              x:
+                (siblingElements[siblingElements.length - 1] as any)
                   .offsetLeft -
-                containerOffsetLeft +
+                containerDimensions.left +
                 siblingElements[siblingElements.length - 1].clientWidth +
-                8
-            : 8,
-        );
-        console.log(offsets);
+                8,
+              y:
+                (siblingElements[siblingElements.length - 1] as any).offsetTop -
+                containerDimensions.top +
+                siblingElements[siblingElements.length - 1].clientHeight +
+                8,
+              width: 4,
+              height: (siblingElements[siblingElements.length - 1] as any)
+                .clientHeight,
+            };
+          }
+        }
+        offsets.push(finalOffset);
+        // console.log(offsets);
       }
     }
   };
@@ -348,7 +413,8 @@ export const useCanvasDragging = (
         /**
          * On mouse up, calculate the top, left, bottom and right positions for each of the reflowed widgets
          */
-        const onMouseUp = () => {
+        const onMouseUp = (e: any) => {
+          console.log(e);
           if (isDragging && canvasIsDragging) {
             const { movementMap: reflowingWidgets } = currentReflowParams;
             const reflowedPositionsUpdatesWidgets: OccupiedSpace[] = occSpaces
@@ -388,11 +454,10 @@ export const useCanvasDragging = (
               });
             // console.log(currentRectanglesToDraw);
             // console.log(reflowedPositionsUpdatesWidgets);
-            const pos = getDropPosition(
-              isVertical
-                ? currentRectanglesToDraw[0].top
-                : currentRectanglesToDraw[0].left,
-            );
+            const pos = getDropPosition({
+              x: currentRectanglesToDraw[0].top,
+              y: currentRectanglesToDraw[0].left,
+            });
             // console.log(`#### pos: ${pos}`);
             if (pos !== undefined && useAutoLayout) {
               // cleanUpTempStyles();
@@ -660,9 +725,12 @@ export const useCanvasDragging = (
             onFirstMoveOnCanvas(e);
           }
         };
-        const translateSiblings = (position: number): void => {
+        const translateSiblings = (position: HighlightDimension): void => {
           let dropIndex = 0;
-          if (isNumber(position)) dropIndex = offsets.indexOf(position);
+          if (position)
+            dropIndex = offsets
+              ?.map((each) => `${each.x},${each.y}`)
+              .indexOf(`${position.x},${position.y}`);
 
           if (dropIndex === lastTranslatedIndex) return;
           // Get all siblings after the highlighted drop position
@@ -684,36 +752,82 @@ export const useCanvasDragging = (
         };
         const highlightDropPosition = (e: any) => {
           if (!useAutoLayout) return;
-          const pos: number | undefined = getHighlightPosition(e);
-          if (isNaN(pos)) return;
+          const pos: HighlightDimension | undefined = getHighlightPosition(e);
+          if (!pos) return;
           // console.log(`#### ref: ${dropPositionRef.current}`);
           if (dropPositionRef && dropPositionRef.current) {
             // console.log(`highlight position: ${pos - 6}`);
             dropPositionRef.current.style.opacity = "1";
-            if (isVertical)
-              dropPositionRef.current.style.top =
-                (pos > 6 ? pos - 6 : 0) + "px";
-            else dropPositionRef.current.style.left = pos - 6 + "px";
+            dropPositionRef.current.style.top =
+              (pos.y > 6 ? pos.y - 6 : 0) + "px";
+            dropPositionRef.current.style.left =
+              (pos.x > 6
+                ? Math.min(
+                    pos.x - 6,
+                    containerDimensions.left + containerDimensions.width - 6,
+                  )
+                : 0) + "px";
+            dropPositionRef.current.style.width = pos.width + "px";
+            dropPositionRef.current.style.height = pos.height + "px";
           }
           translateSiblings(pos);
         };
-        const getHighlightPosition = (e: any, val?: number) => {
-          let base: number[] = [];
-          if (!offsets || !offsets.length) base = [8];
-          else base = offsets;
-          const pos = (isVertical ? e?.offsetY : e?.offsetX) || val;
+        const getHighlightPosition = (
+          e: any,
+          val?: XYCord,
+        ): HighlightDimension => {
+          let base: HighlightDimension[] = [];
+          if (!offsets || !offsets.length) {
+            if (isVertical) {
+              base = [
+                {
+                  x: 0,
+                  y: 8,
+                  width: containerDimensions.width,
+                  height: 4,
+                },
+              ];
+            } else {
+              base = [
+                {
+                  x: 8,
+                  y: 0,
+                  width: 4,
+                  height: containerDimensions.height,
+                },
+              ];
+            }
+          } else base = offsets;
+          // TODO: add val
+          const pos: XYCord = {
+            x: e?.offsetX || val?.x,
+            y: e?.offsetY || val?.y,
+          };
+
           // console.log(e);
           // console.log("START: highlight position calculation");
           // console.log(pos);
           const arr = [...base].sort((a, b) => {
-            return Math.abs(a - pos) - Math.abs(b - pos);
+            return calculateDistance(a, pos) - calculateDistance(b, pos);
           });
           // console.log(arr);
           // console.log("END: highlight position calculation");
           return arr[0];
         };
-        const getDropPosition = (val: number): number | undefined => {
+        const calculateDistance = (
+          a: HighlightDimension,
+          b: XYCord,
+        ): number => {
+          const x: number = a.x + a.width / 2 - b.x;
+          const y: number = a.y + a.height / 2 - b.y;
+          return Math.abs(Math.sqrt(x * x + y * y));
+        };
+        const getDropPosition = (val: XYCord): number | undefined => {
+          if (!isNaN(lastTranslatedIndex)) return lastTranslatedIndex;
           const pos = getHighlightPosition(null, val);
+          // console.log(`START drop position`);
+          // console.log(val);
+          // console.log(lastTranslatedIndex);
           if (!pos) return;
           return offsets.indexOf(pos);
         };
