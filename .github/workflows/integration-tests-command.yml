@@ -1502,7 +1502,7 @@ jobs:
           path: app/client/perf
       
       - name: List files
-        run: ls app && ls app/client && ls app/client/perf
+        run: find . -maxdepth 2 -type d -exec ls -ld "{}" \;
         
       - name: Installing performance tests dependencies
         if: steps.run_result.outputs.run_result != 'success'
