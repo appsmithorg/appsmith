@@ -20,17 +20,6 @@ export const getBindingTemplate = (widgetName: string) => {
   return { prefixTemplate, suffixTemplate };
 };
 
-// When the widget is copied and pasted, change all occurrence
-//  of old widget name to the new name
-const changeOldWidgetName = (text: string, newWidgetName: string) => {
-  const [, newText] = text.split("))(");
-  const oldWidgetName = newText.split(".")[0];
-  if (oldWidgetName === newWidgetName) {
-    return text;
-  }
-  return text.replaceAll(oldWidgetName, newWidgetName);
-};
-
 export const stringToJS = (string: string): string => {
   const { jsSnippets, stringSegments } = getDynamicBindings(string);
   const js = stringSegments
@@ -135,11 +124,6 @@ class SelectDefaultValueControl extends BaseControl<
 
   getInputComputedValue = (propertyValue: string, widgetName: string) => {
     const { prefixTemplate, suffixTemplate } = getBindingTemplate(widgetName);
-
-    // Only run changeOldWidgetName when widgetName isn't found
-    if (!propertyValue.includes(`${widgetName}.options`)) {
-      propertyValue = changeOldWidgetName(propertyValue, widgetName);
-    }
 
     const value = propertyValue.substring(
       prefixTemplate.length,
