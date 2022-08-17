@@ -616,15 +616,10 @@ class TernServer {
 
       if (isDynamicValue(segment) && isCursorPointingInsideSegment) {
         dynamicString = currentSegment;
-
         newCursorLine = cursor.line - currentLine;
-        // const focusedSubSegmentIndex = cursor.line - currentLine;
-        // const focusedSubSegment = subSegments[focusedSubSegmentIndex];
-
         if (lineValue.includes("{{")) {
           extraChars = lineValue.indexOf("{{") + 2;
         }
-
         newCursorPosition = cursor.ch - extraChars;
 
         break;
