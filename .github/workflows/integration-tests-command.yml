@@ -1500,7 +1500,10 @@ jobs:
           token: ${{ secrets.APPSMITH_PERF_INFRA_REPO_PAT }}
           ref: main
           path: app/client/perf
-          
+      
+      - name: List files
+        run: ls app && ls app/client && ls app/client/perf
+        
       - name: Installing performance tests dependencies
         if: steps.run_result.outputs.run_result != 'success'
         working-directory: app/client/perf
