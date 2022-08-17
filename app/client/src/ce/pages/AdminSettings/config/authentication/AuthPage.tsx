@@ -210,7 +210,7 @@ export function AuthPage({ authMethods }: { authMethods: AuthMethodType[] }) {
                   {method.calloutBanner && (
                     <Callout
                       actionLabel={method.calloutBanner.actionLabel}
-                      title={method.calloutBanner.title}
+                      desc={method.calloutBanner.title}
                       type={method.calloutBanner.type}
                     />
                   )}
