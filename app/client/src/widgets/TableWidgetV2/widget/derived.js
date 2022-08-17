@@ -578,11 +578,14 @@ export default {
   },
   //
   getPageOffset: (props, moment, _) => {
-    if (Number.isFinite(props.pageNo) && Number.isFinite(props.pageSize)) {
-      if (props.pageNo >= 0 && props.pageSize >= 0) {
-        /* Math.max fixes the value of (pageNo - 1) to a minimum of 0 as negative values are not valid */
-        return Math.max(props.pageNo - 1, 0) * props.pageSize;
-      }
+    if (
+      Number.isFinite(props.pageNo) &&
+      Number.isFinite(props.pageSize) &&
+      props.pageNo >= 0 &&
+      props.pageSize >= 0
+    ) {
+      /* Math.max fixes the value of (pageNo - 1) to a minimum of 0 as negative values are not valid */
+      return Math.max(props.pageNo - 1, 0) * props.pageSize;
     }
     return -1;
   },
