@@ -40,7 +40,6 @@ export class WebStorage {
 
   getItem = (key: string): string | null => {
     try {
-      // console.log(this.handleError, "this.storage");
       if (!this._isSupported) {
         throw new LocalStorageNotSupportedError();
       }
