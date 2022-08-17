@@ -19,6 +19,14 @@ const CheckboxCellWrapper = styled(CellWrapper)`
     align-items: ${(props) =>
       props.verticalAlignment &&
       ALIGN_ITEMS[props.verticalAlignment]} !important;
+
+    & .bp3-checkbox {
+      gap: 0px;
+      &:hover,
+      .bp3-control-indicator:hover {
+        cursor: pointer;
+      }
+    }
   }
 `;
 
