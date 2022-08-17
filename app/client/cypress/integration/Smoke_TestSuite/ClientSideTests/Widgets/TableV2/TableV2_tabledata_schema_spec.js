@@ -27,6 +27,7 @@ describe("Table Widget", function() {
     cy.getTableV2DataSelector("0", "0").then((element) => {
       cy.get(element).should("be.visible");
     });
+    cy.wait(2000);
     cy.readTableV2dataPublish("0", "0").then((value) => {
       expect(value).to.be.equal("joe");
     });
