@@ -125,6 +125,7 @@ export function FlexBox(props: FlexBoxProps) {
   );
   return (
     <FlexContainer
+      className={`flex-container-${props.widgetId}`}
       {...layoutProps}
       stretchHeight={props.stretchHeight}
       useAutoLayout={props.useAutoLayout}
@@ -183,6 +184,7 @@ export interface FlexBoxProps {
   stretchHeight: boolean;
   useAutoLayout: boolean;
   children?: ReactNode;
+  widgetId: string;
 }
 
 export default ContainerComponent;

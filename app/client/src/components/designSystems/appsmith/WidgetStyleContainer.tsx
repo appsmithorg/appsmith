@@ -39,13 +39,7 @@ const WidgetStyle = styled.div<WidgetStyleContainerProps>`
   border-style: solid;
   background-color: ${(props) => props.backgroundColor || "transparent"};
 
-  display: ${({ useAutoLayout }) => (useAutoLayout ? "flex" : "block")};
-  flex-direction: ${({ direction }) =>
-    direction === LayoutDirection.Vertical ? "column" : "row"};
-  justify-content: flex-start;
-  align-items: ${({ direction }) =>
-    direction === LayoutDirection.Vertical ? "stretch" : "flex-start"};
-  flex-wrap: wrap;
+  display: block;
 
   & > div {
     height: 100%;

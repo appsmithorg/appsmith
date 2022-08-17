@@ -121,11 +121,16 @@ export const useCanvasDragging = (
         dragBlocksSize += isVertical ? each.height : each.width;
       });
       // Get all children of current auto layout container
+      const container = document.querySelector(`.flex-container-qa3j3kll75`);
+      console.log(container);
+      console.log((container as any).offsetTop);
+      const containerOffsetTop = (container as any).offsetTop || 0;
+      const containerOffsetLeft = (container as any).offsetLeft || 0;
       const els = document.querySelectorAll(`.auto-layout-parent-${widgetId}`);
       if (els && els.length && offsets.length !== els.length) {
         // Get widget ids of all widgets being dragged
         // console.log(els);
-        // console.log(blocksToDraw);
+        console.log(blocksToDraw);
         const blocks = blocksToDraw.map((block) => block.widgetId);
         console.log("*********");
         els.forEach((el) => {
@@ -148,8 +153,8 @@ export const useCanvasDragging = (
             return;
           } else {
             const mOffset = isVertical
-              ? (el as any).offsetTop
-              : (el as any).offsetLeft;
+              ? (el as any).offsetTop - containerOffsetTop
+              : (el as any).offsetLeft - containerOffsetLeft;
             console.log(el);
             console.log(`offset: ${mOffset}`);
             offsets.push(mOffset);
@@ -161,11 +166,13 @@ export const useCanvasDragging = (
         offsets.push(
           siblingElements.length
             ? isVertical
-              ? (siblingElements[siblingElements.length - 1] as any).offsetTop +
+              ? (siblingElements[siblingElements.length - 1] as any).offsetTop -
+                containerOffsetTop +
                 siblingElements[siblingElements.length - 1].clientHeight +
                 8
               : (siblingElements[siblingElements.length - 1] as any)
-                  .offsetLeft +
+                  .offsetLeft -
+                containerOffsetLeft +
                 siblingElements[siblingElements.length - 1].clientWidth +
                 8
             : 8,
@@ -681,7 +688,7 @@ export const useCanvasDragging = (
           if (isNaN(pos)) return;
           // console.log(`#### ref: ${dropPositionRef.current}`);
           if (dropPositionRef && dropPositionRef.current) {
-            console.log(`highlight position: ${pos - 6}`);
+            // console.log(`highlight position: ${pos - 6}`);
             dropPositionRef.current.style.opacity = "1";
             if (isVertical)
               dropPositionRef.current.style.top =
@@ -696,13 +703,13 @@ export const useCanvasDragging = (
           else base = offsets;
           const pos = (isVertical ? e?.offsetY : e?.offsetX) || val;
           // console.log(e);
-          console.log("START: highlight position calculation");
-          console.log(pos);
+          // console.log("START: highlight position calculation");
+          // console.log(pos);
           const arr = [...base].sort((a, b) => {
             return Math.abs(a - pos) - Math.abs(b - pos);
           });
-          console.log(arr);
-          console.log("END: highlight position calculation");
+          // console.log(arr);
+          // console.log("END: highlight position calculation");
           return arr[0];
         };
         const getDropPosition = (val: number): number | undefined => {
