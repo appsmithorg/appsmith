@@ -233,7 +233,6 @@ export const useCanvasDragging = (
               y:
                 (siblingElements[siblingElements.length - 1] as any).offsetTop -
                 containerDimensions.top +
-                siblingElements[siblingElements.length - 1].clientHeight +
                 8,
               width: 4,
               height: (siblingElements[siblingElements.length - 1] as any)
