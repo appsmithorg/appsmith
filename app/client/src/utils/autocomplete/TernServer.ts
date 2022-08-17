@@ -207,20 +207,20 @@ class TernServer {
     }
     const doc = this.findDoc(cm.getDoc());
     const cursor = cm.getCursor();
-    const lineValue = this.lineValue(doc);
-    const focusedValue = this.getFocusedDocValueAndPos(doc).value;
-    const index = lineValue.indexOf(focusedValue);
+    const { extraChars } = this.getFocusedDocValueAndPos(doc);
+
     let completions: Completion[] = [];
     let after = "";
     const { end, start } = data;
+
     const from = {
       ...start,
-      ch: start.ch + index,
+      ch: start.ch + extraChars,
       line: cursor.line,
     };
     const to = {
       ...end,
-      ch: end.ch + index,
+      ch: end.ch + extraChars,
       line: cursor.line,
     };
     if (
@@ -413,11 +413,10 @@ class TernServer {
     query.sort = true;
     if (query.end == null) {
       const positions = pos || doc.doc.getCursor("end");
-      const { ch, line } = this.getFocusedDocValueAndPos(doc);
+      const { end } = this.getFocusedDocValueAndPos(doc);
       query.end = {
         ...positions,
-        line,
-        ch,
+        ...end,
       };
 
       if (doc.doc.somethingSelected()) query.start = doc.doc.getCursor("start");
@@ -442,7 +441,7 @@ class TernServer {
         files.push({
           type: "full",
           name: doc.name,
-          text: this.docValue(doc),
+          text: this.getFocusedDocValueAndPos(doc).value,
         });
         query.file = doc.name;
         doc.changed = null;
@@ -455,7 +454,7 @@ class TernServer {
       files.push({
         type: "full",
         name: doc.name,
-        text: this.docValue(doc),
+        text: this.getFocusedDocValueAndPos(doc).value,
       });
     }
     for (const name in this.docs) {
@@ -464,7 +463,7 @@ class TernServer {
         files.push({
           type: "full",
           name: cur.name,
-          text: this.docValue(doc),
+          text: this.getFocusedDocValueAndPos(doc).value,
         });
         cur.changed = null;
       }
@@ -538,58 +537,120 @@ class TernServer {
 
   getFocusedDocValueAndPos(
     doc: TernDoc,
-  ): { value: string; line: number; ch: number } {
+  ): { value: string; end: { line: number; ch: number }; extraChars: number } {
     const cursor = doc.doc.getCursor("end");
     const value = this.docValue(doc);
     const lineValue = this.lineValue(doc);
+    let extraChars = 0;
 
-    let dynamicString = value;
-    let newCursorLine = cursor.line;
-    let newCursorPosition = cursor.ch;
     const stringSegments = getDynamicStringSegments(value);
-
-    // if doesn't have dynamic binding `{{}}` then return complete value
     if (stringSegments.length === 1) {
       return {
-        value: dynamicString,
-        line: newCursorLine,
-        ch: newCursorPosition,
+        value,
+        end: {
+          line: cursor.line,
+          ch: cursor.ch,
+        },
+        extraChars,
       };
     }
 
-    let segmentStartLine = 0;
+    let dynamicString = value;
+
+    let newCursorLine = cursor.line;
+    let newCursorPosition = cursor.ch;
+
+    let currentLine = 0;
 
     for (let index = 0; index < stringSegments.length; index++) {
       // segment is divided according to binding {{}}
-      const segment = stringSegments[index];
-      // subSegment is segment further divided by EOD char (\n)
-      const subSegments = segment.split("\n");
-      const countEODCharInSegment = subSegments.length - 1;
-      const segmentEndLine = countEODCharInSegment + segmentStartLine;
 
-      const segmentStartChar = lineValue.indexOf(segment);
-      // check if segment string is a dynamic value and cursor is pointing to it.
-      if (
-        isDynamicValue(segment) &&
-        cursor.line >= segmentStartLine &&
-        cursor.line <= segmentEndLine &&
-        cursor.ch >= segmentStartChar &&
-        cursor.ch <= segmentStartChar + segment.length
-      ) {
-        dynamicString = segment;
-        newCursorLine = cursor.line - segmentStartLine;
-        const focusedSubSegmentIndex = cursor.line - segmentStartLine;
-        const focusedSubSegment = subSegments[focusedSubSegmentIndex];
-        const extraChars = lineValue.length - focusedSubSegment.length;
-        const chPos =
-          cursor.ch > extraChars ? cursor.ch - extraChars + 1 : cursor.ch;
-        newCursorPosition = chPos;
+      const segment = stringSegments[index];
+      let currentSegment = segment;
+      if (segment.startsWith("{{")) {
+        currentSegment = segment.replace("{{", "");
+        if (currentSegment.endsWith("}}")) {
+          currentSegment = currentSegment.slice(0, currentSegment.length - 2);
+        }
+      }
+
+      // subSegment is segment further divided by EOD char (\n)
+      const subSegments = currentSegment.split("\n");
+      const countEODCharInSegment = subSegments.length - 1;
+      const segmentEndLine = countEODCharInSegment + currentLine;
+
+      /**
+       * 3 case for cursor to point inside segment
+       * 1. cursor is before the {{  :-
+       * 2. cursor is inside segment :-
+       *    - if cursor is after {{ on same line
+       *    - if cursor is after {{ in different line
+       *    - if cursor is before }} on same line
+       * 3. cursor is after the }}   :-
+       *
+       */
+
+      const isCursorInBetweenSegmentStartAndEndLine =
+        cursor.line > currentLine && cursor.line < segmentEndLine;
+
+      const isCursorAtSegmentStartLine = cursor.line === currentLine;
+      const isCursorAfterBindingOpenAtSegmentStart =
+        isCursorAtSegmentStartLine && cursor.ch > lineValue.indexOf("{{") + 1;
+      const isCursorAtSegmentEndLine = cursor.line === segmentEndLine;
+      const isCursorBeforeBindingCloseAtSegmentEnd =
+        isCursorAtSegmentEndLine && cursor.ch < lineValue.indexOf("}}") + 1;
+
+      const isSegmentStartLineAndEndLineSame = currentLine === segmentEndLine;
+      const isCursorBetweenSingleLineSegmentBinding =
+        isSegmentStartLineAndEndLineSame &&
+        isCursorBeforeBindingCloseAtSegmentEnd &&
+        isCursorAfterBindingOpenAtSegmentStart;
+
+      const isCursorPointingInsideSegment =
+        isCursorInBetweenSegmentStartAndEndLine ||
+        (isSegmentStartLineAndEndLineSame &&
+          isCursorBetweenSingleLineSegmentBinding);
+      (!isSegmentStartLineAndEndLineSame &&
+        isCursorBeforeBindingCloseAtSegmentEnd) ||
+        isCursorAfterBindingOpenAtSegmentStart;
+
+      console.log({
+        isCursorInBetweenSegmentStartAndEndLine,
+        isCursorBetweenSingleLineSegmentBinding,
+        isCursorBeforeBindingCloseAtSegmentEnd,
+        isCursorAfterBindingOpenAtSegmentStart,
+        currentLine,
+        segmentEndLine,
+        cursor,
+        lineValue,
+      });
+
+      if (isDynamicValue(segment) && isCursorPointingInsideSegment) {
+        dynamicString = currentSegment;
+
+        newCursorLine = cursor.line - currentLine;
+        // const focusedSubSegmentIndex = cursor.line - currentLine;
+        // const focusedSubSegment = subSegments[focusedSubSegmentIndex];
+
+        if (lineValue.includes("{{")) {
+          extraChars = lineValue.indexOf("{{") + 2;
+        }
+
+        newCursorPosition = cursor.ch - extraChars;
+
         break;
       }
-      segmentStartLine = segmentEndLine;
+      currentLine = segmentEndLine;
     }
 
-    return { value: dynamicString, line: newCursorLine, ch: newCursorPosition };
+    return {
+      value: dynamicString,
+      end: {
+        line: newCursorLine,
+        ch: newCursorPosition,
+      },
+      extraChars,
+    };
   }
 
   getFragmentAround(

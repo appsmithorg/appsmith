@@ -40,13 +40,25 @@ describe("Tern server", () => {
         input: {
           name: "test",
           doc: ({
-            getCursor: () => ({ ch: 2, line: 0 }),
+            getCursor: () => ({ ch: 10, line: 0 }),
+            getLine: () => "a{{Api.}}bc",
+            getValue: () => "a{{Api.}}bc",
+          } as unknown) as CodeMirror.Doc,
+          changed: null,
+        },
+        expectedOutput: "a{{Api.}}bc",
+      },
+      {
+        input: {
+          name: "test",
+          doc: ({
+            getCursor: () => ({ ch: 4, line: 0 }),
             getLine: () => "a{{Api.}}",
             getValue: () => "a{{Api.}}",
           } as unknown) as CodeMirror.Doc,
           changed: null,
         },
-        expectedOutput: "{{Api.}}",
+        expectedOutput: "Api.",
       },
     ];
 
@@ -95,7 +107,7 @@ describe("Tern server", () => {
           } as unknown) as CodeMirror.Doc,
           changed: null,
         },
-        expectedOutput: { ch: 6, line: 0 },
+        expectedOutput: { ch: 4, line: 0 },
       },
       {
         input: {
@@ -108,7 +120,7 @@ describe("Tern server", () => {
           } as unknown) as CodeMirror.Doc,
           changed: null,
         },
-        expectedOutput: { ch: 6, line: 0 },
+        expectedOutput: { ch: 4, line: 0 },
       },
     ];
 
@@ -130,6 +142,7 @@ describe("Tern server", () => {
               getCursor: () => ({ ch: 2, line: 0 }),
               getLine: () => "{{}}",
               somethingSelected: () => false,
+              getValue: () => "{{}}",
             } as unknown) as CodeMirror.Doc,
           },
           requestCallbackData: {
@@ -149,12 +162,13 @@ describe("Tern server", () => {
               getCursor: () => ({ ch: 3, line: 0 }),
               getLine: () => " {{}}",
               somethingSelected: () => false,
+              getValue: () => " {{}}",
             } as unknown) as CodeMirror.Doc,
           },
           requestCallbackData: {
             completions: [{ name: "Api1" }],
-            start: { ch: 2, line: 0 },
-            end: { ch: 6, line: 0 },
+            start: { ch: 0, line: 0 },
+            end: { ch: 4, line: 0 },
           },
         },
         expectedOutput: { ch: 3, line: 0 },
