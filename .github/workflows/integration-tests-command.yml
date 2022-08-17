@@ -1350,6 +1350,16 @@ jobs:
         ports:
           - 27017:27017
     steps:
+<<<<<<< HEAD
+=======
+      - name: Checkout Performance Infra code
+        uses: actions/checkout@v3
+        with:
+          repository: appsmithorg/performance-infra
+          token: ${{ secrets.APPSMITH_PERF_INFRA_REPO_PAT }}
+          ref: main
+          path: app/client/perf
+>>>>>>> release
 
       # Check out merge commitGIT BRANCH
       - name: Fork based /ok-to-test-perf checkout
