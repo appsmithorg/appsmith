@@ -1,4 +1,4 @@
-import myLocalStorage, { getLocalStorage } from "utils/localStorage";
+import myLocalStorage, { WebStorage } from "utils/localStorage";
 
 describe("local storage", () => {
   afterEach(() => {
@@ -35,7 +35,7 @@ describe("local storage", () => {
       throw new Error();
     });
     jest.spyOn(window.localStorage.__proto__, "getItem");
-    const localStorageInstance = getLocalStorage();
+    const localStorageInstance = new WebStorage();
     localStorageInstance.getItem("myTestKey");
     expect(localStorage.getItem).toHaveBeenCalledTimes(0);
   });

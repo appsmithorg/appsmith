@@ -10,7 +10,6 @@ export const STORAGE_KEYS: {
   COPIED_WIDGET: "CopiedWidget",
   GROUP_COPIED_WIDGETS: "groupCopiedWidgets",
   POST_WELCOME_TOUR: "PostWelcomeTour",
-  GUIDED_TOUR_STATE: "GuidedTourState",
   RECENT_ENTITIES: "RecentEntities",
   TEMPLATES_NOTIFICATION_SEEN: "TEMPLATES_NOTIFICATION_SEEN",
   ONBOARDING_FORM_IN_PROGRESS: "ONBOARDING_FORM_IN_PROGRESS",
@@ -100,40 +99,6 @@ export const getCopiedWidgets = async () => {
     return;
   }
   return [];
-};
-
-export const setGuidedTourState = async (guidedTourState: string) => {
-  try {
-    await store.setItem(STORAGE_KEYS.GUIDED_TOUR_STATE, guidedTourState);
-    return true;
-  } catch (error) {
-    log.error("An error occurred when setting guided tour state", error);
-    return false;
-  }
-};
-
-export const deleteGuidedTourState = async () => {
-  try {
-    await store.removeItem(STORAGE_KEYS.GUIDED_TOUR_STATE);
-    return true;
-  } catch (error) {
-    log.error("An error occurred when deleting guided tour state", error);
-    return false;
-  }
-};
-
-export const getGuidedTourState = async () => {
-  try {
-    const guidedTourState: string | null = await store.getItem(
-      STORAGE_KEYS.GUIDED_TOUR_STATE,
-    );
-    if (guidedTourState) {
-      return JSON.parse(guidedTourState);
-    }
-  } catch (error) {
-    log.error("An error occurred when getting guided tour state", error);
-    return false;
-  }
 };
 
 export const setPostWelcomeTourState = async (flag: boolean) => {

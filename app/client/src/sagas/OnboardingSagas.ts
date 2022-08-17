@@ -13,12 +13,9 @@ import {
   take,
 } from "redux-saga/effects";
 import {
-  deleteGuidedTourState,
-  getGuidedTourState,
   setEnableFirstTimeUserOnboarding as storeEnableFirstTimeUserOnboarding,
   setFirstTimeUserOnboardingApplicationId as storeFirstTimeUserOnboardingApplicationId,
   setFirstTimeUserOnboardingIntroModalVisibility as storeFirstTimeUserOnboardingIntroModalVisibility,
-  setGuidedTourState,
 } from "utils/storage";
 
 import { getCurrentUser } from "selectors/usersSelectors";
@@ -80,6 +77,9 @@ import { GuidedTourEntityNames } from "pages/Editor/GuidedTour/constants";
 import { navigateToCanvas } from "pages/Editor/Explorer/Widgets/utils";
 import { shouldBeDefined } from "utils/helpers";
 import { GuidedTourState } from "reducers/uiReducers/guidedTourReducer";
+import { sessionStorage } from "utils/localStorage";
+
+const GUIDED_TOUR_STORAGE_KEY = "GUIDED_TOUR_STORAGE_KEY";
 
 function* createApplication() {
   // If we are starting onboarding from the editor wait for the editor to reset.
@@ -131,20 +131,27 @@ function* syncGuidedTourStateSaga() {
     (state) => state.ui.guidedTour,
   );
   yield call(
-    setGuidedTourState,
+    sessionStorage.setItem,
+    GUIDED_TOUR_STORAGE_KEY,
     JSON.stringify({ applicationId, guidedTourState }),
   );
 }
 
 function* loadGuidedTourInitSaga() {
   const applicationId: string = yield select(getCurrentApplicationId);
-  const guidedTourState:
-    | undefined
-    | { applicationId: string; guidedTourState: GuidedTourState } = yield call(
-    getGuidedTourState,
+  const guidedTourState: undefined | string = yield call(
+    sessionStorage.getItem,
+    GUIDED_TOUR_STORAGE_KEY,
   );
-  if (guidedTourState && guidedTourState.applicationId === applicationId) {
-    yield put(loadGuidedTour(guidedTourState.guidedTourState));
+  if (guidedTourState) {
+    const parsedGuidedTourState: {
+      applicationId: string;
+      guidedTourState: GuidedTourState;
+    } = JSON.parse(guidedTourState);
+
+    if (applicationId === parsedGuidedTourState.applicationId) {
+      yield put(loadGuidedTour(parsedGuidedTourState.guidedTourState));
+    }
   }
 }
 
@@ -337,7 +344,7 @@ function* focusWidgetPropertySaga(action: ReduxAction<string>) {
 function* endGuidedTourSaga(action: ReduxAction<boolean>) {
   if (!action.payload) {
     yield call(hideIndicator);
-    yield call(deleteGuidedTourState);
+    yield call(sessionStorage.removeItem, GUIDED_TOUR_STORAGE_KEY);
   }
 }
 
