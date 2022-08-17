@@ -82,7 +82,7 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
                 .flatMapMany(tuple -> {
                     Workspace workspace = tuple.getT1();
                     User user = tuple.getT2();
-                    return permissionGroupService.getAllByAssignedToUserAndDefaultWorkspace(user, workspace, AclPermission.READ_PERMISSION_GROUPS);
+                    return permissionGroupService.getAllByAssignedToUserAndDefaultWorkspace(user, workspace, AclPermission.UNASSIGN_PERMISSION_GROUPS);
                 })
                 //TODO do we handle case of multiple default permission group ids
                 .single()
@@ -101,7 +101,8 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
                         .removeRecentWorkspaceAndApps(user.getId(), workspaceId));
 
         Mono<PermissionGroup> removeUserFromOldPermissionGroupMono = oldDefaultPermissionGroupsMono
-                .flatMap(permissionGroup -> permissionGroupService.unassignFromSelf(permissionGroup));
+                .zipWith(userMono)
+                .flatMap(tuple -> permissionGroupService.unassignFromUser(tuple.getT1(), tuple.getT2()));
 
         return removeUserFromOldPermissionGroupMono
                 .then(updateUserDataMono)
@@ -138,7 +139,7 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
                 .flatMapMany(tuple -> {
                     Workspace workspace = tuple.getT1();
                     User user = tuple.getT2();
-                    return permissionGroupService.getAllByAssignedToUserAndDefaultWorkspace(user, workspace, AclPermission.MANAGE_PERMISSION_GROUPS);
+                    return permissionGroupService.getAllByAssignedToUserAndDefaultWorkspace(user, workspace, AclPermission.UNASSIGN_PERMISSION_GROUPS);
                 })
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACTION_IS_NOT_AUTHORIZED, "Change permissionGroup of a member")))
                 //TODO do we handle case of multiple default permission group ids
@@ -165,11 +166,6 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
         Mono<PermissionGroup> newDefaultPermissionGroupMono = permissionGroupService.getById(changeUserGroupDTO.getNewPermissionGroupId(), AclPermission.ASSIGN_PERMISSION_GROUPS)
                 // If we cannot find the group, that means either newGroupId is not a default group or current user has no access to the group
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACTION_IS_NOT_AUTHORIZED, "Change permissionGroup of a member")));
-
-        // Assign new permission  group to user
-        Mono<PermissionGroup> permissionGroupAssignedMono = newDefaultPermissionGroupMono
-                .zipWith(userMono)
-                .flatMap(pair -> permissionGroupService.assignToUser(pair.getT1(), pair.getT2()));
 
         // Unassign old permission group, assign new permission group
         Mono<PermissionGroup> changePermissionGroupsMono = newDefaultPermissionGroupMono

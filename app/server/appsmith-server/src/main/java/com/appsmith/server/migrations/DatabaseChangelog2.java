@@ -1517,19 +1517,17 @@ public class DatabaseChangelog2 {
     private Set<PermissionGroup> generateDefaultPermissionGroupsWithoutPermissions(MongockTemplate mongockTemplate, Workspace workspace) {
         String workspaceName = workspace.getName();
         String workspaceId = workspace.getId();
+        Set<Permission> permissions = new HashSet<>();
         // Administrator permission group
         PermissionGroup adminPermissionGroup = new PermissionGroup();
         adminPermissionGroup.setName(getDefaultNameForGroupInWorkspace(FieldName.ADMINISTRATOR, workspaceName));
         adminPermissionGroup.setDefaultWorkspaceId(workspaceId);
         adminPermissionGroup.setTenantId(workspace.getTenantId());
         adminPermissionGroup.setDescription(FieldName.WORKSPACE_ADMINISTRATOR_DESCRIPTION);
-        Set<Permission> workspacePermissions = AppsmithRole.ORGANIZATION_ADMIN
-                .getPermissions()
-                .stream()
-                .filter(aclPermission -> aclPermission.getEntity().equals(Workspace.class))
-                .map(aclPermission -> new Permission(workspace.getId(), aclPermission))
-                .collect(Collectors.toSet());
-        adminPermissionGroup.setPermissions(workspacePermissions);
+        adminPermissionGroup = mongockTemplate.save(adminPermissionGroup);
+        // This ensures that a user can leave a permission group
+        permissions = Set.of(new Permission(adminPermissionGroup.getId(), AclPermission.UNASSIGN_PERMISSION_GROUPS));
+        adminPermissionGroup.setPermissions(permissions);
         adminPermissionGroup = mongockTemplate.save(adminPermissionGroup);
 
         // Developer permission group
@@ -1538,12 +1536,10 @@ public class DatabaseChangelog2 {
         developerPermissionGroup.setDefaultWorkspaceId(workspaceId);
         developerPermissionGroup.setTenantId(workspace.getTenantId());
         developerPermissionGroup.setDescription(FieldName.WORKSPACE_DEVELOPER_DESCRIPTION);
-        workspacePermissions = AppsmithRole.ORGANIZATION_DEVELOPER
-                .getPermissions()
-                .stream()
-                .map(aclPermission -> new Permission(workspace.getId(), aclPermission))
-                .collect(Collectors.toSet());
-        developerPermissionGroup.setPermissions(workspacePermissions);
+        developerPermissionGroup = mongockTemplate.save(developerPermissionGroup);
+        // This ensures that a user can leave a permission group
+        permissions = Set.of(new Permission(developerPermissionGroup.getId(), AclPermission.UNASSIGN_PERMISSION_GROUPS));
+        developerPermissionGroup.setPermissions(permissions);
         developerPermissionGroup = mongockTemplate.save(developerPermissionGroup);
 
         // App viewer permission group
@@ -1552,12 +1548,10 @@ public class DatabaseChangelog2 {
         viewerPermissionGroup.setDefaultWorkspaceId(workspaceId);
         viewerPermissionGroup.setTenantId(workspace.getTenantId());
         viewerPermissionGroup.setDescription(FieldName.WORKSPACE_VIEWER_DESCRIPTION);
-        workspacePermissions = AppsmithRole.ORGANIZATION_VIEWER
-                .getPermissions()
-                .stream()
-                .map(aclPermission -> new Permission(workspace.getId(), aclPermission))
-                .collect(Collectors.toSet());
-        viewerPermissionGroup.setPermissions(workspacePermissions);
+        viewerPermissionGroup = mongockTemplate.save(viewerPermissionGroup);
+        // This ensures that a user can leave a permission group
+        permissions = Set.of(new Permission(viewerPermissionGroup.getId(), AclPermission.UNASSIGN_PERMISSION_GROUPS));
+        viewerPermissionGroup.setPermissions(permissions);
         viewerPermissionGroup = mongockTemplate.save(viewerPermissionGroup);
 
         return Set.of(adminPermissionGroup, developerPermissionGroup, viewerPermissionGroup);
@@ -1581,12 +1575,14 @@ public class DatabaseChangelog2 {
                 .filter(aclPermission -> aclPermission.getEntity().equals(Workspace.class))
                 .map(aclPermission -> new Permission(workspace.getId(), aclPermission))
                 .collect(Collectors.toSet());
-        // The administrator should also be able to manage any of the three permissions groups
-        Set<Permission> permissionGroupPermissions = permissionGroups.stream()
-                .map(permissionGroup -> new Permission(permissionGroup.getId(), AclPermission.MANAGE_PERMISSION_GROUPS))
-                .collect(Collectors.toSet());
         Set<Permission> readPermissionGroupPermissions = permissionGroups.stream()
                 .map(permissionGroup -> new Permission(permissionGroup.getId(), AclPermission.READ_PERMISSION_GROUPS))
+                .collect(Collectors.toSet());
+        Set<Permission> unassignPermissionGroupPermissions = permissionGroups.stream()
+                .map(permissionGroup -> new Permission(permissionGroup.getId(), AclPermission.UNASSIGN_PERMISSION_GROUPS))
+                .collect(Collectors.toSet());
+        Set<Permission> assignPermissionGroupPermissions = permissionGroups.stream()
+                .map(permissionGroup -> new Permission(permissionGroup.getId(), AclPermission.ASSIGN_PERMISSION_GROUPS))
                 .collect(Collectors.toSet());
 
         List<UserRole> userRoles = workspace.getUserRoles()
@@ -1609,10 +1605,11 @@ public class DatabaseChangelog2 {
                 //collect the user roles into a list
                 .collect(Collectors.toList());
 
-        Set<Permission> permissions = new HashSet<>();
+        Set<Permission> permissions = new HashSet<>(adminPermissionGroup.getPermissions());
         permissions.addAll(workspacePermissions);
-        permissions.addAll(permissionGroupPermissions);
         permissions.addAll(readPermissionGroupPermissions);
+        permissions.addAll(unassignPermissionGroupPermissions);
+        permissions.addAll(assignPermissionGroupPermissions);
         adminPermissionGroup.setPermissions(permissions);
 
         // Assign admin user ids to the administrator permission group
@@ -1632,12 +1629,12 @@ public class DatabaseChangelog2 {
                 .map(aclPermission -> new Permission(workspace.getId(), aclPermission))
                 .collect(Collectors.toSet());
         // The developer should also be able to assign developer & viewer permission groups
-        permissionGroupPermissions = Set.of(developerPermissionGroup, viewerPermissionGroup).stream()
+        assignPermissionGroupPermissions = Set.of(developerPermissionGroup, viewerPermissionGroup).stream()
                 .map(permissionGroup -> new Permission(permissionGroup.getId(), AclPermission.ASSIGN_PERMISSION_GROUPS))
                 .collect(Collectors.toSet());
-        permissions = new HashSet<>();
+        permissions = new HashSet<>(developerPermissionGroup.getPermissions());
         permissions.addAll(workspacePermissions);
-        permissions.addAll(permissionGroupPermissions);
+        permissions.addAll(assignPermissionGroupPermissions);
         permissions.addAll(readPermissionGroupPermissions);
         developerPermissionGroup.setPermissions(permissions);
 
@@ -1658,12 +1655,12 @@ public class DatabaseChangelog2 {
                 .map(aclPermission -> new Permission(workspace.getId(), aclPermission))
                 .collect(Collectors.toSet());
         // The app viewers should also be able to assign to viewer permission groups
-        permissionGroupPermissions = Set.of(viewerPermissionGroup).stream()
+        assignPermissionGroupPermissions = Set.of(viewerPermissionGroup).stream()
                 .map(permissionGroup -> new Permission(permissionGroup.getId(), AclPermission.ASSIGN_PERMISSION_GROUPS))
                 .collect(Collectors.toSet());
-        permissions = new HashSet<>();
+        permissions = new HashSet<>(viewerPermissionGroup.getPermissions());
         permissions.addAll(workspacePermissions);
-        permissions.addAll(permissionGroupPermissions);
+        permissions.addAll(assignPermissionGroupPermissions);
         permissions.addAll(readPermissionGroupPermissions);
         viewerPermissionGroup.setPermissions(permissions);
 

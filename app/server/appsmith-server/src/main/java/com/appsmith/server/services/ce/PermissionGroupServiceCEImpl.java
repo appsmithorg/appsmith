@@ -1,11 +1,14 @@
 package com.appsmith.server.services.ce;
 
+import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
+import com.appsmith.server.dtos.Permission;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.services.AnalyticsService;
@@ -33,8 +36,8 @@ public class PermissionGroupServiceCEImpl extends BaseService<PermissionGroupRep
 
     private final SessionUserService sessionUserService;
     private final TenantService tenantService;
-
     private final UserRepository userRepository;
+    private final PolicyUtils policyUtils;
 
     public PermissionGroupServiceCEImpl(Scheduler scheduler,
                                         Validator validator,
@@ -44,12 +47,30 @@ public class PermissionGroupServiceCEImpl extends BaseService<PermissionGroupRep
                                         AnalyticsService analyticsService,
                                         SessionUserService sessionUserService,
                                         TenantService tenantService,
-                                        UserRepository userRepository) {
+                                        UserRepository userRepository,
+                                        PolicyUtils policyUtils) {
 
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.sessionUserService = sessionUserService;
         this.tenantService = tenantService;
         this.userRepository = userRepository;
+        this.policyUtils = policyUtils;
+    }
+
+    @Override
+    public Mono<PermissionGroup> create(PermissionGroup permissionGroup) {
+        return super.create(permissionGroup)
+                .map(pg -> {
+                    Set<Permission> permissions = new HashSet<>(pg.getPermissions());
+                    // Permission to unassign self is always given
+                    // so user can unassign himself from permission group
+                    permissions.add(new Permission(pg.getId(), AclPermission.UNASSIGN_PERMISSION_GROUPS));
+                    pg.setPermissions(permissions);
+                    Map<String, Policy> policyMap = policyUtils.generatePolicyFromPermissionGroupForObject(pg, pg.getId());
+                    policyUtils.addPoliciesToExistingObject(policyMap, pg);
+                    return pg;
+                })
+                .flatMap(pg -> repository.save(pg));
     }
 
     @Override
@@ -122,20 +143,6 @@ public class PermissionGroupServiceCEImpl extends BaseService<PermissionGroupRep
     public Mono<PermissionGroup> bulkAssignToUsers(String permissionGroupId, List<User> users) {
         return repository.findById(permissionGroupId, AclPermission.ASSIGN_PERMISSION_GROUPS)
                 .flatMap(permissionGroup -> bulkAssignToUsers(permissionGroup, users));
-    }
-
-    @Override
-    public Mono<PermissionGroup> unassignFromSelf(PermissionGroup permissionGroup) {
-        return sessionUserService.getCurrentUser()
-                .flatMap(user -> {
-                    ensureAssignedToUserIds(permissionGroup);
-                    permissionGroup.getAssignedToUserIds().remove(user.getId());
-
-                    return Mono.zip(
-                            repository.updateById(permissionGroup.getId(), permissionGroup, AclPermission.READ_PERMISSION_GROUPS),
-                            cleanPermissionGroupCacheForUsers(List.of(user.getId())).thenReturn(TRUE));
-                })
-                .map(tuple -> tuple.getT1());
     }
 
     @Override

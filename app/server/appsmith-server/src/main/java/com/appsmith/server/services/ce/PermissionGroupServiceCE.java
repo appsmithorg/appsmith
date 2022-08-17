@@ -29,8 +29,6 @@ public interface PermissionGroupServiceCE extends CrudService<PermissionGroup, S
 
     Mono<PermissionGroup> bulkAssignToUsers(String permissionGroupId, List<User> users);
 
-    Mono<PermissionGroup> unassignFromSelf(PermissionGroup permissionGroup);
-
     Mono<PermissionGroup> unassignFromUser(PermissionGroup permissionGroup, User user);
 
     Flux<PermissionGroup> getAllByAssignedToUserAndDefaultWorkspace(User user, Workspace defaultWorkspace, AclPermission aclPermission);
