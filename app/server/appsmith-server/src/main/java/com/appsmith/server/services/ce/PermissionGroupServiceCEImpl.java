@@ -162,7 +162,7 @@ public class PermissionGroupServiceCEImpl extends BaseService<PermissionGroupRep
         List<String> userIds = users.stream().map(User::getId).collect(Collectors.toList());
         pg.getAssignedToUserIds().removeAll(userIds);
         return Mono.zip(
-                        repository.updateById(pg.getId(), pg, AclPermission.MANAGE_PERMISSION_GROUPS),
+                        repository.updateById(pg.getId(), pg, AclPermission.UNASSIGN_PERMISSION_GROUPS),
                         cleanPermissionGroupCacheForUsers(userIds).thenReturn(TRUE)
                 )
                 .map(tuple -> tuple.getT1());
@@ -170,7 +170,7 @@ public class PermissionGroupServiceCEImpl extends BaseService<PermissionGroupRep
 
     @Override
     public Mono<PermissionGroup> bulkUnassignFromUsers(String permissionGroupId, List<User> users) {
-        return repository.findById(permissionGroupId, AclPermission.MANAGE_PERMISSION_GROUPS)
+        return repository.findById(permissionGroupId, AclPermission.UNASSIGN_PERMISSION_GROUPS)
                 .flatMap(permissionGroup -> bulkUnassignFromUsers(permissionGroup, users));
     }
 
@@ -178,7 +178,7 @@ public class PermissionGroupServiceCEImpl extends BaseService<PermissionGroupRep
         ensureAssignedToUserIds(pg);
         pg.getAssignedToUserIds().removeAll(userIds);
         return Mono.zip(
-                        repository.updateById(pg.getId(), pg, AclPermission.MANAGE_PERMISSION_GROUPS),
+                        repository.updateById(pg.getId(), pg, AclPermission.UNASSIGN_PERMISSION_GROUPS),
                         cleanPermissionGroupCacheForUsers(userIds).thenReturn(TRUE)
                 )
                 .map(tuple -> tuple.getT1());

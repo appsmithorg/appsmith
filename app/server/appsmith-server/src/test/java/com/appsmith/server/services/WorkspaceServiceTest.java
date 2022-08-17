@@ -51,6 +51,7 @@ import reactor.util.function.Tuple6;
 import java.io.IOException;
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -1228,7 +1229,7 @@ public class WorkspaceServiceTest {
                 .build();
 
         // api user has read org permission but no manage org permission
-        workspace.setPolicies(Set.of(readWorkspacePolicy, manageWorkspacePolicy));
+        workspace.setPolicies(new HashSet<>(Set.of(readWorkspacePolicy, manageWorkspacePolicy)));
 
         Mono<Workspace> deleteWorkspaceMono = workspaceRepository.save(workspace)
                 .flatMap(savedWorkspace ->

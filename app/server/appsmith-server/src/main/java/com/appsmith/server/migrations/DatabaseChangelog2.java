@@ -1880,7 +1880,13 @@ public class DatabaseChangelog2 {
                 .permissionGroups(makePublicPolicy.getPermissionGroups())
                 .build();
 
-        publicPermissionGroup.setPolicies(Set.of(assignPermissionGroup));
+        // Let this newly created permission group be assignable by everyone who has permission for make public application
+        Policy unassignPermissionGroup = Policy.builder()
+                .permission(AclPermission.UNASSIGN_PERMISSION_GROUPS.getValue())
+                .permissionGroups(makePublicPolicy.getPermissionGroups())
+                .build();
+
+        publicPermissionGroup.setPolicies(new HashSet<>(Set.of(assignPermissionGroup, unassignPermissionGroup)));
         publicPermissionGroup.setAssignedToUserIds(Set.of(anonymousUser.getId()));
         publicPermissionGroup = mongockTemplate.save(publicPermissionGroup);
 
@@ -2085,12 +2091,12 @@ public class DatabaseChangelog2 {
                 .permissionGroups(Set.of(savedPermissionGroup.getId()))
                 .build();
 
-        savedInstanceConfig.setPolicies(Set.of(editConfigPolicy, readConfigPolicy));
+        savedInstanceConfig.setPolicies(new HashSet<>(Set.of(editConfigPolicy, readConfigPolicy)));
 
         mongockTemplate.save(savedInstanceConfig);
 
         // Also give the permission group permission to update & assign to itself
-        Policy updatePermissionGroupPolicy = Policy.builder().permission(MANAGE_PERMISSION_GROUPS.getValue())
+        Policy updatePermissionGroupPolicy = Policy.builder().permission(AclPermission.UNASSIGN_PERMISSION_GROUPS.getValue())
                 .permissionGroups(Set.of(savedPermissionGroup.getId()))
                 .build();
 
@@ -2098,12 +2104,12 @@ public class DatabaseChangelog2 {
                 .permissionGroups(Set.of(savedPermissionGroup.getId()))
                 .build();
 
-        savedPermissionGroup.setPolicies(Set.of(updatePermissionGroupPolicy, assignPermissionGroupPolicy));
+        savedPermissionGroup.setPolicies(new HashSet<>(Set.of(updatePermissionGroupPolicy, assignPermissionGroupPolicy)));
 
         Set<Permission> permissions = new HashSet<>(savedPermissionGroup.getPermissions());
         permissions.addAll(
                 Set.of(
-                        new Permission(savedPermissionGroup.getId(), MANAGE_PERMISSION_GROUPS),
+                        new Permission(savedPermissionGroup.getId(), AclPermission.UNASSIGN_PERMISSION_GROUPS),
                         new Permission(savedPermissionGroup.getId(), ASSIGN_PERMISSION_GROUPS)
                 )
         );
@@ -2199,7 +2205,7 @@ public class DatabaseChangelog2 {
         for (Theme theme : themes) {
             theme.setSystemTheme(true);
             theme.setCreatedAt(Instant.now());
-            theme.setPolicies(Set.of(policyWithCurrentPermission));
+            theme.setPolicies(new HashSet<>(Set.of(policyWithCurrentPermission)));
             Query query = new Query(Criteria.where(fieldName(QTheme.theme.name)).is(theme.getName())
                     .and(fieldName(QTheme.theme.isSystemTheme)).is(true));
 

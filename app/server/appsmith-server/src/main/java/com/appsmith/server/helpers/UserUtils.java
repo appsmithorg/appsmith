@@ -140,7 +140,7 @@ public class UserUtils {
                                         .permissionGroups(Set.of(savedPermissionGroup.getId()))
                                         .build();
 
-                                savedInstanceConfig.setPolicies(Set.of(editConfigPolicy, readConfigPolicy));
+                                savedInstanceConfig.setPolicies(new HashSet<>(Set.of(editConfigPolicy, readConfigPolicy)));
 
                                 return configRepository.save(savedInstanceConfig).zipWith(Mono.just(savedPermissionGroup));
                             });
@@ -167,7 +167,7 @@ public class UserUtils {
                             .permissionGroups(Set.of(savedPermissionGroup.getId()))
                             .build();
 
-                    savedPermissionGroup.setPolicies(Set.of(updatePermissionGroupPolicy, assignPermissionGroupPolicy));
+                    savedPermissionGroup.setPolicies(new HashSet<>(Set.of(updatePermissionGroupPolicy, assignPermissionGroupPolicy)));
 
                     return permissionGroupRepository.save(savedPermissionGroup).thenReturn(finalInstanceConfig);
                 });
