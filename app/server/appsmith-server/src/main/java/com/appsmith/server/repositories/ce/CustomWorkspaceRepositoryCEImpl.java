@@ -4,6 +4,7 @@ import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.domains.QWorkspace;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
+import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import com.appsmith.server.services.SessionUserService;
 
 import lombok.extern.slf4j.Slf4j;
@@ -28,8 +29,8 @@ public class CustomWorkspaceRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
     private final SessionUserService sessionUserService;
 
     public CustomWorkspaceRepositoryCEImpl(ReactiveMongoOperations mongoOperations, MongoConverter mongoConverter,
-                    SessionUserService sessionUserService) {
-        super(mongoOperations, mongoConverter);
+                    SessionUserService sessionUserService, CacheableRepositoryHelper cacheableRepositoryHelper) {
+        super(mongoOperations, mongoConverter, cacheableRepositoryHelper);
         this.sessionUserService = sessionUserService;
     }
 

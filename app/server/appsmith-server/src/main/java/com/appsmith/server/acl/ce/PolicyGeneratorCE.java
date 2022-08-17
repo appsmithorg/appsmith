@@ -50,6 +50,18 @@ import static com.appsmith.server.acl.AclPermission.WORKSPACE_EXPORT_APPLICATION
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_MANAGE_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_PUBLISH_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_READ_APPLICATIONS;
+import static com.appsmith.server.acl.AclPermission.WORKSPACE_DELETE_DATASOURCES;
+import static com.appsmith.server.acl.AclPermission.DELETE_DATASOURCES;
+import static com.appsmith.server.acl.AclPermission.WORKSPACE_CREATE_APPLICATION;
+import static com.appsmith.server.acl.AclPermission.APPLICATION_CREATE_PAGES;
+import static com.appsmith.server.acl.AclPermission.WORKSPACE_DELETE_APPLICATIONS;
+import static com.appsmith.server.acl.AclPermission.DELETE_APPLICATIONS;
+import static com.appsmith.server.acl.AclPermission.DELETE_PAGES;
+import static com.appsmith.server.acl.AclPermission.DELETE_ACTIONS;
+import static com.appsmith.server.acl.AclPermission.PAGE_CREATE_PAGE_ACTIONS;
+import static com.appsmith.server.acl.AclPermission.DELETE_WORKSPACES;
+import static com.appsmith.server.acl.AclPermission.WORKSPACE_MANAGE_DATASOURCES;
+import static com.appsmith.server.acl.AclPermission.WORKSPACE_READ_DATASOURCES;
 
 
 @Getter
@@ -104,9 +116,13 @@ public class PolicyGeneratorCE {
 
     private void createWorkspacePolicyGraph() {
         lateralGraph.addEdge(MANAGE_WORKSPACES, READ_WORKSPACES);
+        lateralGraph.addEdge(MANAGE_WORKSPACES, WORKSPACE_MANAGE_DATASOURCES);
+        lateralGraph.addEdge(MANAGE_WORKSPACES, WORKSPACE_READ_DATASOURCES);
         lateralGraph.addEdge(MANAGE_WORKSPACES, WORKSPACE_MANAGE_APPLICATIONS);
         lateralGraph.addEdge(MANAGE_WORKSPACES, WORKSPACE_READ_APPLICATIONS);
         lateralGraph.addEdge(MANAGE_WORKSPACES, WORKSPACE_PUBLISH_APPLICATIONS);
+        lateralGraph.addEdge(DELETE_WORKSPACES, WORKSPACE_DELETE_APPLICATIONS);
+        lateralGraph.addEdge(DELETE_WORKSPACES, WORKSPACE_DELETE_DATASOURCES);
     }
 
     private void createDatasourcePolicyGraph() {
@@ -114,6 +130,7 @@ public class PolicyGeneratorCE {
 
         // If a viewer of all apps in the workspace, give execute permission on all the datasources
         hierarchyGraph.addEdge(WORKSPACE_READ_APPLICATIONS, EXECUTE_DATASOURCES);
+        hierarchyGraph.addEdge(WORKSPACE_DELETE_DATASOURCES, DELETE_DATASOURCES);
 
         lateralGraph.addEdge(MANAGE_DATASOURCES, READ_DATASOURCES);
         lateralGraph.addEdge(MANAGE_DATASOURCES, EXECUTE_DATASOURCES);
@@ -126,6 +143,8 @@ public class PolicyGeneratorCE {
         hierarchyGraph.addEdge(WORKSPACE_PUBLISH_APPLICATIONS, PUBLISH_APPLICATIONS);
         hierarchyGraph.addEdge(MANAGE_WORKSPACES, MAKE_PUBLIC_APPLICATIONS);
         hierarchyGraph.addEdge(WORKSPACE_EXPORT_APPLICATIONS, EXPORT_APPLICATIONS);
+        hierarchyGraph.addEdge(WORKSPACE_CREATE_APPLICATION, APPLICATION_CREATE_PAGES);
+        hierarchyGraph.addEdge(WORKSPACE_DELETE_APPLICATIONS, DELETE_APPLICATIONS);
 
         // If the user is being given MANAGE_APPLICATION permission, they must also be given READ_APPLICATION perm
         lateralGraph.addEdge(MANAGE_APPLICATIONS, READ_APPLICATIONS);
@@ -137,6 +156,7 @@ public class PolicyGeneratorCE {
     private void createActionPolicyGraph() {
         hierarchyGraph.addEdge(MANAGE_PAGES, MANAGE_ACTIONS);
         hierarchyGraph.addEdge(READ_PAGES, EXECUTE_ACTIONS);
+        hierarchyGraph.addEdge(DELETE_PAGES, DELETE_ACTIONS);
 
         lateralGraph.addEdge(MANAGE_ACTIONS, READ_ACTIONS);
         lateralGraph.addEdge(MANAGE_ACTIONS, EXECUTE_ACTIONS);
@@ -146,6 +166,8 @@ public class PolicyGeneratorCE {
     private void createPagePolicyGraph() {
         hierarchyGraph.addEdge(MANAGE_APPLICATIONS, MANAGE_PAGES);
         hierarchyGraph.addEdge(READ_APPLICATIONS, READ_PAGES);
+        hierarchyGraph.addEdge(DELETE_APPLICATIONS, DELETE_PAGES);
+        hierarchyGraph.addEdge(APPLICATION_CREATE_PAGES, PAGE_CREATE_PAGE_ACTIONS);
 
         lateralGraph.addEdge(MANAGE_PAGES, READ_PAGES);
     }

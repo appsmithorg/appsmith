@@ -5,7 +5,7 @@ var DataSourceKVP = {
   Postgres: "PostgreSQL",
   Mongo: "MongoDB",
   MySql: "MySQL",
-};//DataSources KeyValuePair
+}; //DataSources KeyValuePair
 
 export class DataSources {
   private agHelper = ObjectsRegistry.AggregateHelper;
@@ -79,6 +79,13 @@ export class DataSources {
     "//span[text()='" +
     dbName +
     "']/ancestor::div[contains(@class, 't--mock-datasource')][1]";
+  _queryDoc = ".t--datasource-documentation-link";
+  _globalSearchModal = ".t--global-search-modal";
+  _globalSearchInput = (inputText: string) =>
+    "//input[@id='global-search'][@value='" + inputText + "']";
+  _gsScopeDropdown =
+    "[data-cy='datasourceConfiguration.authentication.scopeString']";
+  _gsScopeOptions = ".ads-dropdown-options-wrapper div > span div span";
 
   public StartDataSourceRoutes() {
     cy.intercept("PUT", "/api/v1/datasources/*").as("saveDatasource");
@@ -159,6 +166,13 @@ export class DataSources {
     }).as("post_replaceLayoutCRUDStub");
   }
 
+  public StartInterceptRoutesForFirestore() {
+    //All stubbing
+    cy.intercept("POST", "/api/v1/datasources/test", {
+      fixture: "testAction.json",
+    }).as("testDatasource");
+  }
+
   public CreatePlugIn(pluginName: string) {
     cy.get(this._createNewPlgin(pluginName))
       .parent("div")
@@ -230,6 +244,18 @@ export class DataSources {
     cy.get(this._sectionAuthentication).click();
     cy.get(this._username).type(datasourceFormData["mysql-username"]);
     cy.get(this._password).type(datasourceFormData["mysql-password"]);
+  }
+
+  public FillFirestoreDSForm() {
+    cy.xpath(this.locator._inputFieldByName("Database URL") + "//input").type(
+      datasourceFormData["database-url"],
+    );
+    cy.xpath(this.locator._inputFieldByName("Project Id") + "//input").type(
+      datasourceFormData["projectID"],
+    );
+    cy.xpath(
+      this.locator._inputFieldByName("Service Account Credentials") + "//input",
+    ).type(datasourceFormData["serviceAccCredentials"]);
   }
 
   public TestSaveDatasource(expectedRes = true) {
@@ -435,7 +461,10 @@ export class DataSources {
     );
   }
 
-  public CreateDataSource(dsType: "Postgres" | "Mongo" | "MySql", navigateToCreateNewDs = true) {
+  public CreateDataSource(
+    dsType: "Postgres" | "Mongo" | "MySql",
+    navigateToCreateNewDs = true,
+  ) {
     let guid: any;
     this.agHelper.GenerateUUID();
     cy.get("@guid").then((uid) => {

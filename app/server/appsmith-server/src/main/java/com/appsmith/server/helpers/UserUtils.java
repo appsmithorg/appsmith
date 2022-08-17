@@ -8,11 +8,14 @@ import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.QPermissionGroup;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.Permission;
+import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import com.appsmith.server.repositories.ConfigRepository;
 import com.appsmith.server.repositories.PermissionGroupRepository;
 import net.minidev.json.JSONObject;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Component;
+
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.HashSet;
@@ -36,9 +39,13 @@ public class UserUtils {
 
     private final PermissionGroupRepository permissionGroupRepository;
 
-    public UserUtils(ConfigRepository configRepository, PermissionGroupRepository permissionGroupRepository) {
+    private final CacheableRepositoryHelper cacheableRepositoryHelper;
+
+    public UserUtils(ConfigRepository configRepository, PermissionGroupRepository permissionGroupRepository,
+                     CacheableRepositoryHelper cacheableRepositoryHelper) {
         this.configRepository = configRepository;
         this.permissionGroupRepository = permissionGroupRepository;
+        this.cacheableRepositoryHelper = cacheableRepositoryHelper;
     }
 
     public Mono<Boolean> isSuperUser(User user) {
@@ -55,7 +62,7 @@ public class UserUtils {
 
     public Mono<Boolean> makeSuperUser(List<User> users) {
         return configRepository.findByName(INSTANCE_CONFIG)
-                .switchIfEmpty(createInstanceConfigForSuperUser())
+                .switchIfEmpty(Mono.defer(() -> createInstanceConfigForSuperUser()))
                 .flatMap(instanceConfig -> {
                     JSONObject config = instanceConfig.getConfig();
                     String defaultPermissionGroup = (String) config.getOrDefault(DEFAULT_PERMISSION_GROUP, "");
@@ -63,21 +70,22 @@ public class UserUtils {
                 })
                 .flatMap(permissionGroup -> {
 
-                    Set<String> permissionGroups = new HashSet<>();
+                    Set<String> assignedToUserIds = new HashSet<>();
 
                     if (permissionGroup.getAssignedToUserIds() != null) {
-                        permissionGroups.addAll(permissionGroup.getAssignedToUserIds());
+                        assignedToUserIds.addAll(permissionGroup.getAssignedToUserIds());
                     }
-                    permissionGroups.addAll(users.stream().map(User::getId).collect(Collectors.toList()));
+                    assignedToUserIds.addAll(users.stream().map(User::getId).collect(Collectors.toList()));
                     Update updateObj = new Update();
-                    String path = String.format("%s.%s", fieldName(QPermissionGroup.permissionGroup),
-                            fieldName(QPermissionGroup.permissionGroup.assignedToUserIds)
-                    );
+                    String path = fieldName(QPermissionGroup.permissionGroup.assignedToUserIds);
 
-                    updateObj.set(path, permissionGroups);
+                    updateObj.set(path, assignedToUserIds);
                     // Make Super User is called before the first administrator is created.
                     return permissionGroupRepository.updateById(permissionGroup.getId(), updateObj);
                 })
+                .then(Mono.just(users))
+                .flatMapMany(Flux::fromIterable)
+                .flatMap(user -> cacheableRepositoryHelper.evictPermissionGroupsUser(user.getEmail(), user.getTenantId()))
                 .then(Mono.just(Boolean.TRUE));
     }
 
@@ -96,6 +104,9 @@ public class UserUtils {
                     permissionGroup.getAssignedToUserIds().removeAll(users.stream().map(User::getId).collect(Collectors.toList()));
                     return permissionGroupRepository.updateById(permissionGroup.getId(), permissionGroup, AclPermission.ASSIGN_PERMISSION_GROUPS);
                 })
+                .then(Mono.just(users))
+                .flatMapMany(Flux::fromIterable)
+                .flatMap(user -> cacheableRepositoryHelper.evictPermissionGroupsUser(user.getEmail(), user.getTenantId()))
                 .then(Mono.just(Boolean.TRUE));
     }
 

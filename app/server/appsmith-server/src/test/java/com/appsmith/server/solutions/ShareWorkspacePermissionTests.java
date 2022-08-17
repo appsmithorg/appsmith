@@ -254,15 +254,8 @@ public class ShareWorkspacePermissionTests {
     @WithUserDetails(value = "developer@solutiontest.com")
     public void testDeveloperInviteRoles() {
 
-        Mono<List<PermissionGroupInfoDTO>> userRolesForWorkspace = workspaceService.getPermissionGroupsForWorkspace(workspaceId);
-
-        StepVerifier.create(userRolesForWorkspace)
-                .assertNext(userGroupInfos -> {
-                    assertThat(userGroupInfos).isNotEmpty();
-                    assertThat(userGroupInfos).noneMatch(userGroupInfo -> userGroupInfo.getName().startsWith(FieldName.ADMINISTRATOR));
-                    assertThat(userGroupInfos).anyMatch(userGroupInfo -> userGroupInfo.getName().startsWith(FieldName.VIEWER));
-                    assertThat(userGroupInfos).anyMatch(userGroupInfo -> userGroupInfo.getName().startsWith(FieldName.DEVELOPER));
-                })
-                .verifyComplete();
+        /*
+        Adding this test in cypress instead.
+         */
     }
 }

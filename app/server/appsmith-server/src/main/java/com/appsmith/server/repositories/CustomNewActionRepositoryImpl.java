@@ -12,8 +12,8 @@ public class CustomNewActionRepositoryImpl extends CustomNewActionRepositoryCEIm
         implements CustomNewActionRepository {
 
     public CustomNewActionRepositoryImpl(ReactiveMongoOperations mongoOperations,
-                                         MongoConverter mongoConverter) {
-        super(mongoOperations, mongoConverter);
+                                         MongoConverter mongoConverter, CacheableRepositoryHelper cacheableRepositoryHelper) {
+        super(mongoOperations, mongoConverter, cacheableRepositoryHelper);
     }
 
 }

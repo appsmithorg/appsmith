@@ -8,6 +8,7 @@ import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.JSValue;
 import com.appsmith.external.models.Policy;
 import com.appsmith.external.plugins.PluginExecutor;
+import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
@@ -341,8 +342,15 @@ public class ApplicationServiceTest {
                     Policy exportAppPolicy = Policy.builder().permission(EXPORT_APPLICATIONS.getValue())
                             .permissionGroups(Set.of(adminPermissionGroup.getId()))
                             .build();
+                    Policy deleteApplicationsPolicy = Policy.builder().permission(AclPermission.DELETE_APPLICATIONS.getValue())
+                            .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId()))
+                            .build();
+                    Policy createPagesPolicy = Policy.builder().permission(AclPermission.APPLICATION_CREATE_PAGES.getValue())
+                            .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId()))
+                            .build();
 
-                    assertThat(application.getPolicies()).containsAll(Set.of(manageAppPolicy, readAppPolicy, publishAppPolicy, exportAppPolicy));
+                    assertThat(application.getPolicies()).containsAll(Set.of(manageAppPolicy, readAppPolicy, publishAppPolicy,
+                            exportAppPolicy, deleteApplicationsPolicy, createPagesPolicy));
                 })
                 .verifyComplete();
     }
@@ -1110,21 +1118,24 @@ public class ApplicationServiceTest {
 
         ApplicationAccessDTO applicationAccessDTO = new ApplicationAccessDTO();
         applicationAccessDTO.setPublicAccess(true);
-        Mono<Application> privateAppMono = applicationService.changeViewAccess(gitConnectedApp.getId(), "testBranch", applicationAccessDTO)
+        Mono<Tuple2<Application, PageDTO>> privateAppAndPageTupleMono =
+                // First make the git connected app public
+                applicationService.changeViewAccess(gitConnectedApp.getId(), "testBranch", applicationAccessDTO)
                 .flatMap(application1 -> {
                     applicationAccessDTO.setPublicAccess(false);
+                    // Then make the test branch private
                     return applicationService.changeViewAccess(application1.getId(), "testBranch", applicationAccessDTO);
                 })
-                .cache();
-
-        Mono<PageDTO> pageMono = privateAppMono
                 .flatMap(app -> {
                     String pageId = app.getPages().get(0).getId();
-                    return newPageService.findPageById(pageId, READ_PAGES, false);
+                    return Mono.zip(
+                            Mono.just(app),
+                            newPageService.findPageById(pageId, READ_PAGES, false)
+                    );
                 });
 
         StepVerifier
-                .create(Mono.zip(privateAppMono, pageMono))
+                .create(privateAppAndPageTupleMono)
                 .assertNext(tuple -> {
                     Application app = tuple.getT1();
                     PageDTO page = tuple.getT2();

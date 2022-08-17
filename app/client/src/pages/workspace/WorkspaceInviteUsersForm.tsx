@@ -43,6 +43,7 @@ import ManageUsers from "./ManageUsers";
 import ScrollIndicator from "components/ads/ScrollIndicator";
 import UserApi from "@appsmith/api/UserApi";
 import { Colors } from "constants/Colors";
+import { fetchWorkspace } from "actions/workspaceActions";
 
 const CommonTitleTextStyle = css`
   color: ${Colors.CHARCOAL};
@@ -420,8 +421,8 @@ function WorkspaceInviteUsersForm(props: any) {
               fill
               text={
                 numberOfUsersInvited > 1
-                  ? INVITE_USERS_SUBMIT_SUCCESS()
-                  : INVITE_USER_SUBMIT_SUCCESS()
+                  ? createMessage(INVITE_USERS_SUBMIT_SUCCESS)
+                  : createMessage(INVITE_USER_SUBMIT_SUCCESS)
               }
               variant={Variant.success}
             />
@@ -453,12 +454,7 @@ export default connect(
         },
       }),
     fetchCurrentWorkspace: (workspaceId: string) =>
-      dispatch({
-        type: ReduxActionTypes.FETCH_CURRENT_WORKSPACE,
-        payload: {
-          workspaceId,
-        },
-      }),
+      dispatch(fetchWorkspace(workspaceId)),
     fetchUser: (workspaceId: string) =>
       dispatch({
         type: ReduxActionTypes.FETCH_ALL_USERS_INIT,

@@ -19,9 +19,9 @@ import com.appsmith.server.dtos.ActionCollectionViewDTO;
 import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.LayoutDTO;
 import com.appsmith.server.dtos.PageDTO;
+import com.appsmith.server.dtos.PermissionGroupInfoDTO;
 import com.appsmith.server.dtos.PluginWorkspaceDTO;
 import com.appsmith.server.dtos.RefactorActionNameDTO;
-import com.appsmith.server.dtos.PermissionGroupInfoDTO;
 import com.appsmith.server.dtos.WorkspacePluginStatus;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
@@ -619,19 +619,35 @@ public class ActionCollectionServiceTest {
 
     /**
      * For a given collection testActionCollection,
-     * When the collection is updated after creation,
-     * The updatedAt field should have a greater value than the updatedAt value when it was created.
+     * When the collection is updated after creation such that the JS function becomes sync,
+     * The executeOnLoad, confirmBeforeExecute and userSetOnLoad should be reset to false
      */
     @Test
     @WithUserDetails(value = "api_user")
-    public void testUpdateActionCollection_verifyUpdatedAtFieldUpdated() {
+    public void testUpdateActionCollection_fromAsyncToSync_resetsSyncFunctionFields() {
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(pluginExecutor));
+        Mockito.when(pluginExecutor.getHintMessages(Mockito.any(), Mockito.any()))
+                .thenReturn(Mono.zip(Mono.just(new HashSet<>()), Mono.just(new HashSet<>())));
+
         ActionCollectionDTO actionCollectionDTO = new ActionCollectionDTO();
-        actionCollectionDTO.setName("testActionCollection");
-        actionCollectionDTO.setApplicationId(testApp.getId());
-        actionCollectionDTO.setWorkspaceId(testApp.getWorkspaceId());
+        actionCollectionDTO.setName("testCollection1");
         actionCollectionDTO.setPageId(testPage.getId());
+        actionCollectionDTO.setApplicationId(testApp.getId());
+        actionCollectionDTO.setWorkspaceId(workspaceId);
         actionCollectionDTO.setPluginId(datasource.getPluginId());
+        actionCollectionDTO.setVariables(List.of(new JSValue("test", "String", "test", true)));
+        actionCollectionDTO.setBody("collectionBody");
+        ActionDTO action1 = new ActionDTO();
+        action1.setName("testAction1");
+        action1.setActionConfiguration(new ActionConfiguration());
+        action1.getActionConfiguration().setBody("mockBody");
+        action1.getActionConfiguration().setIsValid(false);
+        action1.getActionConfiguration().setIsAsync(true);
+        action1.setExecuteOnLoad(true);
+        action1.setUserSetOnLoad(true);
+        action1.setConfirmBeforeExecute(true);
         actionCollectionDTO.setPluginType(PluginType.JS);
+        actionCollectionDTO.setActions(List.of(action1));
 
         ActionCollection createdActionCollection = layoutCollectionService.createCollection(actionCollectionDTO)
                 .flatMap(createdCollection -> {
@@ -644,13 +660,23 @@ public class ActionCollectionServiceTest {
                     return actionCollectionService.findById(createdCollection.getId(), READ_ACTIONS);
                 }).block();
 
+        action1.getActionConfiguration().setIsAsync(false);
+        final Mono<List<ActionCollectionViewDTO>> viewModeCollectionsMono = layoutCollectionService.updateUnpublishedActionCollection(createdActionCollection.getId(), actionCollectionDTO, null)
+                .flatMap(updatedCollection -> applicationPageService.publish(testApp.getId(), true))
+                .thenMany(actionCollectionService.getActionCollectionsForViewMode(testApp.getId(), null))
+                .collectList();
 
-        Mono<ActionCollection> updatedActionCollectionMono = layoutCollectionService.updateUnpublishedActionCollection(createdActionCollection.getId(), actionCollectionDTO, null)
-                .flatMap(createdCollection -> actionCollectionService.findById(createdCollection.getId(), READ_ACTIONS));
+        StepVerifier.create(viewModeCollectionsMono)
+                .assertNext(viewModeCollections -> {
+                    assertThat(viewModeCollections.size()).isEqualTo(1);
 
-        StepVerifier.create(updatedActionCollectionMono)
-                .assertNext(updatedActionCollection -> {
-                    assertThat(updatedActionCollection.getUpdatedAt().isAfter(createdActionCollection.getUpdatedAt())).isTrue();
+                    final ActionCollectionViewDTO actionCollectionViewDTO = viewModeCollections.get(0);
+                    final List<ActionDTO> actions = actionCollectionViewDTO.getActions();
+                    Assert.assertFalse(actions.isEmpty());
+                    final ActionDTO actionDTO = actions.get(0);
+                    Assert.assertFalse(actionDTO.getExecuteOnLoad());
+                    Assert.assertFalse(actionDTO.getUserSetOnLoad());
+                    Assert.assertFalse(actionDTO.getConfirmBeforeExecute());
                 })
                 .verifyComplete();
     }

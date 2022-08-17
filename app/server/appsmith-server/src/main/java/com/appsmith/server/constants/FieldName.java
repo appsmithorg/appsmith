@@ -134,7 +134,11 @@ public class FieldName {
     public static final String INSTACE_ADMIN_ROLE = "Instance Administrator Role";
     public static final String DEFAULT_PERMISSION_GROUP = "defaultPermissionGroup";
     public static final String PUBLIC_PERMISSION_GROUP = "publicPermissionGroup";
-    public static final String AUDIT_DATA = "auditData";
+    public static final String EVENT_DATA = "eventData";
     public static final String MODE_OF_LOGIN = "modeOfLogin";
     public static final String FORM_LOGIN = "FormLogin";
+    public static final String VIEW_MODE = "viewMode";
+    public static final String ACTION_EXECUTION_REQUEST = "actionExecutionRequest";
+    public static final String ACTION_EXECUTION_RESULT = "actionExecutionResult";
+    public static final String ACTION_EXECUTION_TIME = "actionExecutionTime";
 }

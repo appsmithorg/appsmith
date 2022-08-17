@@ -631,7 +631,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
         // Check if the current user has assign permissions to the permission group and permission group is workspace's default permission group.
         Mono<PermissionGroup> permissionGroupMono = permissionGroupService.getById(inviteUsersDTO.getPermissionGroupId(), AclPermission.ASSIGN_PERMISSION_GROUPS)
                 .filter(permissionGroup -> StringUtils.hasText(permissionGroup.getDefaultWorkspaceId()))
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.USER_GROUP)))
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ROLE)))
                 .cache();
 
         // Get workspace from the default group.

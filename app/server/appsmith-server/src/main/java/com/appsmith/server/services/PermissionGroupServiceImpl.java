@@ -2,6 +2,7 @@ package com.appsmith.server.services;
 
 import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.repositories.PermissionGroupRepository;
+import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.services.ce.PermissionGroupServiceCEImpl;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
@@ -20,8 +21,10 @@ public class PermissionGroupServiceImpl extends PermissionGroupServiceCEImpl imp
                                       PermissionGroupRepository repository,
                                       AnalyticsService analyticsService,
                                       SessionUserService sessionUserService,
+                                      TenantService tenantService,
+                                      UserRepository userRepository,
                                       PolicyUtils policyUtils) {
 
-        super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService, sessionUserService, policyUtils);
+        super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService, sessionUserService, tenantService, userRepository, policyUtils);
     }
 }
