@@ -3,7 +3,7 @@ import {
   CONTAINER_GRID_PADDING,
   GridDefaults,
 } from "constants/WidgetConstants";
-import { debounce, isEmpty, isNumber, throttle } from "lodash";
+import { debounce, isEmpty, isNaN, isNumber, throttle } from "lodash";
 import { CanvasDraggingArenaProps } from "pages/common/CanvasArenas/CanvasDraggingArena";
 import React, { useEffect, useRef } from "react";
 import { useSelector } from "react-redux";
@@ -127,7 +127,7 @@ export const useCanvasDragging = (
         // console.log(els);
         // console.log(blocksToDraw);
         const blocks = blocksToDraw.map((block) => block.widgetId);
-        // console.log("*********");
+        console.log("*********");
         els.forEach((el) => {
           // console.log((el as any).offsetParent);
           // Extract widget id of current widget
@@ -135,9 +135,9 @@ export const useCanvasDragging = (
             .split("auto-layout-child-")[1]
             .split(" ")[0];
           // console.log(`parentId: ${widgetId}`);
-          // console.log(`widgetID: ${mClass}`);
-          // console.log(`blocks: ${blocks}`);
-          // console.log(blocks);
+          console.log(`widgetID: ${mClass}`);
+          console.log(`blocks: ${blocks}`);
+          console.log(blocks);
           /**
            * If the widget is also being dragged,
            * then discount its presence from offset calculation.
@@ -150,9 +150,10 @@ export const useCanvasDragging = (
             const mOffset = isVertical
               ? (el as any).offsetTop
               : (el as any).offsetLeft;
-            // console.log(`offset: ${mOffset}`);
+            console.log(el);
+            console.log(`offset: ${mOffset}`);
             offsets.push(mOffset);
-            // console.log(offsets);
+            console.log(offsets);
             // siblings[mClass] = mOffset;
             siblingElements.push(el);
           }
@@ -169,7 +170,7 @@ export const useCanvasDragging = (
                 8
             : 8,
         );
-        // console.log(offsets);
+        console.log(offsets);
       }
     }
   };
@@ -677,11 +678,14 @@ export const useCanvasDragging = (
         const highlightDropPosition = (e: any) => {
           if (!useAutoLayout) return;
           const pos: number | undefined = getHighlightPosition(e);
-          if (!pos) return;
+          if (isNaN(pos)) return;
           // console.log(`#### ref: ${dropPositionRef.current}`);
           if (dropPositionRef && dropPositionRef.current) {
+            console.log(`highlight position: ${pos - 6}`);
             dropPositionRef.current.style.opacity = "1";
-            if (isVertical) dropPositionRef.current.style.top = pos - 6 + "px";
+            if (isVertical)
+              dropPositionRef.current.style.top =
+                (pos > 6 ? pos - 6 : 0) + "px";
             else dropPositionRef.current.style.left = pos - 6 + "px";
           }
           translateSiblings(pos);
@@ -692,10 +696,13 @@ export const useCanvasDragging = (
           else base = offsets;
           const pos = (isVertical ? e?.offsetY : e?.offsetX) || val;
           // console.log(e);
-          // console.log(pos);
+          console.log("START: highlight position calculation");
+          console.log(pos);
           const arr = [...base].sort((a, b) => {
             return Math.abs(a - pos) - Math.abs(b - pos);
           });
+          console.log(arr);
+          console.log("END: highlight position calculation");
           return arr[0];
         };
         const getDropPosition = (val: number): number | undefined => {
