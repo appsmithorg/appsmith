@@ -249,6 +249,8 @@ export const updateDependencyMap = ({
               dataTreeEvalRef.triggerFieldInverseDependencyMap[
                 entityName
               ].forEach((triggerField) => {
+                if (!dataTreeEvalRef.triggerFieldDependencyMap[triggerField])
+                  return;
                 dataTreeEvalRef.triggerFieldDependencyMap[
                   triggerField
                 ] = dataTreeEvalRef.triggerFieldDependencyMap[
