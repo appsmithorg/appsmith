@@ -49,7 +49,7 @@ describe("Input Widget Functionality", function() {
       .invoke("attr", "value")
       .should("contain", this.data.para);
     //cy.openPropertyPane("inputwidgetv2");
-    cy.testJsontext("defaulttext", this.data.defaultdata);
+    cy.testJsontext("defaultvalue", this.data.defaultdata);
     cy.get(widgetsPage.inputWidget + " " + "input")
       .invoke("attr", "value")
       .should("contain", this.data.defaultdata);
@@ -191,7 +191,7 @@ describe("Input Widget Functionality", function() {
     /*cy.get(widgetsPage.defaultInput)
       .click({ force: true })
       .type("0");*/
-    cy.testJsontext("defaulttext", "0");
+    cy.testJsontext("defaultvalue", "0");
     cy.closePropertyPane("inputwidgetv2");
     cy.get(widgetsPage.innertext)
       .invoke("val")

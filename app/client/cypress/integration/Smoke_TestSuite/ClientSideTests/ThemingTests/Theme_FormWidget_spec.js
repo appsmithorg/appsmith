@@ -161,7 +161,7 @@ describe("Theme validation usecases", function() {
   });
 
   it("Validate Default Theme change across application", function() {
-    //cy.goToEditFromPublish();
+    cy.goToEditFromPublish();
     cy.get(formWidgetsPage.formD).click();
     cy.widgetText(
       "FormTest",
@@ -218,7 +218,7 @@ describe("Theme validation usecases", function() {
   });
 
   it("Validate Theme change across application", function() {
-    //cy.goToEditFromPublish();
+    cy.goToEditFromPublish();
     cy.get(formWidgetsPage.formD).click();
     cy.widgetText(
       "FormTest",
