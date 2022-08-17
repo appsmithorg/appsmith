@@ -21,3 +21,7 @@ deploy/ansible/appsmith_playbook/inventory
 app/client/perf/traces/*
 .history
 stacks
+
+# helm dependencies
+deploy/helm/charts
+deploy/helm/Chart.lock
