@@ -24,6 +24,7 @@ export const StyledDiv = styled.div`
 export const StyledControlGroup = styled(ControlGroup)<{
   compactMode: boolean;
   labelPosition?: LabelPosition;
+  isDisabled?: boolean;
 }>`
   &&& > {
     span {
@@ -40,8 +41,14 @@ export const StyledControlGroup = styled(ControlGroup)<{
           fill: var(--wds-color-icon);
 
           path {
-            fill: var(--wds-color-icon);
-            stroke: var(--wds-color-icon) !important;
+            fill: ${({ isDisabled }) =>
+              isDisabled
+                ? "var(--wds-color-icon-disabled)"
+                : "var(--wds-color-icon)"};
+            stroke: ${({ isDisabled }) =>
+              isDisabled
+                ? "var(--wds-color-icon-disabled)"
+                : "var(--wds-color-icon)"} !important;
           }
         }
       }
@@ -54,7 +61,10 @@ export const StyledControlGroup = styled(ControlGroup)<{
           height: 20px;
 
           path {
-            fill: var(--wds-color-icon);
+            fill: ${({ isDisabled }) =>
+              isDisabled
+                ? "var(--wds-color-icon-disabled)"
+                : "var(--wds-color-icon)"};
           }
         }
       }
@@ -234,7 +244,6 @@ export const MenuItem = styled.div<{
     display: flex;
     flex-direction: row;
     align-items: flex-start;
-    border-radius: 2px;
     color: inherit;
     line-height: 20px;
     padding: 5px 7px;

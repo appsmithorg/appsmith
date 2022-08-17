@@ -318,6 +318,7 @@ class SelectComponent extends React.Component<
         <StyledControlGroup
           compactMode={compactMode}
           fill
+          isDisabled={disabled}
           labelPosition={labelPosition}
         >
           <StyledSingleDropDown
