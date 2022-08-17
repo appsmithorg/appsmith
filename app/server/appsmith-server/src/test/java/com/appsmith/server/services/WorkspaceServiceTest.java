@@ -482,18 +482,77 @@ public class WorkspaceServiceTest {
         testWorkspace.setDomain("test.com");
         testWorkspace.setWebsite("https://test.com");
 
-        Mono<Workspace> createWorkspaceMono = workspaceService.create(testWorkspace);
-        Mono<List<UserAndPermissionGroupDTO>> usersMono = createWorkspaceMono
-                .flatMap(workspace -> userWorkspaceService.getWorkspaceMembers(workspace.getId()));
+        Workspace createdWorkspace = workspaceService.create(testWorkspace).block();
+
+        List<PermissionGroup> permissionGroups = permissionGroupRepository
+                .findAllById(createdWorkspace.getDefaultPermissionGroups()).collectList().block();
+
+        String adminPermissionGroupId = permissionGroups.stream()
+                .filter(permissionGroup -> permissionGroup.getName().startsWith(ADMINISTRATOR))
+                .findFirst().get()
+                .getId();
+
+        String developerPermissionGroupId = permissionGroups.stream()
+                .filter(permissionGroup -> permissionGroup.getName().startsWith(DEVELOPER))
+                .findFirst().get()
+                .getId();
+
+        String viewerPermissionGroupId = permissionGroups.stream()
+                .filter(permissionGroup -> permissionGroup.getName().startsWith(VIEWER))
+                .findFirst().get()
+                .getId();
+
+        // Invite another admin
+        InviteUsersDTO inviteUsersDTO = new InviteUsersDTO();
+        ArrayList<String> invitedUsers = new ArrayList<>();
+        invitedUsers.add("b@usertest.com");
+        inviteUsersDTO.setUsernames(invitedUsers);
+        inviteUsersDTO.setPermissionGroupId(adminPermissionGroupId);
+        userService.inviteUsers(inviteUsersDTO, origin).block();
+
+        // Invite developers
+        invitedUsers = new ArrayList<>();
+        invitedUsers.add("a@usertest.com");
+        invitedUsers.add("d@usertest.com");
+        inviteUsersDTO.setUsernames(invitedUsers);
+        inviteUsersDTO.setPermissionGroupId(developerPermissionGroupId);
+        userService.inviteUsers(inviteUsersDTO, origin).block();
+
+        // Invite viewers
+        invitedUsers = new ArrayList<>();
+        invitedUsers.add("a1@usertest.com");
+        invitedUsers.add("d1@usertest.com");
+        inviteUsersDTO.setUsernames(invitedUsers);
+        inviteUsersDTO.setPermissionGroupId(viewerPermissionGroupId);
+        userService.inviteUsers(inviteUsersDTO, origin).block();
+
+        Mono<List<UserAndPermissionGroupDTO>> usersMono = userWorkspaceService.getWorkspaceMembers(createdWorkspace.getId());
 
         StepVerifier
                 .create(usersMono)
                 .assertNext(users -> {
                     assertThat(users).isNotNull();
-                    assertThat(users.size()).isEqualTo(1);
+                    assertThat(users.size()).isEqualTo(6);
+                    // Assert that the members are sorted by the permission group and then email
                     UserAndPermissionGroupDTO userAndGroupDTO = users.get(0);
-                    assertThat(userAndGroupDTO.getName()).isEqualTo("api_user");
+                    assertThat(userAndGroupDTO.getUsername()).isEqualTo("api_user");
                     assertThat(userAndGroupDTO.getPermissionGroupName()).startsWith(ADMINISTRATOR);
+                    userAndGroupDTO = users.get(1);
+                    assertThat(userAndGroupDTO.getUsername()).isEqualTo("b@usertest.com");
+                    assertThat(userAndGroupDTO.getPermissionGroupName()).startsWith(ADMINISTRATOR);
+                    userAndGroupDTO = users.get(2);
+                    assertThat(userAndGroupDTO.getUsername()).isEqualTo("a@usertest.com");
+                    assertThat(userAndGroupDTO.getPermissionGroupName()).startsWith(DEVELOPER);
+                    userAndGroupDTO = users.get(3);
+                    assertThat(userAndGroupDTO.getUsername()).isEqualTo("d@usertest.com");
+                    assertThat(userAndGroupDTO.getPermissionGroupName()).startsWith(DEVELOPER);
+                    userAndGroupDTO = users.get(4);
+                    assertThat(userAndGroupDTO.getUsername()).isEqualTo("a1@usertest.com");
+                    assertThat(userAndGroupDTO.getPermissionGroupName()).startsWith(VIEWER);
+                    userAndGroupDTO = users.get(5);
+                    assertThat(userAndGroupDTO.getUsername()).isEqualTo("d1@usertest.com");
+                    assertThat(userAndGroupDTO.getPermissionGroupName()).startsWith(VIEWER);
+
                 })
                 .verifyComplete();
     }
