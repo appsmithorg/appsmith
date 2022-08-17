@@ -58,6 +58,11 @@ const Checkbox = styled(BlueprintCheckbox)<StyledCheckboxProps>`
       box-shadow: 0px 0px 0px 1px var(--wds-color-border-hover);
     }
 
+    // disabled
+    &.bp3-control input:disabled ~ .bp3-control-indicator {
+      pointer-events: none;
+    }
+
     // hover
     &.bp3-control.bp3-checkbox:hover input:not(:checked) ~ .bp3-control-indicator {
       box-shadow: 0px 0px 0px 1px ${
@@ -81,7 +86,7 @@ const Checkbox = styled(BlueprintCheckbox)<StyledCheckboxProps>`
     // hover on checked + disabled
     &.bp3-control.bp3-checkbox:hover input:checked:disabled ~ .bp3-control-indicator {
       box-shadow: 0px 0px 0px 1px var(--wds-color-border-disabled);
-      background-color: var(--wds-color-disabled) !important;
+      background-color: var(--wds-color-bg-disabled) !important;
     }
 
     // checked
