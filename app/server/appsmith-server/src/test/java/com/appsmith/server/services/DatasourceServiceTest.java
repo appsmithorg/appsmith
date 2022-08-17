@@ -50,6 +50,7 @@ import reactor.test.StepVerifier;
 import reactor.util.function.Tuple2;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -696,11 +697,11 @@ public class DatasourceServiceTest {
                                         final PageDTO page = new PageDTO();
                                         page.setName("test page 1");
                                         page.setApplicationId(application1.getId());
-                                        page.setPolicies(Set.of(Policy.builder()
+                                        page.setPolicies(new HashSet<>(Set.of(Policy.builder()
                                                 .permission(READ_PAGES.getValue())
                                                 .users(Set.of("api_user"))
                                                 .build()
-                                        ));
+                                        )));
                                         return applicationPageService.createPage(page);
                                     })
                     );
@@ -770,11 +771,11 @@ public class DatasourceServiceTest {
                                         final PageDTO page = new PageDTO();
                                         page.setName("test page 1");
                                         page.setApplicationId(application1.getId());
-                                        page.setPolicies(Set.of(Policy.builder()
+                                        page.setPolicies(new HashSet<>(Set.of(Policy.builder()
                                                 .permission(READ_PAGES.getValue())
                                                 .users(Set.of("api_user"))
                                                 .build()
-                                        ));
+                                        )));
                                         return applicationPageService.createPage(page);
                                     })
                     );
