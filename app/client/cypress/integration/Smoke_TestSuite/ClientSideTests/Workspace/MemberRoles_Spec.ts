@@ -49,9 +49,12 @@ describe("Create new workspace and invite user & validate all roles", () => {
     cy.xpath(HomePage.selectRole).click()
     cy.get('.t--dropdown-option').should('have.length', 1).and('contain.text', `App Viewer - ${workspaceId}`)
     cy.get(HomePage.closeBtn).click()
+
+
+
     homePage.LaunchAppFromAppHover();
     homePage.LogOutviaAPI();
-    })
+  });
 
   it("3. Login as Workspace owner and Update the Invited user role to Developer", function() {
     homePage.LogintoApp(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
@@ -61,8 +64,7 @@ describe("Create new workspace and invite user & validate all roles", () => {
       Cypress.env("TESTUSERNAME1"),
       "App Viewer",
       "Developer",
-    ); 
-    cy.xpath("//tbody[@role='rowgroup']").children().find('span').should('have.text', 'testusername1').click()
+    );
     homePage.LogOutviaAPI();
   });
 
@@ -79,9 +81,9 @@ describe("Create new workspace and invite user & validate all roles", () => {
     cy.get(homePage._appHoverIcon("edit"))
       .first()
       .click({ force: true });
-    cy.xpath(homePage._editPageLanding).should("exist");
-    cy.xpath("//span[text()='Share']")
-    .first()
+    // cy.xpath(homePage._editPageLanding).should("exist");
+    cy.wait(4000)
+    cy.xpath("//span[text()='SHARE']")
     .click();
   cy.wait(2000)
   cy.xpath(HomePage.selectRole).click()
@@ -117,12 +119,10 @@ describe("Create new workspace and invite user & validate all roles", () => {
       Cypress.env("TESTUSERNAME2"),
       "App Viewer",
     );
-    cy.xpath("//span[text()='Share']")
-    .first()
-    .click();
   cy.wait(2000)
   cy.xpath(HomePage.selectRole).click()
   cy.get('.t--dropdown-option').should('have.length', 3).should("contain.text", `App Viewer - ${workspaceId}`, `Developer - ${workspaceId}`)
+  cy.get('.t--dropdown-option').should("contain.text", `Administrator - ${workspaceId}`)
   cy.get(HomePage.closeBtn).click()
     homePage.LogOutviaAPI();
   });

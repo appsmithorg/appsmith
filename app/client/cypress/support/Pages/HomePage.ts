@@ -50,12 +50,19 @@ export class HomePage {
     "//td[text()='" +
     email +
     "']/following-sibling::td//span[contains(@class, 't--deleteUser')]";
-  private _userRoleDropDown = (email: string, role: string, workspaceName: string) =>
-    "//span[text()='" +
+  /*private _userRoleDropDown = (email: string, role: string, workspaceName: string) => {
+    cy.log("//span[text()='" +
     email +
     "']/following-sibling::td//span[text()='" +
     role + " - " + workspaceName +
-    "']";
+    "']");
+    return "//span[text()='" +
+    email +
+    "']/following-sibling::td//span[text()='" +
+    role + " - " + workspaceName +
+    "']"};*/
+  private _userRoleDropDown = (role: string, WorkspaceName:string)=>  "//span[text()='" +
+  role + " - "+ WorkspaceName + "']";
   //private _userRoleDropDown = (email: string) => "//td[text()='" + email + "']/following-sibling::td"
   private _leaveWorkspaceConfirmModal = ".t--member-delete-confirmation-modal";
   private _workspaceImportAppModal = ".t--import-application-modal";
@@ -64,7 +71,7 @@ export class HomePage {
   private _lastWorkspaceInHomePage =
     "//div[contains(@class, 't--workspace-section')][last()]//span/span";
   _editPageLanding = "//h2[text()='Drag and drop a widget here']";
-  _usersEmailList = "[data-colindex='1']";
+  _usersEmailList = "[data-colindex='0']";
   private _workspaceImport = "[data-cy=t--workspace-import-app]";
   private _uploadFile = "//div/form/input";
   private _importSuccessModal = ".t--import-app-success-modal";
@@ -292,15 +299,17 @@ export class HomePage {
       .find(this._workspaceName)
       .find(this._optionsIcon)
       .click({ force: true });
+
     cy.xpath(this._visibleTextSpan("Members"))
       .last()
-      .click({ force: true });
+      .click({ force: true }); 
     cy.wait("@getMembers").should(
       "have.nested.property",
       "response.body.responseMeta.status",
       200,
     );
-    this.agHelper.Sleep(2500); //wait for members page to load!
+    this.agHelper.Sleep(2500); 
+    //wait for members page to load!
   }
 
   public UpdateUserRoleInWorkspace(
@@ -310,11 +319,13 @@ export class HomePage {
     newRole: string,
   ) {
     this.OpenMembersPageForWorkspace(workspaceName);
-    cy.xpath(this._userRoleDropDown(email, currentRole, workspaceName))
+    cy.log(workspaceName, email, currentRole);
+    cy.xpath(this._userRoleDropDown(currentRole, workspaceName))
       .first()
       .trigger("click");
+      
     //cy.xpath(this._userRoleDropDown(email)).first().click({force: true});
-    cy.xpath(this._visibleTextSpan(newRole))
+    cy.xpath(this._visibleTextSpan(`${newRole} - ${workspaceName}`))
       .last()
       .click({ force: true });
     this.agHelper.Sleep();
