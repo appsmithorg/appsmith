@@ -1,7 +1,13 @@
 import React from "react";
 import styled from "styled-components";
 
-import { getPosition, isMarkedFilled, sizeMap, SliderSizes } from "../utils";
+import {
+  getPosition,
+  isMarkedFilled,
+  sizeMap,
+  SliderSizes,
+  SliderType,
+} from "../utils";
 
 interface MarksProps {
   marks?: { value: number; label: string }[];
@@ -13,6 +19,7 @@ interface MarksProps {
   value: number;
   disabled: boolean;
   onChange(value: number): void;
+  sliderType: SliderType;
 }
 
 const MarkWrapper = styled.div<Pick<MarksProps, "value" | "min" | "max">>(
@@ -55,6 +62,7 @@ export const Marks = React.memo(
     min,
     onChange,
     size,
+    sliderType,
     value,
   }: MarksProps) => {
     if (!marks) return null;
@@ -70,7 +78,7 @@ export const Marks = React.memo(
             isMarkFilled={isMarkedFilled({ mark, offset: marksOffset, value })}
             size={size}
           />
-          {mark.label && (
+          {sliderType === SliderType.LINEAR && (
             <MarkLabel
               onMouseDown={(event) => {
                 event.stopPropagation();

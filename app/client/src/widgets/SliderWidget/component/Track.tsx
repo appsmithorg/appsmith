@@ -3,7 +3,7 @@ import React from "react";
 import styled from "styled-components";
 
 import { Marks } from "./Marks";
-import { sizeMap, SliderSizes } from "../utils";
+import { sizeMap, SliderSizes, SliderType } from "../utils";
 
 interface TrackProps {
   filled: number;
@@ -20,6 +20,7 @@ interface TrackProps {
   onChange(value: number): void;
   onMouseEnter?(event?: React.MouseEvent<HTMLDivElement>): void;
   onMouseLeave?(event?: React.MouseEvent<HTMLDivElement>): void;
+  sliderType?: SliderType;
 }
 
 const TrackWrapper = styled.div<Pick<TrackProps, "size">>(({ size }) => ({
@@ -65,6 +66,7 @@ export function Track({
   onMouseEnter,
   onMouseLeave,
   size,
+  sliderType = SliderType.LINEAR,
   ...delegated
 }: TrackProps) {
   return (
@@ -87,6 +89,7 @@ export function Track({
         disabled={disabled}
         marksOffset={marksOffset}
         size={size}
+        sliderType={sliderType}
         {...delegated}
       />
     </TrackWrapper>

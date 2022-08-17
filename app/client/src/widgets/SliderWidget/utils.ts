@@ -89,3 +89,13 @@ export const sizeMap = {
 };
 
 export type SliderSizes = "sm" | "md" | "lg";
+
+export enum SliderType {
+  LINEAR = "LINEAR",
+  CATEGORICAL = "CATEGORICAL",
+}
+
+export type SliderOption = {
+  label: string;
+  value: string;
+};

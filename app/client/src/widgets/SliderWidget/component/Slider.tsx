@@ -5,7 +5,7 @@ import LabelWithTooltip from "components/ads/LabelWithTooltip";
 import { LabelPosition } from "components/constants";
 import { Alignment } from "@blueprintjs/core";
 import { TextSize } from "constants/WidgetConstants";
-import { getChangeValue, getPosition, SliderSizes } from "../utils";
+import { getChangeValue, getPosition, SliderSizes, SliderType } from "../utils";
 import { useMove } from "../use-move";
 import { SliderContainer } from "./Container";
 import { SliderRoot } from "./SilderRoot";
@@ -53,8 +53,14 @@ export interface SliderComponentProps
   /** If true slider label will appear on hover */
   showLabelOnHover?: boolean;
 
+  /** Slider Type */
+  sliderType: SliderType;
+
   /** Disables slider */
   disabled?: boolean;
+
+  /** Display label on the Slider */
+  sliderTooltip?: (value: number) => string;
 
   /** Label text  */
   labelText: string;
@@ -102,6 +108,8 @@ const SliderComponent = (props: SliderComponentProps) => {
     precision,
     showLabelOnHover = true,
     sliderSize,
+    sliderTooltip,
+    sliderType,
     sliderValue,
     step,
   } = props;
@@ -112,6 +120,11 @@ const SliderComponent = (props: SliderComponentProps) => {
   const thumb = useRef<HTMLDivElement>();
 
   const position = getPosition({ value: _value, min, max });
+
+  const _label =
+    typeof sliderTooltip === "function"
+      ? sliderTooltip(_value)
+      : _value.toString();
 
   /**
    * If props.value change say we have a binding from
@@ -239,13 +252,14 @@ const SliderComponent = (props: SliderComponentProps) => {
           onMouseEnter={showLabelOnHover ? () => setHovered(true) : undefined}
           onMouseLeave={showLabelOnHover ? () => setHovered(false) : undefined}
           size={sliderSize}
+          sliderType={sliderType}
           value={_value}
         >
           <Thumb
             color={color}
             disabled={disabled}
             dragging={active}
-            label={_value.toString()}
+            label={_label}
             labelAlwaysOn={labelAlwaysOn}
             max={max}
             min={min}

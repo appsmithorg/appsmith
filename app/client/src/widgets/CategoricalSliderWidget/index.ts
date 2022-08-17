@@ -3,20 +3,15 @@ import { Alignment } from "@blueprintjs/core";
 
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
-import { SliderType } from "./utils";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
-  name: "Slider Widget",
+  name: "Categorical Slider Widget",
   needsMeta: true,
   searchTags: ["range"],
-  replacement: "SLIDER_WIDGET",
+  replacement: "CATEGORICAL_SLIDER_WIDGET",
   iconSVG: IconSVG,
   defaults: {
-    defaultValue: 50,
-    min: 0,
-    max: 100,
-    step: 1,
     options: [
       { label: "xs", value: "xs" },
       { label: "sm", value: "sm" },
@@ -25,20 +20,13 @@ export const CONFIG = {
       { label: "xl", value: "xl" },
     ],
     defaultOptionValue: "md",
-    sliderType: SliderType.LINEAR,
-    marks: [
-      { value: 20, label: "20%" },
-      { value: 50, label: "50%" },
-      { value: 75, label: "75%" },
-      { value: 100, label: "100%" },
-    ],
     isVisible: true,
     isDisabled: false,
     labelAlwaysOn: false,
     showLabelOnHover: true,
     rows: 8,
     columns: 35,
-    widgetName: "Slider",
+    widgetName: "CategoricalSlider",
     shouldScroll: false,
     shouldTruncate: false,
     version: 1,

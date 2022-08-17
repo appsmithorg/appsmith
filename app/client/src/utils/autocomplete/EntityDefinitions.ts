@@ -611,6 +611,12 @@ export const entityDefinitions = {
     isVisible: isVisible,
     value: "number",
   },
+  CATEGORICAL_SLIDER_WIDGET: {
+    "!doc": "Circular Progress is a simple UI widget used to show progress",
+    "!url": "https://docs.appsmith.com/widget-reference/circular-progress",
+    isVisible: isVisible,
+    value: "string",
+  },
   RANGE_SLIDER_WIDGET: {
     "!doc": "Circular Progress is a simple UI widget used to show progress",
     "!url": "https://docs.appsmith.com/widget-reference/circular-progress",

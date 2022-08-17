@@ -155,6 +155,9 @@ import SliderWidget, {
 import RangeSliderWidget, {
   CONFIG as RANGE_SLIDER_WIDGET_CONFIG,
 } from "widgets/RangeSliderWidget";
+import CategoricalSliderWidget, {
+  CONFIG as CATEGORICAL_SLIDER_WIDGET_CONFIG,
+} from "widgets/CategoricalSliderWidget";
 
 export const ALL_WIDGETS_AND_CONFIG = [
   [CanvasWidget, CANVAS_WIDGET_CONFIG],
@@ -204,6 +207,7 @@ export const ALL_WIDGETS_AND_CONFIG = [
   [TableWidgetV2, TABLE_WIDGET_CONFIG_V2],
   [SliderWidget, SLIDER_WIDGET_CONFIG],
   [RangeSliderWidget, RANGE_SLIDER_WIDGET_CONFIG],
+  [CategoricalSliderWidget, CATEGORICAL_SLIDER_WIDGET_CONFIG],
 
   //Deprecated Widgets
   [InputWidget, INPUT_WIDGET_CONFIG],

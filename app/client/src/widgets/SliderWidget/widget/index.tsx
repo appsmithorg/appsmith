@@ -6,6 +6,7 @@ import { TAILWIND_COLORS } from "constants/ThemeConstants";
 import { LabelPosition } from "components/constants";
 import { Alignment } from "@blueprintjs/core";
 import SliderComponent, { SliderComponentProps } from "../component/Slider";
+import { SliderType } from "../utils";
 
 interface SliderWidgetProps extends WidgetProps, SliderComponentProps {
   /** Color from theme.colors */
@@ -347,7 +348,9 @@ class SliderWidget extends BaseWidget<SliderWidgetProps, WidgetState> {
   }
 
   onChangeEnd = (value: number) => {
-    this.props.updateWidgetMetaProperty("value", value);
+    if (!this.props.isDisabled) {
+      this.props.updateWidgetMetaProperty("value", value);
+    }
   };
 
   getPageView() {
@@ -371,6 +374,7 @@ class SliderWidget extends BaseWidget<SliderWidgetProps, WidgetState> {
         onChangeEnd={this.onChangeEnd}
         showLabelOnHover={this.props.showLabelOnHover}
         sliderSize={this.props.sliderSize || "md"}
+        sliderType={SliderType.LINEAR}
         sliderValue={this.props.value || 0}
         step={this.props.step || 1}
       />
