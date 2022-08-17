@@ -23,9 +23,9 @@ const SectionTitle = styled.div`
   & span {
     color: ${(props) => props.theme.colors.propertyPane.title};
     padding: ${(props) => props.theme.spaces[2]}px 0;
-    font-size: ${(props) => props.theme.fontSizes[4]}px;
+    font-size: ${(props) => props.theme.fontSizes[3]}px;
     display: flex;
-    font-weight: normal;
+    font-weight: 500;
     justify-content: flex-start;
     align-items: center;
     margin: 0;

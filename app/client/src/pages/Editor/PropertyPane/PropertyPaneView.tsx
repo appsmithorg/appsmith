@@ -35,7 +35,7 @@ import { InputWrapper } from "components/ads/TextInput";
 import { PropertyPaneTab } from "./PropertyPaneTab";
 import { useSearchText } from "./helpers";
 
-export const StyledSearchInput = styled(SearchInput)`
+export const StyledSearchInput = React.memo(styled(SearchInput)`
   position: sticky;
   top: 52px;
   z-index: 3;
@@ -44,7 +44,7 @@ export const StyledSearchInput = styled(SearchInput)`
     background: ${Colors.GRAY_50};
     padding: 0 8px;
   }
-`;
+`);
 
 // TODO(abhinav): The widget should add a flag in their configuration if they donot subscribe to data
 // Widgets where we do not want to show the CTA
@@ -170,6 +170,10 @@ function PropertyPaneView(
       },
     ];
   }, [onCopy, onDelete, handleTabKeyDownForButton]);
+
+  useEffect(() => {
+    setSearchText("");
+  }, [widgetProperties.widgetId]);
 
   if (!widgetProperties) return null;
 
