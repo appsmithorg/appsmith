@@ -205,18 +205,22 @@ class TernServer {
     if (data.completions.length === 0) {
       return this.showError(cm, "No suggestions");
     }
+    const doc = this.findDoc(cm.getDoc());
     const cursor = cm.getCursor();
+    const lineValue = this.lineValue(doc);
+    const focusedValue = this.getFocusedDocValueAndPos(doc).value;
+    const index = lineValue.indexOf(focusedValue);
     let completions: Completion[] = [];
     let after = "";
     const { end, start } = data;
     const from = {
       ...start,
-      ch: cursor.ch,
+      ch: start.ch + index,
       line: cursor.line,
     };
     const to = {
       ...end,
-      ch: cursor.ch,
+      ch: end.ch + index,
       line: cursor.line,
     };
     if (
@@ -438,7 +442,7 @@ class TernServer {
         files.push({
           type: "full",
           name: doc.name,
-          text: this.getFocusedDocValueAndPos(doc).value,
+          text: this.docValue(doc),
         });
         query.file = doc.name;
         doc.changed = null;
@@ -451,7 +455,7 @@ class TernServer {
       files.push({
         type: "full",
         name: doc.name,
-        text: this.getFocusedDocValueAndPos(doc).value,
+        text: this.docValue(doc),
       });
     }
     for (const name in this.docs) {
@@ -460,7 +464,7 @@ class TernServer {
         files.push({
           type: "full",
           name: cur.name,
-          text: this.getFocusedDocValueAndPos(cur).value,
+          text: this.docValue(doc),
         });
         cur.changed = null;
       }
@@ -511,7 +515,7 @@ class TernServer {
           {
             type: "full",
             name: doc.name,
-            text: this.getFocusedDocValueAndPos(doc).value,
+            text: this.docValue(doc),
           },
         ],
       },
@@ -578,7 +582,7 @@ class TernServer {
         const focusedSubSegment = subSegments[focusedSubSegmentIndex];
         const extraChars = lineValue.length - focusedSubSegment.length;
         const chPos =
-          cursor.ch > extraChars ? cursor.ch - extraChars : cursor.ch;
+          cursor.ch > extraChars ? cursor.ch - extraChars + 1 : cursor.ch;
         newCursorPosition = chPos;
         break;
       }
