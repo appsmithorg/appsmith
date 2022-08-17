@@ -105,7 +105,7 @@ describe("API Panel Test Functionality", function() {
       200,
     );
     // eslint-disable-next-line cypress/no-unnecessary-waiting
-    cy.wait(5000);
+    cy.wait(3000);
     // Assert statically bound "users" data
     cy.readTabledataPublish("1", "1").then((cellData) => {
       expect(cellData).to.be.equal("Test user 8");
@@ -123,7 +123,7 @@ describe("API Panel Test Functionality", function() {
       200,
     );
     // eslint-disable-next-line cypress/no-unnecessary-waiting
-    cy.wait(5000);
+    cy.wait(3000);
     // Assert dynamically bound "todos" data
     cy.readTabledataPublish("0", "1").then((cellData) => {
       expect(cellData).to.be.equal("Test user 7");
