@@ -390,10 +390,7 @@ export const scrollbarOnHoverCSS = `
     }
   }
   .thumb-horizontal {
-    &:hover {
-      height: 6px !important;
-    }
-    &:active {
+    &:hover, &:active {
       height: 6px !important;
     }
   }
