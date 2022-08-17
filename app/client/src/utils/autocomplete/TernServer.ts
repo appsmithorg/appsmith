@@ -614,17 +614,6 @@ class TernServer {
         isCursorBeforeBindingCloseAtSegmentEnd) ||
         isCursorAfterBindingOpenAtSegmentStart;
 
-      console.log({
-        isCursorInBetweenSegmentStartAndEndLine,
-        isCursorBetweenSingleLineSegmentBinding,
-        isCursorBeforeBindingCloseAtSegmentEnd,
-        isCursorAfterBindingOpenAtSegmentStart,
-        currentLine,
-        segmentEndLine,
-        cursor,
-        lineValue,
-      });
-
       if (isDynamicValue(segment) && isCursorPointingInsideSegment) {
         dynamicString = currentSegment;
 
