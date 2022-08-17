@@ -1349,16 +1349,7 @@ jobs:
         image: mongo
         ports:
           - 27017:27017
-
     steps:
-      - name: Checkout Performance Infra code
-        uses: actions/checkout@v3
-        with:
-          repository: appsmithorg/performance-infra
-          token: ${{ secrets.APPSMITH_PERF_INFRA_REPO_PAT }}
-          ref: main
-          path: app/client/perf
-
       # Check out merge commitGIT BRANCH
       - name: Fork based /ok-to-test-perf checkout
         uses: actions/checkout@v2
@@ -1502,6 +1493,17 @@ jobs:
         run: |
           ./cypress/setup-test.sh
 
+      - name: Checkout Performance Infra code
+        uses: actions/checkout@v3
+        with:
+          repository: appsmithorg/performance-infra
+          token: ${{ secrets.APPSMITH_PERF_INFRA_REPO_PAT }}
+          ref: main
+          path: app/client/perf
+      
+      - name: List files
+        run: ls app && ls app/client && ls app/client/perf
+        
       - name: Installing performance tests dependencies
         if: steps.run_result.outputs.run_result != 'success'
         working-directory: app/client/perf
