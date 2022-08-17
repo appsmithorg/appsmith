@@ -483,7 +483,7 @@ describe("JS Function Execution", function() {
     // rename functions and assert order
     agHelper.GetNClick(jsEditor._codeTab);
     jsEditor.EditJSObj(getJSObject(FUNCTIONS_SETTINGS_RENAMED_DATA));
-    cy.wait(3000);
+    agHelper.Sleep(3000);
     agHelper.GetNClick(jsEditor._settingsTab);
     assertAsyncFunctionsOrder(FUNCTIONS_SETTINGS_RENAMED_DATA);
   });

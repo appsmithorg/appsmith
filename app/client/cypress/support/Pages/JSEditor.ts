@@ -184,7 +184,7 @@ export class JSEditor {
       .then((el: JQuery<HTMLElement>) => {
         this.agHelper.Paste(el, newContent);
       });
-    this.agHelper.Sleep();//Settling time for edited js code
+    this.agHelper.Sleep(2000);//Settling time for edited js code
     this.agHelper.ActionContextMenuWithInPane("Prettify Code");
     this.agHelper.AssertAutoSave();
   }
