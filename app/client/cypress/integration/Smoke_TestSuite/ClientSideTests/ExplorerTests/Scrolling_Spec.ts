@@ -12,13 +12,13 @@ describe("Entity explorer context menu should hide on scrolling", function() {
     ee.ExpandCollapseEntity("DATASOURCES");
     agHelper.ContainsNClick("DEPENDENCIES");
     dataSources.NavigateToDSCreateNew();
-    agHelper.GetNClick(dataSources._mockDB("users"));
-    dataSources.CreateQuery("users");
+    agHelper.GetNClick(dataSources._mockDB("Users"));
+    dataSources.CreateQuery("Users");
     dataSources.NavigateToDSCreateNew();
-    agHelper.GetNClick(dataSources._mockDB("movies"));
-    dataSources.CreateQuery("movies");
+    agHelper.GetNClick(dataSources._mockDB("Movies"));
+    dataSources.CreateQuery("Movies");
     ee.ExpandCollapseEntity("public.users");
-    ee.ExpandCollapseEntity("movies", true, 1);
+    ee.ExpandCollapseEntity("movies");
     agHelper.GetNClick(locator._createNew);
     agHelper.AssertElementVisible(ee._createNewPopup);
     agHelper.ScrollTo(ee._entityExplorerWrapper, "bottom");
@@ -29,7 +29,7 @@ describe("Entity explorer context menu should hide on scrolling", function() {
     //clean up
     ee.ActionContextMenuByEntityName("Query1", "Delete", "Are you sure?");
     ee.ActionContextMenuByEntityName("Query2", "Delete", "Are you sure?");
-    ee.ActionContextMenuByEntityName("movies", "Delete", "Are you sure?");
-    ee.ActionContextMenuByEntityName("users", "Delete", "Are you sure?");
+    ee.ActionContextMenuByEntityName("Movies", "Delete", "Are you sure?");
+    ee.ActionContextMenuByEntityName("Users", "Delete", "Are you sure?");
   });
 });
