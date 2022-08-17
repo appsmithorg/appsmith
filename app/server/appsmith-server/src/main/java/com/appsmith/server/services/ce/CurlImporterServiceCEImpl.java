@@ -34,6 +34,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Pattern;
 
 import static com.appsmith.server.acl.AclPermission.MANAGE_PAGES;
@@ -50,6 +51,8 @@ public class CurlImporterServiceCEImpl extends BaseApiImporter implements CurlIm
     private static final String ARG_COOKIE = "--cookie";
     private static final String ARG_USER = "--user";
     private static final String ARG_USER_AGENT = "--user-agent";
+    private static final String FORM_DATA_KEY = "apiContentType";
+    private static final String CONTENT_TYPE = "content-type";
 
     private final PluginService pluginService;
     private final LayoutActionService layoutActionService;
@@ -347,8 +350,13 @@ public class CurlImporterServiceCEImpl extends BaseApiImporter implements CurlIm
                 }
                 if ("content-type".equalsIgnoreCase(parts[0])) {
                     contentType = parts[1];
+                    parts[0] = CONTENT_TYPE;
+                    //Setting the apiContentType to the content-type detected in the header with the key word content-type.
+                    // required for RestAPI calls with GET method having body.
+                    actionConfiguration.setFormData(Map.of(FORM_DATA_KEY, contentType));
                 }
                 headers.add(new Property(parts[0], parts[1]));
+
 
             } else if (ARG_DATA.equals(state)) {
                 // The `token` is next to `--data`.
@@ -405,7 +413,10 @@ public class CurlImporterServiceCEImpl extends BaseApiImporter implements CurlIm
         if (contentType == null) {
             contentType = guessTheContentType(dataParts, formParts);
             if (contentType != null) {
-                headers.add(new Property(HttpHeaders.CONTENT_TYPE, contentType));
+                headers.add(new Property(CONTENT_TYPE, contentType));
+                // Setting the apiContentType to the content type detected by guessing the elements from  -f/ --form flag or -d/ --data flag
+                // required for RestAPI calls with GET method having body.
+                actionConfiguration.setFormData(Map.of(FORM_DATA_KEY, contentType));
             }
         }
 
