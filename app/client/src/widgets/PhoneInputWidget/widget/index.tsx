@@ -138,6 +138,104 @@ class PhoneInputWidget extends BaseInputWidget<
     );
   }
 
+  static getPropertyPaneContentConfig() {
+    return mergeWidgetConfig(
+      [
+        {
+          sectionName: "Data",
+          children: [
+            {
+              helpText:
+                "Sets the default text of the widget. The text is updated if the default text changes",
+              propertyName: "defaultText",
+              label: "Default Value",
+              controlType: "INPUT_TEXT",
+              placeholderText: "(000) 000-0000",
+              isBindProperty: true,
+              isTriggerProperty: false,
+              validation: {
+                type: ValidationTypes.FUNCTION,
+                params: {
+                  fn: defaultValueValidation,
+                  expected: {
+                    type: "string",
+                    example: `(000) 000-0000`,
+                    autocompleteDataType: AutocompleteDataType.STRING,
+                  },
+                },
+              },
+            },
+            {
+              helpText: "Changes the country code",
+              propertyName: "defaultDialCode",
+              label: "Default Country Code",
+              enableSearch: true,
+              dropdownHeight: "156px",
+              controlType: "DROP_DOWN",
+              searchPlaceholderText: "Search by code or country name",
+              options: ISDCodeDropdownOptions,
+              isJSConvertible: true,
+              isBindProperty: true,
+              isTriggerProperty: false,
+              validation: {
+                type: ValidationTypes.TEXT,
+              },
+            },
+            {
+              propertyName: "allowDialCodeChange",
+              label: "Allow Country Code Change",
+              helpText: "Search by country",
+              controlType: "SWITCH",
+              isJSConvertible: false,
+              isBindProperty: true,
+              isTriggerProperty: false,
+              validation: { type: ValidationTypes.BOOLEAN },
+            },
+          ],
+        },
+        {
+          sectionName: "Label",
+          children: [],
+        },
+        {
+          sectionName: "Validation",
+          children: [
+            {
+              propertyName: "isRequired",
+              label: "Required",
+              helpText: "Makes input to the widget mandatory",
+              controlType: "SWITCH",
+              isJSConvertible: true,
+              isBindProperty: true,
+              isTriggerProperty: false,
+              validation: { type: ValidationTypes.BOOLEAN },
+            },
+          ],
+        },
+        // {
+        //   sectionName: "General",
+        //   children: [
+        //     {
+        //       propertyName: "allowFormatting",
+        //       label: "Enable Formatting",
+        //       helpText: "Formats the phone number as per the country selected",
+        //       controlType: "SWITCH",
+        //       isJSConvertible: true,
+        //       isBindProperty: true,
+        //       isTriggerProperty: false,
+        //       validation: { type: ValidationTypes.BOOLEAN },
+        //     },
+        //   ],
+        // },
+      ],
+      super.getPropertyPaneContentConfig(),
+    );
+  }
+
+  static getPropertyPaneStyleConfig() {
+    return super.getPropertyPaneStyleConfig();
+  }
+
   static getDerivedPropertiesMap(): DerivedPropertiesMap {
     return {
       isValid: `{{(() => {${derivedProperties.isValid}})()}}`,

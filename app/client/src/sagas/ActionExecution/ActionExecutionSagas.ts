@@ -72,7 +72,7 @@ export function* executeActionTriggers(
   triggerMeta: TriggerMeta,
 ): any {
   // when called via a promise, a trigger can return some value to be used in .then
-  let response: unknown[] = [{ success: true }];
+  let response: unknown[] = [];
   switch (trigger.type) {
     case ActionTriggerType.RUN_PLUGIN_ACTION:
       response = yield call(
@@ -122,8 +122,6 @@ export function* executeActionTriggers(
         eventType,
         triggerMeta,
       );
-      // response return only one object into array
-      set(response, "0.success", true);
       break;
 
     case ActionTriggerType.WATCH_CURRENT_LOCATION:
@@ -133,14 +131,10 @@ export function* executeActionTriggers(
         eventType,
         triggerMeta,
       );
-      // response return only one object into array
-      set(response, "0.success", true);
       break;
 
     case ActionTriggerType.STOP_WATCHING_CURRENT_LOCATION:
       response = yield call(stopWatchCurrentLocation, eventType, triggerMeta);
-      // response return only one object into array
-      set(response, "0.success", true);
       break;
     case ActionTriggerType.CONFIRMATION_MODAL:
       const payloadInfo = {
@@ -184,6 +178,7 @@ export function* executeAppAction(payload: ExecuteTriggerPayload): any {
     source,
     triggerPropertyName,
   } = payload;
+
   log.debug({ dynamicString, callbackData, globalContext });
   if (dynamicString === undefined) {
     throw new Error("Executing undefined action");
@@ -207,16 +202,9 @@ function* initiateActionTriggerExecution(
   // it will be created again while execution
   AppsmithConsole.deleteError(`${source?.id}-${triggerPropertyName}`);
   try {
-    const res: unknown[] = yield call(executeAppAction, action.payload);
+    yield call(executeAppAction, action.payload);
     if (event.callback) {
-      /**
-       * result.success flag added to fire notification after successfully trigger
-       * size of triggers checked for dependent action trigger i.e call success message after getting current location
-       */
-      const success = !!(
-        get(res, "result.success") || size(get(res, "triggers"))
-      );
-      event.callback({ success });
+      event.callback({ success: true });
     }
   } catch (e) {
     if (e instanceof UncaughtPromiseError || e instanceof TriggerFailureError) {

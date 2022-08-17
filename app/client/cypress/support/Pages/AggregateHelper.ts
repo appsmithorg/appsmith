@@ -110,6 +110,13 @@ export class AggregateHelper {
     });
   }
 
+  public AssertElementText(selector: string, text: string, index: number = 0) {
+    const locator = selector.startsWith("//")
+      ? cy.xpath(selector)
+      : cy.get(selector);
+    locator.eq(index).should("have.text", text);
+  }
+
   public ValidateToastMessage(text: string, index = 0, length = 1) {
     cy.get(this.locator._toastMsg).should("have.length.at.least", length);
     cy.get(this.locator._toastMsg)
@@ -502,14 +509,14 @@ export class AggregateHelper {
     jsDelete = false,
   ) {
     cy.get(this.locator._contextMenuInPane).click();
-    cy.xpath(this.locator._visibleTextDiv(action))
+    cy.xpath(this.locator._contextMenuSubItemDiv(action))
       .should("be.visible")
       .click();
     if (action == "Delete") {
       subAction = "Are you sure?";
     }
     if (subAction) {
-      cy.xpath(this.locator._visibleTextDiv(subAction)).click();
+      cy.xpath(this.locator._contextMenuSubItemDiv(subAction)).click();
       this.Sleep(500);
     }
     if (action == "Delete") {
@@ -519,7 +526,7 @@ export class AggregateHelper {
     }
   }
 
-  public TypeValueNValidate(valueToType: string, fieldName = "") {
+  public EnterValueNValidate(valueToType: string, fieldName = "") {
     this.EnterValue(valueToType, {
       propFieldName: fieldName,
       directInput: false,
@@ -586,11 +593,13 @@ export class AggregateHelper {
   }
 
   public UpdateCodeInput(selector: string, value: string) {
-    this.EnableAllEditors();
+    //this.EnableAllEditors();
     cy.wrap(selector)
-      .click({ force: true })
-      .wait(1000)
+      //.click({ force: true })
+      //.wait(1000)
       .find(".CodeMirror")
+      .find('textarea')
+      .parents('.CodeMirror')
       .first()
       .then((ins: any) => {
         const input = ins[0].CodeMirror;
@@ -751,6 +760,13 @@ export class AggregateHelper {
 
   public AssertContains(text: string, exists: "exist" | "not.exist" = "exist") {
     return cy.contains(text).should(exists);
+  }
+
+  public AssertElementContains(selector: string, text: string) {
+    const locator = selector.startsWith("//")
+      ? cy.xpath(selector)
+      : cy.get(selector);
+    return locator.contains(text);
   }
 
   public EnableAllEditors() {

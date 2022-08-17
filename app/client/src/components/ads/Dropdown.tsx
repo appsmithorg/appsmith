@@ -11,7 +11,7 @@ import { Text, TextProps, TextType } from "design-system";
 import { Popover, PopperBoundary, Position } from "@blueprintjs/core";
 import { getTypographyByKey, Theme } from "constants/DefaultTheme";
 import styled from "constants/DefaultTheme";
-import SearchComponent from "components/designSystems/appsmith/SearchComponent";
+import { SearchComponent } from "design-system";
 import { Colors } from "constants/Colors";
 import Spinner from "./Spinner";
 import { ReactComponent as Check } from "assets/icons/control/checkmark.svg";
@@ -49,6 +49,7 @@ export type DropdownOption = {
   disabled?: boolean;
   disabledTooltipText?: string;
   hasCustomBadge?: boolean;
+  link?: string;
 };
 export interface DropdownSearchProps {
   enableSearch?: boolean;
@@ -190,6 +191,7 @@ const SquareBox = styled.div<{
     if (props.borderColor) return props.borderColor;
     props.checked ? Colors.GRAY_900 : Colors.GRAY_400;
   }};
+  flex: 0 0 auto;
 
   & svg {
     display: ${(props) => (props.checked ? "block" : "none")};

@@ -21,6 +21,7 @@ export const OpenNewTabIconWrapper = styled.div`
 export const Content = styled.span`
   overflow: hidden;
   text-overflow: ellipsis;
+  padding-right: 4px;
 `;
 
 interface Props {

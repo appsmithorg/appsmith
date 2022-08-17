@@ -18,6 +18,7 @@ import {
 } from "utils/storage";
 import { validateResponse } from "./ErrorSagas";
 import { builderURL } from "RouteBuilder";
+import { showReconnectDatasourceModal } from "actions/applicationActions";
 
 function* getAllTemplatesSaga() {
   try {
@@ -53,17 +54,31 @@ function* importTemplateToWorkspaceSaga(
     const isValid: boolean = yield validateResponse(response);
     if (isValid) {
       const application: ApplicationPayload = {
-        ...response.data,
-        defaultPageId: getDefaultPageId(response.data.pages) as string,
+        ...response.data.application,
+        defaultPageId: getDefaultPageId(
+          response.data.application.pages,
+        ) as string,
       };
       yield put({
         type: ReduxActionTypes.IMPORT_TEMPLATE_TO_WORKSPACE_SUCCESS,
-        payload: response.data,
+        payload: response.data.application,
       });
-      const pageURL = builderURL({
-        pageId: application.defaultPageId,
-      });
-      history.push(pageURL);
+
+      if (response.data.isPartialImport) {
+        yield put(
+          showReconnectDatasourceModal({
+            application: response.data.application,
+            unConfiguredDatasourceList:
+              response.data.unConfiguredDatasourceList,
+            workspaceId: action.payload.workspaceId,
+          }),
+        );
+      } else {
+        const pageURL = builderURL({
+          pageId: application.defaultPageId,
+        });
+        history.push(pageURL);
+      }
     }
   } catch (error) {
     yield put({

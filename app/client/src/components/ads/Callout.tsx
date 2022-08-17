@@ -17,7 +17,7 @@ export type CalloutProps = CommonComponentProps & {
 
 const CalloutContainer = styled.div<{
   variant: Variant;
-  fill?: boolean;
+  fillUp?: boolean;
   addMarginTop?: boolean;
 }>`
   position: relative;
@@ -32,7 +32,7 @@ const CalloutContainer = styled.div<{
   `}
 
   ${(props) =>
-    props.fill
+    props.fillUp
       ? `
   display: flex;
   align-items: center;
@@ -83,7 +83,7 @@ function Callout(props: CalloutProps) {
     <CalloutContainer
       addMarginTop={props.addMarginTop}
       className={props.className}
-      fill={props.fill}
+      fillUp={props.fill}
       variant={props.variant || Variant.info}
     >
       {props.text && props.variant !== Variant.info ? (

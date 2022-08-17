@@ -5,12 +5,14 @@ export interface ICreateJSObjectOptions {
   completeReplace: boolean;
   toRun: boolean;
   shouldCreateNewJSObj: boolean;
+  lineNumber?: number;
 }
 const DEFAULT_CREATE_JS_OBJECT_OPTIONS = {
   paste: true,
   completeReplace: false,
   toRun: true,
   shouldCreateNewJSObj: true,
+  lineNumber: 4,
 };
 
 export class JSEditor {
@@ -118,30 +120,29 @@ export class JSEditor {
     JSCode: string,
     options: ICreateJSObjectOptions = DEFAULT_CREATE_JS_OBJECT_OPTIONS,
   ) {
-    const { completeReplace, paste, shouldCreateNewJSObj, toRun } = options;
+    const {
+      completeReplace,
+      lineNumber = 4,
+      paste,
+      shouldCreateNewJSObj,
+      toRun,
+    } = options;
 
     shouldCreateNewJSObj && this.NavigateToNewJSEditor();
     if (!completeReplace) {
+      const downKeys = Array.from(new Array(lineNumber), () => "{downarrow}")
+        .toString()
+        .replaceAll(",", "");
       cy.get(this.locator._codeMirrorTextArea)
         .first()
         .focus()
-        .type("{downarrow}{downarrow}{downarrow}{downarrow}  ");
+        .type(`${downKeys}  `);
     } else {
       cy.get(this.locator._codeMirrorTextArea)
         .first()
         .focus()
         .type(this.selectAllJSObjectContentShortcut)
         .type("{backspace}", { force: true });
-
-      // .type("{uparrow}", { force: true })
-      // .type("{ctrl}{shift}{downarrow}", { force: true })
-      // .type("{del}",{ force: true });
-
-      // cy.get(this.locator._codthis.eeditorTarget).contains('export').click().closest(this.locator._codthis.eeditorTarget)
-      //   .type("{uparrow}", { force: true })
-      //   .type("{ctrl}{shift}{downarrow}", { force: true })
-      //   .type("{backspace}",{ force: true });
-      //.type("{downarrow}{downarrow}{downarrow}{downarrow}{downarrow}{downarrow}{downarrow}{downarrow}{downarrow}{downarrow} ")
     }
 
     cy.get(this.locator._codeMirrorTextArea)
@@ -186,25 +187,38 @@ export class JSEditor {
     this.agHelper.AssertAutoSave();
   }
 
+  public DisableJSContext(endp: string) {
+    cy.get(this.locator._jsToggle(endp.replace(/ +/g, "").toLowerCase()))
+      .invoke("attr", "class")
+      .then((classes: any) => {
+        if (classes.includes("is-active"))
+          cy.get(this.locator._jsToggle(endp.replace(/ +/g, "").toLowerCase()))
+            .first()
+            .click({ force: true });
+        else this.agHelper.Sleep(500);
+      });
+  }
+
   public EnterJSContext(
     endp: string,
     value: string,
+    toToggleOnJS = true,
     paste = true,
-    toToggleOnJS = false,
   ) {
-    if (toToggleOnJS) {
-      cy.get(this.locator._jsToggle(endp.replace(/ +/g, "").toLowerCase()))
-        .invoke("attr", "class")
-        .then((classes: any) => {
-          if (!classes.includes("is-active")) {
-            cy.get(
-              this.locator._jsToggle(endp.replace(/ +/g, "").toLowerCase()),
-            )
-              .first()
-              .click({ force: true });
-          }
-        });
-    }
+    cy.get(this.locator._jsToggle(endp.replace(/ +/g, "").toLowerCase()))
+      .invoke("attr", "class")
+      .then((classes: any) => {
+        if (toToggleOnJS && !classes.includes("is-active"))
+          cy.get(this.locator._jsToggle(endp.replace(/ +/g, "").toLowerCase()))
+            .first()
+            .click({ force: true });
+        else if (!toToggleOnJS && classes.includes("is-active"))
+          cy.get(this.locator._jsToggle(endp.replace(/ +/g, "").toLowerCase()))
+            .first()
+            .click({ force: true });
+        else this.agHelper.Sleep(500);
+      });
+
     // cy.get(this.locator._propertyControl + endp + " " + this.locator._codeMirrorTextArea)
     //   .first()
     //   .focus()
@@ -214,22 +228,8 @@ export class JSEditor {
     //   // .type("{ctrl}{shift}{downarrow}", { force: true })
     //   .type("{del}", { force: true });
 
-    if (paste) {
-      this.propPane.UpdatePropertyFieldValue(endp, value);
-    } else {
-      cy.get(
-        this.locator._propertyControl +
-          endp.replace(/ +/g, "").toLowerCase() +
-          " " +
-          this.locator._codeMirrorTextArea,
-      )
-        .first()
-        .then((el: any) => {
-          cy.get(el).type(value, {
-            parseSpecialCharSequences: false,
-          });
-        });
-    }
+    if (paste) this.propPane.UpdatePropertyFieldValue(endp, value);
+    else this.propPane.TypeTextIntoField(endp, value);
 
     // cy.focused().then(($cm: any) => {
     //   if ($cm.contents != "") {
@@ -387,9 +387,7 @@ export class JSEditor {
 
   public SelectFunctionDropdown(funName: string) {
     cy.get(this._funcDropdown).click();
-    cy.get(this.locator._dropdownText)
-      .contains(funName)
-      .click();
+    this.agHelper.GetNClickByContains(this.locator._dropdownText, funName);
   }
 
   //#endregion
