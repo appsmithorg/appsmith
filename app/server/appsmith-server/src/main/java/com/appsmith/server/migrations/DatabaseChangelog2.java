@@ -721,10 +721,10 @@ public class DatabaseChangelog2 {
     @ChangeSet(order = "023", id = "add-graphql-plugin", author = "")
     public void addGraphQLPlugin(MongockTemplate mongoTemplate) {
         Plugin plugin = new Plugin();
-        plugin.setName("Authenticated GraphQL API");
+        plugin.setName("GraphQL API");
         plugin.setType(PluginType.API);
         plugin.setPackageName("graphql-plugin");
-        plugin.setUiComponent("GraphQLEditorForm"); // TODO: make it ApiEditorForm -> GraphQLEditorForm
+        plugin.setUiComponent("GraphQLEditorForm");
         plugin.setDatasourceComponent("RestAPIDatasourceForm");
         plugin.setResponseType(Plugin.ResponseType.JSON);
         plugin.setIconLocation("https://upload.wikimedia.org/wikipedia/commons/1/17/GraphQL_Logo.svg"); // TODO: update
