@@ -6137,10 +6137,10 @@ depd@~1.1.2:
   version "1.1.2"
   resolved "https://registry.npmjs.org/depd/-/depd-1.1.2.tgz"
 
-"design-system@npm:@appsmithorg/design-system@1.0.8":
-  version "1.0.8"
-  resolved "https://registry.yarnpkg.com/@appsmithorg/design-system/-/design-system-1.0.8.tgz#85bd7d28dd66f4f62e1f50cb3d3c0e9e2abf6e14"
-  integrity sha512-NlngH4vSioIT0CWCBjrAMWjazcr1irjuThVy7AipYmQGFJWycBKICpotuRQdu2MyFoCUABQNCn4nGGmHDvIiow==
+"design-system@npm:@appsmithorg/design-system@1.0.13":
+  version "1.0.13"
+  resolved "https://registry.yarnpkg.com/@appsmithorg/design-system/-/design-system-1.0.13.tgz#a2f631c803b16e3d6db883bfb61e835794d7b667"
+  integrity sha512-S1pzst9KS30F1cWZkXTojW+qpeGT6UYrT6QfsOpWJyUGt627fW3Ez/erNa5oU4ml5xCv3KIgjfVI4I4u7PTYlw==
   dependencies:
     "@blueprintjs/datetime" "3.23.6"
     "@types/redux-form" "8.3.0"
