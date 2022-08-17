@@ -50,17 +50,6 @@ export class HomePage {
     "//td[text()='" +
     email +
     "']/following-sibling::td//span[contains(@class, 't--deleteUser')]";
-  /*private _userRoleDropDown = (email: string, role: string, workspaceName: string) => {
-    cy.log("//span[text()='" +
-    email +
-    "']/following-sibling::td//span[text()='" +
-    role + " - " + workspaceName +
-    "']");
-    return "//span[text()='" +
-    email +
-    "']/following-sibling::td//span[text()='" +
-    role + " - " + workspaceName +
-    "']"};*/
   private _userRoleDropDown = (role: string, WorkspaceName:string)=>  "//span[text()='" +
   role + " - "+ WorkspaceName + "']";
   //private _userRoleDropDown = (email: string) => "//td[text()='" + email + "']/following-sibling::td"
