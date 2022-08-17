@@ -225,6 +225,7 @@ function useComputeCurrentStep(showInfoMessage: boolean) {
     ) {
       if (!!nameInputWidgetId) {
         // Minor timeout to wait for the elements to exist
+        closeSidebar(dispatch);
         setTimeout(() => {
           // Highlight the selected row and the NameInput widget
           highlightSection(
