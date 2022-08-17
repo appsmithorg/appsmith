@@ -1,158 +1,20 @@
 import * as React from "react";
 
-import {
-  ValidationTypes,
-  ValidationResponse,
-} from "constants/WidgetValidation";
+import { ValidationTypes } from "constants/WidgetValidation";
 import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import { TAILWIND_COLORS } from "constants/ThemeConstants";
 import { LabelPosition } from "components/constants";
-import { AutocompleteDataType } from "utils/autocomplete/TernServer";
-import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { Alignment } from "@blueprintjs/core";
-import SliderComponent, {
-  SliderComponentProps,
-} from "../../SliderWidget/component/Slider";
-import { SliderType, SliderOption } from "../../SliderWidget/utils";
+import SliderComponent, { SliderComponentProps } from "../component/Slider";
+import { SliderType } from "../utils";
 
-interface CategoricalSliderWidgetProps
-  extends WidgetProps,
-    SliderComponentProps {
+interface NumberSliderWidgetProps extends WidgetProps, SliderComponentProps {
   /** Color from theme.colors */
   accentColor?: string;
-  /** Slider Type */
-  sliderType: SliderType;
-  /** Slider Options  */
-  options?: SliderOption[];
-  /**  Selected Value */
-  value: string | undefined;
 }
 
-function optionsCustomValidation(
-  options: unknown,
-  props: any,
-  _: any,
-): ValidationResponse {
-  const validationUtil = (
-    options: { label: string; value: string | number }[],
-    _: any,
-  ) => {
-    let _isValid = true;
-    let message = "";
-    let valueType = "";
-    const uniqueLabels: Record<string | number, string> = {};
-
-    for (let i = 0; i < options.length; i++) {
-      const { label, value } = options[i];
-      if (!valueType) {
-        valueType = typeof value;
-      }
-      //Checks the uniqueness all the values in the options
-      if (!uniqueLabels.hasOwnProperty(value)) {
-        uniqueLabels[value] = "";
-      } else {
-        _isValid = false;
-        message = "path:value must be unique. Duplicate values found";
-        break;
-      }
-
-      //Check if the required field "label" is present:
-      if (!label) {
-        _isValid = false;
-        message =
-          "Invalid entry at index: " + i + ". Missing required key: label";
-        break;
-      }
-
-      //Validation checks for the the label.
-      if (
-        _.isNil(label) ||
-        label === "" ||
-        (typeof label !== "string" && typeof label !== "number")
-      ) {
-        _isValid = false;
-        message =
-          "Invalid entry at index: " +
-          i +
-          ". Value of key: label is invalid: This value does not evaluate to type string";
-        break;
-      }
-
-      //Check if all the data types for the value prop is the same.
-      if (typeof value !== valueType) {
-        _isValid = false;
-        message = "All value properties in options must have the same type";
-        break;
-      }
-
-      //Check if the each object has value property.
-      if (_.isNil(value)) {
-        _isValid = false;
-        message =
-          'This value does not evaluate to type Array<{ "label": "string", "value": "string" | number }>';
-        break;
-      }
-    }
-
-    return {
-      isValid: _isValid,
-      parsed: _isValid ? options : [],
-      messages: [message],
-    };
-  };
-
-  const invalidResponse = {
-    isValid: false,
-    parsed: [],
-    messages: [
-      'This value does not evaluate to type Array<{ "label": "string", "value": "string" | number }>',
-    ],
-  };
-  try {
-    if (_.isString(options)) {
-      options = JSON.parse(options as string);
-    }
-
-    if (Array.isArray(options)) {
-      return validationUtil(options, _);
-    } else {
-      return invalidResponse;
-    }
-  } catch (e) {
-    return invalidResponse;
-  }
-}
-function defaultOptionValidation(
-  value: unknown,
-  props: any,
-  _: any,
-): ValidationResponse {
-  //Checks if the value is not of object type in {{}}
-  if (_.isObject(value)) {
-    return {
-      isValid: false,
-      parsed: JSON.stringify(value, null, 2),
-      messages: ["This value does not evaluate to type: string or number"],
-    };
-  }
-
-  //Checks if the value is not of boolean type in {{}}
-  if (_.isBoolean(value)) {
-    return {
-      isValid: false,
-      parsed: value,
-      messages: ["This value does not evaluate to type: string or number"],
-    };
-  }
-
-  return {
-    isValid: true,
-    parsed: value,
-  };
-}
-
-class CategoricalSliderWidget extends BaseWidget<
-  CategoricalSliderWidgetProps,
+class NumberSliderWidget extends BaseWidget<
+  NumberSliderWidgetProps,
   WidgetState
 > {
   static getPropertyPaneConfig() {
@@ -161,52 +23,44 @@ class CategoricalSliderWidget extends BaseWidget<
         sectionName: "General",
         children: [
           {
-            helpText: "Displays a list of unique options",
-            propertyName: "options",
-            label: "Options",
-            controlType: "OPTION_INPUT",
-            isJSConvertible: true,
+            propertyName: "defaultValue",
+            helpText: "Sets the value of the widget",
+            label: "Value",
+            controlType: "INPUT_TEXT",
+            placeholderText: "Value:",
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: {
-              type: ValidationTypes.FUNCTION,
-              params: {
-                fn: optionsCustomValidation,
-                expected: {
-                  type:
-                    'Array<{ "label": "string", "value": "string" | number}>',
-                  example: `[{"label": "One", "value": "one"}]`,
-                  autocompleteDataType: AutocompleteDataType.STRING,
-                },
-              },
-            },
-            evaluationSubstitutionType:
-              EvaluationSubstitutionType.SMART_SUBSTITUTE,
+            validation: { type: ValidationTypes.NUMBER },
           },
           {
-            helpText: "Sets a default selected option",
-            propertyName: "defaultOptionValue",
-            label: "Default Selected Value",
-            placeholderText: "Y",
+            propertyName: "max",
+            helpText: "Sets the max value of the widget",
+            label: "Max Value",
             controlType: "INPUT_TEXT",
+            placeholderText: "100",
             isBindProperty: true,
             isTriggerProperty: false,
-            /**
-             * Changing the validation to FUNCTION.
-             * If the user enters Integer inside {{}} e.g. {{1}} then value should evalute to integer.
-             * If user enters 1 e.g. then it should evaluate as string.
-             */
-            validation: {
-              type: ValidationTypes.FUNCTION,
-              params: {
-                fn: defaultOptionValidation,
-                expected: {
-                  type: `string |\nnumber (only works in mustache syntax)`,
-                  example: `abc | {{1}}`,
-                  autocompleteDataType: AutocompleteDataType.STRING,
-                },
-              },
-            },
+            validation: { type: ValidationTypes.NUMBER },
+          },
+          {
+            propertyName: "min",
+            helpText: "Sets the min value of the widget",
+            label: "Min Value",
+            controlType: "INPUT_TEXT",
+            placeholderText: "0",
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.NUMBER },
+          },
+          {
+            propertyName: "step",
+            helpText: "Sets the step size of the widget",
+            label: "Step Size",
+            controlType: "INPUT_TEXT",
+            placeholderText: "10",
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.NUMBER },
           },
           {
             propertyName: "isVisible",
@@ -259,6 +113,45 @@ class CategoricalSliderWidget extends BaseWidget<
             isTriggerProperty: false,
             validation: { type: ValidationTypes.BOOLEAN },
           },
+          {
+            helpText: "Display Value Marks",
+            propertyName: "marks",
+            label: "Marks",
+            controlType: "INPUT_TEXT",
+            placeholderText: '[{ "value": "20", "label": "20%" }]',
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: {
+              type: ValidationTypes.ARRAY,
+              params: {
+                unique: ["value"],
+                children: {
+                  type: ValidationTypes.OBJECT,
+                  params: {
+                    required: true,
+                    allowedKeys: [
+                      {
+                        name: "value",
+                        type: ValidationTypes.NUMBER,
+                        params: {
+                          default: "",
+                          requiredKey: true,
+                        },
+                      },
+                      {
+                        name: "label",
+                        type: ValidationTypes.TEXT,
+                        params: {
+                          default: "",
+                          requiredKey: true,
+                        },
+                      },
+                    ],
+                  },
+                },
+              },
+            },
+          },
         ],
       },
       {
@@ -306,7 +199,7 @@ class CategoricalSliderWidget extends BaseWidget<
             isBindProperty: false,
             isTriggerProperty: false,
             validation: { type: ValidationTypes.TEXT },
-            hidden: (props: CategoricalSliderWidgetProps) =>
+            hidden: (props: NumberSliderWidgetProps) =>
               props.labelPosition !== LabelPosition.Left,
             dependencies: ["labelPosition"],
           },
@@ -326,7 +219,7 @@ class CategoricalSliderWidget extends BaseWidget<
                 natural: true,
               },
             },
-            hidden: (props: CategoricalSliderWidgetProps) =>
+            hidden: (props: NumberSliderWidgetProps) =>
               props.labelPosition !== LabelPosition.Left,
             dependencies: ["labelPosition"],
           },
@@ -447,68 +340,27 @@ class CategoricalSliderWidget extends BaseWidget<
 
   static getDefaultPropertiesMap(): Record<string, any> {
     return {
-      value: "defaultOptionValue",
+      value: "defaultValue",
     };
   }
 
   static getMetaPropertiesMap(): Record<string, any> {
     return {
-      value: undefined,
+      value: 0,
     };
   }
 
-  getSliderOptions = () => {
-    const options = this.props.options || [];
-    /** get the stepSize - if we have 4 options stepSize is 25  */
-    const stepSize = Math.round(100 / options.length);
-
-    /**
-     * For the marks we need Array<{ value: number, label: string }>
-     * So we have sliderOptions matching its type.
-     */
-    const sliderOptions = options.map((option, index) => ({
-      /**
-       * create categories - if we have 4 options
-       * value will be 25, 50, 75, 100
-       */
-      value: (index + 1) * stepSize,
-      label: option.label,
-      optionValue: option.value,
-    }));
-
-    return {
-      /**
-       * If a user has messed up the option labels or values
-       * this.props.options is empty array so disable the slider
-       */
-      disabled: this.props.isDisabled || sliderOptions.length === 0,
-      sliderOptions,
-      stepSize,
-    };
-  };
-
-  onChangeEnd = (sliderValue: number) => {
-    const { disabled, sliderOptions } = this.getSliderOptions();
-    if (!disabled) {
-      const selectedValue = sliderOptions.find(
-        (option) => option.value === sliderValue,
-      )?.optionValue;
-
-      this.props.updateWidgetMetaProperty("value", selectedValue);
+  onChangeEnd = (value: number) => {
+    if (!this.props.isDisabled) {
+      this.props.updateWidgetMetaProperty("value", value);
     }
   };
 
   getPageView() {
-    const { disabled, sliderOptions, stepSize } = this.getSliderOptions();
-
-    const sliderValue = sliderOptions.find(
-      (option) => option.optionValue === this.props.value,
-    )?.value;
-
     return (
       <SliderComponent
         color={this.props.accentColor || TAILWIND_COLORS.green["600"]}
-        disabled={disabled}
+        disabled={this.props.isDisabled || false}
         labelAlignment={this.props.labelAlignment}
         labelAlwaysOn={this.props.labelAlwaysOn}
         labelPosition={this.props.labelPosition}
@@ -518,26 +370,23 @@ class CategoricalSliderWidget extends BaseWidget<
         labelTextSize={this.props.labelTextSize}
         labelWidth={this.getLabelWidth()}
         loading={this.props.isLoading}
-        marks={sliderOptions}
-        max={stepSize * sliderOptions.length}
-        min={stepSize}
+        marks={this.props.marks}
+        max={this.props.max || 100}
+        min={this.props.min || 0}
         name={this.props.widgetName}
         onChangeEnd={this.onChangeEnd}
         showLabelOnHover={this.props.showLabelOnHover}
         sliderSize={this.props.sliderSize || "md"}
-        sliderTooltip={(val: number) =>
-          sliderOptions.find((option) => option.value === val)?.label || ""
-        }
-        sliderType={SliderType.CATEGORICAL}
-        sliderValue={sliderValue || 0}
-        step={stepSize}
+        sliderType={SliderType.LINEAR}
+        sliderValue={this.props.value || 0}
+        step={this.props.step || 1}
       />
     );
   }
 
   static getWidgetType() {
-    return "CATEGORICAL_SLIDER_WIDGET";
+    return "NUMBER_SLIDER_WIDGET";
   }
 }
 
-export default CategoricalSliderWidget;
+export default NumberSliderWidget;

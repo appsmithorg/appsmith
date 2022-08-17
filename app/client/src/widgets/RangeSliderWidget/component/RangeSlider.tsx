@@ -5,17 +5,17 @@ import LabelWithTooltip from "components/ads/LabelWithTooltip";
 import { LabelPosition } from "components/constants";
 import { Alignment } from "@blueprintjs/core";
 import { TextSize } from "constants/WidgetConstants";
-import { useMove } from "../../SliderWidget/use-move";
+import { useMove } from "../../NumberSliderWidget/use-move";
 import {
   getClientPosition,
   getPosition,
   getChangeValue,
   SliderSizes,
-} from "../../SliderWidget/utils";
-import { Thumb } from "../../SliderWidget/component/Thumb";
-import { Track } from "../../SliderWidget/component/Track";
-import { SliderRoot } from "../../SliderWidget/component/SilderRoot";
-import { SliderContainer } from "widgets/SliderWidget/component/Container";
+} from "../../NumberSliderWidget/utils";
+import { Thumb } from "../../NumberSliderWidget/component/Thumb";
+import { Track } from "../../NumberSliderWidget/component/Track";
+import { SliderRoot } from "../../NumberSliderWidget/component/SilderRoot";
+import { SliderContainer } from "widgets/NumberSliderWidget/component/Container";
 
 type Value = [number, number];
 

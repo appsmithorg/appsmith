@@ -28,7 +28,7 @@ export const CONFIG = {
     labelAlwaysOn: false,
     showLabelOnHover: true,
     labelText: "Label",
-    labelPosition: LabelPosition.Left,
+    labelPosition: LabelPosition.Top,
     labelAlignment: Alignment.LEFT,
     labelWidth: 5,
     labelTextSize: "0.875rem",
