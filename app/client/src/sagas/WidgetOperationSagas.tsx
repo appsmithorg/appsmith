@@ -1458,6 +1458,7 @@ function* pasteWidgetSaga(
             }
           }
 
+          // TODO: here to move this to the widget definition
           // Update the Select widget defaultValue properties
           if (
             widget.type === "MULTI_SELECT_WIDGET_V2" ||
