@@ -427,6 +427,7 @@ class ContainerWidget extends BaseWidget<
             spacing={this.props.spacing || Spacing.None}
             stretchHeight={stretchFlexBox}
             useAutoLayout={this.state.useAutoLayout}
+            widgetId={this.props.widgetId}
           >
             <AutoLayoutContext.Provider
               value={{
