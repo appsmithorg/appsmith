@@ -39,8 +39,6 @@ export interface XYCord {
 const CONTAINER_JUMP_ACC_THRESHOLD = 8000;
 const CONTAINER_JUMP_SPEED_THRESHOLD = 800;
 
-const shouldDisableReflow = true;
-
 let lastTranslatedIndex: number;
 //Since useCanvasDragging's Instance changes during container jump, metrics is stored outside
 const containerJumpThresholdMetrics = new ContainerJumpMetrics<{
@@ -641,9 +639,7 @@ export const useCanvasDragging = (
               renderNewRows(delta);
             } else if (!isUpdatingRows) {
               triggerReflow(e, firstMove);
-              isCurrentDraggedCanvas &&
-                !shouldDisableReflow &&
-                highlightDropPosition(e);
+              isCurrentDraggedCanvas && highlightDropPosition(e);
               renderBlocks();
             }
             scrollObj.lastMouseMoveEvent = {
@@ -705,7 +701,6 @@ export const useCanvasDragging = (
         const getDropPosition = (val: number): number | undefined => {
           const pos = getHighlightPosition(null, val);
           if (!pos) return;
-          if (shouldDisableReflow) return offsets.length;
           return offsets.indexOf(pos);
         };
         const renderNewRows = debounce((delta) => {
