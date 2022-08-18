@@ -68,8 +68,6 @@ function MainContainer() {
   const isPreviewMode = useSelector(previewModeSelector);
   const isAppSettingsPaneOpen = useSelector(getIsAppSettingsPaneOpen);
 
-  const closeAppSettingPane = () => dispatch(closeAppSettingsPaneAction());
-
   return (
     <>
       <Container className="relative w-full overflow-x-hidden">
