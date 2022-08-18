@@ -1458,6 +1458,28 @@ function* pasteWidgetSaga(
             }
           }
 
+          // TODO: here to move this to the widget definition
+          // Update the Select widget defaultValue properties
+          if (
+            widget.type === "MULTI_SELECT_WIDGET_V2" ||
+            widget.type === "SELECT_WIDGET"
+          ) {
+            try {
+              // If the defaultOptionValue exist
+              if (widget.defaultOptionValue) {
+                const value = widget.defaultOptionValue;
+                // replace All occurrence of old widget name
+                widget.defaultOptionValue = isString(value)
+                  ? value.replaceAll(`${oldWidgetName}.`, `${newWidgetName}.`)
+                  : value;
+              }
+              // Use the new widget name we used to replace the defaultValue properties above.
+              widget.widgetName = newWidgetName;
+            } catch (error) {
+              log.debug("Error updating widget properties", error);
+            }
+          }
+
           // If it is the copied widget, update position properties
           if (widget.widgetId === widgetIdMap[copiedWidget.widgetId]) {
             //when the widget is a modal widget, it has to paste on the main container
