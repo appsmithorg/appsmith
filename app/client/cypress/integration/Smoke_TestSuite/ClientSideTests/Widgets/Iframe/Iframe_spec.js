@@ -1,4 +1,4 @@
-const dsl = require("../../../../fixtures/IframeDsl.json");
+const dsl = require("../../../../../fixtures/IframeDsl.json");
 
 describe("Iframe Widget functionality", function() {
   before(() => {

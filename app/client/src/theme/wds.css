@@ -1,18 +1,24 @@
 :root {
   --wds-color-border: #E0DEDE;
   --wds-color-border-hover: #B3B3B3;
-
+  --wds-color-border-disabled: #E0DEDE;
   --wds-color-border-danger: #D91921;
   --wds-color-border-danger-hover: #B90707;
 
-  --wds-color-border-disabled: #E0DEDE;
-
+  --wds-color-bg-hover: #EBEBEB;
   --wds-color-bg-strong: #E0DEDE;
   --wds-color-bg-strong-hover: #B3B3B3;
-
   --wds-color-bg-disabled: #F3F3F3;
   --wds-color-bg-disabled-strong: #A9A7A7;
-
   --wds-color-bg-danger: #D91921;
   --wds-color-bg-danger-hover: #B90707;
+
+  --wds-color-icon: #858282;
+  --wds-color-icon-disabled: #A9A7A7;
+
+  --wds-color-text: #090707;
+  --wds-color-text-danger: #D91921;
+  --wds-color-text-light: #716E6E;
+  --wds-color-text-disabled: #A9A7A7;
+  --wds-color-text-disabled-light: #CAC7C7;
 }
