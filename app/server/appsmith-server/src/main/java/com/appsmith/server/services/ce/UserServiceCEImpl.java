@@ -319,7 +319,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
      * This function can only be called via the forgot password route.
      *
      * @param encryptedToken The one-time token provided to the user for resetting the password
-     * @param user           The user object that contains the email & password fields in order to save the new password for the user
+     * @param user  The user object that contains the email & password fields in order to save the new password for the user
      * @return
      */
     @Override
