@@ -94,9 +94,7 @@ function MainContainer() {
         </div>
         {isOpen ? (
           <AppSettingsPane
-            className={classNames({
-              [`absolute ${tailwindLayers.appSettingsPane} right-0`]: true,
-            })}
+            className={`absolute ${tailwindLayers.appSettingsPane} right-0`}
           >
             <AppSettings />
           </AppSettingsPane>

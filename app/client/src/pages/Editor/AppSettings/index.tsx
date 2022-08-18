@@ -1,21 +1,12 @@
-import classNames from "classnames";
 import React from "react";
 
-interface AppSettingsStyledProps {
+interface AppSettingsProps {
   className?: string;
 }
 
-class AppSettings extends React.Component<AppSettingsStyledProps> {
+class AppSettings extends React.Component<AppSettingsProps> {
   render() {
-    return this.props.className ? (
-      <div
-        className={classNames({
-          [`${this.props.className}`]: true,
-        })}
-      >
-        abcd
-      </div>
-    ) : null;
+    return <div className={this.props.className}>abcd</div>;
   }
 }
 
