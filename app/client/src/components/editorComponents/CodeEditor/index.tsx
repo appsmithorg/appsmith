@@ -100,6 +100,7 @@ import {
 import { getMoveCursorLeftKey } from "./utils/cursorLeftMovement";
 import { interactionAnalyticsEvent } from "utils/AppsmithUtils";
 import { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTypeDefCreator";
+import { FocusContext } from "pages/Editor/MainContainer";
 
 interface ReduxStateProps {
   datasources: any;
@@ -217,6 +218,7 @@ class CodeEditor extends Component<Props, State> {
   hinters: Hinter[] = [];
   annotations: Annotation[] = [];
   updateLintingCallback: UpdateLintingCallback | undefined;
+  focusContext: any;
   private editorWrapperRef = React.createRef<HTMLDivElement>();
   constructor(props: Props) {
     super(props);
@@ -231,6 +233,7 @@ class CodeEditor extends Component<Props, State> {
     this.updatePropertyValue = this.updatePropertyValue.bind(this);
   }
   componentDidMount(): void {
+    this.focusContext = this.context;
     if (this.codeEditorTarget.current) {
       const options: EditorConfiguration = {
         autoRefresh: true,
@@ -525,6 +528,13 @@ class CodeEditor extends Component<Props, State> {
 
   handleEditorFocus = (cm: CodeMirror.Editor) => {
     this.setState({ isFocused: true });
+    this.focusContext.updateState({
+      ...this.focusContext.focusState,
+      editor: {
+        dataTreePath: this.props.dataTreePath,
+        cursor: cm.getCursor(),
+      },
+    });
     if (!cm.state.completionActive) {
       const entityInformation: FieldEntityInformation = this.getEntityInformation();
       this.hinters
@@ -535,11 +545,18 @@ class CodeEditor extends Component<Props, State> {
     }
   };
 
-  handleEditorBlur = () => {
+  handleEditorBlur = (cm: CodeMirror.Editor) => {
     this.handleChange();
     this.setState({ isFocused: false });
     this.editor.setOption("matchBrackets", false);
     this.handleCustomGutter(null);
+    this.focusContext.updateState({
+      ...this.focusContext.focusState,
+      editor: {
+        dataTreePath: this.props.dataTreePath,
+        cursor: cm.getCursor(),
+      },
+    });
   };
 
   handleBeforeChange = (
@@ -969,6 +986,8 @@ const mapDispatchToProps = (dispatch: any): ReduxDispatchProps => ({
     dispatch(executeCommandAction(payload)),
   startingEntityUpdation: () => dispatch(startingEntityUpdation()),
 });
+
+CodeEditor.contextType = FocusContext;
 
 export default Sentry.withProfiler(
   connect(mapStateToProps, mapDispatchToProps)(CodeEditor),

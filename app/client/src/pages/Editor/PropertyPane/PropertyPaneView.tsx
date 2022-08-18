@@ -1,6 +1,7 @@
 import React, {
   ReactElement,
   useCallback,
+  useContext,
   useEffect,
   useMemo,
   useRef,
@@ -35,6 +36,7 @@ import styled from "styled-components";
 import { InputWrapper } from "components/ads/TextInput";
 import { PropertyPaneTab } from "./PropertyPaneTab";
 import { useSearchText } from "./helpers";
+import { FocusContext } from "pages/Editor/MainContainer";
 
 export const StyledSearchInput = styled(SearchInput)`
   position: sticky;
@@ -75,6 +77,21 @@ function PropertyPaneView(
     getWidgetPropsForPropertyPaneView,
     equal,
   );
+  const focusContext = useContext(FocusContext);
+
+  useEffect(() => {
+    focusContext.updateState({
+      ...focusContext.focusState,
+      element: `widget.${widgetProperties.widgetId}`,
+    });
+    return () => {
+      focusContext.updateState({
+        ...focusContext.focusState,
+        element: undefined,
+      });
+    };
+  }, [widgetProperties.widgetId]);
+
   const doActionsExist = useSelector(actionsExist);
   const featureFlags = useSelector(selectFeatureFlags);
   const containerRef = useRef<HTMLDivElement>(null);
