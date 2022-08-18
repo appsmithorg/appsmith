@@ -11,6 +11,12 @@ import { SliderType } from "../utils";
 interface NumberSliderWidgetProps extends WidgetProps, SliderComponentProps {
   /** Color from theme.colors */
   accentColor?: string;
+  /** defaultValue for the slider */
+  defaultValue?: number;
+  /** isDirty meta property */
+  isDirty: boolean;
+  /** value meta property */
+  value: number;
 }
 
 class NumberSliderWidget extends BaseWidget<
@@ -338,6 +344,20 @@ class NumberSliderWidget extends BaseWidget<
     ];
   }
 
+  componentDidUpdate(prevProps: NumberSliderWidgetProps) {
+    /**
+     * If you change the defaultValue from the propertyPane
+     * or say an input widget you are basically resetting the widget
+     * therefore we reset the isDirty.
+     */
+    if (
+      this.props.defaultValue !== prevProps.defaultValue &&
+      this.props.isDirty
+    ) {
+      this.props.updateWidgetMetaProperty("isDirty", false);
+    }
+  }
+
   static getDefaultPropertiesMap(): Record<string, any> {
     return {
       value: "defaultValue",
@@ -347,12 +367,18 @@ class NumberSliderWidget extends BaseWidget<
   static getMetaPropertiesMap(): Record<string, any> {
     return {
       value: 0,
+      isDirty: false,
     };
   }
 
   onChangeEnd = (value: number) => {
     if (!this.props.isDisabled) {
       this.props.updateWidgetMetaProperty("value", value);
+
+      // Set isDirty to true when we change slider value
+      if (!this.props.isDirty) {
+        this.props.updateWidgetMetaProperty("isDirty", true);
+      }
     }
   };
 

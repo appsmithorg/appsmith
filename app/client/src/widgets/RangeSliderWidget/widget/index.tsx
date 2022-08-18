@@ -14,6 +14,16 @@ interface RangeSliderWidgetProps
     RangeSliderComponentProps {
   /** Color from theme.colors */
   accentColor?: string;
+  /** defaultStart Value */
+  defaultStartValue?: number;
+  /** defaultEnd Value */
+  defaultEndValue?: number;
+  /** start value metaProperty */
+  start: number;
+  /** end value metaProperty  */
+  end: number;
+  /** isDirty meta property */
+  isDirty: boolean;
 }
 
 class RangeSliderWidget extends BaseWidget<
@@ -361,6 +371,21 @@ class RangeSliderWidget extends BaseWidget<
     ];
   }
 
+  componentDidUpdate(prevProps: RangeSliderWidgetProps) {
+    /**
+     * If you change the defaultValues from the propertyPane
+     * or say an input widget you are basically resetting the widget
+     * therefore we reset the isDirty.
+     */
+    if (
+      (this.props.defaultStartValue !== prevProps.defaultStartValue ||
+        this.props.defaultEndValue !== prevProps.defaultEndValue) &&
+      this.props.isDirty
+    ) {
+      this.props.updateWidgetMetaProperty("isDirty", false);
+    }
+  }
+
   static getDefaultPropertiesMap(): Record<string, any> {
     return {
       start: "defaultStartValue",
@@ -372,6 +397,7 @@ class RangeSliderWidget extends BaseWidget<
     return {
       start: 0,
       end: 20,
+      isDirty: false,
     };
   }
 
@@ -383,6 +409,11 @@ class RangeSliderWidget extends BaseWidget<
 
       if (this.props.end !== end) {
         this.props.updateWidgetMetaProperty("end", end);
+      }
+
+      // Set isDirty to true when we change slider value
+      if (!this.props.isDirty) {
+        this.props.updateWidgetMetaProperty("isDirty", true);
       }
     }
   };

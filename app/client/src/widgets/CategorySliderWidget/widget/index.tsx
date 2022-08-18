@@ -13,15 +13,22 @@ import { Alignment } from "@blueprintjs/core";
 import SliderComponent, {
   SliderComponentProps,
 } from "../../NumberSliderWidget/component/Slider";
-import { SliderType, SliderOption } from "../../NumberSliderWidget/utils";
+import { SliderType } from "../../NumberSliderWidget/utils";
+
+export type SliderOption = {
+  label: string;
+  value: string;
+};
 
 interface CategorySliderWidgetProps extends WidgetProps, SliderComponentProps {
   /** Color from theme.colors */
   accentColor?: string;
-  /** Slider Type */
-  sliderType: SliderType;
   /** Slider Options  */
   options?: SliderOption[];
+  /** defaultOption value */
+  defaultOptionValue?: string;
+  /** isDirty meta property */
+  isDirty: boolean;
   /**  Selected Value */
   value: string | undefined;
 }
@@ -443,6 +450,20 @@ class CategorySliderWidget extends BaseWidget<
     ];
   }
 
+  componentDidUpdate(prevProps: CategorySliderWidgetProps) {
+    /**
+     * If you change the defaultOptionValue from the propertyPane
+     * or say an input widget you are basically resetting the widget
+     * therefore we reset the isDirty.
+     */
+    if (
+      this.props.defaultOptionValue !== prevProps.defaultOptionValue &&
+      this.props.isDirty
+    ) {
+      this.props.updateWidgetMetaProperty("isDirty", false);
+    }
+  }
+
   static getDefaultPropertiesMap(): Record<string, any> {
     return {
       value: "defaultOptionValue",
@@ -452,6 +473,7 @@ class CategorySliderWidget extends BaseWidget<
   static getMetaPropertiesMap(): Record<string, any> {
     return {
       value: undefined,
+      isDirty: false,
     };
   }
 
@@ -493,6 +515,11 @@ class CategorySliderWidget extends BaseWidget<
       )?.optionValue;
 
       this.props.updateWidgetMetaProperty("value", selectedValue);
+
+      // Set isDirty to true when we change slider value
+      if (!this.props.isDirty) {
+        this.props.updateWidgetMetaProperty("isDirty", true);
+      }
     }
   };
 

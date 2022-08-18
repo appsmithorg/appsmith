@@ -98,11 +98,6 @@ export enum SliderType {
   CATEGORICAL = "CATEGORICAL",
 }
 
-export type SliderOption = {
-  label: string;
-  value: string;
-};
-
 export const getSliderStyles = ({
   color,
   disabled,
