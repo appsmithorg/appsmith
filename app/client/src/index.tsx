@@ -27,6 +27,12 @@ import AppErrorBoundary from "./AppErrorBoundry";
 import GlobalStyles from "globalStyles";
 appInitializer();
 
+if (process.env.NODE_ENV === "development") {
+  import("./mocks/browser").then(({ worker }) => {
+    worker.start();
+  });
+}
+
 function App() {
   return (
     <Sentry.ErrorBoundary fallback={"An error has occured"}>
