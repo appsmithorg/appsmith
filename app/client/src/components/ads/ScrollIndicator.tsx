@@ -85,16 +85,7 @@ function ScrollIndicator({
   useEffect(() => {
     const handleContainerScroll = (e: any): void => {
       setIsScrollVisible(true);
-      const thumbHeight =
-        e.target.offsetHeight / (e.target.scrollHeight / e.target.offsetHeight);
-      const thumbPosition = (e.target.scrollTop / e.target.offsetHeight) * 100;
-      /* set scroll thumb height */
-      if (thumbRef.current) {
-        thumbRef.current.style.height = thumbHeight + "px";
-      }
-      setThumbPosition({
-        thumbPosition,
-      });
+      setScrollThumbCSS(e);
     };
 
     containerRef.current?.addEventListener("scroll", handleContainerScroll);
@@ -106,6 +97,19 @@ function ScrollIndicator({
       );
     };
   }, []);
+
+  const setScrollThumbCSS = (e: any) => {
+    const thumbHeight =
+      e.target.offsetHeight / (e.target.scrollHeight / e.target.offsetHeight);
+    const thumbPosition = (e.target.scrollTop / e.target.offsetHeight) * 100;
+    /* set scroll thumb height */
+    if (thumbRef.current) {
+      thumbRef.current.style.height = thumbHeight + "px";
+    }
+    setThumbPosition({
+      thumbPosition,
+    });
+  };
 
   useEffect(() => {
     /*
@@ -124,6 +128,15 @@ function ScrollIndicator({
   const setScrollVisibilityOnHover = useCallback((e) => {
     if (e?.type === "mouseenter") {
       setIsScrollVisible(true);
+      /*
+        Scroll Thumb by default has height 0.
+        Since we have to rely on hover event instead of scroll event when showScrollbarOnlyOnHover is true,
+        we have to set scroll thumb height and position one first hover(mouseenter)
+        or the scroll thumb won't be visible until scroll the first scroll event happens
+      */
+      if (!thumbRef.current?.style.height) {
+        setScrollThumbCSS(e);
+      }
     } else if (e?.type === "mouseleave") {
       setIsScrollVisible(false);
     }
