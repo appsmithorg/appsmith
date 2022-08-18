@@ -112,17 +112,21 @@ export function generateTypeDef(
         return `[?]`;
       }
 
-      const arrayType = generateTypeDef(array[0], extraDefsToDefine, depth + 1);
+      const arrayElementType = generateTypeDef(
+        array[0],
+        extraDefsToDefine,
+        depth + 1,
+      );
 
-      if (isObject(arrayType)) {
+      if (isObject(arrayElementType)) {
         if (extraDefsToDefine) {
           const uniqueDefName = uniqueId("def_");
-          extraDefsToDefine[uniqueDefName] = arrayType;
+          extraDefsToDefine[uniqueDefName] = arrayElementType;
           return `[${uniqueDefName}]`;
         }
         return `[?]`;
       }
-      return `[${arrayType}]`;
+      return `[${arrayElementType}]`;
     }
     case Types.OBJECT: {
       const objType: Def = {};
