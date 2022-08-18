@@ -117,7 +117,7 @@ function ThemeEditor() {
   return (
     <>
       <div>
-        <header className="px-3 space-y-2">
+        <header className="px-4 space-y-2">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
               <h3 className="text-sm font-normal capitalize">
@@ -166,7 +166,7 @@ function ThemeEditor() {
         </header>
         <main className="mt-1">
           {/* FONT  */}
-          <SettingSection className="px-3 py-3" isDefaultOpen title="Font">
+          <SettingSection className="px-4 py-3" isDefaultOpen title="Font">
             {Object.keys(selectedTheme.config.fontFamily).map(
               (fontFamilySectionName: string, index: number) => {
                 return (
@@ -193,7 +193,7 @@ function ThemeEditor() {
           </SettingSection>
           {/* COLORS */}
           <SettingSection
-            className="px-3 py-3 border-t"
+            className="px-4 py-3 border-t"
             isDefaultOpen
             title="Color"
           >
@@ -207,7 +207,7 @@ function ThemeEditor() {
 
           {/* BORDER RADIUS */}
           <SettingSection
-            className="px-3 py-3 border-t "
+            className="px-4 py-3 border-t "
             isDefaultOpen
             title="Border"
           >
@@ -238,7 +238,7 @@ function ThemeEditor() {
 
           {/* BOX SHADOW */}
           <SettingSection
-            className="px-3 py-3 border-t "
+            className="px-4 py-3 border-t "
             isDefaultOpen
             title="Shadow"
           >

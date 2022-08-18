@@ -38,12 +38,13 @@ import { useSearchText } from "./helpers";
 
 export const StyledSearchInput = React.memo(styled(SearchInput)`
   position: sticky;
-  top: 52px;
+  top: 46px;
   z-index: 3;
 
   ${InputWrapper} {
     background: ${Colors.GRAY_50};
     padding: 0 8px;
+    height: 32px;
   }
 `);
 
@@ -201,7 +202,7 @@ function PropertyPaneView(
 
   return (
     <div
-      className="w-full overflow-y-scroll"
+      className="w-full overflow-y-auto"
       key={`property-pane-${widgetProperties.widgetId}`}
       ref={containerRef}
     >

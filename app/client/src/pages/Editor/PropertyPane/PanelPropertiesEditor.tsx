@@ -17,7 +17,7 @@ import styled from "styled-components";
 import { updateConfigPaths, useSearchText } from "./helpers";
 
 const PanelWrapper = styled.div`
-  margin-top: 52px;
+  margin-top: 44px;
 `;
 
 function PanelHeader(props: PanelHeaderProps) {

@@ -1,5 +1,5 @@
-import { Classes, Icon } from "@blueprintjs/core";
-import { IconNames } from "@blueprintjs/icons";
+import { Classes } from "@blueprintjs/core";
+import Icon from "components/ads/AppIcon";
 import React, {
   memo,
   ReactNode,
@@ -15,14 +15,12 @@ import styled from "constants/DefaultTheme";
 import { Colors } from "constants/Colors";
 import { getWidgetParent } from "sagas/selectors";
 import { WidgetProps } from "widgets/BaseWidget";
+import { Size } from "components/ads";
 
 const SectionTitle = styled.div`
-  display: grid;
-  grid-template-columns: 1fr 30px;
   cursor: pointer;
   & span {
     color: ${Colors.GRAY_800};
-    padding: ${(props) => props.theme.spaces[2]}px 0;
     font-size: ${(props) => props.theme.fontSizes[3]}px;
     display: flex;
     font-weight: 500;
@@ -30,22 +28,12 @@ const SectionTitle = styled.div`
     align-items: center;
     margin: 0;
   }
-  & span.${Classes.ICON} {
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: none;
-    &.open-collapse {
-      transform: rotate(90deg);
-    }
-  }
 `;
 
 const SectionWrapper = styled.div`
   position: relative;
   border-top: 1px solid ${Colors.GREY_4};
-  padding: 4px 16px 8px 16px;
+  padding: 12px 16px;
 
   &:first-of-type {
     border-top: 0;
@@ -54,22 +42,36 @@ const SectionWrapper = styled.div`
   /* Referring to a nested SectionWrapper */
   & & {
     padding: 0;
+    margin-top: 8px;
+    &:first-of-type {
+      margin-top: 0;
+    }
+  }
+
+  & & ${SectionTitle} {
+    margin-top: 10px;
+    margin-bottom: 7px;
   }
 
   & & ${SectionTitle} span {
-    color: ${Colors.GRAY_500};
-    font-size: 13px;
-    font-weight: 400;
+    color: ${Colors.GRAY_700};
+    font-size: 12px;
   }
 
   .${Classes.COLLAPSE_BODY} {
     z-index: 1;
     position: relative;
-    padding-bottom: 4px;
+    padding: 4px 0;
   }
 
   .bp3-collapse {
     transition: none;
+  }
+`;
+
+const StyledIcon = styled(Icon)`
+  svg path {
+    fill: ${Colors.GREY_7};
   }
 `;
 
@@ -122,14 +124,14 @@ export const PropertySection = memo((props: PropertySectionProps) => {
   return (
     <SectionWrapper className="t--property-pane-section-wrapper">
       <SectionTitle
-        className={`t--property-pane-section-collapse-${className}`}
+        className={`t--property-pane-section-collapse-${className} flex items-center`}
         onClick={handleSectionTitleClick}
       >
-        <span>{props.name}</span>
+        <span className="grow">{props.name}</span>
         {props.collapsible && (
-          <Icon
-            className={isOpen ? "open-collapse" : ""}
-            icon={IconNames.CHEVRON_RIGHT}
+          <StyledIcon
+            name={isOpen ? "arrow-down" : "arrow-right"}
+            size={Size.small}
           />
         )}
       </SectionTitle>

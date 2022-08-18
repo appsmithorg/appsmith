@@ -48,7 +48,7 @@ function ThemeSelector() {
           <h3 className="text-xs font-medium uppercase">Back</h3>
         </button>
         <SettingSection
-          className="px-3 py-3 border-t border-b"
+          className="px-4 py-3 border-t border-b"
           isDefaultOpen={false}
           title="Applied Theme"
         >
@@ -56,8 +56,8 @@ function ThemeSelector() {
         </SettingSection>
       </section>
       {userSavedThemes.length > 0 && (
-        <section className="relative px-3 py-3 space-y-3">
-          <h3 className="text-base font-medium capitalize">Your Themes</h3>
+        <section className="relative p-4 space-y-3">
+          <h3 className="text-sm font-medium capitalize">Your Themes</h3>
           {userSavedThemes.map((theme) => (
             <ThemeCard
               deletable={!theme.isSystemTheme}
@@ -68,8 +68,8 @@ function ThemeSelector() {
           ))}
         </section>
       )}
-      <section className="relative px-3 py-3 space-y-3">
-        <h3 className="text-base font-medium capitalize">Featured Themes</h3>
+      <section className="relative p-4 space-y-3">
+        <h3 className="text-sm font-medium capitalize">Featured Themes</h3>
         {systemThemes.map((theme) => (
           <ThemeCard
             deletable={!theme.isSystemTheme}
