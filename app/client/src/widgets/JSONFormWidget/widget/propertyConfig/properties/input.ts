@@ -14,7 +14,6 @@ import {
   ValidationTypes,
 } from "constants/WidgetValidation";
 import { ICON_NAMES } from "widgets/constants";
-import { IconNames } from "@blueprintjs/icons";
 
 function defaultValueValidation(
   value: any,
@@ -429,7 +428,6 @@ const PROPERTIES = {
         type: ValidationTypes.TEXT,
         params: {
           allowedValues: ICON_NAMES,
-          default: IconNames.PLUS,
         },
       },
       hidden: (...args: HiddenFnParams) =>
@@ -805,7 +803,6 @@ const PROPERTIES = {
           type: ValidationTypes.TEXT,
           params: {
             allowedValues: ICON_NAMES,
-            default: IconNames.PLUS,
           },
         },
         hidden: (...args: HiddenFnParams) =>

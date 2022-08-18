@@ -1062,7 +1062,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                         newPageService.getNameByPageId(actionDTO.getPageId(), viewMode),
                         pluginService.getById(action.getPluginId())
                 ))
-                .map(tuple -> {
+                .flatMap(tuple -> {
                     final Application application = tuple.getT1();
                     final User user = tuple.getT2();
                     final String pageName = tuple.getT3();
@@ -1136,8 +1136,9 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                             FieldName.PLUGIN, plugin
                     );
                     data.put(FieldName.EVENT_DATA, eventData);
-                    analyticsService.sendObjectEvent(AnalyticsEvents.EXECUTE_ACTION, action, data);
-                    return request;
+
+                    return analyticsService.sendObjectEvent(AnalyticsEvents.EXECUTE_ACTION, action, data)
+                            .thenReturn(request);
                 })
                 .onErrorResume(error -> {
                     log.warn("Error sending action execution data point", error);
