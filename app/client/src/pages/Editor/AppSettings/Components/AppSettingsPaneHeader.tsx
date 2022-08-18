@@ -1,6 +1,7 @@
 import { closeAppSettingsPaneAction } from "actions/appSettingsPaneActions";
 import React from "react";
 import { connect } from "react-redux";
+import { Dispatch } from "redux";
 
 class AppSettingsPaneHeaderComponent extends React.Component<{
   closePane: () => void;
@@ -10,7 +11,7 @@ class AppSettingsPaneHeaderComponent extends React.Component<{
   }
 }
 
-const mapDispatchToProps = (dispatch: any) => ({
+const mapDispatchToProps = (dispatch: Dispatch) => ({
   closePane: () => {
     dispatch(closeAppSettingsPaneAction());
   },
