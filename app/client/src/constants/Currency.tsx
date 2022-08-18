@@ -1547,6 +1547,14 @@ export const CurrencyTypeOptions: Array<CurrencyOptionProps> = [
     symbol_native: "₫",
   },
   {
+    code: "VUV",
+    currency: "VT",
+    currency_name: "Vatu",
+    label: "Vanuatu",
+    phone: "678",
+    symbol_native: "VT",
+  },
+  {
     code: "XK",
     currency: "EUR",
     currency_name: "Euro",
