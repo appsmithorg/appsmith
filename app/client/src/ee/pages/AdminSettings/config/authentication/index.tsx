@@ -163,6 +163,13 @@ const OidcAuth: AdminConfigType = {
             { id: "PS512", value: "PS512" },
           ],
         },
+        {
+          id: "APPSMITH_OAUTH2_OIDC_AUDIENCE",
+          category: SettingCategories.OIDC_AUTH,
+          subCategory: SettingSubCategories.OIDC,
+          controlType: SettingTypes.TEXTINPUT,
+          label: "Audience",
+        },
       ],
     },
   ],
