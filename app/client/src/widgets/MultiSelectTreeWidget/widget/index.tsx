@@ -8,7 +8,7 @@ import {
   ValidationTypes,
 } from "constants/WidgetValidation";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
-import { DefaultValueType } from "rc-select/lib/interface/generator";
+import { DefaultValueType } from "rc-tree-select/lib/interface";
 import { Layers } from "constants/Layers";
 import { CheckedStrategy } from "rc-tree-select/lib/utils/strategyUtil";
 import { GRID_DENSITY_MIGRATION_V1, MinimumPopupRows } from "widgets/constants";

@@ -1,7 +1,7 @@
 /* eslint-disable no-console */
 import React, { useEffect, useState, useCallback, useRef } from "react";
 import Select, { SelectProps } from "rc-select";
-import { DefaultValueType } from "rc-select/lib/interface/generator";
+import { DraftValueType } from "rc-select/lib/Select";
 import {
   DropdownStyles,
   MultiSelectContainer,
@@ -34,7 +34,7 @@ export interface MultiSelectProps
   > {
   mode?: "multiple" | "tags";
   value: string[];
-  onChange: (value: DefaultValueType) => void;
+  onChange: (value: DraftValueType) => void;
   serverSideFiltering: boolean;
   onFilterChange: (text: string) => void;
   dropDownWidth: number;
@@ -114,7 +114,7 @@ function MultiSelectComponent({
 
   const handleSelectAll = () => {
     if (!isSelectAll) {
-      const allOption: string[] = options.map((option) => option.value);
+      const allOption = options.map((option) => option.value) as string[];
       onChange(allOption);
       return;
     }
