@@ -20,7 +20,6 @@ import { previewModeSelector } from "selectors/editorSelectors";
 import AppSettings from "./AppSettings";
 import { tailwindLayers } from "constants/Layers";
 import { getIsAppSettingsPaneOpen } from "selectors/appSettingsPaneSelectors";
-import { closeAppSettingsPaneAction } from "actions/appSettingsPaneActions";
 import AppSettingsPaneHeader from "./AppSettings/Components/AppSettingsPaneHeader";
 
 const SentryRoute = Sentry.withSentryRouting(Route);
@@ -98,7 +97,6 @@ function MainContainer() {
         <AppSettingsPane
           className={classNames({
             [`absolute ${tailwindLayers.appSettingsPane} right-0`]: true,
-            "translate-x-0": isAppSettingsPaneOpen,
             "translate-x-full": !isAppSettingsPaneOpen,
             "transition-all transform duration-400": true,
           })}
