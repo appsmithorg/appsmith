@@ -6,7 +6,7 @@ interface AppSettingsProps {
 
 class AppSettings extends React.Component<AppSettingsProps> {
   render() {
-    return <div className={this.props.className}>abcd</div>;
+    return <div className={this.props.className} />;
   }
 }
 
