@@ -8,7 +8,7 @@ import {
   ValidationTypes,
 } from "constants/WidgetValidation";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
-import { DefaultValueType } from "rc-select/lib/interface/generator";
+import { DefaultValueType } from "rc-tree-select/lib/interface";
 import { Layers } from "constants/Layers";
 import { isString } from "../../../utils/helpers";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";

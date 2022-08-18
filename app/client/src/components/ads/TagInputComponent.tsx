@@ -8,9 +8,13 @@ import {
 } from "@appsmith/constants/messages";
 import { isEmail } from "utils/formhelpers";
 import { Colors } from "constants/Colors";
+import { HighlightText } from "design-system";
 
 const TagInputWrapper = styled.div<{ intent?: Intent }>`
   margin-right: 8px;
+  display: flex;
+  flex-direction: column;
+  position: relative;
 
   &&& {
     .${Classes.TAG_INPUT} {
@@ -43,6 +47,29 @@ const TagInputWrapper = styled.div<{ intent?: Intent }>`
     }
   }
 `;
+
+const SuggestionsWrapper = styled.div`
+  margin-top: 4px;
+  position: relative;
+  left: 4px;
+  width: 100%;
+
+  > div {
+    position: absolute;
+    border: 1px solid var(--appsmith-color-black-250);
+    width: 100%;
+    background: var(--appsmith-color-black-0);
+  }
+`;
+
+const Suggestion = styled.div`
+  padding: 8px;
+  cursor: pointer;
+  &:hover {
+    background: var(--appsmith-color-black-100);
+  }
+`;
+
 type TagInputProps = {
   autofocus?: boolean;
   /** TagInput Placeholder */
@@ -59,8 +86,13 @@ type TagInputProps = {
   /** Intent of the tags, which defines their color */
   intent?: Intent;
   hasError?: boolean;
-  customError?: (values: any) => void;
+  customError?: (error: any, values?: any) => void;
+  suggestions?: { id: string; name: string; icon?: string }[];
 };
+
+function getValues(inputValues: any) {
+  return inputValues && inputValues.length > 0 ? inputValues.split(",") : [];
+}
 
 /**
  * TagInputComponent
@@ -69,22 +101,28 @@ type TagInputProps = {
  * @param props : TagInputProps
  */
 function TagInputComponent(props: TagInputProps) {
-  const inputValues =
-    props.input.value && props.input.value.length > 0
-      ? props.input.value.split(",")
-      : [];
-
-  const [values, setValues] = useState<string[]>(inputValues || []);
+  const [values, setValues] = useState<string[]>(
+    getValues(props?.input?.value),
+  );
   const [currentValue, setCurrentValue] = useState<string>("");
+  const [showSuggestions, setShowSuggestions] = useState<boolean>(false);
+  const [suggestions, setSuggestions] = useState<
+    { id: string; name: string }[]
+  >(props?.suggestions || []);
+  const mappedSuggestions = (showSuggestions ? suggestions : []).map(
+    (each: any) => (
+      <Suggestion
+        key={each.id}
+        onClick={() => handleSuggestionClick(each.name)}
+      >
+        <HighlightText highlight={currentValue} text={each.name} />
+      </Suggestion>
+    ),
+  );
 
   useEffect(() => {
-    if (inputValues.length === 0 && values.length > 0) {
-      setValues([]);
-    }
-    if (inputValues.length > 0 && values.length === 0) {
-      setValues(inputValues);
-    }
-  }, [inputValues, values]);
+    setValues(getValues(props?.input?.value));
+  }, [props.input.value]);
 
   const validateEmail = (newValues: string[]) => {
     if (newValues && newValues.length > 0) {
@@ -94,7 +132,7 @@ function TagInputComponent(props: TagInputProps) {
           error = createMessage(INVITE_USERS_VALIDATION_EMAIL_LIST);
         }
       });
-      props.customError?.(error);
+      props.customError?.(error, newValues);
     } else {
       props.customError?.("");
     }
@@ -104,15 +142,20 @@ function TagInputComponent(props: TagInputProps) {
     setValues(newValues);
     props.input.onChange &&
       props.input.onChange(newValues.filter(Boolean).join(","));
+    props.customError?.("", newValues);
     props.type === "email" && validateEmail(newValues);
   };
 
   const onTagsChange = (values: React.ReactNode[]) => {
     const _values = values as string[];
+    if (props?.suggestions) {
+      setSuggestions(props.suggestions);
+    }
     commitValues(_values);
   };
 
   const onKeyDown = (e: any) => {
+    let resetSuggestions = false;
     // Add new values to the tags on comma, return key, space and Tab press
     // only if user has typed something on input
     if (
@@ -125,12 +168,18 @@ function TagInputComponent(props: TagInputProps) {
       const newValues = [...values, e.target.value];
       commitValues(newValues);
       setCurrentValue("");
+      resetSuggestions = true;
       e.preventDefault();
     } else if (e.key === "Backspace") {
       if (e.target.value.length === 0) {
         const newValues = values.slice(0, -1);
         commitValues(newValues);
       }
+      resetSuggestions = true;
+    }
+
+    if (resetSuggestions && props?.suggestions) {
+      setSuggestions(props.suggestions);
     }
   };
 
@@ -139,18 +188,40 @@ function TagInputComponent(props: TagInputProps) {
   const handleInputChange = (e: any) => {
     if ([",", " ", "Enter"].indexOf(e.target.value) === -1) {
       setCurrentValue(e.target.value);
+      if (props?.suggestions) {
+        const results =
+          suggestions &&
+          suggestions.filter((s) => s.name?.includes(e.target.value));
+        setSuggestions(results);
+        setShowSuggestions(true);
+      }
     } else {
       setCurrentValue("");
+      if (props?.suggestions) {
+        setSuggestions(props.suggestions);
+      }
     }
   };
 
   const handleInputBlur = (e: any) => {
-    if (e.target.value.trim()) {
+    if (
+      (e?.target?.value?.trim() && !showSuggestions && !suggestions.length) ||
+      isEmail(e.target.value)
+    ) {
       const newValues = [...values, e.target.value];
       commitValues(newValues);
       setCurrentValue("");
       e.preventDefault();
     }
+  };
+
+  const handleSuggestionClick = (value: string) => {
+    setCurrentValue("");
+    setSuggestions(props?.suggestions || []);
+    setShowSuggestions(false);
+    props?.input?.onChange?.(
+      [props?.input?.value, value].filter(Boolean).join(","),
+    );
   };
 
   return (
@@ -170,11 +241,16 @@ function TagInputComponent(props: TagInputProps) {
         placeholder={props.placeholder}
         separator={props.separator || ","}
         tagProps={(tag) => ({
-          className: tag + "_tag",
+          className: `${tag}_tag`,
           round: true,
         })}
-        values={inputValues || [""]}
+        values={values || [""]}
       />
+      {showSuggestions && (
+        <SuggestionsWrapper>
+          <div>{mappedSuggestions}</div>
+        </SuggestionsWrapper>
+      )}
     </TagInputWrapper>
   );
 }
