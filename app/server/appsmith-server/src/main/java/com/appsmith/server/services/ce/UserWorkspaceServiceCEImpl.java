@@ -93,7 +93,7 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
                     return Mono.just(permissionGroup);
                 })
                 // If we cannot find the groups, that means either user is not part of any default group or current user has no access to the group
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACTION_IS_NOT_AUTHORIZED, "Change userGroup of a member")));
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACTION_IS_NOT_AUTHORIZED, "Change role of a member")));
 
         // the user is being removed from the workspace. Remove the workspace from recent workspace list of UserData
         Mono<UpdateResult> updateUserDataMono = userMono
