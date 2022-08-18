@@ -578,14 +578,18 @@ export default {
   },
   //
   getPageOffset: (props, moment, _) => {
+    const pageSize = props.serverSidePaginationEnabled
+      ? props.tableData?.length
+      : props.pageSize;
+
     if (
       Number.isFinite(props.pageNo) &&
-      Number.isFinite(props.pageSize) &&
+      Number.isFinite(pageSize) &&
       props.pageNo >= 0 &&
-      props.pageSize >= 0
+      pageSize >= 0
     ) {
       /* Math.max fixes the value of (pageNo - 1) to a minimum of 0 as negative values are not valid */
-      return Math.max(props.pageNo - 1, 0) * props.pageSize;
+      return Math.max(props.pageNo - 1, 0) * pageSize;
     }
     return -1;
   },
