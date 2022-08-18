@@ -618,7 +618,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
         }
 
         if (!StringUtils.hasText(inviteUsersDTO.getPermissionGroupId())) {
-            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.PERMISSION_GROUP_ID));
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ROLE));
         }
 
         List<String> usernames = new ArrayList<>();
