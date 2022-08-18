@@ -177,6 +177,7 @@ describe("Input Widget Functionality", function() {
 
   it("Input icon shows on icon select", () => {
     cy.selectDropdownValue(commonlocators.dataType, "Text");
+    cy.moveToStyleTab()
     cy.get(".t--property-control-icon .bp3-icon-caret-down").click({
       force: true,
     });
@@ -187,6 +188,7 @@ describe("Input Widget Functionality", function() {
   });
 
   it("Input value of number type should reflect the default text value 0", () => {
+    cy.moveToContentTab();
     cy.selectDropdownValue(commonlocators.dataType, "Number");
     /*cy.get(widgetsPage.defaultInput)
       .click({ force: true })

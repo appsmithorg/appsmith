@@ -68,7 +68,7 @@ describe("Test Create Api and Bind to Table widget", function() {
     cy.get(".t--entity-name")
       .contains("Table1")
       .click({ force: true });
-    cy.testJsontext("totalrecordcount", 20);
+    cy.testJsontext("totalrecords", 20);
     cy.PublishtheApp();
     cy.wait(500);
     cy.wait("@postExecute");

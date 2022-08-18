@@ -78,6 +78,7 @@ describe("Table Widget V2 property pane feature validation", function() {
     // Open column details of "id".
     cy.editColumn("id");
     const color1 = "rgb(255, 0, 0)";
+    cy.moveToStyleTab();
     cy.get(widgetsPage.buttonColor)
       .click({ force: true })
       .clear()

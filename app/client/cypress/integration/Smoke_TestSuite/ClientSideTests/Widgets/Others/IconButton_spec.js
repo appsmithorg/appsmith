@@ -11,7 +11,7 @@ describe("Icon Button Widget Functionality", function() {
 
   it("1. check default buttonVariant with isJSConvertible", function() {
     cy.openPropertyPane("iconbuttonwidget");
-
+    cy.moveToStyleTab();
     cy.get(formWidgetsPage.toggleButtonVariant).click();
     cy.get(widgetsPage.iconWidgetBtn).should(
       "have.css",
@@ -46,6 +46,7 @@ describe("Icon Button Widget Functionality", function() {
   });
 
   it("3. show alert on button click", function() {
+    cy.moveToContentTab();
     cy.get(".t--property-control-onclick")
       .find(".t--js-toggle")
       .click({ force: true });
