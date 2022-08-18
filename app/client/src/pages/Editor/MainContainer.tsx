@@ -18,6 +18,7 @@ import EntityExplorerSidebar from "components/editorComponents/Sidebar";
 import classNames from "classnames";
 import { previewModeSelector } from "selectors/editorSelectors";
 import AppSettingsPane from "./AppSettingsPane";
+import { tailwindLayers } from "constants/Layers";
 
 const SentryRoute = Sentry.withSentryRouting(Route);
 
@@ -28,6 +29,14 @@ const Container = styled.div`
       ${(props) => props.theme.bottomBarHeight}
   );
   background-color: ${(props) => props.theme.appBackground};
+`;
+
+const AppSettingsPaneContainer = styled.div`
+  width: 521px;
+  height: 100%;
+  box-shadow: 0 2px 4px -2px rgba(0, 0, 0, 0.06),
+    0 4px 8px -2px rgba(0, 0, 0, 0.1);
+  background: #fff;
 `;
 function MainContainer() {
   const dispatch = useDispatch();
@@ -54,10 +63,11 @@ function MainContainer() {
   }, [sidebarWidth]);
 
   const isPreviewMode = useSelector(previewModeSelector);
+  const isOpen = true;
 
   return (
     <>
-      <Container className="w-full overflow-x-hidden">
+      <Container className="relative w-full overflow-x-hidden">
         <EntityExplorerSidebar
           onDragEnd={onLeftSidebarDragEnd}
           onWidthChange={onLeftSidebarWidthChange}
@@ -82,7 +92,15 @@ function MainContainer() {
             <SentryRoute component={EditorsRouter} />
           </Switch>
         </div>
-        <AppSettingsPane isOpen />
+        {isOpen ? (
+          <AppSettingsPaneContainer
+            className={classNames({
+              [`absolute ${tailwindLayers.appSettingsPane} right-0`]: true,
+            })}
+          >
+            <AppSettingsPane />
+          </AppSettingsPaneContainer>
+        ) : null}
       </Container>
       <BottomBar
         className={classNames({

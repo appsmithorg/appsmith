@@ -63,6 +63,7 @@ export const tailwindLayers = {
   propertyPane: "z-[3]",
   entityExplorer: "z-[3]",
   resizer: "z-[4]",
+  appSettingsPane: "z-[3]",
 };
 
 export const LayersContext = React.createContext(Layers);
