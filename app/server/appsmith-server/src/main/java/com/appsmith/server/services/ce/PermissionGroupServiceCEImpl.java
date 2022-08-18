@@ -25,6 +25,7 @@ import javax.validation.Validator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -61,7 +62,7 @@ public class PermissionGroupServiceCEImpl extends BaseService<PermissionGroupRep
     public Mono<PermissionGroup> create(PermissionGroup permissionGroup) {
         return super.create(permissionGroup)
                 .map(pg -> {
-                    Set<Permission> permissions = new HashSet<>(pg.getPermissions());
+                    Set<Permission> permissions = new HashSet<>(Optional.ofNullable(pg.getPermissions()).orElse(Set.of()));
                     // Permission to unassign self is always given
                     // so user can unassign himself from permission group
                     permissions.add(new Permission(pg.getId(), AclPermission.UNASSIGN_PERMISSION_GROUPS));

@@ -65,7 +65,6 @@ public class PolicyUtils {
         for (Map.Entry<String, Policy> entry : policyMap.entrySet()) {
             Policy entryValue = entry.getValue();
             Policy policy = Policy.builder()
-                    .users(new HashSet<>(entryValue.getUsers()))
                     .permission(entryValue.getPermission())
                     .permissionGroups(new HashSet<>(entryValue.getPermissionGroups()))
                     .build();
@@ -76,7 +75,6 @@ public class PolicyUtils {
         for (Policy policy : obj.getPolicies()) {
             String permission = policy.getPermission();
             if (policyMap1.containsKey(permission)) {
-                policy.getUsers().addAll(policyMap1.get(permission).getUsers());
                 Set<String> permissionGroups = new HashSet<>();
                 if(policy.getPermissionGroups() != null) {
                     permissionGroups.addAll(policy.getPermissionGroups());
@@ -106,7 +104,6 @@ public class PolicyUtils {
         for (Policy policy : obj.getPolicies()) {
             String permission = policy.getPermission();
             if (policyMap1.containsKey(permission)) {
-                policy.getUsers().removeAll(policyMap1.get(permission).getUsers());
                 if (policy.getPermissionGroups() == null) {
                     policy.setPermissionGroups(new HashSet<>());
                 }

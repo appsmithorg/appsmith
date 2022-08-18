@@ -105,14 +105,7 @@ public abstract class BaseAppsmithRepositoryImpl<T extends BaseDomain> {
                 .elemMatch(Criteria.where("permissionGroups").in(permissionGroups)
                         .and("permission").is(permission.getValue()));
 
-        // Also check if the permission is being provided by being assigned to ANONYMOUS_USER, aka
-        // open for public.
-        Criteria anonymousUserCriteria = Criteria.where(fieldName(QBaseDomain.baseDomain.policies))
-                .elemMatch(Criteria.where("users").all(FieldName.ANONYMOUS_USER)
-                        .and("permission").is(permission.getValue())
-                );
-
-        return new Criteria().orOperator(permissionGroupCriteria, anonymousUserCriteria);
+        return permissionGroupCriteria;
     }
 
     protected Criteria getIdCriteria(Object id) {
@@ -352,12 +345,15 @@ public abstract class BaseAppsmithRepositoryImpl<T extends BaseDomain> {
                         getAnonymousUserPermissionGroups()
                 )
                 .map(tuple -> {
+                    Set<String> permissionGroups = new HashSet<>(tuple.getT1());
+
                     Set<String> currentUserPermissionGroups = tuple.getT1();
                     Set<String> anonymousUserPermissionGroups = tuple.getT2();
 
-                    currentUserPermissionGroups.addAll(anonymousUserPermissionGroups);
+                    permissionGroups.addAll(currentUserPermissionGroups);
+                    permissionGroups.addAll(anonymousUserPermissionGroups);
 
-                    return currentUserPermissionGroups;
+                    return permissionGroups;
                 });
     }
 

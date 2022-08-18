@@ -645,7 +645,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                     String username = tuple.getT1();
                     Workspace workspace = tuple.getT2();
                     User currentUser = tuple.getT3();
-                    PermissionGroup userGroup = tuple.getT4();
+                    PermissionGroup permissionGroup = tuple.getT4();
 
                     return repository.findByEmail(username)
                             .flatMap(existingUser -> {
@@ -664,7 +664,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                                 return emailMono
                                         .thenReturn(existingUser);
                             })
-                            .switchIfEmpty(createNewUserAndSendInviteEmail(username, originHeader, workspace, currentUser, userGroup.getName()));
+                            .switchIfEmpty(createNewUserAndSendInviteEmail(username, originHeader, workspace, currentUser, permissionGroup.getName()));
                 })
                 .collectList()
                 .cache();
