@@ -39,6 +39,7 @@ import { widgetReflowReducer } from "./reflowReducer";
 import jsObjectNameReducer from "./jsObjectNameReducer";
 import appThemingReducer from "./appThemingReducer";
 import mainCanvasReducer from "./mainCanvasReducer";
+import appSettingsPaneReducer from "./appSettingsPaneReducer";
 
 const uiReducer = combineReducers({
   editor: editorReducer,
@@ -81,6 +82,7 @@ const uiReducer = combineReducers({
   widgetReflow: widgetReflowReducer,
   appTheming: appThemingReducer,
   mainCanvas: mainCanvasReducer,
+  appSettingsPane: appSettingsPaneReducer,
 });
 
 export default uiReducer;

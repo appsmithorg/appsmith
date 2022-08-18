@@ -19,6 +19,7 @@ import classNames from "classnames";
 import { previewModeSelector } from "selectors/editorSelectors";
 import AppSettings from "./AppSettings";
 import { tailwindLayers } from "constants/Layers";
+import { getIsAppSettingsPaneOpen } from "selectors/appSettingsPaneSelectors";
 
 const SentryRoute = Sentry.withSentryRouting(Route);
 
@@ -63,7 +64,7 @@ function MainContainer() {
   }, [sidebarWidth]);
 
   const isPreviewMode = useSelector(previewModeSelector);
-  const isOpen = true;
+  const isAppSettingsPaneOpen = useSelector(getIsAppSettingsPaneOpen);
 
   return (
     <>
@@ -92,7 +93,7 @@ function MainContainer() {
             <SentryRoute component={EditorsRouter} />
           </Switch>
         </div>
-        {isOpen ? (
+        {isAppSettingsPaneOpen ? (
           <AppSettingsPane
             className={`absolute ${tailwindLayers.appSettingsPane} right-0`}
           >
