@@ -67,6 +67,7 @@ public enum AclPermission {
     WORKSPACE_EXECUTE_DATASOURCES("execute:workspaceDatasources", Workspace.class),
 
     // Invitation related permissions : TODO : Delete this since invitation would be led by user groups
+    @Deprecated
     WORKSPACE_INVITE_USERS("inviteUsers:workspace", Workspace.class),
 
     MANAGE_APPLICATIONS("manage:applications", Application.class),

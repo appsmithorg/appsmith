@@ -23,6 +23,8 @@ public class PermissionGroup extends BaseDomain {
 
     String description;
 
+    //TODO: refactor this to defaultDocumentId, as we can use this to store associated document id for 
+    //which we are auto creating this permission group.
     String defaultWorkspaceId;
 
     Set<Permission> permissions = new HashSet<>();

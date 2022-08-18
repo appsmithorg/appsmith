@@ -26,12 +26,12 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -227,40 +227,7 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
                     return userAndPermissionGroupDTOList;
                 });
 
-        // Sort the members by permission group
-        Mono<List<UserAndPermissionGroupDTO>> sortedListMono = userAndPermissionGroupDTOsMono
-                .map(userAndPermissionGroupDTOS -> {
-                    Collections.sort(userAndPermissionGroupDTOS, new Comparator<UserAndPermissionGroupDTO>() {
-                        @Override
-                        public int compare(UserAndPermissionGroupDTO o1, UserAndPermissionGroupDTO o2) {
-                            int order1 = getOrder(o1.getPermissionGroupName());
-                            int order2 = getOrder(o2.getPermissionGroupName());
-
-                            // Administrator > Developer > App viewer
-                            int permissionGroupSortOrder = order1 - order2;
-
-                            if (permissionGroupSortOrder != 0) {
-                                return permissionGroupSortOrder;
-                            }
-
-                            return o1.getUsername().compareTo(o2.getUsername());
-                        }
-
-                        private int getOrder(String name) {
-                            if (name.startsWith(FieldName.ADMINISTRATOR)) {
-                                return 0;
-                            } else if (name.startsWith(FieldName.DEVELOPER)) {
-                                return 1;
-                            } else {
-                                return 2;
-                            }
-                        }
-                    });
-
-                    return userAndPermissionGroupDTOS;
-                });
-
-        return sortedListMono;
+        return userAndPermissionGroupDTOsMono;
     }
 
     @Override
@@ -319,9 +286,22 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
     }
 
     private List<UserAndPermissionGroupDTO> mapPermissionGroupListToUserAndPermissionGroupDTOList(List<PermissionGroup> permissionGroupList) {
+        PermissionGroup sortedPermissionGroupArray[] = new PermissionGroup[3];
+        for (PermissionGroup permissionGroup : permissionGroupList) {
+            if (permissionGroup.getName().startsWith(FieldName.ADMINISTRATOR)) {
+                sortedPermissionGroupArray[0] = permissionGroup;
+            } else if (permissionGroup.getName().startsWith(FieldName.DEVELOPER)) {
+                sortedPermissionGroupArray[1] = permissionGroup;
+            } else {
+                sortedPermissionGroupArray[2] = permissionGroup;
+            }
+        }
+        List<PermissionGroup> sortedPermissionGroups = Arrays.asList(sortedPermissionGroupArray).stream()
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
         Set<String> userIds = new HashSet<>(); // Set of already collected users
         List<UserAndPermissionGroupDTO> userAndGroupDTOList = new ArrayList<>();
-        permissionGroupList.forEach(permissionGroup -> {
+        sortedPermissionGroups.forEach(permissionGroup -> {
             Stream.ofNullable(permissionGroup.getAssignedToUserIds()).flatMap(Collection::stream).filter(userId -> !userIds.contains(userId)).forEach(userId -> {
                 userAndGroupDTOList.add(UserAndPermissionGroupDTO.builder()
                         .userId(userId)

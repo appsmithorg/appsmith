@@ -36,7 +36,7 @@ public class WorkspaceControllerCE extends BaseController<WorkspaceService, Work
     }
 
     /**
-     * This function would be used to fetch default user groups of workspace, for which user has access to invite users.
+     * This function would be used to fetch default permission groups of workspace, for which user has access to invite users.
      *
      * @return
      */
