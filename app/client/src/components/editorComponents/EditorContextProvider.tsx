@@ -24,8 +24,10 @@ import {
   addPseudoWidget,
   deletePseudoWidget,
   updatePseudoWidget,
+  modifyPseudoWidgets,
 } from "actions/pseudoWidgetActions";
 import { FlattenedWidgetProps } from "widgets/constants";
+import { ModifyPseudoWidgetPayload } from "reducers/entityReducers/pseudoCanvasWidgetsReducer";
 
 export type EditorContextType = {
   executeAction?: (triggerPayload: ExecuteTriggerPayload) => void;
@@ -57,6 +59,7 @@ export type EditorContextType = {
   addPseudoWidget?: (
     pseudoWidgets: Record<string, FlattenedWidgetProps>,
   ) => void;
+  modifyPseudoWidgets?: (modifications: ModifyPseudoWidgetPayload) => void;
   updatePseudoWidget?: (
     pseudoWidgets: Record<string, FlattenedWidgetProps>,
   ) => void;
@@ -77,6 +80,7 @@ function EditorContextProvider(props: EditorContextProviderProps) {
     deleteWidgetProperty,
     disableDrag,
     executeAction,
+    modifyPseudoWidgets,
     resetChildrenMetaProperty,
     syncUpdateWidgetMetaProperty,
     triggerEvalOnMetaUpdate,
@@ -101,6 +105,7 @@ function EditorContextProvider(props: EditorContextProviderProps) {
       addPseudoWidget,
       updatePseudoWidget,
       deletePseudoWidget,
+      modifyPseudoWidgets,
     }),
     [
       executeAction,
@@ -115,6 +120,7 @@ function EditorContextProvider(props: EditorContextProviderProps) {
       addPseudoWidget,
       updatePseudoWidget,
       deletePseudoWidget,
+      modifyPseudoWidgets,
     ],
   );
   return (
@@ -146,6 +152,7 @@ const mapDispatchToProps = {
   addPseudoWidget,
   deletePseudoWidget,
   updatePseudoWidget,
+  modifyPseudoWidgets,
 };
 
 export default connect(null, mapDispatchToProps)(EditorContextProvider);

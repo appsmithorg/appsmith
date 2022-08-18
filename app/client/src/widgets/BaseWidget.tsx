@@ -41,6 +41,7 @@ import { CanvasWidgetStructure } from "./constants";
 import { DataTreeWidget } from "entities/DataTree/dataTreeFactory";
 import Skeleton from "./Skeleton";
 import { FlattenedWidgetProps } from "./constants";
+import { ModifyPseudoWidgetPayload } from "reducers/entityReducers/pseudoCanvasWidgetsReducer";
 
 /***
  * BaseWidget
@@ -159,7 +160,7 @@ abstract class BaseWidget<
 
   /* eslint-disable @typescript-eslint/no-empty-function */
   /* eslint-disable @typescript-eslint/no-unused-vars */
-  componentDidUpdate(prevProps: T) {}
+  componentDidUpdate(prevProps: T, prevState?: K) {}
 
   componentDidMount(): void {}
   /* eslint-enable @typescript-eslint/no-empty-function */
@@ -172,6 +173,10 @@ abstract class BaseWidget<
     pseudoWidgets: Record<string, FlattenedWidgetProps>,
   ) => {
     this.context.updatePseudoWidget?.(pseudoWidgets);
+  };
+
+  modifyPseudoWidgets = (modifications: ModifyPseudoWidgetPayload) => {
+    this.context.modifyPseudoWidgets?.(modifications);
   };
 
   deletePseudoWidget = (pseudoWidgetId: string | string[]) => {
@@ -453,6 +458,7 @@ export interface WidgetBaseProps {
   renderMode: RenderMode;
   version: number;
   childWidgets?: DataTreeWidget[];
+  pseudoWidgetChildrenStructure?: CanvasWidgetStructure[];
 }
 
 export type WidgetRowCols = {

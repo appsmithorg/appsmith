@@ -34,8 +34,8 @@ import {
   createCanvasWidget,
   createLoadingWidget,
 } from "utils/widgetRenderUtils";
-import { denormalize } from "reducers/entityReducers/helper";
 import { CanvasWidgetStructure } from "widgets/constants";
+import { denormalize } from "utils/canvasStructureHelpers";
 
 const getIsDraggingOrResizing = (state: AppState) =>
   state.ui.widgetDragResize.isResizing || state.ui.widgetDragResize.isDragging;

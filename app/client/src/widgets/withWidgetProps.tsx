@@ -26,7 +26,11 @@ import {
   createLoadingWidget,
 } from "utils/widgetRenderUtils";
 
-const WIDGETS_WITH_CHILD_WIDGETS = ["LIST_WIDGET", "FORM_WIDGET"];
+const WIDGETS_WITH_CHILD_WIDGETS = [
+  "LIST_WIDGET",
+  "FORM_WIDGET",
+  "LIST_WIDGET_V2",
+];
 
 function withWidgetProps(WrappedWidget: typeof BaseWidget) {
   function WrappedPropsComponent(
@@ -51,6 +55,7 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
     const isPseudoCanvasWidget = Boolean(pseudoCanvasWidget);
     const pseudoWidgetChildrenStructure = useSelector(
       getPseudoWidgetChildrenStructure(widgetId, isPseudoCanvasWidget),
+      equal,
     );
 
     const childWidgets = useSelector((state: AppState) => {
@@ -105,10 +110,8 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
         if ("isFormValid" in props) widgetProps.isFormValid = props.isFormValid;
       }
 
-      widgetProps.children = pseudoWidgetChildrenStructure.length
-        ? pseudoWidgetChildrenStructure
-        : children;
-
+      widgetProps.children = children;
+      widgetProps.pseudoWidgetChildrenStructure = pseudoWidgetChildrenStructure;
       widgetProps.isLoading = isLoading;
       widgetProps.childWidgets = childWidgets;
     }

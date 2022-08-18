@@ -1,4 +1,5 @@
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import { ModifyPseudoWidgetPayload } from "reducers/entityReducers/pseudoCanvasWidgetsReducer";
 import { FlattenedWidgetProps } from "widgets/constants";
 
 export const addPseudoWidget = (
@@ -17,5 +18,10 @@ export const updatePseudoWidget = (
 
 export const deletePseudoWidget = (payload: string | string[]) => ({
   type: ReduxActionTypes.DELETE_PSEUDO_WIDGET,
+  payload,
+});
+
+export const modifyPseudoWidgets = (payload: ModifyPseudoWidgetPayload) => ({
+  type: ReduxActionTypes.MODIFY_PSEUDO_WIDGET,
   payload,
 });

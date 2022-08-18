@@ -10,7 +10,7 @@ import {
   WidgetType,
 } from "constants/WidgetConstants";
 import { CANVAS_DEFAULT_MIN_ROWS } from "constants/AppConstants";
-import { denormalize } from "./helper";
+import { denormalize } from "utils/canvasStructureHelpers";
 
 export type FlattenedWidgetProps<orType = never> =
   | (WidgetProps & {

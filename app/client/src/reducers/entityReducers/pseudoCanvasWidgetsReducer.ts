@@ -18,6 +18,11 @@ export type FlattenedWidgetProps<orType = never> =
 
 type AddPseudoWidgetPayload = Record<string, FlattenedWidgetProps>;
 
+export type ModifyPseudoWidgetPayload = {
+  addOrUpdate: Record<string, FlattenedWidgetProps>;
+  delete: string[];
+};
+
 const initialState: PseudoCanvasWidgetsReduxState = {};
 
 const pseudoCanvasWidgetsReducer = createImmerReducer(initialState, {
@@ -42,6 +47,24 @@ const pseudoCanvasWidgetsReducer = createImmerReducer(initialState, {
     action: ReduxAction<UpdateCanvasPayload>,
   ) => {
     return action.payload.widgets;
+  },
+
+  [ReduxActionTypes.MODIFY_PSEUDO_WIDGET]: (
+    state: PseudoCanvasWidgetsReduxState,
+    action: ReduxAction<ModifyPseudoWidgetPayload>,
+  ) => {
+    Object.entries(action.payload.addOrUpdate).forEach(
+      ([pseudoWidgetId, widgetProps]) => {
+        state[pseudoWidgetId] = widgetProps;
+        state[pseudoWidgetId].isPseudoWidget = true;
+      },
+    );
+
+    action.payload.delete.forEach((deleteId) => {
+      delete state[deleteId];
+    });
+
+    return state;
   },
 });
 

@@ -1,7 +1,7 @@
 // TODO: Ashit - Add jest test for all the functions
 
 import { klona } from "klona";
-import { get, isString, omit } from "lodash";
+import { get, isString } from "lodash";
 import { UpdatePropertyArgs } from "sagas/WidgetBlueprintSagas";
 
 import { WidgetProps } from "widgets/BaseWidget";
@@ -10,7 +10,7 @@ import {
   FlattenedWidgetProps,
 } from "widgets/constants";
 import IconSVG from "./icon.svg";
-import Widget, { DynamicPathList, ListWidgetProps, Template } from "./widget";
+import Widget, { DynamicPathList, ListWidgetProps } from "./widget";
 
 const hasDynamicPath = (value: string) =>
   isString(value) && value.indexOf("currentItem") > -1;
@@ -59,7 +59,7 @@ const computeWidgets = (
   widgets: Record<string, FlattenedWidgetProps>,
   dynamicPathMap: DynamicPathList = {},
   childrenUpdatePropertyMap: UpdatePropertyArgs[] = [],
-  template: Record<string, FlattenedWidgetProps> = {},
+  // template: Record<string, FlattenedWidgetProps> = {},
 ) => {
   const clonedWidget = klona(widget);
   const logBlackList = getLogBlackList(widget);
@@ -75,7 +75,7 @@ const computeWidgets = (
     propertyValue: logBlackList,
   });
 
-  template[widget.widgetId] = widget;
+  // template[widget.widgetId] = widget;
 
   (widget.children || []).map((child) => {
     const childWidget = typeof child === "string" ? widgets[child] : child;
@@ -85,12 +85,12 @@ const computeWidgets = (
       widgets,
       dynamicPathMap,
       childrenUpdatePropertyMap,
-      template,
+      // template,
     );
   });
 
   return {
-    template,
+    // template,
     dynamicPathMap,
     childrenUpdatePropertyMap,
   };
@@ -321,16 +321,16 @@ export const CONFIG = {
             const {
               childrenUpdatePropertyMap,
               dynamicPathMap,
-              template,
+              // template,
             } = computeWidgets(mainCanvas, widgets);
 
             return [
               ...childrenUpdatePropertyMap,
-              {
-                widgetId: widget.widgetId,
-                propertyName: "template",
-                propertyValue: template,
-              },
+              // {
+              //   widgetId: widget.widgetId,
+              //   propertyName: "template",
+              //   propertyValue: template,
+              // },
               {
                 widgetId: widget.widgetId,
                 propertyName: "dynamicPathMap",
