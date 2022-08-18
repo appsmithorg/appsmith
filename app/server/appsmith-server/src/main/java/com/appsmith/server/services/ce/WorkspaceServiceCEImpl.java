@@ -294,6 +294,7 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
         Set<Permission> assignPermissionGroupPermissions = permissionGroups.stream()
                 .map(permissionGroup -> new Permission(permissionGroup.getId(), AclPermission.ASSIGN_PERMISSION_GROUPS))
                 .collect(Collectors.toSet());
+        // All the default permission groups should be readable by all the members of the workspace
         Set<Permission> readPermissionGroupPermissions = permissionGroups.stream()
                 .map(permissionGroup -> new Permission(permissionGroup.getId(), AclPermission.READ_PERMISSION_GROUPS))
                 .collect(Collectors.toSet());
