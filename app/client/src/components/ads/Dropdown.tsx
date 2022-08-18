@@ -49,6 +49,7 @@ export type DropdownOption = {
   disabled?: boolean;
   disabledTooltipText?: string;
   hasCustomBadge?: boolean;
+  link?: string;
 };
 export interface DropdownSearchProps {
   enableSearch?: boolean;
@@ -190,6 +191,7 @@ const SquareBox = styled.div<{
     if (props.borderColor) return props.borderColor;
     props.checked ? Colors.GRAY_900 : Colors.GRAY_400;
   }};
+  flex: 0 0 auto;
 
   & svg {
     display: ${(props) => (props.checked ? "block" : "none")};
