@@ -527,7 +527,7 @@ class CategorySliderWidget extends BaseWidget<
           sliderOptions.find((option) => option.value === val)?.label || ""
         }
         sliderType={SliderType.CATEGORICAL}
-        sliderValue={sliderValue || 0}
+        sliderValue={sliderValue || stepSize}
         step={stepSize}
       />
     );

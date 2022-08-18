@@ -11,6 +11,7 @@ import {
   getPosition,
   getChangeValue,
   SliderSizes,
+  getSliderStyles,
 } from "../../NumberSliderWidget/utils";
 import { Thumb } from "../../NumberSliderWidget/component/Thumb";
 import { Track } from "../../NumberSliderWidget/component/Track";
@@ -314,6 +315,13 @@ const RangeSliderComponent = (props: RangeSliderComponentProps) => {
     onBlur: () => setFocused(-1),
   };
 
+  const sliderBg = getSliderStyles({
+    color,
+    disabled,
+    dragging: active,
+    hovering: hovered,
+  });
+
   return (
     <SliderContainer compactMode labelPosition={labelPosition}>
       {labelText && (
@@ -347,10 +355,12 @@ const RangeSliderComponent = (props: RangeSliderComponentProps) => {
         size={sliderSize}
       >
         <Track
+          barBgColor={sliderBg.bar}
           color={color}
           disabled={disabled}
           filled={positions[1] - positions[0]}
           marks={marks}
+          marksBg={sliderBg.marks}
           marksOffset={_value[0]}
           max={max}
           min={min}
@@ -365,6 +375,7 @@ const RangeSliderComponent = (props: RangeSliderComponentProps) => {
           onMouseEnter={showLabelOnHover ? () => setHovered(true) : undefined}
           onMouseLeave={showLabelOnHover ? () => setHovered(false) : undefined}
           size={sliderSize}
+          trackBgColor={sliderBg.track}
           value={_value[1]}
         >
           <Thumb
@@ -381,6 +392,7 @@ const RangeSliderComponent = (props: RangeSliderComponentProps) => {
             }}
             showLabelOnHover={showLabelOnHover && hovered}
             size={sliderSize}
+            thumbBgColor={sliderBg.thumb}
             value={_value[0]}
           />
 
@@ -398,6 +410,7 @@ const RangeSliderComponent = (props: RangeSliderComponentProps) => {
             }}
             showLabelOnHover={showLabelOnHover && hovered}
             size={sliderSize}
+            thumbBgColor={sliderBg.thumb}
             value={_value[1]}
           />
         </Track>

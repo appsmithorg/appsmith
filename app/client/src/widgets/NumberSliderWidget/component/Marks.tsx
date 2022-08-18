@@ -1,15 +1,20 @@
 import React from "react";
 import styled from "styled-components";
 
+import { Colors } from "constants/Colors";
 import {
+  sizeMap,
   getPosition,
   isMarkedFilled,
-  sizeMap,
   SliderSizes,
   SliderType,
 } from "../utils";
 
 interface MarksProps {
+  marksBg: {
+    filled: string;
+    notFilled: string;
+  };
   marks?: { value: number; label: string }[];
   marksOffset?: number;
   color: string;
@@ -31,32 +36,29 @@ const MarkWrapper = styled.div<Pick<MarksProps, "value" | "min" | "max">>(
   }),
 );
 
-const Mark = styled.div<
-  Pick<MarksProps, "color" | "disabled" | "size"> & { isMarkFilled: boolean }
->(({ color, disabled, isMarkFilled, size }) => ({
+const Mark = styled.div<Pick<MarksProps, "size">>(({ size }) => ({
   boxSizing: "border-box",
-  border: `${sizeMap[size] >= 8 ? "2px" : "1px"} solid #e9ecef`,
+  border: `${sizeMap[size] >= 8 ? "2px" : "1px"} solid`,
   height: `${sizeMap[size]}px`,
   width: `${sizeMap[size]}px`,
   borderRadius: 1000,
   transform: `translateX(-${8 / 2}px)`,
   backgroundColor: "white",
-  borderColor: isMarkFilled ? (disabled ? "#ced4da" : color) : undefined,
 }));
 
 const MarkLabel = styled.div({
   transform: "translate(-50%, 0)",
-  fontSize: "14px",
-  color: "#868e96",
+  fontSize: "12px",
+  fontWeight: 400,
+  color: Colors.CHARCOAL,
   marginTop: "5px",
   overflowWrap: "break-word",
 });
 
 export const Marks = React.memo(
   ({
-    color,
-    disabled,
     marks,
+    marksBg,
     marksOffset,
     max,
     min,
@@ -73,10 +75,13 @@ export const Marks = React.memo(
       return (
         <MarkWrapper key={index} max={max} min={min} value={mark.value}>
           <Mark
-            color={color}
-            disabled={disabled}
-            isMarkFilled={isMarkedFilled({ mark, offset: marksOffset, value })}
+            className="slider-mark"
             size={size}
+            style={{
+              borderColor: isMarkedFilled({ mark, offset: marksOffset, value })
+                ? marksBg.filled
+                : marksBg.notFilled,
+            }}
           />
           {sliderType === SliderType.LINEAR && (
             <MarkLabel

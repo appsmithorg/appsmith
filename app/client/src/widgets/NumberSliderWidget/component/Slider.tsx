@@ -5,7 +5,13 @@ import LabelWithTooltip from "components/ads/LabelWithTooltip";
 import { LabelPosition } from "components/constants";
 import { Alignment } from "@blueprintjs/core";
 import { TextSize } from "constants/WidgetConstants";
-import { getChangeValue, getPosition, SliderSizes, SliderType } from "../utils";
+import {
+  getChangeValue,
+  getPosition,
+  getSliderStyles,
+  SliderSizes,
+  SliderType,
+} from "../utils";
 import { useMove } from "../use-move";
 import { SliderContainer } from "./Container";
 import { SliderRoot } from "./SilderRoot";
@@ -216,6 +222,13 @@ const SliderComponent = (props: SliderComponentProps) => {
     }
   };
 
+  const sliderBg = getSliderStyles({
+    color,
+    disabled,
+    dragging: active,
+    hovering: hovered,
+  });
+
   return (
     <SliderContainer compactMode labelPosition={labelPosition}>
       {labelText && (
@@ -241,10 +254,12 @@ const SliderComponent = (props: SliderComponentProps) => {
         size={sliderSize}
       >
         <Track
+          barBgColor={sliderBg.bar}
           color={color}
           disabled={disabled}
           filled={position}
           marks={marks}
+          marksBg={sliderBg.marks}
           max={max}
           min={min}
           offset={0}
@@ -253,6 +268,7 @@ const SliderComponent = (props: SliderComponentProps) => {
           onMouseLeave={showLabelOnHover ? () => setHovered(false) : undefined}
           size={sliderSize}
           sliderType={sliderType}
+          trackBgColor={sliderBg.track}
           value={_value}
         >
           <Thumb
@@ -269,6 +285,7 @@ const SliderComponent = (props: SliderComponentProps) => {
             ref={thumb}
             showLabelOnHover={showLabelOnHover && hovered}
             size={sliderSize}
+            thumbBgColor={sliderBg.thumb}
             value={_value}
           />
         </Track>

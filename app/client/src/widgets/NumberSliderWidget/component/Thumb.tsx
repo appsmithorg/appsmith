@@ -1,9 +1,11 @@
 import React, { useState, forwardRef } from "react";
 import styled from "styled-components";
 
+import { lightenColor } from "widgets/WidgetUtils";
 import { SliderSizes, thumbSizeMap } from "../utils";
 
 interface ThumbProps {
+  thumbBgColor: string;
   max: number;
   min: number;
   value: number;
@@ -28,6 +30,7 @@ const Label = styled.div({
   top: -36,
   backgroundColor: "#212529",
   fontSize: "12px",
+  fontWeight: 400,
   color: "white",
   padding: "5px",
   borderRadius: "4px",
@@ -37,17 +40,20 @@ const Label = styled.div({
 });
 
 const ThumbWrapper = styled.div<
-  Pick<ThumbProps, "color" | "disabled" | "dragging" | "position" | "size">
->(({ color, disabled, dragging, position, size }) => ({
+  Pick<
+    ThumbProps,
+    "color" | "disabled" | "dragging" | "position" | "size" | "thumbBgColor"
+  >
+>(({ color, disabled, dragging, position, size, thumbBgColor }) => ({
   boxSizing: "border-box",
   position: "absolute",
-  display: disabled ? "none" : "flex",
+  display: "flex",
   height: thumbSizeMap[size],
   width: thumbSizeMap[size],
-  backgroundColor: "white",
-  border: `4px solid ${color}`,
+  backgroundColor: thumbBgColor,
+  border: `4px solid ${thumbBgColor}`,
   top: "50%",
-  cursor: "pointer",
+  cursor: disabled ? "not-allowed" : "pointer",
   borderRadius: 1000,
   alignItems: "center",
   justifyContent: "center",
@@ -56,17 +62,16 @@ const ThumbWrapper = styled.div<
   transitionTimingFunction: "ease",
   zIndex: 3,
   userSelect: "none",
-  transform: dragging
-    ? "translate(-50%, -50%) scale(1.05)"
-    : "translate(-50%, -50%)",
+  transform: "translate(-50%, -50%)",
   boxShadow: dragging
-    ? "0 1px 3px rgba(0, 0, 0, 0.05), rgba(0, 0, 0, 0.05) 0px 10px 15px -5px, rgba(0, 0, 0, 0.04) 0px 7px 7px -5px"
+    ? disabled
+      ? "none"
+      : `0 0 0px 3px ${lightenColor(color)}`
     : "none",
   left: `${position}%`,
 
   "&:focus": {
-    outlineOffset: "2 !important",
-    outline: `2px solid ${color} !important`,
+    boxShadow: `0 0 0px 3px ${lightenColor(color)}`,
   },
 }));
 
@@ -87,6 +92,7 @@ export const Thumb = forwardRef<HTMLDivElement, ThumbProps>(
       position,
       showLabelOnHover,
       size,
+      thumbBgColor,
       value,
     },
     ref,
@@ -119,6 +125,7 @@ export const Thumb = forwardRef<HTMLDivElement, ThumbProps>(
         role="slider"
         size={size}
         tabIndex={0}
+        thumbBgColor={thumbBgColor}
       >
         {children}
 

@@ -1,3 +1,6 @@
+import { Colors } from "constants/Colors";
+import { darkenColor } from "widgets/WidgetUtils";
+
 interface GetPosition {
   value: number;
   min: number;
@@ -98,4 +101,52 @@ export enum SliderType {
 export type SliderOption = {
   label: string;
   value: string;
+};
+
+export const getSliderStyles = ({
+  color,
+  disabled,
+  dragging,
+  hovering,
+}: {
+  disabled: boolean;
+  hovering: boolean;
+  dragging: boolean;
+  color: string;
+}) => {
+  const darkColor = darkenColor(color);
+
+  if (disabled) {
+    return {
+      track: Colors.GREY_5,
+      bar: Colors.GREY_6,
+      thumb: Colors.GREY_6,
+      marks: {
+        filled: Colors.GREY_6,
+        notFilled: Colors.GREY_5,
+      },
+    };
+  }
+
+  if (hovering || dragging) {
+    return {
+      track: Colors.GRAY_400,
+      bar: darkColor,
+      thumb: darkColor,
+      marks: {
+        filled: darkColor,
+        notFilled: Colors.GRAY_400,
+      },
+    };
+  }
+
+  return {
+    track: Colors.GREY_5,
+    bar: color,
+    thumb: color,
+    marks: {
+      filled: color,
+      notFilled: Colors.GREY_5,
+    },
+  };
 };
