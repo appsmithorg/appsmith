@@ -84,7 +84,6 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
                     User user = tuple.getT2();
                     return permissionGroupService.getAllByAssignedToUserAndDefaultWorkspace(user, workspace, AclPermission.UNASSIGN_PERMISSION_GROUPS);
                 })
-                //TODO do we handle case of multiple default permission group ids
                 .single()
                 .flatMap(permissionGroup -> {
                     if (permissionGroup.getName().startsWith(FieldName.ADMINISTRATOR) && permissionGroup.getAssignedToUserIds().size() == 1) {
