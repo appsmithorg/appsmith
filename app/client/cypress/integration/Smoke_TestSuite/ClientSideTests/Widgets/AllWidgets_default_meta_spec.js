@@ -338,15 +338,19 @@ function ratingwidgetAndReset() {
 }
 
 function checkboxGroupAndReset() {
-  cy.get("input")
+  cy.wait(2000);
+  cy.get("[data-cy=checkbox-group-container] > :nth-child(3)")
     .last()
+    .should("be.visible")
     .click({ force: true });
-  cy.wait(3000);
+  cy.wait(2000);
   cy.get(commonlocators.textWidgetContainer).each((item, index, list) => {
     cy.wrap(item).should("contain.text", "RED");
   });
   cy.get("button:contains('Submit')").click({ force: true });
   cy.wait(1000);
+  cy.get("button:contains('Submit')").click({ force: true });
+  cy.wait(2000);
   cy.get(commonlocators.textWidgetContainer).each((item, index, list) => {
     cy.wrap(item).should("not.contain.text", "RED");
   });
@@ -385,32 +389,33 @@ function audioRecorderWidgetAndReset() {
 
 function phoneInputWidgetAndReset() {
   cy.get(".bp3-input").type("1234");
+  cy.wait(1000);
   cy.get(commonlocators.textWidgetContainer).each((item, index, list) => {
     cy.wrap(item).should("contain.text", "1234");
   });
   cy.get("button:contains('Submit')").click({ force: true });
   cy.wait(1000);
-  //cy.get(".t--toast-action span").contains("success");
   cy.get(commonlocators.textWidgetContainer).each((item, index, list) => {
     cy.wrap(item).should("contain.text", "");
   });
 }
 
 function filePickerWidgetAndReset() {
-  cy.get(commonlocators.textWidgetContainer).each((item, index, list) => {
-    cy.wrap(item).should("contain.text", "false");
-  });
+  cy.wait(2000);
+  cy.get(".t--widget-filepickerwidgetv2").should("be.visible");
+  cy.wait(2000);
   cy.get(commonlocators.filePickerInput)
     .first()
     .attachFile("testFile.mov");
   //eslint-disable-next-line cypress/no-unnecessary-waiting
-  cy.wait(500);
+  cy.wait(1000);
   cy.get(commonlocators.textWidgetContainer).each((item, index, list) => {
     cy.wrap(item).should("contain.text", "true");
   });
   cy.get("button:contains('Submit')").click({ force: true });
   cy.wait(1000);
-  //cy.get(".t--toast-action span").contains("success");
+  cy.get("button:contains('Submit')").click({ force: true });
+  cy.wait(2000);
   cy.get(commonlocators.textWidgetContainer).each((item, index, list) => {
     cy.wrap(item).should("contain.text", "false");
   });

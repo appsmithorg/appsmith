@@ -1,6 +1,6 @@
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 
-let guid: any, dsName: any, newStoreSecret: any;
+let dsName: any, newStoreSecret: any;
 
 let agHelper = ObjectsRegistry.AggregateHelper,
   ee = ObjectsRegistry.EntityExplorer,
@@ -12,16 +12,12 @@ let agHelper = ObjectsRegistry.AggregateHelper,
   deployMode = ObjectsRegistry.DeployMode;
 
 describe("Validate MySQL Generate CRUD with JSON Form", () => {
-  before(() => {
-    dataSources.StartDataSourceRoutes();
-  });
-
-  beforeEach(function() {
-    if (Cypress.env("MySQL") === 0) {
-      cy.log("MySQL DB is not found. Using intercept");
-      dataSources.StartInterceptRoutesForMySQL();
-    } else cy.log("MySQL DB is found, hence using actual DB");
-  });
+  // beforeEach(function() {
+  //   if (Cypress.env("MySQL") === 0) {
+  //     cy.log("MySQL DB is not found. Using intercept");
+  //     //dataSources.StartInterceptRoutesForMySQL();
+  //   } else cy.log("MySQL DB is found, hence using actual DB");
+  // });
 
   it("1. Create DS & then Add new Page and generate CRUD template using created datasource", () => {
     dataSources.CreateDataSource("MySql");
@@ -569,7 +565,6 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
     //agHelper.VerifyEvaluatedValue(tableCreateQuery);
 
     dataSources.RunQueryNVerifyResponseViews();
-    agHelper.ActionContextMenuWithInPane("Delete");
     ee.ExpandCollapseEntity("DATASOURCES");
     ee.ExpandCollapseEntity(dsName);
     ee.ActionContextMenuByEntityName(dsName, "Refresh");
@@ -577,14 +572,7 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
   });
 
   it("19. Verify application does not break when user runs the query with wrong table name", function() {
-    let deleteTblQuery = "DROP TABLE Stores;";
-    dataSources.NavigateFromActiveDS(dsName, true);
-    agHelper.GetNClick(dataSources._templateMenu);
-    agHelper.RenameWithInPane("DropStores");
-    dataSources.EnterQuery(deleteTblQuery);
-    agHelper.FocusElement(locator._codeMirrorTextArea);
-    //agHelper.VerifyEvaluatedValue(tableCreateQuery);
-
+    ee.SelectEntityByName("DropStores", "QUERIES/JS");
     dataSources.RunQuery(false);
     agHelper
       .GetText(dataSources._queryError)
