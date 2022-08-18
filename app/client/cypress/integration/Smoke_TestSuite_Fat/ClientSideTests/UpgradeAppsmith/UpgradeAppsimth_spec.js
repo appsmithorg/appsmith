@@ -20,7 +20,17 @@ describe("Upgrade appsmith version", () => {
       path = path[0].slice(0, -7);
       cy.log(path);
 
-      cy.GetCWD(testUrl);
+      cy.CreateAContainer(
+        testUrl,
+        path + "/oldstack/160",
+        "v1.6.0",
+        "appsmith-160",
+      );
+      cy.wait(45000);
+
+      cy.log("Stop the appsmith-160 container");
+      cy.StopTheContainer(testUrl, "appsmith-160"); // stop the old container
+      cy.wait(2000);
 
       cy.log("Start old stack container");
       cy.CreateAContainer(
@@ -50,11 +60,19 @@ describe("Upgrade appsmith version", () => {
     cy.get(".t--buttongroup-widget")
       .children()
       .should("have.length", 3);
+
+    cy.log("Stop the appsmith-160-updated container");
+    cy.StopTheContainer(testUrl, "appsmith-160-updated"); // stop the old container
+    cy.wait(2000);
+
+    cy.log("Start the appsmith container");
+    cy.StartTheContainer(testUrl, "appsmith"); // stop the old container
+    cy.wait(2000);
   });
 
   it("Upgrade Appsmith from CE to EE and verify the Applications", () => {
-    cy.log("Stop the container");
-    cy.StopTheContainer(testUrl, "appsmith-160-updated"); // stop the old container
+    cy.log("Stop the appsmith container");
+    cy.StopTheContainer(testUrl, "appsmith"); // stop the old container
     cy.wait(2000);
 
     cy.log("Get path");
@@ -63,6 +81,18 @@ describe("Upgrade appsmith version", () => {
       path = path[1].split(" ");
       path = path[0].slice(0, -7);
       cy.log(path);
+
+      cy.CreateAContainer(
+        testUrl,
+        path + "/oldstack/ce",
+        "v1.6.0",
+        "appsmith-160-ce",
+      );
+      cy.wait(45000);
+
+      cy.log("Stop the appsmith-160-ce container");
+      cy.StopTheContainer(testUrl, "appsmith-160-ce"); // stop the old container
+      cy.wait(2000);
 
       cy.log("Start old stack container");
       cy.CreateAContainer(
@@ -92,5 +122,13 @@ describe("Upgrade appsmith version", () => {
     cy.get(".t--buttongroup-widget")
       .children()
       .should("have.length", 3);
+
+    cy.log("Stop the appsmith-160-updated container");
+    cy.StopTheContainer(testUrl, "appsmith-enterprise"); // stop the old container
+    cy.wait(2000);
+
+    cy.log("Start the appsmith container");
+    cy.StartTheContainer(testUrl, "appsmith"); // stop the old container
+    cy.wait(2000);
   });
 });
