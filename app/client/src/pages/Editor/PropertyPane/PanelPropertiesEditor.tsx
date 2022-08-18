@@ -9,8 +9,6 @@ import { get, isNumber, isPlainObject, isString } from "lodash";
 import { IPanelProps } from "@blueprintjs/core";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import PropertyPaneTitle from "../PropertyPaneTitle";
-import { BindingText } from "../APIEditor/Form";
-import QuestionIcon from "remixicon-react/QuestionLineIcon";
 import { SearchVariant } from "components/ads";
 import { StyledSearchInput } from "./PropertyPaneView";
 import { PropertyPaneTab } from "./PropertyPaneTab";
@@ -30,19 +28,7 @@ function PanelHeader(props: PanelHeaderProps) {
       }}
     >
       <PropertyPaneTitle
-        actions={[
-          {
-            tooltipContent: (
-              <div>
-                <span>You can connect data from your API by adding </span>
-                <BindingText>{`{{apiName.data}}`}</BindingText>
-                <span> to a widget property</span>
-              </div>
-            ),
-            icon: <QuestionIcon className="w-4 h-4 text-gray-500" />,
-            tooltipPosition: "bottom-right",
-          },
-        ]}
+        actions={[]}
         isPanelTitle
         onBackClick={props.closePanel}
         title={props.title}
