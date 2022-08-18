@@ -131,8 +131,8 @@ function ScrollIndicator({
       /*
         Scroll Thumb by default has height 0.
         Since we have to rely on hover event instead of scroll event when showScrollbarOnlyOnHover is true,
-        we have to set scroll thumb height and position one first hover(mouseenter)
-        or the scroll thumb won't be visible until scroll the first scroll event happens
+        we have to set scroll thumb height and position on first hover(mouseenter)
+        or the scroll thumb won't be visible until the first scroll event happens
       */
       if (!thumbRef.current?.style.height) {
         setScrollThumbCSS(e);
