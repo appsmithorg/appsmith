@@ -111,7 +111,7 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
 
     /**
      * This method is used when an admin of an workspace changes the role or removes a member.
-     * Admin user can also remove himself from the workspace, if there is another admin there in the workspace.
+     * Admin user can also remove itself from the workspace, if there is another admin there in the workspace.
      *
      * @param workspaceId        ID of the workspace
      * @param changeUserGroupDTO updated role of the target member. userRole.roleName will be null when removing a member
