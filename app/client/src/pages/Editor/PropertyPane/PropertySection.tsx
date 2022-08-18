@@ -21,7 +21,7 @@ const SectionTitle = styled.div`
   grid-template-columns: 1fr 30px;
   cursor: pointer;
   & span {
-    color: ${(props) => props.theme.colors.propertyPane.title};
+    color: ${Colors.GRAY_800};
     padding: ${(props) => props.theme.spaces[2]}px 0;
     font-size: ${(props) => props.theme.fontSizes[3]}px;
     display: flex;
@@ -57,10 +57,9 @@ const SectionWrapper = styled.div`
   }
 
   & & ${SectionTitle} span {
-    color: ${Colors.GRAY_700};
-    text-transform: uppercase;
-    font-size: 14px;
-    font-weight: 600;
+    color: ${Colors.GRAY_500};
+    font-size: 13px;
+    font-weight: 400;
   }
 
   .${Classes.COLLAPSE_BODY} {
