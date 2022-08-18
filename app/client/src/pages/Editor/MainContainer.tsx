@@ -17,7 +17,7 @@ import {
 import EntityExplorerSidebar from "components/editorComponents/Sidebar";
 import classNames from "classnames";
 import { previewModeSelector } from "selectors/editorSelectors";
-import AppSettingsPane from "./AppSettingsPane";
+import AppSettings from "./AppSettings";
 import { tailwindLayers } from "constants/Layers";
 
 const SentryRoute = Sentry.withSentryRouting(Route);
@@ -31,7 +31,7 @@ const Container = styled.div`
   background-color: ${(props) => props.theme.appBackground};
 `;
 
-const AppSettingsPaneContainer = styled.div`
+const AppSettingsPane = styled.div`
   width: 521px;
   height: 100%;
   box-shadow: 0 2px 4px -2px rgba(0, 0, 0, 0.06),
@@ -93,13 +93,13 @@ function MainContainer() {
           </Switch>
         </div>
         {isOpen ? (
-          <AppSettingsPaneContainer
+          <AppSettingsPane
             className={classNames({
               [`absolute ${tailwindLayers.appSettingsPane} right-0`]: true,
             })}
           >
-            <AppSettingsPane />
-          </AppSettingsPaneContainer>
+            <AppSettings />
+          </AppSettingsPane>
         ) : null}
       </Container>
       <BottomBar

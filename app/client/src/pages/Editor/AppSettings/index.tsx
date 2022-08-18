@@ -1,10 +1,11 @@
 import classNames from "classnames";
 import React from "react";
-interface AppSettingsPaneStyledProps {
+
+interface AppSettingsStyledProps {
   className?: string;
 }
 
-class AppSettingsPane extends React.Component<AppSettingsPaneStyledProps> {
+class AppSettings extends React.Component<AppSettingsStyledProps> {
   render() {
     return this.props.className ? (
       <div
@@ -18,4 +19,4 @@ class AppSettingsPane extends React.Component<AppSettingsPaneStyledProps> {
   }
 }
 
-export default AppSettingsPane;
+export default AppSettings;
