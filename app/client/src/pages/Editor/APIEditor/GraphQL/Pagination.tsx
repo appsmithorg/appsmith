@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import { parse, getOperationAST, OperationDefinitionNode } from "graphql";
 import styled from "constants/DefaultTheme";
 import { change, formValueSelector } from "redux-form";
 import FormRow from "components/editorComponents/FormRow";
@@ -7,8 +6,7 @@ import { PaginationType } from "entities/Action";
 import RadioFieldGroup from "components/editorComponents/form/fields/RadioGroupField";
 import { Text, TextType, TooltipComponent as Tooltip } from "design-system";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
-import { Maybe } from "graphql/jsutils/Maybe";
-import { Dropdown, Checkbox } from "components/ads";
+import { Dropdown, Checkbox, DropdownOption } from "components/ads";
 import { AnyAction, bindActionCreators, Dispatch } from "redux";
 import { connect } from "react-redux";
 import { AppState } from "reducers";
@@ -16,6 +14,7 @@ import { FormLabel } from "components/editorComponents/form/fields/StyledFormCom
 import DynamicTextField from "components/editorComponents/form/fields/DynamicTextField";
 import { Colors } from "constants/Colors";
 import { GRAPHQL_PAGINATION_TYPE } from "constants/ApiEditorConstants";
+import { log } from "loglevel";
 
 interface PaginationProps {
   onTestClick: (test?: "PREV" | "NEXT") => void;
@@ -114,19 +113,23 @@ const CURSORBASED_PREFIX = "cursorBased";
 const graphqlParseVariables = (queryBody: string) => {
   const variables: any = {};
   try {
-    const document = parse(queryBody);
-    const query: Maybe<OperationDefinitionNode> = getOperationAST(document);
-    if (!!query && query.variableDefinitions) {
-      for (const varDef of query.variableDefinitions) {
-        if (varDef?.variable && varDef?.type) {
-          variables[varDef.variable?.name?.value] = {
-            name: varDef.variable?.name?.value,
-            type: (varDef.type as any)?.name?.value,
+    const variableString = queryBody.match(/\((\$[^)]*?)\)/);
+    if (variableString && variableString?.length >= 2) {
+      variableString[1].split(",").forEach((variableWithType: string) => {
+        let [name = "", vtype = ""] = variableWithType.trim().split(":");
+        name = name.trim().substring(1);
+        vtype = vtype.trim();
+        if (name.length > 0 && vtype.length > 0) {
+          variables[name] = {
+            name,
+            type: vtype,
           };
         }
-      }
+      });
     }
-  } catch (error) {}
+  } catch (error) {
+    log(error);
+  }
 
   return variables;
 };
@@ -176,6 +179,18 @@ function PaginationTypeBasedWrapper({
   variableOptions,
   variableTooltip,
 }: PaginationTypeBasedWrapperProps) {
+  const dropdownOptions: DropdownOption[] =
+    variableOptions.length > 0
+      ? variableOptions
+      : [
+          {
+            label:
+              "No such variable exists in the query. Please click on the dropdown to select one of the variables defined in the query",
+            value: "",
+            disabled: true,
+            disabledTooltipText: true,
+          },
+        ];
   return (
     <PaginationFieldContainer>
       <PaginationFieldWrapper data-replay-id={dataReplayId}>
@@ -194,11 +209,20 @@ function PaginationTypeBasedWrapper({
           boundary="viewport"
           className={`${className}Variable`}
           dropdownMaxHeight={"200px"}
+          errorMsg={
+            !selectedVariable.value ||
+            dropdownOptions.some(
+              (option: DropdownOption) =>
+                option.value === selectedVariable.value,
+            )
+              ? undefined
+              : "No such variable exist in query"
+          }
           fillOptions
           onSelect={onSelectVariable}
-          options={variableOptions}
+          options={dropdownOptions}
           placeholder={
-            variableOptions.length > 0
+            dropdownOptions.length > 0
               ? "Select a variable"
               : "Add variables in query to select here"
           }
@@ -207,6 +231,7 @@ function PaginationTypeBasedWrapper({
               ? selectedVariable
               : undefined) as any
           }
+          showEmptyOptions
           showLabelOnly
           width={"100%"}
         />
