@@ -2,7 +2,7 @@ import { ReduxActionTypes } from "ce/constants/ReduxActionConstants";
 import { createReducer } from "utils/ReducerUtils";
 
 const initialState: AppSettingsPaneReduxState = {
-  isOpen: true,
+  isOpen: false,
 };
 
 const appSettingsPaneReducer = createReducer(initialState, {
