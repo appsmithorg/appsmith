@@ -9,6 +9,7 @@ import { getJSCollectionById } from "selectors/editorSelectors";
 import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
 import Spinner from "components/editorComponents/Spinner";
 import styled from "styled-components";
+import EntityNotFoundPane from "../EntityNotFoundPane";
 
 const LoadingContainer = styled(CenteredWrapper)`
   height: 50%;
@@ -34,7 +35,7 @@ class JSEditor extends React.Component<Props> {
     if (!!jsCollection) {
       return <JsEditorForm jsCollection={jsCollection} />;
     }
-    return null;
+    return <EntityNotFoundPane />;
   }
 }
 
