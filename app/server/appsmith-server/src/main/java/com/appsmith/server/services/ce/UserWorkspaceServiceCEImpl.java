@@ -142,7 +142,6 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
                     return permissionGroupService.getAllByAssignedToUserAndDefaultWorkspace(user, workspace, AclPermission.UNASSIGN_PERMISSION_GROUPS);
                 })
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACTION_IS_NOT_AUTHORIZED, "Change permissionGroup of a member")))
-                //TODO do we handle case of multiple default permission group ids
                 .single()
                 .flatMap(permissionGroup -> {
                     if (permissionGroup.getName().startsWith(FieldName.ADMINISTRATOR) && permissionGroup.getAssignedToUserIds().size() == 1) {
