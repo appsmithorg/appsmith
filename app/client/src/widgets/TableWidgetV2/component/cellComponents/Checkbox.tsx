@@ -2,6 +2,7 @@ import React from "react";
 import {
   ALIGN_ITEMS,
   BaseCellComponentProps,
+  CellAlignment,
   JUSTIFY_CONTENT,
 } from "../Constants";
 import { CellWrapper } from "../TableStyledWrappers";
@@ -10,11 +11,13 @@ import { LabelPosition } from "components/constants";
 import { ColumnAction } from "components/propertyControls/ColumnActionSelectorControl";
 import styled from "styled-components";
 
-const CheckboxCellWrapper = styled(CellWrapper)`
+const CheckboxCellWrapper = styled(CellWrapper)<{
+  cellComponentHorizontalAlignment?: CellAlignment;
+}>`
   & > div {
     justify-content: ${(props) =>
-      props.horizontalAlignment &&
-      JUSTIFY_CONTENT[props.horizontalAlignment]} !important;
+      props.cellComponentHorizontalAlignment &&
+      JUSTIFY_CONTENT[props.cellComponentHorizontalAlignment]} !important;
 
     align-items: ${(props) =>
       props.verticalAlignment &&
@@ -45,10 +48,10 @@ export const CheckboxCell = (props: CheckboxCellProps) => {
     allowCellWrapping,
     borderRadius,
     cellBackground,
+    cellComponentHorizontalAlignment,
     columnAction,
     compactMode,
     fontStyle,
-    horizontalAlignment,
     isCellVisible,
     isDisabled,
     isHidden,
@@ -67,9 +70,9 @@ export const CheckboxCell = (props: CheckboxCellProps) => {
     <CheckboxCellWrapper
       allowCellWrapping={allowCellWrapping}
       cellBackground={cellBackground}
+      cellComponentHorizontalAlignment={cellComponentHorizontalAlignment}
       compactMode={compactMode}
       fontStyle={fontStyle}
-      horizontalAlignment={horizontalAlignment}
       isCellVisible={isCellVisible}
       isHidden={isHidden}
       textColor={textColor}

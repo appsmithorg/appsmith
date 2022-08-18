@@ -11,6 +11,7 @@ import {
   SelectColumnOptionsValidations,
   showByColumnType,
   uniqueColumnAliasValidation,
+  updateCellComponentHorizontalAlignment,
   updateColumnLevelEditability,
   updateInlineEditingOptionDropdownVisibilityHook,
   updateNumberColumnTypeTextAlignment,
@@ -72,6 +73,7 @@ export default {
       updateHook: composePropertyUpdateHook([
         updateNumberColumnTypeTextAlignment,
         updateThemeStylesheetsInColumns,
+        updateCellComponentHorizontalAlignment,
       ]),
       dependencies: ["primaryColumns", "columnOrder", "childStylesheet"],
       isBindProperty: false,

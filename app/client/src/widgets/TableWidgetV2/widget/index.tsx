@@ -1500,6 +1500,9 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
 
       case ColumnTypes.CHECKBOX:
         const alias = props.cell.column.columnProperties.alias;
+        const alignment = cellProperties.cellComponentHorizontalAlignment
+          ? cellProperties.cellComponentHorizontalAlignment
+          : cellProperties.horizontalAlignment;
         return (
           <CheckboxCell
             accentColor={this.props.accentColor}
@@ -1508,13 +1511,13 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
               cellProperties.borderRadius || this.props.borderRadius
             }
             cellBackground={cellProperties.cellBackground}
+            cellComponentHorizontalAlignment={alignment}
             columnAction={{
               id: column.id,
               dynamicTrigger: column.onCheckChange || "",
             }}
             compactMode={compactMode}
             fontStyle={cellProperties.fontStyle}
-            horizontalAlignment={cellProperties.horizontalAlignment}
             isCellVisible={cellProperties.isCellVisible ?? true}
             isDisabled={!cellProperties.isCellEditable}
             isHidden={isHidden}

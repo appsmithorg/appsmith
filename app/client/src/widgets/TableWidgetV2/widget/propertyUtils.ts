@@ -173,6 +173,43 @@ export function updateIconAlignment(
   return propertiesToUpdate;
 }
 
+/**
+ * Adds CENTER as the default value for checkbox columntype horizontal alignment.
+ * Removes the cellComponentHorizontalAlignment prop whenever global text alignment changes from the primary columns.
+ * @param props
+ * @param propertyPath
+ * @param propertyValue
+ * @returns
+ */
+export const updateCellComponentHorizontalAlignment = (
+  props: TableWidgetProps,
+  propertyPath: string,
+  propertyValue: any,
+): Array<PropertyHookUpdates> | undefined => {
+  const baseProperty = getBasePropertyPath(propertyPath);
+  const propertiesToUpdate: Array<PropertyHookUpdates> = [];
+  if (baseProperty && propertyValue === ColumnTypes.CHECKBOX) {
+    const alignment = get(
+      props,
+      `${baseProperty}.cellComponentHorizontalAlignment`,
+      CellAlignmentTypes.CENTER,
+    );
+    propertiesToUpdate.push({
+      propertyPath: `${baseProperty}.cellComponentHorizontalAlignment`,
+      propertyValue: alignment,
+    });
+    return propertiesToUpdate;
+  } else {
+    const columns = Object.keys(props.primaryColumns);
+    columns.forEach((columnId: string | undefined) => {
+      propertiesToUpdate.push({
+        propertyPath: `primaryColumns.${columnId}.cellComponentHorizontalAlignment`,
+        shouldDeleteProperty: true,
+      });
+    });
+    return propertiesToUpdate;
+  }
+};
 /*
  * Hook that updates columns order when a new column
  * gets added to the primaryColumns

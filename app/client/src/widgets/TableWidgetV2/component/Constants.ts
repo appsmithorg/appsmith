@@ -78,6 +78,7 @@ export interface TableStyles {
   textSize?: string;
   fontStyle?: string;
   horizontalAlignment?: CellAlignment;
+  cellComponentHorizontalAlignment?: CellAlignment;
   verticalAlignment?: VerticalAlignment;
 }
 
@@ -95,6 +96,7 @@ export interface ReactTableFilter {
 }
 
 export interface CellLayoutProperties {
+  cellComponentHorizontalAlignment?: CellAlignment;
   horizontalAlignment?: CellAlignment;
   verticalAlignment?: VerticalAlignment;
   textSize?: string;
@@ -193,6 +195,7 @@ export interface ColumnProperties {
   index: number;
   width: number;
   cellBackground?: string;
+  cellComponentHorizontalAlignment?: CellAlignment;
   horizontalAlignment?: CellAlignment;
   verticalAlignment?: VerticalAlignment;
   textSize?: string;
@@ -358,6 +361,7 @@ export type BaseCellComponentProps = {
   compactMode: string;
   isHidden: boolean;
   allowCellWrapping?: boolean;
+  cellComponentHorizontalAlignment?: CellAlignment;
   horizontalAlignment?: CellAlignment;
   verticalAlignment?: VerticalAlignment;
   cellBackground?: string;

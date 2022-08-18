@@ -63,7 +63,7 @@ export default {
       },
     },
     {
-      propertyName: "horizontalAlignment",
+      propertyName: "cellComponentHorizontalAlignment",
       label: "Horizontal Alignment",
       controlType: "ICON_TABS",
       options: [
@@ -80,7 +80,7 @@ export default {
           value: "RIGHT",
         },
       ],
-      defaultValue: "LEFT",
+      defaultValue: "CENTER",
       isJSConvertible: true,
       customJSControl: "TABLE_COMPUTE_VALUE",
       dependencies: ["primaryColumns", "columnOrder"],

@@ -260,6 +260,10 @@ export const getCellProperties = (
 ) => {
   if (columnProperties) {
     return {
+      cellComponentHorizontalAlignment: getPropertyValue(
+        columnProperties.cellComponentHorizontalAlignment,
+        rowIndex,
+      ),
       horizontalAlignment: getPropertyValue(
         columnProperties.horizontalAlignment,
         rowIndex,

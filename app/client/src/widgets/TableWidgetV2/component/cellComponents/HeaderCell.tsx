@@ -131,6 +131,9 @@ export function HeaderCell(props: {
     column.columnProperties.isEditable &&
     isColumnTypeEditable(column.columnProperties.columnType);
 
+  const alignment = column.columnProperties.cellComponentHorizontalAlignment
+    ? column.columnProperties.cellComponentHorizontalAlignment
+    : column.columnProperties.horizontalAlignment;
   return (
     <div
       {...column.getHeaderProps()}
@@ -139,9 +142,7 @@ export function HeaderCell(props: {
       onClick={!disableSort && props ? handleSortColumn : undefined}
     >
       <div className={!props.isHidden ? `draggable-header` : "hidden-header"}>
-        <ColumnNameContainer
-          horizontalAlignment={column.columnProperties.horizontalAlignment}
-        >
+        <ColumnNameContainer horizontalAlignment={alignment}>
           {isColumnEditable && <StyledEditIcon />}
           <Title width={props.width}>
             {props.columnName.replace(/\s/g, "\u00a0")}

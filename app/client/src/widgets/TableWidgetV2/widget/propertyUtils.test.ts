@@ -6,6 +6,7 @@ import {
   getBasePropertyPath,
   hideByColumnType,
   uniqueColumnAliasValidation,
+  updateCellComponentHorizontalAlignment,
 } from "./propertyUtils";
 import _ from "lodash";
 import { ColumnTypes, TableWidgetProps } from "../constants";
@@ -452,5 +453,49 @@ describe("uniqueColumnAliasValidation", () => {
       parsed: "column1",
       messages: [""],
     });
+  });
+
+  it("should update the cellComponentHorizontalAlignment", () => {
+    // Check on column level
+    expect(
+      updateCellComponentHorizontalAlignment(
+        ({
+          primaryColumns: {
+            customColumn1: {
+              columnType: "checkbox",
+            },
+          },
+        } as unknown) as TableWidgetProps,
+        "primaryColumns.customColumn1.columnType",
+        "checkbox",
+      ),
+    ).toEqual([
+      {
+        propertyPath:
+          "primaryColumns.customColumn1.cellComponentHorizontalAlignment",
+        propertyValue: "CENTER",
+      },
+    ]);
+
+    // Check on global style level
+    expect(
+      updateCellComponentHorizontalAlignment(
+        ({
+          primaryColumns: {
+            customColumn1: {
+              columnType: "checkbox",
+            },
+          },
+        } as unknown) as TableWidgetProps,
+        "horizontalAlignment",
+        "checkbox",
+      ),
+    ).toEqual([
+      {
+        propertyPath:
+          "primaryColumns.customColumn1.cellComponentHorizontalAlignment",
+        shouldDeleteProperty: true,
+      },
+    ]);
   });
 });
