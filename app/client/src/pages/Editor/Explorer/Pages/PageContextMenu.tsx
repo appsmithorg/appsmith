@@ -23,7 +23,9 @@ import {
   CONTEXT_DELETE,
   CONFIRM_CONTEXT_DELETE,
   createMessage,
+  CONTEXT_SETTINGS,
 } from "@appsmith/constants/messages";
+import { openAppSettingsPaneAction } from "actions/appSettingsPaneActions";
 
 const CustomLabel = styled.div`
   display: flex;
@@ -93,6 +95,8 @@ export function PageContextMenu(props: {
     [dispatch, props.pageId, props.name, props.isHidden],
   );
 
+  const openAppSettingsPane = () => dispatch(openAppSettingsPaneAction());
+
   const optionTree: TreeDropdownOption[] = [
     {
       value: "rename",
@@ -103,6 +107,11 @@ export function PageContextMenu(props: {
       value: "clone",
       onSelect: clonePage,
       label: createMessage(CONTEXT_CLONE),
+    },
+    {
+      value: "settings",
+      onSelect: openAppSettingsPane,
+      label: createMessage(CONTEXT_SETTINGS),
     },
     {
       value: "visibility",

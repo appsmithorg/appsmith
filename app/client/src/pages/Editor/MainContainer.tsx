@@ -20,7 +20,7 @@ import { previewModeSelector } from "selectors/editorSelectors";
 import AppSettings from "./AppSettings";
 import { tailwindLayers } from "constants/Layers";
 import { getIsAppSettingsPaneOpen } from "selectors/appSettingsPaneSelectors";
-import { ReduxActionTypes } from "ce/constants/ReduxActionConstants";
+import { closeAppSettingsPaneAction } from "actions/appSettingsPaneActions";
 
 const SentryRoute = Sentry.withSentryRouting(Route);
 
@@ -67,15 +67,7 @@ function MainContainer() {
   const isPreviewMode = useSelector(previewModeSelector);
   const isAppSettingsPaneOpen = useSelector(getIsAppSettingsPaneOpen);
 
-  const closeAppSettingPane = () =>
-    dispatch({
-      type: ReduxActionTypes.CLOSE_APP_SETTINGS_PANE,
-    });
-
-  const openAppSettingPane = () =>
-    dispatch({
-      type: ReduxActionTypes.OPEN_APP_SETTINGS_PANE,
-    });
+  const closeAppSettingPane = () => dispatch(closeAppSettingsPaneAction());
 
   return (
     <>
@@ -104,7 +96,6 @@ function MainContainer() {
             <SentryRoute component={EditorsRouter} />
           </Switch>
         </div>
-        <button onClick={openAppSettingPane}>Open panel</button>
         <AppSettingsPane
           className={classNames({
             [`absolute ${tailwindLayers.appSettingsPane} right-0`]: true,
