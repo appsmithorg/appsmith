@@ -40,6 +40,7 @@ import { Action, PluginType } from "entities/Action";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import { Toaster } from "components/ads/Toast";
 import {
+  ACTION_EXECUTION_FAILED,
   createMessage,
   ERROR_ACTION_EXECUTE_FAIL,
   ERROR_FAIL_ON_PAGE_LOAD_ACTIONS,
@@ -718,7 +719,10 @@ function* executeOnPageLoadJSAction(pageAction: PageAction) {
             type: ReduxActionTypes.RUN_ACTION_CANCELLED,
             payload: { id: pageAction.id },
           });
-          throw new UserCancelledActionExecutionError();
+          Toaster.show({
+            text: createMessage(ACTION_EXECUTION_FAILED, pageAction.name),
+            variant: Variant.danger,
+          });
         }
       }
       const data = {
@@ -752,7 +756,7 @@ function* executePageLoadAction(pageAction: PageAction) {
 
     let payload = EMPTY_RESPONSE;
     let isError = true;
-    const error = `The action "${pageAction.name}" has failed.`;
+    const error = createMessage(ACTION_EXECUTION_FAILED, pageAction.name);
     try {
       const executePluginActionResponse: ExecutePluginActionResponse = yield call(
         executePluginActionSaga,
