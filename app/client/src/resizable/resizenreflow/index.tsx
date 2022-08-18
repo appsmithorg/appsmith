@@ -249,7 +249,7 @@ export function ReflowResizable(props: ResizableProps) {
           bottomMostRow = 0,
           movementLimitMap: MovementLimitMap | undefined = {};
 
-        if (resizedPositions) {
+        if (!props?.useAutoLayout && resizedPositions) {
           const isColliding = checkForCollision(resizedPositions);
           if (isColliding) {
             return prevState;
