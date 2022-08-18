@@ -990,13 +990,15 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
             ActionExecutionResult actionExecutionResult,
             Long timeElapsed
     ) {
-
         // Since we're loading the application from DB *only* for analytics, we check if analytics is
         // active before making the call to DB.
         if (!analyticsService.isActive()) {
+            // This is to have consistency in how the AnalyticsService is being called.
+            // Even though sendObjectEvent is triggered, AnalyticsService would still reject this and prevent the event
+            // from being sent to analytics provider if telemetry is disabled.
+            analyticsService.sendObjectEvent(AnalyticsEvents.EXECUTE_ACTION, action);
             return Mono.empty();
         }
-
         ActionExecutionRequest actionExecutionRequest = actionExecutionResult.getRequest();
         ActionExecutionRequest request;
         if (actionExecutionRequest != null) {
@@ -1060,7 +1062,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                         newPageService.getNameByPageId(actionDTO.getPageId(), viewMode),
                         pluginService.getById(action.getPluginId())
                 ))
-                .map(tuple -> {
+                .flatMap(tuple -> {
                     final Application application = tuple.getT1();
                     final User user = tuple.getT2();
                     final String pageName = tuple.getT3();
@@ -1123,9 +1125,20 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                                 "statusCode", actionExecutionResult.getStatusCode()
                         ));
                     }
+                    final Map<String, Object> eventData = Map.of(
+                            FieldName.ACTION, action,
+                            FieldName.DATASOURCE, datasource,
+                            FieldName.VIEW_MODE, viewMode,
+                            FieldName.ACTION_EXECUTION_RESULT, actionExecutionResult,
+                            FieldName.ACTION_EXECUTION_TIME, timeElapsed,
+                            FieldName.ACTION_EXECUTION_REQUEST, request,
+                            FieldName.APPLICATION, application,
+                            FieldName.PLUGIN, plugin
+                    );
+                    data.put(FieldName.EVENT_DATA, eventData);
 
-                    analyticsService.sendEvent(AnalyticsEvents.EXECUTE_ACTION.getEventName(), user.getUsername(), data);
-                    return request;
+                    return analyticsService.sendObjectEvent(AnalyticsEvents.EXECUTE_ACTION, action, data)
+                            .thenReturn(request);
                 })
                 .onErrorResume(error -> {
                     log.warn("Error sending action execution data point", error);
@@ -1860,7 +1873,10 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
         if (!StringUtils.hasLength(savedAction.getUnpublishedAction().getPluginName())) {
             savedAction.getUnpublishedAction().setPluginName(datasource.getPluginName());
         }
-        return this.getAnalyticsProperties(savedAction);
+        Map<String, Object> analyticsProperties = this.getAnalyticsProperties(savedAction);
+        Map<String, Object> eventData = Map.of(FieldName.DATASOURCE, datasource);
+        analyticsProperties.put(FieldName.EVENT_DATA, eventData);
+        return analyticsProperties;
     }
 
     @Override

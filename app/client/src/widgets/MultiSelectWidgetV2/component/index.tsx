@@ -8,10 +8,7 @@ import React, {
   useMemo,
 } from "react";
 import Select, { SelectProps } from "rc-select";
-import {
-  DefaultValueType,
-  LabelValueType,
-} from "rc-select/lib/interface/generator";
+import { DraftValueType, LabelInValueType } from "rc-select/lib/Select";
 import MenuItemCheckBox, {
   DropdownStyles,
   MultiSelectContainer,
@@ -40,8 +37,8 @@ export interface MultiSelectProps
     >
   > {
   mode?: "multiple" | "tags";
-  value: LabelValueType[];
-  onChange: (value: DefaultValueType) => void;
+  value: LabelInValueType[];
+  onChange: (value: DraftValueType) => void;
   serverSideFiltering: boolean;
   onFilterChange: (text: string) => void;
   dropDownWidth: number;
@@ -178,9 +175,9 @@ function MultiSelectComponent({
   const handleSelectAll = () => {
     if (!isSelectAll) {
       // Get all options
-      const allOption: LabelValueType[] = filteredOptions.map(
+      const allOption: LabelInValueType[] = filteredOptions.map(
         ({ label, value }) => ({
-          value,
+          value: value || "",
           label,
         }),
       );

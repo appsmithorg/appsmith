@@ -67,7 +67,7 @@ export function DisconnectService(props: {
     <Container>
       <HeaderDanger>{createMessage(DANGER_ZONE)}</HeaderDanger>
       <Info>{props.subHeader}</Info>
-      <Callout title={props.warning} type="Warning" />
+      <Callout desc={props.warning} type="Warning" />
       <DisconnectButton
         data-testid="disconnect-service-button"
         onClick={() =>
