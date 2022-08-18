@@ -412,8 +412,7 @@ export const useCanvasDragging = (
         /**
          * On mouse up, calculate the top, left, bottom and right positions for each of the reflowed widgets
          */
-        const onMouseUp = (e: any) => {
-          console.log(e);
+        const onMouseUp = () => {
           if (isDragging && canvasIsDragging) {
             const { movementMap: reflowingWidgets } = currentReflowParams;
             const reflowedPositionsUpdatesWidgets: OccupiedSpace[] = occSpaces
