@@ -170,7 +170,7 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
             helpText: "Selects the option with value by default",
             propertyName: "defaultOptionValue",
             label: "Default Value",
-            controlType: "INPUT_TEXT",
+            controlType: "SELECT_DEFAULT_VALUE_CONTROL",
             placeholderText: '{ "label": "label1", "value": "value1" }',
             isBindProperty: true,
             isTriggerProperty: false,
