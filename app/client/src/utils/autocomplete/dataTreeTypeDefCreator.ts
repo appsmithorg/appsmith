@@ -114,10 +114,13 @@ export function generateTypeDef(
 
       const arrayType = generateTypeDef(array[0], extraDefsToDefine, depth + 1);
 
-      if (extraDefsToDefine && isObject(arrayType)) {
-        const uniqueDefName = uniqueId("def_");
-        extraDefsToDefine[uniqueDefName] = arrayType;
-        return `[${uniqueDefName}]`;
+      if (isObject(arrayType)) {
+        if (extraDefsToDefine) {
+          const uniqueDefName = uniqueId("def_");
+          extraDefsToDefine[uniqueDefName] = arrayType;
+          return `[${uniqueDefName}]`;
+        }
+        return `[?]`;
       }
       return `[${arrayType}]`;
     }

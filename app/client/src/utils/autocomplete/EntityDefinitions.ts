@@ -118,7 +118,10 @@ export const entityDefinitions = {
     triggeredRow: generateTypeDef(widget.triggeredRow),
     selectedRowIndex: "number",
     tableData: generateTypeDef(widget.tableData, extraDefsToDefine),
-    filteredTableData: generateTypeDef(widget.filteredTableData),
+    filteredTableData: generateTypeDef(
+      widget.filteredTableData,
+      extraDefsToDefine,
+    ),
     pageNo: "number",
     pageSize: "number",
     isVisible: isVisible,
