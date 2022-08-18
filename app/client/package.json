@@ -58,6 +58,7 @@
     "fusioncharts": "^3.18.0",
     "fusionmaps": "^3.18.0",
     "history": "^4.10.1",
+    "http-proxy": "cypress-io/node-http-proxy#9322b4b69b34f13a6f3874e660a35df3305179c6",
     "husky": "^3.0.5",
     "immer": "^9.0.6",
     "instantsearch.css": "^7.4.2",

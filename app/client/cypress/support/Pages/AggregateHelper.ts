@@ -404,6 +404,19 @@ export class AggregateHelper {
       .wait(waitTimeInterval);
   }
 
+  public ContainsNClick(
+    text: string,
+    index = 0,
+    force = false,
+    waitTimeInterval = 500,
+  ) {
+    return cy
+      .contains(text)
+      .eq(index)
+      .click({ force: force })
+      .wait(waitTimeInterval);
+  }
+
   public GetNClickByContains(
     selector: string,
     containsText: string,
@@ -511,12 +524,12 @@ export class AggregateHelper {
     cy.get(this.locator._contextMenuInPane).click();
     cy.xpath(this.locator._contextMenuSubItemDiv(action))
       .should("be.visible")
-      .click();
+      .click({ force: true });
     if (action == "Delete") {
       subAction = "Are you sure?";
     }
     if (subAction) {
-      cy.xpath(this.locator._contextMenuSubItemDiv(subAction)).click();
+      cy.xpath(this.locator._contextMenuSubItemDiv(subAction)).click({ force: true });
       this.Sleep(500);
     }
     if (action == "Delete") {
@@ -598,8 +611,8 @@ export class AggregateHelper {
       //.click({ force: true })
       //.wait(1000)
       .find(".CodeMirror")
-      .find('textarea')
-      .parents('.CodeMirror')
+      .find("textarea")
+      .parents(".CodeMirror")
       .first()
       .then((ins: any) => {
         const input = ins[0].CodeMirror;
@@ -767,6 +780,25 @@ export class AggregateHelper {
       ? cy.xpath(selector)
       : cy.get(selector);
     return locator.contains(text);
+  }
+
+  public ScrollTo(
+    selector: string,
+    position:
+      | "topLeft"
+      | "top"
+      | "topRight"
+      | "left"
+      | "center"
+      | "right"
+      | "bottomLeft"
+      | "bottom"
+      | "bottomRight",
+  ) {
+    const locator = selector.startsWith("//")
+      ? cy.xpath(selector)
+      : cy.get(selector);
+    return locator.scrollTo(position).wait(2000);
   }
 
   public EnableAllEditors() {

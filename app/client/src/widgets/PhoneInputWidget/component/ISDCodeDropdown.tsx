@@ -25,28 +25,52 @@ const DropdownTriggerIconWrapper = styled.button<
   letter-spacing: -0.24px;
   color: #090707;
   cursor: pointer;
-  position: ${(props) => props.disabled && "absolute"};
+  position: relative;
   z-index: 2;
   pointer-events: ${(props) => !props.allowDialCodeChange && "none"};
-  ${(props) => (props.disabled ? `background-color: ${Colors.GREY_1};` : "")};
-  border-right: 1px solid ${Colors.GREY_3};
+  ${(props) =>
+    props.disabled ? `background-color: var(--wds-color-bg-disabled);` : ""};
+  border-right: 1px solid var(--wds-color-border);
   gap: 0.25rem;
   padding: 0 0.75rem;
   margin-right: 0.625rem;
 
+  &:disabled {
+    color: var(--wds-color-text-disabled);
+
+    .dropdown {
+      background: var(--wds-color-bg-disabled);
+
+      svg {
+        path {
+          fill: var(--wds-color-icon-disabled) !important;
+        }
+      }
+    }
+  }
+
   &:focus {
     background-color: ${Colors.GREY_1};
+
+    .dropdown {
+      background: ${Colors.GREY_1};
+    }
   }
 
   .dropdown {
     svg {
-      width: 14px;
-      height: 14px;
+      width: 16px;
+      height: 16px;
 
       path {
-        fill: ${Colors.GREY_10} !important;
+        fill: var(--wds-color-icon) !important;
       }
     }
+  }
+
+  &:disabled {
+    border-right: 1px solid var(--wds-color-border-disabled);
+    background-color: var(--wds-color-bg-disabled);
   }
 `;
 
@@ -91,17 +115,56 @@ export const PopoverStyles = createGlobalStyle<{
     .${props.portalClassName}  .${Classes.INPUT}:focus, .${
     props.portalClassName
   }  .${Classes.INPUT}:active {
-      box-shadow: 0px 0px 0px 3px ${lightenColor(props.accentColor)} !important;
+      box-shadow: 0px 0px 0px 2px ${lightenColor(props.accentColor)} !important;
       border: 1px solid ${props.accentColor} !important;
     }
 
-    .${props.portalClassName} .t--dropdown-option:hover,
+    .${props.portalClassName} .t--dropdown-option:hover {
+      background-color: var(--wds-color-bg-hover) !important;
+    }
+
     .${props.portalClassName} .t--dropdown-option.selected {
       background-color: ${lightenColor(props.accentColor)} !important;
     }
 
     .${props.portalClassName} .ads-dropdown-options-wrapper {
       border: 0px solid !important;
+      box-shadow: none !important;
+    }
+
+    .${props.portalClassName} .dropdown-search {
+      margin: 10px !important;
+      width: calc(100% - 20px);
+
+      input {
+        border: 1px solid var(--wds-color-border);
+        padding-left: 36px !important;
+        padding-right: 10px !important;
+      }
+
+      .bp3-icon-search {
+        left: 4px;
+        right: auto;
+      }
+
+      .bp3-input-group + div {
+        display: flex;
+        height: 100%;
+        top: 0;
+        right: 7px;
+        bottom: 0;
+        align-items: center;
+
+        svg {
+          position: relative;
+          top: 0;
+        }
+      }
+
+      input:hover {
+        border: 1px solid var(--wds-color-border-hover);
+        background: white;
+      }
     }
   `}
 `;
@@ -206,6 +269,7 @@ export default function ISDCodeDropdown(props: ISDCodeDropdownProps) {
         optionWidth="340px"
         options={props.options}
         portalClassName={`country-type-filter-dropdown-${props.widgetId}`}
+        portalContainer={document.getElementById("art-board") || undefined}
         searchAutoFocus
         searchPlaceholder="Search by ISD code or country"
         selected={props.selected}
