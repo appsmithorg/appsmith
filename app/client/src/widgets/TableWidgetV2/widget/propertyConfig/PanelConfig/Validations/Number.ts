@@ -13,6 +13,7 @@ export default [
     isTriggerProperty: false,
     validation: {
       type: ValidationTypes.NUMBER,
+      params: { default: -Infinity },
     },
     hidden: (props: TableWidgetProps, propertyPath: string) => {
       const path = propertyPath
@@ -34,6 +35,7 @@ export default [
     isTriggerProperty: false,
     validation: {
       type: ValidationTypes.NUMBER,
+      params: { default: Infinity },
     },
     hidden: (props: TableWidgetProps, propertyPath: string) => {
       const path = propertyPath

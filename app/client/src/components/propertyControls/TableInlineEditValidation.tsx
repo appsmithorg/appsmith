@@ -87,10 +87,10 @@ const bindingPrefix = `{{
   (
     (editedValue, currentRow, currentIndex) => (
 `;
-const getBindingSuffix = (tableId: string) => `
+const getBindingSuffix = (tableId: string, columnName: string) => `
   ))
   (
-    ${tableId}.editableCell.value,
+    ${tableId}.columnEditableCellValue.${columnName} || "",
     ${tableId}.processedTableData[${tableId}.editableCell.index] ||
       Object.keys(${tableId}.processedTableData[0])
         .filter(key => ["__originalIndex__", "__primaryKey__"].indexOf(key) === -1)
@@ -156,7 +156,8 @@ class TableInlineEditValidationControlProperty extends BaseControl<
   getInputComputedValue = (propertyValue: string, tableId: string) => {
     const value = `${propertyValue.substring(
       bindingPrefix.length,
-      propertyValue.length - getBindingSuffix(tableId).length,
+      propertyValue.length -
+        getBindingSuffix(tableId, this.getColumnName()).length,
     )}`;
     const stringValue = JSToString(value);
 
@@ -168,7 +169,10 @@ class TableInlineEditValidationControlProperty extends BaseControl<
     if (stringToEvaluate === "") {
       return stringToEvaluate;
     }
-    return `${bindingPrefix}${stringToEvaluate}${getBindingSuffix(tableId)}`;
+    return `${bindingPrefix}${stringToEvaluate}${getBindingSuffix(
+      tableId,
+      this.getColumnName(),
+    )}`;
   };
 
   onTextChange = (event: React.ChangeEvent<HTMLTextAreaElement> | string) => {
@@ -188,6 +192,18 @@ class TableInlineEditValidationControlProperty extends BaseControl<
     } else {
       this.updateProperty(this.props.propertyName, value);
     }
+  };
+
+  getColumnName = () => {
+    const matchedColumnName = this.props.parentPropertyName.match(
+      /primaryColumns\.([^.]+)\.[^.]+\.[^.]+/,
+    );
+
+    if (matchedColumnName) {
+      return matchedColumnName[1];
+    }
+
+    return "";
   };
 
   static getControlType() {

@@ -113,6 +113,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
       },
       transientTableData: {},
       editableCell: defaultEditableCell,
+      columnEditableCellValue: {},
     };
   }
 
@@ -551,6 +552,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
     if (isTableDataModified) {
       this.props.updateWidgetMetaProperty("transientTableData", {});
       this.props.updateWidgetMetaProperty("editableCell", defaultEditableCell);
+      this.props.updateWidgetMetaProperty("columnEditableCellValue", {});
     }
 
     if (!pageNo) {
@@ -1637,6 +1639,10 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
       value: value,
       inputValue,
     });
+    this.props.updateWidgetMetaProperty("columnEditableCellValue", {
+      ...this.props.columnEditableCellValue,
+      [this.props.editableCell.column]: value,
+    });
   };
 
   toggleCellEditMode = (
@@ -1659,6 +1665,10 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
         // To revert back to previous on discard
         initialValue: value,
         inputValue: value,
+      });
+      this.props.updateWidgetMetaProperty("columnEditableCellValue", {
+        ...this.props.columnEditableCellValue,
+        [alias]: value,
       });
 
       /*
@@ -1714,6 +1724,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
      */
     this.editTimer = setTimeout(() => {
       this.props.updateWidgetMetaProperty("editableCell", defaultEditableCell);
+      this.props.updateWidgetMetaProperty("columnEditableCellValue", {});
     }, 100);
   };
 
