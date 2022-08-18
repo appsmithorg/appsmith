@@ -21,6 +21,7 @@ import AppSettings from "./AppSettings";
 import { tailwindLayers } from "constants/Layers";
 import { getIsAppSettingsPaneOpen } from "selectors/appSettingsPaneSelectors";
 import { closeAppSettingsPaneAction } from "actions/appSettingsPaneActions";
+import AppSettingsPaneHeader from "./AppSettings/Components/AppSettingsPaneHeader";
 
 const SentryRoute = Sentry.withSentryRouting(Route);
 
@@ -104,7 +105,7 @@ function MainContainer() {
             "transition-all transform duration-400": true,
           })}
         >
-          <button onClick={closeAppSettingPane}>close panel</button>
+          <AppSettingsPaneHeader />
           <AppSettings />
         </AppSettingsPane>
       </Container>
