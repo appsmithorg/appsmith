@@ -93,7 +93,7 @@ export default {
       propertyName: "horizontalAlignment",
       label: "Text Align",
       controlType: "ICON_TABS",
-      updateHook: composePropertyUpdateHook([updateColumnStyles]),
+      updateHook: updateColumnStyles,
       dependencies: ["primaryColumns"],
       options: [
         {

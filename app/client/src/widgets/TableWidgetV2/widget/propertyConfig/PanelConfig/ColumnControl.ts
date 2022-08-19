@@ -29,6 +29,34 @@ export default {
       controlType: "DROP_DOWN",
       options: [
         {
+          label: "Button",
+          value: ColumnTypes.BUTTON,
+        },
+        {
+          label: "Checkbox",
+          value: ColumnTypes.CHECKBOX,
+        },
+        {
+          label: "Date",
+          value: ColumnTypes.DATE,
+        },
+        {
+          label: "Icon Button",
+          value: ColumnTypes.ICON_BUTTON,
+        },
+        {
+          label: "Image",
+          value: ColumnTypes.IMAGE,
+        },
+        {
+          label: "Menu Button",
+          value: ColumnTypes.MENU_BUTTON,
+        },
+        {
+          label: "Number",
+          value: ColumnTypes.NUMBER,
+        },
+        {
           label: "Plain Text",
           value: ColumnTypes.TEXT,
         },
@@ -37,36 +65,8 @@ export default {
           value: ColumnTypes.URL,
         },
         {
-          label: "Number",
-          value: ColumnTypes.NUMBER,
-        },
-        {
-          label: "Image",
-          value: ColumnTypes.IMAGE,
-        },
-        {
           label: "Video",
           value: ColumnTypes.VIDEO,
-        },
-        {
-          label: "Date",
-          value: ColumnTypes.DATE,
-        },
-        {
-          label: "Button",
-          value: ColumnTypes.BUTTON,
-        },
-        {
-          label: "Menu Button",
-          value: ColumnTypes.MENU_BUTTON,
-        },
-        {
-          label: "Icon Button",
-          value: ColumnTypes.ICON_BUTTON,
-        },
-        {
-          label: "Checkbox",
-          value: ColumnTypes.CHECKBOX,
         },
       ],
       updateHook: composePropertyUpdateHook([
