@@ -347,7 +347,7 @@ public class CurlImporterServiceTest {
 
         final ActionConfiguration actionConfiguration = action.getActionConfiguration();
         assertEmptyPath(action);
-        assertHeaders(action, new Property("content-type", "application/json"));
+        assertHeaders(action, new Property("Content-Type", "application/json"));
         assertThat(actionConfiguration.getQueryParameters()).isNullOrEmpty();
         assertMethod(action, HttpMethod.POST);
         assertBody(action, "{\"message\": \"The force is strong with this one...\"}");
@@ -479,9 +479,9 @@ public class CurlImporterServiceTest {
         assertUrl(action, "https://release-api.appsmith.com");
         assertPath(action, "/api/v1/users/5d81feb218e1c8217d20e13f");
         assertHeaders(action,
-                new Property("content-type", "application/json"),
+                new Property("Content-Type", "application/json"),
                 new Property("Authorization", "Basic abcdefghijklmnop=="),
-                new Property("content-type", "text/plain")
+                new Property("Content-Type", "text/plain")
         );
         assertBody(action, "{\n" +
                 "\t\"workspaceId\" : \"5d8c9e946599b93bd51a3400\"\n" +
@@ -512,9 +512,9 @@ public class CurlImporterServiceTest {
         assertUrl(action, "https://release-api.appsmith.com");
         assertPath(action, "/api/v1/datasources");
         assertHeaders(action,
-                new Property("content-type", "application/json"),
+                new Property("Content-Type", "application/json"),
                 new Property("Cookie", "SESSION=61ee9df5-3cab-400c-831b-9533218d8f9f"),
-                new Property("content-type", "text/plain")
+                new Property("Content-Type", "text/plain")
         );
         assertBody(action, "{\n" +
                 "    \"name\": \"testPostgres\",\n" +
@@ -568,8 +568,8 @@ public class CurlImporterServiceTest {
         assertPath(action, "/api/v1/providers");
         assertHeaders(action,
                 new Property("Cookie", "SESSION=61ee9df5-3cab-400c-831b-9533218d8f9f"),
-                new Property("content-type", "application/json"),
-                new Property("content-type", "application/json")
+                new Property("Content-Type", "application/json"),
+                new Property("Content-Type", "application/json")
         );
         assertBody(action, "{\n" +
                 "    \"name\": \"Delta Video\",\n" +
@@ -645,7 +645,7 @@ public class CurlImporterServiceTest {
         assertMethod(action, HttpMethod.POST);
         assertUrl(action, "https://api.sloths.com");
         assertEmptyPath(action);
-        assertHeaders(action, new Property("content-type", "application/x-www-form-urlencoded"));
+        assertHeaders(action, new Property("Content-Type", "application/x-www-form-urlencoded"));
         assertEmptyBody(action);
         assertBodyFormData(
                 action,
@@ -656,7 +656,7 @@ public class CurlImporterServiceTest {
         assertMethod(action, HttpMethod.POST);
         assertUrl(action, "https://api.sloths.com");
         assertEmptyPath(action);
-        assertHeaders(action, new Property("content-type", "application/x-www-form-urlencoded"));
+        assertHeaders(action, new Property("Content-Type", "application/x-www-form-urlencoded"));
         assertEmptyBody(action);
         assertBodyFormData(
                 action,
@@ -742,7 +742,7 @@ public class CurlImporterServiceTest {
         assertMethod(action, HttpMethod.POST);
         assertUrl(action, "http://dummy.restapiexample.com");
         assertPath(action, "/api/v1/create");
-        assertHeaders(action, new Property("content-type", "application/json"));
+        assertHeaders(action, new Property("Content-Type", "application/json"));
         assertBody(action, "{\"name\":\"test\",\"salary\":\"123\",\"age\":\"23\"}");
         assertEmptyBodyFormData(action);
     }
@@ -753,7 +753,7 @@ public class CurlImporterServiceTest {
         assertMethod(action, HttpMethod.POST);
         assertUrl(action, "http://dummy.restapiexample.com");
         assertPath(action, "/api/v1/create");
-        assertHeaders(action, new Property("content-type", "application/json"));
+        assertHeaders(action, new Property("Content-Type", "application/json"));
         assertBody(action, "{\"name\":\"test\",\"salary\":\"123\",\"age\":\"23\"}");
     }
 
@@ -773,7 +773,7 @@ public class CurlImporterServiceTest {
         assertMethod(action, HttpMethod.POST);
         assertUrl(action, "http://dummy.restapiexample.com");
         assertPath(action, "/api/v1/create");
-        assertHeaders(action, new Property("Accept", "application/json"), new Property("content-type", "application/json"));
+        assertHeaders(action, new Property("Accept", "application/json"), new Property("Content-Type", "application/json"));
         assertBody(action, "{\"name\":\"test\",\"salary\":\"123\",\"age\":\"23\"}");
     }
 
@@ -783,7 +783,7 @@ public class CurlImporterServiceTest {
         assertMethod(action, HttpMethod.POST);
         assertUrl(action, "https://api.stripe.com");
         assertPath(action, "/v1/refunds");
-        assertHeaders(action, new Property("content-type", "application/x-www-form-urlencoded"));
+        assertHeaders(action, new Property("Content-Type", "application/x-www-form-urlencoded"));
         assertEmptyBody(action);
         assertBodyFormData(
                 action,
@@ -800,7 +800,7 @@ public class CurlImporterServiceTest {
         assertMethod(action, HttpMethod.POST);
         assertUrl(action, "http://httpbin.org");
         assertPath(action, "/post");
-        assertHeaders(action, new Property("content-type", "multipart/form-data"));
+        assertHeaders(action, new Property("Content-Type", "multipart/form-data"));
         assertEmptyBody(action);
         assertBodyFormData(
                 action,
