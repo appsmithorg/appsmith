@@ -21,13 +21,13 @@ import {
   triggerEvalOnMetaUpdate,
 } from "actions/metaActions";
 import {
-  addPseudoWidget,
-  deletePseudoWidget,
-  updatePseudoWidget,
-  modifyPseudoWidgets,
-} from "actions/pseudoWidgetActions";
+  addMetaWidget,
+  deleteMetaWidget,
+  updateMetaWidget,
+  modifyMetaWidgets,
+} from "actions/metaWidgetActions";
 import { FlattenedWidgetProps } from "widgets/constants";
-import { ModifyPseudoWidgetPayload } from "reducers/entityReducers/pseudoCanvasWidgetsReducer";
+import { ModifyMetaWidgetPayload } from "reducers/entityReducers/metaCanvasWidgetsReducer";
 
 export type EditorContextType = {
   executeAction?: (triggerPayload: ExecuteTriggerPayload) => void;
@@ -56,14 +56,12 @@ export type EditorContextType = {
     propertyName: string,
     propertyValue: any,
   ) => void;
-  addPseudoWidget?: (
-    pseudoWidgets: Record<string, FlattenedWidgetProps>,
+  addMetaWidget?: (metaWidgets: Record<string, FlattenedWidgetProps>) => void;
+  modifyMetaWidgets?: (modifications: ModifyMetaWidgetPayload) => void;
+  updateMetaWidget?: (
+    metaWidgets: Record<string, FlattenedWidgetProps>,
   ) => void;
-  modifyPseudoWidgets?: (modifications: ModifyPseudoWidgetPayload) => void;
-  updatePseudoWidget?: (
-    pseudoWidgets: Record<string, FlattenedWidgetProps>,
-  ) => void;
-  deletePseudoWidget?: (widgetId: string | string[]) => void;
+  deleteMetaWidget?: (widgetId: string | string[]) => void;
 };
 export const EditorContext: Context<EditorContextType> = createContext({});
 
@@ -73,18 +71,18 @@ type EditorContextProviderProps = EditorContextType & {
 
 function EditorContextProvider(props: EditorContextProviderProps) {
   const {
-    addPseudoWidget,
+    addMetaWidget,
     batchUpdateWidgetProperty,
     children,
-    deletePseudoWidget,
+    deleteMetaWidget,
     deleteWidgetProperty,
     disableDrag,
     executeAction,
-    modifyPseudoWidgets,
+    modifyMetaWidgets,
     resetChildrenMetaProperty,
     syncUpdateWidgetMetaProperty,
     triggerEvalOnMetaUpdate,
-    updatePseudoWidget,
+    updateMetaWidget,
     updateWidget,
     updateWidgetProperty,
   } = props;
@@ -102,10 +100,10 @@ function EditorContextProvider(props: EditorContextProviderProps) {
       deleteWidgetProperty,
       batchUpdateWidgetProperty,
       triggerEvalOnMetaUpdate,
-      addPseudoWidget,
-      updatePseudoWidget,
-      deletePseudoWidget,
-      modifyPseudoWidgets,
+      addMetaWidget,
+      updateMetaWidget,
+      deleteMetaWidget,
+      modifyMetaWidgets,
     }),
     [
       executeAction,
@@ -117,10 +115,10 @@ function EditorContextProvider(props: EditorContextProviderProps) {
       deleteWidgetProperty,
       batchUpdateWidgetProperty,
       triggerEvalOnMetaUpdate,
-      addPseudoWidget,
-      updatePseudoWidget,
-      deletePseudoWidget,
-      modifyPseudoWidgets,
+      addMetaWidget,
+      updateMetaWidget,
+      deleteMetaWidget,
+      modifyMetaWidgets,
     ],
   );
   return (
@@ -149,10 +147,10 @@ const mapDispatchToProps = {
   deleteWidgetProperty: deletePropertyAction,
   batchUpdateWidgetProperty: batchUpdatePropertyAction,
   triggerEvalOnMetaUpdate: triggerEvalOnMetaUpdate,
-  addPseudoWidget,
-  deletePseudoWidget,
-  updatePseudoWidget,
-  modifyPseudoWidgets,
+  addMetaWidget,
+  deleteMetaWidget,
+  updateMetaWidget,
+  modifyMetaWidgets,
 };
 
 export default connect(null, mapDispatchToProps)(EditorContextProvider);
