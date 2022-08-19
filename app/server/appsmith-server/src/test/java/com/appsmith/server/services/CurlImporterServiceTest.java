@@ -29,9 +29,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -752,7 +750,7 @@ public class CurlImporterServiceTest {
         assertMethod(action, HttpMethod.GET);
         assertUrl(action, "http://httpbin.org");
         assertPath(action, "/get");
-        assertHeaders(action, new Property("Accept", "application/json"));
+        assertHeaders(action,new Property("Accept", "application/json"));
         assertEmptyBody(action);
     }
 
@@ -882,7 +880,65 @@ public class CurlImporterServiceTest {
     }
 
     private static void assertHeaders(ActionDTO action, Property... headers) {
-        assertThat(action.getActionConfiguration().getHeaders()).containsExactlyInAnyOrder(headers);
+        // since this step is case sensitive -let's make this case insensitive.
+        // this implementation only works if Property has an object which works with equals function
+        // let's compare sizes of both first
+        if (action.getActionConfiguration().getHeaders().size() != headers.length) {
+            assert(false);
+        }
+        HashMap<String, List<Object>> headerStore = new HashMap<>();
+
+        // create a map of headers with header-property-key as keys and ArrayList of property-header-values as values.
+        for (Property property : action.getActionConfiguration().getHeaders()) {
+            String key = property.getKey().toLowerCase();
+
+            if (!headerStore.containsKey(key)) {
+                // using linkedList to achieve O(1) removal time
+                headerStore.put(key, new LinkedList<>());
+            }
+            headerStore.get(key).add(property.getValue());
+        }
+
+        // placeholder variable
+        List<Object> headerStorePropertyList;
+
+        // compare the hashMap headerStore with the varargs header
+        for ( int i = 0; i < headers.length; i++) {
+            String key = headers[i].getKey().toLowerCase();
+
+            if (!headerStore.containsKey(key)) {
+                assert(false);
+            }
+
+            boolean matchFound = false;
+            headerStorePropertyList = headerStore.get(key);
+            for (int listIndex = 0; listIndex < headerStorePropertyList.size(); listIndex++) {
+                if (!headerStorePropertyList.get(listIndex).equals(headers[i].getValue())) {
+                    continue;
+                }
+
+                // we keep removing the entries that have matched so that in the end we have zero entries in the headerStore.
+                headerStorePropertyList.remove(listIndex);
+                if (headerStorePropertyList.isEmpty()) {
+                    headerStore.remove(key);
+                }
+                matchFound = true;
+                break;
+            }
+
+            if (matchFound) {
+                continue;
+            }
+
+            assert(false);
+        }
+
+        // if headerStore has keys then it would mean that there are more headers than expected;
+        if (headerStore.size() != 0) {
+            assert(false);
+        }
+        // if all header matches then only it will reach here.
+        //assertThat(action.getActionConfiguration().getHeaders()).containsExactlyInAnyOrder(headers);
     }
 
     private static void assertEmptyBody(ActionDTO action) {
