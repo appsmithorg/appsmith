@@ -1,5 +1,4 @@
 import { ValidationTypes } from "constants/WidgetValidation";
-import { composePropertyUpdateHook } from "widgets/WidgetUtils";
 import { updateColumnStyles } from "../propertyUtils";
 
 export default {
