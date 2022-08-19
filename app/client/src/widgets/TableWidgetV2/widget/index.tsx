@@ -1503,36 +1503,36 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
         return (
           <CheckboxCell
             accentColor={this.props.accentColor}
-            allowCellWrapping={cellProperties.allowCellWrapping}
             borderRadius={
               cellProperties.borderRadius || this.props.borderRadius
             }
             cellBackground={cellProperties.cellBackground}
-            columnAction={{
-              id: column.id,
-              dynamicTrigger: column.onCheckChange || "",
-            }}
             compactMode={compactMode}
-            fontStyle={cellProperties.fontStyle}
             horizontalAlignment={cellProperties.horizontalAlignment}
             isCellVisible={cellProperties.isCellVisible ?? true}
             isDisabled={!cellProperties.isCellEditable}
             isHidden={isHidden}
-            onCommandClick={(action: string, onComplete?: () => void) => {
+            onCommandClick={() => {
+              const originalIndex = this.getRowOriginalIndex(rowIndex);
+              const row = filteredTableData[originalIndex];
+              const cellValue = !props.cell.value;
+
               this.updateTransientTableData({
-                __original_index__: this.getRowOriginalIndex(rowIndex),
-                [alias]: !props.cell.value,
+                __original_index__: originalIndex,
+                [alias]: cellValue,
               });
+
               this.onColumnEvent({
                 rowIndex,
-                action,
-                onComplete,
+                action: column.onCheckChange,
                 triggerPropertyName: "onCheckChange",
                 eventType: EventType.ON_CHECK_CHANGE,
+                row: {
+                  ...row,
+                  [alias]: cellValue,
+                },
               });
             }}
-            textColor={cellProperties.textColor}
-            textSize={cellProperties.textSize}
             value={props.cell.value}
             verticalAlignment={cellProperties.verticalAlignment}
           />

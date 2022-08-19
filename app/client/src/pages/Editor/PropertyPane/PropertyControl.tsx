@@ -1,5 +1,5 @@
 import React, { memo, useCallback } from "react";
-import _, { get, isEqual } from "lodash";
+import _, { get, isEqual, isFunction } from "lodash";
 import * as log from "loglevel";
 
 import {
@@ -425,7 +425,10 @@ const PropertyControl = memo((props: Props) => {
     return null;
   }
 
-  const { label, propertyName } = props;
+  const { propertyName } = props;
+  const label = isFunction(props.label)
+    ? props.label(widgetProperties, props.propertyName)
+    : props.label;
   if (widgetProperties) {
     // get the dataTreePath and apply enhancement if exists
     let dataTreePath: string =
@@ -471,7 +474,7 @@ const PropertyControl = memo((props: Props) => {
       propertyName,
     );
     const isConvertible = !!props.isJSConvertible;
-    const className = props.label
+    const className = label
       .split(" ")
       .join("")
       .toLowerCase();

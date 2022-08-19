@@ -49,7 +49,7 @@ export type PanelConfig = {
 
 export type PropertyPaneControlConfig = {
   id?: string;
-  label: string;
+  label: string | ((props: WidgetProps, propertyPath: string) => string);
   propertyName: string;
   helpText?: string;
   isJSConvertible?: boolean;

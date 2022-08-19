@@ -12,6 +12,7 @@ import {
 } from "components/editorComponents/CodeEditor/EditorConfig";
 import { CollapseContext } from "pages/Editor/PropertyPane/PropertySection";
 import CodeEditor from "../editorComponents/LazyCodeEditorWrapper";
+import { isFunction } from "lodash";
 
 export function InputText(props: {
   label: string;
@@ -71,11 +72,15 @@ class InputTextControl extends BaseControl<InputControlProps> {
       defaultValue,
       expected,
       hideEvaluatedValue,
-      label,
       placeholderText,
       propertyValue,
     } = this.props;
-
+    const label = isFunction(this.props.label)
+      ? this.props.label(
+          this.props.widgetProperties,
+          this.props.widgetProperties.propertyName,
+        )
+      : this.props.label;
     return (
       <InputText
         additionalAutocomplete={additionalAutoComplete}

@@ -1,6 +1,7 @@
 import { ValidationTypes } from "constants/WidgetValidation";
+import { get } from "lodash";
 import { ColumnTypes, TableWidgetProps } from "widgets/TableWidgetV2/constants";
-import { hideByColumnType } from "../../propertyUtils";
+import { getBasePropertyPath, hideByColumnType } from "../../propertyUtils";
 
 export default {
   sectionName: "Styles",
@@ -22,7 +23,13 @@ export default {
   children: [
     {
       propertyName: "horizontalAlignment",
-      label: "Text Align",
+      label: (props: TableWidgetProps, propertyPath: string) => {
+        const basePropertyPath = getBasePropertyPath(propertyPath);
+        const columnType = get(props, `${basePropertyPath}.columnType`);
+        return columnType === "checkbox"
+          ? "Horizontal Alignment"
+          : "Text Align";
+      },
       controlType: "ICON_TABS",
       options: [
         {
@@ -59,44 +66,8 @@ export default {
           ColumnTypes.DATE,
           ColumnTypes.NUMBER,
           ColumnTypes.URL,
+          ColumnTypes.CHECKBOX,
         ]);
-      },
-    },
-    {
-      propertyName: "horizontalAlignment",
-      label: "Horizontal Alignment",
-      controlType: "ICON_TABS",
-      options: [
-        {
-          icon: "LEFT_ALIGN",
-          value: "LEFT",
-        },
-        {
-          icon: "CENTER_ALIGN",
-          value: "CENTER",
-        },
-        {
-          icon: "RIGHT_ALIGN",
-          value: "RIGHT",
-        },
-      ],
-      defaultValue: "LEFT",
-      isJSConvertible: true,
-      customJSControl: "TABLE_COMPUTE_VALUE",
-      dependencies: ["primaryColumns", "columnOrder"],
-      isBindProperty: true,
-      validation: {
-        type: ValidationTypes.TABLE_PROPERTY,
-        params: {
-          type: ValidationTypes.TEXT,
-          params: {
-            allowedValues: ["LEFT", "CENTER", "RIGHT"],
-          },
-        },
-      },
-      isTriggerProperty: false,
-      hidden: (props: TableWidgetProps, propertyPath: string) => {
-        return hideByColumnType(props, propertyPath, [ColumnTypes.CHECKBOX]);
       },
     },
     {

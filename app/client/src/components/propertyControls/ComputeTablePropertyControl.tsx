@@ -17,6 +17,7 @@ import {
   stringToJS,
 } from "components/editorComponents/ActionCreator/Fields";
 import CodeEditor from "components/editorComponents/LazyCodeEditorWrapper";
+import { isFunction } from "lodash";
 
 const PromptMessage = styled.span`
   line-height: 17px;
@@ -87,11 +88,16 @@ class ComputeTablePropertyControl extends BaseControl<
       dataTreePath,
       defaultValue,
       expected,
-      label,
       propertyValue,
       theme,
     } = this.props;
     const tableId = this.props.widgetProperties.widgetName;
+    const label = isFunction(this.props.label)
+      ? this.props.label(
+          this.props.widgetProperties,
+          this.props.widgetProperties.propertyName,
+        )
+      : this.props.label;
     const value =
       propertyValue && isDynamicValue(propertyValue)
         ? ComputeTablePropertyControl.getInputComputedValue(

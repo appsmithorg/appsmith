@@ -119,7 +119,6 @@ function CheckboxField({
           labelPosition={LabelPosition.Left}
           noContainerPadding
           onCheckChange={onCheckChange}
-          rowSpace={20}
           widgetId=""
         />
       </StyledCheckboxWrapper>

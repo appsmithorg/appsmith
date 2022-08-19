@@ -1,5 +1,5 @@
 import React from "react";
-import { isString } from "lodash";
+import { isFunction, isString } from "lodash";
 
 import BaseControl, { ControlProps } from "./BaseControl";
 import { StyledDynamicInput } from "./StyledControls";
@@ -233,13 +233,18 @@ class JSONFormComputeControl extends BaseControl<JSONFormComputeControlProps> {
       dataTreePath,
       defaultValue,
       expected,
-      label,
       placeholderText,
       propertyValue,
       theme,
       widgetProperties,
     } = this.props;
 
+    const label = isFunction(this.props.label)
+      ? this.props.label(
+          this.props.widgetProperties,
+          this.props.widgetProperties.propertyName,
+        )
+      : this.props.label;
     const { schema } = widgetProperties;
     const rootSchemaItem = schema[ROOT_SCHEMA_KEY] || {};
     const { sourceData } = rootSchemaItem;

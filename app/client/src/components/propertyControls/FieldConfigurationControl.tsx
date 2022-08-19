@@ -1,7 +1,7 @@
 import React from "react";
 import log from "loglevel";
 import { klona } from "klona";
-import { isEmpty, isString, maxBy, set, sortBy } from "lodash";
+import { isEmpty, isFunction, isString, maxBy, set, sortBy } from "lodash";
 
 import BaseControl, { ControlProps } from "./BaseControl";
 import EmptyDataState from "components/utils/EmptyDataState";
@@ -239,9 +239,14 @@ class FieldConfigurationControl extends BaseControl<ControlProps, State> {
         dataTreePath,
         expected,
         hideEvaluatedValue,
-        label,
         theme,
       } = this.props;
+      const label = isFunction(this.props.label)
+        ? this.props.label(
+            this.props.widgetProperties,
+            this.props.widgetProperties.propertyName,
+          )
+        : this.props.label;
       const value = JSON.stringify(schema, null, 2);
 
       return (
