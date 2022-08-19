@@ -5,9 +5,13 @@ import { getExistingWidgetNames } from "sagas/selectors";
 import { getNextEntityName } from "utils/AppsmithUtils";
 
 import WidgetFactory from "utils/WidgetFactory";
+import { getParentToOpenIfAny } from "utils/hooks/useClickToSelectWidget";
 
 export const getIsDraggingOrResizing = (state: AppState) =>
   state.ui.widgetDragResize.isResizing || state.ui.widgetDragResize.isDragging;
+
+export const getIsResizing = (state: AppState) =>
+  state.ui.widgetDragResize.isResizing;
 
 const getCanvasWidgets = (state: AppState) => state.entities.canvasWidgets;
 export const getModalDropdownList = createSelector(
@@ -52,3 +56,17 @@ export const getParentWidget = createSelector(
     return;
   },
 );
+
+export const getFocusedParentToOpen = createSelector(
+  getCanvasWidgets,
+  (state: AppState) => state.ui.widgetDragResize.focusedWidget,
+  (canvasWidgets, focusedWidgetId) => {
+    return getParentToOpenIfAny(focusedWidgetId, canvasWidgets);
+  },
+);
+
+export const getParentToOpenSelector = (widgetId: string) => {
+  return createSelector(getCanvasWidgets, (canvasWidgets) => {
+    return getParentToOpenIfAny(widgetId, canvasWidgets);
+  });
+};
