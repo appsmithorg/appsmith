@@ -1,5 +1,9 @@
 import React, { Fragment, useContext, useEffect, useState } from "react";
-import styled, { css, ThemeContext } from "styled-components";
+import styled, {
+  createGlobalStyle,
+  css,
+  ThemeContext,
+} from "styled-components";
 import TagListField from "components/editorComponents/form/fields/TagListField";
 import { reduxForm, SubmissionError } from "redux-form";
 import SelectField from "components/editorComponents/form/fields/SelectField";
@@ -97,6 +101,12 @@ const StyledInviteFieldGroup = styled.div`
     margin-right: ${(props) => props.theme.spaces[3]}px;
     border-right: 0px;
   }
+`;
+
+const InviteModalStyles = createGlobalStyle`
+    .label-container > * {
+      word-break: break-word;
+    }
 `;
 
 const UserList = styled.div`
@@ -306,6 +316,7 @@ function WorkspaceInviteUsersForm(props: any) {
 
   return (
     <WorkspaceInviteWrapper>
+      <InviteModalStyles />
       {isApplicationInvite && (
         <WorkspaceInviteTitle>
           <Text type={TextType.H5}>
