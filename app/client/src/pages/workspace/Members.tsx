@@ -47,6 +47,10 @@ const MembersWrapper = styled.div<{
   ${(props) => (props.isMobile ? "width: 100%; margin: auto" : null)}
   table {
     margin-top: 12px;
+    table-layout: fixed;
+    position: absolute;
+    width: 920px;
+
     thead {
       tr {
         border-bottom: 1px solid #e8e8e8;
@@ -56,7 +60,14 @@ const MembersWrapper = styled.div<{
           line-height: 1.5;
           color: var(--appsmith-color-black-700);
           padding: 8px 20px;
-          text-align: center;
+
+          &:first-child {
+            width: 320px;
+          }
+
+          &:last-child {
+            width: 120px;
+          }
 
           svg {
             margin: auto 8px;
@@ -69,7 +80,6 @@ const MembersWrapper = styled.div<{
     tbody {
       tr {
         td {
-          text-align: center;
           word-break: break-word;
 
           &:first-child {
@@ -81,7 +91,6 @@ const MembersWrapper = styled.div<{
           }
 
           .selected-item {
-            justify-content: center;
             .cs-text {
               width: auto;
             }
@@ -89,6 +98,21 @@ const MembersWrapper = styled.div<{
 
           .cs-text {
             text-align: left;
+          }
+
+          .bp3-overlay {
+            position: relative;
+
+            .bp3-transition-container {
+              transform: none !important;
+              top: 8px !important;
+
+              .bp3-popover-content {
+                > div {
+                  width: 440px;
+                }
+              }
+            }
           }
         }
       }

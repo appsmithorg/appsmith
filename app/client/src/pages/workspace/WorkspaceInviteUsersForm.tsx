@@ -126,10 +126,12 @@ const UserInfo = styled.div`
 `;
 
 const UserRole = styled.div`
-  flex-basis: 25%;
+  flex-basis: 40%;
   flex-shrink: 0;
   .${Classes.TEXT} {
     color: ${Colors.COD_GRAY};
+    display: inline-block;
+    width: 100%;
   }
 `;
 
