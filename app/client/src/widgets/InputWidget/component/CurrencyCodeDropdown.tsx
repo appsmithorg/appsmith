@@ -19,8 +19,8 @@ const DropdownTriggerIconWrapper = styled.div`
 
   .dropdown {
     svg {
-      width: 14px;
-      height: 14px;
+      width: 16px;
+      height: 16px;
 
       path {
         fill: ${Colors.GREY_10} !important;
@@ -70,7 +70,10 @@ export const PopoverStyles = createGlobalStyle<{
       border: 1px solid ${props.accentColor} !important;
     }
 
-    .${props.portalClassName} .t--dropdown-option:hover,
+    .${props.portalClassName} .t--dropdown-option:hover {
+      background-color: var(--wds-color-bg-hover) !important;
+    }
+
     .${props.portalClassName} .t--dropdown-option.selected {
       background-color: ${lightenColor(props.accentColor)} !important;
     }

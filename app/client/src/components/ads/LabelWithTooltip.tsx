@@ -126,6 +126,7 @@ export const LabelContainer = styled.div<LabelContainerProps>`
   }
 
   ${({ alignment, compact, inline, optionCount, position, width }) => `
+    ${width && `width: ${width}px`};
     ${
       position !== LabelPosition.Top &&
       (position === LabelPosition.Left || compact)
@@ -137,7 +138,6 @@ export const LabelContainer = styled.div<LabelContainerProps>`
       ${!width && `width: ${LABEL_DEFAULT_WIDTH_RATE}%`};
       ${alignment === Alignment.RIGHT && `justify-content: flex-end`};
       label {
-        ${width && `width: ${width}px`};
         ${
           alignment === Alignment.RIGHT
             ? `text-align: right`
@@ -169,7 +169,9 @@ export const StyledLabel = styled(Label)<StyledLabelProps>`
     }};
 
     ${({ color, disabled, fontSize, fontStyle }) => `
-      color: ${disabled ? Colors.GREY_8 : color || "inherit"};
+      color: ${
+        disabled ? "var(--wds-color-text-disabled)" : color || "inherit"
+      };
       font-size: ${fontSize ?? "inherit"};
       font-weight: ${
         fontStyle?.includes(FontStyleTypes.BOLD) ? "bold" : "normal"
@@ -183,7 +185,6 @@ export const StyledLabel = styled(Label)<StyledLabelProps>`
 
 const ToolTipIcon = styled(IconWrapper)<TooltipIconProps>`
   cursor: help;
-  margin-top: 1.5px;
   &&&:hover {
     svg {
       path {

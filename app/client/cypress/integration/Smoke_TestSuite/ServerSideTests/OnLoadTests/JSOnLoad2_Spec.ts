@@ -174,8 +174,22 @@ describe("JSObjects OnLoad Actions tests", function() {
     }
   });
 
-  // it("7. Tc #1645 + Bug 13197 Previously set async function made sync should not run on page", () => {
-  // });
+  it("7. Tc #1909 - Verify the sequence of of JS object on page load", () => {
+    ee.ExpandCollapseEntity("QUERIES/JS");
+    ee.SelectEntityByName("JSObject1");
+    jsEditor.EnableDisableAsyncFuncSettings("astros", true, false);
+    jsEditor.EnableDisableAsyncFuncSettings("city", true, false);
+    ee.SelectEntityByName("JSObject2");
+    jsEditor.EnableDisableAsyncFuncSettings("cat", true, false);
+    jsEditor.EnableDisableAsyncFuncSettings("hogwartsstudents", true, false);
+    ee.SelectEntityByName("JSObject3");
+    jsEditor.EnableDisableAsyncFuncSettings("film", true, false);
+
+    ee.SelectEntityByName("Page1");
+    agHelper.RefreshPage();
+
+    agHelper.ValidateToastMessage("ran successfully", 0, 5);
+  });
 
   function AssertJSOnPageLoad(
     jsMethod: string,
