@@ -228,8 +228,8 @@ describe("GracefulWorkerService", () => {
       requestData,
     );
     const handlers = await duplexRequest.toPromise();
-    expect(handlers).toHaveProperty("requestChannel");
-    expect(handlers).toHaveProperty("responseChannel");
+    expect(handlers).toHaveProperty("requestForExecutionChannel");
+    expect(handlers).toHaveProperty("responseFromExecutionChannel");
     expect(MockWorker.instance.postMessage).toBeCalledWith({
       method,
       requestData,
@@ -247,14 +247,14 @@ describe("GracefulWorkerService", () => {
       flush: jest.fn(),
       close: jest.fn(),
     });
-    const workerChannel = channel();
+    const mainChannel = channel();
     const mockRequestChannel = mockChannel("request");
     const mockResponseChannel = mockChannel("response");
     runSaga(
       {},
       // @ts-expect-error: type mismatch
       w.duplexRequestHandler,
-      workerChannel,
+      mainChannel,
       mockRequestChannel,
       mockResponseChannel,
     );
@@ -262,7 +262,7 @@ describe("GracefulWorkerService", () => {
     let randomRequestCount = Math.floor(Math.random() * 10);
 
     for (randomRequestCount; randomRequestCount > 0; randomRequestCount--) {
-      workerChannel.put({
+      mainChannel.put({
         responseData: {
           test: randomRequestCount,
         },
@@ -274,7 +274,7 @@ describe("GracefulWorkerService", () => {
       });
     }
 
-    workerChannel.put({
+    mainChannel.put({
       responseData: {
         finished: true,
       },
@@ -302,7 +302,7 @@ describe("GracefulWorkerService", () => {
       close: jest.fn(),
     });
     const mockWorkerChannel = mockChannel("worker");
-    const responseChannel = channel();
+    const responseFromExecutionChannel = channel();
     const workerRequestId = "testID";
     runSaga(
       {},
@@ -310,14 +310,14 @@ describe("GracefulWorkerService", () => {
       w.duplexResponseHandler,
       workerRequestId,
       mockWorkerChannel,
-      responseChannel,
+      responseFromExecutionChannel,
     );
     MockWorker.instance.postMessage = jest.fn();
 
     let randomRequestCount = Math.floor(Math.random() * 10);
 
     for (randomRequestCount; randomRequestCount > 0; randomRequestCount--) {
-      responseChannel.put({
+      responseFromExecutionChannel.put({
         test: randomRequestCount,
       });
       expect(MockWorker.instance.postMessage).toBeCalledWith({
@@ -326,7 +326,7 @@ describe("GracefulWorkerService", () => {
       });
     }
 
-    responseChannel.put({
+    responseFromExecutionChannel.put({
       finished: true,
     });
 
