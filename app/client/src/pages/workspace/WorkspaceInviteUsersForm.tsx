@@ -132,6 +132,7 @@ const UserRole = styled.div`
     color: ${Colors.COD_GRAY};
     display: inline-block;
     width: 100%;
+    word-break: break-word;
   }
 `;
 
