@@ -355,9 +355,9 @@ describe("JS Function Execution", function() {
 
     // change sync function name and test that cyclic dependency is not created
     jsEditor.EditJSObj(syncJSCodeWithRenamedFunction1);
-    agHelper.AssertElementAbsence(locator._toastMsg);
+    agHelper.AssertContains("Cyclic dependency", "not.exist");
     jsEditor.EditJSObj(syncJSCodeWithRenamedFunction2);
-    agHelper.AssertElementAbsence(locator._toastMsg);
+    agHelper.AssertContains("Cyclic dependency", "not.exist");
 
     jsEditor.CreateJSObject(asyncJSCode, {
       paste: true,
@@ -367,9 +367,9 @@ describe("JS Function Execution", function() {
     });
     // change async function name and test that cyclic dependency is not created
     jsEditor.EditJSObj(asyncJSCodeWithRenamedFunction1);
-    agHelper.AssertElementAbsence(locator._toastMsg);
+    agHelper.AssertContains("Cyclic dependency", "not.exist");
     jsEditor.EditJSObj(asyncJSCodeWithRenamedFunction2);
-    agHelper.AssertElementAbsence(locator._toastMsg);
+    agHelper.AssertContains("Cyclic dependency", "not.exist");
   });
 
   it("8. Maintains order of async functions in settings tab alphabetically at all times", function() {
