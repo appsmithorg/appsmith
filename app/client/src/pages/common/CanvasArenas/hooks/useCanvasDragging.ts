@@ -766,7 +766,7 @@ export const useCanvasDragging = (
             dropPositionRef.current.style.width = pos.width + "px";
             dropPositionRef.current.style.height = pos.height + "px";
           }
-          translateSiblings(pos);
+          // translateSiblings(pos);
         };
         const getHighlightPosition = (
           e: any,

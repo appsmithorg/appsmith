@@ -78,10 +78,12 @@ export const FlexContainer = styled.div<{
   flex-direction: ${({ flexDirection }) => flexDirection || "row"};
   justify-content: ${({ justifyContent }) => justifyContent || "flex-start"};
   align-items: ${({ alignItems }) => alignItems || "flex-start"};
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
 
   width: 100%;
   height: ${({ stretchHeight }) => (stretchHeight ? "100%" : "auto")};
+
+  overflow: hidden;
 `;
 
 function ContainerComponentWrapper(props: ContainerComponentProps) {
