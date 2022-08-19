@@ -245,6 +245,7 @@ Cypress.Commands.add("verifyUpdatedWidgetName", (text) => {
     .click({ force: true })
     .type(text, { delay: 300 })
     .type("{enter}");
+  cy.wait(500);
   cy.get(".t--widget-name").contains(text);
 });
 
