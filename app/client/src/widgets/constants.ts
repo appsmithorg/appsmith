@@ -59,8 +59,6 @@ interface LayoutProps {
   justifyContent?: JustifyContent;
   alignItems?: AlignItems;
   responsiveBehavior?: ResponsiveBehavior;
-  parentColumnSpace?: number;
-  parentRowSpace?: number;
 }
 
 const staticProps = omit(WIDGET_STATIC_PROPS, "children");
