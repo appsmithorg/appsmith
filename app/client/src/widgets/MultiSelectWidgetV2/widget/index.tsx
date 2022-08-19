@@ -966,6 +966,7 @@ class MultiSelectWidget extends BaseWidget<
     // Check if defaultOptionValue is string
     let isStringArray = false;
     if (
+      this.props.defaultOptionValue &&
       this.props.defaultOptionValue.some(
         (value: any) => isString(value) || isFinite(value),
       )
