@@ -109,8 +109,9 @@ export function PositionedContainer(props: PositionedContainerProps) {
         reflowHeight ||
         props.style.componentHeight + (props.style.heightUnit || "px"),
       width:
-        reflowWidth ||
-        props.style.componentWidth + (props.style.widthUnit || "px"),
+        reflowWidth || props.useAutoLayout
+          ? "auto"
+          : props.style.componentWidth + (props.style.widthUnit || "px"),
       padding: padding + "px",
       zIndex,
       backgroundColor: "inherit",

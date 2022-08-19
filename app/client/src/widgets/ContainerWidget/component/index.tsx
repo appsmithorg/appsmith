@@ -17,6 +17,7 @@ import {
   FlexDirection,
   JustifyContent,
   LayoutDirection,
+  Overflow,
   Spacing,
 } from "components/constants";
 import { getLayoutProperties } from "utils/layoutPropertiesUtils";
@@ -73,17 +74,21 @@ export const FlexContainer = styled.div<{
   justifyContent?: JustifyContent;
   alignItems?: AlignItems;
   stretchHeight: boolean;
+  overflow: Overflow;
 }>`
   display: ${({ useAutoLayout }) => (useAutoLayout ? "flex" : "block")};
   flex-direction: ${({ flexDirection }) => flexDirection || "row"};
   justify-content: ${({ justifyContent }) => justifyContent || "flex-start"};
   align-items: ${({ alignItems }) => alignItems || "flex-start"};
-  flex-wrap: nowrap;
+  flex-wrap: ${({ overflow }) =>
+    overflow?.indexOf("wrap") > -1 ? overflow : "nowrap"};
 
   width: 100%;
   height: ${({ stretchHeight }) => (stretchHeight ? "100%" : "auto")};
 
-  overflow: hidden;
+  overflow: ${({ overflow }) =>
+    overflow?.indexOf("wrap") === -1 ? overflow : "hidden"};
+  padding: 4px;
 `;
 
 function ContainerComponentWrapper(props: ContainerComponentProps) {
@@ -129,6 +134,7 @@ export function FlexBox(props: FlexBoxProps) {
     <FlexContainer
       className={`flex-container-${props.widgetId}`}
       {...layoutProps}
+      overflow={props.overflow}
       stretchHeight={props.stretchHeight}
       useAutoLayout={props.useAutoLayout}
     >
@@ -187,6 +193,7 @@ export interface FlexBoxProps {
   useAutoLayout: boolean;
   children?: ReactNode;
   widgetId: string;
+  overflow: Overflow;
 }
 
 export default ContainerComponent;

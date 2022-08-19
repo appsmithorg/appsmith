@@ -315,6 +315,7 @@ abstract class BaseWidget<
         alignItems={this.props.alignItems}
         direction={this.props.direction}
         parentId={this.props.parentId}
+        responsiveBehavior={this.props.responsiveBehavior}
         useAutoLayout={this.props.useAutoLayout}
         widgetId={this.props.widgetId}
         widgetType={this.props.type}

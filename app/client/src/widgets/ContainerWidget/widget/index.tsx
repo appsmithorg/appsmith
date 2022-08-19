@@ -24,6 +24,7 @@ import {
   Alignment,
   JustifyContent,
   LayoutDirection,
+  Overflow,
   Positioning,
   ResponsiveBehavior,
   Spacing,
@@ -420,6 +421,7 @@ class ContainerWidget extends BaseWidget<
           <FlexBox
             alignment={this.props.alignment || Alignment.Left}
             direction={this.state.direction}
+            overflow={Overflow.NoWrap}
             spacing={this.props.spacing || Spacing.None}
             stretchHeight={stretchFlexBox}
             useAutoLayout={this.state.useAutoLayout}
@@ -431,6 +433,7 @@ class ContainerWidget extends BaseWidget<
                 direction: this.state.direction,
                 justifyContent: JustifyContent.FlexStart,
                 alignItems: AlignItems.FlexStart,
+                overflow: Overflow.NoWrap,
               }}
             >
               {this.renderChildren()}

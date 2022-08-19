@@ -162,3 +162,10 @@ export enum Spacing {
   Equal = "equal",
   SpaceBetween = "space-between",
 }
+
+export enum Overflow {
+  Wrap = "wrap",
+  NoWrap = "nowrap",
+  Hidden = "hidden",
+  Scroll = "scroll",
+}

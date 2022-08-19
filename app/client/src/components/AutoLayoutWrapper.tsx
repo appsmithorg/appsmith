@@ -2,7 +2,7 @@ import { WidgetType } from "constants/WidgetConstants";
 import styled from "styled-components";
 import React, { ReactNode, useCallback } from "react";
 import { useClickToSelectWidget } from "utils/hooks/useClickToSelectWidget";
-import { AlignItems, LayoutDirection } from "./constants";
+import { AlignItems, LayoutDirection, ResponsiveBehavior } from "./constants";
 import { useSelector } from "react-redux";
 import { AppState } from "reducers";
 import { checkIsDropTarget } from "./designSystems/appsmith/PositionedContainer";
@@ -17,15 +17,23 @@ export type AutoLayoutProps = {
   alignItems?: AlignItems;
   direction?: LayoutDirection;
   parentId?: string;
+  responsiveBehavior?: ResponsiveBehavior;
 };
 
 const AutoLayout = styled("div")<{
   alignItems?: AlignItems;
   direction?: LayoutDirection;
   useAutoLayout?: boolean;
+  responsiveBehavior?: ResponsiveBehavior;
 }>`
   position: unset;
-  width: fit-content;
+  width: auto;
+  flex: ${({ responsiveBehavior }) =>
+    responsiveBehavior === ResponsiveBehavior.Fill
+      ? "1 1 auto"
+      : "0 1 fit-content"};
+  align-self: ${({ responsiveBehavior }) =>
+    responsiveBehavior === ResponsiveBehavior.Fill ? "stretch" : "auto"};
 `;
 
 const ZIndexContainer = styled.div<{
@@ -75,6 +83,7 @@ export function AutoLayoutWrapper(props: AutoLayoutProps) {
       alignItems={props.alignItems}
       direction={props.direction}
       onClickCapture={onClickFn}
+      responsiveBehavior={props.responsiveBehavior}
       useAutoLayout={props.useAutoLayout}
     >
       <ZIndexContainer

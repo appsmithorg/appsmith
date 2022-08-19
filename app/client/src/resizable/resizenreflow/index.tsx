@@ -501,7 +501,7 @@ export function ReflowResizable(props: ResizableProps) {
       }}
       immediate={newDimensions.reset ? true : false}
       to={{
-        width: widgetWidth,
+        width: props.useAutoLayout ? "auto" : widgetWidth,
         height: widgetHeight,
         transform: `translate3d(${newDimensions.x}px,${newDimensions.y}px,0)`,
       }}

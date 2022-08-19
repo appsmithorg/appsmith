@@ -3,13 +3,14 @@ import {
   AlignItems,
   JustifyContent,
   LayoutDirection,
+  Overflow,
 } from "components/constants";
 
 export const AutoLayoutContext: Context<{
   useAutoLayout?: boolean;
   direction?: LayoutDirection;
   justifyContent?: JustifyContent;
-  overflow?: string;
+  overflow?: Overflow;
   disabledResizeHandles?: string[];
   alignItems?: AlignItems;
 }> = createContext({});
