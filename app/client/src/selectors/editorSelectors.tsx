@@ -198,26 +198,26 @@ export const getCanvasWidth = (state: AppState) => state.ui.mainCanvas.width;
 
 export const getMainCanvasProps = (state: AppState) => state.ui.mainCanvas;
 
-export const getPseudoCanvasWidgets = (state: AppState) =>
-  state.entities.pseudoCanvasWidgets;
+export const getMetaCanvasWidgets = (state: AppState) =>
+  state.entities.metaCanvasWidgets;
 
-export const getPseudoCanvasWidget = (pseudoWidgetId: string) =>
-  createSelector(getPseudoCanvasWidgets, (pseudoCanvasWidgets) => {
-    return pseudoCanvasWidgets[pseudoWidgetId];
+export const getMetaCanvasWidget = (metaWidgetId: string) =>
+  createSelector(getMetaCanvasWidgets, (metaCanvasWidgets) => {
+    return metaCanvasWidgets[metaWidgetId];
   });
 
-export const getPseudoWidgetChildrenStructure = (
+export const getMetaWidgetChildrenStructure = (
   parentWidgetId: string,
-  isPseudoWidget: boolean,
+  isMetaWidget: boolean,
 ) =>
-  createSelector(getPseudoCanvasWidgets, (pseudoCanvasWidgets) => {
-    if (isPseudoWidget) return [];
+  createSelector(getMetaCanvasWidgets, (metaCanvasWidgets) => {
+    if (isMetaWidget) return [];
 
     const structure: CanvasWidgetStructure[] = [];
 
-    Object.values(pseudoCanvasWidgets).forEach(({ parentId, widgetId }) => {
+    Object.values(metaCanvasWidgets).forEach(({ parentId, widgetId }) => {
       if (parentId === parentWidgetId) {
-        structure.push(denormalize(widgetId, pseudoCanvasWidgets));
+        structure.push(denormalize(widgetId, metaCanvasWidgets));
       }
     });
 

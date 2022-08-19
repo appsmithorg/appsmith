@@ -41,7 +41,7 @@ import { CanvasWidgetStructure } from "./constants";
 import { DataTreeWidget } from "entities/DataTree/dataTreeFactory";
 import Skeleton from "./Skeleton";
 import { FlattenedWidgetProps } from "./constants";
-import { ModifyPseudoWidgetPayload } from "reducers/entityReducers/pseudoCanvasWidgetsReducer";
+import { ModifyMetaWidgetPayload } from "reducers/entityReducers/metaCanvasWidgetsReducer";
 
 /***
  * BaseWidget
@@ -165,22 +165,20 @@ abstract class BaseWidget<
   componentDidMount(): void {}
   /* eslint-enable @typescript-eslint/no-empty-function */
 
-  addPseudoWidget = (pseudoWidgets: Record<string, FlattenedWidgetProps>) => {
-    this.context.addPseudoWidget?.(pseudoWidgets);
+  addMetaWidget = (metaWidgets: Record<string, FlattenedWidgetProps>) => {
+    this.context.addMetaWidget?.(metaWidgets);
   };
 
-  updatePseudoWidget = (
-    pseudoWidgets: Record<string, FlattenedWidgetProps>,
-  ) => {
-    this.context.updatePseudoWidget?.(pseudoWidgets);
+  updateMetaWidget = (metaWidgets: Record<string, FlattenedWidgetProps>) => {
+    this.context.updateMetaWidget?.(metaWidgets);
   };
 
-  modifyPseudoWidgets = (modifications: ModifyPseudoWidgetPayload) => {
-    this.context.modifyPseudoWidgets?.(modifications);
+  modifyMetaWidgets = (modifications: ModifyMetaWidgetPayload) => {
+    this.context.modifyMetaWidgets?.(modifications);
   };
 
-  deletePseudoWidget = (pseudoWidgetId: string | string[]) => {
-    this.context.deletePseudoWidget?.(pseudoWidgetId);
+  deleteMetaWidget = (metaWidgetId: string | string[]) => {
+    this.context.deleteMetaWidget?.(metaWidgetId);
   };
 
   getComponentDimensions = () => {
@@ -458,7 +456,7 @@ export interface WidgetBaseProps {
   renderMode: RenderMode;
   version: number;
   childWidgets?: DataTreeWidget[];
-  pseudoWidgetChildrenStructure?: CanvasWidgetStructure[];
+  metaWidgetChildrenStructure?: CanvasWidgetStructure[];
 }
 
 export type WidgetRowCols = {

@@ -15,8 +15,8 @@ import {
   computeMainContainerWidget,
   getChildWidgets,
   getRenderMode,
-  getPseudoWidgetChildrenStructure,
-  getPseudoCanvasWidget,
+  getMetaWidgetChildrenStructure,
+  getMetaCanvasWidget,
 } from "selectors/editorSelectors";
 import { AppState } from "reducers";
 import { useSelector } from "react-redux";
@@ -51,10 +51,10 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
     const isLoading = useSelector((state: AppState) =>
       getIsWidgetLoading(state, canvasWidget?.widgetName),
     );
-    const pseudoCanvasWidget = useSelector(getPseudoCanvasWidget(widgetId));
-    const isPseudoCanvasWidget = Boolean(pseudoCanvasWidget);
-    const pseudoWidgetChildrenStructure = useSelector(
-      getPseudoWidgetChildrenStructure(widgetId, isPseudoCanvasWidget),
+    const metaCanvasWidget = useSelector(getMetaCanvasWidget(widgetId));
+    const isMetaCanvasWidget = Boolean(metaCanvasWidget);
+    const metaWidgetChildrenStructure = useSelector(
+      getMetaWidgetChildrenStructure(widgetId, isMetaCanvasWidget),
       equal,
     );
 
@@ -71,7 +71,7 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
           return computeMainContainerWidget(canvasWidget, mainCanvasProps);
         }
 
-        if (isPseudoCanvasWidget) return pseudoCanvasWidget;
+        if (isMetaCanvasWidget) return metaCanvasWidget;
 
         return evaluatedWidget
           ? createCanvasWidget(canvasWidget, evaluatedWidget)
@@ -111,7 +111,7 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
       }
 
       widgetProps.children = children;
-      widgetProps.pseudoWidgetChildrenStructure = pseudoWidgetChildrenStructure;
+      widgetProps.metaWidgetChildrenStructure = metaWidgetChildrenStructure;
       widgetProps.isLoading = isLoading;
       widgetProps.childWidgets = childWidgets;
     }
