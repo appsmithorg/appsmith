@@ -457,6 +457,7 @@ const PropertyControl = memo((props: Props) => {
       parentPropertyName: propertyName,
       parentPropertyValue: propertyValue,
       additionalDynamicData: {},
+      label,
     };
     config.expected = getExpectedValue(props.validation);
     if (isPathADynamicTrigger(widgetProperties, propertyName)) {

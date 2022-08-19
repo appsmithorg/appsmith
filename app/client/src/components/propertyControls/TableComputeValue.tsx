@@ -19,7 +19,6 @@ import {
   stringToJS,
 } from "components/editorComponents/ActionCreator/Fields";
 import { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTypeDefCreator";
-import { isFunction } from "lodash";
 
 const PromptMessage = styled.span`
   line-height: 17px;
@@ -92,16 +91,11 @@ class ComputeTablePropertyControlV2 extends BaseControl<
       dataTreePath,
       defaultValue,
       expected,
+      label,
       propertyValue,
       theme,
     } = this.props;
     const tableId = this.props.widgetProperties.widgetName;
-    const label = isFunction(this.props.label)
-      ? this.props.label(
-          this.props.widgetProperties,
-          this.props.widgetProperties.propertyName,
-        )
-      : this.props.label;
     const value =
       propertyValue && isDynamicValue(propertyValue)
         ? this.getInputComputedValue(propertyValue, tableId)

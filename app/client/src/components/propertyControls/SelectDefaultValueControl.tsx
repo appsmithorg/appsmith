@@ -12,7 +12,6 @@ import {
 } from "components/editorComponents/CodeEditor/EditorConfig";
 import { getDynamicBindings, isDynamicValue } from "utils/DynamicBindingUtils";
 import { isString } from "utils/helpers";
-import { isFunction } from "lodash";
 
 export const getBindingTemplate = (widgetName: string) => {
   const prefixTemplate = `{{ ((options, serverSideFiltering) => ( `;
@@ -95,15 +94,10 @@ class SelectDefaultValueControl extends BaseControl<
       dataTreePath,
       defaultValue,
       expected,
+      label,
       propertyValue,
       theme,
     } = this.props;
-    const label = isFunction(this.props.label)
-      ? this.props.label(
-          this.props.widgetProperties,
-          this.props.widgetProperties.propertyName,
-        )
-      : this.props.label;
     const value = (() => {
       if (propertyValue && isDynamicValue(propertyValue)) {
         const { widgetName } = this.props.widgetProperties;
