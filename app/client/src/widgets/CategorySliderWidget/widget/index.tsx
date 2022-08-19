@@ -14,6 +14,7 @@ import SliderComponent, {
   SliderComponentProps,
 } from "../../NumberSliderWidget/component/Slider";
 import { SliderType } from "../../NumberSliderWidget/utils";
+import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 
 export type SliderOption = {
   label: string;
@@ -31,6 +32,8 @@ interface CategorySliderWidgetProps extends WidgetProps, SliderComponentProps {
   isDirty: boolean;
   /**  Selected Value */
   value: string | undefined;
+  /** onChange action selector */
+  onChange: string;
 }
 
 function optionsCustomValidation(
@@ -447,6 +450,20 @@ class CategorySliderWidget extends BaseWidget<
           },
         ],
       },
+      {
+        sectionName: "Events",
+        children: [
+          {
+            helpText: "Triggers an action when a user changes the slider value",
+            propertyName: "onChange",
+            label: "onChange",
+            controlType: "ACTION_SELECTOR",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: true,
+          },
+        ],
+      },
     ];
   }
 
@@ -497,34 +514,34 @@ class CategorySliderWidget extends BaseWidget<
     }));
 
     return {
-      /**
-       * If a user has messed up the option labels or values
-       * this.props.options is empty array so disable the slider
-       */
-      disabled: this.props.isDisabled || sliderOptions.length === 0,
       sliderOptions,
       stepSize,
     };
   };
 
   onChangeEnd = (sliderValue: number) => {
-    const { disabled, sliderOptions } = this.getSliderOptions();
-    if (!disabled) {
-      const selectedValue = sliderOptions.find(
-        (option) => option.value === sliderValue,
-      )?.optionValue;
+    const { sliderOptions } = this.getSliderOptions();
 
-      this.props.updateWidgetMetaProperty("value", selectedValue);
+    const selectedValue = sliderOptions.find(
+      (option) => option.value === sliderValue,
+    )?.optionValue;
 
-      // Set isDirty to true when we change slider value
-      if (!this.props.isDirty) {
-        this.props.updateWidgetMetaProperty("isDirty", true);
-      }
+    this.props.updateWidgetMetaProperty("value", selectedValue, {
+      triggerPropertyName: "onChange",
+      dynamicString: this.props.onChange,
+      event: {
+        type: EventType.ON_OPTION_CHANGE,
+      },
+    });
+
+    // Set isDirty to true when we change slider value
+    if (!this.props.isDirty) {
+      this.props.updateWidgetMetaProperty("isDirty", true);
     }
   };
 
   getPageView() {
-    const { disabled, sliderOptions, stepSize } = this.getSliderOptions();
+    const { sliderOptions, stepSize } = this.getSliderOptions();
 
     const sliderValue = sliderOptions.find(
       (option) => option.optionValue === this.props.value,
@@ -533,7 +550,7 @@ class CategorySliderWidget extends BaseWidget<
     return (
       <SliderComponent
         color={this.props.accentColor || TAILWIND_COLORS.green["600"]}
-        disabled={disabled}
+        disabled={this.props.isDisabled || sliderOptions.length === 0}
         labelAlignment={this.props.labelAlignment}
         labelAlwaysOn={this.props.labelAlwaysOn}
         labelPosition={this.props.labelPosition}

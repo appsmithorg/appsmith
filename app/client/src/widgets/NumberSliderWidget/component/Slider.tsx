@@ -158,7 +158,11 @@ const SliderComponent = (props: SliderComponentProps) => {
   );
 
   const { active, ref: container } = useMove(handleChange, {
-    onScrubEnd: () => onChangeEnd(valueRef.current),
+    onScrubEnd: () => {
+      if (!disabled) {
+        onChangeEnd(valueRef.current);
+      }
+    },
   });
 
   const handleThumbMouseDown = (

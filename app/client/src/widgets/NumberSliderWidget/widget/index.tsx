@@ -7,6 +7,7 @@ import { LabelPosition } from "components/constants";
 import { Alignment } from "@blueprintjs/core";
 import SliderComponent, { SliderComponentProps } from "../component/Slider";
 import { SliderType } from "../utils";
+import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 
 interface NumberSliderWidgetProps extends WidgetProps, SliderComponentProps {
   /** Color from theme.colors */
@@ -17,6 +18,8 @@ interface NumberSliderWidgetProps extends WidgetProps, SliderComponentProps {
   isDirty: boolean;
   /** value meta property */
   value: number;
+  /** onChangeEnd action selector */
+  onChange: string;
 }
 
 class NumberSliderWidget extends BaseWidget<
@@ -341,6 +344,20 @@ class NumberSliderWidget extends BaseWidget<
           },
         ],
       },
+      {
+        sectionName: "Events",
+        children: [
+          {
+            helpText: "Triggers an action when a user changes the slider value",
+            propertyName: "onChange",
+            label: "onChange",
+            controlType: "ACTION_SELECTOR",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: true,
+          },
+        ],
+      },
     ];
   }
 
@@ -372,13 +389,17 @@ class NumberSliderWidget extends BaseWidget<
   }
 
   onChangeEnd = (value: number) => {
-    if (!this.props.isDisabled) {
-      this.props.updateWidgetMetaProperty("value", value);
+    this.props.updateWidgetMetaProperty("value", value, {
+      triggerPropertyName: "onChange",
+      dynamicString: this.props.onChange,
+      event: {
+        type: EventType.ON_OPTION_CHANGE,
+      },
+    });
 
-      // Set isDirty to true when we change slider value
-      if (!this.props.isDirty) {
-        this.props.updateWidgetMetaProperty("isDirty", true);
-      }
+    // Set isDirty to true when we change slider value
+    if (!this.props.isDirty) {
+      this.props.updateWidgetMetaProperty("isDirty", true);
     }
   };
 

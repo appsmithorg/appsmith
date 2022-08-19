@@ -8,6 +8,7 @@ import { Alignment } from "@blueprintjs/core";
 import RangeSliderComponent, {
   RangeSliderComponentProps,
 } from "../component/RangeSlider";
+import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 
 interface RangeSliderWidgetProps
   extends WidgetProps,
@@ -24,6 +25,16 @@ interface RangeSliderWidgetProps
   end: number;
   /** isDirty meta property */
   isDirty: boolean;
+  /**
+   * onStartChange action selector triggers when
+   * the first thumb of slider is changed
+   */
+  onStartChange: string;
+  /**
+   * onEndChange action selector triggers when
+   * the second thumb of slider is changed
+   */
+  onEndChange: string;
 }
 
 class RangeSliderWidget extends BaseWidget<
@@ -368,6 +379,29 @@ class RangeSliderWidget extends BaseWidget<
           },
         ],
       },
+      {
+        sectionName: "Events",
+        children: [
+          {
+            helpText: "Triggers an action when a user changes the slider value",
+            propertyName: "onStartValueChange",
+            label: "onStartChange",
+            controlType: "ACTION_SELECTOR",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: true,
+          },
+          {
+            helpText: "Triggers an action when a user changes the slider value",
+            propertyName: "onEndValueChange",
+            label: "onEndChange",
+            controlType: "ACTION_SELECTOR",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: true,
+          },
+        ],
+      },
     ];
   }
 
@@ -402,19 +436,29 @@ class RangeSliderWidget extends BaseWidget<
   }
 
   onChangeEnd = ([start, end]: [number, number]) => {
-    if (!this.props.isDisabled) {
-      if (this.props.start !== start) {
-        this.props.updateWidgetMetaProperty("start", start);
-      }
+    if (this.props.start !== start) {
+      this.props.updateWidgetMetaProperty("start", start, {
+        triggerPropertyName: "onStartChange",
+        dynamicString: this.props.onStartValueChange,
+        event: {
+          type: EventType.ON_OPTION_CHANGE,
+        },
+      });
+    }
 
-      if (this.props.end !== end) {
-        this.props.updateWidgetMetaProperty("end", end);
-      }
+    if (this.props.end !== end) {
+      this.props.updateWidgetMetaProperty("end", end, {
+        triggerPropertyName: "onEndChange",
+        dynamicString: this.props.onEndValueChange,
+        event: {
+          type: EventType.ON_OPTION_CHANGE,
+        },
+      });
+    }
 
-      // Set isDirty to true when we change slider value
-      if (!this.props.isDirty) {
-        this.props.updateWidgetMetaProperty("isDirty", true);
-      }
+    // Set isDirty to true when we change slider value
+    if (!this.props.isDirty) {
+      this.props.updateWidgetMetaProperty("isDirty", true);
     }
   };
 

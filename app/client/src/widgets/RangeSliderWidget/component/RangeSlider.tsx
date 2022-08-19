@@ -178,7 +178,7 @@ const RangeSliderComponent = (props: RangeSliderComponentProps) => {
 
     _setValue(clone);
 
-    if (triggerChangeEnd) {
+    if (triggerChangeEnd && !disabled) {
       onChangeEnd?.(valueRef.current);
     }
   };
