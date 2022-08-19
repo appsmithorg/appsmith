@@ -269,25 +269,21 @@ class ContainerWidget extends BaseWidget<
   };
 
   renderChildWidget(childWidgetData: WidgetProps): React.ReactNode {
-    // For now, isVisible prop defines whether to render a detached widget
-    if (childWidgetData.detachFromLayout && !childWidgetData.isVisible) {
-      return null;
-    }
+    const childWidget = { ...childWidgetData };
 
     const { componentHeight, componentWidth } = this.getComponentDimensions();
 
-    childWidgetData.rightColumn = componentWidth;
-    childWidgetData.bottomRow = this.props.shouldScrollContents
-      ? childWidgetData.bottomRow
+    childWidget.rightColumn = componentWidth;
+    childWidget.bottomRow = this.props.shouldScrollContents
+      ? childWidget.bottomRow
       : componentHeight;
-    childWidgetData.minHeight = componentHeight;
-    childWidgetData.isVisible = this.props.isVisible;
-    childWidgetData.shouldScrollContents = false;
-    childWidgetData.canExtend = this.props.shouldScrollContents;
+    childWidget.minHeight = componentHeight;
+    childWidget.shouldScrollContents = false;
+    childWidget.canExtend = this.props.shouldScrollContents;
 
-    childWidgetData.parentId = this.props.widgetId;
+    childWidget.parentId = this.props.widgetId;
 
-    return WidgetFactory.createWidget(childWidgetData, this.props.renderMode);
+    return WidgetFactory.createWidget(childWidget, this.props.renderMode);
   }
 
   renderChildren = () => {

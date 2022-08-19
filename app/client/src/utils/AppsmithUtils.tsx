@@ -397,3 +397,17 @@ export const base64ToBlob = (
 export const isMacOs = () => {
   return osName === "Mac OS";
 };
+
+/**
+ * checks if array of strings are equal regardless of order
+ * @param arr1
+ * @param arr2
+ * @returns
+ */
+export function areArraysEqual(arr1: string[], arr2: string[]) {
+  if (arr1.length !== arr2.length) return false;
+
+  if (arr1.sort().join(",") === arr2.sort().join(",")) return true;
+
+  return false;
+}
