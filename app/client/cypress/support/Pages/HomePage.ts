@@ -311,7 +311,7 @@ export class HomePage {
     cy.log(workspaceName, email, currentRole);
     cy.xpath(this._userRoleDropDown(currentRole, workspaceName))
       .first()
-      .trigger("click");
+      .click({force:true})
       
     //cy.xpath(this._userRoleDropDown(email)).first().click({force: true});
     cy.xpath(this._visibleTextSpan(`${newRole} - ${workspaceName}`))
