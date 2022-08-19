@@ -4,6 +4,8 @@ const fs = require("fs");
 const path = require("path");
 const dotenv = require("dotenv");
 const chalk = require("chalk");
+// const _ = require("lodash");
+// const del = require("del");
 const cypressLogToOutput = require("cypress-log-to-output");
 //const { isFileExist } = require("cy-verify-downloads");
 const {
@@ -35,6 +37,21 @@ module.exports = (on, config) => {
     return false;
   });
 };
+
+// module.exports = (on, config) => {
+//   on("after:spec", (spec, results) => {
+//     if (results && results.video) {
+//       // Do we have failures for any retry attempts?
+//       const failures = _.some(results.tests, (test) => {
+//         return _.some(test.attempts, { state: "failed" });
+//       });
+//       if (!failures) {
+//         // delete the video if the spec passed and no tests retried
+//         return del(results.video);
+//       }
+//     }
+//   });
+// };
 
 module.exports = (on, config) => {
   // on("task", {

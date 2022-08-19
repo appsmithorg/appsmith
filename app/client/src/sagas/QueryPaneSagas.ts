@@ -214,7 +214,7 @@ function* handleQueryCreatedSaga(actionPayload: ReduxAction<QueryAction>) {
     getPluginTemplates,
   );
   const queryTemplate = pluginTemplates[pluginId];
-  // Do not show template view if the query has body(code) or if there are no templates
+  // Do not show template view if the query has body(code) or if there are no templates or if the plugin is MongoDB
   const showTemplate = !(
     !!actionConfiguration.body ||
     !!actionConfiguration.formData?.body ||

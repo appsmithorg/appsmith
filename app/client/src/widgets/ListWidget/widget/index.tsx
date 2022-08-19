@@ -18,28 +18,33 @@ import shallowEqual from "shallowequal";
 import WidgetFactory from "utils/WidgetFactory";
 import { removeFalsyEntries } from "utils/helpers";
 import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
-import { RenderModes, WidgetType } from "constants/WidgetConstants";
+import {
+  RenderModes,
+  WidgetType,
+  GridDefaults,
+} from "constants/WidgetConstants";
 import ListComponent, {
   ListComponentEmpty,
   ListComponentLoading,
 } from "../component";
-// import { ContainerStyle } from "components/designSystems/appsmith/ContainerComponent";
-// import { ContainerWidgetProps } from "../ContainerWidget";
-import propertyPaneConfig from "./propertyConfig";
+import propertyPaneConfig, {
+  PropertyPaneContentConfig,
+  PropertyPaneStyleConfig,
+} from "./propertyConfig";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { getDynamicBindings } from "utils/DynamicBindingUtils";
 import ListPagination, {
   ServerSideListPagination,
 } from "../component/ListPagination";
-import { GridDefaults } from "constants/WidgetConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import derivedProperties from "./parseDerivedProperties";
 import { DSLWidget } from "widgets/constants";
 import { entityDefinitions } from "utils/autocomplete/EntityDefinitions";
 import { escapeSpecialChars } from "../../WidgetUtils";
 import { PrivateWidgets } from "entities/DataTree/dataTreeFactory";
+import equal from "fast-deep-equal/es6";
 
-import { klona } from "klona";
+import { klona } from "klona/lite";
 
 const LIST_WIDGET_PAGINATION_HEIGHT = 36;
 
@@ -58,6 +63,14 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
    */
   static getPropertyPaneConfig() {
     return propertyPaneConfig;
+  }
+
+  static getPropertyPaneContentConfig() {
+    return PropertyPaneContentConfig;
+  }
+
+  static getPropertyPaneStyleConfig() {
+    return PropertyPaneStyleConfig;
   }
 
   static getDerivedPropertiesMap() {
@@ -701,6 +714,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
       const { page } = this.state;
       const children = removeFalsyEntries(klona(this.props.children));
       const childCanvas = children[0];
+      const { perPage } = this.shouldPaginate();
 
       const canvasChildren = childCanvas.children;
       const template = canvasChildren.slice(0, 1).shift();
@@ -716,6 +730,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
           page,
           gridGap,
           this.props.itemBackgroundColor,
+          perPage,
         );
       } catch (e) {
         log.error(e);
@@ -738,11 +753,12 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       itemBackgroundColor,
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      perPage,
     ) => {
       const canvasChildrenList = [];
       if (listData.length > 0) {
         for (let i = 0; i < listData.length; i++) {
-          canvasChildrenList[i] = JSON.parse(JSON.stringify(template));
+          canvasChildrenList[i] = klona(template);
         }
         canvasChildren = this.updateGridChildrenProps(canvasChildrenList);
       } else {
@@ -751,20 +767,22 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
 
       return canvasChildren;
     },
-    (prev: any, next: any) => {
-      // not comparing canvasChildren becuase template acts as a proxy
-
-      return (
-        shallowEqual(prev[0], next[0]) &&
-        shallowEqual(prev[1], next[1]) &&
-        shallowEqual(prev[2], next[2]) &&
-        prev[3] === next[3] &&
-        prev[4] === next[4] &&
-        prev[5] === next[6] &&
-        prev[6] === next[6]
-      );
-    },
+    (prev: any, next: any) => this.compareProps(prev, next),
   );
+
+  // DeepEqual Comparison
+  compareProps = (prev: any[], next: any[]) => {
+    return (
+      equal(prev[0], next[0]) &&
+      shallowEqual(prev[1], next[1]) &&
+      equal(prev[2], next[2]) &&
+      equal(prev[3], next[3]) &&
+      prev[4] === next[4] &&
+      prev[5] === next[5] &&
+      prev[6] === next[6] &&
+      prev[7] === next[7]
+    );
+  };
 
   /**
    * 400

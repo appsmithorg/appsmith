@@ -1,6 +1,6 @@
 #! /bin/sh
 
-# This script is responsible for setting up the local Nginx server for running E2E Cypress tests 
+# This script is responsible for setting up the local Nginx server for running E2E Cypress tests
 # on our CI/CD system. Currently the script is geared towards Github Actions
 
 # Serve the react bundle on a specific port. Nginx will proxy to this port
@@ -17,35 +17,6 @@ cat ./docker/templates/nginx-root.conf.template | envsubst ${vars_to_substitute}
 touch ./docker/localhost ./docker/localhost.pem
 echo "$APPSMITH_SSL_CERTIFICATE" > ./docker/localhost.pem
 echo "$APPSMITH_SSL_KEY" > ./docker/localhost.pem
-
-echo "Going to run the nginx server"
-#sudo docker pull nginx:latest
-sudo docker pull postgres:latest
-
-sudo docker run --network host --name postgres -d -p 5432:5432 \
- -e POSTGRES_PASSWORD=$POSTGRES_PASSWORD \
- -v `pwd`/cypress/init-pg-dump-for-test.sql:/docker-entrypoint-initdb.d/init-pg-dump-for-test.sql \
- --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5 \
- postgres:latest &
-
-sudo docker run -p 127.0.0.1:3306:3306  --name mariadb -e MARIADB_ROOT_PASSWORD=root123 -d mariadb
-
-echo "Sleeping for 30 seconds to let the MySQL start"
-sleep 30
-
-sudo docker exec -i mariadb mysql -uroot -proot123 mysql <  `pwd`/cypress/init-mysql-dump-for-test.sql
-
-
-echo "Sleeping for 30 seconds to let the servers start"
-sleep 30
-
-sudo docker run -d -p 127.0.0.1:28017:27017 --name Cypress-mongodb -e MONGO_INITDB_DATABASE=appsmith -v `pwd`/cypress/mongodb:/data/db mongo
-echo "Sleeping for 30 seconds to let the servers start"
-sleep 30
-
-sudo docker cp `pwd`/cypress/sample_airbnb Cypress-mongodb:/sample_airbnb
-
-sudo docker exec -i Cypress-mongodb /usr/bin/mongorestore --db sample_airbnb /sample_airbnb/sample_airbnb
 
 sleep 10
 
