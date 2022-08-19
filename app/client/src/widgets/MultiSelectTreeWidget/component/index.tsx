@@ -18,6 +18,8 @@ import "rc-tree-select/assets/index.less";
 import { DefaultValueType } from "rc-tree-select/lib/interface";
 import { TreeNodeProps } from "rc-tree-select/lib/TreeNode";
 import { CheckedStrategy } from "rc-tree-select/lib/utils/strategyUtil";
+import { DefaultOptionType } from "rc-tree-select/lib/TreeSelect";
+import styled from "styled-components";
 import { RenderMode, TextSize } from "constants/WidgetConstants";
 import { Alignment, Button, Classes, InputGroup } from "@blueprintjs/core";
 import { labelMargin, WidgetContainerDiff } from "widgets/WidgetUtils";
@@ -31,12 +33,7 @@ export interface TreeSelectProps
   extends Required<
     Pick<
       SelectProps,
-      | "disabled"
-      | "placeholder"
-      | "loading"
-      | "dropdownStyle"
-      | "allowClear"
-      | "options"
+      "disabled" | "placeholder" | "loading" | "dropdownStyle" | "allowClear"
     >
   > {
   value?: DefaultValueType;
@@ -61,7 +58,12 @@ export interface TreeSelectProps
   filterText?: string;
   isFilterable: boolean;
   renderMode?: RenderMode;
+  options?: DefaultOptionType[];
 }
+
+export const NoDataFoundContainer = styled.div`
+  text-align: center;
+`;
 
 const getSvg = (expanded: boolean) => (
   <i
@@ -281,7 +283,9 @@ function MultiTreeSelectComponent({
           maxTagCount={"responsive"}
           maxTagPlaceholder={(e) => `+${e.length} more`}
           multiple
-          notFoundContent="No Results Found"
+          notFoundContent={
+            <NoDataFoundContainer>No Results Found</NoDataFoundContainer>
+          }
           onChange={onChange}
           onClear={onClear}
           onDropdownVisibleChange={onDropdownVisibleChange}
