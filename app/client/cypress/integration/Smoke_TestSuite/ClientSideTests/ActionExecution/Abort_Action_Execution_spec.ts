@@ -13,7 +13,7 @@ const ERROR_ACTION_EXECUTE_FAIL = (actionName) =>
 describe("Abort Action Execution", function() {
   it("1. #14006 - Cancel Request button should abort API action execution", function() {
     apiPage.CreateAndFillApi(largeResponseApiUrl);
-    apiPage.RunAPI(false);
+    apiPage.RunAPI(false, 0);
     agHelper.GetNClick(locator._cancelActionExecution);
     agHelper.ValidateToastMessage(ERROR_ACTION_EXECUTE_FAIL("Api1"));
   });

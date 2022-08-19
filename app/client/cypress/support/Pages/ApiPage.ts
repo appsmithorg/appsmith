@@ -157,8 +157,8 @@ export class ApiPage {
     this.agHelper.AssertAutoSave();
   }
 
-  RunAPI(toValidateResponse = true) {
-    this.agHelper.GetNClick(this._apiRunBtn, 0, true);
+  RunAPI(toValidateResponse = true, waitTimeInterval = 500) {
+    this.agHelper.GetNClick(this._apiRunBtn, 0, true, waitTimeInterval);
     toValidateResponse && this.agHelper.ValidateNetworkExecutionSuccess("@postExecute");
   }
 
