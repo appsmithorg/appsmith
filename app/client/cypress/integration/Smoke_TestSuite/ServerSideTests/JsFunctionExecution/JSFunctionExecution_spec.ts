@@ -490,10 +490,8 @@ describe("JS Function Execution", function() {
 
   it("10. Bug 13197: Verify converting async functions to sync resets all settings", () => {
     const asyncJSCode = `export default {
-      myFun1 : async ()=>{
-        return "yes"
-      }
-    }`;
+myFun1 : async ()=>{
+return "yes"`;
 
     const syncJSCode = `export default {
       myFun1 : ()=>{
@@ -502,7 +500,7 @@ describe("JS Function Execution", function() {
     }`;
 
     jsEditor.CreateJSObject(asyncJSCode, {
-      paste: true,
+      paste: false,
       completeReplace: true,
       toRun: false,
       shouldCreateNewJSObj: true,
