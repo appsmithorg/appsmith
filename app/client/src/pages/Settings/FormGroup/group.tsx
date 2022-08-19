@@ -150,7 +150,7 @@ export default function Group({
                     <Callout
                       action={setting.action}
                       actionLabel="READ MORE"
-                      title={createMessage(() => setting.label || "")}
+                      desc={createMessage(() => setting.label || "")}
                       type={setting.calloutType || "Info"}
                       url={setting.url}
                     />
