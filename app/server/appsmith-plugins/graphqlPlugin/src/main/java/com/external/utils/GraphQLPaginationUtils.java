@@ -104,10 +104,7 @@ public class GraphQLPaginationUtils {
     }
 
     public static void updateVariablesWithPaginationValues(ActionConfiguration actionConfiguration,
-                                                           ExecuteActionDTO executeActionDTO,
-                                                           Set<String> hintMessages) throws AppsmithPluginException {
-        hintMessages.addAll(getHintMessagesForDuplicatesInQueryVariables(actionConfiguration));
-
+                                                           ExecuteActionDTO executeActionDTO) throws AppsmithPluginException {
         final List<Property> properties = actionConfiguration.getPluginSpecifiedTemplates();
         String variables = getValueSafelyFromPropertyList(properties, QUERY_VARIABLES_INDEX, String.class);
         JSONObject queryVariablesJson = new JSONObject();

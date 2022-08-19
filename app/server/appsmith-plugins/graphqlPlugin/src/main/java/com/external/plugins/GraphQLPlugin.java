@@ -145,23 +145,20 @@ public class GraphQLPlugin extends BasePlugin {
                 return Mono.error(e);
             }
 
-            Set<String> hintMessages = new HashSet<String>();
             if (actionConfiguration.getPaginationType() != null && !PaginationType.NONE.equals(actionConfiguration.getPaginationType())) {
-                updateVariablesWithPaginationValues(actionConfiguration, executeActionDTO, hintMessages);
+                updateVariablesWithPaginationValues(actionConfiguration, executeActionDTO);
             }
 
             // Filter out any empty headers
             headerUtils.removeEmptyHeaders(actionConfiguration);
 
-            return this.executeCommon(connection, datasourceConfiguration, actionConfiguration, parameters,
-                    hintMessages);
+            return this.executeCommon(connection, datasourceConfiguration, actionConfiguration, parameters);
         }
 
         public Mono<ActionExecutionResult> executeCommon(APIConnection apiConnection,
                                                          DatasourceConfiguration datasourceConfiguration,
                                                          ActionConfiguration actionConfiguration,
-                                                         List<Map.Entry<String, String>> insertedParams,
-                                                         Set<String> hintMessages) {
+                                                         List<Map.Entry<String, String>> insertedParams) {
 
             // Initializing object for error condition
             ActionExecutionResult errorResult = new ActionExecutionResult();
@@ -269,6 +266,7 @@ public class GraphQLPlugin extends BasePlugin {
                     EXCHANGE_STRATEGIES, requestCaptureFilter);
 
             /* Triggering the actual REST API call */
+            Set<String> hintMessages = new HashSet<String>();
             return triggerUtils.triggerApiCall(client, httpMethod, uri, requestBodyObj, actionExecutionRequest,
                     objectMapper,
                     hintMessages, errorResult, requestCaptureFilter);
