@@ -108,6 +108,7 @@ describe("Binding the list widget with text widget", function() {
       .click({ force: true })
       .type("#$%1234", { delay: 300 })
       .type("{enter}");
+    cy.wait(500);
     cy.get(".t--widget-name").contains("___1234");
     cy.verifyUpdatedWidgetName("12345");
     cy.get(".t--delete-widget").click({ force: true });
