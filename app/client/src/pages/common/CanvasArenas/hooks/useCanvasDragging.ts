@@ -134,7 +134,7 @@ export const useCanvasDragging = (
         dragBlocksSize += isVertical ? each.height : each.width;
       });
       // Get all children of current auto layout container
-      const container = document.querySelector(`.flex-container-qa3j3kll75`);
+      const container = document.querySelector(`.flex-container-${widgetId}`);
       // console.log(container);
       // console.log((container as any).offsetTop);
       containerDimensions = {
