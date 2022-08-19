@@ -1,5 +1,5 @@
 import { parse, Node } from "acorn";
-import { ancestor, simple } from "acorn-walk";
+import { ancestor } from "acorn-walk";
 import { ECMA_VERSION, NodeTypes } from "./constants";
 import { isFinite, isString } from "lodash";
 import { sanitizeScript } from "./utils";

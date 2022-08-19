@@ -1,7 +1,7 @@
-import { parse, Node } from "acorn";
+import { Node } from "acorn";
+import { getAST } from "../index";
 import { generate } from "astring";
 import { simple } from "acorn-walk";
-import { ECMA_VERSION } from "../constants";
 import {
   getFunctionalParamsFromNode,
   isPropertyAFunctionNode,
@@ -30,7 +30,7 @@ export const parseJSObjectWithAST = (
     "____INTERNAL_JS_OBJECT_NAME_USED_FOR_PARSING_____";
   const jsCode = `var ${jsObjectVariableName} = ${jsObjectBody}`;
 
-  const ast = parse(jsCode, { ecmaVersion: ECMA_VERSION });
+  const ast = getAST(jsCode);
 
   const parsedObjectProperties = new Set<JsObjectProperty>();
   let JSObjectProperties: Array<PropertyNode> = [];
