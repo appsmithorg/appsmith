@@ -181,6 +181,33 @@ function renderDropdown(
     }
   };
 
+  if (props.options.length > 0) {
+    if (props.isMultiSelect) {
+      const tempSelectedValues: string[] = [];
+      selectedOptions.forEach((option: DropdownOption) => {
+        if (selectedValue.includes(option.value as string)) {
+          tempSelectedValues.push(option.value as string);
+        }
+      });
+      if (tempSelectedValues.length !== selectedValue.length) {
+        selectedValue = [...tempSelectedValues];
+        props.input?.onChange(tempSelectedValues);
+      }
+    } else {
+      let tempSelectedValues = "";
+      selectedOptions.forEach((option: DropdownOption) => {
+        if (selectedValue === (option.value as string)) {
+          tempSelectedValues = option.value as string;
+        }
+      });
+
+      if (selectedValue !== tempSelectedValues) {
+        selectedValue = tempSelectedValues;
+        props.input?.onChange(tempSelectedValues);
+      }
+    }
+  }
+
   return (
     <Dropdown
       allowDeselection={props?.isMultiSelect}
