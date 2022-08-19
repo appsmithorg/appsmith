@@ -557,6 +557,9 @@ jobs:
           aws_region: ap-south-1
           flags: --recursive
 
+      - name: Debugging with ssh
+        uses: lhotari/action-upterm@v1
+
       - name: Load docker image
         if: steps.run_result.outputs.run_result != 'success'
         env:
