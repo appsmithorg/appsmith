@@ -157,9 +157,9 @@ export class ApiPage {
     this.agHelper.AssertAutoSave();
   }
 
-  RunAPI() {
-    cy.get(this._apiRunBtn).click({ force: true });
-    this.agHelper.ValidateNetworkExecutionSuccess("@postExecute");
+  RunAPI(toValidateResponse = true) {
+    this.agHelper.GetNClick(this._apiRunBtn, 0, true);
+    toValidateResponse && this.agHelper.ValidateNetworkExecutionSuccess("@postExecute");
   }
 
   SetAPITimeout(timeout: number) {
