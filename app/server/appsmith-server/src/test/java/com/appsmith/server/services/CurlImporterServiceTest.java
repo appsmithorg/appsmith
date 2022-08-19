@@ -29,7 +29,11 @@ import org.springframework.test.context.junit4.SpringRunner;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
-import java.util.*;
+import java.util.Map;
+import java.util.List;
+import java.util.LinkedList;
+import java.util.HashSet;
+import java.util.HashMap;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -880,8 +884,7 @@ public class CurlImporterServiceTest {
     }
 
     private static void assertHeaders(ActionDTO action, Property... headers) {
-        // since this step is case sensitive -let's make this case insensitive.
-        // this implementation only works if Property has an object which works with equals function
+        // this implementation only works if Property has a subclass of object which works implements equal function.
         // let's compare sizes of both first
         if (action.getActionConfiguration().getHeaders().size() != headers.length) {
             assert(false);
@@ -938,7 +941,6 @@ public class CurlImporterServiceTest {
             assert(false);
         }
         // if all header matches then only it will reach here.
-        //assertThat(action.getActionConfiguration().getHeaders()).containsExactlyInAnyOrder(headers);
     }
 
     private static void assertEmptyBody(ActionDTO action) {
