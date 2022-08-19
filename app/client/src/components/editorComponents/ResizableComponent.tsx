@@ -65,8 +65,6 @@ export const ResizableComponent = memo(function ResizableComponent(
   } = useContext(AutoLayoutContext || null);
   const isHorizontallyStretched =
     direction === LayoutDirection.Vertical && alignItems === AlignItems.Stretch;
-  const canvasWidgets = useSelector(getCanvasWidgets);
-
 
   const isSnipingMode = useSelector(snipingModeSelector);
   const isPreviewMode = useSelector(previewModeSelector);

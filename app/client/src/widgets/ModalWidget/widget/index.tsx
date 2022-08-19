@@ -236,9 +236,9 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
     childData.rightColumn =
       this.getModalWidth(this.props.width) + WIDGET_PADDING * 2;
 
-    childWidgetData.positioning = this.props.positioning;
-    childWidgetData.alignment = this.props.alignment;
-    childWidgetData.spacing = this.props.spacing;
+    childData.positioning = this.props.positioning;
+    childData.alignment = this.props.alignment;
+    childData.spacing = this.props.spacing;
     return WidgetFactory.createWidget(childWidgetData, this.props.renderMode);
   };
 

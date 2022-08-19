@@ -351,13 +351,13 @@ class ContainerWidget extends BaseWidget<
     childWidget.shouldScrollContents = false;
     childWidget.canExtend = this.props.shouldScrollContents;
 
-    childWidgetData.parentId = this.props.widgetId;
+    childWidget.parentId = this.props.widgetId;
     // Pass layout controls to children
-    childWidgetData.useAutoLayout = this.state.useAutoLayout;
-    childWidgetData.direction = this.state.direction;
-    childWidgetData.positioning = this.props.positioning;
-    childWidgetData.alignment = this.props.alignment;
-    childWidgetData.spacing = this.props.spacing;
+    childWidget.useAutoLayout = this.state.useAutoLayout;
+    childWidget.direction = this.state.direction;
+    childWidget.positioning = this.props.positioning;
+    childWidget.alignment = this.props.alignment;
+    childWidget.spacing = this.props.spacing;
 
     return WidgetFactory.createWidget(childWidget, this.props.renderMode);
   }

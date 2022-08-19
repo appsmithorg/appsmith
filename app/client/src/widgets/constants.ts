@@ -1,4 +1,11 @@
 import { IconNames } from "@blueprintjs/icons";
+import {
+  AlignItems,
+  JustifyContent,
+  LayoutDirection,
+  Positioning,
+  ResponsiveBehavior,
+} from "components/constants";
 import { PropertyPaneConfig } from "constants/PropertyControlConstants";
 import { WIDGET_STATIC_PROPS } from "constants/WidgetConstants";
 import { omit } from "lodash";
@@ -45,13 +52,25 @@ export interface DSLWidget extends WidgetProps {
   children?: DSLWidget[];
 }
 
+interface LayoutProps {
+  positioning?: Positioning;
+  useAutoLayout?: boolean;
+  direction?: LayoutDirection;
+  justifyContent?: JustifyContent;
+  alignItems?: AlignItems;
+  responsiveBehavior?: ResponsiveBehavior;
+  parentColumnSpace?: number;
+  parentRowSpace?: number;
+}
+
 const staticProps = omit(WIDGET_STATIC_PROPS, "children");
 export type CanvasWidgetStructure = Pick<
   WidgetProps,
   keyof typeof staticProps
-> & {
-  children?: CanvasWidgetStructure[];
-};
+> &
+  LayoutProps & {
+    children?: CanvasWidgetStructure[];
+  };
 
 export enum FileDataTypes {
   Base64 = "Base64",

@@ -54,24 +54,24 @@ class CanvasWidget extends ContainerWidget {
     const childWidget = { ...childWidgetData };
 
     const snapSpaces = this.getSnapSpaces();
-    childWidgetData.parentColumnSpace = snapSpaces.snapColumnSpace;
-    childWidgetData.parentRowSpace = snapSpaces.snapRowSpace;
-    if (this.props.noPad) childWidgetData.noContainerOffset = true;
-    childWidgetData.parentId = this.props.widgetId;
+    childWidget.parentColumnSpace = snapSpaces.snapColumnSpace;
+    childWidget.parentRowSpace = snapSpaces.snapRowSpace;
+    if (this.props.noPad) childWidget.noContainerOffset = true;
+    childWidget.parentId = this.props.widgetId;
     // Pass layout controls to children
-    childWidgetData.positioning =
-      childWidgetData?.positioning || this.props.positioning;
-    childWidgetData.useAutoLayout = this.state.useAutoLayout;
-    childWidgetData.direction = this.state.direction;
-    childWidgetData.justifyContent = this.props.justifyContent;
-    childWidgetData.alignItems = this.props.alignItems;
+    childWidget.positioning =
+      childWidget?.positioning || this.props.positioning;
+    childWidget.useAutoLayout = this.state.useAutoLayout;
+    childWidget.direction = this.state.direction;
+    childWidget.justifyContent = this.props.justifyContent;
+    childWidget.alignItems = this.props.alignItems;
 
     if (
-      childWidgetData?.responsiveBehavior === ResponsiveBehavior.Fill &&
+      childWidget?.responsiveBehavior === ResponsiveBehavior.Fill &&
       this.state.isMobile
     ) {
-      childWidgetData.leftColumn = 0;
-      childWidgetData.rightColumn = 64;
+      childWidget.leftColumn = 0;
+      childWidget.rightColumn = 64;
     }
 
     return WidgetFactory.createWidget(childWidget, this.props.renderMode);
