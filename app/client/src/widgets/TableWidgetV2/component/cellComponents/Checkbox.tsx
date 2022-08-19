@@ -2,6 +2,7 @@ import React from "react";
 import {
   ALIGN_ITEMS,
   BaseCellComponentProps,
+  CellAlignment,
   JUSTIFY_CONTENT,
 } from "../Constants";
 import { CellWrapper } from "../TableStyledWrappers";
@@ -9,7 +10,9 @@ import CheckboxComponent from "widgets/CheckboxWidget/component/index";
 import { LabelPosition } from "components/constants";
 import styled from "styled-components";
 
-const CheckboxCellWrapper = styled(CellWrapper)`
+const CheckboxCellWrapper = styled(CellWrapper)<{
+  horizontalAlignment?: CellAlignment;
+}>`
   & > div {
     justify-content: ${(props) =>
       props.horizontalAlignment &&

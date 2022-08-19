@@ -1,4 +1,5 @@
 import { ValidationTypes } from "constants/WidgetValidation";
+import { composePropertyUpdateHook } from "widgets/WidgetUtils";
 import { updateColumnStyles } from "../propertyUtils";
 
 export default {
@@ -92,7 +93,7 @@ export default {
       propertyName: "horizontalAlignment",
       label: "Text Align",
       controlType: "ICON_TABS",
-      updateHook: updateColumnStyles,
+      updateHook: composePropertyUpdateHook([updateColumnStyles]),
       dependencies: ["primaryColumns"],
       options: [
         {
