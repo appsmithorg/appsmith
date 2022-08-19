@@ -1768,6 +1768,18 @@ Cypress.Commands.add("StopTheContainer", (path, containerName) => {
   });
 });
 
+Cypress.Commands.add("StopAllContainer", (path) => {
+  cy.request({
+    method: "GET",
+    url: path,
+    qs: {
+      cmd: "docker kill $(docker ps -q)",
+    },
+  }).then((res) => {
+    expect(res.status).equal(200);
+  });
+});
+
 Cypress.Commands.add("StartTheContainer", (path, containerName) => {
   cy.request({
     method: "GET",
@@ -1793,6 +1805,34 @@ Cypress.Commands.add(
       ' -p 80:80 -p 9001:9001 -v "' +
       path +
       '/stacks:/appsmith-stacks" appsmith/appsmith-ce:' +
+      version;
+
+    cy.log(comm);
+    cy.request({
+      method: "GET",
+      url: url,
+      qs: {
+        cmd: comm,
+      },
+    }).then((res) => {
+      cy.log(res.body.stderr);
+      cy.log(res.body.stdout);
+      expect(res.status).equal(200);
+    });
+  },
+);
+
+Cypress.Commands.add(
+  "CreateEEContainer",
+  (url, path, version, containerName) => {
+    let comm =
+      "cd " +
+      path +
+      ";docker run -d --name " +
+      containerName +
+      ' -p 80:80 -p 9001:9001 -v "' +
+      path +
+      '/stacks:/appsmith-stacks" appsmith/appsmith-ee:' +
       version;
 
     cy.log(comm);

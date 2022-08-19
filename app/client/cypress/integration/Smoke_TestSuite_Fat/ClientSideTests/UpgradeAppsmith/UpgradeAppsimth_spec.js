@@ -4,6 +4,10 @@ const testdata = require("../../../../fixtures/testdata.json");
 const testUrl = "http://localhost:5001/v1/parent/cmd";
 describe("Upgrade appsmith version", () => {
   it("Upgrade Appsmith version and verify the Applications", () => {
+    const uuid = () => Cypress._.random(0, 5);
+    const name = uuid();
+    cy.wait(2000);
+
     cy.GetCWD(testUrl);
 
     cy.log("Stop the container");
@@ -24,12 +28,12 @@ describe("Upgrade appsmith version", () => {
         testUrl,
         path + "/oldstack/160",
         "v1.6.0",
-        "appsmith-160",
+        `appsmith-160-${name}`,
       );
       cy.wait(45000);
 
       cy.log("Stop the appsmith-160 container");
-      cy.StopTheContainer(testUrl, "appsmith-160"); // stop the old container
+      cy.StopTheContainer(testUrl, `appsmith-160-${name}`); // stop the old container
       cy.wait(2000);
 
       cy.log("Start old stack container");
@@ -37,12 +41,12 @@ describe("Upgrade appsmith version", () => {
         testUrl,
         path + "/oldstack/160",
         "release",
-        "appsmith-160-updated",
+        `appsmith-160_${name}_updated`,
       );
       cy.wait(45000);
 
       cy.log("Verify Logs");
-      cy.GetAndVerifyLogs(testUrl, "appsmith"); // Get and verify the logs
+      cy.GetAndVerifyLogs(testUrl, `appsmith-160_${name}_updated`); // Get and verify the logs
     });
 
     //verify the Applications after upgrade
@@ -62,7 +66,7 @@ describe("Upgrade appsmith version", () => {
       .should("have.length", 3);
 
     cy.log("Stop the appsmith-160-updated container");
-    cy.StopTheContainer(testUrl, "appsmith-160-updated"); // stop the old container
+    cy.StopTheContainer(testUrl, `appsmith-160_${name}_updated`); // stop the old container
     cy.wait(2000);
 
     cy.log("Start the appsmith container");
@@ -73,6 +77,10 @@ describe("Upgrade appsmith version", () => {
   it("Upgrade Appsmith from CE to EE and verify the Applications", () => {
     cy.log("Stop the appsmith container");
     cy.StopTheContainer(testUrl, "appsmith"); // stop the old container
+    cy.wait(2000);
+
+    const uuid = () => Cypress._.random(0, 5);
+    const name = uuid();
     cy.wait(2000);
 
     cy.log("Get path");
@@ -86,25 +94,25 @@ describe("Upgrade appsmith version", () => {
         testUrl,
         path + "/oldstack/ce",
         "v1.6.0",
-        "appsmith-160-ce",
+        `appsmith-160-ce-${name}`,
       );
       cy.wait(45000);
 
       cy.log("Stop the appsmith-160-ce container");
-      cy.StopTheContainer(testUrl, "appsmith-160-ce"); // stop the old container
+      cy.StopTheContainer(testUrl, `appsmith-160-ce-${name}`); // stop the old container
       cy.wait(2000);
 
       cy.log("Start old stack container");
-      cy.CreateAContainer(
+      cy.CreateEEContainer(
         testUrl,
         path + "/oldstack/ce",
-        "ee",
-        "appsmith-enterprise",
+        "release",
+        `appsmith-160-ce-${name}-enterprise`,
       );
       cy.wait(45000);
 
       cy.log("Verify Logs");
-      cy.GetAndVerifyLogs(testUrl, "appsmith"); // Get and verify the logs
+      cy.GetAndVerifyLogs(testUrl, `appsmith-160-ce-${name}-enterprise`); // Get and verify the logs
     });
 
     //verify the Applications after upgrade
@@ -124,7 +132,7 @@ describe("Upgrade appsmith version", () => {
       .should("have.length", 3);
 
     cy.log("Stop the appsmith-160-updated container");
-    cy.StopTheContainer(testUrl, "appsmith-enterprise"); // stop the old container
+    cy.StopTheContainer(testUrl, `appsmith-160-ce-${name}-enterprise`); // stop the old container
     cy.wait(2000);
 
     cy.log("Start the appsmith container");
