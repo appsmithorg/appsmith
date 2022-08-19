@@ -13,7 +13,6 @@ import { Alignment } from "@blueprintjs/core";
 import SliderComponent, {
   SliderComponentProps,
 } from "../../NumberSliderWidget/component/Slider";
-import { SliderType } from "../../NumberSliderWidget/utils";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 
 export type SliderOption = {
@@ -261,6 +260,16 @@ class CategorySliderWidget extends BaseWidget<
             propertyName: "showLabelOnHover",
             helpText: "Show widget value label on Hover",
             label: "Show Label On Hover",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+          },
+          {
+            propertyName: "showMarksLabel",
+            helpText: "Controls the visibility of the marks Label widget",
+            label: "Show Marks Label",
             controlType: "SWITCH",
             isJSConvertible: true,
             isBindProperty: true,
@@ -566,11 +575,11 @@ class CategorySliderWidget extends BaseWidget<
         name={this.props.widgetName}
         onChangeEnd={this.onChangeEnd}
         showLabelOnHover={this.props.showLabelOnHover}
+        showMarksLabel={this.props.showMarksLabel || sliderOptions.length === 0}
         sliderSize={this.props.sliderSize || "md"}
         sliderTooltip={(val: number) =>
           sliderOptions.find((option) => option.value === val)?.label || ""
         }
-        sliderType={SliderType.CATEGORICAL}
         sliderValue={sliderValue || stepSize}
         step={stepSize}
       />

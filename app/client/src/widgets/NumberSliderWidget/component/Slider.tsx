@@ -10,7 +10,6 @@ import {
   getPosition,
   getSliderStyles,
   SliderSizes,
-  SliderType,
 } from "../utils";
 import { useMove } from "../use-move";
 import { SliderContainer } from "./Container";
@@ -59,9 +58,6 @@ export interface SliderComponentProps
   /** If true slider label will appear on hover */
   showLabelOnHover?: boolean;
 
-  /** Slider Type */
-  sliderType: SliderType;
-
   /** Disables slider */
   disabled?: boolean;
 
@@ -89,8 +85,11 @@ export interface SliderComponentProps
   /** Font Style for the Label text  */
   labelStyle?: string;
 
-  /** Loading property internal to every widget  */
+  /** Loading property internal to every widget */
   loading: boolean;
+
+  /** determines whether to display mark labels or only marks */
+  showMarksLabel?: boolean;
 }
 
 const SliderComponent = (props: SliderComponentProps) => {
@@ -113,9 +112,9 @@ const SliderComponent = (props: SliderComponentProps) => {
     onChangeEnd,
     precision,
     showLabelOnHover = true,
+    showMarksLabel = true,
     sliderSize,
     sliderTooltip,
-    sliderType,
     sliderValue,
     step,
   } = props;
@@ -270,8 +269,8 @@ const SliderComponent = (props: SliderComponentProps) => {
           onChange={setValue}
           onMouseEnter={showLabelOnHover ? () => setHovered(true) : undefined}
           onMouseLeave={showLabelOnHover ? () => setHovered(false) : undefined}
+          showMarksLabel={showMarksLabel}
           size={sliderSize}
-          sliderType={sliderType}
           trackBgColor={sliderBg.track}
           value={_value}
         >

@@ -6,7 +6,6 @@ import { TAILWIND_COLORS } from "constants/ThemeConstants";
 import { LabelPosition } from "components/constants";
 import { Alignment } from "@blueprintjs/core";
 import SliderComponent, { SliderComponentProps } from "../component/Slider";
-import { SliderType } from "../utils";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 
 interface NumberSliderWidgetProps extends WidgetProps, SliderComponentProps {
@@ -423,8 +422,8 @@ class NumberSliderWidget extends BaseWidget<
         name={this.props.widgetName}
         onChangeEnd={this.onChangeEnd}
         showLabelOnHover={this.props.showLabelOnHover}
+        showMarksLabel
         sliderSize={this.props.sliderSize || "md"}
-        sliderType={SliderType.LINEAR}
         sliderValue={this.props.value || 0}
         step={this.props.step || 1}
       />

@@ -1,9 +1,8 @@
 import React from "react";
 import styled from "styled-components";
 
-import { Colors } from "constants/Colors";
 import { Marks } from "./Marks";
-import { sizeMap, SliderSizes, SliderType } from "../utils";
+import { sizeMap, SliderSizes } from "../utils";
 
 interface TrackProps {
   marksBg: {
@@ -26,40 +25,33 @@ interface TrackProps {
   onChange(value: number): void;
   onMouseEnter?(event?: React.MouseEvent<HTMLDivElement>): void;
   onMouseLeave?(event?: React.MouseEvent<HTMLDivElement>): void;
-  sliderType?: SliderType;
+  showMarksLabel?: boolean;
 }
 
-const TrackWrapper = styled.div<
-  Pick<TrackProps, "size" | "disabled" | "trackBgColor">
->(({ disabled, size, trackBgColor }) => ({
-  position: "relative",
-  height: `${sizeMap[size]}px`,
-  width: "100%",
-  marginRight: `${sizeMap[size]}px`,
-  marginLeft: `${sizeMap[size]}px`,
+const TrackWrapper = styled.div<Pick<TrackProps, "size" | "trackBgColor">>(
+  ({ size, trackBgColor }) => ({
+    position: "relative",
+    height: `${sizeMap[size]}px`,
+    width: "100%",
+    marginRight: `${sizeMap[size]}px`,
+    marginLeft: `${sizeMap[size]}px`,
 
-  /**
-   * When we hover on the Track give mark border focus color
-   */
-  "&:hover .slider-mark": {
-    borderColor: disabled ? Colors.GREY_5 : Colors.GRAY_400,
-  },
-
-  /**
-   * This is the area which is in grey
-   */
-  "&::before": {
-    content: '""',
-    position: "absolute",
-    top: 0,
-    bottom: 0,
-    borderRadius: "16px",
-    right: `${-sizeMap[size]}px`,
-    left: `${-sizeMap[size]}px`,
-    backgroundColor: trackBgColor,
-    zIndex: 0,
-  },
-}));
+    /**
+     * This is the area which is in grey
+     */
+    "&::before": {
+      content: '""',
+      position: "absolute",
+      top: 0,
+      bottom: 0,
+      borderRadius: "16px",
+      right: `${-sizeMap[size]}px`,
+      left: `${-sizeMap[size]}px`,
+      backgroundColor: trackBgColor,
+      zIndex: 0,
+    },
+  }),
+);
 
 const Bar = styled.div<
   Pick<TrackProps, "filled" | "offset" | "size" | "barBgColor">
@@ -78,24 +70,23 @@ const Bar = styled.div<
 }));
 
 export function Track({
-  trackBgColor,
   barBgColor,
   children,
   color,
   disabled,
   filled,
+  marksBg,
   marksOffset,
   offset,
   onMouseEnter,
   onMouseLeave,
+  showMarksLabel = true,
   size,
-  marksBg,
-  sliderType = SliderType.LINEAR,
+  trackBgColor,
   ...delegated
 }: TrackProps) {
   return (
     <TrackWrapper
-      disabled={disabled}
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
       size={size}
@@ -113,8 +104,8 @@ export function Track({
         disabled={disabled}
         marksBg={marksBg}
         marksOffset={marksOffset}
+        showMarksLabel={showMarksLabel}
         size={size}
-        sliderType={sliderType}
         {...delegated}
       />
     </TrackWrapper>

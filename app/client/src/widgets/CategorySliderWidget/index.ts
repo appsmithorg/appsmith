@@ -24,6 +24,7 @@ export const CONFIG = {
     isDisabled: false,
     labelAlwaysOn: false,
     showLabelOnHover: true,
+    showMarksLabel: false,
     rows: 8,
     columns: 35,
     widgetName: "CategorySlider",

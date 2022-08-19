@@ -100,7 +100,6 @@ export const Thumb = forwardRef<HTMLDivElement, ThumbProps>(
     const [focused, setFocused] = useState(false);
 
     const isVisible = labelAlwaysOn || dragging || focused || showLabelOnHover;
-
     return (
       <ThumbWrapper
         aria-valuemax={max}
@@ -129,7 +128,7 @@ export const Thumb = forwardRef<HTMLDivElement, ThumbProps>(
       >
         {children}
 
-        {isVisible && <Label>{label}</Label>}
+        {isVisible && label !== "" ? <Label>{label}</Label> : null}
       </ThumbWrapper>
     );
   },
