@@ -288,11 +288,22 @@ export const extractIdentifiersFromCode = (code: string): string[] => {
     },
   });
 
-  // Remove declared variables and function params
-  variableDeclarations.forEach((variable) => identifiers.delete(variable));
-  functionalParams.forEach((param) => identifiers.delete(param.paramName));
+  const functionalParamNamesArray = Array.from(functionalParams).map(
+    (functionParam) => functionParam.paramName,
+  );
+  const validIdentifiers = Array.from(identifiers).filter((identifier) => {
+    // Api1.name => Api1
+    const topLevelIdentifier = identifier.split(".")[0];
+    // Remove identifiers derived from declared variables and function params
+    if (
+      functionalParamNamesArray.includes(topLevelIdentifier) ||
+      variableDeclarations.has(topLevelIdentifier)
+    )
+      return false;
+    return true;
+  });
 
-  return Array.from(identifiers);
+  return validIdentifiers;
 };
 
 type functionParams = { paramName: string; defaultValue: unknown };
