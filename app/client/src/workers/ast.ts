@@ -114,7 +114,11 @@ const isFunctionDeclaration = (node: Node): node is FunctionDeclarationNode => {
 const isFunctionExpression = (node: Node): node is FunctionExpressionNode => {
   return node.type === NodeTypes.FunctionExpression;
 };
-
+const isArrowFunctionExpression = (
+  node: Node,
+): node is ArrowFunctionExpressionNode => {
+  return node.type === NodeTypes.ArrowFunctionExpression;
+};
 const isObjectExpression = (node: Node): node is ObjectExpression => {
   return node.type === NodeTypes.ObjectExpression;
 };
@@ -264,10 +268,19 @@ export const extractIdentifiersFromCode = (code: string): string[] => {
       ]);
     },
     FunctionExpression(node: Node) {
-      // params in function experssions are also counted as identifiers so we keep
+      // params in function expressions are also counted as identifiers so we keep
       // track of them and remove them from the final list of identifiers
 
       if (!isFunctionExpression(node)) return;
+      functionalParams = new Set([
+        ...functionalParams,
+        ...getFunctionalParamsFromNode(node),
+      ]);
+    },
+    ArrowFunctionExpression(node: Node) {
+      // params in arrow function expressions are also counted as identifiers so we keep
+      // track of them and remove them from the final list of identifiers
+      if (!isArrowFunctionExpression(node)) return;
       functionalParams = new Set([
         ...functionalParams,
         ...getFunctionalParamsFromNode(node),
