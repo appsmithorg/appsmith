@@ -266,6 +266,7 @@ export const extractIdentifiersFromCode = (code: string): string[] => {
     FunctionExpression(node: Node) {
       // params in function experssions are also counted as identifiers so we keep
       // track of them and remove them from the final list of identifiers
+
       if (!isFunctionExpression(node)) return;
       functionalParams = new Set([
         ...functionalParams,
