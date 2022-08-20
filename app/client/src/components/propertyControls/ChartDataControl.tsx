@@ -196,10 +196,10 @@ class ChartDataControl extends BaseControl<ControlProps> {
       ? {}
       : this.props.propertyValue;
 
-    const dataLength = Object.keys(chartData).length;
+    const dataLength = Object.keys(chartData || {}).length;
 
     const evaluatedValue = this.props.evaluatedValue;
-    const firstKey = Object.keys(chartData)[0] as string;
+    const firstKey = Object.keys(chartData || {})[0] as string;
 
     if (this.props.widgetProperties.chartType === "PIE_CHART") {
       const data = dataLength
@@ -226,7 +226,7 @@ class ChartDataControl extends BaseControl<ControlProps> {
     return (
       <>
         <Wrapper>
-          {Object.keys(chartData).map((key: string) => {
+          {Object.keys(chartData || {}).map((key: string) => {
             const data = get(chartData, `${key}`);
 
             return (

@@ -129,8 +129,8 @@ class PrimaryColumnsControlV2 extends BaseControl<ControlProps, State> {
   componentDidUpdate(prevProps: ControlProps): void {
     //on adding a new column last column should get focused
     if (
-      Object.keys(prevProps.propertyValue).length + 1 ===
-      Object.keys(this.props.propertyValue).length
+      Object.keys(prevProps?.propertyValue || {}).length + 1 ===
+      Object.keys(this.props?.propertyValue || {}).length
     ) {
       this.updateFocus(Object.keys(this.props.propertyValue).length - 1, true);
       this.checkAndUpdateIfEditableColumnPresent();
