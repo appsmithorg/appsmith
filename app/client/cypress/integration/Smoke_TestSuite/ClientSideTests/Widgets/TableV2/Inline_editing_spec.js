@@ -581,13 +581,14 @@ describe("Table widget inline editing functionality", () => {
     cy.openPropertyPane("tablewidgetv2");
     cy.makeColumnEditable("step");
     cy.editColumn("EditActions1");
-    cy.get(".t--property-pane-section-collapse-savebutton").click({force:true});
+    //cy.get(".t--property-pane-section-collapse-savebutton").click({force:true});
     cy.get(".t--property-pane-section-collapse-discardbutton").click({force:true});
     cy.get(".t--property-control-onsave .t--open-dropdown-Select-Action")
       .last()
       .click({force:true});
     cy.selectShowMsg();
-    cy.addSuccessMessage("Saved!!", ".t--property-control-onsave");
+    //cy.addSuccessMessage("Saved!!", ".t--property-control-onsave");
+    cy.toggleJsAndUpdateWithIndex("onsave","Saved!!",3);
     cy.editTableCell(0, 0);
     cy.enterTableCellValue(0, 0, "NewValue");
     cy.openPropertyPane("tablewidgetv2");

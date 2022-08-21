@@ -779,7 +779,7 @@ Cypress.Commands.add("selectShowMsg", () => {
 Cypress.Commands.add("addSuccessMessage", (value) => {
   cy.get(commonlocators.chooseMsgType)
     .last()
-    .click();
+    .click({force:true});
   cy.get(commonlocators.chooseAction)
     .children()
     .contains("Success")
