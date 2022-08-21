@@ -13,6 +13,7 @@ import {
 } from "../../../../locators/WidgetLocators";
 
 const widgetsToTest = {
+  /*
   [WIDGET.MULTISELECT_WIDGET]: {
     widgetName: "MultiSelect",
     widgetPrefixName: "MultiSelect1",
@@ -29,6 +30,7 @@ const widgetsToTest = {
       selectTabAndReset();
     },
   },
+  */
   [WIDGET.TABLE]: {
     widgetName: "Table",
     widgetPrefixName: "Table1",
@@ -37,6 +39,7 @@ const widgetsToTest = {
       selectTableAndReset();
     },
   },
+  /*
   [WIDGET.SWITCHGROUP]: {
     widgetName: "SwitchGroup",
     widgetPrefixName: "SwitchGroup1",
@@ -103,7 +106,7 @@ const widgetsToTest = {
       ratingwidgetAndReset();
     },
   },
-
+*/
   [WIDGET.CHECKBOXGROUP]: {
     widgetName: "CheckboxGroup",
     widgetPrefixName: "CheckboxGroup1",
@@ -112,6 +115,7 @@ const widgetsToTest = {
       checkboxGroupAndReset();
     },
   },
+  /*
   [WIDGET.CHECKBOX]: {
     widgetName: "Checkbox",
     widgetPrefixName: "Checkbox1",
@@ -137,7 +141,7 @@ const widgetsToTest = {
       audioRecorderWidgetAndReset();
     },
   },
-  */
+  
   [WIDGET.PHONEINPUT]: {
     widgetName: "PhoneInput",
     widgetPrefixName: "PhoneInput1",
@@ -146,6 +150,7 @@ const widgetsToTest = {
       phoneInputWidgetAndReset();
     },
   },
+  */
   [WIDGET.FILEPICKER]: {
     widgetName: "FilePicker",
     widgetPrefixName: "FilePicker1",
@@ -213,10 +218,13 @@ function selectTabAndReset() {
 
 function selectTableAndReset() {
   cy.isSelectRow(1);
-  cy.wait(1000);
+  cy.wait(2000);
   cy.get(commonlocators.textWidgetContainer).each((item, index, list) => {
     cy.wrap(item).should("contain.text", "#2");
   });
+  cy.wait(2000);
+  cy.get("button:contains('Submit')").click({ force: true });
+  cy.wait(1000);
   cy.get("button:contains('Submit')").click({ force: true });
   cy.wait(1000);
   cy.get(commonlocators.textWidgetContainer).each((item, index, list) => {
