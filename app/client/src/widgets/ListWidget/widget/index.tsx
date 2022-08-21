@@ -88,7 +88,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
     }
     this.props.updateWidgetMetaProperty(
       "templateBottomRow",
-      get(this.props.children, "0.children.0.bottomRow"),
+      get(this.props.childWidgets, "0.children.0.bottomRow"),
     );
 
     // generate childMetaPropertyMap
@@ -268,12 +268,12 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
     }
 
     if (
-      get(this.props.children, "0.children.0.bottomRow") !==
-      get(prevProps.children, "0.children.0.bottomRow")
+      get(this.props.childWidgets, "0.children.0.bottomRow") !==
+      get(prevProps.childWidgets, "0.children.0.bottomRow")
     ) {
       this.props.updateWidgetMetaProperty(
         "templateBottomRow",
-        get(this.props.children, "0.children.0.bottomRow"),
+        get(this.props.childWidgets, "0.children.0.bottomRow"),
         {
           triggerPropertyName: "onPageSizeChange",
           dynamicString: this.props.onPageSizeChange,
@@ -663,11 +663,26 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
     return updatedChildren;
   };
 
+  /**
+   * We add a flag here to not fetch the widgets from the canvasWidgets
+   * in the metaHOC base on the widget id. Rather use the props as is.
+   */
+  addFlags = (children: DSLWidget[]) => {
+    return (children || []).map((childWidget) => {
+      childWidget.skipWidgetPropsHydration = true;
+
+      childWidget.children = this.addFlags(childWidget?.children || []);
+
+      return childWidget;
+    });
+  };
+
   updateGridChildrenProps = (children: DSLWidget[]) => {
     let updatedChildren = this.useNewValues(children);
     updatedChildren = this.updateActions(updatedChildren);
     updatedChildren = this.paginateItems(updatedChildren);
     updatedChildren = this.updatePosition(updatedChildren);
+    updatedChildren = this.addFlags(updatedChildren);
 
     return updatedChildren;
   };
@@ -707,12 +722,12 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
    */
   renderChildren = () => {
     if (
-      this.props.children &&
-      this.props.children.length > 0 &&
+      this.props.childWidgets &&
+      this.props.childWidgets.length > 0 &&
       this.props.listData
     ) {
       const { page } = this.state;
-      const children = removeFalsyEntries(klona(this.props.children));
+      const children = removeFalsyEntries(klona(this.props.childWidgets));
       const childCanvas = children[0];
       const { perPage } = this.shouldPaginate();
 
@@ -814,7 +829,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
     const { pageNo, serverSidePaginationEnabled } = this.props;
     const { perPage, shouldPaginate } = this.shouldPaginate();
     const templateBottomRow = get(
-      this.props.children,
+      this.props.childWidgets,
       "0.children.0.bottomRow",
     );
     const templateHeight =
