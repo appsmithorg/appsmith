@@ -196,10 +196,10 @@ ${({ dropDownWidth, id }) => `
     height: 14px;
     direction: ltr;
     background-color: transparent;
-    border: 1px solid ${Colors.GREY_3};
+    border: 1px solid var(--wds-color-border);
     border-radius: 100%;
     border-collapse: separate;
-    transition: all .3s;
+    transition: none;
     flex-shrink: 0;
   }
 }
@@ -408,7 +408,7 @@ ${({ dropDownWidth, id }) => `
 
 
 .rc-tree-select-tree-checkbox-wrapper:hover .rc-tree-select-tree-checkbox-inner, .rc-tree-select-tree-checkbox:hover .rc-tree-select-tree-checkbox-inner, .rc-tree-select-tree-checkbox-input:focus+.rc-tree-select-tree-checkbox-inner {
-  border-color: ${({ accentColor }) => accentColor} !important;
+  border-color: var(--wds-color-border-hover) !important;
  }
  .rc-tree-select-tree-checkbox-checked .rc-tree-select-tree-checkbox-inner {
    border-color: ${({ accentColor }) => accentColor} !important;
@@ -531,16 +531,29 @@ ${({ dropDownWidth, id }) => `
 	color: #767676;
 	cursor: not-allowed;
 }
-.rc-tree-select-tree-treenode-active,
 .rc-tree-select-tree-treenode-selected
 {
 	background: ${({ accentColor }) => lightenColor(accentColor)};
+
+  &:hover {
+    background: ${({ accentColor }) =>
+      lightenColor(accentColor, "0.90")} !important;
+  }
+
+
+}
+.rc-tree-select-tree-treenode-selected.rc-tree-select-tree-treenode-active {
+  background: ${({ accentColor }) =>
+    lightenColor(accentColor, "0.90")} !important;
+}
+.rc-tree-select-tree-treenode-active {
+  background: var(--wds-color-bg-hover);
 }
 .rc-tree-select-tree-treenode:hover {
-	background: ${({ accentColor }) => lightenColor(accentColor)};
+	background: var(--wds-color-bg-hover);
 
   .rc-tree-select-tree-iconEle {
-    border-color: ${({ accentColor }) => accentColor} !important;;
+    border-color: var(--wds-color-border-hover) !important;
   }
 }
 .rc-tree-select-tree-node-selected {
@@ -640,7 +653,7 @@ export const TreeSelectContainer = styled.div<{
       transition: all 0.3s;
       flex: 1;
       overflow: hidden;
-      color: ${Colors.GREY_6};
+      color: var(--wds-color-text-light);
       white-space: nowrap;
       text-overflow: ellipsis;
       pointer-events: none;
@@ -674,6 +687,16 @@ export const TreeSelectContainer = styled.div<{
       .rc-tree-select-selection-item {
         color: var(--wds-color-text-disabled);
         background-color: var(--wds-color-bg-disabled) !important;
+      }
+    }
+
+    .rc-tree-select-selection-placeholder {
+      color: var(--wds-color-text-disabled-light);
+    }
+
+    & .dropdown-icon {
+      svg path {
+        fill: var(--wds-color-icon-disabled) !important;
       }
     }
   }
@@ -920,8 +943,11 @@ export const TreeSelectContainer = styled.div<{
         svg {
           width: 20px;
           height: 20px;
+          path {
+            fill: var(--wds-color-icon);
+          }
         }
-      fill: ${Colors.SLATE_GRAY};
+      fill: var(--wds-color-icon);
       }
     }
     .rc-tree-select-arrow-icon {

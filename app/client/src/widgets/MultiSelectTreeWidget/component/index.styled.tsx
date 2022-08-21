@@ -16,6 +16,7 @@ import {
   multiSelectInputContainerStyles,
 } from "components/ads/LabelWithTooltip";
 import { lightenColor } from "widgets/WidgetUtils";
+import CheckIcon from "assets/icons/widget/checkbox/check-icon.svg";
 
 export const StyledIcon = styled(Icon)<{ expanded: boolean }>`
   transform: rotate(${({ expanded }) => (expanded ? 0 : 270)}deg);
@@ -405,7 +406,9 @@ border: 1px solid #E8E8E8;
 .rc-tree-select-tree-checkbox-checked .rc-tree-select-tree-checkbox-inner {
   border: none !important;
   background-color: ${({ accentColor }) => accentColor};
-  background-image: url("data:image/svg+xml,%3Csvg width='14' height='14' viewBox='0 0 14 14' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='14' height='14' fill='transparent' /%3E%3Cpath d='M10.1039 3.5L11 4.40822L5.48269 10L2.5 6.97705L3.39613 6.06883L5.48269 8.18305L10.1039 3.5Z' fill='white'/%3E%3C/svg%3E%0A");
+  background-image: url(${CheckIcon}) !important;
+  background-repeat: no-repeat !important;
+  background-position: center !important;
 }
 
 .rc-tree-select-tree-checkbox-inner {
@@ -419,7 +422,7 @@ border: 1px solid #E8E8E8;
     border: 1px solid ${Colors.GREY_3};
     border-radius: 0px;
     border-collapse: separate;
-    transition: all .1s;
+    transition: none;
     border-radius: ${({ borderRadius }) => borderRadius};
 }
   .rc-tree-select-tree
@@ -527,24 +530,33 @@ border: 1px solid #E8E8E8;
 }
 .rc-tree-select-tree-treenode-active {
 	background: ${({ accentColor }) => lightenColor(accentColor)};
+
+  :not(.rc-tree-select-tree-treenode-checkbox-checked) .rc-tree-select-tree-checkbox-inner {
+    background: transparent;
+    border-color: var(--wds-color-border-hover);
+  }
 }
 .rc-tree-select-tree-treenode:hover {
-	background: ${({ accentColor }) => lightenColor(accentColor)};
+  &.rc-tree-select-tree-treenode-checkbox-checked {
+    background: ${({ accentColor }) =>
+      lightenColor(accentColor, "0.90")} !important;
+  }
+	background: var(--wds-color-bg-hover);
   .rc-tree-select-tree-title {
-    color: ${Colors.GREY_9};
+    color: var(--wds-color-text);
   }
   .rc-tree-select-tree-checkbox-indeterminate .rc-tree-select-tree-checkbox-inner {
     background-color: ${({ accentColor }) => accentColor} !important;
   }
   :not(.rc-tree-select-tree-treenode-checkbox-checked) .rc-tree-select-tree-checkbox-inner {
-    background-color:  ${({ accentColor }) => lightenColor(accentColor)};
-    border-color: ${({ accentColor }) => accentColor};
+    background: transparent;
+    border-color: var(--wds-color-border-hover);
   }
 }
 .rc-tree-select-tree-treenode-checkbox-checked {
   background: ${({ accentColor }) => lightenColor(accentColor)};
   .rc-tree-select-tree-title {
-    color: ${Colors.GREY_10};
+    color: var(--wds-color-text);
   }
 }
 .rc-tree-select-tree-icon__open {
@@ -570,7 +582,7 @@ border: 1px solid #E8E8E8;
 	display: inline-block;
   margin-left: 10px;
   font-size: 14px !important;
-  color: ${Colors.GREY_8};
+  color: var(--wds-color-text-light);
   overflow: hidden;
   text-overflow: ellipsis;
 }
@@ -627,11 +639,12 @@ export const TreeSelectContainer = styled.div<{
       transition: all 0.3s;
       flex: 1;
       overflow: hidden;
-      color: ${Colors.GREY_6};
+      color: var(--wds-color-text-light);
       white-space: nowrap;
       text-overflow: ellipsis;
       pointer-events: none;
       font-size: 14px;
+      margin-left: -8px;
     }
     .rc-tree-select-selection-search-input {
       appearance: none;
@@ -656,6 +669,16 @@ export const TreeSelectContainer = styled.div<{
       background-color: var(--wds-color-bg-disabled) !important;
       .rc-tree-select-selection-item-content {
         color: var(--wds-color-text-disabled);
+      }
+    }
+    .rc-tree-select-selection-placeholder {
+      color: var(--wds-color-text-disabled-light);
+    }
+    .rc-tree-select-arrow .dropdown-icon
+      svg {
+        path {
+          fill: var(--wds-color-icon-disabled);
+        }
       }
     }
   }
@@ -841,6 +864,8 @@ export const TreeSelectContainer = styled.div<{
       .rc-tree-select-clear-icon {
         font-size: 18px;
         font-weight: bold;
+
+
       }
     }
   }
@@ -889,9 +914,16 @@ export const TreeSelectContainer = styled.div<{
 
       & .clear-icon {
         width: 16px;
+        margin-right: 4px;
+
         svg {
           width: 16px;
           height: 16px;
+          fill: var(--wds-color-icon);
+
+          path {
+            fill: var(--wds-color-icon);
+          }
         }
       }
     }
@@ -910,8 +942,11 @@ export const TreeSelectContainer = styled.div<{
         svg {
           width: 20px;
           height: 20px;
+
+          path {
+            fill: var(--wds-color-icon);
+          }
         }
-      fill: ${Colors.SLATE_GRAY};
     }
     .rc-tree-select-arrow-icon {
       &::after {

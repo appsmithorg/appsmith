@@ -14,6 +14,7 @@ import {
   multiSelectInputContainerStyles,
 } from "components/ads/LabelWithTooltip";
 import { lightenColor } from "widgets/WidgetUtils";
+import CheckIcon from "assets/icons/widget/checkbox/check-icon.svg";
 
 const Input = styled.input`
   height: 0;
@@ -34,7 +35,6 @@ export const CommonSelectFilterStyle = css<{
       margin-right: 20px;
     }
     &.all-options.selected {
-      background: ${(props) => lightenColor(props.accentColor)};
       color: ${Colors.GREY_10} !important;
     }
   }
@@ -48,17 +48,21 @@ export const CommonSelectFilterStyle = css<{
     border-radius: 0px;
     &::before {
       width: auto;
-      height: 1em;
+      height: 100%;
     }
   }
 
   & .${Classes.INPUT} {
-    height: 32px !important;
-    padding-left: 29px !important;
+    height: 30px !important;
+    padding-left: 34px !important;
     font-size: 14px;
     color: var(--wds-color-text);
     box-shadow: 0px 0px 0px 0px;
     border: none;
+  }
+
+  & .${Classes.INPUT}::placeholder {
+    color: var(--wds-color-text-light);
   }
 
   & .${Classes.INPUT_GROUP} {
@@ -70,7 +74,7 @@ export const CommonSelectFilterStyle = css<{
     overflow: hidden;
     &:focus-within {
       border: 1px solid ${(props) => props.accentColor};
-      box-shadow: 0px 0px 0px 3px ${(props) => lightenColor(props.accentColor)};
+      box-shadow: 0px 0px 0px 2px ${(props) => lightenColor(props.accentColor)};
     }
 
     & > .${Classes.ICON} {
@@ -78,8 +82,8 @@ export const CommonSelectFilterStyle = css<{
         left: 0px;
         top: 0px;
         bottom: 0px;
-        margin: 9px;
-        color: ${Colors.GREY_7};
+        margin: 8px 10px;
+        color: var(--wds-color-icon);
 
         & > svg {
           width: 14px;
@@ -126,6 +130,10 @@ const Indicator = styled.div`
 
   &::disabled {
     cursor: not-allowed;
+  }
+
+  &::before {
+    height: 100% !important;
   }
 `;
 
@@ -204,11 +212,19 @@ ${({ dropDownWidth, id }) => `
   color: ${Colors.GREY_8};
   font-weight: 400;
 }
-.rc-select-item-option:hover {
-	background: ${({ accentColor }) => lightenColor(accentColor)};
+.rc-select-item-option-active {
+  background: var(--wds-color-bg-focus);
+  color: var(--wds-color-text);
 
   & .${Classes.CONTROL} .${Classes.CONTROL_INDICATOR} {
-    border-color: ${({ accentColor }) => accentColor} !important;
+    border-color: var(--wds-color-border-hover) !important;
+  }
+}
+.rc-select-item-option:hover {
+	background: var(--wds-color-bg-hover);
+
+  & .${Classes.CONTROL} .${Classes.CONTROL_INDICATOR} {
+    border-color: var(--wds-color-border-hover) !important;
   }
 
   & .rc-select-item-option-content {
@@ -321,8 +337,7 @@ ${({ dropDownWidth, id }) => `
       margin-right: 20px;
     }
     &.all-options.selected {
-      background: ${({ accentColor }) => lightenColor(accentColor)};
-      color: ${Colors.GREY_10} !important;
+      color: var(--wds-color-text-light) !important;
     }
   }
   &&&& .${Classes.CONTROL} .${Classes.CONTROL_INDICATOR} {
@@ -344,6 +359,12 @@ ${({ dropDownWidth, id }) => `
     border-color: ${({ accentColor }) => accentColor} !important;
     box-shadow: none;
     outline: none !important;
+
+    &::before {
+      background-image: url(${CheckIcon}) !important;
+      background-repeat: no-repeat !important;
+      background-position: center !important;
+    }
   }
   ${CommonSelectFilterStyle}
   .rc-select-item {
@@ -397,12 +418,12 @@ export const MultiSelectContainer = styled.div<{
       position: absolute;
       top: 50%;
       right: 12px;
-      left: 19px;
+      left: 10px;
       transform: translateY(-50%);
       transition: all 0.3s;
       flex: 1;
       overflow: hidden;
-      color: ${Colors.GREY_6};
+      color: var(--wds-color-text-light);
       white-space: nowrap;
       text-overflow: ellipsis;
       pointer-events: none;
@@ -428,11 +449,21 @@ export const MultiSelectContainer = styled.div<{
     & .rc-select-selector {
       background-color: var(--wds-color-bg-disabled) !important;
       border: 1px solid var(--wds-color-border-disabled) !important;
+
+      .rc-select-selection-item {
+        border-color: var(--wds-color-border-disabled);
+      }
       .rc-select-selection-item-content {
         color: var(--wds-color-text-disabled) !important;
       }
     }
-    & .rc-select-arrow {
+
+    & .rc-select-selection-placeholder {
+      color: var(--wds-color-text-disabled-light);
+    }
+
+    & .rc-select-arrow svg path {
+      fill: var(--wds-color-icon-disabled);
     }
   }
   .rc-select-show-arrow.rc-select-loading {
@@ -600,11 +631,16 @@ export const MultiSelectContainer = styled.div<{
       display: flex;
       align-items: center;
       justify-content: center;
-      fill: ${Colors.SLATE_GRAY};
+      fill: var(--wds-color-icon);
 
       & svg {
         width: 20px;
         height: 20px;
+        fill: var(--wds-color-icon);
+
+        path {
+          fill: var(--wds-color-icon);
+        }
       }
     }
   }
@@ -616,10 +652,10 @@ export const MultiSelectContainer = styled.div<{
         props.isValid
           ? `
           border: 1px solid  ${props.accentColor};
-          box-shadow: 0px 0px 0px 3px ${lightenColor(
+          box-shadow: 0px 0px 0px 2px ${lightenColor(
             props.accentColor,
           )} !important;`
-          : `border: 1px solid ${Colors.DANGER_SOLID};`}
+          : `border: 1px solid var(--wds-color-border-danger); box-shadow: 0px 0px 0px 2px var(--wds-color-border-danger-focus-light) !important;`}
     }
   }
 `;
@@ -632,12 +668,25 @@ export const StyledCheckbox = styled(Checkbox)<{
     text-overflow: ellipsis;
     height: 38px;
     padding-bottom: 0 !important;
-    color: ${Colors.GREY_8} !important;
+    color: var(--wds-color-text-light) !important;
     display: flex;
     align-items: center;
+    padding-left: 16px !important;
+    & .${Classes.CONTROL_INDICATOR} {
+      margin: 0;
+      margin-right: 20px;
+    }
     &:hover {
-      background: ${Colors.GREEN_SOLID_LIGHT_HOVER};
-      color: ${Colors.GREY_9} !important;
+      background: var(--wds-color-bg-hover);
+      color: var(--wds-color-text) !important;
+
+      & .${Classes.CONTROL_INDICATOR} {
+        border-color: var(--wds-color-border-hover) !important;
+      }
+    }
+
+    & input:checked ~ .${Classes.CONTROL_INDICATOR} {
+      border-color: ${({ accentColor }) => accentColor} !important;
     }
   }
 `;

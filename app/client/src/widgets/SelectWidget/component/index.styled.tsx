@@ -108,27 +108,18 @@ export const StyledSingleDropDown = styled(SingleDropDown)<{
       props.hasError
         ? "var(--wds-color-border-danger)"
         : "var(--wds-color-border)"};
-    ${(props) =>
-      props.isValid
-        ? `
-        &:hover {
-          border-color: var(--wds-color-border-hover);
-        }
-        &:focus {
-          outline: 0;
-          border-color:
-            ${
-              props.hasError
-                ? "var(--wds-color-border-danger)"
-                : props.accentColor
-            };
-          box-shadow:
-            ${`0px 0px 0px 2px ${lightenColor(
-              props.hasError ? Colors.DANGER_SOLID : props.accentColor,
-            )} !important;`};
-        }
-      `
-        : ""};
+    &:hover {
+      border-color: var(--wds-color-border-hover);
+    }
+    &:focus {
+      outline: 0;
+      border-color: ${(props) =>
+        props.hasError ? "var(--wds-color-border-danger)" : props.accentColor};
+      box-shadow: ${(props) =>
+        `0px 0px 0px 2px ${lightenColor(
+          props.hasError ? Colors.DANGER_SOLID : props.accentColor,
+        )} !important;`};
+    }
   }
 
   &&&&& .${Classes.POPOVER_OPEN} .${Classes.BUTTON} {
@@ -254,7 +245,7 @@ export const MenuItem = styled.div<{
 
     min-height: 38px;
     padding: 9px 12px;
-    color: ${Colors.DOVE_GRAY2};
+    color: var(--wds-color-text-light);
     outline: none !important;
     background-color: transparent;
 
