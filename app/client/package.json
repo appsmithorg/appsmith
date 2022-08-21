@@ -177,6 +177,7 @@
     "test:unit": "$(npm bin)/jest -b --colors --no-cache --silent --coverage --collectCoverage=true --coverageDirectory='../../' --coverageReporters='json-summary'",
     "test:jest": "$(npm bin)/jest --watch",
     "generate:widget": "plop --plopfile generators/index.js",
+    "postbuild": "rm build/mockServiceWorker.js",
     "postinstall": "patch-package && CURRENT_SCOPE=client node ../shared/install-dependencies.js",
     "preinstall": "CURRENT_SCOPE=client node ../shared/build-shared-dep.js"
   },
