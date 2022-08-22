@@ -1,0 +1,19 @@
+{
+  "name": "chrometracer",
+  "version": "0.0.1",
+  "description": "",
+  "main": "index.ts",
+  "engines": {
+    "node": "^16.14.0",
+    "npm": "^8.5.5"
+  },
+  "scripts": {
+    "start": "node index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/node": "^18.7.9"
+  }
+}
