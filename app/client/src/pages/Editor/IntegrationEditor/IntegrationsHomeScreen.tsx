@@ -6,7 +6,7 @@ import { AppState } from "reducers";
 import { API_HOME_SCREEN_FORM } from "constants/forms";
 import { Colors } from "constants/Colors";
 import { TabComponent, TabProp } from "components/ads/Tabs";
-import { IconSize } from "components/ads/Icon";
+import { IconSize } from "design-system";
 import NewApiScreen from "./NewApi";
 import NewQueryScreen from "./NewQuery";
 import ActiveDataSources from "./ActiveDataSources";
