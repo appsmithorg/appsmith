@@ -24,18 +24,6 @@ describe("Upgrade appsmith version", () => {
       path = path[0].slice(0, -7);
       cy.log(path);
 
-      cy.CreateAContainer(
-        testUrl,
-        path + "/oldstack/160",
-        "v1.6.0",
-        `appsmith-160-${name}`,
-      );
-      cy.wait(45000);
-
-      cy.log("Stop the appsmith-160 container");
-      cy.StopTheContainer(testUrl, `appsmith-160-${name}`); // stop the old container
-      cy.wait(2000);
-
       cy.log("Start old stack container");
       cy.CreateAContainer(
         testUrl,
@@ -89,18 +77,6 @@ describe("Upgrade appsmith version", () => {
       path = path[1].split(" ");
       path = path[0].slice(0, -7);
       cy.log(path);
-
-      cy.CreateAContainer(
-        testUrl,
-        path + "/oldstack/ce",
-        "v1.6.0",
-        `appsmith-160-ce-${name}`,
-      );
-      cy.wait(45000);
-
-      cy.log("Stop the appsmith-160-ce container");
-      cy.StopTheContainer(testUrl, `appsmith-160-ce-${name}`); // stop the old container
-      cy.wait(2000);
 
       cy.log("Start old stack container");
       cy.CreateEEContainer(
