@@ -30,6 +30,7 @@ describe("Upgrade appsmith version", () => {
         path + "/oldstack/160",
         "release",
         `appsmith-160_${name}_updated`,
+        `900${name}`,
       );
       cy.wait(45000);
 
@@ -84,6 +85,7 @@ describe("Upgrade appsmith version", () => {
         path + "/oldstack/ce",
         "release",
         `appsmith-160-ce-${name}-enterprise`,
+        `900${name}`,
       );
       cy.wait(45000);
 
