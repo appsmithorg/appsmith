@@ -7,6 +7,7 @@ import base64 from "constants/defs/base64-js.json";
 import moment from "constants/defs/moment.json";
 import xmlJs from "constants/defs/xmlParser.json";
 import forge from "constants/defs/forge.json";
+import browser from "constants/defs/browser.json";
 import CodeMirror, { Hint, Pos, cmpPos } from "codemirror";
 import {
   getDynamicStringSegments,
@@ -19,10 +20,12 @@ import {
 import { FieldEntityInformation } from "components/editorComponents/CodeEditor/EditorConfig";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { AutocompleteSorter } from "./AutocompleteSortRules";
+import { getCompletionsForKeyword } from "./keywordCompletion";
 
 const DEFS: Def[] = [
   // @ts-expect-error: Types are not available
   ecma,
+  browser,
   GLOBAL_FUNCTIONS,
   GLOBAL_DEFS,
   lodash,
@@ -38,7 +41,7 @@ const hintDelay = 1700;
 
 export type Completion = Hint & {
   origin: string;
-  type: AutocompleteDataType;
+  type: AutocompleteDataType | string;
   data: {
     doc: string;
   };
@@ -231,6 +234,15 @@ class TernServer {
     ) {
       after = '"]';
     }
+    // Actual char space
+    const trimmedFocusedValueLength = focusedValue.trim().length;
+    // end.ch counts tab space as 1 instead of 2 space chars in string
+    // For eg: lets take string `  ab`. Here, end.ch = 3 & trimmedFocusedValueLength = 2
+    // hence tabSpacesCount = end.ch - trimmedFocusedValueLength
+    const tabSpacesCount = end.ch - trimmedFocusedValueLength;
+    const cursorHorizontalPos =
+      tabSpacesCount * 2 + trimmedFocusedValueLength - 2;
+
     for (let i = 0; i < data.completions.length; ++i) {
       const completion = data.completions[i];
       let className = typeToIcon(completion.type, completion.isKeyword);
@@ -258,6 +270,12 @@ class TernServer {
           element.setAttribute("keyword", data.displayText);
           element.innerHTML = data.displayText;
         };
+        // Add relevant keyword completions
+        const keywordCompletions = getCompletionsForKeyword(
+          codeMirrorCompletion,
+          cursorHorizontalPos,
+        );
+        completions = [...completions, ...keywordCompletions];
       }
       completions.push(codeMirrorCompletion);
     }
