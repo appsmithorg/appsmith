@@ -14,7 +14,7 @@ import styled from "constants/DefaultTheme";
 import { Colors } from "constants/Colors";
 import { getWidgetParent } from "sagas/selectors";
 import { WidgetProps } from "widgets/BaseWidget";
-import { Size, Icon } from "design-system";
+import { Icon, Size } from "design-system";
 
 const SectionTitle = styled.div`
   cursor: pointer;
@@ -70,7 +70,7 @@ const SectionWrapper = styled.div`
 
 const StyledIcon = styled(Icon)`
   svg path {
-    fill: ${Colors.GREY_7};
+    fill: ${Colors.GRAY_700};
   }
 `;
 

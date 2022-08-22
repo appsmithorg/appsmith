@@ -16,7 +16,7 @@ const SettingsWrapper = styled.div`
 
 const StyledIcon = styled(Icon)`
   svg path {
-    fill: ${Colors.GREY_7};
+    fill: ${Colors.GRAY_700};
   }
 `;
 

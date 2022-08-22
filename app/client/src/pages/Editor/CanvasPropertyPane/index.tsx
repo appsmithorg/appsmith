@@ -7,7 +7,7 @@ import styled from "styled-components";
 import { Colors } from "constants/Colors";
 
 const Title = styled.p`
-  color: ${Colors.GRAY_700};
+  color: ${Colors.GRAY_800};
 `;
 
 type Props = {
@@ -21,7 +21,7 @@ export function CanvasPropertyPane(props: Props) {
 
       <div className="mt-3 space-y-6">
         <div className="px-4 space-y-2">
-          <Title className="text-sm text-gray-700">Canvas Size</Title>
+          <Title className="text-sm">Canvas Size</Title>
           <MainContainerLayoutControl />
         </div>
 
