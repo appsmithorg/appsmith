@@ -1,8 +1,7 @@
 import React from "react";
 import styled from "constants/DefaultTheme";
 import { Classes } from "components/ads/common";
-import Icon, { IconSize } from "components/ads/Icon";
-import { Text, TextType } from "design-system";
+import { Icon, IconSize, Text, TextType } from "design-system";
 import { Colors } from "constants/Colors";
 import { useSelector } from "react-redux";
 import {

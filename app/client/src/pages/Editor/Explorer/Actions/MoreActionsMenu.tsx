@@ -14,7 +14,7 @@ import { noop } from "lodash";
 import TreeDropdown from "pages/Editor/Explorer/TreeDropdown";
 import { useNewActionName } from "./helpers";
 import styled from "styled-components";
-import Icon, { IconSize } from "components/ads/Icon";
+import { Icon, IconSize } from "design-system";
 import { Classes } from "components/ads/common";
 import { Position } from "@blueprintjs/core";
 import { inGuidedTour } from "selectors/onboardingSelectors";

@@ -17,9 +17,7 @@ import {
 } from "@appsmith/constants/messages";
 import { LabelPosition } from "components/constants";
 import { parseDate } from "./utils";
-import LabelWithTooltip, {
-  labelLayoutStyles,
-} from "components/ads/LabelWithTooltip";
+import { LabelWithTooltip, labelLayoutStyles } from "design-system";
 import { lightenColor, PopoverStyles } from "widgets/WidgetUtils";
 
 const DATEPICKER_POPUP_CLASSNAME = "datepickerwidget-popup";

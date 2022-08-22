@@ -24,14 +24,15 @@ import { InputTypes } from "../constants";
 
 // TODO(abhinav): All of the following imports should not be in widgets.
 import ErrorTooltip from "components/editorComponents/ErrorTooltip";
-import Icon from "components/ads/Icon";
+import {
+  Icon,
+  LabelWithTooltip,
+  labelLayoutStyles,
+  LABEL_CONTAINER_CLASS,
+} from "design-system";
 import { InputType } from "widgets/InputWidget/constants";
 import { getBaseWidgetClassName } from "constants/componentClassNameConstants";
 import { LabelPosition } from "components/constants";
-import LabelWithTooltip, {
-  labelLayoutStyles,
-  LABEL_CONTAINER_CLASS,
-} from "components/ads/LabelWithTooltip";
 import { lightenColor } from "widgets/WidgetUtils";
 
 /**
