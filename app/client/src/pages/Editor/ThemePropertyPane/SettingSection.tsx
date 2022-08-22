@@ -3,8 +3,7 @@ import React, { useState } from "react";
 import { Collapse } from "@blueprintjs/core";
 import styled from "styled-components";
 import { Colors } from "constants/Colors";
-import Icon from "components/ads/AppIcon";
-import { Size } from "design-system";
+import { Size, Icon } from "design-system";
 
 const SettingsWrapper = styled.div`
   color: ${Colors.GRAY_700};

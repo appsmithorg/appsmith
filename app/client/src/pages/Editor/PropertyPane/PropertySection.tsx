@@ -1,5 +1,4 @@
 import { Classes } from "@blueprintjs/core";
-import Icon from "components/ads/AppIcon";
 import React, {
   memo,
   ReactNode,
@@ -15,7 +14,7 @@ import styled from "constants/DefaultTheme";
 import { Colors } from "constants/Colors";
 import { getWidgetParent } from "sagas/selectors";
 import { WidgetProps } from "widgets/BaseWidget";
-import { Size } from "components/ads";
+import { Size, Icon } from "design-system";
 
 const SectionTitle = styled.div`
   cursor: pointer;
