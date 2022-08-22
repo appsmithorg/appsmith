@@ -1117,7 +1117,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
     private Mono<Application> sendCloneApplicationAnalyticsEvent(Application sourceApplication, Application application) {
         return workspaceService.getById(application.getWorkspaceId())
                 .flatMap(workspace -> {
-                    final Map<String, Object> auditData = Map.of(
+                    final Map<String, Object> eventData = Map.of(
                             FieldName.SOURCE_APPLICATION, sourceApplication,
                             FieldName.APPLICATION, application,
                             FieldName.WORKSPACE, workspace
@@ -1127,7 +1127,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                             FieldName.SOURCE_APPLICATION_ID, sourceApplication.getId(),
                             FieldName.APPLICATION_ID, application.getId(),
                             FieldName.WORKSPACE_ID, workspace.getId(),
-                            FieldName.AUDIT_DATA, auditData
+                            FieldName.EVENT_DATA, eventData
                     );
 
                     return analyticsService.sendObjectEvent(AnalyticsEvents.CLONE, application, data);
@@ -1145,13 +1145,12 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
             return Mono.empty();
         }
 
-        //TODO: Add more audit data
-        final Map<String, Object> auditData = Map.of(
+        final Map<String, Object> eventData = Map.of(
                 FieldName.PAGE, newPage
         );
 
         final Map<String, Object> data = Map.of(
-                FieldName.AUDIT_DATA, auditData
+                FieldName.EVENT_DATA, eventData
         );
 
         return analyticsService.sendObjectEvent(AnalyticsEvents.VIEW, newPage, data);

@@ -9,7 +9,7 @@ import {
 } from "../../../../locators/WidgetLocators";
 
 const widgetsToTest = {
-  [WIDGET.INPUT_WIDGET_V2]: {
+  [WIDGET.INPUT_V2]: {
     testCases: [
       { input: "test", expected: "test", clearBeforeType: true },
       { input: "12", expected: "test12", clearBeforeType: false },
@@ -29,7 +29,7 @@ const widgetsToTest = {
     widgetName: "Input widget",
     widgetPrefixName: "Input",
   },
-  [WIDGET.PHONE_INPUT_WIDGET]: {
+  [WIDGET.PHONE_INPUT]: {
     testCases: [
       {
         input: "9999999999",
@@ -50,7 +50,7 @@ const widgetsToTest = {
     widgetName: "Phone Input widget",
     widgetPrefixName: "PhoneInput",
   },
-  [WIDGET.CURRENCY_INPUT_WIDGET]: {
+  [WIDGET.CURRENCY_INPUT]: {
     testCases: [
       { input: "1233", expected: "1,233", clearBeforeType: true },
       {
@@ -102,14 +102,14 @@ Object.entries(widgetsToTest).forEach(([widgetSelector, testConfig], index) => {
       cy.dragAndDropToCanvas(widgetSelector, { x: 300, y: 200 });
       cy.get(getWidgetSelector(widgetSelector)).should("exist");
 
-      cy.dragAndDropToCanvas(WIDGET.BUTTON_WIDGET, { x: 300, y: 400 });
+      cy.dragAndDropToCanvas(WIDGET.BUTTON, { x: 300, y: 400 });
 
       cy.dragAndDropToCanvas(WIDGET.TEXT, { x: 300, y: 600 });
     });
 
     it("2. StoreValue should have complete input value", () => {
       // if default input widget type is changed from text to any other type then uncomment below code.
-      // if (widgetSelector === WIDGET.INPUT_WIDGET_V2) {
+      // if (widgetSelector === WIDGET.INPUT_V2) {
       //   cy.openPropertyPane(widgetSelector);
       //   cy.selectDropdownValue(".t--property-control-datatype", "Text");
       //   cy.get(".t--property-control-required label")
@@ -119,7 +119,7 @@ Object.entries(widgetsToTest).forEach(([widgetSelector, testConfig], index) => {
       // }
 
       // Set onClick action, storing value
-      cy.openPropertyPane(WIDGET.BUTTON_WIDGET);
+      cy.openPropertyPane(WIDGET.BUTTON);
       cy.get(PROPERTY_SELECTOR.onClick)
         .find(".t--js-toggle")
         .click();
@@ -147,7 +147,7 @@ Object.entries(widgetsToTest).forEach(([widgetSelector, testConfig], index) => {
           cy.get(getWidgetInputSelector(widgetSelector)).type(`${input}`);
         }
 
-        cy.get(getWidgetSelector(WIDGET.BUTTON_WIDGET)).click();
+        cy.get(getWidgetSelector(WIDGET.BUTTON)).click();
 
         // Assert if the Text widget contains the whole value, test
         cy.get(getWidgetSelector(WIDGET.TEXT)).should("have.text", expected);
@@ -156,7 +156,7 @@ Object.entries(widgetsToTest).forEach(([widgetSelector, testConfig], index) => {
 
     it("3. Api params getting correct input values", () => {
       // Set onClick action, storing value
-      cy.openPropertyPane(WIDGET.BUTTON_WIDGET);
+      cy.openPropertyPane(WIDGET.BUTTON);
       // cy.get(PROPERTY_SELECTOR.onClick)
       //   .find(".t--js-toggle")
       //   .click();
@@ -177,7 +177,7 @@ Object.entries(widgetsToTest).forEach(([widgetSelector, testConfig], index) => {
           cy.get(getWidgetInputSelector(widgetSelector)).type(`${input}`);
         }
 
-        cy.get(getWidgetSelector(WIDGET.BUTTON_WIDGET)).click();
+        cy.get(getWidgetSelector(WIDGET.BUTTON)).click();
 
         // Assert if the Api request contains the expected value
 
@@ -190,7 +190,7 @@ Object.entries(widgetsToTest).forEach(([widgetSelector, testConfig], index) => {
     });
 
     it("4. Delete all the widgets on canvas", () => {
-      cy.get(getWidgetSelector(WIDGET.BUTTON_WIDGET)).click();
+      cy.get(getWidgetSelector(WIDGET.BUTTON)).click();
       cy.get("body").type(`{del}`, { force: true });
 
       cy.get(getWidgetSelector(WIDGET.TEXT)).click();

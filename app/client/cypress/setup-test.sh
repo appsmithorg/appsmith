@@ -1,6 +1,6 @@
 #! /bin/sh
 
-# This script is responsible for setting up the local Nginx server for running E2E Cypress tests 
+# This script is responsible for setting up the local Nginx server for running E2E Cypress tests
 # on our CI/CD system. Currently the script is geared towards Github Actions
 
 # Serve the react bundle on a specific port. Nginx will proxy to this port
@@ -32,7 +32,7 @@ sudo mkdir -p git-server/keys
 sudo mkdir -p git-server/repos
 
 sudo docker run --name test-event-driver -d -p 2222:22 -p 5001:5001 -p 3306:3306 \
-  -p 5432:5432 -p 28017:27017 -p 25:25 -v ~/git-server/keys:/git-server/keys \
+  -p 5432:5432 -p 28017:27017 -p 25:25 --privileged --pid=host --ipc=host --volume /:/host -v ~/git-server/keys:/git-server/keys \
   -v ~/git-server/repos:/git-server/repos  appsmith/test-event-driver:latest
 
 echo "Waiting for test event driver to start"

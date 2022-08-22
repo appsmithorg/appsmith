@@ -68,7 +68,7 @@ export const APPSMITH_DISABLE_TELEMETRY_SETTING: Setting = {
 
 export const APPSMITH_HIDE_WATERMARK_SETTING: Setting = {
   id: "APPSMITH_HIDE_WATERMARK",
-  name: "appsmith-hide-watermark",
+  name: "APPSMITH_HIDE_WATERMARK",
   category: SettingCategories.GENERAL,
   controlType: SettingTypes.CHECKBOX,
   label: "Appsmith Watermark",

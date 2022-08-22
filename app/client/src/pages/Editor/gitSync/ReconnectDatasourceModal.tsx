@@ -11,8 +11,16 @@ import {
 import { useDispatch, useSelector } from "react-redux";
 import TabMenu from "./Menu";
 import { Classes, MENU_HEIGHT } from "./constants";
-import Icon, { IconSize } from "components/ads/Icon";
-import { Text, TextType } from "design-system";
+import {
+  Button,
+  Category,
+  Icon,
+  IconSize,
+  Size,
+  Text,
+  TextType,
+  TooltipComponent,
+} from "design-system";
 import { Colors } from "constants/Colors";
 
 import GitErrorPopup from "./components/GitErrorPopup";
@@ -30,7 +38,6 @@ import {
   SKIP_TO_APPLICATION,
   SKIP_TO_APPLICATION_TOOLTIP_DESCRIPTION,
 } from "@appsmith/constants/messages";
-import Button, { Category, Size } from "components/ads/Button";
 import {
   getDatasourceLoading,
   getIsDatasourceTesting,
@@ -47,7 +54,6 @@ import {
   setWorkspaceIdForImport,
 } from "actions/applicationActions";
 import { AuthType, Datasource } from "entities/Datasource";
-import { TooltipComponent } from "design-system";
 import DatasourceForm from "../DataSourceEditor";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { useQuery } from "../utils";

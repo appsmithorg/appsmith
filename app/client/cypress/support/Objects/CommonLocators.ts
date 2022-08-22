@@ -82,5 +82,5 @@ export class CommonLocators {
     _switchToggle = (switchName: string) => "//div[contains(@class, 't--switch-widget-label')][text()='"+switchName+"']/parent::label/span"
     _jsonToggle = (fieldName: string) => `//p[text()='${fieldName}']/parent::div//following-sibling::div//input[@type='checkbox']`
     _deployedPage = `.t--page-switch-tab`
-    _hints = "ul.CodeMirror-hints li";
+    _hints = "ul.CodeMirror-hints li"
 }

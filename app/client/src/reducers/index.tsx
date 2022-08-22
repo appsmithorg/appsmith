@@ -60,6 +60,7 @@ import SettingsReducer, {
   SettingsReduxState,
 } from "@appsmith/reducers/settingsReducer";
 import { TriggerValuesEvaluationState } from "./evaluationReducers/triggerReducer";
+import { CanvasWidgetStructure } from "widgets/constants";
 import { FocusHistoryState } from "./uiReducers/focusHistoryReducer";
 
 const appReducer = combineReducers({
@@ -117,6 +118,7 @@ export interface AppState {
     focusHistory: FocusHistoryState;
   };
   entities: {
+    canvasWidgetsStructure: CanvasWidgetStructure;
     canvasWidgets: CanvasWidgetsReduxState;
     actions: ActionDataState;
     widgetConfig: WidgetConfigReducerState;
