@@ -1,5 +1,5 @@
---- Cypress/resources/app/packages/server/node_modules/http-proxy/lib/http-proxy/passes/ws-incoming.js
-+++ Cypress/resources/app/packages/server/node_modules/http-proxy/lib/http-proxy/passes/ws-incoming.js
+--- Cypress/resources/app/node_modules/http-proxy/lib/http-proxy/passes/ws-incoming.js
++++ Cypress/resources/app/node_modules/http-proxy/lib/http-proxy/passes/ws-incoming.js
 @@ -111,7 +111,7 @@ module.exports = {
      proxyReq.on('error', onOutgoingError);
      proxyReq.on('response', function (res) {
