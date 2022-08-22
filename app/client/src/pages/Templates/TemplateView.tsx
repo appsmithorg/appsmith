@@ -4,8 +4,16 @@ import Masonry from "react-masonry-css";
 import { Classes } from "@blueprintjs/core";
 import { useParams } from "react-router";
 import { useDispatch, useSelector } from "react-redux";
-import { Text, FontWeight, TextType } from "design-system";
-import Button, { IconPositions, Size } from "components/ads/Button";
+import {
+  Button,
+  Icon,
+  IconSize,
+  IconPositions,
+  Size,
+  Text,
+  FontWeight,
+  TextType,
+} from "design-system";
 import EntityNotFoundPane from "pages/Editor/EntityNotFoundPane";
 import Template from "./Template";
 import { Template as TemplateInterface } from "api/TemplatesApi";
@@ -21,7 +29,6 @@ import {
   getTemplateInformation,
 } from "actions/templateActions";
 import { AppState } from "reducers";
-import { Icon, IconSize } from "components/ads";
 import history from "utils/history";
 import { TEMPLATES_PATH } from "constants/routes";
 import { getTypographyByKey } from "constants/DefaultTheme";

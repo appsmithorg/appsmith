@@ -567,7 +567,7 @@ jobs:
         with:
           command: cp
           source: s3://ci-assets--appsmith/
-          destination: /home/runner/work/appsmithArslan/appsmithArslan/fatcontainerlocal/oldstack
+          destination: /home/runner/work/appsmith/appsmith/fatcontainerlocal/oldstack
           aws_access_key_id: ${{ secrets.S3_CI_ASSETS_ACCESS_KEY_ID }}
           aws_secret_access_key: ${{ secrets.S3_CI_ASSETS_SECRET_ACCESS_KEY }}
           aws_region: ap-south-1

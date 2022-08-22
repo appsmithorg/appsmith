@@ -69,14 +69,15 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
             WebFilterExchange webFilterExchange,
             Authentication authentication
     ) {
-        return onAuthenticationSuccess(webFilterExchange, authentication, false, false);
+        return onAuthenticationSuccess(webFilterExchange, authentication, false, false, null);
     }
 
     public Mono<Void> onAuthenticationSuccess(
             WebFilterExchange webFilterExchange,
             Authentication authentication,
             boolean createDefaultApplication,
-            boolean isFromSignup
+            boolean isFromSignup,
+            String defaultWorkspaceId
     ) {
         log.debug("Login succeeded for user: {}", authentication.getPrincipal());
         Mono<Void> redirectionMono;
@@ -102,7 +103,7 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
             }
             if(isFromSignup) {
                 boolean finalIsFromSignup = isFromSignup;
-                redirectionMono = createDefaultApplication(user)
+                redirectionMono = createDefaultApplication(defaultWorkspaceId)
                         .flatMap(defaultApplication->handleOAuth2Redirect(webFilterExchange, defaultApplication, finalIsFromSignup));
             } else {
                 redirectionMono = handleOAuth2Redirect(webFilterExchange, null, isFromSignup);
@@ -110,7 +111,7 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
         } else {
             boolean finalIsFromSignup = isFromSignup;
             if(createDefaultApplication && isFromSignup) {
-                redirectionMono = createDefaultApplication(user).flatMap(
+                redirectionMono = createDefaultApplication(defaultWorkspaceId).flatMap(
                         defaultApplication->handleRedirect(webFilterExchange, defaultApplication, finalIsFromSignup)
                 );
             } else {
@@ -166,12 +167,10 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
                 .then(redirectionMono);
     }
 
-    private Mono<Application> createDefaultApplication(User user) {
+    private Mono<Application> createDefaultApplication(String defaultWorkspaceId) {
         // need to create default application
-        String workspaceId = user.getWorkspaceIds().iterator().next();
-
         Application application = new Application();
-        application.setWorkspaceId(workspaceId);
+        application.setWorkspaceId(defaultWorkspaceId);
         application.setName("My first application");
         return applicationPageService.createApplication(application);
     }

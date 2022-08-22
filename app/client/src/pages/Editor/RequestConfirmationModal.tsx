@@ -9,7 +9,7 @@ import {
 } from "actions/pluginActionActions";
 import DialogComponent from "components/ads/DialogComponent";
 import styled from "styled-components";
-import Button, { Category, Size } from "components/ads/Button";
+import { Button, Category, Size } from "design-system";
 import {
   createMessage,
   QUERY_CONFIRMATION_MODAL_MESSAGE,
