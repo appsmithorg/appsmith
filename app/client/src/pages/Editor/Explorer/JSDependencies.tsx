@@ -1,9 +1,8 @@
 import React, { useCallback, useMemo, useState } from "react";
 import styled from "styled-components";
-import { Text, TextType } from "design-system";
+import { Button, Category, Text, TextInput, TextType } from "design-system";
 import { AppIcon as Icon, Size } from "design-system";
 import { extraLibraries } from "utils/DynamicBindingUtils";
-import { Button, Category, TextInput } from "components/ads";
 import { useDispatch, useSelector } from "react-redux";
 import Entity from "./Entity";
 import {
