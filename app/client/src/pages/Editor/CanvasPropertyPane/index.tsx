@@ -3,12 +3,12 @@ import * as Sentry from "@sentry/react";
 
 import { MainContainerLayoutControl } from "../MainContainerLayoutControl";
 import ThemeEditor from "../ThemePropertyPane/ThemeEditor";
-import { Dropdown, DropdownOption, RenderOption } from "components/ads";
 import { Positioning } from "components/constants";
 import { useDispatch } from "react-redux";
 import { batchUpdateMultipleWidgetProperties } from "actions/controlActions";
 import { useSelector } from "store";
 import { getWidgets } from "sagas/selectors";
+import { Dropdown, DropdownOption, RenderOption } from "design-system";
 
 type Props = {
   skipThemeEditor?: boolean;
