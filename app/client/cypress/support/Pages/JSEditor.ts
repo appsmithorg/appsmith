@@ -86,6 +86,7 @@ export class JSEditor {
     `${JSFunctionName}-settings`;
   _asyncJSFunctionSettings = `.t--async-js-function-settings`;
   _debugCTA = `button.js-editor-debug-cta`;
+  _lineinJsEditor = (lineNumber: number) => ":nth-child(" + lineNumber + ") > .CodeMirror-line";
   //#endregion
 
   //#region constants
@@ -187,7 +188,7 @@ export class JSEditor {
       .then((el: JQuery<HTMLElement>) => {
         this.agHelper.Paste(el, newContent);
       });
-    this.agHelper.Sleep(2000);//Settling time for edited js code
+    this.agHelper.Sleep(2000); //Settling time for edited js code
     this.agHelper.ActionContextMenuWithInPane("Prettify Code");
     this.agHelper.AssertAutoSave();
   }

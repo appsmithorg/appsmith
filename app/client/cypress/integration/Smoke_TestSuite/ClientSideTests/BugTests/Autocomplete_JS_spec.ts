@@ -1,6 +1,5 @@
 import { WIDGET } from "../../../../locators/WidgetLocators";
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
-const explorer = require("../../../../locators/explorerlocators.json");
 
 const {
   AggregateHelper: agHelper,
@@ -14,7 +13,7 @@ const jsObjectBody = `export default {
 	myVar1: [],
 	myVar2: {},
 	myFun1(){
-		
+
 	},
 	myFun2: async () => {
 		//use async-await or promises
@@ -22,8 +21,7 @@ const jsObjectBody = `export default {
 }`;
 
 describe("Autocomplete tests", () => {
-  it("1. Verify widgets autocomplete: ButtonGroup & Document viewer widget", () => {
-    cy.get(explorer.addWidget).click();
+  it.only("1. Bug #13613 Verify widgets autocomplete: ButtonGroup & Document viewer widget", () => {
     EntityExplorer.DragDropWidgetNVerify(WIDGET.BUTTON_GROUP, 200, 200);
     EntityExplorer.DragDropWidgetNVerify(WIDGET.DOCUMENT_VIEWER, 200, 500);
 
@@ -33,10 +31,11 @@ describe("Autocomplete tests", () => {
       completeReplace: true,
       toRun: false,
       shouldCreateNewJSObj: true,
+      prettify: false,
     });
 
     // focus on 5th line
-    cy.get(`:nth-child(5) > .CodeMirror-line`).click();
+    agHelper.GetNClick(jsEditor._lineinJsEditor(5))
 
     // 1. Button group widget autocomplete verification
     cy.get(CommonLocators._codeMirrorTextArea)
@@ -61,7 +60,7 @@ describe("Autocomplete tests", () => {
     agHelper.AssertElementText(CommonLocators._hints, "docUrl");
   });
 
-  it("2. Verify browser JavaScript APIs in autocomplete ", () => {
+  it("2. Bug #15568 Verify browser JavaScript APIs in autocomplete ", () => {
     // create js object
     jsEditor.CreateJSObject(jsObjectBody, {
       paste: true,

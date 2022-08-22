@@ -339,6 +339,10 @@ export class AggregateHelper {
     cy.get("body").type("{esc}");
   }
 
+  public Enter() {
+    cy.type("{enter}");
+  }
+
   public RemoveMultiSelectItems(items: string[]) {
     items.forEach(($each) => {
       cy.xpath(this.locator._multiSelectItem($each))
@@ -529,7 +533,9 @@ export class AggregateHelper {
       subAction = "Are you sure?";
     }
     if (subAction) {
-      cy.xpath(this.locator._contextMenuSubItemDiv(subAction)).click({ force: true });
+      cy.xpath(this.locator._contextMenuSubItemDiv(subAction)).click({
+        force: true,
+      });
       this.Sleep(500);
     }
     if (action == "Delete") {
