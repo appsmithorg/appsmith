@@ -303,7 +303,7 @@ export const extractIdentifiersFromCode = (code: string): string[] => {
     // To remove identifiers (or member expressions) derived from declared variables and function params,
     // We extract the topLevelIdentifier Eg. Api1.name => Api1
     const topLevelIdentifier = toPath(identifier)[0];
-    return (
+    return !(
       functionalParams.has(topLevelIdentifier) ||
       variableDeclarations.has(topLevelIdentifier) ||
       extraLibrariesNames.includes(topLevelIdentifier)
