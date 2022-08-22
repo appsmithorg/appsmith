@@ -1,6 +1,6 @@
 import React from "react";
 import styled, { keyframes } from "styled-components";
-import { sizeHandler, IconSize } from "./Icon";
+import { sizeHandler, IconSize } from "design-system";
 import { Classes } from "./common";
 
 const rotate = keyframes`
