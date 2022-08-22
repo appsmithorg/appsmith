@@ -207,7 +207,9 @@ class TernServer {
     }
     const doc = this.findDoc(cm.getDoc());
     const cursor = cm.getCursor();
-    const { extraChars } = this.getFocusedDocValueAndPos(doc);
+    const { extraChars, value: focusedValue } = this.getFocusedDocValueAndPos(
+      doc,
+    );
 
     let completions: Completion[] = [];
     let after = "";
