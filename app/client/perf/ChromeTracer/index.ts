@@ -32,9 +32,8 @@ const getMainTrackEvents = (performanceModel: PerformanceModel) => {
   return mainTrack.events;
 };
 const backingStorage = new TempFileBackingStorage();
-const eventsJson = require("./chrome-devtools-frontend/test_data.json");
-console.log(eventsJson.length);
-const getStats = () => {
+
+export const getStats = (eventsJson) => {
   const tracingModel = new TracingModel(backingStorage);
   tracingModel.addEvents(eventsJson);
   const performanceModel = new PerformanceModel();
@@ -48,9 +47,3 @@ const getStats = () => {
   const window = performanceModel.window();
   console.log(statsForTimeRange(syncEvents, window.left, window.right));
 };
-
-getStats();
-getStats();
-getStats();
-getStats();
-getStats();

@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.getStats = void 0;
 const PerformanceModel_1 = require("./chrome-devtools-frontend/PerformanceModel");
 const TempFile_1 = require("./chrome-devtools-frontend/TempFile");
 const TimelineUIUtils_1 = require("./chrome-devtools-frontend/TimelineUIUtils");
@@ -23,9 +24,7 @@ const getMainTrackEvents = (performanceModel) => {
     return mainTrack.events;
 };
 const backingStorage = new TempFile_1.TempFileBackingStorage();
-const eventsJson = require("./chrome-devtools-frontend/test_data.json");
-console.log(eventsJson.length);
-const getStats = () => {
+const getStats = (eventsJson) => {
     const tracingModel = new TracingModel_1.TracingModel(backingStorage);
     tracingModel.addEvents(eventsJson);
     const performanceModel = new PerformanceModel_1.PerformanceModel();
@@ -38,9 +37,5 @@ const getStats = () => {
     const window = performanceModel.window();
     console.log((0, TimelineUIUtils_1.statsForTimeRange)(syncEvents, window.left, window.right));
 };
-getStats();
-getStats();
-getStats();
-getStats();
-getStats();
+exports.getStats = getStats;
 //# sourceMappingURL=index.js.map
