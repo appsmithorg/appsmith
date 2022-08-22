@@ -1,0 +1,15 @@
+{
+    "compilerOptions": {
+      "target": "esnext",
+      "module": "commonjs",
+      "checkJs": true,
+      "allowJs": true,
+      "sourceMap": true,
+    },
+    "include": [
+      "./chrome-devtools-frontend/**/*.js",
+      "./chrome-devtools-frontend/**/*.json",
+      "./chrome-devtools-frontend/**/*.ts", "index.ts",
+    ],
+    "exclude": ["node_modules"]
+  }

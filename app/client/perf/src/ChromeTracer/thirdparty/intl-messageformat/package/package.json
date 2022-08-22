@@ -1,0 +1,42 @@
+{
+  "name": "intl-messageformat",
+  "version": "9.8.0",
+  "description": "Formats ICU Message strings with number, date, plural, and select placeholders to create localized messages.",
+  "keywords": [
+    "i18n",
+    "intl",
+    "internationalization",
+    "localization",
+    "globalization",
+    "messageformat",
+    "parser",
+    "plural",
+    "icu"
+  ],
+  "author": "Eric Ferraiuolo <eferraiuolo@gmail.com>",
+  "contributors": [
+    "Anthony Pipkin <a.pipkin@yahoo.com>",
+    "Caridy Patino <caridy@gmail.com>",
+    "Drew Folta <drew@folta.net>",
+    "Long Ho <holevietlong@gmail.com"
+  ],
+  "bugs": {
+    "url": "https://github.com/formatjs/formatjs/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:formatjs/formatjs.git"
+  },
+  "main": "index.js",
+  "module": "lib/index.js",
+  "types": "index.d.ts",
+  "dependencies": {
+    "@formatjs/fast-memoize": "1.1.1",
+    "@formatjs/icu-messageformat-parser": "2.0.7",
+    "tslib": "^2.1.0"
+  },
+  "sideEffects": false,
+  "homepage": "https://github.com/formatjs/formatjs",
+  "license": "BSD-3-Clause",
+  "gitHead": "a7842673d8ad205171ad7c8cb8bb2f318b427c0c"
+}

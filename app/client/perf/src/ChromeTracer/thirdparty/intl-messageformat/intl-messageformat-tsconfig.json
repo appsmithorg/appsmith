@@ -1,0 +1,8 @@
+{
+  "compilerOptions": {
+    "composite": true
+  },
+  "files": [
+    "./package/intl-messageformat.esm.js"
+  ]
+}

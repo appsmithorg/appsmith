@@ -1,0 +1,11 @@
+Name: Lighthouse i18n.js
+Short Name: i18n
+URL: github.com/GoogleChrome/lighthouse
+Version: 15dad3944c2754a9e147fef9ef99934169e2ca08
+License: Apache License 2.0
+Security Critical: no
+
+Description:
+The source in this directory is an adaptation/derivative of the lighthouse
+i18n library.
+(see https://github.com/GoogleChrome/lighthouse/tree/master/lighthouse-core/lib/i18n)

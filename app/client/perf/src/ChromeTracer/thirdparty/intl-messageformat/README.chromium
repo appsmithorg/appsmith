@@ -1,0 +1,19 @@
+Name: intl-messageformat
+Short Name: intl-messageformat
+URL: https://github.com/formatjs/formatjs
+Version: 9.8.0
+License: New BSD
+Security Critical: no
+
+Description:
+Formats ICU Message strings with number, date, plural, and select placeholders to create localized messages.
+This package is a dependency of the DevTools localization pipeline.
+
+To update this package, run the following command (replace version number with updated version number):
+```bash
+wget -qO- https://registry.npmjs.org/intl-messageformat/-/intl-messageformat-9.8.0.tgz | tar xzf -
+```
+
+Local Modifications:
+  - Copied package/index.d.ts to package/intl-messageformat.esm.d.ts for type checking.
+  - Copied .d.ts files of icu-message-parser and adjusted import paths in intl-messasgeformat .d.ts files
