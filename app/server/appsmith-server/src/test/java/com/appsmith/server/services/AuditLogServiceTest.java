@@ -17,22 +17,7 @@ class AuditLogServiceTest {
     @MockBean
     AuditLogService auditLogService;
 
+    // TODO Add tests once the filters API is completed
     @Test
-    void get() {
-        AuditLog auditLog1 = new AuditLog();
-        auditLog1.setName("testEvent1");
-        auditLog1.setUserId("testUserId1");
-
-        AuditLog auditLog2 = new AuditLog();
-        auditLog2.setName("testEvent2");
-        auditLog2.setUserId("testUserId2");
-
-        Flux<AuditLog> auditLogFlux = Flux.just(auditLog1, auditLog2);
-        Mockito.when(auditLogService.get()).thenReturn(auditLogFlux.collectList());
-
-        StepVerifier.create(auditLogFlux)
-                .expectNext(auditLog1, auditLog2)
-                .expectComplete()
-                .verify();
-    }
+    void get() { }
 }

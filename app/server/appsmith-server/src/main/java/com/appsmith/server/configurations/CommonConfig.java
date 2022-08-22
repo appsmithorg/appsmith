@@ -65,6 +65,9 @@ public class CommonConfig {
     @Value("${APPSMITH_OIDC_DISABLE_NONCE:false}")
     private boolean isNonceDisabled;
 
+    @Value("${APPSMITH_OAUTH2_OIDC_AUDIENCE:}")
+    private String oidcAudience;
+
     private List<String> allowedDomains;
 
     @Bean

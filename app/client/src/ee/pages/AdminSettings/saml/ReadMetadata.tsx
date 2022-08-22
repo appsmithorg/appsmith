@@ -249,7 +249,7 @@ function MetadataForm(
       {providerForm.callout && (
         <Callout
           actionLabel="Read Documentation"
-          title={providerForm.callout}
+          desc={providerForm.callout}
           type="Info"
           url={SAML_SIGNUP_SETUP_DOC}
         />

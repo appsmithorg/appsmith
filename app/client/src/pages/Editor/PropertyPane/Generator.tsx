@@ -14,6 +14,11 @@ import { GUIDED_TOUR_STEPS } from "../GuidedTour/constants";
 import { searchProperty } from "./helpers";
 import { EmptySearchResult } from "./EmptySearchResult";
 
+export enum PropertyPaneGroup {
+  CONTENT,
+  STYLE,
+}
+
 export type PropertyControlsGeneratorProps = {
   id: string;
   config: readonly PropertyPaneConfig[];

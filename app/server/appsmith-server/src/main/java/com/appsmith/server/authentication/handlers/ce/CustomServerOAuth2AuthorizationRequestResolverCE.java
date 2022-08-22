@@ -170,6 +170,10 @@ public class CustomServerOAuth2AuthorizationRequestResolverCE implements ServerO
                 }
             }
 
+            if (StringUtils.hasText(commonConfig.getOidcAudience())) {
+                additionalParameters.put("audience", commonConfig.getOidcAudience());
+            }
+
             builder.additionalParameters(additionalParameters);
         } else if (AuthorizationGrantType.IMPLICIT.equals(clientRegistration.getAuthorizationGrantType())) {
             builder = OAuth2AuthorizationRequest.implicit();

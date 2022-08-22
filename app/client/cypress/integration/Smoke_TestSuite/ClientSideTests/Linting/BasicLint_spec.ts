@@ -68,7 +68,7 @@ describe("Linting", () => {
         }catch(e){
           showAlert("${errorMessage}")
         }
-      }()}}`
+      }()}}`,
     );
 
     propPane.UpdatePropertyFieldValue("Tooltip", "{{Api1.name}}");
@@ -121,7 +121,7 @@ describe("Linting", () => {
         }catch(e){
           showAlert("${errorMessage}")
         }
-      }()}}`
+      }()}}`,
     );
     propPane.UpdatePropertyFieldValue("Tooltip", `{{JSObject1.myVar1}}`);
 
@@ -196,7 +196,7 @@ describe("Linting", () => {
       }catch(e){
         showAlert("${errorMessage}")
       }
-    }()}}`
+    }()}}`,
     );
     propPane.UpdatePropertyFieldValue("Tooltip", `{{Query1.name}}`);
     clickButtonAndAssertLintError(true);
@@ -241,7 +241,7 @@ describe("Linting", () => {
         }catch(e){
           showAlert("${errorMessage}")
         }
-      }()}}`
+      }()}}`,
     );
     propPane.UpdatePropertyFieldValue(
       "Tooltip",

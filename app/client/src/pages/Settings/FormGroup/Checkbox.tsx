@@ -78,7 +78,7 @@ function FieldCheckboxWithCheckboxText(props: CheckboxProps) {
           <UpgradeButton
             category={Category.tertiary}
             onClick={onUpgrade}
-            text="Upgrade"
+            text="UPGRADE"
           />
         )}
       </CheckboxWrapper>

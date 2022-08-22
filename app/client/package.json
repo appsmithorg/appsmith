@@ -45,7 +45,7 @@
     "cypress-log-to-output": "^1.1.2",
     "dayjs": "^1.10.6",
     "deep-diff": "^1.0.2",
-    "design-system": "npm:@appsmithorg/design-system@1.0.8",
+    "design-system": "npm:@appsmithorg/design-system@1.0.13",
     "downloadjs": "^1.4.7",
     "draft-js": "^0.11.7",
     "emoji-mart": "^3.0.1",
@@ -176,7 +176,8 @@
     "test:unit": "$(npm bin)/jest -b --colors --no-cache --silent --coverage --collectCoverage=true --coverageDirectory='../../' --coverageReporters='json-summary'",
     "test:jest": "$(npm bin)/jest --watch",
     "generate:widget": "plop --plopfile generators/index.js",
-    "postinstall": "patch-package"
+    "postinstall": "patch-package && CURRENT_SCOPE=client node ../shared/install-dependencies.js",
+    "preinstall": "CURRENT_SCOPE=client node ../shared/build-shared-dep.js"
   },
   "browserslist": [
     ">0.2%",
@@ -235,11 +236,11 @@
     "@typescript-eslint/eslint-plugin": "^5.25.0",
     "@typescript-eslint/parser": "^5.25.0",
     "babel-plugin-module-resolver": "^4.1.0",
-    "babel-plugin-styled-components": "^1.10.7",
+    "babel-plugin-styled-components": "^2.0.7",
     "compression-webpack-plugin": "^10.0.0",
     "cra-bundle-analyzer": "^0.1.0",
     "cy-verify-downloads": "^0.0.5",
-    "cypress": "8.7.0",
+    "cypress": "9.7.0",
     "cypress-file-upload": "^4.1.1",
     "cypress-image-snapshot": "^4.0.1",
     "cypress-multi-reporters": "^1.2.4",
@@ -290,6 +291,10 @@
     "fast-csv": "4.3.6",
     "focus-trap-react/**/tabbable": "5.2.1",
     "json-schema": "0.4.0",
-    "node-fetch": "2.6.7"
+    "node-fetch": "2.6.7",
+    "babel-plugin-styled-components": "2.0.7"
+  },
+  "msw": {
+    "workerDirectory": "public"
   }
 }
