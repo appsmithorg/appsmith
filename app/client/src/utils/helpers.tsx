@@ -382,7 +382,7 @@ export const isNameValid = (
     name in GLOBAL_FUNCTIONS ||
     name in WINDOW_OBJECT_PROPERTIES ||
     name in WINDOW_OBJECT_METHODS ||
-    name in extraLibrariesNames ||
+    extraLibrariesNames.includes(name) ||
     name in invalidNames
   );
 };

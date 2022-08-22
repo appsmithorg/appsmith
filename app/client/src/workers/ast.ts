@@ -1,9 +1,10 @@
 import { parse, Node } from "acorn";
 import { ancestor, simple } from "acorn-walk";
 import { ECMA_VERSION, NodeTypes } from "constants/ast";
-import { isFinite, isString } from "lodash";
+import { isFinite, isString, toPath } from "lodash";
 import { sanitizeScript } from "./evaluate";
 import { generate } from "astring";
+import { extraLibrariesNames } from "utils/DynamicBindingUtils";
 
 /*
  * Valuable links:
@@ -161,6 +162,17 @@ const wrapCode = (code: string) => {
   `;
 };
 
+const getFunctionalParamNamesFromNode = (
+  node:
+    | FunctionDeclarationNode
+    | FunctionExpressionNode
+    | ArrowFunctionExpressionNode,
+) => {
+  return Array.from(getFunctionalParamsFromNode(node)).map(
+    (functionalParam) => functionalParam.paramName,
+  );
+};
+
 export const getAST = (code: string) =>
   parse(code, { ecmaVersion: ECMA_VERSION });
 
@@ -177,7 +189,7 @@ export const extractIdentifiersFromCode = (code: string): string[] => {
   // List of variables declared within the script. This will be removed from identifier list
   const variableDeclarations = new Set<string>();
   // List of functionalParams found. This will be removed from the identifier list
-  let functionalParams = new Set<functionParams>();
+  let functionalParams = new Set<string>();
   let ast: Node = { end: 0, start: 0, type: "" };
   try {
     const sanitizedScript = sanitizeScript(code);
@@ -264,17 +276,16 @@ export const extractIdentifiersFromCode = (code: string): string[] => {
       if (!isFunctionDeclaration(node)) return;
       functionalParams = new Set([
         ...functionalParams,
-        ...getFunctionalParamsFromNode(node),
+        ...getFunctionalParamNamesFromNode(node),
       ]);
     },
     FunctionExpression(node: Node) {
       // params in function expressions are also counted as identifiers so we keep
       // track of them and remove them from the final list of identifiers
-
       if (!isFunctionExpression(node)) return;
       functionalParams = new Set([
         ...functionalParams,
-        ...getFunctionalParamsFromNode(node),
+        ...getFunctionalParamNamesFromNode(node),
       ]);
     },
     ArrowFunctionExpression(node: Node) {
@@ -283,30 +294,25 @@ export const extractIdentifiersFromCode = (code: string): string[] => {
       if (!isArrowFunctionExpression(node)) return;
       functionalParams = new Set([
         ...functionalParams,
-        ...getFunctionalParamsFromNode(node),
+        ...getFunctionalParamNamesFromNode(node),
       ]);
     },
   });
 
-  const functionalParamNamesArray = Array.from(functionalParams).map(
-    (functionParam) => functionParam.paramName,
-  );
   const validIdentifiers = Array.from(identifiers).filter((identifier) => {
-    // Api1.name => Api1
-    const topLevelIdentifier = identifier.split(".")[0];
-    // Remove identifiers derived from declared variables and function params
-    if (
-      functionalParamNamesArray.includes(topLevelIdentifier) ||
-      variableDeclarations.has(topLevelIdentifier)
-    )
-      return false;
-    return true;
+    // To remove Remove identifiers (or member expressions) derived from declared variables and function params,
+    // We extract the topLevelIdentifier Eg. Api1.name => Api1
+    const topLevelIdentifier = toPath(identifier)[0];
+    return (
+      functionalParams.has(topLevelIdentifier) ||
+      variableDeclarations.has(topLevelIdentifier) ||
+      extraLibrariesNames.includes(topLevelIdentifier)
+    );
   });
-
   return validIdentifiers;
 };
 
-type functionParams = { paramName: string; defaultValue: unknown };
+type functionParam = { paramName: string; defaultValue: unknown };
 
 const getFunctionalParamsFromNode = (
   node:
@@ -314,8 +320,8 @@ const getFunctionalParamsFromNode = (
     | FunctionExpressionNode
     | ArrowFunctionExpressionNode,
   needValue = false,
-): Set<functionParams> => {
-  const functionalParams = new Set<functionParams>();
+): Set<functionParam> => {
+  const functionalParams = new Set<functionParam>();
   node.params.forEach((paramNode) => {
     if (isIdentifierNode(paramNode)) {
       functionalParams.add({
@@ -377,7 +383,7 @@ type JsObjectProperty = {
   key: string;
   value: string;
   type: string;
-  arguments?: Array<functionParams>;
+  arguments?: Array<functionParam>;
 };
 
 export const parseJSObjectWithAST = (
@@ -410,7 +416,7 @@ export const parseJSObjectWithAST = (
     },
   });
   JSObjectProperties.forEach((node) => {
-    let params = new Set<functionParams>();
+    let params = new Set<functionParam>();
     const propertyNode = node;
     let property: JsObjectProperty = {
       key: generate(propertyNode.key),

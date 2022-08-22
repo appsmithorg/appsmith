@@ -192,12 +192,8 @@ export const extraLibraries: ExtraLibrary[] = [
  * current list of extra libraries i.e lodash("_"), moment etc
  * to be used in widget and entity name validations
  */
-export const extraLibrariesNames = extraLibraries.reduce(
-  (prev: any, curr: any) => {
-    prev[curr.accessor] = curr.accessor;
-    return prev;
-  },
-  {},
+export const extraLibrariesNames = extraLibraries.map(
+  (library) => library.accessor,
 );
 
 export interface DynamicPath {
