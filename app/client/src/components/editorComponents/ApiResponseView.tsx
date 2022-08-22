@@ -21,9 +21,7 @@ import {
   INSPECT_ENTITY,
   ACTION_EXECUTION_MESSAGE,
 } from "@appsmith/constants/messages";
-import { Text, TextType } from "design-system";
 import { Text as BlueprintText } from "@blueprintjs/core";
-import Icon from "components/ads/Icon";
 import { Classes, Variant } from "components/ads/common";
 import { EditorTheme } from "./CodeEditor/EditorConfig";
 import Callout from "components/ads/Callout";
@@ -33,7 +31,7 @@ import Resizer, { ResizerCSS } from "./Debugger/Resizer";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { DebugButton } from "./Debugger/DebugCTA";
 import EntityDeps from "./Debugger/EntityDependecies";
-import Button, { Size, Category } from "components/ads/Button";
+import { Button, Category, Icon, Size, Text, TextType } from "design-system";
 import EntityBottomTabs from "./EntityBottomTabs";
 import { DEBUGGER_TAB_KEYS } from "./Debugger/helpers";
 import { setCurrentTab } from "actions/debuggerActions";

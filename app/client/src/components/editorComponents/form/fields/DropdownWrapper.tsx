@@ -1,4 +1,4 @@
-import Dropdown, { DropdownOption } from "components/ads/Dropdown";
+import { Dropdown, DropdownOption } from "design-system";
 import React, { useEffect, useState } from "react";
 import { DropdownOnSelect } from "./SelectField";
 

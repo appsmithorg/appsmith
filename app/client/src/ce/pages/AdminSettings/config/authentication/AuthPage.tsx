@@ -2,7 +2,6 @@ import React from "react";
 import { useHistory } from "react-router-dom";
 import { SettingCategories } from "../types";
 import styled from "styled-components";
-import Button, { Category } from "components/ads/Button";
 import {
   ENABLE,
   ADMIN_AUTH_SETTINGS_SUBTITLE,
@@ -16,8 +15,7 @@ import {
 import { Callout, CalloutType } from "components/ads/CalloutV2";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import { Colors } from "constants/Colors";
-import Icon from "components/ads/Icon";
-import { TooltipComponent } from "design-system";
+import { Button, Category, Icon, TooltipComponent } from "design-system";
 import { adminSettingsCategoryUrl } from "RouteBuilder";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 

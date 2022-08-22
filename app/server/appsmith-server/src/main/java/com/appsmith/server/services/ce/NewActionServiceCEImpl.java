@@ -79,7 +79,6 @@ import reactor.util.function.Tuple2;
 import javax.lang.model.SourceVersion;
 import javax.validation.Validator;
 import java.io.IOException;
-import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.Instant;
@@ -859,14 +858,32 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                                     try {
                                         return Mono.just(objectMapper.readValue(byteData, ExecuteActionDTO.class));
                                     } catch (IOException e) {
+                                        log.error("Error in deserializing ExecuteActionDTO", e);
                                         return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "executeActionDTO"));
                                     }
                                 })
                                 .flatMap(executeActionDTO -> {
                                     dto.setActionId(executeActionDTO.getActionId());
-                                    dto.setPaginationField(executeActionDTO.getPaginationField());
                                     dto.setViewMode(executeActionDTO.getViewMode());
-
+                                    dto.setParamProperties(executeActionDTO.getParamProperties());
+                                    dto.setPaginationField(executeActionDTO.getPaginationField());
+                                    return Mono.empty();
+                                });
+                    } else if ("parameterMap".equals(key)) {
+                        return DataBufferUtils
+                                .join(part.content())
+                                .flatMap(executeActionDTOBuffer -> {
+                                    byte[] byteData = new byte[executeActionDTOBuffer.readableByteCount()];
+                                    executeActionDTOBuffer.read(byteData);
+                                    DataBufferUtils.release(executeActionDTOBuffer);
+                                    try {
+                                        return Mono.just(objectMapper.readValue(byteData, HashMap.class));
+                                    } catch (IOException e) {
+                                        return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "parameterMap"));
+                                    }
+                                })
+                                .flatMap(paramMap -> {
+                                    dto.setParameterMap(paramMap);
                                     return Mono.empty();
                                 });
                     }
@@ -874,7 +891,8 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                 })
                 .flatMap(part -> {
                     final Param param = new Param();
-                    param.setKey(URLDecoder.decode(part.name(), StandardCharsets.UTF_8));
+                    String pseudoBindingName = part.name();
+                    param.setKey(dto.getInvertParameterMap().get(pseudoBindingName));
                     return DataBufferUtils
                             .join(part.content())
                             .map(dataBuffer -> {
@@ -1062,7 +1080,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                         newPageService.getNameByPageId(actionDTO.getPageId(), viewMode),
                         pluginService.getById(action.getPluginId())
                 ))
-                .map(tuple -> {
+                .flatMap(tuple -> {
                     final Application application = tuple.getT1();
                     final User user = tuple.getT2();
                     final String pageName = tuple.getT3();
@@ -1136,8 +1154,9 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                             FieldName.PLUGIN, plugin
                     );
                     data.put(FieldName.EVENT_DATA, eventData);
-                    analyticsService.sendObjectEvent(AnalyticsEvents.EXECUTE_ACTION, action, data);
-                    return request;
+
+                    return analyticsService.sendObjectEvent(AnalyticsEvents.EXECUTE_ACTION, action, data)
+                            .thenReturn(request);
                 })
                 .onErrorResume(error -> {
                     log.warn("Error sending action execution data point", error);

@@ -1662,6 +1662,7 @@ Cypress.Commands.add("checkLabelForWidget", (options) => {
   const isCompact = options.isCompact;
   const widgetSelector = `.t--widget-${widgetName}`;
   const labelSelector = `${widgetSelector} label`;
+  const labelContainer = `${widgetSelector} .label-container`;
   const containerSelector = `${widgetSelector} ${options.containerSelector}`;
   const labelPositionSelector = ".t--property-control-position";
   const labelAlignmentRightSelector =
@@ -1715,7 +1716,7 @@ Cypress.Commands.add("checkLabelForWidget", (options) => {
     .type(`${labelWidth}`);
   cy.wait(300);
   // Assert the label width
-  cy.get(labelSelector)
+  cy.get(labelContainer)
     .first()
     .should("have.css", "width", `${parentColumnSpace * labelWidth}px`);
   // Increase the label width
@@ -1724,7 +1725,7 @@ Cypress.Commands.add("checkLabelForWidget", (options) => {
     .click();
   // Assert the increased label width
   cy.wait(300);
-  cy.get(labelSelector)
+  cy.get(labelContainer)
     .first()
     .should("have.css", "width", `${parentColumnSpace * (labelWidth + 1)}px`);
   // Decrease the label width
@@ -1733,7 +1734,7 @@ Cypress.Commands.add("checkLabelForWidget", (options) => {
     .click();
   cy.wait(300);
   // Assert the decreased label width
-  cy.get(labelSelector)
+  cy.get(labelContainer)
     .first()
     .should("have.css", "width", `${parentColumnSpace * labelWidth}px`);
 

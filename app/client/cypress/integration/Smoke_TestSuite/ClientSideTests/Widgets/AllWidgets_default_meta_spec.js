@@ -13,7 +13,7 @@ import {
 } from "../../../../locators/WidgetLocators";
 
 const widgetsToTest = {
-  [WIDGET.MULTISELECT_WIDGET]: {
+  [WIDGET.MULTISELECT]: {
     widgetName: "MultiSelect",
     widgetPrefixName: "MultiSelect1",
     textBindingValue: "{{MultiSelect1.selectedOptionValues}}",
@@ -61,7 +61,7 @@ const widgetsToTest = {
       selectAndReset();
     },
   },
-  [WIDGET.CURRENCY_INPUT_WIDGET]: {
+  [WIDGET.CURRENCY_INPUT]: {
     widgetName: "CurrencyInput",
     widgetPrefixName: "CurrencyInput1",
     textBindingValue: testdata.currencyBindingValue,
@@ -435,7 +435,7 @@ Object.entries(widgetsToTest).forEach(([widgetSelector, testConfig]) => {
 
     it("2. Bind Button on click  and Text widget content", () => {
       // Set onClick assertWidgetReset, storing value
-      cy.openPropertyPane(WIDGET.BUTTON_WIDGET);
+      cy.openPropertyPane(WIDGET.BUTTON);
 
       cy.get(PROPERTY_SELECTOR.onClick)
         .find(".t--js-toggle")
