@@ -29,7 +29,7 @@ import { AppTheme } from "entities/AppTheming";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import ThemeFontControl from "./controls/ThemeFontControl";
 import ThemeColorControl from "./controls/ThemeColorControl";
-import Button, { Category, Size } from "components/ads/Button";
+import { Button, Category, Size } from "design-system";
 import ThemeBoxShadowControl from "./controls/ThemeShadowControl";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 import ThemeBorderRadiusControl from "./controls/ThemeBorderRadiusControl";

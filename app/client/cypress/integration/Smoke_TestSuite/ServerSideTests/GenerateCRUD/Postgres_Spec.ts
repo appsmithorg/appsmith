@@ -790,6 +790,10 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
         value: item
         }})}}`,
     );
+    // {{[...new Set(["Cargo", "Pleasure Craft", "Passenger", "Passenger", "Fishing", "Special Craft"])].map(item=> {return {
+		// 	label: item,
+		// 	value: item
+		// }})}}
     propPane.NavigateBackToPropertyPane();
 
     propPane.OpenJsonFormFieldSettings("Timezone");

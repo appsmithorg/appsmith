@@ -637,7 +637,7 @@ describe("Validate Mongo Query Pane Validations", () => {
 
     dataSources.ValidateNSelectDropdown("Commands", "Find Document(s)", "Raw");
     agHelper.RenameWithInPane("DropAuthorNAwards"); //Due to template appearing after renaming
-
+    agHelper.GetNClick(dataSources._templateMenu);
     dataSources.EnterQuery(dropCollection);
     agHelper.FocusElement(locator._codeMirrorTextArea);
     //agHelper.VerifyEvaluatedValue(tableCreateQuery);
@@ -654,6 +654,7 @@ describe("Validate Mongo Query Pane Validations", () => {
     let dropCollection = `{ "drop": "AuthorNAwards" }`;
     dataSources.NavigateFromActiveDS(dsName, true);
     dataSources.ValidateNSelectDropdown("Commands", "Find Document(s)", "Raw");
+    agHelper.GetNClick(dataSources._templateMenu);
     agHelper.RenameWithInPane("DropAuthorNAwards");
     dataSources.EnterQuery(dropCollection);
     agHelper.FocusElement(locator._codeMirrorTextArea);
@@ -754,6 +755,7 @@ describe("Validate Mongo Query Pane Validations", () => {
 
     dataSources.NavigateFromActiveDS(dsName, true);
     dataSources.ValidateNSelectDropdown("Commands", "Find Document(s)", "Raw");
+    agHelper.GetNClick(dataSources._templateMenu);
     agHelper.RenameWithInPane("DropBirthNDeath");
     dataSources.EnterQuery(dropCollection);
     agHelper.FocusElement(locator._codeMirrorTextArea);

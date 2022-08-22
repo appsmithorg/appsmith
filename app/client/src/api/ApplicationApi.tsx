@@ -2,7 +2,7 @@ import Api from "api/Api";
 import { ApiResponse } from "./ApiResponses";
 import { AxiosPromise } from "axios";
 import { AppColorCode } from "constants/DefaultTheme";
-import { AppIconName } from "components/ads/AppIcon";
+import { AppIconName } from "design-system";
 import { AppLayoutConfig } from "reducers/entityReducers/pageListReducer";
 import { APP_MODE } from "entities/App";
 import { ApplicationVersion } from "actions/applicationActions";

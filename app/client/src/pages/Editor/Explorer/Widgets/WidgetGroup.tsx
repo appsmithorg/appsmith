@@ -16,7 +16,7 @@ import {
 import { selectWidgetsForCurrentPage } from "selectors/entitiesSelector";
 import { inGuidedTour } from "selectors/onboardingSelectors";
 import { getExplorerStatus, saveExplorerStatus } from "../helpers";
-import Icon from "components/ads/Icon";
+import { Icon } from "design-system";
 import { AddEntity, EmptyComponent } from "../common";
 import { noop } from "lodash";
 

@@ -17,7 +17,7 @@ import ExplorerJSCollectionEntity from "../JSActions/JSActionEntity";
 import { Colors } from "constants/Colors";
 import { selectFilesForExplorer } from "selectors/entitiesSelector";
 import { getExplorerStatus, saveExplorerStatus } from "../helpers";
-import Icon from "components/ads/Icon";
+import { Icon } from "design-system";
 import { AddEntity, EmptyComponent } from "../common";
 import ExplorerSubMenu from "./Submenu";
 

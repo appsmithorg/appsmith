@@ -13,7 +13,7 @@ import {
   EDITOR_HEADER_SAVE_INDICATOR,
 } from "@appsmith/constants/messages";
 import { Colors } from "constants/Colors";
-import Icon from "components/ads/Icon";
+import { Icon } from "design-system";
 
 const SaveStatusContainer = styled.div`
   border-radius: 50%;

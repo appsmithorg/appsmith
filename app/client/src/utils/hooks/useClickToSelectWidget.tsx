@@ -10,10 +10,10 @@ import { AppState } from "reducers";
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { APP_MODE } from "entities/App";
 import { getAppMode } from "selectors/applicationSelectors";
-import { getWidgets } from "sagas/selectors";
 import { useWidgetSelection } from "./useWidgetSelection";
 import React, { ReactNode, useCallback } from "react";
 import { stopEventPropagation } from "utils/AppsmithUtils";
+import { getFocusedParentToOpen } from "selectors/widgetSelectors";
 
 /**
  *
@@ -103,7 +103,6 @@ export const useClickToSelectWidget = () => {
   const { focusWidget, selectWidget } = useWidgetSelection();
   const isPropPaneVisible = useSelector(getIsPropertyPaneVisible);
   const isTableFilterPaneVisible = useSelector(getIsTableFilterPaneVisible);
-  const widgets: CanvasWidgetsReduxState = useSelector(getWidgets);
   const selectedWidgetId = useSelector(getCurrentWidgetId);
   const focusedWidgetId = useSelector(
     (state: AppState) => state.ui.widgetDragResize.focusedWidget,
@@ -119,7 +118,7 @@ export const useClickToSelectWidget = () => {
     (state: AppState) => state.ui.widgetDragResize.isDragging,
   );
 
-  const parentWidgetToOpen = getParentToOpenIfAny(focusedWidgetId, widgets);
+  const parentWidgetToOpen = useSelector(getFocusedParentToOpen);
   const clickToSelectWidget = (e: any, targetWidgetId: string) => {
     // ignore click captures
     // 1. if the component was resizing or dragging coz it is handled internally in draggable component

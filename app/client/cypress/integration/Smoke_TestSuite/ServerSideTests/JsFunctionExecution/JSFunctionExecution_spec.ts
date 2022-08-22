@@ -242,6 +242,7 @@ describe("JS Function Execution", function() {
     // Fix parse error and assert that debugger error is removed
     jsEditor.EditJSObj(JS_OBJECT_WITHOUT_PARSE_ERROR);
     agHelper.GetNClick(jsEditor._runButton);
+    agHelper.WaitUntilToastDisappear("ran successfully"); //to not hinder with next toast msg in next case!
     jsEditor.AssertParseError(false, true);
     agHelper.GetNClick(locator._errorTab);
     cy.contains(
@@ -253,7 +254,6 @@ describe("JS Function Execution", function() {
     // Re-introduce parse errors
     jsEditor.EditJSObj(JS_OBJECT_WITH_PARSE_ERROR);
     agHelper.GetNClick(jsEditor._runButton);
-    agHelper.WaitUntilToastDisappear("ran successfully"); //to not hinder with next toast msg in next case!
     // Assert that there is a function execution parse error
     jsEditor.AssertParseError(true, true);
 
@@ -483,7 +483,7 @@ describe("JS Function Execution", function() {
     // rename functions and assert order
     agHelper.GetNClick(jsEditor._codeTab);
     jsEditor.EditJSObj(getJSObject(FUNCTIONS_SETTINGS_RENAMED_DATA));
-    cy.wait(3000);
+    agHelper.Sleep(3000);
     agHelper.GetNClick(jsEditor._settingsTab);
     assertAsyncFunctionsOrder(FUNCTIONS_SETTINGS_RENAMED_DATA);
   });
