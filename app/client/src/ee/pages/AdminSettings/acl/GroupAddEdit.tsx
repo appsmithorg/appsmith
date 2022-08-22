@@ -1,15 +1,6 @@
 import React, { useEffect, useState } from "react";
-import {
-  Button,
-  Icon,
-  IconSize,
-  Menu,
-  MenuItem,
-  MenuItemProps,
-  Table,
-  Toaster,
-  Variant,
-} from "components/ads";
+import { Menu, Table, Toaster, Variant } from "components/ads";
+import { Button, Icon, IconSize, MenuItem, MenuItemProps } from "design-system";
 import styled from "styled-components";
 import { TabComponent, TabProp } from "components/ads/Tabs";
 import { ActiveAllGroupsList } from "./ActiveAllGroupsList";

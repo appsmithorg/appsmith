@@ -1,6 +1,6 @@
 import React from "react";
 import styled from "styled-components";
-import { Icon, IconSize } from "components/ads";
+import { Icon, IconSize } from "design-system";
 import { Colors } from "constants/Colors";
 import { ContentWrapper } from "./components";
 import { HighlightText } from "./helpers/HighlightText";

@@ -3,7 +3,8 @@ import { useParams, useHistory } from "react-router";
 import styled from "styled-components";
 import debounce from "lodash/debounce";
 import { Listing } from "./Listing";
-import { MenuItemProps, Toaster, Variant } from "components/ads";
+import { Toaster, Variant } from "components/ads";
+import { MenuItemProps } from "design-system";
 import { PageHeader } from "./PageHeader";
 import { BottomSpace } from "pages/Settings/components";
 import { Link } from "react-router-dom";
@@ -319,7 +320,7 @@ export function GroupListing() {
     {
       className: "clone-menu-item",
       icon: "duplicate",
-      onSelect: (e, id) => {
+      onSelect: (e: React.MouseEvent, id: string) => {
         const selectedUserGroup = data.find((userGroup) => userGroup.id === id);
         selectedUserGroup &&
           onCloneHandler({
@@ -331,7 +332,7 @@ export function GroupListing() {
     {
       className: "edit-menu-item",
       icon: "edit-underline",
-      onSelect: (e, key) => {
+      onSelect: (e: React.MouseEvent, key: string) => {
         history.push(`/settings/groups/${key}`);
       },
       text: createMessage(EDIT_GROUP),
@@ -340,7 +341,7 @@ export function GroupListing() {
       label: "delete",
       className: "delete-menu-item",
       icon: "delete-blank",
-      onSelect: (e, key: string) => {
+      onSelect: (e: React.MouseEvent, key: string) => {
         onDeleteHandler(key);
       },
       text: createMessage(DELETE_GROUP),

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useHistory } from "react-router";
-import { MenuItemProps, Toaster, Variant } from "components/ads";
+import { Toaster, Variant } from "components/ads";
+import { MenuItemProps } from "design-system";
 import { TabComponent, TabProp } from "components/ads/Tabs";
 import { PageHeader } from "./PageHeader";
 import { SaveButtonBar, TabsWrapper } from "./components";

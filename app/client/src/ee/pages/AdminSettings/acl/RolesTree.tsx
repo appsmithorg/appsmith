@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from "react";
 import styled from "styled-components";
 import { Column, useTable, useExpanded, Row } from "react-table";
-import { Icon, IconSize } from "components/ads";
+import { Icon, IconSize } from "design-system";
 import { Checkbox } from "@blueprintjs/core";
 import { HighlightText } from "./helpers/HighlightText";
 import { getParentId } from "./utils/reactTableUtils";

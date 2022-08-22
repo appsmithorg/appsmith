@@ -3,7 +3,7 @@ import "@testing-library/jest-dom";
 import { render, screen } from "test/testUtils";
 import { RolesListing, rolesTableData } from "./RolesListing";
 import userEvent from "@testing-library/user-event";
-import { MenuItemProps } from "components/ads";
+import { MenuItemProps } from "design-system";
 
 let container: any = null;
 
