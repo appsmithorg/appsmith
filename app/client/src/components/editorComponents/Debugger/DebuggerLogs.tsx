@@ -11,6 +11,7 @@ import { useSelector } from "react-redux";
 import { getCurrentUser } from "selectors/usersSelectors";
 import bootIntercom from "utils/bootIntercom";
 import { thinScrollbar } from "constants/DefaultTheme";
+import { IconName } from "@blueprintjs/core";
 
 const LIST_HEADER_HEIGHT = "38px";
 
@@ -36,9 +37,22 @@ const LOGS_FILTER_OPTIONS = [
     label: "All",
     value: "",
   },
-  { label: "Errors", value: Severity.ERROR },
-  { label: "Console logs", value: LOG_CATEGORY.USER_GENERATED },
-  { label: "System logs", value: LOG_CATEGORY.PLATFORM_GENERATED },
+  {
+    label: "Errors",
+    value: Severity.ERROR,
+    icon: "error" as IconName,
+    iconColor: "white",
+  },
+  {
+    label: "Console logs",
+    value: LOG_CATEGORY.USER_GENERATED,
+    icon: "user-2" as IconName,
+  },
+  {
+    label: "System logs",
+    value: LOG_CATEGORY.PLATFORM_GENERATED,
+    icon: "desktop" as IconName,
+  },
 ];
 
 function DebbuggerLogs(props: Props) {
