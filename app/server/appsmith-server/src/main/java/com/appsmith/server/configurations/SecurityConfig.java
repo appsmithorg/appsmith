@@ -7,6 +7,7 @@ import com.appsmith.server.authentication.handlers.LogoutSuccessHandler;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.domains.User;
+import com.appsmith.server.filters.AppsmithAnonymousAuthenticationWebFilter;
 import com.appsmith.server.helpers.RedirectHelper;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.UserService;
@@ -33,6 +34,7 @@ import org.springframework.web.server.session.WebSessionIdResolver;
 
 import java.time.Duration;
 import java.util.HashSet;
+import java.util.UUID;
 
 import static com.appsmith.server.constants.Url.ACTION_COLLECTION_URL;
 import static com.appsmith.server.constants.Url.ACTION_URL;
@@ -101,11 +103,16 @@ public class SecurityConfig {
     }
 
     @Bean
+    AppsmithAnonymousAuthenticationWebFilter anonymousAuthenticationWebFilter() {
+        return new AppsmithAnonymousAuthenticationWebFilter(UUID.randomUUID().toString(), userService);
+    }
+
+    @Bean
     public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
         return http
                 // This picks up the configurationSource from the bean corsConfigurationSource()
                 .csrf().disable()
-                .anonymous().principal(createAnonymousUser())
+                .anonymous().authenticationFilter(anonymousAuthenticationWebFilter())
                 .and()
                 // This returns 401 unauthorized for all requests that are not authenticated but authentication is required
                 // The client will redirect to the login page if we return 401 as Http status response
@@ -171,16 +178,5 @@ public class SecurityConfig {
         resolver.addCookieInitializer((builder) -> builder.path("/"));
         resolver.addCookieInitializer((builder) -> builder.sameSite("Lax"));
         return resolver;
-    }
-
-    private User createAnonymousUser() {
-        return userService.findByEmail("anonymousUser").block();
-        // User user = new User();
-        // user.setName(FieldName.ANONYMOUS_USER);
-        // user.setEmail(FieldName.ANONYMOUS_USER);
-        // user.setCurrentWorkspaceId("");
-        // user.setWorkspaceIds(new HashSet<>());
-        // user.setIsAnonymous(true);
-        // return user;
     }
 }
