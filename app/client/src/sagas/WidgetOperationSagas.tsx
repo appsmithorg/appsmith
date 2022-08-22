@@ -41,7 +41,7 @@ import {
   isPathADynamicTrigger,
 } from "utils/DynamicBindingUtils";
 import { WidgetProps } from "widgets/BaseWidget";
-import _, { cloneDeep, isString, set } from "lodash";
+import _, { cloneDeep, isString, set, uniq } from "lodash";
 import WidgetFactory from "utils/WidgetFactory";
 import { resetWidgetMetaProperty } from "actions/metaActions";
 import {
@@ -56,7 +56,7 @@ import log from "loglevel";
 import { navigateToCanvas } from "pages/Editor/Explorer/Widgets/utils";
 import {
   getCurrentPageId,
-  getWidgetSpacesSelectorForContainer,
+  getContainerWidgetSpacesSelector,
 } from "selectors/editorSelectors";
 import { selectMultipleWidgetsInitAction } from "actions/widgetSelectionActions";
 
@@ -596,7 +596,7 @@ function* batchUpdateWidgetPropertySaga(
     "ms",
   );
   // Save the layout
-  yield put(updateAndSaveLayout(widgets, undefined, shouldReplay));
+  yield put(updateAndSaveLayout(widgets, { shouldReplay }));
 }
 
 function* batchUpdateMultipleWidgetsPropertiesSaga(
@@ -620,6 +620,8 @@ function* batchUpdateMultipleWidgetsPropertiesSaga(
     stateWidgets,
   );
 
+  const updatedWidgetIds = uniq(updatedWidgets.map((each) => each.widgetId));
+
   log.debug(
     "Batch multi-widget properties update calculations took: ",
     performance.now() - start,
@@ -627,7 +629,11 @@ function* batchUpdateMultipleWidgetsPropertiesSaga(
   );
 
   // Save the layout
-  yield put(updateAndSaveLayout(updatedStateWidgets));
+  yield put(
+    updateAndSaveLayout(updatedStateWidgets, {
+      updatedWidgetIds,
+    }),
+  );
 }
 
 function* removeWidgetProperties(widget: WidgetProps, paths: string[]) {
@@ -1055,7 +1061,7 @@ function* getNewPositionsBasedOnSelectedWidgets(
     maxGridColumns: GridDefaults.DEFAULT_GRID_COLUMNS,
   };
 
-  const reflowSpacesSelector = getWidgetSpacesSelectorForContainer(parentId);
+  const reflowSpacesSelector = getContainerWidgetSpacesSelector(parentId);
   const widgetSpaces: WidgetSpace[] = yield select(reflowSpacesSelector) || [];
 
   // Ids of each pasting are changed just for reflow
@@ -1145,7 +1151,7 @@ function* getNewPositionsBasedOnMousePositions(
 
   if (!snapGrid || !mousePositions) return {};
 
-  const reflowSpacesSelector = getWidgetSpacesSelectorForContainer(canvasId);
+  const reflowSpacesSelector = getContainerWidgetSpacesSelector(canvasId);
   const widgetSpaces: WidgetSpace[] = yield select(reflowSpacesSelector) || [];
 
   let mouseTopRow = mousePositions.top;

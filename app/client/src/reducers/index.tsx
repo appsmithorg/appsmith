@@ -60,7 +60,8 @@ import SettingsReducer, {
   SettingsReduxState,
 } from "@appsmith/reducers/settingsReducer";
 import { TriggerValuesEvaluationState } from "./evaluationReducers/triggerReducer";
-import { PseudoCanvasWidgetsReduxState } from "./entityReducers/pseudoCanvasWidgetsReducer";
+import { CanvasWidgetStructure } from "widgets/constants";
+import { MetaCanvasWidgetsReduxState } from "./entityReducers/metaCanvasWidgetsReducer";
 
 const appReducer = combineReducers({
   entities: entityReducer,
@@ -116,8 +117,9 @@ export interface AppState {
     mainCanvas: MainCanvasReduxState;
   };
   entities: {
+    canvasWidgetsStructure: CanvasWidgetStructure;
     canvasWidgets: CanvasWidgetsReduxState;
-    pseudoCanvasWidgets: PseudoCanvasWidgetsReduxState;
+    metaCanvasWidgets: MetaCanvasWidgetsReduxState;
     actions: ActionDataState;
     widgetConfig: WidgetConfigReducerState;
     datasources: DatasourceDataState;

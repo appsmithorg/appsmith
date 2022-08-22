@@ -11,18 +11,8 @@ import PropertySection from "./PropertySection";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import Boxed from "../GuidedTour/Boxed";
 import { GUIDED_TOUR_STEPS } from "../GuidedTour/constants";
-import styled from "styled-components";
-import { Colors } from "constants/Colors";
 import { searchProperty } from "./helpers";
 import { EmptySearchResult } from "./EmptySearchResult";
-
-export const EmptySearchResultWrapper = styled.div`
-  color: ${Colors.GRAY_700};
-
-  svg {
-    fill: ${Colors.GRAY_400};
-  }
-`;
 
 export type PropertyControlsGeneratorProps = {
   id: string;
@@ -93,28 +83,6 @@ const generatePropertyControl = (
           sectionConfig={sectionConfig}
         />
       );
-      // return (
-      //   <Boxed
-      //     key={config.id + props.id}
-      //     show={
-      //       sectionConfig.sectionName !== "General" &&
-      //       props.type === "TABLE_WIDGET"
-      //     }
-      //     step={GUIDED_TOUR_STEPS.TABLE_WIDGET_BINDING}
-      //   >
-      //     <PropertySection
-      //       collapsible={sectionConfig.collapsible ?? true}
-      //       hidden={sectionConfig.hidden}
-      //       id={config.id || sectionConfig.sectionName}
-      //       isDefaultOpen={sectionConfig.isDefaultOpen}
-      //       key={config.id + props.id + props.searchQuery}
-      //       name={sectionConfig.sectionName}
-      //       propertyPath={sectionConfig.propertySectionPath}
-      //     >
-      //       {config.children && generatePropertyControl(config.children, props)}
-      //     </PropertySection>
-      //   </Boxed>
-      // );
     } else if ((config as PropertyPaneControlConfig).controlType) {
       return (
         <Boxed

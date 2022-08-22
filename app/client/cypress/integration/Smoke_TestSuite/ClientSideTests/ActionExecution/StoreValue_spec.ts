@@ -2,10 +2,10 @@ import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 
 const {
   AggregateHelper: agHelper,
+
+  DeployMode: deployMode,
   EntityExplorer: ee,
   JSEditor: jsEditor,
-  CommonLocators: locator,
-  DeployMode: deployMode,
   PropertyPane: propPane,
 } = ObjectsRegistry;
 

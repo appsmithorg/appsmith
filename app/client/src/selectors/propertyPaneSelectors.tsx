@@ -153,6 +153,19 @@ const populateEvaluatedWidgetProperties = (
   return evaluatedProperties;
 };
 
+const getCurrentEvaluatedWidget = createSelector(
+  getCurrentWidgetProperties,
+  getDataTree,
+  (
+    widget: WidgetProps | undefined,
+    evaluatedTree: DataTree,
+  ): DataTreeWidget => {
+    return (widget?.widgetName
+      ? evaluatedTree[widget.widgetName]
+      : {}) as DataTreeWidget;
+  },
+);
+
 export const getWidgetPropsForPropertyName = (
   propertyName: string,
   dependencies: string[] = [],
@@ -160,15 +173,11 @@ export const getWidgetPropsForPropertyName = (
 ) => {
   return createSelector(
     getCurrentWidgetProperties,
-    getDataTree,
+    getCurrentEvaluatedWidget,
     (
       widget: WidgetProps | undefined,
-      evaluatedTree: DataTree,
+      evaluatedWidget: DataTreeWidget,
     ): WidgetProperties => {
-      const evaluatedWidget = find(evaluatedTree, {
-        widgetId: widget?.widgetId,
-      }) as DataTreeWidget;
-
       const widgetProperties = populateWidgetProperties(
         widget,
         propertyName,

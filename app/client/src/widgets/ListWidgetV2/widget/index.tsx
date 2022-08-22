@@ -1,45 +1,60 @@
 import React from "react";
 import log from "loglevel";
 import {
-  compact,
   get,
   set,
   xor,
   isNumber,
   range,
-  toString,
-  isBoolean,
   omit,
   isEmpty,
   isEqual,
+  difference,
 } from "lodash";
-import memoizeOne from "memoize-one";
-import shallowEqual from "shallowequal";
 import WidgetFactory from "utils/WidgetFactory";
-import { removeFalsyEntries } from "utils/helpers";
-import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
+import BaseWidget, { WidgetProps } from "widgets/BaseWidget";
 import { RenderModes, WidgetType } from "constants/WidgetConstants";
 import ListComponent, {
   ListComponentEmpty,
   ListComponentLoading,
 } from "../component";
-// import { ContainerStyle } from "components/designSystems/appsmith/ContainerComponent";
-// import { ContainerWidgetProps } from "../ContainerWidget";
 import propertyPaneConfig from "./propertyConfig";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import { getDynamicBindings } from "utils/DynamicBindingUtils";
+import {
+  combineDynamicBindings,
+  getDynamicBindings,
+} from "utils/DynamicBindingUtils";
 import ListPagination, {
   ServerSideListPagination,
 } from "../component/ListPagination";
 import { GridDefaults } from "constants/WidgetConstants";
-import { ValidationTypes } from "constants/WidgetValidation";
 import derivedProperties from "./parseDerivedProperties";
-import { DSLWidget } from "widgets/constants";
+import { DSLWidget, FlattenedWidgetProps } from "widgets/constants";
 import { entityDefinitions } from "utils/autocomplete/EntityDefinitions";
-import { escapeSpecialChars } from "../../WidgetUtils";
 import { PrivateWidgets } from "entities/DataTree/dataTreeFactory";
 
 import { klona } from "klona";
+import { generateReactKey } from "utils/generators";
+
+export type DynamicPathList = Record<string, string[]>;
+
+export type Template = Record<string, FlattenedWidgetProps>;
+
+export type GenerateMetaWidgetOptions = {
+  parentId: string;
+  widgetId?: string; // TODO: (Ashit) Remove this
+  templateWidget?: WidgetProps & { children?: WidgetProps[] };
+  metaWidgets?: Template;
+  key: string; // TODO: (Ashit) - Make this field optional and use hash of data items
+};
+
+type MetaWidgetIdCache = {
+  [key: string]: Record<string, string>;
+};
+
+type ListWidgetState = {
+  page: number;
+};
 
 const LIST_WIDGET_PAGINATION_HEIGHT = 36;
 
@@ -48,10 +63,16 @@ const LIST_WIDGET_PAGINATION_HEIGHT = 36;
 */
 const PATH_TO_ALL_WIDGETS_IN_LIST_WIDGET =
   "children.0.children.0.children.0.children";
-class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
+class ListWidget extends BaseWidget<
+  ListWidgetProps<WidgetProps>,
+  ListWidgetState
+> {
   state = {
     page: 1,
   };
+
+  metaWidgetIdCache: MetaWidgetIdCache;
+  currentViewMetaWidgetsRef: Set<string>;
 
   /**
    * returns the property pane config of the widget
@@ -69,23 +90,390 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
     };
   }
 
+  static getDefaultPropertiesMap(): Record<string, string> {
+    return {};
+  }
+
+  static getMetaPropertiesMap(): Record<string, any> {
+    return {
+      pageNo: 1,
+      templateBottomRow: 16,
+    };
+  }
+
+  constructor(
+    props:
+      | ListWidgetProps<WidgetProps>
+      | Readonly<ListWidgetProps<WidgetProps>>,
+  ) {
+    super(props);
+
+    this.metaWidgetIdCache = {};
+    this.currentViewMetaWidgetsRef = new Set();
+  }
+
   componentDidMount() {
     if (this.props.serverSidePaginationEnabled && !this.props.pageNo) {
       this.props.updateWidgetMetaProperty("pageNo", 1);
     }
     this.props.updateWidgetMetaProperty(
       "templateBottomRow",
-      get(this.props.children, "0.children.0.bottomRow"),
+      get(this.props.childWidgets, "0.children.0.bottomRow"),
     );
 
     // generate childMetaPropertyMap
-    this.generateChildrenDefaultPropertiesMap(this.props);
-    this.generateChildrenMetaPropertiesMap(this.props);
+    // this.generateChildrenDefaultPropertiesMap(this.props);
+    // this.generateChildrenMetaPropertiesMap(this.props);
     this.generateChildrenEntityDefinitions(this.props);
 
     // add privateWidgets to ListWidget
     this.addPrivateWidgetsForChildren(this.props);
+
+    this.initMetaWidgets();
   }
+
+  componentDidUpdate(prevProps: ListWidgetProps<WidgetProps>) {
+    const currentListWidgetChildren: WidgetProps[] = get(
+      this.props,
+      PATH_TO_ALL_WIDGETS_IN_LIST_WIDGET,
+    );
+
+    this.initMetaWidgets();
+
+    const previousListWidgetChildren: WidgetProps[] = get(
+      prevProps,
+      PATH_TO_ALL_WIDGETS_IN_LIST_WIDGET,
+    );
+
+    if (
+      xor(
+        Object.keys(get(prevProps, "template", {})),
+        Object.keys(get(this.props, "template", {})),
+      ).length > 0
+    ) {
+      // this.generateChildrenDefaultPropertiesMap(this.props);
+      // this.generateChildrenMetaPropertiesMap(this.props);
+      // this.generateChildrenEntityDefinitions(this.props);
+    }
+
+    if (this.props.serverSidePaginationEnabled) {
+      if (!this.props.pageNo) this.props.updateWidgetMetaProperty("pageNo", 1);
+      // run onPageSizeChange if user resize widgets
+      if (
+        this.props.onPageSizeChange &&
+        this.props.pageSize !== prevProps.pageSize
+      ) {
+        super.executeAction({
+          triggerPropertyName: "onPageSizeChange",
+          dynamicString: this.props.onPageSizeChange,
+          event: {
+            type: EventType.ON_PAGE_SIZE_CHANGE,
+          },
+        });
+      }
+    }
+
+    if (this.props.serverSidePaginationEnabled) {
+      if (
+        this.props.serverSidePaginationEnabled === true &&
+        prevProps.serverSidePaginationEnabled === false
+      ) {
+        super.executeAction({
+          triggerPropertyName: "onPageSizeChange",
+          dynamicString: this.props.onPageSizeChange,
+          event: {
+            type: EventType.ON_PAGE_SIZE_CHANGE,
+          },
+        });
+      }
+    }
+
+    if (
+      get(this.props.childWidgets, "0.children.0.bottomRow") !==
+      get(prevProps.childWidgets, "0.children.0.bottomRow")
+    ) {
+      this.props.updateWidgetMetaProperty(
+        "templateBottomRow",
+        get(this.props.childWidgets, "0.children.0.bottomRow"),
+        {
+          triggerPropertyName: "onPageSizeChange",
+          dynamicString: this.props.onPageSizeChange,
+          event: {
+            type: EventType.ON_PAGE_SIZE_CHANGE,
+          },
+        },
+      );
+    }
+
+    // Update privateWidget field if there is a change in the List widget children
+    if (!isEqual(currentListWidgetChildren, previousListWidgetChildren)) {
+      this.addPrivateWidgetsForChildren(this.props);
+    }
+  }
+
+  findChildrenIds = (metaWidgets: Template, parentId: string) => {
+    const ids: string[] = [];
+
+    Object.values(metaWidgets).forEach((metaWidget) => {
+      if (metaWidget.parentId === parentId) {
+        ids.push(metaWidget.widgetId);
+      }
+    });
+
+    return ids;
+  };
+
+  getDeletedMetaWidgetIds = (newIds: string[]) => {
+    const currentIds = [...this.currentViewMetaWidgetsRef];
+
+    // Present in currentIds but not present in newIds
+    return difference(currentIds, newIds);
+  };
+
+  updateCurrentViewRefs = (newIds: string[], deletedIds: string[]) => {
+    newIds.forEach((id) => this.currentViewMetaWidgetsRef.add(id));
+    deletedIds.forEach((id) => this.currentViewMetaWidgetsRef.delete(id));
+  };
+
+  initMetaWidgets = () => {
+    const metaWidgets = this.generateMetaWidgetsForCurrentView();
+
+    if (metaWidgets) {
+      const newIds = Object.keys(metaWidgets);
+      const deletedIds = this.getDeletedMetaWidgetIds(newIds);
+      this.updateCurrentViewRefs(newIds, deletedIds);
+
+      this.modifyMetaWidgets({
+        addOrUpdate: metaWidgets,
+        delete: deletedIds,
+      });
+    }
+  };
+
+  generateMetaWidgetsForCurrentView = () => {
+    const { page } = this.state;
+    const { pageSize, listData = [], mainCanvasId } = this.props;
+    const startIndex = pageSize * (page - 1);
+    const currentViewData = listData.slice(startIndex, startIndex + pageSize);
+    const itemsCount = currentViewData.length;
+
+    let generatedMetaWidgets: Record<string, FlattenedWidgetProps> = {};
+    const canvasChildrenIds: string[] = [];
+    if (itemsCount > 0) {
+      Array.from(Array(itemsCount).keys()).forEach((idx) => {
+        const index = startIndex + idx;
+        const data = currentViewData[idx];
+        const key = String(data["id"]);
+        const { metaWidgetId, metaWidgets } = this.computeMetaWidgets(
+          index,
+          key,
+        );
+
+        generatedMetaWidgets = {
+          ...generatedMetaWidgets,
+          ...metaWidgets,
+        };
+
+        canvasChildrenIds.push(metaWidgetId);
+      });
+
+      if (mainCanvasId) {
+        generatedMetaWidgets[mainCanvasId] = this.mainCanvasMetaWidget();
+        generatedMetaWidgets[mainCanvasId].children = this.findChildrenIds(
+          generatedMetaWidgets,
+          mainCanvasId,
+        );
+      }
+
+      return generatedMetaWidgets;
+    }
+  };
+
+  getBinding = (value: string, widgetName: string) => {
+    const { jsSnippets, stringSegments } = getDynamicBindings(value);
+
+    const js = combineDynamicBindings(jsSnippets, stringSegments);
+
+    return `{{((currentItem) => ${js})(${this.props.widgetName}.listData[${widgetName}.__index])}}`;
+  };
+
+  disableWidgetOperations = (metaWidget: FlattenedWidgetProps) => {
+    set(metaWidget, "resizeDisabled", true);
+    set(metaWidget, "disablePropertyPane", true);
+    set(metaWidget, "dragDisabled", true);
+    set(metaWidget, "dropDisabled", true);
+
+    set(metaWidget, "ignoreCollision", true);
+    set(metaWidget, "shouldScrollContents", undefined);
+
+    set(metaWidget, `disabledResizeHandles`, [
+      "left",
+      "top",
+      "right",
+      "bottomRight",
+      "topLeft",
+      "topRight",
+      "bottomLeft",
+    ]);
+  };
+
+  getMainContainer = () => this.props.childWidgets?.[0]?.children?.[0];
+
+  updateContainerPosition = (
+    metaContainerWidget: FlattenedWidgetProps,
+    index: number,
+  ) => {
+    // TODO (ASHIT) - Remove mainContainerId?
+    // const { mainContainerId = "", template } = this.props;
+    const mainContainerWidget = this.getMainContainer();
+    const gap = this.getGridGap();
+    const {
+      borderRadius,
+      boxShadow,
+      boxShadowColor,
+      itemBackgroundColor,
+    } = this.props;
+
+    metaContainerWidget.gap = gap;
+    metaContainerWidget.backgroundColor = itemBackgroundColor;
+    metaContainerWidget.borderRadius = borderRadius;
+    metaContainerWidget.boxShadow = boxShadow;
+    metaContainerWidget.boxShadowColor = boxShadowColor;
+    metaContainerWidget.topRow =
+      index * mainContainerWidget.bottomRow +
+      index * (gap / GridDefaults.DEFAULT_GRID_ROW_HEIGHT);
+    metaContainerWidget.bottomRow =
+      (index + 1) * mainContainerWidget.bottomRow +
+      index * (gap / GridDefaults.DEFAULT_GRID_ROW_HEIGHT);
+  };
+
+  // TODO: (ashit) - When key becomes part of property config, remove from here
+  // and access directly from this.props
+  getMetaWidgetId = (widgetId: string, key: string) => {
+    if (!this.metaWidgetIdCache[key]) {
+      this.metaWidgetIdCache[key] = {};
+    }
+
+    const metaWidgetId =
+      this.metaWidgetIdCache[key]?.[widgetId] || generateReactKey();
+
+    this.metaWidgetIdCache[key][widgetId] = metaWidgetId;
+
+    return metaWidgetId;
+  };
+
+  generateMetaWidget = (index: number, options: GenerateMetaWidgetOptions) => {
+    const {
+      // template,
+      dynamicPathMap = {},
+      widgetName,
+      mainContainerId,
+      pageSize,
+      renderMode,
+    } = this.props;
+    const { page } = this.state;
+    const { parentId, metaWidgets = {}, key, templateWidget } = options;
+
+    if (!templateWidget) return { metaWidgets, metaWidgetId: "" };
+    const metaWidget = klona(
+      omit(templateWidget, "children"),
+    ) as FlattenedWidgetProps;
+    const dynamicPaths = dynamicPathMap[templateWidget.widgetId] || [];
+    const viewIndex = index - pageSize * (page - 1);
+
+    if (
+      renderMode === RenderModes.PAGE ||
+      (renderMode === RenderModes.CANVAS && viewIndex !== 0)
+    ) {
+      this.disableWidgetOperations(metaWidget);
+
+      const metaWidgetId = this.getMetaWidgetId(templateWidget.widgetId, key);
+
+      metaWidget.widgetId = metaWidgetId;
+      metaWidget.widgetName = `${widgetName}_${templateWidget.widgetName}_${metaWidget.widgetId}`;
+    }
+
+    if (templateWidget.widgetId === mainContainerId) {
+      this.updateContainerPosition(metaWidget, viewIndex);
+    }
+
+    metaWidget.__index = index;
+    metaWidget.parentId = parentId;
+
+    dynamicPaths.forEach((dynamicPath) => {
+      const templateValue = get(templateWidget, dynamicPath);
+      const dynamicValue = this.getBinding(
+        templateValue,
+        metaWidget.widgetName,
+      );
+
+      set(metaWidget, dynamicPath, dynamicValue);
+    });
+
+    const children: string[] = [];
+
+    (templateWidget.children || []).map((childWidget) => {
+      const { metaWidgetId: metaChildWidgetId } = this.generateMetaWidget(
+        index,
+        {
+          parentId: metaWidget.widgetId,
+          metaWidgets,
+          templateWidget: childWidget,
+          key,
+        },
+      );
+      // const idMap = this.metaWidgetIdCache[key] || {};
+
+      // children.push(idMap[childWidget.widgetId] || childWidget.widgetId);
+      children.push(metaChildWidgetId);
+    });
+
+    metaWidget.children = children;
+
+    metaWidgets[metaWidget.widgetId] = metaWidget;
+
+    return {
+      metaWidgets,
+      metaWidgetId: metaWidget.widgetId,
+    };
+  };
+
+  computeMetaWidgets = (index: number, key: string) => {
+    const {
+      mainCanvasId = "",
+      // mainContainerId = "",
+      childWidgets = [],
+    } = this.props;
+    const containerWidget: WidgetProps = childWidgets[0]?.children?.[0];
+
+    return this.generateMetaWidget(index, {
+      parentId: mainCanvasId,
+      templateWidget: containerWidget,
+      key,
+    });
+  };
+
+  mainCanvasMetaWidget = () => {
+    const { childWidgets = [] } = this.props;
+    const mainCanvasWidget = omit(
+      childWidgets[0],
+      "children",
+    ) as FlattenedWidgetProps;
+    const { shouldPaginate } = this.shouldPaginate();
+    const { componentHeight, componentWidth } = this.getComponentDimensions();
+    const metaMainCanvas = klona(mainCanvasWidget) ?? {};
+
+    metaMainCanvas.canExtend = undefined;
+    metaMainCanvas.isVisible = this.props.isVisible;
+    metaMainCanvas.minHeight = componentHeight;
+    metaMainCanvas.rightColumn = componentWidth;
+    metaMainCanvas.noPad = true;
+    metaMainCanvas.bottomRow = shouldPaginate
+      ? componentHeight - LIST_WIDGET_PAGINATION_HEIGHT
+      : componentHeight;
+
+    return metaMainCanvas;
+  };
 
   /**
    * generates the children entity definitions for children
@@ -138,154 +526,6 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
     });
 
     super.updateWidgetProperty("privateWidgets", privateWidgets);
-  }
-
-  generateChildrenDefaultPropertiesMap = (
-    props: ListWidgetProps<WidgetProps>,
-  ) => {
-    const template = props.template;
-    let childrenDefaultPropertiesMap = {};
-
-    if (template) {
-      Object.keys(template).map((key: string) => {
-        const currentTemplate = template[key];
-        const defaultProperties = WidgetFactory.getWidgetDefaultPropertiesMap(
-          currentTemplate?.type,
-        );
-
-        Object.keys(defaultProperties).map((defaultPropertyKey: string) => {
-          childrenDefaultPropertiesMap = {
-            ...childrenDefaultPropertiesMap,
-            [`${key}.${defaultPropertyKey}`]: defaultProperties[
-              defaultPropertyKey
-            ],
-          };
-        });
-      });
-    }
-
-    if (this.props.updateWidgetMetaProperty) {
-      this.props.updateWidgetMetaProperty(
-        "childrenDefaultPropertiesMap",
-        childrenDefaultPropertiesMap,
-      );
-    }
-  };
-
-  generateChildrenMetaPropertiesMap = (props: ListWidgetProps<WidgetProps>) => {
-    const template = props.template;
-    let childrenMetaPropertiesMap = {};
-
-    if (template) {
-      Object.keys(template).map((key: string) => {
-        const currentTemplate = template[key];
-        const metaProperties = WidgetFactory.getWidgetMetaPropertiesMap(
-          currentTemplate?.type,
-        );
-
-        Object.keys(metaProperties).map((metaPropertyKey: string) => {
-          childrenMetaPropertiesMap = {
-            ...childrenMetaPropertiesMap,
-            [`${key}.${metaPropertyKey}`]: currentTemplate[metaPropertyKey],
-          };
-        });
-      });
-    }
-
-    if (this.props.updateWidgetMetaProperty) {
-      this.props.updateWidgetMetaProperty(
-        "childrenMetaPropertiesMap",
-        Object.keys(childrenMetaPropertiesMap),
-      );
-    }
-  };
-
-  componentDidUpdate(prevProps: ListWidgetProps<WidgetProps>) {
-    const currentListWidgetChildren: WidgetProps[] = get(
-      this.props,
-      PATH_TO_ALL_WIDGETS_IN_LIST_WIDGET,
-    );
-
-    const previousListWidgetChildren: WidgetProps[] = get(
-      prevProps,
-      PATH_TO_ALL_WIDGETS_IN_LIST_WIDGET,
-    );
-
-    if (
-      xor(
-        Object.keys(get(prevProps, "template", {})),
-        Object.keys(get(this.props, "template", {})),
-      ).length > 0
-    ) {
-      this.generateChildrenDefaultPropertiesMap(this.props);
-      this.generateChildrenMetaPropertiesMap(this.props);
-      this.generateChildrenEntityDefinitions(this.props);
-    }
-
-    if (this.props.serverSidePaginationEnabled) {
-      if (!this.props.pageNo) this.props.updateWidgetMetaProperty("pageNo", 1);
-      // run onPageSizeChange if user resize widgets
-      if (
-        this.props.onPageSizeChange &&
-        this.props.pageSize !== prevProps.pageSize
-      ) {
-        super.executeAction({
-          triggerPropertyName: "onPageSizeChange",
-          dynamicString: this.props.onPageSizeChange,
-          event: {
-            type: EventType.ON_PAGE_SIZE_CHANGE,
-          },
-        });
-      }
-    }
-
-    if (this.props.serverSidePaginationEnabled) {
-      if (
-        this.props.serverSidePaginationEnabled === true &&
-        prevProps.serverSidePaginationEnabled === false
-      ) {
-        super.executeAction({
-          triggerPropertyName: "onPageSizeChange",
-          dynamicString: this.props.onPageSizeChange,
-          event: {
-            type: EventType.ON_PAGE_SIZE_CHANGE,
-          },
-        });
-      }
-    }
-
-    if (
-      get(this.props.children, "0.children.0.bottomRow") !==
-      get(prevProps.children, "0.children.0.bottomRow")
-    ) {
-      this.props.updateWidgetMetaProperty(
-        "templateBottomRow",
-        get(this.props.children, "0.children.0.bottomRow"),
-        {
-          triggerPropertyName: "onPageSizeChange",
-          dynamicString: this.props.onPageSizeChange,
-          event: {
-            type: EventType.ON_PAGE_SIZE_CHANGE,
-          },
-        },
-      );
-    }
-
-    // Update privateWidget field if there is a change in the List widget children
-    if (!isEqual(currentListWidgetChildren, previousListWidgetChildren)) {
-      this.addPrivateWidgetsForChildren(this.props);
-    }
-  }
-
-  static getDefaultPropertiesMap(): Record<string, string> {
-    return {};
-  }
-
-  static getMetaPropertiesMap(): Record<string, any> {
-    return {
-      pageNo: 1,
-      templateBottomRow: 16,
-    };
   }
 
   onPageChange = (page: number) => {
@@ -365,300 +605,6 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
   getGridGap = () =>
     this.props.gridGap && this.props.gridGap >= -8 ? this.props.gridGap : 0;
 
-  /**
-   * here we are updating the position of each items and disabled resizing for
-   * all items except template ( first item )
-   *
-   * @param children
-   */
-  updatePosition = (children: DSLWidget[]): DSLWidget[] => {
-    return children.map((child: DSLWidget, index) => {
-      const gap = this.getGridGap();
-
-      return {
-        ...child,
-        gap,
-        backgroundColor: this.props.itemBackgroundColor,
-        borderRadius: this.props.borderRadius,
-        boxShadow: this.props.boxShadow,
-        boxShadowColor: this.props.boxShadowColor,
-        topRow:
-          index * children[0].bottomRow +
-          index * (gap / GridDefaults.DEFAULT_GRID_ROW_HEIGHT),
-        bottomRow:
-          (index + 1) * children[0].bottomRow +
-          index * (gap / GridDefaults.DEFAULT_GRID_ROW_HEIGHT),
-        resizeDisabled:
-          index > 0 && this.props.renderMode === RenderModes.CANVAS,
-      };
-    });
-  };
-
-  updateTemplateWidgetProperties = (widget: WidgetProps, itemIndex: number) => {
-    const {
-      dynamicBindingPathList,
-      dynamicTriggerPathList,
-      template,
-    } = this.props;
-    const { widgetName = "" } = widget;
-    // Update properties if they're dynamic
-    // `template` property should have an array of values
-    // if it is a dynamicbinding
-
-    if (
-      Array.isArray(dynamicBindingPathList) &&
-      dynamicBindingPathList.length > 0
-    ) {
-      // Get all paths in the dynamicBindingPathList sans the List Widget name prefix
-      const dynamicPaths: string[] = compact(
-        dynamicBindingPathList.map((path: Record<"key", string>) =>
-          path.key.replace(`template.${widgetName}.`, ""),
-        ),
-      );
-
-      // Update properties in the widget based on the paths
-      // By picking the correct value from the evaluated values in the template
-      dynamicPaths.forEach((path: string) => {
-        const evaluatedProperty = get(template, `${widgetName}.${path}`);
-
-        if (
-          Array.isArray(evaluatedProperty) &&
-          evaluatedProperty.length > itemIndex
-        ) {
-          const evaluatedValue = evaluatedProperty[itemIndex];
-          const validationPath = get(widget, `validationPaths`)[path];
-
-          if (
-            (validationPath?.type === ValidationTypes.BOOLEAN &&
-              isBoolean(evaluatedValue)) ||
-            validationPath?.type === ValidationTypes.OBJECT
-          ) {
-            set(widget, path, evaluatedValue);
-            set(widget, `validationMessages.${path}`, "");
-            set(widget, `invalidProps.${path}`, "");
-          } else if (
-            validationPath?.type === ValidationTypes.ARRAY ||
-            validationPath?.type === ValidationTypes.OBJECT_ARRAY
-          ) {
-            const value = Array.isArray(evaluatedValue) ? evaluatedValue : [];
-            set(widget, path, value);
-          } else {
-            set(widget, path, toString(evaluatedValue));
-          }
-        }
-      });
-    }
-
-    // add default value
-    Object.keys(get(widget, "defaultProps", {})).map((key: string) => {
-      const defaultPropertyValue = get(widget, `${widget.defaultProps[key]}`);
-
-      set(widget, `${key}`, defaultPropertyValue);
-    });
-
-    get(widget, "defaultMetaProps", []).map((key: string) => {
-      const metaPropertyValue = get(
-        this.props.childMetaProperties,
-        `${widget.widgetName}.${key}.${itemIndex}`,
-        undefined,
-      );
-
-      if (
-        typeof metaPropertyValue !== "undefined" &&
-        metaPropertyValue !== null
-      ) {
-        set(widget, key, metaPropertyValue);
-      }
-    });
-
-    if (
-      Array.isArray(dynamicTriggerPathList) &&
-      dynamicTriggerPathList.length > 0
-    ) {
-      // Get all paths in the dynamicBindingPathList sans the List Widget name prefix
-      const triggerPaths: string[] = compact(
-        dynamicTriggerPathList.map((path: Record<"key", string>) =>
-          path.key.includes(`template.${widgetName}`)
-            ? path.key.replace(`template.${widgetName}.`, "")
-            : undefined,
-        ),
-      );
-
-      triggerPaths.forEach((path: string) => {
-        const propertyValue = get(
-          this.props.template[widget.widgetName],
-          path,
-          "",
-        );
-
-        if (
-          propertyValue.indexOf("currentItem") > -1 &&
-          propertyValue.indexOf("{{((currentItem) => {") === -1
-        ) {
-          const { jsSnippets } = getDynamicBindings(propertyValue);
-          const listItem = this.props.listData?.[itemIndex] || {};
-          const stringifiedListItem = JSON.stringify(listItem);
-          const escapedStringifiedListItem = escapeSpecialChars(
-            stringifiedListItem,
-          );
-          const newPropertyValue = jsSnippets.reduce(
-            (prev: string, next: string) => {
-              if (next.indexOf("currentItem") > -1) {
-                return (
-                  prev +
-                  `{{((currentItem) => { ${next}})(JSON.parse('${escapedStringifiedListItem}'))}}`
-                );
-              }
-              return prev + `{{${next}}}`;
-            },
-            "",
-          );
-          set(widget, path, newPropertyValue);
-        }
-
-        if (
-          propertyValue.indexOf("currentIndex") > -1 &&
-          propertyValue.indexOf("{{((currentIndex) => {") === -1
-        ) {
-          const { jsSnippets } = getDynamicBindings(propertyValue);
-
-          const newPropertyValue = jsSnippets.reduce(
-            (prev: string, next: string) => {
-              if (next.indexOf("currentIndex") > -1) {
-                return (
-                  prev +
-                  `{{((currentIndex) => { ${next}})(JSON.parse('${itemIndex}'))}}`
-                );
-              }
-              return prev + `{{${next}}}`;
-            },
-            "",
-          );
-          set(widget, path, newPropertyValue);
-        }
-      });
-    }
-
-    return this.updateNonTemplateWidgetProperties(widget, itemIndex);
-  };
-
-  updateNonTemplateWidgetProperties = (
-    widget: WidgetProps,
-    itemIndex: number,
-  ) => {
-    const { page } = this.state;
-    const { perPage } = this.shouldPaginate();
-    const originalIndex = ((page - 1) * perPage - itemIndex) * -1;
-
-    if (originalIndex !== 0) {
-      set(
-        widget,
-        `widgetId`,
-        `list-widget-child-id-${itemIndex}-${widget.widgetName}`,
-      );
-
-      if (this.props.renderMode === RenderModes.CANVAS) {
-        set(widget, `resizeDisabled`, true);
-        set(widget, `disablePropertyPane`, true);
-        set(widget, `dragDisabled`, true);
-        set(widget, `dropDisabled`, true);
-      }
-    }
-
-    set(widget, `__metaOptions`, {
-      widgetName: this.props.widgetName,
-      widgetId: this.props.widgetId,
-      metaPropPrefix: `childMetaProperties`,
-      index: itemIndex,
-    });
-
-    return widget;
-  };
-
-  /**
-   * @param children
-   */
-  useNewValues = (children: DSLWidget[]) => {
-    const updatedChildren = children.map(
-      (listItemContainer: DSLWidget, listItemIndex: number) => {
-        let updatedListItemContainer = listItemContainer;
-        // Get an array of children in the current list item
-        const listItemChildren = get(
-          updatedListItemContainer,
-          "children[0].children",
-          [],
-        );
-
-        // If children exist
-        if (listItemChildren.length > 0) {
-          // Update the properties of all the children
-          const updatedListItemChildren = listItemChildren.map(
-            (templateWidget: WidgetProps) => {
-              // This will return the updated child widget
-              return this.updateTemplateWidgetProperties(
-                templateWidget,
-                listItemIndex,
-              );
-            },
-          );
-          // Set the update list of children as the new children for the current list item
-          set(
-            updatedListItemContainer,
-            "children[0].children",
-            updatedListItemChildren,
-          );
-        }
-        // Get the item container's canvas child widget
-        const listItemContainerCanvas = get(
-          updatedListItemContainer,
-          "children[0]",
-        );
-        // Set properties of the container's canvas child widget
-        const updatedListItemContainerCanvas = this.updateNonTemplateWidgetProperties(
-          listItemContainerCanvas,
-          listItemIndex,
-        );
-        // Set the item container's canvas child widget
-        set(
-          updatedListItemContainer,
-          "children[0]",
-          updatedListItemContainerCanvas,
-        );
-        // Set properties of the item container
-        updatedListItemContainer = this.updateNonTemplateWidgetProperties(
-          listItemContainer,
-          listItemIndex,
-        );
-
-        set(updatedListItemContainer, `disabledResizeHandles`, [
-          "left",
-          "top",
-          "right",
-          "bottomRight",
-          "topLeft",
-          "topRight",
-          "bottomLeft",
-        ]);
-
-        set(updatedListItemContainer, "ignoreCollision", true);
-        set(updatedListItemContainer, "shouldScrollContents", undefined);
-
-        return updatedListItemContainer;
-      },
-    );
-
-    return updatedChildren;
-  };
-
-  updateGridChildrenProps = (children: DSLWidget[]) => {
-    let updatedChildren = this.useNewValues(children);
-    updatedChildren = this.updateActions(updatedChildren);
-    updatedChildren = this.paginateItems(updatedChildren);
-    updatedChildren = this.updatePosition(updatedChildren);
-
-    return updatedChildren;
-  };
-
   updateActions = (children: DSLWidget[]) => {
     return children.map((child: DSLWidget, index) => {
       return {
@@ -690,83 +636,6 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
   };
 
   /**
-   * renders children
-   */
-  renderChildren = () => {
-    if (
-      this.props.children &&
-      this.props.children.length > 0 &&
-      this.props.listData
-    ) {
-      const { page } = this.state;
-      const children = removeFalsyEntries(klona(this.props.children));
-      const childCanvas = children[0];
-
-      const canvasChildren = childCanvas.children;
-      const template = canvasChildren.slice(0, 1).shift();
-      const gridGap = this.getGridGap();
-      try {
-        // Passing template instead of deriving from canvasChildren becuase lesser items to compare
-        // in memoize
-        childCanvas.children = this.getCanvasChildren(
-          template,
-          this.props.listData,
-          this.props.template,
-          canvasChildren,
-          page,
-          gridGap,
-          this.props.itemBackgroundColor,
-        );
-      } catch (e) {
-        log.error(e);
-      }
-      return this.renderChild(childCanvas);
-    }
-  };
-
-  getCanvasChildren = memoizeOne(
-    (
-      template: any,
-      listData: any,
-      staticTemplate: any,
-      canvasChildren: any,
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      page: number,
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      gridGap,
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      itemBackgroundColor,
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    ) => {
-      const canvasChildrenList = [];
-      if (listData.length > 0) {
-        for (let i = 0; i < listData.length; i++) {
-          canvasChildrenList[i] = JSON.parse(JSON.stringify(template));
-        }
-        canvasChildren = this.updateGridChildrenProps(canvasChildrenList);
-      } else {
-        canvasChildren = this.updateGridChildrenProps(canvasChildren);
-      }
-
-      return canvasChildren;
-    },
-    (prev: any, next: any) => {
-      // not comparing canvasChildren becuase template acts as a proxy
-
-      return (
-        shallowEqual(prev[0], next[0]) &&
-        shallowEqual(prev[1], next[1]) &&
-        shallowEqual(prev[2], next[2]) &&
-        prev[3] === next[3] &&
-        prev[4] === next[4] &&
-        prev[5] === next[6] &&
-        prev[6] === next[6]
-      );
-    },
-  );
-
-  /**
    * 400
    * 200
    * can data be paginated
@@ -787,16 +656,28 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
     return { shouldPaginate, perPage: pageSize };
   };
 
+  renderChildren = () => {
+    const { componentWidth } = this.getComponentDimensions();
+    return (this.props.metaWidgetChildrenStructure || []).map(
+      (childWidgetStructure) => {
+        const child = { ...childWidgetStructure };
+        child.parentColumnSpace = this.props.parentColumnSpace;
+        // This gets replaced in withWidgetProps.
+        child.rightColumn = componentWidth;
+        return WidgetFactory.createWidget(child, this.props.renderMode);
+      },
+    );
+  };
+
   /**
    * view that is rendered in editor
    */
   getPageView() {
-    const children = this.renderChildren();
     const { componentHeight } = this.getComponentDimensions();
     const { pageNo, serverSidePaginationEnabled } = this.props;
     const { perPage, shouldPaginate } = this.shouldPaginate();
     const templateBottomRow = get(
-      this.props.children,
+      this.props.childWidgets,
       "0.children.0.bottomRow",
     );
     const templateHeight =
@@ -856,8 +737,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
         key={`list-widget-page-${this.state.page}`}
         listData={this.props.listData || []}
       >
-        {children}
-
+        {this.renderChildren()}
         {shouldPaginate &&
           (serverSidePaginationEnabled ? (
             <ServerSideListPagination
@@ -885,20 +765,24 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
    * returns type of the widget
    */
   static getWidgetType(): WidgetType {
-    return "LIST_WIDGET";
+    return "LIST_WIDGET_V2";
   }
 }
 
 export interface ListWidgetProps<T extends WidgetProps> extends WidgetProps {
-  children?: T[];
-  shouldScrollContents?: boolean;
-  onListItemClick?: string;
-  listData?: Array<Record<string, unknown>>;
-  currentItemStructure?: Record<string, string>;
+  accentColor: string;
   backgroundColor: string;
   borderRadius: string;
   boxShadow?: string;
-  accentColor: string;
+  children?: T[];
+  currentItemStructure?: Record<string, string>;
+  dynamicPathMap?: Record<string, string[]>;
+  mainCanvasId?: string;
+  listData?: Array<Record<string, unknown>>;
+  mainContainerId?: string;
+  onListItemClick?: string;
+  shouldScrollContents?: boolean;
+  template: Template;
 }
 
 export default ListWidget;

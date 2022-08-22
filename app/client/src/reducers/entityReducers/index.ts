@@ -1,19 +1,21 @@
 import { combineReducers } from "redux";
-import canvasWidgetsReducer from "./canvasWidgetsReducer";
-import widgetConfigReducer from "./widgetConfigReducer";
 import actionsReducer from "./actionsReducer";
-import datasourceReducer from "./datasourceReducer";
-import pageListReducer from "./pageListReducer";
-import jsExecutionsReducer from "./jsExecutionsReducer";
-import pluginsReducer from "reducers/entityReducers/pluginsReducer";
-import metaReducer from "./metaReducer";
 import appReducer from "./appReducer";
+import canvasWidgetsReducer from "./canvasWidgetsReducer";
+import canvasWidgetsStructureReducer from "./canvasWidgetsStructureReducer";
+import metaCanvasWidgetsReducer from "./metaCanvasWidgetsReducer";
+import datasourceReducer from "./datasourceReducer";
 import jsActionsReducer from "./jsActionsReducer";
-import pseudoCanvasWidgetsReducer from "./pseudoCanvasWidgetsReducer";
+import jsExecutionsReducer from "./jsExecutionsReducer";
+import metaReducer from "./metaReducer";
+import pageListReducer from "./pageListReducer";
+import pluginsReducer from "reducers/entityReducers/pluginsReducer";
+import widgetConfigReducer from "./widgetConfigReducer";
 
 const entityReducer = combineReducers({
   canvasWidgets: canvasWidgetsReducer,
-  pseudoCanvasWidgets: pseudoCanvasWidgetsReducer,
+  canvasWidgetsStructure: canvasWidgetsStructureReducer,
+  metaCanvasWidgets: metaCanvasWidgetsReducer,
   widgetConfig: widgetConfigReducer,
   actions: actionsReducer,
   datasources: datasourceReducer,
