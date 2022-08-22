@@ -104,7 +104,7 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
     deployMode.NavigateBacktoEditor();
     table.WaitUntilTableLoad();
     //Delete the test data
-    ee.ExpandCollapseEntity("PAGES");
+    ee.ExpandCollapseEntity("Pages");
     ee.ActionContextMenuByEntityName("Employees", "Delete", "Are you sure?");
     agHelper.ValidateNetworkStatus("@deletePage", 200);
   });
@@ -145,7 +145,7 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
     dataSources.RunQueryNVerifyResponseViews();
     agHelper.ActionContextMenuWithInPane("Delete");
 
-    ee.ExpandCollapseEntity("DATASOURCES");
+    ee.ExpandCollapseEntity("Datasources");
     ee.ExpandCollapseEntity(dsName);
     ee.ActionContextMenuByEntityName(dsName, "Refresh");
     agHelper.AssertElementVisible(ee._entityNameInExplorer("productlines"));
@@ -209,7 +209,7 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
   });
 
   it.skip("6. Verify Update/Delete row/Delete field data from Deploy page - on Productlines - existing record + Bug 14063", () => {
-    ee.SelectEntityByName("update_form", "WIDGETS");
+    ee.SelectEntityByName("update_form", "Widgets");
     propPane.ChangeJsonFormFieldType(
       "Text Description",
       "Multiline Text Input",
@@ -322,7 +322,7 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
   });
 
   it("11. Verify Update data from Deploy page - on Stores - existing record", () => {
-    ee.SelectEntityByName("update_form", "WIDGETS");
+    ee.SelectEntityByName("update_form", "Widgets");
 
     updatingStoreJSONPropertyFileds();
     deployMode.DeployApp();
@@ -433,7 +433,7 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
   it("15. Verify Add/Insert from Deploy page - on Stores - new record", () => {
     deployMode.NavigateBacktoEditor();
     table.WaitUntilTableLoad();
-    ee.ExpandCollapseEntity("WIDGETS");
+    ee.ExpandCollapseEntity("Widgets");
     ee.ExpandCollapseEntity("Insert_Modal");
     ee.SelectEntityByName("insert_form");
     agHelper.Sleep(2000);
@@ -565,14 +565,14 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
     //agHelper.VerifyEvaluatedValue(tableCreateQuery);
 
     dataSources.RunQueryNVerifyResponseViews();
-    ee.ExpandCollapseEntity("DATASOURCES");
+    ee.ExpandCollapseEntity("Datasources");
     ee.ExpandCollapseEntity(dsName);
     ee.ActionContextMenuByEntityName(dsName, "Refresh");
     agHelper.AssertElementAbsence(ee._entityNameInExplorer("Stores"));
   });
 
   it("19. Verify application does not break when user runs the query with wrong table name", function() {
-    ee.SelectEntityByName("DropStores", "QUERIES/JS");
+    ee.SelectEntityByName("DropStores", "Queries/JS");
     dataSources.RunQuery(false);
     agHelper
       .GetText(dataSources._queryError)

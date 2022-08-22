@@ -7,10 +7,10 @@ let ee = ObjectsRegistry.EntityExplorer;
 describe("Entity explorer context menu", function() {
   it("Entity explorer menu must close on scroll", function() {
     // Setup to make the explorer scrollable
-    ee.ExpandCollapseEntity("DATASOURCES");
-    ee.ExpandCollapseEntity("QUERIES/JS");
-    ee.ExpandCollapseEntity("WIDGETS");
-    cy.contains("DEPENDENCIES").click();
+    ee.ExpandCollapseEntity("Datasources");
+    ee.ExpandCollapseEntity("Queries/JS");
+    ee.ExpandCollapseEntity("Widgets");
+    cy.contains("Dependencies").click();
     cy.get(explorer.addDBQueryEntity).click();
     cy.contains("[data-cy='t--tab-MOCK_DATABASE']", "Sample Databases").click();
     cy.contains(".t--mock-datasource", "Users").click();

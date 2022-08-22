@@ -47,7 +47,10 @@ describe("[Bug]: The data from the query does not show up on the widget #14299",
     );
 
     ee.SelectEntityByName("Table1");
-    propPane.UpdatePropertyFieldValue("Table Data", `{{JSObject1.runAstros.data}}`);
+    propPane.UpdatePropertyFieldValue(
+      "Table Data",
+      `{{JSObject1.runAstros.data}}`,
+    );
 
     ee.SelectEntityByName("DatePicker1");
     propPane.UpdatePropertyFieldValue(
@@ -97,7 +100,7 @@ describe("[Bug]: The data from the query does not show up on the widget #14299",
 
     table.NavigateToNextPage(false);
     table.WaitUntilTableLoad();
-    table.SelectTableRow(1);//Asserting here table is available for selection
+    table.SelectTableRow(1); //Asserting here table is available for selection
     table.ReadTableRowColumnData(1, 0, 200).then(($cellData) => {
       expect($cellData).to.eq("286");
     });
@@ -112,16 +115,21 @@ describe("[Bug]: The data from the query does not show up on the widget #14299",
   it("4. Verify Deletion of the datasource after all created queries are Deleted", () => {
     deployMode.NavigateBacktoEditor();
     agHelper.WaitUntilToastDisappear("ran successfully"); //runAstros triggered on PageLaoad of Edit page!
-    ee.ExpandCollapseEntity("QUERIES/JS");
-    ee.ActionContextMenuByEntityName("getAstronauts", "Delete", "Are you sure?");
+    ee.ExpandCollapseEntity("Queries/JS");
+    ee.ActionContextMenuByEntityName(
+      "getAstronauts",
+      "Delete",
+      "Are you sure?",
+    );
     ee.ActionContextMenuByEntityName(
       "JSObject1",
       "Delete",
-      "Are you sure?", true
+      "Are you sure?",
+      true,
     );
     deployMode.DeployApp(locator._widgetInDeployed("tablewidget"), false);
     deployMode.NavigateBacktoEditor();
-    ee.ExpandCollapseEntity("DATASOURCES");
+    ee.ExpandCollapseEntity("Datasources");
     dataSources.DeleteDatasouceFromWinthinDS(dsName, 200); //ProductLines, Employees pages are still using this ds
   });
 });

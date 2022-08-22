@@ -18,7 +18,7 @@ const clickButtonAndAssertLintError = (
 ) => {
   agHelper.Sleep(2000);
   // Check for presence/ absence of lint error
-  ee.SelectEntityByName("Button1", "WIDGETS");
+  ee.SelectEntityByName("Button1", "Widgets");
   // Sometimes wait for page to switch
   shouldWait && agHelper.Sleep(2000);
   if (shouldExist) {
@@ -33,7 +33,7 @@ const clickButtonAndAssertLintError = (
 
   //Reload and Check for presence/ absence of lint error
   agHelper.RefreshPage();
-  ee.SelectEntityByName("Button1", "WIDGETS");
+  ee.SelectEntityByName("Button1", "Widgets");
   shouldExist
     ? agHelper.AssertElementExist(locator._lintErrorElement)
     : agHelper.AssertElementAbsence(locator._lintErrorElement);
@@ -58,7 +58,7 @@ describe("Linting", () => {
   });
 
   it("1. TC 1927 - Shows correct lint error when Api is deleted or created", () => {
-    ee.SelectEntityByName("Button1", "WIDGETS");
+    ee.SelectEntityByName("Button1", "Widgets");
     jsEditor.EnterJSContext(
       "onClick",
       `{{function(){
@@ -84,7 +84,7 @@ describe("Linting", () => {
     clickButtonAndAssertLintError(false);
 
     // Delete Api and assert that lint error shows
-    ee.ExpandCollapseEntity("QUERIES/JS");
+    ee.ExpandCollapseEntity("Queries/JS");
     ee.ActionContextMenuByEntityName("Api1", "Delete", "Are you sure?");
 
     clickButtonAndAssertLintError(true);
@@ -100,19 +100,19 @@ describe("Linting", () => {
   });
 
   it("2. TC 1927 Cont'd - Doesn't show lint errors when Api is renamed", () => {
-    ee.SelectEntityByName("Api1", "QUERIES/JS");
+    ee.SelectEntityByName("Api1", "Queries/JS");
     agHelper.RenameWithInPane("Api2");
 
     clickButtonAndAssertLintError(false);
 
-    ee.SelectEntityByName("Api2", "QUERIES/JS");
+    ee.SelectEntityByName("Api2", "Queries/JS");
     agHelper.RenameWithInPane("Api1");
 
     clickButtonAndAssertLintError(false);
   });
 
   it("3. TC 1929 - Shows correct lint error when JSObject is deleted or created", () => {
-    ee.SelectEntityByName("Button1", "WIDGETS");
+    ee.SelectEntityByName("Button1", "Widgets");
     jsEditor.EnterJSContext(
       "onClick",
       `{{function(){
@@ -146,9 +146,9 @@ describe("Linting", () => {
       },
     );
     clickButtonAndAssertLintError(false);
-    ee.ExpandCollapseEntity("QUERIES/JS");
+    ee.ExpandCollapseEntity("Queries/JS");
     ee.ActionContextMenuByEntityName("JSObject1", "Delete", "Are you sure?");
-    ee.SelectEntityByName("Button1", "WIDGETS");
+    ee.SelectEntityByName("Button1", "Widgets");
 
     clickButtonAndAssertLintError(true);
 
@@ -175,18 +175,18 @@ describe("Linting", () => {
   });
 
   it("4. TC 1929 Cont'd -Doesn't show lint error when JSObject is renamed", () => {
-    ee.ExpandCollapseEntity("QUERIES/JS");
-    ee.SelectEntityByName("JSObject1", "QUERIES/JS");
+    ee.ExpandCollapseEntity("Queries/JS");
+    ee.SelectEntityByName("JSObject1", "Queries/JS");
     jsEditor.RenameJSObjFromPane("JSObject2");
     clickButtonAndAssertLintError(false, true);
-    ee.ExpandCollapseEntity("QUERIES/JS");
-    ee.SelectEntityByName("JSObject2", "QUERIES/JS");
+    ee.ExpandCollapseEntity("Queries/JS");
+    ee.SelectEntityByName("JSObject2", "Queries/JS");
     jsEditor.RenameJSObjFromPane("JSObject1");
     clickButtonAndAssertLintError(false, true);
   });
 
   it("5. TC 1928 - Shows correct lint error with Query is created or Deleted", () => {
-    ee.SelectEntityByName("Button1", "WIDGETS");
+    ee.SelectEntityByName("Button1", "Widgets");
     jsEditor.EnterJSContext(
       "onClick",
       `{{function(){
@@ -206,7 +206,7 @@ describe("Linting", () => {
     clickButtonAndAssertLintError(false);
 
     // Delete
-    ee.ExpandCollapseEntity("QUERIES/JS");
+    ee.ExpandCollapseEntity("Queries/JS");
     ee.ActionContextMenuByEntityName("Query1", "Delete", "Are you sure?");
     clickButtonAndAssertLintError(true);
 
@@ -217,13 +217,13 @@ describe("Linting", () => {
   });
 
   it("6. TC 1928 Cont'd - Shows correct lint error when Query is renamed", () => {
-    ee.SelectEntityByName("Query1", "QUERIES/JS");
+    ee.SelectEntityByName("Query1", "Queries/JS");
     agHelper.RenameWithInPane("Query2");
 
     // Assert Absence of lint error
     clickButtonAndAssertLintError(false);
 
-    ee.SelectEntityByName("Query2", "QUERIES/JS");
+    ee.SelectEntityByName("Query2", "Queries/JS");
     agHelper.RenameWithInPane("Query1");
 
     // Assert Absence of lint error
@@ -231,7 +231,7 @@ describe("Linting", () => {
   });
 
   it("7. TC 1930 - Shows correct lint error with multiple entities in triggerfield", () => {
-    ee.SelectEntityByName("Button1", "WIDGETS");
+    ee.SelectEntityByName("Button1", "Widgets");
     jsEditor.EnterJSContext(
       "onClick",
       `{{function(){
@@ -251,7 +251,7 @@ describe("Linting", () => {
     clickButtonAndAssertLintError(false);
 
     // Delete all
-    ee.ExpandCollapseEntity("QUERIES/JS");
+    ee.ExpandCollapseEntity("Queries/JS");
     ee.ActionContextMenuByEntityName("JSObject1", "Delete", "Are you sure?");
     ee.ActionContextMenuByEntityName("Api1", "Delete", "Are you sure?");
     ee.ActionContextMenuByEntityName("Query1", "Delete", "Are you sure?");

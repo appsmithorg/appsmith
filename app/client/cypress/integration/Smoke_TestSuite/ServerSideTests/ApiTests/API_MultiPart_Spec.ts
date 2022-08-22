@@ -119,23 +119,23 @@ describe("Validate API request body panel", () => {
       },
     );
 
-    ee.SelectEntityByName("FilePicker1", "WIDGETS");
-    jsEditor.EnterJSContext(
-      "onFilesSelected",
-      `{{JSObject1.upload()}}`
-    );
+    ee.SelectEntityByName("FilePicker1", "Widgets");
+    jsEditor.EnterJSContext("onFilesSelected", `{{JSObject1.upload()}}`);
 
     ee.SelectEntityByName("Image1");
-    propPane.UpdatePropertyFieldValue("Image", "{{CloudinaryUploadApi.data.url}}");
+    propPane.UpdatePropertyFieldValue(
+      "Image",
+      "{{CloudinaryUploadApi.data.url}}",
+    );
 
-    ee.SelectEntityByName("CloudinaryUploadApi", "QUERIES/JS");
+    ee.SelectEntityByName("CloudinaryUploadApi", "Queries/JS");
 
     apiPage.ToggleOnPageLoadRun(false); //Bug 12476
     ee.SelectEntityByName("Page1");
     deployMode.DeployApp(locator._spanButton("Select Files"));
     agHelper.ClickButton("Select Files");
     agHelper.UploadFile(imageNameToUpload);
-    agHelper.ValidateNetworkExecutionSuccess("@postExecute");//validating Cloudinary api call
+    agHelper.ValidateNetworkExecutionSuccess("@postExecute"); //validating Cloudinary api call
     agHelper.ValidateToastMessage("Image uploaded to Cloudinary successfully");
     agHelper.Sleep();
     cy.xpath(apiPage._imageSrc)
@@ -150,7 +150,7 @@ describe("Validate API request body panel", () => {
 
   it("8. Checks MultiPart form data for a Array Type upload results in API error", () => {
     let imageNameToUpload = "AAAFlowerVase.jpeg";
-    ee.SelectEntityByName("CloudinaryUploadApi", "QUERIES/JS");
+    ee.SelectEntityByName("CloudinaryUploadApi", "Queries/JS");
     apiPage.EnterBodyFormData(
       "MULTIPART_FORM_DATA",
       "file",
@@ -158,7 +158,7 @@ describe("Validate API request body panel", () => {
       "Array",
       true,
     );
-    ee.SelectEntityByName("FilePicker1", "WIDGETS");
+    ee.SelectEntityByName("FilePicker1", "Widgets");
     agHelper.ClickButton("Select Files");
     agHelper.UploadFile(imageNameToUpload);
     agHelper.ValidateNetworkExecutionSuccess("@postExecute", false);

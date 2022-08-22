@@ -906,7 +906,7 @@ describe("App Theming funtionality", function() {
 
     //Resetting back to theme
     ee.NavigateToSwitcher("explorer");
-    ee.ExpandCollapseEntity("WIDGETS"); //to expand widgets
+    ee.ExpandCollapseEntity("Widgets"); //to expand widgets
     ee.SelectEntityByName("Button2");
     cy.get(".t--property-control-buttoncolor .reset-button").then(($elem) => {
       $elem[0].removeAttribute("display: none");
@@ -1007,7 +1007,7 @@ describe("App Theming funtionality", function() {
 
     //Change individual widget properties for Button1
     ee.NavigateToSwitcher("explorer");
-    ee.ExpandCollapseEntity("WIDGETS"); //to expand widgets
+    ee.ExpandCollapseEntity("Widgets"); //to expand widgets
     ee.SelectEntityByName("Button1");
 
     //Change Color & verify
@@ -1144,7 +1144,7 @@ describe("App Theming funtionality", function() {
 
     //Resetting back to theme
     ee.NavigateToSwitcher("explorer");
-    ee.ExpandCollapseEntity("WIDGETS"); //to expand widgets
+    ee.ExpandCollapseEntity("Widgets"); //to expand widgets
     ee.SelectEntityByName("Button1");
     cy.get(".t--property-control-buttoncolor .reset-button").then(($elem) => {
       $elem[0].removeAttribute("display: none");

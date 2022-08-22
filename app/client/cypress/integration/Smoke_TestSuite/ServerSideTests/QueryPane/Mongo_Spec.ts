@@ -305,7 +305,7 @@ describe("Validate Mongo Query Pane Validations", () => {
     });
     agHelper.ActionContextMenuWithInPane("Delete");
 
-    ee.ExpandCollapseEntity("DATASOURCES");
+    ee.ExpandCollapseEntity("Datasources");
     ee.ExpandCollapseEntity(dsName);
     ee.ActionContextMenuByEntityName(dsName, "Refresh");
     agHelper.AssertElementVisible(ee._entityNameInExplorer("AuthorNAwards"));
@@ -622,7 +622,7 @@ describe("Validate Mongo Query Pane Validations", () => {
     deployMode.NavigateBacktoEditor();
     table.WaitUntilTableLoad();
     //Delete the test data
-    ee.ExpandCollapseEntity("PAGES");
+    ee.ExpandCollapseEntity("Pages");
     ee.ActionContextMenuByEntityName(
       "AuthorNAwards",
       "Delete",
@@ -639,12 +639,12 @@ describe("Validate Mongo Query Pane Validations", () => {
     agHelper.RenameWithInPane("DropAuthorNAwards"); //Due to template appearing after renaming
 
     dataSources.EnterQuery(dropCollection);
-     agHelper.FocusElement(locator._codeMirrorTextArea);;
+    agHelper.FocusElement(locator._codeMirrorTextArea);
     //agHelper.VerifyEvaluatedValue(tableCreateQuery);
 
     dataSources.RunQuery();
     agHelper.ActionContextMenuWithInPane("Delete");
-    ee.ExpandCollapseEntity("DATASOURCES");
+    ee.ExpandCollapseEntity("Datasources");
     ee.ExpandCollapseEntity(dsName);
     ee.ActionContextMenuByEntityName(dsName, "Refresh");
     agHelper.AssertElementAbsence(ee._entityNameInExplorer("AuthorNAwards"));
@@ -656,7 +656,7 @@ describe("Validate Mongo Query Pane Validations", () => {
     dataSources.ValidateNSelectDropdown("Commands", "Find Document(s)", "Raw");
     agHelper.RenameWithInPane("DropAuthorNAwards");
     dataSources.EnterQuery(dropCollection);
-     agHelper.FocusElement(locator._codeMirrorTextArea);;
+    agHelper.FocusElement(locator._codeMirrorTextArea);
     //agHelper.VerifyEvaluatedValue(tableCreateQuery);
 
     dataSources.RunQuery(false);
@@ -739,7 +739,7 @@ describe("Validate Mongo Query Pane Validations", () => {
     agHelper.ActionContextMenuWithInPane("Delete");
 
     //Execute a find query on this collection to see if dates are fetched properly
-    ee.ExpandCollapseEntity("DATASOURCES");
+    ee.ExpandCollapseEntity("Datasources");
     ee.ExpandCollapseEntity(dsName);
     ee.ActionContextMenuByEntityName(dsName, "Refresh");
     agHelper.AssertElementVisible(ee._entityNameInExplorer("BirthNDeath"));
@@ -756,13 +756,13 @@ describe("Validate Mongo Query Pane Validations", () => {
     dataSources.ValidateNSelectDropdown("Commands", "Find Document(s)", "Raw");
     agHelper.RenameWithInPane("DropBirthNDeath");
     dataSources.EnterQuery(dropCollection);
-     agHelper.FocusElement(locator._codeMirrorTextArea);;
+    agHelper.FocusElement(locator._codeMirrorTextArea);
     dataSources.RunQuery();
   });
 
   it("20. Verify Deletion of the datasource", () => {
     //Delete the test data
-    // ee.expandCollapseEntity("PAGES")
+    // ee.expandCollapseEntity("Pages")
     // ee.ActionContextMenuByEntityName("Page1", "Delete", "Are you sure?"); //Cant be deleted since this is the Home page!
     // agHelper.ValidateNetworkStatus("@deletePage", 200);
     deployMode.DeployApp();

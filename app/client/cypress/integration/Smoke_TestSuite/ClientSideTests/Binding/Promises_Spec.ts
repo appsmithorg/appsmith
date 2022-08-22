@@ -14,7 +14,7 @@ describe("Validate basic Promises", () => {
     cy.fixture("promisesBtnDsl").then((val: any) => {
       agHelper.AddDsl(val, locator._spanButton("Submit"));
     });
-    ee.SelectEntityByName("Button1", "WIDGETS");
+    ee.SelectEntityByName("Button1", "Widgets");
     jsEditor.EnterJSContext(
       "onClick",
       "{{storeValue('date', Date()).then(() => showAlert(appsmith.store.date))}}",
@@ -29,7 +29,7 @@ describe("Validate basic Promises", () => {
     cy.fixture("promisesBtnDsl").then((val: any) => {
       agHelper.AddDsl(val, locator._spanButton("Submit"));
     });
-    ee.SelectEntityByName("Button1", "WIDGETS");
+    ee.SelectEntityByName("Button1", "Widgets");
     jsEditor.EnterJSContext(
       "onClick",
       `{{
@@ -61,7 +61,7 @@ describe("Validate basic Promises", () => {
       key: "name",
       value: "{{this.params.country}}",
     }); // verifies Bug 10055
-    ee.SelectEntityByName("Button1", "WIDGETS");
+    ee.SelectEntityByName("Button1", "Widgets");
     jsEditor.EnterJSContext(
       "onClick",
       `{{(async function(){
@@ -94,7 +94,7 @@ describe("Validate basic Promises", () => {
       "https://source.unsplash.com/collection/8439505",
       "Christmas",
     );
-    ee.SelectEntityByName("Button1", "WIDGETS");
+    ee.SelectEntityByName("Button1", "Widgets");
     jsEditor.EnterJSContext(
       "onClick",
       `{{
@@ -125,7 +125,7 @@ describe("Validate basic Promises", () => {
     apiPage.CreateAndFillApi("https://favqs.com/api/qotd", "InspiringQuotes");
     jsEditor.CreateJSObject(`const user = 'You';
 return InspiringQuotes.run().then((res) => { showAlert("Today's quote for " + user + " is " + JSON.stringify(res.quote.body), 'success') }).catch(() => showAlert("Unable to fetch quote for " + user, 'warning'))`);
-    ee.SelectEntityByName("Button1", "WIDGETS");
+    ee.SelectEntityByName("Button1", "Widgets");
     cy.get("@jsObjName").then((jsObjName) => {
       jsEditor.EnterJSContext("onClick", "{{" + jsObjName + ".myFun1()}}");
     });
@@ -150,7 +150,7 @@ return InspiringQuotes.run().then((res) => { showAlert("Today's quote for " + us
       key: "name",
       value: "{{this.params.person}}",
     }); // verifies Bug 10055
-    ee.SelectEntityByName("Button1", "WIDGETS");
+    ee.SelectEntityByName("Button1", "Widgets");
     jsEditor.EnterJSContext(
       "onClick",
       `{{ Promise.race([Agify.run({ person: 'Melinda' }), Agify.run({ person: 'Trump' })]).then((res) => { showAlert('Winner is ' + JSON.stringify(res.name), 'success') }) }} `,
@@ -171,7 +171,7 @@ return InspiringQuotes.run().then((res) => { showAlert("Today's quote for " + us
       "https://api.jikan.moe/v3/search/anime?q={{this.params.name}}",
       "GetAnime",
     );
-    ee.SelectEntityByName("List1", "WIDGETS");
+    ee.SelectEntityByName("List1", "Widgets");
     propPane.UpdatePropertyFieldValue(
       "Items",
       `[{
@@ -217,7 +217,7 @@ return InspiringQuotes.run().then((res) => { showAlert("Today's quote for " + us
     cy.fixture("promisesBtnDsl").then((val: any) => {
       agHelper.AddDsl(val, locator._spanButton("Submit"));
     });
-    ee.SelectEntityByName("Button1", "WIDGETS");
+    ee.SelectEntityByName("Button1", "Widgets");
     jsEditor.EnterJSContext(
       "onClick",
       `{{
@@ -254,7 +254,7 @@ showAlert("Running all api's", "warning");
 return Promise.all(allFuncs).then(() =>
 showAlert("Wonderful! all apis executed", "success")).catch(() => showAlert("Please check your api's again", "error")); `);
 
-    ee.SelectEntityByName("Button1", "WIDGETS");
+    ee.SelectEntityByName("Button1", "Widgets");
     cy.get("@jsObjName").then((jsObjName) => {
       jsEditor.EnterJSContext(
         "onClick",
@@ -308,7 +308,7 @@ showAlert("Wonderful! all apis executed", "success")).catch(() => showAlert("Ple
         shouldCreateNewJSObj: true,
       },
     );
-    ee.SelectEntityByName("Button1", "WIDGETS");
+    ee.SelectEntityByName("Button1", "Widgets");
     cy.get("@jsObjName").then((jsObjName) => {
       jsEditor.EnterJSContext("onClick", "{{" + jsObjName + ".runAny()}}");
     });
@@ -328,7 +328,7 @@ showAlert("Wonderful! all apis executed", "success")).catch(() => showAlert("Ple
     cy.fixture("promisesBtnDsl").then((dsl: any) => {
       agHelper.AddDsl(dsl, locator._spanButton("Submit"));
     });
-    ee.SelectEntityByName("Button1", "WIDGETS");
+    ee.SelectEntityByName("Button1", "Widgets");
     jsEditor.EnterJSContext(
       "onClick",
       "{{resetWidget('Input1').then(() => showAlert(Input1.text))}}",

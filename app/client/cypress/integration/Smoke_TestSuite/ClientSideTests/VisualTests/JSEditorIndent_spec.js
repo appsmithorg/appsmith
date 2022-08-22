@@ -83,7 +83,7 @@ myFun2: async () => {
       .click({ force: true });
     cy.get(homePage.duplicateApp).click({ force: true });
 
-    cy.CheckAndUnfoldEntityItem("QUERIES/JS");
+    cy.CheckAndUnfoldEntityItem("Queries/JS");
     cy.SearchEntityandOpen("JSObject1");
     cy.wait(3000);
 
@@ -152,7 +152,7 @@ myFun2: async () => {
     cy.get("div.CodeMirror").matchImageSnapshot("jsObjAfterPrettify7");
 
     ee.ClonePage("Page1");
-    ee.SelectEntityByName("JSObject1", "QUERIES/JS");
+    ee.SelectEntityByName("JSObject1", "Queries/JS");
     cy.wait(3000);
 
     cy.get("[name='expand-more']")

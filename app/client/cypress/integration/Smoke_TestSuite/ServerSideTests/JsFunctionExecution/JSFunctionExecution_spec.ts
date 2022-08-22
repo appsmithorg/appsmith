@@ -293,7 +293,7 @@ describe("JS Function Execution", function() {
     });
 
     cy.get("@jsObjName").then((jsObjName) => {
-      ee.SelectEntityByName("Table1", "WIDGETS");
+      ee.SelectEntityByName("Table1", "Widgets");
       propPane.UpdatePropertyFieldValue(
         "Table Data",
         `{{${jsObjName}.largeData}}`,
@@ -475,7 +475,7 @@ describe("JS Function Execution", function() {
       agHelper.Sleep();
     }
 
-    ee.SelectEntityByName(jsObj, "QUERIES/JS");
+    ee.SelectEntityByName(jsObj, "Queries/JS");
 
     agHelper.GetNClick(jsEditor._settingsTab);
     assertAsyncFunctionsOrder(FUNCTIONS_SETTINGS_DEFAULT_DATA);
