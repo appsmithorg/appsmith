@@ -218,7 +218,9 @@ class CodeMirrorTernService {
     const doc = this.findDoc(cm.getDoc());
     const lineValue = this.lineValue(doc);
     const cursor = cm.getCursor();
-    const { extraChars } = this.getFocusedDocValueAndPos(doc);
+    const { extraChars, value: focusedValue } = this.getFocusedDocValueAndPos(
+      doc,
+    );
 
     let completions: Completion[] = [];
     let after = "";
