@@ -9,14 +9,19 @@ import { act, render, fireEvent, waitFor } from "test/testUtils";
 import GlobalHotKeys from "./GlobalHotKeys";
 import MainContainer from "../MainContainer";
 import { MemoryRouter } from "react-router-dom";
+import * as widgetRenderUtils from "utils/widgetRenderUtils";
 import * as utilities from "selectors/editorSelectors";
+import * as dataTreeSelectors from "selectors/dataTreeSelectors";
 import store from "store";
 import { sagasToRunForTests } from "test/sagas";
 import { all } from "@redux-saga/core/effects";
 import {
   dispatchTestKeyboardEventWithCode,
   MockApplication,
+  mockCreateCanvasWidget,
   mockGetCanvasWidgetDsl,
+  mockGetChildWidgets,
+  mockGetWidgetEvalValues,
   MockPageDSL,
   useMockDsl,
 } from "test/testCommon";
@@ -40,6 +45,11 @@ jest.mock("constants/routes", () => {
 describe("Canvas Hot Keys", () => {
   const mockGetIsFetchingPage = jest.spyOn(utilities, "getIsFetchingPage");
   const spyGetCanvasWidgetDsl = jest.spyOn(utilities, "getCanvasWidgetDsl");
+  const spyGetChildWidgets = jest.spyOn(utilities, "getChildWidgets");
+  const spyCreateCanvasWidget = jest.spyOn(
+    widgetRenderUtils,
+    "createCanvasWidget",
+  );
 
   function UpdatedMainContainer({ dsl }: any) {
     useMockDsl(dsl);
@@ -68,6 +78,16 @@ describe("Canvas Hot Keys", () => {
   });
 
   describe("Select all hotkey", () => {
+    jest
+      .spyOn(widgetRenderUtils, "createCanvasWidget")
+      .mockImplementation(mockCreateCanvasWidget);
+    jest
+      .spyOn(dataTreeSelectors, "getWidgetEvalValues")
+      .mockImplementation(mockGetWidgetEvalValues);
+    jest
+      .spyOn(utilities, "computeMainContainerWidget")
+      .mockImplementation((widget) => widget as any);
+
     it("Cmd + A - select all widgets on canvas", async () => {
       const children: any = buildChildren([
         { type: "TABS_WIDGET", parentId: MAIN_CONTAINER_WIDGET_ID },
@@ -240,12 +260,14 @@ describe("Canvas Hot Keys", () => {
       expect(selectedWidgets.length).toBe(children.length);
     });
     it("Cmd + A - select all widgets inside a form", async () => {
+      spyGetChildWidgets.mockImplementation(mockGetChildWidgets);
       const children: any = buildChildren([
         { type: "FORM_WIDGET", parentId: MAIN_CONTAINER_WIDGET_ID },
       ]);
       const dsl: any = widgetCanvasFactory.build({
         children,
       });
+
       spyGetCanvasWidgetDsl.mockImplementation(mockGetCanvasWidgetDsl);
       mockGetIsFetchingPage.mockImplementation(() => false);
 
@@ -337,6 +359,8 @@ describe("Canvas Hot Keys", () => {
       });
       spyGetCanvasWidgetDsl.mockImplementation(mockGetCanvasWidgetDsl);
       mockGetIsFetchingPage.mockImplementation(() => false);
+      spyGetChildWidgets.mockImplementation(mockGetChildWidgets);
+      spyCreateCanvasWidget.mockImplementation(mockCreateCanvasWidget);
 
       const component = render(
         <MemoryRouter
