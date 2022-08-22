@@ -14,8 +14,6 @@ public class InviteUsersDTO {
     List<String> usernames;
 
     @NotNull
-    String roleName;
+    String permissionGroupId;
 
-    @NotNull
-    String workspaceId;
 }
