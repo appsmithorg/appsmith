@@ -78,8 +78,7 @@ class LayoutWrapperWidget extends ContainerWidget {
     if (!childWidgetData) return null;
 
     const childWidget = { ...childWidgetData };
-    console.log(this.props);
-    console.log(this.state);
+
     const snapSpaces = this.getSnapSpaces();
     childWidget.parentColumnSpace = snapSpaces.snapColumnSpace;
     childWidget.parentRowSpace = snapSpaces.snapRowSpace;

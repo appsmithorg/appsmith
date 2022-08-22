@@ -147,9 +147,9 @@ export const useCanvasDragging = (
       if (els && els.length && offsets.length !== els.length) {
         // Get widget ids of all widgets being dragged
         // console.log(els);
-        // console.log(blocksToDraw);
         const blocks = blocksToDraw.map((block) => block.widgetId);
         // console.log("*********");
+        // console.log(blocksToDraw);
         els.forEach((el) => {
           // console.log((el as any).offsetParent);
           // Extract widget id of current widget
@@ -186,7 +186,8 @@ export const useCanvasDragging = (
               };
             }
             // console.log(el);
-            // console.log(`offset: ${mOffset}`);
+            // console.log("mOffset =====");
+            // console.log(mOffset);
             offsets.push(mOffset);
             // console.log(offsets);
             // siblings[mClass] = mOffset;
@@ -216,7 +217,7 @@ export const useCanvasDragging = (
               x: 0,
               y:
                 (siblingElements[siblingElements.length - 1] as any).offsetTop -
-                containerDimensions.top +
+                2 * containerDimensions.top +
                 siblingElements[siblingElements.length - 1].clientHeight +
                 8,
               width: containerDimensions.width,
@@ -227,12 +228,12 @@ export const useCanvasDragging = (
               x:
                 (siblingElements[siblingElements.length - 1] as any)
                   .offsetLeft -
-                containerDimensions.left +
+                2 * containerDimensions.left +
                 siblingElements[siblingElements.length - 1].clientWidth +
                 8,
               y:
                 (siblingElements[siblingElements.length - 1] as any).offsetTop -
-                containerDimensions.top +
+                2 * containerDimensions.top +
                 8,
               width: 4,
               height: (siblingElements[siblingElements.length - 1] as any)
@@ -240,6 +241,7 @@ export const useCanvasDragging = (
             };
           }
         }
+        // console.log(finalOffset);
         offsets.push(finalOffset);
         // console.log(offsets);
       }
@@ -731,6 +733,9 @@ export const useCanvasDragging = (
               .indexOf(`${position.x},${position.y}`);
 
           if (dropIndex === lastTranslatedIndex) return;
+
+          lastTranslatedIndex = dropIndex;
+          return;
           // Get all siblings after the highlighted drop position
           const arr = [...siblingElements];
 
@@ -746,7 +751,6 @@ export const useCanvasDragging = (
               each.style.transitionDuration = "0.2s";
             }
           });
-          lastTranslatedIndex = dropIndex;
         };
         const highlightDropPosition = (e: any) => {
           if (!useAutoLayout) return;
@@ -768,7 +772,7 @@ export const useCanvasDragging = (
             dropPositionRef.current.style.width = pos.width + "px";
             dropPositionRef.current.style.height = pos.height + "px";
           }
-          // translateSiblings(pos);
+          translateSiblings(pos);
         };
         const getHighlightPosition = (
           e: any,
@@ -821,6 +825,7 @@ export const useCanvasDragging = (
           return Math.abs(Math.sqrt(x * x + y * y));
         };
         const getDropPosition = (val: XYCord): number | undefined => {
+          // console.log(`lastTranslatedIndex: ${lastTranslatedIndex}`);
           if (!isNaN(lastTranslatedIndex)) return lastTranslatedIndex;
           const pos = getHighlightPosition(null, val);
           // console.log(`START drop position`);
