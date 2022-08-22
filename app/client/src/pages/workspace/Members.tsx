@@ -9,7 +9,6 @@ import {
 import { RouteComponentProps } from "react-router";
 import { getCurrentUser } from "selectors/usersSelectors";
 import Table from "components/ads/Table";
-import Icon, { IconSize } from "components/ads/Icon";
 import {
   fetchUsersForWorkspace,
   fetchRolesForWorkspace,
@@ -18,8 +17,18 @@ import {
   deleteWorkspaceUser,
 } from "actions/workspaceActions";
 import TableDropdown from "components/ads/TableDropdown";
-import Dropdown from "components/ads/Dropdown";
-import { Text, TextType, HighlightText } from "design-system";
+import {
+  Button,
+  Category,
+  Dropdown,
+  Icon,
+  IconSize,
+  Size,
+  Text,
+  TextType,
+  HighlightText,
+} from "design-system";
+import { SettingsHeading } from "./General";
 import styled from "styled-components";
 import { Classes as AppClass } from "components/ads/common";
 import DeleteConfirmationModal from "./DeleteConfirmationModal";

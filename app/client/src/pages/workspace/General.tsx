@@ -7,10 +7,7 @@ import {
 } from "actions/workspaceActions";
 import { SaveWorkspaceRequest } from "api/WorkspaceApi";
 import { debounce } from "lodash";
-import TextInput, {
-  emailValidator,
-  notEmptyValidator,
-} from "components/ads/TextInput";
+import { TextInput, emailValidator, notEmptyValidator } from "design-system";
 import { useSelector, useDispatch } from "react-redux";
 import {
   getCurrentError,

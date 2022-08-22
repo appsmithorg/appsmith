@@ -29,7 +29,8 @@ export const VALID_FUNCTION_NAME_ERROR = () =>
   `Must be a valid variable name (camelCase)`;
 export const UNIQUE_NAME_ERROR = () => `Name must be unique`;
 export const NAME_SPACE_ERROR = () => `Name must not have spaces`;
-export const SPECIAL_CHARACTER_ERROR = () => `Name must be alphanumeric`;
+export const APLHANUMERIC_HYPHEN_SLASH_SPACE_ERROR = () =>
+  `Name must only contain alphanumeric characters, hyphen, slash, and space`;
 
 export const FORM_VALIDATION_EMPTY_EMAIL = () => `Please enter an email`;
 export const FORM_VALIDATION_INVALID_EMAIL = () =>

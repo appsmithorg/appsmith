@@ -9,6 +9,7 @@ import {
 import { getCurrentWorkspace } from "@appsmith/selectors/workspaceSelectors";
 import { useSelector, useDispatch } from "react-redux";
 import { TabComponent, TabProp } from "components/ads/Tabs";
+import { MenuItemProps } from "design-system";
 import styled from "styled-components";
 
 import MemberSettings from "./Members";
@@ -18,7 +19,6 @@ import { getAllApplications } from "actions/applicationActions";
 import { useMediaQuery } from "react-responsive";
 import { BackButton, TabsWrapper } from "components/utils/helperComponents";
 import { debounce } from "lodash";
-import { MenuItemProps } from "components/ads";
 import FormDialogComponent from "components/editorComponents/form/FormDialogComponent";
 import WorkspaceInviteUsersForm from "./WorkspaceInviteUsersForm";
 import { SettingsPageHeader } from "./SettingsPageHeader";

@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import styled from "styled-components";
-import Icon, { IconSize } from "./Icon";
-import { Text, TextType } from "design-system";
+import { Icon, IconSize, Text, TextType } from "design-system";
 import { Classes } from "./common";
 
 type GifPlayerProps = {

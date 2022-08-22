@@ -5,7 +5,7 @@ import { getCurrentUser } from "selectors/usersSelectors";
 import { useSelector } from "store";
 import styled from "styled-components";
 import ProfileImage from "./ProfileImage";
-import ScrollIndicator from "components/ads/ScrollIndicator";
+import { ScrollIndicator } from "design-system";
 import { WorkspaceUser } from "constants/workspaceConstants";
 import { getUserApplicationsWorkspacesList } from "selectors/applicationSelectors";
 import { useIsMobileDevice } from "utils/hooks/useDeviceDetect";

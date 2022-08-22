@@ -7,6 +7,7 @@ import base64 from "constants/defs/base64-js.json";
 import moment from "constants/defs/moment.json";
 import xmlJs from "constants/defs/xmlParser.json";
 import forge from "constants/defs/forge.json";
+import browser from "constants/defs/browser.json";
 import CodeMirror, { Hint, Pos, cmpPos } from "codemirror";
 import {
   getDynamicStringSegments,
@@ -19,10 +20,12 @@ import {
 import { FieldEntityInformation } from "components/editorComponents/CodeEditor/EditorConfig";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { AutocompleteSorter } from "./AutocompleteSortRules";
+import { getCompletionsForKeyword } from "./keywordCompletion";
 
 const DEFS: Def[] = [
   // @ts-expect-error: Types are not available
   ecma,
+  browser,
   GLOBAL_FUNCTIONS,
   GLOBAL_DEFS,
   lodash,
@@ -38,7 +41,7 @@ const hintDelay = 1700;
 
 export type Completion = Hint & {
   origin: string;
-  type: AutocompleteDataType;
+  type: AutocompleteDataType | string;
   data: {
     doc: string;
   };
@@ -207,20 +210,22 @@ class TernServer {
     }
     const doc = this.findDoc(cm.getDoc());
     const cursor = cm.getCursor();
-    const lineValue = this.lineValue(doc);
-    const focusedValue = this.getFocusedDynamicValue(doc);
-    const index = lineValue.indexOf(focusedValue);
+    const { extraChars, value: focusedValue } = this.getFocusedDocValueAndPos(
+      doc,
+    );
+
     let completions: Completion[] = [];
     let after = "";
     const { end, start } = data;
+
     const from = {
       ...start,
-      ch: start.ch + index,
+      ch: start.ch + extraChars,
       line: cursor.line,
     };
     const to = {
       ...end,
-      ch: end.ch + index,
+      ch: end.ch + extraChars,
       line: cursor.line,
     };
     if (
@@ -229,6 +234,15 @@ class TernServer {
     ) {
       after = '"]';
     }
+    // Actual char space
+    const trimmedFocusedValueLength = focusedValue.trim().length;
+    // end.ch counts tab space as 1 instead of 2 space chars in string
+    // For eg: lets take string `  ab`. Here, end.ch = 3 & trimmedFocusedValueLength = 2
+    // hence tabSpacesCount = end.ch - trimmedFocusedValueLength
+    const tabSpacesCount = end.ch - trimmedFocusedValueLength;
+    const cursorHorizontalPos =
+      tabSpacesCount * 2 + trimmedFocusedValueLength - 2;
+
     for (let i = 0; i < data.completions.length; ++i) {
       const completion = data.completions[i];
       let className = typeToIcon(completion.type, completion.isKeyword);
@@ -256,6 +270,12 @@ class TernServer {
           element.setAttribute("keyword", data.displayText);
           element.innerHTML = data.displayText;
         };
+        // Add relevant keyword completions
+        const keywordCompletions = getCompletionsForKeyword(
+          codeMirrorCompletion,
+          cursorHorizontalPos,
+        );
+        completions = [...completions, ...keywordCompletions];
       }
       completions.push(codeMirrorCompletion);
     }
@@ -392,7 +412,7 @@ class TernServer {
 
   addDoc(name: string, doc: CodeMirror.Doc) {
     const data = { doc: doc, name: name, changed: null };
-    this.server.addFile(name, this.getFocusedDynamicValue(data));
+    this.server.addFile(name, this.getFocusedDocValueAndPos(data).value);
     CodeMirror.on(doc, "change", this.trackChange.bind(this));
     return (this.docs[name] = data);
   }
@@ -412,7 +432,13 @@ class TernServer {
     query.depth = 0;
     query.sort = true;
     if (query.end == null) {
-      query.end = pos || doc.doc.getCursor("end");
+      const positions = pos || doc.doc.getCursor("end");
+      const { end } = this.getFocusedDocValueAndPos(doc);
+      query.end = {
+        ...positions,
+        ...end,
+      };
+
       if (doc.doc.somethingSelected()) query.start = doc.doc.getCursor("start");
     }
     const startPos = query.start || query.end;
@@ -435,7 +461,7 @@ class TernServer {
         files.push({
           type: "full",
           name: doc.name,
-          text: this.docValue(doc),
+          text: this.getFocusedDocValueAndPos(doc).value,
         });
         query.file = doc.name;
         doc.changed = null;
@@ -448,7 +474,7 @@ class TernServer {
       files.push({
         type: "full",
         name: doc.name,
-        text: this.docValue(doc),
+        text: this.getFocusedDocValueAndPos(doc).value,
       });
     }
     for (const name in this.docs) {
@@ -457,7 +483,7 @@ class TernServer {
         files.push({
           type: "full",
           name: cur.name,
-          text: this.docValue(cur),
+          text: this.getFocusedDocValueAndPos(doc).value,
         });
         cur.changed = null;
       }
@@ -508,7 +534,7 @@ class TernServer {
           {
             type: "full",
             name: doc.name,
-            text: this.getFocusedDynamicValue(doc),
+            text: this.docValue(doc),
           },
         ],
       },
@@ -529,23 +555,106 @@ class TernServer {
     return doc.doc.getValue();
   }
 
-  getFocusedDynamicValue(doc: TernDoc) {
-    const cursor = doc.doc.getCursor();
-    const value = this.lineValue(doc);
-    const stringSegments = getDynamicStringSegments(value);
-    const dynamicStrings = stringSegments.filter((segment) => {
-      if (isDynamicValue(segment)) {
-        const index = value.indexOf(segment);
+  getFocusedDocValueAndPos(
+    doc: TernDoc,
+  ): { value: string; end: { line: number; ch: number }; extraChars: number } {
+    const cursor = doc.doc.getCursor("end");
+    const value = this.docValue(doc);
+    const lineValue = this.lineValue(doc);
+    let extraChars = 0;
 
-        if (cursor.ch >= index && cursor.ch <= index + segment.length) {
-          return true;
+    const stringSegments = getDynamicStringSegments(value);
+    if (stringSegments.length === 1) {
+      return {
+        value,
+        end: {
+          line: cursor.line,
+          ch: cursor.ch,
+        },
+        extraChars,
+      };
+    }
+
+    let dynamicString = value;
+
+    let newCursorLine = cursor.line;
+    let newCursorPosition = cursor.ch;
+
+    let currentLine = 0;
+
+    for (let index = 0; index < stringSegments.length; index++) {
+      // segment is divided according to binding {{}}
+
+      const segment = stringSegments[index];
+      let currentSegment = segment;
+      if (segment.startsWith("{{")) {
+        currentSegment = segment.replace("{{", "");
+        if (currentSegment.endsWith("}}")) {
+          currentSegment = currentSegment.slice(0, currentSegment.length - 2);
         }
       }
 
-      return false;
-    });
+      // subSegment is segment further divided by EOD char (\n)
+      const subSegments = currentSegment.split("\n");
+      const countEODCharInSegment = subSegments.length - 1;
+      const segmentEndLine = countEODCharInSegment + currentLine;
 
-    return dynamicStrings.length ? dynamicStrings[0] : value;
+      /**
+       * 3 case for cursor to point inside segment
+       * 1. cursor is before the {{  :-
+       * 2. cursor is inside segment :-
+       *    - if cursor is after {{ on same line
+       *    - if cursor is after {{ in different line
+       *    - if cursor is before }} on same line
+       * 3. cursor is after the }}   :-
+       *
+       */
+
+      const isCursorInBetweenSegmentStartAndEndLine =
+        cursor.line > currentLine && cursor.line < segmentEndLine;
+
+      const isCursorAtSegmentStartLine = cursor.line === currentLine;
+      const isCursorAfterBindingOpenAtSegmentStart =
+        isCursorAtSegmentStartLine && cursor.ch > lineValue.indexOf("{{") + 1;
+      const isCursorAtSegmentEndLine = cursor.line === segmentEndLine;
+      const isCursorBeforeBindingCloseAtSegmentEnd =
+        isCursorAtSegmentEndLine && cursor.ch < lineValue.indexOf("}}") + 1;
+
+      const isSegmentStartLineAndEndLineSame = currentLine === segmentEndLine;
+      const isCursorBetweenSingleLineSegmentBinding =
+        isSegmentStartLineAndEndLineSame &&
+        isCursorBeforeBindingCloseAtSegmentEnd &&
+        isCursorAfterBindingOpenAtSegmentStart;
+
+      const isCursorPointingInsideSegment =
+        isCursorInBetweenSegmentStartAndEndLine ||
+        (isSegmentStartLineAndEndLineSame &&
+          isCursorBetweenSingleLineSegmentBinding);
+      (!isSegmentStartLineAndEndLineSame &&
+        isCursorBeforeBindingCloseAtSegmentEnd) ||
+        isCursorAfterBindingOpenAtSegmentStart;
+
+      if (isDynamicValue(segment) && isCursorPointingInsideSegment) {
+        dynamicString = currentSegment;
+        newCursorLine = cursor.line - currentLine;
+        if (lineValue.includes("{{")) {
+          extraChars = lineValue.indexOf("{{") + 2;
+        }
+        newCursorPosition = cursor.ch - extraChars;
+
+        break;
+      }
+      currentLine = segmentEndLine;
+    }
+
+    return {
+      value: dynamicString,
+      end: {
+        line: newCursorLine,
+        ch: newCursorPosition,
+      },
+      extraChars,
+    };
   }
 
   getFragmentAround(

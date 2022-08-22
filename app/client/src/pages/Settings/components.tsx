@@ -1,7 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 import { Classes } from "@blueprintjs/core";
-import { Icon, IconSize } from "components/ads";
+import { Icon, IconSize } from "design-system";
 
 export const Wrapper = styled.div`
   flex-basis: calc(100% - ${(props) => props.theme.homePage.leftPane.width}px);
