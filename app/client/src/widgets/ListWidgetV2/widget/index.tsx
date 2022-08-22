@@ -401,7 +401,6 @@ class ListWidget extends BaseWidget<
     if (!templateWidget) return { metaWidgets, metaWidgetId: "" };
 
     const metaWidget = this.cloneTemplateWidget(templateWidget);
-    const { parentId, metaWidgets = {}, key, templateWidget } = options;
     const dynamicPaths = dynamicPathMap[templateWidget.widgetId] || [];
     const viewIndex = index - pageSize * (page - 1);
     const isFirstItemInEditMode =
