@@ -170,6 +170,7 @@
     "build-local": "craco --max-old-space-size=4096 build --config craco.build.config.js",
     "build-staging": "REACT_APP_ENVIRONMENT=STAGING craco --max-old-space-size=4096 build --config craco.build.config.js",
     "test": "CYPRESS_BASE_URL=https://dev.appsmith.com cypress/test.sh",
+    "install": "node cypress/patches/apply-patches.js",
     "test:ci": "CYPRESS_BASE_URL=https://dev.appsmith.com cypress/test.sh --env=ci",
     "eject": "react-scripts eject",
     "start-prod": "REACT_APP_ENVIRONMENT=PRODUCTION craco start",
@@ -179,8 +180,7 @@
     "generate:widget": "plop --plopfile generators/index.js",
     "postbuild": "rm build/mockServiceWorker.js",
     "postinstall": "patch-package && CURRENT_SCOPE=client node ../shared/install-dependencies.js",
-    "preinstall": "CURRENT_SCOPE=client node ../shared/build-shared-dep.js",
-    "install": "node cypress/apply-patches.js"
+    "preinstall": "CURRENT_SCOPE=client node ../shared/build-shared-dep.js && npx npm-force-resolutions"
   },
   "browserslist": [
     ">0.2%",
@@ -298,7 +298,8 @@
     "focus-trap-react/**/tabbable": "5.2.1",
     "json-schema": "0.4.0",
     "node-fetch": "2.6.7",
-    "babel-plugin-styled-components": "2.0.7"
+    "babel-plugin-styled-components": "2.0.7",
+    "ansi-regex": "5.0.1"
   },
   "msw": {
     "workerDirectory": "public"
