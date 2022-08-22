@@ -97,7 +97,7 @@ export default function Settings() {
   const tabArr: TabProp[] = [
     {
       key: "members",
-      title: "Users",
+      title: "Members",
       panelComponent: SettingsRenderer,
       // icon: "gear",
       // iconSize: IconSize.XL,
