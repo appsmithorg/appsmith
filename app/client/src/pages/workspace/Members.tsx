@@ -18,17 +18,13 @@ import {
 } from "actions/workspaceActions";
 import TableDropdown from "components/ads/TableDropdown";
 import {
-  Button,
-  Category,
   Dropdown,
   Icon,
   IconSize,
-  Size,
   Text,
   TextType,
   HighlightText,
 } from "design-system";
-import { SettingsHeading } from "./General";
 import styled from "styled-components";
 import { Classes as AppClass } from "components/ads/common";
 import DeleteConfirmationModal from "./DeleteConfirmationModal";
@@ -516,7 +512,7 @@ export default function MemberSettings(props: PageProps) {
                       className="t--user-status"
                       defaultIcon="downArrow"
                       height="31px"
-                      onSelect={(value, option) => {
+                      onSelect={(value: any, option: any) => {
                         selectRole(option.id, member.username);
                       }}
                       options={roles}

@@ -10,7 +10,7 @@ import {
   MenuItemProps,
   Icon,
   SearchVariant,
-} from "components/ads";
+} from "design-system";
 import { HeaderWrapper } from "pages/Settings/components";
 import {
   HelpPopoverStyle,
@@ -167,7 +167,7 @@ export function SettingsPageHeader(props: PageHeaderProps) {
                     className={menuItem.className}
                     icon={menuItem.icon}
                     key={menuItem.text}
-                    onSelect={(e) => {
+                    onSelect={(e: React.MouseEvent<HTMLInputElement>) => {
                       onOptionSelect(e, menuItem);
                     }}
                     text={
