@@ -300,7 +300,7 @@ export const extractIdentifiersFromCode = (code: string): string[] => {
   });
 
   const validIdentifiers = Array.from(identifiers).filter((identifier) => {
-    // To remove Remove identifiers (or member expressions) derived from declared variables and function params,
+    // To remove identifiers (or member expressions) derived from declared variables and function params,
     // We extract the topLevelIdentifier Eg. Api1.name => Api1
     const topLevelIdentifier = toPath(identifier)[0];
     return (
