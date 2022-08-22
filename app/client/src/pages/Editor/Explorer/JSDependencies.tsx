@@ -1,7 +1,6 @@
 import React, { useCallback, useMemo, useState } from "react";
 import styled from "styled-components";
 import { Text, TextType } from "design-system";
-// import { BindingText } from "pages/Editor/APIEditor/Form";
 import { extraLibraries } from "utils/DynamicBindingUtils";
 import { Button, Category, Size, TextInput } from "components/ads";
 import Icon from "components/ads/AppIcon";
@@ -13,6 +12,7 @@ import {
 } from "ce/constants/messages";
 import { AppState } from "reducers";
 import { ReduxActionTypes } from "ce/constants/ReduxActionConstants";
+import { debounce } from "lodash";
 
 const Tag = styled.div<{ bgColor: string }>`
   background: ${(props) => props.bgColor};
@@ -53,7 +53,7 @@ function JSDependencies() {
         (lib) => {
           return (
             <div
-              className="flex flex-col hover:bg-gray-100 hover:cursor-pointer px-3 py-2"
+              className="flex flex-col hover:bg-gray-100 w-full hover:cursor-pointer px-3 py-2"
               key={`${lib.name || lib.displayName}${lib.tag}`}
             >
               <div className="flex flex-row justify-between">
@@ -63,7 +63,9 @@ function JSDependencies() {
                 </div>
                 <Text type={TextType.P2}>{lib.version}</Text>
               </div>
-              <Text type={TextType.P2}>{lib.description}</Text>
+              <span className="overflow-hidden text-ellipsis whitespace-nowrap">
+                {lib.description}
+              </span>
             </div>
           );
         },
@@ -117,7 +119,7 @@ function JSDependencies() {
   // );
 
   const searchLibraries = useMemo(() => {
-    return async function(val: string) {
+    return debounce(async function(val: string) {
       const [cdnCall, npmCall] = await Promise.all([
         fetch(
           `https://api.cdnjs.com/libraries?search=${val}&fields=name,latest,description,version&limit=10`,
@@ -151,7 +153,7 @@ function JSDependencies() {
             return res;
           }),
       ]);
-    };
+    }, 100);
   }, []);
 
   return (

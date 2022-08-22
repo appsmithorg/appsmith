@@ -680,7 +680,10 @@ export function* installScript(payload: string, lib?: ExtraLibrary) {
       text: `${workerResponse.error}`,
       variant: Variant.danger,
     });
-    yield put({ type: ReduxActionErrorTypes.INSTALL_SCRIPT_FAILED });
+    yield put({
+      type: ReduxActionErrorTypes.INSTALL_SCRIPT_FAILED,
+      payload: { show: false },
+    });
     return;
   }
   yield put({ type: ReduxActionTypes.UPDATE_INSTALL_PROGRESS });
@@ -706,7 +709,10 @@ export function* installScript(payload: string, lib?: ExtraLibrary) {
         variant: Variant.success,
       });
     } catch (e) {
-      yield put({ type: ReduxActionErrorTypes.INSTALL_SCRIPT_FAILED });
+      yield put({
+        type: ReduxActionErrorTypes.INSTALL_SCRIPT_FAILED,
+        payload: { show: false },
+      });
     }
   }
 }

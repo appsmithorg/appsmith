@@ -31,6 +31,8 @@ import {
   SUPPORTED_WEB_APIS,
 } from "components/editorComponents/CodeEditor/constants";
 
+export const newLibraries: string[] = [];
+
 export const pathRequiresLinting = (
   dataTree: DataTree,
   entity: DataTreeEntity,
@@ -104,6 +106,9 @@ export const getLintingErrors = (
   const globalData: Record<string, boolean> = {};
   for (const dataKey in data) {
     globalData[dataKey] = true;
+  }
+  for (const key of newLibraries) {
+    globalData[key] = true;
   }
   // Jshint shouldn't throw errors for additional libraries
   //@ts-expect-error test

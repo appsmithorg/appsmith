@@ -26,6 +26,7 @@ import { setFormEvaluationSaga } from "./formEval";
 import { isEmpty } from "lodash";
 import { EvalMetaUpdates } from "./DataTreeEvaluator/types";
 import { EvalTreePayload } from "../sagas/EvaluationsSaga";
+import { newLibraries } from "./Lint/utils";
 
 const CANVAS = "canvas";
 
@@ -344,7 +345,7 @@ ctx.addEventListener(
           const latestKey = newKeys.filter((key) => !oldKeys.includes(key));
           //@ts-expect-error test
           const entity = self[latestKey[0]];
-
+          newLibraries.push(latestKey[0]);
           return {
             accessor: latestKey[0],
             backupDefs: { [latestKey[0]]: generateDefs(entity) },
@@ -375,6 +376,9 @@ function generateDefs(obj: Record<string, any>) {
         def[key] = cachedValues[cached];
         continue;
       } else if (typeof obj[key] === "object") {
+        def[key] = {};
+        generate(obj[key], def[key]);
+      } else if (typeof obj[key] === "function") {
         def[key] = {};
         generate(obj[key], def[key]);
       } else {
