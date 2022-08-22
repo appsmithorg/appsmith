@@ -180,7 +180,7 @@
     "postbuild": "rm build/mockServiceWorker.js",
     "postinstall": "patch-package && CURRENT_SCOPE=client node ../shared/install-dependencies.js",
     "preinstall": "CURRENT_SCOPE=client node ../shared/build-shared-dep.js",
-    "install": "cypress install && node cypress/apply-patches.js"
+    "install": "node cypress/apply-patches.js"
   },
   "browserslist": [
     ">0.2%",
