@@ -1,4 +1,4 @@
-import Icon, { IconSize } from "components/ads/Icon";
+import { Icon, IconSize } from "design-system";
 import React from "react";
 import { useDispatch } from "react-redux";
 import { useSelector } from "store";

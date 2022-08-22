@@ -8,7 +8,7 @@ import {
 } from "@appsmith/constants/messages";
 import { Colors } from "constants/Colors";
 import Dialog from "components/ads/DialogComponent";
-import Button, { Category, Size } from "components/ads/Button";
+import { Button, Category, Size } from "design-system";
 
 interface DeleteThemeModalProps {
   isOpen: boolean;

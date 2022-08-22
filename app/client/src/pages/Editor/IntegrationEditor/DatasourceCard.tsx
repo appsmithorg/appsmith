@@ -1,6 +1,5 @@
 import { Datasource } from "entities/Datasource";
 import { isStoredDatasource, PluginType } from "entities/Action";
-import Button, { Category } from "components/ads/Button";
 import React, { useCallback, useState } from "react";
 import { isNil } from "lodash";
 import { useDispatch, useSelector } from "react-redux";
@@ -19,8 +18,7 @@ import { renderDatasourceSection } from "pages/Editor/DataSourceEditor/Datasourc
 import { setDatsourceEditorMode } from "actions/datasourceActions";
 import { getQueryParams } from "utils/URLUtils";
 import Menu from "components/ads/Menu";
-import Icon, { IconSize } from "components/ads/Icon";
-import MenuItem from "components/ads/MenuItem";
+import { Button, Category, Icon, IconSize, MenuItem } from "design-system";
 import { deleteDatasource } from "actions/datasourceActions";
 import {
   getGenerateCRUDEnabledPluginMap,

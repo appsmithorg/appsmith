@@ -2,7 +2,7 @@ import React, { RefObject, useCallback, useState } from "react";
 import { Tab, Tabs, TabList, TabPanel } from "react-tabs";
 import "react-tabs/style/react-tabs.css";
 import styled from "styled-components";
-import Icon, { IconName, IconSize } from "./Icon";
+import { Icon, IconName, IconSize } from "design-system";
 import { Classes, CommonComponentProps } from "./common";
 import { useEffect } from "react";
 import { Indices } from "constants/Layers";

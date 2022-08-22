@@ -2,7 +2,7 @@ import { TooltipComponent as Tooltip } from "design-system";
 import { createMessage } from "@appsmith/constants/messages";
 import React from "react";
 import styled from "styled-components";
-import Icon, { IconSize } from "components/ads/Icon";
+import { Icon, IconSize } from "design-system";
 import { getTypographyByKey } from "constants/DefaultTheme";
 import { Setting } from "@appsmith/pages/AdminSettings/config/types";
 import { Colors } from "constants/Colors";

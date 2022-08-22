@@ -13,8 +13,7 @@ import {
 } from "../../../../locators/WidgetLocators";
 
 const widgetsToTest = {
-  /*
-  [WIDGET.MULTISELECT_WIDGET]: {
+  [WIDGET.MULTISELECT]: {
     widgetName: "MultiSelect",
     widgetPrefixName: "MultiSelect1",
     textBindingValue: "{{MultiSelect1.selectedOptionValues}}",
@@ -30,7 +29,7 @@ const widgetsToTest = {
       selectTabAndReset();
     },
   },
-  */
+
   [WIDGET.TABLE]: {
     widgetName: "Table",
     widgetPrefixName: "Table1",
@@ -39,7 +38,7 @@ const widgetsToTest = {
       selectTableAndReset();
     },
   },
-  /*
+
   [WIDGET.SWITCHGROUP]: {
     widgetName: "SwitchGroup",
     widgetPrefixName: "SwitchGroup1",
@@ -64,7 +63,7 @@ const widgetsToTest = {
       selectAndReset();
     },
   },
-  [WIDGET.CURRENCY_INPUT_WIDGET]: {
+  [WIDGET.CURRENCY_INPUT]: {
     widgetName: "CurrencyInput",
     widgetPrefixName: "CurrencyInput1",
     textBindingValue: testdata.currencyBindingValue,
@@ -106,7 +105,6 @@ const widgetsToTest = {
       ratingwidgetAndReset();
     },
   },
-*/
   [WIDGET.CHECKBOXGROUP]: {
     widgetName: "CheckboxGroup",
     widgetPrefixName: "CheckboxGroup1",
@@ -115,7 +113,7 @@ const widgetsToTest = {
       checkboxGroupAndReset();
     },
   },
-  /*
+
   [WIDGET.CHECKBOX]: {
     widgetName: "Checkbox",
     widgetPrefixName: "Checkbox1",
@@ -141,7 +139,7 @@ const widgetsToTest = {
       audioRecorderWidgetAndReset();
     },
   },
-  
+  */
   [WIDGET.PHONEINPUT]: {
     widgetName: "PhoneInput",
     widgetPrefixName: "PhoneInput1",
@@ -150,7 +148,6 @@ const widgetsToTest = {
       phoneInputWidgetAndReset();
     },
   },
-  */
   [WIDGET.FILEPICKER]: {
     widgetName: "FilePicker",
     widgetPrefixName: "FilePicker1",
@@ -443,7 +440,7 @@ Object.entries(widgetsToTest).forEach(([widgetSelector, testConfig]) => {
 
     it("2. Bind Button on click  and Text widget content", () => {
       // Set onClick assertWidgetReset, storing value
-      cy.openPropertyPane(WIDGET.BUTTON_WIDGET);
+      cy.openPropertyPane(WIDGET.BUTTON);
 
       cy.get(PROPERTY_SELECTOR.onClick)
         .find(".t--js-toggle")
