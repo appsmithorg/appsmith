@@ -4,8 +4,8 @@ import {
   createMessage,
   NO_ASYNC_FUNCTIONS,
 } from "ce/constants/messages";
-import { AppIcon, Radio, RadioComponent } from "components/ads";
-import { TooltipComponent } from "design-system";
+import { Radio, RadioComponent } from "components/ads";
+import { AppIcon, TooltipComponent } from "design-system";
 import { JSAction } from "entities/JSCollection";
 import React, { useState } from "react";
 import { useDispatch } from "react-redux";
