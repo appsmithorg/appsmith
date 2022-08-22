@@ -4,7 +4,7 @@ import {
   WrappedFieldMetaProps,
   WrappedFieldInputProps,
 } from "redux-form";
-import InputComponent, { InputType } from "../TextInput";
+import { TextInput, InputType } from "design-system";
 import { Intent } from "constants/DefaultTheme";
 import FormFieldError from "./FieldError";
 
@@ -18,7 +18,7 @@ const renderComponent = (
 
   return (
     <>
-      <InputComponent {...componentProps} {...componentProps.input} fill />
+      <TextInput {...componentProps} {...componentProps.input} fill />
       {!componentProps.hideErrorMessage &&
         showError &&
         componentProps.meta.error && (

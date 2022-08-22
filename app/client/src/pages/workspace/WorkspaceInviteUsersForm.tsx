@@ -33,14 +33,13 @@ import {
 import { getAppsmithConfigs } from "@appsmith/configs";
 import { ReactComponent as NoEmailConfigImage } from "assets/images/email-not-configured.svg";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import Button, { Size } from "components/ads/Button";
-import { Text, TextType } from "design-system";
+import { Button, Size, Text, TextType } from "design-system";
 import { Classes, Variant } from "components/ads/common";
 import Callout from "components/ads/Callout";
 import { getInitialsAndColorCode } from "utils/AppsmithUtils";
 import ProfileImage from "pages/common/ProfileImage";
 import ManageUsers from "./ManageUsers";
-import ScrollIndicator from "components/ads/ScrollIndicator";
+import { ScrollIndicator } from "design-system";
 import UserApi from "@appsmith/api/UserApi";
 import { Colors } from "constants/Colors";
 import { fetchWorkspace } from "actions/workspaceActions";
