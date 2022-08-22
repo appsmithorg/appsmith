@@ -172,6 +172,10 @@ const DeleteIcon = styled(Icon)`
   right: ${(props) => props.theme.spaces[7]}px;
 `;
 
+const TableDropdownWrapper = styled.div<{ isDisabled?: boolean }>`
+  opacity: ${(props) => (props.isDisabled ? "0.5" : "1")};
+`;
+
 export default function MemberSettings(props: PageProps) {
   const {
     match: {
@@ -284,26 +288,31 @@ export default function MemberSettings(props: PageProps) {
         if (cellProps.cell.row.values.username === currentUser?.username) {
           return cellProps.cell.value;
         }
+        const isDisabled =
+          roleChangingUserInfo && roleChangingUserInfo.isChangingRole;
         return (
-          <TableDropdown
-            isLoading={
-              roleChangingUserInfo &&
-              roleChangingUserInfo.username ===
-                cellProps.cell.row.values.username
-            }
-            onSelect={(option) => {
-              dispatch(
-                changeWorkspaceUserRole(
-                  workspaceId,
-                  option.name,
-                  cellProps.cell.row.values.username,
-                ),
-              );
-            }}
-            options={roles}
-            selectedIndex={index}
-            selectedTextWidth="90px"
-          />
+          <TableDropdownWrapper isDisabled={isDisabled}>
+            <TableDropdown
+              isDisabled={isDisabled}
+              isLoading={
+                roleChangingUserInfo &&
+                roleChangingUserInfo.username ===
+                  cellProps.cell.row.values.username
+              }
+              onSelect={(option) => {
+                dispatch(
+                  changeWorkspaceUserRole(
+                    workspaceId,
+                    option.name,
+                    cellProps.cell.row.values.username,
+                  ),
+                );
+              }}
+              options={roles ?? []}
+              selectedIndex={index}
+              selectedTextWidth="90px"
+            />
+          </TableDropdownWrapper>
         );
       },
     },

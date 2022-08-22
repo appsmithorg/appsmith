@@ -20,6 +20,7 @@ export type DropdownProps = CommonComponentProps & {
   selectedIndex: number;
   position?: Position;
   selectedTextWidth?: string;
+  isDisabled?: boolean;
 };
 
 const SelectedItem = styled.div<{
@@ -112,6 +113,7 @@ function TableDropdown(props: DropdownProps) {
   ) : (
     <Popover
       data-cy={props.cypressSelector}
+      disabled={props.isDisabled}
       interactionKind={PopoverInteractionKind.CLICK}
       isOpen={isDropdownOpen}
       onInteraction={(state) => setIsDropdownOpen(state)}
