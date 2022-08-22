@@ -171,7 +171,6 @@
     "build-staging": "REACT_APP_ENVIRONMENT=STAGING craco --max-old-space-size=4096 build --config craco.build.config.js",
     "test": "CYPRESS_BASE_URL=https://dev.appsmith.com cypress/test.sh",
     "dev": "cypress open",
-    "install": "cypress install --force && node cypress/apply-patches.js",
     "test:ci": "CYPRESS_BASE_URL=https://dev.appsmith.com cypress/test.sh --env=ci",
     "eject": "react-scripts eject",
     "start-prod": "REACT_APP_ENVIRONMENT=PRODUCTION craco start",
@@ -181,7 +180,8 @@
     "generate:widget": "plop --plopfile generators/index.js",
     "postbuild": "rm build/mockServiceWorker.js",
     "postinstall": "patch-package && CURRENT_SCOPE=client node ../shared/install-dependencies.js",
-    "preinstall": "CURRENT_SCOPE=client node ../shared/build-shared-dep.js"
+    "preinstall": "CURRENT_SCOPE=client node ../shared/build-shared-dep.js",
+    "install": "cypress install --force && node cypress/apply-patches.js"
   },
   "browserslist": [
     ">0.2%",
