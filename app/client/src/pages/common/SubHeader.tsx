@@ -4,7 +4,7 @@ import { ControlGroup } from "@blueprintjs/core";
 import styled from "styled-components";
 import _, { noop } from "lodash";
 import SearchInput, { SearchVariant } from "components/ads/SearchInput";
-import Button, { Size } from "components/ads/Button";
+import { Button, Size } from "design-system";
 import { useSelector } from "react-redux";
 import { getIsFetchingApplications } from "selectors/applicationSelectors";
 import { Indices } from "constants/Layers";

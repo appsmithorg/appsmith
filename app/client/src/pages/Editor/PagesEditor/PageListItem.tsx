@@ -19,7 +19,7 @@ import { Page } from "@appsmith/constants/ReduxActionConstants";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { Colors } from "constants/Colors";
 import { MenuIcons } from "icons/MenuIcons";
-import { TooltipComponent } from "design-system";
+import { Button, Category, TextInput, TooltipComponent } from "design-system";
 import {
   CLONE_TOOLTIP,
   createMessage,
@@ -34,7 +34,6 @@ import {
   selectApplicationVersion,
 } from "selectors/editorSelectors";
 import { ApplicationVersion } from "actions/applicationActions";
-import { Button, Category, TextInput } from "components/ads";
 import { AppState } from "reducers";
 
 export const Container = styled.div`

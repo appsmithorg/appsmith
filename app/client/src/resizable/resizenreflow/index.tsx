@@ -1,4 +1,4 @@
-import React, { ReactNode, useState, useEffect, useRef, useMemo } from "react";
+import React, { ReactNode, useState, useEffect, useRef } from "react";
 import styled, { StyledComponent } from "styled-components";
 import { WIDGET_PADDING } from "constants/WidgetConstants";
 import { useDrag } from "react-use-gesture";
@@ -17,7 +17,7 @@ import {
   ReflowedSpace,
 } from "reflow/reflowTypes";
 import { getNearestParentCanvas } from "utils/generators";
-import { getOccupiedSpaces } from "selectors/editorSelectors";
+import { getContainerOccupiedSpacesSelectorWhileResizing } from "selectors/editorSelectors";
 import { isDropZoneOccupied } from "utils/WidgetPropsUtils";
 
 const ResizeWrapper = styled(animated.div)<{ prevents: boolean }>`
@@ -161,12 +161,9 @@ export function ReflowResizable(props: ResizableProps) {
   const resizableRef = useRef<HTMLDivElement>(null);
   const [isResizing, setResizing] = useState(false);
 
-  const occupiedSpaces = useSelector(getOccupiedSpaces);
-  const occupiedSpacesBySiblingWidgets = useMemo(() => {
-    return occupiedSpaces && props.parentId && occupiedSpaces[props.parentId]
-      ? occupiedSpaces[props.parentId]
-      : undefined;
-  }, [occupiedSpaces, props.parentId]);
+  const occupiedSpacesBySiblingWidgets = useSelector(
+    getContainerOccupiedSpacesSelectorWhileResizing(props.parentId),
+  );
   const checkForCollision = (widgetNewSize: {
     left: number;
     top: number;

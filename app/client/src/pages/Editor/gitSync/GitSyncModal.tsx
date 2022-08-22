@@ -13,7 +13,7 @@ import { Classes, MENU_HEIGHT, MENU_ITEM, MENU_ITEMS_MAP } from "./constants";
 import Deploy from "./Tabs/Deploy";
 import Merge from "./Tabs/Merge";
 import GitConnection from "./Tabs/GitConnection";
-import Icon, { IconSize } from "components/ads/Icon";
+import { Icon, IconSize } from "design-system";
 
 import GitErrorPopup from "./components/GitErrorPopup";
 import styled, { useTheme } from "styled-components";
