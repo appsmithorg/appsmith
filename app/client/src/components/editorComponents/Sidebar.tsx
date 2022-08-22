@@ -31,6 +31,7 @@ import OnboardingStatusbar from "pages/Editor/FirstTimeUserOnboarding/Statusbar"
 import Pages from "pages/Editor/Explorer/Pages";
 import { EntityProperties } from "pages/Editor/Explorer/Entity/EntityProperties";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import { SIDEBAR_ID } from "constants/Explorer";
 
 type Props = {
   width: number;
@@ -152,6 +153,7 @@ export const EntityExplorerSidebar = memo((props: Props) => {
         "shadow-xl": !pinned,
         fixed: !pinned || isPreviewMode,
       })}
+      id={SIDEBAR_ID}
     >
       {/* SIDEBAR */}
       <div

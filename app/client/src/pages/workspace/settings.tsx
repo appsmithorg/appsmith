@@ -9,7 +9,7 @@ import {
 import { getCurrentWorkspace } from "@appsmith/selectors/workspaceSelectors";
 import { useSelector, useDispatch } from "react-redux";
 import { TabComponent, TabProp } from "components/ads/Tabs";
-import { Text, TextType } from "design-system";
+import { IconSize, Text, TextType } from "design-system";
 import history from "utils/history";
 import styled from "styled-components";
 
@@ -19,7 +19,6 @@ import { GeneralSettings } from "./General";
 import * as Sentry from "@sentry/react";
 import { getAllApplications } from "actions/applicationActions";
 import { truncateTextUsingEllipsis } from "constants/DefaultTheme";
-import { IconSize } from "components/ads/Icon";
 import { useMediaQuery } from "react-responsive";
 const SentryRoute = Sentry.withSentryRouting(Route);
 

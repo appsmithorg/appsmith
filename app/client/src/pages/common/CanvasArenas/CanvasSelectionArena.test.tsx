@@ -6,7 +6,9 @@ import {
 } from "test/factories/WidgetFactoryUtils";
 import {
   MockApplication,
+  mockCreateCanvasWidget,
   mockGetCanvasWidgetDsl,
+  mockGetWidgetEvalValues,
   MockPageDSL,
   syntheticTestMouseEvent,
 } from "test/testCommon";
@@ -17,10 +19,22 @@ import { sagasToRunForTests } from "test/sagas";
 import GlobalHotKeys from "pages/Editor/GlobalHotKeys";
 import { UpdatedMainContainer } from "test/testMockedWidgets";
 import { MemoryRouter } from "react-router-dom";
+import * as widgetRenderUtils from "utils/widgetRenderUtils";
 import * as utilities from "selectors/editorSelectors";
 import Canvas from "pages/Editor/Canvas";
+import * as dataTreeSelectors from "selectors/dataTreeSelectors";
 
 describe("Canvas selection test cases", () => {
+  jest
+    .spyOn(dataTreeSelectors, "getWidgetEvalValues")
+    .mockImplementation(mockGetWidgetEvalValues);
+  jest
+    .spyOn(utilities, "computeMainContainerWidget")
+    .mockImplementation((widget) => widget as any);
+  jest
+    .spyOn(widgetRenderUtils, "createCanvasWidget")
+    .mockImplementation(mockCreateCanvasWidget);
+
   it("Should select using canvas draw", () => {
     const children: any = buildChildren([
       {
@@ -263,7 +277,11 @@ describe("Canvas selection test cases", () => {
 
     const component = render(
       <MockPageDSL dsl={dsl}>
-        <Canvas dsl={dsl} pageId="" />
+        <Canvas
+          canvasWidth={dsl.rightColumn}
+          pageId="page_id"
+          widgetsStructure={dsl}
+        />
       </MockPageDSL>,
     );
     const selectionCanvas: any = component.queryByTestId(`canvas-${canvasId}`);

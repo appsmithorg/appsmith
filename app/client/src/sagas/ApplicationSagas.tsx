@@ -55,7 +55,7 @@ import { Toaster } from "components/ads/Toast";
 import { APP_MODE } from "entities/App";
 import { Workspace, Workspaces } from "constants/workspaceConstants";
 import { Variant } from "components/ads/common";
-import { AppIconName } from "components/ads/AppIcon";
+import { AppIconName } from "design-system";
 import { AppColorCode } from "constants/DefaultTheme";
 import {
   getCurrentApplicationId,
