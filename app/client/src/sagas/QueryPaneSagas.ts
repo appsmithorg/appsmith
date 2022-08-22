@@ -68,10 +68,8 @@ import {
 } from "RouteBuilder";
 import { Plugin, UIComponentTypes } from "api/PluginApi";
 import { getUIComponent } from "pages/Editor/QueryEditor/helpers";
-import {
-  DEFAULT_API_ACTION_CONFIG,
-  DEFAULT_GRAPHQL_ACTION_CONFIG,
-} from "constants/ApiEditorConstants";
+import { DEFAULT_API_ACTION_CONFIG } from "constants/ApiEditorConstants/ApiEditorConstants";
+import { DEFAULT_GRAPHQL_ACTION_CONFIG } from "constants/ApiEditorConstants/GraphQLEditorConstants";
 
 // Called whenever the query being edited is changed via the URL or query pane
 function* changeQuerySaga(actionPayload: ReduxAction<{ id: string }>) {

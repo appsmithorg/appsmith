@@ -21,7 +21,7 @@ import { Text, TextType } from "design-system";
 const QueryHeader = styled.div`
   display: flex;
   width: 100%;
-  background: ${Colors.GREY_2};
+  background: ${Colors.SEA_SHELL};
   padding: 8px 16px;
 `;
 

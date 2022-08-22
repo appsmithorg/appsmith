@@ -59,7 +59,7 @@ import {
   isQueryAction,
   isSaaSAction,
 } from "entities/Action";
-import { API_EDITOR_TABS } from "constants/ApiEditorConstants";
+import { API_EDITOR_TABS } from "constants/ApiEditorConstants/CommonConstants";
 import { EDITOR_TABS } from "constants/QueryEditorConstants";
 import _, { isEmpty } from "lodash";
 import { ReplayEditorUpdate } from "entities/Replay/ReplayEntity/ReplayEditor";

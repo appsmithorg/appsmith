@@ -18,10 +18,8 @@ import { getGenerateCRUDEnabledPluginMap } from "selectors/entitiesSelector";
 import { useSelector } from "react-redux";
 import { getIsGeneratePageInitiator } from "utils/GenerateCrudUtil";
 import { curlImportPageURL } from "RouteBuilder";
-import {
-  GRAPHQL_PLUGIN_PACKAGE_NAME,
-  REST_PLUGIN_PACKAGE_NAME,
-} from "constants/ApiEditorConstants";
+import { GRAPHQL_PLUGIN_PACKAGE_NAME } from "constants/ApiEditorConstants/GraphQLEditorConstants";
+import { REST_PLUGIN_PACKAGE_NAME } from "constants/ApiEditorConstants/ApiEditorConstants";
 
 const StyledContainer = styled.div`
   flex: 1;
@@ -264,8 +262,6 @@ function NewApiScreen(props: Props) {
       API_PLUGINS.push(p);
     }
   });
-
-  console.log({ API_PLUGINS });
 
   return (
     <StyledContainer>

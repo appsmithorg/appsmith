@@ -19,7 +19,7 @@ import {
   CURSORBASED_PREFIX,
   CURSOR_PREVIOUS_PREFIX,
   CURSOR_NEXT_PREFIX,
-} from "constants/ApiEditorConstants";
+} from "constants/ApiEditorConstants/GraphQLEditorConstants";
 import { log } from "loglevel";
 import { PaginationSubComponent } from "components/formControls/utils";
 
@@ -324,6 +324,7 @@ function Pagination(props: PaginationProps) {
     isSeparateEnabled: boolean;
     value: any;
   }) => {
+    console.log({ isSeparateEnabled }, "*******");
     if (!isSeparateEnabled) {
       props.change(
         props.formName,
@@ -476,7 +477,7 @@ function Pagination(props: PaginationProps) {
                       actualKeyPath: `${CURSORBASED_PREFIX}.${CURSOR_PREVIOUS_PREFIX}.${PaginationSubComponent.Limit}.value`,
                       dependentKeyPath: `${CURSORBASED_PREFIX}.${CURSOR_NEXT_PREFIX}.${PaginationSubComponent.Limit}.value`,
                       value: value,
-                      isSeparateEnabled: !!paginationPrev?.limit?.isSeparate,
+                      isSeparateEnabled: !!paginationNext?.limit?.isSeparate,
                     });
                   }}
                   onSelectVariable={(_: any, dropdownOption: any) => {

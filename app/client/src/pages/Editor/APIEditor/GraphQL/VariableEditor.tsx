@@ -17,13 +17,18 @@ const VariableWrapper = styled.div`
   flex-direction: column;
   width: 100%;
   flex-shrink: 0;
-  border-left: 1px solid var(--appsmith-color-black-250);
+  &&&&& .CodeMirror {
+    border: 0px;
+  }
+  &&& .CodeMirror-gutters {
+    background: ${Colors.GRAY_50};
+  }
 `;
 
 const VariableHeader = styled.div`
   display: flex;
   width: 100%;
-  background: ${Colors.GREY_2};
+  background: ${Colors.SEA_SHELL};
   padding: 8px 16px;
 `;
 
