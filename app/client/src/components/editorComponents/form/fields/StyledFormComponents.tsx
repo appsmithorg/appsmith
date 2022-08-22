@@ -10,7 +10,7 @@ export const StyledFormInfo = styled.span<{ config?: ControlProps }>`
     props?.config?.controlType !== "SWITCH" &&
     props?.config?.controlType !== "CHECKBOX"
       ? "block;"
-      : "inline;"};
+      : "inline;"}
   font-weight: normal;
   color: ${Colors.DOVE_GRAY};
   font-size: 12px;
@@ -20,22 +20,15 @@ export const StyledFormInfo = styled.span<{ config?: ControlProps }>`
 `;
 
 const FormSubtitleText = styled.span<{ config?: ControlProps }>`
-  display: ${(props) =>
-    //SWITCH and CHECKBOX display label text and form input aligned side by side
-    props?.config?.controlType !== "SWITCH" &&
-    props?.config?.controlType !== "CHECKBOX"
-      ? "block;"
-      : "inline;"};
-  font-weight: normal;
-  color: ${Colors.DOVE_GRAY};
-  font-size: 12px;
-`;
-
-const EncryptedText = styled.span`
-  font-weight: normal;
-  color: ${Colors.DOVE_GRAY};
-  font-size: 12px;
-  margin-left: 2px;
+display: ${(props) =>
+  //SWITCH and CHECKBOX display label text and form input aligned side by side
+  props?.config?.controlType !== "SWITCH" &&
+  props?.config?.controlType !== "CHECKBOX"
+    ? "block;"
+    : "inline;"}
+font-weight: normal;
+color: ${Colors.DOVE_GRAY};
+font-size: 12px;
 `;
 
 //Styled help text, intended to be used with Form Fields
@@ -99,16 +92,16 @@ const StyledFormLabel = styled.label<{
   extraStyles?: any;
 }>`
   display: inline-block;
-  // TODO: replace condition with props.config?.dataType === "TOGGLE"
+  // TODO: replace condition with props.config?.dataType === "TOGGLE" 
   // required for large texts in CHECKBOX and SWITCH
-  width: ${(props) => props.config?.customStyles?.width || "auto;"};
+  width: ${(props) => props.config?.customStyles?.width || "auto;"}
   min-width: ${(props) =>
     props.extraStyles?.minWidth
       ? props.extraStyles?.minWidth
       : props.config?.controlType === "SWITCH" ||
         props.config?.controlType === "CHECKBOX"
       ? "auto;"
-      : "20vw;"};
+      : "20vw;"} 
   font-weight: 400;
   font-size: 14px;
   line-height: 16px;
@@ -119,7 +112,7 @@ const StyledFormLabel = styled.label<{
       ? props.extraStyles?.marginBottom
       : props.config?.controlType === "CHECKBOX"
       ? "0;"
-      : "8px;"};
+      : "8px;"} 
   &:first-child {
     margin-left: 0;
   }
@@ -136,8 +129,10 @@ const StyledFormLabel = styled.label<{
   }
 `;
 
-const FormEncryptedSection = styled.span`
-  margin-left: 8px;
+const FormEncrytedSection = styled.div`
+  display: flex;
+  margin-left: 12px;
+  align-items: center;
 `;
 
 interface FormLabelProps {
@@ -163,7 +158,6 @@ function FormInfoText(props: FormLabelProps) {
 }
 
 export {
-  EncryptedText,
   FormInputSwitchToJsonButton,
   FormLabel,
   FormInputAnchor,
@@ -171,5 +165,5 @@ export {
   FormInputHelperText,
   FormInfoText,
   FormSubtitleText,
-  FormEncryptedSection,
+  FormEncrytedSection,
 };
