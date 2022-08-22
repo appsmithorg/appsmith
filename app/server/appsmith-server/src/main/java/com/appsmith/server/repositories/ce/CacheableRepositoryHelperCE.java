@@ -9,11 +9,11 @@ public interface CacheableRepositoryHelperCE {
 
     Mono<Set<String>> getPermissionGroupsOfUser(User user);
 
-    Mono<Set<String>> getAnonymousUserPermissionGroups();
-
     Mono<Void> evictPermissionGroupsUser(String email, String tenantId);
 
     Mono<User> getAnonymousUser(String tenantId);
 
     Mono<User> getAnonymousUser();
+
+    Mono<String> getDefaultTenantId();
 }

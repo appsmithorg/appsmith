@@ -340,10 +340,22 @@ public abstract class BaseAppsmithRepositoryImpl<T extends BaseDomain> {
      */
 
     protected Mono<Set<String>> getAllPermissionGroupsForUser(User user) {
-        return Mono.zip(
-                        cacheableRepositoryHelper.getPermissionGroupsOfUser(user),
+
+        Mono<User> userMono = Mono.just(user);
+        if (user.getTenantId() == null) {
+            userMono = cacheableRepositoryHelper.getDefaultTenantId()
+                    .map(tenantId -> {
+                        user.setTenantId(tenantId);
+                        return user;
+                    });
+        }
+
+
+        return userMono
+                .flatMap(userWithTenant -> Mono.zip(
+                        cacheableRepositoryHelper.getPermissionGroupsOfUser(userWithTenant),
                         getAnonymousUserPermissionGroups()
-                )
+                ))
                 .map(tuple -> {
                     Set<String> permissionGroups = new HashSet<>(tuple.getT1());
 

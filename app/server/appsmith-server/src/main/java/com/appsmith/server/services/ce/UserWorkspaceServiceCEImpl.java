@@ -16,6 +16,7 @@ import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.repositories.WorkspaceRepository;
 import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.services.SessionUserService;
+import com.appsmith.server.services.TenantService;
 import com.appsmith.server.services.UserDataService;
 import com.mongodb.client.result.UpdateResult;
 import lombok.extern.slf4j.Slf4j;
@@ -37,6 +38,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static com.appsmith.server.constants.FieldName.ANONYMOUS_USER;
+
 
 @Slf4j
 public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
@@ -48,6 +51,7 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
     private final EmailSender emailSender;
     private final UserDataService userDataService;
     private final PermissionGroupService permissionGroupService;
+    private final TenantService tenantService;
 
     private static final String UPDATE_ROLE_EXISTING_USER_TEMPLATE = "email/updateRoleExistingUserTemplate.html";
 
@@ -59,7 +63,8 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
                                       PolicyUtils policyUtils,
                                       EmailSender emailSender,
                                       UserDataService userDataService,
-                                      PermissionGroupService permissionGroupService) {
+                                      PermissionGroupService permissionGroupService,
+                                      TenantService tenantService) {
         this.sessionUserService = sessionUserService;
         this.workspaceRepository = workspaceRepository;
         this.userRepository = userRepository;
@@ -68,6 +73,7 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
         this.emailSender = emailSender;
         this.userDataService = userDataService;
         this.permissionGroupService = permissionGroupService;
+        this.tenantService = tenantService;
     }
 
     @Override
@@ -130,7 +136,8 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
                 .cache();
 
         // Get the user
-        Mono<User> userMono = userRepository.findByEmail(changeUserGroupDTO.getUsername())
+        Mono<User> userMono = tenantService.getDefaultTenantId()
+                .flatMap(tenantId -> userRepository.findByEmailAndTenantId(ANONYMOUS_USER, tenantId))
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.USER, changeUserGroupDTO.getUsername())))
                 .cache();
 

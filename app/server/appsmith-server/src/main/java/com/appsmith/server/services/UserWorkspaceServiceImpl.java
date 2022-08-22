@@ -20,9 +20,10 @@ public class UserWorkspaceServiceImpl extends UserWorkspaceServiceCEImpl impleme
                                     PolicyUtils policyUtils,
                                     EmailSender emailSender,
                                     UserDataService userDataService,
-                                    PermissionGroupService permissionGroupService) {
+                                    PermissionGroupService permissionGroupService,
+                                    TenantService tenantService) {
 
         super(sessionUserService, workspaceRepository, userRepository, userDataRepository, policyUtils, emailSender,
-                userDataService, permissionGroupService);
+                userDataService, permissionGroupService, tenantService);
     }
 }

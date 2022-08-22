@@ -344,10 +344,10 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
 
                             // Remove the default permission group from the application.
                             applicationMono = Mono.just(application)
-                                            .map(application1 -> {
-                                                application1.setDefaultPermissionGroup(null);
-                                                return application1;
-                                            });
+                                    .map(application1 -> {
+                                        application1.setDefaultPermissionGroup(null);
+                                        return application1;
+                                    });
                         }
                     }
 
@@ -358,7 +358,8 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
                         // Assign the permission group to anonymous user
                         if (applicationAccessDTO.getPublicAccess()) {
                             // Assign anonymousUser to use the newly created permission group
-                            updatedPermissionGroupMono = userRepository.findByEmail(ANONYMOUS_USER)
+                            updatedPermissionGroupMono = tenantService.getDefaultTenantId()
+                                    .flatMap(tenantId -> userRepository.findByEmailAndTenantId(ANONYMOUS_USER, tenantId))
                                     .zipWith(permissionGroupMono)
                                     .flatMap(tuple -> {
                                         User anonymousUser = tuple.getT1();
@@ -393,7 +394,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
 
 
         //  Use a synchronous sink which does not take subscription cancellations into account. This that even if the
-        //  subscriber has cancelled its subscription, the create method will still generates its event.
+        //  subscriber has cancelled its subscription, the create method will still generate its event.
         return Mono.create(sink -> updateApplicationMono
                 .subscribe(sink::success, sink::error, null, sink.currentContext())
         );
@@ -582,7 +583,8 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
                         return Mono.just(application);
                     }
 
-                    Mono<User> anonymousUserMono = userRepository.findByEmail(ANONYMOUS_USER);
+                    Mono<User> anonymousUserMono = tenantService.getDefaultTenantId()
+                            .flatMap(tenantId -> userRepository.findByEmailAndTenantId(ANONYMOUS_USER, tenantId));
                     Mono<PermissionGroup> defaultPermissionGroupMono =
                             permissionGroupService.findById(application.getDefaultPermissionGroup())
                                     .switchIfEmpty(Mono.just(new PermissionGroup()));
