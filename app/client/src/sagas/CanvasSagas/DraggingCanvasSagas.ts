@@ -26,7 +26,10 @@ import { OccupiedSpace } from "constants/CanvasEditorConstants";
 import { collisionCheckPostReflow } from "utils/reflowHookUtils";
 import { WidgetDraggingUpdateParams } from "pages/common/CanvasArenas/hooks/useBlocksToBeDraggedOnCanvas";
 import { getWidget, getWidgets } from "sagas/selectors";
-import { getUpdateDslAfterCreatingChild } from "sagas/WidgetAdditionSagas";
+import {
+  getUpdateDslAfterCreatingAutoLayoutChild,
+  getUpdateDslAfterCreatingChild,
+} from "sagas/WidgetAdditionSagas";
 import { MainCanvasReduxState } from "reducers/uiReducers/mainCanvasReducer";
 import { CANVAS_DEFAULT_MIN_HEIGHT_PX } from "constants/AppConstants";
 
@@ -363,6 +366,7 @@ function reorderAutolayoutChildren(params: {
 }) {
   const { allWidgets, index, movedWidgets, parentId } = params;
   const widgets = Object.assign({}, allWidgets);
+  if (!movedWidgets) return widgets;
   const selectedWidgets = [...movedWidgets];
   // Check if parent has changed
   const orphans = selectedWidgets.filter(
@@ -416,16 +420,23 @@ function* addWidgetAndReorderSaga(
 ) {
   const start = performance.now();
   const { index, newWidget, parentId } = actionPayload.payload;
+  // console.log(`parentId: ${parentId}`);
   try {
-    const updatedWidgetsOnAddition: CanvasWidgetsReduxState = yield call(
-      getUpdateDslAfterCreatingChild,
-      { ...newWidget, widgetId: parentId },
-    );
+    const updatedWidgetsOnAddition: {
+      widgets: CanvasWidgetsReduxState;
+      containerId?: string;
+    } = yield call(getUpdateDslAfterCreatingAutoLayoutChild, {
+      ...newWidget,
+      widgetId: parentId,
+    });
+    // console.log(updatedWidgetsOnAddition);
     const updatedWidgetsOnMove = reorderAutolayoutChildren({
-      movedWidgets: [newWidget.newWidgetId],
+      movedWidgets: [
+        updatedWidgetsOnAddition.containerId || newWidget.newWidgetId,
+      ],
       index,
       parentId,
-      allWidgets: updatedWidgetsOnAddition,
+      allWidgets: updatedWidgetsOnAddition.widgets,
     });
     yield put(updateAndSaveLayout(updatedWidgetsOnMove));
     log.debug("reorder computations took", performance.now() - start, "ms");

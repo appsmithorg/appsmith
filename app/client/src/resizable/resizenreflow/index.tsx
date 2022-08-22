@@ -156,6 +156,7 @@ type ResizableProps = {
   zWidgetType?: string;
   zWidgetId?: string;
   useAutoLayout?: boolean;
+  isWrapper?: boolean;
 };
 
 export function ReflowResizable(props: ResizableProps) {
@@ -501,8 +502,8 @@ export function ReflowResizable(props: ResizableProps) {
       }}
       immediate={newDimensions.reset ? true : false}
       to={{
-        width: props.useAutoLayout ? "auto" : widgetWidth,
-        height: widgetHeight,
+        width: props.isWrapper || props.useAutoLayout ? "auto" : widgetWidth,
+        height: props.isWrapper ? "auto" : widgetHeight,
         transform: `translate3d(${newDimensions.x}px,${newDimensions.y}px,0)`,
       }}
     >

@@ -284,6 +284,7 @@ abstract class BaseWidget<
     return (
       <PositionedContainer
         focused={this.props.focused}
+        isWrapper={this.props.isWrapper}
         parentId={this.props.parentId}
         resizeDisabled={this.props.resizeDisabled}
         selected={this.props.selected}
@@ -314,6 +315,7 @@ abstract class BaseWidget<
       <AutoLayoutWrapper
         alignItems={this.props.alignItems}
         direction={this.props.direction}
+        isWrapper={this.props.isWrapper}
         parentId={this.props.parentId}
         responsiveBehavior={this.props.responsiveBehavior}
         useAutoLayout={this.props.useAutoLayout}

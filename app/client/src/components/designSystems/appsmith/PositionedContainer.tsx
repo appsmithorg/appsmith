@@ -28,6 +28,7 @@ export type PositionedContainerProps = {
   focused?: boolean;
   resizeDisabled?: boolean;
   useAutoLayout?: boolean;
+  isWrapper?: boolean;
 };
 
 export const checkIsDropTarget = memoize(function isDropTarget(
@@ -106,8 +107,9 @@ export function PositionedContainer(props: PositionedContainerProps) {
       left: x,
       top: y,
       height:
-        reflowHeight ||
-        props.style.componentHeight + (props.style.heightUnit || "px"),
+        reflowHeight || props.isWrapper
+          ? "auto"
+          : props.style.componentHeight + (props.style.heightUnit || "px"),
       width:
         reflowWidth || props.useAutoLayout
           ? "auto"

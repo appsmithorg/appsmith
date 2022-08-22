@@ -18,6 +18,7 @@ export type AutoLayoutProps = {
   direction?: LayoutDirection;
   parentId?: string;
   responsiveBehavior?: ResponsiveBehavior;
+  isWrapper?: boolean;
 };
 
 const AutoLayout = styled("div")<{
@@ -25,6 +26,7 @@ const AutoLayout = styled("div")<{
   direction?: LayoutDirection;
   useAutoLayout?: boolean;
   responsiveBehavior?: ResponsiveBehavior;
+  isWrapper?: boolean;
 }>`
   position: unset;
   width: auto;
@@ -32,8 +34,10 @@ const AutoLayout = styled("div")<{
     responsiveBehavior === ResponsiveBehavior.Fill
       ? "1 1 auto"
       : "0 1 fit-content"};
-  align-self: ${({ responsiveBehavior }) =>
-    responsiveBehavior === ResponsiveBehavior.Fill ? "stretch" : "auto"};
+  align-self: ${({ isWrapper, responsiveBehavior }) =>
+    responsiveBehavior === ResponsiveBehavior.Fill || isWrapper
+      ? "stretch"
+      : "auto"};
 `;
 
 const ZIndexContainer = styled.div<{
@@ -82,6 +86,7 @@ export function AutoLayoutWrapper(props: AutoLayoutProps) {
     <AutoLayout
       alignItems={props.alignItems}
       direction={props.direction}
+      isWrapper={props.isWrapper}
       onClickCapture={onClickFn}
       responsiveBehavior={props.responsiveBehavior}
       useAutoLayout={props.useAutoLayout}
