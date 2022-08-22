@@ -6,9 +6,8 @@ import Widget from "./widget";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
-  name: "Range Slider Widget",
+  name: "Range Slider",
   needsMeta: true,
-  replacement: "RANGE_SLIDER_WIDGET",
   iconSVG: IconSVG,
   defaults: {
     defaultStartValue: 20,
@@ -28,7 +27,7 @@ export const CONFIG = {
     labelAlwaysOn: false,
     showLabelOnHover: true,
     labelText: "Label",
-    labelPosition: LabelPosition.Top,
+    labelPosition: LabelPosition.Left,
     labelAlignment: Alignment.LEFT,
     labelWidth: 5,
     labelTextSize: "0.875rem",
@@ -39,6 +38,7 @@ export const CONFIG = {
     shouldTruncate: false,
     version: 1,
     animateLoading: true,
+    sliderSize: "m",
   },
   properties: {
     derived: Widget.getDerivedPropertiesMap(),

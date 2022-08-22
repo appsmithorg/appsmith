@@ -1,13 +1,13 @@
 import React from "react";
 import styled from "styled-components";
 
-import { Colors } from "constants/Colors";
 import { sizeMap, getPosition, isMarkedFilled, SliderSizes } from "../utils";
 
 interface MarksProps {
   marksBg: {
     filled: string;
     notFilled: string;
+    label: string;
   };
   marks?: { value: number; label: string }[];
   marksOffset?: number;
@@ -40,14 +40,14 @@ const Mark = styled.div<Pick<MarksProps, "size">>(({ size }) => ({
   backgroundColor: "white",
 }));
 
-const MarkLabel = styled.div({
+const MarkLabel = styled.div<{ color: string }>(({ color }) => ({
   transform: "translate(-50%, 0)",
   fontSize: "12px",
   fontWeight: 400,
-  color: Colors.CHARCOAL,
+  color,
   marginTop: "5px",
   overflowWrap: "break-word",
-});
+}));
 
 export const Marks = React.memo(
   ({
@@ -79,6 +79,7 @@ export const Marks = React.memo(
           />
           {showMarksLabel && (
             <MarkLabel
+              color={marksBg.label}
               onMouseDown={(event) => {
                 event.stopPropagation();
                 onChange(mark.value);

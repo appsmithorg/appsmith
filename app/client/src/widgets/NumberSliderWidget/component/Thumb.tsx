@@ -40,11 +40,8 @@ const Label = styled.div({
 });
 
 const ThumbWrapper = styled.div<
-  Pick<
-    ThumbProps,
-    "color" | "disabled" | "dragging" | "position" | "size" | "thumbBgColor"
-  >
->(({ color, disabled, dragging, position, size, thumbBgColor }) => ({
+  Pick<ThumbProps, "color" | "disabled" | "position" | "size" | "thumbBgColor">
+>(({ color, disabled, position, size, thumbBgColor }) => ({
   boxSizing: "border-box",
   position: "absolute",
   display: "flex",
@@ -63,11 +60,11 @@ const ThumbWrapper = styled.div<
   zIndex: 3,
   userSelect: "none",
   transform: "translate(-50%, -50%)",
-  boxShadow: dragging
-    ? disabled
-      ? "none"
-      : `0 0 0px 3px ${lightenColor(color)}`
-    : "none",
+  // boxShadow: dragging
+  //   ? disabled
+  //     ? "none"
+  //     : `0 0 0px 3px ${lightenColor(color)}`
+  //   : "none",
   left: `${position}%`,
 
   "&:focus": {
@@ -107,7 +104,6 @@ export const Thumb = forwardRef<HTMLDivElement, ThumbProps>(
         aria-valuenow={value}
         color={color}
         disabled={disabled}
-        dragging={dragging}
         onBlur={() => {
           setFocused(false);
           typeof onBlur === "function" && onBlur();

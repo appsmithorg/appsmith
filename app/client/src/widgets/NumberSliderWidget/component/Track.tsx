@@ -8,6 +8,7 @@ interface TrackProps {
   marksBg: {
     filled: string;
     notFilled: string;
+    label: string;
   };
   trackBgColor: string;
   barBgColor: string;

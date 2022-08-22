@@ -219,7 +219,6 @@ class RangeSliderWidget extends BaseWidget<
             options: [
               { label: "Left", value: LabelPosition.Left },
               { label: "Top", value: LabelPosition.Top },
-              { label: "Auto", value: LabelPosition.Auto },
             ],
             isBindProperty: false,
             isTriggerProperty: false,
@@ -343,6 +342,7 @@ class RangeSliderWidget extends BaseWidget<
         sectionName: "Styles",
         children: [
           {
+            helpText: "Sets the fill color of the widget",
             propertyName: "accentColor",
             label: "Fill Color",
             controlType: "COLOR_PICKER",
@@ -352,24 +352,25 @@ class RangeSliderWidget extends BaseWidget<
             validation: { type: ValidationTypes.TEXT },
           },
           {
+            helpText: "Controls the size of the slider",
             propertyName: "sliderSize",
             label: "Slider Size",
             controlType: "DROP_DOWN",
-            defaultValue: "md",
+            defaultValue: "m",
             options: [
               {
-                label: "sm",
-                value: "sm",
+                label: "S",
+                value: "s",
                 subText: "6px",
               },
               {
-                label: "md",
-                value: "md",
+                label: "M",
+                value: "m",
                 subText: "8px",
               },
               {
-                label: "lg",
-                value: "lg",
+                label: "L",
+                value: "l",
                 subText: "10px",
               },
             ],
@@ -484,7 +485,7 @@ class RangeSliderWidget extends BaseWidget<
         name={this.props.widgetName}
         onChangeEnd={this.onChangeEnd}
         showLabelOnHover={this.props.showLabelOnHover}
-        sliderSize={this.props.sliderSize || "md"}
+        sliderSize={this.props.sliderSize || "m"}
         startValue={this.props.start || 0}
         step={this.props.step || 1}
       />

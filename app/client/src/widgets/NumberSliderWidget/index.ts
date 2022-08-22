@@ -3,14 +3,12 @@ import { Alignment } from "@blueprintjs/core";
 
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
-import { SliderType } from "./utils";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
-  name: "Number Slider Widget",
+  name: "Number Slider",
   needsMeta: true,
   searchTags: ["range"],
-  replacement: "NUMBER_SLIDER_WIDGET",
   iconSVG: IconSVG,
   defaults: {
     defaultValue: 50,
@@ -25,7 +23,6 @@ export const CONFIG = {
       { label: "xl", value: "xl" },
     ],
     defaultOptionValue: "md",
-    sliderType: SliderType.LINEAR,
     marks: [
       { value: 20, label: "20%" },
       { value: 50, label: "50%" },
@@ -44,10 +41,11 @@ export const CONFIG = {
     version: 1,
     animateLoading: true,
     labelText: "Label",
-    labelPosition: LabelPosition.Top,
+    labelPosition: LabelPosition.Left,
     labelAlignment: Alignment.LEFT,
     labelWidth: 5,
     labelTextSize: "0.875rem",
+    sliderSize: "m",
   },
   properties: {
     derived: Widget.getDerivedPropertiesMap(),

@@ -299,7 +299,6 @@ class CategorySliderWidget extends BaseWidget<
             options: [
               { label: "Left", value: LabelPosition.Left },
               { label: "Top", value: LabelPosition.Top },
-              { label: "Auto", value: LabelPosition.Auto },
             ],
             isBindProperty: false,
             isTriggerProperty: false,
@@ -423,6 +422,7 @@ class CategorySliderWidget extends BaseWidget<
         sectionName: "Styles",
         children: [
           {
+            helpText: "Sets the fill color of the widget",
             propertyName: "accentColor",
             label: "Fill Color",
             controlType: "COLOR_PICKER",
@@ -432,24 +432,25 @@ class CategorySliderWidget extends BaseWidget<
             validation: { type: ValidationTypes.TEXT },
           },
           {
+            helpText: "Controls the size of the slider",
             propertyName: "sliderSize",
             label: "Slider Size",
             controlType: "DROP_DOWN",
-            defaultValue: "md",
+            defaultValue: "m",
             options: [
               {
-                label: "sm",
-                value: "sm",
+                label: "S",
+                value: "s",
                 subText: "6px",
               },
               {
-                label: "md",
-                value: "md",
+                label: "M",
+                value: "m",
                 subText: "8px",
               },
               {
-                label: "lg",
-                value: "lg",
+                label: "L",
+                value: "l",
                 subText: "10px",
               },
             ],
@@ -576,7 +577,7 @@ class CategorySliderWidget extends BaseWidget<
         onChangeEnd={this.onChangeEnd}
         showLabelOnHover={this.props.showLabelOnHover}
         showMarksLabel={this.props.showMarksLabel || sliderOptions.length === 0}
-        sliderSize={this.props.sliderSize || "md"}
+        sliderSize={this.props.sliderSize || "m"}
         sliderTooltip={(val: number) =>
           sliderOptions.find((option) => option.value === val)?.label || ""
         }

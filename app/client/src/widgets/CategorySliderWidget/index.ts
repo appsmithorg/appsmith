@@ -6,10 +6,9 @@ import Widget from "./widget";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
-  name: "Category Slider Widget",
+  name: "Category Slider",
   needsMeta: true,
   searchTags: ["range"],
-  replacement: "CATEGORY_SLIDER_WIDGET",
   iconSVG: IconSVG,
   defaults: {
     options: [
@@ -33,10 +32,11 @@ export const CONFIG = {
     version: 1,
     animateLoading: true,
     labelText: "Label",
-    labelPosition: LabelPosition.Top,
+    labelPosition: LabelPosition.Left,
     labelAlignment: Alignment.LEFT,
     labelWidth: 5,
     labelTextSize: "0.875rem",
+    sliderSize: "m",
   },
   properties: {
     derived: Widget.getDerivedPropertiesMap(),

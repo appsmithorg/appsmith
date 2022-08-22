@@ -80,23 +80,18 @@ export function isMarkedFilled({ mark, offset, value }: IsMarkedFilled) {
 }
 
 export const thumbSizeMap = {
-  sm: "12px",
-  md: "16px",
-  lg: "20px",
+  s: "12px",
+  m: "16px",
+  l: "20px",
 };
 
 export const sizeMap = {
-  sm: 6,
-  md: 8,
-  lg: 10,
+  s: 6,
+  m: 8,
+  l: 10,
 };
 
-export type SliderSizes = "sm" | "md" | "lg";
-
-export enum SliderType {
-  LINEAR = "LINEAR",
-  CATEGORICAL = "CATEGORICAL",
-}
+export type SliderSizes = "s" | "m" | "l";
 
 export const getSliderStyles = ({
   color,
@@ -119,6 +114,7 @@ export const getSliderStyles = ({
       marks: {
         filled: Colors.GREY_6,
         notFilled: Colors.GREY_5,
+        label: Colors.DARK_GRAY,
       },
     };
   }
@@ -131,6 +127,7 @@ export const getSliderStyles = ({
       marks: {
         filled: darkColor,
         notFilled: Colors.GRAY_400,
+        label: Colors.CHARCOAL,
       },
     };
   }
@@ -142,6 +139,7 @@ export const getSliderStyles = ({
     marks: {
       filled: color,
       notFilled: Colors.GREY_5,
+      label: Colors.CHARCOAL,
     },
   };
 };
