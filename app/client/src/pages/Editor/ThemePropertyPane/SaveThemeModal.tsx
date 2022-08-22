@@ -2,9 +2,9 @@ import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import TextInput from "components/ads/TextInput";
+import { TextInput } from "design-system";
 import Dialog from "components/ads/DialogComponent";
-import Button, { Category, Size } from "components/ads/Button";
+import { Button, Category, Size } from "design-system";
 import { saveSelectedThemeAction } from "actions/appThemingActions";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 import { getAppThemes } from "selectors/appThemingSelectors";

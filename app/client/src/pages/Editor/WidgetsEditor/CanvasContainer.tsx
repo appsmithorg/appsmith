@@ -22,7 +22,7 @@ import {
 } from "selectors/appThemingSelectors";
 import Spinner from "components/ads/Spinner";
 import useGoogleFont from "utils/hooks/useGoogleFont";
-import { IconSize } from "components/ads/Icon";
+import { IconSize } from "design-system";
 import { useDynamicAppLayout } from "utils/hooks/useDynamicAppLayout";
 import { getCurrentThemeDetails } from "selectors/themeSelectors";
 import { getCanvasWidgetsStructure } from "selectors/entitiesSelector";

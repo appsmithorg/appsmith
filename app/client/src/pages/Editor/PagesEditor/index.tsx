@@ -6,8 +6,7 @@ import { useDispatch, useSelector } from "react-redux";
 
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { ControlIcons } from "icons/ControlIcons";
-import { IconWrapper } from "components/ads/Icon";
-import Button, { Size } from "components/ads/Button";
+import { Button, IconWrapper, Size } from "design-system";
 import PageListItem, { Action } from "./PageListItem";
 import { Page } from "@appsmith/constants/ReduxActionConstants";
 import {

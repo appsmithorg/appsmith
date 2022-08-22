@@ -9,7 +9,7 @@ import {
   IconSize,
   IconWrapper,
   Size,
-} from "components/ads";
+} from "design-system";
 import { TooltipComponent, Text, TextType } from "design-system";
 import ModalComponent from "components/designSystems/appsmith/ModalComponent";
 import { Colors } from "constants/Colors";
