@@ -20,9 +20,9 @@ import { AppState } from "reducers";
 import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsStructureReducer";
 import { DSLWidget } from "widgets/constants";
 
-export const useMockDsl = (dsl: any) => {
+export const useMockDsl = (dsl: any, mode?: APP_MODE) => {
   const dispatch = useDispatch();
-  dispatch(setAppMode(APP_MODE.EDIT));
+  dispatch(setAppMode(mode || APP_MODE.EDIT));
   const mockResp: any = {
     data: {
       id: "page_id",

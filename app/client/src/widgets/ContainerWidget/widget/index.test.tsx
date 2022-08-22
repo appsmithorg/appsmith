@@ -4,7 +4,6 @@ import { MemoryRouter } from "react-router-dom";
 import * as utilities from "selectors/editorSelectors";
 import * as useDynamicAppLayoutHook from "utils/hooks/useDynamicAppLayout";
 
-import { RenderModes } from "constants/WidgetConstants";
 import * as useCanvasDraggingHook from "pages/common/CanvasArenas/hooks/useCanvasDragging";
 import store from "store";
 import {
@@ -35,17 +34,14 @@ describe("ContainerWidget tests", () => {
       {
         type: "CHECKBOX_WIDGET",
         parentId: canvasId,
-        renderMode: RenderModes.PAGE,
       },
       {
         type: "SWITCH_WIDGET",
         parentId: canvasId,
-        renderMode: RenderModes.PAGE,
       },
       {
         type: "BUTTON_WIDGET",
         parentId: canvasId,
-        renderMode: RenderModes.PAGE,
       },
     ]);
     const canvasWidget = buildChildren([
@@ -54,7 +50,6 @@ describe("ContainerWidget tests", () => {
         parentId: containerId,
         children,
         widgetId: canvasId,
-        renderMode: RenderModes.PAGE,
       },
     ]);
     const containerChildren: any = buildChildren([
@@ -63,13 +58,11 @@ describe("ContainerWidget tests", () => {
         children: canvasWidget,
         widgetId: containerId,
         parentId: "0",
-        renderMode: RenderModes.PAGE,
       },
     ]);
     const dsl: any = widgetCanvasFactory.build({
       children: containerChildren,
     });
-    dsl.renderMode = RenderModes.PAGE;
     spyGetCanvasWidgetDsl.mockImplementation(mockGetCanvasWidgetDsl);
     mockGetIsFetchingPage.mockImplementation(() => false);
     const spyUseCanvasDragging = jest
@@ -78,22 +71,7 @@ describe("ContainerWidget tests", () => {
         showCanvas: true,
       }));
     const appState = store.getState();
-    const viewerState = {
-      ...appState,
-      ui: {
-        ...appState.ui,
-        onBoarding: {
-          ...appState.ui.onBoarding,
-          inOnboardingWidgetSelection: true,
-          enableFirstTimeUserOnboarding: false,
-          forceOpenWidgetPanel: false,
-          firstTimeUserOnboardingApplicationId: "123",
-          firstTimeUserOnboardingComplete: true,
-          showFirstTimeUserOnboardingModal: false,
-        },
-      },
-    };
-    const viewComponent = render(
+    render(
       <MemoryRouter initialEntries={["/app/applicationSlug/pageSlug-page_id/"]}>
         <MockApplication>
           <GlobalHotKeys>
@@ -101,11 +79,11 @@ describe("ContainerWidget tests", () => {
           </GlobalHotKeys>
         </MockApplication>
       </MemoryRouter>,
-      { initialState: viewerState, sagasToRun: sagasToRunForTests },
+      { initialState: appState, sagasToRun: sagasToRunForTests },
     );
 
     expect(spyUseCanvasDragging).not.toHaveBeenCalled();
-    const editComponent = render(
+    render(
       <MemoryRouter
         initialEntries={["/app/applicationSlug/pageSlug-page_id/edit"]}
       >
@@ -115,7 +93,7 @@ describe("ContainerWidget tests", () => {
           </GlobalHotKeys>
         </MockApplication>
       </MemoryRouter>,
-      { initialState: viewerState, sagasToRun: sagasToRunForTests },
+      { initialState: appState, sagasToRun: sagasToRunForTests },
     );
     expect(spyUseCanvasDragging).toHaveBeenCalled();
   });
