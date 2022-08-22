@@ -10,8 +10,10 @@ import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.CommentThread;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
+import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.Theme;
 import com.appsmith.server.domains.User;
+import com.appsmith.server.dtos.Permission;
 import com.appsmith.server.repositories.ActionCollectionRepository;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.CommentThreadRepository;
@@ -20,6 +22,7 @@ import com.appsmith.server.repositories.NewActionRepository;
 import com.appsmith.server.repositories.NewPageRepository;
 import com.appsmith.server.repositories.ThemeRepository;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
@@ -42,6 +45,7 @@ import static com.appsmith.server.acl.AclPermission.READ_THEMES;
 
 @Component
 @AllArgsConstructor
+@Slf4j
 public class PolicyUtils {
 
     private final PolicyGenerator policyGenerator;
@@ -61,9 +65,8 @@ public class PolicyUtils {
         for (Map.Entry<String, Policy> entry : policyMap.entrySet()) {
             Policy entryValue = entry.getValue();
             Policy policy = Policy.builder()
-                    .users(new HashSet<>(entryValue.getUsers()))
                     .permission(entryValue.getPermission())
-                    .groups(new HashSet<>(entryValue.getGroups()))
+                    .permissionGroups(new HashSet<>(entryValue.getPermissionGroups()))
                     .build();
             policyMap1.put(entry.getKey(), policy);
         }
@@ -72,13 +75,14 @@ public class PolicyUtils {
         for (Policy policy : obj.getPolicies()) {
             String permission = policy.getPermission();
             if (policyMap1.containsKey(permission)) {
-                policy.getUsers().addAll(policyMap1.get(permission).getUsers());
-                if (policy.getGroups() == null) {
-                    policy.setGroups(new HashSet<>());
+                Set<String> permissionGroups = new HashSet<>();
+                if(policy.getPermissionGroups() != null) {
+                    permissionGroups.addAll(policy.getPermissionGroups());
                 }
-                if (policyMap1.get(permission).getGroups() != null) {
-                    policy.getGroups().addAll(policyMap1.get(permission).getGroups());
+                if (policyMap1.get(permission).getPermissionGroups() != null) {
+                    permissionGroups.addAll(policyMap1.get(permission).getPermissionGroups());
                 }
+                policy.setPermissionGroups(permissionGroups);
                 // Remove this permission from the policyMap as this has been accounted for in the above code
                 policyMap1.remove(permission);
             }
@@ -100,12 +104,11 @@ public class PolicyUtils {
         for (Policy policy : obj.getPolicies()) {
             String permission = policy.getPermission();
             if (policyMap1.containsKey(permission)) {
-                policy.getUsers().removeAll(policyMap1.get(permission).getUsers());
-                if (policy.getGroups() == null) {
-                    policy.setGroups(new HashSet<>());
+                if (policy.getPermissionGroups() == null) {
+                    policy.setPermissionGroups(new HashSet<>());
                 }
-                if (policyMap1.get(permission).getGroups() != null) {
-                    policy.getGroups().removeAll(policyMap1.get(permission).getGroups());
+                if (policyMap1.get(permission).getPermissionGroups() != null) {
+                    policy.getPermissionGroups().removeAll(policyMap1.get(permission).getPermissionGroups());
                 }
                 // Remove this permission from the policyMap as this has been accounted for in the above code
                 policyMap1.remove(permission);
@@ -140,6 +143,37 @@ public class PolicyUtils {
                 .flatMap(Collection::stream)
                 .collect(Collectors.toMap(Policy::getPermission, Function.identity()));
     }
+
+    public Map<String, Policy> generatePolicyFromPermissionGroupForObject(PermissionGroup permissionGroup, String objectId) {
+        Set<Permission> permissions = permissionGroup.getPermissions();
+        return permissions.stream()
+                .filter(perm -> perm.getDocumentId().equals(objectId))
+                .map(perm -> {
+
+                    Policy policyWithCurrentPermission = Policy.builder().permission(perm.getAclPermission().getValue())
+                            .permissionGroups(Set.of(permissionGroup.getId()))
+                            .build();
+                    // Generate any and all lateral policies that might come with the current permission
+                    Set<Policy> policiesForPermissionGroup = policyGenerator.getLateralPolicies(perm.getAclPermission(), Set.of(permissionGroup.getId()), null);
+                    policiesForPermissionGroup.add(policyWithCurrentPermission);
+                    return policiesForPermissionGroup;
+                })
+                .flatMap(Collection::stream)
+                .collect(Collectors.toMap(Policy::getPermission, Function.identity(), (policy1, policy2) -> policy1));
+    }
+
+    public Map<String, Policy> generatePolicyFromPermissionWithPermissionGroup(AclPermission permission, String permissionGroupId) {
+
+        Policy policyWithCurrentPermission = Policy.builder().permission(permission.getValue())
+                .permissionGroups(Set.of(permissionGroupId))
+                .build();
+        // Generate any and all lateral policies that might come with the current permission
+        Set<Policy> policiesForPermission = policyGenerator.getLateralPolicies(permission, Set.of(permissionGroupId), null);
+        policiesForPermission.add(policyWithCurrentPermission);
+        return policiesForPermission.stream()
+                .collect(Collectors.toMap(Policy::getPermission, Function.identity()));
+    }
+
 
     public Map<String, Policy> generatePolicyFromPermissionForMultipleUsers(Set<AclPermission> permissions, List<User> users) {
         Set<String> usernames = users.stream().map(user -> user.getUsername()).collect(Collectors.toSet());
