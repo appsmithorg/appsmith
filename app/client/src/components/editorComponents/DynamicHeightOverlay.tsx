@@ -162,6 +162,7 @@ const MinHeightOverlayHandleDot = styled(OverlayHandleDot)<{
   transform: scale(${(props) => (props.isDragging ? "1.67" : "1")});
   border: 1px solid ${OVERLAY_COLOR};
   background-color: ${(props) => (props.isActive ? OVERLAY_COLOR : "none")};
+  box-shadow: 0px 0px 0px 1px white;
 `;
 
 const MaxHeightOverlayHandle = styled(OverlayHandle)<OverlayHandleProps>`
