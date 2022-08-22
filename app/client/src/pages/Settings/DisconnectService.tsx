@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import styled from "styled-components";
 import { Variant } from "components/ads/common";
-import Button from "components/ads/Button";
+import { Button } from "design-system";
 import { Callout } from "components/ads/CalloutV2";
 import {
   createMessage,
@@ -67,7 +67,7 @@ export function DisconnectService(props: {
     <Container>
       <HeaderDanger>{createMessage(DANGER_ZONE)}</HeaderDanger>
       <Info>{props.subHeader}</Info>
-      <Callout title={props.warning} type="Warning" />
+      <Callout desc={props.warning} type="Warning" />
       <DisconnectButton
         data-testid="disconnect-service-button"
         onClick={() =>

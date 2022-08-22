@@ -396,3 +396,21 @@ export function useActiveAction() {
     return saasMatch.params.apiId;
   }
 }
+
+export const useCloseMenuOnScroll = (
+  id: string,
+  open: boolean,
+  onClose: () => void,
+) => {
+  const scrollContainer = document.getElementById(id);
+
+  useEffect(() => {
+    if (open) {
+      scrollContainer?.addEventListener("scroll", onClose, true);
+    }
+
+    return () => {
+      scrollContainer?.removeEventListener("scroll", onClose);
+    };
+  }, [open]);
+};
