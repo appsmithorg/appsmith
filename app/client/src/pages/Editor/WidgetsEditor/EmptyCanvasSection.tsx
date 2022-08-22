@@ -4,9 +4,11 @@ import { ReactComponent as Layout } from "assets/icons/ads/layout-7.svg";
 import { ReactComponent as Database } from "assets/icons/ads/database-3.svg";
 import { Text, TextType } from "design-system";
 import { Colors } from "constants/Colors";
-import { getCanvasWidgets } from "selectors/entitiesSelector";
 import { useDispatch, useSelector } from "react-redux";
-import { previewModeSelector, selectURLSlugs } from "selectors/editorSelectors";
+import {
+  selectURLSlugs,
+  showCanvasTopSectionSelector,
+} from "selectors/editorSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import history from "utils/history";
 import { generateTemplateFormURL } from "RouteBuilder";
@@ -64,12 +66,11 @@ const goToGenPageForm = ({ pageId }: routeId): void => {
 
 function CanvasTopSection() {
   const dispatch = useDispatch();
-  const widgets = useSelector(getCanvasWidgets);
-  const inPreviewMode = useSelector(previewModeSelector);
+  const showCanvasTopSection = useSelector(showCanvasTopSectionSelector);
   const { pageId } = useParams<ExplorerURLParams>();
   const { applicationSlug, pageSlug } = useSelector(selectURLSlugs);
 
-  if (Object.keys(widgets).length > 1 || inPreviewMode) return null;
+  if (!showCanvasTopSection) return null;
 
   const showTemplatesModal = () => {
     dispatch(showTemplatesModalAction(true));

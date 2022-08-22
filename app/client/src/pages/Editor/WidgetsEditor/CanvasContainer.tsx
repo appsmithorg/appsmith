@@ -6,6 +6,7 @@ import {
   getViewModePageList,
   previewModeSelector,
   getCanvasWidth,
+  showCanvasTopSectionSelector,
 } from "selectors/editorSelectors";
 import styled from "styled-components";
 import { getCanvasClassName } from "utils/generators";
@@ -60,6 +61,7 @@ function CanvasContainer() {
   const params = useParams<{ applicationId: string; pageId: string }>();
   const shouldHaveTopMargin = !isPreviewMode || pages.length > 1;
   const isAppThemeChanging = useSelector(getAppThemeIsChanging);
+  const showCanvasTopSection = useSelector(showCanvasTopSectionSelector);
 
   const isLayoutingInitialized = useDynamicAppLayout();
   const isPageInitializing = isFetchingPage || !isLayoutingInitialized;
@@ -105,7 +107,8 @@ function CanvasContainer() {
       className={classNames({
         [`${getCanvasClassName()} scrollbar-thin`]: true,
         "mt-0": !shouldHaveTopMargin,
-        "mt-8": shouldHaveTopMargin,
+        "mt-4": showCanvasTopSection,
+        "mt-8": shouldHaveTopMargin && !showCanvasTopSection,
       })}
       key={currentPageId}
       style={{
