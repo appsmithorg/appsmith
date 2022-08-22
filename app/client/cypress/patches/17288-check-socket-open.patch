@@ -1,4 +1,3 @@
-@@ TODO: Workaround for cypress-io/cypress#17288, remove after fixed on upstream.
 --- Cypress/resources/app/packages/server/node_modules/http-proxy/lib/http-proxy/passes/ws-incoming.js
 +++ Cypress/resources/app/packages/server/node_modules/http-proxy/lib/http-proxy/passes/ws-incoming.js
 @@ -111,7 +111,7 @@ module.exports = {
