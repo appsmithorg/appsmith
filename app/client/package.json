@@ -170,6 +170,7 @@
     "build-local": "craco --max-old-space-size=4096 build --config craco.build.config.js",
     "build-staging": "REACT_APP_ENVIRONMENT=STAGING craco --max-old-space-size=4096 build --config craco.build.config.js",
     "test": "CYPRESS_BASE_URL=https://dev.appsmith.com cypress/test.sh",
+    "dev": "cypress open",
     "install": "cypress install --force && node cypress/patches/apply-patches.js",
     "test:ci": "CYPRESS_BASE_URL=https://dev.appsmith.com cypress/test.sh --env=ci",
     "eject": "react-scripts eject",
