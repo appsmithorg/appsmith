@@ -14,6 +14,9 @@ import {
   getViewType,
 } from "components/formControls/utils";
 import formControlTypes from "utils/formControl/formControlTypes";
+import { getAllBindingPathsForGraphqlPagination } from "utils/editor/EditorGraphql";
+import { log } from "loglevel";
+import EditorControlTypes from "utils/editor/EditorControlTypes";
 
 const dynamicFields = [
   formControlTypes.QUERY_DYNAMIC_TEXT,
@@ -212,7 +215,30 @@ export const getBindingAndReactivePathsOfAction = (
             );
           });
         }
+      } else if (
+        formConfig.controlType === EditorControlTypes.E_GRAPHQL_PAGINATION
+      ) {
+        const allPaths = getAllBindingPathsForGraphqlPagination(configPath);
+        allPaths.forEach(({ key, value }) => {
+          if (key && value) {
+            bindingPaths[key] = value as EvaluationSubstitutionType;
+          }
+        });
+        log(bindingPaths);
       }
+      // else if (
+      //   formConfig.controlType === editorControlTypes.E_GRAPHQL_PAGINATION
+      // ) {
+      //   // const allPaths: Array<KeyValuePair> = getAllBindingPathsForGraphqlPagination(
+      //   //   configPath,
+      //   // );
+      //   // console.log({ allPaths });
+      //   // allPaths.forEach(({ key, value }: KeyValuePair) => {
+      //   //   if (key && value) {
+      //   //     bindingPaths[key] = value as EvaluationSubstitutionType;
+      //   //   }
+      //   // });
+      // }
     }
   };
   formConfig.forEach(recursiveFindBindingPaths);

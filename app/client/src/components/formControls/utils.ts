@@ -289,6 +289,7 @@ export const actionPathFromName = (
 export enum PaginationSubComponent {
   Limit = "limit",
   Offset = "offset",
+  Cursor = "cursor",
 }
 
 export enum SortingSubComponent {

@@ -158,6 +158,11 @@ export const DEFAULT_GRAPHQL_ACTION_CONFIG: ApiActionConfig = {
   ],
 };
 
+export const LIMITBASED_PREFIX = "limitBased";
+export const CURSORBASED_PREFIX = "cursorBased";
+export const CURSOR_PREVIOUS_PREFIX = "previous";
+export const CURSOR_NEXT_PREFIX = "next";
+
 // Start: Default Create API Config for Rest as well as Graphql
 export type DEFAULT_CREATE_API_CONFIG_TYPE = {
   config: ApiActionConfig;

@@ -109,6 +109,12 @@ export default [
           value: true,
         },
       },
+      {
+        label: "Pagination",
+        configProperty: "actionConfiguration.pluginSpecifiedTemplates[2].value",
+        controlType: "E_GRAPHQL_PAGINATION",
+        evaluationSubstitutionType: "SMART_SUBSTITUTE",
+      },
     ],
   },
 ];
