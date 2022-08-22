@@ -2,6 +2,10 @@
 
 import homePage from "../../../../locators/HomePage";
 const publish = require("../../../../locators/publishWidgetspage.json");
+import { ObjectsRegistry } from "../../../../support/Objects/Registry";
+const commonlocators = require("../../../../locators/commonlocators.json");
+let HomePage = ObjectsRegistry.HomePage,
+  agHelper = ObjectsRegistry.AggregateHelper;
 
 describe("Create new workspace and share with a user", function() {
   let workspaceId;
@@ -28,7 +32,11 @@ describe("Create new workspace and share with a user", function() {
       );
       cy.get("h2").contains("Drag and drop a widget here");
       cy.get(homePage.shareApp).click({ force: true });
-      cy.shareApp(Cypress.env("TESTUSERNAME1"), homePage.viewerRole);
+      HomePage.InviteUserToWorkspaceFromApp(
+        workspaceId,
+        Cypress.env("TESTUSERNAME1"),
+        "App Viewer",
+      );
     });
     cy.LogOut();
   });

@@ -1208,3 +1208,5 @@ export const CLEAN_URL_UPDATE = {
   disclaimer: () =>
     "Existing references to <strong>appsmith.URL.fullpath</strong> and <strong>appsmith.URL.pathname</strong> properties will behave differently.",
 };
+
+export const MEMBERS_TAB_TITLE = (length: number) => `Users (${length})`;
