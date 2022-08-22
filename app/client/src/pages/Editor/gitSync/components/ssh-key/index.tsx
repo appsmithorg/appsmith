@@ -9,7 +9,7 @@ import { Text, TextType } from "design-system";
 import Key2LineIcon from "remixicon-react/Key2LineIcon";
 import { Space } from "pages/Editor/gitSync/components/StyledComponents";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import Icon, { IconSize } from "components/ads/Icon";
+import { Icon, IconSize } from "design-system";
 import Menu from "components/ads/Menu";
 import { Position } from "@blueprintjs/core";
 import { Toaster } from "components/ads/Toast";

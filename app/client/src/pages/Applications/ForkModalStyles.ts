@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import Button from "components/ads/Button";
+import { Button } from "design-system";
 import RadioComponent from "components/ads/Radio";
 import { getTypographyByKey } from "constants/DefaultTheme";
 import Dialog from "components/ads/DialogComponent";

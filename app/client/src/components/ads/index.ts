@@ -1,14 +1,5 @@
-export { default as AppIcon } from "./AppIcon";
-export * from "./AppIcon";
-
-export { default as Button } from "./Button";
-export * from "./Button";
-
 export { default as Callout } from "./Callout";
 export * from "./Callout";
-
-export { default as Checkbox } from "./Checkbox";
-export * from "./Checkbox";
 
 export { default as ColorPickerComponent } from "./ColorPickerComponent";
 export * from "./ColorPickerComponent";
@@ -34,9 +25,6 @@ export { default as DraggableList } from "./DraggableList";
 
 export { DroppableComponent } from "./DraggableListComponent";
 
-export { default as Dropdown } from "./Dropdown";
-export * from "./Dropdown";
-
 export { default as EditableText } from "./EditableText";
 export * from "./EditableText";
 
@@ -52,21 +40,12 @@ export { default as FilePickerV2 } from "./FilePickerV2";
 
 export { default as GifPlayerComponent } from "./GifPlayerComponent";
 
-export { default as Icon } from "./Icon";
-export * from "./Icon";
-
-export { default as IconSelector } from "./IconSelector";
-export * from "./IconSelector";
-
 export { default as ListSegmentHeader } from "./ListSegmentHeader";
 
 export { default as Menu } from "./Menu";
 export * from "./Menu";
 
 export { default as MenuDivider } from "./MenuDivider";
-
-export { default as MenuItem } from "./MenuItem";
-export * from "./MenuItem";
 
 export { default as MultiSwitch } from "./MultiSwitch";
 export * from "./MultiSwitch";
@@ -80,9 +59,6 @@ export { default as RadioComponent } from "./Radio";
 export * from "./Radio";
 
 export { default as RectangularComponent } from "./RectangularSwitcher";
-
-export { default as ScrollIndicator } from "./ScrollIndicator";
-export * from "./ScrollIndicator";
 
 export { default as SearchInput } from "./SearchInput";
 export * from "./SearchInput";
@@ -117,9 +93,6 @@ export { default as TableDropdown } from "./TableDropdown";
 // export * from "./Tabs"; conflict on names
 
 export { default as TagInputComponent } from "./TagInputComponent";
-
-export { default as TextInput } from "./TextInput";
-// export * from "./TextInput"; conflict on names
 
 export * from "./Toast";
 
