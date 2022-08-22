@@ -1,2 +1,3 @@
-/* eslint-disable @typescript-eslint/no-empty-function */
-export default function* AclSagas() {}
+export default function* AclSagas() {
+  // No sagas for CE yet
+}
