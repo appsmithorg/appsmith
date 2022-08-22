@@ -13,6 +13,7 @@ import { SearchVariant } from "components/ads";
 import { StyledSearchInput } from "./PropertyPaneView";
 import { PropertyPaneTab } from "./PropertyPaneTab";
 import styled from "styled-components";
+import { selectFeatureFlags } from "selectors/usersSelectors";
 import { updateConfigPaths, useSearchText } from "./helpers";
 
 const PanelWrapper = styled.div`
@@ -42,6 +43,7 @@ export function PanelPropertiesEditor(
     PanelPropertiesEditorPanelProps &
     IPanelProps,
 ) {
+  const featureFlags = useSelector(selectFeatureFlags);
   const widgetProperties: any = useSelector(getWidgetPropsForPropertyPane);
 
   const {
@@ -163,8 +165,9 @@ export function PanelPropertiesEditor(
         title={panelProps[panelConfig.titlePropertyName]}
         updatePropertyTitle={updatePropertyTitle}
       />
-      {panelConfigsWithStyleAndContent?.content ||
-      panelConfigsWithStyleAndContent?.style ? (
+      {featureFlags.PROPERTY_PANE_GROUPING &&
+      (panelConfigsWithStyleAndContent?.content ||
+        panelConfigsWithStyleAndContent?.style) ? (
         <>
           {// TODO(aswathkk): Fix #15970 and show search bar
           false && (
