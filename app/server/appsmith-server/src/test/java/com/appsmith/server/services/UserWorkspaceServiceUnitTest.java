@@ -27,7 +27,6 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
@@ -37,7 +36,6 @@ import javax.validation.Validator;
 import java.util.List;
 
 import static com.appsmith.server.acl.AclPermission.READ_WORKSPACES;
-import static com.appsmith.server.acl.AclPermission.WORKSPACE_INVITE_USERS;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 
@@ -67,6 +65,8 @@ public class UserWorkspaceServiceUnitTest {
 
     @MockBean UserService userService;
 
+    @MockBean TenantService tenantService;
+
     UserWorkspaceService userWorkspaceService;
 
     ModelMapper modelMapper;
@@ -75,7 +75,7 @@ public class UserWorkspaceServiceUnitTest {
     public void setUp() {
         modelMapper = new ModelMapper();
         userWorkspaceService = new UserWorkspaceServiceImpl(sessionUserService, workspaceRepository, userRepository,
-            userDataRepository, policyUtils, emailSender, userDataService, permissionGroupService);
+            userDataRepository, policyUtils, emailSender, userDataService, permissionGroupService, tenantService);
     }
 
    @Test

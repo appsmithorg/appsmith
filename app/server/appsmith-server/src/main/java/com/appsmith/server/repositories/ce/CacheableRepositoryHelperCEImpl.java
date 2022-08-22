@@ -46,17 +46,6 @@ public class CacheableRepositoryHelperCEImpl implements CacheableRepositoryHelpe
                 .collect(Collectors.toSet());
     }
 
-    @Override
-    public Mono<Set<String>> getAnonymousUserPermissionGroups() {
-        Criteria anonymousUserCriteria = Criteria.where(fieldName(QUser.user.email)).is(FieldName.ANONYMOUS_USER);
-
-        Query query = new Query();
-        query.addCriteria(anonymousUserCriteria);
-
-        return mongoOperations.findOne(query, User.class)
-                .flatMap(anonymousUser -> this.getPermissionGroupsOfUser(anonymousUser));
-    }
-
     @CacheEvict(cacheName = "permissionGroupsForUser", key="{#email + #tenantId}")
     @Override
     public Mono<Void> evictPermissionGroupsUser(String email, String tenantId) {
@@ -97,6 +86,23 @@ public class CacheableRepositoryHelperCEImpl implements CacheableRepositoryHelpe
                 .flatMap(defaultTenant -> {
                     defaultTenantId = defaultTenant.getId();
                     return getAnonymousUser(defaultTenant.getId());
+                });
+    }
+
+    @Override
+    public Mono<String> getDefaultTenantId() {
+        if (defaultTenantId != null && !defaultTenantId.isEmpty()) {
+            return Mono.just(defaultTenantId);
+        }
+
+        Criteria defaultTenantCriteria = Criteria.where(fieldName(QTenant.tenant.slug)).is(FieldName.DEFAULT);
+        Query query = new Query();
+        query.addCriteria(defaultTenantCriteria);
+
+        return mongoOperations.findOne(query, Tenant.class)
+                .map(defaultTenant -> {
+                    defaultTenantId = defaultTenant.getId();
+                    return defaultTenantId;
                 });
     }
 }
