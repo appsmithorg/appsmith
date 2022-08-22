@@ -14,8 +14,7 @@ import {
   getViewType,
 } from "components/formControls/utils";
 import formControlTypes from "utils/formControl/formControlTypes";
-import { getAllBindingPathsForGraphqlPagination } from "utils/editor/EditorGraphql";
-import { log } from "loglevel";
+import { getAllBindingPathsForGraphqlPagination } from "utils/editor/EditorBindingPaths";
 import EditorControlTypes from "utils/editor/EditorControlTypes";
 
 const dynamicFields = [
@@ -224,21 +223,7 @@ export const getBindingAndReactivePathsOfAction = (
             bindingPaths[key] = value as EvaluationSubstitutionType;
           }
         });
-        log(bindingPaths);
       }
-      // else if (
-      //   formConfig.controlType === editorControlTypes.E_GRAPHQL_PAGINATION
-      // ) {
-      //   // const allPaths: Array<KeyValuePair> = getAllBindingPathsForGraphqlPagination(
-      //   //   configPath,
-      //   // );
-      //   // console.log({ allPaths });
-      //   // allPaths.forEach(({ key, value }: KeyValuePair) => {
-      //   //   if (key && value) {
-      //   //     bindingPaths[key] = value as EvaluationSubstitutionType;
-      //   //   }
-      //   // });
-      // }
     }
   };
   formConfig.forEach(recursiveFindBindingPaths);

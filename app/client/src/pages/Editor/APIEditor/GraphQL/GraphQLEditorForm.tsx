@@ -131,6 +131,7 @@ function GraphQLEditorForm(props: Props) {
       formName={API_EDITOR_FORM_NAME}
       paginationUIComponent={
         <Pagination
+          actionName={actionName}
           formName={API_EDITOR_FORM_NAME}
           onTestClick={props.onRunClick}
           paginationType={props.paginationType}
