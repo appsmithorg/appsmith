@@ -1,6 +1,5 @@
 import { createMessage, TEMPLATES_BACK_BUTTON } from "ce/constants/messages";
-import { Icon, IconSize } from "components/ads";
-import { Text, TextType } from "design-system";
+import { Icon, IconSize, Text, TextType } from "design-system";
 import React from "react";
 import styled from "styled-components";
 

@@ -72,9 +72,13 @@ function ForkTemplate({
           boundary="viewport"
           dropdownMaxHeight={"200px"}
           fillOptions
-          onSelect={(_value, dropdownOption) =>
-            setSelectedWorkspace(dropdownOption)
-          }
+          onSelect={(
+            _value: any,
+            dropdownOption: React.SetStateAction<{
+              label: string;
+              value: string;
+            }>,
+          ) => setSelectedWorkspace(dropdownOption)}
           options={workspaceList}
           placeholder={createMessage(SELECT_WORKSPACE)}
           selected={selectedWorkspace}

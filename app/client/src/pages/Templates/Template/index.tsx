@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import styled from "styled-components";
 import history from "utils/history";
 import { Template as TemplateInterface } from "api/TemplatesApi";
-import history from "utils/history";
 import { Button, Size, TooltipComponent as Tooltip } from "design-system";
 import ForkTemplateDialog from "../ForkTemplate";
 import DatasourceChip from "../DatasourceChip";
