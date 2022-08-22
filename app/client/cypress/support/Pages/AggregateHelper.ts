@@ -17,6 +17,11 @@ const DEFAULT_ENTERVALUE_OPTIONS = {
 export class AggregateHelper {
   private locator = ObjectsRegistry.CommonLocators;
 
+  private isMac = Cypress.platform === "darwin";
+  private selectLine = `${
+    this.isMac ? "{cmd}{shift}{leftArrow}{backspace}" : "{ctrl}{shift}{leftArrow}{backspace}"
+  }`;
+
   public SaveLocalStorageCache() {
     Object.keys(localStorage).forEach((key) => {
       LOCAL_STORAGE_MEMORY[key] = localStorage[key];
@@ -110,11 +115,18 @@ export class AggregateHelper {
     });
   }
 
-  public AssertElementText(selector: string, text: string, index = 0) {
+  public AssertElementText(
+    selector: string,
+    text: string,
+    index = 0,
+    textPresence = true,
+  ) {
     const locator = selector.startsWith("//")
       ? cy.xpath(selector)
       : cy.get(selector);
-    locator.eq(index).should("have.text", text);
+    locator
+      .eq(index)
+      .should(textPresence ? "have.text" : "not.have.text", text);
   }
 
   public ValidateToastMessage(text: string, index = 0, length = 1) {
@@ -339,10 +351,6 @@ export class AggregateHelper {
     cy.get("body").type("{esc}");
   }
 
-  public Enter() {
-    cy.type("{enter}");
-  }
-
   public RemoveMultiSelectItems(items: string[]) {
     items.forEach(($each) => {
       cy.xpath(this.locator._multiSelectItem($each))
@@ -406,6 +414,27 @@ export class AggregateHelper {
       .eq(index)
       .click({ force: force })
       .wait(waitTimeInterval);
+  }
+
+  public SelectNRemoveLineText(selector: string) {
+    const locator = selector.startsWith("//")
+      ? cy.xpath(selector)
+      : cy.get(selector);
+    return locator.type(this.selectLine);
+  }
+
+  public TypeText(selector: string, value: string, index = 0, force = false) {
+    const locator = selector.startsWith("//")
+      ? cy.xpath(selector)
+      : cy.get(selector);
+    return locator
+      .eq(index)
+      .focus()
+      .type(value, {
+        parseSpecialCharSequences: false,
+        delay: 1,
+        force: true,
+      });
   }
 
   public ContainsNClick(

@@ -7,15 +7,15 @@ let agHelper = ObjectsRegistry.AggregateHelper,
 const largeResponseApiUrl = "https://api.publicapis.org/entries";
 //"https://jsonplaceholder.typicode.com/photos";//Commenting since this is faster sometimes & case is failing
 
-const ERROR_ACTION_EXECUTE_FAIL = (actionName) =>
+const ERROR_ACTION_EXECUTE_FAIL = (actionName: any) =>
   `${actionName} action returned an error response`;
 
 describe("Abort Action Execution", function() {
   it("1. #14006 - Cancel Request button should abort API action execution", function() {
-    apiPage.CreateAndFillApi(largeResponseApiUrl);
+    apiPage.CreateAndFillApi(largeResponseApiUrl, "AbortApi", "GET", 0);
     apiPage.RunAPI(false, 0);
     agHelper.GetNClick(locator._cancelActionExecution);
-    agHelper.ValidateToastMessage(ERROR_ACTION_EXECUTE_FAIL("Api1"));
+    agHelper.ValidateToastMessage(ERROR_ACTION_EXECUTE_FAIL("AbortApi"));
   });
 
   // Queries were resolving quicker than we could cancel them
