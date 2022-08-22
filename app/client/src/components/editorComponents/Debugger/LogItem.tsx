@@ -266,7 +266,7 @@ function LogItem(props: LogItemProps) {
       className={props.severity}
       collapsed={!isOpen}
       onClick={() => {
-        if (!isOpen) setIsOpen(true);
+        if (showToggleIcon()) setIsOpen(!isOpen);
       }}
     >
       <Icon
@@ -293,23 +293,25 @@ function LogItem(props: LogItemProps) {
             )}
             {props.category === LOG_CATEGORY.PLATFORM_GENERATED &&
               props.severity !== Severity.INFO && (
-                <ContextualMenu entity={props.source} error={errorToSearch}>
-                  <TooltipComponent
-                    content={
-                      <Text style={{ color: "#ffffff" }} type={TextType.P3}>
-                        {createMessage(TROUBLESHOOT_ISSUE)}
-                      </Text>
-                    }
-                    minimal
-                    position="bottom-left"
-                  >
-                    <StyledSearchIcon
-                      className={`${Classes.ICON} search-menu`}
-                      name={"help-in-circle"}
-                      size={IconSize.XL}
-                    />
-                  </TooltipComponent>
-                </ContextualMenu>
+                <div onClick={(e) => e.stopPropagation()}>
+                  <ContextualMenu entity={props.source} error={errorToSearch}>
+                    <TooltipComponent
+                      content={
+                        <Text style={{ color: "#ffffff" }} type={TextType.P3}>
+                          {createMessage(TROUBLESHOOT_ISSUE)}
+                        </Text>
+                      }
+                      minimal
+                      position="bottom-left"
+                    >
+                      <StyledSearchIcon
+                        className={`${Classes.ICON} search-menu`}
+                        name={"help-in-circle"}
+                        size={IconSize.XL}
+                      />
+                    </TooltipComponent>
+                  </ContextualMenu>
+                </div>
               )}
           </RowWrapper>
         )}
