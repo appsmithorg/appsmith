@@ -3348,7 +3348,7 @@
     "@types/scheduler" "*"
     csstype "^3.0.2"
 
-"@types/redux-form@8.3.0", "@types/redux-form@^8.1.9":
+"@types/redux-form@^8.1.9":
   version "8.3.0"
   resolved "https://registry.yarnpkg.com/@types/redux-form/-/redux-form-8.3.0.tgz#d253e0078a4940187b946459e0bb4d6a355018b1"
   integrity sha512-LUOpffXkPpY7n9pQvaAy9TifMgQFVqQF0LmJLLiZGWpDmDmvgEbNbQ6h2tSJ7CVNIVo45wPPVdWw5Mi91ZPvfQ==
@@ -6137,17 +6137,17 @@ depd@~1.1.2:
   version "1.1.2"
   resolved "https://registry.npmjs.org/depd/-/depd-1.1.2.tgz"
 
-"design-system@npm:@appsmithorg/design-system@1.0.13":
-  version "1.0.13"
-  resolved "https://registry.yarnpkg.com/@appsmithorg/design-system/-/design-system-1.0.13.tgz#a2f631c803b16e3d6db883bfb61e835794d7b667"
-  integrity sha512-S1pzst9KS30F1cWZkXTojW+qpeGT6UYrT6QfsOpWJyUGt627fW3Ez/erNa5oU4ml5xCv3KIgjfVI4I4u7PTYlw==
+"design-system@npm:@appsmithorg/design-system@1.0.15":
+  version "1.0.15"
+  resolved "https://registry.yarnpkg.com/@appsmithorg/design-system/-/design-system-1.0.15.tgz#40b855d82d349f25c399e62e7b82a1ddadaa6975"
+  integrity sha512-H43r0UriBVXfbWZg3vhBokDNW5kJKG+NoLae0BPNN6+72aYxfDBl+DocCI2KO6BYTdRnXZf9JQHi25t9t2yj/w==
   dependencies:
     "@blueprintjs/datetime" "3.23.6"
-    "@types/redux-form" "8.3.0"
     copy-to-clipboard "^3.3.1"
     emoji-mart "3.0.1"
     react-redux "^7.2.4"
     react-router-dom "^6.3.0"
+    react-table "^7.8.0"
     react-tabs "3.1.1"
     redux-form "8.2.6"
     remixicon-react "^1.0.0"
@@ -12965,6 +12965,11 @@ react-syntax-highlighter@^15.4.4:
 react-table@^7.0.0:
   version "7.6.0"
   resolved "https://registry.npmjs.org/react-table/-/react-table-7.6.0.tgz"
+
+react-table@^7.8.0:
+  version "7.8.0"
+  resolved "https://registry.yarnpkg.com/react-table/-/react-table-7.8.0.tgz#07858c01c1718c09f7f1aed7034fcfd7bda907d2"
+  integrity sha512-hNaz4ygkZO4bESeFfnfOft73iBUj8K5oKi1EcSHPAibEydfsX2MyU6Z8KCr3mv3C9Kqqh71U+DhZkFvibbnPbA==
 
 react-tabs@3.1.1, react-tabs@^3.0.0:
   version "3.1.1"
