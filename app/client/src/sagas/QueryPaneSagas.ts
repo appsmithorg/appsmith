@@ -26,7 +26,7 @@ import {
   getActions,
   getPlugins,
 } from "selectors/entitiesSelector";
-import { Action, PluginName, PluginType, QueryAction } from "entities/Action";
+import { Action, PluginType, QueryAction } from "entities/Action";
 import {
   createActionRequest,
   setActionProperty,
@@ -215,12 +215,11 @@ function* handleQueryCreatedSaga(actionPayload: ReduxAction<QueryAction>) {
   );
   const queryTemplate = pluginTemplates[pluginId];
   // Do not show template view if the query has body(code) or if there are no templates or if the plugin is MongoDB
-  const showTemplate =
-    !(
-      !!actionConfiguration.body ||
-      !!actionConfiguration.formData?.body ||
-      isEmpty(queryTemplate)
-    ) && !(actionPayload.payload?.pluginName === PluginName.MONGO);
+  const showTemplate = !(
+    !!actionConfiguration.body ||
+    !!actionConfiguration.formData?.body ||
+    isEmpty(queryTemplate)
+  );
   history.replace(
     queryEditorIdURL({
       pageId,

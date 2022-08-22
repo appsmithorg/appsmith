@@ -2,7 +2,7 @@ import React from "react";
 import styled from "styled-components";
 import { Colors } from "constants/Colors";
 import ProfileImage from "pages/common/ProfileImage";
-import MenuItem from "components/ads/MenuItem";
+import { MenuItem } from "design-system";
 import { ADMIN_SETTINGS_CATEGORY_DEFAULT_PATH } from "constants/routes";
 import {
   getOnSelectAction,

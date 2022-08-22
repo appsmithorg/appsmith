@@ -59,7 +59,9 @@ import { MainCanvasReduxState } from "./uiReducers/mainCanvasReducer";
 import SettingsReducer, {
   SettingsReduxState,
 } from "@appsmith/reducers/settingsReducer";
+import aclReducer, { AclReduxState } from "@appsmith/reducers/aclReducer";
 import { TriggerValuesEvaluationState } from "./evaluationReducers/triggerReducer";
+import { CanvasWidgetStructure } from "widgets/constants";
 
 const appReducer = combineReducers({
   entities: entityReducer,
@@ -67,6 +69,7 @@ const appReducer = combineReducers({
   evaluations: evaluationsReducer,
   form: formReducer,
   settings: SettingsReducer,
+  acl: aclReducer,
 });
 
 export default appReducer;
@@ -115,6 +118,7 @@ export interface AppState {
     mainCanvas: MainCanvasReduxState;
   };
   entities: {
+    canvasWidgetsStructure: CanvasWidgetStructure;
     canvasWidgets: CanvasWidgetsReduxState;
     actions: ActionDataState;
     widgetConfig: WidgetConfigReducerState;
@@ -136,4 +140,5 @@ export interface AppState {
     [key: string]: any;
   };
   settings: SettingsReduxState;
+  acl: AclReduxState;
 }

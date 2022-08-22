@@ -251,8 +251,7 @@ export function* invitedUserSignupSaga(
 
 type InviteUserPayload = {
   email: string;
-  workspaceId: string;
-  roleName: string;
+  permissionGroupId: string;
 };
 
 export function* inviteUser(payload: InviteUserPayload, reject: any) {
@@ -268,15 +267,18 @@ export function* inviteUser(payload: InviteUserPayload, reject: any) {
 
 export function* inviteUsers(
   action: ReduxActionWithPromise<{
-    data: { usernames: string[]; workspaceId: string; roleName: string };
+    data: {
+      usernames: string[];
+      workspaceId: string;
+      permissionGroupId: string;
+    };
   }>,
 ) {
   const { data, reject, resolve } = action.payload;
   try {
     const response: ApiResponse = yield callAPI(UserApi.inviteUser, {
       usernames: data.usernames,
-      workspaceId: data.workspaceId,
-      roleName: data.roleName,
+      permissionGroupId: data.permissionGroupId,
     });
     const isValidResponse: boolean = yield validateResponse(response);
     if (!isValidResponse) {
@@ -296,7 +298,7 @@ export function* inviteUsers(
         workspaceId: data.workspaceId,
         users: data.usernames.map((name: string) => ({
           username: name,
-          roleName: data.roleName,
+          permissionGroupId: data.permissionGroupId,
         })),
       },
     });
