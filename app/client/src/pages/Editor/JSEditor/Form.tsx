@@ -45,7 +45,7 @@ import {
   getJSFunctionLineGutter,
   JSActionDropdownOption,
 } from "./utils";
-import { DropdownOnSelect } from "components/ads";
+import { DropdownOnSelect } from "design-system";
 import JSFunctionSettingsView from "./JSFunctionSettings";
 import JSObjectHotKeys from "./JSObjectHotKeys";
 import {

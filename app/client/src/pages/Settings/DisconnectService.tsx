@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import styled from "styled-components";
 import { Variant } from "components/ads/common";
-import Button from "components/ads/Button";
+import { Button } from "design-system";
 import { Callout } from "components/ads/CalloutV2";
 import {
   createMessage,
