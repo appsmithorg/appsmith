@@ -4,7 +4,8 @@ import { Link } from "react-router-dom";
 import styled from "styled-components";
 import debounce from "lodash/debounce";
 import { Listing } from "./Listing";
-import { MenuItemProps, Toaster, Variant } from "components/ads";
+import { Toaster, Variant } from "components/ads";
+import { MenuItemProps } from "design-system";
 import { PageHeader } from "./PageHeader";
 import { BottomSpace } from "pages/Settings/components";
 import { HighlightText } from "./helpers/HighlightText";
@@ -187,7 +188,7 @@ export function RolesListing() {
     {
       className: "clone-menu-item",
       icon: "duplicate",
-      onSelect: (e, id: string) => {
+      onSelect: (e: React.MouseEvent, id: string) => {
         const selectedPermission = data.find((role) => role.id === id);
         selectedPermission &&
           onCloneHandler({ ...selectedPermission, isAppsmithProvided: false });
@@ -198,7 +199,7 @@ export function RolesListing() {
     {
       className: "edit-menu-item",
       icon: "edit-underline",
-      onSelect: (e, key) => {
+      onSelect: (e: React.MouseEvent, key: string) => {
         history.push(`/settings/roles/${key}`);
       },
       text: createMessage(EDIT_ROLE),
@@ -208,7 +209,7 @@ export function RolesListing() {
       label: "delete",
       className: "delete-menu-item",
       icon: "delete-blank",
-      onSelect: (e, key: string) => {
+      onSelect: (e: React.MouseEvent, key: string) => {
         onDeleteHandler(key);
       },
       text: createMessage(DELETE_ROLE),

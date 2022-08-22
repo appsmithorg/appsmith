@@ -3,16 +3,8 @@ import { useHistory } from "react-router";
 import styled from "styled-components";
 import { Position } from "@blueprintjs/core";
 import debounce from "lodash/debounce";
-import {
-  IconSize,
-  MenuItemProps,
-  SearchVariant,
-  Toaster,
-  Variant,
-  Icon,
-  Menu,
-  MenuItem,
-} from "components/ads";
+import { SearchVariant, Toaster, Variant, Menu } from "components/ads";
+import { Icon, IconSize, MenuItem, MenuItemProps } from "design-system";
 import ProfileImage from "pages/common/ProfileImage";
 import { TabComponent, TabProp } from "components/ads/Tabs";
 import { ActiveAllGroupsList } from "./ActiveAllGroupsList";

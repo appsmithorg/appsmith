@@ -3,15 +3,8 @@ import { useParams } from "react-router";
 import styled from "styled-components";
 import { Position } from "@blueprintjs/core";
 import { DebouncedFunc } from "lodash";
-import {
-  Button,
-  IconSize,
-  Menu,
-  MenuItem,
-  MenuItemProps,
-  Icon,
-  SearchVariant,
-} from "components/ads";
+import { Menu, SearchVariant } from "components/ads";
+import { Button, IconSize, MenuItem, MenuItemProps, Icon } from "design-system";
 import {
   HeaderWrapper,
   SettingsHeader,
@@ -187,7 +180,7 @@ export function PageHeader(props: PageHeaderProps) {
                 className={menuItem.className}
                 icon={menuItem.icon}
                 key={menuItem.text}
-                onSelect={(e) => {
+                onSelect={(e: React.MouseEvent) => {
                   onOptionSelect(e, menuItem);
                 }}
                 text={

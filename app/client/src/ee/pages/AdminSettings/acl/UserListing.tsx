@@ -9,7 +9,8 @@ import { getCurrentUser } from "selectors/usersSelectors";
 // import { fetchUsersForOrg, fetchRolesForOrg } from "actions/orgActions";
 import { Listing } from "./Listing";
 import ProfileImage from "pages/common/ProfileImage";
-import { MenuItemProps, Toaster, Variant } from "components/ads";
+import { Toaster, Variant } from "components/ads";
+import { MenuItemProps } from "design-system";
 import { PageHeader } from "./PageHeader";
 import { BottomSpace } from "pages/Settings/components";
 import { HighlightText } from "./helpers/HighlightText";
@@ -313,7 +314,7 @@ export function UserListing() {
       label: "edit",
       className: "edit-menu-item",
       icon: "edit-underline",
-      onSelect: (e, userId: string) => {
+      onSelect: (e: React.MouseEvent, userId: string) => {
         userId && history.push(`/settings/users/${userId}`);
       },
       text: "Edit Groups",
@@ -322,7 +323,7 @@ export function UserListing() {
       label: "delete",
       className: "delete-menu-item",
       icon: "delete-blank",
-      onSelect: (e, key: string) => {
+      onSelect: (e: React.MouseEvent, key: string) => {
         onDeleteHanlder(key);
       },
       text: "Delete User",

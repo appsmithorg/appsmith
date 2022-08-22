@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import styled from "styled-components";
-import { IconSize, MenuItemProps, Table } from "components/ads";
-import { Icon, Menu, MenuItem } from "components/ads";
+import { Menu, Table } from "components/ads";
+import { Icon, IconSize, MenuItem, MenuItemProps } from "design-system";
 import EmptyDataState from "components/utils/EmptyDataState";
 import { Position } from "@blueprintjs/core";
 import { HelpPopoverStyle } from "./components";
@@ -153,7 +153,7 @@ export function Listing(props: ListingProps) {
                   className={menuItem.className}
                   icon={menuItem.icon}
                   key={menuItem.text}
-                  onSelect={(e) => {
+                  onSelect={(e: React.MouseEvent) => {
                     onOptionSelect(e, menuItem);
                   }}
                   text={
