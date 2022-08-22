@@ -21,7 +21,7 @@ const jsObjectBody = `export default {
 }`;
 
 describe("Autocomplete tests", () => {
-  it.only("1. Bug #13613 Verify widgets autocomplete: ButtonGroup & Document viewer widget", () => {
+  it("1. Bug #13613 Verify widgets autocomplete: ButtonGroup & Document viewer widget", () => {
     EntityExplorer.DragDropWidgetNVerify(WIDGET.BUTTON_GROUP, 200, 200);
     EntityExplorer.DragDropWidgetNVerify(WIDGET.DOCUMENT_VIEWER, 200, 500);
 
@@ -71,7 +71,7 @@ describe("Autocomplete tests", () => {
     });
 
     // focus on 5th line
-    cy.get(`:nth-child(5) > .CodeMirror-line`).click();
+    agHelper.GetNClick(jsEditor._lineinJsEditor(5))
 
     const JSAPIsToTest = [
       // console API verification
@@ -136,7 +136,7 @@ describe("Autocomplete tests", () => {
       shouldCreateNewJSObj: true,
     });
     // focus on 5th line
-    cy.get(`:nth-child(5) > .CodeMirror-line`).click();
+    agHelper.GetNClick(jsEditor._lineinJsEditor(5))
 
     cy.get(CommonLocators._codeMirrorTextArea)
       .focus()
@@ -172,9 +172,9 @@ describe("Autocomplete tests", () => {
 
     // component re-render cause DOM element of cy.get to lost
     // added wait to finish re-render before cy.get
-    cy.wait(100);
+    agHelper.Sleep();
 
-    cy.get(`:nth-child(${lineNumber}) > .CodeMirror-line`).click();
+    agHelper.GetNClick(jsEditor._lineinJsEditor(lineNumber))
 
     cy.get(CommonLocators._codeMirrorTextArea)
       .focus()
@@ -218,7 +218,7 @@ describe("Autocomplete tests", () => {
       shouldCreateNewJSObj: true,
     });
 
-    cy.get(`:nth-child(${5}) > .CodeMirror-line`).click();
+    agHelper.GetNClick(jsEditor._lineinJsEditor(5))
 
     cy.get(CommonLocators._codeMirrorTextArea)
       .focus()
