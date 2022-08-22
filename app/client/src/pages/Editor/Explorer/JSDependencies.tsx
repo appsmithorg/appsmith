@@ -63,6 +63,9 @@ const Title = styled.div`
       position: relative;
     }
   }
+  span {
+    color: ${Colors.GREY_800};
+  }
 `;
 
 function JSDependencies() {
@@ -112,7 +115,7 @@ function JSDependencies() {
           isVisible={!!dependencyList}
           onClick={toggleDependencies}
         />
-        <span className="text-gray-900 ml-1 font-medium">Dependencies</span>
+        <span className="ml-1 font-medium">Dependencies</span>
         <TooltipComponent content={TooltipContent} hoverOpenDelay={200}>
           <Icon
             className="t--help-icon"

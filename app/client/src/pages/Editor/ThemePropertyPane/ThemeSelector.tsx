@@ -10,6 +10,12 @@ import { ThemeCard } from "./ThemeCard";
 import { SettingSection } from "./SettingSection";
 import ArrowLeft from "remixicon-react/ArrowLeftSLineIcon";
 import { setAppThemingModeStackAction } from "actions/appThemingActions";
+import styled from "styled-components";
+import { Colors } from "constants/Colors";
+
+const Title = styled.h3`
+  color: ${Colors.GRAY_800};
+`;
 
 function ThemeSelector() {
   const dispatch = useDispatch();
@@ -57,7 +63,7 @@ function ThemeSelector() {
       </section>
       {userSavedThemes.length > 0 && (
         <section className="relative p-4 space-y-3">
-          <h3 className="text-sm font-medium capitalize">Your Themes</h3>
+          <Title className="text-sm font-medium capitalize">Your Themes</Title>
           {userSavedThemes.map((theme) => (
             <ThemeCard
               deletable={!theme.isSystemTheme}
@@ -69,7 +75,9 @@ function ThemeSelector() {
         </section>
       )}
       <section className="relative p-4 space-y-3">
-        <h3 className="text-sm font-medium capitalize">Featured Themes</h3>
+        <Title className="text-sm font-medium capitalize">
+          Featured Themes
+        </Title>
         {systemThemes.map((theme) => (
           <ThemeCard
             deletable={!theme.isSystemTheme}

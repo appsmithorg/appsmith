@@ -7,6 +7,8 @@ import Icon from "components/ads/AppIcon";
 import { Size } from "design-system";
 
 const SettingsWrapper = styled.div`
+  color: ${Colors.GRAY_700};
+
   .bp3-collapse,
   .bp3-collapse-body {
     transition: none;
@@ -17,6 +19,10 @@ const StyledIcon = styled(Icon)`
   svg path {
     fill: ${Colors.GREY_7};
   }
+`;
+
+const Title = styled.div`
+  color: ${Colors.GRAY_800};
 `;
 
 interface SettingSectionProps {
@@ -34,10 +40,10 @@ export function SettingSection(props: SettingSectionProps) {
   return (
     <SettingsWrapper className={className}>
       <div
-        className={` cursor-pointer flex items-center justify-between capitalize text-sm text-gray-800 `}
+        className={` cursor-pointer flex items-center justify-between capitalize text-sm`}
         onClick={() => setOpen((isOpen) => !isOpen)}
       >
-        <div className="font-medium">{props.title}</div>
+        <Title className="font-medium">{props.title}</Title>
         {collapsible && (
           <StyledIcon
             name={isOpen ? "arrow-down" : "arrow-right"}
