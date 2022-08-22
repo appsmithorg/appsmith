@@ -5,15 +5,13 @@ import { getUserApplicationsWorkspaces } from "selectors/applicationSelectors";
 import { isPermitted, PERMISSION_TYPE } from "./permissionHelpers";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { AppState } from "reducers";
-import Button, { Category, Size } from "components/ads/Button";
+import { Button, Category, Dropdown, IconSize, Size } from "design-system";
 import { StyledDialog, ButtonWrapper, SpinnerWrapper } from "./ForkModalStyles";
 import { getIsFetchingApplications } from "selectors/applicationSelectors";
 import { useLocation } from "react-router";
 import Spinner from "components/ads/Spinner";
-import { IconSize } from "components/ads/Icon";
 import { matchViewerForkPath } from "constants/routes";
 import { Colors } from "constants/Colors";
-import { Dropdown } from "components/ads";
 import {
   CANCEL,
   createMessage,
@@ -117,7 +115,13 @@ function ForkApplicationModal(props: ForkApplicationModalProps) {
               boundary="viewport"
               dropdownMaxHeight={"200px"}
               fillOptions
-              onSelect={(_, dropdownOption) => selectWorkspace(dropdownOption)}
+              onSelect={(
+                _: string,
+                dropdownOption: React.SetStateAction<{
+                  label: string;
+                  value: string;
+                }>,
+              ) => selectWorkspace(dropdownOption)}
               options={workspaceList}
               selected={workspace}
               showLabelOnly

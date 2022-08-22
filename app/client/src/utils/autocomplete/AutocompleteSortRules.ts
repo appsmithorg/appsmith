@@ -44,6 +44,51 @@ export class AndRule implements AutocompleteRule {
 }
 
 /**
+ * Set score to -Infinity for internal defs to be hidden from autocompletion like $__dropdownOption__$
+ * Max score - 0
+ * Min score - -Infinity
+ */
+class HideInternalDefsRule implements AutocompleteRule {
+  static threshold = -Infinity;
+
+  computeScore(completion: Completion): number {
+    let score = 0;
+
+    if (completion.text.includes("$__") && completion.text.includes("__$")) {
+      score = HideInternalDefsRule.threshold;
+    }
+    return score;
+  }
+}
+
+/**
+ * Set score to -Infinity for paths to be blocked from autocompletion
+ * Max score - 0
+ * Min score - -Infinity
+ */
+class BlockSuggestionsRule implements AutocompleteRule {
+  static threshold = -Infinity;
+
+  computeScore(completion: Completion): number {
+    let score = 0;
+    const { currentFieldInfo } = AutocompleteSorter;
+    const { blockCompletions } = currentFieldInfo;
+
+    if (blockCompletions) {
+      for (let index = 0; index < blockCompletions.length; index++) {
+        const { subPath } = blockCompletions[index];
+        if (completion.text === subPath) {
+          score = BlockSuggestionsRule.threshold;
+          break;
+        }
+      }
+    }
+
+    return score;
+  }
+}
+
+/**
  * Set score to -Infinity for suggestions like Table1.selectedRow.address
  * Max score - 0
  * Min score - -Infinity
@@ -252,6 +297,8 @@ export class ScoredCompletion {
     new DataTreeFunctionRule(),
     new JSLibraryRule(),
     new GlobalJSRule(),
+    new BlockSuggestionsRule(),
+    new HideInternalDefsRule(),
   ];
   completion: Completion;
 

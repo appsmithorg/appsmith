@@ -36,12 +36,12 @@ import StoreAsDatasource, {
 } from "components/editorComponents/StoreAsDatasource";
 import { urlGroupsRegexExp } from "constants/AppsmithActionConstants/ActionConstants";
 import styled from "styled-components";
-import Icon, { IconSize } from "components/ads/Icon";
+import { Icon, IconSize } from "design-system";
 import { Text, FontWeight, TextType } from "design-system";
 import history from "utils/history";
 import { getDatasourceInfo } from "pages/Editor/APIEditor/ApiRightPane";
 import * as FontFamilies from "constants/Fonts";
-import { getQueryParams } from "utils/AppsmithUtils";
+import { getQueryParams } from "utils/URLUtils";
 import { AuthType } from "entities/Datasource/RestAPIForm";
 import { setDatsourceEditorMode } from "actions/datasourceActions";
 

@@ -1,9 +1,4 @@
-import {
-  WidgetBuilder,
-  WidgetDataProps,
-  WidgetProps,
-  WidgetState,
-} from "widgets/BaseWidget";
+import { WidgetBuilder, WidgetProps, WidgetState } from "widgets/BaseWidget";
 import React from "react";
 import { PropertyPaneConfig } from "constants/PropertyControlConstants";
 
@@ -16,6 +11,7 @@ import {
   convertFunctionsToString,
   enhancePropertyPaneConfig,
 } from "./WidgetFactoryHelpers";
+import { CanvasWidgetStructure } from "widgets/constants";
 
 type WidgetDerivedPropertyType = any;
 export type DerivedPropertiesMap = Record<string, string>;
@@ -25,7 +21,7 @@ class WidgetFactory {
   static widgetTypes: Record<string, string> = {};
   static widgetMap: Map<
     WidgetType,
-    WidgetBuilder<WidgetProps, WidgetState>
+    WidgetBuilder<CanvasWidgetStructure, WidgetState>
   > = new Map();
   static widgetDerivedPropertiesGetterMap: Map<
     WidgetType,
@@ -44,6 +40,14 @@ class WidgetFactory {
     WidgetType,
     readonly PropertyPaneConfig[]
   > = new Map();
+  static propertyPaneContentConfigsMap: Map<
+    WidgetType,
+    readonly PropertyPaneConfig[]
+  > = new Map();
+  static propertyPaneStyleConfigsMap: Map<
+    WidgetType,
+    readonly PropertyPaneConfig[]
+  > = new Map();
 
   static widgetConfigMap: Map<
     WidgetType,
@@ -57,6 +61,8 @@ class WidgetFactory {
     defaultPropertiesMap: Record<string, string>,
     metaPropertiesMap: Record<string, any>,
     propertyPaneConfig?: PropertyPaneConfig[],
+    propertyPaneContentConfig?: PropertyPaneConfig[],
+    propertyPaneStyleConfig?: PropertyPaneConfig[],
     features?: WidgetFeatures,
   ) {
     if (!this.widgetTypes[widgetType]) {
@@ -85,6 +91,46 @@ class WidgetFactory {
           Object.freeze(finalPropertyPaneConfig),
         );
       }
+
+      if (propertyPaneContentConfig) {
+        const enhancedPropertyPaneConfig = enhancePropertyPaneConfig(
+          propertyPaneContentConfig,
+          features,
+        );
+
+        const serializablePropertyPaneConfig = convertFunctionsToString(
+          enhancedPropertyPaneConfig,
+        );
+
+        const finalPropertyPaneConfig = addPropertyConfigIds(
+          serializablePropertyPaneConfig,
+        );
+
+        this.propertyPaneContentConfigsMap.set(
+          widgetType,
+          Object.freeze(finalPropertyPaneConfig),
+        );
+      }
+
+      if (propertyPaneStyleConfig) {
+        const enhancedPropertyPaneConfig = enhancePropertyPaneConfig(
+          propertyPaneStyleConfig,
+          features,
+        );
+
+        const serializablePropertyPaneConfig = convertFunctionsToString(
+          enhancedPropertyPaneConfig,
+        );
+
+        const finalPropertyPaneConfig = addPropertyConfigIds(
+          serializablePropertyPaneConfig,
+        );
+
+        this.propertyPaneStyleConfigsMap.set(
+          widgetType,
+          Object.freeze(finalPropertyPaneConfig),
+        );
+      }
     }
   }
 
@@ -96,10 +142,10 @@ class WidgetFactory {
   }
 
   static createWidget(
-    widgetData: WidgetDataProps,
+    widgetData: CanvasWidgetStructure,
     renderMode: RenderMode,
   ): React.ReactNode {
-    const widgetProps: WidgetProps = {
+    const widgetProps = {
       key: widgetData.widgetId,
       isVisible: true,
       ...widgetData,
@@ -107,7 +153,6 @@ class WidgetFactory {
     };
     const widgetBuilder = this.widgetMap.get(widgetData.type);
     if (widgetBuilder) {
-      // TODO validate props here
       const widget = widgetBuilder.buildWidget(widgetProps);
       return widget;
     } else {
@@ -163,6 +208,26 @@ class WidgetFactory {
     const map = this.propertyPaneConfigsMap.get(type);
     if (!map) {
       log.error("Widget property pane configs not defined", type);
+      return [];
+    }
+    return map;
+  }
+
+  static getWidgetPropertyPaneContentConfig(
+    type: WidgetType,
+  ): readonly PropertyPaneConfig[] {
+    const map = this.propertyPaneContentConfigsMap.get(type);
+    if (!map) {
+      return [];
+    }
+    return map;
+  }
+
+  static getWidgetPropertyPaneStyleConfig(
+    type: WidgetType,
+  ): readonly PropertyPaneConfig[] {
+    const map = this.propertyPaneStyleConfigsMap.get(type);
+    if (!map) {
       return [];
     }
     return map;

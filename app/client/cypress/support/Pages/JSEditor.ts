@@ -5,12 +5,15 @@ export interface ICreateJSObjectOptions {
   completeReplace: boolean;
   toRun: boolean;
   shouldCreateNewJSObj: boolean;
+  lineNumber?: number;
+  prettify?: boolean;
 }
 const DEFAULT_CREATE_JS_OBJECT_OPTIONS = {
   paste: true,
   completeReplace: false,
   toRun: true,
   shouldCreateNewJSObj: true,
+  lineNumber: 4,
 };
 
 export class JSEditor {
@@ -118,30 +121,28 @@ export class JSEditor {
     JSCode: string,
     options: ICreateJSObjectOptions = DEFAULT_CREATE_JS_OBJECT_OPTIONS,
   ) {
-    const { completeReplace, paste, shouldCreateNewJSObj, toRun } = options;
+    const {
+      completeReplace,
+      lineNumber = 4,
+      paste,
+      prettify = true,
+      shouldCreateNewJSObj,
+      toRun,
+    } = options;
 
     shouldCreateNewJSObj && this.NavigateToNewJSEditor();
     if (!completeReplace) {
+      const downKeys = "{downarrow}".repeat(lineNumber);
       cy.get(this.locator._codeMirrorTextArea)
         .first()
         .focus()
-        .type("{downarrow}{downarrow}{downarrow}{downarrow}  ");
+        .type(`${downKeys}  `);
     } else {
       cy.get(this.locator._codeMirrorTextArea)
         .first()
         .focus()
         .type(this.selectAllJSObjectContentShortcut)
         .type("{backspace}", { force: true });
-
-      // .type("{uparrow}", { force: true })
-      // .type("{ctrl}{shift}{downarrow}", { force: true })
-      // .type("{del}",{ force: true });
-
-      // cy.get(this.locator._codthis.eeditorTarget).contains('export').click().closest(this.locator._codthis.eeditorTarget)
-      //   .type("{uparrow}", { force: true })
-      //   .type("{ctrl}{shift}{downarrow}", { force: true })
-      //   .type("{backspace}",{ force: true });
-      //.type("{downarrow}{downarrow}{downarrow}{downarrow}{downarrow}{downarrow}{downarrow}{downarrow}{downarrow}{downarrow} ")
     }
 
     cy.get(this.locator._codeMirrorTextArea)
@@ -160,8 +161,11 @@ export class JSEditor {
       });
 
     this.agHelper.AssertAutoSave();
-    this.agHelper.ActionContextMenuWithInPane("Prettify Code");
-    this.agHelper.AssertAutoSave(); //Ample wait due to open bug # 10284
+    // Ample wait due to open bug # 10284
+    if (prettify) {
+      this.agHelper.ActionContextMenuWithInPane("Prettify Code");
+      this.agHelper.AssertAutoSave();
+    }
 
     if (toRun) {
       //clicking 1 times & waits for 2 second for result to be populated!
@@ -183,6 +187,8 @@ export class JSEditor {
       .then((el: JQuery<HTMLElement>) => {
         this.agHelper.Paste(el, newContent);
       });
+    this.agHelper.Sleep(2000);//Settling time for edited js code
+    this.agHelper.ActionContextMenuWithInPane("Prettify Code");
     this.agHelper.AssertAutoSave();
   }
 

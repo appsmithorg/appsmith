@@ -22,6 +22,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
@@ -47,11 +48,14 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
 
         Mono<User> userMono = sessionUserService.getCurrentUser();
 
+        // For collecting all the possible event data
+        Map<String, Object> eventData = new HashMap<>();
         Mono<Application> forkApplicationMono = Mono.zip(sourceApplicationMono, targetWorkspaceMono, userMono)
                 .flatMap(tuple -> {
                     final Application application = tuple.getT1();
                     final Workspace targetWorkspace = tuple.getT2();
                     final User user = tuple.getT3();
+                    eventData.put(FieldName.WORKSPACE, targetWorkspace);
 
                     //If the forking application is connected to git, do not copy those data to the new forked application
                     application.setGitApplicationMetadata(null);
@@ -76,7 +80,7 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
                     final String newApplicationId = applicationIds.get(0);
                     return applicationService.getById(newApplicationId)
                             .flatMap(application ->
-                                    sendForkApplicationAnalyticsEvent(srcApplicationId, targetWorkspaceId, application));
+                                    sendForkApplicationAnalyticsEvent(srcApplicationId, targetWorkspaceId, application, eventData));
                 });
 
         // Fork application is currently a slow API because it needs to create application, clone all the pages, and then
@@ -116,14 +120,15 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
                 .map(responseUtils::updateApplicationWithDefaultResources);
     }
 
-    private Mono<Application> sendForkApplicationAnalyticsEvent(String applicationId, String workspaceId, Application application) {
+    private Mono<Application> sendForkApplicationAnalyticsEvent(String applicationId, String workspaceId, Application application, Map<String, Object> eventData) {
         return applicationService.findById(applicationId, AclPermission.READ_APPLICATIONS)
                 .flatMap(sourceApplication -> {
 
                     final Map<String, Object> data = Map.of(
                             "forkedFromAppId", applicationId,
                             "forkedToOrgId", workspaceId,
-                            "forkedFromAppName", sourceApplication.getName()
+                            "forkedFromAppName", sourceApplication.getName(),
+                            FieldName.EVENT_DATA, eventData
                     );
 
                     return analyticsService.sendObjectEvent(AnalyticsEvents.FORK, application, data);

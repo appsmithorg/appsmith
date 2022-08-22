@@ -8,7 +8,7 @@ import { StyledLabel } from "./Common";
 import TextInput from "./TextInput";
 import Toggle from "./Toggle";
 import Text from "./Text";
-import Button from "./Button";
+import { Button } from "design-system";
 import { getFormValues } from "redux-form";
 import { SETTINGS_FORM_NAME } from "constants/forms";
 import { useSelector } from "store";
@@ -150,7 +150,7 @@ export default function Group({
                     <Callout
                       action={setting.action}
                       actionLabel="READ MORE"
-                      title={createMessage(() => setting.label || "")}
+                      desc={createMessage(() => setting.label || "")}
                       type={setting.calloutType || "Info"}
                       url={setting.url}
                     />

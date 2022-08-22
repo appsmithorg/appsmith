@@ -4,7 +4,7 @@ import ReactDOM from "react-dom";
 import { Provider } from "react-redux";
 import "./index.css";
 import { ThemeProvider } from "constants/DefaultTheme";
-import { appInitializer } from "utils/AppsmithUtils";
+import { appInitializer } from "utils/AppUtils";
 import { Slide } from "react-toastify";
 import store from "./store";
 import { LayersContext, Layers } from "constants/Layers";
@@ -26,6 +26,12 @@ setAutoFreeze(shouldAutoFreeze);
 import AppErrorBoundary from "./AppErrorBoundry";
 import GlobalStyles from "globalStyles";
 appInitializer();
+
+if (process.env.NODE_ENV === "development") {
+  import("./mocks/browser").then(({ worker }) => {
+    worker.start();
+  });
+}
 
 function App() {
   return (

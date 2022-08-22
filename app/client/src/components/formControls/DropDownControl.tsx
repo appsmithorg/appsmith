@@ -1,7 +1,7 @@
 import React from "react";
 import BaseControl, { ControlProps } from "./BaseControl";
 import styled from "styled-components";
-import Dropdown, { DropdownOption } from "components/ads/Dropdown";
+import { Dropdown, DropdownOption } from "design-system";
 import { ControlType } from "constants/PropertyControlConstants";
 import { get, isNil } from "lodash";
 import {
@@ -180,6 +180,33 @@ function renderDropdown(
       props.input?.onChange(selectedValue);
     }
   };
+
+  if (props.options.length > 0) {
+    if (props.isMultiSelect) {
+      const tempSelectedValues: string[] = [];
+      selectedOptions.forEach((option: DropdownOption) => {
+        if (selectedValue.includes(option.value as string)) {
+          tempSelectedValues.push(option.value as string);
+        }
+      });
+      if (tempSelectedValues.length !== selectedValue.length) {
+        selectedValue = [...tempSelectedValues];
+        props.input?.onChange(tempSelectedValues);
+      }
+    } else {
+      let tempSelectedValues = "";
+      selectedOptions.forEach((option: DropdownOption) => {
+        if (selectedValue === (option.value as string)) {
+          tempSelectedValues = option.value as string;
+        }
+      });
+
+      if (selectedValue !== tempSelectedValues) {
+        selectedValue = tempSelectedValues;
+        props.input?.onChange(tempSelectedValues);
+      }
+    }
+  }
 
   return (
     <Dropdown

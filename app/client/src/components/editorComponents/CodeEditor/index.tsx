@@ -55,7 +55,7 @@ import { bindingMarker } from "components/editorComponents/CodeEditor/markHelper
 import { bindingHint } from "components/editorComponents/CodeEditor/hintHelpers";
 import BindingPrompt from "./BindingPrompt";
 import { showBindingPrompt } from "./BindingPromptHelper";
-import ScrollIndicator from "components/ads/ScrollIndicator";
+import { ScrollIndicator } from "design-system";
 import "codemirror/addon/fold/brace-fold";
 import "codemirror/addon/fold/foldgutter";
 import "codemirror/addon/fold/foldgutter.css";
@@ -76,7 +76,7 @@ import {
 } from "./codeEditorUtils";
 import { commandsHelper } from "./commandsHelper";
 import { getEntityNameAndPropertyPath } from "workers/evaluationUtils";
-import Button from "components/ads/Button";
+import { Button } from "design-system";
 import { getPluginIdToImageLocation } from "sagas/selectors";
 import { ExpectedValueExample } from "utils/validation/common";
 import { getRecentEntityIds } from "selectors/globalSearchSelectors";
@@ -101,17 +101,8 @@ import { getMoveCursorLeftKey } from "./utils/cursorLeftMovement";
 import { interactionAnalyticsEvent } from "utils/AppsmithUtils";
 import { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTypeDefCreator";
 
-interface ReduxStateProps {
-  dynamicData: DataTree;
-  datasources: any;
-  pluginIdToImageLocation: Record<string, string>;
-  recentEntities: string[];
-}
-
-interface ReduxDispatchProps {
-  executeCommand: (payload: any) => void;
-  startingEntityUpdation: () => void;
-}
+type ReduxStateProps = ReturnType<typeof mapStateToProps>;
+type ReduxDispatchProps = ReturnType<typeof mapDispatchToProps>;
 
 export type CodeEditorExpected = {
   type: string;
@@ -141,6 +132,7 @@ export type EditorStyleProps = {
   evaluationSubstitutionType?: EvaluationSubstitutionType;
   popperPlacement?: Placement;
   popperZIndex?: Indices;
+  blockCompletions?: FieldEntityInformation["blockCompletions"];
 };
 /**
  *  line => Line to which the gutter is added
@@ -190,9 +182,7 @@ export type EditorProps = EditorStyleProps &
     customGutter?: CodeEditorGutter;
   };
 
-type Props = ReduxStateProps &
-  EditorProps &
-  ReduxDispatchProps & { dispatch?: () => void };
+interface Props extends ReduxStateProps, EditorProps, ReduxDispatchProps {}
 
 type State = {
   isFocused: boolean;
@@ -353,37 +343,35 @@ class CodeEditor extends Component<Props, State> {
     window.addEventListener("keydown", this.handleKeydown);
   }
 
+  shouldComponentUpdate(nextProps: Props, nextState: State) {
+    if (this.props.dynamicData !== nextProps.dynamicData)
+      return nextState.isFocused || !!nextProps.isJSObject;
+    return true;
+  }
+
   componentDidUpdate(prevProps: Props): void {
     this.editor.operation(() => {
-      if (!this.state.isFocused) {
-        // const currentMode = this.editor.getOption("mode");
-        const editorValue = this.editor.getValue();
-        // Safe update of value of the editor when value updated outside the editor
-        const inputValue = getInputValue(this.props.input.value);
-        const previousInputValue = getInputValue(prevProps.input.value);
+      if (this.state.isFocused) return;
+      // const currentMode = this.editor.getOption("mode");
+      const editorValue = this.editor.getValue();
+      // Safe update of value of the editor when value updated outside the editor
+      const inputValue = getInputValue(this.props.input.value);
+      const previousInputValue = getInputValue(prevProps.input.value);
 
-        if (!!inputValue || inputValue === "") {
-          if (inputValue !== editorValue && isString(inputValue)) {
-            this.editor.setValue(inputValue);
-            this.editor.clearHistory(); // when input gets updated on focus out clear undo/redo from codeMirror History
-          } else if (prevProps.isEditorHidden && !this.props.isEditorHidden) {
-            // Even if Editor is updated with new value, it cannot update without layour calcs.
-            //So, if it is hidden it does not reflect in UI, this code is to refresh editor if it was just made visible.
-            this.editor.refresh();
-          }
-        } else if (previousInputValue !== inputValue) {
-          // handles case when inputValue changes from a truthy to a falsy value
-          this.editor.setValue("");
+      if (!!inputValue || inputValue === "") {
+        if (inputValue !== editorValue && isString(inputValue)) {
+          this.editor.setValue(inputValue);
+          this.editor.clearHistory(); // when input gets updated on focus out clear undo/redo from codeMirror History
+        } else if (prevProps.isEditorHidden && !this.props.isEditorHidden) {
+          // Even if Editor is updated with new value, it cannot update without layour calcs.
+          //So, if it is hidden it does not reflect in UI, this code is to refresh editor if it was just made visible.
+          this.editor.refresh();
         }
-        CodeEditor.updateMarkings(this.editor, this.props.marking);
-      } else {
-        // Update the dynamic bindings for autocomplete
-        if (prevProps.dynamicData !== this.props.dynamicData) {
-          this.hinters.forEach(
-            (hinter) => hinter.update && hinter.update(this.props.dynamicData),
-          );
-        }
+      } else if (previousInputValue !== inputValue) {
+        // handles case when inputValue changes from a truthy to a falsy value
+        this.editor.setValue("");
       }
+      CodeEditor.updateMarkings(this.editor, this.props.marking);
     });
   }
 
@@ -527,12 +515,16 @@ class CodeEditor extends Component<Props, State> {
 
   handleEditorFocus = (cm: CodeMirror.Editor) => {
     this.setState({ isFocused: true });
+
     if (!cm.state.completionActive) {
-      const entityInformation: FieldEntityInformation = this.getEntityInformation();
+      const entityInformation = this.getEntityInformation();
+      const { blockCompletions } = this.props;
       this.hinters
         .filter((hinter) => hinter.fireOnFocus)
         .forEach(
-          (hinter) => hinter.showHint && hinter.showHint(cm, entityInformation),
+          (hinter) =>
+            hinter.showHint &&
+            hinter.showHint(cm, entityInformation, blockCompletions),
         );
     }
   };
@@ -658,10 +650,12 @@ class CodeEditor extends Component<Props, State> {
 
   handleAutocompleteVisibility = (cm: CodeMirror.Editor) => {
     if (!this.state.isFocused) return;
-    const entityInformation: FieldEntityInformation = this.getEntityInformation();
+    const entityInformation = this.getEntityInformation();
+    const { blockCompletions } = this.props;
     let hinterOpen = false;
     for (let i = 0; i < this.hinters.length; i++) {
       hinterOpen = this.hinters[i].showHint(cm, entityInformation, {
+        blockCompletions,
         datasources: this.props.datasources.list,
         pluginIdToImageLocation: this.props.pluginIdToImageLocation,
         recentEntities: this.props.recentEntities,
@@ -757,7 +751,6 @@ class CodeEditor extends Component<Props, State> {
   }
 
   getPropertyValidation = (
-    dataTree: DataTree,
     dataTreePath?: string,
   ): {
     isInvalid: boolean;
@@ -773,7 +766,7 @@ class CodeEditor extends Component<Props, State> {
     }
 
     const errors = _.get(
-      dataTree,
+      this.props.dynamicData,
       getEvalErrorPath(dataTreePath),
       [],
     ) as EvaluationError[];
@@ -792,7 +785,10 @@ class CodeEditor extends Component<Props, State> {
       this.state.hasLintError && this.setState({ hasLintError: false });
     }
 
-    const pathEvaluatedValue = _.get(dataTree, getEvalValuePath(dataTreePath));
+    const pathEvaluatedValue = _.get(
+      this.props.dynamicData,
+      getEvalValuePath(dataTreePath),
+    );
 
     return {
       isInvalid: filteredLintErrors.length > 0,
@@ -809,7 +805,6 @@ class CodeEditor extends Component<Props, State> {
       codeEditorVisibleOverflow,
       dataTreePath,
       disabled,
-      dynamicData,
       evaluatedValue,
       evaluationSubstitutionType,
       expected,
@@ -823,14 +818,14 @@ class CodeEditor extends Component<Props, State> {
       theme,
       useValidationMessage,
     } = this.props;
-    const validations = this.getPropertyValidation(dynamicData, dataTreePath);
+
+    const validations = this.getPropertyValidation(dataTreePath);
     let { errors, isInvalid } = validations;
     const { pathEvaluatedValue } = validations;
     let evaluated = evaluatedValue;
     if (dataTreePath) {
       evaluated = pathEvaluatedValue;
     }
-
     const entityInformation = this.getEntityInformation();
     /* Evaluation results for snippet arguments. The props below can be used to set the validation errors when computed from parent component */
     if (this.props.errors) {
@@ -840,7 +835,6 @@ class CodeEditor extends Component<Props, State> {
       isInvalid = Boolean(this.props.isInvalid);
     }
     /*  Evaluation results for snippet snippets */
-
     this.lintCode(this.editor);
 
     const showEvaluatedValue =
@@ -959,14 +953,14 @@ class CodeEditor extends Component<Props, State> {
   }
 }
 
-const mapStateToProps = (state: AppState): ReduxStateProps => ({
+const mapStateToProps = (state: AppState) => ({
   dynamicData: getDataTreeForAutocomplete(state),
   datasources: state.entities.datasources,
   pluginIdToImageLocation: getPluginIdToImageLocation(state),
   recentEntities: getRecentEntityIds(state),
 });
 
-const mapDispatchToProps = (dispatch: any): ReduxDispatchProps => ({
+const mapDispatchToProps = (dispatch: any) => ({
   executeCommand: (payload: SlashCommandPayload) =>
     dispatch(executeCommandAction(payload)),
   startingEntityUpdation: () => dispatch(startingEntityUpdation()),

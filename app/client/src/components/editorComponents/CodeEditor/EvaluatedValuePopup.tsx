@@ -9,7 +9,7 @@ import {
 } from "components/editorComponents/CodeEditor/EditorConfig";
 import { theme } from "constants/DefaultTheme";
 import { Placement } from "popper.js";
-import ScrollIndicator from "components/ads/ScrollIndicator";
+import { ScrollIndicator } from "design-system";
 import { EvaluatedValueDebugButton } from "components/editorComponents/Debugger/DebugCTA";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { TooltipComponent as Tooltip } from "design-system";
