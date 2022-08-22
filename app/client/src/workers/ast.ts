@@ -4,7 +4,8 @@ import { ECMA_VERSION, NodeTypes } from "constants/ast";
 import { isFinite, isString, toPath } from "lodash";
 import { sanitizeScript } from "./evaluate";
 import { generate } from "astring";
-import { extraLibrariesNames } from "utils/DynamicBindingUtils";
+import { isNameValid } from "utils/helpers";
+import { INTERNAL_IDENTIFIERS } from "constants/WidgetValidation";
 
 /*
  * Valuable links:
@@ -306,7 +307,8 @@ export const extractIdentifiersFromCode = (code: string): string[] => {
     return !(
       functionalParams.has(topLevelIdentifier) ||
       variableDeclarations.has(topLevelIdentifier) ||
-      extraLibrariesNames.includes(topLevelIdentifier)
+      !isNameValid(topLevelIdentifier, {}) ||
+      !INTERNAL_IDENTIFIERS.includes(topLevelIdentifier)
     );
   });
   return validIdentifiers;

@@ -172,3 +172,5 @@ export const WINDOW_OBJECT_METHODS = {
   setTimeout: "setTimeout",
   stop: "stop",
 };
+
+export const INTERNAL_IDENTIFIERS = ["appsmith"];
