@@ -13,7 +13,7 @@ import isUndefined from "lodash/isUndefined";
 import includes from "lodash/includes";
 import map from "lodash/map";
 import * as Sentry from "@sentry/react";
-import { Category, Size } from "components/ads/Button";
+import { Category, Size } from "design-system";
 import { useDispatch } from "react-redux";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { DraggableListCard } from "components/ads/DraggableListCard";

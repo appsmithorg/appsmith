@@ -48,6 +48,8 @@ export class EntityExplorer {
     `.t--entity-name:contains(${pageName})`;
   private _visibleTextSpan = (spanText: string) =>
     "//span[text()='" + spanText + " Query']";
+  _createNewPopup = ".bp3-overlay-content";
+  _entityExplorerWrapper = ".t--entity-explorer-wrapper";
 
   public SelectEntityByName(
     entityNameinLeftSidebar: string,
@@ -85,16 +87,17 @@ export class EntityExplorer {
     );
   }
 
-  public ExpandCollapseEntity(entityName: string, expand = true) {
+  public ExpandCollapseEntity(entityName: string, expand = true, index = 0) {
     cy.xpath(this._expandCollapseArrow(entityName))
+      .eq(index)
       .invoke("attr", "name")
       .then((arrow) => {
         if (expand && arrow == "arrow-right")
-          cy.xpath(this._expandCollapseArrow(entityName))
+          cy.xpath(this._expandCollapseArrow(entityName)).eq(index)
             .trigger("click", { multiple: true })
             .wait(1000);
         else if (!expand && arrow == "arrow-down")
-          cy.xpath(this._expandCollapseArrow(entityName))
+          cy.xpath(this._expandCollapseArrow(entityName)).eq(index)
             .trigger("click", { multiple: true })
             .wait(1000);
         else this.agHelper.Sleep(500);

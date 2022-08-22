@@ -1,16 +1,20 @@
 import React, { memo, useMemo, useCallback, useEffect, useRef } from "react";
 import styled from "styled-components";
-import Icon, { IconSize } from "components/ads/Icon";
-import Dropdown, {
-  DefaultDropDownValueNodeProps,
-  DropdownOption,
-} from "components/ads/Dropdown";
-import { TooltipComponent as Tooltip } from "design-system";
 import { AppState } from "reducers";
 import { useDispatch, useSelector } from "react-redux";
 import { getDataTree } from "selectors/dataTreeSelectors";
 import { isAction, isWidget } from "workers/evaluationUtils";
-import { Text, TextType } from "design-system";
+import {
+  Dropdown,
+  DefaultDropDownValueNodeProps,
+  DropdownOption,
+  Icon,
+  IconSize,
+  Text,
+  TextType,
+  TooltipComponent as Tooltip,
+  RenderDropdownOptionType,
+} from "design-system";
 import { Classes } from "components/ads/common";
 import { useEntityLink } from "components/editorComponents/Debugger/hooks/debuggerHooks";
 import { useGetEntityInfo } from "components/editorComponents/Debugger/hooks/useGetEntityInfo";
@@ -406,7 +410,9 @@ function PropertyPaneConnections(props: PropertyPaneConnectionsProps) {
   return (
     <TopLayer ref={topLayerRef}>
       <Dropdown
-        SelectedValueNode={(selectedValueProps) => (
+        SelectedValueNode={(
+          selectedValueProps: DefaultDropDownValueNodeProps,
+        ) => (
           <TriggerNode
             iconAlignment={"LEFT"}
             justifyContent={"flex-start"}
@@ -424,7 +430,7 @@ function PropertyPaneConnections(props: PropertyPaneConnectionsProps) {
         headerLabel="Incoming connections"
         height={`${CONNECTION_HEIGHT}px`}
         options={dependencies.dependencyOptions}
-        renderOption={(optionProps) => {
+        renderOption={(optionProps: RenderDropdownOptionType) => {
           return (
             <OptionNode
               isSelectedNode={optionProps.isSelectedNode}
@@ -439,7 +445,9 @@ function PropertyPaneConnections(props: PropertyPaneConnectionsProps) {
       />
       {/* <PopperDragHandle /> */}
       <Dropdown
-        SelectedValueNode={(selectedValueProps) => (
+        SelectedValueNode={(
+          selectedValueProps: DefaultDropDownValueNodeProps,
+        ) => (
           <TriggerNode
             iconAlignment={"RIGHT"}
             justifyContent={"flex-end"}
@@ -458,7 +466,7 @@ function PropertyPaneConnections(props: PropertyPaneConnectionsProps) {
         height={`${CONNECTION_HEIGHT}px`}
         onSelect={navigateToEntity}
         options={dependencies.inverseDependencyOptions}
-        renderOption={(optionProps) => {
+        renderOption={(optionProps: RenderDropdownOptionType) => {
           return (
             <OptionNode
               isSelectedNode={optionProps.isSelectedNode}

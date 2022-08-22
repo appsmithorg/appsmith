@@ -24,7 +24,7 @@ import {
   DEBUGGER_SEARCH_GOOGLE,
   DEBUGGER_SEARCH_SNIPPET,
 } from "@appsmith/constants/messages";
-import Icon, { IconName, IconSize } from "components/ads/Icon";
+import { Icon, IconName, IconSize } from "design-system";
 import { Classes } from "components/ads/common";
 import { Colors } from "constants/Colors";
 import { executeCommandAction } from "actions/apiPaneActions";

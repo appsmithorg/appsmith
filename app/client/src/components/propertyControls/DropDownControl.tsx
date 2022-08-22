@@ -1,7 +1,7 @@
 import React from "react";
 import BaseControl, { ControlProps } from "./BaseControl";
 import { StyledDropDown, StyledDropDownContainer } from "./StyledControls";
-import { DropdownOption } from "components/ads/Dropdown";
+import { DropdownOption } from "design-system";
 import { isNil } from "lodash";
 import { isDynamicValue } from "utils/DynamicBindingUtils";
 import { DSEventDetail, DSEventTypes, DS_EVENT } from "utils/AppsmithUtils";
