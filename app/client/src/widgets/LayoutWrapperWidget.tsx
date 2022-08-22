@@ -1,28 +1,55 @@
 import React, { CSSProperties } from "react";
+
 import { WidgetProps } from "widgets/BaseWidget";
+import WidgetFactory, { DerivedPropertiesMap } from "utils/WidgetFactory";
 import ContainerWidget, {
   ContainerWidgetProps,
-} from "widgets/ContainerWidget/widget";
-import { GridDefaults } from "constants/WidgetConstants";
-import DropTargetComponent from "components/editorComponents/DropTargetComponent";
-import { getCanvasSnapRows } from "utils/WidgetPropsUtils";
-import { getCanvasClassName } from "utils/generators";
-import WidgetFactory, { DerivedPropertiesMap } from "utils/WidgetFactory";
-import { CanvasWidgetStructure } from "./constants";
+} from "./ContainerWidget/widget";
+import { DropTargetComponent } from "components/editorComponents/DropTargetComponent";
 import { CANVAS_DEFAULT_MIN_HEIGHT_PX } from "constants/AppConstants";
-import { ResponsiveBehavior } from "components/constants";
+import { getCanvasClassName } from "utils/generators";
+import { GridDefaults } from "constants/WidgetConstants";
+import { getCanvasSnapRows } from "utils/WidgetPropsUtils";
+import {
+  LayoutDirection,
+  Positioning,
+  ResponsiveBehavior,
+} from "components/constants";
+import { CanvasWidgetStructure } from "./constants";
 
-class CanvasWidget extends ContainerWidget {
+class LayoutWrapperWidget extends ContainerWidget {
   static getPropertyPaneConfig() {
     return [];
   }
+  static getDerivedPropertiesMap(): DerivedPropertiesMap {
+    return {};
+  }
+
+  static getDefaultPropertiesMap(): Record<string, string> {
+    return {};
+  }
+  // TODO Find a way to enforce this, (dont let it be set)
+  static getMetaPropertiesMap(): Record<string, any> {
+    return {};
+  }
   static getWidgetType() {
-    return "CANVAS_WIDGET";
+    return "LAYOUT_WRAPPER_WIDGET";
   }
   componentDidMount(): void {
     super.componentDidMount();
   }
-
+  componentDidUpdate(prevProps: ContainerWidgetProps<any>): void {
+    super.componentDidUpdate(prevProps);
+  }
+  updatePositioningInformation = (): void => {
+    this.setState({
+      useAutoLayout: true,
+      direction:
+        this.props.positioning === Positioning.Horizontal
+          ? LayoutDirection.Vertical
+          : LayoutDirection.Horizontal,
+    });
+  };
   getCanvasProps(): ContainerWidgetProps<WidgetProps> {
     return {
       ...this.props,
@@ -31,10 +58,9 @@ class CanvasWidget extends ContainerWidget {
       topRow: 0,
       leftColumn: 0,
       containerStyle: "none",
-      detachFromLayout: true,
+      detachFromLayout: false,
     };
   }
-
   renderAsDropTarget() {
     const canvasProps = this.getCanvasProps();
     return (
@@ -52,7 +78,8 @@ class CanvasWidget extends ContainerWidget {
     if (!childWidgetData) return null;
 
     const childWidget = { ...childWidgetData };
-    console.log(childWidget);
+    console.log(this.props);
+    console.log(this.state);
     const snapSpaces = this.getSnapSpaces();
     childWidget.parentColumnSpace = snapSpaces.snapColumnSpace;
     childWidget.parentRowSpace = snapSpaces.snapRowSpace;
@@ -106,23 +133,11 @@ class CanvasWidget extends ContainerWidget {
     }
     return this.getPageView();
   }
-
-  static getDerivedPropertiesMap(): DerivedPropertiesMap {
-    return {};
-  }
-
-  static getDefaultPropertiesMap(): Record<string, string> {
-    return {};
-  }
-  // TODO Find a way to enforce this, (dont let it be set)
-  static getMetaPropertiesMap(): Record<string, any> {
-    return {};
-  }
 }
 
 export const CONFIG = {
-  type: CanvasWidget.getWidgetType(),
-  name: "Canvas",
+  type: LayoutWrapperWidget.getWidgetType(),
+  name: "LayoutWrapper",
   hideCard: true,
   defaults: {
     rows: 0,
@@ -130,13 +145,14 @@ export const CONFIG = {
     widgetName: "Canvas",
     version: 1,
     detachFromLayout: true,
+    containerStyle: "none",
   },
   properties: {
-    derived: CanvasWidget.getDerivedPropertiesMap(),
-    default: CanvasWidget.getDefaultPropertiesMap(),
-    meta: CanvasWidget.getMetaPropertiesMap(),
-    config: CanvasWidget.getPropertyPaneConfig(),
+    derived: LayoutWrapperWidget.getDerivedPropertiesMap(),
+    default: LayoutWrapperWidget.getDefaultPropertiesMap(),
+    meta: LayoutWrapperWidget.getMetaPropertiesMap(),
+    config: LayoutWrapperWidget.getPropertyPaneConfig(),
   },
 };
 
-export default CanvasWidget;
+export default LayoutWrapperWidget;

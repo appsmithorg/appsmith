@@ -429,7 +429,7 @@ function* addWidgetAndReorderSaga(
       ...newWidget,
       widgetId: parentId,
     });
-    // console.log(updatedWidgetsOnAddition);
+    console.log(updatedWidgetsOnAddition);
     const updatedWidgetsOnMove = reorderAutolayoutChildren({
       movedWidgets: [
         updatedWidgetsOnAddition.containerId || newWidget.newWidgetId,

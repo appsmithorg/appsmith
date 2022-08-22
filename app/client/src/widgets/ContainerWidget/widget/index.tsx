@@ -320,7 +320,8 @@ class ContainerWidget extends BaseWidget<
     let padding = (CONTAINER_GRID_PADDING + WIDGET_PADDING) * 2;
     if (
       this.props.widgetId === MAIN_CONTAINER_WIDGET_ID ||
-      this.props.type === "CONTAINER_WIDGET"
+      this.props.type === "CONTAINER_WIDGET" ||
+      this.props.type === "LAYOUT_WRAPPER_WIDGET"
     ) {
       //For MainContainer and any Container Widget padding doesn't exist coz there is already container padding.
       padding = CONTAINER_GRID_PADDING * 2;
@@ -386,7 +387,8 @@ class ContainerWidget extends BaseWidget<
           this.props.positioning === Positioning.Vertical;
     return (
       <ContainerComponent {...props}>
-        {props.type === "CANVAS_WIDGET" && (
+        {(props.type === "CANVAS_WIDGET" ||
+          props.type === "LAYOUT_WRAPPER_WIDGET") && (
           <>
             <CanvasDraggingArena
               {...this.getSnapSpaces()}
@@ -417,7 +419,8 @@ class ContainerWidget extends BaseWidget<
           widgetType={this.props.type}
         />
         {/* without the wrapping div onClick events are triggered twice */}
-        {props.type === "CANVAS_WIDGET" ? (
+        {props.type === "CANVAS_WIDGET" ||
+        props.type === "LAYOUT_WRAPPER_WIDGET" ? (
           <FlexBox
             alignment={this.props.alignment || Alignment.Left}
             direction={this.state.direction}

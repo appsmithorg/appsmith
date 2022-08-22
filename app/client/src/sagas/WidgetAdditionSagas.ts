@@ -335,7 +335,13 @@ export function* getUpdateDslAfterCreatingAutoLayoutChild(
   const { widgetId } = addChildPayload;
   // Get the current parent widget whose child will be the new widget.
   const stateParent: FlattenedWidgetProps = yield select(getWidget, widgetId);
+  // console.log("State parent");
   // console.log(stateParent);
+  const parentContainer: FlattenedWidgetProps = stateParent.parentId
+    ? yield select(getWidget, stateParent.parentId)
+    : null;
+  // console.log("Parent container");
+  // console.log(parentContainer);
   // const parent = Object.assign({}, stateParent);
   // Get all the widgets from the canvasWidgetsReducer
   const stateWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
@@ -350,16 +356,15 @@ export function* getUpdateDslAfterCreatingAutoLayoutChild(
   const newContainerWidgetPayload = {
     ...addChildPayload,
     newWidgetId: generateReactKey(),
-    type: "CONTAINER_WIDGET",
-    widgetName: `Container${Object.values(widgets)?.filter(
-      (each) => each.widgetName.indexOf("Container") > -1,
-    )?.length || 0}`,
+    type: "LAYOUT_WRAPPER_WIDGET",
+    widgetName: `LayoutWrapper${(Object.values(widgets)?.filter(
+      (each) => each.widgetName.indexOf("LayoutWrapper") > -1,
+    )?.length || 0) + 1}`,
     props: {
       containerStyle: "none",
       canExtend: false,
       detachFromLayout: false,
       children: [],
-      positioning: Positioning.Horizontal,
       alignment: Alignment.Left,
       spacing: Spacing.None,
       isWrapper: true,
@@ -418,13 +423,13 @@ export function* getUpdateDslAfterCreatingAutoLayoutChild(
   /**
    * START create new widget
    */
-  const containerChildren =
-    containerPayload.widgets[containerPayload.widgetId].children || [];
-  const canvasWidgetId = containerChildren ? containerChildren[0] : null;
-  if (!canvasWidgetId) return { widgets };
+  // const containerChildren =
+  //   containerPayload.widgets[containerPayload.widgetId].children || [];
+  // const canvasWidgetId = containerChildren ? containerChildren[0] : null;
+  // if (!canvasWidgetId) return { widgets };
   // Generate the full WidgetProps of the widget to be added.
   const childWidgetPayload: GeneratedWidgetPayload = yield generateChildWidgets(
-    containerPayload.widgets[canvasWidgetId],
+    containerPayload.widgets[containerPayload.widgetId],
     addChildPayload,
     containerPayload.widgets,
     // sending blueprint for onboarding usecase
@@ -436,10 +441,10 @@ export function* getUpdateDslAfterCreatingAutoLayoutChild(
    */
 
   // Update canvas widget
-  childWidgetPayload.widgets[canvasWidgetId] = {
-    ...childWidgetPayload.widgets[canvasWidgetId],
+  childWidgetPayload.widgets[containerPayload.widgetId] = {
+    ...childWidgetPayload.widgets[containerPayload.widgetId],
     children: [
-      ...(childWidgetPayload.widgets[canvasWidgetId].children || []),
+      ...(childWidgetPayload.widgets[containerPayload.widgetId].children || []),
       childWidgetPayload.widgetId,
     ],
   };
