@@ -170,7 +170,13 @@ function JSEditorForm({ jsCollection: currentJSCollection }: Props) {
     event: React.MouseEvent<HTMLElement, MouseEvent> | KeyboardEvent,
   ) => {
     event.preventDefault();
-    selectedJSActionOption.data && executeJSAction(selectedJSActionOption.data);
+    if (
+      !disableRunFunctionality &&
+      !isExecutingCurrentJSAction &&
+      selectedJSActionOption.data
+    ) {
+      executeJSAction(selectedJSActionOption.data);
+    }
   };
 
   useEffect(() => {
@@ -179,8 +185,12 @@ function JSEditorForm({ jsCollection: currentJSCollection }: Props) {
     } else {
       setDisableRunFunctionality(false);
     }
-    setSelectedJSActionOption(getJSActionOption(activeJSAction, jsActions));
   }, [parseErrors, jsActions, activeJSActionId]);
+
+  useEffect(() => {
+    // update the selectedJSActionOption when there is addition or removal of jsAction or function
+    setSelectedJSActionOption(getJSActionOption(activeJSAction, jsActions));
+  }, [jsActions, activeJSActionId]);
 
   const blockCompletions = useMemo(() => {
     if (selectedJSActionOption.label) {
