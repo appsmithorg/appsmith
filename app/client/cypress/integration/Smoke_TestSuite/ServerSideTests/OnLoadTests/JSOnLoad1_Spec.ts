@@ -224,7 +224,7 @@ describe("JSObjects OnLoad Actions tests", function() {
     });
   });
 
-  it("9. Tc 60 - Verify JSObj calling API - OnPageLoad calls & Confirmation No then Yes!", () => {
+  it("9. Tc 60, 1912 - Verify JSObj calling API - OnPageLoad calls & Confirmation No then Yes!", () => {
     ee.SelectEntityByName("Page1");
     cy.fixture("JSApiOnLoadDsl").then((val: any) => {
       agHelper.AddDsl(val, locator._widgetInCanvas("imagewidget"));
@@ -350,7 +350,7 @@ describe("JSObjects OnLoad Actions tests", function() {
     // cy.get("div.t--draggable-inputwidgetv2 > div.iPntND").invoke('attr', 'style', 'height: 304px')
   });
 
-  it("10. API with OnPageLoad & Confirmation both enabled & called directly & setting previous Api's confirmation to false", () => {
+  it("10. Tc #1912 - API with OnPageLoad & Confirmation both enabled & called directly & setting previous Api's confirmation to false", () => {
     deployMode.NavigateBacktoEditor();
     agHelper.AssertElementVisible(jsEditor._dialogBody("Quotes"));
     agHelper.ClickButton("No");
