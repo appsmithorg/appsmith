@@ -28,7 +28,7 @@ import { getAction } from "selectors/entitiesSelector";
 import { getDataTreeActionConfigPath } from "entities/Action/actionProperties";
 import { getDataTree } from "selectors/dataTreeSelectors";
 import { getDynamicBindings, isDynamicValue } from "utils/DynamicBindingUtils";
-import { get, isEmpty } from "lodash";
+import get from "lodash/get";
 import { klona } from "klona/lite";
 import { DataTree } from "entities/DataTree/dataTreeFactory";
 import {
