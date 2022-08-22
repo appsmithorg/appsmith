@@ -969,7 +969,7 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   cy.route("POST", "/api/v1/workspaces").as("createWorkspace");
   cy.route("POST", "api/v1/applications/import/*").as("importNewApplication");
   cy.route("GET", "api/v1/applications/export/*").as("exportApplication");
-  cy.route("GET", "/api/v1/workspaces/roles?workspaceId=*").as("getRoles");
+  cy.route("GET", "/api/v1/workspaces/*/permissionGroups").as("getRoles");
   cy.route("GET", "/api/v1/users/me").as("getMe");
   cy.route("POST", "/api/v1/pages").as("createPage");
   cy.route("POST", "/api/v1/pages/clone/*").as("clonePage");

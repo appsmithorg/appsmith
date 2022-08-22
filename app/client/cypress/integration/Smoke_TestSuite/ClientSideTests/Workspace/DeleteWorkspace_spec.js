@@ -1,6 +1,8 @@
 /// <reference types="Cypress" />
-
+import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 import homePage from "../../../../locators/HomePage";
+let HomePage = ObjectsRegistry.HomePage,
+  agHelper = ObjectsRegistry.AggregateHelper;
 
 describe("Delete workspace test spec", function() {
   let newWorkspaceName;
@@ -30,10 +32,10 @@ describe("Delete workspace test spec", function() {
       cy.visit("/applications");
       cy.openWorkspaceOptionsPopup(newWorkspaceName);
       cy.contains("Delete Workspace");
-      cy.inviteUserForWorkspace(
+      HomePage.InviteUserToWorkspace(
         newWorkspaceName,
         Cypress.env("TESTUSERNAME1"),
-        homePage.viewerRole,
+        "App Viewer",
       );
       cy.LogOut();
       cy.LogintoApp(Cypress.env("TESTUSERNAME1"), Cypress.env("TESTPASSWORD1"));
