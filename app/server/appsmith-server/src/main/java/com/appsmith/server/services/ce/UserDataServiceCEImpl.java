@@ -40,7 +40,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import static com.appsmith.server.constants.FieldName.ANONYMOUS_USER;
 import static com.appsmith.server.repositories.BaseAppsmithRepositoryImpl.fieldName;
 
 
@@ -115,7 +114,7 @@ public class UserDataServiceCEImpl extends BaseService<UserDataRepository, UserD
     @Override
     public Mono<UserData> getForUserEmail(String email) {
         return tenantService.getDefaultTenantId()
-                .flatMap(tenantId -> userRepository.findByEmailAndTenantId(ANONYMOUS_USER, tenantId))
+                .flatMap(tenantId -> userRepository.findByEmailAndTenantId(email, tenantId))
                 .flatMap(this::getForUser);
     }
 
@@ -124,7 +123,7 @@ public class UserDataServiceCEImpl extends BaseService<UserDataRepository, UserD
         return sessionUserService.getCurrentUser()
                 .flatMap(user ->
                         tenantService.getDefaultTenantId()
-                                .flatMap(tenantId -> userRepository.findByEmailAndTenantId(ANONYMOUS_USER, tenantId))
+                                .flatMap(tenantId -> userRepository.findByEmailAndTenantId(user.getEmail(), tenantId))
                 )
                 .flatMap(user -> updateForUser(user, updates));
     }
@@ -182,7 +181,7 @@ public class UserDataServiceCEImpl extends BaseService<UserDataRepository, UserD
         return Mono.justOrEmpty(user.getId())
                 .switchIfEmpty(
                         tenantService.getDefaultTenantId()
-                        .flatMap(tenantId -> userRepository.findByEmailAndTenantId(ANONYMOUS_USER, tenantId))
+                        .flatMap(tenantId -> userRepository.findByEmailAndTenantId(user.getEmail(), tenantId))
                         .flatMap(user1 -> Mono.justOrEmpty(user1.getId()))
                 )
                 .flatMap(userId -> repository.saveReleaseNotesViewedVersion(userId, version))

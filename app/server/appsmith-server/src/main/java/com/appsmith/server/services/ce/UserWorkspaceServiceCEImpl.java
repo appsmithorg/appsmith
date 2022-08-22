@@ -38,8 +38,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static com.appsmith.server.constants.FieldName.ANONYMOUS_USER;
-
 
 @Slf4j
 public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
@@ -137,7 +135,7 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
 
         // Get the user
         Mono<User> userMono = tenantService.getDefaultTenantId()
-                .flatMap(tenantId -> userRepository.findByEmailAndTenantId(ANONYMOUS_USER, tenantId))
+                .flatMap(tenantId -> userRepository.findByEmailAndTenantId(changeUserGroupDTO.getUsername(), tenantId))
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.USER, changeUserGroupDTO.getUsername())))
                 .cache();
 
