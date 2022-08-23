@@ -762,6 +762,8 @@ class ListWidget extends BaseWidget<
     );
   };
 
+  onClientPageChange = (page: number) => this.setState({ page });
+
   /**
    * view that is rendered in editor
    */
@@ -845,7 +847,7 @@ class ListWidget extends BaseWidget<
               boxShadow={this.props.boxShadow}
               current={this.state.page}
               disabled={false && this.props.renderMode === RenderModes.CANVAS}
-              onChange={(page: number) => this.setState({ page })}
+              onChange={this.onClientPageChange}
               perPage={perPage}
               total={(this.props.listData || []).length}
             />
