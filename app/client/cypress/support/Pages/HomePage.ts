@@ -26,10 +26,10 @@ export class HomePage {
     ") button:contains('Share')";
   private _email = "//input[@type='email']";
   _visibleTextSpan = (spanText: string) => "//span[text()='" + spanText + "']";
-  private _userRole = (role: string) =>
+  private _userRole = (role: string, workspaceName: string) =>
     "//div[contains(@class, 'label-container')]//span[1][text()='" +
-    role +
-    "']";
+    role + ' - ' + workspaceName + "']";
+   
   private _manageUsers = ".manageUsers";
   private _appHome = "//a[@href='/applications']";
   _applicationCard = ".t--application-card";
@@ -50,12 +50,8 @@ export class HomePage {
     "//td[text()='" +
     email +
     "']/following-sibling::td//span[contains(@class, 't--deleteUser')]";
-  private _userRoleDropDown = (email: string, role: string) =>
-    "//td[text()='" +
-    email +
-    "']/following-sibling::td//span[text()='" +
-    role +
-    "']";
+  private _userRoleDropDown = (role: string, WorkspaceName:string)=>  "//span[text()='" +
+  role + " - "+ WorkspaceName + "']";
   //private _userRoleDropDown = (email: string) => "//td[text()='" + email + "']/following-sibling::td"
   private _leaveWorkspaceConfirmModal = ".t--member-delete-confirmation-modal";
   private _workspaceImportAppModal = ".t--import-application-modal";
@@ -64,7 +60,7 @@ export class HomePage {
   private _lastWorkspaceInHomePage =
     "//div[contains(@class, 't--workspace-section')][last()]//span/span";
   _editPageLanding = "//h2[text()='Drag and drop a widget here']";
-  _usersEmailList = "[data-colindex='1']";
+  _usersEmailList = "[data-colindex='0']";
   private _workspaceImport = "[data-cy=t--workspace-import-app]";
   private _uploadFile = "//div/form/input";
   private _importSuccessModal = ".t--import-app-success-modal";
@@ -145,7 +141,7 @@ export class HomePage {
       .first()
       .click({ force: true });
     this.agHelper.Sleep(500);
-    cy.xpath(this._userRole(role)).click({ force: true });
+    cy.xpath(this._userRole(role, workspaceName)).click({ force: true });
     this.agHelper.ClickButton("Invite");
     cy.wait("@mockPostInvite")
       .its("request.headers")
@@ -292,15 +288,17 @@ export class HomePage {
       .find(this._workspaceName)
       .find(this._optionsIcon)
       .click({ force: true });
+
     cy.xpath(this._visibleTextSpan("Members"))
       .last()
-      .click({ force: true });
+      .click({ force: true }); 
     cy.wait("@getMembers").should(
       "have.nested.property",
       "response.body.responseMeta.status",
       200,
     );
-    this.agHelper.Sleep(2500); //wait for members page to load!
+    this.agHelper.Sleep(2500); 
+    //wait for members page to load!
   }
 
   public UpdateUserRoleInWorkspace(
@@ -310,15 +308,17 @@ export class HomePage {
     newRole: string,
   ) {
     this.OpenMembersPageForWorkspace(workspaceName);
-    cy.xpath(this._userRoleDropDown(email, currentRole))
+    cy.log(workspaceName, email, currentRole);
+    cy.xpath(this._userRoleDropDown(currentRole, workspaceName))
       .first()
-      .trigger("click");
+      .click({force:true})
+      
     //cy.xpath(this._userRoleDropDown(email)).first().click({force: true});
-    cy.xpath(this._visibleTextSpan(newRole))
+    cy.xpath(this._visibleTextSpan(`${newRole} - ${workspaceName}`))
       .last()
       .click({ force: true });
     this.agHelper.Sleep();
-    this.NavigateToHome();
+    this.NavigateToHome(); 
   }
 
   public ImportApp(fixtureJson: string, intoWorkspaceName = "") {
@@ -331,6 +331,29 @@ export class HomePage {
     cy.xpath(this._uploadFile).attachFile(fixtureJson);
     this.agHelper.Sleep(3500);
   }
+  public InviteUserToWorkspaceFromApp(
+    workspaceName: string,
+    email: string,
+    role: string,
+  ) {
+    const successMessage = "The user has been invited successfully";
+    this.StubPostHeaderReq();
+    cy.xpath(this._email)
+      .click({ force: true })
+      .type(email);
+    cy.xpath(this._selectRole)
+      .first()
+      .click({ force: true });
+    this.agHelper.Sleep(500);
+    cy.xpath(this._userRole(role, workspaceName)).click({ force: true });
+    this.agHelper.ClickButton("Invite");
+    cy.wait("@mockPostInvite")
+      .its("request.headers")
+      .should("have.property", "origin", "Cypress");
+    cy.contains(email, { matchCase: false });
+    cy.contains(successMessage);
+  }
+
 
   public DeleteWorkspace(workspaceNameToDelete: string) {
     cy.get(this._homeIcon).click();

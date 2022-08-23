@@ -1,19 +1,17 @@
 package com.appsmith.caching.components;
 
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
+import com.appsmith.caching.model.CacheStats;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.data.redis.core.ReactiveRedisOperations;
 import org.springframework.data.redis.core.ReactiveRedisTemplate;
 import org.springframework.data.redis.core.script.RedisScript;
 import org.springframework.stereotype.Component;
-
-import com.appsmith.caching.model.CacheStats;
-
-import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
+
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * RedisCacheManagerImpl is a class that implements the CacheManager interface.
@@ -43,7 +41,7 @@ public class RedisCacheManagerImpl implements CacheManager {
     public void logStats() {
         statsMap.keySet().forEach(key -> {
             CacheStats stats = statsMap.get(key);
-            log.info("Cache {} stats: hits = {}, misses = {}, singleEvictions = {}, completeEvictions = {}", key, stats.getHits(), stats.getMisses(), stats.getSingleEvictions(), stats.getCompleteEvictions());
+            log.debug("Cache {} stats: hits = {}, misses = {}, singleEvictions = {}, completeEvictions = {}", key, stats.getHits(), stats.getMisses(), stats.getSingleEvictions(), stats.getCompleteEvictions());
         });
     }
 
