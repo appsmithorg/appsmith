@@ -201,9 +201,7 @@ describe("JS Function Execution", function() {
       myVar1: [],
       myVar2: {},
       myFun1: () => {
-        return Table1.unknown.name
-      }
-    }`;
+        return Table1.unknown.name`;
 
     const JS_OBJECT_WITHOUT_PARSE_ERROR = `export default {
       myVar1: [],
