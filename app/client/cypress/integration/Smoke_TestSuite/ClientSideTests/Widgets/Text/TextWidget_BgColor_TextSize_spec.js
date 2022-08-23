@@ -70,7 +70,7 @@ describe("Text Widget Cell Background and Text Size Validation", function() {
     cy.moveToStyleTab();
 
     //Check the label text size with dropdown
-    cy.get(widgetsPage.textSize)
+    cy.get(widgetsPage.textSizeNew)
       .last()
       .click({ force: true });
 
@@ -84,7 +84,7 @@ describe("Text Widget Cell Background and Text Size Validation", function() {
     );
 
     //Toggle JS mode
-    cy.get(widgetsPage.toggleTextSize)
+    cy.get(widgetsPage.toggleTextSizeNew)
       .click()
       .wait(200);
 

@@ -90,7 +90,7 @@ describe("In a button group widget, menu button width", function() {
     const menuButtonId = "groupButton1";
     cy.get(".t--property-pane-back-btn").click();
     // Change the first button text
-    cy.get(".t--property-pane-section-buttons input")
+    cy.get(".t--property-control-buttons input")
       .first()
       .type("increase width");
     cy.wait("@updateLayout").should(
@@ -127,6 +127,7 @@ describe("In a button group widget, menu button width", function() {
       .children()
       .first()
       .click();
+    cy.moveToStyleTab();
     // Change its orientation to vetical
     cy.selectDropdownValue(".t--property-control-orientation", "Vertical");
     // Get the default menu button

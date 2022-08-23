@@ -127,7 +127,7 @@ describe("Switch Widget Functionality", function() {
   it("Switch Functionality To change label size of switch", function() {
     cy.openPropertyPane("switchwidget");
     cy.moveToStyleTab();
-    cy.get(widgetsPage.textSize)
+    cy.get(widgetsPage.textSizeNew)
       .last()
       .click({ force: true });
     // eslint-disable-next-line cypress/no-unnecessary-waiting
