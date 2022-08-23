@@ -412,7 +412,10 @@ class ChartComponent extends React.Component<ChartComponentProps> {
     const dataLength = this.getDatalength();
     // if pie chart or other chart have single dataset,
     // get seriesName from chartData
-    if (dataLength <= 1 || this.props.chartType === "PIE_CHART") {
+    if (
+      (dataLength <= 1 || this.props.chartType === "PIE_CHART") &&
+      this.props.chartType !== "CUSTOM_FUSION_CHART"
+    ) {
       const chartData: AllChartData = this.props.chartData;
       const firstKey = Object.keys(chartData)[0] as string;
       return get(chartData, `${firstKey}.seriesName`, "");
