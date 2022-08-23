@@ -25,7 +25,7 @@ import {
 
 const Wrapper = styled.div`
   margin: ${(props) =>
-    `${props.theme.spaces[7]}px ${props.theme.spaces[13]}px 0px ${props.theme.spaces[13]}px`};
+    `${props.theme.spaces[7]}px ${props.theme.spaces[16]}px 0px ${props.theme.spaces[13]}px`};
   display: flex;
   flex-direction: row;
   gap: ${(props) => props.theme.spaces[7]}px;
