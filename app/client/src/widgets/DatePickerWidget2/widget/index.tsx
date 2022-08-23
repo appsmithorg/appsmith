@@ -182,7 +182,6 @@ class DatePickerWidget extends BaseWidget<DatePickerWidget2Props, WidgetState> {
             controlType: "INPUT_TEXT",
             defaultValue: "0",
             inputType: "INTEGER",
-            isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
             validation: {
@@ -438,7 +437,6 @@ class DatePickerWidget extends BaseWidget<DatePickerWidget2Props, WidgetState> {
             controlType: "INPUT_TEXT",
             defaultValue: "0",
             inputType: "INTEGER",
-            isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
             validation: {
