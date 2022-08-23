@@ -45,6 +45,14 @@ function validatePropertyControl(config: PropertyPaneConfig): boolean | string {
       )}]`;
   }
 
+  if (controls.includes(_config.controlType) && _config.isJSConvertible) {
+    return `${
+      _config.propertyName
+    }: No need of setting isJSConvertible since users can write JS inside [${controls.join(
+      " | ",
+    )}]`;
+  }
+
   if (_config.validation !== undefined) {
     const res = validateValidationStructure(_config.validation);
     if (res !== true) return `${_config.propertyName}: ${res}`;

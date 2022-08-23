@@ -45,7 +45,6 @@ class ProgressBarWidget extends BaseWidget<
             placeholderText: "Enter progress value",
             isBindProperty: true,
             isTriggerProperty: false,
-            isJSConvertible: true,
             defaultValue: 50,
             validation: {
               type: ValidationTypes.NUMBER,
@@ -60,7 +59,6 @@ class ProgressBarWidget extends BaseWidget<
             placeholderText: "Enter number of steps",
             isBindProperty: true,
             isTriggerProperty: false,
-            isJSConvertible: true,
             validation: {
               type: ValidationTypes.NUMBER,
               params: { min: 1, max: 100, default: 1, natural: true },
