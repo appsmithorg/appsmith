@@ -98,7 +98,7 @@ describe("JSObjects OnLoad Actions tests", function() {
     ee.SelectEntityByName(jsName as string, "QUERIES/JS");
     jsEditor.EnableDisableAsyncFuncSettings("getEmployee", true, false);
     agHelper.Sleep(2000);//to allow for changes to take effect!
-    agHelper.RefreshPage();
+    agHelper.RefreshPage(); //For bug #
     cy.wait("@jsCollections").then(({ response }) => {
       expect(response?.body.data.actions[0].executeOnLoad).to.eq(true);
       expect(response?.body.data.actions[0].confirmBeforeExecute).to.eq(false);
