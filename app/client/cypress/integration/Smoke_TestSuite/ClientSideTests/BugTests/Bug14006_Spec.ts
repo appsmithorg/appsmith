@@ -18,7 +18,7 @@ describe("Abort Action Execution", function() {
     apiPage.CreateAndFillApi(largeResponseApiUrl, "AbortApi", "GET", 0);
     apiPage.RunAPI(false, 0);
     agHelper.GetNClick(locator._cancelActionExecution);
-    agHelper.WaitUntilToastDisappear(ERROR_ACTION_EXECUTE_FAIL("AbortApi"));
+    agHelper.AssertContains(ERROR_ACTION_EXECUTE_FAIL("AbortApi"));
     agHelper.ActionContextMenuWithInPane("Delete", "Are you sure?")
   });
 
@@ -37,7 +37,7 @@ describe("Abort Action Execution", function() {
       dataSources.SetQueryTimeout();
       dataSources.RunQuery(false, false, 0);
       agHelper.GetNClick(locator._cancelActionExecution, 0, true);
-      agHelper.ValidateToastMessage(ERROR_ACTION_EXECUTE_FAIL("AbortQuery"));
+      agHelper.AssertContains(ERROR_ACTION_EXECUTE_FAIL("AbortQuery"));
       agHelper.ActionContextMenuWithInPane("Delete", "Are you sure?")
       dataSources.DeleteDatasouceFromWinthinDS(dsName);
     });

@@ -40,11 +40,11 @@ describe("Autocomplete tests", () => {
 
     // 1. Button group widget autocomplete verification
     agHelper.TypeText(CommonLocators._codeMirrorTextArea, "ButtonGroup1.");
-    agHelper.AssertElementText(CommonLocators._hints, "groupButtons");
+    agHelper.GetNAssertElementText(CommonLocators._hints, "groupButtons");
     agHelper.Sleep();
     agHelper.GetNClickByContains(CommonLocators._hints, "groupButtons");
     agHelper.TypeText(CommonLocators._codeMirrorTextArea, ".");
-    agHelper.AssertElementText(CommonLocators._hints, "groupButton1");
+    agHelper.GetNAssertElementText(CommonLocators._hints, "groupButton1");
     agHelper.Sleep();
     agHelper.GetNClickByContains(CommonLocators._hints, "groupButton1");
 
@@ -52,7 +52,7 @@ describe("Autocomplete tests", () => {
 
     agHelper.SelectNRemoveLineText(CommonLocators._codeMirrorTextArea);
     agHelper.TypeText(CommonLocators._codeMirrorTextArea, "DocumentViewer1.");
-    agHelper.AssertElementText(CommonLocators._hints, "docUrl");
+    agHelper.GetNAssertElementText(CommonLocators._hints, "docUrl");
     agHelper.Sleep();
     agHelper.GetNClickByContains(CommonLocators._hints, "docUrl");
   });
@@ -68,44 +68,43 @@ describe("Autocomplete tests", () => {
       {
         type: "console",
         expected: "console",
-        shouldBePresent: true,
+        haveOrNotHave: true,
       },
       // crypto API verification
       {
         type: "crypto",
         expected: "crypto",
-        shouldBePresent: true,
+        haveOrNotHave: true,
       },
       // eval function verification
       {
         type: "eval",
         expected: "eval()",
-        shouldBePresent: false,
+        haveOrNotHave: false,
       },
       {
         type: "Blob",
         expected: "Blob()",
-        shouldBePresent: true,
+        haveOrNotHave: true,
       },
       {
         type: "FormData",
         expected: "FormData()",
-        shouldBePresent: true,
+        haveOrNotHave: true,
       },
       {
         type: "FileReader",
         expected: "FileReader()",
-        shouldBePresent: true,
+        haveOrNotHave: true,
       },
     ];
 
     JSAPIsToTest.forEach((test, index) => {
       agHelper.TypeText(CommonLocators._codeMirrorTextArea, test.type);
-      agHelper.AssertElementText(
+      agHelper.GetNAssertElementText(
         CommonLocators._hints,
         test.expected,
-        0,
-        test.shouldBePresent,
+        test.haveOrNotHave ? "have.text" : "not.have.text",
       );
       agHelper.SelectNRemoveLineText(CommonLocators._codeMirrorTextArea);
 
@@ -142,10 +141,10 @@ describe("Autocomplete tests", () => {
     agHelper.SelectNRemoveLineText(CommonLocators._codeMirrorTextArea);
     //agHelper.GetNClick(jsEditor._lineinJsEditor(5));
     agHelper.TypeText(CommonLocators._codeMirrorTextArea, "Api1.data.u");
-    agHelper.AssertElementText(CommonLocators._hints, "users");
+    agHelper.GetNAssertElementText(CommonLocators._hints, "users");
     agHelper.Sleep();
     agHelper.TypeText(CommonLocators._codeMirrorTextArea, "sers[0].e");
-    agHelper.AssertElementText(CommonLocators._hints, "email");
+    agHelper.GetNAssertElementText(CommonLocators._hints, "email");
     agHelper.Sleep();
     agHelper.TypeText(CommonLocators._codeMirrorTextArea, "mail");
   });
@@ -173,21 +172,34 @@ describe("Autocomplete tests", () => {
       CommonLocators._codeMirrorTextArea,
       "const callBack = (user) => user.l",
     );
-    agHelper.AssertElementText(CommonLocators._hints, "label");
+    agHelper.GetNAssertElementText(CommonLocators._hints, "label");
     agHelper.TypeText(CommonLocators._codeMirrorTextArea, "abel;");
     agHelper.TypeText(CommonLocators._codeMirrorTextArea, "data.");
-    agHelper.AssertElementText(CommonLocators._hints, "userCollection");
+    agHelper.GetNAssertElementText(CommonLocators._hints, "userCollection");
     agHelper.Sleep();
     agHelper.GetNClickByContains(CommonLocators._hints, "userCollection");
     agHelper.TypeText(CommonLocators._codeMirrorTextArea, "[0].");
-    agHelper.AssertElementText(CommonLocators._hints, "users");
+    agHelper.GetNAssertElementText(CommonLocators._hints, "users");
     agHelper.Sleep();
     agHelper.GetNClickByContains(CommonLocators._hints, "users");
     agHelper.TypeText(CommonLocators._codeMirrorTextArea, "[0].");
-    agHelper.AssertElementText(CommonLocators._hints, "label");
-    agHelper.AssertElementText(CommonLocators._hints, "value", 1);
-    EntityExplorer.ActionContextMenuByEntityName("JSObject1", "Delete", "Are you sure?", true);
-    EntityExplorer.ActionContextMenuByEntityName("Api1", "Delete", "Are you sure?");
-
+    agHelper.GetNAssertElementText(CommonLocators._hints, "label");
+    agHelper.GetNAssertElementText(
+      CommonLocators._hints,
+      "value",
+      "have.text",
+      1,
+    );
+    EntityExplorer.ActionContextMenuByEntityName(
+      "JSObject1",
+      "Delete",
+      "Are you sure?",
+      true,
+    );
+    EntityExplorer.ActionContextMenuByEntityName(
+      "Api1",
+      "Delete",
+      "Are you sure?",
+    );
   });
 });

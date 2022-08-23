@@ -115,7 +115,8 @@ export class JSEditor {
     cy.get(this._jsObjTxt).should("not.exist");
 
     //cy.waitUntil(() => cy.get(this.locator._toastMsg).should('not.be.visible')) // fails sometimes
-    this.agHelper.WaitUntilToastDisappear("created successfully"); //to not hinder with other toast msgs!
+    //this.agHelper.WaitUntilToastDisappear("created successfully"); //to not hinder with other toast msgs!
+    this.agHelper.AssertContains("created successfully");
     this.agHelper.Sleep();
   }
 
@@ -145,7 +146,12 @@ export class JSEditor {
         .focus()
         .type(this.selectAllJSObjectContentShortcut)
         .type("{backspace}", { force: true });
-      this.agHelper.WaitUntilToastDisappear("Start object with export default");
+        this.agHelper.AssertContains("Start object with export default");
+
+      // shouldAssertStartDToast &&
+      //   this.agHelper.WaitUntilToastDisappear(
+      //     "Start object with export default",
+      //   );
       this.agHelper.AssertAutoSave();
     }
 
@@ -158,7 +164,7 @@ export class JSEditor {
         } else {
           cy.get(el).type(JSCode, {
             parseSpecialCharSequences: false,
-            delay: 100,
+            delay: 50,
             force: true,
           });
         }

@@ -84,6 +84,7 @@ describe("JS Function Execution", function() {
         completeReplace: true,
         toRun: false,
         shouldCreateNewJSObj: true,
+        prettify: false,
       },
     );
 
@@ -103,6 +104,7 @@ describe("JS Function Execution", function() {
         completeReplace: true,
         toRun: false,
         shouldCreateNewJSObj: true,
+        prettify: false,
       },
     );
 
@@ -129,6 +131,7 @@ describe("JS Function Execution", function() {
       completeReplace: true,
       toRun: true,
       shouldCreateNewJSObj: true,
+      prettify: false,
     });
 
     // Assert presence of function execution parse error callout
@@ -140,6 +143,7 @@ describe("JS Function Execution", function() {
       completeReplace: true,
       toRun: false,
       shouldCreateNewJSObj: false,
+      prettify: false,
     });
 
     agHelper.Sleep(2000); // Giving more time for parsing to reduce flakiness!
@@ -152,7 +156,7 @@ describe("JS Function Execution", function() {
   it("4. Shows lint error and toast modal when JS Object doesn't start with 'export default'", () => {
     const invalidJSObjectStartToastMessage = "Start object with export default";
     const jsComment = "// This is a comment";
-    const jsObjectStartLine = "export default{";
+    const jsObjectStartLine = `export default{`;
     const jsObjectStartLineWithSpace = `export  default{`;
     const jsObjectStartingWithAComment = `${jsComment}
   ${jsObjectStartLine}
@@ -163,7 +167,7 @@ describe("JS Function Execution", function() {
       }`;
 
     const jsObjectStartingWithANewLine = `
-  ${jsObjectStartLine}
+${jsObjectStartLine}
         fun1:()=>true
       }`;
 
@@ -177,17 +181,23 @@ describe("JS Function Execution", function() {
         completeReplace: true,
         toRun: false,
         shouldCreateNewJSObj: true,
+        prettify: false,
       });
+      agHelper.WaitUntilToastDisappear("created successfully"); //to not hinder with other toast msgs in this case!
       // Assert presence of toast message
       agHelper.WaitUntilToastDisappear(invalidJSObjectStartToastMessage);
 
       // Assert presence of lint error at the start line
-      cy.get(locator._lintErrorElement)
-        .should("exist")
-        .should("contain.text", highlightedLintText);
+      agHelper.GetNAssertElementText(
+        locator._lintErrorElement,
+        highlightedLintText,
+        "contain.text",
+      );
       agHelper.ActionContextMenuWithInPane("Delete", "", true);
+      agHelper.WaitUntilToastDisappear("deleted successfully");
     };
 
+    agHelper.WaitUntilEleDisappear(locator._toastMsg); //for previous case toasts!!
     assertInvalidJSObjectStart(jsObjectStartingWithAComment, jsComment);
     assertInvalidJSObjectStart(jsObjectStartingWithANewLine, jsObjectStartLine);
     assertInvalidJSObjectStart(
@@ -222,6 +232,7 @@ describe("JS Function Execution", function() {
       completeReplace: true,
       toRun: true,
       shouldCreateNewJSObj: true,
+      prettify: false,
     });
 
     // Assert that there is a function execution parse error
@@ -229,21 +240,23 @@ describe("JS Function Execution", function() {
     // click the debug icon
     agHelper.GetNClick(jsEditor._debugCTA);
     // Assert that errors tab is not empty
-    cy.contains("No signs of trouble here!").should("not.exist");
+    agHelper.AssertContains("No signs of trouble here!", "not.exist");
     // Assert presence of typeError
-    cy.contains(
+    agHelper.AssertContains(
       "TypeError: Cannot read properties of undefined (reading 'name')",
-    ).should("exist");
+      "exist",
+    );
 
     // Fix parse error and assert that debugger error is removed
     jsEditor.EditJSObj(JS_OBJECT_WITHOUT_PARSE_ERROR);
     agHelper.GetNClick(jsEditor._runButton);
-    agHelper.WaitUntilToastDisappear("ran successfully"); //to not hinder with next toast msg in next case!
+    agHelper.AssertContains("ran successfully"); //to not hinder with next toast msg in next case!
     jsEditor.AssertParseError(false, true);
     agHelper.GetNClick(locator._errorTab);
-    cy.contains(
+    agHelper.AssertContains(
       "TypeError: Cannot read properties of undefined (reading 'name')",
-    ).should("not.exist");
+      "not.exist",
+    );
 
     // Switch back to response tab
     agHelper.GetNClick(locator._responseTab);
@@ -257,9 +270,11 @@ describe("JS Function Execution", function() {
     jsEditor.EditJSObj(JS_OBJECT_WITH_DELETED_FUNCTION);
     // Assert that parse error is removed from debugger when function is deleted
     agHelper.GetNClick(locator._errorTab);
-    cy.contains(
+    agHelper.AssertContains(
       "TypeError: Cannot read properties of undefined (reading 'name')",
-    ).should("not.exist");
+      "not.exist",
+    );
+    agHelper.ActionContextMenuWithInPane("Delete", "", true);
   });
 
   it("6. Supports the use of large JSON data (doesn't crash)", () => {
@@ -277,8 +292,8 @@ describe("JS Function Execution", function() {
     });
 
     // wait for 3 secs and assert that App doesn't crash
-    cy.wait(3000);
-    cy.contains(crashMessage).should("not.exist");
+    agHelper.Sleep(3000);
+    agHelper.AssertContains(crashMessage, "not.exist");
 
     // Edit JSObject and run
     jsEditor.CreateJSObject(" ", {
@@ -303,6 +318,12 @@ describe("JS Function Execution", function() {
       expect($cellData).to.eq("1"); //validating id column value - row 0
       deployMode.NavigateBacktoEditor();
     });
+    ee.ActionContextMenuByEntityName(
+      "JSObject1",
+      "Delete",
+      "Are you sure?",
+      true,
+    );
   });
 
   it("7. Doesn't cause cyclic dependency when function name is edited", () => {
@@ -343,10 +364,11 @@ describe("JS Function Execution", function() {
     }`;
 
     jsEditor.CreateJSObject(syncJSCode, {
-      paste: true,
+      paste: false,
       completeReplace: true,
       toRun: false,
       shouldCreateNewJSObj: true,
+      prettify: false,
     });
 
     // change sync function name and test that cyclic dependency is not created
@@ -356,10 +378,11 @@ describe("JS Function Execution", function() {
     agHelper.AssertContains("Cyclic dependency", "not.exist");
 
     jsEditor.CreateJSObject(asyncJSCode, {
-      paste: true,
+      paste: false,
       completeReplace: true,
       toRun: false,
       shouldCreateNewJSObj: true,
+      prettify: false,
     });
     // change async function name and test that cyclic dependency is not created
     jsEditor.EditJSObj(asyncJSCodeWithRenamedFunction1);
@@ -399,6 +422,7 @@ describe("JS Function Execution", function() {
       completeReplace: true,
       toRun: false,
       shouldCreateNewJSObj: true,
+      prettify: false,
     });
 
     cy.get("@jsObjName").then((jsObjName: any) => {
@@ -472,7 +496,6 @@ describe("JS Function Execution", function() {
     }
 
     ee.SelectEntityByName(jsObj, "QUERIES/JS");
-
     agHelper.GetNClick(jsEditor._settingsTab);
     assertAsyncFunctionsOrder(FUNCTIONS_SETTINGS_DEFAULT_DATA);
 
@@ -500,6 +523,7 @@ return "yes";`;
       completeReplace: true,
       toRun: false,
       shouldCreateNewJSObj: true,
+      prettify: false,
     });
 
     // Switch to settings tab

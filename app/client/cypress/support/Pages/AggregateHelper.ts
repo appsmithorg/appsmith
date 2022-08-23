@@ -117,18 +117,19 @@ export class AggregateHelper {
     });
   }
 
-  public AssertElementText(
+  public GetNAssertElementText(
     selector: string,
     text: string,
+    textPresence:
+      | "have.text"
+      | "contain.text"
+      | "not.have.text" = "have.text",
     index = 0,
-    textPresence = true,
   ) {
     const locator = selector.startsWith("//")
       ? cy.xpath(selector)
       : cy.get(selector);
-    locator
-      .eq(index)
-      .should(textPresence ? "have.text" : "not.have.text", text);
+    locator.eq(index).should(textPresence, text);
   }
 
   public ValidateToastMessage(text: string, index = 0, length = 1) {
@@ -180,18 +181,18 @@ export class AggregateHelper {
 
   public WaitUntilEleDisappear(
     selector: string,
-    msgToCheckforDisappearance: string | "",
+    msgToCheckforDisappearance: string | "" = "",
   ) {
     cy.waitUntil(
       () => (selector.includes("//") ? cy.xpath(selector) : cy.get(selector)),
       {
-        errorMsg: msgToCheckforDisappearance + " did not disappear",
-        timeout: 5000,
+        //errorMsg: msgToCheckforDisappearance + " did not disappear",
+        timeout: 10000,
         interval: 1000,
       },
     ).then(($ele) => {
       cy.wrap($ele)
-        .contains(msgToCheckforDisappearance)
+        //.contains(msgToCheckforDisappearance)
         .should("have.length", 0);
       this.Sleep();
     });
@@ -572,7 +573,8 @@ export class AggregateHelper {
     if (action == "Delete") {
       !jsDelete && this.ValidateNetworkStatus("@deleteAction");
       jsDelete && this.ValidateNetworkStatus("@deleteJSCollection");
-      jsDelete && this.WaitUntilToastDisappear("deleted successfully");
+      jsDelete && this.AssertContains("deleted successfully");
+      //jsDelete && this.WaitUntilToastDisappear("deleted successfully");
     }
   }
 
