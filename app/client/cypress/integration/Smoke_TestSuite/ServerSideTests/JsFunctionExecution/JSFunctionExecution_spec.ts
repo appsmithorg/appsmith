@@ -167,7 +167,7 @@ describe("JS Function Execution", function() {
       }`;
 
     const jsObjectStartingWithANewLine = `
-${jsObjectStartLine}
+    ${jsObjectStartLine}
         fun1:()=>true
       }`;
 
@@ -181,7 +181,6 @@ ${jsObjectStartLine}
         completeReplace: true,
         toRun: false,
         shouldCreateNewJSObj: true,
-        prettify: false,
       });
       agHelper.WaitUntilToastDisappear("created successfully"); //to not hinder with other toast msgs in this case!
       // Assert presence of toast message
