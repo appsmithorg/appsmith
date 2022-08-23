@@ -21,7 +21,7 @@ export class AggregateHelper {
   private selectLine = `${
     this.isMac
       ? "{cmd}{shift}{leftArrow}{backspace}"
-      : "{home}{shift}{downArrow}{backspace}"
+      : "{shift}{home}{backspace}"
   }`;
 
   public SaveLocalStorageCache() {
