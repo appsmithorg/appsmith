@@ -413,7 +413,6 @@ export class AggregateHelper {
       ? cy.xpath(selector)
       : cy.get(selector);
     return locator
-      .should("be.visible")
       .eq(index)
       .click({ force: force })
       .wait(waitTimeInterval);

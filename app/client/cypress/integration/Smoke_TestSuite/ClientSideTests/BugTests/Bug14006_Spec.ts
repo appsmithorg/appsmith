@@ -3,8 +3,7 @@ import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 let agHelper = ObjectsRegistry.AggregateHelper,
   locator = ObjectsRegistry.CommonLocators,
   apiPage = ObjectsRegistry.ApiPage,
-  dataSources = ObjectsRegistry.DataSources,
-  ee = ObjectsRegistry.EntityExplorer;
+  dataSources = ObjectsRegistry.DataSources;
 
 let dsName: any;
 

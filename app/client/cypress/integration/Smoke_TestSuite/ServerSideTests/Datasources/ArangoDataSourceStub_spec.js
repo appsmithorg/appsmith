@@ -1,6 +1,10 @@
 const datasource = require("../../../../locators/DatasourcesEditor.json");
-const queryEditor = require("../../../../locators/QueryEditor.json");
 const datasourceEditor = require("../../../../locators/DatasourcesEditor.json");
+
+import { ObjectsRegistry } from "../../../../support/Objects/Registry";
+
+let agHelper = ObjectsRegistry.AggregateHelper,
+  dataSources = ObjectsRegistry.DataSources;
 
 let datasourceName;
 
@@ -57,5 +61,13 @@ describe("Arango datasource test cases", function() {
     cy.deleteQueryUsingContext();
 
     cy.deleteDatasource(datasourceName);
+  });
+
+  it.skip("4. Arango Default name change", () => {
+    dataSources.NavigateToDSCreateNew();
+    dataSources.CreatePlugIn("ArangoDB");
+    agHelper
+      .GetText(dataSources._databaseName, "val")
+      .then(($dbName) => expect($dbName).to.eq("_system"));
   });
 });
