@@ -4,7 +4,7 @@ import {
   WrappedFieldMetaProps,
   WrappedFieldInputProps,
 } from "redux-form";
-import { DropdownOption } from "components/ads";
+import { DropdownOption } from "design-system";
 import DropdownWrapper from "./DropdownWrapper";
 
 const renderComponent = (
