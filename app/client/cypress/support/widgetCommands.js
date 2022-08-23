@@ -177,6 +177,39 @@ Cypress.Commands.add("createModal", (ModalName) => {
   cy.get(".bp3-overlay-backdrop").click({ force: true });
 });
 
+
+Cypress.Commands.add("createModalWithIndex", (ModalName,index) => {
+  cy.get(widgetsPage.actionSelect)
+    .eq(index)
+    .click({ force: true });
+  cy.selectOnClickOption("Open modal");
+  cy.get(modalWidgetPage.selectModal).click();
+  cy.wait(2000);
+  cy.get(modalWidgetPage.createModalButton).click({ force: true });
+  cy.wait(3000);
+  cy.assertPageSave();
+  cy.SearchEntityandOpen("Modal1");
+  // changing the model name verify
+  cy.widgetText(
+    ModalName,
+    modalWidgetPage.modalName,
+    modalWidgetPage.modalName,
+  );
+
+  cy.wait(20000);
+  //changing the Model label
+  cy.get(modalWidgetPage.modalWidget + " " + widgetsPage.textWidget)
+    .first()
+    .trigger("mouseover");
+
+  cy.get(widgetsPage.textWidget + " " + commonlocators.editIcon).click();
+  cy.testCodeMirror(ModalName);
+  cy.moveToStyleTab();
+  cy.get(widgetsPage.textCenterAlign).click({ force: true });
+  cy.assertPageSave();
+  cy.get(".bp3-overlay-backdrop").click({ force: true });
+});
+
 Cypress.Commands.add("selectOnClickOption", (option) => {
   cy.get(".bp3-popover-content").should("be.visible");
   cy.get("ul.bp3-menu div.bp3-fill")

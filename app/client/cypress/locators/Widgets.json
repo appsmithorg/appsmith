@@ -111,6 +111,7 @@
     "toggleJsBcgColor": ".t--property-control-cellbackground .t--js-toggle",
     "toggleTextAlign": ".t--property-control-textalign .t--js-toggle",
     "toggleTextStyle": ".t--property-control-emphasis .t--js-toggle",
+    "toggleTextStyle_tablev1": ".t--property-control-fontstyle .t--js-toggle",
     "textSize": ".t--property-control-textsize .bp3-popover-target",
     "textSizeNew": ".t--property-control-fontsize .bp3-popover-target",
     "toggleTextSize": ".t--property-control-textsize .t--js-toggle",
