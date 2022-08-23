@@ -175,12 +175,13 @@ export class DataSources {
     }).as("testDatasource");
   }
 
-  public CreatePlugIn(pluginName: string, waitForToastDisappear = true) {
+  public CreatePlugIn(pluginName: string, waitForToastDisappear = false) {
     cy.get(this._createNewPlgin(pluginName))
       .parent("div")
       .trigger("click", { force: true });
-    waitForToastDisappear &&
+    if (waitForToastDisappear)
       this.agHelper.WaitUntilToastDisappear("datasource created");
+    else this.agHelper.AssertContains("datasource created");
   }
 
   public NavigateToDSCreateNew() {
@@ -267,15 +268,15 @@ export class DataSources {
   }
 
   public TestDatasource(expectedRes = true) {
-    cy.get(this._testDs).click();
+    this.agHelper.GetNClick(this._testDs, 0, false, 0);
     this.agHelper.ValidateNetworkDataSuccess("@testDatasource", expectedRes);
-    this.agHelper.WaitUntilToastDisappear("datasource is valid");
+    this.agHelper.AssertContains("datasource is valid");
   }
 
   public SaveDatasource() {
     cy.get(this._saveDs).click();
     this.agHelper.ValidateNetworkStatus("@saveDatasource", 200);
-    this.agHelper.WaitUntilToastDisappear("datasource updated successfully");
+    this.agHelper.AssertContains("datasource updated successfully");
 
     // cy.wait("@saveDatasource")
     //     .then((xhr) => {
@@ -315,6 +316,9 @@ export class DataSources {
     this.agHelper.ClickButton("Delete");
     this.agHelper.ClickButton("Are you sure?");
     this.agHelper.ValidateNetworkStatus("@deleteDatasource", expectedStatus);
+    if (expectedStatus == 200) {
+      this.agHelper.AssertContains("datasource deleted successfully");
+    }
   }
 
   public NavigateToActiveTab() {
