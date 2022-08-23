@@ -248,7 +248,7 @@ describe("JS Function Execution", function() {
     // Switch back to response tab
     agHelper.GetNClick(locator._responseTab);
     // Re-introduce parse errors
-    jsEditor.EditJSObj(JS_OBJECT_WITH_PARSE_ERROR);
+    jsEditor.EditJSObj(JS_OBJECT_WITH_PARSE_ERROR + "}}");
     agHelper.GetNClick(jsEditor._runButton);
     // Assert that there is a function execution parse error
     jsEditor.AssertParseError(true, true);
@@ -486,12 +486,12 @@ describe("JS Function Execution", function() {
 
   it("10. Bug 13197: Verify converting async functions to sync resets all settings", () => {
     const asyncJSCode = `export default {
-myFun1 : async ()=>{
-return "yes"`;
+asyncToSync : async ()=>{
+return "yes";`;
 
     const syncJSCode = `export default {
-      myFun1 : ()=>{
-        return "yes"
+      asyncToSync : ()=>{
+        return "yes";
       }
     }`;
 
@@ -505,7 +505,7 @@ return "yes"`;
     // Switch to settings tab
     agHelper.GetNClick(jsEditor._settingsTab);
     // Enable all settings
-    jsEditor.EnableDisableAsyncFuncSettings("myFun1", true, true);
+    jsEditor.EnableDisableAsyncFuncSettings("asyncToSync", true, true);
 
     // Modify js object
     jsEditor.EditJSObj(syncJSCode);
