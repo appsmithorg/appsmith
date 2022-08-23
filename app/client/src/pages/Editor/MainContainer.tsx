@@ -2,7 +2,7 @@ import styled from "styled-components";
 import * as Sentry from "@sentry/react";
 import { useDispatch, useSelector } from "react-redux";
 import React, { useState, useCallback, useEffect } from "react";
-import { Route, Switch, useRouteMatch } from "react-router";
+import { Route, Switch } from "react-router";
 
 import EditorsRouter from "./routes";
 import BottomBar from "./BottomBar";
@@ -17,7 +17,6 @@ import {
 import EntityExplorerSidebar from "components/editorComponents/Sidebar";
 import classNames from "classnames";
 import { previewModeSelector } from "selectors/editorSelectors";
-import { useParams } from "react-router-dom";
 
 const SentryRoute = Sentry.withSentryRouting(Route);
 
@@ -29,14 +28,6 @@ const Container = styled.div`
   );
   background-color: ${(props) => props.theme.appBackground};
 `;
-
-export const FocusContext = React.createContext<{
-  focusState: { pageId: string };
-  updateState: any;
-}>({
-  focusState: { pageId: "" },
-  updateState: "", // TODO
-});
 
 function MainContainer() {
   const dispatch = useDispatch();
@@ -64,18 +55,8 @@ function MainContainer() {
 
   const isPreviewMode = useSelector(previewModeSelector);
 
-  const routeParams = useParams<{ pageId: string }>();
-
-  const [focusState, updateState] = useState({ pageId: routeParams.pageId });
-
-  useEffect(() => {
-    updateState({ ...focusState, pageId: routeParams.pageId });
-  }, [routeParams.pageId]);
-
-  console.log({ focusState });
-
   return (
-    <FocusContext.Provider value={{ focusState, updateState }}>
+    <>
       <Container className="w-full overflow-x-hidden">
         <EntityExplorerSidebar
           onDragEnd={onLeftSidebarDragEnd}
@@ -109,7 +90,7 @@ function MainContainer() {
           "transition-all transform duration-400": true,
         })}
       />
-    </FocusContext.Provider>
+    </>
   );
 }
 

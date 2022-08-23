@@ -1,16 +1,9 @@
 import { createImmerReducer } from "utils/ReducerUtils";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import { FocusEntity } from "navigation/FocusableEntity";
-import { cursorState, evaluatedPaneState } from "navigation/FocusableElement";
 
 export type FocusState = {
-  entity: FocusEntity;
   entityId: string;
   elementName: string;
-  moreInfo: {
-    cursorState?: cursorState;
-    evaluatedPaneState?: evaluatedPaneState;
-  };
 };
 
 export type FocusHistory = Record<string, FocusState>;

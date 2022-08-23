@@ -75,7 +75,6 @@ import ApiAuthentication from "./ApiAuthentication";
 import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
 import { Classes as BluePrintClasses } from "@blueprintjs/core";
 import { replayHighlightClass } from "globalStyles/portals";
-import { useFocusable } from "navigation/FocusableElement";
 
 const Form = styled.form`
   position: relative;
@@ -536,15 +535,6 @@ function ImportedDatas(props: { data: any; attributeName: string }) {
   );
 }
 
-const editorTabs = [
-  API_EDITOR_TABS.HEADERS,
-  API_EDITOR_TABS.PARAMS,
-  API_EDITOR_TABS.BODY,
-  API_EDITOR_TABS.PAGINATION,
-  API_EDITOR_TABS.AUTHENTICATION,
-  API_EDITOR_TABS.SETTINGS,
-];
-
 function ApiEditorForm(props: Props) {
   const {
     actionConfigurationHeaders,
@@ -565,8 +555,6 @@ function ApiEditorForm(props: Props) {
     updateDatasource,
   } = props;
   const dispatch = useDispatch();
-  const [isHeadersFocused, setFocus] = useFocusable(API_EDITOR_TABS.HEADERS);
-  console.log("Testing", isHeadersFocused);
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [
     apiBindHelpSectionVisible,
@@ -593,11 +581,6 @@ function ApiEditorForm(props: Props) {
     dispatch(setGlobalSearchQuery("capturing data"));
     dispatch(toggleShowGlobalSearchModal());
     AnalyticsUtil.logEvent("OPEN_OMNIBAR", { source: "LEARN_HOW_DATASOURCE" });
-  };
-
-  const setSelectedTab = (selectedIndex: number) => {
-    setSelectedIndex(selectedIndex);
-    setFocus();
   };
 
   return (
@@ -670,7 +653,7 @@ function ApiEditorForm(props: Props) {
           <SecondaryWrapper>
             <TabbedViewContainer>
               <TabComponent
-                onSelect={setSelectedTab}
+                onSelect={setSelectedIndex}
                 selectedIndex={selectedIndex}
                 tabs={[
                   {
