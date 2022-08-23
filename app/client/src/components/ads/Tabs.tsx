@@ -329,13 +329,13 @@ export function TabComponent(
 ) {
   const TabItem = props.tabItemComponent || DefaultTabItem;
   // for setting selected state of an uncontrolled component
-  const [selectedIndex, setSelectedIndex] = useState(props.selectedIndex || 0);
+  // const [selectedIndex, setSelectedIndex] = useState(props.selectedIndex || 0);
   const [isExpanded, setIsExpanded] = useState(true);
 
-  useEffect(() => {
-    if (typeof props.selectedIndex === "number")
-      setSelectedIndex(props.selectedIndex);
-  }, [props.selectedIndex]);
+  // useEffect(() => {
+  //   if (typeof props.selectedIndex === "number")
+  //     setSelectedIndex(props.selectedIndex);
+  // }, [props.selectedIndex]);
 
   const handleContainerResize = () => {
     if (!isCollapsibleTabComponent(props)) return;
@@ -398,9 +398,9 @@ export function TabComponent(
       <Tabs
         onSelect={(index: number) => {
           props.onSelect && props.onSelect(index);
-          setSelectedIndex(index);
+          // setSelectedIndex(index);
         }}
-        selectedIndex={props.selectedIndex}
+        // selectedIndex={props.selectedIndex}
       >
         <TabList>
           {props.tabs.map((tab, index) => (
@@ -411,9 +411,7 @@ export function TabComponent(
             >
               <TabItem
                 responseViewer={props.responseViewer}
-                selected={
-                  index === props.selectedIndex || index === selectedIndex
-                }
+                selected={index === props.selectedIndex}
                 tab={tab}
                 vertical={!!props.vertical}
               />

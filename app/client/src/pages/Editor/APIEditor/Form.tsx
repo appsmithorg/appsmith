@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useCallback, useState } from "react";
 import { connect, useDispatch, useSelector } from "react-redux";
 import {
   change,
@@ -75,6 +75,8 @@ import ApiAuthentication from "./ApiAuthentication";
 import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
 import { Classes as BluePrintClasses } from "@blueprintjs/core";
 import { replayHighlightClass } from "globalStyles/portals";
+import { getApiPaneSelectedTabIndex } from "selectors/apiPaneSelectors";
+import { setApiPaneSelectedTabIndex } from "actions/apiPaneActions";
 
 const Form = styled.form`
   position: relative;
@@ -555,7 +557,9 @@ function ApiEditorForm(props: Props) {
     updateDatasource,
   } = props;
   const dispatch = useDispatch();
-  const [selectedIndex, setSelectedIndex] = useState(0);
+  const selectedIndex = useSelector(getApiPaneSelectedTabIndex);
+  const setSelectedIndex = (index: number) =>
+    dispatch(setApiPaneSelectedTabIndex({ selectedTabIndex: index }));
   const [
     apiBindHelpSectionVisible,
     setApiBindHelpSectionVisible,

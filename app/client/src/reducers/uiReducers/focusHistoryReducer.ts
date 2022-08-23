@@ -1,17 +1,18 @@
 import { createImmerReducer } from "utils/ReducerUtils";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import { FocusEntity } from "sagas/NavigationSagas";
 
 export type FocusState = {
-  entityId: string;
-  elementName: string;
+  entity: FocusEntity;
+  state: Record<string, any>;
 };
 
 export type FocusHistory = Record<string, FocusState>;
 
-export type FocusHistoryState = { focusInfo: FocusHistory };
+export type FocusHistoryState = { history: FocusHistory };
 
 const initialState: FocusHistoryState = {
-  focusInfo: {},
+  history: {},
 };
 
 /**
@@ -26,7 +27,8 @@ const focusHistoryReducer = createImmerReducer(initialState, {
     action: { payload: { key: string; focusState: FocusState } },
   ) => {
     const { focusState, key } = action.payload;
-    state.focusInfo[key] = focusState;
+    state.history[key] = focusState;
+    console.log("focus", { state });
   },
 });
 
