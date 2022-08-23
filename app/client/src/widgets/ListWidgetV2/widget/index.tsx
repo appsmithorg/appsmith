@@ -32,15 +32,10 @@ import { GridDefaults } from "constants/WidgetConstants";
 import derivedProperties from "./parseDerivedProperties";
 import { DSLWidget, FlattenedWidgetProps } from "widgets/constants";
 import { entityDefinitions } from "utils/autocomplete/EntityDefinitions";
-import {
-  DataTreeWidget,
-  PrivateWidgets,
-} from "entities/DataTree/dataTreeFactory";
+import { PrivateWidgets } from "entities/DataTree/dataTreeFactory";
 import { klona } from "klona";
 import { generateReactKey } from "utils/generators";
 import equal from "fast-deep-equal/es6";
-import CanvasWidgetsNormalizer from "normalizers/CanvasWidgetsNormalizer";
-import { diff } from "deep-diff";
 
 export type DynamicPathList = Record<string, string[]>;
 
@@ -506,11 +501,6 @@ class ListWidget extends BaseWidget<
         return { metaWidgets, metaWidgetId };
       }
     }
-
-    console.log(
-      "LISTV2 --- diff",
-      diff(metaWidget, this.flattenedPrevChildWidgets[templateWidget.widgetId]),
-    );
 
     if (isCloneItem) {
       this.disableWidgetOperations(metaWidget);
