@@ -180,34 +180,8 @@ export const getWidgetImmediateChildren = createSelector(
 );
 
 /**
- * get actual parent of widget based on widgetId
- * for button inside form, button's parent is form
- * for button on canvas, parent is main container
- */
-export const getWidgetParent = (widgetId: string) => {
-  return createSelector(
-    getWidgets,
-    (canvasWidgets: CanvasWidgetsReduxState) => {
-      let widget = canvasWidgets[widgetId];
-      // While this widget has a parent
-      while (widget?.parentId) {
-        // Get parent widget props
-        const parent = _.get(canvasWidgets, widget.parentId, undefined);
-        // keep walking up the tree to find the parent untill parent exist or parent is the main container
-        if (parent?.parentId && parent.parentId !== MAIN_CONTAINER_WIDGET_ID) {
-          widget = canvasWidgets[widget.parentId];
-          continue;
-        } else {
-          return parent;
-        }
-      }
-      return;
-    },
-  );
-};
-
-/**
  * get actual parent of widget names based on widgetId
+ * for button inside form, form is inside container => ['FORM_WIDGET', 'CONTAINER_WIDGET']
  */
 export const getWidgetParentNames = (widgetId: string) => {
   return createSelector(

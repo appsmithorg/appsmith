@@ -13,8 +13,7 @@ import { useSelector } from "react-redux";
 import { getWidgetPropsForPropertyPane } from "selectors/propertyPaneSelectors";
 import styled from "constants/DefaultTheme";
 import { Colors } from "constants/Colors";
-import { getWidgetParent, getWidgetParentNames } from "sagas/selectors";
-import { WidgetProps } from "widgets/BaseWidget";
+import { getWidgetParentNames } from "sagas/selectors";
 
 const SectionTitle = styled.div`
   display: grid;
@@ -83,7 +82,6 @@ type PropertySectionProps = {
   hidden?: (
     props: any,
     propertyPath: string,
-    widgetParentProps?: WidgetProps,
     widgetParentNames?: string[],
   ) => boolean;
   isDefaultOpen?: boolean;
@@ -104,24 +102,18 @@ export const PropertySection = memo((props: PropertySectionProps) => {
   const handleSectionTitleClick = useCallback(() => {
     if (props.collapsible) setIsOpen((x) => !x);
   }, []);
+
   /**
-   * get actual parent of widget
-   * for button inside form, button's parent is form
-   * for button on canvas, parent is main container
+   * get actual parent of widget names based on widgetId
+   * for button inside form, form is inside container => ['FORM_WIDGET', 'CONTAINER_WIDGET']
    */
-  const parentWidget = useSelector(getWidgetParent(widgetProps.widgetId));
   const parentWidgetNames = useSelector(
     getWidgetParentNames(widgetProps.widgetId),
   );
 
   if (props.hidden) {
     if (
-      props.hidden(
-        widgetProps,
-        props.propertyPath || "",
-        parentWidget,
-        parentWidgetNames,
-      )
+      props.hidden(widgetProps, props.propertyPath || "", parentWidgetNames)
     ) {
       return null;
     }

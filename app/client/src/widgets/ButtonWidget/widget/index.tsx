@@ -150,7 +150,6 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
         hidden: (
           props: ButtonWidgetProps,
           propertyPath: string,
-          widgetParentProps?: WidgetProps,
           widgetParentNames?: string[],
         ) =>
           widgetParentNames
@@ -461,7 +460,6 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
         hidden: (
           props: ButtonWidgetProps,
           propertyPath: string,
-          widgetParentProps?: WidgetProps,
           widgetParentNames?: string[],
         ) =>
           widgetParentNames
