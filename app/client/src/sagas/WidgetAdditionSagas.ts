@@ -353,7 +353,7 @@ export function* getUpdateDslAfterCreatingAutoLayoutChild(
     props: {
       containerStyle: "none",
       canExtend: false,
-      detachFromLayout: false,
+      detachFromLayout: true,
       children: [],
       alignment: Alignment.Left,
       spacing: Spacing.None,

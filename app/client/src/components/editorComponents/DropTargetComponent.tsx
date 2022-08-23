@@ -34,6 +34,7 @@ type DropTargetComponentProps = WidgetProps & {
   snapRowSpace: number;
   minHeight: number;
   noPad?: boolean;
+  isWrapper?: boolean;
 };
 
 const StyledDropTarget = styled.div`
@@ -126,7 +127,9 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
 
   const updateHeight = () => {
     if (dropTargetRef.current) {
-      const height = canDropTargetExtend
+      const height = props.isWrapper
+        ? "auto"
+        : canDropTargetExtend
         ? `${Math.max(rowRef.current * props.snapRowSpace, props.minHeight)}px`
         : "100%";
       dropTargetRef.current.style.height = height;
@@ -165,7 +168,9 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
     // e.stopPropagation();
     e.preventDefault();
   };
-  const height = canDropTargetExtend
+  const height = props.isWrapper
+    ? "auto"
+    : canDropTargetExtend
     ? `${Math.max(rowRef.current * props.snapRowSpace, props.minHeight)}px`
     : "100%";
   const boxShadow =
