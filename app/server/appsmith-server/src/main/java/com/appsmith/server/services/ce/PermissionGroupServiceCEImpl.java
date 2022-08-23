@@ -67,8 +67,8 @@ public class PermissionGroupServiceCEImpl extends BaseService<PermissionGroupRep
                     // so user can unassign himself from permission group
                     permissions.add(new Permission(pg.getId(), AclPermission.UNASSIGN_PERMISSION_GROUPS));
                     pg.setPermissions(permissions);
-                    Map<String, Policy> policyMap = policyUtils.generatePolicyFromPermissionGroupForObject(pg, pg.getId());
-                    policyUtils.addPoliciesToExistingObject(policyMap, pg);
+                    Set<Policy> policySet = policyUtils.generatePolicyFromPermissionGroupForObject(pg, pg.getId());
+                    policyUtils.addPoliciesToExistingObject(policySet, pg);
                     return pg;
                 })
                 .flatMap(pg -> repository.save(pg));
