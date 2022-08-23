@@ -1,4 +1,4 @@
-package com.external.helpers;
+package com.appsmith.external.helpers;
 
 import com.appsmith.external.helpers.restApiUtils.helpers.DataUtils;
 import com.appsmith.external.models.Property;

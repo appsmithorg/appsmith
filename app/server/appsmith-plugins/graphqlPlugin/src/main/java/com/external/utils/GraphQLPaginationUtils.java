@@ -66,6 +66,7 @@ public class GraphQLPaginationUtils {
             String limitValString = getValueSafelyFromFormData(paginationData, "limit.value", String.class, "");
             String offsetVarName = getValueSafelyFromFormData(paginationData, "offset.name", String.class, "");
             String offsetValString = getValueSafelyFromFormData(paginationData, "offset.value", String.class, "");
+            offsetValString = isBlank(offsetValString) ? "0" : offsetValString;
 
             transformedPaginationData.put(LIMIT_VARIABLE_NAME, limitVarName);
             transformedPaginationData.put(LIMIT_VAL, limitValString);

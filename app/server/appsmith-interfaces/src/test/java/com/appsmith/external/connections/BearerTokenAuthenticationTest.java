@@ -1,4 +1,4 @@
-package com.external.connections;
+package com.appsmith.external.connections;
 
 import com.appsmith.external.helpers.restApiUtils.connections.BearerTokenAuthentication;
 import com.appsmith.external.models.BearerTokenAuth;

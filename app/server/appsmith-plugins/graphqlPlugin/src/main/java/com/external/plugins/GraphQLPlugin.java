@@ -10,6 +10,7 @@ import com.appsmith.external.helpers.restApiUtils.helpers.RequestCaptureFilter;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionRequest;
 import com.appsmith.external.models.ActionExecutionResult;
+import com.appsmith.external.models.ApiContentType;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.PaginationType;
 import com.appsmith.external.models.Property;
@@ -218,21 +219,23 @@ public class GraphQLPlugin extends BasePlugin {
             }
 
             if (HttpMethod.POST.equals(httpMethod)) {
-                /**
-                 * When a GraphQL request is sent using HTTP POST method, then the request body needs to be in the
-                 * following format:
-                 * {
-                 *     "query": "... graphql query body ...",
-                 *     "variables": {"var1": val1, "var2": val2 ...},
-                 *     "operationName": "name of operation" // only required if multiple operations are defined in a
-                 *     single query body
-                 * }
-                 * Ref: https://graphql.org/learn/serving-over-http/
-                 */
-                try {
-                    actionConfiguration.setBody(convertToGraphQLPOSTBodyFormat(actionConfiguration));
-                } catch (AppsmithPluginException e) {
-                    return Mono.error(e);
+                if (ApiContentType.JSON.getValue().equals(reqContentType)) {
+                    /**
+                     * When a GraphQL request is sent using HTTP POST method, then the request body needs to be in the
+                     * following format:
+                     * {
+                     *     "query": "... graphql query body ...",
+                     *     "variables": {"var1": val1, "var2": val2 ...},
+                     *     "operationName": "name of operation" // only required if multiple operations are defined in a
+                     *     single query body
+                     * }
+                     * Ref: https://graphql.org/learn/serving-over-http/
+                     */
+                    try {
+                        actionConfiguration.setBody(convertToGraphQLPOSTBodyFormat(actionConfiguration));
+                    } catch (AppsmithPluginException e) {
+                        return Mono.error(e);
+                    }
                 }
             }
             else if (HttpMethod.GET.equals(httpMethod)) {
