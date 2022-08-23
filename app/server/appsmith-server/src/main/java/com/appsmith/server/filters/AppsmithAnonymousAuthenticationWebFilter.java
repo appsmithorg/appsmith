@@ -60,7 +60,6 @@ public class AppsmithAnonymousAuthenticationWebFilter extends AnonymousAuthentic
                                 .then(Mono.empty());
                     });
 		})).flatMap((securityContext) -> {
-            log.debug("SecurityContext contains anonymous token: '{}'", securityContext.getAuthentication());
 			return chain.filter(exchange);
 		});
 	}
