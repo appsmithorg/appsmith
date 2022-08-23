@@ -42,6 +42,7 @@ import * as sentry from "@sentry/react";
 import formEvaluationChangeListener from "./FormEvaluationSaga";
 import SuperUserSagas from "@appsmith/sagas/SuperUserSagas";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import AclSagas from "@appsmith/sagas/AclSagas";
 
 const sagas = [
   initSagas,
@@ -84,6 +85,7 @@ const sagas = [
   gitSyncSagas,
   SuperUserSagas,
   appThemingSaga,
+  AclSagas,
 ];
 
 export function* rootSaga(sagasToRun = sagas): any {
