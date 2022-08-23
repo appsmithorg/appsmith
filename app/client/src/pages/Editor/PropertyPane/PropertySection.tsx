@@ -129,6 +129,7 @@ export const PropertySection = memo((props: PropertySectionProps) => {
         <span className="grow">{props.name}</span>
         {props.collapsible && (
           <StyledIcon
+            className="t--chevron-icon"
             name={isOpen ? "arrow-down" : "arrow-right"}
             size={Size.small}
           />
