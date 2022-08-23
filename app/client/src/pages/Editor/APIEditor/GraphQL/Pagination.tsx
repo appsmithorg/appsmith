@@ -324,7 +324,6 @@ function Pagination(props: PaginationProps) {
     isSeparateEnabled: boolean;
     value: any;
   }) => {
-    console.log({ isSeparateEnabled }, "*******");
     if (!isSeparateEnabled) {
       props.change(
         props.formName,

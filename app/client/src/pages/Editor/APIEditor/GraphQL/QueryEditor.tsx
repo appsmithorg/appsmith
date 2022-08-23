@@ -43,7 +43,7 @@ type QueryProps = {
  */
 function QueryEditor(props: QueryProps) {
   const editorProps = {
-    mode: EditorModes.GRAPHQL,
+    mode: EditorModes.GRAPHQL_WITH_BINDING,
     tabBehaviour: TabBehaviour.INDENT,
     size: EditorSize.EXTENDED,
     showLineNumbers: true,
