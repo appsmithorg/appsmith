@@ -4,8 +4,15 @@ import { ECMA_VERSION, NodeTypes } from "constants/ast";
 import { isFinite, isString, toPath } from "lodash";
 import { sanitizeScript } from "./evaluate";
 import { generate } from "astring";
-import { isNameValid } from "utils/helpers";
-import { INTERNAL_IDENTIFIERS } from "constants/WidgetValidation";
+import {
+  DATA_TREE_KEYWORDS,
+  INTERNAL_IDENTIFIERS,
+  JAVASCRIPT_KEYWORDS,
+  WINDOW_OBJECT_METHODS,
+  WINDOW_OBJECT_PROPERTIES,
+} from "constants/WidgetValidation";
+import { GLOBAL_FUNCTIONS } from "utils/autocomplete/EntityDefinitions";
+import { extraLibrariesNames } from "utils/DynamicBindingUtils";
 
 /*
  * Valuable links:
@@ -174,6 +181,17 @@ const getFunctionalParamNamesFromNode = (
   );
 };
 
+const isInvalidIdentifierName = (name: string) => {
+  return (
+    name in JAVASCRIPT_KEYWORDS ||
+    name in DATA_TREE_KEYWORDS ||
+    name in GLOBAL_FUNCTIONS ||
+    name in WINDOW_OBJECT_PROPERTIES ||
+    name in WINDOW_OBJECT_METHODS ||
+    extraLibrariesNames.includes(name)
+  );
+};
+
 export const getAST = (code: string) =>
   parse(code, { ecmaVersion: ECMA_VERSION });
 
@@ -304,12 +322,14 @@ export const extractIdentifiersFromCode = (code: string): string[] => {
     // To remove identifiers (or member expressions) derived from declared variables and function params,
     // We extract the topLevelIdentifier Eg. Api1.name => Api1
     const topLevelIdentifier = toPath(identifier)[0];
-    return !(
+    if (INTERNAL_IDENTIFIERS.includes(topLevelIdentifier)) return true;
+    if (
+      isInvalidIdentifierName(topLevelIdentifier) ||
       functionalParams.has(topLevelIdentifier) ||
-      variableDeclarations.has(topLevelIdentifier) ||
-      !isNameValid(topLevelIdentifier, {}) ||
-      !INTERNAL_IDENTIFIERS.includes(topLevelIdentifier)
-    );
+      variableDeclarations.has(topLevelIdentifier)
+    )
+      return false;
+    return true;
   });
   return validIdentifiers;
 };
