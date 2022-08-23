@@ -102,6 +102,7 @@ export const JAVASCRIPT_KEYWORDS = {
   while: "while",
   with: "with",
   yield: "yield",
+  Promise: "Promise",
 };
 
 export const DATA_TREE_KEYWORDS = {
