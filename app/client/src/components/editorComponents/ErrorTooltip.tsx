@@ -38,9 +38,31 @@ interface Props {
   message: string;
   children: JSX.Element;
   customClass?: string;
+  preventOverflow?: string;
 }
 
 function ErrorTooltip(props: Props) {
+  let conditionalProps = {};
+  let containerElement;
+
+  if (
+    props.preventOverflow &&
+    (containerElement = document.querySelector(props.preventOverflow))
+  ) {
+    conditionalProps = {
+      modifiers: {
+        flip: {
+          enabled: true,
+          boundariesElement: containerElement,
+        },
+        preventOverflow: {
+          enabled: true,
+          boundariesElement: containerElement,
+        },
+      },
+    };
+  }
+
   return (
     <Wrapper>
       <TooltipStyles />
@@ -50,8 +72,9 @@ function ErrorTooltip(props: Props) {
         content={props.message}
         isOpen={props.isOpen && !!props.message}
         portalClassName={`error-tooltip ${props.customClass || ""}`}
-        position="bottom"
+        position={props.preventOverflow ? "auto" : "bottom"}
         usePortal
+        {...conditionalProps}
       >
         {props.children}
       </Popover>

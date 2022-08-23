@@ -194,6 +194,7 @@ export function InlineCellEditor({
         onFocusChange={onFocusChange}
         onKeyDown={onKeyDown}
         onValueChange={onTextChange}
+        preventErrorTooltipOverflow=".tableWrap"
         showError
         value={value}
         widgetId=""
