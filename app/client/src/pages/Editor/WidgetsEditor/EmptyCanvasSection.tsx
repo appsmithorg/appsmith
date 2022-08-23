@@ -41,6 +41,7 @@ const Card = styled.div`
   flex-direction: row;
   align-items: center;
   cursor: pointer;
+  transition: all 0.5s;
 
   svg {
     height: 24px;

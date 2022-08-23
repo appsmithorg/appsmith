@@ -53,6 +53,7 @@ function TemplateList(props: TemplateListProps) {
           <TemplatesContent
             onForkTemplateClick={onForkTemplateClick}
             onTemplateClick={props.onTemplateClick}
+            stickySearchBar
           />
         </ListWrapper>
       </div>

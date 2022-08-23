@@ -81,6 +81,16 @@ const SearchWrapper = styled.div`
   margin-left: ${(props) => props.theme.spaces[11]}px;
 `;
 
+const HeaderWrapper = styled.div<{ sticky?: boolean }>`
+  ${(props) =>
+    props.sticky &&
+    `position: sticky;
+  top: 0;
+  position: -webkit-sticky;
+  z-index: 1;
+  background-color: white;`}
+`;
+
 function TemplateRoutes() {
   const { path } = useRouteMatch();
   const dispatch = useDispatch();
@@ -138,6 +148,7 @@ function TemplateRoutes() {
 type TemplatesContentProps = {
   onTemplateClick?: (id: string) => void;
   onForkTemplateClick?: (template: Template) => void;
+  stickySearchBar?: boolean;
 };
 
 export function TemplatesContent(props: TemplatesContentProps) {
@@ -175,19 +186,21 @@ export function TemplatesContent(props: TemplatesContentProps) {
 
   return (
     <>
-      <SearchWrapper>
-        <ControlGroup>
-          <SearchInput
-            cypressSelector={"t--application-search-input"}
-            defaultValue={templateSearchQuery}
-            disabled={isLoading}
-            onChange={debouncedOnChange || noop}
-            placeholder={createMessage(SEARCH_TEMPLATES)}
-            variant={SearchVariant.BACKGROUND}
-          />
-        </ControlGroup>
-      </SearchWrapper>
-      <ResultsCount>{resultsText}</ResultsCount>
+      <HeaderWrapper sticky={props.stickySearchBar}>
+        <SearchWrapper>
+          <ControlGroup>
+            <SearchInput
+              cypressSelector={"t--application-search-input"}
+              defaultValue={templateSearchQuery}
+              disabled={isLoading}
+              onChange={debouncedOnChange || noop}
+              placeholder={createMessage(SEARCH_TEMPLATES)}
+              variant={SearchVariant.BACKGROUND}
+            />
+          </ControlGroup>
+        </SearchWrapper>
+        <ResultsCount>{resultsText}</ResultsCount>
+      </HeaderWrapper>
       <TemplateList
         onForkTemplateClick={props.onForkTemplateClick}
         onTemplateClick={props.onTemplateClick}
