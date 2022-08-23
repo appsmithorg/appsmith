@@ -80,7 +80,6 @@ public class PolicyGeneratorCE {
      */
     Graph<AclPermission, DefaultEdge> lateralGraph = new DirectedMultigraph<>(DefaultEdge.class);
 
-    @PostConstruct
     public void createPolicyGraph() {
 
         // Initialization of the hierarchical and lateral graphs by adding all the vertices
@@ -102,19 +101,19 @@ public class PolicyGeneratorCE {
         createPermissionGroupPolicyGraph();
     }
 
-    private void createInstancePolicyGraph() {
+    protected void createInstancePolicyGraph() {
         lateralGraph.addEdge(MANAGE_INSTANCE_CONFIGURATION, READ_INSTANCE_CONFIGURATION);
     }
 
     /**
      * In this, we add permissions for a user to interact with workspaces and other users inside the said workspaces
      */
-    private void createUserPolicyGraph() {
+    protected void createUserPolicyGraph() {
         lateralGraph.addEdge(MANAGE_USERS, READ_USERS);
         lateralGraph.addEdge(MANAGE_USERS, RESET_PASSWORD_USERS);
     }
 
-    private void createWorkspacePolicyGraph() {
+    protected void createWorkspacePolicyGraph() {
         lateralGraph.addEdge(MANAGE_WORKSPACES, READ_WORKSPACES);
         lateralGraph.addEdge(MANAGE_WORKSPACES, WORKSPACE_MANAGE_DATASOURCES);
         lateralGraph.addEdge(MANAGE_WORKSPACES, WORKSPACE_READ_DATASOURCES);
@@ -125,7 +124,7 @@ public class PolicyGeneratorCE {
         lateralGraph.addEdge(DELETE_WORKSPACES, WORKSPACE_DELETE_DATASOURCES);
     }
 
-    private void createDatasourcePolicyGraph() {
+    protected void createDatasourcePolicyGraph() {
         hierarchyGraph.addEdge(WORKSPACE_MANAGE_APPLICATIONS, MANAGE_DATASOURCES);
 
         // If a viewer of all apps in the workspace, give execute permission on all the datasources
@@ -137,7 +136,7 @@ public class PolicyGeneratorCE {
         lateralGraph.addEdge(READ_DATASOURCES, EXECUTE_DATASOURCES);
     }
 
-    private void createApplicationPolicyGraph() {
+    protected void createApplicationPolicyGraph() {
         hierarchyGraph.addEdge(WORKSPACE_MANAGE_APPLICATIONS, MANAGE_APPLICATIONS);
         hierarchyGraph.addEdge(WORKSPACE_READ_APPLICATIONS, READ_APPLICATIONS);
         hierarchyGraph.addEdge(WORKSPACE_PUBLISH_APPLICATIONS, PUBLISH_APPLICATIONS);
@@ -153,7 +152,7 @@ public class PolicyGeneratorCE {
         lateralGraph.addEdge(READ_APPLICATIONS, COMMENT_ON_APPLICATIONS);
     }
 
-    private void createActionPolicyGraph() {
+    protected void createActionPolicyGraph() {
         hierarchyGraph.addEdge(MANAGE_PAGES, MANAGE_ACTIONS);
         hierarchyGraph.addEdge(READ_PAGES, EXECUTE_ACTIONS);
         hierarchyGraph.addEdge(DELETE_PAGES, DELETE_ACTIONS);
@@ -163,7 +162,7 @@ public class PolicyGeneratorCE {
         lateralGraph.addEdge(READ_ACTIONS, EXECUTE_ACTIONS);
     }
 
-    private void createPagePolicyGraph() {
+    protected void createPagePolicyGraph() {
         hierarchyGraph.addEdge(MANAGE_APPLICATIONS, MANAGE_PAGES);
         hierarchyGraph.addEdge(READ_APPLICATIONS, READ_PAGES);
         hierarchyGraph.addEdge(DELETE_APPLICATIONS, DELETE_PAGES);
@@ -172,7 +171,7 @@ public class PolicyGeneratorCE {
         lateralGraph.addEdge(MANAGE_PAGES, READ_PAGES);
     }
 
-    private void createCommentPolicyGraph() {
+    protected void createCommentPolicyGraph() {
         hierarchyGraph.addEdge(COMMENT_ON_APPLICATIONS, COMMENT_ON_THREADS);
 
         lateralGraph.addEdge(COMMENT_ON_THREADS, READ_THREADS);
@@ -180,13 +179,13 @@ public class PolicyGeneratorCE {
         hierarchyGraph.addEdge(COMMENT_ON_THREADS, READ_COMMENTS);
     }
 
-    private void createThemePolicyGraph() {
+    protected void createThemePolicyGraph() {
         hierarchyGraph.addEdge(MANAGE_APPLICATIONS, MANAGE_THEMES);
         hierarchyGraph.addEdge(READ_APPLICATIONS, READ_THEMES);
         lateralGraph.addEdge(MANAGE_THEMES, READ_THEMES);
     }
 
-    private void createPermissionGroupPolicyGraph() {
+    protected void createPermissionGroupPolicyGraph() {
         lateralGraph.addEdge(AclPermission.MANAGE_PERMISSION_GROUPS, AclPermission.ASSIGN_PERMISSION_GROUPS);
         lateralGraph.addEdge(AclPermission.MANAGE_PERMISSION_GROUPS, AclPermission.UNASSIGN_PERMISSION_GROUPS);
         lateralGraph.addEdge(AclPermission.MANAGE_PERMISSION_GROUPS, AclPermission.READ_PERMISSION_GROUPS);

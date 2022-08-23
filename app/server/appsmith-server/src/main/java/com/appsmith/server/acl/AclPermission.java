@@ -9,8 +9,10 @@ import com.appsmith.server.domains.CommentThread;
 import com.appsmith.server.domains.Config;
 import com.appsmith.server.domains.Page;
 import com.appsmith.server.domains.PermissionGroup;
+import com.appsmith.server.domains.Tenant;
 import com.appsmith.server.domains.Theme;
 import com.appsmith.server.domains.User;
+import com.appsmith.server.domains.UserGroup;
 import com.appsmith.server.domains.Workspace;
 import lombok.Getter;
 
@@ -26,6 +28,8 @@ public enum AclPermission {
     // Does this user have permission to edit/read Instance Config UI?
     MANAGE_INSTANCE_CONFIGURATION("manageInstanceConfiguration:config", Config.class),
     READ_INSTANCE_CONFIGURATION("readInstanceConfiguration:config", Config.class),
+
+    TENANT_CREATE_USER_GROUPS("create:userGroups", Tenant.class),
 
     // Does the user have manage workspace permission
     @Deprecated
@@ -116,6 +120,12 @@ public enum AclPermission {
     READ_PERMISSION_GROUPS("read:permissionGroups", PermissionGroup.class),
     ASSIGN_PERMISSION_GROUPS("assign:permissionGroups", PermissionGroup.class),
     UNASSIGN_PERMISSION_GROUPS("unassign:permissionGroups", PermissionGroup.class),
+
+    // User Group Permissions
+    MANAGE_USER_GROUPS("manage:userGroups", UserGroup.class),
+    READ_USER_GROUPS("read:userGroups", UserGroup.class),
+    DELETE_USER_GROUPS("delete:userGroups", UserGroup.class),
+    ADD_USERS_TO_USER_GROUPS("addUsers:userGroups", UserGroup.class),
 
     ;
 
