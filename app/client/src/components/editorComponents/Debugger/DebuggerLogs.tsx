@@ -42,6 +42,8 @@ const LOGS_FILTER_OPTIONS = [
     value: Severity.ERROR,
     icon: "error" as IconName,
     iconColor: "white",
+    bgColor: "red",
+    fillColor: "red",
   },
   {
     label: "Console logs",
@@ -93,6 +95,10 @@ function DebbuggerLogs(props: Props) {
     }
   }, [paginatedData.length]);
 
+  useEffect(() => {
+    setSearchQuery(props.searchQuery);
+  }, [props.searchQuery]);
+
   return (
     <ContainerWrapper>
       <FilterHeader
@@ -102,6 +108,7 @@ function DebbuggerLogs(props: Props) {
         options={LOGS_FILTER_OPTIONS}
         searchQuery={searchQuery}
         selected={selectedFilter || LOGS_FILTER_OPTIONS[0]}
+        value={searchQuery}
       />
 
       <ListWrapper className="debugger-list" ref={listRef}>

@@ -61,6 +61,7 @@ type FilterHeaderProps = {
   onChange: (value: string) => void;
   onSelect: (value?: string) => void;
   defaultValue: string;
+  value: string;
   searchQuery: string;
 };
 
@@ -90,6 +91,7 @@ function FilterHeader(props: FilterHeaderProps) {
           onChange={props.onChange}
           placeholder="Filter"
           ref={searchRef}
+          value={props.value}
           width="560px"
         />
         {props.searchQuery && (
