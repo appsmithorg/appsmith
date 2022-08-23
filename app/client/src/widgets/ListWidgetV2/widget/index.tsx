@@ -31,11 +31,14 @@ import { GridDefaults } from "constants/WidgetConstants";
 import derivedProperties from "./parseDerivedProperties";
 import { DSLWidget, FlattenedWidgetProps } from "widgets/constants";
 import { entityDefinitions } from "utils/autocomplete/EntityDefinitions";
-import { PrivateWidgets } from "entities/DataTree/dataTreeFactory";
-
+import {
+  DataTreeWidget,
+  PrivateWidgets,
+} from "entities/DataTree/dataTreeFactory";
 import { klona } from "klona";
 import { generateReactKey } from "utils/generators";
 import equal from "fast-deep-equal/es6";
+import CanvasWidgetsNormalizer from "normalizers/CanvasWidgetsNormalizer";
 
 export type DynamicPathList = Record<string, string[]>;
 
@@ -75,7 +78,7 @@ class ListWidget extends BaseWidget<
 
   metaWidgetIdCache: MetaWidgetIdCache;
   currentViewMetaWidgetsRef: Set<string>;
-  childWidgetCache: Record<string, FlattenedWidgetProps>;
+  flattenedPrevChildWidgets: Record<string, FlattenedWidgetProps>;
 
   /**
    * returns the property pane config of the widget
@@ -113,7 +116,7 @@ class ListWidget extends BaseWidget<
 
     this.metaWidgetIdCache = {};
     this.currentViewMetaWidgetsRef = new Set();
-    this.childWidgetCache = {};
+    this.flattenedPrevChildWidgets = {};
   }
 
   componentDidMount() {
@@ -141,6 +144,10 @@ class ListWidget extends BaseWidget<
       this.props,
       PATH_TO_ALL_WIDGETS_IN_LIST_WIDGET,
     );
+
+    this.flattenedPrevChildWidgets = this.flattenWidgets(
+      prevProps.childWidgets,
+    ).entities?.canvasWidgets;
 
     this.initMetaWidgets();
 
@@ -215,6 +222,15 @@ class ListWidget extends BaseWidget<
     }
   }
 
+  flattenWidgets = (
+    childWidgets?: DataTreeWidget[],
+    flattenedWidgets: Record<string, FlattenedWidgetProps> = {},
+  ) => {
+    if (!childWidgets) return flattenedWidgets;
+
+    return CanvasWidgetsNormalizer.normalize(childWidgets[0]);
+  };
+
   findChildrenIds = (metaWidgets: Template, parentId: string) => {
     const ids: string[] = [];
 
@@ -227,11 +243,18 @@ class ListWidget extends BaseWidget<
     return ids;
   };
 
-  getDeletedMetaWidgetIds = (newIds: string[]) => {
-    const currentIds = [...this.currentViewMetaWidgetsRef];
+  getDeletedAndAddedMetaWidgetIds = () => {
+    let currentIds: string[] = [];
+    Object.values(this.metaWidgetIdCache).forEach((map) => {
+      currentIds = [...currentIds, ...Object.values(map)];
+    });
+    const prevIds = [...this.currentViewMetaWidgetsRef];
 
     // Present in currentIds but not present in newIds
-    return difference(currentIds, newIds);
+    return {
+      deletedIds: difference(prevIds, currentIds),
+      addedIds: difference(currentIds, prevIds),
+    };
   };
 
   updateCurrentViewRefs = (newIds: string[], deletedIds: string[]) => {
@@ -243,9 +266,8 @@ class ListWidget extends BaseWidget<
     const metaWidgets = this.generateMetaWidgetsForCurrentView();
 
     if (metaWidgets) {
-      const newIds = Object.keys(metaWidgets);
-      const deletedIds = this.getDeletedMetaWidgetIds(newIds);
-      this.updateCurrentViewRefs(newIds, deletedIds);
+      const { addedIds, deletedIds } = this.getDeletedAndAddedMetaWidgetIds();
+      this.updateCurrentViewRefs(addedIds, deletedIds);
 
       this.modifyMetaWidgets({
         addOrUpdate: metaWidgets,
@@ -403,12 +425,12 @@ class ListWidget extends BaseWidget<
     const metaWidget = this.cloneTemplateWidget(templateWidget);
     const dynamicPaths = dynamicPathMap[templateWidget.widgetId] || [];
     const viewIndex = index - pageSize * (page - 1);
-    const isFirstItemInEditMode =
+    const isCloneItem =
       renderMode === RenderModes.PAGE ||
       (renderMode === RenderModes.CANVAS && viewIndex !== 0);
-    const metaWidgetId = isFirstItemInEditMode
-      ? templateWidget.widgetId
-      : this.getMetaWidgetId(templateWidget.widgetId, key);
+    const metaWidgetId = isCloneItem
+      ? this.getMetaWidgetId(templateWidget.widgetId, key)
+      : templateWidget.widgetId;
     const children: string[] = [];
 
     (templateWidget.children || []).map((childWidget) => {
@@ -431,9 +453,10 @@ class ListWidget extends BaseWidget<
       if (isEqual) return { metaWidgets, metaWidgetId };
     } else {
       const isEqual = equal(
-        metaWidget,
-        this.childWidgetCache[templateWidget.widgetId],
+        templateWidget,
+        this.flattenedPrevChildWidgets[templateWidget.widgetId],
       );
+
       widgetUpdateMap[templateWidget.widgetId] = isEqual;
 
       if (isEqual && this.currentViewMetaWidgetsRef.has(metaWidgetId)) {
@@ -441,7 +464,7 @@ class ListWidget extends BaseWidget<
       }
     }
 
-    if (isFirstItemInEditMode) {
+    if (isCloneItem) {
       this.disableWidgetOperations(metaWidget);
 
       const metaWidgetId = this.getMetaWidgetId(templateWidget.widgetId, key);
@@ -473,7 +496,7 @@ class ListWidget extends BaseWidget<
 
     return {
       metaWidgets,
-      metaWidgetId: metaWidget.widgetId,
+      metaWidgetId,
     };
   };
 
