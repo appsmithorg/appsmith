@@ -375,17 +375,17 @@ class CategorySliderWidget extends BaseWidget<
               {
                 label: "S",
                 value: "s",
-                subText: "6px",
+                subText: "4px",
               },
               {
                 label: "M",
                 value: "m",
-                subText: "8px",
+                subText: "6px",
               },
               {
                 label: "L",
                 value: "l",
-                subText: "10px",
+                subText: "8px",
               },
             ],
             isBindProperty: true,
@@ -765,17 +765,17 @@ class CategorySliderWidget extends BaseWidget<
               {
                 label: "S",
                 value: "s",
-                subText: "6px",
+                subText: "4px",
               },
               {
                 label: "M",
                 value: "m",
-                subText: "8px",
+                subText: "6px",
               },
               {
                 label: "L",
                 value: "l",
-                subText: "10px",
+                subText: "8px",
               },
             ],
             isBindProperty: true,
