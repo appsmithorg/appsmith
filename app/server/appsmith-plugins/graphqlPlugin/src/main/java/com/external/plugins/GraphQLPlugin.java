@@ -219,7 +219,20 @@ public class GraphQLPlugin extends BasePlugin {
             }
 
             if (HttpMethod.POST.equals(httpMethod)) {
-                if (ApiContentType.JSON.getValue().equals(reqContentType)) {
+                /**
+                 * For content-type=application/json re-formatting is required.
+                 * Ref: https://graphql.org/learn/serving-over-http/#post-request
+                 *
+                 * Graphql reference doc also mentions that content-type=application/graphql does not require any
+                 * re-formatting.
+                 * Ref: https://graphql.org/learn/serving-over-http/#post-request
+                 *
+                 * On searching over the web I also found that there are some custom content-type in use like
+                 * `application/graphql+json` or `application/graphql-json` that expect the data in the same format
+                 * as is for `application/json`. Hence, the current check assumes that any content type that differs
+                 * from `application/graphql` would expect the data in the same format as for `application/json`
+                 */
+                if (!ApiContentType.GRAPHQL.getValue().equals(reqContentType)) {
                     /**
                      * When a GraphQL request is sent using HTTP POST method, then the request body needs to be in the
                      * following format:
