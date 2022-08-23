@@ -217,11 +217,27 @@ function* deleteSaga(deleteAction: ReduxAction<WidgetDelete>) {
     if (widgetId && parentId) {
       const stateWidget: WidgetProps = yield select(getWidget, widgetId);
       const widget = { ...stateWidget };
-      const updatedObj: UpdatedDSLPostDelete = yield call(
-        getUpdatedDslAfterDeletingWidget,
-        widgetId,
-        parentId,
-      );
+      const stateParent: WidgetProps = yield select(getWidget, parentId);
+      const parent = { ...stateParent };
+      // Additional check for auto layout children
+      const shouldDeleteParent =
+        parent.type === "LAYOUT_WRAPPER_WIDGET" &&
+        !parent.children?.filter((e: string) => e !== widgetId).length;
+
+      let updatedObj: UpdatedDSLPostDelete;
+      if (shouldDeleteParent)
+        updatedObj = yield call(
+          getUpdatedDslAfterDeletingWidget,
+          parentId,
+          parent.parentId || "0",
+        );
+      else
+        updatedObj = yield call(
+          getUpdatedDslAfterDeletingWidget,
+          widgetId,
+          parentId,
+        );
+
       if (updatedObj) {
         const { finalWidgets, otherWidgetsToDelete, widgetName } = updatedObj;
         yield put(updateAndSaveLayout(finalWidgets));

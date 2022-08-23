@@ -337,11 +337,6 @@ export function* getUpdateDslAfterCreatingAutoLayoutChild(
   const stateParent: FlattenedWidgetProps = yield select(getWidget, widgetId);
   // console.log("State parent");
   // console.log(stateParent);
-  const parentContainer: FlattenedWidgetProps = stateParent.parentId
-    ? yield select(getWidget, stateParent.parentId)
-    : null;
-  // console.log("Parent container");
-  // console.log(parentContainer);
   // const parent = Object.assign({}, stateParent);
   // Get all the widgets from the canvasWidgetsReducer
   const stateWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
