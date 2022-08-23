@@ -6,6 +6,7 @@ import welcomeConfetti from "assets/lottie/welcome-confetti.json";
 import successAnimation from "assets/lottie/success-animation.json";
 import {
   DATA_TREE_KEYWORDS,
+  GLOBAL_SCOPE_OBJECTS,
   JAVASCRIPT_KEYWORDS,
   WINDOW_OBJECT_METHODS,
   WINDOW_OBJECT_PROPERTIES,
@@ -382,6 +383,7 @@ export const isNameValid = (
     name in GLOBAL_FUNCTIONS ||
     name in WINDOW_OBJECT_PROPERTIES ||
     name in WINDOW_OBJECT_METHODS ||
+    name in GLOBAL_SCOPE_OBJECTS ||
     extraLibrariesNames.includes(name) ||
     name in invalidNames
   );

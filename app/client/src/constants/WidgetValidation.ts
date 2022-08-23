@@ -102,7 +102,6 @@ export const JAVASCRIPT_KEYWORDS = {
   while: "while",
   with: "with",
   yield: "yield",
-  Promise: "Promise",
 };
 
 export const DATA_TREE_KEYWORDS = {
@@ -175,3 +174,39 @@ export const WINDOW_OBJECT_METHODS = {
 };
 
 export const INTERNAL_IDENTIFIERS = ["appsmith"];
+
+export const GLOBAL_SCOPE_OBJECTS = {
+  Error: "Error",
+  Promise: "Promise",
+  ReferenceError: "ReferenceError",
+  RegExp: "RegExp",
+  SyntaxError: "SyntaxError",
+  URIError: "URIError",
+  EvalError: "EvalError",
+  RangeError: "RangeError",
+  TypeError: "TypeError",
+  parseInt: "parseInt",
+  parseFloat: "parseFloat",
+  encodeURI: "encodeURI",
+  encodeURIComponent: "encodeURIComponent",
+  decodeURI: "decodeURI",
+  decodeURIComponent: "decodeURIComponent",
+  ArrayBuffer: "ArrayBuffer",
+  DataView: "DataView",
+  Float32Array: "Float32Array",
+  Float64Array: "Float64Array",
+  Int16Array: "Int16Array",
+  Int32Array: "Int32Array",
+  Int8Array: "Int8Array",
+  Map: "Map",
+  Proxy: "Proxy",
+  Reflect: "Reflect",
+  Set: "Set",
+  Symbol: "Symbol",
+  Uint16Array: "TypedArray",
+  Uint32Array: "TypedArray",
+  Uint8Array: "TypedArray",
+  Uint8ClampedArray: "TypedArray",
+  WeakMap: "WeakMap",
+  WeakSet: "WeakSet",
+};

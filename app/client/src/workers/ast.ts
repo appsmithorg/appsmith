@@ -6,6 +6,7 @@ import { sanitizeScript } from "./evaluate";
 import { generate } from "astring";
 import {
   DATA_TREE_KEYWORDS,
+  GLOBAL_SCOPE_OBJECTS,
   INTERNAL_IDENTIFIERS,
   JAVASCRIPT_KEYWORDS,
   WINDOW_OBJECT_METHODS,
@@ -188,6 +189,7 @@ const isInvalidIdentifierName = (name: string) => {
     name in GLOBAL_FUNCTIONS ||
     name in WINDOW_OBJECT_PROPERTIES ||
     name in WINDOW_OBJECT_METHODS ||
+    name in GLOBAL_SCOPE_OBJECTS ||
     extraLibrariesNames.includes(name)
   );
 };
