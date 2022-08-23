@@ -24,6 +24,10 @@
   },
   "scripts": {
     "preinstall": "CURRENT_SCOPE=rts node ../shared/build-shared-dep.js",
-    "postinstall": "CURRENT_SCOPE=rts node ../shared/install-dependencies.js"
+    "postinstall": "CURRENT_SCOPE=rts node ../shared/install-dependencies.js",
+    "start": "./start-server.sh"
+  },
+  "dependencies": {
+    "express-validator": "^6.14.2"
   }
 }

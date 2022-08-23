@@ -6,6 +6,9 @@ import log, { LogLevelDesc } from "loglevel";
 import { VERSION as buildVersion } from "./version"; // release version of the api
 import { initializeSockets } from "./sockets";
 
+// routes
+import ast_routes from "./routes/ast_routes";
+
 const RTS_BASE_PATH = "/rts";
 
 // Setting the logLevel for all log messages
@@ -46,12 +49,16 @@ function main() {
   // Initializing Sockets
   initializeSockets(io);
 
+  // parse incoming json requests
+  app.use(express.json({ limit: "20mb" }));
   // Initializing Routes
   app.use(express.static(path.join(__dirname, "static")));
   app.get("/", (_, res) => {
     res.redirect("/index.html");
   });
-  
+
+  app.use("/", ast_routes);
+
   // Run the server
   server.listen(PORT, () => {
     log.info(`RTS version ${buildVersion} running at http://localhost:${PORT}`);
