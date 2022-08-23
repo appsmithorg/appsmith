@@ -175,7 +175,7 @@ export function* getAllApplicationSaga() {
       const workspaceApplication: WorkspaceApplicationObject[] = response.data.workspaceApplications.map(
         (userWorkspaces: WorkspaceApplicationObject) => ({
           workspace: userWorkspaces.workspace,
-          userRoles: userWorkspaces.userRoles,
+          users: userWorkspaces.users,
           applications: !userWorkspaces.applications
             ? []
             : userWorkspaces.applications.map(

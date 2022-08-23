@@ -1,8 +1,6 @@
 package com.appsmith.server.solutions.ce;
 
 import com.appsmith.external.constants.AnalyticsEvents;
-import com.appsmith.external.models.Policy;
-import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.configurations.EmailConfig;
 import com.appsmith.server.configurations.GoogleRecaptchaConfig;
@@ -15,14 +13,16 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.FileUtils;
 import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.helpers.TextUtils;
+import com.appsmith.server.helpers.UserUtils;
 import com.appsmith.server.helpers.ValidationUtils;
 import com.appsmith.server.notifications.EmailSender;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.services.AnalyticsService;
+import com.appsmith.server.services.ConfigService;
+import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserService;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.buffer.DefaultDataBufferFactory;
@@ -75,8 +75,8 @@ import static com.appsmith.server.constants.EnvVariables.APPSMITH_RECAPTCHA_SITE
 import static com.appsmith.server.constants.EnvVariables.APPSMITH_REPLY_TO;
 import static com.appsmith.server.constants.EnvVariables.APPSMITH_SIGNUP_ALLOWED_DOMAINS;
 import static com.appsmith.server.constants.EnvVariables.APPSMITH_SIGNUP_DISABLED;
+import static java.lang.Boolean.TRUE;
 
-@RequiredArgsConstructor
 @Slf4j
 @Getter
 public class EnvManagerCEImpl implements EnvManagerCE {
@@ -94,6 +94,12 @@ public class EnvManagerCEImpl implements EnvManagerCE {
     private final GoogleRecaptchaConfig googleRecaptchaConfig;
     private final FileUtils fileUtils;
 
+    private final PermissionGroupService permissionGroupService;
+
+    private final ConfigService configService;
+
+    private final UserUtils userUtils;
+
     /**
      * This regex pattern matches environment variable declarations like `VAR_NAME=value` or `VAR_NAME="value"` or just
      * `VAR_NAME=`. It also defines two named capture groups, `name` and `value`, for the variable's name and value
@@ -106,6 +112,37 @@ public class EnvManagerCEImpl implements EnvManagerCE {
     private static final Set<String> VARIABLE_WHITELIST = Stream.of(EnvVariables.values())
             .map(Enum::name)
             .collect(Collectors.toUnmodifiableSet());
+
+    public EnvManagerCEImpl(SessionUserService sessionUserService,
+                            UserService userService,
+                            AnalyticsService analyticsService,
+                            UserRepository userRepository,
+                            PolicyUtils policyUtils,
+                            EmailSender emailSender,
+                            CommonConfig commonConfig,
+                            EmailConfig emailConfig,
+                            JavaMailSender javaMailSender,
+                            GoogleRecaptchaConfig googleRecaptchaConfig,
+                            FileUtils fileUtils,
+                            PermissionGroupService permissionGroupService,
+                            ConfigService configService,
+                            UserUtils userUtils) {
+
+        this.sessionUserService = sessionUserService;
+        this.userService = userService;
+        this.analyticsService = analyticsService;
+        this.userRepository = userRepository;
+        this.policyUtils = policyUtils;
+        this.emailSender = emailSender;
+        this.commonConfig = commonConfig;
+        this.emailConfig = emailConfig;
+        this.javaMailSender = javaMailSender;
+        this.googleRecaptchaConfig = googleRecaptchaConfig;
+        this.fileUtils = fileUtils;
+        this.permissionGroupService = permissionGroupService;
+        this.configService = configService;
+        this.userUtils = userUtils;
+    }
 
     /**
      * Updates values of variables in the envContent string, based on the changes map given. This function **only**
@@ -235,7 +272,7 @@ public class EnvManagerCEImpl implements EnvManagerCE {
                     if (changesCopy.containsKey(APPSMITH_ADMIN_EMAILS.name())) {
                         commonConfig.setAdminEmails(changesCopy.remove(APPSMITH_ADMIN_EMAILS.name()));
                         String oldAdminEmailsCsv = originalValues.get(APPSMITH_ADMIN_EMAILS.name());
-                        dependentTasks = dependentTasks.then(updateAdminUserPolicies(oldAdminEmailsCsv));
+                        dependentTasks = dependentTasks.then(updateAdminUserPolicies(oldAdminEmailsCsv)).then();
                     }
 
                     if (changesCopy.containsKey(APPSMITH_MAIL_FROM.name())) {
@@ -358,7 +395,7 @@ public class EnvManagerCEImpl implements EnvManagerCE {
      *
      * @param oldAdminEmailsCsv comma separated email addresses that was set as admin email earlier
      */
-    private Mono<Void> updateAdminUserPolicies(String oldAdminEmailsCsv) {
+    private Mono<Boolean> updateAdminUserPolicies(String oldAdminEmailsCsv) {
         Set<String> oldAdminEmails = TextUtils.csvToSet(oldAdminEmailsCsv);
         Set<String> newAdminEmails = commonConfig.getAdminEmails();
 
@@ -368,26 +405,16 @@ public class EnvManagerCEImpl implements EnvManagerCE {
         Set<String> newUsers = new HashSet<>(newAdminEmails);
         newUsers.removeAll(oldAdminEmails);
 
-        Flux<User> removedUserFlux = Flux.fromIterable(removedUsers).flatMap(userService::findByEmail)
-                .flatMap(user -> {
-                    Map<String, Policy> policyMap = policyUtils.generatePolicyFromPermission(
-                            Set.of(AclPermission.MANAGE_INSTANCE_ENV), user.getUsername()
-                    );
-                    policyUtils.removePoliciesFromExistingObject(policyMap, user);
-                    return userRepository.save(user);
-                });
+        Mono<Boolean> removedUsersMono = Flux.fromIterable(removedUsers).flatMap(userService::findByEmail)
+                .collectList()
+                .flatMap(users -> userUtils.removeSuperUser(users));
 
-        Flux<User> newUsersFlux = Flux.fromIterable(newUsers).flatMap(userService::findByEmail)
-                .flatMap(user -> {
-                    Map<String, Policy> policyMap = policyUtils.generatePolicyFromPermission(
-                            Set.of(AclPermission.MANAGE_INSTANCE_ENV), user.getUsername()
-                    );
-                    policyUtils.addPoliciesToExistingObject(policyMap, user);
-                    return userRepository.save(user);
-                });
+        Mono<Boolean> newUsersMono = Flux.fromIterable(newUsers).flatMap(userService::findByEmail)
+                .collectList()
+                .flatMap(users -> userUtils.makeSuperUser(users));
 
-        int prefetchSize = oldAdminEmails.size(); // prefetch total emails
-        return Flux.mergeDelayError(prefetchSize, removedUserFlux, newUsersFlux).then();
+        return Mono.when(removedUsersMono, newUsersMono)
+                .then(Mono.just(TRUE));
     }
 
     @Override
@@ -446,14 +473,15 @@ public class EnvManagerCEImpl implements EnvManagerCE {
 
     @Override
     public Mono<User> verifyCurrentUserIsSuper() {
-        return sessionUserService.getCurrentUser()
-                .flatMap(user -> userService.findByEmail(user.getEmail()))
-                .filter(user -> policyUtils.isPermissionPresentForUser(
-                        user.getPolicies(),
-                        AclPermission.MANAGE_INSTANCE_ENV.getValue(),
-                        user.getUsername()
-                ))
-                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.UNAUTHORIZED_ACCESS)));
+
+        return userUtils.isCurrentUserSuperUser()
+                .flatMap(isSuperUser -> {
+                    if(isSuperUser) {
+                        return sessionUserService.getCurrentUser();
+                    } else {
+                        return Mono.error(new AppsmithException(AppsmithError.UNAUTHORIZED_ACCESS));
+                    }
+                });
     }
 
     @Override
@@ -517,8 +545,7 @@ public class EnvManagerCEImpl implements EnvManagerCE {
                         log.error("failed to send test email", mailException);
                         return Mono.error(new AppsmithException(AppsmithError.GENERIC_BAD_REQUEST, mailException.getMessage()));
                     }
-
-                    return Mono.just(Boolean.TRUE);
+                    return Mono.just(TRUE);
                 });
     }
 
