@@ -5,16 +5,38 @@ import { extractIdentifiersFromCode } from "@shared/ast";
 import DataTreeEvaluator from "workers/DataTreeEvaluator";
 import { convertPathToString } from "../evaluationUtils";
 
-export const extractReferencesFromBinding = (
+/**
+ *
+ * @param script
+ * @param allPaths
+ * @returns references and unreferencedIdentifiers from binding
+ */
+export const extractInfoFromBinding = (
   script: string,
   allPaths: Record<string, true>,
-): string[] => {
-  const references: Set<string> = new Set<string>();
+): { references: string[]; unreferencedIdentifiers: string[] } => {
   const identifiers = extractIdentifiersFromCode(
     script,
     self?.evaluationVersion,
   );
+  return extractInfoFromIdentifiers(identifiers, allPaths);
+};
 
+/**
+ *
+ * @param identifiers
+ * @param allPaths
+ * @returns references and unreferencedIdentifiers from identifiers
+ */
+export const extractInfoFromIdentifiers = (
+  identifiers: string[],
+  allPaths: Record<string, true>,
+): {
+  references: string[];
+  unreferencedIdentifiers: string[];
+} => {
+  const references: Set<string> = new Set<string>();
+  const unreferencedIdentifiers: string[] = [];
   identifiers.forEach((identifier: string) => {
     // If the identifier exists directly, add it and return
     if (allPaths.hasOwnProperty(identifier)) {
@@ -36,10 +58,11 @@ export const extractReferencesFromBinding = (
       }
       subpaths.pop();
     }
+    // If no reference is derived from identifier, add it to the list of unreferencedIdentifiers
+    unreferencedIdentifiers.push(identifier);
   });
-  return Array.from(references);
+  return { references: Array.from(references), unreferencedIdentifiers };
 };
-
 /**
  *
  * @param propertyBindings
@@ -56,10 +79,10 @@ export const getEntityReferencesFromPropertyBindings = (
         try {
           return [
             ...new Set(
-              extractReferencesFromBinding(
+              extractInfoFromBinding(
                 binding,
                 dataTreeEvalRef.allKeys,
-              ).map((reference) => reference.split(".")[0]),
+              ).references.map((reference) => reference.split(".")[0]),
             ),
           ];
         } catch (error) {

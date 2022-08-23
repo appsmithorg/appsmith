@@ -25,7 +25,7 @@ import {
   isPathADynamicTrigger,
 } from "utils/DynamicBindingUtils";
 import {
-  extractReferencesFromBinding,
+  extractInfoFromBinding,
   getEntityReferencesFromPropertyBindings,
 } from "./utils";
 import DataTreeEvaluator from "workers/DataTreeEvaluator";
@@ -57,7 +57,7 @@ export function createDependencyMap(
   Object.keys(dependencyMap).forEach((key) => {
     const newDep = dependencyMap[key].map((path) => {
       try {
-        return extractReferencesFromBinding(path, dataTreeEvalRef.allKeys);
+        return extractInfoFromBinding(path, dataTreeEvalRef.allKeys).references;
       } catch (error) {
         dataTreeEvalRef.errors.push({
           type: EvalErrorTypes.EXTRACT_DEPENDENCY_ERROR,
@@ -392,10 +392,8 @@ export const updateDependencyMap = ({
         flatten(
           dataTreeEvalRef.dependencyMap[key].map((path) => {
             try {
-              return extractReferencesFromBinding(
-                path,
-                dataTreeEvalRef.allKeys,
-              );
+              return extractInfoFromBinding(path, dataTreeEvalRef.allKeys)
+                .references;
             } catch (error) {
               dataTreeEvalRef.errors.push({
                 type: EvalErrorTypes.EXTRACT_DEPENDENCY_ERROR,

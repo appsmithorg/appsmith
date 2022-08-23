@@ -76,7 +76,7 @@ import {
 import { klona } from "klona/full";
 import { EvalMetaUpdates } from "./types";
 import {
-  extractReferencesFromBinding,
+  extractInfoFromBinding,
   getEntityReferencesFromPropertyBindings,
 } from "workers/DependencyMap/utils";
 import {
@@ -1256,7 +1256,8 @@ export default class DataTreeEvaluator {
             propertyBindings.map((binding) => {
               {
                 try {
-                  return extractReferencesFromBinding(binding, this.allKeys);
+                  return extractInfoFromBinding(binding, this.allKeys)
+                    .references;
                 } catch (error) {
                   this.errors.push({
                     type: EvalErrorTypes.EXTRACT_DEPENDENCY_ERROR,
