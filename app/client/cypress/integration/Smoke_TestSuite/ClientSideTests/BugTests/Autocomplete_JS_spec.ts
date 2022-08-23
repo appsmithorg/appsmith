@@ -144,11 +144,11 @@ describe("Autocomplete tests", () => {
     agHelper.TypeText(CommonLocators._codeMirrorTextArea, "Api1.data.u");
     agHelper.AssertElementText(CommonLocators._hints, "users");
     agHelper.Sleep();
-    agHelper.GetNClickByContains(CommonLocators._hints, "users");
+    agHelper.GetNClick(CommonLocators._hints);
     agHelper.TypeText(CommonLocators._codeMirrorTextArea, "[0].e");
     agHelper.AssertElementText(CommonLocators._hints, "email");
     agHelper.Sleep();
-    agHelper.GetNClickByContains(CommonLocators._hints, "email");
+    agHelper.GetNClick(CommonLocators._hints);
   });
 
   it("5. Local variables & complex data autocompletion test", () => {
