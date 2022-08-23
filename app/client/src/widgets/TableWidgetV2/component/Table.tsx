@@ -31,7 +31,7 @@ import { renderEmptyRows } from "./cellComponents/EmptyCell";
 import {
   renderBodyCheckBoxCell,
   renderHeaderCheckBoxCell,
-} from "./cellComponents/CheckboxCell";
+} from "./cellComponents/SelectionCheckboxCell";
 import { HeaderCell } from "./cellComponents/HeaderCell";
 import { EditableCell } from "../constants";
 

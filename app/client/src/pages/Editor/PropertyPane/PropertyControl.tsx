@@ -427,8 +427,9 @@ const PropertyControl = memo((props: Props) => {
 
   const { propertyName } = props;
   const label = isFunction(props.label)
-    ? props.label(widgetProperties, props.propertyName)
+    ? props.label(widgetProperties, propertyName)
     : props.label;
+
   if (widgetProperties) {
     // get the dataTreePath and apply enhancement if exists
     let dataTreePath: string =

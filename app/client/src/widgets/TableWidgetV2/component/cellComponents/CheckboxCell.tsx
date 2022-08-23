@@ -1,53 +1,81 @@
 import React from "react";
+import {
+  ALIGN_ITEMS,
+  BaseCellComponentProps,
+  CellAlignment,
+  JUSTIFY_CONTENT,
+} from "../Constants";
+import { CellWrapper } from "../TableStyledWrappers";
+import CheckboxComponent from "widgets/CheckboxWidget/component/index";
+import { LabelPosition } from "components/constants";
+import styled from "styled-components";
 
-import { CellCheckboxWrapper, CellCheckbox } from "../TableStyledWrappers";
-import { ReactComponent as CheckBoxCheckIcon } from "assets/icons/widget/table/checkbox-check.svg";
-import { ReactComponent as CheckBoxLineIcon } from "assets/icons/widget/table/checkbox-line.svg";
-import { CheckboxState } from "../Constants";
+const CheckboxCellWrapper = styled(CellWrapper)<{
+  horizontalAlignment?: CellAlignment;
+}>`
+  & > div {
+    justify-content: ${(props) =>
+      props.horizontalAlignment &&
+      JUSTIFY_CONTENT[props.horizontalAlignment]} !important;
 
-export const renderBodyCheckBoxCell = (
-  isChecked: boolean,
-  accentColor: string,
-  borderRadius: string,
-) => (
-  <CellCheckboxWrapper
-    accentColor={accentColor}
-    borderRadius={borderRadius}
-    className="td t--table-multiselect"
-    isCellVisible
-    isChecked={isChecked}
-  >
-    <CellCheckbox>
-      {isChecked && <CheckBoxCheckIcon className="th-svg" />}
-    </CellCheckbox>
-  </CellCheckboxWrapper>
-);
+    align-items: ${(props) =>
+      props.verticalAlignment &&
+      ALIGN_ITEMS[props.verticalAlignment]} !important;
 
-const STYLE = { padding: "0px", justifyContent: "center" };
+    & .bp3-checkbox {
+      gap: 0px;
+      &:hover,
+      .bp3-control-indicator:hover {
+        cursor: pointer;
+      }
+    }
+  }
+`;
 
-export const renderHeaderCheckBoxCell = (
-  onClick: (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => void,
-  checkState: number | null,
-  accentColor: string,
-  borderRadius: string,
-) => (
-  <CellCheckboxWrapper
-    accentColor={accentColor}
-    borderRadius={borderRadius}
-    className="th header-reorder t--table-multiselect-header"
-    isChecked={!!checkState}
-    onClick={onClick}
-    role="columnheader"
-    style={STYLE}
-  >
-    <CellCheckbox>
-      {/*1 - all row selected | 2 - some rows selected */}
-      {checkState === CheckboxState.CHECKED && (
-        <CheckBoxCheckIcon className="th-svg" />
-      )}
-      {checkState === CheckboxState.PARTIAL && (
-        <CheckBoxLineIcon className="th-svg t--table-multiselect-header-half-check-svg" />
-      )}
-    </CellCheckbox>
-  </CellCheckboxWrapper>
-);
+type CheckboxCellProps = BaseCellComponentProps & {
+  value: boolean;
+  accentColor: string;
+  isDisabled?: boolean;
+  onChange: () => void;
+  borderRadius: string;
+};
+
+export const CheckboxCell = (props: CheckboxCellProps) => {
+  const {
+    accentColor,
+    borderRadius,
+    cellBackground,
+    compactMode,
+    horizontalAlignment,
+    isCellVisible,
+    isDisabled,
+    isHidden,
+    onChange,
+    value,
+    verticalAlignment,
+  } = props;
+
+  return (
+    <CheckboxCellWrapper
+      cellBackground={cellBackground}
+      compactMode={compactMode}
+      horizontalAlignment={horizontalAlignment}
+      isCellVisible={isCellVisible}
+      isHidden={isHidden}
+      verticalAlignment={verticalAlignment}
+    >
+      <CheckboxComponent
+        accentColor={accentColor}
+        borderRadius={borderRadius}
+        isChecked={value}
+        isDisabled={isDisabled}
+        isLoading={false}
+        isRequired={false}
+        label=""
+        labelPosition={LabelPosition.Auto}
+        onCheckChange={() => onChange()}
+        widgetId={""}
+      />
+    </CheckboxCellWrapper>
+  );
+};

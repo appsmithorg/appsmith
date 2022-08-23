@@ -70,7 +70,7 @@ import { VideoCell } from "../component/cellComponents/VideoCell";
 import { IconButtonCell } from "../component/cellComponents/IconButtonCell";
 import { EditActionCell } from "../component/cellComponents/EditActionsCell";
 import { klona as clone } from "klona";
-import { CheckboxCell } from "../component/cellComponents/Checkbox";
+import { CheckboxCell } from "../component/cellComponents/CheckboxCell";
 
 const ReactTableComponent = lazy(() =>
   retryPromise(() => import("../component")),
@@ -1522,9 +1522,8 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
             isCellVisible={cellProperties.isCellVisible ?? true}
             isDisabled={!cellProperties.isCellEditable}
             isHidden={isHidden}
-            onCommandClick={() => {
-              const originalIndex = this.getRowOriginalIndex(rowIndex);
-              const row = filteredTableData[originalIndex];
+            onChange={() => {
+              const row = filteredTableData[rowIndex];
               const cellValue = !props.cell.value;
 
               this.updateTransientTableData({
