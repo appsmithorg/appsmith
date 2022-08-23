@@ -562,7 +562,7 @@ ${({ dropDownWidth, id }) => `
 	opacity: 1;
 
   .rc-tree-select-tree-title {
-    color: ${Colors.GREY_10};
+    color: var(--wds-color-text);
   }
 
   .rc-tree-select-tree-icon__customize {
@@ -599,7 +599,7 @@ ${({ dropDownWidth, id }) => `
 	display: inline-block;
   margin-left: 10px;
   font-size: 14px !important;
-  color: ${Colors.GREY_8};
+  color: var(--wds-color-text);
   overflow: hidden;
   text-overflow: ellipsis;
 }

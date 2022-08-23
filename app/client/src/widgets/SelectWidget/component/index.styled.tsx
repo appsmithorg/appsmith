@@ -128,13 +128,13 @@ export const StyledSingleDropDown = styled(SingleDropDown)<{
       !props.hasError
         ? `
         border-color: ${
-          props.hasError ? Colors.DANGER_SOLID : props.accentColor
+          props.hasError ? "var(--wds-color-border-danger)" : props.accentColor
         };
         box-shadow: ${`0px 0px 0px 2px ${lightenColor(
           props.hasError ? Colors.DANGER_SOLID : props.accentColor,
         )} !important;`};
       `
-        : `border: 1px solid ${Colors.DANGER_SOLID};`}
+        : `border: 1px solid var(--wds-color-border-danger);`}
   }
   &&&&& .${Classes.DISABLED} {
     background-color: var(--wds-color-bg-disabled);
@@ -245,7 +245,7 @@ export const MenuItem = styled.div<{
 
     min-height: 38px;
     padding: 9px 12px;
-    color: var(--wds-color-text-light);
+    color: var(--wds-color-text);
     outline: none !important;
     background-color: transparent;
 

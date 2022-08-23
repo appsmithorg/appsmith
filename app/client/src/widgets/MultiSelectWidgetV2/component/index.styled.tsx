@@ -32,7 +32,7 @@ export const CommonSelectFilterStyle = css<{
     padding-left: 42px;
     margin-bottom: 0;
     .${Classes.CONTROL_INDICATOR} {
-      margin-right: 20px;
+      margin-right: 10px;
     }
     &.all-options.selected {
       color: ${Colors.GREY_10} !important;
@@ -197,7 +197,7 @@ ${({ dropDownWidth, id }) => `
 
 	.rc-select-item-option-state {
 		pointer-events: all;
-		margin-right: 10px;
+		margin-right: 0px;
 	}
 }
 .rc-select-item-option-grouped {
@@ -209,7 +209,7 @@ ${({ dropDownWidth, id }) => `
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  color: ${Colors.GREY_8};
+  color: var(--wds-color-text);
   font-weight: 400;
 }
 .rc-select-item-option-active {
@@ -228,12 +228,12 @@ ${({ dropDownWidth, id }) => `
   }
 
   & .rc-select-item-option-content {
-    color: ${Colors.GREY_9};
+    color: var(--wds-color-text);
   }
 }
 .rc-select-item-option-selected {
   & .rc-select-item-option-content {
-    color: ${Colors.GREY_10};
+    color: var(--wds-color-text);
   }
 }
 .rc-select-item-option-disabled {
@@ -334,10 +334,10 @@ ${({ dropDownWidth, id }) => `
     padding-left: 42px;
     margin-bottom: 0;
     .${Classes.CONTROL_INDICATOR} {
-      margin-right: 20px;
+      margin-right: 0px;
     }
     &.all-options.selected {
-      color: var(--wds-color-text-light) !important;
+      color: var(--wds-color-text) !important;
     }
   }
   &&&& .${Classes.CONTROL} .${Classes.CONTROL_INDICATOR} {
@@ -498,7 +498,7 @@ export const MultiSelectContainer = styled.div<{
       .rc-select-selection-item {
         background: none;
         border: 1px solid ${Colors.GREY_3};
-        border-radius: 360px;
+        border-radius: ${({ borderRadius }) => borderRadius} !important;
         max-width: 273.926px;
         height: 20px;
         color: ${Colors.GREY_10};
@@ -668,13 +668,13 @@ export const StyledCheckbox = styled(Checkbox)<{
     text-overflow: ellipsis;
     height: 38px;
     padding-bottom: 0 !important;
-    color: var(--wds-color-text-light) !important;
+    color: var(--wds-color-text) !important;
     display: flex;
     align-items: center;
     padding-left: 16px !important;
     & .${Classes.CONTROL_INDICATOR} {
       margin: 0;
-      margin-right: 20px;
+      margin-right: 10px;
     }
     &:hover {
       background: var(--wds-color-bg-hover);

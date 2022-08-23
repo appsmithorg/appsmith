@@ -393,7 +393,7 @@ border: 1px solid #E8E8E8;
 
 .rc-tree-select-tree-checkbox {
   box-sizing: border-box;
-  margin: 0 2px 0 9px;
+  margin: 0 0px 0 9px;
   white-space: nowrap;
   outline: none;
   cursor: pointer;
@@ -446,7 +446,7 @@ border: 1px solid #E8E8E8;
 	display: inline-block;
 	width: 0px;
 	height: 16px;
-	margin-right: 2px;
+	margin-right: 0px;
 	line-height: 16px;
 	vertical-align: -0.125em;
 	background-color: transparent;
@@ -471,7 +471,7 @@ border: 1px solid #E8E8E8;
 .rc-tree-select-tree
 	.rc-tree-select-tree-treenode
 	span.rc-tree-select-tree-icon_loading {
-	margin-right: 2px;
+	margin-right: 0px;
 	vertical-align: top;
 	background: none;
 }
@@ -529,7 +529,7 @@ border: 1px solid #E8E8E8;
 	cursor: not-allowed;
 }
 .rc-tree-select-tree-treenode-active {
-	background: ${({ accentColor }) => lightenColor(accentColor)};
+	background: var(--wds-color-bg-hover);
 
   :not(.rc-tree-select-tree-treenode-checkbox-checked) .rc-tree-select-tree-checkbox-inner {
     background: transparent;
@@ -560,12 +560,12 @@ border: 1px solid #E8E8E8;
   }
 }
 .rc-tree-select-tree-icon__open {
-	margin-right: 2px;
+	margin-right: 0px;
 	vertical-align: top;
 	background-position: -110px -16px;
 }
 .rc-tree-select-tree-icon__close {
-	margin-right: 2px;
+	margin-right: 0px;
 	vertical-align: top;
 	background-position: -110px 0;
 }
@@ -575,14 +575,14 @@ border: 1px solid #E8E8E8;
 	background-position: -110px -32px;
 }
 .rc-tree-select-tree-icon__customize {
-	margin-right: 2px;
+	margin-right: 0px;
 	vertical-align: top;
 }
 .rc-tree-select-tree-title {
 	display: inline-block;
   margin-left: 10px;
   font-size: 14px !important;
-  color: var(--wds-color-text-light);
+  color: var(--wds-color-text);
   overflow: hidden;
   text-overflow: ellipsis;
 }
@@ -763,7 +763,7 @@ export const TreeSelectContainer = styled.div<{
       .rc-tree-select-selection-item {
         background: none;
         border: 1px solid var(--wds-color-border);
-        border-radius: 360px;
+        border-radius:${({ borderRadius }) => borderRadius};
         max-width: 273.926px;
         height: 20px;
         color: var(--wds-color-text);
@@ -914,7 +914,7 @@ export const TreeSelectContainer = styled.div<{
 
       & .clear-icon {
         width: 16px;
-        margin-right: 4px;
+        margin-right: 8px;
 
         svg {
           width: 16px;
