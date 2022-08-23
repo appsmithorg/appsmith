@@ -24,7 +24,7 @@ import {
 import { AppTheme } from "entities/AppTheming";
 import { PluginId } from "api/PluginApi";
 import log from "loglevel";
-import { PseudoCanvasWidgetsReduxState } from "reducers/entityReducers/pseudoCanvasWidgetsReducer";
+import { MetaCanvasWidgetsReduxState } from "reducers/entityReducers/metaCanvasWidgetsReducer";
 
 export type ActionDispatcher = (
   ...args: any[]
@@ -149,7 +149,7 @@ type DataTreeSeed = {
   appData: AppDataState;
   jsActions: JSCollectionDataState;
   theme: AppTheme["properties"];
-  pseudoCanvasWidgets: PseudoCanvasWidgetsReduxState;
+  metaCanvasWidgets: MetaCanvasWidgetsReduxState;
 };
 
 export class DataTreeFactory {
@@ -158,9 +158,9 @@ export class DataTreeFactory {
     appData,
     editorConfigs,
     jsActions,
+    metaCanvasWidgets,
     pageList,
     pluginDependencyConfig,
-    pseudoCanvasWidgets,
     theme,
     widgets,
     widgetsMeta,
@@ -209,7 +209,7 @@ export class DataTreeFactory {
 
     const startPseudoWidgets = performance.now();
 
-    Object.values(pseudoCanvasWidgets).forEach((widget) => {
+    Object.values(metaCanvasWidgets).forEach((widget) => {
       dataTree[widget.widgetName] = generateDataTreeWidget(
         widget,
         widgetsMeta[widget.widgetId],
