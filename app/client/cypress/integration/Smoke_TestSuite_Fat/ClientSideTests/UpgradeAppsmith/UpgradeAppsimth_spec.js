@@ -6,8 +6,6 @@ describe("Upgrade appsmith version", () => {
   it("Upgrade Appsmith version and verify the Applications", () => {
     const uuid = () => Cypress._.random(0, 5);
     const name = uuid();
-    const ports = () => Cypress._.random(9001, 9050);
-    const port = ports();
     cy.wait(2000);
 
     cy.GetCWD(testUrl);
@@ -32,7 +30,6 @@ describe("Upgrade appsmith version", () => {
         path + "/oldstack/160",
         "release",
         `appsmith-160_${name}_updated`,
-        port,
       );
       cy.wait(45000);
 
@@ -72,8 +69,6 @@ describe("Upgrade appsmith version", () => {
 
     const uuid = () => Cypress._.random(0, 5);
     const name = uuid();
-    const ports = () => Cypress._.random(9001, 9050);
-    const port = ports();
     cy.wait(2000);
 
     cy.log("Get path");
@@ -89,7 +84,6 @@ describe("Upgrade appsmith version", () => {
         path + "/oldstack/ce",
         "release",
         `appsmith-160-ce-${name}-enterprise`,
-        port,
       );
       cy.wait(45000);
 

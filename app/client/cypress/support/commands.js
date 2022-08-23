@@ -1797,18 +1797,13 @@ Cypress.Commands.add("StartTheContainer", (path, containerName) => {
 
 Cypress.Commands.add(
   "CreateAContainer",
-  (url, path, version, containerName, port) => {
+  (url, path, version, containerName) => {
     let comm =
       "cd " +
       path +
       ";docker run -d --name " +
       containerName +
-      " -p 80:80 -p " +
-      port +
-      ":" +
-      port +
-      ' -v "' +
-      path +
+      ' -p 80:80 -p 9001:9001 -v "' +
       '/stacks:/appsmith-stacks" appsmith/appsmith-ce:' +
       version;
 
@@ -1829,17 +1824,13 @@ Cypress.Commands.add(
 
 Cypress.Commands.add(
   "CreateEEContainer",
-  (url, path, version, containerName, port) => {
+  (url, path, version, containerName) => {
     let comm =
       "cd " +
       path +
       ";docker run -d --name " +
       containerName +
-      " -p 80:80 -p " +
-      port +
-      ":" +
-      port +
-      ' -v "' +
+      ' -p 80:80 -p 9001:9001 -v "' +
       path +
       '/stacks:/appsmith-stacks" appsmith/appsmith-ee:' +
       version;
