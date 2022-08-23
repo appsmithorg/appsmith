@@ -129,11 +129,12 @@ class DropDownControl extends BaseControl<DropDownControlProps> {
       } else {
         selectedValue = value;
       }
-      this.updateProperty(
-        this.props.propertyName,
-        selectedValue,
-        isUpdatedViaKeyboard,
-      );
+      if (selectedValue !== this.props.propertyValue)
+        this.updateProperty(
+          this.props.propertyName,
+          selectedValue,
+          isUpdatedViaKeyboard,
+        );
     }
   };
 
