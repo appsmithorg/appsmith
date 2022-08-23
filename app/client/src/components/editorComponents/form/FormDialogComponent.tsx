@@ -3,7 +3,7 @@ import { isPermitted } from "pages/Applications/permissionHelpers";
 import Dialog from "components/ads/DialogComponent";
 import { useDispatch } from "react-redux";
 import { setShowAppInviteUsersDialog } from "actions/applicationActions";
-import { IconName } from "components/ads/Icon";
+import { IconName } from "design-system";
 
 type FormDialogComponentProps = {
   isOpen?: boolean;

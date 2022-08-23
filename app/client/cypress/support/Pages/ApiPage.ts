@@ -42,7 +42,7 @@ export class ApiPage {
   _saveAsDS = ".t--store-as-datasource";
 
   CreateApi(
-    apiName: string = "",
+    apiName = "",
     apiVerb: "GET" | "POST" | "PUT" | "DELETE" | "PATCH" = "GET",
   ) {
     cy.get(this.locator._createNew).click({ force: true });
@@ -67,11 +67,11 @@ export class ApiPage {
 
   CreateAndFillApi(
     url: string,
-    apiname: string = "",
+    apiName = "",
     apiVerb: "GET" | "POST" | "PUT" | "DELETE" | "PATCH" = "GET",
     queryTimeout = 30000,
   ) {
-    this.CreateApi(apiname, apiVerb);
+    this.CreateApi(apiName, apiVerb);
     this.EnterURL(url);
     this.agHelper.AssertAutoSave();
     //this.agHelper.Sleep(2000);// Added because api name edit takes some time to reflect in api sidebar after the call passes.

@@ -1,5 +1,7 @@
 import { IconNames } from "@blueprintjs/icons";
 import { PropertyPaneConfig } from "constants/PropertyControlConstants";
+import { WIDGET_STATIC_PROPS } from "constants/WidgetConstants";
+import { omit } from "lodash";
 import { WidgetConfigProps } from "reducers/entityReducers/widgetConfigReducer";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
 import { WidgetFeatures } from "utils/WidgetFeatures";
@@ -42,6 +44,14 @@ export type FlattenedWidgetProps = WidgetProps & {
 export interface DSLWidget extends WidgetProps {
   children?: DSLWidget[];
 }
+
+const staticProps = omit(WIDGET_STATIC_PROPS, "children");
+export type CanvasWidgetStructure = Pick<
+  WidgetProps,
+  keyof typeof staticProps
+> & {
+  children?: CanvasWidgetStructure[];
+};
 
 export enum FileDataTypes {
   Base64 = "Base64",
