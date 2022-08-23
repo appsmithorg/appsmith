@@ -1,8 +1,8 @@
 import React from "react";
 import styled from "styled-components";
-import { ReactComponent as Layout } from "assets/icons/ads/layout-7.svg";
-import { ReactComponent as Database } from "assets/icons/ads/database-3.svg";
-import { Text, TextType } from "design-system";
+import Database2LineIcon from "remixicon-react/Database2LineIcon";
+import Layout2LineIcon from "remixicon-react/Layout2LineIcon";
+import { Text, TextType, IconWrapper } from "design-system";
 import { Colors } from "constants/Colors";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -42,6 +42,11 @@ const Card = styled.div`
   align-items: center;
   cursor: pointer;
 
+  svg {
+    height: 24px;
+    width: 24px;
+  }
+
   &:hover {
     background-color: ${Colors.GREY_2};
   }
@@ -79,7 +84,9 @@ function CanvasTopSection() {
   return (
     <Wrapper>
       <Card data-cy="start-from-template" onClick={showTemplatesModal}>
-        <Layout />
+        <IconWrapper>
+          <Layout2LineIcon />
+        </IconWrapper>
         <Content>
           <Text color={Colors.COD_GRAY} type={TextType.P1}>
             {createMessage(TEMPLATE_CARD_TITLE)}
@@ -93,7 +100,9 @@ function CanvasTopSection() {
         data-cy="generate-app"
         onClick={() => goToGenPageForm({ applicationSlug, pageSlug, pageId })}
       >
-        <Database />
+        <IconWrapper>
+          <Database2LineIcon />
+        </IconWrapper>
         <Content>
           <Text color={Colors.COD_GRAY} type={TextType.P1}>
             {createMessage(GENERATE_PAGE)}
