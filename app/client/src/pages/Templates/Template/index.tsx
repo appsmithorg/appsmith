@@ -13,6 +13,7 @@ import {
   FORK_THIS_TEMPLATE,
 } from "@appsmith/constants/messages";
 import { templateIdUrl } from "RouteBuilder";
+import { Position } from "@blueprintjs/core";
 
 const TemplateWrapper = styled.div`
   border: 1px solid ${Colors.GEYSER_LIGHT};
@@ -173,7 +174,11 @@ export function TemplateLayout(props: TemplateLayoutProps) {
               showForkModal={showForkModal}
               templateId={id}
             >
-              <Tooltip content={createMessage(FORK_THIS_TEMPLATE)}>
+              <Tooltip
+                content={createMessage(FORK_THIS_TEMPLATE)}
+                minimal
+                position={Position.BOTTOM}
+              >
                 <StyledButton
                   className="t--fork-template fork-button"
                   icon="plus"
