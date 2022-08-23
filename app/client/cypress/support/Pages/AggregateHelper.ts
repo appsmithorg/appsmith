@@ -19,7 +19,7 @@ export class AggregateHelper {
 
   private isMac = Cypress.platform === "darwin";
   private selectLine = `${
-    this.isMac ? "{cmd}{shift}{leftArrow}{backspace}" : "{ctrl}{shift}{home}{backspace}"
+    this.isMac ? "{cmd}{shift}{leftArrow}{backspace}" : "{home}{shift}{downArrow}{backspace}"
   }`;
 
   public SaveLocalStorageCache() {

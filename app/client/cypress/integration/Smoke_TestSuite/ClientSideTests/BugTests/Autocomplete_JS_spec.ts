@@ -122,7 +122,7 @@ describe("Autocomplete tests", () => {
 
   it("3. JSObject this. autocomplete", () => {
     // Using same js object
-    agHelper.SelectNRemoveLineText(CommonLocators._codeMirrorTextArea);
+    //agHelper.SelectNRemoveLineText(CommonLocators._codeMirrorTextArea);
     // focus on 5th line
     agHelper.GetNClick(jsEditor._lineinJsEditor(5));
     agHelper.TypeText(CommonLocators._codeMirrorTextArea, "this.");
