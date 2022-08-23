@@ -34,9 +34,14 @@ import { flatten, difference, uniq } from "lodash";
 export function createDependencyMap(
   dataTreeEvalRef: DataTreeEvaluator,
   unEvalTree: DataTree,
-): { dependencyMap: DependencyMap; triggerFieldDependencyMap: DependencyMap } {
+): {
+  dependencyMap: DependencyMap;
+  triggerFieldDependencyMap: DependencyMap;
+  unusedIdentifiers: DependencyMap;
+} {
   let dependencyMap: DependencyMap = {};
   let triggerFieldDependencyMap: DependencyMap = {};
+  const unusedIdentifiers: DependencyMap = {};
   Object.keys(unEvalTree).forEach((entityName) => {
     const entity = unEvalTree[entityName];
     if (isAction(entity) || isWidget(entity) || isJSAction(entity)) {
@@ -57,7 +62,12 @@ export function createDependencyMap(
   Object.keys(dependencyMap).forEach((key) => {
     const newDep = dependencyMap[key].map((path) => {
       try {
-        return extractInfoFromBinding(path, dataTreeEvalRef.allKeys).references;
+        const { references, unreferencedIdentifiers } = extractInfoFromBinding(
+          path,
+          dataTreeEvalRef.allKeys,
+        );
+        unusedIdentifiers[key] = unreferencedIdentifiers;
+        return references;
       } catch (error) {
         dataTreeEvalRef.errors.push({
           type: EvalErrorTypes.EXTRACT_DEPENDENCY_ERROR,
@@ -84,7 +94,7 @@ export function createDependencyMap(
     dependencyMap,
     dataTreeEvalRef.allKeys,
   );
-  return { dependencyMap, triggerFieldDependencyMap };
+  return { dependencyMap, triggerFieldDependencyMap, unusedIdentifiers };
 }
 
 export const updateDependencyMap = ({
