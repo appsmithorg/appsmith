@@ -500,7 +500,7 @@ export class DataSources {
     this.EnterQuery(query);
   }
 
-  public SetQueryTimeout(queryTimeout = 0) {
+  public SetQueryTimeout(queryTimeout = 20000) {
     this.agHelper.GetNClick(this._queryResponse("SETTINGS"));
     cy.xpath(this._queryTimeout)
       .clear()

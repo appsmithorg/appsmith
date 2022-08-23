@@ -34,7 +34,7 @@ describe("Abort Action Execution", function() {
         "SELECT * FROM worldCountryInfo wc join countryFlags cf on wc.Name = cf.Country",
         "AbortQuery",
       );
-      dataSources.SetQueryTimeout();
+      dataSources.SetQueryTimeout(0);
       dataSources.RunQuery(false, false, 0);
       agHelper.GetNClick(locator._cancelActionExecution, 0, true);
       agHelper.AssertContains(ERROR_ACTION_EXECUTE_FAIL("AbortQuery"));
