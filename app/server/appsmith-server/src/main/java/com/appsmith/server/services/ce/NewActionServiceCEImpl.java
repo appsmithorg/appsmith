@@ -36,6 +36,7 @@ import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.ActionViewDTO;
 import com.appsmith.server.dtos.LayoutActionUpdateDTO;
+import com.appsmith.server.dtos.Permission;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.DateUtils;
@@ -52,11 +53,13 @@ import com.appsmith.server.services.DatasourceContextService;
 import com.appsmith.server.services.DatasourceService;
 import com.appsmith.server.services.MarketplaceService;
 import com.appsmith.server.services.NewPageService;
+import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.services.PluginService;
 import com.appsmith.server.services.SessionUserService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.Sets;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang3.ObjectUtils;
@@ -138,6 +141,8 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
     private final ConfigService configService;
     private final ResponseUtils responseUtils;
 
+    private final PermissionGroupService permissionGroupService;
+
     public NewActionServiceCEImpl(Scheduler scheduler,
                                   Validator validator,
                                   MongoConverter mongoConverter,
@@ -156,7 +161,8 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                                   PolicyUtils policyUtils,
                                   AuthenticationValidator authenticationValidator,
                                   ConfigService configService,
-                                  ResponseUtils responseUtils) {
+                                  ResponseUtils responseUtils,
+                                  PermissionGroupService permissionGroupService) {
 
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.repository = repository;
@@ -171,6 +177,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
         this.sessionUserService = sessionUserService;
         this.policyUtils = policyUtils;
         this.authenticationValidator = authenticationValidator;
+        this.permissionGroupService = permissionGroupService;
         this.objectMapper = new ObjectMapper();
         this.responseUtils = responseUtils;
         this.configService = configService;
@@ -357,7 +364,9 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                             return datasource;
                         })
                         // If the action is publicly executable, update the datasource policy
-                        .flatMap(datasource -> updateDatasourcePolicyForPublicAction(newAction.getPolicies(), datasource));
+                        .flatMap(datasource -> updateDatasourcePolicyForPublicAction(
+                                newAction.getApplicationId(), newAction.getPolicies(), datasource)
+                        );
             }
         }
 
@@ -1828,35 +1837,62 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
         return updatedActionConfiguration.getBody();
     }
 
-    private Mono<Datasource> updateDatasourcePolicyForPublicAction(Set<Policy> actionPolicies, Datasource datasource) {
+    private Mono<Datasource> updateDatasourcePolicyForPublicAction(String applicationId, Set<Policy> actionPolicies, Datasource datasource) {
         if (datasource.getId() == null) {
             // This seems to be a nested datasource. Return as is.
             return Mono.just(datasource);
         }
 
         // If action has EXECUTE permission for anonymous, check and assign the same to the datasource.
-        if (policyUtils.isPermissionPresentForUser(actionPolicies, EXECUTE_ACTIONS.getValue(), FieldName.ANONYMOUS_USER)) {
-            // Check if datasource has execute permission
-            if (policyUtils.isPermissionPresentForUser(datasource.getPolicies(), EXECUTE_DATASOURCES.getValue(), FieldName.ANONYMOUS_USER)) {
-                // Datasource has correct permission. Return as is
-                return Mono.just(datasource);
-            }
-            // Add the permission to datasource
-            AclPermission datasourcePermission = EXECUTE_DATASOURCES;
+        return repository.isPermissionPresentForUser(actionPolicies, EXECUTE_ACTIONS.getValue(), FieldName.ANONYMOUS_USER)
+                .flatMap(isPublicAction -> {
 
-            User user = new User();
-            user.setName(FieldName.ANONYMOUS_USER);
-            user.setEmail(FieldName.ANONYMOUS_USER);
-            user.setIsAnonymous(true);
+                    if (!isPublicAction) {
+                        return Mono.just(datasource);
+                    }
+                    // Check if datasource has execute permission
+                    return repository.isPermissionPresentForUser(
+                                    datasource.getPolicies(), EXECUTE_DATASOURCES.getValue(), FieldName.ANONYMOUS_USER
+                            )
+                            .flatMap(isPublicDatasource -> {
+                                if (isPublicDatasource) {
+                                    // Datasource has correct permission. Return as is
+                                    return Mono.just(datasource);
+                                }
 
-            Map<String, Policy> datasourcePolicyMap = policyUtils.generatePolicyFromPermission(Set.of(datasourcePermission), user);
+                                // Add the permission to datasource
+                                return applicationService.findById(applicationId)
+                                        .flatMap(application -> {
+                                            String defaultPermissionGroup = application.getDefaultPermissionGroup();
+                                            if (defaultPermissionGroup == null) {
+                                                return Mono.error(new AppsmithException(AppsmithError.PUBLIC_APP_NO_PERMISSION_GROUP));
+                                            }
 
-            Datasource updatedDatasource = policyUtils.addPoliciesToExistingObject(datasourcePolicyMap, datasource);
+                                            Map<String, Policy> datasourcePolicyMap =
+                                                    policyUtils.generatePolicyFromPermissionWithPermissionGroup(
+                                                            EXECUTE_DATASOURCES, defaultPermissionGroup
+                                                    );
 
-            return datasourceService.save(updatedDatasource);
-        }
+                                            Datasource updatedDatasource =
+                                                    policyUtils.addPoliciesToExistingObject(datasourcePolicyMap, datasource);
 
-        return Mono.just(datasource);
+
+                                            // Update the permission group to store the datasource execute permission
+                                            return permissionGroupService.findById(defaultPermissionGroup)
+                                                    .flatMap(permissionGroup -> {
+                                                        Set<Permission> permissions = permissionGroup.getPermissions();
+                                                        Permission datasourcePermission = new Permission(datasource.getId(), EXECUTE_DATASOURCES);
+
+                                                        permissionGroup.setPermissions(
+                                                                Sets.union(permissions, Sets.newHashSet(datasourcePermission))
+                                                        );
+
+                                                        return permissionGroupService.save(permissionGroup)
+                                                                .then(datasourceService.save(updatedDatasource));
+                                                    });
+                                        });
+                            });
+                });
     }
 
     public Mono<NewAction> findByBranchNameAndDefaultActionId(String branchName, String defaultActionId, AclPermission permission) {
