@@ -479,7 +479,7 @@ describe("App Theming funtionality", function() {
       .click({ force: true })
       .wait(1000); //Changing to one of featured themes
     cy.contains("Applied Theme")
-      .click()
+      // .click()
       .parent()
       .siblings()
       .find(".t--theme-card > main > section > div > main")
@@ -490,7 +490,7 @@ describe("App Theming funtionality", function() {
       });
 
     cy.contains("Applied Theme")
-      .click()
+      // .click()
       .parent()
       .siblings()
       .find(".t--theme-card > main > section > div > main")
@@ -507,7 +507,7 @@ describe("App Theming funtionality", function() {
       .click({ force: true })
       .wait(1000); //Changing to one of featured themes
     cy.contains("Applied Theme")
-      .click()
+      // .click()
       .parent()
       .siblings()
       .find(".t--theme-card > main > section > div > main")
@@ -518,7 +518,7 @@ describe("App Theming funtionality", function() {
       });
 
     cy.contains("Applied Theme")
-      .click()
+      // .click()
       .parent()
       .siblings()
       .find(".t--theme-card > main > section > div > main")
@@ -535,7 +535,7 @@ describe("App Theming funtionality", function() {
       .click({ force: true })
       .wait(1000); //Changing to one of featured themes
     cy.contains("Applied Theme")
-      .click()
+      // .click()
       .parent()
       .siblings()
       .find(".t--theme-card > main > section > div > main")
@@ -546,7 +546,7 @@ describe("App Theming funtionality", function() {
       });
 
     cy.contains("Applied Theme")
-      .click()
+      // .click()
       .parent()
       .siblings()
       .find(".t--theme-card > main > section > div > main")
@@ -563,7 +563,7 @@ describe("App Theming funtionality", function() {
       .click({ force: true })
       .wait(1000); //Changing to one of featured themes
     cy.contains("Applied Theme")
-      .click()
+      // .click()
       .parent()
       .siblings()
       .find(".t--theme-card > main > section > div > main")
@@ -574,7 +574,7 @@ describe("App Theming funtionality", function() {
       });
 
     cy.contains("Applied Theme")
-      .click()
+      // .click()
       .parent()
       .siblings()
       .find(".t--theme-card > main > section > div > main")
@@ -590,7 +590,7 @@ describe("App Theming funtionality", function() {
       .click({ force: true })
       .wait(1000); //Changing to one of featured themes
     cy.contains("Applied Theme")
-      .click()
+      // .click()
       .parent()
       .siblings()
       .find(".t--theme-card > main > section > div > main")
@@ -601,7 +601,7 @@ describe("App Theming funtionality", function() {
       });
 
     cy.contains("Applied Theme")
-      .click()
+      // .click()
       .parent()
       .siblings()
       .find(".t--theme-card > main > section > div > main")
@@ -617,7 +617,7 @@ describe("App Theming funtionality", function() {
       .click({ force: true })
       .wait(1000); //Changing to one of featured themes
     cy.contains("Applied Theme")
-      .click()
+      // .click()
       .parent()
       .siblings()
       .find(".t--theme-card > main > section > div > main")
@@ -628,7 +628,7 @@ describe("App Theming funtionality", function() {
       });
 
     cy.contains("Applied Theme")
-      .click()
+      // .click()
       .parent()
       .siblings()
       .find(".t--theme-card > main > section > div > main")
@@ -644,7 +644,7 @@ describe("App Theming funtionality", function() {
       .click({ force: true })
       .wait(1000); //Changing to one of featured themes
     cy.contains("Applied Theme")
-      .click()
+      // .click()
       .parent()
       .siblings()
       .find(".t--theme-card > main > section > div > main")
@@ -655,7 +655,7 @@ describe("App Theming funtionality", function() {
       });
 
     cy.contains("Applied Theme")
-      .click()
+      // .click()
       .parent()
       .siblings()
       .find(".t--theme-card > main > section > div > main")
@@ -671,7 +671,7 @@ describe("App Theming funtionality", function() {
       .click({ force: true })
       .wait(1000); //Changing to one of featured themes
     cy.contains("Applied Theme")
-      .click()
+      // .click()
       .parent()
       .siblings()
       .find(".t--theme-card > main > section > div > main")
@@ -682,7 +682,7 @@ describe("App Theming funtionality", function() {
       });
 
     cy.contains("Applied Theme")
-      .click()
+      // .click()
       .parent()
       .siblings()
       .find(".t--theme-card > main > section > div > main")
@@ -699,7 +699,7 @@ describe("App Theming funtionality", function() {
       .wait(1000); //Changing to created test theme
 
     cy.contains("Applied Theme")
-      .click()
+      // .click()
       .parent()
       .siblings()
       .find(".t--theme-card > main > section > div > main")
@@ -710,7 +710,7 @@ describe("App Theming funtionality", function() {
       });
 
     cy.contains("Applied Theme")
-      .click()
+      // .click()
       .parent()
       .siblings()
       .find(".t--theme-card > main > section > div > main")
