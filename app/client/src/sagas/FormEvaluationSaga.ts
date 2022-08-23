@@ -273,7 +273,7 @@ function* fetchDynamicValueSaga(
 
 function* formEvaluationChangeListenerSaga() {
   const formEvalChannel: ActionPattern<ReduxActionType<
-    any
+    FormEvalActionPayload
   >> = yield actionChannel(FORM_EVALUATION_REDUX_ACTIONS);
   while (true) {
     const action: ReduxAction<FormEvalActionPayload> = yield take(
