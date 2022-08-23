@@ -155,7 +155,7 @@ export class JSEditor {
         } else {
           cy.get(el).type(JSCode, {
             parseSpecialCharSequences: false,
-            delay: 10,
+            delay: 50,
             force: true,
           });
         }

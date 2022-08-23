@@ -201,7 +201,6 @@ describe("JS Function Execution", function() {
       myVar1: [],
       myVar2: {},
       myFun1: () => {
-        //write code here
         return Table1.unknown.name
       }
     }`;
@@ -210,7 +209,6 @@ describe("JS Function Execution", function() {
       myVar1: [],
       myVar2: {},
       myFun1: () => {
-        //write code here
         return Table1.unknown
       }
     }`;
@@ -222,7 +220,7 @@ describe("JS Function Execution", function() {
 
     // Create js object
     jsEditor.CreateJSObject(JS_OBJECT_WITH_PARSE_ERROR, {
-      paste: true,
+      paste: false,
       completeReplace: true,
       toRun: true,
       shouldCreateNewJSObj: true,
