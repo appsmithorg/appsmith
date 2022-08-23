@@ -86,7 +86,8 @@ export class JSEditor {
     `${JSFunctionName}-settings`;
   _asyncJSFunctionSettings = `.t--async-js-function-settings`;
   _debugCTA = `button.js-editor-debug-cta`;
-  _lineinJsEditor = (lineNumber: number) => ":nth-child(" + lineNumber + ") > .CodeMirror-line";
+  _lineinJsEditor = (lineNumber: number) =>
+    ":nth-child(" + lineNumber + ") > .CodeMirror-line";
   //#endregion
 
   //#region constants
@@ -144,6 +145,7 @@ export class JSEditor {
         .focus()
         .type(this.selectAllJSObjectContentShortcut)
         .type("{backspace}", { force: true });
+      this.agHelper.AssertAutoSave();
     }
 
     cy.get(this.locator._codeMirrorTextArea)
