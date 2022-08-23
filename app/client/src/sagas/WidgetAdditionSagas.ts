@@ -46,7 +46,7 @@ const themePropertiesDefaults = {
   accentColor: "{{appsmith.theme.colors.primaryColor}}",
 };
 
-type GeneratedWidgetPayload = {
+export type GeneratedWidgetPayload = {
   widgetId: string;
   widgets: { [widgetId: string]: FlattenedWidgetProps };
 };
@@ -168,7 +168,7 @@ function* getChildWidgetProps(
   return widget;
 }
 
-function* generateChildWidgets(
+export function* generateChildWidgets(
   parent: FlattenedWidgetProps,
   params: WidgetAddChild,
   widgets: { [widgetId: string]: FlattenedWidgetProps },
@@ -375,39 +375,6 @@ export function* getUpdateDslAfterCreatingAutoLayoutChild(
 
   /**
    * END create container widget wrapper
-   */
-
-  /**
-   * START create canvas widget wrapper
-   */
-
-  // Generate a payload for canvas widget
-  // const newCanvasWidgetPayload = {
-  //   ...addChildPayload,
-  //   widgetId: containerPayload.widgetId,
-  //   newWidgetId: generateReactKey(),
-  //   type: "CANVAS_WIDGET",
-  //   widgetName: `Canvas${(Object.values(containerPayload.widgets)?.filter(
-  //     (each) => each.widgetName.indexOf("Canvas") > -1,
-  //   )?.length || 0) + 1}`,
-  //   props: {
-  //     containerStyle: "none",
-  //     canExtend: false,
-  //     detachFromLayout: true,
-  //     children: [],
-  //     isWrapper: true,
-  //   },
-  // };
-  // console.log(newCanvasWidgetPayload);
-  // const canvasPayload: GeneratedWidgetPayload = yield generateChildWidgets(
-  //   containerPayload.widgets[containerPayload.widgetId],
-  //   newCanvasWidgetPayload,
-  //   containerPayload.widgets,
-  // );
-  // console.log(canvasPayload);
-
-  /**
-   * END create canvas widget wrapper
    */
 
   /**

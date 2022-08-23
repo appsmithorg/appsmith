@@ -27,11 +27,15 @@ import { collisionCheckPostReflow } from "utils/reflowHookUtils";
 import { WidgetDraggingUpdateParams } from "pages/common/CanvasArenas/hooks/useBlocksToBeDraggedOnCanvas";
 import { getWidget, getWidgets } from "sagas/selectors";
 import {
+  generateChildWidgets,
+  GeneratedWidgetPayload,
   getUpdateDslAfterCreatingAutoLayoutChild,
   getUpdateDslAfterCreatingChild,
 } from "sagas/WidgetAdditionSagas";
 import { MainCanvasReduxState } from "reducers/uiReducers/mainCanvasReducer";
 import { CANVAS_DEFAULT_MIN_HEIGHT_PX } from "constants/AppConstants";
+import { generateReactKey } from "utils/generators";
+import { Alignment, ButtonBoxShadowTypes, Spacing } from "components/constants";
 
 export type WidgetMoveParams = {
   widgetId: string;
@@ -345,12 +349,15 @@ function* autolayoutReorderSaga(
   try {
     const allWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
     if (!parentId || !movedWidgets || !movedWidgets.length) return;
-    const updatedWidgets = reorderAutolayoutChildren({
-      movedWidgets,
-      index,
-      parentId,
-      allWidgets,
-    });
+    const updatedWidgets: CanvasWidgetsReduxState = yield call(
+      reorderAutolayoutChildren,
+      {
+        movedWidgets,
+        index,
+        parentId,
+        allWidgets,
+      },
+    );
     yield put(updateAndSaveLayout(updatedWidgets));
     log.debug("reorder computations took", performance.now() - start, "ms");
   } catch (e) {
@@ -358,13 +365,14 @@ function* autolayoutReorderSaga(
   }
 }
 
-function reorderAutolayoutChildren(params: {
+function* reorderAutolayoutChildren(params: {
   movedWidgets: string[];
   index: number;
   parentId: string;
   allWidgets: CanvasWidgetsReduxState;
 }) {
   const { allWidgets, index, movedWidgets, parentId } = params;
+  // console.log(movedWidgets);
   const widgets = Object.assign({}, allWidgets);
   if (!movedWidgets) return widgets;
   const selectedWidgets = [...movedWidgets];
@@ -394,21 +402,131 @@ function reorderAutolayoutChildren(params: {
       };
     });
   }
+  // Remove all empty wrappers
+  const trimmedWidgets = removeEmptyWrappers(widgets, movedWidgets, parentId);
+  // Update moved widgets. Add wrappers to those missing one.
+  const { newMovedWidgets, updatedWidgets } = yield call(
+    updateMovedWidgets,
+    movedWidgets,
+    trimmedWidgets,
+    parentId,
+  );
+  // console.log(newMovedWidgets);
+  // console.log(updatedWidgets);
 
-  const items = [...(widgets[parentId].children || [])];
+  const items = [...(updatedWidgets[parentId].children || [])];
   // remove moved widegts from children
-  const newItems = items.filter((item) => movedWidgets.indexOf(item) === -1);
+  const newItems = items.filter((item) => newMovedWidgets.indexOf(item) === -1);
   // calculate valid position for drop
   const pos = index > newItems.length ? newItems.length : index;
-  widgets[parentId] = {
-    ...widgets[parentId],
+  updatedWidgets[parentId] = {
+    ...trimmedWidgets[parentId],
     children: [
       ...newItems.slice(0, pos),
-      ...movedWidgets,
+      ...newMovedWidgets,
       ...newItems.slice(pos),
     ],
   };
+  return updatedWidgets;
+}
+
+function removeEmptyWrappers(
+  allWidgets: CanvasWidgetsReduxState,
+  movedWidgets: string[],
+  parentId: string,
+) {
+  const widgets = { ...allWidgets };
+  const items = [...(widgets[parentId].children || [])];
+  items.forEach((item) => {
+    if (movedWidgets.indexOf(item) > -1) return;
+    const widget = widgets[item];
+    if (widget.isWrapper && !widget.children?.length) {
+      if (widget.parentId) {
+        widgets[widget.parentId] = {
+          ...widgets[widget.parentId],
+          children: widgets[widget.parentId].children?.filter(
+            (each) => each !== widget.widgetId,
+          ),
+        };
+      }
+      delete widgets[widget.widgetId];
+    }
+  });
   return widgets;
+}
+
+function* updateMovedWidgets(
+  movedWidgets: string[],
+  allWidgets: CanvasWidgetsReduxState,
+  parentId: string,
+) {
+  // console.log("=====================");
+  // console.log(movedWidgets);
+  // console.log(allWidgets);
+  const stateParent = allWidgets[parentId];
+  if (!movedWidgets || !allWidgets) return;
+  const newMovedWidgets: string[] = [];
+  for (const each of movedWidgets) {
+    const widget = allWidgets[each];
+    // console.log(widget);
+    if (!widget) continue;
+    if (widget.isWrapper) {
+      newMovedWidgets.push(each);
+      continue;
+    }
+
+    // wrap the widget in a wrapper widget
+    const wrapperPayload = {
+      newWidgetId: generateReactKey(),
+      type: "LAYOUT_WRAPPER_WIDGET",
+      widgetName: `LayoutWrapper${(Object.values(allWidgets)?.filter(
+        (each) => each.widgetName.indexOf("LayoutWrapper") > -1,
+      )?.length || 0) + 1}`,
+      props: {
+        containerStyle: "none",
+        canExtend: false,
+        detachFromLayout: true,
+        children: [],
+        alignment: Alignment.Left,
+        spacing: Spacing.None,
+        isWrapper: true,
+        backgroundColor: "transparent",
+        boxShadow: ButtonBoxShadowTypes.NONE,
+        borderStyle: "none",
+      },
+      rows: widget.rows ? widget.rows + 1 : widget.bottomRow - widget.top + 1,
+      columns: widget.columns
+        ? widget.columns + 1
+        : widget.rightColumn - widget.leftColumn + 1,
+      widgetId: parentId,
+      leftColumn: widget.leftColumn,
+      topRow: widget.topRow,
+      parentRowSpace: stateParent.parentRowSpace,
+      parentColumnSpace: stateParent.parentColumnSpace,
+      tabId: "",
+    };
+    // console.log(wrapperPayload);
+    const containerPayload: GeneratedWidgetPayload = yield generateChildWidgets(
+      stateParent,
+      wrapperPayload,
+      allWidgets,
+    );
+    // console.log(containerPayload);
+    // Add widget to the wrapper
+    let wrapper = containerPayload.widgets[containerPayload.widgetId];
+    wrapper = {
+      ...wrapper,
+      children: [...(wrapper.children || []), each],
+    };
+    // console.log(wrapper);
+    // Update parent of the widget
+    allWidgets[each] = { ...widget, parentId: wrapper.widgetId };
+    allWidgets[wrapper.widgetId] = wrapper;
+    newMovedWidgets.push(wrapper.widgetId);
+    // console.log(newMovedWidgets);
+    // console.log(allWidgets);
+  }
+  return { newMovedWidgets, updatedWidgets: allWidgets };
 }
 
 function* addWidgetAndReorderSaga(
@@ -420,8 +538,46 @@ function* addWidgetAndReorderSaga(
 ) {
   const start = performance.now();
   const { index, newWidget, parentId } = actionPayload.payload;
+  // console.log(newWidget);
   // console.log(`parentId: ${parentId}`);
   try {
+    const updatedWidgetsOnAddition: {
+      widgets: CanvasWidgetsReduxState;
+      containerId?: string;
+    } = yield call(addAutoLayoutChild, newWidget, parentId);
+
+    const updatedWidgetsOnMove: CanvasWidgetsReduxState = yield call(
+      reorderAutolayoutChildren,
+      {
+        movedWidgets: [
+          updatedWidgetsOnAddition.containerId || newWidget.newWidgetId,
+        ],
+        index,
+        parentId,
+        allWidgets: updatedWidgetsOnAddition.widgets,
+      },
+    );
+    yield put(updateAndSaveLayout(updatedWidgetsOnMove));
+    log.debug("reorder computations took", performance.now() - start, "ms");
+  } catch (e) {
+    // console.error(e);
+  }
+}
+
+function* addAutoLayoutChild(newWidget: WidgetAddChild, parentId: string) {
+  const allWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
+  const stateParent: FlattenedWidgetProps = allWidgets[parentId];
+
+  if (stateParent?.isWrapper) {
+    const updatedWidgetsOnAddition: CanvasWidgetsReduxState = yield call(
+      getUpdateDslAfterCreatingChild,
+      {
+        ...newWidget,
+        widgetId: parentId,
+      },
+    );
+    return { widgets: updatedWidgetsOnAddition };
+  } else {
     const updatedWidgetsOnAddition: {
       widgets: CanvasWidgetsReduxState;
       containerId?: string;
@@ -430,18 +586,7 @@ function* addWidgetAndReorderSaga(
       widgetId: parentId,
     });
 
-    const updatedWidgetsOnMove = reorderAutolayoutChildren({
-      movedWidgets: [
-        updatedWidgetsOnAddition.containerId || newWidget.newWidgetId,
-      ],
-      index,
-      parentId,
-      allWidgets: updatedWidgetsOnAddition.widgets,
-    });
-    yield put(updateAndSaveLayout(updatedWidgetsOnMove));
-    log.debug("reorder computations took", performance.now() - start, "ms");
-  } catch (e) {
-    // console.error(e);
+    return updatedWidgetsOnAddition;
   }
 }
 
