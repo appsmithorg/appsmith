@@ -190,7 +190,7 @@ describe("JS Function Execution", function() {
       agHelper.GetNAssertElementText(
         locator._lintErrorElement,
         highlightedLintText,
-        "contain.text",
+        "contain.text", -1
       );
       agHelper.ActionContextMenuWithInPane("Delete", "", true);
       agHelper.WaitUntilToastDisappear("deleted successfully");

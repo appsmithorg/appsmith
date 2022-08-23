@@ -120,16 +120,14 @@ export class AggregateHelper {
   public GetNAssertElementText(
     selector: string,
     text: string,
-    textPresence:
-      | "have.text"
-      | "contain.text"
-      | "not.have.text" = "have.text",
+    textPresence: "have.text" | "contain.text" | "not.have.text" = "have.text",
     index = 0,
   ) {
     const locator = selector.startsWith("//")
       ? cy.xpath(selector)
       : cy.get(selector);
-    locator.eq(index).should(textPresence, text);
+    if (index >= 0) locator.eq(index).should(textPresence, text);
+    else locator.should(textPresence, text);
   }
 
   public ValidateToastMessage(text: string, index = 0, length = 1) {
