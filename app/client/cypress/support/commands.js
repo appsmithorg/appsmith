@@ -1889,7 +1889,7 @@ Cypress.Commands.add("GetAndVerifyLogs", (path, containerName) => {
     cy.log(res.body.stderr);
     cy.log(res.body.stdout);
     expect(res.status).equal(200);
-    expect(res.body.stdout).not.equal("");
+    // expect(res.body.stdout).not.equal("");
   });
 });
 
