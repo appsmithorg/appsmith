@@ -189,7 +189,7 @@ export class JSEditor {
   }
 
   //Edit the name of a JSObject's property (variable or function)
-  public EditJSObj(newContent: string) {
+  public EditJSObj(newContent: string, toPrettify = true) {
     cy.get(this.locator._codeMirrorTextArea)
       .first()
       .focus()
@@ -198,7 +198,7 @@ export class JSEditor {
         this.agHelper.Paste(el, newContent);
       });
     this.agHelper.Sleep(2000); //Settling time for edited js code
-    this.agHelper.ActionContextMenuWithInPane("Prettify Code");
+    toPrettify && this.agHelper.ActionContextMenuWithInPane("Prettify Code");
     this.agHelper.AssertAutoSave();
   }
 

@@ -247,7 +247,7 @@ describe("JS Function Execution", function() {
     );
 
     // Fix parse error and assert that debugger error is removed
-    jsEditor.EditJSObj(JS_OBJECT_WITHOUT_PARSE_ERROR);
+    jsEditor.EditJSObj(JS_OBJECT_WITHOUT_PARSE_ERROR, false);
     agHelper.GetNClick(jsEditor._runButton);
     agHelper.AssertContains("ran successfully"); //to not hinder with next toast msg in next case!
     jsEditor.AssertParseError(false, true);
@@ -260,13 +260,13 @@ describe("JS Function Execution", function() {
     // Switch back to response tab
     agHelper.GetNClick(locator._responseTab);
     // Re-introduce parse errors
-    jsEditor.EditJSObj(JS_OBJECT_WITH_PARSE_ERROR + "}}");
+    jsEditor.EditJSObj(JS_OBJECT_WITH_PARSE_ERROR + "}}", false);
     agHelper.GetNClick(jsEditor._runButton);
     // Assert that there is a function execution parse error
     jsEditor.AssertParseError(true, true);
 
     // Delete function
-    jsEditor.EditJSObj(JS_OBJECT_WITH_DELETED_FUNCTION);
+    jsEditor.EditJSObj(JS_OBJECT_WITH_DELETED_FUNCTION, false);
     // Assert that parse error is removed from debugger when function is deleted
     agHelper.GetNClick(locator._errorTab);
     agHelper.AssertContains(
@@ -371,9 +371,9 @@ describe("JS Function Execution", function() {
     });
 
     // change sync function name and test that cyclic dependency is not created
-    jsEditor.EditJSObj(syncJSCodeWithRenamedFunction1);
+    jsEditor.EditJSObj(syncJSCodeWithRenamedFunction1, false);
     agHelper.AssertContains("Cyclic dependency", "not.exist");
-    jsEditor.EditJSObj(syncJSCodeWithRenamedFunction2);
+    jsEditor.EditJSObj(syncJSCodeWithRenamedFunction2, false);
     agHelper.AssertContains("Cyclic dependency", "not.exist");
 
     jsEditor.CreateJSObject(asyncJSCode, {
@@ -384,9 +384,9 @@ describe("JS Function Execution", function() {
       prettify: false,
     });
     // change async function name and test that cyclic dependency is not created
-    jsEditor.EditJSObj(asyncJSCodeWithRenamedFunction1);
+    jsEditor.EditJSObj(asyncJSCodeWithRenamedFunction1, false);
     agHelper.AssertContains("Cyclic dependency", "not.exist");
-    jsEditor.EditJSObj(asyncJSCodeWithRenamedFunction2);
+    jsEditor.EditJSObj(asyncJSCodeWithRenamedFunction2, false);
     agHelper.AssertContains("Cyclic dependency", "not.exist");
   });
 
@@ -500,7 +500,7 @@ describe("JS Function Execution", function() {
 
     // rename functions and assert order
     agHelper.GetNClick(jsEditor._codeTab);
-    jsEditor.EditJSObj(getJSObject(FUNCTIONS_SETTINGS_RENAMED_DATA));
+    jsEditor.EditJSObj(getJSObject(FUNCTIONS_SETTINGS_RENAMED_DATA), false);
     agHelper.Sleep(3000);
     agHelper.GetNClick(jsEditor._settingsTab);
     assertAsyncFunctionsOrder(FUNCTIONS_SETTINGS_RENAMED_DATA);
@@ -531,7 +531,7 @@ return "yes";`;
     jsEditor.EnableDisableAsyncFuncSettings("asyncToSync", true, true);
 
     // Modify js object
-    jsEditor.EditJSObj(syncJSCode);
+    jsEditor.EditJSObj(syncJSCode, false);
 
     agHelper.RefreshPage();
     cy.wait("@jsCollections").then(({ response }) => {
