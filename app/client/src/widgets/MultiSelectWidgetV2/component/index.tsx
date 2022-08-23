@@ -16,13 +16,12 @@ import MenuItemCheckBox, {
   InputContainer,
 } from "./index.styled";
 import { RenderMode, TextSize } from "constants/WidgetConstants";
-import Icon from "components/ads/Icon";
 import { Alignment, Button, Classes, InputGroup } from "@blueprintjs/core";
 import { labelMargin, WidgetContainerDiff } from "widgets/WidgetUtils";
 import { Colors } from "constants/Colors";
 import { LabelPosition } from "components/constants";
 import { uniqBy } from "lodash";
-import LabelWithTooltip from "components/ads/LabelWithTooltip";
+import { Icon, LabelWithTooltip } from "design-system";
 import useDropdown from "widgets/useDropdown";
 
 const menuItemSelectedIcon = (props: { isSelected: boolean }) => {
