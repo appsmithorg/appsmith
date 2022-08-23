@@ -175,11 +175,12 @@ export class DataSources {
     }).as("testDatasource");
   }
 
-  public CreatePlugIn(pluginName: string) {
+  public CreatePlugIn(pluginName: string, waitForToastDisappear = true) {
     cy.get(this._createNewPlgin(pluginName))
       .parent("div")
       .trigger("click", { force: true });
-    this.agHelper.WaitUntilToastDisappear("datasource created");
+    waitForToastDisappear &&
+      this.agHelper.WaitUntilToastDisappear("datasource created");
   }
 
   public NavigateToDSCreateNew() {

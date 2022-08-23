@@ -42,11 +42,11 @@ describe("Autocomplete tests", () => {
     agHelper.TypeText(CommonLocators._codeMirrorTextArea, "ButtonGroup1.");
     agHelper.AssertElementText(CommonLocators._hints, "groupButtons");
     agHelper.Sleep();
-    agHelper.GetNClick(CommonLocators._hints);
+    agHelper.GetNClickByContains(CommonLocators._hints, "groupButtons");
     agHelper.TypeText(CommonLocators._codeMirrorTextArea, ".");
     agHelper.AssertElementText(CommonLocators._hints, "groupButton1");
     agHelper.Sleep();
-    agHelper.GetNClick(CommonLocators._hints);
+    agHelper.GetNClickByContains(CommonLocators._hints, "groupButton1");
 
     // 2. Document view widget autocomplete verification
 
@@ -54,7 +54,7 @@ describe("Autocomplete tests", () => {
     agHelper.TypeText(CommonLocators._codeMirrorTextArea, "DocumentViewer1.");
     agHelper.AssertElementText(CommonLocators._hints, "docUrl");
     agHelper.Sleep();
-    agHelper.GetNClick(CommonLocators._hints);
+    agHelper.GetNClickByContains(CommonLocators._hints, "docUrl");
   });
 
   it("2. Bug #15568 Verify browser JavaScript APIs in autocomplete ", () => {
@@ -144,11 +144,11 @@ describe("Autocomplete tests", () => {
     agHelper.TypeText(CommonLocators._codeMirrorTextArea, "Api1.data.u");
     agHelper.AssertElementText(CommonLocators._hints, "users");
     agHelper.Sleep();
-    agHelper.GetNClick(CommonLocators._hints);
+    agHelper.GetNClickByContains(CommonLocators._hints, "users");
     agHelper.TypeText(CommonLocators._codeMirrorTextArea, "[0].e");
     agHelper.AssertElementText(CommonLocators._hints, "email");
     agHelper.Sleep();
-    agHelper.GetNClick(CommonLocators._hints);
+    agHelper.GetNClickByContains(CommonLocators._hints, "email");
   });
 
   it("5. Local variables & complex data autocompletion test", () => {
@@ -159,19 +159,17 @@ describe("Autocomplete tests", () => {
       { label: "a", value: "b" },
     ];
 
-    const codeToType = `
-    const users = ${JSON.stringify(users)};
+    const codeToType = `const users = ${JSON.stringify(users)};
     const data = { userCollection: [{ users }, { users }] };
 
-    users.map(callBack)
-    `;
+    users.map(callBack);`;
 
     // component re-render cause DOM element of cy.get to lost
     // added wait to finish re-render before cy.get
     agHelper.Sleep();
     agHelper.GetNClick(jsEditor._lineinJsEditor(5));
     agHelper.TypeText(CommonLocators._codeMirrorTextArea, codeToType);
-    agHelper.GetNClick(jsEditor._lineinJsEditor(8));
+    agHelper.GetNClick(jsEditor._lineinJsEditor(7));
     agHelper.TypeText(
       CommonLocators._codeMirrorTextArea,
       "const callBack = (user) => user.l",
@@ -181,13 +179,14 @@ describe("Autocomplete tests", () => {
     agHelper.TypeText(CommonLocators._codeMirrorTextArea, "data.");
     agHelper.AssertElementText(CommonLocators._hints, "userCollection");
     agHelper.Sleep();
-    agHelper.GetNClick(CommonLocators._hints);
+    agHelper.GetNClickByContains(CommonLocators._hints, "userCollection");
     agHelper.TypeText(CommonLocators._codeMirrorTextArea, "[0].");
     agHelper.AssertElementText(CommonLocators._hints, "users");
     agHelper.Sleep();
-    agHelper.GetNClick(CommonLocators._hints);
+    agHelper.GetNClickByContains(CommonLocators._hints, "users");
     agHelper.TypeText(CommonLocators._codeMirrorTextArea, "[0].");
     agHelper.AssertElementText(CommonLocators._hints, "label");
+    agHelper.AssertElementText(CommonLocators._hints, "value", 1);
     EntityExplorer.ActionContextMenuByEntityName("JSObject1", "Delete", "Are you sure?", true);
     EntityExplorer.ActionContextMenuByEntityName("Api1", "Delete", "Are you sure?");
 

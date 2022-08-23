@@ -17,7 +17,6 @@ describe("Arango datasource test cases", function() {
     cy.NavigateToDatasourceEditor();
     cy.get(datasource.ArangoDB).click();
     cy.getPluginFormsAndCreateDatasource();
-
     cy.fillArangoDBDatasourceForm();
     cy.generateUUID().then((UUID) => {
       datasourceName = `Arango MOCKDS ${UUID}`;
@@ -57,17 +56,17 @@ describe("Arango datasource test cases", function() {
       "response.body.responseMeta.status",
       201,
     );
-
     cy.deleteQueryUsingContext();
-
     cy.deleteDatasource(datasourceName);
   });
 
-  it.skip("4. Arango Default name change", () => {
+  it("4. Arango Default name change", () => {
     dataSources.NavigateToDSCreateNew();
-    dataSources.CreatePlugIn("ArangoDB");
+    dataSources.CreatePlugIn("ArangoDB", false);
+    agHelper.RenameWithInPane("ArangoDefaultDBName", false);
     agHelper
       .GetText(dataSources._databaseName, "val")
-      .then(($dbName) => expect($dbName).to.eq("_system"));
+      .then(($dbName) => expect($dbName).to.eq("default"));
+    dataSources.DeleteDatasouceFromWinthinDS("ArangoDefaultDBName");
   });
 });
