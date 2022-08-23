@@ -52,7 +52,7 @@ class CanvasWidget extends ContainerWidget {
     if (!childWidgetData) return null;
 
     const childWidget = { ...childWidgetData };
-    console.log(childWidget);
+
     const snapSpaces = this.getSnapSpaces();
     childWidget.parentColumnSpace = snapSpaces.snapColumnSpace;
     childWidget.parentRowSpace = snapSpaces.snapRowSpace;

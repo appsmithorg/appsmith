@@ -36,12 +36,7 @@ import { getSelectedAppThemeStylesheet } from "selectors/appThemingSelectors";
 import { getPropertiesToUpdate } from "./WidgetOperationSagas";
 import { klona as clone } from "klona/full";
 import { DataTree } from "entities/DataTree/dataTreeFactory";
-import {
-  Alignment,
-  ButtonBoxShadowTypes,
-  Positioning,
-  Spacing,
-} from "components/constants";
+import { Alignment, ButtonBoxShadowTypes, Spacing } from "components/constants";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
 
