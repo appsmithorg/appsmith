@@ -159,7 +159,8 @@ export class ApiPage {
 
   RunAPI(toValidateResponse = true, waitTimeInterval = 500) {
     this.agHelper.GetNClick(this._apiRunBtn, 0, true, waitTimeInterval);
-    toValidateResponse && this.agHelper.ValidateNetworkExecutionSuccess("@postExecute");
+    toValidateResponse &&
+      this.agHelper.ValidateNetworkExecutionSuccess("@postExecute");
   }
 
   SetAPITimeout(timeout: number) {
@@ -204,10 +205,7 @@ export class ApiPage {
       | "Authentication"
       | "Settings",
   ) {
-    cy.xpath(this._visibleTextSpan(tabName))
-      .should("be.visible")
-      .eq(0)
-      .click();
+    this.agHelper.GetNClick(this._visibleTextSpan(tabName));
   }
 
   SelectSubTab(
@@ -218,10 +216,7 @@ export class ApiPage {
       | "MULTIPART_FORM_DATA"
       | "RAW",
   ) {
-    cy.get(this._bodySubTab(subTabName))
-      .eq(0)
-      .should("be.visible")
-      .click();
+    this.agHelper.GetNClick(this._bodySubTab(subTabName));
   }
 
   ValidateQueryParams(param: { key: string; value: string }) {

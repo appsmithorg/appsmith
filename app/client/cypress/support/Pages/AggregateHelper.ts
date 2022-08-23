@@ -19,7 +19,9 @@ export class AggregateHelper {
 
   private isMac = Cypress.platform === "darwin";
   private selectLine = `${
-    this.isMac ? "{cmd}{shift}{leftArrow}{backspace}" : "{home}{shift}{downArrow}{backspace}"
+    this.isMac
+      ? "{cmd}{shift}{leftArrow}{backspace}"
+      : "{home}{shift}{downArrow}{backspace}"
   }`;
 
   public SaveLocalStorageCache() {
@@ -411,6 +413,7 @@ export class AggregateHelper {
       ? cy.xpath(selector)
       : cy.get(selector);
     return locator
+      .should("be.visible")
       .eq(index)
       .click({ force: force })
       .wait(waitTimeInterval);

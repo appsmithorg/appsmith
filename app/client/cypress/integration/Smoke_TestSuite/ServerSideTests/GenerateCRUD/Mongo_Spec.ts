@@ -1,6 +1,6 @@
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 
-let guid: any, dsName: any;
+let dsName: any;
 
 let agHelper = ObjectsRegistry.AggregateHelper,
   ee = ObjectsRegistry.EntityExplorer,

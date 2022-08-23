@@ -86,6 +86,8 @@ export class DataSources {
   _gsScopeDropdown =
     "[data-cy='datasourceConfiguration.authentication.scopeString']";
   _gsScopeOptions = ".ads-dropdown-options-wrapper div > span div span";
+  private _queryTimeout =
+    "//input[@name='actionConfiguration.timeoutInMillisecond']";
 
   public StartDataSourceRoutes() {
     cy.intercept("PUT", "/api/v1/datasources/*").as("saveDatasource");
@@ -382,13 +384,19 @@ export class DataSources {
     cy.get(this._saveDs).click();
   }
 
-  RunQuery(expectedStatus = true) {
-    cy.get(this._runQueryBtn).click({ force: true });
-    this.agHelper.Sleep(2000);
-    this.agHelper.ValidateNetworkExecutionSuccess(
-      "@postExecute",
-      expectedStatus,
-    );
+  RunQuery(
+    expectedStatus = true,
+    toValidateResponse = true,
+    waitTimeInterval = 500,
+  ) {
+    this.agHelper.GetNClick(this._runQueryBtn, 0, true, waitTimeInterval);
+    if (toValidateResponse) {
+      this.agHelper.Sleep(1500);
+      this.agHelper.ValidateNetworkExecutionSuccess(
+        "@postExecute",
+        expectedStatus,
+      );
+    }
   }
 
   public ReadQueryTableResponse(index: number, timeout = 100) {
@@ -489,5 +497,14 @@ export class DataSources {
     if (queryName) this.agHelper.RenameWithInPane(queryName);
     this.agHelper.GetNClick(this._templateMenu);
     this.EnterQuery(query);
+  }
+
+  public SetQueryTimeout(queryTimeout = 0) {
+    this.agHelper.GetNClick(this._queryResponse("SETTINGS"));
+    cy.xpath(this._queryTimeout)
+      .clear()
+      .type(queryTimeout.toString(), { delay: 0 }); //Delay 0 to work like paste!
+    this.agHelper.AssertAutoSave();
+    this.agHelper.GetNClick(this._queryResponse("QUERY"));
   }
 }
