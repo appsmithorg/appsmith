@@ -55,7 +55,6 @@ public class AppsmithAnonymousAuthenticationWebFilter extends AnonymousAuthentic
             return createAuthenticationMono(exchange)
                     .flatMap(authentication -> {
                         SecurityContext securityContext = new SecurityContextImpl(authentication);
-                        log.debug("Populated SecurityContext with anonymous token: '{}'", authentication);
                         return chain.filter(exchange)
                                 .contextWrite(ReactiveSecurityContextHolder.withSecurityContext(Mono.just(securityContext)))
                                 .then(Mono.empty());
