@@ -16,7 +16,7 @@ import { noop } from "lodash";
 import { Text, TextType } from "design-system";
 import Spinner from "./Spinner";
 import { CommonComponentProps } from "./common";
-import Icon, { IconSize } from "./Icon";
+import { Icon, IconSize } from "design-system";
 import { UNFILLED_WIDTH } from "./EditableText";
 
 export enum EditInteractionKind {

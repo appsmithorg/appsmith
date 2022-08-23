@@ -10,8 +10,8 @@ import org.springframework.stereotype.Component;
 @Slf4j
 public class CustomCommentRepositoryImpl extends CustomCommentRepositoryCEImpl implements CustomCommentRepository {
 
-    public CustomCommentRepositoryImpl(ReactiveMongoOperations mongoOperations, MongoConverter mongoConverter) {
-        super(mongoOperations, mongoConverter);
+    public CustomCommentRepositoryImpl(ReactiveMongoOperations mongoOperations, MongoConverter mongoConverter, CacheableRepositoryHelper cacheableRepositoryHelper) {
+        super(mongoOperations, mongoConverter, cacheableRepositoryHelper);
     }
 
 }

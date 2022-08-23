@@ -1,7 +1,7 @@
 import React, { useCallback, useState } from "react";
 import { Action, ApiActionConfig, PluginType } from "entities/Action";
 import styled from "styled-components";
-import Button, { IconPositions } from "components/ads/Button";
+import { Button, IconPositions } from "design-system";
 import { createNewApiName, createNewQueryName } from "utils/AppsmithUtils";
 import { Toaster } from "components/ads/Toast";
 import { ERROR_ADD_API_INVALID_URL } from "@appsmith/constants/messages";

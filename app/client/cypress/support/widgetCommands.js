@@ -246,6 +246,7 @@ Cypress.Commands.add("verifyUpdatedWidgetName", (text) => {
     .click({ force: true })
     .type(text, { delay: 300 })
     .type("{enter}");
+  cy.wait(500);
   cy.get(".t--widget-name").contains(text);
 });
 
@@ -779,7 +780,7 @@ Cypress.Commands.add("selectShowMsg", () => {
 Cypress.Commands.add("addSuccessMessage", (value) => {
   cy.get(commonlocators.chooseMsgType)
     .last()
-    .click({force:true});
+    .click({ force: true });
   cy.get(commonlocators.chooseAction)
     .children()
     .contains("Success")
@@ -1456,12 +1457,14 @@ Cypress.Commands.add("discardTableRow", (x, y) => {
   ).click({ force: true });
 });
 
-
 Cypress.Commands.add("moveToStyleTab", () => {
-  cy.get(commonlocators.propertyStyle).first().click({force:true})
+  cy.get(commonlocators.propertyStyle)
+    .first()
+    .click({ force: true });
 });
 
-
 Cypress.Commands.add("moveToContentTab", () => {
-  cy.get(commonlocators.propertyContent).first().click({force:true})
+  cy.get(commonlocators.propertyContent)
+    .first()
+    .click({ force: true });
 });

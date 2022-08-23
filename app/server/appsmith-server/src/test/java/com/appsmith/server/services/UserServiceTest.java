@@ -2,16 +2,14 @@ package com.appsmith.server.services;
 
 import com.appsmith.external.models.Policy;
 import com.appsmith.external.services.EncryptionService;
-import com.appsmith.server.acl.AppsmithRole;
 import com.appsmith.server.configurations.WithMockAppsmithUser;
 import com.appsmith.server.constants.FieldName;
-import com.appsmith.server.domains.Application;
-import com.appsmith.server.domains.InviteUser;
 import com.appsmith.server.domains.LoginSource;
-import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.domains.PasswordResetToken;
+import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserData;
+import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.InviteUsersDTO;
 import com.appsmith.server.dtos.ResetUserPasswordDTO;
 import com.appsmith.server.dtos.UserSignupDTO;
@@ -19,6 +17,7 @@ import com.appsmith.server.dtos.UserUpdateDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.repositories.PasswordResetTokenRepository;
+import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.solutions.UserSignup;
 import lombok.extern.slf4j.Slf4j;
@@ -47,18 +46,14 @@ import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
-import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_USERS;
-import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_USERS;
-import static com.appsmith.server.acl.AclPermission.USER_MANAGE_WORKSPACES;
-import static com.appsmith.server.acl.AclPermission.USER_READ_WORKSPACES;
+import static com.appsmith.server.acl.AclPermission.RESET_PASSWORD_USERS;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -98,6 +93,9 @@ public class UserServiceTest {
 
     @Autowired
     UserSignup userSignup;
+
+    @Autowired
+    PermissionGroupRepository permissionGroupRepository;
 
     @Before
     public void setup() {
@@ -157,35 +155,6 @@ public class UserServiceTest {
                 .verify();
     }
 
-    /**
-     * The following function tests for switch workspace
-     */
-    @Test
-    @WithUserDetails(value = "api_user")
-    public void updateUserWithValidWorkspace() {
-        // Create a new workspace
-        Workspace updateWorkspace = new Workspace();
-        updateWorkspace.setName("UserServiceTest Update Org");
-
-        User updateUser = new User();
-
-        Mono<User> userMono1 = userService.findByEmail("api_user")
-                .switchIfEmpty(Mono.error(new Exception("Unable to find user")));
-
-        //Add valid workspace id to the updateUser object.
-        Mono<User> userMono = workspaceService.create(updateWorkspace)
-                .flatMap(org -> {
-                    updateUser.setCurrentWorkspaceId(org.getId());
-                    return userMono1.flatMap(user -> userService.update(user.getId(), updateUser));
-                });
-
-        StepVerifier.create(userMono)
-                .assertNext(user -> {
-                    assertThat(user.getCurrentWorkspaceId()).isEqualTo(updateUser.getCurrentWorkspaceId());
-                })
-                .verifyComplete();
-    }
-
     @Test
     @WithMockAppsmithUser
     public void createNewUserFormSignupNullPassword() {
@@ -207,37 +176,45 @@ public class UserServiceTest {
         newUser.setEmail("new-user-email@email.com");
         newUser.setPassword("new-user-test-password");
 
-        Policy manageUserPolicy = Policy.builder()
-                .permission(MANAGE_USERS.getValue())
-                .users(Set.of(newUser.getUsername())).build();
+        Mono<User> userCreateMono = userService.create(newUser).cache();
 
-        Policy manageUserOrgPolicy = Policy.builder()
-                .permission(USER_MANAGE_WORKSPACES.getValue())
-                .users(Set.of(newUser.getUsername())).build();
+        Mono<PermissionGroup> permissionGroupMono = userCreateMono
+                .flatMap(user -> {
+                    Set<Policy> userPolicies = user.getPolicies();
+                    assertThat(userPolicies.size()).isNotZero();
+                    Policy policy = userPolicies.stream().findFirst().get();
+                    String permissionGroupId = policy.getPermissionGroups().stream().findFirst().get();
 
-        Policy readUserPolicy = Policy.builder()
-                .permission(READ_USERS.getValue())
-                .users(Set.of(newUser.getUsername())).build();
+                    return permissionGroupRepository.findById(permissionGroupId);
+                });
 
-        Policy readUserOrgPolicy = Policy.builder()
-                .permission(USER_READ_WORKSPACES.getValue())
-                .users(Set.of(newUser.getUsername())).build();
+        StepVerifier.create(Mono.zip(userCreateMono, permissionGroupMono))
+                .assertNext(tuple -> {
+                    User user = tuple.getT1();
+                    PermissionGroup permissionGroup = tuple.getT2();
 
-        Mono<User> userMono = userService.create(newUser);
-
-        StepVerifier.create(userMono)
-                .assertNext(user -> {
                     assertThat(user).isNotNull();
                     assertThat(user.getId()).isNotNull();
                     assertThat(user.getEmail()).isEqualTo("new-user-email@email.com");
                     assertThat(user.getName()).isNullOrEmpty();
-                    assertThat(user.getPolicies()).isNotEmpty();
-                    assertThat(user.getPolicies()).containsAll(Set.of(manageUserPolicy, manageUserOrgPolicy, readUserPolicy, readUserOrgPolicy));
-                    // Since there is a template workspace, the user won't have an empty default workspace. They
-                    // will get a clone of the default workspace when they first login. So, we expect it to be
-                    // empty here.
-                    assertThat(user.getWorkspaceIds()).hasSize(1);
                     assertThat(user.getTenantId() != null);
+
+                    Set<Policy> userPolicies = user.getPolicies();
+                    assertThat(userPolicies).isNotEmpty();
+                    Policy manageUserPolicy = Policy.builder()
+                            .permission(MANAGE_USERS.getValue())
+                            .permissionGroups(Set.of(permissionGroup.getId())).build();
+
+                    Policy readUserPolicy = Policy.builder()
+                            .permission(READ_USERS.getValue())
+                            .permissionGroups(Set.of(permissionGroup.getId())).build();
+
+                    Policy resetPasswordPolicy = Policy.builder()
+                            .permission(RESET_PASSWORD_USERS.getValue())
+                            .permissionGroups(Set.of(permissionGroup.getId())).build();
+
+                    assertThat(userPolicies).containsAll(Set.of(manageUserPolicy, readUserPolicy, resetPasswordPolicy));
+                    assertThat(permissionGroup.getAssignedToUserIds()).containsAll(Set.of(user.getId()));
                 })
                 .verifyComplete();
     }
@@ -252,122 +229,46 @@ public class UserServiceTest {
         newUser.setEmail(sampleEmail);
         newUser.setPassword("new-user-test-password");
 
-        Policy manageUserPolicy = Policy.builder()
-                .permission(MANAGE_USERS.getValue())
-                .users(Set.of(sampleEmailLowercase)).build();
+        Mono<User> usercreateMono = userService.create(newUser).cache();
 
-        Policy manageUserOrgPolicy = Policy.builder()
-                .permission(USER_MANAGE_WORKSPACES.getValue())
-                .users(Set.of(sampleEmailLowercase)).build();
+        Mono<User> userCreateMono = userService.create(newUser).cache();
 
-        Policy readUserPolicy = Policy.builder()
-                .permission(READ_USERS.getValue())
-                .users(Set.of(sampleEmailLowercase)).build();
+        Mono<PermissionGroup> permissionGroupMono = userCreateMono
+                .flatMap(user -> {
+                    Set<Policy> userPolicies = user.getPolicies();
+                    assertThat(userPolicies.size()).isNotZero();
+                    Policy policy = userPolicies.stream().findFirst().get();
+                    String permissionGroupId = policy.getPermissionGroups().stream().findFirst().get();
 
-        Policy readUserOrgPolicy = Policy.builder()
-                .permission(USER_READ_WORKSPACES.getValue())
-                .users(Set.of(sampleEmailLowercase)).build();
+                    return permissionGroupRepository.findById(permissionGroupId);
+                });
 
-        Mono<User> userMono = userService.create(newUser);
+        StepVerifier.create(Mono.zip(userCreateMono, permissionGroupMono))
+                .assertNext(tuple -> {
+                    User user = tuple.getT1();
+                    PermissionGroup permissionGroup = tuple.getT2();
 
-        StepVerifier.create(userMono)
-                .assertNext(user -> {
                     assertThat(user).isNotNull();
                     assertThat(user.getId()).isNotNull();
                     assertThat(user.getEmail()).isEqualTo(sampleEmailLowercase);
                     assertThat(user.getName()).isNullOrEmpty();
-                    assertThat(user.getPolicies()).isNotEmpty();
-                    assertThat(user.getPolicies()).containsAll(
-                            Set.of(manageUserPolicy, manageUserOrgPolicy, readUserPolicy, readUserOrgPolicy)
-                    );
-                    // Since there is a template workspace, the user won't have an empty default workspace. They
-                    // will get a clone of the default workspace when they first login. So, we expect it to be
-                    // empty here.
-                    assertThat(user.getWorkspaceIds()).hasSize(1);
-                })
-                .verifyComplete();
-    }
 
-    @Test
-    @DirtiesContext
-    @WithUserDetails(value = "api_user")
-    public void inviteUserToApplicationValidAsAdmin() {
-        InviteUser inviteUser = new InviteUser();
-        inviteUser.setEmail("inviteUserToApplication@test.com");
-        inviteUser.setRole(AppsmithRole.APPLICATION_ADMIN);
+                    Set<Policy> userPolicies = user.getPolicies();
+                    assertThat(userPolicies).isNotEmpty();
+                    Policy manageUserPolicy = Policy.builder()
+                            .permission(MANAGE_USERS.getValue())
+                            .permissionGroups(Set.of(permissionGroup.getId())).build();
 
-        Mono<Application> applicationMono = applicationService.findByName("LayoutServiceTest TestApplications", MANAGE_APPLICATIONS)
-                .switchIfEmpty(Mono.error(new Exception("No such app")));
+                    Policy readUserPolicy = Policy.builder()
+                            .permission(READ_USERS.getValue())
+                            .permissionGroups(Set.of(permissionGroup.getId())).build();
 
-        Mono<User> userMono = applicationMono.flatMap(application -> userService
-                .inviteUserToApplication(inviteUser, "http://localhost:8080", application.getId())).cache();
+                    Policy resetPasswordPolicy = Policy.builder()
+                            .permission(RESET_PASSWORD_USERS.getValue())
+                            .permissionGroups(Set.of(permissionGroup.getId())).build();
 
-        Mono<Application> updatedApplication = userMono.then(applicationService.findByName("LayoutServiceTest TestApplications", MANAGE_APPLICATIONS));
-
-        StepVerifier.create(Mono.zip(updatedApplication, userMono))
-                .assertNext(tuple -> {
-                    Application application = tuple.getT1();
-                    User user = tuple.getT2();
-
-                    Policy manageAppPolicy = Policy.builder()
-                            .permission(MANAGE_APPLICATIONS.getValue())
-                            .users(Set.of("api_user", user.getUsername()))
-                            .groups(new HashSet<>())
-                            .build();
-
-                    Policy readAppPolicy = Policy.builder()
-                            .permission(READ_APPLICATIONS.getValue())
-                            .users(Set.of("api_user", user.getUsername()))
-                            .groups(new HashSet<>())
-                            .build();
-
-
-                    assertThat(application).isNotNull();
-                    assertThat(application.getPolicies()).isNotEmpty();
-                    assertThat(application.getPolicies()).containsAll(Set.of(manageAppPolicy, readAppPolicy));
-
-                    assertThat(user).isNotNull();
-                })
-                .verifyComplete();
-    }
-
-    @Test
-    @WithUserDetails(value = "api_user")
-    public void inviteUserToApplicationValidAsViewer() {
-        InviteUser inviteUser = new InviteUser();
-        inviteUser.setEmail("inviteUserToApplication@test.com");
-        inviteUser.setRole(AppsmithRole.APPLICATION_VIEWER);
-
-        Mono<Application> applicationMono = applicationService.findByName("LayoutServiceTest TestApplications", READ_APPLICATIONS)
-                .switchIfEmpty(Mono.error(new Exception("No such app")));
-
-        Mono<User> userMono = applicationMono.flatMap(application -> userService
-                .inviteUserToApplication(inviteUser, "http://localhost:8080", application.getId())).cache();
-
-        Mono<Application> updatedApplication = userMono.then(applicationService.findByName("LayoutServiceTest TestApplications", READ_APPLICATIONS));
-
-
-        StepVerifier.create(Mono.zip(updatedApplication, userMono))
-                .assertNext(tuple -> {
-                    Application application = tuple.getT1();
-                    User user = tuple.getT2();
-
-                    Policy readAppPolicy = Policy.builder()
-                            .permission(READ_APPLICATIONS.getValue())
-                            .users(Set.of("api_user", user.getUsername()))
-                            .groups(new HashSet<>())
-                            .build();
-
-                    Policy manageAppPolicy = Policy.builder()
-                            .permission(MANAGE_APPLICATIONS.getValue())
-                            .users(Set.of("api_user"))
-                            .build();
-
-                    assertThat(application).isNotNull();
-                    assertThat(application.getPolicies()).isNotEmpty();
-                    assertThat(application.getPolicies()).containsAll(Set.of(manageAppPolicy, readAppPolicy));
-
-                    assertThat(user).isNotNull();
+                    assertThat(userPolicies).containsAll(Set.of(manageUserPolicy, readUserPolicy, resetPasswordPolicy));
+                    assertThat(permissionGroup.getAssignedToUserIds()).containsAll(Set.of(user.getId()));
                 })
                 .verifyComplete();
     }
@@ -443,8 +344,7 @@ public class UserServiceTest {
                     ArrayList<String> users = new ArrayList<>();
                     users.add(newUserEmail);
                     inviteUsersDTO.setUsernames(users);
-                    inviteUsersDTO.setWorkspaceId(workspace1.getId());
-                    inviteUsersDTO.setRoleName(AppsmithRole.ORGANIZATION_VIEWER.getName());
+                    inviteUsersDTO.setPermissionGroupId(workspace1.getDefaultPermissionGroups().stream().findFirst().get());
 
                     return userService.inviteUsers(inviteUsersDTO, "http://localhost:8080");
                 }).block();
@@ -679,7 +579,7 @@ public class UserServiceTest {
     }
 
     @Test
-    @WithMockAppsmithUser
+    @WithUserDetails(value = "anonymousUser")
     public void buildUserProfileDTO_WhenAnonymousUser_ReturnsProfile() {
         User user = new User();
         user.setIsAnonymous(true);

@@ -3,8 +3,7 @@ import {
   showInfoMessage,
   toggleLoader,
 } from "actions/onboardingActions";
-import Button from "components/ads/Button";
-import Icon, { IconSize } from "components/ads/Icon";
+import { Button, Icon, IconSize } from "design-system";
 import { isArray } from "lodash";
 import React, { useEffect, useRef, useState } from "react";
 import { useDispatch } from "react-redux";

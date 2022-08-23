@@ -1,4 +1,5 @@
 const explorer = require("../../../../../locators/explorerlocators.json");
+const { modifierKey } = require("../../../../../support/Constants");
 
 const firstButton = ".t--buttongroup-widget > div > button > div";
 const menuButton =
@@ -36,7 +37,7 @@ describe("Button Group Widget Functionality", function() {
     cy.get(firstButton).contains("Add");
 
     // Undo
-    cy.get("body").type("{ctrl+z}");
+    cy.get("body").type(`{${modifierKey}+z}`);
 
     // Check if the button is back
     cy.get(".t--buttongroup-widget")

@@ -14,7 +14,7 @@ import FormMessage, {
   FormMessageProps,
 } from "components/ads/formFields/FormMessage";
 import Spinner from "components/editorComponents/Spinner";
-import Button, { Size } from "components/ads/Button";
+import { Button, Size } from "design-system";
 
 import StyledForm from "components/editorComponents/Form";
 import { isEmptyString, isStrongPassword } from "utils/formhelpers";

@@ -99,6 +99,18 @@ describe("Single Select Widget Functionality", function() {
     ).should("be.visible");
     cy.get(publish.backToEditor).click();
   });
+
+  it("7. To Check Option Not Found", function() {
+    cy.get(formWidgetsPage.treeSelectInput)
+      .last()
+      .click({ force: true });
+    cy.get(formWidgetsPage.treeSelectFilterInput)
+      .click()
+      .type("ABCD");
+    cy.get(".tree-select-dropdown .rc-tree-select-empty").contains(
+      "No Results Found",
+    );
+  });
 });
 afterEach(() => {
   // put your clean up code if any
