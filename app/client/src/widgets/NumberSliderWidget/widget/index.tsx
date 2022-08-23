@@ -31,11 +31,11 @@ class NumberSliderWidget extends BaseWidget<
         sectionName: "Data",
         children: [
           {
-            propertyName: "defaultValue",
-            helpText: "Sets the value of the widget",
-            label: "Value",
+            propertyName: "min",
+            helpText: "Sets the min value of the widget",
+            label: "Min. Value",
             controlType: "INPUT_TEXT",
-            placeholderText: "Value:",
+            placeholderText: "0",
             isBindProperty: true,
             isTriggerProperty: false,
             validation: { type: ValidationTypes.NUMBER },
@@ -43,19 +43,9 @@ class NumberSliderWidget extends BaseWidget<
           {
             propertyName: "max",
             helpText: "Sets the max value of the widget",
-            label: "Max Value",
+            label: "Max. Value",
             controlType: "INPUT_TEXT",
             placeholderText: "100",
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.NUMBER },
-          },
-          {
-            propertyName: "min",
-            helpText: "Sets the min value of the widget",
-            label: "Min Value",
-            controlType: "INPUT_TEXT",
-            placeholderText: "0",
             isBindProperty: true,
             isTriggerProperty: false,
             validation: { type: ValidationTypes.NUMBER },
@@ -66,6 +56,16 @@ class NumberSliderWidget extends BaseWidget<
             label: "Step Size",
             controlType: "INPUT_TEXT",
             placeholderText: "10",
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.NUMBER },
+          },
+          {
+            propertyName: "defaultValue",
+            helpText: "Sets the value of the widget",
+            label: "Default Value",
+            controlType: "INPUT_TEXT",
+            placeholderText: "Value:",
             isBindProperty: true,
             isTriggerProperty: false,
             validation: { type: ValidationTypes.NUMBER },
@@ -81,57 +81,6 @@ class NumberSliderWidget extends BaseWidget<
             label: "Text",
             controlType: "INPUT_TEXT",
             placeholderText: "Enter label text",
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.TEXT },
-          },
-          {
-            propertyName: "labelTextSize",
-            label: "Label Text Size",
-            controlType: "DROP_DOWN",
-            defaultValue: "0.875rem",
-            options: [
-              {
-                label: "S",
-                value: "0.875rem",
-                subText: "0.875rem",
-              },
-              {
-                label: "M",
-                value: "1rem",
-                subText: "1rem",
-              },
-              {
-                label: "L",
-                value: "1.25rem",
-                subText: "1.25rem",
-              },
-              {
-                label: "XL",
-                value: "1.875rem",
-                subText: "1.875rem",
-              },
-              {
-                label: "XXL",
-                value: "3rem",
-                subText: "3rem",
-              },
-              {
-                label: "3XL",
-                value: "3.75rem",
-                subText: "3.75rem",
-              },
-            ],
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.TEXT },
-          },
-          {
-            propertyName: "labelTextColor",
-            label: "Label Text Color",
-            controlType: "COLOR_PICKER",
-            isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
             validation: { type: ValidationTypes.TEXT },
@@ -190,26 +139,6 @@ class NumberSliderWidget extends BaseWidget<
             hidden: (props: NumberSliderWidgetProps) =>
               props.labelPosition !== LabelPosition.Left,
             dependencies: ["labelPosition"],
-          },
-
-          {
-            propertyName: "labelStyle",
-            label: "Label Font Style",
-            controlType: "BUTTON_TABS",
-            options: [
-              {
-                icon: "BOLD_FONT",
-                value: "BOLD",
-              },
-              {
-                icon: "ITALICS_FONT",
-                value: "ITALIC",
-              },
-            ],
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.TEXT },
           },
         ],
       },
@@ -331,19 +260,9 @@ class NumberSliderWidget extends BaseWidget<
         sectionName: "General",
         children: [
           {
-            helpText: "Sets the fill color of the widget",
-            propertyName: "accentColor",
-            label: "Fill Color",
-            controlType: "COLOR_PICKER",
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.TEXT },
-          },
-          {
             helpText: "Controls the size of the slider",
             propertyName: "sliderSize",
-            label: "Slider Size",
+            label: "Size",
             controlType: "DROP_DOWN",
             defaultValue: "m",
             options: [
@@ -369,6 +288,96 @@ class NumberSliderWidget extends BaseWidget<
           },
         ],
       },
+      {
+        sectionName: "Label Styles",
+        children: [
+          {
+            propertyName: "labelTextColor",
+            label: "Font Color",
+            controlType: "COLOR_PICKER",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
+          {
+            propertyName: "labelTextSize",
+            label: "Font Size",
+            controlType: "DROP_DOWN",
+            defaultValue: "0.875rem",
+            options: [
+              {
+                label: "S",
+                value: "0.875rem",
+                subText: "0.875rem",
+              },
+              {
+                label: "M",
+                value: "1rem",
+                subText: "1rem",
+              },
+              {
+                label: "L",
+                value: "1.25rem",
+                subText: "1.25rem",
+              },
+              {
+                label: "XL",
+                value: "1.875rem",
+                subText: "1.875rem",
+              },
+              {
+                label: "XXL",
+                value: "3rem",
+                subText: "3rem",
+              },
+              {
+                label: "3XL",
+                value: "3.75rem",
+                subText: "3.75rem",
+              },
+            ],
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
+          {
+            propertyName: "labelStyle",
+            label: "Emphasis",
+            controlType: "BUTTON_TABS",
+            options: [
+              {
+                icon: "BOLD_FONT",
+                value: "BOLD",
+              },
+              {
+                icon: "ITALICS_FONT",
+                value: "ITALIC",
+              },
+            ],
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
+        ],
+      },
+      {
+        sectionName: "Color",
+        children: [
+          {
+            helpText: "Sets the fill color of the widget",
+            propertyName: "accentColor",
+            label: "Fill Color",
+            controlType: "COLOR_PICKER",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
+        ],
+      },
     ];
   }
 
@@ -378,11 +387,11 @@ class NumberSliderWidget extends BaseWidget<
         sectionName: "General",
         children: [
           {
-            propertyName: "defaultValue",
-            helpText: "Sets the value of the widget",
-            label: "Value",
+            propertyName: "min",
+            helpText: "Sets the min value of the widget",
+            label: "Min. Value",
             controlType: "INPUT_TEXT",
-            placeholderText: "Value:",
+            placeholderText: "0",
             isBindProperty: true,
             isTriggerProperty: false,
             validation: { type: ValidationTypes.NUMBER },
@@ -390,19 +399,9 @@ class NumberSliderWidget extends BaseWidget<
           {
             propertyName: "max",
             helpText: "Sets the max value of the widget",
-            label: "Max Value",
+            label: "Max. Value",
             controlType: "INPUT_TEXT",
             placeholderText: "100",
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.NUMBER },
-          },
-          {
-            propertyName: "min",
-            helpText: "Sets the min value of the widget",
-            label: "Min Value",
-            controlType: "INPUT_TEXT",
-            placeholderText: "0",
             isBindProperty: true,
             isTriggerProperty: false,
             validation: { type: ValidationTypes.NUMBER },
@@ -416,6 +415,55 @@ class NumberSliderWidget extends BaseWidget<
             isBindProperty: true,
             isTriggerProperty: false,
             validation: { type: ValidationTypes.NUMBER },
+          },
+          {
+            propertyName: "defaultValue",
+            helpText: "Sets the value of the widget",
+            label: "Default Value",
+            controlType: "INPUT_TEXT",
+            placeholderText: "Value:",
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.NUMBER },
+          },
+          {
+            helpText: "Display Value Marks",
+            propertyName: "marks",
+            label: "Marks",
+            controlType: "INPUT_TEXT",
+            placeholderText: '[{ "value": "20", "label": "20%" }]',
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: {
+              type: ValidationTypes.ARRAY,
+              params: {
+                unique: ["value"],
+                children: {
+                  type: ValidationTypes.OBJECT,
+                  params: {
+                    required: true,
+                    allowedKeys: [
+                      {
+                        name: "value",
+                        type: ValidationTypes.NUMBER,
+                        params: {
+                          default: "",
+                          requiredKey: true,
+                        },
+                      },
+                      {
+                        name: "label",
+                        type: ValidationTypes.TEXT,
+                        params: {
+                          default: "",
+                          requiredKey: true,
+                        },
+                      },
+                    ],
+                  },
+                },
+              },
+            },
           },
           {
             propertyName: "isVisible",
@@ -467,45 +515,6 @@ class NumberSliderWidget extends BaseWidget<
             isBindProperty: true,
             isTriggerProperty: false,
             validation: { type: ValidationTypes.BOOLEAN },
-          },
-          {
-            helpText: "Display Value Marks",
-            propertyName: "marks",
-            label: "Marks",
-            controlType: "INPUT_TEXT",
-            placeholderText: '[{ "value": "20", "label": "20%" }]',
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: {
-              type: ValidationTypes.ARRAY,
-              params: {
-                unique: ["value"],
-                children: {
-                  type: ValidationTypes.OBJECT,
-                  params: {
-                    required: true,
-                    allowedKeys: [
-                      {
-                        name: "value",
-                        type: ValidationTypes.NUMBER,
-                        params: {
-                          default: "",
-                          requiredKey: true,
-                        },
-                      },
-                      {
-                        name: "label",
-                        type: ValidationTypes.TEXT,
-                        params: {
-                          default: "",
-                          requiredKey: true,
-                        },
-                      },
-                    ],
-                  },
-                },
-              },
-            },
           },
         ],
       },
@@ -577,9 +586,14 @@ class NumberSliderWidget extends BaseWidget<
               props.labelPosition !== LabelPosition.Left,
             dependencies: ["labelPosition"],
           },
+        ],
+      },
+      {
+        sectionName: "Label Style",
+        children: [
           {
             propertyName: "labelTextColor",
-            label: "Label Text Color",
+            label: "Color",
             controlType: "COLOR_PICKER",
             isJSConvertible: true,
             isBindProperty: true,
@@ -588,7 +602,7 @@ class NumberSliderWidget extends BaseWidget<
           },
           {
             propertyName: "labelTextSize",
-            label: "Label Text Size",
+            label: "Size",
             controlType: "DROP_DOWN",
             defaultValue: "0.875rem",
             options: [
@@ -630,7 +644,7 @@ class NumberSliderWidget extends BaseWidget<
           },
           {
             propertyName: "labelStyle",
-            label: "Label Font Style",
+            label: "Font Style",
             controlType: "BUTTON_TABS",
             options: [
               {
@@ -650,22 +664,26 @@ class NumberSliderWidget extends BaseWidget<
         ],
       },
       {
-        sectionName: "Styles",
+        sectionName: "Events",
         children: [
           {
-            helpText: "Sets the fill color of the widget",
-            propertyName: "accentColor",
-            label: "Fill Color",
-            controlType: "COLOR_PICKER",
+            helpText: "Triggers an action when a user changes the slider value",
+            propertyName: "onChange",
+            label: "onChange",
+            controlType: "ACTION_SELECTOR",
             isJSConvertible: true,
             isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.TEXT },
+            isTriggerProperty: true,
           },
+        ],
+      },
+      {
+        sectionName: "Style",
+        children: [
           {
             helpText: "Controls the size of the slider",
             propertyName: "sliderSize",
-            label: "Slider Size",
+            label: "Size",
             controlType: "DROP_DOWN",
             defaultValue: "m",
             options: [
@@ -689,19 +707,15 @@ class NumberSliderWidget extends BaseWidget<
             isTriggerProperty: false,
             validation: { type: ValidationTypes.TEXT },
           },
-        ],
-      },
-      {
-        sectionName: "Events",
-        children: [
           {
-            helpText: "Triggers an action when a user changes the slider value",
-            propertyName: "onChange",
-            label: "onChange",
-            controlType: "ACTION_SELECTOR",
+            helpText: "Sets the fill color of the widget",
+            propertyName: "accentColor",
+            label: "Fill Color",
+            controlType: "COLOR_PICKER",
             isJSConvertible: true,
             isBindProperty: true,
-            isTriggerProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
           },
         ],
       },

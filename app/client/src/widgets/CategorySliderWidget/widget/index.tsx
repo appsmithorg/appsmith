@@ -193,7 +193,7 @@ class CategorySliderWidget extends BaseWidget<
           {
             helpText: "Sets a default selected option",
             propertyName: "defaultOptionValue",
-            label: "Default Selected Value",
+            label: "Default Value",
             placeholderText: "Y",
             controlType: "INPUT_TEXT",
             isBindProperty: true,
@@ -226,57 +226,6 @@ class CategorySliderWidget extends BaseWidget<
             label: "Text",
             controlType: "INPUT_TEXT",
             placeholderText: "Enter label text",
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.TEXT },
-          },
-          {
-            propertyName: "labelTextSize",
-            label: "Label Text Size",
-            controlType: "DROP_DOWN",
-            defaultValue: "0.875rem",
-            options: [
-              {
-                label: "S",
-                value: "0.875rem",
-                subText: "0.875rem",
-              },
-              {
-                label: "M",
-                value: "1rem",
-                subText: "1rem",
-              },
-              {
-                label: "L",
-                value: "1.25rem",
-                subText: "1.25rem",
-              },
-              {
-                label: "XL",
-                value: "1.875rem",
-                subText: "1.875rem",
-              },
-              {
-                label: "XXL",
-                value: "3rem",
-                subText: "3rem",
-              },
-              {
-                label: "3XL",
-                value: "3.75rem",
-                subText: "3.75rem",
-              },
-            ],
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.TEXT },
-          },
-          {
-            propertyName: "labelTextColor",
-            label: "Label Text Color",
-            controlType: "COLOR_PICKER",
-            isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
             validation: { type: ValidationTypes.TEXT },
@@ -336,26 +285,6 @@ class CategorySliderWidget extends BaseWidget<
               props.labelPosition !== LabelPosition.Left,
             dependencies: ["labelPosition"],
           },
-
-          {
-            propertyName: "labelStyle",
-            label: "Label Font Style",
-            controlType: "BUTTON_TABS",
-            options: [
-              {
-                icon: "BOLD_FONT",
-                value: "BOLD",
-              },
-              {
-                icon: "ITALICS_FONT",
-                value: "ITALIC",
-              },
-            ],
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.TEXT },
-          },
         ],
       },
       {
@@ -364,7 +293,7 @@ class CategorySliderWidget extends BaseWidget<
           {
             propertyName: "showMarksLabel",
             helpText: "Controls the visibility of the marks Label widget",
-            label: "Show Marks Label",
+            label: "Show Marks",
             controlType: "SWITCH",
             isJSConvertible: true,
             isBindProperty: true,
@@ -447,19 +376,9 @@ class CategorySliderWidget extends BaseWidget<
         sectionName: "General",
         children: [
           {
-            helpText: "Sets the fill color of the widget",
-            propertyName: "accentColor",
-            label: "Fill Color",
-            controlType: "COLOR_PICKER",
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.TEXT },
-          },
-          {
             helpText: "Controls the size of the slider",
             propertyName: "sliderSize",
-            label: "Slider Size",
+            label: "Size",
             controlType: "DROP_DOWN",
             defaultValue: "m",
             options: [
@@ -479,6 +398,96 @@ class CategorySliderWidget extends BaseWidget<
                 subText: "10px",
               },
             ],
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
+        ],
+      },
+      {
+        sectionName: "Label Styles",
+        children: [
+          {
+            propertyName: "labelTextColor",
+            label: "Font Color",
+            controlType: "COLOR_PICKER",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
+          {
+            propertyName: "labelTextSize",
+            label: "Font Size",
+            controlType: "DROP_DOWN",
+            defaultValue: "0.875rem",
+            options: [
+              {
+                label: "S",
+                value: "0.875rem",
+                subText: "0.875rem",
+              },
+              {
+                label: "M",
+                value: "1rem",
+                subText: "1rem",
+              },
+              {
+                label: "L",
+                value: "1.25rem",
+                subText: "1.25rem",
+              },
+              {
+                label: "XL",
+                value: "1.875rem",
+                subText: "1.875rem",
+              },
+              {
+                label: "XXL",
+                value: "3rem",
+                subText: "3rem",
+              },
+              {
+                label: "3XL",
+                value: "3.75rem",
+                subText: "3.75rem",
+              },
+            ],
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
+          {
+            propertyName: "labelStyle",
+            label: "Emphasis",
+            controlType: "BUTTON_TABS",
+            options: [
+              {
+                icon: "BOLD_FONT",
+                value: "BOLD",
+              },
+              {
+                icon: "ITALICS_FONT",
+                value: "ITALIC",
+              },
+            ],
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
+        ],
+      },
+      {
+        sectionName: "Color",
+        children: [
+          {
+            helpText: "Sets the fill color of the widget",
+            propertyName: "accentColor",
+            label: "Fill Color",
+            controlType: "COLOR_PICKER",
+            isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
             validation: { type: ValidationTypes.TEXT },
@@ -519,7 +528,7 @@ class CategorySliderWidget extends BaseWidget<
           {
             helpText: "Sets a default selected option",
             propertyName: "defaultOptionValue",
-            label: "Default Selected Value",
+            label: "Default Value",
             placeholderText: "Y",
             controlType: "INPUT_TEXT",
             isBindProperty: true,
@@ -540,6 +549,16 @@ class CategorySliderWidget extends BaseWidget<
                 },
               },
             },
+          },
+          {
+            propertyName: "showMarksLabel",
+            helpText: "Controls the visibility of the marks Label widget",
+            label: "Show Marks",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
           },
           {
             propertyName: "isVisible",
@@ -586,16 +605,6 @@ class CategorySliderWidget extends BaseWidget<
             propertyName: "showLabelOnHover",
             helpText: "Show widget value label on Hover",
             label: "Show Label On Hover",
-            controlType: "SWITCH",
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.BOOLEAN },
-          },
-          {
-            propertyName: "showMarksLabel",
-            helpText: "Controls the visibility of the marks Label widget",
-            label: "Show Marks Label",
             controlType: "SWITCH",
             isJSConvertible: true,
             isBindProperty: true,
@@ -672,9 +681,14 @@ class CategorySliderWidget extends BaseWidget<
               props.labelPosition !== LabelPosition.Left,
             dependencies: ["labelPosition"],
           },
+        ],
+      },
+      {
+        sectionName: "Label Style",
+        children: [
           {
             propertyName: "labelTextColor",
-            label: "Label Text Color",
+            label: "Color",
             controlType: "COLOR_PICKER",
             isJSConvertible: true,
             isBindProperty: true,
@@ -683,7 +697,7 @@ class CategorySliderWidget extends BaseWidget<
           },
           {
             propertyName: "labelTextSize",
-            label: "Label Text Size",
+            label: "Size",
             controlType: "DROP_DOWN",
             defaultValue: "0.875rem",
             options: [
@@ -725,7 +739,7 @@ class CategorySliderWidget extends BaseWidget<
           },
           {
             propertyName: "labelStyle",
-            label: "Label Font Style",
+            label: "Font Style",
             controlType: "BUTTON_TABS",
             options: [
               {
@@ -745,22 +759,26 @@ class CategorySliderWidget extends BaseWidget<
         ],
       },
       {
-        sectionName: "Styles",
+        sectionName: "Events",
         children: [
           {
-            helpText: "Sets the fill color of the widget",
-            propertyName: "accentColor",
-            label: "Fill Color",
-            controlType: "COLOR_PICKER",
+            helpText: "Triggers an action when a user changes the slider value",
+            propertyName: "onChange",
+            label: "onChange",
+            controlType: "ACTION_SELECTOR",
             isJSConvertible: true,
             isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.TEXT },
+            isTriggerProperty: true,
           },
+        ],
+      },
+      {
+        sectionName: "Style",
+        children: [
           {
             helpText: "Controls the size of the slider",
             propertyName: "sliderSize",
-            label: "Slider Size",
+            label: "Size",
             controlType: "DROP_DOWN",
             defaultValue: "m",
             options: [
@@ -784,19 +802,15 @@ class CategorySliderWidget extends BaseWidget<
             isTriggerProperty: false,
             validation: { type: ValidationTypes.TEXT },
           },
-        ],
-      },
-      {
-        sectionName: "Events",
-        children: [
           {
-            helpText: "Triggers an action when a user changes the slider value",
-            propertyName: "onChange",
-            label: "onChange",
-            controlType: "ACTION_SELECTOR",
+            helpText: "Sets the fill color of the widget",
+            propertyName: "accentColor",
+            label: "Fill Color",
+            controlType: "COLOR_PICKER",
             isJSConvertible: true,
             isBindProperty: true,
-            isTriggerProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
           },
         ],
       },

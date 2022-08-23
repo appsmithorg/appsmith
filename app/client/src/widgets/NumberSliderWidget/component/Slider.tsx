@@ -1,7 +1,7 @@
 import React, { useRef, useState, useCallback, useEffect } from "react";
 import throttle from "lodash/throttle";
 
-import LabelWithTooltip from "components/ads/LabelWithTooltip";
+import { LabelWithTooltip } from "design-system";
 import { LabelPosition } from "components/constants";
 import { Alignment } from "@blueprintjs/core";
 import { TextSize } from "constants/WidgetConstants";
