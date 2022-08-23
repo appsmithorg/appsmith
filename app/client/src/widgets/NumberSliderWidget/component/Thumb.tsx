@@ -16,16 +16,16 @@ interface ThumbProps {
   onMouseDown(
     event: React.MouseEvent<HTMLDivElement> | React.TouchEvent<HTMLDivElement>,
   ): void;
-  label?: string;
-  labelAlwaysOn: boolean;
+  tooltipValue?: string;
+  tooltipAlwaysOn: boolean;
   onFocus?(): void;
   onBlur?(): void;
-  showLabelOnHover?: boolean;
+  showTooltipOnHover: boolean;
   children?: React.ReactNode;
   disabled: boolean;
 }
 
-const Label = styled.div({
+const Tooltip = styled.div({
   position: "absolute",
   top: -36,
   backgroundColor: "#212529",
@@ -60,11 +60,6 @@ const ThumbWrapper = styled.div<
   zIndex: 3,
   userSelect: "none",
   transform: "translate(-50%, -50%)",
-  // boxShadow: dragging
-  //   ? disabled
-  //     ? "none"
-  //     : `0 0 0px 3px ${lightenColor(color)}`
-  //   : "none",
   left: `${position}%`,
 
   "&:focus": {
@@ -79,24 +74,26 @@ export const Thumb = forwardRef<HTMLDivElement, ThumbProps>(
       color,
       disabled,
       dragging,
-      label,
-      labelAlwaysOn,
       max,
       min,
       onBlur,
       onFocus,
       onMouseDown,
       position,
-      showLabelOnHover,
+      showTooltipOnHover,
       size,
       thumbBgColor,
+      tooltipAlwaysOn,
+      tooltipValue,
       value,
     },
     ref,
   ) => {
     const [focused, setFocused] = useState(false);
 
-    const isVisible = labelAlwaysOn || dragging || focused || showLabelOnHover;
+    const isVisible =
+      tooltipAlwaysOn || dragging || focused || showTooltipOnHover;
+
     return (
       <ThumbWrapper
         aria-valuemax={max}
@@ -124,7 +121,9 @@ export const Thumb = forwardRef<HTMLDivElement, ThumbProps>(
       >
         {children}
 
-        {isVisible && label !== "" ? <Label>{label}</Label> : null}
+        {isVisible && tooltipValue !== "" ? (
+          <Tooltip>{tooltipValue}</Tooltip>
+        ) : null}
       </ThumbWrapper>
     );
   },

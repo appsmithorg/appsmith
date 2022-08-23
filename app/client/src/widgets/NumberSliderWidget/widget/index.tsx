@@ -216,19 +216,9 @@ class NumberSliderWidget extends BaseWidget<
             validation: { type: ValidationTypes.BOOLEAN },
           },
           {
-            propertyName: "labelAlwaysOn",
-            helpText: "Keep showing the label with value",
-            label: "Label Always On",
-            controlType: "SWITCH",
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.BOOLEAN },
-          },
-          {
-            propertyName: "showLabelOnHover",
-            helpText: "Show widget value label on Hover",
-            label: "Show Label On Hover",
+            propertyName: "tooltipAlwaysOn",
+            helpText: "Keep showing the tooltip with value",
+            label: "Tooltip Always On",
             controlType: "SWITCH",
             isJSConvertible: true,
             isBindProperty: true,
@@ -497,19 +487,9 @@ class NumberSliderWidget extends BaseWidget<
             validation: { type: ValidationTypes.BOOLEAN },
           },
           {
-            propertyName: "labelAlwaysOn",
-            helpText: "Keep showing the label with value",
-            label: "Label Always On",
-            controlType: "SWITCH",
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.BOOLEAN },
-          },
-          {
-            propertyName: "showLabelOnHover",
-            helpText: "Show widget value label on Hover",
-            label: "Show Label On Hover",
+            propertyName: "tooltipAlwaysOn",
+            helpText: "Keep showing the tooltip with value",
+            label: "Tooltip Always On",
             controlType: "SWITCH",
             isJSConvertible: true,
             isBindProperty: true,
@@ -770,7 +750,6 @@ class NumberSliderWidget extends BaseWidget<
         color={this.props.accentColor || TAILWIND_COLORS.green["600"]}
         disabled={this.props.isDisabled || false}
         labelAlignment={this.props.labelAlignment}
-        labelAlwaysOn={this.props.labelAlwaysOn}
         labelPosition={this.props.labelPosition}
         labelStyle={this.props.labelStyle}
         labelText={this.props.labelText}
@@ -783,11 +762,11 @@ class NumberSliderWidget extends BaseWidget<
         min={this.props.min || 0}
         name={this.props.widgetName}
         onChangeEnd={this.onChangeEnd}
-        showLabelOnHover={this.props.showLabelOnHover}
         showMarksLabel
         sliderSize={this.props.sliderSize || "m"}
         sliderValue={this.props.value || 0}
         step={this.props.step || 1}
+        tooltipAlwaysOn={this.props.tooltipAlwaysOn || false}
       />
     );
   }

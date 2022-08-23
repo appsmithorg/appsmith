@@ -332,19 +332,9 @@ class CategorySliderWidget extends BaseWidget<
             validation: { type: ValidationTypes.BOOLEAN },
           },
           {
-            propertyName: "labelAlwaysOn",
-            helpText: "Keep showing the label with value",
-            label: "Label Always On",
-            controlType: "SWITCH",
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.BOOLEAN },
-          },
-          {
-            propertyName: "showLabelOnHover",
-            helpText: "Show widget value label on Hover",
-            label: "Show Label On Hover",
+            propertyName: "tooltipAlwaysOn",
+            helpText: "Keep showing the tooltip with value",
+            label: "Tooltip Always On",
             controlType: "SWITCH",
             isJSConvertible: true,
             isBindProperty: true,
@@ -592,19 +582,9 @@ class CategorySliderWidget extends BaseWidget<
             validation: { type: ValidationTypes.BOOLEAN },
           },
           {
-            propertyName: "labelAlwaysOn",
-            helpText: "Keep showing the label with value",
-            label: "Label Always On",
-            controlType: "SWITCH",
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.BOOLEAN },
-          },
-          {
-            propertyName: "showLabelOnHover",
-            helpText: "Show widget value label on Hover",
-            label: "Show Label On Hover",
+            propertyName: "tooltipAlwaysOn",
+            helpText: "Keep showing the tooltip with value",
+            label: "Tooltip Always On",
             controlType: "SWITCH",
             isJSConvertible: true,
             isBindProperty: true,
@@ -902,7 +882,6 @@ class CategorySliderWidget extends BaseWidget<
         color={this.props.accentColor || TAILWIND_COLORS.green["600"]}
         disabled={this.props.isDisabled || sliderOptions.length === 0}
         labelAlignment={this.props.labelAlignment}
-        labelAlwaysOn={this.props.labelAlwaysOn}
         labelPosition={this.props.labelPosition}
         labelStyle={this.props.labelStyle}
         labelText={this.props.labelText}
@@ -915,7 +894,6 @@ class CategorySliderWidget extends BaseWidget<
         min={stepSize}
         name={this.props.widgetName}
         onChangeEnd={this.onChangeEnd}
-        showLabelOnHover={this.props.showLabelOnHover}
         showMarksLabel={this.props.showMarksLabel || sliderOptions.length === 0}
         sliderSize={this.props.sliderSize || "m"}
         sliderTooltip={(val: number) =>
@@ -923,6 +901,7 @@ class CategorySliderWidget extends BaseWidget<
         }
         sliderValue={sliderValue || stepSize}
         step={stepSize}
+        tooltipAlwaysOn={this.props.tooltipAlwaysOn || false}
       />
     );
   }

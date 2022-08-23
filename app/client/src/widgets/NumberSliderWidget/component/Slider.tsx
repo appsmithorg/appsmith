@@ -53,10 +53,7 @@ export interface SliderComponentProps
   marks?: { value: number; label: string }[];
 
   /** If true label will be not be hidden when user stops dragging */
-  labelAlwaysOn?: boolean;
-
-  /** If true slider label will appear on hover */
-  showLabelOnHover?: boolean;
+  tooltipAlwaysOn: boolean;
 
   /** Disables slider */
   disabled?: boolean;
@@ -89,7 +86,7 @@ export interface SliderComponentProps
   loading: boolean;
 
   /** determines whether to display mark labels or only marks */
-  showMarksLabel?: boolean;
+  showMarksLabel: boolean;
 }
 
 const SliderComponent = (props: SliderComponentProps) => {
@@ -97,7 +94,6 @@ const SliderComponent = (props: SliderComponentProps) => {
     color,
     disabled = false,
     labelAlignment,
-    labelAlwaysOn = false,
     labelPosition,
     labelStyle,
     labelText,
@@ -111,12 +107,12 @@ const SliderComponent = (props: SliderComponentProps) => {
     name,
     onChangeEnd,
     precision,
-    showLabelOnHover = true,
-    showMarksLabel = true,
+    showMarksLabel,
     sliderSize,
     sliderTooltip,
     sliderValue,
     step,
+    tooltipAlwaysOn,
   } = props;
 
   const [_value, setValue] = useState(sliderValue);
@@ -126,7 +122,7 @@ const SliderComponent = (props: SliderComponentProps) => {
 
   const position = getPosition({ value: _value, min, max });
 
-  const _label =
+  const tooltipValue =
     typeof sliderTooltip === "function"
       ? sliderTooltip(_value)
       : _value.toString();
@@ -267,8 +263,8 @@ const SliderComponent = (props: SliderComponentProps) => {
           min={min}
           offset={0}
           onChange={setValue}
-          onMouseEnter={showLabelOnHover ? () => setHovered(true) : undefined}
-          onMouseLeave={showLabelOnHover ? () => setHovered(false) : undefined}
+          onMouseEnter={() => setHovered(true)}
+          onMouseLeave={() => setHovered(false)}
           showMarksLabel={showMarksLabel}
           size={sliderSize}
           trackBgColor={sliderBg.track}
@@ -278,17 +274,17 @@ const SliderComponent = (props: SliderComponentProps) => {
             color={color}
             disabled={disabled}
             dragging={active}
-            label={_label}
-            labelAlwaysOn={labelAlwaysOn}
             max={max}
             min={min}
             onMouseDown={handleThumbMouseDown}
             position={position}
             // @ts-expect-error: MutableRefObject not assignable to Ref
             ref={thumb}
-            showLabelOnHover={showLabelOnHover && hovered}
+            showTooltipOnHover={hovered}
             size={sliderSize}
             thumbBgColor={sliderBg.thumb}
+            tooltipAlwaysOn={tooltipAlwaysOn}
+            tooltipValue={tooltipValue}
             value={_value}
           />
         </Track>

@@ -62,13 +62,11 @@ export interface RangeSliderComponentProps
   marks?: { value: number; label: string }[];
 
   /** If true label will be not be hidden when user stops dragging */
-  labelAlwaysOn?: boolean;
-
-  /**If true slider label will appear on hover */
-  showLabelOnHover?: boolean;
+  tooltipAlwaysOn: boolean;
 
   /** Disables slider */
-  disabled?: boolean;
+  disabled: boolean;
+
   /** Label text  */
   labelText: string;
 
@@ -97,10 +95,9 @@ export interface RangeSliderComponentProps
 const RangeSliderComponent = (props: RangeSliderComponentProps) => {
   const {
     color,
-    disabled = false,
+    disabled,
     endValue,
     labelAlignment,
-    labelAlwaysOn = false,
     labelPosition,
     labelStyle,
     labelText,
@@ -115,10 +112,10 @@ const RangeSliderComponent = (props: RangeSliderComponentProps) => {
     name,
     onChangeEnd,
     precision,
-    showLabelOnHover = true,
     sliderSize,
     startValue,
     step,
+    tooltipAlwaysOn,
     ...others
   } = props;
 
@@ -311,7 +308,7 @@ const RangeSliderComponent = (props: RangeSliderComponentProps) => {
     max,
     min,
     color,
-    labelAlwaysOn,
+    tooltipAlwaysOn,
     onBlur: () => setFocused(-1),
   };
 
@@ -372,8 +369,8 @@ const RangeSliderComponent = (props: RangeSliderComponentProps) => {
             clone[nearestValue] = val;
             _setValue(clone);
           }}
-          onMouseEnter={showLabelOnHover ? () => setHovered(true) : undefined}
-          onMouseLeave={showLabelOnHover ? () => setHovered(false) : undefined}
+          onMouseEnter={() => setHovered(true)}
+          onMouseLeave={() => setHovered(false)}
           size={sliderSize}
           trackBgColor={sliderBg.track}
           value={_value[1]}
@@ -382,7 +379,6 @@ const RangeSliderComponent = (props: RangeSliderComponentProps) => {
             {...sharedThumbProps}
             disabled={disabled}
             dragging={active}
-            label={_value[0].toString()}
             onFocus={() => setFocused(0)}
             onMouseDown={(event) => handleThumbMouseDown(event, 0)}
             position={positions[0]}
@@ -390,9 +386,10 @@ const RangeSliderComponent = (props: RangeSliderComponentProps) => {
               // @ts-expect-error: HTMLDivElement
               thumbs.current[0] = node;
             }}
-            showLabelOnHover={showLabelOnHover && hovered}
+            showTooltipOnHover={hovered}
             size={sliderSize}
             thumbBgColor={sliderBg.thumb}
+            tooltipValue={_value[0].toString()}
             value={_value[0]}
           />
 
@@ -400,7 +397,6 @@ const RangeSliderComponent = (props: RangeSliderComponentProps) => {
             {...sharedThumbProps}
             disabled={disabled}
             dragging={active}
-            label={_value[1].toString()}
             onFocus={() => setFocused(1)}
             onMouseDown={(event) => handleThumbMouseDown(event, 1)}
             position={positions[1]}
@@ -408,9 +404,10 @@ const RangeSliderComponent = (props: RangeSliderComponentProps) => {
               // @ts-expect-error: HTMLDivElement
               thumbs.current[1] = node;
             }}
-            showLabelOnHover={showLabelOnHover && hovered}
+            showTooltipOnHover={hovered}
             size={sliderSize}
             thumbBgColor={sliderBg.thumb}
+            tooltipValue={_value[1].toString()}
             value={_value[1]}
           />
         </Track>

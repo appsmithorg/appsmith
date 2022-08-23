@@ -252,19 +252,9 @@ class RangeSliderWidget extends BaseWidget<
             validation: { type: ValidationTypes.BOOLEAN },
           },
           {
-            propertyName: "labelAlwaysOn",
+            propertyName: "tooltipAlwaysOn",
             helpText: "Keep showing the label with value",
-            label: "Label Always On",
-            controlType: "SWITCH",
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.BOOLEAN },
-          },
-          {
-            propertyName: "showLabelOnHover",
-            helpText: "Show widget value label on Hover",
-            label: "Show Label On Hover",
+            label: "Tooltip Always On",
             controlType: "SWITCH",
             isJSConvertible: true,
             isBindProperty: true,
@@ -562,19 +552,9 @@ class RangeSliderWidget extends BaseWidget<
             validation: { type: ValidationTypes.BOOLEAN },
           },
           {
-            propertyName: "labelAlwaysOn",
+            propertyName: "tooltipAlwaysOn",
             helpText: "Keep showing the label with value",
-            label: "Label Always On",
-            controlType: "SWITCH",
-            isJSConvertible: true,
-            isBindProperty: true,
-            isTriggerProperty: false,
-            validation: { type: ValidationTypes.BOOLEAN },
-          },
-          {
-            propertyName: "showLabelOnHover",
-            helpText: "Show widget value label on Hover",
-            label: "Show Label On Hover",
+            label: "Tooltip Always On",
             controlType: "SWITCH",
             isJSConvertible: true,
             isBindProperty: true,
@@ -860,7 +840,6 @@ class RangeSliderWidget extends BaseWidget<
         disabled={this.props.isDisabled || false}
         endValue={this.props.end || 20}
         labelAlignment={this.props.labelAlignment}
-        labelAlwaysOn={this.props.labelAlwaysOn}
         labelPosition={this.props.labelPosition}
         labelStyle={this.props.labelStyle}
         labelText={this.props.labelText}
@@ -874,10 +853,10 @@ class RangeSliderWidget extends BaseWidget<
         minRange={this.props.minRange || 10}
         name={this.props.widgetName}
         onChangeEnd={this.onChangeEnd}
-        showLabelOnHover={this.props.showLabelOnHover}
         sliderSize={this.props.sliderSize || "m"}
         startValue={this.props.start || 0}
         step={this.props.step || 1}
+        tooltipAlwaysOn={this.props.tooltipAlwaysOn || false}
       />
     );
   }
