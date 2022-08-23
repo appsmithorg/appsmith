@@ -86,9 +86,9 @@ export const thumbSizeMap = {
 };
 
 export const sizeMap = {
-  s: 6,
-  m: 8,
-  l: 10,
+  s: 4,
+  m: 6,
+  l: 8,
 };
 
 export type SliderSizes = "s" | "m" | "l";
