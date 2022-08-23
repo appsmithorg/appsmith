@@ -1808,13 +1808,16 @@ Cypress.Commands.add(
       version;
 
     cy.log(comm);
-    cy.request({
-      method: "GET",
-      url: url,
-      qs: {
-        cmd: comm,
+    cy.request(
+      {
+        method: "GET",
+        url: url,
+        qs: {
+          cmd: comm,
+        },
       },
-    }).then((res) => {
+      { timeout: 100000 },
+    ).then((res) => {
       cy.log(res.body.stderr);
       cy.log(res.body.stdout);
       expect(res.status).equal(200);
@@ -1836,13 +1839,16 @@ Cypress.Commands.add(
       version;
 
     cy.log(comm);
-    cy.request({
-      method: "GET",
-      url: url,
-      qs: {
-        cmd: comm,
+    cy.request(
+      {
+        method: "GET",
+        url: url,
+        qs: {
+          cmd: comm,
+        },
       },
-    }).then((res) => {
+      { timeout: 100000 },
+    ).then((res) => {
       cy.log(res.body.stderr);
       cy.log(res.body.stdout);
       expect(res.status).equal(200);

@@ -4,7 +4,7 @@ const testdata = require("../../../../fixtures/testdata.json");
 const testUrl = "http://localhost:5001/v1/parent/cmd";
 describe("Upgrade appsmith version", () => {
   it("Upgrade Appsmith version and verify the Applications", () => {
-    const uuid = () => Cypress._.random(0, 5);
+    const uuid = () => Cypress._.random(0, 10000);
     const name = uuid();
     cy.wait(2000);
 
@@ -67,7 +67,7 @@ describe("Upgrade appsmith version", () => {
     cy.StopTheContainer(testUrl, "appsmith"); // stop the old container
     cy.wait(2000);
 
-    const uuid = () => Cypress._.random(0, 5);
+    const uuid = () => Cypress._.random(0, 10000);
     const name = uuid();
     cy.wait(2000);
 
