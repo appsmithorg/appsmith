@@ -1019,7 +1019,7 @@ Cypress.Commands.add("startErrorRoutes", () => {
 Cypress.Commands.add("NavigateToPaginationTab", () => {
   cy.get(ApiEditor.apiTab)
     .contains("Pagination")
-    .click();
+    .click({force:true});
   cy.xpath(apiwidget.paginationWithUrl).click({ force: true });
 });
 
@@ -1060,6 +1060,7 @@ Cypress.Commands.add("ValidatePaginateResponseUrlData", (runTestCss) => {
   cy.get(".t--entity-name")
     .contains("Api2")
     .click({ force: true });
+  cy.wait(3000);
   cy.NavigateToPaginationTab();
   cy.RunAPI();
   cy.get(ApiEditor.apiPaginationNextTest).click();
@@ -1096,6 +1097,7 @@ Cypress.Commands.add("ValidatePaginateResponseUrlDataV2", (runTestCss) => {
   cy.get(".t--entity-name")
     .contains("Api2")
     .click({ force: true });
+  cy.wait(3000);
   cy.NavigateToPaginationTab();
   cy.RunAPI();
   cy.get(ApiEditor.apiPaginationNextTest).click();
