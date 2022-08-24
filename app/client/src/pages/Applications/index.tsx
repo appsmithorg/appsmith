@@ -10,7 +10,7 @@ import styled, { ThemeContext } from "styled-components";
 import { connect, useDispatch, useSelector } from "react-redux";
 import MediaQuery from "react-responsive";
 import { useLocation } from "react-router-dom";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import { Classes as BlueprintClasses } from "@blueprintjs/core";
 import {
   thinScrollbar,

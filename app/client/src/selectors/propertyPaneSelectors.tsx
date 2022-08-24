@@ -1,5 +1,5 @@
 import { find, get, pick, set } from "lodash";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import { createSelector } from "reselect";
 
 import { WidgetProps } from "widgets/BaseWidget";

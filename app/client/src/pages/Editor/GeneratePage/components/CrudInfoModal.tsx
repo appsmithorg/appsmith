@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 import { connect, useDispatch } from "react-redux";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { Button, Category, Size, Text, TextType } from "design-system";
 import { getCrudInfoModalData } from "selectors/crudInfoModalSelectors";

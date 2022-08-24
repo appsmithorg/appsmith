@@ -1,7 +1,7 @@
 import React from "react";
 import { connect } from "react-redux";
 import { getFormValues } from "redux-form";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import _ from "lodash";
 import {
   getPluginImages,

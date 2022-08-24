@@ -22,7 +22,7 @@ import {
 } from "selectors/templatesSelectors";
 import { fetchDefaultPlugins } from "actions/pluginActions";
 import { editorInitializer } from "utils/EditorUtils";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import {
   getIsFetchingApplications,
   getUserApplicationsWorkspacesList,
