@@ -68,15 +68,15 @@ export class ApiPage {
   CreateAndFillApi(
     url: string,
     apiName = "",
+    queryTimeout = 10000,
     apiVerb: "GET" | "POST" | "PUT" | "DELETE" | "PATCH" = "GET",
-    queryTimeout = 30000,
   ) {
     this.CreateApi(apiName, apiVerb);
     this.EnterURL(url);
     this.agHelper.AssertAutoSave();
     //this.agHelper.Sleep(2000);// Added because api name edit takes some time to reflect in api sidebar after the call passes.
     cy.get(this._apiRunBtn).should("not.be.disabled");
-    this.SetAPITimeout(queryTimeout);
+    if (queryTimeout != 10000) this.SetAPITimeout(queryTimeout);
   }
 
   EnterURL(url: string) {

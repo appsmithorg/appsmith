@@ -55,7 +55,8 @@ describe("JSObjects OnLoad Actions tests", function() {
       ee.SelectEntityByName("Table1", "WIDGETS");
       propPane.UpdatePropertyFieldValue("Table Data", "{{GetEmployee.data}}");
       agHelper.ValidateToastMessage(
-        "[GetEmployee, " + (jsName as string) +
+        "[GetEmployee, " +
+          (jsName as string) +
           ".getEmployee] will be executed automatically on page load",
       );
       deployMode.DeployApp();
@@ -97,7 +98,7 @@ describe("JSObjects OnLoad Actions tests", function() {
   it("5. Tc 53 - Verify OnPage Load - Enabling back & Before Function calling disabled for JSOBject", function() {
     ee.SelectEntityByName(jsName as string, "QUERIES/JS");
     jsEditor.EnableDisableAsyncFuncSettings("getEmployee", true, false);
-    agHelper.Sleep(2000);//to allow for changes to take effect!
+    agHelper.Sleep(2000); //to allow for changes to take effect!
     agHelper.RefreshPage(); //For bug #
     cy.wait("@jsCollections").then(({ response }) => {
       expect(response?.body.data.actions[0].executeOnLoad).to.eq(true);
@@ -240,12 +241,14 @@ describe("JSObjects OnLoad Actions tests", function() {
     apiPage.CreateAndFillApi(
       "https://api.forismatic.com/api/1.0/?method=getQuote&lang=en&format=json",
       "Quotes",
+      30000,
     );
     apiPage.ToggleConfirmBeforeRunningApi(true);
 
     apiPage.CreateAndFillApi(
       "https://api.whatdoestrumpthink.com/api/v1/quotes/random",
       "WhatTrumpThinks",
+      30000,
     );
     apiPage.ToggleConfirmBeforeRunningApi(true);
 
@@ -374,7 +377,7 @@ describe("JSObjects OnLoad Actions tests", function() {
     agHelper.ValidateToastMessage("Failed to execute actions during page load");
 
     ee.ExpandCollapseEntity("QUERIES/JS");
-    apiPage.CreateAndFillApi("https://catfact.ninja/fact", "CatFacts");
+    apiPage.CreateAndFillApi("https://catfact.ninja/fact", "CatFacts", 30000);
     apiPage.ToggleOnPageLoadRun(true);
     apiPage.ToggleConfirmBeforeRunningApi(true);
 
@@ -416,6 +419,7 @@ describe("JSObjects OnLoad Actions tests", function() {
     apiPage.CreateAndFillApi(
       "https://anapioficeandfire.com/api/books/{{this.params.id}}",
       "getBooks",
+      30000,
     );
     //apiPage.OnPageLoadRun(true); //OnPageLoad made true after mapping to JSONForm
     apiPage.ToggleConfirmBeforeRunningApi(true);
