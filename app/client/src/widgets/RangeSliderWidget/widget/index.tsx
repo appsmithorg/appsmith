@@ -864,6 +864,16 @@ class RangeSliderWidget extends BaseWidget<
     }
   };
 
+  getSliderTooltip = (sliderValue: number) => {
+    /**
+     * Check if the step is in decimal if yes fix
+     * the slider tooltip to only one place decimal
+     */
+    return this.props.step % 1 !== 0
+      ? sliderValue.toFixed(1).toString()
+      : sliderValue.toString();
+  };
+
   getPageView() {
     return (
       <RangeSliderComponent
@@ -886,6 +896,7 @@ class RangeSliderWidget extends BaseWidget<
         onChangeEnd={this.onChangeEnd}
         showMarksLabel={this.props.showMarksLabel}
         sliderSize={this.props.sliderSize || "m"}
+        sliderTooltip={this.getSliderTooltip}
         startValue={this.props.start || 0}
         step={this.props.step || 1}
         tooltipAlwaysOn={this.props.tooltipAlwaysOn || false}

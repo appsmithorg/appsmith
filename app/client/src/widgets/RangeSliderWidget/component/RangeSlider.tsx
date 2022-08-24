@@ -67,6 +67,9 @@ export interface RangeSliderComponentProps
   /** Disables slider */
   disabled: boolean;
 
+  /** Display label on the Slider */
+  sliderTooltip: (value: number) => string;
+
   /** Label text  */
   labelText: string;
 
@@ -113,6 +116,7 @@ const RangeSliderComponent = (props: RangeSliderComponentProps) => {
     onChangeEnd,
     showMarksLabel,
     sliderSize,
+    sliderTooltip,
     startValue,
     step,
     tooltipAlwaysOn,
@@ -389,7 +393,7 @@ const RangeSliderComponent = (props: RangeSliderComponentProps) => {
             showTooltipOnHover={hovered}
             size={sliderSize}
             thumbBgColor={sliderBg.thumb}
-            tooltipValue={_value[0].toString()}
+            tooltipValue={sliderTooltip(_value[0])}
           />
 
           <Thumb
@@ -406,7 +410,7 @@ const RangeSliderComponent = (props: RangeSliderComponentProps) => {
             showTooltipOnHover={hovered}
             size={sliderSize}
             thumbBgColor={sliderBg.thumb}
-            tooltipValue={_value[1].toString()}
+            tooltipValue={sliderTooltip(_value[1])}
           />
         </Track>
 

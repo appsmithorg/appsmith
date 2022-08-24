@@ -56,7 +56,7 @@ export interface SliderComponentProps
   disabled?: boolean;
 
   /** Display label on the Slider */
-  sliderTooltip?: (value: number) => string;
+  sliderTooltip: (value: number) => string;
 
   /** Label text  */
   labelText: string;
@@ -117,11 +117,6 @@ const SliderComponent = (props: SliderComponentProps) => {
   const thumb = useRef<HTMLDivElement>();
 
   const position = getPosition({ value: _value, min, max });
-
-  const tooltipValue =
-    typeof sliderTooltip === "function"
-      ? sliderTooltip(_value)
-      : _value.toString();
 
   /**
    * If props.value change say we have a binding from
@@ -279,7 +274,7 @@ const SliderComponent = (props: SliderComponentProps) => {
             size={sliderSize}
             thumbBgColor={sliderBg.thumb}
             tooltipAlwaysOn={tooltipAlwaysOn}
-            tooltipValue={tooltipValue}
+            tooltipValue={sliderTooltip(_value)}
           />
         </Track>
 
