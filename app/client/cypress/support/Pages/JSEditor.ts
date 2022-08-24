@@ -6,6 +6,7 @@ export interface ICreateJSObjectOptions {
   toRun: boolean;
   shouldCreateNewJSObj: boolean;
   lineNumber?: number;
+  prettify?: boolean;
 }
 const DEFAULT_CREATE_JS_OBJECT_OPTIONS = {
   paste: true,
@@ -124,15 +125,14 @@ export class JSEditor {
       completeReplace,
       lineNumber = 4,
       paste,
+      prettify = true,
       shouldCreateNewJSObj,
       toRun,
     } = options;
 
     shouldCreateNewJSObj && this.NavigateToNewJSEditor();
     if (!completeReplace) {
-      const downKeys = Array.from(new Array(lineNumber), () => "{downarrow}")
-        .toString()
-        .replaceAll(",", "");
+      const downKeys = "{downarrow}".repeat(lineNumber);
       cy.get(this.locator._codeMirrorTextArea)
         .first()
         .focus()
@@ -161,8 +161,11 @@ export class JSEditor {
       });
 
     this.agHelper.AssertAutoSave();
-    this.agHelper.ActionContextMenuWithInPane("Prettify Code");
-    this.agHelper.AssertAutoSave(); //Ample wait due to open bug # 10284
+    // Ample wait due to open bug # 10284
+    if (prettify) {
+      this.agHelper.ActionContextMenuWithInPane("Prettify Code");
+      this.agHelper.AssertAutoSave();
+    }
 
     if (toRun) {
       //clicking 1 times & waits for 2 second for result to be populated!
