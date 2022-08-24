@@ -95,9 +95,7 @@ export const executeCommandAction = (payload: SlashCommandPayload) => ({
   payload: payload,
 });
 
-export const setApiPaneSelectedTabIndex = (payload: {
-  selectedTabIndex: number;
-}) => ({
+export const setApiPaneSelectedTabIndex = (payload: number) => ({
   type: ReduxActionTypes.SET_API_PANE_SELECTED_TAB,
-  payload,
+  payload: { selectedTabIndex: payload },
 });

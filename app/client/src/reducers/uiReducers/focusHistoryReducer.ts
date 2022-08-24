@@ -28,7 +28,6 @@ const focusHistoryReducer = createImmerReducer(initialState, {
   ) => {
     const { focusState, key } = action.payload;
     state.history[key] = focusState;
-    console.log("focus", { state });
   },
 });
 

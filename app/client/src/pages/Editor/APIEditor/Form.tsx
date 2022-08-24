@@ -559,7 +559,7 @@ function ApiEditorForm(props: Props) {
   const dispatch = useDispatch();
   const selectedIndex = useSelector(getApiPaneSelectedTabIndex);
   const setSelectedIndex = (index: number) =>
-    dispatch(setApiPaneSelectedTabIndex({ selectedTabIndex: index }));
+    dispatch(setApiPaneSelectedTabIndex(index));
   const [
     apiBindHelpSectionVisible,
     setApiBindHelpSectionVisible,

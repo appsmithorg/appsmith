@@ -14,7 +14,6 @@ import { FocusState } from "reducers/uiReducers/focusHistoryReducer";
 let previousPath: string;
 
 function* handleRouteChange(action: ReduxAction<{ pathname: string }>) {
-  console.log("focus", previousPath, action);
   if (previousPath) {
     // store current state
     yield call(storeStateOfPath, previousPath);
@@ -66,21 +65,14 @@ function* storeStateOfPath(path: string) {
 }
 
 function* setStateOfPath(path: string) {
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore
   const focusHistory: FocusState = yield select(getCurrentFocusInfo, path);
-  console.log("focus", { focusHistory });
 
   if (focusHistory) {
     const selectors = focusStateSelectors[focusHistory.entity];
-    console.log("focus", { selectors });
     for (const selectorInfo of selectors) {
-      console.log("focus", { selectorInfo });
       yield put(selectorInfo.setter(focusHistory.state[selectorInfo.name]));
     }
   }
-
-  console.log({ focus: "done" });
 }
 
 export default function* rootSaga() {
