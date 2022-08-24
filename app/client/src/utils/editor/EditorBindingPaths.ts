@@ -1,17 +1,15 @@
-// import {
-//   LIMITBASED_PREFIX,
-//   CURSORBASED_PREFIX,
-//   CURSOR_NEXT_PREFIX,
-//   CURSOR_PREVIOUS_PREFIX,
-// } from "constants/ApiEditorConstants";
 import { PaginationSubComponent } from "components/formControls/utils";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 
+/*
+  We kept the graphql constants in this file because we were facing an error : Uncaught TypeError: Cannot read properties of undefined (reading 'register'). So we kept these variables at one place in this file to make sure this is not present in different files.
+ */
+
 // Graphql Pagination Constants
-const LIMITBASED_PREFIX = "limitBased";
-const CURSORBASED_PREFIX = "cursorBased";
-const CURSOR_PREVIOUS_PREFIX = "previous";
-const CURSOR_NEXT_PREFIX = "next";
+export const LIMITBASED_PREFIX = "limitBased";
+export const CURSORBASED_PREFIX = "cursorBased";
+export const CURSOR_PREVIOUS_PREFIX = "previous";
+export const CURSOR_NEXT_PREFIX = "next";
 
 /* 
   Getting All Graphql Pagination Binding Paths

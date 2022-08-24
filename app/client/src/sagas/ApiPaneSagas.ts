@@ -22,7 +22,7 @@ import {
   EMPTY_KEY_VALUE_PAIRS,
   HTTP_METHOD,
   HTTP_METHODS_DEFAULT_FORMAT_TYPES,
-} from "constants/ApiEditorConstants/CommonConstants";
+} from "constants/ApiEditorConstants/CommonApiConstants";
 import {
   REST_PLUGIN_PACKAGE_NAME,
   DEFAULT_CREATE_API_CONFIG,
@@ -565,14 +565,10 @@ function* handleCreateNewApiActionSaga(
   const workspaceId: string = yield select(getCurrentWorkspaceId);
   const { pageId, apiType = REST_PLUGIN_PACKAGE_NAME } = action.payload;
   const pluginId: string = yield select(getPluginIdOfPackageName, apiType);
-  let defaultConfig;
-  if (apiType === REST_PLUGIN_PACKAGE_NAME) {
-    defaultConfig = DEFAULT_CREATE_API_CONFIG;
-  } else if (apiType === GRAPHQL_PLUGIN_PACKAGE_NAME) {
+  // Default Config is Rest Api Plugin Config
+  let defaultConfig = DEFAULT_CREATE_API_CONFIG;
+  if (apiType === GRAPHQL_PLUGIN_PACKAGE_NAME) {
     defaultConfig = DEFAULT_CREATE_GRAPHQL_CONFIG;
-  } else {
-    // Default Config is Rest Api Plugin Config
-    defaultConfig = DEFAULT_CREATE_API_CONFIG;
   }
 
   if (pageId && pluginId) {

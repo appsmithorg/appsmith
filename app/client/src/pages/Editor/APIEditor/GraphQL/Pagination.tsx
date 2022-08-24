@@ -13,19 +13,18 @@ import { AppState } from "reducers";
 import { FormLabel } from "components/editorComponents/form/fields/StyledFormComponents";
 import DynamicTextField from "components/editorComponents/form/fields/DynamicTextField";
 import { Colors } from "constants/Colors";
+import { GRAPHQL_PAGINATION_TYPE } from "constants/ApiEditorConstants/GraphQLEditorConstants";
 import {
-  GRAPHQL_PAGINATION_TYPE,
   LIMITBASED_PREFIX,
   CURSORBASED_PREFIX,
   CURSOR_PREVIOUS_PREFIX,
   CURSOR_NEXT_PREFIX,
-} from "constants/ApiEditorConstants/GraphQLEditorConstants";
+} from "utils/editor/EditorBindingPaths";
 import { log } from "loglevel";
 import { PaginationSubComponent } from "components/formControls/utils";
 
 const PAGINATION_PREFIX =
   "actionConfiguration.pluginSpecifiedTemplates[2].value";
-
 interface PaginationProps {
   actionName: string;
   onTestClick: (test?: "PREV" | "NEXT") => void;

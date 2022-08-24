@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import {
   HTTP_METHOD_OPTIONS,
   API_EDITOR_TABS,
-} from "constants/ApiEditorConstants/CommonConstants";
+} from "constants/ApiEditorConstants/CommonApiConstants";
 import { GRAPHQL_HTTP_METHOD_OPTIONS } from "constants/ApiEditorConstants/GraphQLEditorConstants";
 import styled from "styled-components";
 import FormLabel from "components/editorComponents/FormLabel";

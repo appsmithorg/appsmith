@@ -4,7 +4,7 @@ import {
   HTTP_METHOD,
   EMPTY_KEY_VALUE_PAIRS,
   HTTP_METHODS_DEFAULT_FORMAT_TYPES,
-} from "./CommonConstants";
+} from "./CommonApiConstants";
 
 const DEFAULT_METHOD_TYPE = HTTP_METHOD.GET;
 

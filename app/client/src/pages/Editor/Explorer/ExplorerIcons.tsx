@@ -7,7 +7,7 @@ import styled from "styled-components";
 import {
   HTTP_METHOD,
   HTTP_METHODS_COLOR,
-} from "constants/ApiEditorConstants/CommonConstants";
+} from "constants/ApiEditorConstants/CommonApiConstants";
 import { PRIMARY_KEY, FOREIGN_KEY } from "constants/DatasourceEditorConstants";
 import { Icon } from "@blueprintjs/core";
 import { ControlIcons } from "icons/ControlIcons";

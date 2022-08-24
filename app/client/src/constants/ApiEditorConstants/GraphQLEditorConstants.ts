@@ -5,7 +5,7 @@ import {
   EMPTY_KEY_VALUE_PAIRS,
   HTTP_METHOD,
   POST_BODY_FORMAT_OPTIONS,
-} from "./CommonConstants";
+} from "./CommonApiConstants";
 
 export const GRAPHQL_PLUGIN_PACKAGE_NAME = "graphql-plugin";
 
@@ -83,8 +83,3 @@ export const DEFAULT_CREATE_GRAPHQL_CONFIG = {
     actionType: "GRAPHQL",
   },
 };
-
-export const LIMITBASED_PREFIX = "limitBased";
-export const CURSORBASED_PREFIX = "cursorBased";
-export const CURSOR_PREVIOUS_PREFIX = "previous";
-export const CURSOR_NEXT_PREFIX = "next";
