@@ -391,14 +391,14 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
     deployMode.ClearJSONFieldValue("Current Port");
 
     agHelper.ClickButton("Update");
-    agHelper.WaitUntilToastDisappear(
+    agHelper.AssertContains(
       `null value in column "vessel_type" violates not-null constraint`,
     );
     deployMode.SelectJsonFormDropDown("Passenger");
 
     deployMode.ClearJSONFieldValue("Distance To Go");
     agHelper.ClickButton("Update");
-    agHelper.WaitUntilToastDisappear(
+    agHelper.AssertContains(
       `null value in column "distance_to_go" violates not-null constraint`,
     );
     deployMode.EnterJSONInputValue("Distance To Go", "7.4");
@@ -599,7 +599,7 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
     deployMode.EnterJSONInputValue("Shipname", "MALTESE FALCON", 1);
 
     agHelper.ClickButton("Submit");
-    agHelper.WaitUntilToastDisappear(
+    agHelper.AssertContains(
       `duplicate key value violates unique constraint "vessels_pkey"`,
     );
 
