@@ -177,6 +177,23 @@ function* formValueChangeSaga(
     return;
   }
 
+  const plugins: Plugin[] = yield select(getPlugins);
+  const uiComponent = getUIComponent(values.pluginId, plugins);
+
+  const postEvalActions =
+    uiComponent === UIComponentTypes.UQIDbEditorForm
+      ? [
+          startFormEvaluations(
+            values.id,
+            values.actionConfiguration,
+            values.datasource.id,
+            values.pluginId,
+            field,
+            hasRouteChanged,
+          ),
+        ]
+      : [];
+
   if (
     actionPayload.type === ReduxFormActionTypes.ARRAY_REMOVE ||
     actionPayload.type === ReduxFormActionTypes.ARRAY_PUSH
@@ -189,16 +206,7 @@ function* formValueChangeSaga(
           propertyName: field,
           value,
         },
-        [
-          startFormEvaluations(
-            values.id,
-            values.actionConfiguration,
-            values.datasource.id,
-            values.pluginId,
-            field,
-            hasRouteChanged,
-          ),
-        ],
+        postEvalActions,
       ),
     );
   } else {
@@ -209,16 +217,7 @@ function* formValueChangeSaga(
           propertyName: field,
           value: actionPayload.payload,
         },
-        [
-          startFormEvaluations(
-            values.id,
-            values.actionConfiguration,
-            values.datasource.id,
-            values.pluginId,
-            field,
-            hasRouteChanged,
-          ),
-        ],
+        postEvalActions,
       ),
     );
   }
