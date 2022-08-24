@@ -1,48 +1,47 @@
 import { call, all, spawn, race, take } from "redux-saga/effects";
 import pageSagas from "sagas/PageSagas";
-import { watchActionSagas } from "./ActionSagas";
-import { watchJSActionSagas } from "./JSActionSagas";
+import { watchActionSagas } from "sagas/ActionSagas";
+import { watchJSActionSagas } from "sagas/JSActionSagas";
 import { watchActionExecutionSagas } from "sagas/ActionExecution/ActionExecutionSagas";
 import { watchPluginActionExecutionSagas } from "sagas/ActionExecution/PluginActionSaga";
-import templateSagas from "./TemplatesSagas";
-import widgetOperationSagas from "./WidgetOperationSagas";
-import errorSagas from "./ErrorSagas";
-import applicationSagas from "./ApplicationSagas";
-import { watchDatasourcesSagas } from "./DatasourcesSagas";
-import initSagas from "./InitSagas";
-import apiPaneSagas from "./ApiPaneSagas";
-import jsPaneSagas from "./JSPaneSagas";
-import userSagas from "./userSagas";
-import pluginSagas from "./PluginSagas";
-import workspaceSagas from "./WorkspaceSagas";
-import importedCollectionsSagas from "./CollectionSagas";
-import providersSagas from "./ProvidersSaga";
-import curlImportSagas from "./CurlImportSagas";
-import snipingModeSagas from "./SnipingModeSagas";
-import queryPaneSagas from "./QueryPaneSagas";
-import modalSagas from "./ModalSagas";
-import batchSagas from "./BatchSagas";
-import themeSagas from "./ThemeSaga";
-import evaluationsSaga from "./EvaluationsSaga";
-import onboardingSagas from "./OnboardingSagas";
-import utilSagas from "./UtilSagas";
-import saaSPaneSagas from "./SaaSPaneSagas";
-import actionExecutionChangeListeners from "./WidgetLoadingSaga";
-import globalSearchSagas from "./GlobalSearchSagas";
-import recentEntitiesSagas from "./RecentEntitiesSagas";
-import websocketSagas from "./WebsocketSagas/WebsocketSagas";
-import debuggerSagas from "./DebuggerSagas";
-import replaySaga from "./ReplaySaga";
-import selectionCanvasSagas from "./CanvasSagas/SelectionCanvasSagas";
-import draggingCanvasSagas from "./CanvasSagas/DraggingCanvasSagas";
-import gitSyncSagas from "./GitSyncSagas";
-import appThemingSaga from "./AppThemingSaga";
+import templateSagas from "sagas/TemplatesSagas";
+import widgetOperationSagas from "sagas/WidgetOperationSagas";
+import errorSagas from "sagas/ErrorSagas";
+import applicationSagas from "sagas/ApplicationSagas";
+import { watchDatasourcesSagas } from "sagas/DatasourcesSagas";
+import initSagas from "sagas/InitSagas";
+import apiPaneSagas from "sagas/ApiPaneSagas";
+import jsPaneSagas from "sagas/JSPaneSagas";
+import userSagas from "sagas/userSagas";
+import pluginSagas from "sagas/PluginSagas";
+import workspaceSagas from "sagas/WorkspaceSagas";
+import importedCollectionsSagas from "sagas/CollectionSagas";
+import providersSagas from "sagas/ProvidersSaga";
+import curlImportSagas from "sagas/CurlImportSagas";
+import snipingModeSagas from "sagas/SnipingModeSagas";
+import queryPaneSagas from "sagas/QueryPaneSagas";
+import modalSagas from "sagas/ModalSagas";
+import batchSagas from "sagas/BatchSagas";
+import themeSagas from "sagas/ThemeSaga";
+import evaluationsSaga from "sagas/EvaluationsSaga";
+import onboardingSagas from "sagas/OnboardingSagas";
+import utilSagas from "sagas/UtilSagas";
+import saaSPaneSagas from "sagas/SaaSPaneSagas";
+import actionExecutionChangeListeners from "sagas/WidgetLoadingSaga";
+import globalSearchSagas from "sagas/GlobalSearchSagas";
+import recentEntitiesSagas from "sagas/RecentEntitiesSagas";
+import websocketSagas from "sagas/WebsocketSagas/WebsocketSagas";
+import debuggerSagas from "sagas/DebuggerSagas";
+import replaySaga from "sagas/ReplaySaga";
+import selectionCanvasSagas from "sagas/CanvasSagas/SelectionCanvasSagas";
+import draggingCanvasSagas from "sagas/CanvasSagas/DraggingCanvasSagas";
+import gitSyncSagas from "sagas/GitSyncSagas";
+import appThemingSaga from "sagas/AppThemingSaga";
 import log from "loglevel";
 import * as sentry from "@sentry/react";
-import formEvaluationChangeListener from "./FormEvaluationSaga";
+import formEvaluationChangeListener from "sagas/FormEvaluationSaga";
 import SuperUserSagas from "@appsmith/sagas/SuperUserSagas";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import AclSagas from "@appsmith/sagas/AclSagas";
 
 const sagas = [
   initSagas,
@@ -85,7 +84,6 @@ const sagas = [
   gitSyncSagas,
   SuperUserSagas,
   appThemingSaga,
-  AclSagas,
 ];
 
 export function* rootSaga(sagasToRun = sagas): any {
