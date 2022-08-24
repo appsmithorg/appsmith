@@ -151,6 +151,7 @@ function* formValueChangeSaga(
   if (field === "dynamicBindingPathList" || field === "name") return;
   if (form !== QUERY_EDITOR_FORM_NAME) return;
   const { values } = yield select(getFormData, QUERY_EDITOR_FORM_NAME);
+  const hasRouteChanged = field === "id";
 
   if (field === "datasource.id") {
     const datasource: Datasource | undefined = yield select(
@@ -181,19 +182,43 @@ function* formValueChangeSaga(
   ) {
     const value = get(values, field);
     yield put(
-      setActionProperty({
-        actionId: values.id,
-        propertyName: field,
-        value,
-      }),
+      setActionProperty(
+        {
+          actionId: values.id,
+          propertyName: field,
+          value,
+        },
+        [
+          startFormEvaluations(
+            values.id,
+            values.actionConfiguration,
+            values.datasource.id,
+            values.pluginId,
+            field,
+            hasRouteChanged,
+          ),
+        ],
+      ),
     );
   } else {
     yield put(
-      setActionProperty({
-        actionId: values.id,
-        propertyName: field,
-        value: actionPayload.payload,
-      }),
+      setActionProperty(
+        {
+          actionId: values.id,
+          propertyName: field,
+          value: actionPayload.payload,
+        },
+        [
+          startFormEvaluations(
+            values.id,
+            values.actionConfiguration,
+            values.datasource.id,
+            values.pluginId,
+            field,
+            hasRouteChanged,
+          ),
+        ],
+      ),
     );
   }
   yield put(updateReplayEntity(values.id, values, ENTITY_TYPE.ACTION));

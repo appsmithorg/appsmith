@@ -686,7 +686,7 @@ function* saveActionName(action: ReduxAction<{ id: string; name: string }>) {
 }
 
 export function* setActionPropertySaga(
-  action: ReduxAction<SetActionPropertyPayload>,
+  action: EvaluationReduxAction<SetActionPropertyPayload>,
 ) {
   const { actionId, propertyName, skipSave, value } = action.payload;
   if (!actionId) return;
@@ -722,7 +722,12 @@ export function* setActionPropertySaga(
   );
   yield all(
     Object.keys(effects).map((field) =>
-      put(updateActionProperty({ id: actionId, field, value: effects[field] })),
+      put(
+        updateActionProperty(
+          { id: actionId, field, value: effects[field] },
+          action.postEvalActions,
+        ),
+      ),
     ),
   );
   if (propertyName === "executeOnLoad") {
