@@ -173,6 +173,7 @@ export type PostMessageDescription = {
   payload: {
     message: unknown;
     targetOrigin: string;
+    source: string;
   };
 };
 

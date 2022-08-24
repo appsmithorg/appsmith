@@ -8,6 +8,7 @@ describe("PostMessageSaga", () => {
       {
         message: "hello world",
         targetOrigin: "https://dev.appsmith.com",
+        source: "",
       },
       {},
     );
@@ -19,6 +20,7 @@ describe("PostMessageSaga", () => {
           {
             message: "hello world",
             targetOrigin: "https://dev.appsmith.com",
+            source: "",
           },
           {},
         ),
@@ -44,6 +46,7 @@ describe("PostMessageSaga", () => {
         {
           message: "hello world",
           targetOrigin: "https://dev.appsmith.com",
+          source: "",
         },
         {},
       );

@@ -18,12 +18,19 @@ export function* executePostMessage(
   payload: PostMessageDescription["payload"],
   triggerMeta: TriggerMeta,
 ) {
-  const { message, targetOrigin } = payload;
+  const { message, source, targetOrigin } = payload;
   try {
     if (isEmpty(targetOrigin)) {
       throw new TriggerFailureError("Please enter a target origin URL.");
     } else {
-      window.parent.postMessage(message, targetOrigin, undefined);
+      if (source) {
+        const src = document.getElementById(source);
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        src.contentWindow.postMessage(message, targetOrigin, undefined);
+      } else {
+        window.parent.postMessage(message, targetOrigin, undefined);
+      }
     }
   } catch (error) {
     logActionExecutionError(

@@ -402,6 +402,9 @@ function getFieldFromValue(
       {
         field: FieldType.TARGET_ORIGIN_FIELD,
       },
+      {
+        field: FieldType.SOURCE_FIELD,
+      },
     );
   }
 
