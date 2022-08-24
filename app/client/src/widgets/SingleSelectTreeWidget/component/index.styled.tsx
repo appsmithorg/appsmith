@@ -547,7 +547,7 @@ ${({ dropDownWidth, id }) => `
     lightenColor(accentColor, "0.90")} !important;
 }
 .rc-tree-select-tree-treenode-active {
-  background: var(--wds-color-bg-hover);
+  background: var(--wds-color-bg-focus) !important;
 }
 .rc-tree-select-tree-treenode:hover {
 	background: var(--wds-color-bg-hover);

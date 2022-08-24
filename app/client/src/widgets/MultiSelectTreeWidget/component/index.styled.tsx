@@ -529,7 +529,7 @@ border: 1px solid #E8E8E8;
 	cursor: not-allowed;
 }
 .rc-tree-select-tree-treenode-active {
-	background: var(--wds-color-bg-hover);
+	background: var(--wds-color-bg-focus) !important;
 
   :not(.rc-tree-select-tree-treenode-checkbox-checked) .rc-tree-select-tree-checkbox-inner {
     background: transparent;

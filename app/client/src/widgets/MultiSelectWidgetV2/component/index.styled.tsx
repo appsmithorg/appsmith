@@ -213,7 +213,7 @@ ${({ dropDownWidth, id }) => `
   font-weight: 400;
 }
 .rc-select-item-option-active {
-  background: var(--wds-color-bg-focus);
+  background: var(--wds-color-bg-focus) !important;
   color: var(--wds-color-text);
 
   & .${Classes.CONTROL} .${Classes.CONTROL_INDICATOR} {

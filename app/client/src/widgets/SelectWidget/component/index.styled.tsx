@@ -200,7 +200,7 @@ ${({ dropDownWidth, id }) => `
       background: var(--wds-color-bg-hover);
     }
     &.is-focused{
-      background: var(--wds-color-bg-hover);
+      background: var(--wds-color-bg-focus);
     }
     &.${Classes.ACTIVE} {
       background: ${({ accentColor }) => `${lightenColor(accentColor)}`};
@@ -263,7 +263,7 @@ export const MenuItem = styled.div<{
 
   && .has-focus {
     color: var(--wds-color-text);
-    background-color: var(--wds-color-bg-light);
+    background-color: var(--wds-color-bg-focus) !important;
   }
 
   && .has-focus.menu-item-active {
