@@ -503,7 +503,7 @@ export const BUILD_FROM_SCRATCH_ACTION_SUBTITLE = () =>
 
 export const BUILD_FROM_SCRATCH_ACTION_TITLE = () => "Build with drag & drop";
 
-export const GENERATE_PAGE_ACTION_TITLE = () => "Generate page from data table";
+export const GENERATE_PAGE_ACTION_TITLE = () => "Generate Page With Data";
 
 export const GENERATE_PAGE_FORM_TITLE = () => "Generate from data";
 
@@ -1218,8 +1218,8 @@ export const CLEAN_URL_UPDATE = {
 
 export const MEMBERS_TAB_TITLE = (length: number) => `Users (${length})`;
 
-export const CREATE_PAGE = () => "Create a blank page";
+export const CREATE_PAGE = () => "New Blank Page";
 export const GENERATE_PAGE = () => "Generate page from data table";
 export const GENERATE_PAGE_DESCRIPTION = () =>
   "Start app with a simple CRUD UI and customize it";
-export const ADD_PAGE_FROM_TEMPLATE = () => "Add page from template";
+export const ADD_PAGE_FROM_TEMPLATE = () => "Add Page From Template";
