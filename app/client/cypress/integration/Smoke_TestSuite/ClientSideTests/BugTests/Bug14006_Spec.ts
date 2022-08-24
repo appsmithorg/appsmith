@@ -17,7 +17,7 @@ describe("Abort Action Execution", function() {
   it("1. Bug #14006 - Cancel Request button should abort API action execution", function() {
     apiPage.CreateAndFillApi(largeResponseApiUrl, "AbortApi", 0);
     apiPage.RunAPI(false, 0);
-    agHelper.GetNClick(locator._cancelActionExecution);
+    agHelper.GetNClick(locator._cancelActionExecution, 0, true);
     agHelper.AssertContains(ERROR_ACTION_EXECUTE_FAIL("AbortApi"));
     agHelper.ActionContextMenuWithInPane("Delete", "Are you sure?")
   });
