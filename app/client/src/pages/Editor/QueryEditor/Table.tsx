@@ -199,6 +199,7 @@ const renderCell = (props: any) => {
 };
 
 function Table(props: TableProps) {
+  const tableBodyRef = React.useRef<HTMLElement>();
   const data = React.useMemo(() => {
     const emptyString = "";
     /* Check for length greater than 0 of rows returned from the query for mappings keys */
@@ -262,7 +263,12 @@ function Table(props: TableProps) {
     useBlockLayout,
   );
 
-  const scrollBarSize = React.useMemo(() => scrollbarWidth(), []);
+  const tableBodyEle = tableBodyRef?.current;
+  const scrollBarW = React.useMemo(() => scrollbarWidth(), []);
+  const scrollBarSize =
+    !!tableBodyEle && tableBodyEle.scrollHeight > tableBodyEle.clientHeight
+      ? scrollBarW
+      : 0;
 
   const RenderRow = React.useCallback(
     ({ index, style }) => {
@@ -299,7 +305,7 @@ function Table(props: TableProps) {
   return (
     <ErrorBoundary>
       <TableWrapper data-guided-tour-id="query-table-response">
-        <div className="tableWrap">
+        <div className="tableWrap cypress-table-test">
           <div {...getTableProps()} className="table">
             <div>
               {headerGroups.map((headerGroup: any, index: number) => (
@@ -338,6 +344,7 @@ function Table(props: TableProps) {
                 height={tableBodyHeightComputed || window.innerHeight}
                 itemCount={rows.length}
                 itemSize={35}
+                outerRef={tableBodyRef}
                 width={totalColumnsWidth + scrollBarSize}
               >
                 {RenderRow}
