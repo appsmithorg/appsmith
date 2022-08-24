@@ -1,4 +1,3 @@
-import { combineReducers } from "redux";
 import entityReducer from "reducers/entityReducers";
 import uiReducer from "reducers/uiReducers";
 import evaluationsReducer from "reducers/evaluationReducers";
