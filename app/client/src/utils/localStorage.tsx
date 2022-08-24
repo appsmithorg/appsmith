@@ -16,14 +16,12 @@ class LocalStorageNotSupportedError extends Error {
   }
 }
 
-type WebStorageType = "local" | "session";
-
-export class WebStorage {
+class WebStorage {
   private storage: Storage;
   private _isSupported: boolean;
 
-  constructor(type: WebStorageType = "local") {
-    this.storage = (window as any)[`${type}Storage`];
+  constructor(storage: Storage) {
+    this.storage = storage;
 
     this._isSupported = this.isSupported();
   }
@@ -110,7 +108,19 @@ export class WebStorage {
   };
 }
 
-const localStorage = new WebStorage();
-export const sessionStorage = new WebStorage("session");
+export class LocalStorage extends WebStorage {
+  constructor() {
+    super(window.localStorage);
+  }
+}
+
+class SessionStorage extends WebStorage {
+  constructor() {
+    super(window.sessionStorage);
+  }
+}
+
+const localStorage = new LocalStorage();
+export const sessionStorage = new SessionStorage();
 
 export default localStorage;

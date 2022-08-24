@@ -5,8 +5,6 @@ import {
   setExplorerActiveAction,
   setExplorerPinnedAction,
 } from "actions/explorerActions";
-import { Dispatch } from "react";
-import { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 
 // data-guided-tour-id - used for the rectangular highlight
 // data-guided-tour-iid - iid(indicator id) used for the lottie animation show near an element
@@ -252,7 +250,6 @@ export function hideIndicator() {
   indicatorHelperInstance.destroy();
 }
 
-export function closeSidebar(dispatch: Dispatch<ReduxAction<any>>) {
-  dispatch(setExplorerPinnedAction(false));
-  dispatch(setExplorerActiveAction(false));
+export function closeSidebar() {
+  return [setExplorerPinnedAction(false), setExplorerActiveAction(false)];
 }

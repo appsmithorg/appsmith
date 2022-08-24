@@ -179,7 +179,7 @@ function useComputeCurrentStep(showInfoMessage: boolean) {
           // Adding a slight delay to wait for the table to be visible
         }, 1000);
       } else {
-        closeSidebar(dispatch);
+        dispatch(closeSidebar());
         showIndicator(`[data-guided-tour-iid='run-query']`, "top");
       }
     }
@@ -209,7 +209,7 @@ function useComputeCurrentStep(showInfoMessage: boolean) {
       step === GUIDED_TOUR_STEPS.TABLE_WIDGET_BINDING &&
       hadReachedStep <= GUIDED_TOUR_STEPS.TABLE_WIDGET_BINDING
     ) {
-      closeSidebar(dispatch);
+      dispatch(closeSidebar());
       hideIndicator();
       dispatch(markStepComplete());
     }
@@ -225,7 +225,7 @@ function useComputeCurrentStep(showInfoMessage: boolean) {
     ) {
       if (!!nameInputWidgetId) {
         // Minor timeout to wait for the elements to exist
-        closeSidebar(dispatch);
+        dispatch(closeSidebar());
         setTimeout(() => {
           // Highlight the selected row and the NameInput widget
           highlightSection(
