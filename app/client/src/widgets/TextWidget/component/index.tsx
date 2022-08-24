@@ -134,7 +134,7 @@ export const StyledText = styled(Text)<{
     props?.fontStyle?.includes(FontStyleTypes.BOLD) ? "bold" : "normal"};
   font-size: ${({ fontSize }) =>
     fontSizeUtility(fontSize) || DEFAULT_FONT_SIZE};
-  word-break: break-word;
+  overflow-wrap: break-word;
   span {
     width: 100%;
     line-height: 1.2;
