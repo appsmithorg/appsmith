@@ -190,7 +190,7 @@ export const useCanvasDragging = (
             .split("auto-layout-child-")[1]
             .split(" ")[0];
           const emptyWrapper: boolean = isEmptyWrapper(
-            el.querySelectorAll("div[class*=auto-layout-child]"),
+            el.querySelectorAll(`div[class*=auto-layout-parent-${mClass}]`),
             blocks,
           );
           /**
@@ -204,6 +204,7 @@ export const useCanvasDragging = (
             (blocks.indexOf(mClass) > -1 || emptyWrapper)
           ) {
             // Temporarily hide the dragged widget
+            // console.log(`#### hide widget: ${mClass}`);
             (el as any).classList.add("auto-temp-no-display");
             return;
           } else {
