@@ -25,9 +25,16 @@ import {
 } from "@appsmith/constants/messages";
 import ContextualMenu from "./ContextualMenu";
 
-const Wrapper = styled.div<{ collapsed: boolean }>`
-  padding: 9px 8px 9px 16px;
+const InnerWrapper = styled.div`
   display: flex;
+  align-items: center;
+`;
+
+const Wrapper = styled.div<{ collapsed: boolean }>`
+
+  display: flex;
+  flex-direction: column;
+  padding: 9px 8px 9px 16px;
 
   &.${Severity.INFO} {
     border-bottom: 1px solid
@@ -96,13 +103,10 @@ const Wrapper = styled.div<{ collapsed: boolean }>`
   }
 
   .debugger-toggle {
-    ${(props) => props.collapsed && `transform: rotate(-90deg);`}
     ${(props) =>
       props.collapsed
-        ? `transform: rotate(-90deg); margin-top: -5px; margin-left: -5px; `
-        : `margin-left: -5px; margin-top: -2px;`}
-      height: 24px;
-      width: 24px;
+        ? `transform: rotate(-90deg);`
+        : `transform: rotate(0deg); `};
     }
   .debugger-time {
     ${(props) => getTypographyByKey(props, "h6")}
@@ -173,6 +177,7 @@ const JsonWrapper = styled.div`
 
 const StyledCollapse = styled(Collapse)`
   margin-top: 4px;
+  margin-left: 120px;
 
   .debugger-message {
     ${(props) => getTypographyByKey(props, "p2")}
@@ -269,111 +274,111 @@ function LogItem(props: LogItemProps) {
         if (showToggleIcon()) setIsOpen(!isOpen);
       }}
     >
-      <Icon
-        className={`${Classes.ICON} debugger-toggle`}
-        fillColor={get(theme, "colors.debugger.jsonIcon")}
-        invisible={!showToggleIcon()}
-        name={"down-arrow"}
-        onClick={() => setIsOpen(!isOpen)}
-        size={IconSize.XXXXL}
-      />
-      <Icon keepColors name={props.icon} size={IconSize.XL} />
-      <span className="debugger-time">{props.timestamp}</span>
-      <div className="debugger-description">
-        {!(
-          props.category === LOG_CATEGORY.USER_GENERATED &&
-          showToggleIcon() &&
-          isOpen
-        ) && (
-          <RowWrapper>
-            <span className="debugger-label">{props.text}</span>
-
-            {props.timeTaken && (
-              <span className="debugger-timetaken">{props.timeTaken}</span>
-            )}
-            {props.category === LOG_CATEGORY.PLATFORM_GENERATED &&
-              props.severity !== Severity.INFO && (
-                <div onClick={(e) => e.stopPropagation()}>
-                  <ContextualMenu entity={props.source} error={errorToSearch}>
-                    <TooltipComponent
-                      content={
-                        <Text style={{ color: "#ffffff" }} type={TextType.P3}>
-                          {createMessage(TROUBLESHOOT_ISSUE)}
-                        </Text>
-                      }
-                      minimal
-                      position="bottom-left"
-                    >
-                      <StyledSearchIcon
-                        className={`${Classes.ICON} search-menu`}
-                        name={"help-in-circle"}
-                        size={IconSize.XL}
-                      />
-                    </TooltipComponent>
-                  </ContextualMenu>
-                </div>
-              )}
-          </RowWrapper>
-        )}
-
-        {showToggleIcon() && (
-          <StyledCollapse isOpen={isOpen} keepChildrenMounted>
-            {messages.map((e) => {
-              return (
-                <MessageWrapper key={e.message}>
-                  <ContextualMenu entity={props.source} error={e}>
-                    <span className="debugger-message t--debugger-message">
-                      {isString(e.message)
-                        ? e.message
-                        : JSON.stringify(e.message)}
-                    </span>
-                  </ContextualMenu>
-                </MessageWrapper>
-              );
-            })}
-            {props.state && (
-              <JsonWrapper
-                className="t--debugger-log-state"
-                onClick={(e) => e.stopPropagation()}
-              >
-                <ReactJson src={props.state} {...reactJsonProps} />
-              </JsonWrapper>
-            )}
-            {props.logData &&
-              props.logData.length > 0 &&
-              props.logData.map((logDatum: any, index: number) => {
-                const joinChar =
-                  props.logData && index === props.logData.length - 1
-                    ? ""
-                    : ",";
-                if (typeof logDatum === "object") {
-                  return (
-                    <JsonWrapper
-                      className="t--debugger-console-log-data"
-                      key={Math.random()}
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      <ReactJson src={logDatum} {...reactJsonProps} />
-                    </JsonWrapper>
-                  );
-                } else {
-                  return (
-                    <span className="debugger-label" key={Math.random()}>
-                      {`${logDatum}${joinChar} `}
-                    </span>
-                  );
-                }
-              })}
-          </StyledCollapse>
-        )}
-      </div>
-      {props.source && (
-        <EntityLink
-          id={props.source.id}
-          name={props.source.name}
-          type={props.source.type}
-          uiComponent={DebuggerLinkUI.ENTITY_NAME}
+      <InnerWrapper>
+        <Icon
+          className={`${Classes.ICON} debugger-toggle`}
+          fillColor={get(theme, "colors.debugger.jsonIcon")}
+          invisible={!showToggleIcon()}
+          name={"expand-more"}
+          onClick={() => setIsOpen(!isOpen)}
+          size={IconSize.XXXXL}
         />
+        <Icon keepColors name={props.icon} size={IconSize.XL} />
+        <span className="debugger-time">{props.timestamp}</span>
+        <div className="debugger-description">
+          {!(
+            props.category === LOG_CATEGORY.USER_GENERATED &&
+            showToggleIcon() &&
+            isOpen
+          ) && (
+            <RowWrapper>
+              <span className="debugger-label">{props.text}</span>
+
+              {props.timeTaken && (
+                <span className="debugger-timetaken">{props.timeTaken}</span>
+              )}
+              {props.category === LOG_CATEGORY.PLATFORM_GENERATED &&
+                props.severity !== Severity.INFO && (
+                  <div onClick={(e) => e.stopPropagation()}>
+                    <ContextualMenu entity={props.source} error={errorToSearch}>
+                      <TooltipComponent
+                        content={
+                          <Text style={{ color: "#ffffff" }} type={TextType.P3}>
+                            {createMessage(TROUBLESHOOT_ISSUE)}
+                          </Text>
+                        }
+                        minimal
+                        position="bottom-left"
+                      >
+                        <StyledSearchIcon
+                          className={`${Classes.ICON} search-menu`}
+                          name={"help-in-circle"}
+                          size={IconSize.XL}
+                        />
+                      </TooltipComponent>
+                    </ContextualMenu>
+                  </div>
+                )}
+            </RowWrapper>
+          )}
+        </div>
+        {props.source && (
+          <EntityLink
+            id={props.source.id}
+            name={props.source.name}
+            type={props.source.type}
+            uiComponent={DebuggerLinkUI.ENTITY_NAME}
+          />
+        )}
+      </InnerWrapper>
+
+      {showToggleIcon() && isOpen && (
+        <StyledCollapse isOpen={isOpen} keepChildrenMounted>
+          {messages.map((e) => {
+            return (
+              <MessageWrapper key={e.message}>
+                <ContextualMenu entity={props.source} error={e}>
+                  <span className="debugger-message t--debugger-message">
+                    {isString(e.message)
+                      ? e.message
+                      : JSON.stringify(e.message)}
+                  </span>
+                </ContextualMenu>
+              </MessageWrapper>
+            );
+          })}
+          {props.state && (
+            <JsonWrapper
+              className="t--debugger-log-state"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <ReactJson src={props.state} {...reactJsonProps} />
+            </JsonWrapper>
+          )}
+          {props.logData &&
+            props.logData.length > 0 &&
+            props.logData.map((logDatum: any, index: number) => {
+              const joinChar =
+                props.logData && index === props.logData.length - 1 ? "" : ",";
+              if (typeof logDatum === "object") {
+                return (
+                  <JsonWrapper
+                    className="t--debugger-console-log-data"
+                    key={Math.random()}
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <ReactJson src={logDatum} {...reactJsonProps} />
+                  </JsonWrapper>
+                );
+              } else {
+                return (
+                  <span className="debugger-label" key={Math.random()}>
+                    {`${logDatum}${joinChar} `}
+                  </span>
+                );
+              }
+            })}
+        </StyledCollapse>
       )}
     </Wrapper>
   );
