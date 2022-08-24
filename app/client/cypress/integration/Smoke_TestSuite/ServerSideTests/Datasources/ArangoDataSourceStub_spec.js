@@ -17,12 +17,8 @@ describe("Arango datasource test cases", function() {
     cy.NavigateToDatasourceEditor();
     cy.get(datasource.ArangoDB).click();
     cy.getPluginFormsAndCreateDatasource();
+    cy.renameDatasource("ArangoWithnoTrailing");
     cy.fillArangoDBDatasourceForm();
-    cy.generateUUID().then((UUID) => {
-      datasourceName = `Arango MOCKDS ${UUID}`;
-      cy.renameDatasource(datasourceName);
-    });
-
     cy.get("@createDatasource").then((httpResponse) => {
       datasourceName = httpResponse.response.body.data.name;
     });
@@ -30,20 +26,20 @@ describe("Arango datasource test cases", function() {
       fixture: "testAction.json",
     }).as("testDatasource");
     cy.testSaveDatasource(false);
+    dataSources.DeleteDatasouceFromActiveTab("ArangoWithnoTrailing");
   });
 
   it("2. Create with trailing white spaces in host address and database name, test, save then delete a Arango datasource", function() {
     cy.NavigateToDatasourceEditor();
     cy.get(datasource.ArangoDB).click();
     cy.getPluginFormsAndCreateDatasource();
+    cy.renameDatasource("ArangoWithTrailing");
     cy.fillArangoDBDatasourceForm(true);
-    cy.get("@createDatasource").then((httpResponse) => {
-      datasourceName = httpResponse.response.body.data.name;
-    });
     cy.intercept("POST", "/api/v1/datasources/test", {
       fixture: "testAction.json",
     }).as("testDatasource");
     cy.testSaveDatasource(false);
+    //dataSources.DeleteDatasouceFromActiveTab("ArangoWithTrailing");
   });
 
   it("3. Create a new query from the datasource editor", function() {
@@ -57,7 +53,7 @@ describe("Arango datasource test cases", function() {
       201,
     );
     cy.deleteQueryUsingContext();
-    cy.deleteDatasource(datasourceName);
+    cy.deleteDatasource("ArangoWithTrailing");
   });
 
   it("4. Arango Default name change", () => {
