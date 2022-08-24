@@ -146,12 +146,7 @@ export class JSEditor {
         .focus()
         .type(this.selectAllJSObjectContentShortcut)
         .type("{backspace}", { force: true });
-        this.agHelper.AssertContains("Start object with export default");
-
-      // shouldAssertStartDToast &&
-      //   this.agHelper.WaitUntilToastDisappear(
-      //     "Start object with export default",
-      //   );
+      this.agHelper.AssertContains("Start object with export default");
       this.agHelper.AssertAutoSave();
     }
 

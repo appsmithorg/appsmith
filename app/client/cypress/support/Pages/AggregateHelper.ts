@@ -776,7 +776,7 @@ export class AggregateHelper {
     const locator = selector.startsWith("//")
       ? cy.xpath(selector)
       : cy.get(selector);
-    locator
+    return locator
       .eq(index)
       .scrollIntoView()
       .should("be.visible");
