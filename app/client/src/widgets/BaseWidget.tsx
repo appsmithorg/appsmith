@@ -202,7 +202,7 @@ abstract class BaseWidget<
 
     // If the diff is of less than 2 rows, do nothing. If it is actually 2 rows,
     // then we need to compute.
-    if (Math.abs(currentHeightInRows - expectedHeightInRows) < 2) return false;
+    // if (Math.abs(currentHeightInRows - expectedHeightInRows) < 2) return false;
     // Does this widget have dynamic height enabled
     const isDynamicHeightEnabled = isDynamicHeightEnabledForWidget(this.props);
 
