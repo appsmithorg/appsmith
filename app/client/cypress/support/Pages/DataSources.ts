@@ -324,6 +324,12 @@ export class DataSources {
     else this.agHelper.AssertContains("action(s) using it.");
   }
 
+  public DeleteDSDirectly() {
+    this.agHelper.ClickButton("Delete");
+    this.agHelper.ClickButton("Are you sure?");
+    this.agHelper.AssertContains("deleted successfully");
+  }
+
   public NavigateToActiveTab() {
     this.NavigateToDSCreateNew();
     this.agHelper.GetNClick(this._activeTab);

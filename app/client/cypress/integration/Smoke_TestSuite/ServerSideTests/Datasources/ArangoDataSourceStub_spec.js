@@ -63,10 +63,9 @@ describe("Arango datasource test cases", function() {
   it("4. Arango Default name change", () => {
     dataSources.NavigateToDSCreateNew();
     dataSources.CreatePlugIn("ArangoDB");
-    agHelper.RenameWithInPane("ArangoDefaultDBName", false);
     agHelper
       .GetText(dataSources._databaseName, "val")
       .then(($dbName) => expect($dbName).to.eq("default"));
-    dataSources.DeleteDatasouceFromWinthinDS("ArangoDefaultDBName");
+    dataSources.DeleteDSDirectly();
   });
 });
