@@ -6,7 +6,6 @@ import {
   JUSTIFY_CONTENT,
 } from "../Constants";
 import { CellWrapper } from "../TableStyledWrappers";
-import CheckboxComponent from "widgets/CheckboxWidget/component/index";
 import { LabelPosition } from "components/constants";
 import styled from "styled-components";
 import SwitchComponent from "widgets/SwitchWidget/component";
