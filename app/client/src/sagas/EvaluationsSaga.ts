@@ -336,7 +336,7 @@ function* executeTriggerRequestSaga(
     // a success: false is sent to reject the promise
 
     // @ts-expect-error: reason is of type string
-    responsePayload.data.reason = error;
+    responsePayload.data.reason = { message: error.message };
     responsePayload.success = false;
   }
   responseChannel.put({
