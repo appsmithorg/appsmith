@@ -262,6 +262,11 @@ export const MenuItem = styled.div<{
   & .menu-item-active {
     background-color: ${({ accentColor }) =>
       lightenColor(accentColor)} !important;
+
+    &:hover {
+      background-color: ${({ accentColor }) =>
+        lightenColor(accentColor, "0.90")} !important;
+    }
   }
 
   && .has-focus {
