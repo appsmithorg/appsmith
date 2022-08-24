@@ -10,6 +10,7 @@ import Spinner from "./Spinner";
 import { Icon, IconSize, Text, TextType } from "design-system";
 
 type DropdownOption = {
+  id: string;
   name: string;
   desc: string;
 };

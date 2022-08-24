@@ -16,6 +16,13 @@ if $is_tests_enabled; then
   docker image pull testcontainers/ryuk:0.3.0
 fi
 
+if [[ -f .env ]]; then
+  echo "Found a .env file, loading environment variables from that file."
+  set -o allexport
+  source .env
+fi
+
+
 # Build the code. $@ accepts all the parameters from the input command line and uses it in the maven build command
 mvn clean package "$@"
 

@@ -288,6 +288,7 @@ export function Table(props: TableProps) {
         ref={tableWrapperRef}
       >
         <Scrollbars
+          autoHide
           renderThumbHorizontal={ScrollbarHorizontalThumb}
           style={{
             width: props.width,

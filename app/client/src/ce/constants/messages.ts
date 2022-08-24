@@ -1216,6 +1216,8 @@ export const CLEAN_URL_UPDATE = {
     "Existing references to <strong>appsmith.URL.fullpath</strong> and <strong>appsmith.URL.pathname</strong> properties will behave differently.",
 };
 
+export const MEMBERS_TAB_TITLE = (length: number) => `Users (${length})`;
+
 export const CREATE_PAGE = () => "Create a blank page";
 export const GENERATE_PAGE = () => "Generate page from data table";
 export const GENERATE_PAGE_DESCRIPTION = () =>
