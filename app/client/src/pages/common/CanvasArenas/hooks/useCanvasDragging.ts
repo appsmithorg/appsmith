@@ -45,6 +45,7 @@ interface HighlightDimension {
 
 const CONTAINER_JUMP_ACC_THRESHOLD = 8000;
 const CONTAINER_JUMP_SPEED_THRESHOLD = 800;
+const BASE_OFFSET_SIZE = 100;
 
 let lastTranslatedIndex: number;
 let containerDimensions: {
@@ -122,96 +123,119 @@ export const useCanvasDragging = (
   const reflow = useRef<ReflowInterface>();
   reflow.current = useReflow(draggingSpaces, widgetId || "", gridProps);
 
+  const isEmptyWrapper = (els: any, blocks: string[]): boolean => {
+    if (els === null || !blocks || !blocks.length) return false;
+    const items: string[] = [];
+    (els as any).forEach((el: any) => {
+      const item = el.className.split("auto-layout-child-")[1];
+      blocks.indexOf(item) > -1 && items.push(item);
+    });
+    return items?.length === els.length;
+  };
+
   let dragBlocksSize = 0;
-  const offsets: HighlightDimension[] = [];
+  let offsets: HighlightDimension[] = [];
   // let siblings: { [key: string]: number } = {};
   const siblingElements: any[] = [];
   const isVertical = direction === LayoutDirection.Vertical;
+
+  const initializeOffsets = (): void => {
+    offsets = [];
+    let mOffset: HighlightDimension;
+    if (isVertical) {
+      mOffset = {
+        x: 0,
+        y: 8,
+        width: containerDimensions.width || BASE_OFFSET_SIZE,
+        height: 4,
+      };
+    } else {
+      mOffset = {
+        x: 8,
+        y: 0,
+        width: 4,
+        height: containerDimensions.height || BASE_OFFSET_SIZE,
+      };
+    }
+    offsets.push(mOffset);
+  };
+
   const calculateHighlightOffsets = () => {
     if (useAutoLayout && isDragging && isCurrentDraggedCanvas) {
+      // console.log("#### START calculate highlight offsets");
+      // console.log(`#### canvas id: ${widgetId}`);
       // calculate total drag size to translate siblings by
       blocksToDraw?.map((each) => {
         dragBlocksSize += isVertical ? each.height : each.width;
       });
-      // Get all children of current auto layout container
+      // update dimensions of the current canvas
       const container = document.querySelector(`.flex-container-${widgetId}`);
-      // console.log(container);
-      // console.log((container as any).offsetTop);
       containerDimensions = {
         top: (container as any).offsetTop || 0,
         left: (container as any).offsetLeft || 0,
         width: (container as any).clientWidth,
         height: (container as any).clientHeight,
       };
+
+      initializeOffsets();
+
+      // Get all children of current dragging canvas
       const els = document.querySelectorAll(`.auto-layout-parent-${widgetId}`);
       if (els && els.length && offsets.length !== els.length) {
         // Get widget ids of all widgets being dragged
-        // console.log(els);
         const blocks = blocksToDraw.map((block) => block.widgetId);
-        // console.log("*********");
-        // console.log(blocksToDraw);
         els.forEach((el) => {
-          // console.log((el as any).offsetParent);
           // Extract widget id of current widget
           const mClass = el.className
             .split("auto-layout-child-")[1]
             .split(" ")[0];
-          // console.log(`parentId: ${widgetId}`);
-          // console.log(`widgetID: ${mClass}`);
-          // console.log(`blocks: ${blocks}`);
-          // console.log(blocks);
+          const emptyWrapper: boolean = isEmptyWrapper(
+            el.querySelectorAll("div[class*=auto-layout-child]"),
+            blocks,
+          );
           /**
            * If the widget is also being dragged,
+           * Or if the layout wrapper is empty,
            * then discount its presence from offset calculation.
            */
-          if (blocks && blocks.length && blocks.indexOf(mClass) !== -1) {
+          if (
+            blocks &&
+            blocks.length &&
+            (blocks.indexOf(mClass) > -1 || emptyWrapper)
+          ) {
             // Temporarily hide the dragged widget
             (el as any).classList.add("auto-temp-no-display");
             return;
           } else {
+            // Add a new offset using the current element's dimensions and position
             let mOffset: HighlightDimension;
             if (isVertical) {
               mOffset = {
                 x: 0,
-                y: (el as any).offsetTop - containerDimensions.top,
+                y: (el as any).offsetTop - 2 * containerDimensions.top,
                 width: containerDimensions.width,
                 height: 4,
               };
             } else {
               mOffset = {
-                x: (el as any).offsetLeft - containerDimensions.left,
-                y: (el as any).offsetTop - containerDimensions.top,
+                x: (el as any).offsetLeft - 2 * containerDimensions.left,
+                y: (el as any).offsetTop - 2 * containerDimensions.top,
                 height: (el as any).clientHeight,
                 width: 4,
               };
             }
-            // console.log(el);
-            // console.log("mOffset =====");
-            // console.log(mOffset);
             offsets.push(mOffset);
-            // console.log(offsets);
             // siblings[mClass] = mOffset;
             siblingElements.push(el);
           }
         });
-        let finalOffset: HighlightDimension;
-        if (!siblingElements.length) {
-          if (isVertical) {
-            finalOffset = {
-              x: 0,
-              y: 8,
-              width: containerDimensions.width,
-              height: 4,
-            };
-          } else {
-            finalOffset = {
-              x: 8,
-              y: 0,
-              width: 4,
-              height: containerDimensions.height,
-            };
-          }
-        } else {
+        /**
+         * If the dragged element has siblings,
+         * then add another offset at the end of the last sibling
+         * to demarcate the final drop position.
+         */
+        if (siblingElements.length) {
+          let finalOffset: HighlightDimension;
           if (isVertical) {
             finalOffset = {
               x: 0,
@@ -228,7 +252,7 @@ export const useCanvasDragging = (
               x:
                 (siblingElements[siblingElements.length - 1] as any)
                   .offsetLeft -
-                2 * containerDimensions.left +
+                containerDimensions.left +
                 siblingElements[siblingElements.length - 1].clientWidth +
                 8,
               y:
@@ -240,11 +264,12 @@ export const useCanvasDragging = (
                 .clientHeight,
             };
           }
+          offsets.push(finalOffset);
         }
-        // console.log(finalOffset);
-        offsets.push(finalOffset);
-        // console.log(offsets);
+        offsets = [...new Set(offsets)];
       }
+      // console.log(`#### offsets: ${JSON.stringify(offsets)}`);
+      // console.log(`#### END calculate highlight offsets`);
     }
   };
   calculateHighlightOffsets();
@@ -452,13 +477,10 @@ export const useCanvasDragging = (
                 }
                 return each;
               });
-            // console.log(currentRectanglesToDraw);
-            // console.log(reflowedPositionsUpdatesWidgets);
             const pos = getDropPosition({
               x: currentRectanglesToDraw[0].top,
               y: currentRectanglesToDraw[0].left,
             });
-            // console.log(`#### pos: ${pos}`);
             if (pos !== undefined && useAutoLayout) {
               // cleanUpTempStyles();
               updateChildrenPositions(pos, currentRectanglesToDraw);
@@ -735,12 +757,12 @@ export const useCanvasDragging = (
           if (dropIndex === lastTranslatedIndex) return;
 
           lastTranslatedIndex = dropIndex;
+          // console.log(`#### lastTranslatedIndex: ${lastTranslatedIndex}`);
           return;
           // Get all siblings after the highlighted drop position
           const arr = [...siblingElements];
 
           // translate each element in the appropriate direction
-          // console.log(`dragblocksize: ${dragBlocksSize}`);
           const x = !isVertical ? dragBlocksSize : 0;
           const y = isVertical ? dragBlocksSize : 0;
           arr.forEach((each, index) => {
@@ -755,10 +777,9 @@ export const useCanvasDragging = (
         const highlightDropPosition = (e: any) => {
           if (!useAutoLayout) return;
           const pos: HighlightDimension | undefined = getHighlightPosition(e);
+          // console.log(`#### Highlight position: ${JSON.stringify(pos)}`);
           if (!pos) return;
-          // console.log(`#### ref: ${dropPositionRef.current}`);
           if (dropPositionRef && dropPositionRef.current) {
-            // console.log(`highlight position: ${pos - 6}`);
             dropPositionRef.current.style.opacity = "1";
             dropPositionRef.current.style.top =
               (pos.y > 6 ? pos.y - 6 : 0) + "px";
@@ -779,41 +800,17 @@ export const useCanvasDragging = (
           val?: XYCord,
         ): HighlightDimension => {
           let base: HighlightDimension[] = [];
-          if (!offsets || !offsets.length) {
-            if (isVertical) {
-              base = [
-                {
-                  x: 0,
-                  y: 8,
-                  width: containerDimensions.width,
-                  height: 4,
-                },
-              ];
-            } else {
-              base = [
-                {
-                  x: 8,
-                  y: 0,
-                  width: 4,
-                  height: containerDimensions.height,
-                },
-              ];
-            }
-          } else base = offsets;
-          // TODO: add val
+          if (!offsets || !offsets.length) initializeOffsets();
+          else base = offsets;
+
           const pos: XYCord = {
             x: e?.offsetX || val?.x,
             y: e?.offsetY || val?.y,
           };
 
-          // console.log(e);
-          // console.log("START: highlight position calculation");
-          // console.log(pos);
           const arr = [...base].sort((a, b) => {
             return calculateDistance(a, pos) - calculateDistance(b, pos);
           });
-          // console.log(arr);
-          // console.log("END: highlight position calculation");
           return arr[0];
         };
         const calculateDistance = (
@@ -825,13 +822,11 @@ export const useCanvasDragging = (
           return Math.abs(Math.sqrt(x * x + y * y));
         };
         const getDropPosition = (val: XYCord): number | undefined => {
-          // console.log(`lastTranslatedIndex: ${lastTranslatedIndex}`);
-          if (!isNaN(lastTranslatedIndex)) return lastTranslatedIndex;
+          if (!isNaN(lastTranslatedIndex) && lastTranslatedIndex >= 0)
+            return lastTranslatedIndex;
           const pos = getHighlightPosition(null, val);
-          // console.log(`START drop position`);
-          // console.log(val);
-          // console.log(lastTranslatedIndex);
           if (!pos) return;
+          // console.log(`#### drop position: ${offsets.indexOf(pos)}`);
           return offsets.indexOf(pos);
         };
         const renderNewRows = debounce((delta) => {
@@ -895,8 +890,6 @@ export const useCanvasDragging = (
             canvasIsDragging &&
             stickyCanvasRef.current
           ) {
-            // console.log(`${widgetId} =======`);
-            // console.log(currentDirection);
             const canvasCtx: any = stickyCanvasRef.current.getContext("2d");
             canvasCtx.save();
             canvasCtx.clearRect(

@@ -346,6 +346,9 @@ function* autolayoutReorderSaga(
   const start = performance.now();
 
   const { index, movedWidgets, parentId } = actionPayload.payload;
+  // console.log(`#### moved widgets: ${JSON.stringify(movedWidgets)}`);
+  // console.log(`#### drop index: ${index}`);
+  // console.log(`#### parentId: ${parentId}`);
   try {
     const allWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
     if (!parentId || !movedWidgets || !movedWidgets.length) return;
@@ -372,7 +375,6 @@ function* reorderAutolayoutChildren(params: {
   allWidgets: CanvasWidgetsReduxState;
 }) {
   const { allWidgets, index, movedWidgets, parentId } = params;
-  // console.log(movedWidgets);
   const widgets = Object.assign({}, allWidgets);
   if (!movedWidgets) return widgets;
   const selectedWidgets = [...movedWidgets];
@@ -382,11 +384,12 @@ function* reorderAutolayoutChildren(params: {
   );
   if (orphans && orphans.length) {
     //parent has changed
-
+    // console.log(`#### orphans ${JSON.stringify(orphans)}`);
     // update parent for children
     orphans.forEach((item) => {
       const prevParentId = widgets[item].parentId;
       if (prevParentId !== undefined) {
+        // console.log(`#### previous parent: ${prevParentId}`);
         const prevParent = Object.assign({}, widgets[prevParentId]);
         if (prevParent.children && Array.isArray(prevParent.children)) {
           const updatedPrevParent = {
@@ -403,7 +406,8 @@ function* reorderAutolayoutChildren(params: {
     });
   }
   // Remove all empty wrappers
-  const trimmedWidgets = removeEmptyWrappers(widgets, movedWidgets, parentId);
+  const trimmedWidgets = purgeEmptyWrappers(widgets);
+  // console.log(`#### trimmed widgets: ${JSON.stringify(trimmedWidgets)}`);
   // Update moved widgets. Add wrappers to those missing one.
   const { newMovedWidgets, updatedWidgets } = yield call(
     updateMovedWidgets,
@@ -411,8 +415,6 @@ function* reorderAutolayoutChildren(params: {
     trimmedWidgets,
     parentId,
   );
-  // console.log(newMovedWidgets);
-  // console.log(updatedWidgets);
 
   const items = [...(updatedWidgets[parentId].children || [])];
   // remove moved widegts from children
@@ -429,28 +431,30 @@ function* reorderAutolayoutChildren(params: {
   };
   return updatedWidgets;
 }
-
-function removeEmptyWrappers(
-  allWidgets: CanvasWidgetsReduxState,
-  movedWidgets: string[],
-  parentId: string,
-) {
+// TODO: check for performance in complex apps.
+function purgeEmptyWrappers(allWidgets: CanvasWidgetsReduxState) {
   const widgets = { ...allWidgets };
-  const items = [...(widgets[parentId].children || [])];
-  items.forEach((item) => {
-    if (movedWidgets.indexOf(item) > -1) return;
-    const widget = widgets[item];
-    if (widget.isWrapper && !widget.children?.length) {
-      if (widget.parentId) {
-        widgets[widget.parentId] = {
-          ...widgets[widget.parentId],
-          children: widgets[widget.parentId].children?.filter(
-            (each) => each !== widget.widgetId,
-          ),
-        };
-      }
-      delete widgets[widget.widgetId];
+  // Fetch all empty wrappers
+  const emptyWrappers = Object.values(widgets).filter(
+    (each) => each.isWrapper && (!each.children || !each.children?.length),
+  );
+  // Remove wrappers from their parents and then delete them.
+  emptyWrappers.forEach((each) => {
+    const parent = each.parentId ? widgets[each.parentId] : null;
+    if (
+      parent &&
+      parent.children &&
+      parent.children?.indexOf(each.widgetId) > -1
+    ) {
+      const updatedParent = {
+        ...parent,
+        children: [
+          ...(parent.children || []).filter((child) => child !== each.widgetId),
+        ],
+      };
+      widgets[parent.widgetId] = updatedParent;
     }
+    delete widgets[each.widgetId];
   });
   return widgets;
 }
@@ -460,15 +464,12 @@ function* updateMovedWidgets(
   allWidgets: CanvasWidgetsReduxState,
   parentId: string,
 ) {
-  // console.log("=====================");
-  // console.log(movedWidgets);
-  // console.log(allWidgets);
   const stateParent = allWidgets[parentId];
-  if (!movedWidgets || !allWidgets) return;
+  if (!movedWidgets || !allWidgets || stateParent.isWrapper)
+    return { newMovedWidgets: movedWidgets, updatedWidgets: allWidgets };
   const newMovedWidgets: string[] = [];
   for (const each of movedWidgets) {
     const widget = allWidgets[each];
-    // console.log(widget);
     if (!widget) continue;
     if (widget.isWrapper) {
       newMovedWidgets.push(each);
@@ -505,26 +506,21 @@ function* updateMovedWidgets(
       parentColumnSpace: stateParent.parentColumnSpace,
       tabId: "",
     };
-    // console.log(wrapperPayload);
     const containerPayload: GeneratedWidgetPayload = yield generateChildWidgets(
       stateParent,
       wrapperPayload,
       allWidgets,
     );
-    // console.log(containerPayload);
     // Add widget to the wrapper
     let wrapper = containerPayload.widgets[containerPayload.widgetId];
     wrapper = {
       ...wrapper,
       children: [...(wrapper.children || []), each],
     };
-    // console.log(wrapper);
     // Update parent of the widget
     allWidgets[each] = { ...widget, parentId: wrapper.widgetId };
     allWidgets[wrapper.widgetId] = wrapper;
     newMovedWidgets.push(wrapper.widgetId);
-    // console.log(newMovedWidgets);
-    // console.log(allWidgets);
   }
   return { newMovedWidgets, updatedWidgets: allWidgets };
 }
@@ -538,8 +534,6 @@ function* addWidgetAndReorderSaga(
 ) {
   const start = performance.now();
   const { index, newWidget, parentId } = actionPayload.payload;
-  // console.log(newWidget);
-  // console.log(`parentId: ${parentId}`);
   try {
     const updatedWidgetsOnAddition: {
       widgets: CanvasWidgetsReduxState;

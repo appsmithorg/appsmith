@@ -186,10 +186,13 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
     };
   }, [updateDropTargetRows, occupiedSpacesByChildren]);
 
+  const wrapperClass = props.isWrapper
+    ? `auto-layout-parent-${props.parentId} auto-layout-child-${props.widgetId}`
+    : "";
   return (
     <DropTargetContext.Provider value={contextValue}>
       <StyledDropTarget
-        className="t--drop-target"
+        className={`t--drop-target ${wrapperClass}`}
         onClick={handleFocus}
         ref={dropTargetRef}
         style={{
