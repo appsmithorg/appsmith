@@ -570,9 +570,10 @@ export default {
   },
   //
   getPageOffset: (props, moment, _) => {
-    const pageSize = props.serverSidePaginationEnabled
-      ? props.tableData?.length
-      : props.pageSize;
+    const pageSize =
+      props.serverSidePaginationEnabled && props.tableData
+        ? props.tableData?.length
+        : props.pageSize;
 
     if (
       Number.isFinite(props.pageNo) &&
@@ -583,7 +584,7 @@ export default {
       /* Math.max fixes the value of (pageNo - 1) to a minimum of 0 as negative values are not valid */
       return Math.max(props.pageNo - 1, 0) * pageSize;
     }
-    return -1;
+    return 0;
   },
   //
 };
