@@ -14,6 +14,7 @@ import {
   dataSetForNorthAmerica,
   dataSetForOceania,
   dataSetForSouthAmerica,
+  dataSetForUSA,
   dataSetForWorld,
   dataSetForWorldWithAntarctica,
   MapColorObject,
@@ -37,6 +38,7 @@ const dataSetMapping: Record<MapType, any> = {
   [MapTypes.ASIA]: dataSetForAsia,
   [MapTypes.OCEANIA]: dataSetForOceania,
   [MapTypes.AFRICA]: dataSetForAfrica,
+  [MapTypes.USA]: dataSetForUSA,
 };
 
 // A hook to update the corresponding dataset when map type is changed
@@ -100,6 +102,10 @@ class MapChartWidget extends BaseWidget<MapChartWidgetProps, WidgetState> {
                 label: "Africa",
                 value: MapTypes.AFRICA,
               },
+              {
+                label: "USA",
+                value: MapTypes.USA,
+              },
             ],
             isJSconvertible: true,
             isBindProperty: true,
@@ -117,6 +123,7 @@ class MapChartWidget extends BaseWidget<MapChartWidgetProps, WidgetState> {
                   MapTypes.ASIA,
                   MapTypes.OCEANIA,
                   MapTypes.AFRICA,
+                  MapTypes.USA,
                 ],
               },
             },
@@ -347,6 +354,10 @@ class MapChartWidget extends BaseWidget<MapChartWidgetProps, WidgetState> {
                 label: "Africa",
                 value: MapTypes.AFRICA,
               },
+              {
+                label: "USA",
+                value: MapTypes.USA,
+              },
             ],
             isJSconvertible: true,
             isBindProperty: true,
@@ -364,6 +375,7 @@ class MapChartWidget extends BaseWidget<MapChartWidgetProps, WidgetState> {
                   MapTypes.ASIA,
                   MapTypes.OCEANIA,
                   MapTypes.AFRICA,
+                  MapTypes.USA,
                 ],
               },
             },
