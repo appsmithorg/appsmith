@@ -167,7 +167,7 @@ return Promise.all(allFuncs).then(() => showAlert("Wonderful! all apis executed"
     cy.get("div.CodeMirror").matchImageSnapshot("jsObjAfterPrettify1");
   });
 
-  it.only("2. TC 1916, 1917 : JSEditor validation for Prettify Code with no errors, triggered by menu option", () => {
+  it("2. TC 1916, 1917 : JSEditor validation for Prettify Code with no errors, triggered by menu option", () => {
     jsEditor.CreateJSObject(
       `export default {
 myFun1: () => {
