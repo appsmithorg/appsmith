@@ -43,8 +43,8 @@ const Wrapper = styled.div`
 `;
 
 const Body = styled.div`
-  margin-top: ${(props) => props.theme.spaces[15]}px;
   padding: 0 ${(props) => props.theme.spaces[11]}px;
+  padding-top: ${(props) => props.theme.spaces[12]}px;
   height: 80vh;
   overflow: auto;
 `;
