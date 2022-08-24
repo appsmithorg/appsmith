@@ -52,7 +52,7 @@ myFun2: async () => {
         prettify: false,
       },
     );
-    agHelper.GetNClick("[name='expand-more']", 1, true, 0);
+    agHelper.GetNClick("[name='expand-more']", 1, true, 100);
     agHelper.WaitUntilEleDisappear(locator._toastMsg);
     cy.get("div.CodeMirror").matchImageSnapshot("jsObjBeforePrettify6");
 
@@ -68,7 +68,7 @@ myFun2: async () => {
     homePage.DuplicateApplication(appname);
     agHelper.WaitUntilEleDisappear(locator._toastMsg);
     ee.SelectEntityByName("JSObject1", "QUERIES/JS");
-    agHelper.GetNClick("[name='expand-more']", 1, true, 0);
+    agHelper.GetNClick("[name='expand-more']", 1, true, 100);
     cy.get("div.CodeMirror").matchImageSnapshot("jsObjAfterPrettify6");
   });
 
@@ -108,24 +108,25 @@ myFun2: async () => {
         completeReplace: true,
         toRun: false,
         shouldCreateNewJSObj: true,
+        prettify: false,
       },
     );
 
-    agHelper.GetNClick("[name='expand-more']", 1, true, 0);
+    agHelper.GetNClick("[name='expand-more']", 1, true, 100);
     cy.get("div.CodeMirror").matchImageSnapshot("jsObjBeforePrettify7");
+
     agHelper.ActionContextMenuWithInPane("Prettify Code");
     agHelper.Sleep(); //allowing time to prettify!
-
     cy.get("div.CodeMirror").matchImageSnapshot("jsObjAfterPrettify7");
 
     // taking a snap after clicking inside the editor to make sure prettify has not reverted
-    cy.get("div.CodeMirror").click();
+    agHelper.GetNClick(jsEditor._lineinJsEditor(26));
     cy.get("div.CodeMirror").matchImageSnapshot("jsObjAfterPrettify7");
 
     ee.ClonePage("Page1");
     ee.SelectEntityByName("JSObject1", "QUERIES/JS");
     agHelper.Sleep(3000);
-    agHelper.GetNClick("[name='expand-more']", 1, true, 0);
+    agHelper.GetNClick("[name='expand-more']", 1, true, 100);
     cy.get("div.CodeMirror").matchImageSnapshot("jsObjAfterPrettify7");
   });
 
@@ -150,15 +151,15 @@ return Promise.all(allFuncs).then(() => showAlert("Wonderful! all apis executed"
         completeReplace: true,
         toRun: false,
         shouldCreateNewJSObj: true,
+        prettify: false,
       },
     );
 
-    agHelper.GetNClick("[name='expand-more']", 1, true, 0);
+    agHelper.GetNClick("[name='expand-more']", 1, true, 100);
     cy.get("div.CodeMirror").matchImageSnapshot("jsObjBeforePrettify1");
 
     agHelper.ActionContextMenuWithInPane("Prettify Code");
-    agHelper.Sleep(); //allowing time to prettify!
-
+    agHelper.Sleep(2000); //allowing time to prettify!
     cy.get("div.CodeMirror").matchImageSnapshot("jsObjAfterPrettify1");
 
     // taking a snap after clicking inside the editor to make sure prettify has not reverted
@@ -202,44 +203,34 @@ myFun2: async () => {
         completeReplace: true,
         toRun: false,
         shouldCreateNewJSObj: true,
+        prettify: false,
       },
     );
 
-    cy.get("[name='expand-more']")
-      .eq(1)
-      .click({ force: true });
-
+    agHelper.GetNClick("[name='expand-more']", 1, true, 100);
     cy.get("div.CodeMirror").matchImageSnapshot("jsObjBeforePrettify2");
-    cy.get(".t--more-action-menu")
-      .first()
-      .click();
-    cy.contains("Prettify Code")
-      .trigger("click")
-      .wait(3000); //allowing time to prettify!
 
+    agHelper.ActionContextMenuWithInPane("Prettify Code");
+    agHelper.Sleep(2000); //allowing time to prettify!
     cy.get("div.CodeMirror").matchImageSnapshot("jsObjAfterPrettify2");
 
     // taking a snap after clicking inside the editor to make sure prettify has not reverted
-    agHelper.GetNClick("div.CodeMirror");
+    agHelper.GetNClick(jsEditor._lineinJsEditor(26));
     cy.get("div.CodeMirror").matchImageSnapshot("jsObjAfterPrettify2");
 
     // click run button and take a snap to make sure prettify did not revert
-    cy.contains("Run")
-      .click({ force: true })
-      .wait(3000); // allow time to run
+    agHelper.GetNClick(jsEditor._runButton);
+    agHelper.Sleep(); // allow time to run
     cy.get("div.CodeMirror").matchImageSnapshot("jsObjAfterPrettify2");
 
     // click dropdown to change function and make sure prettify has not reverted
-
-    cy.get("[name='expand-more']")
-      .eq(0)
-      .click({ force: true });
-    cy.contains("myFun2").trigger("click");
+    agHelper.GetNClick("[name='expand-more']", 0, true, 100);
+    agHelper.ContainsNClick("myFun2");
     cy.get("div.CodeMirror").matchImageSnapshot("jsObjAfterPrettify2");
-    agHelper.WaitUntilToastDisappear("ran successfully");
+    agHelper.AssertContains("ran successfully");
   });
 
-  it("3. TC 1863 : JSEditor validation for Prettify Code with lint errors, triggered by keyboard shortcut", () => {
+  it.only("3. TC 1863 : JSEditor validation for Prettify Code with lint errors, triggered by keyboard shortcut", () => {
     jsEditor.CreateJSObject(
       `export default {
 myVar1: [],
