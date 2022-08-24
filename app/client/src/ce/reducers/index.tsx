@@ -62,15 +62,13 @@ import SettingsReducer, {
 import { TriggerValuesEvaluationState } from "reducers/evaluationReducers/triggerReducer";
 import { CanvasWidgetStructure } from "widgets/constants";
 
-const appReducer = combineReducers({
+export const reducerObject = {
   entities: entityReducer,
   ui: uiReducer,
   evaluations: evaluationsReducer,
   form: formReducer,
   settings: SettingsReducer,
-});
-
-export default appReducer;
+};
 
 export interface AppState {
   ui: {
