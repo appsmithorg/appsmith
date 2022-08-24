@@ -14,7 +14,6 @@ import { Section } from "./TemplateDescription";
 export const SimilarTemplatesWrapper = styled.div`
   padding-right: 132px;
   padding-left: 132px;
-  background-color: rgba(248, 248, 248, 0.5);
 
   .grid {
     display: flex;

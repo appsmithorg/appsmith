@@ -44,7 +44,7 @@ const CardHeader = styled.div`
   align-items: center;
 
   .checkbox {
-    margin-left: ${(props) => props.theme.spaces[9]}px;
+    margin-left: ${(props) => props.theme.spaces[3]}px;
   }
 `;
 

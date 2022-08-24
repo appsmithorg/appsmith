@@ -24,6 +24,12 @@ const FilterWrapper = styled.div`
 const ListWrapper = styled.div`
   height: 80vh;
   overflow: auto;
+  &&::-webkit-scrollbar-thumb {
+    background-color: ${(props) => props.theme.colors.modal.scrollbar};
+  }
+  &::-webkit-scrollbar {
+    width: 4px;
+  }
 `;
 
 type TemplateListProps = {

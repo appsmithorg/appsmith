@@ -20,7 +20,6 @@ import { isEmpty } from "lodash";
 
 const StyledDialog = styled(DialogComponent)`
   overflow: hidden;
-
   && {
     & .${Classes.DIALOG_BODY} {
       margin-top: 0px;
