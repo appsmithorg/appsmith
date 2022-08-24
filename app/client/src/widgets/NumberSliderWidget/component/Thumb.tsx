@@ -8,7 +8,6 @@ interface ThumbProps {
   thumbBgColor: string;
   max: number;
   min: number;
-  value: number;
   position: number;
   dragging: boolean;
   color: string;
@@ -16,7 +15,7 @@ interface ThumbProps {
   onMouseDown(
     event: React.MouseEvent<HTMLDivElement> | React.TouchEvent<HTMLDivElement>,
   ): void;
-  tooltipValue?: string;
+  tooltipValue: string;
   tooltipAlwaysOn: boolean;
   onFocus?(): void;
   onBlur?(): void;
@@ -85,7 +84,6 @@ export const Thumb = forwardRef<HTMLDivElement, ThumbProps>(
       thumbBgColor,
       tooltipAlwaysOn,
       tooltipValue,
-      value,
     },
     ref,
   ) => {
@@ -98,7 +96,7 @@ export const Thumb = forwardRef<HTMLDivElement, ThumbProps>(
       <ThumbWrapper
         aria-valuemax={max}
         aria-valuemin={min}
-        aria-valuenow={value}
+        aria-valuenow={parseInt(tooltipValue)}
         color={color}
         disabled={disabled}
         onBlur={() => {

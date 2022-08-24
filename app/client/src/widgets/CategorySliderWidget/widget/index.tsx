@@ -23,14 +23,19 @@ export type SliderOption = {
 interface CategorySliderWidgetProps extends WidgetProps, SliderComponentProps {
   /** Color from theme.colors */
   accentColor?: string;
+
   /** Slider Options  */
   options?: SliderOption[];
+
   /** defaultOption value */
   defaultOptionValue?: string;
+
   /** isDirty meta property */
   isDirty: boolean;
+
   /**  Selected Value */
   value: string | undefined;
+
   /** onChange action selector */
   onChange: string;
 }

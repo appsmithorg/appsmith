@@ -11,12 +11,16 @@ import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 interface NumberSliderWidgetProps extends WidgetProps, SliderComponentProps {
   /** Color from theme.colors */
   accentColor?: string;
+
   /** defaultValue for the slider */
   defaultValue?: number;
+
   /** isDirty meta property */
   isDirty: boolean;
+
   /** value meta property */
   value: number;
+
   /** onChangeEnd action selector */
   onChange: string;
 }
@@ -146,6 +150,16 @@ class NumberSliderWidget extends BaseWidget<
         sectionName: "General",
         children: [
           {
+            propertyName: "showMarksLabel",
+            helpText: "Show the marks label below the slider",
+            label: "Show Marks",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+          },
+          {
             helpText: "Display Value Marks",
             propertyName: "marks",
             label: "Marks",
@@ -153,6 +167,8 @@ class NumberSliderWidget extends BaseWidget<
             placeholderText: '[{ "value": "20", "label": "20%" }]',
             isBindProperty: true,
             isTriggerProperty: false,
+            hidden: (props: NumberSliderWidgetProps) => !props.showMarksLabel,
+            dependencies: ["showMarksLabel"],
             validation: {
               type: ValidationTypes.ARRAY,
               params: {
@@ -417,6 +433,16 @@ class NumberSliderWidget extends BaseWidget<
             validation: { type: ValidationTypes.NUMBER },
           },
           {
+            propertyName: "showMarksLabel",
+            helpText: "Show the marks label below the slider",
+            label: "Show Marks",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+          },
+          {
             helpText: "Display Value Marks",
             propertyName: "marks",
             label: "Marks",
@@ -424,6 +450,8 @@ class NumberSliderWidget extends BaseWidget<
             placeholderText: '[{ "value": "20", "label": "20%" }]',
             isBindProperty: true,
             isTriggerProperty: false,
+            hidden: (props: NumberSliderWidgetProps) => !props.showMarksLabel,
+            dependencies: ["showMarksLabel"],
             validation: {
               type: ValidationTypes.ARRAY,
               params: {
@@ -762,7 +790,7 @@ class NumberSliderWidget extends BaseWidget<
         min={this.props.min || 0}
         name={this.props.widgetName}
         onChangeEnd={this.onChangeEnd}
-        showMarksLabel
+        showMarksLabel={this.props.showMarksLabel}
         sliderSize={this.props.sliderSize || "m"}
         sliderValue={this.props.value || 0}
         step={this.props.step || 1}

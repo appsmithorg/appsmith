@@ -26,7 +26,7 @@ interface TrackProps {
   onChange(value: number): void;
   onMouseEnter?(event?: React.MouseEvent<HTMLDivElement>): void;
   onMouseLeave?(event?: React.MouseEvent<HTMLDivElement>): void;
-  showMarksLabel?: boolean;
+  showMarksLabel: boolean;
 }
 
 const TrackWrapper = styled.div<Pick<TrackProps, "size" | "trackBgColor">>(
@@ -81,7 +81,7 @@ export function Track({
   offset,
   onMouseEnter,
   onMouseLeave,
-  showMarksLabel = true,
+  showMarksLabel,
   size,
   trackBgColor,
   ...delegated

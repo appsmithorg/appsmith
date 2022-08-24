@@ -16,6 +16,7 @@ export const CONFIG = {
     max: 100,
     minRange: 5,
     step: 1,
+    showMarksLabel: true,
     marks: [
       { value: 20, label: "20%" },
       { value: 50, label: "50%" },

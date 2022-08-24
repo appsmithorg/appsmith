@@ -37,9 +37,6 @@ export interface SliderComponentProps
   /** Number by which value will be incremented/decremented with thumb drag and arrows */
   step: number;
 
-  /** Amount of digits after the decimal point */
-  precision?: number;
-
   /** Current value for controlled slider */
   sliderValue: number;
 
@@ -106,7 +103,6 @@ const SliderComponent = (props: SliderComponentProps) => {
     min,
     name,
     onChangeEnd,
-    precision,
     showMarksLabel,
     sliderSize,
     sliderTooltip,
@@ -143,13 +139,12 @@ const SliderComponent = (props: SliderComponentProps) => {
           min,
           max,
           step,
-          precision,
         });
         setValue(nextValue);
         valueRef.current = nextValue;
       }
     },
-    [disabled, min, max, step, precision],
+    [disabled, min, max, step],
   );
 
   const { active, ref: container } = useMove(handleChange, {
@@ -285,7 +280,6 @@ const SliderComponent = (props: SliderComponentProps) => {
             thumbBgColor={sliderBg.thumb}
             tooltipAlwaysOn={tooltipAlwaysOn}
             tooltipValue={tooltipValue}
-            value={_value}
           />
         </Track>
 

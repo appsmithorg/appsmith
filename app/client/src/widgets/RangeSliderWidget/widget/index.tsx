@@ -15,21 +15,28 @@ interface RangeSliderWidgetProps
     RangeSliderComponentProps {
   /** Color from theme.colors */
   accentColor?: string;
+
   /** defaultStart Value */
   defaultStartValue?: number;
+
   /** defaultEnd Value */
   defaultEndValue?: number;
+
   /** start value metaProperty */
   start: number;
+
   /** end value metaProperty  */
   end: number;
+
   /** isDirty meta property */
   isDirty: boolean;
+
   /**
    * onStartChange action selector triggers when
    * the first thumb of slider is changed
    */
   onStartChange: string;
+
   /**
    * onEndChange action selector triggers when
    * the second thumb of slider is changed
@@ -182,6 +189,16 @@ class RangeSliderWidget extends BaseWidget<
         sectionName: "General",
         children: [
           {
+            propertyName: "showMarksLabel",
+            helpText: "Show the marks label below the slider",
+            label: "Show Marks",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+          },
+          {
             helpText: "Display Value Marks",
             propertyName: "marks",
             label: "Marks",
@@ -189,6 +206,8 @@ class RangeSliderWidget extends BaseWidget<
             placeholderText: '[{ "value": "20", "label": "20%" }]',
             isBindProperty: true,
             isTriggerProperty: false,
+            hidden: (props: RangeSliderWidgetProps) => !props.showMarksLabel,
+            dependencies: ["showMarksLabel"],
             validation: {
               type: ValidationTypes.ARRAY,
               params: {
@@ -482,6 +501,16 @@ class RangeSliderWidget extends BaseWidget<
             validation: { type: ValidationTypes.NUMBER },
           },
           {
+            propertyName: "showMarksLabel",
+            helpText: "Show the marks label below the slider",
+            label: "Show Marks",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+          },
+          {
             helpText: "Display Value Marks",
             propertyName: "marks",
             label: "Marks",
@@ -489,6 +518,8 @@ class RangeSliderWidget extends BaseWidget<
             placeholderText: '[{ "value": "20", "label": "20%" }]',
             isBindProperty: true,
             isTriggerProperty: false,
+            hidden: (props: RangeSliderWidgetProps) => !props.showMarksLabel,
+            dependencies: ["showMarksLabel"],
             validation: {
               type: ValidationTypes.ARRAY,
               params: {
@@ -853,6 +884,7 @@ class RangeSliderWidget extends BaseWidget<
         minRange={this.props.minRange || 10}
         name={this.props.widgetName}
         onChangeEnd={this.onChangeEnd}
+        showMarksLabel={this.props.showMarksLabel}
         sliderSize={this.props.sliderSize || "m"}
         startValue={this.props.start || 0}
         step={this.props.step || 1}

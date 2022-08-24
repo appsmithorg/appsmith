@@ -23,6 +23,7 @@ export const CONFIG = {
       { label: "xl", value: "xl" },
     ],
     defaultOptionValue: "md",
+    showMarksLabel: true,
     marks: [
       { value: 20, label: "20%" },
       { value: 50, label: "50%" },

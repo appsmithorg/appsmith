@@ -43,9 +43,6 @@ export interface RangeSliderComponentProps
   /** Number by which value will be incremented/decremented with thumb drag and arrows */
   step: number;
 
-  /** Amount of digits after the decimal point */
-  precision?: number;
-
   /** Start value for the range slider */
   startValue: number;
 
@@ -57,6 +54,9 @@ export interface RangeSliderComponentProps
 
   /** Hidden input name, use with uncontrolled variant */
   name: string;
+
+  /** Show the marks label below the slider */
+  showMarksLabel: boolean;
 
   /** Marks which will be placed on the track */
   marks?: { value: number; label: string }[];
@@ -111,7 +111,7 @@ const RangeSliderComponent = (props: RangeSliderComponentProps) => {
     minRange,
     name,
     onChangeEnd,
-    precision,
+    showMarksLabel,
     sliderSize,
     startValue,
     step,
@@ -187,7 +187,6 @@ const RangeSliderComponent = (props: RangeSliderComponentProps) => {
         min,
         max,
         step,
-        precision,
       });
       setRangedValue(nextValue, thumbIndex.current || 0, false);
     }
@@ -371,6 +370,7 @@ const RangeSliderComponent = (props: RangeSliderComponentProps) => {
           }}
           onMouseEnter={() => setHovered(true)}
           onMouseLeave={() => setHovered(false)}
+          showMarksLabel={showMarksLabel}
           size={sliderSize}
           trackBgColor={sliderBg.track}
           value={_value[1]}
@@ -390,7 +390,6 @@ const RangeSliderComponent = (props: RangeSliderComponentProps) => {
             size={sliderSize}
             thumbBgColor={sliderBg.thumb}
             tooltipValue={_value[0].toString()}
-            value={_value[0]}
           />
 
           <Thumb
@@ -408,7 +407,6 @@ const RangeSliderComponent = (props: RangeSliderComponentProps) => {
             size={sliderSize}
             thumbBgColor={sliderBg.thumb}
             tooltipValue={_value[1].toString()}
-            value={_value[1]}
           />
         </Track>
 
