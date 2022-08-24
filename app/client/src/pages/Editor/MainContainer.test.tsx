@@ -22,7 +22,7 @@ import {
 import lodash from "lodash";
 import { getAbsolutePixels } from "utils/helpers";
 import { UpdatedMainContainer } from "test/testMockedWidgets";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import { generateReactKey } from "utils/generators";
 import * as useDynamicAppLayoutHook from "utils/hooks/useDynamicAppLayout";
 

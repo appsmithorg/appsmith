@@ -6,7 +6,7 @@ import _ from "lodash";
 import ProductUpdatesModal from "pages/Applications/ProductUpdatesModal";
 import { connect, useDispatch } from "react-redux";
 import { RouteComponentProps, useParams, withRouter } from "react-router";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import { formValueSelector, InjectedFormProps, reduxForm } from "redux-form";
 import {
   getSettings,
