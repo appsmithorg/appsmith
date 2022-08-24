@@ -452,11 +452,10 @@ export function* updateWidgetDynamicHeightSaga() {
         }
       } else {
         const childWidget = stateWidgets[childWidgetId];
-        const detachFromLayout = stateWidgets[childWidgetId];
-
-        const bottomRow =
-          dynamicHeightLayoutTree[childWidget.widgetId].bottomRow;
+        const { detachFromLayout } = stateWidgets[childWidgetId];
         if (!detachFromLayout) {
+          const bottomRow =
+            dynamicHeightLayoutTree[childWidget.widgetId].bottomRow;
           maxCanvasHeight = Math.max(
             maxCanvasHeight,
             bottomRow * GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
