@@ -230,7 +230,7 @@ myFun2: async () => {
     agHelper.AssertContains("ran successfully");
   });
 
-  it.only("3. TC 1863 : JSEditor validation for Prettify Code with lint errors, triggered by keyboard shortcut", () => {
+  it("3. TC 1863 : JSEditor validation for Prettify Code with lint errors, triggered by keyboard shortcut", () => {
     jsEditor.CreateJSObject(
       `export default {
 myVar1: [],
