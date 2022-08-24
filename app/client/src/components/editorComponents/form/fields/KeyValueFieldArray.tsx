@@ -20,7 +20,7 @@ import {
   DEFAULT_MULTI_PART_DROPDOWN_WIDTH,
   DEFAULT_MULTI_PART_DROPDOWN_HEIGHT,
   MULTI_PART_DROPDOWN_OPTIONS,
-} from "constants/ApiEditorConstants";
+} from "constants/ApiEditorConstants/CommonApiConstants";
 import { Colors } from "constants/Colors";
 import { Classes as BlueprintClasses } from "@blueprintjs/core";
 

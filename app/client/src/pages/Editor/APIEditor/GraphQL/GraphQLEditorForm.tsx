@@ -27,6 +27,7 @@ import QueryEditor from "./QueryEditor";
 import { tailwindLayers } from "constants/Layers";
 import VariableEditor from "./VariableEditor";
 import Pagination from "./Pagination";
+import { Colors } from "constants/Colors";
 
 const ResizeableDiv = styled.div`
   display: flex;
@@ -49,6 +50,18 @@ const BodyWrapper = styled.div`
     margin: 0px;
     padding: 0px;
     overflow: auto !important;
+  }
+`;
+
+const ResizerHandler = styled.div<{ resizing: boolean }>`
+  width: 6px;
+  height: 100%;
+  margin-left: 2px;
+  border-right: 1px solid ${Colors.GREY_200};
+  background: ${(props) => (props.resizing ? Colors.GREY_4 : "transparent")};
+  &:hover {
+    background: ${Colors.GREY_4};
+    border-color: transparent;
   }
 `;
 
@@ -110,11 +123,11 @@ function GraphQLEditorForm(props: Props) {
             onTouchEnd={onMouseUp}
             onTouchStart={onTouchStart}
           >
-            <div
+            <ResizerHandler
               className={classNames({
-                "w-1 h-full ml-1 bg-transparent group-hover:bg-gray-300 transform transition": true,
-                "bg-gray-300": resizing,
+                "transform transition": true,
               })}
+              resizing={resizing}
             />
           </div>
           <ResizeableDiv
@@ -131,6 +144,7 @@ function GraphQLEditorForm(props: Props) {
       formName={API_EDITOR_FORM_NAME}
       paginationUIComponent={
         <Pagination
+          actionName={actionName}
           formName={API_EDITOR_FORM_NAME}
           onTestClick={props.onRunClick}
           paginationType={props.paginationType}

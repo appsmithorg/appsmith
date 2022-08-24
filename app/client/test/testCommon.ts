@@ -1,6 +1,6 @@
 import { getCanvasWidgetsPayload } from "sagas/PageSagas";
 import { updateCurrentPage } from "actions/pageActions";
-import { editorInitializer } from "utils/EditorUtils";
+import { editorInitializer } from "utils/editor/EditorUtils";
 import {
   Page,
   ReduxActionTypes,

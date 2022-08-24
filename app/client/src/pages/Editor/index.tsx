@@ -20,7 +20,7 @@ import {
   InitializeEditorPayload,
   resetEditorRequest,
 } from "actions/initActions";
-import { editorInitializer } from "utils/EditorUtils";
+import { editorInitializer } from "utils/editor/EditorUtils";
 import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
 import { getCurrentUser } from "selectors/usersSelectors";
 import { User } from "constants/userConstants";

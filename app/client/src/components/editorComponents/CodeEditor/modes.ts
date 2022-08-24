@@ -46,3 +46,17 @@ CodeMirror.defineMode(EditorModes.SQL_WITH_BINDING, function(config) {
     },
   );
 });
+
+CodeMirror.defineMode(EditorModes.GRAPHQL_WITH_BINDING, function(config) {
+  // @ts-expect-error: Types are not available
+  return CodeMirror.multiplexingMode(
+    CodeMirror.getMode(config, EditorModes.GRAPHQL),
+    {
+      open: "{{",
+      close: "}}",
+      mode: CodeMirror.getMode(config, {
+        name: "javascript",
+      }),
+    },
+  );
+});

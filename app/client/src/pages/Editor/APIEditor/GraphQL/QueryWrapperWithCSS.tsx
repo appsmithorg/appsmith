@@ -1,3 +1,4 @@
+import { Colors } from "constants/Colors";
 import styled from "styled-components";
 
 const QueryWrapper = styled.div`
@@ -201,10 +202,6 @@ const QueryWrapper = styled.div`
     color: #0f0;
   }
 
-  div.CodeMirror span.CodeMirror-nonmatchingbracket {
-    color: #f22;
-  }
-
   .CodeMirror-matchingtag {
     background: rgba(255, 150, 0, 0.3);
   }
@@ -238,6 +235,14 @@ const QueryWrapper = styled.div`
   .CodeMirror-jump-token {
     text-decoration: underline;
     cursor: pointer;
+  }
+
+  &&&&& .CodeMirror {
+    border: 0;
+  }
+
+  &&& .CodeMirror-gutters {
+    background: ${Colors.GRAY_50};
   }
 `;
 

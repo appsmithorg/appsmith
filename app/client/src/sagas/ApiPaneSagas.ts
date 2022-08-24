@@ -18,14 +18,19 @@ import { API_EDITOR_FORM_NAME, QUERY_EDITOR_FORM_NAME } from "constants/forms";
 import {
   POST_BODY_FORMAT_OPTIONS_ARRAY,
   POST_BODY_FORMAT_OPTIONS,
-  REST_PLUGIN_PACKAGE_NAME,
   CONTENT_TYPE_HEADER_KEY,
   EMPTY_KEY_VALUE_PAIRS,
   HTTP_METHOD,
   HTTP_METHODS_DEFAULT_FORMAT_TYPES,
+} from "constants/ApiEditorConstants/CommonApiConstants";
+import {
+  REST_PLUGIN_PACKAGE_NAME,
   DEFAULT_CREATE_API_CONFIG,
-  DEFAULT_CREATE_API_CONFIG_TYPE,
-} from "constants/ApiEditorConstants";
+} from "constants/ApiEditorConstants/ApiEditorConstants";
+import {
+  GRAPHQL_PLUGIN_PACKAGE_NAME,
+  DEFAULT_CREATE_GRAPHQL_CONFIG,
+} from "constants/ApiEditorConstants/GraphQLEditorConstants";
 import history from "utils/history";
 import { INTEGRATION_EDITOR_MODES, INTEGRATION_TABS } from "constants/routes";
 import { initialize, autofill, change } from "redux-form";
@@ -560,12 +565,12 @@ function* handleCreateNewApiActionSaga(
   const workspaceId: string = yield select(getCurrentWorkspaceId);
   const { pageId, apiType = REST_PLUGIN_PACKAGE_NAME } = action.payload;
   const pluginId: string = yield select(getPluginIdOfPackageName, apiType);
-  let defaultConfig: DEFAULT_CREATE_API_CONFIG_TYPE;
-  if (apiType in DEFAULT_CREATE_API_CONFIG) {
-    defaultConfig = DEFAULT_CREATE_API_CONFIG[apiType];
-  } else {
-    defaultConfig = DEFAULT_CREATE_API_CONFIG[REST_PLUGIN_PACKAGE_NAME];
+  // Default Config is Rest Api Plugin Config
+  let defaultConfig = DEFAULT_CREATE_API_CONFIG;
+  if (apiType === GRAPHQL_PLUGIN_PACKAGE_NAME) {
+    defaultConfig = DEFAULT_CREATE_GRAPHQL_CONFIG;
   }
+
   if (pageId && pluginId) {
     const actions: ActionDataState = yield select(getActions);
     const pageActions = actions.filter(

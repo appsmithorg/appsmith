@@ -4,7 +4,7 @@ import {
   MultiPartOptionTypes,
   POST_BODY_FORMAT_OPTIONS,
   // POST_BODY_FORMAT_OPTIONS_ENUM,
-} from "constants/ApiEditorConstants";
+} from "constants/ApiEditorConstants/CommonApiConstants";
 
 // jest.mock("POST_");
 

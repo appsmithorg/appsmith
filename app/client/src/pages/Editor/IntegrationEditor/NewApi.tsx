@@ -18,10 +18,8 @@ import { getGenerateCRUDEnabledPluginMap } from "selectors/entitiesSelector";
 import { useSelector } from "react-redux";
 import { getIsGeneratePageInitiator } from "utils/GenerateCrudUtil";
 import { curlImportPageURL } from "RouteBuilder";
-import {
-  GRAPHQL_PLUGIN_PACKAGE_NAME,
-  REST_PLUGIN_PACKAGE_NAME,
-} from "constants/ApiEditorConstants";
+import { GRAPHQL_PLUGIN_PACKAGE_NAME } from "constants/ApiEditorConstants/GraphQLEditorConstants";
+import { REST_PLUGIN_PACKAGE_NAME } from "constants/ApiEditorConstants/ApiEditorConstants";
 
 const StyledContainer = styled.div`
   flex: 1;
@@ -256,11 +254,14 @@ function NewApiScreen(props: Props) {
 
   // Api plugins with Graphql
   const API_PLUGINS = plugins.filter(
-    (p) =>
-      p.packageName === GRAPHQL_PLUGIN_PACKAGE_NAME ||
-      p.type === PluginType.SAAS ||
-      p.type === PluginType.REMOTE,
+    (p) => p.packageName === GRAPHQL_PLUGIN_PACKAGE_NAME,
   );
+
+  plugins.forEach((p) => {
+    if (p.type === PluginType.SAAS || p.type === PluginType.REMOTE) {
+      API_PLUGINS.push(p);
+    }
+  });
 
   return (
     <StyledContainer>
@@ -296,21 +297,6 @@ function NewApiScreen(props: Props) {
             <p className="textBtn">CURL import</p>
           </CardContentWrapper>
         </ApiCard>
-        <ApiCard
-          className="t--createBlankApiGraphqlCard"
-          onClick={() => handleOnClick(API_ACTION.CREATE_NEW_GRAPHQL_API)}
-        >
-          <CardContentWrapper>
-            <div className="content-icon-wrapper">
-              <img
-                alt="New"
-                className="curlImage t--plusImage content-icon"
-                src={PlusLogo}
-              />
-            </div>
-            <p className="textBtn">Create new GraphQL API</p>
-          </CardContentWrapper>
-        </ApiCard>
         {authApiPlugin && (
           <ApiCard
             className="t--createAuthApiDatasource"
@@ -328,6 +314,21 @@ function NewApiScreen(props: Props) {
             </CardContentWrapper>
           </ApiCard>
         )}
+        <ApiCard
+          className="t--createBlankApiGraphqlCard"
+          onClick={() => handleOnClick(API_ACTION.CREATE_NEW_GRAPHQL_API)}
+        >
+          <CardContentWrapper>
+            <div className="content-icon-wrapper">
+              <img
+                alt="New"
+                className="curlImage t--plusImage content-icon"
+                src={PlusLogo}
+              />
+            </div>
+            <p className="textBtn">Create new GraphQL API</p>
+          </CardContentWrapper>
+        </ApiCard>
         {API_PLUGINS.map((p) => (
           <ApiCard
             className={`t--createBlankApi-${p.packageName}`}

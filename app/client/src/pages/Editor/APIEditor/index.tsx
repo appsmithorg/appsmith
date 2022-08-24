@@ -11,7 +11,7 @@ import {
   ActionData,
   ActionDataState,
 } from "reducers/entityReducers/actionsReducer";
-import { REST_PLUGIN_PACKAGE_NAME } from "constants/ApiEditorConstants";
+import { REST_PLUGIN_PACKAGE_NAME } from "constants/ApiEditorConstants/ApiEditorConstants";
 import _ from "lodash";
 import { getCurrentApplication } from "selectors/applicationSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";

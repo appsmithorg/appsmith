@@ -21,7 +21,7 @@ import {
   isFetchingTemplatesSelector,
 } from "selectors/templatesSelectors";
 import { fetchDefaultPlugins } from "actions/pluginActions";
-import { editorInitializer } from "utils/EditorUtils";
+import { editorInitializer } from "utils/editor/EditorUtils";
 import { AppState } from "reducers";
 import {
   getIsFetchingApplications,

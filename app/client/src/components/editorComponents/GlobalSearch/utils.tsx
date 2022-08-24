@@ -28,7 +28,7 @@ import { getQueryParams } from "utils/AppsmithUtils";
 import history from "utils/history";
 import { curlImportPageURL } from "RouteBuilder";
 import { isMacOrIOS, modText, shiftText } from "utils/helpers";
-import { GRAPHQL_PLUGIN_PACKAGE_NAME } from "constants/ApiEditorConstants";
+import { GRAPHQL_PLUGIN_PACKAGE_NAME } from "constants/ApiEditorConstants/GraphQLEditorConstants";
 
 export type SelectEvent =
   | React.MouseEvent
