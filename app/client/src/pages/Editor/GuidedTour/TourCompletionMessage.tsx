@@ -1,13 +1,12 @@
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import Rating from "react-rating";
-import Icon, { IconSize } from "components/ads/Icon";
-import Button, { Size } from "components/ads/Button";
+import { Button, Icon, IconSize, Size } from "design-system";
 import {
   getPostWelcomeTourState,
   setPostWelcomeTourState,
 } from "utils/storage";
-import { getQueryParams } from "utils/AppsmithUtils";
+import { getQueryParams } from "utils/URLUtils";
 import { useDispatch } from "react-redux";
 import { showPostCompletionMessage } from "actions/onboardingActions";
 import AnalyticsUtil from "utils/AnalyticsUtil";

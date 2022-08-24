@@ -1,9 +1,6 @@
 import React from "react";
 
-import Dropdown, {
-  DropdownOption,
-  RenderOption,
-} from "components/ads/Dropdown";
+import { Dropdown, DropdownOption, RenderOption } from "design-system";
 import { AppTheme } from "entities/AppTheming";
 
 interface ThemeFontControlProps {

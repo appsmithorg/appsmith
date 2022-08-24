@@ -13,7 +13,7 @@ import {
   UpdateActionPropertyActionPayload,
   setActionProperty,
 } from "actions/pluginActionActions";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import {
   getCurrentApplicationId,
   getIsEditorInitialized,

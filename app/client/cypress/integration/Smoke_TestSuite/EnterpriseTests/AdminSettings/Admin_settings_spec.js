@@ -36,9 +36,11 @@ describe("Admin settings page", function() {
   it("should test that Appsmith Watermark setting shows upgrade button", () => {
     cy.visit("/settings/general");
 
-    // checking if the setting contains a word 'Upgrade
-    cy.get(
-      EnterpriseAdminSettingsLocators.hideAppsmithWatermarkSetting,
-    ).contains("Upgrade");
+    if (Cypress.env("Edition") === 0) {
+      // checking if the setting contains a word 'Upgrade
+      cy.get(
+        EnterpriseAdminSettingsLocators.hideAppsmithWatermarkSetting,
+      ).contains("UPGRADE");
+    }
   });
 });

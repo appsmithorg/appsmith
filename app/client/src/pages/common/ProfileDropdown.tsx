@@ -1,11 +1,10 @@
 import React from "react";
 import { CommonComponentProps, Classes } from "components/ads/common";
-import { Text, TextType } from "design-system";
+import { MenuItem, Text, TextType } from "design-system";
 import styled from "styled-components";
 import { Position, Classes as BlueprintClasses } from "@blueprintjs/core";
 import Menu from "components/ads/Menu";
 import MenuDivider from "components/ads/MenuDivider";
-import MenuItem from "components/ads/MenuItem";
 import {
   getOnSelectAction,
   DropdownOnSelectActions,

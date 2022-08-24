@@ -1,4 +1,4 @@
-import { createReducer } from "utils/AppsmithUtils";
+import { createReducer } from "utils/ReducerUtils";
 import {
   ReduxAction,
   ReduxActionTypes,
@@ -194,8 +194,8 @@ const applicationsReducer = createReducer(initialState, {
   ) => {
     const _workspaces = state.userWorkspaces.map((workspace: Workspaces) => {
       if (workspace.workspace.id === action.payload.workspaceId) {
-        const userRoles = workspace.userRoles;
-        workspace.userRoles = [...userRoles, ...action.payload.users];
+        const users = workspace.users;
+        workspace.users = [...users, ...action.payload.users];
         return {
           ...workspace,
         };

@@ -2,7 +2,7 @@ import {
   isPermitted,
   PERMISSION_TYPE,
 } from "pages/Applications/permissionHelpers";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import { createSelector } from "reselect";
 import { getUserApplicationsWorkspaces } from "./applicationSelectors";
 import { getWidgets } from "sagas/selectors";
@@ -13,7 +13,6 @@ import {
 } from "./entitiesSelector";
 import { getSelectedWidget } from "./ui";
 import { GuidedTourEntityNames } from "pages/Editor/GuidedTour/constants";
-import { previewModeSelector } from "./editorSelectors";
 
 // Signposting selectors
 export const getEnableFirstTimeUserOnboarding = (state: AppState) => {
@@ -45,6 +44,10 @@ export const getInOnboardingWidgetSelection = (state: AppState) =>
 
 export const getIsOnboardingWidgetSelection = (state: AppState) =>
   state.ui.onBoarding.inOnboardingWidgetSelection;
+
+const previewModeSelector = (state: AppState) => {
+  return state.ui.editor.isPreviewMode;
+};
 
 export const getIsOnboardingTasksView = createSelector(
   getCanvasWidgets,

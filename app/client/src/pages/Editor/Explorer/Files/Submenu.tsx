@@ -14,7 +14,7 @@ import { ReactComponent as SearchIcon } from "assets/icons/ads/search.svg";
 import { ReactComponent as CrossIcon } from "assets/icons/ads/cross.svg";
 import classNames from "classnames";
 import keyBy from "lodash/keyBy";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import { EntityIcon, getPluginIcon } from "../ExplorerIcons";
 import SubmenuHotKeys from "./SubmenuHotkeys";
 import scrollIntoView from "scroll-into-view-if-needed";
@@ -23,6 +23,8 @@ import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
 import { EntityClassNames } from "../Entity";
 import { TooltipComponent } from "design-system";
 import { ADD_QUERY_JS_BUTTON, createMessage } from "ce/constants/messages";
+import { useCloseMenuOnScroll } from "../hooks";
+import { SIDEBAR_ID } from "constants/Explorer";
 
 const SubMenuContainer = styled.div`
   width: 250px;
@@ -71,8 +73,8 @@ export default function ExplorerSubMenu({
   });
   const pluginGroups = useMemo(() => keyBy(plugins, "id"), [plugins]);
   const [activeItemIdx, setActiveItemIdx] = useState(0);
-
   useEffect(() => setShow(openMenu), [openMenu]);
+  useCloseMenuOnScroll(SIDEBAR_ID, show, () => setShow(false));
 
   useEffect(() => {
     setQuery("");

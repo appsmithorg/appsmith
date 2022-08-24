@@ -3,6 +3,7 @@ const testdata = require("../../../../fixtures/testdata.json");
 const apiwidget = require("../../../../locators/apiWidgetslocator.json");
 const dsl = require("../../../../fixtures/defaultMetaDsl.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
+const homePage = require("../../../../locators/HomePage");
 
 import {
   WIDGET,
@@ -12,7 +13,7 @@ import {
 } from "../../../../locators/WidgetLocators";
 
 const widgetsToTest = {
-  [WIDGET.MULTISELECT_WIDGET]: {
+  [WIDGET.MULTISELECT]: {
     widgetName: "MultiSelect",
     widgetPrefixName: "MultiSelect1",
     textBindingValue: "{{MultiSelect1.selectedOptionValues}}",
@@ -60,7 +61,7 @@ const widgetsToTest = {
       selectAndReset();
     },
   },
-  [WIDGET.CURRENCY_INPUT_WIDGET]: {
+  [WIDGET.CURRENCY_INPUT]: {
     widgetName: "CurrencyInput",
     widgetPrefixName: "CurrencyInput1",
     textBindingValue: testdata.currencyBindingValue,
@@ -84,6 +85,7 @@ const widgetsToTest = {
       radiogroupAndReset();
     },
   },
+
   [WIDGET.LIST]: {
     widgetName: "List",
     widgetPrefixName: "List1",
@@ -92,6 +94,7 @@ const widgetsToTest = {
       listwidgetAndReset();
     },
   },
+
   [WIDGET.RATING]: {
     widgetName: "Rating",
     widgetPrefixName: "Rating1",
@@ -100,6 +103,7 @@ const widgetsToTest = {
       ratingwidgetAndReset();
     },
   },
+
   [WIDGET.CHECKBOXGROUP]: {
     widgetName: "CheckboxGroup",
     widgetPrefixName: "CheckboxGroup1",
@@ -151,6 +155,32 @@ const widgetsToTest = {
     },
   },
 };
+
+function dragDropToCanvas(widgetType, { x, y }) {
+  const selector = `.t--widget-card-draggable-${widgetType}`;
+  cy.wait(500);
+  cy.get(selector)
+    .trigger("dragstart", { force: true })
+    .trigger("mousemove", x, y, { force: true });
+  cy.get(explorer.dropHere)
+    .trigger("mousemove", x, y, { eventConstructor: "MouseEvent" })
+    .trigger("mousemove", x, y, { eventConstructor: "MouseEvent" })
+    .trigger("mouseup", x, y, { eventConstructor: "MouseEvent" });
+}
+
+function PublishApp() {
+  // Stubbing window.open to open in the same tab
+  cy.window().then((window) => {
+    cy.stub(window, "open").callsFake((url) => {
+      window.location.href = Cypress.config().baseUrl + url.substring(1);
+      window.location.target = "_self";
+    });
+  });
+  cy.get(homePage.publishButton).click();
+  cy.wait("@publishApp");
+  cy.log("pagename: " + localStorage.getItem("PageName"));
+  cy.wait(1000); //wait time for page to load!
+}
 
 function chooseColMultiSelectAndReset() {
   cy.get(".rc-select-selection-overflow").click({ force: true });
@@ -215,7 +245,7 @@ function selectSwitchAndReset() {
   cy.get(".t--switch-widget-active").should("not.exist");
   cy.get("button:contains('Submit')").click({ force: true });
   cy.wait(1000);
-  cy.get(".t--toast-action span").contains("success");
+  //cy.get(".t--toast-action span").contains("success");
   cy.get(".t--switch-widget-active").should("be.visible");
 }
 
@@ -308,15 +338,19 @@ function ratingwidgetAndReset() {
 }
 
 function checkboxGroupAndReset() {
-  cy.get("input")
+  cy.wait(2000);
+  cy.get("[data-cy=checkbox-group-container] > :nth-child(3)")
     .last()
+    .should("be.visible")
     .click({ force: true });
-  cy.wait(3000);
+  cy.wait(2000);
   cy.get(commonlocators.textWidgetContainer).each((item, index, list) => {
     cy.wrap(item).should("contain.text", "RED");
   });
   cy.get("button:contains('Submit')").click({ force: true });
   cy.wait(1000);
+  cy.get("button:contains('Submit')").click({ force: true });
+  cy.wait(2000);
   cy.get(commonlocators.textWidgetContainer).each((item, index, list) => {
     cy.wrap(item).should("not.contain.text", "RED");
   });
@@ -355,32 +389,33 @@ function audioRecorderWidgetAndReset() {
 
 function phoneInputWidgetAndReset() {
   cy.get(".bp3-input").type("1234");
+  cy.wait(1000);
   cy.get(commonlocators.textWidgetContainer).each((item, index, list) => {
     cy.wrap(item).should("contain.text", "1234");
   });
   cy.get("button:contains('Submit')").click({ force: true });
   cy.wait(1000);
-  cy.get(".t--toast-action span").contains("success");
   cy.get(commonlocators.textWidgetContainer).each((item, index, list) => {
     cy.wrap(item).should("contain.text", "");
   });
 }
 
 function filePickerWidgetAndReset() {
-  cy.get(commonlocators.textWidgetContainer).each((item, index, list) => {
-    cy.wrap(item).should("contain.text", "false");
-  });
+  cy.wait(2000);
+  cy.get(".t--widget-filepickerwidgetv2").should("be.visible");
+  cy.wait(2000);
   cy.get(commonlocators.filePickerInput)
     .first()
     .attachFile("testFile.mov");
   //eslint-disable-next-line cypress/no-unnecessary-waiting
-  cy.wait(500);
+  cy.wait(1000);
   cy.get(commonlocators.textWidgetContainer).each((item, index, list) => {
     cy.wrap(item).should("contain.text", "true");
   });
   cy.get("button:contains('Submit')").click({ force: true });
   cy.wait(1000);
-  cy.get(".t--toast-action span").contains("success");
+  cy.get("button:contains('Submit')").click({ force: true });
+  cy.wait(2000);
   cy.get(commonlocators.textWidgetContainer).each((item, index, list) => {
     cy.wrap(item).should("contain.text", "false");
   });
@@ -394,13 +429,13 @@ Object.entries(widgetsToTest).forEach(([widgetSelector, testConfig]) => {
 
     it(`1. DragDrop Widget ${testConfig.widgetName}`, () => {
       cy.get(explorer.addWidget).click();
-      cy.dragAndDropToCanvas(widgetSelector, { x: 300, y: 200 });
+      dragDropToCanvas(widgetSelector, { x: 300, y: 200 });
       cy.get(getWidgetSelector(widgetSelector)).should("exist");
     });
 
     it("2. Bind Button on click  and Text widget content", () => {
       // Set onClick assertWidgetReset, storing value
-      cy.openPropertyPane(WIDGET.BUTTON_WIDGET);
+      cy.openPropertyPane(WIDGET.BUTTON);
 
       cy.get(PROPERTY_SELECTOR.onClick)
         .find(".t--js-toggle")
@@ -416,7 +451,7 @@ Object.entries(widgetsToTest).forEach(([widgetSelector, testConfig]) => {
 
     it("3. Publish the app and check the reset assertWidgetReset", () => {
       // Set onClick assertWidgetReset, storing value
-      cy.PublishtheApp();
+      PublishApp();
       testConfig.assertWidgetReset();
       cy.get(".t--toast-action span").contains("success");
     });

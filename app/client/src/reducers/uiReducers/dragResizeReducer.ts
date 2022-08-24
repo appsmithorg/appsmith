@@ -1,4 +1,5 @@
-import { createImmerReducer } from "utils/AppsmithUtils";
+import { areArraysEqual } from "utils/AppsmithUtils";
+import { createImmerReducer } from "utils/ReducerUtils";
 import {
   ReduxAction,
   ReduxActionTypes,
@@ -86,10 +87,12 @@ export const widgetDraggingReducer = createImmerReducer(initialState, {
       }
     } else {
       state.lastSelectedWidget = action.payload.widgetId;
-      if (action.payload.widgetId) {
-        state.selectedWidgets = [action.payload.widgetId];
-      } else {
+      if (!action.payload.widgetId) {
         state.selectedWidgets = [];
+      } else if (
+        !areArraysEqual(state.selectedWidgets, [action.payload.widgetId])
+      ) {
+        state.selectedWidgets = [action.payload.widgetId];
       }
     }
   },
@@ -109,7 +112,7 @@ export const widgetDraggingReducer = createImmerReducer(initialState, {
     action: ReduxAction<{ widgetIds?: string[] }>,
   ) => {
     const { widgetIds } = action.payload;
-    if (widgetIds) {
+    if (widgetIds && !areArraysEqual(widgetIds, state.selectedWidgets)) {
       state.selectedWidgets = widgetIds || [];
       if (widgetIds.length > 1) {
         state.lastSelectedWidget = "";
@@ -123,7 +126,7 @@ export const widgetDraggingReducer = createImmerReducer(initialState, {
     action: ReduxAction<{ widgetIds?: string[] }>,
   ) => {
     const { widgetIds } = action.payload;
-    if (widgetIds) {
+    if (widgetIds && !areArraysEqual(widgetIds, state.selectedWidgets)) {
       state.selectedWidgets = [...state.selectedWidgets, ...widgetIds];
     }
   },

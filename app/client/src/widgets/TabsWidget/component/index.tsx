@@ -10,7 +10,7 @@ import { MaybeElement } from "@blueprintjs/core";
 import { IconName } from "@blueprintjs/icons";
 import { ComponentProps } from "widgets/BaseComponent";
 import { TabsWidgetProps, TabContainerWidgetProps } from "../constants";
-import Icon, { IconSize } from "components/ads/Icon";
+import { Icon, IconSize } from "design-system";
 import { generateClassName, getCanvasClassName } from "utils/generators";
 import { Colors } from "constants/Colors";
 import PageTabs from "./PageTabs";

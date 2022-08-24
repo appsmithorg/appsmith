@@ -112,7 +112,10 @@ Cypress.Commands.add("shareApp", (email, role) => {
   cy.xpath(homePage.email)
     .click({ force: true })
     .type(email);
-  cy.xpath(homePage.selectRole).click({ force: true });
+  cy.xpath(homePage.selectRole).should("be.visible");
+  cy.xpath("//span[@name='expand-more']")
+    .last()
+    .click();
   cy.xpath(role).click({ force: true });
   cy.xpath(homePage.inviteBtn).click({ force: true });
   cy.wait("@mockPostInvite")

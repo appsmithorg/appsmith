@@ -29,7 +29,8 @@ export const VALID_FUNCTION_NAME_ERROR = () =>
   `Must be a valid variable name (camelCase)`;
 export const UNIQUE_NAME_ERROR = () => `Name must be unique`;
 export const NAME_SPACE_ERROR = () => `Name must not have spaces`;
-export const SPECIAL_CHARACTER_ERROR = () => `Name must be alphanumeric`;
+export const APLHANUMERIC_HYPHEN_SLASH_SPACE_ERROR = () =>
+  `Name must only contain alphanumeric characters, hyphen, slash, and space`;
 
 export const FORM_VALIDATION_EMPTY_EMAIL = () => `Please enter an email`;
 export const FORM_VALIDATION_INVALID_EMAIL = () =>
@@ -254,6 +255,16 @@ export const OAUTH_2_0 = () => "OAuth 2.0";
 export const ENABLE = () => "ENABLE";
 export const UPGRADE = () => "UPGRADE";
 export const EDIT = () => "EDIT";
+export const UNEXPECTED_ERROR = () => "An unexpected error occurred";
+export const EXPECTED_ERROR = () => "An error occurred";
+export const NO_DATASOURCE_FOR_QUERY = () =>
+  `Seems like you don’t have any Datasources to create a query`;
+export const ACTION_EDITOR_REFRESH = () => "Refresh";
+export const INVALID_FORM_CONFIGURATION = () => "Invalid form configuration";
+export const ACTION_RUN_BUTTON_MESSAGE_FIRST_HALF = () => "🙌 Click on";
+export const ACTION_RUN_BUTTON_MESSAGE_SECOND_HALF = () =>
+  "after adding your query";
+export const CREATE_NEW_DATASOURCE = () => "Create new datasource";
 
 export const ERROR_EVAL_ERROR_GENERIC = () =>
   `Unexpected error occurred while evaluating the application`;
@@ -913,6 +924,8 @@ export const API_EDITOR_TAB_TITLES = {
   AUTHENTICATION: () => "Authentication",
   SETTINGS: () => "Settings",
 };
+export const ACTION_EXECUTION_MESSAGE = (actionType: string) =>
+  `Sending the ${actionType} request`;
 
 export const WELCOME_FORM_HEADER = () => "Let us get to know you better!";
 export const WELCOME_FORM_FULL_NAME = () => "Full Name";
@@ -1012,6 +1025,8 @@ export const DEPRECATION_WIDGET_REPLACEMENT_MESSAGE = (
 export const LOCK_ENTITY_EXPLORER_MESSAGE = () => `Lock sidebar open`;
 export const CLOSE_ENTITY_EXPLORER_MESSAGE = () => `Close sidebar`;
 export const JS_TOGGLE_DISABLED_MESSAGE = "Clear the field to toggle back";
+export const PROPERTY_PANE_EMPTY_SEARCH_RESULT_MESSAGE =
+  "No Properties found based on your search";
 
 // API Pane
 export const API_PANE_NO_BODY = () => "This request does not have a body";
@@ -1193,3 +1208,5 @@ export const CLEAN_URL_UPDATE = {
   disclaimer: () =>
     "Existing references to <strong>appsmith.URL.fullpath</strong> and <strong>appsmith.URL.pathname</strong> properties will behave differently.",
 };
+
+export const MEMBERS_TAB_TITLE = (length: number) => `Users (${length})`;

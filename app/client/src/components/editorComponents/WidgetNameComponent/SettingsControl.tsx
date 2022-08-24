@@ -1,6 +1,6 @@
 import React, { CSSProperties } from "react";
 import { ControlIcons } from "icons/ControlIcons";
-import Icon, { IconSize } from "components/ads/Icon";
+import { Icon, IconSize } from "design-system";
 import { Colors } from "constants/Colors";
 import styled from "styled-components";
 import { Tooltip, Classes } from "@blueprintjs/core";

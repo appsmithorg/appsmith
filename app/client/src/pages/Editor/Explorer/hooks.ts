@@ -6,7 +6,7 @@ import {
   useCallback,
 } from "react";
 import { useSelector } from "react-redux";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import { compact, get, groupBy } from "lodash";
 import { Datasource } from "entities/Datasource";
 import { isStoredDatasource } from "entities/Action";
@@ -396,3 +396,21 @@ export function useActiveAction() {
     return saasMatch.params.apiId;
   }
 }
+
+export const useCloseMenuOnScroll = (
+  id: string,
+  open: boolean,
+  onClose: () => void,
+) => {
+  const scrollContainer = document.getElementById(id);
+
+  useEffect(() => {
+    if (open) {
+      scrollContainer?.addEventListener("scroll", onClose, true);
+    }
+
+    return () => {
+      scrollContainer?.removeEventListener("scroll", onClose);
+    };
+  }, [open]);
+};

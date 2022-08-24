@@ -245,6 +245,7 @@ Cypress.Commands.add("verifyUpdatedWidgetName", (text) => {
     .click({ force: true })
     .type(text, { delay: 300 })
     .type("{enter}");
+  cy.wait(500);
   cy.get(".t--widget-name").contains(text);
 });
 
@@ -495,7 +496,7 @@ Cypress.Commands.add("updateCodeInput", ($selector, value) => {
       input.focus();
       cy.wait(200);
       input.setValue(value);
-      cy.wait(200); //time for value to set
+      cy.wait(1000); //time for value to set
       //input.focus();
     });
 });
