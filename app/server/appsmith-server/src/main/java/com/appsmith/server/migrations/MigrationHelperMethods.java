@@ -62,7 +62,7 @@ public class MigrationHelperMethods {
         );
         // Reorder the pages based on edit mode page sequence
         List<String> pageOrderList;
-        if(!CollectionUtils.isNullOrEmpty(applicationJson.getPageOrder())) {
+        if (!CollectionUtils.isNullOrEmpty(applicationJson.getPageOrder())) {
             pageOrderList = applicationJson.getPageOrder();
         } else {
             pageOrderList = applicationJson.getPageList()
@@ -71,7 +71,7 @@ public class MigrationHelperMethods {
                     .map(newPage -> newPage.getUnpublishedPage().getName())
                     .collect(Collectors.toList());
         }
-        for(String pageName : pageOrderList) {
+        for (String pageName : pageOrderList) {
             ApplicationPage unpublishedAppPage = new ApplicationPage();
             unpublishedAppPage.setId(pageName);
             unpublishedAppPage.setIsDefault(StringUtils.equals(pageName, applicationJson.getUnpublishedDefaultPageName()));
@@ -80,7 +80,7 @@ public class MigrationHelperMethods {
 
         // Reorder the pages based on view mode page sequence
         pageOrderList.clear();
-        if(!CollectionUtils.isNullOrEmpty(applicationJson.getPublishedPageOrder())) {
+        if (!CollectionUtils.isNullOrEmpty(applicationJson.getPublishedPageOrder())) {
             pageOrderList = applicationJson.getPublishedPageOrder();
         } else {
             pageOrderList = applicationJson.getPageList()
@@ -89,7 +89,7 @@ public class MigrationHelperMethods {
                     .map(newPage -> newPage.getPublishedPage().getName())
                     .collect(Collectors.toList());
         }
-        for(String pageName : pageOrderList) {
+        for (String pageName : pageOrderList) {
             ApplicationPage publishedAppPage = new ApplicationPage();
             publishedAppPage.setId(pageName);
             publishedAppPage.setIsDefault(StringUtils.equals(pageName, applicationJson.getPublishedDefaultPageName()));
@@ -136,7 +136,7 @@ public class MigrationHelperMethods {
     // Method to embed userSetOnLoad in imported actions as per modified serialization format where we are serialising
     // JsonIgnored fields to keep the relevant data with domain objects only
     public static void updateUserSetOnLoadAction(ApplicationJson applicationJson) {
-        Map<String, InvisibleActionFields> invisibleActionFieldsMap = applicationJson.getInvisibleActionFields() ;
+        Map<String, InvisibleActionFields> invisibleActionFieldsMap = applicationJson.getInvisibleActionFields();
         if (invisibleActionFieldsMap != null) {
             applicationJson.getActionList().parallelStream().forEach(newAction -> {
                 if (newAction.getUnpublishedAction() != null) {

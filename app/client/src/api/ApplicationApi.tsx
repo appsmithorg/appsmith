@@ -127,10 +127,15 @@ export interface ApplicationObject {
   userPermissions: string[];
 }
 
-export interface UserRoles {
+export interface PermissionGroup {
+  permissionGroupId: string;
+  permissionGroupName: string;
+}
+
+export interface UserRoles extends PermissionGroup {
   name: string;
-  roleName: string;
   username: string;
+  userId: string;
 }
 
 export interface WorkspaceApplicationObject {
@@ -139,7 +144,7 @@ export interface WorkspaceApplicationObject {
     id: string;
     name: string;
   };
-  userRoles: Array<UserRoles>;
+  users: Array<UserRoles>;
 }
 export interface FetchUsersApplicationsWorkspacesResponse extends ApiResponse {
   data: {

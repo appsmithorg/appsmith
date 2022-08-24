@@ -75,8 +75,8 @@ export default function SharedUserList(props: any) {
       return workspace.id === props.workspaceId;
     });
 
-    const { userRoles } = workspace;
-    return userRoles || [];
+    const { users } = workspace;
+    return users || [];
   }, [userWorkspaces]);
   return (
     <UserImageContainer isMobile={isMobile}>

@@ -11,8 +11,8 @@ import {
   FormInputAnchor,
   FormInputErrorText,
   FormInfoText,
-  FormEncryptedSection,
-  EncryptedText,
+  FormSubtitleText,
+  FormEncrytedSection,
 } from "components/editorComponents/form/fields/StyledFormComponents";
 import { FormIcons } from "icons/FormIcons";
 import { FormControlProps } from "./FormControl";
@@ -155,14 +155,16 @@ function renderFormConfigTop(props: {
                       </RequiredFieldWrapper>
                     )}
                     {encrypted && (
-                      <FormEncryptedSection>
+                      <FormEncrytedSection>
                         <FormIcons.LOCK_ICON
                           height={12}
                           keepColors
                           width={12}
                         />
-                        <EncryptedText>Encrypted</EncryptedText>
-                      </FormEncryptedSection>
+                        <FormSubtitleText config={props.config}>
+                          Encrypted
+                        </FormSubtitleText>
+                      </FormEncrytedSection>
                     )}
                   </span>
                 </LabelWrapper>
