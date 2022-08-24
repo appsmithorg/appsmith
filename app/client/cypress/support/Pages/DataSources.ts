@@ -300,11 +300,14 @@ export class DataSources {
     this.agHelper.GetNClick(this._contextMenuDelete);
     this.agHelper.GetNClick(this._visibleTextSpan("Are you sure?"));
     this.agHelper.ValidateNetworkStatus("@deleteDatasource", expectedRes);
+    if (expectedRes == 200)
+      this.agHelper.AssertContains("datasource deleted successfully");
+    else this.agHelper.AssertContains("action(s) using it.");
   }
 
   public DeleteDatasouceFromWinthinDS(
     datasourceName: string,
-    expectedStatus = 200,
+    expectedRes = 200,
   ) {
     this.NavigateToActiveTab();
     cy.get(this._datasourceCard)
@@ -315,10 +318,10 @@ export class DataSources {
     this.agHelper.Sleep(2000); //for the Datasource page to open
     this.agHelper.ClickButton("Delete");
     this.agHelper.ClickButton("Are you sure?");
-    this.agHelper.ValidateNetworkStatus("@deleteDatasource", expectedStatus);
-    if (expectedStatus == 200) {
+    this.agHelper.ValidateNetworkStatus("@deleteDatasource", expectedRes);
+    if (expectedRes == 200)
       this.agHelper.AssertContains("datasource deleted successfully");
-    }
+    else this.agHelper.AssertContains("action(s) using it.");
   }
 
   public NavigateToActiveTab() {

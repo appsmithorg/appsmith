@@ -402,6 +402,7 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
       `null value in column "distance_to_go" violates not-null constraint`,
     );
     deployMode.EnterJSONInputValue("Distance To Go", "7.4");
+    agHelper.WaitUntilEleDisappear(locator._toastMsg); //for previous case toasts for next Update to be Success!!
 
     updateNVerify(8, 3, "");
   });
@@ -706,7 +707,7 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
   ) {
     agHelper.GetNClick(dataSources._generatePageBtn);
     agHelper.ValidateNetworkStatus("@replaceLayoutWithCRUDPage", 201);
-    agHelper.ValidateToastMessage("Successfully generated a page");
+    agHelper.AssertContains("Successfully generated a page");
     //agHelper.ValidateNetworkStatus("@getActions", 200);//Since failing sometimes
     agHelper.ValidateNetworkStatus("@postExecute", 200);
     agHelper.ValidateNetworkStatus("@updateLayout", 200);
