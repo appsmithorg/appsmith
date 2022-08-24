@@ -167,7 +167,7 @@ return Promise.all(allFuncs).then(() => showAlert("Wonderful! all apis executed"
     cy.get("div.CodeMirror").matchImageSnapshot("jsObjAfterPrettify1");
   });
 
-  it("2. TC 1916, 1917 : JSEditor validation for Prettify Code with no errors, triggered by menu option", () => {
+  it.only("2. TC 1916, 1917 : JSEditor validation for Prettify Code with no errors, triggered by menu option", () => {
     jsEditor.CreateJSObject(
       `export default {
 myFun1: () => {
@@ -254,18 +254,17 @@ myFun2: async () => {
         completeReplace: true,
         toRun: false,
         shouldCreateNewJSObj: true,
+        prettify: false,
       },
     );
 
-    cy.get("[name='expand-more']")
-      .eq(1)
-      .click({ force: true });
-
+    agHelper.GetNClick("[name='expand-more']", 1, true, 100);
     cy.get("div.CodeMirror")
       .wait(1000)
       .matchImageSnapshot("jsObjBeforePrettify3");
-    cy.get("div.CodeMirror").type("{shift+cmd+p}");
 
+    agHelper.WaitUntilEleDisappear(locator._toastMsg);
+    cy.get("div.CodeMirror").type("{shift+cmd+p}");
     cy.get("div.CodeMirror")
       .wait(1000)
       .matchImageSnapshot("jsObjAfterPrettify3");
@@ -314,41 +313,34 @@ myFun2: async () => {
         completeReplace: true,
         toRun: false,
         shouldCreateNewJSObj: true,
+        prettify: false,
       },
     );
 
-    cy.get("[name='expand-more']")
-      .eq(1)
-      .click({ force: true });
-
+    agHelper.GetNClick("[name='expand-more']", 1, true, 100);
+    agHelper.WaitUntilEleDisappear(locator._toastMsg);
     cy.get("div.CodeMirror").matchImageSnapshot("jsObjBeforePrettify4");
+
     cy.get("div.CodeMirror")
       .type("{shift+cmd+p}")
       .wait(1000);
-
     cy.get("div.CodeMirror").matchImageSnapshot("jsObjAfterPrettify4");
 
     // taking a snap after clicking inside the editor to make sure prettify has not reverted
-    agHelper.GetNClick("div.CodeMirror");
-
+    agHelper.GetNClick(jsEditor._lineinJsEditor(26));
     cy.get("div.CodeMirror").matchImageSnapshot("jsObjAfterPrettify4_1");
 
     // click run button and take a snap to make sure prettify did not revert
-    cy.contains("Run")
-      .click({ force: true })
-      .wait(3000); // allow time to run
+    agHelper.GetNClick(jsEditor._runButton);
+    agHelper.Sleep(); // allow time to run
     cy.get("div.CodeMirror").matchImageSnapshot("jsObjAfterPrettify4_1");
 
     // click dropdown to change function and make sure prettify has not reverted
     // click dropdown to change function and make sure prettify has not reverted
-    cy.get("[name='expand-more']")
-      .eq(0)
-      .click({ force: true });
-    cy.contains("myFun2")
-      .trigger("click")
-      .wait(1000);
+    agHelper.GetNClick("[name='expand-more']", 0, true, 100);
+    agHelper.ContainsNClick("myFun2");
     cy.get("div.CodeMirror").matchImageSnapshot("jsObjAfterPrettify4_1");
-    agHelper.WaitUntilToastDisappear("ran successfully");
+    agHelper.AssertContains("ran successfully");
   });
 
   it("5. TC 1862 - JSEditor validation for goLineStartSmart with no errors, triggered by keyboard shortcut", () => {
@@ -359,10 +351,7 @@ myFun2: async () => {
       shouldCreateNewJSObj: true,
     });
 
-    cy.get("[name='expand-more']")
-      .eq(1)
-      .click({ force: true });
-
+    agHelper.GetNClick("[name='expand-more']", 1, true, 100);
     cy.get("div.CodeMirror").matchImageSnapshot("jsObjBeforeGoLineStartSmart5");
 
     cy.get("div.CodeMirror").type("{cmd+leftArrow}");
