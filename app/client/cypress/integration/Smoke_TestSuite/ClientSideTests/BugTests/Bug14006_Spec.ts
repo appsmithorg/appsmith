@@ -1,6 +1,6 @@
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 
-let agHelper = ObjectsRegistry.AggregateHelper,
+const agHelper = ObjectsRegistry.AggregateHelper,
   locator = ObjectsRegistry.CommonLocators,
   apiPage = ObjectsRegistry.ApiPage,
   dataSources = ObjectsRegistry.DataSources;
@@ -10,16 +10,16 @@ let dsName: any;
 const largeResponseApiUrl = "https://api.publicapis.org/entries";
 //"https://jsonplaceholder.typicode.com/photos";//Commenting since this is faster sometimes & case is failing
 
-const ERROR_ACTION_EXECUTE_FAIL = (actionName: any) =>
-  `${actionName} action returned an error response`;
+export const ERROR_PLUGIN_ACTION_EXECUTE = (actionName: string) =>
+  `${actionName} failed to execute`;
 
 describe("Abort Action Execution", function() {
   it("1. Bug #14006 - Cancel Request button should abort API action execution", function() {
     apiPage.CreateAndFillApi(largeResponseApiUrl, "AbortApi", 0);
     apiPage.RunAPI(false, 0);
     agHelper.GetNClick(locator._cancelActionExecution, 0, true);
-    agHelper.AssertContains(ERROR_ACTION_EXECUTE_FAIL("AbortApi"));
-    agHelper.ActionContextMenuWithInPane("Delete", "Are you sure?")
+    agHelper.AssertContains(ERROR_PLUGIN_ACTION_EXECUTE("AbortApi"));
+    agHelper.ActionContextMenuWithInPane("Delete", "Are you sure?");
   });
 
   // Queries were resolving quicker than we could cancel them
@@ -37,8 +37,8 @@ describe("Abort Action Execution", function() {
       dataSources.SetQueryTimeout(0);
       dataSources.RunQuery(false, false, 0);
       agHelper.GetNClick(locator._cancelActionExecution, 0, true);
-      agHelper.AssertContains(ERROR_ACTION_EXECUTE_FAIL("AbortQuery"));
-      agHelper.ActionContextMenuWithInPane("Delete", "Are you sure?")
+      agHelper.AssertContains(ERROR_PLUGIN_ACTION_EXECUTE("AbortQuery"));
+      agHelper.ActionContextMenuWithInPane("Delete", "Are you sure?");
       dataSources.DeleteDatasouceFromWinthinDS(dsName);
     });
   });

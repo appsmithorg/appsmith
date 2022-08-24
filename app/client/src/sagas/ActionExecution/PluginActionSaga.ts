@@ -570,6 +570,10 @@ function* runActionSaga(
           show: false,
         },
       });
+      Toaster.show({
+        text: createMessage(ERROR_PLUGIN_ACTION_EXECUTE, actionObject.name),
+        variant: Variant.danger,
+      });
       return;
     }
     log.error(e);
