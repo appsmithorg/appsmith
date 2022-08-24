@@ -61,6 +61,10 @@ export default {
           value: ColumnTypes.TEXT,
         },
         {
+          label: "Switch",
+          value: ColumnTypes.SWITCH,
+        },
+        {
           label: "URL",
           value: ColumnTypes.URL,
         },
@@ -150,6 +154,7 @@ export default {
           ColumnTypes.VIDEO,
           ColumnTypes.URL,
           ColumnTypes.CHECKBOX,
+          ColumnTypes.SWITCH,
         ]);
       },
       dependencies: ["primaryColumns", "columnOrder"],

@@ -15,6 +15,7 @@ export default {
         ColumnTypes.NUMBER,
         ColumnTypes.URL,
         ColumnTypes.CHECKBOX,
+        ColumnTypes.SWITCH,
       ],
       true,
     );
@@ -26,7 +27,7 @@ export default {
       label: (props: TableWidgetProps, propertyPath: string) => {
         const basePropertyPath = getBasePropertyPath(propertyPath);
         const columnType = get(props, `${basePropertyPath}.columnType`);
-        return columnType === "checkbox"
+        return columnType === "checkbox" || columnType === "switch"
           ? "Horizontal Alignment"
           : "Text Align";
       },
@@ -67,6 +68,7 @@ export default {
           ColumnTypes.NUMBER,
           ColumnTypes.URL,
           ColumnTypes.CHECKBOX,
+          ColumnTypes.SWITCH,
         ]);
       },
     },
@@ -195,6 +197,7 @@ export default {
           ColumnTypes.URL,
           ColumnTypes.EDIT_ACTIONS,
           ColumnTypes.CHECKBOX,
+          ColumnTypes.SWITCH,
         ]);
       },
     },
@@ -251,6 +254,7 @@ export default {
           ColumnTypes.URL,
           ColumnTypes.EDIT_ACTIONS,
           ColumnTypes.CHECKBOX,
+          ColumnTypes.SWITCH,
         ]);
       },
     },

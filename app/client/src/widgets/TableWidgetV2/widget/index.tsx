@@ -71,6 +71,7 @@ import { IconButtonCell } from "../component/cellComponents/IconButtonCell";
 import { EditActionCell } from "../component/cellComponents/EditActionsCell";
 import { klona as clone } from "klona";
 import { CheckboxCell } from "../component/cellComponents/CheckboxCell";
+import { SwitchCell } from "../component/cellComponents/SwitchCell";
 
 const ReactTableComponent = lazy(() =>
   retryPromise(() => import("../component")),
@@ -1220,6 +1221,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
 
     const isColumnEditable =
       column.isEditable && isColumnTypeEditable(column.columnType);
+    const alias = props.cell.column.columnProperties.alias;
 
     switch (column.columnType) {
       case ColumnTypes.BUTTON:
@@ -1509,7 +1511,6 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
         );
 
       case ColumnTypes.CHECKBOX:
-        const alias = props.cell.column.columnProperties.alias;
         return (
           <CheckboxCell
             accentColor={this.props.accentColor}
@@ -1524,6 +1525,40 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
             isHidden={isHidden}
             onChange={() => {
               const row = filteredTableData[rowIndex];
+              const cellValue = !props.cell.value;
+
+              this.updateTransientTableData({
+                __original_index__: originalIndex,
+                [alias]: cellValue,
+              });
+
+              this.onColumnEvent({
+                rowIndex,
+                action: column.onCheckChange,
+                triggerPropertyName: "onCheckChange",
+                eventType: EventType.ON_CHECK_CHANGE,
+                row: {
+                  ...row,
+                  [alias]: cellValue,
+                },
+              });
+            }}
+            value={props.cell.value}
+            verticalAlignment={cellProperties.verticalAlignment}
+          />
+        );
+
+      case ColumnTypes.SWITCH:
+        return (
+          <SwitchCell
+            accentColor={this.props.accentColor}
+            cellBackground={cellProperties.cellBackground}
+            compactMode={compactMode}
+            horizontalAlignment={cellProperties.horizontalAlignment}
+            isCellVisible={cellProperties.isCellVisible ?? true}
+            isDisabled={!cellProperties.isCellEditable}
+            isHidden={isHidden}
+            onChange={() => {
               const cellValue = !props.cell.value;
 
               this.updateTransientTableData({
