@@ -25,12 +25,26 @@ import {
   createCanvasWidget,
   createLoadingWidget,
 } from "utils/widgetRenderUtils";
+import { FlattenedWidgetProps } from "./constants";
 
-const WIDGETS_WITH_CHILD_WIDGETS = [
-  "LIST_WIDGET",
-  "FORM_WIDGET",
-  "LIST_WIDGET_V2",
-];
+const WIDGETS_WITH_CHILD_WIDGETS = ["LIST_WIDGET", "FORM_WIDGET"];
+
+const getChildCanvasWidgets = (
+  state: AppState,
+  parentWidgetId: string,
+  childCanvasWidgets: Record<string, FlattenedWidgetProps> = {},
+) => {
+  const { canvasWidgets } = state.entities;
+
+  const parentWidget = canvasWidgets[parentWidgetId];
+  parentWidget.children?.forEach((childId) => {
+    childCanvasWidgets[childId] = canvasWidgets[childId];
+
+    getChildCanvasWidgets(state, childId, childCanvasWidgets);
+  });
+
+  return childCanvasWidgets;
+};
 
 function withWidgetProps(WrappedWidget: typeof BaseWidget) {
   function WrappedPropsComponent(
@@ -61,6 +75,12 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
     const childWidgets = useSelector((state: AppState) => {
       if (!WIDGETS_WITH_CHILD_WIDGETS.includes(type)) return undefined;
       return getChildWidgets(state, widgetId);
+    }, equal);
+
+    const childCanvasWidgets = useSelector((state: AppState) => {
+      if (type === "LIST_WIDGET_V2") {
+        return getChildCanvasWidgets(state, widgetId);
+      }
     }, equal);
 
     let widgetProps: WidgetProps = {} as WidgetProps;
@@ -114,6 +134,7 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
       widgetProps.metaWidgetChildrenStructure = metaWidgetChildrenStructure;
       widgetProps.isLoading = isLoading;
       widgetProps.childWidgets = childWidgets;
+      widgetProps.childCanvasWidgets = childCanvasWidgets;
     }
 
     //merging with original props
