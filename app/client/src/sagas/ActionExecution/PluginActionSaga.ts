@@ -561,6 +561,15 @@ function* runActionSaga(
     // When running from the pane, we just want to end the saga if the user has
     // cancelled the call. No need to log any errors
     if (e instanceof UserCancelledActionExecutionError) {
+      // cancel action but do not throw any error.
+      yield put({
+        type: ReduxActionErrorTypes.RUN_ACTION_ERROR,
+        payload: {
+          error: e.name,
+          id: reduxAction.payload.id,
+          show: false,
+        },
+      });
       return;
     }
     log.error(e);
@@ -910,14 +919,14 @@ function* executePluginActionSaga(
     params,
   );
 
-  const response: ActionExecutionResponse = yield ActionAPI.executeAction(
-    formData,
-    timeout,
-  );
-  PerformanceTracker.stopAsyncTracking(
-    PerformanceTransactionName.EXECUTE_ACTION,
-  );
   try {
+    const response: ActionExecutionResponse = yield ActionAPI.executeAction(
+      formData,
+      timeout,
+    );
+    PerformanceTracker.stopAsyncTracking(
+      PerformanceTransactionName.EXECUTE_ACTION,
+    );
     yield validateResponse(response);
     const payload = createActionExecutionResponse(response);
 
@@ -949,7 +958,11 @@ function* executePluginActionSaga(
         response: EMPTY_RESPONSE,
       }),
     );
-    throw new PluginActionExecutionError("Response not valid", false, response);
+    if (e instanceof UserCancelledActionExecutionError) {
+      throw new UserCancelledActionExecutionError();
+    }
+
+    throw new PluginActionExecutionError("Response not valid", false);
   }
 }
 
