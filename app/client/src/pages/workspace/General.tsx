@@ -35,6 +35,7 @@ const GeneralWrapper = styled.div<{
   width: ${(props) => (props.isPortrait ? "336px" : "383px")};
   margin: ${(props) =>
     props.isMobile ? (props.isPortrait ? "auto" : "120px") : null};
+  padding: 0 20px;
 `;
 
 const InputLabelWrapper = styled.div`

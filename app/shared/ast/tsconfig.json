@@ -32,6 +32,6 @@
     "baseUrl": "./src",
     "noFallthroughCasesInSwitch": true
   },
-  "include": ["./src/**/*", "index.d.ts"],
+  "include": ["./src/**/*", "index.d.ts", "index.ts"],
   "exclude": ["node_modules", "build"]
 }
