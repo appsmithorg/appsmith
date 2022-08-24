@@ -88,11 +88,11 @@ Cypress.Commands.add("selectDateFormat", (value) => {
 Cypress.Commands.add("selectDropdownValue", (element, value) => {
   cy.get(element)
     .last()
-    .click();
+    .click({force:true});
   cy.get(".t--dropdown-option")
     .children()
     .contains(value)
-    .click();
+    .click({force:true});
 });
 
 Cypress.Commands.add("assertDateFormat", () => {
