@@ -298,6 +298,7 @@ Cypress.Commands.add("CreateAppInFirstListedWorkspace", (appname) => {
   cy.get("#loading").should("not.exist");
   // eslint-disable-next-line cypress/no-unnecessary-waiting
   cy.wait(2000);
+  //cy.reload();
   cy.AppSetupForRename();
   cy.get(homePage.applicationName).type(appname + "{enter}");
   cy.wait("@updateApplication").should(

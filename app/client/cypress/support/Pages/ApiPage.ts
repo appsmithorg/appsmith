@@ -68,15 +68,15 @@ export class ApiPage {
   CreateAndFillApi(
     url: string,
     apiName = "",
+    queryTimeout = 10000,
     apiVerb: "GET" | "POST" | "PUT" | "DELETE" | "PATCH" = "GET",
-    queryTimeout = 30000,
   ) {
     this.CreateApi(apiName, apiVerb);
     this.EnterURL(url);
     this.agHelper.AssertAutoSave();
     //this.agHelper.Sleep(2000);// Added because api name edit takes some time to reflect in api sidebar after the call passes.
     cy.get(this._apiRunBtn).should("not.be.disabled");
-    this.SetAPITimeout(queryTimeout);
+    if (queryTimeout != 10000) this.SetAPITimeout(queryTimeout);
   }
 
   EnterURL(url: string) {
@@ -157,9 +157,10 @@ export class ApiPage {
     this.agHelper.AssertAutoSave();
   }
 
-  RunAPI() {
-    cy.get(this._apiRunBtn).click({ force: true });
-    this.agHelper.ValidateNetworkExecutionSuccess("@postExecute");
+  RunAPI(toValidateResponse = true, waitTimeInterval = 20) {
+    this.agHelper.GetNClick(this._apiRunBtn, 0, true, waitTimeInterval);
+    toValidateResponse &&
+      this.agHelper.ValidateNetworkExecutionSuccess("@postExecute");
   }
 
   SetAPITimeout(timeout: number) {
@@ -204,10 +205,7 @@ export class ApiPage {
       | "Authentication"
       | "Settings",
   ) {
-    cy.xpath(this._visibleTextSpan(tabName))
-      .should("be.visible")
-      .eq(0)
-      .click();
+    this.agHelper.GetNClick(this._visibleTextSpan(tabName));
   }
 
   SelectSubTab(
@@ -218,10 +216,7 @@ export class ApiPage {
       | "MULTIPART_FORM_DATA"
       | "RAW",
   ) {
-    cy.get(this._bodySubTab(subTabName))
-      .eq(0)
-      .should("be.visible")
-      .click();
+    this.agHelper.GetNClick(this._bodySubTab(subTabName));
   }
 
   ValidateQueryParams(param: { key: string; value: string }) {
