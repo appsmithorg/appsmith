@@ -9,7 +9,7 @@ import { useDispatch, useSelector } from "react-redux";
 import styled, { ThemeProvider } from "styled-components";
 import { useParams } from "react-router";
 import history from "utils/history";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import SearchModal from "./SearchModal";
 import AlgoliaSearchWrapper from "./AlgoliaSearchWrapper";
 import SearchBox from "./SearchBox";

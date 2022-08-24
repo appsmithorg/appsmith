@@ -24,7 +24,7 @@ import {
   reduxForm,
 } from "redux-form";
 import { isEmail, isStrongPassword } from "utils/formhelpers";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import { SUPER_USER_SUBMIT_PATH } from "@appsmith/constants/ApiConstants";
 import { useState } from "react";
 

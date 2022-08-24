@@ -18,7 +18,7 @@ import { convertArrayToSentence } from "utils/helpers";
 import { PluginType } from "entities/Action";
 import Callout from "components/ads/Callout";
 import { Variant } from "components/ads/common";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import {
   FormTitleContainer,
   Header,
