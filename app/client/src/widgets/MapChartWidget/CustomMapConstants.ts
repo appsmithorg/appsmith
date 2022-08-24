@@ -7,6 +7,7 @@ export const CUSTOM_MAP_PLUGINS: Record<string, any> = {
   asia: require(`fusionmaps/maps/fusioncharts.asia.js`),
   oceania: require(`fusionmaps/maps/fusioncharts.oceania.js`),
   africa: require(`fusionmaps/maps/fusioncharts.africa.js`),
+  usa: require(`fusionmaps/maps/fusioncharts.usa.js`),
 };
 
 export const CUSTOM_MAP_TYPES = Object.keys(CUSTOM_MAP_PLUGINS).map(
