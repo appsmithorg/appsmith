@@ -723,7 +723,7 @@ export const TreeSelectContainer = styled.div<{
         ${(props) =>
           props.isValid
             ? "var(--wds-color-border-hover)"
-            : "var(--wds-color-danger-hover)"};
+            : "var(--wds-color-border-danger-hover)"};
       }
     }
   }
@@ -733,7 +733,9 @@ export const TreeSelectContainer = styled.div<{
     padding-right: 42px;
     border: 1px solid
       ${(props) =>
-        props.isValid ? "var(--wds-color-border)" : "var(--wds-color-danger)"};
+        props.isValid
+          ? "var(--wds-color-border)"
+          : "var(--wds-color-border-danger)"};
     box-sizing: border-box;
     background: var(--wds-color-bg);
     border-radius: ${({ borderRadius }) => borderRadius};
@@ -922,9 +924,17 @@ export const TreeSelectContainer = styled.div<{
 
       & .clear-icon {
         width: 16px;
+        margin-right: 8px;
+
         svg {
           width: 16px;
           height: 16px;
+
+          fill: var(--wds-color-icon);
+
+          path {
+            fill: var(--wds-color-icon);
+          }
         }
       }
     }

@@ -109,7 +109,10 @@ export const StyledSingleDropDown = styled(SingleDropDown)<{
         ? "var(--wds-color-border-danger)"
         : "var(--wds-color-border)"};
     &:hover {
-      border-color: var(--wds-color-border-hover);
+      border-color: ${(props) =>
+        props.hasError
+          ? "var(--wds-color-border-danger-hover)"
+          : "var(--wds-color-border-hover)"};
     }
     &:focus {
       outline: 0;
