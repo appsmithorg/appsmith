@@ -67,6 +67,7 @@ class LayoutWrapperWidget extends ContainerWidget {
       <DropTargetComponent
         {...canvasProps}
         {...this.getSnapSpaces()}
+        direction={this.state.direction}
         minHeight={this.props.minHeight || CANVAS_DEFAULT_MIN_HEIGHT_PX}
       >
         {this.renderAsContainerComponent(canvasProps)}

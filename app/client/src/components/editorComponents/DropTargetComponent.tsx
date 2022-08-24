@@ -27,6 +27,7 @@ import {
 import { getOccupiedSpacesSelectorForContainer } from "selectors/editorSelectors";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 import { getDragDetails } from "sagas/selectors";
+import { LayoutDirection } from "components/constants";
 
 type DropTargetComponentProps = WidgetProps & {
   children?: ReactNode;
@@ -189,16 +190,19 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
   const wrapperClass = props.isWrapper
     ? `auto-layout-parent-${props.parentId} auto-layout-child-${props.widgetId}`
     : "";
+  const style: { [key: string]: string } = {
+    height,
+    boxShadow,
+  };
+  if (props.isWrapper && props.direction === LayoutDirection.Vertical)
+    style["width"] = "auto";
   return (
     <DropTargetContext.Provider value={contextValue}>
       <StyledDropTarget
         className={`t--drop-target ${wrapperClass}`}
         onClick={handleFocus}
         ref={dropTargetRef}
-        style={{
-          height,
-          boxShadow,
-        }}
+        style={style}
       >
         {props.children}
         {!(childWidgets && childWidgets.length) &&
