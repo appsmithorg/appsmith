@@ -30,8 +30,8 @@ describe("JSObjects OnLoad Actions tests", function() {
   it("2. Tc 54, 55 - Verify User enables only 'Before Function calling' & OnPage Load is Automatically enable after mapping done on JSOBject", function() {
     jsEditor.CreateJSObject(
       `export default {
-      getId: async () => {
-        return 8;
+      getEmployee: async () => {
+        return 2;
       }
     }`,
       {
@@ -41,34 +41,35 @@ describe("JSObjects OnLoad Actions tests", function() {
         shouldCreateNewJSObj: true,
       },
     );
-    jsEditor.EnableDisableAsyncFuncSettings("getId", false, true); //Only before calling confirmation is enabled by User here
+    jsEditor.EnableDisableAsyncFuncSettings("getEmployee", false, true); //Only before calling confirmation is enabled by User here
     dataSources.NavigateFromActiveDS(dsName, true);
     agHelper.GetNClick(dataSources._templateMenu);
-    agHelper.RenameWithInPane("GetUser");
+    agHelper.RenameWithInPane("GetEmployee");
     cy.get("@jsObjName").then((jsObjName) => {
       jsName = jsObjName;
       dataSources.EnterQuery(
-        "SELECT * FROM public.users where id = {{" +
+        "SELECT * FROM public.employees where employee_id = {{" +
           jsObjName +
-          ".getId.data}}",
+          ".getEmployee.data}}",
       );
       ee.SelectEntityByName("Table1", "WIDGETS");
-      propPane.UpdatePropertyFieldValue("Table Data", "{{GetUser.data}}");
+      propPane.UpdatePropertyFieldValue("Table Data", "{{GetEmployee.data}}");
       agHelper.ValidateToastMessage(
-        (("[" + jsName) as string) +
-          ".getId, GetUser] will be executed automatically on page load",
+        "[GetEmployee, " +
+          (jsName as string) +
+          ".getEmployee] will be executed automatically on page load",
       );
       deployMode.DeployApp();
       agHelper.AssertElementVisible(jsEditor._dialog("Confirmation Dialog"));
       agHelper.AssertElementVisible(
-        jsEditor._dialogBody((jsName as string) + ".getId"),
+        jsEditor._dialogBody((jsName as string) + ".getEmployee"),
       );
       agHelper.ClickButton("Yes");
       agHelper.Sleep(1000);
     });
     agHelper.ValidateNetworkExecutionSuccess("@postExecute");
     table.ReadTableRowColumnData(0, 0).then((cellData) => {
-      expect(cellData).to.be.equal("8");
+      expect(cellData).to.be.equal("2");
     });
     deployMode.NavigateBacktoEditor();
   });
@@ -76,37 +77,43 @@ describe("JSObjects OnLoad Actions tests", function() {
   it("3. Tc 54, 55 - Verify OnPage Load - auto enabled from above case for JSOBject", function() {
     agHelper.AssertElementVisible(jsEditor._dialog("Confirmation Dialog"));
     agHelper.AssertElementVisible(
-      jsEditor._dialogBody((jsName as string) + ".getId"),
+      jsEditor._dialogBody((jsName as string) + ".getEmployee"),
     );
     agHelper.ClickButton("Yes");
     //agHelper.Sleep(1000);
-    agHelper.ValidateToastMessage("getId ran successfully"); //Verify this toast comes in EDIT page only
+    agHelper.ValidateToastMessage("getEmployee ran successfully"); //Verify this toast comes in EDIT page only
     ee.SelectEntityByName(jsName as string, "QUERIES/JS");
-    jsEditor.VerifyAsyncFuncSettings("getId", true, true);
+    jsEditor.VerifyAsyncFuncSettings("getEmployee", true, true);
   });
 
   it("4. Verify Error for OnPage Load - disable & Before Function calling enabled for JSOBject", function() {
     ee.SelectEntityByName(jsName as string, "QUERIES/JS");
-    jsEditor.EnableDisableAsyncFuncSettings("getId", false, true);
+    jsEditor.EnableDisableAsyncFuncSettings("getEmployee", false, true);
     deployMode.DeployApp(locator._widgetInDeployed("tablewidget"), false);
-    agHelper.WaitUntilToastDisappear('The action "GetUser" has failed');
+    agHelper.WaitUntilToastDisappear('The action "GetEmployee" has failed');
     deployMode.NavigateBacktoEditor();
-    agHelper.WaitUntilToastDisappear('The action "GetUser" has failed');
+    agHelper.WaitUntilToastDisappear('The action "GetEmployee" has failed');
   });
 
   it("5. Tc 53 - Verify OnPage Load - Enabling back & Before Function calling disabled for JSOBject", function() {
     ee.SelectEntityByName(jsName as string, "QUERIES/JS");
-    jsEditor.EnableDisableAsyncFuncSettings("getId", true, false);
+    jsEditor.EnableDisableAsyncFuncSettings("getEmployee", true, false);
+    agHelper.Sleep(2000); //to allow for changes to take effect!
+    agHelper.RefreshPage(); //For bug #
+    cy.wait("@jsCollections").then(({ response }) => {
+      expect(response?.body.data.actions[0].executeOnLoad).to.eq(true);
+      expect(response?.body.data.actions[0].confirmBeforeExecute).to.eq(false);
+    });
     deployMode.DeployApp();
     agHelper.AssertElementAbsence(jsEditor._dialog("Confirmation Dialog"));
     agHelper.AssertElementAbsence(
-      jsEditor._dialogBody((jsName as string) + ".getId"),
+      jsEditor._dialogBody((jsName as string) + ".getEmployee"),
     );
     // assert that on view mode, we don't get "successful run" toast message for onpageload actions
     agHelper.AssertElementAbsence(locator._toastMsg);
     agHelper.ValidateNetworkExecutionSuccess("@postExecute");
     table.ReadTableRowColumnData(0, 0).then((cellData) => {
-      expect(cellData).to.be.equal("8");
+      expect(cellData).to.be.equal("2");
     });
     deployMode.NavigateBacktoEditor();
   });
@@ -114,32 +121,32 @@ describe("JSObjects OnLoad Actions tests", function() {
   it("6. Tc 55 - Verify OnPage Load - Enabling & Before Function calling Enabling for JSOBject", function() {
     ee.ExpandCollapseEntity("QUERIES/JS");
     ee.SelectEntityByName(jsName as string);
-    jsEditor.EnableDisableAsyncFuncSettings("getId", true, true);
+    jsEditor.EnableDisableAsyncFuncSettings("getEmployee", true, true);
     deployMode.DeployApp();
     agHelper.AssertElementVisible(jsEditor._dialog("Confirmation Dialog"));
     agHelper.AssertElementVisible(
-      jsEditor._dialogBody((jsName as string) + ".getId"),
+      jsEditor._dialogBody((jsName as string) + ".getEmployee"),
     );
     agHelper.ClickButton("Yes");
     agHelper.AssertElementAbsence(locator._toastMsg);
     table.ReadTableRowColumnData(0, 0, 2000).then((cellData) => {
-      expect(cellData).to.be.equal("8");
+      expect(cellData).to.be.equal("2");
     });
     //agHelper.ValidateNetworkExecutionSuccess("@postExecute");
     deployMode.NavigateBacktoEditor();
     agHelper.AssertElementVisible(jsEditor._dialog("Confirmation Dialog"));
     agHelper.AssertElementVisible(
-      jsEditor._dialogBody((jsName as string) + ".getId"),
+      jsEditor._dialogBody((jsName as string) + ".getEmployee"),
     );
     agHelper.ClickButton("Yes");
-    agHelper.ValidateToastMessage("getId ran successfully"); //Verify this toast comes in EDIT page only
+    agHelper.ValidateToastMessage("getEmployee ran successfully"); //Verify this toast comes in EDIT page only
   });
 
   it("7. Tc 56 - Verify OnPage Load - Enabled & Before Function calling Enabled for JSOBject & User clicks No in Confirmation dialog", function() {
     deployMode.DeployApp();
     agHelper.AssertElementVisible(jsEditor._dialog("Confirmation Dialog"));
     agHelper.AssertElementVisible(
-      jsEditor._dialogBody((jsName as string) + ".getId"),
+      jsEditor._dialogBody((jsName as string) + ".getEmployee"),
     );
     agHelper.ClickButton("No");
     agHelper.ValidateToastMessage("Failed to execute actions during page load"); //When Confirmation is NO
@@ -147,21 +154,21 @@ describe("JSObjects OnLoad Actions tests", function() {
     agHelper.RefreshPage();
     agHelper.AssertElementVisible(jsEditor._dialog("Confirmation Dialog"));
     agHelper.AssertElementVisible(
-      jsEditor._dialogBody((jsName as string) + ".getId"),
+      jsEditor._dialogBody((jsName as string) + ".getEmployee"),
     );
     agHelper.ClickButton("Yes");
     agHelper.AssertElementAbsence(locator._toastMsg);
     agHelper.ValidateNetworkExecutionSuccess("@postExecute");
     table.ReadTableRowColumnData(0, 0).then((cellData) => {
-      expect(cellData).to.be.equal("8");
+      expect(cellData).to.be.equal("2");
     });
     deployMode.NavigateBacktoEditor();
     agHelper.AssertElementVisible(jsEditor._dialog("Confirmation Dialog"));
     agHelper.AssertElementVisible(
-      jsEditor._dialogBody((jsName as string) + ".getId"),
+      jsEditor._dialogBody((jsName as string) + ".getEmployee"),
     );
     agHelper.ClickButton("Yes");
-    agHelper.ValidateToastMessage("getId ran successfully"); //Verify this toast comes in EDIT page only
+    agHelper.ValidateToastMessage("getEmployee ran successfully"); //Verify this toast comes in EDIT page only
 
     ee.SelectEntityByName(jsName as string, "QUERIES/JS");
     ee.ActionContextMenuByEntityName(
@@ -171,7 +178,7 @@ describe("JSObjects OnLoad Actions tests", function() {
       true,
     );
 
-    ee.ActionContextMenuByEntityName("GetUser", "Delete", "Are you sure?");
+    ee.ActionContextMenuByEntityName("GetEmployee", "Delete", "Are you sure?");
   });
 
   it("8. Tc 51, 52 Verify that JS editor function has a settings button available for functions marked async", () => {
@@ -234,12 +241,14 @@ describe("JSObjects OnLoad Actions tests", function() {
     apiPage.CreateAndFillApi(
       "https://api.forismatic.com/api/1.0/?method=getQuote&lang=en&format=json",
       "Quotes",
+      30000,
     );
     apiPage.ToggleConfirmBeforeRunningApi(true);
 
     apiPage.CreateAndFillApi(
       "https://api.whatdoestrumpthink.com/api/v1/quotes/random",
       "WhatTrumpThinks",
+      30000,
     );
     apiPage.ToggleConfirmBeforeRunningApi(true);
 
@@ -368,7 +377,7 @@ describe("JSObjects OnLoad Actions tests", function() {
     agHelper.ValidateToastMessage("Failed to execute actions during page load");
 
     ee.ExpandCollapseEntity("QUERIES/JS");
-    apiPage.CreateAndFillApi("https://catfact.ninja/fact", "CatFacts");
+    apiPage.CreateAndFillApi("https://catfact.ninja/fact", "CatFacts", 30000);
     apiPage.ToggleOnPageLoadRun(true);
     apiPage.ToggleConfirmBeforeRunningApi(true);
 
@@ -410,6 +419,7 @@ describe("JSObjects OnLoad Actions tests", function() {
     apiPage.CreateAndFillApi(
       "https://anapioficeandfire.com/api/books/{{this.params.id}}",
       "getBooks",
+      30000,
     );
     //apiPage.OnPageLoadRun(true); //OnPageLoad made true after mapping to JSONForm
     apiPage.ToggleConfirmBeforeRunningApi(true);

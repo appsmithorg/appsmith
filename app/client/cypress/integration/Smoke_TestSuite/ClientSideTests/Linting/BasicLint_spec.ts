@@ -76,9 +76,7 @@ describe("Linting", () => {
 
     // create Api1
     apiPage.CreateAndFillApi(
-      "https://jsonplaceholder.typicode.com/",
-      "",
-      "GET",
+      "https://jsonplaceholder.typicode.com/"
     );
 
     clickButtonAndAssertLintError(false);
@@ -91,9 +89,7 @@ describe("Linting", () => {
 
     // Re-create Api1
     apiPage.CreateAndFillApi(
-      "https://jsonplaceholder.typicode.com/",
-      "",
-      "GET",
+      "https://jsonplaceholder.typicode.com/"
     );
 
     clickButtonAndAssertLintError(false);
@@ -277,9 +273,7 @@ describe("Linting", () => {
       },
     );
     apiPage.CreateAndFillApi(
-      "https://jsonplaceholder.typicode.com/",
-      "Api1",
-      "GET",
+      "https://jsonplaceholder.typicode.com/"
     );
 
     createMySQLDatasourceQuery();
