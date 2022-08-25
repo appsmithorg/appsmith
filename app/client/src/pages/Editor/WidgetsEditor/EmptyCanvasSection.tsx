@@ -1,8 +1,8 @@
 import React from "react";
 import styled from "styled-components";
-import Database2LineIcon from "remixicon-react/Database2LineIcon";
-import Layout2LineIcon from "remixicon-react/Layout2LineIcon";
-import { Text, TextType, IconWrapper } from "design-system";
+import { ReactComponent as Layout } from "assets/images/layout.svg";
+import { ReactComponent as Database } from "assets/images/database.svg";
+import { Text, TextType } from "design-system";
 import { Colors } from "constants/Colors";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -85,9 +85,7 @@ function CanvasTopSection() {
   return (
     <Wrapper>
       <Card data-cy="start-from-template" onClick={showTemplatesModal}>
-        <IconWrapper>
-          <Layout2LineIcon />
-        </IconWrapper>
+        <Layout />
         <Content>
           <Text color={Colors.COD_GRAY} type={TextType.P1}>
             {createMessage(TEMPLATE_CARD_TITLE)}
@@ -101,9 +99,7 @@ function CanvasTopSection() {
         data-cy="generate-app"
         onClick={() => goToGenPageForm({ applicationSlug, pageSlug, pageId })}
       >
-        <IconWrapper>
-          <Database2LineIcon />
-        </IconWrapper>
+        <Database />
         <Content>
           <Text color={Colors.COD_GRAY} type={TextType.P1}>
             {createMessage(GENERATE_PAGE)}
