@@ -209,10 +209,9 @@ class TernServer {
       return this.showError(cm, "No suggestions");
     }
     const doc = this.findDoc(cm.getDoc());
+    const lineValue = this.lineValue(doc);
     const cursor = cm.getCursor();
-    const { extraChars, value: focusedValue } = this.getFocusedDocValueAndPos(
-      doc,
-    );
+    const { extraChars } = this.getFocusedDocValueAndPos(doc);
 
     let completions: Completion[] = [];
     let after = "";
@@ -234,14 +233,6 @@ class TernServer {
     ) {
       after = '"]';
     }
-    // Actual char space
-    const trimmedFocusedValueLength = focusedValue.trim().length;
-    // end.ch counts tab space as 1 instead of 2 space chars in string
-    // For eg: lets take string `  ab`. Here, end.ch = 3 & trimmedFocusedValueLength = 2
-    // hence tabSpacesCount = end.ch - trimmedFocusedValueLength
-    const tabSpacesCount = end.ch - trimmedFocusedValueLength;
-    const cursorHorizontalPos =
-      tabSpacesCount * 2 + trimmedFocusedValueLength - 2;
 
     for (let i = 0; i < data.completions.length; ++i) {
       const completion = data.completions[i];
@@ -270,6 +261,19 @@ class TernServer {
           element.setAttribute("keyword", data.displayText);
           element.innerHTML = data.displayText;
         };
+
+        const trimmedFocusedValueLength = lineValue.substring(0, end.ch).trim()
+          .length;
+
+        /**
+         * end.ch counts tab space as 1 instead of 2 space chars in string
+         * For eg: lets take string `  ab`. Here, end.ch = 3 & trimmedFocusedValueLength = 2
+         * hence tabSpacesCount = end.ch - trimmedFocusedValueLength
+         */
+        const tabSpacesCount = end.ch - trimmedFocusedValueLength;
+        const cursorHorizontalPos =
+          tabSpacesCount * 2 + trimmedFocusedValueLength - 2;
+
         // Add relevant keyword completions
         const keywordCompletions = getCompletionsForKeyword(
           codeMirrorCompletion,
