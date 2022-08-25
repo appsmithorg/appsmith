@@ -31,7 +31,6 @@ const SettingsWrapper = styled.div<{
 }>`
   width: ${(props) => (props.isMobile ? "345px" : "916px")};
   margin: 0 auto;
-  overflow-y: auto;
   height: 100%;
   &::-webkit-scrollbar {
     width: 0px;
