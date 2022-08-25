@@ -1,4 +1,3 @@
-import { EEXIST } from "constants";
 import { WIDGET } from "../../../../locators/WidgetLocators";
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 
