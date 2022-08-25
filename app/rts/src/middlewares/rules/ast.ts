@@ -1,10 +1,15 @@
 import { body } from "express-validator";
 
-const getScriptValidator = () =>
-  body("script")
-    .isString()
-    .withMessage("Script is required and can only be a string");
+export default class AstValidator {
+  static getScriptValidator = () =>
+    body("script")
+      .isString()
+      .withMessage("Script is required and can only be a string");
 
-export default {
-  getScriptValidator,
-};
+  static getMultipleScriptValidator = () =>
+    body("scripts")
+      .isArray({
+        min: 1,
+      })
+      .withMessage("Multiple scripts are required");
+}

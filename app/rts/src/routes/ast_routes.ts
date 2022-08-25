@@ -6,9 +6,15 @@ const router = express.Router();
 const astController = new AstController();
 
 router.post(
-  "/get-identifiers",
+  "/single-script-identifiers",
   AstRules.getScriptValidator(),
   astController.getDependentIdentifiers
+);
+
+router.post(
+  "/multiple-script-identifiers",
+  AstRules.getMultipleScriptValidator(),
+  astController.getMultipleDependentIdentifiers
 );
 
 export default router;
