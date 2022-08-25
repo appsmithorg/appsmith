@@ -564,7 +564,6 @@ class TernServer {
     let extraChars = 0;
 
     const stringSegments = getDynamicStringSegments(value);
-    console.log("$$$-stringSegments", stringSegments);
     if (stringSegments.length === 1) {
       return {
         value,
