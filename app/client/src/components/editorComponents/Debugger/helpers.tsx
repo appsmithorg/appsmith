@@ -60,7 +60,7 @@ export enum DEBUGGER_TAB_KEYS {
 
 export const SeverityIcon: Record<Severity, string> = {
   [Severity.INFO]: "success",
-  [Severity.ERROR]: "error",
+  [Severity.ERROR]: "close-circle",
   [Severity.WARNING]: "warning",
 };
 

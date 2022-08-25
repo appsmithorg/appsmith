@@ -282,7 +282,15 @@ function LogItem(props: LogItemProps) {
           onClick={() => setIsOpen(!isOpen)}
           size={IconSize.XXXXL}
         />
-        <Icon keepColors name={props.icon} size={IconSize.XL} />
+        <Icon
+          fillColor={
+            props.severity === Severity.ERROR
+              ? get(theme, "colors.debugger.error.hoverIconColor")
+              : ""
+          }
+          name={props.icon}
+          size={IconSize.XL}
+        />
         <span className="debugger-time">{props.timestamp}</span>
         <div className="debugger-description">
           {!(
