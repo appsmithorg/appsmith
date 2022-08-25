@@ -340,7 +340,8 @@ class CodeEditor extends Component<Props, State> {
         if (this.props.cursorPosition) {
           editor.focus();
           setTimeout(() => {
-            editor.setCursor(this.props.cursorPosition);
+            this.props.cursorPosition &&
+              editor.setCursor(this.props.cursorPosition);
           }, 0);
         }
       }.bind(this);
@@ -965,7 +966,7 @@ class CodeEditor extends Component<Props, State> {
   }
 }
 
-const mapStateToProps = (state: AppState, props: Props): any => ({
+const mapStateToProps = (state: AppState, props: EditorProps) => ({
   dynamicData: getDataTreeForAutocomplete(state),
   datasources: state.entities.datasources,
   pluginIdToImageLocation: getPluginIdToImageLocation(state),
