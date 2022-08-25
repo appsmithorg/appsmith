@@ -180,6 +180,8 @@ function* formValueChangeSaga(
   const plugins: Plugin[] = yield select(getPlugins);
   const uiComponent = getUIComponent(values.pluginId, plugins);
 
+  // Editing form fields triggers evaluations.
+  // We pass the action to run form evaluations when the dataTree evaluation is complete
   const postEvalActions =
     uiComponent === UIComponentTypes.UQIDbEditorForm
       ? [

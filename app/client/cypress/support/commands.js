@@ -1372,6 +1372,7 @@ Cypress.Commands.add(
 // we would be getting the form controls by their class names and not their xpaths.
 // the xpath method is flaky and highly subjected to change.
 Cypress.Commands.add("typeValueNValidate", (valueToType, fieldName = "") => {
+  cy.wait(2000);
   if (fieldName) {
     cy.get(fieldName).then(($field) => {
       cy.updateCodeInput($field, valueToType);
