@@ -1,3 +1,4 @@
+import { Colors } from "constants/Colors";
 import { invisible, theme } from "constants/DefaultTheme";
 import { WIDGET_PADDING } from "constants/WidgetConstants";
 import styled, { css } from "styled-components";
@@ -23,12 +24,28 @@ const ResizeIndicatorStyle = css<{
     width: 6px;
     height: 6px;
     border-radius: 50%;
-    background: ${(props) =>
-      props.showLightBorder
-        ? theme.colors.widgetLightBorder
-        : theme.colors.widgetBorder};
-    top: calc(50% - 2px);
-    left: calc(50% - 2px);
+    border: 1px solid
+      ${(props) =>
+        props.showLightBorder
+          ? theme.colors.widgetLightBorder
+          : theme.colors.widgetBorder};
+    background-color: ${Colors.WHITE};
+    top: calc(50% - 2.5px);
+    left: calc(50% - 2.5px);
+  }
+`;
+
+export const HoverStylesRound = css<{
+  showLightBorder: boolean;
+}>`
+  &:hover {
+    &::after {
+      box-shadow: 0 0 0px 4px
+        ${(props) =>
+          props.showLightBorder
+            ? theme.colors.widgetLightBorder
+            : theme.colors.widgetBorder + "80"};
+    }
   }
 `;
 
@@ -51,6 +68,7 @@ export const EdgeHandleStyles = css<{
     content: "";
   }
   ${(props) => (!props.showAsBorder ? ResizeIndicatorStyle : "")}
+  ${(props) => (!props.showAsBorder ? HoverStylesRound : "")}
 `;
 
 export const VerticalHandleStyles = css<{

@@ -220,6 +220,9 @@ export const Colors = {
   ENTERPRISE_LIGHT: "#E8F5FA",
 
   NOTIFICATION_BANNER_ERROR_TEXT: "#C91818",
+
+  CORNFLOWER_BLUE: "#553DE9",
+  CORNFLOWER_BLUE_2: "#3A24BF",
 };
 
 export type Color = typeof Colors[keyof typeof Colors];

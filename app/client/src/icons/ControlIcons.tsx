@@ -34,8 +34,6 @@ import { ReactComponent as VerticalAlignBottom } from "assets/icons/control/vert
 import { ReactComponent as VerticalAlignCenter } from "assets/icons/control/vertical_align_center.svg";
 import { ReactComponent as VerticalAlignTop } from "assets/icons/control/vertical_align_top.svg";
 import { ReactComponent as Copy2Icon } from "assets/icons/control/copy2.svg";
-import { ReactComponent as CutIcon } from "assets/icons/control/cut.svg";
-import { ReactComponent as GroupIcon } from "assets/icons/control/group.svg";
 import { ReactComponent as HeadingOneIcon } from "assets/icons/control/heading_1.svg";
 import { ReactComponent as HeadingTwoIcon } from "assets/icons/control/heading_2.svg";
 import { ReactComponent as HeadingThreeIcon } from "assets/icons/control/heading_3.svg";
@@ -65,6 +63,8 @@ import SettingsIcon from "remixicon-react/Settings5LineIcon";
 import EyeIcon from "remixicon-react/EyeLineIcon";
 import EyeOffIcon from "remixicon-react/EyeOffLineIcon";
 import CloseIcon from "remixicon-react/CloseLineIcon";
+import CutIcon2 from "remixicon-react/ScissorsLineIcon";
+import GroupIcon from "remixicon-react/PictureInPictureLineIcon";
 
 /* eslint-disable react/display-name */
 
@@ -277,7 +277,7 @@ export const ControlIcons: {
   ),
   CUT_CONTROL: (props: IconProps) => (
     <IconWrapper {...props}>
-      <CutIcon />
+      <CutIcon2 />
     </IconWrapper>
   ),
   GROUP_CONTROL: (props: IconProps) => (

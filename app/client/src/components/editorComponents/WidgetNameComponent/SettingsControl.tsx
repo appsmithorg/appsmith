@@ -21,7 +21,6 @@ const StyledTooltip = styled(Tooltip)`
 const SettingsWrapper = styled.div`
   justify-self: flex-end;
   height: 100%;
-  padding: 0 10px;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -33,12 +32,11 @@ const SettingsWrapper = styled.div`
       line-height: ${(props) => props.theme.fontSizes[3] - 1}px;
     }
   }
-  border-radius: 2px;
 `;
 
 const WidgetName = styled.span`
-  margin-right: ${(props) => props.theme.spaces[1] + 1}px;
-  margin-left: ${(props) => props.theme.spaces[3]}px;
+  margin-right: ${(props) => props.theme.spaces[1]}px;
+  margin-left: ${(props) => props.theme.spaces[1]}px;
   white-space: nowrap;
 `;
 
@@ -61,7 +59,6 @@ type SettingsControlProps = {
 };
 
 const BindDataIcon = ControlIcons.BIND_DATA_CONTROL;
-const SettingsIcon = ControlIcons.SETTINGS_CONTROL;
 
 const getStyles = (
   activity: Activities,
@@ -83,17 +80,17 @@ const getStyles = (
   switch (activity) {
     case Activities.ACTIVE:
       return {
-        background: Colors.JAFFA_DARK,
+        background: Colors.CORNFLOWER_BLUE,
         color: Colors.WHITE,
       };
     case Activities.HOVERING:
       return {
-        background: Colors.WATUSI,
-        color: Colors.BLACK_PEARL,
+        background: "transparent",
+        color: Colors.CORNFLOWER_BLUE,
       };
     case Activities.SELECTED:
       return {
-        background: Colors.JAFFA_DARK,
+        background: Colors.CORNFLOWER_BLUE,
         color: Colors.WHITE,
       };
   }
@@ -101,19 +98,6 @@ const getStyles = (
 
 export function SettingsControl(props: SettingsControlProps) {
   const isSnipingMode = useSelector(snipingModeSelector);
-  const settingsIcon = (
-    <SettingsIcon
-      color={
-        !!props.errorCount
-          ? Colors.WHITE
-          : props.activity === Activities.HOVERING
-          ? Colors.BLACK_PEARL
-          : Colors.WHITE
-      }
-      height={14}
-      width={12}
-    />
-  );
   const errorIcon = (
     <StyledErrorIcon
       fillColor={Colors.WHITE}
@@ -150,7 +134,6 @@ export function SettingsControl(props: SettingsControlProps) {
         <WidgetName className="t--widget-name">
           {isSnipingMode ? `Bind to ${props.name}` : props.name}
         </WidgetName>
-        {!isSnipingMode && settingsIcon}
       </SettingsWrapper>
     </StyledTooltip>
   );

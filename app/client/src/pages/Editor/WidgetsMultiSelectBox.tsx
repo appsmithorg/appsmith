@@ -25,6 +25,7 @@ import { AppState } from "@appsmith/reducers";
 import { useWidgetDragResize } from "utils/hooks/dragResizeHooks";
 import { getBoundariesFromSelectedWidgets } from "sagas/WidgetOperationUtils";
 import { CONTAINER_GRID_PADDING } from "constants/WidgetConstants";
+import { Colors } from "constants/Colors";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
 const StyledSelectionBox = styled.div`
@@ -39,12 +40,11 @@ const StyledActionsContainer = styled.div`
 `;
 
 const StyledActions = styled.div`
-  left: calc(100% - 38px);
-  padding: 5px 0;
+  left: calc(100% - 28px);
   width: max-content;
   z-index: ${Layers.contextMenu};
   position: absolute;
-  background-color: ${(props) => props.theme.colors.appBackground};
+  background-color: ${Colors.CORNFLOWER_BLUE};
 `;
 
 const StyledAction = styled.button`
@@ -54,12 +54,12 @@ const StyledAction = styled.button`
   display: flex;
   align-items: center;
   justify-content: center;
-  margin: 0 5px;
   outline: none;
   border: none;
   background: transparent;
   z-index: ${Layers.contextMenu};
   position: relative;
+  padding: 4px;
 
   &:hover,
   &:active,
@@ -127,7 +127,7 @@ export const PopoverModifiers: IPopoverSharedProps["modifiers"] = {
   },
 };
 
-const CopyIcon = ControlIcons.COPY2_CONTROL;
+const CopyIcon = ControlIcons.COPY_CONTROL;
 const DeleteIcon = FormIcons.DELETE_ICON;
 const CutIcon = ControlIcons.CUT_CONTROL;
 const GroupIcon = ControlIcons.GROUP_CONTROL;
@@ -352,7 +352,7 @@ function WidgetsMultiSelectBox(props: {
               onClick={stopEventPropagation}
               onClickCapture={onCopySelectedWidgets}
             >
-              <CopyIcon color="black" height={16} width={16} />
+              <CopyIcon color="white" height={16} width={16} />
             </StyledAction>
           </Tooltip>
           {/* cut widgets */}
@@ -367,7 +367,7 @@ function WidgetsMultiSelectBox(props: {
               onClick={stopEventPropagation}
               onClickCapture={onCutSelectedWidgets}
             >
-              <CutIcon color="black" height={16} width={16} />
+              <CutIcon color="white" height={16} width={16} />
             </StyledAction>
           </Tooltip>
           {/* delete widgets */}
@@ -382,7 +382,7 @@ function WidgetsMultiSelectBox(props: {
               onClick={stopEventPropagation}
               onClickCapture={onDeleteSelectedWidgets}
             >
-              <DeleteIcon color="black" height={16} width={16} />
+              <DeleteIcon color="white" height={16} width={16} />
             </StyledAction>
           </Tooltip>
           {/* group widgets */}
@@ -397,7 +397,7 @@ function WidgetsMultiSelectBox(props: {
               onClick={stopEventPropagation}
               onClickCapture={onGroupWidgets}
             >
-              <GroupIcon color="black" height={16} width={16} />
+              <GroupIcon color="white" height={16} width={16} />
             </StyledAction>
           </Tooltip>
         </StyledActions>
