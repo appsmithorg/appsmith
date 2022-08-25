@@ -203,13 +203,15 @@ describe("DataTreeEvaluator", () => {
 
   describe("parseJsActions", () => {
     beforeEach(() => {
-      dataTreeEvaluator.createFirstTree({});
+      dataTreeEvaluator.createFirstTree({ Api1: asyncTagUnevalTree.Api1 });
     });
     it("set's isAsync tag for cross JsObject references", () => {
       const result = parseJSActions(dataTreeEvaluator, asyncTagUnevalTree);
+
       expect(
         result.jsUpdates["JSObject1"]?.parsedBody?.actions[0].isAsync,
       ).toBe(true);
+
       expect(
         result.jsUpdates["JSObject2"]?.parsedBody?.actions[0].isAsync,
       ).toBe(true);

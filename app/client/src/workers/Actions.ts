@@ -1,7 +1,12 @@
 /* eslint-disable @typescript-eslint/ban-types */
 import { DataTree, DataTreeEntity } from "entities/DataTree/dataTreeFactory";
 import _ from "lodash";
-import { isAction, isAppsmithEntity, isTrueObject } from "./evaluationUtils";
+import {
+  isAction,
+  isAppsmithEntity,
+  isJSAction,
+  isTrueObject,
+} from "./evaluationUtils";
 import {
   ActionDescription,
   ActionTriggerType,
@@ -339,6 +344,18 @@ export const getAllAsyncActionsInDataTree = (dataTree: DataTree) => {
       _.set(asyncActionCollection, name, true);
     }
   });
+
+  Object.entries(dataTree).forEach(([entityName, entity]) => {
+    if (isJSAction(entity)) {
+      const functionCollection = entity.meta;
+      Object.entries(functionCollection).forEach(([funcName, metaArgs]) => {
+        if (metaArgs.isAsync) {
+          _.set(asyncActionCollection, [entityName, funcName], true);
+        }
+      });
+    }
+  });
+
   return asyncActionCollection;
 };
 

@@ -255,6 +255,9 @@ export function parseJSActions(
     parsedBody.actions = parsedBody.actions.map((action) => {
       const start = performance.now();
       const isAsync = isFunctionAsync(action.body, asyncActionCollection);
+
+      set(asyncActionCollection, [entityName, action.name], isAsync);
+
       const logString = `isFunctionAsync determination of ${
         action.name
       } took ${(performance.now() - start).toFixed(4)} ms and it is ${

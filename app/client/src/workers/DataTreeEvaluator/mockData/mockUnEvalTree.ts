@@ -396,44 +396,6 @@ export const asyncTagUnevalTree: DataTree = {
     logBlackList: {},
     datasourceUrl: "",
   },
-  JSObject1: {
-    name: "JSObject1",
-    actionId: "627217a38a368d6f1efcd0d8",
-    pluginType: PluginType.JS,
-    ENTITY_TYPE: ENTITY_TYPE.JSACTION,
-    body:
-      "export default { \n\tmyFun1: () => {\n\t\treturn JSObject2.callApi();\n\t},\n}",
-    meta: {
-      myFun1: {
-        arguments: [],
-        isAsync: false,
-        confirmBeforeExecute: false,
-      },
-    },
-    bindingPaths: {
-      body: EvaluationSubstitutionType.SMART_SUBSTITUTE,
-      myFun1: EvaluationSubstitutionType.SMART_SUBSTITUTE,
-    },
-    reactivePaths: {
-      body: EvaluationSubstitutionType.SMART_SUBSTITUTE,
-      myFun1: EvaluationSubstitutionType.SMART_SUBSTITUTE,
-    },
-    dynamicBindingPathList: [
-      {
-        key: "body",
-      },
-      {
-        key: "myFun1",
-      },
-    ],
-    variables: [],
-    dependencyMap: {
-      body: ["myFun1"],
-    },
-    myFun1: {
-      data: {},
-    },
-  },
   JSObject2: {
     name: "JSObject2",
     actionId: "627babc60b47255c28138865",
@@ -469,6 +431,44 @@ export const asyncTagUnevalTree: DataTree = {
       body: ["callApi"],
     },
     callApi: {
+      data: {},
+    },
+  },
+  JSObject1: {
+    name: "JSObject1",
+    actionId: "627217a38a368d6f1efcd0d8",
+    pluginType: PluginType.JS,
+    ENTITY_TYPE: ENTITY_TYPE.JSACTION,
+    body:
+      "export default { \n\tmyFun1: () => {\n\t\treturn JSObject2.callApi();\n\t},\n}",
+    meta: {
+      myFun1: {
+        arguments: [],
+        isAsync: false,
+        confirmBeforeExecute: false,
+      },
+    },
+    bindingPaths: {
+      body: EvaluationSubstitutionType.SMART_SUBSTITUTE,
+      myFun1: EvaluationSubstitutionType.SMART_SUBSTITUTE,
+    },
+    reactivePaths: {
+      body: EvaluationSubstitutionType.SMART_SUBSTITUTE,
+      myFun1: EvaluationSubstitutionType.SMART_SUBSTITUTE,
+    },
+    dynamicBindingPathList: [
+      {
+        key: "body",
+      },
+      {
+        key: "myFun1",
+      },
+    ],
+    variables: [],
+    dependencyMap: {
+      body: ["myFun1"],
+    },
+    myFun1: {
       data: {},
     },
   },
