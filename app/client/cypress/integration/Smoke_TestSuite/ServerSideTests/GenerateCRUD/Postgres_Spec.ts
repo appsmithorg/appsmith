@@ -402,7 +402,7 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
       `null value in column "distance_to_go" violates not-null constraint`,
     );
     deployMode.EnterJSONInputValue("Distance To Go", "7.4");
-    agHelper.WaitUntilEleDisappear(locator._toastMsg); //for previous case toasts for next Update to be Success!!
+    agHelper.WaitUntilAllToastsDisappear(); //for previous case toasts for next Update to be Success!!
 
     updateNVerify(8, 3, "");
   });

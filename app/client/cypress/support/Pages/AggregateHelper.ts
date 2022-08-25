@@ -185,15 +185,30 @@ export class AggregateHelper {
       () => (selector.includes("//") ? cy.xpath(selector) : cy.get(selector)),
       {
         //errorMsg: msgToCheckforDisappearance + " did not disappear",
-        timeout: 10000,
+        timeout: 20000,
         interval: 1000,
       },
     ).then(($ele) => {
       cy.wrap($ele)
         //.contains(msgToCheckforDisappearance)
         .should("have.length", 0);
-      this.Sleep();
+      this.Sleep(500);
     });
+  }
+
+  public WaitUntilAllToastsDisappear() {
+    cy.get(this.locator._toastConatiner).waitUntil(
+      ($ele) =>
+        cy
+          .wrap($ele)
+          .children()
+          .should("have.length", 0),
+      {
+        errorMsg: "Toasts did not disappear even after 10 seconds",
+        timeout: 10000,
+        interval: 1000,
+      },
+    );
   }
 
   public WaitUntilEleAppear(selector: string) {
@@ -808,7 +823,10 @@ export class AggregateHelper {
     locator.focus();
   }
 
-  public AssertContains(text: string, exists: "exist" | "not.exist" = "exist") {
+  public AssertContains(
+    text: string | RegExp,
+    exists: "exist" | "not.exist" = "exist",
+  ) {
     return cy.contains(text).should(exists);
   }
 

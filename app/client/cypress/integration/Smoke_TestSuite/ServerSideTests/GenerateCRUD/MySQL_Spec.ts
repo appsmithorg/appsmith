@@ -455,7 +455,7 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
     agHelper.AssertContains("Column 'store_id' cannot be null");
     agHelper.AssertContains("error response");
 
-    agHelper.WaitUntilEleDisappear(locator._toastMsg);
+    agHelper.WaitUntilAllToastsDisappear();
     deployMode.EnterJSONInputValue("Store Id", "2106");
     deployMode.EnterJSONInputValue("Name", "Keokuk Spirits", 1);
     cy.xpath(deployMode._jsonFormRadioFieldByName("Store Status"))

@@ -181,10 +181,11 @@ describe("JS Function Execution", function() {
         completeReplace: true,
         toRun: false,
         shouldCreateNewJSObj: true,
+        toWriteAfterToastsDisappear : true
       });
-      agHelper.WaitUntilToastDisappear("created successfully"); //to not hinder with other toast msgs in this case!
+
       // Assert presence of toast message
-      agHelper.WaitUntilToastDisappear(invalidJSObjectStartToastMessage);
+      agHelper.AssertContains(invalidJSObjectStartToastMessage);
 
       // Assert presence of lint error at the start line
       agHelper.GetNAssertElementText(
@@ -193,10 +194,8 @@ describe("JS Function Execution", function() {
         "contain.text", -1
       );
       agHelper.ActionContextMenuWithInPane("Delete", "", true);
-      agHelper.WaitUntilToastDisappear("deleted successfully");
     };
 
-    agHelper.WaitUntilEleDisappear(locator._toastMsg); //for previous case toasts!!
     assertInvalidJSObjectStart(jsObjectStartingWithAComment, jsComment);
     assertInvalidJSObjectStart(jsObjectStartingWithANewLine, jsObjectStartLine);
     assertInvalidJSObjectStart(
@@ -328,9 +327,7 @@ describe("JS Function Execution", function() {
   it("7. Doesn't cause cyclic dependency when function name is edited", () => {
     const syncJSCode = `export default {
       myFun1 :()=>{
-        return "yes"
-      }
-    }`;
+        return "yes"`;
 
     const syncJSCodeWithRenamedFunction1 = `export default {
       myFun2 :()=>{
@@ -346,9 +343,7 @@ describe("JS Function Execution", function() {
 
     const asyncJSCode = `export default {
       myFun1 :async ()=>{
-        return "yes"
-      }
-    }`;
+        return "yes"`;
 
     const asyncJSCodeWithRenamedFunction1 = `export default {
       myFun2 :async ()=>{

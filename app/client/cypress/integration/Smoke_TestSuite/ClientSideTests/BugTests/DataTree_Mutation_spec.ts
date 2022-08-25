@@ -4,6 +4,7 @@ const {
   AggregateHelper: agHelper,
   ApiPage,
   JSEditor: jsEditor,
+  CommonLocators : locator
 } = ObjectsRegistry;
 
 const jsObjectBody = `export default {
@@ -26,14 +27,16 @@ describe("Data mutation tests", () => {
       shouldCreateNewJSObj: true,
     });
 
-    agHelper.GetNClick(jsEditor._runButton);
-
     // verify that response string has __ in the start
-    agHelper.ValidateToastMessage("mutateValue ran successfully");
-    cy.contains(/^__[a-zA-Z]+/).should("exist");
+    agHelper.GetNClick(jsEditor._runButton);
+    agHelper.AssertContains("mutateValue ran successfully");
+    agHelper.AssertContains(/^__[a-zA-Z]+/, "exist");
 
-    // verify that response string has __ in the start and not more "__" got appended
+    agHelper.WaitUntilAllToastsDisappear();
+
+    // verify that response string has __ in the start and not more "__" got appended during 2nd run
+    agHelper.GetNClick(jsEditor._runButton);
     agHelper.ValidateToastMessage("mutateValue ran successfully");
-    cy.contains(/^__[a-zA-Z]+/).should("exist");
+    agHelper.AssertContains(/^__[a-zA-Z]+/, "exist");
   });
 });

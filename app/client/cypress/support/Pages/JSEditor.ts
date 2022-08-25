@@ -7,6 +7,7 @@ export interface ICreateJSObjectOptions {
   shouldCreateNewJSObj: boolean;
   lineNumber?: number;
   prettify?: boolean;
+  toWriteAfterToastsDisappear?: boolean;
 }
 const DEFAULT_CREATE_JS_OBJECT_OPTIONS = {
   paste: true,
@@ -14,6 +15,8 @@ const DEFAULT_CREATE_JS_OBJECT_OPTIONS = {
   toRun: true,
   shouldCreateNewJSObj: true,
   lineNumber: 4,
+  prettify: true,
+  toWriteAfterToastsDisappear: false,
 };
 
 export class JSEditor {
@@ -131,6 +134,7 @@ export class JSEditor {
       prettify = true,
       shouldCreateNewJSObj,
       toRun,
+      toWriteAfterToastsDisappear = false,
     } = options;
 
     shouldCreateNewJSObj && this.NavigateToNewJSEditor();
@@ -146,9 +150,11 @@ export class JSEditor {
         .focus()
         .type(this.selectAllJSObjectContentShortcut)
         .type("{backspace}", { force: true });
-      this.agHelper.AssertContains("Start object with export default");
       this.agHelper.AssertAutoSave();
+      this.agHelper.AssertContains("Start object with export default");
     }
+
+    toWriteAfterToastsDisappear && this.agHelper.WaitUntilAllToastsDisappear();
 
     cy.get(this.locator._codeMirrorTextArea)
       .first()
