@@ -27,6 +27,7 @@ export class CommonLocators {
     _newPage = ".pages .t--entity-add-btn"
     _toastMsg = "div.t--toast-action"
     _toastConatiner = "div.Toastify__toast-container"
+    _specificToast = (toastText: string) => this._toastMsg + ":contains('" + toastText + "')"
     _empty = "span[name='no-response']"
     _contextMenuInPane = "span[name='context-menu']"
     _contextMenuSubItemDiv = (item: string) => "//div[text()='" + item + "'][contains(@class, 'bp3-fill')]"
