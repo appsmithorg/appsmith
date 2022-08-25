@@ -329,10 +329,16 @@ class ListWidget extends BaseWidget<
         canvasChildrenIds.push(metaWidgetId);
       });
 
-      if (mainCanvasId && !this.currentViewMetaWidgetsRef.has(mainCanvasId)) {
+      // Experimental change, original commented below
+      if (mainCanvasId) {
         generatedMetaWidgets[mainCanvasId] = this.mainCanvasMetaWidget();
         generatedMetaWidgets[mainCanvasId].children = canvasChildrenIds;
       }
+
+      // if (mainCanvasId && !this.currentViewMetaWidgetsRef.has(mainCanvasId)) {
+      //   generatedMetaWidgets[mainCanvasId] = this.mainCanvasMetaWidget();
+      //   generatedMetaWidgets[mainCanvasId].children = canvasChildrenIds;
+      // }
 
       return generatedMetaWidgets;
     }
