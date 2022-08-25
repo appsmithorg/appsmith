@@ -594,14 +594,16 @@ const NAVIGATE_TO_TAB_OPTIONS = {
 };
 
 const isValueValidURL = (value: string) => {
-  const indices = [];
-  for (let i = 0; i < value.length; i++) {
-    if (value[i] === "'") {
-      indices.push(i);
+  if (value) {
+    const indices = [];
+    for (let i = 0; i < value.length; i++) {
+      if (value[i] === "'") {
+        indices.push(i);
+      }
     }
+    const str = value.substring(indices[0], indices[1] + 1);
+    return isValidURL(str);
   }
-  const str = value.substring(indices[0], indices[1] + 1);
-  return isValidURL(str);
 };
 
 const ActionCreator = React.forwardRef(
