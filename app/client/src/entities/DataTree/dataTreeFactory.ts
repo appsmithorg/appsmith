@@ -207,7 +207,7 @@ export class DataTreeFactory {
     } as DataTreeAppsmith;
     (dataTree.appsmith as DataTreeAppsmith).ENTITY_TYPE = ENTITY_TYPE.APPSMITH;
 
-    const startPseudoWidgets = performance.now();
+    const startMetaCanvasWidgets = performance.now();
 
     Object.values(metaCanvasWidgets).forEach((widget) => {
       dataTree[widget.widgetName] = generateDataTreeWidget(
@@ -215,7 +215,7 @@ export class DataTreeFactory {
         widgetsMeta[widget.widgetId],
       );
     });
-    const endPseudoWidgets = performance.now();
+    const endMetaCanvasWidgets = performance.now();
 
     const end = performance.now();
 
@@ -224,7 +224,7 @@ export class DataTreeFactory {
       widgets: endWidgets - startWidgets,
       actions: endActions - startActions,
       jsActions: endJsActions - startJsActions,
-      pseudoWidgets: endPseudoWidgets - startPseudoWidgets,
+      metaCanvasWidgets: endMetaCanvasWidgets - startMetaCanvasWidgets,
     };
 
     log.debug("### Create unevalTree timing", out);
