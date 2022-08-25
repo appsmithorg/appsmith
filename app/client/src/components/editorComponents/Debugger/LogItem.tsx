@@ -170,7 +170,7 @@ const Wrapper = styled.div<{ collapsed: boolean }>`
 const StyledSearchIcon = styled(AppIcon)`
   && {
     margin-left: 10px;
-    padding-top: 1px;
+    padding-top: 3px;
   }
 `;
 
@@ -204,6 +204,18 @@ const MessageWrapper = styled.div`
   padding-top: ${(props) => props.theme.spaces[1]}px;
 `;
 
+const showToggleIcon = (e: Log) => {
+  let output = !!e.state || !!e.messages;
+  if (!output && e.logData && e.logData.length > 0) {
+    e.logData.forEach((item) => {
+      if (typeof item === "object") {
+        output = true;
+      }
+    });
+  }
+  return output;
+};
+
 export const getLogItemProps = (e: Log) => {
   return {
     icon: getLogIcon(e) as IconName,
@@ -218,10 +230,12 @@ export const getLogItemProps = (e: Log) => {
     state: e.state,
     id: e.source ? e.source.id : undefined,
     messages: e.messages,
+    collapsable: showToggleIcon(e),
   };
 };
 
 type LogItemProps = {
+  collapsable?: boolean;
   icon: IconName;
   timestamp: string;
   label: string;
@@ -249,17 +263,6 @@ function LogItem(props: LogItemProps) {
     },
     collapsed: 1,
   };
-  const showToggleIcon = () => {
-    let output = !!props.state || !!props.messages;
-    if (!output && props.logData && props.logData.length > 0) {
-      props.logData.forEach((item) => {
-        if (typeof item === "object") {
-          output = true;
-        }
-      });
-    }
-    return output;
-  };
   // The error to sent to the contextual menu
   const errorToSearch =
     props.messages && props.messages.length
@@ -267,25 +270,28 @@ function LogItem(props: LogItemProps) {
       : { message: props.text };
 
   const messages = props.messages || [];
+  const { collapsable } = props;
   const theme = useTheme();
   return (
     <Wrapper
       className={props.severity}
       collapsed={!isOpen}
       onClick={() => {
-        if (showToggleIcon()) setIsOpen(!isOpen);
+        if (collapsable) setIsOpen(!isOpen);
       }}
     >
       <InnerWrapper>
         <Icon
           className={`${Classes.ICON} debugger-toggle`}
+          clickable={collapsable}
           fillColor={get(theme, "colors.debugger.jsonIcon")}
-          invisible={!showToggleIcon()}
+          invisible={!collapsable}
           name={"expand-more"}
           onClick={() => setIsOpen(!isOpen)}
           size={IconSize.XXXXL}
         />
         <Icon
+          clickable={collapsable}
           fillColor={
             props.severity === Severity.ERROR
               ? get(theme, "colors.debugger.error.hoverIconColor")
@@ -336,7 +342,7 @@ function LogItem(props: LogItemProps) {
         )}
       </InnerWrapper>
 
-      {showToggleIcon() && isOpen && (
+      {collapsable && isOpen && (
         <StyledCollapse isOpen={isOpen} keepChildrenMounted>
           {messages.map((e) => {
             return (
