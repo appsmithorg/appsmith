@@ -4,7 +4,7 @@ import { useParams } from "react-router";
 import { connect, useDispatch } from "react-redux";
 import { formValueSelector, InjectedFormProps, reduxForm } from "redux-form";
 import _ from "lodash";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import { BASE_URL } from "constants/routes";
 import { REDIRECT_URL_FORM, ENTITYID_URL_FORM } from "constants/forms";
 import { getSettingsSavingState } from "selectors/settingsSelectors";
