@@ -98,7 +98,7 @@ function MainContainer() {
           className={classNames({
             [`absolute ${tailwindLayers.appSettingsPane} right-0`]: true,
             "translate-x-full": !isAppSettingsPaneOpen,
-            "transition-all transform duration-400": true,
+            "transition-all duration-400": true, // check transform
           })}
         >
           <AppSettingsPaneHeader />

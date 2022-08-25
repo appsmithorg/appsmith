@@ -1,5 +1,5 @@
 import { useDispatch, useSelector } from "react-redux";
-import { useHistory, useParams } from "react-router-dom";
+import { useHistory } from "react-router-dom";
 import { noop } from "lodash";
 
 import { Variant } from "components/ads/common";
@@ -10,7 +10,6 @@ import { APPLICATIONS_URL } from "constants/routes";
 
 import { MenuItemData, MenuTypes } from "./NavigationMenuItem";
 import { useCallback } from "react";
-import { ExplorerURLParams } from "../Explorer/helpers";
 import { getExportAppAPIRoute } from "@appsmith/constants/ApiConstants";
 
 import {
@@ -31,9 +30,9 @@ import {
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 import { redoAction, undoAction } from "actions/pageActions";
 import { redoShortCut, undoShortCut } from "utils/helpers";
-import { pageListEditorURL } from "RouteBuilder";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { selectFeatureFlags } from "selectors/usersSelectors";
+import { openAppSettingsPaneAction } from "actions/appSettingsPaneActions";
 
 type NavigationMenuDataProps = ThemeProp & {
   editMode: typeof noop;
@@ -48,7 +47,6 @@ export const GetNavigationMenuData = ({
 }: NavigationMenuDataProps): MenuItemData[] => {
   const dispatch = useDispatch();
   const history = useHistory();
-  const params = useParams<ExplorerURLParams>();
 
   const isGitConnected = useSelector(getIsGitConnected);
 
@@ -79,6 +77,8 @@ export const GetNavigationMenuData = ({
       window.open(link, "_blank");
     }
   }, []);
+
+  const openAppSettingsPane = () => dispatch(openAppSettingsPaneAction());
 
   const deleteApplication = () => {
     if (applicationId && applicationId.length > 0) {
@@ -158,19 +158,15 @@ export const GetNavigationMenuData = ({
       ],
     },
     {
-      text: "Pages",
-      onClick: () => {
-        history.push(pageListEditorURL({ pageId: params.pageId }));
-      },
+      text: "Settings",
+      onClick: openAppSettingsPane,
       type: MenuTypes.MENU,
       isVisible: true,
     },
     {
-      text: "Deploy",
-      type: MenuTypes.PARENT,
+      text: "Shortcuts",
+      type: MenuTypes.MENU,
       isVisible: true,
-      children: deployOptions,
-      className: "t--app-name-menu-deploy-parent",
     },
     {
       text: "Help",

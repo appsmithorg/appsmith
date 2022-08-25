@@ -109,11 +109,6 @@ export function PageContextMenu(props: {
       label: createMessage(CONTEXT_CLONE),
     },
     {
-      value: "settings",
-      onSelect: openAppSettingsPane,
-      label: createMessage(CONTEXT_SETTINGS),
-    },
-    {
       value: "visibility",
       onSelect: setHiddenField,
       // Possibly support ReactNode in TreeOption
@@ -132,6 +127,12 @@ export function PageContextMenu(props: {
       label: createMessage(CONTEXT_SET_AS_HOME_PAGE),
     });
   }
+
+  optionTree.push({
+    value: "settings",
+    onSelect: openAppSettingsPane,
+    label: createMessage(CONTEXT_SETTINGS),
+  });
 
   if (!props.isDefaultPage) {
     optionTree.push({
