@@ -26,6 +26,8 @@ describe("Data mutation tests", () => {
       shouldCreateNewJSObj: true,
     });
 
+    // Wait for the js object to be created
+    cy.wait(5000);
     agHelper.GetNClick(jsEditor._runButton);
 
     // verify that response string has __ in the start
