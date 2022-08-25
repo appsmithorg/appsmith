@@ -6,7 +6,14 @@ import FilterHeader from "./FilterHeader";
 import { BlankState } from "./helpers";
 import LogItem, { getLogItemProps } from "./LogItem";
 import { usePagination, useFilteredLogs } from "./hooks/debuggerHooks";
-import { createMessage, NO_LOGS } from "@appsmith/constants/messages";
+import {
+  createMessage,
+  LOGS_FILTER_OPTION_ALL,
+  LOGS_FILTER_OPTION_CONSOLE,
+  LOGS_FILTER_OPTION_ERROR,
+  LOGS_FILTER_OPTION_SYSTEM,
+  NO_LOGS,
+} from "@appsmith/constants/messages";
 import { useSelector } from "react-redux";
 import { getCurrentUser } from "selectors/usersSelectors";
 import bootIntercom from "utils/bootIntercom";
@@ -34,22 +41,22 @@ type Props = {
 
 const LOGS_FILTER_OPTIONS = (theme: DefaultTheme) => [
   {
-    label: "All",
+    label: LOGS_FILTER_OPTION_ALL(),
     value: "",
   },
   {
-    label: "Errors",
+    label: LOGS_FILTER_OPTION_ERROR(),
     value: Severity.ERROR,
     icon: "close-circle" as IconName,
     iconColor: get(theme, "colors.debugger.error.hoverIconColor"),
   },
   {
-    label: "Console logs",
+    label: LOGS_FILTER_OPTION_CONSOLE(),
     value: LOG_CATEGORY.USER_GENERATED,
     icon: "user-2" as IconName,
   },
   {
-    label: "System logs",
+    label: LOGS_FILTER_OPTION_SYSTEM(),
     value: LOG_CATEGORY.PLATFORM_GENERATED,
     icon: "desktop" as IconName,
   },

@@ -339,6 +339,10 @@ export const PRESS = () => "🎉 Press ";
 export const OPEN_THE_DEBUGGER = () => " to show/hide the debugger";
 export const DEBUGGER_QUERY_RESPONSE_SECOND_HALF = () =>
   " to see more info in the debugger";
+export const LOGS_FILTER_OPTION_ALL = () => "Show All Logs";
+export const LOGS_FILTER_OPTION_ERROR = () => "Error Logs";
+export const LOGS_FILTER_OPTION_CONSOLE = () => "Console Logs";
+export const LOGS_FILTER_OPTION_SYSTEM = () => "System Logs";
 export const NO_LOGS = () => "No logs to show";
 export const NO_ERRORS = () => "No signs of trouble here!";
 export const DEBUGGER_ERRORS = () => "Errors";
