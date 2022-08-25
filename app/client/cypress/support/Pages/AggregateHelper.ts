@@ -844,7 +844,6 @@ export class AggregateHelper {
     return cy
       .contains(text)
       .should(exists)
-      .should("have.length", 1);
   }
 
   public GetNAssertContains(
