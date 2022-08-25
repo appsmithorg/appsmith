@@ -18,6 +18,7 @@ const jsObjectBody = `export default {
 describe("Data mutation tests", () => {
   it("1. #14699 Mutate Api response and verify it doesn't use previous mutated values", () => {
     ApiPage.CreateAndFillApi("https://mock-api.appsmith.com/users");
+    ApiPage.RunAPI();
 
     // create js object
     jsEditor.CreateJSObject(jsObjectBody, {
