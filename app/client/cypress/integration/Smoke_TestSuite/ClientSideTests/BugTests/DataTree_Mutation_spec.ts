@@ -3,8 +3,7 @@ import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 const {
   AggregateHelper: agHelper,
   ApiPage,
-  JSEditor: jsEditor,
-  CommonLocators : locator
+  JSEditor: jsEditor
 } = ObjectsRegistry;
 
 const jsObjectBody = `export default {
