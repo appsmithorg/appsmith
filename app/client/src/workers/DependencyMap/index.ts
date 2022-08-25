@@ -148,10 +148,8 @@ export const updateDependencyMap = ({
 }): UpdateDependencyMap => {
   const diffCalcStart = performance.now();
   let didUpdateDependencyMap = false;
-  let didUpdateTriggerDependencyMap = false;
   const dependenciesOfRemovedPaths: Array<string> = [];
   const removedPaths: Array<string> = [];
-  let didUpdateUnusedIdentifiers = false;
   const extraPathsToLint: Array<string> = [];
 
   // This is needed for NEW and DELETE events below.
@@ -181,7 +179,7 @@ export const updateDependencyMap = ({
             );
             if (Object.keys(entityDependencyMap).length) {
               didUpdateDependencyMap = true;
-              didUpdateUnusedIdentifiers = true;
+
               // The entity might already have some dependencies,
               // so we just want to update those
               Object.entries(entityDependencyMap).forEach(
@@ -274,7 +272,7 @@ export const updateDependencyMap = ({
           // global dependency map
           if (Object.keys(possibleNewlyValidIdentifiersMap).length) {
             didUpdateDependencyMap = true;
-            didUpdateUnusedIdentifiers = true;
+
             Object.keys(possibleNewlyValidIdentifiersMap).forEach(
               (identifier) => {
                 const { references } = extractInfoFromIdentifiers(
@@ -293,7 +291,6 @@ export const updateDependencyMap = ({
                       isWidget(entity) &&
                       isPathADynamicTrigger(entity, propertyPath)
                     ) {
-                      didUpdateTriggerDependencyMap = true;
                       dataTreeEvalRef.triggerFieldDependencyMap[path] = uniq([
                         ...dataTreeEvalRef.triggerFieldDependencyMap[path],
                         ...references,
@@ -339,7 +336,7 @@ export const updateDependencyMap = ({
             );
             Object.keys(entityDependencies).forEach((widgetDep) => {
               didUpdateDependencyMap = true;
-              didUpdateUnusedIdentifiers = true;
+
               delete dataTreeEvalRef.dependencyMap[widgetDep];
               delete dataTreeEvalRef.unusedIdentifiersList[widgetDep];
             });
@@ -349,7 +346,7 @@ export const updateDependencyMap = ({
           Object.keys(dataTreeEvalRef.dependencyMap).forEach(
             (dependencyPath) => {
               didUpdateDependencyMap = true;
-              didUpdateUnusedIdentifiers = true;
+
               if (
                 isChildPropertyPath(
                   dataTreeDiff.payload.propertyPath,
@@ -402,7 +399,7 @@ export const updateDependencyMap = ({
           Object.keys(dataTreeEvalRef.triggerFieldDependencyMap).forEach(
             (dependencyPath) => {
               didUpdateDependencyMap = true;
-              didUpdateUnusedIdentifiers = true;
+
               if (
                 isChildPropertyPath(
                   dataTreeDiff.payload.propertyPath,
@@ -480,7 +477,6 @@ export const updateDependencyMap = ({
             );
             if (isADynamicBindingPath) {
               didUpdateDependencyMap = true;
-              didUpdateUnusedIdentifiers = true;
 
               const { jsSnippets } = getDynamicBindings(
                 dataTreeDiff.payload.value,
@@ -590,7 +586,6 @@ export const updateDependencyMap = ({
               fullPropertyPath in dataTreeEvalRef.dependencyMap
             ) {
               didUpdateDependencyMap = true;
-              didUpdateUnusedIdentifiers = true;
               delete dataTreeEvalRef.dependencyMap[fullPropertyPath];
               delete dataTreeEvalRef.unusedIdentifiersList[fullPropertyPath];
             }
@@ -643,9 +638,6 @@ export const updateDependencyMap = ({
             dataTreeEvalRef.triggerFieldDependencyMap[
               dataTreeDiff.payload.propertyPath
             ] = flatten(newDep);
-
-            didUpdateUnusedIdentifiers = true;
-            didUpdateTriggerDependencyMap = true;
           }
           break;
         }
@@ -675,14 +667,6 @@ export const updateDependencyMap = ({
     );
     dataTreeEvalRef.inverseDependencyMap = dataTreeEvalRef.getInverseDependencyTree();
   }
-  if (didUpdateTriggerDependencyMap) {
-    dataTreeEvalRef.triggerFieldInverseDependencyMap = dataTreeEvalRef.getInverseTriggerDependencyMap();
-  }
-
-  if (didUpdateUnusedIdentifiers) {
-    dataTreeEvalRef.unusedIdentifiersInverseList = dataTreeEvalRef.getInverseIdentifierList();
-  }
-
   const updateChangedDependenciesStop = performance.now();
   dataTreeEvalRef.logs.push({
     diffCalcDeps: (diffCalcEnd - diffCalcStart).toFixed(2),

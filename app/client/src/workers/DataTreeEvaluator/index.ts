@@ -103,9 +103,7 @@ export default class DataTreeEvaluator {
     [actionId: string]: ActionValidationConfigMap;
   };
   triggerFieldDependencyMap: DependencyMap = {};
-  triggerFieldInverseDependencyMap: DependencyMap = {};
   unusedIdentifiersList: DependencyMap = {};
-  unusedIdentifiersInverseList: DependencyMap = {};
   public hasCyclicalDependency = false;
   constructor(
     widgetConfigMap: WidgetTypeConfigMap,
@@ -162,8 +160,6 @@ export default class DataTreeEvaluator {
     const sortDependenciesEnd = performance.now();
     // Inverse
     this.inverseDependencyMap = this.getInverseDependencyTree();
-    this.triggerFieldInverseDependencyMap = this.getInverseTriggerDependencyMap();
-    this.unusedIdentifiersInverseList = this.getInverseIdentifierList();
 
     // Evaluate
     const evaluateStart = performance.now();
@@ -205,9 +201,6 @@ export default class DataTreeEvaluator {
         sortedList: JSON.parse(JSON.stringify(this.sortedDependencies)),
         triggerFieldMap: JSON.parse(
           JSON.stringify(this.triggerFieldDependencyMap),
-        ),
-        triggerFieldInverseMap: JSON.parse(
-          JSON.stringify(this.triggerFieldInverseDependencyMap),
         ),
       },
       lint: (lintStop - lintStart).toFixed(2),
