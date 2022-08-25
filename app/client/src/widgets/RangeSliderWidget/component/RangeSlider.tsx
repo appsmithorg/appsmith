@@ -65,7 +65,7 @@ export interface RangeSliderComponentProps
   tooltipAlwaysOn: boolean;
 
   /** Disables slider */
-  disabled: boolean;
+  disabled?: boolean;
 
   /** Display label on the Slider */
   sliderTooltip: (value: number) => string;
@@ -98,8 +98,8 @@ export interface RangeSliderComponentProps
 const RangeSliderComponent = (props: RangeSliderComponentProps) => {
   const {
     color,
-    disabled,
-    endValue,
+    disabled = false,
+    endValue = 40,
     labelAlignment,
     labelPosition,
     labelStyle,
@@ -109,17 +109,17 @@ const RangeSliderComponent = (props: RangeSliderComponentProps) => {
     labelWidth,
     loading,
     marks,
-    max,
-    min,
-    minRange,
+    max = 100,
+    min = 0,
+    minRange = 10,
     name,
     onChangeEnd,
     showMarksLabel,
-    sliderSize,
+    sliderSize = "m",
     sliderTooltip,
-    startValue,
-    step,
-    tooltipAlwaysOn,
+    startValue = 20,
+    step = 1,
+    tooltipAlwaysOn = false,
     ...others
   } = props;
 

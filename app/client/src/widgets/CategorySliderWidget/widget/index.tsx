@@ -42,13 +42,21 @@ interface CategorySliderWidgetProps extends WidgetProps, SliderComponentProps {
 
 function optionsCustomValidation(
   options: unknown,
-  props: any,
+  props: CategorySliderWidgetProps,
   _: any,
 ): ValidationResponse {
   const validationUtil = (
     options: { label: string; value: string | number }[],
     _: any,
   ) => {
+    if (options.length < 2) {
+      return {
+        isValid: false,
+        parsed: options,
+        messages: ["Please have at-least 2 options"],
+      };
+    }
+
     let _isValid = true;
     let message = "";
     let valueType = "";
@@ -136,7 +144,7 @@ function optionsCustomValidation(
 }
 function defaultOptionValidation(
   value: unknown,
-  props: any,
+  props: CategorySliderWidgetProps,
   _: any,
 ): ValidationResponse {
   //Checks if the value is not of object type in {{}}
@@ -154,6 +162,21 @@ function defaultOptionValidation(
       isValid: false,
       parsed: value,
       messages: ["This value does not evaluate to type: string or number"],
+    };
+  }
+
+  const valueIndex = _.findIndex(
+    props.options,
+    (option: SliderOption) => option.value === value,
+  );
+
+  if (valueIndex === -1) {
+    return {
+      isValid: false,
+      parsed: value,
+      messages: [
+        "Default value is missing in options. Please update the value.",
+      ],
     };
   }
 

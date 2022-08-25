@@ -9,8 +9,17 @@ import RangeSliderComponent, {
   RangeSliderComponentProps,
 } from "../component/RangeSlider";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
+import {
+  maxValueValidation,
+  minValueValidation,
+  minRangeValidation,
+  stepSizeValidation,
+  startValueValidation,
+  endValueValidation,
+} from "../validations";
+import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 
-interface RangeSliderWidgetProps
+export interface RangeSliderWidgetProps
   extends WidgetProps,
     RangeSliderComponentProps {
   /** Color from theme.colors */
@@ -61,7 +70,17 @@ class RangeSliderWidget extends BaseWidget<
             placeholderText: "0",
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: { type: ValidationTypes.NUMBER },
+            validation: {
+              type: ValidationTypes.FUNCTION,
+              params: {
+                fn: minValueValidation,
+                expected: {
+                  type: "number",
+                  example: "0",
+                  autocompleteDataType: AutocompleteDataType.NUMBER,
+                },
+              },
+            },
           },
           {
             propertyName: "max",
@@ -71,7 +90,17 @@ class RangeSliderWidget extends BaseWidget<
             placeholderText: "100",
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: { type: ValidationTypes.NUMBER },
+            validation: {
+              type: ValidationTypes.FUNCTION,
+              params: {
+                fn: maxValueValidation,
+                expected: {
+                  type: "number",
+                  example: "100",
+                  autocompleteDataType: AutocompleteDataType.NUMBER,
+                },
+              },
+            },
           },
           {
             propertyName: "step",
@@ -81,7 +110,17 @@ class RangeSliderWidget extends BaseWidget<
             placeholderText: "10",
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: { type: ValidationTypes.NUMBER },
+            validation: {
+              type: ValidationTypes.FUNCTION,
+              params: {
+                fn: stepSizeValidation,
+                expected: {
+                  type: "number",
+                  example: "1",
+                  autocompleteDataType: AutocompleteDataType.NUMBER,
+                },
+              },
+            },
           },
           {
             propertyName: "minRange",
@@ -91,7 +130,17 @@ class RangeSliderWidget extends BaseWidget<
             placeholderText: "10",
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: { type: ValidationTypes.NUMBER },
+            validation: {
+              type: ValidationTypes.FUNCTION,
+              params: {
+                fn: minRangeValidation,
+                expected: {
+                  type: "number",
+                  example: "1",
+                  autocompleteDataType: AutocompleteDataType.NUMBER,
+                },
+              },
+            },
           },
           {
             propertyName: "defaultStartValue",
@@ -101,7 +150,17 @@ class RangeSliderWidget extends BaseWidget<
             placeholderText: "Start Value:",
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: { type: ValidationTypes.NUMBER },
+            validation: {
+              type: ValidationTypes.FUNCTION,
+              params: {
+                fn: startValueValidation,
+                expected: {
+                  type: "number",
+                  example: "20",
+                  autocompleteDataType: AutocompleteDataType.NUMBER,
+                },
+              },
+            },
           },
           {
             propertyName: "defaultEndValue",
@@ -111,7 +170,17 @@ class RangeSliderWidget extends BaseWidget<
             placeholderText: "End Value:",
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: { type: ValidationTypes.NUMBER },
+            validation: {
+              type: ValidationTypes.FUNCTION,
+              params: {
+                fn: endValueValidation,
+                expected: {
+                  type: "number",
+                  example: "40",
+                  autocompleteDataType: AutocompleteDataType.NUMBER,
+                },
+              },
+            },
           },
         ],
       },
@@ -448,7 +517,17 @@ class RangeSliderWidget extends BaseWidget<
             placeholderText: "0",
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: { type: ValidationTypes.NUMBER },
+            validation: {
+              type: ValidationTypes.FUNCTION,
+              params: {
+                fn: minValueValidation,
+                expected: {
+                  type: "number",
+                  example: "0",
+                  autocompleteDataType: AutocompleteDataType.NUMBER,
+                },
+              },
+            },
           },
           {
             propertyName: "max",
@@ -458,7 +537,17 @@ class RangeSliderWidget extends BaseWidget<
             placeholderText: "100",
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: { type: ValidationTypes.NUMBER },
+            validation: {
+              type: ValidationTypes.FUNCTION,
+              params: {
+                fn: maxValueValidation,
+                expected: {
+                  type: "number",
+                  example: "100",
+                  autocompleteDataType: AutocompleteDataType.NUMBER,
+                },
+              },
+            },
           },
           {
             propertyName: "step",
@@ -468,7 +557,17 @@ class RangeSliderWidget extends BaseWidget<
             placeholderText: "10",
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: { type: ValidationTypes.NUMBER },
+            validation: {
+              type: ValidationTypes.FUNCTION,
+              params: {
+                fn: stepSizeValidation,
+                expected: {
+                  type: "number",
+                  example: "1",
+                  autocompleteDataType: AutocompleteDataType.NUMBER,
+                },
+              },
+            },
           },
           {
             propertyName: "minRange",
@@ -478,7 +577,17 @@ class RangeSliderWidget extends BaseWidget<
             placeholderText: "10",
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: { type: ValidationTypes.NUMBER },
+            validation: {
+              type: ValidationTypes.FUNCTION,
+              params: {
+                fn: minRangeValidation,
+                expected: {
+                  type: "number",
+                  example: "1",
+                  autocompleteDataType: AutocompleteDataType.NUMBER,
+                },
+              },
+            },
           },
           {
             propertyName: "defaultStartValue",
@@ -488,7 +597,17 @@ class RangeSliderWidget extends BaseWidget<
             placeholderText: "Start Value:",
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: { type: ValidationTypes.NUMBER },
+            validation: {
+              type: ValidationTypes.FUNCTION,
+              params: {
+                fn: startValueValidation,
+                expected: {
+                  type: "number",
+                  example: "20",
+                  autocompleteDataType: AutocompleteDataType.NUMBER,
+                },
+              },
+            },
           },
           {
             propertyName: "defaultEndValue",
@@ -498,7 +617,17 @@ class RangeSliderWidget extends BaseWidget<
             placeholderText: "End Value:",
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: { type: ValidationTypes.NUMBER },
+            validation: {
+              type: ValidationTypes.FUNCTION,
+              params: {
+                fn: endValueValidation,
+                expected: {
+                  type: "number",
+                  example: "40",
+                  autocompleteDataType: AutocompleteDataType.NUMBER,
+                },
+              },
+            },
           },
           {
             propertyName: "showMarksLabel",
@@ -878,8 +1007,8 @@ class RangeSliderWidget extends BaseWidget<
     return (
       <RangeSliderComponent
         color={this.props.accentColor || TAILWIND_COLORS.green["600"]}
-        disabled={this.props.isDisabled || false}
-        endValue={this.props.end || 20}
+        disabled={this.props.isDisabled}
+        endValue={this.props.end}
         labelAlignment={this.props.labelAlignment}
         labelPosition={this.props.labelPosition}
         labelStyle={this.props.labelStyle}
@@ -889,17 +1018,17 @@ class RangeSliderWidget extends BaseWidget<
         labelWidth={this.getLabelWidth()}
         loading={this.props.isLoading}
         marks={this.props.marks}
-        max={this.props.max || 100}
-        min={this.props.min || 0}
-        minRange={this.props.minRange || 10}
+        max={this.props.max}
+        min={this.props.min}
+        minRange={this.props.minRange}
         name={this.props.widgetName}
         onChangeEnd={this.onChangeEnd}
         showMarksLabel={this.props.showMarksLabel}
-        sliderSize={this.props.sliderSize || "m"}
+        sliderSize={this.props.sliderSize}
         sliderTooltip={this.getSliderTooltip}
-        startValue={this.props.start || 0}
-        step={this.props.step || 1}
-        tooltipAlwaysOn={this.props.tooltipAlwaysOn || false}
+        startValue={this.props.start}
+        step={this.props.step}
+        tooltipAlwaysOn={this.props.tooltipAlwaysOn}
       />
     );
   }

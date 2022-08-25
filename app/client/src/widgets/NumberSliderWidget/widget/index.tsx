@@ -7,8 +7,17 @@ import { LabelPosition } from "components/constants";
 import { Alignment } from "@blueprintjs/core";
 import SliderComponent, { SliderComponentProps } from "../component/Slider";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
+import { AutocompleteDataType } from "utils/autocomplete/TernServer";
+import {
+  defaultValueValidation,
+  maxValueValidation,
+  minValueValidation,
+  stepSizeValidation,
+} from "../validations";
 
-interface NumberSliderWidgetProps extends WidgetProps, SliderComponentProps {
+export interface NumberSliderWidgetProps
+  extends WidgetProps,
+    SliderComponentProps {
   /** Color from theme.colors */
   accentColor?: string;
 
@@ -42,7 +51,17 @@ class NumberSliderWidget extends BaseWidget<
             placeholderText: "0",
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: { type: ValidationTypes.NUMBER },
+            validation: {
+              type: ValidationTypes.FUNCTION,
+              params: {
+                fn: minValueValidation,
+                expected: {
+                  type: "number",
+                  example: "0",
+                  autocompleteDataType: AutocompleteDataType.NUMBER,
+                },
+              },
+            },
           },
           {
             propertyName: "max",
@@ -52,7 +71,17 @@ class NumberSliderWidget extends BaseWidget<
             placeholderText: "100",
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: { type: ValidationTypes.NUMBER },
+            validation: {
+              type: ValidationTypes.FUNCTION,
+              params: {
+                fn: maxValueValidation,
+                expected: {
+                  type: "number",
+                  example: "100",
+                  autocompleteDataType: AutocompleteDataType.NUMBER,
+                },
+              },
+            },
           },
           {
             propertyName: "step",
@@ -62,7 +91,17 @@ class NumberSliderWidget extends BaseWidget<
             placeholderText: "10",
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: { type: ValidationTypes.NUMBER },
+            validation: {
+              type: ValidationTypes.FUNCTION,
+              params: {
+                fn: stepSizeValidation,
+                expected: {
+                  type: "number",
+                  example: "1",
+                  autocompleteDataType: AutocompleteDataType.NUMBER,
+                },
+              },
+            },
           },
           {
             propertyName: "defaultValue",
@@ -72,7 +111,17 @@ class NumberSliderWidget extends BaseWidget<
             placeholderText: "Value:",
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: { type: ValidationTypes.NUMBER },
+            validation: {
+              type: ValidationTypes.FUNCTION,
+              params: {
+                fn: defaultValueValidation,
+                expected: {
+                  type: "number",
+                  example: "50",
+                  autocompleteDataType: AutocompleteDataType.NUMBER,
+                },
+              },
+            },
           },
         ],
       },
@@ -400,7 +449,17 @@ class NumberSliderWidget extends BaseWidget<
             placeholderText: "0",
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: { type: ValidationTypes.NUMBER },
+            validation: {
+              type: ValidationTypes.FUNCTION,
+              params: {
+                fn: minValueValidation,
+                expected: {
+                  type: "number",
+                  example: "0",
+                  autocompleteDataType: AutocompleteDataType.NUMBER,
+                },
+              },
+            },
           },
           {
             propertyName: "max",
@@ -410,7 +469,17 @@ class NumberSliderWidget extends BaseWidget<
             placeholderText: "100",
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: { type: ValidationTypes.NUMBER },
+            validation: {
+              type: ValidationTypes.FUNCTION,
+              params: {
+                fn: maxValueValidation,
+                expected: {
+                  type: "number",
+                  example: "100",
+                  autocompleteDataType: AutocompleteDataType.NUMBER,
+                },
+              },
+            },
           },
           {
             propertyName: "step",
@@ -420,7 +489,17 @@ class NumberSliderWidget extends BaseWidget<
             placeholderText: "10",
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: { type: ValidationTypes.NUMBER },
+            validation: {
+              type: ValidationTypes.FUNCTION,
+              params: {
+                fn: stepSizeValidation,
+                expected: {
+                  type: "number",
+                  example: "1",
+                  autocompleteDataType: AutocompleteDataType.NUMBER,
+                },
+              },
+            },
           },
           {
             propertyName: "defaultValue",
@@ -430,7 +509,17 @@ class NumberSliderWidget extends BaseWidget<
             placeholderText: "Value:",
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: { type: ValidationTypes.NUMBER },
+            validation: {
+              type: ValidationTypes.FUNCTION,
+              params: {
+                fn: defaultValueValidation,
+                expected: {
+                  type: "number",
+                  example: "50",
+                  autocompleteDataType: AutocompleteDataType.NUMBER,
+                },
+              },
+            },
           },
           {
             propertyName: "showMarksLabel",
@@ -786,7 +875,7 @@ class NumberSliderWidget extends BaseWidget<
     return (
       <SliderComponent
         color={this.props.accentColor || TAILWIND_COLORS.green["600"]}
-        disabled={this.props.isDisabled || false}
+        disabled={this.props.isDisabled}
         labelAlignment={this.props.labelAlignment}
         labelPosition={this.props.labelPosition}
         labelStyle={this.props.labelStyle}
@@ -796,15 +885,15 @@ class NumberSliderWidget extends BaseWidget<
         labelWidth={this.getLabelWidth()}
         loading={this.props.isLoading}
         marks={this.props.marks}
-        max={this.props.max || 100}
-        min={this.props.min || 0}
+        max={this.props.max}
+        min={this.props.min}
         name={this.props.widgetName}
         onChangeEnd={this.onChangeEnd}
         showMarksLabel={this.props.showMarksLabel}
-        sliderSize={this.props.sliderSize || "m"}
+        sliderSize={this.props.sliderSize}
         sliderTooltip={this.getSliderTooltip}
-        sliderValue={this.props.value || 0}
-        step={this.props.step || 1}
+        sliderValue={this.props.value}
+        step={this.props.step}
         tooltipAlwaysOn={this.props.tooltipAlwaysOn || false}
       />
     );
