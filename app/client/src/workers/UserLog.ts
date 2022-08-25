@@ -26,37 +26,54 @@ export type LogObject = {
   severity: Severity;
 };
 
-const truncate = (input: string, suffix = "", truncLen = 100) =>
-  input.length > truncLen
-    ? `${input.substring(0, truncLen)}...${suffix}`
-    : input;
+const truncate = (input: string, suffix = "", truncLen = 100) => {
+  try {
+    if (!!input) {
+      return input.length > truncLen
+        ? `${input.substring(0, truncLen)}...${suffix}`
+        : input;
+    } else {
+      return "-";
+    }
+  } catch (error) {
+    return `--${JSON.stringify(error)}-${input}`;
+  }
+};
 
 // Converts the data from the log object to a string
 export function createLogTitleString(data: any[]) {
-  // convert mixed array to string
-  return data.reduce((acc, curr) => {
-    // curr can be a string or an object
-    let joiningChar = ",";
-    if (acc.length === 0) {
-      joiningChar = "";
-    }
-    if (typeof curr === "string") {
-      return `${acc}${joiningChar} ${truncate(curr)}`;
-    }
-    if (typeof curr === "function") {
-      return `${acc}${joiningChar} func() ${curr.name}`;
-    }
-    if (typeof curr === "object") {
-      let suffix = "}";
-      if (Array.isArray(curr)) {
-        suffix = "]";
+  try {
+    // convert mixed array to string
+    return data.reduce((acc, curr) => {
+      // curr can be a string or an object
+      let joiningChar = ",";
+      if (acc.length === 0) {
+        joiningChar = "";
       }
-      return `${acc}${joiningChar} ${truncate(
-        JSON.stringify(curr, null, "\t"),
-        suffix,
-      )}`;
-    }
-  }, "");
+      if (typeof curr === "string") {
+        return `${acc}${joiningChar} ${truncate(curr)}`;
+      }
+      if (typeof curr === "number") {
+        return `${acc}${joiningChar} ${truncate(curr.toString())}`;
+      }
+      if (typeof curr === "function") {
+        return `${acc}${joiningChar} func() ${curr.name}`;
+      }
+      if (typeof curr === "object") {
+        let suffix = "}";
+        if (Array.isArray(curr)) {
+          suffix = "]";
+        }
+        return `${acc}${joiningChar} ${truncate(
+          JSON.stringify(curr, null, "\t"),
+          suffix,
+        )}`;
+      }
+      acc = `${acc}${joiningChar} -`;
+    }, "");
+  } catch (error) {
+    return `---${JSON.stringify(error)}-${JSON.stringify(data)}`;
+  }
 }
 
 class UserLog {
