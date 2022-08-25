@@ -71,7 +71,7 @@ export const getIsOnboardingTasksView = createSelector(
 
 // Guided Tour selectors
 export const isExploringSelector = (state: AppState) =>
-  state.ui.guidedTour.currentStep;
+  state.ui.guidedTour.exploring;
 export const inGuidedTour = (state: AppState) => state.ui.guidedTour.guidedTour;
 export const getCurrentStep = (state: AppState) =>
   state.ui.guidedTour.currentStep;
