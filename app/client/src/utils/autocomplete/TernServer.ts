@@ -564,6 +564,7 @@ class TernServer {
     let extraChars = 0;
 
     const stringSegments = getDynamicStringSegments(value);
+    console.log("$$$-stringSegments", stringSegments);
     if (stringSegments.length === 1) {
       return {
         value,
@@ -581,6 +582,10 @@ class TernServer {
     let newCursorPosition = cursor.ch;
 
     let currentLine = 0;
+    let sameLineSegmentCount = 1;
+
+    const lineValueSplitByBindingStart = lineValue.split("{{");
+    const lineValueSplitByBindingEnd = lineValue.split("}}");
 
     for (let index = 0; index < stringSegments.length; index++) {
       // segment is divided according to binding {{}}
@@ -610,15 +615,23 @@ class TernServer {
        *
        */
 
+      const posOfBindingStart = lineValueSplitByBindingStart
+        .slice(0, sameLineSegmentCount)
+        .join("{{").length;
+      const posOfBindingClose = lineValueSplitByBindingEnd
+        .slice(0, sameLineSegmentCount)
+        .join("}}").length;
+
       const isCursorInBetweenSegmentStartAndEndLine =
         cursor.line > currentLine && cursor.line < segmentEndLine;
 
+      const isCursorAtSegmentEndLine = cursor.line === segmentEndLine;
+
       const isCursorAtSegmentStartLine = cursor.line === currentLine;
       const isCursorAfterBindingOpenAtSegmentStart =
-        isCursorAtSegmentStartLine && cursor.ch > lineValue.indexOf("{{") + 1;
-      const isCursorAtSegmentEndLine = cursor.line === segmentEndLine;
+        isCursorAtSegmentStartLine && cursor.ch >= posOfBindingStart;
       const isCursorBeforeBindingCloseAtSegmentEnd =
-        isCursorAtSegmentEndLine && cursor.ch < lineValue.indexOf("}}") + 1;
+        isCursorAtSegmentEndLine && cursor.ch <= posOfBindingClose;
 
       const isSegmentStartLineAndEndLineSame = currentLine === segmentEndLine;
       const isCursorBetweenSingleLineSegmentBinding =
@@ -638,12 +651,19 @@ class TernServer {
         dynamicString = currentSegment;
         newCursorLine = cursor.line - currentLine;
         if (lineValue.includes("{{")) {
-          extraChars = lineValue.indexOf("{{") + 2;
+          extraChars = posOfBindingStart + 2;
         }
         newCursorPosition = cursor.ch - extraChars;
 
         break;
       }
+
+      if (currentLine !== segmentEndLine) {
+        sameLineSegmentCount = 1;
+      } else if (isDynamicValue(segment)) {
+        sameLineSegmentCount += 1;
+      }
+
       currentLine = segmentEndLine;
     }
 
