@@ -13,7 +13,7 @@ import {
   setDatsourceEditorMode,
 } from "actions/datasourceActions";
 import { useDispatch, useSelector } from "react-redux";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import { DatasourceStructureContainer } from "./DatasourceStructureContainer";
 import { isStoredDatasource, PluginType } from "entities/Action";
 import { getQueryParams } from "utils/URLUtils";

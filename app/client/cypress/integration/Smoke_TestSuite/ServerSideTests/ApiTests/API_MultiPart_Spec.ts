@@ -93,7 +93,7 @@ describe("Validate API request body panel", () => {
     apiPage.CreateAndFillApi(
       "https://api.cloudinary.com/v1_1/appsmithautomationcloud/image/upload?upload_preset=fbbhg4xu",
       "CloudinaryUploadApi",
-      "POST",
+      30000, "POST"
     );
     apiPage.EnterBodyFormData(
       "MULTIPART_FORM_DATA",

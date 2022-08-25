@@ -2,7 +2,7 @@ import { DataTree, DataTreeJSAction } from "entities/DataTree/dataTreeFactory";
 import { isEmpty, set } from "lodash";
 import { EvalErrorTypes } from "utils/DynamicBindingUtils";
 import { JSUpdate, ParsedJSSubAction } from "utils/JSPaneUtils";
-import { isTypeOfFunction, parseJSObjectWithAST } from "workers/ast";
+import { isTypeOfFunction, parseJSObjectWithAST } from "@shared/ast";
 import DataTreeEvaluator from "workers/DataTreeEvaluator";
 import evaluateSync, { isFunctionAsync } from "workers/evaluate";
 import {

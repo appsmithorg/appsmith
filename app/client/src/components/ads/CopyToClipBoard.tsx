@@ -1,8 +1,7 @@
 import React, { createRef, useState } from "react";
 import styled from "styled-components";
 import copy from "copy-to-clipboard";
-import TextInput from "components/ads/TextInput";
-import Button, { Category, Size } from "components/ads/Button";
+import { Button, Category, Size, TextInput } from "design-system";
 
 const Wrapper = styled.div<{ offset?: string }>`
   display: flex;
