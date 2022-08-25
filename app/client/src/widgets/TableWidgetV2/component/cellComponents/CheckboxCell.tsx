@@ -24,8 +24,8 @@ const CheckboxCellWrapper = styled(CellWrapper)<{
 
     & .bp3-checkbox {
       gap: 0px;
-      &:hover,
-      .bp3-control-indicator:hover {
+      cursor: pointer;
+      & .bp3-control-indicator::before {
         cursor: pointer;
       }
     }
