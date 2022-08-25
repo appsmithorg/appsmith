@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState, useMemo } from "react";
-import styled from "styled-components";
-import { isUndefined } from "lodash";
+import styled, { DefaultTheme, useTheme } from "styled-components";
+import { get, isUndefined } from "lodash";
 import { LOG_CATEGORY, Severity } from "entities/AppsmithConsole";
 import FilterHeader from "./FilterHeader";
 import { BlankState } from "./helpers";
@@ -32,7 +32,7 @@ type Props = {
   hasShortCut?: boolean;
 };
 
-const LOGS_FILTER_OPTIONS = [
+const LOGS_FILTER_OPTIONS = (theme: DefaultTheme) => [
   {
     label: "All",
     value: "",
@@ -40,10 +40,8 @@ const LOGS_FILTER_OPTIONS = [
   {
     label: "Errors",
     value: Severity.ERROR,
-    icon: "error" as IconName,
-    iconColor: "white",
-    bgColor: "red",
-    fillColor: "red",
+    icon: "close-circle" as IconName,
+    iconColor: get(theme, "colors.debugger.error.hoverIconColor"),
   },
   {
     label: "Console logs",
@@ -63,8 +61,9 @@ function DebbuggerLogs(props: Props) {
   const filteredLogs = useFilteredLogs(searchQuery, filter);
   const { next, paginatedData } = usePagination(filteredLogs);
   const listRef = useRef<HTMLDivElement>(null);
+  const theme = useTheme();
   const selectedFilter = useMemo(
-    () => LOGS_FILTER_OPTIONS.find((option) => option.value === filter),
+    () => LOGS_FILTER_OPTIONS(theme).find((option) => option.value === filter),
     [filter],
   );
   const currentUser = useSelector(getCurrentUser);
@@ -105,9 +104,9 @@ function DebbuggerLogs(props: Props) {
         defaultValue={props.searchQuery}
         onChange={setSearchQuery}
         onSelect={(value) => !isUndefined(value) && setFilter(value)}
-        options={LOGS_FILTER_OPTIONS}
+        options={LOGS_FILTER_OPTIONS(theme)}
         searchQuery={searchQuery}
-        selected={selectedFilter || LOGS_FILTER_OPTIONS[0]}
+        selected={selectedFilter || LOGS_FILTER_OPTIONS(theme)[0]}
         value={searchQuery}
       />
 
