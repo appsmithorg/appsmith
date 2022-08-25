@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import { connect } from "react-redux";
 import { get } from "lodash";
 import * as log from "loglevel";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import styled from "styled-components";
 
 import { Colors } from "constants/Colors";
