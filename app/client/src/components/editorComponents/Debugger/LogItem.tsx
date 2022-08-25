@@ -340,7 +340,10 @@ function LogItem(props: LogItemProps) {
         <StyledCollapse isOpen={isOpen} keepChildrenMounted>
           {messages.map((e) => {
             return (
-              <MessageWrapper key={e.message}>
+              <MessageWrapper
+                key={e.message}
+                onClick={(e) => e.stopPropagation()}
+              >
                 <ContextualMenu entity={props.source} error={e}>
                   <span className="debugger-message t--debugger-message">
                     {isString(e.message)
