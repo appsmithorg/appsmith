@@ -34,7 +34,7 @@ const Wrapper = styled.div`
   }
 
   .debugger-filter {
-    width: 260px;
+    width: 220px;
     height: 32px;
     min-height: 32px;
   }
@@ -112,11 +112,11 @@ function FilterHeader(props: FilterHeaderProps) {
         className="debugger-filter"
         height="32px"
         onSelect={props.onSelect}
-        optionWidth="260px"
+        optionWidth="220px"
         options={props.options}
         selected={props.selected}
         showLabelOnly
-        width="260px"
+        width="220px"
       />
     </Wrapper>
   );
