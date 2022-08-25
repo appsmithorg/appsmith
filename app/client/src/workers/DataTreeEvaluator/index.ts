@@ -133,7 +133,13 @@ export default class DataTreeEvaluator {
     //save current state of js collection action and variables to be added to uneval tree
     //save functions in resolveFunctions (as functions) to be executed as functions are not allowed in evalTree
     //and functions are saved in dataTree as strings
-    const parsedCollections = parseJSActions(this, localUnEvalTree);
+    const parsedCollections = parseJSActions(
+      this,
+      localUnEvalTree,
+      undefined,
+      undefined,
+      this.logs,
+    );
     jsUpdates = parsedCollections.jsUpdates;
     localUnEvalTree = getUpdatedLocalUnEvalTreeAfterJSUpdates(
       jsUpdates,
@@ -267,6 +273,7 @@ export default class DataTreeEvaluator {
       localUnEvalTree,
       jsTranslatedDiffs,
       this.oldUnEvalTree,
+      this.logs,
     );
 
     jsUpdates = parsedCollections.jsUpdates;

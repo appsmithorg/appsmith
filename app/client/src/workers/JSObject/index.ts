@@ -185,6 +185,7 @@ export function parseJSActions(
   unEvalDataTree: DataTree,
   differences?: DataTreeDiff[],
   oldUnEvalTree?: DataTree,
+  logs?: unknown[],
 ) {
   let jsUpdates: Record<string, JSUpdate> = {};
   if (!!differences && !!oldUnEvalTree) {
@@ -252,9 +253,17 @@ export function parseJSActions(
 
     if (!parsedBody) return;
     parsedBody.actions = parsedBody.actions.map((action) => {
+      const start = performance.now();
+      const isAsync = isFunctionAsync(action.body, asyncActionCollection);
+      const logString = `isFunctionAsync determination of ${
+        action.name
+      } took ${(performance.now() - start).toFixed(4)} ms and it is ${
+        isAsync ? "async." : "not async."
+      }`;
+      logs && logs.push(logString);
       return {
         ...action,
-        isAsync: isFunctionAsync(action.body, asyncActionCollection),
+        isAsync,
         // parsedFunction - used only to determine if function is async
         parsedFunction: undefined,
       } as ParsedJSSubAction;
