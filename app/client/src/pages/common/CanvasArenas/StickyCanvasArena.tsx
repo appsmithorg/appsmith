@@ -49,6 +49,10 @@ const Highlight = styled.div<{
   opacity: 0;
 `;
 
+const StickyCanvas = styled.canvas`
+  position: absolute;
+`;
+
 export const StickyCanvasArena = forwardRef(
   (props: StickyCanvasArenaProps, ref: any) => {
     const {
@@ -140,7 +144,11 @@ export const StickyCanvasArena = forwardRef(
         {/* Canvas will always be sticky to its scrollable parent's view port. i.e,
       it will only be as big as its viewable area so maximum size would be less
   than screen width and height in all cases. */}
-        <canvas data-testid={canvasId} id={canvasId} ref={stickyCanvasRef} />
+        <StickyCanvas
+          data-testid={canvasId}
+          id={canvasId}
+          ref={stickyCanvasRef}
+        />
         <StyledCanvasSlider
           data-testid={id}
           id={id}

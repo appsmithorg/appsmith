@@ -1,4 +1,4 @@
-import React, { ReactNode, useRef, useEffect, RefObject } from "react";
+import React, { ReactNode, useRef, useEffect, RefObject, useMemo } from "react";
 import styled, { css } from "styled-components";
 import tinycolor from "tinycolor2";
 import { invisible } from "constants/DefaultTheme";
@@ -125,10 +125,9 @@ function ContainerComponentWrapper(props: ContainerComponentProps) {
 }
 
 export function FlexBox(props: FlexBoxProps) {
-  const layoutProps = getLayoutProperties(
-    props.direction,
-    props.alignment,
-    props.spacing,
+  const layoutProps = useMemo(
+    () => getLayoutProperties(props.direction, props.alignment, props.spacing),
+    [props.direction, props.alignment, props.spacing],
   );
   return (
     <FlexContainer
