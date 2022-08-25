@@ -10,12 +10,12 @@ import {
 
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import MultiSelectComponent from "../component";
-import { DefaultValueType } from "rc-select/lib/interface/generator";
 import { Layers } from "constants/Layers";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 import { MinimumPopupRows, GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
 import { LabelPosition } from "components/constants";
 import { Alignment } from "@blueprintjs/core";
+import { DraftValueType } from "rc-select/lib/Select";
 
 function defaultOptionValueValidation(value: unknown): ValidationResponse {
   let values: string[] = [];
@@ -456,7 +456,7 @@ class MultiSelectWidget extends BaseWidget<
     );
   }
 
-  onOptionChange = (value: DefaultValueType) => {
+  onOptionChange = (value: DraftValueType) => {
     this.props.updateWidgetMetaProperty("selectedOptionValueArr", value, {
       triggerPropertyName: "onOptionChange",
       dynamicString: this.props.onOptionChange,

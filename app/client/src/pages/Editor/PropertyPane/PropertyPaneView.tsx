@@ -28,11 +28,15 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import { buildDeprecationWidgetMessage, isWidgetDeprecated } from "../utils";
 import { BannerMessage } from "components/ads/BannerMessage";
 import { Colors } from "constants/Colors";
-import { IconSize, SearchInput, SearchVariant } from "components/ads";
+import {
+  IconSize,
+  InputWrapper,
+  SearchInput,
+  SearchVariant,
+} from "design-system";
 import { selectFeatureFlags } from "selectors/usersSelectors";
 import WidgetFactory from "utils/WidgetFactory";
 import styled from "styled-components";
-import { InputWrapper } from "components/ads/TextInput";
 import { PropertyPaneTab } from "./PropertyPaneTab";
 import { useSearchText } from "./helpers";
 

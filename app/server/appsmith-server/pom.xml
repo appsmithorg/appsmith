@@ -18,6 +18,7 @@
     <properties>
         <java.version>11</java.version>
         <ff4j.version>1.8.11</ff4j.version>
+        <org.modelmapper.version>2.4.4</org.modelmapper.version>
     </properties>
 
     <repositories>
@@ -196,6 +197,11 @@
             <groupId>com.querydsl</groupId>
             <artifactId>querydsl-jpa</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.modelmapper</groupId>
+            <artifactId>modelmapper</artifactId>
+            <version>${org.modelmapper.version}</version>
+        </dependency>
 
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -264,6 +270,11 @@
             <groupId>io.netty</groupId>
             <artifactId>netty-all</artifactId>
             <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.appsmith</groupId>
+            <artifactId>reactiveCaching</artifactId>
+            <version>1.0-SNAPSHOT</version>
         </dependency>
     </dependencies>
 

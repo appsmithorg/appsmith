@@ -10,7 +10,7 @@ import styled, { ThemeContext } from "styled-components";
 import { connect, useDispatch, useSelector } from "react-redux";
 import MediaQuery from "react-responsive";
 import { useLocation } from "react-router-dom";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import { Classes as BlueprintClasses } from "@blueprintjs/core";
 import {
   thinScrollbar,
@@ -46,10 +46,18 @@ import {
   DropdownOnSelectActions,
   getOnSelectAction,
 } from "pages/common/CustomizedDropdown/dropdownHelpers";
-import Button, { Category, Size } from "components/ads/Button";
-import { Text, TextType } from "design-system";
-import Icon, { IconName, IconSize } from "components/ads/Icon";
-import MenuItem from "components/ads/MenuItem";
+import {
+  AppIconCollection,
+  Button,
+  Category,
+  Icon,
+  IconName,
+  IconSize,
+  MenuItem,
+  Size,
+  Text,
+  TextType,
+} from "design-system";
 import {
   duplicateApplication,
   updateApplication,
@@ -67,13 +75,12 @@ import EditableText, {
   EditInteractionKind,
   SavingState,
 } from "components/ads/EditableText";
-import { notEmptyValidator } from "components/ads/TextInput";
+import { notEmptyValidator } from "design-system";
 import { deleteWorkspace, saveWorkspace } from "actions/workspaceActions";
 import { leaveWorkspace } from "actions/userActions";
 import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
 import NoSearchImage from "assets/images/NoSearchResult.svg";
 import { getNextEntityName, getRandomPaletteColor } from "utils/AppsmithUtils";
-import { AppIconCollection } from "components/ads/AppIcon";
 import { createWorkspaceSubmitHandler } from "pages/workspace/helpers";
 import ImportApplicationModal from "./ImportApplicationModal";
 import {

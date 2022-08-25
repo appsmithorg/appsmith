@@ -17,6 +17,13 @@ const DEFAULT_ENTERVALUE_OPTIONS = {
 export class AggregateHelper {
   private locator = ObjectsRegistry.CommonLocators;
 
+  private isMac = Cypress.platform === "darwin";
+  private selectLine = `${
+    this.isMac
+      ? "{cmd}{shift}{leftArrow}{backspace}"
+      : "{shift}{home}{backspace}"
+  }`;
+
   public SaveLocalStorageCache() {
     Object.keys(localStorage).forEach((key) => {
       LOCAL_STORAGE_MEMORY[key] = localStorage[key];
@@ -110,11 +117,17 @@ export class AggregateHelper {
     });
   }
 
-  public AssertElementText(selector: string, text: string, index: number = 0) {
+  public GetNAssertElementText(
+    selector: string,
+    text: string,
+    textPresence: "have.text" | "contain.text" | "not.have.text" = "have.text",
+    index = 0,
+  ) {
     const locator = selector.startsWith("//")
       ? cy.xpath(selector)
       : cy.get(selector);
-    locator.eq(index).should("have.text", text);
+    if (index >= 0) locator.eq(index).should(textPresence, text);
+    else locator.should(textPresence, text);
   }
 
   public ValidateToastMessage(text: string, index = 0, length = 1) {
@@ -166,18 +179,18 @@ export class AggregateHelper {
 
   public WaitUntilEleDisappear(
     selector: string,
-    msgToCheckforDisappearance: string | "",
+    msgToCheckforDisappearance: string | "" = "",
   ) {
     cy.waitUntil(
       () => (selector.includes("//") ? cy.xpath(selector) : cy.get(selector)),
       {
-        errorMsg: msgToCheckforDisappearance + " did not disappear",
-        timeout: 5000,
+        //errorMsg: msgToCheckforDisappearance + " did not disappear",
+        timeout: 10000,
         interval: 1000,
       },
     ).then(($ele) => {
       cy.wrap($ele)
-        .contains(msgToCheckforDisappearance)
+        //.contains(msgToCheckforDisappearance)
         .should("have.length", 0);
       this.Sleep();
     });
@@ -404,6 +417,40 @@ export class AggregateHelper {
       .wait(waitTimeInterval);
   }
 
+  public SelectNRemoveLineText(selector: string) {
+    const locator = selector.startsWith("//")
+      ? cy.xpath(selector)
+      : cy.get(selector);
+    return locator.type(this.selectLine);
+  }
+
+  public TypeText(selector: string, value: string, index = 0, force = false) {
+    const locator = selector.startsWith("//")
+      ? cy.xpath(selector)
+      : cy.get(selector);
+    return locator
+      .eq(index)
+      .focus()
+      .type(value, {
+        parseSpecialCharSequences: false,
+        delay: 1,
+        force: true,
+      });
+  }
+
+  public ContainsNClick(
+    text: string,
+    index = 0,
+    force = false,
+    waitTimeInterval = 500,
+  ) {
+    return cy
+      .contains(text)
+      .eq(index)
+      .click({ force: force })
+      .wait(waitTimeInterval);
+  }
+
   public GetNClickByContains(
     selector: string,
     containsText: string,
@@ -511,18 +558,21 @@ export class AggregateHelper {
     cy.get(this.locator._contextMenuInPane).click();
     cy.xpath(this.locator._contextMenuSubItemDiv(action))
       .should("be.visible")
-      .click();
+      .click({ force: true });
     if (action == "Delete") {
       subAction = "Are you sure?";
     }
     if (subAction) {
-      cy.xpath(this.locator._contextMenuSubItemDiv(subAction)).click();
+      cy.xpath(this.locator._contextMenuSubItemDiv(subAction)).click({
+        force: true,
+      });
       this.Sleep(500);
     }
     if (action == "Delete") {
       !jsDelete && this.ValidateNetworkStatus("@deleteAction");
       jsDelete && this.ValidateNetworkStatus("@deleteJSCollection");
-      jsDelete && this.WaitUntilToastDisappear("deleted successfully");
+      jsDelete && this.AssertContains("deleted successfully");
+      //jsDelete && this.WaitUntilToastDisappear("deleted successfully");
     }
   }
 
@@ -598,8 +648,8 @@ export class AggregateHelper {
       //.click({ force: true })
       //.wait(1000)
       .find(".CodeMirror")
-      .find('textarea')
-      .parents('.CodeMirror')
+      .find("textarea")
+      .parents(".CodeMirror")
       .first()
       .then((ins: any) => {
         const input = ins[0].CodeMirror;
@@ -726,7 +776,7 @@ export class AggregateHelper {
     const locator = selector.startsWith("//")
       ? cy.xpath(selector)
       : cy.get(selector);
-    locator
+    return locator
       .eq(index)
       .scrollIntoView()
       .should("be.visible");
@@ -767,6 +817,25 @@ export class AggregateHelper {
       ? cy.xpath(selector)
       : cy.get(selector);
     return locator.contains(text);
+  }
+
+  public ScrollTo(
+    selector: string,
+    position:
+      | "topLeft"
+      | "top"
+      | "topRight"
+      | "left"
+      | "center"
+      | "right"
+      | "bottomLeft"
+      | "bottom"
+      | "bottomRight",
+  ) {
+    const locator = selector.startsWith("//")
+      ? cy.xpath(selector)
+      : cy.get(selector);
+    return locator.scrollTo(position).wait(2000);
   }
 
   public EnableAllEditors() {

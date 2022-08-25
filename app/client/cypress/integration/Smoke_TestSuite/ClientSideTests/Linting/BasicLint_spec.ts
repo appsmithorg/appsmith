@@ -68,7 +68,7 @@ describe("Linting", () => {
         }catch(e){
           showAlert("${errorMessage}")
         }
-      }()}}`
+      }()}}`,
     );
 
     propPane.UpdatePropertyFieldValue("Tooltip", "{{Api1.name}}");
@@ -76,9 +76,7 @@ describe("Linting", () => {
 
     // create Api1
     apiPage.CreateAndFillApi(
-      "https://jsonplaceholder.typicode.com/",
-      "",
-      "GET",
+      "https://jsonplaceholder.typicode.com/"
     );
 
     clickButtonAndAssertLintError(false);
@@ -91,9 +89,7 @@ describe("Linting", () => {
 
     // Re-create Api1
     apiPage.CreateAndFillApi(
-      "https://jsonplaceholder.typicode.com/",
-      "",
-      "GET",
+      "https://jsonplaceholder.typicode.com/"
     );
 
     clickButtonAndAssertLintError(false);
@@ -121,7 +117,7 @@ describe("Linting", () => {
         }catch(e){
           showAlert("${errorMessage}")
         }
-      }()}}`
+      }()}}`,
     );
     propPane.UpdatePropertyFieldValue("Tooltip", `{{JSObject1.myVar1}}`);
 
@@ -196,7 +192,7 @@ describe("Linting", () => {
       }catch(e){
         showAlert("${errorMessage}")
       }
-    }()}}`
+    }()}}`,
     );
     propPane.UpdatePropertyFieldValue("Tooltip", `{{Query1.name}}`);
     clickButtonAndAssertLintError(true);
@@ -241,7 +237,7 @@ describe("Linting", () => {
         }catch(e){
           showAlert("${errorMessage}")
         }
-      }()}}`
+      }()}}`,
     );
     propPane.UpdatePropertyFieldValue(
       "Tooltip",
@@ -277,9 +273,7 @@ describe("Linting", () => {
       },
     );
     apiPage.CreateAndFillApi(
-      "https://jsonplaceholder.typicode.com/",
-      "Api1",
-      "GET",
+      "https://jsonplaceholder.typicode.com/"
     );
 
     createMySQLDatasourceQuery();

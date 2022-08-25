@@ -7,7 +7,7 @@ import {
   executeDatasourceQuery,
   executeDatasourceQuerySuccessPayload,
 } from "actions/datasourceActions";
-import { DropdownOption } from "components/ads/Dropdown";
+import { DropdownOption } from "design-system";
 import { useDispatch } from "react-redux";
 
 export const FAKE_DATASOURCE_OPTION = {
