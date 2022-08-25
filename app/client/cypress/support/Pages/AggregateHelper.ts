@@ -177,16 +177,13 @@ export class AggregateHelper {
     });
   }
 
-  public WaitUntilEleDisappear(
-    selector: string,
-    msgToCheckforDisappearance: string | "" = "",
-  ) {
+  public WaitUntilEleDisappear(selector: string) {
     let locator = selector.includes("//")
       ? cy.xpath(selector)
       : cy.get(selector);
     locator.waitUntil(($ele) => cy.wrap($ele).should("have.length", 0), {
-      //errorMsg: msgToCheckforDisappearance + " did not disappear",
-      timeout: 20000,
+      errorMsg: "Element did not disappear even after 10 seconds",
+      timeout: 10000,
       interval: 1000,
     });
   }
