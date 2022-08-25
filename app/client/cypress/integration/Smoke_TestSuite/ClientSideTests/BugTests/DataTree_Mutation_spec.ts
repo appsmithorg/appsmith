@@ -8,8 +8,8 @@ const {
 } = ObjectsRegistry;
 
 const jsObjectBody = `export default {
-	mutateValue: async function (){
-    const response = await Api1.run()
+	mutateValue: function (){
+    const response = Api1.data
     response.users[0].name = "__" + response.users[0].name
 		return response.users[0].name
 	},
