@@ -3,13 +3,13 @@ import { Helmet } from "react-helmet";
 import styled from "styled-components";
 
 const Wrapper = styled.section<{ isFixed?: boolean }>`
-  ${({ isFixed }) =>
-    isFixed
+  ${(props) =>
+    props.isFixed
       ? `margin: 0;
   position: fixed;
   top: 48px;
   width: 100%;`
-      : `margin-top: ${(props: any) => props.theme.homePage.header}px;`}
+      : `margin-top: ${props.theme.homePage.header}px;`}
   && .fade {
     position: relative;
   }
@@ -53,8 +53,9 @@ type PageWrapperProps = {
 };
 
 export function PageWrapper(props: PageWrapperProps) {
+  const { isFixed = false } = props;
   return (
-    <Wrapper isFixed={props.isFixed}>
+    <Wrapper isFixed={isFixed}>
       <Helmet>
         <title>{`${
           props.displayName ? `${props.displayName} | ` : ""
