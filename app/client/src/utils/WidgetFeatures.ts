@@ -123,6 +123,14 @@ function updateMinMaxDynamicHeight(
         propertyValue: props.bottomRow - props.topRow,
       });
     }
+
+    // Case where maxDynamicHeight is zero
+    if (isNaN(maxDynamicHeight) || maxDynamicHeight === 0) {
+      updates.push({
+        propertyPath: "maxDynamicHeight",
+        propertyValue: props.bottomRow - props.topRow,
+      });
+    }
   } else if (propertyValue === DynamicHeight.AUTO_HEIGHT) {
     updates.push(
       {
