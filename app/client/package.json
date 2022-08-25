@@ -179,7 +179,8 @@
     "generate:widget": "plop --plopfile generators/index.js",
     "postbuild": "rm build/mockServiceWorker.js",
     "postinstall": "patch-package && CURRENT_SCOPE=client node ../shared/install-dependencies.js",
-    "preinstall": "CURRENT_SCOPE=client node ../shared/build-shared-dep.js"
+    "preinstall": "CURRENT_SCOPE=client node ../shared/build-shared-dep.js",
+    "install": "node cypress/apply-patches.js"
   },
   "browserslist": [
     ">0.2%",
@@ -243,6 +244,9 @@
     "cra-bundle-analyzer": "^0.1.0",
     "cy-verify-downloads": "^0.0.5",
     "cypress": "9.7.0",
+    "chalk": "^4.1.1",
+    "diff": "^5.0.0",
+    "semver": "^7.3.5",
     "cypress-file-upload": "^4.1.1",
     "cypress-image-snapshot": "^4.0.1",
     "cypress-multi-reporters": "^1.2.4",
@@ -262,8 +266,8 @@
     "factory.ts": "^0.5.1",
     "jest-canvas-mock": "^2.3.1",
     "jest-styled-components": "^7.0.8",
-    "mocha": "^7.1.0",
-    "mocha-junit-reporter": "^1.23.3",
+    "mocha": "^9.0.2",
+    "mocha-junit-reporter": "^2.0.0",
     "mochawesome": "^7.1.2",
     "mochawesome-report-generator": "^6.1.1",
     "msw": "^0.28.0",

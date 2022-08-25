@@ -27,7 +27,7 @@ import ApiResponseView, {
   EMPTY_RESPONSE,
 } from "components/editorComponents/ApiResponseView";
 import EmbeddedDatasourcePathField from "components/editorComponents/form/fields/EmbeddedDatasourcePathField";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import { getApiName } from "selectors/formSelectors";
 import ActionNameEditor from "components/editorComponents/ActionNameEditor";
 import ActionSettings from "pages/Editor/ActionSettings";

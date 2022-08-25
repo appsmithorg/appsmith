@@ -1,6 +1,6 @@
 import { getApiPaneSelectedTabIndex } from "selectors/apiPaneSelectors";
 import { setApiPaneSelectedTabIndex } from "actions/apiPaneActions";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import { ReduxAction } from "ce/constants/ReduxActionConstants";
 import { getFocusableField } from "selectors/editorContextSelectors";
 import { setFocusableField } from "actions/editorContextActions";

@@ -13,7 +13,7 @@ import EditableText, {
   SavingState,
 } from "components/ads/EditableText";
 import { updateWidgetName } from "actions/propertyPaneActions";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import { getExistingWidgetNames } from "sagas/selectors";
 import { removeSpecialChars } from "utils/helpers";
 import { useToggleEditWidgetName } from "utils/hooks/dragResizeHooks";

@@ -52,10 +52,10 @@ describe("Validate basic Promises", () => {
     cy.fixture("promisesBtnDsl").then((val: any) => {
       agHelper.AddDsl(val, locator._spanButton("Submit"));
     });
-    apiPage.CreateAndFillApi("https://randomuser.me/api/", "RandomUser");
+    apiPage.CreateAndFillApi("https://randomuser.me/api/", "RandomUser", 30000);
     apiPage.CreateAndFillApi(
       "https://api.genderize.io?name={{this.params.country}}",
-      "Genderize",
+      "Genderize", 30000
     );
     apiPage.ValidateQueryParams({
       key: "name",
@@ -92,7 +92,7 @@ describe("Validate basic Promises", () => {
     });
     apiPage.CreateAndFillApi(
       "https://source.unsplash.com/collection/8439505",
-      "Christmas",
+      "Christmas", 30000
     );
     ee.SelectEntityByName("Button1", "WIDGETS");
     jsEditor.EnterJSContext(
@@ -122,7 +122,7 @@ describe("Validate basic Promises", () => {
     cy.fixture("promisesBtnDsl").then((val: any) => {
       agHelper.AddDsl(val, locator._spanButton("Submit"));
     });
-    apiPage.CreateAndFillApi("https://favqs.com/api/qotd", "InspiringQuotes");
+    apiPage.CreateAndFillApi("https://favqs.com/api/qotd", "InspiringQuotes", 30000);
     jsEditor.CreateJSObject(`const user = 'You';
 return InspiringQuotes.run().then((res) => { showAlert("Today's quote for " + user + " is " + JSON.stringify(res.quote.body), 'success') }).catch(() => showAlert("Unable to fetch quote for " + user, 'warning'))`);
     ee.SelectEntityByName("Button1", "WIDGETS");
@@ -144,7 +144,7 @@ return InspiringQuotes.run().then((res) => { showAlert("Today's quote for " + us
     });
     apiPage.CreateAndFillApi(
       "https://api.agify.io?name={{this.params.person}}",
-      "Agify",
+      "Agify", 30000
     );
     apiPage.ValidateQueryParams({
       key: "name",
@@ -169,7 +169,7 @@ return InspiringQuotes.run().then((res) => { showAlert("Today's quote for " + us
     });
     apiPage.CreateAndFillApi(
       "https://api.jikan.moe/v3/search/anime?q={{this.params.name}}",
-      "GetAnime",
+      "GetAnime", 30000
     );
     ee.SelectEntityByName("List1", "WIDGETS");
     propPane.UpdatePropertyFieldValue(
