@@ -1,5 +1,10 @@
+import { extractIdentifiersFromCode } from "@shared/ast";
+
 export default class AstService {
-  static getAST() {
-    return "Hello World";
+  static getIndentifiersFromScript(script, evalVersion) {
+    return extractIdentifiersFromCode(
+      script,
+      evalVersion,
+    );
   }
 }

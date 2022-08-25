@@ -2,7 +2,7 @@ const { exec } = require("child_process");
 const path = require("path");
 const sharedJSON = require("./shared-dependencies.json");
 
-const CURRENT_DIRECTORY = path.join(__dirname, '..');
+const CURRENT_DIRECTORY = path.join(__dirname, "..");
 const SCOPE_DIRECTORY = process.env.CURRENT_SCOPE;
 
 async function main() {
@@ -55,6 +55,9 @@ async function main() {
     console.log("\x1b[34m", "No Shared Dependency to link");
     console.log("\x1b[34m", "*******************************************");
   }
+
+  // Reset Colors
+  console.log("\x1b[0m");
 }
 
 main();
