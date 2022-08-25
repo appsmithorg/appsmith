@@ -237,6 +237,10 @@ export const updateDependencyMap = ({
 
           const possibleNewlyValidIdentifiersMap: DependencyMap = {};
           Object.keys(dataTreeEvalRef.unusedIdentifiersList).forEach((path) => {
+            const { entityName, propertyPath } = getEntityNameAndPropertyPath(
+              path,
+            );
+            const entity = unEvalDataTree[entityName];
             dataTreeEvalRef.unusedIdentifiersList[path].forEach(
               (identifier) => {
                 if (
@@ -245,7 +249,11 @@ export const updateDependencyMap = ({
                     identifier,
                   )
                 ) {
-                  if (!dataTreeEvalRef.dependencyMap[identifier]) {
+                  if (
+                    !dataTreeEvalRef.dependencyMap[identifier] ||
+                    (isWidget(entity) &&
+                      isPathADynamicTrigger(entity, propertyPath))
+                  ) {
                     extraPathsToLint.push(path);
                   }
 
@@ -636,6 +644,7 @@ export const updateDependencyMap = ({
               dataTreeDiff.payload.propertyPath
             ] = flatten(newDep);
 
+            didUpdateUnusedIdentifiers = true;
             didUpdateTriggerDependencyMap = true;
           }
           break;
