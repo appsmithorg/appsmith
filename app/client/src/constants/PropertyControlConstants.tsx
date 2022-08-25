@@ -20,7 +20,7 @@ export type PropertyPaneSectionConfig = {
   hidden?: (
     props: any,
     propertyPath: string,
-    widgetParentNames?: string[],
+    widgetParentProps?: WidgetProps,
   ) => boolean;
   isDefaultOpen?: boolean;
   propertySectionPath?: string;
@@ -72,7 +72,7 @@ export type PropertyPaneControlConfig = {
   hidden?: (
     props: any,
     propertyPath: string,
-    widgetParentNames?: string[],
+    widgetParentProps?: WidgetProps,
   ) => boolean;
   invisible?: boolean;
   isBindProperty: boolean;
