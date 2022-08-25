@@ -71,7 +71,7 @@ function DebbuggerLogs(props: Props) {
   const theme = useTheme();
   const selectedFilter = useMemo(
     () => LOGS_FILTER_OPTIONS(theme).find((option) => option.value === filter),
-    [filter],
+    [filter, theme],
   );
   const currentUser = useSelector(getCurrentUser);
 
