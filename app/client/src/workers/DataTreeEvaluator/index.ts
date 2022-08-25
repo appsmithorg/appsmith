@@ -19,7 +19,6 @@ import {
   DataTreeEntity,
   DataTreeJSAction,
   DataTreeWidget,
-  ENTITY_TYPE,
   EvaluationSubstitutionType,
   PrivateWidgets,
 } from "entities/DataTree/dataTreeFactory";
@@ -43,7 +42,6 @@ import {
   validateActionProperty,
   addWidgetPropertyDependencies,
   overrideWidgetProperties,
-  isValidEntity,
   getAllPaths,
 } from "workers/evaluationUtils";
 import _ from "lodash";
@@ -75,10 +73,6 @@ import {
 } from "constants/PropertyControlConstants";
 import { klona } from "klona/full";
 import { EvalMetaUpdates } from "./types";
-import {
-  extractInfoFromBinding,
-  getEntityReferencesFromPropertyBindings,
-} from "workers/DependencyMap/utils";
 import {
   updateDependencyMap,
   createDependencyMap,
@@ -1247,86 +1241,6 @@ export default class DataTreeEvaluator {
       }
     });
     return inverseDag;
-  }
-
-  // TODO: create the lookup dictionary once
-  // Response from listEntityDependencies only needs to change if the entity itself changed.
-  // Check if it is possible to make a flat structure with O(1) or at least O(m) lookup instead of O(n*m)
-  getPropertyPathReferencesInExistingBindings(
-    dataTree: DataTree,
-    propertyPath: string,
-  ) {
-    const possibleRefs: DependencyMap = {};
-    Object.keys(dataTree).forEach((entityName) => {
-      const entity = dataTree[entityName];
-      if (
-        isValidEntity(entity) &&
-        (entity.ENTITY_TYPE === ENTITY_TYPE.ACTION ||
-          entity.ENTITY_TYPE === ENTITY_TYPE.JSACTION ||
-          entity.ENTITY_TYPE === ENTITY_TYPE.WIDGET)
-      ) {
-        const entityPropertyBindings = this.listEntityDependencies(
-          entity,
-          entityName,
-        );
-        Object.keys(entityPropertyBindings).forEach((path) => {
-          const propertyBindings = entityPropertyBindings[path];
-          const references = _.flatten(
-            propertyBindings.map((binding) => {
-              {
-                try {
-                  return extractInfoFromBinding(binding, this.allKeys)
-                    .references;
-                } catch (error) {
-                  this.errors.push({
-                    type: EvalErrorTypes.EXTRACT_DEPENDENCY_ERROR,
-                    message: (error as Error).message,
-                    context: {
-                      script: binding,
-                    },
-                  });
-                  return [];
-                }
-              }
-            }),
-          );
-          references.forEach((value) => {
-            if (isChildPropertyPath(propertyPath, value)) {
-              possibleRefs[path] = propertyBindings;
-            }
-          });
-        });
-      }
-    });
-    return possibleRefs;
-  }
-
-  getTriggerFieldReferencesInExistingBindings(
-    dataTree: DataTree,
-    entityNamePath: string,
-  ) {
-    const possibleRefs: DependencyMap = {};
-    Object.keys(dataTree).forEach((entityName) => {
-      const entity = dataTree[entityName];
-      if (isWidget(entity)) {
-        let entityPropertyBindings: DependencyMap = {};
-        entityPropertyBindings = {
-          ...entityPropertyBindings,
-          ...this.listTriggerFieldDependencies(entity, entityName),
-        };
-        Object.keys(entityPropertyBindings).forEach((path) => {
-          const propertyBindings = entityPropertyBindings[path];
-          const references = getEntityReferencesFromPropertyBindings(
-            propertyBindings,
-            this,
-          );
-          if (references.includes(entityNamePath)) {
-            possibleRefs[path] = references;
-          }
-        });
-      }
-    });
-    return possibleRefs;
   }
 
   evaluateActionBindings(

@@ -1,4 +1,3 @@
-import { flatten } from "lodash";
 import toPath from "lodash/toPath";
 import { EvalErrorTypes } from "utils/DynamicBindingUtils";
 import { extractIdentifiersFromCode } from "@shared/ast";
@@ -72,40 +71,4 @@ export const extractInfoFromIdentifiers = (
     unreferencedIdentifiers.push(identifier);
   });
   return { references: Array.from(references), unreferencedIdentifiers };
-};
-/**
- *
- * @param propertyBindings
- * @returns list of entities referenced in propertyBindings
- * Eg. [Api1.run(), Api2.data, Api1.data] => [Api1, Api2]
- */
-export const getEntityReferencesFromPropertyBindings = (
-  propertyBindings: string[],
-  dataTreeEvalRef: DataTreeEvaluator,
-): string[] => {
-  return flatten(
-    propertyBindings.map((binding) => {
-      {
-        try {
-          return [
-            ...new Set(
-              extractInfoFromBinding(
-                binding,
-                dataTreeEvalRef.allKeys,
-              ).references.map((reference) => reference.split(".")[0]),
-            ),
-          ];
-        } catch (error) {
-          dataTreeEvalRef.errors.push({
-            type: EvalErrorTypes.EXTRACT_DEPENDENCY_ERROR,
-            message: (error as Error).message,
-            context: {
-              script: binding,
-            },
-          });
-          return [];
-        }
-      }
-    }),
-  );
 };
