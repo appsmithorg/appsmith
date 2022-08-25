@@ -378,7 +378,8 @@ describe("AForce - Community Issues page validations", function() {
     cy.get(table._trashIcon)
       .closest("div")
       .click({ force: true });
-    agHelper.Sleep(6000); //allowing time to delete!
+    //agHelper.Sleep(6000); //allowing time to delete!
+    agHelper.WaitUntilEleDisappear(locator._widgetInDeployed("tabswidget"));
     agHelper.AssertElementAbsence(locator._widgetInDeployed("tabswidget"));
     table.WaitForTableEmpty();
 

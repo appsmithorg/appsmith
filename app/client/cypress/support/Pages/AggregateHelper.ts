@@ -181,18 +181,13 @@ export class AggregateHelper {
     selector: string,
     msgToCheckforDisappearance: string | "" = "",
   ) {
-    cy.waitUntil(
-      () => (selector.includes("//") ? cy.xpath(selector) : cy.get(selector)),
-      {
-        //errorMsg: msgToCheckforDisappearance + " did not disappear",
-        timeout: 20000,
-        interval: 1000,
-      },
-    ).then(($ele) => {
-      cy.wrap($ele)
-        //.contains(msgToCheckforDisappearance)
-        .should("have.length", 0);
-      this.Sleep(500);
+    let locator = selector.includes("//")
+      ? cy.xpath(selector)
+      : cy.get(selector);
+    locator.waitUntil(($ele) => cy.wrap($ele).should("have.length", 0), {
+      //errorMsg: msgToCheckforDisappearance + " did not disappear",
+      timeout: 20000,
+      interval: 1000,
     });
   }
 
