@@ -1,4 +1,4 @@
-import { parse, Node } from "acorn";
+import { parse, Node, Options, SourceLocation } from "acorn";
 import { ancestor, simple } from "acorn-walk";
 import { ECMA_VERSION, NodeTypes } from "constants/ast";
 import { isFinite, isString, toPath } from "lodash";
@@ -104,6 +104,10 @@ export interface PropertyNode extends Node {
   kind: "init" | "get" | "set";
 }
 
+type NodeWithLocation<NodeType> = NodeType & {
+  loc: SourceLocation;
+};
+
 /* We need these functions to typescript casts the nodes with the correct types */
 export const isIdentifierNode = (node: Node): node is IdentifierNode => {
   return node.type === NodeTypes.Identifier;
@@ -194,8 +198,9 @@ const isInvalidIdentifierName = (name: string) => {
   );
 };
 
-export const getAST = (code: string) =>
-  parse(code, { ecmaVersion: ECMA_VERSION });
+type GetAstOptions = Omit<Options, "ecmaVersion">;
+export const getAST = (code: string, options?: GetAstOptions) =>
+  parse(code, { ...options, ecmaVersion: ECMA_VERSION });
 
 /**
  * An AST based extractor that fetches all possible identifiers in a given
@@ -463,4 +468,86 @@ export const parseJSObjectWithAST = (
   });
 
   return [...parsedObjectProperties];
+};
+
+export interface MemberExpressionData {
+  property: NodeWithLocation<IdentifierNode | LiteralNode>;
+  object: NodeWithLocation<IdentifierNode>;
+}
+
+export const extractInvalidTopLevelMemberExpressionsFromCode = (
+  code: string,
+  data: Record<string, any>,
+): MemberExpressionData[] => {
+  const invalidTopLevelMemberExpressions = new Set<MemberExpressionData>();
+  const variableDeclarations = new Set<string>();
+  let functionalParams = new Set<functionParam>();
+  let ast: Node = { end: 0, start: 0, type: "" };
+  try {
+    const sanitizedScript = sanitizeScript(code);
+    const wrappedCode = wrapCode(sanitizedScript);
+    ast = getAST(wrappedCode, { locations: true });
+  } catch (e) {
+    if (e instanceof SyntaxError) {
+      // Syntax error. Ignore and return 0 identifiers
+      return [];
+    }
+    throw e;
+  }
+  simple(ast, {
+    MemberExpression(node: Node) {
+      const { object, property } = node as MemberExpressionNode;
+      if (!isIdentifierNode(object)) return;
+      if (!(object.name in data)) return;
+      if (
+        isLiteralNode(property) &&
+        isString(property.value) &&
+        !(property.value in data[object.name])
+      ) {
+        invalidTopLevelMemberExpressions.add({
+          object,
+          property,
+        } as MemberExpressionData);
+      }
+      if (isIdentifierNode(property) && !(property.name in data[object.name])) {
+        invalidTopLevelMemberExpressions.add({
+          object,
+          property,
+        } as MemberExpressionData);
+      }
+    },
+    VariableDeclarator(node: Node) {
+      if (isVariableDeclarator(node)) {
+        variableDeclarations.add(node.id.name);
+      }
+    },
+    FunctionDeclaration(node: Node) {
+      if (!isFunctionDeclaration(node)) return;
+      const {} = Array.from(getFunctionalParamsFromNode(node));
+    },
+    FunctionExpression(node: Node) {
+      if (!isFunctionExpression(node)) return;
+      functionalParams = new Set([
+        ...functionalParams,
+        ...getFunctionalParamsFromNode(node),
+      ]);
+    },
+  });
+
+  const invalidTopLevelMemberExpressionsArray = Array.from(
+    invalidTopLevelMemberExpressions,
+  );
+  const functionalParamNames = Array.from(functionalParams).map(
+    (param) => param.paramName,
+  );
+
+  invalidTopLevelMemberExpressionsArray.filter(
+    (MemberExpression) =>
+      !(
+        variableDeclarations.has(MemberExpression.object.name) ||
+        functionalParamNames.includes(MemberExpression.object.name)
+      ),
+  );
+
+  return invalidTopLevelMemberExpressionsArray;
 };
