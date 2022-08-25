@@ -100,9 +100,9 @@ import {
 import { getMoveCursorLeftKey } from "./utils/cursorLeftMovement";
 import { interactionAnalyticsEvent } from "utils/AppsmithUtils";
 import { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTypeDefCreator";
-import { getCodeEditorCursorPosition } from "selectors/uiContextSelectors";
-import { CursorPosition } from "reducers/uiReducers/codeEditorContextReducer";
-import { setCodeEditorCursorPosition } from "actions/uiContextActions";
+import { getCodeEditorCursorPosition } from "selectors/editorContextSelectors";
+import { CursorPosition } from "reducers/uiReducers/editorContextReducer";
+import { setCodeEditorCursorPosition } from "actions/editorContextActions";
 
 type ReduxStateProps = ReturnType<typeof mapStateToProps>;
 type ReduxDispatchProps = ReturnType<typeof mapDispatchToProps>;
@@ -336,6 +336,13 @@ class CodeEditor extends Component<Props, State> {
         );
 
         this.lintCode(editor);
+
+        if (this.props.cursorPosition) {
+          editor.focus();
+          setTimeout(() => {
+            editor.setCursor(this.props.cursorPosition);
+          }, 0);
+        }
       }.bind(this);
 
       // Finally create the Codemirror editor
@@ -529,16 +536,6 @@ class CodeEditor extends Component<Props, State> {
             hinter.showHint(cm, entityInformation, blockCompletions),
         );
     }
-    const { ch, line, sticky } = cm.getCursor();
-    if (
-      ch === 0 &&
-      line === 0 &&
-      sticky === null &&
-      this.props.cursorPosition
-    ) {
-      cm.setCursor(this.props.cursorPosition);
-    }
-    //this.props.setCursorPosition(this.props.dataTreePath, { line, ch });
   };
 
   handleEditorBlur = (cm: CodeMirror.Editor) => {

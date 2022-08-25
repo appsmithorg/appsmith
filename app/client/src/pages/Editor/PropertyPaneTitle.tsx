@@ -144,12 +144,12 @@ const PropertyPaneTitle = memo(function PropertyPaneTitle(
                 // @ts-expect-error: Focus
                 ?.focus();
             } else {
-              document
-                .querySelector(
-                  '.t--property-pane-section-wrapper [tabindex]:not([tabindex="-1"])',
-                )
-                // @ts-expect-error: Focus
-                ?.focus();
+              // document
+              //   .querySelector(
+              //     '.t--property-pane-section-wrapper [tabindex]:not([tabindex="-1"])',
+              //   )
+              //   // @ts-expect-error: Focus
+              //   ?.focus();
             }
           },
           200, // Adding non zero time out as codemirror imports are loaded using idle callback. pr #13676

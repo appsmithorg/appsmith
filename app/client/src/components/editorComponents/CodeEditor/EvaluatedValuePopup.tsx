@@ -28,9 +28,9 @@ import { CodeEditorExpected } from "components/editorComponents/CodeEditor/index
 import { Indices, Layers } from "constants/Layers";
 import { Variant } from "components/ads/common";
 import { useDispatch, useSelector } from "react-redux";
-import { getEvaluatedPopupState } from "selectors/uiContextSelectors";
+import { getEvaluatedPopupState } from "selectors/editorContextSelectors";
 import { AppState } from "reducers";
-import { setEvalPopupState } from "actions/uiContextActions";
+import { setEvalPopupState } from "actions/editorContextActions";
 
 const modifiers: IPopoverSharedProps["modifiers"] = {
   offset: {

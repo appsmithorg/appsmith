@@ -63,7 +63,7 @@ import aclReducer, { AclReduxState } from "@appsmith/reducers/aclReducer";
 import { TriggerValuesEvaluationState } from "./evaluationReducers/triggerReducer";
 import { CanvasWidgetStructure } from "widgets/constants";
 import { FocusHistoryState } from "./uiReducers/focusHistoryReducer";
-import { CodeEditorState } from "./uiReducers/codeEditorContextReducer";
+import { EditorContextState } from "./uiReducers/editorContextReducer";
 
 const appReducer = combineReducers({
   entities: entityReducer,
@@ -119,7 +119,7 @@ export interface AppState {
     appTheming: AppThemingState;
     mainCanvas: MainCanvasReduxState;
     focusHistory: FocusHistoryState;
-    codeEditorContext: CodeEditorState;
+    editorContext: EditorContextState;
   };
   entities: {
     canvasWidgetsStructure: CanvasWidgetStructure;
