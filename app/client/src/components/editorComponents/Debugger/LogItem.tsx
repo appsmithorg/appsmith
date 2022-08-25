@@ -15,7 +15,14 @@ import ReactJson from "react-json-view";
 import styled, { useTheme } from "styled-components";
 import EntityLink, { DebuggerLinkUI } from "./EntityLink";
 import { getLogIcon } from "./helpers";
-import { Icon, IconName, IconSize, Text, TextType } from "design-system";
+import {
+  AppIcon,
+  Icon,
+  IconName,
+  IconSize,
+  Text,
+  TextType,
+} from "design-system";
 import { getTypographyByKey } from "constants/DefaultTheme";
 import { TooltipComponent } from "design-system";
 import {
@@ -115,7 +122,8 @@ const Wrapper = styled.div<{ collapsed: boolean }>`
     margin-right: 18px;
   }
   .debugger-description {
-    display: inline-block;
+    display: flex;
+    align-items: center;
     overflow-wrap: anywhere;
     word-break: break-word;
     max-width: 60%;
@@ -159,9 +167,11 @@ const Wrapper = styled.div<{ collapsed: boolean }>`
   }
 `;
 
-const RowWrapper = styled.div`
-  display: flex;
-  align-items: center;
+const StyledSearchIcon = styled(AppIcon)`
+  && {
+    margin-left: 10px;
+    padding-top: 1px;
+  }
 `;
 
 const JsonWrapper = styled.div`
@@ -187,13 +197,6 @@ const StyledCollapse = styled(Collapse)`
 
   .${Classes.ICON} {
     margin-left: 10px;
-  }
-`;
-
-const StyledSearchIcon = styled(Icon)`
-  && {
-    margin-left: 10px;
-    vertical-align: middle;
   }
 `;
 
@@ -293,43 +296,35 @@ function LogItem(props: LogItemProps) {
         />
         <span className="debugger-time">{props.timestamp}</span>
         <div className="debugger-description">
-          {!(
-            props.category === LOG_CATEGORY.USER_GENERATED &&
-            showToggleIcon() &&
-            isOpen
-          ) && (
-            <RowWrapper>
-              <span className="debugger-label t--debugger-log-message">
-                {props.text}
-              </span>
+          <span className="debugger-label t--debugger-log-message">
+            {props.text}
+          </span>
 
-              {props.timeTaken && (
-                <span className="debugger-timetaken">{props.timeTaken}</span>
-              )}
-              {props.category === LOG_CATEGORY.PLATFORM_GENERATED &&
-                props.severity !== Severity.INFO && (
-                  <div onClick={(e) => e.stopPropagation()}>
-                    <ContextualMenu entity={props.source} error={errorToSearch}>
-                      <TooltipComponent
-                        content={
-                          <Text style={{ color: "#ffffff" }} type={TextType.P3}>
-                            {createMessage(TROUBLESHOOT_ISSUE)}
-                          </Text>
-                        }
-                        minimal
-                        position="bottom-left"
-                      >
-                        <StyledSearchIcon
-                          className={`${Classes.ICON} search-menu`}
-                          name={"help-in-circle"}
-                          size={IconSize.XL}
-                        />
-                      </TooltipComponent>
-                    </ContextualMenu>
-                  </div>
-                )}
-            </RowWrapper>
+          {props.timeTaken && (
+            <span className="debugger-timetaken">{props.timeTaken}</span>
           )}
+          {props.category === LOG_CATEGORY.PLATFORM_GENERATED &&
+            props.severity === Severity.ERROR && (
+              <div onClick={(e) => e.stopPropagation()}>
+                <ContextualMenu entity={props.source} error={errorToSearch}>
+                  <TooltipComponent
+                    content={
+                      <Text style={{ color: "#ffffff" }} type={TextType.P3}>
+                        {createMessage(TROUBLESHOOT_ISSUE)}
+                      </Text>
+                    }
+                    minimal
+                    position="bottom-left"
+                  >
+                    <StyledSearchIcon
+                      className={`${Classes.ICON} search-menu`}
+                      name={"help"}
+                      size={IconSize.SMALL}
+                    />
+                  </TooltipComponent>
+                </ContextualMenu>
+              </div>
+            )}
         </div>
         {props.source && (
           <EntityLink
