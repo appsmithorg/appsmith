@@ -12,12 +12,19 @@ import {
 } from "entities/AppsmithConsole";
 import moment from "moment";
 import store from "store";
+import AnalyticsUtil from "./AnalyticsUtil";
 
 function dispatchAction(action: ReduxAction<unknown>) {
   store.dispatch(action);
 }
 
 function log(ev: Log) {
+  if (ev.category === LOG_CATEGORY.USER_GENERATED) {
+    AnalyticsUtil.logEvent("CONSOLE_LOG_CREATED", {
+      entityName: ev.source?.name,
+      entityType: ev.source?.type,
+    });
+  }
   dispatchAction(debuggerLogInit(ev));
 }
 
