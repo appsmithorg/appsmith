@@ -7,8 +7,6 @@ export const Wrapper = styled.div`
   flex-basis: calc(100% - ${(props) => props.theme.homePage.leftPane.width}px);
   margin-left: ${(props) => props.theme.homePage.main.marginLeft}px;
   padding-top: 40px;
-  height: calc(100vh - ${(props) => props.theme.homePage.header}px);
-  overflow: auto;
 `;
 
 export const HeaderWrapper = styled.div<{ margin?: string }>`
@@ -27,13 +25,18 @@ export const SettingsSubHeader = styled.div`
 `;
 
 export const SettingsFormWrapper = styled.div`
-  max-width: 40rem;
+  height: calc(100vh - ${(props) => props.theme.homePage.header}px - 84px);
+  overflow: auto;
 
   .openid_tag {
     .${Classes.TAG_REMOVE} {
       display: none;
     }
   }
+`;
+
+export const MaxWidthWrapper = styled.div`
+  max-width: 40rem;
 `;
 
 export const BottomSpace = styled.div`
