@@ -19,19 +19,19 @@ export type FlattenedWidgetProps<orType = never> =
 const initialState: MetaCanvasWidgetsReduxState = {};
 
 const metaCanvasWidgetsReducer = createImmerReducer(initialState, {
-  [ReduxActionTypes.ADD_PSEUDO_WIDGET]: (
+  [ReduxActionTypes.ADD_META_WIDGET]: (
     state: MetaCanvasWidgetsReduxState,
     action: ReduxAction<UpdateCanvasPayload>,
   ) => {
     return action.payload.widgets;
   },
-  [ReduxActionTypes.UPDATE_PSEUDO_WIDGET]: (
+  [ReduxActionTypes.UPDATE_META_WIDGET]: (
     state: MetaCanvasWidgetsReduxState,
     action: ReduxAction<UpdateCanvasPayload>,
   ) => {
     return action.payload.widgets;
   },
-  [ReduxActionTypes.DELETE_PSEUDO_WIDGET]: (
+  [ReduxActionTypes.DELETE_META_WIDGET]: (
     state: MetaCanvasWidgetsReduxState,
     action: ReduxAction<UpdateCanvasPayload>,
   ) => {
