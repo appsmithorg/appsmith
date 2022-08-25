@@ -15,7 +15,6 @@ import { clearLogs } from "actions/debuggerActions";
 import { Classes } from "components/ads/common";
 import { CLEAR_LOG_TOOLTIP, createMessage } from "@appsmith/constants/messages";
 import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
-import { Classes as BlueprintClasses } from "@blueprintjs/core";
 
 const Wrapper = styled.div`
   flex-direction: row;
@@ -24,14 +23,17 @@ const Wrapper = styled.div`
   padding: 8px 0;
   margin-left: 16px;
 
+  .debugger-clear-logs {
+    display: flex;
+    align-items: center;
+  }
+
   .debugger-search {
     height: 32px;
     width: 560px;
   }
 
   .debugger-filter {
-    /* border: none;
-    box-shadow: none; */
     width: 260px;
     height: 32px;
     min-height: 32px;
@@ -47,11 +49,6 @@ const Wrapper = styled.div`
       margin-left: -32px;
       z-index: 2;
     }
-  }
-
-  .${BlueprintClasses.POPOVER_WRAPPER} {
-    display: flex;
-    align-items: center;
   }
 `;
 
@@ -72,6 +69,7 @@ function FilterHeader(props: FilterHeaderProps) {
   return (
     <Wrapper>
       <TooltipComponent
+        className="debugger-clear-logs"
         content={createMessage(CLEAR_LOG_TOOLTIP)}
         hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
         position="bottom"
