@@ -6,10 +6,11 @@ import { ThemeProp } from "components/ads/common";
 import { BlueprintRadioSwitchGroupTransform } from "constants/DefaultTheme";
 import { LabelPosition } from "components/constants";
 import { TextSize } from "constants/WidgetConstants";
-import LabelWithTooltip, {
+import {
+  LabelWithTooltip,
   labelLayoutStyles,
   LABEL_CONTAINER_CLASS,
-} from "components/ads/LabelWithTooltip";
+} from "design-system";
 import { StyledSwitch } from "widgets/SwitchWidget/component";
 
 export interface SwitchGroupContainerProps {

@@ -2,11 +2,8 @@ import { DataTree, DataTreeJSAction } from "entities/DataTree/dataTreeFactory";
 import { isEmpty, set } from "lodash";
 import { EvalErrorTypes } from "utils/DynamicBindingUtils";
 import { JSUpdate, ParsedJSSubAction } from "utils/JSPaneUtils";
-import {
-  isTypeOfFunction,
-  parseJSObjectWithAST,
-  isFunctionAsync,
-} from "workers/ast";
+import { isFunctionAsync } from "workers/ast";
+import { isTypeOfFunction, parseJSObjectWithAST } from "@shared/ast";
 import DataTreeEvaluator from "workers/DataTreeEvaluator";
 import evaluateSync from "workers/evaluate";
 import {
@@ -19,6 +16,7 @@ import {
   removeFunctionsAndVariableJSCollection,
   updateJSCollectionInUnEvalTree,
 } from "workers/JSObject/utils";
+import { getAllAsyncActionsInDataTree } from "workers/Actions";
 
 /**
  * Here we update our unEvalTree according to the change in JSObject's body
@@ -247,6 +245,8 @@ export function parseJSActions(
     });
   }
 
+  const asyncActionCollection = getAllAsyncActionsInDataTree(unEvalDataTree);
+
   Object.keys(jsUpdates).forEach((entityName) => {
     const parsedBody = jsUpdates[entityName].parsedBody;
 
@@ -254,12 +254,7 @@ export function parseJSActions(
     parsedBody.actions = parsedBody.actions.map((action) => {
       return {
         ...action,
-        isAsync: isFunctionAsync(
-          action.body,
-          // unEvalDataTree,
-          // dataTreeEvalRef.resolvedFunctions,
-          // dataTreeEvalRef.logs,
-        ),
+        isAsync: isFunctionAsync(action.body, asyncActionCollection),
         // parsedFunction - used only to determine if function is async
         parsedFunction: undefined,
       } as ParsedJSSubAction;

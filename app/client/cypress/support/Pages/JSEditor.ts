@@ -6,6 +6,7 @@ export interface ICreateJSObjectOptions {
   toRun: boolean;
   shouldCreateNewJSObj: boolean;
   lineNumber?: number;
+  prettify?: boolean;
 }
 const DEFAULT_CREATE_JS_OBJECT_OPTIONS = {
   paste: true,
@@ -85,6 +86,8 @@ export class JSEditor {
     `${JSFunctionName}-settings`;
   _asyncJSFunctionSettings = `.t--async-js-function-settings`;
   _debugCTA = `button.js-editor-debug-cta`;
+  _lineinJsEditor = (lineNumber: number) =>
+    ":nth-child(" + lineNumber + ") > .CodeMirror-line";
   //#endregion
 
   //#region constants
@@ -112,7 +115,8 @@ export class JSEditor {
     cy.get(this._jsObjTxt).should("not.exist");
 
     //cy.waitUntil(() => cy.get(this.locator._toastMsg).should('not.be.visible')) // fails sometimes
-    this.agHelper.WaitUntilToastDisappear("created successfully"); //to not hinder with other toast msgs!
+    //this.agHelper.WaitUntilToastDisappear("created successfully"); //to not hinder with other toast msgs!
+    this.agHelper.AssertContains("created successfully");
     this.agHelper.Sleep();
   }
 
@@ -124,15 +128,14 @@ export class JSEditor {
       completeReplace,
       lineNumber = 4,
       paste,
+      prettify = true,
       shouldCreateNewJSObj,
       toRun,
     } = options;
 
     shouldCreateNewJSObj && this.NavigateToNewJSEditor();
     if (!completeReplace) {
-      const downKeys = Array.from(new Array(lineNumber), () => "{downarrow}")
-        .toString()
-        .replaceAll(",", "");
+      const downKeys = "{downarrow}".repeat(lineNumber);
       cy.get(this.locator._codeMirrorTextArea)
         .first()
         .focus()
@@ -143,6 +146,8 @@ export class JSEditor {
         .focus()
         .type(this.selectAllJSObjectContentShortcut)
         .type("{backspace}", { force: true });
+      this.agHelper.AssertContains("Start object with export default");
+      this.agHelper.AssertAutoSave();
     }
 
     cy.get(this.locator._codeMirrorTextArea)
@@ -154,15 +159,18 @@ export class JSEditor {
         } else {
           cy.get(el).type(JSCode, {
             parseSpecialCharSequences: false,
-            delay: 100,
+            delay: 50,
             force: true,
           });
         }
       });
 
     this.agHelper.AssertAutoSave();
-    this.agHelper.ActionContextMenuWithInPane("Prettify Code");
-    this.agHelper.AssertAutoSave(); //Ample wait due to open bug # 10284
+    // Ample wait due to open bug # 10284
+    if (prettify) {
+      this.agHelper.ActionContextMenuWithInPane("Prettify Code");
+      this.agHelper.AssertAutoSave();
+    }
 
     if (toRun) {
       //clicking 1 times & waits for 2 second for result to be populated!
@@ -176,7 +184,7 @@ export class JSEditor {
   }
 
   //Edit the name of a JSObject's property (variable or function)
-  public EditJSObj(newContent: string) {
+  public EditJSObj(newContent: string, toPrettify = true) {
     cy.get(this.locator._codeMirrorTextArea)
       .first()
       .focus()
@@ -184,8 +192,8 @@ export class JSEditor {
       .then((el: JQuery<HTMLElement>) => {
         this.agHelper.Paste(el, newContent);
       });
-    this.agHelper.Sleep(2000);//Settling time for edited js code
-    this.agHelper.ActionContextMenuWithInPane("Prettify Code");
+    this.agHelper.Sleep(2000); //Settling time for edited js code
+    toPrettify && this.agHelper.ActionContextMenuWithInPane("Prettify Code");
     this.agHelper.AssertAutoSave();
   }
 

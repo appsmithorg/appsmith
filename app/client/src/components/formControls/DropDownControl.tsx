@@ -1,7 +1,7 @@
 import React from "react";
 import BaseControl, { ControlProps } from "./BaseControl";
 import styled from "styled-components";
-import Dropdown, { DropdownOption } from "components/ads/Dropdown";
+import { Dropdown, DropdownOption } from "design-system";
 import { ControlType } from "constants/PropertyControlConstants";
 import { get, isNil } from "lodash";
 import {
@@ -10,7 +10,7 @@ import {
   WrappedFieldMetaProps,
 } from "redux-form";
 import { connect } from "react-redux";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import { getDynamicFetchedValues } from "selectors/formSelectors";
 import { change, getFormValues } from "redux-form";
 import {
