@@ -3,10 +3,10 @@ import {
   CONTAINER_GRID_PADDING,
   GridDefaults,
 } from "constants/WidgetConstants";
-import { debounce, isEmpty, isNaN, throttle } from "lodash";
+import { debounce, isArray, isEmpty, isNaN, throttle } from "lodash";
 import { CanvasDraggingArenaProps } from "pages/common/CanvasArenas/CanvasDraggingArena";
 import React, { useEffect, useRef } from "react";
-import { useSelector } from "react-redux";
+import { useSelector } from "store";
 import {
   MovementLimitMap,
   ReflowDirection,
@@ -30,6 +30,7 @@ import {
 import { useCanvasDragToScroll } from "./useCanvasDragToScroll";
 import ContainerJumpMetrics from "./ContainerJumpMetric";
 import { LayoutDirection } from "components/constants";
+import { getWidgetByID, getWidgets } from "sagas/selectors";
 
 export interface XYCord {
   x: number;
@@ -159,15 +160,28 @@ export const useCanvasDragging = (
     }
     offsets.push(mOffset);
   };
+  const getChildNode = (widgetId: string): any =>
+    document.querySelector(`.auto-layout-child-${widgetId}`);
+  const hideDraggedChildren = (arr: string[]): void => {
+    arr.forEach((each) => {
+      const el = getChildNode(each);
+      if (!el) return;
+      el.classList.add("auto-temp-no-display");
+    });
+  };
+  const allWidgets = useSelector(getWidgets);
 
   const calculateHighlightOffsets = () => {
     if (useAutoLayout && isDragging && isCurrentDraggedCanvas) {
-      // console.log("#### START calculate highlight offsets");
-      // console.log(`#### canvas id: ${widgetId}`);
+      console.log("#### START calculate highlight offsets");
+      console.log(`#### canvas id: ${widgetId}`);
       // calculate total drag size to translate siblings by
       blocksToDraw?.map((each) => {
         dragBlocksSize += isVertical ? each.height : each.width;
       });
+      const blocks = blocksToDraw.map((block) => block.widgetId);
+      if (!blocks || !blocks.length) return;
+
       // update dimensions of the current canvas
       const container = document.querySelector(`.flex-container-${widgetId}`);
       containerDimensions = {
@@ -177,58 +191,55 @@ export const useCanvasDragging = (
         height: (container as any).clientHeight,
       };
 
-      initializeOffsets();
-
       // Get all children of current dragging canvas
-      const els = document.querySelectorAll(`.auto-layout-parent-${widgetId}`);
-      if (els && els.length && offsets.length !== els.length) {
+      const canvasChildren = allWidgets[widgetId].children || [];
+      const offsetChildren = canvasChildren.filter((each) => {
+        const children = allWidgets[each].children?.filter(
+          (item) => blocks.indexOf(item) === -1,
+        );
+        return isArray(children) && children.length > 0;
+      });
+      // Temporarily hide dragged children to discount them from offset calculation
+      const draggedChildren = canvasChildren.filter(
+        (child) => offsetChildren.indexOf(child) === -1,
+      );
+      hideDraggedChildren(draggedChildren);
+      console.log(`#### children length: ${JSON.stringify(canvasChildren)}`);
+      console.log(`#### offset children: ${JSON.stringify(offsetChildren)}`);
+
+      if (offsetChildren && offsetChildren.length) {
         // Get widget ids of all widgets being dragged
-        const blocks = blocksToDraw.map((block) => block.widgetId);
-        els.forEach((el) => {
-          // Extract widget id of current widget
-          const mClass = el.className
-            .split("auto-layout-child-")[1]
-            .split(" ")[0];
-          const emptyWrapper: boolean = isEmptyWrapper(
-            el.querySelectorAll(`div[class*=auto-layout-parent-${mClass}]`),
-            blocks,
-          );
-          /**
-           * If the widget is also being dragged,
-           * Or if the layout wrapper is empty,
-           * then discount its presence from offset calculation.
-           */
-          if (
-            blocks &&
-            blocks.length &&
-            (blocks.indexOf(mClass) > -1 || emptyWrapper)
-          ) {
-            // Temporarily hide the dragged widget
-            // console.log(`#### hide widget: ${mClass}`);
-            (el as any).classList.add("auto-temp-no-display");
-            return;
+        offsetChildren.forEach((each) => {
+          const el = getChildNode(each);
+          if (!el) return;
+
+          console.log(`#### child: ${el.className}`);
+          console.log(`#### offset parent: ${el.offsetParent.className}`);
+          // Add a new offset using the current element's dimensions and position
+          let mOffset: HighlightDimension;
+          if (isVertical) {
+            console.log(`#### el top: ${(el as any).offsetTop}`);
+            console.log(
+              `#### el height: ${el.offsetHeight} - ${el.clientHeight}`,
+            );
+            console.log(`#### container top: ${containerDimensions.top}`);
+            mOffset = {
+              x: 0,
+              y: (el as any).offsetTop - containerDimensions.top,
+              width: containerDimensions.width,
+              height: 4,
+            };
           } else {
-            // Add a new offset using the current element's dimensions and position
-            let mOffset: HighlightDimension;
-            if (isVertical) {
-              mOffset = {
-                x: 0,
-                y: (el as any).offsetTop - 2 * containerDimensions.top,
-                width: containerDimensions.width,
-                height: 4,
-              };
-            } else {
-              mOffset = {
-                x: (el as any).offsetLeft - 2 * containerDimensions.left,
-                y: (el as any).offsetTop - 2 * containerDimensions.top,
-                height: (el as any).clientHeight,
-                width: 4,
-              };
-            }
-            offsets.push(mOffset);
-            // siblings[mClass] = mOffset;
-            siblingElements.push(el);
+            mOffset = {
+              x: (el as any).offsetLeft - containerDimensions.left,
+              y: (el as any).offsetTop - containerDimensions.top,
+              height: (el as any).clientHeight,
+              width: 4,
+            };
           }
+          offsets.push(mOffset);
+          // siblings[each] = mOffset;
+          siblingElements.push(el);
         });
         /**
          * If the dragged element has siblings,
@@ -238,11 +249,16 @@ export const useCanvasDragging = (
         if (siblingElements.length) {
           let finalOffset: HighlightDimension;
           if (isVertical) {
+            console.log(
+              `#### last sibling height: ${
+                siblingElements[siblingElements.length - 1].clientHeight
+              }`,
+            );
             finalOffset = {
               x: 0,
               y:
                 (siblingElements[siblingElements.length - 1] as any).offsetTop -
-                2 * containerDimensions.top +
+                containerDimensions.top +
                 siblingElements[siblingElements.length - 1].clientHeight +
                 8,
               width: containerDimensions.width,
@@ -258,7 +274,7 @@ export const useCanvasDragging = (
                 8,
               y:
                 (siblingElements[siblingElements.length - 1] as any).offsetTop -
-                2 * containerDimensions.top +
+                containerDimensions.top +
                 8,
               width: 4,
               height: (siblingElements[siblingElements.length - 1] as any)
@@ -269,8 +285,9 @@ export const useCanvasDragging = (
         }
         offsets = [...new Set(offsets)];
       }
-      // console.log(`#### offsets: ${JSON.stringify(offsets)}`);
-      // console.log(`#### END calculate highlight offsets`);
+      if (!offsets || !offsets.length) initializeOffsets();
+      console.log(`#### offsets: ${JSON.stringify(offsets)}`);
+      console.log(`#### END calculate highlight offsets`);
     }
   };
   calculateHighlightOffsets();
@@ -290,7 +307,7 @@ export const useCanvasDragging = (
     lastTranslatedIndex = -10;
   };
 
-  if (!isDragging) {
+  if (!isDragging || !isCurrentDraggedCanvas) {
     cleanUpTempStyles();
   }
 
@@ -802,7 +819,7 @@ export const useCanvasDragging = (
         ): HighlightDimension => {
           let base: HighlightDimension[] = [];
           if (!offsets || !offsets.length) initializeOffsets();
-          else base = offsets;
+          base = offsets;
 
           const pos: XYCord = {
             x: e?.offsetX || val?.x,
