@@ -18,7 +18,6 @@ import {
   ButtonPlacementTypes,
   ButtonPlacement,
 } from "components/constants";
-import FormWidget from "widgets/FormWidget/widget";
 
 class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
   onButtonClickBound: (event: React.MouseEvent<HTMLElement>) => void;
