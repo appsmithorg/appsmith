@@ -18,25 +18,25 @@ import {
 import { getJSToLint, getLintingErrors, pathRequiresLinting } from "./utils";
 
 interface LintTreeArgs {
+  extraPathsToLint: string[];
   unEvalTree: DataTree;
   evalTree: DataTree;
   sortedDependencies: string[];
-  triggerPathsToLint: string[];
 }
 
 export const lintTree = (args: LintTreeArgs) => {
-  const { evalTree, sortedDependencies, triggerPathsToLint, unEvalTree } = args;
+  const { evalTree, extraPathsToLint, sortedDependencies, unEvalTree } = args;
   const GLOBAL_DATA_WITHOUT_FUNCTIONS = createGlobalData({
     dataTree: unEvalTree,
     resolvedFunctions: {},
     isTriggerBased: false,
   });
   // trigger paths
-  const triggerPaths = [...triggerPathsToLint];
+  const triggerPaths: string[] = [];
   // Certain paths, like JS Object's body are binding paths where appsmith functions are needed in the global data
   const bindingPathsRequiringFunctions: string[] = [];
 
-  sortedDependencies.forEach((fullPropertyPath) => {
+  sortedDependencies.concat(extraPathsToLint).forEach((fullPropertyPath) => {
     const { entityName, propertyPath } = getEntityNameAndPropertyPath(
       fullPropertyPath,
     );

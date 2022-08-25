@@ -5,11 +5,16 @@ import { extractIdentifiersFromCode } from "@shared/ast";
 import DataTreeEvaluator from "workers/DataTreeEvaluator";
 import { convertPathToString } from "../evaluationUtils";
 
-/**
- *
+/** This function extracts references and unreferencedIdentifiers from binding {{}}
  * @param script
  * @param allPaths
- * @returns references and unreferencedIdentifiers from binding
+ * @returns reference - Valid references from bindings
+ * unreferencedIdentifiers- Identifiers which are currently invalid
+ * @example - For binding {{unknownEntity.name + Api1.name}}, it returns
+ * {
+ * references:[Api1.name],
+ * unreferencedIdentifiers: [unknownEntity.name]
+ * }
  */
 export const extractInfoFromBinding = (
   script: string,
@@ -22,11 +27,16 @@ export const extractInfoFromBinding = (
   return extractInfoFromIdentifiers(identifiers, allPaths);
 };
 
-/**
- *
+/** This function extracts references and unreferencedIdentifiers from an Array of Identifiers
  * @param identifiers
  * @param allPaths
- * @returns references and unreferencedIdentifiers from identifiers
+ * @returns references- Valid references from identifiers
+ * unreferencedIdentifiers- Identifiers which are currently invalid
+ *  @example - For identifiers [unknownEntity.name , Api1.name], it returns
+ * {
+ * references:[Api1.name],
+ * unreferencedIdentifiers: [unknownEntity.name]
+ * }
  */
 export const extractInfoFromIdentifiers = (
   identifiers: string[],

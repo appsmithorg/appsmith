@@ -191,7 +191,7 @@ export default class DataTreeEvaluator {
       unEvalTree: localUnEvalTree,
       evalTree: this.evalTree,
       sortedDependencies: this.sortedDependencies,
-      triggerPathsToLint: [],
+      extraPathsToLint: [],
     });
     const lintStop = performance.now();
     const totalEnd = performance.now();
@@ -324,8 +324,8 @@ export default class DataTreeEvaluator {
     // global dependency map if an existing dynamic binding has now become legal
     const {
       dependenciesOfRemovedPaths,
+      extraPathsToLint,
       removedPaths,
-      triggerPathsToLint,
     } = updateDependencyMap({
       dataTreeEvalRef: this,
       translatedDiffs,
@@ -393,7 +393,7 @@ export default class DataTreeEvaluator {
       unEvalTree: localUnEvalTree,
       evalTree: newEvalTree,
       sortedDependencies: evaluationOrder,
-      triggerPathsToLint,
+      extraPathsToLint,
     });
     const lintStop = performance.now();
 
