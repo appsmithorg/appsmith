@@ -14,7 +14,7 @@ import {
   getSimilarTemplatesInit,
   getTemplateInformation,
 } from "actions/templateActions";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import history from "utils/history";
 import { TEMPLATES_PATH } from "constants/routes";
 import { Colors } from "constants/Colors";

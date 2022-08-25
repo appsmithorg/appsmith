@@ -83,4 +83,6 @@ export class CommonLocators {
     _jsonToggle = (fieldName: string) => `//p[text()='${fieldName}']/parent::div//following-sibling::div//input[@type='checkbox']`
     _deployedPage = `.t--page-switch-tab`
     _hints = "ul.CodeMirror-hints li"
+    _cancelActionExecution = ".t--cancel-action-button"
+
 }

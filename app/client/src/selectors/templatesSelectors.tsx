@@ -1,6 +1,6 @@
 import { FilterKeys, Template } from "api/TemplatesApi";
 import Fuse from "fuse.js";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import { createSelector } from "reselect";
 import { getWorkspaceCreateApplication } from "./applicationSelectors";
 import { getWidgetCards } from "./editorSelectors";

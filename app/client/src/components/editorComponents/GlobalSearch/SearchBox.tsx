@@ -5,7 +5,7 @@ import { connectSearchBox } from "react-instantsearch-dom";
 import { SearchBoxProvided } from "react-instantsearch-core";
 import { getTypographyByKey } from "constants/DefaultTheme";
 import { Icon } from "design-system";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import {
   createMessage,
   CREATE_NEW_OMNIBAR_PLACEHOLDER,

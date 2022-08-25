@@ -31,7 +31,7 @@ import { validateResponse } from "./ErrorSagas";
 import { getUserApplicationsWorkspacesList } from "selectors/applicationSelectors";
 import { ApiResponse } from "api/ApiResponses";
 import history from "utils/history";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import {
   ApplicationVersion,
   fetchApplication,
