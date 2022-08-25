@@ -1804,20 +1804,18 @@ Cypress.Commands.add(
       ";docker run -d --name " +
       containerName +
       ' -p 80:80 -p 9001:9001 -v "' +
+      path +
       '/stacks:/appsmith-stacks" appsmith/appsmith-ce:' +
       version;
 
     cy.log(comm);
-    cy.request(
-      {
-        method: "GET",
-        url: url,
-        qs: {
-          cmd: comm,
-        },
+    cy.request({
+      method: "GET",
+      url: url,
+      qs: {
+        cmd: comm,
       },
-      { timeout: 100000 },
-    ).then((res) => {
+    }).then((res) => {
       cy.log(res.body.stderr);
       cy.log(res.body.stdout);
       expect(res.status).equal(200);
@@ -1839,16 +1837,13 @@ Cypress.Commands.add(
       version;
 
     cy.log(comm);
-    cy.request(
-      {
-        method: "GET",
-        url: url,
-        qs: {
-          cmd: comm,
-        },
+    cy.request({
+      method: "GET",
+      url: url,
+      qs: {
+        cmd: comm,
       },
-      { timeout: 100000 },
-    ).then((res) => {
+    }).then((res) => {
       cy.log(res.body.stderr);
       cy.log(res.body.stdout);
       expect(res.status).equal(200);
