@@ -344,6 +344,7 @@ export const ReduxActionTypes = {
   ADD_META_WIDGET: "ADD_META_WIDGET",
   DELETE_META_WIDGET: "DELETE_META_WIDGET",
   UPDATE_META_WIDGET: "UPDATE_META_WIDGET",
+  MODIFY_META_WIDGET: "MODIFY_META_WIDGET",
   SEARCH_APPLICATIONS: "SEARCH_APPLICATIONS",
   UPDATE_PAGE_INIT: "UPDATE_PAGE_INIT",
   UPDATE_PAGE_SUCCESS: "UPDATE_PAGE_SUCCESS",
@@ -905,6 +906,7 @@ export interface UpdateCanvasPayload {
   currentPageName: string;
   currentApplicationId: string;
   pageActions: PageAction[][];
+  updatedWidgetIds?: string[];
 }
 
 export interface ShowPropertyPanePayload {

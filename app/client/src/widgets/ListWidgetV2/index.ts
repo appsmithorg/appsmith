@@ -1,19 +1,104 @@
-import { cloneDeep, get, indexOf, isString } from "lodash";
-import {
-  combineDynamicBindings,
-  getDynamicBindings,
-} from "utils/DynamicBindingUtils";
+// TODO: Ashit - Add jest test for all the functions
+
+import { klona } from "klona";
+import { get, isString } from "lodash";
+import { UpdatePropertyArgs } from "sagas/WidgetBlueprintSagas";
+
 import { WidgetProps } from "widgets/BaseWidget";
 import {
   BlueprintOperationTypes,
   FlattenedWidgetProps,
 } from "widgets/constants";
 import IconSVG from "./icon.svg";
-import Widget from "./widget";
+import Widget, { DynamicPathList, ListWidgetProps } from "./widget";
+
+const hasDynamicPath = (value: string) =>
+  isString(value) && value.indexOf("currentItem") > -1;
+
+// Widget properties that uses "currentItem" in the value.
+const getDynamicPathList = (widget: WidgetProps) => {
+  const propertyKeys: string[] = [];
+
+  Object.keys(widget).forEach((propertyKey) => {
+    const propertyValue = widget[propertyKey];
+    if (hasDynamicPath(propertyValue)) {
+      propertyKeys.push(propertyKey);
+    }
+  });
+
+  return propertyKeys;
+};
+
+const getLogBlackList = (widget: WidgetProps) => {
+  const logBlackList: Record<string, boolean> = {};
+
+  Object.keys(widget).forEach((key) => {
+    logBlackList[key] = true;
+  });
+
+  return logBlackList;
+};
+
+// Walk down template tree and add the widget in the parent's children
+// const findAndUpdateTemplate = (widget: WidgetProps, template: Template) => {
+//   if (template.widgetId === widget.parentId) {
+//     template?.children?.push(widget);
+//   } else {
+//     template.children = template?.children?.map((childTemplate) =>
+//       findAndUpdateTemplate(widget, childTemplate),
+//     );
+//   }
+
+//   return template;
+// };
+
+// add blacklist to widget and create blacklist update map
+// get internal properties for list
+const computeWidgets = (
+  widget: FlattenedWidgetProps,
+  widgets: Record<string, FlattenedWidgetProps>,
+  dynamicPathMap: DynamicPathList = {},
+  childrenUpdatePropertyMap: UpdatePropertyArgs[] = [],
+  // template: Record<string, FlattenedWidgetProps> = {},
+) => {
+  const clonedWidget = klona(widget);
+  const logBlackList = getLogBlackList(widget);
+
+  dynamicPathMap[widget.widgetId] = getDynamicPathList(widget);
+
+  // TODO: (Ashit) - Remove logBlackList when widget moved out of list widget
+  clonedWidget.logBlackList = logBlackList;
+
+  childrenUpdatePropertyMap.push({
+    widgetId: clonedWidget.widgetId,
+    propertyName: "logBlackList",
+    propertyValue: logBlackList,
+  });
+
+  // template[widget.widgetId] = widget;
+
+  (widget.children || []).map((child) => {
+    const childWidget = typeof child === "string" ? widgets[child] : child;
+
+    computeWidgets(
+      childWidget,
+      widgets,
+      dynamicPathMap,
+      childrenUpdatePropertyMap,
+      // template,
+    );
+  });
+
+  return {
+    // template,
+    dynamicPathMap,
+    childrenUpdatePropertyMap,
+  };
+};
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
-  name: "List",
+  name: "List V2",
   iconSVG: IconSVG,
   needsMeta: true,
   isCanvas: true,
@@ -30,43 +115,46 @@ export const CONFIG = {
         autocomplete: (parentProps: any) => {
           return parentProps.childAutoComplete;
         },
-        updateDataTreePath: (parentProps: any, dataTreePath: string) => {
-          return `${parentProps.widgetName}.template.${dataTreePath}`;
+        updateDataTreePath: (
+          parentProps: ListWidgetProps<WidgetProps>,
+          dataTreePath: string,
+        ) => {
+          const pathChunks = dataTreePath.split(".");
+          const widgetName = pathChunks[0];
+          const path = pathChunks.slice(1, pathChunks.length).join(".");
+          const { template } = parentProps;
+
+          const templateWidget = Object.values(template).find(
+            (w) => w.widgetName === widgetName,
+          );
+
+          return `${parentProps.widgetName}.template.${templateWidget?.widgetId}.${path}`;
         },
         propertyUpdateHook: (
-          parentProps: any,
-          widgetName: string,
+          parentProps: ListWidgetProps<WidgetProps>,
+          widgetProperties: WidgetProps,
           propertyPath: string,
           propertyValue: string,
           isTriggerProperty: boolean,
         ) => {
-          let value = propertyValue;
-
           if (!parentProps.widgetId) return [];
 
-          const { jsSnippets, stringSegments } = getDynamicBindings(
-            propertyValue,
-          );
+          const dynamicPathMap = parentProps.dynamicPathMap
+            ? klona(parentProps.dynamicPathMap)
+            : {};
 
-          const js = combineDynamicBindings(jsSnippets, stringSegments);
-
-          value = `{{${parentProps.widgetName}.listData.map((currentItem, currentIndex) => {
-              return (function(){
-                return  ${js};
-              })();
-            })}}`;
-
-          if (!js) {
-            value = propertyValue;
+          if (!isTriggerProperty && hasDynamicPath(propertyValue)) {
+            dynamicPathMap[widgetProperties.widgetId] = [
+              ...dynamicPathMap[widgetProperties.widgetId],
+              propertyPath,
+            ];
           }
-
-          const path = `template.${widgetName}.${propertyPath}`;
 
           return [
             {
               widgetId: parentProps.widgetId,
-              propertyPath: path,
-              propertyValue: isTriggerProperty ? propertyValue : value,
+              propertyPath: "dynamicPathMap",
+              propertyValue: dynamicPathMap,
               isDynamicTrigger: isTriggerProperty,
             },
           ];
@@ -226,87 +314,39 @@ export const CONFIG = {
             widget: WidgetProps & { children?: WidgetProps[] },
             widgets: { [widgetId: string]: FlattenedWidgetProps },
           ) => {
-            let template = {};
-            const logBlackListMap: any = {};
-            const container = get(
-              widgets,
-              `${get(widget, "children.0.children.0")}`,
-            );
-            const canvas = get(widgets, `${get(container, "children.0")}`);
-            let updatePropertyMap: any = [];
-            const dynamicBindingPathList: any[] = get(
-              widget,
-              "dynamicBindingPathList",
-              [],
-            );
+            // List > Canvas > Container > Canvas > Widgets
+            const mainCanvas = get(widget, "children.0");
+            const containerId = get(widget, "children.0.children.0");
 
-            canvas.children &&
-              get(canvas, "children", []).forEach((child: string) => {
-                const childWidget = cloneDeep(get(widgets, `${child}`));
-                const logBlackList: { [key: string]: boolean } = {};
-                const keys = Object.keys(childWidget);
+            const {
+              childrenUpdatePropertyMap,
+              dynamicPathMap,
+              // template,
+            } = computeWidgets(mainCanvas, widgets);
 
-                for (let i = 0; i < keys.length; i++) {
-                  const key = keys[i];
-                  let value = childWidget[key];
-
-                  if (isString(value) && value.indexOf("currentItem") > -1) {
-                    const { jsSnippets, stringSegments } = getDynamicBindings(
-                      value,
-                    );
-
-                    const js = combineDynamicBindings(
-                      jsSnippets,
-                      stringSegments,
-                    );
-
-                    value = `{{${widget.widgetName}.listData.map((currentItem) => ${js})}}`;
-
-                    childWidget[key] = value;
-
-                    dynamicBindingPathList.push({
-                      key: `template.${childWidget.widgetName}.${key}`,
-                    });
-                  }
-                }
-
-                Object.keys(childWidget).map((key) => {
-                  logBlackList[key] = true;
-                });
-
-                logBlackListMap[childWidget.widgetId] = logBlackList;
-
-                template = {
-                  ...template,
-                  [childWidget.widgetName]: childWidget,
-                };
-              });
-
-            updatePropertyMap = [
+            return [
+              ...childrenUpdatePropertyMap,
+              // {
+              //   widgetId: widget.widgetId,
+              //   propertyName: "template",
+              //   propertyValue: template,
+              // },
               {
                 widgetId: widget.widgetId,
-                propertyName: "dynamicBindingPathList",
-                propertyValue: dynamicBindingPathList,
+                propertyName: "dynamicPathMap",
+                propertyValue: dynamicPathMap,
               },
               {
                 widgetId: widget.widgetId,
-                propertyName: "template",
-                propertyValue: template,
+                propertyName: "mainContainerId",
+                propertyValue: containerId,
+              },
+              {
+                widgetId: widget.widgetId,
+                propertyName: "mainCanvasId",
+                propertyValue: mainCanvas.widgetId,
               },
             ];
-
-            // add logBlackList to updateProperyMap for all children
-            updatePropertyMap = updatePropertyMap.concat(
-              Object.keys(logBlackListMap).map((logBlackListMapKey) => {
-                return {
-                  widgetId: logBlackListMapKey,
-                  propertyName: "logBlackList",
-                  propertyValue: logBlackListMap[logBlackListMapKey],
-                };
-              }),
-            );
-
-            return updatePropertyMap;
           },
         },
         {
@@ -319,71 +359,9 @@ export const CONFIG = {
             if (!parentId) return { widgets };
             const widget = { ...widgets[widgetId] };
             const parent = { ...widgets[parentId] };
-            const logBlackList: { [key: string]: boolean } = {};
+            const logBlackList = getLogBlackList(widget);
 
-            /*
-             * Only widgets that don't have derived or meta properties
-             * work well inside the current version of List widget.
-             * Widgets like Input, Select maintain the state on meta properties,
-             * which won't be available in List.selectedItem object. Hence we're
-             * restricting them from being placed inside the List widget.
-             */
-            const allowedWidgets = [
-              "AUDIO_WIDGET",
-              "BUTTON_GROUP_WIDGET",
-              "BUTTON_WIDGET",
-              "CHART_WIDGET",
-              "CHECKBOX_WIDGET",
-              "CHECKBOX_GROUP_WIDGET",
-              "DIVIDER_WIDGET",
-              "ICON_BUTTON_WIDGET",
-              "IFRAME_WIDGET",
-              "IMAGE_WIDGET",
-              "INPUT_WIDGET_V2",
-              "MAP_CHART_WIDGET",
-              "MAP_WIDGET",
-              "MENU_BUTTON_WIDGET",
-              "PROGRESS_WIDGET",
-              "STATBOX_WIDGET",
-              "SWITCH_WIDGET",
-              "SWITCH_GROUP_WIDGET",
-              "TEXT_WIDGET",
-              "VIDEO_WIDGET",
-            ];
-
-            if (indexOf(allowedWidgets, widget.type) === -1) {
-              const widget = widgets[widgetId];
-              if (widget.children && widget.children.length > 0) {
-                widget.children.forEach((childId: string) => {
-                  delete widgets[childId];
-                });
-              }
-              if (widget.parentId) {
-                const _parent = { ...widgets[widget.parentId] };
-                _parent.children = _parent.children?.filter(
-                  (id) => id !== widgetId,
-                );
-                widgets[widget.parentId] = _parent;
-              }
-              delete widgets[widgetId];
-
-              return {
-                widgets,
-                message: `This widget cannot be used inside the list widget.`,
-              };
-            }
-
-            const template = {
-              ...get(parent, "template", {}),
-              [widget.widgetName]: widget,
-            };
-            parent.template = template;
-
-            // add logBlackList for the children being added
-            Object.keys(widget).map((key) => {
-              logBlackList[key] = true;
-            });
-
+            // parent.template = findAndUpdateTemplate(widget, parent.template);
             widget.logBlackList = logBlackList;
 
             widgets[parentId] = parent;

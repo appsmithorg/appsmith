@@ -214,7 +214,13 @@ export function* undoRedoSaga(action: ReduxAction<UndoRedoPayload>) {
         const isPropertyUpdate = replay.widgets && replay.propertyUpdates;
         AnalyticsUtil.logEvent(event, { paths, timeTaken });
         if (isPropertyUpdate) yield call(openPropertyPaneSaga, replay);
-        yield put(updateAndSaveLayout(replayEntity.widgets, false, false));
+        //TODO Identify the updated widgets and pass the values
+        yield put(
+          updateAndSaveLayout(replayEntity.widgets, {
+            isRetry: false,
+            shouldReplay: false,
+          }),
+        );
         if (!isPropertyUpdate) yield call(postUndoRedoSaga, replay);
         break;
       }

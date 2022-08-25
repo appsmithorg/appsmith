@@ -16,14 +16,25 @@ export type FlattenedWidgetProps<orType = never> =
     })
   | orType;
 
+type AddMetaWidgetPayload = Record<string, FlattenedWidgetProps>;
+
+export type ModifyMetaWidgetPayload = {
+  addOrUpdate: Record<string, FlattenedWidgetProps>;
+  delete: string[];
+};
+
 const initialState: MetaCanvasWidgetsReduxState = {};
 
 const metaCanvasWidgetsReducer = createImmerReducer(initialState, {
   [ReduxActionTypes.ADD_META_WIDGET]: (
     state: MetaCanvasWidgetsReduxState,
-    action: ReduxAction<UpdateCanvasPayload>,
+    action: ReduxAction<AddMetaWidgetPayload>,
   ) => {
-    return action.payload.widgets;
+    Object.entries(action.payload).forEach(([metaWidgetId, widgetProps]) => {
+      state[metaWidgetId] = widgetProps;
+      state[metaWidgetId].isMetaWidget = true;
+    });
+    return state;
   },
   [ReduxActionTypes.UPDATE_META_WIDGET]: (
     state: MetaCanvasWidgetsReduxState,
@@ -36,6 +47,24 @@ const metaCanvasWidgetsReducer = createImmerReducer(initialState, {
     action: ReduxAction<UpdateCanvasPayload>,
   ) => {
     return action.payload.widgets;
+  },
+
+  [ReduxActionTypes.MODIFY_META_WIDGET]: (
+    state: MetaCanvasWidgetsReduxState,
+    action: ReduxAction<ModifyMetaWidgetPayload>,
+  ) => {
+    Object.entries(action.payload.addOrUpdate).forEach(
+      ([metaWidgetId, widgetProps]) => {
+        state[metaWidgetId] = widgetProps;
+        state[metaWidgetId].isMetaWidget = true;
+      },
+    );
+
+    action.payload.delete.forEach((deleteId) => {
+      delete state[deleteId];
+    });
+
+    return state;
   },
 });
 
