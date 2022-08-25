@@ -3,7 +3,6 @@ import { get } from "lodash";
 import { Classes as BPPopover2Classes } from "@blueprintjs/popover2";
 import { isString } from "lodash";
 import { Classes } from "components/ads/common";
-import Icon, { IconName, IconSize } from "components/ads/Icon";
 import {
   Log,
   LOG_CATEGORY,
@@ -16,7 +15,7 @@ import ReactJson from "react-json-view";
 import styled, { useTheme } from "styled-components";
 import EntityLink, { DebuggerLinkUI } from "./EntityLink";
 import { getLogIcon } from "./helpers";
-import { Text, TextType } from "design-system";
+import { Icon, IconName, IconSize, Text, TextType } from "design-system";
 import { getTypographyByKey } from "constants/DefaultTheme";
 import { TooltipComponent } from "design-system";
 import {
