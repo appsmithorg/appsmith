@@ -311,6 +311,37 @@ export const enhanceDataTreeWithFunctions = (
   return clonedDataTree;
 };
 
+export const getAllAsyncActionsInDataTree = (dataTree: DataTree) => {
+  // Reference: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise#static_methods
+  const asyncActionCollection = {
+    Promise: {
+      all: true,
+      resolve: true,
+      reject: true,
+      allSettled: true,
+      race: true,
+      any: true,
+    },
+  };
+  Object.entries(DATA_TREE_FUNCTIONS).forEach(([name, funcOrFuncCreator]) => {
+    if (
+      typeof funcOrFuncCreator === "object" &&
+      "qualifier" in funcOrFuncCreator
+    ) {
+      Object.entries(dataTree).forEach(([entityName, entity]) => {
+        if (funcOrFuncCreator.qualifier(entity)) {
+          const funcName = `${funcOrFuncCreator.path ||
+            `${entityName}.${name}`}`;
+          _.set(asyncActionCollection, funcName, true);
+        }
+      });
+    } else {
+      _.set(asyncActionCollection, name, true);
+    }
+  });
+  return asyncActionCollection;
+};
+
 /**
  * The Pusher function is created to decide the proper execution method
  * and payload of a platform action. It is bound to the platform functions and

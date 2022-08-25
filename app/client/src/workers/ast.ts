@@ -1,7 +1,7 @@
 import { parse, Node } from "acorn";
 import { ancestor, simple } from "acorn-walk";
 import { ECMA_VERSION, NodeTypes } from "constants/ast";
-import { isFinite, isString } from "lodash";
+import { isFinite, isObject, isString } from "lodash";
 import { sanitizeScript } from "./evaluate";
 import { generate } from "astring";
 
@@ -72,10 +72,6 @@ interface ArrowFunctionExpressionNode extends Expression, Function {
 }
 
 export interface ObjectExpressionNode extends Expression {
-  type: NodeTypes.ArrowFunctionExpression;
-}
-
-export interface ObjectExpression extends Expression {
   type: NodeTypes.ObjectExpression;
   properties: Array<PropertyNode>;
 }
@@ -84,6 +80,12 @@ export interface CallExpressionNode extends Expression {
   callee: Expression;
   arguments: Array<Expression>;
   type: NodeTypes.CallExpression;
+}
+
+export interface NewExpressionNode extends Expression {
+  type: NodeTypes.NewExpression;
+  callee: Expression;
+  arguments: [Expression];
 }
 
 // doc: https://github.com/estree/estree/blob/master/es2015.md#assignmentpattern
@@ -139,6 +141,10 @@ const isObjectExpression = (node: Node): node is ObjectExpressionNode => {
 
 const isCallExpression = (node: Node): node is CallExpressionNode => {
   return node.type === NodeTypes.CallExpression;
+};
+
+const isNewExpression = (node: Node): node is NewExpressionNode => {
+  return node.type === NodeTypes.NewExpression;
 };
 
 const isAssignmentPatternNode = (node: Node): node is AssignmentPatternNode => {
@@ -436,26 +442,9 @@ export const parseJSObjectWithAST = (
   return [...parsedObjectProperties];
 };
 
-// move this code to JSObject/utils
-// remove hardcoded values and generate it according to actions present in platform
-const asyncFunctions: Record<string, boolean> = {
-  clearInterval: true,
-  closeModal: true,
-  copyToClipboard: true,
-  download: true,
-  getCurrentLocation: true,
-  navigateTo: true,
-  resetWidget: true,
-  setInterval: true,
-  showAlert: true,
-  showModal: true,
-  stopWatch: true,
-  storeValue: true,
-  watchLocation: true,
-};
-
 export const isFunctionAsync = (
-  funcCode: FunctionExpressionNode | ArrowFunctionExpressionNode | any,
+  funcCode: string,
+  asyncActionCollection: Record<string, boolean | unknown>,
 ): boolean => {
   const functionName = "____INTERNAL_FUNCTION_NAME_USED_FOR_PARSING_____";
   const jsCode = `const ${functionName} = ${funcCode}`;
@@ -482,29 +471,47 @@ export const isFunctionAsync = (
   isAsync = !!(functionNode && functionNode.async);
 
   if (functionNode && !isAsync) {
-    simple(functionNode, {
-      CallExpression(node: Node) {
-        if (isCallExpression(node) && !isAsync) {
-          const calleeNode = node.callee;
+    try {
+      simple(functionNode, {
+        CallExpression(node: Node) {
+          if (isCallExpression(node)) {
+            const calleeNode = node.callee;
+            if (isIdentifierNode(calleeNode)) {
+              isAsync = !!asyncActionCollection[calleeNode.name];
+              if (isAsync) {
+                throw new Error("Found async function: exit");
+              }
+            } else if (
+              isMemberExpressionNode(calleeNode) &&
+              isIdentifierNode(calleeNode.property)
+            ) {
+              const { object, property } = calleeNode;
+              const asyncAction = asyncActionCollection[
+                // @ts-expect-error: Types are not available
+                object.name
+              ] as Record<string, boolean>;
 
-          // check why
-          // const a = () => { return function my(){ storeValue() } }
-          // above code doesn't make function async
-          if (isIdentifierNode(calleeNode)) {
-            isAsync = !!asyncFunctions[calleeNode.name];
-          } else if (
-            isMemberExpressionNode(calleeNode) &&
-            isIdentifierNode(calleeNode.property)
-          ) {
-            // remove hardcoded values and generate it according to actions present in platform
-            if (["run", "clear"].includes(calleeNode.property.name)) {
-              // check if calleeNode.object.name is valid Api or Query name
-              isAsync = true;
+              if (
+                asyncAction &&
+                isObject(asyncAction) &&
+                asyncAction[property.name]
+              ) {
+                isAsync = true;
+                throw new Error("Found async function: exit");
+              }
             }
           }
-        }
-      },
-    });
+        },
+        NewExpression(node: Node) {
+          if (isNewExpression(node) && isIdentifierNode(node.callee)) {
+            if (node.callee.name === "Promise") {
+              isAsync = true;
+              throw new Error("Found async function: exit");
+            }
+          }
+        },
+      });
+    } catch (error) {}
   }
 
   return isAsync;

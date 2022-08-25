@@ -9,6 +9,7 @@ import {
 } from "entities/DataTree/dataTreeFactory";
 import { isFunctionAsync } from "workers/ast";
 import { RenderModes } from "constants/WidgetConstants";
+import { getAllAsyncActionsInDataTree } from "./Actions";
 
 describe("evaluateSync", () => {
   // @ts-expect-error: meta property not provided
@@ -232,33 +233,38 @@ describe("evaluateAsync", () => {
 describe("isFunctionAsync", () => {
   it("identifies async functions", () => {
     // eslint-disable-next-line @typescript-eslint/ban-types
-    const cases: Array<{ script: Function | string; expected: boolean }> = [
+    const cases: Array<{ script: string; expected: boolean }> = [
       {
-        script: () => {
+        script: `() => {
           return 1;
-        },
+        }`,
         expected: false,
       },
       {
-        script: () => {
+        script: `() => {
           return new Promise((resolve) => {
             resolve(1);
           });
-        },
+        }`,
         expected: true,
       },
       {
         script: "() => { showAlert('yo') }",
         expected: true,
       },
+      {
+        script: "async () => {  }",
+        expected: true,
+      },
+      {
+        script: "function (){ storeValue('a','aa') }",
+        expected: true,
+      },
     ];
 
     for (const testCase of cases) {
-      let testFunc = testCase.script;
-      if (typeof testFunc === "string") {
-        testFunc = eval(testFunc);
-      }
-      const actual = isFunctionAsync(testFunc);
+      const asyncActionCollection = getAllAsyncActionsInDataTree({});
+      const actual = isFunctionAsync(testCase.script, asyncActionCollection);
       expect(actual).toBe(testCase.expected);
     }
   });
