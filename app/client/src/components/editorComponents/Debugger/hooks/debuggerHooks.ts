@@ -24,15 +24,27 @@ export const useFilteredLogs = (query: string, filter?: any) => {
   let logs = useSelector((state: AppState) => state.ui.debugger.logs);
 
   if (filter) {
-    logs = logs.filter((log) => log.severity === filter);
+    logs = logs.filter(
+      (log) => log.severity === filter || log.category === filter,
+    );
   }
 
   if (query) {
     logs = logs.filter((log) => {
-      if (log.source?.name)
-        return (
-          log.source?.name.toUpperCase().indexOf(query.toUpperCase()) !== -1
-        );
+      if (
+        !!log.source?.name &&
+        log.source?.name.toUpperCase().indexOf(query.toUpperCase()) !== -1
+      )
+        return true;
+      if (log.text.toUpperCase().indexOf(query.toUpperCase()) !== -1)
+        return true;
+      if (
+        !!log.state &&
+        JSON.stringify(log.state)
+          .toUpperCase()
+          .indexOf(query.toUpperCase()) !== -1
+      )
+        return true;
     });
   }
 
