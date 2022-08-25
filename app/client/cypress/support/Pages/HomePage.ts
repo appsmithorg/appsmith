@@ -29,7 +29,7 @@ export class HomePage {
   private _userRole = (role: string, workspaceName: string) =>
     "//div[contains(@class, 'label-container')]//span[1][text()='" +
     role + ' - ' + workspaceName + "']";
-   
+
   private _manageUsers = ".manageUsers";
   private _appHome = "//a[@href='/applications']";
   _applicationCard = ".t--application-card";
@@ -158,11 +158,10 @@ export class HomePage {
 
   public NavigateToHome() {
     cy.get(this._homeIcon).click({ force: true });
-    this.agHelper.Sleep(3000);
+    this.agHelper.Sleep(2000);
     //cy.wait("@applications"); this randomly fails & introduces flakyness hence commenting!
-    cy.get(this._homePageAppCreateBtn)
-      .should("be.visible")
-      .should("be.enabled");
+    this.agHelper.AssertElementVisible(this._homePageAppCreateBtn).then($ele=>
+      expect($ele).be.enabled);
   }
 
   public CreateNewApplication() {
@@ -291,13 +290,13 @@ export class HomePage {
 
     cy.xpath(this._visibleTextSpan("Members"))
       .last()
-      .click({ force: true }); 
+      .click({ force: true });
     cy.wait("@getMembers").should(
       "have.nested.property",
       "response.body.responseMeta.status",
       200,
     );
-    this.agHelper.Sleep(2500); 
+    this.agHelper.Sleep(2500);
     //wait for members page to load!
   }
 
@@ -312,13 +311,13 @@ export class HomePage {
     cy.xpath(this._userRoleDropDown(currentRole, workspaceName))
       .first()
       .click({force:true})
-      
+
     //cy.xpath(this._userRoleDropDown(email)).first().click({force: true});
     cy.xpath(this._visibleTextSpan(`${newRole} - ${workspaceName}`))
       .last()
       .click({ force: true });
     this.agHelper.Sleep();
-    this.NavigateToHome(); 
+    this.NavigateToHome();
   }
 
   public ImportApp(fixtureJson: string, intoWorkspaceName = "") {
@@ -362,7 +361,7 @@ export class HomePage {
     );
     this.agHelper.GetNClick(this._wsAction("Delete Workspace")); //Are you sure?
     this.agHelper.GetNClick(this._wsAction("Are you sure?")); //
-    this.agHelper.ValidateToastMessage("Workspace deleted successfully");
+    this.agHelper.AssertContains("Workspace deleted successfully");
   }
 
   public AssertNCloseImport() {
@@ -386,7 +385,7 @@ export class HomePage {
   public DuplicateApplication(appliName: string) {
     this.agHelper.GetNClick(this._applicationContextMenu(appliName));
     this.agHelper.GetNClick(this._duplicateApp);
-    this.agHelper.WaitUntilToastDisappear("Duplicating application...");
+    this.agHelper.AssertContains("Duplicating application...");
   }
 
   public DeleteApplication(appliName: string) {

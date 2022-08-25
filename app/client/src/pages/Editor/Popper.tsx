@@ -3,7 +3,7 @@ import { Colors } from "constants/Colors";
 import PopperJS, { Placement, PopperOptions } from "popper.js";
 import React, { useEffect, useMemo, useRef } from "react";
 import { createPortal } from "react-dom";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import { getThemeDetails, ThemeMode } from "selectors/themeSelectors";
 import styled, { ThemeProvider } from "styled-components";
 import { noop } from "utils/AppsmithUtils";
@@ -134,8 +134,8 @@ export default (props: PopperProps) => {
             },
             preventOverflow: {
               enabled: true,
-              /* 
-                Prevent the FilterPane from overflowing the canvas when the 
+              /*
+                Prevent the FilterPane from overflowing the canvas when the
                 table widget is on the very top of the canvas.
               */
               boundariesElement: boundaryParent,

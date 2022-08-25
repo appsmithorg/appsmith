@@ -13,10 +13,10 @@ import { getCanvasWidgets } from "selectors/entitiesSelector";
 import { editorInitializer } from "utils/EditorUtils";
 import { extractCurrentDSL } from "utils/WidgetPropsUtils";
 
+import { AppState } from "@appsmith/reducers";
 import { DataTreeWidget } from "entities/DataTree/dataTreeFactory";
 import urlBuilder from "entities/URLRedirect/URLAssembly";
 import CanvasWidgetsNormalizer from "normalizers/CanvasWidgetsNormalizer";
-import { AppState } from "reducers";
 import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsStructureReducer";
 import { DSLWidget } from "widgets/constants";
 

@@ -1,8 +1,8 @@
 import { all } from "@redux-saga/core/effects";
+import { AppState } from "ce/reducers";
 import lodash from "lodash";
 import React from "react";
 import { MemoryRouter } from "react-router-dom";
-import { AppState } from "reducers";
 import * as dataTreeSelectors from "selectors/dataTreeSelectors";
 import * as utilities from "selectors/editorSelectors";
 import store from "store";
