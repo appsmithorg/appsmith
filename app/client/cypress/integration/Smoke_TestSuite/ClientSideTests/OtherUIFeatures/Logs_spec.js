@@ -150,6 +150,56 @@ describe("Debugger logs", function() {
     cy.get(debuggerLocators.debuggerLogMessage).contains(logStringChild);
   });
 
+  it("8. Console log in sync function", function() {
+    ee.NavigateToSwitcher("explorer");
+    const logString = generateTestLogString();
+    jsEditor.CreateJSObject(
+      `export default {
+	      myFun1: () => {
+		      console.log("${logString}");
+		      return "sync";
+	      },
+        myFun2: () => {
+          return 1;
+        }
+      }`,
+      {
+        paste: true,
+        completeReplace: true,
+        toRun: true,
+        shouldCreateNewJSObj: true,
+        prettify: false,
+      },
+    );
+    cy.get("[data-cy=t--tab-LOGS_TAB]").click();
+    cy.get(debuggerLocators.debuggerLogMessage).contains(logString);
+  });
+
+  it("9. Console log in async function", function() {
+    ee.NavigateToSwitcher("explorer");
+    const logString = generateTestLogString();
+    jsEditor.CreateJSObject(
+      `export default {
+	      myFun1: async () => {
+		      console.log("${logString}");
+		      return "async";
+	      },
+        myFun2: () => {
+          return 1;
+        }
+      }`,
+      {
+        paste: true,
+        completeReplace: true,
+        toRun: true,
+        shouldCreateNewJSObj: true,
+        prettify: false,
+      },
+    );
+    cy.get("[data-cy=t--tab-LOGS_TAB]").click();
+    cy.get(debuggerLocators.debuggerLogMessage).contains(logString);
+  });
+
   it("Api headers need to be shown as headers in logs", function() {
     // TODO
   });

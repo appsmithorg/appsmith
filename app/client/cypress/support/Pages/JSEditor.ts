@@ -173,6 +173,7 @@ export class JSEditor {
     }
 
     if (toRun) {
+      cy.wait(500);
       //clicking 1 times & waits for 2 second for result to be populated!
       Cypress._.times(1, () => {
         this.agHelper.GetNClick(this._runButton);
