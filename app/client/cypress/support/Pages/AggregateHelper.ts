@@ -434,7 +434,7 @@ export class AggregateHelper {
     return locator.type(this.selectLine);
   }
 
-  public TypeText(selector: string, value: string, index = 0, force = false) {
+  public TypeText(selector: string, value: string, index = 0) {
     const locator = selector.startsWith("//")
       ? cy.xpath(selector)
       : cy.get(selector);
