@@ -265,10 +265,7 @@ const OverlayHandles: React.FC<OverlayHandlesProps> = ({
           </OverlayHandleLabel>
         ) : null}
       </MinHeightOverlayHandle>
-      <MaxHeightOverlayHandle
-        style={isColliding ? { right: "-24px" } : undefined}
-        y={maxY}
-      >
+      <MaxHeightOverlayHandle y={maxY}>
         <Border style={{ display: isMaxDotActive ? "none" : "block" }} />
         <DraggableOverlayHandleDot {...maxDragFunctions}>
           <MinHeightOverlayHandleDot
@@ -288,6 +285,7 @@ const OverlayHandles: React.FC<OverlayHandlesProps> = ({
 };
 
 interface DynamicHeightOverlayProps extends MinMaxHeightProps, WidgetProps {
+  batchUpdate: (height: number) => void;
   onMaxHeightSet: (height: number) => void;
   onMinHeightSet: (height: number) => void;
   style: BaseStyle;
@@ -358,6 +356,7 @@ const OverlayLabels: React.FC<{
 
 const DynamicHeightOverlay: React.FC<DynamicHeightOverlayProps> = memo(
   ({
+    batchUpdate,
     children,
     maxDynamicHeight,
     minDynamicHeight,
@@ -461,18 +460,27 @@ const DynamicHeightOverlay: React.FC<DynamicHeightOverlayProps> = memo(
     function onMaxStop() {
       setIsMaxDotDragging(false);
       const heightToSet = maxY + maxdY;
-      updateMaxHeight(heightToSet);
-      setMaxY(maxY + maxdY);
-      setMaxdY(0);
+
       if (heightToSet === minY + mindY) {
-        updateMinHeight(heightToSet);
+        console.log("addDynamicHeightOverlay batchUpdate");
+        batchUpdate(heightToSet);
+        setMindY(0);
+        setMaxdY(0);
+      } else {
+        updateMaxHeight(heightToSet);
+        setMaxdY(0);
       }
+
       onAnyDotStop();
     }
 
     /////////////////////////////////////////////////////////////
 
     useEffect(() => {
+      console.log(
+        "addDynamicHeightOverlay running min effect",
+        minDynamicHeight,
+      );
       setMinY(minDynamicHeight * 10);
     }, [minDynamicHeight]);
 
@@ -493,11 +501,17 @@ const DynamicHeightOverlay: React.FC<DynamicHeightOverlayProps> = memo(
     function onMinStop() {
       setIsMinDotDragging(false);
       const heightToSet = minY + mindY;
-      updateMinHeight(heightToSet);
-      setMindY(0);
+
       if (heightToSet === maxY + maxdY) {
-        updateMaxHeight(heightToSet);
+        console.log("addDynamicHeightOverlay batchUpdate");
+        batchUpdate(heightToSet);
+        setMindY(0);
+        setMaxdY(0);
+      } else {
+        updateMinHeight(heightToSet);
+        setMindY(0);
       }
+
       onAnyDotStop();
     }
 
@@ -576,6 +590,8 @@ const DynamicHeightOverlay: React.FC<DynamicHeightOverlayProps> = memo(
     const isWidgetSelected = selectedWidget === widgetId;
     const multipleWidgetsSelected = selectedWidgets.length > 1;
     const isOverlayToBeDisplayed = isWidgetSelected && !multipleWidgetsSelected;
+
+    console.log("addDynamicHeightOverlay", finalMinY, finalMaxY, maxdY, mindY);
 
     return (
       <StyledDynamicHeightOverlay
