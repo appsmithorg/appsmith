@@ -9,7 +9,7 @@ import {
 import { ActionDataState } from "reducers/entityReducers/actionsReducer";
 import { DataTree, DataTreeFactory } from "entities/DataTree/dataTreeFactory";
 import {
-  getPseudoCanvasWidgets,
+  getMetaCanvasWidgets,
   getWidgets,
   getWidgetsMeta,
 } from "sagas/selectors";
@@ -28,7 +28,7 @@ export const getUnevaluatedDataTree = createSelector(
   getPluginEditorConfigs,
   getPluginDependencyConfig,
   getSelectedAppThemeProperties,
-  getPseudoCanvasWidgets,
+  getMetaCanvasWidgets,
   (
     actions,
     jsActions,
@@ -39,7 +39,7 @@ export const getUnevaluatedDataTree = createSelector(
     editorConfigs,
     pluginDependencyConfig,
     selectedAppThemeProperty,
-    pseudoCanvasWidgets,
+    metaCanvasWidgets,
   ) => {
     const pageList = pageListPayload || [];
     return DataTreeFactory.create({
@@ -52,7 +52,7 @@ export const getUnevaluatedDataTree = createSelector(
       editorConfigs,
       pluginDependencyConfig,
       theme: selectedAppThemeProperty,
-      pseudoCanvasWidgets,
+      metaCanvasWidgets,
     });
   },
 );

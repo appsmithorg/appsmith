@@ -6,7 +6,7 @@ import {
 } from "@appsmith/constants/ReduxActionConstants";
 import { WidgetProps } from "widgets/BaseWidget";
 
-export type PseudoCanvasWidgetsReduxState = {
+export type MetaCanvasWidgetsReduxState = {
   [widgetId: string]: FlattenedWidgetProps;
 };
 
@@ -16,27 +16,27 @@ export type FlattenedWidgetProps<orType = never> =
     })
   | orType;
 
-const initialState: PseudoCanvasWidgetsReduxState = {};
+const initialState: MetaCanvasWidgetsReduxState = {};
 
-const pseudoCanvasWidgetsReducer = createImmerReducer(initialState, {
+const metaCanvasWidgetsReducer = createImmerReducer(initialState, {
   [ReduxActionTypes.ADD_PSEUDO_WIDGET]: (
-    state: PseudoCanvasWidgetsReduxState,
+    state: MetaCanvasWidgetsReduxState,
     action: ReduxAction<UpdateCanvasPayload>,
   ) => {
     return action.payload.widgets;
   },
   [ReduxActionTypes.UPDATE_PSEUDO_WIDGET]: (
-    state: PseudoCanvasWidgetsReduxState,
+    state: MetaCanvasWidgetsReduxState,
     action: ReduxAction<UpdateCanvasPayload>,
   ) => {
     return action.payload.widgets;
   },
   [ReduxActionTypes.DELETE_PSEUDO_WIDGET]: (
-    state: PseudoCanvasWidgetsReduxState,
+    state: MetaCanvasWidgetsReduxState,
     action: ReduxAction<UpdateCanvasPayload>,
   ) => {
     return action.payload.widgets;
   },
 });
 
-export default pseudoCanvasWidgetsReducer;
+export default metaCanvasWidgetsReducer;
