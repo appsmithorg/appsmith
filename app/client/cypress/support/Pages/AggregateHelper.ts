@@ -117,6 +117,16 @@ export class AggregateHelper {
     });
   }
 
+  public GetElement(selector: string | JQuery<HTMLElement>) {
+    let locator;
+    if (typeof selector == "string") {
+      locator = selector.startsWith("//")
+        ? cy.xpath(selector)
+        : cy.get(selector);
+    } else locator = cy.wrap(selector);
+    return locator;
+  }
+
   public GetNAssertElementText(
     selector: string,
     text: string,
@@ -131,8 +141,8 @@ export class AggregateHelper {
   }
 
   public ValidateToastMessage(text: string, index = 0, length = 1) {
-    cy.get(this.locator._toastMsg).should("have.length.at.least", length);
-    cy.get(this.locator._toastMsg)
+    this.GetElement(this.locator._toastMsg)
+      .should("have.length.at.least", length)
       .eq(index)
       .should("contain.text", text);
   }
@@ -211,19 +221,28 @@ export class AggregateHelper {
     //         interval: 1000
     //     }).then(() => this.Sleep(500))
 
-    cy.waitUntil(
-      () => (selector.includes("//") ? cy.xpath(selector) : cy.get(selector)),
-      {
-        errorMsg: "Element did not appear",
-        timeout: 5000,
-        interval: 1000,
-      },
-    ).then(($ele) => {
-      cy.wrap($ele)
-        .eq(0)
-        .should("be.visible");
-      this.Sleep();
+    let locator = selector.includes("//")
+      ? cy.xpath(selector)
+      : cy.get(selector);
+    locator.waitUntil(($ele) => cy.wrap($ele).should("be.visible"), {
+      errorMsg: "Element did not appear even after 10 seconds",
+      timeout: 10000,
+      interval: 1000,
     });
+
+    // cy.waitUntil(
+    //   () => (selector.includes("//") ? cy.xpath(selector) : cy.get(selector)),
+    //   {
+    //     errorMsg: "Element did not appear",
+    //     timeout: 5000,
+    //     interval: 1000,
+    //   },
+    // ).then(($ele) => {
+    //   cy.wrap($ele)
+    //     .eq(0)
+    //     .should("be.visible");
+    //   this.Sleep();
+    // });
   }
 
   public ValidateNetworkExecutionSuccess(
@@ -797,15 +816,18 @@ export class AggregateHelper {
   }
 
   public AssertElementLength(
-    selector: string,
+    selector: string | JQuery<HTMLElement>,
     length: number,
     index: number | null = null,
   ) {
-    const locator = selector.startsWith("//")
-      ? cy.xpath(selector)
-      : cy.get(selector);
-    if (index) locator.eq(index).should("have.length", length);
-    else locator.should("have.length", length);
+    let locator: any;
+    if (typeof selector == "string") {
+      locator = selector.startsWith("//")
+        ? cy.xpath(selector)
+        : cy.get(selector);
+    } else locator = cy.wrap(selector);
+    if (index) return locator.eq(index).should("have.length", length);
+    else return locator.should("have.length", length);
   }
 
   public FocusElement(selector: string) {
@@ -819,7 +841,24 @@ export class AggregateHelper {
     text: string | RegExp,
     exists: "exist" | "not.exist" = "exist",
   ) {
-    return cy.contains(text).should(exists);
+    return cy
+      .contains(text)
+      .should(exists)
+      .should("have.length", 1);
+  }
+
+  public GetNAssertContains(
+    selector: string | JQuery<HTMLElement>,
+    text: string | RegExp,
+    exists: "exist" | "not.exist" = "exist",
+  ) {
+    let locator: any;
+    if (typeof selector == "string") {
+      locator = selector.startsWith("//")
+        ? cy.xpath(selector)
+        : cy.get(selector);
+    } else locator = cy.wrap(selector);
+    return locator.contains(text).should(exists);
   }
 
   public AssertElementContains(selector: string, text: string) {

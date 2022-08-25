@@ -28,6 +28,7 @@ export class CommonLocators {
     _toastMsg = "div.t--toast-action"
     _toastConatiner = "div.Toastify__toast-container"
     _specificToast = (toastText: string) => this._toastMsg + ":contains('" + toastText + "')"
+    //_specificToast = (toastText: string | RegExp) => this._toastMsg + ":contains("+ (typeof toastText == 'string' ? "'"+ toastText+"'" : toastText)+ ")"//not working!
     _empty = "span[name='no-response']"
     _contextMenuInPane = "span[name='context-menu']"
     _contextMenuSubItemDiv = (item: string) => "//div[text()='" + item + "'][contains(@class, 'bp3-fill')]"

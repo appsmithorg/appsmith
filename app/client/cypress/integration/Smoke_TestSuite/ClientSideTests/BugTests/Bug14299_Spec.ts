@@ -111,7 +111,7 @@ describe("[Bug]: The data from the query does not show up on the widget #14299",
 
   it("4. Verify Deletion of the datasource after all created queries are Deleted", () => {
     deployMode.NavigateBacktoEditor();
-    agHelper.WaitUntilToastDisappear("ran successfully"); //runAstros triggered on PageLaoad of Edit page!
+    agHelper.AssertContains("ran successfully"); //runAstros triggered on PageLaoad of Edit page!
     ee.ExpandCollapseEntity("QUERIES/JS");
     ee.ActionContextMenuByEntityName("getAstronauts", "Delete", "Are you sure?");
     ee.ActionContextMenuByEntityName(

@@ -55,7 +55,8 @@ describe("Validate basic Promises", () => {
     apiPage.CreateAndFillApi("https://randomuser.me/api/", "RandomUser", 30000);
     apiPage.CreateAndFillApi(
       "https://api.genderize.io?name={{this.params.country}}",
-      "Genderize", 30000
+      "Genderize",
+      30000,
     );
     apiPage.ValidateQueryParams({
       key: "name",
@@ -73,11 +74,11 @@ describe("Validate basic Promises", () => {
     );
     deployMode.DeployApp();
     agHelper.ClickButton("Submit");
-    cy.get(locator._toastMsg).should("have.length.at.least", 1);
-    cy.get(locator._toastMsg)
-      .first()
-      //.should("contain.text", "Your country is");
-      .contains(/Your country is|failed to execute/g);
+    agHelper.AssertElementLength(locator._toastMsg, 1);
+    agHelper.GetNAssertContains(
+      locator._toastMsg,
+      /Your country is|failed to execute/g,
+    );
 
     //Since sometimes api is failing & no 2nd toast in that case
     // cy.get(locator._toastMsg)
@@ -92,7 +93,8 @@ describe("Validate basic Promises", () => {
     });
     apiPage.CreateAndFillApi(
       "https://source.unsplash.com/collection/8439505",
-      "Christmas", 30000
+      "Christmas",
+      30000,
     );
     ee.SelectEntityByName("Button1", "WIDGETS");
     jsEditor.EnterJSContext(
@@ -112,9 +114,10 @@ describe("Validate basic Promises", () => {
     );
     deployMode.DeployApp();
     agHelper.ClickButton("Submit");
-    cy.get(locator._toastMsg)
-      .should("have.length", 1)
-      .contains(/You have a beautiful picture|Oops!/g);
+    agHelper.GetNAssertContains(
+      locator._toastMsg,
+      /You have a beautiful picture|Oops!/g,
+    );
   });
 
   it("5. Verify .then & .catch via JS Objects in Promises", () => {
@@ -122,7 +125,11 @@ describe("Validate basic Promises", () => {
     cy.fixture("promisesBtnDsl").then((val: any) => {
       agHelper.AddDsl(val, locator._spanButton("Submit"));
     });
-    apiPage.CreateAndFillApi("https://favqs.com/api/qotd", "InspiringQuotes", 30000);
+    apiPage.CreateAndFillApi(
+      "https://favqs.com/api/qotd",
+      "InspiringQuotes",
+      30000,
+    );
     jsEditor.CreateJSObject(`const user = 'You';
 return InspiringQuotes.run().then((res) => { showAlert("Today's quote for " + user + " is " + JSON.stringify(res.quote.body), 'success') }).catch(() => showAlert("Unable to fetch quote for " + user, 'warning'))`);
     ee.SelectEntityByName("Button1", "WIDGETS");
@@ -132,9 +139,14 @@ return InspiringQuotes.run().then((res) => { showAlert("Today's quote for " + us
     deployMode.DeployApp();
     agHelper.ClickButton("Submit");
     //agHelper.ValidateToastMessage("Today's quote for You")
-    cy.get(locator._toastMsg)
-      .should("have.length", 1)
-      .contains(/Today's quote for You|Unable to fetch quote for/g);
+    agHelper
+      .GetNAssertContains(
+        locator._toastMsg,
+        /Today's quote for You|Unable to fetch quote for/g,
+      )
+      .then(($ele: string | JQuery<HTMLElement>) =>
+        agHelper.AssertElementLength($ele, 1),
+      );
   });
 
   it("6. Verify Promise.race via direct Promises", () => {
@@ -144,7 +156,8 @@ return InspiringQuotes.run().then((res) => { showAlert("Today's quote for " + us
     });
     apiPage.CreateAndFillApi(
       "https://api.agify.io?name={{this.params.person}}",
-      "Agify", 30000
+      "Agify",
+      30000,
     );
     apiPage.ValidateQueryParams({
       key: "name",
@@ -157,9 +170,11 @@ return InspiringQuotes.run().then((res) => { showAlert("Today's quote for " + us
     );
     deployMode.DeployApp();
     agHelper.ClickButton("Submit");
-    cy.get(locator._toastMsg)
-      .should("have.length", 1)
-      .contains(/Melinda|Trump/g);
+    agHelper
+      .AssertElementLength(locator._toastMsg, 1)
+      .then(($ele: string | JQuery<HTMLElement>) =>
+        agHelper.GetNAssertContains($ele, /Melinda|Trump/g),
+      );
   });
 
   it("7. Verify maintaining context via direct Promises", () => {
@@ -169,7 +184,8 @@ return InspiringQuotes.run().then((res) => { showAlert("Today's quote for " + us
     });
     apiPage.CreateAndFillApi(
       "https://api.jikan.moe/v3/search/anime?q={{this.params.name}}",
-      "GetAnime", 30000
+      "GetAnime",
+      30000,
     );
     ee.SelectEntityByName("List1", "WIDGETS");
     propPane.UpdatePropertyFieldValue(
@@ -206,10 +222,9 @@ return InspiringQuotes.run().then((res) => { showAlert("Today's quote for " + us
     );
     deployMode.DeployApp();
     agHelper.ClickButton("Submit");
-    agHelper.WaitUntilEleAppear(locator._toastMsg);
-    cy.get(locator._toastMsg)
-      //.should("have.length", 1)//covered in WaitUntilEleAppear()
-      .should("have.text", "Showing results for : fruits basket : the final");
+    agHelper.WaitUntilEleAppear(
+      locator._specificToast("Showing results for : fruits basket : the final"),
+    );
   });
 
   it("8: Verify Promise.all via direct Promises", () => {
@@ -265,18 +280,10 @@ showAlert("Wonderful! all apis executed", "success")).catch(() => showAlert("Ple
     });
     deployMode.DeployApp();
     agHelper.ClickButton("Submit");
-    //agHelper.WaitUntilEleAppear(locator._toastMsg)
-    cy.get(locator._toastMsg).should("have.length", 3);
-    cy.get(locator._toastMsg)
-      .eq(0)
-      .should("contain.text", date);
-    cy.get(locator._toastMsg)
-      .eq(1)
-      .contains("Running all api's");
-    agHelper.WaitUntilEleAppear(locator._toastMsg);
-    cy.get(locator._toastMsg)
-      .last()
-      .contains(/Wonderful|Please check/g);
+    agHelper.AssertElementLength(locator._toastMsg, 3);
+    agHelper.ValidateToastMessage(date, 0);
+    agHelper.ValidateToastMessage("Running all api's", 1);
+    agHelper.AssertContains(/Wonderful|Please check/g);
   });
 
   it("10. Verify Promises.any via direct JSObjects", () => {
@@ -314,13 +321,9 @@ showAlert("Wonderful! all apis executed", "success")).catch(() => showAlert("Ple
     });
     deployMode.DeployApp();
     agHelper.ClickButton("Submit");
-    cy.get(locator._toastMsg).should("have.length", 4);
-    cy.get(locator._toastMsg)
-      .eq(0)
-      .contains("Promises reject from func2");
-    cy.get(locator._toastMsg)
-      .last()
-      .contains("Resolved promise is:func3");
+    agHelper.AssertElementLength(locator._toastMsg, 4);
+    agHelper.ValidateToastMessage("Promises reject from func2", 0);
+    agHelper.ValidateToastMessage("Resolved promise is:func3", 3); //Validating last index
   });
 
   it("11. Bug : 11110 - Verify resetWidget via .then direct Promises", () => {
