@@ -33,7 +33,7 @@ const Wrapper = styled.div<{ collapsed: boolean }>`
 
   display: flex;
   flex-direction: column;
-  padding: 9px 8px 9px 16px;
+  padding: 8px 16px 8px 16px;
 
   &.${Severity.INFO} {
     border-bottom: 1px solid
