@@ -13,10 +13,10 @@ import {
 } from "actions/templateActions";
 import TemplatesList from "./TemplateList";
 import { fetchDefaultPlugins } from "actions/pluginActions";
-import { AppState } from "reducers";
 import TemplateDetailedView from "./TemplateDetailedView";
 import { Classes } from "@blueprintjs/core";
 import { isEmpty } from "lodash";
+import { AppState } from "@appsmith/reducers";
 
 const StyledDialog = styled(DialogComponent)`
   overflow: hidden;

@@ -11,7 +11,6 @@ import {
 import { Text, TextType } from "design-system";
 import React, { useEffect, useState, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { AppState } from "reducers";
 import {
   getActiveTemplateSelector,
   isFetchingTemplateSelector,
@@ -28,6 +27,7 @@ import { VIEWER_PATH, VIEWER_PATH_DEPRECATED } from "constants/routes";
 import TemplateModalHeader from "./Header";
 import TemplateDescription from "../Template/TemplateDescription";
 import SimilarTemplates from "../Template/SimilarTemplates";
+import { AppState } from "@appsmith/reducers";
 
 const breakpointColumns = {
   default: 4,
