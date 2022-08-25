@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import styled, { css } from "styled-components";
 import { connect, useSelector } from "react-redux";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import CopyToClipBoard from "components/ads/CopyToClipBoard";

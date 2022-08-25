@@ -1,6 +1,6 @@
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 
-let guid: any, dsName: any;
+let dsName: any;
 
 let agHelper = ObjectsRegistry.AggregateHelper,
   ee = ObjectsRegistry.EntityExplorer,
@@ -91,7 +91,7 @@ describe("Validate Mongo CRUD with JSON Form", () => {
   ) {
     agHelper.GetNClick(dataSources._generatePageBtn);
     agHelper.ValidateNetworkStatus("@replaceLayoutWithCRUDPage", 201);
-    //agHelper.ValidateToastMessage("Successfully generated a page");// Commenting this since FindQuery failure appears sometimes
+    agHelper.AssertContains("Successfully generated a page");// Commenting this since FindQuery failure appears sometimes
     agHelper.ValidateNetworkStatus("@getActions", 200);
     agHelper.ValidateNetworkStatus("@postExecute", 200);
     agHelper.ValidateNetworkStatus("@updateLayout", 200);

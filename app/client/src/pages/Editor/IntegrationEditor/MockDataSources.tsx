@@ -7,7 +7,7 @@ import { Colors } from "constants/Colors";
 import { addMockDatasourceToWorkspace } from "actions/datasourceActions";
 import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
 import { getQueryParams } from "utils/URLUtils";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 
 const MockDataSourceWrapper = styled.div`

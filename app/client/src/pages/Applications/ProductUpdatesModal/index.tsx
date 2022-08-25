@@ -4,7 +4,7 @@ import styled from "styled-components";
 import "@github/g-emoji-element";
 import Dialog from "components/ads/DialogComponent";
 import UpdatesButton from "./UpdatesButton";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import { LayersContext } from "constants/Layers";
 import ReleasesAPI from "api/ReleasesAPI";
 import { resetReleasesCount } from "actions/releasesActions";

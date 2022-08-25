@@ -15,7 +15,7 @@ import { HelpIcons } from "icons/HelpIcons";
 import { HelpBaseURL } from "constants/HelpConstants";
 import { getDefaultRefinement } from "selectors/helpSelectors";
 import { getAppsmithConfigs } from "@appsmith/configs";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import {
   setHelpDefaultRefinement,
   setHelpModalVisibility,
