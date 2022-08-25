@@ -4,7 +4,6 @@ import { WidgetType } from "constants/WidgetConstants";
 import QRScannerComponent from "../component";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
-import FileDataTypes from "../constants";
 class QRScannerWidget extends BaseWidget<
   QRScannerWidgetProps,
   QRScannerWidgetState
@@ -280,12 +279,12 @@ interface QRScannerWidgetState extends WidgetState {
 
 interface QRScannerWidgetProps extends WidgetProps {
   label: string;
+  isDisabled: boolean;
   maxNumFiles?: number;
   maxFileSize?: number;
   selectedFiles?: any[];
   allowedFileTypes: string[];
   onFilesSelected?: string;
-  fileDataType: FileDataTypes;
   isRequired?: boolean;
   backgroundColor: string;
   borderRadius: string;

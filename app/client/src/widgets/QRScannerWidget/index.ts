@@ -1,4 +1,3 @@
-import FileDataTypes from "./constants";
 import IconSVG from "./icon.svg";
 import Widget from "./widget";
 
