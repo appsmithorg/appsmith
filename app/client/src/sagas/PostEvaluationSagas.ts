@@ -39,7 +39,7 @@ import {
   JS_EXECUTION_FAILURE,
 } from "@appsmith/constants/messages";
 import log from "loglevel";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import { getAppMode } from "selectors/applicationSelectors";
 import { APP_MODE } from "entities/App";
 import { dataTreeTypeDefCreator } from "utils/autocomplete/dataTreeTypeDefCreator";

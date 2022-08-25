@@ -4,13 +4,12 @@ const {
   AggregateHelper: agHelper,
   ApiPage: apiPage,
   JSEditor: jsEditor,
+  EntityExplorer : ee
 } = ObjectsRegistry;
 
 describe("[Bug]: Catch block was not triggering in Safari/firefox", () => {
   it("1. Triggers the catch block when the API hits a 404", () => {
-    apiPage.CreateAndFillApi("https://swapi.dev/api/people/18261826", "Api1");
-    cy.wait(3000);
-
+    apiPage.CreateAndFillApi("https://swapi.dev/api/people/18261826");
     jsEditor.CreateJSObject(
       `export default {
       fun: async () => {
@@ -24,6 +23,9 @@ describe("[Bug]: Catch block was not triggering in Safari/firefox", () => {
         shouldCreateNewJSObj: true,
       },
     );
-    agHelper.WaitUntilToastDisappear("404 hit : Api1 failed to execute");
+    agHelper.AssertContains("404 hit : Api1 failed to execute");
+    agHelper.ActionContextMenuWithInPane("Delete", "Are you sure?", true);
+    ee.SelectEntityByName("Api1", "QUERIES/JS");
+    ee.ActionContextMenuByEntityName("Api1", "Delete");
   });
 });

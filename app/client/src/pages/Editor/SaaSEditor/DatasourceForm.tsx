@@ -8,7 +8,7 @@ import { Datasource } from "entities/Datasource";
 import { getFormValues, InjectedFormProps, reduxForm } from "redux-form";
 import { RouteComponentProps } from "react-router";
 import { connect } from "react-redux";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import {
   getDatasource,
   getPluginImages,
