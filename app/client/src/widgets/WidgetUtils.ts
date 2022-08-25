@@ -234,10 +234,10 @@ export const getComplementaryGrayscaleColor = (color = "#fff") => {
  * @param borderRadius
  * @returns
  */
-export const lightenColor = (color = "#fff") => {
+export const lightenColor = (color = "#fff", amount = "0.93") => {
   const { h, s } = tinycolor(color).toHsl();
 
-  const newColor = tinycolor(`hsl ${h} ${s} 0.93}`).toHex();
+  const newColor = tinycolor(`hsl ${h} ${s} ${amount}}`).toHex();
 
   return `#${newColor}`;
 };

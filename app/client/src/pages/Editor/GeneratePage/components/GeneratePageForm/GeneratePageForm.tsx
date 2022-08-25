@@ -48,7 +48,7 @@ import {
   useS3BucketList,
 } from "./hooks";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { AppState } from "reducers/index";
+import { AppState } from "@appsmith/reducers";
 import {
   DropdownOptions,
   DatasourceTableDropdownOption,

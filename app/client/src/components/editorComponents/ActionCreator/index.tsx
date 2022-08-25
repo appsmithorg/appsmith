@@ -10,7 +10,7 @@ import {
 } from "pages/Editor/Explorer/ExplorerIcons";
 import React, { useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import { getWidgetOptionsTree } from "sagas/selectors";
 import {
   getCurrentApplicationId,

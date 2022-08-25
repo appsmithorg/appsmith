@@ -12,9 +12,7 @@ describe("Google Sheets datasource test cases", function() {
       "Read, Edit and Create Files",
       "Read, Edit, Create and Delete Files",
     ]);
-    agHelper.ClickButton("Delete");
-    agHelper.ClickButton("Are you sure?");
-    agHelper.ValidateToastMessage("deleted successfully");
+    dataSources.DeleteDSDirectly();
    });
 
   function VerifyFunctionDropdown(scopeOptions: string[]) {
