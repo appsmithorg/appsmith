@@ -241,7 +241,7 @@ describe("JS Function Execution", function() {
     agHelper.AssertContains("No signs of trouble here!", "not.exist");
     // Assert presence of typeError
     agHelper.AssertContains(
-      "TypeError: Cannot read properties of undefined (reading 'name')",
+      "TypeError: Cannot read properties of undefined (reading 'id')",
       "exist",
     );
 
@@ -252,7 +252,7 @@ describe("JS Function Execution", function() {
     jsEditor.AssertParseError(false, true);
     agHelper.GetNClick(locator._errorTab);
     agHelper.AssertContains(
-      "TypeError: Cannot read properties of undefined (reading 'name')",
+      "TypeError: Cannot read properties of undefined (reading 'id')",
       "not.exist",
     );
 
@@ -269,7 +269,7 @@ describe("JS Function Execution", function() {
     // Assert that parse error is removed from debugger when function is deleted
     agHelper.GetNClick(locator._errorTab);
     agHelper.AssertContains(
-      "TypeError: Cannot read properties of undefined (reading 'name')",
+      "TypeError: Cannot read properties of undefined (reading 'id')",
       "not.exist",
     );
     agHelper.ActionContextMenuWithInPane("Delete", "", true);
