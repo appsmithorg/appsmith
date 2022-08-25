@@ -22,6 +22,7 @@ import com.appsmith.server.services.DatasourceContextService;
 import com.appsmith.server.services.DatasourceService;
 import com.appsmith.server.services.MarketplaceService;
 import com.appsmith.server.services.NewPageService;
+import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.services.PluginService;
 import com.appsmith.server.services.SessionUserService;
 import lombok.extern.slf4j.Slf4j;
@@ -110,6 +111,9 @@ public class NewActionServiceCEImplTest {
     ResponseUtils responseUtils;
 
     @MockBean
+    PermissionGroupService permissionGroupService;
+
+    @MockBean
     NewActionRepository newActionRepository;
 
     private BodyExtractor.Context context;
@@ -136,8 +140,8 @@ public class NewActionServiceCEImplTest {
                 policyUtils,
                 authenticationValidator,
                 configService,
-                responseUtils
-        );
+                responseUtils,
+                permissionGroupService);
     }
 
     @Before

@@ -93,11 +93,13 @@ export class EntityExplorer {
       .invoke("attr", "name")
       .then((arrow) => {
         if (expand && arrow == "arrow-right")
-          cy.xpath(this._expandCollapseArrow(entityName)).eq(index)
+          cy.xpath(this._expandCollapseArrow(entityName))
+            .eq(index)
             .trigger("click", { multiple: true })
             .wait(1000);
         else if (!expand && arrow == "arrow-down")
-          cy.xpath(this._expandCollapseArrow(entityName)).eq(index)
+          cy.xpath(this._expandCollapseArrow(entityName))
+            .eq(index)
             .trigger("click", { multiple: true })
             .wait(1000);
         else this.agHelper.Sleep(500);
@@ -115,10 +117,13 @@ export class EntityExplorer {
       .last()
       .click({ force: true });
     cy.xpath(this._contextMenuItem(action)).click({ force: true });
-    this.agHelper.Sleep(500);
+    this.agHelper.Sleep(300);
+    if (action == "Delete") {
+      subAction = "Are you sure?";
+    }
     if (subAction) {
       cy.xpath(this._contextMenuItem(subAction)).click({ force: true });
-      this.agHelper.Sleep(500);
+      this.agHelper.Sleep(300);
     }
     if (action == "Delete") {
       jsDelete && this.agHelper.ValidateNetworkStatus("@deleteJSCollection");

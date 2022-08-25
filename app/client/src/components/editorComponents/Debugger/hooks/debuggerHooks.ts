@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { useParams } from "react-router";
 import { ENTITY_TYPE, Log } from "entities/AppsmithConsole";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import { getWidget } from "sagas/selectors";
 import {
   getCurrentApplicationId,

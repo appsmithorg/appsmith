@@ -11,7 +11,7 @@ import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
 import * as Sentry from "@sentry/react";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import { getPropsForJSActionEntity } from "utils/autocomplete/EntityDefinitions";
 import { isEmpty } from "lodash";
 import { getCurrentPageId } from "selectors/editorSelectors";

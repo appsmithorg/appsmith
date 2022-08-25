@@ -12,7 +12,7 @@ import CodeEditor, {
 } from "components/editorComponents/CodeEditor";
 import { CodeEditorBorder } from "components/editorComponents/CodeEditor/EditorConfig";
 import { API_EDITOR_FORM_NAME } from "constants/forms";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import { connect } from "react-redux";
 import get from "lodash/get";
 import merge from "lodash/merge";
