@@ -184,8 +184,11 @@ const JsonWrapper = styled.div`
   }
 `;
 
-const StyledCollapse = styled(Collapse)`
-  margin-top: 4px;
+const StyledCollapse = styled(Collapse)<{ category: LOG_CATEGORY }>`
+margin-top:${(props) =>
+  props.isOpen && props.category === LOG_CATEGORY.USER_GENERATED
+    ? " -20px"
+    : " 4px"} ;
   margin-left: 120px;
 
   .debugger-message {
@@ -301,37 +304,43 @@ function LogItem(props: LogItemProps) {
           size={IconSize.XL}
         />
         <span className="debugger-time">{props.timestamp}</span>
-        <div className="debugger-description">
-          <span className="debugger-label t--debugger-log-message">
-            {props.text}
-          </span>
+        {!(
+          props.collapsable &&
+          isOpen &&
+          props.category === LOG_CATEGORY.USER_GENERATED
+        ) && (
+          <div className="debugger-description">
+            <span className="debugger-label t--debugger-log-message">
+              {props.text}
+            </span>
 
-          {props.timeTaken && (
-            <span className="debugger-timetaken">{props.timeTaken}</span>
-          )}
-          {props.category === LOG_CATEGORY.PLATFORM_GENERATED &&
-            props.severity === Severity.ERROR && (
-              <div onClick={(e) => e.stopPropagation()}>
-                <ContextualMenu entity={props.source} error={errorToSearch}>
-                  <TooltipComponent
-                    content={
-                      <Text style={{ color: "#ffffff" }} type={TextType.P3}>
-                        {createMessage(TROUBLESHOOT_ISSUE)}
-                      </Text>
-                    }
-                    minimal
-                    position="bottom-left"
-                  >
-                    <StyledSearchIcon
-                      className={`${Classes.ICON} search-menu`}
-                      name={"help"}
-                      size={IconSize.SMALL}
-                    />
-                  </TooltipComponent>
-                </ContextualMenu>
-              </div>
+            {props.timeTaken && (
+              <span className="debugger-timetaken">{props.timeTaken}</span>
             )}
-        </div>
+            {props.category === LOG_CATEGORY.PLATFORM_GENERATED &&
+              props.severity === Severity.ERROR && (
+                <div onClick={(e) => e.stopPropagation()}>
+                  <ContextualMenu entity={props.source} error={errorToSearch}>
+                    <TooltipComponent
+                      content={
+                        <Text style={{ color: "#ffffff" }} type={TextType.P3}>
+                          {createMessage(TROUBLESHOOT_ISSUE)}
+                        </Text>
+                      }
+                      minimal
+                      position="bottom-left"
+                    >
+                      <StyledSearchIcon
+                        className={`${Classes.ICON} search-menu`}
+                        name={"help"}
+                        size={IconSize.SMALL}
+                      />
+                    </TooltipComponent>
+                  </ContextualMenu>
+                </div>
+              )}
+          </div>
+        )}
         {props.source && (
           <EntityLink
             id={props.source.id}
@@ -343,7 +352,11 @@ function LogItem(props: LogItemProps) {
       </InnerWrapper>
 
       {collapsable && isOpen && (
-        <StyledCollapse isOpen={isOpen} keepChildrenMounted>
+        <StyledCollapse
+          category={props.category}
+          isOpen={isOpen}
+          keepChildrenMounted
+        >
           {messages.map((e) => {
             return (
               <MessageWrapper
