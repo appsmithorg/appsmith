@@ -299,7 +299,9 @@ function LogItem(props: LogItemProps) {
             isOpen
           ) && (
             <RowWrapper>
-              <span className="debugger-label">{props.text}</span>
+              <span className="debugger-label t--debugger-log-message">
+                {props.text}
+              </span>
 
               {props.timeTaken && (
                 <span className="debugger-timetaken">{props.timeTaken}</span>

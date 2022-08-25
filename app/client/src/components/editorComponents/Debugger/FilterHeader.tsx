@@ -77,6 +77,7 @@ function FilterHeader(props: FilterHeaderProps) {
         position="bottom"
       >
         <Icon
+          className="t--debugger-clear-logs"
           name="cancel"
           onClick={() => dispatch(clearLogs())}
           size={IconSize.XL}
