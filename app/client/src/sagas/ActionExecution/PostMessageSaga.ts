@@ -24,10 +24,10 @@ export function* executePostMessage(
       throw new TriggerFailureError("Please enter a target origin URL.");
     } else {
       if (source) {
-        const src = document.getElementById(source);
+        const src = document.getElementById(`iframe-${source}`);
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
-        src.contentWindow.postMessage(message, targetOrigin, undefined);
+        src.contentWindow.postMessage(message, targetOrigin);
       } else {
         window.parent.postMessage(message, targetOrigin, undefined);
       }
