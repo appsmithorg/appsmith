@@ -40,6 +40,7 @@ import jsObjectNameReducer from "./jsObjectNameReducer";
 import appThemingReducer from "./appThemingReducer";
 import mainCanvasReducer from "./mainCanvasReducer";
 import focusHistoryReducer from "./focusHistoryReducer";
+import codeEditorReducer from "./codeEditorReducer";
 
 const uiReducer = combineReducers({
   editor: editorReducer,
@@ -83,6 +84,7 @@ const uiReducer = combineReducers({
   appTheming: appThemingReducer,
   mainCanvas: mainCanvasReducer,
   focusHistory: focusHistoryReducer,
+  codeEditor: codeEditorReducer,
 });
 
 export default uiReducer;

@@ -5,7 +5,11 @@ import {
 } from "ce/constants/ReduxActionConstants";
 import { setFocusHistory } from "actions/focusHistoryActions";
 import { matchPath } from "react-router";
-import { API_EDITOR_ID_PATH, BUILDER_PATH_DEPRECATED } from "constants/routes";
+import {
+  API_EDITOR_ID_PATH,
+  BUILDER_PATH,
+  BUILDER_PATH_DEPRECATED,
+} from "constants/routes";
 import { getCurrentFocusInfo } from "selectors/focusHistorySelectors";
 import { FocusState } from "reducers/uiReducers/focusHistoryReducer";
 import { FocusEntity, FocusElementsConfig } from "navigation/FocusElements";
@@ -24,7 +28,7 @@ function* handleRouteChange(action: ReduxAction<{ pathname: string }>) {
 
 function figureOutWithEntity(path: string): FocusEntity {
   const match = matchPath<{ apiId: string }>(path, {
-    path: BUILDER_PATH_DEPRECATED + API_EDITOR_ID_PATH,
+    path: BUILDER_PATH + API_EDITOR_ID_PATH,
   });
   if (match?.params.apiId) {
     return FocusEntity.API;
@@ -43,6 +47,7 @@ function* storeStateOfPath(path: string) {
     // @ts-ignore
     state[selectorInfo.name] = yield select(selectorInfo.selector);
   }
+  console.log({ focus: { state, entity, path } });
   yield put(setFocusHistory(path, { entity, state }));
 }
 
@@ -53,6 +58,13 @@ function* setStateOfPath(path: string) {
     const selectors = FocusElementsConfig[focusHistory.entity];
     for (const selectorInfo of selectors) {
       yield put(selectorInfo.setter(focusHistory.state[selectorInfo.name]));
+    }
+  } else {
+    const entity = figureOutWithEntity(path);
+    const selectors = FocusElementsConfig[entity];
+    for (const selectorInfo of selectors) {
+      if ("defaultValue" in selectorInfo)
+        yield put(selectorInfo.setter(selectorInfo.defaultValue));
     }
   }
 }

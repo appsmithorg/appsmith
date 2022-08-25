@@ -100,6 +100,11 @@ import {
 import { getMoveCursorLeftKey } from "./utils/cursorLeftMovement";
 import { interactionAnalyticsEvent } from "utils/AppsmithUtils";
 import { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTypeDefCreator";
+import {
+  codeEditorBlurred,
+  CodeEditorBlurredPayload,
+} from "actions/codeEditorActions";
+import { getCodeEditorHistory } from "selectors/codeEditorSelectors";
 
 type ReduxStateProps = ReturnType<typeof mapStateToProps>;
 type ReduxDispatchProps = ReturnType<typeof mapDispatchToProps>;
@@ -333,6 +338,13 @@ class CodeEditor extends Component<Props, State> {
         );
 
         this.lintCode(editor);
+
+        if (this.props.codeEditorHistory.name === this.props.dataTreePath) {
+          editor.focus();
+          setTimeout(() => {
+            editor.setCursor(this.props.codeEditorHistory.cursorPosition);
+          }, 0);
+        }
       }.bind(this);
 
       // Finally create the Codemirror editor
@@ -528,11 +540,17 @@ class CodeEditor extends Component<Props, State> {
     }
   };
 
-  handleEditorBlur = () => {
+  handleEditorBlur = (cm: CodeMirror.Editor) => {
     this.handleChange();
     this.setState({ isFocused: false });
     this.editor.setOption("matchBrackets", false);
     this.handleCustomGutter(null);
+    if (this.props.dataTreePath) {
+      this.props.codeEditorBlurred({
+        name: this.props.dataTreePath,
+        cursorPosition: cm.getCursor(),
+      });
+    }
   };
 
   handleBeforeChange = (
@@ -957,12 +975,15 @@ const mapStateToProps = (state: AppState) => ({
   datasources: state.entities.datasources,
   pluginIdToImageLocation: getPluginIdToImageLocation(state),
   recentEntities: getRecentEntityIds(state),
+  codeEditorHistory: getCodeEditorHistory(state),
 });
 
 const mapDispatchToProps = (dispatch: any) => ({
   executeCommand: (payload: SlashCommandPayload) =>
     dispatch(executeCommandAction(payload)),
   startingEntityUpdation: () => dispatch(startingEntityUpdation()),
+  codeEditorBlurred: (payload: CodeEditorBlurredPayload) =>
+    dispatch(codeEditorBlurred(payload)),
 });
 
 export default Sentry.withProfiler(
