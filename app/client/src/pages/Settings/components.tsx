@@ -25,6 +25,7 @@ export const SettingsSubHeader = styled.div`
 `;
 
 export const SettingsFormWrapper = styled.div`
+  /* 84px is the height of save bottom bar */
   height: calc(100vh - ${(props) => props.theme.homePage.header}px - 84px);
   overflow: auto;
 
