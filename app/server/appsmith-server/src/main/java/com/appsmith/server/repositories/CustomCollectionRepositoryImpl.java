@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 public class CustomCollectionRepositoryImpl extends CustomCollectionRepositoryCEImpl implements CustomCollectionRepository {
 
     @Autowired
-    public CustomCollectionRepositoryImpl(ReactiveMongoOperations mongoOperations, MongoConverter mongoConverter) {
-        super(mongoOperations, mongoConverter);
+    public CustomCollectionRepositoryImpl(ReactiveMongoOperations mongoOperations, MongoConverter mongoConverter, CacheableRepositoryHelper cacheableRepositoryHelper) {
+        super(mongoOperations, mongoConverter, cacheableRepositoryHelper);
     }
 }

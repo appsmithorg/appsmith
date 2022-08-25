@@ -12,7 +12,7 @@ import AppRouter from "./AppRouter";
 import * as Sentry from "@sentry/react";
 import { getCurrentThemeDetails, ThemeMode } from "selectors/themeSelectors";
 import { connect } from "react-redux";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import { setThemeMode } from "actions/themeActions";
 import { StyledToastContainer } from "components/ads/Toast";
 import localStorage from "utils/localStorage";

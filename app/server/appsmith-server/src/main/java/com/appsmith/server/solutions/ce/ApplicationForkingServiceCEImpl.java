@@ -62,8 +62,7 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
 
                     boolean allowFork = (
                             // Is this a non-anonymous user that has access to this application?
-                            !user.isAnonymous()
-                                    && policyUtils.isPermissionPresentForUser(application.getPolicies(), AclPermission.MANAGE_APPLICATIONS.getValue(), user.getEmail())
+                            !user.isAnonymous() && application.getUserPermissions().contains(AclPermission.MANAGE_APPLICATIONS.getValue())
                     )
                             || Boolean.TRUE.equals(application.getForkingEnabled());
 

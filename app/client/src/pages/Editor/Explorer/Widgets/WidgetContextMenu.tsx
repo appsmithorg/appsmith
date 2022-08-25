@@ -7,7 +7,7 @@ import ContextMenuTrigger from "../ContextMenuTrigger";
 import { ContextMenuPopoverModifiers } from "../helpers";
 import { noop } from "lodash";
 import { initExplorerEntityNameEdit } from "actions/explorerActions";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import {
   ReduxActionTypes,
   WidgetReduxActionTypes,

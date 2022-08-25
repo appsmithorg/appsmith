@@ -19,7 +19,7 @@ export class DataSources {
     ".t--plugin-name:contains('" + pluginName + "')";
   private _host = "input[name='datasourceConfiguration.endpoints[0].host']";
   private _port = "input[name='datasourceConfiguration.endpoints[0].port']";
-  private _databaseName =
+  _databaseName =
     "input[name='datasourceConfiguration.authentication.databaseName']";
   private _username =
     "input[name='datasourceConfiguration.authentication.username']";
@@ -86,6 +86,8 @@ export class DataSources {
   _gsScopeDropdown =
     "[data-cy='datasourceConfiguration.authentication.scopeString']";
   _gsScopeOptions = ".ads-dropdown-options-wrapper div > span div span";
+  private _queryTimeout =
+    "//input[@name='actionConfiguration.timeoutInMillisecond']";
 
   public StartDataSourceRoutes() {
     cy.intercept("PUT", "/api/v1/datasources/*").as("saveDatasource");
@@ -173,11 +175,13 @@ export class DataSources {
     }).as("testDatasource");
   }
 
-  public CreatePlugIn(pluginName: string) {
+  public CreatePlugIn(pluginName: string, waitForToastDisappear = false) {
     cy.get(this._createNewPlgin(pluginName))
       .parent("div")
       .trigger("click", { force: true });
-    this.agHelper.WaitUntilToastDisappear("datasource created");
+    if (waitForToastDisappear)
+      this.agHelper.WaitUntilToastDisappear("datasource created");
+    else this.agHelper.AssertContains("datasource created");
   }
 
   public NavigateToDSCreateNew() {
@@ -264,15 +268,15 @@ export class DataSources {
   }
 
   public TestDatasource(expectedRes = true) {
-    cy.get(this._testDs).click();
+    this.agHelper.GetNClick(this._testDs, 0, false, 0);
     this.agHelper.ValidateNetworkDataSuccess("@testDatasource", expectedRes);
-    this.agHelper.WaitUntilToastDisappear("datasource is valid");
+    this.agHelper.AssertContains("datasource is valid");
   }
 
   public SaveDatasource() {
     cy.get(this._saveDs).click();
     this.agHelper.ValidateNetworkStatus("@saveDatasource", 200);
-    this.agHelper.WaitUntilToastDisappear("datasource updated successfully");
+    this.agHelper.AssertContains("datasource updated successfully");
 
     // cy.wait("@saveDatasource")
     //     .then((xhr) => {
@@ -296,11 +300,14 @@ export class DataSources {
     this.agHelper.GetNClick(this._contextMenuDelete);
     this.agHelper.GetNClick(this._visibleTextSpan("Are you sure?"));
     this.agHelper.ValidateNetworkStatus("@deleteDatasource", expectedRes);
+    if (expectedRes == 200)
+      this.agHelper.AssertContains("datasource deleted successfully");
+    else this.agHelper.AssertContains("action(s) using it.");
   }
 
   public DeleteDatasouceFromWinthinDS(
     datasourceName: string,
-    expectedStatus = 200,
+    expectedRes = 200,
   ) {
     this.NavigateToActiveTab();
     cy.get(this._datasourceCard)
@@ -311,7 +318,16 @@ export class DataSources {
     this.agHelper.Sleep(2000); //for the Datasource page to open
     this.agHelper.ClickButton("Delete");
     this.agHelper.ClickButton("Are you sure?");
-    this.agHelper.ValidateNetworkStatus("@deleteDatasource", expectedStatus);
+    this.agHelper.ValidateNetworkStatus("@deleteDatasource", expectedRes);
+    if (expectedRes == 200)
+      this.agHelper.AssertContains("datasource deleted successfully");
+    else this.agHelper.AssertContains("action(s) using it.");
+  }
+
+  public DeleteDSDirectly() {
+    this.agHelper.ClickButton("Delete");
+    this.agHelper.ClickButton("Are you sure?");
+    this.agHelper.AssertContains("deleted successfully");
   }
 
   public NavigateToActiveTab() {
@@ -382,13 +398,19 @@ export class DataSources {
     cy.get(this._saveDs).click();
   }
 
-  RunQuery(expectedStatus = true) {
-    cy.get(this._runQueryBtn).click({ force: true });
-    this.agHelper.Sleep(2000);
-    this.agHelper.ValidateNetworkExecutionSuccess(
-      "@postExecute",
-      expectedStatus,
-    );
+  RunQuery(
+    expectedStatus = true,
+    toValidateResponse = true,
+    waitTimeInterval = 500,
+  ) {
+    this.agHelper.GetNClick(this._runQueryBtn, 0, true, waitTimeInterval);
+    if (toValidateResponse) {
+      this.agHelper.Sleep(1500);
+      this.agHelper.ValidateNetworkExecutionSuccess(
+        "@postExecute",
+        expectedStatus,
+      );
+    }
   }
 
   public ReadQueryTableResponse(index: number, timeout = 100) {
@@ -489,5 +511,14 @@ export class DataSources {
     if (queryName) this.agHelper.RenameWithInPane(queryName);
     this.agHelper.GetNClick(this._templateMenu);
     this.EnterQuery(query);
+  }
+
+  public SetQueryTimeout(queryTimeout = 20000) {
+    this.agHelper.GetNClick(this._queryResponse("SETTINGS"));
+    cy.xpath(this._queryTimeout)
+      .clear()
+      .type(queryTimeout.toString(), { delay: 0 }); //Delay 0 to work like paste!
+    this.agHelper.AssertAutoSave();
+    this.agHelper.GetNClick(this._queryResponse("QUERY"));
   }
 }
