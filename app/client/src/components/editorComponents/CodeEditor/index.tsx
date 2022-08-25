@@ -100,6 +100,9 @@ import {
 import { getMoveCursorLeftKey } from "./utils/cursorLeftMovement";
 import { interactionAnalyticsEvent } from "utils/AppsmithUtils";
 import { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTypeDefCreator";
+import { getCodeEditorCursorPosition } from "selectors/uiContextSelectors";
+import { CursorPosition } from "reducers/uiReducers/codeEditorContextReducer";
+import { setCodeEditorCursorPosition } from "actions/uiContextActions";
 
 type ReduxStateProps = ReturnType<typeof mapStateToProps>;
 type ReduxDispatchProps = ReturnType<typeof mapDispatchToProps>;
@@ -526,13 +529,25 @@ class CodeEditor extends Component<Props, State> {
             hinter.showHint(cm, entityInformation, blockCompletions),
         );
     }
+    const { ch, line, sticky } = cm.getCursor();
+    if (
+      ch === 0 &&
+      line === 0 &&
+      sticky === null &&
+      this.props.cursorPosition
+    ) {
+      cm.setCursor(this.props.cursorPosition);
+    }
+    //this.props.setCursorPosition(this.props.dataTreePath, { line, ch });
   };
 
-  handleEditorBlur = () => {
+  handleEditorBlur = (cm: CodeMirror.Editor) => {
     this.handleChange();
     this.setState({ isFocused: false });
     this.editor.setOption("matchBrackets", false);
     this.handleCustomGutter(null);
+    const { ch, line } = cm.getCursor();
+    this.props.setCursorPosition(this.props.dataTreePath, { line, ch });
   };
 
   handleBeforeChange = (
@@ -866,6 +881,7 @@ class CodeEditor extends Component<Props, State> {
           />
         )}
         <EvaluatedValuePopup
+          dataTreePath={this.props.dataTreePath}
           entity={entityInformation}
           errors={errors}
           evaluatedValue={evaluated}
@@ -952,17 +968,22 @@ class CodeEditor extends Component<Props, State> {
   }
 }
 
-const mapStateToProps = (state: AppState) => ({
+const mapStateToProps = (state: AppState, props: Props): any => ({
   dynamicData: getDataTreeForAutocomplete(state),
   datasources: state.entities.datasources,
   pluginIdToImageLocation: getPluginIdToImageLocation(state),
   recentEntities: getRecentEntityIds(state),
+  cursorPosition: getCodeEditorCursorPosition(state, props.dataTreePath || ""),
 });
 
 const mapDispatchToProps = (dispatch: any) => ({
   executeCommand: (payload: SlashCommandPayload) =>
     dispatch(executeCommandAction(payload)),
   startingEntityUpdation: () => dispatch(startingEntityUpdation()),
+  setCursorPosition: (
+    key: string | undefined,
+    cursorPosition: CursorPosition,
+  ) => dispatch(setCodeEditorCursorPosition(key, cursorPosition)),
 });
 
 export default Sentry.withProfiler(
