@@ -2,7 +2,7 @@ import React from "react";
 
 class GeneralSettings extends React.Component {
   render(): React.ReactNode {
-    return <div />;
+    return <div>General settings</div>;
   }
 }
 
