@@ -5,6 +5,8 @@ export function createMessage(
   return format(...args);
 }
 
+export const APPSMITH_DISPLAY_VERSION = (edition: string, version: string) =>
+  `Appsmith ${edition} ${version}`;
 export const YES = () => `Yes`;
 export const ARE_YOU_SURE = () => `Are you sure?`;
 export const ERROR_ADD_API_INVALID_URL = () =>
