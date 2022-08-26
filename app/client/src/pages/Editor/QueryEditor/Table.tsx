@@ -308,7 +308,7 @@ function Table(props: TableProps) {
   return (
     <ErrorBoundary>
       <TableWrapper data-guided-tour-id="query-table-response">
-        <div className="tableWrap cypress-table-test">
+        <div className="tableWrap">
           <div {...getTableProps()} className="table">
             <div>
               {headerGroups.map((headerGroup: any, index: number) => (

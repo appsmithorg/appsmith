@@ -73,6 +73,5 @@
   "useSelfSignedCert": ".t--connection\\.ssl\\.authType",
   "useCertInAuth": "[data-cy='authentication.useSelfSignedCert'] input",
   "certificateDetails": "[data-cy='section-Certificate Details']",
-  "saveBtn": ".t--save-datasource",
-  "postgresResponseTableView": ".cypress-table-test"
+  "saveBtn": ".t--save-datasource"
 }
