@@ -226,11 +226,10 @@ export class Table {
       });
   }
 
-  public SelectTableRow(rowIndex: number) {
-    //0 for 1st row
+  public SelectTableRow(rowIndex: number) { //rowIndex - 0 for 1st row
     cy.get(this._tableRow(rowIndex, 0))
       .first()
-      .click({ force: true });
+      .trigger("click", { force: true });
     this.agHelper.Sleep(); //for select to reflect
   }
 
