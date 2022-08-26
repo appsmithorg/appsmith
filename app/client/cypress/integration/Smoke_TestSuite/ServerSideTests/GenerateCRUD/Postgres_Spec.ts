@@ -507,7 +507,7 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
   });
 
   it("14. Update JSON fields with placeholds for Addition - on Vessels", () => {
-    testTimeout(seconds(600));
+    testTimeout(seconds(600));//10mins
     ee.ExpandCollapseEntity("WIDGETS");
     ee.ExpandCollapseEntity("Insert_Modal");
     ee.SelectEntityByName("insert_form");
