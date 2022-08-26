@@ -115,9 +115,6 @@ export interface createGlobalDataArgs {
 }
 
 export const createGlobalData = (args: createGlobalDataArgs) => {
-  // userLogs object has to be cleared before next eval can happen to make sure there are no roll overs from last evals
-  userLogs.resetLogs();
-
   const {
     context,
     dataTree,
@@ -126,6 +123,7 @@ export const createGlobalData = (args: createGlobalDataArgs) => {
     resolvedFunctions,
     skipEntityFunctions,
   } = args;
+
   const clonedDataTree = klona(dataTree);
 
   const GLOBAL_DATA: Record<string, any> = {};
@@ -240,6 +238,7 @@ export default function evaluateSync(
     let logs: LogObject[] = [];
     let result;
     /**** Setting the eval context ****/
+    userLogs.resetLogs();
     const GLOBAL_DATA: Record<string, any> = createGlobalData({
       dataTree,
       resolvedFunctions,
@@ -306,7 +305,9 @@ export async function evaluateAsync(
   return (async function() {
     const errors: EvaluationError[] = [];
     let result;
+    let logs;
     /**** Setting the eval context ****/
+    userLogs.resetLogs();
     const GLOBAL_DATA: Record<string, any> = createGlobalData({
       dataTree,
       resolvedFunctions,
@@ -326,6 +327,7 @@ export async function evaluateAsync(
 
     try {
       result = await eval(script);
+      logs = userLogs.flushLogs();
     } catch (error) {
       const errorMessage = `UncaughtPromiseRejection: ${
         (error as Error).message
@@ -337,11 +339,12 @@ export async function evaluateAsync(
         errorType: PropertyEvaluationErrorType.PARSE,
         originalBinding: userScript,
       });
+      logs = userLogs.flushLogs();
     } finally {
       completePromise(requestId, {
         result,
         errors,
-        logs: userLogs.flushLogs(),
+        logs,
         triggers: Array.from(self.TRIGGER_COLLECTOR),
       });
       for (const entity in GLOBAL_DATA) {
