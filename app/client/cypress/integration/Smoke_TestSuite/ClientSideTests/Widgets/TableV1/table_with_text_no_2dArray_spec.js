@@ -1,6 +1,6 @@
 const dsl = require("../../../../../fixtures/tableWithTextWidgetDsl.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
-import { seconds, testTimeout } from "../../../../support/timeout";
+import { seconds, testTimeout } from "../../../../../support/timeout";
 
 describe("Table widget edge case scenario testing", function() {
   before(() => {
