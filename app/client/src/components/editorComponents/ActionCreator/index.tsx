@@ -606,59 +606,57 @@ const isValueValidURL = (value: string) => {
   }
 };
 
-const ActionCreator = React.forwardRef(
-  (props: ActionCreatorProps, ref: any) => {
-    const NAVIGATE_TO_TAB_SWITCHER: Array<Switch> = [
-      {
-        id: "page-name",
-        text: "Page Name",
-        action: () => {
-          setActiveTabNavigateTo(NAVIGATE_TO_TAB_SWITCHER[0]);
-        },
+const ActionCreator = React.forwardRef((props: ActionCreatorProps) => {
+  const NAVIGATE_TO_TAB_SWITCHER: Array<Switch> = [
+    {
+      id: "page-name",
+      text: "Page Name",
+      action: () => {
+        setActiveTabNavigateTo(NAVIGATE_TO_TAB_SWITCHER[0]);
       },
-      {
-        id: "url",
-        text: "URL",
-        action: () => {
-          setActiveTabNavigateTo(NAVIGATE_TO_TAB_SWITCHER[1]);
-        },
+    },
+    {
+      id: "url",
+      text: "URL",
+      action: () => {
+        setActiveTabNavigateTo(NAVIGATE_TO_TAB_SWITCHER[1]);
       },
-    ];
+    },
+  ];
 
-    const [activeTabNavigateTo, setActiveTabNavigateTo] = useState(
-      NAVIGATE_TO_TAB_SWITCHER[isValueValidURL(props.value) ? 1 : 0],
-    );
-    const dataTree = useSelector(getDataTree);
-    const integrationOptionTree = useIntegrationsOptionTree();
-    const widgetOptionTree = useSelector(getWidgetOptionsTree);
-    const modalDropdownList = useModalDropdownList();
-    const fields = getFieldFromValue(
-      props.value,
-      activeTabNavigateTo,
-      undefined,
-      dataTree,
-    );
+  const [activeTabNavigateTo, setActiveTabNavigateTo] = useState(
+    NAVIGATE_TO_TAB_SWITCHER[isValueValidURL(props.value) ? 1 : 0],
+  );
+  const dataTree = useSelector(getDataTree);
+  const integrationOptionTree = useIntegrationsOptionTree();
+  const widgetOptionTree = useSelector(getWidgetOptionsTree);
+  const modalDropdownList = useModalDropdownList();
+  const fields = getFieldFromValue(
+    props.value,
+    activeTabNavigateTo,
+    undefined,
+    dataTree,
+  );
 
-    return (
-      <TreeStructure>
-        <Fields
-          activeNavigateToTab={activeTabNavigateTo}
-          additionalAutoComplete={props.additionalAutoComplete}
-          depth={1}
-          fields={fields}
-          integrationOptionTree={integrationOptionTree}
-          maxDepth={1}
-          modalDropdownList={modalDropdownList}
-          navigateToSwitches={NAVIGATE_TO_TAB_SWITCHER}
-          onValueChange={props.onValueChange}
-          pageDropdownOptions={props.pageDropdownOptions}
-          value={props.value}
-          widgetOptionTree={widgetOptionTree}
-        />
-      </TreeStructure>
-    );
-  },
-);
+  return (
+    <TreeStructure>
+      <Fields
+        activeNavigateToTab={activeTabNavigateTo}
+        additionalAutoComplete={props.additionalAutoComplete}
+        depth={1}
+        fields={fields}
+        integrationOptionTree={integrationOptionTree}
+        maxDepth={1}
+        modalDropdownList={modalDropdownList}
+        navigateToSwitches={NAVIGATE_TO_TAB_SWITCHER}
+        onValueChange={props.onValueChange}
+        pageDropdownOptions={props.pageDropdownOptions}
+        value={props.value}
+        widgetOptionTree={widgetOptionTree}
+      />
+    </TreeStructure>
+  );
+});
 
 const getPageListAsOptions = (state: AppState) => {
   return state.entities.pageList.pages.map((page) => ({
