@@ -1220,6 +1220,9 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
 
     const isColumnEditable =
       column.isEditable && isColumnTypeEditable(column.columnType);
+    const isCellEditMode =
+      props.cell.column.alias === this.props.editableCell.column &&
+      rowIndex === this.props.editableCell.index;
 
     switch (column.columnType) {
       case ColumnTypes.BUTTON:
@@ -1518,9 +1521,19 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
             }
             cellBackground={cellProperties.cellBackground}
             compactMode={compactMode}
+            disabledCheckbox={
+              this.props.inlineEditingSaveOption ===
+                InlineEditingSaveOptions.ROW_LEVEL &&
+              this.props.updatedRowIndices.length &&
+              this.props.updatedRowIndices.indexOf(originalIndex) === -1
+            }
+            hasUnSavedChanges={cellProperties.hasUnsavedChanged}
             horizontalAlignment={cellProperties.horizontalAlignment}
+            isCellEditMode={isCellEditMode}
+            isCellEditable={
+              (isColumnEditable && cellProperties.isCellEditable) ?? false
+            }
             isCellVisible={cellProperties.isCellVisible ?? true}
-            isDisabled={!cellProperties.isCellEditable}
             isHidden={isHidden}
             onChange={() => {
               const row = filteredTableData[rowIndex];
@@ -1548,9 +1561,6 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
         );
 
       default:
-        const isCellEditMode =
-          props.cell.column.alias === this.props.editableCell.column &&
-          rowIndex === this.props.editableCell.index;
         return (
           <DefaultCell
             accentColor={this.props.accentColor}
