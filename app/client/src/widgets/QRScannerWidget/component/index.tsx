@@ -4,7 +4,7 @@ import { BaseButton } from "widgets/ButtonWidget/component";
 import { Colors } from "constants/Colors";
 import Modal from "react-modal";
 import { QrReader } from "react-qr-reader";
-import { ViewFinder } from "./ViewFinder";
+import ViewFinder from "./ViewFinder.svg";
 import styled, { createGlobalStyle, css } from "styled-components";
 import CloseIcon from "assets/icons/ads/cross.svg";
 import { getBrowserInfo, getPlatformOS, PLATFORM_OS } from "utils/helpers";
@@ -72,6 +72,21 @@ const QRScannerGlobalStyles = createGlobalStyle<{
 
   .qr-camera {
     height: 100%;
+    position: relative;
+
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      height: 100%;
+      width: 100%;
+      background-image: url(${ViewFinder});
+      background-position: center;
+      background-repeat: no-repeat;
+      background-size: cover;
+      z-index: 1;
+    }
   }
 `;
 
@@ -362,7 +377,7 @@ function QRScannerComponent(props: QRScannerComponentProps) {
           {modalIsOpen && (
             <div className="qr-camera-container">
               <QrReader
-                ViewFinder={ViewFinder}
+                // ViewFinder={ViewFinder}
                 className="qr-camera"
                 constraints={videoConstraints}
                 key={JSON.stringify(videoConstraints)}
