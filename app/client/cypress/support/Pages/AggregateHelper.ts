@@ -25,7 +25,7 @@ export class AggregateHelper {
   }`;
 
   private selectChars = (noOfChars: number) =>
-    `${"{shift}" + "{leftArrow}".repeat(noOfChars) + "{backspace}"}`;
+    `${"{leftArrow}".repeat(noOfChars) + "{shift}{cmd}{leftArrow}{backspace}"}`;
 
   public SaveLocalStorageCache() {
     Object.keys(localStorage).forEach((key) => {
@@ -454,10 +454,13 @@ export class AggregateHelper {
   }
 
   public RemoveCharsNType(selector: string, charCount = 0, totype: string) {
-    this.GetElement(selector)
-      .type(this.selectChars(charCount), { timeout: 0 })
-      .wait(50)
-      .type(totype);
+    if (charCount > 0)
+      this.GetElement(selector)
+        .focus()
+        .type("{backspace}".repeat(charCount), { timeout: 0, force: true })
+        .wait(50)
+        .type(totype);
+    else this.TypeText(selector, totype);
   }
 
   public TypeText(selector: string, value: string, index = 0) {

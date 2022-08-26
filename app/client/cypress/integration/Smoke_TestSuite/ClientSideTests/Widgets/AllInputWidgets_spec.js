@@ -7,23 +7,26 @@ import {
   getWidgetSelector,
   getWidgetInputSelector,
 } from "../../../../locators/WidgetLocators";
+import { ObjectsRegistry } from "../../../../support/Objects/Registry";
+
+const agHelper = ObjectsRegistry.AggregateHelper;
 
 const widgetsToTest = {
   [WIDGET.INPUT_V2]: {
     testCases: [
-      { input: "test", expected: "test", clearBeforeType: true },
-      { input: "12", expected: "test12", clearBeforeType: false },
-      { input: "hello", expected: "hello", clearBeforeType: true },
-      { input: "hel", expected: "hellohel", clearBeforeType: false },
+      { input: "test", expected: "test", charToClear: 0 },
+      { input: "12", expected: "test12", charToClear: 0 },
+      { input: "hello", expected: "hello", charToClear: 6 },
+      { input: "hel", expected: "hellohel", charToClear: 0 },
       {
-        input: "{backspace}{backspace}{backspace}{backspace}12",
+        input: "12",
         expected: "hell12",
-        clearBeforeType: false,
+        charToClear: 4,
       },
       {
-        input: "{backspace}{backspace}456",
+        input: "456",
         expected: "hell456",
-        clearBeforeType: false,
+        charToClear: 2,
       },
     ],
     widgetName: "Input widget",
@@ -34,17 +37,17 @@ const widgetsToTest = {
       {
         input: "9999999999",
         expected: "(999) 999-9999",
-        clearBeforeType: true,
+        charToClear: 0,
       },
       {
-        input: "{backspace}{backspace}{backspace}{backspace}12",
+        input: "12",
         expected: "(999) 999-12",
-        clearBeforeType: false,
+        charToClear: 4,
       },
       {
-        input: "{backspace}{backspace}456",
+        input: "456",
         expected: "(999) 999-456",
-        clearBeforeType: false,
+        charToClear: 2,
       },
     ],
     widgetName: "Phone Input widget",
@@ -52,16 +55,16 @@ const widgetsToTest = {
   },
   [WIDGET.CURRENCY_INPUT]: {
     testCases: [
-      { input: "1233", expected: "1,233", clearBeforeType: true },
+      { input: "1233", expected: "1,233", charToClear: 0 },
       {
-        input: "{backspace}{backspace}{backspace}{backspace}12",
+        input: "12",
         expected: "12",
-        clearBeforeType: false,
+        charToClear: 5,
       },
       {
-        input: "{backspace}{backspace}456",
+        input: "456",
         expected: "456",
-        clearBeforeType: false,
+        charToClear: 2,
       },
     ],
     widgetName: "Currency Input widget",
@@ -96,15 +99,13 @@ Object.entries(widgetsToTest).forEach(([widgetSelector, testConfig], index) => {
     it(`1. DragDrop widget & Label/Text widgets`, () => {
       if (index === 0) {
         configureApi();
-
         cy.get(explorer.addWidget).click();
       }
-      cy.dragAndDropToCanvas(widgetSelector, { x: 300, y: 200 });
+
+      cy.dragAndDropToCanvas(WIDGET.BUTTON, { x: 100, y: 200 });
+      cy.dragAndDropToCanvas(widgetSelector, { x: 400, y: 200 });
+      cy.dragAndDropToCanvas(WIDGET.TEXT, { x: 300, y: 300 });
       cy.get(getWidgetSelector(widgetSelector)).should("exist");
-
-      cy.dragAndDropToCanvas(WIDGET.BUTTON, { x: 300, y: 400 });
-
-      cy.dragAndDropToCanvas(WIDGET.TEXT, { x: 300, y: 600 });
     });
 
     it("2. StoreValue should have complete input value", () => {
@@ -136,17 +137,23 @@ Object.entries(widgetsToTest).forEach(([widgetSelector, testConfig], index) => {
       cy.closePropertyPane();
 
       const inputs = testConfig.testCases;
+      agHelper.ClearInputText("Label");
 
-      inputs.forEach(({ clearBeforeType, expected, input }) => {
+      inputs.forEach(({ charToClear, expected, input }) => {
         // Input text and hit enter key
-        if (clearBeforeType) {
-          cy.get(getWidgetInputSelector(widgetSelector))
-            .clear()
-            .type(`${input}`);
-        } else {
-          cy.get(getWidgetInputSelector(widgetSelector)).type(`${input}`);
-        }
+        // if (charToClear > 0) {
+        //   cy.get(getWidgetInputSelector(widgetSelector))
+        //     .clear()
+        //     .type(`${input}`);
+        // } else {
+        //   cy.get(getWidgetInputSelector(widgetSelector)).type(`${input}`);
+        // }
 
+        agHelper.RemoveCharsNType(
+          getWidgetInputSelector(widgetSelector),
+          charToClear,
+          input,
+        );
         cy.get(getWidgetSelector(WIDGET.BUTTON)).click();
 
         // Assert if the Text widget contains the whole value, test
@@ -166,17 +173,26 @@ Object.entries(widgetsToTest).forEach(([widgetSelector, testConfig], index) => {
       );
 
       const inputs = testConfig.testCases;
+      cy.get(getWidgetSelector(WIDGET.TEXT)).click();
+      cy.get("body").type(`{del}`, { force: true });
 
-      inputs.forEach(({ clearBeforeType, expected, input }) => {
+      agHelper.ClearInputText("Label");
+
+      inputs.forEach(({ charToClear, expected, input }) => {
         // Input text and hit enter key
-        if (clearBeforeType) {
-          cy.get(getWidgetInputSelector(widgetSelector))
-            .clear()
-            .type(`${input}`);
-        } else {
-          cy.get(getWidgetInputSelector(widgetSelector)).type(`${input}`);
-        }
+        // if (clearBeforeType) {
+        //   cy.get(getWidgetInputSelector(widgetSelector))
+        //     .clear()
+        //     .type(`${input}`);
+        // } else {
+        //   cy.get(getWidgetInputSelector(widgetSelector)).type(`${input}`);
+        // }
 
+        agHelper.RemoveCharsNType(
+          getWidgetInputSelector(widgetSelector),
+          charToClear,
+          input,
+        );
         cy.get(getWidgetSelector(WIDGET.BUTTON)).click();
 
         // Assert if the Api request contains the expected value
@@ -191,9 +207,6 @@ Object.entries(widgetsToTest).forEach(([widgetSelector, testConfig], index) => {
 
     it("4. Delete all the widgets on canvas", () => {
       cy.get(getWidgetSelector(WIDGET.BUTTON)).click();
-      cy.get("body").type(`{del}`, { force: true });
-
-      cy.get(getWidgetSelector(WIDGET.TEXT)).click();
       cy.get("body").type(`{del}`, { force: true });
 
       cy.get(getWidgetSelector(widgetSelector)).click();
