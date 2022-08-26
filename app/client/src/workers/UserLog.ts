@@ -45,10 +45,16 @@ export function createLogTitleString(data: any[]) {
   try {
     // convert mixed array to string
     return data.reduce((acc, curr) => {
-      // curr can be a string or an object
       let joiningChar = ",";
       if (acc.length === 0) {
         joiningChar = "";
+      }
+      // curr can be a string or an object
+      if (typeof curr === "boolean") {
+        return `${acc}${joiningChar}${curr}`;
+      }
+      if (curr === null || curr === undefined) {
+        return `${acc}${joiningChar} undefined`;
       }
       if (typeof curr === "string") {
         return `${acc}${joiningChar} ${truncate(curr)}`;
