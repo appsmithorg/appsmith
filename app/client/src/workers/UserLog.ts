@@ -36,7 +36,7 @@ const truncate = (input: string, suffix = "", truncLen = 100) => {
       return "-";
     }
   } catch (error) {
-    return `--${JSON.stringify(error)}-${input}`;
+    return `Invalid log: ${JSON.stringify(error)}`;
   }
 };
 
@@ -45,40 +45,33 @@ export function createLogTitleString(data: any[]) {
   try {
     // convert mixed array to string
     return data.reduce((acc, curr) => {
-      let joiningChar = ",";
-      if (acc.length === 0) {
-        joiningChar = "";
-      }
       // curr can be a string or an object
       if (typeof curr === "boolean") {
-        return `${acc}${joiningChar} ${curr}`;
+        return `${acc} ${curr}`;
       }
       if (curr === null || curr === undefined) {
-        return `${acc}${joiningChar} undefined`;
+        return `${acc} undefined`;
       }
       if (typeof curr === "string") {
-        return `${acc}${joiningChar} ${truncate(curr)}`;
+        return `${acc} ${truncate(curr)}`;
       }
       if (typeof curr === "number") {
-        return `${acc}${joiningChar} ${truncate(curr.toString())}`;
+        return `${acc} ${truncate(curr.toString())}`;
       }
       if (typeof curr === "function") {
-        return `${acc}${joiningChar} func() ${curr.name}`;
+        return `${acc} func() ${curr.name}`;
       }
       if (typeof curr === "object") {
         let suffix = "}";
         if (Array.isArray(curr)) {
           suffix = "]";
         }
-        return `${acc}${joiningChar} ${truncate(
-          JSON.stringify(curr, null, "\t"),
-          suffix,
-        )}`;
+        return `${acc} ${truncate(JSON.stringify(curr, null, "\t"), suffix)}`;
       }
-      acc = `${acc}${joiningChar} -`;
+      acc = `${acc} -`;
     }, "");
   } catch (error) {
-    return `---${JSON.stringify(error)}-${JSON.stringify(data)}`;
+    return `Error in parsing log: ${JSON.stringify(error)}`;
   }
 }
 
