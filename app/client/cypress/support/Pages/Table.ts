@@ -139,18 +139,7 @@ export class Table {
   ) {
     //timeout can be sent higher values incase of larger tables
     this.agHelper.Sleep(timeout); //Settling time for table!
-    return cy.waitUntil(
-      () =>
-        cy
-          .get(this._tableRowColumnData(rowNum, colNum))
-          .invoke("text"),
-      {
-        errorMsg: "Table is not populated",
-        timeout: 10000,
-        interval: 1000,
-      },
-    );
-    //return cy.get(this._tableRowColumnData(rowNum, colNum)).invoke("text");
+    return cy.get(this._tableRowColumnData(rowNum, colNum)).invoke("text");
   }
 
   public AssertTableRowImageColumnIsLoaded(

@@ -30,7 +30,7 @@ describe("Verify various Table_Filter combinations", function() {
   });
 
   it("2. Table Widget Search Functionality", function() {
-    table.ReadTableRowColumnData(1, 3, 2000).then((cellData : any) => {
+    table.ReadTableRowColumnData(1, 3, 2000).then((cellData) => {
       expect(cellData).to.eq("Lindsay Ferguson");
       table.SearchTable(cellData);
       table.ReadTableRowColumnData(0, 3).then((afterSearch) => {
