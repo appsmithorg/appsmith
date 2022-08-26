@@ -10,8 +10,6 @@ export const CONFIG = {
   needsMeta: true,
   iconSVG: IconSVG,
   defaults: {
-    defaultStartValue: 20,
-    defaultEndValue: 40,
     min: 0,
     max: 100,
     minRange: 5,

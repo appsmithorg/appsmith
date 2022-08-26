@@ -99,7 +99,7 @@ const RangeSliderComponent = (props: RangeSliderComponentProps) => {
   const {
     color,
     disabled = false,
-    endValue = 40,
+    endValue = 100,
     labelAlignment,
     labelPosition,
     labelStyle,
@@ -117,7 +117,7 @@ const RangeSliderComponent = (props: RangeSliderComponentProps) => {
     showMarksLabel,
     sliderSize = "m",
     sliderTooltip,
-    startValue = 20,
+    startValue = 0,
     step = 1,
     tooltipAlwaysOn = false,
     ...others

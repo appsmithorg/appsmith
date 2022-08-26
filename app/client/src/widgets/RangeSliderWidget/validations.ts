@@ -101,11 +101,24 @@ export function stepSizeValidation(
     };
   }
 
-  if (step <= 0) {
+  if (step <= 0.1) {
     return {
       isValid: false,
       parsed: undefined,
-      messages: ["This value must be greater than zero"],
+      messages: ["This value must be greater than 0.1"],
+    };
+  }
+
+  const minValue = props.min;
+  const maxValue = props.max;
+
+  const sliderRange = maxValue - minValue;
+
+  if (stepSize > sliderRange) {
+    return {
+      isValid: false,
+      parsed: undefined,
+      messages: [`This value must be less than ${sliderRange}`],
     };
   }
 
@@ -228,11 +241,11 @@ export function minRangeValidation(
   const defaultMinRange = Number(minRange);
   const stepSize = props.step;
 
-  if (defaultMinRange <= 0) {
+  if (defaultMinRange < 0.1) {
     return {
       isValid: false,
       parsed: undefined,
-      messages: ["This value must be greater than zero"],
+      messages: ["This value must be greater than 0.1"],
     };
   }
 

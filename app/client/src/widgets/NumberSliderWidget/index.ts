@@ -11,7 +11,6 @@ export const CONFIG = {
   searchTags: ["range"],
   iconSVG: IconSVG,
   defaults: {
-    defaultValue: 50,
     min: 0,
     max: 100,
     step: 1,

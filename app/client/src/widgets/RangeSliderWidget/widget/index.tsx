@@ -1008,7 +1008,7 @@ class RangeSliderWidget extends BaseWidget<
       <RangeSliderComponent
         color={this.props.accentColor || TAILWIND_COLORS.green["600"]}
         disabled={this.props.isDisabled}
-        endValue={this.props.end}
+        endValue={this.props.end || this.props.max}
         labelAlignment={this.props.labelAlignment}
         labelPosition={this.props.labelPosition}
         labelStyle={this.props.labelStyle}
@@ -1027,7 +1027,7 @@ class RangeSliderWidget extends BaseWidget<
         showMarksLabel={this.props.showMarksLabel}
         sliderSize={this.props.sliderSize}
         sliderTooltip={this.getSliderTooltip}
-        startValue={this.props.start}
+        startValue={this.props.start || this.props.min}
         step={this.props.step}
         tooltipAlwaysOn={this.props.tooltipAlwaysOn}
       />

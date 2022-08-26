@@ -893,7 +893,7 @@ class NumberSliderWidget extends BaseWidget<
         showMarksLabel={this.props.showMarksLabel}
         sliderSize={this.props.sliderSize}
         sliderTooltip={this.getSliderTooltip}
-        sliderValue={this.props.value}
+        sliderValue={this.props.value || this.props.min}
         step={this.props.step}
         tooltipAlwaysOn={this.props.tooltipAlwaysOn || false}
       />
