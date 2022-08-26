@@ -34,8 +34,10 @@ import {
   generateResponsiveBehaviorConfig,
   getLayoutConfig,
 } from "utils/layoutPropertiesUtils";
+import { connect } from "react-redux";
+import { addWrappers, removeWrappers } from "actions/autoLayoutActions";
 
-class ContainerWidget extends BaseWidget<
+export class ContainerWidget extends BaseWidget<
   ContainerWidgetProps<WidgetProps>,
   ContainerWidgetState
 > {
@@ -294,7 +296,10 @@ class ContainerWidget extends BaseWidget<
 
   componentDidUpdate(prevProps: ContainerWidgetProps<any>): void {
     super.componentDidUpdate(prevProps);
-    this.updatePositioningInformation();
+    if (this.props.positioning !== prevProps.positioning) {
+      this.updatePositioningInformation();
+      this.updateWrappers(prevProps);
+    }
   }
 
   checkIsMobile = (): void => {
@@ -312,6 +317,15 @@ class ContainerWidget extends BaseWidget<
             ? LayoutDirection.Horizontal
             : LayoutDirection.Vertical,
       });
+  };
+
+  updateWrappers = (prevProps: ContainerWidgetProps<any>): void => {
+    if (this.props.positioning === Positioning.Fixed) {
+      console.log("#### remove wrappers");
+      this.props.removeWrappers &&
+        this.props.removeWrappers(this.props.widgetId);
+    } else if (prevProps.positioning === Positioning.Fixed)
+      this.props.addWrappers && this.props.addWrappers(this.props.widgetId);
   };
 
   getSnapSpaces = () => {
@@ -458,6 +472,11 @@ class ContainerWidget extends BaseWidget<
   }
 }
 
+const mapDispatchToProps = (dispatch: any) => ({
+  removeWrappers: (id: string) => dispatch(removeWrappers(id)),
+  addWrappers: (id: string) => dispatch(addWrappers(id)),
+});
+
 export interface ContainerWidgetProps<T extends WidgetProps>
   extends WidgetProps {
   children?: T[];
@@ -467,6 +486,8 @@ export interface ContainerWidgetProps<T extends WidgetProps>
   positioning?: Positioning;
   alignment?: Alignment;
   spacing?: Spacing;
+  removeWrappers?: (id: string) => void;
+  addWrappers?: (id: string) => void;
 }
 
 export interface ContainerWidgetState extends WidgetState {
@@ -475,4 +496,5 @@ export interface ContainerWidgetState extends WidgetState {
   isMobile: boolean;
 }
 
-export default ContainerWidget;
+export default connect(null, mapDispatchToProps)(ContainerWidget);
+// export default ContainerWidget;

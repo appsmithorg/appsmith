@@ -2,7 +2,8 @@ import React, { CSSProperties } from "react";
 
 import { WidgetProps } from "widgets/BaseWidget";
 import WidgetFactory, { DerivedPropertiesMap } from "utils/WidgetFactory";
-import ContainerWidget, {
+import {
+  ContainerWidget,
   ContainerWidgetProps,
 } from "./ContainerWidget/widget";
 import { DropTargetComponent } from "components/editorComponents/DropTargetComponent";
@@ -39,7 +40,7 @@ class LayoutWrapperWidget extends ContainerWidget {
     super.componentDidMount();
   }
   componentDidUpdate(prevProps: ContainerWidgetProps<any>): void {
-    super.componentDidUpdate(prevProps);
+    this.updatePositioningInformation();
   }
   updatePositioningInformation = (): void => {
     this.setState({
@@ -50,6 +51,7 @@ class LayoutWrapperWidget extends ContainerWidget {
           : LayoutDirection.Horizontal,
     });
   };
+
   getCanvasProps(): ContainerWidgetProps<WidgetProps> {
     return {
       ...this.props,

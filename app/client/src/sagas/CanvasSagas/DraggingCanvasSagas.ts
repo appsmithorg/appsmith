@@ -36,6 +36,7 @@ import { MainCanvasReduxState } from "reducers/uiReducers/mainCanvasReducer";
 import { CANVAS_DEFAULT_MIN_HEIGHT_PX } from "constants/AppConstants";
 import { generateReactKey } from "utils/generators";
 import { Alignment, ButtonBoxShadowTypes, Spacing } from "components/constants";
+import { purgeEmptyWrappers } from "../WidgetOperationUtils";
 
 export type WidgetMoveParams = {
   widgetId: string;
@@ -430,33 +431,6 @@ function* reorderAutolayoutChildren(params: {
     ],
   };
   return updatedWidgets;
-}
-// TODO: check for performance in complex apps.
-function purgeEmptyWrappers(allWidgets: CanvasWidgetsReduxState) {
-  const widgets = { ...allWidgets };
-  // Fetch all empty wrappers
-  const emptyWrappers = Object.values(widgets).filter(
-    (each) => each.isWrapper && (!each.children || !each.children?.length),
-  );
-  // Remove wrappers from their parents and then delete them.
-  emptyWrappers.forEach((each) => {
-    const parent = each.parentId ? widgets[each.parentId] : null;
-    if (
-      parent &&
-      parent.children &&
-      parent.children?.indexOf(each.widgetId) > -1
-    ) {
-      const updatedParent = {
-        ...parent,
-        children: [
-          ...(parent.children || []).filter((child) => child !== each.widgetId),
-        ],
-      };
-      widgets[parent.widgetId] = updatedParent;
-    }
-    delete widgets[each.widgetId];
-  });
-  return widgets;
 }
 
 function* updateMovedWidgets(

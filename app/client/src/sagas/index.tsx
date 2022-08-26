@@ -43,6 +43,7 @@ import formEvaluationChangeListener from "./FormEvaluationSaga";
 import SuperUserSagas from "@appsmith/sagas/SuperUserSagas";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import AclSagas from "@appsmith/sagas/AclSagas";
+import layoutUpdateSagas from "./LayoutUpdateSagas";
 
 const sagas = [
   initSagas,
@@ -86,6 +87,7 @@ const sagas = [
   SuperUserSagas,
   appThemingSaga,
   AclSagas,
+  layoutUpdateSagas,
 ];
 
 export function* rootSaga(sagasToRun = sagas): any {

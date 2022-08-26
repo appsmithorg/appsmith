@@ -2,7 +2,8 @@ import React from "react";
 import _, { get, some, isEqual } from "lodash";
 import { WidgetProps } from "../../BaseWidget";
 import { WidgetType } from "constants/WidgetConstants";
-import ContainerWidget, {
+import {
+  ContainerWidget,
   ContainerWidgetProps,
 } from "widgets/ContainerWidget/widget";
 import { ContainerComponentProps } from "widgets/ContainerWidget/component";

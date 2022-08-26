@@ -1,6 +1,7 @@
 import React, { CSSProperties } from "react";
 import { WidgetProps } from "widgets/BaseWidget";
-import ContainerWidget, {
+import {
+  ContainerWidget,
   ContainerWidgetProps,
 } from "widgets/ContainerWidget/widget";
 import { GridDefaults } from "constants/WidgetConstants";

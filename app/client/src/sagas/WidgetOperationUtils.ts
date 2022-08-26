@@ -53,6 +53,11 @@ import { reflow } from "reflow";
 import { getBottomRowAfterReflow } from "utils/reflowHookUtils";
 import { DataTreeWidget } from "entities/DataTree/dataTreeFactory";
 import { isWidget } from "../workers/evaluationUtils";
+import { Alignment, ButtonBoxShadowTypes, Spacing } from "components/constants";
+import {
+  generateChildWidgets,
+  GeneratedWidgetPayload,
+} from "./WidgetAdditionSagas";
 
 export interface CopiedWidgetGroup {
   widgetId: string;
@@ -1668,4 +1673,162 @@ export function mergeDynamicPropertyPaths(
   b?: DynamicPath[],
 ) {
   return _.unionWith(a, b, (a, b) => a.key === b.key);
+}
+
+// TODO: check for performance in complex apps.
+export function purgeEmptyWrappers(allWidgets: CanvasWidgetsReduxState) {
+  const widgets = { ...allWidgets };
+  // Fetch all empty wrappers
+  const emptyWrappers = Object.values(widgets).filter(
+    (each) => each.isWrapper && (!each.children || !each.children?.length),
+  );
+  // Remove wrappers from their parents and then delete them.
+  emptyWrappers.forEach((each) => {
+    const parent = each.parentId ? widgets[each.parentId] : null;
+    if (
+      parent &&
+      parent.children &&
+      parent.children?.indexOf(each.widgetId) > -1
+    ) {
+      const updatedParent = {
+        ...parent,
+        children: [
+          ...(parent.children || []).filter((child) => child !== each.widgetId),
+        ],
+      };
+      widgets[parent.widgetId] = updatedParent;
+    }
+    delete widgets[each.widgetId];
+  });
+  return widgets;
+}
+
+export function purgeChildWrappers(
+  allWidgets: CanvasWidgetsReduxState,
+  containerId: string,
+): CanvasWidgetsReduxState {
+  const widgets = { ...allWidgets };
+  const container = widgets[containerId];
+  if (!containerId) return widgets;
+  const canvasId = container.children ? container.children[0] : "";
+  let parent = widgets[canvasId];
+  if (!parent) return widgets;
+  const wrapperChildren = parent.children?.filter(
+    (each) => widgets[each] && widgets[each].isWrapper,
+  );
+
+  if (!wrapperChildren || !wrapperChildren.length) return widgets;
+  parent = {
+    ...parent,
+    children: [
+      ...(parent.children || []).filter(
+        (each) => wrapperChildren.indexOf(each) === -1,
+      ),
+    ],
+  };
+  wrapperChildren.forEach((each) => {
+    const wrapper = widgets[each];
+    const children = wrapper.children || [];
+    if (children.length) {
+      children.forEach((child) => {
+        parent = {
+          ...parent,
+          children: [...(parent.children || []), child],
+        };
+        widgets[child] = { ...widgets[child], parentId: canvasId };
+      });
+    }
+    delete widgets[each];
+  });
+  widgets[canvasId] = parent;
+  return widgets;
+}
+
+export function* wrapChildren(
+  allWidgets: CanvasWidgetsReduxState,
+  containerId: string,
+) {
+  const widgets = { ...allWidgets };
+  const container = widgets[containerId];
+  if (!container) return widgets;
+  const canvasId = container.children ? container.children[0] : "";
+  let parent = widgets[canvasId];
+  if (!parent) return widgets;
+  const children = parent.children || [];
+  if (!children.length) return widgets;
+
+  // Remove current children from the parent
+  parent = {
+    ...parent,
+    children: [],
+  };
+
+  /**
+   * Generate new wrappers
+   * and wrap each child in its own wrapper
+   */
+  for (const each of children) {
+    const child = widgets[each];
+    if (!child || child.isWrapper) continue;
+    // Create new wrapper
+    const wrapperPayload = {
+      newWidgetId: generateReactKey(),
+      type: "LAYOUT_WRAPPER_WIDGET",
+      widgetName: getLayoutWrapperName(widgets),
+      props: {
+        containerStyle: "none",
+        canExtend: false,
+        detachFromLayout: true,
+        children: [],
+        alignment: Alignment.Left,
+        spacing: Spacing.None,
+        isWrapper: true,
+        backgroundColor: "transparent",
+        boxShadow: ButtonBoxShadowTypes.NONE,
+        borderStyle: "none",
+      },
+      rows: child.rows ? child.rows + 1 : child.bottomRow - child.top + 1,
+      columns: child.columns
+        ? child.columns + 1
+        : child.rightColumn - child.leftColumn + 1,
+      leftColumn: child.leftColumn,
+      topRow: child.topRow,
+      parentRowSpace: parent.parentRowSpace,
+      parentColumnSpace: parent.parentColumnSpace,
+      tabId: "",
+      widgetId: canvasId,
+    };
+    const containerPayload: GeneratedWidgetPayload = yield generateChildWidgets(
+      parent,
+      wrapperPayload,
+      widgets,
+    );
+    let wrapper = containerPayload.widgets[containerPayload.widgetId];
+    wrapper = {
+      ...wrapper,
+      children: [...(wrapper.children || []), each],
+    };
+
+    // Add the wrapper to the parent
+    parent = {
+      ...parent,
+      children: [...(parent.children || []), wrapper.widgetId],
+    };
+    widgets[wrapper.widgetId] = wrapper;
+    widgets[each] = { ...widgets[each], parentId: wrapper.widgetId };
+  }
+
+  // Update parent
+  widgets[canvasId] = parent;
+  return widgets;
+}
+
+export function getLayoutWrapperName(widgets: CanvasWidgetsReduxState): string {
+  const arr =
+    Object.values(widgets)
+      .filter((each) => each.type === "LAYOUT_WRAPPER_WIDGET")
+      .map((each) => each.widgetName.split("LayoutWrapper")[1])
+      .sort((a, b) => parseInt(b) - parseInt(a)) || [];
+  const suffix = arr.length > 0 ? arr[0] : 1;
+  return `LayoutWrapper${suffix}`;
 }
