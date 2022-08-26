@@ -85,19 +85,13 @@ export class Table {
   _filtersCount = this._filterBtn + " span.action-title";
 
   public WaitUntilTableLoad(rowIndex = 0, colIndex = 0) {
-    cy.waitUntil(
-      () =>
-        this.ReadTableRowColumnData(rowIndex, colIndex, 2000).then(
-          (cellData) => {
-            expect(cellData).not.empty;
-          },
-        ),
-      {
-        errorMsg: "Table is not populated",
-        timeout: 20000,
-        interval: 2000,
-      },
-    );
+    cy.waitUntil(() => this.ReadTableRowColumnData(rowIndex, colIndex), {
+      errorMsg: "Table is not populated",
+      timeout: 20000,
+      interval: 2000,
+    }).then((cellData) => {
+      expect(cellData).not.empty;
+    });
 
     // this.ReadTableRowColumnData(rowIndex, colIndex, 2000).waitUntil(
     //   ($cellData) => expect($cellData).not.empty,
