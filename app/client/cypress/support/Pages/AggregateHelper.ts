@@ -24,6 +24,9 @@ export class AggregateHelper {
       : "{shift}{home}{backspace}"
   }`;
 
+  private selectChars = (noOfChars: number) =>
+    `${"{shift}" + "{leftArrow}".repeat(noOfChars) + "{backspace}"}`;
+
   public SaveLocalStorageCache() {
     Object.keys(localStorage).forEach((key) => {
       LOCAL_STORAGE_MEMORY[key] = localStorage[key];
@@ -450,6 +453,13 @@ export class AggregateHelper {
     return locator.type(this.selectLine);
   }
 
+  public RemoveCharsNType(selector: string, charCount = 0, totype: string) {
+    this.GetElement(selector)
+      .type(this.selectChars(charCount), { timeout: 0 })
+      .wait(50)
+      .type(totype);
+  }
+
   public TypeText(selector: string, value: string, index = 0) {
     const locator = selector.startsWith("//")
       ? cy.xpath(selector)
@@ -841,9 +851,7 @@ export class AggregateHelper {
     text: string | RegExp,
     exists: "exist" | "not.exist" = "exist",
   ) {
-    return cy
-      .contains(text, {timeout: 2000})
-      .should(exists)
+    return cy.contains(text).should(exists);
   }
 
   public GetNAssertContains(
