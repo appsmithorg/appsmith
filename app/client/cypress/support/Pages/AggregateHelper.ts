@@ -842,7 +842,7 @@ export class AggregateHelper {
     exists: "exist" | "not.exist" = "exist",
   ) {
     return cy
-      .contains(text)
+      .contains(text, {timeout: 1000})
       .should(exists)
   }
 
