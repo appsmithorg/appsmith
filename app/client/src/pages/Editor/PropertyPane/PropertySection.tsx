@@ -13,7 +13,6 @@ import { useSelector } from "react-redux";
 import { getWidgetPropsForPropertyPane } from "selectors/propertyPaneSelectors";
 import styled from "constants/DefaultTheme";
 import { Colors } from "constants/Colors";
-import { getWidgetParentNames } from "sagas/selectors";
 
 const SectionTitle = styled.div`
   display: grid;
@@ -79,11 +78,7 @@ type PropertySectionProps = {
   collapsible?: boolean;
   children?: ReactNode;
   childrenWrapperRef?: React.RefObject<HTMLDivElement>;
-  hidden?: (
-    props: any,
-    propertyPath: string,
-    widgetParentNames?: string[],
-  ) => boolean;
+  hidden?: (props: any, propertyPath: string) => boolean;
   isDefaultOpen?: boolean;
   propertyPath?: string;
 };
@@ -103,18 +98,8 @@ export const PropertySection = memo((props: PropertySectionProps) => {
     if (props.collapsible) setIsOpen((x) => !x);
   }, []);
 
-  /**
-   * get actual parent of widget names based on widgetId
-   * for button inside form, form is inside container => ['FORM_WIDGET', 'CONTAINER_WIDGET']
-   */
-  const parentWidgetNames = useSelector(
-    getWidgetParentNames(widgetProps.widgetId),
-  );
-
   if (props.hidden) {
-    if (
-      props.hidden(widgetProps, props.propertyPath || "", parentWidgetNames)
-    ) {
+    if (props.hidden(widgetProps, props.propertyPath || "")) {
       return null;
     }
   }

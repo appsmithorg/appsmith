@@ -49,7 +49,6 @@ import { TooltipComponent } from "design-system";
 import { ReactComponent as ResetIcon } from "assets/icons/control/undo_2.svg";
 import { AppTheme } from "entities/AppTheming";
 import { JS_TOGGLE_DISABLED_MESSAGE } from "@appsmith/constants/messages";
-import { getWidgetParentNames } from "sagas/selectors";
 
 type Props = PropertyPaneControlConfig & {
   panel: IPanelProps;
@@ -70,14 +69,6 @@ const PropertyControl = memo((props: Props) => {
   const widgetProperties: WidgetProperties = useSelector(
     propsSelector,
     isEqual,
-  );
-
-  /**
-   * get actual parent of widget names based on widgetId
-   * for button inside form, form is inside container => ['FORM_WIDGET', 'CONTAINER_WIDGET']
-   */
-  const parentWidgetNames = useSelector(
-    getWidgetParentNames(widgetProperties.widgetId),
   );
 
   const enhancementSelector = getWidgetEnhancementSelector(
@@ -419,8 +410,7 @@ const PropertyControl = memo((props: Props) => {
 
   // Do not render the control if it needs to be hidden
   if (
-    (props.hidden &&
-      props.hidden(widgetProperties, props.propertyName, parentWidgetNames)) ||
+    (props.hidden && props.hidden(widgetProperties, props.propertyName)) ||
     props.invisible
   ) {
     return null;
