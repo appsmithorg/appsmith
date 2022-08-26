@@ -20,7 +20,7 @@ import { previewModeSelector } from "selectors/editorSelectors";
 import AppSettings from "./AppSettings";
 import { tailwindLayers } from "constants/Layers";
 import { getIsAppSettingsPaneOpen } from "selectors/appSettingsPaneSelectors";
-import AppSettingsPaneHeader from "./AppSettings/AppSettingsPaneHeader";
+import AppSettingsPaneHeader from "./AppSettings/PaneHeader";
 
 const SentryRoute = Sentry.withSentryRouting(Route);
 
