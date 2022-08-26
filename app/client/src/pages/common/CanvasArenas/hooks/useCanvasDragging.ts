@@ -76,6 +76,7 @@ export const useCanvasDragging = (
     snapRowSpace,
     useAutoLayout,
     widgetId,
+    widgetName,
   }: CanvasDraggingArenaProps,
 ) => {
   const canvasZoomLevel = useSelector(getZoomLevel);
@@ -171,13 +172,6 @@ export const useCanvasDragging = (
       });
     }
 
-    // const hiddenEls = document.querySelectorAll(`.auto-temp-no-display`);
-    // if (hiddenEls && hiddenEls.length) {
-    //   hiddenEls.forEach((el) => {
-    //     el.classList.remove("auto-temp-no-display");
-    //   });
-    // }
-
     // reset state
     dragBlocksSize = 0;
     lastTranslatedIndex = -10;
@@ -190,14 +184,18 @@ export const useCanvasDragging = (
 
   const calculateHighlightOffsets = () => {
     cleanUpTempStyles();
+    // console.log(
+    //   `#### ${widgetName} - ${isDragging} - ${isCurrentDraggedCanvas}`,
+    // );
     if (useAutoLayout && isDragging && isCurrentDraggedCanvas) {
       // console.log("#### START calculate highlight offsets");
-      // console.log(`#### canvas id: ${widgetId}`);
+      // console.log(`#### canvas id: ${widgetId} : ${widgetName}`);
       // calculate total drag size to translate siblings by
       blocksToDraw?.map((each) => {
         dragBlocksSize += isVertical ? each.height : each.width;
       });
       const blocks = blocksToDraw.map((block) => block.widgetId);
+      // console.log(`#### blocks: ${JSON.stringify(blocks)}`);
       if (!blocks || !blocks.length) return;
 
       // update dimensions of the current canvas
@@ -215,8 +213,10 @@ export const useCanvasDragging = (
       };
 
       // Get all children of current dragging canvas
-      const canvasChildren = allWidgets[widgetId].children || [];
+      const canvas = allWidgets[widgetId];
+      const canvasChildren = canvas.children || [];
       const offsetChildren = canvasChildren.filter((each) => {
+        if (canvas.isWrapper) return blocks.indexOf(each) === -1;
         const children = allWidgets[each].children?.filter(
           (item) => blocks.indexOf(item) === -1,
         );
@@ -227,7 +227,7 @@ export const useCanvasDragging = (
         (child) => offsetChildren.indexOf(child) === -1,
       );
       hideDraggedChildren(draggedChildren);
-      // console.log(`#### children length: ${JSON.stringify(canvasChildren)}`);
+      // console.log(`#### canvas children: ${JSON.stringify(canvasChildren)}`);
       // console.log(`#### offset children: ${JSON.stringify(offsetChildren)}`);
       const flex = document.querySelector(`.flex-container-${widgetId}`);
       const flexOffsetTop = (flex as any)?.offsetTop || 0;
@@ -426,6 +426,7 @@ export const useCanvasDragging = (
       const scrollParent: Element | null = getNearestParentCanvas(
         slidingArenaRef.current,
       );
+      // console.log(`#### init variable: ${widgetName}`);
       let canvasIsDragging = false;
       let isUpdatingRows = false;
       let currentRectanglesToDraw: WidgetDraggingBlock[] = [];
@@ -462,6 +463,7 @@ export const useCanvasDragging = (
             stickyCanvasRef.current.height,
           );
           slidingArenaRef.current.style.zIndex = "";
+          // console.log(`#### reset canvas state: ${widgetName}`);
           canvasIsDragging = false;
         }
       };
@@ -514,6 +516,7 @@ export const useCanvasDragging = (
             });
             if (pos !== undefined && useAutoLayout) {
               // cleanUpTempStyles();
+              console.log(`#### drop canvas: ${widgetName}`);
               updateChildrenPositions(pos, currentRectanglesToDraw);
             } else
               onDrop(currentRectanglesToDraw, reflowedPositionsUpdatesWidgets);
@@ -557,6 +560,7 @@ export const useCanvasDragging = (
               logContainerJump(widgetId, speed, acceleration);
               containerJumpThresholdMetrics.clearMetrics();
               // we can just use canvasIsDragging but this is needed to render the relative DragLayerComponent
+              // console.log(`#### set dragging canvas: ${widgetName}`);
               setDraggingCanvas(widgetId);
             }
             canvasIsDragging = true;

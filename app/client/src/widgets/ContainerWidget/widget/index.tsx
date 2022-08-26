@@ -321,7 +321,6 @@ export class ContainerWidget extends BaseWidget<
 
   updateWrappers = (prevProps: ContainerWidgetProps<any>): void => {
     if (this.props.positioning === Positioning.Fixed) {
-      console.log("#### remove wrappers");
       this.props.removeWrappers &&
         this.props.removeWrappers(this.props.widgetId);
     } else if (prevProps.positioning === Positioning.Fixed)
@@ -415,6 +414,7 @@ export class ContainerWidget extends BaseWidget<
               snapRows={snapRows}
               useAutoLayout={this.state.useAutoLayout}
               widgetId={props.widgetId}
+              widgetName={props.widgetName}
             />
             <CanvasSelectionArena
               {...this.getSnapSpaces()}

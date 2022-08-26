@@ -26,6 +26,7 @@ export interface CanvasDraggingArenaProps {
   parentId?: string;
   useAutoLayout?: boolean;
   widgetId: string;
+  widgetName?: string;
 }
 
 export function CanvasDraggingArena({
@@ -40,6 +41,7 @@ export function CanvasDraggingArena({
   snapRowSpace,
   useAutoLayout,
   widgetId,
+  widgetName,
 }: CanvasDraggingArenaProps) {
   const needsPadding = useMemo(() => {
     return widgetId === MAIN_CONTAINER_WIDGET_ID;
@@ -64,6 +66,7 @@ export function CanvasDraggingArena({
       snapRowSpace,
       useAutoLayout,
       widgetId,
+      widgetName,
     },
   );
   const canvasRef = React.useRef({
