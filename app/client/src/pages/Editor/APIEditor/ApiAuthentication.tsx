@@ -13,7 +13,7 @@ import { getQueryParams } from "utils/URLUtils";
 import { AuthType } from "entities/Datasource/RestAPIForm";
 import { API_EDITOR_FORM_NAME } from "constants/forms";
 import { formValueSelector } from "redux-form";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import { ReactComponent as SheildSuccess } from "assets/icons/ads/shield-success.svg";
 import { ReactComponent as SheildError } from "assets/icons/ads/shield-error.svg";
 import {

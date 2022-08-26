@@ -1,6 +1,6 @@
 import React from "react";
 import { connect } from "react-redux";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import { Keys } from "@blueprintjs/core";
 import {
   showActionConfirmationModal,

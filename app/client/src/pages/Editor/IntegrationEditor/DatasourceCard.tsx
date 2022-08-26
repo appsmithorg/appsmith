@@ -10,7 +10,7 @@ import {
   getActionsForCurrentPage,
 } from "selectors/entitiesSelector";
 import styled from "styled-components";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import history from "utils/history";
 import { Position } from "@blueprintjs/core/lib/esm/common/position";
 
