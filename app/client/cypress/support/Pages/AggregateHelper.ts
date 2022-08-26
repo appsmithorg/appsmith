@@ -360,14 +360,14 @@ export class AggregateHelper {
       options.forEach(($each) => {
         cy.get(this.locator._multiSelectOptions($each))
           .check({ force: true })
-          .wait(800)
+          .wait(1000)
           .should("be.checked");
       });
     } else {
       options.forEach(($each) => {
         cy.get(this.locator._multiSelectOptions($each))
           .uncheck({ force: true })
-          .wait(800)
+          .wait(1000)
           .should("not.be.checked");
       });
     }
