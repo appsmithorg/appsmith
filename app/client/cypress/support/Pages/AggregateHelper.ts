@@ -2,6 +2,8 @@ import "cypress-wait-until";
 const uuid = require("uuid");
 import { ObjectsRegistry } from "../Objects/Registry";
 
+type ElementType = string | JQuery<HTMLElement>;
+
 let LOCAL_STORAGE_MEMORY: any = {};
 export interface IEnterValue {
   propFieldName: string;
@@ -120,12 +122,12 @@ export class AggregateHelper {
     });
   }
 
-  public GetElement(selector: string | JQuery<HTMLElement>) {
+  public GetElement(selector: ElementType, timeout = 20000) {
     let locator;
     if (typeof selector == "string") {
       locator = selector.startsWith("//")
-        ? cy.xpath(selector)
-        : cy.get(selector);
+        ? cy.xpath(selector, { timeout: timeout })
+        : cy.get(selector, { timeout: timeout });
     } else locator = cy.wrap(selector);
     return locator;
   }
@@ -460,7 +462,10 @@ export class AggregateHelper {
         .type("{backspace}".repeat(charCount), { timeout: 0, force: true })
         .wait(50)
         .type(totype);
-    else this.TypeText(selector, totype);
+    else {
+      if (charCount == -1) this.GetElement(selector).clear();
+      this.TypeText(selector, totype);
+    }
   }
 
   public TypeText(selector: string, value: string, index = 0) {
@@ -772,82 +777,58 @@ export class AggregateHelper {
   }
 
   public AssertDebugError(label: string, messgae: string) {
-    cy.get(this.locator._debuggerIcon)
-      .should("be.visible")
-      .click({ force: true });
-    cy.get(this.locator._errorTab)
-      .should("be.visible")
-      .click({ force: true });
-    cy.get(this.locator._debuggerLabel)
-      .eq(0)
-      .invoke("text")
-      .then(($text) => {
-        expect($text).to.eq(label);
-      });
-    cy.get(this.locator._debugErrorMsg)
-      .eq(0)
-      .invoke("text")
-      .then(($text) => {
-        expect($text).contains(messgae);
-      });
+    this.GetNClick(this.locator._debuggerIcon, 0, true, 0);
+    this.GetNClick(this.locator._errorTab, 0, true, 0);
+    this.GetText(this.locator._debuggerLabel, "text", 0).then(($text) => {
+      expect($text).to.eq(label);
+    });
+    this.GetText(this.locator._debugErrorMsg, "text", 0).then(($text) => {
+      expect($text).to.eq(messgae);
+    });
   }
 
-  public AssertElementAbsence(selector: string) {
+  public AssertElementAbsence(selector: ElementType) {
     //Should not exists - cannot take indexes
-    const locator = selector.startsWith("//")
-      ? cy.xpath(selector, { timeout: 0 })
-      : cy.get(selector, { timeout: 0 });
-    locator.should("not.exist");
+    return this.GetElement(selector, 0).should("not.exist");
   }
 
   public GetText(
-    selector: string,
+    selector: ElementType,
     textOrValue: "text" | "val" = "text",
     index = 0,
   ) {
-    const locator = selector.startsWith("//")
-      ? cy.xpath(selector)
-      : cy.get(selector);
-    return locator.eq(index).invoke(textOrValue);
+    return this.GetElement(selector)
+      .eq(index)
+      .invoke(textOrValue);
   }
 
-  public AssertElementVisible(selector: string, index = 0) {
-    const locator = selector.startsWith("//")
-      ? cy.xpath(selector)
-      : cy.get(selector);
-    return locator
+  public AssertElementVisible(selector: ElementType, index = 0) {
+    return this.GetElement(selector)
       .eq(index)
       .scrollIntoView()
       .should("be.visible");
   }
 
-  public AssertElementExist(selector: string, index = 0) {
-    const locator = selector.startsWith("//")
-      ? cy.xpath(selector)
-      : cy.get(selector);
-    locator.eq(index).should("exist");
+  public AssertElementExist(selector: ElementType, index = 0) {
+    return this.GetElement(selector)
+      .eq(index)
+      .should("exist");
   }
 
   public AssertElementLength(
-    selector: string | JQuery<HTMLElement>,
+    selector: ElementType,
     length: number,
     index: number | null = null,
   ) {
-    let locator: any;
-    if (typeof selector == "string") {
-      locator = selector.startsWith("//")
-        ? cy.xpath(selector)
-        : cy.get(selector);
-    } else locator = cy.wrap(selector);
-    if (index) return locator.eq(index).should("have.length", length);
-    else return locator.should("have.length", length);
+    if (index)
+      return this.GetElement(selector)
+        .eq(index)
+        .should("have.length", length);
+    else return this.GetElement(selector).should("have.length", length);
   }
 
-  public FocusElement(selector: string) {
-    const locator = selector.startsWith("//")
-      ? cy.xpath(selector)
-      : cy.get(selector);
-    locator.focus();
+  public FocusElement(selector: ElementType) {
+    this.GetElement(selector).focus();
   }
 
   public AssertContains(
@@ -858,28 +839,17 @@ export class AggregateHelper {
   }
 
   public GetNAssertContains(
-    selector: string | JQuery<HTMLElement>,
+    selector: ElementType,
     text: string | RegExp,
     exists: "exist" | "not.exist" = "exist",
   ) {
-    let locator: any;
-    if (typeof selector == "string") {
-      locator = selector.startsWith("//")
-        ? cy.xpath(selector)
-        : cy.get(selector);
-    } else locator = cy.wrap(selector);
-    return locator.contains(text).should(exists);
-  }
-
-  public AssertElementContains(selector: string, text: string) {
-    const locator = selector.startsWith("//")
-      ? cy.xpath(selector)
-      : cy.get(selector);
-    return locator.contains(text);
+    return this.GetElement(selector)
+      .contains(text)
+      .should(exists);
   }
 
   public ScrollTo(
-    selector: string,
+    selector: ElementType,
     position:
       | "topLeft"
       | "top"
@@ -891,10 +861,9 @@ export class AggregateHelper {
       | "bottom"
       | "bottomRight",
   ) {
-    const locator = selector.startsWith("//")
-      ? cy.xpath(selector)
-      : cy.get(selector);
-    return locator.scrollTo(position).wait(2000);
+    return this.GetElement(selector)
+      .scrollTo(position)
+      .wait(2000);
   }
 
   public EnableAllEditors() {

@@ -9,7 +9,8 @@ import {
 } from "../../../../locators/WidgetLocators";
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 
-const agHelper = ObjectsRegistry.AggregateHelper;
+const agHelper = ObjectsRegistry.AggregateHelper,
+  fakerHelper = ObjectsRegistry.FakerHelper;
 
 const widgetsToTest = {
   [WIDGET.INPUT_V2]: {
@@ -27,6 +28,11 @@ const widgetsToTest = {
         input: "456",
         expected: "hell456",
         charToClear: 2,
+      },
+      {
+        input: fakerHelper.GetRandomText(),
+        expected: null,
+        charToClear: -1,
       },
     ],
     widgetName: "Input widget",
@@ -49,6 +55,11 @@ const widgetsToTest = {
         expected: "(999) 999-456",
         charToClear: 2,
       },
+      {
+        input: fakerHelper.GetUSPhoneNumber(),
+        expected: null,
+        charToClear: -1,
+      },
     ],
     widgetName: "Phone Input widget",
     widgetPrefixName: "PhoneInput",
@@ -65,6 +76,11 @@ const widgetsToTest = {
         input: "456",
         expected: "456",
         charToClear: 2,
+      },
+      {
+        input: fakerHelper.GetRandomNumber(),
+        expected: null,
+        charToClear: -1,
       },
     ],
     widgetName: "Currency Input widget",
@@ -156,8 +172,23 @@ Object.entries(widgetsToTest).forEach(([widgetSelector, testConfig], index) => {
         );
         cy.get(getWidgetSelector(WIDGET.BUTTON)).click();
 
-        // Assert if the Text widget contains the whole value, test
-        cy.get(getWidgetSelector(WIDGET.TEXT)).should("have.text", expected);
+        // Assert if the Currency widget has random number with trailing zero, then
+        if (widgetSelector === WIDGET.CURRENCY_INPUT) {
+          cy.get(getWidgetSelector(WIDGET.TEXT)).should(
+            "have.text",
+            expected == null
+              ? input
+                  .replace(/^0+/, "")
+                  .replace(/.{3}/g, "$&,")
+                  .replace(/(^,)|(,$)/g, "")
+              : expected,
+          );
+        } else {
+          cy.get(getWidgetSelector(WIDGET.TEXT)).should(
+            "have.text",
+            expected == null ? input : expected,
+          );
+        }
       });
     });
 
@@ -196,12 +227,26 @@ Object.entries(widgetsToTest).forEach(([widgetSelector, testConfig], index) => {
         cy.get(getWidgetSelector(WIDGET.BUTTON)).click();
 
         // Assert if the Api request contains the expected value
-
-        cy.wait("@postExecute").then((interception) => {
-          expect(
-            interception.response.body.data.request.headers.value,
-          ).to.deep.equal([expected]);
-        });
+        if (widgetSelector === WIDGET.CURRENCY_INPUT) {
+          cy.wait("@postExecute").then((interception) => {
+            expect(
+              interception.response.body.data.request.headers.value,
+            ).to.deep.equal([
+              expected == null
+                ? input
+                    .replace(/^0+/, "")
+                    .replace(/.{3}/g, "$&,")
+                    .replace(/(^,)|(,$)/g, "")
+                : expected,
+            ]);
+          });
+        } else {
+          cy.wait("@postExecute").then((interception) => {
+            expect(
+              interception.response.body.data.request.headers.value,
+            ).to.deep.equal([expected == null ? input : expected]);
+          });
+        }
       });
     });
 

@@ -226,8 +226,8 @@ export class Table {
       });
   }
 
-  public SelectTableRow(rowIndex: number) { //rowIndex - 0 for 1st row
-    cy.get(this._tableRow(rowIndex, 0))
+  public SelectTableRow(rowIndex: number, columnIndex = 0) { //rowIndex - 0 for 1st row
+    cy.get(this._tableRow(rowIndex, columnIndex))
       .first()
       .trigger("click", { force: true });
     this.agHelper.Sleep(); //for select to reflect
