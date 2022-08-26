@@ -51,7 +51,7 @@ export function createLogTitleString(data: any[]) {
       }
       // curr can be a string or an object
       if (typeof curr === "boolean") {
-        return `${acc}${joiningChar}${curr}`;
+        return `${acc}${joiningChar} ${curr}`;
       }
       if (curr === null || curr === undefined) {
         return `${acc}${joiningChar} undefined`;

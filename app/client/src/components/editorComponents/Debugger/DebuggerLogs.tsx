@@ -19,6 +19,7 @@ import { getCurrentUser } from "selectors/usersSelectors";
 import bootIntercom from "utils/bootIntercom";
 import { thinScrollbar } from "constants/DefaultTheme";
 import { IconName } from "@blueprintjs/core";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 const LIST_HEADER_HEIGHT = "38px";
 
@@ -105,12 +106,23 @@ function DebbuggerLogs(props: Props) {
     setSearchQuery(props.searchQuery);
   }, [props.searchQuery]);
 
+  const handleFilterChange = (filter: string | undefined) => {
+    if (!isUndefined(filter)) {
+      setFilter(filter);
+      if (filter.length > 0) {
+        AnalyticsUtil.logEvent("DEBUGGER_FILTER_CHANGED", {
+          filter,
+        });
+      }
+    }
+  };
+
   return (
     <ContainerWrapper>
       <FilterHeader
         defaultValue={props.searchQuery}
         onChange={setSearchQuery}
-        onSelect={(value) => !isUndefined(value) && setFilter(value)}
+        onSelect={handleFilterChange}
         options={LOGS_FILTER_OPTIONS(theme)}
         searchQuery={searchQuery}
         selected={selectedFilter || LOGS_FILTER_OPTIONS(theme)[0]}
