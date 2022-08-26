@@ -15,6 +15,14 @@ import { User } from "./UserListing";
 import uniqueId from "lodash/uniqueId";
 import { adminSettingsCategoryUrl } from "RouteBuilder";
 import { SettingCategories } from "@appsmith/pages/AdminSettings/config/types";
+import { useDispatch, useSelector } from "react-redux";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import {
+  cloneGroup,
+  deleteGroup,
+  getGroupById,
+} from "@appsmith/actions/aclActions";
+import { getGroups } from "@appsmith/selectors/aclSelectors";
 import {
   createMessage,
   ADD_GROUP,
@@ -38,7 +46,7 @@ export type UserGroup = {
   isDeleting: boolean;
   rolename: string;
   id: string;
-  allPermissions: string[];
+  allRoles: string[];
   activePermissions: string[];
   allUsers: Partial<User>[];
   isNew?: boolean;
@@ -50,7 +58,7 @@ export const userGroupTableData: UserGroup[] = [
     isDeleting: false,
     rolename: "Eng_New",
     id: "123",
-    allPermissions: [
+    allRoles: [
       "devops_eng_nov",
       "marketing_nov",
       "Administrator",
@@ -64,12 +72,7 @@ export const userGroupTableData: UserGroup[] = [
     isDeleting: false,
     rolename: "Design",
     id: "456",
-    allPermissions: [
-      "HR_Appsmith",
-      "devops_design",
-      "Administrator",
-      "App Viewer",
-    ],
+    allRoles: ["HR_Appsmith", "devops_design", "Administrator", "App Viewer"],
     activePermissions: ["devops_eng_nov", "marketing_nov"],
     allUsers: [
       {
@@ -95,7 +98,7 @@ export const userGroupTableData: UserGroup[] = [
     isDeleting: false,
     rolename: "contractors_ruby",
     id: "789",
-    allPermissions: [
+    allRoles: [
       "HR_Appsmith",
       "devops_design",
       "devops_eng_nov",
@@ -127,12 +130,7 @@ export const userGroupTableData: UserGroup[] = [
     isDeleting: false,
     rolename: "marketing_newsletter",
     id: "103",
-    allPermissions: [
-      "HR_Appsmith",
-      "marketing_nov",
-      "Administrator",
-      "App Viewer",
-    ],
+    allRoles: ["HR_Appsmith", "marketing_nov", "Administrator", "App Viewer"],
     activePermissions: ["devops_design", "devops_eng_nov"],
     allUsers: [
       {
@@ -159,7 +157,7 @@ export const userGroupTableData: UserGroup[] = [
     isDeleting: false,
     rolename: "Administrator",
     id: "120",
-    allPermissions: [
+    allRoles: [
       "HR_Appsmith",
       "devops_design",
       "devops_eng_nov",
@@ -192,7 +190,7 @@ export const userGroupTableData: UserGroup[] = [
     isDeleting: false,
     rolename: "App Viewer",
     id: "125",
-    allPermissions: [
+    allRoles: [
       "HR_Appsmith",
       "devops_design",
       "devops_eng_nov",
@@ -224,6 +222,9 @@ export const userGroupTableData: UserGroup[] = [
 export function GroupListing() {
   const [data, setData] = useState<UserGroup[]>([]);
   const [searchValue, setSearchValue] = useState("");
+  const dispatch = useDispatch();
+  const history = useHistory();
+
   const params = useParams() as any;
   const selectedUserGroupId = params?.selected;
   const selUserGroup = userGroupTableData.find(
@@ -231,8 +232,15 @@ export function GroupListing() {
   );
   const [selectedUserGroup, setSelectedUserGroup] = useState(selUserGroup);
   const [isNewGroup, setIsNewGroup] = useState(false);
+  const userGroups = useSelector(getGroups);
 
-  const history = useHistory();
+  useEffect(() => {
+    dispatch({ type: ReduxActionTypes.FETCH_ACL_GROUP });
+  }, []);
+
+  useEffect(() => {
+    setData(userGroups);
+  }, [userGroups]);
 
   useEffect(() => {
     if (isNewGroup && params.selected) {
@@ -242,7 +250,7 @@ export function GroupListing() {
         rolename: "Untitled Group",
         isNew: true,
         id: "10109",
-        allPermissions: [
+        allRoles: [
           "Administrator",
           "App Viewer",
           "HR_Appsmith",
@@ -254,7 +262,7 @@ export function GroupListing() {
         allUsers: [],
       });
     } else {
-      const selUserGroup = userGroupTableData.find(
+      const selUserGroup = data?.find(
         (userGroup) => userGroup.id === selectedUserGroupId,
       );
       setSelectedUserGroup(selUserGroup);
@@ -262,14 +270,11 @@ export function GroupListing() {
     }
   }, [params]);
 
-  useEffect(() => {
-    setData(userGroupTableData);
-  }, [userGroupTableData]);
-
   const onDeleteHandler = (id: string) => {
     const updatedData = data.filter((userGroup) => {
       return userGroup.id !== id;
     });
+    dispatch(deleteGroup(id));
     setData(updatedData);
     Toaster.show({
       text: createMessage(GROUP_DELETED),
@@ -283,6 +288,7 @@ export function GroupListing() {
       id: uniqueId(),
       rolename: createMessage(COPY_OF_GROUP, selected.rolename),
     };
+    dispatch(cloneGroup(selected));
     userGroupTableData.push(clonedData);
     setData([...userGroupTableData]);
     Toaster.show({
@@ -299,6 +305,9 @@ export function GroupListing() {
         return (
           <Link
             data-testid="t--usergroup-cell"
+            onClick={() =>
+              dispatch(getGroupById({ id: cellProps.cell.row.original.id }))
+            }
             to={adminSettingsCategoryUrl({
               category: SettingCategories.GROUPS_LISTING,
               selected: cellProps.cell.row.original.id,

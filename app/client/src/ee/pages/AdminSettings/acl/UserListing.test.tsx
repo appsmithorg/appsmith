@@ -4,6 +4,7 @@ import { render, screen } from "test/testUtils";
 import { allUsers, UserListing } from "./UserListing";
 import { columns } from "./mocks/UserListingMock";
 import userEvent from "@testing-library/user-event";
+import * as reactRedux from "react-redux";
 
 let container: any = null;
 const onSelectFn = jest.fn();
@@ -31,22 +32,37 @@ const userListingProps = {
 };
 
 function renderComponent() {
-  return render(<UserListing />);
+  return render(<UserListing />, {
+    initialState: {
+      acl: {
+        roles: [],
+        users: allUsers,
+        groups: [],
+        isLoading: false,
+        isSaving: false,
+        selectedGroup: null,
+        selectedUser: null,
+        selectedRole: null,
+      },
+    },
+  });
 }
 
 describe("<UserListing />", () => {
+  const useDispatchMock = jest.spyOn(reactRedux, "useDispatch");
   beforeEach(() => {
     container = document.createElement("div");
     document.body.appendChild(container);
+    useDispatchMock.mockReturnValue(jest.fn());
   });
-  it("is rendered", () => {
+  it("is rendered", async () => {
     renderComponent();
     const userListing = screen.queryAllByTestId("user-listing-wrapper");
     expect(userListing).toHaveLength(1);
   });
   it("should navigate to user edit page on click of username", async () => {
     renderComponent();
-    const userEditLink = screen.queryAllByTestId("user-listing-userCell");
+    const userEditLink = await screen.queryAllByTestId("user-listing-userCell");
     await userEvent.click(userEditLink[0]);
     expect(window.location.pathname).toBe(
       `/settings/users/${userListingProps.data[0].userId}`,

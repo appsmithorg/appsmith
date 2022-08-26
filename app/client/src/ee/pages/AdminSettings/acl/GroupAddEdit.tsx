@@ -36,7 +36,7 @@ export type GroupProps = {
   rolename: string;
   id: string;
   allUsers: Array<any>;
-  allPermissions: Array<any>;
+  allRoles: Array<any>;
   activePermissions: Array<any>;
   isNew?: boolean;
 };
@@ -123,7 +123,7 @@ const NoUsersText = styled.div`
 
 export type Permissions = {
   activePermissions: string[];
-  allPermissions: string[];
+  allRoles: string[];
 };
 
 export function GroupAddEdit(props: GroupEditProps) {
@@ -134,7 +134,7 @@ export function GroupAddEdit(props: GroupEditProps) {
   const [users, setUsers] = useState<User[]>(selected.allUsers || []);
   const [permissions, setPermissions] = useState<Permissions>({
     activePermissions: selected.activePermissions || [],
-    allPermissions: selected.allPermissions || [],
+    allRoles: selected.allRoles || [],
   });
 
   const [removedActiveGroups, setRemovedActiveGroups] = useState<Array<any>>(
@@ -173,7 +173,7 @@ export function GroupAddEdit(props: GroupEditProps) {
         activePermissions: permissions.activePermissions.filter((permission) =>
           permission?.toLocaleUpperCase().includes(search),
         ),
-        allPermissions: permissions.allPermissions.filter((permission: any) =>
+        allRoles: permissions.allRoles.filter((permission: any) =>
           permission?.toLocaleUpperCase().includes(search),
         ),
       };
@@ -183,7 +183,7 @@ export function GroupAddEdit(props: GroupEditProps) {
       setUsers(selected.allUsers);
       setPermissions({
         activePermissions: selected.activePermissions || [],
-        allPermissions: selected.allPermissions || [],
+        allRoles: selected.allRoles || [],
       });
     }
   }, 300);
@@ -211,13 +211,13 @@ export function GroupAddEdit(props: GroupEditProps) {
       (role) => !removedActiveGroups.includes(role),
     );
     updatedActiveGroups.push(...addedAllGroups);
-    const updatedAllGroups = permissions.allPermissions.filter(
+    const updatedAllGroups = permissions.allRoles.filter(
       (role) => !addedAllGroups.includes(role),
     );
     updatedAllGroups.push(...removedActiveGroups);
     setPermissions({
       activePermissions: updatedActiveGroups,
-      allPermissions: updatedAllGroups,
+      allRoles: updatedAllGroups,
     });
     setRemovedActiveGroups([]);
     setAddedAllGroups([]);
@@ -355,14 +355,12 @@ export function GroupAddEdit(props: GroupEditProps) {
     {
       key: "permissions",
       title: "Roles",
-      count:
-        permissions.activePermissions.length +
-        permissions.allPermissions.length,
+      count: permissions.activePermissions.length + permissions.allRoles.length,
       panelComponent: (
         <ActiveAllGroupsList
           activeGroups={permissions.activePermissions}
           addedAllGroups={addedAllGroups}
-          allGroups={permissions.allPermissions}
+          allGroups={permissions.allRoles}
           onAddGroup={onAddGroup}
           onRemoveGroup={onRemoveGroup}
           removedActiveGroups={removedActiveGroups}

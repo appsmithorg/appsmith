@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useHistory } from "react-router";
+import { useHistory, useParams } from "react-router";
 import styled from "styled-components";
 import { Position } from "@blueprintjs/core";
 import debounce from "lodash/debounce";
@@ -14,6 +14,8 @@ import {
   StyledSearchInput,
   SaveButtonBar,
 } from "./components";
+import { useDispatch } from "react-redux";
+import { getUserById } from "@appsmith/actions/aclActions";
 import {
   ARE_YOU_SURE,
   createMessage,
@@ -28,7 +30,7 @@ type UserProps = {
   isDeleting: boolean;
   name: string;
   allGroups: Array<string>;
-  allPermissions: Array<string>;
+  allRoles: Array<string>;
   username: string;
   userId: string;
   roleName?: string;
@@ -38,6 +40,7 @@ type UserEditProps = {
   selectedUser: UserProps;
   onDelete: (userId: string) => void;
   searchPlaceholder: string;
+  selectedUserId?: string;
 };
 
 const Header = styled.div`
@@ -118,9 +121,17 @@ export function UserEdit(props: UserEditProps) {
   const [isSaving, setIsSaving] = useState(false);
   const { searchPlaceholder, selectedUser } = props;
 
+  const params = useParams() as any;
+  const selectedUserId = props.selectedUserId ?? params?.selected;
+
+  const dispatch = useDispatch();
+  useEffect(() => {
+    props.selectedUserId && dispatch(getUserById({ id: selectedUserId }));
+  }, []);
+
   useEffect(() => {
     setUserGroups(selectedUser.allGroups);
-    setPermissionGroups(selectedUser.allPermissions);
+    setPermissionGroups(selectedUser.allRoles);
   }, []);
 
   useEffect(() => {
@@ -151,7 +162,7 @@ export function UserEdit(props: UserEditProps) {
       (group) => !removedActiveUserGroups.includes(group),
     );
     setUserGroups(updatedUserGroups);
-    const updatedPermissionGroups = selectedUser.allPermissions.filter(
+    const updatedPermissionGroups = selectedUser.allRoles.filter(
       (permission) => !removedActivePermissionGroups.includes(permission),
     );
     setPermissionGroups(updatedPermissionGroups);

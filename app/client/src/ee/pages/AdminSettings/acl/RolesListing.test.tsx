@@ -4,6 +4,7 @@ import { render, screen } from "test/testUtils";
 import { RolesListing, rolesTableData } from "./RolesListing";
 import userEvent from "@testing-library/user-event";
 import { MenuItemProps } from "design-system";
+import * as reactRedux from "react-redux";
 
 let container: any = null;
 
@@ -32,13 +33,28 @@ const listMenuItems: MenuItemProps[] = [
 ];
 
 function renderComponent() {
-  return render(<RolesListing />);
+  return render(<RolesListing />, {
+    initialState: {
+      acl: {
+        roles: rolesTableData,
+        users: [],
+        groups: [],
+        isLoading: false,
+        isSaving: false,
+        selectedGroup: null,
+        selectedUser: null,
+        selectedRole: null,
+      },
+    },
+  });
 }
 
-describe("<RolesListing />", () => {
+describe("<PermissionGroupListing />", () => {
+  const useDispatchMock = jest.spyOn(reactRedux, "useDispatch");
   beforeEach(() => {
     container = document.createElement("div");
     document.body.appendChild(container);
+    useDispatchMock.mockReturnValue(jest.fn());
   });
   it("is rendered", () => {
     renderComponent();
@@ -47,7 +63,7 @@ describe("<RolesListing />", () => {
   });
   it("should navigate to role edit page on click of role name", async () => {
     renderComponent();
-    const roleEditLink = screen.getAllByTestId("t--roles-cell");
+    const roleEditLink = await screen.getAllByTestId("t--roles-cell");
     await userEvent.click(roleEditLink[0]);
     expect(window.location.pathname).toBe(
       `/settings/roles/${rolesTableData[0].id}`,

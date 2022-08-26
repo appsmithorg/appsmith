@@ -19,6 +19,8 @@ import {
   SEARCH_PLACEHOLDER,
   SUCCESSFULLY_SAVED,
 } from "@appsmith/constants/messages";
+import { useDispatch } from "react-redux";
+import { getRoleById } from "@appsmith/actions/aclActions";
 
 export type RoleProps = {
   isEditing: boolean;
@@ -43,6 +45,11 @@ export function RoleAddEdit(props: RoleEditProps) {
   const [searchValue, setSearchValue] = useState("");
   const [filteredData, setFilteredData] = useState<any>([]);
   const history = useHistory();
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    dispatch(getRoleById(selected));
+  }, [selected]);
 
   useEffect(() => {
     if (pageTitle !== selected.permissionName) {

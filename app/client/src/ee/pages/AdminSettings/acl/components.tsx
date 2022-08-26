@@ -165,8 +165,11 @@ export function SaveButtonBar({
 
 export const LoaderContainer = styled.div`
   justify-content: center;
+  align-items: center;
   width: 100%;
-
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
   .bp3-spinner {
     svg {
       width: 24px;
@@ -182,10 +185,11 @@ export const LoaderText = styled.div`
   text-align: center;
 `;
 
-export const Loader = () => {
+export const Loader = ({ loaderText }: { loaderText?: string }) => {
   return (
     <LoaderContainer>
       <Spinner />
+      <LoaderText>{loaderText}</LoaderText>
     </LoaderContainer>
   );
 };

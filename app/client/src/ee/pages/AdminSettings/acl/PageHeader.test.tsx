@@ -3,7 +3,8 @@ import "@testing-library/jest-dom";
 import { render, screen } from "test/testUtils";
 import { PageHeader } from "./PageHeader";
 import userEvent from "@testing-library/user-event";
-import { UserListing } from "./UserListing";
+import { allUsers, UserListing } from "./UserListing";
+import * as reactRedux from "react-redux";
 
 let container: any = null;
 const handleChange = jest.fn();
@@ -29,9 +30,11 @@ function renderComponent() {
 }
 
 describe("<PageHeader />", () => {
+  const useDispatchMock = jest.spyOn(reactRedux, "useDispatch");
   beforeEach(() => {
     container = document.createElement("div");
     document.body.appendChild(container);
+    useDispatchMock.mockReturnValue(jest.fn());
   });
   it("is rendered", () => {
     renderComponent();
@@ -51,8 +54,20 @@ describe("<PageHeader />", () => {
     expect(button[0]).toHaveTextContent("Add");
   });
   it("should filter user list based on search value", async () => {
-    renderComponent();
-    render(<UserListing />);
+    render(<UserListing />, {
+      initialState: {
+        acl: {
+          roles: [],
+          users: allUsers,
+          groups: [],
+          isLoading: false,
+          isSaving: false,
+          selectedGroup: null,
+          selectedUser: null,
+          selectedRole: null,
+        },
+      },
+    });
     const searchInput = screen.queryAllByTestId("t--acl-search-input");
 
     const users = screen.queryAllByText("sangy123@appsmith.com");

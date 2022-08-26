@@ -14,6 +14,10 @@ import uniqueId from "lodash/uniqueId";
 import { adminSettingsCategoryUrl } from "RouteBuilder";
 import { SettingCategories } from "@appsmith/pages/AdminSettings/config/types";
 import { RoleAddEdit } from "./RoleAddEdit";
+import { useDispatch, useSelector } from "react-redux";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import { cloneRole, deleteRole } from "@appsmith/actions/aclActions";
+import { getRoles } from "@appsmith/selectors/aclSelectors";
 import {
   ADD_ROLE,
   CLONE_ROLE,
@@ -97,15 +101,33 @@ export function RolesListing() {
   const [searchValue, setSearchValue] = useState("");
   const params = useParams() as any;
   const selectedPermGrpId = params?.selected;
-  const selPermissionGroup = rolesTableData.find(
-    (group) => group.id === selectedPermGrpId,
-  );
-  const [selectedPermissionGroup, setSelectedPermissionGroup] = useState(
-    selPermissionGroup,
-  );
+
   const [isNewGroup, setIsNewGroup] = useState(false);
 
   const history = useHistory();
+  const dispatch = useDispatch();
+  const roles = useSelector(getRoles);
+  const selPermissionGroup = roles.find(
+    (group) => group.id === selectedPermGrpId,
+  );
+
+  const [selectedPermissionGroup, setSelectedPermissionGroup] = useState<any>(
+    null,
+  );
+
+  useEffect(() => {
+    if (selPermissionGroup) {
+      setSelectedPermissionGroup(selPermissionGroup);
+    }
+  }, [selPermissionGroup]);
+
+  useEffect(() => {
+    dispatch({ type: ReduxActionTypes.FETCH_ACL_ROLE });
+  }, [rolesTableData]);
+
+  useEffect(() => {
+    setData(roles);
+  }, [roles]);
 
   useEffect(() => {
     if (isNewGroup && params.selected) {
@@ -118,7 +140,7 @@ export function RolesListing() {
         isNew: true,
       });
     } else {
-      const selPermissionGroup = rolesTableData.find(
+      const selPermissionGroup = roles.find(
         (group) => group.id === selectedPermGrpId,
       );
       setSelectedPermissionGroup(selPermissionGroup);
@@ -126,14 +148,11 @@ export function RolesListing() {
     }
   }, [params]);
 
-  useEffect(() => {
-    setData(rolesTableData);
-  }, [rolesTableData]);
-
   const onDeleteHandler = (id: string) => {
     const updatedData = data.filter((role) => {
       return role.id !== id;
     });
+    dispatch(deleteRole(id));
     setData(updatedData);
     Toaster.show({
       text: createMessage(GROUP_DELETED),
@@ -148,6 +167,7 @@ export function RolesListing() {
       permissionName: createMessage(COPY_OF_GROUP, role.permissionName),
       isAppsmithProvided: false,
     };
+    dispatch(cloneRole(role));
     rolesTableData.push(clonedData);
     setData([...rolesTableData]);
     Toaster.show({

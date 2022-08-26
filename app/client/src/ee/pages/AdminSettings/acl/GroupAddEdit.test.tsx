@@ -90,7 +90,7 @@ describe("<GroupAddEdit />", () => {
     const mockCounts = [
       userGroupTableData[1].allUsers.length.toString(),
       (
-        userGroupTableData[1].allPermissions.length +
+        userGroupTableData[1].allRoles.length +
         userGroupTableData[1].activePermissions.length
       ).toString(),
     ];
@@ -134,7 +134,7 @@ describe("<GroupAddEdit />", () => {
     const mockCounts = [
       userGroupTableData[1].allUsers.length.toString(),
       (
-        userGroupTableData[1].allPermissions.length +
+        userGroupTableData[1].allRoles.length +
         userGroupTableData[1].activePermissions.length
       ).toString(),
     ];

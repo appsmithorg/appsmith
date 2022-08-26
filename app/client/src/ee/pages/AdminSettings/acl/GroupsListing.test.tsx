@@ -3,6 +3,7 @@ import "@testing-library/jest-dom";
 import { render, screen } from "test/testUtils";
 import { GroupListing, userGroupTableData } from "./GroupsListing";
 import userEvent from "@testing-library/user-event";
+import * as reactRedux from "react-redux";
 
 let container: any = null;
 
@@ -31,13 +32,28 @@ const listMenuItems = [
 ];
 
 function renderComponent() {
-  return render(<GroupListing />);
+  return render(<GroupListing />, {
+    initialState: {
+      acl: {
+        roles: [],
+        users: [],
+        groups: userGroupTableData,
+        isLoading: false,
+        isSaving: false,
+        selectedGroup: null,
+        selectedUser: null,
+        selectedRole: null,
+      },
+    },
+  });
 }
 
 describe("<GroupListing />", () => {
+  const useDispatchMock = jest.spyOn(reactRedux, "useDispatch");
   beforeEach(() => {
     container = document.createElement("div");
     document.body.appendChild(container);
+    useDispatchMock.mockReturnValue(jest.fn());
   });
   it("is rendered", () => {
     renderComponent();
@@ -48,7 +64,7 @@ describe("<GroupListing />", () => {
   });
   it("should navigate to user edit page on click of group name", async () => {
     renderComponent();
-    const userGroupEditLink = screen.getAllByTestId("t--usergroup-cell");
+    const userGroupEditLink = await screen.getAllByTestId("t--usergroup-cell");
     await userEvent.click(userGroupEditLink[0]);
     expect(window.location.pathname).toBe(
       `/settings/groups/${userGroupTableData[0].id}`,

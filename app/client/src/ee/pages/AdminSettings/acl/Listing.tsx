@@ -2,10 +2,11 @@ import React, { useState } from "react";
 import styled from "styled-components";
 import { Menu, Table } from "components/ads";
 import { Icon, IconSize, MenuItem, MenuItemProps } from "design-system";
-import EmptyDataState from "components/utils/EmptyDataState";
 import { Position } from "@blueprintjs/core";
-import { HelpPopoverStyle } from "./components";
+import { HelpPopoverStyle, Loader } from "./components";
 import { ARE_YOU_SURE, createMessage } from "@appsmith/constants/messages";
+import { useSelector } from "react-redux";
+import { getIsLoading } from "@appsmith/selectors/aclSelectors";
 
 type ListingProps = {
   data: any[];
@@ -92,7 +93,8 @@ const ListingWrapper = styled.div`
 `;
 
 export function Listing(props: ListingProps) {
-  const { columns, data, keyAccessor, listMenuItems } = props;
+  const { columns, data = [], keyAccessor, listMenuItems } = props;
+  const isLoading = useSelector(getIsLoading);
 
   const updatedColumns = [
     ...columns,
@@ -174,15 +176,13 @@ export function Listing(props: ListingProps) {
 
   return (
     <ListingWrapper data-testid="listing-wrapper">
-      {data?.length > 0 ? (
-        <Table
-          columns={updatedColumns}
-          data={data}
-          data-testid="listing-table"
-        />
-      ) : (
-        <EmptyDataState />
-      )}
+      <Table
+        columns={updatedColumns}
+        data={data}
+        data-testid="listing-table"
+        isLoading={isLoading}
+        loaderComponent={<Loader />}
+      />
     </ListingWrapper>
   );
 }
