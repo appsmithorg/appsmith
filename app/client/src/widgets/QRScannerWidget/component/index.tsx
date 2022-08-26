@@ -210,6 +210,7 @@ export interface ControlPanelProps {
   videoInputs: MediaDeviceInfo[];
   appLayoutType?: SupportedLayouts;
   onMediaInputChange: (mediaDeviceInfo: MediaDeviceInfo) => void;
+  updateDeviceInputs: () => void;
 }
 
 function ControlPanel(props: ControlPanelProps) {
@@ -231,6 +232,14 @@ function ControlPanel(props: ControlPanelProps) {
   }, [isOpenVideoDeviceMenu]);
 
   const handleOnVideoCaretClick = (isMenuOpen: boolean) => {
+    /**
+     * Update available device inputs when the device menu opens
+     * Cannot update the list when the component mounts since often times
+     * the component mounts before giving the camera permissions
+     * This will also ensure that the user always sees the latest input
+     * options available when they open the menu
+     */
+    props.updateDeviceInputs();
     setIsOpenVideoDeviceMenu(isMenuOpen);
   };
 
@@ -315,10 +324,6 @@ function QRScannerComponent(props: QRScannerComponentProps) {
     [],
   );
 
-  useEffect(() => {
-    updateDeviceInputs();
-  }, []);
-
   const renderComponent = () => {
     if (error) {
       return (
@@ -377,10 +382,12 @@ function QRScannerComponent(props: QRScannerComponentProps) {
               <ControlPanel
                 appLayoutType={appLayout?.type}
                 onMediaInputChange={handleMediaDeviceChange}
+                updateDeviceInputs={updateDeviceInputs}
                 videoInputs={videoInputs}
               />
             </div>
           )}
+
           <button className="qr-scanner-close" onClick={closeModal} />
         </Modal>
       </>
