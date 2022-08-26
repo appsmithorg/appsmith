@@ -85,13 +85,19 @@ export class Table {
   _filtersCount = this._filterBtn + " span.action-title";
 
   public WaitUntilTableLoad(rowIndex = 0, colIndex = 0) {
-    cy.waitUntil(() => this.ReadTableRowColumnData(rowIndex, colIndex, 2000).then((cellData) => {
-      expect(cellData).not.empty;
-    }), {
-      errorMsg: "Table is not populated",
-      timeout: 20000,
-      interval: 2000,
-    });
+    cy.waitUntil(
+      () =>
+        this.ReadTableRowColumnData(rowIndex, colIndex, 2000).then(
+          (cellData) => {
+            expect(cellData).not.empty;
+          },
+        ),
+      {
+        errorMsg: "Table is not populated",
+        timeout: 20000,
+        interval: 2000,
+      },
+    );
 
     // this.ReadTableRowColumnData(rowIndex, colIndex, 2000).waitUntil(
     //   ($cellData) => expect($cellData).not.empty,
@@ -133,7 +139,18 @@ export class Table {
   ) {
     //timeout can be sent higher values incase of larger tables
     this.agHelper.Sleep(timeout); //Settling time for table!
-    return cy.get(this._tableRowColumnData(rowNum, colNum)).invoke("text");
+    return cy.waitUntil(
+      () =>
+        cy
+          .get(this._tableRowColumnData(rowNum, colNum))
+          .invoke("text"),
+      {
+        errorMsg: "Table is not populated",
+        timeout: 10000,
+        interval: 1000,
+      },
+    );
+    //return cy.get(this._tableRowColumnData(rowNum, colNum)).invoke("text");
   }
 
   public AssertTableRowImageColumnIsLoaded(

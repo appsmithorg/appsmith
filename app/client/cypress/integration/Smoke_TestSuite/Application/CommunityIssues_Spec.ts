@@ -232,7 +232,7 @@ describe("AForce - Community Issues page validations", function() {
     });
 
     for (let i = 0; i < 8; i++) {
-      table.ReadTableRowColumnData(i, 1, 100).then(($cellData) => {
+      table.ReadTableRowColumnData(i, 1, 100).then(($cellData: any) => {
         if ($cellData.toLowerCase().includes("query"))
           filterTitle.push($cellData);
       });
