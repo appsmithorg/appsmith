@@ -3,7 +3,7 @@ import { Icon, IconName, IconSize } from "design-system";
 import React from "react";
 import styled from "styled-components";
 
-interface AppSettingsSectionHeaderProps {
+export interface SectionHeaderProps {
   name: string;
   icon: IconName;
   subText: string;
@@ -15,9 +15,7 @@ const StyledWrapper = styled.div`
   height: 50px;
 `;
 
-class AppSettingsSectionHeader extends React.Component<
-  AppSettingsSectionHeaderProps
-> {
+class SectionHeader extends React.Component<SectionHeaderProps> {
   render(): React.ReactNode {
     return (
       <StyledWrapper
@@ -43,4 +41,4 @@ class AppSettingsSectionHeader extends React.Component<
   }
 }
 
-export default AppSettingsSectionHeader;
+export default SectionHeader;

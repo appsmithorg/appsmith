@@ -15,7 +15,7 @@ const StyledText = styled.text`
   font-size: 16px;
 `;
 
-class AppSettingsPaneHeaderComponent extends React.Component<{
+class PaneHeader extends React.Component<{
   closePane: () => void;
 }> {
   render() {
@@ -39,7 +39,4 @@ const mapDispatchToProps = (dispatch: Dispatch) => ({
   },
 });
 
-export default connect(
-  null,
-  mapDispatchToProps,
-)(AppSettingsPaneHeaderComponent);
+export default connect(null, mapDispatchToProps)(PaneHeader);
