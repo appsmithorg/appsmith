@@ -26,32 +26,24 @@ function AppSettings(props: AppSettingsProps) {
   return (
     <Wrapper className={`${props.className} flex flex-row`}>
       <div className="basis-1/2">
-        <div
-          className="cursor-pointer"
+        <AppSettingsSectionHeader
+          icon="settings-2-line"
+          isSelected={selectedTab === Tabs.General}
+          name="General"
           onClick={() => {
             setSelectedTab(Tabs.General);
           }}
-        >
-          <AppSettingsSectionHeader
-            icon="settings-2-line"
-            isSelected={selectedTab === Tabs.General}
-            name="General"
-            subText="App name, icon , share"
-          />
-        </div>
-        <div
-          className="cursor-pointer"
+          subText="App name, icon , share"
+        />
+        <AppSettingsSectionHeader
+          icon="edit-line"
+          isSelected={selectedTab === Tabs.Theme}
+          name="Theme"
           onClick={() => {
             setSelectedTab(Tabs.Theme);
           }}
-        >
-          <AppSettingsSectionHeader
-            icon="edit-line"
-            isSelected={selectedTab === Tabs.Theme}
-            name="Theme"
-            subText="Set theme, color and font"
-          />
-        </div>
+          subText="Set theme, color and font"
+        />
         <div className="border-t-[1px] border-[#d7d7d7]" />
       </div>
       <TabContentContainer className="basis-1/2">

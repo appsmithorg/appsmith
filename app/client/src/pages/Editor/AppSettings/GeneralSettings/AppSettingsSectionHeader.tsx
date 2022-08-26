@@ -8,6 +8,7 @@ interface AppSettingsSectionHeaderProps {
   icon: IconName;
   subText: string;
   isSelected: boolean;
+  onClick: () => void;
 }
 
 const StyledWrapper = styled.div`
@@ -21,9 +22,10 @@ class AppSettingsSectionHeader extends React.Component<
     return (
       <StyledWrapper
         className={classNames({
-          "flex flex-row items-center hover:bg-[#e7e7e7]": true,
+          "flex flex-row items-center hover:bg-[#e7e7e7] cursor-pointer": true,
           "bg-[#e7e7e7]": this.props.isSelected,
         })}
+        onClick={this.props.onClick}
       >
         <div className="basis-[7.5%]" />
         <Icon name={this.props.icon} size={IconSize.XL} />
