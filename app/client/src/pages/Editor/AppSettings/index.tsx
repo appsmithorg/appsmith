@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import styled from "styled-components";
 import GeneralSettings from "./GeneralSettings/GeneralSettings";
-import GeneralSettingsHeader from "./GeneralSettings/GeneralSettingsHeader";
+import AppSettingsSectionHeader from "./GeneralSettings/AppSettingsSectionHeader";
 
 interface AppSettingsProps {
   className?: string;
@@ -9,6 +9,7 @@ interface AppSettingsProps {
 
 enum Tabs {
   General,
+  Theme,
 }
 
 const Wrapper = styled.div`
@@ -31,14 +32,35 @@ function AppSettings(props: AppSettingsProps) {
             setSelectedTab(Tabs.General);
           }}
         >
-          <GeneralSettingsHeader />
+          <AppSettingsSectionHeader
+            icon="settings-2-line"
+            isSelected={selectedTab === Tabs.General}
+            name="General"
+            subText="App name, icon , share"
+          />
         </div>
+        <div
+          className="cursor-pointer"
+          onClick={() => {
+            setSelectedTab(Tabs.Theme);
+          }}
+        >
+          <AppSettingsSectionHeader
+            icon="edit-line"
+            isSelected={selectedTab === Tabs.Theme}
+            name="Theme"
+            subText="Set theme, color and font"
+          />
+        </div>
+        <div className="border-t-[1px] border-[#d7d7d7]" />
       </div>
       <TabContentContainer className="basis-1/2">
         {(() => {
           switch (selectedTab) {
             case Tabs.General:
               return <GeneralSettings />;
+            case Tabs.Theme:
+              return <div>Theme settings</div>;
           }
         })()}
       </TabContentContainer>
