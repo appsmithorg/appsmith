@@ -516,7 +516,6 @@ export const useCanvasDragging = (
             });
             if (pos !== undefined && useAutoLayout) {
               // cleanUpTempStyles();
-              console.log(`#### drop canvas: ${widgetName}`);
               updateChildrenPositions(pos, currentRectanglesToDraw);
             } else
               onDrop(currentRectanglesToDraw, reflowedPositionsUpdatesWidgets);
@@ -864,7 +863,6 @@ export const useCanvasDragging = (
             return lastTranslatedIndex;
           const pos = getHighlightPosition(null, val);
           if (!pos) return;
-          // console.log(`#### drop position: ${offsets.indexOf(pos)}`);
           return offsets.indexOf(pos);
         };
         const renderNewRows = debounce((delta) => {

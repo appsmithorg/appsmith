@@ -86,6 +86,8 @@ export class JSEditor {
     `${JSFunctionName}-settings`;
   _asyncJSFunctionSettings = `.t--async-js-function-settings`;
   _debugCTA = `button.js-editor-debug-cta`;
+  _lineinJsEditor = (lineNumber: number) =>
+    ":nth-child(" + lineNumber + ") > .CodeMirror-line";
   //#endregion
 
   //#region constants
@@ -113,7 +115,8 @@ export class JSEditor {
     cy.get(this._jsObjTxt).should("not.exist");
 
     //cy.waitUntil(() => cy.get(this.locator._toastMsg).should('not.be.visible')) // fails sometimes
-    this.agHelper.WaitUntilToastDisappear("created successfully"); //to not hinder with other toast msgs!
+    //this.agHelper.WaitUntilToastDisappear("created successfully"); //to not hinder with other toast msgs!
+    this.agHelper.AssertContains("created successfully");
     this.agHelper.Sleep();
   }
 
@@ -143,6 +146,8 @@ export class JSEditor {
         .focus()
         .type(this.selectAllJSObjectContentShortcut)
         .type("{backspace}", { force: true });
+      this.agHelper.AssertContains("Start object with export default");
+      this.agHelper.AssertAutoSave();
     }
 
     cy.get(this.locator._codeMirrorTextArea)
@@ -154,7 +159,7 @@ export class JSEditor {
         } else {
           cy.get(el).type(JSCode, {
             parseSpecialCharSequences: false,
-            delay: 100,
+            delay: 50,
             force: true,
           });
         }
@@ -179,7 +184,7 @@ export class JSEditor {
   }
 
   //Edit the name of a JSObject's property (variable or function)
-  public EditJSObj(newContent: string) {
+  public EditJSObj(newContent: string, toPrettify = true) {
     cy.get(this.locator._codeMirrorTextArea)
       .first()
       .focus()
@@ -187,8 +192,8 @@ export class JSEditor {
       .then((el: JQuery<HTMLElement>) => {
         this.agHelper.Paste(el, newContent);
       });
-    this.agHelper.Sleep(2000);//Settling time for edited js code
-    this.agHelper.ActionContextMenuWithInPane("Prettify Code");
+    this.agHelper.Sleep(2000); //Settling time for edited js code
+    toPrettify && this.agHelper.ActionContextMenuWithInPane("Prettify Code");
     this.agHelper.AssertAutoSave();
   }
 

@@ -16,7 +16,7 @@ import {
   WELCOME_FORM_ROLE,
 } from "@appsmith/constants/messages";
 import { connect } from "react-redux";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import {
   Field,
   formValueSelector,

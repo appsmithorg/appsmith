@@ -433,7 +433,7 @@ jobs:
           name: rts-build-deps
           path: app/rts/node_modules/
 
-  fat-conatiner-test:
+  fat-container-test:
     needs: [build, server-build, buildRts]
     # Only run if the build step is successful
     if: success()
@@ -1142,7 +1142,7 @@ jobs:
       - run: echo "::set-output name=run_result::success" > ~/run_result
 
   ui-test-result:
-    needs: [ui-test, fat-conatiner-test]
+    needs: [ui-test, fat-container-test]
     # Only run if the ui-test with matrices step is successful
     if: always()
     runs-on: ubuntu-latest
@@ -1258,7 +1258,7 @@ jobs:
         run: echo "$PAYLOAD_CONTEXT"
 
   package:
-    needs: [ui-test, fat-conatiner-test]
+    needs: [ui-test, fat-container-test]
     runs-on: ubuntu-latest
     defaults:
       run:

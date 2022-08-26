@@ -348,7 +348,6 @@ function* autolayoutReorderSaga(
 
   const { index, movedWidgets, parentId } = actionPayload.payload;
   // console.log(`#### moved widgets: ${JSON.stringify(movedWidgets)}`);
-  // console.log(`#### drop index: ${index}`);
   // console.log(`#### parentId: ${parentId}`);
   try {
     const allWidgets: CanvasWidgetsReduxState = yield select(getWidgets);

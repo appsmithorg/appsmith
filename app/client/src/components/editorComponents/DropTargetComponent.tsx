@@ -18,7 +18,7 @@ import {
 } from "constants/WidgetConstants";
 import { calculateDropTargetRows } from "./DropTargetUtils";
 import DragLayerComponent from "./DragLayerComponent";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import { useSelector } from "react-redux";
 import {
   useShowPropertyPane,

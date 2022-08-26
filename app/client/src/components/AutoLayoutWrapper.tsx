@@ -4,10 +4,11 @@ import React, { ReactNode, useCallback } from "react";
 import { useClickToSelectWidget } from "utils/hooks/useClickToSelectWidget";
 import { AlignItems, LayoutDirection, ResponsiveBehavior } from "./constants";
 import { useSelector } from "react-redux";
-import { AppState } from "reducers";
+
 import { checkIsDropTarget } from "./designSystems/appsmith/PositionedContainer";
 import { getSelectedWidgets } from "selectors/ui";
 import { Layers } from "constants/Layers";
+import { AppState } from "ce/reducers";
 
 export type AutoLayoutProps = {
   children: ReactNode;
