@@ -1,4 +1,4 @@
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import { createSelector } from "reselect";
 
 import { PageListReduxState } from "reducers/entityReducers/pageListReducer";

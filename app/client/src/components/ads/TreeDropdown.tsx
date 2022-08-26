@@ -21,7 +21,7 @@ import {
 import styled from "styled-components";
 import { Colors } from "constants/Colors";
 import { DropdownOption } from "components/constants";
-import Icon, { IconSize } from "components/ads/Icon";
+import { Icon, IconSize } from "design-system";
 import { replayHighlightClass } from "globalStyles/portals";
 import useDSEvent from "utils/hooks/useDSEvent";
 import { DSEventTypes } from "utils/AppsmithUtils";

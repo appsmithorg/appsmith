@@ -5,7 +5,7 @@ import _ from "lodash";
 import { DATASOURCE_DB_FORM } from "constants/forms";
 import { Icon } from "@blueprintjs/core";
 import FormTitle from "./FormTitle";
-import Button, { Category } from "components/ads/Button";
+import { Button, Category } from "design-system";
 import { Colors } from "constants/Colors";
 import CollapsibleHelp from "components/designSystems/appsmith/help/CollapsibleHelp";
 import Connected from "./Connected";
@@ -18,7 +18,7 @@ import { convertArrayToSentence } from "utils/helpers";
 import { PluginType } from "entities/Action";
 import Callout from "components/ads/Callout";
 import { Variant } from "components/ads/common";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import {
   FormTitleContainer,
   Header,

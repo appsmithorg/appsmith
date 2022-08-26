@@ -5,6 +5,7 @@ import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.PolicyUtils;
+import com.appsmith.server.helpers.UserUtils;
 import com.appsmith.server.helpers.ValidationUtils;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ApplicationPageService;
@@ -52,12 +53,15 @@ public class UserSignupTest {
     @MockBean
     private CommonConfig commonConfig;
 
+    @MockBean
+    private UserUtils userUtils;
+
     private UserSignup userSignup;
 
     @Before
     public void setup() {
         userSignup = new UserSignupImpl(userService, userDataService, captchaService, authenticationSuccessHandler,
-                configService, analyticsService, policyUtils, envManager, commonConfig);
+                configService, analyticsService, envManager, commonConfig, userUtils);
     }
 
     private String createRandomString(int length) {

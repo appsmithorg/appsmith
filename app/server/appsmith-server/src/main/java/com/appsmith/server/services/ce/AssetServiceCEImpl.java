@@ -130,7 +130,6 @@ public class AssetServiceCEImpl implements AssetServiceCE {
 
     @Override
     public Mono<Void> makeImageResponse(ServerWebExchange exchange, String assetId) {
-        log.debug("Returning asset with ID '{}'.", assetId);
         return getById(assetId)
                 .flatMap(asset -> {
                     final String contentType = asset.getContentType();

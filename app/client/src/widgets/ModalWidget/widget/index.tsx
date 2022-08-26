@@ -11,7 +11,7 @@ import ModalComponent from "../component";
 import { RenderMode, WIDGET_PADDING } from "constants/WidgetConstants";
 import { generateClassName } from "utils/generators";
 import { ClickContentToOpenPropPane } from "utils/hooks/useClickToSelectWidget";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import { getCanvasWidth, snipingModeSelector } from "selectors/editorSelectors";
 import { deselectAllInitAction } from "actions/widgetSelectionActions";
 import { ValidationTypes } from "constants/WidgetValidation";
@@ -200,18 +200,19 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
   }
 
   renderChildWidget = (childWidgetData: WidgetProps): ReactNode => {
-    childWidgetData.parentId = this.props.widgetId;
-    childWidgetData.shouldScrollContents = false;
-    childWidgetData.canExtend = this.props.shouldScrollContents;
-    childWidgetData.bottomRow = this.props.shouldScrollContents
-      ? Math.max(childWidgetData.bottomRow, this.props.height)
+    const childData = { ...childWidgetData };
+    childData.parentId = this.props.widgetId;
+    childData.shouldScrollContents = false;
+    childData.canExtend = this.props.shouldScrollContents;
+    childData.bottomRow = this.props.shouldScrollContents
+      ? Math.max(childData.bottomRow, this.props.height)
       : this.props.height;
-    childWidgetData.isVisible = this.props.isVisible;
-    childWidgetData.containerStyle = "none";
-    childWidgetData.minHeight = this.props.height;
-    childWidgetData.rightColumn =
+    childData.containerStyle = "none";
+    childData.minHeight = this.props.height;
+    childData.rightColumn =
       this.getModalWidth(this.props.width) + WIDGET_PADDING * 2;
-    return WidgetFactory.createWidget(childWidgetData, this.props.renderMode);
+
+    return WidgetFactory.createWidget(childData, this.props.renderMode);
   };
 
   onModalClose = () => {
