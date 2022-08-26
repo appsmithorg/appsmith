@@ -43,7 +43,6 @@ function* storeStateOfPath(path: string) {
     // @ts-ignore
     state[selectorInfo.name] = yield select(selectorInfo.selector);
   }
-  console.log({ focus: { state, entity, path } });
   yield put(setFocusHistory(path, { entity, state }));
 }
 
