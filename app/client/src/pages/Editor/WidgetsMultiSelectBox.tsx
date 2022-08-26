@@ -40,7 +40,7 @@ const StyledActionsContainer = styled.div`
 `;
 
 const StyledActions = styled.div`
-  left: calc(100% - 28px);
+  left: calc(100% - 32px);
   width: max-content;
   z-index: ${Layers.contextMenu};
   position: absolute;
@@ -49,8 +49,8 @@ const StyledActions = styled.div`
 
 const StyledAction = styled.button`
   cursor: pointer;
-  height: 28px;
-  width: 28px;
+  height: 32px;
+  width: 32px;
   display: flex;
   align-items: center;
   justify-content: center;
