@@ -150,7 +150,7 @@ export const updateDependencyMap = ({
   let didUpdateDependencyMap = false;
   const dependenciesOfRemovedPaths: Array<string> = [];
   const removedPaths: Array<string> = [];
-  const extraPathsToLint: Array<string> = [];
+  const extraPathsToLint = new Set<string>();
 
   // This is needed for NEW and DELETE events below.
   // In worst case, it tends to take ~12.5% of entire diffCalc (8 ms out of 67ms for 132 array of NEW)
@@ -252,7 +252,7 @@ export const updateDependencyMap = ({
                     (isWidget(entity) &&
                       isPathADynamicTrigger(entity, propertyPath))
                   ) {
-                    extraPathsToLint.push(path);
+                    extraPathsToLint.add(path);
                   }
 
                   possibleNewlyValidIdentifiersMap[
@@ -346,7 +346,6 @@ export const updateDependencyMap = ({
           Object.keys(dataTreeEvalRef.dependencyMap).forEach(
             (dependencyPath) => {
               didUpdateDependencyMap = true;
-
               if (
                 isChildPropertyPath(
                   dataTreeDiff.payload.propertyPath,
@@ -388,7 +387,7 @@ export const updateDependencyMap = ({
                           unusedIdentifier,
                         )
                       ) {
-                        extraPathsToLint.push(dependencyPath);
+                        extraPathsToLint.add(dependencyPath);
                       }
                     },
                   );
@@ -444,7 +443,7 @@ export const updateDependencyMap = ({
                           unusedIdentifier,
                         )
                       ) {
-                        extraPathsToLint.push(dependencyPath);
+                        extraPathsToLint.add(dependencyPath);
                       }
                     },
                   );
@@ -679,6 +678,6 @@ export const updateDependencyMap = ({
   return {
     dependenciesOfRemovedPaths,
     removedPaths,
-    extraPathsToLint,
+    extraPathsToLint: Array.from(extraPathsToLint),
   };
 };

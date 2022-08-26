@@ -54,9 +54,8 @@ export const pathRequiresLinting = (
     (isAction(entity) || isWidget(entity) || isJSAction(entity)) &&
     isPathADynamicBinding(entity, propertyPath);
   const requiresLinting =
-    isADynamicBindingPath &&
-    (isDynamicValue(unEvalPropertyValue) ||
-      (isJSAction(entity) && propertyPath === "body"));
+    (isADynamicBindingPath && isDynamicValue(unEvalPropertyValue)) ||
+    isJSAction(entity);
   return requiresLinting;
 };
 
