@@ -198,6 +198,12 @@ const renderCell = (props: any) => {
   );
 };
 
+export const getScrollBarWidth = (tableBodyEle: any, scrollBarW: number) => {
+  return !!tableBodyEle && tableBodyEle.scrollHeight > tableBodyEle.clientHeight
+    ? scrollBarW
+    : 0;
+};
+
 function Table(props: TableProps) {
   const tableBodyRef = React.useRef<HTMLElement>();
   const data = React.useMemo(() => {
@@ -265,10 +271,7 @@ function Table(props: TableProps) {
 
   const tableBodyEle = tableBodyRef?.current;
   const scrollBarW = React.useMemo(() => scrollbarWidth(), []);
-  const scrollBarSize =
-    !!tableBodyEle && tableBodyEle.scrollHeight > tableBodyEle.clientHeight
-      ? scrollBarW
-      : 0;
+  const scrollBarSize = getScrollBarWidth(tableBodyEle, scrollBarW);
 
   const RenderRow = React.useCallback(
     ({ index, style }) => {
