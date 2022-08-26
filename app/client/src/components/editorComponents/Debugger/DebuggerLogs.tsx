@@ -109,11 +109,10 @@ function DebbuggerLogs(props: Props) {
   const handleFilterChange = (filter: string | undefined) => {
     if (!isUndefined(filter)) {
       setFilter(filter);
-      if (filter.length > 0) {
-        AnalyticsUtil.logEvent("DEBUGGER_FILTER_CHANGED", {
-          filter,
-        });
-      }
+
+      AnalyticsUtil.logEvent("DEBUGGER_FILTER_CHANGED", {
+        filter: filter.length > 0 ? filter : "ALL",
+      });
     }
   };
 
