@@ -3,6 +3,7 @@ package com.appsmith.external.converters;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSerializationContext;
@@ -33,6 +34,33 @@ public class GsonISOStringToInstantConverter implements JsonSerializer<Instant>,
                 // do nothing, let's try to parse with Instant.parse assuming it's in ISO format
             }
         }
+
+        // In other versions of Appsmith, we have observed Instants saved as JSON objects.  E.g.
+        //        "deletedAt": {
+        //          "nano": 790000000,
+        //          "epochSecond": 1641498664
+        //        }
+        if (jsonElement.isJsonObject()) {
+            JsonObject timeObject = jsonElement.getAsJsonObject();
+            JsonElement epochSecondElt = timeObject.get("epochSecond");
+            JsonElement nanoElt = timeObject.get("nano");
+            Long epochSecond = (epochSecondElt != null ? epochSecondElt.getAsLong() : null);
+            Long nano = (nanoElt != null ? nanoElt.getAsLong() : null);
+            if (epochSecond != null)
+            {
+                if (nano != null)
+                {
+                    Instant val = Instant.ofEpochSecond(epochSecond, nano);
+                    return val;
+                }
+                else
+                {
+                    Instant val = Instant.ofEpochSecond(epochSecond);
+                    return val;
+                }
+            }
+        }
+
         return Instant.parse(jsonElement.getAsString());
     }
 
