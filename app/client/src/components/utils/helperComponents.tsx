@@ -20,7 +20,7 @@ export const HelpPopoverStyle = createGlobalStyle`
 `;
 
 export const StyledBackButton = styled.div`
-  display: flex;
+  display: inline-flex;
   cursor: pointer;
   margin: 0 0 20px 8px;
 `;

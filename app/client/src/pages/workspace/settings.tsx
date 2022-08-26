@@ -66,8 +66,7 @@ export const TabsWrapper = styled.div`
     width: 908px;
   }
   .react-tabs__tab-panel {
-    padding: 66px 0 0;
-    height: 100%;
+    height: calc(100% - 76px);
   }
 `;
 

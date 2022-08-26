@@ -37,7 +37,6 @@ import {
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import {
   Wrapper,
-  BackButton,
   BottomSpace,
   HeaderWrapper,
   SettingsHeader,
@@ -45,6 +44,7 @@ import {
   SettingsFormWrapper,
   MaxWidthWrapper,
 } from "./components";
+import { BackButton } from "components/utils/helperComponents";
 
 type FormProps = {
   settings: Record<string, string>;
