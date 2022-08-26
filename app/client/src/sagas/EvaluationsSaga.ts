@@ -272,11 +272,36 @@ export function* evaluateAndExecuteDynamicTrigger(
 
   while (keepAlive) {
     const { requestData } = yield take(requestChannel);
-    log.debug({ requestData });
+    log.debug({ requestData, eventType, triggerMeta, dynamicTrigger });
     if (requestData.finished) {
       keepAlive = false;
 
       const { result } = requestData;
+
+      // Check for any logs in the response and store them in the redux store
+      if ("logs" in result && !!result.logs && result.logs.length) {
+        result.logs.forEach((log: LogObject) => {
+          AppsmithConsole.addLog(
+            {
+              text: createLogTitleString(log.data),
+              logData: log.data,
+              source: {
+                type:
+                  eventType === EventType.ON_JS_FUNCTION_EXECUTE
+                    ? ENTITY_TYPE.JSACTION
+                    : ENTITY_TYPE.WIDGET,
+                name:
+                  triggerMeta.source?.name ||
+                  dynamicTrigger.replace("()", "") ||
+                  "Widget",
+                id: triggerMeta.source?.id || "",
+              },
+            },
+            log.severity,
+            log.timestamp,
+          );
+        });
+      }
 
       /* Handle errors during evaluation
        * A finish event with errors means that the error was not caught by the user code.
@@ -290,31 +315,7 @@ export function* evaluateAndExecuteDynamicTrigger(
           throw new UncaughtPromiseError(result.errors[0].errorMessage);
         }
       }
-      // Check for any logs in the response and store them in the redux store
-      if (
-        "logs" in result &&
-        !!result.logs &&
-        result.logs.length &&
-        // Remove on js execute event logs since they are already being handeled
-        // If not removed, these will show up on page load action executions
-        eventType !== EventType.ON_JS_FUNCTION_EXECUTE
-      ) {
-        result.logs.forEach((log: LogObject) => {
-          AppsmithConsole.addLog(
-            {
-              text: createLogTitleString(log.data),
-              logData: log.data,
-              source: {
-                type: ENTITY_TYPE.WIDGET,
-                name: triggerMeta.source?.name || "Widget",
-                id: triggerMeta.source?.id || "",
-              },
-            },
-            log.severity,
-            log.timestamp,
-          );
-        });
-      }
+
       // It is possible to get a few triggers here if the user
       // still uses the old way of action runs and not promises. For that we
       // need to manually execute these triggers outside the promise flow
@@ -431,28 +432,30 @@ export function* executeFunction(
     response = yield call(worker.request, EVAL_WORKER_ACTIONS.EXECUTE_SYNC_JS, {
       functionCall,
     });
-  }
 
-  const { errors, logs, result } = response;
-
-  // Check for any logs in the response and store them in the redux store
-  if (!!logs && logs.length > 0) {
-    logs.forEach((log: LogObject) => {
-      AppsmithConsole.addLog(
-        {
-          text: createLogTitleString(log.data),
-          logData: log.data,
-          source: {
-            type: ENTITY_TYPE.JSACTION,
-            name: collectionName + "." + action.name,
-            id: collectionId,
+    const { logs } = response;
+    // Check for any logs in the response and store them in the redux store
+    if (!!logs && logs.length > 0) {
+      logs.forEach((log: LogObject) => {
+        AppsmithConsole.addLog(
+          {
+            text: createLogTitleString(log.data),
+            logData: log.data,
+            source: {
+              type: ENTITY_TYPE.JSACTION,
+              name: collectionName + "." + action.name,
+              id: collectionId,
+            },
           },
-        },
-        log.severity,
-        log.timestamp,
-      );
-    });
+          log.severity,
+          log.timestamp,
+        );
+      });
+    }
   }
+
+  const { errors, result } = response;
+
   const isDirty = !!errors.length;
 
   yield call(
