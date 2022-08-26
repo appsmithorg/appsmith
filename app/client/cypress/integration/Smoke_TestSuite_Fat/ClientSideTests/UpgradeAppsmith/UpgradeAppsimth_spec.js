@@ -52,14 +52,6 @@ describe("Upgrade appsmith version", () => {
     cy.get(".t--buttongroup-widget")
       .children()
       .should("have.length", 3);
-
-    cy.log("Stop the appsmith-160-updated container");
-    cy.StopTheContainer(testUrl, `appsmith-160_${name}_updated`); // stop the old container
-    cy.wait(2000);
-
-    cy.log("Start the appsmith container");
-    cy.StartTheContainer(testUrl, "appsmith"); // stop the old container
-    cy.wait(2000);
   });
 
   // it("Upgrade Appsmith from CE to EE and verify the Applications", () => {

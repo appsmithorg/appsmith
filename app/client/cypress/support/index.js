@@ -113,4 +113,9 @@ after(function() {
   cy.DeleteAppByApi();
   //-- LogOut Application---//
   cy.LogOut();
+
+  const testUrl = "http://localhost:5001/v1/parent/cmd";
+  cy.log("Start the appsmith container");
+  cy.StartTheContainer(testUrl, "appsmith"); // stop the old container
+  cy.wait(2000);
 });
