@@ -76,6 +76,7 @@ export function Track({
   color,
   disabled,
   filled,
+  marks,
   marksBg,
   marksOffset,
   offset,
@@ -100,15 +101,18 @@ export function Track({
         size={size}
       />
       {children}
-      <Marks
-        color={color}
-        disabled={disabled}
-        marksBg={marksBg}
-        marksOffset={marksOffset}
-        showMarksLabel={showMarksLabel}
-        size={size}
-        {...delegated}
-      />
+      {marks && marks.length > 0 ? (
+        <Marks
+          color={color}
+          disabled={disabled}
+          marks={marks}
+          marksBg={marksBg}
+          marksOffset={marksOffset}
+          showMarksLabel={showMarksLabel}
+          size={size}
+          {...delegated}
+        />
+      ) : null}
     </TrackWrapper>
   );
 }

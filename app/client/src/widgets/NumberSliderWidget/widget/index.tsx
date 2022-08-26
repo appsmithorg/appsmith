@@ -884,7 +884,8 @@ class NumberSliderWidget extends BaseWidget<
         labelTextSize={this.props.labelTextSize}
         labelWidth={this.getLabelWidth()}
         loading={this.props.isLoading}
-        marks={this.props.marks}
+        // If showMarks is off don't show marks at all
+        marks={this.props.showMarksLabel ? this.props.marks : []}
         max={this.props.max}
         min={this.props.min}
         name={this.props.widgetName}
