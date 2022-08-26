@@ -76,7 +76,6 @@ export const useCanvasDragging = (
     snapRowSpace,
     useAutoLayout,
     widgetId,
-    widgetName,
   }: CanvasDraggingArenaProps,
 ) => {
   const canvasZoomLevel = useSelector(getZoomLevel);

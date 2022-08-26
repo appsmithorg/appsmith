@@ -23,7 +23,10 @@ import {
   executeWidgetBlueprintOperations,
   traverseTreeAndExecuteBlueprintChildOperations,
 } from "./WidgetBlueprintSagas";
-import { getParentBottomRowAfterAddingWidget } from "./WidgetOperationUtils";
+import {
+  getLayoutWrapperName,
+  getParentBottomRowAfterAddingWidget,
+} from "./WidgetOperationUtils";
 import log from "loglevel";
 import { getDataTree } from "selectors/dataTreeSelectors";
 import { generateReactKey } from "utils/generators";
@@ -347,9 +350,7 @@ export function* getUpdateDslAfterCreatingAutoLayoutChild(
     ...addChildPayload,
     newWidgetId: generateReactKey(),
     type: "LAYOUT_WRAPPER_WIDGET",
-    widgetName: `LayoutWrapper${(Object.values(widgets)?.filter(
-      (each) => each.widgetName.indexOf("LayoutWrapper") > -1,
-    )?.length || 0) + 1}`,
+    widgetName: getLayoutWrapperName(widgets),
     props: {
       containerStyle: "none",
       canExtend: false,

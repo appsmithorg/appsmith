@@ -39,7 +39,7 @@ class LayoutWrapperWidget extends ContainerWidget {
   componentDidMount(): void {
     super.componentDidMount();
   }
-  componentDidUpdate(prevProps: ContainerWidgetProps<any>): void {
+  componentDidUpdate(): void {
     this.updatePositioningInformation();
   }
   updatePositioningInformation = (): void => {

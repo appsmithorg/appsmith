@@ -1829,6 +1829,6 @@ export function getLayoutWrapperName(widgets: CanvasWidgetsReduxState): string {
       .filter((each) => each.type === "LAYOUT_WRAPPER_WIDGET")
       .map((each) => each.widgetName.split("LayoutWrapper")[1])
       .sort((a, b) => parseInt(b) - parseInt(a)) || [];
-  const suffix = arr.length > 0 ? arr[0] : 1;
+  const suffix = arr.length > 0 ? parseInt(arr[0]) + 1 : 1;
   return `LayoutWrapper${suffix}`;
 }

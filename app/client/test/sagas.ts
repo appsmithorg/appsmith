@@ -28,6 +28,7 @@ import { watchJSActionSagas } from "sagas/JSActionSagas";
 import selectionCanvasSagas from "../src/sagas/CanvasSagas/SelectionCanvasSagas";
 import draggingCanvasSagas from "../src/sagas/CanvasSagas/DraggingCanvasSagas";
 import formEvaluationChangeListener from "../src/sagas/FormEvaluationSaga";
+import layoutUpdateSagas from "sagas/LayoutUpdateSagas";
 
 export const sagasToRunForTests = [
   initSagas,
@@ -60,4 +61,5 @@ export const sagasToRunForTests = [
   watchJSActionSagas,
   selectionCanvasSagas,
   draggingCanvasSagas,
+  layoutUpdateSagas,
 ];

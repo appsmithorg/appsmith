@@ -38,6 +38,7 @@ import gitSyncSagas from "sagas/GitSyncSagas";
 import appThemingSaga from "sagas/AppThemingSaga";
 import formEvaluationChangeListener from "sagas/FormEvaluationSaga";
 import SuperUserSagas from "@appsmith/sagas/SuperUserSagas";
+import layoutUpdateSagas from "sagas/LayoutUpdateSagas";
 
 export const sagas = [
   initSagas,
@@ -80,4 +81,5 @@ export const sagas = [
   gitSyncSagas,
   SuperUserSagas,
   appThemingSaga,
+  layoutUpdateSagas,
 ];

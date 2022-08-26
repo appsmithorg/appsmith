@@ -36,7 +36,10 @@ import { MainCanvasReduxState } from "reducers/uiReducers/mainCanvasReducer";
 import { CANVAS_DEFAULT_MIN_HEIGHT_PX } from "constants/AppConstants";
 import { generateReactKey } from "utils/generators";
 import { Alignment, ButtonBoxShadowTypes, Spacing } from "components/constants";
-import { purgeEmptyWrappers } from "../WidgetOperationUtils";
+import {
+  getLayoutWrapperName,
+  purgeEmptyWrappers,
+} from "../WidgetOperationUtils";
 
 export type WidgetMoveParams = {
   widgetId: string;
@@ -453,9 +456,7 @@ function* updateMovedWidgets(
     const wrapperPayload = {
       newWidgetId: generateReactKey(),
       type: "LAYOUT_WRAPPER_WIDGET",
-      widgetName: `LayoutWrapper${(Object.values(allWidgets)?.filter(
-        (each) => each.widgetName.indexOf("LayoutWrapper") > -1,
-      )?.length || 0) + 1}`,
+      widgetName: getLayoutWrapperName(allWidgets),
       props: {
         containerStyle: "none",
         canExtend: false,

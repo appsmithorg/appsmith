@@ -407,11 +407,14 @@ export class ContainerWidget extends BaseWidget<
             <>
               <CanvasDraggingArena
                 {...this.getSnapSpaces()}
+                alignItems={props.alignItems}
                 canExtend={props.canExtend}
+                direction={this.state.direction}
                 dropDisabled={!!props.dropDisabled}
                 noPad={this.props.noPad}
                 parentId={props.parentId}
                 snapRows={snapRows}
+                useAutoLayout={this.state.useAutoLayout}
                 widgetId={props.widgetId}
               />
               <CanvasSelectionArena
