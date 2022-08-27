@@ -10,7 +10,7 @@ describe("Datasource form related tests", function() {
 
   it("1. Check whether the delete button has the right color", function() {
     cy.NavigateToAPI_Panel();
-    cy.CreateAPI("Testapi");
+    cy.CreateAPI(); //Not giving name to enable for cypress re-attempt
     cy.enterDatasourceAndPath(testdata.baseUrl, testdata.methods);
 
     cy.get(".t--store-as-datasource")
