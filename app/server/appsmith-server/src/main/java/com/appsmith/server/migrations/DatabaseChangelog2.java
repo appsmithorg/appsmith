@@ -2317,6 +2317,7 @@ public class DatabaseChangelog2 {
                     User user = mongockTemplate.findOne(userQuery, User.class);
 
                     if (user == null) {
+                        log.info("Creating super user with username {}", email);
                         user = createNewUser(email, tenant.getId(), mongockTemplate);
                     }
 
@@ -2329,7 +2330,6 @@ public class DatabaseChangelog2 {
     }
 
     private User createNewUser(String email, String tenantId, MongockTemplate mongockTemplate) {
-        log.info("Creating super user with email {}", email);
         User user = new User();
         user.setEmail(email);
         user.setIsEnabled(false);
