@@ -2063,7 +2063,7 @@ public class DatabaseChangelog2 {
 
         // Create instance management permission group
         PermissionGroup instanceManagerPermissionGroup = new PermissionGroup();
-        instanceManagerPermissionGroup.setName(FieldName.INSTACE_ADMIN_ROLE);
+        instanceManagerPermissionGroup.setName(FieldName.INSTANCE_ADMIN_ROLE);
         instanceManagerPermissionGroup.setPermissions(
                 Set.of(
                         new Permission(savedInstanceConfig.getId(), MANAGE_INSTANCE_CONFIGURATION)

@@ -15,6 +15,7 @@ import net.minidev.json.JSONObject;
 import org.springframework.data.mongodb.core.query.Update;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.util.function.Tuple2;
 
 import java.util.HashSet;
 import java.util.List;
@@ -89,7 +90,7 @@ public class UserUtilsCE {
 
     public Mono<Boolean> removeSuperUser(List<User> users) {
         return configRepository.findByName(INSTANCE_CONFIG)
-                .switchIfEmpty(createInstanceConfigForSuperUser())
+                .switchIfEmpty(Mono.defer(() -> createInstanceConfigForSuperUser()))
                 .flatMap(instanceConfig -> {
                     JSONObject config = instanceConfig.getConfig();
                     String defaultPermissionGroup = (String) config.getOrDefault(DEFAULT_PERMISSION_GROUP, "");
@@ -110,34 +111,43 @@ public class UserUtilsCE {
 
     protected Mono<Config> createInstanceConfigForSuperUser() {
 
-        return createInstanceAdminConfigObject()
-                .flatMap(savedInstanceConfig ->
-                        createInstanceAdminPermissionGroupWithoutPermissions()
-                        .flatMap(savedPermissionGroup -> {
+        Mono<Tuple2<PermissionGroup, Config>> savedConfigAndPermissionGroupMono = createConfigAndPermissionGroupForSuperAdmin();
 
-                            // Update the instance config with the permission group id
-                            savedInstanceConfig.setConfig(
-                                    new JSONObject(Map.of(DEFAULT_PERMISSION_GROUP, savedPermissionGroup.getId()))
-                            );
-
-                            Policy editConfigPolicy = Policy.builder().permission(MANAGE_INSTANCE_CONFIGURATION.getValue())
-                                    .permissionGroups(Set.of(savedPermissionGroup.getId()))
-                                    .build();
-                            Policy readConfigPolicy = Policy.builder().permission(READ_INSTANCE_CONFIGURATION.getValue())
-                                    .permissionGroups(Set.of(savedPermissionGroup.getId()))
-                                    .build();
-
-                            savedInstanceConfig.setPolicies(new HashSet<>(Set.of(editConfigPolicy, readConfigPolicy)));
-
-                            // Add config permissions to permission group
-                            Set<Permission> configPermissions = Set.of(
-                                    new Permission(savedInstanceConfig.getId(), MANAGE_INSTANCE_CONFIGURATION)
-                            );
-
-                            return addPermissionsToPermissionGroup(savedPermissionGroup, configPermissions)
-                                    .then(configRepository.save(savedInstanceConfig));
-                        }));
+        // return the saved instance config
+        return savedConfigAndPermissionGroupMono
+                .map(Tuple2::getT2);
     }
+
+    private Mono<Tuple2<PermissionGroup, Config>> createConfigAndPermissionGroupForSuperAdmin() {
+        return Mono.zip(createInstanceAdminConfigObject(), createInstanceAdminPermissionGroupWithoutPermissions())
+                .flatMap(tuple -> {
+                    Config savedInstanceConfig = tuple.getT1();
+                    PermissionGroup savedPermissionGroup = tuple.getT2();
+
+                    // Update the instance config with the permission group id
+                    savedInstanceConfig.setConfig(
+                            new JSONObject(Map.of(DEFAULT_PERMISSION_GROUP, savedPermissionGroup.getId()))
+                    );
+
+                    Policy editConfigPolicy = Policy.builder().permission(MANAGE_INSTANCE_CONFIGURATION.getValue())
+                            .permissionGroups(Set.of(savedPermissionGroup.getId()))
+                            .build();
+                    Policy readConfigPolicy = Policy.builder().permission(READ_INSTANCE_CONFIGURATION.getValue())
+                            .permissionGroups(Set.of(savedPermissionGroup.getId()))
+                            .build();
+
+                    savedInstanceConfig.setPolicies(Set.of(editConfigPolicy, readConfigPolicy));
+
+                    // Add config permissions to permission group
+                    Set<Permission> configPermissions = Set.of(
+                            new Permission(savedInstanceConfig.getId(), MANAGE_INSTANCE_CONFIGURATION)
+                    );
+
+                    return Mono.zip(addPermissionsToPermissionGroup(savedPermissionGroup, configPermissions),
+                            configRepository.save(savedInstanceConfig));
+                });
+    }
+
     private Mono<Config> createInstanceAdminConfigObject() {
         Config instanceAdminConfiguration = new Config();
         instanceAdminConfiguration.setName(FieldName.INSTANCE_CONFIG);
@@ -147,17 +157,14 @@ public class UserUtilsCE {
 
     private Mono<PermissionGroup> createInstanceAdminPermissionGroupWithoutPermissions() {
         PermissionGroup instanceAdminPermissionGroup = new PermissionGroup();
-        instanceAdminPermissionGroup.setName(FieldName.INSTACE_ADMIN_ROLE);
+        instanceAdminPermissionGroup.setName(FieldName.INSTANCE_ADMIN_ROLE);
 
         return permissionGroupRepository.save(instanceAdminPermissionGroup)
                 .flatMap(savedPermissionGroup -> {
-                    Set<Permission> permissions = new HashSet<>(savedPermissionGroup.getPermissions());
-                    permissions.addAll(
-                            Set.of(
-                                    new Permission(savedPermissionGroup.getId(), READ_PERMISSION_GROUPS),
-                                    new Permission(savedPermissionGroup.getId(), ASSIGN_PERMISSION_GROUPS),
-                                    new Permission(savedPermissionGroup.getId(), UNASSIGN_PERMISSION_GROUPS)
-                            )
+                    Set<Permission> permissions = Set.of(
+                            new Permission(savedPermissionGroup.getId(), READ_PERMISSION_GROUPS),
+                            new Permission(savedPermissionGroup.getId(), ASSIGN_PERMISSION_GROUPS),
+                            new Permission(savedPermissionGroup.getId(), UNASSIGN_PERMISSION_GROUPS)
                     );
                     savedPermissionGroup.setPermissions(permissions);
 
@@ -173,7 +180,7 @@ public class UserUtilsCE {
                             .permissionGroups(Set.of(savedPermissionGroup.getId()))
                             .build();
 
-                    savedPermissionGroup.setPolicies(new HashSet<>(Set.of(readPermissionGroupPolicy, assignPermissionGroupPolicy, unassignPermissionGroupPolicy)));
+                    savedPermissionGroup.setPolicies(Set.of(readPermissionGroupPolicy, assignPermissionGroupPolicy, unassignPermissionGroupPolicy));
 
                     return permissionGroupRepository.save(savedPermissionGroup);
                 });
