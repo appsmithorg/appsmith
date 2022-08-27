@@ -128,7 +128,6 @@ export class EntityExplorer {
     if (action == "Delete") {
       jsDelete && this.agHelper.ValidateNetworkStatus("@deleteJSCollection");
       jsDelete && this.agHelper.AssertContains("deleted successfully");
-      //jsDelete && this.agHelper.WaitUntilToastDisappear("deleted successfully");
     }
   }
 

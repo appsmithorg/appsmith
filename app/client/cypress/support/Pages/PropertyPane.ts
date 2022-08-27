@@ -177,9 +177,12 @@ export class PropertyPane {
       .focus()
       .type(this.selectAllJSObjectContentShortcut)
       .type("{backspace}", { force: true });
+
+    //to select all & delete - method 2:
     // .type("{uparrow}", { force: true })
     // .type("{ctrl}{shift}{downarrow}", { force: true })
     // .type("{del}", { force: true });
+
     this.agHelper.AssertAutoSave();
   }
 
@@ -222,47 +225,8 @@ export class PropertyPane {
         else this.agHelper.Sleep(500);
       });
 
-    // cy.get(this.locator._propertyControl + endp + " " + this.locator._codeMirrorTextArea)
-    //   .first()
-    //   .focus()
-    //   //.type("{selectAll}")
-    //   .type("{uparrow}{uparrow}", { force: true })
-    //   .type("{selectAll}")
-    //   // .type("{ctrl}{shift}{downarrow}", { force: true })
-    //   .type("{del}", { force: true });
-
     if (paste) this.UpdatePropertyFieldValue(endp, value);
     else this.TypeTextIntoField(endp, value);
-
-    // cy.focused().then(($cm: any) => {
-    //   if ($cm.contents != "") {
-    //     cy.log("The field is not empty");
-    //     cy.get(this.locator._propertyControl + endp + " " + this.locator._codeMirrorTextArea)
-    //       .first()
-    //       .click({ force: true })
-    //       .type("{selectAll}")
-    //       .focused()
-    //       .clear({
-    //         force: true,
-    //       });
-    //   }
-    //   this.agHelper.Sleep()
-    //   cy.get(this.locator._propertyControl + endp + " " + this.locator._codeMirrorTextArea)
-    //     .first()
-    //     .then((el: any) => {
-    //       const input = cy.get(el);
-    //       if (paste) {
-    //         //input.invoke("val", value);
-    //         this.agHelper.Paste(el, value)
-    //       } else {
-    //         this.agHelper.EnterValue(value, "Table Data")
-
-    //         // input.type(value, {
-    //         //   parseSpecialCharSequences: false,
-    //         // });
-    //       }
-    //     });
-    // });
 
     this.agHelper.AssertAutoSave(); //Allowing time for Evaluate value to capture value
   }

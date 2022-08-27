@@ -118,7 +118,6 @@ export class JSEditor {
     cy.get(this._jsObjTxt).should("not.exist");
 
     //cy.waitUntil(() => cy.get(this.locator._toastMsg).should('not.be.visible')) // fails sometimes
-    //this.agHelper.WaitUntilToastDisappear("created successfully"); //to not hinder with other toast msgs!
     this.agHelper.AssertContains("created successfully");
     this.agHelper.Sleep();
   }
@@ -281,11 +280,9 @@ export class JSEditor {
     onLoad = true,
     bfrCalling = true,
   ) {
-    // this.agHelper.GetNClick(this._responseTabAction(funName))
-    // this.agHelper.AssertElementPresence(this._dialog('Function settings'))
+
     // this.agHelper.AssertExistingToggleState(this._functionSetting(Cypress.env("MESSAGES").JS_SETTINGS_ONPAGELOAD()), onLoad)
     // this.agHelper.AssertExistingToggleState(this._functionSetting(Cypress.env("MESSAGES").JS_SETTINGS_CONFIRM_EXECUTION()), bfrCalling)
-    // this.agHelper.GetNClick(this._closeSettings)
 
     this.agHelper.GetNClick(this._settingsTab);
     this.agHelper.AssertExistingToggleState(

@@ -219,13 +219,6 @@ export class AggregateHelper {
   }
 
   public WaitUntilEleAppear(selector: string) {
-    // cy.waitUntil(() => cy.get(selector, { timeout: 50000 }).should("have.length.greaterThan", 0),
-    //     {
-    //         errorMsg: "Element did not appear",
-    //         timeout: 5000,
-    //         interval: 1000
-    //     }).then(() => this.Sleep(500))
-
     let locator = selector.includes("//")
       ? cy.xpath(selector)
       : cy.get(selector);
@@ -235,19 +228,10 @@ export class AggregateHelper {
       interval: 1000,
     });
 
-    // cy.waitUntil(
-    //   () => (selector.includes("//") ? cy.xpath(selector) : cy.get(selector)),
-    //   {
-    //     errorMsg: "Element did not appear",
-    //     timeout: 5000,
-    //     interval: 1000,
-    //   },
-    // ).then(($ele) => {
-    //   cy.wrap($ele)
-    //     .eq(0)
-    //     .should("be.visible");
-    //   this.Sleep();
-    // });
+    //Below can be tried if above starts being flaky:
+    // cy.waitUntil(() => cy.get(selector, { timeout: 50000 }).should("have.length.greaterThan", 0)
+    //or
+    // cy.waitUntil(()) => (selector.includes("//") ? cy.xpath(selector) : cy.get(selector))).then(($ele) => { cy.wrap($ele).eq(0).should("be.visible");});
   }
 
   public ValidateNetworkExecutionSuccess(
@@ -620,7 +604,6 @@ export class AggregateHelper {
       !jsDelete && this.ValidateNetworkStatus("@deleteAction");
       jsDelete && this.ValidateNetworkStatus("@deleteJSCollection");
       jsDelete && this.AssertContains("deleted successfully");
-      //jsDelete && this.WaitUntilToastDisappear("deleted successfully");
     }
   }
 
@@ -691,10 +674,7 @@ export class AggregateHelper {
   }
 
   public UpdateCodeInput(selector: string, value: string) {
-    //this.EnableAllEditors();
     cy.wrap(selector)
-      //.click({ force: true })
-      //.wait(1000)
       .find(".CodeMirror")
       .find("textarea")
       .parents(".CodeMirror")
