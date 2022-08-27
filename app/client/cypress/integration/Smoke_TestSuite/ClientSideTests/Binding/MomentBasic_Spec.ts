@@ -33,10 +33,10 @@ describe("Validate basic binding of Input widget to Input widget", () => {
 
     it("3. Publish widget and validate the data displayed in input widgets", function () {
         var currentTime = new Date();
-        deployMode.DeployApp(locator._inputWidgetInDeployed)
-        cy.get(locator._inputWidgetInDeployed).first()
+        deployMode.DeployApp(locator._widgetInputSelector("inputwidgetv2"))
+        cy.get(locator._widgetInputSelector("inputwidgetv2")).first()
             .should("contain.value", currentTime.getFullYear());
-        cy.get(locator._inputWidgetInDeployed).last()
+        cy.get(locator._widgetInputSelector("inputwidgetv2")).last()
             .should("contain.value", currentTime.getFullYear());
     });
 });
