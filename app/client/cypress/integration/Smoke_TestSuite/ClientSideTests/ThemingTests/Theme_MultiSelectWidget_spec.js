@@ -100,8 +100,8 @@ describe("Theme validation usecase for multi-select widget", function() {
     cy.get(themelocator.inputColor)
       .clear()
       .wait(200)
-      .click()
-      .type("purple");
+      .focus()
+      .type("purple", { timeout: 0 });
     cy.get(themelocator.inputColor).should("have.value", "purple");
     cy.get(themelocator.color)
       .eq(1)
@@ -111,7 +111,7 @@ describe("Theme validation usecase for multi-select widget", function() {
       .clear()
       .wait(200)
       .focus()
-      .type("brown");
+      .type("brown", { timeout: 0 });
     cy.get(themelocator.inputColor).should("have.value", "brown");
     cy.wait(2000);
     cy.contains("Color").click({ force: true });
