@@ -3,8 +3,7 @@ import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 let jsEditor = ObjectsRegistry.JSEditor,
   agHelper = ObjectsRegistry.AggregateHelper,
   ee = ObjectsRegistry.EntityExplorer,
-  homePage = ObjectsRegistry.HomePage,
-  locator = ObjectsRegistry.CommonLocators;
+  homePage = ObjectsRegistry.HomePage;
 
 describe("JSEditor Indendation - Visual tests", () => {
   // for any changes in UI, update the screenshot in snapshot folder, to do so:

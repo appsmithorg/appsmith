@@ -213,72 +213,7 @@ export class JSEditor {
             .click({ force: true });
         else this.agHelper.Sleep(500);
       });
-  }
-
-  public EnterJSContext(
-    endp: string,
-    value: string,
-    toToggleOnJS = true,
-    paste = true,
-  ) {
-    cy.get(this.locator._jsToggle(endp.replace(/ +/g, "").toLowerCase()))
-      .invoke("attr", "class")
-      .then((classes: any) => {
-        if (toToggleOnJS && !classes.includes("is-active"))
-          cy.get(this.locator._jsToggle(endp.replace(/ +/g, "").toLowerCase()))
-            .first()
-            .click({ force: true });
-        else if (!toToggleOnJS && classes.includes("is-active"))
-          cy.get(this.locator._jsToggle(endp.replace(/ +/g, "").toLowerCase()))
-            .first()
-            .click({ force: true });
-        else this.agHelper.Sleep(500);
-      });
-
-    // cy.get(this.locator._propertyControl + endp + " " + this.locator._codeMirrorTextArea)
-    //   .first()
-    //   .focus()
-    //   //.type("{selectAll}")
-    //   .type("{uparrow}{uparrow}", { force: true })
-    //   .type("{selectAll}")
-    //   // .type("{ctrl}{shift}{downarrow}", { force: true })
-    //   .type("{del}", { force: true });
-
-    if (paste) this.propPane.UpdatePropertyFieldValue(endp, value);
-    else this.propPane.TypeTextIntoField(endp, value);
-
-    // cy.focused().then(($cm: any) => {
-    //   if ($cm.contents != "") {
-    //     cy.log("The field is not empty");
-    //     cy.get(this.locator._propertyControl + endp + " " + this.locator._codeMirrorTextArea)
-    //       .first()
-    //       .click({ force: true })
-    //       .type("{selectAll}")
-    //       .focused()
-    //       .clear({
-    //         force: true,
-    //       });
-    //   }
-    //   this.agHelper.Sleep()
-    //   cy.get(this.locator._propertyControl + endp + " " + this.locator._codeMirrorTextArea)
-    //     .first()
-    //     .then((el: any) => {
-    //       const input = cy.get(el);
-    //       if (paste) {
-    //         //input.invoke("val", value);
-    //         this.agHelper.Paste(el, value)
-    //       } else {
-    //         this.agHelper.EnterValue(value, "Table Data")
-
-    //         // input.type(value, {
-    //         //   parseSpecialCharSequences: false,
-    //         // });
-    //       }
-    //     });
-    // });
-
-    this.agHelper.AssertAutoSave(); //Allowing time for Evaluate value to capture value
-  }
+   }
 
   public RenameJSObjFromPane(renameVal: string) {
     cy.get(this._jsObjName).click({ force: true });

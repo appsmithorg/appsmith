@@ -17,8 +17,8 @@ export class CommonLocators {
     _publishButton = ".t--application-publish-btn"
     _widgetInCanvas = (widgetType: string) => `.t--draggable-${widgetType}`
     _widgetInDeployed = (widgetType: string) => `.t--widget-${widgetType}`
+    _widgetInputSelector = (widgetType: string) => this._widgetInDeployed(widgetType) + " input"
     _textWidgetInDeployed = this._widgetInDeployed("textwidget") + " span"
-    _inputWidgetInDeployed = this._widgetInDeployed("inputwidgetv2") + " input"
     _inputWidgetv1InDeployed = this._widgetInDeployed("inputwidget") + " input"
     _textAreainputWidgetv1InDeployed = this._widgetInDeployed("inputwidget") + " textarea"
     _textAreainputWidgetv2InDeployed = this._widgetInDeployed("inputwidgetv2") + " textarea"

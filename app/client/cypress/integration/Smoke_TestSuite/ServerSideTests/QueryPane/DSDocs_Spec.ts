@@ -43,7 +43,7 @@ describe("Check datasource doc links", function() {
   });
 
   afterEach(() => {
-    agHelper.Escape();
+    agHelper.PressEscape();
     agHelper.ActionContextMenuWithInPane("Delete");
     ee.ExpandCollapseEntity("DATASOURCES");
     ee.ActionContextMenuByEntityName(dsName, "Delete", "Are you sure?");

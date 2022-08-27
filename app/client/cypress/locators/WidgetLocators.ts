@@ -1,9 +1,11 @@
 export const WIDGET = {
   INPUT_V2: "inputwidgetv2",
   TEXT: "textwidget",
+  TEXTNAME : (index:string) => `Text${index}`,
   PHONE_INPUT: "phoneinputwidget",
   CURRENCY_INPUT: "currencyinputwidget",
   BUTTON: "buttonwidget",
+  BUTTONNAME : (index:string) => `Button${index}`,
   MULTISELECT: "multiselectwidgetv2",
   BUTTON_GROUP: "buttongroupwidget",
   TREESELECT: "singleselecttreewidget",
@@ -34,6 +36,8 @@ export const PROPERTY_SELECTOR = {
   text: ".t--property-control-text",
   defaultValue: ".t--property-control-defaultvalue",
   propertyName: ".t--property-control-propertyname",
+  onClickFieldName : "onClick",
+  TextFieldName: "Text"
 };
 type ValueOf<T> = T[keyof T];
 
