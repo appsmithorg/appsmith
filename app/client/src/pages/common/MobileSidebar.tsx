@@ -97,7 +97,7 @@ const LeftPaneVersionData = styled.div`
 
 export default function MobileSideBar(props: MobileSideBarProps) {
   const user = useSelector(getCurrentUser);
-  const { appVersion } = getAppsmithConfigs();
+  const { appVersion, cloudHosting } = getAppsmithConfigs();
   const howMuchTimeBefore = howMuchTimeBeforeText(appVersion.releaseDate);
 
   return (
@@ -161,6 +161,7 @@ export default function MobileSideBar(props: MobileSideBarProps) {
             APPSMITH_DISPLAY_VERSION,
             appVersion.edition,
             appVersion.id,
+            cloudHosting,
           )}
         </span>
         {howMuchTimeBefore !== "" && (

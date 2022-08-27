@@ -30,7 +30,12 @@ import {
   APPSMITH_DISPLAY_VERSION,
 } from "@appsmith/constants/messages";
 
-const { algolia, appVersion, intercomAppID } = getAppsmithConfigs();
+const {
+  algolia,
+  appVersion,
+  cloudHosting,
+  intercomAppID,
+} = getAppsmithConfigs();
 const searchClient = algoliasearch(algolia.apiId, algolia.apiKey);
 
 const OenLinkIcon = HelpIcons.OPEN_LINK;
@@ -426,6 +431,7 @@ class DocumentationSearch extends React.Component<Props, State> {
                     APPSMITH_DISPLAY_VERSION,
                     appVersion.edition,
                     appVersion.id,
+                    cloudHosting,
                   )}
                 </span>
                 <span>Released {moment(appVersion.releaseDate).fromNow()}</span>
