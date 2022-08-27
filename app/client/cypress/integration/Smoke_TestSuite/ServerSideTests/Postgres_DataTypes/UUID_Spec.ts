@@ -269,6 +269,8 @@ describe("UUID Datatype tests", function() {
       expect($cellData).to.eq("0");
     });
 
+    agHelper.Sleep(2000);// Above entensions settling time
+
     //Validating generation of new uuid via the extension package
     query = `SELECT uuid_generate_v1() as v1, uuid_generate_v4() as v4, gen_random_uuid() as cryptov4, uuid_in(overlay(overlay(md5(random()::text || ':' || random()::text) placing '4' from 13) placing to_hex(floor(random()*(11-8+1) + 8)::int)::text from 17)::cstring) as form_uuid1, uuid_in(md5(random()::text || random()::text)::cstring) as form_uuid2;`;
     dataSources.EnterQuery(query);
