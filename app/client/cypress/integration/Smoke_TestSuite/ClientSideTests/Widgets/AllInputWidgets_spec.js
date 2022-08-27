@@ -142,7 +142,7 @@ Object.entries(widgetsToTest).forEach(([widgetSelector, testConfig], index) => {
         .click();
       cy.updateCodeInput(
         PROPERTY_SELECTOR.onClick,
-        `{{storeValue('textPayloadOnSubmit',${testConfig.widgetPrefixName}1.text)}}`,
+        `{{storeValue('textPayloadOnSubmit',${testConfig.widgetPrefixName}1.text); FirstAPI.run({ value: ${testConfig.widgetPrefixName}1.text })}}`,
       );
       // Bind to stored value above
       cy.openPropertyPane(WIDGET.TEXT);
@@ -183,51 +183,6 @@ Object.entries(widgetsToTest).forEach(([widgetSelector, testConfig], index) => {
                   .replace(/(^,)|(,$)/g, "")
               : expected,
           );
-        } else {
-          cy.get(getWidgetSelector(WIDGET.TEXT)).should(
-            "have.text",
-            expected == null ? input : expected,
-          );
-        }
-      });
-    });
-
-    it("3. Api params getting correct input values", () => {
-      // Set onClick action, storing value
-      cy.openPropertyPane(WIDGET.BUTTON);
-      // cy.get(PROPERTY_SELECTOR.onClick)
-      //   .find(".t--js-toggle")
-      //   .click();
-      cy.updateCodeInput(
-        PROPERTY_SELECTOR.onClick,
-        `{{FirstAPI.run({ value: ${testConfig.widgetPrefixName}1.text })}}`,
-      );
-
-      const inputs = testConfig.testCases;
-      cy.get(getWidgetSelector(WIDGET.TEXT)).click();
-      cy.get("body").type(`{del}`, { force: true });
-
-      agHelper.ClearInputText("Label");
-
-      inputs.forEach(({ charToClear, expected, input }) => {
-        // Input text and hit enter key
-        // if (clearBeforeType) {
-        //   cy.get(getWidgetInputSelector(widgetSelector))
-        //     .clear()
-        //     .type(`${input}`);
-        // } else {
-        //   cy.get(getWidgetInputSelector(widgetSelector)).type(`${input}`);
-        // }
-
-        agHelper.RemoveCharsNType(
-          getWidgetInputSelector(widgetSelector),
-          charToClear,
-          input,
-        );
-        cy.get(getWidgetSelector(WIDGET.BUTTON)).click();
-
-        // Assert if the Api request contains the expected value
-        if (widgetSelector === WIDGET.CURRENCY_INPUT) {
           cy.wait("@postExecute").then((interception) => {
             expect(
               interception.response.body.data.request.headers.value,
@@ -241,6 +196,10 @@ Object.entries(widgetsToTest).forEach(([widgetSelector, testConfig], index) => {
             ]);
           });
         } else {
+          cy.get(getWidgetSelector(WIDGET.TEXT)).should(
+            "have.text",
+            expected == null ? input : expected,
+          );
           cy.wait("@postExecute").then((interception) => {
             expect(
               interception.response.body.data.request.headers.value,
@@ -250,11 +209,14 @@ Object.entries(widgetsToTest).forEach(([widgetSelector, testConfig], index) => {
       });
     });
 
-    it("4. Delete all the widgets on canvas", () => {
+    it("3. Delete all the widgets on canvas", () => {
       cy.get(getWidgetSelector(WIDGET.BUTTON)).click();
       cy.get("body").type(`{del}`, { force: true });
 
       cy.get(getWidgetSelector(widgetSelector)).click();
+      cy.get("body").type(`{del}`, { force: true });
+
+      cy.get(getWidgetSelector(WIDGET.TEXT)).click();
       cy.get("body").type(`{del}`, { force: true });
     });
   });
