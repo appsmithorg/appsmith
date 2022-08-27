@@ -688,6 +688,18 @@ export class AggregateHelper {
       });
   }
 
+  public UpdateInput(selector: string, value: string) {
+    this.GetElement(selector)
+      .find("input")
+      .then((ins: any) => {
+        //const input = ins[0].input;
+        ins.focus();
+        this.Sleep(200);
+        ins.val(value);
+        this.Sleep(200);
+      });
+  }
+
   public BlurCodeInput(selector: string) {
     cy.wrap(selector)
       .find(".CodeMirror")
