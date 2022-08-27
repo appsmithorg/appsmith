@@ -134,7 +134,7 @@ export class Table {
     //timeout can be sent higher values incase of larger tables
     this.agHelper.Sleep(timeout); //Settling time for table!
     return cy.waitUntil(
-      () => this.agHelper.GetElement(this._tableRowColumnData(rowNum, colNum)),
+      () => this.agHelper.GetElement(this._tableRowColumnData(rowNum, colNum), 30000),
       {
         errorMsg: "Table is not populated",
         timeout: 20000,
