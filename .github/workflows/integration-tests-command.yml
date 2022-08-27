@@ -7,7 +7,7 @@ on:
 
 jobs:
   server-build:
-    runs-on: ubuntu-latest
+    runs-on: buildjet-4vcpu-ubuntu-2004
     if: |
       github.event_name == 'repository_dispatch' &&
       github.event.client_payload.slash_command.sha != '' &&
@@ -1291,7 +1291,7 @@ jobs:
       run:
         working-directory: app/client
     # Run this job only if all the previous steps are a success and the reference if the release or master branch
-    if: success() && (github.ref == 'refs/heads/release' || github.ref == 'refs/heads/release-frozen' || github.ref == 'refs/heads/master')
+    if: success() && (github.ref == 'refs/heads/release' || github.ref == 'refs/heads/master')
 
     steps:
       # Update check run called "package"
