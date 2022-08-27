@@ -13,6 +13,9 @@ const Styles = styled.div`
     width: 100%;
 
     thead {
+      position: sticky;
+      top: 0;
+
       tr {
         background-color: ${(props) => props.theme.colors.table.headerBg};
 
@@ -26,10 +29,14 @@ const Styles = styled.div`
           line-height: ${(props) => props.theme.typography.h6.lineHeight}px;
           letter-spacing: ${(props) =>
             props.theme.typography.h6.letterSpacing}px;
+          border-bottom: 1px solid var(--appsmith-color-black-200);
 
           svg {
             margin-left: ${(props) => props.theme.spaces[2]}px;
             margin-bottom: ${(props) => props.theme.spaces[0] + 1}px;
+            width: 6px;
+            height: 4px;
+            display: initial;
           }
 
           &:hover {
