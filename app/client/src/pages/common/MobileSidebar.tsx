@@ -15,6 +15,7 @@ import {
   createMessage,
   ADMIN_SETTINGS,
   DOCUMENTATION,
+  APPSMITH_DISPLAY_VERSION,
 } from "@appsmith/constants/messages";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import { howMuchTimeBeforeText } from "utils/helpers";
@@ -155,7 +156,13 @@ export default function MobileSideBar(props: MobileSideBarProps) {
         />
       </Section>
       <LeftPaneVersionData>
-        <span>Appsmith {appVersion.id}</span>
+        <span>
+          {createMessage(
+            APPSMITH_DISPLAY_VERSION,
+            appVersion.edition,
+            appVersion.id,
+          )}
+        </span>
         {howMuchTimeBefore !== "" && (
           <span>Released {howMuchTimeBefore} ago</span>
         )}
