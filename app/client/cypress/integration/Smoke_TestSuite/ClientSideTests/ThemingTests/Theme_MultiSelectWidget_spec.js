@@ -110,7 +110,7 @@ describe("Theme validation usecase for multi-select widget", function() {
     cy.get(themelocator.inputColor)
       .clear()
       .wait(200)
-      .click()
+      .focus()
       .type("brown");
     cy.get(themelocator.inputColor).should("have.value", "brown");
     cy.wait(2000);
