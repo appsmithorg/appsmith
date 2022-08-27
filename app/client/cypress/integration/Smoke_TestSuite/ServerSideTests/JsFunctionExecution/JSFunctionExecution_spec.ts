@@ -181,10 +181,11 @@ describe("JS Function Execution", function() {
         completeReplace: true,
         toRun: false,
         shouldCreateNewJSObj: true,
+        toWriteAfterToastsDisappear : true
       });
-      agHelper.WaitUntilToastDisappear("created successfully"); //to not hinder with other toast msgs in this case!
+
       // Assert presence of toast message
-      agHelper.WaitUntilToastDisappear(invalidJSObjectStartToastMessage);
+      agHelper.AssertContains(invalidJSObjectStartToastMessage);
 
       // Assert presence of lint error at the start line
       agHelper.GetNAssertElementText(
@@ -193,10 +194,8 @@ describe("JS Function Execution", function() {
         "contain.text", -1
       );
       agHelper.ActionContextMenuWithInPane("Delete", "", true);
-      agHelper.WaitUntilToastDisappear("deleted successfully");
     };
 
-    agHelper.WaitUntilEleDisappear(locator._toastMsg); //for previous case toasts!!
     assertInvalidJSObjectStart(jsObjectStartingWithAComment, jsComment);
     assertInvalidJSObjectStart(jsObjectStartingWithANewLine, jsObjectStartLine);
     assertInvalidJSObjectStart(
@@ -210,7 +209,7 @@ describe("JS Function Execution", function() {
       myVar1: [],
       myVar2: {},
       myFun1: () => {
-        return Table1.unknown.name`;
+        return Table1.unknown.id`;
 
     const JS_OBJECT_WITHOUT_PARSE_ERROR = `export default {
       myVar1: [],
@@ -242,7 +241,7 @@ describe("JS Function Execution", function() {
     agHelper.AssertContains("No signs of trouble here!", "not.exist");
     // Assert presence of typeError
     agHelper.AssertContains(
-      "TypeError: Cannot read properties of undefined (reading 'name')",
+      "TypeError: Cannot read properties of undefined (reading 'id')",
       "exist",
     );
 
@@ -253,7 +252,7 @@ describe("JS Function Execution", function() {
     jsEditor.AssertParseError(false, true);
     agHelper.GetNClick(locator._errorTab);
     agHelper.AssertContains(
-      "TypeError: Cannot read properties of undefined (reading 'name')",
+      "TypeError: Cannot read properties of undefined (reading 'id')",
       "not.exist",
     );
 
@@ -270,7 +269,7 @@ describe("JS Function Execution", function() {
     // Assert that parse error is removed from debugger when function is deleted
     agHelper.GetNClick(locator._errorTab);
     agHelper.AssertContains(
-      "TypeError: Cannot read properties of undefined (reading 'name')",
+      "TypeError: Cannot read properties of undefined (reading 'id')",
       "not.exist",
     );
     agHelper.ActionContextMenuWithInPane("Delete", "", true);
@@ -328,9 +327,7 @@ describe("JS Function Execution", function() {
   it("7. Doesn't cause cyclic dependency when function name is edited", () => {
     const syncJSCode = `export default {
       myFun1 :()=>{
-        return "yes"
-      }
-    }`;
+        return "yes"`;
 
     const syncJSCodeWithRenamedFunction1 = `export default {
       myFun2 :()=>{
@@ -346,9 +343,7 @@ describe("JS Function Execution", function() {
 
     const asyncJSCode = `export default {
       myFun1 :async ()=>{
-        return "yes"
-      }
-    }`;
+        return "yes"`;
 
     const asyncJSCodeWithRenamedFunction1 = `export default {
       myFun2 :async ()=>{
