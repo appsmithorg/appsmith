@@ -146,6 +146,7 @@ jobs:
             SENTRY_AUTH_TOKEN=${{ secrets.SENTRY_AUTH_TOKEN }} \
             REACT_APP_VERSION_ID=${{ steps.vars.outputs.version }} \
             REACT_APP_VERSION_RELEASE_DATE=$(date -u '+%Y-%m-%dT%H:%M:%SZ') \
+            REACT_APP_VERSION_EDITION="Community" \
             REACT_APP_INTERCOM_APP_ID=${{ secrets.APPSMITH_INTERCOM_ID }} \
             yarn build
           ls -l build
@@ -423,7 +424,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        job: [0, 1,]
+        job: [0, 1]
 
     # Service containers to run with this job. Required for running tests
     services:
@@ -1437,4 +1438,3 @@ jobs:
           docker build -t ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-rts:nightly .
           docker push ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-rts:${GITHUB_SHA}
           docker push ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-rts:nightly
-

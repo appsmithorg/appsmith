@@ -250,6 +250,7 @@ jobs:
             SENTRY_AUTH_TOKEN=${{ secrets.SENTRY_AUTH_TOKEN }} \
             REACT_APP_VERSION_ID=${{ steps.vars.outputs.version }} \
             REACT_APP_VERSION_RELEASE_DATE=$(date -u '+%Y-%m-%dT%H:%M:%SZ') \
+            REACT_APP_VERSION_EDITION="Community" \
             yarn build
 
       # Restore the previous built bundle if present. If not push the newly built into the cache
@@ -444,7 +445,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        job: [0, 1,]
+        job: [0, 1]
 
     # Service containers to run with this job. Required for running tests
     services:
@@ -804,7 +805,33 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        job: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23]
+        job:
+          [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            19,
+            20,
+            21,
+            22,
+            23,
+          ]
 
     # Service containers to run with this job. Required for running tests
     services:
@@ -1500,7 +1527,7 @@ jobs:
           token: ${{ secrets.APPSMITH_PERF_INFRA_REPO_PAT }}
           ref: main
           path: app/client/perf
-        
+
       - name: Installing performance tests dependencies
         if: steps.run_result.outputs.run_result != 'success'
         working-directory: app/client/perf
@@ -1559,4 +1586,3 @@ jobs:
 
         # Set status = success
       - run: echo "::set-output name=run_result::success" > ~/run_result
-
