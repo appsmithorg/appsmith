@@ -1,26 +1,22 @@
-import {
-  AppIconName,
-  EditableText,
-  EditInteractionKind,
-  SavingState,
-} from "components/ads";
-import { IconSelector, MenuDivider } from "design-system";
-import React, { useContext } from "react";
-import { getCurrentApplicationId } from "selectors/editorSelectors";
+import { EditableText, EditInteractionKind, SavingState } from "components/ads";
+import { IconSelector } from "design-system";
+import React from "react";
 import { useSelector } from "react-redux";
-import styled, { ThemeContext } from "styled-components";
 import { getCurrentApplication } from "selectors/applicationSelectors";
+import styled from "styled-components";
 
-const IconScrollWrapper = styled.div`
+const IconSelectorWrapper = styled.div`
   position: relative;
-  .t--icon-selected {
-    background-color: rgba(248, 106, 43, 0.2);
-    border: 1px solid ${(props) => props.theme.colors.applications.cardMenuIcon};
-    svg {
-      path {
-        fill: ${(props) => props.theme.colors.applications.iconColor};
-      }
-    }
+  // .t--icon-selected {
+  //   background-color: #fff;
+  //   svg {
+  //     path {
+  //       fill: #000;
+  //     }
+  //   }
+  // }
+  .icon-selector {
+    max-height: 130px;
   }
   .icon-selector::-webkit-scrollbar-thumb {
     background-color: transparent;
@@ -30,20 +26,10 @@ const IconScrollWrapper = styled.div`
   }
 `;
 
-function GeneralSettings(props: any) {
+function GeneralSettings() {
   const isErroredSavingName = false;
-  const applicationId = useSelector(getCurrentApplicationId);
-  const setLastUpdatedValue = (value: any) => {
-    console.log(value);
-  };
   const isSavingName = false;
-
-  const theme = useContext(ThemeContext);
-  const updateIcon = (icon: AppIconName) => {
-    console.log(icon);
-  };
   const application = useSelector(getCurrentApplication);
-  console.log("General settings", props);
   return (
     <>
       <EditableText
@@ -60,32 +46,20 @@ function GeneralSettings(props: any) {
             return false;
           }
         }}
-        onBlur={(value: string) => {
-          props.update &&
-            props.update(applicationId, {
-              name: value,
-            });
-        }}
-        onTextChanged={(value: string) => {
-          setLastUpdatedValue(value);
-        }}
         placeholder={"Edit text input"}
         savingState={
           isSavingName ? SavingState.STARTED : SavingState.NOT_STARTED
         }
         underline
       />
-      <MenuDivider />
-      <IconScrollWrapper>
+      <IconSelectorWrapper>
         <IconSelector
           className="icon-selector"
           fill
-          onSelect={updateIcon}
-          selectedColor={theme.colors.applications.cardMenuIcon}
+          selectedColor="black"
           selectedIcon={application?.icon}
         />
-        <MenuDivider />
-      </IconScrollWrapper>
+      </IconSelectorWrapper>
     </>
   );
 }
