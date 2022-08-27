@@ -15,10 +15,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Matcher;
 import java.util.stream.Collectors;
 
 import static com.appsmith.server.constants.ResourceModes.EDIT;
 import static com.appsmith.server.constants.ResourceModes.VIEW;
+import static com.appsmith.server.solutions.ce.EnvManagerCEImpl.ENV_VARIABLE_PATTERN;
+import static com.appsmith.server.solutions.ce.EnvManagerCEImpl.VARIABLE_WHITELIST;
 
 public class MigrationHelperMethods {
     // Migration for deprecating archivedAt field in ActionDTO
@@ -164,5 +167,33 @@ public class MigrationHelperMethods {
                         }
                     });
         }
+    }
+
+    public static Map<String, String> parseToMap(String content) {
+        final Map<String, String> data = new HashMap<>();
+
+        content.lines()
+                .forEach(line -> {
+                    final Matcher matcher = ENV_VARIABLE_PATTERN.matcher(line);
+                    if (matcher.matches()) {
+                        final String name = matcher.group("name");
+                        if (VARIABLE_WHITELIST.contains(name)) {
+                            String actualValue = matcher.group("value");
+                            final String quote = matcher.group("quote");
+                            if ("'".equals(quote)) {
+                                // Undo two common methods of escaping single quotes:
+                                actualValue = actualValue
+                                        .replace("'\"'\"'", "'")
+                                        .replace("'\\''", "'");
+                            } else if ("\"".equals(quote)) {
+                                // Undo escaped double quotes:
+                                actualValue = actualValue.replace("\\\"", "\"");
+                            }
+                            data.put(name, actualValue);
+                        }
+                    }
+                });
+
+        return data;
     }
 }

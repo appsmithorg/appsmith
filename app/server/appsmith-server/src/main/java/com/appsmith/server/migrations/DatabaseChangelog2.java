@@ -9,6 +9,7 @@ import com.appsmith.external.models.QDatasource;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.AppsmithRole;
 import com.appsmith.server.acl.PolicyGenerator;
+import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Action;
 import com.appsmith.server.domains.ActionCollection;
@@ -54,6 +55,7 @@ import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.helpers.TextUtils;
 import com.appsmith.server.repositories.NewPageRepository;
 import com.appsmith.server.repositories.UserRepository;
+import com.appsmith.server.services.UserService;
 import com.appsmith.server.services.WorkspaceService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.cloudyrock.mongock.ChangeLog;
@@ -82,6 +84,8 @@ import reactor.core.publisher.Flux;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -100,15 +104,16 @@ import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNestedNonNullP
 import static com.appsmith.server.acl.AclPermission.ASSIGN_PERMISSION_GROUPS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_INSTANCE_CONFIGURATION;
 import static com.appsmith.server.acl.AclPermission.MANAGE_INSTANCE_ENV;
-import static com.appsmith.server.acl.AclPermission.MANAGE_PERMISSION_GROUPS;
 import static com.appsmith.server.acl.AclPermission.READ_INSTANCE_CONFIGURATION;
 import static com.appsmith.server.acl.AclPermission.READ_THEMES;
+import static com.appsmith.server.constants.EnvVariables.APPSMITH_ADMIN_EMAILS;
 import static com.appsmith.server.constants.FieldName.DEFAULT_PERMISSION_GROUP;
 import static com.appsmith.server.constants.FieldName.PERMISSION_GROUP_ID;
 import static com.appsmith.server.migrations.DatabaseChangelog.dropIndexIfExists;
 import static com.appsmith.server.migrations.DatabaseChangelog.ensureIndexes;
 import static com.appsmith.server.migrations.DatabaseChangelog.getUpdatedDynamicBindingPathList;
 import static com.appsmith.server.migrations.DatabaseChangelog.makeIndex;
+import static com.appsmith.server.migrations.MigrationHelperMethods.parseToMap;
 import static com.appsmith.server.repositories.BaseAppsmithRepositoryImpl.fieldName;
 import static java.lang.Boolean.TRUE;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
@@ -1819,14 +1824,14 @@ public class DatabaseChangelog2 {
                             ActionCollection.class);
 
                     // Update Themes
-                        // First update all the named themes with the new policies
+                    // First update all the named themes with the new policies
                     Set<Policy> themePolicies = policyGenerator.getAllChildPolicies(applicationPolicies, Application.class, Theme.class);
                     mongockTemplate.updateMulti(new Query().addCriteria(Criteria.where(fieldName(QTheme.theme.applicationId)).in(applicationIds)),
                             new Update().set("policies", themePolicies),
                             Theme.class);
 
-                        // Also update the non-named themes.
-                        // Get the theme ids to update
+                    // Also update the non-named themes.
+                    // Get the theme ids to update
                     Set<String> themeIdSet = mongockTemplate.stream(new Query().addCriteria(Criteria.where(fieldName(QApplication.application.workspaceId)).is(workspace.getId())), Application.class)
                             .stream()
                             .flatMap(application -> {
@@ -2277,4 +2282,56 @@ public class DatabaseChangelog2 {
                 assignedToUserIds_deleted_compound_index
         );
     }
+
+    @ChangeSet(order = "033", id = "update-super-users", author = "", runAlways = true)
+    public void updateSuperUsers(MongockTemplate mongockTemplate) {
+        final String originalContent;
+        final Path envFilePath = Path.of(commonConfig.getEnvFilePath());
+
+        try {
+            originalContent = Files.readString(envFilePath);
+        } catch (IOException e) {
+            log.error("Unable to read env file {}. Skipping updating the super users", envFilePath, e);
+            return;
+        }
+        Map<String, String> originalVariables = parseToMap(originalContent);
+
+        String adminEmailsStr = originalVariables.get(APPSMITH_ADMIN_EMAILS);
+        Set<String> adminEmails = TextUtils.csvToSet(adminEmailsStr);
+
+        Query instanceConfigurationQuery = new Query();
+        instanceConfigurationQuery.addCriteria(where(fieldName(QConfig.config1.name)).is(FieldName.INSTANCE_CONFIG));
+        Config instanceAdminConfiguration = mongockTemplate.findOne(instanceConfigurationQuery, Config.class);
+
+        String instanceAdminPermissionGroupId = (String) instanceAdminConfiguration.getConfig().get(DEFAULT_PERMISSION_GROUP);
+
+        Query permissionGroupQuery = new Query();
+        permissionGroupQuery.addCriteria(where(fieldName(QPermissionGroup.permissionGroup.id)).is(instanceAdminPermissionGroupId));
+        PermissionGroup instanceAdminPG = mongockTemplate.findOne(permissionGroupQuery, PermissionGroup.class);
+
+        Set<String> userIds = adminEmails.stream()
+                .map(email -> email.trim())
+                .map(String::toLowerCase)
+                .map(email -> {
+                    Query userQuery = new Query();
+                    userQuery.addCriteria(where(fieldName(QUser.user.email)).is(email));
+                    User user = mongockTemplate.findOne(userQuery, User.class);
+
+                    if (user == null) {
+                        log.info("Creating suer user with email {}", email);
+                        user = new User();
+                        user.setEmail(email);
+                        user.setIsEnabled(false);
+
+                        user = userService.userCreate(user, false).block();
+                    }
+
+                    return user.getId();
+                })
+                .collect(Collectors.toSet());
+
+        instanceAdminPG.setAssignedToUserIds(userIds);
+        mongockTemplate.save(instanceAdminPG);
+    }
+
 }

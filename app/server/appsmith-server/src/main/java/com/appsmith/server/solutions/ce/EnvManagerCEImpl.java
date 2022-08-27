@@ -105,11 +105,11 @@ public class EnvManagerCEImpl implements EnvManagerCE {
      * `VAR_NAME=`. It also defines two named capture groups, `name` and `value`, for the variable's name and value
      * respectively.
      */
-    private static final Pattern ENV_VARIABLE_PATTERN = Pattern.compile(
+    public static final Pattern ENV_VARIABLE_PATTERN = Pattern.compile(
             "^(?<name>[A-Z\\d_]+)\\s*=\\s*(?<quote>[\"']?)(?<value>.*?)\\k<quote>$"
     );
 
-    private static final Set<String> VARIABLE_WHITELIST = Stream.of(EnvVariables.values())
+    public static final Set<String> VARIABLE_WHITELIST = Stream.of(EnvVariables.values())
             .map(Enum::name)
             .collect(Collectors.toUnmodifiableSet());
 
