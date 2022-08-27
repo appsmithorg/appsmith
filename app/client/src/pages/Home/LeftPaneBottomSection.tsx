@@ -7,6 +7,7 @@ import {
   createMessage,
   DOCUMENTATION,
   WELCOME_TOUR,
+  APPSMITH_DISPLAY_VERSION,
 } from "@appsmith/constants/messages";
 import { getIsFetchingApplications } from "selectors/applicationSelectors";
 import { getOnboardingWorkspaces } from "selectors/onboardingSelectors";
@@ -89,7 +90,13 @@ function LeftPaneBottomSection() {
       )}
       <ProductUpdatesModal />
       <LeftPaneVersionData>
-        <span>Appsmith {appVersion.id}</span>
+        <span>
+          {createMessage(
+            APPSMITH_DISPLAY_VERSION,
+            appVersion.edition,
+            appVersion.id,
+          )}
+        </span>
         {howMuchTimeBefore !== "" && (
           <span>Released {howMuchTimeBefore} ago</span>
         )}

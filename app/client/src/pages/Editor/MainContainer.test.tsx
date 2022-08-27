@@ -1,17 +1,16 @@
+import { all } from "@redux-saga/core/effects";
+import { AppState } from "ce/reducers";
+import lodash from "lodash";
 import React from "react";
+import { MemoryRouter } from "react-router-dom";
+import * as dataTreeSelectors from "selectors/dataTreeSelectors";
+import * as utilities from "selectors/editorSelectors";
+import store from "store";
 import {
   buildChildren,
   widgetCanvasFactory,
 } from "test/factories/WidgetFactoryUtils";
-import { act, render, fireEvent } from "test/testUtils";
-import GlobalHotKeys from "./GlobalHotKeys";
-import { MemoryRouter } from "react-router-dom";
-import * as widgetRenderUtils from "utils/widgetRenderUtils";
-import * as utilities from "selectors/editorSelectors";
-import * as dataTreeSelectors from "selectors/dataTreeSelectors";
-import store from "store";
 import { sagasToRunForTests } from "test/sagas";
-import { all } from "@redux-saga/core/effects";
 import {
   MockApplication,
   mockCreateCanvasWidget,
@@ -19,12 +18,13 @@ import {
   mockGetWidgetEvalValues,
   syntheticTestMouseEvent,
 } from "test/testCommon";
-import lodash from "lodash";
-import { getAbsolutePixels } from "utils/helpers";
-import { UpdatedMainContainer } from "test/testMockedWidgets";
-import { AppState } from "@appsmith/reducers";
+import { UpdatedEditor } from "test/testMockedWidgets";
+import { act, fireEvent, render } from "test/testUtils";
 import { generateReactKey } from "utils/generators";
+import { getAbsolutePixels } from "utils/helpers";
 import * as useDynamicAppLayoutHook from "utils/hooks/useDynamicAppLayout";
+import * as widgetRenderUtils from "utils/widgetRenderUtils";
+import GlobalHotKeys from "./GlobalHotKeys";
 
 const renderNestedComponent = () => {
   const initialState = (store.getState() as unknown) as Partial<AppState>;
@@ -82,7 +82,7 @@ const renderNestedComponent = () => {
     >
       <MockApplication>
         <GlobalHotKeys>
-          <UpdatedMainContainer dsl={dsl} />
+          <UpdatedEditor dsl={dsl} />
         </GlobalHotKeys>
       </MockApplication>
     </MemoryRouter>,
@@ -159,7 +159,7 @@ describe("Drag and Drop widgets into Main container", () => {
       >
         <MockApplication>
           <GlobalHotKeys>
-            <UpdatedMainContainer dsl={dsl} />
+            <UpdatedEditor dsl={dsl} />
           </GlobalHotKeys>
         </MockApplication>
       </MemoryRouter>,
@@ -259,7 +259,7 @@ describe("Drag and Drop widgets into Main container", () => {
       >
         <MockApplication>
           <GlobalHotKeys>
-            <UpdatedMainContainer dsl={dsl} />
+            <UpdatedEditor dsl={dsl} />
           </GlobalHotKeys>
         </MockApplication>
       </MemoryRouter>,
@@ -366,7 +366,7 @@ describe("Drag and Drop widgets into Main container", () => {
       >
         <MockApplication>
           <GlobalHotKeys>
-            <UpdatedMainContainer dsl={dsl} />
+            <UpdatedEditor dsl={dsl} />
           </GlobalHotKeys>
         </MockApplication>
       </MemoryRouter>,
@@ -475,7 +475,7 @@ describe("Drag and Drop widgets into Main container", () => {
       >
         <MockApplication>
           <GlobalHotKeys>
-            <UpdatedMainContainer dsl={dsl} />
+            <UpdatedEditor dsl={dsl} />
           </GlobalHotKeys>
         </MockApplication>
       </MemoryRouter>,
@@ -580,7 +580,7 @@ describe("Drag and Drop widgets into Main container", () => {
       >
         <MockApplication>
           <GlobalHotKeys>
-            <UpdatedMainContainer dsl={dsl} />
+            <UpdatedEditor dsl={dsl} />
           </GlobalHotKeys>
         </MockApplication>
       </MemoryRouter>,
@@ -688,7 +688,7 @@ describe("Drag and Drop widgets into Main container", () => {
       >
         <MockApplication>
           <GlobalHotKeys>
-            <UpdatedMainContainer dsl={dsl} />
+            <UpdatedEditor dsl={dsl} />
           </GlobalHotKeys>
         </MockApplication>
       </MemoryRouter>,

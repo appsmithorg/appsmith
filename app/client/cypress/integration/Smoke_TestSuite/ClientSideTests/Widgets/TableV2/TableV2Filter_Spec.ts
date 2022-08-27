@@ -17,7 +17,7 @@ describe("Verify various Table_Filter combinations", function() {
 
   it("1. Adding Data to Table Widget", function() {
     ee.DragDropWidgetNVerify("tablewidgetv2", 250, 250);
-    //jsEditor.EnterJSContext("Table Data", JSON.stringify(dataSet.TableInput));
+    //propPane.EnterJSContext("Table Data", JSON.stringify(dataSet.TableInput));
     propPane.UpdatePropertyFieldValue("Table Data", JSON.stringify(dataSet.TableInput))
     agHelper.ValidateNetworkStatus("@updateLayout", 200);
     cy.get("body").type("{esc}");
