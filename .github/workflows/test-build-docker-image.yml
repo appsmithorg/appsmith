@@ -175,7 +175,7 @@ jobs:
     defaults:
       run:
         working-directory: app/server
-    runs-on: buildjet-4vcpu-ubuntu-2004
+    runs-on: buildjet-8vcpu-ubuntu-2004
     # Only run this workflow for internally triggered events
     if: |
       github.event_name == 'workflow_dispatch' ||
