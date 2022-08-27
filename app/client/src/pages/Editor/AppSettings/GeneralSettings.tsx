@@ -1,8 +1,13 @@
 import { updateApplication } from "actions/applicationActions";
 import { UpdateApplicationPayload } from "api/ApplicationApi";
 import classNames from "classnames";
-import { IconSelector } from "components/ads";
-import { AppIconName, Button, Size, TextInput } from "design-system";
+import {
+  AppIconName,
+  Button,
+  Size,
+  TextInput,
+  IconSelector,
+} from "design-system";
 import React, { useState } from "react";
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";

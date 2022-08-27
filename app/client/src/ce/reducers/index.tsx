@@ -60,6 +60,7 @@ import SettingsReducer, {
 } from "@appsmith/reducers/settingsReducer";
 import { TriggerValuesEvaluationState } from "reducers/evaluationReducers/triggerReducer";
 import { CanvasWidgetStructure } from "widgets/constants";
+import { AppSettingsPaneReduxState } from "reducers/uiReducers/appSettingsPaneReducer";
 
 export const reducerObject = {
   entities: entityReducer,
@@ -111,6 +112,7 @@ export interface AppState {
     widgetReflow: widgetReflow;
     appTheming: AppThemingState;
     mainCanvas: MainCanvasReduxState;
+    appSettingsPane: AppSettingsPaneReduxState;
   };
   entities: {
     canvasWidgetsStructure: CanvasWidgetStructure;

@@ -3,10 +3,6 @@ import styled from "styled-components";
 import GeneralSettings from "./GeneralSettings";
 import SectionHeader, { SectionHeaderProps } from "./SectionHeader";
 
-interface AppSettingsProps {
-  className?: string;
-}
-
 enum Tabs {
   General,
   Theme,
@@ -20,7 +16,7 @@ const TabContentContainer = styled.div`
   box-shadow: -1px 0 0 0 #e0dede;
 `;
 
-function AppSettings(props: AppSettingsProps) {
+function AppSettings() {
   const [selectedTab, setSelectedTab] = useState(Tabs.General);
 
   const SectionHeadersConfig: SectionHeaderProps[] = [
