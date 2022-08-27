@@ -20,7 +20,7 @@ const IconSelectorWrapper = styled.div`
   //   }
   // }
   .icon-selector {
-    max-height: 110px;
+    max-height: 100px;
     padding: 0;
     .t--icon-selected,
     .t--icon-not-selected {
@@ -44,6 +44,7 @@ function GeneralSettings() {
   const dispatch = useDispatch();
   const applicationId = useSelector(getCurrentApplicationId);
   const application = useSelector(getCurrentApplication);
+
   const [applicationName, setApplicationName] = useState(application?.name);
   const [applicationIcon, setApplicationIcon] = useState(
     application?.icon as AppIconName,
@@ -52,6 +53,10 @@ function GeneralSettings() {
   useEffect(() => {
     setApplicationName(application?.name);
   }, [application?.name]);
+
+  useEffect(() => {
+    setApplicationIcon(application?.icon as AppIconName);
+  }, [application?.icon]);
 
   const isEdited =
     applicationName !== application?.name ||
@@ -89,7 +94,7 @@ function GeneralSettings() {
       </div>
 
       <div className="pb-1 text-[#575757]">App Icon</div>
-      <IconSelectorWrapper>
+      <IconSelectorWrapper className="pb-4">
         <IconSelector
           className="icon-selector"
           fill
@@ -101,7 +106,6 @@ function GeneralSettings() {
 
       <Button
         className={classNames({
-          "pt-1": true,
           "!bg-[#b3b3b3] !border-[#b3b3b3] !text-white": !isEdited,
           "!bg-[#393939] !border-[#393939] !text-white": isEdited,
         })}
