@@ -45,7 +45,7 @@ function AppSettings(props: AppSettingsProps) {
   ];
 
   return (
-    <Wrapper className={`${props.className} flex flex-row`}>
+    <Wrapper className="flex flex-row">
       <div className="basis-1/2">
         {SectionHeadersConfig.map((config) => (
           <SectionHeader key={config.name} {...config} />

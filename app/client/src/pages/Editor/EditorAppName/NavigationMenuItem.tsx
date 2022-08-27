@@ -15,6 +15,7 @@ export enum MenuTypes {
   MENU = "menu",
   PARENT = "parent",
   RECONFIRM = "re-confirm",
+  MENU_DIVIDER = "menu divider",
 }
 
 export interface MenuItemData {
@@ -176,7 +177,9 @@ export function NavigationMenuItem({
           text={confirm.text}
         />
       );
+    case MenuTypes.MENU_DIVIDER:
+      return <div className="border-t-[1px] border-[#e8e8e8]" />;
+    default:
+      return null;
   }
-
-  return null;
 }

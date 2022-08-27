@@ -131,6 +131,17 @@ export const GetNavigationMenuData = ({
 
   return [
     {
+      text: "Go to dashboard",
+      onClick: () => history.replace(APPLICATIONS_URL),
+      type: MenuTypes.MENU,
+      isVisible: true,
+    },
+    {
+      text: "divider_1",
+      type: MenuTypes.MENU_DIVIDER,
+      isVisible: true,
+    },
+    {
       text: "Edit Name",
       onClick: editMode,
       type: MenuTypes.MENU,
