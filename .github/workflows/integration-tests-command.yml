@@ -251,6 +251,7 @@ jobs:
             SENTRY_AUTH_TOKEN=${{ secrets.SENTRY_AUTH_TOKEN }} \
             REACT_APP_VERSION_ID=${{ steps.vars.outputs.version }} \
             REACT_APP_VERSION_RELEASE_DATE=$(date -u '+%Y-%m-%dT%H:%M:%SZ') \
+            REACT_APP_VERSION_EDITION="Business" \
             yarn build
 
       # Restore the previous built bundle if present. If not push the newly built into the cache
@@ -1621,7 +1622,7 @@ jobs:
           token: ${{ secrets.APPSMITH_PERF_INFRA_REPO_PAT }}
           ref: main
           path: app/client/perf
-        
+
       - name: Installing performance tests dependencies
         if: steps.run_result.outputs.run_result != 'success'
         working-directory: app/client/perf
