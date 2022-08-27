@@ -6,7 +6,7 @@ import com.appsmith.server.domains.User;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.PolicyUtils;
-import com.appsmith.server.helpers.ce.UserUtilsCE;
+import com.appsmith.server.helpers.UserUtils;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.CaptchaService;
