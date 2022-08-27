@@ -100,8 +100,8 @@ import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNestedNonNullP
 import static com.appsmith.server.acl.AclPermission.ASSIGN_PERMISSION_GROUPS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_INSTANCE_CONFIGURATION;
 import static com.appsmith.server.acl.AclPermission.MANAGE_INSTANCE_ENV;
-import static com.appsmith.server.acl.AclPermission.MANAGE_PERMISSION_GROUPS;
 import static com.appsmith.server.acl.AclPermission.READ_INSTANCE_CONFIGURATION;
+import static com.appsmith.server.acl.AclPermission.READ_PERMISSION_GROUPS;
 import static com.appsmith.server.acl.AclPermission.READ_THEMES;
 import static com.appsmith.server.constants.FieldName.DEFAULT_PERMISSION_GROUP;
 import static com.appsmith.server.constants.FieldName.PERMISSION_GROUP_ID;
@@ -2063,7 +2063,7 @@ public class DatabaseChangelog2 {
 
         // Create instance management permission group
         PermissionGroup instanceManagerPermissionGroup = new PermissionGroup();
-        instanceManagerPermissionGroup.setName(FieldName.INSTACE_ADMIN_ROLE);
+        instanceManagerPermissionGroup.setName(FieldName.INSTANCE_ADMIN_ROLE);
         instanceManagerPermissionGroup.setPermissions(
                 Set.of(
                         new Permission(savedInstanceConfig.getId(), MANAGE_INSTANCE_CONFIGURATION)
@@ -2095,12 +2095,16 @@ public class DatabaseChangelog2 {
 
         mongockTemplate.save(savedInstanceConfig);
 
-        // Also give the permission group permission to update & assign to itself
+        // Also give the permission group permission to unassign & assign & read to itself
         Policy updatePermissionGroupPolicy = Policy.builder().permission(AclPermission.UNASSIGN_PERMISSION_GROUPS.getValue())
                 .permissionGroups(Set.of(savedPermissionGroup.getId()))
                 .build();
 
         Policy assignPermissionGroupPolicy = Policy.builder().permission(ASSIGN_PERMISSION_GROUPS.getValue())
+                .permissionGroups(Set.of(savedPermissionGroup.getId()))
+                .build();
+
+        Policy readPermissionGroupPolicy = Policy.builder().permission(READ_PERMISSION_GROUPS.getValue())
                 .permissionGroups(Set.of(savedPermissionGroup.getId()))
                 .build();
 
@@ -2110,7 +2114,8 @@ public class DatabaseChangelog2 {
         permissions.addAll(
                 Set.of(
                         new Permission(savedPermissionGroup.getId(), AclPermission.UNASSIGN_PERMISSION_GROUPS),
-                        new Permission(savedPermissionGroup.getId(), ASSIGN_PERMISSION_GROUPS)
+                        new Permission(savedPermissionGroup.getId(), ASSIGN_PERMISSION_GROUPS),
+                        new Permission(savedPermissionGroup.getId(), READ_PERMISSION_GROUPS)
                 )
         );
         savedPermissionGroup.setPermissions(permissions);
