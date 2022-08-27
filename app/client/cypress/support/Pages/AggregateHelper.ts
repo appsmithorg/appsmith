@@ -459,7 +459,7 @@ export class AggregateHelper {
     if (charCount > 0)
       this.GetElement(selector)
         .focus()
-        .type("{backspace}".repeat(charCount), { timeout: 0, force: true })
+        .type("{backspace}".repeat(charCount), { timeout: 3, force: true })
         .wait(50)
         .type(totype);
     else {
@@ -477,7 +477,7 @@ export class AggregateHelper {
       .focus()
       .type(value, {
         parseSpecialCharSequences: false,
-        delay: 1,
+        delay: 3,
         force: true,
       });
   }
