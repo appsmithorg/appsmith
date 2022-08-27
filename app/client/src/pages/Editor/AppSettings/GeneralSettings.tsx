@@ -1,4 +1,5 @@
 import { updateApplication } from "actions/applicationActions";
+import { UpdateApplicationPayload } from "api/ApplicationApi";
 import classNames from "classnames";
 import { IconSelector } from "components/ads";
 import { AppIconName, Button, Size, TextInput } from "design-system";
@@ -58,18 +59,19 @@ function GeneralSettings() {
     setApplicationIcon(application?.icon as AppIconName);
   }, [application?.icon]);
 
-  const isEdited =
-    applicationName !== application?.name ||
-    applicationIcon !== application?.icon;
+  const isAppNameUpdated = applicationName !== application?.name;
+  const isAppIconUpdated = applicationIcon !== application?.icon;
+
+  const isEdited = isAppNameUpdated || isAppIconUpdated;
 
   const updateAppSettings = () => {
-    dispatch(
-      updateApplication(applicationId, {
-        icon: applicationIcon,
-        name: applicationName,
-        currentApp: true,
-      }),
-    );
+    const payload: UpdateApplicationPayload = {};
+    if (isAppNameUpdated) {
+      payload.name = applicationName;
+      payload.currentApp = true;
+    }
+    isAppIconUpdated ? (payload.icon = applicationIcon) : null;
+    dispatch(updateApplication(applicationId, payload));
   };
   return (
     <div className="mx-4">

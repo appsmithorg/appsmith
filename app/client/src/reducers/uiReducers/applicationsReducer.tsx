@@ -14,6 +14,7 @@ import { UpdateApplicationRequest } from "api/ApplicationApi";
 import { CreateApplicationFormValues } from "pages/Applications/helpers";
 import { AppLayoutConfig } from "reducers/entityReducers/pageListReducer";
 import { ConnectToGitResponse } from "actions/gitSyncActions";
+import { AppIconName } from "design-system";
 
 const initialState: ApplicationsReduxState = {
   isFetchingApplications: false,
@@ -135,6 +136,16 @@ const applicationsReducer = createReducer(initialState, {
       ...state.currentApplication,
       name: action.payload.name,
       slug: action.payload.slug,
+    },
+  }),
+  [ReduxActionTypes.CURRENT_APPLICATION_ICON_UPDATE]: (
+    state: ApplicationsReduxState,
+    action: ReduxAction<AppIconName>,
+  ) => ({
+    ...state,
+    currentApplication: {
+      ...state.currentApplication,
+      icon: action.payload,
     },
   }),
   [ReduxActionTypes.CURRENT_APPLICATION_LAYOUT_UPDATE]: (
