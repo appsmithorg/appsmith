@@ -253,7 +253,7 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
 
     ee.SelectEntityByName("UpdateQuery", "QUERIES/JS");
     dataSources.EnterQuery(updateQuery);
-    agHelper.Escape();
+    agHelper.PressEscape();
     agHelper.AssertAutoSave();
     ee.ExpandCollapseEntity("QUERIES/JS", false);
     ee.SelectEntityByName("update_form", "WIDGETS");
@@ -402,7 +402,7 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
       `null value in column "distance_to_go" violates not-null constraint`,
     );
     deployMode.EnterJSONInputValue("Distance To Go", "7.4");
-    agHelper.WaitUntilEleDisappear(locator._toastMsg); //for previous case toasts for next Update to be Success!!
+    agHelper.WaitUntilAllToastsDisappear(); //for previous case toasts for next Update to be Success!!
 
     updateNVerify(8, 3, "");
   });
@@ -501,13 +501,13 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
 
     ee.SelectEntityByName("InsertQuery", "QUERIES/JS");
     dataSources.EnterQuery(insertQuery);
-    agHelper.Escape();
+    agHelper.PressEscape();
     agHelper.AssertAutoSave();
     ee.ExpandCollapseEntity("QUERIES/JS", false);
   });
 
   it("14. Update JSON fields with placeholds for Addition - on Vessels", () => {
-    testTimeout(seconds(600));
+    testTimeout(seconds(600));//10mins
     ee.ExpandCollapseEntity("WIDGETS");
     ee.ExpandCollapseEntity("Insert_Modal");
     ee.SelectEntityByName("insert_form");
