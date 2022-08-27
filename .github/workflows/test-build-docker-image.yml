@@ -6,7 +6,7 @@ on:
 
   # trigger for pushes to release and master
   push:
-    branches: [release, release-frozen, master]
+    branches: [release, master]
     paths:
       - "app/client/**"
       - "app/server/**"
@@ -175,7 +175,7 @@ jobs:
     defaults:
       run:
         working-directory: app/server
-    runs-on: ubuntu-latest
+    runs-on: buildjet-4vcpu-ubuntu-2004
     # Only run this workflow for internally triggered events
     if: |
       github.event_name == 'workflow_dispatch' ||
@@ -417,7 +417,7 @@ jobs:
       (github.event_name == 'pull_request_review' &&
       github.event.review.state == 'approved' &&
       github.event.pull_request.head.repo.full_name == github.repository))
-    runs-on: ubuntu-latest
+    runs-on: buildjet-4vcpu-ubuntu-2004
     defaults:
       run:
         shell: bash
