@@ -23,14 +23,14 @@ export const deleteWorkspace = (workspaceId: string) => {
 
 export const changeWorkspaceUserRole = (
   workspaceId: string,
-  role: string,
+  newPermissionGroupId: string,
   username: string,
 ) => {
   return {
     type: ReduxActionTypes.CHANGE_WORKSPACE_USER_ROLE_INIT,
     payload: {
       workspaceId,
-      role,
+      newPermissionGroupId,
       username,
     },
   };

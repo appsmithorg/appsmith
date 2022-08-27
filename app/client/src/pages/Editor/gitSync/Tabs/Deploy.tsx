@@ -15,10 +15,13 @@ import {
   READ_DOCUMENTATION,
 } from "@appsmith/constants/messages";
 import styled, { useTheme } from "styled-components";
-import TextInput from "components/ads/TextInput";
-import Button, { Category, Size } from "components/ads/Button";
-import { LabelContainer } from "components/ads/Checkbox";
-
+import {
+  Button,
+  Category,
+  LabelContainer,
+  Size,
+  TextInput,
+} from "design-system";
 import {
   getConflictFoundDocUrlDeploy,
   getDiscardDocUrl,
@@ -50,12 +53,16 @@ import Statusbar, {
   StatusbarWrapper,
 } from "pages/Editor/gitSync/components/Statusbar";
 import GitChangesList from "../components/GitChangesList";
-import { TooltipComponent as Tooltip } from "design-system";
-import { Text, TextType } from "design-system";
+import {
+  Icon,
+  IconSize,
+  Text,
+  TextType,
+  TooltipComponent as Tooltip,
+} from "design-system";
 import InfoWrapper from "../components/InfoWrapper";
 import Link from "../components/Link";
 import ConflictInfo from "../components/ConflictInfo";
-import Icon, { IconSize } from "components/ads/Icon";
 
 import { isMacOrIOS } from "utils/helpers";
 import AnalyticsUtil from "utils/AnalyticsUtil";
@@ -69,7 +76,7 @@ import { Space, Title } from "../components/StyledComponents";
 import { Variant } from "components/ads";
 import DiscardChangesWarning from "../components/DiscardChangesWarning";
 import { changeInfoSinceLastCommit } from "../utils";
-import ScrollIndicator from "../../../../components/ads/ScrollIndicator";
+import { ScrollIndicator } from "design-system";
 
 const Section = styled.div`
   margin-top: 0;

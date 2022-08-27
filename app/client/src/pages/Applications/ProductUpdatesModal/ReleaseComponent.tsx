@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect, useCallback } from "react";
 import styled, { withTheme } from "styled-components";
 import moment from "moment";
 import "@github/g-emoji-element";
-import Icon, { IconSize } from "components/ads/Icon";
+import { Icon, IconSize } from "design-system";
 import { Colors } from "constants/Colors";
 import { Text, Case, TextType } from "design-system";
 import { Classes } from "components/ads/common";

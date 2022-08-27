@@ -1,7 +1,6 @@
-import Icon, { IconSize } from "components/ads/Icon";
 import { Colors } from "constants/Colors";
 import { TooltipWrapper } from "./StyledComponents";
-import { TooltipComponent } from "design-system";
+import { Icon, IconSize, TooltipComponent } from "design-system";
 import { COPY_SSH_KEY, createMessage } from "@appsmith/constants/messages";
 import React from "react";
 

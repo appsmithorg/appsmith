@@ -134,7 +134,7 @@ describe("AForce - Community Issues page validations", function() {
 
   it.skip("5. Verify Default search text in table as per 'Default Search Text' property set + Bug 12228", () => {
     ee.SelectEntityByName("Table1", "WIDGETS");
-    //jsEditor.EnterJSContext("Default Search Text", "Bug", false);
+    //propPane.EnterJSContext("Default Search Text", "Bug", false);
     propPane.TypeTextIntoField("Default Search Text", "Bug");
     deployMode.DeployApp();
     table.AssertSearchText("Bug");
@@ -143,7 +143,7 @@ describe("AForce - Community Issues page validations", function() {
     deployMode.NavigateBacktoEditor();
 
     ee.SelectEntityByName("Table1", "WIDGETS");
-    //jsEditor.EnterJSContext("Default Search Text", "Question", false);
+    //propPane.EnterJSContext("Default Search Text", "Question", false);
     propPane.TypeTextIntoField("Default Search Text", "Question");
 
     deployMode.DeployApp();
@@ -153,7 +153,7 @@ describe("AForce - Community Issues page validations", function() {
     table.WaitUntilTableLoad();
 
     ee.SelectEntityByName("Table1", "WIDGETS");
-    //jsEditor.EnterJSContext("Default Search Text", "Epic", false);
+    //propPane.EnterJSContext("Default Search Text", "Epic", false);
     propPane.TypeTextIntoField("Default Search Text", "Epic"); //Bug 12228 - Searching based on hidden column value should not be allowed
     deployMode.DeployApp();
     table.AssertSearchText("Epic");
@@ -308,13 +308,14 @@ describe("AForce - Community Issues page validations", function() {
 
   it("9. Validate Updating issue from Details tab & Verify multiselect widget selected values", () => {
     agHelper.AssertElementAbsence(locator._widgetInDeployed("tabswidget"));
-    table.SelectTableRow(0);
+    agHelper.Sleep(2000);
+    table.SelectTableRow(0, 1);
     agHelper.AssertElementVisible(locator._widgetInDeployed("tabswidget"));
     agHelper
-      .GetNClick(locator._inputWidgetv1InDeployed)
+      .GetNClick(locator._inputWidgetv1InDeployed, 0, true, 0)
       .type("-updating title");
     agHelper
-      .GetNClick(locator._textAreainputWidgetv1InDeployed)
+      .GetNClick(locator._textAreainputWidgetv1InDeployed, 0, true, 0)
       .type("-updating desc");
     agHelper
       .GetNClick(locator._inputWidgetv1InDeployed, 1)
@@ -377,8 +378,8 @@ describe("AForce - Community Issues page validations", function() {
     agHelper.Sleep();
     cy.get(table._trashIcon)
       .closest("div")
-      .click();
-    agHelper.Sleep(3000); //allowing time to delete!
+      .click({ force: true });
+    agHelper.WaitUntilEleDisappear(locator._widgetInDeployed("tabswidget"));
     agHelper.AssertElementAbsence(locator._widgetInDeployed("tabswidget"));
     table.WaitForTableEmpty();
 

@@ -4,22 +4,24 @@ import com.appsmith.external.models.BaseDomain;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.domains.NewPage;
-import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserData;
-import com.appsmith.server.dtos.WorkspaceApplicationsDTO;
+import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.dtos.ReleaseNode;
+import com.appsmith.server.dtos.UserAndPermissionGroupDTO;
 import com.appsmith.server.dtos.UserHomepageDTO;
+import com.appsmith.server.dtos.WorkspaceApplicationsDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.services.NewPageService;
-import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.services.UserService;
+import com.appsmith.server.services.UserWorkspaceService;
+import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.solutions.ReleaseNotesService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -31,19 +33,16 @@ import reactor.core.publisher.Mono;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.LinkedHashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
-import static com.appsmith.server.acl.AclPermission.READ_WORKSPACES;
 import static com.appsmith.server.acl.AclPermission.READ_PAGES;
-import static java.util.stream.Collectors.toMap;
+import static com.appsmith.server.acl.AclPermission.READ_WORKSPACES;
 
 
 @Slf4j
@@ -63,10 +62,30 @@ public class ApplicationFetcherCEImpl implements ApplicationFetcherCE {
     private final ReleaseNotesService releaseNotesService;
     private final ResponseUtils responseUtils;
     private final NewPageService newPageService;
+    private final UserWorkspaceService userWorkspaceService;
+
+    private <Domain extends BaseDomain> Flux<Domain> sortDomain(Flux<Domain> domainFlux, List<String> sortOrder) {
+        if (CollectionUtils.isEmpty(sortOrder)) {
+            return domainFlux;
+        }
+        return domainFlux.collect(Collectors.toMap(Domain::getId, Function.identity(), (key1, key2) -> key1, LinkedHashMap::new))
+        .map(domainMap -> {
+            List<Domain> sortedDomains = new ArrayList<>();
+            for (String id : sortOrder) {
+                if (domainMap.containsKey(id)) {
+                    sortedDomains.add(domainMap.get(id));
+                    domainMap.remove(id);
+                }
+            }
+            sortedDomains.addAll(domainMap.values());
+            return sortedDomains;
+        })
+        .flatMapMany(Flux::fromIterable);
+    }
 
     /**
-     * For the current user, it first fetches all the workspaces that its part of. For each workspace, in turn all
-     * the applications are fetched. These applications are then returned grouped by Workspaces in a special DTO and returned
+     * For the current user, it first fetches all the workspaces user has read permission on. For each workspace, in turn all
+     * the readable applications are fetched. These applications are then returned grouped by Workspaces in a special DTO and returned
      *
      * @return List of UserHomepageDTO
      */
@@ -94,24 +113,11 @@ public class ApplicationFetcherCEImpl implements ApplicationFetcherCE {
                     UserHomepageDTO userHomepageDTO = new UserHomepageDTO();
                     userHomepageDTO.setUser(user);
 
-                    Set<String> workspaceIdss = user.getWorkspaceIds();
-                    if(CollectionUtils.isEmpty(workspaceIdss)) {
-                        userHomepageDTO.setWorkspaceApplications(new ArrayList<>());
-                        return Mono.just(userHomepageDTO);
-                    }
-
-                    // create a set of org id where recently used ones will be at the beginning
-                    List<String> recentlyUsedWorkspaceIds = userData.getRecentlyUsedWorkspaceIds();
-                    Set<String> workspaceIdSortedSet = new LinkedHashSet<>();
-                    if(recentlyUsedWorkspaceIds != null && recentlyUsedWorkspaceIds.size() > 0) {
-                        // user has a recently used list, add them to the beginning
-                        workspaceIdSortedSet.addAll(recentlyUsedWorkspaceIds);
-                    }
-                    workspaceIdSortedSet.addAll(workspaceIdss); // add all other if not added already
-
                     // Collect all the applications as a map with workspace id as a key
                     Flux<Application> applicationFlux = applicationRepository
-                            .findByMultipleWorkspaceIds(workspaceIdss, READ_APPLICATIONS)
+                            .findAll(READ_APPLICATIONS)
+                            //sort transformation
+                            .transform(domainFlux -> sortDomain(domainFlux, userData.getRecentlyUsedAppIds()))
                             // Git connected apps will have gitApplicationMetadat
                             .filter(application -> application.getGitApplicationMetadata() == null
                                             // 1. When the ssh key is generated by user and then the connect app fails
@@ -124,53 +130,49 @@ public class ApplicationFetcherCEImpl implements ApplicationFetcherCE {
                             )
                             .map(responseUtils::updateApplicationWithDefaultResources);
 
-                    // sort the list of applications if user has recent applications
-                    if(!CollectionUtils.isEmpty(userData.getRecentlyUsedAppIds())) {
-                        // creating a map of applicationId and corresponding index to reduce sorting time
-                        Map<String, Integer> idToIndexMap = IntStream.range(0, userData.getRecentlyUsedAppIds().size())
-                                .boxed()
-                                .collect(toMap(userData.getRecentlyUsedAppIds()::get, i -> i));
-
-                        applicationFlux = applicationFlux.sort((o1, o2) -> {
-                            String o1Id = o1.getId(), o2Id = o2.getId();
-                            Integer idx1 = idToIndexMap.get(o1Id) == null ? Integer.MAX_VALUE : idToIndexMap.get(o1Id);
-                            Integer idx2 = idToIndexMap.get(o2Id) == null ? Integer.MAX_VALUE : idToIndexMap.get(o2Id);
-                            return (idx1-idx2);
-                        });
-                    }
-
                     Mono<Map<String, Collection<Application>>> applicationsMapMono = applicationFlux.collectMultimap(
                             Application::getWorkspaceId, Function.identity()
                     );
 
-                    return workspaceService
-                            .findByIdsIn(workspaceIdss, user.getTenantId(), READ_WORKSPACES)
-                            .collectMap(Workspace::getId, v -> v)
-                            .zipWith(applicationsMapMono)
+                    Flux<Workspace> workspacesFromRepoFlux = workspaceService.getAll(READ_WORKSPACES)
+                            .cache();
+
+                    Mono<List<Workspace>> workspaceListMono = workspacesFromRepoFlux
+                            //sort transformation
+                            .transform(domainFlux -> sortDomain(domainFlux, userData.getRecentlyUsedWorkspaceIds()))
+                            //collect to list to keep the order of the workspaces
+                            .collectList()
+                            .cache();
+
+                    Mono<Map<String, List<UserAndPermissionGroupDTO>>> userAndPermissionGroupMapDTO = workspacesFromRepoFlux
+                            .map(Workspace::getId)
+                            .collect(Collectors.toSet())
+                            .flatMap(workspaceIds -> userWorkspaceService.getWorkspaceMembers(workspaceIds));
+
+                    return Mono.zip(workspaceListMono, applicationsMapMono, userAndPermissionGroupMapDTO)
                             .map(tuple -> {
-                                Map<String, Workspace> workspace = tuple.getT1();
+                                List<Workspace> workspaces = tuple.getT1();
 
                                 Map<String, Collection<Application>> applicationsCollectionByWorkspaceId = tuple.getT2();
 
+                                Map<String, List<UserAndPermissionGroupDTO>> userAndPermissionGroupMapDTOByWorkspaceId = tuple.getT3();
+
                                 List<WorkspaceApplicationsDTO> workspaceApplicationsDTOS = new ArrayList<>();
 
-                                for(String workspaceId : workspaceIdSortedSet) {
-                                    Workspace workspace1 = workspace.get(workspaceId);
-                                    if(workspace1 != null) {
-                                        Collection<Application> applicationCollection = applicationsCollectionByWorkspaceId.get(workspace1.getId());
+                                for(Workspace workspace : workspaces) {
+                                    Collection<Application> applicationCollection = applicationsCollectionByWorkspaceId.get(workspace.getId());
 
-                                        final List<Application> applicationList = new ArrayList<>();
-                                        if (!CollectionUtils.isEmpty(applicationCollection)) {
-                                            applicationList.addAll(applicationCollection);
-                                        }
-
-                                        WorkspaceApplicationsDTO workspaceApplicationsDTO = new WorkspaceApplicationsDTO();
-                                        workspaceApplicationsDTO.setWorkspace(workspace1);
-                                        workspaceApplicationsDTO.setApplications(applicationList);
-                                        workspaceApplicationsDTO.setUserRoles(workspace1.getUserRoles());
-
-                                        workspaceApplicationsDTOS.add(workspaceApplicationsDTO);
+                                    final List<Application> applicationList = new ArrayList<>();
+                                    if (!CollectionUtils.isEmpty(applicationCollection)) {
+                                        applicationList.addAll(applicationCollection);
                                     }
+
+                                    WorkspaceApplicationsDTO workspaceApplicationsDTO = new WorkspaceApplicationsDTO();
+                                    workspaceApplicationsDTO.setWorkspace(workspace);
+                                    workspaceApplicationsDTO.setApplications(applicationList);
+                                    workspaceApplicationsDTO.setUsers(userAndPermissionGroupMapDTOByWorkspaceId.get(workspace.getId()));
+
+                                    workspaceApplicationsDTOS.add(workspaceApplicationsDTO);
                                 }
 
                                 userHomepageDTO.setWorkspaceApplications(workspaceApplicationsDTOS);
