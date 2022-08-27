@@ -150,25 +150,12 @@ Object.entries(widgetsToTest).forEach(([widgetSelector, testConfig], index) => {
             //     "have.text",
             //     expected == null
             //       ? input
-            //           .replace(/^0+/, "")
-            //           .replace(/.{3}/g, "$&,")
-            //           .replace(/(^,)|(,$)/g, "")
+            //           .replace(/^0+/, "") //to remove initial 0
+            //           .replace(/.{3}/g, "$&,")//to add comma after every 3 chars
+            //           .replace(/(^,)|(,$)/g, "")//to remove start & end comma's if any
             //       : expected,
             //   );
-            //   cy.wait("@postExecute").then((interception: any) => {
-            //     expect(
-            //       interception.response.body.data.request.headers.value,
-            //     ).to.deep.equal([
-            //       expected == null
-            //         ? input
-            //             .replace(/^0+/, "")
-            //             .replace(/.{3}/g, "$&,")
-            //             .replace(/(^,)|(,$)/g, "")
-            //         : expected,
-            //     ]);
-            //   });
-            // } else
-            //  {
+
             agHelper.GetText(getWidgetSelector(WIDGET.TEXT)).then(($label) => {
               expect($label).to.eq($expected);
             });
@@ -188,7 +175,7 @@ Object.entries(widgetsToTest).forEach(([widgetSelector, testConfig], index) => {
       agHelper.PressDelete();
 
       agHelper.GetNClick(getWidgetSelector(WIDGET.BUTTON));
-      agHelper.AssertContains("is not defined")//Since widget is removed & Button is still holding its reference
+      agHelper.AssertContains("is not defined"); //Since widget is removed & Button is still holding its reference
       agHelper.PressDelete();
 
       agHelper.GetNClick(getWidgetSelector(WIDGET.TEXT)).click();
