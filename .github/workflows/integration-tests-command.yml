@@ -7,7 +7,7 @@ on:
 
 jobs:
   server-build:
-    runs-on: buildjet-4vcpu-ubuntu-2004
+    runs-on: buildjet-8vcpu-ubuntu-2004
     if: |
       github.event_name == 'repository_dispatch' &&
       github.event.client_payload.slash_command.sha != '' &&
