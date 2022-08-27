@@ -118,7 +118,7 @@ public class UserUtilsCE {
                 .map(Tuple2::getT2);
     }
 
-    private Mono<Tuple2<PermissionGroup, Config>> createConfigAndPermissionGroupForSuperAdmin() {
+    protected Mono<Tuple2<PermissionGroup, Config>> createConfigAndPermissionGroupForSuperAdmin() {
         return Mono.zip(createInstanceAdminConfigObject(), createInstanceAdminPermissionGroupWithoutPermissions())
                 .flatMap(tuple -> {
                     Config savedInstanceConfig = tuple.getT1();
@@ -186,7 +186,7 @@ public class UserUtilsCE {
                 });
     }
 
-    private Mono<PermissionGroup> addPermissionsToPermissionGroup(PermissionGroup permissionGroup, Set<Permission> permissions) {
+    protected Mono<PermissionGroup> addPermissionsToPermissionGroup(PermissionGroup permissionGroup, Set<Permission> permissions) {
         Set<Permission> existingPermissions = new HashSet<>(permissionGroup.getPermissions());
         existingPermissions.addAll(permissions);
         permissionGroup.setPermissions(existingPermissions);
