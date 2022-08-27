@@ -783,7 +783,7 @@ export class AggregateHelper {
       expect($text).to.eq(label);
     });
     this.GetText(this.locator._debugErrorMsg, "text", 0).then(($text) => {
-      expect($text).to.eq(messgae);
+      expect($text).to.contains(messgae);
     });
   }
 
