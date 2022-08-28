@@ -10,15 +10,15 @@ let dsName: any;
 const largeResponseApiUrl = "https://api.publicapis.org/entries";
 //"https://jsonplaceholder.typicode.com/photos";//Commenting since this is faster sometimes & case is failing
 
-export const ERROR_PLUGIN_ACTION_EXECUTE = (actionName: string) =>
-  `${actionName} failed to execute`;
+export const ACTION_EXECUTION_CANCELLED = (actionName: string) =>
+  `${actionName} was cancelled`;
 
 describe("Abort Action Execution", function() {
   it("1. Bug #14006 - Cancel Request button should abort API action execution", function() {
     apiPage.CreateAndFillApi(largeResponseApiUrl, "AbortApi", 0);
     apiPage.RunAPI(false, 0);
     agHelper.GetNClick(locator._cancelActionExecution, 0, true);
-    agHelper.AssertContains(ERROR_PLUGIN_ACTION_EXECUTE("AbortApi"));
+    agHelper.AssertContains(ACTION_EXECUTION_CANCELLED("AbortApi"));
     agHelper.ActionContextMenuWithInPane("Delete", "Are you sure?");
   });
 
@@ -37,7 +37,7 @@ describe("Abort Action Execution", function() {
       dataSources.SetQueryTimeout(0);
       dataSources.RunQuery(false, false, 0);
       agHelper.GetNClick(locator._cancelActionExecution, 0, true);
-      agHelper.AssertContains(ERROR_PLUGIN_ACTION_EXECUTE("AbortQuery"));
+      agHelper.AssertContains(ACTION_EXECUTION_CANCELLED("AbortQuery"));
       agHelper.ActionContextMenuWithInPane("Delete", "Are you sure?");
       dataSources.DeleteDatasouceFromWinthinDS(dsName);
     });

@@ -43,6 +43,7 @@ import {
   ERROR_ACTION_EXECUTE_FAIL,
   ERROR_FAIL_ON_PAGE_LOAD_ACTIONS,
   ERROR_PLUGIN_ACTION_EXECUTE,
+  ACTION_EXECUTION_CANCELLED,
 } from "@appsmith/constants/messages";
 import { Variant } from "components/ads/common";
 import {
@@ -571,7 +572,7 @@ function* runActionSaga(
         },
       });
       Toaster.show({
-        text: createMessage(ERROR_PLUGIN_ACTION_EXECUTE, actionObject.name),
+        text: createMessage(ACTION_EXECUTION_CANCELLED, actionObject.name),
         variant: Variant.danger,
       });
       return;
