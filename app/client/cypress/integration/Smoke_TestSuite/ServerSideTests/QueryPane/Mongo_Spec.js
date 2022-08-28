@@ -294,6 +294,7 @@ describe("Create a query with a mongo datasource, run, save and then delete the 
     });
 
     cy.onlyQueryRun();
+    cy.wait(1000);
     cy.wait("@postExecute").then(({ response }) => {
       expect(response.body.data.isExecutionSuccess).to.eq(true);
       expect(response.body.data.body[0]._id).to.eq(
