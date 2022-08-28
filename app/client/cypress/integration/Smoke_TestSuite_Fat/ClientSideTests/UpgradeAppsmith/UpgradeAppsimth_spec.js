@@ -65,10 +65,6 @@ describe("Upgrade appsmith version", () => {
     cy.StopTheContainer(testUrl, "appsmith"); // stop the old container
     cy.wait(2000);
 
-    const uuid = () => Cypress._.random(0, 10000);
-    const name = uuid();
-    cy.wait(2000);
-
     cy.log("Get path");
     cy.GetPath(testUrl, "appsmith").then((path) => {
       path = path.split("  ");
@@ -76,22 +72,19 @@ describe("Upgrade appsmith version", () => {
       path = path[0].slice(0, -7);
       cy.log(path);
 
-      localStorage.setItem(
-        "ContainerName",
-        `appsmith-160-ce-${name}-enterprise`,
-      );
+      localStorage.setItem("ContainerName", "appsmith-160-ce-enterprise");
 
       cy.log("Start old stack container");
       cy.CreateEEContainer(
         testUrl,
         path + "/oldstack/ce",
         "latest",
-        `appsmith-160-ce-${name}-enterprise`,
+        "appsmith-160-ce-enterprise",
       );
       cy.wait(45000);
 
       cy.log("Verify Logs");
-      cy.GetAndVerifyLogs(testUrl, `appsmith-160-ce-${name}-enterprise`); // Get and verify the logs
+      cy.GetAndVerifyLogs(testUrl, "appsmith-160-ce-enterprise"); // Get and verify the logs
     });
 
     //verify the Applications after upgrade
