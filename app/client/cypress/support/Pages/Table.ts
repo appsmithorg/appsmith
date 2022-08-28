@@ -85,14 +85,23 @@ export class Table {
   _filtersCount = this._filterBtn + " span.action-title";
 
   public WaitUntilTableLoad(rowIndex = 0, colIndex = 0) {
-    cy.waitUntil(() => this.ReadTableRowColumnData(rowIndex, colIndex, 2000), {
+    cy.waitUntil(() => this.ReadTableRowColumnData(rowIndex, colIndex), {
       errorMsg: "Table is not populated",
-      timeout: 10000,
+      timeout: 20000,
       interval: 2000,
     }).then((cellData) => {
       expect(cellData).not.empty;
-      this.agHelper.Sleep(500);
     });
+
+    // this.ReadTableRowColumnData(rowIndex, colIndex, 2000).waitUntil(
+    //   ($cellData) => expect($cellData).not.empty,
+    //   {
+    //     errorMsg: "Table is not populated",
+    //     timeout: 20000,
+    //     interval: 2000,
+    //   },
+    // );
+    // this.agHelper.Sleep(500);
   }
 
   public WaitForTableEmpty() {
@@ -217,11 +226,10 @@ export class Table {
       });
   }
 
-  public SelectTableRow(rowIndex: number) {
-    //0 for 1st row
-    cy.get(this._tableRow(rowIndex, 0))
+  public SelectTableRow(rowIndex: number, columnIndex = 0) { //rowIndex - 0 for 1st row
+    cy.get(this._tableRow(rowIndex, columnIndex))
       .first()
-      .click({ force: true });
+      .trigger("click", { force: true });
     this.agHelper.Sleep(); //for select to reflect
   }
 

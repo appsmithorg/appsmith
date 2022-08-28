@@ -31,7 +31,7 @@ describe("Abort Action Execution", function() {
       dsName = $dsName;
       dataSources.CreateNewQueryInDS(
         dsName,
-        "SELECT * FROM worldCountryInfo wc join countryFlags cf on wc.Name = cf.Country",
+        "SELECT * FROM worldCountryInfo wc join countryFlags cf on wc.Name = cf.Country CROSS JOIN customers cc",
         "AbortQuery",
       );
       dataSources.SetQueryTimeout(0);
