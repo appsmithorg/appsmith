@@ -7,7 +7,7 @@ const {
   EntityExplorer : ee
 } = ObjectsRegistry;
 
-describe("[Bug]: Catch block was not triggering in Safari/firefox", () => {
+describe("Bug #15372 Catch block was not triggering in Safari/firefox", () => {
   it("1. Triggers the catch block when the API hits a 404", () => {
     apiPage.CreateAndFillApi("https://swapi.dev/api/people/18261826");
     jsEditor.CreateJSObject(

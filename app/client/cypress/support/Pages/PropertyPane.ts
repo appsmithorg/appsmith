@@ -27,7 +27,7 @@ export class PropertyPane {
     "']/ancestor::div/following-sibling::div/div[contains(@class, 't--edit-column-btn')]";
   private _goBackToProperty = "button.t--property-pane-back-btn";
   private _copyWidget = "button.t--copy-widget";
-  private _deleteWidget = "button.t--delete-widget";
+  _deleteWidget = "button.t--delete-widget";
   private _changeThemeBtn = ".t--change-theme-btn";
   private _themeCard = (themeName: string) =>
     "//h3[text()='" +
@@ -177,9 +177,12 @@ export class PropertyPane {
       .focus()
       .type(this.selectAllJSObjectContentShortcut)
       .type("{backspace}", { force: true });
+
+    //to select all & delete - method 2:
     // .type("{uparrow}", { force: true })
     // .type("{ctrl}{shift}{downarrow}", { force: true })
     // .type("{del}", { force: true });
+
     this.agHelper.AssertAutoSave();
   }
 
@@ -200,5 +203,31 @@ export class PropertyPane {
       });
 
     this.agHelper.AssertAutoSave(); //Allowing time for saving entered value
+  }
+
+  public EnterJSContext(
+    endp: string,
+    value: string,
+    toToggleOnJS = true,
+    paste = true,
+  ) {
+    cy.get(this.locator._jsToggle(endp.replace(/ +/g, "").toLowerCase()))
+      .invoke("attr", "class")
+      .then((classes: any) => {
+        if (toToggleOnJS && !classes.includes("is-active"))
+          cy.get(this.locator._jsToggle(endp.replace(/ +/g, "").toLowerCase()))
+            .first()
+            .click({ force: true });
+        else if (!toToggleOnJS && classes.includes("is-active"))
+          cy.get(this.locator._jsToggle(endp.replace(/ +/g, "").toLowerCase()))
+            .first()
+            .click({ force: true });
+        else this.agHelper.Sleep(500);
+      });
+
+    if (paste) this.UpdatePropertyFieldValue(endp, value);
+    else this.TypeTextIntoField(endp, value);
+
+    this.agHelper.AssertAutoSave(); //Allowing time for Evaluate value to capture value
   }
 }
