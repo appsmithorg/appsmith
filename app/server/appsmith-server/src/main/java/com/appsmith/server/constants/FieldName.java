@@ -131,7 +131,7 @@ public class FieldName {
     public static final Object NEW_GROUP_ID = "newGroupId";
     public static final String PERMISSION_GROUP_ID = "permissionGroupId";
     public static final String INSTANCE_CONFIG = "instanceConfig";
-    public static final String INSTACE_ADMIN_ROLE = "Instance Administrator Role";
+    public static final String INSTANCE_ADMIN_ROLE = "Instance Administrator Role";
     public static final String DEFAULT_PERMISSION_GROUP = "defaultPermissionGroup";
     public static final String PUBLIC_PERMISSION_GROUP = "publicPermissionGroup";
     public static final String EVENT_DATA = "eventData";
