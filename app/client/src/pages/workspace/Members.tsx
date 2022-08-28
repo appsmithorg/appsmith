@@ -53,10 +53,9 @@ const MembersWrapper = styled.div<{
   table {
     margin-top: 12px;
     table-layout: fixed;
-    position: absolute;
-    width: 920px;
 
     thead {
+      z-index: 1;
       tr {
         border-bottom: 1px solid #e8e8e8;
         th {

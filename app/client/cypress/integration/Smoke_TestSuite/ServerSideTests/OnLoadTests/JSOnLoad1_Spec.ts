@@ -382,7 +382,7 @@ describe("JSObjects OnLoad Actions tests", function() {
     apiPage.ToggleConfirmBeforeRunningApi(true);
 
     ee.SelectEntityByName("Image1", "WIDGETS");
-    jsEditor.EnterJSContext(
+    propPane.EnterJSContext(
       "onClick",
       `{{CatFacts.run(() => showAlert('Your cat fact is :'+ CatFacts.data.fact,'success'), () => showAlert('Oh No!','error'))}}`,
     );
@@ -497,7 +497,7 @@ describe("JSObjects OnLoad Actions tests", function() {
         "[getCitiesList] will be executed automatically on page load",
       );
       //Commented until Bug 13826 is fixed
-      // jsEditor.EnterJSContext(
+      // propPane.EnterJSContext(
       //   "onOptionChange",
       //   `{{` +
       //     jsObjName +
@@ -509,7 +509,7 @@ describe("JSObjects OnLoad Actions tests", function() {
 
       ee.SelectEntityByName("Image1");
 
-      // jsEditor.EnterJSContext(
+      // propPane.EnterJSContext(
       //   "onClick",
       //   `{{` + jsObjName + `.callBooks()}}`,
       //   true,
