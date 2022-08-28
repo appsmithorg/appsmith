@@ -7,10 +7,16 @@ import {
   RUN_GUTTER_ID,
   NO_FUNCTION_DROPDOWN_OPTION,
 } from "./constants";
-import { DropdownOption } from "components/ads/Dropdown";
+import { DropdownOption } from "design-system";
 import { find, memoize } from "lodash";
-import { ECMA_VERSION, NodeTypes, SourceType } from "constants/ast";
-import { isLiteralNode, isPropertyNode, PropertyNode } from "workers/ast";
+import {
+  isLiteralNode,
+  isPropertyNode,
+  PropertyNode,
+  ECMA_VERSION,
+  NodeTypes,
+  SourceType,
+} from "@shared/ast";
 
 export interface JSActionDropdownOption extends DropdownOption {
   data: JSAction | null;
@@ -76,6 +82,9 @@ export const getJSFunctionStartLineFromCode = (
 
 export const createGutterMarker = (gutterOnclick: () => void) => {
   const marker = document.createElement("button");
+  // For most browsers the default type of button is submit, this causes the page to reload when marker is clicked
+  // Set type to button, to prevent this behaviour
+  marker.type = "button";
   marker.innerHTML = "&#9654;";
   marker.classList.add(RUN_GUTTER_CLASSNAME);
   marker.onmousedown = function(e) {

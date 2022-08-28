@@ -4,17 +4,16 @@ import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.Property;
-import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.GitApplicationMetadata;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewAction;
-import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.PluginType;
 import com.appsmith.server.domains.User;
+import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.DslActionDTO;
@@ -29,8 +28,8 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.repositories.NewActionRepository;
-import com.appsmith.server.repositories.WorkspaceRepository;
 import com.appsmith.server.repositories.PluginRepository;
+import com.appsmith.server.repositories.WorkspaceRepository;
 import com.appsmith.server.solutions.ImportExportApplicationService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -144,8 +143,11 @@ public class LayoutActionServiceTest {
     public void setup() {
         newPageService.deleteAll();
         User apiUser = userService.findByEmail("api_user").block();
-        workspaceId = apiUser.getWorkspaceIds().iterator().next();
-        Workspace workspace = workspaceService.getById(workspaceId).block();
+        Workspace toCreate = new Workspace();
+        toCreate.setName("LayoutActionServiceTest");
+
+        Workspace workspace = workspaceService.create(toCreate, apiUser).block();
+        workspaceId = workspace.getId();
 
         if (testApp == null && testPage == null) {
             //Create application and page which will be used by the tests to create actions for.
@@ -210,8 +212,7 @@ public class LayoutActionServiceTest {
             branchName = gitConnectedApp.getGitApplicationMetadata().getBranchName();
         }
 
-        Workspace testWorkspace = workspaceRepository.findByName("Another Test Workspace", AclPermission.READ_WORKSPACES).block();
-        workspaceId = testWorkspace.getId();
+        workspaceId = workspace.getId();
         datasource = new Datasource();
         datasource.setName("Default Database");
         datasource.setWorkspaceId(workspaceId);

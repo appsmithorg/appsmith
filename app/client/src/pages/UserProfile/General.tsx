@@ -2,7 +2,7 @@ import React, { useEffect } from "react";
 import styled from "styled-components";
 import { Text, TextType } from "design-system";
 import { debounce } from "lodash";
-import TextInput, { notEmptyValidator } from "components/ads/TextInput";
+import { TextInput, notEmptyValidator } from "design-system";
 import { useDispatch, useSelector } from "react-redux";
 import { Classes } from "@blueprintjs/core";
 import { getCurrentUser } from "selectors/usersSelectors";
@@ -14,7 +14,7 @@ import {
   createMessage,
 } from "@appsmith/constants/messages";
 import { logoutUser, updateUserDetails } from "actions/userActions";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import UserProfileImagePicker from "components/ads/UserProfileImagePicker";
 import {
   Wrapper,

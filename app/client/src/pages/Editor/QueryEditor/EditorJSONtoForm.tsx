@@ -25,7 +25,7 @@ import { Variant } from "components/ads/common";
 import { Text, TextType } from "design-system";
 import styled from "constants/DefaultTheme";
 import { TabComponent } from "components/ads/Tabs";
-import AdsIcon, { IconSize } from "components/ads/Icon";
+import { Icon as AdsIcon, IconSize } from "design-system";
 import { Classes } from "components/ads/common";
 import FormRow from "components/editorComponents/FormRow";
 import EditorButton from "components/editorComponents/Button";
@@ -67,10 +67,9 @@ import {
   CREATE_NEW_DATASOURCE,
 } from "@appsmith/constants/messages";
 import { useParams } from "react-router";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import { ExplorerURLParams } from "../Explorer/helpers";
 import MoreActionsMenu from "../Explorer/Actions/MoreActionsMenu";
-import Button, { Size, Category } from "components/ads/Button";
 import { thinScrollbar } from "constants/DefaultTheme";
 import ActionRightPane, {
   useEntityDependencies,
@@ -78,7 +77,7 @@ import ActionRightPane, {
 import { SuggestedWidget } from "api/ActionAPI";
 import { Plugin } from "api/PluginApi";
 import { UIComponentTypes } from "../../../api/PluginApi";
-import { TooltipComponent } from "design-system";
+import { Button, Category, Size, TooltipComponent } from "design-system";
 import * as Sentry from "@sentry/react";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import SearchSnippets from "components/ads/SnippetButton";
@@ -150,7 +149,7 @@ export const TabbedViewContainer = styled.div`
   }
   .react-tabs__tab-list {
     margin: 0px;
-   
+
   }
   &&& {
     ul.react-tabs__tab-list {

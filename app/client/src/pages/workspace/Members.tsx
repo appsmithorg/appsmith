@@ -1,18 +1,14 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   getAllUsers,
   getAllRoles,
-  getCurrentWorkspace,
+  // getCurrentWorkspace,
   getWorkspaceLoadingStates,
 } from "@appsmith/selectors/workspaceSelectors";
-import PageSectionHeader from "pages/common/PageSectionHeader";
-import WorkspaceInviteUsersForm from "pages/workspace/WorkspaceInviteUsersForm";
 import { RouteComponentProps } from "react-router";
-import FormDialogComponent from "components/editorComponents/form/FormDialogComponent";
 import { getCurrentUser } from "selectors/usersSelectors";
 import Table from "components/ads/Table";
-import Icon, { IconSize } from "components/ads/Icon";
 import {
   fetchUsersForWorkspace,
   fetchRolesForWorkspace,
@@ -20,62 +16,111 @@ import {
   changeWorkspaceUserRole,
   deleteWorkspaceUser,
 } from "actions/workspaceActions";
-import Button, { Size, Category } from "components/ads/Button";
 import TableDropdown from "components/ads/TableDropdown";
-import Dropdown from "components/ads/Dropdown";
-import { Text, TextType } from "design-system";
-import { SettingsHeading } from "./General";
+import {
+  Dropdown,
+  Icon,
+  IconSize,
+  Text,
+  TextType,
+  HighlightText,
+} from "design-system";
 import styled from "styled-components";
-import { Classes } from "@blueprintjs/core";
 import { Classes as AppClass } from "components/ads/common";
-import { Variant } from "components/ads/common";
 import DeleteConfirmationModal from "./DeleteConfirmationModal";
 import { useMediaQuery } from "react-responsive";
 import { Card } from "@blueprintjs/core";
 import ProfileImage from "pages/common/ProfileImage";
 import { USER_PHOTO_URL } from "constants/userConstants";
 import { Colors } from "constants/Colors";
+import { WorkspaceUser } from "constants/workspaceConstants";
+import {
+  createMessage,
+  MEMBERS_TAB_TITLE,
+  NO_SEARCH_DATA_TEXT,
+} from "@appsmith/constants/messages";
 
 export type PageProps = RouteComponentProps<{
   workspaceId: string;
-}>;
-
-const Loader = styled.div`
-  height: 120px;
-  width: 100%;
-`;
+}> & {
+  searchValue?: string;
+};
 
 const MembersWrapper = styled.div<{
   isMobile?: boolean;
 }>`
   ${(props) => (props.isMobile ? "width: 100%; margin: auto" : null)}
   table {
-    tbody {
+    margin-top: 12px;
+    table-layout: fixed;
+
+    thead {
+      z-index: 1;
       tr {
-        td:first-child {
-          word-break: break-word;
+        border-bottom: 1px solid #e8e8e8;
+        th {
+          font-size: 14px;
+          font-weight: 500;
+          line-height: 1.5;
+          color: var(--appsmith-color-black-700);
+          padding: 8px 20px;
+
+          &:first-child {
+            width: 320px;
+          }
+
+          &:last-child {
+            width: 120px;
+          }
+
+          svg {
+            margin: auto 8px;
+            display: initial;
+          }
         }
       }
     }
-  }
-`;
 
-const ButtonWrapper = styled.div`
-  margin-top: 10px;
-  a {
-    padding: 0 8px;
-  }
-  span:last-child {
-    font-size: 14px;
-  }
-  svg {
-    path {
-      stroke: #ffffff;
-      fill: #ffffff;
+    tbody {
+      tr {
+        td {
+          word-break: break-word;
+
+          &:first-child {
+            text-align: left;
+          }
+
+          .t--deleteUser {
+            justify-content: center;
+          }
+
+          .selected-item {
+            .cs-text {
+              width: auto;
+            }
+          }
+
+          .cs-text {
+            text-align: left;
+          }
+
+          .bp3-overlay {
+            position: relative;
+
+            .bp3-transition-container {
+              transform: none !important;
+              top: 8px !important;
+
+              .bp3-popover-content {
+                > div {
+                  width: 440px;
+                }
+              }
+            }
+          }
+        }
+      }
     }
-  }
-  button {
-    padding: 6px 8px;
   }
 `;
 
@@ -148,14 +193,16 @@ const UserCard = styled(Card)`
   }
 `;
 
-const TableWrapper = styled(Table)`
-  tbody {
-    tr:hover {
-      .t--deleteUser {
-        path {
-          fill: #ff6786;
-        }
-      }
+const EachUser = styled.div`
+  display: flex;
+  align-items: center;
+
+  .user-icons {
+    margin-right 8px;
+    cursor: initial;
+
+    span {
+      color: var(--appsmith-color-black-0);
     }
   }
 `;
@@ -166,21 +213,30 @@ const DeleteIcon = styled(Icon)`
   right: ${(props) => props.theme.spaces[7]}px;
 `;
 
+const NoResultsText = styled.div`
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 24px;
+  color: var(--appsmith-color-black-700);
+`;
+
 export default function MemberSettings(props: PageProps) {
   const {
     match: {
       params: { workspaceId },
     },
+    searchValue = "",
     // deleteWorkspaceUser,
     // changeWorkspaceUserRole,
   } = props;
 
   const dispatch = useDispatch();
+
   useEffect(() => {
     dispatch(fetchUsersForWorkspace(workspaceId));
     dispatch(fetchRolesForWorkspace(workspaceId));
     dispatch(fetchWorkspace(workspaceId));
-  }, [workspaceId]);
+  }, [dispatch, workspaceId]);
 
   const [
     showMemberDeletionConfirmation,
@@ -206,12 +262,12 @@ export default function MemberSettings(props: PageProps) {
     onOpenConfirmationModal();
   };
 
-  const onDeleteMember = () => {
-    if (!userToBeDeleted) return null;
+  const onDeleteMember = (data?: any) => {
+    if (!userToBeDeleted && !data) return null;
     dispatch(
       deleteWorkspaceUser(
-        userToBeDeleted.workspaceId,
-        userToBeDeleted.username,
+        userToBeDeleted?.workspaceId || data?.workspaceId,
+        userToBeDeleted?.username || data?.username,
       ),
     );
   };
@@ -225,9 +281,9 @@ export default function MemberSettings(props: PageProps) {
   const allRoles = useSelector(getAllRoles);
   const allUsers = useSelector(getAllUsers);
   const currentUser = useSelector(getCurrentUser);
-  const currentWorkspace = useSelector(getCurrentWorkspace).filter(
-    (el) => el.id === workspaceId,
-  )[0];
+  // const currentWorkspace = useSelector(getCurrentWorkspace).filter(
+  //   (el) => el.id === workspaceId,
+  // )[0];
 
   useEffect(() => {
     if (!!userToBeDeleted && showMemberDeletionConfirmation) {
@@ -244,54 +300,98 @@ export default function MemberSettings(props: PageProps) {
     }
   }, [allUsers]);
 
-  const userTableData = allUsers.map((user) => ({
-    ...user,
-    isCurrentUser: user.username === currentUser?.username,
-  }));
+  const membersData = useMemo(
+    () =>
+      allUsers.map((user) => ({
+        ...user,
+        isCurrentUser: user.username === currentUser?.username,
+      })),
+    [allUsers, currentUser],
+  );
+
+  const [filteredData, setFilteredData] = useState<WorkspaceUser[]>([]);
+
+  const getFilteredUsers = () =>
+    membersData.filter((member) => {
+      return (
+        member?.username?.toLowerCase().includes(searchValue?.toLowerCase()) ||
+        member?.name?.toLowerCase().includes(searchValue?.toLowerCase())
+      );
+    });
+
+  useEffect(() => {
+    if (searchValue) {
+      const filteredUsers = getFilteredUsers();
+      setFilteredData(filteredUsers);
+    } else {
+      setFilteredData(membersData);
+    }
+  }, [searchValue, membersData]);
 
   const columns = [
     {
-      Header: "Name",
-      accessor: "name",
-    },
-    {
-      Header: "Email",
-      accessor: "username",
+      Header: createMessage(() => MEMBERS_TAB_TITLE(filteredData?.length)),
+      accessor: "users",
+      Cell: function UserCell(props: any) {
+        const member = props.cell.row.original;
+        const isUserGroup = member.hasOwnProperty("users");
+        return (
+          <EachUser>
+            {isUserGroup ? (
+              <>
+                <Icon
+                  className="user-icons"
+                  name="group-line"
+                  size={IconSize.XXL}
+                />
+                <HighlightText highlight={searchValue} text={member.name} />
+              </>
+            ) : (
+              <>
+                <ProfileImage
+                  className="user-icons"
+                  size={20}
+                  source={`/api/v1/users/photo/${member.username}`}
+                  userName={member.username}
+                />
+                <HighlightText highlight={searchValue} text={member.username} />
+              </>
+            )}
+          </EachUser>
+        );
+      },
     },
     {
       Header: "Role",
-      accessor: "roleName",
+      accessor: "permissionGroupName",
       Cell: function DropdownCell(cellProps: any) {
+        const data = cellProps.cell.row.original;
         const allRoles = useSelector(getAllRoles);
         const roles = allRoles
-          ? Object.keys(allRoles).map((role) => {
+          ? allRoles.map((role: any) => {
               return {
-                name: role,
-                desc: allRoles[role],
+                id: role.id,
+                name: role.name,
+                desc: role.description,
               };
             })
           : [];
         const index = roles.findIndex(
-          (role: { name: string; desc: string }) =>
+          (role: { id: string; name: string; desc: string }) =>
             role.name === cellProps.cell.value,
         );
-        if (cellProps.cell.row.values.username === currentUser?.username) {
+        if (data.username === currentUser?.username) {
           return cellProps.cell.value;
         }
         return (
           <TableDropdown
             isLoading={
               roleChangingUserInfo &&
-              roleChangingUserInfo.username ===
-                cellProps.cell.row.values.username
+              roleChangingUserInfo.username === data.username
             }
             onSelect={(option) => {
               dispatch(
-                changeWorkspaceUserRole(
-                  workspaceId,
-                  option.name,
-                  cellProps.cell.row.values.username,
-                ),
+                changeWorkspaceUserRole(workspaceId, option.id, data.username),
               );
             }}
             options={roles}
@@ -302,13 +402,8 @@ export default function MemberSettings(props: PageProps) {
       },
     },
     {
-      Header: "Status",
-      accessor: "status",
-    },
-    {
       Header: "Actions",
-      accessor: "delete",
-      disableSortBy: true,
+      accessor: "actions",
       Cell: function DeleteCell(cellProps: any) {
         return (
           <Icon
@@ -318,13 +413,13 @@ export default function MemberSettings(props: PageProps) {
             hoverFillColor="#FF6786"
             isLoading={
               deletingUserInfo &&
-              deletingUserInfo.username === cellProps.cell.row.values.username
+              deletingUserInfo.username === cellProps.cell.row.original.username
             }
             name="trash-outline"
             onClick={() => {
               onConfirmMemberDeletion(
-                cellProps.cell.row.values.username,
-                cellProps.cell.row.values.username,
+                cellProps.cell.row.original.username,
+                cellProps.cell.row.original.username,
                 workspaceId,
               );
             }}
@@ -334,14 +429,13 @@ export default function MemberSettings(props: PageProps) {
       },
     },
   ];
-  const currentWorkspaceName = currentWorkspace?.name ?? "";
   const isMobile: boolean = useMediaQuery({ maxWidth: 767 });
   const roles = allRoles
-    ? Object.keys(allRoles).map((role) => {
+    ? allRoles.map((role: any) => {
         return {
-          id: role,
-          value: role,
-          label: allRoles[role],
+          id: role.id,
+          value: role.name,
+          label: role.description,
         };
       })
     : [];
@@ -349,110 +443,110 @@ export default function MemberSettings(props: PageProps) {
   const selectRole = (option: any, username: any) => {
     dispatch(changeWorkspaceUserRole(workspaceId, option, username));
   };
+
   return (
-    <MembersWrapper isMobile={isMobile}>
-      <PageSectionHeader>
-        <SettingsHeading type={TextType.H1}>Manage Users</SettingsHeading>
-        <FormDialogComponent
-          Form={WorkspaceInviteUsersForm}
-          canOutsideClickClose
-          title={`Invite Users to ${currentWorkspaceName}`}
-          trigger={
-            <ButtonWrapper>
-              <Button
-                cypressSelector="t--invite-users"
-                icon="plus"
-                size={Size.medium}
-                tag="button"
-                text="Invite Users"
-                variant={Variant.info}
-              />
-            </ButtonWrapper>
-          }
-          workspaceId={workspaceId}
-        />
-      </PageSectionHeader>
-      {isFetchingAllUsers && isFetchingAllRoles ? (
-        <Loader className={Classes.SKELETON} />
-      ) : (
-        <>
-          {!isMobile && <TableWrapper columns={columns} data={userTableData} />}
-          {isMobile && (
-            <UserCardContainer>
-              {allUsers.map((user, index) => {
-                const role =
-                  roles.find((role) => role.value === user.roleName) ||
-                  roles[0];
-                const isOwner = user.username === currentUser?.username;
-                return (
-                  <UserCard key={index}>
-                    <ProfileImage
-                      className="avatar"
-                      size={71}
-                      source={`/api/${USER_PHOTO_URL}/${user.username}`}
-                      userName={user.name || user.username}
-                    />
-                    <Text className="user-name" type={TextType.P1}>
-                      {user.name || user.username}
-                    </Text>
-                    <Text className="user-email" type={TextType.P1}>
-                      {user.username}
-                    </Text>
-                    {isOwner && (
-                      <Text className="user-role" type={TextType.P1}>
-                        {user.roleName}
-                      </Text>
-                    )}
-                    {!isOwner && (
-                      <Dropdown
-                        boundary="viewport"
-                        className="t--user-status"
-                        defaultIcon="downArrow"
-                        height="31px"
-                        onSelect={(value) => {
-                          selectRole(value, user.username);
-                        }}
-                        options={roles}
-                        selected={role}
-                        width="140px"
-                      />
-                    )}
-                    <Button
-                      category={Category.primary}
-                      className="approve-btn"
-                      size={Size.xxs}
-                      text="Approve"
-                    />
-                    <DeleteIcon
-                      className="t--deleteUser"
-                      cypressSelector="t--deleteUser"
-                      fillColor={Colors.DANGER_SOLID}
-                      hoverFillColor={Colors.DANGER_SOLID_HOVER}
-                      name="trash-outline"
-                      onClick={() => {
-                        onConfirmMemberDeletion(
-                          user.username,
-                          user.username,
-                          workspaceId,
-                        );
-                      }}
-                      size={IconSize.LARGE}
-                    />
-                  </UserCard>
-                );
-              })}
-            </UserCardContainer>
-          )}
-          <DeleteConfirmationModal
-            isDeletingUser={isDeletingUser}
-            isOpen={showMemberDeletionConfirmation}
-            name={userToBeDeleted && userToBeDeleted.name}
-            onClose={onCloseConfirmationModal}
-            onConfirm={onDeleteMember}
-            username={userToBeDeleted && userToBeDeleted.username}
+    <MembersWrapper data-testid="t--members-wrapper" isMobile={isMobile}>
+      <>
+        {!isMobile && (
+          <Table
+            columns={columns}
+            data={filteredData}
+            data-testid="listing-table"
+            isLoading={isFetchingAllUsers && isFetchingAllRoles}
+            noDataComponent={
+              <NoResultsText>
+                {createMessage(NO_SEARCH_DATA_TEXT)}
+              </NoResultsText>
+            }
           />
-        </>
-      )}
+        )}
+        {isMobile && (
+          <UserCardContainer>
+            {filteredData.map((member, index) => {
+              const role =
+                roles.find(
+                  (role: any) => role.value === member.permissionGroupName,
+                ) || roles[0];
+              const isOwner = member.username === currentUser?.username;
+              const isUserGroup = member.hasOwnProperty("users");
+              return (
+                <UserCard key={index}>
+                  {isUserGroup ? (
+                    <>
+                      <Icon
+                        className="user-icons"
+                        name="group-line"
+                        size={IconSize.XXL}
+                      />
+                      <HighlightText
+                        highlight={searchValue}
+                        text={member.name}
+                      />
+                    </>
+                  ) : (
+                    <>
+                      <ProfileImage
+                        className="avatar"
+                        size={71}
+                        source={`/api/${USER_PHOTO_URL}/${member.username}`}
+                        userName={member.username}
+                      />
+                      <HighlightText
+                        highlight={searchValue}
+                        text={member.username}
+                      />
+                      <Text className="user-email" type={TextType.P1}>
+                        {member.username}
+                      </Text>
+                    </>
+                  )}
+                  {isOwner && (
+                    <Text className="user-role" type={TextType.P1}>
+                      {member.permissionGroupName}
+                    </Text>
+                  )}
+                  {!isOwner && (
+                    <Dropdown
+                      boundary="viewport"
+                      className="t--user-status"
+                      defaultIcon="downArrow"
+                      height="31px"
+                      onSelect={(value: any, option: any) => {
+                        selectRole(option.id, member.username);
+                      }}
+                      options={roles}
+                      selected={role}
+                    />
+                  )}
+                  <DeleteIcon
+                    className="t--deleteUser"
+                    cypressSelector="t--deleteUser"
+                    fillColor={Colors.DANGER_SOLID}
+                    hoverFillColor={Colors.DANGER_SOLID_HOVER}
+                    name="trash-outline"
+                    onClick={() => {
+                      onConfirmMemberDeletion(
+                        member.username,
+                        member.username,
+                        workspaceId,
+                      );
+                    }}
+                    size={IconSize.LARGE}
+                  />
+                </UserCard>
+              );
+            })}
+          </UserCardContainer>
+        )}
+        <DeleteConfirmationModal
+          isDeletingUser={isDeletingUser}
+          isOpen={showMemberDeletionConfirmation}
+          name={userToBeDeleted && userToBeDeleted.name}
+          onClose={onCloseConfirmationModal}
+          onConfirm={onDeleteMember}
+          username={userToBeDeleted && userToBeDeleted.username}
+        />
+      </>
     </MembersWrapper>
   );
 }

@@ -12,7 +12,7 @@ import CodeEditor, {
 } from "components/editorComponents/CodeEditor";
 import { CodeEditorBorder } from "components/editorComponents/CodeEditor/EditorConfig";
 import { API_EDITOR_FORM_NAME } from "constants/forms";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import { connect } from "react-redux";
 import get from "lodash/get";
 import merge from "lodash/merge";
@@ -36,7 +36,7 @@ import StoreAsDatasource, {
 } from "components/editorComponents/StoreAsDatasource";
 import { urlGroupsRegexExp } from "constants/AppsmithActionConstants/ActionConstants";
 import styled from "styled-components";
-import Icon, { IconSize } from "components/ads/Icon";
+import { Icon, IconSize } from "design-system";
 import { Text, FontWeight, TextType } from "design-system";
 import history from "utils/history";
 import { getDatasourceInfo } from "pages/Editor/APIEditor/ApiRightPane";

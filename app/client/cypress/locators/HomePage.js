@@ -30,11 +30,10 @@ export default {
   WorkspaceSettings: "//span[contains(text(),'Workspace Settings')]",
   MemberSettings: "//span[contains(text(),'Members')]",
   inviteUser: "//span[text()='Invite Users']",
-  inviteUserMembersPage: "[data-cy=t--invite-users]",
+  inviteUserMembersPage: "[data-testid=t--page-header-input]",
   email: "//input[@type='email']",
   selectRole: "//span[text()='Select a role']",
-  adminRole:
-    "//div[contains(@class, 'label-container')]//span[1][text()='Administrator']",
+  adminRole: `//div[contains(@class, 'label-container')]//span[1][text()='Administrator']`,
   viewerRole:
     "//div[contains(@class, 'label-container')]//span[1][text()='App Viewer']",
   developerRole:
@@ -78,7 +77,7 @@ export default {
   renameWorkspaceInput: "[data-cy=t--workspace-rename-input]",
   workspaceEmailInput: "[data-cy=t--workspace-email-input]",
   workspaceWebsiteInput: "[data-cy=t--workspace-website-input]",
-  workspaceHeaderName: ".t--workspace-header",
+  workspaceHeaderName: "[data-testid='t--page-title']",
   leftPanelContainer: "[data-cy=t--left-panel]",
   themeText: "label div",
   shareUserIcons: ".workspace-share-user-icons",
