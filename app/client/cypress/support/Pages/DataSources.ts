@@ -469,6 +469,7 @@ export class DataSources {
       this.agHelper.UpdateCodeInput($field, query);
     });
     this.agHelper.AssertAutoSave();
+    this.agHelper.Sleep(500);//waiting a bit before proceeding!
   }
 
   public RunQueryNVerifyResponseViews(
