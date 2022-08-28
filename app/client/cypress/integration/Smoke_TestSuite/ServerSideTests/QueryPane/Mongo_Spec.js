@@ -27,7 +27,6 @@ describe("Create a query with a mongo datasource, run, save and then delete the 
   it("1. Creates a new Mongo datasource", function() {
     cy.NavigateToDatasourceEditor();
     cy.get(datasource.MongoDB).click();
-    cy.getPluginFormsAndCreateDatasource();
     cy.fillMongoDatasourceForm();
     cy.generateUUID().then((uid) => {
       datasourceName = `Mongo CRUD ds ${uid}`;
