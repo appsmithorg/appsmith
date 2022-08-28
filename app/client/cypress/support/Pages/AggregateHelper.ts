@@ -432,6 +432,7 @@ export class AggregateHelper {
       : cy.get(selector);
     return locator
       .eq(index)
+      .scrollIntoView()
       .click({ force: force })
       .wait(waitTimeInterval);
   }
