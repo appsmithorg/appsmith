@@ -120,7 +120,7 @@ describe("Validate API request body panel", () => {
     );
 
     ee.SelectEntityByName("FilePicker1", "WIDGETS");
-    jsEditor.EnterJSContext(
+    propPane.EnterJSContext(
       "onFilesSelected",
       `{{JSObject1.upload()}}`
     );

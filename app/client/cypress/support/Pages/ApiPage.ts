@@ -95,13 +95,13 @@ export class ApiPage {
       directInput: true,
       inputFieldName: "",
     });
-    cy.get("body").type("{esc}");
+    this.agHelper.PressEscape();
     this.agHelper.EnterValue(hValue, {
       propFieldName: this._headerValue(0),
       directInput: true,
       inputFieldName: "",
     });
-    cy.get("body").type("{esc}");
+    this.agHelper.PressEscape();
     this.agHelper.AssertAutoSave();
   }
 
@@ -112,13 +112,13 @@ export class ApiPage {
       directInput: true,
       inputFieldName: "",
     });
-    cy.get("body").type("{esc}");
+    this.agHelper.PressEscape();
     this.agHelper.EnterValue(pValue, {
       propFieldName: this._paramValue(0),
       directInput: true,
       inputFieldName: "",
     });
-    cy.get("body").type("{esc}");
+    this.agHelper.PressEscape();
     this.agHelper.AssertAutoSave();
   }
 
@@ -140,7 +140,7 @@ export class ApiPage {
       directInput: true,
       inputFieldName: "",
     });
-    cy.get("body").type("{esc}");
+    this.agHelper.PressEscape();
 
     if (type) {
       cy.xpath(this._bodyTypeDropdown)
@@ -153,7 +153,7 @@ export class ApiPage {
       directInput: true,
       inputFieldName: "",
     });
-    cy.get("body").type("{esc}");
+    this.agHelper.PressEscape();
     this.agHelper.AssertAutoSave();
   }
 
@@ -205,6 +205,7 @@ export class ApiPage {
       | "Authentication"
       | "Settings",
   ) {
+    this.agHelper.PressEscape();
     this.agHelper.GetNClick(this._visibleTextSpan(tabName));
   }
 

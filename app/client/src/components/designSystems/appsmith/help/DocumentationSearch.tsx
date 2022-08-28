@@ -25,8 +25,17 @@ import moment from "moment";
 import { getCurrentUser } from "selectors/usersSelectors";
 import { User } from "constants/userConstants";
 import { Colors } from "constants/Colors";
+import {
+  createMessage,
+  APPSMITH_DISPLAY_VERSION,
+} from "@appsmith/constants/messages";
 
-const { algolia, appVersion, intercomAppID } = getAppsmithConfigs();
+const {
+  algolia,
+  appVersion,
+  cloudHosting,
+  intercomAppID,
+} = getAppsmithConfigs();
 const searchClient = algoliasearch(algolia.apiId, algolia.apiKey);
 
 const OenLinkIcon = HelpIcons.OPEN_LINK;
@@ -417,7 +426,14 @@ class DocumentationSearch extends React.Component<Props, State> {
             </HelpBody>
             {appVersion.id && (
               <HelpFooter>
-                <span>Appsmith {appVersion.id}</span>
+                <span>
+                  {createMessage(
+                    APPSMITH_DISPLAY_VERSION,
+                    appVersion.edition,
+                    appVersion.id,
+                    cloudHosting,
+                  )}
+                </span>
                 <span>Released {moment(appVersion.releaseDate).fromNow()}</span>
               </HelpFooter>
             )}

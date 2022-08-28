@@ -29,6 +29,7 @@ export class DataSources {
   private _testDs = ".t--test-datasource";
   private _saveDs = ".t--save-datasource";
   private _datasourceCard = ".t--datasource";
+  _activeDS = "[data-testid='active-datasource-name']";
   _templateMenu = ".t--template-menu";
   _templateMenuOption = (action: string) =>
     "//div[contains(@class, 't--template-menu')]//div[text()='" + action + "']";
@@ -358,7 +359,8 @@ export class DataSources {
   }
 
   public CreateQuery(datasourceName: string) {
-    cy.get(this._datasourceCard)
+    cy.get(this._datasourceCard, { withinSubject: null })
+      .find(this._activeDS)
       .contains(datasourceName)
       .scrollIntoView()
       .should("be.visible")
