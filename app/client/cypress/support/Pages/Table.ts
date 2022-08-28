@@ -137,7 +137,7 @@ export class Table {
       () => this.agHelper.GetElement(this._tableRowColumnData(rowNum, colNum), 30000),
       {
         errorMsg: "Table is not populated",
-        timeout: 20000,
+        timeout: 30000,
         interval: 2000,
       },
     ).then($cellVal => cy.wrap($cellVal).invoke("text"));
