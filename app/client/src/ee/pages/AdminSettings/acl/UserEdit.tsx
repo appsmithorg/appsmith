@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useHistory, useParams } from "react-router";
+import { useHistory } from "react-router";
 import styled from "styled-components";
 import { Position } from "@blueprintjs/core";
 import debounce from "lodash/debounce";
@@ -14,19 +14,16 @@ import {
   StyledSearchInput,
   SaveButtonBar,
 } from "./components";
-import { useDispatch } from "react-redux";
-import { getUserById } from "@appsmith/actions/aclActions";
 import {
   ARE_YOU_SURE,
   createMessage,
   DELETE_USER,
   SUCCESSFULLY_SAVED,
 } from "@appsmith/constants/messages";
-import { BackButton } from "pages/Settings/components";
+import { BackButton } from "components/utils/helperComponents";
 
 type UserProps = {
   isChangingRole: boolean;
-  isCurrentUser: boolean;
   isDeleting: boolean;
   name: string;
   allGroups: Array<string>;
@@ -40,7 +37,6 @@ type UserEditProps = {
   selectedUser: UserProps;
   onDelete: (userId: string) => void;
   searchPlaceholder: string;
-  selectedUserId?: string;
 };
 
 const Header = styled.div`
@@ -121,18 +117,10 @@ export function UserEdit(props: UserEditProps) {
   const [isSaving, setIsSaving] = useState(false);
   const { searchPlaceholder, selectedUser } = props;
 
-  const params = useParams() as any;
-  const selectedUserId = props.selectedUserId ?? params?.selected;
-
-  const dispatch = useDispatch();
-  useEffect(() => {
-    props.selectedUserId && dispatch(getUserById({ id: selectedUserId }));
-  }, []);
-
   useEffect(() => {
     setUserGroups(selectedUser.allGroups);
     setPermissionGroups(selectedUser.allRoles);
-  }, []);
+  }, [selectedUser]);
 
   useEffect(() => {
     setIsSaving(
@@ -183,6 +171,7 @@ export function UserEdit(props: UserEditProps) {
     {
       key: "groups",
       title: "Groups",
+      count: userGroups.length,
       panelComponent: (
         <ActiveAllGroupsList
           activeGroups={userGroups}
@@ -197,6 +186,7 @@ export function UserEdit(props: UserEditProps) {
     {
       key: "roles",
       title: "Roles",
+      count: permissionGroups.length,
       panelComponent: (
         <ActiveAllGroupsList
           activeGroups={permissionGroups}
@@ -209,7 +199,7 @@ export function UserEdit(props: UserEditProps) {
     },
   ];
 
-  const onDeleteHanlder = () => {
+  const onDeleteHandler = () => {
     if (showConfirmationText) {
       props.onDelete(selectedUser.userId);
       history.push(`/settings/users`);
@@ -224,29 +214,38 @@ export function UserEdit(props: UserEditProps) {
       className: "delete-menu-item",
       icon: "delete-blank",
       onSelect: () => {
-        onDeleteHanlder();
+        onDeleteHandler();
       },
       text: createMessage(DELETE_USER),
     },
   ];
 
   const handleSearch = debounce((search: string) => {
+    let groupResults: string[] = [];
+    let permissionResults: string[];
     if (search && search.trim().length > 0) {
       setSearchValue(search);
-      const results =
+      groupResults =
         selectedUser.allGroups &&
         selectedUser.allGroups.filter((group) =>
           group?.toLocaleUpperCase().includes(search.toLocaleUpperCase()),
         );
-      setUserGroups(results);
+      setUserGroups(groupResults);
+      permissionResults =
+        selectedUser.allRoles &&
+        selectedUser.allRoles.filter((permission) =>
+          permission?.toLocaleUpperCase().includes(search.toLocaleUpperCase()),
+        );
+      setPermissionGroups(permissionResults);
     } else {
       setSearchValue("");
       setUserGroups(selectedUser.allGroups);
+      setPermissionGroups(selectedUser.allRoles);
     }
   }, 300);
 
   return (
-    <div data-testid="t--user-edit-wrapper">
+    <div className="scrollable-wrapper" data-testid="t--user-edit-wrapper">
       <BackButton />
       <Header>
         <User data-testid="t--user-edit-userInfo">
@@ -325,3 +324,5 @@ export function UserEdit(props: UserEditProps) {
     </div>
   );
 }
+
+export default UserEdit;

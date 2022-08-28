@@ -1,9 +1,9 @@
-import { FetchSingleUserPayload } from "@appsmith/api/AclApi";
+import { FetchSingleDataPayload } from "@appsmith/api/AclApi";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { RoleProps } from "@appsmith/pages/AdminSettings/acl/RoleAddEdit";
 import { UserGroup } from "@appsmith/pages/AdminSettings/acl/GroupsListing";
 
-export const getUserById = (payload: FetchSingleUserPayload) => ({
+export const getUserById = (payload: FetchSingleDataPayload) => ({
   type: ReduxActionTypes.FETCH_ACL_USER_BY_ID,
   payload,
 });
@@ -13,7 +13,7 @@ export const deleteAclUser = (id: string) => ({
   payload: id,
 });
 
-export const getGroupById = (payload: any) => ({
+export const getGroupById = (payload: FetchSingleDataPayload) => ({
   type: ReduxActionTypes.FETCH_ACL_GROUP_BY_ID,
   payload,
 });
@@ -28,7 +28,7 @@ export const cloneGroup = (payload: UserGroup) => ({
   payload,
 });
 
-export const getRoleById = (payload: any) => ({
+export const getRoleById = (payload: FetchSingleDataPayload) => ({
   type: ReduxActionTypes.FETCH_ACL_ROLE_BY_ID,
   payload,
 });

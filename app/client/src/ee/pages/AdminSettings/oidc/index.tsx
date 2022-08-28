@@ -39,8 +39,9 @@ import {
   SettingsHeader,
   SettingsSubHeader,
   SettingsFormWrapper,
-  BackButton,
+  MaxWidthWrapper,
 } from "pages/Settings/components";
+import { BackButton } from "components/utils/helperComponents";
 
 type FormProps = {
   settings: Record<string, string>;
@@ -231,36 +232,38 @@ export function OidcSettingsForm(
     <Wrapper>
       {subCategory && <BackButton />}
       <SettingsFormWrapper>
-        <HeaderWrapper>
-          <SettingsHeader>{pageTitle}</SettingsHeader>
-          {details?.subText && (
-            <SettingsSubHeader>{details.subText}</SettingsSubHeader>
+        <MaxWidthWrapper>
+          <HeaderWrapper>
+            <SettingsHeader>{pageTitle}</SettingsHeader>
+            {details?.subText && (
+              <SettingsSubHeader>{details.subText}</SettingsSubHeader>
+            )}
+          </HeaderWrapper>
+          <Group
+            category={category}
+            settings={settingsDetails}
+            subCategory={subCategory}
+          />
+          {isSavable && (
+            <SaveAdminSettings
+              isSaving={props.isSaving}
+              onClear={onClear}
+              onSave={onSave}
+              settings={props.settings}
+              valid={props.valid}
+            />
           )}
-        </HeaderWrapper>
-        <Group
-          category={category}
-          settings={settingsDetails}
-          subCategory={subCategory}
-        />
-        {isSavable && (
-          <SaveAdminSettings
-            isSaving={props.isSaving}
-            onClear={onClear}
-            onSave={onSave}
-            settings={props.settings}
-            valid={props.valid}
-          />
-        )}
-        {details?.isConnected && (
-          <DisconnectService
-            disconnect={() => disconnect(settingsDetails)}
-            subHeader={createMessage(DISCONNECT_SERVICE_SUBHEADER)}
-            warning={`${pageTitle} ${createMessage(
-              DISCONNECT_SERVICE_WARNING,
-            )}`}
-          />
-        )}
-        <BottomSpace />
+          {details?.isConnected && (
+            <DisconnectService
+              disconnect={() => disconnect(settingsDetails)}
+              subHeader={createMessage(DISCONNECT_SERVICE_SUBHEADER)}
+              warning={`${pageTitle} ${createMessage(
+                DISCONNECT_SERVICE_WARNING,
+              )}`}
+            />
+          )}
+          <BottomSpace />
+        </MaxWidthWrapper>
       </SettingsFormWrapper>
       <RestartBanner />
     </Wrapper>

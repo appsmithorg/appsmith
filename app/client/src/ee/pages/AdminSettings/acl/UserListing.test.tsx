@@ -1,10 +1,11 @@
 import React from "react";
 import "@testing-library/jest-dom";
 import { render, screen } from "test/testUtils";
-import { allUsers, UserListing } from "./UserListing";
-import { columns } from "./mocks/UserListingMock";
+import UserListing from "./UserListing";
+import { allUsers, columns } from "./mocks/UserListingMock";
 import userEvent from "@testing-library/user-event";
-import * as reactRedux from "react-redux";
+import configureStore from "redux-mock-store";
+import { Provider } from "react-redux";
 
 let container: any = null;
 const onSelectFn = jest.fn();
@@ -18,42 +19,44 @@ const userListingProps = {
       className: "edit-menu-item",
       icon: "edit-underline",
       onSelect: onSelectFn,
-      text: "Edit Groups",
+      text: "Edit",
     },
     {
       label: "delete",
       className: "delete-menu-item",
       icon: "delete-blank",
       onSelect: onSelectFn,
-      text: "Delete User",
+      text: "Delete",
     },
   ],
   keyAccessor: "userId",
 };
 
 function renderComponent() {
-  return render(<UserListing />, {
-    initialState: {
-      acl: {
-        roles: [],
-        users: allUsers,
-        groups: [],
-        isLoading: false,
-        isSaving: false,
-        selectedGroup: null,
-        selectedUser: null,
-        selectedRole: null,
-      },
+  // Mock store to bypass the error of react-redux
+  const store = configureStore()({
+    acl: {
+      roles: [],
+      users: allUsers,
+      groups: [],
+      isLoading: false,
+      isSaving: false,
+      selectedGroup: null,
+      selectedUser: null,
+      selectedRole: null,
     },
   });
+  return render(
+    <Provider store={store}>
+      <UserListing />
+    </Provider>,
+  );
 }
 
 describe("<UserListing />", () => {
-  const useDispatchMock = jest.spyOn(reactRedux, "useDispatch");
   beforeEach(() => {
     container = document.createElement("div");
     document.body.appendChild(container);
-    useDispatchMock.mockReturnValue(jest.fn());
   });
   it("is rendered", async () => {
     renderComponent();
@@ -116,7 +119,7 @@ describe("<UserListing />", () => {
     const moreMenu = getAllByTestId("actions-cell-menu-icon");
     await userEvent.click(moreMenu[0]);
     const deleteOption = document.getElementsByClassName("delete-menu-item");
-    expect(deleteOption[0]).toHaveTextContent("Delete User");
+    expect(deleteOption[0]).toHaveTextContent("Delete");
     expect(deleteOption[0]).not.toHaveTextContent("Are you sure?");
     await userEvent.click(deleteOption[0]);
     const confirmText = document.getElementsByClassName("delete-menu-item");

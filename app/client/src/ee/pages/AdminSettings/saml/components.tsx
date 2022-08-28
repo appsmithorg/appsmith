@@ -32,6 +32,14 @@ export const Info = styled.h3`
 
 export const MenuContainer = styled.div`
   margin-top: 8px;
+
+  .react-tabs__tab-list {
+    position: static;
+  }
+
+  .react-tabs__tab-panel {
+    padding: 0;
+  }
 `;
 
 export const BodyContainer = styled.div`

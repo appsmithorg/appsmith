@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import styled from "styled-components";
-import { Menu, Table } from "components/ads";
 import { Icon, IconSize, MenuItem, MenuItemProps } from "design-system";
+import { Menu, Table } from "components/ads";
 import { Position } from "@blueprintjs/core";
 import { HelpPopoverStyle, Loader } from "./components";
 import { ARE_YOU_SURE, createMessage } from "@appsmith/constants/messages";
@@ -16,9 +16,12 @@ type ListingProps = {
 };
 
 const ListingWrapper = styled.div`
+  height: calc(100vh - ${(props) => props.theme.homePage.header}px);
+  overflow: auto;
   table {
-    table-layout: fixed;
+    border-collapse: separate;
     thead {
+      background: var(--appsmith-color-black-0);
       tr {
         background: none;
         th {
@@ -29,8 +32,7 @@ const ListingWrapper = styled.div`
           line-height: 24px;
           letter-spacing: -0.24px;
           cursor: initial;
-          border-bottom: 1px solid var(--appsmith-color-black-200);
-          padding: 40px 20px 8px;
+          padding: 32px 20px 8px;
 
           &:hover {
             color: var(--appsmith-color-black-700);

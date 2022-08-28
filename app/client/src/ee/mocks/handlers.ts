@@ -29,12 +29,38 @@ export const handlers = [
   rest.get("/mockGroups", (req, res, ctx) => {
     return res(ctx.status(200), ctx.delay(500), ctx.json(mockAclUserGroups));
   }),
+  rest.get("/mockGroups/:groupId", async (req, res, ctx) => {
+    const { groupId } = await req.params;
+    if (groupId) {
+      const group = mockAclUserGroups.data.find(
+        (group: any) => group?.id === groupId,
+      );
+      return res(
+        ctx.status(200),
+        ctx.delay(500),
+        ctx.json({ responseMeta: { status: 200, success: true }, data: group }),
+      );
+    }
+  }),
   rest.get("/mockRoles", (req, res, ctx) => {
     return res(
       ctx.status(200),
       ctx.delay(500),
       ctx.json(mockAclPermissionGroups),
     );
+  }),
+  rest.get("/mockRoles/:roleId", async (req, res, ctx) => {
+    const { roleId } = await req.params;
+    if (roleId) {
+      const role = mockAclPermissionGroups.data.find(
+        (role: any) => role?.id === roleId,
+      );
+      return res(
+        ctx.status(200),
+        ctx.delay(500),
+        ctx.json({ responseMeta: { status: 200, success: true }, data: role }),
+      );
+    }
   }),
   ...CEHandlers,
 ];

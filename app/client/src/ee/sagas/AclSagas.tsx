@@ -1,4 +1,4 @@
-import AclApi, { FetchSingleUserPayload } from "@appsmith/api/AclApi";
+import AclApi, { FetchSingleDataPayload } from "@appsmith/api/AclApi";
 import {
   ReduxAction,
   ReduxActionTypes,
@@ -55,7 +55,7 @@ export function* deleteAclUserSaga(action: ReduxAction<any>) {
 }
 
 export function* fetchAclUserSagaById(
-  action: ReduxAction<FetchSingleUserPayload>,
+  action: ReduxAction<FetchSingleDataPayload>,
 ) {
   try {
     const response: ApiResponse = yield AclApi.fetchSingleAclUser(
@@ -104,13 +104,12 @@ export function* fetchAclGroupsSaga() {
 }
 
 export function* fetchAclGroupSagaById(
-  action: ReduxAction<FetchSingleUserPayload>,
+  action: ReduxAction<FetchSingleDataPayload>,
 ) {
   try {
     const response: ApiResponse = yield AclApi.fetchSingleAclGroup(
       action.payload,
     );
-
     const isValidResponse: boolean = yield validateResponse(response);
 
     if (isValidResponse) {
@@ -199,7 +198,7 @@ export function* fetchAclRolesSaga() {
 }
 
 export function* fetchAclRoleSagaById(
-  action: ReduxAction<FetchSingleUserPayload>,
+  action: ReduxAction<FetchSingleDataPayload>,
 ) {
   try {
     const response: ApiResponse = yield AclApi.fetchSingleRole(action.payload);

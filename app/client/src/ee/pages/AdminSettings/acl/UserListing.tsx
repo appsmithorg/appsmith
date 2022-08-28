@@ -1,33 +1,32 @@
 import React, { useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { connect } from "react-redux";
 import { Link, useHistory, useParams } from "react-router-dom";
 import styled from "styled-components";
 import debounce from "lodash/debounce";
-import { getCurrentUser } from "selectors/usersSelectors";
 // import { OrgUser } from "constants/orgConstants";
 // import { getAllUsers } from "selectors/organizationSelectors";
 // import { fetchUsersForOrg, fetchRolesForOrg } from "actions/orgActions";
 import { Listing } from "./Listing";
 import ProfileImage from "pages/common/ProfileImage";
 import { Toaster, Variant } from "components/ads";
-import { MenuItemProps } from "design-system";
+import { HighlightText, MenuItemProps } from "design-system";
 import { PageHeader } from "./PageHeader";
 import { BottomSpace } from "pages/Settings/components";
-import { HighlightText } from "./helpers/HighlightText";
 import { UserEdit } from "./UserEdit";
 import { AclWrapper } from "./components";
 import FormDialogComponent from "components/editorComponents/form/FormDialogComponent";
 import WorkspaceInviteUsersForm from "pages/workspace/WorkspaceInviteUsersForm";
 import { adminSettingsCategoryUrl } from "RouteBuilder";
 import { SettingCategories } from "@appsmith/pages/AdminSettings/config/types";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { deleteAclUser, getUserById } from "@appsmith/actions/aclActions";
-import { getAllAclUsers } from "@appsmith/selectors/aclSelectors";
 import {
   createMessage,
+  DELETE_USER,
   SHOW_LESS_GROUPS,
   SHOW_MORE_GROUPS,
 } from "@appsmith/constants/messages";
+import { AppState } from "@appsmith/reducers";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 
 export const CellContainer = styled.div`
   display: flex;
@@ -83,7 +82,6 @@ export const ShowLess = styled.div`
 `;
 
 export type User = {
-  isCurrentUser: boolean;
   allGroups: Array<string>;
   allRoles: Array<string>;
   userId: string;
@@ -94,72 +92,45 @@ export type User = {
   isChangingRole: boolean;
 };
 
-export const allUsers: User[] = [
-  {
-    isChangingRole: false,
-    isCurrentUser: true,
-    isDeleting: false,
-    name: "Ankita Kinger",
-    // roleName: "Administrator + 2 more",
-    allGroups: ["Administrator", "Test_Admin", "HR_Admin"],
-    allRoles: ["Administrator-PG", "Test_Admin-PG", "HR_Admin-PG"],
-    username: "techak@appsmith.com",
-    userId: "123",
-  },
-  {
-    isChangingRole: false,
-    isCurrentUser: false,
-    isDeleting: false,
-    name: "Sangy Sivan",
-    // roleName: "App Viewer + 1 more",
-    allGroups: ["App Viewer", "HR_Admin"],
-    allRoles: ["App Viewer-PG", "HR_Admin-PG"],
-    username: "sangy@appsmith.com",
-    userId: "456",
-  },
-  {
-    isChangingRole: false,
-    isCurrentUser: false,
-    isDeleting: false,
-    name: "SS Sivan",
-    // roleName: "App Viewer + 1 more",
-    allGroups: ["App Viewer", "HR_Admin"],
-    allRoles: ["App Viewer-PG", "HR_Admin-PG"],
-    username: "sangy123@appsmith.com",
-    userId: "789",
-  },
-];
+export type UserListingProps = {
+  deleteAclUser: (id: string) => void;
+  getAllAclUsers: () => void;
+  getUserById: (id: string) => void;
+  users: User[];
+  selectedUser: User;
+};
 
-export function UserListing() {
-  const dispatch = useDispatch();
-
-  useEffect(() => {
-    dispatch({ type: ReduxActionTypes.FETCH_ACL_USERS });
-  }, []);
-
-  const aclUsers = useSelector(getAllAclUsers);
-  const currentUser = useSelector(getCurrentUser);
+export function UserListing(props: UserListingProps) {
   const history = useHistory();
-  const params = useParams() as any;
-  const selectedUserId = params?.selected;
-  const selectedUser = allUsers.find((user) => user.userId === selectedUserId);
-
-  const userTableData = allUsers.map((user) => ({
-    ...user,
-    isCurrentUser: user.username === currentUser?.username,
-  }));
 
   const [data, setData] = useState<User[]>([]);
   const [searchValue, setSearchValue] = useState("");
   const [showModal, setShowModal] = useState(false);
-  const [selectedUserIdProp, setSelectedUserIdProp] = useState("");
+
+  const params = useParams() as any;
+  const {
+    deleteAclUser,
+    getAllAclUsers,
+    getUserById,
+    selectedUser,
+    users: aclUsers,
+  } = props;
+  const selectedUserId = params?.selected;
 
   useEffect(() => {
-    setData(aclUsers);
-  }, [aclUsers]);
+    getAllAclUsers();
+  }, []);
 
-  const onDeleteHanlder = (userId: string) => {
-    dispatch(deleteAclUser(userId));
+  useEffect(() => {
+    if (selectedUserId) {
+      getUserById(selectedUserId);
+    } else {
+      setData(aclUsers);
+    }
+  }, [aclUsers, selectedUserId]);
+
+  const onDeleteHandler = (userId: string) => {
+    deleteAclUser(userId);
     const updatedData = data.filter((user) => {
       return user.userId !== userId;
     });
@@ -170,11 +141,6 @@ export function UserListing() {
     });
   };
 
-  const onSelectUser = (userId: string) => {
-    setSelectedUserIdProp(userId);
-    userId && dispatch(getUserById({ id: userId }));
-  };
-
   const columns = [
     {
       Header: `User (${data.length})`,
@@ -183,7 +149,6 @@ export function UserListing() {
         return (
           <Link
             data-testid="acl-user-listing-link"
-            onClick={() => onSelectUser(cellProps.cell.row.original.userId)}
             to={adminSettingsCategoryUrl({
               category: SettingCategories.USER_LISTING,
               selected: cellProps.cell.row.original.userId,
@@ -328,20 +293,19 @@ export function UserListing() {
       icon: "edit-underline",
       onSelect: (e: React.MouseEvent, userId: string) => {
         if (userId) {
-          setSelectedUserIdProp(userId);
           history.push(`/settings/users/${userId}`);
         }
       },
-      text: "Edit Groups",
+      text: "Edit",
     },
     {
       label: "delete",
       className: "delete-menu-item",
       icon: "delete-blank",
       onSelect: (e: React.MouseEvent, key: string) => {
-        onDeleteHanlder(key);
+        onDeleteHandler(key);
       },
-      text: "Delete User",
+      text: createMessage(DELETE_USER),
     },
   ];
 
@@ -364,26 +328,25 @@ export function UserListing() {
     if (search && search.trim().length > 0) {
       setSearchValue(search);
       const results =
-        userTableData &&
-        userTableData.filter((user) =>
+        aclUsers &&
+        aclUsers.filter((user: any) =>
           user.username?.toLocaleUpperCase().includes(search),
         );
       setData(results);
     } else {
       setSearchValue("");
-      setData(userTableData);
+      setData(aclUsers);
     }
   }, 300);
 
   return (
     <AclWrapper data-testid="user-listing-wrapper">
-      {selectedUser ? (
+      {selectedUserId && selectedUser ? (
         <UserEdit
           data-testid="acl-user-edit"
-          onDelete={onDeleteHanlder}
-          searchPlaceholder="Search users"
+          onDelete={onDeleteHandler}
+          searchPlaceholder="Search"
           selectedUser={selectedUser}
-          selectedUserId={selectedUserIdProp}
         />
       ) : (
         <>
@@ -424,3 +387,18 @@ export function UserListing() {
     </AclWrapper>
   );
 }
+
+const mapStateToProps = (state: AppState) => {
+  return {
+    users: state.acl.users,
+    selectedUser: state.acl.selectedUser,
+  };
+};
+
+const mapDispatchToProps = (dispatch: any) => ({
+  deleteAclUser: (id: string) => dispatch(deleteAclUser(id)),
+  getAllAclUsers: () => dispatch({ type: ReduxActionTypes.FETCH_ACL_USERS }),
+  getUserById: (id: string) => dispatch(getUserById({ id })),
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(UserListing);

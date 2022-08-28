@@ -8,16 +8,19 @@ import { Toaster, Variant } from "components/ads";
 import { MenuItemProps } from "design-system";
 import { PageHeader } from "./PageHeader";
 import { BottomSpace } from "pages/Settings/components";
-import { HighlightText } from "./helpers/HighlightText";
+import { HighlightText } from "design-system";
 import { AclWrapper, AppsmithIcon } from "./components";
 import uniqueId from "lodash/uniqueId";
 import { adminSettingsCategoryUrl } from "RouteBuilder";
 import { SettingCategories } from "@appsmith/pages/AdminSettings/config/types";
 import { RoleAddEdit } from "./RoleAddEdit";
-import { useDispatch, useSelector } from "react-redux";
+import { connect } from "react-redux";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import { cloneRole, deleteRole } from "@appsmith/actions/aclActions";
-import { getRoles } from "@appsmith/selectors/aclSelectors";
+import {
+  cloneRole,
+  deleteRole,
+  getRoleById,
+} from "@appsmith/actions/aclActions";
 import {
   ADD_ROLE,
   CLONE_ROLE,
@@ -29,6 +32,7 @@ import {
   GROUP_DELETED,
   SEARCH_ROLES_PLACEHOLDER,
 } from "@appsmith/constants/messages";
+import { AppState } from "@appsmith/reducers";
 
 const CellContainer = styled.div`
   display: flex;
@@ -45,92 +49,45 @@ type RoleProps = {
   isNew?: boolean;
 };
 
-export const rolesTableData: RoleProps[] = [
-  {
-    id: "1",
-    isEditing: false,
-    isDeleting: false,
-    permissionName: "HR_Appsmith",
-    isAppsmithProvided: false,
-    isNew: false,
-  },
-  {
-    id: "2",
-    isEditing: false,
-    isDeleting: false,
-    permissionName: "devops_design",
-    isAppsmithProvided: false,
-    isNew: false,
-  },
-  {
-    id: "3",
-    isEditing: false,
-    isDeleting: false,
-    permissionName: "devops_eng_nov",
-    isAppsmithProvided: false,
-    isNew: false,
-  },
-  {
-    id: "4",
-    isEditing: false,
-    isDeleting: false,
-    permissionName: "marketing_nov",
-    isAppsmithProvided: false,
-    isNew: false,
-  },
-  {
-    id: "5",
-    isEditing: false,
-    isDeleting: false,
-    permissionName: "Administrator",
-    isAppsmithProvided: true,
-    isNew: false,
-  },
-  {
-    id: "6",
-    isEditing: false,
-    isDeleting: false,
-    permissionName: "App Viewer",
-    isAppsmithProvided: true,
-    isNew: false,
-  },
-];
+export type RolesListingProps = {
+  cloneRole: (role: RoleProps) => void;
+  deleteRole: (id: string) => void;
+  getAllRoles: () => void;
+  getRoleById: (id: string) => void;
+  roles: RoleProps[];
+  selectedRole: RoleProps;
+};
 
-export function RolesListing() {
+export function RolesListing(props: RolesListingProps) {
   const [data, setData] = useState<RoleProps[]>([]);
   const [searchValue, setSearchValue] = useState("");
-  const params = useParams() as any;
-  const selectedPermGrpId = params?.selected;
-
   const [isNewGroup, setIsNewGroup] = useState(false);
-
-  const history = useHistory();
-  const dispatch = useDispatch();
-  const roles = useSelector(getRoles);
-  const selPermissionGroup = roles.find(
-    (group) => group.id === selectedPermGrpId,
-  );
-
   const [selectedPermissionGroup, setSelectedPermissionGroup] = useState<any>(
     null,
   );
+  const params = useParams() as any;
+  const history = useHistory();
+
+  const selectedPermGrpId = params?.selected;
+  const {
+    cloneRole,
+    deleteRole,
+    getAllRoles,
+    getRoleById,
+    roles,
+    selectedRole,
+  } = props;
 
   useEffect(() => {
-    if (selPermissionGroup) {
-      setSelectedPermissionGroup(selPermissionGroup);
-    }
-  }, [selPermissionGroup]);
+    getAllRoles();
+  }, []);
 
   useEffect(() => {
-    dispatch({ type: ReduxActionTypes.FETCH_ACL_ROLE });
-  }, [rolesTableData]);
+    setSelectedPermissionGroup(selectedRole);
+  }, [selectedRole]);
 
   useEffect(() => {
-    setData(roles);
-  }, [roles]);
-
-  useEffect(() => {
-    if (isNewGroup && params.selected) {
+    if (isNewGroup && selectedPermGrpId) {
       setSelectedPermissionGroup({
         id: "10102",
         isEditing: false,
@@ -139,20 +96,20 @@ export function RolesListing() {
         isAppsmithProvided: false,
         isNew: true,
       });
+    } else if (selectedPermGrpId) {
+      getRoleById(selectedPermGrpId);
+      setIsNewGroup(false);
     } else {
-      const selPermissionGroup = roles.find(
-        (group) => group.id === selectedPermGrpId,
-      );
-      setSelectedPermissionGroup(selPermissionGroup);
+      setData(roles);
       setIsNewGroup(false);
     }
-  }, [params]);
+  }, [roles, selectedPermGrpId]);
 
   const onDeleteHandler = (id: string) => {
+    deleteRole(id);
     const updatedData = data.filter((role) => {
       return role.id !== id;
     });
-    dispatch(deleteRole(id));
     setData(updatedData);
     Toaster.show({
       text: createMessage(GROUP_DELETED),
@@ -161,15 +118,14 @@ export function RolesListing() {
   };
 
   const onCloneHandler = (role: RoleProps) => {
+    cloneRole(role);
     const clonedData = {
       ...role,
       id: uniqueId("pg"),
       permissionName: createMessage(COPY_OF_GROUP, role.permissionName),
       isAppsmithProvided: false,
     };
-    dispatch(cloneRole(role));
-    rolesTableData.push(clonedData);
-    setData([...rolesTableData]);
+    setData([...data, clonedData]);
     Toaster.show({
       text: createMessage(GROUP_CLONED),
       variant: Variant.success,
@@ -256,20 +212,20 @@ export function RolesListing() {
     if (search && search.trim().length > 0) {
       setSearchValue(search);
       const results =
-        rolesTableData &&
-        rolesTableData.filter((role) =>
+        roles &&
+        roles.filter((role) =>
           role.permissionName?.toLocaleUpperCase().includes(search),
         );
       setData(results);
     } else {
       setSearchValue("");
-      setData(rolesTableData);
+      setData(roles);
     }
   }, 300);
 
   return (
     <AclWrapper data-testid="t--roles-listing-wrapper">
-      {selectedPermissionGroup ? (
+      {selectedPermGrpId && selectedPermissionGroup ? (
         <RoleAddEdit
           onClone={onCloneHandler}
           onDelete={onDeleteHandler}
@@ -296,3 +252,19 @@ export function RolesListing() {
     </AclWrapper>
   );
 }
+
+const mapStateToProps = (state: AppState) => {
+  return {
+    roles: state.acl.roles,
+    selectedRole: state.acl.selectedRole,
+  };
+};
+
+const mapDispatchToProps = (dispatch: any) => ({
+  getAllRoles: () => dispatch({ type: ReduxActionTypes.FETCH_ACL_ROLE }),
+  getRoleById: (id: string) => dispatch(getRoleById({ id })),
+  deleteRole: (id: string) => dispatch(deleteRole(id)),
+  cloneRole: (role: RoleProps) => dispatch(cloneRole(role)),
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(RolesListing);

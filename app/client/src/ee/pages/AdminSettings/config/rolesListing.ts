@@ -3,7 +3,7 @@ import {
   SettingCategories,
   SettingTypes,
 } from "@appsmith/pages/AdminSettings/config/types";
-import { RolesListing } from "../acl/RolesListing";
+import RolesListing from "../acl/RolesListing";
 
 export const config: AdminConfigType = {
   type: SettingCategories.ROLES_LISTING,

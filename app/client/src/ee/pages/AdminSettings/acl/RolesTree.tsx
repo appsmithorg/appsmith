@@ -1,16 +1,24 @@
 import React, { useEffect, useRef } from "react";
 import styled from "styled-components";
 import { Column, useTable, useExpanded, Row } from "react-table";
-import { Icon, IconSize } from "design-system";
+import { Icon, IconSize, Spinner } from "design-system";
 import { Checkbox } from "@blueprintjs/core";
-import { HighlightText } from "./helpers/HighlightText";
+import { HighlightText } from "design-system";
 import { getParentId } from "./utils/reactTableUtils";
+import EmptyDataState from "components/utils/EmptyDataState";
+import { MenuIcons } from "icons/MenuIcons";
+import { Colors } from "constants/Colors";
+import {
+  ApiMethodIcon,
+  JsFileIconV2,
+} from "pages/Editor/Explorer/ExplorerIcons";
 // import { replayHighlightClass } from "globalStyles/portals";
 
 export type RoleProps = {
   tabData: any;
   expanded?: any;
   searchValue?: string;
+  noData?: boolean;
 };
 
 type hashtableType = {
@@ -993,9 +1001,12 @@ export const hashtable: hashtableType = {
 
 const CheckboxWrapper = styled.div`
   display: inline-block;
-  padding-left: 2rem;
+  width: 100%;
+  line-height: 24px;
   &.hover-state {
-    opacity: 0.4;
+    .bp3-control-indicator {
+      opacity: 0.4;
+    }
   }
 
   input:checked + .bp3-control-indicator::before,
@@ -1038,11 +1049,17 @@ const CheckboxWrapper = styled.div`
 const StyledTable = styled.table`
   width: 100%;
   text-align: left;
-  margin: 30px 0;
-  //border-collapse: separate;
-  //border-spacing: 0 20px;
+  // margin: 30px 0;
+  border-collapse: separate;
+  border-spacing: 0;
 
   thead {
+    position: sticky;
+    top: 0;
+    background: var(--appsmith-color-black-0);
+    z-index: 1;
+    height: 48px;
+
     th {
       color: var(--appsmith-color-black-700);
       text-transform: capitalize;
@@ -1054,6 +1071,7 @@ const StyledTable = styled.table`
 
       &:first-child {
         text-align: left;
+        max-width: 692px;
       }
     }
   }
@@ -1073,12 +1091,34 @@ const StyledTable = styled.table`
 
           label {
             display: unset;
-            padding-left: 100%;
+            padding: 0;
+
+            input {
+              display: none;
+            }
+
+            .bp3-control-indicator {
+              margin: auto;
+            }
           }
         }
 
         &:hover {
-          background: var(--appsmith-color-black-100);
+          td {
+            div {
+              background: var(--appsmith-color-black-100);
+            }
+            &:first-child {
+              background: none;
+
+              div {
+                background: none;
+                .text-wrapper {
+                  background: var(--appsmith-color-black-100);
+                }
+              }
+            }
+          }
         }
       }
       &.hidden {
@@ -1088,33 +1128,64 @@ const StyledTable = styled.table`
   }
 `;
 
-const ResourceName = styled.div``;
-
 const ResourceCellWrapper = styled.div`
   display: flex;
   align-items: center;
   height: 36px;
-  gap: 12px;
+  // gap: 12px;
 
   .remixicon-icon {
     height: 24px;
   }
 
-  ${ResourceName} {
+  .text-wrapper {
+    text-align: left;
+    display: flex;
+    width: 100%;
+    line-height: 24px;
+    align-items: center;
     padding-left: 12px;
+
+    > div:first-child {
+      margin: 0 8px 0 0;
+    }
   }
 `;
 
 const Delimeter = styled.div`
-  // background: #fff;
   border-left: 1px solid var(--appsmith-color-black-200);
   line-height: 24px;
-  padding-right: 28px;
+  padding-right: 12px;
   text-align: center;
   width: 15px;
   height: 36px;
-  margin-left: 6px;
+  margin: 0 12px 0 6px;
 `;
+
+const CentralizedWrapper = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 250px;
+`;
+
+const IconTypes: any = {
+  organization: "",
+  application: "",
+  "page-home": (
+    <MenuIcons.DEFAULT_HOMEPAGE_ICON
+      color={Colors.GREEN_1}
+      height="16"
+      width="16"
+    />
+  ),
+  "page-other": (
+    <MenuIcons.PAGE_ICON color={Colors.GRAY_700} height="16" width="16" />
+  ),
+  query: <ApiMethodIcon type="GET" />,
+  "js-object": JsFileIconV2,
+};
 
 let openTrees: Record<string, boolean> = {};
 const getExpandedTrees = (data: any, pIndex?: string) => {
@@ -1143,10 +1214,16 @@ const getExpandedTrees = (data: any, pIndex?: string) => {
 function Table({
   columns,
   data,
+  isLoading,
+  loaderComponent,
+  noDataComponent,
   searchValue,
 }: {
   columns: any;
   data: any;
+  isLoading?: boolean;
+  loaderComponent?: JSX.Element;
+  noDataComponent?: JSX.Element;
   searchValue?: string;
 }) {
   const {
@@ -1281,31 +1358,53 @@ function Table({
         ))}
       </thead>
       <tbody {...getTableBodyProps()}>
-        {rows.map((row) => {
-          prepareRow(row);
-          return (
-            <tr
-              {...row.getRowProps()}
-              className={searchValue ? getRowVisibility(row) : "shown"}
-              key={row.id}
-            >
-              {row.cells.map((cell, index) => {
-                return (
-                  <td {...cell.getCellProps()} key={index /*cell.row.id*/}>
-                    {cell.render("Cell")}
-                  </td>
-                );
-              })}
-            </tr>
-          );
-        })}
+        {isLoading ? (
+          <tr>
+            <td className="no-border" colSpan={columns?.length}>
+              <CentralizedWrapper>
+                {loaderComponent ? (
+                  loaderComponent
+                ) : (
+                  <Spinner size={IconSize.XXL} />
+                )}
+              </CentralizedWrapper>
+            </td>
+          </tr>
+        ) : rows.length > 0 ? (
+          rows.map((row) => {
+            prepareRow(row);
+            return (
+              <tr
+                {...row.getRowProps()}
+                className={searchValue ? getRowVisibility(row) : "shown"}
+                key={row.id}
+              >
+                {row.cells.map((cell, index) => {
+                  return (
+                    <td {...cell.getCellProps()} key={index /*cell.row.id*/}>
+                      {cell.render("Cell")}
+                    </td>
+                  );
+                })}
+              </tr>
+            );
+          })
+        ) : (
+          <tr>
+            <td className="no-border" colSpan={columns?.length}>
+              <CentralizedWrapper>
+                {noDataComponent ? noDataComponent : <EmptyDataState />}
+              </CentralizedWrapper>
+            </td>
+          </tr>
+        )}
       </tbody>
     </StyledTable>
   );
 }
 
 export default function RolesTree(props: RoleProps) {
-  const { tabData } = props;
+  const { noData, searchValue = "", tabData } = props;
   const columns: Array<Column> = [
     {
       Header: "Resource Permissions",
@@ -1323,18 +1422,28 @@ export default function RolesTree(props: RoleProps) {
             ) : (
               <Icon name="right-arrow-2" size={IconSize.XL} />
             )}
-            <HighlightText
-              highlight={props.searchValue}
-              text={cellProps.cell.row.original.name}
-            />
+            <div className="text-wrapper">
+              {cellProps.cell.row.original.type
+                ? IconTypes[cellProps.cell.row.original.type]
+                : null}
+              <HighlightText
+                highlight={searchValue}
+                text={cellProps.cell.row.original.name}
+              />
+            </div>
           </ResourceCellWrapper>
         ) : (
           <ResourceCellWrapper className="flat-row">
             {cellProps.row.depth ? del : null}
-            <HighlightText
-              highlight={props.searchValue}
-              text={cellProps.cell.row.original.name}
-            />
+            <div className="text-wrapper">
+              {cellProps.cell.row.original.type
+                ? IconTypes[cellProps.cell.row.original.type]
+                : null}
+              <HighlightText
+                highlight={searchValue}
+                text={cellProps.cell.row.original.name}
+              />
+            </div>
           </ResourceCellWrapper>
         );
       },
@@ -1402,7 +1511,7 @@ export default function RolesTree(props: RoleProps) {
     })),
   ];
 
-  const data = tabData.data;
+  const data = noData ? [] : tabData.data;
 
   return (
     <Table columns={columns} data={data} searchValue={props.searchValue} />

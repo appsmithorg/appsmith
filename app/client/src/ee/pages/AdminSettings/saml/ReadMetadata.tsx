@@ -20,7 +20,6 @@ import {
   RenderForm,
   InputProps,
 } from "./components";
-import { SettingsFormWrapper } from "pages/Settings/components";
 import { getSettingDetail, getSettingLabel } from "../saml";
 import { SSO_IDENTITY_PROVIDER_FORM } from "@appsmith/constants/forms";
 import { fetchSamlMetadata } from "@appsmith/actions/settingsAction";
@@ -250,7 +249,7 @@ function MetadataForm(
         <Callout
           actionLabel="Read Documentation"
           desc={providerForm.callout}
-          type="Info"
+          type="Notify"
           url={SAML_SIGNUP_SETUP_DOC}
         />
       )}
@@ -319,7 +318,7 @@ function ReadMetadata() {
   const [activeTabIndex, setActiveTabIndex] = useState(0);
 
   return (
-    <SettingsFormWrapper>
+    <>
       <CopyUrlReduxForm
         fieldName={"redirect-url-form"}
         form={REDIRECT_URL_FORM}
@@ -349,7 +348,7 @@ function ReadMetadata() {
       <BodyContainer>
         <MetadataReduxForm activeTabIndex={activeTabIndex} />
       </BodyContainer>
-    </SettingsFormWrapper>
+    </>
   );
 }
 

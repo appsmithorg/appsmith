@@ -12,7 +12,7 @@ export interface CreateUserResponse extends ApiResponse {
   id: string;
 }
 
-export interface FetchSingleUserPayload {
+export interface FetchSingleDataPayload {
   id: string;
 }
 
@@ -29,9 +29,9 @@ export class AclApi extends Api {
   }
 
   static async fetchSingleAclUser(
-    payload: FetchSingleUserPayload,
+    payload: FetchSingleDataPayload,
   ): Promise<AxiosPromise<ApiResponse>> {
-    const res = await Api.get(`/mockUsers/${payload.id}`, "", {
+    const res = await Api.get(`${AclApi.aclUsersURL}/${payload.id}`, "", {
       baseURL: "/",
     });
     return res;
@@ -68,18 +68,21 @@ export class AclApi extends Api {
     // return Api.get(AclApi.aclGroupsURL, "", { baseURL: "/" });
   }
 
-  static fetchSingleAclGroup(
-    payload: FetchSingleUserPayload,
-  ): Promise<ApiResponse> {
+  static async fetchSingleAclGroup(
+    payload: FetchSingleDataPayload,
+  ): Promise<AxiosPromise<ApiResponse>> {
     // return Api.get(`${AclApi.aclUsersURL}/${payload.id}`, "", { baseURL: "/" });
-    const response = Api.get(AclApi.aclGroupsURL, "", { baseURL: "/" });
-    const result = response.then((data) => {
-      const userGroup = data.data.find(
-        (userGroup: any) => userGroup?.id === payload.id,
-      );
-      return { responseMeta: { status: 200, success: true }, data: userGroup };
+    const response = await Api.get(`${AclApi.aclGroupsURL}/${payload.id}`, "", {
+      baseURL: "/",
     });
-    return result;
+    return response;
+    // const result = response.then((data) => {
+    //   const userGroup = data.data.find(
+    //     (userGroup: any) => userGroup?.id === payload.id,
+    //   );
+    //   return { responseMeta: { status: 200, success: true }, data: userGroup };
+    // });
+    // return result;
   }
 
   static createAclGroup(request: any): AxiosPromise<ApiResponse> {
@@ -97,7 +100,7 @@ export class AclApi extends Api {
     });
     const clonedData = {
       ...payload,
-      id: uniqueId(),
+      id: uniqueId("ug"),
       rolename: `Copy of ${payload.rolename}`,
     };
     const result = response.then((data) => {
@@ -132,23 +135,24 @@ export class AclApi extends Api {
     // });
   }
 
-  static fetchSingleRole(
-    payload: FetchSingleUserPayload,
-  ): Promise<ApiResponse> {
+  static async fetchSingleRole(
+    payload: FetchSingleDataPayload,
+  ): Promise<AxiosPromise<ApiResponse>> {
     // return Api.get(`${AclApi.aclUsersURL}/${payload.id}`, "", { baseURL: "/" });
-    const response = Api.get(AclApi.aclRolesURL, "", {
+    const response = await Api.get(`${AclApi.aclRolesURL}/${payload.id}`, "", {
       baseURL: "/",
     });
-    const result = response.then((data) => {
-      const permissionGroup = data.data.find(
-        (permissionGroup: any) => permissionGroup?.id === payload.id,
-      );
-      return {
-        responseMeta: { status: 200, success: true },
-        data: permissionGroup,
-      };
-    });
-    return result;
+    return response;
+    // const result = response.then((data) => {
+    //   const permissionGroup = data.data.find(
+    //     (permissionGroup: any) => permissionGroup?.id === payload.id,
+    //   );
+    //   return {
+    //     responseMeta: { status: 200, success: true },
+    //     data: permissionGroup,
+    //   };
+    // });
+    // return result;
   }
 
   static createAclRole(request: any): AxiosPromise<ApiResponse> {
@@ -166,8 +170,8 @@ export class AclApi extends Api {
     });
     const clonedData = {
       ...payload,
-      id: uniqueId(),
-      rolename: `Copy of ${payload.permissionName}`,
+      id: uniqueId("pg"),
+      permissionName: `Copy of ${payload.permissionName}`,
     };
     const result = response.then((data) => {
       const updatedResponse = [...data.data, clonedData];
