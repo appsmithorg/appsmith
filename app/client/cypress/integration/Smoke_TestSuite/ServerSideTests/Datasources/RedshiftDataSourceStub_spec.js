@@ -12,8 +12,6 @@ describe("Redshift datasource test cases", function() {
   it("1. Create, test, save then delete a Redshift datasource", function() {
     cy.NavigateToDatasourceEditor();
     cy.get(datasource.Redshift).click();
-    cy.getPluginFormsAndCreateDatasource();
-
     cy.fillRedshiftDatasourceForm();
     cy.generateUUID().then((UUID) => {
       datasourceName = `Redshift MOCKDS ${UUID}`;
@@ -32,7 +30,6 @@ describe("Redshift datasource test cases", function() {
   it("2. Create with trailing white spaces in host address and database name, test, save then delete a Redshift datasource", function() {
     cy.NavigateToDatasourceEditor();
     cy.get(datasource.Redshift).click();
-    cy.getPluginFormsAndCreateDatasource();
     cy.fillRedshiftDatasourceForm(true);
     cy.get("@createDatasource").then((httpResponse) => {
       datasourceName = httpResponse.response.body.data.name;

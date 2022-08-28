@@ -133,7 +133,14 @@ export class Table {
   ) {
     //timeout can be sent higher values incase of larger tables
     this.agHelper.Sleep(timeout); //Settling time for table!
-    return cy.get(this._tableRowColumnData(rowNum, colNum)).invoke("text");
+    return cy.waitUntil(
+      () => this.agHelper.GetElement(this._tableRowColumnData(rowNum, colNum), 30000),
+      {
+        errorMsg: "Table is not populated",
+        timeout: 30000,
+        interval: 2000,
+      },
+    ).then($cellVal => cy.wrap($cellVal).invoke("text"));
   }
 
   public AssertTableRowImageColumnIsLoaded(
@@ -226,7 +233,8 @@ export class Table {
       });
   }
 
-  public SelectTableRow(rowIndex: number, columnIndex = 0) { //rowIndex - 0 for 1st row
+  public SelectTableRow(rowIndex: number, columnIndex = 0) {
+    //rowIndex - 0 for 1st row
     cy.get(this._tableRow(rowIndex, columnIndex))
       .first()
       .trigger("click", { force: true });
