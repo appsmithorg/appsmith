@@ -14,7 +14,7 @@ export class DataSources {
   private locator = ObjectsRegistry.CommonLocators;
 
   private _dsCreateNewTab = "[data-cy=t--tab-CREATE_NEW]";
-  private _addNewDataSource = ".t--entity-add-btn .datasources";
+  private _addNewDataSource = ".t--entity-add-btn.datasources";
   private _createNewPlgin = (pluginName: string) =>
     ".t--plugin-name:contains('" + pluginName + "')";
   private _host = "input[name='datasourceConfiguration.endpoints[0].host']";
