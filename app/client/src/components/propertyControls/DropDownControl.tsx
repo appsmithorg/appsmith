@@ -97,6 +97,7 @@ class DropDownControl extends BaseControl<DropDownControlProps> {
           options={options}
           placeholder={this.props.placeholderText}
           removeSelectedOption={this.onItemRemove}
+          searchAutoFocus
           searchPlaceholder={this.props.searchPlaceholderText}
           selected={defaultSelected}
           showEmptyOptions
