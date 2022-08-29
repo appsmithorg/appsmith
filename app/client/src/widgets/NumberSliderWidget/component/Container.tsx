@@ -8,6 +8,7 @@ export const SliderContainer = styled.div<{
   labelPosition?: LabelPosition;
 }>`
  ${labelLayoutStyles}
+ 
   & .${LABEL_CONTAINER_CLASS} {
     label {
       ${({ labelPosition }) => {

@@ -120,7 +120,7 @@ const RangeSliderComponent = (props: RangeSliderComponentProps) => {
     startValue = 0,
     step = 1,
     tooltipAlwaysOn = false,
-    ...others
+    ...delegated
   } = props;
 
   const [focused, setFocused] = useState(-1);
@@ -339,8 +339,9 @@ const RangeSliderComponent = (props: RangeSliderComponentProps) => {
         />
       )}
       <SliderRoot
-        {...others}
+        {...delegated}
         disabled={disabled}
+        labelPosition={labelPosition}
         onKeyDownCapture={handleTrackKeydownCapture}
         onMouseDownCapture={handleTrackMouseDownCapture}
         onMouseUpCapture={() => {

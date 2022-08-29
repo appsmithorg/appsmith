@@ -149,11 +149,11 @@ export function stepSizeValidation(
     };
   }
 
-  if (step <= 0) {
+  if (step < 0.1) {
     return {
       isValid: false,
       parsed: undefined,
-      messages: ["This value must be greater than zero"],
+      messages: ["This value must be greater than 0.1"],
     };
   }
 

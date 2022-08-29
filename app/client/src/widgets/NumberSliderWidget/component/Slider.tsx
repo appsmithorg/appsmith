@@ -236,6 +236,7 @@ const SliderComponent = (props: SliderComponentProps) => {
       )}
       <SliderRoot
         disabled={disabled}
+        labelPosition={labelPosition}
         onKeyDownCapture={handleTrackKeydownCapture}
         onMouseDownCapture={() => container.current?.focus()}
         // @ts-expect-error: MutableRefObject not assignable to Ref

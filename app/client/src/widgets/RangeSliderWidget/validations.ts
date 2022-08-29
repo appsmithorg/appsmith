@@ -101,7 +101,7 @@ export function stepSizeValidation(
     };
   }
 
-  if (step <= 0.1) {
+  if (step < 0.1) {
     return {
       isValid: false,
       parsed: undefined,
