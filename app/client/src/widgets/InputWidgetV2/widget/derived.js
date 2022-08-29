@@ -6,7 +6,27 @@ export default {
       case "NUMBER":
         try {
           isEmpty = _.isNil(props.inputText) || props.inputText === "";
-          value = isEmpty ? null : Number(props.inputText);
+          value = isEmpty ? null : String(props.inputText);
+
+          if (value) {
+            function getLocale() {
+              return navigator.languages?.[0] || "en-US";
+            }
+
+            function getLocaleDecimalSeperator() {
+              return Intl.NumberFormat(getLocale())
+                .format(1.1)
+                .replace(/\p{Number}/gu, "");
+            }
+
+            const decimalSeperator = getLocaleDecimalSeperator();
+            value = value.includes(decimalSeperator)
+              ? Number(
+                  value.replace(new RegExp("\\" + decimalSeperator, "g"), "."),
+                )
+              : Number(value);
+          }
+
           hasValidValue = Number.isFinite(value);
           break;
         } catch (e) {

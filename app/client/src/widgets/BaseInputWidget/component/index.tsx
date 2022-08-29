@@ -34,6 +34,7 @@ import { InputType } from "widgets/InputWidget/constants";
 import { getBaseWidgetClassName } from "constants/componentClassNameConstants";
 import { LabelPosition } from "components/constants";
 import { lightenColor } from "widgets/WidgetUtils";
+import { getLocale } from "utils/helpers";
 
 /**
  * All design system component specific logic goes here.
@@ -497,6 +498,7 @@ class BaseInputComponent extends React.Component<
   };
 
   private numericInputComponent = () => {
+    const locale = getLocale();
     const leftIcon = this.getLeftIcon();
     const conditionalProps: Record<string, number> = {};
 
@@ -521,6 +523,7 @@ class BaseInputComponent extends React.Component<
         }}
         intent={this.props.intent}
         leftIcon={leftIcon}
+        locale={locale}
         majorStepSize={null}
         minorStepSize={null}
         onBlur={() => this.setFocusState(false)}

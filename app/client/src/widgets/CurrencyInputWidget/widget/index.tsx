@@ -41,6 +41,17 @@ export function defaultValueValidation(
 ): ValidationResponse {
   const NUMBER_ERROR_MESSAGE = "This value must be number";
   const EMPTY_ERROR_MESSAGE = "";
+
+  function getLocale() {
+    return navigator.languages?.[0] || "en-US";
+  }
+
+  function getLocaleDecimalSeperator() {
+    return Intl.NumberFormat(getLocale())
+      .format(1.1)
+      .replace(/\p{Number}/gu, "");
+  }
+
   if (_.isObject(value)) {
     return {
       isValid: false,
@@ -49,7 +60,12 @@ export function defaultValueValidation(
     };
   }
 
-  let parsed: any = Number(value);
+  const decimalSeperator = getLocaleDecimalSeperator();
+  const haveDecimalValue = value.includes(decimalSeperator);
+  const commonSeparator = ".";
+  let parsed: any = haveDecimalValue
+    ? Number(value.replace(new RegExp("\\" + decimalSeperator, "g"), "."))
+    : Number(value);
   let isValid, messages;
 
   if (_.isString(value) && value.trim() === "") {
@@ -65,6 +81,17 @@ export function defaultValueValidation(
      */
     isValid = false;
     messages = [NUMBER_ERROR_MESSAGE];
+    parsed = undefined;
+  } else if (
+    commonSeparator !== decimalSeperator &&
+    !haveDecimalValue &&
+    value.includes(commonSeparator)
+  ) {
+    /*
+     *  When value have not correct decimal separator
+     */
+    isValid = false;
+    messages = ["Use correct decimal separator"];
     parsed = undefined;
   } else {
     /*
@@ -82,7 +109,7 @@ export function defaultValueValidation(
       messages = [EMPTY_ERROR_MESSAGE];
     }
 
-    parsed = String(parsed);
+    parsed = String(parsed ? value : parsed);
   }
 
   return {
