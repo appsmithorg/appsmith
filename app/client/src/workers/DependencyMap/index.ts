@@ -91,7 +91,10 @@ export function createDependencyMap(
       errors,
       references,
       unreferencedIdentifiers,
-    } = extractInfoFromBindings(dependencyMap[key], dataTreeEvalRef.allKeys);
+    } = extractInfoFromBindings(
+      triggerFieldDependencyMap[key],
+      dataTreeEvalRef.allKeys,
+    );
     triggerFieldDependencyMap[key] = references;
     // To keep the list of unusedIdentifiers as minimal as possible, only paths with unreferenced Identifiers
     // are stored.
@@ -536,7 +539,8 @@ export const updateDependencyMap = ({
 
               // We found a new dynamic binding for this property path. We update the dependency map by overwriting the
               // dependencies for this property path with the newly found dependencies
-              if (references.length) {
+
+              if (correctSnippets.length) {
                 dataTreeEvalRef.dependencyMap[fullPropertyPath] = references;
               } else {
                 // The dependency on this property path has been removed. Delete this property path from the global
