@@ -5,11 +5,11 @@ import {
   CellAlignment,
   JUSTIFY_CONTENT,
 } from "../Constants";
-import { CellWrapper } from "../TableStyledWrappers";
+import { CellWrapper, TooltipContentWrapper } from "../TableStyledWrappers";
 import CheckboxComponent from "widgets/CheckboxWidget/component/index";
 import { LabelPosition } from "components/constants";
 import styled from "styled-components";
-import ConditionalTooltipRenderer from "./ConditionalTooltipRenderer";
+import { Tooltip } from "@blueprintjs/core";
 
 const UnsavedChangesMarker = styled.div<{ accentColor: string }>`
   position: absolute;
@@ -89,34 +89,36 @@ export const CheckboxCell = (props: CheckboxCellProps) => {
       verticalAlignment={verticalAlignment}
     >
       {hasUnSavedChanges && <UnsavedChangesMarker accentColor={accentColor} />}
-
-      {isCellEditable ? (
-        <ConditionalTooltipRenderer
-          disabledState={!!disabledCheckbox}
-          renderComponent={() => {
-            return (
-              <CheckboxComponent
-                accentColor={accentColor}
-                borderRadius={borderRadius}
-                isChecked={value}
-                isDisabled={!!disabledCheckbox}
-                isLoading={false}
-                isRequired={false}
-                label=""
-                labelPosition={LabelPosition.Auto}
-                onCheckChange={() => onChange()}
-                widgetId={""}
-              />
-            );
-          }}
-          toolTipTitle="Save or discard the unsaved row to start editing here"
-        />
+      {isCellEditable && !!disabledCheckbox ? (
+        <Tooltip
+          autoFocus={false}
+          content={
+            <TooltipContentWrapper>
+              Save or discard the unsaved row to start editing here
+            </TooltipContentWrapper>
+          }
+          hoverOpenDelay={200}
+          position="top"
+        >
+          <CheckboxComponent
+            accentColor={accentColor}
+            borderRadius={borderRadius}
+            isChecked={value}
+            isDisabled={!!disabledCheckbox}
+            isLoading={false}
+            isRequired={false}
+            label=""
+            labelPosition={LabelPosition.Auto}
+            onCheckChange={() => onChange()}
+            widgetId={""}
+          />
+        </Tooltip>
       ) : (
         <CheckboxComponent
           accentColor={accentColor}
           borderRadius={borderRadius}
           isChecked={value}
-          isDisabled={!isCellEditable}
+          isDisabled={!!disabledCheckbox || !isCellEditable}
           isLoading={false}
           isRequired={false}
           label=""
