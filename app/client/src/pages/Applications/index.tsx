@@ -911,34 +911,39 @@ function ApplicationsSection(props: any) {
                   <NoAppsFoundIcon />
                   <span>There’s nothing inside this workspace</span>
                   {/* below component is duplicate. This is because of cypress test were failing */}
-                  {!isMobile && (
-                    <Button
-                      className="t--new-button createnew"
-                      icon={"plus"}
-                      isLoading={
-                        creatingApplicationMap &&
-                        creatingApplicationMap[workspace.id]
-                      }
-                      onClick={() => {
-                        if (
-                          Object.entries(creatingApplicationMap).length === 0 ||
-                          (creatingApplicationMap &&
-                            !creatingApplicationMap[workspace.id])
-                        ) {
-                          createNewApplication(
-                            getNextEntityName(
-                              "Untitled application ",
-                              applications.map((el: any) => el.name),
-                            ),
-                            workspace.id,
-                          );
+                  {isPermitted(
+                    workspace.userPermissions,
+                    PERMISSION_TYPE.CREATE_APPLICATION,
+                  ) &&
+                    !isMobile && (
+                      <Button
+                        className="t--new-button createnew"
+                        icon={"plus"}
+                        isLoading={
+                          creatingApplicationMap &&
+                          creatingApplicationMap[workspace.id]
                         }
-                      }}
-                      size={Size.medium}
-                      tag="button"
-                      text={"New"}
-                    />
-                  )}
+                        onClick={() => {
+                          if (
+                            Object.entries(creatingApplicationMap).length ===
+                              0 ||
+                            (creatingApplicationMap &&
+                              !creatingApplicationMap[workspace.id])
+                          ) {
+                            createNewApplication(
+                              getNextEntityName(
+                                "Untitled application ",
+                                applications.map((el: any) => el.name),
+                              ),
+                              workspace.id,
+                            );
+                          }
+                        }}
+                        size={Size.medium}
+                        tag="button"
+                        text={"New"}
+                      />
+                    )}
                 </NoAppsFound>
               )}
             </ApplicationCardsWrapper>
