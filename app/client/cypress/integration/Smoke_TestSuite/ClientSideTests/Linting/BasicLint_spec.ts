@@ -59,7 +59,7 @@ describe("Linting", () => {
 
   it("1. TC 1927 - Shows correct lint error when Api is deleted or created", () => {
     ee.SelectEntityByName("Button1", "WIDGETS");
-    jsEditor.EnterJSContext(
+    propPane.EnterJSContext(
       "onClick",
       `{{function(){
         try{
@@ -109,7 +109,7 @@ describe("Linting", () => {
 
   it("3. TC 1929 - Shows correct lint error when JSObject is deleted or created", () => {
     ee.SelectEntityByName("Button1", "WIDGETS");
-    jsEditor.EnterJSContext(
+    propPane.EnterJSContext(
       "onClick",
       `{{function(){
         try{
@@ -183,7 +183,7 @@ describe("Linting", () => {
 
   it("5. TC 1928 - Shows correct lint error with Query is created or Deleted", () => {
     ee.SelectEntityByName("Button1", "WIDGETS");
-    jsEditor.EnterJSContext(
+    propPane.EnterJSContext(
       "onClick",
       `{{function(){
       try{
@@ -228,7 +228,7 @@ describe("Linting", () => {
 
   it("7. TC 1930 - Shows correct lint error with multiple entities in triggerfield", () => {
     ee.SelectEntityByName("Button1", "WIDGETS");
-    jsEditor.EnterJSContext(
+    propPane.EnterJSContext(
       "onClick",
       `{{function(){
         try{
