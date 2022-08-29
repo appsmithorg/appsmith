@@ -3,9 +3,9 @@ import { useSelector } from "react-redux";
 import {
   getCurrentPageId,
   getIsFetchingPage,
-  getCanvasWidgetDsl,
   getViewModePageList,
   previewModeSelector,
+  getCanvasWidth,
 } from "selectors/editorSelectors";
 import styled from "styled-components";
 import { getCanvasClassName } from "utils/generators";
@@ -22,9 +22,12 @@ import {
 } from "selectors/appThemingSelectors";
 import Spinner from "components/ads/Spinner";
 import useGoogleFont from "utils/hooks/useGoogleFont";
-import { IconSize } from "components/ads/Icon";
+import { IconSize } from "design-system";
 import { useDynamicAppLayout } from "utils/hooks/useDynamicAppLayout";
 import { getCurrentThemeDetails } from "selectors/themeSelectors";
+import { getCanvasWidgetsStructure } from "selectors/entitiesSelector";
+import { isEqual } from "lodash";
+import { WidgetGlobaStyles } from "globalStyles/WidgetGlobalStyles";
 
 const Container = styled.section<{
   background: string;
@@ -48,7 +51,8 @@ function CanvasContainer() {
   const dispatch = useDispatch();
   const currentPageId = useSelector(getCurrentPageId);
   const isFetchingPage = useSelector(getIsFetchingPage);
-  const widgets = useSelector(getCanvasWidgetDsl);
+  const canvasWidth = useSelector(getCanvasWidth);
+  const widgetsStructure = useSelector(getCanvasWidgetsStructure, isEqual);
   const pages = useSelector(getViewModePageList);
   const theme = useSelector(getCurrentThemeDetails);
   const isPreviewMode = useSelector(previewModeSelector);
@@ -79,8 +83,14 @@ function CanvasContainer() {
     node = pageLoading;
   }
 
-  if (!isPageInitializing && widgets) {
-    node = <Canvas dsl={widgets} pageId={params.pageId} />;
+  if (!isPageInitializing && widgetsStructure) {
+    node = (
+      <Canvas
+        canvasWidth={canvasWidth}
+        pageId={params.pageId}
+        widgetsStructure={widgetsStructure}
+      />
+    );
   }
   // calculating exact height to not allow scroll at this component,
   // calculating total height minus margin on top, top bar and bottom bar
@@ -103,6 +113,10 @@ function CanvasContainer() {
         fontFamily: fontFamily,
       }}
     >
+      <WidgetGlobaStyles
+        fontFamily={selectedTheme.properties.fontFamily.appFont}
+        primaryColor={selectedTheme.properties.colors.primaryColor}
+      />
       {isAppThemeChanging && (
         <div className="fixed top-0 bottom-0 left-0 right-0 flex items-center justify-center bg-white/70 z-[2]">
           <Spinner size={IconSize.XXL} />

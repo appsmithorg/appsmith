@@ -4,8 +4,16 @@ import Masonry from "react-masonry-css";
 import { Classes } from "@blueprintjs/core";
 import { useParams } from "react-router";
 import { useDispatch, useSelector } from "react-redux";
-import { Text, FontWeight, TextType } from "design-system";
-import Button, { IconPositions, Size } from "components/ads/Button";
+import {
+  Button,
+  Icon,
+  IconSize,
+  IconPositions,
+  Size,
+  Text,
+  FontWeight,
+  TextType,
+} from "design-system";
 import EntityNotFoundPane from "pages/Editor/EntityNotFoundPane";
 import Template from "./Template";
 import { Template as TemplateInterface } from "api/TemplatesApi";
@@ -20,8 +28,7 @@ import {
   getSimilarTemplatesInit,
   getTemplateInformation,
 } from "actions/templateActions";
-import { AppState } from "reducers";
-import { Icon, IconSize } from "components/ads";
+import { AppState } from "@appsmith/reducers";
 import history from "utils/history";
 import { TEMPLATES_PATH } from "constants/routes";
 import { getTypographyByKey } from "constants/DefaultTheme";
@@ -41,6 +48,7 @@ import {
   VIEW_ALL_TEMPLATES,
 } from "@appsmith/constants/messages";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import ReconnectDatasourceModal from "pages/Editor/gitSync/ReconnectDatasourceModal";
 
 const breakpointColumnsObject = {
   default: 4,
@@ -289,6 +297,7 @@ function TemplateView() {
         <TemplateNotFound />
       ) : (
         <Wrapper ref={containerRef}>
+          <ReconnectDatasourceModal />
           <TemplateViewWrapper>
             <HeaderWrapper>
               <div className="left">

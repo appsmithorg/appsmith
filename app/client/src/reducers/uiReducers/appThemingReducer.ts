@@ -1,6 +1,6 @@
 import { AppTheme } from "entities/AppTheming";
 import { AppThemingMode } from "selectors/appThemingSelectors";
-import { createImmerReducer } from "utils/AppsmithUtils";
+import { createImmerReducer } from "utils/ReducerUtils";
 import {
   ReduxAction,
   ReduxActionTypes,

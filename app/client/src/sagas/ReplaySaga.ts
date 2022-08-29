@@ -35,7 +35,6 @@ import {
 } from "utils/replayHelpers";
 import { updateAndSaveLayout } from "actions/pageActions";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { commentModeSelector } from "selectors/commentsSelectors";
 import {
   getCurrentApplicationId,
   snipingModeSelector,
@@ -174,11 +173,10 @@ export function* postUndoRedoSaga(replay: any) {
  * @returns
  */
 export function* undoRedoSaga(action: ReduxAction<UndoRedoPayload>) {
-  const isCommentMode: boolean = yield select(commentModeSelector);
   const isSnipingMode: boolean = yield select(snipingModeSelector);
 
   // if the app is in snipping or comments mode, don't do anything
-  if (isCommentMode || isSnipingMode) return;
+  if (isSnipingMode) return;
   try {
     const history = createBrowserHistory();
     const pathname = history.location.pathname;
@@ -216,7 +214,13 @@ export function* undoRedoSaga(action: ReduxAction<UndoRedoPayload>) {
         const isPropertyUpdate = replay.widgets && replay.propertyUpdates;
         AnalyticsUtil.logEvent(event, { paths, timeTaken });
         if (isPropertyUpdate) yield call(openPropertyPaneSaga, replay);
-        yield put(updateAndSaveLayout(replayEntity.widgets, false, false));
+        //TODO Identify the updated widgets and pass the values
+        yield put(
+          updateAndSaveLayout(replayEntity.widgets, {
+            isRetry: false,
+            shouldReplay: false,
+          }),
+        );
         if (!isPropertyUpdate) yield call(postUndoRedoSaga, replay);
         break;
       }

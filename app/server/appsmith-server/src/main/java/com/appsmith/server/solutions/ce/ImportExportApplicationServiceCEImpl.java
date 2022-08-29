@@ -25,6 +25,7 @@ import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Theme;
 import com.appsmith.server.domains.User;
+import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.domains.GitApplicationMetadata;
 import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.ActionDTO;
@@ -93,12 +94,12 @@ import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.MANAGE_PAGES;
 import static com.appsmith.server.acl.AclPermission.READ_ACTIONS;
-import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_PAGES;
 import static com.appsmith.server.acl.AclPermission.READ_THEMES;
 import static com.appsmith.server.constants.ResourceModes.EDIT;
 import static com.appsmith.server.constants.ResourceModes.VIEW;
 import static com.appsmith.external.constants.GitConstants.NAME_SEPARATOR;
+import static java.lang.Boolean.TRUE;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -135,7 +136,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
     public Mono<ApplicationJson> exportApplicationById(String applicationId, SerialiseApplicationObjective serialiseFor) {
 
         // Start the stopwatch to log the execution time
-        Stopwatch stopwatch = new Stopwatch(AnalyticsEvents.EXPORT_APPLICATION.getEventName());
+        Stopwatch stopwatch = new Stopwatch(AnalyticsEvents.EXPORT.getEventName());
         /*
             1. Fetch application by id
             2. Fetch pages from the application
@@ -161,39 +162,40 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
         //      : Normal apps => Export permission
         //      : Sample apps where datasource config needs to be shared => Read permission
 
+        boolean isGitSync = SerialiseApplicationObjective.VERSION_CONTROL.equals(serialiseFor);
+
+        // If Git-sync, then use MANAGE_APPLICATIONS, else use EXPORT_APPLICATION permission to fetch application
+        AclPermission permission = isGitSync ? AclPermission.MANAGE_APPLICATIONS : AclPermission.EXPORT_APPLICATIONS;
+
         Mono<User> currentUserMono = sessionUserService.getCurrentUser().cache();
-        Mono<Application> applicationMono = SerialiseApplicationObjective.VERSION_CONTROL.equals(serialiseFor)
-                ? applicationService.findById(applicationId, MANAGE_APPLICATIONS)
-                : applicationService.findById(applicationId, READ_APPLICATIONS)
+
+        Mono<Application> applicationMono =
+                // Find the application with appropriate permission
+                applicationService.findById(applicationId, permission)
+                // Find the application without permissions if it is a template application
+                .switchIfEmpty(applicationService.findByIdAndExportWithConfiguration(applicationId, TRUE))
                 .switchIfEmpty(Mono.error(
                         new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION_ID, applicationId))
                 )
-                .zipWith(currentUserMono)
-                .map(objects -> {
-                    Application application = objects.getT1();
-                    User currentUser = objects.getT2();
+                .map(application -> {
+                    if (!TRUE.equals(application.getExportWithConfiguration())) {
+                        // Explicitly setting the boolean to avoid NPE for future checks
+                        application.setExportWithConfiguration(false);
+                    }
 
-                    if (Boolean.TRUE.equals(application.getExportWithConfiguration())) {
-                        // Export the application with datasource configuration
-                        return application;
-                    }
-                    // Explicitly setting the boolean to avoid NPE for future checks
-                    application.setExportWithConfiguration(false);
-                    // Check if the user have export_application permission
-                    Boolean isExportPermissionGranted = policyUtils.isPermissionPresentForUser(
-                            application.getPolicies(), EXPORT_APPLICATIONS.getValue(), currentUser.getUsername()
-                    );
-                    if (Boolean.TRUE.equals(isExportPermissionGranted)) {
-                        return application;
-                    }
-                    throw new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION_ID, applicationId);
+                    return application;
                 });
 
         // Set json schema version which will be used to check the compatibility while importing the JSON
         applicationJson.setServerSchemaVersion(JsonSchemaVersions.serverVersion);
         applicationJson.setClientSchemaVersion(JsonSchemaVersions.clientVersion);
 
-        Mono<Theme> defaultThemeMono = themeService.getSystemTheme(Theme.DEFAULT_THEME_NAME).cache();
+        Mono<Theme> defaultThemeMono = themeService.getSystemTheme(Theme.DEFAULT_THEME_NAME)
+                .map(theme -> {
+                    log.debug("Default theme found: {}", theme.getName());
+                    return theme;
+                })
+                .cache();
 
         return pluginRepository
                 .findAll()
@@ -230,7 +232,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                     applicationJson.setExportedApplication(application);
                     Set<String> dbNamesUsedInActions = new HashSet<>();
 
-                    Flux<NewPage> pageFlux = Boolean.TRUE.equals(application.getExportWithConfiguration())
+                    Flux<NewPage> pageFlux = TRUE.equals(application.getExportWithConfiguration())
                             ? newPageRepository.findByApplicationId(applicationId, READ_PAGES)
                             : newPageRepository.findByApplicationId(applicationId, MANAGE_PAGES);
 
@@ -279,7 +281,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                     put(FieldName.PAGE_LIST, updatedPageSet);
                                 }});
 
-                                Flux<Datasource> datasourceFlux = Boolean.TRUE.equals(application.getExportWithConfiguration())
+                                Flux<Datasource> datasourceFlux = TRUE.equals(application.getExportWithConfiguration())
                                         ? datasourceRepository.findAllByWorkspaceId(workspaceId, AclPermission.READ_DATASOURCES)
                                         : datasourceRepository.findAllByWorkspaceId(workspaceId, MANAGE_DATASOURCES);
 
@@ -290,7 +292,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                         datasourceIdToNameMap.put(datasource.getId(), datasource.getName()));
                                 applicationJson.setDatasourceList(datasourceList);
 
-                                Flux<ActionCollection> actionCollectionFlux = Boolean.TRUE.equals(application.getExportWithConfiguration())
+                                Flux<ActionCollection> actionCollectionFlux = TRUE.equals(application.getExportWithConfiguration())
                                         ? actionCollectionRepository.findByApplicationId(applicationId, READ_ACTIONS, null)
                                         : actionCollectionRepository.findByApplicationId(applicationId, MANAGE_ACTIONS, null);
                                 return actionCollectionFlux;
@@ -346,7 +348,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                                 applicationJson.setActionCollectionList(actionCollections);
                                 applicationJson.getUpdatedResources().put(FieldName.ACTION_COLLECTION_LIST, updatedActionCollectionSet);
 
-                                Flux<NewAction> actionFlux = Boolean.TRUE.equals(application.getExportWithConfiguration())
+                                Flux<NewAction> actionFlux = TRUE.equals(application.getExportWithConfiguration())
                                         ? newActionRepository.findByApplicationId(applicationId, READ_ACTIONS, null)
                                         : newActionRepository.findByApplicationId(applicationId, MANAGE_ACTIONS, null);
 
@@ -419,7 +421,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
 
                                 // Save decrypted fields for datasources for internally used sample apps and templates only
                                 // when serialising for file sharing
-                                if(Boolean.TRUE.equals(application.getExportWithConfiguration()) && SerialiseApplicationObjective.SHARE.equals(serialiseFor)) {
+                                if(TRUE.equals(application.getExportWithConfiguration()) && SerialiseApplicationObjective.SHARE.equals(serialiseFor)) {
                                     // Save decrypted fields for datasources
                                     Map<String, DecryptedSensitiveFields> decryptedFields = new HashMap<>();
                                     applicationJson.getDatasourceList().forEach(datasource -> {
@@ -460,7 +462,9 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                     );
                     analyticsService.sendEvent(AnalyticsEvents.UNIT_EXECUTION_TIME.getEventName(), user.getUsername(), data);
                     return applicationJson;
-                });
+                })
+                .then(sendImportExportApplicationAnalyticsEvent(applicationId, AnalyticsEvents.EXPORT))
+                .thenReturn(applicationJson);
     }
 
     public Mono<ApplicationJson> exportApplicationById(String applicationId, String branchName) {
@@ -574,19 +578,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                             });
                 })
                 // Add un-configured datasource to the list to response
-                .flatMap(application -> findDatasourceByApplicationId(application.getId(), workspaceId)
-                        .map(datasources -> {
-                            ApplicationImportDTO applicationImportDTO = new ApplicationImportDTO();
-                            applicationImportDTO.setApplication(application);
-                            Long unConfiguredDatasource = datasources.stream().filter(datasource -> Boolean.FALSE.equals(datasource.getIsConfigured())).count();
-                            if (unConfiguredDatasource != 0) {
-                                applicationImportDTO.setIsPartialImport(true);
-                                applicationImportDTO.setUnConfiguredDatasourceList(datasources);
-                            } else {
-                                applicationImportDTO.setIsPartialImport(false);
-                            }
-                            return applicationImportDTO;
-                        }));
+                .flatMap(application -> getApplicationImportDTO(application.getId(), application.getWorkspaceId(), application));
 
         return Mono.create(sink -> importedApplicationMono
                 .subscribe(sink::success, sink::error, null, sink.currentContext())
@@ -700,7 +692,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
         importedApplication.setPages(null);
         importedApplication.setPublishedPages(null);
         // Start the stopwatch to log the execution time
-        Stopwatch stopwatch = new Stopwatch(AnalyticsEvents.IMPORT_APPLICATION.getEventName());
+        Stopwatch stopwatch = new Stopwatch(AnalyticsEvents.IMPORT.getEventName());
         Mono<Application> importedApplicationMono = pluginRepository.findAll()
                 .map(plugin -> {
                     final String pluginReference = plugin.getPluginName() == null ? plugin.getPackageName() : plugin.getPluginName();
@@ -1131,6 +1123,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                             .collectList()
                             .flatMapMany(newPageService::saveAll)
                             .then(applicationService.update(importedApplication.getId(), importedApplication))
+                            .then(sendImportExportApplicationAnalyticsEvent(importedApplication.getId(), AnalyticsEvents.IMPORT))
                             .zipWith(currUserMono)
                             .map(tuple -> {
                                 Application application = tuple.getT1();
@@ -1152,7 +1145,7 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
 
         // Import Application is currently a slow API because it needs to import and create application, pages, actions
         // and action collection. This process may take time and the client may cancel the request. This leads to the flow
-        // getting stopped mid way producing corrupted objects in DB. The following ensures that even though the client may have
+        // getting stopped midway producing corrupted objects in DB. The following ensures that even though the client may have
         // cancelled the flow, the importing the application should proceed uninterrupted and whenever the user refreshes
         // the page, the imported application is available and is in sane state.
         // To achieve this, we use a synchronous sink which does not take subscription cancellations into account. This
@@ -1986,6 +1979,23 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
                 });
     }
 
+    @Override
+    public Mono<ApplicationImportDTO> getApplicationImportDTO(String applicationId, String workspaceId, Application application) {
+        return findDatasourceByApplicationId(applicationId, workspaceId)
+                .map(datasources -> {
+                    ApplicationImportDTO applicationImportDTO = new ApplicationImportDTO();
+                    applicationImportDTO.setApplication(application);
+                    Boolean isUnConfiguredDatasource = datasources.stream().anyMatch(datasource -> Boolean.FALSE.equals(datasource.getIsConfigured()));
+                    if (Boolean.TRUE.equals(isUnConfiguredDatasource)) {
+                        applicationImportDTO.setIsPartialImport(true);
+                        applicationImportDTO.setUnConfiguredDatasourceList(datasources);
+                    } else {
+                        applicationImportDTO.setIsPartialImport(false);
+                    }
+                    return applicationImportDTO;
+                });
+    }
+
     /**
      *
      * @param applicationId default ID of the application where this ApplicationJSON is going to get merged with
@@ -2090,5 +2100,35 @@ public class ImportExportApplicationServiceCEImpl implements ImportExportApplica
             }
             return newToOldToPageNameMap;
         });
+    }
+
+    /**
+     * To send analytics event for import and export of application
+     * @param applicationId Id of application being imported or exported
+     * @param event AnalyticsEvents event
+     * @return The application which is imported or exported
+     */
+    private Mono<Application> sendImportExportApplicationAnalyticsEvent(String applicationId, AnalyticsEvents event) {
+
+        return applicationService.findById(applicationId, AclPermission.READ_APPLICATIONS)
+                .flatMap(application -> {
+                    return Mono.zip(Mono.just(application), workspaceService.getById(application.getWorkspaceId()));
+                })
+                .flatMap(tuple -> {
+                    Application application = tuple.getT1();
+                    Workspace workspace = tuple.getT2();
+                    final Map<String, Object> eventData = Map.of(
+                            FieldName.APPLICATION, application,
+                            FieldName.WORKSPACE, workspace
+                    );
+
+                    final Map<String, Object> data = Map.of(
+                            FieldName.APPLICATION_ID, application.getId(),
+                            FieldName.WORKSPACE_ID, workspace.getId(),
+                            FieldName.EVENT_DATA, eventData
+                    );
+
+                    return analyticsService.sendObjectEvent(event, application, data);
+                });
     }
 }

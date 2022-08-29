@@ -14,6 +14,7 @@ import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.server.constants.Assets;
 import com.appsmith.server.constants.Entity;
 import com.appsmith.server.constants.FieldName;
+import com.appsmith.server.constants.GitDefaultCommitMessage;
 import com.appsmith.server.constants.SerialiseApplicationObjective;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.dtos.ApplicationJson;
@@ -84,6 +85,12 @@ import java.util.Optional;
 import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
 
+import static com.appsmith.external.constants.GitConstants.CONFLICTED_SUCCESS_MESSAGE;
+import static com.appsmith.external.constants.GitConstants.DEFAULT_COMMIT_MESSAGE;
+import static com.appsmith.external.constants.GitConstants.EMPTY_COMMIT_ERROR_MESSAGE;
+import static com.appsmith.external.constants.GitConstants.GIT_CONFIG_ERROR;
+import static com.appsmith.external.constants.GitConstants.GIT_PROFILE_ERROR;
+import static com.appsmith.external.constants.GitConstants.MERGE_CONFLICT_BRANCH_NAME;
 import static com.appsmith.server.acl.AclPermission.MANAGE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_DATASOURCES;
@@ -130,37 +137,8 @@ public class GitServiceCEImpl implements GitServiceCE {
     private final PluginService pluginService;
     private final RedisUtils redisUtils;
 
-    private final static String DEFAULT_COMMIT_MESSAGE = "System generated commit, ";
-    private final static String EMPTY_COMMIT_ERROR_MESSAGE = "On current branch nothing to commit, working tree clean";
-    private final static String MERGE_CONFLICT_BRANCH_NAME = "_mergeConflict";
-    private final static String CONFLICTED_SUCCESS_MESSAGE = "branch has been created from conflicted state. Please " +
-            "resolve merge conflicts in remote and pull again";
-
-    private final static String GIT_CONFIG_ERROR = "Unable to find the git configuration, please configure your application " +
-            "with git to use version control service";
-
-    private final static String GIT_PROFILE_ERROR = "Unable to find git author configuration for logged-in user. You can" +
-            " set up a git profile from the user profile section.";
-
     private final static Duration RETRY_DELAY = Duration.ofSeconds(1);
     private final static Integer MAX_RETRIES = 20;
-
-    private enum DEFAULT_COMMIT_REASONS {
-        CONFLICT_STATE("for conflicted state"),
-        CONNECT_FLOW("initial commit"),
-        BRANCH_CREATED("after creating a new branch: "),
-        SYNC_WITH_REMOTE_AFTER_PULL("for syncing changes with remote after git pull"),
-        SYNC_REMOTE_AFTER_MERGE("for syncing changes with local branch after git merge, branch: ");
-
-        private final String reason;
-
-        DEFAULT_COMMIT_REASONS(String reason) {
-            this.reason = reason;
-        }
-        private String getReason() {
-            return this.reason;
-        }
-    }
 
     @Override
     public Mono<Application> updateGitMetadata(String applicationId, GitApplicationMetadata gitApplicationMetadata) {
@@ -392,7 +370,7 @@ public class GitServiceCEImpl implements GitServiceCE {
         StringBuilder result = new StringBuilder();
 
         if (commitMessage == null || commitMessage.isEmpty()) {
-            commitDTO.setCommitMessage(DEFAULT_COMMIT_MESSAGE + DEFAULT_COMMIT_REASONS.CONNECT_FLOW.getReason());
+            commitDTO.setCommitMessage(DEFAULT_COMMIT_MESSAGE + GitDefaultCommitMessage.CONNECT_FLOW.getReason());
         }
         if (StringUtils.isEmptyOrNull(branchName)) {
             throw new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.BRANCH_NAME);
@@ -888,7 +866,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                                     }
                                     return gitExecutor.commitApplication(
                                             tuple.getT1(),
-                                            DEFAULT_COMMIT_MESSAGE + DEFAULT_COMMIT_REASONS.CONNECT_FLOW.getReason(),
+                                            DEFAULT_COMMIT_MESSAGE + GitDefaultCommitMessage.CONNECT_FLOW.getReason(),
                                             profile.getAuthorName(),
                                             profile.getAuthorEmail(),
                                             false,
@@ -899,7 +877,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                                     // Commit and push application to check if the SSH key has the write access
                                     GitCommitDTO commitDTO = new GitCommitDTO();
                                     commitDTO.setDoPush(true);
-                                    commitDTO.setCommitMessage(DEFAULT_COMMIT_MESSAGE + DEFAULT_COMMIT_REASONS.CONNECT_FLOW.getReason());
+                                    commitDTO.setCommitMessage(DEFAULT_COMMIT_MESSAGE + GitDefaultCommitMessage.CONNECT_FLOW.getReason());
 
 
                                     return this.commitApplication(commitDTO, defaultApplicationId, application.getGitApplicationMetadata().getBranchName(), true)
@@ -1250,7 +1228,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                         // new branch from uncommitted branch
                         GitApplicationMetadata gitData = application.getGitApplicationMetadata();
                         GitCommitDTO commitDTO = new GitCommitDTO();
-                        commitDTO.setCommitMessage(DEFAULT_COMMIT_MESSAGE + DEFAULT_COMMIT_REASONS.BRANCH_CREATED.getReason() + gitData.getBranchName());
+                        commitDTO.setCommitMessage(DEFAULT_COMMIT_MESSAGE + GitDefaultCommitMessage.BRANCH_CREATED.getReason() + gitData.getBranchName());
                         commitDTO.setDoPush(true);
                         return commitApplication(commitDTO, gitData.getDefaultApplicationId(), gitData.getBranchName())
                                 .thenReturn(application);
@@ -1759,7 +1737,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                             .flatMap(application1 -> {
                                 GitCommitDTO commitDTO = new GitCommitDTO();
                                 commitDTO.setDoPush(true);
-                                commitDTO.setCommitMessage(DEFAULT_COMMIT_MESSAGE + DEFAULT_COMMIT_REASONS.SYNC_REMOTE_AFTER_MERGE.getReason() + sourceBranch);
+                                commitDTO.setCommitMessage(DEFAULT_COMMIT_MESSAGE + GitDefaultCommitMessage.SYNC_REMOTE_AFTER_MERGE.getReason() + sourceBranch);
                                 return this.commitApplication(commitDTO, defaultApplicationId, destinationBranch)
                                         .map(commitStatus -> mergeStatusDTO)
                                         .zipWith(Mono.just(application1));
@@ -1898,7 +1876,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                     Path repoSuffix = tuple.getT3();
                     return gitExecutor.createAndCheckoutToBranch(repoSuffix, branchName + MERGE_CONFLICT_BRANCH_NAME)
                             .flatMap(conflictedBranchName ->
-                                    commitAndPushWithDefaultCommit(repoSuffix, gitData.getGitAuth(), gitData, DEFAULT_COMMIT_REASONS.CONFLICT_STATE)
+                                    commitAndPushWithDefaultCommit(repoSuffix, gitData.getGitAuth(), gitData, GitDefaultCommitMessage.CONFLICT_STATE)
                                             .flatMap(successMessage -> gitExecutor.checkoutToBranch(repoSuffix, branchName))
                                             .flatMap(isCheckedOut -> gitExecutor.deleteBranch(repoSuffix, conflictedBranchName))
                                             .thenReturn(conflictedBranchName + CONFLICTED_SUCCESS_MESSAGE)
@@ -1924,7 +1902,7 @@ public class GitServiceCEImpl implements GitServiceCE {
         }
 
         if (StringUtils.isEmptyOrNull(workspaceId)) {
-            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "Invalid organization id"));
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "Invalid workspace id"));
         }
 
         final String repoName = GitUtils.getRepoName(gitConnectDTO.getRemoteUrl());
@@ -2071,19 +2049,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                             });
                 })
                 // Add un-configured datasource to the list to response
-                .flatMap(application -> importExportApplicationService.findDatasourceByApplicationId(application.getId(), application.getWorkspaceId())
-                        .map(datasources -> {
-                            ApplicationImportDTO applicationImportDTO = new ApplicationImportDTO();
-                            applicationImportDTO.setApplication(application);
-                            long unConfiguredDatasource = datasources.stream().filter(datasource -> Boolean.FALSE.equals(datasource.getIsConfigured())).count();
-                            if (unConfiguredDatasource != 0) {
-                                applicationImportDTO.setIsPartialImport(true);
-                                applicationImportDTO.setUnConfiguredDatasourceList(datasources);
-                            } else {
-                                applicationImportDTO.setIsPartialImport(false);
-                            }
-                            return applicationImportDTO;
-                        }))
+                .flatMap(application -> importExportApplicationService.getApplicationImportDTO(application.getId(), application.getWorkspaceId(), application))
                 // Add analytics event
                 .flatMap(applicationImportDTO -> {
                     Application application = applicationImportDTO.getApplication();
@@ -2339,7 +2305,7 @@ public class GitServiceCEImpl implements GitServiceCE {
     private Mono<String> commitAndPushWithDefaultCommit(Path repoSuffix,
                                                         GitAuth auth,
                                                         GitApplicationMetadata gitApplicationMetadata,
-                                                        DEFAULT_COMMIT_REASONS reason) {
+                                                        GitDefaultCommitMessage reason) {
         return gitExecutor.commitApplication(repoSuffix, DEFAULT_COMMIT_MESSAGE + reason.getReason(), APPSMITH_BOT_USERNAME, emailConfig.getSupportEmailAddress(), true, false)
                 .onErrorResume(error -> {
                     if (error instanceof EmptyCommitException) {
@@ -2507,7 +2473,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                         )
                         .flatMap(application -> {
                             GitCommitDTO commitDTO = new GitCommitDTO();
-                            commitDTO.setCommitMessage(DEFAULT_COMMIT_MESSAGE + DEFAULT_COMMIT_REASONS.SYNC_WITH_REMOTE_AFTER_PULL.getReason());
+                            commitDTO.setCommitMessage(DEFAULT_COMMIT_MESSAGE + GitDefaultCommitMessage.SYNC_WITH_REMOTE_AFTER_PULL.getReason());
                             commitDTO.setDoPush(true);
 
                             GitPullDTO gitPullDTO = new GitPullDTO();

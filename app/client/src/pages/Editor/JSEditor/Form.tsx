@@ -30,7 +30,7 @@ import { isEmpty, isEqual } from "lodash";
 import SearchSnippets from "components/ads/SnippetButton";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { JSFunctionRun } from "./JSFunctionRun";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import {
   getActiveJSActionId,
   getIsExecutingJSAction,
@@ -45,7 +45,7 @@ import {
   getJSFunctionLineGutter,
   JSActionDropdownOption,
 } from "./utils";
-import { DropdownOnSelect } from "components/ads";
+import { DropdownOnSelect } from "design-system";
 import JSFunctionSettingsView from "./JSFunctionSettings";
 import JSObjectHotKeys from "./JSObjectHotKeys";
 import {
@@ -170,7 +170,13 @@ function JSEditorForm({ jsCollection: currentJSCollection }: Props) {
     event: React.MouseEvent<HTMLElement, MouseEvent> | KeyboardEvent,
   ) => {
     event.preventDefault();
-    selectedJSActionOption.data && executeJSAction(selectedJSActionOption.data);
+    if (
+      !disableRunFunctionality &&
+      !isExecutingCurrentJSAction &&
+      selectedJSActionOption.data
+    ) {
+      executeJSAction(selectedJSActionOption.data);
+    }
   };
 
   useEffect(() => {
@@ -179,8 +185,30 @@ function JSEditorForm({ jsCollection: currentJSCollection }: Props) {
     } else {
       setDisableRunFunctionality(false);
     }
-    setSelectedJSActionOption(getJSActionOption(activeJSAction, jsActions));
   }, [parseErrors, jsActions, activeJSActionId]);
+
+  useEffect(() => {
+    // update the selectedJSActionOption when there is addition or removal of jsAction or function
+    setSelectedJSActionOption(getJSActionOption(activeJSAction, jsActions));
+  }, [jsActions, activeJSActionId]);
+
+  const blockCompletions = useMemo(() => {
+    if (selectedJSActionOption.label) {
+      const funcName = `${selectedJSActionOption.label}()`;
+      return [
+        {
+          parentPath: "this",
+          subPath: funcName,
+        },
+        {
+          parentPath: currentJSCollection.name,
+          subPath: funcName,
+        },
+      ];
+    }
+    return [];
+  }, [selectedJSActionOption.label, currentJSCollection.name]);
+
   return (
     <FormWrapper>
       <JSObjectHotKeys runActiveJSFunction={handleRunAction}>
@@ -224,6 +252,7 @@ function JSEditorForm({ jsCollection: currentJSCollection }: Props) {
                     title: "Code",
                     panelComponent: (
                       <CodeEditor
+                        blockCompletions={blockCompletions}
                         className={"js-editor"}
                         customGutter={JSGutters}
                         dataTreePath={`${currentJSCollection.name}.body`}

@@ -8,7 +8,7 @@ import _ from "lodash";
 import ErrorTooltip from "./ErrorTooltip";
 import { Toaster } from "components/ads/Toast";
 import { Variant } from "components/ads/common";
-import Icon, { IconSize } from "components/ads/Icon";
+import { Icon, IconSize } from "design-system";
 
 export enum EditInteractionKind {
   SINGLE,

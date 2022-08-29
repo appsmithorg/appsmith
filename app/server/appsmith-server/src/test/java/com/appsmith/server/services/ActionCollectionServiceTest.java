@@ -5,29 +5,29 @@ import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.JSValue;
 import com.appsmith.external.models.Policy;
 import com.appsmith.external.plugins.PluginExecutor;
-import com.appsmith.server.acl.AclPermission;
-import com.appsmith.server.acl.AppsmithRole;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewAction;
-import com.appsmith.server.domains.Workspace;
+import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.PluginType;
 import com.appsmith.server.domains.User;
-import com.appsmith.server.domains.UserRole;
+import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.ActionCollectionViewDTO;
 import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.LayoutDTO;
 import com.appsmith.server.dtos.PageDTO;
+import com.appsmith.server.dtos.PermissionGroupInfoDTO;
+import com.appsmith.server.dtos.PluginWorkspaceDTO;
 import com.appsmith.server.dtos.RefactorActionNameDTO;
-import com.appsmith.server.exceptions.AppsmithError;
-import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.dtos.WorkspacePluginStatus;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
-import com.appsmith.server.repositories.WorkspaceRepository;
+import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.repositories.PluginRepository;
+import com.appsmith.server.repositories.WorkspaceRepository;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
@@ -58,6 +58,10 @@ import static com.appsmith.server.acl.AclPermission.EXECUTE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.READ_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.READ_PAGES;
+import static com.appsmith.server.acl.AclPermission.READ_WORKSPACES;
+import static com.appsmith.server.constants.FieldName.ADMINISTRATOR;
+import static com.appsmith.server.constants.FieldName.DEVELOPER;
+import static com.appsmith.server.constants.FieldName.VIEWER;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(SpringRunner.class)
@@ -99,6 +103,12 @@ public class ActionCollectionServiceTest {
     @Autowired
     NewActionService newActionService;
 
+    @Autowired
+    PluginService pluginService;
+
+    @Autowired
+    PermissionGroupRepository permissionGroupRepository;
+
     @MockBean
     PluginExecutorHelper pluginExecutorHelper;
 
@@ -118,15 +128,20 @@ public class ActionCollectionServiceTest {
     public void setup() {
         User apiUser = userService.findByEmail("api_user").block();
         assert apiUser != null;
-        workspaceId = apiUser.getWorkspaceIds().iterator().next();
-        Workspace workspace = workspaceService.getById(workspaceId).block();
+        Workspace toCreate = new Workspace();
+        toCreate.setName("ActionCollectionServiceTest");
+
+        if (workspaceId == null) {
+            Workspace workspace = workspaceService.create(toCreate, apiUser).block();
+            workspaceId = workspace.getId();
+        }
 
         if (testApp == null && testPage == null) {
             //Create application and page which will be used by the tests to create actions for.
             Application application = new Application();
             application.setName(UUID.randomUUID().toString());
-            assert workspace != null;
-            testApp = applicationPageService.createApplication(application, workspace.getId()).block();
+
+            testApp = applicationPageService.createApplication(application, workspaceId).block();
 
             assert testApp != null;
             final String pageId = testApp.getPages().get(0).getId();
@@ -156,14 +171,15 @@ public class ActionCollectionServiceTest {
             layout.setPublishedDsl(dsl);
         }
 
-        Workspace testWorkspace = workspaceRepository.findByName("Another Test Workspace", AclPermission.READ_WORKSPACES).block();
-        assert testWorkspace != null;
-        workspaceId = testWorkspace.getId();
+        Plugin installedJsPlugin = pluginRepository.findByPackageName("installed-js-plugin").block();
+        PluginWorkspaceDTO pluginWorkspaceDTO = new PluginWorkspaceDTO();
+        pluginWorkspaceDTO.setPluginId(installedJsPlugin.getId());
+        pluginWorkspaceDTO.setWorkspaceId(workspaceId);
+        pluginWorkspaceDTO.setStatus(WorkspacePluginStatus.FREE);
+        pluginService.installPlugin(pluginWorkspaceDTO).block();
         datasource = new Datasource();
         datasource.setName("Default Database");
         datasource.setWorkspaceId(workspaceId);
-        Plugin installedJsPlugin = pluginRepository.findByPackageName("installed-js-plugin").block();
-        assert installedJsPlugin != null;
         datasource.setPluginId(installedJsPlugin.getId());
     }
 
@@ -180,12 +196,14 @@ public class ActionCollectionServiceTest {
     public void createValidActionCollectionAndCheckPermissions() {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(new MockPluginExecutor()));
 
-        Policy manageActionPolicy = Policy.builder().permission(MANAGE_ACTIONS.getValue())
-                .users(Set.of("api_user"))
-                .build();
-        Policy readActionPolicy = Policy.builder().permission(READ_ACTIONS.getValue())
-                .users(Set.of("api_user"))
-                .build();
+        Mono<Workspace> workspaceResponse = workspaceService.findById(workspaceId, READ_WORKSPACES);
+
+        Mono<List<PermissionGroup>> defaultPermissionGroupsMono = workspaceResponse
+                .flatMapMany(savedWorkspace -> {
+                    Set<String> defaultPermissionGroups = savedWorkspace.getDefaultPermissionGroups();
+                    return permissionGroupRepository.findAllById(defaultPermissionGroups);
+                })
+                .collectList();
 
         ActionCollectionDTO actionCollectionDTO = new ActionCollectionDTO();
         actionCollectionDTO.setName("testActionCollection");
@@ -199,62 +217,36 @@ public class ActionCollectionServiceTest {
                 .flatMap(createdCollection -> actionCollectionService.findById(createdCollection.getId(), READ_ACTIONS));
 
         StepVerifier
-                .create(actionCollectionMono)
-                .assertNext(createdActionCollection -> {
+                .create(Mono.zip(actionCollectionMono, defaultPermissionGroupsMono))
+                .assertNext(tuple -> {
+                    ActionCollection createdActionCollection = tuple.getT1();
                     assertThat(createdActionCollection.getId()).isNotEmpty();
                     assertThat(createdActionCollection.getUnpublishedCollection().getName()).isEqualTo(actionCollectionDTO.getName());
-                    assertThat(createdActionCollection.getPolicies()).containsAll(Set.of(manageActionPolicy, readActionPolicy));
-                })
-                .verifyComplete();
-    }
 
-    @Test
-    @WithUserDetails(value = "api_user")
-    public void addUserToWorkspaceAsAdminAndCheckActionCollectionPermissions() {
+                    List<PermissionGroup> permissionGroups = tuple.getT2();
+                    PermissionGroup adminPermissionGroup = permissionGroups.stream()
+                            .filter(permissionGroup -> permissionGroup.getName().startsWith(ADMINISTRATOR))
+                            .findFirst().get();
 
-        // Create action collection
-        ActionCollectionDTO actionCollectionDTO = new ActionCollectionDTO();
-        actionCollectionDTO.setName("testActionCollection");
-        actionCollectionDTO.setApplicationId(testApp.getId());
-        actionCollectionDTO.setWorkspaceId(testApp.getWorkspaceId());
-        actionCollectionDTO.setPageId(testPage.getId());
-        actionCollectionDTO.setPluginId(datasource.getPluginId());
-        actionCollectionDTO.setPluginType(PluginType.JS);
-        ActionCollectionDTO actionCollection =
-                layoutCollectionService.createCollection(actionCollectionDTO).block();
+                    PermissionGroup developerPermissionGroup = permissionGroups.stream()
+                            .filter(permissionGroup -> permissionGroup.getName().startsWith(DEVELOPER))
+                            .findFirst().get();
 
-        UserRole userRole = new UserRole();
-        userRole.setRoleName(AppsmithRole.ORGANIZATION_ADMIN.getName());
-        userRole.setUsername("usertest@usertest.com");
+                    PermissionGroup viewerPermissionGroup = permissionGroups.stream()
+                            .filter(permissionGroup -> permissionGroup.getName().startsWith(VIEWER))
+                            .findFirst().get();
 
-        userWorkspaceService.addUserRoleToWorkspace(testApp.getWorkspaceId(), userRole).block();
-
-        assert actionCollection != null;
-        Mono<ActionCollection> readActionCollectionMono =
-                actionCollectionService.findById(actionCollection.getId(), READ_ACTIONS)
-                        .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "ActionCollection", actionCollection.getId())));
-
-        StepVerifier
-                .create(readActionCollectionMono)
-                .assertNext(updatedActionCollection -> {
-
-                    Policy manageActionCollectionPolicy = Policy.builder().permission(MANAGE_ACTIONS.getValue())
-                            .users(Set.of("api_user", "usertest@usertest.com"))
+                    Policy manageActionPolicy = Policy.builder().permission(MANAGE_ACTIONS.getValue())
+                            .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId()))
                             .build();
-                    Policy readActionCollectionPolicy = Policy.builder().permission(READ_ACTIONS.getValue())
-                            .users(Set.of("api_user", "usertest@usertest.com"))
+                    Policy readActionPolicy = Policy.builder().permission(READ_ACTIONS.getValue())
+                            .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId()))
                             .build();
-                    Policy executeActionCollectionPolicy = Policy.builder().permission(EXECUTE_ACTIONS.getValue())
-                            .users(Set.of("api_user", "usertest@usertest.com"))
+                    Policy executeActionPolicy = Policy.builder().permission(EXECUTE_ACTIONS.getValue())
+                            .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId(), viewerPermissionGroup.getId()))
                             .build();
 
-                    assertThat(updatedActionCollection.getPolicies()).isNotEmpty();
-                    assertThat(updatedActionCollection.getPolicies())
-                            .containsAll(Set.of(
-                                    manageActionCollectionPolicy,
-                                    readActionCollectionPolicy,
-                                    executeActionCollectionPolicy));
-
+                    assertThat(createdActionCollection.getPolicies()).containsAll(Set.of(manageActionPolicy, readActionPolicy, executeActionPolicy));
                 })
                 .verifyComplete();
     }
@@ -525,19 +517,35 @@ public class ActionCollectionServiceTest {
 
     /**
      * For a given collection testActionCollection,
-     * When the collection is updated after creation,
-     * The updatedAt field should have a greater value than the updatedAt value when it was created.
+     * When the collection is updated after creation such that the JS function becomes sync,
+     * The executeOnLoad, confirmBeforeExecute and userSetOnLoad should be reset to false
      */
     @Test
     @WithUserDetails(value = "api_user")
-    public void testUpdateActionCollection_verifyUpdatedAtFieldUpdated() {
+    public void testUpdateActionCollection_fromAsyncToSync_resetsSyncFunctionFields() {
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any())).thenReturn(Mono.just(pluginExecutor));
+        Mockito.when(pluginExecutor.getHintMessages(Mockito.any(), Mockito.any()))
+                .thenReturn(Mono.zip(Mono.just(new HashSet<>()), Mono.just(new HashSet<>())));
+
         ActionCollectionDTO actionCollectionDTO = new ActionCollectionDTO();
-        actionCollectionDTO.setName("testActionCollection");
-        actionCollectionDTO.setApplicationId(testApp.getId());
-        actionCollectionDTO.setWorkspaceId(testApp.getWorkspaceId());
+        actionCollectionDTO.setName("testCollection1");
         actionCollectionDTO.setPageId(testPage.getId());
+        actionCollectionDTO.setApplicationId(testApp.getId());
+        actionCollectionDTO.setWorkspaceId(workspaceId);
         actionCollectionDTO.setPluginId(datasource.getPluginId());
+        actionCollectionDTO.setVariables(List.of(new JSValue("test", "String", "test", true)));
+        actionCollectionDTO.setBody("collectionBody");
+        ActionDTO action1 = new ActionDTO();
+        action1.setName("testAction1");
+        action1.setActionConfiguration(new ActionConfiguration());
+        action1.getActionConfiguration().setBody("mockBody");
+        action1.getActionConfiguration().setIsValid(false);
+        action1.getActionConfiguration().setIsAsync(true);
+        action1.setExecuteOnLoad(true);
+        action1.setUserSetOnLoad(true);
+        action1.setConfirmBeforeExecute(true);
         actionCollectionDTO.setPluginType(PluginType.JS);
+        actionCollectionDTO.setActions(List.of(action1));
 
         ActionCollection createdActionCollection = layoutCollectionService.createCollection(actionCollectionDTO)
                 .flatMap(createdCollection -> {
@@ -550,13 +558,23 @@ public class ActionCollectionServiceTest {
                     return actionCollectionService.findById(createdCollection.getId(), READ_ACTIONS);
                 }).block();
 
+        action1.getActionConfiguration().setIsAsync(false);
+        final Mono<List<ActionCollectionViewDTO>> viewModeCollectionsMono = layoutCollectionService.updateUnpublishedActionCollection(createdActionCollection.getId(), actionCollectionDTO, null)
+                .flatMap(updatedCollection -> applicationPageService.publish(testApp.getId(), true))
+                .thenMany(actionCollectionService.getActionCollectionsForViewMode(testApp.getId(), null))
+                .collectList();
 
-        Mono<ActionCollection> updatedActionCollectionMono = layoutCollectionService.updateUnpublishedActionCollection(createdActionCollection.getId(), actionCollectionDTO, null)
-                .flatMap(createdCollection -> actionCollectionService.findById(createdCollection.getId(), READ_ACTIONS));
+        StepVerifier.create(viewModeCollectionsMono)
+                .assertNext(viewModeCollections -> {
+                    assertThat(viewModeCollections.size()).isEqualTo(1);
 
-        StepVerifier.create(updatedActionCollectionMono)
-                .assertNext(updatedActionCollection -> {
-                    assertThat(updatedActionCollection.getUpdatedAt().isAfter(createdActionCollection.getUpdatedAt())).isTrue();
+                    final ActionCollectionViewDTO actionCollectionViewDTO = viewModeCollections.get(0);
+                    final List<ActionDTO> actions = actionCollectionViewDTO.getActions();
+                    Assert.assertFalse(actions.isEmpty());
+                    final ActionDTO actionDTO = actions.get(0);
+                    Assert.assertFalse(actionDTO.getExecuteOnLoad());
+                    Assert.assertFalse(actionDTO.getUserSetOnLoad());
+                    Assert.assertFalse(actionDTO.getConfirmBeforeExecute());
                 })
                 .verifyComplete();
     }

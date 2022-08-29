@@ -12,7 +12,7 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import { FormDialogComponent } from "components/editorComponents/form/FormDialogComponent";
 import AppsmithLogo from "assets/images/appsmith_logo_square.png";
 import { Link } from "react-router-dom";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import {
   getCurrentApplicationId,
   getCurrentPageId,
@@ -37,16 +37,13 @@ import EditorAppName from "./EditorAppName";
 import ProfileDropdown from "pages/common/ProfileDropdown";
 import { getCurrentUser, selectFeatureFlags } from "selectors/usersSelectors";
 import { ANONYMOUS_USERNAME, User } from "constants/userConstants";
-import Button, { Size } from "components/ads/Button";
-import Icon, { IconSize } from "components/ads/Icon";
+import { Button, Icon, IconSize, Size, TooltipComponent } from "design-system";
 import { Profile } from "pages/common/ProfileImage";
 import { getTypographyByKey } from "constants/DefaultTheme";
 import HelpBar from "components/editorComponents/GlobalSearch/HelpBar";
 import HelpButton from "./HelpButton";
 import { getTheme, ThemeMode } from "selectors/themeSelectors";
-import ToggleModeButton, {
-  useHideComments,
-} from "pages/Editor/ToggleModeButton";
+import ToggleModeButton from "pages/Editor/ToggleModeButton";
 import { Colors } from "constants/Colors";
 import { snipingModeSelector } from "selectors/editorSelectors";
 import { setSnipingMode as setSnipingModeAction } from "actions/propertyPaneActions";
@@ -60,7 +57,6 @@ import { fetchUsersForWorkspace } from "actions/workspaceActions";
 import { WorkspaceUser } from "constants/workspaceConstants";
 
 import { getIsGitConnected } from "selectors/gitSyncSelectors";
-import { TooltipComponent } from "design-system";
 import {
   CLOSE_ENTITY_EXPLORER_MESSAGE,
   createMessage,
@@ -262,7 +258,6 @@ export function EditorHeader(props: EditorHeaderProps) {
   const isErroredSavingName = useSelector(getIsErroredSavingAppName);
   const applicationList = useSelector(getApplicationList);
   const user = useSelector(getCurrentUser);
-  const shouldHideComments = useHideComments();
   const isPreviewMode = useSelector(previewModeSelector);
   const deployLink = useHref(viewerURL, { pageId });
 
@@ -341,7 +336,6 @@ export function EditorHeader(props: EditorHeaderProps) {
   const filteredSharedUserList = props.sharedUserList.filter(
     (user) => user.username !== props.currentUser?.username,
   );
-  const showModes = !shouldHideComments;
 
   return (
     <ThemeProvider theme={theme}>
@@ -437,7 +431,7 @@ export function EditorHeader(props: EditorHeaderProps) {
               setIsPopoverOpen={setIsPopoverOpen}
             />
           </TooltipComponent>
-          {showModes && <ToggleModeButton showSelectedMode={!isPopoverOpen} />}
+          <ToggleModeButton showSelectedMode={!isPopoverOpen} />
         </HeaderSection>
         <HeaderSection
           className={classNames({

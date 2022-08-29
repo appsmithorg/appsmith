@@ -16,7 +16,7 @@ import {
   useWidgetDragResize,
 } from "utils/hooks/dragResizeHooks";
 import { useSelector } from "react-redux";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import Resizable from "resizable/resizenreflow";
 import { omit, get } from "lodash";
 import { getSnapColumns } from "utils/WidgetPropsUtils";
@@ -32,18 +32,16 @@ import {
   BottomRightHandleStyles,
 } from "./ResizeStyledComponents";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { commentModeSelector } from "selectors/commentsSelectors";
 import {
   previewModeSelector,
   snipingModeSelector,
 } from "selectors/editorSelectors";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
-import { getCanvasWidgets } from "selectors/entitiesSelector";
 import { focusWidget } from "actions/widgetActions";
-import { getParentToOpenIfAny } from "utils/hooks/useClickToSelectWidget";
 import { GridDefaults } from "constants/WidgetConstants";
 import { DropTargetContext } from "./DropTargetComponent";
 import { XYCord } from "pages/common/CanvasArenas/hooks/useCanvasDragging";
+import { getParentToOpenSelector } from "selectors/widgetSelectors";
 
 export type ResizableComponentProps = WidgetProps & {
   paddingOffset: number;
@@ -54,9 +52,7 @@ export const ResizableComponent = memo(function ResizableComponent(
 ) {
   // Fetch information from the context
   const { updateWidget } = useContext(EditorContext);
-  const canvasWidgets = useSelector(getCanvasWidgets);
 
-  const isCommentMode = useSelector(commentModeSelector);
   const isSnipingMode = useSelector(snipingModeSelector);
   const isPreviewMode = useSelector(previewModeSelector);
 
@@ -80,9 +76,8 @@ export const ResizableComponent = memo(function ResizableComponent(
   const isResizing = useSelector(
     (state: AppState) => state.ui.widgetDragResize.isResizing,
   );
-  const parentWidgetToSelect = getParentToOpenIfAny(
-    props.widgetId,
-    canvasWidgets,
+  const parentWidgetToSelect = useSelector(
+    getParentToOpenSelector(props.widgetId),
   );
 
   const isWidgetFocused =
@@ -248,7 +243,6 @@ export const ResizableComponent = memo(function ResizableComponent(
     !isDragging &&
     isWidgetFocused &&
     !props.resizeDisabled &&
-    !isCommentMode &&
     !isSnipingMode &&
     !isPreviewMode;
   const isMultiSelectedWidget =

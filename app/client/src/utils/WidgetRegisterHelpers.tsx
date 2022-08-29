@@ -12,12 +12,15 @@ import { generateReactKey } from "./generators";
 import { memoize } from "lodash";
 import { WidgetFeatureProps } from "./WidgetFeatures";
 import { WidgetConfiguration } from "widgets/constants";
+import withWidgetProps from "widgets/withWidgetProps";
 
 const generateWidget = memoize(function getWidgetComponent(
   Widget: typeof BaseWidget,
   needsMeta: boolean,
 ) {
-  const widget = needsMeta ? withMeta(Widget) : Widget;
+  let widget = needsMeta ? withMeta(Widget) : Widget;
+  //@ts-expect-error: type mismatch
+  widget = withWidgetProps(widget);
   return Sentry.withProfiler(
     // @ts-expect-error: Types are not available
     widget,
@@ -38,6 +41,8 @@ export const registerWidget = (Widget: any, config: WidgetConfiguration) => {
     config.properties.default,
     config.properties.meta,
     config.properties.config,
+    config.properties.contentConfig,
+    config.properties.styleConfig,
     config.features,
   );
   configureWidget(config);

@@ -25,8 +25,11 @@ import {
   getLintErrorMessage,
   getLintSeverity,
 } from "components/editorComponents/CodeEditor/lintHelpers";
-import { ECMA_VERSION } from "constants/ast";
-import { IGNORED_LINT_ERRORS } from "components/editorComponents/CodeEditor/constants";
+import { ECMA_VERSION } from "@shared/ast";
+import {
+  IGNORED_LINT_ERRORS,
+  SUPPORTED_WEB_APIS,
+} from "components/editorComponents/CodeEditor/constants";
 
 export const pathRequiresLinting = (
   dataTree: DataTree,
@@ -104,8 +107,10 @@ export const getLintingErrors = (
   }
   // Jshint shouldn't throw errors for additional libraries
   extraLibraries.forEach((lib) => (globalData[lib.accessor] = true));
-
-  globalData.console = true;
+  // JSHint shouldn't throw errors for supported web apis
+  Object.keys(SUPPORTED_WEB_APIS).forEach(
+    (apiName) => (globalData[apiName] = true),
+  );
 
   const options: LintOptions = {
     indent: 2,

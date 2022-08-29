@@ -35,6 +35,7 @@ describe("Lint error reporting", () => {
       shouldCreateNewJSObj: true,
     });
     MouseHoverNVerify("name", "'name' is defined but never used.", false);
+    agHelper.PressEscape();
     agHelper.GetNClick(locator._errorTab);
     agHelper.AssertContains("'name' is defined but never used.", "not.exist");
 
@@ -56,14 +57,12 @@ describe("Lint error reporting", () => {
     // Test in PropertyPane
     ee.ExpandCollapseEntity("QUERIES/JS");
     ee.SelectEntityByName("Button1", "WIDGETS");
-    jsEditor.EnterJSContext(
+    propPane.EnterJSContext(
       "onClick",
       `{{
         () => {
         await showAlert('test')
     }}}`,
-      true,
-      true,
     );
 
     MouseHoverNVerify(
@@ -111,15 +110,13 @@ describe("Lint error reporting", () => {
     // Test in PropertyPane
     ee.ExpandCollapseEntity("QUERIES/JS");
     ee.SelectEntityByName("Button1", "WIDGETS");
-    jsEditor.EnterJSContext(
+    propPane.EnterJSContext(
       "onClick",
       `{{ {
           myVar2: {}
           myFun1: () => {
           }
         }}}`,
-      true,
-      true,
     );
     MouseHoverNVerify(
       "myFun1",
@@ -166,15 +163,13 @@ describe("Lint error reporting", () => {
     // Test in PropertyPane
     ee.ExpandCollapseEntity("QUERIES/JS");
     ee.SelectEntityByName("Button1", "WIDGETS");
-    jsEditor.EnterJSContext(
+    propPane.EnterJSContext(
       "onClick",
       `{{ {
           myVar2: {};
           myFun1: () => {
           }
         }}}`,
-      true,
-      true,
     );
     MouseHoverNVerify(
       ";",
@@ -302,20 +297,30 @@ describe("Lint error reporting", () => {
     agHelper.AssertElementAbsence(locator._lintErrorElement);
   });
 
-  function MouseHoverNVerify(
-    lintOn: string,
-    debugMsg: string,
-    isError = true,
-  ) {
+  function MouseHoverNVerify(lintOn: string, debugMsg: string, isError = true) {
     agHelper.Sleep();
-    let element = isError
+    const element = isError
       ? cy.get(locator._lintErrorElement)
       : cy.get(locator._lintWarningElement);
-      element
+    element
       .contains(lintOn)
       .should("exist")
       .first()
       .trigger("mouseover");
     agHelper.AssertContains(debugMsg);
   }
+
+  after(() => {
+    //deleting all test data
+    ee.ActionContextMenuByEntityName("Api1", "Delete", "Are you sure?");
+    ee.ActionContextMenuByEntityName("Api2", "Delete", "Are you sure?");
+    ee.ActionContextMenuByEntityName("Api3", "Delete", "Are you sure?");
+    ee.ActionContextMenuByEntityName("Api4", "Delete", "Are you sure?");
+    ee.ActionContextMenuByEntityName("Api5", "Delete", "Are you sure?");
+    ee.ActionContextMenuByEntityName("JSObject1", "Delete", "Are you sure?");
+    ee.ActionContextMenuByEntityName("JSObject2", "Delete", "Are you sure?");
+    ee.ActionContextMenuByEntityName("JSObject3", "Delete", "Are you sure?");
+    ee.ActionContextMenuByEntityName("JSObject4", "Delete", "Are you sure?");
+    ee.ActionContextMenuByEntityName("JSObject5", "Delete", "Are you sure?");
+  });
 });

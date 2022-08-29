@@ -7,9 +7,9 @@ import base64 from "constants/defs/base64-js.json";
 import moment from "constants/defs/moment.json";
 import xmlJs from "constants/defs/xmlParser.json";
 import forge from "constants/defs/forge.json";
+import browser from "constants/defs/browser.json";
 import CodeMirror, { Hint, Pos, cmpPos } from "codemirror";
 import {
-  getDynamicBindings,
   getDynamicStringSegments,
   isDynamicValue,
 } from "utils/DynamicBindingUtils";
@@ -19,12 +19,13 @@ import {
 } from "utils/autocomplete/EntityDefinitions";
 import { FieldEntityInformation } from "components/editorComponents/CodeEditor/EditorConfig";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
-import SortRules from "./dataTypeSortRules";
-import _ from "lodash";
+import { AutocompleteSorter } from "./AutocompleteSortRules";
+import { getCompletionsForKeyword } from "./keywordCompletion";
 
 const DEFS: Def[] = [
   // @ts-expect-error: Types are not available
   ecma,
+  browser,
   GLOBAL_FUNCTIONS,
   GLOBAL_DEFS,
   lodash,
@@ -40,7 +41,7 @@ const hintDelay = 1700;
 
 export type Completion = Hint & {
   origin: string;
-  type: AutocompleteDataType;
+  type: AutocompleteDataType | string;
   data: {
     doc: string;
   };
@@ -80,10 +81,53 @@ type ArgHints = {
   doc: CodeMirror.Doc;
 };
 
+type RequestQuery = {
+  type: string;
+  types?: boolean;
+  docs?: boolean;
+  urls?: boolean;
+  origins?: boolean;
+  caseInsensitive?: boolean;
+  preferFunction?: boolean;
+  end?: CodeMirror.Position;
+  guess?: boolean;
+  inLiteral?: boolean;
+  fullDocs?: any;
+  lineCharPositions?: any;
+  start?: any;
+  file?: any;
+  includeKeywords?: boolean;
+  depth?: number;
+  sort?: boolean;
+};
+
 export type DataTreeDefEntityInformation = {
   type: ENTITY_TYPE;
   subType: string;
 };
+
+export function getDataType(type: string): AutocompleteDataType {
+  if (type === "?") return AutocompleteDataType.UNKNOWN;
+  else if (type === "number") return AutocompleteDataType.NUMBER;
+  else if (type === "string") return AutocompleteDataType.STRING;
+  else if (type === "bool") return AutocompleteDataType.BOOLEAN;
+  else if (type === "array") return AutocompleteDataType.ARRAY;
+  else if (/^fn\(/.test(type)) return AutocompleteDataType.FUNCTION;
+  else if (/^\[/.test(type)) return AutocompleteDataType.ARRAY;
+  else return AutocompleteDataType.OBJECT;
+}
+
+export function typeToIcon(type: string, isKeyword: boolean) {
+  let suffix;
+  if (isKeyword) suffix = "keyword";
+  else if (type === "?") suffix = "unknown";
+  else if (type === "number" || type === "string" || type === "bool")
+    suffix = type;
+  else if (/^fn\(/.test(type)) suffix = "fn";
+  else if (/^\[/.test(type)) suffix = "array";
+  else suffix = "object";
+  return cls + "completion " + cls + "completion-" + suffix;
+}
 
 class TernServer {
   server: Server;
@@ -166,20 +210,22 @@ class TernServer {
     }
     const doc = this.findDoc(cm.getDoc());
     const cursor = cm.getCursor();
-    const lineValue = this.lineValue(doc);
-    const focusedValue = this.getFocusedDynamicValue(doc);
-    const index = lineValue.indexOf(focusedValue);
+    const { extraChars, value: focusedValue } = this.getFocusedDocValueAndPos(
+      doc,
+    );
+
     let completions: Completion[] = [];
     let after = "";
     const { end, start } = data;
+
     const from = {
       ...start,
-      ch: start.ch + index,
+      ch: start.ch + extraChars,
       line: cursor.line,
     };
     const to = {
       ...end,
-      ch: end.ch + index,
+      ch: end.ch + extraChars,
       line: cursor.line,
     };
     if (
@@ -188,13 +234,19 @@ class TernServer {
     ) {
       after = '"]';
     }
-    const bindings = getDynamicBindings(cm.getValue());
-    const onlySingleBinding = bindings.stringSegments.length === 1;
-    const searchText = (bindings.jsSnippets[0] || "").trim();
+    // Actual char space
+    const trimmedFocusedValueLength = focusedValue.trim().length;
+    // end.ch counts tab space as 1 instead of 2 space chars in string
+    // For eg: lets take string `  ab`. Here, end.ch = 3 & trimmedFocusedValueLength = 2
+    // hence tabSpacesCount = end.ch - trimmedFocusedValueLength
+    const tabSpacesCount = end.ch - trimmedFocusedValueLength;
+    const cursorHorizontalPos =
+      tabSpacesCount * 2 + trimmedFocusedValueLength - 2;
+
     for (let i = 0; i < data.completions.length; ++i) {
       const completion = data.completions[i];
-      let className = this.typeToIcon(completion.type, completion.isKeyword);
-      const dataType = this.getDataType(completion.type);
+      let className = typeToIcon(completion.type, completion.isKeyword);
+      const dataType = getDataType(completion.type);
       if (data.guess) className += " " + cls + "guess";
       let completionText = completion.name + after;
       if (dataType === "FUNCTION") {
@@ -218,14 +270,26 @@ class TernServer {
           element.setAttribute("keyword", data.displayText);
           element.innerHTML = data.displayText;
         };
+        // Add relevant keyword completions
+        const keywordCompletions = getCompletionsForKeyword(
+          codeMirrorCompletion,
+          cursorHorizontalPos,
+        );
+        completions = [...completions, ...keywordCompletions];
       }
       completions.push(codeMirrorCompletion);
     }
 
-    completions = this.sortAndFilterCompletions(
+    const shouldComputeBestMatch =
+      this.fieldEntityInformation.entityType !== ENTITY_TYPE.JSACTION;
+
+    completions = AutocompleteSorter.sort(
       completions,
-      onlySingleBinding,
-      searchText,
+      this.fieldEntityInformation,
+      this.defEntityInformation.get(
+        this.fieldEntityInformation.entityName || "",
+      ),
+      shouldComputeBestMatch,
     );
     const indexToBeSelected =
       completions.length && completions[0].isHeader ? 1 : 0;
@@ -292,179 +356,6 @@ class TernServer {
     });
   }
 
-  sortAndFilterCompletions(
-    completions: Completion[],
-    findBestMatch: boolean,
-    bestMatchSearch: string,
-  ) {
-    const {
-      entityName,
-      entityType,
-      expectedType = AutocompleteDataType.UNKNOWN,
-    } = this.fieldEntityInformation;
-    type CompletionType =
-      | "DATA_TREE"
-      | "MATCHING_TYPE"
-      | "OTHER"
-      | "CONTEXT"
-      | "JS"
-      | "LIBRARY";
-    const completionType: Record<CompletionType, Completion[]> = {
-      MATCHING_TYPE: [],
-      DATA_TREE: [],
-      CONTEXT: [],
-      JS: [],
-      LIBRARY: [],
-      OTHER: [],
-    };
-    completions.forEach((completion) => {
-      if (entityName && completion.text.includes(entityName)) {
-        return;
-      }
-      if (completion.origin) {
-        if (completion.origin && completion.origin.startsWith("DATA_TREE")) {
-          if (completion.text.includes(".")) {
-            // nested paths (with ".") should only be used for best match
-            if (completion.type === expectedType) {
-              completionType.MATCHING_TYPE.push(completion);
-            }
-          } else if (completion.origin === "DATA_TREE.APPSMITH.FUNCTIONS") {
-            // Global functions should be in best match as well as DataTree
-            if (
-              !entityType ||
-              ENTITY_TYPE.ACTION === entityType ||
-              ENTITY_TYPE.JSACTION === entityType ||
-              ENTITY_TYPE.WIDGET === entityType
-            ) {
-              completionType.MATCHING_TYPE.push(completion);
-              completionType.DATA_TREE.push(completion);
-            }
-          } else {
-            // All top level entities are set in data tree
-            completionType.DATA_TREE.push(completion);
-          }
-          return;
-        }
-        if (
-          completion.origin === "[doc]" ||
-          completion.origin === "customDataTree"
-        ) {
-          // [doc] are variables defined in the current context
-          // customDataTree are implicit context defined by platform
-          completionType.CONTEXT.push(completion);
-          return;
-        }
-        if (
-          completion.origin === "ecmascript" ||
-          completion.origin === "base64-js"
-        ) {
-          completionType.JS.push(completion);
-          return;
-        }
-        if (completion.origin.startsWith("LIB/")) {
-          completionType.LIBRARY.push(completion);
-          return;
-        }
-      }
-
-      // Generally keywords or other unCategorised completions
-      completionType.OTHER.push(completion);
-    });
-    completionType.DATA_TREE = completionType.DATA_TREE.sort(
-      (a: Completion, b: Completion) => {
-        if (a.type === "FUNCTION" && b.type !== "FUNCTION") {
-          return 1;
-        } else if (a.type !== "FUNCTION" && b.type === "FUNCTION") {
-          return -1;
-        }
-        return a.text.toLowerCase().localeCompare(b.text.toLowerCase());
-      },
-    );
-    completionType.MATCHING_TYPE = completionType.MATCHING_TYPE.filter((c) =>
-      c.text.toLowerCase().startsWith(bestMatchSearch.toLowerCase()),
-    );
-    if (findBestMatch && completionType.MATCHING_TYPE.length) {
-      const sortedMatches: Completion[] = [];
-      const groupedMatches = _.groupBy(completionType.MATCHING_TYPE, (c) => {
-        const name = c.text.split(".")[0];
-        const entityInfo = this.defEntityInformation.get(name);
-        if (!entityInfo) return c.text;
-        return c.text.replace(name, entityInfo.subType);
-      });
-
-      const expectedRules = SortRules[expectedType];
-      for (const [key, value] of Object.entries(groupedMatches)) {
-        const name = key.split(".")[0];
-        if (name === "JSACTION") {
-          sortedMatches.push(...value);
-        } else if (expectedRules.indexOf(key) !== -1) {
-          sortedMatches.push(...value);
-        }
-      }
-
-      sortedMatches.sort((a, b) => {
-        let aRank = 0;
-        let bRank = 0;
-        const aName = a.text.split(".")[0];
-        const bName = b.text.split(".")[0];
-        const aEntityInfo = this.defEntityInformation.get(aName);
-        const bEntityInfo = this.defEntityInformation.get(bName);
-        if (!aEntityInfo) return -1;
-        if (!bEntityInfo) return 1;
-        if (aEntityInfo.type === entityType) {
-          aRank = aRank + 1;
-        }
-        if (bEntityInfo.type === entityType) {
-          bRank = bRank + 1;
-        }
-        return aRank - bRank;
-      });
-      completionType.MATCHING_TYPE = _.take(sortedMatches, 3);
-      if (completionType.MATCHING_TYPE.length) {
-        completionType.MATCHING_TYPE.unshift(
-          createCompletionHeader("Best Match"),
-        );
-        completionType.DATA_TREE.unshift(
-          createCompletionHeader("Search Results"),
-        );
-      }
-    } else {
-      // Clear any matching type because we dont want to find best match
-      completionType.MATCHING_TYPE = [];
-    }
-    return [
-      ...completionType.CONTEXT,
-      ...completionType.MATCHING_TYPE,
-      ...completionType.DATA_TREE,
-      ...completionType.LIBRARY,
-      ...completionType.JS,
-      ...completionType.OTHER,
-    ];
-  }
-
-  getDataType(type: string): AutocompleteDataType {
-    if (type === "?") return AutocompleteDataType.UNKNOWN;
-    else if (type === "number") return AutocompleteDataType.NUMBER;
-    else if (type === "string") return AutocompleteDataType.STRING;
-    else if (type === "bool") return AutocompleteDataType.BOOLEAN;
-    else if (type === "array") return AutocompleteDataType.ARRAY;
-    else if (/^fn\(/.test(type)) return AutocompleteDataType.FUNCTION;
-    else if (/^\[/.test(type)) return AutocompleteDataType.ARRAY;
-    else return AutocompleteDataType.OBJECT;
-  }
-
-  typeToIcon(type: string, isKeyword: boolean) {
-    let suffix;
-    if (isKeyword) suffix = "keyword";
-    else if (type === "?") suffix = "unknown";
-    else if (type === "number" || type === "string" || type === "bool")
-      suffix = type;
-    else if (/^fn\(/.test(type)) suffix = "fn";
-    else if (/^\[/.test(type)) suffix = "array";
-    else suffix = "object";
-    return cls + "completion " + cls + "completion-" + suffix;
-  }
-
   showContextInfo(cm: CodeMirror.Editor, queryName: string, callbackFn?: any) {
     this.request(cm, { type: queryName }, (error, data) => {
       if (error) return this.showError(cm, error);
@@ -490,23 +381,13 @@ class TernServer {
 
   request(
     cm: CodeMirror.Editor,
-    query: {
-      type: string;
-      types?: boolean;
-      docs?: boolean;
-      urls?: boolean;
-      origins?: boolean;
-      caseInsensitive?: boolean;
-      preferFunction?: boolean;
-      end?: CodeMirror.Position;
-      guess?: boolean;
-      inLiteral?: boolean;
-    },
+    query: RequestQuery | string,
     callbackFn: (error: any, data: any) => void,
     pos?: CodeMirror.Position,
   ) {
     const doc = this.findDoc(cm.getDoc());
     const request = this.buildRequest(doc, query, pos);
+
     // @ts-expect-error: Types are not available
     this.server.request(request, callbackFn);
   }
@@ -531,58 +412,41 @@ class TernServer {
 
   addDoc(name: string, doc: CodeMirror.Doc) {
     const data = { doc: doc, name: name, changed: null };
-    this.server.addFile(name, this.getFocusedDynamicValue(data));
+    this.server.addFile(name, this.getFocusedDocValueAndPos(data).value);
     CodeMirror.on(doc, "change", this.trackChange.bind(this));
     return (this.docs[name] = data);
   }
 
   buildRequest(
     doc: TernDoc,
-    query: {
-      type?: string;
-      types?: boolean;
-      docs?: boolean;
-      urls?: boolean;
-      origins?: boolean;
-      fullDocs?: any;
-      lineCharPositions?: any;
-      end?: any;
-      start?: any;
-      file?: any;
-      includeKeywords?: boolean;
-      inLiteral?: boolean;
-    },
+    query: Partial<RequestQuery> | string,
     pos?: CodeMirror.Position,
   ) {
     const files = [];
     let offsetLines = 0;
+    if (typeof query == "string") query = { type: query };
     const allowFragments = !query.fullDocs;
     if (!allowFragments) delete query.fullDocs;
     query.lineCharPositions = true;
     query.includeKeywords = true;
-    if (!query.end) {
-      const lineValue = this.lineValue(doc);
-      const focusedValue = this.getFocusedDynamicValue(doc);
-      const index = lineValue.indexOf(focusedValue);
-
+    query.depth = 0;
+    query.sort = true;
+    if (query.end == null) {
       const positions = pos || doc.doc.getCursor("end");
-      const queryChPosition = positions.ch - index;
-
+      const { end } = this.getFocusedDocValueAndPos(doc);
       query.end = {
         ...positions,
-        line: 0,
-        ch: queryChPosition,
+        ...end,
       };
 
-      if (doc.doc.somethingSelected()) {
-        query.start = doc.doc.getCursor("start");
-      }
+      if (doc.doc.somethingSelected()) query.start = doc.doc.getCursor("start");
     }
     const startPos = query.start || query.end;
+
     if (doc.changed) {
       if (
         doc.doc.lineCount() > bigDoc &&
-        allowFragments &&
+        allowFragments !== false &&
         doc.changed.to - doc.changed.from < 100 &&
         doc.changed.from <= startPos.line &&
         doc.changed.to > query.end.line
@@ -590,29 +454,36 @@ class TernServer {
         files.push(this.getFragmentAround(doc, startPos, query.end));
         query.file = "#0";
         offsetLines = files[0].offsetLines;
-        if (query.start) {
+        if (query.start != null)
           query.start = Pos(query.start.line - -offsetLines, query.start.ch);
-        }
         query.end = Pos(query.end.line - offsetLines, query.end.ch);
       } else {
         files.push({
           type: "full",
           name: doc.name,
-          text: this.getFocusedDynamicValue(doc),
+          text: this.getFocusedDocValueAndPos(doc).value,
         });
         query.file = doc.name;
         doc.changed = null;
       }
     } else {
       query.file = doc.name;
+      // this code is different from tern.js code
+      // we noticed error `TernError: file doesn't contain line x`
+      // which was due to file not being present for the case when a codeEditor is opened and 1st character is typed
+      files.push({
+        type: "full",
+        name: doc.name,
+        text: this.getFocusedDocValueAndPos(doc).value,
+      });
     }
     for (const name in this.docs) {
       const cur = this.docs[name];
-      if (cur.changed && cur !== doc) {
+      if (cur.changed && (cur != doc || cur.name != doc.name)) {
         files.push({
           type: "full",
           name: cur.name,
-          text: this.getFocusedDynamicValue(cur),
+          text: this.getFocusedDocValueAndPos(doc).value,
         });
         cur.changed = null;
       }
@@ -663,7 +534,7 @@ class TernServer {
           {
             type: "full",
             name: doc.name,
-            text: this.getFocusedDynamicValue(doc),
+            text: this.docValue(doc),
           },
         ],
       },
@@ -684,23 +555,106 @@ class TernServer {
     return doc.doc.getValue();
   }
 
-  getFocusedDynamicValue(doc: TernDoc) {
-    const cursor = doc.doc.getCursor();
-    const value = this.lineValue(doc);
-    const stringSegments = getDynamicStringSegments(value);
-    const dynamicStrings = stringSegments.filter((segment) => {
-      if (isDynamicValue(segment)) {
-        const index = value.indexOf(segment);
+  getFocusedDocValueAndPos(
+    doc: TernDoc,
+  ): { value: string; end: { line: number; ch: number }; extraChars: number } {
+    const cursor = doc.doc.getCursor("end");
+    const value = this.docValue(doc);
+    const lineValue = this.lineValue(doc);
+    let extraChars = 0;
 
-        if (cursor.ch >= index && cursor.ch <= index + segment.length) {
-          return true;
+    const stringSegments = getDynamicStringSegments(value);
+    if (stringSegments.length === 1) {
+      return {
+        value,
+        end: {
+          line: cursor.line,
+          ch: cursor.ch,
+        },
+        extraChars,
+      };
+    }
+
+    let dynamicString = value;
+
+    let newCursorLine = cursor.line;
+    let newCursorPosition = cursor.ch;
+
+    let currentLine = 0;
+
+    for (let index = 0; index < stringSegments.length; index++) {
+      // segment is divided according to binding {{}}
+
+      const segment = stringSegments[index];
+      let currentSegment = segment;
+      if (segment.startsWith("{{")) {
+        currentSegment = segment.replace("{{", "");
+        if (currentSegment.endsWith("}}")) {
+          currentSegment = currentSegment.slice(0, currentSegment.length - 2);
         }
       }
 
-      return false;
-    });
+      // subSegment is segment further divided by EOD char (\n)
+      const subSegments = currentSegment.split("\n");
+      const countEODCharInSegment = subSegments.length - 1;
+      const segmentEndLine = countEODCharInSegment + currentLine;
 
-    return dynamicStrings.length ? dynamicStrings[0] : value;
+      /**
+       * 3 case for cursor to point inside segment
+       * 1. cursor is before the {{  :-
+       * 2. cursor is inside segment :-
+       *    - if cursor is after {{ on same line
+       *    - if cursor is after {{ in different line
+       *    - if cursor is before }} on same line
+       * 3. cursor is after the }}   :-
+       *
+       */
+
+      const isCursorInBetweenSegmentStartAndEndLine =
+        cursor.line > currentLine && cursor.line < segmentEndLine;
+
+      const isCursorAtSegmentStartLine = cursor.line === currentLine;
+      const isCursorAfterBindingOpenAtSegmentStart =
+        isCursorAtSegmentStartLine && cursor.ch > lineValue.indexOf("{{") + 1;
+      const isCursorAtSegmentEndLine = cursor.line === segmentEndLine;
+      const isCursorBeforeBindingCloseAtSegmentEnd =
+        isCursorAtSegmentEndLine && cursor.ch < lineValue.indexOf("}}") + 1;
+
+      const isSegmentStartLineAndEndLineSame = currentLine === segmentEndLine;
+      const isCursorBetweenSingleLineSegmentBinding =
+        isSegmentStartLineAndEndLineSame &&
+        isCursorBeforeBindingCloseAtSegmentEnd &&
+        isCursorAfterBindingOpenAtSegmentStart;
+
+      const isCursorPointingInsideSegment =
+        isCursorInBetweenSegmentStartAndEndLine ||
+        (isSegmentStartLineAndEndLineSame &&
+          isCursorBetweenSingleLineSegmentBinding);
+      (!isSegmentStartLineAndEndLineSame &&
+        isCursorBeforeBindingCloseAtSegmentEnd) ||
+        isCursorAfterBindingOpenAtSegmentStart;
+
+      if (isDynamicValue(segment) && isCursorPointingInsideSegment) {
+        dynamicString = currentSegment;
+        newCursorLine = cursor.line - currentLine;
+        if (lineValue.includes("{{")) {
+          extraChars = lineValue.indexOf("{{") + 2;
+        }
+        newCursorPosition = cursor.ch - extraChars;
+
+        break;
+      }
+      currentLine = segmentEndLine;
+    }
+
+    return {
+      value: dynamicString,
+      end: {
+        line: newCursorLine,
+        ch: newCursorPosition,
+      },
+      extraChars,
+    };
   }
 
   getFragmentAround(

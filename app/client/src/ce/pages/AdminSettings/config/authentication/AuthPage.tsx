@@ -1,8 +1,7 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { useHistory } from "react-router-dom";
 import { SettingCategories } from "../types";
 import styled from "styled-components";
-import Button, { Category } from "components/ads/Button";
 import {
   ENABLE,
   ADMIN_AUTH_SETTINGS_SUBTITLE,
@@ -15,12 +14,8 @@ import {
 } from "@appsmith/constants/messages";
 import { Callout, CalloutType } from "components/ads/CalloutV2";
 import { getAppsmithConfigs } from "@appsmith/configs";
-import { getCurrentUser } from "selectors/usersSelectors";
-import { useSelector } from "react-redux";
-import bootIntercom from "utils/bootIntercom";
 import { Colors } from "constants/Colors";
-import Icon from "components/ads/Icon";
-import { TooltipComponent } from "design-system";
+import { Button, Category, Icon, TooltipComponent } from "design-system";
 import { adminSettingsCategoryUrl } from "RouteBuilder";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 
@@ -134,11 +129,6 @@ const Label = styled.span<{ enterprise?: boolean }>`
 
 export function AuthPage({ authMethods }: { authMethods: AuthMethodType[] }) {
   const history = useHistory();
-  const user = useSelector(getCurrentUser);
-
-  useEffect(() => {
-    bootIntercom(user);
-  }, [user?.email]);
 
   const triggerIntercom = (authLabel: string) => {
     if (intercomAppID && window.Intercom) {
@@ -220,7 +210,7 @@ export function AuthPage({ authMethods }: { authMethods: AuthMethodType[] }) {
                   {method.calloutBanner && (
                     <Callout
                       actionLabel={method.calloutBanner.actionLabel}
-                      title={method.calloutBanner.title}
+                      desc={method.calloutBanner.title}
                       type={method.calloutBanner.type}
                     />
                   )}

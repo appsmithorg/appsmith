@@ -22,7 +22,7 @@ import {
 } from "selectors/templatesSelectors";
 import { fetchDefaultPlugins } from "actions/pluginActions";
 import { editorInitializer } from "utils/EditorUtils";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import {
   getIsFetchingApplications,
   getUserApplicationsWorkspacesList,
@@ -31,6 +31,7 @@ import { getAllApplications } from "actions/applicationActions";
 import { getTypographyByKey } from "constants/DefaultTheme";
 import { Colors } from "constants/Colors";
 import { createMessage, SEARCH_TEMPLATES } from "@appsmith/constants/messages";
+import ReconnectDatasourceModal from "pages/Editor/gitSync/ReconnectDatasourceModal";
 const SentryRoute = Sentry.withSentryRouting(Route);
 
 const PageWrapper = styled.div`
@@ -162,6 +163,7 @@ function Templates() {
 
   return (
     <PageWrapper>
+      <ReconnectDatasourceModal />
       <Filters />
       <TemplateListWrapper>
         {isLoading ? (

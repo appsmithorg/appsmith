@@ -4,7 +4,7 @@ import { connect } from "react-redux";
 import { RouteComponentProps, withRouter } from "react-router-dom";
 import { Spinner } from "@blueprintjs/core";
 import { BuilderRouteParams } from "constants/routes";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import MainContainer from "./MainContainer";
 import { DndProvider } from "react-dnd";
 import TouchBackend from "react-dnd-touch-backend";
@@ -31,8 +31,6 @@ import { ThemeProvider } from "styled-components";
 import { Theme } from "constants/DefaultTheme";
 import GlobalHotKeys from "./GlobalHotKeys";
 import { handlePathUpdated } from "actions/recentEntityActions";
-import AddCommentTourComponent from "comments/tour/AddCommentTourComponent";
-import CommentShowCaseCarousel from "comments/CommentsShowcaseCarousel";
 import GitSyncModal from "pages/Editor/gitSync/GitSyncModal";
 import DisconnectGitModal from "pages/Editor/gitSync/DisconnectGitModal";
 
@@ -42,7 +40,6 @@ import { fetchPage, updateCurrentPage } from "actions/pageActions";
 import { getCurrentPageId } from "selectors/editorSelectors";
 
 import { getSearchQuery } from "utils/helpers";
-import ConcurrentPageEditorToast from "comments/ConcurrentPageEditorToast";
 import { getIsPageLevelSocketConnected } from "selectors/websocketSelectors";
 import {
   collabStartSharingPointerEvent,
@@ -234,11 +231,8 @@ class Editor extends Component<Props> {
             </Helmet>
             <GlobalHotKeys>
               <MainContainer />
-              <AddCommentTourComponent />
-              <CommentShowCaseCarousel />
               <GitSyncModal />
               <DisconnectGitModal />
-              <ConcurrentPageEditorToast />
               <GuidedTourModal />
               <RepoLimitExceededErrorModal />
               <ImportedApplicationSuccessModal />

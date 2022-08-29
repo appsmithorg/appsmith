@@ -46,7 +46,7 @@ export class DeployMode {
     this.agHelper.WaitUntilEleAppear(eleToCheckInDeployPage);
     localStorage.setItem("inDeployedMode", "true");
     toCheckFailureToast &&
-      this.agHelper.AssertElementAbsence(this.locator._toastMsg); //Validating bug - 14141 + 14252
+      this.agHelper.AssertElementAbsence(this.locator._specificToast("has failed")); //Validating bug - 14141 + 14252
     this.agHelper.Sleep(2000); //for Depoy page to settle!
   }
 
@@ -70,16 +70,16 @@ export class DeployMode {
     cy.xpath(this._jsonFormFieldByName(fieldName))
       .eq(index)
       .click()
-      .type(value)
-      .wait(500);
+      .type(value, { delay: 0 })
+      .wait(200);
   }
 
   public EnterJSONTextAreaValue(fieldName: string, value: string, index = 0) {
     cy.xpath(this._jsonFormFieldByName(fieldName, false))
       .eq(index)
       .click()
-      .type(value)
-      .wait(500);
+      .type(value, { delay: 0 })
+      .wait(200);
   }
 
   public ClearJSONFieldValue(fieldName: string, index = 0, isInput = true) {

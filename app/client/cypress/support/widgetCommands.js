@@ -245,6 +245,7 @@ Cypress.Commands.add("verifyUpdatedWidgetName", (text) => {
     .click({ force: true })
     .type(text, { delay: 300 })
     .type("{enter}");
+  cy.wait(500);
   cy.get(".t--widget-name").contains(text);
 });
 
@@ -289,11 +290,12 @@ Cypress.Commands.add("getCodeMirror", () => {
 });
 
 Cypress.Commands.add("testCodeMirror", (value) => {
+  const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
   cy.EnableAllCodeEditors();
   cy.get(".CodeMirror textarea")
     .first()
     .focus()
-    .type("{ctrl}{shift}{downarrow}")
+    .type(`{${modifierKey}}a`)
     .then(($cm) => {
       if ($cm.val() !== "") {
         cy.get(".CodeMirror textarea")
@@ -494,7 +496,7 @@ Cypress.Commands.add("updateCodeInput", ($selector, value) => {
       input.focus();
       cy.wait(200);
       input.setValue(value);
-      cy.wait(200); //time for value to set
+      cy.wait(1000); //time for value to set
       //input.focus();
     });
 });
@@ -1115,12 +1117,13 @@ Cypress.Commands.add("copyWidget", (widget, widgetLocator) => {
       originalWidget = originalWidget.replaceAll(/\u200B/g, "");
       cy.log(originalWidget);
       cy.get(widgetsPage.copyWidget).click({ force: true });
-      cy.wait(2000);
+      cy.wait(3000);
       cy.reload();
       // Wait for the widget to be appear in the DOM and press Ctrl/Cmd + V to paste the button.
       cy.get(widgetLocator).should("be.visible");
+      cy.wait(1000);
       cy.get("body").type(`{${modifierKey}}v`);
-      cy.wait(2000);
+      cy.wait(3000);
       cy.openPropertyPaneCopy(widget);
       cy.get(widgetsPage.propertypaneText)
         .children()

@@ -17,9 +17,6 @@ describe("Git discard changes:", function() {
     // Create new postgres datasource
     cy.NavigateToDatasourceEditor();
     cy.get(datasource.PostgreSQL).click();
-
-    cy.getPluginFormsAndCreateDatasource();
-
     cy.fillPostgresDatasourceForm();
 
     cy.testSaveDatasource();
@@ -33,7 +30,7 @@ describe("Git discard changes:", function() {
         .should("be.visible")
         .closest(datasource.datasourceCard)
         .within(() => {
-          cy.get(datasource.createQuerty).click();
+          cy.get(datasource.createQuery).click();
         });
     });
     // Create new postgres query
@@ -112,7 +109,7 @@ describe("Git discard changes:", function() {
       .should("be.visible")
       .closest(datasource.datasourceCard)
       .within(() => {
-        cy.get(datasource.createQuerty).click();
+        cy.get(datasource.createQuery).click();
       });
     cy.get(queryLocators.queryNameField).type(`${query2}`);
     cy.get(queryLocators.switch)

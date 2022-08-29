@@ -5,9 +5,9 @@ import {
   MAIN_CONTAINER_WIDGET_ID,
 } from "constants/WidgetConstants";
 import { useSelector } from "store";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import { getSelectedWidgets } from "selectors/ui";
-import { getOccupiedSpaces } from "selectors/editorSelectors";
+import { getOccupiedSpacesWhileMoving } from "selectors/editorSelectors";
 import { getTableFilterState } from "selectors/tableFilterSelectors";
 import { OccupiedSpace } from "constants/CanvasEditorConstants";
 import { getDragDetails, getWidgetByID, getWidgets } from "sagas/selectors";
@@ -117,7 +117,8 @@ export const useBlocksToBeDraggedOnCanvas = ({
     (state: AppState) => state.ui.widgetDragResize.isResizing,
   );
   const selectedWidgets = useSelector(getSelectedWidgets);
-  const occupiedSpaces = useSelector(getOccupiedSpaces, isEqual) || {};
+  const occupiedSpaces =
+    useSelector(getOccupiedSpacesWhileMoving, isEqual) || {};
   const isNewWidget = !!newWidget && !dragParent;
   const childrenOccupiedSpaces: OccupiedSpace[] =
     (dragParent && occupiedSpaces[dragParent]) || [];

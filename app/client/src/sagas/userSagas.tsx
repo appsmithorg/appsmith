@@ -39,11 +39,7 @@ import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
 import { ERROR_CODES } from "@appsmith/constants/ApiConstants";
-import {
-  ANONYMOUS_USERNAME,
-  CommentsOnboardingState,
-  User,
-} from "constants/userConstants";
+import { ANONYMOUS_USERNAME, User } from "constants/userConstants";
 import { flushErrorsAndRedirect } from "actions/errorActions";
 import localStorage from "utils/localStorage";
 import { Toaster } from "components/ads/Toast";
@@ -255,8 +251,7 @@ export function* invitedUserSignupSaga(
 
 type InviteUserPayload = {
   email: string;
-  workspaceId: string;
-  roleName: string;
+  permissionGroupId: string;
 };
 
 export function* inviteUser(payload: InviteUserPayload, reject: any) {
@@ -272,15 +267,18 @@ export function* inviteUser(payload: InviteUserPayload, reject: any) {
 
 export function* inviteUsers(
   action: ReduxActionWithPromise<{
-    data: { usernames: string[]; workspaceId: string; roleName: string };
+    data: {
+      usernames: string[];
+      workspaceId: string;
+      permissionGroupId: string;
+    };
   }>,
 ) {
   const { data, reject, resolve } = action.payload;
   try {
     const response: ApiResponse = yield callAPI(UserApi.inviteUser, {
       usernames: data.usernames,
-      workspaceId: data.workspaceId,
-      roleName: data.roleName,
+      permissionGroupId: data.permissionGroupId,
     });
     const isValidResponse: boolean = yield validateResponse(response);
     if (!isValidResponse) {
@@ -300,7 +298,7 @@ export function* inviteUsers(
         workspaceId: data.workspaceId,
         users: data.usernames.map((name: string) => ({
           username: name,
-          roleName: data.roleName,
+          permissionGroupId: data.permissionGroupId,
         })),
       },
     });
@@ -472,18 +470,6 @@ function* updateFirstTimeUserOnboardingSage() {
   }
 }
 
-export function* updateUsersCommentsOnboardingState(
-  action: ReduxAction<CommentsOnboardingState>,
-) {
-  try {
-    yield call(UserApi.updateUsersCommentOnboardingState, {
-      commentOnboardingState: action.payload,
-    });
-  } catch (error) {
-    log.error(error);
-  }
-}
-
 export default function* userSagas() {
   yield all([
     takeLatest(ReduxActionTypes.CREATE_USER_INIT, createUserSaga),
@@ -512,10 +498,6 @@ export default function* userSagas() {
     takeLatest(
       ReduxActionTypes.FETCH_USER_DETAILS_SUCCESS,
       updateFirstTimeUserOnboardingSage,
-    ),
-    takeLatest(
-      ReduxActionTypes.UPDATE_USERS_COMMENTS_ONBOARDING_STATE,
-      updateUsersCommentsOnboardingState,
     ),
   ]);
 }
