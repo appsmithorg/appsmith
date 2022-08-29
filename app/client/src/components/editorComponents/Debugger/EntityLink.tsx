@@ -4,7 +4,7 @@ import { getActionConfig } from "pages/Editor/Explorer/Actions/helpers";
 import { useNavigateToWidget } from "pages/Editor/Explorer/Widgets/useNavigateToWidget";
 import React, { useCallback } from "react";
 import { useSelector } from "react-redux";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import {
   getCurrentApplicationId,
   getCurrentPageId,

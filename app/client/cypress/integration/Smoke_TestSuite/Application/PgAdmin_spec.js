@@ -22,9 +22,6 @@ describe("PgAdmin Clone App", function() {
     // authenticating datasource
     cy.NavigateToDatasourceEditor();
     cy.get(datasource.PostgreSQL).click();
-
-    cy.getPluginFormsAndCreateDatasource();
-
     cy.fillPostgresDatasourceForm();
 
     cy.testSaveDatasource();
