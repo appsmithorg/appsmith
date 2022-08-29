@@ -39,7 +39,7 @@ type DropTargetComponentProps = WidgetProps & {
 };
 
 const StyledDropTarget = styled.div<{
-  direction: LayoutDirection;
+  direction?: LayoutDirection;
   isWrapper: boolean;
 }>`
   transition: height 100ms ease-in;
