@@ -198,6 +198,9 @@ const renderCell = (props: any) => {
   );
 };
 
+// The function will return the scrollbar width that needs to be added
+// in the table body width, when scrollbar is shown the width should be > 0,
+// when scrollbar is not shown, width should be 0
 export const getScrollBarWidth = (tableBodyEle: any, scrollBarW: number) => {
   return !!tableBodyEle && tableBodyEle.scrollHeight > tableBodyEle.clientHeight
     ? scrollBarW
