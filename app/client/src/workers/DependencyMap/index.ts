@@ -222,7 +222,9 @@ export const updateDependencyMap = ({
                   dataTreeEvalRef.triggerFieldDependencyMap[
                     triggerfieldDependent
                   ] = mergeArrays(
-                    dataTreeEvalRef.dependencyMap[triggerfieldDependent],
+                    dataTreeEvalRef.triggerFieldDependencyMap[
+                      triggerfieldDependent
+                    ],
                     references,
                   );
                   // Update unusedIdentifiersList
@@ -329,6 +331,24 @@ export const updateDependencyMap = ({
               },
             );
           }
+
+          // Add trigger paths that depend on the added path/entity to "extrapathstolint"
+          Object.keys(dataTreeEvalRef.triggerFieldDependencyMap).forEach(
+            (triggerPath) => {
+              dataTreeEvalRef.triggerFieldDependencyMap[triggerPath].forEach(
+                (triggerPathDependency) => {
+                  if (
+                    isChildPropertyPath(
+                      dataTreeDiff.payload.propertyPath,
+                      triggerPathDependency,
+                    )
+                  ) {
+                    extraPathsToLint.add(triggerPath);
+                  }
+                },
+              );
+            },
+          );
           break;
         }
         case DataTreeDiffEvent.DELETE: {
