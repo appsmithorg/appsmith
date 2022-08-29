@@ -6,7 +6,7 @@ on:
 
   # trigger for pushes to release and master
   push:
-    branches: [release, release-frozen, master]
+    branches: [release, master]
     paths:
       - "app/client/**"
       - "app/server/**"
@@ -146,6 +146,7 @@ jobs:
             SENTRY_AUTH_TOKEN=${{ secrets.SENTRY_AUTH_TOKEN }} \
             REACT_APP_VERSION_ID=${{ steps.vars.outputs.version }} \
             REACT_APP_VERSION_RELEASE_DATE=$(date -u '+%Y-%m-%dT%H:%M:%SZ') \
+            REACT_APP_VERSION_EDITION="Community" \
             REACT_APP_INTERCOM_APP_ID=${{ secrets.APPSMITH_INTERCOM_ID }} \
             yarn build
           ls -l build
@@ -174,7 +175,7 @@ jobs:
     defaults:
       run:
         working-directory: app/server
-    runs-on: ubuntu-latest
+    runs-on: buildjet-8vcpu-ubuntu-2004
     # Only run this workflow for internally triggered events
     if: |
       github.event_name == 'workflow_dispatch' ||
@@ -416,7 +417,7 @@ jobs:
       (github.event_name == 'pull_request_review' &&
       github.event.review.state == 'approved' &&
       github.event.pull_request.head.repo.full_name == github.repository))
-    runs-on: ubuntu-latest
+    runs-on: buildjet-4vcpu-ubuntu-2004
     permissions:
       contents: read
       id-token: write

@@ -5,7 +5,7 @@ import { getCurrentUser, selectFeatureFlags } from "selectors/usersSelectors";
 import styled from "styled-components";
 import StyledHeader from "components/designSystems/appsmith/StyledHeader";
 import { ReactComponent as AppsmithLogo } from "assets/svg/appsmith_logo_primary.svg";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import { User, ANONYMOUS_USERNAME } from "constants/userConstants";
 import {
   AUTH_LOGIN_URL,

@@ -30,7 +30,7 @@ import {
   FlattenedWidgetProps,
 } from "reducers/entityReducers/canvasWidgetsReducer";
 import { getWidgetChildrenIds } from "./WidgetOperationUtils";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import { checkIsDropTarget } from "components/designSystems/appsmith/PositionedContainer";
 import WidgetFactory from "utils/WidgetFactory";
 import { showModal } from "actions/widgetActions";
