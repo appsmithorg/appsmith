@@ -269,7 +269,12 @@ function* moveWidgetsSaga(
     ) {
       throw Error;
     }
-    yield put(updateAndSaveLayout(updatedWidgetsOnMove));
+    /**
+     * Trim empty layout wrappers
+     * Caused by dragging a widget from auto layout to positioned container
+     */
+    const trimmedWidgets = purgeEmptyWrappers(updatedWidgetsOnMove);
+    yield put(updateAndSaveLayout(trimmedWidgets));
     log.debug("move computations took", performance.now() - start, "ms");
   } catch (error) {
     yield put({
