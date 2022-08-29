@@ -1,4 +1,6 @@
+import { union } from "lodash";
 import toPath from "lodash/toPath";
+import { EvalErrorTypes, EvalError } from "utils/DynamicBindingUtils";
 import { extractIdentifiersFromCode } from "workers/ast";
 import { convertPathToString } from "../evaluationUtils";
 
@@ -66,4 +68,56 @@ export const extractInfoFromIdentifiers = (
     unreferencedIdentifiers.push(identifier);
   });
   return { references: Array.from(references), unreferencedIdentifiers };
+};
+
+interface BindingsInfo {
+  references: string[];
+  unreferencedIdentifiers: string[];
+  errors: EvalError[];
+}
+export const extractInfoFromBindings = (
+  bindings: string[],
+  allPaths: Record<string, true>,
+) => {
+  return bindings.reduce(
+    (bindingsInfo: BindingsInfo, binding) => {
+      try {
+        const { references, unreferencedIdentifiers } = extractInfoFromBinding(
+          binding,
+          allPaths,
+        );
+        return {
+          ...bindingsInfo,
+          references: union(bindingsInfo.references, references),
+          unreferencedIdentifiers: union(
+            bindingsInfo.unreferencedIdentifiers,
+            unreferencedIdentifiers,
+          ),
+        };
+      } catch (error) {
+        const newEvalError: EvalError = {
+          type: EvalErrorTypes.EXTRACT_DEPENDENCY_ERROR,
+          message: (error as Error).message,
+          context: {
+            script: binding,
+          },
+        };
+        return {
+          ...bindingsInfo,
+          errors: union(bindingsInfo.errors, [newEvalError]),
+        };
+      }
+    },
+    { references: [], unreferencedIdentifiers: [], errors: [] },
+  );
+};
+
+/**This function returns a unique array containing a merge of both arrays
+ * @param currentArr
+ * @param updateArr
+ * @returns A unique array containing a merge of both arrays
+ */
+export const mergeArrays = <T>(currentArr: T[], updateArr: T[]): T[] => {
+  if (!currentArr) return updateArr;
+  return union(currentArr, updateArr);
 };

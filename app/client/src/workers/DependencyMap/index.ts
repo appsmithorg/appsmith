@@ -22,12 +22,15 @@ import {
   getPropertyPath,
   isPathADynamicBinding,
   getDynamicBindings,
-  EvalErrorTypes,
   isPathADynamicTrigger,
 } from "utils/DynamicBindingUtils";
-import { extractInfoFromBinding, extractInfoFromIdentifiers } from "./utils";
+import {
+  extractInfoFromBindings,
+  extractInfoFromIdentifiers,
+  mergeArrays,
+} from "./utils";
 import DataTreeEvaluator from "workers/DataTreeEvaluator";
-import { flatten, difference, uniq } from "lodash";
+import { difference, uniq } from "lodash";
 
 interface CreateDependencyMap {
   dependencyMap: DependencyMap;
@@ -64,60 +67,40 @@ export function createDependencyMap(
       };
     }
   });
-  Object.keys(dependencyMap).forEach((key) => {
-    const newDep = dependencyMap[key].map((path) => {
-      try {
-        const { references, unreferencedIdentifiers } = extractInfoFromBinding(
-          path,
-          dataTreeEvalRef.allKeys,
-        );
-        // To keep the list as minimal as possible, only paths with unreferenced Identifiers
-        // are stored.
-        if (unreferencedIdentifiers.length) {
-          unusedIdentifiers[key] = unreferencedIdentifiers;
-        }
-        return references;
-      } catch (error) {
-        dataTreeEvalRef.errors.push({
-          type: EvalErrorTypes.EXTRACT_DEPENDENCY_ERROR,
-          message: (error as Error).message,
-          context: {
-            script: path,
-          },
-        });
-        return [];
-      }
-    });
 
-    dependencyMap[key] = flatten(newDep);
+  Object.keys(dependencyMap).forEach((key) => {
+    const {
+      errors,
+      references,
+      unreferencedIdentifiers,
+    } = extractInfoFromBindings(dependencyMap[key], dataTreeEvalRef.allKeys);
+    dependencyMap[key] = references;
+    // To keep the list of unusedIdentifiers as minimal as possible, only paths with unreferenced Identifiers
+    // are stored.
+    if (unreferencedIdentifiers.length) {
+      unusedIdentifiers[key] = unreferencedIdentifiers;
+    }
+    errors.forEach((error) => {
+      dataTreeEvalRef.errors.push(error);
+    });
   });
 
-  // extract references from bindings
+  // extract references from bindings in trigger fields
   Object.keys(triggerFieldDependencyMap).forEach((key) => {
-    const newDep = triggerFieldDependencyMap[key].map((path) => {
-      try {
-        const { references, unreferencedIdentifiers } = extractInfoFromBinding(
-          path,
-          dataTreeEvalRef.allKeys,
-        );
-        // To keep the list as minimal as possible, only paths with unreferenced Identifiers
-        // are stored.
-        if (unreferencedIdentifiers.length) {
-          unusedIdentifiers[key] = unreferencedIdentifiers;
-        }
-        return references;
-      } catch (error) {
-        dataTreeEvalRef.errors.push({
-          type: EvalErrorTypes.EXTRACT_DEPENDENCY_ERROR,
-          message: (error as Error).message,
-          context: {
-            script: path,
-          },
-        });
-        return [];
-      }
+    const {
+      errors,
+      references,
+      unreferencedIdentifiers,
+    } = extractInfoFromBindings(dependencyMap[key], dataTreeEvalRef.allKeys);
+    triggerFieldDependencyMap[key] = references;
+    // To keep the list of unusedIdentifiers as minimal as possible, only paths with unreferenced Identifiers
+    // are stored.
+    if (unreferencedIdentifiers.length) {
+      unusedIdentifiers[key] = unreferencedIdentifiers;
+    }
+    errors.forEach((error) => {
+      dataTreeEvalRef.errors.push(error);
     });
-    triggerFieldDependencyMap[key] = flatten(newDep);
   });
   dependencyMap = makeParentsDependOnChildren(
     dependencyMap,
@@ -158,7 +141,9 @@ export const updateDependencyMap = ({
   dataTreeEvalRef.allKeys = getAllPaths(unEvalDataTree);
   // Transform the diff library events to Appsmith evaluator events
   translatedDiffs.forEach((dataTreeDiff) => {
-    const entityName = dataTreeDiff.payload.propertyPath.split(".")[0];
+    const { entityName } = getEntityNameAndPropertyPath(
+      dataTreeDiff.payload.propertyPath,
+    );
     let entity = unEvalDataTree[entityName];
     if (dataTreeDiff.event === DataTreeDiffEvent.DELETE) {
       entity = dataTreeEvalRef.oldUnEvalTree[entityName];
@@ -168,7 +153,8 @@ export const updateDependencyMap = ({
     if (entityType !== "noop") {
       switch (dataTreeDiff.event) {
         case DataTreeDiffEvent.NEW: {
-          // If a new entity/property was added, add all the internal bindings for this entity to the global dependency map
+          // If a new entity/property was added,
+          // add all the internal bindings for this entity to the global dependency map
           if (
             (isWidget(entity) || isAction(entity) || isJSAction(entity)) &&
             !isDynamicLeaf(unEvalDataTree, dataTreeDiff.payload.propertyPath)
@@ -184,47 +170,71 @@ export const updateDependencyMap = ({
               // so we just want to update those
               Object.entries(entityDependencyMap).forEach(
                 ([entityDependent, entityDependencies]) => {
-                  const newDep = entityDependencies.map((path) => {
-                    try {
-                      const {
-                        references,
-                        unreferencedIdentifiers,
-                      } = extractInfoFromBinding(path, dataTreeEvalRef.allKeys);
-
-                      if (unreferencedIdentifiers.length) {
-                        dataTreeEvalRef.unusedIdentifiersList[
-                          dataTreeDiff.payload.propertyPath
-                        ] = unreferencedIdentifiers;
-                      } else {
-                        delete dataTreeEvalRef.unusedIdentifiersList[
-                          dataTreeDiff.payload.propertyPath
-                        ];
-                      }
-
-                      return references;
-                    } catch (error) {
-                      dataTreeEvalRef.errors.push({
-                        type: EvalErrorTypes.EXTRACT_DEPENDENCY_ERROR,
-                        message: (error as Error).message,
-                        context: {
-                          script: path,
-                        },
-                      });
-                      return [];
-                    }
-                  });
-
-                  if (dataTreeEvalRef.dependencyMap[entityDependent]) {
-                    dataTreeEvalRef.dependencyMap[
+                  const {
+                    errors,
+                    references,
+                    unreferencedIdentifiers,
+                  } = extractInfoFromBindings(
+                    entityDependencies,
+                    dataTreeEvalRef.allKeys,
+                  );
+                  // Update dependencyMap
+                  dataTreeEvalRef.dependencyMap[entityDependent] = mergeArrays(
+                    dataTreeEvalRef.dependencyMap[entityDependent],
+                    references,
+                  );
+                  // Update unusedIdentifiersList
+                  if (unreferencedIdentifiers.length) {
+                    dataTreeEvalRef.unusedIdentifiersList[
                       entityDependent
-                    ] = dataTreeEvalRef.dependencyMap[entityDependent].concat(
-                      flatten(newDep),
-                    );
+                    ] = unreferencedIdentifiers;
                   } else {
-                    dataTreeEvalRef.dependencyMap[entityDependent] = flatten(
-                      newDep,
-                    );
+                    delete dataTreeEvalRef.unusedIdentifiersList[
+                      entityDependent
+                    ];
                   }
+                  errors.forEach((error) => {
+                    dataTreeEvalRef.errors.push(error);
+                  });
+                },
+              );
+            }
+            // For widgets, we need to update the triggerfield dependencyMap
+            if (isWidget(entity)) {
+              const triggerFieldDependencies = dataTreeEvalRef.listTriggerFieldDependencies(
+                entity,
+                entityName,
+              );
+              Object.entries(triggerFieldDependencies).forEach(
+                ([triggerfieldDependent, triggerfieldDependencies]) => {
+                  const {
+                    errors,
+                    references,
+                    unreferencedIdentifiers,
+                  } = extractInfoFromBindings(
+                    triggerfieldDependencies,
+                    dataTreeEvalRef.allKeys,
+                  );
+                  // Update triggerfield dependencyMap
+                  dataTreeEvalRef.triggerFieldDependencyMap[
+                    triggerfieldDependent
+                  ] = mergeArrays(
+                    dataTreeEvalRef.dependencyMap[triggerfieldDependent],
+                    references,
+                  );
+                  // Update unusedIdentifiersList
+                  if (unreferencedIdentifiers.length) {
+                    dataTreeEvalRef.unusedIdentifiersList[
+                      triggerfieldDependent
+                    ] = unreferencedIdentifiers;
+                  } else {
+                    delete dataTreeEvalRef.unusedIdentifiersList[
+                      triggerfieldDependent
+                    ];
+                  }
+                  errors.forEach((error) => {
+                    dataTreeEvalRef.errors.push(error);
+                  });
                 },
               );
             }
@@ -235,10 +245,6 @@ export const updateDependencyMap = ({
 
           const possibleNewlyValidIdentifiersMap: DependencyMap = {};
           Object.keys(dataTreeEvalRef.unusedIdentifiersList).forEach((path) => {
-            const { entityName, propertyPath } = getEntityNameAndPropertyPath(
-              path,
-            );
-            const entity = unEvalDataTree[entityName];
             dataTreeEvalRef.unusedIdentifiersList[path].forEach(
               (identifier) => {
                 if (
@@ -247,14 +253,6 @@ export const updateDependencyMap = ({
                     identifier,
                   )
                 ) {
-                  if (
-                    !dataTreeEvalRef.dependencyMap[identifier] ||
-                    (isWidget(entity) &&
-                      isPathADynamicTrigger(entity, propertyPath))
-                  ) {
-                    extraPathsToLint.add(path);
-                  }
-
                   possibleNewlyValidIdentifiersMap[
                     identifier
                   ] = possibleNewlyValidIdentifiersMap[identifier]
@@ -263,6 +261,10 @@ export const updateDependencyMap = ({
                         path,
                       ])
                     : [path];
+
+                  if (!dataTreeEvalRef.dependencyMap[identifier]) {
+                    extraPathsToLint.add(path);
+                  }
                 }
               },
             );
@@ -272,14 +274,12 @@ export const updateDependencyMap = ({
           // global dependency map
           if (Object.keys(possibleNewlyValidIdentifiersMap).length) {
             didUpdateDependencyMap = true;
-
             Object.keys(possibleNewlyValidIdentifiersMap).forEach(
               (identifier) => {
                 const { references } = extractInfoFromIdentifiers(
                   [identifier],
                   dataTreeEvalRef.allKeys,
                 );
-
                 possibleNewlyValidIdentifiersMap[identifier].forEach((path) => {
                   const {
                     entityName,
@@ -287,26 +287,32 @@ export const updateDependencyMap = ({
                   } = getEntityNameAndPropertyPath(path);
                   const entity = unEvalDataTree[entityName];
                   if (references.length) {
+                    // For trigger paths, update the triggerfield dependency map
+                    // For other paths, update the dependency map
                     if (
                       isWidget(entity) &&
                       isPathADynamicTrigger(entity, propertyPath)
                     ) {
-                      dataTreeEvalRef.triggerFieldDependencyMap[path] = uniq([
-                        ...dataTreeEvalRef.triggerFieldDependencyMap[path],
-                        ...references,
-                      ]);
+                      dataTreeEvalRef.triggerFieldDependencyMap[
+                        path
+                      ] = mergeArrays(
+                        dataTreeEvalRef.triggerFieldDependencyMap[path],
+                        references,
+                      );
                     } else {
-                      dataTreeEvalRef.dependencyMap[path] = uniq([
-                        ...dataTreeEvalRef.dependencyMap[path],
-                        ...references,
-                      ]);
+                      dataTreeEvalRef.dependencyMap[path] = mergeArrays(
+                        dataTreeEvalRef.dependencyMap[path],
+                        references,
+                      );
                     }
-
+                    // Since the previously unreferenced identifier has become valid,
+                    // remove it from the unusedIdentifiersList
                     if (dataTreeEvalRef.unusedIdentifiersList[path]) {
                       const newUnusedIdentifiers = dataTreeEvalRef.unusedIdentifiersList[
                         path
-                      ].filter((item) => identifier !== item);
-
+                      ].filter(
+                        (unusedIdentifier) => identifier !== unusedIdentifier,
+                      );
                       if (newUnusedIdentifiers.length) {
                         dataTreeEvalRef.unusedIdentifiersList[
                           path
@@ -325,7 +331,7 @@ export const updateDependencyMap = ({
         case DataTreeDiffEvent.DELETE: {
           // Add to removedPaths as they have been deleted from the evalTree
           removedPaths.push(dataTreeDiff.payload.propertyPath);
-          // If an existing widget was deleted, remove all the bindings from the global dependency map
+          // If an existing entity was deleted, remove all the bindings from the global dependency map
           if (
             (isWidget(entity) || isAction(entity) || isJSAction(entity)) &&
             dataTreeDiff.payload.propertyPath === entityName
@@ -336,10 +342,20 @@ export const updateDependencyMap = ({
             );
             Object.keys(entityDependencies).forEach((widgetDep) => {
               didUpdateDependencyMap = true;
-
               delete dataTreeEvalRef.dependencyMap[widgetDep];
               delete dataTreeEvalRef.unusedIdentifiersList[widgetDep];
             });
+
+            if (isWidget(entity)) {
+              const triggerFieldDependencies = dataTreeEvalRef.listTriggerFieldDependencies(
+                entity,
+                entityName,
+              );
+              Object.keys(triggerFieldDependencies).forEach((triggerDep) => {
+                delete dataTreeEvalRef.triggerFieldDependencyMap[triggerDep];
+                delete dataTreeEvalRef.unusedIdentifiersList[triggerDep];
+              });
+            }
           }
           // Either an existing entity or an existing property path has been deleted. Update the global dependency map
           // by removing the bindings from the same.
@@ -373,11 +389,11 @@ export const updateDependencyMap = ({
                   dataTreeEvalRef.dependencyMap[dependencyPath],
                   toRemove,
                 );
-                if (toRemove.length) {
-                  dataTreeEvalRef.unusedIdentifiersList[
-                    dependencyPath
-                  ] = toRemove;
-                }
+                // If we find any unreferenced identifier (untracked in the dependency map) for this path,
+                // which is a child of the deleted path, add it to the of paths to lint.
+                // Example scenario => For {{Api1.unknown}} in button.text, if Api1 is deleted, we need to lint button.text
+                // Although, "Api1.unknown" is not a valid reference
+
                 if (dataTreeEvalRef.unusedIdentifiersList[dependencyPath]) {
                   dataTreeEvalRef.unusedIdentifiersList[dependencyPath].forEach(
                     (unusedIdentifier) => {
@@ -390,6 +406,17 @@ export const updateDependencyMap = ({
                         extraPathsToLint.add(dependencyPath);
                       }
                     },
+                  );
+                }
+
+                // Since we are removing previously valid references,
+                // We also update the unusedIdentifiersList for this path
+                if (toRemove.length) {
+                  dataTreeEvalRef.unusedIdentifiersList[
+                    dependencyPath
+                  ] = mergeArrays(
+                    dataTreeEvalRef.unusedIdentifiersList[dependencyPath],
+                    toRemove,
                   );
                 }
               }
@@ -432,7 +459,10 @@ export const updateDependencyMap = ({
                 if (toRemove.length) {
                   dataTreeEvalRef.unusedIdentifiersList[
                     dependencyPath
-                  ] = toRemove;
+                  ] = mergeArrays(
+                    dataTreeEvalRef.unusedIdentifiersList[dependencyPath],
+                    toRemove,
+                  );
                 }
                 if (dataTreeEvalRef.unusedIdentifiersList[dependencyPath]) {
                   dataTreeEvalRef.unusedIdentifiersList[dependencyPath].forEach(
@@ -484,13 +514,51 @@ export const updateDependencyMap = ({
               const correctSnippets = jsSnippets.filter(
                 (jsSnippet) => !!jsSnippet,
               );
+              const {
+                errors,
+                references,
+                unreferencedIdentifiers,
+              } = extractInfoFromBindings(
+                correctSnippets,
+                dataTreeEvalRef.allKeys,
+              );
 
-              const newDep = correctSnippets.map((path) => {
-                try {
+              if (unreferencedIdentifiers.length) {
+                dataTreeEvalRef.unusedIdentifiersList[
+                  fullPropertyPath
+                ] = unreferencedIdentifiers;
+              } else {
+                delete dataTreeEvalRef.unusedIdentifiersList[fullPropertyPath];
+              }
+              errors.forEach((error) => {
+                dataTreeEvalRef.errors.push(error);
+              });
+
+              // We found a new dynamic binding for this property path. We update the dependency map by overwriting the
+              // dependencies for this property path with the newly found dependencies
+              if (references.length) {
+                dataTreeEvalRef.dependencyMap[fullPropertyPath] = references;
+              } else {
+                // The dependency on this property path has been removed. Delete this property path from the global
+                // dependency map
+                delete dataTreeEvalRef.dependencyMap[fullPropertyPath];
+              }
+              if (isAction(entity) || isJSAction(entity)) {
+                // Actions have a defined dependency map that should always be maintained
+                if (entityPropertyPath in entity.dependencyMap) {
+                  const entityDependenciesName = entity.dependencyMap[
+                    entityPropertyPath
+                  ].map((dep) => `${entityName}.${dep}`);
+
                   const {
+                    errors,
                     references,
                     unreferencedIdentifiers,
-                  } = extractInfoFromBinding(path, dataTreeEvalRef.allKeys);
+                  } = extractInfoFromBindings(
+                    entityDependenciesName,
+                    dataTreeEvalRef.allKeys,
+                  );
+
                   if (unreferencedIdentifiers.length) {
                     dataTreeEvalRef.unusedIdentifiersList[
                       dataTreeDiff.payload.propertyPath
@@ -501,66 +569,8 @@ export const updateDependencyMap = ({
                     ];
                   }
 
-                  return references;
-                } catch (error) {
-                  dataTreeEvalRef.errors.push({
-                    type: EvalErrorTypes.EXTRACT_DEPENDENCY_ERROR,
-                    message: (error as Error).message,
-                    context: {
-                      script: path,
-                    },
-                  });
-                  return [];
-                }
-              });
-
-              // We found a new dynamic binding for this property path. We update the dependency map by overwriting the
-              // dependencies for this property path with the newly found dependencies
-              if (newDep.length) {
-                dataTreeEvalRef.dependencyMap[fullPropertyPath] = flatten(
-                  newDep,
-                );
-              } else {
-                // The dependency on this property path has been removed. Delete this property path from the global
-                // dependency map
-                delete dataTreeEvalRef.dependencyMap[fullPropertyPath];
-                delete dataTreeEvalRef.unusedIdentifiersList[fullPropertyPath];
-              }
-              if (isAction(entity) || isJSAction(entity)) {
-                // Actions have a defined dependency map that should always be maintained
-                if (entityPropertyPath in entity.dependencyMap) {
-                  const entityDependenciesName = entity.dependencyMap[
-                    entityPropertyPath
-                  ].map((dep) => `${entityName}.${dep}`);
-
-                  const newDep = entityDependenciesName.map((path) => {
-                    try {
-                      const {
-                        references,
-                        unreferencedIdentifiers,
-                      } = extractInfoFromBinding(path, dataTreeEvalRef.allKeys);
-
-                      if (unreferencedIdentifiers.length) {
-                        dataTreeEvalRef.unusedIdentifiersList[
-                          dataTreeDiff.payload.propertyPath
-                        ] = unreferencedIdentifiers;
-                      } else {
-                        delete dataTreeEvalRef.unusedIdentifiersList[
-                          dataTreeDiff.payload.propertyPath
-                        ];
-                      }
-
-                      return references;
-                    } catch (error) {
-                      dataTreeEvalRef.errors.push({
-                        type: EvalErrorTypes.EXTRACT_DEPENDENCY_ERROR,
-                        message: (error as Error).message,
-                        context: {
-                          script: path,
-                        },
-                      });
-                      return [];
-                    }
+                  errors.forEach((error) => {
+                    dataTreeEvalRef.errors.push(error);
                   });
 
                   // Now assign these existing dependent paths to the property path in dependencyMap
@@ -568,12 +578,12 @@ export const updateDependencyMap = ({
                     dataTreeEvalRef.dependencyMap[
                       fullPropertyPath
                     ] = dataTreeEvalRef.dependencyMap[fullPropertyPath].concat(
-                      flatten(newDep),
+                      references,
                     );
                   } else {
-                    dataTreeEvalRef.dependencyMap[fullPropertyPath] = flatten(
-                      newDep,
-                    );
+                    dataTreeEvalRef.dependencyMap[
+                      fullPropertyPath
+                    ] = references;
                   }
                 }
               }
@@ -604,39 +614,32 @@ export const updateDependencyMap = ({
               (jsSnippet) => !!jsSnippet,
             );
 
-            const newDep = entityDependencies.map((path) => {
-              try {
-                const {
-                  references,
-                  unreferencedIdentifiers,
-                } = extractInfoFromBinding(path, dataTreeEvalRef.allKeys);
+            const {
+              errors,
+              references,
+              unreferencedIdentifiers,
+            } = extractInfoFromBindings(
+              entityDependencies,
+              dataTreeEvalRef.allKeys,
+            );
 
-                if (unreferencedIdentifiers.length) {
-                  dataTreeEvalRef.unusedIdentifiersList[
-                    dataTreeDiff.payload.propertyPath
-                  ] = unreferencedIdentifiers;
-                } else {
-                  delete dataTreeEvalRef.unusedIdentifiersList[
-                    dataTreeDiff.payload.propertyPath
-                  ];
-                }
-
-                return references;
-              } catch (error) {
-                dataTreeEvalRef.errors.push({
-                  type: EvalErrorTypes.EXTRACT_DEPENDENCY_ERROR,
-                  message: (error as Error).message,
-                  context: {
-                    script: path,
-                  },
-                });
-                return [];
-              }
+            errors.forEach((error) => {
+              dataTreeEvalRef.errors.push(error);
             });
+
+            if (unreferencedIdentifiers.length) {
+              dataTreeEvalRef.unusedIdentifiersList[
+                dataTreeDiff.payload.propertyPath
+              ] = unreferencedIdentifiers;
+            } else {
+              delete dataTreeEvalRef.unusedIdentifiersList[
+                dataTreeDiff.payload.propertyPath
+              ];
+            }
 
             dataTreeEvalRef.triggerFieldDependencyMap[
               dataTreeDiff.payload.propertyPath
-            ] = flatten(newDep);
+            ] = references;
           }
           break;
         }
