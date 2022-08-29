@@ -4,10 +4,16 @@ import com.appsmith.external.models.InvisibleActionFields;
 import com.appsmith.server.constants.ResourceModes;
 import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.domains.NewAction;
+import com.appsmith.server.domains.QUser;
+import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.helpers.CollectionUtils;
+import com.appsmith.server.repositories.CacheableRepositoryHelper;
+import com.github.cloudyrock.mongock.driver.mongodb.springdata.v3.decorator.impl.MongockTemplate;
 import org.apache.commons.lang.StringUtils;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -19,6 +25,7 @@ import java.util.stream.Collectors;
 
 import static com.appsmith.server.constants.ResourceModes.EDIT;
 import static com.appsmith.server.constants.ResourceModes.VIEW;
+import static com.appsmith.server.repositories.BaseAppsmithRepositoryImpl.fieldName;
 
 public class MigrationHelperMethods {
     // Migration for deprecating archivedAt field in ActionDTO
@@ -164,5 +171,23 @@ public class MigrationHelperMethods {
                         }
                     });
         }
+    }
+
+    public static void evictPermissionCacheForUsers(Set<String> userIds,
+                                                    MongockTemplate mongockTemplate,
+                                                    CacheableRepositoryHelper cacheableRepositoryHelper) {
+
+        if (userIds == null || userIds.isEmpty()) {
+            // Nothing to do here.
+            return;
+        }
+
+        userIds.forEach(userId -> {
+            Query query = new Query(new Criteria(fieldName(QUser.user.id)).is(userId));
+            User user = mongockTemplate.findOne(query, User.class);
+            // blocking call for cache eviction to ensure its subscribed immediately before proceeding further.
+            cacheableRepositoryHelper.evictPermissionGroupsUser(user.getEmail(), user.getTenantId())
+                    .block();
+        });
     }
 }
