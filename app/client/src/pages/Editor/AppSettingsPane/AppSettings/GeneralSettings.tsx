@@ -32,7 +32,7 @@ const IconSelectorWrapper = styled.div`
     .t--icon-not-selected {
       margin: 0;
     }
-    gap: 8px;
+    gap: 3px;
   }
   .icon-selector::-webkit-scrollbar-thumb {
     background-color: transparent;
@@ -79,7 +79,7 @@ function GeneralSettings() {
     dispatch(updateApplication(applicationId, payload));
   };
   return (
-    <div className="mx-4">
+    <>
       <HeaderText className="leading-[3rem] font-medium">
         General settings
       </HeaderText>
@@ -87,6 +87,7 @@ function GeneralSettings() {
       <div className="pb-1 text-[#575757]">App name</div>
       <div className="pb-2.5">
         <TextInput
+          fill
           onChange={setApplicationName}
           placeholder="App name"
           type="input"
@@ -122,7 +123,7 @@ function GeneralSettings() {
         size={Size.medium}
         text="Save"
       />
-    </div>
+    </>
   );
 }
 

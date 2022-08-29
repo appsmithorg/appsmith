@@ -42,21 +42,23 @@ function AppSettings() {
 
   return (
     <Wrapper className="flex flex-row">
-      <div className="basis-1/2">
+      <div className="w-1/2">
         {SectionHeadersConfig.map((config) => (
           <SectionHeader key={config.name} {...config} />
         ))}
         <div className="border-t-[1px] border-[#d7d7d7]" />
       </div>
-      <TabContentContainer className="basis-1/2">
-        {(() => {
-          switch (selectedTab) {
-            case Tabs.General:
-              return <GeneralSettings />;
-            case Tabs.Theme:
-              return <div>Theme settings</div>;
-          }
-        })()}
+      <TabContentContainer className="w-1/2">
+        <div className="px-4">
+          {(() => {
+            switch (selectedTab) {
+              case Tabs.General:
+                return <GeneralSettings />;
+              case Tabs.Theme:
+                return <div>Theme settings</div>;
+            }
+          })()}
+        </div>
       </TabContentContainer>
     </Wrapper>
   );
