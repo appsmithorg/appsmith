@@ -3,7 +3,11 @@ const commonlocators = require("../../../../locators/commonlocators.json");
 const debuggerLocators = require("../../../../locators/Debugger.json");
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 
-const { EntityExplorer: ee, JSEditor: jsEditor } = ObjectsRegistry;
+const {
+  EntityExplorer: ee,
+  JSEditor: jsEditor,
+  PropertyPane: propPane,
+} = ObjectsRegistry;
 
 const generateTestLogString = () => {
   const randString = Cypress._.random(0, 1e4);
@@ -45,7 +49,7 @@ describe("Debugger logs", function() {
     // Testing with normal log in moustache binding
     cy.openPropertyPane("buttonwidget");
     const logString = generateTestLogString();
-    jsEditor.EnterJSContext("onClick", `{{console.log("${logString}")}}`);
+    propPane.EnterJSContext("onClick", `{{console.log("${logString}")}}`);
     // Clicking outside to trigger the save
     cy.get("body").click(0, 0);
     cy.get("button")
@@ -61,7 +65,7 @@ describe("Debugger logs", function() {
     cy.get(debuggerLocators.debuggerClearLogs).click();
     cy.openPropertyPane("buttonwidget");
     const logString = generateTestLogString();
-    jsEditor.EnterJSContext(
+    propPane.EnterJSContext(
       "onClick",
       `{{(() => {
           console.log('${logString}');
@@ -84,7 +88,7 @@ describe("Debugger logs", function() {
     cy.get(debuggerLocators.debuggerClearLogs).click();
     cy.openPropertyPane("buttonwidget");
     const logString = generateTestLogString();
-    jsEditor.EnterJSContext(
+    propPane.EnterJSContext(
       "onClick",
       `{{ function () {
           console.log('${logString}');
@@ -107,7 +111,7 @@ describe("Debugger logs", function() {
     cy.get(debuggerLocators.debuggerClearLogs).click();
     cy.openPropertyPane("buttonwidget");
     const logString = generateTestLogString();
-    jsEditor.EnterJSContext(
+    propPane.EnterJSContext(
       "onClick",
       `{{(async() => {
           console.log('${logString}');
@@ -131,7 +135,7 @@ describe("Debugger logs", function() {
     cy.openPropertyPane("buttonwidget");
     const logString = generateTestLogString();
     const logStringChild = generateTestLogString();
-    jsEditor.EnterJSContext(
+    propPane.EnterJSContext(
       "onClick",
       `{{ function () {
           console.log('${logString}');
