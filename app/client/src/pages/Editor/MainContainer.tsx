@@ -17,7 +17,6 @@ import {
 import EntityExplorerSidebar from "components/editorComponents/Sidebar";
 import classNames from "classnames";
 import { previewModeSelector } from "selectors/editorSelectors";
-import { getIsAppSettingsPaneOpen } from "selectors/appSettingsPaneSelectors";
 import AppSettingsPane from "./AppSettingsPane";
 
 const SentryRoute = Sentry.withSentryRouting(Route);
@@ -55,7 +54,6 @@ function MainContainer() {
   }, [sidebarWidth]);
 
   const isPreviewMode = useSelector(previewModeSelector);
-  const isAppSettingsPaneOpen = useSelector(getIsAppSettingsPaneOpen);
 
   return (
     <>
@@ -84,7 +82,7 @@ function MainContainer() {
             <SentryRoute component={EditorsRouter} />
           </Switch>
         </div>
-        <AppSettingsPane isOpen={isAppSettingsPaneOpen} />
+        <AppSettingsPane />
       </Container>
       <BottomBar
         className={classNames({
