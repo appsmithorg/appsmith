@@ -79,6 +79,20 @@ export const CheckboxCell = (props: CheckboxCellProps) => {
     verticalAlignment,
   } = props;
 
+  const checkbox = (
+    <CheckboxComponent
+      accentColor={accentColor}
+      borderRadius={borderRadius}
+      isChecked={value}
+      isDisabled={!!disabledCheckbox || !isCellEditable}
+      isLoading={false}
+      isRequired={false}
+      label=""
+      labelPosition={LabelPosition.Auto}
+      onCheckChange={() => onChange()}
+      widgetId={""}
+    />
+  );
   return (
     <CheckboxCellWrapper
       cellBackground={cellBackground}
@@ -100,32 +114,10 @@ export const CheckboxCell = (props: CheckboxCellProps) => {
           hoverOpenDelay={200}
           position="top"
         >
-          <CheckboxComponent
-            accentColor={accentColor}
-            borderRadius={borderRadius}
-            isChecked={value}
-            isDisabled={!!disabledCheckbox}
-            isLoading={false}
-            isRequired={false}
-            label=""
-            labelPosition={LabelPosition.Auto}
-            onCheckChange={() => onChange()}
-            widgetId={""}
-          />
+          {checkbox}
         </Tooltip>
       ) : (
-        <CheckboxComponent
-          accentColor={accentColor}
-          borderRadius={borderRadius}
-          isChecked={value}
-          isDisabled={!!disabledCheckbox || !isCellEditable}
-          isLoading={false}
-          isRequired={false}
-          label=""
-          labelPosition={LabelPosition.Auto}
-          onCheckChange={() => onChange()}
-          widgetId={""}
-        />
+        checkbox
       )}
     </CheckboxCellWrapper>
   );
