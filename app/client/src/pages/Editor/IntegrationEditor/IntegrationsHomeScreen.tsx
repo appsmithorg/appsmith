@@ -2,7 +2,7 @@ import React, { useEffect, useRef } from "react";
 import { connect } from "react-redux";
 import { reduxForm, InjectedFormProps } from "redux-form";
 import styled from "styled-components";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import { API_HOME_SCREEN_FORM } from "constants/forms";
 import { Colors } from "constants/Colors";
 import { TabComponent, TabProp } from "components/ads/Tabs";

@@ -7,7 +7,7 @@ import {
   Page,
 } from "@appsmith/constants/ReduxActionConstants";
 import { connect, useSelector } from "react-redux";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import {
   getCurrentPageId,
   getViewModePageList,
