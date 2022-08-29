@@ -2,7 +2,7 @@ import { Colors } from "constants/Colors";
 import { getTypographyByKey } from "constants/DefaultTheme";
 import React from "react";
 import { useSelector } from "react-redux";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import { getDefaultPluginByPackageName } from "selectors/entitiesSelector";
 import styled from "styled-components";
 

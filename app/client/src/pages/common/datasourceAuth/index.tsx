@@ -26,7 +26,7 @@ import { useParams, useLocation } from "react-router";
 import { ExplorerURLParams } from "pages/Editor/Explorer/helpers";
 import { getIsGeneratePageInitiator } from "utils/GenerateCrudUtil";
 import { ButtonVariantTypes } from "components/constants";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import {
   AuthType,
   Datasource,

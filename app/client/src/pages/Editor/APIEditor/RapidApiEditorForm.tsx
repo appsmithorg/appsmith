@@ -19,7 +19,7 @@ import ActionNameEditor from "components/editorComponents/ActionNameEditor";
 import { NameWrapper } from "./Form";
 import { BaseButton } from "components/designSystems/appsmith/BaseButton";
 import { getActionData } from "../../../selectors/entitiesSelector";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 
 const Form = styled.form`
   display: flex;
