@@ -2435,7 +2435,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                 });
     }
 
-    private Mono<Boolean> isRepoLimitReached(String workspaceId, Boolean isClearCache) {
+    protected Mono<Boolean> isRepoLimitReached(String workspaceId, Boolean isClearCache) {
         return gitCloudServicesUtils.getPrivateRepoLimitForOrg(workspaceId, isClearCache)
                 .flatMap(limit -> {
                     if (limit == -1) {
