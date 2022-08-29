@@ -8,7 +8,6 @@ import {
 } from "entities/DataTree/actionTriggers";
 import { NavigationTargetType } from "sagas/ActionExecution/NavigateActionSaga";
 import { promisifyAction } from "workers/PromisifyAction";
-import { klona } from "klona/full";
 import uniqueId from "lodash/uniqueId";
 declare global {
   interface Window {
@@ -264,12 +263,11 @@ export const DATA_TREE_FUNCTIONS: Record<
 };
 
 export const enhanceDataTreeWithFunctions = (
-  dataTree: Readonly<DataTree>,
+  clonedDataTree: Readonly<DataTree>,
   requestId = "",
   // Whether not to add functions like "run", "clear" to entity
   skipEntityFunctions = false,
 ): DataTree => {
-  const clonedDT = klona(dataTree);
   self.TRIGGER_COLLECTOR = [];
   Object.entries(DATA_TREE_FUNCTIONS).forEach(([name, funcOrFuncCreator]) => {
     if (
@@ -277,13 +275,13 @@ export const enhanceDataTreeWithFunctions = (
       "qualifier" in funcOrFuncCreator
     ) {
       !skipEntityFunctions &&
-        Object.entries(dataTree).forEach(([entityName, entity]) => {
+        Object.entries(clonedDataTree).forEach(([entityName, entity]) => {
           if (funcOrFuncCreator.qualifier(entity)) {
             const func = funcOrFuncCreator.func(entity);
             const funcName = `${funcOrFuncCreator.path ||
               `${entityName}.${name}`}`;
             _.set(
-              clonedDT,
+              clonedDataTree,
               funcName,
               pusher.bind(
                 {
@@ -297,7 +295,7 @@ export const enhanceDataTreeWithFunctions = (
         });
     } else {
       _.set(
-        clonedDT,
+        clonedDataTree,
         name,
         pusher.bind(
           {
@@ -310,7 +308,7 @@ export const enhanceDataTreeWithFunctions = (
     }
   });
 
-  return clonedDT;
+  return clonedDataTree;
 };
 
 /**

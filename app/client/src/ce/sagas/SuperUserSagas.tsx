@@ -16,6 +16,7 @@ import { getAppsmithConfigs } from "@appsmith/configs";
 
 import { ApiResponse } from "api/ApiResponses";
 import {
+  APPSMITH_DISPLAY_VERSION,
   createMessage,
   TEST_EMAIL_FAILURE,
   TEST_EMAIL_SUCCESS,
@@ -29,12 +30,16 @@ export function* FetchAdminSettingsSaga() {
   const isValidResponse: boolean = yield validateResponse(response);
 
   if (isValidResponse) {
-    const { appVersion } = getAppsmithConfigs();
-
+    const { appVersion, cloudHosting } = getAppsmithConfigs();
     const settings = {
       //@ts-expect-error: response is of type unknown
       ...response.data,
-      APPSMITH_CURRENT_VERSION: appVersion.id,
+      APPSMITH_CURRENT_VERSION: createMessage(
+        APPSMITH_DISPLAY_VERSION,
+        appVersion.edition,
+        appVersion.id,
+        cloudHosting,
+      ),
     };
     yield put({
       type: ReduxActionTypes.FETCH_ADMIN_SETTINGS_SUCCESS,

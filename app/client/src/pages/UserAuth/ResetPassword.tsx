@@ -1,5 +1,5 @@
 import React, { useLayoutEffect } from "react";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import { withRouter, RouteComponentProps } from "react-router-dom";
 import { connect } from "react-redux";
 import { InjectedFormProps, reduxForm, Field } from "redux-form";
