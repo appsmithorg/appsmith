@@ -34,7 +34,6 @@ export const Wrapper = styled.div<{ type?: CalloutType }>`
     margin-right: 16px;
     border-radius: 50%;
     border: 2px solid var(--appsmith-color-black-800);
-    align-self: baseline;
   }
   .cross-icon {
     align-self: baseline;

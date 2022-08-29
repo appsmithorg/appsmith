@@ -14,7 +14,7 @@ export class DataSources {
   private locator = ObjectsRegistry.CommonLocators;
 
   private _dsCreateNewTab = "[data-cy=t--tab-CREATE_NEW]";
-  private _addNewDataSource = ".datasources .t--entity-add-btn";
+  private _addNewDataSource = ".t--entity-add-btn.datasources";
   private _createNewPlgin = (pluginName: string) =>
     ".t--plugin-name:contains('" + pluginName + "')";
   private _host = "input[name='datasourceConfiguration.endpoints[0].host']";
@@ -29,6 +29,7 @@ export class DataSources {
   private _testDs = ".t--test-datasource";
   private _saveDs = ".t--save-datasource";
   private _datasourceCard = ".t--datasource";
+  _activeDS = "[data-testid='active-datasource-name']";
   _templateMenu = ".t--template-menu";
   _templateMenuOption = (action: string) =>
     "//div[contains(@class, 't--template-menu')]//div[text()='" + action + "']";
@@ -185,11 +186,7 @@ export class DataSources {
   }
 
   public NavigateToDSCreateNew() {
-    cy.get(this._addNewDataSource)
-      .last()
-      .scrollIntoView()
-      .should("be.visible")
-      .click({ force: true });
+    this.agHelper.GetNClick(this._addNewDataSource);
     // cy.get(this._dsCreateNewTab)
     //   .should("be.visible")
     //   .click({ force: true });
@@ -358,7 +355,8 @@ export class DataSources {
   }
 
   public CreateQuery(datasourceName: string) {
-    cy.get(this._datasourceCard)
+    cy.get(this._datasourceCard, { withinSubject: null })
+      .find(this._activeDS)
       .contains(datasourceName)
       .scrollIntoView()
       .should("be.visible")
@@ -467,6 +465,7 @@ export class DataSources {
       this.agHelper.UpdateCodeInput($field, query);
     });
     this.agHelper.AssertAutoSave();
+    this.agHelper.Sleep(500); //waiting a bit before proceeding!
   }
 
   public RunQueryNVerifyResponseViews(

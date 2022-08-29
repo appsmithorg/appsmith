@@ -161,5 +161,8 @@
   "audioRecorderBindingValue": "{{AudioRecorder1.isVisible}}",
   "audioBindingValue": "{{Audio1.autoPlay}}",
   "phoneBindingValue": "{{PhoneInput1.value}}",
-  "fileBindingValue": "{{FilePicker1.isDirty}}"
+  "fileBindingValue": "{{FilePicker1.isDirty}}",
+  "UPGRADEUSERNAME": "arslan+upgrade160@appsmith.com",
+  "UPGRADEPASSWORD": "Test@123",
+  "APPURL": "/applications/62e2e63c11fae56b4ef05150/pages/62e2e63c11fae56b4ef05152"
 }

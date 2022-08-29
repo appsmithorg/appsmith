@@ -3,12 +3,12 @@ import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 const {
   AggregateHelper: agHelper,
   ApiPage,
-  JSEditor: jsEditor,
+  JSEditor: jsEditor
 } = ObjectsRegistry;
 
 const jsObjectBody = `export default {
-	mutateValue: async function (){
-    const response = await Api1.run()
+	mutateValue: function (){
+    const response = Api1.data
     response.users[0].name = "__" + response.users[0].name
 		return response.users[0].name
 	},
@@ -17,6 +17,7 @@ const jsObjectBody = `export default {
 describe("Data mutation tests", () => {
   it("1. #14699 Mutate Api response and verify it doesn't use previous mutated values", () => {
     ApiPage.CreateAndFillApi("https://mock-api.appsmith.com/users");
+    ApiPage.RunAPI();
 
     // create js object
     jsEditor.CreateJSObject(jsObjectBody, {
@@ -26,14 +27,16 @@ describe("Data mutation tests", () => {
       shouldCreateNewJSObj: true,
     });
 
-    agHelper.GetNClick(jsEditor._runButton);
-
     // verify that response string has __ in the start
-    agHelper.ValidateToastMessage("mutateValue ran successfully");
-    cy.contains(/^__[a-zA-Z]+/).should("exist");
+    agHelper.GetNClick(jsEditor._runButton);
+    agHelper.AssertContains("mutateValue ran successfully");
+    agHelper.AssertContains(/^__[a-zA-Z]+/, "exist");
 
-    // verify that response string has __ in the start and not more "__" got appended
+    agHelper.WaitUntilAllToastsDisappear();
+
+    // verify that response string has __ in the start and not more "__" got appended during 2nd run
+    agHelper.GetNClick(jsEditor._runButton);
     agHelper.ValidateToastMessage("mutateValue ran successfully");
-    cy.contains(/^__[a-zA-Z]+/).should("exist");
+    agHelper.AssertContains(/^__[a-zA-Z]+/, "exist");
   });
 });
