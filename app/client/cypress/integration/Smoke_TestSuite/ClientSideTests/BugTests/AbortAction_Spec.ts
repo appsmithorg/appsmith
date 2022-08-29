@@ -14,18 +14,19 @@ export const ACTION_EXECUTION_CANCELLED = (actionName: string) =>
   `${actionName} was cancelled`;
 
 describe("Abort Action Execution", function() {
-  it("1. Bug #14006 - Cancel Request button should abort API action execution", function() {
+  it("1. Bug #14006, #16093 - Cancel Request button should abort API action execution", function() {
     apiPage.CreateAndFillApi(largeResponseApiUrl, "AbortApi", 0);
     apiPage.RunAPI(false, 0);
     agHelper.GetNClick(locator._cancelActionExecution, 0, true);
     agHelper.AssertContains(ACTION_EXECUTION_CANCELLED("AbortApi"));
+    agHelper.AssertElementAbsence(locator._specificToast("{}")); //Assert that empty toast does not appear - Bug #16093
     agHelper.ActionContextMenuWithInPane("Delete", "Are you sure?");
   });
 
   // Queries were resolving quicker than we could cancel them
   // Commenting this out till we can find a query that resolves slow enough for us to cancel its execution.
 
-  it("2. Bug #14006 Cancel Request button should abort Query action execution", function() {
+  it("2. Bug #14006, #16093 Cancel Request button should abort Query action execution", function() {
     dataSources.CreateDataSource("MySql");
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;
@@ -38,6 +39,7 @@ describe("Abort Action Execution", function() {
       dataSources.RunQuery(false, false, 0);
       agHelper.GetNClick(locator._cancelActionExecution, 0, true);
       agHelper.AssertContains(ACTION_EXECUTION_CANCELLED("AbortQuery"));
+      agHelper.AssertElementAbsence(locator._specificToast("{}")); //Assert that empty toast does not appear - Bug #16093
       agHelper.ActionContextMenuWithInPane("Delete", "Are you sure?");
       dataSources.DeleteDatasouceFromWinthinDS(dsName);
     });
