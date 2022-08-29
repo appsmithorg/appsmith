@@ -11,7 +11,7 @@ const StyledHeader = styled.div`
   box-shadow: 0 1px 0 0 #d7d7d7;
 `;
 
-const StyledText = styled.text`
+const StyledText = styled.div`
   font-size: 16px;
 `;
 

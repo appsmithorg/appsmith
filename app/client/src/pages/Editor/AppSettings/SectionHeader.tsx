@@ -29,12 +29,10 @@ class SectionHeader extends React.Component<SectionHeaderProps> {
         <Icon name={this.props.icon} size={IconSize.XL} />
         <div className="basis-[4.5%]" />
         <div className="flex flex-col">
-          <text className="text-[14px] font-medium leading-[1.2rem]">
+          <div className="text-[14px] font-medium leading-[1.2rem]">
             {this.props.name}
-          </text>
-          <text className="text-[12px] leading-[1rem]">
-            {this.props.subText}
-          </text>
+          </div>
+          <div className="text-[12px] leading-[1rem]">{this.props.subText}</div>
         </div>
       </StyledWrapper>
     );
