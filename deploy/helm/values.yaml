@@ -78,6 +78,7 @@ service:
   ## @param service.nodePort; Node port to expose if service type is "LoadBalancer" or "NodePort"
   ##
   nodePort: 8000
+  ## targetPort: http
   ## @param service.portName Appsmith; service port name
   ##
   portName: appsmith
@@ -110,6 +111,7 @@ ingress:
     # cert-manager.io/cluster-issuer: "letsencrypt-prod"
     # nginx.ingress.kubernetes.io/ssl-redirect: "true"
     # nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+  ## pathType: Implementationspecific
   hosts: []
     # - host: appsmith-domain.me
   ## @param ingress.tls Enable TLS configuration for the host defined at `ingress.hosts` parameter
