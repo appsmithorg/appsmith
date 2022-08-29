@@ -48,7 +48,7 @@ describe("getAllIdentifiers", () => {
       {
         // Basic map function
         script: "Table5.data.map(c => ({ name: c.name }))",
-        expectedResults: ["Table5.data.map", "c.name"],
+        expectedResults: ["Table5.data.map"],
       },
       {
         // Literal property search
@@ -83,12 +83,12 @@ describe("getAllIdentifiers", () => {
       {
         // array index and string literal search
         script: "Array[9]['data']",
-        expectedResults: ["Array[9]"],
+        expectedResults: [],
       },
       {
         // Index identifier search
         script: "Table8.data[row][name]",
-        expectedResults: ["Table8.data", "row", "name"],
+        expectedResults: ["Table8.data", "row"],
       },
       {
         // Index identifier search with global
