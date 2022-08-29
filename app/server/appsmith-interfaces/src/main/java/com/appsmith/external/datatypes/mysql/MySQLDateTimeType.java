@@ -14,7 +14,7 @@ import java.time.format.DateTimeFormatterBuilder;
 import java.time.format.DateTimeParseException;
 import java.util.regex.Matcher;
 
-public class MySQLDatetimeType implements AppsmithType {
+public class MySQLDateTimeType implements AppsmithType {
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
     @Override
