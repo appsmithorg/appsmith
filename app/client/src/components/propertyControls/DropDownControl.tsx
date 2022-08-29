@@ -83,6 +83,7 @@ class DropDownControl extends BaseControl<DropDownControlProps> {
     return (
       <StyledDropDownContainer ref={this.containerRef}>
         <StyledDropDown
+          closeOnSpace={false}
           dropdownHeight={this.props.dropdownHeight}
           dropdownMaxHeight="200px"
           enableSearch={this.props.enableSearch}
@@ -98,6 +99,7 @@ class DropDownControl extends BaseControl<DropDownControlProps> {
           removeSelectedOption={this.onItemRemove}
           searchPlaceholder={this.props.searchPlaceholderText}
           selected={defaultSelected}
+          showEmptyOptions
           showLabelOnly
           width="100%"
         />
