@@ -50,6 +50,8 @@ export class EntityExplorer {
     "//span[text()='" + spanText + " Query']";
   _createNewPopup = ".bp3-overlay-content";
   _entityExplorerWrapper = ".t--entity-explorer-wrapper";
+  _pinEntityExplorer = ".t--pin-entity-explorer";
+  _entityExplorer = ".t--entity-explorer";
 
   public SelectEntityByName(
     entityNameinLeftSidebar: string,
@@ -183,5 +185,18 @@ export class EntityExplorer {
     this.SelectEntityByName(widgetName);
     cy.get("body").type(`{${this.modifierKey}}{c}`);
     cy.get("body").type(`{${this.modifierKey}}{v}`);
+  }
+
+  public PinUnpinEntityExplorer(pin = true) {
+    this.agHelper
+      .GetElement(this._entityExplorer)
+      .invoke("attr", "class")
+      .then(($classes) => {
+        if (pin && !$classes?.includes("fixed"))
+          this.agHelper.GetNClick(this._pinEntityExplorer, 0, false, 1000);
+        else if (!pin && $classes?.includes("fixed"))
+          this.agHelper.GetNClick(this._pinEntityExplorer, 0, false, 1000);
+        else this.agHelper.Sleep(200); //do nothing
+      });
   }
 }
