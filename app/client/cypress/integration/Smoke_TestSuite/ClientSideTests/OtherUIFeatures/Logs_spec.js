@@ -5,10 +5,10 @@ const debuggerLocators = require("../../../../locators/Debugger.json");
 describe("Debugger logs", function() {
   before(() => {
     cy.addDsl(dsl);
+    cy.wait(5000);
   });
 
   it("Modifying widget properties should log the same", function() {
-    cy.wait(5000);
     cy.get("button")
       .contains("Submit")
       .click({ force: true });
