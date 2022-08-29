@@ -607,6 +607,21 @@ function ApplicationsSection(props: any) {
     );
   }
 
+  const onClickAddNewButton = (workspaceId: string, applications: any) => {
+    if (
+      Object.entries(creatingApplicationMap).length === 0 ||
+      (creatingApplicationMap && !creatingApplicationMap[workspaceId])
+    ) {
+      createNewApplication(
+        getNextEntityName(
+          "Untitled application ",
+          applications.map((el: any) => el.name),
+        ),
+        workspaceId,
+      );
+    }
+  };
+
   const createNewApplication = (
     applicationName: string,
     workspaceId: string,
@@ -661,6 +676,11 @@ function ApplicationsSection(props: any) {
           workspace.userPermissions,
           PERMISSION_TYPE.MANAGE_WORKSPACE,
         );
+        const hasCreateNewApplicationPermission =
+          isPermitted(
+            workspace.userPermissions,
+            PERMISSION_TYPE.CREATE_APPLICATION,
+          ) && !isMobile;
         return (
           <WorkspaceSection
             className="t--workspace-section"
@@ -717,11 +737,7 @@ function ApplicationsSection(props: any) {
                         workspaceId={workspace.id}
                       />
                     )}
-                    {isPermitted(
-                      workspace.userPermissions,
-                      PERMISSION_TYPE.CREATE_APPLICATION,
-                    ) &&
-                      !isMobile &&
+                    {hasCreateNewApplicationPermission &&
                       !isFetchingApplications &&
                       applications.length !== 0 && (
                         <Button
@@ -731,22 +747,9 @@ function ApplicationsSection(props: any) {
                             creatingApplicationMap &&
                             creatingApplicationMap[workspace.id]
                           }
-                          onClick={() => {
-                            if (
-                              Object.entries(creatingApplicationMap).length ===
-                                0 ||
-                              (creatingApplicationMap &&
-                                !creatingApplicationMap[workspace.id])
-                            ) {
-                              createNewApplication(
-                                getNextEntityName(
-                                  "Untitled application ",
-                                  applications.map((el: any) => el.name),
-                                ),
-                                workspace.id,
-                              );
-                            }
-                          }}
+                          onClick={() =>
+                            onClickAddNewButton(workspace.id, applications)
+                          }
                           size={Size.medium}
                           tag="button"
                           text={"New"}
@@ -911,39 +914,22 @@ function ApplicationsSection(props: any) {
                   <NoAppsFoundIcon />
                   <span>There’s nothing inside this workspace</span>
                   {/* below component is duplicate. This is because of cypress test were failing */}
-                  {isPermitted(
-                    workspace.userPermissions,
-                    PERMISSION_TYPE.CREATE_APPLICATION,
-                  ) &&
-                    !isMobile && (
-                      <Button
-                        className="t--new-button createnew"
-                        icon={"plus"}
-                        isLoading={
-                          creatingApplicationMap &&
-                          creatingApplicationMap[workspace.id]
-                        }
-                        onClick={() => {
-                          if (
-                            Object.entries(creatingApplicationMap).length ===
-                              0 ||
-                            (creatingApplicationMap &&
-                              !creatingApplicationMap[workspace.id])
-                          ) {
-                            createNewApplication(
-                              getNextEntityName(
-                                "Untitled application ",
-                                applications.map((el: any) => el.name),
-                              ),
-                              workspace.id,
-                            );
-                          }
-                        }}
-                        size={Size.medium}
-                        tag="button"
-                        text={"New"}
-                      />
-                    )}
+                  {hasCreateNewApplicationPermission && (
+                    <Button
+                      className="t--new-button createnew"
+                      icon={"plus"}
+                      isLoading={
+                        creatingApplicationMap &&
+                        creatingApplicationMap[workspace.id]
+                      }
+                      onClick={() =>
+                        onClickAddNewButton(workspace.id, applications)
+                      }
+                      size={Size.medium}
+                      tag="button"
+                      text={"New"}
+                    />
+                  )}
                 </NoAppsFound>
               )}
             </ApplicationCardsWrapper>
