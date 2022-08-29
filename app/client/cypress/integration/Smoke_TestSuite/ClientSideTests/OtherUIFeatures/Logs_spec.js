@@ -30,11 +30,11 @@ describe("Debugger logs", function() {
     });
   });
 
-  it("Api headers need to be shown as headers in logs", function() {
-    // TODO
-  });
+  // it("Api headers need to be shown as headers in logs", function() {
+  //   // TODO
+  // });
 
-  it("Api body needs to be shown as JSON when possible", function() {
-    // TODO
-  });
+  // it("Api body needs to be shown as JSON when possible", function() {
+  //   // TODO
+  // });
 });
