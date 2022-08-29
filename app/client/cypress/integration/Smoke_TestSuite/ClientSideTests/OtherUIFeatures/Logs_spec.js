@@ -44,7 +44,6 @@ describe("Debugger logs", function() {
   });
 
   it("3. Console log on button click with normal moustache binding", function() {
-    cy.wait(5000);
     ee.DragDropWidgetNVerify("buttonwidget", 100, 200);
     // Testing with normal log in moustache binding
     cy.openPropertyPane("buttonwidget");
@@ -60,7 +59,6 @@ describe("Debugger logs", function() {
   });
 
   it("4. Console log on button click with arrow function IIFE", function() {
-    cy.wait(100);
     // Testing with normal log in iifee
     cy.get(debuggerLocators.debuggerClearLogs).click();
     cy.openPropertyPane("buttonwidget");
@@ -83,7 +81,6 @@ describe("Debugger logs", function() {
   });
 
   it("5. Console log on button click with function keyword IIFE", function() {
-    cy.wait(100);
     // Testing with normal log in iifee
     cy.get(debuggerLocators.debuggerClearLogs).click();
     cy.openPropertyPane("buttonwidget");
@@ -106,7 +103,6 @@ describe("Debugger logs", function() {
   });
 
   it("6. Console log on button click with async function IIFE", function() {
-    cy.wait(100);
     // Testing with normal log in iifee
     cy.get(debuggerLocators.debuggerClearLogs).click();
     cy.openPropertyPane("buttonwidget");
@@ -129,7 +125,6 @@ describe("Debugger logs", function() {
   });
 
   it("7. Console log on button click with mixed function IIFE", function() {
-    cy.wait(100);
     // Testing with normal log in iifee
     cy.get(debuggerLocators.debuggerClearLogs).click();
     cy.openPropertyPane("buttonwidget");

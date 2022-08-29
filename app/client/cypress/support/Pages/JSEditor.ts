@@ -178,7 +178,6 @@ export class JSEditor {
     }
 
     if (toRun) {
-      cy.wait(500);
       //clicking 1 times & waits for 2 second for result to be populated!
       Cypress._.times(1, () => {
         this.agHelper.GetNClick(this._runButton);
@@ -213,7 +212,7 @@ export class JSEditor {
             .click({ force: true });
         else this.agHelper.Sleep(500);
       });
-   }
+  }
 
   public RenameJSObjFromPane(renameVal: string) {
     cy.get(this._jsObjName).click({ force: true });
@@ -281,7 +280,6 @@ export class JSEditor {
     onLoad = true,
     bfrCalling = true,
   ) {
-
     // this.agHelper.AssertExistingToggleState(this._functionSetting(Cypress.env("MESSAGES").JS_SETTINGS_ONPAGELOAD()), onLoad)
     // this.agHelper.AssertExistingToggleState(this._functionSetting(Cypress.env("MESSAGES").JS_SETTINGS_CONFIRM_EXECUTION()), bfrCalling)
 
