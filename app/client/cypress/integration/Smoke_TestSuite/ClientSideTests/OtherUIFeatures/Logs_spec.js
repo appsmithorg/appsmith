@@ -4,10 +4,14 @@ const debuggerLocators = require("../../../../locators/Debugger.json");
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 
 const {
+  AggregateHelper: agHelper,
+  CommonLocators: locator,
   EntityExplorer: ee,
   JSEditor: jsEditor,
   PropertyPane: propPane,
 } = ObjectsRegistry;
+
+let logString;
 
 const generateTestLogString = () => {
   const randString = Cypress._.random(0, 1e4);
@@ -16,19 +20,15 @@ const generateTestLogString = () => {
 };
 
 describe("Debugger logs", function() {
-  before(() => {
-    cy.addDsl(dsl);
+  this.beforeEach(() => {
+    logString = generateTestLogString();
   });
 
   it("1. Modifying widget properties should log the same", function() {
-    cy.wait(5000);
-    cy.get("button")
-      .contains("Submit")
-      .click({ force: true });
-    cy.openPropertyPane("buttonwidget");
-    cy.testJsontext("label", "Test");
-    cy.get(debuggerLocators.debuggerIcon).click();
-    cy.get(debuggerLocators.debuggerLogState).contains("Test");
+    ee.DragDropWidgetNVerify("buttonwidget", 200, 200);
+    propPane.UpdatePropertyFieldValue("Label", "Test");
+    agHelper.GetNClick(locator._debuggerIcon, 0, true, 0);
+    agHelper.GetNAssertContains(locator._debuggerLogState, "Test");
   });
 
   it("2. Reset debugger state", function() {
@@ -44,47 +44,33 @@ describe("Debugger logs", function() {
   });
 
   it("3. Console log on button click with normal moustache binding", function() {
-    ee.DragDropWidgetNVerify("buttonwidget", 100, 200);
+    ee.DragDropWidgetNVerify("buttonwidget", 200, 200);
     // Testing with normal log in moustache binding
-    cy.openPropertyPane("buttonwidget");
-    const logString = generateTestLogString();
     propPane.EnterJSContext("onClick", `{{console.log("${logString}")}}`);
-    // Clicking outside to trigger the save
-    cy.get("body").click(0, 0);
-    cy.get("button")
-      .contains("Submit")
-      .click({ force: true });
-    cy.get(debuggerLocators.debuggerIcon).click();
-    cy.get(debuggerLocators.debuggerLogMessage).contains(logString);
+    agHelper.Sleep(2000);
+    agHelper.ClickButton("Submit");
+    agHelper.GetNClick(locator._debuggerIcon);
+    agHelper.GetNAssertContains(locator._debuggerLogMessage, "Test");
   });
 
   it("4. Console log on button click with arrow function IIFE", function() {
+    agHelper.GetNClick(locator._debuggerClearLogs);
+    ee.SelectEntityByName("Button1");
     // Testing with normal log in iifee
-    cy.get(debuggerLocators.debuggerClearLogs).click();
-    cy.openPropertyPane("buttonwidget");
-    const logString = generateTestLogString();
     propPane.EnterJSContext(
       "onClick",
       `{{(() => {
           console.log('${logString}');
         }) () }}`,
     );
-    // Clicking outside to trigger the save
-    cy.get("body").click(0, 0);
-    cy.get("button")
-      .contains("Submit")
-      .click({ force: true });
-    cy.get(debuggerLocators.debuggerLogMessage)
-      .first()
-      .click();
-    cy.get(debuggerLocators.debuggerLogMessage).contains(logString);
+    agHelper.ClickButton("Submit");
+    agHelper.GetNAssertContains(locator._debuggerLogMessage, logString);
   });
 
   it("5. Console log on button click with function keyword IIFE", function() {
     // Testing with normal log in iifee
     cy.get(debuggerLocators.debuggerClearLogs).click();
     cy.openPropertyPane("buttonwidget");
-    const logString = generateTestLogString();
     propPane.EnterJSContext(
       "onClick",
       `{{ function () {
@@ -106,7 +92,6 @@ describe("Debugger logs", function() {
     // Testing with normal log in iifee
     cy.get(debuggerLocators.debuggerClearLogs).click();
     cy.openPropertyPane("buttonwidget");
-    const logString = generateTestLogString();
     propPane.EnterJSContext(
       "onClick",
       `{{(async() => {
@@ -128,7 +113,6 @@ describe("Debugger logs", function() {
     // Testing with normal log in iifee
     cy.get(debuggerLocators.debuggerClearLogs).click();
     cy.openPropertyPane("buttonwidget");
-    const logString = generateTestLogString();
     const logStringChild = generateTestLogString();
     propPane.EnterJSContext(
       "onClick",
@@ -151,7 +135,6 @@ describe("Debugger logs", function() {
 
   it("8. Console log in sync function", function() {
     ee.NavigateToSwitcher("explorer");
-    const logString = generateTestLogString();
     jsEditor.CreateJSObject(
       `export default {
 	      myFun1: () => {
@@ -176,7 +159,6 @@ describe("Debugger logs", function() {
 
   it("9. Console log in async function", function() {
     ee.NavigateToSwitcher("explorer");
-    const logString = generateTestLogString();
     jsEditor.CreateJSObject(
       `export default {
 	      myFun1: async () => {
