@@ -1529,7 +1529,6 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
             }
             hasUnSavedChanges={cellProperties.hasUnsavedChanged}
             horizontalAlignment={cellProperties.horizontalAlignment}
-            isCellEditMode={isCellEditMode}
             isCellEditable={
               (isColumnEditable && cellProperties.isCellEditable) ?? false
             }

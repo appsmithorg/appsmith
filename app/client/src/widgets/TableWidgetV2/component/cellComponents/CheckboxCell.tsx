@@ -5,11 +5,11 @@ import {
   CellAlignment,
   JUSTIFY_CONTENT,
 } from "../Constants";
-import { CellWrapper, TooltipContentWrapper } from "../TableStyledWrappers";
+import { CellWrapper } from "../TableStyledWrappers";
 import CheckboxComponent from "widgets/CheckboxWidget/component/index";
 import { LabelPosition } from "components/constants";
 import styled from "styled-components";
-import { Tooltip } from "@blueprintjs/core";
+import ConditionalTooltipRenderer from "./ConditionalTooltipRenderer";
 
 const UnsavedChangesMarker = styled.div<{ accentColor: string }>`
   position: absolute;
@@ -38,13 +38,16 @@ const CheckboxCellWrapper = styled(CellWrapper)<{
     & .bp3-checkbox {
       gap: 0px;
     }
-
-    & .bp3-disabled {
-      cursor: grab;
-      & .bp3-control-indicator::before {
-        cursor: grab;
-      }
+  }
+  & .bp3-disabled {
+    cursor: grab !important;
+    & .bp3-control-indicator::before {
+      cursor: grab !important;
     }
+  }
+
+  & > .bp3-popover-wrapper {
+    overflow: unset;
   }
 `;
 
@@ -57,7 +60,6 @@ type CheckboxCellProps = BaseCellComponentProps & {
   hasUnSavedChanges?: boolean;
   disabledCheckbox: boolean;
   isCellEditable: boolean;
-  isCellEditMode?: boolean;
 };
 
 export const CheckboxCell = (props: CheckboxCellProps) => {
@@ -89,44 +91,26 @@ export const CheckboxCell = (props: CheckboxCellProps) => {
       {hasUnSavedChanges && <UnsavedChangesMarker accentColor={accentColor} />}
 
       {isCellEditable ? (
-        !!disabledCheckbox ? (
-          <Tooltip
-            autoFocus={false}
-            content={
-              <TooltipContentWrapper>
-                Save or discard the unsaved row to start editing here
-              </TooltipContentWrapper>
-            }
-            hoverOpenDelay={200}
-            position="top"
-          >
-            <CheckboxComponent
-              accentColor={accentColor}
-              borderRadius={borderRadius}
-              isChecked={value}
-              isDisabled={!!disabledCheckbox}
-              isLoading={false}
-              isRequired={false}
-              label=""
-              labelPosition={LabelPosition.Auto}
-              onCheckChange={() => onChange()}
-              widgetId={""}
-            />
-          </Tooltip>
-        ) : (
-          <CheckboxComponent
-            accentColor={accentColor}
-            borderRadius={borderRadius}
-            isChecked={value}
-            isDisabled={!!disabledCheckbox}
-            isLoading={false}
-            isRequired={false}
-            label=""
-            labelPosition={LabelPosition.Auto}
-            onCheckChange={() => onChange()}
-            widgetId={""}
-          />
-        )
+        <ConditionalTooltipRenderer
+          disabledState={!!disabledCheckbox}
+          renderComponent={() => {
+            return (
+              <CheckboxComponent
+                accentColor={accentColor}
+                borderRadius={borderRadius}
+                isChecked={value}
+                isDisabled={!!disabledCheckbox}
+                isLoading={false}
+                isRequired={false}
+                label=""
+                labelPosition={LabelPosition.Auto}
+                onCheckChange={() => onChange()}
+                widgetId={""}
+              />
+            );
+          }}
+          toolTipTitle="Save or discard the unsaved row to start editing here"
+        />
       ) : (
         <CheckboxComponent
           accentColor={accentColor}
