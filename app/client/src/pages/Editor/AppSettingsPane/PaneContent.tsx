@@ -3,7 +3,7 @@ import React, { useRef } from "react";
 import { useDispatch } from "react-redux";
 import { useOnClickOutside } from "utils/hooks/useOnClickOutside";
 import AppSettings from "./AppSettings";
-import PaneHeader from "./AppSettings/PaneHeader";
+import PaneHeader from "./PaneHeader";
 
 function PaneContent() {
   const dispatch = useDispatch();

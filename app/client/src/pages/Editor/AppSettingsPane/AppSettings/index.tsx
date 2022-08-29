@@ -12,7 +12,7 @@ const Wrapper = styled.div`
   height: calc(100% - 48px);
 `;
 
-const TabContentContainer = styled.div`
+const SectionContent = styled.div`
   box-shadow: -1px 0 0 0 #e0dede;
 `;
 
@@ -48,7 +48,7 @@ function AppSettings() {
         ))}
         <div className="border-t-[1px] border-[#d7d7d7]" />
       </div>
-      <TabContentContainer className="w-1/2">
+      <SectionContent className="w-1/2">
         <div className="px-4">
           {(() => {
             switch (selectedTab) {
@@ -59,7 +59,7 @@ function AppSettings() {
             }
           })()}
         </div>
-      </TabContentContainer>
+      </SectionContent>
     </Wrapper>
   );
 }
