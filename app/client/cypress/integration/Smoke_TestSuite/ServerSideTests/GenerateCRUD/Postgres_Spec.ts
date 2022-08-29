@@ -514,7 +514,7 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
     agHelper.Sleep(2000);
 
     //Removing Default values & setting placeholder!
-    propPane.UpdateJSONFormWithPlaceholders();
+    //propPane.UpdateJSONFormWithPlaceholders();//Since cypress is hanging here sometimes in local run also commenting
 
     //Updating JSON field properties similar to Update JSON!
     updatingVesselsJSONPropertyFileds();
@@ -530,6 +530,7 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
     agHelper.AssertElementVisible(locator._visibleTextDiv("Insert Row"));
 
     //Checking Required field validations
+    deployMode.ClearJSONFieldValue("Shipname", 1);
     cy.xpath(locator._spanButton("Submit") + "/parent::div").should(
       "have.attr",
       "disabled",
@@ -541,6 +542,7 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
     );
 
     //Checking Primary Key validation error toast
+    deployMode.ClearJSONFieldValue("Ship Id");
     agHelper.ClickButton("Submit");
     agHelper.ValidateToastMessage(
       `null value in column "ship_id" violates not-null constraint`,
@@ -549,16 +551,21 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
   });
 
   it("16. Verify Add/Insert from Deploy page - on Vessels - new record", () => {
+    deployMode.ClearJSONFieldValue("Callsign", 1);
     deployMode.EnterJSONInputValue("Callsign", "9HUQ9", 1);
 
+    deployMode.ClearJSONFieldValue("Country", 1);
     deployMode.EnterJSONInputValue("Country", "Malta", 1);
 
+    deployMode.ClearJSONFieldValue("Next Port Name", 1);
     deployMode.EnterJSONInputValue("Next Port Name", "CORFU", 1);
 
+    deployMode.ClearJSONFieldValue("Destination", 1);
     deployMode.EnterJSONInputValue("Destination", "CORFU", 1);
 
     deployMode.SelectJsonFormDropDown("Special Craft", 1);
 
+    deployMode.ClearJSONFieldValue("Timezone", 1);
     deployMode.EnterJSONInputValue("Timezone", "-12", 1);
     agHelper.AssertElementVisible(
       locator._visibleTextDiv("Not a valid timezone!"),
@@ -566,12 +573,16 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
     deployMode.ClearJSONFieldValue("Timezone", 1);
     deployMode.EnterJSONInputValue("Timezone", "-2", 1);
 
+    deployMode.ClearJSONFieldValue("Status Name", 1);
     deployMode.EnterJSONInputValue("Status Name", "Moored", 1);
 
+    deployMode.ClearJSONFieldValue("Year Built", 1);
     deployMode.EnterJSONInputValue("Year Built", "1967", 1);
 
+    deployMode.ClearJSONFieldValue("Area Code", 1);
     deployMode.EnterJSONInputValue("Area Code", "USG - Gulf of Mexico", 1);
 
+    deployMode.ClearJSONFieldValue("Speed", 1);
     deployMode.EnterJSONInputValue("Speed", "0.6", 1);
 
     agHelper.GetNClick(
@@ -580,8 +591,10 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
     );
     agHelper.GetNClick(locator._datePicker(2));
 
+    deployMode.ClearJSONFieldValue("Distance To Go", 1);
     deployMode.EnterJSONInputValue("Distance To Go", "18.1", 1);
 
+    deployMode.ClearJSONFieldValue("Current Port", 1);
     deployMode.EnterJSONInputValue("Current Port", "GALVESTON", 1);
 
     cy.xpath(deployMode._jsonFormFieldByName("Callsign", true))
