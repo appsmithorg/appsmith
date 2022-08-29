@@ -100,9 +100,13 @@ import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNestedNonNullP
 import static com.appsmith.server.acl.AclPermission.ASSIGN_PERMISSION_GROUPS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_INSTANCE_CONFIGURATION;
 import static com.appsmith.server.acl.AclPermission.MANAGE_INSTANCE_ENV;
+import static com.appsmith.server.acl.AclPermission.MANAGE_USERS;
 import static com.appsmith.server.acl.AclPermission.READ_INSTANCE_CONFIGURATION;
 import static com.appsmith.server.acl.AclPermission.READ_PERMISSION_GROUPS;
 import static com.appsmith.server.acl.AclPermission.READ_THEMES;
+import static com.appsmith.server.acl.AclPermission.READ_USERS;
+import static com.appsmith.server.acl.AclPermission.RESET_PASSWORD_USERS;
+import static com.appsmith.server.constants.EnvVariables.APPSMITH_ADMIN_EMAILS;
 import static com.appsmith.server.constants.FieldName.DEFAULT_PERMISSION_GROUP;
 import static com.appsmith.server.constants.FieldName.PERMISSION_GROUP_ID;
 import static com.appsmith.server.migrations.DatabaseChangelog.dropIndexIfExists;
@@ -1819,14 +1823,14 @@ public class DatabaseChangelog2 {
                             ActionCollection.class);
 
                     // Update Themes
-                        // First update all the named themes with the new policies
+                    // First update all the named themes with the new policies
                     Set<Policy> themePolicies = policyGenerator.getAllChildPolicies(applicationPolicies, Application.class, Theme.class);
                     mongockTemplate.updateMulti(new Query().addCriteria(Criteria.where(fieldName(QTheme.theme.applicationId)).in(applicationIds)),
                             new Update().set("policies", themePolicies),
                             Theme.class);
 
-                        // Also update the non-named themes.
-                        // Get the theme ids to update
+                    // Also update the non-named themes.
+                    // Get the theme ids to update
                     Set<String> themeIdSet = mongockTemplate.stream(new Query().addCriteria(Criteria.where(fieldName(QApplication.application.workspaceId)).is(workspace.getId())), Application.class)
                             .stream()
                             .flatMap(application -> {
@@ -2282,4 +2286,87 @@ public class DatabaseChangelog2 {
                 assignedToUserIds_deleted_compound_index
         );
     }
+
+    @ChangeSet(order = "033", id = "update-super-users", author = "", runAlways = true)
+    public void updateSuperUsers(MongockTemplate mongockTemplate) {
+        // Read the admin emails from the environment and update the super users accordingly
+        String adminEmailsStr = System.getenv(String.valueOf(APPSMITH_ADMIN_EMAILS));
+
+        Set<String> adminEmails = TextUtils.csvToSet(adminEmailsStr);
+
+        Query instanceConfigurationQuery = new Query();
+        instanceConfigurationQuery.addCriteria(where(fieldName(QConfig.config1.name)).is(FieldName.INSTANCE_CONFIG));
+        Config instanceAdminConfiguration = mongockTemplate.findOne(instanceConfigurationQuery, Config.class);
+
+        String instanceAdminPermissionGroupId = (String) instanceAdminConfiguration.getConfig().get(DEFAULT_PERMISSION_GROUP);
+
+        Query permissionGroupQuery = new Query();
+        permissionGroupQuery.addCriteria(where(fieldName(QPermissionGroup.permissionGroup.id)).is(instanceAdminPermissionGroupId));
+        PermissionGroup instanceAdminPG = mongockTemplate.findOne(permissionGroupQuery, PermissionGroup.class);
+
+        Query tenantQuery = new Query();
+        tenantQuery.addCriteria(where(fieldName(QTenant.tenant.slug)).is("default"));
+        Tenant tenant = mongockTemplate.findOne(tenantQuery, Tenant.class);
+
+        Set<String> userIds = adminEmails.stream()
+                .map(email -> email.trim())
+                .map(String::toLowerCase)
+                .map(email -> {
+                    Query userQuery = new Query();
+                    userQuery.addCriteria(where(fieldName(QUser.user.email)).is(email));
+                    User user = mongockTemplate.findOne(userQuery, User.class);
+
+                    if (user == null) {
+                        log.info("Creating super user with username {}", email);
+                        user = createNewUser(email, tenant.getId(), mongockTemplate);
+                    }
+
+                    return user.getId();
+                })
+                .collect(Collectors.toSet());
+
+        instanceAdminPG.setAssignedToUserIds(userIds);
+        mongockTemplate.save(instanceAdminPG);
+    }
+
+    private User createNewUser(String email, String tenantId, MongockTemplate mongockTemplate) {
+        User user = new User();
+        user.setEmail(email);
+        user.setIsEnabled(false);
+        user.setTenantId(tenantId);
+        user = mongockTemplate.save(user);
+
+        // Assign the user to the default permissions
+        PermissionGroup userManagementPermissionGroup = new PermissionGroup();
+        userManagementPermissionGroup.setName(user.getUsername() + " User Management");
+        // Add CRUD permissions for user to the group
+        userManagementPermissionGroup.setPermissions(
+                Set.of(
+                        new Permission(user.getId(), MANAGE_USERS)
+                )
+        );
+
+        // Assign the permission group to the user
+        userManagementPermissionGroup.setAssignedToUserIds(Set.of(user.getId()));
+
+        PermissionGroup savedPermissionGroup = mongockTemplate.save(userManagementPermissionGroup);
+
+        Policy readUserPolicy = Policy.builder()
+                .permission(READ_USERS.getValue())
+                .permissionGroups(Set.of(savedPermissionGroup.getId()))
+                .build();
+        Policy manageUserPolicy = Policy.builder()
+                .permission(MANAGE_USERS.getValue())
+                .permissionGroups(Set.of(savedPermissionGroup.getId()))
+                .build();
+        Policy resetPwdPolicy = Policy.builder()
+                .permission(RESET_PASSWORD_USERS.getValue())
+                .permissionGroups(Set.of(savedPermissionGroup.getId()))
+                .build();
+
+        user.setPolicies(Set.of(readUserPolicy, manageUserPolicy, resetPwdPolicy));
+
+        return mongockTemplate.save(user);
+    }
+
 }

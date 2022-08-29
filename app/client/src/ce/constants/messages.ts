@@ -5,8 +5,16 @@ export function createMessage(
   return format(...args);
 }
 
-export const APPSMITH_DISPLAY_VERSION = (edition: string, version: string) =>
-  `Appsmith ${edition} ${version}`;
+/*
+  For self hosted, it displays the string "Appsmith Community v1.10.0" or "Appsmith Business v1.10.0".
+  For cloud hosting, it displays "Appsmith v1.10.0". 
+  This is because Appsmith Cloud doesn't support business features yet.
+ */
+export const APPSMITH_DISPLAY_VERSION = (
+  edition: string,
+  version: string,
+  cloudHosting: boolean,
+) => `Appsmith ${!cloudHosting ? edition : ""} ${version}`;
 export const YES = () => `Yes`;
 export const ARE_YOU_SURE = () => `Are you sure?`;
 export const ERROR_ADD_API_INVALID_URL = () =>
