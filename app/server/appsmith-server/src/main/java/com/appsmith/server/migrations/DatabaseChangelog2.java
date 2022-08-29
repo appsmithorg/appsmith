@@ -52,6 +52,7 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.helpers.TextUtils;
+import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import com.appsmith.server.repositories.NewPageRepository;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.services.WorkspaceService;
@@ -109,10 +110,12 @@ import static com.appsmith.server.acl.AclPermission.RESET_PASSWORD_USERS;
 import static com.appsmith.server.constants.EnvVariables.APPSMITH_ADMIN_EMAILS;
 import static com.appsmith.server.constants.FieldName.DEFAULT_PERMISSION_GROUP;
 import static com.appsmith.server.constants.FieldName.PERMISSION_GROUP_ID;
+import static com.appsmith.server.helpers.CollectionUtils.findSymmetricDiff;
 import static com.appsmith.server.migrations.DatabaseChangelog.dropIndexIfExists;
 import static com.appsmith.server.migrations.DatabaseChangelog.ensureIndexes;
 import static com.appsmith.server.migrations.DatabaseChangelog.getUpdatedDynamicBindingPathList;
 import static com.appsmith.server.migrations.DatabaseChangelog.makeIndex;
+import static com.appsmith.server.migrations.MigrationHelperMethods.evictPermissionCacheForUsers;
 import static com.appsmith.server.repositories.BaseAppsmithRepositoryImpl.fieldName;
 import static java.lang.Boolean.TRUE;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
@@ -2288,7 +2291,7 @@ public class DatabaseChangelog2 {
     }
 
     @ChangeSet(order = "033", id = "update-super-users", author = "", runAlways = true)
-    public void updateSuperUsers(MongockTemplate mongockTemplate) {
+    public void updateSuperUsers(MongockTemplate mongockTemplate, CacheableRepositoryHelper cacheableRepositoryHelper) {
         // Read the admin emails from the environment and update the super users accordingly
         String adminEmailsStr = System.getenv(String.valueOf(APPSMITH_ADMIN_EMAILS));
 
@@ -2325,6 +2328,9 @@ public class DatabaseChangelog2 {
                 })
                 .collect(Collectors.toSet());
 
+        Set<String> oldSuperUsers = instanceAdminPG.getAssignedToUserIds();
+        Set<String> updatedUserIds = findSymmetricDiff(oldSuperUsers, userIds);
+        evictPermissionCacheForUsers(updatedUserIds, mongockTemplate, cacheableRepositoryHelper);
         instanceAdminPG.setAssignedToUserIds(userIds);
         mongockTemplate.save(instanceAdminPG);
     }
@@ -2334,6 +2340,7 @@ public class DatabaseChangelog2 {
         user.setEmail(email);
         user.setIsEnabled(false);
         user.setTenantId(tenantId);
+        user.setCreatedAt(Instant.now());
         user = mongockTemplate.save(user);
 
         // Assign the user to the default permissions

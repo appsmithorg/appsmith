@@ -766,7 +766,8 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
   ) {
     agHelper.ClickButton("Update"); //Update does not work, Bug 14063
     agHelper.AssertElementAbsence(locator._toastMsg); //Validating fix for Bug 14063 - for common table columns
-    agHelper.Sleep(2000); //for update to reflect!
+    //agHelper.Sleep(2000); //for update to reflect!
+    agHelper.WaitUntilEleDisappear(locator._spinner);
     agHelper.ValidateNetworkStatus("@postExecute", 200);
     agHelper.ValidateNetworkStatus("@postExecute", 200);
     table.AssertSelectedRow(rowIndex); //Validate Primary key column selection
