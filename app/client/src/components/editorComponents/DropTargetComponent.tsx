@@ -38,13 +38,20 @@ type DropTargetComponentProps = WidgetProps & {
   isWrapper?: boolean;
 };
 
-const StyledDropTarget = styled.div`
+const StyledDropTarget = styled.div<{
+  direction: LayoutDirection;
+  isWrapper: boolean;
+}>`
   transition: height 100ms ease-in;
   width: 100%;
   position: relative;
   background: none;
   user-select: none;
-  z-index: 1;
+  z-index: ${({ isWrapper }) => (isWrapper ? 2 : 1)};
+  margin-bottom: ${({ direction, isWrapper }) =>
+    isWrapper && direction === LayoutDirection.Horizontal ? "4px" : 0};
+  margin-right: ${({ direction, isWrapper }) =>
+    isWrapper && direction === LayoutDirection.Vertical ? "4px" : 0};
 `;
 
 function Onboarding() {
@@ -200,6 +207,8 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
     <DropTargetContext.Provider value={contextValue}>
       <StyledDropTarget
         className={`t--drop-target ${wrapperClass}`}
+        direction={props.direction}
+        isWrapper={props.isWrapper || false}
         onClick={handleFocus}
         ref={dropTargetRef}
         style={style}

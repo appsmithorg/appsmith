@@ -416,6 +416,7 @@ export class ContainerWidget extends BaseWidget<
                 snapRows={snapRows}
                 useAutoLayout={this.state.useAutoLayout}
                 widgetId={props.widgetId}
+                widgetName={props.widgetName}
               />
               <CanvasSelectionArena
                 {...this.getSnapSpaces()}

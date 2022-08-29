@@ -440,7 +440,7 @@ export const useCanvasDragging = (
         movementLimitMap: {},
         bottomMostRow: 0,
         movementMap: {},
-        isIdealToJumpContainer: false,
+        isIdealToJumpContainer: useAutoLayout || false,
       };
       let lastMousePosition = {
         x: 0,
@@ -536,6 +536,7 @@ export const useCanvasDragging = (
         };
 
         const onFirstMoveOnCanvas = (e: any, over = false) => {
+          // console.log(`#### first move: ${widgetName}`);
           if (
             !isResizing &&
             isDragging &&
@@ -548,7 +549,7 @@ export const useCanvasDragging = (
               startPoints.top =
                 relativeStartPoints.top || defaultHandlePositions.top;
             }
-            if (!isCurrentDraggedCanvas) {
+            if (!isCurrentDraggedCanvas || useAutoLayout) {
               //Called when canvas Changes
               const {
                 acceleration,

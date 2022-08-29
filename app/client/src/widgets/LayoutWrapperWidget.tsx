@@ -39,8 +39,9 @@ class LayoutWrapperWidget extends ContainerWidget {
   componentDidMount(): void {
     super.componentDidMount();
   }
-  componentDidUpdate(): void {
-    this.updatePositioningInformation();
+  componentDidUpdate(prevProps: ContainerWidgetProps<any>): void {
+    if (this.props.positioning !== prevProps.positioning)
+      this.updatePositioningInformation();
   }
   updatePositioningInformation = (): void => {
     this.setState({
