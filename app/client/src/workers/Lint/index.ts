@@ -1,5 +1,5 @@
 import { DataTree, DataTreeEntity } from "entities/DataTree/dataTreeFactory";
-import { get } from "lodash";
+import { get, union } from "lodash";
 import { EvaluationError, getDynamicBindings } from "utils/DynamicBindingUtils";
 import {
   createGlobalData,
@@ -36,7 +36,7 @@ export const lintTree = (args: LintTreeArgs) => {
   // Certain paths, like JS Object's body are binding paths where appsmith functions are needed in the global data
   const bindingPathsRequiringFunctions = new Set<string>();
 
-  sortedDependencies.concat(extraPathsToLint).forEach((fullPropertyPath) => {
+  union(sortedDependencies, extraPathsToLint).forEach((fullPropertyPath) => {
     const { entityName, propertyPath } = getEntityNameAndPropertyPath(
       fullPropertyPath,
     );
@@ -133,7 +133,13 @@ const lintBindingPath = (
   );
 
   if (stringSegments) {
-    jsSnippets.map((jsSnippet, index) => {
+    jsSnippets.forEach((jsSnippet, index) => {
+      const jsSnippetToLint = getJSSnippetToLint(
+        entity,
+        jsSnippet,
+        propertyPath,
+      );
+
       if (jsSnippet) {
         const jsSnippetToLint = getJSToLint(entity, jsSnippet, propertyPath);
         // {{user's code}}
@@ -144,12 +150,13 @@ const lintBindingPath = (
         );
         const scriptType = getScriptType(false, false);
         const scriptToLint = getScriptToEval(jsSnippetToLint, scriptType);
-        lintErrors = getLintingErrors(
+        const lintErrorsFromSnippet = getLintingErrors(
           scriptToLint,
           globalData,
           originalBinding,
           scriptType,
         );
+        lintErrors = lintErrors.concat(lintErrorsFromSnippet);
       }
     });
   }
