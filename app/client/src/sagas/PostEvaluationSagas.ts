@@ -395,7 +395,7 @@ export function* updateTernDefinitions(
       treeWithoutPrivateWidgets,
       !!featureFlags.JS_EDITOR,
     );
-    TernServer.updateDef("DATA_TREE", [def], entityInfo);
+    TernServer.updateDef("DATA_TREE", def, entityInfo);
     const end = performance.now();
     log.debug("Tern", { updates });
     log.debug("Tern definitions updated took ", (end - start).toFixed(2));

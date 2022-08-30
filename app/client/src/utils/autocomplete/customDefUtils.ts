@@ -11,7 +11,7 @@ export const updateCustomDef = (customData?: AdditionalDynamicDataTree) => {
   if (customData) {
     if (!equal(lastCustomData, customData)) {
       const customDataDef = customTreeTypeDefCreator(customData);
-      TernServer.updateDef("customDataTree", [customDataDef]);
+      TernServer.updateDef("customDataTree", customDataDef);
       lastCustomData = customData;
     }
   } else {

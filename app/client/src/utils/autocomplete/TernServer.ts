@@ -190,11 +190,13 @@ class TernServer {
 
   updateDef(
     name: string,
-    defs?: Def[],
+    def?: Def,
     entityInfo?: Map<string, DataTreeDefEntityInformation>,
   ) {
-    if (defs) {
-      this.server.addDefs(defs);
+    if (def) {
+      // addDefs doesn't work for [def] and instead works with single def
+      // @ts-expect-error: Types are not available
+      this.server.addDefs(def);
     } else {
       this.server.deleteDefs(name);
     }
