@@ -357,7 +357,6 @@ const OverlayLabels: React.FC<{
 const DynamicHeightOverlay: React.FC<DynamicHeightOverlayProps> = memo(
   ({
     batchUpdate,
-    children,
     maxDynamicHeight,
     minDynamicHeight,
     onMaxHeightSet,
@@ -649,7 +648,6 @@ const DynamicHeightOverlay: React.FC<DynamicHeightOverlayProps> = memo(
             onMinHeightSet={onMinHeightSet}
           />
         </div>
-        {children}
       </StyledDynamicHeightOverlay>
     );
   },
