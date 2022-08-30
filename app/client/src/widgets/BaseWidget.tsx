@@ -236,6 +236,11 @@ abstract class BaseWidget<
       if (minDynamicHeightInRows <= expectedHeightInRows) {
         return true;
       }
+
+      // If minDynamicHeightInRows is larger than expectedHeightInRows
+      if (minDynamicHeightInRows > expectedHeightInRows) {
+        return true;
+      }
     }
 
     // If current height is less than the minDynamicHeightInRows
