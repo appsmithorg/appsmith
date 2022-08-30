@@ -313,7 +313,7 @@ const OptionWrapper = styled.div<{
   background-color: ${(props) =>
     props.selected
       ? props.selectedHighlightBg || `var(--appsmith-color-black-200)`
-      : Colors.WHITE};
+      : `initial`};
   &&& svg {
     rect {
       fill: ${(props) => props.theme.colors.dropdownIconBg};
@@ -342,8 +342,7 @@ const OptionWrapper = styled.div<{
     }
   }
   &:hover {
-    background-color: ${(props) =>
-      props.selectedHighlightBg || props.theme.colors.dropdown.menu.hover};
+    background-color: ${(props) => props.selectedHighlightBg || `initial`};
     &&& svg {
       rect {
         fill: ${(props) => props.theme.colors.textOnDarkBG};
@@ -521,7 +520,6 @@ function WorkspaceInviteUsersForm(props: any) {
     links = [],
     message = "",
     placeholder = "",
-    showCallout = false,
     submitFailed,
     submitSucceeded,
     submitting,

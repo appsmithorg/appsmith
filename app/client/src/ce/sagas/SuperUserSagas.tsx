@@ -9,7 +9,7 @@ import {
 } from "@appsmith/constants/ReduxActionConstants";
 import { APPLICATIONS_URL } from "constants/routes";
 import { User } from "constants/userConstants";
-import { takeLatest, all, call, put, delay, select } from "redux-saga/effects";
+import { call, put, delay, select } from "redux-saga/effects";
 import history from "utils/history";
 import { validateResponse } from "sagas/ErrorSagas";
 import { getAppsmithConfigs } from "@appsmith/configs";
