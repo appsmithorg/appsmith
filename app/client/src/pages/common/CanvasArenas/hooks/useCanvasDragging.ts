@@ -223,7 +223,7 @@ export const useCanvasDragging = (
   const getDraggedBlocks = (): string[] => {
     const blocks = blocksToDraw.map((block) => block.widgetId);
     // console.log(`#### blocksToDraw: ${JSON.stringify(blocksToDraw)}`);
-    // console.log(`#### blocks: ${JSON.stringify(blocks)}`);
+    console.log(`#### blocks: ${JSON.stringify(blocks)}`);
     return blocks;
   };
 
@@ -271,14 +271,45 @@ export const useCanvasDragging = (
     return mOffset;
   };
 
+  const getNearestWrapperAncestor = (widgetId: string): string => {
+    const widget = allWidgets[widgetId];
+    if (widget?.isWrapper) return widgetId;
+    const parentId = widget?.parentId;
+    if (!parentId) return "";
+    return getNearestWrapperAncestor(parentId);
+  };
+
+  const isWrapperEmpty = (
+    widgetId: string,
+    draggedBlocks: string[],
+  ): boolean => {
+    const widget = allWidgets[widgetId];
+    if (!widget) return true;
+    const rest =
+      widget?.children?.filter((child) => draggedBlocks?.indexOf(child) == -1)
+        .length || 0;
+    return rest === 0;
+  };
+
+  const hideDraggedItems = (arr: string[]) => {
+    arr?.forEach((each) => {
+      let el;
+      const widgetId = getNearestWrapperAncestor(each);
+      if (isWrapperEmpty(widgetId, arr)) {
+        el = getChildNode(widgetId);
+      } else el = getChildNode(each);
+      el?.classList?.add("auto-temp-no-display");
+    });
+  };
+
   const calculateHighlightOffsets = () => {
     cleanUpTempStyles();
     // console.log(
     //   `#### ${widgetName} - ${isDragging} - ${isCurrentDraggedCanvas}`,
     // );
     if (useAutoLayout && isDragging && isCurrentDraggedCanvas) {
-      // console.log("#### START calculate highlight offsets");
-      // console.log(`#### canvas id: ${widgetId} : ${widgetName}`);
+      console.log("#### START calculate highlight offsets");
+      console.log(`#### canvas id: ${widgetId} : ${widgetName}`);
       // calculate total drag size to translate siblings by
       calculateDragBlockSize();
       const blocks = getDraggedBlocks();
@@ -292,6 +323,8 @@ export const useCanvasDragging = (
        */
       if (!updateContainerDimensions()) return;
 
+      // Temporarily hide dragged children to discount them from offset calculation
+      hideDraggedItems(blocks);
       // Get all children of current dragging canvas
       const canvas = allWidgets[widgetId];
       const canvasChildren = canvas.children || [];
@@ -302,13 +335,9 @@ export const useCanvasDragging = (
         );
         return isArray(children) && children.length > 0;
       });
-      // Temporarily hide dragged children to discount them from offset calculation
-      const draggedChildren = canvasChildren.filter(
-        (child) => offsetChildren.indexOf(child) === -1,
-      );
-      hideDraggedChildren(draggedChildren);
-      // console.log(`#### canvas children: ${JSON.stringify(canvasChildren)}`);
-      // console.log(`#### offset children: ${JSON.stringify(offsetChildren)}`);
+
+      console.log(`#### canvas children: ${JSON.stringify(canvasChildren)}`);
+      console.log(`#### offset children: ${JSON.stringify(offsetChildren)}`);
       const flex = document.querySelector(`.flex-container-${widgetId}`);
       const flexOffsetTop = (flex as any)?.offsetTop || 0;
       // console.log(
