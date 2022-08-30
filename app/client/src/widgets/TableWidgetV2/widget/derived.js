@@ -118,7 +118,7 @@ export default {
       SHORT: {
         COLUMN_HEADER_HEIGHT: 32,
         TABLE_HEADER_HEIGHT: 38,
-        ROW_HEIGHT: 20,
+        ROW_HEIGHT: 30,
         ROW_FONT_SIZE: 12,
         VERTICAL_PADDING: 0,
         EDIT_ICON_TOP: 5,
@@ -136,22 +136,14 @@ export default {
     const componentHeight =
       (props.bottomRow - props.topRow) * props.parentRowSpace - 10;
     const tableSizes = TABLE_SIZES[compactMode];
-    let pageSize = Math.floor(
+
+    let pageSize =
       (componentHeight -
         tableSizes.TABLE_HEADER_HEIGHT -
         tableSizes.COLUMN_HEADER_HEIGHT) /
-        tableSizes.ROW_HEIGHT,
-    );
-    if (
-      componentHeight -
-        (tableSizes.TABLE_HEADER_HEIGHT +
-          tableSizes.COLUMN_HEADER_HEIGHT +
-          tableSizes.ROW_HEIGHT * pageSize) >
-      0
-    ) {
-      pageSize += 1;
-    }
-    return pageSize;
+      tableSizes.ROW_HEIGHT;
+
+    return pageSize % 1 > 0.3 ? Math.ceil(pageSize) : Math.floor(pageSize);
   },
   //
   getProcessedTableData: (props, moment, _) => {

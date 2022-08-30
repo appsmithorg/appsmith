@@ -1,4 +1,4 @@
-import Dropdown, { DropdownOption } from "components/ads/Dropdown";
+import { Dropdown, DropdownOption } from "design-system";
 import React, { useEffect, useState } from "react";
 import { DropdownOnSelect } from "./SelectField";
 
@@ -11,7 +11,10 @@ type DropdownWrapperProps = {
   };
   options: DropdownOption[];
   isMultiSelect?: boolean;
-  onOptionSelect?: (value?: string, option?: DropdownOption[]) => void;
+  onOptionSelect?: (
+    value?: string,
+    option?: DropdownOption[] | DropdownOption,
+  ) => void;
   removeSelectedOption?: DropdownOnSelect;
   selected?: DropdownOption | DropdownOption[];
   showLabelOnly?: boolean;
@@ -33,6 +36,7 @@ function DropdownWrapper(props: DropdownWrapperProps) {
       props.onOptionSelect && props.onOptionSelect(value, updatedItems);
     } else {
       props.input && props.input.onChange && props.input.onChange(value);
+      props.onOptionSelect && props.onOptionSelect(value, option);
     }
   };
 

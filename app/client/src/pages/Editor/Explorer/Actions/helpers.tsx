@@ -5,7 +5,7 @@ import { generateReactKey } from "utils/generators";
 
 import { Plugin } from "api/PluginApi";
 import { useSelector } from "react-redux";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import { groupBy } from "lodash";
 import { ActionData } from "reducers/entityReducers/actionsReducer";
 import { getNextEntityName } from "utils/AppsmithUtils";

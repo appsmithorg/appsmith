@@ -60,7 +60,7 @@ import PerformanceTracker, {
 } from "utils/PerformanceTracker";
 import * as log from "loglevel";
 import { EMPTY_RESPONSE } from "components/editorComponents/ApiResponseView";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import { DEFAULT_EXECUTE_ACTION_TIMEOUT_MS } from "@appsmith/constants/ApiConstants";
 import { evaluateActionBindings } from "sagas/EvaluationsSaga";
 import { isBlobUrl, parseBlobUrl } from "utils/AppsmithUtils";
@@ -103,7 +103,7 @@ import { CURL_IMPORT_FORM } from "constants/forms";
 import { submitCurlImportForm } from "actions/importActions";
 import { curlImportFormValues } from "pages/Editor/APIEditor/helpers";
 import { matchBasePath } from "pages/Editor/Explorer/helpers";
-import { isTrueObject } from "workers/evaluationUtils";
+import { isTrueObject, findDatatype } from "workers/evaluationUtils";
 import { handleExecuteJSFunctionSaga } from "sagas/JSPaneSagas";
 import { Plugin } from "api/PluginApi";
 import { setDefaultActionDisplayFormat } from "./PluginActionSagaUtils";
@@ -191,11 +191,26 @@ function* readBlob(blobUrl: string): any {
  * - individual objects containing blob urls
  * - blob urls directly
  * - else returns the value unchanged
+ * - finds datatype of evaluated value
+ * - binds dataype to payload
  *
  * @param value
  */
 
-function* resolvingBlobUrls(value: any) {
+function* resolvingBlobUrls(
+  value: any,
+  executeActionRequest: ExecuteActionRequest,
+  index: number,
+  isArray?: boolean,
+  arrDatatype?: string[],
+) {
+  //Get datatypes of evaluated value.
+  const dataType: string = findDatatype(value);
+  //If array elements then dont push datatypes to payload.
+  isArray
+    ? arrDatatype?.push(dataType)
+    : (executeActionRequest.paramProperties[`k${index}`] = dataType);
+
   if (isTrueObject(value)) {
     const blobUrlPaths: string[] = [];
     Object.keys(value).forEach((propertyName) => {
@@ -249,13 +264,19 @@ function* resolvingBlobUrls(value: any) {
 function* evaluateActionParams(
   bindings: string[] | undefined,
   formData: FormData,
+  executeActionRequest: ExecuteActionRequest,
   executionParams?: Record<string, any> | string,
 ) {
-  if (_.isNil(bindings) || bindings.length === 0) return [];
-
+  if (_.isNil(bindings) || bindings.length === 0) {
+    formData.append("executeActionDTO", JSON.stringify(executeActionRequest));
+    return [];
+  }
   // Evaluated all bindings of the actions. Pass executionParams if any
   // @ts-expect-error: Values can take many types
   const values = yield call(evaluateActionBindings, bindings, executionParams);
+
+  const bindingsMap: Record<string, string> = {};
+  const bindingBlob = [];
 
   // Add keys values to formData for the multipart submission
   for (let i = 0; i < bindings.length; i++) {
@@ -264,15 +285,24 @@ function* evaluateActionParams(
 
     if (isArray(value)) {
       const tempArr = [];
+      const arrDatatype: string[] = [];
       // array of objects containing blob urls that is loops and individual object is checked for resolution of blob urls.
       for (const val of value) {
-        const newVal: unknown = yield call(resolvingBlobUrls, val);
+        const newVal: unknown = yield call(
+          resolvingBlobUrls,
+          val,
+          executeActionRequest,
+          i,
+          true,
+          arrDatatype,
+        );
         tempArr.push(newVal);
       }
+      executeActionRequest.paramProperties[`k${i}`] = "array";
       value = tempArr;
     } else {
       // @ts-expect-error: Values can take many types
-      value = yield call(resolvingBlobUrls, value);
+      value = yield call(resolvingBlobUrls, value, executeActionRequest, i);
     }
 
     if (typeof value === "object") {
@@ -280,9 +310,13 @@ function* evaluateActionParams(
     }
 
     value = new Blob([value], { type: "text/plain" });
-
-    formData.append(encodeURIComponent(key), value);
+    bindingsMap[key] = `k${i}`;
+    bindingBlob.push({ name: `k${i}`, value: value });
   }
+
+  formData.append("executeActionDTO", JSON.stringify(executeActionRequest));
+  formData.append("parameterMap", JSON.stringify(bindingsMap));
+  bindingBlob?.forEach((item) => formData.append(item.name, item.value));
 }
 
 export default function* executePluginActionTriggerSaga(
@@ -859,6 +893,7 @@ function* executePluginActionSaga(
   const executeActionRequest: ExecuteActionRequest = {
     actionId: actionId,
     viewMode: appMode === APP_MODE.PUBLISHED,
+    paramProperties: {},
   };
 
   if (paginationField) {
@@ -866,8 +901,14 @@ function* executePluginActionSaga(
   }
 
   const formData = new FormData();
-  formData.append("executeActionDTO", JSON.stringify(executeActionRequest));
-  yield call(evaluateActionParams, pluginAction.jsonPathKeys, formData, params);
+
+  yield call(
+    evaluateActionParams,
+    pluginAction.jsonPathKeys,
+    formData,
+    executeActionRequest,
+    params,
+  );
 
   const response: ActionExecutionResponse = yield ActionAPI.executeAction(
     formData,

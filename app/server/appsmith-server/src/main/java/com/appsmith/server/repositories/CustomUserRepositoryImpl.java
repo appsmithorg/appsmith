@@ -10,8 +10,8 @@ import org.springframework.stereotype.Component;
 @Slf4j
 public class CustomUserRepositoryImpl extends CustomUserRepositoryCEImpl implements CustomUserRepository {
 
-    public CustomUserRepositoryImpl(ReactiveMongoOperations mongoOperations, MongoConverter mongoConverter) {
-        super(mongoOperations, mongoConverter);
+    public CustomUserRepositoryImpl(ReactiveMongoOperations mongoOperations, MongoConverter mongoConverter, CacheableRepositoryHelper cacheableRepositoryHelper) {
+        super(mongoOperations, mongoConverter, cacheableRepositoryHelper);
     }
 
 }

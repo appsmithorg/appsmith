@@ -6,7 +6,7 @@ import { saveJSObjectName } from "actions/jsActionActions";
 import { useSelector } from "react-redux";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import { getJSCollection } from "selectors/entitiesSelector";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import { JSCollection } from "entities/JSCollection";
 import { JsFileIconV2 } from "../ExplorerIcons";
 import { PluginType } from "entities/Action";
