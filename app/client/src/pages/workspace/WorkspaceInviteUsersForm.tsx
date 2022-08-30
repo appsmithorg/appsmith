@@ -20,7 +20,7 @@ import {
   InviteUsersToWorkspaceFormValues,
   inviteUsersToWorkspace,
 } from "./helpers";
-import { INVITE_USERS_TO_WORKSPACE_FORM } from "constants/forms";
+import { INVITE_USERS_TO_WORKSPACE_FORM } from "@appsmith/constants/forms";
 import {
   createMessage,
   INVITE_USERS_SUBMIT_SUCCESS,

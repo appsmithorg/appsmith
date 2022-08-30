@@ -3,13 +3,33 @@ import { isPermitted } from "pages/Applications/permissionHelpers";
 import Dialog from "components/ads/DialogComponent";
 import { useDispatch } from "react-redux";
 import { setShowAppInviteUsersDialog } from "actions/applicationActions";
-import { IconName } from "design-system";
+import { TabComponent, TabProp } from "components/ads/Tabs";
+import { Text, TextType, IconName } from "design-system";
+import styled from "styled-components";
+import { Colors } from "constants/Colors";
+import { INVITE_USERS_TO_WORKSPACE_FORM } from "@appsmith/constants/forms";
+
+const LabelText = styled(Text)`
+  font-size: 14px;
+  color: ${Colors.GREY_8};
+  margin-bottom: 8px;
+  line-height: 1.57;
+  letter-spacing: -0.24px;
+`;
+
+const TabWrapper = styled.div`
+  .react-tabs__tab-list {
+    margin: 16px 0;
+    border-bottom: 2px solid var(--appsmith-color-black-200);
+  }
+`;
 
 type FormDialogComponentProps = {
   isOpen?: boolean;
   canOutsideClickClose?: boolean;
   workspaceId?: string;
   title: string;
+  message?: string;
   Form: any;
   trigger: ReactNode;
   onClose?: () => void;
@@ -18,17 +38,48 @@ type FormDialogComponentProps = {
   permissions?: string[];
   setMaxWidth?: boolean;
   applicationId?: string;
+  showCallout?: boolean;
   headerIcon?: {
     name: IconName;
     fillColor?: string;
     hoverColor?: string;
     bgColor?: string;
   };
+  selected?: any;
+  tabs?: any[];
+  options?: any[];
+  links?: any[];
+  placeholder?: string;
 };
 
 export function FormDialogComponent(props: FormDialogComponentProps) {
   const [isOpen, setIsOpenState] = useState(!!props.isOpen);
+  const [selectedTabIndex, setSelectedTabIndex] = useState(0);
   const dispatch = useDispatch();
+  const updatedTabs: TabProp[] =
+    props.tabs && props.tabs.length > 0
+      ? props.tabs.map((tab) => {
+          const TabForm = tab.component;
+          return {
+            key: tab.key,
+            title: tab.title,
+            panelComponent: (
+              <TabForm
+                {...tab.customProps}
+                applicationId={props.applicationId}
+                formName={`${INVITE_USERS_TO_WORKSPACE_FORM}_${tab.key}`}
+                onCancel={() => setIsOpen(false)}
+                options={tab.options}
+                placeholder={
+                  tab.key === "via-roles" ? "Enter email address or group" : ""
+                }
+                showCallout={props.showCallout}
+                workspaceId={props.workspaceId}
+              />
+            ),
+          };
+        })
+      : [];
 
   const setIsOpen = (isOpen: boolean) => {
     setIsOpenState(isOpen);
@@ -65,12 +116,28 @@ export function FormDialogComponent(props: FormDialogComponentProps) {
       title={props.title}
       trigger={props.trigger}
     >
-      <Form
-        {...props.customProps}
-        applicationId={props.applicationId}
-        onCancel={() => setIsOpen(false)}
-        workspaceId={props.workspaceId}
-      />
+      {updatedTabs && updatedTabs.length > 0 ? (
+        <TabWrapper>
+          <LabelText type={TextType.P0}>{props.message}</LabelText>
+          <TabComponent
+            onSelect={setSelectedTabIndex}
+            selectedIndex={selectedTabIndex}
+            tabs={updatedTabs}
+          />
+        </TabWrapper>
+      ) : (
+        <Form
+          {...props.customProps}
+          applicationId={props.applicationId}
+          links={props.links}
+          message={props.message}
+          onCancel={() => setIsOpen(false)}
+          placeholder={props.placeholder}
+          selected={props.selected}
+          showCallout={props.showCallout}
+          workspaceId={props.workspaceId}
+        />
+      )}
     </Dialog>
   );
 }

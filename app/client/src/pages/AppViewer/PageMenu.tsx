@@ -24,6 +24,7 @@ import { useHref } from "pages/Editor/utils";
 import { APP_MODE } from "entities/App";
 import { builderURL, viewerURL } from "RouteBuilder";
 import { trimQueryString } from "utils/helpers";
+import { inviteModalLinks } from "@appsmith/constants/forms";
 
 type AppViewerHeaderProps = {
   isOpen?: boolean;
@@ -112,6 +113,9 @@ export function PageMenu(props: AppViewerHeaderProps) {
                 bgColor: "transparent",
               }}
               isOpen={showAppInviteUsersDialog}
+              links={inviteModalLinks}
+              message="Invite users or groups"
+              placeholder="Enter email address or group"
               title={application.name}
               trigger={
                 <Button

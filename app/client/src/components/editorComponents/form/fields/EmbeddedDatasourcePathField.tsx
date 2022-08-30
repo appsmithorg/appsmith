@@ -11,7 +11,7 @@ import CodeEditor, {
   EditorProps,
 } from "components/editorComponents/CodeEditor";
 import { CodeEditorBorder } from "components/editorComponents/CodeEditor/EditorConfig";
-import { API_EDITOR_FORM_NAME } from "constants/forms";
+import { API_EDITOR_FORM_NAME } from "@appsmith/constants/forms";
 import { AppState } from "@appsmith/reducers";
 import { connect } from "react-redux";
 import get from "lodash/get";

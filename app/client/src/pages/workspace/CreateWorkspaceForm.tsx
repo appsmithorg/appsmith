@@ -1,6 +1,6 @@
 import React, { useCallback } from "react";
 import { Form, reduxForm, InjectedFormProps } from "redux-form";
-import { CREATE_WORKSPACE_FORM_NAME } from "constants/forms";
+import { CREATE_WORKSPACE_FORM_NAME } from "@appsmith/constants/forms";
 import {
   CreateWorkspaceFormValues,
   createWorkspaceSubmitHandler,

@@ -18,7 +18,7 @@ import {
   getCurrentApplicationId,
   getIsEditorInitialized,
 } from "selectors/editorSelectors";
-import { QUERY_EDITOR_FORM_NAME } from "constants/forms";
+import { QUERY_EDITOR_FORM_NAME } from "@appsmith/constants/forms";
 import { Plugin, UIComponentTypes } from "api/PluginApi";
 import { Datasource } from "entities/Datasource";
 import {

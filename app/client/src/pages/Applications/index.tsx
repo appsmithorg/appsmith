@@ -41,7 +41,10 @@ import FormDialogComponent from "components/editorComponents/form/FormDialogComp
 import Dialog from "components/ads/DialogComponent";
 import { User } from "constants/userConstants";
 import { getCurrentUser, selectFeatureFlags } from "selectors/usersSelectors";
-import { CREATE_WORKSPACE_FORM_NAME } from "constants/forms";
+import {
+  CREATE_WORKSPACE_FORM_NAME,
+  inviteModalLinks,
+} from "@appsmith/constants/forms";
 import {
   DropdownOnSelectActions,
   getOnSelectAction,
@@ -702,7 +705,12 @@ function ApplicationsSection(props: any) {
                   onClose={() => setSelectedWorkspaceId("")}
                   title={`Invite Users to ${workspace.name}`}
                 >
-                  <Form workspaceId={workspace.id} />
+                  <Form
+                    links={inviteModalLinks}
+                    message="Invite users or groups"
+                    showCallout
+                    workspaceId={workspace.id}
+                  />
                 </Dialog>
               )}
               {selectedWorkspaceIdForImportApplication && (
@@ -725,6 +733,10 @@ function ApplicationsSection(props: any) {
                       <FormDialogComponent
                         Form={WorkspaceInviteUsersForm}
                         canOutsideClickClose
+                        links={inviteModalLinks}
+                        message="Invite users or groups"
+                        placeholder="Enter email address or group"
+                        showCallout
                         title={`Invite Users to ${workspace.name}`}
                         trigger={
                           <Button

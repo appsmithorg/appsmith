@@ -34,7 +34,7 @@ import {
   fetchFeatureFlagsError,
 } from "actions/userActions";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { INVITE_USERS_TO_WORKSPACE_FORM } from "constants/forms";
+import { INVITE_USERS_TO_WORKSPACE_FORM } from "@appsmith/constants/forms";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";

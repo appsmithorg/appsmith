@@ -6,7 +6,7 @@ import {
   POST_BODY_FORMAT_OPTIONS,
   POST_BODY_FORMAT_TITLES,
 } from "constants/ApiEditorConstants";
-import { API_EDITOR_FORM_NAME } from "constants/forms";
+import { API_EDITOR_FORM_NAME } from "@appsmith/constants/forms";
 import KeyValueFieldArray from "components/editorComponents/form/fields/KeyValueFieldArray";
 import DynamicTextField from "components/editorComponents/form/fields/DynamicTextField";
 import { AppState } from "@appsmith/reducers";

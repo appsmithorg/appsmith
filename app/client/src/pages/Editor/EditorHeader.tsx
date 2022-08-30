@@ -82,6 +82,7 @@ import EndTour from "./GuidedTour/EndTour";
 import { GUIDED_TOUR_STEPS } from "./GuidedTour/constants";
 import { viewerURL } from "RouteBuilder";
 import { useHref } from "./utils";
+import { inviteModalLinks } from "@appsmith/constants/forms";
 
 const HeaderWrapper = styled.div`
   width: 100%;
@@ -459,6 +460,9 @@ export function EditorHeader(props: EditorHeaderProps) {
                 bgColor: Colors.GEYSER_LIGHT,
               }}
               isOpen={showAppInviteUsersDialog}
+              links={inviteModalLinks}
+              message="Invite users or groups"
+              placeholder="Enter email address or group"
               title={
                 currentApplication
                   ? currentApplication.name

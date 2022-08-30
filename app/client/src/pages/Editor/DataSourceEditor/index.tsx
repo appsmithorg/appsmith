@@ -12,7 +12,7 @@ import {
   switchDatasource,
   setDatsourceEditorMode,
 } from "actions/datasourceActions";
-import { DATASOURCE_DB_FORM } from "constants/forms";
+import { DATASOURCE_DB_FORM } from "@appsmith/constants/forms";
 import DataSourceEditorForm from "./DBForm";
 import RestAPIDatasourceForm from "./RestAPIDatasourceForm";
 import { Datasource } from "entities/Datasource";
