@@ -59,7 +59,7 @@ export function defaultValueValidation(
       let isValid, messages;
       const commonSeparator = ".";
       const decimalSeperator = getLocaleDecimalSeperator();
-      const haveDecimalValue = value.includes(decimalSeperator);
+      const haveDecimalValue = `${value}`.includes(decimalSeperator);
 
       if (_.isNil(value)) {
         parsed = null;
@@ -86,7 +86,7 @@ export function defaultValueValidation(
       } else if (
         commonSeparator !== decimalSeperator &&
         !haveDecimalValue &&
-        value.includes(commonSeparator)
+        `${value}`.includes(commonSeparator)
       ) {
         /*
          *  When value have not correct decimal separator
@@ -151,7 +151,7 @@ export function minValueValidation(min: any, props: InputWidgetProps, _?: any) {
   const value = min;
   const commonSeparator = ".";
   const decimalSeperator = getLocaleDecimalSeperator();
-  const haveDecimalValue = value.includes(decimalSeperator);
+  const haveDecimalValue = `${value}`.includes(decimalSeperator);
   min = haveDecimalValue
     ? Number(value.replace(new RegExp("\\" + decimalSeperator, "g"), "."))
     : Number(value);
@@ -211,7 +211,7 @@ export function maxValueValidation(max: any, props: InputWidgetProps, _?: any) {
   const value = max;
   const commonSeparator = ".";
   const decimalSeperator = getLocaleDecimalSeperator();
-  const haveDecimalValue = value.includes(decimalSeperator);
+  const haveDecimalValue = `${value}`.includes(decimalSeperator);
   max = haveDecimalValue
     ? Number(value.replace(new RegExp("\\" + decimalSeperator, "g"), "."))
     : Number(value);
