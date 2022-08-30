@@ -139,19 +139,6 @@ const MediaInputsContainer = styled.div`
   }
 `;
 
-const overlayerMixin = css`
-  position: absolute;
-  height: 100%;
-  width: 100%;
-  object-fit: contain;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-`;
-
 const ToolTipWrapper = styled.div`
   height: 100%;
   && .bp3-popover2-target {
@@ -475,9 +462,5 @@ export interface QRScannerComponentProps extends ComponentProps {
   placement?: ButtonPlacement;
   onCodeDetected: (value: string) => void;
 }
-
-QRScannerComponent.defaultProps = {
-  backgroundColor: Colors.GREEN,
-};
 
 export default QRScannerComponent;

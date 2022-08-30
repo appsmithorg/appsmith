@@ -480,7 +480,7 @@ interface QRScannerWidgetProps extends WidgetProps {
   isDisabled: boolean;
   tooltip?: string;
   onCodeDetected?: string;
-  backgroundColor: string;
+  buttonColor: string;
   borderRadius: string;
   boxShadow?: string;
   iconName?: IconName;
