@@ -40,13 +40,12 @@ const Mark = styled.div<Pick<MarksProps, "size">>(({ size }) => ({
   backgroundColor: "white",
 }));
 
-const MarkLabel = styled.div<{ color: string }>(({ color }) => ({
-  transform: "translate(-50%, 0)",
+const MarkLabel = styled.p<{ color: string }>(({ color }) => ({
   fontSize: "12px",
   fontWeight: 400,
   color,
   marginTop: "5px",
-  overflowWrap: "break-word",
+  whiteSpace: "nowrap",
 }));
 
 export const Marks = React.memo(
@@ -62,6 +61,40 @@ export const Marks = React.memo(
     value,
   }: MarksProps) => {
     if (!marks) return null;
+
+    function transformStyles(
+      index: number,
+      labelLength: number,
+      value: number,
+    ): React.CSSProperties {
+      if (labelLength <= 6) {
+        return {
+          transform: "translate(-50%, 0)",
+          textAlign: "center",
+        };
+      }
+
+      const maxBracket = max - value;
+      const minBracket = value - min;
+
+      if (index === 0 && minBracket < 10) {
+        return {
+          transform: "translate(-20%, 0)",
+          textAlign: "start",
+        };
+        // @ts-expect-error: Marks cannot be undefined here
+      } else if (index === marks.length - 1 && maxBracket < 10) {
+        return {
+          transform: "translate(-80%, 0)",
+          textAlign: "end",
+        };
+      }
+
+      return {
+        transform: "translate(-50%, 0)",
+        textAlign: "center",
+      };
+    }
 
     const items = marks.map((mark, index) => {
       if (mark.value > max || mark.value < min) return null;
@@ -87,6 +120,9 @@ export const Marks = React.memo(
               onTouchStart={(event) => {
                 event.stopPropagation();
                 onChange(mark.value);
+              }}
+              style={{
+                ...transformStyles(index, mark.label.length, mark.value),
               }}
             >
               {mark.label}

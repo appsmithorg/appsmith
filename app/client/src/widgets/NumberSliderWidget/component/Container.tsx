@@ -7,8 +7,14 @@ export const SliderContainer = styled.div<{
   compactMode: boolean;
   labelPosition?: LabelPosition;
 }>`
- ${labelLayoutStyles}
- 
+  ${labelLayoutStyles}
+
+  overflow: hidden;
+
+  padding-right: 0.4rem;
+  padding-left: ${({ labelPosition }) =>
+    labelPosition === LabelPosition.Top ? "0.4rem" : undefined};
+
   & .${LABEL_CONTAINER_CLASS} {
     label {
       ${({ labelPosition }) => {

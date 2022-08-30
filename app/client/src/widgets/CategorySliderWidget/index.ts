@@ -24,7 +24,7 @@ export const CONFIG = {
     tooltipAlwaysOn: false,
     showMarksLabel: false,
     rows: 8,
-    columns: 35,
+    columns: 42,
     widgetName: "CategorySlider",
     shouldScroll: false,
     shouldTruncate: false,
