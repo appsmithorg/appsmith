@@ -8,12 +8,14 @@ import ViewFinder from "./ViewFinder.svg";
 import styled, { createGlobalStyle, css } from "styled-components";
 import CloseIcon from "assets/icons/ads/cross.svg";
 import { getBrowserInfo, getPlatformOS, PLATFORM_OS } from "utils/helpers";
-import { Button, Icon, Menu, MenuItem } from "@blueprintjs/core";
+import { Button, Icon, Menu, MenuItem, Position } from "@blueprintjs/core";
 import { SupportedLayouts } from "reducers/entityReducers/pageListReducer";
 import { ReactComponent as CameraOfflineIcon } from "assets/icons/widget/camera/camera-offline.svg";
 import { getCurrentApplicationLayout } from "selectors/editorSelectors";
 import { useSelector } from "store";
 import log from "loglevel";
+import { Popover2 } from "@blueprintjs/popover2";
+import Interweave from "interweave";
 
 const QRScannerGlobalStyles = createGlobalStyle<{
   borderRadius?: string;
@@ -157,6 +159,28 @@ const DisabledOverlayer = styled.div<DisabledOverlayerProps>`
   height: 100%;
   z-index: 2;
   background: ${Colors.GREY_3};
+`;
+
+const ToolTipWrapper = styled.div`
+  height: 100%;
+  && .bp3-popover2-target {
+    height: 100%;
+    width: 100%;
+    & > div {
+      height: 100%;
+    }
+  }
+`;
+
+const TooltipStyles = createGlobalStyle`
+  .iconBtnTooltipContainer {
+    .bp3-popover2-content {
+      max-width: 350px;
+      overflow-wrap: anywhere;
+      padding: 10px 12px;
+      border-radius: 0px;
+    }
+  }
 `;
 
 // Make sure to bind modal to your appElement (https://reactcommunity.org/react-modal/accessibility/)
@@ -414,16 +438,36 @@ function QRScannerComponent(props: QRScannerComponentProps) {
     );
   };
 
+  const baseButtonWrapper = (
+    <BaseButton
+      borderRadius={props.borderRadius}
+      boxShadow={props.boxShadow}
+      buttonColor={props.buttonColor}
+      disabled={props.isDisabled}
+      onClick={openModal}
+      text={props.label}
+    />
+  );
+
   return (
     <>
-      <BaseButton
-        borderRadius={props.borderRadius}
-        boxShadow={props.boxShadow}
-        buttonColor={props.buttonColor}
-        disabled={props.isDisabled}
-        onClick={openModal}
-        text={props.label}
-      />
+      {!props.tooltip ? (
+        baseButtonWrapper
+      ) : (
+        <ToolTipWrapper>
+          <TooltipStyles />
+          <Popover2
+            autoFocus={false}
+            content={<Interweave content={props.tooltip} />}
+            hoverOpenDelay={200}
+            interactionKind="hover"
+            portalClassName="iconBtnTooltipContainer"
+            position={Position.TOP}
+          >
+            {baseButtonWrapper}
+          </Popover2>
+        </ToolTipWrapper>
+      )}
 
       {renderComponent()}
     </>
@@ -432,6 +476,7 @@ function QRScannerComponent(props: QRScannerComponentProps) {
 export interface QRScannerComponentProps extends ComponentProps {
   label: string;
   isDisabled: boolean;
+  tooltip?: string;
   buttonColor: string;
   borderRadius: string;
   boxShadow?: string;

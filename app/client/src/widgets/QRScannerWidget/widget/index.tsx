@@ -53,6 +53,16 @@ class QRScannerWidget extends BaseWidget<QRScannerWidgetProps, WidgetState> {
             isTriggerProperty: false,
             validation: { type: ValidationTypes.BOOLEAN },
           },
+          {
+            helpText: "Show helper text with button on hover",
+            propertyName: "tooltip",
+            label: "Tooltip",
+            controlType: "INPUT_TEXT",
+            placeholderText: "Add Input Field",
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
         ],
       },
       {
@@ -164,6 +174,16 @@ class QRScannerWidget extends BaseWidget<QRScannerWidgetProps, WidgetState> {
             isTriggerProperty: false,
             validation: { type: ValidationTypes.BOOLEAN },
           },
+          {
+            helpText: "Show helper text with button on hover",
+            propertyName: "tooltip",
+            label: "Tooltip",
+            controlType: "INPUT_TEXT",
+            placeholderText: "Add Input Field",
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
         ],
       },
       {
@@ -264,6 +284,7 @@ class QRScannerWidget extends BaseWidget<QRScannerWidgetProps, WidgetState> {
         key={this.props.widgetId}
         label={this.props.label}
         onCodeDetected={this.onCodeDetected}
+        tooltip={this.props.tooltip}
         widgetId={this.props.widgetId}
       />
     );
@@ -277,6 +298,7 @@ class QRScannerWidget extends BaseWidget<QRScannerWidgetProps, WidgetState> {
 interface QRScannerWidgetProps extends WidgetProps {
   label: string;
   isDisabled: boolean;
+  tooltip?: string;
   onCodeDetected?: string;
   backgroundColor: string;
   borderRadius: string;
