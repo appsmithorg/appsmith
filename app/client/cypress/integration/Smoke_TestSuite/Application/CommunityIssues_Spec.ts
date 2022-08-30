@@ -246,12 +246,12 @@ describe("AForce - Community Issues page validations", function() {
 
     //Two filters - AND
     table.OpenNFilterTable("Votes", "greater than", "2");
-    table.ReadTableRowColumnData(0, 1).then(($cellData) => {
+    table.ReadTableRowColumnData(0, 1, 3000).then(($cellData) => {
       expect($cellData).to.eq("Combine queries from different datasources");
     });
 
     table.OpenNFilterTable("Title", "contains", "button", "AND", 1);
-    table.ReadTableRowColumnData(0, 1).then(($cellData) => {
+    table.ReadTableRowColumnData(0, 1, 3000).then(($cellData) => {
       expect($cellData).to.eq(
         "Change the video in the video player with a button click",
       );

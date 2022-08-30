@@ -263,7 +263,7 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
   it("8. Verify Update data from Deploy page - on Vessels - existing record", () => {
     deployMode.DeployApp();
     agHelper.Sleep(2000);
-    table.SelectTableRow(0); //to make JSON form hidden
+    table.SelectTableRow(0, 0, false); //to make JSON form hidden
     agHelper.Sleep(2000); //Sleep time for tab to disappear!
     agHelper.AssertElementAbsence(locator._jsonFormWidget);
     table.SelectTableRow(5);
@@ -632,6 +632,7 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
 
   it("17. Verify Update fields/Delete from Deploy page - on Vessels - newly inserted record", () => {
     table.SelectTableRow(0);
+    agHelper.Sleep(2000);//since table taking time to display JSON form
 
     //validating update happened fine!
     dataSources.AssertJSONFormHeader(0, 0, "ship_id", "159180"); //Validaing new record got inserted in 1st position due to id used

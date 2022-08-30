@@ -233,11 +233,24 @@ export class Table {
       });
   }
 
-  public SelectTableRow(rowIndex: number, columnIndex = 0) {
+  public SelectTableRow(rowIndex: number, columnIndex = 0, select = true) {
     //rowIndex - 0 for 1st row
-    cy.get(this._tableRow(rowIndex, columnIndex))
-      .first()
-      .trigger("click", { force: true });
+    this.agHelper
+      .GetElement(this._tableRow(rowIndex, columnIndex))
+      .parent("div")
+      .invoke("attr", "class")
+      .then(($classes: any) => {
+        if (
+          (select && !$classes?.includes("selected-row")) ||
+          (!select && $classes?.includes("selected-row"))
+        )
+          this.agHelper.GetNClick(
+            this._tableRow(rowIndex, columnIndex),
+            0,
+            true,
+          );
+      });
+
     this.agHelper.Sleep(); //for select to reflect
   }
 
