@@ -14,8 +14,8 @@ describe("DateTime Datatype tests", function() {
     cy.fixture("Datatypes/DateTimeDTdsl").then((val: any) => {
       agHelper.AddDsl(val);
     });
-    propPane.ChangeColor(22, "Primary");
-    propPane.ChangeColor(32, "Background");
+    propPane.ChangeThemeColor(22, "Primary");
+    propPane.ChangeThemeColor(32, "Background");
   });
 
   it("1. Create Postgress DS", function() {

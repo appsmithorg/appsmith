@@ -204,7 +204,7 @@ export class AggregateHelper {
   }
 
   public WaitUntilAllToastsDisappear() {
-    cy.get(this.locator._toastConatiner).waitUntil(
+    cy.get(this.locator._toastContainer).waitUntil(
       ($ele) =>
         cy
           .wrap($ele)
@@ -786,9 +786,9 @@ export class AggregateHelper {
     });
   }
 
-  public AssertElementAbsence(selector: ElementType) {
+  public AssertElementAbsence(selector: ElementType, timeout = 0) {
     //Should not exists - cannot take indexes
-    return this.GetElement(selector, 0).should("not.exist");
+    return this.GetElement(selector, timeout).should("not.exist");
   }
 
   public GetText(

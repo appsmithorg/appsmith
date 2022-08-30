@@ -26,7 +26,7 @@ export class CommonLocators {
     _backToEditor = ".t--back-to-editor"
     _newPage = ".pages .t--entity-add-btn"
     _toastMsg = "div.t--toast-action"
-    _toastConatiner = "div.Toastify__toast-container"
+    _toastContainer = "div.Toastify__toast-container"
     _specificToast = (toastText: string) => this._toastMsg + ":contains('" + toastText + "')"
     //_specificToast = (toastText: string | RegExp) => this._toastMsg + ":contains("+ (typeof toastText == 'string' ? "'"+ toastText+"'" : toastText)+ ")"//not working!
     _empty = "span[name='no-response']"
