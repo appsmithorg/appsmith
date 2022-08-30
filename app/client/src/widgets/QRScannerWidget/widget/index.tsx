@@ -88,13 +88,18 @@ class QRScannerWidget extends BaseWidget<QRScannerWidgetProps, WidgetState> {
         children: [
           {
             propertyName: "buttonColor",
-            helpText: "Changes the color of the button",
+            helpText: "Sets the background color of the button",
             label: "Button Color",
             controlType: "COLOR_PICKER",
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: { type: ValidationTypes.TEXT },
+            validation: {
+              type: ValidationTypes.TEXT,
+              params: {
+                regex: /^(?![<|{{]).+/,
+              },
+            },
           },
           {
             propertyName: "borderRadius",
@@ -388,13 +393,18 @@ class QRScannerWidget extends BaseWidget<QRScannerWidgetProps, WidgetState> {
         children: [
           {
             propertyName: "buttonColor",
-            helpText: "Changes the color of the button",
+            helpText: "Sets the background color of the button",
             label: "Button Color",
             controlType: "COLOR_PICKER",
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: false,
-            validation: { type: ValidationTypes.TEXT },
+            validation: {
+              type: ValidationTypes.TEXT,
+              params: {
+                regex: /^(?![<|{{]).+/,
+              },
+            },
           },
         ],
       },
