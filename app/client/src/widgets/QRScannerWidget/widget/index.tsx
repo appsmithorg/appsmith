@@ -4,10 +4,8 @@ import { WidgetType } from "constants/WidgetConstants";
 import QRScannerComponent from "../component";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
-class QRScannerWidget extends BaseWidget<
-  QRScannerWidgetProps,
-  QRScannerWidgetState
-> {
+import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
+class QRScannerWidget extends BaseWidget<QRScannerWidgetProps, WidgetState> {
   static getPropertyPaneConfig() {
     return [
       {
@@ -63,8 +61,8 @@ class QRScannerWidget extends BaseWidget<
           {
             helpText:
               "Triggers an action when the user selects a file. Upload files to a CDN and stores their URLs in filepicker.files",
-            propertyName: "onFilesSelected",
-            label: "onFilesSelected",
+            propertyName: "onCodeDetected",
+            label: "onCodeDetected",
             controlType: "ACTION_SELECTOR",
             isJSConvertible: true,
             isBindProperty: true,
@@ -174,8 +172,8 @@ class QRScannerWidget extends BaseWidget<
           {
             helpText:
               "Triggers an action when the user selects a file. Upload files to a CDN and stores their URLs in filepicker.files",
-            propertyName: "onFilesSelected",
-            label: "onFilesSelected",
+            propertyName: "onCodeDetected",
+            label: "onCodeDetected",
             controlType: "ACTION_SELECTOR",
             isJSConvertible: true,
             isBindProperty: true,
@@ -239,18 +237,21 @@ class QRScannerWidget extends BaseWidget<
   }
 
   static getDerivedPropertiesMap(): DerivedPropertiesMap {
-    return {
-      isValid: `{{ this.isRequired ? this.files.length > 0 : true }}`,
-      files: `{{this.selectedFiles}}`,
-    };
+    return {};
   }
 
   static getMetaPropertiesMap(): Record<string, any> {
     return {};
   }
 
-  updateValue = (value: any) => {
-    this.props.updateWidgetMetaProperty("value", value);
+  onCodeDetected = (value: string) => {
+    this.props.updateWidgetMetaProperty("value", value, {
+      triggerPropertyName: "onCodeDetected",
+      dynamicString: this.props.onCodeDetected,
+      event: {
+        type: EventType.ON_CODE_DETECTED,
+      },
+    });
   };
 
   getPageView() {
@@ -262,7 +263,7 @@ class QRScannerWidget extends BaseWidget<
         isDisabled={this.props.isDisabled}
         key={this.props.widgetId}
         label={this.props.label}
-        updateValue={this.updateValue}
+        onCodeDetected={this.onCodeDetected}
         widgetId={this.props.widgetId}
       />
     );
@@ -273,25 +274,15 @@ class QRScannerWidget extends BaseWidget<
   }
 }
 
-interface QRScannerWidgetState extends WidgetState {
-  isLoading: boolean;
-}
-
 interface QRScannerWidgetProps extends WidgetProps {
   label: string;
   isDisabled: boolean;
-  maxNumFiles?: number;
-  maxFileSize?: number;
-  selectedFiles?: any[];
-  allowedFileTypes: string[];
-  onFilesSelected?: string;
-  isRequired?: boolean;
+  onCodeDetected?: string;
   backgroundColor: string;
   borderRadius: string;
   boxShadow?: string;
 }
 
 export type QRScannerWidgetV2Props = QRScannerWidgetProps;
-export type QRScannerWidgetV2State = QRScannerWidgetState;
 
 export default QRScannerWidget;

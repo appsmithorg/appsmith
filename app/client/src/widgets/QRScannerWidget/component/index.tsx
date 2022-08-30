@@ -358,6 +358,20 @@ function QRScannerComponent(props: QRScannerComponentProps) {
       );
     }
 
+    const handleOnResult = (result: any, error: any) => {
+      if (!!result) {
+        const qrCodeData = result.getText();
+
+        setIsOpen(false);
+        // props.updateValue(qrCodeData);
+        props.onCodeDetected(qrCodeData);
+      }
+
+      if (!!error) {
+        log.debug(error);
+      }
+    };
+
     return (
       <>
         <DisabledOverlayer disabled={props.isDisabled}>
@@ -381,16 +395,7 @@ function QRScannerComponent(props: QRScannerComponentProps) {
                 className="qr-camera"
                 constraints={videoConstraints}
                 key={JSON.stringify(videoConstraints)}
-                onResult={(result, error) => {
-                  if (!!result) {
-                    setIsOpen(false);
-                    props.updateValue(result.getText());
-                  }
-
-                  if (!!error) {
-                    log.debug(error);
-                  }
-                }}
+                onResult={handleOnResult}
                 videoContainerStyle={{ height: "100%" }}
                 videoStyle={{ objectFit: "cover" }}
               />
@@ -430,7 +435,7 @@ export interface QRScannerComponentProps extends ComponentProps {
   buttonColor: string;
   borderRadius: string;
   boxShadow?: string;
-  updateValue: (value: any) => void;
+  onCodeDetected: (value: string) => void;
 }
 
 QRScannerComponent.defaultProps = {

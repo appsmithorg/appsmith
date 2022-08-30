@@ -110,6 +110,7 @@ export enum EventType {
   ON_BULK_DISCARD = "ON_BULK_DISCARD",
   ON_ROW_SAVE = "ON_ROW_SAVE",
   ON_ROW_DISCARD = "ON_ROW_DISCARD",
+  ON_CODE_DETECTED = "ON_CODE_DETECTED",
 }
 
 export interface PageAction {
