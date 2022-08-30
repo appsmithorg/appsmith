@@ -87,17 +87,12 @@ export class Table {
   _filtersCount = this._filterBtn + " span.action-title";
 
   public WaitUntilTableLoad(rowIndex = 0, colIndex = 0) {
-    this.agHelper.GetElement(this._tableRowColumnData(rowIndex, colIndex)).waitUntil(
+    this.agHelper.GetElement(this._tableRowColumnData(rowIndex, colIndex), 30000).waitUntil(
       ($ele) =>
         cy
           .wrap($ele)
           .children("button")
-          .should("have.length", 0),
-      {
-        errorMsg: "Table is not populated",
-        timeout: 30000,
-        interval: 500,
-      },
+          .should("have.length", 0)
     );
 
     //or below will work:
