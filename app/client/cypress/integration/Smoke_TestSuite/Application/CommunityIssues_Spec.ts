@@ -297,7 +297,7 @@ describe("AForce - Community Issues page validations", function() {
     table.SearchTable("Suggestion", 2);
     table.WaitUntilTableLoad();
 
-    table.ReadTableRowColumnData(0, 0, 1000).then((cellData) => {
+    table.ReadTableRowColumnData(0, 0, 4000).then((cellData) => {
       expect(cellData).to.be.equal("Suggestion");
     });
 
