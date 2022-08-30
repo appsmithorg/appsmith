@@ -276,11 +276,6 @@ function TreeDropdown(props: TreeDropdownProps) {
   const [optionTree, setOptionTree] = useState<TreeDropdownOption[]>(
     setSelfIndex(props.optionTree),
   );
-
-  useEffect(() => {
-    setOptionTree(setSelfIndex(props.optionTree));
-  }, [props.optionTree]);
-
   const selectedOptionFromProps = getSelectedOption(
     selectedValue,
     defaultText,
@@ -320,8 +315,10 @@ function TreeDropdown(props: TreeDropdownProps) {
         if (prev.value === defaultSelectedOption.value) return prev;
         return defaultSelectedOption;
       });
+    } else {
+      setOptionTree(setSelfIndex(props.optionTree));
     }
-  }, [isOpen]);
+  }, [isOpen, props.optionTree]);
 
   const handleSelect = (
     option: TreeDropdownOption,
