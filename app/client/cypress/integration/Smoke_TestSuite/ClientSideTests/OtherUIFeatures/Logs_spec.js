@@ -67,7 +67,7 @@ describe("Debugger logs", function() {
   });
 
   it("5. Console log on button click with function keyword IIFE", function() {
-    cy.get(debuggerLocators.debuggerClearLogs).click();
+    agHelper.GetNClick(locator._debuggerClearLogs);
     ee.SelectEntityByName("Button1");
     // Testing with normal log in iifee
     propPane.EnterJSContext(
@@ -81,8 +81,8 @@ describe("Debugger logs", function() {
   });
 
   it("6. Console log on button click with async function IIFE", function() {
+    agHelper.GetNClick(locator._debuggerClearLogs);
     // Testing with normal log in iifee
-    cy.get(debuggerLocators.debuggerClearLogs).click();
     ee.SelectEntityByName("Button1");
     propPane.EnterJSContext(
       "onClick",
@@ -95,8 +95,8 @@ describe("Debugger logs", function() {
   });
 
   it("7. Console log on button click with mixed function IIFE", function() {
+    agHelper.GetNClick(locator._debuggerClearLogs);
     // Testing with normal log in iifee
-    cy.get(debuggerLocators.debuggerClearLogs).click();
     ee.SelectEntityByName("Button1");
     const logStringChild = generateTestLogString();
     propPane.EnterJSContext(
