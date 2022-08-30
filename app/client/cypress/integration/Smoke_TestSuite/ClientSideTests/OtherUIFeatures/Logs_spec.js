@@ -133,7 +133,7 @@ describe("Debugger logs", function() {
         prettify: false,
       },
     );
-    cy.get("[data-cy=t--tab-LOGS_TAB]").click();
+    agHelper.GetNClick(jsEditor._logsTab);
     agHelper.GetNAssertContains(locator._debuggerLogMessage, logString);
   });
 
@@ -152,20 +152,22 @@ describe("Debugger logs", function() {
       {
         paste: true,
         completeReplace: true,
-        toRun: true,
+        toRun: false,
         shouldCreateNewJSObj: false,
         prettify: false,
       },
     );
-    cy.get("[data-cy=t--tab-LOGS_TAB]").click();
+    agHelper.WaitUntilAllToastsDisappear();
+    agHelper.GetNClick(jsEditor._runButton);
+    agHelper.GetNClick(jsEditor._logsTab);
     agHelper.GetNAssertContains(locator._debuggerLogMessage, logString);
   });
 
-  it("Api headers need to be shown as headers in logs", function() {
-    // TODO
-  });
+  // it("Api headers need to be shown as headers in logs", function() {
+  //   // TODO
+  // });
 
-  it("Api body needs to be shown as JSON when possible", function() {
-    // TODO
-  });
+  // it("Api body needs to be shown as JSON when possible", function() {
+  //   // TODO
+  // });
 });
