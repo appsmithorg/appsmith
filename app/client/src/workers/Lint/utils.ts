@@ -251,7 +251,7 @@ const getInvalidPropertyErrorsFromScript = (
         ](object.name, propertyName),
         errorSegment: `${object.name}.${propertyName}`,
         originalBinding,
-        variables: [object.name, propertyName, null, null],
+        variables: [propertyName, null, null, null],
         code: CustomLintErrorCode.INVALID_ENTITY_PROPERTY,
         line: objectStartLine - scriptPos.line,
         ch:
