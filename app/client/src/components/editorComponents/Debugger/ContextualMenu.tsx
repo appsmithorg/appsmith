@@ -19,7 +19,6 @@ import {
   DEBUGGER_APPSMITH_SUPPORT,
   DEBUGGER_INTERCOM_TEXT,
   DEBUGGER_OPEN_DOCUMENTATION,
-  DEBUGGER_SEARCH_GOOGLE,
   DEBUGGER_SEARCH_SNIPPET,
 } from "@appsmith/constants/messages";
 import { Icon, IconName, IconSize } from "design-system";
@@ -33,7 +32,6 @@ const { intercomAppID } = getAppsmithConfigs();
 enum CONTEXT_MENU_ACTIONS {
   DOCS = "DOCS",
   SNIPPET = "SNIPPET",
-  GOOGLE = "GOOGLE",
   INTERCOM = "INTERCOM",
 }
 
@@ -162,7 +160,7 @@ const searchAction: Record<
     },
   },
   [CONTEXT_MENU_ACTIONS.SNIPPET]: {
-    icon: "play",
+    icon: "snippet",
     text: createMessage(DEBUGGER_SEARCH_SNIPPET),
     onSelect: (error: Message, dispatch: Dispatch, entity) => {
       AnalyticsUtil.logEvent("DEBUGGER_CONTEXT_MENU_CLICK", {
@@ -204,12 +202,6 @@ const MenuItem = styled.a`
 
   .${Classes.TEXT} {
     color: ${Colors.CODE_GRAY};
-  }
-
-  .${Classes.ICON} {
-    path {
-      fill: ${Colors.CODE_GRAY};
-    }
   }
 
   &:hover {
@@ -265,7 +257,11 @@ export default function ContextualMenu(props: ContextualMenuProps) {
                 onClick={onSelect}
               >
                 <IconContainer>
-                  <Icon name={menuProps.icon} size={IconSize.XXXL} />
+                  <Icon
+                    fillColor="#858282"
+                    name={menuProps.icon}
+                    size={IconSize.XXXL}
+                  />
                   <Text type={TextType.P1} weight={FontWeight.NORMAL}>
                     {menuProps.text}
                   </Text>

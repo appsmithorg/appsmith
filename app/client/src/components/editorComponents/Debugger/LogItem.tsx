@@ -1,6 +1,5 @@
 import { Collapse } from "@blueprintjs/core";
 import { get } from "lodash";
-import { Classes as BPPopover2Classes } from "@blueprintjs/popover2";
 import { isString } from "lodash";
 import { Classes } from "components/ads/common";
 import {
@@ -52,25 +51,6 @@ const Wrapper = styled.div<{ collapsed: boolean }>`
       props.theme.colors.debugger.error.backgroundColor};
     border-bottom: 1px solid
       ${(props) => props.theme.colors.debugger.error.borderBottom};
-
-    .${Classes.ICON}.search-menu {
-      path {
-        fill: ${(props) => props.theme.colors.debugger.error.iconColor};
-      }
-      &:hover {
-        path {
-          fill: ${(props) => props.theme.colors.debugger.error.hoverIconColor};
-        }
-      }
-    }
-
-    .${BPPopover2Classes.POPOVER2_OPEN} {
-      .${Classes.ICON}.search-menu {
-        path {
-          fill: ${(props) => props.theme.colors.debugger.error.hoverIconColor};
-        }
-      }
-    }
   }
 
   &.${Severity.WARNING} {
@@ -78,26 +58,6 @@ const Wrapper = styled.div<{ collapsed: boolean }>`
       props.theme.colors.debugger.warning.backgroundColor};
     border-bottom: 1px solid
       ${(props) => props.theme.colors.debugger.warning.borderBottom};
-    .${Classes.ICON}.search-menu {
-      path {
-        fill: ${(props) => props.theme.colors.debugger.warning.iconColor};
-      }
-      &:hover {
-        path {
-          fill: ${(props) =>
-            props.theme.colors.debugger.warning.hoverIconColor};
-        }
-      }
-    }
-
-    .${BPPopover2Classes.POPOVER2_OPEN} {
-      .${Classes.ICON}.search-menu {
-        path {
-          fill: ${(props) =>
-            props.theme.colors.debugger.warning.hoverIconColor};
-        }
-      }
-    }
   }
 
   .bp3-popover-target {
@@ -117,9 +77,19 @@ const Wrapper = styled.div<{ collapsed: boolean }>`
   .debugger-time {
     ${(props) => getTypographyByKey(props, "h6")}
     line-height: 16px;
-    color: ${(props) => props.theme.colors.debugger.time};
     margin-left: 8px;
     margin-right: 18px;
+    &.${Severity.INFO} {
+      color: ${(props) => props.theme.colors.debugger.info.time};
+    }
+
+    &.${Severity.ERROR} {
+      color: ${(props) => props.theme.colors.debugger.error.time};
+    }
+
+    &.${Severity.WARNING} {
+      color: ${(props) => props.theme.colors.debugger.warning.time};
+    }
   }
   .debugger-description {
     display: flex;
@@ -303,7 +273,9 @@ function LogItem(props: LogItemProps) {
           name={props.icon}
           size={IconSize.XL}
         />
-        <span className="debugger-time">{props.timestamp}</span>
+        <span className={`debugger-time ${props.severity}`}>
+          {props.timestamp}
+        </span>
         {!(
           props.collapsable &&
           isOpen &&
@@ -315,7 +287,9 @@ function LogItem(props: LogItemProps) {
             </span>
 
             {props.timeTaken && (
-              <span className="debugger-timetaken">{props.timeTaken}</span>
+              <span className={`debugger-timetaken ${props.severity}`}>
+                {props.timeTaken}
+              </span>
             )}
             {props.category === LOG_CATEGORY.PLATFORM_GENERATED &&
               props.severity === Severity.ERROR && (
@@ -331,7 +305,7 @@ function LogItem(props: LogItemProps) {
                       position="bottom-left"
                     >
                       <StyledSearchIcon
-                        className={`${Classes.ICON} search-menu`}
+                        className={`${Classes.ICON}`}
                         name={"help"}
                         size={IconSize.SMALL}
                       />
