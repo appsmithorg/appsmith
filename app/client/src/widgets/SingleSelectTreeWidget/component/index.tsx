@@ -155,14 +155,12 @@ function SingleSelectTreeComponent({
 
   const onSelectionChange = useCallback(
     (value?: DefaultValueType, labelList?: ReactNode[]) => {
-      if (value !== undefined) {
-        setFilter("");
-        onChange(value, labelList);
-      }
+      setFilter("");
+      onChange(value, labelList);
     },
     [],
   );
-  const onClear = useCallback(() => onChange("", []), []);
+  const onClear = useCallback(() => onChange([], []), []);
   const clearButton = useMemo(
     () =>
       filter ? (
