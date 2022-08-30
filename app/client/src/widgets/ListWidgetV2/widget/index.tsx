@@ -44,7 +44,9 @@ export type GenerateMetaWidgetOptions = {
   templateWidgetId?: string;
   metaWidgets?: Template;
   key: string; // TODO: (Ashit) - Make this field optional and use hash of data items
-  prevChildCanvasWidgets: ListWidgetProps<WidgetProps>["childCanvasWidgets"];
+  prevFlattenedChildCanvasWidgets: ListWidgetProps<
+    WidgetProps
+  >["flattenedChildCanvasWidgets"];
 };
 
 type MetaWidgetIdCache = {
@@ -160,7 +162,7 @@ class ListWidget extends BaseWidget<
       PATH_TO_ALL_WIDGETS_IN_LIST_WIDGET,
     );
 
-    this.initMetaWidgets(prevProps.childCanvasWidgets);
+    this.initMetaWidgets(prevProps.flattenedChildCanvasWidgets);
 
     const previousListWidgetChildren: WidgetProps[] = get(
       prevProps,
@@ -264,10 +266,12 @@ class ListWidget extends BaseWidget<
   };
 
   initMetaWidgets = (
-    prevChildCanvasWidgets?: ListWidgetProps<WidgetProps>["childCanvasWidgets"],
+    prevFlattenedChildCanvasWidgets?: ListWidgetProps<
+      WidgetProps
+    >["flattenedChildCanvasWidgets"],
   ) => {
     const metaWidgets = this.generateMetaWidgetsForCurrentView(
-      prevChildCanvasWidgets,
+      prevFlattenedChildCanvasWidgets,
     );
 
     if (metaWidgets) {
@@ -282,7 +286,9 @@ class ListWidget extends BaseWidget<
   };
 
   generateMetaWidgetsForCurrentView = (
-    prevChildCanvasWidgets: ListWidgetProps<WidgetProps>["childCanvasWidgets"],
+    prevFlattenedChildCanvasWidgets: ListWidgetProps<
+      WidgetProps
+    >["flattenedChildCanvasWidgets"],
   ) => {
     const { page } = this.state;
     const { pageSize, listData = [], mainCanvasId } = this.props;
@@ -303,7 +309,7 @@ class ListWidget extends BaseWidget<
           parentId: mainCanvasId,
           templateWidgetId: mainContainerId,
           key,
-          prevChildCanvasWidgets,
+          prevFlattenedChildCanvasWidgets,
         });
 
         generatedMetaWidgets = {
@@ -355,8 +361,11 @@ class ListWidget extends BaseWidget<
   };
 
   getMainContainer = () => {
-    const { mainContainerId = "", childCanvasWidgets = {} } = this.props;
-    return childCanvasWidgets[mainContainerId] || {};
+    const {
+      mainContainerId = "",
+      flattenedChildCanvasWidgets = {},
+    } = this.props;
+    return flattenedChildCanvasWidgets[mainContainerId] || {};
   };
 
   updateContainerPosition = (
@@ -415,7 +424,7 @@ class ListWidget extends BaseWidget<
       widgetName,
       mainContainerId,
       pageSize,
-      childCanvasWidgets = {},
+      flattenedChildCanvasWidgets = {},
     } = this.props;
     const { page } = this.state;
     const {
@@ -423,9 +432,9 @@ class ListWidget extends BaseWidget<
       metaWidgets = {},
       key,
       templateWidgetId = "",
-      prevChildCanvasWidgets = {},
+      prevFlattenedChildCanvasWidgets = {},
     } = options;
-    const templateWidget = childCanvasWidgets[templateWidgetId];
+    const templateWidget = flattenedChildCanvasWidgets[templateWidgetId];
 
     if (!templateWidget) return { metaWidgets, metaWidgetId: "" };
 
@@ -443,7 +452,7 @@ class ListWidget extends BaseWidget<
           metaWidgets,
           templateWidgetId: childWidgetId,
           key,
-          prevChildCanvasWidgets,
+          prevFlattenedChildCanvasWidgets,
         },
       );
 
@@ -452,7 +461,8 @@ class ListWidget extends BaseWidget<
 
     metaWidget.children = children;
 
-    const isEqual = templateWidget === prevChildCanvasWidgets[templateWidgetId];
+    const isEqual =
+      templateWidget === prevFlattenedChildCanvasWidgets[templateWidgetId];
     if (isEqual && this.currentViewMetaWidgetsRef.has(metaWidgetId)) {
       return { metaWidgets, metaWidgetId };
     }
@@ -490,8 +500,8 @@ class ListWidget extends BaseWidget<
   };
 
   mainCanvasMetaWidget = () => {
-    const { childCanvasWidgets = {}, mainCanvasId = "" } = this.props;
-    const mainCanvasWidget = childCanvasWidgets[mainCanvasId] || {};
+    const { flattenedChildCanvasWidgets = {}, mainCanvasId = "" } = this.props;
+    const mainCanvasWidget = flattenedChildCanvasWidgets[mainCanvasId] || {};
     const { shouldPaginate } = this.shouldPaginate();
     const { componentHeight, componentWidth } = this.getComponentDimensions();
     const metaMainCanvas = klona(mainCanvasWidget) ?? {};
@@ -816,7 +826,6 @@ export interface ListWidgetProps<T extends WidgetProps> extends WidgetProps {
   onListItemClick?: string;
   shouldScrollContents?: boolean;
   template: Template;
-  childCanvasWidgets?: Record<string, FlattenedWidgetProps>;
 }
 
 export default ListWidget;
