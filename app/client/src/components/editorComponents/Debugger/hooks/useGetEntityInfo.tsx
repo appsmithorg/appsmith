@@ -3,7 +3,7 @@ import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import { isEqual, keyBy } from "lodash";
 import { getPluginIcon, jsIcon } from "pages/Editor/Explorer/ExplorerIcons";
 import { useMemo, useCallback } from "react";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import { getFilteredErrors } from "selectors/debuggerSelectors";
 import { getAction, getDatasource } from "selectors/entitiesSelector";
 import { useSelector } from "react-redux";

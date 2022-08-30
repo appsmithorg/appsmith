@@ -4,9 +4,9 @@ import {
   useSelector as useReduxSelector,
   TypedUseSelectorHook,
 } from "react-redux";
-import appReducer, { AppState } from "./reducers";
+import appReducer, { AppState } from "@appsmith/reducers";
 import createSagaMiddleware from "redux-saga";
-import { rootSaga } from "sagas";
+import { rootSaga } from "@appsmith/sagas";
 import { composeWithDevTools } from "redux-devtools-extension/logOnlyInProduction";
 import * as Sentry from "@sentry/react";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";

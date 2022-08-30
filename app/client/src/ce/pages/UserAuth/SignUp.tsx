@@ -43,7 +43,7 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 
 import { SIGNUP_SUBMIT_PATH } from "@appsmith/constants/ApiConstants";
 import { connect } from "react-redux";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
