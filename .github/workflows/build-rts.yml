@@ -4,6 +4,7 @@ name: Build RTS Workflow
 on:
   # This line enables manual triggering of this workflow.
   workflow_dispatch:
+  workflow_call:
 
   push:
     branches: [release, master]
@@ -41,71 +42,29 @@ jobs:
         with:
           node-version: "16.14.0"
 
-      # Here, the GITHUB_REF is of type /refs/head/<branch_name>. We extract branch_name from this by removing the
-      # first 11 characters. This can be used to build images for several branches
-      # Since this is an unreleased build, we get the latest released version number, increment the minor number in it,
-      # append a `-SNAPSHOT` at it's end to prepare the snapshot version number. This is used as the project's version.
-      - name: Get the version to tag the Docker image
-        id: vars
-        run: |
-          # Since this is an unreleased build, we set the version to incremented version number with a
-          # `-SNAPSHOT` suffix.
-          latest_released_version="$(git tag --list 'v*' --sort=-version:refname | head -1)"
-          echo "latest_released_version = $latest_released_version"
-          next_version="$(echo "$latest_released_version" | awk -F. -v OFS=. '{ $NF++; print }')"
-          echo "next_version = $next_version"
-          echo ::set-output name=version::$next_version-SNAPSHOT
-          echo ::set-output name=tag::$(echo ${GITHUB_REF:11})
+      - name: Get yarn cache directory path
+        id: yarn-dep-cache-dir-path
+        run: echo "::set-output name=dir::$(yarn cache dir)"
+
+      # Retrieve npm dependencies from cache. After a successful run, these dependencies are cached again
+      - name: Cache npm dependencies
+        id: yarn-dep-cache
+        uses: actions/cache@v2
+        env:
+          cache-name: rts-cache-yarn-dependencies
+        with:
+          path: |
+            ${{ steps.yarn-dep-cache-dir-path.outputs.dir }}
+          key: ${{ runner.os }}-yarn-dep-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-dep-
 
       - name: Build
         run: ./build.sh
 
-      # Build release Docker image and push to Docker Hub
-      - name: Push release image to Docker Hub
-        if: success() && github.ref == 'refs/heads/release'
-        run: |
-          docker build -t ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-rts:${{steps.vars.outputs.tag}} .
-          echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
-          docker push ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-rts:${{steps.vars.outputs.tag}}
-
-      # Build master Docker image and push to Docker Hub
-      - name: Push master image to Docker Hub with commit tag
-        if: success() && github.ref == 'refs/heads/master'
-        run: |
-          docker build -t ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-rts:${GITHUB_SHA} .
-          docker build -t ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-rts:nightly .
-          echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
-          docker push ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-rts:${GITHUB_SHA}
-          docker push ${{ secrets.DOCKER_HUB_ORGANIZATION }}/appsmith-rts:nightly
-
-  # These are dummy jobs in the CI build to satisfy required status checks for merging PRs. This is a hack because Github doesn't support conditional
-  # required checks in monorepos. These jobs are a clone of similarly named jobs in client.yml.
-  #
-  # Check support request at: https://github.community/t/feature-request-conditional-required-checks/16761
-  ui-test:
-    runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        job: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
-
-    steps:
-      # Checkout the code
-      - uses: actions/checkout@v2
-
-      - name: Do nothing as this is a dummy step
-        shell: bash
-        run: |
-          exit 0
-
-  package:
-    runs-on: ubuntu-latest
-
-    steps:
-      # Checkout the code
-      - uses: actions/checkout@v2
-
-      - name: Do nothing as this is a dummy step
-        shell: bash
-        run: |
-          exit 0
+      # Upload the build artifact so that it can be used by the test & deploy job in other workflows
+      - name: Upload server build bundle
+        uses: actions/upload-artifact@v2
+        with:
+          name: rts-build
+          path: app/rts/dist/

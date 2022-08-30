@@ -68,7 +68,7 @@ jobs:
         id: yarn-dep-cache
         uses: actions/cache@v2
         env:
-          cache-name: cache-yarn-dependencies
+          cache-name: client-cache-yarn-dependencies
         with:
           path: |
             ${{ steps.yarn-dep-cache-dir-path.outputs.dir }}

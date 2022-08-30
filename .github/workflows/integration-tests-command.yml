@@ -10,16 +10,16 @@ jobs:
     uses: ./.github/workflows/server-build.yml
     name: appsmith-server
 
-  build:
-    uses: ./.github/workflows/build.yml
+  client-build:
+    uses: ./.github/workflows/client-build.yml
     name: appsmith-build
 
-  buildRts:
-    uses: ./.github/workflows/buildRts.yml
+  rts-build:
+    uses: ./.github/workflows/build-rts.yml
     name: appsmith-build-rts
 
   fat-container-test:
-    needs: [build, server-build, buildRts]
+    needs: [client-build, server-build, rts-build]
     # Only run if the build step is successful
     if: success()
     runs-on: ubuntu-latest
@@ -125,12 +125,6 @@ jobs:
         with:
           name: rts-build
           path: app/rts/dist/
-
-      - name: Download the rts build artifact
-        uses: actions/download-artifact@v2
-        with:
-          name: rts-build-deps
-          path: app/rts/node_modules/
 
       - name: Build  docker image
         if: steps.run_result.outputs.run_result != 'success'
