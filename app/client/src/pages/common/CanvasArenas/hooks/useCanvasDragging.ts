@@ -29,7 +29,7 @@ import {
 } from "./useBlocksToBeDraggedOnCanvas";
 import { useCanvasDragToScroll } from "./useCanvasDragToScroll";
 import ContainerJumpMetrics from "./ContainerJumpMetric";
-import { LayoutDirection } from "components/constants";
+import { LayoutDirection, ResponsiveBehavior } from "components/constants";
 import { getWidgets } from "sagas/selectors";
 
 export interface XYCord {
@@ -76,6 +76,7 @@ export const useCanvasDragging = (
     snapRowSpace,
     useAutoLayout,
     widgetId,
+    widgetName,
   }: CanvasDraggingArenaProps,
 ) => {
   const canvasZoomLevel = useSelector(getZoomLevel);
@@ -124,11 +125,34 @@ export const useCanvasDragging = (
   const reflow = useRef<ReflowInterface>();
   reflow.current = useReflow(draggingSpaces, widgetId || "", gridProps);
 
+  const allWidgets = useSelector(getWidgets);
+
+  /**
+   * START AUTO LAYOUT OFFSET CALCULATION
+   */
+
   let dragBlocksSize = 0;
   let offsets: HighlightDimension[] = [];
   const siblings: DOMRect[] = [];
   const siblingElements: any[] = [];
   const isVertical = direction === LayoutDirection.Vertical;
+
+  // Determines whether nested wrappers can be introduced in the current canvas
+  const enableNestedWrappers = (): boolean => {
+    const canvas = allWidgets[widgetId];
+    // If the canvas is not a wrapper, then return false.
+    if (!canvas?.isWrapper) return false;
+    const children = canvas.children || [];
+    // TODO: what to do when there are no children?
+    if (!children.length) return true;
+    // If the canvas has a fill child, then return false.
+    return !(
+      children.filter(
+        (child) =>
+          allWidgets[child]?.responsiveBehavior === ResponsiveBehavior.Fill,
+      ).length > 0
+    );
+  };
 
   const initializeOffsets = (): void => {
     offsets = [];
@@ -159,7 +183,6 @@ export const useCanvasDragging = (
       el?.classList?.add("auto-temp-no-display");
     });
   };
-  const allWidgets = useSelector(getWidgets);
 
   const cleanUpTempStyles = () => {
     // reset display of all dragged blocks
@@ -181,6 +204,73 @@ export const useCanvasDragging = (
     }
   };
 
+  const updateContainerDimensions = (): boolean => {
+    const container = document.querySelector(`.appsmith_widget_${widgetId}`);
+    const containerRect:
+      | DOMRect
+      | undefined = container?.getBoundingClientRect();
+    if (!container || !containerRect) return false;
+    // console.log(`#### container rect: ${JSON.stringify(containerRect)}`);
+    containerDimensions = {
+      top: containerRect.top || 0,
+      left: containerRect.left || 0,
+      width: containerRect.width,
+      height: containerRect.height,
+    };
+    return true;
+  };
+
+  const getDraggedBlocks = (): string[] => {
+    const blocks = blocksToDraw.map((block) => block.widgetId);
+    // console.log(`#### blocksToDraw: ${JSON.stringify(blocksToDraw)}`);
+    // console.log(`#### blocks: ${JSON.stringify(blocks)}`);
+    return blocks;
+  };
+
+  const calculateDragBlockSize = (): void => {
+    blocksToDraw?.forEach((each) => {
+      dragBlocksSize += isVertical ? each.height : each.width;
+    });
+  };
+
+  const getOffset = (
+    rect: DOMRect,
+    flexOffsetTop: number,
+    isFinal?: boolean,
+  ): HighlightDimension => {
+    let mOffset: HighlightDimension;
+    // Remove the offsets of the canvas and the flex container.
+    const valueToSubtract = {
+      x: containerDimensions?.left,
+      y: containerDimensions?.top + flexOffsetTop,
+    };
+    // For the final offset, include the size of the last sibling and a margin.
+    const valueToAdd = isFinal
+      ? {
+          x: rect.width + 8,
+          y: isVertical ? rect.height + 8 : 8,
+        }
+      : { x: 0, y: 0 };
+
+    if (isVertical) {
+      mOffset = {
+        x: 0,
+        y: rect.top - valueToSubtract.y + valueToAdd.y,
+        width: containerDimensions.width,
+        height: 4,
+      };
+    } else {
+      mOffset = {
+        x: rect.left - valueToSubtract.x + valueToAdd.x,
+        y: rect.top - valueToSubtract.y + valueToAdd.y,
+        height: rect.height,
+        width: 4,
+      };
+    }
+    // console.log(`#### offset: ${JSON.stringify(mOffset)}`);
+    return mOffset;
+  };
+
   const calculateHighlightOffsets = () => {
     cleanUpTempStyles();
     // console.log(
@@ -190,26 +280,17 @@ export const useCanvasDragging = (
       // console.log("#### START calculate highlight offsets");
       // console.log(`#### canvas id: ${widgetId} : ${widgetName}`);
       // calculate total drag size to translate siblings by
-      blocksToDraw?.map((each) => {
-        dragBlocksSize += isVertical ? each.height : each.width;
-      });
-      const blocks = blocksToDraw.map((block) => block.widgetId);
-      // console.log(`#### blocks: ${JSON.stringify(blocks)}`);
+      calculateDragBlockSize();
+      const blocks = getDraggedBlocks();
+
       if (!blocks || !blocks.length) return;
 
-      // update dimensions of the current canvas
-      const container = document.querySelector(`.appsmith_widget_${widgetId}`);
-      const containerRect:
-        | DOMRect
-        | undefined = container?.getBoundingClientRect();
-      if (!container || !containerRect) return;
-      // console.log(`#### container rect: ${JSON.stringify(containerRect)}`);
-      containerDimensions = {
-        top: containerRect.top || 0,
-        left: containerRect.left || 0,
-        width: containerRect.width,
-        height: containerRect.height,
-      };
+      /**
+       * update dimensions of the current canvas
+       * and break out of the function if returned value is false.
+       * That implies the container is null.
+       */
+      if (!updateContainerDimensions()) return;
 
       // Get all children of current dragging canvas
       const canvas = allWidgets[widgetId];
@@ -244,26 +325,7 @@ export const useCanvasDragging = (
           const rect: DOMRect = el.getBoundingClientRect();
           // console.log(`#### bounding rect: ${JSON.stringify(rect)}`);
           // Add a new offset using the current element's dimensions and position
-          let mOffset: HighlightDimension;
-          if (isVertical) {
-            // console.log(`#### el top: ${rect.top}`);
-            // console.log(`#### el height: ${rect.height}`);
-            // console.log(`#### container top: ${containerDimensions.top}`);
-            mOffset = {
-              x: 0,
-              y: rect.top - containerDimensions.top - flexOffsetTop,
-              width: containerDimensions.width,
-              height: 4,
-            };
-          } else {
-            mOffset = {
-              x: rect.left - containerDimensions.left,
-              y: rect.top - containerDimensions.top - flexOffsetTop,
-              height: rect.height,
-              width: 4,
-            };
-          }
-          offsets.push(mOffset);
+          offsets.push(getOffset(rect, flexOffsetTop, false));
           // siblings[each] = mOffset;
           siblings.push(rect);
           siblingElements.push(el);
@@ -274,41 +336,9 @@ export const useCanvasDragging = (
          * to demarcate the final drop position.
          */
         if (siblings.length) {
-          let finalOffset: HighlightDimension;
-          if (isVertical) {
-            // console.log(
-            //   `#### last sibling height: ${
-            //     siblings[siblings.length - 1].height
-            //   }`,
-            // );
-            finalOffset = {
-              x: 0,
-              y:
-                siblings[siblings.length - 1].top -
-                containerDimensions.top -
-                flexOffsetTop +
-                siblings[siblings.length - 1].height +
-                8,
-              width: containerDimensions.width,
-              height: 4,
-            };
-          } else {
-            finalOffset = {
-              x:
-                siblings[siblings.length - 1].left -
-                containerDimensions.left +
-                siblings[siblings.length - 1].width +
-                8,
-              y:
-                siblings[siblings.length - 1].top -
-                flexOffsetTop -
-                containerDimensions.top +
-                8,
-              width: 4,
-              height: siblings[siblings.length - 1].height,
-            };
-          }
-          offsets.push(finalOffset);
+          offsets.push(
+            getOffset(siblings[siblings.length - 1], flexOffsetTop, true),
+          );
         }
         offsets = [...new Set(offsets)];
       }
@@ -322,6 +352,10 @@ export const useCanvasDragging = (
   if (!isDragging || !isCurrentDraggedCanvas) {
     cleanUpTempStyles();
   }
+
+  /**
+   * END AUTO LAYOUT OFFSET CALCULATION
+   */
 
   const {
     setDraggingCanvas,
