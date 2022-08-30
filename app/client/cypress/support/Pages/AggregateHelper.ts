@@ -138,11 +138,11 @@ export class AggregateHelper {
     textPresence: "have.text" | "contain.text" | "not.have.text" = "have.text",
     index = 0,
   ) {
-    const locator = selector.startsWith("//")
-      ? cy.xpath(selector)
-      : cy.get(selector);
-    if (index >= 0) locator.eq(index).should(textPresence, text);
-    else locator.should(textPresence, text);
+    if (index >= 0)
+      this.GetElement(selector)
+        .eq(index)
+        .should(textPresence, text);
+    else this.GetElement(selector).should(textPresence, text);
   }
 
   public ValidateToastMessage(text: string, index = 0, length = 1) {
@@ -799,6 +799,18 @@ export class AggregateHelper {
     return this.GetElement(selector)
       .eq(index)
       .invoke(textOrValue);
+  }
+
+  public AssertText(
+    selector: ElementType,
+    textOrValue: "text" | "val" = "text",
+    expectedData: string,
+    index = 0,
+  ) {
+    this.GetElement(selector)
+      .eq(index)
+      .invoke(textOrValue)
+      .should("deep.equal", expectedData);
   }
 
   public AssertElementVisible(selector: ElementType, index = 0) {
