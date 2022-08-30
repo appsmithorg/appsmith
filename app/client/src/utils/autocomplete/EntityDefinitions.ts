@@ -647,6 +647,13 @@ export const entityDefinitions = {
     isVisible: isVisible,
     docUrl: "string",
   },
+  QR_SCANNER_WIDGET: {
+    "!doc": "Scan a QR Code",
+    "!url": "https://docs.appsmith.com/reference/widgets/qr-scanner",
+    isVisible: isVisible,
+    isDisabled: "bool",
+    value: "string",
+  },
 };
 
 /* 
