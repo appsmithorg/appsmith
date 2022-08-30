@@ -452,7 +452,10 @@ export class ContainerWidget extends BaseWidget<
                 direction: this.state.direction,
                 justifyContent: JustifyContent.FlexStart,
                 alignItems: AlignItems.FlexStart,
-                overflow: Overflow.NoWrap,
+                overflow:
+                  props.widgetName === "MainContainer"
+                    ? Overflow.Auto
+                    : Overflow.NoWrap,
               }}
             >
               {this.renderChildren()}

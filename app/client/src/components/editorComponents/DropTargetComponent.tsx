@@ -49,9 +49,9 @@ const StyledDropTarget = styled.div<{
   user-select: none;
   z-index: ${({ isWrapper }) => (isWrapper ? 2 : 1)};
   margin-bottom: ${({ direction, isWrapper }) =>
-    isWrapper && direction === LayoutDirection.Horizontal ? "4px" : 0};
+    isWrapper && direction === LayoutDirection.Horizontal ? "6px" : 0};
   margin-right: ${({ direction, isWrapper }) =>
-    isWrapper && direction === LayoutDirection.Vertical ? "4px" : 0};
+    isWrapper && direction === LayoutDirection.Vertical ? "6px" : 0};
 `;
 
 function Onboarding() {

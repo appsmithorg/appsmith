@@ -168,4 +168,5 @@ export enum Overflow {
   NoWrap = "nowrap",
   Hidden = "hidden",
   Scroll = "scroll",
+  Auto = "auto",
 }
