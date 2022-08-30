@@ -462,7 +462,6 @@ const DynamicHeightOverlay: React.FC<DynamicHeightOverlayProps> = memo(
       const heightToSet = maxY + maxdY;
 
       if (heightToSet === minY + mindY) {
-        console.log("addDynamicHeightOverlay batchUpdate");
         batchUpdate(heightToSet);
         setMindY(0);
         setMaxdY(0);
@@ -477,10 +476,6 @@ const DynamicHeightOverlay: React.FC<DynamicHeightOverlayProps> = memo(
     /////////////////////////////////////////////////////////////
 
     useEffect(() => {
-      console.log(
-        "addDynamicHeightOverlay running min effect",
-        minDynamicHeight,
-      );
       setMinY(minDynamicHeight * 10);
     }, [minDynamicHeight]);
 
@@ -503,7 +498,6 @@ const DynamicHeightOverlay: React.FC<DynamicHeightOverlayProps> = memo(
       const heightToSet = minY + mindY;
 
       if (heightToSet === maxY + maxdY) {
-        console.log("addDynamicHeightOverlay batchUpdate");
         batchUpdate(heightToSet);
         setMindY(0);
         setMaxdY(0);
@@ -590,8 +584,6 @@ const DynamicHeightOverlay: React.FC<DynamicHeightOverlayProps> = memo(
     const isWidgetSelected = selectedWidget === widgetId;
     const multipleWidgetsSelected = selectedWidgets.length > 1;
     const isOverlayToBeDisplayed = isWidgetSelected && !multipleWidgetsSelected;
-
-    console.log("addDynamicHeightOverlay", finalMinY, finalMaxY, maxdY, mindY);
 
     return (
       <StyledDynamicHeightOverlay
