@@ -22,7 +22,7 @@ import {
   validateResponse,
   getResponseErrorMessage,
   callAPI,
-} from "../../sagas/ErrorSagas";
+} from "sagas/ErrorSagas";
 import {
   logoutUserSuccess,
   logoutUserError,
