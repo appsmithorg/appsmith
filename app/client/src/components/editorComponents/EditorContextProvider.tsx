@@ -20,12 +20,7 @@ import {
   syncUpdateWidgetMetaProperty,
   triggerEvalOnMetaUpdate,
 } from "actions/metaActions";
-import {
-  addMetaWidget,
-  deleteMetaWidget,
-  updateMetaWidget,
-  modifyMetaWidgets,
-} from "actions/metaWidgetActions";
+import { modifyMetaWidgets } from "actions/metaWidgetActions";
 import { FlattenedWidgetProps } from "widgets/constants";
 import { ModifyMetaWidgetPayload } from "reducers/entityReducers/metaCanvasWidgetsReducer";
 
@@ -71,10 +66,8 @@ type EditorContextProviderProps = EditorContextType & {
 
 function EditorContextProvider(props: EditorContextProviderProps) {
   const {
-    addMetaWidget,
     batchUpdateWidgetProperty,
     children,
-    deleteMetaWidget,
     deleteWidgetProperty,
     disableDrag,
     executeAction,
@@ -82,7 +75,6 @@ function EditorContextProvider(props: EditorContextProviderProps) {
     resetChildrenMetaProperty,
     syncUpdateWidgetMetaProperty,
     triggerEvalOnMetaUpdate,
-    updateMetaWidget,
     updateWidget,
     updateWidgetProperty,
   } = props;
@@ -100,9 +92,6 @@ function EditorContextProvider(props: EditorContextProviderProps) {
       deleteWidgetProperty,
       batchUpdateWidgetProperty,
       triggerEvalOnMetaUpdate,
-      addMetaWidget,
-      updateMetaWidget,
-      deleteMetaWidget,
       modifyMetaWidgets,
     }),
     [
@@ -115,9 +104,6 @@ function EditorContextProvider(props: EditorContextProviderProps) {
       deleteWidgetProperty,
       batchUpdateWidgetProperty,
       triggerEvalOnMetaUpdate,
-      addMetaWidget,
-      updateMetaWidget,
-      deleteMetaWidget,
       modifyMetaWidgets,
     ],
   );
@@ -147,9 +133,6 @@ const mapDispatchToProps = {
   deleteWidgetProperty: deletePropertyAction,
   batchUpdateWidgetProperty: batchUpdatePropertyAction,
   triggerEvalOnMetaUpdate: triggerEvalOnMetaUpdate,
-  addMetaWidget,
-  deleteMetaWidget,
-  updateMetaWidget,
   modifyMetaWidgets,
 };
 

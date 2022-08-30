@@ -17,6 +17,7 @@ import {
   getRenderMode,
   getMetaWidgetChildrenStructure,
   getMetaCanvasWidget,
+  getFlattenedChildCanvasWidgets,
 } from "selectors/editorSelectors";
 import { AppState } from "reducers";
 import { useSelector } from "react-redux";
@@ -26,11 +27,7 @@ import {
   createLoadingWidget,
 } from "utils/widgetRenderUtils";
 
-const WIDGETS_WITH_CHILD_WIDGETS = [
-  "LIST_WIDGET",
-  "FORM_WIDGET",
-  "LIST_WIDGET_V2",
-];
+const WIDGETS_WITH_CHILD_WIDGETS = ["LIST_WIDGET", "FORM_WIDGET"];
 
 function withWidgetProps(WrappedWidget: typeof BaseWidget) {
   function WrappedPropsComponent(
@@ -61,6 +58,12 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
     const childWidgets = useSelector((state: AppState) => {
       if (!WIDGETS_WITH_CHILD_WIDGETS.includes(type)) return undefined;
       return getChildWidgets(state, widgetId);
+    }, equal);
+
+    const flattenedChildCanvasWidgets = useSelector((state: AppState) => {
+      if (type === "LIST_WIDGET_V2") {
+        return getFlattenedChildCanvasWidgets(state, widgetId);
+      }
     }, equal);
 
     let widgetProps: WidgetProps = {} as WidgetProps;
@@ -114,6 +117,7 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
       widgetProps.metaWidgetChildrenStructure = metaWidgetChildrenStructure;
       widgetProps.isLoading = isLoading;
       widgetProps.childWidgets = childWidgets;
+      widgetProps.flattenedChildCanvasWidgets = flattenedChildCanvasWidgets;
     }
 
     //merging with original props

@@ -456,6 +456,7 @@ export interface WidgetBaseProps {
   renderMode: RenderMode;
   version: number;
   childWidgets?: DataTreeWidget[];
+  flattenedChildCanvasWidgets?: Record<string, FlattenedWidgetProps>;
   metaWidgetChildrenStructure?: CanvasWidgetStructure[];
 }
 

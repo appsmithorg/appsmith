@@ -414,4 +414,4 @@ export function ServerSideListPagination(props: any) {
   );
 }
 
-export default ListPagination;
+export default React.memo(ListPagination);
