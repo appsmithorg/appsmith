@@ -153,7 +153,7 @@ describe("DateTime Datatype tests", function() {
     table.ReadTableRowColumnData(0, 6, 200).then(($cellData) => {
       expect($cellData).to.eq("6 years 5 mons 4 days 3 hours 2 mins 1.0 secs"); //Interval format!
     });
-    table.ReadTableRowColumnData(0, 7, 200).then(($cellData) => {
+    table.ReadTableRowColumnData(0, 7).then(($cellData) => {
       expect($cellData).to.eq("19.01.1989");
     });
     agHelper
