@@ -15,7 +15,7 @@ jobs:
     name: appsmith-build
 
   rts-build:
-    uses: ./.github/workflows/build-rts.yml
+    uses: ./.github/workflows/rts-build.yml
     name: appsmith-build-rts
 
   fat-container-test:
