@@ -27,6 +27,8 @@ import {
 } from "components/editorComponents/CodeEditor/lintHelpers";
 import { ECMA_VERSION } from "@shared/ast";
 import {
+  CustomLintErrorCode,
+  CUSTOM_LINT_ERRORS,
   IGNORED_LINT_ERRORS,
   SUPPORTED_WEB_APIS,
 } from "components/editorComponents/CodeEditor/constants";
@@ -164,43 +166,12 @@ export const getLintingErrors = (
       };
     },
   );
-  let invalidTopLevelMemberExpressions: MemberExpressionData[] = [];
-  try {
-    invalidTopLevelMemberExpressions = extractInvalidTopLevelMemberExpressionsFromCode(
-      script,
-      data,
-    );
-  } catch (e) {}
-
-  const invalidPropertyErrors = invalidTopLevelMemberExpressions.map(
-    ({ object, property }) => {
-      const propertyName = isLiteralNode(property)
-        ? property.value
-        : property.name;
-      const objectStartLine = object.loc.start.line - 1;
-      const propertyStartColumn = !isLiteralNode(property)
-        ? property.loc.start.column + 1
-        : property.loc.start.column + 2;
-      return {
-        errorType: PropertyEvaluationErrorType.LINT,
-        raw: script,
-        severity: getLintSeverity("CUSTOM"),
-        errorMessage: getLintErrorMessage(
-          `"${propertyName}" doesn't exist in ${object.name}`,
-        ),
-        errorSegment: `${object.name}.${propertyName}`,
-        originalBinding,
-        variables: [object.name, propertyName, null, null],
-        code: "CUSTOM",
-        line: objectStartLine - scriptPos.line,
-        ch:
-          objectStartLine === scriptPos.line
-            ? propertyStartColumn - scriptPos.ch
-            : propertyStartColumn,
-      };
-    },
+  const invalidPropertyErrors = getInvalidPropertyErrorsFromScript(
+    script,
+    data,
+    scriptPos,
+    originalBinding,
   );
-
   return jshintErrors.concat(invalidPropertyErrors);
 };
 
@@ -246,4 +217,49 @@ const getValidLintErrors = (lintErrors: LintError[], scriptPos: Position) => {
     });
     return result;
   }, []);
+};
+
+const getInvalidPropertyErrorsFromScript = (
+  script: string,
+  data: Record<string, unknown>,
+  scriptPos: Position,
+  originalBinding: string,
+) => {
+  let invalidTopLevelMemberExpressions: MemberExpressionData[] = [];
+  try {
+    invalidTopLevelMemberExpressions = extractInvalidTopLevelMemberExpressionsFromCode(
+      script,
+      data,
+    );
+  } catch (e) {}
+
+  const invalidPropertyErrors = invalidTopLevelMemberExpressions.map(
+    ({ object, property }) => {
+      const propertyName = isLiteralNode(property)
+        ? property.value
+        : property.name;
+      const objectStartLine = object.loc.start.line - 1;
+      const propertyStartColumn = !isLiteralNode(property)
+        ? property.loc.start.column + 1
+        : property.loc.start.column + 2;
+      return {
+        errorType: PropertyEvaluationErrorType.LINT,
+        raw: script,
+        severity: getLintSeverity(CustomLintErrorCode.INVALID_ENTITY_PROPERTY),
+        errorMessage: CUSTOM_LINT_ERRORS[
+          CustomLintErrorCode.INVALID_ENTITY_PROPERTY
+        ](object.name, propertyName),
+        errorSegment: `${object.name}.${propertyName}`,
+        originalBinding,
+        variables: [object.name, propertyName, null, null],
+        code: CustomLintErrorCode.INVALID_ENTITY_PROPERTY,
+        line: objectStartLine - scriptPos.line,
+        ch:
+          objectStartLine === scriptPos.line
+            ? propertyStartColumn - scriptPos.ch
+            : propertyStartColumn,
+      };
+    },
+  );
+  return invalidPropertyErrors;
 };

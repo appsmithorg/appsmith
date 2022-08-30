@@ -1191,32 +1191,6 @@ export default class DataTreeEvaluator {
     // Remove any paths that do not exist in the data tree anymore
     return _.difference(completeSortOrder, removedPaths);
   }
-  getInverseTriggerDependencyMap(): DependencyMap {
-    const inverseTree: DependencyMap = {};
-    Object.keys(this.triggerFieldDependencyMap).forEach((triggerField) => {
-      this.triggerFieldDependencyMap[triggerField].forEach((field) => {
-        if (inverseTree[field]) {
-          inverseTree[field].push(triggerField);
-        } else {
-          inverseTree[field] = [triggerField];
-        }
-      });
-    });
-    return inverseTree;
-  }
-  getInverseIdentifierList(): DependencyMap {
-    const inverseTree: DependencyMap = {};
-    Object.keys(this.unusedIdentifiersList).forEach((path) => {
-      this.unusedIdentifiersList[path].forEach((field) => {
-        if (inverseTree[field]) {
-          inverseTree[field].push(path);
-        } else {
-          inverseTree[field] = [path];
-        }
-      });
-    });
-    return inverseTree;
-  }
 
   getInverseDependencyTree(): DependencyMap {
     const inverseDag: DependencyMap = {};

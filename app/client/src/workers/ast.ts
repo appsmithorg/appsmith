@@ -1,7 +1,7 @@
 import { parse, Node, Options, SourceLocation } from "acorn";
 import { ancestor, simple } from "acorn-walk";
 import { ECMA_VERSION, NodeTypes } from "constants/ast";
-import { isFinite, isString, toPath } from "lodash";
+import { isFinite, isString, memoize, toPath } from "lodash";
 import { sanitizeScript } from "./evaluate";
 import { generate } from "astring";
 import {
@@ -199,8 +199,9 @@ const isInvalidIdentifierName = (name: string) => {
 };
 
 type GetAstOptions = Omit<Options, "ecmaVersion">;
-export const getAST = (code: string, options?: GetAstOptions) =>
-  parse(code, { ...options, ecmaVersion: ECMA_VERSION });
+export const getAST = memoize((code: string, options?: GetAstOptions) =>
+  parse(code, { ...options, ecmaVersion: ECMA_VERSION }),
+);
 
 /**
  * An AST based extractor that fetches all possible identifiers in a given
