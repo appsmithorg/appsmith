@@ -250,7 +250,7 @@ describe("MultiSelect Widget Functionality", function() {
       cy.openPropertyPane("multiselectwidgetv2");
       // set options
       propPane.UpdatePropertyFieldValue("Options", JSON.stringify(options));
-      agHelper.Escape();
+      agHelper.PressEscape();
       // set default value
       propPane.UpdatePropertyFieldValue(
         "Default Value",
@@ -282,7 +282,7 @@ describe("MultiSelect Widget Functionality", function() {
       "Options",
       JSON.stringify([{ label: "RED", value: "RED" }]),
     );
-    agHelper.Escape();
+    agHelper.PressEscape();
     propPane.UpdatePropertyFieldValue("Default Value", '["RED"]');
     agHelper.RemoveMultiSelectItems(["RED"]);
 
