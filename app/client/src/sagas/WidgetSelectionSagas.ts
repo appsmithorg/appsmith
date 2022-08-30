@@ -34,6 +34,9 @@ import { AppState } from "@appsmith/reducers";
 import { checkIsDropTarget } from "components/designSystems/appsmith/PositionedContainer";
 import WidgetFactory from "utils/WidgetFactory";
 import { showModal } from "actions/widgetActions";
+import history from "utils/history";
+import { getCurrentPageId } from "selectors/editorSelectors";
+import { builderURL } from "RouteBuilder";
 const WidgetTypes = WidgetFactory.widgetTypes;
 // The following is computed to be used in the entity explorer
 // Every time a widget is selected, we need to expand widget entities
@@ -297,9 +300,9 @@ function* selectMultipleWidgetsSaga(
       return;
     }
     const allWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
-    const parentToMatch = allWidgets[widgetIds[0]].parentId;
+    const parentToMatch = allWidgets[widgetIds[0]]?.parentId;
     const doesNotMatchParent = widgetIds.some((each) => {
-      return allWidgets[each].parentId !== parentToMatch;
+      return allWidgets[each]?.parentId !== parentToMatch;
     });
     if (doesNotMatchParent) {
       return;
@@ -320,6 +323,31 @@ function* selectMultipleWidgetsSaga(
         error,
       },
     });
+  }
+}
+
+function* appendSelectedWidgetToUrlSaga(
+  action: ReduxAction<{ selectedWidgets: string[] }>,
+) {
+  const { hash, pathname } = window.location;
+  const { selectedWidgets } = action.payload;
+  const currentPageId: string = yield select(getCurrentPageId);
+
+  const currentURL = hash ? `${pathname}${hash}` : pathname;
+  let canvasEditorURL;
+  if (selectedWidgets.length === 1) {
+    canvasEditorURL = `${builderURL({
+      pageId: currentPageId,
+      hash: selectedWidgets[0],
+    })}`;
+  } else {
+    canvasEditorURL = `${builderURL({
+      pageId: currentPageId,
+    })}`;
+  }
+
+  if (currentURL !== canvasEditorURL) {
+    history.push(canvasEditorURL);
   }
 }
 
@@ -372,6 +400,10 @@ export function* widgetSelectionSagas() {
       ReduxActionTypes.DESELECT_MULTIPLE_WIDGETS_INIT,
       canPerformSelectionSaga,
       deselectAllWidgetsSaga,
+    ),
+    takeLatest(
+      ReduxActionTypes.APPEND_SELECTED_WIDGET_TO_URL,
+      appendSelectedWidgetToUrlSaga,
     ),
   ]);
 }

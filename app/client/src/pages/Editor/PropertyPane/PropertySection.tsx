@@ -99,7 +99,7 @@ export const CollapseContext: Context<boolean> = createContext<boolean>(false);
 export const PropertySection = memo((props: PropertySectionProps) => {
   const { isDefaultOpen = true } = props;
   const [isOpen, setIsOpen] = useState(!!isDefaultOpen);
-  const widgetProps: any = useSelector(getWidgetPropsForPropertyPane);
+  const widgetProps: any = useSelector(getWidgetPropsForPropertyPane) || {};
   const handleSectionTitleClick = useCallback(() => {
     if (props.collapsible) setIsOpen((x) => !x);
   }, []);

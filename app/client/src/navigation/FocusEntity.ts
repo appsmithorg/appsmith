@@ -17,7 +17,7 @@ export enum FocusEntity {
 
 export function identifyEntityFromPath(
   path: string,
-  hash: string,
+  hash?: string,
 ): FocusEntity {
   let appPath = path;
   if (hash) {

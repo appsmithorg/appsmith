@@ -136,8 +136,7 @@ export function* showModalSaga(action: ReduxAction<{ modalId: string }>) {
   const pageId: string = yield select(getCurrentPageId);
   const appMode: APP_MODE = yield select(getAppMode);
 
-  if (appMode === APP_MODE.EDIT)
-    navigateToCanvas({ pageId, widgetId: action.payload.modalId });
+  if (appMode === APP_MODE.EDIT) navigateToCanvas(pageId);
 
   yield put({
     type: ReduxActionTypes.SELECT_WIDGET_INIT,

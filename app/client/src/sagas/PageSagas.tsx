@@ -234,6 +234,8 @@ export function* handleFetchedPage({
     // dispatch fetch page success
     yield put(fetchPageSuccess());
 
+    yield put(selectMultipleWidgetsAction([]));
+
     /* Currently, All Actions are fetched in initSagas and on pageSwitch we only fetch page
      */
     // Hence, if is not isFirstLoad then trigger evaluation with execute pageLoad action

@@ -1,6 +1,6 @@
 import classNames from "classnames";
 import * as Sentry from "@sentry/react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import React, { memo, useEffect, useRef, useMemo } from "react";
 
 import PerformanceTracker, {
@@ -19,6 +19,7 @@ import { ThemePropertyPane } from "pages/Editor/ThemePropertyPane";
 import { getAppThemingStack } from "selectors/appThemingSelectors";
 import equal from "fast-deep-equal";
 import { selectedWidgetsPresentInCanvas } from "selectors/propertyPaneSelectors";
+import { appendSelectedWidgetToUrl } from "actions/canvasSelectionActions";
 
 type Props = {
   width: number;
@@ -27,6 +28,8 @@ type Props = {
 };
 
 export const PropertyPaneSidebar = memo((props: Props) => {
+  const dispatch = useDispatch();
+
   const sidebarRef = useRef<HTMLDivElement>(null);
   const prevSelectedWidgetId = useRef<string | undefined>();
 
@@ -70,6 +73,11 @@ export const PropertyPaneSidebar = memo((props: Props) => {
   useEffect(() => {
     PerformanceTracker.stopTracking();
   });
+
+  useEffect(() => {
+    //update url hash with the selectedWidget
+    dispatch(appendSelectedWidgetToUrl(selectedWidgetIds));
+  }, [selectedWidgetIds]);
 
   /**
    * renders the property pane:

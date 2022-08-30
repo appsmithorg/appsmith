@@ -10,25 +10,66 @@ import { FocusElementsConfig } from "navigation/FocusElements";
 import { identifyEntityFromPath, FocusEntity } from "navigation/FocusEntity";
 
 let previousPath: string;
-let previousHash: string;
+let previousHash: string | undefined;
 
 function* handleRouteChange(
-  action: ReduxAction<{ pathname: string; hash: string }>,
+  action: ReduxAction<{ pathname: string; hash?: string }>,
 ) {
+  const { hash, pathname } = action.payload;
   if (previousPath) {
     // store current state
     yield call(storeStateOfPath, previousPath, previousHash);
+    // while switching from selected widget state to API, Query or Datasources directly, store Canvas state as well
+    if (shouldStoreStateForCanvas(previousPath, pathname, previousHash, hash))
+      yield call(storeStateOfPath, previousPath);
   }
-  yield call(setStateOfPath, action.payload.pathname, previousHash);
+  if (shouldSetState(previousPath, pathname, previousHash, hash))
+    yield call(setStateOfPath, pathname, hash);
   // restore old state for new path
-  previousPath = action.payload.pathname;
-  previousHash = action.payload.hash;
+  previousPath = pathname;
+  previousHash = hash;
 }
 
-function* storeStateOfPath(path: string, hash: string) {
+function shouldSetState(
+  prevPath: string,
+  currPath: string,
+  prevHash?: string,
+  currHash?: string,
+) {
+  const prevFocusEntity = identifyEntityFromPath(prevPath, prevHash);
+  const currFocusEntity = identifyEntityFromPath(currPath, currHash);
+
+  if (
+    prevFocusEntity === FocusEntity.PROPERTY_PANE &&
+    currFocusEntity === FocusEntity.CANVAS &&
+    prevPath === currPath
+  ) {
+    return false;
+  }
+
+  return true;
+}
+
+function shouldStoreStateForCanvas(
+  prevPath: string,
+  currPath: string,
+  prevHash?: string,
+  currHash?: string,
+) {
+  const prevFocusEntity = identifyEntityFromPath(prevPath, prevHash);
+  const currFocusEntity = identifyEntityFromPath(currPath, currHash);
+
+  return (
+    prevFocusEntity === FocusEntity.PROPERTY_PANE &&
+    currFocusEntity !== FocusEntity.PROPERTY_PANE &&
+    currFocusEntity !== FocusEntity.CANVAS
+  );
+}
+
+function* storeStateOfPath(path: string, hash?: string) {
   const focusHistory: FocusState | undefined = yield select(
     getCurrentFocusInfo,
-    path,
+    hash ? `${path}${hash}` : path,
   );
   const entity: FocusEntity = focusHistory
     ? focusHistory.entity
@@ -41,11 +82,14 @@ function* storeStateOfPath(path: string, hash: string) {
     // @ts-ignore
     state[selectorInfo.name] = yield select(selectorInfo.selector);
   }
-  yield put(setFocusHistory(path, { entity, state }));
+  yield put(setFocusHistory(hash ? `${path}${hash}` : path, { entity, state }));
 }
 
-function* setStateOfPath(path: string, hash: string) {
-  const focusHistory: FocusState = yield select(getCurrentFocusInfo, path);
+function* setStateOfPath(path: string, hash?: string) {
+  const focusHistory: FocusState = yield select(
+    getCurrentFocusInfo,
+    hash ? `${path}${hash}` : path,
+  );
 
   const entity: FocusEntity = focusHistory
     ? focusHistory.entity
