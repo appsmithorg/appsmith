@@ -35,6 +35,11 @@ import TourCompletionMessage from "pages/Editor/GuidedTour/TourCompletionMessage
 import { useHref } from "pages/Editor/utils";
 import { builderURL } from "RouteBuilder";
 import { inviteModalLinks } from "@appsmith/constants/forms";
+import {
+  createMessage,
+  INVITE_USERS_MESSAGE,
+  INVITE_USERS_PLACEHOLDER,
+} from "@appsmith/constants/messages";
 
 /**
  * ----------------------------------------------------------------------------
@@ -131,8 +136,8 @@ export function AppViewerHeader(props: AppViewerHeaderProps) {
                     }}
                     isOpen={showAppInviteUsersDialog}
                     links={inviteModalLinks}
-                    message="Invite users or groups"
-                    placeholder="Enter email address or group"
+                    message={createMessage(INVITE_USERS_MESSAGE)}
+                    placeholder={createMessage(INVITE_USERS_PLACEHOLDER)}
                     title={currentApplicationDetails.name}
                     trigger={
                       <Button

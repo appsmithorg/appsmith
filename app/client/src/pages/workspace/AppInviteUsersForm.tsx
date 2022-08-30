@@ -11,7 +11,7 @@ import {
 } from "../Applications/permissionHelpers";
 import WorkspaceInviteUsersForm, {
   InviteButtonWidth,
-} from "./WorkspaceInviteUsersForm";
+} from "@appsmith/pages/workspace/WorkspaceInviteUsersForm";
 import { getCurrentUser } from "selectors/usersSelectors";
 import { Text, TextType } from "design-system";
 import Toggle from "components/ads/Toggle";

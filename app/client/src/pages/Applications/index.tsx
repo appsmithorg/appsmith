@@ -35,7 +35,7 @@ import {
 import PageWrapper from "pages/common/PageWrapper";
 import SubHeader from "pages/common/SubHeader";
 import ApplicationCard from "./ApplicationCard";
-import WorkspaceInviteUsersForm from "pages/workspace/WorkspaceInviteUsersForm";
+import WorkspaceInviteUsersForm from "@appsmith/pages/workspace/WorkspaceInviteUsersForm";
 import { isPermitted, PERMISSION_TYPE } from "./permissionHelpers";
 import FormDialogComponent from "components/editorComponents/form/FormDialogComponent";
 import Dialog from "components/ads/DialogComponent";
@@ -73,7 +73,7 @@ import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
 import { loadingUserWorkspaces } from "./ApplicationLoaders";
-import { creatingApplicationMap } from "reducers/uiReducers/applicationsReducer";
+import { creatingApplicationMap } from "@appsmith/reducers/uiReducers/applicationsReducer";
 import EditableText, {
   EditInteractionKind,
   SavingState,
@@ -84,13 +84,15 @@ import { leaveWorkspace } from "actions/userActions";
 import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
 import NoSearchImage from "assets/images/NoSearchResult.svg";
 import { getNextEntityName, getRandomPaletteColor } from "utils/AppsmithUtils";
-import { createWorkspaceSubmitHandler } from "pages/workspace/helpers";
+import { createWorkspaceSubmitHandler } from "@appsmith/pages/workspace/helpers";
 import ImportApplicationModal from "./ImportApplicationModal";
 import {
   createMessage,
   NO_APPS_FOUND,
   WORKSPACES_HEADING,
   SEARCH_APPS,
+  INVITE_USERS_MESSAGE,
+  INVITE_USERS_PLACEHOLDER,
 } from "@appsmith/constants/messages";
 import { ReactComponent as NoAppsFoundIcon } from "assets/svg/no-apps-icon.svg";
 
@@ -707,8 +709,7 @@ function ApplicationsSection(props: any) {
                 >
                   <Form
                     links={inviteModalLinks}
-                    message="Invite users or groups"
-                    showCallout
+                    message={createMessage(INVITE_USERS_MESSAGE)}
                     workspaceId={workspace.id}
                   />
                 </Dialog>
@@ -734,9 +735,8 @@ function ApplicationsSection(props: any) {
                         Form={WorkspaceInviteUsersForm}
                         canOutsideClickClose
                         links={inviteModalLinks}
-                        message="Invite users or groups"
-                        placeholder="Enter email address or group"
-                        showCallout
+                        message={createMessage(INVITE_USERS_MESSAGE)}
+                        placeholder={createMessage(INVITE_USERS_PLACEHOLDER)}
                         title={`Invite Users to ${workspace.name}`}
                         trigger={
                           <Button

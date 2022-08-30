@@ -70,9 +70,7 @@ export function FormDialogComponent(props: FormDialogComponentProps) {
                 formName={`${INVITE_USERS_TO_WORKSPACE_FORM}_${tab.key}`}
                 onCancel={() => setIsOpen(false)}
                 options={tab.options}
-                placeholder={
-                  tab.key === "via-roles" ? "Enter email address or group" : ""
-                }
+                placeholder={tab.placeholder || ""}
                 showCallout={props.showCallout}
                 workspaceId={props.workspaceId}
               />

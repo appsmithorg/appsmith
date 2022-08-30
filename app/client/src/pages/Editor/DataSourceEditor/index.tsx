@@ -33,7 +33,7 @@ import {
   REST_API_AUTHORIZATION_APPSMITH_ERROR,
   REST_API_AUTHORIZATION_FAILED,
   REST_API_AUTHORIZATION_SUCCESSFUL,
-} from "ce/constants/messages";
+} from "@appsmith/constants/messages";
 import { Toaster } from "components/ads/Toast";
 import { Variant } from "components/ads/common";
 

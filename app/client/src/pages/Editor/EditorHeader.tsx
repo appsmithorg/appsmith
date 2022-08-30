@@ -61,6 +61,8 @@ import {
   CLOSE_ENTITY_EXPLORER_MESSAGE,
   createMessage,
   DEPLOY_BUTTON_TOOLTIP,
+  INVITE_USERS_MESSAGE,
+  INVITE_USERS_PLACEHOLDER,
   LOCK_ENTITY_EXPLORER_MESSAGE,
   LOGO_TOOLTIP,
   RENAME_APPLICATION_TOOLTIP,
@@ -461,8 +463,8 @@ export function EditorHeader(props: EditorHeaderProps) {
               }}
               isOpen={showAppInviteUsersDialog}
               links={inviteModalLinks}
-              message="Invite users or groups"
-              placeholder="Enter email address or group"
+              message={createMessage(INVITE_USERS_MESSAGE)}
+              placeholder={createMessage(INVITE_USERS_PLACEHOLDER)}
               title={
                 currentApplication
                   ? currentApplication.name

@@ -139,6 +139,8 @@ export const INVITE_USERS_ROLE_SELECT_PLACEHOLDER = () => `Select role`;
 export const INVITE_USERS_ROLE_SELECT_LABEL = () => `Role`;
 export const INVITE_USERS_EMAIL_LIST_LABEL = () => `User emails`;
 export const INVITE_USERS_ADD_EMAIL_LIST_FIELD = () => `Add more`;
+export const INVITE_USERS_MESSAGE = () => `Invite users`;
+export const INVITE_USERS_PLACEHOLDER = () => `Enter email address`;
 export const INVITE_USERS_SUBMIT_BUTTON_TEXT = () => `Invite users`;
 export const INVITE_USERS_SUBMIT_SUCCESS = () =>
   `The users have been invited successfully`;

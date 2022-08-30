@@ -25,6 +25,11 @@ import { APP_MODE } from "entities/App";
 import { builderURL, viewerURL } from "RouteBuilder";
 import { trimQueryString } from "utils/helpers";
 import { inviteModalLinks } from "@appsmith/constants/forms";
+import {
+  createMessage,
+  INVITE_USERS_MESSAGE,
+  INVITE_USERS_PLACEHOLDER,
+} from "@appsmith/constants/messages";
 
 type AppViewerHeaderProps = {
   isOpen?: boolean;
@@ -114,8 +119,8 @@ export function PageMenu(props: AppViewerHeaderProps) {
               }}
               isOpen={showAppInviteUsersDialog}
               links={inviteModalLinks}
-              message="Invite users or groups"
-              placeholder="Enter email address or group"
+              message={createMessage(INVITE_USERS_MESSAGE)}
+              placeholder={createMessage(INVITE_USERS_PLACEHOLDER)}
               title={application.name}
               trigger={
                 <Button
