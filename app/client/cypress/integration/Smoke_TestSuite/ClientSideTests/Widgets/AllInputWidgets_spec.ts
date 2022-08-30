@@ -2,6 +2,7 @@ import {
   WIDGET,
   PROPERTY_SELECTOR,
   getWidgetSelector,
+  getWidgetInputSelector,
 } from "../../../../locators/WidgetLocators";
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 

@@ -17,6 +17,9 @@ describe("Git discard changes:", function() {
     // Create new postgres datasource
     cy.NavigateToDatasourceEditor();
     cy.get(datasource.PostgreSQL).click();
+
+    cy.getPluginFormsAndCreateDatasource();
+
     cy.fillPostgresDatasourceForm();
 
     cy.testSaveDatasource();

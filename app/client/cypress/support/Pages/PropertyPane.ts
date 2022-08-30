@@ -42,8 +42,6 @@ export class PropertyPane {
   _colorPickerV2Popover = ".t--colorpicker-v2-popover";
   _colorPickerV2Color = ".t--colorpicker-v2-color";
   _colorRing = ".border-2";
-  _colorInput = (option: string) => "//h3[text()='" + option + " Color']//parent::div//input";
-  //_colorInputField = (option: string) => "//h3[text()='" + option + " Color']//parent::div";
 
   private isMac = Cypress.platform === "darwin";
   private selectAllJSObjectContentShortcut = `${
@@ -82,19 +80,13 @@ export class PropertyPane {
   }
 
   public ChangeColor(
-    colorIndex: number | string,
+    colorIndex: number,
     type: "Primary" | "Background" = "Primary",
   ) {
     const typeIndex = type == "Primary" ? 0 : 1;
     this.agHelper.GetNClick(this._colorRing, typeIndex);
-    if (typeof colorIndex == "number") {
-      this.agHelper.GetNClick(this._colorPickerV2Popover);
-      this.agHelper.GetNClick(this._colorPickerV2Color, colorIndex);
-    } else {
-      this.agHelper.GetElement(this._colorInput(type)).clear();
-      this.agHelper.TypeText(this._colorInput(type), colorIndex);
-      //this.agHelper.UpdateInput(this._colorInputField(type), colorIndex);//not working!
-    }
+    this.agHelper.GetNClick(this._colorPickerV2Popover);
+    this.agHelper.GetNClick(this._colorPickerV2Color, colorIndex);
   }
 
   public GetJSONFormConfigurationFileds() {

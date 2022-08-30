@@ -432,7 +432,6 @@ export class AggregateHelper {
       : cy.get(selector);
     return locator
       .eq(index)
-      .scrollIntoView()
       .click({ force: force })
       .wait(waitTimeInterval);
   }
@@ -685,18 +684,6 @@ export class AggregateHelper {
         input.focus();
         this.Sleep(200);
         input.setValue(value);
-        this.Sleep(200);
-      });
-  }
-
-  public UpdateInput(selector: string, value: string) {
-    this.GetElement(selector)
-      .find("input")
-      .then((ins: any) => {
-        //const input = ins[0].input;
-        ins.focus();
-        this.Sleep(200);
-        ins.val(value);
         this.Sleep(200);
       });
   }

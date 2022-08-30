@@ -215,8 +215,7 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
 
                                 return repository.save(createdWorkspace);
                             });
-                })
-                .flatMap(analyticsService::sendCreateEvent);
+                });
     }
 
     private Mono<Boolean> isCreateWorkspaceAllowed() {

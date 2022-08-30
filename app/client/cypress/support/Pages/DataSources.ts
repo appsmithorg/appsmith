@@ -14,7 +14,7 @@ export class DataSources {
   private locator = ObjectsRegistry.CommonLocators;
 
   private _dsCreateNewTab = "[data-cy=t--tab-CREATE_NEW]";
-  private _addNewDataSource = ".t--entity-add-btn.datasources";
+  private _addNewDataSource = ".datasources .t--entity-add-btn";
   private _createNewPlgin = (pluginName: string) =>
     ".t--plugin-name:contains('" + pluginName + "')";
   private _host = "input[name='datasourceConfiguration.endpoints[0].host']";
@@ -186,7 +186,11 @@ export class DataSources {
   }
 
   public NavigateToDSCreateNew() {
-    this.agHelper.GetNClick(this._addNewDataSource);
+    cy.get(this._addNewDataSource)
+      .last()
+      .scrollIntoView()
+      .should("be.visible")
+      .click({ force: true });
     // cy.get(this._dsCreateNewTab)
     //   .should("be.visible")
     //   .click({ force: true });
@@ -465,7 +469,6 @@ export class DataSources {
       this.agHelper.UpdateCodeInput($field, query);
     });
     this.agHelper.AssertAutoSave();
-    this.agHelper.Sleep(500); //waiting a bit before proceeding!
   }
 
   public RunQueryNVerifyResponseViews(

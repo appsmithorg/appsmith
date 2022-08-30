@@ -1,12 +1,10 @@
 const commonlocators = require("../../../../locators/commonlocators.json");
 const explorer = require("../../../../locators/explorerlocators.json");
 const themelocator = require("../../../../locators/ThemeLocators.json");
-import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 
 let themeBackgroudColor;
 let themeFont;
 let themeColour;
-let propPane = ObjectsRegistry.PropertyPane;
 
 describe("Theme validation usecase for multi-select widget", function() {
   it("Drag and drop multi-select widget and validate Default font and list of font validation + Bug 15007", function() {
@@ -25,7 +23,7 @@ describe("Theme validation usecase for multi-select widget", function() {
       "response.body.responseMeta.status",
       200,
     );
-    cy.wait(1000);
+    cy.wait(3000);
     cy.get(themelocator.canvas).click({ force: true });
     cy.wait(2000);
 
@@ -43,7 +41,7 @@ describe("Theme validation usecase for multi-select widget", function() {
       "response.body.responseMeta.status",
       200,
     );
-    cy.wait(1000);
+    cy.wait(3000);
     cy.contains("Border").click({ force: true });
 
     //Shadow validation
@@ -61,7 +59,7 @@ describe("Theme validation usecase for multi-select widget", function() {
       "response.body.responseMeta.status",
       200,
     );
-    cy.wait(1000);
+    cy.wait(5000);
     cy.contains("Shadow").click({ force: true });
 
     //Font
@@ -95,17 +93,27 @@ describe("Theme validation usecase for multi-select widget", function() {
             .text();
         });
     });
-    cy.contains("Font").click({ force: true });
+    //cy.contains("Font").click({ force: true });
 
     //Color
-    cy.wait(1000);
-    propPane.ChangeColor("purple", "Primary");
+    cy.wait(3000);
+    cy.get(themelocator.inputColor)
+      .clear()
+      .wait(200)
+      .click()
+      .type("purple");
     cy.get(themelocator.inputColor).should("have.value", "purple");
-    cy.wait(1000);
-
-    propPane.ChangeColor("brown", "Background");
+    cy.get(themelocator.color)
+      .eq(1)
+      .click({ force: true });
+    cy.wait(2000);
+    cy.get(themelocator.inputColor)
+      .clear()
+      .wait(200)
+      .click()
+      .type("brown");
     cy.get(themelocator.inputColor).should("have.value", "brown");
-    cy.wait(1000);
+    cy.wait(2000);
     cy.contains("Color").click({ force: true });
   });
 

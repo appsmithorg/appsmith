@@ -28,6 +28,7 @@ describe("Entity explorer tests related to copy query", function() {
     cy.wait(2000);
     cy.NavigateToDatasourceEditor();
     cy.get(datasource.PostgreSQL).click();
+    cy.getPluginFormsAndCreateDatasource();
     cy.fillPostgresDatasourceForm();
     cy.testSaveDatasource();
 

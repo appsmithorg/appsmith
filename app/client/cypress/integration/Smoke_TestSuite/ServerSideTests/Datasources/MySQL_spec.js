@@ -12,6 +12,7 @@ describe("MySQL datasource test cases", function() {
   it("1. Create, test, save then delete a MySQL datasource", function() {
     cy.NavigateToDatasourceEditor();
     cy.get(datasource.MySQL).click();
+    cy.getPluginFormsAndCreateDatasource();
     cy.fillMySQLDatasourceForm();
     cy.get("@createDatasource").then((httpResponse) => {
       datasourceName = httpResponse.response.body.data.name;
@@ -22,6 +23,7 @@ describe("MySQL datasource test cases", function() {
   it("2. Create with trailing white spaces in host address and database name, test, save then delete a MySQL datasource", function() {
     cy.NavigateToDatasourceEditor();
     cy.get(datasource.MySQL).click();
+    cy.getPluginFormsAndCreateDatasource();
     cy.fillMySQLDatasourceForm(true);
     cy.get("@createDatasource").then((httpResponse) => {
       datasourceName = httpResponse.response.body.data.name;
