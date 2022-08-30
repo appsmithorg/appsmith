@@ -2443,7 +2443,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                     }
                     return this.getApplicationCountWithPrivateRepo(workspaceId)
                             .map(privateRepoCount -> {
-                                if (limit >= privateRepoCount) {
+                                if (limit > privateRepoCount) {
                                     return Boolean.FALSE;
                                 }
                                 return Boolean.TRUE;
