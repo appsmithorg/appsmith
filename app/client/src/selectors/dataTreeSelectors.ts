@@ -15,7 +15,7 @@ import {
 import { getWidgets, getWidgetsMeta } from "sagas/selectors";
 import "url-search-params-polyfill";
 import { getPageList } from "./appViewSelectors";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import { getSelectedAppThemeProperties } from "./appThemingSelectors";
 import { LoadingEntitiesState } from "reducers/evaluationReducers/loadingEntitiesReducer";
 

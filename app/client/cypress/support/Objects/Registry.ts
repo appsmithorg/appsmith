@@ -9,6 +9,7 @@ import { Table } from "../Pages/Table";
 import { TableV2 } from "../Pages/TableV2";
 import { PropertyPane } from "../Pages/PropertyPane";
 import { DeployMode } from "../Pages/DeployModeHelper";
+import { FakerHelper } from "../Pages/FakerHelper";
 
 export class ObjectsRegistry {
   private static aggregateHelper__: AggregateHelper;
@@ -98,6 +99,14 @@ export class ObjectsRegistry {
     }
     return ObjectsRegistry.deployMode__;
   }
+
+  private static fakerHelper__: FakerHelper;
+  static get FakerHelper(): FakerHelper {
+    if (ObjectsRegistry.fakerHelper__ === undefined) {
+      ObjectsRegistry.fakerHelper__ = new FakerHelper();
+    }
+    return ObjectsRegistry.fakerHelper__;
+  }
 }
 
 export const initLocalstorageRegistry = () => {
@@ -108,10 +117,10 @@ export const initLocalstorageRegistry = () => {
   localStorage.setItem("inDeployedMode", "false");
 };
 
-declare global {
+declare namespace Cypress {
   namespace Cypress {
     interface Chainable {
-      typeTab: (shiftKey: Boolean, ctrlKey: boolean) => void;
+      TypeTab: (shiftKey: Boolean, ctrlKey: boolean) => void;
     }
   }
 }

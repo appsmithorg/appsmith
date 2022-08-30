@@ -40,6 +40,7 @@ export interface INJECTED_CONFIGS {
   appVersion: {
     id: string;
     releaseDate: string;
+    edition: string;
   };
   intercomAppID: string;
   mailEnabled: boolean;
@@ -116,6 +117,7 @@ export const getConfigsFromEnvVars = (): INJECTED_CONFIGS => {
     appVersion: {
       id: process.env.REACT_APP_VERSION_ID || "",
       releaseDate: process.env.REACT_APP_VERSION_RELEASE_DATE || "",
+      edition: process.env.REACT_APP_VERSION_EDITION || "",
     },
     intercomAppID: process.env.REACT_APP_INTERCOM_APP_ID || "",
     mailEnabled: process.env.REACT_APP_MAIL_ENABLED

@@ -8,7 +8,7 @@ import React, {
 import { connect, useDispatch, useSelector } from "react-redux";
 import { withRouter, RouteComponentProps } from "react-router";
 import styled from "styled-components";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import { JSEditorRouteParams } from "constants/routes";
 import {
   createMessage,

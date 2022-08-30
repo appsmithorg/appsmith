@@ -27,7 +27,7 @@ export class PropertyPane {
     "']/ancestor::div/following-sibling::div/div[contains(@class, 't--edit-column-btn')]";
   private _goBackToProperty = "button.t--property-pane-back-btn";
   private _copyWidget = "button.t--copy-widget";
-  private _deleteWidget = "button.t--delete-widget";
+  _deleteWidget = "button.t--delete-widget";
   private _changeThemeBtn = ".t--change-theme-btn";
   private _themeCard = (themeName: string) =>
     "//h3[text()='" +
@@ -42,6 +42,8 @@ export class PropertyPane {
   _colorPickerV2Popover = ".t--colorpicker-v2-popover";
   _colorPickerV2Color = ".t--colorpicker-v2-color";
   _colorRing = ".border-2";
+  _colorInput = (option: string) => "//h3[text()='" + option + " Color']//parent::div//input";
+  //_colorInputField = (option: string) => "//h3[text()='" + option + " Color']//parent::div";
 
   private isMac = Cypress.platform === "darwin";
   private selectAllJSObjectContentShortcut = `${
@@ -76,17 +78,23 @@ export class PropertyPane {
   public ChangeTheme(newTheme: string) {
     this.agHelper.GetNClick(this._changeThemeBtn, 0, true);
     this.agHelper.GetNClick(this._themeCard(newTheme));
-    this.agHelper.WaitUntilToastDisappear("Theme " + newTheme + " Applied");
+    this.agHelper.AssertContains("Theme " + newTheme + " Applied");
   }
 
   public ChangeColor(
-    colorIndex: number,
+    colorIndex: number | string,
     type: "Primary" | "Background" = "Primary",
   ) {
     const typeIndex = type == "Primary" ? 0 : 1;
     this.agHelper.GetNClick(this._colorRing, typeIndex);
-    this.agHelper.GetNClick(this._colorPickerV2Popover);
-    this.agHelper.GetNClick(this._colorPickerV2Color, colorIndex);
+    if (typeof colorIndex == "number") {
+      this.agHelper.GetNClick(this._colorPickerV2Popover);
+      this.agHelper.GetNClick(this._colorPickerV2Color, colorIndex);
+    } else {
+      this.agHelper.GetElement(this._colorInput(type)).clear();
+      this.agHelper.TypeText(this._colorInput(type), colorIndex);
+      //this.agHelper.UpdateInput(this._colorInputField(type), colorIndex);//not working!
+    }
   }
 
   public GetJSONFormConfigurationFileds() {
@@ -177,9 +185,12 @@ export class PropertyPane {
       .focus()
       .type(this.selectAllJSObjectContentShortcut)
       .type("{backspace}", { force: true });
+
+    //to select all & delete - method 2:
     // .type("{uparrow}", { force: true })
     // .type("{ctrl}{shift}{downarrow}", { force: true })
     // .type("{del}", { force: true });
+
     this.agHelper.AssertAutoSave();
   }
 
@@ -200,5 +211,31 @@ export class PropertyPane {
       });
 
     this.agHelper.AssertAutoSave(); //Allowing time for saving entered value
+  }
+
+  public EnterJSContext(
+    endp: string,
+    value: string,
+    toToggleOnJS = true,
+    paste = true,
+  ) {
+    cy.get(this.locator._jsToggle(endp.replace(/ +/g, "").toLowerCase()))
+      .invoke("attr", "class")
+      .then((classes: any) => {
+        if (toToggleOnJS && !classes.includes("is-active"))
+          cy.get(this.locator._jsToggle(endp.replace(/ +/g, "").toLowerCase()))
+            .first()
+            .click({ force: true });
+        else if (!toToggleOnJS && classes.includes("is-active"))
+          cy.get(this.locator._jsToggle(endp.replace(/ +/g, "").toLowerCase()))
+            .first()
+            .click({ force: true });
+        else this.agHelper.Sleep(500);
+      });
+
+    if (paste) this.UpdatePropertyFieldValue(endp, value);
+    else this.TypeTextIntoField(endp, value);
+
+    this.agHelper.AssertAutoSave(); //Allowing time for Evaluate value to capture value
   }
 }
