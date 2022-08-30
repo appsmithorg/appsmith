@@ -4,6 +4,7 @@ name: Appsmith Server Workflow
 on:
   # This line enables manual triggering of this workflow.
   workflow_dispatch:
+  workflow_call:
 
   push:
     branches: [release, master]
@@ -23,7 +24,7 @@ defaults:
 
 jobs:
   build:
-    runs-on: buildjet-8vcpu-ubuntu-2004
+    runs-on: buildjet-4vcpu-ubuntu-2004
     # Only run this workflow for internally triggered events
     if: |
       github.event.pull_request.head.repo.full_name == github.repository ||
@@ -95,14 +96,9 @@ jobs:
             -DprocessAllModules=true
           ./build.sh
 
-  package:
-    runs-on: ubuntu-latest
-
-    steps:
-      # Checkout the code
-      - uses: actions/checkout@v2
-
-      - name: Do nothing as this is a dummy step
-        shell: bash
-        run: |
-          exit 0
+      # Upload the build artifact so that it can be used by the test & deploy job in the workflow
+      - name: Upload server build bundle
+        uses: actions/upload-artifact@v2
+        with:
+          name: build
+          path: app/server/dist/

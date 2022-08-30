@@ -3,6 +3,7 @@ name: Appsmith Client Build Workflow
 on:
   # This line enables manual triggering of this workflow.
   workflow_dispatch:
+  workflow_call:
 
   push:
     branches: [release, master]
@@ -67,7 +68,7 @@ jobs:
         id: yarn-dep-cache
         uses: actions/cache@v2
         env:
-          cache-name: cache-yarn-dependencies
+          cache-name: client-cache-yarn-dependencies
         with:
           path: |
             ${{ steps.yarn-dep-cache-dir-path.outputs.dir }}

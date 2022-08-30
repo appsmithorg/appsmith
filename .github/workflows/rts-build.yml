@@ -1,0 +1,70 @@
+# This workflow is responsible for building, testing & packaging the RTS Node server.
+name: Build RTS Workflow
+
+on:
+  # This line enables manual triggering of this workflow.
+  workflow_dispatch:
+  workflow_call:
+
+  push:
+    branches: [release, master]
+    # Only trigger if files have changed in this specific path
+    paths:
+      - "app/rts/**"
+
+  pull_request:
+    branches: [release, master]
+    paths:
+      - "app/rts/**"
+
+# Change the working directory for all the jobs in this workflow
+defaults:
+  run:
+    working-directory: app/rts
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    # Only run this workflow for internally triggered events
+    if: |
+      github.event.pull_request.head.repo.full_name == github.repository ||
+      github.event_name == 'push' ||
+      github.event_name == 'workflow_dispatch'
+
+    steps:
+      # Checkout the code
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Use Node.js 16.14.0
+        uses: actions/setup-node@v1
+        with:
+          node-version: "16.14.0"
+
+      - name: Get yarn cache directory path
+        id: yarn-dep-cache-dir-path
+        run: echo "::set-output name=dir::$(yarn cache dir)"
+
+      # Retrieve npm dependencies from cache. After a successful run, these dependencies are cached again
+      - name: Cache npm dependencies
+        id: yarn-dep-cache
+        uses: actions/cache@v2
+        env:
+          cache-name: rts-cache-yarn-dependencies
+        with:
+          path: |
+            ${{ steps.yarn-dep-cache-dir-path.outputs.dir }}
+          key: ${{ runner.os }}-yarn-dep-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-dep-
+
+      - name: Build
+        run: ./build.sh
+
+      # Upload the build artifact so that it can be used by the test & deploy job in other workflows
+      - name: Upload server build bundle
+        uses: actions/upload-artifact@v2
+        with:
+          name: rts-build
+          path: app/rts/dist/
