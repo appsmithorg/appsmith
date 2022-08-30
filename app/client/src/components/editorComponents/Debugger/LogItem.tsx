@@ -104,6 +104,10 @@ const Wrapper = styled.div<{ collapsed: boolean }>`
       text-overflow: ellipsis;
       overflow: hidden;
       white-space: nowrap;
+      -webkit-user-select: text;  /* Chrome 49+ */
+      -moz-user-select: text;     /* Firefox 43+ */
+      -ms-user-select: text;      /* No support yet */
+      user-select: text;          /* Likely future */
     }
     .debugger-entity {
       color: ${(props) => props.theme.colors.debugger.entity};
@@ -282,7 +286,10 @@ function LogItem(props: LogItemProps) {
           props.category === LOG_CATEGORY.USER_GENERATED
         ) && (
           <div className="debugger-description">
-            <span className="debugger-label t--debugger-log-message">
+            <span
+              className="debugger-label t--debugger-log-message"
+              onClick={(e) => e.stopPropagation()}
+            >
               {props.text}
             </span>
 
@@ -357,9 +364,7 @@ function LogItem(props: LogItemProps) {
           )}
           {props.logData &&
             props.logData.length > 0 &&
-            props.logData.map((logDatum: any, index: number) => {
-              const joinChar =
-                props.logData && index === props.logData.length - 1 ? "" : ",";
+            props.logData.map((logDatum: any) => {
               if (typeof logDatum === "object") {
                 return (
                   <JsonWrapper
@@ -373,7 +378,7 @@ function LogItem(props: LogItemProps) {
               } else {
                 return (
                   <span className="debugger-label" key={Math.random()}>
-                    {`${logDatum}${joinChar} `}
+                    {`${logDatum} `}
                   </span>
                 );
               }
