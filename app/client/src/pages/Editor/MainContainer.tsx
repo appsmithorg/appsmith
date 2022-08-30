@@ -2,13 +2,7 @@ import styled from "styled-components";
 import * as Sentry from "@sentry/react";
 import { useDispatch, useSelector } from "react-redux";
 import React, { useState, useCallback, useEffect } from "react";
-import {
-  Route,
-  Switch,
-  useLocation,
-  useParams,
-  useRouteMatch,
-} from "react-router";
+import { Route, Switch, useLocation } from "react-router";
 
 import EditorsRouter from "./routes";
 import BottomBar from "./BottomBar";
