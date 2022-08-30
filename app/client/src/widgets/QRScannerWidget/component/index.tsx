@@ -149,18 +149,6 @@ const overlayerMixin = css`
   justify-content: center;
 `;
 
-export interface DisabledOverlayerProps {
-  disabled: boolean;
-}
-
-const DisabledOverlayer = styled.div<DisabledOverlayerProps>`
-  ${overlayerMixin};
-  display: ${({ disabled }) => (disabled ? `flex` : `none`)};
-  height: 100%;
-  z-index: 2;
-  background: ${Colors.GREY_3};
-`;
-
 const ToolTipWrapper = styled.div`
   height: 100%;
   && .bp3-popover2-target {
@@ -398,10 +386,6 @@ function QRScannerComponent(props: QRScannerComponentProps) {
 
     return (
       <>
-        <DisabledOverlayer disabled={props.isDisabled}>
-          <CameraOfflineIcon />
-        </DisabledOverlayer>
-
         <QRScannerGlobalStyles
           borderRadius={props.borderRadius}
           boxShadow={props.boxShadow}
