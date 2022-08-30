@@ -3,7 +3,7 @@ import { get } from "lodash";
 import { Classes as BPPopover2Classes } from "@blueprintjs/popover2";
 import { isString } from "lodash";
 import { Classes } from "components/ads/common";
-import Icon, { IconName, IconSize } from "components/ads/Icon";
+import { Icon, IconName, IconSize } from "design-system";
 import { Log, Message, Severity, SourceEntity } from "entities/AppsmithConsole";
 import React, { useState } from "react";
 import ReactJson from "react-json-view";

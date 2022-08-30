@@ -1,4 +1,4 @@
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import {
   FocusHistory,
   FocusState,
@@ -6,7 +6,7 @@ import {
 import { createSelector } from "reselect";
 
 export const getFocusInfo = (state: AppState): FocusHistory =>
-  state.ui.focusHistory.focusInfo;
+  state.ui.focusHistory.history;
 
 export const getCurrentFocusInfo = createSelector(
   getFocusInfo,

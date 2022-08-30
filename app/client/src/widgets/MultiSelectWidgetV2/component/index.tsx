@@ -8,10 +8,7 @@ import React, {
   useMemo,
 } from "react";
 import Select, { SelectProps } from "rc-select";
-import {
-  DefaultValueType,
-  LabelValueType,
-} from "rc-select/lib/interface/generator";
+import { DraftValueType, LabelInValueType } from "rc-select/lib/Select";
 import MenuItemCheckBox, {
   DropdownStyles,
   MultiSelectContainer,
@@ -19,13 +16,12 @@ import MenuItemCheckBox, {
   InputContainer,
 } from "./index.styled";
 import { RenderMode, TextSize } from "constants/WidgetConstants";
-import Icon from "components/ads/Icon";
 import { Alignment, Button, Classes, InputGroup } from "@blueprintjs/core";
 import { labelMargin, WidgetContainerDiff } from "widgets/WidgetUtils";
 import { Colors } from "constants/Colors";
 import { LabelPosition } from "components/constants";
 import { uniqBy } from "lodash";
-import LabelWithTooltip from "components/ads/LabelWithTooltip";
+import { Icon, LabelWithTooltip } from "design-system";
 import useDropdown from "widgets/useDropdown";
 
 const menuItemSelectedIcon = (props: { isSelected: boolean }) => {
@@ -40,8 +36,8 @@ export interface MultiSelectProps
     >
   > {
   mode?: "multiple" | "tags";
-  value: LabelValueType[];
-  onChange: (value: DefaultValueType) => void;
+  value: LabelInValueType[];
+  onChange: (value: DraftValueType) => void;
   serverSideFiltering: boolean;
   onFilterChange: (text: string) => void;
   dropDownWidth: number;
@@ -178,9 +174,9 @@ function MultiSelectComponent({
   const handleSelectAll = () => {
     if (!isSelectAll) {
       // Get all options
-      const allOption: LabelValueType[] = filteredOptions.map(
+      const allOption: LabelInValueType[] = filteredOptions.map(
         ({ label, value }) => ({
-          value,
+          value: value || "",
           label,
         }),
       );

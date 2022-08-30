@@ -1,5 +1,5 @@
 import { createSelector } from "reselect";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import { WorkspaceRole } from "constants/workspaceConstants";
 
 export const getRolesFromState = (state: AppState) => {
@@ -48,11 +48,11 @@ export const getRoles = createSelector(
 );
 
 export const getRolesForField = createSelector(getAllRoles, (roles?: any) => {
-  return Object.entries(roles).map((role) => {
+  return roles.map((role: any) => {
     return {
-      id: role[0],
-      name: role[0],
-      description: role[1],
+      id: role.id,
+      name: role.name,
+      description: role.description,
     };
   });
 });

@@ -13,7 +13,7 @@ import EditableText, {
   SavingState,
 } from "components/ads/EditableText";
 import { updateWidgetName } from "actions/propertyPaneActions";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import { getExistingWidgetNames } from "sagas/selectors";
 import { removeSpecialChars } from "utils/helpers";
 import { useToggleEditWidgetName } from "utils/hooks/dragResizeHooks";
@@ -144,12 +144,12 @@ const PropertyPaneTitle = memo(function PropertyPaneTitle(
                 // @ts-expect-error: Focus
                 ?.focus();
             } else {
-              document
-                .querySelector(
-                  '.t--property-pane-section-wrapper [tabindex]:not([tabindex="-1"])',
-                )
-                // @ts-expect-error: Focus
-                ?.focus();
+              // document
+              //   .querySelector(
+              //     '.t--property-pane-section-wrapper [tabindex]:not([tabindex="-1"])',
+              //   )
+              //   // @ts-expect-error: Focus
+              //   ?.focus();
             }
           },
           200, // Adding non zero time out as codemirror imports are loaded using idle callback. pr #13676

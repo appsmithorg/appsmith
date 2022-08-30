@@ -10,10 +10,10 @@ import {
   TabBehaviour,
 } from "components/editorComponents/CodeEditor/EditorConfig";
 import { QUERY_EDITOR_FORM_NAME } from "constants/forms";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import styled from "styled-components";
 import TemplateMenu from "pages/Editor/QueryEditor/TemplateMenu";
-import { QUERY_BODY_FIELD } from "constants/QueryEditorConstants";
+import { QUERY_BODY_FIELDS } from "constants/QueryEditorConstants";
 import { getPluginResponseTypes } from "selectors/entitiesSelector";
 import history from "utils/history";
 import { convertObjectToQueryParams, getQueryParams } from "utils/URLUtils";
@@ -68,7 +68,10 @@ class DynamicTextControl extends BaseControl<
       new URLSearchParams(window.location.search).get("showTemplate") ===
       "true";
     const showTemplate =
-      isNewQuery && this.state.showTemplateMenu && this.props.pluginId;
+      isNewQuery &&
+      this.state.showTemplateMenu &&
+      this.props.pluginId &&
+      QUERY_BODY_FIELDS.includes(this.props.configProperty);
     const mode =
       responseType === "TABLE"
         ? EditorModes.SQL_WITH_BINDING
@@ -87,6 +90,7 @@ class DynamicTextControl extends BaseControl<
                   this.props.createTemplate(
                     templateString,
                     this.props.formName,
+                    this.props?.configProperty,
                   ),
               );
             }}
@@ -113,7 +117,11 @@ class DynamicTextControl extends BaseControl<
 
 export interface DynamicTextFieldProps extends ControlProps {
   actionName: string;
-  createTemplate: (template: any, formName: string) => any;
+  createTemplate: (
+    template: any,
+    formName: string,
+    configProperty: string,
+  ) => any;
   pluginId: string;
   responseType: string;
   placeholderText?: string;
@@ -137,7 +145,7 @@ const mapStateToProps = (state: AppState, props: DynamicTextFieldProps) => {
 };
 
 const mapDispatchToProps = (dispatch: any) => ({
-  createTemplate: (template: any, formName: string) => {
+  createTemplate: (template: any, formName: string, configProperty: string) => {
     const params = getQueryParams();
     if (params.showTemplate) {
       params.showTemplate = "false";
@@ -147,7 +155,7 @@ const mapDispatchToProps = (dispatch: any) => ({
       search: convertObjectToQueryParams(params),
     });
     dispatch(
-      change(formName || QUERY_EDITOR_FORM_NAME, QUERY_BODY_FIELD, template),
+      change(formName || QUERY_EDITOR_FORM_NAME, configProperty, template),
     );
   },
 });

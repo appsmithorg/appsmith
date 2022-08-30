@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useState } from "react";
 import { connect, useDispatch, useSelector } from "react-redux";
 import {
   change,
@@ -27,18 +27,25 @@ import ApiResponseView, {
   EMPTY_RESPONSE,
 } from "components/editorComponents/ApiResponseView";
 import EmbeddedDatasourcePathField from "components/editorComponents/form/fields/EmbeddedDatasourcePathField";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import { getApiName } from "selectors/formSelectors";
 import ActionNameEditor from "components/editorComponents/ActionNameEditor";
 import ActionSettings from "pages/Editor/ActionSettings";
 import RequestDropdownField from "components/editorComponents/form/fields/RequestDropdownField";
 import { ExplorerURLParams } from "../Explorer/helpers";
 import MoreActionsMenu from "../Explorer/Actions/MoreActionsMenu";
-import Icon, { IconSize } from "components/ads/Icon";
-import Button, { Size } from "components/ads/Button";
 import { TabComponent } from "components/ads/Tabs";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
-import { Case, Text, TextType, TooltipComponent } from "design-system";
+import {
+  Button,
+  Icon,
+  IconSize,
+  Size,
+  Text,
+  Case,
+  TextType,
+  TooltipComponent,
+} from "design-system";
 import { Classes, Variant } from "components/ads/common";
 import Callout from "components/ads/Callout";
 import { useLocalStorage } from "utils/hooks/localstorage";
@@ -68,7 +75,8 @@ import ApiAuthentication from "./ApiAuthentication";
 import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
 import { Classes as BluePrintClasses } from "@blueprintjs/core";
 import { replayHighlightClass } from "globalStyles/portals";
-import { useFocusable } from "navigation/FocusableElement";
+import { getApiPaneSelectedTabIndex } from "selectors/apiPaneSelectors";
+import { setApiPaneSelectedTabIndex } from "actions/apiPaneActions";
 
 const Form = styled.form`
   position: relative;
@@ -529,15 +537,6 @@ function ImportedDatas(props: { data: any; attributeName: string }) {
   );
 }
 
-const editorTabs = [
-  API_EDITOR_TABS.HEADERS,
-  API_EDITOR_TABS.PARAMS,
-  API_EDITOR_TABS.BODY,
-  API_EDITOR_TABS.PAGINATION,
-  API_EDITOR_TABS.AUTHENTICATION,
-  API_EDITOR_TABS.SETTINGS,
-];
-
 function ApiEditorForm(props: Props) {
   const {
     actionConfigurationHeaders,
@@ -558,14 +557,11 @@ function ApiEditorForm(props: Props) {
     updateDatasource,
   } = props;
   const dispatch = useDispatch();
-  const [focusedState, setFocus] = useFocusable();
-  const [focusedEditorState, _] = useFocusable("codeEditor");
-  console.log("Testing", focusedState);
-  const defaultSelectedIndex =
-    editorTabs.indexOf(focusedState?.elementName as API_EDITOR_TABS) >= 0
-      ? editorTabs.indexOf(focusedState?.elementName as API_EDITOR_TABS)
-      : 0;
-  const [selectedIndex, setSelectedIndex] = useState(defaultSelectedIndex);
+  const selectedIndex = useSelector(getApiPaneSelectedTabIndex);
+  const setSelectedIndex = useCallback(
+    (index: number) => dispatch(setApiPaneSelectedTabIndex(index)),
+    [],
+  );
   const [
     apiBindHelpSectionVisible,
     setApiBindHelpSectionVisible,
@@ -592,26 +588,6 @@ function ApiEditorForm(props: Props) {
     dispatch(toggleShowGlobalSearchModal());
     AnalyticsUtil.logEvent("OPEN_OMNIBAR", { source: "LEARN_HOW_DATASOURCE" });
   };
-
-  const setSelectedTab = (selectedIndex: number) => {
-    setSelectedIndex(selectedIndex);
-    setFocus(editorTabs[selectedIndex]);
-  };
-
-  useEffect(() => {
-    if (focusedEditorState?.elementName) {
-      setTimeout(() => {
-        const codeEditorToFocus: HTMLElement | null = document.querySelector(
-          `[data-code-editor-id=${btoa(
-            focusedEditorState.elementName,
-          ).replaceAll("=", "")}] .CodeEditorTarget textarea`,
-        );
-
-        codeEditorToFocus?.scrollIntoView();
-        codeEditorToFocus?.focus();
-      });
-    }
-  }, []);
 
   return (
     <>
@@ -683,7 +659,7 @@ function ApiEditorForm(props: Props) {
           <SecondaryWrapper>
             <TabbedViewContainer>
               <TabComponent
-                onSelect={setSelectedTab}
+                onSelect={setSelectedIndex}
                 selectedIndex={selectedIndex}
                 tabs={[
                   {

@@ -4,7 +4,7 @@ import { Icon, Collapse } from "@blueprintjs/core";
 import { RouteComponentProps } from "react-router-dom";
 import styled from "styled-components";
 import ReactJson from "react-json-view";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import Button from "components/editorComponents/Button";
 import { ProviderViewerRouteParams } from "constants/routes";
 import {

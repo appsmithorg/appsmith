@@ -16,6 +16,7 @@ const initialState: ApiPaneReduxState = {
   isDirty: {},
   currentCategory: "",
   extraformData: {},
+  selectedTabIndex: 0,
 };
 
 export interface ApiPaneReduxState {
@@ -27,6 +28,7 @@ export interface ApiPaneReduxState {
   isDirty: Record<string, boolean>;
   currentCategory: string;
   extraformData: Record<string, any>;
+  selectedTabIndex: number;
 }
 
 const apiPaneReducer = createReducer(initialState, {
@@ -206,6 +208,16 @@ const apiPaneReducer = createReducer(initialState, {
         ...state.extraformData,
         [id]: values,
       },
+    };
+  },
+  [ReduxActionTypes.SET_API_PANE_SELECTED_TAB]: (
+    state: ApiPaneReduxState,
+    action: ReduxAction<{ selectedTabIndex: number }>,
+  ) => {
+    const { selectedTabIndex } = action.payload;
+    return {
+      ...state,
+      selectedTabIndex,
     };
   },
 });

@@ -658,6 +658,11 @@ export const ReduxActionTypes = {
   FETCH_TRIGGER_VALUES_INIT: "FETCH_TRIGGER_VALUES_INIT",
   FETCH_TRIGGER_VALUES_SUCCESS: "FETCH_TRIGGER_VALUES_SUCCESS",
   SET_FOCUS_HISTORY: "SET_FOCUS_HISTORY",
+  SET_FOCUSABLE_PROPERTY_FIELD: "SET_FOCUSABLE_PROPERTY_FIELD",
+  ROUTE_CHANGED: "ROUTE_CHANGED",
+  SET_API_PANE_SELECTED_TAB: "SET_API_PANE_SELECTED_TAB",
+  SET_CODE_EDITOR_CURSOR_POSITION: "SET_CODE_EDITOR_CURSOR_POSITION",
+  SET_EVAL_POPUP_STATE: "SET_EVAL_POPUP_STATE",
 };
 
 export type ReduxActionType = typeof ReduxActionTypes[keyof typeof ReduxActionTypes];
@@ -903,6 +908,7 @@ export interface UpdateCanvasPayload {
   currentPageName: string;
   currentApplicationId: string;
   pageActions: PageAction[][];
+  updatedWidgetIds?: string[];
 }
 
 export interface ShowPropertyPanePayload {

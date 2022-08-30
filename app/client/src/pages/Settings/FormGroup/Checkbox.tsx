@@ -8,8 +8,7 @@ import {
 import styled from "styled-components";
 import { FormGroup, SettingComponentProps } from "./Common";
 import { FormTextFieldProps } from "components/ads/formFields/TextField";
-import Checkbox from "components/ads/Checkbox";
-import { Button, Category } from "components/ads";
+import { Button, Category, Checkbox } from "design-system";
 import { useSelector } from "react-redux";
 import { SETTINGS_FORM_NAME } from "constants/forms";
 import useOnUpgrade from "utils/hooks/useOnUpgrade";
@@ -78,7 +77,7 @@ function FieldCheckboxWithCheckboxText(props: CheckboxProps) {
           <UpgradeButton
             category={Category.tertiary}
             onClick={onUpgrade}
-            text="Upgrade"
+            text="UPGRADE"
           />
         )}
       </CheckboxWrapper>

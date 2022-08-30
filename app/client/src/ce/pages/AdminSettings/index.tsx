@@ -41,7 +41,7 @@ function Settings() {
   }, [user?.email]);
 
   return (
-    <PageWrapper>
+    <PageWrapper isFixed>
       <FlexContainer>
         {isLoading ? (
           <LoaderContainer>
