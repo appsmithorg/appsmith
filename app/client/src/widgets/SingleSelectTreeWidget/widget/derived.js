@@ -20,30 +20,26 @@ export default {
   //
   getSelectedOptionLabel: (props, moment, _) => {
     const options = props.flattenedOptions ?? [];
-    let label = props.selectedLabel;
-    const labelIndex = _.findIndex(
-      options,
-      (option) =>
-        option.label === label && option.value === props.selectedOptionValue,
-    );
-    if (labelIndex === -1) {
-      if (
-        !_.isNil(props.selectedOptionValue) &&
-        props.selectedOptionValue !== ""
-      ) {
-        const selectedOption = _.find(
-          options,
-          (option) => option.value === props.selectedOptionValue,
-        );
-        if (selectedOption) {
-          label = selectedOption.label;
-        }
-      } else {
-        label = "";
-      }
-    }
+    const label =
+      _.find(options, (option) => option.value === props.selectedOptionValue)
+        ?.label ?? "";
 
     return label;
+  },
+  //
+  getFlattenedOptions: (props, moment, _) => {
+    const flat = (array) => {
+      let result = [];
+      array.forEach((a) => {
+        result.push({ value: a.value, label: a.label });
+        if (Array.isArray(a.children)) {
+          result = result.concat(flat(a.children));
+        }
+      });
+      return result;
+    };
+
+    return flat(props.options);
   },
   //
 };

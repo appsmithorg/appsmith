@@ -2,7 +2,7 @@ import React, { ReactNode } from "react";
 import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import { TextSize, WidgetType } from "constants/WidgetConstants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import { isArray, findIndex, xor } from "lodash";
+import { isArray, xor } from "lodash";
 import {
   ValidationResponse,
   ValidationTypes,
@@ -17,8 +17,6 @@ import MultiTreeSelectComponent from "../component";
 import { LabelPosition } from "components/constants";
 import { Alignment } from "@blueprintjs/core";
 import derivedProperties from "./parseDerivedProperties";
-import equal from "fast-deep-equal/es6";
-import { flat } from "widgets/WidgetUtils";
 
 function defaultOptionValueValidation(value: unknown): ValidationResponse {
   let values: string[] = [];
@@ -846,6 +844,7 @@ class MultiSelectTreeWidget extends BaseWidget<
     return {
       value: `{{this.selectedOptionValues}}`,
       isValid: `{{(()=>{${derivedProperties.getIsValid}})()}}`,
+      flattenedOptions: `{{(()=>{${derivedProperties.getFlattenedOptions}})()}}`,
       selectedOptionValues: `{{(()=>{${derivedProperties.getSelectedOptionValues}})()}}`,
       selectedOptionLabels: `{{(()=>{${derivedProperties.getSelectedOptionLabels}})()}}`,
     };
@@ -866,12 +865,6 @@ class MultiSelectTreeWidget extends BaseWidget<
     };
   }
 
-  // to avoid calling flat every time
-  componentDidMount() {
-    const flattenedOptions = flat(this.props.options ?? []);
-    this.props.updateWidgetMetaProperty("flattenedOptions", flattenedOptions);
-  }
-
   componentDidUpdate(prevProps: MultiSelectTreeWidgetProps): void {
     if (
       xor(this.props.defaultOptionValue, prevProps.defaultOptionValue).length >
@@ -879,11 +872,6 @@ class MultiSelectTreeWidget extends BaseWidget<
       this.props.isDirty
     ) {
       this.props.updateWidgetMetaProperty("isDirty", false);
-    }
-
-    if (!equal(prevProps.options, this.props.options)) {
-      const flattenedOptions = flat(this.props.options ?? []);
-      this.props.updateWidgetMetaProperty("flattenedOptions", flattenedOptions);
     }
   }
 

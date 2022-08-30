@@ -16,8 +16,6 @@ import SingleSelectTreeComponent from "../component";
 import { LabelPosition } from "components/constants";
 import { Alignment } from "@blueprintjs/core";
 import derivedProperties from "./parseDerivedProperties";
-import equal from "fast-deep-equal/es6";
-import { flat } from "widgets/WidgetUtils";
 
 function defaultOptionValueValidation(value: unknown): ValidationResponse {
   if (typeof value === "string") return { isValid: true, parsed: value.trim() };
@@ -786,6 +784,7 @@ class SingleSelectTreeWidget extends BaseWidget<
   static getDerivedPropertiesMap() {
     return {
       value: `{{this.selectedOptionValue}}`,
+      flattenedOptions: `{{(()=>{${derivedProperties.getFlattenedOptions}})()}}`,
       isValid: `{{(()=>{${derivedProperties.getIsValid}})()}}`,
       selectedOptionValue: `{{(()=>{${derivedProperties.getSelectedOptionValue}})()}}`,
       selectedOptionLabel: `{{(()=>{${derivedProperties.getSelectedOptionLabel}})()}}`,
@@ -807,23 +806,12 @@ class SingleSelectTreeWidget extends BaseWidget<
     };
   }
 
-  // to avoid calling flat every time
-  componentDidMount() {
-    const flattenedOptions = flat(this.props.options ?? []);
-    this.props.updateWidgetMetaProperty("flattenedOptions", flattenedOptions);
-  }
-
   componentDidUpdate(prevProps: SingleSelectTreeWidgetProps): void {
     if (
       this.props.defaultOptionValue !== prevProps.defaultOptionValue &&
       this.props.isDirty
     ) {
       this.props.updateWidgetMetaProperty("isDirty", false);
-    }
-
-    if (!equal(prevProps.options, this.props.options)) {
-      const flattenedOptions = flat(this.props.options ?? []);
-      this.props.updateWidgetMetaProperty("flattenedOptions", flattenedOptions);
     }
   }
 
