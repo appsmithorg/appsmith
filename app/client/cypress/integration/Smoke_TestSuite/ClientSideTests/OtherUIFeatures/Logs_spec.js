@@ -1,4 +1,3 @@
-const dsl = require("../../../../fixtures/buttondsl.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
 const debuggerLocators = require("../../../../locators/Debugger.json");
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
@@ -77,7 +76,6 @@ describe("Debugger logs", function() {
           console.log('${logString}');
         } () }}`,
     );
-    // Clicking outside to trigger the save
     agHelper.ClickButton("Submit");
     agHelper.GetNAssertContains(locator._debuggerLogMessage, logString);
   });
@@ -92,8 +90,6 @@ describe("Debugger logs", function() {
           console.log('${logString}');
         }) () }}`,
     );
-    // Clicking outside to trigger the save
-    cy.get("body").click(0, 0);
     agHelper.ClickButton("Submit");
     agHelper.GetNAssertContains(locator._debuggerLogMessage, logString);
   });
@@ -110,8 +106,6 @@ describe("Debugger logs", function() {
           (async () => {console.log('${logStringChild}')})();
         } () }}`,
     );
-    // Clicking outside to trigger the save
-    cy.get("body").click(0, 0);
     agHelper.ClickButton("Submit");
     agHelper.GetNAssertContains(locator._debuggerLogMessage, logString);
     agHelper.GetNAssertContains(locator._debuggerLogMessage, logStringChild);
