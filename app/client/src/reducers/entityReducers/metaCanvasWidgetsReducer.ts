@@ -23,7 +23,7 @@ export type ModifyMetaWidgetPayload = {
 const initialState: MetaCanvasWidgetsReduxState = {};
 
 const metaCanvasWidgetsReducer = createImmerReducer(initialState, {
-  [ReduxActionTypes.MODIFY_META_WIDGET]: (
+  [ReduxActionTypes.MODIFY_META_WIDGETS]: (
     state: MetaCanvasWidgetsReduxState,
     action: ReduxAction<ModifyMetaWidgetPayload>,
   ) => {

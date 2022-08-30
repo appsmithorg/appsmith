@@ -21,7 +21,6 @@ import {
   triggerEvalOnMetaUpdate,
 } from "actions/metaActions";
 import { modifyMetaWidgets } from "actions/metaWidgetActions";
-import { FlattenedWidgetProps } from "widgets/constants";
 import { ModifyMetaWidgetPayload } from "reducers/entityReducers/metaCanvasWidgetsReducer";
 
 export type EditorContextType = {
@@ -51,12 +50,7 @@ export type EditorContextType = {
     propertyName: string,
     propertyValue: any,
   ) => void;
-  addMetaWidget?: (metaWidgets: Record<string, FlattenedWidgetProps>) => void;
   modifyMetaWidgets?: (modifications: ModifyMetaWidgetPayload) => void;
-  updateMetaWidget?: (
-    metaWidgets: Record<string, FlattenedWidgetProps>,
-  ) => void;
-  deleteMetaWidget?: (widgetId: string | string[]) => void;
 };
 export const EditorContext: Context<EditorContextType> = createContext({});
 
