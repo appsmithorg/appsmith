@@ -4,13 +4,7 @@ import { AppState } from "@appsmith/reducers";
 import { ReduxAction } from "ce/constants/ReduxActionConstants";
 import { getFocusableField } from "selectors/editorContextSelectors";
 import { setFocusableField } from "actions/editorContextActions";
-
-export enum FocusEntity {
-  API = "API",
-  CANVAS = "CANVAS",
-  QUERY = "QUERY",
-  PROPERTY_PANE = "PROPERTY_PANE",
-}
+import { FocusEntity } from "navigation/FocusEntity";
 
 export enum FocusElement {
   ApiPaneTabs = "ApiPaneTabs",
@@ -25,6 +19,7 @@ type Config = {
 };
 
 export const FocusElementsConfig: Record<FocusEntity, Config[]> = {
+  [FocusEntity.NONE]: [],
   [FocusEntity.CANVAS]: [],
   [FocusEntity.QUERY]: [],
   [FocusEntity.PROPERTY_PANE]: [],

@@ -1,10 +1,10 @@
 import { FocusState } from "reducers/uiReducers/focusHistoryReducer";
 import { ReduxActionTypes } from "ce/constants/ReduxActionConstants";
 
-export const routeChanged = (pathname: string) => {
+export const routeChanged = (pathname: string, hash?: string) => {
   return {
     type: ReduxActionTypes.ROUTE_CHANGED,
-    payload: { pathname },
+    payload: { pathname, hash },
   };
 };
 

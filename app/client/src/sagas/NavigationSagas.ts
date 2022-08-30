@@ -4,38 +4,36 @@ import {
   ReduxActionTypes,
 } from "ce/constants/ReduxActionConstants";
 import { setFocusHistory } from "actions/focusHistoryActions";
-import { matchPath } from "react-router";
-import { API_EDITOR_ID_PATH, BUILDER_PATH } from "constants/routes";
 import { getCurrentFocusInfo } from "selectors/focusHistorySelectors";
 import { FocusState } from "reducers/uiReducers/focusHistoryReducer";
-import { FocusEntity, FocusElementsConfig } from "navigation/FocusElements";
+import { FocusElementsConfig } from "navigation/FocusElements";
+import { identifyEntityFromPath, FocusEntity } from "navigation/FocusEntity";
 
 let previousPath: string;
+let previousHash: string;
 
-function* handleRouteChange(action: ReduxAction<{ pathname: string }>) {
+function* handleRouteChange(
+  action: ReduxAction<{ pathname: string; hash: string }>,
+) {
   if (previousPath) {
     // store current state
-    yield call(storeStateOfPath, previousPath);
+    yield call(storeStateOfPath, previousPath, previousHash);
   }
-  yield call(setStateOfPath, action.payload.pathname);
+  yield call(setStateOfPath, action.payload.pathname, previousHash);
   // restore old state for new path
   previousPath = action.payload.pathname;
+  previousHash = action.payload.hash;
 }
 
-function figureOutWithEntity(path: string): FocusEntity {
-  const match = matchPath<{ apiId: string }>(path, {
-    path: BUILDER_PATH + API_EDITOR_ID_PATH,
-  });
-  if (match?.params.apiId) {
-    return FocusEntity.API;
-  }
-  // TODO for other focus entities
+function* storeStateOfPath(path: string, hash: string) {
+  const focusHistory: FocusState | undefined = yield select(
+    getCurrentFocusInfo,
+    path,
+  );
+  const entity: FocusEntity = focusHistory
+    ? focusHistory.entity
+    : identifyEntityFromPath(path, hash);
 
-  return FocusEntity.CANVAS;
-}
-
-function* storeStateOfPath(path: string) {
-  const entity = figureOutWithEntity(path); // TODO entity found reuse in existing keys
   const selectors = FocusElementsConfig[entity];
   const state: Record<string, any> = {};
   for (const selectorInfo of selectors) {
@@ -46,17 +44,20 @@ function* storeStateOfPath(path: string) {
   yield put(setFocusHistory(path, { entity, state }));
 }
 
-function* setStateOfPath(path: string) {
+function* setStateOfPath(path: string, hash: string) {
   const focusHistory: FocusState = yield select(getCurrentFocusInfo, path);
 
+  const entity: FocusEntity = focusHistory
+    ? focusHistory.entity
+    : identifyEntityFromPath(path, hash);
+
+  const selectors = FocusElementsConfig[entity];
+
   if (focusHistory) {
-    const selectors = FocusElementsConfig[focusHistory.entity];
     for (const selectorInfo of selectors) {
       yield put(selectorInfo.setter(focusHistory.state[selectorInfo.name]));
     }
   } else {
-    const entity = figureOutWithEntity(path);
-    const selectors = FocusElementsConfig[entity];
     for (const selectorInfo of selectors) {
       if ("defaultValue" in selectorInfo)
         yield put(selectorInfo.setter(selectorInfo.defaultValue));
