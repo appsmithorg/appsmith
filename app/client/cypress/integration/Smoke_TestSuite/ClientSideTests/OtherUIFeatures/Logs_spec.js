@@ -1,4 +1,3 @@
-const dsl = require("../../../../fixtures/buttondsl.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
 const debuggerLocators = require("../../../../locators/Debugger.json");
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
@@ -77,7 +76,6 @@ describe("Debugger logs", function() {
           console.log('${logString}');
         } () }}`,
     );
-    // Clicking outside to trigger the save
     agHelper.ClickButton("Submit");
     agHelper.GetNAssertContains(locator._debuggerLogMessage, logString);
   });
