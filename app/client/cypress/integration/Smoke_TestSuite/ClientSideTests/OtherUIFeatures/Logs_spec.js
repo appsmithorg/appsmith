@@ -50,7 +50,7 @@ describe("Debugger logs", function() {
     agHelper.Sleep(2000);
     agHelper.ClickButton("Submit");
     agHelper.GetNClick(locator._debuggerIcon);
-    agHelper.GetNAssertContains(locator._debuggerLogMessage, "Test");
+    agHelper.GetNAssertContains(locator._debuggerLogMessage, logString);
   });
 
   it("4. Console log on button click with arrow function IIFE", function() {
@@ -68,9 +68,9 @@ describe("Debugger logs", function() {
   });
 
   it("5. Console log on button click with function keyword IIFE", function() {
-    // Testing with normal log in iifee
     cy.get(debuggerLocators.debuggerClearLogs).click();
-    cy.openPropertyPane("buttonwidget");
+    ee.SelectEntityByName("Button1");
+    // Testing with normal log in iifee
     propPane.EnterJSContext(
       "onClick",
       `{{ function () {
@@ -78,20 +78,14 @@ describe("Debugger logs", function() {
         } () }}`,
     );
     // Clicking outside to trigger the save
-    cy.get("body").click(0, 0);
-    cy.get("button")
-      .contains("Submit")
-      .click({ force: true });
-    cy.get(debuggerLocators.debuggerLogMessage)
-      .first()
-      .click();
-    cy.get(debuggerLocators.debuggerLogMessage).contains(logString);
+    agHelper.ClickButton("Submit");
+    agHelper.GetNAssertContains(locator._debuggerLogMessage, logString);
   });
 
   it("6. Console log on button click with async function IIFE", function() {
     // Testing with normal log in iifee
     cy.get(debuggerLocators.debuggerClearLogs).click();
-    cy.openPropertyPane("buttonwidget");
+    ee.SelectEntityByName("Button1");
     propPane.EnterJSContext(
       "onClick",
       `{{(async() => {
@@ -100,19 +94,14 @@ describe("Debugger logs", function() {
     );
     // Clicking outside to trigger the save
     cy.get("body").click(0, 0);
-    cy.get("button")
-      .contains("Submit")
-      .click({ force: true });
-    cy.get(debuggerLocators.debuggerLogMessage)
-      .first()
-      .click();
-    cy.get(debuggerLocators.debuggerLogMessage).contains(logString);
+    agHelper.ClickButton("Submit");
+    agHelper.GetNAssertContains(locator._debuggerLogMessage, logString);
   });
 
   it("7. Console log on button click with mixed function IIFE", function() {
     // Testing with normal log in iifee
     cy.get(debuggerLocators.debuggerClearLogs).click();
-    cy.openPropertyPane("buttonwidget");
+    ee.SelectEntityByName("Button1");
     const logStringChild = generateTestLogString();
     propPane.EnterJSContext(
       "onClick",
@@ -123,14 +112,9 @@ describe("Debugger logs", function() {
     );
     // Clicking outside to trigger the save
     cy.get("body").click(0, 0);
-    cy.get("button")
-      .contains("Submit")
-      .click({ force: true });
-    cy.get(debuggerLocators.debuggerLogMessage)
-      .first()
-      .click();
-    cy.get(debuggerLocators.debuggerLogMessage).contains(logString);
-    cy.get(debuggerLocators.debuggerLogMessage).contains(logStringChild);
+    agHelper.ClickButton("Submit");
+    agHelper.GetNAssertContains(locator._debuggerLogMessage, logString);
+    agHelper.GetNAssertContains(locator._debuggerLogMessage, logStringChild);
   });
 
   it("8. Console log in sync function", function() {
@@ -154,7 +138,7 @@ describe("Debugger logs", function() {
       },
     );
     cy.get("[data-cy=t--tab-LOGS_TAB]").click();
-    cy.get(debuggerLocators.debuggerLogMessage).contains(logString);
+    agHelper.GetNAssertContains(locator._debuggerLogMessage, logString);
   });
 
   it("9. Console log in async function", function() {
@@ -173,12 +157,12 @@ describe("Debugger logs", function() {
         paste: true,
         completeReplace: true,
         toRun: true,
-        shouldCreateNewJSObj: true,
+        shouldCreateNewJSObj: false,
         prettify: false,
       },
     );
     cy.get("[data-cy=t--tab-LOGS_TAB]").click();
-    cy.get(debuggerLocators.debuggerLogMessage).contains(logString);
+    agHelper.GetNAssertContains(locator._debuggerLogMessage, logString);
   });
 
   it("Api headers need to be shown as headers in logs", function() {
