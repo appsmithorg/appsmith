@@ -26,7 +26,7 @@ const UnsavedChangesMarker = styled.div<{ accentColor: string }>`
 const CheckboxCellWrapper = styled(CellWrapper)<{
   horizontalAlignment?: CellAlignment;
 }>`
-  & > div {
+  & div {
     justify-content: ${(props) =>
       props.horizontalAlignment &&
       JUSTIFY_CONTENT[props.horizontalAlignment]} !important;
