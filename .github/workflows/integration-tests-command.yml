@@ -934,7 +934,7 @@ jobs:
     needs: [build, server-build]
     # Only run if the build step is successful
     if: success()
-    runs-on: buildjet-4vcpu-ubuntu-2004
+    runs-on: ubuntu-latest
 
     defaults:
       run:
