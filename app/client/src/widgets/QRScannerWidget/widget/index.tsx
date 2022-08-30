@@ -5,6 +5,9 @@ import QRScannerComponent from "../component";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { DerivedPropertiesMap } from "utils/WidgetFactory";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
+import { Alignment } from "@blueprintjs/core";
+import { IconName } from "@blueprintjs/icons";
+import { ButtonPlacementTypes, ButtonPlacement } from "components/constants";
 class QRScannerWidget extends BaseWidget<QRScannerWidgetProps, WidgetState> {
   static getPropertyPaneConfig() {
     return [
@@ -80,7 +83,6 @@ class QRScannerWidget extends BaseWidget<QRScannerWidgetProps, WidgetState> {
           },
         ],
       },
-
       {
         sectionName: "Styles",
         children: [
@@ -116,6 +118,91 @@ class QRScannerWidget extends BaseWidget<QRScannerWidgetProps, WidgetState> {
             isBindProperty: true,
             isTriggerProperty: false,
             validation: { type: ValidationTypes.TEXT },
+          },
+          {
+            propertyName: "iconName",
+            label: "Icon",
+            helpText: "Sets the icon to be used for the button",
+            controlType: "ICON_SELECT",
+            isBindProperty: false,
+            isTriggerProperty: false,
+            updateHook: (
+              props: QRScannerWidgetProps,
+              propertyPath: string,
+              propertyValue: string,
+            ) => {
+              const propertiesToUpdate = [{ propertyPath, propertyValue }];
+              if (!props.iconAlign) {
+                propertiesToUpdate.push({
+                  propertyPath: "iconAlign",
+                  propertyValue: Alignment.LEFT,
+                });
+              }
+              return propertiesToUpdate;
+            },
+            dependencies: ["iconAlign"],
+            validation: {
+              type: ValidationTypes.TEXT,
+            },
+          },
+          {
+            propertyName: "placement",
+            label: "Placement",
+            controlType: "DROP_DOWN",
+            helpText: "Sets the space between items",
+            options: [
+              {
+                label: "Start",
+                value: ButtonPlacementTypes.START,
+              },
+              {
+                label: "Between",
+                value: ButtonPlacementTypes.BETWEEN,
+              },
+              {
+                label: "Center",
+                value: ButtonPlacementTypes.CENTER,
+              },
+            ],
+            defaultValue: ButtonPlacementTypes.CENTER,
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: {
+              type: ValidationTypes.TEXT,
+              params: {
+                allowedValues: [
+                  ButtonPlacementTypes.START,
+                  ButtonPlacementTypes.BETWEEN,
+                  ButtonPlacementTypes.CENTER,
+                ],
+                default: ButtonPlacementTypes.CENTER,
+              },
+            },
+          },
+          {
+            propertyName: "iconAlign",
+            label: "Icon Alignment",
+            helpText: "Sets the icon alignment of the button",
+            controlType: "ICON_TABS",
+            options: [
+              {
+                icon: "VERTICAL_LEFT",
+                value: "left",
+              },
+              {
+                icon: "VERTICAL_RIGHT",
+                value: "right",
+              },
+            ],
+            isBindProperty: false,
+            isTriggerProperty: false,
+            validation: {
+              type: ValidationTypes.TEXT,
+              params: {
+                allowedValues: ["center", "left", "right"],
+              },
+            },
           },
         ],
       },
@@ -207,6 +294,96 @@ class QRScannerWidget extends BaseWidget<QRScannerWidgetProps, WidgetState> {
   static getPropertyPaneStyleConfig() {
     return [
       {
+        sectionName: "Icon",
+        children: [
+          {
+            propertyName: "iconName",
+            label: "Select Icon",
+            helpText: "Sets the icon to be used for the button",
+            controlType: "ICON_SELECT",
+            isBindProperty: false,
+            isTriggerProperty: false,
+            updateHook: (
+              props: QRScannerWidgetProps,
+              propertyPath: string,
+              propertyValue: string,
+            ) => {
+              const propertiesToUpdate = [{ propertyPath, propertyValue }];
+              if (!props.iconAlign) {
+                propertiesToUpdate.push({
+                  propertyPath: "iconAlign",
+                  propertyValue: Alignment.LEFT,
+                });
+              }
+              return propertiesToUpdate;
+            },
+            dependencies: ["iconAlign"],
+            validation: {
+              type: ValidationTypes.TEXT,
+            },
+          },
+          {
+            propertyName: "iconAlign",
+            label: "Position",
+            helpText: "Sets the icon alignment of the button",
+            controlType: "ICON_TABS",
+            options: [
+              {
+                icon: "VERTICAL_LEFT",
+                value: "left",
+              },
+              {
+                icon: "VERTICAL_RIGHT",
+                value: "right",
+              },
+            ],
+            isBindProperty: false,
+            isTriggerProperty: false,
+            validation: {
+              type: ValidationTypes.TEXT,
+              params: {
+                allowedValues: ["center", "left", "right"],
+              },
+            },
+          },
+          {
+            propertyName: "placement",
+            label: "Placement",
+            controlType: "DROP_DOWN",
+            helpText: "Sets the space between items",
+            options: [
+              {
+                label: "Start",
+                value: ButtonPlacementTypes.START,
+              },
+              {
+                label: "Between",
+                value: ButtonPlacementTypes.BETWEEN,
+              },
+              {
+                label: "Center",
+                value: ButtonPlacementTypes.CENTER,
+              },
+            ],
+            defaultValue: ButtonPlacementTypes.CENTER,
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: {
+              type: ValidationTypes.TEXT,
+              params: {
+                allowedValues: [
+                  ButtonPlacementTypes.START,
+                  ButtonPlacementTypes.BETWEEN,
+                  ButtonPlacementTypes.CENTER,
+                ],
+                default: ButtonPlacementTypes.CENTER,
+              },
+            },
+          },
+        ],
+      },
+      {
         sectionName: "Color",
         children: [
           {
@@ -280,10 +457,13 @@ class QRScannerWidget extends BaseWidget<QRScannerWidgetProps, WidgetState> {
         borderRadius={this.props.borderRadius}
         boxShadow={this.props.boxShadow}
         buttonColor={this.props.buttonColor}
+        iconAlign={this.props.iconAlign}
+        iconName={this.props.iconName}
         isDisabled={this.props.isDisabled}
         key={this.props.widgetId}
         label={this.props.label}
         onCodeDetected={this.onCodeDetected}
+        placement={this.props.placement}
         tooltip={this.props.tooltip}
         widgetId={this.props.widgetId}
       />
@@ -303,6 +483,9 @@ interface QRScannerWidgetProps extends WidgetProps {
   backgroundColor: string;
   borderRadius: string;
   boxShadow?: string;
+  iconName?: IconName;
+  iconAlign?: Alignment;
+  placement?: ButtonPlacement;
 }
 
 export type QRScannerWidgetV2Props = QRScannerWidgetProps;

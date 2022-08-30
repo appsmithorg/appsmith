@@ -16,6 +16,9 @@ import { useSelector } from "store";
 import log from "loglevel";
 import { Popover2 } from "@blueprintjs/popover2";
 import Interweave from "interweave";
+import { Alignment } from "@blueprintjs/core";
+import { IconName } from "@blueprintjs/icons";
+import { ButtonPlacement } from "components/constants";
 
 const QRScannerGlobalStyles = createGlobalStyle<{
   borderRadius?: string;
@@ -428,7 +431,10 @@ function QRScannerComponent(props: QRScannerComponentProps) {
       boxShadow={props.boxShadow}
       buttonColor={props.buttonColor}
       disabled={props.isDisabled}
+      iconAlign={props.iconAlign}
+      iconName={props.iconName}
       onClick={openModal}
+      placement={props.placement}
       text={props.label}
     />
   );
@@ -464,6 +470,9 @@ export interface QRScannerComponentProps extends ComponentProps {
   buttonColor: string;
   borderRadius: string;
   boxShadow?: string;
+  iconName?: IconName;
+  iconAlign?: Alignment;
+  placement?: ButtonPlacement;
   onCodeDetected: (value: string) => void;
 }
 
