@@ -48,7 +48,6 @@ const getOptions = (type?: string, subType?: string) => {
   const defaultOptions = [
     CONTEXT_MENU_ACTIONS.DOCS,
     CONTEXT_MENU_ACTIONS.SNIPPET,
-    CONTEXT_MENU_ACTIONS.GOOGLE,
     CONTEXT_MENU_ACTIONS.INTERCOM,
   ];
 
@@ -56,9 +55,9 @@ const getOptions = (type?: string, subType?: string) => {
     switch (subType) {
       // These types are sent by the server
       case PLUGIN_EXECUTION_ERRORS.DATASOURCE_CONFIGURATION_ERROR:
-        return [CONTEXT_MENU_ACTIONS.GOOGLE, CONTEXT_MENU_ACTIONS.INTERCOM];
+        return [CONTEXT_MENU_ACTIONS.INTERCOM];
       case PLUGIN_EXECUTION_ERRORS.PLUGIN_ERROR:
-        return [CONTEXT_MENU_ACTIONS.GOOGLE, CONTEXT_MENU_ACTIONS.INTERCOM];
+        return [CONTEXT_MENU_ACTIONS.INTERCOM];
       case PLUGIN_EXECUTION_ERRORS.CONNECTIVITY_ERROR:
         return [CONTEXT_MENU_ACTIONS.DOCS];
       case PLUGIN_EXECUTION_ERRORS.ACTION_CONFIGURATION_ERROR:
@@ -75,9 +74,9 @@ const getOptions = (type?: string, subType?: string) => {
           CONTEXT_MENU_ACTIONS.INTERCOM,
         ];
       case PropertyEvaluationErrorType.PARSE:
-        return [CONTEXT_MENU_ACTIONS.SNIPPET, CONTEXT_MENU_ACTIONS.GOOGLE];
+        return [CONTEXT_MENU_ACTIONS.SNIPPET];
       case PropertyEvaluationErrorType.LINT:
-        return [CONTEXT_MENU_ACTIONS.SNIPPET, CONTEXT_MENU_ACTIONS.GOOGLE];
+        return [CONTEXT_MENU_ACTIONS.SNIPPET];
       default:
         return defaultOptions;
     }
@@ -127,16 +126,6 @@ const searchAction: Record<
     ) => void;
   }
 > = {
-  [CONTEXT_MENU_ACTIONS.GOOGLE]: {
-    icon: "share-2",
-    text: createMessage(DEBUGGER_SEARCH_GOOGLE),
-    onSelect: (error: Message) => {
-      AnalyticsUtil.logEvent("DEBUGGER_CONTEXT_MENU_CLICK", {
-        menuItem: CONTEXT_MENU_ACTIONS.GOOGLE,
-      });
-      window.open("http://google.com/search?q=" + error.message);
-    },
-  },
   [CONTEXT_MENU_ACTIONS.DOCS]: {
     icon: "book-line",
     text: createMessage(DEBUGGER_OPEN_DOCUMENTATION),

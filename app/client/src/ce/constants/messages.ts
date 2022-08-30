@@ -374,7 +374,6 @@ export const DEBUGGER_TRIGGER_ERROR = (propertyName: string) =>
   `Error occurred while evaluating trigger ${propertyName}`;
 
 export const TROUBLESHOOT_ISSUE = () => "Troubleshoot issue";
-export const DEBUGGER_SEARCH_GOOGLE = () => "Ask Google";
 export const DEBUGGER_OPEN_DOCUMENTATION = () => "Open documentation";
 export const DEBUGGER_SEARCH_SNIPPET = () => "Browse code snippets";
 export const DEBUGGER_APPSMITH_SUPPORT = () => "Get Appsmith support";
