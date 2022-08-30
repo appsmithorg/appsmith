@@ -722,7 +722,7 @@ export function* setActionPropertySaga(
       put(
         updateActionProperty(
           { id: actionId, field, value: effects[field] },
-          action.postEvalActions,
+          field === "dynamicBindingPathList" ? [] : action.postEvalActions,
         ),
       ),
     ),
