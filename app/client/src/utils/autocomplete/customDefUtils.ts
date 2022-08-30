@@ -1,21 +1,38 @@
 import equal from "fast-deep-equal/es6";
+import { isEmpty } from "lodash";
+import { debug } from "loglevel";
 import {
   AdditionalDynamicDataTree,
   customTreeTypeDefCreator,
 } from "./customTreeTypeDefCreator";
 import TernServer from "./TernServer";
 
-let lastCustomData: AdditionalDynamicDataTree | undefined;
+let lastCustomDataDef: AdditionalDynamicDataTree | undefined;
 
 export const updateCustomDef = (customData?: AdditionalDynamicDataTree) => {
-  if (customData) {
-    if (!equal(lastCustomData, customData)) {
-      const customDataDef = customTreeTypeDefCreator(customData);
+  if (customData && !isEmpty(customData)) {
+    const customDataDef = customTreeTypeDefCreator(customData);
+    if (!equal(lastCustomDataDef, customDataDef)) {
+      const start = performance.now();
+
       TernServer.updateDef("customDataTree", customDataDef);
-      lastCustomData = customData;
+
+      debug(
+        "Tern: updateDef for customDataTree took",
+        (performance.now() - start).toFixed(),
+        "ms",
+      );
+
+      lastCustomDataDef = customDataDef;
     }
-  } else {
-    TernServer.updateDef("customDataTree");
-    lastCustomData = undefined;
+  } else if (lastCustomDataDef) {
+    const start = performance.now();
+    TernServer.removeDef("customDataTree");
+    debug(
+      "Tern: removeDef for customDataTree took",
+      (performance.now() - start).toFixed(),
+      "ms",
+    );
+    lastCustomDataDef = undefined;
   }
 };
