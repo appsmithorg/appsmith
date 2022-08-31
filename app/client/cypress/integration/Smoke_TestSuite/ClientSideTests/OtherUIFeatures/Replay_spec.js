@@ -166,6 +166,7 @@ describe("Undo/Redo functionality", function() {
     cy.get(commonlocators.toastmsg)
       .eq(1)
       .contains("UNDO");
+    cy.deleteWidget(widgetsPage.textWidget);
   });
 
   it("checks undo/redo for color picker", function() {

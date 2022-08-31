@@ -1,7 +1,6 @@
-import Button, { Category } from "components/ads/Button";
-import { Text, TextType } from "design-system";
-import { Icon } from "@blueprintjs/core";
 import React from "react";
+import { Icon } from "@blueprintjs/core";
+import { Button, Category, Text, TextType } from "design-system";
 import styled from "styled-components";
 import { useDispatch } from "react-redux";
 import { useSelector } from "store";

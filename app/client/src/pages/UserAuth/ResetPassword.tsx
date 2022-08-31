@@ -1,5 +1,5 @@
 import React, { useLayoutEffect } from "react";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import { withRouter, RouteComponentProps } from "react-router-dom";
 import { connect } from "react-redux";
 import { InjectedFormProps, reduxForm, Field } from "redux-form";
@@ -14,7 +14,7 @@ import FormMessage, {
   FormMessageProps,
 } from "components/ads/formFields/FormMessage";
 import Spinner from "components/editorComponents/Spinner";
-import Button, { Size } from "components/ads/Button";
+import { Button, Size } from "design-system";
 
 import StyledForm from "components/editorComponents/Form";
 import { isEmptyString, isStrongPassword } from "utils/formhelpers";
