@@ -34,7 +34,8 @@ jobs:
     if: |
       github.event.pull_request.head.repo.full_name == github.repository ||
       github.event_name == 'push' ||
-      github.event_name == 'workflow_dispatch'
+      github.event_name == 'workflow_dispatch' ||
+      github.event_name == 'workflow_call'
 
     # Service containers to run with this job. Required for running tests
     services:
