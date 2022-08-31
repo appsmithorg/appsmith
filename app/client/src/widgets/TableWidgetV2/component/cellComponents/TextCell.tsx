@@ -93,6 +93,7 @@ interface PropType extends RenderDefaultPropsType {
   onDiscard: () => void;
   onSave: () => void;
   onEdit: () => void;
+  url?: string;
 }
 
 export function TextCell({
@@ -117,6 +118,7 @@ export function TextCell({
   textColor,
   textSize,
   toggleCellEditMode,
+  url,
   value,
   verticalAlignment,
 }: PropType) {
@@ -190,6 +192,7 @@ export function TextCell({
           textColor={textColor}
           textSize={textSize}
           title={!!value ? value.toString() : ""}
+          url={url}
           verticalAlignment={verticalAlignment}
         >
           <Content ref={contentRef}>{value}</Content>
