@@ -264,47 +264,53 @@ export const useAutoLayoutHighlights = ({
         );
         return isArray(children) && children.length > 0;
       });
-
       // console.log(`#### canvas children: ${JSON.stringify(canvasChildren)}`);
       // console.log(`#### offset children: ${JSON.stringify(offsetChildren)}`);
       const flex = document.querySelector(`.flex-container-${canvasId}`);
       const flexOffsetTop = (flex as any)?.offsetTop || 0;
-      // console.log(
-      //   `#### flex container offset top: ${(flex as any)?.offsetTop}`,
-      // );
-      if (offsetChildren && offsetChildren.length) {
-        // Get widget ids of all widgets being dragged
-        offsetChildren.forEach((each) => {
-          const el = getDomElement(each);
-          if (!el) return;
 
-          // console.log(`#### child: ${el.className}`);
-          // console.log(`#### offset parent: ${el.offsetParent.className}`);
-          const rect: DOMRect = el.getBoundingClientRect();
-          // console.log(`#### bounding rect: ${JSON.stringify(rect)}`);
-          // Add a new offset using the current element's dimensions and position
-          offsets.push(getOffset(rect, flexOffsetTop, false));
-          // siblings[each] = mOffset;
-          siblings.push(rect);
-          siblingElements.push(el);
-        });
-        /**
-         * If the dragged element has siblings,
-         * then add another offset at the end of the last sibling
-         * to demarcate the final drop position.
-         */
-        if (siblings.length) {
-          offsets.push(
-            getOffset(siblings[siblings.length - 1], flexOffsetTop, true),
-          );
-        }
-        offsets = [...new Set(offsets)];
-      }
+      const temp = evaluateOffsets(offsetChildren, flexOffsetTop);
+      offsets = [...offsets, ...temp];
+
       if (!offsets || !offsets.length) initializeOffsets();
       // console.log(`#### offsets: ${JSON.stringify(offsets)}`);
       // console.log(`#### END calculate highlight offsets`);
     }
     return offsets;
+  };
+
+  const evaluateOffsets = (
+    arr: string[],
+    flexOffsetTop: number,
+  ): Highlight[] => {
+    let res: Highlight[] = [];
+    if (arr && arr.length) {
+      // Get widget ids of all widgets being dragged
+      arr.forEach((each) => {
+        const el = getDomElement(each);
+        if (!el) return;
+
+        // console.log(`#### child: ${el.className}`);
+        // console.log(`#### offset parent: ${el.offsetParent.className}`);
+        const rect: DOMRect = el.getBoundingClientRect();
+        // console.log(`#### bounding rect: ${JSON.stringify(rect)}`);
+        // Add a new offset using the current element's dimensions and position
+        res.push(getOffset(rect, flexOffsetTop, false));
+        // siblings[each] = mOffset;
+        siblings.push(rect);
+        siblingElements.push(el);
+      });
+      /**
+       * If the dragged element has siblings,
+       * then add another offset at the end of the last sibling
+       * to demarcate the final drop position.
+       */
+      if (siblings.length) {
+        res.push(getOffset(siblings[siblings.length - 1], flexOffsetTop, true));
+      }
+      res = [...new Set(res)];
+    }
+    return res;
   };
 
   /**
