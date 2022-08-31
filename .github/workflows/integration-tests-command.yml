@@ -7,7 +7,7 @@ on:
 
 jobs:
   server-build:
-    name: server-server
+    name: server-build
     uses: ./.github/workflows/server-build.yml
     with:
       pr: ${{ github.event.pull_request.number }}
