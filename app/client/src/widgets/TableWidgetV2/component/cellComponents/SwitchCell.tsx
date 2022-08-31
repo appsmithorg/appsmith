@@ -5,11 +5,12 @@ import {
   CellAlignment,
   JUSTIFY_CONTENT,
 } from "../Constants";
-import { CellWrapper } from "../TableStyledWrappers";
+import { CellWrapper, TooltipContentWrapper } from "../TableStyledWrappers";
 import { LabelPosition } from "components/constants";
 import styled from "styled-components";
 import SwitchComponent from "widgets/SwitchWidget/component";
 import { AlignWidgetTypes } from "widgets/constants";
+import { Tooltip } from "@blueprintjs/core";
 
 const UnsavedChangesMarker = styled.div<{ accentColor: string }>`
   position: absolute;
@@ -35,13 +36,14 @@ const SwitchCellWrapper = styled(CellWrapper)<{
       props.verticalAlignment &&
       ALIGN_ITEMS[props.verticalAlignment]} !important;
 
-    & .bp3-checkbox {
+    & .bp3-switch {
       gap: 0px;
+      width: max-content;
     }
   }
   & .bp3-disabled {
     cursor: grab !important;
-    & .bp3-control-indicator::before {
+    & .bp3-control-indicator {
       cursor: grab !important;
     }
   }
@@ -76,6 +78,20 @@ export const SwitchCell = (props: SwitchCellProps) => {
     verticalAlignment,
   } = props;
 
+  const switchComponent = (
+    <SwitchComponent
+      accentColor={accentColor}
+      alignWidget={AlignWidgetTypes.LEFT}
+      isDisabled={!!disabledSwitch || !isCellEditable}
+      isLoading={false}
+      isSwitchedOn={value}
+      label=""
+      labelPosition={LabelPosition.Auto}
+      onChange={() => onChange()}
+      widgetId={""}
+    />
+  );
+
   return (
     <SwitchCellWrapper
       cellBackground={cellBackground}
@@ -87,29 +103,20 @@ export const SwitchCell = (props: SwitchCellProps) => {
     >
       {hasUnSavedChanges && <UnsavedChangesMarker accentColor={accentColor} />}
       {isCellEditable && !!disabledSwitch ? (
-        <SwitchComponent
-          accentColor={accentColor}
-          alignWidget={AlignWidgetTypes.LEFT}
-          isDisabled={!!disabledSwitch || !isCellEditable}
-          isLoading={false}
-          isSwitchedOn={value}
-          label=""
-          labelPosition={LabelPosition.Auto}
-          onChange={() => onChange()}
-          widgetId={""}
-        />
+        <Tooltip
+          autoFocus={false}
+          content={
+            <TooltipContentWrapper>
+              Save or discard the unsaved row to start editing here
+            </TooltipContentWrapper>
+          }
+          hoverOpenDelay={200}
+          position="top"
+        >
+          {switchComponent}
+        </Tooltip>
       ) : (
-        <SwitchComponent
-          accentColor={accentColor}
-          alignWidget={AlignWidgetTypes.LEFT}
-          isDisabled={!!disabledSwitch || !isCellEditable}
-          isLoading={false}
-          isSwitchedOn={value}
-          label=""
-          labelPosition={LabelPosition.Auto}
-          onChange={() => onChange()}
-          widgetId={""}
-        />
+        switchComponent
       )}
     </SwitchCellWrapper>
   );
