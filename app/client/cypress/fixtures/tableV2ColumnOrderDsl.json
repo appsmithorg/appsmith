@@ -7,7 +7,7 @@
         "detachFromLayout": true,
         "widgetId": "0",
         "topRow": 0,
-        "bottomRow": 500,
+        "bottomRow": 880,
         "containerStyle": "none",
         "snapRows": 50,
         "parentRowSpace": 1,
@@ -134,9 +134,9 @@
                 "defaultPageSize": 0,
                 "columnOrder": [
                     "step",
-                    "action",
                     "task",
-                    "status"
+                    "status",
+                    "action"
                 ],
                 "dynamicPropertyPathList": [],
                 "displayName": "Table",
@@ -267,8 +267,8 @@
                     "paragraph",
                     "label"
                 ],
-                "topRow": 9,
-                "bottomRow": 15,
+                "topRow": 38,
+                "bottomRow": 44,
                 "parentRowSpace": 10,
                 "type": "TEXT_WIDGET",
                 "hideCard": false,
@@ -277,7 +277,7 @@
                 "fontFamily": "{{appsmith.theme.fontFamily.appFont}}",
                 "parentColumnSpace": 20.0625,
                 "dynamicTriggerPathList": [],
-                "leftColumn": 38,
+                "leftColumn": 2,
                 "dynamicBindingPathList": [
                     {
                         "key": "fontFamily"
@@ -294,7 +294,7 @@
                 "text": "Column Order: {{Table1.columnOrder}}",
                 "key": "hclfcyn1f0",
                 "isDeprecated": false,
-                "rightColumn": 55,
+                "rightColumn": 19,
                 "textAlign": "LEFT",
                 "widgetId": "squfkrflux",
                 "isVisible": true,
