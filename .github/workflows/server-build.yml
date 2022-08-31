@@ -11,12 +11,6 @@ on:
         required: false
         type: number
 
-  push:
-    branches: [release, master]
-    # Only trigger if files have changed in this specific path
-    paths:
-      - "app/server/**"
-
   pull_request:
     branches: [release, master]
     paths:
