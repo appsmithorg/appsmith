@@ -9,7 +9,7 @@ import {
 import { API_EDITOR_FORM_NAME } from "constants/forms";
 import KeyValueFieldArray from "components/editorComponents/form/fields/KeyValueFieldArray";
 import DynamicTextField from "components/editorComponents/form/fields/DynamicTextField";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import FIELD_VALUES from "constants/FieldExpectedValue";
 import {
   CodeEditorBorder,

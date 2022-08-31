@@ -1,6 +1,8 @@
 /// <reference types="Cypress" />
-
+import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 import homePage from "../../../../locators/HomePage";
+let HomePage = ObjectsRegistry.HomePage,
+  agHelper = ObjectsRegistry.AggregateHelper;
 
 describe("Leave workspace test spec", function() {
   let newWorkspaceId;
@@ -42,10 +44,10 @@ describe("Leave workspace test spec", function() {
       newWorkspaceName = interception.response.body.data.name;
       newWorkspaceId = interception.response.body.data.name;
       cy.visit("/applications");
-      cy.inviteUserForWorkspace(
+      HomePage.InviteUserToWorkspace(
         newWorkspaceName,
         Cypress.env("TESTUSERNAME1"),
-        homePage.viewerRole,
+        "App Viewer",
       );
       cy.LogOut();
 

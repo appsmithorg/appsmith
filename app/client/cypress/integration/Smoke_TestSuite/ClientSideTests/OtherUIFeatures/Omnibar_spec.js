@@ -115,7 +115,7 @@ describe("Omnibar functionality test cases", () => {
     cy.get(".t--js-action-name-edit-field")
       .type(jsObjectName)
       .wait(1000);
-    agHelper.WaitUntilToastDisappear("created successfully");
+    agHelper.AssertContains("created successfully");
     cy.get(omnibar.globalSearch).click({ force: true });
     cy.get(omnibar.categoryTitle)
       .eq(1)

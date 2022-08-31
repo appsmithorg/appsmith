@@ -7,6 +7,7 @@ export interface ICreateJSObjectOptions {
   shouldCreateNewJSObj: boolean;
   lineNumber?: number;
   prettify?: boolean;
+  toWriteAfterToastsDisappear?: boolean;
 }
 const DEFAULT_CREATE_JS_OBJECT_OPTIONS = {
   paste: true,
@@ -14,6 +15,8 @@ const DEFAULT_CREATE_JS_OBJECT_OPTIONS = {
   toRun: true,
   shouldCreateNewJSObj: true,
   lineNumber: 4,
+  prettify: true,
+  toWriteAfterToastsDisappear: false,
 };
 
 export class JSEditor {
@@ -86,6 +89,8 @@ export class JSEditor {
     `${JSFunctionName}-settings`;
   _asyncJSFunctionSettings = `.t--async-js-function-settings`;
   _debugCTA = `button.js-editor-debug-cta`;
+  _lineinJsEditor = (lineNumber: number) =>
+    ":nth-child(" + lineNumber + ") > .CodeMirror-line";
   //#endregion
 
   //#region constants
@@ -113,7 +118,7 @@ export class JSEditor {
     cy.get(this._jsObjTxt).should("not.exist");
 
     //cy.waitUntil(() => cy.get(this.locator._toastMsg).should('not.be.visible')) // fails sometimes
-    this.agHelper.WaitUntilToastDisappear("created successfully"); //to not hinder with other toast msgs!
+    this.agHelper.AssertContains("created successfully");
     this.agHelper.Sleep();
   }
 
@@ -128,6 +133,7 @@ export class JSEditor {
       prettify = true,
       shouldCreateNewJSObj,
       toRun,
+      toWriteAfterToastsDisappear = false,
     } = options;
 
     shouldCreateNewJSObj && this.NavigateToNewJSEditor();
@@ -143,7 +149,11 @@ export class JSEditor {
         .focus()
         .type(this.selectAllJSObjectContentShortcut)
         .type("{backspace}", { force: true });
+      this.agHelper.AssertAutoSave();
+      this.agHelper.AssertContains("Start object with export default");
     }
+
+    toWriteAfterToastsDisappear && this.agHelper.WaitUntilAllToastsDisappear();
 
     cy.get(this.locator._codeMirrorTextArea)
       .first()
@@ -154,7 +164,7 @@ export class JSEditor {
         } else {
           cy.get(el).type(JSCode, {
             parseSpecialCharSequences: false,
-            delay: 100,
+            delay: 50,
             force: true,
           });
         }
@@ -179,7 +189,7 @@ export class JSEditor {
   }
 
   //Edit the name of a JSObject's property (variable or function)
-  public EditJSObj(newContent: string) {
+  public EditJSObj(newContent: string, toPrettify = true) {
     cy.get(this.locator._codeMirrorTextArea)
       .first()
       .focus()
@@ -187,6 +197,8 @@ export class JSEditor {
       .then((el: JQuery<HTMLElement>) => {
         this.agHelper.Paste(el, newContent);
       });
+    this.agHelper.Sleep(2000); //Settling time for edited js code
+    toPrettify && this.agHelper.ActionContextMenuWithInPane("Prettify Code");
     this.agHelper.AssertAutoSave();
   }
 
@@ -200,72 +212,7 @@ export class JSEditor {
             .click({ force: true });
         else this.agHelper.Sleep(500);
       });
-  }
-
-  public EnterJSContext(
-    endp: string,
-    value: string,
-    toToggleOnJS = true,
-    paste = true,
-  ) {
-    cy.get(this.locator._jsToggle(endp.replace(/ +/g, "").toLowerCase()))
-      .invoke("attr", "class")
-      .then((classes: any) => {
-        if (toToggleOnJS && !classes.includes("is-active"))
-          cy.get(this.locator._jsToggle(endp.replace(/ +/g, "").toLowerCase()))
-            .first()
-            .click({ force: true });
-        else if (!toToggleOnJS && classes.includes("is-active"))
-          cy.get(this.locator._jsToggle(endp.replace(/ +/g, "").toLowerCase()))
-            .first()
-            .click({ force: true });
-        else this.agHelper.Sleep(500);
-      });
-
-    // cy.get(this.locator._propertyControl + endp + " " + this.locator._codeMirrorTextArea)
-    //   .first()
-    //   .focus()
-    //   //.type("{selectAll}")
-    //   .type("{uparrow}{uparrow}", { force: true })
-    //   .type("{selectAll}")
-    //   // .type("{ctrl}{shift}{downarrow}", { force: true })
-    //   .type("{del}", { force: true });
-
-    if (paste) this.propPane.UpdatePropertyFieldValue(endp, value);
-    else this.propPane.TypeTextIntoField(endp, value);
-
-    // cy.focused().then(($cm: any) => {
-    //   if ($cm.contents != "") {
-    //     cy.log("The field is not empty");
-    //     cy.get(this.locator._propertyControl + endp + " " + this.locator._codeMirrorTextArea)
-    //       .first()
-    //       .click({ force: true })
-    //       .type("{selectAll}")
-    //       .focused()
-    //       .clear({
-    //         force: true,
-    //       });
-    //   }
-    //   this.agHelper.Sleep()
-    //   cy.get(this.locator._propertyControl + endp + " " + this.locator._codeMirrorTextArea)
-    //     .first()
-    //     .then((el: any) => {
-    //       const input = cy.get(el);
-    //       if (paste) {
-    //         //input.invoke("val", value);
-    //         this.agHelper.Paste(el, value)
-    //       } else {
-    //         this.agHelper.EnterValue(value, "Table Data")
-
-    //         // input.type(value, {
-    //         //   parseSpecialCharSequences: false,
-    //         // });
-    //       }
-    //     });
-    // });
-
-    this.agHelper.AssertAutoSave(); //Allowing time for Evaluate value to capture value
-  }
+   }
 
   public RenameJSObjFromPane(renameVal: string) {
     cy.get(this._jsObjName).click({ force: true });
@@ -333,11 +280,9 @@ export class JSEditor {
     onLoad = true,
     bfrCalling = true,
   ) {
-    // this.agHelper.GetNClick(this._responseTabAction(funName))
-    // this.agHelper.AssertElementPresence(this._dialog('Function settings'))
+
     // this.agHelper.AssertExistingToggleState(this._functionSetting(Cypress.env("MESSAGES").JS_SETTINGS_ONPAGELOAD()), onLoad)
     // this.agHelper.AssertExistingToggleState(this._functionSetting(Cypress.env("MESSAGES").JS_SETTINGS_CONFIRM_EXECUTION()), bfrCalling)
-    // this.agHelper.GetNClick(this._closeSettings)
 
     this.agHelper.GetNClick(this._settingsTab);
     this.agHelper.AssertExistingToggleState(

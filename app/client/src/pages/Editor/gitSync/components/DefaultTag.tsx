@@ -1,6 +1,6 @@
-import Button, { Category, Size } from "components/ads/Button";
 import React from "react";
 import styled from "styled-components";
+import { Button, Category, Size } from "design-system";
 
 const StyledButton = styled(Button)`
   display: inline-block;

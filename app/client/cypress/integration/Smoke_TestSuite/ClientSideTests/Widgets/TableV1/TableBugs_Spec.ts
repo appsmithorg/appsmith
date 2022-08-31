@@ -24,7 +24,7 @@ describe("Verify various Table property bugs", function() {
       JSON.stringify(dataSet.TableURLColumnType),
     );
     agHelper.ValidateNetworkStatus("@updateLayout", 200);
-    agHelper.Escape();
+    agHelper.PressEscape();
   });
 
   it("2. Bug 13299 - Verify Display Text does not contain garbage value for URL column type when empty", function() {

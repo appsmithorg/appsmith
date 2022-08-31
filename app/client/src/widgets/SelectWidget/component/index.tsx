@@ -20,7 +20,7 @@ import {
 import { WidgetContainerDiff } from "widgets/WidgetUtils";
 import { LabelPosition } from "components/constants";
 import SelectButton from "./SelectButton";
-import LabelWithTooltip from "components/ads/LabelWithTooltip";
+import { LabelWithTooltip } from "design-system";
 import { labelMargin } from "../../WidgetUtils";
 
 const DEBOUNCE_TIMEOUT = 800;
@@ -318,6 +318,7 @@ class SelectComponent extends React.Component<
         <StyledControlGroup
           compactMode={compactMode}
           fill
+          isDisabled={disabled}
           labelPosition={labelPosition}
         >
           <StyledSingleDropDown

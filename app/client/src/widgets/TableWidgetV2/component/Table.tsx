@@ -24,7 +24,7 @@ import {
 } from "./Constants";
 import { Colors } from "constants/Colors";
 
-import ScrollIndicator from "components/ads/ScrollIndicator";
+import { ScrollIndicator } from "design-system";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { Scrollbars } from "react-custom-scrollbars";
 import { renderEmptyRows } from "./cellComponents/EmptyCell";
@@ -98,6 +98,10 @@ function ScrollbarVerticalThumb(props: any) {
 
 function ScrollbarHorizontalThumb(props: any) {
   return <div {...props} className="thumb-horizontal" />;
+}
+
+function ScrollbarHorizontalTrack(props: any) {
+  return <div {...props} className="track-horizontal" />;
 }
 
 export function Table(props: TableProps) {
@@ -246,9 +250,9 @@ export function Table(props: TableProps) {
           width={props.width}
         >
           <Scrollbars
-            autoHide
             renderThumbHorizontal={ScrollbarHorizontalThumb}
             renderThumbVertical={ScrollbarVerticalThumb}
+            renderTrackHorizontal={ScrollbarHorizontalTrack}
             style={style}
           >
             <TableHeaderInnerWrapper
@@ -296,6 +300,7 @@ export function Table(props: TableProps) {
       >
         <Scrollbars
           renderThumbHorizontal={ScrollbarHorizontalThumb}
+          renderTrackHorizontal={ScrollbarHorizontalTrack}
           style={{
             width: props.width,
             height: isHeaderVisible ? props.height - 48 : props.height,
@@ -422,6 +427,7 @@ export function Table(props: TableProps) {
       <ScrollIndicator
         containerRef={tableBodyRef}
         mode="LIGHT"
+        showScrollbarOnlyOnHover
         top={props.editMode ? "70px" : "73px"}
       />
     </TableWrapper>
