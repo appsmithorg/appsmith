@@ -165,20 +165,8 @@ abstract class BaseWidget<
   componentDidMount(): void {}
   /* eslint-enable @typescript-eslint/no-empty-function */
 
-  addMetaWidget = (metaWidgets: Record<string, FlattenedWidgetProps>) => {
-    this.context.addMetaWidget?.(metaWidgets);
-  };
-
-  updateMetaWidget = (metaWidgets: Record<string, FlattenedWidgetProps>) => {
-    this.context.updateMetaWidget?.(metaWidgets);
-  };
-
   modifyMetaWidgets = (modifications: ModifyMetaWidgetPayload) => {
     this.context.modifyMetaWidgets?.(modifications);
-  };
-
-  deleteMetaWidget = (metaWidgetId: string | string[]) => {
-    this.context.deleteMetaWidget?.(metaWidgetId);
   };
 
   getComponentDimensions = () => {
@@ -456,6 +444,7 @@ export interface WidgetBaseProps {
   renderMode: RenderMode;
   version: number;
   childWidgets?: DataTreeWidget[];
+  flattenedChildCanvasWidgets?: Record<string, FlattenedWidgetProps>;
   metaWidgetChildrenStructure?: CanvasWidgetStructure[];
 }
 

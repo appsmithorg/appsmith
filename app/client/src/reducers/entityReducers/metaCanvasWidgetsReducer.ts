@@ -1,7 +1,6 @@
 import { createImmerReducer } from "utils/ReducerUtils";
 import {
   ReduxActionTypes,
-  UpdateCanvasPayload,
   ReduxAction,
 } from "@appsmith/constants/ReduxActionConstants";
 import { WidgetProps } from "widgets/BaseWidget";
@@ -16,8 +15,6 @@ export type FlattenedWidgetProps<orType = never> =
     })
   | orType;
 
-type AddMetaWidgetPayload = Record<string, FlattenedWidgetProps>;
-
 export type ModifyMetaWidgetPayload = {
   addOrUpdate: Record<string, FlattenedWidgetProps>;
   delete: string[];
@@ -26,30 +23,7 @@ export type ModifyMetaWidgetPayload = {
 const initialState: MetaCanvasWidgetsReduxState = {};
 
 const metaCanvasWidgetsReducer = createImmerReducer(initialState, {
-  [ReduxActionTypes.ADD_META_WIDGET]: (
-    state: MetaCanvasWidgetsReduxState,
-    action: ReduxAction<AddMetaWidgetPayload>,
-  ) => {
-    Object.entries(action.payload).forEach(([metaWidgetId, widgetProps]) => {
-      state[metaWidgetId] = widgetProps;
-      state[metaWidgetId].isMetaWidget = true;
-    });
-    return state;
-  },
-  [ReduxActionTypes.UPDATE_META_WIDGET]: (
-    state: MetaCanvasWidgetsReduxState,
-    action: ReduxAction<UpdateCanvasPayload>,
-  ) => {
-    return action.payload.widgets;
-  },
-  [ReduxActionTypes.DELETE_META_WIDGET]: (
-    state: MetaCanvasWidgetsReduxState,
-    action: ReduxAction<UpdateCanvasPayload>,
-  ) => {
-    return action.payload.widgets;
-  },
-
-  [ReduxActionTypes.MODIFY_META_WIDGET]: (
+  [ReduxActionTypes.MODIFY_META_WIDGETS]: (
     state: MetaCanvasWidgetsReduxState,
     action: ReduxAction<ModifyMetaWidgetPayload>,
   ) => {
