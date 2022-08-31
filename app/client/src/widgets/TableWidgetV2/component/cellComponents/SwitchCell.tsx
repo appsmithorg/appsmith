@@ -11,10 +11,22 @@ import styled from "styled-components";
 import SwitchComponent from "widgets/SwitchWidget/component";
 import { AlignWidgetTypes } from "widgets/constants";
 
+const UnsavedChangesMarker = styled.div<{ accentColor: string }>`
+  position: absolute;
+  top: -1px;
+  right: -3px;
+  width: 0;
+  height: 0;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-bottom: 5px solid ${(props) => props.accentColor};
+  transform: rotateZ(45deg);
+`;
+
 const SwitchCellWrapper = styled(CellWrapper)<{
   horizontalAlignment?: CellAlignment;
 }>`
-  & > div {
+  & div {
     justify-content: ${(props) =>
       props.horizontalAlignment &&
       JUSTIFY_CONTENT[props.horizontalAlignment]} !important;
@@ -25,19 +37,27 @@ const SwitchCellWrapper = styled(CellWrapper)<{
 
     & .bp3-checkbox {
       gap: 0px;
-      &:hover,
-      .bp3-control-indicator:hover {
-        cursor: pointer;
-      }
     }
+  }
+  & .bp3-disabled {
+    cursor: grab !important;
+    & .bp3-control-indicator::before {
+      cursor: grab !important;
+    }
+  }
+
+  & > .bp3-popover-wrapper {
+    overflow: unset;
   }
 `;
 
 type SwitchCellProps = BaseCellComponentProps & {
   value: boolean;
   accentColor: string;
-  isDisabled?: boolean;
   onChange: () => void;
+  disabledSwitch: boolean;
+  isCellEditable: boolean;
+  hasUnSavedChanges?: boolean;
 };
 
 export const SwitchCell = (props: SwitchCellProps) => {
@@ -45,9 +65,11 @@ export const SwitchCell = (props: SwitchCellProps) => {
     accentColor,
     cellBackground,
     compactMode,
+    disabledSwitch,
+    hasUnSavedChanges,
     horizontalAlignment,
+    isCellEditable,
     isCellVisible,
-    isDisabled,
     isHidden,
     onChange,
     value,
@@ -63,17 +85,32 @@ export const SwitchCell = (props: SwitchCellProps) => {
       isHidden={isHidden}
       verticalAlignment={verticalAlignment}
     >
-      <SwitchComponent
-        accentColor={accentColor}
-        alignWidget={AlignWidgetTypes.LEFT}
-        isDisabled={isDisabled}
-        isLoading={false}
-        isSwitchedOn={value}
-        label=""
-        labelPosition={LabelPosition.Auto}
-        onChange={() => onChange()}
-        widgetId={""}
-      />
+      {hasUnSavedChanges && <UnsavedChangesMarker accentColor={accentColor} />}
+      {isCellEditable && !!disabledSwitch ? (
+        <SwitchComponent
+          accentColor={accentColor}
+          alignWidget={AlignWidgetTypes.LEFT}
+          isDisabled={!!disabledSwitch || !isCellEditable}
+          isLoading={false}
+          isSwitchedOn={value}
+          label=""
+          labelPosition={LabelPosition.Auto}
+          onChange={() => onChange()}
+          widgetId={""}
+        />
+      ) : (
+        <SwitchComponent
+          accentColor={accentColor}
+          alignWidget={AlignWidgetTypes.LEFT}
+          isDisabled={!!disabledSwitch || !isCellEditable}
+          isLoading={false}
+          isSwitchedOn={value}
+          label=""
+          labelPosition={LabelPosition.Auto}
+          onChange={() => onChange()}
+          widgetId={""}
+        />
+      )}
     </SwitchCellWrapper>
   );
 };

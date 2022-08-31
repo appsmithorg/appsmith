@@ -1566,11 +1566,21 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
             accentColor={this.props.accentColor}
             cellBackground={cellProperties.cellBackground}
             compactMode={compactMode}
+            disabledSwitch={
+              this.props.inlineEditingSaveOption ===
+                InlineEditingSaveOptions.ROW_LEVEL &&
+              this.props.updatedRowIndices.length &&
+              this.props.updatedRowIndices.indexOf(originalIndex) === -1
+            }
+            hasUnSavedChanges={cellProperties.hasUnsavedChanged}
             horizontalAlignment={cellProperties.horizontalAlignment}
+            isCellEditable={
+              (isColumnEditable && cellProperties.isCellEditable) ?? false
+            }
             isCellVisible={cellProperties.isCellVisible ?? true}
-            isDisabled={!cellProperties.isCellEditable}
             isHidden={isHidden}
             onChange={() => {
+              const row = filteredTableData[rowIndex];
               const cellValue = !props.cell.value;
 
               this.updateTransientTableData({
