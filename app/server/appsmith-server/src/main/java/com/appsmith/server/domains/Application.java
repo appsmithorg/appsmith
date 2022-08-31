@@ -150,6 +150,9 @@ public class Application extends BaseDomain {
     // TODO Temporary provision for exporting the application with datasource configuration for the sample/template apps
     Boolean exportWithConfiguration;
 
+    @JsonIgnore
+    String defaultPermissionGroup;
+
     // This constructor is used during clone application. It only deeply copies selected fields. The rest are either
     // initialized newly or is left up to the calling function to set.
     public Application(Application application) {

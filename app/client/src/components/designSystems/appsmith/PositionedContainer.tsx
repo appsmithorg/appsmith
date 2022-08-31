@@ -8,9 +8,9 @@ import { usePositionedContainerZIndex } from "utils/hooks/usePositionedContainer
 import { useSelector } from "react-redux";
 import { snipingModeSelector } from "selectors/editorSelectors";
 import WidgetFactory from "utils/WidgetFactory";
-import { isEqual, memoize } from "lodash";
+import { memoize } from "lodash";
 import { getReflowSelector } from "selectors/widgetReflowSelectors";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import { POSITIONED_WIDGET } from "constants/componentClassNameConstants";
 
 const PositionedWidget = styled.div<{ zIndexOnHover: number }>`
@@ -59,7 +59,7 @@ export function PositionedContainer(props: PositionedContainerProps) {
 
   const reflowSelector = getReflowSelector(props.widgetId);
 
-  const reflowedPosition = useSelector(reflowSelector, isEqual);
+  const reflowedPosition = useSelector(reflowSelector);
   const dragDetails = useSelector(
     (state: AppState) => state.ui.widgetDragResize.dragDetails,
   );

@@ -3,7 +3,7 @@ import styled from "styled-components";
 import { WidgetProps } from "widgets/BaseWidget";
 import { WIDGET_PADDING } from "constants/WidgetConstants";
 import { useDispatch, useSelector } from "react-redux";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import { getColorWithOpacity } from "constants/DefaultTheme";
 // import AnalyticsUtil from "utils/AnalyticsUtil";
 import { snipingModeSelector } from "selectors/editorSelectors";

@@ -8,8 +8,7 @@ import React, {
 } from "react";
 import { CommonComponentProps, Classes } from "./common";
 import styled from "styled-components";
-import Icon, { IconSize } from "./Icon";
-import TextInput from "./TextInput";
+import { Icon, IconSize, TextInput } from "design-system";
 import { IconNames } from "@blueprintjs/icons";
 
 export enum SearchVariant {

@@ -101,6 +101,18 @@ describe("MultiSelectTree Widget Functionality", function() {
     ).should("be.visible");
     cy.get(publish.backToEditor).click();
   });
+
+  it("7. To Check Option Not Found", function() {
+    cy.get(formWidgetsPage.treeSelectInput)
+      .first()
+      .click({ force: true });
+    cy.get(formWidgetsPage.multiTreeSelectFilterInput)
+      .click()
+      .type("ABCD");
+    cy.get(".tree-multiselect-dropdown .rc-tree-select-empty").contains(
+      "No Results Found",
+    );
+  });
 });
 afterEach(() => {
   // put your clean up code if any

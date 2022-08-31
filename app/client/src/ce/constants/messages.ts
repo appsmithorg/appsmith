@@ -5,6 +5,16 @@ export function createMessage(
   return format(...args);
 }
 
+/*
+  For self hosted, it displays the string "Appsmith Community v1.10.0" or "Appsmith Business v1.10.0".
+  For cloud hosting, it displays "Appsmith v1.10.0". 
+  This is because Appsmith Cloud doesn't support business features yet.
+ */
+export const APPSMITH_DISPLAY_VERSION = (
+  edition: string,
+  version: string,
+  cloudHosting: boolean,
+) => `Appsmith ${!cloudHosting ? edition : ""} ${version}`;
 export const YES = () => `Yes`;
 export const ARE_YOU_SURE = () => `Are you sure?`;
 export const ERROR_ADD_API_INVALID_URL = () =>
@@ -29,7 +39,8 @@ export const VALID_FUNCTION_NAME_ERROR = () =>
   `Must be a valid variable name (camelCase)`;
 export const UNIQUE_NAME_ERROR = () => `Name must be unique`;
 export const NAME_SPACE_ERROR = () => `Name must not have spaces`;
-export const SPECIAL_CHARACTER_ERROR = () => `Name must be alphanumeric`;
+export const APLHANUMERIC_HYPHEN_SLASH_SPACE_ERROR = () =>
+  `Name must only contain alphanumeric characters, hyphen, slash, and space`;
 
 export const FORM_VALIDATION_EMPTY_EMAIL = () => `Please enter an email`;
 export const FORM_VALIDATION_INVALID_EMAIL = () =>
@@ -1207,3 +1218,5 @@ export const CLEAN_URL_UPDATE = {
   disclaimer: () =>
     "Existing references to <strong>appsmith.URL.fullpath</strong> and <strong>appsmith.URL.pathname</strong> properties will behave differently.",
 };
+
+export const MEMBERS_TAB_TITLE = (length: number) => `Users (${length})`;
