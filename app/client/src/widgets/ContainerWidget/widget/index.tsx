@@ -4,33 +4,25 @@ import {
   CONTAINER_GRID_PADDING,
   GridDefaults,
   MAIN_CONTAINER_WIDGET_ID,
-  RenderModes,
   WIDGET_PADDING,
 } from "constants/WidgetConstants";
 import WidgetFactory, { DerivedPropertiesMap } from "utils/WidgetFactory";
-import ContainerComponent, { ContainerStyle, FlexBox } from "../component";
+import ContainerComponent, { ContainerStyle } from "../component";
 
 import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
 
 import { ValidationTypes } from "constants/WidgetValidation";
 
 import { compact, map, sortBy } from "lodash";
-import { CanvasSelectionArena } from "pages/common/CanvasArenas/CanvasSelectionArena";
 import WidgetsMultiSelectBox from "pages/Editor/WidgetsMultiSelectBox";
 
-import { CanvasDraggingArena } from "pages/common/CanvasArenas/CanvasDraggingArena";
-import { getCanvasSnapRows } from "utils/WidgetPropsUtils";
 import {
-  AlignItems,
   Alignment,
-  JustifyContent,
   LayoutDirection,
-  Overflow,
   Positioning,
   ResponsiveBehavior,
   Spacing,
 } from "components/constants";
-import { AutoLayoutContext } from "utils/autoLayoutContext";
 import {
   generateResponsiveBehaviorConfig,
   getLayoutConfig,
@@ -393,41 +385,8 @@ export class ContainerWidget extends BaseWidget<
   renderAsContainerComponent(props: ContainerWidgetProps<WidgetProps>) {
     // console.log(`${props.widgetName} : ${props.widgetId} =======`);
     // console.log(props);
-    const snapRows = getCanvasSnapRows(props.bottomRow, props.canExtend);
-    const stretchFlexBox =
-      !this.props.children || !this.props.children?.length
-        ? true
-        : this.props.alignment === Alignment.Bottom ||
-          this.props.positioning === Positioning.Vertical;
     return (
       <ContainerComponent {...props}>
-        {(props.type === "CANVAS_WIDGET" ||
-          props.type === "LAYOUT_WRAPPER_WIDGET") &&
-          props.renderMode === RenderModes.CANVAS && (
-            <>
-              <CanvasDraggingArena
-                {...this.getSnapSpaces()}
-                alignItems={props.alignItems}
-                canExtend={props.canExtend}
-                direction={this.state.direction}
-                dropDisabled={!!props.dropDisabled}
-                noPad={this.props.noPad}
-                parentId={props.parentId}
-                snapRows={snapRows}
-                useAutoLayout={this.state.useAutoLayout}
-                widgetId={props.widgetId}
-                widgetName={props.widgetName}
-              />
-              <CanvasSelectionArena
-                {...this.getSnapSpaces()}
-                canExtend={props.canExtend}
-                dropDisabled={!!props.dropDisabled}
-                parentId={props.parentId}
-                snapRows={snapRows}
-                widgetId={props.widgetId}
-              />
-            </>
-          )}
         <WidgetsMultiSelectBox
           {...this.getSnapSpaces()}
           noContainerOffset={!!props.noContainerOffset}
@@ -435,35 +394,7 @@ export class ContainerWidget extends BaseWidget<
           widgetType={this.props.type}
         />
         {/* without the wrapping div onClick events are triggered twice */}
-        {props.type === "CANVAS_WIDGET" ||
-        props.type === "LAYOUT_WRAPPER_WIDGET" ? (
-          <FlexBox
-            alignment={this.props.alignment || Alignment.Left}
-            direction={this.state.direction}
-            overflow={Overflow.NoWrap}
-            spacing={this.props.spacing || Spacing.None}
-            stretchHeight={stretchFlexBox}
-            useAutoLayout={this.state.useAutoLayout}
-            widgetId={this.props.widgetId}
-          >
-            <AutoLayoutContext.Provider
-              value={{
-                useAutoLayout: this.state.useAutoLayout,
-                direction: this.state.direction,
-                justifyContent: JustifyContent.FlexStart,
-                alignItems: AlignItems.FlexStart,
-                overflow:
-                  props.widgetName === "MainContainer"
-                    ? Overflow.Auto
-                    : Overflow.NoWrap,
-              }}
-            >
-              {this.renderChildren()}
-            </AutoLayoutContext.Provider>
-          </FlexBox>
-        ) : (
-          <>{this.renderChildren()}</>
-        )}
+        <>{this.renderChildren()}</>
       </ContainerComponent>
     );
   }

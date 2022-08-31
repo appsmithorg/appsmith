@@ -4,14 +4,27 @@ import {
   ContainerWidget,
   ContainerWidgetProps,
 } from "widgets/ContainerWidget/widget";
-import { GridDefaults } from "constants/WidgetConstants";
+import { GridDefaults, RenderModes } from "constants/WidgetConstants";
 import DropTargetComponent from "components/editorComponents/DropTargetComponent";
 import { getCanvasSnapRows } from "utils/WidgetPropsUtils";
 import { getCanvasClassName } from "utils/generators";
 import WidgetFactory, { DerivedPropertiesMap } from "utils/WidgetFactory";
 import { CanvasWidgetStructure } from "./constants";
 import { CANVAS_DEFAULT_MIN_HEIGHT_PX } from "constants/AppConstants";
-import { ResponsiveBehavior } from "components/constants";
+import {
+  AlignItems,
+  Alignment,
+  JustifyContent,
+  Overflow,
+  Positioning,
+  ResponsiveBehavior,
+  Spacing,
+} from "components/constants";
+import ContainerComponent, { FlexBox } from "./ContainerWidget/component";
+import { CanvasDraggingArena } from "pages/common/CanvasArenas/CanvasDraggingArena";
+import { CanvasSelectionArena } from "pages/common/CanvasArenas/CanvasSelectionArena";
+import WidgetsMultiSelectBox from "pages/Editor/WidgetsMultiSelectBox";
+import { AutoLayoutContext } from "utils/autoLayoutContext";
 
 class CanvasWidget extends ContainerWidget {
   static getPropertyPaneConfig() {
@@ -76,6 +89,77 @@ class CanvasWidget extends ContainerWidget {
     }
 
     return WidgetFactory.createWidget(childWidget, this.props.renderMode);
+  }
+
+  renderAsContainerComponent(
+    props: ContainerWidgetProps<WidgetProps>,
+  ): JSX.Element {
+    const snapRows = getCanvasSnapRows(props.bottomRow, props.canExtend);
+    const stretchFlexBox =
+      !this.props.children || !this.props.children?.length
+        ? true
+        : this.props.alignment === Alignment.Bottom ||
+          this.props.positioning === Positioning.Vertical;
+    return (
+      <ContainerComponent {...props}>
+        {props.renderMode === RenderModes.CANVAS && (
+          <>
+            <CanvasDraggingArena
+              {...this.getSnapSpaces()}
+              alignItems={props.alignItems}
+              canExtend={props.canExtend}
+              direction={this.state.direction}
+              dropDisabled={!!props.dropDisabled}
+              noPad={this.props.noPad}
+              parentId={props.parentId}
+              snapRows={snapRows}
+              useAutoLayout={this.state.useAutoLayout}
+              widgetId={props.widgetId}
+              widgetName={props.widgetName}
+            />
+            <CanvasSelectionArena
+              {...this.getSnapSpaces()}
+              canExtend={props.canExtend}
+              dropDisabled={!!props.dropDisabled}
+              parentId={props.parentId}
+              snapRows={snapRows}
+              widgetId={props.widgetId}
+            />
+          </>
+        )}
+        <WidgetsMultiSelectBox
+          {...this.getSnapSpaces()}
+          noContainerOffset={!!props.noContainerOffset}
+          widgetId={this.props.widgetId}
+          widgetType={this.props.type}
+        />
+        {/* without the wrapping div onClick events are triggered twice */}
+        <FlexBox
+          alignment={this.props.alignment || Alignment.Left}
+          direction={this.state.direction}
+          overflow={Overflow.NoWrap}
+          spacing={this.props.spacing || Spacing.None}
+          stretchHeight={stretchFlexBox}
+          useAutoLayout={this.state.useAutoLayout}
+          widgetId={this.props.widgetId}
+        >
+          <AutoLayoutContext.Provider
+            value={{
+              useAutoLayout: this.state.useAutoLayout,
+              direction: this.state.direction,
+              justifyContent: JustifyContent.FlexStart,
+              alignItems: AlignItems.FlexStart,
+              overflow:
+                props.widgetName === "MainContainer"
+                  ? Overflow.Auto
+                  : Overflow.NoWrap,
+            }}
+          >
+            {this.renderChildren()}
+          </AutoLayoutContext.Provider>
+        </FlexBox>
+      </ContainerComponent>
+    );
   }
 
   getPageView() {
