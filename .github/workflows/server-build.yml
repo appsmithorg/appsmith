@@ -25,11 +25,11 @@ jobs:
   build:
     runs-on: ubuntu-latest
     # Only run this workflow for internally triggered events
-    # if: |
-    #   github.event.pull_request.head.repo.full_name == github.repository ||
-    #   github.event_name == 'push' ||
-    #   github.event_name == 'workflow_dispatch' ||
-    #   github.event_name == 'workflow_call'
+    if: |
+      github.event.pull_request.head.repo.full_name == github.repository ||
+      github.event_name == 'push' ||
+      github.event_name == 'workflow_dispatch' ||
+      github.event_name == 'repository_dispatch'
 
     # Service containers to run with this job. Required for running tests
     services:
@@ -47,15 +47,15 @@ jobs:
       # the code before doing anything else.
 
       # Check out merge commit with the base branch in case this workflow is invoked via pull request
-      - name: Check out merged commit between PR and base branch
+      - name: Check out merged commit from PR and base branch
         uses: actions/checkout@v2
         if: inputs.pr != 0
         with:
           fetch-depth: 0
-          ref: "refs/pull/${{ inputs.pr }}/merge"
+          ref: refs/pull/${{ inputs.pr }}/merge
 
       # Checkout the code in the current branch in case the workflow is called because of a branch push event
-      - name: Check out commit on branch
+      - name: Check out the head commit of the branch
         uses: actions/checkout@v2
         if: inputs.pr == 0
         with:
@@ -73,13 +73,13 @@ jobs:
 
       # In case this is second attempt try restoring status of the prior attempt from cache
       - name: Restore the previous run result
-        uses: martijnhols/actions-cache@v3.0.2
+        uses: actions/cache@v2
         with:
           path: |
             ~/run_result
           key: ${{ github.run_id }}-${{ github.job }}-${{ steps.timestamp.outputs.timestamp }}
           restore-keys: |
-            ${{ github.run_id }}-${{ github.job }}
+            ${{ github.run_id }}-${{ github.job }}-
 
       # Fetch prior run result
       - name: Get the previous run result

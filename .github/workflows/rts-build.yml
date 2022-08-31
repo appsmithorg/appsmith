@@ -25,11 +25,11 @@ jobs:
   build:
     runs-on: ubuntu-latest
     # Only run this workflow for internally triggered events
-    # if: |
-    #   github.event.pull_request.head.repo.full_name == github.repository ||
-    #   github.event_name == 'push' ||
-    #   github.event_name == 'workflow_dispatch' ||
-    #   github.event_name == 'workflow_call'
+    if: |
+      github.event.pull_request.head.repo.full_name == github.repository ||
+      github.event_name == 'push' ||
+      github.event_name == 'workflow_dispatch' ||
+      github.event_name == 'repository_dispatch'
 
     steps:
       # The checkout steps MUST happen first because the default directory is set according to the code base.
