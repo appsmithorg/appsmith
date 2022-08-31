@@ -1,9 +1,7 @@
 import React, { useEffect, useState, useCallback, useRef } from "react";
 import styled from "styled-components";
 import { Colors } from "constants/Colors";
-import Dropdown, { DropdownOption } from "components/ads/Dropdown";
 import { getTypographyByKey } from "constants/DefaultTheme";
-import Button, { Category, Size } from "components/ads/Button";
 import { useSelector, useDispatch } from "react-redux";
 import {
   getDatasources,
@@ -24,7 +22,17 @@ import { getQueryParams } from "utils/URLUtils";
 import { getIsGeneratingTemplatePage } from "selectors/pageListSelectors";
 import DataSourceOption from "../DataSourceOption";
 import { getQueryStringfromObject } from "RouteBuilder";
-import { IconName, IconSize } from "components/ads/Icon";
+import {
+  Button,
+  Category,
+  Dropdown,
+  DropdownOption,
+  IconName,
+  IconSize,
+  RenderDropdownOptionType,
+  Size,
+  TooltipComponent as Tooltip,
+} from "design-system";
 import GoogleSheetForm from "./GoogleSheetForm";
 import {
   GENERATE_PAGE_FORM_TITLE,
@@ -40,7 +48,7 @@ import {
   useS3BucketList,
 } from "./hooks";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { AppState } from "reducers/index";
+import { AppState } from "@appsmith/reducers";
 import {
   DropdownOptions,
   DatasourceTableDropdownOption,
@@ -50,10 +58,9 @@ import {
   DROPDOWN_DIMENSION,
   ALLOWED_SEARCH_DATATYPE,
 } from "../constants";
-import { TooltipComponent as Tooltip } from "design-system";
 import { Bold, Label, SelectWrapper } from "./styles";
 import { GeneratePagePayload } from "./types";
-import Icon from "components/ads/Icon";
+import { Icon } from "design-system";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 
@@ -614,7 +621,11 @@ function GeneratePageForm() {
             onSelect={onSelectDataSource}
             optionWidth={DROPDOWN_DIMENSION.WIDTH}
             options={dataSourceOptions}
-            renderOption={({ isSelectedNode, option, optionClickHandler }) => (
+            renderOption={({
+              isSelectedNode,
+              option,
+              optionClickHandler,
+            }: RenderDropdownOptionType) => (
               <DataSourceOption
                 cypressSelector="t--datasource-dropdown-option"
                 extraProps={{ routeToCreateNewDatasource }}

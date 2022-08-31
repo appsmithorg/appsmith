@@ -1,29 +1,32 @@
 import React, { useEffect, useState } from "react";
-import { useSelector } from "react-redux";
+import { connect } from "react-redux";
 import { Link, useHistory, useParams } from "react-router-dom";
 import styled from "styled-components";
 import debounce from "lodash/debounce";
-import { getCurrentUser } from "selectors/usersSelectors";
 // import { OrgUser } from "constants/orgConstants";
 // import { getAllUsers } from "selectors/organizationSelectors";
 // import { fetchUsersForOrg, fetchRolesForOrg } from "actions/orgActions";
 import { Listing } from "./Listing";
 import ProfileImage from "pages/common/ProfileImage";
-import { MenuItemProps, Toaster, Variant } from "components/ads";
+import { Toaster, Variant } from "components/ads";
+import { HighlightText, MenuItemProps } from "design-system";
 import { PageHeader } from "./PageHeader";
 import { BottomSpace } from "pages/Settings/components";
-import { HighlightText } from "./helpers/HighlightText";
 import { UserEdit } from "./UserEdit";
 import { AclWrapper } from "./components";
 import FormDialogComponent from "components/editorComponents/form/FormDialogComponent";
 import WorkspaceInviteUsersForm from "pages/workspace/WorkspaceInviteUsersForm";
 import { adminSettingsCategoryUrl } from "RouteBuilder";
 import { SettingCategories } from "@appsmith/pages/AdminSettings/config/types";
+import { deleteAclUser, getUserById } from "@appsmith/actions/aclActions";
 import {
   createMessage,
+  DELETE_USER,
   SHOW_LESS_GROUPS,
   SHOW_MORE_GROUPS,
 } from "@appsmith/constants/messages";
+import { AppState } from "@appsmith/reducers";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 
 export const CellContainer = styled.div`
   display: flex;
@@ -79,9 +82,8 @@ export const ShowLess = styled.div`
 `;
 
 export type User = {
-  isCurrentUser: boolean;
   allGroups: Array<string>;
-  allPermissions: Array<string>;
+  allRoles: Array<string>;
   userId: string;
   username: string;
   name: string;
@@ -90,69 +92,45 @@ export type User = {
   isChangingRole: boolean;
 };
 
-export const allUsers: User[] = [
-  {
-    isChangingRole: false,
-    isCurrentUser: true,
-    isDeleting: false,
-    name: "Ankita Kinger",
-    // roleName: "Administrator + 2 more",
-    allGroups: ["Administrator", "Test_Admin", "HR_Admin"],
-    allPermissions: ["Administrator-PG", "Test_Admin-PG", "HR_Admin-PG"],
-    username: "techak@appsmith.com",
-    userId: "123",
-  },
-  {
-    isChangingRole: false,
-    isCurrentUser: false,
-    isDeleting: false,
-    name: "Sangy Sivan",
-    // roleName: "App Viewer + 1 more",
-    allGroups: ["App Viewer", "HR_Admin"],
-    allPermissions: ["App Viewer-PG", "HR_Admin-PG"],
-    username: "sangy@appsmith.com",
-    userId: "456",
-  },
-  {
-    isChangingRole: false,
-    isCurrentUser: false,
-    isDeleting: false,
-    name: "SS Sivan",
-    // roleName: "App Viewer + 1 more",
-    allGroups: ["App Viewer", "HR_Admin"],
-    allPermissions: ["App Viewer-PG", "HR_Admin-PG"],
-    username: "sangy123@appsmith.com",
-    userId: "789",
-  },
-];
+export type UserListingProps = {
+  deleteAclUser: (id: string) => void;
+  getAllAclUsers: () => void;
+  getUserById: (id: string) => void;
+  users: User[];
+  selectedUser: User;
+};
 
-export function UserListing() {
-  // const dispatch = useDispatch();
-  // useEffect(() => {
-  //   dispatch(fetchUsersForOrg("626a2ce37a900c13a72aa24b"));
-  //   dispatch(fetchRolesForOrg("626a2ce37a900c13a72aa24b"));
-  // }, []);
-  // const allUsers = useSelector(getAllUsers);
-  const currentUser = useSelector(getCurrentUser);
+export function UserListing(props: UserListingProps) {
   const history = useHistory();
-  const params = useParams() as any;
-  const selectedUserId = params?.selected;
-  const selectedUser = allUsers.find((user) => user.userId === selectedUserId);
-
-  const userTableData = allUsers.map((user) => ({
-    ...user,
-    isCurrentUser: user.username === currentUser?.username,
-  }));
 
   const [data, setData] = useState<User[]>([]);
   const [searchValue, setSearchValue] = useState("");
   const [showModal, setShowModal] = useState(false);
 
+  const params = useParams() as any;
+  const {
+    deleteAclUser,
+    getAllAclUsers,
+    getUserById,
+    selectedUser,
+    users: aclUsers,
+  } = props;
+  const selectedUserId = params?.selected;
+
   useEffect(() => {
-    setData(allUsers);
+    getAllAclUsers();
   }, []);
 
-  const onDeleteHanlder = (userId: string) => {
+  useEffect(() => {
+    if (selectedUserId) {
+      getUserById(selectedUserId);
+    } else {
+      setData(aclUsers);
+    }
+  }, [aclUsers, selectedUserId]);
+
+  const onDeleteHandler = (userId: string) => {
+    deleteAclUser(userId);
     const updatedData = data.filter((user) => {
       return user.userId !== userId;
     });
@@ -194,7 +172,7 @@ export function UserListing() {
     },
     {
       Header: "Roles",
-      accessor: "allPermissions",
+      accessor: "allRoles",
       Cell: function RoleCell(cellProps: any) {
         const [showAllGroups, setShowAllGroups] = useState(false);
 
@@ -202,7 +180,7 @@ export function UserListing() {
           <CellContainer data-testid="user-listing-rolesCell">
             {showAllGroups ? (
               <AllGroups>
-                {cellProps.cell.row.values.allPermissions.map((group: any) => (
+                {cellProps.cell.row.values.allRoles.map((group: any) => (
                   <div key={group}>{group}</div>
                 ))}
                 <ShowLess
@@ -214,31 +192,31 @@ export function UserListing() {
               </AllGroups>
             ) : (
               <GroupWrapper>
-                {cellProps.cell.row.values.allPermissions[0]}
-                {cellProps.cell.row.values.allPermissions[0].length < 40 ? (
+                {cellProps.cell.row.values.allRoles[0]}
+                {cellProps.cell.row.values.allRoles[0].length < 40 ? (
                   <>
-                    , {cellProps.cell.row.values.allPermissions[1]}
-                    {cellProps.cell.row.values.allPermissions.length > 2 && (
+                    , {cellProps.cell.row.values.allRoles[1]}
+                    {cellProps.cell.row.values.allRoles.length > 2 && (
                       <MoreGroups
                         data-testid="t--show-more"
                         onClick={() => setShowAllGroups(true)}
                       >
                         {createMessage(
                           SHOW_MORE_GROUPS,
-                          cellProps.cell.row.values.allPermissions.length - 2,
+                          cellProps.cell.row.values.allRoles.length - 2,
                         )}
                       </MoreGroups>
                     )}
                   </>
                 ) : (
-                  cellProps.cell.row.values.allPermissions.length > 1 && (
+                  cellProps.cell.row.values.allRoles.length > 1 && (
                     <MoreGroups
                       data-testid="t--show-more"
                       onClick={() => setShowAllGroups(true)}
                     >
                       {createMessage(
                         SHOW_MORE_GROUPS,
-                        cellProps.cell.row.values.allPermissions.length - 1,
+                        cellProps.cell.row.values.allRoles.length - 1,
                       )}
                     </MoreGroups>
                   )
@@ -313,19 +291,21 @@ export function UserListing() {
       label: "edit",
       className: "edit-menu-item",
       icon: "edit-underline",
-      onSelect: (e, userId: string) => {
-        userId && history.push(`/settings/users/${userId}`);
+      onSelect: (e: React.MouseEvent, userId: string) => {
+        if (userId) {
+          history.push(`/settings/users/${userId}`);
+        }
       },
-      text: "Edit Groups",
+      text: "Edit",
     },
     {
       label: "delete",
       className: "delete-menu-item",
       icon: "delete-blank",
-      onSelect: (e, key: string) => {
-        onDeleteHanlder(key);
+      onSelect: (e: React.MouseEvent, key: string) => {
+        onDeleteHandler(key);
       },
-      text: "Delete User",
+      text: createMessage(DELETE_USER),
     },
   ];
 
@@ -348,24 +328,24 @@ export function UserListing() {
     if (search && search.trim().length > 0) {
       setSearchValue(search);
       const results =
-        userTableData &&
-        userTableData.filter((user) =>
+        aclUsers &&
+        aclUsers.filter((user: any) =>
           user.username?.toLocaleUpperCase().includes(search),
         );
       setData(results);
     } else {
       setSearchValue("");
-      setData(userTableData);
+      setData(aclUsers);
     }
   }, 300);
 
   return (
     <AclWrapper data-testid="user-listing-wrapper">
-      {selectedUser ? (
+      {selectedUserId && selectedUser ? (
         <UserEdit
           data-testid="acl-user-edit"
-          onDelete={onDeleteHanlder}
-          searchPlaceholder="Search users"
+          onDelete={onDeleteHandler}
+          searchPlaceholder="Search"
           selectedUser={selectedUser}
         />
       ) : (
@@ -407,3 +387,18 @@ export function UserListing() {
     </AclWrapper>
   );
 }
+
+const mapStateToProps = (state: AppState) => {
+  return {
+    users: state.acl.users,
+    selectedUser: state.acl.selectedUser,
+  };
+};
+
+const mapDispatchToProps = (dispatch: any) => ({
+  deleteAclUser: (id: string) => dispatch(deleteAclUser(id)),
+  getAllAclUsers: () => dispatch({ type: ReduxActionTypes.FETCH_ACL_USERS }),
+  getUserById: (id: string) => dispatch(getUserById({ id })),
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(UserListing);

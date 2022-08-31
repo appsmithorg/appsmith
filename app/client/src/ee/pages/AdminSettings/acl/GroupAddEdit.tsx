@@ -1,15 +1,13 @@
 import React, { useEffect, useState } from "react";
+import { Menu, Table, Toaster, Variant } from "components/ads";
 import {
   Button,
+  HighlightText,
   Icon,
   IconSize,
-  Menu,
   MenuItem,
   MenuItemProps,
-  Table,
-  Toaster,
-  Variant,
-} from "components/ads";
+} from "design-system";
 import styled from "styled-components";
 import { TabComponent, TabProp } from "components/ads/Tabs";
 import { ActiveAllGroupsList } from "./ActiveAllGroupsList";
@@ -20,15 +18,13 @@ import { debounce } from "lodash";
 import FormDialogComponent from "components/editorComponents/form/FormDialogComponent";
 import WorkspaceInviteUsersForm from "pages/workspace/WorkspaceInviteUsersForm";
 import { useHistory } from "react-router";
-import { HighlightText } from "./helpers/HighlightText";
 import { User } from "./UserListing";
 import { Position } from "@blueprintjs/core";
 import {
   ADD_USERS,
   ARE_YOU_SURE,
-  CLONE_GROUP,
+  // CLONE_GROUP,
   createMessage,
-  DELETE_USER,
   DELETE_GROUP,
   INVITE_USERS_SUBMIT_BUTTON_TEXT,
   NO_USERS_MESSAGE,
@@ -36,8 +32,9 @@ import {
   RENAME_SUCCESSFUL,
   RENAME_GROUP,
   SEARCH_PLACEHOLDER,
+  REMOVE_USER,
 } from "@appsmith/constants/messages";
-import { BackButton } from "pages/Settings/components";
+import { BackButton } from "components/utils/helperComponents";
 
 export type GroupProps = {
   isEditing: boolean;
@@ -45,7 +42,7 @@ export type GroupProps = {
   rolename: string;
   id: string;
   allUsers: Array<any>;
-  allPermissions: Array<any>;
+  allRoles: Array<any>;
   activePermissions: Array<any>;
   isNew?: boolean;
 };
@@ -53,7 +50,7 @@ export type GroupProps = {
 export type GroupEditProps = {
   selected: GroupProps;
   onDelete: any;
-  onClone: any;
+  // onClone: any;
 };
 
 const ListUsers = styled.div`
@@ -132,7 +129,7 @@ const NoUsersText = styled.div`
 
 export type Permissions = {
   activePermissions: string[];
-  allPermissions: string[];
+  allRoles: string[];
 };
 
 export function GroupAddEdit(props: GroupEditProps) {
@@ -143,7 +140,7 @@ export function GroupAddEdit(props: GroupEditProps) {
   const [users, setUsers] = useState<User[]>(selected.allUsers || []);
   const [permissions, setPermissions] = useState<Permissions>({
     activePermissions: selected.activePermissions || [],
-    allPermissions: selected.allPermissions || [],
+    allRoles: selected.allRoles || [],
   });
 
   const [removedActiveGroups, setRemovedActiveGroups] = useState<Array<any>>(
@@ -154,6 +151,15 @@ export function GroupAddEdit(props: GroupEditProps) {
   const [pageTitle, setPageTitle] = useState(selected.rolename);
 
   const history = useHistory();
+
+  useEffect(() => {
+    setUsers(selected.allUsers || []);
+    setPermissions({
+      activePermissions: selected.activePermissions || [],
+      allRoles: selected.allRoles || [],
+    });
+    setPageTitle(selected.rolename || "");
+  }, [selected]);
 
   useEffect(() => {
     const saving =
@@ -182,7 +188,7 @@ export function GroupAddEdit(props: GroupEditProps) {
         activePermissions: permissions.activePermissions.filter((permission) =>
           permission?.toLocaleUpperCase().includes(search),
         ),
-        allPermissions: permissions.allPermissions.filter((permission: any) =>
+        allRoles: permissions.allRoles.filter((permission: any) =>
           permission?.toLocaleUpperCase().includes(search),
         ),
       };
@@ -192,7 +198,7 @@ export function GroupAddEdit(props: GroupEditProps) {
       setUsers(selected.allUsers);
       setPermissions({
         activePermissions: selected.activePermissions || [],
-        allPermissions: selected.allPermissions || [],
+        allRoles: selected.allRoles || [],
       });
     }
   }, 300);
@@ -220,13 +226,13 @@ export function GroupAddEdit(props: GroupEditProps) {
       (role) => !removedActiveGroups.includes(role),
     );
     updatedActiveGroups.push(...addedAllGroups);
-    const updatedAllGroups = permissions.allPermissions.filter(
+    const updatedAllGroups = permissions.allRoles.filter(
       (role) => !addedAllGroups.includes(role),
     );
     updatedAllGroups.push(...removedActiveGroups);
     setPermissions({
       activePermissions: updatedActiveGroups,
-      allPermissions: updatedAllGroups,
+      allRoles: updatedAllGroups,
     });
     setRemovedActiveGroups([]);
     setAddedAllGroups([]);
@@ -318,14 +324,14 @@ export function GroupAddEdit(props: GroupEditProps) {
             <MenuItem
               className={"delete-menu-item"}
               icon={"delete-blank"}
-              key={createMessage(DELETE_USER)}
+              key={createMessage(REMOVE_USER)}
               onSelect={() => {
                 onOptionSelect();
               }}
               text={
                 showConfirmationText
                   ? createMessage(ARE_YOU_SURE)
-                  : createMessage(DELETE_USER)
+                  : createMessage(REMOVE_USER)
               }
               {...(showConfirmationText ? { type: "warning" } : {})}
             />
@@ -364,14 +370,12 @@ export function GroupAddEdit(props: GroupEditProps) {
     {
       key: "permissions",
       title: "Roles",
-      count:
-        permissions.activePermissions.length +
-        permissions.allPermissions.length,
+      count: permissions.activePermissions.length,
       panelComponent: (
         <ActiveAllGroupsList
           activeGroups={permissions.activePermissions}
           addedAllGroups={addedAllGroups}
-          allGroups={permissions.allPermissions}
+          allGroups={permissions.allRoles}
           onAddGroup={onAddGroup}
           onRemoveGroup={onRemoveGroup}
           removedActiveGroups={removedActiveGroups}
@@ -381,24 +385,24 @@ export function GroupAddEdit(props: GroupEditProps) {
     },
   ];
 
-  const onDeleteHanlder = () => {
+  const onDeleteHandler = () => {
     props.onDelete && props.onDelete(selected.id);
     history.push(`/settings/groups`);
   };
 
-  const onCloneHandler = () => {
+  /*const onCloneHandler = () => {
     props.onClone && props.onClone(selected);
     history.push(`/settings/groups`);
-  };
+  };*/
 
   const menuItems: MenuItemProps[] = [
-    {
+    /*{
       className: "clone-menu-item",
       icon: "duplicate",
       onSelect: () => onCloneHandler(),
       text: createMessage(CLONE_GROUP),
       label: "clone",
-    },
+    },*/
     {
       className: "rename-menu-item",
       icon: "edit-underline",
@@ -408,14 +412,14 @@ export function GroupAddEdit(props: GroupEditProps) {
     {
       className: "delete-menu-item",
       icon: "delete-blank",
-      onSelect: () => onDeleteHanlder(),
+      onSelect: () => onDeleteHandler(),
       text: createMessage(DELETE_GROUP),
       label: "delete",
     },
   ];
 
   return (
-    <div data-testid="t--user-edit-wrapper" style={{ width: "100%" }}>
+    <div className="scrollable-wrapper" data-testid="t--user-edit-wrapper">
       <BackButton />
       <PageHeader
         buttonText={createMessage(ADD_USERS)}

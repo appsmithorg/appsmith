@@ -16,8 +16,8 @@ describe("Table Widget text wrapping functionality", function() {
     cy.editColumn("image");
     cy.get(".t--property-control-cellwrapping .bp3-control-indicator")
       .first()
-      .click();
-
+      .click({ force: true });
+    cy.wait(1000);
     cy.getTableCellHeight(1, 0).then((height) => {
       expect(height).to.not.equal("28px");
     });
@@ -36,9 +36,10 @@ describe("Table Widget text wrapping functionality", function() {
     cy.openPropertyPane("tablewidgetv2");
     cy.wait(2000);
     cy.editColumn("email");
-    cy.get(".t--property-control-cellwrapping .bp3-control-indicator")
-      .first()
-      .click();
+    cy.get(".t--property-control-cellwrapping .bp3-control-indicator").click({
+      force: true,
+    });
+    cy.wait(1000);
     cy.getTableCellHeight(2, 0).then((height) => {
       expect(height).to.not.equal("28px");
     });

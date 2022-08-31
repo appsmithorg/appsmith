@@ -1,7 +1,7 @@
 import React from "react";
 import "@testing-library/jest-dom";
 import { render, screen, waitFor } from "test/testUtils";
-import { allUsers } from "./UserListing";
+import { allUsers } from "./mocks/UserListingMock";
 import userEvent from "@testing-library/user-event";
 import { UserEdit } from "./UserEdit";
 
@@ -49,7 +49,7 @@ describe("<UserEdit />", () => {
     const moreMenu = getAllByTestId("actions-cell-menu-icon");
     await userEvent.click(moreMenu[0]);
     const menu = document.getElementsByClassName("delete-menu-item");
-    expect(menu[0]).toHaveTextContent("Delete User");
+    expect(menu[0]).toHaveTextContent("Delete");
     expect(menu[0]).not.toHaveTextContent("Are you sure?");
     await userEvent.click(menu[0]);
     const confirmationText = document.getElementsByClassName(

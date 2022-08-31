@@ -1,7 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 
-import Icon, { IconSize } from "components/ads/Icon";
+import { Icon, IconSize } from "design-system";
 
 type Props = {
   backgroundColor: string;

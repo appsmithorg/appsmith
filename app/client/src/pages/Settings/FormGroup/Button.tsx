@@ -1,6 +1,6 @@
-import Button, { Category } from "components/ads/Button";
 import { SETTINGS_FORM_NAME } from "constants/forms";
 import React from "react";
+import { Button, Category } from "design-system";
 import { useDispatch } from "react-redux";
 import { getFormValues } from "redux-form";
 import { useSelector } from "store";

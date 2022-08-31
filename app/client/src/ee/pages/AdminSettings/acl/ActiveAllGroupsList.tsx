@@ -1,9 +1,9 @@
 import React from "react";
 import styled from "styled-components";
-import { Icon, IconSize } from "components/ads";
+import { Icon, IconSize } from "design-system";
 import { Colors } from "constants/Colors";
 import { ContentWrapper } from "./components";
-import { HighlightText } from "./helpers/HighlightText";
+import { HighlightText } from "design-system";
 import {
   createMessage,
   ACTIVE_ROLES,
@@ -20,7 +20,7 @@ const AllGroups = styled.div`
 const TitleWrapper = styled.div`
   display: flex;
   border-bottom: 1px solid var(--appsmith-color-black-200);
-  padding: 0 8px 12px 0;
+  padding: 0 8px 12px 8px;
 `;
 
 const Title = styled.span`
@@ -113,7 +113,7 @@ export function ActiveAllGroupsList(props: ActiveAllGroupsProps) {
     onAddGroup,
     onRemoveGroup,
     removedActiveGroups,
-    searchValue,
+    searchValue = "",
   } = props;
 
   return (

@@ -2,7 +2,7 @@ import React from "react";
 import "@testing-library/jest-dom";
 import { render, screen, waitFor } from "test/testUtils";
 import { RoleAddEdit, RoleEditProps } from "./RoleAddEdit";
-import { rolesTableData } from "./RolesListing";
+import { rolesTableData } from "./mocks/RolesListingMock";
 import { hashtable } from "./RolesTree";
 import userEvent from "@testing-library/user-event";
 import { response2 } from "./mocks/mockRoleTreeResponse";
@@ -81,20 +81,20 @@ const listMenuItems = [
     className: "clone-menu-item",
     icon: "duplicate",
     onSelect: jest.fn(),
-    text: "Clone Role",
+    text: "Clone",
     label: "clone",
   },
   {
     className: "rename-menu-item",
     icon: "edit-underline",
-    text: "Rename Role",
+    text: "Rename",
     label: "rename",
   },
   {
     className: "delete-menu-item",
     icon: "delete-blank",
     onSelect: jest.fn(),
-    text: "Delete Role",
+    text: "Delete",
     label: "delete",
   },
 ];
@@ -286,7 +286,7 @@ describe("<RoleAddEdit />", () => {
     const moreMenu = getAllByTestId("t--page-header-actions");
     await userEvent.click(moreMenu[0]);
     const deleteOption = document.getElementsByClassName("delete-menu-item");
-    expect(deleteOption[0]).toHaveTextContent("Delete Role");
+    expect(deleteOption[0]).toHaveTextContent("Delete");
     expect(deleteOption[0]).not.toHaveTextContent("Are you sure?");
     await userEvent.click(deleteOption[0]);
     const confirmationText = document.getElementsByClassName(

@@ -1,5 +1,6 @@
 import React from "react";
-import { Button, Category, SearchInput } from "components/ads";
+import { SearchInput } from "components/ads";
+import { Button, Category } from "design-system";
 import styled, { createGlobalStyle } from "styled-components";
 import { Spinner } from "@blueprintjs/core";
 import {
@@ -11,10 +12,13 @@ import {
 
 export const AclWrapper = styled.div`
   flex-basis: calc(100% - ${(props) => props.theme.homePage.leftPane.width}px);
-  margin-left: ${(props) => props.theme.homePage.main.marginLeft}px;
-  padding: 40px 30px 0 0;
+  margin: 32px 0 0 ${(props) => props.theme.homePage.main.marginLeft}px;
+  padding: 0 30px 0 0;
   height: calc(100vh - ${(props) => props.theme.homePage.header}px);
-  overflow: auto;
+
+  .scrollable-wrapper {
+    height: 100%;
+  }
 `;
 
 export const SaveButtonBarWrapper = styled.div`
@@ -35,10 +39,14 @@ export const SaveButtonBarWrapper = styled.div`
 `;
 
 export const TabsWrapper = styled.div`
-  margin: 36px 0 0;
-
+  overflow: auto;
+  height: calc(100% - 80px);
   .react-tabs__tab-list {
     border-bottom: 1px solid var(--appsmith-color-black-200);
+    padding: 36px 0 0;
+  }
+  .react-tabs__tab-panel {
+    height: calc(100% - 128px);
   }
 `;
 
@@ -164,8 +172,11 @@ export function SaveButtonBar({
 
 export const LoaderContainer = styled.div`
   justify-content: center;
+  align-items: center;
   width: 100%;
-
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
   .bp3-spinner {
     svg {
       width: 24px;
@@ -181,10 +192,11 @@ export const LoaderText = styled.div`
   text-align: center;
 `;
 
-export const Loader = () => {
+export const Loader = ({ loaderText }: { loaderText?: string }) => {
   return (
     <LoaderContainer>
       <Spinner />
+      <LoaderText>{loaderText}</LoaderText>
     </LoaderContainer>
   );
 };

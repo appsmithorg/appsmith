@@ -2,9 +2,8 @@ import React from "react";
 import "@testing-library/jest-dom";
 import { render, screen, waitFor } from "test/testUtils";
 import { Listing } from "./Listing";
-import { columns } from "./mocks/UserListingMock";
+import { allUsers, columns } from "./mocks/UserListingMock";
 import userEvent from "@testing-library/user-event";
-import { allUsers } from "./UserListing";
 
 let container: any = null;
 const onSelectFn = jest.fn();

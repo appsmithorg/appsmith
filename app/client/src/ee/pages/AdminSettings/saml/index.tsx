@@ -10,8 +10,9 @@ import {
   SettingsHeader,
   SettingsSubHeader,
   SettingsFormWrapper,
-  BackButton,
+  MaxWidthWrapper,
 } from "pages/Settings/components";
+import { BackButton } from "components/utils/helperComponents";
 import AdminConfig from "@appsmith/pages/AdminSettings/config";
 import RestartBanner from "pages/Settings/RestartBanner";
 import { DisconnectService } from "pages/Settings/DisconnectService";
@@ -77,24 +78,28 @@ export function Saml() {
     <Wrapper>
       {subCategory && <BackButton />}
       <SettingsFormWrapper>
-        <HeaderWrapper>
-          <SettingsHeader>{pageTitle}</SettingsHeader>
-          {details?.subText && (
-            <SettingsSubHeader>{details.subText}</SettingsSubHeader>
+        <MaxWidthWrapper>
+          <HeaderWrapper>
+            <SettingsHeader>{pageTitle}</SettingsHeader>
+            {details?.subText && (
+              <SettingsSubHeader>{details.subText}</SettingsSubHeader>
+            )}
+          </HeaderWrapper>
+          {!saved && <ReadMetadata />}
+          {saved && (
+            <>
+              <SamlAuthTest />
+              <DisconnectService
+                disconnect={() => disconnect()}
+                subHeader={createMessage(DISCONNECT_SERVICE_SUBHEADER)}
+                warning={`SAML 2.0 ${createMessage(
+                  DISCONNECT_SERVICE_WARNING,
+                )}`}
+              />
+            </>
           )}
-        </HeaderWrapper>
-        {!saved && <ReadMetadata />}
-        {saved && (
-          <>
-            <SamlAuthTest />
-            <DisconnectService
-              disconnect={() => disconnect()}
-              subHeader={createMessage(DISCONNECT_SERVICE_SUBHEADER)}
-              warning={`SAML 2.0 ${createMessage(DISCONNECT_SERVICE_WARNING)}`}
-            />
-          </>
-        )}
-        <BottomSpace />
+          <BottomSpace />
+        </MaxWidthWrapper>
       </SettingsFormWrapper>
       <RestartBanner />
     </Wrapper>

@@ -2,37 +2,37 @@ import React from "react";
 import "@testing-library/jest-dom";
 import { render, screen, waitFor } from "test/testUtils";
 import { GroupAddEdit, GroupEditProps } from "./GroupAddEdit";
-import { userGroupTableData } from "./GroupsListing";
+import { userGroupTableData } from "./mocks/UserGroupListingMock";
 import userEvent from "@testing-library/user-event";
 
 let container: any = null;
 
 const listMenuItems = [
-  {
+  /*{
     className: "clone-menu-item",
     icon: "duplicate",
     onSelect: jest.fn(),
-    text: "Clone Group",
+    text: "Clone",
     label: "clone",
-  },
+  },*/
   {
     className: "rename-menu-item",
     icon: "edit-underline",
-    text: "Rename Group",
+    text: "Rename",
     label: "rename",
   },
   {
     className: "delete-menu-item",
     icon: "delete-blank",
     onSelect: jest.fn(),
-    text: "Delete Group",
+    text: "Delete",
     label: "delete",
   },
 ];
 
 const props: GroupEditProps = {
   selected: userGroupTableData[0],
-  onClone: jest.fn(),
+  // onClone: jest.fn(),
   onDelete: jest.fn(),
 };
 
@@ -74,7 +74,7 @@ describe("<GroupAddEdit />", () => {
     const selectedGroup = userGroupTableData[1];
     const props = {
       selected: selectedGroup,
-      onClone: jest.fn(),
+      // onClone: jest.fn(),
       onDelete: jest.fn(),
     };
     render(<GroupAddEdit {...props} />);
@@ -89,10 +89,7 @@ describe("<GroupAddEdit />", () => {
     expect(tabCount).toHaveLength(2);
     const mockCounts = [
       userGroupTableData[1].allUsers.length.toString(),
-      (
-        userGroupTableData[1].allPermissions.length +
-        userGroupTableData[1].activePermissions.length
-      ).toString(),
+      userGroupTableData[1].activePermissions.length.toString(),
     ];
     expect(tabCount.map((tab) => tab.textContent)).toEqual(mockCounts);
 
@@ -118,7 +115,7 @@ describe("<GroupAddEdit />", () => {
     const selectedGroup = userGroupTableData[1];
     const props = {
       selected: selectedGroup,
-      onClone: jest.fn(),
+      // onClone: jest.fn(),
       onDelete: jest.fn(),
     };
     render(<GroupAddEdit {...props} />);
@@ -133,10 +130,7 @@ describe("<GroupAddEdit />", () => {
     expect(tabCount).toHaveLength(2);
     const mockCounts = [
       userGroupTableData[1].allUsers.length.toString(),
-      (
-        userGroupTableData[1].allPermissions.length +
-        userGroupTableData[1].activePermissions.length
-      ).toString(),
+      userGroupTableData[1].activePermissions.length.toString(),
     ];
     expect(tabCount.map((tab) => tab.textContent)).toEqual(mockCounts);
 
@@ -204,10 +198,10 @@ describe("<GroupAddEdit />", () => {
     const { getAllByTestId } = renderComponent();
     const moreMenu = getAllByTestId("t--page-header-actions");
     await userEvent.click(moreMenu[0]);
-    const cloneOption = document.getElementsByClassName("rename-menu-item");
+    const renameOption = document.getElementsByClassName("rename-menu-item");
     let titleEl = document.getElementsByClassName("t--editable-title");
     expect(titleEl[0]).not.toContain("input");
-    await userEvent.click(cloneOption[0]);
+    await userEvent.click(renameOption[0]);
     titleEl = document.getElementsByClassName("t--editable-title");
     expect(titleEl[0]).toContainHTML("input");
   });
@@ -216,7 +210,7 @@ describe("<GroupAddEdit />", () => {
     const moreMenu = getAllByTestId("t--page-header-actions");
     await userEvent.click(moreMenu[0]);
     const deleteOption = document.getElementsByClassName("delete-menu-item");
-    expect(deleteOption[0]).toHaveTextContent("Delete Group");
+    expect(deleteOption[0]).toHaveTextContent("Delete");
     expect(deleteOption[0]).not.toHaveTextContent("Are you sure?");
     await userEvent.click(deleteOption[0]);
     const confirmationText = document.getElementsByClassName(

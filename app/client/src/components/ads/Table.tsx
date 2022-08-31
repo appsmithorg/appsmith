@@ -4,8 +4,7 @@ import styled from "styled-components";
 import { ReactComponent as DownArrow } from "assets/icons/ads/down_arrow.svg";
 import { ReactComponent as UpperArrow } from "assets/icons/ads/upper_arrow.svg";
 import { Classes } from "./common";
-import Spinner from "./Spinner";
-import { IconSize } from "./Icon";
+import { IconSize, Spinner } from "design-system";
 import EmptyDataState from "components/utils/EmptyDataState";
 
 const Styles = styled.div`
@@ -14,6 +13,9 @@ const Styles = styled.div`
     width: 100%;
 
     thead {
+      position: sticky;
+      top: 0;
+
       tr {
         background-color: ${(props) => props.theme.colors.table.headerBg};
 
@@ -27,10 +29,14 @@ const Styles = styled.div`
           line-height: ${(props) => props.theme.typography.h6.lineHeight}px;
           letter-spacing: ${(props) =>
             props.theme.typography.h6.letterSpacing}px;
+          border-bottom: 1px solid var(--appsmith-color-black-200);
 
           svg {
             margin-left: ${(props) => props.theme.spaces[2]}px;
             margin-bottom: ${(props) => props.theme.spaces[0] + 1}px;
+            width: 6px;
+            height: 4px;
+            display: initial;
           }
 
           &:hover {

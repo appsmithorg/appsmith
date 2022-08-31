@@ -10,4 +10,5 @@ export interface RoleTable {
   permission: number[];
   subRows?: RoleTable[];
   treeOpen?: boolean;
+  type?: string;
 }

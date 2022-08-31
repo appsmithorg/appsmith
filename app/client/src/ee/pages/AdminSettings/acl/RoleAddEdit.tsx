@@ -1,13 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { useHistory } from "react-router";
-import { MenuItemProps, Toaster, Variant } from "components/ads";
+import { Toaster, Variant } from "components/ads";
+import { MenuItemProps } from "design-system";
 import { TabComponent, TabProp } from "components/ads/Tabs";
 import { PageHeader } from "./PageHeader";
 import { SaveButtonBar, TabsWrapper } from "./components";
 import { debounce } from "lodash";
 import RolesTree from "./RolesTree";
-import { BackButton } from "pages/Settings/components";
-import EmptyDataState from "components/utils/EmptyDataState";
 import { response2 } from "./mocks/mockRoleTreeResponse";
 import {
   createMessage,
@@ -18,6 +17,7 @@ import {
   SEARCH_PLACEHOLDER,
   SUCCESSFULLY_SAVED,
 } from "@appsmith/constants/messages";
+import { BackButton } from "components/utils/helperComponents";
 
 export type RoleProps = {
   isEditing: boolean;
@@ -42,6 +42,10 @@ export function RoleAddEdit(props: RoleEditProps) {
   const [searchValue, setSearchValue] = useState("");
   const [filteredData, setFilteredData] = useState<any>([]);
   const history = useHistory();
+
+  useEffect(() => {
+    setPageTitle(selected.permissionName || "");
+  }, [selected]);
 
   useEffect(() => {
     if (pageTitle !== selected.permissionName) {
@@ -114,12 +118,13 @@ export function RoleAddEdit(props: RoleEditProps) {
       key: tab.name,
       title: tab.name,
       count: count,
-      panelComponent:
-        searchValue && count === 0 ? (
-          <EmptyDataState />
-        ) : (
-          <RolesTree searchValue={searchValue} tabData={tab} />
-        ),
+      panelComponent: (
+        <RolesTree
+          noData={searchValue !== "" && count === 0}
+          searchValue={searchValue}
+          tabData={tab}
+        />
+      ),
     };
   });
 
@@ -188,7 +193,7 @@ export function RoleAddEdit(props: RoleEditProps) {
   ];
 
   return (
-    <div data-testid="t--role-edit-wrapper">
+    <div className="scrollable-wrapper" data-testid="t--role-edit-wrapper">
       <BackButton />
       <PageHeader
         isEditingTitle={selected.isNew}

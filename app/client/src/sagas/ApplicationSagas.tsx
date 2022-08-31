@@ -31,7 +31,7 @@ import { validateResponse } from "./ErrorSagas";
 import { getUserApplicationsWorkspacesList } from "selectors/applicationSelectors";
 import { ApiResponse } from "api/ApiResponses";
 import history from "utils/history";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import {
   ApplicationVersion,
   fetchApplication,
@@ -55,7 +55,7 @@ import { Toaster } from "components/ads/Toast";
 import { APP_MODE } from "entities/App";
 import { Workspace, Workspaces } from "constants/workspaceConstants";
 import { Variant } from "components/ads/common";
-import { AppIconName } from "components/ads/AppIcon";
+import { AppIconName } from "design-system";
 import { AppColorCode } from "constants/DefaultTheme";
 import {
   getCurrentApplicationId,
@@ -175,7 +175,7 @@ export function* getAllApplicationSaga() {
       const workspaceApplication: WorkspaceApplicationObject[] = response.data.workspaceApplications.map(
         (userWorkspaces: WorkspaceApplicationObject) => ({
           workspace: userWorkspaces.workspace,
-          userRoles: userWorkspaces.userRoles,
+          users: userWorkspaces.users,
           applications: !userWorkspaces.applications
             ? []
             : userWorkspaces.applications.map(

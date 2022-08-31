@@ -1,0 +1,216 @@
+{
+  "responseMeta": {
+    "status": 200,
+    "success": true
+  },
+  "data": [
+    {
+      "isEditing": false,
+      "isDeleting": false,
+      "rolename": "Eng_New",
+      "isAppsmithProvided": false,
+      "id": "123",
+      "allRoles": [
+        "devops_eng_nov",
+        "marketing_nov",
+        "Administrator",
+        "App Viewer"
+      ],
+      "activePermissions": [
+        "HR_Appsmith",
+        "devops_design"
+      ],
+      "allUsers": []
+    },
+    {
+      "isEditing": false,
+      "isDeleting": false,
+      "rolename": "Design",
+      "isAppsmithProvided": false,
+      "id": "456",
+      "allRoles": [
+        "HR_Appsmith",
+        "devops_design",
+        "Administrator",
+        "App Viewer"
+      ],
+      "activePermissions": [
+        "devops_eng_nov",
+        "marketing_nov"
+      ],
+      "allUsers": [
+        {
+          "isChangingRole": false,
+          "isCurrentUser": true,
+          "isDeleting": false,
+          "name": "Ankita Kinger",
+          "username": "techak@appsmith.com",
+          "userId": "123"
+        },
+        {
+          "isChangingRole": false,
+          "isCurrentUser": true,
+          "isDeleting": false,
+          "name": "Hello",
+          "username": "hello123@appsmith.com",
+          "userId": "456"
+        }
+      ]
+    },
+    {
+      "isEditing": false,
+      "isDeleting": false,
+      "rolename": "contractors_ruby",
+      "isAppsmithProvided": false,
+      "id": "789",
+      "allRoles": [
+        "HR_Appsmith",
+        "devops_design",
+        "devops_eng_nov",
+        "marketing_nov"
+      ],
+      "activePermissions": [
+        "Administrator",
+        "App Viewer"
+      ],
+      "allUsers": [
+        {
+          "isChangingRole": false,
+          "isCurrentUser": true,
+          "isDeleting": false,
+          "name": "Ankita Kinger",
+          "allRoles": [
+            "Administrator",
+            "Test_Admin",
+            "HR_Admin"
+          ],
+          "username": "techak@appsmith.com",
+          "userId": "123"
+        },
+        {
+          "isChangingRole": false,
+          "isCurrentUser": true,
+          "isDeleting": false,
+          "name": "Hello",
+          "username": "hello123@appsmith.com",
+          "userId": "456"
+        }
+      ]
+    },
+    {
+      "isEditing": false,
+      "isDeleting": false,
+      "rolename": "marketing_newsletter",
+      "isAppsmithProvided": false,
+      "id": "103",
+      "allRoles": [
+        "HR_Appsmith",
+        "marketing_nov",
+        "Administrator",
+        "App Viewer"
+      ],
+      "activePermissions": [
+        "devops_design",
+        "devops_eng_nov"
+      ],
+      "allUsers": [
+        {
+          "isChangingRole": false,
+          "isCurrentUser": true,
+          "isDeleting": false,
+          "name": "Ankita Kinger",
+          "allRoles": [
+            "Administrator",
+            "Test_Admin",
+            "HR_Admin"
+          ],
+          "username": "techak@appsmith.com",
+          "userId": "123"
+        },
+        {
+          "isChangingRole": false,
+          "isCurrentUser": true,
+          "isDeleting": false,
+          "name": "Hello",
+          "username": "hello123@appsmith.com",
+          "userId": "456"
+        }
+      ]
+    },
+    {
+      "isEditing": false,
+      "isDeleting": false,
+      "rolename": "Administrator",
+      "isAppsmithProvided": true,
+      "id": "120",
+      "allRoles": [
+        "HR_Appsmith",
+        "devops_design",
+        "devops_eng_nov",
+        "marketing_nov",
+        "App Viewer"
+      ],
+      "activePermissions": [
+        "Administrator"
+      ],
+      "allUsers": [
+        {
+          "isChangingRole": false,
+          "isCurrentUser": true,
+          "isDeleting": false,
+          "name": "Ankita Kinger",
+          "allRoles": [
+            "Administrator",
+            "Test_Admin",
+            "HR_Admin"
+          ],
+          "username": "techak@appsmith.com",
+          "userId": "123"
+        },
+        {
+          "isChangingRole": false,
+          "isCurrentUser": true,
+          "isDeleting": false,
+          "name": "Hello",
+          "username": "hello123@appsmith.com",
+          "userId": "456"
+        }
+      ]
+    },
+    {
+      "isEditing": false,
+      "isDeleting": false,
+      "rolename": "App Viewer",
+      "isAppsmithProvided": true,
+      "id": "125",
+      "allRoles": [
+        "HR_Appsmith",
+        "devops_design",
+        "devops_eng_nov",
+        "marketing_nov",
+        "Administrator"
+      ],
+      "activePermissions": [
+        "App Viewer"
+      ],
+      "allUsers": [
+        {
+          "isChangingRole": false,
+          "isCurrentUser": true,
+          "isDeleting": false,
+          "name": "Ankita Kinger",
+          "username": "techak@appsmith.com",
+          "userId": "123"
+        },
+        {
+          "isChangingRole": false,
+          "isCurrentUser": true,
+          "isDeleting": false,
+          "name": "Hello",
+          "username": "hello123@appsmith.com",
+          "userId": "456"
+        }
+      ]
+    }
+  ]
+}

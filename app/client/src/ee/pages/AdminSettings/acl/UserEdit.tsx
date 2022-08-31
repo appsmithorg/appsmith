@@ -3,16 +3,8 @@ import { useHistory } from "react-router";
 import styled from "styled-components";
 import { Position } from "@blueprintjs/core";
 import debounce from "lodash/debounce";
-import {
-  IconSize,
-  MenuItemProps,
-  SearchVariant,
-  Toaster,
-  Variant,
-  Icon,
-  Menu,
-  MenuItem,
-} from "components/ads";
+import { SearchVariant, Toaster, Variant, Menu } from "components/ads";
+import { Icon, IconSize, MenuItem, MenuItemProps } from "design-system";
 import ProfileImage from "pages/common/ProfileImage";
 import { TabComponent, TabProp } from "components/ads/Tabs";
 import { ActiveAllGroupsList } from "./ActiveAllGroupsList";
@@ -28,15 +20,14 @@ import {
   DELETE_USER,
   SUCCESSFULLY_SAVED,
 } from "@appsmith/constants/messages";
-import { BackButton } from "pages/Settings/components";
+import { BackButton } from "components/utils/helperComponents";
 
 type UserProps = {
   isChangingRole: boolean;
-  isCurrentUser: boolean;
   isDeleting: boolean;
   name: string;
   allGroups: Array<string>;
-  allPermissions: Array<string>;
+  allRoles: Array<string>;
   username: string;
   userId: string;
   roleName?: string;
@@ -128,8 +119,8 @@ export function UserEdit(props: UserEditProps) {
 
   useEffect(() => {
     setUserGroups(selectedUser.allGroups);
-    setPermissionGroups(selectedUser.allPermissions);
-  }, []);
+    setPermissionGroups(selectedUser.allRoles);
+  }, [selectedUser]);
 
   useEffect(() => {
     setIsSaving(
@@ -159,7 +150,7 @@ export function UserEdit(props: UserEditProps) {
       (group) => !removedActiveUserGroups.includes(group),
     );
     setUserGroups(updatedUserGroups);
-    const updatedPermissionGroups = selectedUser.allPermissions.filter(
+    const updatedPermissionGroups = selectedUser.allRoles.filter(
       (permission) => !removedActivePermissionGroups.includes(permission),
     );
     setPermissionGroups(updatedPermissionGroups);
@@ -180,6 +171,7 @@ export function UserEdit(props: UserEditProps) {
     {
       key: "groups",
       title: "Groups",
+      count: userGroups.length,
       panelComponent: (
         <ActiveAllGroupsList
           activeGroups={userGroups}
@@ -194,6 +186,7 @@ export function UserEdit(props: UserEditProps) {
     {
       key: "roles",
       title: "Roles",
+      count: permissionGroups.length,
       panelComponent: (
         <ActiveAllGroupsList
           activeGroups={permissionGroups}
@@ -206,7 +199,7 @@ export function UserEdit(props: UserEditProps) {
     },
   ];
 
-  const onDeleteHanlder = () => {
+  const onDeleteHandler = () => {
     if (showConfirmationText) {
       props.onDelete(selectedUser.userId);
       history.push(`/settings/users`);
@@ -221,29 +214,38 @@ export function UserEdit(props: UserEditProps) {
       className: "delete-menu-item",
       icon: "delete-blank",
       onSelect: () => {
-        onDeleteHanlder();
+        onDeleteHandler();
       },
       text: createMessage(DELETE_USER),
     },
   ];
 
   const handleSearch = debounce((search: string) => {
+    let groupResults: string[] = [];
+    let permissionResults: string[];
     if (search && search.trim().length > 0) {
       setSearchValue(search);
-      const results =
+      groupResults =
         selectedUser.allGroups &&
         selectedUser.allGroups.filter((group) =>
           group?.toLocaleUpperCase().includes(search.toLocaleUpperCase()),
         );
-      setUserGroups(results);
+      setUserGroups(groupResults);
+      permissionResults =
+        selectedUser.allRoles &&
+        selectedUser.allRoles.filter((permission) =>
+          permission?.toLocaleUpperCase().includes(search.toLocaleUpperCase()),
+        );
+      setPermissionGroups(permissionResults);
     } else {
       setSearchValue("");
       setUserGroups(selectedUser.allGroups);
+      setPermissionGroups(selectedUser.allRoles);
     }
   }, 300);
 
   return (
-    <div data-testid="t--user-edit-wrapper">
+    <div className="scrollable-wrapper" data-testid="t--user-edit-wrapper">
       <BackButton />
       <Header>
         <User data-testid="t--user-edit-userInfo">
@@ -322,3 +324,5 @@ export function UserEdit(props: UserEditProps) {
     </div>
   );
 }
+
+export default UserEdit;

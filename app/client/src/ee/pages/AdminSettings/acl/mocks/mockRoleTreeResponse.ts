@@ -22,9 +22,11 @@ export const response2: RoleTableResponse[] = [
                     id: "query2",
                     name: "put_fo_roster",
                     permission: [0, 1, 1, 1],
+                    type: "js-object",
                   },
                 ],
                 treeOpen: true,
+                type: "page-home",
               },
               {
                 id: "page2",
@@ -35,12 +37,15 @@ export const response2: RoleTableResponse[] = [
                     id: "query6",
                     name: "put_force_roster",
                     permission: [0, 1, 1, 1],
+                    type: "query",
                   },
                 ],
                 treeOpen: true,
+                type: "page-other",
               },
             ],
             treeOpen: true,
+            type: "application",
           },
           {
             id: "app1",
@@ -65,6 +70,7 @@ export const response2: RoleTableResponse[] = [
           },
         ],
         treeOpen: true,
+        type: "organization",
       },
       {
         id: "org1",
@@ -94,6 +100,7 @@ export const response2: RoleTableResponse[] = [
           },
         ],
         treeOpen: true,
+        type: "organization",
       },
       {
         id: "org2",

@@ -1,9 +1,12 @@
 import React from "react";
 import "@testing-library/jest-dom";
 import { render, screen } from "test/testUtils";
-import { RolesListing, rolesTableData } from "./RolesListing";
+import RolesListing from "./RolesListing";
+import { rolesTableData } from "./mocks/RolesListingMock";
 import userEvent from "@testing-library/user-event";
-import { MenuItemProps } from "components/ads";
+import { MenuItemProps } from "design-system";
+import configureStore from "redux-mock-store";
+import { Provider } from "react-redux";
 
 let container: any = null;
 
@@ -12,30 +15,47 @@ const listMenuItems: MenuItemProps[] = [
     className: "clone-menu-item",
     icon: "duplicate",
     onSelect: jest.fn(),
-    text: "Clone Role",
+    text: "Clone",
     label: "clone",
   },
   {
     className: "edit-menu-item",
     icon: "edit-underline",
     onSelect: jest.fn(),
-    text: "Edit Role",
+    text: "Edit",
     label: "edit",
   },
   {
     className: "delete-menu-item",
     icon: "delete-blank",
     onSelect: jest.fn(),
-    text: "Delete Role",
+    text: "Delete",
     label: "delete",
   },
 ];
 
 function renderComponent() {
-  return render(<RolesListing />);
+  // Mock store to bypass the error of react-redux
+  const store = configureStore()({
+    acl: {
+      roles: rolesTableData,
+      users: [],
+      groups: [],
+      isLoading: false,
+      isSaving: false,
+      selectedGroup: null,
+      selectedUser: null,
+      selectedRole: null,
+    },
+  });
+  return render(
+    <Provider store={store}>
+      <RolesListing />
+    </Provider>,
+  );
 }
 
-describe("<RolesListing />", () => {
+describe("<PermissionGroupListing />", () => {
   beforeEach(() => {
     container = document.createElement("div");
     document.body.appendChild(container);
@@ -47,7 +67,7 @@ describe("<RolesListing />", () => {
   });
   it("should navigate to role edit page on click of role name", async () => {
     renderComponent();
-    const roleEditLink = screen.getAllByTestId("t--roles-cell");
+    const roleEditLink = await screen.getAllByTestId("t--roles-cell");
     await userEvent.click(roleEditLink[0]);
     expect(window.location.pathname).toBe(
       `/settings/roles/${rolesTableData[0].id}`,
@@ -120,7 +140,7 @@ describe("<RolesListing />", () => {
     const moreMenu = getAllByTestId("actions-cell-menu-icon");
     await userEvent.click(moreMenu[0]);
     const deleteOption = document.getElementsByClassName("delete-menu-item");
-    expect(deleteOption[0]).toHaveTextContent("Delete Role");
+    expect(deleteOption[0]).toHaveTextContent("Delete");
     expect(deleteOption[0]).not.toHaveTextContent("Are you sure?");
     await userEvent.click(deleteOption[0]);
     const confirmText = document.getElementsByClassName("delete-menu-item");

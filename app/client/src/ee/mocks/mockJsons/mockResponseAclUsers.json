@@ -1,0 +1,41 @@
+{
+  "responseMeta": {
+    "status": 200,
+    "success": true
+  },
+  "data": [
+    {
+      "isChangingRole": false,
+      "isCurrentUser": true,
+      "isDeleting": false,
+      "name": "Ankita Kinger",
+      "roleName": "Administrator + 2 more",
+      "allGroups": ["Administrator", "Test_Admin", "HR_Admin"],
+      "allRoles": ["Administrator-PG", "Test_Admin-PG", "HR_Admin-PG"],
+      "username": "techak@appsmith.com",
+      "userId": "123"
+    },
+    {
+      "isChangingRole": false,
+      "isCurrentUser": false,
+      "isDeleting": false,
+      "name": "Sangy Sivan",
+      "roleName": "App Viewer + 1 more",
+      "allGroups": ["App Viewer", "HR_Admin"],
+      "allRoles": ["App Viewer-PG", "HR_Admin-PG"],
+      "username": "sangy@appsmith.com",
+      "userId": "456"
+    },
+    {
+      "isChangingRole": false,
+      "isCurrentUser": false,
+      "isDeleting": false,
+      "name": "SS Sivan",
+      "roleName": "App Viewer + 1 more",
+      "allGroups": ["App Viewer", "HR_Admin"],
+      "allRoles": ["App Viewer-PG", "HR_Admin-PG"],
+      "username": "sangy123@appsmith.com",
+      "userId": "789"
+    }
+  ]
+}

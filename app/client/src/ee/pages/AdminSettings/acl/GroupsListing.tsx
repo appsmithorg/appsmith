@@ -1,30 +1,38 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useHistory } from "react-router";
+import { connect } from "react-redux";
+import { Link } from "react-router-dom";
 import styled from "styled-components";
 import debounce from "lodash/debounce";
 import { Listing } from "./Listing";
-import { MenuItemProps, Toaster, Variant } from "components/ads";
+import { Toaster, Variant } from "components/ads";
+import { HighlightText, MenuItemProps } from "design-system";
 import { PageHeader } from "./PageHeader";
 import { BottomSpace } from "pages/Settings/components";
-import { Link } from "react-router-dom";
-import { HighlightText } from "./helpers/HighlightText";
 import { GroupAddEdit } from "./GroupAddEdit";
 import { AclWrapper } from "./components";
 import { User } from "./UserListing";
-import uniqueId from "lodash/uniqueId";
+// import uniqueId from "lodash/uniqueId";
 import { adminSettingsCategoryUrl } from "RouteBuilder";
 import { SettingCategories } from "@appsmith/pages/AdminSettings/config/types";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import {
+  // cloneGroup,
+  deleteGroup,
+  getGroupById,
+} from "@appsmith/actions/aclActions";
 import {
   createMessage,
   ADD_GROUP,
   GROUP_DELETED,
-  GROUP_CLONED,
-  COPY_OF_GROUP,
-  CLONE_GROUP,
+  // GROUP_CLONED,
+  // COPY_OF_GROUP,
+  // CLONE_GROUP,
   EDIT_GROUP,
   DELETE_GROUP,
   SEARCH_GROUPS_PLACEHOLDER,
 } from "@appsmith/constants/messages";
+import { AppState } from "@appsmith/reducers";
 
 const CellContainer = styled.div`
   display: flex;
@@ -37,211 +45,54 @@ export type UserGroup = {
   isDeleting: boolean;
   rolename: string;
   id: string;
-  allPermissions: string[];
+  allRoles: string[];
   activePermissions: string[];
   allUsers: Partial<User>[];
   isNew?: boolean;
 };
 
-export const userGroupTableData: UserGroup[] = [
-  {
-    isEditing: false,
-    isDeleting: false,
-    rolename: "Eng_New",
-    id: "123",
-    allPermissions: [
-      "devops_eng_nov",
-      "marketing_nov",
-      "Administrator",
-      "App Viewer",
-    ],
-    activePermissions: ["HR_Appsmith", "devops_design"],
-    allUsers: [],
-  },
-  {
-    isEditing: false,
-    isDeleting: false,
-    rolename: "Design",
-    id: "456",
-    allPermissions: [
-      "HR_Appsmith",
-      "devops_design",
-      "Administrator",
-      "App Viewer",
-    ],
-    activePermissions: ["devops_eng_nov", "marketing_nov"],
-    allUsers: [
-      {
-        isChangingRole: false,
-        isCurrentUser: true,
-        isDeleting: false,
-        name: "Ankita Kinger",
-        username: "techak@appsmith.com",
-        userId: "123",
-      },
-      {
-        isChangingRole: false,
-        isCurrentUser: true,
-        isDeleting: false,
-        name: "Hello",
-        username: "hello123@appsmith.com",
-        userId: "456",
-      },
-    ],
-  },
-  {
-    isEditing: false,
-    isDeleting: false,
-    rolename: "contractors_ruby",
-    id: "789",
-    allPermissions: [
-      "HR_Appsmith",
-      "devops_design",
-      "devops_eng_nov",
-      "marketing_nov",
-    ],
-    activePermissions: ["Administrator", "App Viewer"],
-    allUsers: [
-      {
-        isChangingRole: false,
-        isCurrentUser: true,
-        isDeleting: false,
-        name: "Ankita Kinger",
-        allGroups: ["Administrator", "Test_Admin", "HR_Admin"],
-        username: "techak@appsmith.com",
-        userId: "123",
-      },
-      {
-        isChangingRole: false,
-        isCurrentUser: true,
-        isDeleting: false,
-        name: "Hello",
-        username: "hello123@appsmith.com",
-        userId: "456",
-      },
-    ],
-  },
-  {
-    isEditing: false,
-    isDeleting: false,
-    rolename: "marketing_newsletter",
-    id: "103",
-    allPermissions: [
-      "HR_Appsmith",
-      "marketing_nov",
-      "Administrator",
-      "App Viewer",
-    ],
-    activePermissions: ["devops_design", "devops_eng_nov"],
-    allUsers: [
-      {
-        isChangingRole: false,
-        isCurrentUser: true,
-        isDeleting: false,
-        name: "Ankita Kinger",
-        allGroups: ["Administrator", "Test_Admin", "HR_Admin"],
-        username: "techak@appsmith.com",
-        userId: "123",
-      },
-      {
-        isChangingRole: false,
-        isCurrentUser: true,
-        isDeleting: false,
-        name: "Hello",
-        username: "hello123@appsmith.com",
-        userId: "456",
-      },
-    ],
-  },
-  {
-    isEditing: false,
-    isDeleting: false,
-    rolename: "Administrator",
-    id: "120",
-    allPermissions: [
-      "HR_Appsmith",
-      "devops_design",
-      "devops_eng_nov",
-      "marketing_nov",
-      "App Viewer",
-    ],
-    activePermissions: ["Administrator"],
-    allUsers: [
-      {
-        isChangingRole: false,
-        isCurrentUser: true,
-        isDeleting: false,
-        name: "Ankita Kinger",
-        allGroups: ["Administrator", "Test_Admin", "HR_Admin"],
-        username: "techak@appsmith.com",
-        userId: "123",
-      },
-      {
-        isChangingRole: false,
-        isCurrentUser: true,
-        isDeleting: false,
-        name: "Hello",
-        username: "hello123@appsmith.com",
-        userId: "456",
-      },
-    ],
-  },
-  {
-    isEditing: false,
-    isDeleting: false,
-    rolename: "App Viewer",
-    id: "125",
-    allPermissions: [
-      "HR_Appsmith",
-      "devops_design",
-      "devops_eng_nov",
-      "marketing_nov",
-      "Administrator",
-    ],
-    activePermissions: ["App Viewer"],
-    allUsers: [
-      {
-        isChangingRole: false,
-        isCurrentUser: true,
-        isDeleting: false,
-        name: "Ankita Kinger",
-        username: "techak@appsmith.com",
-        userId: "123",
-      },
-      {
-        isChangingRole: false,
-        isCurrentUser: true,
-        isDeleting: false,
-        name: "Hello",
-        username: "hello123@appsmith.com",
-        userId: "456",
-      },
-    ],
-  },
-];
+export type GroupListingProps = {
+  deleteGroup: (id: string) => void;
+  getAllUserGroups: () => void;
+  getGroupById: (id: string) => void;
+  groups: UserGroup[];
+  selectedGroup: UserGroup;
+};
 
-export function GroupListing() {
+export function GroupListing(props: GroupListingProps) {
   const [data, setData] = useState<UserGroup[]>([]);
   const [searchValue, setSearchValue] = useState("");
-  const params = useParams() as any;
-  const selectedUserGroupId = params?.selected;
-  const selUserGroup = userGroupTableData.find(
-    (userGroup) => userGroup.id === selectedUserGroupId,
-  );
-  const [selectedUserGroup, setSelectedUserGroup] = useState(selUserGroup);
+  const [selectedUserGroup, setSelectedUserGroup] = useState<any>({});
   const [isNewGroup, setIsNewGroup] = useState(false);
-
   const history = useHistory();
+  const params = useParams() as any;
+
+  const selectedUserGroupId = params?.selected;
+  const {
+    deleteGroup,
+    getAllUserGroups,
+    getGroupById,
+    groups: userGroups,
+    selectedGroup,
+  } = props;
 
   useEffect(() => {
-    if (isNewGroup && params.selected) {
+    getAllUserGroups();
+  }, []);
+
+  useEffect(() => {
+    setSelectedUserGroup(selectedGroup);
+  }, [selectedGroup]);
+
+  useEffect(() => {
+    if (isNewGroup && params?.selected) {
       setSelectedUserGroup({
         isEditing: false,
         isDeleting: false,
         rolename: "Untitled Group",
         isNew: true,
         id: "10109",
-        allPermissions: [
+        allRoles: [
           "Administrator",
           "App Viewer",
           "HR_Appsmith",
@@ -252,20 +103,17 @@ export function GroupListing() {
         activePermissions: [],
         allUsers: [],
       });
+    } else if (selectedUserGroupId) {
+      getGroupById(selectedUserGroupId);
+      setIsNewGroup(false);
     } else {
-      const selUserGroup = userGroupTableData.find(
-        (userGroup) => userGroup.id === selectedUserGroupId,
-      );
-      setSelectedUserGroup(selUserGroup);
+      setData(userGroups);
       setIsNewGroup(false);
     }
-  }, [params]);
-
-  useEffect(() => {
-    setData(userGroupTableData);
-  }, [userGroupTableData]);
+  }, [userGroups, selectedUserGroupId]);
 
   const onDeleteHandler = (id: string) => {
+    deleteGroup(id);
     const updatedData = data.filter((userGroup) => {
       return userGroup.id !== id;
     });
@@ -276,19 +124,13 @@ export function GroupListing() {
     });
   };
 
-  const onCloneHandler = (selected: UserGroup) => {
-    const clonedData = {
-      ...selected,
-      id: uniqueId(),
-      rolename: createMessage(COPY_OF_GROUP, selected.rolename),
-    };
-    userGroupTableData.push(clonedData);
-    setData([...userGroupTableData]);
+  /*const onCloneHandler = (selected: UserGroup) => {
+    dispatch(cloneGroup(selected));
     Toaster.show({
       text: createMessage(GROUP_CLONED),
       variant: Variant.success,
     });
-  };
+  };*/
 
   const columns = [
     {
@@ -316,10 +158,10 @@ export function GroupListing() {
   ];
 
   const listMenuItems: MenuItemProps[] = [
-    {
+    /*{
       className: "clone-menu-item",
       icon: "duplicate",
-      onSelect: (e, id) => {
+      onSelect: (e: React.MouseEvent, id: string) => {
         const selectedUserGroup = data.find((userGroup) => userGroup.id === id);
         selectedUserGroup &&
           onCloneHandler({
@@ -327,11 +169,11 @@ export function GroupListing() {
           });
       },
       text: createMessage(CLONE_GROUP),
-    },
+    },*/
     {
       className: "edit-menu-item",
       icon: "edit-underline",
-      onSelect: (e, key) => {
+      onSelect: (e: React.MouseEvent, key: string) => {
         history.push(`/settings/groups/${key}`);
       },
       text: createMessage(EDIT_GROUP),
@@ -340,7 +182,7 @@ export function GroupListing() {
       label: "delete",
       className: "delete-menu-item",
       icon: "delete-blank",
-      onSelect: (e, key: string) => {
+      onSelect: (e: React.MouseEvent, key: string) => {
         onDeleteHandler(key);
       },
       text: createMessage(DELETE_GROUP),
@@ -367,22 +209,22 @@ export function GroupListing() {
     if (search && search.trim().length > 0) {
       setSearchValue(search);
       const results =
-        userGroupTableData &&
-        userGroupTableData.filter((userGroup) =>
+        userGroups &&
+        userGroups.filter((userGroup) =>
           userGroup.rolename?.toLocaleUpperCase().includes(search),
         );
       setData(results);
     } else {
       setSearchValue("");
-      setData(userGroupTableData);
+      setData(userGroups);
     }
   }, 300);
 
   return (
     <AclWrapper data-testid="t--group-listing-wrapper">
-      {selectedUserGroup ? (
+      {selectedUserGroupId && selectedUserGroup ? (
         <GroupAddEdit
-          onClone={onCloneHandler}
+          // onClone={onCloneHandler}
           onDelete={onDeleteHandler}
           selected={selectedUserGroup}
         />
@@ -407,3 +249,18 @@ export function GroupListing() {
     </AclWrapper>
   );
 }
+
+const mapStateToProps = (state: AppState) => {
+  return {
+    groups: state.acl.groups,
+    selectedGroup: state.acl.selectedGroup,
+  };
+};
+
+const mapDispatchToProps = (dispatch: any) => ({
+  getAllUserGroups: () => dispatch({ type: ReduxActionTypes.FETCH_ACL_GROUP }),
+  getGroupById: (id: string) => dispatch(getGroupById({ id })),
+  deleteGroup: (id: string) => dispatch(deleteGroup(id)),
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(GroupListing);

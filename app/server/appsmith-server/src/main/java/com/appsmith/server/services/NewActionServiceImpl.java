@@ -48,12 +48,13 @@ public class NewActionServiceImpl extends NewActionServiceCEImpl implements NewA
                                 AuthenticationValidator authenticationValidator,
                                 ConfigService configService,
                                 ResponseUtils responseUtils,
-                                VariableReplacementService variableReplacementService) {
+                                VariableReplacementService variableReplacementService,
+                                PermissionGroupService permissionGroupService) {
 
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService,
                 datasourceService, pluginService, datasourceContextService, pluginExecutorHelper, marketplaceService,
                 policyGenerator, newPageService, applicationService, sessionUserService, policyUtils,
-                authenticationValidator, configService, responseUtils);
+                authenticationValidator, configService, responseUtils, permissionGroupService);
 
         this.variableReplacementService = variableReplacementService;
     }

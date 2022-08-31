@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { adminSettingsCategoryUrl } from "RouteBuilder";
 import { SettingCategories } from "../../config/types";
-import { HighlightText } from "../helpers/HighlightText";
+import { HighlightText } from "design-system";
 import ProfileImage from "pages/common/ProfileImage";
 import {
   CellContainer,
@@ -10,6 +10,7 @@ import {
   ShowLess,
   MoreGroups,
   GroupWrapper,
+  User,
 } from "../UserListing";
 
 export const columns = [
@@ -78,5 +79,38 @@ export const columns = [
         </CellContainer>
       );
     },
+  },
+];
+
+export const allUsers: User[] = [
+  {
+    isChangingRole: false,
+    isDeleting: false,
+    name: "Ankita Kinger",
+    // roleName: "Administrator + 2 more",
+    allGroups: ["Administrator", "Test_Admin", "HR_Admin"],
+    allRoles: ["Administrator-PG", "Test_Admin-PG", "HR_Admin-PG"],
+    username: "techak@appsmith.com",
+    userId: "123",
+  },
+  {
+    isChangingRole: false,
+    isDeleting: false,
+    name: "Sangy Sivan",
+    // roleName: "App Viewer + 1 more",
+    allGroups: ["App Viewer", "HR_Admin"],
+    allRoles: ["App Viewer-PG", "HR_Admin-PG"],
+    username: "sangy@appsmith.com",
+    userId: "456",
+  },
+  {
+    isChangingRole: false,
+    isDeleting: false,
+    name: "SS Sivan",
+    // roleName: "App Viewer + 1 more",
+    allGroups: ["App Viewer", "HR_Admin"],
+    allRoles: ["App Viewer-PG", "HR_Admin-PG"],
+    username: "sangy123@appsmith.com",
+    userId: "789",
   },
 ];

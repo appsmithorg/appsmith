@@ -1,37 +1,58 @@
 import React from "react";
 import "@testing-library/jest-dom";
 import { render, screen } from "test/testUtils";
-import { GroupListing, userGroupTableData } from "./GroupsListing";
+import GroupListing from "./GroupsListing";
+import { userGroupTableData } from "./mocks/UserGroupListingMock";
 import userEvent from "@testing-library/user-event";
+import configureStore from "redux-mock-store";
+import { Provider } from "react-redux";
+import AclSagas from "@appsmith/sagas/AclSagas";
 
 let container: any = null;
 
 const listMenuItems = [
-  {
+  /*{
     className: "clone-menu-item",
     icon: "duplicate",
     onSelect: jest.fn(),
-    text: "Clone Group",
+    text: "Clone",
     label: "clone",
-  },
+  },*/
   {
     className: "edit-menu-item",
     icon: "edit-underline",
     onSelect: jest.fn(),
-    text: "Edit Group",
+    text: "Edit",
     label: "edit",
   },
   {
     className: "delete-menu-item",
     icon: "delete-blank",
     onSelect: jest.fn(),
-    text: "Delete Group",
+    text: "Delete",
     label: "delete",
   },
 ];
 
 function renderComponent() {
-  return render(<GroupListing />);
+  // Mock store to bypass the error of react-redux
+  const store = configureStore()({
+    acl: {
+      roles: [],
+      users: [],
+      groups: userGroupTableData,
+      isLoading: false,
+      isSaving: false,
+      selectedGroup: null,
+      selectedUser: null,
+      selectedRole: null,
+    },
+  });
+  return render(
+    <Provider store={store}>
+      <GroupListing />
+    </Provider>,
+  );
 }
 
 describe("<GroupListing />", () => {
@@ -48,7 +69,7 @@ describe("<GroupListing />", () => {
   });
   it("should navigate to user edit page on click of group name", async () => {
     renderComponent();
-    const userGroupEditLink = screen.getAllByTestId("t--usergroup-cell");
+    const userGroupEditLink = await screen.getAllByTestId("t--usergroup-cell");
     await userEvent.click(userGroupEditLink[0]);
     expect(window.location.pathname).toBe(
       `/settings/groups/${userGroupTableData[0].id}`,
@@ -70,7 +91,7 @@ describe("<GroupListing />", () => {
       expect(menuElements[index]).toHaveTextContent(option);
     });
   });
-  it("should clone the group when Clone list menu item is clicked", async () => {
+  /*it("should clone the group when Clone list menu item is clicked", async () => {
     const { getAllByTestId, queryByText } = renderComponent();
     const moreMenu = getAllByTestId("actions-cell-menu-icon");
     await userEvent.click(moreMenu[0]);
@@ -81,7 +102,7 @@ describe("<GroupListing />", () => {
     clonedGroup = queryByText(`Copy of ${userGroupTableData[0].rolename}`);
     expect(clonedGroup).toBeTruthy();
     expect(clonedGroup?.nextSibling).toBeFalsy();
-  });
+  });*/
   it("should navigate to edit page when Edit list menu item is clicked", async () => {
     const { getAllByTestId } = renderComponent();
     const moreMenu = getAllByTestId("actions-cell-menu-icon");
@@ -99,7 +120,7 @@ describe("<GroupListing />", () => {
     const moreMenu = getAllByTestId("actions-cell-menu-icon");
     await userEvent.click(moreMenu[0]);
     const deleteOption = document.getElementsByClassName("delete-menu-item");
-    expect(deleteOption[0]).toHaveTextContent("Delete Group");
+    expect(deleteOption[0]).toHaveTextContent("Delete");
     expect(deleteOption[0]).not.toHaveTextContent("Are you sure?");
     await userEvent.click(deleteOption[0]);
     const confirmText = document.getElementsByClassName("delete-menu-item");

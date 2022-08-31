@@ -1,11 +1,12 @@
 import React, { useState } from "react";
 import styled from "styled-components";
-import { IconSize, MenuItemProps, Table } from "components/ads";
-import { Icon, Menu, MenuItem } from "components/ads";
-import EmptyDataState from "components/utils/EmptyDataState";
+import { Icon, IconSize, MenuItem, MenuItemProps } from "design-system";
+import { Menu, Table } from "components/ads";
 import { Position } from "@blueprintjs/core";
-import { HelpPopoverStyle } from "./components";
+import { HelpPopoverStyle, Loader } from "./components";
 import { ARE_YOU_SURE, createMessage } from "@appsmith/constants/messages";
+import { useSelector } from "react-redux";
+import { getIsLoading } from "@appsmith/selectors/aclSelectors";
 
 type ListingProps = {
   data: any[];
@@ -15,9 +16,12 @@ type ListingProps = {
 };
 
 const ListingWrapper = styled.div`
+  height: calc(100vh - ${(props) => props.theme.homePage.header}px);
+  overflow: auto;
   table {
-    table-layout: fixed;
+    border-collapse: separate;
     thead {
+      background: var(--appsmith-color-black-0);
       tr {
         background: none;
         th {
@@ -28,8 +32,7 @@ const ListingWrapper = styled.div`
           line-height: 24px;
           letter-spacing: -0.24px;
           cursor: initial;
-          border-bottom: 1px solid var(--appsmith-color-black-200);
-          padding: 40px 20px 8px;
+          padding: 32px 20px 8px;
 
           &:hover {
             color: var(--appsmith-color-black-700);
@@ -92,7 +95,8 @@ const ListingWrapper = styled.div`
 `;
 
 export function Listing(props: ListingProps) {
-  const { columns, data, keyAccessor, listMenuItems } = props;
+  const { columns, data = [], keyAccessor, listMenuItems } = props;
+  const isLoading = useSelector(getIsLoading);
 
   const updatedColumns = [
     ...columns,
@@ -153,7 +157,7 @@ export function Listing(props: ListingProps) {
                   className={menuItem.className}
                   icon={menuItem.icon}
                   key={menuItem.text}
-                  onSelect={(e) => {
+                  onSelect={(e: React.MouseEvent) => {
                     onOptionSelect(e, menuItem);
                   }}
                   text={
@@ -174,15 +178,13 @@ export function Listing(props: ListingProps) {
 
   return (
     <ListingWrapper data-testid="listing-wrapper">
-      {data?.length > 0 ? (
-        <Table
-          columns={updatedColumns}
-          data={data}
-          data-testid="listing-table"
-        />
-      ) : (
-        <EmptyDataState />
-      )}
+      <Table
+        columns={updatedColumns}
+        data={data}
+        data-testid="listing-table"
+        isLoading={isLoading}
+        loaderComponent={<Loader />}
+      />
     </ListingWrapper>
   );
 }
