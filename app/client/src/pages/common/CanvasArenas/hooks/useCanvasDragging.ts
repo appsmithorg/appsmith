@@ -118,12 +118,12 @@ export const useCanvasDragging = (
     highlightDropPosition,
   } = useAutoLayoutHighlights({
     blocksToDraw,
+    canvasId: widgetId,
     direction,
     dropPositionRef,
     isCurrentDraggedCanvas,
     isDragging,
     useAutoLayout,
-    widgetId,
     widgetName,
   });
 

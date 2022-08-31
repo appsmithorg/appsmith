@@ -19,12 +19,12 @@ export interface Highlight {
 
 export interface AutoLayoutHighlightProps {
   blocksToDraw: WidgetDraggingBlock[];
+  canvasId: string;
   direction?: LayoutDirection;
   dropPositionRef: React.RefObject<HTMLDivElement>;
   isCurrentDraggedCanvas: boolean;
   isDragging: boolean;
   useAutoLayout?: boolean;
-  widgetId: string;
   widgetName?: string;
 }
 
@@ -33,12 +33,12 @@ const OFFSET_WIDTH = 4;
 
 export const useAutoLayoutHighlights = ({
   blocksToDraw,
+  canvasId,
   direction,
   dropPositionRef,
   isCurrentDraggedCanvas,
   isDragging,
   useAutoLayout,
-  widgetId,
   widgetName,
 }: AutoLayoutHighlightProps) => {
   const allWidgets = useSelector(getWidgets);
@@ -62,7 +62,7 @@ export const useAutoLayoutHighlights = ({
 
   // Determines whether nested wrappers can be introduced in the current canvas
   const enableNestedWrappers = (): boolean => {
-    const canvas = allWidgets[widgetId];
+    const canvas = allWidgets[canvasId];
     // If the canvas is not a wrapper, then return false.
     if (!canvas?.isWrapper) return false;
     const children = canvas.children || [];
@@ -104,7 +104,7 @@ export const useAutoLayoutHighlights = ({
 
   const cleanUpTempStyles = () => {
     // reset display of all dragged blocks
-    const els = document.querySelectorAll(`.auto-layout-parent-${widgetId}`);
+    const els = document.querySelectorAll(`.auto-layout-parent-${canvasId}`);
     if (els && els.length) {
       els.forEach((el) => {
         (el as any).classList.remove("auto-temp-no-display");
@@ -125,7 +125,7 @@ export const useAutoLayoutHighlights = ({
 
   // Fetcha and update the dimensions of the containing canvas.
   const updateContainerDimensions = (): boolean => {
-    const container = document.querySelector(`.appsmith_widget_${widgetId}`);
+    const container = document.querySelector(`.appsmith_widget_${canvasId}`);
     const containerRect:
       | DOMRect
       | undefined = container?.getBoundingClientRect();
@@ -214,13 +214,19 @@ export const useAutoLayoutHighlights = ({
     return rest === 0;
   };
 
-  const hideDraggedItems = (arr: string[]) => {
+  const hideDraggedItems = (arr: string[]): void => {
     arr?.forEach((each) => {
-      let el;
-      const widgetId = getNearestWrapperAncestor(each);
-      if (isWrapperEmpty(widgetId, arr)) {
-        el = getDomElement(widgetId);
-      } else el = getDomElement(each);
+      // Get the parent wrapper
+      const wrapperId = getNearestWrapperAncestor(each);
+      if (wrapperId === canvasId) return;
+      /**
+       * If the wrapper is not the dragging canvas and is empty,
+       * then hide it,
+       * else hide the child element.
+       */
+      const el = isWrapperEmpty(wrapperId, arr)
+        ? getDomElement(wrapperId)
+        : getDomElement(each);
       el?.classList?.add("auto-temp-no-display");
     });
   };
@@ -249,7 +255,7 @@ export const useAutoLayoutHighlights = ({
       // Temporarily hide dragged children to discount them from offset calculation
       hideDraggedItems(blocks);
       // Get all children of current dragging canvas
-      const canvas = allWidgets[widgetId];
+      const canvas = allWidgets[canvasId];
       const canvasChildren = canvas.children || [];
       const offsetChildren = canvasChildren.filter((each) => {
         if (canvas.isWrapper) return blocks.indexOf(each) === -1;
@@ -261,7 +267,7 @@ export const useAutoLayoutHighlights = ({
 
       // console.log(`#### canvas children: ${JSON.stringify(canvasChildren)}`);
       // console.log(`#### offset children: ${JSON.stringify(offsetChildren)}`);
-      const flex = document.querySelector(`.flex-container-${widgetId}`);
+      const flex = document.querySelector(`.flex-container-${canvasId}`);
       const flexOffsetTop = (flex as any)?.offsetTop || 0;
       // console.log(
       //   `#### flex container offset top: ${(flex as any)?.offsetTop}`,
