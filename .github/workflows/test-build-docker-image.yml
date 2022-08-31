@@ -71,9 +71,6 @@ jobs:
         id: run_result
         run: cat ~/run_result 2>/dev/null || echo 'default'
 
-      #- uses: actions/checkout@v2
-      #  if: steps.run_result.outputs.run_result != 'success'
-
       # Incase of prior failure run the job
       - if: steps.run_result.outputs.run_result != 'success'
         run: echo "I'm alive!" && exit 0
