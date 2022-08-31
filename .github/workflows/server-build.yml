@@ -52,20 +52,22 @@ jobs:
       # the code before doing anything else.
 
       # Check out merge commit with the base branch in case this workflow is invoked via pull request
-      - uses: actions/checkout@v2
+      - name: Check out merged commit between PR and base branch
+        uses: actions/checkout@v2
         if: inputs.pr != 0
         with:
           fetch-depth: 0
           ref: "refs/pull/${{ inputs.pr }}/merge"
 
       # Checkout the code in the current branch in case the workflow is called because of a branch push event
-      - uses: actions/checkout@v2
+      - name: Check out commit on branch
+        uses: actions/checkout@v2
         if: inputs.pr == 0
         with:
           fetch-depth: 0
 
       - name: Figure out the PR number
-        run: echo ${{ github.event.pull_request.number }}
+        run: echo ${{ inputs.pr }}
 
       # Timestamp will be used to create cache key
       - id: timestamp
@@ -108,6 +110,23 @@ jobs:
           path: ~/.m2
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2
+
+      # Here, the GITHUB_REF is of type /refs/head/<branch_name>. We extract branch_name from this by removing the
+      # first 11 characters. This can be used to build images for several branches
+      # Since this is an unreleased build, we get the latest released version number, increment the minor number in it,
+      # append a `-SNAPSHOT` at it's end to prepare the snapshot version number. This is used as the project's version.
+      - name: Get the version to tag the Docker image
+        if: steps.run_result.outputs.run_result != 'success'
+        id: vars
+        run: |
+          # Since this is an unreleased build, we set the version to incremented version number with a
+          # `-SNAPSHOT` suffix.
+          latest_released_version="$(git tag --list 'v*' --sort=-version:refname | head -1)"
+          echo "latest_released_version = $latest_released_version"
+          next_version="$(echo "$latest_released_version" | awk -F. -v OFS=. '{ $NF++; print }')"
+          echo "next_version = $next_version"
+          echo ::set-output name=version::$next_version-SNAPSHOT
+          echo ::set-output name=tag::$(echo ${GITHUB_REF:11})
 
       # Build and test the code
       - name: Build and test
