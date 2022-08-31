@@ -84,9 +84,6 @@ jobs:
       - if: steps.run_result.outputs.run_result != 'success'
         run: echo "I'm alive!" && exit 0
 
-      # Set status = success
-      - run: echo "::set-output name=run_result::success" > ~/run_result
-
       - name: Use Node.js 16.14.0
         if: steps.run_result.outputs.run_result != 'success'
         uses: actions/setup-node@v1
