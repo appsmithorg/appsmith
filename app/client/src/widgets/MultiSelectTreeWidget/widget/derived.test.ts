@@ -25,6 +25,14 @@ const options = [
     label: "Red",
     value: "RED",
   },
+  {
+    label: "0",
+    value: 0,
+  },
+  {
+    label: "1",
+    value: 1,
+  },
 ];
 const flattenedOptions = flat(options);
 
@@ -47,6 +55,18 @@ describe("Derived property - TreeSelect Widget", () => {
       const isValid = derivedProperty.getIsValid(
         {
           selectedOptionValues: ["GREEN"],
+          isRequired: true,
+        },
+        null,
+        _,
+      );
+
+      expect(isValid).toBeTruthy();
+    });
+    it("return true when isRequired true and selectedOptionValue is a number", () => {
+      const isValid = derivedProperty.getIsValid(
+        {
+          selectedOptionValues: [0],
           isRequired: true,
         },
         null,
@@ -84,6 +104,19 @@ describe("Derived property - TreeSelect Widget", () => {
       expect(selectedOptionValue).toStrictEqual(["GREEN"]);
     });
 
+    it("selectedOptionValue should have a value if defaultValue(Number) is in option", () => {
+      const selectedOptionValue = derivedProperty.getSelectedOptionValues(
+        {
+          selectedOptionValueArr: [1],
+          flattenedOptions,
+        },
+        null,
+        _,
+      );
+
+      expect(selectedOptionValue).toStrictEqual([1]);
+    });
+
     it("selectedOptionValue should not have a value if defaultValue(string) is not in option ", () => {
       const selectedOptionValue = derivedProperty.getSelectedOptionValues(
         {
@@ -111,6 +144,19 @@ describe("Derived property - TreeSelect Widget", () => {
       );
 
       expect(selectedOptionLabel).toStrictEqual(["Green"]);
+    });
+    it("selectedOptionLabel should have a value if defaultValue(Number) is in option", () => {
+      const selectedOptionLabel = derivedProperty.getSelectedOptionLabels(
+        {
+          selectedOptionValues: [0],
+
+          flattenedOptions,
+        },
+        null,
+        _,
+      );
+
+      expect(selectedOptionLabel).toStrictEqual(["0"]);
     });
 
     it("selectedOptionLabel should not have a value if defaultValue(string) is not in option", () => {
