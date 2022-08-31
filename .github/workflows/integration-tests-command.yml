@@ -7,16 +7,22 @@ on:
 
 jobs:
   server-build:
-    uses: ./.github/workflows/server-build.yml
     name: appsmith-server
+    uses: ./.github/workflows/server-build.yml
+      with: 
+        pr:  ${{ github.event.pull_request.number }}
 
   client-build:
-    uses: ./.github/workflows/client-build.yml
     name: appsmith-build
+    uses: ./.github/workflows/client-build.yml
+      with: 
+        pr:  ${{ github.event.pull_request.number }}
 
   rts-build:
-    uses: ./.github/workflows/rts-build.yml
     name: appsmith-build-rts
+    uses: ./.github/workflows/rts-build.yml
+      with: 
+        pr:  ${{ github.event.pull_request.number }}
 
   fat-container-test:
     needs: [client-build, server-build, rts-build]
