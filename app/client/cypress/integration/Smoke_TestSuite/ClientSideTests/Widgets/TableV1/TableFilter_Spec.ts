@@ -25,7 +25,7 @@ describe("Verify various Table_Filter combinations", function() {
       JSON.stringify(dataSet.TableInput),
     );
     agHelper.ValidateNetworkStatus("@updateLayout", 200);
-    agHelper.Escape();
+    agHelper.PressEscape();
     deployMode.DeployApp();
   });
 

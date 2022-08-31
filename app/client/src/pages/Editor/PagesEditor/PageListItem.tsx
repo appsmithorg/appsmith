@@ -34,7 +34,7 @@ import {
   selectApplicationVersion,
 } from "selectors/editorSelectors";
 import { ApplicationVersion } from "actions/applicationActions";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 
 export const Container = styled.div`
   display: flex;

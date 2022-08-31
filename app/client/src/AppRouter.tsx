@@ -40,7 +40,7 @@ import PageNotFound from "pages/common/PageNotFound";
 import PageLoadingBar from "pages/common/PageLoadingBar";
 import ErrorPageHeader from "pages/common/ErrorPageHeader";
 import { getCurrentThemeDetails, ThemeMode } from "selectors/themeSelectors";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import { setThemeMode } from "actions/themeActions";
 import { connect } from "react-redux";
 
