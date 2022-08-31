@@ -65,29 +65,26 @@ export const Marks = React.memo(
     function transformStyles(
       index: number,
       labelLength: number,
-      value: number,
+      labelValue: number,
     ): React.CSSProperties {
-      if (labelLength <= 6) {
-        return {
-          transform: "translate(-50%, 0)",
-          textAlign: "center",
-        };
-      }
+      // Handle long labels
+      if (labelLength > 4) {
+        const position = getPosition({ value: labelValue, min, max });
 
-      const maxBracket = max - value;
-      const minBracket = value - min;
-
-      if (index === 0 && minBracket < 10) {
-        return {
-          transform: "translate(-20%, 0)",
-          textAlign: "start",
-        };
-        // @ts-expect-error: Marks cannot be undefined here
-      } else if (index === marks.length - 1 && maxBracket < 10) {
-        return {
-          transform: "translate(-80%, 0)",
-          textAlign: "end",
-        };
+        // for labels on first 10 points on the slider
+        if (index === 0 && position < 10) {
+          return {
+            transform: "translate(-20%, 0)",
+            textAlign: "start",
+          };
+          // for labels on last 10 points on the slider
+          // @ts-expect-error: marks won't be undefined here
+        } else if (index === marks.length - 1 && position > 90) {
+          return {
+            transform: "translate(-80%, 0)",
+            textAlign: "end",
+          };
+        }
       }
 
       return {

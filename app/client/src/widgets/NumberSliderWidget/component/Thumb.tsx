@@ -1,7 +1,7 @@
 import React, { useState, forwardRef } from "react";
 import styled from "styled-components";
 
-import { lightenColor } from "widgets/WidgetUtils";
+import { getRgbaColor } from "widgets/WidgetUtils";
 import { SliderSizes, thumbSizeMap } from "../utils";
 
 interface ThumbProps {
@@ -62,7 +62,7 @@ const ThumbWrapper = styled.div<
   left: `${position}%`,
 
   "&:focus": {
-    boxShadow: `0 0 0px 3px ${lightenColor(color)}`,
+    boxShadow: `0 0 0px 4px ${getRgbaColor(color, 0.2)}`,
   },
 }));
 

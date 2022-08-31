@@ -17,7 +17,7 @@ export const CONFIG = {
     defaultOptionValue: "md",
     showMarksLabel: true,
     marks: [
-      { value: 25, label: "20%" },
+      { value: 25, label: "25%" },
       { value: 50, label: "50%" },
       { value: 75, label: "75%" },
     ],
