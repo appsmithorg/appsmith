@@ -47,8 +47,9 @@ jobs:
           - 6379:6379
 
     steps:
-      - name: Figure out the PR number
-        run: echo ${{ github.event.pull_request.number }}
+      # The checkout steps MUST happen first because the default directory is set according to the code base.
+      # Github Action expects all future commands to be executed in the code directory. Hence, we need to check out
+      # the code before doing anything else.
 
       # Check out merge commit with the base branch in case this workflow is invoked via pull request
       - uses: actions/checkout@v2
@@ -62,6 +63,9 @@ jobs:
         if: inputs.pr == 0
         with:
           fetch-depth: 0
+
+      - name: Figure out the PR number
+        run: echo ${{ github.event.pull_request.number }}
 
       # Timestamp will be used to create cache key
       - id: timestamp

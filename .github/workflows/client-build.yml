@@ -42,8 +42,9 @@ jobs:
         shell: bash
 
     steps:
-      - name: Figure out the PR number
-        run: echo ${{ inputs.pr }}
+      # The checkout steps MUST happen first because the default directory is set according to the code base.
+      # Github Action expects all future commands to be executed in the code directory. Hence, we need to check out
+      # the code before doing anything else.
 
       # Check out merge commit with the base branch in case this workflow is invoked via pull request
       - name: Checkout the merged commit from PR and base branch
@@ -59,6 +60,9 @@ jobs:
         uses: actions/checkout@v2
         with:
           fetch-depth: 0
+
+      - name: Figure out the PR number
+        run: echo ${{ inputs.pr }}
 
       # Timestamp will be used to create cache key
       - id: timestamp
