@@ -22,7 +22,7 @@ import {
   Spacing,
 } from "components/constants";
 import { CanvasWidgetStructure } from "./constants";
-import ContainerComponent, { FlexBox } from "./ContainerWidget/component";
+import ContainerComponent, { LayoutWrapper } from "./ContainerWidget/component";
 import { CanvasDraggingArena } from "pages/common/CanvasArenas/CanvasDraggingArena";
 import { CanvasSelectionArena } from "pages/common/CanvasArenas/CanvasSelectionArena";
 import WidgetsMultiSelectBox from "pages/Editor/WidgetsMultiSelectBox";
@@ -160,30 +160,30 @@ class LayoutWrapperWidget extends ContainerWidget {
           widgetType={this.props.type}
         />
         {/* without the wrapping div onClick events are triggered twice */}
-        <FlexBox
-          alignment={this.props.alignment || Alignment.Left}
-          direction={this.state.direction}
-          overflow={Overflow.NoWrap}
-          spacing={this.props.spacing || Spacing.None}
-          stretchHeight={stretchFlexBox}
-          useAutoLayout={this.state.useAutoLayout}
-          widgetId={this.props.widgetId}
+        <AutoLayoutContext.Provider
+          value={{
+            useAutoLayout: this.state.useAutoLayout,
+            direction: this.state.direction,
+            justifyContent: JustifyContent.FlexStart,
+            alignItems: AlignItems.FlexStart,
+            overflow:
+              props.widgetName === "MainContainer"
+                ? Overflow.Auto
+                : Overflow.NoWrap,
+          }}
         >
-          <AutoLayoutContext.Provider
-            value={{
-              useAutoLayout: this.state.useAutoLayout,
-              direction: this.state.direction,
-              justifyContent: JustifyContent.FlexStart,
-              alignItems: AlignItems.FlexStart,
-              overflow:
-                props.widgetName === "MainContainer"
-                  ? Overflow.Auto
-                  : Overflow.NoWrap,
-            }}
+          <LayoutWrapper
+            alignment={this.props.alignment || Alignment.Left}
+            direction={this.state.direction}
+            overflow={Overflow.NoWrap}
+            spacing={this.props.spacing || Spacing.None}
+            stretchHeight={stretchFlexBox}
+            useAutoLayout={this.state.useAutoLayout}
+            widgetId={this.props.widgetId}
           >
             {this.renderChildren()}
-          </AutoLayoutContext.Provider>
-        </FlexBox>
+          </LayoutWrapper>
+        </AutoLayoutContext.Provider>
       </ContainerComponent>
     );
   }
