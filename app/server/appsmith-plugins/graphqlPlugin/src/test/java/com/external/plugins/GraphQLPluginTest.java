@@ -26,9 +26,11 @@ import net.minidev.json.JSONObject;
 import net.minidev.json.parser.JSONParser;
 import net.minidev.json.parser.ParseException;
 import org.junit.Before;
+import org.junit.ClassRule;
 import org.junit.Test;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
+import org.testcontainers.containers.GenericContainer;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 import reactor.util.function.Tuple2;
@@ -41,6 +43,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 
 import static com.appsmith.external.constants.Authentication.API_KEY;
 import static com.appsmith.external.constants.Authentication.OAUTH2;
@@ -79,37 +82,49 @@ public class GraphQLPluginTest {
 
     GraphQLPlugin.GraphQLPluginExecutor pluginExecutor = new GraphQLPlugin.GraphQLPluginExecutor(new MockSharedConfig());
 
+    @SuppressWarnings("rawtypes")
+    @ClassRule
+    public static GenericContainer mongoContainer = new GenericContainer(CompletableFuture.completedFuture("appsmith/test-event-driver"))
+            .withExposedPorts(5000);
+
     @Before
     public void setUp() {
         hintMessageUtils = new GraphQLHintMessageUtils();
     }
 
     private DatasourceConfiguration getDefaultDatasourceConfig() {
+        String address = mongoContainer.getContainerIpAddress();
+        Integer port = mongoContainer.getFirstMappedPort();
         DatasourceConfiguration dsConfig = new DatasourceConfiguration();
-        dsConfig.setUrl("https://api.spacex.land/graphql/");
+        dsConfig.setUrl("http://" + address + ":" + port + "/graphql");
+        //dsConfig.setUrl("https://api.spacex.land/graphql/");
         return dsConfig;
     }
 
     private ActionConfiguration getDefaultActionConfiguration() {
         ActionConfiguration actionConfig = new ActionConfiguration();
-        List<Property> properties = new ArrayList<Property>();
-        properties.add(new Property("", "true"));
-        properties.add(new Property("", "{\n" +
-                "  \"limit\": 1,\n" +
-                "  \"offset\": 0\n" +
-                "}"));
-        actionConfig.setPluginSpecifiedTemplates(properties);
         actionConfig.setHeaders(List.of(new Property("content-type", "application/json")));
         actionConfig.setHttpMethod(HttpMethod.POST);
-        String requestBody = "query Capsules($limit: Int, $offset: Int) {\n" +
+        /*String requestBody = "query Capsules($limit: Int, $offset: Int) {\n" +
                 "  capsules(limit: $limit, offset: $offset) {\n" +
                 "    dragon {\n" +
                 "      id\n" +
                 "      name\n" +
                 "    }\n" +
                 "  }\n" +
+                "}";*/
+        String requestBody = "query {\n" +
+                "\tallPosts(first: 1) {\n" +
+                "\t\tnodes {\n" +
+                "\t\t\tid\n" +
+                "\t\t}\n" +
+                "\t}\n" +
                 "}";
         actionConfig.setBody(requestBody);
+        List<Property> properties = new ArrayList<Property>();
+        properties.add(new Property("smartSubstitution", "true"));
+        properties.add(new Property("queryVariables", ""));
+        actionConfig.setPluginSpecifiedTemplates(properties);
         return actionConfig;
     }
 
@@ -117,6 +132,20 @@ public class GraphQLPluginTest {
     public void testValidGraphQLApiExecutionWithQueryVariablesWithHttpPost() {
         DatasourceConfiguration dsConfig = getDefaultDatasourceConfig();
         ActionConfiguration actionConfig = getDefaultActionConfiguration();
+        String queryBody = "query($limit: Int) {\n" +
+                "\tallPosts(first: $limit) {\n" +
+                "\t\tnodes {\n" +
+                "\t\t\tid\n" +
+                "\t\t}\n" +
+                "\t}\n" +
+                "}";
+        actionConfig.setBody(queryBody);
+        List<Property> properties = new ArrayList<Property>();
+        properties.add(new Property("", "true"));
+        properties.add(new Property("", "{\n" +
+                "  \"limit\": 2\n" +
+                "}"));
+        actionConfig.setPluginSpecifiedTemplates(properties);
         Mono<ActionExecutionResult> resultMono = pluginExecutor.executeParameterized(null, new ExecuteActionDTO(), dsConfig, actionConfig);
 
         StepVerifier.create(resultMono)
@@ -124,7 +153,7 @@ public class GraphQLPluginTest {
                     assertTrue(result.getIsExecutionSuccess());
                     assertNotNull(result.getBody());
                     JsonNode data = ((ObjectNode) result.getBody()).get("data");
-                    String expectedResult = "{\"capsules\":[{\"dragon\":{\"id\":\"dragon1\",\"name\":\"Dragon 1\"}}]}";
+                    String expectedResult = "{\"allPosts\":{\"nodes\":[{\"id\":1},{\"id\":2}]}}";
                     assertEquals(expectedResult, data.toString());
                 })
                 .verifyComplete();
@@ -136,14 +165,15 @@ public class GraphQLPluginTest {
         dsConfig.setUrl("https://rickandmortyapi.com/graphql");
         ActionConfiguration actionConfig = getDefaultActionConfiguration();
         actionConfig.setHttpMethod(HttpMethod.GET);
-        actionConfig.setBody("query Query($characterId: ID!) {\n" +
-                "  character(id: $characterId) {\n" +
+        actionConfig.setBody("query Query {\n" +
+                "  character(id: 1) {\n" +
                 "    created\n" +
                 "  }\n" +
                 "}\n");
-        actionConfig.getPluginSpecifiedTemplates().get(QUERY_VARIABLES_INDEX).setValue("{\n" +
-                "  \"characterId\": 1\n" +
-                "}");
+        List<Property> properties = new ArrayList<Property>();
+        properties.add(new Property("smartSubstitution", "true"));
+        properties.add(new Property("queryVariables", ""));
+        actionConfig.setPluginSpecifiedTemplates(properties);
         Mono<ActionExecutionResult> resultMono = pluginExecutor.executeParameterized(null, new ExecuteActionDTO(), dsConfig, actionConfig);
 
         StepVerifier.create(resultMono)
@@ -161,21 +191,8 @@ public class GraphQLPluginTest {
     public void testValidGraphQLApiExecutionWithoutQueryVariables() {
         DatasourceConfiguration dsConfig = getDefaultDatasourceConfig();
         ActionConfiguration actionConfig = getDefaultActionConfiguration();
-        List<Property> properties = new ArrayList<Property>();
-        properties.add(new Property("", "true"));
-        properties.add(new Property("", "")); // query variables field is empty
-        actionConfig.setPluginSpecifiedTemplates(properties);
         actionConfig.setHeaders(List.of(new Property("content-type", "application/json")));
         actionConfig.setHttpMethod(HttpMethod.POST);
-        String requestBody = "query Capsules {\n" +
-                "  capsules(limit: 1, offset: 0) {\n" +
-                "    dragon {\n" +
-                "      id\n" +
-                "      name\n" +
-                "    }\n" +
-                "  }\n" +
-                "}";
-        actionConfig.setBody(requestBody);
         Mono<ActionExecutionResult> resultMono = pluginExecutor.executeParameterized(null, new ExecuteActionDTO(), dsConfig, actionConfig);
 
         StepVerifier.create(resultMono)
@@ -183,7 +200,7 @@ public class GraphQLPluginTest {
                     assertTrue(result.getIsExecutionSuccess());
                     assertNotNull(result.getBody());
                     JsonNode data = ((ObjectNode) result.getBody()).get("data");
-                    String expectedResult = "{\"capsules\":[{\"dragon\":{\"id\":\"dragon1\",\"name\":\"Dragon 1\"}}]}";
+                    String expectedResult = "{\"allPosts\":{\"nodes\":[{\"id\":1}]}}";
                     assertEquals(expectedResult, data.toString());
                 })
                 .verifyComplete();
@@ -192,30 +209,16 @@ public class GraphQLPluginTest {
     @Test
     public void testValidGraphQLApiExecutionWithContentTypeGraphql() {
         DatasourceConfiguration dsConfig = getDefaultDatasourceConfig();
-        dsConfig.setUrl("https://swapi-graphql.netlify.app/.netlify/functions/index");
-
         ActionConfiguration actionConfig = getDefaultActionConfiguration();
-        List<Property> properties = new ArrayList<Property>();
-        properties.add(new Property("", "true"));
-        properties.add(new Property("", "")); // query variables field is empty
-        actionConfig.setPluginSpecifiedTemplates(properties);
         actionConfig.setHeaders(List.of(new Property("content-type", "application/graphql"))); // content-type graphql
         actionConfig.setHttpMethod(HttpMethod.POST);
-        String requestBody = "query ExampleQuery {\n" +
-                "  allFilms(first: 1) {\n" +
-                "    films {\n" +
-                "      title\n" +
-                "    }\n" +
-                "  }\n" +
-                "}\n";
-        actionConfig.setBody(requestBody);
         Mono<ActionExecutionResult> resultMono = pluginExecutor.executeParameterized(null, new ExecuteActionDTO(), dsConfig, actionConfig);
 
         StepVerifier.create(resultMono)
                 .assertNext(result -> {
                     assertTrue(result.getIsExecutionSuccess());
                     assertNotNull(result.getBody());
-                    String expectedResult = "{\"data\":{\"allFilms\":{\"films\":[{\"title\":\"A New Hope\"}]}}}";
+                    String expectedResult = "{\"data\":{\"allPosts\":{\"nodes\":[{\"id\":1}]}}}";
                     assertEquals(result.getBody().toString(), expectedResult);
                 })
                 .verifyComplete();
@@ -312,35 +315,6 @@ public class GraphQLPluginTest {
     }
 
     @Test
-    public void testInvalidSignature() {
-        DatasourceConfiguration dsConfig = getDefaultDatasourceConfig();
-        dsConfig.setUrl("http://httpbin.org/headers");
-
-        final String secretKey = "a-random-key-that-should-be-32-chars-long-at-least";
-        dsConfig.setProperties(List.of(
-                new Property("isSendSessionEnabled", "Y"),
-                new Property("sessionSignatureKey", secretKey)
-        ));
-
-        ActionConfiguration actionConfig = getDefaultActionConfiguration();
-        actionConfig.setHttpMethod(HttpMethod.GET);
-        Mono<ActionExecutionResult> resultMono = pluginExecutor.executeParameterized(null, new ExecuteActionDTO(), dsConfig, actionConfig);
-
-        StepVerifier.create(resultMono)
-                .assertNext(result -> {
-                    assertTrue(result.getIsExecutionSuccess());
-                    assertNotNull(result.getBody());
-                    String token = ((ObjectNode) result.getBody()).get("headers").get("X-Appsmith-Signature").asText();
-
-                    final SecretKey key = Keys.hmacShaKeyFor((secretKey + "-abc").getBytes(StandardCharsets.UTF_8));
-                    final JwtParser parser = Jwts.parserBuilder().setSigningKey(key).build();
-
-                    assertThrows(SignatureException.class, () -> parser.parseClaimsJws(token));
-                })
-                .verifyComplete();
-    }
-
-    @Test
     public void testValidateDatasource_invalidAuthentication() {
         DatasourceConfiguration datasourceConfiguration = getDefaultDatasourceConfig();
         OAuth2 oAuth2 = new OAuth2();
@@ -355,6 +329,13 @@ public class GraphQLPluginTest {
                 .assertNext(invalids -> invalids.containsAll(Set.of("Missing Client ID", "Missing Client Secret", "Missing Access Token URL")));
     }
 
+    /**
+     * This method tests for the following use cases:
+     * 1. Substitute a number type value in place of a query parameter.
+     * 2. Substitute a string type value in place of a query parameter.
+     * 3. Substitute a boolean type value in place of a query parameter.
+     * 4. Substitute a schema type value in the query body.
+     */
     @Test
     public void testSmartSubstitutionQueryBody1() {
         DatasourceConfiguration dsConfig = getDefaultDatasourceConfig();
@@ -408,7 +389,7 @@ public class GraphQLPluginTest {
                         String parsedJsonAsString = objectMapper.writeValueAsString(resultData);
                         assertEquals(expectedQueryBody, resultData);
                     } catch (ParseException | JsonProcessingException e) {
-                        e.printStackTrace();
+                        assert false : e.getMessage();
                     }
 
                     // Assert the debug request parameters are getting set.
@@ -436,6 +417,9 @@ public class GraphQLPluginTest {
                 .verifyComplete();
     }
 
+    /**
+     * This method checks for the use case where the entire query body is provided via dynamic binding by the user.
+     */
     @Test
     public void testSmartSubstitutionQueryBody2() {
         DatasourceConfiguration dsConfig = getDefaultDatasourceConfig();
@@ -481,7 +465,7 @@ public class GraphQLPluginTest {
                         String parsedJsonAsString = objectMapper.writeValueAsString(resultData);
                         assertEquals(expectedQueryBody, resultData);
                     } catch (ParseException | JsonProcessingException e) {
-                        e.printStackTrace();
+                        assert false : e.getMessage();
                     }
 
                     // Assert the debug request parameters are getting set.
@@ -824,6 +808,7 @@ public class GraphQLPluginTest {
         params.add(new Property("myParam1", "myVal")); // duplicate
         params.add(new Property("myParam2", "myVal"));
         dsConfig.setQueryParameters(params);
+        dsConfig.setUrl("some_non_loc@lhost_url");
 
         Mono<Tuple2<Set<String>, Set<String>>> hintMessagesMono = pluginExecutor.getHintMessages(null, dsConfig);
         StepVerifier.create(hintMessagesMono)
@@ -877,6 +862,8 @@ public class GraphQLPluginTest {
         actionConfig.setQueryParameters(params);
 
         DatasourceConfiguration dsConfig = new DatasourceConfiguration();
+        dsConfig.setUrl("some_non_loc@lhost_url");
+
         Mono<Tuple2<Set<String>, Set<String>>> hintMessagesMono = pluginExecutor.getHintMessages(actionConfig, dsConfig);
         StepVerifier.create(hintMessagesMono)
                 .assertNext(tuple -> {
@@ -910,12 +897,12 @@ public class GraphQLPluginTest {
         headers.add(new Property("myHeader1", "myVal"));
         actionConfig.setHeaders(headers);
 
-
         // This authentication mechanism will add `myHeader1` as header implicitly.
         AuthenticationDTO authenticationDTO = new ApiKeyAuth(ApiKeyAuth.Type.HEADER, "myHeader1", "Token", "test");
         authenticationDTO.setAuthenticationType(API_KEY);
         DatasourceConfiguration dsConfig = getDefaultDatasourceConfig();
         dsConfig.setAuthentication(authenticationDTO);
+        dsConfig.setUrl("some_non_loc@lhost_url");
 
         Mono<Tuple2<Set<String>, Set<String>>> hintMessagesMono = pluginExecutor.getHintMessages(actionConfig, dsConfig);
         StepVerifier.create(hintMessagesMono)
@@ -954,6 +941,7 @@ public class GraphQLPluginTest {
         authenticationDTO.setAuthenticationType(API_KEY);
         DatasourceConfiguration dsConfig = getDefaultDatasourceConfig();
         dsConfig.setAuthentication(authenticationDTO);
+        dsConfig.setUrl("some_non_loc@lhost_url");
 
         Mono<Tuple2<Set<String>, Set<String>>> hintMessagesMono = pluginExecutor.getHintMessages(actionConfig, dsConfig);
         StepVerifier.create(hintMessagesMono)
