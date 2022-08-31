@@ -1698,7 +1698,7 @@ describe("getUpdatedRowIndices -", () => {
 });
 
 describe("getPageOffset -", () => {
-  it("should return -1 when pageNo is null", () => {
+  it("should return 0 when pageNo is null", () => {
     const { getPageOffset } = derivedProperty;
 
     expect(
@@ -1706,10 +1706,10 @@ describe("getPageOffset -", () => {
         pageNo: null,
         pageSize: 0,
       }),
-    ).toEqual(-1);
+    ).toEqual(0);
   });
 
-  it("should return -1 when pageSize is null", () => {
+  it("should return 0 when pageSize is null", () => {
     const { getPageOffset } = derivedProperty;
 
     expect(
@@ -1717,10 +1717,10 @@ describe("getPageOffset -", () => {
         pageNo: 0,
         pageSize: null,
       }),
-    ).toEqual(-1);
+    ).toEqual(0);
   });
 
-  it("should return -1 when pageSize is undefined", () => {
+  it("should return 0 when pageSize is undefined", () => {
     const { getPageOffset } = derivedProperty;
 
     expect(
@@ -1728,10 +1728,10 @@ describe("getPageOffset -", () => {
         pageNo: 0,
         pageSize: undefined,
       }),
-    ).toEqual(-1);
+    ).toEqual(0);
   });
 
-  it("should return -1 when pageNo is undefined", () => {
+  it("should return 0 when pageNo is undefined", () => {
     const { getPageOffset } = derivedProperty;
 
     expect(
@@ -1739,7 +1739,7 @@ describe("getPageOffset -", () => {
         pageNo: undefined,
         pageSize: 0,
       }),
-    ).toEqual(-1);
+    ).toEqual(0);
   });
 
   it("should return 0 when pageSize is 0 and pageNo is any random number >= 0", () => {
@@ -1764,7 +1764,7 @@ describe("getPageOffset -", () => {
     ).toEqual(0);
   });
 
-  it("should return -1 when pageNo is NaN", () => {
+  it("should return 0 when pageNo is NaN", () => {
     const { getPageOffset } = derivedProperty;
 
     expect(
@@ -1772,7 +1772,7 @@ describe("getPageOffset -", () => {
         pageNo: NaN,
         pageSize: 0,
       }),
-    ).toEqual(-1);
+    ).toEqual(0);
   });
 
   it("should return 10 when pageSize is 5 and pageNo is 3", () => {
