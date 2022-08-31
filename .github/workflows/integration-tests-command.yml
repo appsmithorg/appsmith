@@ -7,19 +7,19 @@ on:
 
 jobs:
   server-build:
-    name: appsmith-server
+    name: server-server
     uses: ./.github/workflows/server-build.yml
     with:
       pr: ${{ github.event.pull_request.number }}
 
   client-build:
-    name: appsmith-build
+    name: client-build
     uses: ./.github/workflows/client-build.yml
     with:
       pr: ${{ github.event.pull_request.number }}
 
   rts-build:
-    name: appsmith-build-rts
+    name: rts-build
     uses: ./.github/workflows/rts-build.yml
     with:
       pr: ${{ github.event.pull_request.number }}
