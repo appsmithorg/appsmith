@@ -23,7 +23,7 @@ jobs:
       (github.event_name == 'pull_request_review' &&
       github.event.review.state == 'approved' &&
       github.event.pull_request.head.repo.full_name == github.repository)
-    runs-on: buildjet-8vcpu-ubuntu-2004
+    runs-on: ubuntu-latest
     defaults:
       run:
         working-directory: app/client
@@ -70,9 +70,6 @@ jobs:
       - name: Get the previous run result
         id: run_result
         run: cat ~/run_result 2>/dev/null || echo 'default'
-
-      #- uses: actions/checkout@v2
-      #  if: steps.run_result.outputs.run_result != 'success'
 
       # Incase of prior failure run the job
       - if: steps.run_result.outputs.run_result != 'success'
@@ -175,7 +172,7 @@ jobs:
     defaults:
       run:
         working-directory: app/server
-    runs-on: buildjet-8vcpu-ubuntu-2004
+    runs-on: ubuntu-latest
     # Only run this workflow for internally triggered events
     if: |
       github.event_name == 'workflow_dispatch' ||
@@ -417,7 +414,7 @@ jobs:
       (github.event_name == 'pull_request_review' &&
       github.event.review.state == 'approved' &&
       github.event.pull_request.head.repo.full_name == github.repository))
-    runs-on: buildjet-4vcpu-ubuntu-2004
+    runs-on: ubuntu-latest
     defaults:
       run:
         shell: bash
