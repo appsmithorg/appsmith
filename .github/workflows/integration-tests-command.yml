@@ -378,7 +378,7 @@ jobs:
       - run: echo "::set-output name=run_result::success" > ~/run_result
 
   ui-test:
-    needs: [build, server-build]
+    needs: [client-build, server-build]
     # Only run if the build step is successful
     if: success()
     runs-on: ubuntu-latest
@@ -936,8 +936,9 @@ jobs:
 
             return result;
             }
+
   perf-test:
-    needs: [build, server-build]
+    needs: [client-build, server-build]
     # Only run if the build step is successful
     if: success()
     runs-on: ubuntu-latest
