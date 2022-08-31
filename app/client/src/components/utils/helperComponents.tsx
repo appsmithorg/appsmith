@@ -4,15 +4,6 @@ import styled, { createGlobalStyle } from "styled-components";
 import { useHistory } from "react-router-dom";
 import { truncateTextUsingEllipsis } from "constants/DefaultTheme";
 
-export const TabsWrapper = styled.div`
-  margin: 36px 0 0;
-
-  .react-tabs__tab-list {
-    border-bottom: 1px solid var(--appsmith-color-black-200);
-    margin-left: 8px;
-  }
-`;
-
 export const HelpPopoverStyle = createGlobalStyle`
   .bp3-portal {
     .delete-menu-item {
@@ -29,7 +20,7 @@ export const HelpPopoverStyle = createGlobalStyle`
 `;
 
 export const StyledBackButton = styled.div`
-  display: flex;
+  display: inline-flex;
   cursor: pointer;
   margin: 0 0 20px 8px;
 `;
@@ -64,6 +55,14 @@ export const SettingsHeader = styled.h2`
   margin-bottom: 0px;
   width: 365px;
   ${truncateTextUsingEllipsis}
+`;
+
+export const StickyHeader = styled.div`
+  position: sticky;
+  top: 0;
+  background: var(--appsmith-color-black-0);
+  padding-bottom: 8px;
+  z-index: 4;
 `;
 
 export function BackButton({ goTo }: { goTo?: string }) {

@@ -1,16 +1,16 @@
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 
 const jsEditor = ObjectsRegistry.JSEditor,
-  ee = ObjectsRegistry.EntityExplorer;
+  agHelper = ObjectsRegistry.AggregateHelper;
 
 describe("Invalid page routing", () => {
-  it("1. Shows Invalid URL UI for invalid JS Object page url", () => {
+  it("1. Bug #16047 - Shows Invalid URL UI for invalid JS Object page url", () => {
     const JS_OBJECT_BODY = `export default {
         myVar1: [],
         myVar2: {},
         myFun1: () => {
             //write code here
-           
+
         },
         myFun2: async () => {
             //use async-await or promises
@@ -27,9 +27,7 @@ describe("Invalid page routing", () => {
       const urlWithoutQueryParams = url.split("?")[0];
       const invalidURL = urlWithoutQueryParams + "invalid";
       cy.visit(invalidURL);
-      cy.contains(`The page you’re looking for either does not exist`).should(
-        "exist",
-      );
+      agHelper.AssertContains(`The page you’re looking for either does not exist`, "exist");
     });
   });
 });
