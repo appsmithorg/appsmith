@@ -9,8 +9,6 @@ export const SliderContainer = styled.div<{
 }>`
   ${labelLayoutStyles}
 
-  overflow: hidden;
-
   padding-right: 0.4rem;
   padding-left: ${({ labelPosition }) =>
     labelPosition === LabelPosition.Top ? "0.4rem" : undefined};
