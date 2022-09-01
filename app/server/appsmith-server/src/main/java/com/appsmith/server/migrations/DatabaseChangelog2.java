@@ -61,6 +61,7 @@ import com.github.cloudyrock.mongock.ChangeLog;
 import com.github.cloudyrock.mongock.ChangeSet;
 import com.github.cloudyrock.mongock.driver.mongodb.springdata.v3.decorator.impl.MongockTemplate;
 import com.google.gson.Gson;
+import com.querydsl.core.types.Path;
 import io.changock.migration.api.annotations.NonLockGuarded;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONObject;
@@ -2374,6 +2375,105 @@ public class DatabaseChangelog2 {
         user.setPolicies(Set.of(readUserPolicy, manageUserPolicy, resetPwdPolicy));
 
         return mongockTemplate.save(user);
+    }
+
+    @ChangeSet(order = "034", id = "delete-rapid-api-plugin-related-items", author = "")
+    public void deleteRapidApiPluginRelatedItems(MongockTemplate mongockTemplate) {
+        Plugin rapidApiPlugin = mongockTemplate.findOne(query(where("packageName").is("rapidapi-plugin")),
+                Plugin.class);
+
+        if (rapidApiPlugin == null) {
+            return;
+        }
+
+        softDeleteAllRapidApiActions(rapidApiPlugin, mongockTemplate);
+        softDeleteAllRapidApiDatasources(rapidApiPlugin, mongockTemplate);
+        softDeleteRapidApiPluginFromAllWorkspaces(rapidApiPlugin, mongockTemplate);
+        softDeletePlugin(rapidApiPlugin, mongockTemplate);
+    }
+
+    private void softDeleteRapidApiPluginFromAllWorkspaces(Plugin rapidApiPlugin, MongockTemplate mongockTemplate) {
+        Query queryToGetNonDeletedWorkspaces = new Query(where("deleted").ne(true));
+        queryToGetNonDeletedWorkspaces.fields().include(fieldName(QWorkspace.workspace.id));
+        List<Workspace> workspaces = mongockTemplate.find(queryToGetNonDeletedWorkspaces, Workspace.class);
+        workspaces.stream()
+                .map(Workspace::getId) // iterate over one action id at a time
+                .map(id -> fetchDomainObjectUsingId(id, mongockTemplate, QWorkspace.workspace.id, Workspace.class)) // fetch
+                // action
+                // using id
+                .forEachOrdered(workspace -> {
+                    workspace.getPlugins().stream()
+                            .filter(workspacePlugin -> workspacePlugin != null && workspacePlugin.getPluginId() != null)
+                            .filter(workspacePlugin -> workspacePlugin.getPluginId().equals(rapidApiPlugin.getId()))
+                            .forEach(workspacePlugin -> {
+                                workspacePlugin.setDeleted(true);
+                                workspacePlugin.setDeletedAt(Instant.now());
+                            });
+                    mongockTemplate.save(workspace);
+                });
+    }
+
+    private void softDeletePlugin(Plugin rapidApiPlugin, MongockTemplate mongockTemplate) {
+        rapidApiPlugin.setDeleted(true);
+        rapidApiPlugin.setDeletedAt(Instant.now());
+        mongockTemplate.save(rapidApiPlugin);
+    }
+
+    private void softDeleteAllRapidApiDatasources(Plugin rapidApiPlugin, MongockTemplate mongockTemplate) {
+        /* Query to get all RapidApi datasources which are not deleted */
+        Query queryToGetDatasources = getQueryToFetchAllDomainObjectsWhichAreNotDeletedUsingPluginId(rapidApiPlugin);
+
+        /* Update the previous query to only include id field */
+        queryToGetDatasources.fields().include(fieldName(QDatasource.datasource.id));
+
+        /* Fetch RapidApi actions using the previous query */
+        List<Datasource> rapidApiDatasources = mongockTemplate.find(queryToGetDatasources, Datasource.class);
+
+        /* Mark each selected datasource as deleted */
+        updateDeleteAndDeletedAtFieldsForEachDomainObject(rapidApiDatasources, mongockTemplate,
+                QDatasource.datasource.id, Datasource.class);
+    }
+
+    private void softDeleteAllRapidApiActions(Plugin rapidApiPlugin, MongockTemplate mongockTemplate) {
+        /* Query to get all RapidApi actions which are not deleted */
+        Query queryToGetActions = getQueryToFetchAllDomainObjectsWhichAreNotDeletedUsingPluginId(rapidApiPlugin);
+
+        /* Update the previous query to only include id field */
+        queryToGetActions.fields().include(fieldName(QNewAction.newAction.id));
+
+        /* Fetch RapidApi actions using the previous query */
+        List<NewAction> rapidApiActions = mongockTemplate.find(queryToGetActions, NewAction.class);
+
+        /* Mark each selected action as deleted */
+        updateDeleteAndDeletedAtFieldsForEachDomainObject(rapidApiActions, mongockTemplate, QNewAction.newAction.id,
+                NewAction.class);
+    }
+
+    private Query getQueryToFetchAllDomainObjectsWhichAreNotDeletedUsingPluginId(Plugin plugin) {
+        Criteria pluginIdMatchesSuppliedPluginId = where("pluginId").is(plugin.getId());
+        Criteria isNotDeleted = where("deleted").ne(true);
+        return query((new Criteria()).andOperator(pluginIdMatchesSuppliedPluginId, isNotDeleted));
+    }
+
+    private <T extends BaseDomain> void updateDeleteAndDeletedAtFieldsForEachDomainObject(List<? extends BaseDomain> domainObjects,
+                                                                   MongockTemplate mongockTemplate, Path path,
+                                                                                          Class<T> type) {
+        domainObjects.stream()
+                .map(BaseDomain::getId) // iterate over one action id at a time
+                .map(id -> fetchDomainObjectUsingId(id, mongockTemplate, path, type)) // fetch
+                // action
+                // using id
+                .forEachOrdered(domainObject -> {
+                    domainObject.setDeleted(true);
+                    domainObject.setDeletedAt(Instant.now());
+                    mongockTemplate.save(domainObject);
+                });
+    }
+
+    private <T extends BaseDomain> T fetchDomainObjectUsingId(String id, MongockTemplate mongockTemplate, Path path,
+                                                              Class<T> type) {
+        final T domainObject = mongockTemplate.findOne(query(where(fieldName(path)).is(id)), type);
+        return domainObject;
     }
 
 }
