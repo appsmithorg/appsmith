@@ -30,7 +30,11 @@ import { DragDetails } from "reducers/uiReducers/dragResizeReducer";
 import { getIsReflowing } from "selectors/widgetReflowSelectors";
 import { XYCord } from "./useCanvasDragging";
 import ContainerJumpMetrics from "./ContainerJumpMetric";
-import { AlignItems, LayoutDirection } from "components/constants";
+import {
+  AlignItems,
+  LayoutDirection,
+  LayoutWrapperType,
+} from "components/constants";
 
 export interface WidgetDraggingUpdateParams extends WidgetDraggingBlock {
   updateWidgetParams: WidgetOperationParams;
@@ -297,13 +301,15 @@ export const useBlocksToBeDraggedOnCanvas = ({
   const updateChildrenPositions = (
     index: number,
     drawingBlocks: WidgetDraggingBlock[],
+    wrapperType: LayoutWrapperType,
   ): void => {
     // console.log("**********");
     // console.log(index);
     // console.log(allWidgets);
     // console.log(selectedWidgets);
     // console.log(widgetId);
-    if (isNewWidget) addNewWidgetToAutoLayout(index, drawingBlocks);
+    if (isNewWidget)
+      addNewWidgetToAutoLayout(index, drawingBlocks, wrapperType);
     dispatch({
       type: ReduxActionTypes.AUTOLAYOUT_REORDER_WIDGETS,
       payload: {
@@ -316,6 +322,7 @@ export const useBlocksToBeDraggedOnCanvas = ({
   const addNewWidgetToAutoLayout = (
     index: number,
     drawingBlocks: WidgetDraggingBlock[],
+    wrapperType: LayoutWrapperType,
   ) => {
     logContainerJumpOnDrop();
     const blocksToUpdate = drawingBlocks.map((each) => {
@@ -338,11 +345,19 @@ export const useBlocksToBeDraggedOnCanvas = ({
         updateWidgetParams,
       };
     });
+    // Add wrapperType to props of the new widget
+    const widgetPayload = {
+      ...blocksToUpdate[0]?.updateWidgetParams?.payload,
+      props: {
+        ...blocksToUpdate[0]?.updateWidgetParams?.payload?.props,
+        wrapperType,
+      },
+    };
     dispatch({
       type: ReduxActionTypes.AUTOLAYOUT_ADD_NEW_WIDGETS,
       payload: {
         index,
-        newWidget: blocksToUpdate[0].updateWidgetParams.payload,
+        newWidget: widgetPayload,
         parentId: widgetId,
       },
     });

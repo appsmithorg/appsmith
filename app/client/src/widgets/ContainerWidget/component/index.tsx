@@ -32,6 +32,8 @@ import {
   getLayoutProperties,
   LayoutProperties,
 } from "utils/layoutPropertiesUtils";
+import { useSelector } from "store";
+import { getWidgets } from "sagas/selectors";
 
 const scrollContents = css`
   overflow-y: auto;
@@ -176,6 +178,7 @@ export function FlexBox(props: FlexBoxProps) {
 }
 
 export function LayoutWrapper(props: FlexBoxProps): JSX.Element {
+  const allWidgets = useSelector(getWidgets);
   const [startChildren, setStartChildren] = useState([]);
   const [endChildren, setEndChildren] = useState([]);
 
@@ -184,11 +187,8 @@ export function LayoutWrapper(props: FlexBoxProps): JSX.Element {
       end: any = [];
     if (isArray(props.children) && props.children?.length > 0) {
       for (const child of props.children) {
-        if (
-          child &&
-          (child as any).props &&
-          (child as any).props.wrapperType === LayoutWrapperType.End
-        )
+        const widget = allWidgets[(child as any).props?.widgetId];
+        if (widget && widget.wrapperType === LayoutWrapperType.End)
           end.push(child);
         else start.push(child);
       }

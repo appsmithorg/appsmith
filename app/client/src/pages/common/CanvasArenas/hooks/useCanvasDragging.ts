@@ -29,7 +29,10 @@ import {
 } from "./useBlocksToBeDraggedOnCanvas";
 import { useCanvasDragToScroll } from "./useCanvasDragToScroll";
 import ContainerJumpMetrics from "./ContainerJumpMetric";
-import { useAutoLayoutHighlights } from "./useAutoLayoutHighlights";
+import {
+  DropPositionPayload,
+  useAutoLayoutHighlights,
+} from "./useAutoLayoutHighlights";
 
 export interface XYCord {
   x: number;
@@ -319,13 +322,17 @@ export const useCanvasDragging = (
                 }
                 return each;
               });
-            const pos = getDropPosition({
+            const pos: DropPositionPayload | undefined = getDropPosition({
               x: currentRectanglesToDraw[0].top,
               y: currentRectanglesToDraw[0].left,
             });
             if (pos !== undefined && useAutoLayout) {
               // cleanUpTempStyles();
-              updateChildrenPositions(pos, currentRectanglesToDraw);
+              updateChildrenPositions(
+                pos.index,
+                currentRectanglesToDraw,
+                pos.wrapperType,
+              );
             } else
               onDrop(currentRectanglesToDraw, reflowedPositionsUpdatesWidgets);
           }
