@@ -336,7 +336,7 @@ ctx.addEventListener(
             new URL(requestData);
             url = requestData;
           } catch (e) {
-            url = `https://appsmith-browserify.herokuapp.com/standalone/${requestData}@latest`;
+            url = `https://appsmith-packd.herokuapp.com/${requestData}`;
           }
           const oldKeys = Object.keys(self);
           //@ts-expect-error test
