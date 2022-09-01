@@ -2,7 +2,7 @@ import React, { useRef, RefObject, useCallback, useState } from "react";
 import { connect, useDispatch } from "react-redux";
 import { withRouter, RouteComponentProps } from "react-router";
 import styled from "styled-components";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import { ActionResponse } from "api/ActionAPI";
 import { formatBytes } from "utils/helpers";
 import { APIEditorRouteParams } from "constants/routes";
@@ -216,7 +216,7 @@ type Props = ReduxStateProps &
 export const EMPTY_RESPONSE: ActionResponse = {
   statusCode: "",
   duration: "",
-  body: {},
+  body: "",
   headers: {},
   request: {
     headers: {},

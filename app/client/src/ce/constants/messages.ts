@@ -5,6 +5,16 @@ export function createMessage(
   return format(...args);
 }
 
+/*
+  For self hosted, it displays the string "Appsmith Community v1.10.0" or "Appsmith Business v1.10.0".
+  For cloud hosting, it displays "Appsmith v1.10.0". 
+  This is because Appsmith Cloud doesn't support business features yet.
+ */
+export const APPSMITH_DISPLAY_VERSION = (
+  edition: string,
+  version: string,
+  cloudHosting: boolean,
+) => `Appsmith ${!cloudHosting ? edition : ""} ${version}`;
 export const YES = () => `Yes`;
 export const ARE_YOU_SURE = () => `Are you sure?`;
 export const ERROR_ADD_API_INVALID_URL = () =>
@@ -212,6 +222,8 @@ export const ERROR_DATEPICKER_MAX_DATE = () =>
 export const ERROR_WIDGET_DOWNLOAD = (err: string) => `Download failed. ${err}`;
 export const ERROR_PLUGIN_ACTION_EXECUTE = (actionName: string) =>
   `${actionName} failed to execute`;
+export const ACTION_EXECUTION_CANCELLED = (actionName: string) =>
+  `${actionName} was cancelled`;
 export const ERROR_FAIL_ON_PAGE_LOAD_ACTIONS = () =>
   `Failed to execute actions during page load`;
 export const ERROR_ACTION_EXECUTE_FAIL = (actionName: string) =>
@@ -1208,3 +1220,5 @@ export const CLEAN_URL_UPDATE = {
   disclaimer: () =>
     "Existing references to <strong>appsmith.URL.fullpath</strong> and <strong>appsmith.URL.pathname</strong> properties will behave differently.",
 };
+
+export const MEMBERS_TAB_TITLE = (length: number) => `Users (${length})`;

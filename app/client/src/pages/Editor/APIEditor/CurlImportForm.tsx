@@ -3,7 +3,7 @@ import { reduxForm, InjectedFormProps, Form, Field } from "redux-form";
 import { connect } from "react-redux";
 import { withRouter, RouteComponentProps } from "react-router";
 import styled from "styled-components";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import { ActionDataState } from "reducers/entityReducers/actionsReducer";
 import { CURL_IMPORT_FORM } from "constants/forms";
 import { BuilderRouteParams } from "constants/routes";
