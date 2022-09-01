@@ -6,7 +6,7 @@ import {
   LayoutWrapperType,
   ResponsiveBehavior,
 } from "components/constants";
-import { isArray } from "lodash";
+import { isArray, isNaN } from "lodash";
 import { WidgetDraggingBlock } from "./useBlocksToBeDraggedOnCanvas";
 
 interface XYCord {
@@ -58,7 +58,7 @@ export const useAutoLayoutHighlights = ({
 
   let offsets: Highlight[] = [];
   let dragBlocksSize = 0;
-  const siblings: DOMRect[] = [];
+  let startOffsetsCount = 0;
   const siblingElements: any[] = [];
   let lastTranslatedIndex: number;
   let containerDimensions: {
@@ -133,7 +133,7 @@ export const useAutoLayoutHighlights = ({
     // reset state
     dragBlocksSize = 0;
     lastTranslatedIndex = -10;
-
+    startOffsetsCount = 0;
     // Hide the highlight
     if (dropPositionRef && dropPositionRef.current) {
       dropPositionRef.current.style.opacity = "0";
@@ -190,10 +190,9 @@ export const useAutoLayoutHighlights = ({
     const valueToAdd = isFinal
       ? {
           x: rect.width + 8,
-          y: isVertical ? rect.height + 8 : 8,
+          y: isVertical ? rect.height + 8 : 0,
         }
       : { x: 0, y: 0 };
-
     if (isVertical) {
       mOffset = {
         x: 0,
@@ -311,6 +310,7 @@ export const useAutoLayoutHighlights = ({
           LayoutWrapperType.End,
         );
         temp = [...arr1, ...arr2];
+        startOffsetsCount = arr1.length;
       } else
         temp = evaluateOffsets(
           offsetChildren,
@@ -335,6 +335,7 @@ export const useAutoLayoutHighlights = ({
     wrapperType: LayoutWrapperType,
   ): Highlight[] => {
     let res: Highlight[] = [];
+    const siblings: DOMRect[] = [];
     if (arr && arr.length) {
       // Get widget ids of all widgets being dragged
       arr.forEach((each) => {
@@ -358,7 +359,9 @@ export const useAutoLayoutHighlights = ({
       if (siblings.length) {
         res.push(
           getOffset(
-            siblings[siblings.length - 1],
+            wrapperType === LayoutWrapperType.End
+              ? siblings[siblings.length - 1]
+              : siblings[siblings.length - 1],
             flexOffsetTop,
             wrapperType,
             true,
@@ -446,24 +449,33 @@ export const useAutoLayoutHighlights = ({
     return Math.abs(Math.sqrt(x * x + y * y));
   };
 
-  const getDropPosition = (val: XYCord): DropPositionPayload | undefined => {
+  const getDropPosition = (index: number): number => {
+    if (isNaN(index)) return 0;
+    const wrapperType: LayoutWrapperType =
+      offsets[index]?.wrapperType || LayoutWrapperType.Start;
+    if (wrapperType === LayoutWrapperType.End) return index - startOffsetsCount;
+    return index;
+  };
+
+  const getDropInfo = (val: XYCord): DropPositionPayload | undefined => {
     if (!isNaN(lastTranslatedIndex) && lastTranslatedIndex >= 0)
       return {
-        index: lastTranslatedIndex,
+        index: getDropPosition(lastTranslatedIndex),
         wrapperType: offsets[lastTranslatedIndex]?.wrapperType,
       };
     const pos = getHighlightPosition(null, val);
     if (!pos) return;
+    const dropPos: number = offsets.indexOf(pos);
     return {
-      index: offsets.indexOf(pos),
-      wrapperType: offsets[lastTranslatedIndex]?.wrapperType,
+      index: getDropPosition(dropPos),
+      wrapperType: offsets[dropPos]?.wrapperType,
     };
   };
 
   return {
     calculateHighlightOffsets,
     cleanUpTempStyles,
-    getDropPosition,
+    getDropInfo,
     highlightDropPosition,
   };
 };

@@ -1,11 +1,4 @@
-import React, {
-  ReactNode,
-  useRef,
-  useEffect,
-  RefObject,
-  useMemo,
-  useState,
-} from "react";
+import React, { ReactNode, useRef, useEffect, RefObject, useMemo } from "react";
 import styled, { css } from "styled-components";
 import { isArray, pick } from "lodash";
 import tinycolor from "tinycolor2";
@@ -179,23 +172,14 @@ export function FlexBox(props: FlexBoxProps) {
 
 export function LayoutWrapper(props: FlexBoxProps): JSX.Element {
   const allWidgets = useSelector(getWidgets);
-  const [startChildren, setStartChildren] = useState([]);
-  const [endChildren, setEndChildren] = useState([]);
-
-  useEffect(() => {
-    const start: any = [],
-      end: any = [];
-    if (isArray(props.children) && props.children?.length > 0) {
-      for (const child of props.children) {
-        const widget = allWidgets[(child as any).props?.widgetId];
-        if (widget && widget.wrapperType === LayoutWrapperType.End)
-          end.push(child);
-        else start.push(child);
-      }
-      setStartChildren(start);
-      setEndChildren(end);
-    }
-  }, [props.children]);
+  const start: JSX.Element[] = [],
+    end: JSX.Element[] = [];
+  isArray(props.children) &&
+    (props.children as JSX.Element[]).map((child: JSX.Element) => {
+      const widget = allWidgets[child.props?.widgetId];
+      if (widget?.wrapperType === LayoutWrapperType.End) end.push(child);
+      else start.push(child);
+    });
 
   const layoutProps: LayoutProperties = useMemo(
     () => getLayoutProperties(props.direction, props.alignment, props.spacing),
@@ -213,13 +197,13 @@ export function LayoutWrapper(props: FlexBoxProps): JSX.Element {
         className={`wrapper start-wrapper-${props.widgetId}`}
         flexDirection={layoutProps.flexDirection}
       >
-        {startChildren}
+        {start}
       </StartWrapper>
       <EndWrapper
         className={`wrapper end-wrapper-${props.widgetId}`}
-        flexDirection={layoutProps.flexDirection}
+        flexDirection={FlexDirection.Row}
       >
-        {endChildren}
+        {end}
       </EndWrapper>
     </FlexContainer>
   );

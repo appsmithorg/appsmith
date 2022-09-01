@@ -117,7 +117,7 @@ export const useCanvasDragging = (
   const {
     calculateHighlightOffsets,
     cleanUpTempStyles,
-    getDropPosition,
+    getDropInfo,
     highlightDropPosition,
   } = useAutoLayoutHighlights({
     blocksToDraw,
@@ -322,7 +322,7 @@ export const useCanvasDragging = (
                 }
                 return each;
               });
-            const pos: DropPositionPayload | undefined = getDropPosition({
+            const pos: DropPositionPayload | undefined = getDropInfo({
               x: currentRectanglesToDraw[0].top,
               y: currentRectanglesToDraw[0].left,
             });
