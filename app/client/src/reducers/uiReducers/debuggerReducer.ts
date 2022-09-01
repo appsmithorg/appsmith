@@ -1,4 +1,4 @@
-import { createReducer } from "utils/ReducerUtils";
+import { createImmerReducer } from "utils/ReducerUtils";
 import { Log } from "entities/AppsmithConsole";
 import {
   ReduxAction,
@@ -15,30 +15,21 @@ const initialState: DebuggerReduxState = {
   currentTab: "",
 };
 
-const debuggerReducer = createReducer(initialState, {
+const debuggerReducer = createImmerReducer(initialState, {
   [ReduxActionTypes.DEBUGGER_LOG]: (
     state: DebuggerReduxState,
-    action: ReduxAction<Log>,
+    action: ReduxAction<Log[]>,
   ) => {
-    return {
-      ...state,
-      logs: [...state.logs, action.payload],
-    };
+    state.logs = [...state.logs, ...action.payload];
   },
   [ReduxActionTypes.CLEAR_DEBUGGER_LOGS]: (state: DebuggerReduxState) => {
-    return {
-      ...state,
-      logs: [],
-    };
+    state.logs = [];
   },
   [ReduxActionTypes.SHOW_DEBUGGER]: (
     state: DebuggerReduxState,
     action: ReduxAction<boolean | undefined>,
   ) => {
-    return {
-      ...state,
-      isOpen: isUndefined(action.payload) ? !state.isOpen : action.payload,
-    };
+    state.isOpen = isUndefined(action.payload) ? !state.isOpen : action.payload;
   },
   [ReduxActionTypes.DEBUGGER_ADD_ERROR_LOG]: (
     state: DebuggerReduxState,
@@ -48,40 +39,29 @@ const debuggerReducer = createReducer(initialState, {
 
     // Moving recent update to the top of the error list
     const errors = omit(state.errors, action.payload.id);
-    return {
-      ...state,
-      errors: {
-        [action.payload.id]: action.payload,
-        ...errors,
-      },
+
+    state.errors = {
+      [action.payload.id]: action.payload,
+      ...errors,
     };
   },
   [ReduxActionTypes.DEBUGGER_DELETE_ERROR_LOG]: (
     state: DebuggerReduxState,
     action: ReduxAction<string>,
   ) => {
-    return {
-      ...state,
-      errors: omit(state.errors, action.payload),
-    };
+    state.errors = omit(state.errors, action.payload);
   },
   [ReduxActionTypes.HIDE_DEBUGGER_ERRORS]: (
     state: DebuggerReduxState,
     action: ReduxAction<boolean>,
   ) => {
-    return {
-      ...state,
-      hideErrors: action.payload,
-    };
+    state.hideErrors = action.payload;
   },
   [ReduxActionTypes.SET_CURRENT_DEBUGGER_TAB]: (
     state: DebuggerReduxState,
     action: ReduxAction<string>,
   ) => {
-    return {
-      ...state,
-      currentTab: action.payload,
-    };
+    state.currentTab = action.payload;
   },
   // Resetting debugger state after page switch
   [ReduxActionTypes.SWITCH_CURRENT_PAGE_ID]: () => {
