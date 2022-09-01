@@ -104,10 +104,10 @@ const Wrapper = styled.div<{ collapsed: boolean }>`
       text-overflow: ellipsis;
       overflow: hidden;
       white-space: nowrap;
-      -webkit-user-select: text;  /* Chrome 49+ */
-      -moz-user-select: text;     /* Firefox 43+ */
-      -ms-user-select: text;      /* No support yet */
-      user-select: text;          /* Likely future */
+      -webkit-user-select: all;  /* Chrome 49+ */
+      -moz-user-select: all;     /* Firefox 43+ */
+      -ms-user-select: all;      /* No support yet */
+      user-select: all;          /* Likely future */
     }
     .debugger-entity {
       color: ${(props) => props.theme.colors.debugger.entity};

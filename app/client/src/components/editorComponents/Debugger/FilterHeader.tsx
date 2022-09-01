@@ -22,6 +22,7 @@ const Wrapper = styled.div`
   justify-content: flex-start;
   padding: 8px 0;
   margin-left: 16px;
+  margin-right: 16px;
 
   .debugger-clear-logs {
     display: flex;
@@ -30,7 +31,6 @@ const Wrapper = styled.div`
 
   .debugger-search {
     height: 32px;
-    width: 560px;
   }
 
   .debugger-filter {
@@ -41,7 +41,9 @@ const Wrapper = styled.div`
 
   .input-container {
     display: flex;
-    width: 560px;
+    max-width: 560px;
+    min-width: 220px;
+    flex-grow: 1;
     height: 32px;
     align-items: center;
     margin: 0px 24px;
@@ -91,7 +93,7 @@ function FilterHeader(props: FilterHeaderProps) {
           placeholder="Filter"
           ref={searchRef}
           value={props.value}
-          width="560px"
+          width="100%"
         />
         {props.searchQuery && (
           <Icon
