@@ -232,7 +232,7 @@ export default function evaluateSync(
 ): EvalResult {
   return (function() {
     const errors: EvaluationError[] = [];
-    const logs: LogObject[] = [];
+    let logs: LogObject[] = [];
     let result;
     /**** Setting the eval context ****/
     userLogs.resetLogs();
@@ -280,17 +280,11 @@ export default function evaluateSync(
         originalBinding: userScript,
       });
     } finally {
-      userLogs
-        .flushLogs()
-        .then((outputLogs) => {
-          logs.push(...outputLogs);
-        })
-        .finally(() => {
-          for (const entity in GLOBAL_DATA) {
-            // @ts-expect-error: Types are not available
-            delete self[entity];
-          }
-        });
+      logs = userLogs.flushLogsSync();
+      for (const entity in GLOBAL_DATA) {
+        // @ts-expect-error: Types are not available
+        delete self[entity];
+      }
     }
 
     return { result, errors, logs };
@@ -344,6 +338,9 @@ export async function evaluateAsync(
       });
       logs = await userLogs.flushLogs();
     } finally {
+      // Adding this extra try catch because there are cases when logs have child objects
+      // like functions or promises that cause issue in complete promise action, thus
+      // leading the app into a bad state.
       try {
         completePromise(requestId, {
           result,

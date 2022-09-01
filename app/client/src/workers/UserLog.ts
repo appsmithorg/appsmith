@@ -189,7 +189,19 @@ class UserLog {
     });
     return sanitisedLogs;
   }
-
+  // convert flushLogs to a sync version
+  public flushLogsSync(): LogObject[] {
+    const userLogs = this.logs;
+    this.resetLogs();
+    // sanitise the data key of the user logs
+    const sanitisedLogs = userLogs.map((log) => {
+      return {
+        ...log,
+        data: this.sanitizeData(log.data),
+      };
+    });
+    return sanitisedLogs;
+  }
   // parses the incoming log and converts it to the log object
   public parseLogs(method: Methods, data: any[]): LogObject {
     // Create an ID
