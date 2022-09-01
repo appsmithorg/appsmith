@@ -232,7 +232,7 @@ export default function evaluateSync(
 ): EvalResult {
   return (function() {
     const errors: EvaluationError[] = [];
-    let logs: LogObject[] = [];
+    const logs: LogObject[] = [];
     let result;
     /**** Setting the eval context ****/
     userLogs.resetLogs();
@@ -280,11 +280,17 @@ export default function evaluateSync(
         originalBinding: userScript,
       });
     } finally {
-      logs = userLogs.flushLogs();
-      for (const entity in GLOBAL_DATA) {
-        // @ts-expect-error: Types are not available
-        delete self[entity];
-      }
+      userLogs
+        .flushLogs()
+        .then((outputLogs) => {
+          logs.push(...outputLogs);
+        })
+        .finally(() => {
+          for (const entity in GLOBAL_DATA) {
+            // @ts-expect-error: Types are not available
+            delete self[entity];
+          }
+        });
     }
 
     return { result, errors, logs };
@@ -324,7 +330,7 @@ export async function evaluateAsync(
 
     try {
       result = await eval(script);
-      logs = userLogs.flushLogs();
+      logs = await userLogs.flushLogs();
     } catch (error) {
       const errorMessage = `UncaughtPromiseRejection: ${
         (error as Error).message
@@ -336,17 +342,26 @@ export async function evaluateAsync(
         errorType: PropertyEvaluationErrorType.PARSE,
         originalBinding: userScript,
       });
-      logs = userLogs.flushLogs();
+      logs = await userLogs.flushLogs();
     } finally {
-      completePromise(requestId, {
-        result,
-        errors,
-        logs,
-        triggers: Array.from(self.TRIGGER_COLLECTOR),
-      });
-      for (const entity in GLOBAL_DATA) {
-        // @ts-expect-error: Types are not available
-        delete self[entity];
+      try {
+        completePromise(requestId, {
+          result,
+          errors,
+          logs,
+          triggers: Array.from(self.TRIGGER_COLLECTOR),
+        });
+      } catch (error) {
+        completePromise(requestId, {
+          result,
+          errors,
+          triggers: Array.from(self.TRIGGER_COLLECTOR),
+        });
+      } finally {
+        for (const entity in GLOBAL_DATA) {
+          // @ts-expect-error: Types are not available
+          delete self[entity];
+        }
       }
     }
   })();

@@ -33,7 +33,7 @@ const truncate = (input: string, suffix = "", truncLen = 100) => {
         ? `${input.substring(0, truncLen)}...${suffix}`
         : input;
     } else {
-      return "-";
+      return "";
     }
   } catch (error) {
     return `Invalid log: ${JSON.stringify(error)}`;
@@ -162,7 +162,7 @@ class UserLog {
 
         // if the item is a function, then remove it from the data and return it as name of the function
         if (typeof item === "function") {
-          return item.name;
+          return `func() item.name`;
         }
         return item;
       });
@@ -172,7 +172,7 @@ class UserLog {
     return returnData;
   }
   // returns the logs from the function execution after sanitising them and resets the logs object after that
-  public flushLogs(): LogObject[] {
+  public async flushLogs(): Promise<LogObject[]> {
     const userLogs = this.logs;
     this.resetLogs();
     // sanitise the data key of the user logs
