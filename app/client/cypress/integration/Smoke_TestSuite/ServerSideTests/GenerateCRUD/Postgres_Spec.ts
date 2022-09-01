@@ -327,11 +327,9 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
 
     deployMode.ClearJSONFieldValue("Current Port");
     deployMode.EnterJSONInputValue("Current Port", "BAYONNE");
-
   });
 
   it("9. Verify Update data from Deploy page - on Vessels - existing record", () => {
-
     updateNVerify(5, 2, "DISNEY DREAM");
     table.ReadTableRowColumnData(5, 3, 200).then(($cellData) => {
       expect($cellData).to.eq("France");
@@ -507,7 +505,7 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
   });
 
   it("14. Update JSON fields with placeholds for Addition - on Vessels", () => {
-    testTimeout(seconds(600));//10mins
+    testTimeout(seconds(600)); //10mins
     ee.ExpandCollapseEntity("WIDGETS");
     ee.ExpandCollapseEntity("Insert_Modal");
     ee.SelectEntityByName("insert_form");
@@ -766,8 +764,8 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
   ) {
     agHelper.ClickButton("Update"); //Update does not work, Bug 14063
     agHelper.AssertElementAbsence(locator._toastMsg); //Validating fix for Bug 14063 - for common table columns
-    //agHelper.Sleep(2000); //for update to reflect!
-    agHelper.WaitUntilEleDisappear(locator._spinner);
+    agHelper.Sleep(2000); //for update to reflect!
+    // agHelper.WaitUntilEleDisappear(locator._spinner);
     agHelper.ValidateNetworkStatus("@postExecute", 200);
     agHelper.ValidateNetworkStatus("@postExecute", 200);
     table.AssertSelectedRow(rowIndex); //Validate Primary key column selection
@@ -795,9 +793,9 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
         }})}}`,
     );
     // {{[...new Set(["Cargo", "Pleasure Craft", "Passenger", "Passenger", "Fishing", "Special Craft"])].map(item=> {return {
-		// 	label: item,
-		// 	value: item
-		// }})}}
+    // 	label: item,
+    // 	value: item
+    // }})}}
     propPane.NavigateBackToPropertyPane();
 
     propPane.OpenJsonFormFieldSettings("Timezone");
