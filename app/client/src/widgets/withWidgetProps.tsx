@@ -26,7 +26,6 @@ import {
   createCanvasWidget,
   createLoadingWidget,
 } from "utils/widgetRenderUtils";
-import { FlattenedWidgetProps } from "./constants";
 
 const WIDGETS_WITH_CHILD_WIDGETS = ["LIST_WIDGET", "FORM_WIDGET"];
 
@@ -45,17 +44,13 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
     const renderMode = useSelector(getRenderMode);
     const metaCanvasWidget = useSelector(getMetaCanvasWidget(widgetId));
 
+    const widgetName = canvasWidget?.widgetName || metaCanvasWidget?.widgetName;
+
     const evaluatedWidget = useSelector((state: AppState) =>
-      getWidgetEvalValues(
-        state,
-        canvasWidget?.widgetName || metaCanvasWidget?.widgetName,
-      ),
+      getWidgetEvalValues(state, widgetName),
     );
     const isLoading = useSelector((state: AppState) =>
-      getIsWidgetLoading(
-        state,
-        canvasWidget?.widgetName || metaCanvasWidget?.widgetName,
-      ),
+      getIsWidgetLoading(state, widgetName),
     );
     const isMetaCanvasWidget = Boolean(metaCanvasWidget);
     const metaWidgetChildrenStructure = useSelector(
@@ -81,8 +76,6 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
         if (widgetId === MAIN_CONTAINER_WIDGET_ID) {
           return computeMainContainerWidget(canvasWidget, mainCanvasProps);
         }
-
-        //if (isMetaCanvasWidget) return metaCanvasWidget;
 
         return evaluatedWidget
           ? createCanvasWidget(
