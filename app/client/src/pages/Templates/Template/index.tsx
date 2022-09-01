@@ -2,8 +2,7 @@ import React, { useState } from "react";
 import styled from "styled-components";
 import { Template as TemplateInterface } from "api/TemplatesApi";
 import history from "utils/history";
-import Button, { Size } from "components/ads/Button";
-import { TooltipComponent as Tooltip } from "design-system";
+import { Button, Size, TooltipComponent as Tooltip } from "design-system";
 import ForkTemplateDialog from "../ForkTemplate";
 import DatasourceChip from "../DatasourceChip";
 import LargeTemplate from "./LargeTemplate";
@@ -139,7 +138,11 @@ export function TemplateLayout(props: TemplateLayoutProps) {
   };
 
   return (
-    <TemplateWrapper className={props.className} onClick={onClick}>
+    <TemplateWrapper
+      className={props.className}
+      data-cy="template-card"
+      onClick={onClick}
+    >
       <ImageWrapper className="image-wrapper">
         <StyledImage src={screenshotUrls[0]} />
       </ImageWrapper>

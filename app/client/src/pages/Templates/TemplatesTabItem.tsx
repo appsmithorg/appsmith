@@ -2,8 +2,7 @@ import { Popover2, Classes as Popover2Classes } from "@blueprintjs/popover2";
 import { useLocation } from "react-router";
 import { setTemplateNotificationSeenAction } from "actions/templateActions";
 import { Classes } from "components/ads";
-import { TextType, Text } from "design-system";
-import Icon, { IconSize } from "components/ads/Icon";
+import { Icon, IconSize, TextType, Text } from "design-system";
 import { Colors } from "constants/Colors";
 import { matchTemplatesPath } from "constants/routes";
 import { isNull } from "lodash";
@@ -20,7 +19,7 @@ import {
 } from "selectors/applicationSelectors";
 import { showTemplateNotificationSelector } from "selectors/templatesSelectors";
 import styled from "styled-components";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 
 const NotificationWrapper = styled.div`
   background-color: ${Colors.SEA_SHELL};

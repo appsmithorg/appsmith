@@ -52,8 +52,13 @@ describe("MultiSelectTree Widget Functionality", function() {
   it("3. Clears the search field when widget is closed", () => {
     // open the multi-tree select widget
     // search for option Red in the search input
+    cy.openPropertyPane("multiselecttreewidget");
+    cy.testJsontext("defaultvalue", "");
+    cy.get(formWidgetsPage.treeSelectInput)
+      .first()
+      .click({ force: true });
     cy.get(formWidgetsPage.multiTreeSelectFilterInput)
-      .click()
+      .click({ force: true })
       .type("Green");
     // select the Green option
     cy.treeMultiSelectDropdown("Green");
@@ -71,6 +76,7 @@ describe("MultiSelectTree Widget Functionality", function() {
       .invoke("val")
       .should("be.empty");
     cy.wait(100);
+    cy.testJsontext("defaultvalue", "RED\n");
   });
 
   it("4. To Validate Options", function() {
@@ -100,6 +106,18 @@ describe("MultiSelectTree Widget Functionality", function() {
       publish.multiselecttreewidget + " " + ".rc-tree-select-multiple",
     ).should("be.visible");
     cy.get(publish.backToEditor).click();
+  });
+
+  it("7. To Check Option Not Found", function() {
+    cy.get(formWidgetsPage.treeSelectInput)
+      .first()
+      .click({ force: true });
+    cy.get(formWidgetsPage.multiTreeSelectFilterInput)
+      .click()
+      .type("ABCD");
+    cy.get(".tree-multiselect-dropdown .rc-tree-select-empty").contains(
+      "No Results Found",
+    );
   });
 });
 afterEach(() => {

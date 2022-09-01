@@ -1,10 +1,10 @@
-import Icon, { IconSize } from "components/ads/Icon";
+import { Icon, IconSize } from "design-system";
 import React from "react";
 import { useDispatch } from "react-redux";
 import { useSelector } from "store";
 import styled from "styled-components";
 import DebuggerTabs from "./DebuggerTabs";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import {
   setCurrentTab,
   showDebugger as showDebuggerAction,

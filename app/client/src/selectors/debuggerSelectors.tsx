@@ -2,7 +2,7 @@ import { matchDatasourcePath } from "constants/routes";
 import { Log } from "entities/AppsmithConsole";
 import { DataTree, DataTreeWidget } from "entities/DataTree/dataTreeFactory";
 import { isEmpty } from "lodash";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { createSelector } from "reselect";
 import { getWidgets } from "sagas/selectors";

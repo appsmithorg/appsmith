@@ -8,7 +8,7 @@ import React, {
 import { connect, useDispatch, useSelector } from "react-redux";
 import { withRouter, RouteComponentProps } from "react-router";
 import styled from "styled-components";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import { JSEditorRouteParams } from "constants/routes";
 import {
   createMessage,
@@ -29,7 +29,7 @@ import Resizer, { ResizerCSS } from "./Debugger/Resizer";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { JSCollection, JSAction } from "entities/JSCollection";
 import ReadOnlyEditor from "components/editorComponents/ReadOnlyEditor";
-import { Text, TextType } from "design-system";
+import { Button, Icon, Size, Text, TextType } from "design-system";
 import { Classes } from "components/ads/common";
 import LoadingOverlayScreen from "components/editorComponents/LoadingOverlayScreen";
 import { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
@@ -40,10 +40,8 @@ import { DebugButton } from "./Debugger/DebugCTA";
 import { setCurrentTab } from "actions/debuggerActions";
 import { DEBUGGER_TAB_KEYS } from "./Debugger/helpers";
 import EntityBottomTabs from "./EntityBottomTabs";
-import Icon from "components/ads/Icon";
 import { TAB_MIN_HEIGHT } from "components/ads/Tabs";
 import { theme } from "constants/DefaultTheme";
-import { Button, Size } from "components/ads";
 import { CodeEditorWithGutterStyles } from "pages/Editor/JSEditor/constants";
 import { getIsSavingEntity } from "selectors/editorSelectors";
 import { getJSResponseViewState } from "./utils";

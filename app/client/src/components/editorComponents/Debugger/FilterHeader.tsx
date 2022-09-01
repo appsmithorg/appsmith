@@ -1,14 +1,18 @@
 import React, { MutableRefObject, useRef } from "react";
 import { get } from "lodash";
-import Dropdown, { DropdownOption } from "components/ads/Dropdown";
-import TextInput from "components/ads/TextInput";
+import {
+  Dropdown,
+  DropdownOption,
+  Icon,
+  IconSize,
+  TextInput,
+  TooltipComponent,
+} from "design-system";
 import styled, { useTheme } from "styled-components";
-import Icon, { IconSize } from "components/ads/Icon";
 import { useDispatch } from "react-redux";
 
 import { clearLogs } from "actions/debuggerActions";
 import { Classes } from "components/ads/common";
-import { TooltipComponent } from "design-system";
 import { CLEAR_LOG_TOOLTIP, createMessage } from "@appsmith/constants/messages";
 import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
 import { Classes as BlueprintClasses } from "@blueprintjs/core";

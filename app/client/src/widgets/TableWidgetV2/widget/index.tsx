@@ -54,6 +54,8 @@ import {
   SortOrderTypes,
 } from "../component/Constants";
 import tablePropertyPaneConfig from "./propertyConfig";
+import contentConfig from "./propertyConfig/contentConfig";
+import styleConfig from "./propertyConfig/styleConfig";
 import { BatchPropertyUpdatePayload } from "actions/controlActions";
 import { IconName } from "@blueprintjs/icons";
 import { Colors } from "constants/Colors";
@@ -88,6 +90,14 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
     return tablePropertyPaneConfig;
   }
 
+  static getPropertyPaneContentConfig() {
+    return contentConfig;
+  }
+
+  static getPropertyPaneStyleConfig() {
+    return styleConfig;
+  }
+
   static getMetaPropertiesMap(): Record<string, any> {
     return {
       pageNo: 1,
@@ -118,6 +128,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
       updatedRows: `{{(()=>{ ${derivedProperties.getUpdatedRows}})()}}`,
       updatedRowIndices: `{{(()=>{ ${derivedProperties.getUpdatedRowIndices}})()}}`,
       updatedRow: `{{this.triggeredRow}}`,
+      pageOffset: `{{(()=>{${derivedProperties.getPageOffset}})()}}`,
     };
   }
 
@@ -440,7 +451,10 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
           !!_.xor(newColumnIds, columnOrder).length &&
           !_.isEqual(_.sortBy(newColumnIds), _.sortBy(existingDerivedColumnIds))
         ) {
-          propertiesToAdd["columnOrder"] = Object.keys(tableColumns);
+          // Maintain original columnOrder and keep new columns at the end
+          let newColumnOrder = _.intersection(columnOrder, newColumnIds);
+          newColumnOrder = _.union(newColumnOrder, newColumnIds);
+          propertiesToAdd["columnOrder"] = newColumnOrder;
         }
 
         const propertiesToUpdate: BatchPropertyUpdatePayload = {
