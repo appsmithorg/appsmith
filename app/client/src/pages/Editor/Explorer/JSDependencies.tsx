@@ -9,7 +9,7 @@ import {
   createMessage,
   CREATE_DATASOURCE_TOOLTIP,
 } from "ce/constants/messages";
-import { AppState } from "reducers";
+import { AppState } from "ce/reducers";
 import { ReduxActionTypes } from "ce/constants/ReduxActionConstants";
 import { debounce } from "lodash";
 

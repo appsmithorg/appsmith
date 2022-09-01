@@ -1,8 +1,8 @@
+import { AppState } from "ce/reducers";
 import classNames from "classnames";
 import { Text, TextType } from "design-system";
 import React from "react";
 import { useSelector } from "react-redux";
-import { AppState } from "reducers";
 
 const installationMessages = [
   (lib?: string) => `Checking compatibility - ${lib}`,
