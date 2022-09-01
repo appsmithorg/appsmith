@@ -29,9 +29,12 @@ const FilterWrapper = styled.div`
   }
 `;
 
-const FilterItemWrapper = styled.div`
+const FilterItemWrapper = styled.div<{ selected: boolean }>`
   padding: ${(props) =>
     `${props.theme.spaces[4]}px 0px 0px ${props.theme.spaces[11]}px`};
+  .filter input + span {
+    ${(props) => !props.selected && `border: 1.8px solid ${Colors.GRAY_400};`}
+  }
 `;
 
 const StyledFilterCategory = styled(Text)`
@@ -83,9 +86,10 @@ function FilterItem({ item, onSelect, selected }: FilterItemProps) {
   };
 
   return (
-    <FilterItemWrapper>
+    <FilterItemWrapper selected={selected}>
       <Checkbox
         backgroundColor={Colors.GREY_900}
+        className="filter"
         isDefaultChecked={selected}
         label={item.label}
         onCheckChange={onClick}

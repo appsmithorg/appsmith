@@ -59,6 +59,10 @@ const StyledSimilarTemplatesWrapper = styled(SimilarTemplates)`
   padding: 0px;
 `;
 
+const TemplateDescriptionWrapper = styled.div`
+  padding-bottom: 52px;
+`;
+
 type TemplateDetailedViewProps = {
   templateId: string;
   onBackPress: () => void;
@@ -145,7 +149,9 @@ function TemplateDetailedView(props: TemplateDetailedViewProps) {
             </IframeTopBar>
             <iframe src={`${previewUrl}?embed=true`} />
           </IframeWrapper>
-          <TemplateDescription hideForkButton template={currentTemplate} />
+          <TemplateDescriptionWrapper>
+            <TemplateDescription hideForkButton template={currentTemplate} />
+          </TemplateDescriptionWrapper>
           <StyledSimilarTemplatesWrapper
             breakpointCols={breakpointColumns}
             onBackPress={props.onBackPress}

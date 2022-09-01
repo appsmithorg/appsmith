@@ -51,6 +51,7 @@ const CardHeader = styled.div`
 const StyledCheckMark = styled(Checkmark)`
   width: 16px;
   height: 16px;
+  ${(props) => !props.isChecked && `border: 1.8px solid ${Colors.GRAY_400};`}
 
   &::after {
     width: 5px;
