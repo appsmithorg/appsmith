@@ -38,7 +38,6 @@ type FormDialogComponentProps = {
   permissions?: string[];
   setMaxWidth?: boolean;
   applicationId?: string;
-  showCallout?: boolean;
   headerIcon?: {
     name: IconName;
     fillColor?: string;
@@ -52,48 +51,59 @@ type FormDialogComponentProps = {
   placeholder?: string;
 };
 
+const getTabs = (
+  tabs: any[],
+  setIsOpen: (val: boolean) => void,
+  applicationId?: string,
+  workspaceId?: string,
+) => {
+  return tabs && tabs.length > 0
+    ? tabs.map((tab) => {
+        const TabForm = tab.component;
+        return {
+          key: tab.key,
+          title: tab.title,
+          panelComponent: (
+            <TabForm
+              {...tab.customProps}
+              applicationId={applicationId}
+              formName={`${INVITE_USERS_TO_WORKSPACE_FORM}_${tab.key}`}
+              onCancel={() => setIsOpen(false)}
+              options={tab.options}
+              placeholder={tab.placeholder || ""}
+              workspaceId={workspaceId}
+            />
+          ),
+        };
+      })
+    : [];
+};
+
 export function FormDialogComponent(props: FormDialogComponentProps) {
   const [isOpen, setIsOpenState] = useState(!!props.isOpen);
   const [selectedTabIndex, setSelectedTabIndex] = useState(0);
   const dispatch = useDispatch();
-  const updatedTabs: TabProp[] =
-    props.tabs && props.tabs.length > 0
-      ? props.tabs.map((tab) => {
-          const TabForm = tab.component;
-          return {
-            key: tab.key,
-            title: tab.title,
-            panelComponent: (
-              <TabForm
-                {...tab.customProps}
-                applicationId={props.applicationId}
-                formName={`${INVITE_USERS_TO_WORKSPACE_FORM}_${tab.key}`}
-                onCancel={() => setIsOpen(false)}
-                options={tab.options}
-                placeholder={tab.placeholder || ""}
-                showCallout={props.showCallout}
-                workspaceId={props.workspaceId}
-              />
-            ),
-          };
-        })
-      : [];
+
+  useEffect(() => {
+    setIsOpen(!!props.isOpen);
+  }, [props.isOpen]);
 
   const setIsOpen = (isOpen: boolean) => {
     setIsOpenState(isOpen);
     dispatch(setShowAppInviteUsersDialog(isOpen));
   };
 
-  useEffect(() => {
-    setIsOpen(!!props.isOpen);
-  }, [props.isOpen]);
-
-  const Form = props.Form;
-
   const onCloseHandler = () => {
     props?.onClose?.();
     setIsOpen(false);
   };
+
+  const updatedTabs: TabProp[] =
+    props.tabs && props.tabs.length > 0
+      ? getTabs(props.tabs, setIsOpen, props.applicationId, props.workspaceId)
+      : [];
+
+  const Form = props.Form;
 
   if (
     props.permissions &&
@@ -132,7 +142,6 @@ export function FormDialogComponent(props: FormDialogComponentProps) {
           onCancel={() => setIsOpen(false)}
           placeholder={props.placeholder}
           selected={props.selected}
-          showCallout={props.showCallout}
           workspaceId={props.workspaceId}
         />
       )}
