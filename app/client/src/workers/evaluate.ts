@@ -13,7 +13,6 @@ import { isEmpty } from "lodash";
 import { completePromise } from "workers/PromisifyAction";
 import { ActionDescription } from "entities/DataTree/actionTriggers";
 import userLogs, { LogObject } from "./UserLog";
-import { klona } from "klona/full";
 
 export type EvalResult = {
   result: any;
@@ -124,8 +123,6 @@ export const createGlobalData = (args: createGlobalDataArgs) => {
     skipEntityFunctions,
   } = args;
 
-  const clonedDataTree = klona(dataTree);
-
   const GLOBAL_DATA: Record<string, any> = {};
   ///// Adding callback data
   GLOBAL_DATA.ARGUMENTS = evalArguments;
@@ -144,7 +141,7 @@ export const createGlobalData = (args: createGlobalDataArgs) => {
   if (isTriggerBased) {
     //// Add internal functions to dataTree;
     const dataTreeWithFunctions = enhanceDataTreeWithFunctions(
-      clonedDataTree,
+      dataTree,
       context?.requestId,
       skipEntityFunctions,
     );
@@ -153,8 +150,8 @@ export const createGlobalData = (args: createGlobalDataArgs) => {
       GLOBAL_DATA[datum] = dataTreeWithFunctions[datum];
     });
   } else {
-    Object.keys(clonedDataTree).forEach((datum) => {
-      GLOBAL_DATA[datum] = clonedDataTree[datum];
+    Object.keys(dataTree).forEach((datum) => {
+      GLOBAL_DATA[datum] = dataTree[datum];
     });
   }
   if (!isEmpty(resolvedFunctions)) {
@@ -361,7 +358,6 @@ export function isFunctionAsync(
   resolvedFunctions: Record<string, any>,
   logs: unknown[] = [],
 ) {
-  const clonedDataTree = klona(dataTree);
   return (function() {
     /**** Setting the eval context ****/
     const GLOBAL_DATA: Record<string, any> = {
@@ -369,7 +365,7 @@ export function isFunctionAsync(
       IS_ASYNC: false,
     };
     //// Add internal functions to dataTree;
-    const dataTreeWithFunctions = enhanceDataTreeWithFunctions(clonedDataTree);
+    const dataTreeWithFunctions = enhanceDataTreeWithFunctions(dataTree);
     ///// Adding Data tree with functions
     Object.keys(dataTreeWithFunctions).forEach((datum) => {
       GLOBAL_DATA[datum] = dataTreeWithFunctions[datum];

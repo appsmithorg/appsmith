@@ -222,6 +222,8 @@ export const ERROR_DATEPICKER_MAX_DATE = () =>
 export const ERROR_WIDGET_DOWNLOAD = (err: string) => `Download failed. ${err}`;
 export const ERROR_PLUGIN_ACTION_EXECUTE = (actionName: string) =>
   `${actionName} failed to execute`;
+export const ACTION_EXECUTION_CANCELLED = (actionName: string) =>
+  `${actionName} was cancelled`;
 export const ERROR_FAIL_ON_PAGE_LOAD_ACTIONS = () =>
   `Failed to execute actions during page load`;
 export const ERROR_ACTION_EXECUTE_FAIL = (actionName: string) =>
