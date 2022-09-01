@@ -4,6 +4,7 @@ import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 
 const {
   AggregateHelper: agHelper,
+  ApiPage: apiPage,
   CommonLocators: locator,
   EntityExplorer: ee,
   JSEditor: jsEditor,
@@ -11,6 +12,7 @@ const {
 } = ObjectsRegistry;
 
 let logString;
+let dataSet;
 
 const generateTestLogString = () => {
   const randString = Cypress._.random(0, 1e4);
@@ -19,6 +21,11 @@ const generateTestLogString = () => {
 };
 
 describe("Debugger logs", function() {
+  before(() => {
+    cy.fixture("testdata").then(function(data) {
+      dataSet = data;
+    });
+  });
   this.beforeEach(() => {
     logString = generateTestLogString();
   });
@@ -115,10 +122,10 @@ describe("Debugger logs", function() {
     ee.NavigateToSwitcher("explorer");
     jsEditor.CreateJSObject(
       `export default {
-	      myFun1: () => {
-		      console.log("${logString}");
-		      return "sync";
-	      },
+        myFun1: () => {
+  	      console.log("${logString}");
+  	      return "sync";
+        },
         myFun2: () => {
           return 1;
         }
@@ -139,10 +146,10 @@ describe("Debugger logs", function() {
     ee.NavigateToSwitcher("explorer");
     jsEditor.CreateJSObject(
       `export default {
-	      myFun1: async () => {
-		      console.log("${logString}");
-		      return "async";
-	      },
+        myFun1: async () => {
+  	      console.log("${logString}");
+  	      return "async";
+        },
         myFun2: () => {
           return 1;
         }
@@ -161,9 +168,80 @@ describe("Debugger logs", function() {
     agHelper.GetNAssertContains(locator._debuggerLogMessage, logString);
   });
 
-  // it("Api headers need to be shown as headers in logs", function() {
-  //   // TODO
-  // });
+  it("10. Console log after API succedes", function() {
+    ee.NavigateToSwitcher("explorer");
+    apiPage.CreateAndFillApi(dataSet.baseUrl + dataSet.methods, "Test1");
+    jsEditor.CreateJSObject(
+      `export default {
+        myFun1: async () => {
+          return Test1.run().then(()=>{
+            console.log("${logString} Success");
+            return "success";
+          }).catch(()=>{
+            console.log("${logString} Failed");
+            return "fail";
+          });
+        },
+        myFun2: () => {
+          return 1;
+        }
+      }`,
+      {
+        paste: true,
+        completeReplace: true,
+        toRun: false,
+        shouldCreateNewJSObj: true,
+      },
+    );
+    agHelper.WaitUntilAllToastsDisappear();
+    agHelper.GetNClick(jsEditor._runButton);
+    agHelper.GetNClick(jsEditor._logsTab);
+    agHelper.GetNAssertContains(
+      locator._debuggerLogMessage,
+      `${logString} Success`,
+    );
+  });
+
+  it("11. Console log after API execution fails", function() {
+    ee.NavigateToSwitcher("explorer");
+    apiPage.CreateAndFillApi(
+      dataSet.baseUrl + dataSet.methods + "xyz",
+      "Test2",
+    );
+    jsEditor.CreateJSObject(
+      `export default {
+        myFun1: async () => {
+          return Test2.run().then(()=>{
+            console.log("${logString} Success");
+            return "success";
+          }).catch(()=>{
+            console.log("${logString} Failed");
+            return "fail";
+          });
+        },
+        myFun2: () => {
+          return 1;
+        }
+      }`,
+      {
+        paste: true,
+        completeReplace: true,
+        toRun: false,
+        shouldCreateNewJSObj: true,
+      },
+    );
+    agHelper.WaitUntilAllToastsDisappear();
+    agHelper.GetNClick(jsEditor._runButton);
+    agHelper.GetNClick(jsEditor._logsTab);
+    agHelper.GetNAssertContains(
+      locator._debuggerLogMessage,
+      `${logString} Failed`,
+    );
+  });
+
+  it("Api headers need to be shown as headers in logs", function() {
+    // TODO
+  });
 
   // it("Api body needs to be shown as JSON when possible", function() {
   //   // TODO
