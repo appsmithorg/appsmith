@@ -303,21 +303,17 @@ export const useBlocksToBeDraggedOnCanvas = ({
     drawingBlocks: WidgetDraggingBlock[],
     wrapperType: LayoutWrapperType,
   ): void => {
-    // console.log("**********");
-    // console.log(index);
-    // console.log(allWidgets);
-    // console.log(selectedWidgets);
-    // console.log(widgetId);
     if (isNewWidget)
       addNewWidgetToAutoLayout(index, drawingBlocks, wrapperType);
-    dispatch({
-      type: ReduxActionTypes.AUTOLAYOUT_REORDER_WIDGETS,
-      payload: {
-        index,
-        movedWidgets: selectedWidgets,
-        parentId: widgetId,
-      },
-    });
+    else
+      dispatch({
+        type: ReduxActionTypes.AUTOLAYOUT_REORDER_WIDGETS,
+        payload: {
+          index,
+          movedWidgets: selectedWidgets,
+          parentId: widgetId,
+        },
+      });
   };
   const addNewWidgetToAutoLayout = (
     index: number,
