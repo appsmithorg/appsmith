@@ -18,6 +18,8 @@ import {
   SUCCESSFULLY_SAVED,
 } from "@appsmith/constants/messages";
 import { BackButton } from "components/utils/helperComponents";
+import { LoaderContainer } from "pages/Settings/components";
+import { Spinner } from "@blueprintjs/core";
 
 export type RoleProps = {
   isEditing: boolean;
@@ -32,10 +34,11 @@ export type RoleEditProps = {
   selected: RoleProps;
   onClone: any;
   onDelete: any;
+  isLoading: boolean;
 };
 
 export function RoleAddEdit(props: RoleEditProps) {
-  const { selected } = props;
+  const { isLoading, selected } = props;
   const [selectedTabIndex, setSelectedTabIndex] = useState(0);
   const [isSaving, setIsSaving] = useState(false);
   const [pageTitle, setPageTitle] = useState(selected.permissionName);
@@ -192,7 +195,11 @@ export function RoleAddEdit(props: RoleEditProps) {
     },
   ];
 
-  return (
+  return isLoading ? (
+    <LoaderContainer>
+      <Spinner />
+    </LoaderContainer>
+  ) : (
     <div className="scrollable-wrapper" data-testid="t--role-edit-wrapper">
       <BackButton />
       <PageHeader

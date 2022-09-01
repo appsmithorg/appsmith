@@ -1,12 +1,11 @@
 import React from "react";
 import "@testing-library/jest-dom";
 import { render, screen } from "test/testUtils";
-import GroupListing from "./GroupsListing";
+import { GroupListing } from "./GroupsListing";
 import { userGroupTableData } from "./mocks/UserGroupListingMock";
 import userEvent from "@testing-library/user-event";
 import configureStore from "redux-mock-store";
 import { Provider } from "react-redux";
-import AclSagas from "@appsmith/sagas/AclSagas";
 
 let container: any = null;
 

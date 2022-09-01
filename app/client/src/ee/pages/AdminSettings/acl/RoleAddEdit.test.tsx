@@ -103,6 +103,7 @@ const props: RoleEditProps = {
   selected: rolesTableData[0],
   onClone: jest.fn(),
   onDelete: jest.fn(),
+  isLoading: false,
 };
 
 function renderComponent() {

@@ -95,6 +95,7 @@ describe("<ActiveAllGroupsList />", () => {
       onClone: jest.fn(),
       onDelete: jest.fn(),
       onBack: jest.fn(),
+      isLoading: false,
     };
     const { getAllByTestId, getByText } = render(
       <GroupAddEdit {...userGroupAddEditProps} />,

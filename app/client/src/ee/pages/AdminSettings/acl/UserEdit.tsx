@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useHistory } from "react-router";
 import styled from "styled-components";
-import { Position } from "@blueprintjs/core";
+import { Position, Spinner } from "@blueprintjs/core";
 import debounce from "lodash/debounce";
 import { SearchVariant, Toaster, Variant, Menu } from "components/ads";
 import { Icon, IconSize, MenuItem, MenuItemProps } from "design-system";
@@ -21,6 +21,7 @@ import {
   SUCCESSFULLY_SAVED,
 } from "@appsmith/constants/messages";
 import { BackButton } from "components/utils/helperComponents";
+import { LoaderContainer } from "pages/Settings/components";
 
 type UserProps = {
   isChangingRole: boolean;
@@ -37,6 +38,7 @@ type UserEditProps = {
   selectedUser: UserProps;
   onDelete: (userId: string) => void;
   searchPlaceholder: string;
+  isLoading: boolean;
 };
 
 const Header = styled.div`
@@ -115,7 +117,7 @@ export function UserEdit(props: UserEditProps) {
     setRemovedActivePermissionGroups,
   ] = useState<Array<any>>([]);
   const [isSaving, setIsSaving] = useState(false);
-  const { searchPlaceholder, selectedUser } = props;
+  const { isLoading, searchPlaceholder, selectedUser } = props;
 
   useEffect(() => {
     setUserGroups(selectedUser.allGroups);
@@ -244,7 +246,11 @@ export function UserEdit(props: UserEditProps) {
     }
   }, 300);
 
-  return (
+  return isLoading ? (
+    <LoaderContainer>
+      <Spinner />
+    </LoaderContainer>
+  ) : (
     <div className="scrollable-wrapper" data-testid="t--user-edit-wrapper">
       <BackButton />
       <Header>

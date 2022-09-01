@@ -1,7 +1,7 @@
 import React from "react";
 import "@testing-library/jest-dom";
 import { render, screen } from "test/testUtils";
-import UserListing from "./UserListing";
+import { UserListing } from "./UserListing";
 import { allUsers, columns } from "./mocks/UserListingMock";
 import userEvent from "@testing-library/user-event";
 import configureStore from "redux-mock-store";

@@ -19,7 +19,7 @@ import FormDialogComponent from "components/editorComponents/form/FormDialogComp
 import WorkspaceInviteUsersForm from "pages/workspace/WorkspaceInviteUsersForm";
 import { useHistory } from "react-router";
 import { User } from "./UserListing";
-import { Position } from "@blueprintjs/core";
+import { Position, Spinner } from "@blueprintjs/core";
 import {
   ADD_USERS,
   ARE_YOU_SURE,
@@ -35,6 +35,7 @@ import {
   REMOVE_USER,
 } from "@appsmith/constants/messages";
 import { BackButton } from "components/utils/helperComponents";
+import { LoaderContainer } from "pages/Settings/components";
 
 export type GroupProps = {
   isEditing: boolean;
@@ -51,6 +52,7 @@ export type GroupEditProps = {
   selected: GroupProps;
   onDelete: any;
   // onClone: any;
+  isLoading: boolean;
 };
 
 const ListUsers = styled.div`
@@ -133,7 +135,7 @@ export type Permissions = {
 };
 
 export function GroupAddEdit(props: GroupEditProps) {
-  const { selected } = props;
+  const { isLoading, selected } = props;
   const [selectedTabIndex, setSelectedTabIndex] = useState(0);
   const [showModal, setShowModal] = useState(false);
   const [searchValue, setSearchValue] = useState("");
@@ -418,7 +420,11 @@ export function GroupAddEdit(props: GroupEditProps) {
     },
   ];
 
-  return (
+  return isLoading ? (
+    <LoaderContainer>
+      <Spinner />
+    </LoaderContainer>
+  ) : (
     <div className="scrollable-wrapper" data-testid="t--user-edit-wrapper">
       <BackButton />
       <PageHeader

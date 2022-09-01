@@ -34,6 +34,7 @@ const props: GroupEditProps = {
   selected: userGroupTableData[0],
   // onClone: jest.fn(),
   onDelete: jest.fn(),
+  isLoading: false,
 };
 
 function renderComponent() {
@@ -76,6 +77,7 @@ describe("<GroupAddEdit />", () => {
       selected: selectedGroup,
       // onClone: jest.fn(),
       onDelete: jest.fn(),
+      isLoading: false,
     };
     render(<GroupAddEdit {...props} />);
     const searchInput = screen.getAllByTestId("t--acl-search-input");
@@ -117,6 +119,7 @@ describe("<GroupAddEdit />", () => {
       selected: selectedGroup,
       // onClone: jest.fn(),
       onDelete: jest.fn(),
+      isLoading: false,
     };
     render(<GroupAddEdit {...props} />);
     const searchInput = screen.getAllByTestId("t--acl-search-input");

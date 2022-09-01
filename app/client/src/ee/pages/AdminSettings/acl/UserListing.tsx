@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { connect } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { Link, useHistory, useParams } from "react-router-dom";
 import styled from "styled-components";
 import debounce from "lodash/debounce";
@@ -25,8 +25,12 @@ import {
   SHOW_LESS_GROUPS,
   SHOW_MORE_GROUPS,
 } from "@appsmith/constants/messages";
-import { AppState } from "@appsmith/reducers";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import {
+  getAclIsLoading,
+  getAllAclUsers,
+  getSelectedUser,
+} from "@appsmith/selectors/aclSelectors";
 
 export const CellContainer = styled.div`
   display: flex;
@@ -92,45 +96,35 @@ export type User = {
   isChangingRole: boolean;
 };
 
-export type UserListingProps = {
-  deleteAclUser: (id: string) => void;
-  getAllAclUsers: () => void;
-  getUserById: (id: string) => void;
-  users: User[];
-  selectedUser: User;
-};
-
-export function UserListing(props: UserListingProps) {
+export function UserListing() {
   const history = useHistory();
+  const params = useParams() as any;
+  const dispatch = useDispatch();
+
+  const aclUsers = useSelector(getAllAclUsers);
+  const selectedUser = useSelector(getSelectedUser);
+  const isLoading = useSelector(getAclIsLoading);
 
   const [data, setData] = useState<User[]>([]);
   const [searchValue, setSearchValue] = useState("");
   const [showModal, setShowModal] = useState(false);
 
-  const params = useParams() as any;
-  const {
-    deleteAclUser,
-    getAllAclUsers,
-    getUserById,
-    selectedUser,
-    users: aclUsers,
-  } = props;
   const selectedUserId = params?.selected;
 
   useEffect(() => {
-    getAllAclUsers();
-  }, []);
+    setData(aclUsers);
+  }, [aclUsers]);
 
   useEffect(() => {
     if (selectedUserId) {
-      getUserById(selectedUserId);
+      dispatch(getUserById({ id: selectedUserId }));
     } else {
-      setData(aclUsers);
+      dispatch({ type: ReduxActionTypes.FETCH_ACL_USERS });
     }
-  }, [aclUsers, selectedUserId]);
+  }, [selectedUserId]);
 
   const onDeleteHandler = (userId: string) => {
-    deleteAclUser(userId);
+    dispatch(deleteAclUser(userId));
     const updatedData = data.filter((user) => {
       return user.userId !== userId;
     });
@@ -344,6 +338,7 @@ export function UserListing(props: UserListingProps) {
       {selectedUserId && selectedUser ? (
         <UserEdit
           data-testid="acl-user-edit"
+          isLoading={isLoading}
           onDelete={onDeleteHandler}
           searchPlaceholder="Search"
           selectedUser={selectedUser}
@@ -362,6 +357,7 @@ export function UserListing(props: UserListingProps) {
             columns={columns}
             data={data}
             data-testid="acl-user-listing"
+            isLoading={isLoading}
             keyAccessor="userId"
             listMenuItems={listMenuItems}
           />
@@ -387,18 +383,3 @@ export function UserListing(props: UserListingProps) {
     </AclWrapper>
   );
 }
-
-const mapStateToProps = (state: AppState) => {
-  return {
-    users: state.acl.users,
-    selectedUser: state.acl.selectedUser,
-  };
-};
-
-const mapDispatchToProps = (dispatch: any) => ({
-  deleteAclUser: (id: string) => dispatch(deleteAclUser(id)),
-  getAllAclUsers: () => dispatch({ type: ReduxActionTypes.FETCH_ACL_USERS }),
-  getUserById: (id: string) => dispatch(getUserById({ id })),
-});
-
-export default connect(mapStateToProps, mapDispatchToProps)(UserListing);

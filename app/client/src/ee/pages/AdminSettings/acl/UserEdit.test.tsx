@@ -15,6 +15,7 @@ const props = {
   onDelete: onDeleteHandler,
   searchPlaceholder: "Search users",
   selectedUser,
+  isLoading: false,
 };
 
 function renderComponent() {

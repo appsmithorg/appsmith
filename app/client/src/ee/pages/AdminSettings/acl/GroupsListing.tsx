@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useHistory } from "react-router";
-import { connect } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import styled from "styled-components";
 import debounce from "lodash/debounce";
@@ -32,7 +32,11 @@ import {
   DELETE_GROUP,
   SEARCH_GROUPS_PLACEHOLDER,
 } from "@appsmith/constants/messages";
-import { AppState } from "@appsmith/reducers";
+import {
+  getAclIsLoading,
+  getGroups,
+  getSelectedGroup,
+} from "@appsmith/selectors/aclSelectors";
 
 const CellContainer = styled.div`
   display: flex;
@@ -51,34 +55,25 @@ export type UserGroup = {
   isNew?: boolean;
 };
 
-export type GroupListingProps = {
-  deleteGroup: (id: string) => void;
-  getAllUserGroups: () => void;
-  getGroupById: (id: string) => void;
-  groups: UserGroup[];
-  selectedGroup: UserGroup;
-};
+export function GroupListing() {
+  const history = useHistory();
+  const params = useParams() as any;
+  const dispatch = useDispatch();
 
-export function GroupListing(props: GroupListingProps) {
+  const userGroups = useSelector(getGroups);
+  const selectedGroup = useSelector(getSelectedGroup);
+  const isLoading = useSelector(getAclIsLoading);
+
   const [data, setData] = useState<UserGroup[]>([]);
   const [searchValue, setSearchValue] = useState("");
   const [selectedUserGroup, setSelectedUserGroup] = useState<any>({});
   const [isNewGroup, setIsNewGroup] = useState(false);
-  const history = useHistory();
-  const params = useParams() as any;
 
   const selectedUserGroupId = params?.selected;
-  const {
-    deleteGroup,
-    getAllUserGroups,
-    getGroupById,
-    groups: userGroups,
-    selectedGroup,
-  } = props;
 
   useEffect(() => {
-    getAllUserGroups();
-  }, []);
+    setData(userGroups);
+  }, [userGroups]);
 
   useEffect(() => {
     setSelectedUserGroup(selectedGroup);
@@ -104,16 +99,16 @@ export function GroupListing(props: GroupListingProps) {
         allUsers: [],
       });
     } else if (selectedUserGroupId) {
-      getGroupById(selectedUserGroupId);
+      dispatch(getGroupById({ id: selectedUserGroupId }));
       setIsNewGroup(false);
     } else {
-      setData(userGroups);
+      dispatch({ type: ReduxActionTypes.FETCH_ACL_GROUP });
       setIsNewGroup(false);
     }
-  }, [userGroups, selectedUserGroupId]);
+  }, [selectedUserGroupId]);
 
   const onDeleteHandler = (id: string) => {
-    deleteGroup(id);
+    dispatch(deleteGroup(id));
     const updatedData = data.filter((userGroup) => {
       return userGroup.id !== id;
     });
@@ -224,6 +219,7 @@ export function GroupListing(props: GroupListingProps) {
     <AclWrapper data-testid="t--group-listing-wrapper">
       {selectedUserGroupId && selectedUserGroup ? (
         <GroupAddEdit
+          isLoading={isLoading}
           // onClone={onCloneHandler}
           onDelete={onDeleteHandler}
           selected={selectedUserGroup}
@@ -240,6 +236,7 @@ export function GroupListing(props: GroupListingProps) {
           <Listing
             columns={columns}
             data={data}
+            isLoading={isLoading}
             keyAccessor="id"
             listMenuItems={listMenuItems}
           />
@@ -249,18 +246,3 @@ export function GroupListing(props: GroupListingProps) {
     </AclWrapper>
   );
 }
-
-const mapStateToProps = (state: AppState) => {
-  return {
-    groups: state.acl.groups,
-    selectedGroup: state.acl.selectedGroup,
-  };
-};
-
-const mapDispatchToProps = (dispatch: any) => ({
-  getAllUserGroups: () => dispatch({ type: ReduxActionTypes.FETCH_ACL_GROUP }),
-  getGroupById: (id: string) => dispatch(getGroupById({ id })),
-  deleteGroup: (id: string) => dispatch(deleteGroup(id)),
-});
-
-export default connect(mapStateToProps, mapDispatchToProps)(GroupListing);
