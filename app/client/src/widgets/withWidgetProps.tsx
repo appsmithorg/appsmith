@@ -42,16 +42,13 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
       getMainCanvasProps(state),
     );
     const renderMode = useSelector(getRenderMode);
-    const metaCanvasWidget = useSelector(getMetaCanvasWidget(widgetId));
-
-    const widgetName = canvasWidget?.widgetName || metaCanvasWidget?.widgetName;
-
     const evaluatedWidget = useSelector((state: AppState) =>
-      getWidgetEvalValues(state, widgetName),
+      getWidgetEvalValues(state, canvasWidget?.widgetName),
     );
     const isLoading = useSelector((state: AppState) =>
-      getIsWidgetLoading(state, widgetName),
+      getIsWidgetLoading(state, canvasWidget?.widgetName),
     );
+    const metaCanvasWidget = useSelector(getMetaCanvasWidget(widgetId));
     const isMetaCanvasWidget = Boolean(metaCanvasWidget);
     const metaWidgetChildrenStructure = useSelector(
       getMetaWidgetChildrenStructure(widgetId, isMetaCanvasWidget),
@@ -77,11 +74,10 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
           return computeMainContainerWidget(canvasWidget, mainCanvasProps);
         }
 
+        if (isMetaCanvasWidget) return metaCanvasWidget;
+
         return evaluatedWidget
-          ? createCanvasWidget(
-              canvasWidget || metaCanvasWidget,
-              evaluatedWidget,
-            )
+          ? createCanvasWidget(canvasWidget, evaluatedWidget)
           : createLoadingWidget(canvasWidget);
       })();
 

@@ -8,15 +8,11 @@ import {
 } from "./entitiesSelector";
 import { ActionDataState } from "reducers/entityReducers/actionsReducer";
 import {
-  getMetaCanvasWidgets,
-  getWidgets,
-  getWidgetsMeta,
-} from "sagas/selectors";
-import {
   DataTree,
   DataTreeFactory,
   DataTreeWidget,
 } from "entities/DataTree/dataTreeFactory";
+import { getWidgets, getWidgetsMeta } from "sagas/selectors";
 import "url-search-params-polyfill";
 import { getPageList } from "./appViewSelectors";
 import { AppState } from "reducers";
@@ -33,7 +29,6 @@ export const getUnevaluatedDataTree = createSelector(
   getPluginEditorConfigs,
   getPluginDependencyConfig,
   getSelectedAppThemeProperties,
-  getMetaCanvasWidgets,
   (
     actions,
     jsActions,
@@ -44,7 +39,6 @@ export const getUnevaluatedDataTree = createSelector(
     editorConfigs,
     pluginDependencyConfig,
     selectedAppThemeProperty,
-    metaCanvasWidgets,
   ) => {
     const pageList = pageListPayload || [];
     return DataTreeFactory.create({
@@ -57,7 +51,6 @@ export const getUnevaluatedDataTree = createSelector(
       editorConfigs,
       pluginDependencyConfig,
       theme: selectedAppThemeProperty,
-      metaCanvasWidgets,
     });
   },
 );

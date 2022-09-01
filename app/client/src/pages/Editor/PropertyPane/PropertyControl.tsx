@@ -305,7 +305,7 @@ const PropertyControl = memo((props: Props) => {
     // is changed on propertypane. For e.g - set/update parent property
     if (childWidgetPropertyUpdateEnhancementFn) {
       const hookPropertiesUpdates = childWidgetPropertyUpdateEnhancementFn(
-        widgetProperties,
+        widgetProperties.widgetName,
         propertyName,
         propertyValue,
         props.isTriggerProperty,
