@@ -138,7 +138,11 @@ export function TemplateLayout(props: TemplateLayoutProps) {
   };
 
   return (
-    <TemplateWrapper className={props.className} onClick={onClick}>
+    <TemplateWrapper
+      className={props.className}
+      data-cy="template-card"
+      onClick={onClick}
+    >
       <ImageWrapper className="image-wrapper">
         <StyledImage src={screenshotUrls[0]} />
       </ImageWrapper>
