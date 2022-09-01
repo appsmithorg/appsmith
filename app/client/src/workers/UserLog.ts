@@ -52,6 +52,9 @@ export function createLogTitleString(data: any[]) {
       if (curr === null || curr === undefined) {
         return `${acc} undefined`;
       }
+      if (curr instanceof Promise) {
+        return `${acc} Promise ${curr.constructor.name}`;
+      }
       if (typeof curr === "string") {
         return `${acc} ${truncate(curr)}`;
       }
@@ -143,6 +146,8 @@ class UserLog {
       for (const key in data) {
         if (typeof data[key] === "function") {
           data[key] = `func() ${data[key].name}`;
+        } else if (data[key] instanceof Promise) {
+          data[key] = "Promise";
         } else {
           this.replaceFunctionWithNamesFromObjects(data[key]);
         }
