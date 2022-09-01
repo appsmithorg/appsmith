@@ -27,6 +27,7 @@ const MarkWrapper = styled.div<Pick<MarksProps, "value" | "min" | "max">>(
     top: 0,
     zIndex: 2,
     left: `${getPosition({ value, min, max })}%`,
+    pointerEvents: "none",
   }),
 );
 
