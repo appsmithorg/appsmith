@@ -140,7 +140,7 @@ function* logDependentEntityProperties(payload: Log) {
     getEvaluationInverseDependencyMap,
   );
   const finalValue = getDependencyChain(propertyPath, inverseDependencyMap);
-
+  //logging them all at once rather than updating them individually
   yield put(
     debuggerLog(
       finalValue.map((path) => {
