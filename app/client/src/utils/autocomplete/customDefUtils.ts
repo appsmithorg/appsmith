@@ -7,32 +7,41 @@ import {
 } from "./customTreeTypeDefCreator";
 import TernServer from "./TernServer";
 
-let lastCustomDataDef: AdditionalDynamicDataTree | undefined;
+class CustomDef {
+  private lastCustomDataDef: AdditionalDynamicDataTree | undefined;
 
-export const updateCustomDef = (customData?: AdditionalDynamicDataTree) => {
-  if (customData && !isEmpty(customData)) {
-    const customDataDef = customTreeTypeDefCreator(customData);
-    if (!equal(lastCustomDataDef, customDataDef)) {
+  /**
+   * This method is responsible for both add and remove def in TernServer for customDataTree
+   * if customData is not defined then
+   * @param customData
+   */
+  update(customData?: AdditionalDynamicDataTree) {
+    if (customData && !isEmpty(customData)) {
+      const customDataDef = customTreeTypeDefCreator(customData);
+      if (!equal(this.lastCustomDataDef, customDataDef)) {
+        const start = performance.now();
+
+        TernServer.updateDef("customDataTree", customDataDef);
+
+        debug(
+          "Tern: updateDef for customDataTree took",
+          (performance.now() - start).toFixed(),
+          "ms",
+        );
+
+        this.lastCustomDataDef = customDataDef;
+      }
+    } else if (this.lastCustomDataDef) {
       const start = performance.now();
-
-      TernServer.updateDef("customDataTree", customDataDef);
-
+      TernServer.removeDef("customDataTree");
       debug(
-        "Tern: updateDef for customDataTree took",
+        "Tern: removeDef for customDataTree took",
         (performance.now() - start).toFixed(),
         "ms",
       );
-
-      lastCustomDataDef = customDataDef;
+      this.lastCustomDataDef = undefined;
     }
-  } else if (lastCustomDataDef) {
-    const start = performance.now();
-    TernServer.removeDef("customDataTree");
-    debug(
-      "Tern: removeDef for customDataTree took",
-      (performance.now() - start).toFixed(),
-      "ms",
-    );
-    lastCustomDataDef = undefined;
   }
-};
+}
+
+export const updateCustomDef = new CustomDef().update;
