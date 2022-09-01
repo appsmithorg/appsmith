@@ -132,7 +132,7 @@ export const CONFIG = {
         },
         propertyUpdateHook: (
           parentProps: ListWidgetProps<WidgetProps>,
-          widgetName: string,
+          widgetProperties: WidgetProps,
           propertyPath: string,
           propertyValue: string,
           isTriggerProperty: boolean,
@@ -144,8 +144,8 @@ export const CONFIG = {
             : {};
 
           if (!isTriggerProperty && hasDynamicPath(propertyValue)) {
-            dynamicPathMap[widgetName] = [
-              ...dynamicPathMap[widgetName],
+            dynamicPathMap[widgetProperties.widgetId] = [
+              ...dynamicPathMap[widgetProperties.widgetId],
               propertyPath,
             ];
           }
