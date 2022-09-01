@@ -10,11 +10,6 @@ import TernServer from "./TernServer";
 class CustomDef {
   private lastCustomDataDef: AdditionalDynamicDataTree | undefined;
 
-  /**
-   * This method is responsible for both add and remove def in TernServer for customDataTree
-   * if customData is not defined then
-   * @param customData
-   */
   update(customData?: AdditionalDynamicDataTree) {
     if (customData && !isEmpty(customData)) {
       const customDataDef = customTreeTypeDefCreator(customData);
@@ -44,4 +39,14 @@ class CustomDef {
   }
 }
 
-export const updateCustomDef = new CustomDef().update;
+/**
+ * This method is responsible for both add and remove def in TernServer for customDataTree.
+ *
+ * if customData is not defined then check if lastCustomDataDef was present and remove it.
+ *
+ * if customData is defined then generate new customDataDef and compare with lastCustomDataDef if different then run updateDef
+ * @param customData
+ */
+const updateCustomDef = new CustomDef().update;
+
+export { updateCustomDef };
