@@ -137,16 +137,9 @@ export const getFilterListSelector = createSelector(
   (widgetConfigs, allDatasources, templates, allTemplateFilters) => {
     const filters: Record<string, Filter[]> = {
       datasources: [],
-      widgets: [],
       functions: [],
     };
 
-    const allWidgets = widgetConfigs.map((widget) => {
-      return {
-        label: widget.displayName,
-        value: widget.type,
-      };
-    });
     const allFunctions = allTemplateFilters.functions.map((item) => {
       return {
         label: item,
@@ -181,7 +174,6 @@ export const getFilterListSelector = createSelector(
 
     templates.map((template) => {
       filterFilters("datasources", allDatasources, template);
-      filterFilters("widgets", allWidgets, template);
       filterFilters("functions", allFunctions, template);
     });
 

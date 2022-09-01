@@ -1182,7 +1182,7 @@ export const TEMPLATE_NOTIFICATION_DESCRIPTION = () =>
 export const GO_BACK = () => "GO BACK";
 export const OVERVIEW = () => "Overview";
 export const FUNCTION = () => "Function";
-export const INDUSTRY = () => "Industry";
+export const INDUSTRY = () => "Use Case";
 export const DATASOURCES = () => "Datasources";
 export const NOTE = () => "Note:";
 export const NOTE_MESSAGE = () => "You can add your datasources as well";
