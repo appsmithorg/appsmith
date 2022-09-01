@@ -35,12 +35,13 @@ export const CONFIG = {
         },
         propertyUpdateHook: (
           parentProps: any,
-          widgetName: string,
+          widgetProperties: WidgetProps,
           propertyPath: string,
           propertyValue: string,
           isTriggerProperty: boolean,
         ) => {
           let value = propertyValue;
+          const { widgetName } = widgetProperties;
 
           if (!parentProps.widgetId) return [];
 
