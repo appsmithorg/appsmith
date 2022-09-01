@@ -450,7 +450,10 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
           !!_.xor(newColumnIds, columnOrder).length &&
           !_.isEqual(_.sortBy(newColumnIds), _.sortBy(existingDerivedColumnIds))
         ) {
-          propertiesToAdd["columnOrder"] = Object.keys(tableColumns);
+          // Maintain original columnOrder and keep new columns at the end
+          let newColumnOrder = _.intersection(columnOrder, newColumnIds);
+          newColumnOrder = _.union(newColumnOrder, newColumnIds);
+          propertiesToAdd["columnOrder"] = newColumnOrder;
         }
 
         const propertiesToUpdate: BatchPropertyUpdatePayload = {

@@ -83,7 +83,7 @@
     "memoize-one": "^5.2.1",
     "micro-memoize": "^4.0.10",
     "moment": "2.29.4",
-    "moment-timezone": "^0.5.34",
+    "moment-timezone": "^0.5.35",
     "nanoid": "^2.0.4",
     "node-forge": "^1.3.0",
     "normalizr": "^3.3.0",
