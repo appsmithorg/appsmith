@@ -1,5 +1,6 @@
 import React, { memo, useCallback } from "react";
-import _, { get, isEqual } from "lodash";
+import _, { get } from "lodash";
+import equal from "fast-deep-equal/es6";
 import * as log from "loglevel";
 
 import {
@@ -67,10 +68,7 @@ const PropertyControl = memo((props: Props) => {
     props.evaluatedDependencies,
   );
 
-  const widgetProperties: WidgetProperties = useSelector(
-    propsSelector,
-    isEqual,
-  );
+  const widgetProperties: WidgetProperties = useSelector(propsSelector, equal);
 
   /**
    * get actual parent of widget
@@ -85,7 +83,7 @@ const PropertyControl = memo((props: Props) => {
 
   const { enhancementFns, parentIdWithEnhancementFn } = useSelector(
     enhancementSelector,
-    isEqual,
+    equal,
   );
 
   const selectedTheme = useSelector(getSelectedAppTheme);

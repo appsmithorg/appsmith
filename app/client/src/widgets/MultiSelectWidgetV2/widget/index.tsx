@@ -3,14 +3,8 @@ import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import { WidgetType } from "constants/WidgetConstants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import derivedProperties from "./parseDerivedProperties";
-import {
-  isArray,
-  isEqual,
-  isFinite,
-  isString,
-  LoDashStatic,
-  xorWith,
-} from "lodash";
+import { isArray, isFinite, isString, LoDashStatic, xorWith } from "lodash";
+import equal from "fast-deep-equal/es6";
 import {
   ValidationResponse,
   ValidationTypes,
@@ -976,12 +970,12 @@ class MultiSelectWidget extends BaseWidget<
       ? xorWith(
           this.props.defaultOptionValue as string[],
           prevProps.defaultOptionValue as string[],
-          isEqual,
+          equal,
         ).length > 0
       : xorWith(
           this.props.defaultOptionValue as OptionValue[],
           prevProps.defaultOptionValue as OptionValue[],
-          isEqual,
+          equal,
         ).length > 0;
 
     if (hasChanges && this.props.isDirty) {
