@@ -14,8 +14,8 @@ describe("Autocomplete bug fixes", function() {
     ee.SelectEntityByName("Text1");
     propPane.TypeTextIntoField("Text", "{{Table1.");
     agHelper.AssertElementExist(locator._hints);
-    agHelper.AssertElementText(locator._hints, "Best Match");
-    agHelper.AssertElementText(locator._hints, "selectedRow", 1);
+    agHelper.GetNAssertElementText(locator._hints, "Best Match");
+    agHelper.GetNAssertElementText(locator._hints, "selectedRow", "have.text", 1);
   });
 
   it("2. Bug #14990 Checks if copied widget show up on autocomplete suggestions", function() {
@@ -24,8 +24,8 @@ describe("Autocomplete bug fixes", function() {
     propPane.UpdatePropertyFieldValue("Text", "");
     propPane.TypeTextIntoField("Text", "{{Te");
     agHelper.AssertElementExist(locator._hints);
-    agHelper.AssertElementText(locator._hints, "Best Match");
-    agHelper.AssertElementText(locator._hints, "Text1Copy.text", 1);
+    agHelper.GetNAssertElementText(locator._hints, "Best Match");
+    agHelper.GetNAssertElementText(locator._hints, "Text1Copy.text", "have.text", 1);
   });
 
   it("3. Bug #14100 Custom columns name label change should reflect in autocomplete", function() {
@@ -45,6 +45,6 @@ describe("Autocomplete bug fixes", function() {
 
     // type {{Table1.selectedRow. and check for autocompletion suggestion having edited column name
     propPane.TypeTextIntoField("Text", "{{Table1.selectedRow.");
-    agHelper.AssertElementText(locator._hints, "columnAlias", 1);
+    agHelper.GetNAssertElementText(locator._hints, "columnAlias", "have.text", 1);
   });
 });

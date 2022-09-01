@@ -103,6 +103,14 @@ describe("Map Chart Widget Functionality", function() {
     cy.PublishtheApp();
   });
 
+  it("Map type: USA", function() {
+    // Change the map type
+    cy.updateMapType("USA");
+    // Verify the number of entities
+    cy.get(viewWidgetsPage.mapChartEntityLabels).should("have.length", 51);
+    cy.PublishtheApp();
+  });
+
   it("Action: onDataPointClick, Open modal", function() {
     // Create the Alert Modal and verify Modal name
     cy.createModal(this.data.ModalName);
