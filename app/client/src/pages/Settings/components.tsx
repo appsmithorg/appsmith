@@ -43,3 +43,10 @@ export const BottomSpace = styled.div`
 `;
 
 export const ContentWrapper = styled.div``;
+
+export const LoaderContainer = styled.div`
+  height: ${(props) => `calc(100vh - ${props.theme.smallHeaderHeight})`};
+  display: flex;
+  justify-content: center;
+  width: 100%;
+`;
