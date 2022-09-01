@@ -8,12 +8,12 @@ import {
 import TernServer from "./TernServer";
 
 class CustomDef {
-  private lastCustomDataDef: AdditionalDynamicDataTree | undefined;
+  private static lastCustomDataDef: AdditionalDynamicDataTree | undefined;
 
   update(customData?: AdditionalDynamicDataTree) {
     if (customData && !isEmpty(customData)) {
       const customDataDef = customTreeTypeDefCreator(customData);
-      if (!equal(this.lastCustomDataDef, customDataDef)) {
+      if (!equal(CustomDef.lastCustomDataDef, customDataDef)) {
         const start = performance.now();
 
         TernServer.updateDef("customDataTree", customDataDef);
@@ -24,9 +24,9 @@ class CustomDef {
           "ms",
         );
 
-        this.lastCustomDataDef = customDataDef;
+        CustomDef.lastCustomDataDef = customDataDef;
       }
-    } else if (this.lastCustomDataDef) {
+    } else if (CustomDef.lastCustomDataDef) {
       const start = performance.now();
       TernServer.removeDef("customDataTree");
       debug(
@@ -34,7 +34,7 @@ class CustomDef {
         (performance.now() - start).toFixed(),
         "ms",
       );
-      this.lastCustomDataDef = undefined;
+      CustomDef.lastCustomDataDef = undefined;
     }
   }
 }
