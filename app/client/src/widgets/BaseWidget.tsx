@@ -40,6 +40,8 @@ import PreviewModeComponent from "components/editorComponents/PreviewModeCompone
 import { CanvasWidgetStructure } from "./constants";
 import { DataTreeWidget } from "entities/DataTree/dataTreeFactory";
 import Skeleton from "./Skeleton";
+import { FlattenedWidgetProps } from "./constants";
+import { ModifyMetaWidgetPayload } from "reducers/entityReducers/metaCanvasWidgetsReducer";
 
 /***
  * BaseWidget
@@ -158,10 +160,14 @@ abstract class BaseWidget<
 
   /* eslint-disable @typescript-eslint/no-empty-function */
   /* eslint-disable @typescript-eslint/no-unused-vars */
-  componentDidUpdate(prevProps: T) {}
+  componentDidUpdate(prevProps: T, prevState?: K) {}
 
   componentDidMount(): void {}
   /* eslint-enable @typescript-eslint/no-empty-function */
+
+  modifyMetaWidgets = (modifications: ModifyMetaWidgetPayload) => {
+    this.context.modifyMetaWidgets?.(modifications);
+  };
 
   getComponentDimensions = () => {
     return this.calculateWidgetBounds(
@@ -438,6 +444,8 @@ export interface WidgetBaseProps {
   renderMode: RenderMode;
   version: number;
   childWidgets?: DataTreeWidget[];
+  flattenedChildCanvasWidgets?: Record<string, FlattenedWidgetProps>;
+  metaWidgetChildrenStructure?: CanvasWidgetStructure[];
 }
 
 export type WidgetRowCols = {

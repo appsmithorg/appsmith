@@ -31,9 +31,12 @@ import { ApplicationVersion } from "actions/applicationActions";
 import { MainCanvasReduxState } from "reducers/uiReducers/mainCanvasReducer";
 import {
   buildChildWidgetTree,
+  buildFlattenedChildCanvasWidgets,
   createCanvasWidget,
   createLoadingWidget,
 } from "utils/widgetRenderUtils";
+import { CanvasWidgetStructure } from "widgets/constants";
+import { denormalize } from "utils/canvasStructureHelpers";
 
 const getIsDraggingOrResizing = (state: AppState) =>
   state.ui.widgetDragResize.isResizing || state.ui.widgetDragResize.isDragging;
@@ -196,6 +199,32 @@ export const getCanvasWidth = (state: AppState) => state.ui.mainCanvas.width;
 
 export const getMainCanvasProps = (state: AppState) => state.ui.mainCanvas;
 
+export const getMetaCanvasWidgets = (state: AppState) =>
+  state.entities.metaCanvasWidgets;
+
+export const getMetaCanvasWidget = (metaWidgetId: string) =>
+  createSelector(getMetaCanvasWidgets, (metaCanvasWidgets) => {
+    return metaCanvasWidgets[metaWidgetId];
+  });
+
+export const getMetaWidgetChildrenStructure = (
+  parentWidgetId: string,
+  isMetaWidget: boolean,
+) =>
+  createSelector(getMetaCanvasWidgets, (metaCanvasWidgets) => {
+    if (isMetaWidget) return [];
+
+    const structure: CanvasWidgetStructure[] = [];
+
+    Object.values(metaCanvasWidgets).forEach(({ parentId, widgetId }) => {
+      if (parentId === parentWidgetId) {
+        structure.push(denormalize(widgetId, metaCanvasWidgets));
+      }
+    });
+
+    return structure;
+  });
+
 export const getCurrentPageName = createSelector(
   getPageListState,
   (pageList: PageListReduxState) =>
@@ -315,6 +344,14 @@ export const getChildWidgets = createSelector(
     (_state: AppState, widgetId: string) => widgetId,
   ],
   buildChildWidgetTree,
+);
+
+export const getFlattenedChildCanvasWidgets = createSelector(
+  [
+    getCanvasWidgets,
+    (_state: AppState, parentWidgetId: string) => parentWidgetId,
+  ],
+  buildFlattenedChildCanvasWidgets,
 );
 
 const getOccupiedSpacesForContainer = (

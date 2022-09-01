@@ -15,6 +15,9 @@ import {
   computeMainContainerWidget,
   getChildWidgets,
   getRenderMode,
+  getMetaWidgetChildrenStructure,
+  getMetaCanvasWidget,
+  getFlattenedChildCanvasWidgets,
 } from "selectors/editorSelectors";
 import { AppState } from "reducers";
 import { useSelector } from "react-redux";
@@ -45,10 +48,22 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
     const isLoading = useSelector((state: AppState) =>
       getIsWidgetLoading(state, canvasWidget?.widgetName),
     );
+    const metaCanvasWidget = useSelector(getMetaCanvasWidget(widgetId));
+    const isMetaCanvasWidget = Boolean(metaCanvasWidget);
+    const metaWidgetChildrenStructure = useSelector(
+      getMetaWidgetChildrenStructure(widgetId, isMetaCanvasWidget),
+      equal,
+    );
 
     const childWidgets = useSelector((state: AppState) => {
       if (!WIDGETS_WITH_CHILD_WIDGETS.includes(type)) return undefined;
       return getChildWidgets(state, widgetId);
+    }, equal);
+
+    const flattenedChildCanvasWidgets = useSelector((state: AppState) => {
+      if (type === "LIST_WIDGET_V2") {
+        return getFlattenedChildCanvasWidgets(state, widgetId);
+      }
     }, equal);
 
     let widgetProps: WidgetProps = {} as WidgetProps;
@@ -58,6 +73,8 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
         if (widgetId === MAIN_CONTAINER_WIDGET_ID) {
           return computeMainContainerWidget(canvasWidget, mainCanvasProps);
         }
+
+        if (isMetaCanvasWidget) return metaCanvasWidget;
 
         return evaluatedWidget
           ? createCanvasWidget(canvasWidget, evaluatedWidget)
@@ -97,9 +114,10 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
       }
 
       widgetProps.children = children;
-
+      widgetProps.metaWidgetChildrenStructure = metaWidgetChildrenStructure;
       widgetProps.isLoading = isLoading;
       widgetProps.childWidgets = childWidgets;
+      widgetProps.flattenedChildCanvasWidgets = flattenedChildCanvasWidgets;
     }
 
     //merging with original props

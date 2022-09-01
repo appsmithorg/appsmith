@@ -20,6 +20,8 @@ import {
   syncUpdateWidgetMetaProperty,
   triggerEvalOnMetaUpdate,
 } from "actions/metaActions";
+import { modifyMetaWidgets } from "actions/metaWidgetActions";
+import { ModifyMetaWidgetPayload } from "reducers/entityReducers/metaCanvasWidgetsReducer";
 
 export type EditorContextType = {
   executeAction?: (triggerPayload: ExecuteTriggerPayload) => void;
@@ -48,6 +50,7 @@ export type EditorContextType = {
     propertyName: string,
     propertyValue: any,
   ) => void;
+  modifyMetaWidgets?: (modifications: ModifyMetaWidgetPayload) => void;
 };
 export const EditorContext: Context<EditorContextType> = createContext({});
 
@@ -62,6 +65,7 @@ function EditorContextProvider(props: EditorContextProviderProps) {
     deleteWidgetProperty,
     disableDrag,
     executeAction,
+    modifyMetaWidgets,
     resetChildrenMetaProperty,
     syncUpdateWidgetMetaProperty,
     triggerEvalOnMetaUpdate,
@@ -82,6 +86,7 @@ function EditorContextProvider(props: EditorContextProviderProps) {
       deleteWidgetProperty,
       batchUpdateWidgetProperty,
       triggerEvalOnMetaUpdate,
+      modifyMetaWidgets,
     }),
     [
       executeAction,
@@ -93,6 +98,7 @@ function EditorContextProvider(props: EditorContextProviderProps) {
       deleteWidgetProperty,
       batchUpdateWidgetProperty,
       triggerEvalOnMetaUpdate,
+      modifyMetaWidgets,
     ],
   );
   return (
@@ -121,6 +127,7 @@ const mapDispatchToProps = {
   deleteWidgetProperty: deletePropertyAction,
   batchUpdateWidgetProperty: batchUpdatePropertyAction,
   triggerEvalOnMetaUpdate: triggerEvalOnMetaUpdate,
+  modifyMetaWidgets,
 };
 
 export default connect(null, mapDispatchToProps)(EditorContextProvider);
