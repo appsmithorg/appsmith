@@ -1297,7 +1297,6 @@ export default class DataTreeEvaluator {
   clearErrors() {
     this.errors = [];
   }
-
   clearLogs() {
     this.logs = [];
   }

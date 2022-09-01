@@ -17,8 +17,8 @@ export class CommonLocators {
     _publishButton = ".t--application-publish-btn"
     _widgetInCanvas = (widgetType: string) => `.t--draggable-${widgetType}`
     _widgetInDeployed = (widgetType: string) => `.t--widget-${widgetType}`
+    _widgetInputSelector = (widgetType: string) => this._widgetInDeployed(widgetType) + " input"
     _textWidgetInDeployed = this._widgetInDeployed("textwidget") + " span"
-    _inputWidgetInDeployed = this._widgetInDeployed("inputwidgetv2") + " input"
     _inputWidgetv1InDeployed = this._widgetInDeployed("inputwidget") + " input"
     _textAreainputWidgetv1InDeployed = this._widgetInDeployed("inputwidget") + " textarea"
     _textAreainputWidgetv2InDeployed = this._widgetInDeployed("inputwidgetv2") + " textarea"
@@ -26,6 +26,9 @@ export class CommonLocators {
     _backToEditor = ".t--back-to-editor"
     _newPage = ".pages .t--entity-add-btn"
     _toastMsg = "div.t--toast-action"
+    _toastConatiner = "div.Toastify__toast-container"
+    _specificToast = (toastText: string) => this._toastMsg + ":contains('" + toastText + "')"
+    //_specificToast = (toastText: string | RegExp) => this._toastMsg + ":contains("+ (typeof toastText == 'string' ? "'"+ toastText+"'" : toastText)+ ")"//not working!
     _empty = "span[name='no-response']"
     _contextMenuInPane = "span[name='context-menu']"
     _contextMenuSubItemDiv = (item: string) => "//div[text()='" + item + "'][contains(@class, 'bp3-fill')]"

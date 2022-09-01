@@ -26,7 +26,7 @@ const assertLintErrorAndOutput = (
   }
 };
 
-describe("Correctly parses JS Function", () => {
+describe("Bug #15283 - Correctly parses JS Function", () => {
   before(() => {
     ee.DragDropWidgetNVerify("singleselecttreewidget", 300, 500);
   });
@@ -66,7 +66,7 @@ describe("Correctly parses JS Function", () => {
       const result = ${expression};
       return result;
      }
-    } 
+    }
     `;
     const expression1 = `null ?? (TreeSelect1.selectedOptionLabel || undefined)`;
     const expression2 = `null ?? (TreeSelect1.selectedOptionLabel && undefined)`;
