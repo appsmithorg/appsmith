@@ -198,19 +198,27 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
       });
     }
 
+    const lastColumnIndex = columns.length - 1;
     if (totalColumnWidth < componentWidth) {
-      const lastColumnIndex = columns.length - 1;
-
       if (columns[lastColumnIndex]) {
         const lastColumnWidth =
           columns[lastColumnIndex].width || DEFAULT_COLUMN_WIDTH;
         const remainingWidth = componentWidth - totalColumnWidth;
 
+        columns[lastColumnIndex].width = lastColumnWidth + remainingWidth;
+      }
+    }
+
+    if (totalColumnWidth > componentWidth) {
+      const extraWidth = totalColumnWidth - componentWidth;
+      const lastColWidth =
+        columns[lastColumnIndex].width || DEFAULT_COLUMN_WIDTH;
+      if (lastColWidth > DEFAULT_COLUMN_WIDTH && extraWidth < lastColWidth) {
+        const availableWidthForLastColumn = lastColWidth - extraWidth;
         columns[lastColumnIndex].width =
-          lastColumnWidth +
-          (remainingWidth < DEFAULT_COLUMN_WIDTH
-            ? DEFAULT_COLUMN_WIDTH
-            : remainingWidth);
+          availableWidthForLastColumn > DEFAULT_COLUMN_WIDTH
+            ? availableWidthForLastColumn
+            : DEFAULT_COLUMN_WIDTH;
       }
     }
 
