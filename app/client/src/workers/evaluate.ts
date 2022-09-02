@@ -280,7 +280,7 @@ export default function evaluateSync(
         originalBinding: userScript,
       });
     } finally {
-      logs = userLogs.flushLogsSync();
+      logs = userLogs.flushLogs();
       for (const entity in GLOBAL_DATA) {
         // @ts-expect-error: Types are not available
         delete self[entity];
@@ -324,7 +324,7 @@ export async function evaluateAsync(
 
     try {
       result = await eval(script);
-      logs = await userLogs.flushLogs();
+      logs = userLogs.flushLogs();
     } catch (error) {
       const errorMessage = `UncaughtPromiseRejection: ${
         (error as Error).message
@@ -336,7 +336,7 @@ export async function evaluateAsync(
         errorType: PropertyEvaluationErrorType.PARSE,
         originalBinding: userScript,
       });
-      logs = await userLogs.flushLogs();
+      logs = userLogs.flushLogs();
     } finally {
       // Adding this extra try catch because there are cases when logs have child objects
       // like functions or promises that cause issue in complete promise action, thus

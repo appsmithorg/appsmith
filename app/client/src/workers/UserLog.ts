@@ -177,20 +177,7 @@ class UserLog {
     return returnData;
   }
   // returns the logs from the function execution after sanitising them and resets the logs object after that
-  public async flushLogs(): Promise<LogObject[]> {
-    const userLogs = this.logs;
-    this.resetLogs();
-    // sanitise the data key of the user logs
-    const sanitisedLogs = userLogs.map((log) => {
-      return {
-        ...log,
-        data: this.sanitizeData(log.data),
-      };
-    });
-    return sanitisedLogs;
-  }
-  // convert flushLogs to a sync version
-  public flushLogsSync(): LogObject[] {
+  public flushLogs(): LogObject[] {
     const userLogs = this.logs;
     this.resetLogs();
     // sanitise the data key of the user logs
