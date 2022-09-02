@@ -1,5 +1,4 @@
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
-import { seconds, testTimeout } from "../../../../support/timeout";
 
 let dsName: any, newCallsign: any;
 
@@ -378,7 +377,7 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
     deployMode.ClearJSONFieldValue("Destination");
 
     agHelper.GetNClick(deployMode._clearDropdown);
-    cy.get(deployMode._jsonSelectDropdown).click();
+    agHelper.GetNClick(deployMode._jsonSelectDropdown);
 
     deployMode.ClearJSONFieldValue("Timezone");
     deployMode.ClearJSONFieldValue("Status Name");
@@ -505,7 +504,6 @@ describe("Validate Postgres Generate CRUD with JSON Form", () => {
   });
 
   it("14. Update JSON fields with placeholds for Addition - on Vessels", () => {
-    testTimeout(seconds(600)); //10mins
     ee.ExpandCollapseEntity("WIDGETS");
     ee.ExpandCollapseEntity("Insert_Modal");
     ee.SelectEntityByName("insert_form");

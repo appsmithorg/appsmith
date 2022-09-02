@@ -1,5 +1,4 @@
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
-import { seconds, testTimeout } from "../../../../support/timeout";
 
 let dsName: any, newStoreSecret: any;
 
@@ -21,7 +20,6 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
   // });
 
   it("1. Create DS & then Add new Page and generate CRUD template using created datasource", () => {
-    testTimeout(seconds(300));//5mins
     dataSources.CreateDataSource("MySql");
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;
