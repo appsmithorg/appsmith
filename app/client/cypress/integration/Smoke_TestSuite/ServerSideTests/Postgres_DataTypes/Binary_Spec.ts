@@ -22,8 +22,8 @@ describe("Binary Datatype tests", function() {
       agHelper.AddDsl(val);
     });
     ee.NavigateToSwitcher("widgets");
-    propPane.ChangeColor(24, "Primary");
-    propPane.ChangeColor(-37, "Background");
+    propPane.ChangeThemeColor(24, "Primary");
+    propPane.ChangeThemeColor(-37, "Background");
   });
 
   it("1. Creating table query - binarytype", () => {
