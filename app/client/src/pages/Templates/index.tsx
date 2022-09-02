@@ -77,11 +77,8 @@ export const ResultsCount = styled.div`
   padding-bottom: ${(props) => props.theme.spaces[11]}px;
 `;
 
-const SearchWrapper = styled.div`
+const SearchWrapper = styled.div<{ sticky?: boolean }>`
   margin-left: ${(props) => props.theme.spaces[11]}px;
-`;
-
-const HeaderWrapper = styled.div<{ sticky?: boolean }>`
   ${(props) =>
     props.sticky &&
     `position: sticky;
@@ -186,21 +183,19 @@ export function TemplatesContent(props: TemplatesContentProps) {
 
   return (
     <>
-      <HeaderWrapper sticky={props.stickySearchBar}>
-        <SearchWrapper>
-          <ControlGroup>
-            <SearchInput
-              cypressSelector={"t--application-search-input"}
-              defaultValue={templateSearchQuery}
-              disabled={isLoading}
-              onChange={debouncedOnChange || noop}
-              placeholder={createMessage(SEARCH_TEMPLATES)}
-              variant={SearchVariant.BACKGROUND}
-            />
-          </ControlGroup>
-        </SearchWrapper>
-        <ResultsCount>{resultsText}</ResultsCount>
-      </HeaderWrapper>
+      <SearchWrapper sticky={props.stickySearchBar}>
+        <ControlGroup>
+          <SearchInput
+            cypressSelector={"t--application-search-input"}
+            defaultValue={templateSearchQuery}
+            disabled={isLoading}
+            onChange={debouncedOnChange || noop}
+            placeholder={createMessage(SEARCH_TEMPLATES)}
+            variant={SearchVariant.BACKGROUND}
+          />
+        </ControlGroup>
+      </SearchWrapper>
+      <ResultsCount>{resultsText}</ResultsCount>
       <TemplateList
         onForkTemplateClick={props.onForkTemplateClick}
         onTemplateClick={props.onTemplateClick}
