@@ -12,7 +12,7 @@ import { WidgetConfigReducerState } from "reducers/entityReducers/widgetConfigRe
 import { DatasourceDataState } from "reducers/entityReducers/datasourceReducer";
 import { AppViewReduxState } from "reducers/uiReducers/appViewReducer";
 import { DatasourcePaneReduxState } from "reducers/uiReducers/datasourcePaneReducer";
-import { ApplicationsReduxState } from "reducers/uiReducers/applicationsReducer";
+import { ApplicationsReduxState } from "@appsmith/reducers/uiReducers/applicationsReducer";
 import { PageListReduxState } from "reducers/entityReducers/pageListReducer";
 import { ApiPaneReduxState } from "reducers/uiReducers/apiPaneReducer";
 import { QueryPaneReduxState } from "reducers/uiReducers/queryPaneReducer";

@@ -34,6 +34,12 @@ import BackToHomeButton from "./BackToHomeButton";
 import TourCompletionMessage from "pages/Editor/GuidedTour/TourCompletionMessage";
 import { useHref } from "pages/Editor/utils";
 import { builderURL } from "RouteBuilder";
+import { inviteModalLinks } from "@appsmith/constants/forms";
+import {
+  createMessage,
+  INVITE_USERS_MESSAGE,
+  INVITE_USERS_PLACEHOLDER,
+} from "@appsmith/constants/messages";
 
 /**
  * ----------------------------------------------------------------------------
@@ -129,6 +135,9 @@ export function AppViewerHeader(props: AppViewerHeaderProps) {
                       bgColor: "transparent",
                     }}
                     isOpen={showAppInviteUsersDialog}
+                    links={inviteModalLinks}
+                    message={createMessage(INVITE_USERS_MESSAGE)}
+                    placeholder={createMessage(INVITE_USERS_PLACEHOLDER)}
                     title={currentApplicationDetails.name}
                     trigger={
                       <Button

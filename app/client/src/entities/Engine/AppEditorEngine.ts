@@ -29,7 +29,7 @@ import {
   ApplicationPayload,
   ReduxActionErrorTypes,
   ReduxActionTypes,
-} from "ce/constants/ReduxActionConstants";
+} from "@appsmith/constants/ReduxActionConstants";
 import { addBranchParam } from "constants/routes";
 import { APP_MODE } from "entities/App";
 import { all, call, put, select } from "redux-saga/effects";
