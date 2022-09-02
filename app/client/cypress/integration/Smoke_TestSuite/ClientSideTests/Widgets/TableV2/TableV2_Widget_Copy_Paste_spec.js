@@ -45,7 +45,7 @@ describe("Test Suite to validate copy/paste table Widget V2", function() {
     cy.hoverAndClickParticularIndex(1);
     cy.selectAction("Show Bindings");
     cy.get(apiwidget.propertyList).then(function($lis) {
-      expect($lis).to.have.length(16);
+      expect($lis).to.have.length(17);
       expect($lis.eq(0)).to.contain("{{Table1Copy.selectedRow}}");
       expect($lis.eq(1)).to.contain("{{Table1Copy.selectedRows}}");
     });
