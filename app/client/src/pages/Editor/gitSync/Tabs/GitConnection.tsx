@@ -25,18 +25,16 @@ import {
   UPDATE_CONFIG,
 } from "@appsmith/constants/messages";
 import styled from "styled-components";
-import TextInput, { emailValidator } from "components/ads/TextInput";
+import { TextInput, emailValidator } from "design-system";
 import UserGitProfileSettings from "../components/UserGitProfileSettings";
 import { AUTH_TYPE_OPTIONS } from "../constants";
 import { Colors } from "constants/Colors";
-import Button, { Category, Size } from "components/ads/Button";
 import { useDispatch, useSelector } from "react-redux";
 import copy from "copy-to-clipboard";
 import {
   getCurrentAppGitMetaData,
   getCurrentApplication,
 } from "selectors/applicationSelectors";
-import { Text, TextType } from "design-system";
 import {
   fetchGlobalGitConfigInit,
   fetchLocalGitConfigInit,
@@ -48,7 +46,7 @@ import {
   setIsGitSyncModalOpen,
   updateLocalGitConfigInit,
 } from "actions/gitSyncActions";
-import { isEqual } from "lodash";
+import equal from "fast-deep-equal/es6";
 import {
   getGitConnectError,
   getGlobalGitConfig,
@@ -62,12 +60,20 @@ import {
 import Statusbar, {
   StatusbarWrapper,
 } from "pages/Editor/gitSync/components/Statusbar";
-import ScrollIndicator from "components/ads/ScrollIndicator";
+import { ScrollIndicator } from "design-system";
 import Keys from "../components/ssh-key";
 import GitConnectError from "../components/GitConnectError";
 import Link from "../components/Link";
-import { TooltipComponent } from "design-system";
-import Icon, { IconSize } from "components/ads/Icon";
+import {
+  Button,
+  Category,
+  Icon,
+  IconSize,
+  Size,
+  Text,
+  TextType,
+  TooltipComponent,
+} from "design-system";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { GIT_DOC_URLs, isValidGitRemoteUrl } from "../utils";
 import { useGitConnect, useSSHKeyPair } from "../hooks";
@@ -255,8 +261,8 @@ function GitConnection({ isImport }: Props) {
 
   const isAuthorInfoUpdated = useCallback(() => {
     return (
-      !isEqual(localGitConfig?.authorEmail, authorInfo.authorEmail) ||
-      !isEqual(localGitConfig?.authorName, authorInfo.authorName)
+      !equal(localGitConfig?.authorEmail, authorInfo.authorEmail) ||
+      !equal(localGitConfig?.authorName, authorInfo.authorName)
     );
   }, [authorInfo.authorEmail, authorInfo.authorName, localGitConfig]);
 

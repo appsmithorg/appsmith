@@ -9,6 +9,7 @@ import {
 } from "redux-saga/effects";
 import { change, getFormValues, initialize } from "redux-form";
 import _, { merge, isEmpty } from "lodash";
+import equal from "fast-deep-equal/es6";
 import {
   ReduxAction,
   ReduxActionErrorTypes,
@@ -84,7 +85,7 @@ import { shouldBeDefined, trimQueryString } from "utils/helpers";
 import { inGuidedTour } from "selectors/onboardingSelectors";
 import { updateReplayEntity } from "actions/pageActions";
 import OAuthApi from "api/OAuthApi";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import { getWorkspaceIdForImport } from "selectors/applicationSelectors";
 import {
   apiEditorIdURL,
@@ -521,7 +522,7 @@ function* testDatasourceSaga(actionPayload: ReduxAction<Datasource>) {
     id: actionPayload.payload.id as any,
   };
 
-  if (!_.isEqual(initialValues, values)) {
+  if (!equal(initialValues, values)) {
     delete payload.id;
   }
 
@@ -685,7 +686,7 @@ function* updateDraftsSaga() {
     // @ts-expect-error: values is of type unknown
     values.id,
   );
-  if (_.isEqual(values, datasource)) {
+  if (equal(values, datasource)) {
     yield put({
       type: ReduxActionTypes.DELETE_DATASOURCE_DRAFT,
       payload: { id: values.id },

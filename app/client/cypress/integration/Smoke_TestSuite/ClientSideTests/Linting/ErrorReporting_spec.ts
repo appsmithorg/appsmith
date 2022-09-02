@@ -35,7 +35,7 @@ describe("Lint error reporting", () => {
       shouldCreateNewJSObj: true,
     });
     MouseHoverNVerify("name", "'name' is defined but never used.", false);
-    agHelper.Escape();
+    agHelper.PressEscape();
     agHelper.GetNClick(locator._errorTab);
     agHelper.AssertContains("'name' is defined but never used.", "not.exist");
 
@@ -57,12 +57,12 @@ describe("Lint error reporting", () => {
     // Test in PropertyPane
     ee.ExpandCollapseEntity("QUERIES/JS");
     ee.SelectEntityByName("Button1", "WIDGETS");
-    jsEditor.EnterJSContext(
+    propPane.EnterJSContext(
       "onClick",
       `{{
         () => {
         await showAlert('test')
-    }}}`
+    }}}`,
     );
 
     MouseHoverNVerify(
@@ -110,13 +110,13 @@ describe("Lint error reporting", () => {
     // Test in PropertyPane
     ee.ExpandCollapseEntity("QUERIES/JS");
     ee.SelectEntityByName("Button1", "WIDGETS");
-    jsEditor.EnterJSContext(
+    propPane.EnterJSContext(
       "onClick",
       `{{ {
           myVar2: {}
           myFun1: () => {
           }
-        }}}`
+        }}}`,
     );
     MouseHoverNVerify(
       "myFun1",
@@ -163,13 +163,13 @@ describe("Lint error reporting", () => {
     // Test in PropertyPane
     ee.ExpandCollapseEntity("QUERIES/JS");
     ee.SelectEntityByName("Button1", "WIDGETS");
-    jsEditor.EnterJSContext(
+    propPane.EnterJSContext(
       "onClick",
       `{{ {
           myVar2: {};
           myFun1: () => {
           }
-        }}}`
+        }}}`,
     );
     MouseHoverNVerify(
       ";",

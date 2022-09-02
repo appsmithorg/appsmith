@@ -5,13 +5,12 @@ import styled from "constants/DefaultTheme";
 import FormRow from "components/editorComponents/FormRow";
 import { PaginationType } from "entities/Action";
 import RadioFieldGroup from "components/editorComponents/form/fields/RadioGroupField";
-import { Text, Case, TextType } from "design-system";
-import Button, { Category, Size } from "components/ads/Button";
+import { Button, Category, Size, Text, Case, TextType } from "design-system";
 import {
   CodeEditorBorder,
   EditorTheme,
 } from "components/editorComponents/CodeEditor/EditorConfig";
-import GifPlayerComponent from "components/ads/GifPlayerComponent";
+import { GifPlayer } from "design-system";
 import { Classes } from "components/ads/common";
 import lightmodeGif from "assets/icons/gifs/config_pagination_lightmode.gif";
 import darkmodeGif from "assets/icons/gifs/config_pagination_darkmode.gif";
@@ -206,7 +205,7 @@ export default function Pagination(props: PaginationProps) {
             </PaginationFieldWrapper>
           </div>
           <GifContainer>
-            <GifPlayerComponent
+            <GifPlayer
               gif={
                 props.theme === EditorTheme.LIGHT ? lightmodeGif : darkmodeGif
               }
@@ -250,7 +249,7 @@ export default function Pagination(props: PaginationProps) {
             </BindingKey>
           </div>
           <GifContainer>
-            <GifPlayerComponent
+            <GifPlayer
               gif={
                 props.theme === EditorTheme.LIGHT ? lightmodeGif : darkmodeGif
               }

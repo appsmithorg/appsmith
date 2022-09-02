@@ -8,7 +8,7 @@ import {
 import { Row } from "react-table";
 
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import { isEqual } from "lodash";
+import equal from "fast-deep-equal/es6";
 import { ColumnTypes, EditableCell } from "../constants";
 import { useCallback } from "react";
 
@@ -347,8 +347,8 @@ export default React.memo(ReactTableComponent, (prev, next) => {
     prev.borderRadius === next.borderRadius &&
     prev.boxShadow === next.boxShadow &&
     prev.accentColor === next.accentColor &&
-    isEqual(prev.columnWidthMap, next.columnWidthMap) &&
-    isEqual(prev.tableData, next.tableData) &&
+    equal(prev.columnWidthMap, next.columnWidthMap) &&
+    equal(prev.tableData, next.tableData) &&
     // Using JSON stringify becuase isEqual doesnt work with functions,
     // and we are not changing the columns manually.
     JSON.stringify(prev.columns) === JSON.stringify(next.columns) &&

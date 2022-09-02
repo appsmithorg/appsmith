@@ -280,4 +280,16 @@ describe("Currency widget - ", () => {
       cy.get(themelocators.popover).should("not.exist");
     });
   });
+
+  it("Currency change dropdown should not close unexpectedly", function() {
+    cy.openPropertyPane(widgetName);
+
+    // Select the Currency dropdown option from property pane
+    // and enter a value that has space and returns 0 results
+    cy.get(".t--property-control-currency").click();
+    cy.get(".t--search-input input").type("gdp gdp");
+
+    // assert that the dropdown is still option
+    cy.get(".t--search-input input").should("be.visible");
+  });
 });

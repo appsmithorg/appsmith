@@ -1,11 +1,19 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useEffect, useRef } from "react";
 import styled from "styled-components";
 import Masonry from "react-masonry-css";
 import { Classes } from "@blueprintjs/core";
 import { useParams } from "react-router";
 import { useDispatch, useSelector } from "react-redux";
-import { Text, FontWeight, TextType } from "design-system";
-import Button, { IconPositions, Size } from "components/ads/Button";
+import {
+  Button,
+  Icon,
+  IconSize,
+  IconPositions,
+  Size,
+  Text,
+  FontWeight,
+  TextType,
+} from "design-system";
 import EntityNotFoundPane from "pages/Editor/EntityNotFoundPane";
 import Template from "./Template";
 import { Template as TemplateInterface } from "api/TemplatesApi";
@@ -20,8 +28,7 @@ import {
   getSimilarTemplatesInit,
   getTemplateInformation,
 } from "actions/templateActions";
-import { AppState } from "reducers";
-import { Icon, IconSize } from "components/ads";
+import { AppState } from "@appsmith/reducers";
 import history from "utils/history";
 import { TEMPLATES_PATH } from "constants/routes";
 import { getTypographyByKey } from "constants/DefaultTheme";
@@ -42,6 +49,8 @@ import {
 } from "@appsmith/constants/messages";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import ReconnectDatasourceModal from "pages/Editor/gitSync/ReconnectDatasourceModal";
+import { useQuery } from "pages/Editor/utils";
+import { templateIdUrl } from "RouteBuilder";
 
 const breakpointColumnsObject = {
   default: 4,
@@ -234,6 +243,8 @@ function TemplateNotFound() {
   return <EntityNotFoundPane />;
 }
 
+const SHOW_FORK_MODAL_PARAM = "showForkTemplateModal";
+
 function TemplateView() {
   const dispatch = useDispatch();
   const similarTemplates = useSelector(
@@ -242,15 +253,23 @@ function TemplateView() {
   const isFetchingTemplate = useSelector(isFetchingTemplateSelector);
   const params = useParams<{ templateId: string }>();
   const currentTemplate = useSelector(getActiveTemplateSelector);
-  const [showForkModal, setShowForkModal] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
+  const query = useQuery();
 
   const onForkButtonTrigger = () => {
-    setShowForkModal(true);
+    if (currentTemplate) {
+      history.replace(
+        `${templateIdUrl({
+          id: currentTemplate.id,
+        })}?${SHOW_FORK_MODAL_PARAM}=true`,
+      );
+    }
   };
 
   const onForkModalClose = () => {
-    setShowForkModal(false);
+    if (currentTemplate) {
+      history.replace(`${templateIdUrl({ id: currentTemplate.id })}`);
+    }
   };
 
   const goToTemplateListView = () => {
@@ -326,11 +345,12 @@ function TemplateView() {
                   </div>
                   <ForkTemplate
                     onClose={onForkModalClose}
-                    showForkModal={showForkModal}
+                    showForkModal={!!query.get(SHOW_FORK_MODAL_PARAM)}
                     templateId={params.templateId}
                   >
                     <Button
                       className="template-fork-button"
+                      data-cy="template-fork-button"
                       icon="fork-2"
                       iconPosition={IconPositions.left}
                       onClick={onForkButtonTrigger}

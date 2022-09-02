@@ -4,7 +4,7 @@ import { CellWrapper, ColumnWrapper } from "./TableStyledWrappers";
 import { CellLayoutProperties, ColumnTypes } from "./Constants";
 import { ReactComponent as OpenNewTabIcon } from "assets/icons/control/open-new-tab.svg";
 import styled from "styled-components";
-import isEqual from "fast-deep-equal";
+import equal from "fast-deep-equal/es6";
 
 const TooltipContentWrapper = styled.div<{ width: number }>`
   word-break: break-all;
@@ -21,6 +21,7 @@ export const OpenNewTabIconWrapper = styled.div`
 export const Content = styled.span`
   overflow: hidden;
   text-overflow: ellipsis;
+  padding-right: 4px;
 `;
 
 interface Props {
@@ -129,7 +130,7 @@ function AutoToolTipComponent(props: Props) {
 export default memo(
   AutoToolTipComponent,
   (prev, next) =>
-    isEqual(prev.cellProperties, next.cellProperties) &&
+    equal(prev.cellProperties, next.cellProperties) &&
     prev.isHidden === next.isHidden &&
     prev.isCellVisible === next.isCellVisible &&
     prev.noPadding === next.noPadding &&

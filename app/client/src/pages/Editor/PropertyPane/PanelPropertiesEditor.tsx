@@ -9,9 +9,7 @@ import { get, isNumber, isPlainObject, isString } from "lodash";
 import { IPanelProps } from "@blueprintjs/core";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import PropertyPaneTitle from "../PropertyPaneTitle";
-import { BindingText } from "../APIEditor/Form";
-import QuestionIcon from "remixicon-react/QuestionLineIcon";
-import { SearchVariant } from "components/ads";
+import { SearchVariant } from "design-system";
 import { StyledSearchInput } from "./PropertyPaneView";
 import { PropertyPaneTab } from "./PropertyPaneTab";
 import { selectFeatureFlags } from "selectors/usersSelectors";
@@ -30,19 +28,7 @@ function PanelHeader(props: PanelHeaderProps) {
       }}
     >
       <PropertyPaneTitle
-        actions={[
-          {
-            tooltipContent: (
-              <div>
-                <span>You can connect data from your API by adding </span>
-                <BindingText>{`{{apiName.data}}`}</BindingText>
-                <span> to a widget property</span>
-              </div>
-            ),
-            icon: <QuestionIcon className="w-4 h-4 text-gray-500" />,
-            tooltipPosition: "bottom-right",
-          },
-        ]}
+        actions={[]}
         isPanelTitle
         onBackClick={props.closePanel}
         title={props.title}
@@ -90,7 +76,7 @@ export function PanelPropertiesEditor(
   }, [widgetProperties, panelParentPropertyPath, panelProps, panelConfig]);
 
   const panelConfigs = useMemo(() => {
-    if (currentIndex !== undefined) {
+    if (currentIndex !== undefined && panelConfig.children) {
       let path: string | undefined = undefined;
       if (isString(currentIndex)) {
         path = `${panelParentPropertyPath}.${currentIndex}`;

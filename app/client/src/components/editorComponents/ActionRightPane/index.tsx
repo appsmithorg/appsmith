@@ -1,9 +1,16 @@
 import React, { useCallback, useMemo } from "react";
 import styled from "styled-components";
 import { Collapse, Classes as BPClasses } from "@blueprintjs/core";
-import Icon, { IconSize } from "components/ads/Icon";
 import { Classes, Variant } from "components/ads/common";
-import { Text, TextType } from "design-system";
+import {
+  Button,
+  Category,
+  Icon,
+  IconSize,
+  Size,
+  Text,
+  TextType,
+} from "design-system";
 import { useState } from "react";
 import history from "utils/history";
 import { getTypographyByKey } from "constants/DefaultTheme";
@@ -11,13 +18,12 @@ import Connections from "./Connections";
 import SuggestedWidgets from "./SuggestedWidgets";
 import { ReactNode } from "react";
 import { useEffect } from "react";
-import Button, { Category, Size } from "components/ads/Button";
 import { bindDataOnCanvas } from "actions/pluginActionActions";
 import { useParams } from "react-router";
 import { useDispatch, useSelector } from "react-redux";
 import { getWidgets } from "sagas/selectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import { getDependenciesFromInverseDependencies } from "../Debugger/helpers";
 import {
   BACK_TO_CANVAS,
