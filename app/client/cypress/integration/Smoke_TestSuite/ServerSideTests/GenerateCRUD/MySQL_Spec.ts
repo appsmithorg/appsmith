@@ -223,7 +223,7 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
     );
     propPane.NavigateBackToPropertyPane();
     deployMode.DeployApp();
-    table.SelectTableRow(0); //to make JSON form hidden
+    table.SelectTableRow(0, 0, false); //to make JSON form hidden
     agHelper.AssertElementAbsence(locator._jsonFormWidget);
     table.SelectTableRow(3);
     agHelper.AssertElementVisible(locator._jsonFormWidget);
@@ -328,7 +328,7 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
 
     updatingStoreJSONPropertyFileds();
     deployMode.DeployApp();
-    table.SelectTableRow(0); //to make JSON form hidden
+    table.SelectTableRow(0, 0, false); //to make JSON form hidden
     agHelper.AssertElementAbsence(locator._jsonFormWidget);
     table.SelectTableRow(3);
     agHelper.AssertElementVisible(locator._jsonFormWidget);
