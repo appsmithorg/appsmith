@@ -1,4 +1,3 @@
-import { EEXIST } from "constants";
 import { WIDGET } from "../../../../locators/WidgetLocators";
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 
@@ -177,12 +176,10 @@ describe("Autocomplete tests", () => {
     agHelper.TypeText(CommonLocators._codeMirrorTextArea, "data.");
     agHelper.GetNAssertElementText(CommonLocators._hints, "userCollection");
     agHelper.Sleep();
-    agHelper.GetNClickByContains(CommonLocators._hints, "userCollection");
-    agHelper.TypeText(CommonLocators._codeMirrorTextArea, "[0].");
+    agHelper.TypeText(CommonLocators._codeMirrorTextArea, "userCollection[0].");
     agHelper.GetNAssertElementText(CommonLocators._hints, "users");
     agHelper.Sleep();
-    agHelper.GetNClickByContains(CommonLocators._hints, "users");
-    agHelper.TypeText(CommonLocators._codeMirrorTextArea, "[0].");
+    agHelper.TypeText(CommonLocators._codeMirrorTextArea, "users[0].");
     agHelper.GetNAssertElementText(CommonLocators._hints, "label");
     agHelper.GetNAssertElementText(
       CommonLocators._hints,

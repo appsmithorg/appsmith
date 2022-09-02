@@ -1,4 +1,5 @@
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
+import { seconds, testTimeout } from "../../../../support/timeout";
 
 let dsName: any, newStoreSecret: any;
 
@@ -20,6 +21,7 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
   // });
 
   it("1. Create DS & then Add new Page and generate CRUD template using created datasource", () => {
+    testTimeout(seconds(300));//5mins
     dataSources.CreateDataSource("MySql");
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;
@@ -221,7 +223,7 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
     );
     propPane.NavigateBackToPropertyPane();
     deployMode.DeployApp();
-    table.SelectTableRow(0); //to make JSON form hidden
+    table.SelectTableRow(0, 0, false); //to make JSON form hidden
     agHelper.AssertElementAbsence(locator._jsonFormWidget);
     table.SelectTableRow(3);
     agHelper.AssertElementVisible(locator._jsonFormWidget);
@@ -326,7 +328,7 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
 
     updatingStoreJSONPropertyFileds();
     deployMode.DeployApp();
-    table.SelectTableRow(0); //to make JSON form hidden
+    table.SelectTableRow(0, 0, false); //to make JSON form hidden
     agHelper.AssertElementAbsence(locator._jsonFormWidget);
     table.SelectTableRow(3);
     agHelper.AssertElementVisible(locator._jsonFormWidget);
@@ -455,7 +457,7 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
     agHelper.AssertContains("Column 'store_id' cannot be null");
     agHelper.AssertContains("error response");
 
-    agHelper.WaitUntilEleDisappear(locator._toastMsg);
+    agHelper.WaitUntilAllToastsDisappear();
     deployMode.EnterJSONInputValue("Store Id", "2106");
     deployMode.EnterJSONInputValue("Name", "Keokuk Spirits", 1);
     cy.xpath(deployMode._jsonFormRadioFieldByName("Store Status"))
@@ -606,7 +608,7 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
 
     //Validating loaded table
     agHelper.AssertElementExist(dataSources._selectedRow);
-    table.ReadTableRowColumnData(0, 0, 2500).then(($cellData) => {
+    table.ReadTableRowColumnData(0, 0, 4000).then(($cellData) => {
       expect($cellData).to.eq(col1Text);
     });
     table.ReadTableRowColumnData(0, 1, 200).then(($cellData) => {

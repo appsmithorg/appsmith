@@ -382,7 +382,7 @@ describe("JSObjects OnLoad Actions tests", function() {
     apiPage.ToggleConfirmBeforeRunningApi(true);
 
     ee.SelectEntityByName("Image1", "WIDGETS");
-    jsEditor.EnterJSContext(
+    propPane.EnterJSContext(
       "onClick",
       `{{CatFacts.run(() => showAlert('Your cat fact is :'+ CatFacts.data.fact,'success'), () => showAlert('Oh No!','error'))}}`,
     );
@@ -497,7 +497,7 @@ describe("JSObjects OnLoad Actions tests", function() {
         "[getCitiesList] will be executed automatically on page load",
       );
       //Commented until Bug 13826 is fixed
-      // jsEditor.EnterJSContext(
+      // propPane.EnterJSContext(
       //   "onOptionChange",
       //   `{{` +
       //     jsObjName +
@@ -509,7 +509,7 @@ describe("JSObjects OnLoad Actions tests", function() {
 
       ee.SelectEntityByName("Image1");
 
-      // jsEditor.EnterJSContext(
+      // propPane.EnterJSContext(
       //   "onClick",
       //   `{{` + jsObjName + `.callBooks()}}`,
       //   true,
@@ -535,10 +535,10 @@ describe("JSObjects OnLoad Actions tests", function() {
     agHelper.ValidateToastMessage('The action "getBooks" has failed');
     agHelper
       .GetText(locator._jsonFormInputField("name"), "val")
-      .then(($name) => expect($name).be.empty);
+      .should("be.empty");
     agHelper
       .GetText(locator._jsonFormInputField("url"), "val")
-      .then(($url) => expect($url).be.empty);
+      .should("be.empty");
 
     // Uncomment below aft Bug 13826 is fixed & add for Yes also!
     // agHelper.SelectDropDown("Akron");
@@ -549,14 +549,15 @@ describe("JSObjects OnLoad Actions tests", function() {
     agHelper.GetNClick(locator._widgetInDeployed("imagewidget"));
     agHelper.AssertElementVisible(jsEditor._dialogBody("getBooks"));
     agHelper.ClickButton("Yes");
-    agHelper.Sleep(4000);
     //callBooks, getId confirmations also expected aft bug 13646 is fixed & covering tc 1646
+
     agHelper
       .GetText(locator._jsonFormInputField("name"), "val")
-      .then(($name) => cy.wrap($name).should("not.be.empty"));
+      .should("not.be.empty");
     agHelper
       .GetText(locator._jsonFormInputField("url"), "val")
-      .then(($url) => expect($url).not.be.empty);
+      .should("not.be.empty");
+    //   //.then(($url) => expect($url).not.be.empty);//failing at time as its not waiting for timeout!
 
     deployMode.NavigateBacktoEditor();
     agHelper.AssertElementVisible(jsEditor._dialogBody("getBooks"));

@@ -3,7 +3,9 @@ import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 let ee = ObjectsRegistry.EntityExplorer,
   dataSources = ObjectsRegistry.DataSources,
   agHelper = ObjectsRegistry.AggregateHelper,
-  locator = ObjectsRegistry.CommonLocators;
+  locator = ObjectsRegistry.CommonLocators,
+  mockDBNameUsers: any,
+  mockDBNameMovies: any;
 
 describe("Entity explorer context menu should hide on scrolling", function() {
   it("1. Bug #15474 - Entity explorer menu must close on scroll", function() {
@@ -13,10 +15,16 @@ describe("Entity explorer context menu should hide on scrolling", function() {
     agHelper.ContainsNClick("DEPENDENCIES");
     dataSources.NavigateToDSCreateNew();
     agHelper.GetNClick(dataSources._mockDB("Users"));
-    dataSources.CreateQuery("Users");
+    cy.wait("@getMockDb").then(($createdMock) => {
+      mockDBNameUsers = $createdMock.response?.body.data.name;
+      dataSources.CreateQuery(mockDBNameUsers);
+    });
     dataSources.NavigateToDSCreateNew();
     agHelper.GetNClick(dataSources._mockDB("Movies"));
-    dataSources.CreateQuery("Movies");
+    cy.wait("@getMockDb").then(($createdMock) => {
+      mockDBNameMovies = $createdMock.response?.body.data.name;
+      dataSources.CreateQuery(mockDBNameMovies);
+    });
     ee.ExpandCollapseEntity("public.users");
     ee.ExpandCollapseEntity("movies");
     agHelper.GetNClick(locator._createNew);
@@ -29,7 +37,7 @@ describe("Entity explorer context menu should hide on scrolling", function() {
     //clean up
     ee.ActionContextMenuByEntityName("Query1", "Delete", "Are you sure?");
     ee.ActionContextMenuByEntityName("Query2", "Delete", "Are you sure?");
-    dataSources.DeleteDatasouceFromActiveTab("Movies");//Since sometimes after Queries are deleted, ds is no more visible in EE tree
-    dataSources.DeleteDatasouceFromActiveTab("Users");
+    dataSources.DeleteDatasouceFromActiveTab(mockDBNameMovies); //Since sometimes after Queries are deleted, ds is no more visible in EE tree
+    dataSources.DeleteDatasouceFromActiveTab(mockDBNameUsers);
   });
 });

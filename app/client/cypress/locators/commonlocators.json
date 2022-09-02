@@ -42,6 +42,7 @@
   "onDateSelectedField": ".t--property-control-ondateselected",
   "TableRow": ".t--draggable-tablewidget .tbody",
   "TableV2Row": ".t--draggable-tablewidgetv2 .tbody",
+  "TableV2Head": ".t--draggable-tablewidgetv2 .thead",
   "Disablejs": ".t--property-control-disabled",
   "spellCheck": ".t--property-control-spellcheck",
   "requiredjs": ".t--property-control-required",

@@ -152,6 +152,7 @@ function* formValueChangeSaga(
   if (field === "dynamicBindingPathList" || field === "name") return;
   if (form !== QUERY_EDITOR_FORM_NAME) return;
   const { values } = yield select(getFormData, QUERY_EDITOR_FORM_NAME);
+  const hasRouteChanged = field === "id";
 
   if (field === "datasource.id") {
     const datasource: Datasource | undefined = yield select(
@@ -176,25 +177,50 @@ function* formValueChangeSaga(
     return;
   }
 
+  const plugins: Plugin[] = yield select(getPlugins);
+  const uiComponent = getUIComponent(values.pluginId, plugins);
+
+  // Editing form fields triggers evaluations.
+  // We pass the action to run form evaluations when the dataTree evaluation is complete
+  const postEvalActions =
+    uiComponent === UIComponentTypes.UQIDbEditorForm
+      ? [
+          startFormEvaluations(
+            values.id,
+            values.actionConfiguration,
+            values.datasource.id,
+            values.pluginId,
+            field,
+            hasRouteChanged,
+          ),
+        ]
+      : [];
+
   if (
     actionPayload.type === ReduxFormActionTypes.ARRAY_REMOVE ||
     actionPayload.type === ReduxFormActionTypes.ARRAY_PUSH
   ) {
     const value = get(values, field);
     yield put(
-      setActionProperty({
-        actionId: values.id,
-        propertyName: field,
-        value,
-      }),
+      setActionProperty(
+        {
+          actionId: values.id,
+          propertyName: field,
+          value,
+        },
+        postEvalActions,
+      ),
     );
   } else {
     yield put(
-      setActionProperty({
-        actionId: values.id,
-        propertyName: field,
-        value: actionPayload.payload,
-      }),
+      setActionProperty(
+        {
+          actionId: values.id,
+          propertyName: field,
+          value: actionPayload.payload,
+        },
+        postEvalActions,
+      ),
     );
   }
   yield put(updateReplayEntity(values.id, values, ENTITY_TYPE.ACTION));

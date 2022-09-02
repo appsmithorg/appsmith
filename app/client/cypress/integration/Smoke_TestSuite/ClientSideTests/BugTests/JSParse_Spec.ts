@@ -26,7 +26,7 @@ const assertLintErrorAndOutput = (
   }
 };
 
-describe("Correctly parses JS Function", () => {
+describe("Bug #15283 - Correctly parses JS Function", () => {
   before(() => {
     ee.DragDropWidgetNVerify("singleselecttreewidget", 300, 500);
   });
@@ -66,7 +66,7 @@ describe("Correctly parses JS Function", () => {
       const result = ${expression};
       return result;
      }
-    } 
+    }
     `;
     const expression1 = `null ?? (TreeSelect1.selectedOptionLabel || undefined)`;
     const expression2 = `null ?? (TreeSelect1.selectedOptionLabel && undefined)`;
@@ -86,11 +86,11 @@ describe("Correctly parses JS Function", () => {
     const expression16 = `!null ?? !TreeSelect1.selectedOptionLabel || !undefined`;
     const expression17 = `null ?? TreeSelect1.selectedOptionLabel || undefined`;
 
-    assertLintErrorAndOutput(getJSObjectBody(expression1), false, "B");
-    assertLintErrorAndOutput(getJSObjectBody(expression2), false, "B");
+    assertLintErrorAndOutput(getJSObjectBody(expression1), false, "Blue");
+    assertLintErrorAndOutput(getJSObjectBody(expression2), false, "undefined");
     assertLintErrorAndOutput(getJSObjectBody(expression3), false, "true");
     assertLintErrorAndOutput(getJSObjectBody(expression4), false, "undefined");
-    assertLintErrorAndOutput(getJSObjectBody(expression5), false, "B hi");
+    assertLintErrorAndOutput(getJSObjectBody(expression5), false, "Blue hi");
     assertLintErrorAndOutput(getJSObjectBody(expression6), false, "hi");
     assertLintErrorAndOutput(getJSObjectBody(expression7), false, "false that");
     assertLintErrorAndOutput(getJSObjectBody(expression8), false, "hi");

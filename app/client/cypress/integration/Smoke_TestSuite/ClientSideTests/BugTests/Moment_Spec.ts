@@ -10,13 +10,13 @@ const agHelper = ObjectsRegistry.AggregateHelper,
   deployMode = ObjectsRegistry.DeployMode,
   jsEditor = ObjectsRegistry.JSEditor;
 
-describe("[Bug]: The data from the query does not show up on the widget #14299", function() {
+describe("Bug #14299 - The data from the query does not show up on the widget", function() {
   before(() => {
     cy.fixture("/Bugs/14299dsl").then((val: any) => {
       agHelper.AddDsl(val);
     });
-    propPane.ChangeColor(13, "Primary");
-    propPane.ChangeColor(22, "Background");
+    propPane.ChangeThemeColor(13, "Primary");
+    propPane.ChangeThemeColor(22, "Background");
   });
 
   it("1. Create Postgress DS", function() {
@@ -111,7 +111,7 @@ describe("[Bug]: The data from the query does not show up on the widget #14299",
 
   it("4. Verify Deletion of the datasource after all created queries are Deleted", () => {
     deployMode.NavigateBacktoEditor();
-    agHelper.WaitUntilToastDisappear("ran successfully"); //runAstros triggered on PageLaoad of Edit page!
+    agHelper.AssertContains("ran successfully"); //runAstros triggered on PageLaoad of Edit page!
     ee.ExpandCollapseEntity("QUERIES/JS");
     ee.ActionContextMenuByEntityName("getAstronauts", "Delete", "Are you sure?");
     ee.ActionContextMenuByEntityName(
