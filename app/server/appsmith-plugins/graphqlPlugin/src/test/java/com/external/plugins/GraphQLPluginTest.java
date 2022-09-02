@@ -337,7 +337,7 @@ public class GraphQLPluginTest {
      * 4. Substitute a schema type value in the query body.
      */
     @Test
-    public void testSmartSubstitutionQueryBody1() {
+    public void testSmartSubstitutionInQueryBodyForNumberStringBooleanAndSchemaTypes() {
         DatasourceConfiguration dsConfig = getDefaultDatasourceConfig();
         dsConfig.setUrl("https://postman-echo.com/post");
 
@@ -421,7 +421,7 @@ public class GraphQLPluginTest {
      * This method checks for the use case where the entire query body is provided via dynamic binding by the user.
      */
     @Test
-    public void testSmartSubstitutionQueryBody2() {
+    public void testSmartSubstitutionInQueryBodyForFullBodySubstitution() {
         DatasourceConfiguration dsConfig = getDefaultDatasourceConfig();
         dsConfig.setUrl("https://postman-echo.com/post");
 
