@@ -272,14 +272,14 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
                         .flatMap(application1 -> {
                             final Map<String, Object> eventData = Map.of(
                                     FieldName.APP_MODE, ApplicationMode.EDIT.toString(),
-                                    FieldName.APPLICATION, application
+                                    FieldName.APPLICATION, application1
                             );
                             final Map<String, Object> data = Map.of(
-                                    FieldName.APPLICATION_ID, application.getId(),
-                                    FieldName.WORKSPACE_ID, application.getWorkspaceId(),
+                                    FieldName.APPLICATION_ID, application1.getId(),
+                                    FieldName.WORKSPACE_ID, application1.getWorkspaceId(),
                                     FieldName.EVENT_DATA, eventData
                             );
-                            return analyticsService.sendUpdateEvent(application, data);
+                            return analyticsService.sendUpdateEvent(application1, data);
                         }));
     }
 
