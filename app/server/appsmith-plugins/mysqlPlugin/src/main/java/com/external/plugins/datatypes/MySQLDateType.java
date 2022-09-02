@@ -1,4 +1,4 @@
-package com.appsmith.external.datatypes.mysql;
+package com.external.plugins.datatypes;
 
 import com.appsmith.external.datatypes.DateType;
 
