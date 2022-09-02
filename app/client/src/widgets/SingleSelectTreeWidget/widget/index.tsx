@@ -16,6 +16,7 @@ import SingleSelectTreeComponent from "../component";
 import { LabelPosition, ResponsiveBehavior } from "components/constants";
 import { Alignment } from "@blueprintjs/core";
 import { generateResponsiveBehaviorConfig } from "utils/layoutPropertiesUtils";
+import derivedProperties from "./parseDerivedProperties";
 
 function defaultOptionValueValidation(value: unknown): ValidationResponse {
   if (typeof value === "string") return { isValid: true, parsed: value.trim() };
