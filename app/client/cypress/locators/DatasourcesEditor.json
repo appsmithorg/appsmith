@@ -73,5 +73,11 @@
   "useSelfSignedCert": ".t--connection\\.ssl\\.authType",
   "useCertInAuth": "[data-cy='authentication.useSelfSignedCert'] input",
   "certificateDetails": "[data-cy='section-Certificate Details']",
-  "saveBtn": ".t--save-datasource"
+  "saveBtn": ".t--save-datasource",
+  "gSheetsOperationDropdown": "[data-cy='actionConfiguration.formData.command.data']",
+  "gSheetsEntityDropdown": "[data-cy='actionConfiguration.formData.entityType.data']",
+  "gSheetsInsertOneOption": ".t--dropdown-option:contains('Insert One')",
+  "gSheetsSheetRowsOption": ".t--dropdown-option:contains('Sheet Row(s)')",
+  "gSheetsCodeMirrorPlaceholder": ".CodeMirror-placeholder"
+
 }
