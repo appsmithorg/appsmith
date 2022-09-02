@@ -10,6 +10,7 @@ import com.appsmith.external.helpers.restApiUtils.helpers.RequestCaptureFilter;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionRequest;
 import com.appsmith.external.models.ActionExecutionResult;
+import com.appsmith.external.models.ApiContentType;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.PaginationType;
 import com.appsmith.external.models.Property;
@@ -219,20 +220,35 @@ public class GraphQLPlugin extends BasePlugin {
 
             if (HttpMethod.POST.equals(httpMethod)) {
                 /**
-                 * When a GraphQL request is sent using HTTP POST method, then the request body needs to be in the
-                 * following format:
-                 * {
-                 *     "query": "... graphql query body ...",
-                 *     "variables": {"var1": val1, "var2": val2 ...},
-                 *     "operationName": "name of operation" // only required if multiple operations are defined in a
-                 *     single query body
-                 * }
-                 * Ref: https://graphql.org/learn/serving-over-http/
+                 * For content-type=application/json re-formatting is required.
+                 * Ref: https://graphql.org/learn/serving-over-http/#post-request
+                 *
+                 * Graphql reference doc also mentions that content-type=application/graphql does not require any
+                 * re-formatting.
+                 * Ref: https://graphql.org/learn/serving-over-http/#post-request
+                 *
+                 * On searching over the web I also found that there are some custom content-type in use like
+                 * `application/graphql+json` or `application/graphql-json` that expect the data in the same format
+                 * as is for `application/json`. Hence, the current check assumes that any content type that differs
+                 * from `application/graphql` would expect the data in the same format as for `application/json`
                  */
-                try {
-                    actionConfiguration.setBody(convertToGraphQLPOSTBodyFormat(actionConfiguration));
-                } catch (AppsmithPluginException e) {
-                    return Mono.error(e);
+                if (!ApiContentType.GRAPHQL.getValue().equals(reqContentType)) {
+                    /**
+                     * When a GraphQL request is sent using HTTP POST method, then the request body needs to be in the
+                     * following format:
+                     * {
+                     *     "query": "... graphql query body ...",
+                     *     "variables": {"var1": val1, "var2": val2 ...},
+                     *     "operationName": "name of operation" // only required if multiple operations are defined in a
+                     *     single query body
+                     * }
+                     * Ref: https://graphql.org/learn/serving-over-http/
+                     */
+                    try {
+                        actionConfiguration.setBody(convertToGraphQLPOSTBodyFormat(actionConfiguration));
+                    } catch (AppsmithPluginException e) {
+                        return Mono.error(e);
+                    }
                 }
             }
             else if (HttpMethod.GET.equals(httpMethod)) {

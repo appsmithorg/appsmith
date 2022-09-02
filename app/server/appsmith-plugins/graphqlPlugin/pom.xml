@@ -178,6 +178,12 @@
             <artifactId>reactor-netty-http</artifactId>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>testcontainers</artifactId>
+            <version>1.16.0</version>
+            <scope>test</scope>
+        </dependency>
 
     </dependencies>
 

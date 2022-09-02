@@ -1,8 +1,7 @@
 package com.external.plugins;
 
 import com.appsmith.external.dtos.ExecuteActionDTO;
-import com.appsmith.external.helpers.PluginUtils;
-import com.appsmith.external.helpers.restApiUtils.helpers.HintMessageUtils;
+import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionRequest;
 import com.appsmith.external.models.ActionExecutionResult;
@@ -14,10 +13,10 @@ import com.appsmith.external.models.Param;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.services.SharedConfig;
 import com.appsmith.external.helpers.restApiUtils.connections.APIConnection;
+import com.external.utils.GraphQLHintMessageUtils;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.jsonwebtoken.JwtParser;
 import io.jsonwebtoken.Jwts;
@@ -27,9 +26,11 @@ import net.minidev.json.JSONObject;
 import net.minidev.json.parser.JSONParser;
 import net.minidev.json.parser.ParseException;
 import org.junit.Before;
+import org.junit.ClassRule;
 import org.junit.Test;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
+import org.testcontainers.containers.GenericContainer;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 import reactor.util.function.Tuple2;
@@ -37,12 +38,12 @@ import reactor.util.function.Tuple2;
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 
 import static com.appsmith.external.constants.Authentication.API_KEY;
 import static com.appsmith.external.constants.Authentication.OAUTH2;
@@ -50,15 +51,16 @@ import static com.appsmith.external.helpers.restApiUtils.helpers.HintMessageUtil
 import static com.appsmith.external.helpers.restApiUtils.helpers.HintMessageUtils.DUPLICATE_ATTRIBUTE_LOCATION.ACTION_CONFIG_ONLY;
 import static com.appsmith.external.helpers.restApiUtils.helpers.HintMessageUtils.DUPLICATE_ATTRIBUTE_LOCATION.DATASOURCE_AND_ACTION_CONFIG;
 import static com.appsmith.external.helpers.restApiUtils.helpers.HintMessageUtils.DUPLICATE_ATTRIBUTE_LOCATION.DATASOURCE_CONFIG_ONLY;
+import static com.external.utils.GraphQLBodyUtils.QUERY_VARIABLES_INDEX;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 
-public class RestApiPluginTest {
+public class GraphQLPluginTest {
 
-    private static HintMessageUtils hintMessageUtils;
+    private static GraphQLHintMessageUtils hintMessageUtils;
 
     public class MockSharedConfig implements SharedConfig {
 
@@ -78,83 +80,72 @@ public class RestApiPluginTest {
         }
     }
 
-    RestApiPlugin.RestApiPluginExecutor pluginExecutor = new RestApiPlugin.RestApiPluginExecutor(new MockSharedConfig());
+    GraphQLPlugin.GraphQLPluginExecutor pluginExecutor = new GraphQLPlugin.GraphQLPluginExecutor(new MockSharedConfig());
+
+    @SuppressWarnings("rawtypes")
+    @ClassRule
+    public static GenericContainer mongoContainer = new GenericContainer(CompletableFuture.completedFuture("appsmith/test-event-driver"))
+            .withExposedPorts(5000);
 
     @Before
     public void setUp() {
-        hintMessageUtils = new HintMessageUtils();
+        hintMessageUtils = new GraphQLHintMessageUtils();
     }
 
-    @Test
-    public void testValidJsonApiExecution() {
+    private DatasourceConfiguration getDefaultDatasourceConfig() {
+        String address = mongoContainer.getContainerIpAddress();
+        Integer port = mongoContainer.getFirstMappedPort();
         DatasourceConfiguration dsConfig = new DatasourceConfiguration();
-        dsConfig.setUrl("https://postman-echo.com/post");
+        dsConfig.setUrl("http://" + address + ":" + port + "/graphql");
+        //dsConfig.setUrl("https://api.spacex.land/graphql/");
+        return dsConfig;
+    }
 
+    private ActionConfiguration getDefaultActionConfiguration() {
         ActionConfiguration actionConfig = new ActionConfiguration();
-        final List<Property> headers = List.of(new Property("content-type", "application/json"));
-        actionConfig.setHeaders(headers);
+        actionConfig.setHeaders(List.of(new Property("content-type", "application/json")));
         actionConfig.setHttpMethod(HttpMethod.POST);
-        String requestBody = "{\"key\":\"value\"}";
+        /*String requestBody = "query Capsules($limit: Int, $offset: Int) {\n" +
+                "  capsules(limit: $limit, offset: $offset) {\n" +
+                "    dragon {\n" +
+                "      id\n" +
+                "      name\n" +
+                "    }\n" +
+                "  }\n" +
+                "}";*/
+        String requestBody = "query {\n" +
+                "\tallPosts(first: 1) {\n" +
+                "\t\tnodes {\n" +
+                "\t\t\tid\n" +
+                "\t\t}\n" +
+                "\t}\n" +
+                "}";
         actionConfig.setBody(requestBody);
-
-        Mono<ActionExecutionResult> resultMono = pluginExecutor.executeParameterized(null, new ExecuteActionDTO(), dsConfig, actionConfig);
-        StepVerifier.create(resultMono)
-                .assertNext(result -> {
-                    assertTrue(result.getIsExecutionSuccess());
-                    assertNotNull(result.getBody());
-                    JsonNode data = ((ObjectNode) result.getBody()).get("data");
-                    assertEquals(requestBody, data.toString());
-                    final ActionExecutionRequest request = result.getRequest();
-                    assertEquals("https://postman-echo.com/post", request.getUrl());
-                    assertEquals(HttpMethod.POST, request.getHttpMethod());
-                    assertEquals(requestBody, request.getBody().toString());
-                    final Iterator<Map.Entry<String, JsonNode>> fields = ((ObjectNode) result.getRequest().getHeaders()).fields();
-                    fields.forEachRemaining(field -> {
-                        if (HttpHeaders.CONTENT_TYPE.equalsIgnoreCase(field.getKey())) {
-                            assertEquals("application/json", field.getValue().get(0).asText());
-                        }
-                    });
-                })
-                .verifyComplete();
+        List<Property> properties = new ArrayList<Property>();
+        properties.add(new Property("smartSubstitution", "true"));
+        properties.add(new Property("queryVariables", ""));
+        actionConfig.setPluginSpecifiedTemplates(properties);
+        return actionConfig;
     }
 
     @Test
-    public void testValidFormApiExecution() {
-        DatasourceConfiguration dsConfig = new DatasourceConfiguration();
-        dsConfig.setUrl("https://postman-echo.com/post");
-
-        ActionConfiguration actionConfig = new ActionConfiguration();
-        actionConfig.setHeaders(List.of(new Property("content-type", "application/x-www-form-urlencoded")));
-        actionConfig.setHttpMethod(HttpMethod.POST);
-        actionConfig.setBodyFormData(List.of(
-                new Property("key", "value"),
-                new Property("key1", "value1"),
-                new Property(null, "irrelevantValue")
-        ));
-        Mono<ActionExecutionResult> resultMono = pluginExecutor.executeParameterized(null, new ExecuteActionDTO(), dsConfig, actionConfig);
-
-        StepVerifier.create(resultMono)
-                .assertNext(result -> {
-                    assertTrue(result.getIsExecutionSuccess());
-                    assertNotNull(result.getBody());
-                    JsonNode data = ((ObjectNode) result.getBody()).get("form");
-                    assertEquals("{\"key\":\"value\",\"key1\":\"value1\"}", data.toString());
-                    assertEquals("key=value&key1=value1", result.getRequest().getBody());
-                })
-                .verifyComplete();
-    }
-
-    @Test
-    public void testValidRawApiExecution() {
-        DatasourceConfiguration dsConfig = new DatasourceConfiguration();
-        dsConfig.setUrl("https://postman-echo.com/post");
-
-        ActionConfiguration actionConfig = new ActionConfiguration();
-        actionConfig.setHeaders(List.of(new Property("content-type", "text/plain;charset=UTF-8")));
-        actionConfig.setHttpMethod(HttpMethod.POST);
-        String requestBody = "{\"key\":\"value\"}";
-        actionConfig.setBody(requestBody);
-
+    public void testValidGraphQLApiExecutionWithQueryVariablesWithHttpPost() {
+        DatasourceConfiguration dsConfig = getDefaultDatasourceConfig();
+        ActionConfiguration actionConfig = getDefaultActionConfiguration();
+        String queryBody = "query($limit: Int) {\n" +
+                "\tallPosts(first: $limit) {\n" +
+                "\t\tnodes {\n" +
+                "\t\t\tid\n" +
+                "\t\t}\n" +
+                "\t}\n" +
+                "}";
+        actionConfig.setBody(queryBody);
+        List<Property> properties = new ArrayList<Property>();
+        properties.add(new Property("", "true"));
+        properties.add(new Property("", "{\n" +
+                "  \"limit\": 2\n" +
+                "}"));
+        actionConfig.setPluginSpecifiedTemplates(properties);
         Mono<ActionExecutionResult> resultMono = pluginExecutor.executeParameterized(null, new ExecuteActionDTO(), dsConfig, actionConfig);
 
         StepVerifier.create(resultMono)
@@ -162,14 +153,129 @@ public class RestApiPluginTest {
                     assertTrue(result.getIsExecutionSuccess());
                     assertNotNull(result.getBody());
                     JsonNode data = ((ObjectNode) result.getBody()).get("data");
-                    assertEquals("\"{\\\"key\\\":\\\"value\\\"}\"", data.toString());
+                    String expectedResult = "{\"allPosts\":{\"nodes\":[{\"id\":1},{\"id\":2}]}}";
+                    assertEquals(expectedResult, data.toString());
                 })
                 .verifyComplete();
+    }
+
+    @Test
+    public void testValidGraphQLApiExecutionWithQueryVariablesWithHttpGet() {
+        DatasourceConfiguration dsConfig = getDefaultDatasourceConfig();
+        dsConfig.setUrl("https://rickandmortyapi.com/graphql");
+        ActionConfiguration actionConfig = getDefaultActionConfiguration();
+        actionConfig.setHttpMethod(HttpMethod.GET);
+        actionConfig.setBody("query Query {\n" +
+                "  character(id: 1) {\n" +
+                "    created\n" +
+                "  }\n" +
+                "}\n");
+        List<Property> properties = new ArrayList<Property>();
+        properties.add(new Property("smartSubstitution", "true"));
+        properties.add(new Property("queryVariables", ""));
+        actionConfig.setPluginSpecifiedTemplates(properties);
+        Mono<ActionExecutionResult> resultMono = pluginExecutor.executeParameterized(null, new ExecuteActionDTO(), dsConfig, actionConfig);
+
+        StepVerifier.create(resultMono)
+                .assertNext(result -> {
+                    assertTrue(result.getIsExecutionSuccess());
+                    assertNotNull(result.getBody());
+                    JsonNode data = ((ObjectNode) result.getBody()).get("data");
+                    String expectedResult = "{\"character\":{\"created\":\"2017-11-04T18:48:46.250Z\"}}";
+                    assertEquals(expectedResult, data.toString());
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testValidGraphQLApiExecutionWithoutQueryVariables() {
+        DatasourceConfiguration dsConfig = getDefaultDatasourceConfig();
+        ActionConfiguration actionConfig = getDefaultActionConfiguration();
+        actionConfig.setHeaders(List.of(new Property("content-type", "application/json")));
+        actionConfig.setHttpMethod(HttpMethod.POST);
+        Mono<ActionExecutionResult> resultMono = pluginExecutor.executeParameterized(null, new ExecuteActionDTO(), dsConfig, actionConfig);
+
+        StepVerifier.create(resultMono)
+                .assertNext(result -> {
+                    assertTrue(result.getIsExecutionSuccess());
+                    assertNotNull(result.getBody());
+                    JsonNode data = ((ObjectNode) result.getBody()).get("data");
+                    String expectedResult = "{\"allPosts\":{\"nodes\":[{\"id\":1}]}}";
+                    assertEquals(expectedResult, data.toString());
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testValidGraphQLApiExecutionWithContentTypeGraphql() {
+        DatasourceConfiguration dsConfig = getDefaultDatasourceConfig();
+        ActionConfiguration actionConfig = getDefaultActionConfiguration();
+        actionConfig.setHeaders(List.of(new Property("content-type", "application/graphql"))); // content-type graphql
+        actionConfig.setHttpMethod(HttpMethod.POST);
+        Mono<ActionExecutionResult> resultMono = pluginExecutor.executeParameterized(null, new ExecuteActionDTO(), dsConfig, actionConfig);
+
+        StepVerifier.create(resultMono)
+                .assertNext(result -> {
+                    assertTrue(result.getIsExecutionSuccess());
+                    assertNotNull(result.getBody());
+                    String expectedResult = "{\"data\":{\"allPosts\":{\"nodes\":[{\"id\":1}]}}}";
+                    assertEquals(result.getBody().toString(), expectedResult);
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testInvalidQueryBodyError() {
+        DatasourceConfiguration dsConfig = getDefaultDatasourceConfig();
+        ActionConfiguration actionConfig = getDefaultActionConfiguration();
+        actionConfig.setBody("query Capsules {\n" +
+                "  capsules(limit: 1, offset: 0) {\n" +
+                "    dragon \n" +
+                "      id\n" +
+                "      name\n" +
+                "    }\n" +
+                "  }\n" +
+                "}");
+        Mono<ActionExecutionResult> resultMono = pluginExecutor.executeParameterized(null, new ExecuteActionDTO(), dsConfig, actionConfig);
+
+        StepVerifier.create(resultMono)
+                .verifyErrorSatisfies(error -> {
+                    assertTrue(error instanceof AppsmithPluginException);
+                    String expectedMessage = "Invalid GraphQL body: Invalid Syntax : There are more tokens in the " +
+                            "query that have not been consumed offending token '}' at line 8 column 1";
+                    assertTrue(expectedMessage.equals(error.getMessage()));
+                });
+    }
+
+    @Test
+    public void testInvalidQueryVariablesError() {
+        DatasourceConfiguration dsConfig = getDefaultDatasourceConfig();
+        ActionConfiguration actionConfig = getDefaultActionConfiguration();
+        actionConfig.setBody("query Capsules($limit: Int, $offset: Int) {\n" +
+                "  capsules(limit: $limit, offset: $offset) {\n" +
+                "    dragon {\n" +
+                "      id\n" +
+                "      name\n" +
+                "    }\n" +
+                "  }\n" +
+                "}");
+        actionConfig.getPluginSpecifiedTemplates().get(QUERY_VARIABLES_INDEX).setValue("{\n" +
+                "  \"limit\": 1\n" +
+                "  \"offset\": 0\n" +
+                "}");
+        Mono<ActionExecutionResult> resultMono = pluginExecutor.executeParameterized(null, new ExecuteActionDTO(), dsConfig, actionConfig);
+        StepVerifier.create(resultMono)
+                .verifyErrorSatisfies(error -> {
+                    assertTrue(error instanceof AppsmithPluginException);
+                    String expectedMessage = "GraphQL query variables are not in proper JSON format: Expected a ',' " +
+                            "or '}' at 18 [character 3 line 3]";
+                    assertTrue(expectedMessage.equals(error.getMessage()));
+                });
     }
 
     @Test
     public void testValidSignature() {
-        DatasourceConfiguration dsConfig = new DatasourceConfiguration();
+        DatasourceConfiguration dsConfig = getDefaultDatasourceConfig();
         dsConfig.setUrl("http://httpbin.org/headers");
 
         final String secretKey = "a-random-key-that-should-be-32-chars-long-at-least";
@@ -178,7 +284,8 @@ public class RestApiPluginTest {
                 new Property("sessionSignatureKey", secretKey)
         ));
 
-        ActionConfiguration actionConfig = new ActionConfiguration();
+        ActionConfiguration actionConfig = getDefaultActionConfiguration();
+
         actionConfig.setHttpMethod(HttpMethod.GET);
         Mono<ActionExecutionResult> resultMono = pluginExecutor.executeParameterized(null, new ExecuteActionDTO(), dsConfig, actionConfig);
 
@@ -208,130 +315,13 @@ public class RestApiPluginTest {
     }
 
     @Test
-    public void testInvalidSignature() {
-        DatasourceConfiguration dsConfig = new DatasourceConfiguration();
-        dsConfig.setUrl("http://httpbin.org/headers");
-
-        final String secretKey = "a-random-key-that-should-be-32-chars-long-at-least";
-        dsConfig.setProperties(List.of(
-                new Property("isSendSessionEnabled", "Y"),
-                new Property("sessionSignatureKey", secretKey)
-        ));
-
-        ActionConfiguration actionConfig = new ActionConfiguration();
-        actionConfig.setHttpMethod(HttpMethod.GET);
-        Mono<ActionExecutionResult> resultMono = pluginExecutor.executeParameterized(null, new ExecuteActionDTO(), dsConfig, actionConfig);
-
-        StepVerifier.create(resultMono)
-                .assertNext(result -> {
-                    assertTrue(result.getIsExecutionSuccess());
-                    assertNotNull(result.getBody());
-                    String token = ((ObjectNode) result.getBody()).get("headers").get("X-Appsmith-Signature").asText();
-
-                    final SecretKey key = Keys.hmacShaKeyFor((secretKey + "-abc").getBytes(StandardCharsets.UTF_8));
-                    final JwtParser parser = Jwts.parserBuilder().setSigningKey(key).build();
-
-                    assertThrows(SignatureException.class, () -> parser.parseClaimsJws(token));
-                })
-                .verifyComplete();
-    }
-
-    @Test
-    public void testEncodeParamsToggleOn() {
-        DatasourceConfiguration dsConfig = new DatasourceConfiguration();
-        dsConfig.setUrl("https://postman-echo.com/post");
-
-        ActionConfiguration actionConfig = new ActionConfiguration();
-        actionConfig.setHeaders(List.of(new Property("content-type", "application/json")));
-        actionConfig.setHttpMethod(HttpMethod.POST);
-        String requestBody = "body";
-        actionConfig.setBody(requestBody);
-
-        List<Property> queryParams = new ArrayList<>();
-        queryParams.add(new Property("query_key", "query val")); /* encoding changes 'query val' to 'query+val' */
-        actionConfig.setQueryParameters(queryParams);
-        actionConfig.setEncodeParamsToggle(true);
-
-        Mono<ActionExecutionResult> resultMono = pluginExecutor.executeParameterized(null, new ExecuteActionDTO(), dsConfig, actionConfig);
-
-        StepVerifier.create(resultMono)
-                .assertNext(result -> {
-                    assertTrue(result.getIsExecutionSuccess());
-                    assertNotNull(result.getBody());
-
-                    String expected_url = "\"https://postman-echo.com/post?query_key=query+val\"";
-                    JsonNode url = ((ObjectNode) result.getBody()).get("url");
-                    assertEquals(expected_url, url.toString());
-                })
-                .verifyComplete();
-    }
-
-    @Test
-    public void testEncodeParamsToggleNull() {
-        DatasourceConfiguration dsConfig = new DatasourceConfiguration();
-        dsConfig.setUrl("https://postman-echo.com/post");
-
-        ActionConfiguration actionConfig = new ActionConfiguration();
-        actionConfig.setHeaders(List.of(new Property("content-type", "application/json")));
-        actionConfig.setHttpMethod(HttpMethod.POST);
-        String requestBody = "body";
-        actionConfig.setBody(requestBody);
-
-        List<Property> queryParams = new ArrayList<>();
-        queryParams.add(new Property("query_key", "query val")); /* encoding changes 'query val' to 'query+val' */
-        actionConfig.setQueryParameters(queryParams);
-        actionConfig.setEncodeParamsToggle(null);
-
-        Mono<ActionExecutionResult> resultMono = pluginExecutor.executeParameterized(null, new ExecuteActionDTO(), dsConfig, actionConfig);
-
-        StepVerifier.create(resultMono)
-                .assertNext(result -> {
-                    assertTrue(result.getIsExecutionSuccess());
-                    assertNotNull(result.getBody());
-
-                    String expected_url = "\"https://postman-echo.com/post?query_key=query+val\"";
-                    JsonNode url = ((ObjectNode) result.getBody()).get("url");
-                    assertEquals(expected_url, url.toString());
-                })
-                .verifyComplete();
-    }
-
-    @Test
-    public void testEncodeParamsToggleOff() {
-        DatasourceConfiguration dsConfig = new DatasourceConfiguration();
-        dsConfig.setUrl("https://postman-echo.com/post");
-
-        ActionConfiguration actionConfig = new ActionConfiguration();
-        actionConfig.setHeaders(List.of(new Property("content-type", "application/json")));
-        actionConfig.setHttpMethod(HttpMethod.POST);
-        String requestBody = "body";
-        actionConfig.setBody(requestBody);
-
-        List<Property> queryParams = new ArrayList<>();
-        queryParams.add(new Property("query_key", "query val"));
-        actionConfig.setQueryParameters(queryParams);
-        actionConfig.setEncodeParamsToggle(false);
-
-        Mono<RestApiPlugin.RestApiPluginExecutor> pluginExecutorMono = Mono.just(pluginExecutor);
-        Mono<ActionExecutionResult> resultMono = pluginExecutorMono.flatMap(executor -> executor.executeParameterized(null,
-                new ExecuteActionDTO(),
-                dsConfig,
-                actionConfig));
-        StepVerifier.create(resultMono)
-                .verifyErrorSatisfies(e -> {
-                    assertTrue(e instanceof IllegalArgumentException);
-                    assertTrue(e.getMessage().contains("Invalid character ' ' for QUERY_PARAM in \"query val\""));
-                });
-    }
-
-    @Test
     public void testValidateDatasource_invalidAuthentication() {
-        DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
+        DatasourceConfiguration datasourceConfiguration = getDefaultDatasourceConfig();
         OAuth2 oAuth2 = new OAuth2();
         oAuth2.setGrantType(OAuth2.Type.CLIENT_CREDENTIALS);
         datasourceConfiguration.setAuthentication(oAuth2);
 
-        Mono<RestApiPlugin.RestApiPluginExecutor> pluginExecutorMono = Mono.just(pluginExecutor);
+        Mono<GraphQLPlugin.GraphQLPluginExecutor> pluginExecutorMono = Mono.just(pluginExecutor);
         Mono<Set<String>> invalidsMono = pluginExecutorMono.map(executor -> executor.validateDatasource(datasourceConfiguration));
 
         StepVerifier
@@ -339,15 +329,172 @@ public class RestApiPluginTest {
                 .assertNext(invalids -> invalids.containsAll(Set.of("Missing Client ID", "Missing Client Secret", "Missing Access Token URL")));
     }
 
+    /**
+     * This method tests for the following use cases:
+     * 1. Substitute a number type value in place of a query parameter.
+     * 2. Substitute a string type value in place of a query parameter.
+     * 3. Substitute a boolean type value in place of a query parameter.
+     * 4. Substitute a schema type value in the query body.
+     */
     @Test
-    public void testSmartSubstitutionJSONBody() {
-        DatasourceConfiguration dsConfig = new DatasourceConfiguration();
+    public void testSmartSubstitutionInQueryBodyForNumberStringBooleanAndSchemaTypes() {
+        DatasourceConfiguration dsConfig = getDefaultDatasourceConfig();
         dsConfig.setUrl("https://postman-echo.com/post");
 
-        ActionConfiguration actionConfig = new ActionConfiguration();
-        actionConfig.setHeaders(List.of(new Property("content-type", "application/json")));
-        actionConfig.setHttpMethod(HttpMethod.POST);
-        String requestBody = "{\n" +
+        ActionConfiguration actionConfig = getDefaultActionConfiguration();
+        actionConfig.setBody("query Capsules {\n" +
+                "  capsules(myNum: {{Input1.text}}, myStr: {{Input2.text}}, myBool: {{Input3.text}}) {\n" +
+                "    dragon {\n" +
+                "      {{Input4.text}}\n" +
+                "      name\n" +
+                "    }\n" +
+                "  }\n" +
+                "}\n" +
+                "\n" +
+                "\n");
+
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
+        List<Param> params = new ArrayList<>();
+        Param param1 = new Param();
+        param1.setKey("Input1.text");
+        param1.setValue("3");
+        params.add(param1);
+        Param param2 = new Param();
+        param2.setKey("Input2.text");
+        param2.setValue("this is a string! Yay :D");
+        params.add(param2);
+        Param param3 = new Param();
+        param3.setKey("Input3.text");
+        param3.setValue("true");
+        params.add(param3);
+        Param param4 = new Param();
+        param4.setKey("Input4.text");
+        param4.setValue("id");
+        params.add(param4);
+        executeActionDTO.setParams(params);
+
+        Mono<ActionExecutionResult> resultMono = pluginExecutor.executeParameterized(null, executeActionDTO, dsConfig, actionConfig);
+        StepVerifier.create(resultMono)
+                .assertNext(result -> {
+                    assertTrue(result.getIsExecutionSuccess());
+                    assertNotNull(result.getBody());
+                    String expectedQueryBody = "query Capsules {\n  capsules(myNum: 3, myStr: \"this is a string! Yay" +
+                            " :D\", myBool: true) {\n    dragon {\n      id\n      name\n    }\n  }\n}\n\n\n";
+                    JSONParser jsonParser = new JSONParser(JSONParser.MODE_PERMISSIVE);
+                    ObjectMapper objectMapper = new ObjectMapper();
+                    try {
+                        JSONObject resultJson = (JSONObject) jsonParser.parse(String.valueOf(result.getBody()));
+                        // Object resultData = ((JSONObject) resultJson.get("json")).get("query");
+                        String resultData = ((JSONObject) resultJson.get("json")).getAsString("query");
+                        String parsedJsonAsString = objectMapper.writeValueAsString(resultData);
+                        assertEquals(expectedQueryBody, resultData);
+                    } catch (ParseException | JsonProcessingException e) {
+                        assert false : e.getMessage();
+                    }
+
+                    // Assert the debug request parameters are getting set.
+                    ActionExecutionRequest request = result.getRequest();
+                    List<Map.Entry<String, String>> parameters =
+                            (List<Map.Entry<String, String>>) request.getProperties().get("smart-substitution-parameters");
+                    assertEquals(parameters.size(), 4);
+
+                    Map.Entry<String, String> parameterEntry = parameters.get(0);
+                    assertEquals(parameterEntry.getKey(), "3");
+                    assertEquals(parameterEntry.getValue(), "GRAPHQL_BODY_INTEGER");
+
+                    parameterEntry = parameters.get(1);
+                    assertEquals(parameterEntry.getKey(), "this is a string! Yay :D");
+                    assertEquals(parameterEntry.getValue(), "GRAPHQL_BODY_STRING");
+
+                    parameterEntry = parameters.get(2);
+                    assertEquals(parameterEntry.getKey(), "true");
+                    assertEquals(parameterEntry.getValue(), "GRAPHQL_BODY_BOOLEAN");
+
+                    parameterEntry = parameters.get(3);
+                    assertEquals(parameterEntry.getKey(), "id");
+                    assertEquals(parameterEntry.getValue(), "GRAPHQL_BODY_PARTIAL");
+                })
+                .verifyComplete();
+    }
+
+    /**
+     * This method checks for the use case where the entire query body is provided via dynamic binding by the user.
+     */
+    @Test
+    public void testSmartSubstitutionInQueryBodyForFullBodySubstitution() {
+        DatasourceConfiguration dsConfig = getDefaultDatasourceConfig();
+        dsConfig.setUrl("https://postman-echo.com/post");
+
+        ActionConfiguration actionConfig = getDefaultActionConfiguration();
+        actionConfig.setBody("{{Input1.text}}");
+
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
+        List<Param> params = new ArrayList<>();
+        Param param1 = new Param();
+        param1.setKey("Input1.text");
+        param1.setValue("query Capsules {\n" +
+                "  capsules(limit: 1, offset: 0) {\n" +
+                "    dragon {\n" +
+                "      id\n" +
+                "      name\n" +
+                "    }\n" +
+                "  }\n" +
+                "}");
+        params.add(param1);
+        executeActionDTO.setParams(params);
+
+        Mono<ActionExecutionResult> resultMono = pluginExecutor.executeParameterized(null, executeActionDTO, dsConfig, actionConfig);
+        StepVerifier.create(resultMono)
+                .assertNext(result -> {
+                    assertTrue(result.getIsExecutionSuccess());
+                    assertNotNull(result.getBody());
+                    String expectedQueryBody = "query Capsules {\n" +
+                            "  capsules(limit: 1, offset: 0) {\n" +
+                            "    dragon {\n" +
+                            "      id\n" +
+                            "      name\n" +
+                            "    }\n" +
+                            "  }\n" +
+                            "}";
+                    JSONParser jsonParser = new JSONParser(JSONParser.MODE_PERMISSIVE);
+                    ObjectMapper objectMapper = new ObjectMapper();
+                    try {
+                        JSONObject resultJson = (JSONObject) jsonParser.parse(String.valueOf(result.getBody()));
+                        // Object resultData = ((JSONObject) resultJson.get("json")).get("query");
+                        String resultData = ((JSONObject) resultJson.get("json")).getAsString("query");
+                        String parsedJsonAsString = objectMapper.writeValueAsString(resultData);
+                        assertEquals(expectedQueryBody, resultData);
+                    } catch (ParseException | JsonProcessingException e) {
+                        assert false : e.getMessage();
+                    }
+
+                    // Assert the debug request parameters are getting set.
+                    ActionExecutionRequest request = result.getRequest();
+                    List<Map.Entry<String, String>> parameters =
+                            (List<Map.Entry<String, String>>) request.getProperties().get("smart-substitution-parameters");
+                    assertEquals(parameters.size(), 1);
+
+                    Map.Entry<String, String> parameterEntry = parameters.get(0);
+                    assertEquals(parameterEntry.getKey(), "query Capsules {\n" +
+                            "  capsules(limit: 1, offset: 0) {\n" +
+                            "    dragon {\n" +
+                            "      id\n" +
+                            "      name\n" +
+                            "    }\n" +
+                            "  }\n" +
+                            "}");
+                    assertEquals(parameterEntry.getValue(), "GRAPHQL_BODY_FULL");
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testSmartSubstitutionQueryVariables() {
+        DatasourceConfiguration dsConfig = getDefaultDatasourceConfig();
+        dsConfig.setUrl("https://postman-echo.com/post");
+
+        ActionConfiguration actionConfig = getDefaultActionConfiguration();
+        String queryVariables = "{\n" +
                 "\t\"name\" : {{Input1.text}},\n" +
                 "\t\"email\" : {{Input2.text}},\n" +
                 "\t\"username\" : {{Input3.text}},\n" +
@@ -356,10 +503,7 @@ public class RestApiPluginTest {
                 "\t\"tableRow\" : {{Table1.selectedRow}},\n" +
                 "\t\"table\" : \"{{Table1.tableData}}\"\n" +
                 "}";
-        actionConfig.setBody(requestBody);
-        List<Property> pluginSpecifiedTemplates = new ArrayList<>();
-        pluginSpecifiedTemplates.add(new Property("jsonSmartSubstitution", "true"));
-        actionConfig.setPluginSpecifiedTemplates(pluginSpecifiedTemplates);
+        actionConfig.getPluginSpecifiedTemplates().get(QUERY_VARIABLES_INDEX).setValue(queryVariables);
 
         ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
         List<Param> params = new ArrayList<>();
@@ -403,7 +547,7 @@ public class RestApiPluginTest {
                     ObjectMapper objectMapper = new ObjectMapper();
                     try {
                         JSONObject resultJson = (JSONObject) jsonParser.parse(String.valueOf(result.getBody()));
-                        Object resultData = resultJson.get("json");
+                        Object resultData = ((JSONObject) resultJson.get("json")).get("variables");
                         String parsedJsonAsString = objectMapper.writeValueAsString(resultData);
                         assertEquals(resultBody, parsedJsonAsString);
                     } catch (ParseException | JsonProcessingException e) {
@@ -440,96 +584,17 @@ public class RestApiPluginTest {
     }
 
     @Test
-    public void testMultipartFormData() {
-        DatasourceConfiguration dsConfig = new DatasourceConfiguration();
-        dsConfig.setUrl("http://httpbin.org/post");
-
-        ActionConfiguration actionConfig = new ActionConfiguration();
-        actionConfig.setHeaders(List.of(new Property("content-type", "multipart/form-data")));
-
-        actionConfig.setHttpMethod(HttpMethod.POST);
-        String requestBody = "{\"key1\":\"onlyValue\"}";
-        final Property key1 = new Property("key1", "onlyValue");
-        final Property key2 = new Property("key2", "{\"name\":\"fileName\", \"type\":\"application/json\", \"data\":{\"key\":\"value\"}}");
-        final Property key3 = new Property("key3", "[{\"name\":\"fileName2\", \"type\":\"application/json\", \"data\":{\"key2\":\"value2\"}}]");
-        final Property key4 = new Property(null, "irrelevantValue");
-        key2.setType("FILE");
-        key3.setType("FILE");
-        List<Property> formData = List.of(key1, key2, key3, key4);
-        actionConfig.setBodyFormData(formData);
-
-        Mono<ActionExecutionResult> resultMono = pluginExecutor.executeParameterized(null, new ExecuteActionDTO(), dsConfig, actionConfig);
-        StepVerifier.create(resultMono)
-                .assertNext(result -> {
-                    assertTrue(result.getIsExecutionSuccess());
-                    assertNotNull(result.getBody());
-                    assertEquals(Map.of(
-                                    "key1", "onlyValue",
-                                    "key2", "<file>",
-                                    "key3", "<file>"),
-                            result.getRequest().getBody());
-                    JsonNode formDataResponse = ((ObjectNode) result.getBody()).get("form");
-                    assertEquals(requestBody, formDataResponse.toString());
-                    JsonNode fileDataResponse = ((ObjectNode) result.getBody()).get("files");
-                    assertEquals("{\"key2\":\"{key=value}\",\"key3\":\"{key2=value2}\"}", fileDataResponse.toString());
-                })
-                .verifyComplete();
-    }
-
-    @Test
-    public void testParsingBodyWithInvalidJSONHeader() {
-        DatasourceConfiguration dsConfig = new DatasourceConfiguration();
-        dsConfig.setUrl("https://mock-api.appsmith.com/echo/raw");
-
-        ActionConfiguration actionConfig = new ActionConfiguration();
-        actionConfig.setHeaders(List.of(new Property("content-type", "application/json")));
-        actionConfig.setHttpMethod(HttpMethod.POST);
-
-        String requestBody = "{\n" +
-                "    \"headers\": {\n" +
-                "        \"Content-Type\": \"application/json\",\n" +
-                "        \"X-RANDOM-HEADER\": \"random-value\"\n" +
-                "    },\n" +
-                "    \"body\": \"invalid json text\"\n" +
-                "}";
-        actionConfig.setBody(requestBody);
-
-        Mono<ActionExecutionResult> resultMono = pluginExecutor.executeParameterized(null, new ExecuteActionDTO(), dsConfig, actionConfig);
-        StepVerifier.create(resultMono)
-                .assertNext(result -> {
-                    assertTrue(result.getIsExecutionSuccess());
-                    assertNotNull(result.getBody());
-                    assertEquals("invalid json text", result.getBody());
-                    ArrayNode data = (ArrayNode) result.getHeaders().get("Content-Type");
-                    assertEquals("application/json; charset=utf-8", data.get(0).asText());
-
-                    assertEquals(1, result.getMessages().size());
-                    String expectedMessage = "The response returned by this API is not a valid JSON. Please " +
-                            "be careful when using the API response anywhere a valid JSON is required" +
-                            ". You may resolve this issue either by modifying the 'Content-Type' " +
-                            "Header to indicate a non-JSON response or by modifying the API response " +
-                            "to return a valid JSON.";
-                    assertEquals(expectedMessage, result.getMessages().toArray()[0]);
-                })
-                .verifyComplete();
-    }
-
-    @Test
     public void testRequestWithApiKeyHeader() {
-        DatasourceConfiguration dsConfig = new DatasourceConfiguration();
+        DatasourceConfiguration dsConfig = getDefaultDatasourceConfig();
         dsConfig.setUrl("https://postman-echo.com/post");
         AuthenticationDTO authenticationDTO = new ApiKeyAuth(ApiKeyAuth.Type.HEADER, "api_key", "Token", "test");
         dsConfig.setAuthentication(authenticationDTO);
 
-        ActionConfiguration actionConfig = new ActionConfiguration();
+        ActionConfiguration actionConfig = getDefaultActionConfiguration();
         actionConfig.setHeaders(List.of(
                 new Property("content-type", "application/json"),
                 new Property(HttpHeaders.AUTHORIZATION, "auth-value")
         ));
-        actionConfig.setHttpMethod(HttpMethod.POST);
-
-        String requestBody = "{\"key\":\"value\"}";
-        actionConfig.setBody(requestBody);
 
         final APIConnection apiConnection = pluginExecutor.datasourceCreate(dsConfig).block();
 
@@ -549,57 +614,8 @@ public class RestApiPluginTest {
     }
 
     @Test
-    public void testSmartSubstitutionEvaluatedValueContainingQuestionMark() {
-        DatasourceConfiguration dsConfig = new DatasourceConfiguration();
-        dsConfig.setUrl("https://postman-echo.com/post");
-
-        ActionConfiguration actionConfig = new ActionConfiguration();
-        actionConfig.setHeaders(List.of(new Property("content-type", "application/json")));
-        actionConfig.setHttpMethod(HttpMethod.POST);
-        String requestBody = "{\n" +
-                "\t\"name\" : {{Input1.text}},\n" +
-                "\t\"email\" : {{Input2.text}},\n" +
-                "}";
-        actionConfig.setBody(requestBody);
-        List<Property> pluginSpecifiedTemplates = new ArrayList<>();
-        pluginSpecifiedTemplates.add(new Property("jsonSmartSubstitution", "true"));
-        actionConfig.setPluginSpecifiedTemplates(pluginSpecifiedTemplates);
-
-        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
-        List<Param> params = new ArrayList<>();
-        Param param1 = new Param();
-        param1.setKey("Input1.text");
-        param1.setValue("this is a string with a ? ");
-        params.add(param1);
-        Param param2 = new Param();
-        param2.setKey("Input2.text");
-        param2.setValue("email@email.com");
-        params.add(param2);
-        executeActionDTO.setParams(params);
-
-        Mono<ActionExecutionResult> resultMono = pluginExecutor.executeParameterized(null, executeActionDTO, dsConfig, actionConfig);
-        StepVerifier.create(resultMono)
-                .assertNext(result -> {
-                    assertTrue(result.getIsExecutionSuccess());
-                    assertNotNull(result.getBody());
-                    String resultBody = "{\"name\":\"this is a string with a ? \",\"email\":\"email@email.com\"}";
-                    JSONParser jsonParser = new JSONParser(JSONParser.MODE_PERMISSIVE);
-                    ObjectMapper objectMapper = new ObjectMapper();
-                    try {
-                        JSONObject resultJson = (JSONObject) jsonParser.parse(String.valueOf(result.getBody()));
-                        Object resultData = resultJson.get("json");
-                        String parsedJsonAsString = objectMapper.writeValueAsString(resultData);
-                        assertEquals(resultBody, parsedJsonAsString);
-                    } catch (ParseException | JsonProcessingException e) {
-                        e.printStackTrace();
-                    }
-                })
-                .verifyComplete();
-    }
-
-    @Test
     public void testGetDuplicateHeadersAndParams() {
-        DatasourceConfiguration dsConfig = new DatasourceConfiguration();
+        DatasourceConfiguration dsConfig = getDefaultDatasourceConfig();
         List<Property> dsHeaders = new ArrayList<>();
         dsHeaders.add(new Property("myHeader1", "myVal"));
         dsHeaders.add(new Property("myHeader1", "myVal")); // duplicate header
@@ -622,7 +638,7 @@ public class RestApiPluginTest {
         dsConfig.setQueryParameters(dsParams);
 
         // Add headers to API query editor page.
-        ActionConfiguration actionConfig = new ActionConfiguration();
+        ActionConfiguration actionConfig = getDefaultActionConfiguration();
         ArrayList<Property> actionHeaders = new ArrayList<>();
         actionHeaders.add(new Property("myHeader3", "myVal")); // duplicate - because also inherited from datasource.
         actionHeaders.add(new Property("myHeader4", "myVal"));
@@ -644,7 +660,7 @@ public class RestApiPluginTest {
                 hintMessageUtils.getAllDuplicateHeaders(null, dsConfig);
 
         // Header duplicates
-        Set <String> expectedDuplicateHeaders = new HashSet<>();
+        Set<String> expectedDuplicateHeaders = new HashSet<>();
         expectedDuplicateHeaders.add("myHeader1");
         expectedDuplicateHeaders.add("myHeader2");
         assertTrue(expectedDuplicateHeaders.equals(duplicateHeadersWithDsConfigOnly.get(DATASOURCE_CONFIG_ONLY)));
@@ -652,10 +668,10 @@ public class RestApiPluginTest {
         /* Test duplicate query params in datasource configuration only */
         Map<DUPLICATE_ATTRIBUTE_LOCATION, Set<String>> duplicateParamsWithDsConfigOnly =
                 hintMessageUtils.getAllDuplicateParams(null,
-                dsConfig);
+                        dsConfig);
 
         // Query param duplicates
-        Set <String> expectedDuplicateParams = new HashSet<>();
+        Set<String> expectedDuplicateParams = new HashSet<>();
         expectedDuplicateParams.add("myParam1");
         expectedDuplicateParams.add("myParam2");
         assertTrue(expectedDuplicateParams.equals(duplicateParamsWithDsConfigOnly.get(DATASOURCE_CONFIG_ONLY)));
@@ -685,7 +701,7 @@ public class RestApiPluginTest {
         /* Test duplicate query params in action + datasource config */
         Map<DUPLICATE_ATTRIBUTE_LOCATION, Set<String>> allDuplicateParams =
                 hintMessageUtils.getAllDuplicateParams(actionConfig,
-                dsConfig);
+                        dsConfig);
 
         // Query param duplicates in datasource config only
         expectedDuplicateParams = new HashSet<>();
@@ -711,14 +727,14 @@ public class RestApiPluginTest {
         authenticationDTO.setAuthenticationType(OAUTH2);
         authenticationDTO.setGrantType(OAuth2.Type.AUTHORIZATION_CODE);
         authenticationDTO.setIsTokenHeader(true); // adds header `Authorization`
-        DatasourceConfiguration dsConfig = new DatasourceConfiguration();
+        DatasourceConfiguration dsConfig = getDefaultDatasourceConfig();
         dsConfig.setAuthentication(authenticationDTO);
 
         // Add headers to API query editor page.
         ArrayList<Property> actionHeaders = new ArrayList<>();
         actionHeaders.add(new Property("myHeader1", "myVal"));
         actionHeaders.add(new Property("Authorization", "myVal"));  // duplicate - because also inherited from dsConfig
-        ActionConfiguration actionConfig = new ActionConfiguration();
+        ActionConfiguration actionConfig = getDefaultActionConfiguration();
         actionConfig.setHeaders(actionHeaders);
 
         /* Test duplicate headers in datasource + action configuration */
@@ -744,7 +760,7 @@ public class RestApiPluginTest {
         authenticationDTO.setAuthenticationType(OAUTH2);
         authenticationDTO.setGrantType(OAuth2.Type.AUTHORIZATION_CODE);
         authenticationDTO.setIsTokenHeader(false); // adds query param `access_token`
-        DatasourceConfiguration dsConfig = new DatasourceConfiguration();
+        DatasourceConfiguration dsConfig = getDefaultDatasourceConfig();
         dsConfig.setAuthentication(authenticationDTO);
 
         // Add headers to API query editor page.
@@ -752,13 +768,13 @@ public class RestApiPluginTest {
         ArrayList<Property> actionParams = new ArrayList<>();
         actionParams.add(new Property("myParam1", "myVal")); // duplicate - because also inherited from datasource.
         actionParams.add(new Property("access_token", "myVal"));
-        ActionConfiguration actionConfig = new ActionConfiguration();
+        ActionConfiguration actionConfig = getDefaultActionConfiguration();
         actionConfig.setQueryParameters(actionParams);
 
         /* Test duplicate params in datasource + action configuration */
         Map<DUPLICATE_ATTRIBUTE_LOCATION, Set<String>> allDuplicateParams =
                 hintMessageUtils.getAllDuplicateParams(actionConfig,
-                dsConfig);
+                        dsConfig);
 
         // Param duplicates in ds config only
         assertTrue(allDuplicateParams.get(DATASOURCE_CONFIG_ONLY).isEmpty());
@@ -780,7 +796,7 @@ public class RestApiPluginTest {
      */
     @Test
     public void testHintMessageForDuplicateHeadersAndParamsWithDatasourceConfigOnly() {
-        DatasourceConfiguration dsConfig = new DatasourceConfiguration();
+        DatasourceConfiguration dsConfig = getDefaultDatasourceConfig();
         List<Property> headers = new ArrayList<>();
         headers.add(new Property("myHeader1", "myVal"));
         headers.add(new Property("myHeader1", "myVal")); // duplicate
@@ -792,6 +808,7 @@ public class RestApiPluginTest {
         params.add(new Property("myParam1", "myVal")); // duplicate
         params.add(new Property("myParam2", "myVal"));
         dsConfig.setQueryParameters(params);
+        dsConfig.setUrl("some_non_loc@lhost_url");
 
         Mono<Tuple2<Set<String>, Set<String>>> hintMessagesMono = pluginExecutor.getHintMessages(null, dsConfig);
         StepVerifier.create(hintMessagesMono)
@@ -831,7 +848,7 @@ public class RestApiPluginTest {
      */
     @Test
     public void testHintMessageForDuplicateHeadersAndParamsWithActionConfigOnly() {
-        ActionConfiguration actionConfig = new ActionConfiguration();
+        ActionConfiguration actionConfig = getDefaultActionConfiguration();
         List<Property> headers = new ArrayList<>();
         headers.add(new Property("myHeader1", "myVal"));
         headers.add(new Property("myHeader1", "myVal")); // duplicate
@@ -845,6 +862,8 @@ public class RestApiPluginTest {
         actionConfig.setQueryParameters(params);
 
         DatasourceConfiguration dsConfig = new DatasourceConfiguration();
+        dsConfig.setUrl("some_non_loc@lhost_url");
+
         Mono<Tuple2<Set<String>, Set<String>>> hintMessagesMono = pluginExecutor.getHintMessages(actionConfig, dsConfig);
         StepVerifier.create(hintMessagesMono)
                 .assertNext(tuple -> {
@@ -873,17 +892,17 @@ public class RestApiPluginTest {
      */
     @Test
     public void testHintMessageForDuplicateHeaderWithOneInstanceEachInActionAndDsConfig() {
-        ActionConfiguration actionConfig = new ActionConfiguration();
+        ActionConfiguration actionConfig = getDefaultActionConfiguration();
         List<Property> headers = new ArrayList<>();
         headers.add(new Property("myHeader1", "myVal"));
         actionConfig.setHeaders(headers);
 
-
         // This authentication mechanism will add `myHeader1` as header implicitly.
         AuthenticationDTO authenticationDTO = new ApiKeyAuth(ApiKeyAuth.Type.HEADER, "myHeader1", "Token", "test");
         authenticationDTO.setAuthenticationType(API_KEY);
-        DatasourceConfiguration dsConfig = new DatasourceConfiguration();
+        DatasourceConfiguration dsConfig = getDefaultDatasourceConfig();
         dsConfig.setAuthentication(authenticationDTO);
+        dsConfig.setUrl("some_non_loc@lhost_url");
 
         Mono<Tuple2<Set<String>, Set<String>>> hintMessagesMono = pluginExecutor.getHintMessages(actionConfig, dsConfig);
         StepVerifier.create(hintMessagesMono)
@@ -911,7 +930,7 @@ public class RestApiPluginTest {
      */
     @Test
     public void testHintMessageForDuplicateParamWithOneInstanceEachInActionAndDsConfig() {
-        ActionConfiguration actionConfig = new ActionConfiguration();
+        ActionConfiguration actionConfig = getDefaultActionConfiguration();
         List<Property> params = new ArrayList<>();
         params.add(new Property("myParam1", "myVal"));
         actionConfig.setQueryParameters(params);
@@ -920,8 +939,9 @@ public class RestApiPluginTest {
         // This authentication mechanism will add `myHeader1` as query param implicitly.
         AuthenticationDTO authenticationDTO = new ApiKeyAuth(ApiKeyAuth.Type.QUERY_PARAMS, "myParam1", "Token", "test");
         authenticationDTO.setAuthenticationType(API_KEY);
-        DatasourceConfiguration dsConfig = new DatasourceConfiguration();
+        DatasourceConfiguration dsConfig = getDefaultDatasourceConfig();
         dsConfig.setAuthentication(authenticationDTO);
+        dsConfig.setUrl("some_non_loc@lhost_url");
 
         Mono<Tuple2<Set<String>, Set<String>>> hintMessagesMono = pluginExecutor.getHintMessages(actionConfig, dsConfig);
         StepVerifier.create(hintMessagesMono)
@@ -943,14 +963,10 @@ public class RestApiPluginTest {
 
     @Test
     public void testQueryParamsInDatasource() {
-        DatasourceConfiguration dsConfig = new DatasourceConfiguration();
+        DatasourceConfiguration dsConfig = getDefaultDatasourceConfig();
         dsConfig.setUrl("https://postman-echo.com/post");
 
-        ActionConfiguration actionConfig = new ActionConfiguration();
-        actionConfig.setHeaders(List.of(new Property("content-type", "application/json")));
-        actionConfig.setHttpMethod(HttpMethod.POST);
-        String requestBody = "body";
-        actionConfig.setBody(requestBody);
+        ActionConfiguration actionConfig = getDefaultActionConfiguration();
         actionConfig.setEncodeParamsToggle(true);
 
         List<Property> queryParams = new ArrayList<>();
@@ -973,10 +989,10 @@ public class RestApiPluginTest {
 
     @Test
     public void testDenyInstanceMetadataAws() {
-        DatasourceConfiguration dsConfig = new DatasourceConfiguration();
+        DatasourceConfiguration dsConfig = getDefaultDatasourceConfig();
         dsConfig.setUrl("http://169.254.169.254/latest/meta-data");
 
-        ActionConfiguration actionConfig = new ActionConfiguration();
+        ActionConfiguration actionConfig = getDefaultActionConfiguration();
         actionConfig.setHttpMethod(HttpMethod.GET);
 
         Mono<ActionExecutionResult> resultMono = pluginExecutor.executeParameterized(null, new ExecuteActionDTO(), dsConfig, actionConfig);
@@ -987,10 +1003,10 @@ public class RestApiPluginTest {
 
     @Test
     public void testDenyInstanceMetadataAwsViaCname() {
-        DatasourceConfiguration dsConfig = new DatasourceConfiguration();
+        DatasourceConfiguration dsConfig = getDefaultDatasourceConfig();
         dsConfig.setUrl("http://169.254.169.254.nip.io/latest/meta-data");
 
-        ActionConfiguration actionConfig = new ActionConfiguration();
+        ActionConfiguration actionConfig = getDefaultActionConfiguration();
         actionConfig.setHttpMethod(HttpMethod.GET);
 
         Mono<ActionExecutionResult> resultMono = pluginExecutor.executeParameterized(null, new ExecuteActionDTO(), dsConfig, actionConfig);
@@ -1001,10 +1017,10 @@ public class RestApiPluginTest {
 
     @Test
     public void testDenyInstanceMetadataGcp() {
-        DatasourceConfiguration dsConfig = new DatasourceConfiguration();
+        DatasourceConfiguration dsConfig = getDefaultDatasourceConfig();
         dsConfig.setUrl("http://metadata.google.internal/latest/meta-data");
 
-        ActionConfiguration actionConfig = new ActionConfiguration();
+        ActionConfiguration actionConfig = getDefaultActionConfiguration();
         actionConfig.setHttpMethod(HttpMethod.GET);
 
         Mono<ActionExecutionResult> resultMono = pluginExecutor.executeParameterized(null, new ExecuteActionDTO(), dsConfig, actionConfig);
@@ -1012,58 +1028,4 @@ public class RestApiPluginTest {
                 .assertNext(result -> assertFalse(result.getIsExecutionSuccess()))
                 .verifyComplete();
     }
-
-    @Test
-    public void testGetApiWithBody() {
-        DatasourceConfiguration dsConfig = new DatasourceConfiguration();
-        dsConfig.setUrl("https://postman-echo.com/get");
-
-        ActionConfiguration actionConfig = new ActionConfiguration();
-        actionConfig.setHeaders(List.of(
-                new Property("content-type", "application/json")
-        ));
-        actionConfig.setHttpMethod(HttpMethod.GET);
-        actionConfig.setFormData(new HashMap<>());
-        PluginUtils.setValueSafelyInFormData(actionConfig.getFormData(), "apiContentType", "application/json");
-
-        String requestBody = "{\"key\":\"value\"}";
-        actionConfig.setBody(requestBody);
-
-        final APIConnection apiConnection = pluginExecutor.datasourceCreate(dsConfig).block();
-
-        Mono<ActionExecutionResult> resultMono = pluginExecutor.executeParameterized(apiConnection, new ExecuteActionDTO(), dsConfig, actionConfig);
-        StepVerifier.create(resultMono)
-                .assertNext(result -> {
-                    assertTrue(result.getIsExecutionSuccess());
-                    assertNotNull(result.getRequest().getBody());
-                })
-                .verifyComplete();
-    }
-
-    @Test
-    public void testAPIResponseEncodedInGzipFormat() {
-        DatasourceConfiguration dsConfig = new DatasourceConfiguration();
-        dsConfig.setUrl("http://postman-echo.com/gzip");
-
-        ActionConfiguration actionConfig = new ActionConfiguration();
-        actionConfig.setHeaders(List.of(
-                new Property("content-type", "application/json")
-        ));
-        actionConfig.setHttpMethod(HttpMethod.GET);
-
-        Mono<ActionExecutionResult> resultMono = pluginExecutor.executeParameterized(null, new ExecuteActionDTO(), dsConfig, actionConfig);
-        StepVerifier.create(resultMono)
-                .assertNext(result -> {
-                    assertTrue(result.getIsExecutionSuccess());
-                    assertNotNull(result.getRequest().getBody());
-                    final Iterator<Map.Entry<String, JsonNode>> fields = ((ObjectNode) result.getRequest().getHeaders()).fields();
-                    fields.forEachRemaining(field -> {
-                        if ("gzipped".equalsIgnoreCase(field.getKey())) {
-                            assertEquals("true", field.getValue().get(0).asText());
-                        }
-                    });
-                })
-                .verifyComplete();
-    }
 }
-

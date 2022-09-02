@@ -43,6 +43,13 @@ public class GraphQLBodyUtils {
     }
 
     public static void validateBodyAndVariablesSyntax(ActionConfiguration actionConfiguration) throws AppsmithPluginException {
+        if (isBlank(actionConfiguration.getBody())) {
+            throw new AppsmithPluginException(
+                    AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR,
+                    "Your GraphQL query body is empty. Please edit the 'Body' tab of your GraphQL API to provide a " +
+                            "query body.");
+        }
+
         Parser graphqlParser = new Parser();
         try {
             graphqlParser.parseDocument(actionConfiguration.getBody());
