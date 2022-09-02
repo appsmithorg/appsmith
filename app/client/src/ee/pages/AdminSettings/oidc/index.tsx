@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { saveSettings } from "@appsmith/actions/settingsAction";
-import { SETTINGS_FORM_NAME } from "constants/forms";
+import { SETTINGS_FORM_NAME } from "@appsmith/constants/forms";
 import _ from "lodash";
 import { connect, useDispatch } from "react-redux";
 import { RouteComponentProps, useParams, withRouter } from "react-router";

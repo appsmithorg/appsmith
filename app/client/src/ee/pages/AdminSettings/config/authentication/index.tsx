@@ -20,7 +20,7 @@ import OIDC from "assets/images/oidc.svg";
 import React from "react";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import { OIDC_SIGNUP_SETUP_DOC } from "constants/ThirdPartyConstants";
-import { REDIRECT_URL_FORM } from "constants/forms";
+import { REDIRECT_URL_FORM } from "@appsmith/constants/forms";
 
 const { enableOidcOAuth, enableSamlOAuth } = getAppsmithConfigs();
 

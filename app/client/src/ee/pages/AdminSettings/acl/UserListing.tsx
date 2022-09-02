@@ -15,7 +15,7 @@ import { BottomSpace } from "pages/Settings/components";
 import { UserEdit } from "./UserEdit";
 import { AclWrapper } from "./components";
 import FormDialogComponent from "components/editorComponents/form/FormDialogComponent";
-import WorkspaceInviteUsersForm from "pages/workspace/WorkspaceInviteUsersForm";
+import WorkspaceInviteUsersForm from "@appsmith/pages/workspace/WorkspaceInviteUsersForm";
 import { adminSettingsCategoryUrl } from "RouteBuilder";
 import { SettingCategories } from "@appsmith/pages/AdminSettings/config/types";
 import { deleteAclUser, getUserById } from "@appsmith/actions/aclActions";

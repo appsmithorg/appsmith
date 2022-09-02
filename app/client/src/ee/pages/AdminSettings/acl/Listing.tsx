@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import styled from "styled-components";
-import { Icon, IconSize, MenuItem, MenuItemProps } from "design-system";
-import { Menu, Table } from "components/ads";
+import { Icon, IconSize, MenuItem, MenuItemProps, Menu } from "design-system";
+import { Table } from "components/ads";
 import { Position } from "@blueprintjs/core";
 import { HelpPopoverStyle, Loader } from "./components";
 import { ARE_YOU_SURE, createMessage } from "@appsmith/constants/messages";
