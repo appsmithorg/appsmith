@@ -65,7 +65,6 @@ import org.eclipse.jgit.errors.RepositoryNotFoundException;
 import org.eclipse.jgit.util.StringUtils;
 import org.springframework.context.annotation.Import;
 import org.springframework.dao.DuplicateKeyException;
-import org.springframework.data.redis.core.ReactiveRedisOperations;
 import reactor.core.Exceptions;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -441,18 +440,12 @@ public class GitServiceCEImpl implements GitServiceCE {
                     // Check if the private repo count is less than the allowed repo count
                     final String workspaceId = defaultApplication.getWorkspaceId();
                     return applicationMono
-                            .then(gitCloudServicesUtils.getPrivateRepoLimitForOrg(workspaceId, false))
-                            .flatMap(limit -> {
-                                if (limit == -1) {
+                            .then(isRepoLimitReached(workspaceId, false))
+                            .flatMap(isRepoLimitReached -> {
+                                if(Boolean.FALSE.equals(isRepoLimitReached)) {
                                     return Mono.just(defaultApplication);
                                 }
-                                return this.getApplicationCountWithPrivateRepo(workspaceId)
-                                        .map(privateRepoCount -> {
-                                            if (limit >= privateRepoCount) {
-                                                return defaultApplication;
-                                            }
-                                            throw new AppsmithException(AppsmithError.GIT_APPLICATION_LIMIT_ERROR);
-                                        });
+                                throw new AppsmithException(AppsmithError.GIT_APPLICATION_LIMIT_ERROR);
                             });
                 })
                 .then(applicationService.findByBranchNameAndDefaultApplicationId(branchName, defaultApplicationId, MANAGE_APPLICATIONS))
@@ -699,28 +692,19 @@ public class GitServiceCEImpl implements GitServiceCE {
                         return Mono.just(application);
                     }
                     //Check the limit for number of private repo
-                    return gitCloudServicesUtils.getPrivateRepoLimitForOrg(application.getWorkspaceId(), true)
-                        .flatMap(limitCount -> {
-                            // CS will respond with count -1 for unlimited git repos
-                            if (limitCount == -1) {
-                                return Mono.just(application);
-                            }
-                            // get git connected apps count from db
-                            return this.getApplicationCountWithPrivateRepo(application.getWorkspaceId())
-                                    .flatMap(count -> {
-                                        if (limitCount <= count) {
-                                            return addAnalyticsForGitOperation(
-                                                    AnalyticsEvents.GIT_PRIVATE_REPO_LIMIT_EXCEEDED.getEventName(),
-                                                    application,
-                                                    AppsmithError.GIT_APPLICATION_LIMIT_ERROR.getErrorType(),
-                                                    AppsmithError.GIT_APPLICATION_LIMIT_ERROR.getMessage(),
-                                                    application.getGitApplicationMetadata().getIsRepoPrivate()
-                                            )
-                                            .flatMap(ignore -> Mono.error(new AppsmithException(AppsmithError.GIT_APPLICATION_LIMIT_ERROR)));
-                                        }
-                                        return Mono.just(application);
-                                    });
-                        });
+                    return isRepoLimitReached(application.getWorkspaceId(), true)
+                            .flatMap(isRepoLimitReached -> {
+                                if(Boolean.FALSE.equals(isRepoLimitReached)) {
+                                    return Mono.just(application);
+                                }
+                                return addAnalyticsForGitOperation(
+                                        AnalyticsEvents.GIT_PRIVATE_REPO_LIMIT_EXCEEDED.getEventName(),
+                                        application,
+                                        AppsmithError.GIT_APPLICATION_LIMIT_ERROR.getErrorType(),
+                                        AppsmithError.GIT_APPLICATION_LIMIT_ERROR.getMessage(),
+                                        application.getGitApplicationMetadata().getIsRepoPrivate()
+                                ).flatMap(ignore -> Mono.error(new AppsmithException(AppsmithError.GIT_APPLICATION_LIMIT_ERROR)));
+                            });
                 })
                 .flatMap(application -> {
                     GitApplicationMetadata gitApplicationMetadata = application.getGitApplicationMetadata();
@@ -1925,26 +1909,18 @@ public class GitServiceCEImpl implements GitServiceCE {
                     if(!isRepoPrivate) {
                         return Mono.just(gitAuth).zipWith(applicationMono);
                     }
-                    return gitCloudServicesUtils.getPrivateRepoLimitForOrg(workspaceId, true)
-                            .flatMap(limitCount -> {
-                                // CS will respond with count -1 for unlimited git repos
-                                if (limitCount == -1) {
+                    return isRepoLimitReached(workspaceId, true)
+                            .flatMap(isRepoLimitReached -> {
+                                if(Boolean.FALSE.equals(isRepoLimitReached)) {
                                     return Mono.just(gitAuth).zipWith(applicationMono);
                                 }
-                                // get git connected apps count from db
-                                return this.getApplicationCountWithPrivateRepo(workspaceId)
-                                        .flatMap(count -> {
-                                            if (limitCount <= count) {
-                                                return addAnalyticsForGitOperation(
-                                                        AnalyticsEvents.GIT_IMPORT.getEventName(),
-                                                        newApplication,
-                                                        AppsmithError.GIT_APPLICATION_LIMIT_ERROR.getErrorType(),
-                                                        AppsmithError.GIT_APPLICATION_LIMIT_ERROR.getMessage(),
-                                                        false
-                                                ).flatMap(user -> Mono.error(new AppsmithException(AppsmithError.GIT_APPLICATION_LIMIT_ERROR)));
-                                            }
-                                            return Mono.just(gitAuth).zipWith(applicationMono);
-                                        });
+                                return addAnalyticsForGitOperation(
+                                        AnalyticsEvents.GIT_IMPORT.getEventName(),
+                                        newApplication,
+                                        AppsmithError.GIT_APPLICATION_LIMIT_ERROR.getErrorType(),
+                                        AppsmithError.GIT_APPLICATION_LIMIT_ERROR.getMessage(),
+                                        false
+                                ).flatMap(user -> Mono.error(new AppsmithException(AppsmithError.GIT_APPLICATION_LIMIT_ERROR)));
                             });
                 })
                 .flatMap(tuple -> {
@@ -2536,5 +2512,21 @@ public class GitServiceCEImpl implements GitServiceCE {
                         .onRetryExhaustedThrow((retryBackoffSpec, retrySignal) -> {
                             throw new AppsmithException(AppsmithError.GIT_FILE_IN_USE);
                         }));
+    }
+
+    protected Mono<Boolean> isRepoLimitReached(String workspaceId, Boolean isClearCache) {
+        return gitCloudServicesUtils.getPrivateRepoLimitForOrg(workspaceId, isClearCache)
+                .flatMap(limit -> {
+                    if (limit == -1) {
+                        return Mono.just(Boolean.FALSE);
+                    }
+                    return this.getApplicationCountWithPrivateRepo(workspaceId)
+                            .map(privateRepoCount -> {
+                                if (limit > privateRepoCount) {
+                                    return Boolean.FALSE;
+                                }
+                                return Boolean.TRUE;
+                            });
+                });
     }
 }
