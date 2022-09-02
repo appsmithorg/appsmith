@@ -88,11 +88,11 @@ Cypress.Commands.add("selectDateFormat", (value) => {
 Cypress.Commands.add("selectDropdownValue", (element, value) => {
   cy.get(element)
     .last()
-    .click({force:true});
+    .click();
   cy.get(".t--dropdown-option")
     .children()
     .contains(value)
-    .click({force:true});
+    .click();
 });
 
 Cypress.Commands.add("assertDateFormat", () => {
@@ -177,8 +177,7 @@ Cypress.Commands.add("createModal", (ModalName) => {
   cy.get(".bp3-overlay-backdrop").click({ force: true });
 });
 
-
-Cypress.Commands.add("createModalWithIndex", (ModalName,index) => {
+Cypress.Commands.add("createModalWithIndex", (ModalName, index) => {
   cy.get(widgetsPage.actionSelect)
     .eq(index)
     .click({ force: true });

@@ -53,7 +53,7 @@ describe("MultiSelectTree Widget Functionality", function() {
     // open the multi-tree select widget
     // search for option Red in the search input
     cy.openPropertyPane("multiselecttreewidget");
-    cy.testJsontext("defaultvalue", "");
+    cy.testJsontext("defaultselectedvalues", "");
     cy.get(formWidgetsPage.treeSelectInput)
       .first()
       .click({ force: true });
@@ -76,7 +76,7 @@ describe("MultiSelectTree Widget Functionality", function() {
       .invoke("val")
       .should("be.empty");
     cy.wait(100);
-    cy.testJsontext("defaultvalue", "RED\n");
+    cy.testJsontext("defaultselectedvalues", "RED\n");
   });
 
   it("4. To Validate Options", function() {
