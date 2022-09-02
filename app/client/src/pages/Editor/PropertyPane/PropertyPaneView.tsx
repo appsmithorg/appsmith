@@ -242,13 +242,16 @@ function PropertyPaneView(
       >
         {isContentConfigAvailable || isStyleConfigAvailable ? (
           <>
-            <StyledSearchInput
-              className="propertyPaneSearch"
-              fill
-              onChange={setSearchText}
-              placeholder="Search for controls, labels etc"
-              variant={SearchVariant.BACKGROUND}
-            />
+            {// TODO(aswathkk): Fix #15970 and show search bar
+            false && (
+              <StyledSearchInput
+                className="propertyPaneSearch"
+                fill
+                onChange={setSearchText}
+                placeholder="Search for controls, labels etc"
+                variant={SearchVariant.BACKGROUND}
+              />
+            )}
             <PropertyPaneTab
               contentComponent={
                 isContentConfigAvailable ? (
