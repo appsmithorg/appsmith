@@ -199,11 +199,11 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
                             "templateAppName", application.getName()
                     );
 
-                    final Map<String, Object> auditData = Map.of(
+                    final Map<String, Object> eventData = Map.of(
                             FieldName.APP_MODE, ApplicationMode.EDIT.toString(),
                             FieldName.APPLICATION, application
                     );
-                    data.put(FieldName.EVENT_DATA, auditData);
+                    data.put(FieldName.EVENT_DATA, eventData);
                     return analyticsService.sendObjectEvent(AnalyticsEvents.FORK, applicationTemplate, data)
                             .thenReturn(applicationImportDTO);
                 });

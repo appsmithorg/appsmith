@@ -2429,11 +2429,11 @@ public class GitServiceCEImpl implements GitServiceCE {
                 "isRepoPrivate", defaultIfNull(isRepoPrivate, ""),
                 "isSystemGenerated", defaultIfNull(isSystemGenerated, "")
         ));
-        final Map<String, Object> auditData = Map.of(
+        final Map<String, Object> eventData = Map.of(
                 FieldName.APP_MODE, ApplicationMode.EDIT.toString(),
                 FieldName.APPLICATION, application
         );
-        analyticsProps.put(FieldName.EVENT_DATA, auditData);
+        analyticsProps.put(FieldName.EVENT_DATA, eventData);
         return sessionUserService.getCurrentUser()
                 .map(user -> {
                     analyticsService.sendEvent(eventName, user.getUsername(), analyticsProps);
