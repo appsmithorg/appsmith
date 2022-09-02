@@ -46,7 +46,7 @@ import {
   setIsGitSyncModalOpen,
   updateLocalGitConfigInit,
 } from "actions/gitSyncActions";
-import { isEqual } from "lodash";
+import equal from "fast-deep-equal/es6";
 import {
   getGitConnectError,
   getGlobalGitConfig,
@@ -261,8 +261,8 @@ function GitConnection({ isImport }: Props) {
 
   const isAuthorInfoUpdated = useCallback(() => {
     return (
-      !isEqual(localGitConfig?.authorEmail, authorInfo.authorEmail) ||
-      !isEqual(localGitConfig?.authorName, authorInfo.authorName)
+      !equal(localGitConfig?.authorEmail, authorInfo.authorEmail) ||
+      !equal(localGitConfig?.authorName, authorInfo.authorName)
     );
   }, [authorInfo.authorEmail, authorInfo.authorName, localGitConfig]);
 

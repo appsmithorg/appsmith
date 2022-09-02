@@ -99,11 +99,11 @@ describe("Theme validation usecase for multi-select widget", function () {
 
     //Color
     cy.wait(1000);
-    propPane.ChangeColor("purple", "Primary");
+    propPane.ChangeThemeColor("purple", "Primary");
     cy.get(themelocator.inputColor).should("have.value", "purple");
     cy.wait(1000);
 
-    propPane.ChangeColor("brown", "Background");
+    propPane.ChangeThemeColor("brown", "Background");
     cy.get(themelocator.inputColor).should("have.value", "brown");
     cy.wait(1000);
     cy.contains("Color").click({ force: true });
