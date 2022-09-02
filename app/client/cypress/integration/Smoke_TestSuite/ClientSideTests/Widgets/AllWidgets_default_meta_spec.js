@@ -13,6 +13,7 @@ import {
 } from "../../../../locators/WidgetLocators";
 
 const widgetsToTest = {
+  /*
   [WIDGET.MULTISELECT]: {
     widgetName: "MultiSelect",
     widgetPrefixName: "MultiSelect1",
@@ -29,6 +30,7 @@ const widgetsToTest = {
       selectTabAndReset();
     },
   },
+  */
   [WIDGET.TABLE]: {
     widgetName: "Table",
     widgetPrefixName: "Table1",
@@ -37,6 +39,7 @@ const widgetsToTest = {
       selectTableAndReset();
     },
   },
+  /*
   [WIDGET.SWITCHGROUP]: {
     widgetName: "SwitchGroup",
     widgetPrefixName: "SwitchGroup1",
@@ -137,7 +140,7 @@ const widgetsToTest = {
       audioRecorderWidgetAndReset();
     },
   },
-  */
+  
   [WIDGET.PHONEINPUT]: {
     widgetName: "PhoneInput",
     widgetPrefixName: "PhoneInput1",
@@ -154,6 +157,7 @@ const widgetsToTest = {
       filePickerWidgetAndReset();
     },
   },
+  */
 };
 
 function dragDropToCanvas(widgetType, { x, y }) {
@@ -219,6 +223,9 @@ function selectTableAndReset() {
   });
   cy.get("button:contains('Submit')").click({ force: true });
   cy.wait(1000);
+  cy.get("button:contains('Submit')").click({ force: true });
+  cy.wait(2000);
+  cy.get("button:contains('Submit')").click({ force: true });
   cy.get(commonlocators.textWidgetContainer).each((item, index, list) => {
     cy.wrap(item).should("contain.text", "#1");
   });
