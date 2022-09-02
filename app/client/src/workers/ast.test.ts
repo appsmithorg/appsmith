@@ -220,6 +220,54 @@ describe("getAllIdentifiers", () => {
         script: `Table15.data || [{}]`,
         expectedResults: ["Table15.data"],
       },
+      // JavaScript built in classes should not be valid identifiers
+      {
+        script: `function(){
+          const firstApiRun = Api1.run();
+          const secondApiRun = Api2.run();
+          const randomNumber = Math.random();
+          return Promise.all([firstApiRun, secondApiRun])
+        }()`,
+        expectedResults: ["Api1.run", "Api2.run"],
+      },
+      // Global dependencies should not be valid identifiers
+      {
+        script: `function(){
+          const names = [["john","doe"],["Jane","dane"]];
+          const flattenedNames = _.flatten(names);
+          return {flattenedNames, time: moment()}
+        }()`,
+        expectedResults: [],
+      },
+      // browser Apis should not be valid identifiers
+      {
+        script: `function(){
+          const names = {
+            firstName: "John",
+            lastName:"Doe"
+          };
+          const joinedName = Object.values(names).join(" ");
+          console.log(joinedName)
+          return Api2.name
+        }()`,
+        expectedResults: ["Api2.name"],
+      },
+      // identifiers and member expressions derived from params should not be valid identifiers
+      {
+        script: `function(a, b){
+          return a.name + b.name
+        }()`,
+        expectedResults: [],
+      },
+      // identifiers and member expressions derived from local variables should not be valid identifiers
+      {
+        script: `function(){
+          const a = "variableA";
+          const b = "variableB";
+          return a.length + b.length
+        }()`,
+        expectedResults: [],
+      },
     ];
 
     cases.forEach((perCase) => {
