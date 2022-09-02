@@ -20,7 +20,7 @@ import {
   getAppThemeIsChanging,
   getSelectedAppTheme,
 } from "selectors/appThemingSelectors";
-import Spinner from "components/ads/Spinner";
+import { Spinner } from "design-system";
 import useGoogleFont from "utils/hooks/useGoogleFont";
 import { IconSize } from "design-system";
 import { useDynamicAppLayout } from "utils/hooks/useDynamicAppLayout";
