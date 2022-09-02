@@ -32,6 +32,10 @@ const LabelWrapper = styled.div`
   display: flex;
 `;
 
+const LabelIconWrapper = styled.span`
+  display: flex;
+`;
+
 const RequiredFieldWrapper = styled.span`
   color: var(--appsmith-color-red-500);
 `;
@@ -148,7 +152,7 @@ function renderFormConfigTop(props: {
                   >
                     <p className="label-icon-wrapper">{label}</p>
                   </Tooltip>
-                  <span>
+                  <LabelIconWrapper>
                     {isRequired && (
                       <RequiredFieldWrapper>
                         {isRequired && "*"}
@@ -166,7 +170,7 @@ function renderFormConfigTop(props: {
                         </FormSubtitleText>
                       </FormEncrytedSection>
                     )}
-                  </span>
+                  </LabelIconWrapper>
                 </LabelWrapper>
               </FormLabel>
               {props.changesViewType && (
