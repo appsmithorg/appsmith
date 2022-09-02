@@ -24,7 +24,8 @@ export class HomePage {
     ".t--workspace-section:contains(" +
     workspaceName +
     ") button:contains('Share')";
-  private _email = "//input[@type='text']";
+  private _email =
+    "//input[@type='text' and contains(@class,'bp3-input-ghost')]";
   _visibleTextSpan = (spanText: string) => "//span[text()='" + spanText + "']";
   private _userRole = (role: string, workspaceName: string) =>
     "//div[contains(@class, 'label-container')]//span[1][text()='" +
