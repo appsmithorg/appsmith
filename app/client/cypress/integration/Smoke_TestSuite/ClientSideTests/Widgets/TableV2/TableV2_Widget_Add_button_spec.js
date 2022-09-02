@@ -237,6 +237,7 @@ describe("Table Widget V2 property pane feature validation", function() {
       .click({
         force: true,
       });
+    cy.wait(500);
     cy.moveToStyleTab();
     // update menu item background color
     cy.get(widgetsPage.backgroundcolorPickerNew)

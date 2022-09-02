@@ -112,7 +112,7 @@ describe("Container Widget Functionality", function() {
     cy.selectEntityByName("Button1");
     //cy.SearchEntityandOpen("Button1");
     cy.testJsontext("label", `{{currentItem.last_name}}`);
-    cy.addAction("{{currentItem.last_name}}");
+    cy.addAction("{{currentItem.last_name}}", "onclick");
     cy.PublishtheApp();
     // Verify Widget Button by clicking on it
     cy.get(widgetsPage.widgetBtn)
@@ -125,7 +125,7 @@ describe("Container Widget Functionality", function() {
 
   it("9. it checks onListItem click action", function() {
     // Verify Clicking on list item shows message of first name
-   cy.get(publishPage.backToEditor).click({ force: true });
+    cy.get(publishPage.backToEditor).click({ force: true });
     // Open property pane
     cy.CheckAndUnfoldEntityItem("WIDGETS");
     cy.selectEntityByName("List1");

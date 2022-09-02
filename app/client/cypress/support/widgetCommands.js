@@ -771,15 +771,18 @@ Cypress.Commands.add("evaluateErrorMessage", (value) => {
     });
 });
 
-Cypress.Commands.add("addAction", (value) => {
-  cy.get(commonlocators.dropdownSelectButton)
+Cypress.Commands.add("addAction", (value, property) => {
+  let dropdownSelect = commonlocators.dropdownSelectButton;
+  if (property)
+    dropdownSelect = `.t--property-control-${property} ${dropdownSelect}`;
+  cy.get(dropdownSelect)
     .last()
     .click();
   cy.get(commonlocators.chooseAction)
     .children()
     .contains("Show message")
     .click();
-  cy.enterActionValue(value);
+  cy.enterActionValue(value, property);
 });
 
 Cypress.Commands.add("addEvent", (value) => {
@@ -829,22 +832,25 @@ Cypress.Commands.add("SetDateToToday", () => {
   cy.assertPageSave();
 });
 
-Cypress.Commands.add("enterActionValue", (value) => {
+Cypress.Commands.add("enterActionValue", (value, property) => {
   cy.EnableAllCodeEditors();
-  cy.get(".CodeMirror textarea")
+  let codeMirrorTextArea = ".CodeMirror textarea";
+  if (property)
+    codeMirrorTextArea = `.t--property-control-${property} ${codeMirrorTextArea}`;
+  cy.get(codeMirrorTextArea)
     .last()
     .focus()
     .type("{ctrl}{shift}{downarrow}")
     .then(($cm) => {
       if ($cm.val() !== "") {
-        cy.get(".CodeMirror textarea")
+        cy.get(codeMirrorTextArea)
           .last()
           .clear({
             force: true,
           });
       }
 
-      cy.get(".CodeMirror textarea")
+      cy.get(codeMirrorTextArea)
         .last()
         .type(value, {
           force: true,
