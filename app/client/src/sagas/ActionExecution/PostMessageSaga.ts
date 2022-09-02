@@ -24,10 +24,16 @@ export function* executePostMessage(
       throw new TriggerFailureError("Please enter a target origin URL.");
     } else {
       if (source) {
-        const src = document.getElementById(`iframe-${source}`);
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
-        src.contentWindow.postMessage(message, targetOrigin);
+        const src = document.getElementById(
+          `iframe-${source}`,
+        ) as HTMLIFrameElement;
+        if (src && src.contentWindow) {
+          src.contentWindow.postMessage(message, targetOrigin);
+        } else {
+          throw new TriggerFailureError(
+            `Cannot find Iframe with name ${source} on this page`,
+          );
+        }
       } else {
         window.parent.postMessage(message, targetOrigin, undefined);
       }
