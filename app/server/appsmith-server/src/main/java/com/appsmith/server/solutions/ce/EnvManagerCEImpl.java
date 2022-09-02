@@ -330,13 +330,13 @@ public class EnvManagerCEImpl implements EnvManagerCE {
      * @param changes           Changes in the env variables
      * @return Mono of User
      */
-    private Mono<User> sendAnalyticsEvent(User user, Map<String, String> originalVariables, Map<String, String> changes) {
+    private Mono<Void> sendAnalyticsEvent(User user, Map<String, String> originalVariables, Map<String, String> changes) {
         // Generate analytics event properties template(s) according to the env variable changes
         List<Map<String, Object>> analyticsEvents = getAnalyticsEvents(originalVariables, changes, new ArrayList<>());
 
         // Currently supporting only one authentication method update in one env update call
         if (!analyticsEvents.isEmpty()) {
-            return analyticsService.sendObjectEvent(AnalyticsEvents.AUTHENTICATION_METHOD_CONFIGURATION, user, analyticsEvents.get(0));
+            return analyticsService.sendObjectEvent(AnalyticsEvents.AUTHENTICATION_METHOD_CONFIGURATION, user, analyticsEvents.get(0)).then();
         }
         return Mono.empty();
     }
