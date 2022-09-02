@@ -39,6 +39,7 @@ import {
   Alignment,
   ButtonBoxShadowTypes,
   LayoutWrapperType,
+  ResponsiveBehavior,
   Spacing,
 } from "components/constants";
 import {
@@ -460,12 +461,25 @@ function* updateMovedWidgets(
     return { newMovedWidgets: movedWidgets, updatedWidgets: allWidgets };
   if (stateParent.isWrapper) {
     // If widgets are being dropped in a wrapper,
-    // then updated the wrapper type and return
+    // then updated the wrapper type and return'
+    let hasFillChild = false;
     for (const each of movedWidgets) {
+      if (allWidgets[each].responsiveBehavior === ResponsiveBehavior.Fill) {
+        hasFillChild = true;
+        break;
+      }
       allWidgets[each] = {
         ...allWidgets[each],
         wrapperType,
       };
+    }
+    if (hasFillChild) {
+      for (const each of movedWidgets) {
+        allWidgets[each] = {
+          ...allWidgets[each],
+          wrapperType: LayoutWrapperType.Start,
+        };
+      }
     }
     return { newMovedWidgets: movedWidgets, updatedWidgets: allWidgets };
   }

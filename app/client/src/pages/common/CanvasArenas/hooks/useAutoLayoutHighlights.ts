@@ -49,7 +49,6 @@ export const useAutoLayoutHighlights = ({
   isCurrentDraggedCanvas,
   isDragging,
   useAutoLayout,
-  widgetName,
 }: AutoLayoutHighlightProps) => {
   const allWidgets = useSelector(getWidgets);
   const canvas = allWidgets[canvasId];
@@ -58,7 +57,6 @@ export const useAutoLayoutHighlights = ({
 
   let offsets: Highlight[] = [];
   let dragBlocksSize = 0;
-  let startOffsetsCount = 0;
   const siblingElements: any[] = [];
   let lastTranslatedIndex: number;
   let containerDimensions: {
@@ -73,22 +71,6 @@ export const useAutoLayoutHighlights = ({
   /**
    * START AUTO LAYOUT OFFSET CALCULATION
    */
-
-  // Determines whether nested wrappers can be introduced in the current canvas
-  const enableNestedWrappers = (): boolean => {
-    // If the canvas is not a wrapper, then return false.
-    if (!canvas?.isWrapper) return false;
-    const children = canvas.children || [];
-    // TODO: what to do when there are no children?
-    if (!children.length) return true;
-    // If the canvas has a fill child, then return false.
-    return !(
-      children.filter(
-        (child) =>
-          allWidgets[child]?.responsiveBehavior === ResponsiveBehavior.Fill,
-      ).length > 0
-    );
-  };
 
   // Create and add an initial offset for an empty canvas
   const getInitialOffset = (
@@ -133,7 +115,6 @@ export const useAutoLayoutHighlights = ({
     // reset state
     dragBlocksSize = 0;
     lastTranslatedIndex = -10;
-    startOffsetsCount = 0;
     // Hide the highlight
     if (dropPositionRef && dropPositionRef.current) {
       dropPositionRef.current.style.opacity = "0";
@@ -252,6 +233,19 @@ export const useAutoLayoutHighlights = ({
     });
   };
 
+  const hasFillChild = (arr: string[]): boolean => {
+    if (!arr || !arr.length) return false;
+    let flag = false;
+    for (const widgetId of arr) {
+      const widget = allWidgets[widgetId];
+      if (widget?.responsiveBehavior === ResponsiveBehavior.Fill) {
+        flag = true;
+        break;
+      }
+    }
+    return flag;
+  };
+
   const calculateHighlightOffsets = (): Highlight[] => {
     cleanUpTempStyles();
     // console.log(
@@ -289,7 +283,8 @@ export const useAutoLayoutHighlights = ({
       const flex = document.querySelector(`.flex-container-${canvasId}`);
       const flexOffsetTop = (flex as any)?.offsetTop || 0;
       let temp: Highlight[] = [];
-      if (canvas.isWrapper) {
+      const discardEndWrapper: boolean = hasFillChild(offsetChildren);
+      if (canvas.isWrapper && !discardEndWrapper) {
         const start: string[] = [],
           end: string[] = [];
         offsetChildren.forEach((each) => {
@@ -297,20 +292,19 @@ export const useAutoLayoutHighlights = ({
             start.push(each);
           else end.push(each);
         });
-        const arr1 = evaluateOffsets(
+        const arr1: Highlight[] = evaluateOffsets(
           start,
           flexOffsetTop,
           true,
           LayoutWrapperType.Start,
         );
-        const arr2 = evaluateOffsets(
+        const arr2: Highlight[] = evaluateOffsets(
           end,
           flexOffsetTop,
           true,
           LayoutWrapperType.End,
         );
         temp = [...arr1, ...arr2];
-        startOffsetsCount = arr1.length;
       } else
         temp = evaluateOffsets(
           offsetChildren,
@@ -453,7 +447,7 @@ export const useAutoLayoutHighlights = ({
     if (isNaN(index)) return 0;
     const wrapperType: LayoutWrapperType =
       offsets[index]?.wrapperType || LayoutWrapperType.Start;
-    if (wrapperType === LayoutWrapperType.End) return index - startOffsetsCount;
+    if (wrapperType === LayoutWrapperType.End) return index - 1;
     return index;
   };
 

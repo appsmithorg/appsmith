@@ -19,6 +19,7 @@ import {
   LayoutDirection,
   LayoutWrapperType,
   Overflow,
+  ResponsiveBehavior,
   Spacing,
 } from "components/constants";
 import {
@@ -71,6 +72,10 @@ const StyledContainerComponent = styled.div<
   .auto-temp-no-display {
     position: absolute;
     left: -9999px;
+  }
+
+  .no-display {
+    display: none;
   }
 `;
 
@@ -172,14 +177,25 @@ export function FlexBox(props: FlexBoxProps) {
 
 export function LayoutWrapper(props: FlexBoxProps): JSX.Element {
   const allWidgets = useSelector(getWidgets);
-  const start: JSX.Element[] = [],
+  let start: JSX.Element[] = [],
     end: JSX.Element[] = [];
-  isArray(props.children) &&
-    (props.children as JSX.Element[]).map((child: JSX.Element) => {
-      const widget = allWidgets[child.props?.widgetId];
-      if (widget?.wrapperType === LayoutWrapperType.End) end.push(child);
-      else start.push(child);
-    });
+  let hasFillChild = false;
+  if (isArray(props.children)) {
+    for (const child of props.children) {
+      const widget = allWidgets[(child as JSX.Element).props?.widgetId];
+      if (widget.responsiveBehavior === ResponsiveBehavior.Fill) {
+        hasFillChild = true;
+        break;
+      }
+      if (widget?.wrapperType === LayoutWrapperType.End)
+        end.push(child as JSX.Element);
+      else start.push(child as JSX.Element);
+    }
+  }
+  if (hasFillChild) {
+    start = props.children as JSX.Element[];
+    end = [];
+  }
 
   const layoutProps: LayoutProperties = useMemo(
     () => getLayoutProperties(props.direction, props.alignment, props.spacing),
@@ -200,7 +216,9 @@ export function LayoutWrapper(props: FlexBoxProps): JSX.Element {
         {start}
       </StartWrapper>
       <EndWrapper
-        className={`wrapper end-wrapper-${props.widgetId}`}
+        className={`wrapper end-wrapper-${props.widgetId} ${
+          hasFillChild ? "no-display" : ""
+        }`}
         flexDirection={FlexDirection.Row}
       >
         {end}
