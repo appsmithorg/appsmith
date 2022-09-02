@@ -58,6 +58,7 @@ import { MainCanvasReduxState } from "reducers/uiReducers/mainCanvasReducer";
 import SettingsReducer, {
   SettingsReduxState,
 } from "@appsmith/reducers/settingsReducer";
+import { GuidedTourState } from "reducers/uiReducers/guidedTourReducer";
 import { TriggerValuesEvaluationState } from "reducers/evaluationReducers/triggerReducer";
 import { CanvasWidgetStructure } from "widgets/constants";
 
@@ -97,6 +98,7 @@ export interface AppState {
     datasourceName: DatasourceNameReduxState;
     theme: ThemeState;
     onBoarding: OnboardingState;
+    guidedTour: GuidedTourState;
     globalSearch: GlobalSearchReduxState;
     releases: ReleasesState;
     websocket: WebsocketReducerState;

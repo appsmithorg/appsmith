@@ -53,7 +53,7 @@ import { ValidationTypes } from "constants/WidgetValidation";
 import { DataTree, ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { getDataTree } from "selectors/dataTreeSelectors";
 import { KeyValuePair } from "entities/Action";
-import _ from "lodash";
+import equal from "fast-deep-equal/es6";
 import {
   getDatasource,
   getDatasourcesByPluginId,
@@ -431,10 +431,10 @@ class EmbeddedDatasourcePathComponent extends React.Component<
 
   // if the next props is not equal to the current props, do not rerender, same for state
   shouldComponentUpdate(nextProps: any, nextState: any) {
-    if (!_.isEqual(nextProps, this.props)) {
+    if (!equal(nextProps, this.props)) {
       return true;
     }
-    if (!_.isEqual(nextState, this.state)) {
+    if (!equal(nextState, this.state)) {
       return true;
     }
     return false;

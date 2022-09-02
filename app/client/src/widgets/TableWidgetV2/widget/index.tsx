@@ -5,7 +5,6 @@ import _, {
   isNumber,
   isString,
   isNil,
-  isEqual,
   xor,
   without,
   isBoolean,
@@ -449,7 +448,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
         if (
           !!newColumnIds.length &&
           !!_.xor(newColumnIds, columnOrder).length &&
-          !_.isEqual(_.sortBy(newColumnIds), _.sortBy(existingDerivedColumnIds))
+          !equal(_.sortBy(newColumnIds), _.sortBy(existingDerivedColumnIds))
         ) {
           // Maintain original columnOrder and keep new columns at the end
           let newColumnOrder = _.intersection(columnOrder, newColumnIds);
@@ -570,8 +569,8 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
      * is changed from property pane
      */
     if (
-      !isEqual(defaultSelectedRowIndex, prevProps.defaultSelectedRowIndex) ||
-      !isEqual(defaultSelectedRowIndices, prevProps.defaultSelectedRowIndices)
+      !equal(defaultSelectedRowIndex, prevProps.defaultSelectedRowIndex) ||
+      !equal(defaultSelectedRowIndices, prevProps.defaultSelectedRowIndices)
     ) {
       this.updateSelectedRowIndex();
     }
@@ -740,7 +739,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
     this.props.updateWidgetMetaProperty("filters", filters);
 
     // Reset Page only when a filter is added
-    if (!isEmpty(xorWith(filters, defaultFilter, isEqual))) {
+    if (!isEmpty(xorWith(filters, defaultFilter, equal))) {
       this.props.updateWidgetMetaProperty("pageNo", 1);
     }
   };

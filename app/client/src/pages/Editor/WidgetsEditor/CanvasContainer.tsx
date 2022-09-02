@@ -26,7 +26,7 @@ import { IconSize } from "design-system";
 import { useDynamicAppLayout } from "utils/hooks/useDynamicAppLayout";
 import { getCurrentThemeDetails } from "selectors/themeSelectors";
 import { getCanvasWidgetsStructure } from "selectors/entitiesSelector";
-import { isEqual } from "lodash";
+import equal from "fast-deep-equal/es6";
 import { WidgetGlobaStyles } from "globalStyles/WidgetGlobalStyles";
 
 const Container = styled.section<{
@@ -52,7 +52,7 @@ function CanvasContainer() {
   const currentPageId = useSelector(getCurrentPageId);
   const isFetchingPage = useSelector(getIsFetchingPage);
   const canvasWidth = useSelector(getCanvasWidth);
-  const widgetsStructure = useSelector(getCanvasWidgetsStructure, isEqual);
+  const widgetsStructure = useSelector(getCanvasWidgetsStructure, equal);
   const pages = useSelector(getViewModePageList);
   const theme = useSelector(getCurrentThemeDetails);
   const isPreviewMode = useSelector(previewModeSelector);
