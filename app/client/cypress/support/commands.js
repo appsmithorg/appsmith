@@ -1372,6 +1372,7 @@ Cypress.Commands.add(
 // we would be getting the form controls by their class names and not their xpaths.
 // the xpath method is flaky and highly subjected to change.
 Cypress.Commands.add("typeValueNValidate", (valueToType, fieldName = "") => {
+  cy.wait(2000);
   if (fieldName) {
     cy.get(fieldName).then(($field) => {
       cy.updateCodeInput($field, valueToType);
@@ -1752,6 +1753,145 @@ Cypress.Commands.add("saveLocalStorageCache", () => {
 Cypress.Commands.add("restoreLocalStorageCache", () => {
   Object.keys(LOCAL_STORAGE_MEMORY).forEach((key) => {
     localStorage.setItem(key, LOCAL_STORAGE_MEMORY[key]);
+  });
+});
+
+Cypress.Commands.add("StopTheContainer", (path, containerName) => {
+  cy.request({
+    method: "GET",
+    url: path,
+    qs: {
+      cmd: "docker stop " + containerName,
+    },
+  }).then((res) => {
+    cy.log(res.body.stderr);
+    cy.log(res.body.stdout);
+    expect(res.status).equal(200);
+  });
+});
+
+Cypress.Commands.add("StopAllContainer", (path) => {
+  cy.request({
+    method: "GET",
+    url: path,
+    qs: {
+      cmd: "docker kill $(docker ps -q)",
+    },
+  }).then((res) => {
+    expect(res.status).equal(200);
+  });
+});
+
+Cypress.Commands.add("StartTheContainer", (path, containerName) => {
+  cy.request({
+    method: "GET",
+    url: path,
+    qs: {
+      cmd: "docker start " + containerName,
+    },
+  }).then((res) => {
+    cy.log(res.body.stderr);
+    cy.log(res.body.stdout);
+    expect(res.status).equal(200);
+  });
+});
+
+Cypress.Commands.add(
+  "CreateAContainer",
+  (url, path, version, containerName) => {
+    let comm =
+      "cd " +
+      path +
+      ";docker run -d --name " +
+      containerName +
+      ' -p 80:80 -p 9001:9001 -v "' +
+      path +
+      '/stacks:/appsmith-stacks" appsmith/appsmith-ce:' +
+      version;
+
+    cy.log(comm);
+    cy.request({
+      method: "GET",
+      url: url,
+      qs: {
+        cmd: comm,
+      },
+    }).then((res) => {
+      cy.log(res.body.stderr);
+      cy.log(res.body.stdout);
+      expect(res.status).equal(200);
+    });
+  },
+);
+
+Cypress.Commands.add(
+  "CreateEEContainer",
+  (url, path, version, containerName) => {
+    let comm =
+      "cd " +
+      path +
+      ";docker run -d --name " +
+      containerName +
+      ' -p 80:80 -p 9001:9001 -v "' +
+      path +
+      '/stacks:/appsmith-stacks" appsmith/appsmith-ee:' +
+      version;
+
+    cy.log(comm);
+    cy.request({
+      method: "GET",
+      url: url,
+      qs: {
+        cmd: comm,
+      },
+    }).then((res) => {
+      cy.log(res.body.stderr);
+      cy.log(res.body.stdout);
+      expect(res.status).equal(200);
+    });
+  },
+);
+
+Cypress.Commands.add("GetPath", (path, containerName) => {
+  cy.request({
+    method: "GET",
+    url: path,
+    qs: {
+      cmd:
+        "docker inspect -f '{{ .Mounts }}' " +
+        containerName +
+        "|awk '{print $2}'",
+    },
+  }).then((res) => {
+    return res.body.stdout;
+  });
+});
+
+Cypress.Commands.add("GetCWD", (path) => {
+  cy.request({
+    method: "GET",
+    url: path,
+    qs: {
+      cmd: "pwd",
+    },
+  }).then((res) => {
+    cy.log(res.body.stdout);
+    expect(res.status).equal(200);
+  });
+});
+
+Cypress.Commands.add("GetAndVerifyLogs", (path, containerName) => {
+  cy.request({
+    method: "GET",
+    url: path,
+    qs: {
+      cmd: "docker logs " + containerName + " 2>&1 | grep 'APPLIED'",
+    },
+  }).then((res) => {
+    cy.log(res.body.stderr);
+    cy.log(res.body.stdout);
+    expect(res.status).equal(200);
+    // expect(res.body.stdout).not.equal("");
   });
 });
 

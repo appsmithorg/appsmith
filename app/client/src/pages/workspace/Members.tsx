@@ -16,14 +16,15 @@ import {
   changeWorkspaceUserRole,
   deleteWorkspaceUser,
 } from "actions/workspaceActions";
-import TableDropdown from "components/ads/TableDropdown";
 import {
   Dropdown,
+  HighlightText,
   Icon,
   IconSize,
+  TableDropdown,
+  TableDropdownOption,
   Text,
   TextType,
-  HighlightText,
 } from "design-system";
 import styled from "styled-components";
 import { Classes as AppClass } from "components/ads/common";
@@ -53,10 +54,9 @@ const MembersWrapper = styled.div<{
   table {
     margin-top: 12px;
     table-layout: fixed;
-    position: absolute;
-    width: 920px;
 
     thead {
+      z-index: 1;
       tr {
         border-bottom: 1px solid #e8e8e8;
         th {
@@ -199,7 +199,7 @@ const EachUser = styled.div`
   align-items: center;
 
   .user-icons {
-    margin-right 8px;
+    margin-right: 8px;
     cursor: initial;
 
     span {
@@ -390,7 +390,7 @@ export default function MemberSettings(props: PageProps) {
               roleChangingUserInfo &&
               roleChangingUserInfo.username === data.username
             }
-            onSelect={(option) => {
+            onSelect={(option: TableDropdownOption) => {
               dispatch(
                 changeWorkspaceUserRole(workspaceId, option.id, data.username),
               );

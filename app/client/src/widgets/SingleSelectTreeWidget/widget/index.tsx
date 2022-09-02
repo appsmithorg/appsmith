@@ -2,7 +2,7 @@ import React, { ReactNode } from "react";
 import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import { TextSize, WidgetType } from "constants/WidgetConstants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import { isArray, findIndex } from "lodash";
+import { isArray } from "lodash";
 import {
   ValidationResponse,
   ValidationTypes,
@@ -10,7 +10,6 @@ import {
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { DefaultValueType } from "rc-tree-select/lib/interface";
 import { Layers } from "constants/Layers";
-import { isString } from "../../../utils/helpers";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 import { GRID_DENSITY_MIGRATION_V1, MinimumPopupRows } from "widgets/constants";
 import SingleSelectTreeComponent from "../component";
@@ -785,11 +784,11 @@ class SingleSelectTreeWidget extends BaseWidget<
 
   static getDerivedPropertiesMap() {
     return {
-      selectedOptionLabel: `{{  this.selectedLabel[0] }}`,
-      selectedOptionValue:
-        '{{  JSON.stringify(this.options).match(new RegExp(`"value":${Number.isFinite(this.selectedOption) ? this.selectedOption : `"${this.selectedOption}"` }`), "g") ? this.selectedOption : undefined  }}',
-      isValid: `{{this.isRequired  ? !!this.selectedOptionValue || this.selectedOptionValue === 0 : true}}`,
       value: `{{this.selectedOptionValue}}`,
+      flattenedOptions: `{{(()=>{${derivedProperties.getFlattenedOptions}})()}}`,
+      isValid: `{{(()=>{${derivedProperties.getIsValid}})()}}`,
+      selectedOptionValue: `{{(()=>{${derivedProperties.getSelectedOptionValue}})()}}`,
+      selectedOptionLabel: `{{(()=>{${derivedProperties.getSelectedOptionLabel}})()}}`,
     };
   }
 
@@ -803,8 +802,7 @@ class SingleSelectTreeWidget extends BaseWidget<
   static getMetaPropertiesMap(): Record<string, any> {
     return {
       selectedOption: undefined,
-      selectedOptionValueArr: undefined,
-      selectedLabel: [],
+      selectedLabel: undefined,
       isDirty: false,
     };
   }
@@ -819,19 +817,9 @@ class SingleSelectTreeWidget extends BaseWidget<
   }
 
   getPageView() {
-    const options =
-      isArray(this.props.options) &&
-      !this.props.__evaluation__?.errors.options.length
-        ? this.props.options
-        : [];
-    const value: string | number | undefined =
-      isString(this.props.selectedOption) ||
-      Number.isFinite(this.props.selectedOption)
-        ? this.props.selectedOption
-        : undefined;
+    const options = isArray(this.props.options) ? this.props.options : [];
     const isInvalid =
       "isValid" in this.props && !this.props.isValid && !!this.props.isDirty;
-    const filteredValue = this.filterValue(value);
     const dropDownWidth = MinimumPopupRows * this.props.parentColumnSpace;
     const { componentWidth } = this.getComponentDimensions();
     return (
@@ -867,7 +855,7 @@ class SingleSelectTreeWidget extends BaseWidget<
         options={options}
         placeholder={this.props.placeholderText as string}
         renderMode={this.props.renderMode}
-        value={filteredValue}
+        value={this.props.selectedOptionValue}
         widgetId={this.props.widgetId}
         width={componentWidth}
       />
@@ -880,37 +868,14 @@ class SingleSelectTreeWidget extends BaseWidget<
     }
 
     this.props.updateWidgetMetaProperty("selectedOption", value);
-    this.props.updateWidgetMetaProperty("selectedLabel", labelList, {
+    this.props.updateWidgetMetaProperty("selectedLabel", labelList?.[0] ?? "", {
       triggerPropertyName: "onOptionChange",
       dynamicString: this.props.onOptionChange,
       event: {
         type: EventType.ON_OPTION_CHANGE,
       },
     });
-    if (!this.props.isDirty) {
-      this.props.updateWidgetMetaProperty("isDirty", true);
-    }
   };
-
-  flat(array: DropdownOption[]) {
-    let result: { value: string | number }[] = [];
-    array.forEach((a) => {
-      result.push({ value: a.value });
-      if (Array.isArray(a.children)) {
-        result = result.concat(this.flat(a.children));
-      }
-    });
-    return result;
-  }
-
-  filterValue(value: string | number | undefined) {
-    const options = this.props.options ? this.flat(this.props.options) : [];
-
-    if (isString(value) || Number.isFinite(value)) {
-      const index = findIndex(options, { value: value as string });
-      return index > -1 ? value : undefined;
-    }
-  }
 
   static getWidgetType(): WidgetType {
     return "SINGLE_SELECT_TREE_WIDGET";
@@ -928,6 +893,7 @@ export interface SingleSelectTreeWidgetProps extends WidgetProps {
   placeholderText?: string;
   selectedIndex?: number;
   options?: DropdownOption[];
+  flattenedOptions?: DropdownOption[];
   onOptionChange: string;
   defaultOptionValue: string;
   isRequired: boolean;

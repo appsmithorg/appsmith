@@ -19,7 +19,6 @@ import {
   ButtonPlacement,
   ResponsiveBehavior,
 } from "components/constants";
-import FormWidget from "widgets/FormWidget/widget";
 import { generateResponsiveBehaviorConfig } from "utils/layoutPropertiesUtils";
 
 class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
@@ -149,11 +148,6 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
       // TODO: refactor widgetParentProps implementation when we address #10659
       {
         sectionName: "Form Settings",
-        hidden: (
-          props: ButtonWidgetProps,
-          propertyPath: string,
-          widgetParentProps?: WidgetProps,
-        ) => widgetParentProps?.type !== FormWidget.getWidgetType(),
         children: [
           {
             helpText:
@@ -457,11 +451,6 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
       // TODO: refactor widgetParentProps implementation when we address #10659
       {
         sectionName: "Form options",
-        hidden: (
-          props: ButtonWidgetProps,
-          propertyPath: string,
-          widgetParentProps?: WidgetProps,
-        ) => widgetParentProps?.type !== FormWidget.getWidgetType(),
         children: [
           {
             helpText:

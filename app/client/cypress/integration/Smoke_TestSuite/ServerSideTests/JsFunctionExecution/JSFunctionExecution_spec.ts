@@ -181,10 +181,11 @@ describe("JS Function Execution", function() {
         completeReplace: true,
         toRun: false,
         shouldCreateNewJSObj: true,
+        toWriteAfterToastsDisappear : true
       });
-      agHelper.WaitUntilToastDisappear("created successfully"); //to not hinder with other toast msgs in this case!
+
       // Assert presence of toast message
-      agHelper.WaitUntilToastDisappear(invalidJSObjectStartToastMessage);
+      agHelper.AssertContains(invalidJSObjectStartToastMessage);
 
       // Assert presence of lint error at the start line
       agHelper.GetNAssertElementText(
@@ -193,10 +194,8 @@ describe("JS Function Execution", function() {
         "contain.text", -1
       );
       agHelper.ActionContextMenuWithInPane("Delete", "", true);
-      agHelper.WaitUntilToastDisappear("deleted successfully");
     };
 
-    agHelper.WaitUntilEleDisappear(locator._toastMsg); //for previous case toasts!!
     assertInvalidJSObjectStart(jsObjectStartingWithAComment, jsComment);
     assertInvalidJSObjectStart(jsObjectStartingWithANewLine, jsObjectStartLine);
     assertInvalidJSObjectStart(
@@ -210,7 +209,7 @@ describe("JS Function Execution", function() {
       myVar1: [],
       myVar2: {},
       myFun1: () => {
-        return Table1.unknown.name`;
+        return Table1.unknown.id`;
 
     const JS_OBJECT_WITHOUT_PARSE_ERROR = `export default {
       myVar1: [],
@@ -231,7 +230,6 @@ describe("JS Function Execution", function() {
       completeReplace: true,
       toRun: true,
       shouldCreateNewJSObj: true,
-      prettify: false,
     });
 
     // Assert that there is a function execution parse error
@@ -242,18 +240,18 @@ describe("JS Function Execution", function() {
     agHelper.AssertContains("No signs of trouble here!", "not.exist");
     // Assert presence of typeError
     agHelper.AssertContains(
-      "TypeError: Cannot read properties of undefined (reading 'name')",
+      "TypeError: Cannot read properties of undefined (reading 'id')",
       "exist",
     );
 
     // Fix parse error and assert that debugger error is removed
-    jsEditor.EditJSObj(JS_OBJECT_WITHOUT_PARSE_ERROR, false);
+    jsEditor.EditJSObj(JS_OBJECT_WITHOUT_PARSE_ERROR, true);
     agHelper.GetNClick(jsEditor._runButton);
     agHelper.AssertContains("ran successfully"); //to not hinder with next toast msg in next case!
     jsEditor.AssertParseError(false, true);
     agHelper.GetNClick(locator._errorTab);
     agHelper.AssertContains(
-      "TypeError: Cannot read properties of undefined (reading 'name')",
+      "TypeError: Cannot read properties of undefined (reading 'id')",
       "not.exist",
     );
 
@@ -266,11 +264,11 @@ describe("JS Function Execution", function() {
     jsEditor.AssertParseError(true, true);
 
     // Delete function
-    jsEditor.EditJSObj(JS_OBJECT_WITH_DELETED_FUNCTION, false);
+    jsEditor.EditJSObj(JS_OBJECT_WITH_DELETED_FUNCTION, true);
     // Assert that parse error is removed from debugger when function is deleted
     agHelper.GetNClick(locator._errorTab);
     agHelper.AssertContains(
-      "TypeError: Cannot read properties of undefined (reading 'name')",
+      "TypeError: Cannot read properties of undefined (reading 'id')",
       "not.exist",
     );
     agHelper.ActionContextMenuWithInPane("Delete", "", true);
@@ -317,6 +315,7 @@ describe("JS Function Execution", function() {
       expect($cellData).to.eq("1"); //validating id column value - row 0
       deployMode.NavigateBacktoEditor();
     });
+    ee.SelectEntityByName("JSObject1", "QUERIES/JS");
     ee.ActionContextMenuByEntityName(
       "JSObject1",
       "Delete",
@@ -328,9 +327,7 @@ describe("JS Function Execution", function() {
   it("7. Doesn't cause cyclic dependency when function name is edited", () => {
     const syncJSCode = `export default {
       myFun1 :()=>{
-        return "yes"
-      }
-    }`;
+        return "yes"`;
 
     const syncJSCodeWithRenamedFunction1 = `export default {
       myFun2 :()=>{
@@ -346,9 +343,7 @@ describe("JS Function Execution", function() {
 
     const asyncJSCode = `export default {
       myFun1 :async ()=>{
-        return "yes"
-      }
-    }`;
+        return "yes"`;
 
     const asyncJSCodeWithRenamedFunction1 = `export default {
       myFun2 :async ()=>{

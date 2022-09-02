@@ -1737,6 +1737,11 @@
     minimatch "^3.1.2"
     strip-json-comments "^3.1.1"
 
+"@faker-js/faker@^7.4.0":
+  version "7.4.0"
+  resolved "https://registry.yarnpkg.com/@faker-js/faker/-/faker-7.4.0.tgz#cac720d860a89d487b47e55e66a4fd114f1d3fe5"
+  integrity sha512-xDd3Tvkt2jgkx1LkuwwxpNBy/Oe+LkZBTwkgEFTiWpVSZgQ5sc/LenbHKRHbFl0dq/KFeeq/szyyPtpJRKY0fg==
+
 "@fast-csv/format@4.3.5":
   version "4.3.5"
   resolved "https://registry.yarnpkg.com/@fast-csv/format/-/format-4.3.5.tgz#90d83d1b47b6aaf67be70d6118f84f3e12ee1ff3"
@@ -6148,10 +6153,10 @@ depd@~1.1.2:
   version "1.1.2"
   resolved "https://registry.npmjs.org/depd/-/depd-1.1.2.tgz"
 
-"design-system@npm:@appsmithorg/design-system@1.0.15":
-  version "1.0.15"
-  resolved "https://registry.yarnpkg.com/@appsmithorg/design-system/-/design-system-1.0.15.tgz#40b855d82d349f25c399e62e7b82a1ddadaa6975"
-  integrity sha512-H43r0UriBVXfbWZg3vhBokDNW5kJKG+NoLae0BPNN6+72aYxfDBl+DocCI2KO6BYTdRnXZf9JQHi25t9t2yj/w==
+"design-system@npm:@appsmithorg/design-system@0.0.0-beta-20220902045439":
+  version "0.0.0-beta-20220902045439"
+  resolved "https://registry.yarnpkg.com/@appsmithorg/design-system/-/design-system-0.0.0-beta-20220902045439.tgz#8422583270a61978708903ed75b40100d9fa6a1f"
+  integrity sha512-BTjXRutGmG7Q8v4PmonvUoow+rkQOukO/GqYwsSgFz74BjOF5kQq+kVvSzwehr7CQwUL6XPim9reZURTcO/3qA==
   dependencies:
     "@blueprintjs/datetime" "3.23.6"
     copy-to-clipboard "^3.3.1"
@@ -10576,16 +10581,10 @@ mochawesome@^7.1.2:
     strip-ansi "^6.0.1"
     uuid "^8.3.2"
 
-moment-timezone@*:
-  version "0.5.31"
-  resolved "https://registry.npmjs.org/moment-timezone/-/moment-timezone-0.5.31.tgz"
-  dependencies:
-    moment ">= 2.9.0"
-
-moment-timezone@^0.5.34:
-  version "0.5.34"
-  resolved "https://registry.yarnpkg.com/moment-timezone/-/moment-timezone-0.5.34.tgz#a75938f7476b88f155d3504a9343f7519d9a405c"
-  integrity sha512-3zAEHh2hKUs3EXLESx/wsgw6IQdusOT8Bxm3D9UrHPQR7zlMmzwybC8zHEM1tQ4LJwP7fcxrWr8tuBg05fFCbg==
+moment-timezone@*, moment-timezone@^0.5.35:
+  version "0.5.35"
+  resolved "https://registry.yarnpkg.com/moment-timezone/-/moment-timezone-0.5.35.tgz#6fa2631bdbe8ff04f6b8753f7199516be6dc9839"
+  integrity sha512-cY/pBOEXepQvlgli06ttCTKcIf8cD1nmNwOKQQAdHBqYApQSpAqotBMX0RJZNgMp6i0PlZuf1mFtnlyEkwyvFw==
   dependencies:
     moment ">= 2.9.0"
 

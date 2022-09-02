@@ -16,12 +16,12 @@ import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 import {
   findIndex,
   isArray,
-  isEqual,
   isNil,
   isNumber,
   isString,
   LoDashStatic,
 } from "lodash";
+import equal from "fast-deep-equal/es6";
 import derivedProperties from "./parseDerivedProperties";
 import { generateResponsiveBehaviorConfig } from "utils/layoutPropertiesUtils";
 
@@ -879,7 +879,7 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
   componentDidUpdate(prevProps: SelectWidgetProps): void {
     // Reset isDirty to false if defaultOptionValue changes
     if (
-      !isEqual(this.props.defaultOptionValue, prevProps.defaultOptionValue) &&
+      !equal(this.props.defaultOptionValue, prevProps.defaultOptionValue) &&
       this.props.isDirty
     ) {
       this.props.updateWidgetMetaProperty("isDirty", false);
