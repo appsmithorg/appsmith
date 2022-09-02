@@ -170,6 +170,7 @@ export default function ExplorerSubMenu({
                       {getPluginIcon(pluginGroups[item.pluginId])}
                     </EntityIcon>
                   ));
+                // Entity Explorer
                 return (
                   <div
                     className={classNames({

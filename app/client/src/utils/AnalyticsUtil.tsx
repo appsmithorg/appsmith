@@ -23,7 +23,9 @@ export type EventLocation =
   | "QUERY_TEMPLATE"
   | "QUICK_COMMANDS"
   | "OMNIBAR"
-  | "SUBMENU";
+  | "SUBMENU"
+  | "ACTION_SELECTOR"
+  | "ENTITY_EXPLORER";
 
 export type EventName =
   | "APP_CRASH"
@@ -242,7 +244,6 @@ export type EventName =
   | "MANUAL_UPGRADE_CLICK"
   | "PAGE_NOT_FOUND"
   | "SIMILAR_TEMPLATE_CLICK"
-  | "RUN_JS_FUNCTION"
   | "PROPERTY_PANE_KEYPRESS"
   | "PAGE_NAME_CLICK"
   | "BACK_BUTTON_CLICK"
@@ -251,7 +252,10 @@ export type EventName =
   | "ADMIN_SETTINGS_UPGRADE_WATERMARK"
   | "ADMIN_SETTINGS_UPGRADE"
   | "PRETTIFY_CODE_MANUAL_TRIGGER"
-  | "PRETTIFY_CODE_KEYBOARD_SHORTCUT";
+  | "PRETTIFY_CODE_KEYBOARD_SHORTCUT"
+  | "JS_OBJECT_CREATED"
+  | "JS_OBJECT_FUNCTION_ADDED"
+  | "JS_OBJECT_FUNCTION_RUN";
 
 function getApplicationId(location: Location) {
   const pathSplit = location.pathname.split("/");

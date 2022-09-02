@@ -4,12 +4,14 @@ import {
 } from "@appsmith/constants/ReduxActionConstants";
 import { JSCollection, JSAction } from "entities/JSCollection";
 import { RefactorAction, SetFunctionPropertyPayload } from "api/JSActionAPI";
+import { EventLocation } from "utils/AnalyticsUtil";
 
 export const createNewJSCollection = (
   pageId: string,
-): ReduxAction<{ pageId: string }> => ({
+  from: EventLocation,
+): ReduxAction<{ pageId: string; from: EventLocation }> => ({
   type: ReduxActionTypes.CREATE_NEW_JS_ACTION,
-  payload: { pageId },
+  payload: { pageId: pageId, from: from },
 });
 
 export const updateJSCollection = (

@@ -425,7 +425,7 @@ function getIntegrationOptionsWithChildren(
     icon: "plus",
     className: "t--create-js-object-btn",
     onSelect: () => {
-      dispatch(createNewJSCollection(pageId));
+      dispatch(createNewJSCollection(pageId, "ACTION_SELECTOR"));
     },
   };
   const queries = actions.filter(

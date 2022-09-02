@@ -82,11 +82,14 @@ import { requestModalConfirmationSaga } from "sagas/UtilSagas";
 import { UserCancelledActionExecutionError } from "sagas/ActionExecution/errorUtils";
 import { APP_MODE } from "entities/App";
 import { getAppMode } from "selectors/applicationSelectors";
+import { EventLocation } from "utils/AnalyticsUtil";
 
-function* handleCreateNewJsActionSaga(action: ReduxAction<{ pageId: string }>) {
+function* handleCreateNewJsActionSaga(
+  action: ReduxAction<{ pageId: string; from: EventLocation }>,
+) {
   const workspaceId: string = yield select(getCurrentWorkspaceId);
   const applicationId: string = yield select(getCurrentApplicationId);
-  const { pageId } = action.payload;
+  const { from, pageId } = action.payload;
   const pluginId: string = yield select(
     getPluginIdOfPackageName,
     JS_PLUGIN_PACKAGE_NAME,
@@ -103,24 +106,27 @@ function* handleCreateNewJsActionSaga(action: ReduxAction<{ pageId: string }>) {
     );
     yield put(
       createJSCollectionRequest({
-        name: newJSCollectionName,
-        pageId,
-        workspaceId,
-        pluginId,
-        body: body,
-        variables: [
-          {
-            name: "myVar1",
-            value: [],
-          },
-          {
-            name: "myVar2",
-            value: {},
-          },
-        ],
-        actions: actions,
-        applicationId,
-        pluginType: PluginType.JS,
+        from: from,
+        request: {
+          name: newJSCollectionName,
+          pageId,
+          workspaceId,
+          pluginId,
+          body: body,
+          variables: [
+            {
+              name: "myVar1",
+              value: [],
+            },
+            {
+              name: "myVar2",
+              value: {},
+            },
+          ],
+          actions: actions,
+          applicationId,
+          pluginType: PluginType.JS,
+        },
       }),
     );
   }
