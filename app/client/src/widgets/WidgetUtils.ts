@@ -602,3 +602,27 @@ export function getLocaleThousandSeparator() {
     .format(11111)
     .replace(/\p{Number}/gu, "");
 }
+
+interface DropdownOption {
+  label: string;
+  value: string | number;
+  disabled?: boolean;
+  children?: DropdownOption[];
+}
+
+/*
+ * Helps flatten nested Array of objects
+ *  Array -> Object { value, label,  children : Array -> Object { value, label } }
+ * This would be flattened to Array -> { value, label } , { value, label }
+ */
+
+export const flat = (array: DropdownOption[]) => {
+  let result: { value: string | number; label: string }[] = [];
+  array.forEach((a) => {
+    result.push({ value: a.value, label: a.label });
+    if (Array.isArray(a.children)) {
+      result = result.concat(flat(a.children));
+    }
+  });
+  return result;
+};

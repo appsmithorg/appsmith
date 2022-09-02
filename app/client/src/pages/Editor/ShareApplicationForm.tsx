@@ -3,7 +3,7 @@ import styled from "styled-components";
 import { withRouter } from "react-router";
 import { connect } from "react-redux";
 import { AppState } from "@appsmith/reducers";
-import Switch from "components/ads/Switch";
+import { Switch } from "design-system";
 import Spinner from "components/editorComponents/Spinner";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { getCurrentApplicationId } from "selectors/editorSelectors";

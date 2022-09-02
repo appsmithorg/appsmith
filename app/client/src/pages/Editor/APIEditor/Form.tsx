@@ -65,7 +65,8 @@ import {
   getActionData,
   getAction,
 } from "selectors/entitiesSelector";
-import { isEmpty, isEqual } from "lodash";
+import { isEmpty } from "lodash";
+import equal from "fast-deep-equal/es6";
 
 import { Colors } from "constants/Colors";
 import SearchSnippets from "components/ads/SnippetButton";
@@ -569,7 +570,7 @@ function ApiEditorForm(props: Props) {
   // it checks each value to make sure none has changed before recomputing the actions.
   const actions: Action[] = useSelector(
     (state: AppState) => state.entities.actions.map((action) => action.config),
-    isEqual,
+    equal,
   );
   const currentActionConfig: Action | undefined = actions.find(
     (action) => action.id === params.apiId || action.id === params.queryId,
