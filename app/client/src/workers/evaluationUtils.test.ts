@@ -26,7 +26,7 @@ import {
 import { warn as logWarn } from "loglevel";
 import { Diff } from "deep-diff";
 import _, { get, flatten } from "lodash";
-import { overrideWidgetProperties } from "./evaluationUtils";
+import { overrideWidgetProperties, findDatatype } from "./evaluationUtils";
 import { DataTree } from "entities/DataTree/dataTreeFactory";
 import { EvalMetaUpdates } from "./DataTreeEvaluator/types";
 import { generateDataTreeWidget } from "entities/DataTree/dataTreeWidget";
@@ -761,5 +761,56 @@ describe("removeLintErrorsFromEntityProperty", () => {
     const path = "Button1.text";
     removeLintErrorsFromEntityProperty(dataTree, path);
     expect(get(dataTree, `Button1.${EVAL_ERROR_PATH}[text]`)).toEqual([]);
+  });
+});
+
+//A set of test cases to evaluate the logic for finding a given value's datatype
+describe("Evaluated Datatype of a given value", () => {
+  it("1. Numeric datatypes", () => {
+    expect(findDatatype(37)).toBe("number");
+    expect(findDatatype(3.14)).toBe("number");
+    expect(findDatatype(Math.LN2)).toBe("number");
+    expect(findDatatype(Infinity)).toBe("number");
+    expect(findDatatype(Number(1))).toBe("number");
+    expect(findDatatype(new Number(1))).toBe("number");
+    expect(findDatatype("1")).not.toBe("number");
+  });
+  it("2. String datatypes", () => {
+    expect(findDatatype("")).toBe("string");
+    expect(findDatatype("bla")).toBe("string");
+    expect(findDatatype(String("abc"))).toBe("string");
+    expect(findDatatype(new String("abc"))).toBe("string");
+    expect(findDatatype(parseInt("1"))).not.toBe("string");
+  });
+  it("3. Boolean datatypes", () => {
+    expect(findDatatype(true)).toBe("boolean");
+    expect(findDatatype(false)).toBe("boolean");
+    expect(findDatatype(Boolean(true))).toBe("boolean");
+    expect(findDatatype(Boolean(false))).toBe("boolean");
+    expect(findDatatype(new Boolean(false))).toBe("boolean");
+    expect(findDatatype("true")).not.toBe("boolean");
+  });
+  it("4. Objects datatypes", () => {
+    expect(findDatatype(null)).toBe("null");
+    expect(findDatatype(undefined)).toBe("undefined");
+    let tempDecVar;
+    expect(findDatatype(tempDecVar)).toBe("undefined");
+    expect(findDatatype({ a: 1 })).toBe("object");
+    expect(findDatatype({})).toBe("object");
+    expect(findDatatype(new Date())).toBe("date");
+    const func = function() {
+      return "hello world";
+    };
+    expect(findDatatype(func)).toBe("function");
+    expect(findDatatype(Math.sin)).toBe("function");
+    expect(findDatatype(/test/i)).toBe("regexp");
+  });
+  it("5. Array datatypes", () => {
+    expect(findDatatype([1, 2, 3])).toBe("array");
+    expect(findDatatype([])).toBe("array");
+    expect(findDatatype(["a", true, 3, null])).toBe("array");
+    expect(findDatatype([1, 2, 3])).toBe("array");
+    expect(findDatatype(Array.of("a", "b", "c"))).toBe("array");
+    expect(findDatatype("a, b, c")).not.toBe("array");
   });
 });
