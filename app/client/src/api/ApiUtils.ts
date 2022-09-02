@@ -17,6 +17,7 @@ import { logoutUser } from "actions/userActions";
 import { AUTH_LOGIN_URL } from "constants/routes";
 import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
 import getQueryParamsObject from "utils/getQueryParamsObject";
+import { UserCancelledActionExecutionError } from "sagas/ActionExecution/errorUtils";
 
 const executeActionRegex = /actions\/execute/;
 const timeoutErrorRegex = /timeout of (\d+)ms exceeded/;
@@ -77,7 +78,7 @@ export const apiFailureResponseInterceptor = (error: any) => {
 
   // Return if the call was cancelled via cancel token
   if (axios.isCancel(error)) {
-    return;
+    throw new UserCancelledActionExecutionError();
   }
 
   // Return modified response if action execution failed
