@@ -219,6 +219,12 @@ function* handleEachUpdateJSCollection(update: JSUpdate) {
           jsActionTobeUpdated.actions = nonDeletedActions;
         }
         if (updateCollection) {
+          newActions.forEach((action) => {
+            AnalyticsUtil.logEvent("JS_OBJECT_FUNCTION_ADDED", {
+              name: action.name,
+              jsObjectName: jsAction.name,
+            });
+          });
           yield call(updateJSCollection, {
             jsCollection: jsActionTobeUpdated,
             newActions: newActions,
