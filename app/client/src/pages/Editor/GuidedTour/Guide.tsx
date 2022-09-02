@@ -304,7 +304,7 @@ function GuideStepsContent(props: {
   };
 
   return (
-    <div>
+    <div data-cy={"guided-tour-banner"}>
       <ContentWrapper>
         <SubContentWrapper>
           <div className="header">
