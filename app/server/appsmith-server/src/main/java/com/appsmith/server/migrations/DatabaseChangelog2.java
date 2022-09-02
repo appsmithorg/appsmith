@@ -2397,8 +2397,6 @@ public class DatabaseChangelog2 {
                     List<Application> applications = mongockTemplate.find(applicationQuery.addCriteria(themeCriteria), Application.class);
                     // This is an erroneous state where the theme is being used by multiple applications
                     if (applications != null && applications.size() > 1) {
-                        // Leave the first in the list untouched.
-                        Application firstApp = applications.get(0);
                         // Create new themes for the rest of the applications which are copies of the original theme
                         for (int i=0; i< applications.size(); i++) {
                             Application application = applications.get(i);
