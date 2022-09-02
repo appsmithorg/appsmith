@@ -98,12 +98,8 @@ import { DataTreeDiff } from "workers/evaluationUtils";
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { AppTheme } from "entities/AppTheming";
 import { ActionValidationConfigMap } from "constants/PropertyControlConstants";
-import AppsmithConsole from "utils/AppsmithConsole";
-import {
-  createLogTitleString,
-  LogObject,
-  UserLogObject,
-} from "workers/UserLog";
+import { LogObject, UserLogObject } from "workers/UserLog";
+import { processAndStoreLogs, storeLogs } from "./DebuggerSagas";
 
 let widgetTypeConfigMap: WidgetTypeConfigMap;
 
@@ -186,19 +182,17 @@ function* evaluateTreeSaga(
 
   const updatedDataTree: DataTree = yield select(getDataTree);
   if (!!userLogs && userLogs.length > 0) {
-    userLogs.forEach((log: UserLogObject) => {
-      log.logObject.forEach((logObject: LogObject) => {
-        AppsmithConsole.addLog(
-          {
-            text: createLogTitleString(logObject.data),
-            logData: logObject.data,
-            source: log.source,
-          },
-          logObject.severity,
-          logObject.timestamp,
+    yield all(
+      userLogs.map((log: UserLogObject) => {
+        call(
+          storeLogs,
+          log.logObject,
+          log.source.name,
+          log.source.type,
+          log.source.id,
         );
-      });
-    });
+      }),
+    );
   }
   log.debug({ jsUpdates: jsUpdates });
   log.debug({ dataTree: updatedDataTree });
@@ -279,43 +273,31 @@ export function* evaluateAndExecuteDynamicTrigger(
       const { result } = requestData;
 
       // Check for any logs in the response and store them in the redux store
-      if ("logs" in result && !!result.logs && result.logs.length) {
-        let name = "";
-
-        if (!!triggerMeta.source && "name" in triggerMeta.source) {
-          name = triggerMeta.source.name;
-        } else if (
-          !(dynamicTrigger.includes("{{") || dynamicTrigger.includes("}}"))
-        ) {
-          // We use the dynamic trigger as the name if it is not a binding
-          name = dynamicTrigger.replace("()", "");
-        }
-
-        result.logs.forEach((log: LogObject) => {
-          AppsmithConsole.addLog(
-            {
-              text: createLogTitleString(log.data),
-              logData: log.data,
-              source: {
-                type:
-                  eventType === EventType.ON_JS_FUNCTION_EXECUTE
-                    ? ENTITY_TYPE.JSACTION
-                    : ENTITY_TYPE.WIDGET,
-                name,
-                id: triggerMeta.source?.id || "",
-              },
-            },
-            log.severity,
-            log.timestamp,
-          );
-        });
+      if (
+        !!result &&
+        result.hasOwnProperty("logs") &&
+        !!result.logs &&
+        result.logs.length
+      ) {
+        yield call(
+          processAndStoreLogs,
+          triggerMeta,
+          result.logs,
+          dynamicTrigger,
+          eventType,
+        );
       }
 
       /* Handle errors during evaluation
        * A finish event with errors means that the error was not caught by the user code.
        * We raise an error telling the user that an uncaught error has occurred
        * */
-      if ("errors" in result && !!result.errors && result.errors.length) {
+      if (
+        !!result &&
+        result.hasOwnProperty("errors") &&
+        !!result.errors &&
+        result.errors.length
+      ) {
         if (
           result.errors[0].errorMessage !==
           "UncaughtPromiseRejection: User cancelled action execution"
@@ -444,21 +426,13 @@ export function* executeFunction(
     const { logs } = response;
     // Check for any logs in the response and store them in the redux store
     if (!!logs && logs.length > 0) {
-      logs.forEach((log: LogObject) => {
-        AppsmithConsole.addLog(
-          {
-            text: createLogTitleString(log.data),
-            logData: log.data,
-            source: {
-              type: ENTITY_TYPE.JSACTION,
-              name: collectionName + "." + action.name,
-              id: collectionId,
-            },
-          },
-          log.severity,
-          log.timestamp,
-        );
-      });
+      yield call(
+        storeLogs,
+        logs,
+        collectionName + "." + action.name,
+        ENTITY_TYPE.JSACTION,
+        collectionId,
+      );
     }
   }
 
