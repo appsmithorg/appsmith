@@ -1,6 +1,6 @@
 import { isNil } from "lodash";
-import { getLocale } from "utils/helpers";
 import { InputTypes } from "widgets/BaseInputWidget/constants";
+import { getLocaleDecimalSeperator } from "widgets/WidgetUtils";
 
 /*
  * Function to parse text as number based on InputType
@@ -37,10 +37,4 @@ export function getParsedText(value: string, inputType: InputTypes) {
   }
 
   return text;
-}
-
-export function getLocaleDecimalSeperator() {
-  return Intl.NumberFormat(getLocale())
-    .format(1.1)
-    .replace(/\p{Number}/gu, "");
 }

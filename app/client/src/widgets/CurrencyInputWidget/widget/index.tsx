@@ -27,12 +27,14 @@ import * as Sentry from "@sentry/react";
 import log from "loglevel";
 import {
   formatCurrencyNumber,
-  getLocaleDecimalSeperator,
-  getLocaleThousandSeparator,
   limitDecimalValue,
 } from "../component/utilities";
 import { mergeWidgetConfig } from "utils/helpers";
 import { GRID_DENSITY_MIGRATION_V1 } from "widgets/constants";
+import {
+  getLocaleDecimalSeperator,
+  getLocaleThousandSeparator,
+} from "widgets/WidgetUtils";
 
 export function defaultValueValidation(
   value: any,
@@ -41,13 +43,10 @@ export function defaultValueValidation(
 ): ValidationResponse {
   const NUMBER_ERROR_MESSAGE = "This value must be number";
   const EMPTY_ERROR_MESSAGE = "";
-
-  function getLocale() {
-    return navigator.languages?.[0] || "en-US";
-  }
+  const localeLang = navigator.languages?.[0] || "en-US";
 
   function getLocaleDecimalSeperator() {
-    return Intl.NumberFormat(getLocale())
+    return Intl.NumberFormat(localeLang)
       .format(1.1)
       .replace(/\p{Number}/gu, "");
   }
@@ -61,10 +60,12 @@ export function defaultValueValidation(
   }
 
   const decimalSeperator = getLocaleDecimalSeperator();
-  const haveDecimalValue = value.includes(decimalSeperator);
-  const commonSeparator = ".";
-  let parsed: any = haveDecimalValue
-    ? Number(value.replace(new RegExp("\\" + decimalSeperator, "g"), "."))
+  const hasDecimalValue = String(value).includes(decimalSeperator);
+  const defaultDecimalSeparator = ".";
+  let parsed: any = hasDecimalValue
+    ? Number(
+        String(value).replace(new RegExp("\\" + decimalSeperator, "g"), "."),
+      )
     : Number(value);
   let isValid, messages;
 
@@ -83,15 +84,17 @@ export function defaultValueValidation(
     messages = [NUMBER_ERROR_MESSAGE];
     parsed = undefined;
   } else if (
-    commonSeparator !== decimalSeperator &&
-    !haveDecimalValue &&
-    value.includes(commonSeparator)
+    defaultDecimalSeparator !== decimalSeperator &&
+    !hasDecimalValue &&
+    String(value).includes(defaultDecimalSeparator)
   ) {
     /*
      *  When value have not correct decimal separator
      */
     isValid = false;
-    messages = ["Use correct decimal separator"];
+    messages = [
+      `Please use "${decimalSeperator}" as decimal separator since your locale is ${localeLang}`,
+    ];
     parsed = undefined;
   } else {
     /*
@@ -109,7 +112,7 @@ export function defaultValueValidation(
       messages = [EMPTY_ERROR_MESSAGE];
     }
 
-    parsed = String(parsed ? value : parsed);
+    parsed = String(value);
   }
 
   return {

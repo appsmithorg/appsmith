@@ -1,4 +1,8 @@
 import { getLocale } from "utils/helpers";
+import {
+  getLocaleDecimalSeperator,
+  getLocaleThousandSeparator,
+} from "widgets/WidgetUtils";
 
 export const countryToFlag = (isoCode: string) => {
   return typeof String.fromCodePoint !== "undefined"
@@ -65,16 +69,4 @@ export function parseLocaleFormattedStringToNumber(currencyString = "") {
       .replace(new RegExp("\\" + getLocaleThousandSeparator(), "g"), "")
       .replace(new RegExp("\\" + getLocaleDecimalSeperator()), "."),
   );
-}
-
-export function getLocaleDecimalSeperator() {
-  return Intl.NumberFormat(getLocale())
-    .format(1.1)
-    .replace(/\p{Number}/gu, "");
-}
-
-export function getLocaleThousandSeparator() {
-  return Intl.NumberFormat(getLocale())
-    .format(11111)
-    .replace(/\p{Number}/gu, "");
 }

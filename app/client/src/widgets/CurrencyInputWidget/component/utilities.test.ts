@@ -1,8 +1,10 @@
 import {
+  getLocaleDecimalSeperator,
+  getLocaleThousandSeparator,
+} from "widgets/WidgetUtils";
+import {
   countryToFlag,
   formatCurrencyNumber,
-  getLocaleThousandSeparator,
-  getLocaleDecimalSeperator,
   limitDecimalValue,
   parseLocaleFormattedStringToNumber,
 } from "./utilities";

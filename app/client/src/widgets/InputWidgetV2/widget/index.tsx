@@ -24,7 +24,8 @@ import derivedProperties from "./parsedDerivedProperties";
 import { BaseInputWidgetProps } from "widgets/BaseInputWidget/widget";
 import { mergeWidgetConfig } from "utils/helpers";
 import { InputTypes } from "widgets/BaseInputWidget/constants";
-import { getLocaleDecimalSeperator, getParsedText } from "./Utilities";
+import { getParsedText } from "./Utilities";
+import { getLocaleDecimalSeperator } from "widgets/WidgetUtils";
 
 export function defaultValueValidation(
   value: any,
@@ -46,26 +47,28 @@ export function defaultValueValidation(
   let parsed;
   switch (inputType) {
     case "NUMBER":
-      function getLocale() {
-        return navigator.languages?.[0] || "en-US";
-      }
-
+      const localeLang = navigator.languages?.[0] || "en-US";
       function getLocaleDecimalSeperator() {
-        return Intl.NumberFormat(getLocale())
+        return Intl.NumberFormat(localeLang)
           .format(1.1)
           .replace(/\p{Number}/gu, "");
       }
 
       let isValid, messages;
-      const commonSeparator = ".";
+      const defaultDecimalSeparator = ".";
       const decimalSeperator = getLocaleDecimalSeperator();
-      const haveDecimalValue = `${value}`.includes(decimalSeperator);
+      const hasDecimalValue = String(value).includes(decimalSeperator);
 
       if (_.isNil(value)) {
         parsed = null;
       } else {
-        parsed = haveDecimalValue
-          ? Number(value.replace(new RegExp("\\" + decimalSeperator, "g"), "."))
+        parsed = hasDecimalValue
+          ? Number(
+              String(value).replace(
+                new RegExp("\\" + decimalSeperator, "g"),
+                ".",
+              ),
+            )
           : Number(value);
       }
 
@@ -84,15 +87,17 @@ export function defaultValueValidation(
         messages = [NUMBER_ERROR_MESSAGE];
         parsed = null;
       } else if (
-        commonSeparator !== decimalSeperator &&
-        !haveDecimalValue &&
-        `${value}`.includes(commonSeparator)
+        defaultDecimalSeparator !== decimalSeperator &&
+        !hasDecimalValue &&
+        String(value).includes(defaultDecimalSeparator)
       ) {
         /*
          *  When value have not correct decimal separator
          */
         isValid = false;
-        messages = ["Use correct decimal separator"];
+        messages = [
+          `Please use "${decimalSeperator}" as decimal separator since your locale is ${localeLang}`,
+        ];
         parsed = null;
       } else {
         /*
@@ -137,23 +142,31 @@ export function defaultValueValidation(
 }
 
 export function minValueValidation(min: any, props: InputWidgetProps, _?: any) {
-  function getLocale() {
-    return navigator.languages?.[0] || "en-US";
-  }
+  const localeLang = navigator.languages?.[0] || "en-US";
 
   function getLocaleDecimalSeperator() {
-    return Intl.NumberFormat(getLocale())
+    return Intl.NumberFormat(localeLang)
       .format(1.1)
       .replace(/\p{Number}/gu, "");
   }
 
-  const max = props.maxNum;
-  const value = min;
-  const commonSeparator = ".";
+  const defaultDecimalSeparator = ".";
   const decimalSeperator = getLocaleDecimalSeperator();
-  const haveDecimalValue = `${value}`.includes(decimalSeperator);
-  min = haveDecimalValue
-    ? Number(value.replace(new RegExp("\\" + decimalSeperator, "g"), "."))
+  const max = String(props.maxNum).includes(decimalSeperator)
+    ? Number(
+        String(props.maxNum).replace(
+          new RegExp("\\" + decimalSeperator, "g"),
+          ".",
+        ),
+      )
+    : Number(props.maxNum);
+
+  const value = min;
+  const hasDecimalValue = String(value).includes(decimalSeperator);
+  min = hasDecimalValue
+    ? Number(
+        String(value).replace(new RegExp("\\" + decimalSeperator, "g"), "."),
+      )
     : Number(value);
 
   if (_?.isNil(value) || value === "") {
@@ -169,9 +182,9 @@ export function minValueValidation(min: any, props: InputWidgetProps, _?: any) {
       messages: ["This value must be number"],
     };
   } else if (
-    commonSeparator !== decimalSeperator &&
-    !haveDecimalValue &&
-    value.includes(commonSeparator)
+    defaultDecimalSeparator !== decimalSeperator &&
+    !hasDecimalValue &&
+    String(value).includes(defaultDecimalSeparator)
   ) {
     /*
      *  When value have not correct decimal separator
@@ -179,7 +192,9 @@ export function minValueValidation(min: any, props: InputWidgetProps, _?: any) {
     return {
       isValid: false,
       parsed: undefined,
-      messages: ["Use correct decimal separator"],
+      messages: [
+        `Please use "${decimalSeperator}" as decimal separator since your locale is ${localeLang}`,
+      ],
     };
   } else if (max !== undefined && min >= max) {
     return {
@@ -197,23 +212,31 @@ export function minValueValidation(min: any, props: InputWidgetProps, _?: any) {
 }
 
 export function maxValueValidation(max: any, props: InputWidgetProps, _?: any) {
-  function getLocale() {
-    return navigator.languages?.[0] || "en-US";
-  }
+  const localeLang = navigator.languages?.[0] || "en-US";
 
   function getLocaleDecimalSeperator() {
-    return Intl.NumberFormat(getLocale())
+    return Intl.NumberFormat(localeLang)
       .format(1.1)
       .replace(/\p{Number}/gu, "");
   }
 
-  const min = props.minNum;
-  const value = max;
-  const commonSeparator = ".";
+  const defaultDecimalSeparator = ".";
   const decimalSeperator = getLocaleDecimalSeperator();
-  const haveDecimalValue = `${value}`.includes(decimalSeperator);
-  max = haveDecimalValue
-    ? Number(value.replace(new RegExp("\\" + decimalSeperator, "g"), "."))
+  const min = String(props.minNum).includes(decimalSeperator)
+    ? Number(
+        String(props.minNum).replace(
+          new RegExp("\\" + decimalSeperator, "g"),
+          ".",
+        ),
+      )
+    : Number(props.minNum);
+
+  const value = max;
+  const hasDecimalValue = String(value).includes(decimalSeperator);
+  max = hasDecimalValue
+    ? Number(
+        String(value).replace(new RegExp("\\" + decimalSeperator, "g"), "."),
+      )
     : Number(value);
 
   if (_?.isNil(value) || value === "") {
@@ -229,9 +252,9 @@ export function maxValueValidation(max: any, props: InputWidgetProps, _?: any) {
       messages: ["This value must be number"],
     };
   } else if (
-    commonSeparator !== decimalSeperator &&
-    !haveDecimalValue &&
-    value.includes(commonSeparator)
+    defaultDecimalSeparator !== decimalSeperator &&
+    !hasDecimalValue &&
+    String(value).includes(defaultDecimalSeparator)
   ) {
     /*
      *  When value have not correct decimal separator
@@ -239,7 +262,9 @@ export function maxValueValidation(max: any, props: InputWidgetProps, _?: any) {
     return {
       isValid: false,
       parsed: undefined,
-      messages: ["Use correct decimal separator"],
+      messages: [
+        `Please use "${decimalSeperator}" as decimal separator since your locale is ${localeLang}`,
+      ],
     };
   } else if (min !== undefined && max <= min) {
     return {
@@ -648,23 +673,16 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
     super.handleKeyDown(e);
   };
 
+  componentDidMount = () => {
+    this.formatText();
+  };
+
   componentDidUpdate = (prevProps: InputWidgetProps) => {
     if (
       prevProps.inputText !== this.props.inputText &&
       this.props.inputText !== toString(this.props.text)
     ) {
-      let value = this.props.inputText || "";
-
-      if (value && this.props.inputType === InputTypes.NUMBER) {
-        const decimalSeperator = getLocaleDecimalSeperator();
-        value = `${value}`.replace(new RegExp("\\.", "g"), decimalSeperator);
-        this.props.updateWidgetMetaProperty("inputText", value);
-      }
-
-      this.props.updateWidgetMetaProperty(
-        "text",
-        getParsedText(value, this.props.inputType),
-      );
+      this.formatText();
     }
 
     if (prevProps.inputType !== this.props.inputType) {
@@ -680,6 +698,26 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
     ) {
       this.props.updateWidgetMetaProperty("isDirty", false);
     }
+  };
+
+  formatText = () => {
+    let value = this.props.inputText || "";
+
+    /*
+     * When the local language is different like de-DE, etc.
+     * We need to convert the value to a local(",") decimal value (45.25 => 45,25)
+     * This is unformatted Text
+     */
+    if (value && this.props.inputType === InputTypes.NUMBER) {
+      const decimalSeperator = getLocaleDecimalSeperator();
+      value = String(value).replace(new RegExp("\\.", "g"), decimalSeperator);
+      this.props.updateWidgetMetaProperty("inputText", value);
+    }
+
+    this.props.updateWidgetMetaProperty(
+      "text",
+      getParsedText(value, this.props.inputType),
+    );
   };
 
   onValueChange = (value: string) => {

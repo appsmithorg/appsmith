@@ -32,6 +32,7 @@ import { rgbaMigrationConstantV56 } from "./constants";
 import { DynamicPath } from "utils/DynamicBindingUtils";
 import { isArray } from "lodash";
 import { PropertyHookUpdates } from "constants/PropertyControlConstants";
+import { getLocale } from "utils/helpers";
 
 const punycode = require("punycode/");
 
@@ -588,4 +589,16 @@ export function composePropertyUpdateHook(
       return undefined;
     }
   };
+}
+
+export function getLocaleDecimalSeperator() {
+  return Intl.NumberFormat(getLocale())
+    .format(1.1)
+    .replace(/\p{Number}/gu, "");
+}
+
+export function getLocaleThousandSeparator() {
+  return Intl.NumberFormat(getLocale())
+    .format(11111)
+    .replace(/\p{Number}/gu, "");
 }
