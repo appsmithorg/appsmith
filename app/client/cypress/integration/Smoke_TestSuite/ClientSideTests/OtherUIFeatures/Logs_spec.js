@@ -5,10 +5,10 @@ const debuggerLocators = require("../../../../locators/Debugger.json");
 describe("Debugger logs", function() {
   before(() => {
     cy.addDsl(dsl);
+    cy.wait(5000);
   });
 
   it("Modifying widget properties should log the same", function() {
-    cy.wait(5000);
     cy.get("button")
       .contains("Submit")
       .click({ force: true });
@@ -30,11 +30,11 @@ describe("Debugger logs", function() {
     });
   });
 
-  it("Api headers need to be shown as headers in logs", function() {
-    // TODO
-  });
+  // it("Api headers need to be shown as headers in logs", function() {
+  //   // TODO
+  // });
 
-  it("Api body needs to be shown as JSON when possible", function() {
-    // TODO
-  });
+  // it("Api body needs to be shown as JSON when possible", function() {
+  //   // TODO
+  // });
 });

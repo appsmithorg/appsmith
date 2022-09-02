@@ -128,4 +128,16 @@ describe("Phone input widget - ", () => {
     // Check if isDirty is set to false
     cy.get(".t--widget-textwidget").should("contain", "false");
   });
+
+  it("Currency change dropdown should not close unexpectedly", function() {
+    cy.openPropertyPane(widgetName);
+
+    // Select the Currency dropdown option from property pane
+    // and enter a value that has space and returns 0 results
+    cy.get(".t--property-control-defaultcountrycode").click();
+    cy.get(".t--search-input input").type("AFDB (+93)");
+
+    // assert that the dropdown is still option
+    cy.get(".t--search-input input").should("be.visible");
+  });
 });

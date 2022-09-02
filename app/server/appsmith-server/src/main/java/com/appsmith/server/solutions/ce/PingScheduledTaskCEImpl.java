@@ -7,9 +7,10 @@ import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.DatasourceRepository;
 import com.appsmith.server.repositories.NewActionRepository;
 import com.appsmith.server.repositories.NewPageRepository;
-import com.appsmith.server.repositories.WorkspaceRepository;
 import com.appsmith.server.repositories.UserRepository;
+import com.appsmith.server.repositories.WorkspaceRepository;
 import com.appsmith.server.services.ConfigService;
+import com.appsmith.util.WebClientUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -17,7 +18,6 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.http.MediaType;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.web.reactive.function.BodyInserters;
-import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
@@ -82,7 +82,7 @@ public class PingScheduledTaskCEImpl implements PingScheduledTaskCE {
             return Mono.empty();
         }
 
-        return WebClient
+        return WebClientUtils
                 .create("https://api.segment.io")
                 .post()
                 .uri("/v1/track")
@@ -123,7 +123,7 @@ public class PingScheduledTaskCEImpl implements PingScheduledTaskCE {
                 )
                 .flatMap(statsData -> {
                     final String ipAddress = statsData.getT2();
-                    return WebClient
+                    return WebClientUtils
                             .create("https://api.segment.io")
                             .post()
                             .uri("/v1/track")
