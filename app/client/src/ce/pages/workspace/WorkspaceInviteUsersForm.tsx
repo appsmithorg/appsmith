@@ -624,6 +624,151 @@ function WorkspaceInviteUsersForm(props: any) {
     }
   };
 
+  const renderOption = ({
+    index,
+    option,
+    optionClickHandler,
+  }: {
+    index?: number;
+    option: DropdownOption | DropdownOption[];
+    optionClickHandler?: (dropdownOption: DropdownOption) => void;
+  }) => {
+    let isSelected = false;
+    if (props.isMultiSelect && Array.isArray(selected) && selected.length) {
+      isSelected = !!selected.find((selectedOption: any) =>
+        !Array.isArray(option) ? selectedOption.value === option.value : false,
+      );
+    } else {
+      isSelected =
+        !Array.isArray(option) && selected
+          ? selected.value === option.value
+          : false;
+    }
+    return !Array.isArray(option) && !option.isSectionHeader ? (
+      !option.link ? (
+        <TooltipComponent
+          content={
+            !!option.disabledTooltipText
+              ? option.disabledTooltipText
+              : "Action not supported"
+          }
+          disabled={!option.disabled}
+          key={`tootltip-${index}`}
+          styles={{
+            width: "100%",
+          }}
+        >
+          <OptionWrapper
+            aria-selected={isSelected}
+            className={`t--dropdown-option ${isSelected ? "selected" : ""}`}
+            data-cy={`t--dropdown-option-${option?.label}`}
+            disabled={option.disabled}
+            key={index}
+            onClick={
+              // users should be able to unselect a selected option by clicking the option again.
+              isSelected && props.allowDeselection
+                ? () => props.removeSelectedOptionClickHandler(option)
+                : () => optionClickHandler?.(option)
+            }
+            role="option"
+            selected={
+              props.isMultiSelect ? props.highlightIndex === index : isSelected
+            }
+            selectedHighlightBg={props.selectedHighlightBg}
+            subTextPosition={option.subTextPosition ?? SubTextPosition.LEFT}
+          >
+            {option.leftElement && (
+              <LeftIconWrapper>{option.leftElement}</LeftIconWrapper>
+            )}
+            {option.icon ? (
+              <SelectedIcon
+                fillColor={option?.iconColor}
+                hoverFillColor={option?.iconColor}
+                name={option.icon}
+                size={option.iconSize || IconSize.XL}
+              />
+            ) : null}
+            {props.showLabelOnly ? (
+              props.truncateOption ? (
+                <>
+                  <TooltipWrappedText
+                    label={option.label || ""}
+                    type={TextType.P1}
+                  />
+                  {option.hasCustomBadge && props.customBadge}
+                </>
+              ) : (
+                <>
+                  <Text type={TextType.P1}>{option.label}</Text>
+                  {option.hasCustomBadge && props.customBadge}
+                </>
+              )
+            ) : option.label && option.value ? (
+              <LabelWrapper className="label-container">
+                <Text type={TextType.H5}>{option.value}</Text>
+                <Text type={TextType.P1}>{option.label}</Text>
+              </LabelWrapper>
+            ) : props.truncateOption ? (
+              <TooltipWrappedText
+                label={option.value || ""}
+                type={TextType.P1}
+              />
+            ) : (
+              <Text type={TextType.P1}>{option.value}</Text>
+            )}
+            {option.subText ? (
+              <StyledSubText
+                subTextPosition={option.subTextPosition}
+                type={TextType.P3}
+              >
+                {option.subText}
+              </StyledSubText>
+            ) : null}
+          </OptionWrapper>
+        </TooltipComponent>
+      ) : (
+        <Link key={index} to={option.link || "/"}>
+          <OptionWrapper
+            className={`t--dropdown-link`}
+            data-cy={`t--dropdown-option-${option?.value}`}
+            disabled={option.disabled}
+            role="option"
+            selected={false}
+            selectedHighlightBg={props.selectedHighlightBg}
+            subTextPosition={option.subTextPosition ?? SubTextPosition.LEFT}
+          >
+            {option.leftElement && (
+              <LeftIconWrapper>{option.leftElement}</LeftIconWrapper>
+            )}
+            {option.icon ? (
+              <SelectedIcon
+                fillColor={option?.iconColor}
+                hoverFillColor={option?.iconColor}
+                name={option.icon}
+                size={option.iconSize || IconSize.XL}
+              />
+            ) : null}
+            <Text type={TextType.P1}>{option.value}</Text>
+            {option.subText ? (
+              <StyledSubText
+                subTextPosition={option.subTextPosition}
+                type={TextType.P3}
+              >
+                {option.subText}
+              </StyledSubText>
+            ) : null}
+          </OptionWrapper>
+        </Link>
+      )
+    ) : (
+      <SegmentHeader
+        key={index}
+        style={{ paddingRight: theme.spaces[5] }}
+        title={!Array.isArray(option) && option.label ? option.label : ""}
+      />
+    );
+  };
+
   return (
     <WorkspaceInviteWrapper>
       <InviteModalStyles />
@@ -696,173 +841,7 @@ function WorkspaceInviteUsersForm(props: any) {
                 options={styledRoles}
                 outline={false}
                 placeholder="Select a role"
-                renderOption={({
-                  index,
-                  option,
-                  optionClickHandler,
-                }: {
-                  index?: number;
-                  option: DropdownOption | DropdownOption[];
-                  optionClickHandler?: (dropdownOption: DropdownOption) => void;
-                }) => {
-                  let isSelected = false;
-                  if (
-                    props.isMultiSelect &&
-                    Array.isArray(selected) &&
-                    selected.length
-                  ) {
-                    isSelected = !!selected.find((selectedOption: any) =>
-                      !Array.isArray(option)
-                        ? selectedOption.value === option.value
-                        : false,
-                    );
-                  } else {
-                    isSelected =
-                      !Array.isArray(option) && selected
-                        ? selected.value === option.value
-                        : false;
-                  }
-                  return !Array.isArray(option) && !option.isSectionHeader ? (
-                    !option.link ? (
-                      <TooltipComponent
-                        content={
-                          !!option.disabledTooltipText
-                            ? option.disabledTooltipText
-                            : "Action not supported"
-                        }
-                        disabled={!option.disabled}
-                        key={`tootltip-${index}`}
-                        styles={{
-                          width: "100%",
-                        }}
-                      >
-                        <OptionWrapper
-                          aria-selected={isSelected}
-                          className={`t--dropdown-option ${
-                            isSelected ? "selected" : ""
-                          }`}
-                          data-cy={`t--dropdown-option-${option?.label}`}
-                          disabled={option.disabled}
-                          key={index}
-                          onClick={
-                            // users should be able to unselect a selected option by clicking the option again.
-                            isSelected && props.allowDeselection
-                              ? () =>
-                                  props.removeSelectedOptionClickHandler(option)
-                              : () => optionClickHandler?.(option)
-                          }
-                          role="option"
-                          selected={
-                            props.isMultiSelect
-                              ? props.highlightIndex === index
-                              : isSelected
-                          }
-                          selectedHighlightBg={props.selectedHighlightBg}
-                          subTextPosition={
-                            option.subTextPosition ?? SubTextPosition.LEFT
-                          }
-                        >
-                          {option.leftElement && (
-                            <LeftIconWrapper>
-                              {option.leftElement}
-                            </LeftIconWrapper>
-                          )}
-                          {option.icon ? (
-                            <SelectedIcon
-                              fillColor={option?.iconColor}
-                              hoverFillColor={option?.iconColor}
-                              name={option.icon}
-                              size={option.iconSize || IconSize.XL}
-                            />
-                          ) : null}
-                          {props.showLabelOnly ? (
-                            props.truncateOption ? (
-                              <>
-                                <TooltipWrappedText
-                                  label={option.label || ""}
-                                  type={TextType.P1}
-                                />
-                                {option.hasCustomBadge && props.customBadge}
-                              </>
-                            ) : (
-                              <>
-                                <Text type={TextType.P1}>{option.label}</Text>
-                                {option.hasCustomBadge && props.customBadge}
-                              </>
-                            )
-                          ) : option.label && option.value ? (
-                            <LabelWrapper className="label-container">
-                              <Text type={TextType.H5}>{option.value}</Text>
-                              <Text type={TextType.P1}>{option.label}</Text>
-                            </LabelWrapper>
-                          ) : props.truncateOption ? (
-                            <TooltipWrappedText
-                              label={option.value || ""}
-                              type={TextType.P1}
-                            />
-                          ) : (
-                            <Text type={TextType.P1}>{option.value}</Text>
-                          )}
-                          {option.subText ? (
-                            <StyledSubText
-                              subTextPosition={option.subTextPosition}
-                              type={TextType.P3}
-                            >
-                              {option.subText}
-                            </StyledSubText>
-                          ) : null}
-                        </OptionWrapper>
-                      </TooltipComponent>
-                    ) : (
-                      <Link key={index} to={option.link || "/"}>
-                        <OptionWrapper
-                          className={`t--dropdown-link`}
-                          data-cy={`t--dropdown-option-${option?.value}`}
-                          disabled={option.disabled}
-                          role="option"
-                          selected={false}
-                          selectedHighlightBg={props.selectedHighlightBg}
-                          subTextPosition={
-                            option.subTextPosition ?? SubTextPosition.LEFT
-                          }
-                        >
-                          {option.leftElement && (
-                            <LeftIconWrapper>
-                              {option.leftElement}
-                            </LeftIconWrapper>
-                          )}
-                          {option.icon ? (
-                            <SelectedIcon
-                              fillColor={option?.iconColor}
-                              hoverFillColor={option?.iconColor}
-                              name={option.icon}
-                              size={option.iconSize || IconSize.XL}
-                            />
-                          ) : null}
-                          <Text type={TextType.P1}>{option.value}</Text>
-                          {option.subText ? (
-                            <StyledSubText
-                              subTextPosition={option.subTextPosition}
-                              type={TextType.P3}
-                            >
-                              {option.subText}
-                            </StyledSubText>
-                          ) : null}
-                        </OptionWrapper>
-                      </Link>
-                    )
-                  ) : (
-                    <SegmentHeader
-                      key={index}
-                      style={{ paddingRight: theme.spaces[5] }}
-                      title={
-                        !Array.isArray(option) && option.label
-                          ? option.label
-                          : ""
-                      }
-                    />
-                  );
-                }}
+                renderOption={renderOption}
                 size="small"
               />
             )}
