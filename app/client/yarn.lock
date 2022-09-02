@@ -1738,9 +1738,9 @@
     strip-json-comments "^3.1.1"
 
 "@faker-js/faker@^7.4.0":
-  version "7.5.0"
-  resolved "https://registry.yarnpkg.com/@faker-js/faker/-/faker-7.5.0.tgz#8e8265f65f5b68d2a57886d59b03788eeb676264"
-  integrity sha512-8wNUCCUHvfvI0gQpDUho/3gPzABffnCn5um65F8dzQ86zz6dlt4+nmAA7PQUc8L+eH+9RgR/qzy5N/8kN0Ozdw==
+  version "7.4.0"
+  resolved "https://registry.yarnpkg.com/@faker-js/faker/-/faker-7.4.0.tgz#cac720d860a89d487b47e55e66a4fd114f1d3fe5"
+  integrity sha512-xDd3Tvkt2jgkx1LkuwwxpNBy/Oe+LkZBTwkgEFTiWpVSZgQ5sc/LenbHKRHbFl0dq/KFeeq/szyyPtpJRKY0fg==
 
 "@fast-csv/format@4.3.5":
   version "4.3.5"
@@ -4140,20 +4140,22 @@ ansi-html-community@^0.0.8:
 
 ansi-regex@^2.0.0:
   version "2.1.1"
-  resolved "https://registry.npmjs.org/ansi-regex/-/ansi-regex-2.1.1.tgz"
+  resolved "https://registry.yarnpkg.com/ansi-regex/-/ansi-regex-2.1.1.tgz#c3b33ab5ee360d86e0e628f0468ae7ef27d654df"
+  integrity sha512-TIGnTpdo+E3+pCyAluZvtED5p5wCqLdezCyhPZzKPcxvFplEt4i+W7OONCKgeZFT3+y5NZZfOOS/Bdcanm1MYA==
 
 ansi-regex@^4.1.0:
-  version "4.1.0"
-  resolved "https://registry.npmjs.org/ansi-regex/-/ansi-regex-4.1.0.tgz"
+  version "4.1.1"
+  resolved "https://registry.yarnpkg.com/ansi-regex/-/ansi-regex-4.1.1.tgz#164daac87ab2d6f6db3a29875e2d1766582dabed"
+  integrity sha512-ILlv4k/3f6vfQ4OoP2AGvirOktlQ98ZEL1k9FaQjxa3L1abBgbuTDAdPOpvbGncC0BTVQrl+OM8xZGK6tWXt7g==
 
 ansi-regex@^5.0.0, ansi-regex@^5.0.1:
   version "5.0.1"
-  resolved "https://registry.npmjs.org/ansi-regex/-/ansi-regex-5.0.1.tgz"
+  resolved "https://registry.yarnpkg.com/ansi-regex/-/ansi-regex-5.0.1.tgz#082cb2c89c9fe8659a311a53bd6a4dc5301db304"
   integrity sha512-quJQXlTSUGL2LH9SUXo8VwsY4soanhgo6LNSm84E1LBcE8s3O0wpdiRzyR9z/ZZJMlMWv37qOOb9pdJlMUEKFQ==
 
 ansi-regex@^6.0.1:
   version "6.0.1"
-  resolved "https://registry.npmjs.org/ansi-regex/-/ansi-regex-6.0.1.tgz"
+  resolved "https://registry.yarnpkg.com/ansi-regex/-/ansi-regex-6.0.1.tgz#3183e38fae9a65d7cb5e53945cd5897d0260a06a"
   integrity sha512-n5M855fKb2SsfMIiFFoVrABHJC8QtHwVx+mHWP3QcEqBHYienj5dHSgjbxtC0WEZXYt4wcD6zrQElDPhFuZgfA==
 
 ansi-styles@^2.2.1:
@@ -6151,10 +6153,10 @@ depd@~1.1.2:
   version "1.1.2"
   resolved "https://registry.npmjs.org/depd/-/depd-1.1.2.tgz"
 
-"design-system@npm:@appsmithorg/design-system@0.0.0-beta-20220831102616":
-  version "0.0.0-beta-20220831102616"
-  resolved "https://registry.yarnpkg.com/@appsmithorg/design-system/-/design-system-0.0.0-beta-20220831102616.tgz#cec485151702ddabcee704771e9e4cf8a695d97b"
-  integrity sha512-/OvMvIcNPf4e0LY78z1WXRR3fAeuQuKUSSVydyA7GM1YJ7Z+6c/mYQMo4XCR9wEcVl3NGR/Tyn7s+SwB3q8j0g==
+"design-system@npm:@appsmithorg/design-system@0.0.0-beta-20220902045439":
+  version "0.0.0-beta-20220902045439"
+  resolved "https://registry.yarnpkg.com/@appsmithorg/design-system/-/design-system-0.0.0-beta-20220902045439.tgz#8422583270a61978708903ed75b40100d9fa6a1f"
+  integrity sha512-BTjXRutGmG7Q8v4PmonvUoow+rkQOukO/GqYwsSgFz74BjOF5kQq+kVvSzwehr7CQwUL6XPim9reZURTcO/3qA==
   dependencies:
     "@blueprintjs/datetime" "3.23.6"
     copy-to-clipboard "^3.3.1"
@@ -10579,16 +10581,10 @@ mochawesome@^7.1.2:
     strip-ansi "^6.0.1"
     uuid "^8.3.2"
 
-moment-timezone@*:
-  version "0.5.31"
-  resolved "https://registry.npmjs.org/moment-timezone/-/moment-timezone-0.5.31.tgz"
-  dependencies:
-    moment ">= 2.9.0"
-
-moment-timezone@^0.5.34:
-  version "0.5.34"
-  resolved "https://registry.yarnpkg.com/moment-timezone/-/moment-timezone-0.5.34.tgz#a75938f7476b88f155d3504a9343f7519d9a405c"
-  integrity sha512-3zAEHh2hKUs3EXLESx/wsgw6IQdusOT8Bxm3D9UrHPQR7zlMmzwybC8zHEM1tQ4LJwP7fcxrWr8tuBg05fFCbg==
+moment-timezone@*, moment-timezone@^0.5.35:
+  version "0.5.35"
+  resolved "https://registry.yarnpkg.com/moment-timezone/-/moment-timezone-0.5.35.tgz#6fa2631bdbe8ff04f6b8753f7199516be6dc9839"
+  integrity sha512-cY/pBOEXepQvlgli06ttCTKcIf8cD1nmNwOKQQAdHBqYApQSpAqotBMX0RJZNgMp6i0PlZuf1mFtnlyEkwyvFw==
   dependencies:
     moment ">= 2.9.0"
 
