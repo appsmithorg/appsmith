@@ -14,7 +14,7 @@ export const CONFIG = {
     min: 1,
     max: 100,
     step: 1,
-    defaultOptionValue: "md",
+    defaultValue: 10,
     showMarksLabel: true,
     marks: [
       { value: 25, label: "25%" },
