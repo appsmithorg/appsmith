@@ -1,6 +1,5 @@
 import styled from "styled-components";
-import { Button } from "design-system";
-import RadioComponent from "components/ads/Radio";
+import { Button, RadioComponent } from "design-system";
 import { getTypographyByKey } from "constants/DefaultTheme";
 import Dialog from "components/ads/DialogComponent";
 import { Classes } from "@blueprintjs/core";
