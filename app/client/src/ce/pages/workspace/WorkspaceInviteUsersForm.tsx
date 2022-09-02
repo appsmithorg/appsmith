@@ -40,7 +40,7 @@ import { isEmail } from "utils/formhelpers";
 import {
   isPermitted,
   PERMISSION_TYPE,
-} from "../../../pages/Applications/permissionHelpers";
+} from "pages/Applications/permissionHelpers";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import { ReactComponent as NoEmailConfigImage } from "assets/images/email-not-configured.svg";
 import AnalyticsUtil from "utils/AnalyticsUtil";
@@ -60,7 +60,7 @@ import { Classes, Variant } from "components/ads/common";
 import Callout from "components/ads/Callout";
 import { getInitialsAndColorCode } from "utils/AppsmithUtils";
 import ProfileImage from "pages/common/ProfileImage";
-import ManageUsers from "../../../pages/workspace/ManageUsers";
+import ManageUsers from "pages/workspace/ManageUsers";
 import { ScrollIndicator } from "design-system";
 import UserApi from "@appsmith/api/UserApi";
 import { Colors } from "constants/Colors";
