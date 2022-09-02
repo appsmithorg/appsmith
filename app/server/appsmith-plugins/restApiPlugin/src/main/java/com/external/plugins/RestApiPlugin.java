@@ -20,6 +20,7 @@ import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.external.plugins.SmartSubstitutionInterface;
 import com.appsmith.external.services.SharedConfig;
+import com.appsmith.util.WebClientUtils;
 import com.external.connections.APIConnection;
 import com.external.connections.APIConnectionFactory;
 import com.external.constants.ResponseDataType;
@@ -43,7 +44,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.InvalidMediaTypeException;
 import org.springframework.http.MediaType;
 import org.springframework.http.client.reactive.ClientHttpRequest;
-import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.reactive.function.BodyInserter;
 import org.springframework.web.reactive.function.client.ClientResponse;
@@ -299,12 +299,7 @@ public class RestApiPlugin extends BasePlugin {
                     .secure(SSLHelper.sslCheckForHttpClient(datasourceConfiguration))
                     .compress(true);
 
-            if ("true".equals(System.getProperty("java.net.useSystemProxies"))
-                    && (!System.getProperty("http.proxyHost", "").isEmpty() || !System.getProperty("https.proxyHost", "").isEmpty())) {
-                httpClient = httpClient.proxyWithSystemProperties();
-            }
-
-            WebClient.Builder webClientBuilder = WebClient.builder().clientConnector(new ReactorClientHttpConnector(httpClient));
+            WebClient.Builder webClientBuilder = WebClientUtils.builder(httpClient);
 
             // Adding headers from datasource
             if (datasourceConfiguration.getHeaders() != null) {

@@ -240,13 +240,15 @@ Cypress.Commands.add("widgetText", (text, inputcss, innercss) => {
   cy.contains(innercss, text);
 });
 
-Cypress.Commands.add("verifyUpdatedWidgetName", (text) => {
+Cypress.Commands.add("verifyUpdatedWidgetName", (text, txtToVerify) => {
   cy.get(commonlocators.editWidgetName)
     .click({ force: true })
-    .type(text, { delay: 300 })
+    .type(text)
     .type("{enter}");
-  cy.wait(500);
-  cy.get(".t--widget-name").contains(text);
+  cy.assertPageSave();
+  if (!txtToVerify) cy.get(".editable-text-container").contains(text);
+  else cy.get(".editable-text-container").contains(txtToVerify);
+  cy.wait(2000); //for widget name to reflect!
 });
 
 Cypress.Commands.add("verifyWidgetText", (text, inputcss, innercss) => {

@@ -15,8 +15,8 @@ describe("Bug #14299 - The data from the query does not show up on the widget", 
     cy.fixture("/Bugs/14299dsl").then((val: any) => {
       agHelper.AddDsl(val);
     });
-    propPane.ChangeColor(13, "Primary");
-    propPane.ChangeColor(22, "Background");
+    propPane.ChangeThemeColor(13, "Primary");
+    propPane.ChangeThemeColor(22, "Background");
   });
 
   it("1. Create Postgress DS", function() {

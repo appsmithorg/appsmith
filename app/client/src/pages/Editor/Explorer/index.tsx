@@ -1,6 +1,6 @@
 import { toggleInOnboardingWidgetSelection } from "actions/onboardingActions";
 import { forceOpenWidgetPanel } from "actions/widgetSidebarActions";
-import { Switcher } from "components/ads";
+import { Switcher } from "design-system";
 import { Colors } from "constants/Colors";
 import { tailwindLayers } from "constants/Layers";
 import React, { useEffect, useMemo, useState } from "react";
