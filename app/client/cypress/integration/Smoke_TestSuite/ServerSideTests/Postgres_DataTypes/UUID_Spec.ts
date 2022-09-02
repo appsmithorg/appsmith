@@ -308,7 +308,7 @@ describe("UUID Datatype tests", function() {
     });
     deployMode.DeployApp();
     table.WaitUntilTableLoad();
-    table.ReadTableRowColumnData(1, 5, 200).then(($newFormedguid1) => {
+    table.ReadTableRowColumnData(1, 5).then(($newFormedguid1) => {
       expect($newFormedguid1).not.to.be.empty; //making sure new guid is set for row
 
       deployMode.NavigateBacktoEditor();
