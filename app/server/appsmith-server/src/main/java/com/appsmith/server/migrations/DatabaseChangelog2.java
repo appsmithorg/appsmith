@@ -2400,31 +2400,38 @@ public class DatabaseChangelog2 {
                         // Leave the first in the list untouched.
                         Application firstApp = applications.get(0);
                         // Create new themes for the rest of the applications which are copies of the original theme
-                        for (int i=1; i< applications.size(); i++) {
+                        for (int i=0; i< applications.size(); i++) {
                             Application application = applications.get(i);
-                            Theme newTheme = new Theme();
-                            newTheme.setSystemTheme(false);
-                            newTheme.setName(theme.getName());
-                            newTheme.setDisplayName(theme.getDisplayName());
-                            newTheme.setConfig(theme.getConfig());
-                            newTheme.setStylesheet(theme.getStylesheet());
-                            newTheme.setProperties(theme.getProperties());
-                            newTheme.setCreatedAt(Instant.now());
-                            newTheme.setUpdatedAt(Instant.now());
-
-                            // Add theme policies
                             Set<Policy> themePolicies = policyGenerator.getAllChildPolicies(application.getPolicies(), Application.class, Theme.class);
-                            newTheme.setPolicies(themePolicies);
 
-                            newTheme = mongockTemplate.save(newTheme);
+                            if (i==0) {
+                                // Don't create a new theme for the first application
+                                // Just update the policies
+                                theme.setPolicies(themePolicies);
+                                mongockTemplate.save(theme);
+                            } else {
 
-                            if (application.getEditModeThemeId().equals(theme.getId())) {
-                                application.setEditModeThemeId(newTheme.getId());
+                                Theme newTheme = new Theme();
+                                newTheme.setSystemTheme(false);
+                                newTheme.setName(theme.getName());
+                                newTheme.setDisplayName(theme.getDisplayName());
+                                newTheme.setConfig(theme.getConfig());
+                                newTheme.setStylesheet(theme.getStylesheet());
+                                newTheme.setProperties(theme.getProperties());
+                                newTheme.setCreatedAt(Instant.now());
+                                newTheme.setUpdatedAt(Instant.now());
+                                newTheme.setPolicies(themePolicies);
+
+                                newTheme = mongockTemplate.save(newTheme);
+
+                                if (application.getEditModeThemeId().equals(theme.getId())) {
+                                    application.setEditModeThemeId(newTheme.getId());
+                                }
+                                if (application.getPublishedModeThemeId().equals(theme.getId())) {
+                                    application.setPublishedModeThemeId(newTheme.getId());
+                                }
+                                mongockTemplate.save(application);
                             }
-                            if (application.getPublishedModeThemeId().equals(theme.getId())) {
-                                application.setPublishedModeThemeId(newTheme.getId());
-                            }
-                            mongockTemplate.save(application);
                         }
                     }
                 });
