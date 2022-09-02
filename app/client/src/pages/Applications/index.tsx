@@ -53,6 +53,7 @@ import {
   Icon,
   IconName,
   IconSize,
+  Menu,
   MenuItem,
   Size,
   Text,
@@ -63,7 +64,6 @@ import {
   updateApplication,
 } from "actions/applicationActions";
 import { Classes } from "components/ads/common";
-import Menu from "components/ads/Menu";
 import { Position } from "@blueprintjs/core/lib/esm/common/position";
 import { UpdateApplicationPayload } from "api/ApplicationApi";
 import PerformanceTracker, {

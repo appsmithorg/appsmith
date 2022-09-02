@@ -82,7 +82,7 @@ export class PropertyPane {
     this.agHelper.AssertContains("Theme " + newTheme + " Applied");
   }
 
-  public ChangeColor(
+  public ChangeThemeColor(
     colorIndex: number | string,
     type: "Primary" | "Background" = "Primary",
   ) {

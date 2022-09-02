@@ -91,7 +91,7 @@ const ExplorerDatasourceEntity = React.memo(
     });
 
     const getDatasourceStructure = useCallback(
-      (isOpen) => {
+      (isOpen: boolean) => {
         if (!datasourceStructure && isOpen) {
           dispatch(fetchDatasourceStructure(props.datasource.id));
         }
