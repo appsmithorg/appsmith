@@ -70,25 +70,25 @@ import { Link } from "react-router-dom";
 import { Tooltip } from "@blueprintjs/core";
 import { isEllipsisActive } from "utils/helpers";
 
-const CommonTitleTextStyle = css`
+export const CommonTitleTextStyle = css`
   color: ${Colors.CHARCOAL};
   font-weight: normal;
 `;
 
-const WorkspaceInviteWrapper = styled.div`
+export const WorkspaceInviteWrapper = styled.div`
   > div {
     margin-top: 0;
   }
 `;
 
-const WorkspaceInviteTitle = styled.div`
+export const WorkspaceInviteTitle = styled.div`
   padding: 0 0 10px 0;
   & > span[type="h5"] {
     ${CommonTitleTextStyle}
   }
 `;
 
-const StyledForm = styled.form`
+export const StyledForm = styled.form`
   width: 100%;
   background: ${(props) => props.theme.colors.modal.bg};
   &&& {
@@ -107,12 +107,12 @@ const StyledForm = styled.form`
   }
 `;
 
-const ErrorBox = styled.div<{ message?: boolean }>`
+export const ErrorBox = styled.div<{ message?: boolean }>`
   ${(props) =>
     props.message ? `margin: ${props.theme.spaces[9]}px 0px;` : null};
 `;
 
-const StyledInviteFieldGroup = styled.div`
+export const StyledInviteFieldGroup = styled.div`
   display: flex;
   align-items: baseline;
   justify-content: space-between;
@@ -128,13 +128,13 @@ const StyledInviteFieldGroup = styled.div`
   }
 `;
 
-const InviteModalStyles = createGlobalStyle`
+export const InviteModalStyles = createGlobalStyle`
     .label-container > * {
       word-break: break-word;
     }
 `;
 
-const UserList = styled.div`
+export const UserList = styled.div`
   margin-top: 24px;
   max-height: 260px;
   overflow-y: auto;
@@ -143,7 +143,7 @@ const UserList = styled.div`
   }
 `;
 
-const User = styled.div`
+export const User = styled.div`
   display: flex;
   align-items: center;
   min-height: 54px;
@@ -152,7 +152,7 @@ const User = styled.div`
   color: ${(props) => props.theme.colors.modal.user.textColor};
 `;
 
-const UserInfo = styled.div`
+export const UserInfo = styled.div`
   display: inline-flex;
   align-items: center;
   div:first-child {
@@ -160,7 +160,7 @@ const UserInfo = styled.div`
   }
 `;
 
-const UserRole = styled.div`
+export const UserRole = styled.div`
   flex-basis: 40%;
   flex-shrink: 0;
   .${Classes.TEXT} {
@@ -171,7 +171,7 @@ const UserRole = styled.div`
   }
 `;
 
-const UserName = styled.div`
+export const UserName = styled.div`
   display: flex;
   flex-direction: column;
   margin: 0 10px;
@@ -192,17 +192,17 @@ const UserName = styled.div`
   }
 `;
 
-const RoleDivider = styled.div`
+export const RoleDivider = styled.div`
   border-top: 1px solid ${(props) => props.theme.colors.menuBorder};
 `;
 
-const Loading = styled(Spinner)`
+export const Loading = styled(Spinner)`
   padding-top: 10px;
   margin: auto;
   width: 100%;
 `;
 
-const MailConfigContainer = styled.div`
+export const MailConfigContainer = styled.div`
   display: flex;
   flex-direction: column;
   padding: 24px 4px;
@@ -220,7 +220,7 @@ const MailConfigContainer = styled.div`
   }
 `;
 
-const LabelText = styled(Text)`
+export const LabelText = styled(Text)`
   font-size: 14px;
   color: ${Colors.GREY_8};
   margin-bottom: 8px;
@@ -238,7 +238,7 @@ const LabelText = styled(Text)`
   }
 `;*/
 
-const LeftIconWrapper = styled.span`
+export const LeftIconWrapper = styled.span`
   font-size: 20px;
   line-height: 19px;
   margin-right: 10px;
@@ -247,7 +247,7 @@ const LeftIconWrapper = styled.span`
   top: 1px;
 `;
 
-const SelectedIcon = styled(Icon)<{ name: string }>`
+export const SelectedIcon = styled(Icon)<{ name: string }>`
   margin-right: 6px;
   & > div:first-child {
     height: 18px;
@@ -276,7 +276,7 @@ const SelectedIcon = styled(Icon)<{ name: string }>`
   }
 `;
 
-const StyledSubText = styled(Text)<{
+export const StyledSubText = styled(Text)<{
   showDropIcon?: boolean;
   subTextPosition?: SubTextPosition;
 }>`
@@ -294,7 +294,7 @@ const StyledSubText = styled(Text)<{
   }
 `;
 
-const OptionWrapper = styled.div<{
+export const OptionWrapper = styled.div<{
   disabled?: boolean;
   selected: boolean;
   subTextPosition?: SubTextPosition;
@@ -364,13 +364,13 @@ const OptionWrapper = styled.div<{
   }
 `;
 
-const StyledText = styled(Text)`
+export const StyledText = styled(Text)`
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 `;
 
-const LabelWrapper = styled.div<{ label?: string }>`
+export const LabelWrapper = styled.div<{ label?: string }>`
   display: flex;
   flex-direction: column;
   align-items: flex-start;
@@ -384,7 +384,7 @@ const LabelWrapper = styled.div<{ label?: string }>`
   }
 `;
 
-function TooltipWrappedText(
+export function TooltipWrappedText(
   props: TextProps & {
     label: string;
   },
@@ -477,7 +477,7 @@ const validate = (values: any) => {
   return errors;
 };
 
-const { mailEnabled } = getAppsmithConfigs();
+export const { mailEnabled } = getAppsmithConfigs();
 
 export const InviteButtonWidth = "88px";
 
