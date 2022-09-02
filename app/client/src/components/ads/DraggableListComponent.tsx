@@ -1,6 +1,6 @@
 import { isEqual } from "lodash";
 import React from "react";
-import DraggableList from "./DraggableList";
+import { DraggableList } from "design-system";
 
 export type BaseItemProps = {
   id: string;

@@ -18,7 +18,7 @@ import {
   EditorTheme,
   TabBehaviour,
 } from "components/editorComponents/CodeEditor/EditorConfig";
-import MultiSwitch from "components/ads/MultiSwitch";
+import { MultiSwitch } from "design-system";
 import { updateBodyContentType } from "actions/apiPaneActions";
 import { CodeEditorExpected } from "components/editorComponents/CodeEditor";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
