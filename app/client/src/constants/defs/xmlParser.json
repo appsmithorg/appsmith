@@ -25,7 +25,7 @@
       "!type": "fn(options: object) -> object",
       "prototype": {
         "parse": {
-          "!type": "ƒn(jObj: ?)"
+          "!type": "fn(jObj: ?)"
         },
         "j2x": {
           "!type": "fn(jObj: ?, level: ?)"
