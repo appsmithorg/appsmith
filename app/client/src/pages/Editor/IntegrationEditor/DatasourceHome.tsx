@@ -4,7 +4,7 @@ import { connect } from "react-redux";
 import { initialize } from "redux-form";
 import { getDBPlugins, getPluginImages } from "selectors/entitiesSelector";
 import { Plugin } from "api/PluginApi";
-import { DATASOURCE_DB_FORM } from "constants/forms";
+import { DATASOURCE_DB_FORM } from "@appsmith/constants/forms";
 import { createDatasourceFromForm } from "actions/datasourceActions";
 import { AppState } from "@appsmith/reducers";
 import AnalyticsUtil from "utils/AnalyticsUtil";

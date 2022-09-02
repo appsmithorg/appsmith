@@ -1,5 +1,5 @@
 import { all } from "@redux-saga/core/effects";
-import { AppState } from "ce/reducers";
+import { AppState } from "@appsmith/reducers";
 import lodash from "lodash";
 import React from "react";
 import { MemoryRouter } from "react-router-dom";

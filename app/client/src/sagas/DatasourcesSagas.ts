@@ -48,7 +48,7 @@ import {
   API_EDITOR_FORM_NAME,
   DATASOURCE_DB_FORM,
   DATASOURCE_REST_API_FORM,
-} from "constants/forms";
+} from "@appsmith/constants/forms";
 import { validateResponse } from "./ErrorSagas";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getFormData } from "selectors/formSelectors";
