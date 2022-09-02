@@ -2376,4 +2376,58 @@ public class DatabaseChangelog2 {
         return mongockTemplate.save(user);
     }
 
+    @ChangeSet(order = "034", id = "update-bad-theme-state", author = "", runAlways = true)
+    public void updateBadThemeState(MongockTemplate mongockTemplate, @NonLockGuarded PolicyGenerator policyGenerator,
+                                    CacheableRepositoryHelper cacheableRepositoryHelper) {
+        Query query = new Query();
+        query.addCriteria(
+                new Criteria().andOperator(
+                        new Criteria(fieldName(QTheme.theme.isSystemTheme)).is(false),
+                        new Criteria(fieldName(QTheme.theme.deleted)).is(false)
+                )
+        );
+
+        mongockTemplate.stream(query, Theme.class)
+                .stream()
+                .forEach(theme -> {
+                    Query applicationQuery = new Query();
+                    Criteria themeCriteria = new Criteria(fieldName(QApplication.application.editModeThemeId)).is(theme.getId())
+                            .orOperator(new Criteria(fieldName(QApplication.application.publishedModeThemeId)).is(theme.getId()));
+
+                    List<Application> applications = mongockTemplate.find(applicationQuery.addCriteria(themeCriteria), Application.class);
+                    // This is an erroneous state where the theme is being used by multiple applications
+                    if (applications != null && applications.size() > 1) {
+                        // Leave the first in the list untouched.
+                        Application firstApp = applications.get(0);
+                        // Create new themes for the rest of the applications which are copies of the original theme
+                        for (int i=1; i< applications.size(); i++) {
+                            Application application = applications.get(i);
+                            Theme newTheme = new Theme();
+                            newTheme.setSystemTheme(false);
+                            newTheme.setName(theme.getName());
+                            newTheme.setDisplayName(theme.getDisplayName());
+                            newTheme.setConfig(theme.getConfig());
+                            newTheme.setStylesheet(theme.getStylesheet());
+                            newTheme.setProperties(theme.getProperties());
+                            newTheme.setCreatedAt(Instant.now());
+                            newTheme.setUpdatedAt(Instant.now());
+
+                            // Add theme policies
+                            Set<Policy> themePolicies = policyGenerator.getAllChildPolicies(application.getPolicies(), Application.class, Theme.class);
+                            newTheme.setPolicies(themePolicies);
+
+                            newTheme = mongockTemplate.save(newTheme);
+
+                            if (application.getEditModeThemeId().equals(theme.getId())) {
+                                application.setEditModeThemeId(newTheme.getId());
+                            }
+                            if (application.getPublishedModeThemeId().equals(theme.getId())) {
+                                application.setPublishedModeThemeId(newTheme.getId());
+                            }
+                            mongockTemplate.save(application);
+                        }
+                    }
+                });
+    }
+
 }
