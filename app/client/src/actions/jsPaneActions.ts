@@ -72,6 +72,7 @@ export const startExecutingJSFunction = (payload: {
   collectionName: string;
   action: JSAction;
   collectionId: string;
+  from: EventLocation;
 }) => {
   return {
     type: ReduxActionTypes.START_EXECUTE_JS_FUNCTION,

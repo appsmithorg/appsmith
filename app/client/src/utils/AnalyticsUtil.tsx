@@ -25,7 +25,11 @@ export type EventLocation =
   | "OMNIBAR"
   | "SUBMENU"
   | "ACTION_SELECTOR"
-  | "ENTITY_EXPLORER";
+  | "ENTITY_EXPLORER"
+  | "KEYBOARD_SHORTCUT"
+  | "GUTTER_BUTTON"
+  | "MAIN_RUN_BUTTON"
+  | "RESPONSE_RUN_BUTTON";
 
 export type EventName =
   | "APP_CRASH"
