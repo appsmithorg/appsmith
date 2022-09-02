@@ -13,7 +13,6 @@ import org.json.JSONException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import static com.appsmith.external.helpers.PluginUtils.getValueSafelyFromFormData;
 import static com.appsmith.external.helpers.PluginUtils.getValueSafelyFromPropertyList;
@@ -33,7 +32,6 @@ import static com.external.utils.GraphQLConstants.PREV_CURSOR_VARIABLE_NAME;
 import static com.external.utils.GraphQLConstants.PREV_LIMIT_VAL;
 import static com.external.utils.GraphQLConstants.PREV_LIMIT_VARIABLE_NAME;
 import static com.external.utils.GraphQLBodyUtils.QUERY_VARIABLES_INDEX;
-import static org.apache.commons.lang3.ObjectUtils.NULL;
 import static org.apache.commons.lang3.ObjectUtils.isEmpty;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
