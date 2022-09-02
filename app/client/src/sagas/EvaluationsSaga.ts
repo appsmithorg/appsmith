@@ -280,6 +280,17 @@ export function* evaluateAndExecuteDynamicTrigger(
 
       // Check for any logs in the response and store them in the redux store
       if ("logs" in result && !!result.logs && result.logs.length) {
+        let name = "";
+
+        if (!!triggerMeta.source && "name" in triggerMeta.source) {
+          name = triggerMeta.source.name;
+        } else if (
+          !(dynamicTrigger.includes("{{") || dynamicTrigger.includes("}}"))
+        ) {
+          // We use the dynamic trigger as the name if it is not a binding
+          name = dynamicTrigger.replace("()", "");
+        }
+
         result.logs.forEach((log: LogObject) => {
           AppsmithConsole.addLog(
             {
@@ -290,10 +301,7 @@ export function* evaluateAndExecuteDynamicTrigger(
                   eventType === EventType.ON_JS_FUNCTION_EXECUTE
                     ? ENTITY_TYPE.JSACTION
                     : ENTITY_TYPE.WIDGET,
-                name:
-                  triggerMeta.source?.name ||
-                  dynamicTrigger.replace("()", "") ||
-                  "Widget",
+                name,
                 id: triggerMeta.source?.id || "",
               },
             },
