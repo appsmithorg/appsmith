@@ -146,12 +146,26 @@ public class ApplicationTemplateServiceTest {
 
     @Test
     public void get_WhenPageMetaDataExists_PageMetaDataParsedProperly() throws JsonProcessingException {
-        JSONObject jsonObject = new JSONObject();
-        jsonObject.put("id", "1234567890");
-        jsonObject.put("name", "My Page");
-        jsonObject.put("isDefault", true);
         JSONArray pages = new JSONArray();
-        pages.put(jsonObject);
+
+        JSONObject page1JsonObject = new JSONObject();
+        page1JsonObject.put("id", "1234567890");
+        page1JsonObject.put("name", "My Page");
+        page1JsonObject.put("isDefault", true);
+        page1JsonObject.put("isHidden", false);
+
+        pages.put(page1JsonObject);
+
+        JSONObject page2JsonObject = new JSONObject();
+        page2JsonObject.put("id", "9876543210");
+        page2JsonObject.put("name", "My Hidden Page");
+        page2JsonObject.put("isDefault", false);
+        page2JsonObject.put("isHidden", false);
+
+        pages.put(page2JsonObject);
+
+
+
 
         JSONObject templateObj = new JSONObject();
         templateObj.put("title", "My Template");
@@ -181,6 +195,12 @@ public class ApplicationTemplateServiceTest {
                     assertThat(pageNameIdDTO.getId()).isEqualTo("1234567890");
                     assertThat(pageNameIdDTO.getName()).isEqualTo("My Page");
                     assertThat(pageNameIdDTO.getIsDefault()).isTrue();
+
+                    PageNameIdDTO hiddenPageNameIdDTO = applicationTemplate.getPages().get(1);
+                    assertThat(pageNameIdDTO.getId()).isEqualTo("9876543210");
+                    assertThat(pageNameIdDTO.getName()).isEqualTo("My Hidden Page");
+                    assertThat(pageNameIdDTO.getIsDefault()).isFalse();
+                    assertThat(pageNameIdDTO.getIsHidden()).isTrue();
                 })
                 .verifyComplete();
     }

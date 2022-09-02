@@ -1,6 +1,7 @@
 package com.appsmith.server.dtos;
 
 import com.appsmith.external.models.BaseDomain;
+import com.appsmith.server.domains.ApplicationPage;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -21,7 +22,7 @@ public class ApplicationTemplate extends BaseDomain {
     private List<String> functions;
     private List<String> useCases;
     private List<String> datasources;
-    private List<PageNameIdDTO> pages;
+    private List<ApplicationPage> pages;
     private String minVersion;
     private String minVersionPadded;
     private Long downloadCount;
