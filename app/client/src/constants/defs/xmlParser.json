@@ -16,7 +16,7 @@
       "!type": "fn(node: ?, options: object) -> string"
     },
     "convertTonimn": {
-      "!type": "fn(node: ?, e_schema: ?, options: object) -> bool"
+      "!type": "fn(node: ?, e_schema: ?, options: object) -> ?"
     },
     "getTraversalObj": {
       "!type": "fn(xmlData: ?, options: object) -> ?"
