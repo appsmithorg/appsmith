@@ -13,7 +13,6 @@ import org.json.JSONException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import static com.appsmith.external.helpers.PluginUtils.getValueSafelyFromFormData;
 import static com.appsmith.external.helpers.PluginUtils.getValueSafelyFromPropertyList;
@@ -37,6 +36,9 @@ import static org.apache.commons.lang3.ObjectUtils.isEmpty;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
 public class GraphQLPaginationUtils {
+
+    private static String NULL_STRING = "null";
+
     public static Map getPaginationData(ActionConfiguration actionConfiguration) throws AppsmithPluginException {
         List<Property> properties = actionConfiguration.getPluginSpecifiedTemplates();
         if (properties.size() < PAGINATION_DATA_INDEX + 1) {
@@ -158,6 +160,7 @@ public class GraphQLPaginationUtils {
                             "a valid integer value for the previous page limit variable in the pagination tab. " +
                             "Current value: " + prevLimitValueString);
                 }
+                queryVariablesJson.put(prevLimitVarName, prevLimitValue);
 
                 String prevCursorVarName = paginationDataMap.get(PREV_CURSOR_VARIABLE_NAME);
                 String prevCursorValue = paginationDataMap.get(PREV_CURSOR_VAL);
@@ -169,8 +172,18 @@ public class GraphQLPaginationUtils {
                     );
                 }
 
-                queryVariablesJson.put(prevLimitVarName, prevLimitValue);
-                queryVariablesJson.put(prevCursorVarName, prevCursorValue);
+                /**
+                 * This check ensures that during the very first run when the query does not have any cursor data the
+                 * cursor related variable does not get added. In this case since the cursor data is not available
+                 * the dynamic binding value returned by the client is "null" string. Some GraphQL severs are able to
+                 * handle the "null" string as cursor value but some are not e.g. GitHub's GraphQL endpoints are not
+                 * able to handle "null" as value. Hence, it is better to skip passing the variable and allow the
+                 * GraphQL servers to run the query without cursor value. The GraphQL servers against which we are
+                 * testing seem to handle the case well where the value is skipped.
+                 */
+                if (!NULL_STRING.equals(prevCursorValue)) {
+                    queryVariablesJson.put(prevCursorVarName, prevCursorValue);
+                }
             }
             else {
                 String nextLimitVarName = paginationDataMap.get(NEXT_LIMIT_VARIABLE_NAME);
@@ -183,6 +196,7 @@ public class GraphQLPaginationUtils {
                             "a valid integer value for the next page limit variable in the pagination tab. " +
                             "Current value: " + nextLimitValueString);
                 }
+                queryVariablesJson.put(nextLimitVarName, nextLimitValue);
 
                 String nextCursorVarName = paginationDataMap.get(NEXT_CURSOR_VARIABLE_NAME);
                 String nextCursorValue = paginationDataMap.get(NEXT_CURSOR_VAL);
@@ -193,8 +207,18 @@ public class GraphQLPaginationUtils {
                     );
                 }
 
-                queryVariablesJson.put(nextLimitVarName, nextLimitValue);
-                queryVariablesJson.put(nextCursorVarName, nextCursorValue);
+                /**
+                 * This check ensures that during the very first run when the query does not have any cursor data the
+                 * cursor related variable does not get added. In this case since the cursor data is not available
+                 * the dynamic binding value returned by the client is "null" string. Some GraphQL severs are able to
+                 * handle the "null" string as cursor value but some are not e.g. GitHub's GraphQL endpoints are not
+                 * able to handle "null" as value. Hence, it is better to skip passing the variable and allow the
+                 * GraphQL servers to run the query without cursor value. The GraphQL servers against which we are
+                 * testing seem to handle the case well where the value is skipped.
+                 */
+                if (!NULL_STRING.equals(nextCursorValue)) {
+                    queryVariablesJson.put(nextCursorVarName, nextCursorValue);
+                }
             }
         }
         else {

@@ -9,6 +9,8 @@ import com.appsmith.external.models.ApiKeyAuth;
 import com.appsmith.external.models.AuthenticationDTO;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.OAuth2;
+import com.appsmith.external.models.PaginationField;
+import com.appsmith.external.models.PaginationType;
 import com.appsmith.external.models.Param;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.services.SharedConfig;
@@ -18,10 +20,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import io.jsonwebtoken.JwtParser;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
-import io.jsonwebtoken.security.SignatureException;
 import net.minidev.json.JSONObject;
 import net.minidev.json.parser.JSONParser;
 import net.minidev.json.parser.ParseException;
@@ -31,27 +31,31 @@ import org.junit.Test;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.testcontainers.containers.GenericContainer;
+import org.testcontainers.utility.DockerImageName;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 import reactor.util.function.Tuple2;
 
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.CompletableFuture;
 
 import static com.appsmith.external.constants.Authentication.API_KEY;
 import static com.appsmith.external.constants.Authentication.OAUTH2;
+import static com.appsmith.external.helpers.PluginUtils.setValueSafelyInFormData;
 import static com.appsmith.external.helpers.restApiUtils.helpers.HintMessageUtils.DUPLICATE_ATTRIBUTE_LOCATION;
 import static com.appsmith.external.helpers.restApiUtils.helpers.HintMessageUtils.DUPLICATE_ATTRIBUTE_LOCATION.ACTION_CONFIG_ONLY;
 import static com.appsmith.external.helpers.restApiUtils.helpers.HintMessageUtils.DUPLICATE_ATTRIBUTE_LOCATION.DATASOURCE_AND_ACTION_CONFIG;
 import static com.appsmith.external.helpers.restApiUtils.helpers.HintMessageUtils.DUPLICATE_ATTRIBUTE_LOCATION.DATASOURCE_CONFIG_ONLY;
 import static com.external.utils.GraphQLBodyUtils.QUERY_VARIABLES_INDEX;
+import static com.external.utils.GraphQLPaginationUtils.updateVariablesWithPaginationValues;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -84,8 +88,10 @@ public class GraphQLPluginTest {
 
     @SuppressWarnings("rawtypes")
     @ClassRule
-    public static GenericContainer mongoContainer = new GenericContainer(CompletableFuture.completedFuture("appsmith/test-event-driver"))
-            .withExposedPorts(5000);
+    public static GenericContainer graphqlContainer = new GenericContainer(DockerImageName.parse("appsmith/test-event" +
+            "-driver"))
+            .withExposedPorts(5000)
+            .withStartupTimeout(Duration.ofSeconds(120));
 
     @Before
     public void setUp() {
@@ -93,11 +99,10 @@ public class GraphQLPluginTest {
     }
 
     private DatasourceConfiguration getDefaultDatasourceConfig() {
-        String address = mongoContainer.getContainerIpAddress();
-        Integer port = mongoContainer.getFirstMappedPort();
+        String address = graphqlContainer.getContainerIpAddress();
+        Integer port = graphqlContainer.getFirstMappedPort();
         DatasourceConfiguration dsConfig = new DatasourceConfiguration();
         dsConfig.setUrl("http://" + address + ":" + port + "/graphql");
-        //dsConfig.setUrl("https://api.spacex.land/graphql/");
         return dsConfig;
     }
 
@@ -105,14 +110,6 @@ public class GraphQLPluginTest {
         ActionConfiguration actionConfig = new ActionConfiguration();
         actionConfig.setHeaders(List.of(new Property("content-type", "application/json")));
         actionConfig.setHttpMethod(HttpMethod.POST);
-        /*String requestBody = "query Capsules($limit: Int, $offset: Int) {\n" +
-                "  capsules(limit: $limit, offset: $offset) {\n" +
-                "    dragon {\n" +
-                "      id\n" +
-                "      name\n" +
-                "    }\n" +
-                "  }\n" +
-                "}";*/
         String requestBody = "query {\n" +
                 "\tallPosts(first: 1) {\n" +
                 "\t\tnodes {\n" +
@@ -1027,5 +1024,65 @@ public class GraphQLPluginTest {
         StepVerifier.create(resultMono)
                 .assertNext(result -> assertFalse(result.getIsExecutionSuccess()))
                 .verifyComplete();
+    }
+
+    /**
+     * This method tests that when the cursor value for forward pagination request is "null", then the cursor key
+     * should be skipped from being added to the query variables. This would effectively turn the pagination query
+     * into a simple non paginated query.
+     */
+    @Test
+    public void testNextCursorKeyIsSkippedWhenValueIsNull() {
+        ActionConfiguration actionConfig = getDefaultActionConfiguration();
+        actionConfig.setPaginationType(PaginationType.CURSOR);
+        actionConfig.getPluginSpecifiedTemplates().get(QUERY_VARIABLES_INDEX).setValue("{}");
+
+        Map<String, Object> paginationDataMap = new HashMap<String, Object>();
+        setValueSafelyInFormData(paginationDataMap, "cursorBased.next.limit.name", "first");
+        setValueSafelyInFormData(paginationDataMap, "cursorBased.next.limit.value", "3");
+        setValueSafelyInFormData(paginationDataMap, "cursorBased.next.cursor.name", "endCursor");
+        setValueSafelyInFormData(paginationDataMap, "cursorBased.next.cursor.value", "null");
+        Property property = new Property();
+        property.setKey("paginationData");
+        property.setValue(paginationDataMap);
+        actionConfig.getPluginSpecifiedTemplates().add(property);
+
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
+        executeActionDTO.setPaginationField(PaginationField.NEXT);
+
+        updateVariablesWithPaginationValues(actionConfig, executeActionDTO);
+        String expectedVariableString = "{\"first\":3}";
+        assertEquals(expectedVariableString,
+                actionConfig.getPluginSpecifiedTemplates().get(QUERY_VARIABLES_INDEX).getValue());
+    }
+
+    /**
+     * This method tests that when the cursor value for backward pagination request is "null", then the cursor key
+     * should be skipped from being added to the query variables. This would effectively turn the pagination query
+     * into a simple non paginated query.
+     */
+    @Test
+    public void testPrevCursorKeyIsSkippedWhenValueIsNull() {
+        ActionConfiguration actionConfig = getDefaultActionConfiguration();
+        actionConfig.setPaginationType(PaginationType.CURSOR);
+        actionConfig.getPluginSpecifiedTemplates().get(QUERY_VARIABLES_INDEX).setValue("{}");
+
+        Map<String, Object> paginationDataMap = new HashMap<String, Object>();
+        setValueSafelyInFormData(paginationDataMap, "cursorBased.previous.limit.name", "last");
+        setValueSafelyInFormData(paginationDataMap, "cursorBased.previous.limit.value", "3");
+        setValueSafelyInFormData(paginationDataMap, "cursorBased.previous.cursor.name", "startCursor");
+        setValueSafelyInFormData(paginationDataMap, "cursorBased.previous.cursor.value", "null");
+        Property property = new Property();
+        property.setKey("paginationData");
+        property.setValue(paginationDataMap);
+        actionConfig.getPluginSpecifiedTemplates().add(property);
+
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
+        executeActionDTO.setPaginationField(PaginationField.PREV);
+
+        updateVariablesWithPaginationValues(actionConfig, executeActionDTO);
+        String expectedVariableString = "{\"last\":3}";
+        assertEquals(expectedVariableString,
+                actionConfig.getPluginSpecifiedTemplates().get(QUERY_VARIABLES_INDEX).getValue());
     }
 }
