@@ -89,9 +89,8 @@ Object.entries(widgetsToTest).forEach(([widgetSelector, testConfig], index) => {
       if (index === 0) {
         configureApi();
       }
-
+      ee.PinUnpinEntityExplorer(false);
       ee.DragDropWidgetNVerify(widgetSelector, 100, 200);
-
       ee.DragDropWidgetNVerify(WIDGET.BUTTON, 400, 200);
       //ee.SelectEntityByName(WIDGET.BUTTONNAME("1"));
       // Set onClick action, storing value
@@ -107,6 +106,7 @@ Object.entries(widgetsToTest).forEach(([widgetSelector, testConfig], index) => {
         PROPERTY_SELECTOR.TextFieldName,
         `{{appsmith.store.textPayloadOnSubmit}}`,
       );
+      ee.PinUnpinEntityExplorer(true);
     });
 
     it("2. StoreValue should have complete input value", () => {
