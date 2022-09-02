@@ -1,8 +1,12 @@
 import { getWidgets } from "sagas/selectors";
 import { useSelector } from "store";
 
-import { LayoutDirection, ResponsiveBehavior } from "components/constants";
-import { isArray } from "lodash";
+import {
+  LayoutDirection,
+  LayoutWrapperType,
+  ResponsiveBehavior,
+} from "components/constants";
+import { isArray, isNaN } from "lodash";
 import { WidgetDraggingBlock } from "./useBlocksToBeDraggedOnCanvas";
 
 interface XYCord {
@@ -15,17 +19,23 @@ export interface Highlight {
   y: number;
   height: number;
   width: number;
+  wrapperType: LayoutWrapperType;
 }
 
 export interface AutoLayoutHighlightProps {
   blocksToDraw: WidgetDraggingBlock[];
+  canvasId: string;
   direction?: LayoutDirection;
   dropPositionRef: React.RefObject<HTMLDivElement>;
   isCurrentDraggedCanvas: boolean;
   isDragging: boolean;
   useAutoLayout?: boolean;
-  widgetId: string;
   widgetName?: string;
+}
+
+export interface DropPositionPayload {
+  index: number;
+  wrapperType: LayoutWrapperType;
 }
 
 const BASE_OFFSET_SIZE = 100;
@@ -33,25 +43,27 @@ const OFFSET_WIDTH = 4;
 
 export const useAutoLayoutHighlights = ({
   blocksToDraw,
+  canvasId,
   direction,
   dropPositionRef,
   isCurrentDraggedCanvas,
   isDragging,
   useAutoLayout,
-  widgetId,
-  widgetName,
 }: AutoLayoutHighlightProps) => {
   const allWidgets = useSelector(getWidgets);
+  const canvas = allWidgets[canvasId];
+  const isCanvasWrapper = canvas.isWrapper || false;
   const isVertical = direction === LayoutDirection.Vertical;
 
   let offsets: Highlight[] = [];
   let dragBlocksSize = 0;
-  const siblings: DOMRect[] = [];
   const siblingElements: any[] = [];
   let lastTranslatedIndex: number;
   let containerDimensions: {
     top: number;
+    bottom: number;
     left: number;
+    right: number;
     width: number;
     height: number;
   };
@@ -60,43 +72,31 @@ export const useAutoLayoutHighlights = ({
    * START AUTO LAYOUT OFFSET CALCULATION
    */
 
-  // Determines whether nested wrappers can be introduced in the current canvas
-  const enableNestedWrappers = (): boolean => {
-    const canvas = allWidgets[widgetId];
-    // If the canvas is not a wrapper, then return false.
-    if (!canvas?.isWrapper) return false;
-    const children = canvas.children || [];
-    // TODO: what to do when there are no children?
-    if (!children.length) return true;
-    // If the canvas has a fill child, then return false.
-    return !(
-      children.filter(
-        (child) =>
-          allWidgets[child]?.responsiveBehavior === ResponsiveBehavior.Fill,
-      ).length > 0
-    );
-  };
-
   // Create and add an initial offset for an empty canvas
-  const initializeOffsets = (): void => {
-    offsets = [];
+  const getInitialOffset = (
+    isWrapper: boolean,
+    wrapperType: LayoutWrapperType = LayoutWrapperType.Start,
+  ): Highlight => {
     let mOffset: Highlight;
+    const reverse = isWrapper && wrapperType === LayoutWrapperType.End;
     if (isVertical) {
       mOffset = {
         x: 0,
-        y: 8,
+        y: reverse ? containerDimensions.bottom - 8 : 8,
         width: containerDimensions?.width || BASE_OFFSET_SIZE,
         height: OFFSET_WIDTH,
+        wrapperType,
       };
     } else {
       mOffset = {
-        x: 8,
+        x: reverse ? containerDimensions.right - 8 : 8,
         y: 0,
         width: OFFSET_WIDTH,
         height: containerDimensions?.height || BASE_OFFSET_SIZE,
+        wrapperType,
       };
     }
-    offsets.push(mOffset);
+    return mOffset;
   };
   // Get DOM element for a given widgetId
   const getDomElement = (widgetId: string): any =>
@@ -104,7 +104,7 @@ export const useAutoLayoutHighlights = ({
 
   const cleanUpTempStyles = () => {
     // reset display of all dragged blocks
-    const els = document.querySelectorAll(`.auto-layout-parent-${widgetId}`);
+    const els = document.querySelectorAll(`.auto-layout-parent-${canvasId}`);
     if (els && els.length) {
       els.forEach((el) => {
         (el as any).classList.remove("auto-temp-no-display");
@@ -115,7 +115,6 @@ export const useAutoLayoutHighlights = ({
     // reset state
     dragBlocksSize = 0;
     lastTranslatedIndex = -10;
-
     // Hide the highlight
     if (dropPositionRef && dropPositionRef.current) {
       dropPositionRef.current.style.opacity = "0";
@@ -123,19 +122,20 @@ export const useAutoLayoutHighlights = ({
     }
   };
 
-  // Fetcha and update the dimensions of the containing canvas.
+  // Fetch and update the dimensions of the containing canvas.
   const updateContainerDimensions = (): boolean => {
-    const container = document.querySelector(`.appsmith_widget_${widgetId}`);
+    const container = document.querySelector(`.appsmith_widget_${canvasId}`);
     const containerRect:
       | DOMRect
       | undefined = container?.getBoundingClientRect();
     if (!container || !containerRect) return false;
-    // console.log(`#### container rect: ${JSON.stringify(containerRect)}`);
     containerDimensions = {
-      top: containerRect.top || 0,
-      left: containerRect.left || 0,
-      width: containerRect.width,
-      height: containerRect.height,
+      top: containerRect?.top || 0,
+      bottom: containerRect?.bottom - containerDimensions?.top || 0,
+      left: containerRect?.left || 0,
+      right: containerRect?.right - containerRect?.left || 0,
+      width: containerRect?.width,
+      height: containerRect?.height,
     };
     return true;
   };
@@ -158,6 +158,7 @@ export const useAutoLayoutHighlights = ({
   const getOffset = (
     rect: DOMRect,
     flexOffsetTop: number,
+    wrapperType: LayoutWrapperType,
     isFinal?: boolean,
   ): Highlight => {
     let mOffset: Highlight;
@@ -170,16 +171,16 @@ export const useAutoLayoutHighlights = ({
     const valueToAdd = isFinal
       ? {
           x: rect.width + 8,
-          y: isVertical ? rect.height + 8 : 8,
+          y: isVertical ? rect.height + 8 : 0,
         }
       : { x: 0, y: 0 };
-
     if (isVertical) {
       mOffset = {
         x: 0,
         y: rect.top - valueToSubtract.y + valueToAdd.y,
         width: containerDimensions.width,
         height: OFFSET_WIDTH,
+        wrapperType,
       };
     } else {
       mOffset = {
@@ -187,6 +188,7 @@ export const useAutoLayoutHighlights = ({
         y: rect.top - valueToSubtract.y + valueToAdd.y,
         height: rect.height,
         width: OFFSET_WIDTH,
+        wrapperType,
       };
     }
     // console.log(`#### offset: ${JSON.stringify(mOffset)}`);
@@ -214,15 +216,34 @@ export const useAutoLayoutHighlights = ({
     return rest === 0;
   };
 
-  const hideDraggedItems = (arr: string[]) => {
+  const hideDraggedItems = (arr: string[]): void => {
     arr?.forEach((each) => {
-      let el;
-      const widgetId = getNearestWrapperAncestor(each);
-      if (isWrapperEmpty(widgetId, arr)) {
-        el = getDomElement(widgetId);
-      } else el = getDomElement(each);
+      // Get the parent wrapper
+      const wrapperId = getNearestWrapperAncestor(each);
+      if (wrapperId === canvasId) return;
+      /**
+       * If the wrapper is not the dragging canvas and is empty,
+       * then hide it,
+       * else hide the child element.
+       */
+      const el = isWrapperEmpty(wrapperId, arr)
+        ? getDomElement(wrapperId)
+        : getDomElement(each);
       el?.classList?.add("auto-temp-no-display");
     });
+  };
+
+  const hasFillChild = (arr: string[]): boolean => {
+    if (!arr || !arr.length) return false;
+    let flag = false;
+    for (const widgetId of arr) {
+      const widget = allWidgets[widgetId];
+      if (widget?.responsiveBehavior === ResponsiveBehavior.Fill) {
+        flag = true;
+        break;
+      }
+    }
+    return flag;
   };
 
   const calculateHighlightOffsets = (): Highlight[] => {
@@ -249,7 +270,6 @@ export const useAutoLayoutHighlights = ({
       // Temporarily hide dragged children to discount them from offset calculation
       hideDraggedItems(blocks);
       // Get all children of current dragging canvas
-      const canvas = allWidgets[widgetId];
       const canvasChildren = canvas.children || [];
       const offsetChildren = canvasChildren.filter((each) => {
         if (canvas.isWrapper) return blocks.indexOf(each) === -1;
@@ -258,47 +278,93 @@ export const useAutoLayoutHighlights = ({
         );
         return isArray(children) && children.length > 0;
       });
-
       // console.log(`#### canvas children: ${JSON.stringify(canvasChildren)}`);
       // console.log(`#### offset children: ${JSON.stringify(offsetChildren)}`);
-      const flex = document.querySelector(`.flex-container-${widgetId}`);
+      const flex = document.querySelector(`.flex-container-${canvasId}`);
       const flexOffsetTop = (flex as any)?.offsetTop || 0;
-      // console.log(
-      //   `#### flex container offset top: ${(flex as any)?.offsetTop}`,
-      // );
-      if (offsetChildren && offsetChildren.length) {
-        // Get widget ids of all widgets being dragged
+      let temp: Highlight[] = [];
+      const discardEndWrapper: boolean = hasFillChild(offsetChildren);
+      if (canvas.isWrapper && !discardEndWrapper) {
+        const start: string[] = [],
+          end: string[] = [];
         offsetChildren.forEach((each) => {
-          const el = getDomElement(each);
-          if (!el) return;
-
-          // console.log(`#### child: ${el.className}`);
-          // console.log(`#### offset parent: ${el.offsetParent.className}`);
-          const rect: DOMRect = el.getBoundingClientRect();
-          // console.log(`#### bounding rect: ${JSON.stringify(rect)}`);
-          // Add a new offset using the current element's dimensions and position
-          offsets.push(getOffset(rect, flexOffsetTop, false));
-          // siblings[each] = mOffset;
-          siblings.push(rect);
-          siblingElements.push(el);
+          if (allWidgets[each]?.wrapperType === LayoutWrapperType.Start)
+            start.push(each);
+          else end.push(each);
         });
-        /**
-         * If the dragged element has siblings,
-         * then add another offset at the end of the last sibling
-         * to demarcate the final drop position.
-         */
-        if (siblings.length) {
-          offsets.push(
-            getOffset(siblings[siblings.length - 1], flexOffsetTop, true),
-          );
-        }
-        offsets = [...new Set(offsets)];
-      }
-      if (!offsets || !offsets.length) initializeOffsets();
+        const arr1: Highlight[] = evaluateOffsets(
+          start,
+          flexOffsetTop,
+          true,
+          LayoutWrapperType.Start,
+        );
+        const arr2: Highlight[] = evaluateOffsets(
+          end,
+          flexOffsetTop,
+          true,
+          LayoutWrapperType.End,
+        );
+        temp = [...arr1, ...arr2];
+      } else
+        temp = evaluateOffsets(
+          offsetChildren,
+          flexOffsetTop,
+          false,
+          LayoutWrapperType.Start,
+        );
+      offsets = [...offsets, ...temp];
+
+      if (!offsets || !offsets.length)
+        offsets = [getInitialOffset(isCanvasWrapper)];
       // console.log(`#### offsets: ${JSON.stringify(offsets)}`);
       // console.log(`#### END calculate highlight offsets`);
     }
     return offsets;
+  };
+
+  const evaluateOffsets = (
+    arr: string[],
+    flexOffsetTop: number,
+    isWrapper: boolean,
+    wrapperType: LayoutWrapperType,
+  ): Highlight[] => {
+    let res: Highlight[] = [];
+    const siblings: DOMRect[] = [];
+    if (arr && arr.length) {
+      // Get widget ids of all widgets being dragged
+      arr.forEach((each) => {
+        const el = getDomElement(each);
+        if (!el) return;
+
+        // console.log(`#### child: ${el.className}`);
+        // console.log(`#### offset parent: ${el.offsetParent.className}`);
+        const rect: DOMRect = el.getBoundingClientRect();
+        // console.log(`#### bounding rect: ${JSON.stringify(rect)}`);
+        // Add a new offset using the current element's dimensions and position
+        res.push(getOffset(rect, flexOffsetTop, wrapperType, false));
+        siblings.push(rect);
+        siblingElements.push(el);
+      });
+      /**
+       * If the dragged element has siblings,
+       * then add another offset at the end of the last sibling
+       * to demarcate the final drop position.
+       */
+      if (siblings.length) {
+        res.push(
+          getOffset(
+            wrapperType === LayoutWrapperType.End
+              ? siblings[siblings.length - 1]
+              : siblings[siblings.length - 1],
+            flexOffsetTop,
+            wrapperType,
+            true,
+          ),
+        );
+      }
+      res = [...new Set(res)];
+    } else res = [getInitialOffset(isWrapper, wrapperType)];
+    return res;
   };
 
   /**
@@ -356,7 +422,8 @@ export const useAutoLayoutHighlights = ({
 
   const getHighlightPosition = (e: any, val?: XYCord): Highlight => {
     let base: Highlight[] = [];
-    if (!offsets || !offsets.length) initializeOffsets();
+    if (!offsets || !offsets.length)
+      offsets = [getInitialOffset(isCanvasWrapper)];
     base = offsets;
 
     const pos: XYCord = {
@@ -376,18 +443,33 @@ export const useAutoLayoutHighlights = ({
     return Math.abs(Math.sqrt(x * x + y * y));
   };
 
-  const getDropPosition = (val: XYCord): number | undefined => {
+  const getDropPosition = (index: number): number => {
+    if (isNaN(index)) return 0;
+    const wrapperType: LayoutWrapperType =
+      offsets[index]?.wrapperType || LayoutWrapperType.Start;
+    if (wrapperType === LayoutWrapperType.End) return index - 1;
+    return index;
+  };
+
+  const getDropInfo = (val: XYCord): DropPositionPayload | undefined => {
     if (!isNaN(lastTranslatedIndex) && lastTranslatedIndex >= 0)
-      return lastTranslatedIndex;
+      return {
+        index: getDropPosition(lastTranslatedIndex),
+        wrapperType: offsets[lastTranslatedIndex]?.wrapperType,
+      };
     const pos = getHighlightPosition(null, val);
     if (!pos) return;
-    return offsets.indexOf(pos);
+    const dropPos: number = offsets.indexOf(pos);
+    return {
+      index: getDropPosition(dropPos),
+      wrapperType: offsets[dropPos]?.wrapperType,
+    };
   };
 
   return {
     calculateHighlightOffsets,
     cleanUpTempStyles,
-    getDropPosition,
+    getDropInfo,
     highlightDropPosition,
   };
 };

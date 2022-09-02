@@ -1,5 +1,6 @@
 import React, { ReactNode, useRef, useEffect, RefObject, useMemo } from "react";
 import styled, { css } from "styled-components";
+import { isArray, pick } from "lodash";
 import tinycolor from "tinycolor2";
 import { invisible } from "constants/DefaultTheme";
 import { Color } from "constants/Colors";
@@ -8,7 +9,6 @@ import { useCanvasMinHeightUpdateHook } from "utils/hooks/useCanvasMinHeightUpda
 import WidgetStyleContainer, {
   WidgetStyleContainerProps,
 } from "components/designSystems/appsmith/WidgetStyleContainer";
-import { pick } from "lodash";
 import { ComponentProps } from "widgets/BaseComponent";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import {
@@ -17,10 +17,17 @@ import {
   FlexDirection,
   JustifyContent,
   LayoutDirection,
+  LayoutWrapperType,
   Overflow,
+  ResponsiveBehavior,
   Spacing,
 } from "components/constants";
-import { getLayoutProperties } from "utils/layoutPropertiesUtils";
+import {
+  getLayoutProperties,
+  LayoutProperties,
+} from "utils/layoutPropertiesUtils";
+import { useSelector } from "store";
+import { getWidgets } from "sagas/selectors";
 
 const scrollContents = css`
   overflow-y: auto;
@@ -66,6 +73,10 @@ const StyledContainerComponent = styled.div<
     position: absolute;
     left: -9999px;
   }
+
+  .no-display {
+    display: none;
+  }
 `;
 
 export const FlexContainer = styled.div<{
@@ -89,6 +100,28 @@ export const FlexContainer = styled.div<{
   overflow: ${({ overflow }) =>
     overflow?.indexOf("wrap") === -1 ? overflow : "hidden"};
   padding: 4px;
+
+  .wrapper {
+    flex: 1 1 auto;
+  }
+`;
+
+const StartWrapper = styled.div<{
+  flexDirection: FlexDirection;
+}>`
+  display: flex;
+  flex-direction: ${({ flexDirection }) => flexDirection || "row"};
+  justify-content: flex-start;
+  align-items: center;
+`;
+
+const EndWrapper = styled.div<{
+  flexDirection: FlexDirection;
+}>`
+  display: flex;
+  flex-direction: ${({ flexDirection }) => flexDirection || "row"};
+  justify-content: flex-end;
+  align-items: center;
 `;
 
 function ContainerComponentWrapper(props: ContainerComponentProps) {
@@ -138,6 +171,58 @@ export function FlexBox(props: FlexBoxProps) {
       useAutoLayout={props.useAutoLayout}
     >
       {props.children}
+    </FlexContainer>
+  );
+}
+
+export function LayoutWrapper(props: FlexBoxProps): JSX.Element {
+  const allWidgets = useSelector(getWidgets);
+  let start: JSX.Element[] = [],
+    end: JSX.Element[] = [];
+  let hasFillChild = false;
+  if (isArray(props.children)) {
+    for (const child of props.children) {
+      const widget = allWidgets[(child as JSX.Element).props?.widgetId];
+      if (widget.responsiveBehavior === ResponsiveBehavior.Fill) {
+        hasFillChild = true;
+        break;
+      }
+      if (widget?.wrapperType === LayoutWrapperType.End)
+        end.push(child as JSX.Element);
+      else start.push(child as JSX.Element);
+    }
+  }
+  if (hasFillChild) {
+    start = props.children as JSX.Element[];
+    end = [];
+  }
+
+  const layoutProps: LayoutProperties = useMemo(
+    () => getLayoutProperties(props.direction, props.alignment, props.spacing),
+    [props.direction, props.alignment, props.spacing],
+  );
+  return (
+    <FlexContainer
+      className={`flex-container-${props.widgetId}`}
+      {...layoutProps}
+      overflow={props.overflow}
+      stretchHeight={props.stretchHeight}
+      useAutoLayout={props.useAutoLayout}
+    >
+      <StartWrapper
+        className={`wrapper start-wrapper-${props.widgetId}`}
+        flexDirection={layoutProps.flexDirection}
+      >
+        {start}
+      </StartWrapper>
+      <EndWrapper
+        className={`wrapper end-wrapper-${props.widgetId} ${
+          hasFillChild ? "no-display" : ""
+        }`}
+        flexDirection={FlexDirection.Row}
+      >
+        {end}
+      </EndWrapper>
     </FlexContainer>
   );
 }

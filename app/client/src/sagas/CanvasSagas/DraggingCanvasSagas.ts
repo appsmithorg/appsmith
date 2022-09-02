@@ -35,7 +35,13 @@ import {
 import { MainCanvasReduxState } from "reducers/uiReducers/mainCanvasReducer";
 import { CANVAS_DEFAULT_MIN_HEIGHT_PX } from "constants/AppConstants";
 import { generateReactKey } from "utils/generators";
-import { Alignment, ButtonBoxShadowTypes, Spacing } from "components/constants";
+import {
+  Alignment,
+  ButtonBoxShadowTypes,
+  LayoutWrapperType,
+  ResponsiveBehavior,
+  Spacing,
+} from "components/constants";
 import {
   getLayoutWrapperName,
   purgeEmptyWrappers,
@@ -350,11 +356,12 @@ function* autolayoutReorderSaga(
     movedWidgets: string[];
     index: number;
     parentId: string;
+    wrapperType: LayoutWrapperType;
   }>,
 ) {
   const start = performance.now();
 
-  const { index, movedWidgets, parentId } = actionPayload.payload;
+  const { index, movedWidgets, parentId, wrapperType } = actionPayload.payload;
   // console.log(`#### moved widgets: ${JSON.stringify(movedWidgets)}`);
   // console.log(`#### parentId: ${parentId}`);
   try {
@@ -367,8 +374,10 @@ function* autolayoutReorderSaga(
         index,
         parentId,
         allWidgets,
+        wrapperType,
       },
     );
+
     yield put(updateAndSaveLayout(updatedWidgets));
     log.debug("reorder computations took", performance.now() - start, "ms");
   } catch (e) {
@@ -381,8 +390,9 @@ function* reorderAutolayoutChildren(params: {
   index: number;
   parentId: string;
   allWidgets: CanvasWidgetsReduxState;
+  wrapperType: LayoutWrapperType;
 }) {
-  const { allWidgets, index, movedWidgets, parentId } = params;
+  const { allWidgets, index, movedWidgets, parentId, wrapperType } = params;
   const widgets = Object.assign({}, allWidgets);
   if (!movedWidgets) return widgets;
   const selectedWidgets = [...movedWidgets];
@@ -419,11 +429,11 @@ function* reorderAutolayoutChildren(params: {
   // Update moved widgets. Add wrappers to those missing one.
   const { newMovedWidgets, updatedWidgets } = yield call(
     updateMovedWidgets,
-    movedWidgets,
+    selectedWidgets,
     trimmedWidgets,
     parentId,
+    wrapperType,
   );
-
   const items = [...(updatedWidgets[parentId].children || [])];
   // remove moved widegts from children
   const newItems = items.filter((item) => newMovedWidgets.indexOf(item) === -1);
@@ -444,10 +454,35 @@ function* updateMovedWidgets(
   movedWidgets: string[],
   allWidgets: CanvasWidgetsReduxState,
   parentId: string,
+  wrapperType: LayoutWrapperType,
 ) {
   const stateParent = allWidgets[parentId];
-  if (!movedWidgets || !allWidgets || stateParent.isWrapper)
+  if (!movedWidgets || !allWidgets)
     return { newMovedWidgets: movedWidgets, updatedWidgets: allWidgets };
+  if (stateParent.isWrapper) {
+    // If widgets are being dropped in a wrapper,
+    // then updated the wrapper type and return'
+    let hasFillChild = false;
+    for (const each of movedWidgets) {
+      if (allWidgets[each].responsiveBehavior === ResponsiveBehavior.Fill) {
+        hasFillChild = true;
+        break;
+      }
+      allWidgets[each] = {
+        ...allWidgets[each],
+        wrapperType,
+      };
+    }
+    if (hasFillChild) {
+      for (const each of movedWidgets) {
+        allWidgets[each] = {
+          ...allWidgets[each],
+          wrapperType: LayoutWrapperType.Start,
+        };
+      }
+    }
+    return { newMovedWidgets: movedWidgets, updatedWidgets: allWidgets };
+  }
   const newMovedWidgets: string[] = [];
   for (const each of movedWidgets) {
     const widget = allWidgets[each];
@@ -497,7 +532,7 @@ function* updateMovedWidgets(
       children: [...(wrapper.children || []), each],
     };
     // Update parent of the widget
-    allWidgets[each] = { ...widget, parentId: wrapper.widgetId };
+    allWidgets[each] = { ...widget, parentId: wrapper.widgetId, wrapperType };
     allWidgets[wrapper.widgetId] = wrapper;
     newMovedWidgets.push(wrapper.widgetId);
   }
@@ -509,10 +544,11 @@ function* addWidgetAndReorderSaga(
     newWidget: WidgetAddChild;
     index: number;
     parentId: string;
+    wrapperType: LayoutWrapperType;
   }>,
 ) {
   const start = performance.now();
-  const { index, newWidget, parentId } = actionPayload.payload;
+  const { index, newWidget, parentId, wrapperType } = actionPayload.payload;
   try {
     const updatedWidgetsOnAddition: {
       widgets: CanvasWidgetsReduxState;
@@ -528,6 +564,7 @@ function* addWidgetAndReorderSaga(
         index,
         parentId,
         allWidgets: updatedWidgetsOnAddition.widgets,
+        wrapperType,
       },
     );
     yield put(updateAndSaveLayout(updatedWidgetsOnMove));

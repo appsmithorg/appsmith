@@ -170,3 +170,9 @@ export enum Overflow {
   Scroll = "scroll",
   Auto = "auto",
 }
+
+export enum LayoutWrapperType {
+  Start = "start",
+  Center = "center",
+  End = "end",
+}

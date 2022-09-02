@@ -10,7 +10,7 @@ import {
 } from "components/constants";
 import { ValidationTypes } from "constants/WidgetValidation";
 
-interface LayoutProperties {
+export interface LayoutProperties {
   flexDirection: FlexDirection;
   justifyContent: JustifyContent;
   alignItems: AlignItems;
