@@ -18,7 +18,6 @@ import {
   ButtonPlacementTypes,
   ButtonPlacement,
 } from "components/constants";
-import FormWidget from "widgets/FormWidget/widget";
 
 class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
   onButtonClickBound: (event: React.MouseEvent<HTMLElement>) => void;
@@ -147,11 +146,6 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
       // TODO: refactor widgetParentProps implementation when we address #10659
       {
         sectionName: "Form Settings",
-        hidden: (
-          props: ButtonWidgetProps,
-          propertyPath: string,
-          widgetParentProps?: WidgetProps,
-        ) => widgetParentProps?.type !== FormWidget.getWidgetType(),
         children: [
           {
             helpText:
@@ -454,11 +448,6 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
       // TODO: refactor widgetParentProps implementation when we address #10659
       {
         sectionName: "Form options",
-        hidden: (
-          props: ButtonWidgetProps,
-          propertyPath: string,
-          widgetParentProps?: WidgetProps,
-        ) => widgetParentProps?.type !== FormWidget.getWidgetType(),
         children: [
           {
             helpText:
