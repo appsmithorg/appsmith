@@ -1,13 +1,6 @@
 package com.external.utils;
 
 public class GraphQLConstants {
-    public static final String PREV = "previous";
-    public static final String NEXT = "next";
-    public static final String CURSOR = "cursor";
-    public static final String LIMIT = "limit";
-    public static final String OFFSET = "offset";
-    public static final String NAME = "name";
-    public static final String VALUE = "value";
     public static final String PREV_LIMIT_VARIABLE_NAME = "prevLimitVariableName";
     public static final String PREV_LIMIT_VAL = "prevLimitValue";
     public static final String PREV_CURSOR_VARIABLE_NAME = "prevCursorVariableName";
