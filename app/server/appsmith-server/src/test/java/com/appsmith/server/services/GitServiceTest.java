@@ -2435,24 +2435,6 @@ public class GitServiceTest {
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void importApplicationFromGit_privateRepoLimitReached_ThrowApplicationLimitError() {
-        GitConnectDTO gitConnectDTO = getConnectRequest("git@github.com:test/testRepo.git", testUserProfile);
-        gitService.generateSSHKey(null).block();
-        Mockito
-                .when(gitCloudServicesUtils.getPrivateRepoLimitForOrg(Mockito.any(), Mockito.anyBoolean()))
-                .thenReturn(Mono.just(0));
-
-        Mono<ApplicationImportDTO> applicationMono = gitService.importApplicationFromGit(workspaceId, gitConnectDTO);
-
-        StepVerifier
-                .create(applicationMono)
-                .expectErrorMatches(throwable -> throwable instanceof AppsmithException
-                        && throwable.getMessage().contains(AppsmithError.GIT_APPLICATION_LIMIT_ERROR.getMessage(AppsmithError.GIT_APPLICATION_LIMIT_ERROR.getMessage())))
-                .verify();
-    }
-
-    @Test
-    @WithUserDetails(value = "api_user")
     public void importApplicationFromGit_emptyRepo_ThrowError() {
         GitConnectDTO gitConnectDTO = getConnectRequest("git@github.com:test/testRepo.git", testUserProfile);
         GitAuth gitAuth = gitService.generateSSHKey(null).block();
