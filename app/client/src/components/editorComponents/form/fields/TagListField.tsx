@@ -1,4 +1,4 @@
-import React from "react";
+import React, { ReactElement } from "react";
 import {
   Field,
   WrappedFieldMetaProps,
@@ -23,7 +23,9 @@ type TagListFieldProps = {
   type: string;
   label: string;
   intent: Intent;
-  customError: (err: string) => void;
+  customError: (err: string, values?: string[]) => void;
+  suggestions?: { id: string; name: string; icon?: string }[];
+  suggestionLeftIcon?: ReactElement;
 };
 
 function TagListField(props: TagListFieldProps) {

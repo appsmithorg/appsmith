@@ -29,6 +29,7 @@ describe("Custom column alias functionality", () => {
       "background-color",
       "rgb(255, 255, 255)",
     );
+    cy.moveToStyleTab();
     cy.get(".t--property-control-backgroundcolor .t--js-toggle").click();
     propPane.UpdatePropertyFieldValue(
       "Background color",
@@ -111,6 +112,7 @@ describe("Custom column alias functionality", () => {
       "background-color",
       "rgb(0, 255, 0)",
     );
+    cy.moveToContentTab();
     cy.get(".t--property-control-disabled .t--js-toggle").click();
     propPane.UpdatePropertyFieldValue(
       "Disabled",

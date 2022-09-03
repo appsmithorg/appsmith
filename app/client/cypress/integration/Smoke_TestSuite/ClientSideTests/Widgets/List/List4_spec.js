@@ -87,10 +87,10 @@ describe("Container Widget Functionality", function() {
     // Open Property pane
     cy.CheckAndUnfoldEntityItem("WIDGETS");
     cy.selectEntityByName("List1");
+    cy.moveToStyleTab();
     // Update an invalid value to item spacing
     cy.testJsontext("itemspacing\\(" + "px" + "\\)", "-");
     cy.wait(2000);
-
     // Verify the length of list
     cy.get(commonlocators.containerWidget).then(function($lis) {
       expect($lis).to.have.length(2);
@@ -112,8 +112,7 @@ describe("Container Widget Functionality", function() {
     cy.selectEntityByName("Button1");
     //cy.SearchEntityandOpen("Button1");
     cy.testJsontext("label", `{{currentItem.last_name}}`);
-    cy.addAction("{{currentItem.last_name}}");
-
+    cy.addAction("{{currentItem.last_name}}", "onclick");
     cy.PublishtheApp();
     // Verify Widget Button by clicking on it
     cy.get(widgetsPage.widgetBtn)
@@ -151,7 +150,6 @@ describe("Container Widget Functionality", function() {
         force: true,
         parseSpecialCharSequences: false,
       });
-
     cy.PublishtheApp();
     // Click on list first item
     cy.get(
@@ -190,6 +188,7 @@ describe("Container Widget Functionality", function() {
     // Open Property pane
     cy.CheckAndUnfoldEntityItem("WIDGETS");
     cy.selectEntityByName("List1");
+    cy.moveToStyleTab();
     // Scroll down to Styles and Add background colour
     cy.selectColor("backgroundcolor");
     cy.wait(1000);
@@ -215,6 +214,7 @@ describe("Container Widget Functionality", function() {
     // Open Property pane
     cy.CheckAndUnfoldEntityItem("WIDGETS");
     cy.selectEntityByName("List1");
+    cy.moveToStyleTab();
     // Scroll down to Styles and Add background colour
     cy.get(widgetsPage.backgroundColorToggleNew).click({ force: true });
     cy.testJsontext("backgroundcolor", "#FFC13D");
@@ -253,6 +253,7 @@ describe("Container Widget Functionality", function() {
     // Open Property pane
     cy.CheckAndUnfoldEntityItem("WIDGETS");
     cy.selectEntityByName("List1");
+    cy.moveToStyleTab();
     // Scroll down to Styles and Add item spacing for item card
     cy.testJsontext("itemspacing\\(" + "px" + "\\)", 12);
     cy.wait(2000);

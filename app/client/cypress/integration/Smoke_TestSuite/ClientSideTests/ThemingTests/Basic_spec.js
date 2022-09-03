@@ -781,7 +781,7 @@ describe("App Theming funtionality", function() {
     cy.get(explorer.widgetSwitchId).click();
     cy.dragAndDropToCanvas("buttonwidget", { x: 200, y: 400 }); //another button widget
     cy.assertPageSave();
-
+    cy.moveToStyleTab();
     //Change Color & verify
     cy.get(widgetsPage.colorPickerV2Popover)
       .click({ force: true })
@@ -908,6 +908,7 @@ describe("App Theming funtionality", function() {
     ee.NavigateToSwitcher("explorer");
     ee.ExpandCollapseEntity("WIDGETS"); //to expand widgets
     ee.SelectEntityByName("Button2");
+    cy.moveToStyleTab();
     cy.get(".t--property-control-buttoncolor .reset-button").then(($elem) => {
       $elem[0].removeAttribute("display: none");
       $elem[0].click();
@@ -916,7 +917,6 @@ describe("App Theming funtionality", function() {
     cy.get(widgetsPage.widgetBtn)
       .eq(1)
       .should("have.css", "background-color", "rgb(126, 34, 206)"); //verify widget reverted to theme color
-
     cy.get(".t--property-control-borderradius .reset-button").then(($elem) => {
       $elem[0].removeAttribute("display: none");
       $elem[0].click();
@@ -1009,6 +1009,7 @@ describe("App Theming funtionality", function() {
     ee.NavigateToSwitcher("explorer");
     ee.ExpandCollapseEntity("WIDGETS"); //to expand widgets
     ee.SelectEntityByName("Button1");
+    cy.moveToStyleTab();
 
     //Change Color & verify
     cy.get(widgetsPage.colorPickerV2Popover)
@@ -1146,6 +1147,7 @@ describe("App Theming funtionality", function() {
     ee.NavigateToSwitcher("explorer");
     ee.ExpandCollapseEntity("WIDGETS"); //to expand widgets
     ee.SelectEntityByName("Button1");
+    cy.moveToStyleTab();
     cy.get(".t--property-control-buttoncolor .reset-button").then(($elem) => {
       $elem[0].removeAttribute("display: none");
       $elem[0].click();

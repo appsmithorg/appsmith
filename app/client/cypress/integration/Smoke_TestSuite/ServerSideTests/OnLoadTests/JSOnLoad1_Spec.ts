@@ -285,7 +285,7 @@ describe("JSObjects OnLoad Actions tests", function() {
 
       ee.SelectEntityByName("Input1", "WIDGETS");
       propPane.UpdatePropertyFieldValue(
-        "Default Text",
+        "Default Value",
         "{{" + jsObjName + ".callQuotes.data}}",
       );
       cy.get(locator._toastMsg)
@@ -298,7 +298,7 @@ describe("JSObjects OnLoad Actions tests", function() {
 
       ee.SelectEntityByName("Input2");
       propPane.UpdatePropertyFieldValue(
-        "Default Text",
+        "Default Value",
         "{{" + jsObjName + ".callTrump.data.message}}",
       );
       agHelper.WaitUntilToastDisappear(

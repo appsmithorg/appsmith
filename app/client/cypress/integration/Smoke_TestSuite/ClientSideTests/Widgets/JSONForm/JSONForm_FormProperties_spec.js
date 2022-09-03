@@ -94,17 +94,17 @@ describe("JSON Form Widget Form Bindings", () => {
 
   it("show show icon select when a collapsed section is opened", () => {
     cy.openPropertyPane("jsonformwidget");
-
+    cy.moveToStyleTab();
     // Check Submit Button Styles hidden
-    cy.get(submitButtonStylesSection).should("not.be.visible");
+    //cy.get(submitButtonStylesSection).should("not.be.visible");
     // .parent()
     // .should("have.attr", "aria-hidden", "true");
-
+    /*
     // Open Submit Button Section
     cy.get(".t--property-pane-section-collapse-submitbuttonstyles").click({
       force: true,
     });
-
+    */
     // Click Icon property
     cy.get(submitButtonStylesSection)
       .contains("(none)")

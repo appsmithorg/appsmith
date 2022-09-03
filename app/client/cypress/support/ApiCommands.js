@@ -1,5 +1,6 @@
 /* eslint-disable cypress/no-unnecessary-waiting */
-/* eslint-disable cypress/no-assigning-return-values */
+/* eslint-disable cypress/no-assigning-return-
+alues */
 
 require("cy-verify-downloads").addCustomCommand();
 require("cypress-file-upload");

@@ -28,7 +28,6 @@ describe("Theme validation for default data", function() {
     cy.wait(3000);
     cy.get(themelocator.canvas).click({ force: true });
     cy.wait(2000);
-
     //Border validation
     //cy.contains("Border").click({ force: true });
     cy.get(themelocator.border).should("have.length", "3");
@@ -74,6 +73,7 @@ describe("Theme validation for default data", function() {
       formWidgetsPage.formWidget,
       formWidgetsPage.formInner,
     );
+    cy.moveToStyleTab();
     cy.get(widgetsPage.backgroundcolorPickerNew)
       .first()
       .click({ force: true });
