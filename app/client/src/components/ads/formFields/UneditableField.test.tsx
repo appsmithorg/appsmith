@@ -1,7 +1,7 @@
 import { render } from "test/testUtils";
 import React from "react";
 import UneditableField from "./UneditableField";
-import { REDIRECT_URL_FORM } from "constants/forms";
+import { REDIRECT_URL_FORM } from "@appsmith/constants/forms";
 import { reduxForm } from "redux-form";
 
 let container: any = null;

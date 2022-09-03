@@ -1,7 +1,7 @@
 import React from "react";
 import { Field, WrappedFieldMetaProps } from "redux-form";
 import { Intent } from "constants/DefaultTheme";
-import FormFieldError from "components/ads/formFields/FieldError";
+import { FieldError } from "design-system";
 import {
   EditorModes,
   EditorSize,
@@ -34,7 +34,7 @@ const renderComponent = (
         theme={theme}
       />
       {!componentProps.hideErrorMessage && componentProps.meta.error && (
-        <FormFieldError error={showError && componentProps.meta.error} />
+        <FieldError error={showError && componentProps.meta.error} />
       )}
     </>
   );

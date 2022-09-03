@@ -1,4 +1,4 @@
-import SegmentHeader from "components/ads/ListSegmentHeader";
+import { SegmentHeader } from "design-system";
 import { BranchListItem } from "./BranchListItem";
 import { getIsActiveItem } from "../utils";
 import React from "react";

@@ -68,15 +68,15 @@ describe("Validate basic binding of Input widget to Input widget", () => {
       expect($selectedValue).to.eq("#1");
     });
 
-    table.SelectTableRow(2); //Deselecting here!
+    table.SelectTableRow(2, 0, false); //Deselecting here!
     agHelper.ReadSelectedDropDownValue().then(($selectedValue) => {
       expect($selectedValue).to.eq("Select option");
     });
   });
 
   it("3. Verify Selecting the already selected row deselects it", () => {
-    table.SelectTableRow(0);
-    table.SelectTableRow(0);
+    table.SelectTableRow(0);//select here
+    table.SelectTableRow(0, 0, false);//deselect here
     agHelper.ReadSelectedDropDownValue().then(($selectedValue) => {
       expect($selectedValue).to.eq("Select option");
     });

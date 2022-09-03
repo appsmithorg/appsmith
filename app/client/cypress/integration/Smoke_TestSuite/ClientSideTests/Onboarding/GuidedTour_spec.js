@@ -19,6 +19,9 @@ describe("Guided Tour", function() {
     cy.get(guidedTourLocators.welcomeTour).click();
     cy.get(guidedTourLocators.startBuilding).click();
     cy.get(explorerLocators.entityExplorer).should("not.be.visible");
+    // Refresh the page to validate if the tour resumes
+    cy.reload();
+    cy.get(guidedTourLocators.banner).should("be.visible");
     // Step 1: Run query
     cy.runQuery();
     cy.get(guidedTourLocators.successButton).click();
