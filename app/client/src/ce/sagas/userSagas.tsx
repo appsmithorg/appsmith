@@ -1,4 +1,4 @@
-import { call, takeLatest, put, all, select, take } from "redux-saga/effects";
+import { call, put, select, take } from "redux-saga/effects";
 import {
   ReduxAction,
   ReduxActionWithPromise,
@@ -22,7 +22,7 @@ import {
   validateResponse,
   getResponseErrorMessage,
   callAPI,
-} from "./ErrorSagas";
+} from "sagas/ErrorSagas";
 import {
   logoutUserSuccess,
   logoutUserError,
@@ -34,7 +34,7 @@ import {
   fetchFeatureFlagsError,
 } from "actions/userActions";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { INVITE_USERS_TO_WORKSPACE_FORM } from "constants/forms";
+import { INVITE_USERS_TO_WORKSPACE_FORM } from "@appsmith/constants/forms";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
@@ -406,7 +406,9 @@ export function* waitForFetchUserSuccess() {
   }
 }
 
-function* removePhoto(action: ReduxAction<{ callback: (id: string) => void }>) {
+export function* removePhoto(
+  action: ReduxAction<{ callback: (id: string) => void }>,
+) {
   try {
     const response: ApiResponse = yield call(UserApi.deletePhoto);
     //@ts-expect-error: response is of type unknown
@@ -417,7 +419,7 @@ function* removePhoto(action: ReduxAction<{ callback: (id: string) => void }>) {
   }
 }
 
-function* updatePhoto(
+export function* updatePhoto(
   action: ReduxAction<{ file: File; callback: (id: string) => void }>,
 ) {
   try {
@@ -432,7 +434,7 @@ function* updatePhoto(
   }
 }
 
-function* fetchFeatureFlags() {
+export function* fetchFeatureFlags() {
   try {
     const response: ApiResponse = yield call(UserApi.fetchFeatureFlags);
     const isValidResponse: boolean = yield validateResponse(response);
@@ -446,7 +448,7 @@ function* fetchFeatureFlags() {
   }
 }
 
-function* updateFirstTimeUserOnboardingSage() {
+export function* updateFirstTimeUserOnboardingSage() {
   const enable: string | null = yield getEnableFirstTimeUserOnboarding();
 
   if (enable) {
@@ -468,38 +470,6 @@ function* updateFirstTimeUserOnboardingSage() {
       payload: introModalVisibility,
     });
   }
-}
-
-export default function* userSagas() {
-  yield all([
-    takeLatest(ReduxActionTypes.CREATE_USER_INIT, createUserSaga),
-    takeLatest(ReduxActionTypes.FETCH_USER_INIT, getCurrentUserSaga),
-    takeLatest(ReduxActionTypes.FORGOT_PASSWORD_INIT, forgotPasswordSaga),
-    takeLatest(ReduxActionTypes.RESET_USER_PASSWORD_INIT, resetPasswordSaga),
-    takeLatest(
-      ReduxActionTypes.RESET_PASSWORD_VERIFY_TOKEN_INIT,
-      verifyResetPasswordTokenSaga,
-    ),
-    takeLatest(ReduxActionTypes.INVITE_USERS_TO_WORKSPACE_INIT, inviteUsers),
-    takeLatest(ReduxActionTypes.LOGOUT_USER_INIT, logoutSaga),
-    takeLatest(ReduxActionTypes.VERIFY_INVITE_INIT, verifyUserInviteSaga),
-    takeLatest(
-      ReduxActionTypes.INVITED_USER_SIGNUP_INIT,
-      invitedUserSignupSaga,
-    ),
-    takeLatest(
-      ReduxActionTypes.UPDATE_USER_DETAILS_INIT,
-      updateUserDetailsSaga,
-    ),
-    takeLatest(ReduxActionTypes.REMOVE_PROFILE_PHOTO, removePhoto),
-    takeLatest(ReduxActionTypes.UPLOAD_PROFILE_PHOTO, updatePhoto),
-    takeLatest(ReduxActionTypes.LEAVE_WORKSPACE_INIT, leaveWorkspaceSaga),
-    takeLatest(ReduxActionTypes.FETCH_FEATURE_FLAGS_INIT, fetchFeatureFlags),
-    takeLatest(
-      ReduxActionTypes.FETCH_USER_DETAILS_SUCCESS,
-      updateFirstTimeUserOnboardingSage,
-    ),
-  ]);
 }
 
 export function* leaveWorkspaceSaga(

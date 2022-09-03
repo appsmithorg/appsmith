@@ -50,7 +50,7 @@ describe("RichTextEditor Widget Functionality", function() {
     );
 
     //Edit the text area with Html
-    cy.testJsontext("defaulttext", this.data.HtmlText);
+    cy.testJsontext("defaultvalue", this.data.HtmlText);
 
     //Validate Html
     cy.validateHTMLText(
@@ -167,7 +167,7 @@ describe("RichTextEditor Widget Functionality", function() {
     );
     cy.openPropertyPane("richtexteditorwidget");
     // Change defaultText
-    cy.testJsontext("defaulttext", "a");
+    cy.testJsontext("defaultvalue", "a");
     // Check if isDirty has been changed into false
     cy.get(".t--widget-textwidget").should("contain", "false");
     // Interact with UI
@@ -179,7 +179,7 @@ describe("RichTextEditor Widget Functionality", function() {
     cy.get(".t--widget-textwidget").should("contain", "true");
     // Change defaultText
     cy.openPropertyPane("richtexteditorwidget");
-    cy.testJsontext("defaulttext", "b");
+    cy.testJsontext("defaultvalue", "b");
     // Check if isDirty is reset to false
     cy.get(".t--widget-textwidget").should("contain", "false");
 
@@ -190,7 +190,7 @@ describe("RichTextEditor Widget Functionality", function() {
     cy.get(".t--widget-buttonwidget .bp3-button").click({ force: true });
     cy.wait(500);
     cy.openPropertyPane("richtexteditorwidget");
-    cy.testJsontext("defaulttext", "c");
+    cy.testJsontext("defaultvalue", "c");
     cy.get(".t--widget-textwidget").should("contain", "false");
   });
 
@@ -199,14 +199,14 @@ describe("RichTextEditor Widget Functionality", function() {
     cy.updateCodeInput(".t--property-control-text", `{{RichtextEditor.text}}`);
     // Change defaultText of the RTE
     cy.openPropertyPane("richtexteditorwidget");
-    cy.testJsontext("defaulttext", "Test Content");
+    cy.testJsontext("defaultvalue", "Test Content");
 
     //Check if the text widget has the defaultText of RTE
     cy.get(".t--widget-textwidget").should("contain", "Test Content");
 
     //Clear the default text from RTE
     cy.openPropertyPane("richtexteditorwidget");
-    cy.testJsontext("defaulttext", "");
+    cy.testJsontext("defaultvalue", "");
 
     //Check if text widget and RTE widget does not have any text in it.
     cy.get(".t--widget-richtexteditorwidget").should("contain", "");

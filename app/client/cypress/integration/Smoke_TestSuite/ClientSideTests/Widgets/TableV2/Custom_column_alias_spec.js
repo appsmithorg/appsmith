@@ -40,7 +40,7 @@ describe("Custom column alias functionality", () => {
     propPane.UpdatePropertyFieldValue("Text", "{{Table1.selectedRow}}");
     cy.openPropertyPane("tablewidgetv2");
     cy.editColumn("customColumn1");
-    propPane.UpdatePropertyFieldValue("Property name", "columnAlias");
+    propPane.UpdatePropertyFieldValue("Property Name", "columnAlias");
     cy.get(".t--widget-textwidget .bp3-ui-text").should(
       "contain",
       `{  "普通话 [普通話] ": "",  "français": "",  "español": "",  "日本語": "",  "हिन्दी": "",  "columnAlias": ""}`,
