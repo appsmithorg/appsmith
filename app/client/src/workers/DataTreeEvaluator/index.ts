@@ -103,7 +103,14 @@ export default class DataTreeEvaluator {
     [actionId: string]: ActionValidationConfigMap;
   };
   triggerFieldDependencyMap: DependencyMap = {};
-  unusedIdentifiersList: DependencyMap = {};
+  /**  Keeps track of all unused identifiers in bindings throughout the Application
+   * Eg. For binding {{unknownEntity.name + Api1.name}} in Button1.text, where Api1 is present in dataTree but unknownEntity is not,
+   * the map has a key-value pair of
+   * {
+   *  "Button1.text": [unknownEntity.name]
+   * }
+   */
+  unusedIdentifiersMap: DependencyMap = {};
   public hasCyclicalDependency = false;
   constructor(
     widgetConfigMap: WidgetTypeConfigMap,
@@ -152,7 +159,7 @@ export default class DataTreeEvaluator {
     } = createDependencyMap(this, localUnEvalTree);
     this.dependencyMap = dependencyMap;
     this.triggerFieldDependencyMap = triggerFieldDependencyMap;
-    this.unusedIdentifiersList = unusedIdentifiers;
+    this.unusedIdentifiersMap = unusedIdentifiers;
     const createDependencyEnd = performance.now();
     // Sort
     const sortDependenciesStart = performance.now();
