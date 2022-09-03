@@ -36,7 +36,7 @@ import {
   extractInvalidTopLevelMemberExpressionsFromCode,
   isLiteralNode,
   MemberExpressionData,
-} from "workers/ast";
+} from "@shared/ast";
 
 export const pathRequiresLinting = (
   dataTree: DataTree,
@@ -230,6 +230,7 @@ const getInvalidPropertyErrorsFromScript = (
     invalidTopLevelMemberExpressions = extractInvalidTopLevelMemberExpressionsFromCode(
       script,
       data,
+      2,
     );
   } catch (e) {}
 

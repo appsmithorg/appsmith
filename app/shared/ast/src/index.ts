@@ -1,8 +1,8 @@
-import { parse, Node } from "acorn";
-import { ancestor } from "acorn-walk";
-import { ECMA_VERSION, NodeTypes } from "./constants";
-import { isFinite, isString } from "lodash";
-import { sanitizeScript } from "./utils";
+import { parse, Node, SourceLocation, Options } from 'acorn';
+import { ancestor, simple } from 'acorn-walk';
+import { ECMA_VERSION, NodeTypes } from './constants';
+import { isFinite, isString, memoize, toPath } from 'lodash';
+import { isInvalidEntiyName, sanitizeScript } from './utils';
 
 /*
  * Valuable links:
@@ -90,8 +90,15 @@ export interface PropertyNode extends Node {
   type: NodeTypes.Property;
   key: LiteralNode | IdentifierNode;
   value: Node;
-  kind: "init" | "get" | "set";
+  kind: 'init' | 'get' | 'set';
 }
+
+// Node with location details
+type NodeWithLocation<NodeType> = NodeType & {
+  loc: SourceLocation;
+};
+
+type AstOptions = Omit<Options, 'ecmaVersion'>;
 
 /* We need these functions to typescript casts the nodes with the correct types */
 export const isIdentifierNode = (node: Node): node is IdentifierNode => {
@@ -114,6 +121,11 @@ const isFunctionDeclaration = (node: Node): node is FunctionDeclarationNode => {
 
 const isFunctionExpression = (node: Node): node is FunctionExpressionNode => {
   return node.type === NodeTypes.FunctionExpression;
+};
+const isArrowFunctionExpression = (
+  node: Node
+): node is ArrowFunctionExpressionNode => {
+  return node.type === NodeTypes.ArrowFunctionExpression;
 };
 
 export const isObjectExpression = (node: Node): node is ObjectExpression => {
@@ -158,8 +170,20 @@ const wrapCode = (code: string) => {
   `;
 };
 
-export const getAST = (code: string) =>
-  parse(code, { ecmaVersion: ECMA_VERSION });
+const getFunctionalParamNamesFromNode = (
+  node:
+    | FunctionDeclarationNode
+    | FunctionExpressionNode
+    | ArrowFunctionExpressionNode
+) => {
+  return Array.from(getFunctionalParamsFromNode(node)).map(
+    (functionalParam) => functionalParam.paramName
+  );
+};
+
+export const getAST = memoize((code: string, options?: AstOptions) =>
+  parse(code, { ...options, ecmaVersion: ECMA_VERSION })
+);
 
 /**
  * An AST based extractor that fetches all possible identifiers in a given
@@ -168,17 +192,23 @@ export const getAST = (code: string) =>
  * should run again.
  * @param code: The piece of script where identifiers need to be extracted from
  */
-export const extractIdentifiersFromCode = (
+
+interface ExtractInfoFromCode {
+  identifiers: string[];
+  functionalParams: string[];
+  variables: string[];
+}
+export const extractInfoFromCode = (
   code: string,
   evaluationVersion: number
-): string[] => {
+): ExtractInfoFromCode => {
   // List of all identifiers found
   const identifiers = new Set<string>();
   // List of variables declared within the script. This will be removed from identifier list
   const variableDeclarations = new Set<string>();
   // List of functionalParams found. This will be removed from the identifier list
-  let functionalParams = new Set<functionParams>();
-  let ast: Node = { end: 0, start: 0, type: "" };
+  let functionalParams = new Set<string>();
+  let ast: Node = { end: 0, start: 0, type: '' };
   try {
     const sanitizedScript = sanitizeScript(code, evaluationVersion);
     /* wrapCode - Wrapping code in a function, since all code/script get wrapped with a function during evaluation.
@@ -195,7 +225,11 @@ export const extractIdentifiersFromCode = (
   } catch (e) {
     if (e instanceof SyntaxError) {
       // Syntax error. Ignore and return 0 identifiers
-      return [];
+      return {
+        identifiers: [],
+        functionalParams: [],
+        variables: [],
+      };
     }
     throw e;
   }
@@ -263,28 +297,47 @@ export const extractIdentifiersFromCode = (
       if (!isFunctionDeclaration(node)) return;
       functionalParams = new Set([
         ...functionalParams,
-        ...getFunctionalParamsFromNode(node),
+        ...getFunctionalParamNamesFromNode(node),
       ]);
     },
     FunctionExpression(node: Node) {
-      // params in function experssions are also counted as identifiers so we keep
+      // params in function expressions are also counted as identifiers so we keep
       // track of them and remove them from the final list of identifiers
       if (!isFunctionExpression(node)) return;
       functionalParams = new Set([
         ...functionalParams,
-        ...getFunctionalParamsFromNode(node),
+        ...getFunctionalParamNamesFromNode(node),
+      ]);
+    },
+    ArrowFunctionExpression(node: Node) {
+      // params in arrow function expressions are also counted as identifiers so we keep
+      // track of them and remove them from the final list of identifiers
+      if (!isArrowFunctionExpression(node)) return;
+      functionalParams = new Set([
+        ...functionalParams,
+        ...getFunctionalParamNamesFromNode(node),
       ]);
     },
   });
 
-  // Remove declared variables and function params
-  variableDeclarations.forEach((variable) => identifiers.delete(variable));
-  functionalParams.forEach((param) => identifiers.delete(param.paramName));
-
-  return Array.from(identifiers);
+  const validIdentifiers = Array.from(identifiers).filter((identifier) => {
+    // To remove identifiers (or member expressions) derived from declared variables and function params,
+    // We extract the topLevelIdentifier Eg. Api1.name => Api1
+    const topLevelIdentifier = toPath(identifier)[0];
+    return !(
+      functionalParams.has(topLevelIdentifier) ||
+      variableDeclarations.has(topLevelIdentifier) ||
+      isInvalidEntiyName(topLevelIdentifier)
+    );
+  });
+  return {
+    identifiers: validIdentifiers,
+    functionalParams: Array.from(functionalParams),
+    variables: Array.from(variableDeclarations),
+  };
 };
 
-export type functionParams = { paramName: string; defaultValue: unknown };
+export type functionParam = { paramName: string; defaultValue: unknown };
 
 export const getFunctionalParamsFromNode = (
   node:
@@ -292,8 +345,8 @@ export const getFunctionalParamsFromNode = (
     | FunctionExpressionNode
     | ArrowFunctionExpressionNode,
   needValue = false
-): Set<functionParams> => {
-  const functionalParams = new Set<functionParams>();
+): Set<functionParam> => {
+  const functionalParams = new Set<functionParam>();
   node.params.forEach((paramNode) => {
     if (isIdentifierNode(paramNode)) {
       functionalParams.add({
@@ -320,7 +373,7 @@ export const getFunctionalParamsFromNode = (
 
 const constructFinalMemberExpIdentifier = (
   node: MemberExpressionNode,
-  child = ""
+  child = ''
 ): string => {
   const propertyAccessor = getPropertyAccessor(node.property);
   if (isIdentifierNode(node.object)) {
@@ -349,4 +402,91 @@ export const isTypeOfFunction = (type: string) => {
     type === NodeTypes.ArrowFunctionExpression ||
     type === NodeTypes.FunctionExpression
   );
+};
+
+export interface MemberExpressionData {
+  property: NodeWithLocation<IdentifierNode | LiteralNode>;
+  object: NodeWithLocation<IdentifierNode>;
+}
+
+export const extractInvalidTopLevelMemberExpressionsFromCode = (
+  code: string,
+  data: Record<string, any>,
+  evaluationVersion: number
+): MemberExpressionData[] => {
+  const invalidTopLevelMemberExpressions = new Set<MemberExpressionData>();
+  const variableDeclarations = new Set<string>();
+  let functionalParams = new Set<string>();
+  let ast: Node = { end: 0, start: 0, type: '' };
+  try {
+    const sanitizedScript = sanitizeScript(code, evaluationVersion);
+    const wrappedCode = wrapCode(sanitizedScript);
+    ast = getAST(wrappedCode, { locations: true });
+  } catch (e) {
+    if (e instanceof SyntaxError) {
+      // Syntax error. Ignore and return 0 identifiers
+      return [];
+    }
+    throw e;
+  }
+  simple(ast, {
+    MemberExpression(node: Node) {
+      const { object, property } = node as MemberExpressionNode;
+      if (!isIdentifierNode(object)) return;
+      if (!(object.name in data)) return;
+      if (
+        isLiteralNode(property) &&
+        isString(property.value) &&
+        !(property.value in data[object.name])
+      ) {
+        invalidTopLevelMemberExpressions.add({
+          object,
+          property,
+        } as MemberExpressionData);
+      }
+      if (isIdentifierNode(property) && !(property.name in data[object.name])) {
+        invalidTopLevelMemberExpressions.add({
+          object,
+          property,
+        } as MemberExpressionData);
+      }
+    },
+    VariableDeclarator(node: Node) {
+      if (isVariableDeclarator(node)) {
+        variableDeclarations.add(node.id.name);
+      }
+    },
+    FunctionDeclaration(node: Node) {
+      if (!isFunctionDeclaration(node)) return;
+      functionalParams = new Set([
+        ...functionalParams,
+        ...getFunctionalParamNamesFromNode(node),
+      ]);
+    },
+    FunctionExpression(node: Node) {
+      if (!isFunctionExpression(node)) return;
+      functionalParams = new Set([
+        ...functionalParams,
+        ...getFunctionalParamNamesFromNode(node),
+      ]);
+    },
+    ArrowFunctionExpression(node: Node) {
+      if (!isArrowFunctionExpression(node)) return;
+      functionalParams = new Set([
+        ...functionalParams,
+        ...getFunctionalParamNamesFromNode(node),
+      ]);
+    },
+  });
+
+  const invalidTopLevelMemberExpressionsArray = Array.from(
+    invalidTopLevelMemberExpressions
+  ).filter((MemberExpression) => {
+    return !(
+      variableDeclarations.has(MemberExpression.object.name) ||
+      functionalParams.has(MemberExpression.object.name)
+    );
+  });
+
+  return invalidTopLevelMemberExpressionsArray;
 };

@@ -173,8 +173,6 @@ export const WINDOW_OBJECT_METHODS = {
   stop: "stop",
 };
 
-export const INTERNAL_IDENTIFIERS = ["appsmith"];
-
 export const GLOBAL_SCOPE_OBJECTS = {
   Error: "Error",
   Promise: "Promise",

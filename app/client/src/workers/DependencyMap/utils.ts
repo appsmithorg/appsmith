@@ -1,7 +1,7 @@
 import { union } from "lodash";
 import toPath from "lodash/toPath";
 import { EvalErrorTypes, EvalError } from "utils/DynamicBindingUtils";
-import { extractIdentifiersFromCode } from "workers/ast";
+import { extractInfoFromCode } from "@shared/ast";
 import { convertPathToString } from "../evaluationUtils";
 
 /** This function extracts references and unreferencedIdentifiers from binding {{}}
@@ -19,7 +19,7 @@ export const extractInfoFromBinding = (
   script: string,
   allPaths: Record<string, true>,
 ): { references: string[]; unreferencedIdentifiers: string[] } => {
-  const identifiers = extractIdentifiersFromCode(script);
+  const { identifiers } = extractInfoFromCode(script, 2);
   return extractInfoFromIdentifiers(identifiers, allPaths);
 };
 
