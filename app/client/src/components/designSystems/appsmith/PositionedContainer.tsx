@@ -165,7 +165,7 @@ export function PositionedContainer(props: PositionedContainerProps) {
 
   const onClickFn = useCallback(
     (e) => {
-      clickToSelectWidget(e, props.widgetId);
+      clickToSelectWidget(e);
     },
     [props.widgetId, clickToSelectWidget],
   );

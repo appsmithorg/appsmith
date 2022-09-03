@@ -1,8 +1,5 @@
 import { get } from "lodash";
-import {
-  getCurrentWidgetId,
-  getIsPropertyPaneVisible,
-} from "selectors/propertyPaneSelectors";
+import { getIsPropertyPaneVisible } from "selectors/propertyPaneSelectors";
 import { getIsTableFilterPaneVisible } from "selectors/tableFilterSelectors";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import { useSelector } from "store";
@@ -19,6 +16,34 @@ import {
   isWidgetSelected,
 } from "selectors/widgetSelectors";
 
+export function getParentToOpenIfAny(
+  widgetId: string | undefined,
+  widgets: CanvasWidgetsReduxState,
+) {
+  if (widgetId) {
+    let widget = get(widgets, widgetId, undefined);
+
+    // While this widget has a openParentPropertyPane equql to true
+    while (widget?.openParentPropertyPane) {
+      // Get parent widget props
+      const parent = get(widgets, `${widget.parentId}`, undefined);
+
+      // If parent has openParentPropertyPane = false, return the currnet parent
+      if (!parent?.openParentPropertyPane) {
+        return parent;
+      }
+
+      if (parent?.parentId && parent.parentId !== MAIN_CONTAINER_WIDGET_ID) {
+        widget = get(widgets, `${widget.parentId}`, undefined);
+
+        continue;
+      }
+    }
+  }
+
+  return;
+}
+
 export function ClickContentToOpenPropPane({
   children,
   widgetId,
@@ -31,9 +56,9 @@ export function ClickContentToOpenPropPane({
   const clickToSelectWidget = useClickToSelectWidget(widgetId);
   const clickToSelectFn = useCallback(
     (e) => {
-      clickToSelectWidget(e, widgetId);
+      clickToSelectWidget(e);
     },
-    [widgetId, clickToSelectWidget],
+    [clickToSelectWidget],
   );
   const focusedWidget = useSelector(
     (state: AppState) => state.ui.widgetDragResize.focusedWidget,
@@ -91,7 +116,7 @@ export const useClickToSelectWidget = (widgetId: string) => {
 
   const parentWidgetToOpen = useSelector(getFocusedParentToOpen);
 
-  const clickToSelectWidget = (e: any, targetWidgetId: string) => {
+  const clickToSelectWidget = (e: any) => {
     // ignore click captures
     // 1. if the component was resizing or dragging coz it is handled internally in draggable component
     // 2. table filter property pane is open
