@@ -13,41 +13,11 @@ import { getAppMode } from "selectors/applicationSelectors";
 import { useWidgetSelection } from "./useWidgetSelection";
 import React, { ReactNode, useCallback } from "react";
 import { stopEventPropagation } from "utils/AppsmithUtils";
-import { getFocusedParentToOpen } from "selectors/widgetSelectors";
-
-/**
- *
- * @param widgetId
- * @param widgets
- * @returns
- */
-export function getParentToOpenIfAny(
-  widgetId: string | undefined,
-  widgets: CanvasWidgetsReduxState,
-) {
-  if (widgetId) {
-    let widget = get(widgets, widgetId, undefined);
-
-    // While this widget has a openParentPropertyPane equql to true
-    while (widget?.openParentPropertyPane) {
-      // Get parent widget props
-      const parent = get(widgets, `${widget.parentId}`, undefined);
-
-      // If parent has openParentPropertyPane = false, return the currnet parent
-      if (!parent?.openParentPropertyPane) {
-        return parent;
-      }
-
-      if (parent?.parentId && parent.parentId !== MAIN_CONTAINER_WIDGET_ID) {
-        widget = get(widgets, `${widget.parentId}`, undefined);
-
-        continue;
-      }
-    }
-  }
-
-  return;
-}
+import {
+  getFocusedParentToOpen,
+  isCurrentWidgetFocused,
+  isWidgetSelected,
+} from "selectors/widgetSelectors";
 
 export function ClickContentToOpenPropPane({
   children,
@@ -58,7 +28,7 @@ export function ClickContentToOpenPropPane({
 }) {
   const { focusWidget } = useWidgetSelection();
 
-  const clickToSelectWidget = useClickToSelectWidget();
+  const clickToSelectWidget = useClickToSelectWidget(widgetId);
   const clickToSelectFn = useCallback(
     (e) => {
       clickToSelectWidget(e, widgetId);
@@ -99,14 +69,15 @@ export function ClickContentToOpenPropPane({
   );
 }
 
-export const useClickToSelectWidget = () => {
+export const useClickToSelectWidget = (widgetId: string) => {
   const { focusWidget, selectWidget } = useWidgetSelection();
   const isPropPaneVisible = useSelector(getIsPropertyPaneVisible);
   const isTableFilterPaneVisible = useSelector(getIsTableFilterPaneVisible);
-  const selectedWidgetId = useSelector(getCurrentWidgetId);
-  const focusedWidgetId = useSelector(
-    (state: AppState) => state.ui.widgetDragResize.focusedWidget,
-  );
+
+  const isFocused = useSelector(isCurrentWidgetFocused(widgetId));
+  const isSelected = useSelector(isWidgetSelected(widgetId));
+  // const parentWidgetToOpen = useSelector(getParentToOpenIfAny(widgetId));
+
   // This state tells us whether a `ResizableComponent` is resizing
   const isResizing = useSelector(
     (state: AppState) => state.ui.widgetDragResize.isResizing,
@@ -119,6 +90,7 @@ export const useClickToSelectWidget = () => {
   );
 
   const parentWidgetToOpen = useSelector(getFocusedParentToOpen);
+
   const clickToSelectWidget = (e: any, targetWidgetId: string) => {
     // ignore click captures
     // 1. if the component was resizing or dragging coz it is handled internally in draggable component
@@ -127,21 +99,18 @@ export const useClickToSelectWidget = () => {
       isResizing ||
       isDragging ||
       appMode !== APP_MODE.EDIT ||
-      targetWidgetId !== focusedWidgetId ||
+      !isFocused ||
       isTableFilterPaneVisible
     )
       return;
-    if (
-      (!isPropPaneVisible && selectedWidgetId === focusedWidgetId) ||
-      selectedWidgetId !== focusedWidgetId
-    ) {
+    if ((!isPropPaneVisible && isSelected) || !isSelected) {
       const isMultiSelect = e.metaKey || e.ctrlKey || e.shiftKey;
 
       if (parentWidgetToOpen) {
         selectWidget(parentWidgetToOpen.widgetId, isMultiSelect);
       } else {
-        selectWidget(focusedWidgetId, isMultiSelect);
-        focusWidget(focusedWidgetId);
+        selectWidget(widgetId, isMultiSelect);
+        focusWidget(widgetId);
       }
 
       if (isMultiSelect) {

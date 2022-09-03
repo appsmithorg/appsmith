@@ -6,6 +6,7 @@ import { getNextEntityName } from "utils/AppsmithUtils";
 
 import WidgetFactory from "utils/WidgetFactory";
 import { getParentToOpenIfAny } from "utils/hooks/useClickToSelectWidget";
+import { getFocusedWidget, getSelectedWidgets } from "./ui";
 
 export const getIsDraggingOrResizing = (state: AppState) =>
   state.ui.widgetDragResize.isResizing || state.ui.widgetDragResize.isDragging;
@@ -69,4 +70,18 @@ export const getParentToOpenSelector = (widgetId: string) => {
   return createSelector(getCanvasWidgets, (canvasWidgets) => {
     return getParentToOpenIfAny(widgetId, canvasWidgets);
   });
+};
+
+// Check if widget is in the list of selected widgets
+export const isWidgetSelected = (widgetId: string) => {
+  return createSelector(getSelectedWidgets, (widgets): boolean =>
+    widgets.includes(widgetId),
+  );
+};
+
+export const isCurrentWidgetFocused = (widgetId: string) => {
+  return createSelector(
+    getFocusedWidget,
+    (widget): boolean => widget === widgetId,
+  );
 };

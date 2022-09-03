@@ -10,6 +10,7 @@ import { snipingModeSelector } from "selectors/editorSelectors";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 import { Layers } from "constants/Layers";
 import { bindDataToWidget } from "actions/propertyPaneActions";
+import equal from "fast-deep-equal";
 
 const SnipeableWrapper = styled.div<{ isFocused: boolean }>`
   position: absolute;
@@ -35,7 +36,7 @@ type SnipeableComponentProps = WidgetProps;
 function SnipeableComponent(props: SnipeableComponentProps) {
   const { focusWidget } = useWidgetSelection();
   const dispatch = useDispatch();
-  const isSnipingMode = useSelector(snipingModeSelector);
+  const isSnipingMode = useSelector(snipingModeSelector, equal);
 
   const isFocusedWidget = useSelector(
     (state: AppState) =>
