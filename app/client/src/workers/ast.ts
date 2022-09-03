@@ -482,7 +482,7 @@ export const extractInvalidTopLevelMemberExpressionsFromCode = (
 ): MemberExpressionData[] => {
   const invalidTopLevelMemberExpressions = new Set<MemberExpressionData>();
   const variableDeclarations = new Set<string>();
-  let functionalParams = new Set<functionParam>();
+  let functionalParams = new Set<string>();
   let ast: Node = { end: 0, start: 0, type: "" };
   try {
     const sanitizedScript = sanitizeScript(code);
@@ -524,31 +524,35 @@ export const extractInvalidTopLevelMemberExpressionsFromCode = (
     },
     FunctionDeclaration(node: Node) {
       if (!isFunctionDeclaration(node)) return;
-      const {} = Array.from(getFunctionalParamsFromNode(node));
+      functionalParams = new Set([
+        ...functionalParams,
+        ...getFunctionalParamNamesFromNode(node),
+      ]);
     },
     FunctionExpression(node: Node) {
       if (!isFunctionExpression(node)) return;
       functionalParams = new Set([
         ...functionalParams,
-        ...getFunctionalParamsFromNode(node),
+        ...getFunctionalParamNamesFromNode(node),
+      ]);
+    },
+    ArrowFunctionExpression(node: Node) {
+      if (!isArrowFunctionExpression(node)) return;
+      functionalParams = new Set([
+        ...functionalParams,
+        ...getFunctionalParamNamesFromNode(node),
       ]);
     },
   });
 
   const invalidTopLevelMemberExpressionsArray = Array.from(
     invalidTopLevelMemberExpressions,
-  );
-  const functionalParamNames = Array.from(functionalParams).map(
-    (param) => param.paramName,
-  );
-
-  invalidTopLevelMemberExpressionsArray.filter(
-    (MemberExpression) =>
-      !(
-        variableDeclarations.has(MemberExpression.object.name) ||
-        functionalParamNames.includes(MemberExpression.object.name)
-      ),
-  );
+  ).filter((MemberExpression) => {
+    return !(
+      variableDeclarations.has(MemberExpression.object.name) ||
+      functionalParams.has(MemberExpression.object.name)
+    );
+  });
 
   return invalidTopLevelMemberExpressionsArray;
 };
