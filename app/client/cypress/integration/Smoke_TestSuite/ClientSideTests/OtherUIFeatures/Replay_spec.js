@@ -171,6 +171,7 @@ describe("Undo/Redo functionality", function() {
 
   it("checks undo/redo for color picker", function() {
     cy.dragAndDropToCanvas("textwidget", { x: 100, y: 100 });
+    cy.moveToStyleTab();
     cy.selectColor("textcolor");
     cy.get("body").click({ force: true });
     // eslint-disable-next-line cypress/no-unnecessary-waiting
