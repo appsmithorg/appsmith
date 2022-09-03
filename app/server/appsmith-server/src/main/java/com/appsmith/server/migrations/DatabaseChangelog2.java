@@ -2397,10 +2397,8 @@ public class DatabaseChangelog2 {
         queryToGetNonDeletedWorkspaces.fields().include(fieldName(QWorkspace.workspace.id));
         List<Workspace> workspaces = mongockTemplate.find(queryToGetNonDeletedWorkspaces, Workspace.class);
         workspaces.stream()
-                .map(Workspace::getId) // iterate over one action id at a time
-                .map(id -> fetchDomainObjectUsingId(id, mongockTemplate, QWorkspace.workspace.id, Workspace.class)) // fetch
-                // action
-                // using id
+                .map(Workspace::getId)
+                .map(id -> fetchDomainObjectUsingId(id, mongockTemplate, QWorkspace.workspace.id, Workspace.class))
                 .forEachOrdered(workspace -> {
                     workspace.getPlugins().stream()
                             .filter(workspacePlugin -> workspacePlugin != null && workspacePlugin.getPluginId() != null)
@@ -2459,10 +2457,8 @@ public class DatabaseChangelog2 {
                                                                    MongockTemplate mongockTemplate, Path path,
                                                                                           Class<T> type) {
         domainObjects.stream()
-                .map(BaseDomain::getId) // iterate over one action id at a time
-                .map(id -> fetchDomainObjectUsingId(id, mongockTemplate, path, type)) // fetch
-                // action
-                // using id
+                .map(BaseDomain::getId) // iterate over id one by one
+                .map(id -> fetchDomainObjectUsingId(id, mongockTemplate, path, type)) // find object using id
                 .forEachOrdered(domainObject -> {
                     domainObject.setDeleted(true);
                     domainObject.setDeletedAt(Instant.now());
@@ -2470,6 +2466,12 @@ public class DatabaseChangelog2 {
                 });
     }
 
+    /**
+     * Here 'id' refers to the ObjectId which is used to uniquely identify each Mongo document. 'path' refers to the
+     * path in the Query DSL object that indicates which field in a document should be matched against the `id`.
+     * `type` is a POJO class type that indicates which collection we are interested in. eg. path=QNewAction
+     * .newAction.id, type=NewAction.class
+     */
     private <T extends BaseDomain> T fetchDomainObjectUsingId(String id, MongockTemplate mongockTemplate, Path path,
                                                               Class<T> type) {
         final T domainObject = mongockTemplate.findOne(query(where(fieldName(path)).is(id)), type);

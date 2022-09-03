@@ -288,18 +288,6 @@ public class DatabaseChangelog {
         } catch (DuplicateKeyException e) {
             log.warn("mongo-plugin already present in database.");
         }
-
-        Plugin plugin4 = new Plugin();
-        plugin4.setName("Rapid API Plugin");
-        plugin4.setType(PluginType.API);
-        plugin4.setPackageName("rapidapi-plugin");
-        plugin4.setUiComponent("RapidApiEditorForm");
-        plugin4.setDefaultInstall(true);
-        try {
-            mongoTemplate.insert(plugin4);
-        } catch (DuplicateKeyException e) {
-            log.warn("rapidapi-plugin already present in database.");
-        }
     }
 
     @ChangeSet(order = "002", id = "remove-org-name-index", author = "")
