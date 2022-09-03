@@ -4,7 +4,7 @@ import * as Sentry from "@sentry/react";
 import { Classes, ControlGroup } from "@blueprintjs/core";
 import { debounce, noop } from "lodash";
 import { Switch, Route, useRouteMatch } from "react-router-dom";
-import SearchInput, { SearchVariant } from "components/ads/SearchInput";
+import { SearchInput, SearchVariant } from "design-system";
 import TemplateList from "./TemplateList";
 import TemplateView from "./TemplateView";
 import Filters from "pages/Templates/Filters";
@@ -21,8 +21,8 @@ import {
   isFetchingTemplatesSelector,
 } from "selectors/templatesSelectors";
 import { fetchDefaultPlugins } from "actions/pluginActions";
+import { AppState } from "@appsmith/reducers";
 import { editorInitializer } from "utils/editor/EditorUtils";
-import { AppState } from "reducers";
 import {
   getIsFetchingApplications,
   getUserApplicationsWorkspacesList,
@@ -31,6 +31,7 @@ import { getAllApplications } from "actions/applicationActions";
 import { getTypographyByKey } from "constants/DefaultTheme";
 import { Colors } from "constants/Colors";
 import { createMessage, SEARCH_TEMPLATES } from "@appsmith/constants/messages";
+import ReconnectDatasourceModal from "pages/Editor/gitSync/ReconnectDatasourceModal";
 const SentryRoute = Sentry.withSentryRouting(Route);
 
 const PageWrapper = styled.div`
@@ -162,6 +163,7 @@ function Templates() {
 
   return (
     <PageWrapper>
+      <ReconnectDatasourceModal />
       <Filters />
       <TemplateListWrapper>
         {isLoading ? (

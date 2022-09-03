@@ -40,9 +40,10 @@ export class ApiPage {
   private _confirmBeforeRunningAPI =
     "input[name='confirmBeforeExecute'][type='checkbox']";
   private _paginationTypeLabels = ".t--apiFormPaginationType label";
+  _saveAsDS = ".t--store-as-datasource";
 
   CreateApi(
-    apiName: string = "",
+    apiName = "",
     apiVerb: "GET" | "POST" | "PUT" | "DELETE" | "PATCH" = "GET",
   ) {
     cy.get(this.locator._createNew).click({ force: true });
@@ -67,16 +68,16 @@ export class ApiPage {
 
   CreateAndFillApi(
     url: string,
-    apiname: string = "",
+    apiName = "",
+    queryTimeout = 10000,
     apiVerb: "GET" | "POST" | "PUT" | "DELETE" | "PATCH" = "GET",
-    queryTimeout = 30000,
   ) {
-    this.CreateApi(apiname, apiVerb);
+    this.CreateApi(apiName, apiVerb);
     this.EnterURL(url);
     this.agHelper.AssertAutoSave();
     //this.agHelper.Sleep(2000);// Added because api name edit takes some time to reflect in api sidebar after the call passes.
     cy.get(this._apiRunBtn).should("not.be.disabled");
-    this.SetAPITimeout(queryTimeout);
+    if (queryTimeout != 10000) this.SetAPITimeout(queryTimeout);
   }
 
   EnterURL(url: string) {
@@ -95,13 +96,13 @@ export class ApiPage {
       directInput: true,
       inputFieldName: "",
     });
-    cy.get("body").type("{esc}");
+    this.agHelper.PressEscape();
     this.agHelper.EnterValue(hValue, {
       propFieldName: this._headerValue(0),
       directInput: true,
       inputFieldName: "",
     });
-    cy.get("body").type("{esc}");
+    this.agHelper.PressEscape();
     this.agHelper.AssertAutoSave();
   }
 
@@ -112,13 +113,13 @@ export class ApiPage {
       directInput: true,
       inputFieldName: "",
     });
-    cy.get("body").type("{esc}");
+    this.agHelper.PressEscape();
     this.agHelper.EnterValue(pValue, {
       propFieldName: this._paramValue(0),
       directInput: true,
       inputFieldName: "",
     });
-    cy.get("body").type("{esc}");
+    this.agHelper.PressEscape();
     this.agHelper.AssertAutoSave();
   }
 
@@ -140,7 +141,7 @@ export class ApiPage {
       directInput: true,
       inputFieldName: "",
     });
-    cy.get("body").type("{esc}");
+    this.agHelper.PressEscape();
 
     if (type) {
       cy.xpath(this._bodyTypeDropdown)
@@ -153,44 +154,21 @@ export class ApiPage {
       directInput: true,
       inputFieldName: "",
     });
-    cy.get("body").type("{esc}");
+    this.agHelper.PressEscape();
     this.agHelper.AssertAutoSave();
   }
 
-  RunAPI(
-    validationType: "Execution" | "Data" | "Network" = "Execution",
-    option?: {
-      expectedRes?: any;
-      expectedPath?: string;
-      expectedStatus?: number;
-    },
-  ) {
-    cy.get(this._apiRunBtn).click({ force: true });
-    if (validationType === "Execution") {
+  RunAPI(toValidateResponse = true, waitTimeInterval = 20) {
+    this.agHelper.GetNClick(this._apiRunBtn, 0, true, waitTimeInterval);
+    toValidateResponse &&
       this.agHelper.ValidateNetworkExecutionSuccess("@postExecute");
-    } else if (validationType === "Data") {
-      if (option?.expectedPath && option?.expectedRes) {
-        this.agHelper.ValidateNetworkDataAssert(
-          "@postExecute",
-          option.expectedPath,
-          option.expectedRes,
-        );
-      }
-    } else if (validationType === "Network") {
-      if (option?.expectedStatus) {
-        this.agHelper.ValidateNetworkStatus(
-          "@postExecute",
-          option?.expectedStatus,
-        );
-      }
-    }
   }
 
   SetAPITimeout(timeout: number) {
     this.SelectPaneTab("Settings");
     cy.xpath(this._queryTimeout)
       .clear()
-      .type(timeout.toString(),  {delay: 0});//Delay 0 to work like paste!
+      .type(timeout.toString(), { delay: 0 }); //Delay 0 to work like paste!
     this.agHelper.AssertAutoSave();
     this.SelectPaneTab("Headers");
   }
@@ -228,10 +206,8 @@ export class ApiPage {
       | "Authentication"
       | "Settings",
   ) {
-    cy.xpath(this._visibleTextSpan(tabName))
-      .should("be.visible")
-      .eq(0)
-      .click();
+    this.agHelper.PressEscape();
+    this.agHelper.GetNClick(this._visibleTextSpan(tabName));
   }
 
   SelectSubTab(
@@ -242,10 +218,7 @@ export class ApiPage {
       | "MULTIPART_FORM_DATA"
       | "RAW",
   ) {
-    cy.get(this._bodySubTab(subTabName))
-      .eq(0)
-      .should("be.visible")
-      .click();
+    this.agHelper.GetNClick(this._bodySubTab(subTabName));
   }
 
   ValidateQueryParams(param: { key: string; value: string }) {

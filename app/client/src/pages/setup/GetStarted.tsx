@@ -1,4 +1,5 @@
-import Button from "components/ads/Button";
+import React from "react";
+import { Button } from "design-system";
 import StyledFormGroup from "components/ads/formFields/FormGroup";
 import FormTextField from "components/ads/formFields/TextField";
 import {
@@ -6,7 +7,7 @@ import {
   WELCOME_FORM_ROLE_NAME_FIELD_NAME,
   WELCOME_FORM_USECASE_FIELD_NAME,
   WELCOME_NON_SUPER_FORM_NAME,
-} from "constants/forms";
+} from "@appsmith/constants/forms";
 import {
   createMessage,
   WELCOME_ACTION,
@@ -14,9 +15,8 @@ import {
   WELCOME_FORM_NON_SUPER_USER_USE_CASE,
   WELCOME_FORM_ROLE,
 } from "@appsmith/constants/messages";
-import React from "react";
 import { connect } from "react-redux";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import {
   Field,
   formValueSelector,

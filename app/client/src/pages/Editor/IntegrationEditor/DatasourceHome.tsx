@@ -4,14 +4,14 @@ import { connect } from "react-redux";
 import { initialize } from "redux-form";
 import { getDBPlugins, getPluginImages } from "selectors/entitiesSelector";
 import { Plugin } from "api/PluginApi";
-import { DATASOURCE_DB_FORM } from "constants/forms";
+import { DATASOURCE_DB_FORM } from "@appsmith/constants/forms";
 import { createDatasourceFromForm } from "actions/datasourceActions";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getCurrentApplication } from "selectors/applicationSelectors";
 import { ApplicationPayload } from "@appsmith/constants/ReduxActionConstants";
 import { Colors } from "constants/Colors";
-import { getQueryParams } from "utils/AppsmithUtils";
+import { getQueryParams } from "utils/URLUtils";
 import { getGenerateCRUDEnabledPluginMap } from "selectors/entitiesSelector";
 import { GenerateCRUDEnabledPluginMap } from "api/PluginApi";
 import { getIsGeneratePageInitiator } from "utils/GenerateCrudUtil";
@@ -148,9 +148,9 @@ class DatasourceHomeScreen extends React.Component<Props> {
 
     /* When isGeneratePageMode is generate page (i.e., Navigating from generate-page) before creating datasource check is it supported datasource for generate template from db?
         If YES => continue creating datasource
-        If NO => 
-          Show user a UnsupportedPluginDialog to choose 
-            1. "create unsupported datasource" 
+        If NO =>
+          Show user a UnsupportedPluginDialog to choose
+            1. "create unsupported datasource"
             2. "continue" generate page flow by selecting other supported datasource
         goToCreateDatasource function is passed as a callback with params.skipValidPluginCheck = true.
         Whenever user click on "continue" in UnsupportedPluginDialog, this callback function is invoked.

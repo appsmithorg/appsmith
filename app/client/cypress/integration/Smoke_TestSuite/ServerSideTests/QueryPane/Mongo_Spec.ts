@@ -638,9 +638,8 @@ describe("Validate Mongo Query Pane Validations", () => {
     dataSources.ValidateNSelectDropdown("Commands", "Find Document(s)", "Raw");
     agHelper.RenameWithInPane("DropAuthorNAwards"); //Due to template appearing after renaming
     agHelper.GetNClick(dataSources._templateMenu);
-
     dataSources.EnterQuery(dropCollection);
-     agHelper.FocusElement(locator._codeMirrorTextArea);;
+    agHelper.FocusElement(locator._codeMirrorTextArea);
     //agHelper.VerifyEvaluatedValue(tableCreateQuery);
 
     dataSources.RunQuery();
@@ -658,7 +657,7 @@ describe("Validate Mongo Query Pane Validations", () => {
     agHelper.GetNClick(dataSources._templateMenu);
     agHelper.RenameWithInPane("DropAuthorNAwards");
     dataSources.EnterQuery(dropCollection);
-     agHelper.FocusElement(locator._codeMirrorTextArea);;
+    agHelper.FocusElement(locator._codeMirrorTextArea);
     //agHelper.VerifyEvaluatedValue(tableCreateQuery);
 
     dataSources.RunQuery(false);
@@ -685,7 +684,7 @@ describe("Validate Mongo Query Pane Validations", () => {
       },
       "birth": ISODate("1927-09-04T04:00:00Z"),
       "death": ISODate("2011-12-24T05:00:00Z"),
-      "issue": 13285
+      "issue": 13286
     },
     {
       "name": {
@@ -695,7 +694,7 @@ describe("Validate Mongo Query Pane Validations", () => {
       "title": "Rear Admiral",
       "birth": ISODate("1906-12-09T05:00:00Z"),
       "death": ISODate("1992-01-01T05:00:00Z"),
-      "issue": 13285
+      "issue": 13287
     },
     {
       "name": {
@@ -704,7 +703,7 @@ describe("Validate Mongo Query Pane Validations", () => {
       },
       "birth": ISODate("1926-08-27T04:00:00Z"),
       "death": ISODate("2002-08-10T04:00:00Z"),
-      "issue": 13285
+      "issue": 13288
     }
   ]`;
 
@@ -759,8 +758,13 @@ describe("Validate Mongo Query Pane Validations", () => {
     agHelper.GetNClick(dataSources._templateMenu);
     agHelper.RenameWithInPane("DropBirthNDeath");
     dataSources.EnterQuery(dropCollection);
-     agHelper.FocusElement(locator._codeMirrorTextArea);;
+    agHelper.FocusElement(locator._codeMirrorTextArea);
     dataSources.RunQuery();
+
+    ee.ExpandCollapseEntity("DATASOURCES");
+    ee.ExpandCollapseEntity(dsName);
+    ee.ActionContextMenuByEntityName(dsName, "Refresh");
+    agHelper.AssertElementAbsence(ee._entityNameInExplorer("BirthNDeath"));
   });
 
   it("20. Verify Deletion of the datasource", () => {
@@ -781,7 +785,7 @@ describe("Validate Mongo Query Pane Validations", () => {
   ) {
     agHelper.GetNClick(dataSources._generatePageBtn);
     agHelper.ValidateNetworkStatus("@replaceLayoutWithCRUDPage", 201);
-    agHelper.ValidateToastMessage("Successfully generated a page");
+    agHelper.AssertContains("Successfully generated a page");
     agHelper.ValidateNetworkStatus("@getActions", 200);
     agHelper.ValidateNetworkStatus("@postExecute", 200);
     agHelper.ValidateNetworkStatus("@updateLayout", 200);

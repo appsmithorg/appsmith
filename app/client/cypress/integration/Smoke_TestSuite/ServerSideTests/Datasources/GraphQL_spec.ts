@@ -74,10 +74,12 @@ describe("GraphQL Datasource Implementation", function() {
       variable: GRAPHQL_VARIABLES,
     });
 
-    apiPage.RunAPI("Data", {
-      expectedPath: "response.body.data.body.data.capsule.id",
-      expectedRes: CAPSULE_ID,
-    });
+    apiPage.RunAPI();
+    agHelper.ValidateNetworkDataAssert(
+      "@postExecute",
+      "response.body.data.body.data.capsule.id",
+      CAPSULE_ID,
+    );
   });
 
   it("4. Pagination for limit based should work without offset", function() {
@@ -97,13 +99,15 @@ describe("GraphQL Datasource Implementation", function() {
       limit: {
         variable: "limit",
         value: "1",
-      }
+      },
     });
 
-    apiPage.RunAPI("Data", {
-      expectedPath: "response.body.data.body.data.launchesPast[0].mission_name",
-      expectedRes: GRAPHQL_LIMIT_DATA[0].mission_name,
-    });
+    apiPage.RunAPI();
+    agHelper.ValidateNetworkDataAssert(
+      "@postExecute",
+      "response.body.data.body.data.launchesPast[0].mission_name",
+      GRAPHQL_LIMIT_DATA[0].mission_name,
+    );
   });
 
   it("5. Pagination for limit based should work with offset", function() {
@@ -131,10 +135,12 @@ describe("GraphQL Datasource Implementation", function() {
       },
     });
 
-    apiPage.RunAPI("Data", {
-      expectedPath: "response.body.data.body.data.launchesPast[0].mission_name",
-      expectedRes: GRAPHQL_LIMIT_DATA[1].mission_name,
-    });
+    apiPage.RunAPI();
+    agHelper.ValidateNetworkDataAssert(
+      "@postExecute",
+      "response.body.data.body.data.launchesPast[0].mission_name",
+      GRAPHQL_LIMIT_DATA[1].mission_name,
+    );
   });
 
   after(() => {

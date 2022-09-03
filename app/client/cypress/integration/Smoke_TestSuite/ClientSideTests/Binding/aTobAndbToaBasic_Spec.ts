@@ -34,10 +34,10 @@ describe("Validate basic binding of Input widget to Input widget", () => {
     });
 
     it("3. Publish and validate the data displayed in input widgets value for aToB and bToa", function () {
-        deployMode.DeployApp(locator._inputWidgetInDeployed)
-        cy.get(locator._inputWidgetInDeployed).first().invoke("attr", "value")
+        deployMode.DeployApp(locator._widgetInputSelector("inputwidgetv2"))
+        cy.get(locator._widgetInputSelector("inputwidgetv2")).first().invoke("attr", "value")
             .should("contain", "A")
-        cy.get(locator._inputWidgetInDeployed).last().invoke("attr", "value")
+        cy.get(locator._widgetInputSelector("inputwidgetv2")).last().invoke("attr", "value")
             .should("contain", "QQ==");
     });
 });

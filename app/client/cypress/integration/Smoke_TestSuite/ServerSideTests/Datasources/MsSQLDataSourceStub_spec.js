@@ -1,5 +1,4 @@
 const datasource = require("../../../../locators/DatasourcesEditor.json");
-const queryEditor = require("../../../../locators/QueryEditor.json");
 const datasourceEditor = require("../../../../locators/DatasourcesEditor.json");
 
 let datasourceName;
@@ -12,8 +11,6 @@ describe("MsSQL datasource test cases", function() {
   it("1. Create, test, save then delete a MsSQL datasource", function() {
     cy.NavigateToDatasourceEditor();
     cy.get(datasource.MsSQL).click();
-    cy.getPluginFormsAndCreateDatasource();
-
     cy.fillMsSQLDatasourceForm();
     cy.generateUUID().then((UUID) => {
       datasourceName = `MsSQL MOCKDS ${UUID}`;
@@ -32,7 +29,6 @@ describe("MsSQL datasource test cases", function() {
   it("2. Create with trailing white spaces in host address and database name, test, save then delete a MsSQL datasource", function() {
     cy.NavigateToDatasourceEditor();
     cy.get(datasource.MsSQL).click();
-    cy.getPluginFormsAndCreateDatasource();
     cy.fillMsSQLDatasourceForm(true);
     cy.get("@createDatasource").then((httpResponse) => {
       datasourceName = httpResponse.response.body.data.name;

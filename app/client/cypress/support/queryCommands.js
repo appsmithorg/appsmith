@@ -97,6 +97,12 @@ Cypress.Commands.add("onlyQueryRun", () => {
     .wait(1000);
 });
 
+Cypress.Commands.add("RunQueryWithoutWaitingForResolution", () => {
+  cy.xpath(queryEditor.runQuery)
+    .last()
+    .click({ force: true });
+});
+
 Cypress.Commands.add("hoverAndClick", () => {
   cy.xpath(apiwidget.popover)
     .last()
@@ -206,6 +212,7 @@ Cypress.Commands.add(
       .contains(option)
       .first()
       .click();
+    cy.wait(2000);
   },
 );
 
@@ -273,6 +280,7 @@ Cypress.Commands.add(
         newOption,
         isDynamic,
       );
+      cy.wait(2000);
     }
   },
 );

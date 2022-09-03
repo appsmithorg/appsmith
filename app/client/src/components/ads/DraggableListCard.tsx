@@ -13,7 +13,7 @@ import {
   StyledActionContainer,
 } from "components/propertyControls/StyledControls";
 import { Colors } from "constants/Colors";
-import { CheckboxType } from "./Checkbox";
+import { CheckboxType } from "design-system";
 
 const ItemWrapper = styled.div`
   display: flex;

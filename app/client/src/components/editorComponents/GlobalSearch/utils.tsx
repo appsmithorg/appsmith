@@ -14,7 +14,7 @@ import { PluginType } from "entities/Action";
 import { WidgetType } from "constants/WidgetConstants";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { getPluginByPackageName } from "selectors/entitiesSelector";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import WidgetFactory from "utils/WidgetFactory";
 import {
   CurlIconV2,
@@ -24,7 +24,7 @@ import {
 import { createNewApiAction } from "actions/apiPaneActions";
 import { createNewJSCollection } from "actions/jsPaneActions";
 import { EventLocation } from "utils/AnalyticsUtil";
-import { getQueryParams } from "utils/AppsmithUtils";
+import { getQueryParams } from "utils/URLUtils";
 import history from "utils/history";
 import { curlImportPageURL } from "RouteBuilder";
 import { isMacOrIOS, modText, shiftText } from "utils/helpers";

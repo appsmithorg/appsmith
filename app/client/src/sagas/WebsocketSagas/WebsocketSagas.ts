@@ -1,14 +1,6 @@
 import { io, Socket } from "socket.io-client";
 import { EventChannel, eventChannel, Task } from "redux-saga";
-import {
-  fork,
-  take,
-  call,
-  cancel,
-  put,
-  delay,
-  ChannelTakeEffect,
-} from "redux-saga/effects";
+import { fork, take, call, cancel, put, delay } from "redux-saga/effects";
 import {
   ReduxActionTypes,
   ReduxSagaChannels,
@@ -36,6 +28,10 @@ import { SOCKET_CONNECTION_EVENTS } from "./socketEvents";
 function connect(namespace?: string) {
   const options = {
     path: RTS_BASE_PATH,
+    // The default transports is ["polling", "websocket"], so polling is tried first. But polling
+    //   needs sticky session to be turned on, in a clustered environment, even for it to upgrade to websockets.
+    // Ref: <https://github.com/socketio/socket.io/issues/2140>.
+    transports: ["websocket"],
   };
   const socket = !!namespace ? io(namespace, options) : io(options);
 
@@ -70,7 +66,7 @@ function listenToSocket(socket: Socket) {
 function* readFromAppSocket(socket: any) {
   const channel: EventChannel<unknown> = yield call(listenToSocket, socket);
   while (true) {
-    const action: ChannelTakeEffect<unknown> = yield take(channel);
+    const action: { type: keyof typeof WEBSOCKET_EVENTS } = yield take(channel);
     switch (action.type) {
       case WEBSOCKET_EVENTS.DISCONNECTED:
         yield put(setIsAppLevelWebsocketConnected(false));
@@ -142,7 +138,7 @@ function* openAppLevelSocketConnection() {
 function* readFromPageSocket(socket: any) {
   const channel: EventChannel<unknown> = yield call(listenToSocket, socket);
   while (true) {
-    const action: ChannelTakeEffect<unknown> = yield take(channel);
+    const action: { type: keyof typeof WEBSOCKET_EVENTS } = yield take(channel);
     switch (action.type) {
       case WEBSOCKET_EVENTS.DISCONNECTED:
         yield put(setIsPageLevelWebsocketConnected(false));

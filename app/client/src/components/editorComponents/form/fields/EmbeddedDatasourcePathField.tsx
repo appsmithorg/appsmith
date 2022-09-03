@@ -11,7 +11,7 @@ import CodeEditor, {
   EditorProps,
 } from "components/editorComponents/CodeEditor";
 import { CodeEditorBorder } from "components/editorComponents/CodeEditor/EditorConfig";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import { connect } from "react-redux";
 import get from "lodash/get";
 import merge from "lodash/merge";
@@ -35,12 +35,12 @@ import StoreAsDatasource, {
 } from "components/editorComponents/StoreAsDatasource";
 import { urlGroupsRegexExp } from "constants/AppsmithActionConstants/ActionConstants";
 import styled from "styled-components";
-import Icon, { IconSize } from "components/ads/Icon";
+import { Icon, IconSize } from "design-system";
 import { Text, FontWeight, TextType } from "design-system";
 import history from "utils/history";
 import { getDatasourceInfo } from "pages/Editor/APIEditor/ApiRightPane";
 import * as FontFamilies from "constants/Fonts";
-import { getQueryParams } from "utils/AppsmithUtils";
+import { getQueryParams } from "utils/URLUtils";
 import { AuthType } from "entities/Datasource/RestAPIForm";
 import { setDatsourceEditorMode } from "actions/datasourceActions";
 
@@ -52,7 +52,7 @@ import { ValidationTypes } from "constants/WidgetValidation";
 import { DataTree, ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { getDataTree } from "selectors/dataTreeSelectors";
 import { KeyValuePair } from "entities/Action";
-import _ from "lodash";
+import equal from "fast-deep-equal/es6";
 import {
   getDatasource,
   getDatasourcesByPluginId,
@@ -430,10 +430,10 @@ class EmbeddedDatasourcePathComponent extends React.Component<
 
   // if the next props is not equal to the current props, do not rerender, same for state
   shouldComponentUpdate(nextProps: any, nextState: any) {
-    if (!_.isEqual(nextProps, this.props)) {
+    if (!equal(nextProps, this.props)) {
       return true;
     }
-    if (!_.isEqual(nextState, this.state)) {
+    if (!equal(nextState, this.state)) {
       return true;
     }
     return false;

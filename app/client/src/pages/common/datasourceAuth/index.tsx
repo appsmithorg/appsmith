@@ -20,13 +20,13 @@ import {
 } from "actions/datasourceActions";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { redirectToNewIntegrations } from "actions/apiPaneActions";
-import { getQueryParams } from "utils/AppsmithUtils";
+import { getQueryParams } from "utils/URLUtils";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 import { useParams, useLocation } from "react-router";
 import { ExplorerURLParams } from "pages/Editor/Explorer/helpers";
 import { getIsGeneratePageInitiator } from "utils/GenerateCrudUtil";
 import { ButtonVariantTypes } from "components/constants";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import {
   AuthType,
   Datasource,

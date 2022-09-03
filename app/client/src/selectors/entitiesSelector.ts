@@ -1,4 +1,4 @@
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import {
   ActionData,
   ActionDataState,
@@ -58,13 +58,16 @@ export const getIsDeletingDatasource = (state: AppState): boolean => {
 export const getDefaultPlugins = (state: AppState): DefaultPlugin[] =>
   state.entities.plugins.defaultPluginList;
 
-export const getDefaultPluginByPackageName = (
+// Get plugin by id or package name
+export const getDefaultPlugin = (
   state: AppState,
-  packageName: string,
-): DefaultPlugin | undefined =>
-  state.entities.plugins.defaultPluginList.find(
-    (plugin) => plugin.packageName === packageName,
+  pluginIdentifier: string,
+): DefaultPlugin | undefined => {
+  return state.entities.plugins.defaultPluginList.find(
+    (plugin) =>
+      plugin.packageName === pluginIdentifier || plugin.id === pluginIdentifier,
   );
+};
 
 export const getPluginIdsOfNames = (
   state: AppState,
@@ -465,6 +468,9 @@ export const getAppStoreData = (state: AppState): AppStoreState =>
 
 export const getCanvasWidgets = (state: AppState): CanvasWidgetsReduxState =>
   state.entities.canvasWidgets;
+
+export const getCanvasWidgetsStructure = (state: AppState) =>
+  state.entities.canvasWidgetsStructure;
 
 const getPageWidgets = (state: AppState) => state.ui.pageWidgets;
 export const getCurrentPageWidgets = createSelector(

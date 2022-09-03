@@ -14,7 +14,10 @@ import {
   ReduxFormActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
 import { GetFormData, getFormData } from "selectors/formSelectors";
-import { API_EDITOR_FORM_NAME, QUERY_EDITOR_FORM_NAME } from "constants/forms";
+import {
+  API_EDITOR_FORM_NAME,
+  QUERY_EDITOR_FORM_NAME,
+} from "@appsmith/constants/forms";
 import {
   POST_BODY_FORMAT_OPTIONS_ARRAY,
   POST_BODY_FORMAT_OPTIONS,
@@ -35,7 +38,8 @@ import history from "utils/history";
 import { INTEGRATION_EDITOR_MODES, INTEGRATION_TABS } from "constants/routes";
 import { initialize, autofill, change } from "redux-form";
 import { Property } from "api/ActionAPI";
-import { createNewApiName, getQueryParams } from "utils/AppsmithUtils";
+import { createNewApiName } from "utils/AppsmithUtils";
+import { getQueryParams } from "utils/URLUtils";
 import { getPluginIdOfPackageName } from "sagas/selectors";
 import { getAction, getActions, getPlugin } from "selectors/entitiesSelector";
 import {

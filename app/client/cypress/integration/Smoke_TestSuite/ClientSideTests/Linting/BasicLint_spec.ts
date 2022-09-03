@@ -10,7 +10,7 @@ const jsEditor = ObjectsRegistry.JSEditor,
 
 const successMessage = "Successful Trigger";
 const errorMessage = "Unsuccessful Trigger";
-let guid: any, dsName: any;
+let dsName: string;
 
 const clickButtonAndAssertLintError = (
   shouldExist: boolean,
@@ -40,11 +40,11 @@ const clickButtonAndAssertLintError = (
 };
 
 const createMySQLDatasourceQuery = () => {
-    // Create Query
-    dataSources.NavigateFromActiveDS(dsName, true);
-    agHelper.GetNClick(dataSources._templateMenu);
-    const tableCreateQuery = `SELECT * FROM spacecrafts LIMIT 10;`;
-    dataSources.EnterQuery(tableCreateQuery);
+  // Create Query
+  dataSources.NavigateFromActiveDS(dsName, true);
+  agHelper.GetNClick(dataSources._templateMenu);
+  const tableCreateQuery = `SELECT * FROM spacecrafts LIMIT 10;`;
+  dataSources.EnterQuery(tableCreateQuery);
 };
 
 describe("Linting", () => {
@@ -53,13 +53,13 @@ describe("Linting", () => {
     ee.NavigateToSwitcher("explorer");
     dataSources.CreateDataSource("MySql");
     cy.get("@dsName").then(($dsName) => {
-      dsName = $dsName;
+      dsName = ($dsName as unknown) as string;
     });
   });
 
   it("1. TC 1927 - Shows correct lint error when Api is deleted or created", () => {
     ee.SelectEntityByName("Button1", "WIDGETS");
-    jsEditor.EnterJSContext(
+    propPane.EnterJSContext(
       "onClick",
       `{{function(){
         try{
@@ -69,8 +69,6 @@ describe("Linting", () => {
           showAlert("${errorMessage}")
         }
       }()}}`,
-      true,
-      true,
     );
 
     propPane.UpdatePropertyFieldValue("Tooltip", "{{Api1.name}}");
@@ -78,9 +76,7 @@ describe("Linting", () => {
 
     // create Api1
     apiPage.CreateAndFillApi(
-      "https://jsonplaceholder.typicode.com/",
-      "",
-      "GET",
+      "https://jsonplaceholder.typicode.com/"
     );
 
     clickButtonAndAssertLintError(false);
@@ -93,9 +89,7 @@ describe("Linting", () => {
 
     // Re-create Api1
     apiPage.CreateAndFillApi(
-      "https://jsonplaceholder.typicode.com/",
-      "",
-      "GET",
+      "https://jsonplaceholder.typicode.com/"
     );
 
     clickButtonAndAssertLintError(false);
@@ -115,7 +109,7 @@ describe("Linting", () => {
 
   it("3. TC 1929 - Shows correct lint error when JSObject is deleted or created", () => {
     ee.SelectEntityByName("Button1", "WIDGETS");
-    jsEditor.EnterJSContext(
+    propPane.EnterJSContext(
       "onClick",
       `{{function(){
         try{
@@ -124,8 +118,6 @@ describe("Linting", () => {
           showAlert("${errorMessage}")
         }
       }()}}`,
-      true,
-      true,
     );
     propPane.UpdatePropertyFieldValue("Tooltip", `{{JSObject1.myVar1}}`);
 
@@ -191,7 +183,7 @@ describe("Linting", () => {
 
   it("5. TC 1928 - Shows correct lint error with Query is created or Deleted", () => {
     ee.SelectEntityByName("Button1", "WIDGETS");
-    jsEditor.EnterJSContext(
+    propPane.EnterJSContext(
       "onClick",
       `{{function(){
       try{
@@ -200,7 +192,7 @@ describe("Linting", () => {
       }catch(e){
         showAlert("${errorMessage}")
       }
-    }()}}`, true, true,
+    }()}}`,
     );
     propPane.UpdatePropertyFieldValue("Tooltip", `{{Query1.name}}`);
     clickButtonAndAssertLintError(true);
@@ -236,7 +228,7 @@ describe("Linting", () => {
 
   it("7. TC 1930 - Shows correct lint error with multiple entities in triggerfield", () => {
     ee.SelectEntityByName("Button1", "WIDGETS");
-    jsEditor.EnterJSContext(
+    propPane.EnterJSContext(
       "onClick",
       `{{function(){
         try{
@@ -245,7 +237,7 @@ describe("Linting", () => {
         }catch(e){
           showAlert("${errorMessage}")
         }
-      }()}}`, true, true
+      }()}}`,
     );
     propPane.UpdatePropertyFieldValue(
       "Tooltip",
@@ -281,13 +273,27 @@ describe("Linting", () => {
       },
     );
     apiPage.CreateAndFillApi(
-      "https://jsonplaceholder.typicode.com/",
-      "Api1",
-      "GET",
+      "https://jsonplaceholder.typicode.com/"
     );
 
     createMySQLDatasourceQuery();
 
     clickButtonAndAssertLintError(false);
+  });
+  it("8. Doesn't show lint errors for supported web apis", () => {
+    const JS_OBJECT_WITH_WEB_API = `export default {
+      myFun1: () => {
+          const byteArray = new Uint8Array(1);
+      console.log(crypto.getRandomValues(byteArray));
+      },
+    }`;
+    jsEditor.CreateJSObject(JS_OBJECT_WITH_WEB_API, {
+      paste: true,
+      completeReplace: true,
+      toRun: false,
+      shouldCreateNewJSObj: true,
+    });
+    // expect no lint error
+    agHelper.AssertElementAbsence(locator._lintErrorElement);
   });
 });

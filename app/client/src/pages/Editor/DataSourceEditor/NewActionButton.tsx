@@ -1,13 +1,13 @@
 import React, { useCallback, useState } from "react";
 import { PluginType } from "entities/Action";
 import styled from "styled-components";
-import Button, { IconPositions } from "components/ads/Button";
+import { Button, IconPositions } from "design-system";
 import { Toaster } from "components/ads/Toast";
 import { ERROR_ADD_API_INVALID_URL } from "@appsmith/constants/messages";
 import { Classes, Variant } from "components/ads/common";
 import { createNewQueryAction } from "actions/apiPaneActions";
 import { useDispatch, useSelector } from "react-redux";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import { Datasource } from "entities/Datasource";
 import { Plugin } from "api/PluginApi";

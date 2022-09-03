@@ -40,6 +40,7 @@ export interface INJECTED_CONFIGS {
   appVersion: {
     id: string;
     releaseDate: string;
+    edition: string;
   };
   intercomAppID: string;
   mailEnabled: boolean;
@@ -116,6 +117,7 @@ export const getConfigsFromEnvVars = (): INJECTED_CONFIGS => {
     appVersion: {
       id: process.env.REACT_APP_VERSION_ID || "",
       releaseDate: process.env.REACT_APP_VERSION_RELEASE_DATE || "",
+      edition: process.env.REACT_APP_VERSION_EDITION || "",
     },
     intercomAppID: process.env.REACT_APP_INTERCOM_APP_ID || "",
     mailEnabled: process.env.REACT_APP_MAIL_ENABLED
@@ -125,8 +127,8 @@ export const getConfigsFromEnvVars = (): INJECTED_CONFIGS => {
     googleRecaptchaSiteKey:
       process.env.REACT_APP_GOOGLE_RECAPTCHA_SITE_KEY || "",
     supportEmail: process.env.APPSMITH_SUPPORT_EMAIL || "support@appsmith.com",
-    hideWatermark: process.env.REACT_APP_APPSMITH_HIDE_WATERMARK
-      ? process.env.REACT_APP_APPSMITH_HIDE_WATERMARK.length > 0
+    hideWatermark: process.env.APPSMITH_HIDE_WATERMARK
+      ? process.env.APPSMITH_HIDE_WATERMARK.length > 0
       : false,
   };
 };

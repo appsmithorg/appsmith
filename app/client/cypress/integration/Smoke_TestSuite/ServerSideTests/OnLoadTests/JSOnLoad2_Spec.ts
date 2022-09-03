@@ -5,12 +5,8 @@ const agHelper = ObjectsRegistry.AggregateHelper,
   ee = ObjectsRegistry.EntityExplorer,
   dataSources = ObjectsRegistry.DataSources,
   jsEditor = ObjectsRegistry.JSEditor,
-  table = ObjectsRegistry.Table,
-  locator = ObjectsRegistry.CommonLocators,
   homePage = ObjectsRegistry.HomePage,
-  apiPage = ObjectsRegistry.ApiPage,
-  deployMode = ObjectsRegistry.DeployMode,
-  propPane = ObjectsRegistry.PropertyPane;
+  deployMode = ObjectsRegistry.DeployMode;
 
 describe("JSObjects OnLoad Actions tests", function() {
   before(() => {
@@ -75,7 +71,7 @@ describe("JSObjects OnLoad Actions tests", function() {
     homePage.DeleteApplication("JSOnLoadFailureTest");
     homePage.DeleteApplication("JSOnLoadFailureTest (1)");
     homePage.DeleteApplication("JSOnLoadFailureTest Copy");
-    agHelper.WaitUntilToastDisappear("Deleting application...");
+    agHelper.AssertContains("Deleting application...");
     //homePage.DeleteWorkspace("JSOnLoadTest");
   });
 
@@ -178,8 +174,22 @@ describe("JSObjects OnLoad Actions tests", function() {
     }
   });
 
-  // it("7. Tc #1645 + Bug 13197 Previously set async function made sync should not run on page", () => {
-  // });
+  it("7. Tc #1909 - Verify the sequence of of JS object on page load", () => {
+    ee.ExpandCollapseEntity("QUERIES/JS");
+    ee.SelectEntityByName("JSObject1");
+    jsEditor.EnableDisableAsyncFuncSettings("astros", true, false);
+    jsEditor.EnableDisableAsyncFuncSettings("city", true, false);
+    ee.SelectEntityByName("JSObject2");
+    jsEditor.EnableDisableAsyncFuncSettings("cat", true, false);
+    jsEditor.EnableDisableAsyncFuncSettings("hogwartsstudents", true, false);
+    ee.SelectEntityByName("JSObject3");
+    jsEditor.EnableDisableAsyncFuncSettings("film", true, false);
+
+    ee.SelectEntityByName("Page1");
+    agHelper.RefreshPage();
+
+    agHelper.ValidateToastMessage("ran successfully", 0, 5);
+  });
 
   function AssertJSOnPageLoad(
     jsMethod: string,
@@ -203,5 +213,6 @@ describe("JSObjects OnLoad Actions tests", function() {
     else agHelper.Sleep(3000);
     deployMode.NavigateBacktoEditor();
     agHelper.ClickButton("No");
+    agHelper.Sleep(2000);
   }
 });

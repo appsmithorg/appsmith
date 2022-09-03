@@ -16,11 +16,8 @@ export type PropertyPaneSectionConfig = {
   sectionName: string;
   id?: string;
   children: PropertyPaneConfig[];
-  hidden?: (
-    props: any,
-    propertyPath: string,
-    widgetParentProps?: WidgetProps,
-  ) => boolean;
+  collapsible?: boolean;
+  hidden?: (props: any, propertyPath: string) => boolean;
   isDefaultOpen?: boolean;
   propertySectionPath?: string;
 };
@@ -37,6 +34,8 @@ export type PanelConfig = {
   titlePropertyName: string;
   panelIdPropertyName: string;
   children: PropertyPaneConfig[];
+  contentChildren?: PropertyPaneConfig[];
+  styleChildren?: PropertyPaneConfig[];
   updateHook: (
     props: any,
     propertyPath: string,
@@ -66,11 +65,7 @@ export type PropertyPaneControlConfig = {
     propertyName: string,
     propertyValue: any,
   ) => Array<PropertyHookUpdates> | undefined;
-  hidden?: (
-    props: any,
-    propertyPath: string,
-    widgetParentProps?: WidgetProps,
-  ) => boolean;
+  hidden?: (props: any, propertyPath: string) => boolean;
   invisible?: boolean;
   isBindProperty: boolean;
   isTriggerProperty: boolean;

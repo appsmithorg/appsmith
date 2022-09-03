@@ -11,6 +11,11 @@ export enum PluginType {
   REMOTE = "REMOTE",
 }
 
+// more can be added subsequently.
+export enum PluginName {
+  MONGO = "MongoDB",
+}
+
 export enum PaginationType {
   NONE = "NONE",
   PAGE_NO = "PAGE_NO",
@@ -146,6 +151,7 @@ export type RapidApiAction = ApiAction & {
 
 export interface QueryAction extends BaseAction {
   pluginType: PluginType.DB;
+  pluginName?: PluginName;
   actionConfiguration: QueryActionConfig;
   datasource: StoredDatasource;
 }

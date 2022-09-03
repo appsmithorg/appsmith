@@ -5,6 +5,7 @@ import com.appsmith.external.converters.GsonISOStringToInstantConverter;
 import com.appsmith.server.configurations.CloudServicesConfig;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.UserData;
+import com.appsmith.server.dtos.ApplicationImportDTO;
 import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.dtos.ApplicationTemplate;
 import com.appsmith.server.exceptions.AppsmithError;
@@ -13,6 +14,7 @@ import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.solutions.ImportExportApplicationService;
 import com.appsmith.server.solutions.ReleaseNotesService;
+import com.appsmith.util.WebClientUtils;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
@@ -66,7 +68,7 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
 
         String apiUrl = uriComponents.toUriString();
 
-        return WebClient
+        return WebClientUtils
                 .create(apiUrl)
                 .get()
                 .exchangeToFlux(clientResponse -> {
@@ -94,7 +96,7 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
         // uriComponents will build url in format: version=version&id=id1&id=id2&id=id3
         UriComponents uriComponents = uriComponentsBuilder.build();
 
-        return WebClient
+        return WebClientUtils
                 .create(baseUrl + "/api/v1/app-templates?" + uriComponents.getQuery())
                 .get()
                 .exchangeToFlux(clientResponse -> {
@@ -131,7 +133,7 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
     public Mono<ApplicationTemplate> getTemplateDetails(String templateId) {
         final String baseUrl = cloudServicesConfig.getBaseUrl();
 
-        return WebClient
+        return WebClientUtils
                 .create(baseUrl + "/api/v1/app-templates/" + templateId)
                 .get()
                 .exchangeToMono(clientResponse -> {
@@ -156,7 +158,7 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
                 .codecs(codecs -> codecs.defaultCodecs().maxInMemorySize(size))
                 .build();
 
-        WebClient webClient = WebClient.builder()
+        WebClient webClient = WebClientUtils.builder()
                 .uriBuilderFactory(new NoEncodingUriBuilderFactory(templateUrl))
                 .exchangeStrategies(strategies)
                 .build();
@@ -181,18 +183,20 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
     }
 
     @Override
-    public Mono<Application> importApplicationFromTemplate(String templateId, String workspaceId) {
-        return getApplicationJsonFromTemplate(templateId).flatMap(applicationJson ->
-            importExportApplicationService.importApplicationInWorkspace(workspaceId, applicationJson)
-        ).flatMap(application -> {
-            ApplicationTemplate applicationTemplate = new ApplicationTemplate();
-            applicationTemplate.setId(templateId);
-            Map<String, Object>  extraProperties = new HashMap<>();
-            extraProperties.put("templateAppName", application.getName());
-            return userDataService.addTemplateIdToLastUsedList(templateId).then(
+    public Mono<ApplicationImportDTO> importApplicationFromTemplate(String templateId, String workspaceId) {
+        return getApplicationJsonFromTemplate(templateId)
+                .flatMap(applicationJson -> importExportApplicationService.importApplicationInWorkspace(workspaceId, applicationJson))
+                .flatMap(application -> importExportApplicationService.getApplicationImportDTO(application.getId(), application.getWorkspaceId(), application))
+                .flatMap(applicationImportDTO -> {
+                    Application application = applicationImportDTO.getApplication();
+                    ApplicationTemplate applicationTemplate = new ApplicationTemplate();
+                    applicationTemplate.setId(templateId);
+                    Map<String, Object> extraProperties = new HashMap<>();
+                    extraProperties.put("templateAppName", application.getName());
+                    return userDataService.addTemplateIdToLastUsedList(templateId).then(
                             analyticsService.sendObjectEvent(AnalyticsEvents.FORK, applicationTemplate, extraProperties)
-            ).thenReturn(application);
-        });
+                    ).thenReturn(applicationImportDTO);
+                });
     }
 
     @Override
@@ -210,7 +214,7 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
     public Mono<ApplicationTemplate> getFilters() {
         final String baseUrl = cloudServicesConfig.getBaseUrl();
 
-        return WebClient
+        return WebClientUtils
                 .create(baseUrl + "/api/v1/app-templates/filters")
                 .get()
                 .exchangeToMono(clientResponse -> {

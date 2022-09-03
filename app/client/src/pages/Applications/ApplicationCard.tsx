@@ -25,19 +25,29 @@ import {
   getRandomPaletteColor,
 } from "utils/AppsmithUtils";
 import { noop, omit } from "lodash";
-import { Text, TextType } from "design-system";
-import Button, { Category, Size, IconPositions } from "components/ads/Button";
-import Icon, { IconSize } from "components/ads/Icon";
-import Menu from "components/ads/Menu";
-import MenuItem, { MenuItemProps } from "components/ads/MenuItem";
-import AppIcon, { AppIconName } from "components/ads/AppIcon";
+import {
+  AppIcon,
+  AppIconName,
+  Button,
+  Category,
+  ColorSelector,
+  IconPositions,
+  Icon,
+  IconSelector,
+  IconSize,
+  Menu,
+  MenuDivider,
+  MenuItem,
+  MenuItemProps,
+  Size,
+  Text,
+  TextType,
+  TooltipComponent,
+} from "design-system";
 import EditableText, {
   EditInteractionKind,
   SavingState,
 } from "components/ads/EditableText";
-import ColorSelector from "components/ads/ColorSelector";
-import MenuDivider from "components/ads/MenuDivider";
-import IconSelector from "components/ads/IconSelector";
 import { useSelector } from "react-redux";
 import {
   ApplicationPagePayload,
@@ -49,7 +59,6 @@ import {
   getIsErroredSavingAppName,
 } from "selectors/applicationSelectors";
 import { Classes as CsClasses } from "components/ads/common";
-import { TooltipComponent } from "design-system";
 import {
   isVerticalEllipsisActive,
   truncateString,
@@ -323,6 +332,8 @@ const CircleAppIcon = styled(AppIcon)`
   border-radius: 50%;
 
   svg {
+    width: 100%;
+    height: 100%;
     path {
       fill: #000 !important;
     }

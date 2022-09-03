@@ -4,7 +4,7 @@ import BaseControl, { ControlData, ControlProps } from "./BaseControl";
 import { TooltipComponent } from "design-system";
 import { boxShadowOptions } from "constants/ThemeConstants";
 import CloseLineIcon from "remixicon-react/CloseLineIcon";
-import { ButtonTabComponent } from "components/ads";
+import { ButtonTab } from "design-system";
 import {
   DSEventDetail,
   DSEventTypes,
@@ -80,7 +80,7 @@ class BoxShadowOptionsControl extends BaseControl<
 
   public render() {
     return (
-      <ButtonTabComponent
+      <ButtonTab
         options={options}
         ref={this.componentRef}
         selectButton={(value, isUpdatedViaKeyboard = false) => {

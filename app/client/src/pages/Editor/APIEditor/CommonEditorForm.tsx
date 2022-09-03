@@ -17,17 +17,23 @@ import {
 import KeyValueFieldArray from "components/editorComponents/form/fields/KeyValueFieldArray";
 import ApiResponseView from "components/editorComponents/ApiResponseView";
 import EmbeddedDatasourcePathField from "components/editorComponents/form/fields/EmbeddedDatasourcePathField";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import ActionNameEditor from "components/editorComponents/ActionNameEditor";
 import ActionSettings from "pages/Editor/ActionSettings";
 import RequestDropdownField from "components/editorComponents/form/fields/RequestDropdownField";
 import { ExplorerURLParams } from "../Explorer/helpers";
 import MoreActionsMenu from "../Explorer/Actions/MoreActionsMenu";
-import Icon, { IconSize } from "components/ads/Icon";
-import Button, { Size } from "components/ads/Button";
 import { TabComponent } from "components/ads/Tabs";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
-import { Text, Case, TextType } from "design-system";
+import {
+  Button,
+  Icon,
+  IconSize,
+  Size,
+  Text,
+  Case,
+  TextType,
+} from "design-system";
 import { Classes, Variant } from "components/ads/common";
 import Callout from "components/ads/Callout";
 import { useLocalStorage } from "utils/hooks/localstorage";
@@ -41,7 +47,7 @@ import CloseEditor from "components/editorComponents/CloseEditor";
 import { useParams } from "react-router";
 import DataSourceList from "./ApiRightPane";
 import { Datasource } from "entities/Datasource";
-import { isEqual } from "lodash";
+import equal from "fast-deep-equal/es6";
 
 import { Colors } from "constants/Colors";
 import SearchSnippets from "components/ads/SnippetButton";
@@ -549,7 +555,7 @@ function CommonEditorForm(props: CommonFormPropsWithExtraParams) {
   // it checks each value to make sure none has changed before recomputing the actions.
   const actions: Action[] = useSelector(
     (state: AppState) => state.entities.actions.map((action) => action.config),
-    isEqual,
+    equal,
   );
   const currentActionConfig: Action | undefined = actions.find(
     (action) => action.id === params.apiId || action.id === params.queryId,

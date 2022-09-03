@@ -1,10 +1,10 @@
-import { createReducer } from "utils/AppsmithUtils";
+import { createReducer } from "utils/ReducerUtils";
 import { JSAction, JSCollection } from "entities/JSCollection";
 import {
   ReduxActionTypes,
   ReduxAction,
   ReduxActionErrorTypes,
-} from "ce/constants/ReduxActionConstants";
+} from "@appsmith/constants/ReduxActionConstants";
 import { set, keyBy, findIndex, unset } from "lodash";
 import produce from "immer";
 
