@@ -279,7 +279,7 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
   });
 
   it("11. Verify Deletion of the datasource when Pages/Actions associated are not removed yet", () => {
-    dataSources.DeleteDatasouceFromWinthinDS(dsName, 200);
+    dataSources.DeleteDatasouceFromWinthinDS(dsName, 409);//Customers page & queries still active
   });
 
   function GenerateCRUDNValidateDeployPage(
