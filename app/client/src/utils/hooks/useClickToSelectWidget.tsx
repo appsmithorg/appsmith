@@ -104,7 +104,6 @@ export const useClickToSelectWidget = (widgetId: string) => {
   );
 
   const isFocused = useSelector(isCurrentWidgetFocused(widgetId), equal);
-  console.log({ widgetId, isFocused });
   // const isFocused = false;
 
   const isSelected = useSelector(isWidgetSelected(widgetId), equal);
