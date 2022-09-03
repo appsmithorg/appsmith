@@ -3,7 +3,7 @@ import { AppState } from "@appsmith/reducers";
 import {
   ApplicationsReduxState,
   creatingApplicationMap,
-} from "reducers/uiReducers/applicationsReducer";
+} from "@appsmith/reducers/uiReducers/applicationsReducer";
 import {
   ApplicationPayload,
   WorkspaceDetails,

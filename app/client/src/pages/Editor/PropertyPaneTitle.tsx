@@ -6,7 +6,7 @@ import React, {
   useRef,
   useState,
 } from "react";
-import { isEqual } from "lodash";
+import equal from "fast-deep-equal/es6";
 import { useDispatch, useSelector } from "react-redux";
 import EditableText, {
   EditInteractionKind,
@@ -67,7 +67,7 @@ const PropertyPaneTitle = memo(function PropertyPaneTitle(
 
   // Pass custom equality check function. Shouldn't be expensive than the render
   // as it is just a small array #perf
-  const widgets = useSelector(getExistingWidgetNames, isEqual);
+  const widgets = useSelector(getExistingWidgetNames, equal);
   const toggleEditWidgetName = useToggleEditWidgetName();
   const [name, setName] = useState(props.title);
   const valueRef = useRef("");
