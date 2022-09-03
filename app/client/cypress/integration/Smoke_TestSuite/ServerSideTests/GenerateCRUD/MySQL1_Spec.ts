@@ -273,7 +273,7 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
     agHelper
       .GetText(dataSources._queryError)
       .then(($errorText) =>
-        expect($errorText).to.eq("Unknown table 'fakeapi.Stores'"),
+        expect($errorText).to.eq("Unknown table 'fakeapi.productlines'"),
       );
     agHelper.ActionContextMenuWithInPane("Delete");
   });
