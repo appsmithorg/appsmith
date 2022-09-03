@@ -4,7 +4,7 @@ const publish = require("../../../../../locators/publishWidgetspage.json");
 const dsl = require("../../../../../fixtures/chartUpdatedDsl.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
 
-describe("Chart Widget Functionality around custom chart feature", function() {
+describe("Chart Widget Functionality around custom chart feature", function () {
   before(() => {
     cy.addDsl(dsl);
   });
@@ -13,7 +13,7 @@ describe("Chart Widget Functionality around custom chart feature", function() {
     cy.openPropertyPane("chartwidget");
   });
 
-  it("1. Fill the Chart Widget Properties.", function() {
+  it("1. Fill the Chart Widget Properties.", function () {
     //changing the Chart Name
     /**
      * @param{Text} Random Text
@@ -29,7 +29,7 @@ describe("Chart Widget Functionality around custom chart feature", function() {
     /**
      * @param{Text} Random Input Value
      */
-    cy.testCodeMirror(this.data.chartIndata);
+    cy.testJsontext("title", this.data.chartIndata);
     cy.get(viewWidgetsPage.chartInnerText)
       .contains("App Sign Up")
       .should("have.text", "App Sign Up");
@@ -65,7 +65,7 @@ describe("Chart Widget Functionality around custom chart feature", function() {
     cy.PublishtheApp();
   });
 
-  it("2. Custom Chart Widget Functionality", function() {
+  it("2. Custom Chart Widget Functionality", function () {
     //changing the Chart type
     //cy.get(widgetsPage.toggleChartType).click({ force: true });
     cy.UpdateChartType("Custom Chart");
@@ -89,7 +89,7 @@ describe("Chart Widget Functionality around custom chart feature", function() {
     cy.PublishtheApp();
   });
 
-  it("3. Toggle JS - Custom Chart Widget Functionality", function() {
+  it("3. Toggle JS - Custom Chart Widget Functionality", function () {
     cy.get(widgetsPage.toggleChartType).click({ force: true });
     //changing the Chart type
     cy.testJsontext("charttype", "CUSTOM_FUSION_CHART");
@@ -117,16 +117,15 @@ describe("Chart Widget Functionality around custom chart feature", function() {
     cy.PublishtheApp();
   });
 
-  it("4. Chart-Copy Verification", function() {
+  it("4. Chart-Copy Verification", function () {
     const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
     //Copy Chart and verify all properties
     cy.wait(1000);
     cy.copyWidget("chartwidget", viewWidgetsPage.chartWidget);
-
     cy.PublishtheApp();
   });
 
-  it("5. Chart-Delete Verification", function() {
+  it("5. Chart-Delete Verification", function () {
     // Delete the Chart widget
     cy.deleteWidget(viewWidgetsPage.chartWidget);
     cy.PublishtheApp();
@@ -137,4 +136,5 @@ describe("Chart Widget Functionality around custom chart feature", function() {
     cy.wait(2000);
     cy.get(publish.backToEditor).click({ force: true });
   });
+  
 });

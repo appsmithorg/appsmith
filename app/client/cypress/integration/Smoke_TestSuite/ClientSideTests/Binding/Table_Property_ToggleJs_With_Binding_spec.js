@@ -15,13 +15,13 @@ describe("Table Widget property pane feature validation", function() {
   it("Table widget toggle test for text alignment", function() {
     cy.openPropertyPane("tablewidget");
     cy.editColumn("id");
+    //cy.movetoStyleTab();
     cy.get(widgetsPage.toggleTextAlign)
       .first()
       .click({ force: true });
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(1000);
     cy.toggleJsAndUpdate("tabledata", testdata.bindingAlign);
-
     cy.readTabledataValidateCSS("0", "0", "justify-content", "flex-start");
     cy.readTabledataValidateCSS("1", "0", "justify-content", "flex-end");
   });
@@ -31,6 +31,7 @@ describe("Table Widget property pane feature validation", function() {
     cy.openPropertyPane("tablewidget");
     cy.get(".t--property-pane-back-btn").click({ force: true });
     cy.editColumn("id");
+    //cy.movetoStyleTab();
     cy.get(widgetsPage.toggleTextAlign)
       .first()
       .click({ force: true });
@@ -50,6 +51,7 @@ describe("Table Widget property pane feature validation", function() {
     cy.openPropertyPane("tablewidget");
     cy.get(".t--property-pane-back-btn").click({ force: true });
     cy.editColumn("id");
+    //cy.movetoStyleTab();
     cy.get(widgetsPage.toggleTextSize)
       .first()
       .click({ force: true });
@@ -65,6 +67,7 @@ describe("Table Widget property pane feature validation", function() {
     cy.openPropertyPane("tablewidget");
     cy.get(".t--property-pane-back-btn").click({ force: true });
     cy.editColumn("id");
+    //cy.movetoStyleTab();
     cy.get(widgetsPage.toggleTextSize)
       .first()
       .click({ force: true });
@@ -85,12 +88,13 @@ describe("Table Widget property pane feature validation", function() {
     cy.get(".t--property-pane-back-btn").click({ force: true });
     cy.openPropertyPane("tablewidget");
     cy.editColumn("id");
+    //cy.movetoStyleTab();
     cy.get(widgetsPage.toggleVerticalAlig)
       .first()
       .click({ force: true });
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(1000);
-    cy.get(widgetsPage.toggleTextStyle)
+    cy.get(widgetsPage.toggleTextStyle_tablev1)
       .first()
       .click({ force: true });
     // eslint-disable-next-line cypress/no-unnecessary-waiting
@@ -104,6 +108,7 @@ describe("Table Widget property pane feature validation", function() {
     cy.openPropertyPane("tablewidget");
     cy.get(".t--property-pane-back-btn").click({ force: true });
     cy.editColumn("id");
+    //cy.movetoStyleTab();
     cy.get(widgetsPage.toggleVerticalAlig)
       .first()
       .click({ force: true });
@@ -125,6 +130,7 @@ describe("Table Widget property pane feature validation", function() {
     cy.openPropertyPane("tablewidget");
     cy.get(".t--property-pane-back-btn").click({ force: true });
     cy.editColumn("id");
+    //cy.movetoStyleTab();
     cy.get(widgetsPage.toggleJsColor)
       .first()
       .click({ force: true });

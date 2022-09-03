@@ -168,6 +168,7 @@ describe("Theme validation usecases", function() {
       formWidgetsPage.formWidget,
       formWidgetsPage.formInner,
     );
+    cy.moveToStyleTab();
     cy.get(widgetsPage.backgroundcolorPickerNew)
       .first()
       .click({ force: true });
@@ -224,6 +225,7 @@ describe("Theme validation usecases", function() {
       formWidgetsPage.formWidget,
       formWidgetsPage.formInner,
     );
+    cy.moveToStyleTab();
     cy.get(widgetsPage.backgroundcolorPickerNew)
       .first()
       .click({ force: true });
@@ -292,6 +294,7 @@ describe("Theme validation usecases", function() {
       formWidgetsPage.formWidget,
       formWidgetsPage.formInner,
     );
+    cy.moveToStyleTab();
     cy.get(widgetsPage.backgroundcolorPickerNew)
       .first()
       .click({ force: true });

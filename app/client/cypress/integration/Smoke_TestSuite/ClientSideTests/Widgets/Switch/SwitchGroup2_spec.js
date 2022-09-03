@@ -12,11 +12,11 @@ describe("Switch Group Widget Functionality", function() {
   beforeEach(() => {
     cy.openPropertyPane("switchgroupwidget");
   });
-
+/*
   afterEach(() => {
     cy.goToEditFromPublish();
   });
-
+*/
   it("Widget name changes", function() {
     /**
      * @param{Text} Random Text
@@ -75,21 +75,26 @@ describe("Switch Group Widget Functionality", function() {
 
   it("Property: isVisible === FALSE", function() {
     cy.togglebarDisable(commonlocators.visibleCheckbox);
+    /*
     cy.PublishtheApp();
     cy.get(publish.switchGroupWidget + " " + "input").should("not.exist");
+    */
   });
 
   it("Property: isVisible === TRUE", function() {
     cy.togglebar(commonlocators.visibleCheckbox);
+    /*
     cy.PublishtheApp();
     cy.get(publish.switchGroupWidget + " " + "input")
       .eq(0)
       .should("exist");
+      */
   });
 
   it("Property: onSelectionChange", function() {
     // create an alert modal and verify its name
     cy.createModal(this.data.ModalName);
+    /*
     cy.PublishtheApp();
     cy.get(publish.switchGroupWidget + " " + "label.bp3-switch")
       .children()
@@ -99,6 +104,7 @@ describe("Switch Group Widget Functionality", function() {
       "have.text",
       this.data.ModalName,
     );
+    */
   });
 
   it("Check isDirty meta property", function() {

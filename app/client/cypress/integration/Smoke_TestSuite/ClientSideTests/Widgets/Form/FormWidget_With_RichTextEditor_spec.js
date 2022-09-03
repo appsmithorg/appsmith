@@ -27,7 +27,7 @@ describe("RichTextEditor Widget Functionality in Form", function() {
 
     const widgetId = "tcayiqdf7f";
     //   Clear the input
-    cy.testJsontext("defaulttext", "");
+    cy.testJsontext("defaultvalue", "");
 
     cy.wait(500);
     cy.get(

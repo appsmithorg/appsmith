@@ -171,6 +171,39 @@ Cypress.Commands.add("createModal", (ModalName) => {
 
   cy.get(widgetsPage.textWidget + " " + commonlocators.editIcon).click();
   cy.testCodeMirror(ModalName);
+  cy.moveToStyleTab();
+  cy.get(widgetsPage.textCenterAlign).click({ force: true });
+  cy.assertPageSave();
+  cy.get(".bp3-overlay-backdrop").click({ force: true });
+});
+
+Cypress.Commands.add("createModalWithIndex", (ModalName, index) => {
+  cy.get(widgetsPage.actionSelect)
+    .eq(index)
+    .click({ force: true });
+  cy.selectOnClickOption("Open modal");
+  cy.get(modalWidgetPage.selectModal).click();
+  cy.wait(2000);
+  cy.get(modalWidgetPage.createModalButton).click({ force: true });
+  cy.wait(3000);
+  cy.assertPageSave();
+  cy.SearchEntityandOpen("Modal1");
+  // changing the model name verify
+  cy.widgetText(
+    ModalName,
+    modalWidgetPage.modalName,
+    modalWidgetPage.modalName,
+  );
+
+  cy.wait(20000);
+  //changing the Model label
+  cy.get(modalWidgetPage.modalWidget + " " + widgetsPage.textWidget)
+    .first()
+    .trigger("mouseover");
+
+  cy.get(widgetsPage.textWidget + " " + commonlocators.editIcon).click();
+  cy.testCodeMirror(ModalName);
+  cy.moveToStyleTab();
   cy.get(widgetsPage.textCenterAlign).click({ force: true });
   cy.assertPageSave();
   cy.get(".bp3-overlay-backdrop").click({ force: true });
@@ -738,15 +771,18 @@ Cypress.Commands.add("evaluateErrorMessage", (value) => {
     });
 });
 
-Cypress.Commands.add("addAction", (value) => {
-  cy.get(commonlocators.dropdownSelectButton)
+Cypress.Commands.add("addAction", (value, property) => {
+  let dropdownSelect = commonlocators.dropdownSelectButton;
+  if (property)
+    dropdownSelect = `.t--property-control-${property} ${dropdownSelect}`;
+  cy.get(dropdownSelect)
     .last()
     .click();
   cy.get(commonlocators.chooseAction)
     .children()
     .contains("Show message")
     .click();
-  cy.enterActionValue(value);
+  cy.enterActionValue(value, property);
 });
 
 Cypress.Commands.add("addEvent", (value) => {
@@ -781,7 +817,7 @@ Cypress.Commands.add("selectShowMsg", () => {
 Cypress.Commands.add("addSuccessMessage", (value) => {
   cy.get(commonlocators.chooseMsgType)
     .last()
-    .click();
+    .click({ force: true });
   cy.get(commonlocators.chooseAction)
     .children()
     .contains("Success")
@@ -796,22 +832,25 @@ Cypress.Commands.add("SetDateToToday", () => {
   cy.assertPageSave();
 });
 
-Cypress.Commands.add("enterActionValue", (value) => {
+Cypress.Commands.add("enterActionValue", (value, property) => {
   cy.EnableAllCodeEditors();
-  cy.get(".CodeMirror textarea")
+  let codeMirrorTextArea = ".CodeMirror textarea";
+  if (property)
+    codeMirrorTextArea = `.t--property-control-${property} ${codeMirrorTextArea}`;
+  cy.get(codeMirrorTextArea)
     .last()
     .focus()
     .type("{ctrl}{shift}{downarrow}")
     .then(($cm) => {
       if ($cm.val() !== "") {
-        cy.get(".CodeMirror textarea")
+        cy.get(codeMirrorTextArea)
           .last()
           .clear({
             force: true,
           });
       }
 
-      cy.get(".CodeMirror textarea")
+      cy.get(codeMirrorTextArea)
         .last()
         .type(value, {
           force: true,
@@ -1456,4 +1495,16 @@ Cypress.Commands.add("discardTableRow", (x, y) => {
   cy.get(
     `[data-colindex="${x}"][data-rowindex="${y}"] button span:contains('Discard')`,
   ).click({ force: true });
+});
+
+Cypress.Commands.add("moveToStyleTab", () => {
+  cy.get(commonlocators.propertyStyle)
+    .first()
+    .click({ force: true });
+});
+
+Cypress.Commands.add("moveToContentTab", () => {
+  cy.get(commonlocators.propertyContent)
+    .first()
+    .click({ force: true });
 });
