@@ -2483,7 +2483,7 @@ public class DatabaseChangelog2 {
         /* Update the previous query to only include id field */
         queryToGetDatasources.fields().include(fieldName(QDatasource.datasource.id));
 
-        /* Fetch RapidApi actions using the previous query */
+        /* Fetch RapidApi datasources using the previous query */
         List<Datasource> rapidApiDatasources = mongockTemplate.find(queryToGetDatasources, Datasource.class);
 
         /* Mark each selected datasource as deleted */
