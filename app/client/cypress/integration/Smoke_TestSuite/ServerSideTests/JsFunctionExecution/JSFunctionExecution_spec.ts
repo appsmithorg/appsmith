@@ -315,7 +315,7 @@ describe("JS Function Execution", function() {
       expect($cellData).to.eq("1"); //validating id column value - row 0
       deployMode.NavigateBacktoEditor();
     });
-    ee.SelectEntityByName("JSObject1", "QUERIES/JS");
+    ee.SelectEntityByName("JSObject1", "Queries/JS");
     ee.ActionContextMenuByEntityName(
       "JSObject1",
       "Delete",
