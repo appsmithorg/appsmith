@@ -172,7 +172,6 @@ describe("Container Widget Functionality", function() {
   });
 
   it("11. ListWidget-Copy & Delete Verification", function() {
-    const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
     //Copy Chart and verify all properties
     cy.CheckAndUnfoldEntityItem("WIDGETS");
     cy.selectEntityByName("List1");

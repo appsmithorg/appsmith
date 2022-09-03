@@ -1,10 +1,7 @@
-const testdata = require("../../../../fixtures/testdata.json");
-const apiwidget = require("../../../../locators/apiWidgetslocator.json");
 const widgetsPage = require("../../../../locators/Widgets.json");
 const explorer = require("../../../../locators/explorerlocators.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
 const formWidgetsPage = require("../../../../locators/FormWidgets.json");
-const publish = require("../../../../locators/publishWidgetspage.json");
 const themelocator = require("../../../../locators/ThemeLocators.json");
 
 let themeBackgroudColor;

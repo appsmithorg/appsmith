@@ -1,12 +1,8 @@
-const testdata = require("../../../../fixtures/testdata.json");
 const apiwidget = require("../../../../locators/apiWidgetslocator.json");
-const widgetsPage = require("../../../../locators/Widgets.json");
 const explorer = require("../../../../locators/explorerlocators.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
 const formWidgetsPage = require("../../../../locators/FormWidgets.json");
 const publish = require("../../../../locators/publishWidgetspage.json");
-
-const pageid = "MyPage";
 
 describe("Entity explorer Drag and Drop widgets testcases", function() {
   it("Drag and drop form widget and validate", function() {
