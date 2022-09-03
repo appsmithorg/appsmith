@@ -23,7 +23,6 @@ import {
 } from "@appsmith/constants/messages";
 import { Icon, IconName, IconSize } from "design-system";
 import { Classes } from "components/ads/common";
-import { Colors } from "constants/Colors";
 import { executeCommandAction } from "actions/apiPaneActions";
 import { SlashCommand } from "entities/Action";
 import { FieldEntityInformation } from "../CodeEditor/EditorConfig";
@@ -201,7 +200,7 @@ const MenuItem = styled.a`
   height: 40px;
 
   .${Classes.TEXT} {
-    color: ${Colors.CODE_GRAY};
+    color: ${(props) => props.theme.colors.menuItem.hoverText};
   }
 
   &:hover {
