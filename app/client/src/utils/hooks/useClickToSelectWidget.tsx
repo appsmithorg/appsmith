@@ -1,4 +1,4 @@
-import { get } from "lodash";
+import { eq, get } from "lodash";
 import { getIsPropertyPaneVisible } from "selectors/propertyPaneSelectors";
 import { getIsTableFilterPaneVisible } from "selectors/tableFilterSelectors";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
@@ -15,6 +15,7 @@ import {
   isCurrentWidgetFocused,
   isWidgetSelected,
 } from "selectors/widgetSelectors";
+import equal from "fast-deep-equal/es6";
 
 export function getParentToOpenIfAny(
   widgetId: string | undefined,
@@ -96,25 +97,33 @@ export function ClickContentToOpenPropPane({
 
 export const useClickToSelectWidget = (widgetId: string) => {
   const { focusWidget, selectWidget } = useWidgetSelection();
-  const isPropPaneVisible = useSelector(getIsPropertyPaneVisible);
-  const isTableFilterPaneVisible = useSelector(getIsTableFilterPaneVisible);
+  const isPropPaneVisible = useSelector(getIsPropertyPaneVisible, equal);
+  const isTableFilterPaneVisible = useSelector(
+    getIsTableFilterPaneVisible,
+    equal,
+  );
 
-  const isFocused = useSelector(isCurrentWidgetFocused(widgetId));
-  const isSelected = useSelector(isWidgetSelected(widgetId));
+  const isFocused = useSelector(isCurrentWidgetFocused(widgetId), equal);
+  console.log({ widgetId, isFocused });
+  // const isFocused = false;
+
+  const isSelected = useSelector(isWidgetSelected(widgetId), equal);
   // const parentWidgetToOpen = useSelector(getParentToOpenIfAny(widgetId));
 
   // This state tells us whether a `ResizableComponent` is resizing
   const isResizing = useSelector(
     (state: AppState) => state.ui.widgetDragResize.isResizing,
+    equal,
   );
-  const appMode = useSelector(getAppMode);
+  const appMode = useSelector(getAppMode, equal);
 
   // This state tells us whether a `DraggableComponent` is dragging
   const isDragging = useSelector(
     (state: AppState) => state.ui.widgetDragResize.isDragging,
+    equal,
   );
 
-  const parentWidgetToOpen = useSelector(getFocusedParentToOpen);
+  const parentWidgetToOpen = useSelector(getFocusedParentToOpen, equal);
 
   const clickToSelectWidget = (e: any) => {
     // ignore click captures

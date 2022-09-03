@@ -6,6 +6,7 @@ import { AppState } from "@appsmith/reducers";
 
 import { getSelectedWidgets } from "selectors/ui";
 import { useSelector } from "store";
+import equal from "fast-deep-equal/es6";
 
 export const usePositionedContainerZIndex = (
   props: PositionedContainerProps,
@@ -14,7 +15,7 @@ export const usePositionedContainerZIndex = (
   const isDragging = useSelector(
     (state: AppState) => state.ui.widgetDragResize.isDragging,
   );
-  const selectedWidgets = useSelector(getSelectedWidgets);
+  const selectedWidgets = useSelector(getSelectedWidgets, equal);
   const isThisWidgetDragging =
     isDragging && selectedWidgets.includes(props.widgetId);
 
@@ -47,7 +48,7 @@ export const usePositionedContainerZIndex = (
 
   const zIndicesObj = useMemo(() => {
     const onHoverZIndex = isDragging ? zIndex : Layers.positionedWidget + 1;
-    return { zIndex, onHoverZIndex };
+    return `${zIndex}__${onHoverZIndex}`;
   }, [isDragging, zIndex]);
 
   return zIndicesObj;

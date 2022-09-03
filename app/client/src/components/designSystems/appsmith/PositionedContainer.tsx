@@ -94,10 +94,12 @@ export function PositionedContainer(props: PositionedContainerProps) {
     );
   }, [props.widgetType, props.widgetId]);
   const isDropTarget = checkIsDropTarget(props.widgetType);
-  const { onHoverZIndex, zIndex } = usePositionedContainerZIndex(
+  const [onHoverZIndex, zIndex] = usePositionedContainerZIndex(
     props,
     isDropTarget,
-  );
+  )
+    .split("__")
+    .map((a) => parseInt(a));
 
   const reflowSelector = getReflowSelector(props.widgetId);
 
@@ -193,5 +195,9 @@ export function PositionedContainer(props: PositionedContainerProps) {
   );
 }
 
+PositionedContainer.whyDidYouRender = {
+  logOnDifferentValues: true,
+  customName: "Menu",
+};
 PositionedContainer.padding = WIDGET_PADDING;
 export default PositionedContainer;
