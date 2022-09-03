@@ -41,7 +41,7 @@ describe("Text Widget color/font/alignment Functionality", function() {
 
     //Changing the text label
     cy.testCodeMirror(this.data.TextLabelValueScrollable);
-
+    cy.moveToStyleTab();
     cy.ChangeTextStyle(
       this.data.TextHeading,
       commonlocators.headingTextStyle,
@@ -56,6 +56,7 @@ describe("Text Widget color/font/alignment Functionality", function() {
   });
 
   it("Test to validate text format", function() {
+    cy.moveToStyleTab();
     //Changing the Text Style's and validating
     cy.get(widgetsPage.italics).click({ force: true });
     cy.readTextDataValidateCSS("font-style", "italic");
@@ -69,6 +70,7 @@ describe("Text Widget color/font/alignment Functionality", function() {
   });
 
   it("Test to validate color changes in text and background", function() {
+    cy.moveToStyleTab();
     //Changing the Text Style's and validating
     cy.get(widgetsPage.textColor)
       .first()
@@ -90,7 +92,7 @@ describe("Text Widget color/font/alignment Functionality", function() {
       .click({ force: true });
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(500);
-    cy.selectColor("cellbackgroundcolor");
+    cy.selectColor("backgroundcolor");
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(500);
     cy.wait("@updateLayout");
@@ -140,6 +142,7 @@ describe("Text Widget color/font/alignment Functionality", function() {
     cy.closePropertyPane();
   });
   it("Test border width, color and verity", function() {
+    cy.moveToStyleTab();
     cy.testJsontext("borderwidth", "10");
     cy.wait("@updateLayout");
     cy.get(`${widgetsPage.textWidget} .t--text-widget-container`).should(
