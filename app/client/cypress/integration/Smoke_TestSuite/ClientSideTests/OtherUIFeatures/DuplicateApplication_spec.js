@@ -1,7 +1,5 @@
 const dsl = require("../../../../fixtures/basicDsl.json");
 import homePage from "../../../../locators/HomePage";
-const commonlocators = require("../../../../locators/commonlocators.json");
-const widgetsPage = require("../../../../locators/Widgets.json");
 
 let duplicateApplicationDsl;
 let parentApplicationDsl;

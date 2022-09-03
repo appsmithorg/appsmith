@@ -25,7 +25,6 @@ describe("RichTextEditor Widget Functionality in Form", function() {
     //   Make RTE Required
     cy.CheckWidgetProperties(formWidgetsPage.requiredJs);
 
-    const widgetId = "tcayiqdf7f";
     //   Clear the input
     cy.testJsontext("defaultvalue", "");
 

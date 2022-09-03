@@ -1,4 +1,3 @@
-const dsl = require("../../../../../fixtures/tableV2WithTextWidgetDsl.json");
 import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
 
 const propPane = ObjectsRegistry.PropertyPane;
