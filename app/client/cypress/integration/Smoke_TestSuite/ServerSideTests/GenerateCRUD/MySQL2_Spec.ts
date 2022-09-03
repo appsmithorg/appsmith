@@ -347,6 +347,7 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
     ee.ExpandCollapseEntity(dsName);
     ee.ActionContextMenuByEntityName(dsName, "Refresh");
     agHelper.AssertElementAbsence(ee._entityNameInExplorer("Stores"));
+    agHelper.ActionContextMenuWithInPane("Delete");
   });
 
   it("13. Verify Deletion of the datasource when Pages/Actions associated are not removed yet", () => {
