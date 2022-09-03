@@ -24,11 +24,14 @@ describe("Statbox Widget Functionality", function() {
     cy.get(".t--property-pane-section-general").then(() => {
       cy.moveToStyleTab();
       cy.get(`${widgetsPage.cellBackground} input`)
-      .first()
-      .clear()
-      .wait(400)
-      .type("#FFC13D");
-      cy.get(`${widgetsPage.cellBackground} input`).should("have.value", "#FFC13D");
+        .first()
+        .clear()
+        .wait(400)
+        .type("#FFC13D");
+      cy.get(`${widgetsPage.cellBackground} input`).should(
+        "have.value",
+        "#FFC13D",
+      );
     });
   });
 
@@ -40,7 +43,9 @@ describe("Statbox Widget Functionality", function() {
       cy.get(".bp3-button-text")
         .first()
         .click();
-      cy.get(".bp3-icon-arrow-up").click();
+      cy.get(".bp3-icon-arrow-up")
+        .click()
+        .wait(500);
       // opening modal from onClick action of icon button
       cy.createModal("Modal", "Modal1");
     });
