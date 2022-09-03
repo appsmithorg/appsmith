@@ -351,6 +351,8 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
   });
 
   it("13. Verify Deletion of the datasource when Pages/Actions associated are not removed yet", () => {
+    deployMode.DeployApp();
+    deployMode.NavigateBacktoEditor();
     dataSources.DeleteDatasouceFromWinthinDS(dsName, 200); //ProductLines, Employees pages are still using this ds
   });
 
