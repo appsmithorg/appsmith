@@ -81,7 +81,7 @@ jobs:
         run: echo "I'm alive!" && exit 0
 
       - name: Use Node.js 16.14.0
-        uses: actions/setup-node@v1
+        if: steps.run_result.outputs.run_result != 'success'
         with:
           node-version: "16.14.0"
 
@@ -127,8 +127,18 @@ jobs:
           echo 'export const VERSION = "${{ steps.vars.outputs.version }}"' > src/version.js
           ./build.sh
 
+      # Restore the previous built bundle if present. If not push the newly built into the cache
+      - name: Restore the previous bundle
+        uses: actions/cache@v2
+        with:
+          path: |
+            app/rts/dist/
+          key: ${{ github.run_id }}-${{ github.job }}-${{ steps.timestamp.outputs.timestamp }}
+          restore-keys: |
+            ${{ github.run_id }}-${{ github.job }}
+
       # Upload the build artifact so that it can be used by the test & deploy job in other workflows
-      - name: Upload server build bundle
+      - name: Upload rts build bundle
         uses: actions/upload-artifact@v2
         with:
           name: rts-build
