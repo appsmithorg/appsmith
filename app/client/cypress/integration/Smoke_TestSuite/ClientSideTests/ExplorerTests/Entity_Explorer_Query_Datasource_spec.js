@@ -31,7 +31,6 @@ describe("Entity explorer tests related to query and datasource", function() {
     cy.wait(2000);
     cy.NavigateToDatasourceEditor();
     cy.get(datasource.PostgreSQL).click();
-    cy.getPluginFormsAndCreateDatasource();
     cy.fillPostgresDatasourceForm();
 
     // checking that conflicting names are not allowed

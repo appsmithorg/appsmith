@@ -41,7 +41,7 @@ describe("Autocomplete using slash command and mustache tests", function() {
       .find(".t--js-toggle")
       .click({ force: true });
     cy.EnableAllCodeEditors();
-    cy.get(".CodeMirror textarea")
+    cy.get(".t--property-control-onclick .CodeMirror textarea")
       .last()
       .focus()
       .type("/")
@@ -59,7 +59,7 @@ describe("Autocomplete using slash command and mustache tests", function() {
           .should("have.text", "New Datasource");
       });
     cy.EnableAllCodeEditors();
-    cy.get(".CodeMirror textarea")
+    cy.get(".t--property-control-onclick .CodeMirror textarea")
       .last()
       .focus()
       .type("{ctrl}{shift}{downarrow}")

@@ -32,6 +32,7 @@ describe("Entity explorer Drag and Drop widgets testcases", function() {
     /**
      * @param{Text} Random Colour
      */
+    cy.moveToStyleTab();
     cy.selectColor("backgroundcolor");
     cy.get(formWidgetsPage.formD)
       .should("have.css", "background-color")
@@ -39,6 +40,7 @@ describe("Entity explorer Drag and Drop widgets testcases", function() {
     /**
      * @param{toggleButton Css} Assert to be checked
      */
+    cy.moveToContentTab();
     cy.togglebar(commonlocators.scrollView);
     cy.get(formWidgetsPage.formD)
       .scrollTo("bottom")

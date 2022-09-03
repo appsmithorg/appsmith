@@ -497,7 +497,7 @@ describe("Migration Validate", function() {
       .first()
       .invoke("attr", "value")
       .should("contain", "#2E3D49");
-    cy.get(`${widgetsPage.cellBackground} input`)
+    cy.get(`${widgetsPage.cellBackground_tablev1} input`)
       .first()
       .invoke("attr", "value")
       .should("contain", "#FFC13D");

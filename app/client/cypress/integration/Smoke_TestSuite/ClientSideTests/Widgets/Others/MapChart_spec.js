@@ -18,7 +18,7 @@ describe("Map Chart Widget Functionality", function() {
   });
 
   it("Change Title", function() {
-    cy.testCodeMirror(this.data.chartIndata);
+    cy.testJsontext("title",this.data.chartIndata);
     cy.get(viewWidgetsPage.chartInnerText)
       .contains("App Sign Up")
       .should("have.text", "App Sign Up");
@@ -103,10 +103,19 @@ describe("Map Chart Widget Functionality", function() {
     cy.PublishtheApp();
   });
 
+  it("Map type: USA", function() {
+    // Change the map type
+    cy.updateMapType("USA");
+    // Verify the number of entities
+    cy.get(viewWidgetsPage.mapChartEntityLabels).should("have.length", 51);
+    cy.PublishtheApp();
+  });
+
   it("Action: onDataPointClick, Open modal", function() {
     // Create the Alert Modal and verify Modal name
     cy.createModal(this.data.ModalName);
     cy.PublishtheApp();
+    /*
     cy.get(widgetsPage.mapChartPlot)
       .children()
       .first()
@@ -115,6 +124,7 @@ describe("Map Chart Widget Functionality", function() {
       "have.text",
       this.data.ModalName,
     );
+    */
   });
 
   it("Action: onDataPointClick, Show message using selectedDataPoint", function() {

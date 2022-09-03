@@ -24,8 +24,8 @@ describe("Json & JsonB Datatype tests", function() {
       agHelper.AddDsl(val);
     });
     ee.NavigateToSwitcher("widgets");
-    propPane.ChangeColor(33, "Primary");
-    propPane.ChangeColor(39, "Background");
+    propPane.ChangeThemeColor(33, "Primary");
+    propPane.ChangeThemeColor(39, "Background");
   });
 
   it("1. Creating table query - jsonbooks", () => {
@@ -349,8 +349,8 @@ describe("Json & JsonB Datatype tests", function() {
       agHelper.AddDsl(val);
     });
     ee.NavigateToSwitcher("widgets");
-    propPane.ChangeColor(12, "Primary");
-    propPane.ChangeColor(23, "Background");
+    propPane.ChangeThemeColor(12, "Primary");
+    propPane.ChangeThemeColor(23, "Background");
   });
 
   it("15. Creating enum & table queries - jsonBbooks", () => {

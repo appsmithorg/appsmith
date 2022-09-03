@@ -17,9 +17,6 @@ describe("Git discard changes:", function() {
     // Create new postgres datasource
     cy.NavigateToDatasourceEditor();
     cy.get(datasource.PostgreSQL).click();
-
-    cy.getPluginFormsAndCreateDatasource();
-
     cy.fillPostgresDatasourceForm();
 
     cy.testSaveDatasource();
@@ -64,8 +61,8 @@ describe("Git discard changes:", function() {
     cy.dragAndDropToCanvas("inputwidgetv2", { x: 300, y: 300 });
     cy.get(".t--widget-inputwidgetv2").should("exist");
     cy.EnableAllCodeEditors();
-    cy.get(dynamicInputLocators.input)
-      .eq(1)
+    cy.get(`.t--property-control-defaultvalue ${dynamicInputLocators.input}`)
+      .last()
       .click({ force: true })
       .type(`{{${query1}.data[0].name}}`, {
         parseSpecialCharSequences: false,
@@ -84,8 +81,8 @@ describe("Git discard changes:", function() {
     cy.dragAndDropToCanvas("inputwidgetv2", { x: 300, y: 300 });
     cy.get(".t--widget-inputwidgetv2").should("exist");
     cy.EnableAllCodeEditors();
-    cy.get(dynamicInputLocators.input)
-      .eq(1)
+    cy.get(`.t--property-control-defaultvalue ${dynamicInputLocators.input}`)
+      .last()
       .click({ force: true })
       .type("{{JSObject1.myFun1()}}", { parseSpecialCharSequences: false });
     cy.get("#switcher--explorer").click({ force: true });

@@ -39,24 +39,30 @@ describe("Layout OnLoad Actions tests", function() {
     apiPage.CreateAndFillApi(
       "https://source.unsplash.com/collection/1599413",
       "RandomFlora",
+      30000,
     );
     //apiPage.RunAPI();
 
-    apiPage.CreateAndFillApi("https://randomuser.me/api/", "RandomUser");
+    apiPage.CreateAndFillApi("https://randomuser.me/api/", "RandomUser", 30000);
     //apiPage.RunAPI();
 
-    apiPage.CreateAndFillApi("https://favqs.com/api/qotd", "InspiringQuotes");
+    apiPage.CreateAndFillApi(
+      "https://favqs.com/api/qotd",
+      "InspiringQuotes",
+      30000,
+    );
     apiPage.EnterHeader("dependency", "{{RandomUser.data}}"); //via Params tab
     //apiPage.RunAPI();
 
     apiPage.CreateAndFillApi(
       "https://www.boredapi.com/api/activity",
       "Suggestions",
+      30000,
     );
     apiPage.EnterHeader("dependency", "{{InspiringQuotes.data}}");
     //apiPage.RunAPI();
 
-    apiPage.CreateAndFillApi("https://api.genderize.io", "Genderize");
+    apiPage.CreateAndFillApi("https://api.genderize.io", "Genderize", 30000);
     apiPage.EnterParams("name", "{{RandomUser.data.results[0].name.first}}"); //via Params tab
     //apiPage.RunAPI();
 
@@ -168,7 +174,7 @@ describe("Layout OnLoad Actions tests", function() {
 
     apiPage.CreateAndFillApi(
       "https://api.genderize.io?name={{RandomUser.data.results[0].name.first}}",
-      "Genderize",
+      "Genderize", 30000
     );
     apiPage.ValidateQueryParams({
       key: "name",

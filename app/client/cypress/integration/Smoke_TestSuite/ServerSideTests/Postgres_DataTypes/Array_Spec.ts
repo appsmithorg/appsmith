@@ -22,8 +22,8 @@ describe("Array Datatype tests", function() {
       agHelper.AddDsl(val);
     });
     ee.NavigateToSwitcher("widgets");
-    propPane.ChangeColor(-31, "Primary");
-    propPane.ChangeColor(-27, "Background");
+    propPane.ChangeThemeColor(-31, "Primary");
+    propPane.ChangeThemeColor(-27, "Background");
   });
 
   it("1. Creating table query - arraytypes", () => {

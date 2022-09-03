@@ -17,12 +17,12 @@ import { GeneralSettings } from "./General";
 import * as Sentry from "@sentry/react";
 import { getAllApplications } from "actions/applicationActions";
 import { useMediaQuery } from "react-responsive";
-import { BackButton, TabsWrapper } from "components/utils/helperComponents";
+import { BackButton, StickyHeader } from "components/utils/helperComponents";
 import { debounce } from "lodash";
 import FormDialogComponent from "components/editorComponents/form/FormDialogComponent";
-import WorkspaceInviteUsersForm from "./WorkspaceInviteUsersForm";
+import WorkspaceInviteUsersForm from "@appsmith/pages/workspace/WorkspaceInviteUsersForm";
 import { SettingsPageHeader } from "./SettingsPageHeader";
-import { navigateToTab } from "./helpers";
+import { navigateToTab } from "@appsmith/pages/workspace/helpers";
 
 const SentryRoute = Sentry.withSentryRouting(Route);
 
@@ -31,7 +31,43 @@ const SettingsWrapper = styled.div<{
 }>`
   width: ${(props) => (props.isMobile ? "345px" : "916px")};
   margin: 0 auto;
+  height: 100%;
+  &::-webkit-scrollbar {
+    width: 0px;
+  }
+  .tabs-wrapper {
+    height: 100%;
+    ${({ isMobile }) =>
+      !isMobile &&
+      `
+      padding: 104px 0 0;
+  `}
+  }
+`;
+
+const StyledStickyHeader = styled(StickyHeader)<{ isMobile?: boolean }>`
   padding-top: 24px;
+  ${({ isMobile }) =>
+    !isMobile &&
+    `
+  top: 48px;
+  position: fixed;
+  width: 916px;
+  `}
+`;
+
+export const TabsWrapper = styled.div`
+  .react-tabs {
+    margin-left: 8px;
+  }
+  .react-tabs__tab-list {
+    border-bottom: 1px solid var(--appsmith-color-black-200);
+    padding: 36px 0 0;
+    width: 908px;
+  }
+  .react-tabs__tab-panel {
+    height: calc(100% - 76px);
+  }
 `;
 
 export default function Settings() {
@@ -127,17 +163,22 @@ export default function Settings() {
   return (
     <>
       <SettingsWrapper data-testid="t--settings-wrapper" isMobile={isMobile}>
-        <BackButton goTo="/applications" />
-        <SettingsPageHeader
-          buttonText="Add users"
-          onButtonClick={onButtonClick}
-          onSearch={onSearch}
-          pageMenuItems={pageMenuItems}
-          searchPlaceholder="Search"
-          showMoreOptions={false}
-          title={pageTitle}
-        />
-        <TabsWrapper data-testid="t--user-edit-tabs-wrapper">
+        <StyledStickyHeader isMobile={isMobile}>
+          <BackButton goTo="/applications" />
+          <SettingsPageHeader
+            buttonText="Add users"
+            onButtonClick={onButtonClick}
+            onSearch={onSearch}
+            pageMenuItems={pageMenuItems}
+            searchPlaceholder="Search"
+            showMoreOptions={false}
+            title={pageTitle}
+          />
+        </StyledStickyHeader>
+        <TabsWrapper
+          className="tabs-wrapper"
+          data-testid="t--user-edit-tabs-wrapper"
+        >
           <TabComponent
             onSelect={(index: number) =>
               navigateToTab(tabArr[index].key, location, history)

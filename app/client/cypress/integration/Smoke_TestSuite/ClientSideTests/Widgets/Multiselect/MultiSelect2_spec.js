@@ -23,7 +23,7 @@ describe("MultiSelect Widget Functionality", function() {
   it("1. Selects value with invalid default value", () => {
     cy.openPropertyPane("multiselectwidgetv2");
     cy.testJsontext("options", JSON.stringify(data.input));
-    cy.testJsontext("defaultvalue", "{{ undefined }}");
+    cy.testJsontext("defaultselectedvalues", "{{ undefined }}");
     cy.get(formWidgetsPage.multiselectwidgetv2)
       .find(".rc-select-selection-search-input")
       .first()
@@ -41,7 +41,7 @@ describe("MultiSelect Widget Functionality", function() {
 
   it("2. Selects value with enter in default value", () => {
     cy.testJsontext(
-      "defaultvalue",
+      "defaultselectedvalues",
       '[\n  {\n    "label": "Option 3",\n    "value": "3"\n  }\n]',
     );
 
@@ -53,7 +53,7 @@ describe("MultiSelect Widget Functionality", function() {
 
   it("3. Clears the search field when widget is closed and serverSideFiltering is off", () => {
     // Turn on the filterable for the widget
-    cy.togglebar('.t--property-control-filterable input[type="checkbox"]');
+    cy.togglebar('.t--property-control-allowsearching input[type="checkbox"]');
     // open the widget
     cy.get(formWidgetsPage.multiselectwidgetv2)
       .find(".rc-select-selection-search-input")
@@ -120,7 +120,7 @@ describe("MultiSelect Widget Functionality", function() {
       .should("not.be.empty");
     // Turn off the filterable property for the widget
     cy.togglebarDisable(
-      '.t--property-control-filterable input[type="checkbox"]',
+      '.t--property-control-allowsearching input[type="checkbox"]',
     );
     // Turn off server side filtering for the widget
     cy.togglebarDisable(
@@ -250,10 +250,10 @@ describe("MultiSelect Widget Functionality", function() {
       cy.openPropertyPane("multiselectwidgetv2");
       // set options
       propPane.UpdatePropertyFieldValue("Options", JSON.stringify(options));
-      agHelper.Escape();
+      agHelper.PressEscape();
       // set default value
       propPane.UpdatePropertyFieldValue(
-        "Default Value",
+        "Default Selected Values",
         JSON.stringify(defaultValue, null, 2),
       );
       // select other options
@@ -282,10 +282,9 @@ describe("MultiSelect Widget Functionality", function() {
       "Options",
       JSON.stringify([{ label: "RED", value: "RED" }]),
     );
-    agHelper.Escape();
-    propPane.UpdatePropertyFieldValue("Default Value", '["RED"]');
+    agHelper.PressEscape();
+    propPane.UpdatePropertyFieldValue("Default Selected Values", '["RED"]');
     agHelper.RemoveMultiSelectItems(["RED"]);
-
     // verify value is equal to default value
     cy.get(getWidgetSelector("textwidget"))
       .eq(1)

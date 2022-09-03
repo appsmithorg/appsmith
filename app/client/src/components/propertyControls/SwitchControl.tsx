@@ -1,7 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 import BaseControl, { ControlData, ControlProps } from "./BaseControl";
-import Switch from "components/ads/Switch";
+import { Switch } from "design-system";
 import {
   DSEventDetail,
   DSEventTypes,

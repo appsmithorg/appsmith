@@ -5,7 +5,7 @@ import {
   switchViewType,
   ViewTypes,
 } from "components/formControls/utils";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import { Action } from "entities/Action";
 import { ControlProps } from "components/formControls/BaseControl";
 import { connect, useSelector } from "react-redux";

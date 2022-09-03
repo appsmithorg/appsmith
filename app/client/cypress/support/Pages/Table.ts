@@ -48,6 +48,8 @@ export class Table {
     `.t--widget-tablewidget .tbody .td[data-rowindex=${rowNum}][data-colindex=${colNum}]`;
   _tableRowColumnData = (rowNum: number, colNum: number) =>
     this._tableRow(rowNum, colNum) + ` div div`;
+  _tableLoadStateDelete =
+    this._tableRow(0, 0) + ` div div button span:contains('Delete')`;
   _tableRowImageColumnData = (rowNum: number, colNum: number) =>
     this._tableRow(rowNum, colNum) + ` div div.image-cell`;
   _tableEmptyColumnData = `.t--widget-tablewidget .tbody .td`; //selected-row
@@ -85,14 +87,17 @@ export class Table {
   _filtersCount = this._filterBtn + " span.action-title";
 
   public WaitUntilTableLoad(rowIndex = 0, colIndex = 0) {
-    cy.waitUntil(() => this.ReadTableRowColumnData(rowIndex, colIndex, 2000), {
-      errorMsg: "Table is not populated",
-      timeout: 10000,
-      interval: 2000,
-    }).then((cellData) => {
-      expect(cellData).not.empty;
-      this.agHelper.Sleep(500);
-    });
+    this.agHelper.GetElement(this._tableRowColumnData(rowIndex, colIndex), 30000).waitUntil(
+      ($ele) =>
+        cy
+          .wrap($ele)
+          .children("button")
+          .should("have.length", 0)
+    );
+
+    //or below will work:
+    //this.agHelper.AssertElementAbsence(this._tableLoadStateDelete, 30000);
+    // this.agHelper.Sleep(500);
   }
 
   public WaitForTableEmpty() {
@@ -124,7 +129,9 @@ export class Table {
   ) {
     //timeout can be sent higher values incase of larger tables
     this.agHelper.Sleep(timeout); //Settling time for table!
-    return cy.get(this._tableRowColumnData(rowNum, colNum)).invoke("text");
+    return this.agHelper
+      .GetElement(this._tableRowColumnData(rowNum, colNum), 30000)
+      .invoke("text");
   }
 
   public AssertTableRowImageColumnIsLoaded(
@@ -217,11 +224,24 @@ export class Table {
       });
   }
 
-  public SelectTableRow(rowIndex: number) {
-    //0 for 1st row
-    cy.get(this._tableRow(rowIndex, 0))
-      .first()
-      .click({ force: true });
+  public SelectTableRow(rowIndex: number, columnIndex = 0, select = true) {
+    //rowIndex - 0 for 1st row
+    this.agHelper
+      .GetElement(this._tableRow(rowIndex, columnIndex))
+      .parent("div")
+      .invoke("attr", "class")
+      .then(($classes: any) => {
+        if (
+          (select && !$classes?.includes("selected-row")) ||
+          (!select && $classes?.includes("selected-row"))
+        )
+          this.agHelper.GetNClick(
+            this._tableRow(rowIndex, columnIndex),
+            0,
+            true,
+          );
+      });
+
     this.agHelper.Sleep(); //for select to reflect
   }
 
@@ -237,7 +257,7 @@ export class Table {
 
   public RemoveSearchTextNVerify(cellDataAfterSearchRemoved: string) {
     this.agHelper.GetNClick(this._searchBoxCross);
-    this.ReadTableRowColumnData(0, 0).then((aftSearchRemoved) => {
+    this.ReadTableRowColumnData(0, 0).then((aftSearchRemoved: any) => {
       expect(aftSearchRemoved).to.eq(cellDataAfterSearchRemoved);
     });
   }
@@ -284,7 +304,7 @@ export class Table {
     else this.agHelper.GetNClick(this._clearAllFilter);
 
     if (toClose) this.CloseFilter();
-    this.ReadTableRowColumnData(0, 0).then((aftFilterRemoved) => {
+    this.ReadTableRowColumnData(0, 0).then((aftFilterRemoved: any) => {
       expect(aftFilterRemoved).to.eq(cellDataAfterFilterRemoved);
     });
   }

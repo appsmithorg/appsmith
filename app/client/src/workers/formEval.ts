@@ -6,7 +6,7 @@ import {
   FormConfigEvalObject,
   DynamicValuesConfig,
 } from "reducers/evaluationReducers/formEvaluationReducer";
-import { ReduxActionTypes } from "ce/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { ActionConfig } from "entities/Action";
 import { FormEvalActionPayload } from "sagas/FormEvaluationSaga";
 import { FormConfigType } from "components/formControls/BaseControl";

@@ -1,7 +1,7 @@
 import React, { useCallback, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 
 import {
   moveActionRequest,

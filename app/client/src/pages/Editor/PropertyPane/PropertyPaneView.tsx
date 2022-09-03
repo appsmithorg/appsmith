@@ -34,7 +34,6 @@ import {
   SearchInput,
   SearchVariant,
 } from "design-system";
-import { selectFeatureFlags } from "selectors/usersSelectors";
 import WidgetFactory from "utils/WidgetFactory";
 import styled from "styled-components";
 import { PropertyPaneTab } from "./PropertyPaneTab";
@@ -81,7 +80,6 @@ function PropertyPaneView(
     equal,
   );
   const doActionsExist = useSelector(actionsExist);
-  const featureFlags = useSelector(selectFeatureFlags);
   const containerRef = useRef<HTMLDivElement>(null);
   const hideConnectDataCTA = useMemo(() => {
     if (widgetProperties) {
@@ -247,8 +245,7 @@ function PropertyPaneView(
         className="t--property-pane-view"
         data-guided-tour-id="property-pane"
       >
-        {featureFlags.PROPERTY_PANE_GROUPING &&
-        (isContentConfigAvailable || isStyleConfigAvailable) ? (
+        {isContentConfigAvailable || isStyleConfigAvailable ? (
           <>
             {// TODO(aswathkk): Fix #15970 and show search bar
             false && (
