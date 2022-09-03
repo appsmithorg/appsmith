@@ -29,6 +29,7 @@ export class PropertyPane {
   private _copyWidget = "button.t--copy-widget";
   _deleteWidget = "button.t--delete-widget";
   private _changeThemeBtn = ".t--change-theme-btn";
+  private _styleTabBtn = "li:contains('STYLE')";
   private _themeCard = (themeName: string) =>
     "//h3[text()='" +
     themeName +
@@ -81,7 +82,7 @@ export class PropertyPane {
     this.agHelper.AssertContains("Theme " + newTheme + " Applied");
   }
 
-  public ChangeColor(
+  public ChangeThemeColor(
     colorIndex: number | string,
     type: "Primary" | "Background" = "Primary",
   ) {
@@ -142,6 +143,10 @@ export class PropertyPane {
     this.agHelper.AssertAutoSave();
   }
 
+  public moveToStyleTab() {
+    cy.get(this._styleTabBtn).first().click({force:true})
+  }
+  
   public SelectPropertiesDropDown(endpoint: string, dropdownOption: string) {
     cy.xpath(this.locator._selectPropDropdown(endpoint))
       .first()

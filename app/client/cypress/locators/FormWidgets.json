@@ -47,7 +47,7 @@
   "formD": "div[type='FORM_WIDGET']",
   "datepickerFooter": ".bp3-datepicker-footer span",
   "datepickerFooterPublish": ".bp3-datepicker-footer span",
-  "disableJs": ".t--property-control-disable input[type='checkbox']",
+  "disableJs": ".t--property-control-disabled input[type='checkbox']",
   "requiredJs": ".t--property-control-required input[type='checkbox']",
   "switchWidget": ".t--draggable-switchwidget",
   "toggleJsDefaultDate": ".t--property-control-defaultdate .t--js-toggle",

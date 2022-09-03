@@ -230,7 +230,6 @@ describe("JS Function Execution", function() {
       completeReplace: true,
       toRun: true,
       shouldCreateNewJSObj: true,
-      prettify: false,
     });
 
     // Assert that there is a function execution parse error
@@ -246,7 +245,7 @@ describe("JS Function Execution", function() {
     );
 
     // Fix parse error and assert that debugger error is removed
-    jsEditor.EditJSObj(JS_OBJECT_WITHOUT_PARSE_ERROR, false);
+    jsEditor.EditJSObj(JS_OBJECT_WITHOUT_PARSE_ERROR, true);
     agHelper.GetNClick(jsEditor._runButton);
     agHelper.AssertContains("ran successfully"); //to not hinder with next toast msg in next case!
     jsEditor.AssertParseError(false, true);
@@ -265,7 +264,7 @@ describe("JS Function Execution", function() {
     jsEditor.AssertParseError(true, true);
 
     // Delete function
-    jsEditor.EditJSObj(JS_OBJECT_WITH_DELETED_FUNCTION, false);
+    jsEditor.EditJSObj(JS_OBJECT_WITH_DELETED_FUNCTION, true);
     // Assert that parse error is removed from debugger when function is deleted
     agHelper.GetNClick(locator._errorTab);
     agHelper.AssertContains(
@@ -316,6 +315,7 @@ describe("JS Function Execution", function() {
       expect($cellData).to.eq("1"); //validating id column value - row 0
       deployMode.NavigateBacktoEditor();
     });
+    ee.SelectEntityByName("JSObject1", "QUERIES/JS");
     ee.ActionContextMenuByEntityName(
       "JSObject1",
       "Delete",

@@ -8,7 +8,7 @@ import { Popover2 } from "@blueprintjs/popover2";
 import { ControlIcons } from "icons/ControlIcons";
 import { FormIcons } from "icons/FormIcons";
 import { Page } from "@appsmith/constants/ReduxActionConstants";
-import Toggle from "components/ads/Toggle";
+import { Toggle } from "design-system";
 import { Action } from "./PageListItem";
 import EditName from "./EditName";
 import { useSelector } from "react-redux";

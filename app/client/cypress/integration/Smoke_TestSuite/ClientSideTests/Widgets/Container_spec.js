@@ -20,6 +20,7 @@ describe("Container Widget Functionality", function() {
       widgetsPage.containerWidget,
       commonlocators.containerInnerText,
     );
+    cy.moveToStyleTab();
     /**
      * @param{Text} Random Border Colour
      */
@@ -50,7 +51,8 @@ describe("Container Widget Functionality", function() {
     /**
      * @param{toggleButton Css} Assert to be checked
      */
-    cy.togglebar(widgetsPage.Scrollbutton);
+    //cy.get("[data-testid=div-selection-0]").click({force:true});
+    //cy.togglebar(widgetsPage.Scrollbutton);
     cy.get(widgetsPage.containerD)
       .eq(0)
       .scrollIntoView({ easing: "linear" })
@@ -70,7 +72,7 @@ describe("Container Widget Functionality", function() {
   it("Test border width and verity", function() {
     cy.get(publish.backToEditor).click();
     cy.openPropertyPane("containerwidget");
-
+    cy.moveToStyleTab();
     cy.testJsontext("borderwidth", "10");
     cy.get(
       `div[data-testid='container-wrapper-${dsl.dsl.children[0].widgetId}']`,

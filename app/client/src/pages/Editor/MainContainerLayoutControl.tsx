@@ -37,12 +37,12 @@ const AppsmithLayouts: AppsmithLayoutConfigOption[] = [
     icon: "desktop",
   },
   {
-    name: "Tablet(Large)",
+    name: "Tablet (Landscape)",
     type: "TABLET_LARGE",
-    icon: "tablet",
+    icon: "tabletLandscape",
   },
   {
-    name: "Tablet",
+    name: "Tablet (Portrait)",
     type: "TABLET",
     icon: "tablet",
   },
