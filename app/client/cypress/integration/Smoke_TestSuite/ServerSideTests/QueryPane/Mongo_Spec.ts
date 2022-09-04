@@ -761,7 +761,7 @@ describe("Validate Mongo Query Pane Validations", () => {
     agHelper.FocusElement(locator._codeMirrorTextArea);
     dataSources.RunQuery();
 
-    ee.ExpandCollapseEntity("DATASOURCES");
+    ee.ExpandCollapseEntity("Datasources");
     ee.ExpandCollapseEntity(dsName);
     ee.ActionContextMenuByEntityName(dsName, "Refresh");
     agHelper.AssertElementAbsence(ee._entityNameInExplorer("BirthNDeath"));
