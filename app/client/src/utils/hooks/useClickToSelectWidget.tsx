@@ -1,4 +1,4 @@
-import { eq, get } from "lodash";
+import { get } from "lodash";
 import { getIsPropertyPaneVisible } from "selectors/propertyPaneSelectors";
 import { getIsTableFilterPaneVisible } from "selectors/tableFilterSelectors";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
