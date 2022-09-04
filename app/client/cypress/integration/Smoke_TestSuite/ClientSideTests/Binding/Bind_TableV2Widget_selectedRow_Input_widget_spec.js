@@ -1,8 +1,6 @@
 /// <reference types="Cypress" />
 
-const commonlocators = require("../../../../locators/commonlocators.json");
 const dsl = require("../../../../fixtures/formInputTableV2Dsl.json");
-const widgetsPage = require("../../../../locators/Widgets.json");
 const publish = require("../../../../locators/publishWidgetspage.json");
 const testdata = require("../../../../fixtures/testdata.json");
 
@@ -13,7 +11,7 @@ describe("Binding the table widget and input Widget", function() {
 
   it("1. Input widget test with default value from table widget v2", function() {
     cy.SearchEntityandOpen("Input1");
-    cy.testJsontext("defaulttext", testdata.defaultInputWidget + "}}");
+    cy.testJsontext("defaultvalue", testdata.defaultInputWidget + "}}");
     cy.wait("@updateLayout").should(
       "have.nested.property",
       "response.body.responseMeta.status",

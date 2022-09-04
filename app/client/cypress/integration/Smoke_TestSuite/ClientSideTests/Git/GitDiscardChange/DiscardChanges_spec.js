@@ -9,7 +9,6 @@ describe("Git discard changes:", function() {
   const query1 = "get_users";
   const query2 = "get_allusers";
   const jsObject = "JSObject1";
-  const jsObject2 = "JSObject2";
   const page2 = "Page_2";
   const page3 = "Page_3";
 
@@ -61,8 +60,8 @@ describe("Git discard changes:", function() {
     cy.dragAndDropToCanvas("inputwidgetv2", { x: 300, y: 300 });
     cy.get(".t--widget-inputwidgetv2").should("exist");
     cy.EnableAllCodeEditors();
-    cy.get(dynamicInputLocators.input)
-      .eq(1)
+    cy.get(`.t--property-control-defaultvalue ${dynamicInputLocators.input}`)
+      .last()
       .click({ force: true })
       .type(`{{${query1}.data[0].name}}`, {
         parseSpecialCharSequences: false,
@@ -81,8 +80,8 @@ describe("Git discard changes:", function() {
     cy.dragAndDropToCanvas("inputwidgetv2", { x: 300, y: 300 });
     cy.get(".t--widget-inputwidgetv2").should("exist");
     cy.EnableAllCodeEditors();
-    cy.get(dynamicInputLocators.input)
-      .eq(1)
+    cy.get(`.t--property-control-defaultvalue ${dynamicInputLocators.input}`)
+      .last()
       .click({ force: true })
       .type("{{JSObject1.myFun1()}}", { parseSpecialCharSequences: false });
     cy.get("#switcher--explorer").click({ force: true });
