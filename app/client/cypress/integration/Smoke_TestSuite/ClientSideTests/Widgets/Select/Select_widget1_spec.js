@@ -37,7 +37,10 @@ describe("Select Widget Functionality", function() {
         }
       ]`,
     );
-    cy.updateCodeInput(".t--property-control-defaultvalue", defaultValue);
+    cy.updateCodeInput(
+      ".t--property-control-defaultselectedvalue",
+      defaultValue,
+    );
   });
 
   it("Copy and paste select widget", () => {
@@ -57,7 +60,7 @@ describe("Select Widget Functionality", function() {
     );
     cy.get(widgetsPage.selectwidget).should("have.length", 2);
 
-    cy.get(".t--property-control-defaultvalue")
+    cy.get(".t--property-control-defaultselectedvalue")
       .first()
       .click({ force: true })
       .find(".CodeMirror")
