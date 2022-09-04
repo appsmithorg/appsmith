@@ -721,8 +721,11 @@ function* executeOnPageLoadJSAction(pageAction: PageAction) {
             type: ReduxActionTypes.RUN_ACTION_CANCELLED,
             payload: { id: pageAction.id },
           });
-          Toaster.show({
-            text: createMessage(ACTION_EXECUTION_CANCELLED, jsAction.name),
+          return Toaster.show({
+            text: createMessage(
+              ACTION_EXECUTION_CANCELLED,
+              `${collection.name}.${jsAction.name}`,
+            ),
             variant: Variant.danger,
           });
         }
