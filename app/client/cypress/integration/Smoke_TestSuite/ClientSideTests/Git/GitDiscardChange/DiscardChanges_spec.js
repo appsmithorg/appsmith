@@ -9,7 +9,6 @@ describe("Git discard changes:", function() {
   const query1 = "get_users";
   const query2 = "get_allusers";
   const jsObject = "JSObject1";
-  const jsObject2 = "JSObject2";
   const page2 = "Page_2";
   const page3 = "Page_3";
 

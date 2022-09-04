@@ -15,17 +15,9 @@ describe("Migration Validate", function() {
     cy.xpath(homePage.uploadLogo)
       .attachFile("TableMigrationAppExported.json")
       .wait(500);
-    // cy.get(homePage.workspaceImportAppButton)
-    //   .trigger("click")
-    //   .wait(500);
     cy.get(homePage.workspaceImportAppModal).should("not.exist");
 
-    cy.wait("@importNewApplication").then((interception) => {
-      // let appId = interception.response.body.data.id;
-      // let defaultPage = interception.response.body.data.pages.find(
-      //   (eachPage) => !!eachPage.isDefault,
-      // );
-
+    cy.wait("@importNewApplication").then(() => {
       cy.get(homePage.toastMessage).should(
         "contain",
         "Application imported successfully",

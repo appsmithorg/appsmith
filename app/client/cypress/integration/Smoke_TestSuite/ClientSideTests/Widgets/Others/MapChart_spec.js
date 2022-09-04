@@ -1,7 +1,6 @@
 const commonLocators = require("../../../../../locators/commonlocators.json");
 const viewWidgetsPage = require("../../../../../locators/ViewWidgets.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
-const modalWidgetPage = require("../../../../../locators/ModalWidget.json");
 const dsl = require("../../../../../fixtures/MapChartDsl.json");
 
 describe("Map Chart Widget Functionality", function() {
@@ -18,7 +17,7 @@ describe("Map Chart Widget Functionality", function() {
   });
 
   it("Change Title", function() {
-    cy.testJsontext("title",this.data.chartIndata);
+    cy.testJsontext("title", this.data.chartIndata);
     cy.get(viewWidgetsPage.chartInnerText)
       .contains("App Sign Up")
       .should("have.text", "App Sign Up");

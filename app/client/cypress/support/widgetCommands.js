@@ -493,7 +493,7 @@ Cypress.Commands.add("testJsontext", (endp, value, paste = true) => {
   cy.wait(2500); //Allowing time for Evaluate value to capture value
 });
 
-Cypress.Commands.add("testJsontextclear", (endp, value, paste = true) => {
+Cypress.Commands.add("testJsontextclear", (endp) => {
   cy.get(".t--property-control-" + endp + " .CodeMirror textarea")
     .first()
     .focus({ force: true })
@@ -948,7 +948,6 @@ Cypress.Commands.add("Createpage", (pageName, navigateToCanvasPage = true) => {
       });
       cy.get(pages.editName).click({ force: true });
       cy.get(pages.editInput).type(pageName + "{enter}");
-      pageidcopy = pageName;
       cy.wrap(pageId).as("currentPageId");
     }
     if (navigateToCanvasPage) {
@@ -1253,14 +1252,11 @@ Cypress.Commands.add(
   },
 );
 
-Cypress.Commands.add(
-  "readTableV2dataPublish",
-  (rowNum, colNum, shouldNotGoOneLeveDeeper) => {
-    const selector = `.t--widget-tablewidgetv2 .tbody .td[data-rowindex=${rowNum}][data-colindex=${colNum}]`;
-    const tabVal = cy.get(selector).invoke("text");
-    return tabVal;
-  },
-);
+Cypress.Commands.add("readTableV2dataPublish", (rowNum, colNum) => {
+  const selector = `.t--widget-tablewidgetv2 .tbody .td[data-rowindex=${rowNum}][data-colindex=${colNum}]`;
+  const tabVal = cy.get(selector).invoke("text");
+  return tabVal;
+});
 
 Cypress.Commands.add(
   "readTabledataValidateCSS",
