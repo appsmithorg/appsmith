@@ -1280,7 +1280,6 @@ type ColorType = {
   debugger: {
     background: string;
     messageTextColor: string;
-    time: string;
     label: string;
     entity: string;
     entityLink: string;
@@ -1304,15 +1303,18 @@ type ColorType = {
       color: string;
     };
     info: {
+      time: string;
       borderBottom: string;
     };
     warning: {
+      time: string;
       borderBottom: string;
       backgroundColor: string;
       iconColor: string;
       hoverIconColor: string;
     };
     error: {
+      time: string;
       borderBottom: string;
       backgroundColor: string;
       iconColor: string;
@@ -2098,7 +2100,6 @@ export const dark: ColorType = {
   debugger: {
     background: darkShades[11],
     messageTextColor: "#D4D4D4",
-    time: "#D4D4D4",
     label: "#D4D4D4",
     entity: "rgba(212, 212, 212, 0.5)",
     entityLink: "#D4D4D4",
@@ -2124,15 +2125,18 @@ export const dark: ColorType = {
       shortcut: "#D4D4D4",
     },
     info: {
+      time: "#D4D4D4",
       borderBottom: "black",
     },
     warning: {
+      time: "#D4D4D4",
       iconColor: "#f3cc3e",
       hoverIconColor: "#e0b30e",
       borderBottom: "black",
       backgroundColor: "#29251A",
     },
     error: {
+      time: "#D4D4D4",
       iconColor: "#f56060",
       hoverIconColor: "#F22B2B",
       borderBottom: "black",
@@ -2730,10 +2734,9 @@ export const light: ColorType = {
   debugger: {
     background: "#FFFFFF",
     messageTextColor: "#716e6e",
-    time: "#4b4848",
-    label: "#4b4848",
+    label: "#575757",
     entity: "rgba(75, 72, 72, 0.7)",
-    entityLink: "#6d6d6d",
+    entityLink: "#575757",
     jsonIcon: "#a9a7a7",
     message: "#4b4848",
     evalDebugButton: {
@@ -2756,19 +2759,22 @@ export const light: ColorType = {
       shortcut: "black",
     },
     info: {
-      borderBottom: "rgba(0, 0, 0, 0.05)",
+      time: "#939393",
+      borderBottom: "#E8E8E8",
     },
     warning: {
+      time: "#575757",
       iconColor: "#f3cc3e",
       hoverIconColor: "#e0b30e",
-      borderBottom: "white",
-      backgroundColor: "rgba(254, 184, 17, 0.1)",
+      borderBottom: "#E8E8E8",
+      backgroundColor: "#FFF8E2",
     },
     error: {
+      time: "#575757",
       iconColor: "#f56060",
       hoverIconColor: "#F22B2B",
-      borderBottom: "white",
-      backgroundColor: "rgba(242, 43, 43, 0.08)",
+      borderBottom: "#E8E8E8",
+      backgroundColor: "#F9E9E9",
     },
   },
   guidedTour,

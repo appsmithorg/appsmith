@@ -29,7 +29,7 @@ describe("Chart Widget Functionality around custom chart feature", function() {
     /**
      * @param{Text} Random Input Value
      */
-    cy.testCodeMirror(this.data.chartIndata);
+    cy.testJsontext("title", this.data.chartIndata);
     cy.get(viewWidgetsPage.chartInnerText)
       .contains("App Sign Up")
       .should("have.text", "App Sign Up");
@@ -118,11 +118,9 @@ describe("Chart Widget Functionality around custom chart feature", function() {
   });
 
   it("4. Chart-Copy Verification", function() {
-    const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
     //Copy Chart and verify all properties
     cy.wait(1000);
     cy.copyWidget("chartwidget", viewWidgetsPage.chartWidget);
-
     cy.PublishtheApp();
   });
 

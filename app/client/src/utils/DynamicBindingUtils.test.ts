@@ -1,5 +1,5 @@
 import { Action, PluginType } from "entities/Action";
-import _ from "lodash";
+import equal from "fast-deep-equal/es6";
 import { getPropertyPath } from "./DynamicBindingUtils";
 import {
   EVAL_VALUE_PATH,
@@ -154,7 +154,7 @@ describe("DynamicBindingPathlist", () => {
 
     const actualResult = getDynamicBindingsChangesSaga(action, value, field);
 
-    expect(_.isEqual(expectedResult, actualResult)).toBeTruthy();
+    expect(equal(expectedResult, actualResult)).toBeTruthy();
   });
 });
 

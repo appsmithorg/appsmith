@@ -17,9 +17,10 @@ import {
 } from "@appsmith/constants/messages";
 import { getTypographyByKey } from "constants/DefaultTheme";
 import { getInfoImage, getInfoThumbnail } from "constants/ImagesURL";
-import ProgressiveImage, {
+import {
+  ProgressiveImage,
   Container as ProgressiveImageContainer,
-} from "components/ads/ProgressiveImage";
+} from "design-system";
 import SuccessTick from "pages/common/SuccessTick";
 
 type Props = {
