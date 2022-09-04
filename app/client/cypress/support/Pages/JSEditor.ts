@@ -91,6 +91,7 @@ export class JSEditor {
   _debugCTA = `button.js-editor-debug-cta`;
   _lineinJsEditor = (lineNumber: number) =>
     ":nth-child(" + lineNumber + ") > .CodeMirror-line";
+    _logsTab = "[data-cy=t--tab-LOGS_TAB]"
   //#endregion
 
   //#region constants
@@ -212,7 +213,7 @@ export class JSEditor {
             .click({ force: true });
         else this.agHelper.Sleep(500);
       });
-   }
+  }
 
   public RenameJSObjFromPane(renameVal: string) {
     cy.get(this._jsObjName).click({ force: true });
@@ -280,7 +281,6 @@ export class JSEditor {
     onLoad = true,
     bfrCalling = true,
   ) {
-
     // this.agHelper.AssertExistingToggleState(this._functionSetting(Cypress.env("MESSAGES").JS_SETTINGS_ONPAGELOAD()), onLoad)
     // this.agHelper.AssertExistingToggleState(this._functionSetting(Cypress.env("MESSAGES").JS_SETTINGS_CONFIRM_EXECUTION()), bfrCalling)
 
