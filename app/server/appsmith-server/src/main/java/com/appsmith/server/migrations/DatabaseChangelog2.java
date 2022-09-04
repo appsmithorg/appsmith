@@ -2376,7 +2376,7 @@ public class DatabaseChangelog2 {
         return mongockTemplate.save(user);
     }
 
-    @ChangeSet(order = "034", id = "update-bad-theme-state", author = "", runAlways = true)
+    @ChangeSet(order = "034", id = "update-bad-theme-state", author = "")
     public void updateBadThemeState(MongockTemplate mongockTemplate, @NonLockGuarded PolicyGenerator policyGenerator,
                                     CacheableRepositoryHelper cacheableRepositoryHelper) {
         Query query = new Query();
