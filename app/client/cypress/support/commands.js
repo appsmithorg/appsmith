@@ -15,30 +15,20 @@ const loginPage = require("../locators/LoginPage.json");
 const signupPage = require("../locators/SignupPage.json");
 import homePage from "../locators/HomePage";
 const pages = require("../locators/Pages.json");
-const datasourceFormData = require("../fixtures/datasources.json");
 const commonlocators = require("../locators/commonlocators.json");
-const queryEditor = require("../locators/QueryEditor.json");
-const modalWidgetPage = require("../locators/ModalWidget.json");
 const widgetsPage = require("../locators/Widgets.json");
-const LayoutPage = require("../locators/Layout.json");
-const formWidgetsPage = require("../locators/FormWidgets.json");
 import ApiEditor from "../locators/ApiEditor";
 const apiwidget = require("../locators/apiWidgetslocator.json");
-const dynamicInputLocators = require("../locators/DynamicInput.json");
 const explorer = require("../locators/explorerlocators.json");
 const datasource = require("../locators/DatasourcesEditor.json");
 const viewWidgetsPage = require("../locators/ViewWidgets.json");
 const generatePage = require("../locators/GeneratePage.json");
 const jsEditorLocators = require("../locators/JSEditor.json");
-const commonLocators = require("../locators/commonlocators.json");
 const queryLocators = require("../locators/QueryEditor.json");
 const welcomePage = require("../locators/welcomePage.json");
 const publishWidgetspage = require("../locators/publishWidgetspage.json");
-const themelocator = require("../locators/ThemeLocators.json");
-import gitSyncLocators from "../locators/gitSyncLocators";
 
 let pageidcopy = " ";
-const GITHUB_API_BASE = "https://api.github.com";
 const chainStart = Symbol();
 
 export const initLocalstorage = () => {
@@ -1019,7 +1009,7 @@ Cypress.Commands.add("startErrorRoutes", () => {
 Cypress.Commands.add("NavigateToPaginationTab", () => {
   cy.get(ApiEditor.apiTab)
     .contains("Pagination")
-    .click({force:true});
+    .click({ force: true });
   cy.xpath(apiwidget.paginationWithUrl).click({ force: true });
 });
 
