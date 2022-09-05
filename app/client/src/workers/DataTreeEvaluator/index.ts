@@ -103,14 +103,14 @@ export default class DataTreeEvaluator {
     [actionId: string]: ActionValidationConfigMap;
   };
   triggerFieldDependencyMap: DependencyMap = {};
-  /**  Keeps track of all unused identifiers in bindings throughout the Application
+  /**  Keeps track of all invalid references in bindings throughout the Application
    * Eg. For binding {{unknownEntity.name + Api1.name}} in Button1.text, where Api1 is present in dataTree but unknownEntity is not,
    * the map has a key-value pair of
    * {
    *  "Button1.text": [unknownEntity.name]
    * }
    */
-  unusedIdentifiersMap: DependencyMap = {};
+  invalidReferencesMap: DependencyMap = {};
   public hasCyclicalDependency = false;
   constructor(
     widgetConfigMap: WidgetTypeConfigMap,
@@ -154,12 +154,12 @@ export default class DataTreeEvaluator {
     const createDependencyStart = performance.now();
     const {
       dependencyMap,
+      invalidReferencesMap,
       triggerFieldDependencyMap,
-      unusedIdentifiers,
     } = createDependencyMap(this, localUnEvalTree);
     this.dependencyMap = dependencyMap;
     this.triggerFieldDependencyMap = triggerFieldDependencyMap;
-    this.unusedIdentifiersMap = unusedIdentifiers;
+    this.invalidReferencesMap = invalidReferencesMap;
     const createDependencyEnd = performance.now();
     // Sort
     const sortDependenciesStart = performance.now();
@@ -596,30 +596,6 @@ export default class DataTreeEvaluator {
     return dependencies;
   }
 
-  listTriggerFieldDependencies(
-    entity: DataTreeWidget,
-    entityName: string,
-  ): DependencyMap {
-    const triggerFieldDependency: DependencyMap = {};
-    if (isWidget(entity)) {
-      const dynamicTriggerPathlist = entity.dynamicTriggerPathList;
-      if (dynamicTriggerPathlist && dynamicTriggerPathlist.length) {
-        dynamicTriggerPathlist.forEach((dynamicPath) => {
-          const propertyPath = dynamicPath.key;
-          const unevalPropValue = _.get(entity, propertyPath);
-          const { jsSnippets } = getDynamicBindings(unevalPropValue);
-          const existingDeps =
-            triggerFieldDependency[`${entityName}.${propertyPath}`] || [];
-          triggerFieldDependency[
-            `${entityName}.${propertyPath}`
-          ] = existingDeps.concat(
-            jsSnippets.filter((jsSnippet) => !!jsSnippet),
-          );
-        });
-      }
-    }
-    return triggerFieldDependency;
-  }
   evaluateTree(
     oldUnevalTree: DataTree,
     resolvedFunctions: Record<string, any>,

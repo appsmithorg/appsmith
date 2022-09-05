@@ -1,55 +1,65 @@
-import { union } from "lodash";
+import { get, union } from "lodash";
 import toPath from "lodash/toPath";
-import { EvalErrorTypes, EvalError } from "utils/DynamicBindingUtils";
+import {
+  EvalErrorTypes,
+  EvalError,
+  DependencyMap,
+  getDynamicBindings,
+} from "utils/DynamicBindingUtils";
 import { extractInfoFromCode } from "@shared/ast";
-import { convertPathToString } from "../evaluationUtils";
+import { convertPathToString, isWidget } from "../evaluationUtils";
+import { CURRENT_EVALUATION_VERSION } from "./constants";
+import { DataTreeWidget } from "entities/DataTree/dataTreeFactory";
 
-/** This function extracts references and unreferencedIdentifiers from binding {{}}
+/** This function extracts validReferences and invalidReferences from a binding {{}}
  * @param script
  * @param allPaths
- * @returns reference - Valid references from bindings
- * unreferencedIdentifiers- Identifiers which are currently invalid
+ * @returns validReferences - Valid references from bindings
+ * invalidReferences- References which are currently invalid
  * @example - For binding {{unknownEntity.name + Api1.name}}, it returns
  * {
- * references:[Api1.name],
- * unreferencedIdentifiers: [unknownEntity.name]
+ * validReferences:[Api1.name],
+ * invalidReferences: [unknownEntity.name]
  * }
  */
 export const extractInfoFromBinding = (
   script: string,
   allPaths: Record<string, true>,
-): { references: string[]; unreferencedIdentifiers: string[] } => {
-  const { identifiers } = extractInfoFromCode(script, 2);
-  return extractInfoFromIdentifiers(identifiers, allPaths);
+): { validReferences: string[]; invalidReferences: string[] } => {
+  const { references } = extractInfoFromCode(
+    script,
+    CURRENT_EVALUATION_VERSION,
+  );
+  return extractInfoFromReferences(references, allPaths);
 };
 
-/** This function extracts references and unreferencedIdentifiers from an Array of Identifiers
+/** This function extracts validReferences and invalidReferences from an Array of Identifiers
  * @param identifiers
  * @param allPaths
- * @returns references- Valid references from identifiers
- * unreferencedIdentifiers- Identifiers which are currently invalid
+ * @returns validReferences - Valid references from bindings
+ * invalidReferences- References which are currently invalid
  *  @example - For identifiers [unknownEntity.name , Api1.name], it returns
  * {
- * references:[Api1.name],
- * unreferencedIdentifiers: [unknownEntity.name]
+ * validReferences:[Api1.name],
+ * invalidReferences: [unknownEntity.name]
  * }
  */
-export const extractInfoFromIdentifiers = (
-  identifiers: string[],
+export const extractInfoFromReferences = (
+  references: string[],
   allPaths: Record<string, true>,
 ): {
-  references: string[];
-  unreferencedIdentifiers: string[];
+  validReferences: string[];
+  invalidReferences: string[];
 } => {
-  const references: Set<string> = new Set<string>();
-  const unreferencedIdentifiers: string[] = [];
-  identifiers.forEach((identifier: string) => {
+  const validReferences: Set<string> = new Set<string>();
+  const invalidReferences: string[] = [];
+  references.forEach((reference: string) => {
     // If the identifier exists directly, add it and return
-    if (allPaths.hasOwnProperty(identifier)) {
-      references.add(identifier);
+    if (allPaths.hasOwnProperty(reference)) {
+      validReferences.add(reference);
       return;
     }
-    const subpaths = toPath(identifier);
+    const subpaths = toPath(reference);
     let current = "";
     // We want to keep going till we reach top level, but not add top level
     // Eg: Input1.text should not depend on entire Table1 unless it explicitly asked for that.
@@ -59,20 +69,20 @@ export const extractInfoFromIdentifiers = (
       current = convertPathToString(subpaths);
       // We've found the dep, add it and return
       if (allPaths.hasOwnProperty(current)) {
-        references.add(current);
+        validReferences.add(current);
         return;
       }
       subpaths.pop();
     }
-    // If no reference is derived from identifier, add it to the list of unreferencedIdentifiers
-    unreferencedIdentifiers.push(identifier);
+    // If no valid reference is derived, add it to the list of invalidReferences
+    invalidReferences.push(reference);
   });
-  return { references: Array.from(references), unreferencedIdentifiers };
+  return { validReferences: Array.from(validReferences), invalidReferences };
 };
 
 interface BindingsInfo {
-  references: string[];
-  unreferencedIdentifiers: string[];
+  validReferences: string[];
+  invalidReferences: string[];
   errors: EvalError[];
 }
 export const extractInfoFromBindings = (
@@ -82,16 +92,16 @@ export const extractInfoFromBindings = (
   return bindings.reduce(
     (bindingsInfo: BindingsInfo, binding) => {
       try {
-        const { references, unreferencedIdentifiers } = extractInfoFromBinding(
+        const { invalidReferences, validReferences } = extractInfoFromBinding(
           binding,
           allPaths,
         );
         return {
           ...bindingsInfo,
-          references: union(bindingsInfo.references, references),
-          unreferencedIdentifiers: union(
-            bindingsInfo.unreferencedIdentifiers,
-            unreferencedIdentifiers,
+          validReferences: union(bindingsInfo.validReferences, validReferences),
+          invalidReferences: union(
+            bindingsInfo.invalidReferences,
+            invalidReferences,
           ),
         };
       } catch (error) {
@@ -108,9 +118,32 @@ export const extractInfoFromBindings = (
         };
       }
     },
-    { references: [], unreferencedIdentifiers: [], errors: [] },
+    { validReferences: [], invalidReferences: [], errors: [] },
   );
 };
+
+export function listTriggerFieldDependencies(
+  entity: DataTreeWidget,
+  entityName: string,
+): DependencyMap {
+  const triggerFieldDependency: DependencyMap = {};
+  if (isWidget(entity)) {
+    const dynamicTriggerPathlist = entity.dynamicTriggerPathList;
+    if (dynamicTriggerPathlist && dynamicTriggerPathlist.length) {
+      dynamicTriggerPathlist.forEach((dynamicPath) => {
+        const propertyPath = dynamicPath.key;
+        const unevalPropValue = get(entity, propertyPath);
+        const { jsSnippets } = getDynamicBindings(unevalPropValue);
+        const existingDeps =
+          triggerFieldDependency[`${entityName}.${propertyPath}`] || [];
+        triggerFieldDependency[
+          `${entityName}.${propertyPath}`
+        ] = existingDeps.concat(jsSnippets.filter((jsSnippet) => !!jsSnippet));
+      });
+    }
+  }
+  return triggerFieldDependency;
+}
 
 /**This function returns a unique array containing a merge of both arrays
  * @param currentArr

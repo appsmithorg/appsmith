@@ -186,15 +186,15 @@ export const getAST = memoize((code: string, options?: AstOptions) =>
 );
 
 /**
- * An AST based extractor that fetches all possible identifiers in a given
+ * An AST based extractor that fetches all possible references in a given
  * piece of code. We use this to get any references to the global entities in Appsmith
  * and create dependencies on them. If the reference was updated, the given piece of code
  * should run again.
- * @param code: The piece of script where identifiers need to be extracted from
+ * @param code: The piece of script where references need to be extracted from
  */
 
 interface ExtractInfoFromCode {
-  identifiers: string[];
+  references: string[];
   functionalParams: string[];
   variables: string[];
 }
@@ -202,11 +202,11 @@ export const extractInfoFromCode = (
   code: string,
   evaluationVersion: number
 ): ExtractInfoFromCode => {
-  // List of all identifiers found
-  const identifiers = new Set<string>();
-  // List of variables declared within the script. This will be removed from identifier list
+  // List of all references found
+  const references = new Set<string>();
+  // List of variables declared within the script. All identifiers and member expressions derived from declared variables will be removed
   const variableDeclarations = new Set<string>();
-  // List of functionalParams found. This will be removed from the identifier list
+  // List of functional params declared within the script. All identifiers and member expressions derived from functional params will be removed
   let functionalParams = new Set<string>();
   let ast: Node = { end: 0, start: 0, type: '' };
   try {
@@ -224,9 +224,9 @@ export const extractInfoFromCode = (
     ast = getAST(wrappedCode);
   } catch (e) {
     if (e instanceof SyntaxError) {
-      // Syntax error. Ignore and return 0 identifiers
+      // Syntax error. Ignore and return empty list
       return {
-        identifiers: [],
+        references: [],
         functionalParams: [],
         variables: [],
       };
@@ -235,8 +235,8 @@ export const extractInfoFromCode = (
   }
 
   /*
-   * We do an ancestor walk on the AST to get all identifiers. Since we need to know
-   * what surrounds the identifier, ancestor walk will give that information in the callback
+   * We do an ancestor walk on the AST in order to extract all references. For example, for member expressions and identifiers, we need to know
+   * what surrounds the identifier (its parent and ancestors), ancestor walk will give that information in the callback
    * doc: https://github.com/acornjs/acorn/tree/master/acorn-walk
    */
   ancestor(ast, {
@@ -274,26 +274,26 @@ export const extractInfoFromCode = (
       }
       if (isIdentifierNode(candidateTopLevelNode)) {
         // If the node is an Identifier, just save that
-        identifiers.add(candidateTopLevelNode.name);
+        references.add(candidateTopLevelNode.name);
       } else {
         // For MemberExpression Nodes, we will construct a final reference string and then add
-        // it to the identifier list
+        // it to the references list
         const memberExpIdentifier = constructFinalMemberExpIdentifier(
           candidateTopLevelNode
         );
-        identifiers.add(memberExpIdentifier);
+        references.add(memberExpIdentifier);
       }
     },
     VariableDeclarator(node: Node) {
       // keep a track of declared variables so they can be
-      // subtracted from the final list of identifiers
+      // removed from the final list of references
       if (isVariableDeclarator(node)) {
         variableDeclarations.add(node.id.name);
       }
     },
     FunctionDeclaration(node: Node) {
-      // params in function declarations are also counted as identifiers so we keep
-      // track of them and remove them from the final list of identifiers
+      // params in function declarations are also counted as references so we keep
+      // track of them and remove them from the final list of references
       if (!isFunctionDeclaration(node)) return;
       functionalParams = new Set([
         ...functionalParams,
@@ -301,8 +301,8 @@ export const extractInfoFromCode = (
       ]);
     },
     FunctionExpression(node: Node) {
-      // params in function expressions are also counted as identifiers so we keep
-      // track of them and remove them from the final list of identifiers
+      // params in function expressions are also counted as references so we keep
+      // track of them and remove them from the final list of references
       if (!isFunctionExpression(node)) return;
       functionalParams = new Set([
         ...functionalParams,
@@ -310,8 +310,8 @@ export const extractInfoFromCode = (
       ]);
     },
     ArrowFunctionExpression(node: Node) {
-      // params in arrow function expressions are also counted as identifiers so we keep
-      // track of them and remove them from the final list of identifiers
+      // params in arrow function expressions are also counted as references so we keep
+      // track of them and remove them from the final list of references
       if (!isArrowFunctionExpression(node)) return;
       functionalParams = new Set([
         ...functionalParams,
@@ -320,10 +320,10 @@ export const extractInfoFromCode = (
     },
   });
 
-  const validIdentifiers = Array.from(identifiers).filter((identifier) => {
-    // To remove identifiers (or member expressions) derived from declared variables and function params,
+  const referencesArr = Array.from(references).filter((reference) => {
+    // To remove references derived from declared variables and function params,
     // We extract the topLevelIdentifier Eg. Api1.name => Api1
-    const topLevelIdentifier = toPath(identifier)[0];
+    const topLevelIdentifier = toPath(reference)[0];
     return !(
       functionalParams.has(topLevelIdentifier) ||
       variableDeclarations.has(topLevelIdentifier) ||
@@ -331,7 +331,7 @@ export const extractInfoFromCode = (
     );
   });
   return {
-    identifiers: validIdentifiers,
+    references: referencesArr,
     functionalParams: Array.from(functionalParams),
     variables: Array.from(variableDeclarations),
   };
