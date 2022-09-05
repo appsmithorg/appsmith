@@ -27,7 +27,11 @@ const regexMap = {
 };
 
 /* eslint-disable no-restricted-globals */
-precacheAndRoute(self.__WB_MANIFEST || []);
+const toPrecache = self.__WB_MANIFEST.filter(
+  (file) => !file.url.includes("index.html"),
+);
+precacheAndRoute(toPrecache);
+
 self.__WB_DISABLE_DEV_DEBUG_LOGS = false;
 skipWaiting();
 clientsClaim();
@@ -59,3 +63,7 @@ registerRoute(
     ],
   }),
 );
+
+registerRoute(({ url }) => {
+  return url.pathname.includes("index.html");
+}, new NetworkOnly());

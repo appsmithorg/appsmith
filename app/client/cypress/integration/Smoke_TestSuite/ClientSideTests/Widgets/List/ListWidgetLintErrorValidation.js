@@ -42,7 +42,7 @@ describe("Linting warning validation with list widget", function() {
     //lint warning message
     cy.get(commonlocators.lintErrorMsg)
       .should("be.visible")
-      .contains("'ERROR' is not defined.");
+      .contains("'DATA' is not defined.");
 
     cy.get(commonlocators.debugger)
       .should("be.visible")

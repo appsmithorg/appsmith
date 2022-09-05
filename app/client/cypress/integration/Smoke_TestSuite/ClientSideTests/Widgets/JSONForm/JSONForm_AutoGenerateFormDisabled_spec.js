@@ -158,8 +158,8 @@ describe("JSON Form Widget AutoGenerate Disabled", () => {
     cy.testJsontext("sourcedata", JSON.stringify(sourceData));
 
     cy.wait(500);
-
-    cy.get(".t--property-pane-section-general button")
+    cy.openPropertyPane("jsonformwidget");
+    cy.get(".t--property-control-")
       .contains("Generate Form")
       .click({ force: true });
     cy.closePropertyPane();

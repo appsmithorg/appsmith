@@ -22,7 +22,7 @@ describe("Button Group Widget Functionality", function() {
 
   it("ButtonGroup Widget Functionality on undo after delete", function() {
     // Delete the first Button
-    cy.get(".t--property-control- .t--delete-column-btn")
+    cy.get(".t--property-control-buttons .t--delete-column-btn")
       .eq(0)
       .click({
         force: true,
@@ -48,7 +48,7 @@ describe("Button Group Widget Functionality", function() {
     cy.get(firstButton).contains("Favorite");
 
     // Navigate to the first button property pane
-    cy.get(".t--property-control- .t--edit-column-btn")
+    cy.get(".t--property-control-buttons .t--edit-column-btn")
       .eq(0)
       .click({
         force: true,
@@ -62,7 +62,8 @@ describe("Button Group Widget Functionality", function() {
 
   it("Verify buttons alignments", function() {
     // check first button placement
-    cy.editColumn("groupButton1");
+    cy.editColumn("groupButton2");
+    cy.moveToStyleTab();
     // placement text
     cy.get(
       ".t--property-control-placement .bp3-popover-target span[type='p1']",
@@ -79,35 +80,39 @@ describe("Button Group Widget Functionality", function() {
       "Between",
     );
     // 1st btn
-    cy.get(firstButton).should("have.css", "justify-content", "space-between");
+    cy.get(firstButton)
+      .last()
+      .should("have.css", "justify-content", "space-between");
     // update dropdown value
     cy.selectDropdownValue(
       ".t--property-control-placement .bp3-popover-target",
       "Start",
     );
-    cy.get(firstButton).should("have.css", "justify-content", "start");
+    cy.get(firstButton)
+      .last()
+      .should("have.css", "justify-content", "start");
     // other button style stay same
     cy.get(menuButton).should("have.css", "justify-content", "center");
   });
 
   it("Update icon alignment and Verify buttons alignments", function() {
     // align right
-    cy.get(".t--property-control-iconalignment .t--button-tab-left")
+    cy.get(".t--property-control-position .t--button-tab-left")
       .first()
       .click();
     cy.wait(200);
     // 1st btn
     cy.get(firstButton)
-      .eq(0)
+      .eq(1)
       .should("have.css", "flex-direction", "row");
     // align left
-    cy.get(".t--property-control-iconalignment .t--button-tab-right")
+    cy.get(".t--property-control-position .t--button-tab-right")
       .last()
       .click();
     cy.wait(200);
     // 1st btn
     cy.get(firstButton)
-      .eq(0)
+      .eq(1)
       .should("have.css", "flex-direction", "row-reverse");
   });
 
