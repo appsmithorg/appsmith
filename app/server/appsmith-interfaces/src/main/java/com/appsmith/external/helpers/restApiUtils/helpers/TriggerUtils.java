@@ -10,15 +10,13 @@ import com.appsmith.external.models.ActionExecutionRequest;
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.Property;
-import com.appsmith.external.models.SSLDetails;
-import com.appsmith.external.models.UploadedFile;
+import com.appsmith.util.WebClientUtils;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
-import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.bson.internal.Base64;
 import org.springframework.http.HttpHeaders;
@@ -26,7 +24,6 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.client.reactive.ClientHttpRequest;
-import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.web.reactive.function.BodyInserter;
 import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.ExchangeStrategies;
@@ -35,22 +32,21 @@ import reactor.core.Exceptions;
 import reactor.core.publisher.Mono;
 import reactor.netty.http.client.HttpClient;
 import reactor.netty.resources.ConnectionProvider;
-import reactor.netty.tcp.DefaultSslContextSpec;
 
 import javax.crypto.SecretKey;
 import java.io.IOException;
+import java.net.InetAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.cert.CertificateException;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
+import static com.appsmith.external.helpers.restApiUtils.helpers.URIUtils.DISALLOWED_HOSTS;
 import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 
 @NoArgsConstructor
@@ -211,7 +207,11 @@ public class TriggerUtils {
                         URI redirectUri;
                         try {
                             redirectUri = new URI(redirectUrl);
-                        } catch (URISyntaxException e) {
+                            if (DISALLOWED_HOSTS.contains(redirectUri.getHost())
+                                    || DISALLOWED_HOSTS.contains(InetAddress.getByName(redirectUri.getHost()).getHostAddress())) {
+                                return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, "Host not allowed."));
+                            }
+                        } catch (URISyntaxException | UnknownHostException e) {
                             return Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, e));
                         }
 
@@ -241,7 +241,7 @@ public class TriggerUtils {
     public WebClient.Builder getWebClientBuilder(ActionConfiguration actionConfiguration,
                                                         DatasourceConfiguration datasourceConfiguration) {
         HttpClient httpClient = getHttpClient(datasourceConfiguration);
-        WebClient.Builder webClientBuilder = WebClient.builder().clientConnector(new ReactorClientHttpConnector(httpClient));
+        WebClient.Builder webClientBuilder = WebClientUtils.builder(httpClient);
         addAllHeaders(webClientBuilder, actionConfiguration, datasourceConfiguration);
         addSecretKey(webClientBuilder, datasourceConfiguration);
 
@@ -304,11 +304,6 @@ public class TriggerUtils {
         HttpClient httpClient = HttpClient.create(provider)
                 .secure(SSLHelper.sslCheckForHttpClient(datasourceConfiguration))
                 .compress(true);
-
-        if ("true".equals(System.getProperty("java.net.useSystemProxies"))
-                && (!System.getProperty("http.proxyHost", "").isEmpty() || !System.getProperty("https.proxyHost", "").isEmpty())) {
-            httpClient = httpClient.proxyWithSystemProperties();
-        }
 
         return httpClient;
     }
