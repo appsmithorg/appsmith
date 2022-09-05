@@ -119,6 +119,7 @@ const RadioGroupComponent = React.forwardRef<
           fontSize={labelTextSize}
           fontStyle={labelStyle}
           inline={inline}
+          isDynamicHeightEnabled={isDynamicHeightEnabled}
           loading={loading}
           optionCount={optionCount}
           position={labelPosition}

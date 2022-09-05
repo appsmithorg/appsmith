@@ -259,6 +259,7 @@ const SingleSelectTreeComponent = React.forwardRef<
             disabled={disabled}
             fontSize={labelTextSize}
             fontStyle={labelStyle}
+            isDynamicHeightEnabled={isDynamicHeightEnabled}
             loading={loading}
             position={labelPosition}
             ref={labelRef}

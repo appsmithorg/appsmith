@@ -36,6 +36,7 @@ export interface LabelContainerProps {
   optionCount?: number;
   position?: LabelPosition;
   width?: number;
+  isDynamicHeightEnabled?: boolean;
 }
 
 export interface StyledLabelProps {
@@ -130,6 +131,9 @@ export const LabelContainer = styled.div<LabelContainerProps>`
     align-items: center;
     flex-grow: 0;
   }
+
+  ${({ isDynamicHeightEnabled }) =>
+    isDynamicHeightEnabled ? "&& { word-break: break-all; }" : ""};
 
   ${({ alignment, compact, inline, optionCount, position, width }) => `
     ${
@@ -256,6 +260,7 @@ const LabelWithTooltip = React.forwardRef<
       compact={compact}
       data-cy={LABEL_CONTAINER_CLASS}
       inline={inline}
+      isDynamicHeightEnabled={isDynamicHeightEnabled}
       optionCount={optionCount}
       position={position}
       ref={ref}

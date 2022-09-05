@@ -243,6 +243,7 @@ class SelectComponent extends React.Component<
       boxShadow,
       compactMode,
       disabled,
+      isDynamicHeightEnabled,
       isLoading,
       labelAlignment,
       labelPosition,
@@ -312,6 +313,7 @@ class SelectComponent extends React.Component<
             disabled={disabled}
             fontSize={labelTextSize}
             fontStyle={labelStyle}
+            isDynamicHeightEnabled={isDynamicHeightEnabled}
             loading={isLoading}
             position={labelPosition}
             ref={this.labelRef}
