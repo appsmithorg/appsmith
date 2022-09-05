@@ -10,9 +10,9 @@ let ee = ObjectsRegistry.EntityExplorer,
 describe("Entity explorer context menu should hide on scrolling", function() {
   it("1. Bug #15474 - Entity explorer menu must close on scroll", function() {
     // Setup to make the explorer scrollable
-    ee.ExpandCollapseEntity("QUERIES/JS");
-    ee.ExpandCollapseEntity("DATASOURCES");
-    agHelper.ContainsNClick("DEPENDENCIES");
+    ee.ExpandCollapseEntity("Queries/JS");
+    ee.ExpandCollapseEntity("Datasources");
+    agHelper.ContainsNClick("Dependencies");
     dataSources.NavigateToDSCreateNew();
     agHelper.GetNClick(dataSources._mockDB("Users"));
     cy.wait("@getMockDb").then(($createdMock) => {

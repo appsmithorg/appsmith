@@ -28,7 +28,7 @@ describe("JSONForm Select field - filterText update action trigger ", () => {
     cy.openFieldConfiguration("color");
 
     // Enable filterable
-    cy.togglebar(`.t--property-control-filterable input`);
+    cy.togglebar(`.t--property-control-allowsearching input`);
     // Enable server side filtering
     cy.togglebar(`.t--property-control-serversidefiltering input`);
 
@@ -70,7 +70,7 @@ describe("JSONForm Multiselect field - filterText update action trigger ", () =>
     cy.openFieldConfiguration("colors");
 
     // Enable filterable
-    cy.togglebar(`.t--property-control-filterable input`);
+    cy.togglebar(`.t--property-control-allowsearching input`);
     // Enable server side filtering
     cy.togglebar(`.t--property-control-serversidefiltering input`);
 

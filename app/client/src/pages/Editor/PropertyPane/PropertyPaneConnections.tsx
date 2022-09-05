@@ -47,7 +47,7 @@ const TopLayer = styled.div`
   display: flex;
   flex: 1;
   justify-content: space-between;
-  padding: 0 0.75rem;
+  padding: 0 1rem;
 
   .connection-dropdown {
     box-shadow: none;

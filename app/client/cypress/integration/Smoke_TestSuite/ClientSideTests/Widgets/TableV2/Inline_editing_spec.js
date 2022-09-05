@@ -581,13 +581,14 @@ describe("Table widget inline editing functionality", () => {
     cy.openPropertyPane("tablewidgetv2");
     cy.makeColumnEditable("step");
     cy.editColumn("EditActions1");
-    cy.get(".t--property-pane-section-collapse-savebutton").click();
-    cy.get(".t--property-pane-section-collapse-discardbutton").click();
+    //cy.get(".t--property-pane-section-collapse-savebutton").click({force:true});
+    cy.get(".t--property-pane-section-collapse-discardbutton").click({force:true});
     cy.get(".t--property-control-onsave .t--open-dropdown-Select-Action")
       .last()
-      .click();
+      .click({force:true});
     cy.selectShowMsg();
-    cy.addSuccessMessage("Saved!!", ".t--property-control-onsave");
+    //cy.addSuccessMessage("Saved!!", ".t--property-control-onsave");
+    cy.toggleJsAndUpdateWithIndex("onsave","Saved!!",1);
     cy.editTableCell(0, 0);
     cy.enterTableCellValue(0, 0, "NewValue");
     cy.openPropertyPane("tablewidgetv2");
@@ -605,16 +606,20 @@ describe("Table widget inline editing functionality", () => {
     cy.openPropertyPane("tablewidgetv2");
     cy.makeColumnEditable("step");
     cy.editColumn("EditActions1");
-    cy.get(".t--property-pane-section-collapse-savebutton").click();
-    cy.get(".t--property-pane-section-collapse-discardbutton").click();
+    //cy.get(".t--property-pane-section-collapse-savebutton").click({force:true});
+    cy.get(".t--property-pane-section-collapse-discardbutton").click({force:true});
     cy.get(".t--property-control-onsave .t--open-dropdown-Select-Action")
       .last()
-      .click();
+      .click({force:true});
     cy.selectShowMsg();
+    cy.toggleJsAndUpdateWithIndex("onsave","{{Table1.triggeredRow.step}}",1);
+
+    /*
     cy.addSuccessMessage(
       "{{Table1.triggeredRow.step}}",
       ".t--property-control-onsave",
     );
+    */
     cy.editTableCell(0, 0);
     cy.enterTableCellValue(0, 0, "NewValue");
     cy.openPropertyPane("tablewidgetv2");
@@ -633,12 +638,13 @@ describe("Table widget inline editing functionality", () => {
     cy.makeColumnEditable("step");
     cy.editColumn("EditActions1");
     cy.get(".t--property-pane-section-collapse-savebutton").click();
-    cy.get(".t--property-pane-section-collapse-discardbutton").click();
+    //cy.get(".t--property-pane-section-collapse-discardbutton").click();
     cy.get(".t--property-control-ondiscard .t--open-dropdown-Select-Action")
       .last()
-      .click();
+      .click({force:true});
     cy.selectShowMsg();
-    cy.addSuccessMessage("discarded!!", ".t--property-control-ondiscard");
+    cy.toggleJsAndUpdateWithIndex("ondiscard","discarded!!",3);
+    //cy.addSuccessMessage("discarded!!", ".t--property-control-ondiscard");
     cy.editTableCell(0, 0);
     cy.enterTableCellValue(0, 0, "NewValue");
     cy.openPropertyPane("tablewidgetv2");
@@ -673,7 +679,7 @@ describe("Table widget inline editing functionality with Text wrapping functiona
     cy.editColumn("step");
     cy.get(".t--property-control-cellwrapping .bp3-control-indicator")
       .first()
-      .click();
+      .click({force:true});
     cy.editTableCell(0, 0);
     cy.get(
       "[data-colindex=0][data-rowindex=0] .t--inlined-cell-editor input.bp3-input",
@@ -699,7 +705,7 @@ describe("Table widget inline editing functionality with Text wrapping functiona
     cy.editColumn("step");
     cy.get(".t--property-control-cellwrapping .bp3-control-indicator")
       .first()
-      .click();
+      .click({force:true});
     cy.editTableCell(0, 0);
     cy.get(
       "[data-colindex='0'][data-rowindex='0'] .t--inlined-cell-editor",
