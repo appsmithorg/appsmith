@@ -86,7 +86,7 @@ export class DeployMode {
     cy.xpath(this._jsonFormFieldByName(fieldName, isInput))
       .eq(index)
       .clear()
-      .wait(500);
+      .wait(300);
   }
 
   public SelectJsonFormDropDown(dropdownOption: string, index = 0) {

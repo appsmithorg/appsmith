@@ -8,7 +8,7 @@ function createEle() {
   return {
     scrollHeight: 0,
     clientHeight: 0,
-  }
+  };
 }
 
 const scrollW = 6;
