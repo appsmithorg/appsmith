@@ -47,6 +47,7 @@ export default {
     Data,
     Basic,
     General,
+    Validations,
     {
       sectionName: "Save Button",
       hidden: (props: TableWidgetProps, propertyPath: string) => {
