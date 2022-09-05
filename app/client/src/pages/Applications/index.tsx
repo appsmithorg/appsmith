@@ -35,13 +35,16 @@ import {
 import PageWrapper from "pages/common/PageWrapper";
 import SubHeader from "pages/common/SubHeader";
 import ApplicationCard from "./ApplicationCard";
-import WorkspaceInviteUsersForm from "pages/workspace/WorkspaceInviteUsersForm";
+import WorkspaceInviteUsersForm from "@appsmith/pages/workspace/WorkspaceInviteUsersForm";
 import { isPermitted, PERMISSION_TYPE } from "./permissionHelpers";
 import FormDialogComponent from "components/editorComponents/form/FormDialogComponent";
 import Dialog from "components/ads/DialogComponent";
 import { User } from "constants/userConstants";
 import { getCurrentUser, selectFeatureFlags } from "selectors/usersSelectors";
-import { CREATE_WORKSPACE_FORM_NAME } from "constants/forms";
+import {
+  CREATE_WORKSPACE_FORM_NAME,
+  inviteModalLinks,
+} from "@appsmith/constants/forms";
 import {
   DropdownOnSelectActions,
   getOnSelectAction,
@@ -53,6 +56,7 @@ import {
   Icon,
   IconName,
   IconSize,
+  Menu,
   MenuItem,
   Size,
   Text,
@@ -63,14 +67,13 @@ import {
   updateApplication,
 } from "actions/applicationActions";
 import { Classes } from "components/ads/common";
-import Menu from "components/ads/Menu";
 import { Position } from "@blueprintjs/core/lib/esm/common/position";
 import { UpdateApplicationPayload } from "api/ApplicationApi";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
 import { loadingUserWorkspaces } from "./ApplicationLoaders";
-import { creatingApplicationMap } from "reducers/uiReducers/applicationsReducer";
+import { creatingApplicationMap } from "@appsmith/reducers/uiReducers/applicationsReducer";
 import EditableText, {
   EditInteractionKind,
   SavingState,
@@ -81,13 +84,15 @@ import { leaveWorkspace } from "actions/userActions";
 import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
 import NoSearchImage from "assets/images/NoSearchResult.svg";
 import { getNextEntityName, getRandomPaletteColor } from "utils/AppsmithUtils";
-import { createWorkspaceSubmitHandler } from "pages/workspace/helpers";
+import { createWorkspaceSubmitHandler } from "@appsmith/pages/workspace/helpers";
 import ImportApplicationModal from "./ImportApplicationModal";
 import {
   createMessage,
   NO_APPS_FOUND,
   WORKSPACES_HEADING,
   SEARCH_APPS,
+  INVITE_USERS_MESSAGE,
+  INVITE_USERS_PLACEHOLDER,
 } from "@appsmith/constants/messages";
 import { ReactComponent as NoAppsFoundIcon } from "assets/svg/no-apps-icon.svg";
 
@@ -661,6 +666,27 @@ function ApplicationsSection(props: any) {
           workspace.userPermissions,
           PERMISSION_TYPE.MANAGE_WORKSPACE,
         );
+        const hasCreateNewApplicationPermission =
+          isPermitted(
+            workspace.userPermissions,
+            PERMISSION_TYPE.CREATE_APPLICATION,
+          ) && !isMobile;
+
+        const onClickAddNewButton = (workspaceId: string) => {
+          if (
+            Object.entries(creatingApplicationMap).length === 0 ||
+            (creatingApplicationMap && !creatingApplicationMap[workspaceId])
+          ) {
+            createNewApplication(
+              getNextEntityName(
+                "Untitled application ",
+                applications.map((el: any) => el.name),
+              ),
+              workspaceId,
+            );
+          }
+        };
+
         return (
           <WorkspaceSection
             className="t--workspace-section"
@@ -681,7 +707,11 @@ function ApplicationsSection(props: any) {
                   onClose={() => setSelectedWorkspaceId("")}
                   title={`Invite Users to ${workspace.name}`}
                 >
-                  <Form workspaceId={workspace.id} />
+                  <Form
+                    links={inviteModalLinks}
+                    message={createMessage(INVITE_USERS_MESSAGE)}
+                    workspaceId={workspace.id}
+                  />
                 </Dialog>
               )}
               {selectedWorkspaceIdForImportApplication && (
@@ -704,6 +734,9 @@ function ApplicationsSection(props: any) {
                       <FormDialogComponent
                         Form={WorkspaceInviteUsersForm}
                         canOutsideClickClose
+                        links={inviteModalLinks}
+                        message={createMessage(INVITE_USERS_MESSAGE)}
+                        placeholder={createMessage(INVITE_USERS_PLACEHOLDER)}
                         title={`Invite Users to ${workspace.name}`}
                         trigger={
                           <Button
@@ -717,11 +750,7 @@ function ApplicationsSection(props: any) {
                         workspaceId={workspace.id}
                       />
                     )}
-                    {isPermitted(
-                      workspace.userPermissions,
-                      PERMISSION_TYPE.CREATE_APPLICATION,
-                    ) &&
-                      !isMobile &&
+                    {hasCreateNewApplicationPermission &&
                       !isFetchingApplications &&
                       applications.length !== 0 && (
                         <Button
@@ -731,22 +760,7 @@ function ApplicationsSection(props: any) {
                             creatingApplicationMap &&
                             creatingApplicationMap[workspace.id]
                           }
-                          onClick={() => {
-                            if (
-                              Object.entries(creatingApplicationMap).length ===
-                                0 ||
-                              (creatingApplicationMap &&
-                                !creatingApplicationMap[workspace.id])
-                            ) {
-                              createNewApplication(
-                                getNextEntityName(
-                                  "Untitled application ",
-                                  applications.map((el: any) => el.name),
-                                ),
-                                workspace.id,
-                              );
-                            }
-                          }}
+                          onClick={() => onClickAddNewButton(workspace.id)}
                           size={Size.medium}
                           tag="button"
                           text={"New"}
@@ -911,7 +925,7 @@ function ApplicationsSection(props: any) {
                   <NoAppsFoundIcon />
                   <span>There’s nothing inside this workspace</span>
                   {/* below component is duplicate. This is because of cypress test were failing */}
-                  {!isMobile && (
+                  {hasCreateNewApplicationPermission && (
                     <Button
                       className="t--new-button createnew"
                       icon={"plus"}
@@ -919,21 +933,7 @@ function ApplicationsSection(props: any) {
                         creatingApplicationMap &&
                         creatingApplicationMap[workspace.id]
                       }
-                      onClick={() => {
-                        if (
-                          Object.entries(creatingApplicationMap).length === 0 ||
-                          (creatingApplicationMap &&
-                            !creatingApplicationMap[workspace.id])
-                        ) {
-                          createNewApplication(
-                            getNextEntityName(
-                              "Untitled application ",
-                              applications.map((el: any) => el.name),
-                            ),
-                            workspace.id,
-                          );
-                        }
-                      }}
+                      onClick={() => onClickAddNewButton(workspace.id)}
                       size={Size.medium}
                       tag="button"
                       text={"New"}

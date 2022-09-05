@@ -9,7 +9,7 @@ import {
 import { Row } from "react-table";
 
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import { isEqual } from "lodash";
+import equal from "fast-deep-equal/es6";
 
 export interface ColumnMenuOptionProps {
   content: string | JSX.Element;
@@ -337,8 +337,8 @@ export default React.memo(ReactTableComponent, (prev, next) => {
     prev.widgetId === next.widgetId &&
     prev.widgetName === next.widgetName &&
     prev.width === next.width &&
-    isEqual(prev.columnSizeMap, next.columnSizeMap) &&
-    isEqual(prev.tableData, next.tableData) &&
+    equal(prev.columnSizeMap, next.columnSizeMap) &&
+    equal(prev.tableData, next.tableData) &&
     prev.borderRadius === next.borderRadius &&
     prev.boxShadow === next.boxShadow &&
     prev.accentColor === next.accentColor &&

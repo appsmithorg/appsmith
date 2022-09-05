@@ -52,6 +52,7 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.PolicyUtils;
 import com.appsmith.server.helpers.TextUtils;
+import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import com.appsmith.server.repositories.NewPageRepository;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.services.WorkspaceService;
@@ -109,10 +110,12 @@ import static com.appsmith.server.acl.AclPermission.RESET_PASSWORD_USERS;
 import static com.appsmith.server.constants.EnvVariables.APPSMITH_ADMIN_EMAILS;
 import static com.appsmith.server.constants.FieldName.DEFAULT_PERMISSION_GROUP;
 import static com.appsmith.server.constants.FieldName.PERMISSION_GROUP_ID;
+import static com.appsmith.server.helpers.CollectionUtils.findSymmetricDiff;
 import static com.appsmith.server.migrations.DatabaseChangelog.dropIndexIfExists;
 import static com.appsmith.server.migrations.DatabaseChangelog.ensureIndexes;
 import static com.appsmith.server.migrations.DatabaseChangelog.getUpdatedDynamicBindingPathList;
 import static com.appsmith.server.migrations.DatabaseChangelog.makeIndex;
+import static com.appsmith.server.migrations.MigrationHelperMethods.evictPermissionCacheForUsers;
 import static com.appsmith.server.repositories.BaseAppsmithRepositoryImpl.fieldName;
 import static java.lang.Boolean.TRUE;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
@@ -2288,7 +2291,7 @@ public class DatabaseChangelog2 {
     }
 
     @ChangeSet(order = "033", id = "update-super-users", author = "", runAlways = true)
-    public void updateSuperUsers(MongockTemplate mongockTemplate) {
+    public void updateSuperUsers(MongockTemplate mongockTemplate, CacheableRepositoryHelper cacheableRepositoryHelper) {
         // Read the admin emails from the environment and update the super users accordingly
         String adminEmailsStr = System.getenv(String.valueOf(APPSMITH_ADMIN_EMAILS));
 
@@ -2325,6 +2328,9 @@ public class DatabaseChangelog2 {
                 })
                 .collect(Collectors.toSet());
 
+        Set<String> oldSuperUsers = instanceAdminPG.getAssignedToUserIds();
+        Set<String> updatedUserIds = findSymmetricDiff(oldSuperUsers, userIds);
+        evictPermissionCacheForUsers(updatedUserIds, mongockTemplate, cacheableRepositoryHelper);
         instanceAdminPG.setAssignedToUserIds(userIds);
         mongockTemplate.save(instanceAdminPG);
     }
@@ -2334,6 +2340,7 @@ public class DatabaseChangelog2 {
         user.setEmail(email);
         user.setIsEnabled(false);
         user.setTenantId(tenantId);
+        user.setCreatedAt(Instant.now());
         user = mongockTemplate.save(user);
 
         // Assign the user to the default permissions
@@ -2367,6 +2374,65 @@ public class DatabaseChangelog2 {
         user.setPolicies(Set.of(readUserPolicy, manageUserPolicy, resetPwdPolicy));
 
         return mongockTemplate.save(user);
+    }
+
+    @ChangeSet(order = "034", id = "update-bad-theme-state", author = "")
+    public void updateBadThemeState(MongockTemplate mongockTemplate, @NonLockGuarded PolicyGenerator policyGenerator,
+                                    CacheableRepositoryHelper cacheableRepositoryHelper) {
+        Query query = new Query();
+        query.addCriteria(
+                new Criteria().andOperator(
+                        new Criteria(fieldName(QTheme.theme.isSystemTheme)).is(false),
+                        new Criteria(fieldName(QTheme.theme.deleted)).is(false)
+                )
+        );
+
+        mongockTemplate.stream(query, Theme.class)
+                .stream()
+                .forEach(theme -> {
+                    Query applicationQuery = new Query();
+                    Criteria themeCriteria = new Criteria(fieldName(QApplication.application.editModeThemeId)).is(theme.getId())
+                            .orOperator(new Criteria(fieldName(QApplication.application.publishedModeThemeId)).is(theme.getId()));
+
+                    List<Application> applications = mongockTemplate.find(applicationQuery.addCriteria(themeCriteria), Application.class);
+                    // This is an erroneous state where the theme is being used by multiple applications
+                    if (applications != null && applications.size() > 1) {
+                        // Create new themes for the rest of the applications which are copies of the original theme
+                        for (int i=0; i< applications.size(); i++) {
+                            Application application = applications.get(i);
+                            Set<Policy> themePolicies = policyGenerator.getAllChildPolicies(application.getPolicies(), Application.class, Theme.class);
+
+                            if (i==0) {
+                                // Don't create a new theme for the first application
+                                // Just update the policies
+                                theme.setPolicies(themePolicies);
+                                mongockTemplate.save(theme);
+                            } else {
+
+                                Theme newTheme = new Theme();
+                                newTheme.setSystemTheme(false);
+                                newTheme.setName(theme.getName());
+                                newTheme.setDisplayName(theme.getDisplayName());
+                                newTheme.setConfig(theme.getConfig());
+                                newTheme.setStylesheet(theme.getStylesheet());
+                                newTheme.setProperties(theme.getProperties());
+                                newTheme.setCreatedAt(Instant.now());
+                                newTheme.setUpdatedAt(Instant.now());
+                                newTheme.setPolicies(themePolicies);
+
+                                newTheme = mongockTemplate.save(newTheme);
+
+                                if (application.getEditModeThemeId().equals(theme.getId())) {
+                                    application.setEditModeThemeId(newTheme.getId());
+                                }
+                                if (application.getPublishedModeThemeId().equals(theme.getId())) {
+                                    application.setPublishedModeThemeId(newTheme.getId());
+                                }
+                                mongockTemplate.save(application);
+                            }
+                        }
+                    }
+                });
     }
 
 }

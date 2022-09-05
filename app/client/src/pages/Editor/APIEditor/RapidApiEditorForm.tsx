@@ -9,7 +9,7 @@ import { PaginationField, BodyFormData, Property } from "api/ActionAPI";
 import DynamicTextField from "components/editorComponents/form/fields/DynamicTextField";
 import KeyValueFieldArray from "components/editorComponents/form/fields/KeyValueFieldArray";
 import ApiResponseView from "components/editorComponents/ApiResponseView";
-import { API_EDITOR_FORM_NAME } from "constants/forms";
+import { API_EDITOR_FORM_NAME } from "@appsmith/constants/forms";
 import CredentialsTooltip from "components/editorComponents/form/CredentialsTooltip";
 import { FormIcons } from "icons/FormIcons";
 import { BaseTabbedView } from "components/designSystems/appsmith/TabbedView";
