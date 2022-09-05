@@ -125,7 +125,6 @@ export const EditorWrapper = styled.div<{
       }};
       background: ${(props) => props.theme.colors.apiPane.bg};
       color: ${Colors.CHARCOAL};
-      ${(props) => props.size === EditorSize.COMPACT && `min-height: 36px;`}
       & {
         span.cm-operator {
           color: ${(props) => props.theme.colors.textDefault};
