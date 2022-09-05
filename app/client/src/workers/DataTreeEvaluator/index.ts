@@ -887,7 +887,12 @@ export default class DataTreeEvaluator {
             addErrorToEntityProperty(result.errors, data, fullPropertyPath);
           }
           // if there are any console outputs found from the evaluation, extract them and add them to the logs array
-          if (!!entity && !!result.logs && result.logs.length > 0) {
+          if (
+            !!entity &&
+            !!result.logs &&
+            result.logs.length > 0 &&
+            !propertyPath.includes("body")
+          ) {
             let type = CONSOLE_ENTITY_TYPE.WIDGET;
             let id = "";
 
