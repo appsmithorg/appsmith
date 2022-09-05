@@ -10,7 +10,6 @@ import _ from "lodash";
 import { EVALUATION_PATH } from "utils/DynamicBindingUtils";
 import { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";
 import { Def } from "tern";
-import { ButtonGroupWidgetProps } from "widgets/ButtonGroupWidget/widget";
 
 const isVisible = {
   "!type": "bool",
@@ -274,14 +273,6 @@ export const entityDefinitions = {
     text: "string",
     isDisabled: "bool",
     recaptchaToken: "string",
-  },
-  BUTTON_GROUP_WIDGET: (widget: ButtonGroupWidgetProps) => {
-    return {
-      "!doc":
-        "The Button group widget represents a set of buttons in a group. Group can have simple buttons or menu buttons with drop-down items.",
-      "!url": "https://docs.appsmith.com/widget-reference/button-group",
-      groupButtons: generateTypeDef(widget.groupButtons),
-    };
   },
   DATE_PICKER_WIDGET: {
     "!doc":
