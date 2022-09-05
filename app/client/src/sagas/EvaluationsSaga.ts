@@ -184,7 +184,7 @@ function* evaluateTreeSaga(
   if (!!userLogs && userLogs.length > 0) {
     yield all(
       userLogs.map((log: UserLogObject) => {
-        call(
+        return call(
           storeLogs,
           log.logObject,
           log.source.name,
