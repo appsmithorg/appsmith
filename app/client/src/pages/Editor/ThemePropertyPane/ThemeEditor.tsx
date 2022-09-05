@@ -1,4 +1,4 @@
-import { createGlobalStyle } from "styled-components";
+import styled, { createGlobalStyle } from "styled-components";
 import { get, startCase } from "lodash";
 import MoreIcon from "remixicon-react/MoreFillIcon";
 import { useDispatch, useSelector } from "react-redux";
@@ -35,8 +35,13 @@ import { getCurrentApplicationId } from "selectors/editorSelectors";
 import ThemeBorderRadiusControl from "./controls/ThemeBorderRadiusControl";
 import BetaCard from "components/editorComponents/BetaCard";
 import { Classes as CsClasses } from "components/ads/common";
+import { Colors } from "constants/Colors";
 
 const THEMING_BETA_CARD_POPOVER_CLASSNAME = `theming-beta-card-popover`;
+
+const Title = styled.h3`
+  color: ${Colors.GRAY_800};
+`;
 
 const PopoverStyles = createGlobalStyle`
 .${THEMING_BETA_CARD_POPOVER_CLASSNAME} .bp3-popover-content {
@@ -117,12 +122,12 @@ function ThemeEditor() {
   return (
     <>
       <div>
-        <header className="px-3 space-y-2">
+        <header className="px-4 space-y-2">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
-              <h3 className="text-sm font-normal capitalize">
+              <Title className="text-sm font-normal capitalize">
                 Theme Properties
-              </h3>
+              </Title>
               <BetaCard />
             </div>
             <div>
@@ -166,7 +171,7 @@ function ThemeEditor() {
         </header>
         <main className="mt-1">
           {/* FONT  */}
-          <SettingSection className="px-3 py-3" isDefaultOpen title="Font">
+          <SettingSection className="px-4 py-3" isDefaultOpen title="Font">
             {Object.keys(selectedTheme.config.fontFamily).map(
               (fontFamilySectionName: string, index: number) => {
                 return (
@@ -193,7 +198,7 @@ function ThemeEditor() {
           </SettingSection>
           {/* COLORS */}
           <SettingSection
-            className="px-3 py-3 border-t"
+            className="px-4 py-3 border-t"
             isDefaultOpen
             title="Color"
           >
@@ -207,7 +212,7 @@ function ThemeEditor() {
 
           {/* BORDER RADIUS */}
           <SettingSection
-            className="px-3 py-3 border-t "
+            className="px-4 py-3 border-t "
             isDefaultOpen
             title="Border"
           >
@@ -238,7 +243,7 @@ function ThemeEditor() {
 
           {/* BOX SHADOW */}
           <SettingSection
-            className="px-3 py-3 border-t "
+            className="px-4 py-3 border-t "
             isDefaultOpen
             title="Shadow"
           >
