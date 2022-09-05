@@ -1,7 +1,6 @@
 import React from "react";
 import styled from "styled-components";
-import Spinner from "components/ads/Spinner";
-import { Text, TextType } from "design-system";
+import { Text, TextType, Spinner } from "design-system";
 import { Classes } from "components/ads";
 
 const Wrapper = styled.div`
