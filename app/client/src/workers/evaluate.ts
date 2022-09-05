@@ -229,6 +229,7 @@ export default function evaluateSync(
   isJSCollection: boolean,
   context?: EvaluateContext,
   evalArguments?: Array<any>,
+  skipLogsOperations = false,
 ): EvalResult {
   return (function() {
     const errors: EvaluationError[] = [];
@@ -236,7 +237,7 @@ export default function evaluateSync(
     let result;
     // skipping log reset if the js collection is being evaluated without run
     // Doing this because the promise execution is losing logs in the process due to resets
-    if (!isJSCollection) {
+    if (!skipLogsOperations) {
       userLogs.resetLogs();
     }
     /**** Setting the eval context ****/
@@ -284,7 +285,7 @@ export default function evaluateSync(
         originalBinding: userScript,
       });
     } finally {
-      logs = userLogs.flushLogs(isJSCollection);
+      logs = userLogs.flushLogs(!skipLogsOperations);
       for (const entity in GLOBAL_DATA) {
         // @ts-expect-error: Types are not available
         delete self[entity];
