@@ -59,6 +59,7 @@ import {
   ERROR_ACTION_RENAME_FAIL,
 } from "@appsmith/constants/messages";
 import {
+  getContentTypeHeaderValue,
   getIndextoUpdate,
   parseUrlForQueryParams,
   queryParamsRegEx,
@@ -250,10 +251,7 @@ function* updateExtraFormDataSaga() {
 
   const headers: Array<{ key: string; value: string }> =
     get(values, "actionConfiguration.headers") || [];
-  const contentTypeValue: string =
-    headers.find(
-      (h: { key: string; value: string }) => h.key === CONTENT_TYPE_HEADER_KEY,
-    )?.value || "";
+  const contentTypeValue: string = getContentTypeHeaderValue(headers);
 
   let rawApiContentType;
 
