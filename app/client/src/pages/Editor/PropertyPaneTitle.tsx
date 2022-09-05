@@ -27,7 +27,6 @@ import { inGuidedTour } from "selectors/onboardingSelectors";
 import { toggleShowDeviationDialog } from "actions/onboardingActions";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { PopoverPosition } from "@blueprintjs/core/lib/esnext/components/popover/popoverSharedProps";
-import { selectFeatureFlags } from "selectors/usersSelectors";
 
 type PropertyPaneTitleProps = {
   title: string;
@@ -48,7 +47,6 @@ const PropertyPaneTitle = memo(function PropertyPaneTitle(
   props: PropertyPaneTitleProps,
 ) {
   const dispatch = useDispatch();
-  const featureFlags = useSelector(selectFeatureFlags);
   const containerRef = useRef<HTMLDivElement>(null);
   const updating = useSelector(
     (state: AppState) => state.ui.editor.loadingStates.updatingWidgetName,
@@ -138,7 +136,8 @@ const PropertyPaneTitle = memo(function PropertyPaneTitle(
       )
         setTimeout(
           () => {
-            if (featureFlags.PROPERTY_PANE_GROUPING) {
+            if (false) {
+              // TODO(aswathkk): Fix #15970 and focus on search bar
               document
                 .querySelector(".propertyPaneSearch input")
                 // @ts-expect-error: Focus

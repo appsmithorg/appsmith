@@ -5,7 +5,7 @@ import {
   SettingSubtype,
 } from "@appsmith/pages/AdminSettings/config/types";
 import TextInput from "./TextInput";
-import { SETTINGS_FORM_NAME } from "constants/forms";
+import { SETTINGS_FORM_NAME } from "@appsmith/constants/forms";
 import { reduxForm } from "redux-form";
 
 let container: any = null;

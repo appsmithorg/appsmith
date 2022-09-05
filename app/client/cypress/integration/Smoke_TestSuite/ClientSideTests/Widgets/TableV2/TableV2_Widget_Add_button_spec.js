@@ -78,6 +78,7 @@ describe("Table Widget V2 property pane feature validation", function() {
     // Open column details of "id".
     cy.editColumn("id");
     const color1 = "rgb(255, 0, 0)";
+    cy.moveToStyleTab();
     cy.get(widgetsPage.buttonColor)
       .click({ force: true })
       .clear()
@@ -162,7 +163,8 @@ describe("Table Widget V2 property pane feature validation", function() {
     // Change Column type to icon Button
     cy.changeColumnType("Menu Button");
     //Changing the text on the Menu Button
-    cy.testJsontext("label", "Menu button");
+    cy.testJsontext("text", "Menu button");
+    cy.moveToStyleTab();
     // Select Icon from Icon Control
     cy.get(".t--property-control-icon .bp3-icon-caret-down").click({
       force: true,
@@ -197,22 +199,25 @@ describe("Table Widget V2 property pane feature validation", function() {
     //   .type(color2);
     // cy.get(widgetsPage.tableV2Btn).should("have.css", "background-color", color2);
 
+    cy.moveToContentTab();
     // Add a Menu item 1
     cy.get(".t--add-menu-item-btn").click({
       force: true,
     });
     // Edit a Menu item
-    cy.get(".t--property-pane-section-menuitems .t--edit-column-btn")
+    cy.get(".t--property-control-menuitems .t--edit-column-btn")
       .first()
       .click({
         force: true,
       });
+    cy.moveToStyleTab();
     // update menu item background color
     cy.get(widgetsPage.backgroundcolorPickerNew)
       .type("#03b365", {
         force: true,
       })
       .wait(500);
+    cy.moveToContentTab();
     //  Add action to the menu Item
     cy.get(widgetsPage.actionSelect).click();
     cy.get(commonlocators.chooseAction)
@@ -222,17 +227,18 @@ describe("Table Widget V2 property pane feature validation", function() {
     cy.addSuccessMessage("Successful ".concat(testdata.currentRowEmail));
     // Go back to table property pane
     cy.get(".t--property-pane-back-btn").click({ force: true });
-
     // Add a Menu item 2
     cy.get(".t--add-menu-item-btn").click({
       force: true,
     });
     // Edit a Menu item
-    cy.get(".t--property-pane-section-menuitems .t--edit-column-btn")
+    cy.get(".t--property-control-menuitems .t--edit-column-btn")
       .last()
       .click({
         force: true,
       });
+    cy.wait(500);
+    cy.moveToStyleTab();
     // update menu item background color
     cy.get(widgetsPage.backgroundcolorPickerNew)
       .clear()
@@ -248,11 +254,12 @@ describe("Table Widget V2 property pane feature validation", function() {
       force: true,
     });
     // Edit a Menu item
-    cy.get(".t--property-pane-section-menuitems .t--edit-column-btn")
+    cy.get(".t--property-control-menuitems .t--edit-column-btn")
       .last()
       .click({
         force: true,
       });
+    cy.moveToStyleTab();
     // update menu item background color
     cy.get(widgetsPage.backgroundcolorPickerNew)
       .clear()
@@ -274,7 +281,7 @@ describe("Table Widget V2 property pane feature validation", function() {
     cy.closePropertyPane();
 
     // Edit a Menu item
-    cy.get(".t--property-pane-section-menuitems .t--edit-column-btn")
+    cy.get(".t--property-control-menuitems .t--edit-column-btn")
       .last()
       .click({
         force: true,
@@ -338,7 +345,7 @@ describe("Table Widget V2 property pane feature validation", function() {
     // Open column details of "id".
     cy.editColumn("id");
     // Changing column "Button" color to transparent
-
+    cy.moveToStyleTab();
     cy.get(widgetsPage.buttonColor).click({ force: true });
     cy.wait(2000);
     cy.get(widgetsPage.transparent).click({ force: true });

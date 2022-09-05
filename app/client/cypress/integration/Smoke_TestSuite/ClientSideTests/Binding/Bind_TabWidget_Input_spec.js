@@ -9,7 +9,7 @@ describe("Binding the input Widget with tab Widget", function() {
 
   it("Input widget test with default value from tab widget", function() {
     cy.SearchEntityandOpen("Input1");
-    cy.testJsontext("defaulttext", testdata.tabBinding + "}}");
+    cy.testJsontext("defaultvalue", testdata.tabBinding + "}}");
 
     cy.wait("@updateLayout").should(
       "have.nested.property",

@@ -78,7 +78,7 @@ describe("Test Postgres number of connections on page load + Bug 11572, Bug 1120
           ".data.map( (obj) =>{ return  {'label': obj.table_name, 'value': obj.table_name }})}}",
       );
       propPane.UpdatePropertyFieldValue(
-        "Default Value", "{{Query_" + i + ".data[" + (i - 1) + "].table_name}}",
+        "Default Selected Value", "{{Query_" + i + ".data[" + (i - 1) + "].table_name}}",
       );
       agHelper.ValidateNetworkStatus("@updateLayout", 200);
     }
