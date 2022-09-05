@@ -46,4 +46,13 @@ describe("QR Scanner widget", () => {
     cy.get(publish.qrscannerwidget + " " + "button").should("be.visible");
     cy.get(publish.backToEditor).click();
   });
+
+  it("6. Open and close the QR Scanner modal", function() {
+    // Open
+    cy.get(widgetsPage.qrscannerwidget).click();
+    //eslint-disable-next-line cypress/no-unnecessary-waiting
+    cy.wait(2000);
+    // Close
+    cy.get(".qr-scanner-close").click();
+  });
 });
