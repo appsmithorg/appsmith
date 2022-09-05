@@ -17,7 +17,8 @@ import {
   widgetOperationParams,
 } from "utils/WidgetPropsUtils";
 import { DropTargetContext } from "components/editorComponents/DropTargetComponent";
-import { isEmpty, isEqual } from "lodash";
+import { isEmpty } from "lodash";
+import equal from "fast-deep-equal/es6";
 import { CanvasDraggingArenaProps } from "pages/common/CanvasArenas/CanvasDraggingArena";
 import { useDispatch } from "react-redux";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
@@ -117,8 +118,7 @@ export const useBlocksToBeDraggedOnCanvas = ({
     (state: AppState) => state.ui.widgetDragResize.isResizing,
   );
   const selectedWidgets = useSelector(getSelectedWidgets);
-  const occupiedSpaces =
-    useSelector(getOccupiedSpacesWhileMoving, isEqual) || {};
+  const occupiedSpaces = useSelector(getOccupiedSpacesWhileMoving, equal) || {};
   const isNewWidget = !!newWidget && !dragParent;
   const childrenOccupiedSpaces: OccupiedSpace[] =
     (dragParent && occupiedSpaces[dragParent]) || [];

@@ -1,8 +1,7 @@
 import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { setThemeMode } from "actions/themeActions";
-import Switch from "components/ads/RectangularSwitcher";
-import { MenuItem } from "design-system";
+import { MenuItem, RectangularSwitcher } from "design-system";
 import { getCurrentThemeMode, ThemeMode } from "selectors/themeSelectors";
 
 export default function ThemeSwitcher(props: { className?: string }) {
@@ -13,9 +12,9 @@ export default function ThemeSwitcher(props: { className?: string }) {
   return (
     <MenuItem
       label={
-        <Switch
+        <RectangularSwitcher
           className={props.className}
-          onSwitch={(value) => {
+          onSwitch={(value: boolean) => {
             setSwitchOn(value);
             dispatch(setThemeMode(value ? ThemeMode.DARK : ThemeMode.LIGHT));
           }}

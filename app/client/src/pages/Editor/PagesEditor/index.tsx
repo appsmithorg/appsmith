@@ -15,7 +15,7 @@ import {
   getPageList,
 } from "selectors/editorSelectors";
 import { getNextEntityName } from "utils/AppsmithUtils";
-import DraggableList from "components/ads/DraggableList";
+import { DraggableList } from "design-system";
 import { extractCurrentDSL } from "utils/WidgetPropsUtils";
 import { createPage, setPageOrder } from "actions/pageActions";
 import { getCurrentApplication } from "selectors/applicationSelectors";

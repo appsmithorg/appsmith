@@ -137,11 +137,11 @@ While you can always start building apps right away using the [cloud-hosted vers
 
 | Cloud Provider                                                                                                                 | Documentation                                                                                                                                                    |
 | ------------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| ![Docker](https://img.shields.io/badge/docker-%230db7ed.svg?style=for-the-badge&logo=docker&logoColor=white)                   | [Local/Cloud - Docs](https://docs.appsmith.com/getting-started/setup/installation-guides/docker?utm_source=github&utm_medium=organic&utm_campaign=readme)        |
+| ![Kubernetes](https://img.shields.io/badge/kubernetes-%23326ce5.svg?style=for-the-badge&logo=kubernetes&logoColor=white)       | [K8's with Helm Charts](https://docs.appsmith.com/getting-started/setup/installation-guides/kubernetes?utm_source=github&utm_medium=organic&utm_campaign=readme) |
 | ![DigitalOcean](https://img.shields.io/badge/DigitalOcean-%230167ff.svg?style=for-the-badge&logo=digitalOcean&logoColor=white) | [One-Click Install](https://docs.appsmith.com/getting-started/setup/installation-guides/digitalocean?utm_source=github&utm_medium=organic&utm_campaign=readme)   |
 | ![AWS](https://img.shields.io/badge/AWS-%23FF9900.svg?style=for-the-badge&logo=amazon-aws&logoColor=white)                     | [AWS ECS - Docs](https://docs.appsmith.com/getting-started/setup/installation-guides/aws-ecs?utm_source=github&utm_medium=organic&utm_campaign=readme)           |
 | ![AWS](https://img.shields.io/badge/AWS-%23FF9900.svg?style=for-the-badge&logo=amazon-aws&logoColor=white)                     | [AWS AMI - Docs](https://docs.appsmith.com/getting-started/setup/installation-guides/aws-ami?utm_source=github&utm_medium=organic&utm_campaign=readme)           |
-| ![Docker](https://img.shields.io/badge/docker-%230db7ed.svg?style=for-the-badge&logo=docker&logoColor=white)                   | [Local/Cloud - Docs](https://docs.appsmith.com/getting-started/setup/installation-guides/docker?utm_source=github&utm_medium=organic&utm_campaign=readme)        |
-| ![Kubernetes](https://img.shields.io/badge/kubernetes-%23326ce5.svg?style=for-the-badge&logo=kubernetes&logoColor=white)       | [K8's with Helm Charts](https://docs.appsmith.com/getting-started/setup/installation-guides/kubernetes?utm_source=github&utm_medium=organic&utm_campaign=readme) |
 | ![Heroku](https://img.shields.io/badge/heroku-%23430098.svg?style=for-the-badge&logo=heroku&logoColor=white)                   | [One-Click Install](https://docs.appsmith.com/getting-started/setup/installation-guides/heroku?utm_source=github&utm_medium=organic&utm_campaign=readme)         |
 | ![Ansible](https://img.shields.io/badge/ansible-%231A1918.svg?style=for-the-badge&logo=ansible&logoColor=white)                | [Docs](https://docs.appsmith.com/getting-started/setup/installation-guides/ansible?utm_source=github&utm_medium=organic&utm_campaign=readme)                     |
 
@@ -216,17 +216,17 @@ Lets build great software together.
 [![berzerkeer](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/74818788?v=4&w=50&h=50&mask=circle)](https://github.com/berzerkeer)
 [![souma-ghosh](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/103924539?v=4&w=50&h=50&mask=circle)](https://github.com/souma-ghosh)
 [![dhruvikn](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/22471214?v=4&w=50&h=50&mask=circle)](https://github.com/dhruvikn)
-[![Pranay105](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/48308728?v=4&w=50&h=50&mask=circle)](https://github.com/Pranay105)
 [![tanvibhakta](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/13763558?v=4&w=50&h=50&mask=circle)](https://github.com/tanvibhakta)
+[![Pranay105](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/48308728?v=4&w=50&h=50&mask=circle)](https://github.com/Pranay105)
 [![sondermanish](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/107841575?v=4&w=50&h=50&mask=circle)](https://github.com/sondermanish)
 [![kocharrahul7](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/20532920?v=4&w=50&h=50&mask=circle)](https://github.com/kocharrahul7)
+[![sneha122](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/30018882?v=4&w=50&h=50&mask=circle)](https://github.com/sneha122)
 [![felixsuarez0727](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/25110207?v=4&w=50&h=50&mask=circle)](https://github.com/felixsuarez0727)
 [![pratapaprasanna](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/15846947?v=4&w=50&h=50&mask=circle)](https://github.com/pratapaprasanna)
 [![RakshaKShetty](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/45958978?v=4&w=50&h=50&mask=circle)](https://github.com/RakshaKShetty)
 [![Rishabhkaul](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/1650391?v=4&w=50&h=50&mask=circle)](https://github.com/Rishabhkaul)
 [![rohan-arthur](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/94514895?v=4&w=50&h=50&mask=circle)](https://github.com/rohan-arthur)
 [![somnathdasadhikari](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/17508328?v=4&w=50&h=50&mask=circle)](https://github.com/somnathdasadhikari)
-[![sneha122](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/30018882?v=4&w=50&h=50&mask=circle)](https://github.com/sneha122)
 [![hiteshjoshi](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/217911?v=4&w=50&h=50&mask=circle)](https://github.com/hiteshjoshi)
 [![rlnorthcutt](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/673633?v=4&w=50&h=50&mask=circle)](https://github.com/rlnorthcutt)
 [![rohitagarwal88](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/890915?v=4&w=50&h=50&mask=circle)](https://github.com/rohitagarwal88)
@@ -366,6 +366,7 @@ Lets build great software together.
 [![RishiKumarRay](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/87641376?v=4&w=50&h=50&mask=circle)](https://github.com/RishiKumarRay)
 [![Saket2](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/49346036?v=4&w=50&h=50&mask=circle)](https://github.com/Saket2)
 [![withshubh](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/25361949?v=4&w=50&h=50&mask=circle)](https://github.com/withshubh)
+[![smrutiparida](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/5945400?v=4&w=50&h=50&mask=circle)](https://github.com/smrutiparida)
 [![srijanshetty](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/1744347?v=4&w=50&h=50&mask=circle)](https://github.com/srijanshetty)
 [![Sufiyan1997](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/22118049?v=4&w=50&h=50&mask=circle)](https://github.com/Sufiyan1997)
 [![jerimo](https://images.weserv.nl/?url=https://avatars.githubusercontent.com/u/48341341?v=4&w=50&h=50&mask=circle)](https://github.com/jerimo)
