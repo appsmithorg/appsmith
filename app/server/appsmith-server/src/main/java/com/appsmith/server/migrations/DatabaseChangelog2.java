@@ -757,28 +757,6 @@ public class DatabaseChangelog2 {
                 Application.class);
     }
 
-    // TODO: update the order before merge to release.
-    @ChangeSet(order = "023", id = "add-graphql-plugin", author = "")
-    public void addGraphQLPlugin(MongockTemplate mongoTemplate) {
-        Plugin plugin = new Plugin();
-        plugin.setName("Authenticated GraphQL API");
-        plugin.setType(PluginType.API);
-        plugin.setPackageName("graphql-plugin");
-        plugin.setUiComponent("GraphQLEditorForm");
-        plugin.setDatasourceComponent("RestAPIDatasourceForm");
-        plugin.setResponseType(Plugin.ResponseType.JSON);
-        plugin.setIconLocation("https://upload.wikimedia.org/wikipedia/commons/1/17/GraphQL_Logo.svg"); // TODO: update
-        plugin.setDocumentationLink("https://docs.appsmith.com/reference/datasources/querying-graphql-db");
-        plugin.setDefaultInstall(true);
-        try {
-            mongoTemplate.insert(plugin);
-        } catch (DuplicateKeyException e) {
-            log.warn(plugin.getPackageName() + " already present in database.");
-        }
-
-        installPluginToAllWorkspaces(mongoTemplate, plugin.getId());
-    }
-    
     @ChangeSet(order = "006", id = "delete-orphan-pages", author = "")
     public void deleteOrphanPages(MongockTemplate mongockTemplate) {
 
@@ -2460,4 +2438,24 @@ public class DatabaseChangelog2 {
                 });
     }
 
+    @ChangeSet(order = "035", id = "add-graphql-plugin", author = "")
+    public void addGraphQLPlugin(MongockTemplate mongoTemplate) {
+        Plugin plugin = new Plugin();
+        plugin.setName("Authenticated GraphQL API");
+        plugin.setType(PluginType.API);
+        plugin.setPackageName("graphql-plugin");
+        plugin.setUiComponent("GraphQLEditorForm");
+        plugin.setDatasourceComponent("RestAPIDatasourceForm");
+        plugin.setResponseType(Plugin.ResponseType.JSON);
+        plugin.setIconLocation("https://s3.us-east-2.amazonaws.com/assets.appsmith.com/logo/graphql.svg");
+        plugin.setDocumentationLink("https://docs.appsmith.com/reference/datasources/querying-graphql-db");
+        plugin.setDefaultInstall(true);
+        try {
+            mongoTemplate.insert(plugin);
+        } catch (DuplicateKeyException e) {
+            log.warn(plugin.getPackageName() + " already present in database.");
+        }
+
+        installPluginToAllWorkspaces(mongoTemplate, plugin.getId());
+    }
 }
