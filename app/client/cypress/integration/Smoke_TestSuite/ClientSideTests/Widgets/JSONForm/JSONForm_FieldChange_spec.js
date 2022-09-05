@@ -173,6 +173,7 @@ describe("JSON Form Widget Field Change", () => {
 
     cy.openFieldConfiguration("hobbies");
     cy.selectDropdownValue(commonlocators.jsonFormFieldType, "Array");
+    cy.wait(2000); //for array field to reflect
     cy.get(`${fieldPrefix}-hobbies`).then((hobbies) => {
       cy.wrap(hobbies)
         .find(".t--jsonformfield-array-add-btn")
