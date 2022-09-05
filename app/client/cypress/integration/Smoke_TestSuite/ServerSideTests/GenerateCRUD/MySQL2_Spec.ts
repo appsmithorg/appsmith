@@ -98,7 +98,7 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
   });
 
   it("5. Verify Update data from Deploy page - on Stores - existing record", () => {
-    ee.SelectEntityByName("update_form", "WIDGETS");
+    ee.SelectEntityByName("update_form", "Widgets");
 
     updatingStoreJSONPropertyFileds();
     deployMode.DeployApp();

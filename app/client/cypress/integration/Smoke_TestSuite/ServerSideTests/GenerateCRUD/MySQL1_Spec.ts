@@ -41,6 +41,7 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
     deployMode.NavigateBacktoEditor();
     table.WaitUntilTableLoad();
     //Delete the test data
+    ee.ExpandCollapseEntity("Pages");
     ee.ActionContextMenuByEntityName("Page2", "Delete", "Are you sure?");
     agHelper.ValidateNetworkStatus("@deletePage", 200);
 
@@ -145,7 +146,7 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
     dataSources.RunQueryNVerifyResponseViews();
     agHelper.ActionContextMenuWithInPane("Delete");
 
-    ee.ExpandCollapseEntity("DATASOURCES");
+    ee.ExpandCollapseEntity("Datasources");
     ee.ExpandCollapseEntity(dsName);
     ee.ActionContextMenuByEntityName(dsName, "Refresh");
     agHelper.AssertElementVisible(ee._entityNameInExplorer("productlines"));
@@ -203,7 +204,7 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
   });
 
   it.skip("6. Verify Update/Delete row/Delete field data from Deploy page - on Productlines - existing record + Bug 14063", () => {
-    ee.SelectEntityByName("update_form", "WIDGETS");
+    ee.SelectEntityByName("update_form", "Widgets");
     propPane.ChangeJsonFormFieldType(
       "Text Description",
       "Multiline Text Input",
@@ -268,7 +269,7 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
   });
 
   it("10. Verify application does not break when user runs the query with wrong table name", function() {
-    ee.SelectEntityByName("DropProductlines", "QUERIES/JS");
+    ee.SelectEntityByName("DropProductlines", "Queries/JS");
     dataSources.RunQuery(false);
     agHelper
       .GetText(dataSources._queryError)
