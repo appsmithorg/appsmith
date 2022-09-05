@@ -748,7 +748,7 @@ class ListWidget extends BaseWidget<
 
   onClientPageChange = (page: number) => this.setState({ page });
 
-  meta_executeAction = (triggerPayload: ExecuteTriggerPayload) => {
+  overrideExecuteAction = (triggerPayload: ExecuteTriggerPayload) => {
     const { id: metaWidgetId } = triggerPayload?.source || {};
 
     if (metaWidgetId) {
@@ -774,7 +774,7 @@ class ListWidget extends BaseWidget<
     }
   };
 
-  meta_batchUpdateWidgetProperty = (
+  overrideBatchUpdateWidgetProperty = (
     metaWidgetId: string,
     updates: BatchPropertyUpdatePayload,
     shouldReplay: boolean,
@@ -788,7 +788,7 @@ class ListWidget extends BaseWidget<
     );
   };
 
-  meta_updateWidget = (
+  overrideUpdateWidget = (
     operation: WidgetOperation,
     metaWidgetId: string,
     payload: any,
@@ -798,7 +798,7 @@ class ListWidget extends BaseWidget<
     this.context?.updateWidget?.(operation, templateWidgetId, payload);
   };
 
-  meta_updateWidgetProperty = (
+  overrideUpdateWidgetProperty = (
     metaWidgetId: string,
     propertyName: string,
     propertyValue: any,
@@ -812,7 +812,7 @@ class ListWidget extends BaseWidget<
     );
   };
 
-  meta_deleteWidgetProperty = (
+  overrideDeleteWidgetProperty = (
     metaWidgetId: string,
     propertyPaths: string[],
   ) => {
@@ -888,11 +888,11 @@ class ListWidget extends BaseWidget<
         listData={this.props.listData || []}
       >
         <MetaWidgetContextProvider
-          batchUpdateWidgetProperty={this.meta_batchUpdateWidgetProperty}
-          deleteWidgetProperty={this.meta_deleteWidgetProperty}
-          executeAction={this.meta_executeAction}
-          updateWidget={this.meta_updateWidget}
-          updateWidgetProperty={this.meta_updateWidgetProperty}
+          batchUpdateWidgetProperty={this.overrideBatchUpdateWidgetProperty}
+          deleteWidgetProperty={this.overrideDeleteWidgetProperty}
+          executeAction={this.overrideExecuteAction}
+          updateWidget={this.overrideUpdateWidget}
+          updateWidgetProperty={this.overrideUpdateWidgetProperty}
         >
           {this.renderChildren()}
         </MetaWidgetContextProvider>
