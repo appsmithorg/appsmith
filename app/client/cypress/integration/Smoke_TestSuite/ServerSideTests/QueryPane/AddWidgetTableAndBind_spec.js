@@ -57,7 +57,7 @@ describe("Addwidget from Query and bind with other widgets", function() {
 
   it("3. Input widget test with default value from table widget", () => {
     cy.get(".t--entity-name")
-      .contains("WIDGETS")
+      .contains("Widgets")
       .click();
     cy.SearchEntityandOpen("Input1");
     cy.get(widgetsPage.defaultInput).type(testdata.addInputWidgetBinding);

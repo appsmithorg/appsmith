@@ -60,7 +60,7 @@ describe("Entity Explorer tests", () => {
         <Sidebar width={DEFAULT_ENTITY_EXPLORER_WIDTH} />
       </MockPageDSL>,
     );
-    const widgetsTree: any = component.queryByText("WIDGETS", {
+    const widgetsTree: any = component.queryByText("Widgets", {
       selector: "div.t--entity-name",
     });
     act(() => {

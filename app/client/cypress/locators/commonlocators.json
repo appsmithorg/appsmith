@@ -146,7 +146,7 @@
   "inputCountryCodeChangeType": ".t--input-country-code-change",
   "viewerPage": ".t--app-viewer-page",
   "dropDownOptSelected": "//span[@type='p1']",
-  "generalChevran": ".t--property-pane-section-collapse-general  [icon=chevron-right]",
+  "generalChevran": ".t--property-pane-section-collapse-general .t--chevron-icon",
   "generalSection": ".t--property-pane-section-general",
   "selectedIcon": ".t--property-control-icon .icon-select-container .bp3-button .bp3-button-text",
   "isSortable": ".t--property-control-columnsorting input[type='checkbox']",
