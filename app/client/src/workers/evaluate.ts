@@ -308,7 +308,6 @@ export async function evaluateAsync(
     let result;
     let logs;
     /**** Setting the eval context ****/
-    console.log("Ayush is resetting");
     userLogs.resetLogs();
     const GLOBAL_DATA: Record<string, any> = createGlobalData({
       dataTree,
@@ -330,7 +329,6 @@ export async function evaluateAsync(
     try {
       result = await eval(script);
       logs = userLogs.flushLogs();
-      console.log("Ayush test", logs.length);
     } catch (error) {
       const errorMessage = `UncaughtPromiseRejection: ${
         (error as Error).message
@@ -343,7 +341,6 @@ export async function evaluateAsync(
         originalBinding: userScript,
       });
       logs = userLogs.flushLogs();
-      console.log("Ayush test", logs.length);
     } finally {
       // Adding this extra try catch because there are cases when logs have child objects
       // like functions or promises that cause issue in complete promise action, thus
