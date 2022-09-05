@@ -115,6 +115,7 @@ describe("Binding the list widget with text widget", function() {
       "response.body.responseMeta.status",
       200,
     );
+    cy.reload();
     cy.wait(2000);
   });
 });
