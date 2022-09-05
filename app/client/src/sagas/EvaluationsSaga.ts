@@ -101,7 +101,6 @@ import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsRe
 import { AppTheme } from "entities/AppTheming";
 import { ActionValidationConfigMap } from "constants/PropertyControlConstants";
 import TernServer from "utils/autocomplete/TernServer";
-import { Toast } from "@blueprintjs/core";
 import { LogObject, UserLogObject } from "workers/UserLog";
 import { processAndStoreLogs, storeLogs } from "./DebuggerSagas";
 
