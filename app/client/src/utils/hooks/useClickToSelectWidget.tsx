@@ -1,19 +1,19 @@
+import { AppState } from "@appsmith/reducers";
+import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
+import { APP_MODE } from "entities/App";
 import { get } from "lodash";
+import React, { ReactNode, useCallback } from "react";
+import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import { getAppMode } from "selectors/applicationSelectors";
 import {
   getCurrentWidgetId,
   getIsPropertyPaneVisible,
 } from "selectors/propertyPaneSelectors";
 import { getIsTableFilterPaneVisible } from "selectors/tableFilterSelectors";
-import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
-import { useSelector } from "store";
-import { AppState } from "@appsmith/reducers";
-import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
-import { APP_MODE } from "entities/App";
-import { getAppMode } from "selectors/applicationSelectors";
-import { useWidgetSelection } from "./useWidgetSelection";
-import React, { ReactNode, useCallback } from "react";
-import { stopEventPropagation } from "utils/AppsmithUtils";
 import { getFocusedParentToOpen } from "selectors/widgetSelectors";
+import { useSelector } from "store";
+import { stopEventPropagation } from "utils/AppsmithUtils";
+import { useWidgetSelection } from "./useWidgetSelection";
 
 /**
  *
@@ -87,7 +87,7 @@ export function ClickContentToOpenPropPane({
   return (
     <div
       onClick={stopEventPropagation}
-      onClickCapture={clickToSelectFn}
+      onMouseDownCapture={clickToSelectFn}
       onMouseOver={handleMouseOver}
       style={{
         width: "100%",
