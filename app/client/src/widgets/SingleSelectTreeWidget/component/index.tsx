@@ -27,6 +27,7 @@ import { Colors } from "constants/Colors";
 import { LabelPosition } from "components/constants";
 import { LabelWithTooltip } from "design-system";
 import useDropdown from "widgets/useDropdown";
+import { isNil } from "lodash";
 
 export interface TreeSelectProps
   extends Required<
@@ -220,6 +221,10 @@ function SingleSelectTreeComponent({
     // Clear the search input on closing the widget
     setFilter("");
   };
+  const allowClearMemo = useMemo(
+    () => allowClear && !isNil(value) && value !== "",
+    [allowClear, value],
+  );
 
   return (
     <TreeSelectContainer
@@ -257,7 +262,7 @@ function SingleSelectTreeComponent({
       )}
       <InputContainer compactMode={compactMode} labelPosition={labelPosition}>
         <TreeSelect
-          allowClear={allowClear}
+          allowClear={allowClearMemo}
           animation="slide-up"
           choiceTransitionName="rc-tree-select-selection__choice-zoom"
           className="rc-tree-select"
@@ -304,7 +309,7 @@ function SingleSelectTreeComponent({
           treeDefaultExpandAll={expandAll}
           treeIcon
           treeNodeFilterProp="label"
-          value={filter ? "" : value} // value should empty when filter value exist otherwise dropdown flickers #12714
+          value={value}
         />
       </InputContainer>
     </TreeSelectContainer>
