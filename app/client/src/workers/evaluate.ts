@@ -234,8 +234,12 @@ export default function evaluateSync(
     const errors: EvaluationError[] = [];
     let logs: LogObject[] = [];
     let result;
+    // skipping log reset if the js collection is being evaluated without run
+    // Doing this because the promise execution is losing logs in the process due to resets
+    if (!isJSCollection) {
+      userLogs.resetLogs();
+    }
     /**** Setting the eval context ****/
-    userLogs.resetLogs();
     const GLOBAL_DATA: Record<string, any> = createGlobalData({
       dataTree,
       resolvedFunctions,
@@ -304,6 +308,7 @@ export async function evaluateAsync(
     let result;
     let logs;
     /**** Setting the eval context ****/
+    console.log("Ayush is resetting");
     userLogs.resetLogs();
     const GLOBAL_DATA: Record<string, any> = createGlobalData({
       dataTree,
@@ -325,6 +330,7 @@ export async function evaluateAsync(
     try {
       result = await eval(script);
       logs = userLogs.flushLogs();
+      console.log("Ayush test", logs.length);
     } catch (error) {
       const errorMessage = `UncaughtPromiseRejection: ${
         (error as Error).message
@@ -337,6 +343,7 @@ export async function evaluateAsync(
         originalBinding: userScript,
       });
       logs = userLogs.flushLogs();
+      console.log("Ayush test", logs.length);
     } finally {
       // Adding this extra try catch because there are cases when logs have child objects
       // like functions or promises that cause issue in complete promise action, thus
@@ -352,6 +359,7 @@ export async function evaluateAsync(
         completePromise(requestId, {
           result,
           errors,
+          logs: [userLogs.parseLogs("log", ["failed to parse logs"])],
           triggers: Array.from(self.TRIGGER_COLLECTOR),
         });
       } finally {
