@@ -22,7 +22,10 @@ import { Colors } from "constants/Colors";
 import { TOOLTIP_HOVER_ON_DELAY } from "constants/AppConstants";
 import { EntityClassNames } from "../Entity";
 import { TooltipComponent } from "design-system";
-import { ADD_QUERY_JS_BUTTON, createMessage } from "ce/constants/messages";
+import {
+  ADD_QUERY_JS_BUTTON,
+  createMessage,
+} from "@appsmith/constants/messages";
 import { useCloseMenuOnScroll } from "../hooks";
 import { SIDEBAR_ID } from "constants/Explorer";
 

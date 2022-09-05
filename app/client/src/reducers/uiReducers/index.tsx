@@ -3,7 +3,7 @@ import editorReducer from "./editorReducer";
 import errorReducer from "./errorReducer";
 import propertyPaneReducer from "./propertyPaneReducer";
 import appViewReducer from "./appViewReducer";
-import applicationsReducer from "./applicationsReducer";
+import applicationsReducer from "@appsmith/reducers/uiReducers/applicationsReducer";
 import apiPaneReducer from "./apiPaneReducer";
 import datasourcePaneReducer from "./datasourcePaneReducer";
 import authReducer from "./authReducer";
@@ -39,6 +39,7 @@ import { widgetReflowReducer } from "./reflowReducer";
 import jsObjectNameReducer from "./jsObjectNameReducer";
 import appThemingReducer from "./appThemingReducer";
 import mainCanvasReducer from "./mainCanvasReducer";
+import guidedTourReducer from "./guidedTourReducer";
 
 const uiReducer = combineReducers({
   editor: editorReducer,
@@ -67,6 +68,7 @@ const uiReducer = combineReducers({
   theme: themeReducer,
   modalAction: modalActionReducer,
   onBoarding: onBoardingReducer,
+  guidedTour: guidedTourReducer,
   globalSearch: globalSearchReducer,
   releases: releasesReducer,
   websocket: websocketReducer,

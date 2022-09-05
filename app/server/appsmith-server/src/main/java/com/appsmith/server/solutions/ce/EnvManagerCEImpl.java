@@ -243,13 +243,12 @@ public class EnvManagerCEImpl implements EnvManagerCE {
 
                     try {
                         Files.write(envFilePath, changedContent);
-                        sendAnalyticsEvent(user, originalVariables, changes);
                     } catch (IOException e) {
                         log.error("Unable to write to env file " + envFilePath, e);
                         return Mono.error(e);
                     }
 
-                    return Mono.just(originalVariables);
+                    return sendAnalyticsEvent(user, originalVariables, changes).thenReturn(originalVariables);
                 })
                 .flatMap(originalValues -> {
                     Mono<Void> dependentTasks = Mono.empty();
@@ -329,14 +328,17 @@ public class EnvManagerCEImpl implements EnvManagerCE {
      * @param user              The user who triggered the event.
      * @param originalVariables Already existing env variables
      * @param changes           Changes in the env variables
+     * @return Mono of User
      */
-    private void sendAnalyticsEvent(User user, Map<String, String> originalVariables, Map<String, String> changes) {
+    private Mono<Void> sendAnalyticsEvent(User user, Map<String, String> originalVariables, Map<String, String> changes) {
         // Generate analytics event properties template(s) according to the env variable changes
-        List<Map<String, String>> analyticsEvents = getAnalyticsEvents(originalVariables, changes, new ArrayList<>());
+        List<Map<String, Object>> analyticsEvents = getAnalyticsEvents(originalVariables, changes, new ArrayList<>());
 
-        for (Map<String, String> analyticsEvent : analyticsEvents) {
-            analyticsService.sendEvent(AnalyticsEvents.AUTHENTICATION_METHOD_CONFIGURATION.getEventName(), user.getUsername(), analyticsEvent);
+        // Currently supporting only one authentication method update in one env update call
+        if (!analyticsEvents.isEmpty()) {
+            return analyticsService.sendObjectEvent(AnalyticsEvents.AUTHENTICATION_METHOD_CONFIGURATION, user, analyticsEvents.get(0)).then();
         }
+        return Mono.empty();
     }
 
     /**
@@ -347,17 +349,17 @@ public class EnvManagerCEImpl implements EnvManagerCE {
      * @param extraAuthEnvs     To incorporate extra authentication methods in enterprise edition
      * @return A list of analytics event properties mappings.
      */
-    public List<Map<String, String>> getAnalyticsEvents(Map<String, String> originalVariables, Map<String, String> changes, List<String> extraAuthEnvs) {
+    public List<Map<String, Object>> getAnalyticsEvents(Map<String, String> originalVariables, Map<String, String> changes, List<String> extraAuthEnvs) {
         List<String> authEnvs = new ArrayList<>(List.of(APPSMITH_OAUTH2_GOOGLE_CLIENT_ID.name(), APPSMITH_OAUTH2_GITHUB_CLIENT_ID.name()));
 
         // Add extra authentication methods
         authEnvs.addAll(extraAuthEnvs);
 
         // Generate analytics event(s) properties
-        List<Map<String, String>> analyticsEvents = new ArrayList<>();
+        List<Map<String, Object>> analyticsEvents = new ArrayList<>();
         for (String authEnv : authEnvs) {
             if (changes.containsKey(authEnv)) {
-                Map<String, String> properties = new HashMap<>();
+                Map<String, Object> properties = new HashMap<>();
                 properties.put("provider", authEnv);
                 setAnalyticsEventAction(properties, changes.get(authEnv), originalVariables.get(authEnv), authEnv);
                 if (properties.containsKey("action")) {
@@ -377,7 +379,7 @@ public class EnvManagerCEImpl implements EnvManagerCE {
      * @param originalVariable Already existing env variable value
      * @param authEnv          Env variable name
      */
-    public void setAnalyticsEventAction(Map<String, String> properties, String newVariable, String originalVariable, String authEnv) {
+    public void setAnalyticsEventAction(Map<String, Object> properties, String newVariable, String originalVariable, String authEnv) {
         // Authentication configuration added
         if (!newVariable.isEmpty() && originalVariable.isEmpty()) {
             properties.put("action", "Added");

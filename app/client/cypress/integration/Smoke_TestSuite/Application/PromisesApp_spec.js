@@ -44,7 +44,7 @@ describe("JSEditor tests", function() {
         },
         clearStore: async () => { //function to clear store values
           Object.keys(appsmith.store).forEach((eachKey) => {
-            storeValue(eachKey, 'undefined')	
+            storeValue(eachKey, 'undefined')
             //return showAlert(eachKey)
            })
         }
@@ -56,7 +56,7 @@ describe("JSEditor tests", function() {
         shouldCreateNewJSObj: true,
       },
     );
-    cy.CheckAndUnfoldEntityItem("PAGES");
+    cy.CheckAndUnfoldEntityItem("Pages");
     cy.get(`.t--entity-name:contains("Page1")`).click();
     cy.wait(2000);
     // verify text in the text widget
@@ -125,7 +125,7 @@ describe("JSEditor tests", function() {
     ); */
   });
   it.skip("Testing dynamic widgets display using consecutive storeValue calls", () => {
-    cy.CheckAndUnfoldEntityItem("QUERIES/JS");
+    cy.CheckAndUnfoldEntityItem("Queries/JS");
     cy.get(".t--entity-item:contains(JSObject1)");
     cy.xpath("//span[name='expand-more']").click();
     cy.get("[data-cy='t--dropdown-option-clearStore']").click();

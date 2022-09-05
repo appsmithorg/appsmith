@@ -37,7 +37,10 @@ describe("MultiSelect Widget Functionality", function() {
         }
       ]`,
     );
-    cy.updateCodeInput(".t--property-control-defaultvalue", defaultValue);
+    cy.updateCodeInput(
+      ".t--property-control-defaultselectedvalues",
+      defaultValue,
+    );
   });
 
   it("Copy and paste multiselect widget", () => {
@@ -57,7 +60,7 @@ describe("MultiSelect Widget Functionality", function() {
     );
     cy.get(widgetsPage.multiSelectWidget).should("have.length", 2);
 
-    cy.get(".t--property-control-defaultvalue")
+    cy.get(".t--property-control-defaultselectedvalues")
       .first()
       .click({ force: true })
       .find(".CodeMirror")

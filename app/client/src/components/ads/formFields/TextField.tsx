@@ -6,7 +6,7 @@ import {
 } from "redux-form";
 import { TextInput, InputType } from "design-system";
 import { Intent } from "constants/DefaultTheme";
-import FormFieldError from "./FieldError";
+import { FieldError } from "design-system";
 
 const renderComponent = (
   componentProps: FormTextFieldProps & {
@@ -22,7 +22,7 @@ const renderComponent = (
       {!componentProps.hideErrorMessage &&
         showError &&
         componentProps.meta.error && (
-          <FormFieldError error={showError && componentProps.meta.error} />
+          <FieldError error={showError && componentProps.meta.error} />
         )}
     </>
   );
