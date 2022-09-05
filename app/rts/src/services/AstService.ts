@@ -1,11 +1,18 @@
 import { extractIdentifiersFromCode } from "@shared/ast";
 
 export default class AstService {
-  static async getIdentifiersFromScript(script, evalVersion) {
+  static async getIdentifiersFromScript(
+    script,
+    evalVersion
+  ): Promise<any> {
     return new Promise((resolve, reject) => {
       try {
-        const identifiers = extractIdentifiersFromCode(script, evalVersion);
-        resolve(identifiers);
+        const extractions = extractIdentifiersFromCode(
+          script,
+          evalVersion
+        );
+
+        resolve(extractions);
       } catch (err) {
         reject(err);
       }

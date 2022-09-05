@@ -1,9 +1,10 @@
 import { Response } from "express";
 import { ValidationError } from "express-validator";
+import { StatusCodes } from "http-status-codes";
 
 type ErrorData = {
   error: string | string[];
-  validation_error?: ValidationError[];
+  validationErrors?: ValidationError[];
 };
 
 type ErrorBag = {
@@ -15,16 +16,16 @@ type ErrorBag = {
 type ResponseData = {
   success: boolean;
   message?: string;
-  data: any;
+  data: unknown; //setting unknown for now, to be modified later.
 };
 
 export default class BaseController {
   serverErrorMessaage = "Something went wrong";
   sendResponse(
     response: Response,
-    result: any,
+    result: unknown,
     message?: string,
-    code: number = 200
+    code: number = StatusCodes.OK
   ): Response<ResponseData> {
     return response.status(code).json({
       success: true,
@@ -37,7 +38,7 @@ export default class BaseController {
     response: Response,
     error: string,
     errorMessage,
-    code: number = 400
+    code: number = StatusCodes.BAD_REQUEST
   ): Response<ErrorBag> {
     let errorBag: ErrorBag = { success: false, message: error };
 
@@ -45,7 +46,7 @@ export default class BaseController {
       const validationError = errorMessage.array();
       errorBag.data = {
         error: [validationError[0].msg],
-        validation_error: validationError,
+        validationErrors: validationError,
       };
       //   errorBag.message = validationError[0].msg;
     } else {
