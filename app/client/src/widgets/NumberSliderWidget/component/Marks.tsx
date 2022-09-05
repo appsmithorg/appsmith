@@ -21,15 +21,13 @@ interface MarksProps {
   showMarksLabel: boolean;
 }
 
-const MarkWrapper = styled.div<Pick<MarksProps, "value" | "min" | "max">>(
-  ({ max, min, value }) => ({
-    position: "absolute",
-    top: 0,
-    zIndex: 2,
-    left: `${getPosition({ value, min, max })}%`,
-    pointerEvents: "none",
-  }),
-);
+const MarkWrapper = styled.div<{ position: number }>(({ position }) => ({
+  position: "absolute",
+  top: 0,
+  zIndex: 2,
+  left: `${position}%`,
+  pointerEvents: "none",
+}));
 
 const Mark = styled.div<Pick<MarksProps, "size">>(({ size }) => ({
   boxSizing: "border-box",
@@ -64,14 +62,12 @@ export const Marks = React.memo(
     if (!marks) return null;
 
     function transformStyles(
+      position: number,
       index: number,
       labelLength: number,
-      labelValue: number,
     ): React.CSSProperties {
       // Handle long labels
       if (labelLength > 4) {
-        const position = getPosition({ value: labelValue, min, max });
-
         // for labels on first 10 points on the slider
         if (index === 0 && position < 10) {
           return {
@@ -97,8 +93,10 @@ export const Marks = React.memo(
     const items = marks.map((mark, index) => {
       if (mark.value > max || mark.value < min) return null;
 
+      const position = getPosition({ value: mark.value, min, max });
+
       return (
-        <MarkWrapper key={index} max={max} min={min} value={mark.value}>
+        <MarkWrapper key={index} position={position}>
           <Mark
             className="slider-mark"
             size={size}
@@ -120,7 +118,7 @@ export const Marks = React.memo(
                 onChange(mark.value);
               }}
               style={{
-                ...transformStyles(index, mark.label.length, mark.value),
+                ...transformStyles(position, index, mark.label.length),
               }}
             >
               {mark.label}
