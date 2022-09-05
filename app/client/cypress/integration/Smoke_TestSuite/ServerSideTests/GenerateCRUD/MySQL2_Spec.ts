@@ -209,7 +209,7 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
   it("9. Verify Add/Insert from Deploy page - on Stores - new record", () => {
     deployMode.NavigateBacktoEditor();
     table.WaitUntilTableLoad();
-    ee.ExpandCollapseEntity("WIDGETS");
+    ee.ExpandCollapseEntity("Widgets");
     ee.ExpandCollapseEntity("Insert_Modal");
     ee.SelectEntityByName("insert_form");
     agHelper.Sleep(2000);
@@ -343,7 +343,7 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
     //agHelper.VerifyEvaluatedValue(tableCreateQuery);
 
     dataSources.RunQueryNVerifyResponseViews();
-    ee.ExpandCollapseEntity("DATASOURCES");
+    ee.ExpandCollapseEntity("Datasources");
     ee.ExpandCollapseEntity(dsName);
     ee.ActionContextMenuByEntityName(dsName, "Refresh");
     agHelper.AssertElementAbsence(ee._entityNameInExplorer("Stores"));

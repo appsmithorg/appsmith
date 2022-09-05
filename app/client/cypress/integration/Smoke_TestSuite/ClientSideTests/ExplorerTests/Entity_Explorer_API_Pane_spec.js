@@ -13,19 +13,19 @@ describe("Entity explorer API pane related testcases", function() {
     homePage.NavigateToHome();
     homePage.CreateNewWorkspace("EmptyMsgCheck");
     homePage.CreateAppInWorkspace("EmptyMsgCheck");
-    ee.ExpandCollapseEntity("WIDGETS");
+    ee.ExpandCollapseEntity("Widgets");
     agHelper.AssertElementVisible(
       locator._visibleTextSpan("No widget to display"),
     );
     agHelper.AssertElementVisible(locator._visibleTextDiv("NEW WIDGET"));
 
-    ee.ExpandCollapseEntity("QUERIES/JS");
+    ee.ExpandCollapseEntity("Queries/JS");
     agHelper.AssertElementVisible(
       locator._visibleTextSpan("No query/JS to display"),
     );
     agHelper.AssertElementVisible(locator._visibleTextDiv("NEW QUERY/JS"));
 
-    ee.ExpandCollapseEntity("DATASOURCES");
+    ee.ExpandCollapseEntity("Datasources");
     agHelper.AssertElementVisible(
       locator._visibleTextSpan("No datasource to display"),
     );
@@ -45,7 +45,7 @@ describe("Entity explorer API pane related testcases", function() {
       testdata.Get,
     );
     cy.ResponseStatusCheck(testdata.successStatusCode);
-    cy.CheckAndUnfoldEntityItem("QUERIES/JS");
+    cy.CheckAndUnfoldEntityItem("Queries/JS");
     ee.ActionContextMenuByEntityName("FirstAPI", "Show Bindings");
     cy.get(apiwidget.propertyList).then(function($lis) {
       expect($lis).to.have.length(5);

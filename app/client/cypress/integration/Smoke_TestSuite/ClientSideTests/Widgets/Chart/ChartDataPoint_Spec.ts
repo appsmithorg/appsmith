@@ -21,7 +21,7 @@ describe("Input widget test with default value from chart datapoint", () => {
     });
 
     it("1. Chart widget - Input widget test with default value from another Input widget", () => {
-        ee.SelectEntityByName("Input1", 'WIDGETS')
+        ee.SelectEntityByName("Input1", 'Widgets')
         propPane.UpdatePropertyFieldValue("Default Value", dataSet.bindChartData + "}}");
         agHelper.ValidateNetworkStatus('@updateLayout')
         ee.SelectEntityByName("Chart1")

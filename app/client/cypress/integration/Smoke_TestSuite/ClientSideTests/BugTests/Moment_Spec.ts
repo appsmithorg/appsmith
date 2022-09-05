@@ -112,7 +112,7 @@ describe("Bug #14299 - The data from the query does not show up on the widget", 
   it("4. Verify Deletion of the datasource after all created queries are Deleted", () => {
     deployMode.NavigateBacktoEditor();
     agHelper.AssertContains("ran successfully"); //runAstros triggered on PageLaoad of Edit page!
-    ee.ExpandCollapseEntity("QUERIES/JS");
+    ee.ExpandCollapseEntity("Queries/JS");
     ee.ActionContextMenuByEntityName("getAstronauts", "Delete", "Are you sure?");
     ee.ActionContextMenuByEntityName(
       "JSObject1",
@@ -121,7 +121,7 @@ describe("Bug #14299 - The data from the query does not show up on the widget", 
     );
     deployMode.DeployApp(locator._widgetInDeployed("tablewidget"), false);
     deployMode.NavigateBacktoEditor();
-    ee.ExpandCollapseEntity("DATASOURCES");
+    ee.ExpandCollapseEntity("Datasources");
     dataSources.DeleteDatasouceFromWinthinDS(dsName, 200); //ProductLines, Employees pages are still using this ds
   });
 });

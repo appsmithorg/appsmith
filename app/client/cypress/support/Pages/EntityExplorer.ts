@@ -55,7 +55,7 @@ export class EntityExplorer {
 
   public SelectEntityByName(
     entityNameinLeftSidebar: string,
-    section: "WIDGETS" | "QUERIES/JS" | "DATASOURCES" | "" = "",
+    section: "Widgets" | "Queries/JS" | "Datasources" | "" = "",
   ) {
     this.NavigateToSwitcher("explorer");
     if (section) this.ExpandCollapseEntity(section); //to expand respective section
@@ -160,7 +160,7 @@ export class EntityExplorer {
   }
 
   public ClonePage(pageName = "Page1") {
-    this.ExpandCollapseEntity("PAGES");
+    this.ExpandCollapseEntity("Pages");
     cy.get(this.getPageLocator(pageName))
       .trigger("mouseover")
       .click({ force: true });

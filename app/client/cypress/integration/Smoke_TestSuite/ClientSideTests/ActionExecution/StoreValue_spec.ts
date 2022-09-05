@@ -42,7 +42,7 @@ describe("storeValue Action test", () => {
       shouldCreateNewJSObj: true,
     });
 
-    ee.SelectEntityByName("Button1", "WIDGETS");
+    ee.SelectEntityByName("Button1", "Widgets");
     propPane.TypeTextIntoField("Label", "StoreTest");
     cy.get("@jsObjName").then((jsObj: any) => {
       propPane.SelectJSFunctionToExecute(
@@ -103,7 +103,7 @@ describe("storeValue Action test", () => {
     });
 
     // Button1
-    ee.SelectEntityByName("Button1", "WIDGETS");
+    ee.SelectEntityByName("Button1", "Widgets");
     propPane.UpdatePropertyFieldValue("Label", "StorePathTest");
     cy.get("@jsObjName").then((jsObj: any) => {
       propPane.SelectJSFunctionToExecute(
@@ -115,7 +115,7 @@ describe("storeValue Action test", () => {
 
     // Button 2
     ee.DragDropWidgetNVerify("buttonwidget", 100, 200);
-    ee.SelectEntityByName("Button2", "WIDGETS");
+    ee.SelectEntityByName("Button2", "Widgets");
     propPane.UpdatePropertyFieldValue("Label", "modifyStorePathTest");
     cy.get("@jsObjName").then((jsObj: any) => {
       propPane.SelectJSFunctionToExecute(
@@ -170,7 +170,7 @@ describe("storeValue Action test", () => {
       shouldCreateNewJSObj: true,
     });
 
-    ee.SelectEntityByName("Button1", "WIDGETS");
+    ee.SelectEntityByName("Button1", "Widgets");
     propPane.UpdatePropertyFieldValue("Label", "SetStore");
     cy.get("@jsObjName").then((jsObj: any) => {
       propPane.SelectJSFunctionToExecute(
@@ -180,7 +180,7 @@ describe("storeValue Action test", () => {
       );
     });
 
-    ee.SelectEntityByName("Button2", "WIDGETS");
+    ee.SelectEntityByName("Button2", "Widgets");
     propPane.UpdatePropertyFieldValue("Label", "ShowStore");
     cy.get("@jsObjName").then((jsObj: any) => {
       propPane.SelectJSFunctionToExecute(
