@@ -16,7 +16,7 @@ describe("Modal Widget Functionality", function() {
 
   it("2. Open Existing Modal from created Widgets list", () => {
     cy.get(".t--entity-name")
-      .contains("WIDGETS")
+      .contains("Widgets")
       .click();
     cy.get(".t--entity-name:contains(Modal1)").click();
     cy.get(".t--modal-widget").should("exist");
@@ -100,7 +100,7 @@ describe("Modal Widget Functionality", function() {
     cy.dragAndDropToCanvas("containerwidget", { x: 300, y: 300 });
     cy.get("#switcher--explorer").click();
     cy.get(".t--entity-name")
-      .contains("WIDGETS")
+      .contains("Widgets")
       .click();
 
     //select all widgets and copy

@@ -51,7 +51,7 @@ function ThemeColorControl(props: ThemeColorControlProps) {
       </div>
       {selectedColor && (
         <div className="pt-1 space-y-1">
-          <h3 className="text-gray-700">{startCase(selectedColor)}</h3>
+          <h3>{startCase(selectedColor)}</h3>
           <ColorPickerComponent
             autoFocus={autoFocus}
             changeColor={(color: string) => {

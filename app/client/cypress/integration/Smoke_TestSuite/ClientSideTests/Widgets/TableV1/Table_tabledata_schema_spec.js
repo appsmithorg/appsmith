@@ -59,7 +59,7 @@ describe("Table Widget", function() {
       .click()
       .wait(1000);
     cy.wait(30000);
-    cy.CheckAndUnfoldEntityItem("WIDGETS");
+    cy.CheckAndUnfoldEntityItem("Widgets");
     cy.actionContextMenuByEntityName("Switch1");
     cy.actionContextMenuByEntityName("Table1");
   });

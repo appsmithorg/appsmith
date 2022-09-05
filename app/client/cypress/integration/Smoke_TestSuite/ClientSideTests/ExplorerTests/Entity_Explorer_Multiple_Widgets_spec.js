@@ -51,7 +51,7 @@ describe("Entity explorer tests related to widgets and validation", function() {
   });
 
   it("Toggle between widgets in different pages using search functionality", function() {
-    cy.CheckAndUnfoldEntityItem("PAGES");
+    cy.CheckAndUnfoldEntityItem("Pages");
     cy.get(".t--entity-name")
       .contains("Page1")
       .click({ force: true });
