@@ -11,6 +11,7 @@ import org.jgrapht.Graph;
 import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.graph.DirectedMultigraph;
 
+import javax.annotation.PostConstruct;
 import java.util.Collection;
 import java.util.EnumSet;
 import java.util.HashSet;
@@ -79,6 +80,7 @@ public class PolicyGeneratorCE {
      */
     protected Graph<AclPermission, DefaultEdge> lateralGraph = new DirectedMultigraph<>(DefaultEdge.class);
 
+    @PostConstruct
     public void createPolicyGraph() {
 
         // Initialization of the hierarchical and lateral graphs by adding all the vertices
