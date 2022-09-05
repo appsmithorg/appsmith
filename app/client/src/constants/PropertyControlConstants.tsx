@@ -13,7 +13,7 @@ const ControlTypes = getPropertyControlTypes();
 export type ControlType = typeof ControlTypes[keyof typeof ControlTypes];
 
 export type PropertyPaneSectionConfig = {
-  sectionName: string;
+  sectionName: string | ((props: WidgetProps, propertyPath: string) => string);
   id?: string;
   children: PropertyPaneConfig[];
   collapsible?: boolean;

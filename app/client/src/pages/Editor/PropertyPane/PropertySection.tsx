@@ -13,6 +13,8 @@ import { useSelector } from "react-redux";
 import { getWidgetPropsForPropertyPane } from "selectors/propertyPaneSelectors";
 import styled from "constants/DefaultTheme";
 import { Colors } from "constants/Colors";
+import { WidgetProps } from "widgets/BaseWidget";
+import { isFunction } from "lodash";
 
 const SectionTitle = styled.div`
   display: grid;
@@ -74,7 +76,7 @@ const SectionWrapper = styled.div`
 
 type PropertySectionProps = {
   id: string;
-  name: string;
+  name: string | ((props: WidgetProps, propertyPath: string) => string);
   collapsible?: boolean;
   children?: ReactNode;
   childrenWrapperRef?: React.RefObject<HTMLDivElement>;
@@ -104,7 +106,11 @@ export const PropertySection = memo((props: PropertySectionProps) => {
     }
   }
 
-  const className = props.name
+  const sectionName = isFunction(props.name)
+    ? props.name(widgetProps, props.propertyPath || "")
+    : props.name;
+
+  const className = sectionName
     .split(" ")
     .join("")
     .toLowerCase();
@@ -114,7 +120,7 @@ export const PropertySection = memo((props: PropertySectionProps) => {
         className={`t--property-pane-section-collapse-${className}`}
         onClick={handleSectionTitleClick}
       >
-        <span>{props.name}</span>
+        <span>{sectionName}</span>
         {props.collapsible && (
           <Icon
             className={isOpen ? "open-collapse" : ""}

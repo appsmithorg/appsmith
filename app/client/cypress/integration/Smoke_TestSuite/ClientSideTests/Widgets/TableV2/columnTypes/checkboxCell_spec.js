@@ -67,6 +67,9 @@ describe("Checkbox column type funtionality test", () => {
   });
 
   it("3. Check the horizontal, vertical alignment of checkbox, and the cell background color", () => {
+    cy.get(".t--propertypane")
+      .contains("STYLE")
+      .click({ force: true });
     // Check horizontal alignment
     cy.get(".t--property-control-horizontalalignment .t--button-tab-CENTER")
       .first()
