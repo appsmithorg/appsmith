@@ -33,6 +33,8 @@ const CANVAS = "canvas";
 
 const ctx: Worker = self as any;
 
+const window: Worker = self as any;
+
 export let dataTreeEvaluator: DataTreeEvaluator | undefined;
 
 let replayMap: Record<string, ReplayEntity<any>>;
@@ -45,11 +47,11 @@ function messageEventListener(
     requestId: string,
   ) => any,
 ) {
-  return (e: MessageEvent) => {
+  return async (e: MessageEvent) => {
     const startTime = performance.now();
     const { method, requestData, requestId } = e.data;
     if (method) {
-      const responseData = fn(method, requestData, requestId);
+      const responseData = await fn(method, requestData, requestId);
       if (responseData) {
         const endTime = performance.now();
         try {
@@ -84,10 +86,7 @@ function messageEventListener(
 
 ctx.addEventListener(
   "message",
-  messageEventListener((method, requestData: any, requestId):
-    | EvalTreePayload
-    | boolean
-    | any => {
+  messageEventListener(async (method, requestData: any, requestId) => {
     switch (method) {
       case EVAL_WORKER_ACTIONS.SETUP: {
         setupEvaluationEnvironment();
@@ -344,8 +343,17 @@ ctx.addEventListener(
             url = `https://appsmith-packd.herokuapp.com/${requestData}`;
           }
           const oldKeys = Object.keys(self);
-          //@ts-expect-error test
-          self.importScripts(url);
+          try {
+            //@ts-expect-error test
+            self.importScripts(url);
+          } catch (e) {
+            await fetch(url)
+              .then((res) => res.text())
+              .then(function(text: string) {
+                eval(text);
+              });
+          }
+          // const text = await fetch(url).then((res) => res.());
           const newKeys = Object.keys(self);
           const latestKey = newKeys.filter((key) => !oldKeys.includes(key));
           //@ts-expect-error test
