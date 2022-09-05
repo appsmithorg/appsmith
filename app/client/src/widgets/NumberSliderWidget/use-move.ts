@@ -1,12 +1,14 @@
 import { useEffect, useRef, useState } from "react";
 import { clamp } from "./utils";
 
-export interface UseMousePosition {
+type MousePosition = {
   x: number;
   y: number;
-}
+};
 
-export function clampUseMovePosition(position: UseMousePosition) {
+type Direction = "ltr" | "rtl";
+
+export function clampUseMovePosition(position: MousePosition) {
   return {
     x: clamp(position.x, 0, 1),
     y: clamp(position.y, 0, 1),
@@ -19,9 +21,9 @@ interface useMoveHandlers {
 }
 
 export function useMove<T extends HTMLElement = HTMLDivElement>(
-  onChange: (value: UseMousePosition) => void,
+  onChange: (value: MousePosition) => void,
   handlers?: useMoveHandlers,
-  dir: "ltr" | "rtl" = "ltr",
+  dir: Direction = "ltr",
 ) {
   const ref = useRef<T>();
   const mounted = useRef<boolean>(false);
@@ -38,7 +40,7 @@ export function useMove<T extends HTMLElement = HTMLDivElement>(
   }, []);
 
   useEffect(() => {
-    const onScrub = ({ x, y }: UseMousePosition) => {
+    const onScrub = ({ x, y }: MousePosition) => {
       cancelAnimationFrame(frame.current);
 
       frame.current = requestAnimationFrame(() => {

@@ -649,19 +649,22 @@ export const entityDefinitions = {
     docUrl: "string",
   },
   NUMBER_SLIDER_WIDGET: {
-    "!doc": "Circular Progress is a simple UI widget used to show progress",
+    "!doc":
+      "Number slider widget is used to capture user feedback from a range of values",
     "!url": "https://docs.appsmith.com/widget-reference/circular-progress",
     isVisible: isVisible,
     value: "number",
   },
   CATEGORY_SLIDER_WIDGET: {
-    "!doc": "Circular Progress is a simple UI widget used to show progress",
+    "!doc":
+      "Category slider widget is used to capture user feedback from a range of categories",
     "!url": "https://docs.appsmith.com/widget-reference/circular-progress",
     isVisible: isVisible,
     value: "string",
   },
   RANGE_SLIDER_WIDGET: {
-    "!doc": "Circular Progress is a simple UI widget used to show progress",
+    "!doc":
+      "Range slider widget is used to capture user feedback from a range of values",
     "!url": "https://docs.appsmith.com/widget-reference/circular-progress",
     isVisible: isVisible,
     start: "number",

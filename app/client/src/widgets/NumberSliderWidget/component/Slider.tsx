@@ -168,15 +168,7 @@ const SliderComponent = (props: SliderComponentProps) => {
   ) => {
     if (!disabled) {
       switch (event.key) {
-        case "ArrowUp": {
-          event.preventDefault();
-          thumb.current?.focus();
-          const nextValue = Math.min(Math.max(_value + step, min), max);
-          throttledOnChangeEnd(nextValue);
-          setValue(nextValue);
-          break;
-        }
-
+        case "ArrowUp":
         case "ArrowRight": {
           event.preventDefault();
           thumb.current?.focus();
@@ -186,15 +178,7 @@ const SliderComponent = (props: SliderComponentProps) => {
           break;
         }
 
-        case "ArrowDown": {
-          event.preventDefault();
-          thumb.current?.focus();
-          const nextValue = Math.min(Math.max(_value - step, min), max);
-          throttledOnChangeEnd(nextValue);
-          setValue(nextValue);
-          break;
-        }
-
+        case "ArrowDown":
         case "ArrowLeft": {
           event.preventDefault();
           thumb.current?.focus();

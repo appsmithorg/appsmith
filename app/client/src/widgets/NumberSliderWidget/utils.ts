@@ -1,44 +1,40 @@
 import { Colors } from "constants/Colors";
 import { darkenColor } from "widgets/WidgetUtils";
 
-interface GetPosition {
+type Position = {
   value: number;
   min: number;
   max: number;
-}
+};
 
 /**
  *
  * @returns the position of value to be used in the Track component
  */
-export function getPosition({ max, min, value }: GetPosition) {
+export function getPosition({ max, min, value }: Position) {
   const position = ((value - min) / (max - min)) * 100;
   return Math.min(Math.max(position, 0), 100);
 }
 
-interface GetChangeValue {
+type ChangeValue = {
   value: number;
   min: number;
   max: number;
   step: number;
-  /**
-   * precision is used when we are using decimal numbers as step size
-   */
   precision?: number;
   /**
    * container width is passed in case of RangeSlider
    */
   containerWidth?: number;
-}
+};
 
 export function getChangeValue({
   containerWidth,
   max,
   min,
-  precision,
   step,
   value,
-}: GetChangeValue) {
+}: ChangeValue) {
   const left = !containerWidth
     ? value
     : Math.min(Math.max(value, 0), containerWidth) / containerWidth;
@@ -46,10 +42,6 @@ export function getChangeValue({
   const dx = left * (max - min);
 
   const nextValue = (dx !== 0 ? Math.round(dx / step) * step : 0) + min;
-
-  if (precision !== undefined) {
-    return Number(nextValue.toFixed(precision));
-  }
 
   return nextValue;
 }
@@ -67,13 +59,13 @@ export function clamp(value: number, min: number, max: number) {
   return Math.min(Math.max(value, min), max);
 }
 
-interface IsMarkedFilled {
+type MarkedFilled = {
   mark: { value: number; label?: any };
   offset?: number;
   value: number;
-}
+};
 
-export function isMarkedFilled({ mark, offset, value }: IsMarkedFilled) {
+export function isMarkedFilled({ mark, offset, value }: MarkedFilled) {
   return typeof offset === "number"
     ? mark.value >= offset && mark.value <= value
     : mark.value <= value;

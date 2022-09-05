@@ -1,15 +1,15 @@
 import { NumberSliderWidgetProps } from "./widget";
 
 export function minValueValidation(
-  min: any,
+  min: unknown,
   props: NumberSliderWidgetProps,
   _: any,
 ) {
   if (_.isNil(min) || min === "") {
     return {
-      isValid: true,
+      isValid: false,
       parsed: undefined,
-      messages: [""],
+      messages: ["This value is required"],
     };
   }
 
@@ -24,7 +24,7 @@ export function minValueValidation(
     };
   }
 
-  if (maxValue !== undefined && minValue >= maxValue) {
+  if (!_.isNil(maxValue) && minValue >= maxValue) {
     return {
       isValid: false,
       parsed: undefined,
@@ -40,15 +40,15 @@ export function minValueValidation(
 }
 
 export function maxValueValidation(
-  max: any,
+  max: unknown,
   props: NumberSliderWidgetProps,
   _: any,
 ) {
   if (_.isNil(max) || max === "") {
     return {
-      isValid: true,
+      isValid: false,
       parsed: undefined,
-      messages: [""],
+      messages: ["This value is required"],
     };
   }
 
@@ -63,7 +63,7 @@ export function maxValueValidation(
     };
   }
 
-  if (minValue !== undefined && maxValue <= minValue) {
+  if (!_.isNil(minValue) && maxValue <= minValue) {
     return {
       isValid: false,
       parsed: undefined,
@@ -79,7 +79,7 @@ export function maxValueValidation(
 }
 
 export function defaultValueValidation(
-  value: any,
+  value: unknown,
   props: NumberSliderWidgetProps,
   _: any,
 ) {
@@ -103,7 +103,7 @@ export function defaultValueValidation(
     };
   }
 
-  if (minValue !== undefined && defaultValue < minValue) {
+  if (!_.isNil(minValue) && defaultValue < minValue) {
     return {
       isValid: false,
       parsed: undefined,
@@ -111,7 +111,7 @@ export function defaultValueValidation(
     };
   }
 
-  if (maxValue !== undefined && defaultValue > maxValue) {
+  if (!_.isNil(maxValue) && defaultValue > maxValue) {
     return {
       isValid: false,
       parsed: undefined,
@@ -127,21 +127,21 @@ export function defaultValueValidation(
 }
 
 export function stepSizeValidation(
-  stepSize: any,
+  step: unknown,
   props: NumberSliderWidgetProps,
   _: any,
 ) {
-  if (_.isNil(stepSize) || stepSize === "") {
+  if (_.isNil(step) || step === "") {
     return {
-      isValid: true,
+      isValid: false,
       parsed: undefined,
-      messages: [""],
+      messages: ["This value is required"],
     };
   }
 
-  const step = Number(stepSize);
+  const stepValue = Number(step);
 
-  if (!Number.isFinite(step)) {
+  if (!Number.isFinite(stepValue)) {
     return {
       isValid: false,
       parsed: undefined,
@@ -149,7 +149,7 @@ export function stepSizeValidation(
     };
   }
 
-  if (step < 0.1) {
+  if (stepValue < 0.1) {
     return {
       isValid: false,
       parsed: undefined,
@@ -162,7 +162,7 @@ export function stepSizeValidation(
 
   const sliderRange = maxValue - minValue;
 
-  if (stepSize > sliderRange) {
+  if (stepValue > sliderRange) {
     return {
       isValid: false,
       parsed: undefined,

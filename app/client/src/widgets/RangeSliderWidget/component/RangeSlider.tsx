@@ -258,16 +258,7 @@ const RangeSliderComponent = (props: RangeSliderComponentProps) => {
   ) => {
     if (!disabled) {
       switch (event.key) {
-        case "ArrowUp": {
-          event.preventDefault();
-          const focusedIndex = getFocusedThumbIndex();
-          thumbs.current[focusedIndex].focus();
-          throttledSetRangedValue(
-            Math.min(Math.max(valueRef.current[focusedIndex] + step, min), max),
-            focusedIndex,
-          );
-          break;
-        }
+        case "ArrowUp":
         case "ArrowRight": {
           event.preventDefault();
           const focusedIndex = getFocusedThumbIndex();
@@ -279,16 +270,7 @@ const RangeSliderComponent = (props: RangeSliderComponentProps) => {
           break;
         }
 
-        case "ArrowDown": {
-          event.preventDefault();
-          const focusedIndex = getFocusedThumbIndex();
-          thumbs.current[focusedIndex].focus();
-          throttledSetRangedValue(
-            Math.min(Math.max(valueRef.current[focusedIndex] - step, min), max),
-            focusedIndex,
-          );
-          break;
-        }
+        case "ArrowDown":
         case "ArrowLeft": {
           event.preventDefault();
           const focusedIndex = getFocusedThumbIndex();
