@@ -5,6 +5,7 @@ const {
   AggregateHelper: agHelper,
   ApiPage,
   CommonLocators,
+  DataSources,
   EntityExplorer,
   JSEditor: jsEditor,
 } = ObjectsRegistry;
@@ -21,8 +22,7 @@ const jsObjectBody = `export default {
 }`;
 
 describe("Autocomplete tests", () => {
-  it("1. Bug #13613 Verify widgets autocomplete: ButtonGroup & Document viewer widget", () => {
-    EntityExplorer.DragDropWidgetNVerify(WIDGET.BUTTON_GROUP, 200, 200);
+  it("1. Bug #13613 Verify widgets autocomplete:  Document viewer widget", () => {
     EntityExplorer.DragDropWidgetNVerify(WIDGET.DOCUMENT_VIEWER, 200, 500);
 
     // create js object
@@ -37,17 +37,7 @@ describe("Autocomplete tests", () => {
     // focus on 5th line
     agHelper.GetNClick(jsEditor._lineinJsEditor(5));
 
-    // 1. Button group widget autocomplete verification
-    agHelper.TypeText(CommonLocators._codeMirrorTextArea, "ButtonGroup1.");
-    agHelper.GetNAssertElementText(CommonLocators._hints, "groupButtons");
-    agHelper.Sleep();
-    agHelper.GetNClickByContains(CommonLocators._hints, "groupButtons");
-    agHelper.TypeText(CommonLocators._codeMirrorTextArea, ".");
-    agHelper.GetNAssertElementText(CommonLocators._hints, "groupButton1");
-    agHelper.Sleep();
-    agHelper.GetNClickByContains(CommonLocators._hints, "groupButton1");
-
-    // 2. Document view widget autocomplete verification
+    // Document view widget autocomplete verification
 
     agHelper.SelectNRemoveLineText(CommonLocators._codeMirrorTextArea);
     agHelper.TypeText(CommonLocators._codeMirrorTextArea, "DocumentViewer1.");
