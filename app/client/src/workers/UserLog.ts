@@ -177,9 +177,9 @@ class UserLog {
     return returnData;
   }
   // returns the logs from the function execution after sanitising them and resets the logs object after that
-  public flushLogs(): LogObject[] {
+  public flushLogs(softFlush = false): LogObject[] {
     const userLogs = this.logs;
-    this.resetLogs();
+    if (!softFlush) this.resetLogs();
     // sanitise the data key of the user logs
     const sanitisedLogs = userLogs.map((log) => {
       return {
