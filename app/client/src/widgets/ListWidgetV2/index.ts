@@ -122,11 +122,11 @@ export const CONFIG = {
           const pathChunks = dataTreePath.split(".");
           const widgetName = pathChunks[0];
           const path = pathChunks.slice(1, pathChunks.length).join(".");
-          const { template } = parentProps;
+          const { flattenedChildCanvasWidgets = {} } = parentProps;
 
-          const templateWidget = Object.values(template).find(
-            (w) => w.widgetName === widgetName,
-          );
+          const templateWidget = Object.values(
+            flattenedChildCanvasWidgets,
+          ).find((w) => w.widgetName === widgetName);
 
           return `${parentProps.widgetName}.template.${templateWidget?.widgetId}.${path}`;
         },

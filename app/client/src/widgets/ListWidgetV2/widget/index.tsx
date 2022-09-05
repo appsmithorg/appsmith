@@ -11,14 +11,17 @@ import {
   difference,
 } from "lodash";
 import WidgetFactory from "utils/WidgetFactory";
-import BaseWidget, { WidgetProps } from "widgets/BaseWidget";
+import BaseWidget, { WidgetProps, WidgetOperation } from "widgets/BaseWidget";
 import { RenderModes, WidgetType } from "constants/WidgetConstants";
 import ListComponent, {
   ListComponentEmpty,
   ListComponentLoading,
 } from "../component";
 import propertyPaneConfig from "./propertyConfig";
-import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
+import {
+  EventType,
+  ExecuteTriggerPayload,
+} from "constants/AppsmithActionConstants/ActionConstants";
 import {
   combineDynamicBindings,
   getDynamicBindings,
@@ -33,16 +36,22 @@ import { entityDefinitions } from "utils/autocomplete/EntityDefinitions";
 import { PrivateWidgets } from "entities/DataTree/dataTreeFactory";
 import { klona } from "klona";
 import { generateReactKey } from "utils/generators";
+import MetaWidgetContextProvider from "../../MetaWidgetContextProvider";
+import { BatchPropertyUpdatePayload } from "actions/controlActions";
 
 export type DynamicPathList = Record<string, string[]>;
 
-export type Template = Record<string, FlattenedWidgetProps>;
+type MetaWidget = FlattenedWidgetProps & {
+  __index: number;
+};
+
+export type MetaWidgets = Record<string, MetaWidget>;
 
 export type GenerateMetaWidgetOptions = {
   parentId: string;
   widgetId?: string; // TODO: (Ashit) Remove this
   templateWidgetId?: string;
-  metaWidgets?: Template;
+  metaWidgets?: MetaWidgets;
   key: string; // TODO: (Ashit) - Make this field optional and use hash of data items
   prevFlattenedChildCanvasWidgets: ListWidgetProps<
     WidgetProps
@@ -51,6 +60,13 @@ export type GenerateMetaWidgetOptions = {
 
 type MetaWidgetIdCache = {
   [key: string]: Record<string, string>;
+};
+
+type MetaWidgetsReferenceData = {
+  [key: string]: {
+    index: number;
+    templateWidgetId: string;
+  };
 };
 
 type ListWidgetState = {
@@ -99,6 +115,11 @@ class ListWidget extends BaseWidget<
   currentViewMetaWidgetsRef: Set<string>;
 
   /**
+   * Contains metadata for each meta widget generated, eg - index, actual widgetId that was created from (templateWidget)
+   */
+  metaWidgetsReferenceData: MetaWidgetsReferenceData;
+
+  /**
    * returns the property pane config of the widget
    */
   static getPropertyPaneConfig() {
@@ -134,6 +155,7 @@ class ListWidget extends BaseWidget<
 
     this.metaWidgetIdCache = {};
     this.currentViewMetaWidgetsRef = new Set();
+    this.metaWidgetsReferenceData = {};
   }
 
   componentDidMount() {
@@ -491,11 +513,23 @@ class ListWidget extends BaseWidget<
       set(metaWidget, dynamicPath, dynamicValue);
     });
 
-    metaWidgets[metaWidget.widgetId] = metaWidget;
+    this.updateMetaWidgetReferenceData(metaWidget, templateWidgetId);
+
+    metaWidgets[metaWidget.widgetId] = metaWidget as MetaWidget;
 
     return {
       metaWidgets,
       metaWidgetId,
+    };
+  };
+
+  updateMetaWidgetReferenceData = (
+    metaWidget: FlattenedWidgetProps,
+    templateWidgetId: string,
+  ) => {
+    this.metaWidgetsReferenceData[metaWidget.widgetId] = {
+      index: metaWidget?.__index,
+      templateWidgetId: templateWidgetId,
     };
   };
 
@@ -714,6 +748,79 @@ class ListWidget extends BaseWidget<
 
   onClientPageChange = (page: number) => this.setState({ page });
 
+  overrideExecuteAction = (triggerPayload: ExecuteTriggerPayload) => {
+    const { id: metaWidgetId } = triggerPayload?.source || {};
+
+    if (metaWidgetId) {
+      const metadata = this.metaWidgetsReferenceData[metaWidgetId];
+      const { listData = [] } = this.props;
+
+      const globalContext = {
+        currentIndex: metadata.index,
+        currentItem: listData[metadata.index],
+        ...triggerPayload.globalContext,
+      };
+
+      const payload = {
+        ...triggerPayload,
+        globalContext,
+      };
+
+      super.executeAction(payload);
+    } else {
+      log.error(
+        `LIST_WIDGET_V2 ${this.props.widgetName} - meta widget not found on "executeAction" call`,
+      );
+    }
+  };
+
+  overrideBatchUpdateWidgetProperty = (
+    metaWidgetId: string,
+    updates: BatchPropertyUpdatePayload,
+    shouldReplay: boolean,
+  ) => {
+    const { templateWidgetId } = this.metaWidgetsReferenceData[metaWidgetId];
+
+    this.context?.batchUpdateWidgetProperty?.(
+      templateWidgetId,
+      updates,
+      shouldReplay,
+    );
+  };
+
+  overrideUpdateWidget = (
+    operation: WidgetOperation,
+    metaWidgetId: string,
+    payload: any,
+  ) => {
+    const { templateWidgetId } = this.metaWidgetsReferenceData[metaWidgetId];
+
+    this.context?.updateWidget?.(operation, templateWidgetId, payload);
+  };
+
+  overrideUpdateWidgetProperty = (
+    metaWidgetId: string,
+    propertyName: string,
+    propertyValue: any,
+  ) => {
+    const { templateWidgetId } = this.metaWidgetsReferenceData[metaWidgetId];
+
+    this.context?.updateWidgetProperty?.(
+      templateWidgetId,
+      propertyName,
+      propertyValue,
+    );
+  };
+
+  overrideDeleteWidgetProperty = (
+    metaWidgetId: string,
+    propertyPaths: string[],
+  ) => {
+    const { templateWidgetId } = this.metaWidgetsReferenceData[metaWidgetId];
+
+    this.context?.deleteWidgetProperty?.(templateWidgetId, propertyPaths);
+  };
+
   /**
    * view that is rendered in editor
    */
@@ -780,7 +887,15 @@ class ListWidget extends BaseWidget<
         key={`list-widget-page-${this.state.page}`}
         listData={this.props.listData || []}
       >
-        {this.renderChildren()}
+        <MetaWidgetContextProvider
+          batchUpdateWidgetProperty={this.overrideBatchUpdateWidgetProperty}
+          deleteWidgetProperty={this.overrideDeleteWidgetProperty}
+          executeAction={this.overrideExecuteAction}
+          updateWidget={this.overrideUpdateWidget}
+          updateWidgetProperty={this.overrideUpdateWidgetProperty}
+        >
+          {this.renderChildren()}
+        </MetaWidgetContextProvider>
         {shouldPaginate &&
           (serverSidePaginationEnabled ? (
             <ServerSideListPagination
@@ -825,7 +940,6 @@ export interface ListWidgetProps<T extends WidgetProps> extends WidgetProps {
   mainContainerId?: string;
   onListItemClick?: string;
   shouldScrollContents?: boolean;
-  template: Template;
 }
 
 export default ListWidget;
