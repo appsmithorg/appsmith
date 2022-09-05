@@ -32,7 +32,7 @@ describe("Entity explorer datasource structure", function() {
       .should("have.value", "MyQuery")
       .blur();
     cy.WaitAutoSave();
-    cy.CheckAndUnfoldEntityItem("DATASOURCES");
+    cy.CheckAndUnfoldEntityItem("Datasources");
     cy.get(".t--entity-name")
       .contains(datasourceName)
       .click({ force: true });
@@ -65,7 +65,7 @@ describe("Entity explorer datasource structure", function() {
     );
 
     cy.deleteQueryUsingContext();
-    cy.CheckAndUnfoldEntityItem("QUERIES/JS");
+    cy.CheckAndUnfoldEntityItem("Queries/JS");
     cy.GlobalSearchEntity("MyQuery");
     cy.get(`.t--entity-name:contains(MyQuery)`)
       .scrollIntoView()
@@ -111,7 +111,7 @@ describe("Entity explorer datasource structure", function() {
     // cy.xpath(explorer.datsourceEntityPopover)
     //   .last()
     //   .click({ force: true });
-    ee.ExpandCollapseEntity("DATASOURCES");
+    ee.ExpandCollapseEntity("Datasources");
     cy.actionContextMenuByEntityName(datasourceName, "Refresh");
     cy.wait("@getDatasourceStructure").should(
       "have.nested.property",
@@ -133,7 +133,7 @@ describe("Entity explorer datasource structure", function() {
 
     cy.typeValueNValidate(`DROP TABLE public.${tableName}`);
     cy.runQuery();
-    ee.ExpandCollapseEntity("DATASOURCES");
+    ee.ExpandCollapseEntity("Datasources");
     cy.actionContextMenuByEntityName(datasourceName, "Refresh");
     cy.wait("@getDatasourceStructure").should(
       "have.nested.property",

@@ -8,7 +8,7 @@ describe("Entity explorer tests related to widgets and validation", function() {
   });
 
   it("Widget edit/delete/copy to clipboard validation", function() {
-    cy.CheckAndUnfoldEntityItem("WIDGETS");
+    cy.CheckAndUnfoldEntityItem("Widgets");
     cy.selectEntityByName("Container4");
     cy.get(".t--entity-collapse-toggle")
       .eq(4)

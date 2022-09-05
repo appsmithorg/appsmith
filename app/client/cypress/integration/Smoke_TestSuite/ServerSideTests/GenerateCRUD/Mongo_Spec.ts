@@ -31,10 +31,7 @@ describe("Validate Mongo CRUD with JSON Form", () => {
       ee.AddNewPage();
       agHelper.GetNClick(homePage._buildFromDataTableActionCard);
       agHelper.GetNClick(dataSources._selectDatasourceDropdown);
-      agHelper.GetNClickByContains(
-        dataSources._dropdownOption,
-        dsName,
-      )
+      agHelper.GetNClickByContains(dataSources._dropdownOption, dsName);
     });
     agHelper.ValidateNetworkStatus("@getDatasourceStructure"); //Making sure table dropdown is populated
     agHelper.GetNClick(dataSources._selectTableDropdown);
@@ -73,7 +70,7 @@ describe("Validate Mongo CRUD with JSON Form", () => {
     deployMode.NavigateBacktoEditor();
     table.WaitUntilTableLoad(1, 0);
     //Delete the test data
-    ee.ExpandCollapseEntity("PAGES");
+    ee.ExpandCollapseEntity("Pages");
     ee.ActionContextMenuByEntityName("CoffeeCafe", "Delete", "Are you sure?");
     agHelper.ValidateNetworkStatus("@deletePage", 200);
     deployMode.DeployApp();

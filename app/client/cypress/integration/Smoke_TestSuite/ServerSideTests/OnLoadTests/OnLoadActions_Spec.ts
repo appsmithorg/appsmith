@@ -17,7 +17,7 @@ describe("Layout OnLoad Actions tests", function() {
   });
 
   it("1. Bug 8595: OnPageLoad execution - when No api to run on Pageload", function() {
-    ee.SelectEntityByName("WIDGETS");
+    ee.SelectEntityByName("Widgets");
     ee.SelectEntityByName("Page1");
     cy.url().then((url) => {
       const pageid = url
@@ -67,7 +67,7 @@ describe("Layout OnLoad Actions tests", function() {
     //apiPage.RunAPI();
 
     //Adding dependency in right order matters!
-    ee.ExpandCollapseEntity("WIDGETS");
+    ee.ExpandCollapseEntity("Widgets");
     ee.SelectEntityByName("Image1");
     propPane.UpdatePropertyFieldValue("Image", `{{RandomFlora.data}}`);
 
@@ -169,7 +169,7 @@ describe("Layout OnLoad Actions tests", function() {
   });
 
   it("3. Bug 10049, 10055: Dependency not executed in expected order in layoutOnLoadActions when dependency added via URL", function() {
-    ee.SelectEntityByName("Genderize", "QUERIES/JS");
+    ee.SelectEntityByName("Genderize", "Queries/JS");
     ee.ActionContextMenuByEntityName("Genderize", "Delete", "Are you sure?");
 
     apiPage.CreateAndFillApi(
