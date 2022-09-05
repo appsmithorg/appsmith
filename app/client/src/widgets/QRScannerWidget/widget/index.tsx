@@ -37,7 +37,7 @@ class QRScannerWidget extends BaseWidget<QRScannerWidgetProps, WidgetState> {
           },
           {
             propertyName: "isDisabled",
-            label: "Disable",
+            label: "Disabled",
             helpText: "Disables input to this widget",
             controlType: "SWITCH",
             isJSConvertible: true,
@@ -247,7 +247,7 @@ class QRScannerWidget extends BaseWidget<QRScannerWidgetProps, WidgetState> {
           },
           {
             propertyName: "isDisabled",
-            label: "Disable",
+            label: "Disabled",
             helpText: "Disables input to this widget",
             controlType: "SWITCH",
             isJSConvertible: true,
