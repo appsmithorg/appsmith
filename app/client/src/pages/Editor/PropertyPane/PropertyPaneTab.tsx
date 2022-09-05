@@ -19,7 +19,7 @@ const StyledTabComponent = styled(TabComponent)`
 
 const StyledTabs = styled(Tabs)`
   position: sticky;
-  top: 90px;
+  top: 46px;
   z-index: 3;
   background: ${Colors.WHITE};
   padding: 0px 12px;
@@ -30,9 +30,15 @@ const StyledTabs = styled(Tabs)`
     border: 0;
     margin: 0;
   }
+
   .react-tabs__tab .tab-title {
     font-weight: 500;
     color: ${Colors.GRAY_700};
+  }
+
+  .react-tabs__tab {
+    border: 2px solid transparent;
+    bottom: -2px;
   }
 
   .react-tabs__tab--selected .tab-title {
@@ -47,8 +53,9 @@ const StyledTabs = styled(Tabs)`
   }
 
   .react-tabs__tab--selected {
-    border: 0;
+    border-width: 2px;
     border-radius: 0;
+    border-color: transparent;
     border-bottom: 2px solid ${Colors.PRIMARY_ORANGE};
   }
 

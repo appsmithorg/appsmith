@@ -305,7 +305,7 @@ describe("Validate Mongo Query Pane Validations", () => {
     });
     agHelper.ActionContextMenuWithInPane("Delete");
 
-    ee.ExpandCollapseEntity("DATASOURCES");
+    ee.ExpandCollapseEntity("Datasources");
     ee.ExpandCollapseEntity(dsName);
     ee.ActionContextMenuByEntityName(dsName, "Refresh");
     agHelper.AssertElementVisible(ee._entityNameInExplorer("AuthorNAwards"));
@@ -622,7 +622,7 @@ describe("Validate Mongo Query Pane Validations", () => {
     deployMode.NavigateBacktoEditor();
     table.WaitUntilTableLoad();
     //Delete the test data
-    ee.ExpandCollapseEntity("PAGES");
+    ee.ExpandCollapseEntity("Pages");
     ee.ActionContextMenuByEntityName(
       "AuthorNAwards",
       "Delete",
@@ -644,7 +644,7 @@ describe("Validate Mongo Query Pane Validations", () => {
 
     dataSources.RunQuery();
     agHelper.ActionContextMenuWithInPane("Delete");
-    ee.ExpandCollapseEntity("DATASOURCES");
+    ee.ExpandCollapseEntity("Datasources");
     ee.ExpandCollapseEntity(dsName);
     ee.ActionContextMenuByEntityName(dsName, "Refresh");
     agHelper.AssertElementAbsence(ee._entityNameInExplorer("AuthorNAwards"));
@@ -740,7 +740,7 @@ describe("Validate Mongo Query Pane Validations", () => {
     agHelper.ActionContextMenuWithInPane("Delete");
 
     //Execute a find query on this collection to see if dates are fetched properly
-    ee.ExpandCollapseEntity("DATASOURCES");
+    ee.ExpandCollapseEntity("Datasources");
     ee.ExpandCollapseEntity(dsName);
     ee.ActionContextMenuByEntityName(dsName, "Refresh");
     agHelper.AssertElementVisible(ee._entityNameInExplorer("BirthNDeath"));
@@ -761,7 +761,7 @@ describe("Validate Mongo Query Pane Validations", () => {
     agHelper.FocusElement(locator._codeMirrorTextArea);
     dataSources.RunQuery();
 
-    ee.ExpandCollapseEntity("DATASOURCES");
+    ee.ExpandCollapseEntity("Datasources");
     ee.ExpandCollapseEntity(dsName);
     ee.ActionContextMenuByEntityName(dsName, "Refresh");
     agHelper.AssertElementAbsence(ee._entityNameInExplorer("BirthNDeath"));
@@ -769,7 +769,7 @@ describe("Validate Mongo Query Pane Validations", () => {
 
   it("20. Verify Deletion of the datasource", () => {
     //Delete the test data
-    // ee.expandCollapseEntity("PAGES")
+    // ee.expandCollapseEntity("Pages")
     // ee.ActionContextMenuByEntityName("Page1", "Delete", "Are you sure?"); //Cant be deleted since this is the Home page!
     // agHelper.ValidateNetworkStatus("@deletePage", 200);
     deployMode.DeployApp();

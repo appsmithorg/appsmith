@@ -62,7 +62,7 @@ describe("Table Widget Functionality", function() {
     cy.get(commonlocators.editPropBackButton).click();
     cy.openPropertyPane("tablewidget");
     // Confirm if isSortable is true
-    cy.get(commonlocators.isSortable).should("be.checked");
+    cy.get(commonlocators.isSortable_tablev1).should("be.checked");
     // Publish App
     cy.PublishtheApp();
     // Confirm Current order
@@ -98,7 +98,7 @@ describe("Table Widget Functionality", function() {
     cy.openPropertyPane("tablewidget");
     // Disable isSortable
     // Confirm if isSortable is false
-    cy.togglebarDisable(commonlocators.isSortable);
+    cy.togglebarDisable(commonlocators.isSortable_tablev1);
 
     // Publish App
     cy.PublishtheApp();

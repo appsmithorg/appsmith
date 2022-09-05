@@ -5,7 +5,6 @@ type FeatureFlags = {
   SNIPPET?: boolean;
   GIT?: boolean;
   GIT_IMPORT?: boolean;
-  PROPERTY_PANE_GROUPING?: boolean;
 };
 
 export default FeatureFlags;

@@ -10,7 +10,8 @@ import {
   TextSize,
 } from "constants/WidgetConstants";
 import { Icon, IconSize } from "design-system";
-import { isEqual, get } from "lodash";
+import { get } from "lodash";
+import equal from "fast-deep-equal/es6";
 import ModalComponent from "components/designSystems/appsmith/ModalComponent";
 import { Color, Colors } from "constants/Colors";
 import FontLoader from "./FontLoader";
@@ -242,7 +243,7 @@ class TextComponent extends React.Component<TextComponentProps, State> {
   };
 
   componentDidUpdate = (prevProps: TextComponentProps) => {
-    if (!isEqual(prevProps, this.props)) {
+    if (!equal(prevProps, this.props)) {
       if (this.props.overflow === OverflowTypes.TRUNCATE) {
         const textRef = get(this.textRef, "current.textRef");
         if (textRef) {

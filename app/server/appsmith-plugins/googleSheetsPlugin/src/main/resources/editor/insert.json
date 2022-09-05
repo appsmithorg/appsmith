@@ -36,7 +36,7 @@
           "conditionals": {
             "show": "{{actionConfiguration.formData.smartSubstitution.data === true && actionConfiguration.formData.entityType.data === 'ROWS' && actionConfiguration.formData.command.data === 'INSERT_ONE'}}"
           },
-          "placeholderText": "{\n  name: {{nameInput.text}},\n  dob: {{dobPicker.formattedDate}},\n  gender: {{genderSelect.selectedOptionValue}} \n}"
+          "placeholderText": "{\n  \"name\": {{nameInput.text}},\n  \"dob\": {{dobPicker.formattedDate}},\n  \"gender\": {{genderSelect.selectedOptionValue}} \n}"
         },
         {
           "label": "Row Object",
@@ -49,7 +49,7 @@
           "conditionals": {
             "show": "{{actionConfiguration.formData.smartSubstitution.data === false && actionConfiguration.formData.entityType.data === 'ROWS' && actionConfiguration.formData.command.data === 'INSERT_ONE'}}"
           },
-          "placeholderText": "{\n  name: {{nameInput.text}},\n  dob: {{dobPicker.formattedDate}},\n  gender: {{genderSelect.selectedOptionValue}} \n}"
+          "placeholderText": "{\n  \"name\": {{nameInput.text}},\n  \"dob\": {{dobPicker.formattedDate}},\n  \"gender\": {{genderSelect.selectedOptionValue}} \n}"
         },
         {
           "label": "Row Object(s)",
@@ -61,7 +61,7 @@
           "conditionals": {
             "show": "{{actionConfiguration.formData.smartSubstitution.data === true && ((actionConfiguration.formData.entityType.data === 'ROWS' && actionConfiguration.formData.command.data === 'INSERT_MANY') || (actionConfiguration.formData.entityType.data === 'SPREADSHEET' && actionConfiguration.formData.command.data === 'INSERT_ONE'))}}"
           },
-          "placeholderText": "[{\n  name: {{nameInput.text}},\n  dob: {{dobPicker.formattedDate}},\n  gender: {{genderSelect.selectedOptionValue}} \n}]"
+          "placeholderText": "[{\n  \"name\": {{nameInput.text}},\n  \"dob\": {{dobPicker.formattedDate}},\n  \"gender\": {{genderSelect.selectedOptionValue}} \n}]"
         },
         {
           "label": "Row Object(s)",
@@ -73,7 +73,7 @@
           "conditionals": {
             "show": "{{actionConfiguration.formData.smartSubstitution.data === false && ((actionConfiguration.formData.entityType.data === 'ROWS' && actionConfiguration.formData.command.data === 'INSERT_MANY') || (actionConfiguration.formData.entityType.data === 'SPREADSHEET' && actionConfiguration.formData.command.data === 'INSERT_ONE'))}}"
           },
-          "placeholderText": "[{\n  name: {{nameInput.text}},\n  dob: {{dobPicker.formattedDate}},\n  gender: {{genderSelect.selectedOptionValue}} \n}]"
+          "placeholderText": "[{\n  \"name\": {{nameInput.text}},\n  \"dob\": {{dobPicker.formattedDate}},\n  \"gender\": {{genderSelect.selectedOptionValue}} \n}]"
         }
       ]
     }

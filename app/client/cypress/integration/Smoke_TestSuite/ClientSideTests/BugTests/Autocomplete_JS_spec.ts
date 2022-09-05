@@ -135,7 +135,7 @@ describe("Autocomplete tests", () => {
     ApiPage.CreateAndFillApi("https://mock-api.appsmith.com/users");
     ApiPage.RunAPI();
     // Using same js object
-    EntityExplorer.SelectEntityByName("JSObject1", "QUERIES/JS");
+    EntityExplorer.SelectEntityByName("JSObject1", "Queries/JS");
     agHelper.GetNClick(jsEditor._lineinJsEditor(5));
     agHelper.SelectNRemoveLineText(CommonLocators._codeMirrorTextArea);
     //agHelper.GetNClick(jsEditor._lineinJsEditor(5));

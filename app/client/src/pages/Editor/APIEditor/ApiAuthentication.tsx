@@ -11,7 +11,7 @@ import {
 import history from "utils/history";
 import { getQueryParams } from "utils/URLUtils";
 import { AuthType } from "entities/Datasource/RestAPIForm";
-import { API_EDITOR_FORM_NAME } from "constants/forms";
+import { API_EDITOR_FORM_NAME } from "@appsmith/constants/forms";
 import { formValueSelector } from "redux-form";
 import { AppState } from "@appsmith/reducers";
 import { ReactComponent as SheildSuccess } from "assets/icons/ads/shield-success.svg";
