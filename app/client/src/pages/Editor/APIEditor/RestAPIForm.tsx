@@ -7,11 +7,11 @@ import {
   reduxForm,
 } from "redux-form";
 import styled from "styled-components";
-import { API_EDITOR_FORM_NAME } from "constants/forms";
+import { API_EDITOR_FORM_NAME } from "@appsmith/constants/forms";
 import { Action } from "entities/Action";
 import PostBodyData from "./PostBodyData";
 import { EMPTY_RESPONSE } from "components/editorComponents/ApiResponseView";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import { getApiName } from "selectors/formSelectors";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import { Text, TextType } from "design-system";

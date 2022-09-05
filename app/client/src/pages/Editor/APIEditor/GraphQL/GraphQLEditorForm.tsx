@@ -8,10 +8,10 @@ import {
 } from "redux-form";
 import classNames from "classnames";
 import styled from "styled-components";
-import { API_EDITOR_FORM_NAME } from "constants/forms";
+import { API_EDITOR_FORM_NAME } from "@appsmith/constants/forms";
 import { Action } from "entities/Action";
 import { EMPTY_RESPONSE } from "components/editorComponents/ApiResponseView";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import { getApiName } from "selectors/formSelectors";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import useHorizontalResize from "utils/hooks/useHorizontalResize";

@@ -4,12 +4,18 @@ import { change, formValueSelector } from "redux-form";
 import FormRow from "components/editorComponents/FormRow";
 import { PaginationType } from "entities/Action";
 import RadioFieldGroup from "components/editorComponents/form/fields/RadioGroupField";
-import { Text, TextType, TooltipComponent as Tooltip } from "design-system";
+import {
+  Text,
+  TextType,
+  TooltipComponent as Tooltip,
+  Dropdown,
+  Checkbox,
+  DropdownOption,
+} from "design-system";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
-import { Dropdown, Checkbox, DropdownOption } from "components/ads";
 import { AnyAction, bindActionCreators, Dispatch } from "redux";
 import { connect } from "react-redux";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import { FormLabel } from "components/editorComponents/form/fields/StyledFormComponents";
 import DynamicTextField from "components/editorComponents/form/fields/DynamicTextField";
 import { Colors } from "constants/Colors";
