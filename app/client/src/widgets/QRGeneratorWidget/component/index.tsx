@@ -64,6 +64,8 @@ class TextComponent extends React.Component<TextComponentProps, State> {
     }
   };
 
+  // TODO: Whenever prepping for production, need to solve this -
+  // https://github.com/appsmithorg/appsmith/pull/15990#discussion_r962672349
   componentDidUpdate = (prevProps: TextComponentProps) => {
     if (!isEqual(prevProps, this.props)) {
       if (this.props.overflow === OverflowTypes.TRUNCATE) {
