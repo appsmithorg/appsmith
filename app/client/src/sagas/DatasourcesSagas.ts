@@ -9,6 +9,7 @@ import {
 } from "redux-saga/effects";
 import { change, getFormValues, initialize } from "redux-form";
 import _, { merge, isEmpty } from "lodash";
+import equal from "fast-deep-equal/es6";
 import {
   ReduxAction,
   ReduxActionErrorTypes,
@@ -47,7 +48,7 @@ import {
   API_EDITOR_FORM_NAME,
   DATASOURCE_DB_FORM,
   DATASOURCE_REST_API_FORM,
-} from "constants/forms";
+} from "@appsmith/constants/forms";
 import { validateResponse } from "./ErrorSagas";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getFormData } from "selectors/formSelectors";
@@ -521,7 +522,7 @@ function* testDatasourceSaga(actionPayload: ReduxAction<Datasource>) {
     id: actionPayload.payload.id as any,
   };
 
-  if (!_.isEqual(initialValues, values)) {
+  if (!equal(initialValues, values)) {
     delete payload.id;
   }
 
@@ -685,7 +686,7 @@ function* updateDraftsSaga() {
     // @ts-expect-error: values is of type unknown
     values.id,
   );
-  if (_.isEqual(values, datasource)) {
+  if (equal(values, datasource)) {
     yield put({
       type: ReduxActionTypes.DELETE_DATASOURCE_DRAFT,
       payload: { id: values.id },

@@ -37,7 +37,7 @@ describe("Git sync Bug #10773", function() {
     cy.commitAndPush();
     cy.wait(2000);
     cy.createGitBranch(tempBranch);
-    cy.CheckAndUnfoldEntityItem("PAGES");
+    cy.CheckAndUnfoldEntityItem("Pages");
     // verify tempBranch should contain this page
     cy.get(`.t--entity-name:contains("${pagename}")`).should("be.visible");
     cy.get(`.t--entity-name:contains("${pagename}")`).click();
@@ -52,11 +52,11 @@ describe("Git sync Bug #10773", function() {
     cy.get(gitSyncLocators.closeGitSyncModal).click();
     // verify ChildPage is not on master
     cy.switchGitBranch(mainBranch);
-    cy.CheckAndUnfoldEntityItem("PAGES");
+    cy.CheckAndUnfoldEntityItem("Pages");
     cy.get(`.t--entity-name:contains("${pagename}")`).should("not.exist");
     // create another branch and verify deleted page doesn't exist on it
     cy.createGitBranch(tempBranch0);
-    cy.CheckAndUnfoldEntityItem("PAGES");
+    cy.CheckAndUnfoldEntityItem("Pages");
     cy.get(`.t--entity-name:contains("${pagename}")`).should("not.exist");
   });
 });
@@ -76,7 +76,7 @@ describe("Git Bug: Fix clone page issue where JSObject are not showing up in des
       cy.createTestGithubRepo(repoName);
       cy.connectToGitRepo(repoName);
     });
-    ee.ExpandCollapseEntity("QUERIES/JS", true);
+    ee.ExpandCollapseEntity("Queries/JS", true);
     // create JS object and validate its data on Page1
     cy.createJSObject('return "Success";');
     cy.get(`.t--entity-name:contains("Page1")`)
@@ -101,7 +101,7 @@ describe("Git Bug: Fix clone page issue where JSObject are not showing up in des
       "response.body.responseMeta.status",
       201,
     );
-    cy.CheckAndUnfoldEntityItem("QUERIES/JS");
+    cy.CheckAndUnfoldEntityItem("Queries/JS");
     // verify jsObject is not duplicated
     cy.get(`.t--entity-name:contains(${jsObject})`).should("have.length", 1);
     cy.xpath("//input[@class='bp3-input' and @value='Success']").should(
@@ -133,12 +133,12 @@ describe("Git Bug: Fix clone page issue where JSObject are not showing up in des
     // create a new branch, clone page and validate jsObject data binding
     cy.createGitBranch(tempBranch);
     cy.wait(2000);
-    cy.CheckAndUnfoldEntityItem("PAGES");
+    cy.CheckAndUnfoldEntityItem("Pages");
     cy.get(".t--entity-name:contains(Page1)")
       .last()
       .trigger("mouseover")
       .click({ force: true });
-    cy.CheckAndUnfoldEntityItem("QUERIES/JS");
+    cy.CheckAndUnfoldEntityItem("Queries/JS");
     // verify jsObject is not duplicated
     cy.get(`.t--entity-name:contains(${jsObject})`).should("have.length", 1);
     cy.xpath("//input[@class='bp3-input' and @value='Success']").should(
@@ -174,7 +174,7 @@ describe("Git synced app with JSObject", function() {
       cy.CreateAppForWorkspace(newWorkspaceName, newWorkspaceName);
       cy.addDsl(dsl);
     });
-    ee.ExpandCollapseEntity("QUERIES/JS", true);
+    ee.ExpandCollapseEntity("Queries/JS", true);
     // create JS object and validate its data on Page1
     cy.createJSObject('return "Success";');
     cy.get(`.t--entity-name:contains("Page1")`)
@@ -237,7 +237,7 @@ describe("Git synced app with JSObject", function() {
           }
 
           // verify jsObject data binding on Page 1
-          cy.CheckAndUnfoldEntityItem("QUERIES/JS");
+          cy.CheckAndUnfoldEntityItem("Queries/JS");
           cy.get(`.t--entity-name:contains(${jsObject})`).should(
             "have.length",
             1,
@@ -246,12 +246,12 @@ describe("Git synced app with JSObject", function() {
             "be.visible",
           );
           // switch to Page1 copy and verify jsObject data binding
-          cy.CheckAndUnfoldEntityItem("PAGES");
+          cy.CheckAndUnfoldEntityItem("Pages");
           cy.get(".t--entity-name:contains(Page1)")
             .last()
             .trigger("mouseover")
             .click({ force: true });
-          cy.CheckAndUnfoldEntityItem("QUERIES/JS");
+          cy.CheckAndUnfoldEntityItem("Queries/JS");
           // verify jsObject is not duplicated
           cy.get(`.t--entity-name:contains(${jsObject})`).should(
             "have.length",

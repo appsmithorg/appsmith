@@ -7,8 +7,8 @@ export class FakerHelper {
     return faker.image.cats();
   }
 
-  public GetRandomText(textLength = 10) {
-    return faker.random.alphaNumeric(textLength, { casing: "upper" });
+  public GetRandomText(textLength = 10, casing : "upper" | "lower" | "mixed" = "mixed") {
+    return faker.random.alphaNumeric(textLength, { casing: casing });
   }
 
   public GetUSPhoneNumber() {

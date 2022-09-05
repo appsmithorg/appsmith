@@ -65,7 +65,7 @@ describe("Test Create Api and Bind to Table widget", function() {
   it("Table-Text, Validate Server Side Pagination of Paginate with Total Records Count", function() {
     cy.get(publishPage.backToEditor).click({ force: true });
     cy.wait(30000);
-    cy.CheckAndUnfoldEntityItem("WIDGETS");
+    cy.CheckAndUnfoldEntityItem("Widgets");
     cy.get(".t--entity-name")
       .contains("Table1")
       .click({ force: true });
@@ -102,7 +102,7 @@ describe("Test Create Api and Bind to Table widget", function() {
       parseSpecialCharSequences: false,
     });
     cy.WaitAutoSave();
-    cy.CheckAndUnfoldEntityItem("WIDGETS");
+    cy.CheckAndUnfoldEntityItem("Widgets");
     //cy.get(".t--entity-name:contains(Text1)").click({ force: true });
     //cy.openPropertyPane("textwidget");
     /** Bind the Table widget with Text widget*/

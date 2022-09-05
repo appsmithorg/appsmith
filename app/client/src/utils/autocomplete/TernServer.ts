@@ -193,18 +193,17 @@ class TernServer {
 
   updateDef(
     name: string,
-    def: Def,
+    def?: Def,
     entityInfo?: Map<string, DataTreeDefEntityInformation>,
   ) {
-    const start = performance.now();
-    this.server.deleteDefs(name);
-    // @ts-expect-error: Types are not available
-    this.server.addDefs(def);
-    console.log(
-      "Update Tern definitions:: *** ",
-      performance.now() - start,
-      "ms",
-    );
+    if (def) {
+      // addDefs doesn't work for [def] and instead works with single def
+      // @ts-expect-error: Types are not available
+      this.server.addDefs(def);
+    } else {
+      this.server.deleteDefs(name);
+    }
+
     if (entityInfo) this.defEntityInformation = entityInfo;
   }
 

@@ -43,7 +43,7 @@ describe("Validate JSObj binding to Table widget", () => {
   });
 
   it("2. Validate the Api data is updated on List widget + Bug 12438", function() {
-    ee.SelectEntityByName("List1", "WIDGETS");
+    ee.SelectEntityByName("List1", "Widgets");
     propPane.UpdatePropertyFieldValue(
       "Items",
       (("{{" + jsName) as string) + ".myFun1()}}",
@@ -75,7 +75,8 @@ describe("Validate JSObj binding to Table widget", () => {
   });
 
   it("3. Validate the List widget + Bug 12438 ", function() {
-    ee.SelectEntityByName("List1", "WIDGETS");
+    ee.SelectEntityByName("List1", "Widgets");
+    propPane.moveToStyleTab();
     propPane.UpdatePropertyFieldValue("Item Spacing (px)", "50");
     cy.get(locator._textWidget).should("have.length", 6);
     deployMode.DeployApp(locator._textWidgetInDeployed);

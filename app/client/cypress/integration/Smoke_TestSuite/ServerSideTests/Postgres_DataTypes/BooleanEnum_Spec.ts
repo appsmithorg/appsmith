@@ -14,8 +14,8 @@ describe("Boolean & Enum Datatype tests", function() {
     cy.fixture("Datatypes/BooleanEnumDTdsl").then((val: any) => {
       agHelper.AddDsl(val);
     });
-    propPane.ChangeColor(-18, "Primary");
-    propPane.ChangeColor(-20, "Background");
+    propPane.ChangeThemeColor(-18, "Primary");
+    propPane.ChangeThemeColor(-20, "Background");
   });
 
   it("1. Create Postgress DS", function() {
@@ -99,7 +99,7 @@ describe("Boolean & Enum Datatype tests", function() {
     agHelper.GetNClick(dataSources._templateMenu);
     dataSources.EnterQuery(query);
 
-    ee.ExpandCollapseEntity("QUERIES/JS", false);
+    ee.ExpandCollapseEntity("Queries/JS", false);
     ee.ExpandCollapseEntity(dsName, false);
   });
 
@@ -112,7 +112,7 @@ describe("Boolean & Enum Datatype tests", function() {
     agHelper.SelectDropDown("Monday");
     agHelper.ToggleSwitch("Areweworking");
     agHelper.ClickButton("Insert");
-    agHelper.AssertElementAbsence(locator._toastMsg);//Assert that Insert did not fail
+    agHelper.AssertElementAbsence(locator._toastMsg); //Assert that Insert did not fail
     agHelper.AssertElementVisible(locator._spanButton("Run InsertQuery"));
     table.ReadTableRowColumnData(0, 0, 2000).then(($cellData) => {
       expect($cellData).to.eq("1"); //asserting serial column is inserting fine in sequence
@@ -167,7 +167,7 @@ describe("Boolean & Enum Datatype tests", function() {
     agHelper.AssertElementVisible(locator._modal);
     agHelper.ToggleSwitch("Areweworking", "check");
     agHelper.ClickButton("Update");
-    agHelper.AssertElementAbsence(locator._toastMsg);//Assert that Update did not fail
+    agHelper.AssertElementAbsence(locator._toastMsg); //Assert that Update did not fail
     agHelper.AssertElementVisible(locator._spanButton("Run UpdateQuery"));
     table.ReadTableRowColumnData(2, 0, 2000).then(($cellData) => {
       expect($cellData).to.eq("3"); //asserting serial column is inserting fine in sequence
@@ -184,7 +184,7 @@ describe("Boolean & Enum Datatype tests", function() {
     deployMode.NavigateBacktoEditor();
     table.WaitUntilTableLoad();
     query = `SELECT * FROM boolenumtypes WHERE workingday > 'Tuesday';`;
-    ee.ExpandCollapseEntity("QUERIES/JS");
+    ee.ExpandCollapseEntity("Queries/JS");
     ee.CreateNewDsQuery(dsName);
     agHelper.RenameWithInPane("verifyEnumOrdering");
     agHelper.GetNClick(dataSources._templateMenu);
@@ -204,7 +204,7 @@ describe("Boolean & Enum Datatype tests", function() {
       expect($cellData).to.eq("Monday");
     });
     agHelper.ActionContextMenuWithInPane("Delete");
-    ee.ExpandCollapseEntity("QUERIES/JS", false);
+    ee.ExpandCollapseEntity("Queries/JS", false);
   });
 
   it("10. Deleting records - boolenumtypes", () => {
@@ -251,26 +251,26 @@ describe("Boolean & Enum Datatype tests", function() {
 
   it("13. Validate Drop of the Newly Created - boolenumtypes - Table from Postgres datasource", () => {
     deployMode.NavigateBacktoEditor();
-    ee.ExpandCollapseEntity("QUERIES/JS");
+    ee.ExpandCollapseEntity("Queries/JS");
     ee.SelectEntityByName("dropTable");
     dataSources.RunQuery();
     dataSources.ReadQueryTableResponse(0).then(($cellData) => {
       expect($cellData).to.eq("0"); //Success response for dropped table!
     });
-    ee.ExpandCollapseEntity("QUERIES/JS", false);
-    ee.ExpandCollapseEntity("DATASOURCES");
+    ee.ExpandCollapseEntity("Queries/JS", false);
+    ee.ExpandCollapseEntity("Datasources");
     ee.ExpandCollapseEntity(dsName);
     ee.ActionContextMenuByEntityName(dsName, "Refresh");
     agHelper.AssertElementAbsence(
       ee._entityNameInExplorer("public.boolenumtypes"),
     );
     ee.ExpandCollapseEntity(dsName, false);
-    ee.ExpandCollapseEntity("DATASOURCES", false);
+    ee.ExpandCollapseEntity("Datasources", false);
   });
 
   it("14. Verify Deletion of the datasource after all created queries are Deleted", () => {
     dataSources.DeleteDatasouceFromWinthinDS(dsName, 409); //Since all queries exists
-    ee.ExpandCollapseEntity("QUERIES/JS");
+    ee.ExpandCollapseEntity("Queries/JS");
     ee.ActionContextMenuByEntityName("createEnum", "Delete", "Are you sure?");
     ee.ActionContextMenuByEntityName("createTable", "Delete", "Are you sure?");
     ee.ActionContextMenuByEntityName(
@@ -291,7 +291,7 @@ describe("Boolean & Enum Datatype tests", function() {
     ee.ActionContextMenuByEntityName("updateRecord", "Delete", "Are you sure?");
     deployMode.DeployApp();
     deployMode.NavigateBacktoEditor();
-    ee.ExpandCollapseEntity("QUERIES/JS");
+    ee.ExpandCollapseEntity("Queries/JS");
     dataSources.DeleteDatasouceFromWinthinDS(dsName, 200);
   });
 });

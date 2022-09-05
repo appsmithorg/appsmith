@@ -197,7 +197,7 @@ public class ApplicationFetcherUnitTest {
         List<Application> applications = createDummyApplications(4,4);
         List<NewPage> pageList = createDummyPages(4, 4);
 
-        Mockito.when(applicationRepository.findAll(READ_APPLICATIONS)
+        Mockito.when(applicationRepository.findAllUserApps(READ_APPLICATIONS)
         ).thenReturn(Flux.fromIterable(applications));
 
         Mockito.when(newPageService.findPageSlugsByApplicationIds(anyList(), eq(READ_PAGES)))
@@ -243,7 +243,7 @@ public class ApplicationFetcherUnitTest {
         List<Application> applications = createDummyApplications(4,4);
         List<NewPage> pageList = createDummyPages(4, 4);
 
-        Mockito.when(applicationRepository.findAll(READ_APPLICATIONS)
+        Mockito.when(applicationRepository.findAllUserApps(READ_APPLICATIONS)
         ).thenReturn(Flux.fromIterable(applications));
 
         Mockito.when(newPageService.findPageSlugsByApplicationIds(anyList(), eq(READ_PAGES)))
@@ -379,7 +379,7 @@ public class ApplicationFetcherUnitTest {
         List<Application> applications = createDummyApplications(4,4);
         List<NewPage> pageList = createDummyPages(4, 4);
 
-        Mockito.when(applicationRepository.findAll(READ_APPLICATIONS)
+        Mockito.when(applicationRepository.findAllUserApps(READ_APPLICATIONS)
         ).thenReturn(Flux.fromIterable(applications));
 
         Mockito.when(newPageService.findPageSlugsByApplicationIds(anyList(), eq(READ_PAGES)))
@@ -431,7 +431,7 @@ public class ApplicationFetcherUnitTest {
         List<Application> applications = createDummyApplications(3,3);
         List<NewPage> pageList = createDummyPages(4, 4);
 
-        Mockito.when(applicationRepository.findAll(READ_APPLICATIONS)
+        Mockito.when(applicationRepository.findAllUserApps(READ_APPLICATIONS)
         ).thenReturn(Flux.fromIterable(applications));
 
         Mockito.when(newPageService.findPageSlugsByApplicationIds(anyList(), eq(READ_PAGES)))

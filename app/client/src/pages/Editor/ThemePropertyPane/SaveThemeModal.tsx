@@ -13,7 +13,7 @@ import {
   ERROR_MESSAGE_NAME_EMPTY,
   APLHANUMERIC_HYPHEN_SLASH_SPACE_ERROR,
   UNIQUE_NAME_ERROR,
-} from "ce/constants/messages";
+} from "@appsmith/constants/messages";
 
 interface SaveThemeModalProps {
   isOpen: boolean;

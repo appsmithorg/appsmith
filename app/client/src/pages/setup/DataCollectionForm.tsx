@@ -1,6 +1,6 @@
 import React, { memo, useState } from "react";
 import styled from "styled-components";
-import Toggle from "components/ads/Toggle";
+import { Toggle } from "design-system";
 import { ControlWrapper } from "components/propertyControls/StyledControls";
 import {
   AllowToggle,
@@ -58,7 +58,7 @@ export default memo(function DataCollectionForm() {
               <Toggle
                 className="t--welcome-form-datacollection"
                 name="allowCollectingAnonymousData"
-                onToggle={(value) => setAllowCollection(value)}
+                onToggle={(value: boolean) => setAllowCollection(value)}
                 value={allowCollection}
               />
             </AllowToggle>

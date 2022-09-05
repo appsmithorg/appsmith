@@ -5,19 +5,22 @@ import {
 } from "constants/PropertyControlConstants";
 import Fuse from "fuse.js";
 import { debounce } from "lodash";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 
 export function useSearchText(initialVal: string) {
   const [searchText, setSearchText] = useState(initialVal);
 
-  const debouncedSetSearchText = debounce(
-    (text) => {
-      setSearchText(text.trim());
-    },
-    250,
-    {
-      maxWait: 1000,
-    },
+  const debouncedSetSearchText = useCallback(
+    debounce(
+      (text) => {
+        setSearchText(text.trim());
+      },
+      250,
+      {
+        maxWait: 1000,
+      },
+    ),
+    [setSearchText],
   );
 
   return { searchText, setSearchText: debouncedSetSearchText };
@@ -30,9 +33,8 @@ export function searchProperty(
   if (!searchQuery) return config;
 
   const fuseConfig = {
-    threshold: 0.5,
-    location: 0,
-    distance: 20,
+    threshold: 0.2,
+    distance: 100,
     keys: ["children.label", "label", "children.children.label"],
   };
   const fuse = new Fuse(config, fuseConfig);

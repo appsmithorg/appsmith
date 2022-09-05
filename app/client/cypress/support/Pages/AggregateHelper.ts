@@ -138,11 +138,11 @@ export class AggregateHelper {
     textPresence: "have.text" | "contain.text" | "not.have.text" = "have.text",
     index = 0,
   ) {
-    const locator = selector.startsWith("//")
-      ? cy.xpath(selector)
-      : cy.get(selector);
-    if (index >= 0) locator.eq(index).should(textPresence, text);
-    else locator.should(textPresence, text);
+    if (index >= 0)
+      this.GetElement(selector)
+        .eq(index)
+        .should(textPresence, text);
+    else this.GetElement(selector).should(textPresence, text);
   }
 
   public ValidateToastMessage(text: string, index = 0, length = 1) {
@@ -204,7 +204,7 @@ export class AggregateHelper {
   }
 
   public WaitUntilAllToastsDisappear() {
-    cy.get(this.locator._toastConatiner).waitUntil(
+    cy.get(this.locator._toastContainer).waitUntil(
       ($ele) =>
         cy
           .wrap($ele)
@@ -344,15 +344,17 @@ export class AggregateHelper {
       options.forEach(($each) => {
         cy.get(this.locator._multiSelectOptions($each))
           .check({ force: true })
-          .wait(1000)
-          .should("be.checked");
+          .wait(1000);
+        cy.get(this.locator._multiSelectOptions($each)).should("be.checked");
       });
     } else {
       options.forEach(($each) => {
         cy.get(this.locator._multiSelectOptions($each))
           .uncheck({ force: true })
-          .wait(1000)
-          .should("not.be.checked");
+          .wait(1000);
+        cy.get(this.locator._multiSelectOptions($each)).should(
+          "not.be.checked",
+        );
       });
     }
 
@@ -784,9 +786,9 @@ export class AggregateHelper {
     });
   }
 
-  public AssertElementAbsence(selector: ElementType) {
+  public AssertElementAbsence(selector: ElementType, timeout = 0) {
     //Should not exists - cannot take indexes
-    return this.GetElement(selector, 0).should("not.exist");
+    return this.GetElement(selector, timeout).should("not.exist");
   }
 
   public GetText(
@@ -797,6 +799,18 @@ export class AggregateHelper {
     return this.GetElement(selector)
       .eq(index)
       .invoke(textOrValue);
+  }
+
+  public AssertText(
+    selector: ElementType,
+    textOrValue: "text" | "val" = "text",
+    expectedData: string,
+    index = 0,
+  ) {
+    this.GetElement(selector)
+      .eq(index)
+      .invoke(textOrValue)
+      .should("deep.equal", expectedData);
   }
 
   public AssertElementVisible(selector: ElementType, index = 0) {

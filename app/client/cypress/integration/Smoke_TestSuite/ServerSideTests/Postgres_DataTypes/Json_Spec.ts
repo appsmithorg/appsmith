@@ -24,8 +24,8 @@ describe("Json & JsonB Datatype tests", function() {
       agHelper.AddDsl(val);
     });
     ee.NavigateToSwitcher("widgets");
-    propPane.ChangeColor(33, "Primary");
-    propPane.ChangeColor(39, "Background");
+    propPane.ChangeThemeColor(33, "Primary");
+    propPane.ChangeThemeColor(39, "Background");
   });
 
   it("1. Creating table query - jsonbooks", () => {
@@ -82,7 +82,7 @@ describe("Json & JsonB Datatype tests", function() {
     agHelper.GetNClick(dataSources._templateMenu);
     dataSources.EnterQuery(query);
 
-    ee.ExpandCollapseEntity("QUERIES/JS", false);
+    ee.ExpandCollapseEntity("Queries/JS", false);
     ee.ExpandCollapseEntity(dsName, false);
   });
 
@@ -177,7 +177,7 @@ describe("Json & JsonB Datatype tests", function() {
   it("8. Validating JSON functions", () => {
     deployMode.NavigateBacktoEditor();
     table.WaitUntilTableLoad();
-    ee.ExpandCollapseEntity("QUERIES/JS");
+    ee.ExpandCollapseEntity("Queries/JS");
     dataSources.NavigateFromActiveDS(dsName, true);
     agHelper.RenameWithInPane("verifyJsonFunctions");
 
@@ -252,7 +252,7 @@ describe("Json & JsonB Datatype tests", function() {
     });
 
     agHelper.ActionContextMenuWithInPane("Delete");
-    ee.ExpandCollapseEntity("QUERIES/JS", false);
+    ee.ExpandCollapseEntity("Queries/JS", false);
   });
 
   it("9. Deleting records - jsonbooks", () => {
@@ -305,24 +305,24 @@ describe("Json & JsonB Datatype tests", function() {
 
   it("12. Validate Drop of the Newly Created - jsonbooks - Table from Postgres datasource", () => {
     deployMode.NavigateBacktoEditor();
-    ee.ExpandCollapseEntity("QUERIES/JS");
+    ee.ExpandCollapseEntity("Queries/JS");
     ee.SelectEntityByName("dropTable");
     dataSources.RunQuery();
     dataSources.ReadQueryTableResponse(0).then(($cellData) => {
       expect($cellData).to.eq("0"); //Success response for dropped table!
     });
-    ee.ExpandCollapseEntity("QUERIES/JS", false);
-    ee.ExpandCollapseEntity("DATASOURCES");
+    ee.ExpandCollapseEntity("Queries/JS", false);
+    ee.ExpandCollapseEntity("Datasources");
     ee.ExpandCollapseEntity(dsName);
     ee.ActionContextMenuByEntityName(dsName, "Refresh");
     agHelper.AssertElementAbsence(ee._entityNameInExplorer("public.jsonbooks"));
     ee.ExpandCollapseEntity(dsName, false);
-    ee.ExpandCollapseEntity("DATASOURCES", false);
+    ee.ExpandCollapseEntity("Datasources", false);
   });
 
   it("13. Verify Deletion of all created queries", () => {
     dataSources.DeleteDatasouceFromWinthinDS(dsName, 409); //Since all queries exists
-    ee.ExpandCollapseEntity("QUERIES/JS");
+    ee.ExpandCollapseEntity("Queries/JS");
     ee.ActionContextMenuByEntityName("createTable", "Delete", "Are you sure?");
     ee.ActionContextMenuByEntityName(
       "deleteAllRecords",
@@ -349,8 +349,8 @@ describe("Json & JsonB Datatype tests", function() {
       agHelper.AddDsl(val);
     });
     ee.NavigateToSwitcher("widgets");
-    propPane.ChangeColor(12, "Primary");
-    propPane.ChangeColor(23, "Background");
+    propPane.ChangeThemeColor(12, "Primary");
+    propPane.ChangeThemeColor(23, "Background");
   });
 
   it("15. Creating enum & table queries - jsonBbooks", () => {
@@ -428,7 +428,7 @@ describe("Json & JsonB Datatype tests", function() {
     agHelper.GetNClick(dataSources._templateMenu);
     dataSources.EnterQuery(query);
 
-    ee.ExpandCollapseEntity("QUERIES/JS", false);
+    ee.ExpandCollapseEntity("Queries/JS", false);
     ee.ExpandCollapseEntity(dsName, false);
   });
 
@@ -546,7 +546,7 @@ describe("Json & JsonB Datatype tests", function() {
   it("22. Validating JSON functions", () => {
     deployMode.NavigateBacktoEditor();
     table.WaitUntilTableLoad();
-    ee.ExpandCollapseEntity("QUERIES/JS");
+    ee.ExpandCollapseEntity("Queries/JS");
     dataSources.NavigateFromActiveDS(dsName, true);
     agHelper.RenameWithInPane("verifyJsonBFunctions");
 
@@ -591,7 +591,11 @@ describe("Json & JsonB Datatype tests", function() {
     query = `select jsonb_each( '{"name": "Alice", "agent": {"bot": true} }'::jsonb), jsonb_object_keys( '{"name": "Alice", "agent": {"bot": true} }'::jsonb), jsonb_extract_path( '{"name": "Alice", "agent": {"bot": true} }'::jsonb, 'agent', 'bot');`;
     dataSources.EnterQuery(query);
     dataSources.RunQuery();
-    dataSources.AssertQueryResponseHeaders(["jsonb_each", "jsonb_object_keys", "jsonb_extract_path"]);
+    dataSources.AssertQueryResponseHeaders([
+      "jsonb_each",
+      "jsonb_object_keys",
+      "jsonb_extract_path",
+    ]);
     dataSources.ReadQueryTableResponse(0).then(($cellData) => {
       expect($cellData).to.eq('(name,"""Alice""")');
     });
@@ -612,7 +616,7 @@ describe("Json & JsonB Datatype tests", function() {
     });
 
     agHelper.ActionContextMenuWithInPane("Delete");
-    ee.ExpandCollapseEntity("QUERIES/JS", false);
+    ee.ExpandCollapseEntity("Queries/JS", false);
   });
 
   it("23. Deleting records - jsonbooks", () => {
@@ -649,7 +653,11 @@ describe("Json & JsonB Datatype tests", function() {
       deployMode._jsonFormDatepickerFieldByName("Published Date"),
     );
     agHelper.GetNClick(locator._datePicker(16));
-    deployMode.SelectJsonFormMultiSelect("Genres", ["Marketing & Sales", "Self-Help", "Psychology"]);
+    deployMode.SelectJsonFormMultiSelect("Genres", [
+      "Marketing & Sales",
+      "Self-Help",
+      "Psychology",
+    ]);
 
     agHelper.ClickButton("Insert");
     agHelper.AssertElementVisible(locator._spanButton("Run InsertQuery"));
@@ -663,24 +671,26 @@ describe("Json & JsonB Datatype tests", function() {
 
   it("26. Validate Drop of the Newly Created - jsonbooks - Table from Postgres datasource", () => {
     deployMode.NavigateBacktoEditor();
-    ee.ExpandCollapseEntity("QUERIES/JS");
+    ee.ExpandCollapseEntity("Queries/JS");
     ee.SelectEntityByName("dropTable");
     dataSources.RunQuery();
     dataSources.ReadQueryTableResponse(0).then(($cellData) => {
       expect($cellData).to.eq("0"); //Success response for dropped table!
     });
-    ee.ExpandCollapseEntity("QUERIES/JS", false);
-    ee.ExpandCollapseEntity("DATASOURCES");
+    ee.ExpandCollapseEntity("Queries/JS", false);
+    ee.ExpandCollapseEntity("Datasources");
     ee.ExpandCollapseEntity(dsName);
     ee.ActionContextMenuByEntityName(dsName, "Refresh");
-    agHelper.AssertElementAbsence(ee._entityNameInExplorer("public.jsonBbooks"));
+    agHelper.AssertElementAbsence(
+      ee._entityNameInExplorer("public.jsonBbooks"),
+    );
     ee.ExpandCollapseEntity(dsName, false);
-    ee.ExpandCollapseEntity("DATASOURCES", false);
+    ee.ExpandCollapseEntity("Datasources", false);
   });
 
   it("27. Verify Deletion of all created queries", () => {
     dataSources.DeleteDatasouceFromWinthinDS(dsName, 409); //Since all queries exists
-    ee.ExpandCollapseEntity("QUERIES/JS");
+    ee.ExpandCollapseEntity("Queries/JS");
     ee.ActionContextMenuByEntityName("createEnum", "Delete", "Are you sure?");
     ee.ActionContextMenuByEntityName("createTable", "Delete", "Are you sure?");
     ee.ActionContextMenuByEntityName(
@@ -706,7 +716,7 @@ describe("Json & JsonB Datatype tests", function() {
   it("28. Verify Deletion of datasource", () => {
     deployMode.DeployApp();
     deployMode.NavigateBacktoEditor();
-    ee.ExpandCollapseEntity("QUERIES/JS");
+    ee.ExpandCollapseEntity("Queries/JS");
     dataSources.DeleteDatasouceFromWinthinDS(dsName, 200);
   });
 });

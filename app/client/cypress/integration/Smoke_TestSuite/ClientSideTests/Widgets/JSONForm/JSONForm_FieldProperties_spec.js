@@ -115,13 +115,13 @@ describe("Checkbox Field Property Control", () => {
   });
 
   it("has default property", () => {
-    cy.get(".t--property-control-defaultselected").contains(
+    cy.get(".t--property-control-defaultstate").contains(
       "{{sourceData.check}}",
     );
   });
 
   it("should update field checked state when default selected changed", () => {
-    cy.testJsontext("defaultselected", "{{true}}");
+    cy.testJsontext("defaultstate", "{{true}}");
     cy.get(`${fieldPrefix}-check input`).should("be.checked");
   });
 
@@ -199,7 +199,7 @@ describe("Select Field Property Control", () => {
   });
 
   it("has valid default value", () => {
-    cy.get(".t--property-control-defaultvalue").contains(
+    cy.get(".t--property-control-defaultselectedvalue").contains(
       "{{sourceData.state}}",
     );
   });
@@ -210,7 +210,7 @@ describe("Select Field Property Control", () => {
     cy.get(`.bp3-select-popover .bp3-input-group`).should("not.exist");
 
     // toggle filterable -> true in property pane
-    cy.togglebar(`.t--property-control-filterable input`);
+    cy.togglebar(`.t--property-control-allowsearching input`);
 
     // click select field and filter input should exist
     cy.get(`${fieldPrefix}-state .bp3-control-group`).click({ force: true });
@@ -248,7 +248,7 @@ describe("Multi-Select Field Property Control", () => {
   });
 
   it("has valid default value", () => {
-    cy.get(".t--property-control-defaultvalue").contains(
+    cy.get(".t--property-control-defaultselectedvalues").contains(
       "{{sourceData.hobbies}}",
     );
     cy.closePropertyPane();
