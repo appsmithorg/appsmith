@@ -8,8 +8,8 @@ let themeFont;
 let themeColour;
 let propPane = ObjectsRegistry.PropertyPane;
 
-describe("Theme validation usecase for multi-select widget", function () {
-  it("Drag and drop multi-select widget and validate Default font and list of font validation + Bug 15007", function () {
+describe("Theme validation usecase for multi-select widget", function() {
+  it("Drag and drop multi-select widget and validate Default font and list of font validation + Bug 15007", function() {
     cy.log("Login Successful");
     cy.reload(); // To remove the rename tooltip
     cy.get(explorer.addWidget).click();
@@ -68,7 +68,7 @@ describe("Theme validation usecase for multi-select widget", function () {
     cy.get("span[name='expand-more']").then(($elem) => {
       cy.get($elem).click({ force: true });
       cy.wait(250);
-      cy.fixture("fontData").then(function (testdata) {
+      cy.fixture("fontData").then(function(testdata) {
         this.testdata = testdata;
       });
 
@@ -109,7 +109,7 @@ describe("Theme validation usecase for multi-select widget", function () {
     cy.contains("Color").click({ force: true });
   });
 
-  it.skip("Publish the App and validate Font across the app + Bug 15007", function () {
+  it.skip("Publish the App and validate Font across the app + Bug 15007", function() {
     //Skipping due to mentioned bug
     cy.PublishtheApp();
     cy.get(".rc-select-selection-item > .rc-select-selection-item-content")
@@ -131,7 +131,7 @@ describe("Theme validation usecase for multi-select widget", function () {
     cy.goToEditFromPublish();
   });
 
-  it("Validate current theme feature", function () {
+  it("Validate current theme feature", function() {
     cy.get("#canvas-selection-0").click({ force: true });
     //Change the Theme
     cy.get(commonlocators.changeThemeBtn).click({ force: true });
@@ -151,7 +151,7 @@ describe("Theme validation usecase for multi-select widget", function () {
       });
   });
 
-  it("Publish the App and validate change of Theme across the app in publish mode", function () {
+  it("Publish the App and validate change of Theme across the app in publish mode", function() {
     cy.PublishtheApp();
     cy.get(".rc-select-selection-item > .rc-select-selection-item-content")
       .first()
@@ -163,17 +163,17 @@ describe("Theme validation usecase for multi-select widget", function () {
             expect(CurrentBackgroudColor).to.equal(themeColour);
             expect(selectedBackgroudColor).to.equal(themeBackgroudColor);
           });
-        });
-        cy.get(".bp3-button:contains('Edit App')")
-          .last()
-          .invoke("css", "background-color")
-          .then((CurrentBackgroudColor) => {
-            expect(CurrentBackgroudColor).to.equal(themeBackgroudColor);
-          });
-        cy.xpath("//div[@id='root']//section/parent::div").should(
-            "have.css",
-            "background-color",
-            "rgb(165, 42, 42)",
-          );
       });
-})
+    cy.get(".bp3-button:contains('Edit App')")
+      .last()
+      .invoke("css", "background-color")
+      .then((CurrentBackgroudColor) => {
+        expect(CurrentBackgroudColor).to.equal(themeBackgroudColor);
+      });
+    cy.xpath("//div[@id='root']//section/parent::div").should(
+      "have.css",
+      "background-color",
+      "rgb(165, 42, 42)",
+    );
+  });
+});
