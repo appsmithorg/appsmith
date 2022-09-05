@@ -53,7 +53,6 @@ import { getCurrentPageId } from "selectors/editorSelectors";
 import { WidgetProps } from "widgets/BaseWidget";
 import * as log from "loglevel";
 import { DependencyMap } from "utils/DynamicBindingUtils";
-import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { LogObject, createLogTitleString } from "workers/UserLog";
 import { TriggerMeta } from "./ActionExecution/ActionExecutionSagas";
 
@@ -506,32 +505,27 @@ export function* storeLogs(
   });
 }
 
-// takes a log object array alognwith its source data and passes it on to the storeLogs saga
-export function* processAndStoreLogs(
+export function* updateTriggerMeta(
   triggerMeta: TriggerMeta,
-  logs: LogObject[],
   dynamicTrigger: string,
-  eventType: EventType,
 ) {
   let name = "";
 
-  if (!!triggerMeta.source && "name" in triggerMeta.source) {
+  if (!!triggerMeta.source && triggerMeta.source.hasOwnProperty("name")) {
     name = triggerMeta.source.name;
-  } else if (
-    !(dynamicTrigger.includes("{{") || dynamicTrigger.includes("}}"))
+  } else if (!!triggerMeta.triggerPropertyName) {
+    name = triggerMeta.triggerPropertyName;
+  }
+
+  if (
+    name.length === 0 &&
+    !!dynamicTrigger &&
+    !(dynamicTrigger.includes("{") || dynamicTrigger.includes("}"))
   ) {
     // We use the dynamic trigger as the name if it is not a binding
     name = dynamicTrigger.replace("()", "");
+    triggerMeta["triggerPropertyName"] = name;
   }
-  yield call(
-    storeLogs,
-    logs,
-    name,
-    eventType === EventType.ON_JS_FUNCTION_EXECUTE
-      ? ENTITY_TYPE.JSACTION
-      : ENTITY_TYPE.WIDGET,
-    triggerMeta.source?.id || "",
-  );
 }
 
 export default function* debuggerSagasListeners() {

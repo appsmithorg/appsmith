@@ -99,7 +99,7 @@ import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsRe
 import { AppTheme } from "entities/AppTheming";
 import { ActionValidationConfigMap } from "constants/PropertyControlConstants";
 import { LogObject, UserLogObject } from "workers/UserLog";
-import { processAndStoreLogs, storeLogs } from "./DebuggerSagas";
+import { storeLogs, updateTriggerMeta } from "./DebuggerSagas";
 
 let widgetTypeConfigMap: WidgetTypeConfigMap;
 
@@ -271,6 +271,7 @@ export function* evaluateAndExecuteDynamicTrigger(
       keepAlive = false;
 
       const { result } = requestData;
+      yield call(updateTriggerMeta, triggerMeta, dynamicTrigger);
 
       // Check for any logs in the response and store them in the redux store
       if (
@@ -280,11 +281,13 @@ export function* evaluateAndExecuteDynamicTrigger(
         result.logs.length
       ) {
         yield call(
-          processAndStoreLogs,
-          triggerMeta,
+          storeLogs,
           result.logs,
-          dynamicTrigger,
-          eventType,
+          triggerMeta.source?.name || triggerMeta.triggerPropertyName || "",
+          eventType === EventType.ON_JS_FUNCTION_EXECUTE
+            ? ENTITY_TYPE.JSACTION
+            : ENTITY_TYPE.WIDGET,
+          triggerMeta.source?.id || "",
         );
       }
 
