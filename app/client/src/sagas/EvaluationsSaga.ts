@@ -181,7 +181,11 @@ function* evaluateTreeSaga(
   log.debug({ evalMetaUpdatesLength: evalMetaUpdates.length });
 
   const updatedDataTree: DataTree = yield select(getDataTree);
-  if (!!userLogs && userLogs.length > 0) {
+  if (
+    !(!isCreateFirstTree && Object.keys(jsUpdates).length > 0) &&
+    !!userLogs &&
+    userLogs.length > 0
+  ) {
     yield all(
       userLogs.map((log: UserLogObject) => {
         return call(
