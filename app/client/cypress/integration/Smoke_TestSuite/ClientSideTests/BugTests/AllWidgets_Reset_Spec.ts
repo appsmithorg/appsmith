@@ -84,7 +84,7 @@ const widgetsToTest = {
       radiogroupAndReset();
     },
   },
-  // [WIDGET.LIST]: {//Open bug hence commenting List widget #16578
+  // [WIDGET.LIST]: {//Open bug hence commenting List widget #16578, #14727
   //   widgetName: "List",
   //   widgetPrefixName: "List1",
   //   textBindingValue: testdata.listBindingValue,
