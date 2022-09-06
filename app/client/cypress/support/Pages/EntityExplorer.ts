@@ -62,7 +62,7 @@ export class EntityExplorer {
     cy.xpath(this._entityNameInExplorer(entityNameinLeftSidebar))
       .last()
       .click({ multiple: true });
-    this.agHelper.Sleep();
+    this.agHelper.Sleep(500);
   }
 
   public AddNewPage() {

@@ -766,13 +766,11 @@ export class AggregateHelper {
     return val;
   }
 
-  public UploadFile(fixtureName: string, execStat = true) {
+  public UploadFile(fixtureName: string, toClickUpload = true) {
     cy.get(this.locator._uploadFiles)
       .attachFile(fixtureName)
       .wait(2000);
-    cy.get(this.locator._uploadBtn)
-      .click()
-      .wait(3000);
+    toClickUpload && this.GetNClick(this.locator._uploadBtn, 0, false, 3000);
   }
 
   public AssertDebugError(label: string, messgae: string) {
