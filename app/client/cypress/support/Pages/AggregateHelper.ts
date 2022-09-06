@@ -468,7 +468,7 @@ export class AggregateHelper {
       .focus()
       .type(value, {
         parseSpecialCharSequences: false,
-        delay: 2,
+        delay: 3,
         force: true,
       });
   }
