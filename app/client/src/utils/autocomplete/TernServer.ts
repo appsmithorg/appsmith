@@ -13,14 +13,12 @@ import {
   getDynamicStringSegments,
   isDynamicValue,
 } from "utils/DynamicBindingUtils";
-import {
-  GLOBAL_DEFS,
-  GLOBAL_FUNCTIONS,
-} from "utils/autocomplete/EntityDefinitions";
+import { GLOBAL_DEFS } from "utils/autocomplete/EntityDefinitions";
 import { FieldEntityInformation } from "components/editorComponents/CodeEditor/EditorConfig";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { AutocompleteSorter } from "./AutocompleteSortRules";
 import { getCompletionsForKeyword } from "./keywordCompletion";
+import { GLOBAL_FUNCTIONS } from "@shared/ast";
 
 const DEFS: Def[] = [
   // @ts-expect-error: Types are not available

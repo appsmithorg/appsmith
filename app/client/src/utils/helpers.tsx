@@ -4,22 +4,15 @@ import lottie from "lottie-web";
 import confetti from "assets/lottie/binding.json";
 import welcomeConfetti from "assets/lottie/welcome-confetti.json";
 import successAnimation from "assets/lottie/success-animation.json";
-import {
-  DATA_TREE_KEYWORDS,
-  GLOBAL_SCOPE_OBJECTS,
-  JAVASCRIPT_KEYWORDS,
-  WINDOW_OBJECT_METHODS,
-  WINDOW_OBJECT_PROPERTIES,
-} from "constants/WidgetValidation";
-import { GLOBAL_FUNCTIONS } from "./autocomplete/EntityDefinitions";
-import { get, set, isNil } from "lodash";
+import { DATA_TREE_KEYWORDS } from "constants/WidgetValidation";
+import { get, set, isNil, has } from "lodash";
 import { Workspace } from "constants/workspaceConstants";
 import {
   isPermitted,
   PERMISSION_TYPE,
 } from "pages/Applications/permissionHelpers";
 import moment from "moment";
-import { extraLibrariesNames, isDynamicValue } from "./DynamicBindingUtils";
+import { isDynamicValue } from "./DynamicBindingUtils";
 import { ApiResponse } from "api/ApiResponses";
 import { DSLWidget } from "widgets/constants";
 import * as Sentry from "@sentry/react";
@@ -33,6 +26,11 @@ import {
   VIEWER_PATH_DEPRECATED,
 } from "constants/routes";
 import history from "./history";
+import {
+  JAVASCRIPT_KEYWORDS,
+  GLOBAL_WORKER_SCOPE_IDENTIFIERS,
+  extraLibrariesNames,
+} from "@shared/ast";
 
 export const snapToGrid = (
   columnWidth: number,
@@ -378,14 +376,11 @@ export const isNameValid = (
   invalidNames: Record<string, any>,
 ) => {
   return !(
-    name in JAVASCRIPT_KEYWORDS ||
-    name in DATA_TREE_KEYWORDS ||
-    name in GLOBAL_FUNCTIONS ||
-    name in WINDOW_OBJECT_PROPERTIES ||
-    name in WINDOW_OBJECT_METHODS ||
-    name in GLOBAL_SCOPE_OBJECTS ||
+    has(JAVASCRIPT_KEYWORDS, name) ||
+    has(DATA_TREE_KEYWORDS, name) ||
+    has(GLOBAL_WORKER_SCOPE_IDENTIFIERS, name) ||
     extraLibrariesNames.includes(name) ||
-    name in invalidNames
+    has(invalidNames, name)
   );
 };
 

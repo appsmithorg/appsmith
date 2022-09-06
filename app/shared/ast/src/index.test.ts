@@ -269,11 +269,18 @@ describe('getAllIdentifiers', () => {
         }()`,
         expectedResults: [],
       },
+      // "appsmith" is an internal identifier and should be a valid reference
+      {
+        script: `function(){
+          return appsmith.user
+        }()`,
+        expectedResults: ['appsmith.user'],
+      },
     ];
 
     cases.forEach((perCase) => {
-      const { identifiers } = extractInfoFromCode(perCase.script, 2);
-      expect(identifiers).toStrictEqual(perCase.expectedResults);
+      const { references } = extractInfoFromCode(perCase.script, 2);
+      expect(references).toStrictEqual(perCase.expectedResults);
     });
   });
 });

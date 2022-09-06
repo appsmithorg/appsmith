@@ -210,32 +210,32 @@ export const updateDependencyMap = ({
                 entityName,
               );
               Object.entries(triggerFieldDependencies).forEach(
-                ([triggerfieldDependent, triggerfieldDependencies]) => {
+                ([triggerFieldDependent, triggerFieldDependencies]) => {
                   const {
                     errors,
                     invalidReferences,
                     validReferences,
                   } = extractInfoFromBindings(
-                    triggerfieldDependencies,
+                    triggerFieldDependencies,
                     dataTreeEvalRef.allKeys,
                   );
                   // Update triggerfield dependencyMap
                   dataTreeEvalRef.triggerFieldDependencyMap[
-                    triggerfieldDependent
+                    triggerFieldDependent
                   ] = mergeArrays(
                     dataTreeEvalRef.triggerFieldDependencyMap[
-                      triggerfieldDependent
+                      triggerFieldDependent
                     ],
                     validReferences,
                   );
                   // Update invalidReferencesMap
                   if (invalidReferences.length) {
                     dataTreeEvalRef.invalidReferencesMap[
-                      triggerfieldDependent
+                      triggerFieldDependent
                     ] = invalidReferences;
                   } else {
                     delete dataTreeEvalRef.invalidReferencesMap[
-                      triggerfieldDependent
+                      triggerFieldDependent
                     ];
                   }
                   errors.forEach((error) => {

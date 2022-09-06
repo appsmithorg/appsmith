@@ -1,8 +1,8 @@
 import { parse, Node, SourceLocation, Options } from 'acorn';
 import { ancestor, simple } from 'acorn-walk';
-import { ECMA_VERSION, NodeTypes } from './constants';
+import { ECMA_VERSION, NodeTypes } from './constants/ast';
 import { isFinite, isString, memoize, toPath } from 'lodash';
-import { isInvalidEntiyName, sanitizeScript } from './utils';
+import { isInvalidEntityReference, sanitizeScript } from './utils';
 
 /*
  * Valuable links:
@@ -327,7 +327,7 @@ export const extractInfoFromCode = (
     return !(
       functionalParams.has(topLevelIdentifier) ||
       variableDeclarations.has(topLevelIdentifier) ||
-      isInvalidEntiyName(topLevelIdentifier)
+      isInvalidEntityReference(topLevelIdentifier)
     );
   });
   return {

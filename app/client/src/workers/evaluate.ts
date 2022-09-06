@@ -2,7 +2,6 @@
 import { DataTree } from "entities/DataTree/dataTreeFactory";
 import {
   EvaluationError,
-  extraLibraries,
   PropertyEvaluationErrorType,
   unsafeFunctionForEval,
 } from "utils/DynamicBindingUtils";
@@ -13,6 +12,7 @@ import { isEmpty } from "lodash";
 import { completePromise } from "workers/PromisifyAction";
 import { ActionDescription } from "entities/DataTree/actionTriggers";
 import userLogs, { LogObject } from "./UserLog";
+import { extraLibraries } from "@shared/ast";
 
 export type EvalResult = {
   result: any;

@@ -9,7 +9,6 @@ import {
 import { Position } from "codemirror";
 import {
   EvaluationError,
-  extraLibraries,
   isDynamicValue,
   isPathADynamicBinding,
   PropertyEvaluationErrorType,
@@ -25,7 +24,6 @@ import {
   getLintErrorMessage,
   getLintSeverity,
 } from "components/editorComponents/CodeEditor/lintHelpers";
-import { ECMA_VERSION } from "@shared/ast";
 import {
   CustomLintErrorCode,
   CUSTOM_LINT_ERRORS,
@@ -36,6 +34,8 @@ import {
   extractInvalidTopLevelMemberExpressionsFromCode,
   isLiteralNode,
   MemberExpressionData,
+  ECMA_VERSION,
+  extraLibrariesNames,
 } from "@shared/ast";
 
 export const pathRequiresLinting = (
@@ -114,7 +114,7 @@ export const getLintingErrors = (
     globalData[dataKey] = true;
   }
   // Jshint shouldn't throw errors for additional libraries
-  extraLibraries.forEach((lib) => (globalData[lib.accessor] = true));
+  extraLibrariesNames.forEach((name) => (globalData[name] = true));
   // JSHint shouldn't throw errors for supported web apis
   Object.keys(SUPPORTED_WEB_APIS).forEach(
     (apiName) => (globalData[apiName] = true),
