@@ -39,6 +39,7 @@ import appThemingSaga from "sagas/AppThemingSaga";
 import formEvaluationChangeListener from "sagas/FormEvaluationSaga";
 import SuperUserSagas from "@appsmith/sagas/SuperUserSagas";
 import NavigationSagas from "sagas/NavigationSagas";
+import editorContextSagas from "sagas/editorContextSagas";
 
 export const sagas = [
   initSagas,
@@ -82,4 +83,5 @@ export const sagas = [
   SuperUserSagas,
   appThemingSaga,
   NavigationSagas,
+  editorContextSagas,
 ];

@@ -1,4 +1,4 @@
-import React, { memo, useCallback } from "react";
+import React, { memo, useCallback, useEffect, useRef } from "react";
 import _, { get, isEqual } from "lodash";
 import * as log from "loglevel";
 
@@ -50,16 +50,29 @@ import { ReactComponent as ResetIcon } from "assets/icons/control/undo_2.svg";
 import { AppTheme } from "entities/AppTheming";
 import { JS_TOGGLE_DISABLED_MESSAGE } from "@appsmith/constants/messages";
 import { getWidgetParent } from "sagas/selectors";
+import { generateKeyAndSetFocusableField } from "actions/editorContextActions";
+import { AppState } from "ce/reducers";
+import { getshouldFocusPropertyPath } from "selectors/editorContextSelectors";
 
 type Props = PropertyPaneControlConfig & {
   panel: IPanelProps;
   theme: EditorTheme;
 };
 
+function getFocusableDOMElement(
+  element: HTMLDivElement | null,
+): HTMLElement | undefined {
+  return element?.children?.[1]?.querySelector(
+    'button, input, [tabindex]:not([tabindex="-1"])',
+  ) as HTMLElement | undefined;
+}
+
 const SHOULD_NOT_REJECT_DYNAMIC_BINDING_LIST_FOR = ["COLOR_PICKER"];
 
 const PropertyControl = memo((props: Props) => {
   const dispatch = useDispatch();
+
+  const controlRef = useRef<HTMLDivElement | null>(null);
 
   const propsSelector = getWidgetPropsForPropertyName(
     props.propertyName,
@@ -72,6 +85,15 @@ const PropertyControl = memo((props: Props) => {
     isEqual,
   );
 
+  // get the dataTreePath and apply enhancement if exists
+  let dataTreePath: string | undefined =
+    props.dataTreePath || widgetProperties
+      ? `${widgetProperties.widgetName}.${props.propertyName}`
+      : undefined;
+
+  const shouldFocusPropertyPath: boolean = useSelector((state: AppState) =>
+    getshouldFocusPropertyPath(state, dataTreePath),
+  );
   /**
    * get actual parent of widget
    * for button inside form, button's parent is form
@@ -90,6 +112,18 @@ const PropertyControl = memo((props: Props) => {
 
   const selectedTheme = useSelector(getSelectedAppTheme);
 
+  useEffect(() => {
+    if (
+      shouldFocusPropertyPath &&
+      !controlRef.current?.contains(document.activeElement)
+    ) {
+      setTimeout(() => {
+        const focusableElement = getFocusableDOMElement(controlRef.current);
+        focusableElement?.scrollIntoView({ block: "center" });
+        focusableElement?.focus();
+      }, 0);
+    }
+  }, [shouldFocusPropertyPath]);
   /**
    * A property's stylesheet value can be fetched in 2 ways
    * 1. If a method is defined on the property config (getStylesheetValue), then
@@ -416,20 +450,20 @@ const PropertyControl = memo((props: Props) => {
     [props.panelConfig, onPropertyChange, props.propertyName],
   );
 
-  // Do not render the control if it needs to be hidden
-  if (
-    (props.hidden &&
-      props.hidden(widgetProperties, props.propertyName, parentWidget)) ||
-    props.invisible
-  ) {
-    return null;
-  }
-
   const { label, propertyName } = props;
   if (widgetProperties) {
-    // get the dataTreePath and apply enhancement if exists
-    let dataTreePath: string =
+    // Do not render the control if it needs to be hidden
+    if (
+      (props.hidden &&
+        props.hidden(widgetProperties, props.propertyName, parentWidget)) ||
+      props.invisible
+    ) {
+      return null;
+    }
+
+    dataTreePath =
       props.dataTreePath || `${widgetProperties.widgetName}.${propertyName}`;
+
     if (childWidgetDataTreePathEnhancementFn) {
       dataTreePath = childWidgetDataTreePathEnhancementFn(
         dataTreePath,
@@ -510,6 +544,11 @@ const PropertyControl = memo((props: Props) => {
       return false;
     };
 
+    const handleOnFocus = () => {
+      if (!shouldFocusPropertyPath)
+        dispatch(generateKeyAndSetFocusableField(dataTreePath));
+    };
+
     const uniqId = btoa(`${widgetProperties.widgetId}.${propertyName}`);
     const canDisplayValueInUI = PropertyControlFactory.controlUIToggleValidation.get(
       config.controlType,
@@ -553,15 +592,17 @@ const PropertyControl = memo((props: Props) => {
     try {
       return (
         <ControlWrapper
-          className={`t--property-control-${className} group`}
+          className={`t--property-control-wrapper t--property-control-${className} group`}
           data-guided-tour-iid={propertyName}
           id={uniqId}
           key={config.id}
+          onFocus={handleOnFocus}
           orientation={
             config.controlType === "SWITCH" && !isDynamic
               ? "HORIZONTAL"
               : "VERTICAL"
           }
+          ref={controlRef}
         >
           <ControlPropertyLabelContainer className="gap-1">
             <PropertyHelpLabel

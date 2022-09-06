@@ -22,10 +22,14 @@ export type CodeEditorHistory = Record<string, CodeEditorContext>;
 export type EditorContextState = {
   focusableField?: string;
   codeEditorHistory: Record<string, CodeEditorContext>;
+  propertySectionState: Record<string, boolean>;
+  selectedPropertyTabIndex: number;
 };
 
 const initialState: EditorContextState = {
   codeEditorHistory: {},
+  propertySectionState: {},
+  selectedPropertyTabIndex: 0,
 };
 
 export const editorContextReducer = createImmerReducer(initialState, {
@@ -50,6 +54,14 @@ export const editorContextReducer = createImmerReducer(initialState, {
     state.codeEditorHistory[key].cursorPosition = cursorPosition;
     state.focusableField = key;
   },
+  [ReduxActionTypes.SET_CODE_EDITOR_CURSOR_HISTORY]: (
+    state: EditorContextState,
+    action: {
+      payload: Record<string, CodeEditorContext>;
+    },
+  ) => {
+    state.codeEditorHistory = action.payload || {};
+  },
   [ReduxActionTypes.SET_EVAL_POPUP_STATE]: (
     state: EditorContextState,
     action: { payload: { key: string; evalPopupState: EvaluatedPopupState } },
@@ -58,5 +70,25 @@ export const editorContextReducer = createImmerReducer(initialState, {
     if (!key) return;
     if (!state.codeEditorHistory[key]) state.codeEditorHistory[key] = {};
     state.codeEditorHistory[key].evalPopupState = evalPopupState;
+  },
+  [ReduxActionTypes.SET_PROPERTY_SECTION_STATE]: (
+    state: EditorContextState,
+    action: { payload: { key: string; isOpen: boolean } },
+  ) => {
+    const { isOpen, key } = action.payload;
+    if (!key) return;
+    state.propertySectionState[key] = isOpen;
+  },
+  [ReduxActionTypes.SET_ALL_PROPERTY_SECTION_STATE]: (
+    state: EditorContextState,
+    action: { payload: { [key: string]: boolean } },
+  ) => {
+    state.propertySectionState = action.payload;
+  },
+  [ReduxActionTypes.SET_SELECTED_PROPERTY_TAB_INDEX]: (
+    state: EditorContextState,
+    action: { payload: number },
+  ) => {
+    state.selectedPropertyTabIndex = action.payload;
   },
 });

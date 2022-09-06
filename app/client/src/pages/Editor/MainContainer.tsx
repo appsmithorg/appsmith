@@ -60,7 +60,7 @@ function MainContainer() {
 
   useEffect(() => {
     dispatch(routeChanged(location.pathname, location.hash));
-  }, [location.pathname]);
+  }, [location.pathname, location.hash]);
 
   return (
     <>

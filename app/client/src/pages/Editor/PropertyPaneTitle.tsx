@@ -130,30 +130,28 @@ const PropertyPaneTitle = memo(function PropertyPaneTitle(
       containerRef.current?.focus();
     } else {
       // Checks if the property pane opened not because of focusing an input inside a widget
-      if (
-        document.activeElement &&
-        ["input", "textarea"].indexOf(
-          document.activeElement?.tagName?.toLowerCase(),
-        ) === -1
-      )
-        setTimeout(
-          () => {
+      setTimeout(
+        () => {
+          if (
+            document.activeElement &&
+            !document.activeElement?.closest(".t--property-control-wrapper")
+          )
             if (featureFlags.PROPERTY_PANE_GROUPING) {
               document
                 .querySelector(".propertyPaneSearch input")
                 // @ts-expect-error: Focus
                 ?.focus();
             } else {
-              // document
-              //   .querySelector(
-              //     '.t--property-pane-section-wrapper [tabindex]:not([tabindex="-1"])',
-              //   )
-              //   // @ts-expect-error: Focus
-              //   ?.focus();
+              document
+                .querySelector(
+                  '.t--property-pane-section-wrapper [tabindex]:not([tabindex="-1"])',
+                )
+                // @ts-expect-error: Focus
+                ?.focus();
             }
-          },
-          200, // Adding non zero time out as codemirror imports are loaded using idle callback. pr #13676
-        );
+        },
+        200, // Adding non zero time out as codemirror imports are loaded using idle callback. pr #13676
+      );
     }
 
     return () => {

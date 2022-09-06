@@ -30,7 +30,7 @@ import { Variant } from "components/ads/common";
 import { useDispatch, useSelector } from "react-redux";
 import { getEvaluatedPopupState } from "selectors/editorContextSelectors";
 import { AppState } from "@appsmith/reducers";
-import { setEvalPopupState } from "actions/editorContextActions";
+import { generateKeyAndSetEvalPopupState } from "actions/editorContextActions";
 
 const modifiers: IPopoverSharedProps["modifiers"] = {
   offset: {
@@ -428,7 +428,7 @@ function PopoverContent(props: PopoverContentProps) {
 
   useEffect(() => {
     dispatch(
-      setEvalPopupState(props.dataTreePath, {
+      generateKeyAndSetEvalPopupState(props.dataTreePath, {
         type: openExpectedDataType,
         example: openExpectedExample,
         value: openEvaluatedValue,

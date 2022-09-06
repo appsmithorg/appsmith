@@ -296,7 +296,7 @@ function* selectMultipleWidgetsSaga(
 ) {
   try {
     const { widgetIds } = action.payload;
-    if (!widgetIds || !widgetIds.length) {
+    if (!widgetIds) {
       return;
     }
     const allWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
