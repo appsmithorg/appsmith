@@ -107,7 +107,7 @@ const widgetsToTest = {
       ratingwidgetAndReset();
     },
   },
-
+/*
   [WIDGET.CHECKBOXGROUP]: {
     widgetName: "CheckboxGroup",
     widgetPrefixName: "CheckboxGroup1",
@@ -116,6 +116,7 @@ const widgetsToTest = {
       checkboxGroupAndReset();
     },
   },
+  */
   [WIDGET.CHECKBOX]: {
     widgetName: "Checkbox",
     widgetPrefixName: "Checkbox1",
