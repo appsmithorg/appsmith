@@ -2969,16 +2969,15 @@ public class GitServiceTest {
         workspace.setName("Limit Private Repo Test Workspace");
         String localWorkspaceId = workspaceService.create(workspace).map(Workspace::getId).block();
 
-        GitService gitService1 = Mockito.spy(gitService);
-        Mockito.doReturn(Mono.just(Boolean.TRUE)).when(gitService1).isRepoLimitReached(Mockito.anyString(), Mockito.anyBoolean());
-
+        Mockito.when(gitCloudServicesUtils.getPrivateRepoLimitForOrg(eq(localWorkspaceId), Mockito.anyBoolean()))
+                .thenReturn(Mono.just(-1));
 
         createApplicationConnectedToGit("private_repo_1", "master", localWorkspaceId);
         createApplicationConnectedToGit("private_repo_2", "master", localWorkspaceId);
         createApplicationConnectedToGit("private_repo_3", "master", localWorkspaceId);
 
         StepVerifier
-                .create(gitService1.getApplicationCountWithPrivateRepo(localWorkspaceId))
+                .create(gitService.getApplicationCountWithPrivateRepo(localWorkspaceId))
                 .assertNext(limit -> assertThat(limit).isEqualTo(3))
                 .verifyComplete();
     }
