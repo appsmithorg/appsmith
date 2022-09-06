@@ -76,6 +76,7 @@ const CodeScannerGlobalStyles = createGlobalStyle<{
     border-radius: ${({ borderRadius }) => borderRadius};
     overflow: hidden;
     height: 100%;
+    position: relative;
 
     &::before {
       content: '';
