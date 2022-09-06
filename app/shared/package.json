@@ -1,0 +1,10 @@
+{
+  "name": "shared",
+  "devDependencies": {},
+  "dependencies": {
+    "prompts": "^2.4.2"
+  },
+  "scripts": {
+    "verify": "yarn install && node --experimental-modules verify-shared-dep.js"
+  }
+}

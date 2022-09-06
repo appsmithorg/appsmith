@@ -375,6 +375,373 @@ class BaseInputWidget<
     ];
   }
 
+  static getPropertyPaneContentConfig() {
+    return [
+      {
+        sectionName: "Label",
+        children: [
+          {
+            helpText: "Sets the label text of the widget",
+            propertyName: "label",
+            label: "Text",
+            controlType: "INPUT_TEXT",
+            placeholderText: "Name:",
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
+          {
+            helpText: "Sets the label position of the widget",
+            propertyName: "labelPosition",
+            label: "Position",
+            controlType: "DROP_DOWN",
+            options: [
+              { label: "Left", value: LabelPosition.Left },
+              { label: "Top", value: LabelPosition.Top },
+              { label: "Auto", value: LabelPosition.Auto },
+            ],
+            isBindProperty: false,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
+          {
+            helpText: "Sets the label alignment of the widget",
+            propertyName: "labelAlignment",
+            label: "Alignment",
+            controlType: "LABEL_ALIGNMENT_OPTIONS",
+            options: [
+              {
+                icon: "LEFT_ALIGN",
+                value: Alignment.LEFT,
+              },
+              {
+                icon: "RIGHT_ALIGN",
+                value: Alignment.RIGHT,
+              },
+            ],
+            isBindProperty: false,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+            hidden: (props: BaseInputWidgetProps) =>
+              props.labelPosition !== LabelPosition.Left,
+            dependencies: ["labelPosition"],
+          },
+          {
+            helpText:
+              "Sets the label width of the widget as the number of columns",
+            propertyName: "labelWidth",
+            label: "Width (in columns)",
+            controlType: "NUMERIC_INPUT",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            min: 0,
+            validation: {
+              type: ValidationTypes.NUMBER,
+              params: {
+                natural: true,
+              },
+            },
+            hidden: (props: BaseInputWidgetProps) =>
+              props.labelPosition !== LabelPosition.Left,
+            dependencies: ["labelPosition"],
+          },
+        ],
+      },
+      {
+        sectionName: "Validation",
+        children: [
+          {
+            helpText:
+              "Adds a validation to the input which displays an error on failure",
+            propertyName: "regex",
+            label: "Regex",
+            controlType: "INPUT_TEXT",
+            placeholderText: "^\\w+@[a-zA-Z_]+?\\.[a-zA-Z]{2,3}$",
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.REGEX },
+          },
+          {
+            helpText: "Sets the input validity based on a JS expression",
+            propertyName: "validation",
+            label: "Valid",
+            controlType: "INPUT_TEXT",
+            placeholderText: "{{ Input1.text.length > 0 }}",
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: {
+              type: ValidationTypes.BOOLEAN,
+              params: {
+                default: true,
+              },
+            },
+          },
+          {
+            helpText:
+              "The error message to display if the regex or valid property check fails",
+            propertyName: "errorMessage",
+            label: "Error Message",
+            controlType: "INPUT_TEXT",
+            placeholderText: "Not a valid value!",
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
+          {
+            propertyName: "isSpellCheck",
+            label: "Spellcheck",
+            helpText:
+              "Defines whether the text input may be checked for spelling errors",
+            controlType: "SWITCH",
+            isJSConvertible: false,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+            hidden: (props: BaseInputWidgetProps) => {
+              return props.inputType !== InputTypes.TEXT;
+            },
+            dependencies: ["inputType"],
+          },
+        ],
+      },
+      {
+        sectionName: "General",
+        children: [
+          {
+            helpText: "Show help text or details about current input",
+            propertyName: "tooltip",
+            label: "Tooltip",
+            controlType: "INPUT_TEXT",
+            placeholderText: "Value must be atleast 6 chars",
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
+          {
+            helpText: "Sets a placeholder text for the input",
+            propertyName: "placeholderText",
+            label: "Placeholder",
+            controlType: "INPUT_TEXT",
+            placeholderText: "Placeholder",
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
+          {
+            helpText: "Controls the visibility of the widget",
+            propertyName: "isVisible",
+            label: "Visible",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+          },
+          {
+            helpText: "Disables input to this widget",
+            propertyName: "isDisabled",
+            label: "Disabled",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+          },
+          {
+            propertyName: "animateLoading",
+            label: "Animate Loading",
+            controlType: "SWITCH",
+            helpText: "Controls the loading of the widget",
+            defaultValue: true,
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+          },
+          {
+            helpText: "Focus input automatically on load",
+            propertyName: "autoFocus",
+            label: "Auto Focus",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+          },
+          {
+            propertyName: "allowFormatting",
+            label: "Enable Formatting",
+            helpText: "Formats the phone number as per the country selected",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+            hidden: (props: BaseInputWidgetProps) => {
+              return props.type !== "PHONE_INPUT_WIDGET";
+            },
+          },
+        ],
+      },
+      {
+        sectionName: "Events",
+        children: [
+          {
+            helpText: "Triggers an action when the text is changed",
+            propertyName: "onTextChanged",
+            label: "onTextChanged",
+            controlType: "ACTION_SELECTOR",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: true,
+          },
+          {
+            helpText:
+              "Triggers an action on submit (when the enter key is pressed)",
+            propertyName: "onSubmit",
+            label: "onSubmit",
+            controlType: "ACTION_SELECTOR",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: true,
+          },
+          {
+            helpText: "Clears the input value after submit",
+            propertyName: "resetOnSubmit",
+            label: "Reset on submit",
+            controlType: "SWITCH",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.BOOLEAN },
+          },
+        ],
+      },
+    ];
+  }
+
+  static getPropertyPaneStyleConfig() {
+    return [
+      {
+        sectionName: "Label Styles",
+        children: [
+          {
+            propertyName: "labelTextColor",
+            label: "Font Color",
+            controlType: "COLOR_PICKER",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: {
+              type: ValidationTypes.TEXT,
+              params: {
+                regex: /^(?![<|{{]).+/,
+              },
+            },
+          },
+          {
+            propertyName: "labelTextSize",
+            label: "Font Size",
+            controlType: "DROP_DOWN",
+            defaultValue: "0.875rem",
+            options: [
+              {
+                label: "S",
+                value: "0.875rem",
+                subText: "0.875rem",
+              },
+              {
+                label: "M",
+                value: "1rem",
+                subText: "1rem",
+              },
+              {
+                label: "L",
+                value: "1.25rem",
+                subText: "1.25rem",
+              },
+              {
+                label: "XL",
+                value: "1.875rem",
+                subText: "1.875rem",
+              },
+              {
+                label: "XXL",
+                value: "3rem",
+                subText: "3rem",
+              },
+              {
+                label: "3XL",
+                value: "3.75rem",
+                subText: "3.75rem",
+              },
+            ],
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
+          {
+            propertyName: "labelStyle",
+            label: "Emphasis",
+            controlType: "BUTTON_TABS",
+            options: [
+              {
+                icon: "BOLD_FONT",
+                value: "BOLD",
+              },
+              {
+                icon: "ITALICS_FONT",
+                value: "ITALIC",
+              },
+            ],
+            isBindProperty: false,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
+        ],
+      },
+      {
+        sectionName: "Border and Shadow",
+        children: [
+          {
+            propertyName: "accentColor",
+            label: "Accent Color",
+            controlType: "COLOR_PICKER",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+            invisible: true,
+          },
+          {
+            propertyName: "borderRadius",
+            label: "Border Radius",
+            helpText:
+              "Rounds the corners of the icon button's outer border edge",
+            controlType: "BORDER_RADIUS_OPTIONS",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
+          {
+            propertyName: "boxShadow",
+            label: "Box Shadow",
+            helpText:
+              "Enables you to cast a drop shadow from the frame of the widget",
+            controlType: "BOX_SHADOW_OPTIONS",
+            isJSConvertible: true,
+            isBindProperty: true,
+            isTriggerProperty: false,
+            validation: { type: ValidationTypes.TEXT },
+          },
+        ],
+      },
+    ];
+  }
+
   static getDerivedPropertiesMap(): DerivedPropertiesMap {
     return {
       value: `{{this.text}}`,

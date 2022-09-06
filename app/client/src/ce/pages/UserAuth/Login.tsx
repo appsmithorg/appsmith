@@ -12,7 +12,7 @@ import {
   LOGIN_FORM_NAME,
   LOGIN_FORM_EMAIL_FIELD_NAME,
   LOGIN_FORM_PASSWORD_FIELD_NAME,
-} from "constants/forms";
+} from "@appsmith/constants/forms";
 import { FORGOT_PASSWORD_URL, SETUP, SIGN_UP_URL } from "constants/routes";
 import {
   LOGIN_PAGE_TITLE,
@@ -33,7 +33,7 @@ import {
 import FormMessage from "components/ads/formFields/FormMessage";
 import FormGroup from "components/ads/formFields/FormGroup";
 import FormTextField from "components/ads/formFields/TextField";
-import Button, { Size } from "components/ads/Button";
+import { Button, Size } from "design-system";
 import ThirdPartyAuth from "@appsmith/pages/UserAuth/ThirdPartyAuth";
 import { ThirdPartyLoginRegistry } from "pages/UserAuth/ThirdPartyLoginRegistry";
 import { isEmail, isEmptyString } from "utils/formhelpers";

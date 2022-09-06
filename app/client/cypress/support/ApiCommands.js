@@ -113,6 +113,10 @@ Cypress.Commands.add("RunAPI", () => {
   cy.wait("@postExecute");
 });
 
+Cypress.Commands.add("RunAPIWithoutWaitingForResolution", () => {
+  cy.get(ApiEditor.ApiRunBtn).click({ force: true });
+});
+
 Cypress.Commands.add("SaveAndRunAPI", () => {
   cy.WaitAutoSave();
   cy.RunAPI();

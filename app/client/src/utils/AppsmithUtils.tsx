@@ -5,7 +5,7 @@ import { Property } from "api/ActionAPI";
 import _ from "lodash";
 import { ActionDataState } from "reducers/entityReducers/actionsReducer";
 import * as log from "loglevel";
-import { AppIconCollection, AppIconName } from "components/ads/AppIcon";
+import { AppIconCollection, AppIconName } from "design-system";
 import { ERROR_CODES } from "@appsmith/constants/ApiConstants";
 import { createMessage, ERROR_500 } from "@appsmith/constants/messages";
 import { JSCollectionData } from "reducers/entityReducers/jsActionsReducer";

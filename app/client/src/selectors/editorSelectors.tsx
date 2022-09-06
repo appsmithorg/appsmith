@@ -1,6 +1,6 @@
 import { createSelector } from "reselect";
 
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import { WidgetConfigReducerState } from "reducers/entityReducers/widgetConfigReducer";
 import { WidgetCardProps, WidgetProps } from "widgets/BaseWidget";
 import {

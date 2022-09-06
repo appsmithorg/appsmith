@@ -10,6 +10,7 @@ import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.PluginType;
 import com.appsmith.server.domains.User;
+import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.DslActionDTO;
 import com.appsmith.server.dtos.LayoutDTO;
@@ -93,7 +94,11 @@ public class LayoutServiceTest {
     public void setup() {
         purgeAllPages();
         User apiUser = userService.findByEmail("api_user").block();
-        workspaceId = apiUser.getWorkspaceIds().iterator().next();
+        Workspace toCreate = new Workspace();
+        toCreate.setName("LayoutServiceTest");
+
+        Workspace workspace = workspaceService.create(toCreate, apiUser).block();
+        workspaceId = workspace.getId();
 
         datasource = new Datasource();
         datasource.setName("Default Database");

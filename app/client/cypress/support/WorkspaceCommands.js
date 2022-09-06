@@ -112,7 +112,10 @@ Cypress.Commands.add("shareApp", (email, role) => {
   cy.xpath(homePage.email)
     .click({ force: true })
     .type(email);
-  cy.xpath(homePage.selectRole).click({ force: true });
+  cy.xpath(homePage.selectRole).should("be.visible");
+  cy.xpath("//span[@name='expand-more']")
+    .last()
+    .click();
   cy.xpath(role).click({ force: true });
   cy.xpath(homePage.inviteBtn).click({ force: true });
   cy.wait("@mockPostInvite")
@@ -295,6 +298,7 @@ Cypress.Commands.add("CreateAppInFirstListedWorkspace", (appname) => {
   cy.get("#loading").should("not.exist");
   // eslint-disable-next-line cypress/no-unnecessary-waiting
   cy.wait(2000);
+  //cy.reload();
   cy.AppSetupForRename();
   cy.get(homePage.applicationName).type(appname + "{enter}");
   cy.wait("@updateApplication").should(

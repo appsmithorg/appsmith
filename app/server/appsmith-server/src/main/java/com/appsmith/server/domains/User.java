@@ -79,7 +79,6 @@ public class User extends BaseDomain implements UserDetails, OidcUser {
     @JsonIgnore
     private String inviteToken;
 
-    @Transient
     Boolean isAnonymous = false;
 
     private String tenantId;

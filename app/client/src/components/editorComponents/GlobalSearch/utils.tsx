@@ -14,7 +14,7 @@ import { PluginType } from "entities/Action";
 import { WidgetType } from "constants/WidgetConstants";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { getPluginByPackageName } from "selectors/entitiesSelector";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import WidgetFactory from "utils/WidgetFactory";
 import { CurlIconV2, JsFileIconV2 } from "pages/Editor/Explorer/ExplorerIcons";
 import { createNewApiAction } from "actions/apiPaneActions";

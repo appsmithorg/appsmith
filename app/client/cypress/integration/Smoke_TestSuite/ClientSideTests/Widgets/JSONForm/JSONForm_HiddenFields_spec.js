@@ -63,9 +63,10 @@ function changeFieldType(fieldName, fieldType) {
 function addCustomField(fieldType) {
   cy.openPropertyPane("jsonformwidget");
 
-  cy.get(".t--property-pane-section-general button")
-    .contains("Add a new field")
-    .click({ force: true });
+  // Add new field
+  cy.get(commonlocators.jsonFormAddNewCustomFieldBtn).click({
+    force: true,
+  });
 
   changeFieldType("customField1", fieldType);
 }
@@ -182,7 +183,7 @@ describe("JSON Form Hidden fields", () => {
     // Add new custom field
     addCustomField(/^Select/);
 
-    cy.testJsontext("defaultvalue", defaultValue);
+    cy.testJsontext("defaultselectedvalue", defaultValue);
 
     hideAndVerifyProperties("customField1", defaultValue);
 

@@ -98,6 +98,8 @@ import { DataTreeDiff } from "workers/evaluationUtils";
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { AppTheme } from "entities/AppTheming";
 import { ActionValidationConfigMap } from "constants/PropertyControlConstants";
+import { LogObject, UserLogObject } from "workers/UserLog";
+import { processAndStoreLogs, storeLogs } from "./DebuggerSagas";
 import { MetaCanvasWidgetsReduxState } from "reducers/entityReducers/metaCanvasWidgetsReducer";
 
 let widgetTypeConfigMap: WidgetTypeConfigMap;
@@ -112,6 +114,7 @@ export type EvalTreePayload = {
   evaluationOrder: string[];
   jsUpdates: Record<string, JSUpdate>;
   logs: any[];
+  userLogs?: UserLogObject[];
   unEvalUpdates: DataTreeDiff[];
   isCreateFirstTree: boolean;
 };
@@ -158,6 +161,7 @@ function* evaluateTreeSaga(
     evaluationOrder,
     jsUpdates,
     logs,
+    userLogs,
     unEvalUpdates,
     isCreateFirstTree = false,
   }: EvalTreePayload = workerResponse;
@@ -182,6 +186,19 @@ function* evaluateTreeSaga(
   log.debug({ evalMetaUpdatesLength: evalMetaUpdates.length });
 
   const updatedDataTree: DataTree = yield select(getDataTree);
+  if (!!userLogs && userLogs.length > 0) {
+    yield all(
+      userLogs.map((log: UserLogObject) => {
+        call(
+          storeLogs,
+          log.logObject,
+          log.source.name,
+          log.source.type,
+          log.source.id,
+        );
+      }),
+    );
+  }
   log.debug({ jsUpdates: jsUpdates });
   log.debug({ dataTree: updatedDataTree });
   logs?.forEach((evalLog: any) => log.debug(evalLog));
@@ -254,27 +271,50 @@ export function* evaluateAndExecuteDynamicTrigger(
 
   while (keepAlive) {
     const { requestData } = yield take(requestChannel);
-    log.debug({ requestData });
+    log.debug({ requestData, eventType, triggerMeta, dynamicTrigger });
     if (requestData.finished) {
       keepAlive = false;
+
+      const { result } = requestData;
+
+      // Check for any logs in the response and store them in the redux store
+      if (
+        !!result &&
+        result.hasOwnProperty("logs") &&
+        !!result.logs &&
+        result.logs.length
+      ) {
+        yield call(
+          processAndStoreLogs,
+          triggerMeta,
+          result.logs,
+          dynamicTrigger,
+          eventType,
+        );
+      }
+
       /* Handle errors during evaluation
        * A finish event with errors means that the error was not caught by the user code.
        * We raise an error telling the user that an uncaught error has occurred
        * */
-      if (requestData.result.errors.length) {
+      if (
+        !!result &&
+        result.hasOwnProperty("errors") &&
+        !!result.errors &&
+        result.errors.length
+      ) {
         if (
-          requestData.result.errors[0].errorMessage !==
+          result.errors[0].errorMessage !==
           "UncaughtPromiseRejection: User cancelled action execution"
         ) {
-          throw new UncaughtPromiseError(
-            requestData.result.errors[0].errorMessage,
-          );
+          throw new UncaughtPromiseError(result.errors[0].errorMessage);
         }
       }
+
       // It is possible to get a few triggers here if the user
       // still uses the old way of action runs and not promises. For that we
       // need to manually execute these triggers outside the promise flow
-      const { triggers } = requestData.result;
+      const { triggers } = result;
       if (triggers && triggers.length) {
         log.debug({ triggers });
         yield all(
@@ -284,7 +324,7 @@ export function* evaluateAndExecuteDynamicTrigger(
         );
       }
       // Return value of a promise is returned
-      return requestData.result;
+      return result;
     }
     yield call(evalErrorHandler, requestData.errors);
     if (requestData.trigger) {
@@ -341,7 +381,7 @@ function* executeTriggerRequestSaga(
     // a success: false is sent to reject the promise
 
     // @ts-expect-error: reason is of type string
-    responsePayload.data.reason = error;
+    responsePayload.data.reason = { message: error.message };
     responsePayload.success = false;
   }
   responseChannel.put({
@@ -366,6 +406,7 @@ export function* executeFunction(
   let response: {
     errors: any[];
     result: any;
+    logs?: LogObject[];
   };
 
   if (isAsync) {
@@ -386,9 +427,22 @@ export function* executeFunction(
     response = yield call(worker.request, EVAL_WORKER_ACTIONS.EXECUTE_SYNC_JS, {
       functionCall,
     });
+
+    const { logs } = response;
+    // Check for any logs in the response and store them in the redux store
+    if (!!logs && logs.length > 0) {
+      yield call(
+        storeLogs,
+        logs,
+        collectionName + "." + action.name,
+        ENTITY_TYPE.JSACTION,
+        collectionId,
+      );
+    }
   }
 
   const { errors, result } = response;
+
   const isDirty = !!errors.length;
 
   yield call(

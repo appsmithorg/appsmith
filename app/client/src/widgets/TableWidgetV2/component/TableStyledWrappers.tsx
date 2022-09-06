@@ -10,6 +10,7 @@ import {
   TABLE_SIZES,
   CellAlignment,
   VerticalAlignment,
+  scrollbarOnHoverCSS,
 } from "./Constants";
 import { Colors, Color } from "constants/Colors";
 import { hideScrollbar, invisible } from "constants/DefaultTheme";
@@ -52,13 +53,11 @@ export const TableWrapper = styled.div<{
     width: ${(props) => props.width}px;
     overflow-x: auto;
     ${hideScrollbar};
+    ${scrollbarOnHoverCSS};
     .thumb-horizontal {
       height: 4px !important;
       border-radius: ${(props) => props.theme.radii[3]}px;
       background: ${(props) => props.theme.colors.scrollbarLight} !important;
-      &:hover {
-        height: 6px !important;
-      }
     }
   }
   .table {
@@ -489,13 +488,11 @@ export const TableHeaderWrapper = styled.div<{
   min-height: ${(props) => props.tableSizes.TABLE_HEADER_HEIGHT}px;
   overflow-x: auto;
   ${hideScrollbar};
+  ${scrollbarOnHoverCSS};
   .thumb-horizontal {
     height: 4px !important;
     border-radius: ${(props) => props.theme.radii[3]}px;
     background: ${(props) => props.theme.colors.scrollbarLight};
-    &:hover {
-      height: 6px !important;
-    }
   }
 `;
 

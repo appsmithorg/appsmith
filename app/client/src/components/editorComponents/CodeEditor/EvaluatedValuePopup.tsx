@@ -1,6 +1,7 @@
 import React, { memo, useMemo, useRef, useState } from "react";
 import styled from "styled-components";
 import _ from "lodash";
+import equal from "fast-deep-equal/es6";
 import Popper from "pages/Editor/Popper";
 import ReactJson from "react-json-view";
 import {
@@ -9,7 +10,7 @@ import {
 } from "components/editorComponents/CodeEditor/EditorConfig";
 import { theme } from "constants/DefaultTheme";
 import { Placement } from "popper.js";
-import ScrollIndicator from "components/ads/ScrollIndicator";
+import { ScrollIndicator } from "design-system";
 import { EvaluatedValueDebugButton } from "components/editorComponents/Debugger/DebugCTA";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { TooltipComponent as Tooltip } from "design-system";
@@ -362,7 +363,7 @@ export const CurrentValueViewer = memo(
       prevProps.hideLabel === nextProps.hideLabel &&
       // Deep-compare evaluated values to ensure we only rerender
       // when the array actually changes
-      _.isEqual(prevProps.evaluatedValue, nextProps.evaluatedValue)
+      equal(prevProps.evaluatedValue, nextProps.evaluatedValue)
     );
   },
 );

@@ -6,10 +6,11 @@ import { RadioGroup, Radio, Alignment, Classes } from "@blueprintjs/core";
 import { TextSize } from "constants/WidgetConstants";
 import { BlueprintRadioSwitchGroupTransform } from "constants/DefaultTheme";
 import { LabelPosition } from "components/constants";
-import LabelWithTooltip, {
+import {
+  LabelWithTooltip,
   labelLayoutStyles,
   LABEL_CONTAINER_CLASS,
-} from "components/ads/LabelWithTooltip";
+} from "design-system";
 
 export interface RadioGroupContainerProps {
   compactMode: boolean;

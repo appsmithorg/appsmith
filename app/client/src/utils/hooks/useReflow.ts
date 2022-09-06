@@ -23,7 +23,7 @@ import {
 import { getBottomRowAfterReflow } from "utils/reflowHookUtils";
 import { checkIsDropTarget } from "components/designSystems/appsmith/PositionedContainer";
 import { getIsReflowing } from "selectors/widgetReflowSelectors";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import { areIntersecting } from "utils/WidgetPropsUtils";
 
 type WidgetCollidingSpace = CollidingSpace & {

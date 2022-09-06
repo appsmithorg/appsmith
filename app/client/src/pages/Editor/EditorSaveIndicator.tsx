@@ -4,7 +4,7 @@ import { useSelector } from "react-redux";
 import styled from "styled-components";
 import moment from "moment/moment";
 
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import { TooltipComponent } from "design-system";
 import { HeaderIcons } from "icons/HeaderIcons";
 import { getIsPageSaving, getPageSavingError } from "selectors/editorSelectors";
@@ -13,7 +13,7 @@ import {
   EDITOR_HEADER_SAVE_INDICATOR,
 } from "@appsmith/constants/messages";
 import { Colors } from "constants/Colors";
-import Icon from "components/ads/Icon";
+import { Icon } from "design-system";
 
 const SaveStatusContainer = styled.div`
   border-radius: 50%;

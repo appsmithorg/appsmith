@@ -14,7 +14,10 @@ import {
   ReduxFormActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
 import { GetFormData, getFormData } from "selectors/formSelectors";
-import { API_EDITOR_FORM_NAME, QUERY_EDITOR_FORM_NAME } from "constants/forms";
+import {
+  API_EDITOR_FORM_NAME,
+  QUERY_EDITOR_FORM_NAME,
+} from "@appsmith/constants/forms";
 import {
   DEFAULT_API_ACTION_CONFIG,
   POST_BODY_FORMAT_OPTIONS_ARRAY,

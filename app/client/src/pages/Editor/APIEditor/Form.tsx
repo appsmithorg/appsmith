@@ -14,7 +14,7 @@ import styled from "styled-components";
 import FormLabel from "components/editorComponents/FormLabel";
 import FormRow from "components/editorComponents/FormRow";
 import { PaginationField, SuggestedWidget } from "api/ActionAPI";
-import { API_EDITOR_FORM_NAME } from "constants/forms";
+import { API_EDITOR_FORM_NAME } from "@appsmith/constants/forms";
 import Pagination from "./Pagination";
 import { Action, PaginationType } from "entities/Action";
 import {
@@ -27,18 +27,24 @@ import ApiResponseView, {
   EMPTY_RESPONSE,
 } from "components/editorComponents/ApiResponseView";
 import EmbeddedDatasourcePathField from "components/editorComponents/form/fields/EmbeddedDatasourcePathField";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import { getApiName } from "selectors/formSelectors";
 import ActionNameEditor from "components/editorComponents/ActionNameEditor";
 import ActionSettings from "pages/Editor/ActionSettings";
 import RequestDropdownField from "components/editorComponents/form/fields/RequestDropdownField";
 import { ExplorerURLParams } from "../Explorer/helpers";
 import MoreActionsMenu from "../Explorer/Actions/MoreActionsMenu";
-import Icon, { IconSize } from "components/ads/Icon";
-import Button, { Size } from "components/ads/Button";
 import { TabComponent } from "components/ads/Tabs";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
-import { Text, Case, TextType } from "design-system";
+import {
+  Button,
+  Icon,
+  IconSize,
+  Size,
+  Text,
+  Case,
+  TextType,
+} from "design-system";
 import { Classes, Variant } from "components/ads/common";
 import Callout from "components/ads/Callout";
 import { useLocalStorage } from "utils/hooks/localstorage";
@@ -59,7 +65,8 @@ import {
   getActionData,
   getAction,
 } from "selectors/entitiesSelector";
-import { isEmpty, isEqual } from "lodash";
+import { isEmpty } from "lodash";
+import equal from "fast-deep-equal/es6";
 
 import { Colors } from "constants/Colors";
 import SearchSnippets from "components/ads/SnippetButton";
@@ -563,7 +570,7 @@ function ApiEditorForm(props: Props) {
   // it checks each value to make sure none has changed before recomputing the actions.
   const actions: Action[] = useSelector(
     (state: AppState) => state.entities.actions.map((action) => action.config),
-    isEqual,
+    equal,
   );
   const currentActionConfig: Action | undefined = actions.find(
     (action) => action.id === params.apiId || action.id === params.queryId,

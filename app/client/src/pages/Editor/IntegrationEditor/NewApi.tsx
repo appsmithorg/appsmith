@@ -2,7 +2,7 @@ import React, { useCallback, useState, useEffect } from "react";
 import { connect } from "react-redux";
 import styled from "styled-components";
 import { createDatasourceFromForm } from "actions/datasourceActions";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import { Colors } from "constants/Colors";
 import CurlLogo from "assets/images/Curl-logo.svg";
 import PlusLogo from "assets/images/Plus-logo.svg";

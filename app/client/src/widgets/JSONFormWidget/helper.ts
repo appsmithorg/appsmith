@@ -1,5 +1,5 @@
 import { isNil, isPlainObject, merge } from "lodash";
-import { LabelValueType } from "rc-select/lib/interface/generator";
+import { LabelInValueType } from "rc-select/lib/Select";
 
 import {
   isDynamicValue,
@@ -287,7 +287,7 @@ export function isPrimitive(val: unknown): val is number | string | boolean {
 
 export const validateOptions = (
   values: unknown,
-): values is LabelValueType["value"][] | LabelValueType[] => {
+): values is LabelInValueType["value"][] | LabelInValueType[] => {
   if (!Array.isArray(values)) return false;
 
   let hasPrimitive = false;

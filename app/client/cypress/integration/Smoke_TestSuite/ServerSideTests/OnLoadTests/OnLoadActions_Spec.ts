@@ -17,7 +17,7 @@ describe("Layout OnLoad Actions tests", function() {
   });
 
   it("1. Bug 8595: OnPageLoad execution - when No api to run on Pageload", function() {
-    ee.SelectEntityByName("WIDGETS");
+    ee.SelectEntityByName("Widgets");
     ee.SelectEntityByName("Page1");
     cy.url().then((url) => {
       const pageid = url
@@ -39,29 +39,35 @@ describe("Layout OnLoad Actions tests", function() {
     apiPage.CreateAndFillApi(
       "https://source.unsplash.com/collection/1599413",
       "RandomFlora",
+      30000,
     );
     //apiPage.RunAPI();
 
-    apiPage.CreateAndFillApi("https://randomuser.me/api/", "RandomUser");
+    apiPage.CreateAndFillApi("https://randomuser.me/api/", "RandomUser", 30000);
     //apiPage.RunAPI();
 
-    apiPage.CreateAndFillApi("https://favqs.com/api/qotd", "InspiringQuotes");
+    apiPage.CreateAndFillApi(
+      "https://favqs.com/api/qotd",
+      "InspiringQuotes",
+      30000,
+    );
     apiPage.EnterHeader("dependency", "{{RandomUser.data}}"); //via Params tab
     //apiPage.RunAPI();
 
     apiPage.CreateAndFillApi(
       "https://www.boredapi.com/api/activity",
       "Suggestions",
+      30000,
     );
     apiPage.EnterHeader("dependency", "{{InspiringQuotes.data}}");
     //apiPage.RunAPI();
 
-    apiPage.CreateAndFillApi("https://api.genderize.io", "Genderize");
+    apiPage.CreateAndFillApi("https://api.genderize.io", "Genderize", 30000);
     apiPage.EnterParams("name", "{{RandomUser.data.results[0].name.first}}"); //via Params tab
     //apiPage.RunAPI();
 
     //Adding dependency in right order matters!
-    ee.ExpandCollapseEntity("WIDGETS");
+    ee.ExpandCollapseEntity("Widgets");
     ee.SelectEntityByName("Image1");
     propPane.UpdatePropertyFieldValue("Image", `{{RandomFlora.data}}`);
 
@@ -163,12 +169,12 @@ describe("Layout OnLoad Actions tests", function() {
   });
 
   it("3. Bug 10049, 10055: Dependency not executed in expected order in layoutOnLoadActions when dependency added via URL", function() {
-    ee.SelectEntityByName("Genderize", "QUERIES/JS");
+    ee.SelectEntityByName("Genderize", "Queries/JS");
     ee.ActionContextMenuByEntityName("Genderize", "Delete", "Are you sure?");
 
     apiPage.CreateAndFillApi(
       "https://api.genderize.io?name={{RandomUser.data.results[0].name.first}}",
-      "Genderize",
+      "Genderize", 30000
     );
     apiPage.ValidateQueryParams({
       key: "name",

@@ -16,7 +16,7 @@ import {
   useWidgetDragResize,
 } from "utils/hooks/dragResizeHooks";
 import { useSelector } from "react-redux";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import Resizable from "resizable/resizenreflow";
 import { omit, get } from "lodash";
 import { getSnapColumns } from "utils/WidgetPropsUtils";

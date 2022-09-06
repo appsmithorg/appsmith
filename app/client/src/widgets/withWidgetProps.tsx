@@ -19,7 +19,7 @@ import {
   getMetaCanvasWidget,
   getFlattenedChildCanvasWidgets,
 } from "selectors/editorSelectors";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import { useSelector } from "react-redux";
 import { getWidget } from "sagas/selectors";
 import {

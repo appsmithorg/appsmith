@@ -198,7 +198,17 @@ const renderCell = (props: any) => {
   );
 };
 
+// The function will return the scrollbar width that needs to be added
+// in the table body width, when scrollbar is shown the width should be > 0,
+// when scrollbar is not shown, width should be 0
+export const getScrollBarWidth = (tableBodyEle: any, scrollBarW: number) => {
+  return !!tableBodyEle && tableBodyEle.scrollHeight > tableBodyEle.clientHeight
+    ? scrollBarW
+    : 0;
+};
+
 function Table(props: TableProps) {
+  const tableBodyRef = React.useRef<HTMLElement>();
   const data = React.useMemo(() => {
     const emptyString = "";
     /* Check for length greater than 0 of rows returned from the query for mappings keys */
@@ -262,7 +272,9 @@ function Table(props: TableProps) {
     useBlockLayout,
   );
 
-  const scrollBarSize = React.useMemo(() => scrollbarWidth(), []);
+  const tableBodyEle = tableBodyRef?.current;
+  const scrollBarW = React.useMemo(() => scrollbarWidth(), []);
+  const scrollBarSize = getScrollBarWidth(tableBodyEle, scrollBarW);
 
   const RenderRow = React.useCallback(
     ({ index, style }) => {
@@ -338,6 +350,7 @@ function Table(props: TableProps) {
                 height={tableBodyHeightComputed || window.innerHeight}
                 itemCount={rows.length}
                 itemSize={35}
+                outerRef={tableBodyRef}
                 width={totalColumnsWidth + scrollBarSize}
               >
                 {RenderRow}

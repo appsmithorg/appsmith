@@ -1,4 +1,4 @@
-import { DropdownOption } from "components/ads/Dropdown";
+import { DropdownOption } from "design-system";
 import { DatasourceTable } from "entities/Datasource";
 
 export type DropdownOptions = Array<DropdownOption>;

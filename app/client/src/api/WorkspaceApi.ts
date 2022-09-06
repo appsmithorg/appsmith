@@ -33,7 +33,7 @@ export interface FetchAllUsersRequest {
 
 export interface ChangeUserRoleRequest {
   workspaceId: string;
-  role: string;
+  newPermissionGroupId?: string;
   username: string;
 }
 
@@ -91,24 +91,24 @@ class WorkspaceApi extends Api {
     request: FetchAllUsersRequest,
   ): AxiosPromise<FetchAllUsersResponse> {
     return Api.get(
-      WorkspaceApi.workspacesURL + "/" + request.workspaceId + "/members",
+      `${WorkspaceApi.workspacesURL}/${request.workspaceId}/members`,
     );
   }
   static fetchAllRoles(
     request: FetchAllRolesRequest,
   ): AxiosPromise<FetchAllRolesResponse> {
     return Api.get(
-      WorkspaceApi.workspacesURL + `/roles?workspaceId=${request.workspaceId}`,
+      `${WorkspaceApi.workspacesURL}/${request.workspaceId}/permissionGroups`,
     );
   }
   static changeWorkspaceUserRole(
     request: ChangeUserRoleRequest,
   ): AxiosPromise<ApiResponse> {
     return Api.put(
-      WorkspaceApi.workspacesURL + "/" + request.workspaceId + "/role",
+      `${WorkspaceApi.workspacesURL}/${request.workspaceId}/permissionGroup`,
       {
         username: request.username,
-        roleName: request.role,
+        newPermissionGroupId: request.newPermissionGroupId,
       },
     );
   }
@@ -116,10 +116,11 @@ class WorkspaceApi extends Api {
     request: DeleteWorkspaceUserRequest,
   ): AxiosPromise<ApiResponse> {
     return Api.put(
-      WorkspaceApi.workspacesURL + "/" + request.workspaceId + "/role",
+      `${WorkspaceApi.workspacesURL}/${request.workspaceId}/permissionGroup`,
       {
         username: request.username,
-        roleName: null,
+        permissionGroupId: null,
+        permissionGroupName: null,
       },
     );
   }

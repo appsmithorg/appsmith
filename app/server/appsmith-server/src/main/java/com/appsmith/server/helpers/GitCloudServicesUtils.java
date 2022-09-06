@@ -7,11 +7,11 @@ import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.services.ConfigService;
+import com.appsmith.util.WebClientUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Component;
-import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
 import java.time.Instant;
@@ -42,7 +42,7 @@ public class GitCloudServicesUtils {
                 return Mono.just(gitLimitCache.get(key).getRepoLimit());
             }
             // Call the cloud service API
-            return WebClient
+            return WebClientUtils
                     .create(baseUrl + "/api/v1/git/limit/" + key)
                     .get()
                     .exchange()

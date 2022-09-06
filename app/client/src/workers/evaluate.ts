@@ -12,11 +12,13 @@ import { enhanceDataTreeWithFunctions } from "./Actions";
 import { isEmpty } from "lodash";
 import { completePromise } from "workers/PromisifyAction";
 import { ActionDescription } from "entities/DataTree/actionTriggers";
+import userLogs, { LogObject } from "./UserLog";
 
 export type EvalResult = {
   result: any;
   errors: EvaluationError[];
   triggers?: ActionDescription[];
+  logs?: LogObject[];
 };
 
 export enum EvaluationScriptType {
@@ -230,8 +232,10 @@ export default function evaluateSync(
 ): EvalResult {
   return (function() {
     const errors: EvaluationError[] = [];
+    let logs: LogObject[] = [];
     let result;
     /**** Setting the eval context ****/
+    userLogs.resetLogs();
     const GLOBAL_DATA: Record<string, any> = createGlobalData({
       dataTree,
       resolvedFunctions,
@@ -276,13 +280,14 @@ export default function evaluateSync(
         originalBinding: userScript,
       });
     } finally {
+      logs = userLogs.flushLogs();
       for (const entity in GLOBAL_DATA) {
         // @ts-expect-error: Types are not available
         delete self[entity];
       }
     }
 
-    return { result, errors };
+    return { result, errors, logs };
   })();
 }
 
@@ -297,7 +302,9 @@ export async function evaluateAsync(
   return (async function() {
     const errors: EvaluationError[] = [];
     let result;
+    let logs;
     /**** Setting the eval context ****/
+    userLogs.resetLogs();
     const GLOBAL_DATA: Record<string, any> = createGlobalData({
       dataTree,
       resolvedFunctions,
@@ -317,6 +324,7 @@ export async function evaluateAsync(
 
     try {
       result = await eval(script);
+      logs = userLogs.flushLogs();
     } catch (error) {
       const errorMessage = `UncaughtPromiseRejection: ${
         (error as Error).message
@@ -328,15 +336,29 @@ export async function evaluateAsync(
         errorType: PropertyEvaluationErrorType.PARSE,
         originalBinding: userScript,
       });
+      logs = userLogs.flushLogs();
     } finally {
-      completePromise(requestId, {
-        result,
-        errors,
-        triggers: Array.from(self.TRIGGER_COLLECTOR),
-      });
-      for (const entity in GLOBAL_DATA) {
-        // @ts-expect-error: Types are not available
-        delete self[entity];
+      // Adding this extra try catch because there are cases when logs have child objects
+      // like functions or promises that cause issue in complete promise action, thus
+      // leading the app into a bad state.
+      try {
+        completePromise(requestId, {
+          result,
+          errors,
+          logs,
+          triggers: Array.from(self.TRIGGER_COLLECTOR),
+        });
+      } catch (error) {
+        completePromise(requestId, {
+          result,
+          errors,
+          triggers: Array.from(self.TRIGGER_COLLECTOR),
+        });
+      } finally {
+        for (const entity in GLOBAL_DATA) {
+          // @ts-expect-error: Types are not available
+          delete self[entity];
+        }
       }
     }
   })();

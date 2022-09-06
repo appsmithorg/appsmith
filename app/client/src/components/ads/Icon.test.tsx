@@ -1,5 +1,5 @@
 import React from "react";
-import Icon, { IconCollection, IconSize } from "./Icon";
+import { Icon, IconCollection, IconSize } from "design-system";
 import { render, screen } from "@testing-library/react";
 import { Colors } from "constants/Colors";
 

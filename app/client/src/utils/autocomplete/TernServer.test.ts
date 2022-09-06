@@ -18,6 +18,7 @@ describe("Tern server", () => {
           doc: ({
             getCursor: () => ({ ch: 0, line: 0 }),
             getLine: () => "{{Api.}}",
+            getValue: () => "{{Api.}}",
           } as unknown) as CodeMirror.Doc,
           changed: null,
         },
@@ -29,6 +30,7 @@ describe("Tern server", () => {
           doc: ({
             getCursor: () => ({ ch: 0, line: 0 }),
             getLine: () => "a{{Api.}}",
+            getValue: () => "a{{Api.}}",
           } as unknown) as CodeMirror.Doc,
           changed: null,
         },
@@ -38,17 +40,30 @@ describe("Tern server", () => {
         input: {
           name: "test",
           doc: ({
-            getCursor: () => ({ ch: 2, line: 0 }),
-            getLine: () => "a{{Api.}}",
+            getCursor: () => ({ ch: 10, line: 0 }),
+            getLine: () => "a{{Api.}}bc",
+            getValue: () => "a{{Api.}}bc",
           } as unknown) as CodeMirror.Doc,
           changed: null,
         },
-        expectedOutput: "{{Api.}}",
+        expectedOutput: "a{{Api.}}bc",
+      },
+      {
+        input: {
+          name: "test",
+          doc: ({
+            getCursor: () => ({ ch: 4, line: 0 }),
+            getLine: () => "a{{Api.}}",
+            getValue: () => "a{{Api.}}",
+          } as unknown) as CodeMirror.Doc,
+          changed: null,
+        },
+        expectedOutput: "Api.",
       },
     ];
 
     testCases.forEach((testCase) => {
-      const value = TernServer.getFocusedDynamicValue(testCase.input);
+      const { value } = TernServer.getFocusedDocValueAndPos(testCase.input);
       expect(value).toBe(testCase.expectedOutput);
     });
   });
@@ -62,7 +77,7 @@ describe("Tern server", () => {
             getCursor: () => ({ ch: 0, line: 0 }),
             getLine: () => "{{Api.}}",
             somethingSelected: () => false,
-            getValue: () => "",
+            getValue: () => "{{Api.}}",
           } as unknown) as CodeMirror.Doc,
           changed: null,
         },
@@ -75,7 +90,7 @@ describe("Tern server", () => {
             getCursor: () => ({ ch: 0, line: 0 }),
             getLine: () => "{{Api.}}",
             somethingSelected: () => false,
-            getValue: () => "",
+            getValue: () => "{{Api.}}",
           } as unknown) as CodeMirror.Doc,
           changed: null,
         },
@@ -85,20 +100,32 @@ describe("Tern server", () => {
         input: {
           name: "test",
           doc: ({
-            getCursor: () => ({ ch: 3, line: 0 }),
+            getCursor: () => ({ ch: 8, line: 0 }),
             getLine: () => "g {{Api.}}",
             somethingSelected: () => false,
-            getValue: () => "",
+            getValue: () => "g {{Api.}}",
           } as unknown) as CodeMirror.Doc,
           changed: null,
         },
-        expectedOutput: { ch: 3, line: 0 },
+        expectedOutput: { ch: 4, line: 0 },
+      },
+      {
+        input: {
+          name: "test",
+          doc: ({
+            getCursor: () => ({ ch: 7, line: 1 }),
+            getLine: () => "c{{Api.}}",
+            somethingSelected: () => false,
+            getValue: () => "ab\nc{{Api.}}",
+          } as unknown) as CodeMirror.Doc,
+          changed: null,
+        },
+        expectedOutput: { ch: 4, line: 0 },
       },
     ];
 
     testCases.forEach((testCase) => {
       const request = TernServer.buildRequest(testCase.input, {});
-
       expect(request.query.end).toEqual(testCase.expectedOutput);
     });
   });
@@ -115,6 +142,7 @@ describe("Tern server", () => {
               getCursor: () => ({ ch: 2, line: 0 }),
               getLine: () => "{{}}",
               somethingSelected: () => false,
+              getValue: () => "{{}}",
             } as unknown) as CodeMirror.Doc,
           },
           requestCallbackData: {
@@ -134,12 +162,13 @@ describe("Tern server", () => {
               getCursor: () => ({ ch: 3, line: 0 }),
               getLine: () => " {{}}",
               somethingSelected: () => false,
+              getValue: () => " {{}}",
             } as unknown) as CodeMirror.Doc,
           },
           requestCallbackData: {
             completions: [{ name: "Api1" }],
-            start: { ch: 2, line: 0 },
-            end: { ch: 6, line: 0 },
+            start: { ch: 0, line: 0 },
+            end: { ch: 4, line: 0 },
           },
         },
         expectedOutput: { ch: 3, line: 0 },

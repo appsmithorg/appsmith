@@ -3,16 +3,16 @@ import { reduxForm, InjectedFormProps, Form, Field } from "redux-form";
 import { connect } from "react-redux";
 import { withRouter, RouteComponentProps } from "react-router";
 import styled from "styled-components";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import { ActionDataState } from "reducers/entityReducers/actionsReducer";
-import { CURL_IMPORT_FORM } from "constants/forms";
+import { CURL_IMPORT_FORM } from "@appsmith/constants/forms";
 import { BuilderRouteParams } from "constants/routes";
 import { curlImportFormValues, curlImportSubmitHandler } from "./helpers";
 import { createNewApiName } from "utils/AppsmithUtils";
 import { Colors } from "constants/Colors";
 import CurlLogo from "assets/images/Curl-logo.svg";
 import CloseEditor from "components/editorComponents/CloseEditor";
-import Button, { Size } from "components/ads/Button";
+import { Button, Size } from "design-system";
 import FormRow from "components/editorComponents/FormRow";
 
 const MainConfiguration = styled.div`

@@ -10,9 +10,16 @@ import {
   setIsDisconnectGitModalOpen,
   setShowRepoLimitErrorModal,
 } from "actions/gitSyncActions";
-import Button, { Category, Size } from "components/ads/Button";
 import styled, { useTheme } from "styled-components";
-import { Text, TextType } from "design-system";
+import {
+  Button,
+  Category,
+  Icon,
+  IconSize,
+  Size,
+  Text,
+  TextType,
+} from "design-system";
 import { Colors } from "constants/Colors";
 import {
   CONTACT_SALES_MESSAGE_ON_INTERCOM,
@@ -27,7 +34,6 @@ import {
   REPOSITORY_LIMIT_REACHED_INFO,
   REVOKE_ACCESS,
 } from "@appsmith/constants/messages";
-import Icon, { IconSize } from "components/ads/Icon";
 import Link from "./components/Link";
 import { get } from "lodash";
 import { Theme } from "constants/DefaultTheme";

@@ -42,7 +42,7 @@ describe("storeValue Action test", () => {
       shouldCreateNewJSObj: true,
     });
 
-    ee.SelectEntityByName("Button1", "WIDGETS");
+    ee.SelectEntityByName("Button1", "Widgets");
     propPane.TypeTextIntoField("Label", "StoreTest");
     cy.get("@jsObjName").then((jsObj: any) => {
       propPane.SelectJSFunctionToExecute(
@@ -54,7 +54,7 @@ describe("storeValue Action test", () => {
 
     deployMode.DeployApp();
     agHelper.ClickButton("StoreTest");
-    agHelper.WaitUntilToastDisappear(
+    agHelper.AssertContains(
       JSON.stringify({
         val1: "number 1",
         val2: "number 2",
@@ -103,7 +103,7 @@ describe("storeValue Action test", () => {
     });
 
     // Button1
-    ee.SelectEntityByName("Button1", "WIDGETS");
+    ee.SelectEntityByName("Button1", "Widgets");
     propPane.UpdatePropertyFieldValue("Label", "StorePathTest");
     cy.get("@jsObjName").then((jsObj: any) => {
       propPane.SelectJSFunctionToExecute(
@@ -115,7 +115,7 @@ describe("storeValue Action test", () => {
 
     // Button 2
     ee.DragDropWidgetNVerify("buttonwidget", 100, 200);
-    ee.SelectEntityByName("Button2", "WIDGETS");
+    ee.SelectEntityByName("Button2", "Widgets");
     propPane.UpdatePropertyFieldValue("Label", "modifyStorePathTest");
     cy.get("@jsObjName").then((jsObj: any) => {
       propPane.SelectJSFunctionToExecute(
@@ -129,8 +129,9 @@ describe("storeValue Action test", () => {
     agHelper.ClickButton("StorePathTest");
     agHelper.ValidateToastMessage(JSON.stringify(DEFAULT_STUDENT_OBJECT), 0, 1);
     agHelper.ValidateToastMessage(DEFAULT_STUDENT_OBJECT.details.name, 1, 2);
-    agHelper.WaitUntilToastDisappear("Annah", 2, 3);
+    agHelper.ValidateToastMessage("Annah", 2, 3);
 
+    agHelper.WaitUntilAllToastsDisappear();
     agHelper.ClickButton("modifyStorePathTest");
     agHelper.ValidateToastMessage(
       JSON.stringify(MODIFIED_STUDENT_OBJECT.details),
@@ -142,7 +143,7 @@ describe("storeValue Action test", () => {
       1,
       2,
     );
-    agHelper.WaitUntilToastDisappear(`true`, 2, 3);
+    agHelper.ValidateToastMessage(`true`, 2, 3);
     deployMode.NavigateBacktoEditor();
   });
 
@@ -169,7 +170,7 @@ describe("storeValue Action test", () => {
       shouldCreateNewJSObj: true,
     });
 
-    ee.SelectEntityByName("Button1", "WIDGETS");
+    ee.SelectEntityByName("Button1", "Widgets");
     propPane.UpdatePropertyFieldValue("Label", "SetStore");
     cy.get("@jsObjName").then((jsObj: any) => {
       propPane.SelectJSFunctionToExecute(
@@ -179,7 +180,7 @@ describe("storeValue Action test", () => {
       );
     });
 
-    ee.SelectEntityByName("Button2", "WIDGETS");
+    ee.SelectEntityByName("Button2", "Widgets");
     propPane.UpdatePropertyFieldValue("Label", "ShowStore");
     cy.get("@jsObjName").then((jsObj: any) => {
       propPane.SelectJSFunctionToExecute(
@@ -193,7 +194,7 @@ describe("storeValue Action test", () => {
     agHelper.ClickButton("SetStore");
     agHelper.ValidateToastMessage(JSON.stringify(TEST_OBJECT), 0, 1);
     agHelper.ValidateToastMessage(JSON.stringify(TEST_OBJECT.two), 1, 2);
-    agHelper.WaitUntilToastDisappear(`{"b":2}`, 2, 3);
+    agHelper.ValidateToastMessage(`{"b":2}`, 2, 3);
 
     agHelper.ClickButton("ShowStore");
     agHelper.ValidateToastMessage(JSON.stringify(TEST_OBJECT), 0);

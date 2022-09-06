@@ -16,7 +16,7 @@ describe("Single Select Widget Functionality", function() {
     );
     // Change defaultText
     cy.openPropertyPane("singleselecttreewidget");
-    cy.updateCodeInput(".t--property-control-defaultvalue", "GREEN");
+    cy.updateCodeInput(".t--property-control-defaultselectedvalue", "GREEN");
     // Check if isDirty is reset to false
     cy.get(".t--widget-textwidget").should("contain", "false");
     // Interact with UI
@@ -31,14 +31,14 @@ describe("Single Select Widget Functionality", function() {
     cy.get(".t--widget-textwidget").should("contain", "true");
     // Change defaultText
     cy.openPropertyPane("singleselecttreewidget");
-    cy.updateCodeInput(".t--property-control-defaultvalue", "RED");
+    cy.updateCodeInput(".t--property-control-defaultselectedvalue", "RED");
     // Check if isDirty is reset to false
     cy.get(".t--widget-textwidget").should("contain", "false");
   });
 
   it("2. Selects value with enter in default value", () => {
     cy.openPropertyPane("singleselecttreewidget");
-    cy.testJsontext("defaultvalue", "RED\n");
+    cy.testJsontext("defaultselectedvalue", "RED\n");
     cy.get(formWidgetsPage.singleselecttreeWidget)
       .find(".rc-tree-select-selection-item")
       .first()
@@ -98,6 +98,18 @@ describe("Single Select Widget Functionality", function() {
       publish.singleselecttreewidget + " " + ".rc-tree-select-single",
     ).should("be.visible");
     cy.get(publish.backToEditor).click();
+  });
+
+  it("7. To Check Option Not Found", function() {
+    cy.get(formWidgetsPage.treeSelectInput)
+      .last()
+      .click({ force: true });
+    cy.get(formWidgetsPage.treeSelectFilterInput)
+      .click()
+      .type("ABCD");
+    cy.get(".tree-select-dropdown .rc-tree-select-empty").contains(
+      "No Results Found",
+    );
   });
 });
 afterEach(() => {
