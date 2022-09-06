@@ -295,15 +295,11 @@ Cypress.Commands.add("CreateAppInFirstListedWorkspace", (appname) => {
     applicationId = response.body.data.id;
     localStorage.setItem("applicationId", applicationId);
   });
-  cy.get("#loading").should("not.exist");
+  //cy.get("#loading").should("not.exist");
   // eslint-disable-next-line cypress/no-unnecessary-waiting
   //cy.reload();
-  cy.waitUntil(() => cy.get(generatePage.buildFromScratchActionCard), {
-    errorMsg: "Build app from scratch not visible even aft 10 secs",
-    timeout: 10000,
-    interval: 1000,
-  }).then(() => cy.AppSetupForRename());
-
+  cy.get(generatePage.buildFromScratchActionCard).should("be.visible");
+  cy.AppSetupForRename();
   cy.get(homePage.applicationName).type(appname + "{enter}");
   cy.wait("@updateApplication").should(
     "have.nested.property",
