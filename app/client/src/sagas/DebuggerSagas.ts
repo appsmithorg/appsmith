@@ -53,6 +53,9 @@ import { getCurrentPageId } from "selectors/editorSelectors";
 import { WidgetProps } from "widgets/BaseWidget";
 import * as log from "loglevel";
 import { DependencyMap } from "utils/DynamicBindingUtils";
+import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
+import { LogObject, createLogTitleString } from "workers/UserLog";
+import { TriggerMeta } from "./ActionExecution/ActionExecutionSagas";
 
 // Saga to format action request values to be shown in the debugger
 function* formatActionRequestSaga(
@@ -477,6 +480,58 @@ function* deleteDebuggerErrorLogSaga(
   }
 
   yield put(deleteErrorLog(action.payload.id));
+}
+
+// takes a log object array and stores it in the redux store
+export function* storeLogs(
+  logs: LogObject[],
+  entityName: string,
+  entityType: ENTITY_TYPE,
+  entityId: string,
+) {
+  logs.forEach((log: LogObject) => {
+    AppsmithConsole.addLog(
+      {
+        text: createLogTitleString(log.data),
+        logData: log.data,
+        source: {
+          type: entityType,
+          name: entityName,
+          id: entityId,
+        },
+      },
+      log.severity,
+      log.timestamp,
+    );
+  });
+}
+
+// takes a log object array alognwith its source data and passes it on to the storeLogs saga
+export function* processAndStoreLogs(
+  triggerMeta: TriggerMeta,
+  logs: LogObject[],
+  dynamicTrigger: string,
+  eventType: EventType,
+) {
+  let name = "";
+
+  if (!!triggerMeta.source && "name" in triggerMeta.source) {
+    name = triggerMeta.source.name;
+  } else if (
+    !(dynamicTrigger.includes("{{") || dynamicTrigger.includes("}}"))
+  ) {
+    // We use the dynamic trigger as the name if it is not a binding
+    name = dynamicTrigger.replace("()", "");
+  }
+  yield call(
+    storeLogs,
+    logs,
+    name,
+    eventType === EventType.ON_JS_FUNCTION_EXECUTE
+      ? ENTITY_TYPE.JSACTION
+      : ENTITY_TYPE.WIDGET,
+    triggerMeta.source?.id || "",
+  );
 }
 
 export default function* debuggerSagasListeners() {

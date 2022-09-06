@@ -1,6 +1,4 @@
-const commonlocators = require("../../../../locators/commonlocators.json");
 const dsl = require("../../../../fixtures/formInputTableDsl.json");
-const widgetsPage = require("../../../../locators/Widgets.json");
 const publish = require("../../../../locators/publishWidgetspage.json");
 const testdata = require("../../../../fixtures/testdata.json");
 
@@ -11,7 +9,7 @@ describe("Binding the Table and input Widget", function() {
 
   it("Input widget test with default value from table widget", function() {
     cy.SearchEntityandOpen("Input1");
-    cy.testJsontext("defaulttext", testdata.defaultInputWidget + "}}");
+    cy.testJsontext("defaultvalue", testdata.defaultInputWidget + "}}");
 
     cy.wait("@updateLayout").should(
       "have.nested.property",

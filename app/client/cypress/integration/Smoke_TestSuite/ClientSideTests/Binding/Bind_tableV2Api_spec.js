@@ -47,7 +47,7 @@ describe("Test Create Api and Bind to Table widget V2", function() {
     cy.SearchEntityandOpen("Table1");
     cy.openPropertyPane("tablewidgetv2");
     cy.togglebarDisable(
-      ".t--property-control-enableclientsidesearch input[type='checkbox']",
+      ".t--property-control-clientsidesearch input[type='checkbox']",
     );
     cy.get(".t--widget-tablewidgetv2 .t--search-input")
       .first()
