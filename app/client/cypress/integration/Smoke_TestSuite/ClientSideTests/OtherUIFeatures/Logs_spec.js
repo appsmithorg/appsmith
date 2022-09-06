@@ -129,9 +129,9 @@ describe("Debugger logs", function() {
   	return temp;
   })()}}`,
     );
-    cy.reload();
+    agHelper.RefreshPage();
     // Wait for the debugger icon to be visible
-    cy.get(".t--debugger").should("be.visible");
+    agHelper.AssertElementVisible(".t--debugger");
     agHelper.GetNClick(locator._debuggerIcon);
     agHelper.GetNAssertContains(locator._debuggerLogMessage, logString);
   });
@@ -189,6 +189,7 @@ describe("Debugger logs", function() {
   it("11. Console log after API succedes", function() {
     ee.NavigateToSwitcher("explorer");
     apiPage.CreateAndFillApi(dataSet.baseUrl + dataSet.methods, "Api1");
+    const returnText = "success";
     jsEditor.CreateJSObject(
       `export default {
         myFun1: async () => {
@@ -196,7 +197,7 @@ describe("Debugger logs", function() {
             console.log("${logString} Started");
             return Api1.run().then(()=>{
               console.log("${logString} Success");
-              return "success";
+              return "${returnText}";
             }).catch(()=>{
               console.log("${logString} Failed");
               return "fail";
@@ -215,22 +216,27 @@ describe("Debugger logs", function() {
       },
     );
     agHelper.WaitUntilAllToastsDisappear();
-    agHelper.GetNClick(jsEditor._runButton);
-    agHelper.GetNClick(jsEditor._logsTab);
-    agHelper.GetNAssertContains(
-      locator._debuggerLogMessage,
-      `${logString} Started`,
-    );
-    agHelper.GetNAssertContains(
-      locator._debuggerLogMessage,
-      `${logString} Success`,
-    );
-    ee.DragDropWidgetNVerify("textwidget", 200, 600);
-    propPane.UpdatePropertyFieldValue("Text", `{{JSObject2.myFun1.data}}`);
-    cy.get(commonlocators.textWidgetContainer).should(
-      "contain.text",
-      "success",
-    );
+
+    cy.get("@jsObjName").then((jsObjName) => {
+      agHelper.GetNClick(jsEditor._runButton);
+      agHelper.GetNClick(jsEditor._logsTab);
+      agHelper.GetNAssertContains(
+        locator._debuggerLogMessage,
+        `${logString} Started`,
+      );
+      agHelper.GetNAssertContains(
+        locator._debuggerLogMessage,
+        `${logString} Success`,
+      );
+      ee.DragDropWidgetNVerify("textwidget", 200, 600);
+      propPane.UpdatePropertyFieldValue("Text", `{{${jsObjName}.myFun1.data}}`);
+      agHelper.GetNAssertElementText(
+        commonlocators.textWidgetContainer,
+        returnText,
+        "have.text",
+        1,
+      );
+    });
   });
 
   it("12. Console log after API execution fails", function() {
