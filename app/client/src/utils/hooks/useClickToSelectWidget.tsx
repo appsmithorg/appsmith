@@ -1,10 +1,7 @@
-import { get } from "lodash";
 import { getIsPropertyPaneVisible } from "selectors/propertyPaneSelectors";
 import { getIsTableFilterPaneVisible } from "selectors/tableFilterSelectors";
-import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import { useSelector } from "store";
 import { AppState } from "@appsmith/reducers";
-import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { APP_MODE } from "entities/App";
 import { getAppMode } from "selectors/applicationSelectors";
 import { useWidgetSelection } from "./useWidgetSelection";
@@ -16,34 +13,6 @@ import {
   isWidgetSelected,
 } from "selectors/widgetSelectors";
 import equal from "fast-deep-equal/es6";
-
-export function getParentToOpenIfAny(
-  widgetId: string | undefined,
-  widgets: CanvasWidgetsReduxState,
-) {
-  if (widgetId) {
-    let widget = get(widgets, widgetId, undefined);
-
-    // While this widget has a openParentPropertyPane equql to true
-    while (widget?.openParentPropertyPane) {
-      // Get parent widget props
-      const parent = get(widgets, `${widget.parentId}`, undefined);
-
-      // If parent has openParentPropertyPane = false, return the currnet parent
-      if (!parent?.openParentPropertyPane) {
-        return parent;
-      }
-
-      if (parent?.parentId && parent.parentId !== MAIN_CONTAINER_WIDGET_ID) {
-        widget = get(widgets, `${widget.parentId}`, undefined);
-
-        continue;
-      }
-    }
-  }
-
-  return;
-}
 
 export function ClickContentToOpenPropPane({
   children,
@@ -104,10 +73,8 @@ export const useClickToSelectWidget = (widgetId: string) => {
   );
 
   const isFocused = useSelector(isCurrentWidgetFocused(widgetId), equal);
-  // const isFocused = false;
 
   const isSelected = useSelector(isWidgetSelected(widgetId), equal);
-  // const parentWidgetToOpen = useSelector(getParentToOpenIfAny(widgetId));
 
   // This state tells us whether a `ResizableComponent` is resizing
   const isResizing = useSelector(
