@@ -223,7 +223,7 @@ describe("Generate New CRUD Page Inside from entity explorer", function() {
     cy.get("span:contains('GOT IT')").click();
 
     //Bug verification starts
-    cy.CheckAndUnfoldEntityItem("QUERIES/JS");
+    cy.CheckAndUnfoldEntityItem("Queries/JS");
     cy.selectEntityByName("ListFiles");
     cy.wait(2000);
     cy.selectEntityByName("Page3");

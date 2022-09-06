@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { updatePhoto, removePhoto, updatePhotoId } from "actions/userActions";
 import { getCurrentUser } from "selectors/usersSelectors";
 import { USER_PHOTO_ASSET_URL } from "constants/userConstants";
-import DisplayImageUpload from "components/ads/DisplayImageUpload";
+import { DisplayImageUpload } from "design-system";
 
 import Uppy from "@uppy/core";
 

@@ -14,6 +14,7 @@ import {
 import { restoreRecentEntitiesRequest } from "actions/globalSearchActions";
 import { resetEditorSuccess } from "actions/initActions";
 import { fetchJSCollections } from "actions/jsActionActions";
+import { loadGuidedTourInit } from "actions/onboardingActions";
 import {
   fetchAllPageEntityCompletion,
   fetchPage,
@@ -28,7 +29,7 @@ import {
   ApplicationPayload,
   ReduxActionErrorTypes,
   ReduxActionTypes,
-} from "ce/constants/ReduxActionConstants";
+} from "@appsmith/constants/ReduxActionConstants";
 import { addBranchParam } from "constants/routes";
 import { APP_MODE } from "entities/App";
 import { all, call, put, select } from "redux-saga/effects";
@@ -185,6 +186,7 @@ export default class AppEditorEngine extends AppEngine {
       appId: currentApplication.id,
       appName: currentApplication.name,
     });
+    yield put(loadGuidedTourInit());
     yield put({
       type: ReduxActionTypes.INITIALIZE_EDITOR_SUCCESS,
     });
