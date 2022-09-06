@@ -3,7 +3,7 @@ import { getTypographyByKey } from "constants/DefaultTheme";
 import React from "react";
 import { useSelector } from "react-redux";
 import { AppState } from "@appsmith/reducers";
-import { getDefaultPluginByPackageName } from "selectors/entitiesSelector";
+import { getDefaultPlugin } from "selectors/entitiesSelector";
 import styled from "styled-components";
 
 const StyledDatasourceChip = styled.div`
@@ -33,7 +33,7 @@ interface DatasourceChipProps {
 
 function DatasourceChip(props: DatasourceChipProps) {
   const plugin = useSelector((state: AppState) =>
-    getDefaultPluginByPackageName(state, props.pluginPackageName),
+    getDefaultPlugin(state, props.pluginPackageName),
   );
 
   if (!plugin) return null;

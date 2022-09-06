@@ -26,6 +26,7 @@ import {
   isActionSaving,
   getJSCollection,
 } from "selectors/entitiesSelector";
+import { getIsGitSyncModalOpen } from "selectors/gitSyncSelectors";
 import {
   getAppMode,
   getCurrentApplication,
@@ -43,6 +44,7 @@ import {
   ERROR_ACTION_EXECUTE_FAIL,
   ERROR_FAIL_ON_PAGE_LOAD_ACTIONS,
   ERROR_PLUGIN_ACTION_EXECUTE,
+  ACTION_EXECUTION_CANCELLED,
 } from "@appsmith/constants/messages";
 import { Variant } from "components/ads/common";
 import {
@@ -99,7 +101,7 @@ import {
 import { requestModalConfirmationSaga } from "sagas/UtilSagas";
 import { ModalType } from "reducers/uiReducers/modalActionReducer";
 import { getFormNames, getFormValues } from "redux-form";
-import { CURL_IMPORT_FORM } from "constants/forms";
+import { CURL_IMPORT_FORM } from "@appsmith/constants/forms";
 import { submitCurlImportForm } from "actions/importActions";
 import { curlImportFormValues } from "pages/Editor/APIEditor/helpers";
 import { matchBasePath } from "pages/Editor/Explorer/helpers";
@@ -449,6 +451,11 @@ function* runActionShortcutSaga() {
   const pathname = window.location.pathname;
   const baseMatch = matchBasePath(pathname);
   if (!baseMatch) return;
+  // get gitSyncModal status
+  const isGitSyncModalOpen: boolean = yield select(getIsGitSyncModalOpen);
+  // if git sync modal is open, prevent action from being executed via shortcut keys.
+  if (isGitSyncModalOpen) return;
+
   const { path } = baseMatch;
   const match: any = matchPath(pathname, {
     path: [
@@ -561,6 +568,19 @@ function* runActionSaga(
     // When running from the pane, we just want to end the saga if the user has
     // cancelled the call. No need to log any errors
     if (e instanceof UserCancelledActionExecutionError) {
+      // cancel action but do not throw any error.
+      yield put({
+        type: ReduxActionErrorTypes.RUN_ACTION_ERROR,
+        payload: {
+          error: e.name,
+          id: reduxAction.payload.id,
+          show: false,
+        },
+      });
+      Toaster.show({
+        text: createMessage(ACTION_EXECUTION_CANCELLED, actionObject.name),
+        variant: Variant.danger,
+      });
       return;
     }
     log.error(e);
@@ -910,14 +930,14 @@ function* executePluginActionSaga(
     params,
   );
 
-  const response: ActionExecutionResponse = yield ActionAPI.executeAction(
-    formData,
-    timeout,
-  );
-  PerformanceTracker.stopAsyncTracking(
-    PerformanceTransactionName.EXECUTE_ACTION,
-  );
   try {
+    const response: ActionExecutionResponse = yield ActionAPI.executeAction(
+      formData,
+      timeout,
+    );
+    PerformanceTracker.stopAsyncTracking(
+      PerformanceTransactionName.EXECUTE_ACTION,
+    );
     yield validateResponse(response);
     const payload = createActionExecutionResponse(response);
 
@@ -949,7 +969,11 @@ function* executePluginActionSaga(
         response: EMPTY_RESPONSE,
       }),
     );
-    throw new PluginActionExecutionError("Response not valid", false, response);
+    if (e instanceof UserCancelledActionExecutionError) {
+      throw new UserCancelledActionExecutionError();
+    }
+
+    throw new PluginActionExecutionError("Response not valid", false);
   }
 }
 

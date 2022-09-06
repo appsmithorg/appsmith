@@ -13,7 +13,7 @@ describe("API Panel Test Functionality ", function() {
     cy.enterDatasourceAndPath(testdata.baseUrl, "{{ '/random' }}");
     cy.assertPageSave();
     cy.get("body").click(0, 0);
-    ee.ExpandCollapseEntity("QUERIES/JS");
+    ee.ExpandCollapseEntity("Queries/JS");
     ee.ActionContextMenuByEntityName("FirstAPI", "Copy to page", "SecondPage");
     // click on learn how link
     cy.get(".t--learn-how-apis-link").click();
