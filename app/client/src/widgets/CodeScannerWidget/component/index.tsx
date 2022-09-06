@@ -44,7 +44,7 @@ const CodeScannerGlobalStyles = createGlobalStyle<{
     right: 0;
     bottom: 0;
     background-color: rgba(16, 22, 26, 0.7);
-    z-index: 3;
+    z-index: 10;
   }
 
   .code-scanner-close {
@@ -322,9 +322,9 @@ function CodeScannerComponent(props: CodeScannerComponentProps) {
     setIsOpen(true);
   };
 
-  function closeModal() {
+  const closeModal = () => {
     setIsOpen(false);
-  }
+  };
 
   const appLayout = useSelector(getCurrentApplicationLayout);
 
@@ -391,6 +391,7 @@ function CodeScannerComponent(props: CodeScannerComponentProps) {
         <Modal
           className="code-scanner-content"
           isOpen={modalIsOpen}
+          onRequestClose={closeModal}
           overlayClassName="code-scanner-overlay"
         >
           {error && (
