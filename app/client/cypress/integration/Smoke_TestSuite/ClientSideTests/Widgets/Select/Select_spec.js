@@ -25,7 +25,7 @@ describe("Select widget", () => {
     // Check if isDirty is set to true
     cy.get(".t--widget-textwidget").should("contain", "true");
     // Change defaultOptionValue property
-    cy.updateCodeInput(".t--property-control-defaultvalue", "RED");
+    cy.updateCodeInput(".t--property-control-defaultselectedvalue", "RED");
     // Check if isDirty is reset to false
     cy.get(".t--widget-textwidget").should("contain", "false");
   });

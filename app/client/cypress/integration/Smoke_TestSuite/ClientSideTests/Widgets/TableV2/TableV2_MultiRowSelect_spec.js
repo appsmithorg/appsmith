@@ -48,7 +48,7 @@ describe("Table Widget V2 row multi select validation", function() {
 
   it("4. Test action configured on onRowSelected get triggered whenever a table row is selected", function() {
     cy.openPropertyPane("tablewidgetv2");
-    cy.onTableAction(0, "onrowselected", "Row Selected");
+    cy.onTableAction(1, "onrowselected", "Row Selected");
     // un select first row
     cy.get(".t--table-multiselect")
       .first()

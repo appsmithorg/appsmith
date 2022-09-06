@@ -9,15 +9,14 @@ import { get, isNumber, isPlainObject, isString } from "lodash";
 import { IPanelProps } from "@blueprintjs/core";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import PropertyPaneTitle from "../PropertyPaneTitle";
-import { SearchVariant } from "components/ads";
+import { SearchVariant } from "design-system";
 import { StyledSearchInput } from "./PropertyPaneView";
 import { PropertyPaneTab } from "./PropertyPaneTab";
-import { selectFeatureFlags } from "selectors/usersSelectors";
 import styled from "styled-components";
 import { updateConfigPaths, useSearchText } from "./helpers";
 
 const PanelWrapper = styled.div`
-  margin-top: 52px;
+  margin-top: 44px;
 `;
 
 function PanelHeader(props: PanelHeaderProps) {
@@ -43,7 +42,6 @@ export function PanelPropertiesEditor(
     PanelPropertiesEditorPanelProps &
     IPanelProps,
 ) {
-  const featureFlags = useSelector(selectFeatureFlags);
   const widgetProperties: any = useSelector(getWidgetPropsForPropertyPane);
 
   const {
@@ -165,16 +163,18 @@ export function PanelPropertiesEditor(
         title={panelProps[panelConfig.titlePropertyName]}
         updatePropertyTitle={updatePropertyTitle}
       />
-      {featureFlags.PROPERTY_PANE_GROUPING &&
-      (panelConfigsWithStyleAndContent?.content ||
-        panelConfigsWithStyleAndContent?.style) ? (
+      {panelConfigsWithStyleAndContent?.content ||
+      panelConfigsWithStyleAndContent?.style ? (
         <>
-          <StyledSearchInput
-            fill
-            onChange={setSearchText}
-            placeholder="Search for controls, labels etc"
-            variant={SearchVariant.BACKGROUND}
-          />
+          {// TODO(aswathkk): Fix #15970 and show search bar
+          false && (
+            <StyledSearchInput
+              fill
+              onChange={setSearchText}
+              placeholder="Search for controls, labels etc"
+              variant={SearchVariant.BACKGROUND}
+            />
+          )}
           <PropertyPaneTab
             contentComponent={
               panelConfigsWithStyleAndContent?.content ? (

@@ -1,14 +1,14 @@
-import { ObjectsRegistry } from "../../../../support/Objects/Registry"
+import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 
 let ee = ObjectsRegistry.EntityExplorer,
-    jsEditor = ObjectsRegistry.JSEditor;
+  jsEditor = ObjectsRegistry.JSEditor;
 
 describe("Validate basic operations on Entity explorer JSEditor structure", () => {
   const pageId = "Page1";
 
   it("1. Validate JSObject creation & Run", () => {
     jsEditor.CreateJSObject('return "Hello World";');
-    ee.ExpandCollapseEntity("QUERIES/JS");
+    ee.ExpandCollapseEntity("Queries/JS");
     ee.AssertEntityPresenceInExplorer("JSObject1");
     jsEditor.ValidateDefaultJSObjProperties("JSObject1");
   });
@@ -20,11 +20,7 @@ describe("Validate basic operations on Entity explorer JSEditor structure", () =
   });
 
   it("3. Validate Copy JSObject", function() {
-    ee.ActionContextMenuByEntityName(
-      "RenamedJSObject",
-      "Copy to page",
-      pageId,
-    );
+    ee.ActionContextMenuByEntityName("RenamedJSObject", "Copy to page", pageId);
     cy.wait("@createNewJSCollection").should(
       "have.nested.property",
       "response.body.responseMeta.status",
@@ -45,7 +41,7 @@ describe("Validate basic operations on Entity explorer JSEditor structure", () =
     ee.AddNewPage();
     ee.AssertEntityPresenceInExplorer(newPageId);
     ee.SelectEntityByName(pageId);
-    ee.ExpandCollapseEntity("QUERIES/JS");
+    ee.ExpandCollapseEntity("Queries/JS");
     ee.ActionContextMenuByEntityName(
       "RenamedJSObjectCopy",
       "Move to page",
@@ -58,11 +54,12 @@ describe("Validate basic operations on Entity explorer JSEditor structure", () =
 
   it("6. Validate Deletion of JSObject", function() {
     ee.SelectEntityByName(pageId);
-    ee.ExpandCollapseEntity("QUERIES/JS");
+    ee.ExpandCollapseEntity("Queries/JS");
     ee.ActionContextMenuByEntityName(
       "ExplorerRenamed",
       "Delete",
-      "Are you sure?", true
+      "Are you sure?",
+      true,
     );
     ee.AssertEntityAbsenceInExplorer("ExplorerRenamed");
   });
