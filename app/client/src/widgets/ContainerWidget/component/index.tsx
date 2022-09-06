@@ -232,7 +232,7 @@ export function LayoutWrapper(props: FlexBoxProps): JSX.Element {
         className={`wrapper center-wrapper-${props.widgetId} ${
           hasFillChild ? "no-display" : ""
         }`}
-        flexDirection={FlexDirection.Row}
+        flexDirection={layoutProps.flexDirection}
       >
         {center}
       </CenterWrapper>
@@ -240,7 +240,7 @@ export function LayoutWrapper(props: FlexBoxProps): JSX.Element {
         className={`wrapper end-wrapper-${props.widgetId} ${
           hasFillChild ? "no-display" : ""
         }`}
-        flexDirection={FlexDirection.Row}
+        flexDirection={layoutProps.flexDirection}
       >
         {end}
       </EndWrapper>

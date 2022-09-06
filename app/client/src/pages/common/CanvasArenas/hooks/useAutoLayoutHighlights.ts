@@ -72,31 +72,94 @@ export const useAutoLayoutHighlights = ({
    * START AUTO LAYOUT OFFSET CALCULATION
    */
 
+  // Fetch and update the dimensions of the containing canvas.
+  const updateContainerDimensions = (): boolean => {
+    const container = document.querySelector(`.appsmith_widget_${canvasId}`);
+    const containerRect:
+      | DOMRect
+      | undefined = container?.getBoundingClientRect();
+    if (!container || !containerRect) return false;
+    containerDimensions = {
+      top: containerRect?.top || 0,
+      bottom: containerRect?.bottom - containerDimensions?.top || 0,
+      left: containerRect?.left || 0,
+      right: containerRect?.right - containerRect?.left || 0,
+      width: containerRect?.width,
+      height: containerRect?.height,
+    };
+    // console.log(
+    //   `#### container dimensions: ${JSON.stringify(containerDimensions)}`,
+    // );
+    return true;
+  };
+
+  const getContainerDimensions = () => {
+    if (!containerDimensions) updateContainerDimensions();
+    return containerDimensions;
+  };
+
+  const initialOffsets: Record<
+    LayoutWrapperType,
+    Record<LayoutDirection, Highlight>
+  > = {
+    [LayoutWrapperType.Start]: {
+      [LayoutDirection.Vertical]: {
+        x: 0,
+        y: 8,
+        width: getContainerDimensions()?.width || BASE_OFFSET_SIZE,
+        height: OFFSET_WIDTH,
+        wrapperType: LayoutWrapperType.Start,
+      },
+      [LayoutDirection.Horizontal]: {
+        x: 8,
+        y: 0,
+        width: OFFSET_WIDTH,
+        height: getContainerDimensions()?.height || BASE_OFFSET_SIZE,
+        wrapperType: LayoutWrapperType.Start,
+      },
+    },
+    [LayoutWrapperType.Center]: {
+      [LayoutDirection.Vertical]: {
+        x: 0,
+        y: getContainerDimensions()?.height / 2,
+        width: getContainerDimensions()?.width || BASE_OFFSET_SIZE,
+        height: OFFSET_WIDTH,
+        wrapperType: LayoutWrapperType.Center,
+      },
+      [LayoutDirection.Horizontal]: {
+        x: getContainerDimensions()?.width / 2,
+        y: 0,
+        width: OFFSET_WIDTH,
+        height: getContainerDimensions()?.height || BASE_OFFSET_SIZE,
+        wrapperType: LayoutWrapperType.Center,
+      },
+    },
+    [LayoutWrapperType.End]: {
+      [LayoutDirection.Vertical]: {
+        x: 0,
+        y: getContainerDimensions()?.bottom,
+        width: getContainerDimensions()?.width || BASE_OFFSET_SIZE,
+        height: OFFSET_WIDTH,
+        wrapperType: LayoutWrapperType.End,
+      },
+      [LayoutDirection.Horizontal]: {
+        x: getContainerDimensions()?.right,
+        y: 0,
+        width: OFFSET_WIDTH,
+        height: getContainerDimensions()?.height || BASE_OFFSET_SIZE,
+        wrapperType: LayoutWrapperType.End,
+      },
+    },
+  };
+
   // Create and add an initial offset for an empty canvas
   const getInitialOffset = (
     isWrapper: boolean,
     wrapperType: LayoutWrapperType = LayoutWrapperType.Start,
   ): Highlight => {
-    let mOffset: Highlight;
-    const reverse = isWrapper && wrapperType === LayoutWrapperType.End;
-    if (isVertical) {
-      mOffset = {
-        x: 0,
-        y: reverse ? containerDimensions.bottom - 8 : 8,
-        width: containerDimensions?.width || BASE_OFFSET_SIZE,
-        height: OFFSET_WIDTH,
-        wrapperType,
-      };
-    } else {
-      mOffset = {
-        x: reverse ? containerDimensions.right - 8 : 8,
-        y: 0,
-        width: OFFSET_WIDTH,
-        height: containerDimensions?.height || BASE_OFFSET_SIZE,
-        wrapperType,
-      };
-    }
-    return mOffset;
+    const dir: LayoutDirection = direction || LayoutDirection.Horizontal;
+    if (isWrapper) return initialOffsets[wrapperType][dir];
+    return initialOffsets[LayoutWrapperType.Start][dir];
   };
   // Get DOM element for a given widgetId
   const getDomElement = (widgetId: string): any =>
@@ -120,24 +183,6 @@ export const useAutoLayoutHighlights = ({
       dropPositionRef.current.style.opacity = "0";
       dropPositionRef.current.style.display = "none";
     }
-  };
-
-  // Fetch and update the dimensions of the containing canvas.
-  const updateContainerDimensions = (): boolean => {
-    const container = document.querySelector(`.appsmith_widget_${canvasId}`);
-    const containerRect:
-      | DOMRect
-      | undefined = container?.getBoundingClientRect();
-    if (!container || !containerRect) return false;
-    containerDimensions = {
-      top: containerRect?.top || 0,
-      bottom: containerRect?.bottom - containerDimensions?.top || 0,
-      left: containerRect?.left || 0,
-      right: containerRect?.right - containerRect?.left || 0,
-      width: containerRect?.width,
-      height: containerRect?.height,
-    };
-    return true;
   };
 
   // Get a list of widgetIds that are being dragged.
@@ -360,9 +405,7 @@ export const useAutoLayoutHighlights = ({
       if (siblings.length) {
         res.push(
           getOffset(
-            wrapperType === LayoutWrapperType.End
-              ? siblings[siblings.length - 1]
-              : siblings[siblings.length - 1],
+            siblings[siblings.length - 1],
             flexOffsetTop,
             wrapperType,
             true,
