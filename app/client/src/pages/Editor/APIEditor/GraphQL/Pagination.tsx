@@ -270,8 +270,6 @@ function PaginationTypeBasedWrapper({
           className={`${className}Value`}
           dataTreePath={dataTreePath}
           disabled={separateKeyFlag && !separateValueFlag}
-          fill={!!true}
-          height="100%"
           name={valuePath}
           onChange={onInputChange}
           placeholder={valuePlaceholder || ""}
