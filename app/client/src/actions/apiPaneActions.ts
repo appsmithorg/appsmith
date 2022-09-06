@@ -95,9 +95,23 @@ export const executeCommandAction = (payload: SlashCommandPayload) => ({
   payload: payload,
 });
 
-export const setApiPaneSelectedTabIndex: (
+export const setApiPaneConfigSelectedTabIndex: (
   payload: number,
 ) => ReduxAction<{ selectedTabIndex: number }> = (payload: number) => ({
-  type: ReduxActionTypes.SET_API_PANE_SELECTED_TAB,
+  type: ReduxActionTypes.SET_API_PANE_CONFIG_SELECTED_TAB,
   payload: { selectedTabIndex: payload },
+});
+
+export const setApiPaneResponseSelectedTabIndex: (
+  payload: number,
+) => ReduxAction<{ selectedTabIndex: number }> = (payload: number) => ({
+  type: ReduxActionTypes.SET_API_PANE_RESPONSE_SELECTED_TAB,
+  payload: { selectedTabIndex: payload },
+});
+
+export const setApiPaneResponsePaneHeight: (
+  payload: number,
+) => ReduxAction<{ height: number }> = (payload: number) => ({
+  type: ReduxActionTypes.SET_API_PANE_RESPONSE_PANE_HEIGHT,
+  payload: { height: payload },
 });

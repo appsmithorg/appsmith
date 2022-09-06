@@ -1,5 +1,13 @@
-import { getApiPaneSelectedTabIndex } from "selectors/apiPaneSelectors";
-import { setApiPaneSelectedTabIndex } from "actions/apiPaneActions";
+import {
+  getApiPaneConfigSelectedTabIndex,
+  getApiPaneResponsePaneHeight,
+  getApiPaneResponseSelectedTabIndex,
+} from "selectors/apiPaneSelectors";
+import {
+  setApiPaneResponseSelectedTabIndex,
+  setApiPaneConfigSelectedTabIndex,
+  setApiPaneResponsePaneHeight,
+} from "actions/apiPaneActions";
 import { AppState } from "@appsmith/reducers";
 import { ReduxAction } from "ce/constants/ReduxActionConstants";
 import { getFocusableField } from "selectors/editorContextSelectors";
@@ -8,9 +16,12 @@ import { getSelectedWidgets } from "selectors/ui";
 import { selectMultipleWidgetsInitAction } from "actions/widgetSelectionActions";
 
 import { FocusEntity } from "navigation/FocusEntity";
+import { ActionExecutionResizerHeight } from "components/editorComponents/ApiResponseView";
 
 export enum FocusElement {
-  ApiPaneTabs = "ApiPaneTabs",
+  ApiPaneConfigTabs = "ApiPaneConfigTabs",
+  ApiPaneResponseTabs = "ApiPaneResponseTabs",
+  ApiPaneResponseHeight = "ApiPaneResponseHeight",
   PropertyField = "PropertyField",
   SelectedWidgets = "SelectedWidgets",
 }
@@ -46,10 +57,22 @@ export const FocusElementsConfig: Record<FocusEntity, Config[]> = {
       setter: setFocusableField,
     },
     {
-      name: FocusElement.ApiPaneTabs,
-      selector: getApiPaneSelectedTabIndex,
-      setter: setApiPaneSelectedTabIndex,
+      name: FocusElement.ApiPaneConfigTabs,
+      selector: getApiPaneConfigSelectedTabIndex,
+      setter: setApiPaneConfigSelectedTabIndex,
       defaultValue: 0,
+    },
+    {
+      name: FocusElement.ApiPaneResponseTabs,
+      selector: getApiPaneResponseSelectedTabIndex,
+      setter: setApiPaneResponseSelectedTabIndex,
+      defaultValue: 0,
+    },
+    {
+      name: FocusElement.ApiPaneResponseHeight,
+      selector: getApiPaneResponsePaneHeight,
+      setter: setApiPaneResponsePaneHeight,
+      defaultValue: ActionExecutionResizerHeight,
     },
   ],
 };

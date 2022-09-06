@@ -27,8 +27,8 @@ import {
   TabbedViewContainer,
 } from "pages/Editor/APIEditor/Form";
 import { useDispatch, useSelector } from "react-redux";
-import { getApiPaneSelectedTabIndex } from "selectors/apiPaneSelectors";
-import { setApiPaneSelectedTabIndex } from "actions/apiPaneActions";
+import { getApiPaneConfigSelectedTabIndex } from "selectors/apiPaneSelectors";
+import { setApiPaneConfigSelectedTabIndex } from "actions/apiPaneActions";
 import styled from "styled-components";
 import { useLocalStorage } from "utils/hooks/localstorage";
 import Callout from "components/ads/Callout";
@@ -337,9 +337,9 @@ type Props = {
 const ApiConfigTabs = (props: Props) => {
   const { theme } = props;
   const dispatch = useDispatch();
-  const selectedIndex = useSelector(getApiPaneSelectedTabIndex);
+  const selectedIndex = useSelector(getApiPaneConfigSelectedTabIndex);
   const setSelectedIndex = useCallback(
-    (index: number) => dispatch(setApiPaneSelectedTabIndex(index)),
+    (index: number) => dispatch(setApiPaneConfigSelectedTabIndex(index)),
     [],
   );
   const [

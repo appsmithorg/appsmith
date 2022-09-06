@@ -21,12 +21,16 @@ const Top = styled.div`
 type ResizerProps = {
   panelRef: RefObject<HTMLDivElement>;
   setContainerDimensions?: (height: number) => void;
+  onResizeComplete?: (height: number) => void;
   snapToHeight?: number;
   openResizer?: boolean;
 };
 
 function Resizer(props: ResizerProps) {
   const [mouseDown, setMouseDown] = useState(false);
+  const [height, setHeight] = useState(
+    props.panelRef.current?.getBoundingClientRect().height || 0,
+  );
 
   const handleResize = (movementY: number) => {
     const panel = props.panelRef.current;
@@ -44,9 +48,14 @@ function Resizer(props: ResizerProps) {
       updatedHeight > minHeight
     ) {
       panel.style.height = `${height - movementY}px`;
+      setHeight(height - movementY);
       props.setContainerDimensions &&
         props.setContainerDimensions(height - movementY);
     }
+  };
+
+  const handleResizeComplete = () => {
+    props.onResizeComplete && props.onResizeComplete(height);
   };
 
   useEffect(() => {
@@ -82,6 +91,7 @@ function Resizer(props: ResizerProps) {
 
     return () => {
       window.removeEventListener("mousemove", handleMouseMove);
+      handleResizeComplete();
     };
   }, [mouseDown]);
 

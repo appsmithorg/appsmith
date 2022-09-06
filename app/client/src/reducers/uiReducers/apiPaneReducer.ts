@@ -6,6 +6,7 @@ import {
 } from "@appsmith/constants/ReduxActionConstants";
 import { Action } from "entities/Action";
 import { UpdateActionPropertyActionPayload } from "actions/pluginActionActions";
+import { ActionExecutionResizerHeight } from "components/editorComponents/ApiResponseView";
 
 const initialState: ApiPaneReduxState = {
   isCreating: false,
@@ -16,7 +17,9 @@ const initialState: ApiPaneReduxState = {
   isDirty: {},
   currentCategory: "",
   extraformData: {},
-  selectedTabIndex: 0,
+  selectedConfigTabIndex: 0,
+  selectedResponseTabIndex: 0,
+  responseTabHeight: ActionExecutionResizerHeight,
 };
 
 export interface ApiPaneReduxState {
@@ -28,7 +31,9 @@ export interface ApiPaneReduxState {
   isDirty: Record<string, boolean>;
   currentCategory: string;
   extraformData: Record<string, any>;
-  selectedTabIndex: number;
+  selectedConfigTabIndex: number;
+  selectedResponseTabIndex: number;
+  responseTabHeight: number;
 }
 
 const apiPaneReducer = createReducer(initialState, {
@@ -210,14 +215,34 @@ const apiPaneReducer = createReducer(initialState, {
       },
     };
   },
-  [ReduxActionTypes.SET_API_PANE_SELECTED_TAB]: (
+  [ReduxActionTypes.SET_API_PANE_CONFIG_SELECTED_TAB]: (
     state: ApiPaneReduxState,
     action: ReduxAction<{ selectedTabIndex: number }>,
   ) => {
     const { selectedTabIndex } = action.payload;
     return {
       ...state,
-      selectedTabIndex,
+      selectedConfigTabIndex: selectedTabIndex,
+    };
+  },
+  [ReduxActionTypes.SET_API_PANE_RESPONSE_SELECTED_TAB]: (
+    state: ApiPaneReduxState,
+    action: ReduxAction<{ selectedTabIndex: number }>,
+  ) => {
+    const { selectedTabIndex } = action.payload;
+    return {
+      ...state,
+      selectedResponseTabIndex: selectedTabIndex,
+    };
+  },
+  [ReduxActionTypes.SET_API_PANE_RESPONSE_PANE_HEIGHT]: (
+    state: ApiPaneReduxState,
+    action: ReduxAction<{ height: number }>,
+  ) => {
+    const { height } = action.payload;
+    return {
+      ...state,
+      responseTabHeight: height,
     };
   },
 });
