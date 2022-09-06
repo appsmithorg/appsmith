@@ -882,7 +882,8 @@ export default class DataTreeEvaluator {
             !!entity && isJSAction(entity),
             contextData,
             callBackData,
-            fullPropertyPath?.includes("body"),
+            fullPropertyPath?.includes("body") ||
+              !toBeSentForEval.includes("console."),
           );
           if (fullPropertyPath && result.errors.length) {
             addErrorToEntityProperty(result.errors, data, fullPropertyPath);
