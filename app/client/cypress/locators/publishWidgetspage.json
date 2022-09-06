@@ -55,5 +55,5 @@
   "addFilter": ".t--add-filter-btn",
   "operatorsDropdown": ".t--table-filter-operators-dropdown",
   "attributesDropdown": ".t--table-filter-columns-dropdown",
-  "qrscannerwidget": ".t--widget-qrscannerwidget"
+  "codescannerwidget": ".t--widget-codescannerwidget"
 }
