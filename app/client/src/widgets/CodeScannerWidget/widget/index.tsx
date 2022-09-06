@@ -1,14 +1,16 @@
 import React from "react";
 import BaseWidget, { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import { WidgetType } from "constants/WidgetConstants";
-import QRScannerComponent from "../component";
+import CodeScannerComponent from "../component";
 import { ValidationTypes } from "constants/WidgetValidation";
-import { DerivedPropertiesMap } from "utils/WidgetFactory";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { Alignment } from "@blueprintjs/core";
 import { IconName } from "@blueprintjs/icons";
 import { ButtonPlacementTypes, ButtonPlacement } from "components/constants";
-class QRScannerWidget extends BaseWidget<QRScannerWidgetProps, WidgetState> {
+class CodeScannerWidget extends BaseWidget<
+  CodeScannerWidgetProps,
+  WidgetState
+> {
   static getPropertyPaneConfig() {
     return [
       {
@@ -132,7 +134,7 @@ class QRScannerWidget extends BaseWidget<QRScannerWidgetProps, WidgetState> {
             isBindProperty: false,
             isTriggerProperty: false,
             updateHook: (
-              props: QRScannerWidgetProps,
+              props: CodeScannerWidgetProps,
               propertyPath: string,
               propertyValue: string,
             ) => {
@@ -309,7 +311,7 @@ class QRScannerWidget extends BaseWidget<QRScannerWidgetProps, WidgetState> {
             isBindProperty: false,
             isTriggerProperty: false,
             updateHook: (
-              props: QRScannerWidgetProps,
+              props: CodeScannerWidgetProps,
               propertyPath: string,
               propertyValue: string,
             ) => {
@@ -439,18 +441,6 @@ class QRScannerWidget extends BaseWidget<QRScannerWidgetProps, WidgetState> {
     ];
   }
 
-  static getDefaultPropertiesMap(): Record<string, string> {
-    return {};
-  }
-
-  static getDerivedPropertiesMap(): DerivedPropertiesMap {
-    return {};
-  }
-
-  static getMetaPropertiesMap(): Record<string, any> {
-    return {};
-  }
-
   onCodeDetected = (value: string) => {
     this.props.updateWidgetMetaProperty("value", value, {
       triggerPropertyName: "onCodeDetected",
@@ -463,7 +453,7 @@ class QRScannerWidget extends BaseWidget<QRScannerWidgetProps, WidgetState> {
 
   getPageView() {
     return (
-      <QRScannerComponent
+      <CodeScannerComponent
         borderRadius={this.props.borderRadius}
         boxShadow={this.props.boxShadow}
         buttonColor={this.props.buttonColor}
@@ -481,11 +471,11 @@ class QRScannerWidget extends BaseWidget<QRScannerWidgetProps, WidgetState> {
   }
 
   static getWidgetType(): WidgetType {
-    return "QR_SCANNER_WIDGET";
+    return "CODE_SCANNER_WIDGET";
   }
 }
 
-interface QRScannerWidgetProps extends WidgetProps {
+interface CodeScannerWidgetProps extends WidgetProps {
   label: string;
   isDisabled: boolean;
   tooltip?: string;
@@ -498,6 +488,6 @@ interface QRScannerWidgetProps extends WidgetProps {
   placement?: ButtonPlacement;
 }
 
-export type QRScannerWidgetV2Props = QRScannerWidgetProps;
+export type CodeScannerWidgetV2Props = CodeScannerWidgetProps;
 
-export default QRScannerWidget;
+export default CodeScannerWidget;

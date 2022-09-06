@@ -18,11 +18,11 @@ import { Alignment } from "@blueprintjs/core";
 import { IconName } from "@blueprintjs/icons";
 import { ButtonPlacement } from "components/constants";
 
-const QRScannerGlobalStyles = createGlobalStyle<{
+const CodeScannerGlobalStyles = createGlobalStyle<{
   borderRadius?: string;
   boxShadow?: string;
 }>`
-  .qr-scanner-content {
+  .code-scanner-content {
     position: fixed;
     top: 50%;
     left: 50%;
@@ -37,7 +37,7 @@ const QRScannerGlobalStyles = createGlobalStyle<{
     background-color: black;
   }
 
-  .qr-scanner-overlay {
+  .code-scanner-overlay {
     position: fixed;
     top: 0;
     left: 0;
@@ -47,7 +47,7 @@ const QRScannerGlobalStyles = createGlobalStyle<{
     z-index: 3;
   }
 
-  .qr-scanner-close {
+  .code-scanner-close {
     background-color: white;
     width: 32px;
     height: 32px;
@@ -62,7 +62,7 @@ const QRScannerGlobalStyles = createGlobalStyle<{
   }
 
   @media only screen and (min-width: 820px) {
-    .qr-scanner-close {
+    .code-scanner-close {
       right: -36px;
     }
   }
@@ -72,7 +72,7 @@ const QRScannerGlobalStyles = createGlobalStyle<{
     to {top: calc(100% - 4px);}
   }
 
-  .qr-camera-container {
+  .code-scanner-camera-container {
     border-radius: ${({ borderRadius }) => borderRadius};
     overflow: hidden;
     height: 100%;
@@ -95,7 +95,7 @@ const QRScannerGlobalStyles = createGlobalStyle<{
     }
   }
 
-  .qr-camera-container video {
+  .code-scanner-camera-container video {
     height: 100%;
     position: relative;
     object-fit: cover;
@@ -298,7 +298,7 @@ function ControlPanel(props: ControlPanelProps) {
   );
 }
 
-function QRScannerComponent(props: QRScannerComponentProps) {
+function CodeScannerComponent(props: CodeScannerComponentProps) {
   const [modalIsOpen, setIsOpen] = useState(false);
   const [videoInputs, setVideoInputs] = useState<MediaDeviceInfo[]>([]);
   const [error, setError] = useState<string>("");
@@ -371,10 +371,10 @@ function QRScannerComponent(props: QRScannerComponentProps) {
 
     const handleOnResult = (err: any, result: any) => {
       if (!!result) {
-        const qrCodeData = result.text;
+        const codeData = result.text;
 
         setIsOpen(false);
-        props.onCodeDetected(qrCodeData);
+        props.onCodeDetected(codeData);
       }
 
       if (!!err) {
@@ -384,18 +384,18 @@ function QRScannerComponent(props: QRScannerComponentProps) {
 
     return (
       <>
-        <QRScannerGlobalStyles
+        <CodeScannerGlobalStyles
           borderRadius={props.borderRadius}
           boxShadow={props.boxShadow}
         />
 
         <Modal
-          className="qr-scanner-content"
+          className="code-scanner-content"
           isOpen={modalIsOpen}
-          overlayClassName="qr-scanner-overlay"
+          overlayClassName="code-scanner-overlay"
         >
           {modalIsOpen && (
-            <div className="qr-camera-container">
+            <div className="code-scanner-camera-container">
               <BarcodeScannerComponent
                 key={JSON.stringify(videoConstraints)}
                 onUpdate={handleOnResult}
@@ -410,7 +410,7 @@ function QRScannerComponent(props: QRScannerComponentProps) {
             </div>
           )}
 
-          <button className="qr-scanner-close" onClick={closeModal} />
+          <button className="code-scanner-close" onClick={closeModal} />
         </Modal>
       </>
     );
@@ -454,7 +454,7 @@ function QRScannerComponent(props: QRScannerComponentProps) {
     </>
   );
 }
-export interface QRScannerComponentProps extends ComponentProps {
+export interface CodeScannerComponentProps extends ComponentProps {
   label: string;
   isDisabled: boolean;
   tooltip?: string;
@@ -467,4 +467,4 @@ export interface QRScannerComponentProps extends ComponentProps {
   onCodeDetected: (value: string) => void;
 }
 
-export default QRScannerComponent;
+export default CodeScannerComponent;

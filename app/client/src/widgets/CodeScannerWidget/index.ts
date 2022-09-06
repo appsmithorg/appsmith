@@ -4,15 +4,15 @@ import { ButtonPlacementTypes } from "components/constants";
 
 export const CONFIG = {
   type: Widget.getWidgetType(),
-  name: "QRScanner",
+  name: "Code Scanner",
   iconSVG: IconSVG,
   needsMeta: true,
-  searchTags: ["barcode scanner, code detector"],
+  searchTags: ["barcode scanner, qr scanner, code detector"],
   defaults: {
     rows: 4,
-    label: "Scan QR Code",
+    label: "Scan a QR/Barcode",
     columns: 16,
-    widgetName: "QRScanner",
+    widgetName: "CodeScanner",
     isDefaultClickDisabled: true,
     version: 1,
     isRequired: false,
