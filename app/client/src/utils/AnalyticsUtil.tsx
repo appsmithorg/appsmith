@@ -27,9 +27,9 @@ export type EventLocation =
   | "ACTION_SELECTOR"
   | "ENTITY_EXPLORER"
   | "KEYBOARD_SHORTCUT"
-  | "JS_PANE_GUTTER_RUN_BUTTON" // Gutter: https://codemirror.net/examples/gutter/
-  | "JS_PANE_MAIN_RUN_BUTTON"
-  | "JS_PANE_RESPONSE_RUN_BUTTON";
+  | "JS_OBJECT_GUTTER_RUN_BUTTON" // Gutter: https://codemirror.net/examples/gutter/
+  | "JS_OBJECT_MAIN_RUN_BUTTON"
+  | "JS_OBJECT_RESPONSE_RUN_BUTTON";
 
 export type EventName =
   | "APP_CRASH"
