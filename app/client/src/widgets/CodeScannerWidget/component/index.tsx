@@ -180,9 +180,6 @@ const ErrorMessageWrapper = styled.div`
   flex-direction: column;
 `;
 
-// Make sure to bind modal to your appElement (https://reactcommunity.org/react-modal/accessibility/)
-Modal.setAppElement("#root");
-
 // Device menus (microphone, camera)
 export interface DeviceMenuProps {
   items: MediaDeviceInfo[];
