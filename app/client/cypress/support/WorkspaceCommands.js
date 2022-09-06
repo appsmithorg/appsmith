@@ -297,11 +297,10 @@ Cypress.Commands.add("CreateAppInFirstListedWorkspace", (appname) => {
   });
   cy.get("#loading").should("not.exist");
   // eslint-disable-next-line cypress/no-unnecessary-waiting
-  cy.wait(2000);
   //cy.reload();
   cy.waitUntil(() => cy.get(generatePage.buildFromScratchActionCard), {
-    errorMsg: "Build app from scratch not visible even aft 20 secs",
-    timeout: 20000,
+    errorMsg: "Build app from scratch not visible even aft 10 secs",
+    timeout: 10000,
     interval: 1000,
   }).then(() => cy.AppSetupForRename());
 
