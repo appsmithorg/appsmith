@@ -92,6 +92,7 @@ const Api_tree: DataTreeAction = {
     isExecutionSuccess: true,
   },
   isLoading: false,
+  reactivePaths: {},
 };
 
 const Table_tree: DataTreeWidget = {
@@ -116,6 +117,8 @@ const Table_tree: DataTreeWidget = {
   bottomRow: 0,
   isLoading: false,
   animateLoading: true,
+  reactivePaths: {},
+  meta: {},
 };
 
 const baseDataTree = {
