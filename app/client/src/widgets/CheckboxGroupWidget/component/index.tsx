@@ -24,6 +24,7 @@ export interface InputContainerProps {
   optionCount: number;
   valid?: boolean;
   optionAlignment?: string;
+  isDynamicHeightEnabled?: boolean;
 }
 
 const InputContainer = styled.div<ThemeProp & InputContainerProps>`
@@ -42,7 +43,8 @@ const InputContainer = styled.div<ThemeProp & InputContainerProps>`
       ? `flex-start`
       : `center`};
   width: 100%;
-  height: ${({ inline }) => (inline ? "32px" : "100%")};
+  height: ${({ inline, isDynamicHeightEnabled }) =>
+    inline && !isDynamicHeightEnabled ? "32px" : "100%"};
   border: 1px solid transparent;
   ${({ theme, valid }) =>
     !valid &&
@@ -227,6 +229,7 @@ const CheckboxGroupComponent = React.forwardRef<
       <InputContainer
         data-cy="checkbox-group-container"
         inline={isInline}
+        isDynamicHeightEnabled={isDynamicHeightEnabled}
         optionAlignment={optionAlignment}
         optionCount={options.length}
         valid={isValid}
