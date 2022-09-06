@@ -958,7 +958,7 @@ Cypress.Commands.add("Createpage", (pageName, navigateToCanvasPage = true) => {
 });
 
 Cypress.Commands.add("Deletepage", (Pagename) => {
-  cy.CheckAndUnfoldEntityItem("PAGES");
+  cy.CheckAndUnfoldEntityItem("Pages");
   cy.get(`.t--entity-item:contains(${Pagename})`).within(() => {
     cy.get(".t--context-menu").click({ force: true });
   });
@@ -1378,7 +1378,7 @@ Cypress.Commands.add("clearPropertyValue", (value) => {
   cy.wait(1000);
 });
 Cypress.Commands.add("deleteQueryOrJS", (Action) => {
-  cy.CheckAndUnfoldEntityItem("QUERIES/JS");
+  cy.CheckAndUnfoldEntityItem("Queries/JS");
   cy.get(`.t--entity-item:contains(${Action})`).within(() => {
     cy.get(".t--context-menu").click({ force: true });
   });

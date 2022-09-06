@@ -1046,7 +1046,7 @@ Cypress.Commands.add("ValidatePublishTableV2Data", (value) => {
 });
 
 Cypress.Commands.add("ValidatePaginateResponseUrlData", (runTestCss) => {
-  cy.CheckAndUnfoldEntityItem("QUERIES/JS");
+  cy.CheckAndUnfoldEntityItem("Queries/JS");
   cy.get(".t--entity-name")
     .contains("Api2")
     .click({ force: true });
@@ -1083,7 +1083,7 @@ Cypress.Commands.add("ValidatePaginateResponseUrlData", (runTestCss) => {
 });
 
 Cypress.Commands.add("ValidatePaginateResponseUrlDataV2", (runTestCss) => {
-  cy.CheckAndUnfoldEntityItem("QUERIES/JS");
+  cy.CheckAndUnfoldEntityItem("Queries/JS");
   cy.get(".t--entity-name")
     .contains("Api2")
     .click({ force: true });

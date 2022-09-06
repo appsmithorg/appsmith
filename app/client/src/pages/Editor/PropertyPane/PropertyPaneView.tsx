@@ -39,16 +39,17 @@ import styled from "styled-components";
 import { PropertyPaneTab } from "./PropertyPaneTab";
 import { useSearchText } from "./helpers";
 
-export const StyledSearchInput = styled(SearchInput)`
+export const StyledSearchInput = React.memo(styled(SearchInput)`
   position: sticky;
-  top: 52px;
+  top: 46px;
   z-index: 3;
 
   ${InputWrapper} {
     background: ${Colors.GRAY_50};
     padding: 0 8px;
+    height: 32px;
   }
-`;
+`);
 
 // TODO(abhinav): The widget should add a flag in their configuration if they donot subscribe to data
 // Widgets where we do not want to show the CTA
@@ -175,6 +176,10 @@ function PropertyPaneView(
     ];
   }, [onCopy, onDelete, handleTabKeyDownForButton]);
 
+  useEffect(() => {
+    setSearchText("");
+  }, [widgetProperties.widgetId]);
+
   if (!widgetProperties) return null;
 
   // Building Deprecation Messages
@@ -199,7 +204,7 @@ function PropertyPaneView(
 
   return (
     <div
-      className="w-full overflow-y-scroll"
+      className="w-full overflow-y-auto"
       key={`property-pane-${widgetProperties.widgetId}`}
       ref={containerRef}
     >

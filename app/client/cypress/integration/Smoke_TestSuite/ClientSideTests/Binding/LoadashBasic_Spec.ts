@@ -20,7 +20,7 @@ describe("Loadash basic test with input Widget", () => {
     });
 
     it("1. Input widget test with default value for atob method", () => {
-        ee.SelectEntityByName("Input1", 'WIDGETS')
+        ee.SelectEntityByName("Input1", 'Widgets')
         propPane.UpdatePropertyFieldValue("Default Value", dataSet.defaultInputBinding + "}}");
         agHelper.ValidateNetworkStatus('@updateLayout')
     });

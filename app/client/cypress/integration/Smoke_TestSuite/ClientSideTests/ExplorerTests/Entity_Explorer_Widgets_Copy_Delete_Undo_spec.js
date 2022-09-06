@@ -28,7 +28,7 @@ describe("Test Suite to validate copy/delete/undo functionalites", function() {
   });
 
   it("Delete Widget from sidebar and Undo action validation", function() {
-    cy.GlobalSearchEntity("WIDGETS");
+    cy.GlobalSearchEntity("Widgets");
     cy.get(".t--entity-name")
       .contains("FormTest")
       .trigger("mouseover");
