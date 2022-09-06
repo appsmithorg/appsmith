@@ -168,6 +168,18 @@ const TooltipStyles = createGlobalStyle`
   }
 `;
 
+const ErrorMessageWrapper = styled.div`
+  height: 100%;
+  width: 100%;
+  padding: 0.5em 0;
+  text-align: center;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+`;
+
 // Make sure to bind modal to your appElement (https://reactcommunity.org/react-modal/accessibility/)
 Modal.setAppElement("#root");
 
@@ -350,25 +362,14 @@ function CodeScannerComponent(props: CodeScannerComponentProps) {
     [],
   );
 
-  const renderComponent = () => {
-    if (error) {
-      return (
-        <>
-          <CameraOfflineIcon />
-          <span className="error-text">{error}</span>
-          {error === "Permission denied" && (
-            <a
-              href="https://help.sprucehealth.com/article/386-changing-permissions-for-video-and-audio-on-your-internet-browser"
-              rel="noreferrer"
-              target="_blank"
-            >
-              Know more
-            </a>
-          )}
-        </>
-      );
+  const handleCameraErrors = useCallback((error: string | DOMException) => {
+    if (typeof error === "string") {
+      setError(error);
     }
+    setError((error as DOMException).message);
+  }, []);
 
+  const renderComponent = () => {
     const handleOnResult = (err: any, result: any) => {
       if (!!result) {
         const codeData = result.text;
@@ -394,10 +395,27 @@ function CodeScannerComponent(props: CodeScannerComponentProps) {
           isOpen={modalIsOpen}
           overlayClassName="code-scanner-overlay"
         >
-          {modalIsOpen && (
+          {error && (
+            <ErrorMessageWrapper>
+              <CameraOfflineIcon />
+              <span className="error-text">{error}&ensp;</span>
+              {error === "Permission denied" && (
+                <a
+                  href="https://support.google.com/chrome/answer/2693767"
+                  rel="noreferrer"
+                  target="_blank"
+                >
+                  Know more
+                </a>
+              )}
+            </ErrorMessageWrapper>
+          )}
+
+          {modalIsOpen && !error && (
             <div className="code-scanner-camera-container">
               <BarcodeScannerComponent
                 key={JSON.stringify(videoConstraints)}
+                onError={handleCameraErrors}
                 onUpdate={handleOnResult}
                 videoConstraints={videoConstraints}
               />
