@@ -74,7 +74,7 @@ export class EntityExplorer {
     section: "Widgets" | "Queries/JS" | "Datasources" | "" = "",
   ) {
     this.NavigateToSwitcher("explorer");
-    //if (section) this.ExpandCollapseEntity(section); //to expand respective section
+    if (section) this.ExpandCollapseEntity(section); //to expand respective section
     this.ExpandCollapseEntity(modalNameinEE);
     cy.xpath(this._modalTextWidget(modalNameinEE))
       .last()
