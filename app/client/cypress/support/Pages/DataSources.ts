@@ -403,7 +403,7 @@ export class DataSources {
   ) {
     this.agHelper.GetNClick(this._runQueryBtn, 0, true, waitTimeInterval);
     if (toValidateResponse) {
-      this.agHelper.Sleep(1500);
+      this.agHelper.Sleep(1000);
       this.agHelper.ValidateNetworkExecutionSuccess(
         "@postExecute",
         expectedStatus,
