@@ -124,6 +124,15 @@ const EndWrapper = styled.div<{
   align-items: center;
 `;
 
+const CenterWrapper = styled.div<{
+  flexDirection: FlexDirection;
+}>`
+  display: flex;
+  flex-direction: ${({ flexDirection }) => flexDirection || "row"};
+  justify-content: center;
+  align-items: center;
+`;
+
 function ContainerComponentWrapper(props: ContainerComponentProps) {
   const containerStyle = props.containerStyle || "card";
   const containerRef: RefObject<HTMLDivElement> = useRef<HTMLDivElement>(null);
@@ -178,6 +187,7 @@ export function FlexBox(props: FlexBoxProps) {
 export function LayoutWrapper(props: FlexBoxProps): JSX.Element {
   const allWidgets = useSelector(getWidgets);
   let start: JSX.Element[] = [],
+    center: JSX.Element[] = [],
     end: JSX.Element[] = [];
   let hasFillChild = false;
   if (isArray(props.children)) {
@@ -189,11 +199,14 @@ export function LayoutWrapper(props: FlexBoxProps): JSX.Element {
       }
       if (widget?.wrapperType === LayoutWrapperType.End)
         end.push(child as JSX.Element);
+      else if (widget?.wrapperType === LayoutWrapperType.Center)
+        center.push(child as JSX.Element);
       else start.push(child as JSX.Element);
     }
   }
   if (hasFillChild) {
     start = props.children as JSX.Element[];
+    center = [];
     end = [];
   }
 
@@ -215,6 +228,14 @@ export function LayoutWrapper(props: FlexBoxProps): JSX.Element {
       >
         {start}
       </StartWrapper>
+      <CenterWrapper
+        className={`wrapper center-wrapper-${props.widgetId} ${
+          hasFillChild ? "no-display" : ""
+        }`}
+        flexDirection={FlexDirection.Row}
+      >
+        {center}
+      </CenterWrapper>
       <EndWrapper
         className={`wrapper end-wrapper-${props.widgetId} ${
           hasFillChild ? "no-display" : ""
