@@ -13,7 +13,7 @@ import {
 } from "../../../../locators/WidgetLocators";
 
 const widgetsToTest = {
-  /*
+  
   [WIDGET.MULTISELECT]: {
     widgetName: "MultiSelect",
     widgetPrefixName: "MultiSelect1",
@@ -30,7 +30,7 @@ const widgetsToTest = {
       selectTabAndReset();
     },
   },
-  */
+  
   [WIDGET.TABLE]: {
     widgetName: "Table",
     widgetPrefixName: "Table1",
@@ -39,7 +39,7 @@ const widgetsToTest = {
       selectTableAndReset();
     },
   },
-/*
+
   [WIDGET.SWITCHGROUP]: {
     widgetName: "SwitchGroup",
     widgetPrefixName: "SwitchGroup1",
@@ -80,7 +80,7 @@ const widgetsToTest = {
       multiTreeSelectAndReset();
     },
   },
-  */
+
   [WIDGET.RADIO_GROUP]: {
     widgetName: "RadioGroup",
     widgetPrefixName: "RadioGroup1",
@@ -89,7 +89,7 @@ const widgetsToTest = {
       radiogroupAndReset();
     },
   },
-/*
+
   [WIDGET.LIST]: {
     widgetName: "List",
     widgetPrefixName: "List1",
@@ -98,7 +98,6 @@ const widgetsToTest = {
       listwidgetAndReset();
     },
   },
-  */
 
   [WIDGET.RATING]: {
     widgetName: "Rating",
@@ -142,7 +141,7 @@ const widgetsToTest = {
       audioRecorderWidgetAndReset();
     },
   },
-  
+  */
   [WIDGET.PHONEINPUT]: {
     widgetName: "PhoneInput",
     widgetPrefixName: "PhoneInput1",
@@ -159,7 +158,7 @@ const widgetsToTest = {
       filePickerWidgetAndReset();
     },
   },
-  */
+  
 };
 
 function dragDropToCanvas(widgetType, { x, y }) {
