@@ -286,6 +286,7 @@ export const useAutoLayoutHighlights = ({
       const discardEndWrapper: boolean = hasFillChild(offsetChildren);
       if (canvas.isWrapper && !discardEndWrapper) {
         const start: string[] = [],
+          center: string[] = [],
           end: string[] = [];
         offsetChildren.forEach((each) => {
           if (allWidgets[each]?.wrapperType === LayoutWrapperType.Start)
@@ -299,12 +300,18 @@ export const useAutoLayoutHighlights = ({
           LayoutWrapperType.Start,
         );
         const arr2: Highlight[] = evaluateOffsets(
+          center,
+          flexOffsetTop,
+          true,
+          LayoutWrapperType.Center,
+        );
+        const arr3: Highlight[] = evaluateOffsets(
           end,
           flexOffsetTop,
           true,
           LayoutWrapperType.End,
         );
-        temp = [...arr1, ...arr2];
+        temp = [...arr1, ...arr2, ...arr3];
       } else
         temp = evaluateOffsets(
           offsetChildren,
@@ -447,7 +454,8 @@ export const useAutoLayoutHighlights = ({
     if (isNaN(index)) return 0;
     const wrapperType: LayoutWrapperType =
       offsets[index]?.wrapperType || LayoutWrapperType.Start;
-    if (wrapperType === LayoutWrapperType.End) return index - 1;
+    if (wrapperType === LayoutWrapperType.Center) return index - 1;
+    if (wrapperType === LayoutWrapperType.End) return index - 2;
     return index;
   };
 
