@@ -453,7 +453,7 @@ export function* handleStartExecuteJSFunctionSaga(
   }
   AnalyticsUtil.logEvent("JS_OBJECT_FUNCTION_RUN", {
     name: action.name,
-    num_params: action.actionConfiguration.jsArguments.length,
+    num_params: action.actionConfiguration?.jsArguments?.length,
     from: from,
   });
   yield call(handleExecuteJSFunctionSaga, {
