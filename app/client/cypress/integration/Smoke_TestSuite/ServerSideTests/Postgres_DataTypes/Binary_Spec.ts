@@ -103,7 +103,7 @@ describe("Binary Datatype tests", function() {
     agHelper.AssertElementAbsence(locator._spinner, 20000); //for the update row to appear at last
     table.WaitUntilTableLoad();
     agHelper.Sleep(2000); //some more time for all rows with images to be populated
-    table.ReadTableRowColumnData(0, 0, 2000).then(($cellData) => {
+    table.ReadTableRowColumnData(0, 0).then(($cellData) => {
       expect($cellData).to.eq("1"); //asserting serial column is inserting fine in sequence
     });
     table.ReadTableRowColumnData(0, 1, 200).then(($cellData) => {
@@ -131,7 +131,7 @@ describe("Binary Datatype tests", function() {
     agHelper.AssertElementAbsence(locator._spinner, 20000); //for the update row to appear at last
     table.WaitUntilTableLoad();
     agHelper.Sleep(2000); //some more time for all rows with images to be populated
-    table.ReadTableRowColumnData(1, 0, 2000).then(($cellData) => {
+    table.ReadTableRowColumnData(1, 0).then(($cellData) => {
       expect($cellData).to.eq("2"); //asserting serial column is inserting fine in sequence
     });
     table.ReadTableRowColumnData(1, 1, 200).then(($cellData) => {
@@ -159,7 +159,7 @@ describe("Binary Datatype tests", function() {
     agHelper.AssertElementAbsence(locator._spinner, 20000); //for the update row to appear at last
     table.WaitUntilTableLoad();
     agHelper.Sleep(2000); //some more time for all rows with images to be populated
-    table.ReadTableRowColumnData(2, 0, 2000).then(($cellData) => {
+    table.ReadTableRowColumnData(2, 0).then(($cellData) => {
       expect($cellData).to.eq("3"); //asserting serial column is inserting fine in sequence
     });
     table.ReadTableRowColumnData(2, 1, 200).then(($cellData) => {
@@ -338,11 +338,11 @@ describe("Binary Datatype tests", function() {
     table.WaitUntilTableLoad();
     table.SelectTableRow(1);
     agHelper.ClickButton("DeleteQuery", 1);
+    agHelper.ValidateNetworkStatus("@postExecute", 200);
+    agHelper.ValidateNetworkStatus("@postExecute", 200);
     agHelper.AssertElementAbsence(locator._spinner, 20000); //Allwowing time for delete to be success
-    agHelper.ValidateNetworkStatus("@postExecute", 200);
-    agHelper.ValidateNetworkStatus("@postExecute", 200);
     //agHelper.Sleep(10000); //Allwowing time for delete to be success
-    table.ReadTableRowColumnData(1, 0, 2000).then(($cellData) => {
+    table.ReadTableRowColumnData(1, 0).then(($cellData) => {
       expect($cellData).not.to.eq("3"); //asserting 2nd record is deleted
     });
     table.ReadTableRowColumnData(1, 0, 200).then(($cellData) => {
