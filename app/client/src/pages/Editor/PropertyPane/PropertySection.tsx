@@ -1,5 +1,4 @@
-import { Classes, Icon } from "@blueprintjs/core";
-import { IconNames } from "@blueprintjs/icons";
+import { Classes } from "@blueprintjs/core";
 import React, {
   memo,
   ReactNode,
@@ -13,39 +12,27 @@ import { useSelector } from "react-redux";
 import { getWidgetPropsForPropertyPane } from "selectors/propertyPaneSelectors";
 import styled from "constants/DefaultTheme";
 import { Colors } from "constants/Colors";
-import { getWidgetParent } from "sagas/selectors";
 import { WidgetProps } from "widgets/BaseWidget";
+import { isFunction } from "lodash";
+import { AppIcon as Icon, Size } from "design-system";
 
 const SectionTitle = styled.div`
-  display: grid;
-  grid-template-columns: 1fr 30px;
   cursor: pointer;
   & span {
-    color: ${(props) => props.theme.colors.propertyPane.title};
-    padding: ${(props) => props.theme.spaces[2]}px 0;
-    font-size: ${(props) => props.theme.fontSizes[4]}px;
+    color: ${Colors.GRAY_800};
+    font-size: ${(props) => props.theme.fontSizes[3]}px;
     display: flex;
-    font-weight: normal;
+    font-weight: 500;
     justify-content: flex-start;
     align-items: center;
     margin: 0;
-  }
-  & span.${Classes.ICON} {
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: none;
-    &.open-collapse {
-      transform: rotate(90deg);
-    }
   }
 `;
 
 const SectionWrapper = styled.div`
   position: relative;
   border-top: 1px solid ${Colors.GREY_4};
-  padding: 4px 16px 8px 16px;
+  padding: 12px 16px;
 
   &:first-of-type {
     border-top: 0;
@@ -54,19 +41,26 @@ const SectionWrapper = styled.div`
   /* Referring to a nested SectionWrapper */
   & & {
     padding: 0;
+    margin-top: 8px;
+    &:first-of-type {
+      margin-top: 0;
+    }
+  }
+
+  & & ${SectionTitle} {
+    margin-top: 10px;
+    margin-bottom: 7px;
   }
 
   & & ${SectionTitle} span {
     color: ${Colors.GRAY_700};
-    text-transform: uppercase;
-    font-size: 14px;
-    font-weight: 600;
+    font-size: 12px;
   }
 
   .${Classes.COLLAPSE_BODY} {
     z-index: 1;
     position: relative;
-    padding-bottom: 4px;
+    padding: 4px 0;
   }
 
   .bp3-collapse {
@@ -74,17 +68,19 @@ const SectionWrapper = styled.div`
   }
 `;
 
+const StyledIcon = styled(Icon)`
+  svg path {
+    fill: ${Colors.GRAY_700};
+  }
+`;
+
 type PropertySectionProps = {
   id: string;
-  name: string;
+  name: string | ((props: WidgetProps, propertyPath: string) => string);
   collapsible?: boolean;
   children?: ReactNode;
   childrenWrapperRef?: React.RefObject<HTMLDivElement>;
-  hidden?: (
-    props: any,
-    propertyPath: string,
-    widgetParentProps?: WidgetProps,
-  ) => boolean;
+  hidden?: (props: any, propertyPath: string) => boolean;
   isDefaultOpen?: boolean;
   propertyPath?: string;
 };
@@ -103,34 +99,33 @@ export const PropertySection = memo((props: PropertySectionProps) => {
   const handleSectionTitleClick = useCallback(() => {
     if (props.collapsible) setIsOpen((x) => !x);
   }, []);
-  /**
-   * get actual parent of widget
-   * for button inside form, button's parent is form
-   * for button on canvas, parent is main container
-   */
-  const parentWidget = useSelector(getWidgetParent(widgetProps.widgetId));
 
   if (props.hidden) {
-    if (props.hidden(widgetProps, props.propertyPath || "", parentWidget)) {
+    if (props.hidden(widgetProps, props.propertyPath || "")) {
       return null;
     }
   }
 
-  const className = props.name
+  const sectionName = isFunction(props.name)
+    ? props.name(widgetProps, props.propertyPath || "")
+    : props.name;
+
+  const className = sectionName
     .split(" ")
     .join("")
     .toLowerCase();
   return (
     <SectionWrapper className="t--property-pane-section-wrapper">
       <SectionTitle
-        className={`t--property-pane-section-collapse-${className}`}
+        className={`t--property-pane-section-collapse-${className} flex items-center`}
         onClick={handleSectionTitleClick}
       >
-        <span>{props.name}</span>
+        <span className="grow">{sectionName}</span>
         {props.collapsible && (
-          <Icon
-            className={isOpen ? "open-collapse" : ""}
-            icon={IconNames.CHEVRON_RIGHT}
+          <StyledIcon
+            className="t--chevron-icon"
+            name={isOpen ? "arrow-down" : "arrow-right"}
+            size={Size.small}
           />
         )}
       </SectionTitle>

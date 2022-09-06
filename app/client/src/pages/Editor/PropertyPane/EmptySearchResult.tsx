@@ -1,7 +1,7 @@
 import React from "react";
 import { IconNames } from "@blueprintjs/icons";
 import { Icon, IconSize } from "design-system";
-import { PROPERTY_PANE_EMPTY_SEARCH_RESULT_MESSAGE } from "ce/constants/messages";
+import { PROPERTY_PANE_EMPTY_SEARCH_RESULT_MESSAGE } from "@appsmith/constants/messages";
 import styled from "styled-components";
 import { Colors } from "constants/Colors";
 

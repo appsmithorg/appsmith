@@ -115,7 +115,7 @@ public class ApplicationFetcherCEImpl implements ApplicationFetcherCE {
 
                     // Collect all the applications as a map with workspace id as a key
                     Flux<Application> applicationFlux = applicationRepository
-                            .findAll(READ_APPLICATIONS)
+                            .findAllUserApps(READ_APPLICATIONS)
                             //sort transformation
                             .transform(domainFlux -> sortDomain(domainFlux, userData.getRecentlyUsedAppIds()))
                             // Git connected apps will have gitApplicationMetadat

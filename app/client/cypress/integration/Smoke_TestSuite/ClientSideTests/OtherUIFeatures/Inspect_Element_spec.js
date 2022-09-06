@@ -6,7 +6,7 @@ describe("Inspect Entity", function() {
   });
   it("Check whether depedencies and references are shown correctly", function() {
     cy.openPropertyPane("inputwidgetv2");
-    cy.testJsontext("defaulttext", "{{Button1.text}}");
+    cy.testJsontext("defaultvalue", "{{Button1.text}}");
 
     cy.get(".t--debugger").click();
     cy.contains(".react-tabs__tab", "Inspect entity").click();

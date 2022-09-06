@@ -106,6 +106,7 @@ import static com.appsmith.server.acl.AclPermission.MANAGE_PAGES;
 import static com.appsmith.server.acl.AclPermission.READ_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_PAGES;
+import static com.appsmith.server.acl.AclPermission.READ_WORKSPACES;
 import static com.appsmith.server.constants.FieldName.DEFAULT_PAGE_LAYOUT;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -290,6 +291,38 @@ public class ImportExportApplicationServiceTests {
             .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
                 throwable.getMessage().equals(AppsmithError.INVALID_PARAMETER.getMessage(FieldName.APPLICATION_ID)))
             .verify();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void exportPublicApplicationTest() {
+
+        Application application = new Application();
+        application.setName("exportPublicApplicationTest-Test");
+
+        Application createdApplication = applicationPageService.createApplication(application, workspaceId).block();
+
+        Mono<Workspace> workspaceResponse = workspaceService.findById(workspaceId, READ_WORKSPACES);
+
+        ApplicationAccessDTO applicationAccessDTO = new ApplicationAccessDTO();
+        applicationAccessDTO.setPublicAccess(true);
+
+        // Make the application public
+        applicationService.changeViewAccess(createdApplication.getId(), applicationAccessDTO).block();
+
+        Mono<ApplicationJson> resultMono =
+                importExportApplicationService.exportApplicationById(createdApplication.getId(), "");
+
+        StepVerifier
+                .create(resultMono)
+                .assertNext(applicationJson -> {
+                    Application exportedApplication = applicationJson.getExportedApplication();
+                    assertThat(exportedApplication).isNotNull();
+                    // Assert that the exported application is NOT public
+                    assertThat(exportedApplication.getDefaultPermissionGroup()).isNull();
+                    assertThat(exportedApplication.getPolicies()).isNullOrEmpty();
+                })
+                .verifyComplete();
     }
 
     @Test

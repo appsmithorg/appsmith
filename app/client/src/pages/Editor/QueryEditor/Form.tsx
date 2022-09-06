@@ -1,5 +1,5 @@
 import { formValueSelector, reduxForm } from "redux-form";
-import { QUERY_EDITOR_FORM_NAME } from "constants/forms";
+import { QUERY_EDITOR_FORM_NAME } from "@appsmith/constants/forms";
 import { Action } from "entities/Action";
 import { connect } from "react-redux";
 import { AppState } from "@appsmith/reducers";

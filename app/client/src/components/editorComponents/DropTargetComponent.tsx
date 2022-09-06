@@ -9,7 +9,7 @@ import React, {
   useMemo,
 } from "react";
 import styled from "styled-components";
-import { isEqual } from "lodash";
+import equal from "fast-deep-equal/es6";
 import { WidgetProps } from "widgets/BaseWidget";
 import { getCanvasSnapRows } from "utils/WidgetPropsUtils";
 import {
@@ -93,7 +93,7 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
     [props.widgetId],
   );
 
-  const occupiedSpacesByChildren = useSelector(selectOccupiedSpaces, isEqual);
+  const occupiedSpacesByChildren = useSelector(selectOccupiedSpaces, equal);
 
   const rowRef = useRef(snapRows);
 

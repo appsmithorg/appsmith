@@ -1,14 +1,6 @@
 import { io, Socket } from "socket.io-client";
 import { EventChannel, eventChannel, Task } from "redux-saga";
-import {
-  fork,
-  take,
-  call,
-  cancel,
-  put,
-  delay,
-  ChannelTakeEffect,
-} from "redux-saga/effects";
+import { fork, take, call, cancel, put, delay } from "redux-saga/effects";
 import {
   ReduxActionTypes,
   ReduxSagaChannels,
@@ -74,7 +66,7 @@ function listenToSocket(socket: Socket) {
 function* readFromAppSocket(socket: any) {
   const channel: EventChannel<unknown> = yield call(listenToSocket, socket);
   while (true) {
-    const action: ChannelTakeEffect<unknown> = yield take(channel);
+    const action: { type: keyof typeof WEBSOCKET_EVENTS } = yield take(channel);
     switch (action.type) {
       case WEBSOCKET_EVENTS.DISCONNECTED:
         yield put(setIsAppLevelWebsocketConnected(false));
@@ -146,7 +138,7 @@ function* openAppLevelSocketConnection() {
 function* readFromPageSocket(socket: any) {
   const channel: EventChannel<unknown> = yield call(listenToSocket, socket);
   while (true) {
-    const action: ChannelTakeEffect<unknown> = yield take(channel);
+    const action: { type: keyof typeof WEBSOCKET_EVENTS } = yield take(channel);
     switch (action.type) {
       case WEBSOCKET_EVENTS.DISCONNECTED:
         yield put(setIsPageLevelWebsocketConnected(false));

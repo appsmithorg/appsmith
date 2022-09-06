@@ -13,15 +13,11 @@ const ControlTypes = getPropertyControlTypes();
 export type ControlType = typeof ControlTypes[keyof typeof ControlTypes];
 
 export type PropertyPaneSectionConfig = {
-  sectionName: string;
+  sectionName: string | ((props: WidgetProps, propertyPath: string) => string);
   id?: string;
   children: PropertyPaneConfig[];
   collapsible?: boolean;
-  hidden?: (
-    props: any,
-    propertyPath: string,
-    widgetParentProps?: WidgetProps,
-  ) => boolean;
+  hidden?: (props: any, propertyPath: string) => boolean;
   isDefaultOpen?: boolean;
   propertySectionPath?: string;
 };
@@ -69,11 +65,7 @@ export type PropertyPaneControlConfig = {
     propertyName: string,
     propertyValue: any,
   ) => Array<PropertyHookUpdates> | undefined;
-  hidden?: (
-    props: any,
-    propertyPath: string,
-    widgetParentProps?: WidgetProps,
-  ) => boolean;
+  hidden?: (props: any, propertyPath: string) => boolean;
   invisible?: boolean;
   isBindProperty: boolean;
   isTriggerProperty: boolean;

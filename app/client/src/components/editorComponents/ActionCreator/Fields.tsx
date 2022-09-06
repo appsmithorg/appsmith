@@ -1,9 +1,6 @@
 import React from "react";
 
-import TreeDropdown, {
-  Setter,
-  TreeDropdownOption,
-} from "components/ads/TreeDropdown";
+import { TreeDropdown, Setter, TreeDropdownOption } from "design-system";
 import {
   ControlWrapper,
   FieldWrapper,
