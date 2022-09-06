@@ -26,7 +26,6 @@ describe("SMTP datasource test cases using ted", function() {
         .should("have.value", SMTPDatasourceName)
         .blur();
 
-      cy.getPluginFormsAndCreateDatasource();
       cy.fillSMTPDatasourceForm();
       cy.testSaveDatasource();
       cy.NavigateToActiveDSQueryPane(SMTPDatasourceName);
@@ -111,7 +110,7 @@ describe("SMTP datasource test cases using ted", function() {
     cy.get(".bp3-spinner").should("have.length", 1);
     //eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(500);
-    cy.get("button").contains("1 files selected"); 
+    cy.get("button").contains("1 files selected");
     cy.xpath(
       "//span[text()='Run query' and @class='bp3-button-text']",
     ).click();

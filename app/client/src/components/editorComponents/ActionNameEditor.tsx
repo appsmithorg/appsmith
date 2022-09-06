@@ -7,7 +7,7 @@ import EditableText, {
   EditInteractionKind,
 } from "components/editorComponents/EditableText";
 import { removeSpecialChars } from "utils/helpers";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import { Action } from "entities/Action";
 
 import { saveActionName } from "actions/pluginActionActions";

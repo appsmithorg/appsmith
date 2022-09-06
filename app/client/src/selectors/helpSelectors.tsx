@@ -1,4 +1,4 @@
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 
 export const getHelpModalOpen = (state: AppState): boolean =>
   state.ui.help.modalOpen;

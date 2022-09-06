@@ -4,7 +4,7 @@ import { useSelector } from "react-redux";
 import styled from "styled-components";
 import moment from "moment/moment";
 
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import { TooltipComponent } from "design-system";
 import { HeaderIcons } from "icons/HeaderIcons";
 import { getIsPageSaving, getPageSavingError } from "selectors/editorSelectors";

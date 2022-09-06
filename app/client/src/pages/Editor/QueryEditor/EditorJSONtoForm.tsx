@@ -67,7 +67,7 @@ import {
   CREATE_NEW_DATASOURCE,
 } from "@appsmith/constants/messages";
 import { useParams } from "react-router";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import { ExplorerURLParams } from "../Explorer/helpers";
 import MoreActionsMenu from "../Explorer/Actions/MoreActionsMenu";
 import { thinScrollbar } from "constants/DefaultTheme";
@@ -89,7 +89,7 @@ import { UpdateActionPropertyActionPayload } from "actions/pluginActionActions";
 import Guide from "pages/Editor/GuidedTour/Guide";
 import { inGuidedTour } from "selectors/onboardingSelectors";
 import { EDITOR_TABS } from "constants/QueryEditorConstants";
-import Spinner from "components/ads/Spinner";
+import { Spinner } from "design-system";
 import {
   FormEvalOutput,
   isValidFormConfig,

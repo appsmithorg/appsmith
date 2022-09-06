@@ -4,7 +4,7 @@ import * as Sentry from "@sentry/react";
 import { Classes, ControlGroup } from "@blueprintjs/core";
 import { debounce, noop } from "lodash";
 import { Switch, Route, useRouteMatch } from "react-router-dom";
-import SearchInput, { SearchVariant } from "components/ads/SearchInput";
+import { SearchInput, SearchVariant } from "design-system";
 import TemplateList from "./TemplateList";
 import TemplateView from "./TemplateView";
 import Filters from "pages/Templates/Filters";
@@ -22,7 +22,7 @@ import {
 } from "selectors/templatesSelectors";
 import { fetchDefaultPlugins } from "actions/pluginActions";
 import { editorInitializer } from "utils/EditorUtils";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import {
   getIsFetchingApplications,
   getUserApplicationsWorkspacesList,

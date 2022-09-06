@@ -108,7 +108,7 @@ function Files() {
       isDefaultExpanded={isFilesOpen ?? true}
       isSticky
       key={pageId + "_widgets"}
-      name="QUERIES/JS"
+      name="Queries/JS"
       onCreate={onCreate}
       onToggle={onFilesToggle}
       searchKeyword={""}

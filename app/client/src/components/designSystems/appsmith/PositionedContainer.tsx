@@ -10,7 +10,7 @@ import { snipingModeSelector } from "selectors/editorSelectors";
 import WidgetFactory from "utils/WidgetFactory";
 import { memoize } from "lodash";
 import { getReflowSelector } from "selectors/widgetReflowSelectors";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import { POSITIONED_WIDGET } from "constants/componentClassNameConstants";
 
 const PositionedWidget = styled.div<{ zIndexOnHover: number }>`

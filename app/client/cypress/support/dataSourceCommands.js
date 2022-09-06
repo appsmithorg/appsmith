@@ -336,7 +336,6 @@ Cypress.Commands.add(
 Cypress.Commands.add("createPostgresDatasource", () => {
   cy.NavigateToDatasourceEditor();
   cy.get(datasourceEditor.PostgreSQL).click();
-  //cy.getPluginFormsAndCreateDatasource();
   cy.fillPostgresDatasourceForm();
   cy.testSaveDatasource();
 });

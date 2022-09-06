@@ -2,19 +2,23 @@ import React from "react";
 import { Slide } from "react-toastify";
 
 import {
-  buildChildren,
-  widgetCanvasFactory,
-} from "test/factories/WidgetFactoryUtils";
-import { act, render, fireEvent, waitFor } from "test/testUtils";
-import GlobalHotKeys from "./GlobalHotKeys";
-import MainContainer from "../MainContainer";
+  createMessage,
+  SAVE_HOTKEY_TOASTER_MESSAGE,
+} from "@appsmith/constants/messages";
+import { all } from "@redux-saga/core/effects";
+import { redoAction, undoAction } from "actions/pageActions";
+import { StyledToastContainer } from "components/ads/Toast";
+import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import { MemoryRouter } from "react-router-dom";
 import * as widgetRenderUtils from "utils/widgetRenderUtils";
 import * as utilities from "selectors/editorSelectors";
 import * as dataTreeSelectors from "selectors/dataTreeSelectors";
 import store from "store";
+import {
+  buildChildren,
+  widgetCanvasFactory,
+} from "test/factories/WidgetFactoryUtils";
 import { sagasToRunForTests } from "test/sagas";
-import { all } from "@redux-saga/core/effects";
 import {
   dispatchTestKeyboardEventWithCode,
   MockApplication,
@@ -26,14 +30,10 @@ import {
   useMockDsl,
 } from "test/testCommon";
 import { MockCanvas } from "test/testMockedWidgets";
-import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
+import { act, fireEvent, render, waitFor } from "test/testUtils";
 import { generateReactKey } from "utils/generators";
-import { redoAction, undoAction } from "actions/pageActions";
-import { StyledToastContainer } from "components/ads/Toast";
-import {
-  createMessage,
-  SAVE_HOTKEY_TOASTER_MESSAGE,
-} from "@appsmith/constants/messages";
+import MainContainer from "../MainContainer";
+import GlobalHotKeys from "./GlobalHotKeys";
 
 jest.mock("constants/routes", () => {
   return {
@@ -51,7 +51,7 @@ describe("Canvas Hot Keys", () => {
     "createCanvasWidget",
   );
 
-  function UpdatedMainContainer({ dsl }: any) {
+  function UpdatedEditor({ dsl }: any) {
     useMockDsl(dsl);
     return <MainContainer />;
   }
@@ -109,7 +109,7 @@ describe("Canvas Hot Keys", () => {
                 return { x: 0, y: 0 };
               }}
             >
-              <UpdatedMainContainer dsl={dsl} />
+              <UpdatedEditor dsl={dsl} />
             </GlobalHotKeys>
           </MockApplication>
         </MemoryRouter>,
@@ -233,7 +233,7 @@ describe("Canvas Hot Keys", () => {
                 return { x: 0, y: 0 };
               }}
             >
-              <UpdatedMainContainer dsl={dsl} />
+              <UpdatedEditor dsl={dsl} />
             </GlobalHotKeys>
           </MockApplication>
         </MemoryRouter>,
@@ -281,7 +281,7 @@ describe("Canvas Hot Keys", () => {
                 return { x: 0, y: 0 };
               }}
             >
-              <UpdatedMainContainer dsl={dsl} />
+              <UpdatedEditor dsl={dsl} />
             </GlobalHotKeys>
           </MockApplication>
         </MemoryRouter>,
@@ -372,7 +372,7 @@ describe("Canvas Hot Keys", () => {
                 return { x: 0, y: 0 };
               }}
             >
-              <UpdatedMainContainer dsl={dsl} />
+              <UpdatedEditor dsl={dsl} />
             </GlobalHotKeys>
           </MockApplication>
         </MemoryRouter>,

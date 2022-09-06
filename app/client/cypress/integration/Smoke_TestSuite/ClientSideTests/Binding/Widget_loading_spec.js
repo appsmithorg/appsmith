@@ -19,7 +19,6 @@ describe("Binding the multiple widgets and validating default data", function() 
   it("1. Create a postgres datasource", function() {
     cy.NavigateToDatasourceEditor();
     cy.get(datasource.PostgreSQL).click();
-    cy.getPluginFormsAndCreateDatasource();
     cy.fillPostgresDatasourceForm();
     cy.testSaveDatasource();
     cy.get("@createDatasource").then((httpResponse) => {

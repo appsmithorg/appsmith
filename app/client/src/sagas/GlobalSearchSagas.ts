@@ -16,7 +16,7 @@ import {
   restoreRecentEntitiesSuccess,
   setRecentEntities,
 } from "actions/globalSearchActions";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import {
   getCurrentApplicationId,
   getIsEditorInitialized,

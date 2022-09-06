@@ -31,8 +31,8 @@ import static com.external.plugins.constants.FieldName.COMMAND;
 import static com.external.plugins.constants.FieldName.INSERT;
 import static com.external.plugins.constants.FieldName.INSERT_DOCUMENT;
 import static com.external.plugins.constants.FieldName.SMART_SUBSTITUTION;
-import static org.apache.commons.lang3.StringUtils.isBlank;
 import static com.external.plugins.utils.MongoPluginUtils.parseSafely;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 
 @Getter
 @Setter

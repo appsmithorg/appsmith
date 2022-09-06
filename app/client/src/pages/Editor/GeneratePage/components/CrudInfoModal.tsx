@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 import { connect, useDispatch } from "react-redux";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { Button, Category, Size, Text, TextType } from "design-system";
 import { getCrudInfoModalData } from "selectors/crudInfoModalSelectors";
@@ -17,9 +17,10 @@ import {
 } from "@appsmith/constants/messages";
 import { getTypographyByKey } from "constants/DefaultTheme";
 import { getInfoImage, getInfoThumbnail } from "constants/ImagesURL";
-import ProgressiveImage, {
+import {
+  ProgressiveImage,
   Container as ProgressiveImageContainer,
-} from "components/ads/ProgressiveImage";
+} from "design-system";
 import SuccessTick from "pages/common/SuccessTick";
 
 type Props = {

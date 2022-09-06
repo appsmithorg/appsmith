@@ -78,7 +78,7 @@ describe("Test Postgres number of connections on page load + Bug 11572, Bug 1120
           ".data.map( (obj) =>{ return  {'label': obj.table_name, 'value': obj.table_name }})}}",
       );
       propPane.UpdatePropertyFieldValue(
-        "Default Value", "{{Query_" + i + ".data[" + (i - 1) + "].table_name}}",
+        "Default Selected Value", "{{Query_" + i + ".data[" + (i - 1) + "].table_name}}",
       );
       agHelper.ValidateNetworkStatus("@updateLayout", 200);
     }
@@ -127,8 +127,13 @@ describe("Test Postgres number of connections on page load + Bug 11572, Bug 1120
     agHelper.RenameWithInPane("drop_user");
     agHelper.GetNClick(dataSources._templateMenu);
     const userName = "test_conn_user_" + guid;
-    const dropUser = `DROP OWNED BY ` + userName +`;
-      DROP USER ` + userName + `;`;
+    const dropUser =
+      `DROP OWNED BY ` +
+      userName +
+      `;
+      DROP USER ` +
+      userName +
+      `;`;
     dataSources.EnterQuery(dropUser);
     dataSources.RunQuery();
     dataSources.ReadQueryTableResponse(0).then(($cellData) => {
@@ -139,14 +144,18 @@ describe("Test Postgres number of connections on page load + Bug 11572, Bug 1120
   });
 
   it("8. Verify Deletion of all created queries", () => {
-    ee.ExpandCollapseEntity("QUERIES/JS");
+    ee.ExpandCollapseEntity("Queries/JS");
     ee.ActionContextMenuByEntityName("create_user", "Delete", "Are you sure?");
     ee.ActionContextMenuByEntityName(
       "check_number_of_connections_1",
       "Delete",
       "Are you sure?",
     );
-    ee.ActionContextMenuByEntityName("check_number_of_connections_2", "Delete", "Are you sure?");
+    ee.ActionContextMenuByEntityName(
+      "check_number_of_connections_2",
+      "Delete",
+      "Are you sure?",
+    );
 
     for (let i = 1; i <= 10; i++) {
       ee.ActionContextMenuByEntityName("Query_" + i, "Delete", "Are you sure?");
@@ -156,7 +165,7 @@ describe("Test Postgres number of connections on page load + Bug 11572, Bug 1120
   it("9. Verify Deletion of datasource", () => {
     deployMode.DeployApp();
     deployMode.NavigateBacktoEditor();
-    ee.ExpandCollapseEntity("QUERIES/JS");
+    ee.ExpandCollapseEntity("Queries/JS");
     dataSources.DeleteDatasouceFromWinthinDS(dsName_1, 200);
     dataSources.DeleteDatasouceFromWinthinDS(dsName_2, 200);
   });

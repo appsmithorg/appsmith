@@ -19,7 +19,7 @@ import {
 } from "selectors/applicationSelectors";
 import { showTemplateNotificationSelector } from "selectors/templatesSelectors";
 import styled from "styled-components";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 
 const NotificationWrapper = styled.div`
   background-color: ${Colors.SEA_SHELL};

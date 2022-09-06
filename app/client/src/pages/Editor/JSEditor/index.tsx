@@ -1,7 +1,7 @@
 import React from "react";
 import { RouteComponentProps } from "react-router";
 import { JSCollection } from "entities/JSCollection";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import { connect } from "react-redux";
 import JsEditorForm from "./Form";
 import * as Sentry from "@sentry/react";

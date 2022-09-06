@@ -20,7 +20,6 @@ describe("MySQL noise test", function() {
         .type(datasourceName, { force: true })
         .should("have.value", datasourceName)
         .blur();
-      cy.getPluginFormsAndCreateDatasource();
       cy.fillMySQLDatasourceForm();
       cy.testSaveDatasource();
       cy.NavigateToActiveDSQueryPane(datasourceName);

@@ -1,4 +1,4 @@
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 
 /**
  * returns the pinned state of explorer

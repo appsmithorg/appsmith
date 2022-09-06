@@ -212,6 +212,7 @@ Cypress.Commands.add(
       .contains(option)
       .first()
       .click();
+    cy.wait(2000);
   },
 );
 
@@ -279,6 +280,7 @@ Cypress.Commands.add(
         newOption,
         isDynamic,
       );
+      cy.wait(2000);
     }
   },
 );

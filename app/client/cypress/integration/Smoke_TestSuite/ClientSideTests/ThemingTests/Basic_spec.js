@@ -479,7 +479,7 @@ describe("App Theming funtionality", function() {
       .click({ force: true })
       .wait(1000); //Changing to one of featured themes
     cy.contains("Applied Theme")
-      .click()
+      // .click()
       .parent()
       .siblings()
       .find(".t--theme-card > main > section > div > main")
@@ -490,7 +490,7 @@ describe("App Theming funtionality", function() {
       });
 
     cy.contains("Applied Theme")
-      .click()
+      // .click()
       .parent()
       .siblings()
       .find(".t--theme-card > main > section > div > main")
@@ -507,7 +507,7 @@ describe("App Theming funtionality", function() {
       .click({ force: true })
       .wait(1000); //Changing to one of featured themes
     cy.contains("Applied Theme")
-      .click()
+      // .click()
       .parent()
       .siblings()
       .find(".t--theme-card > main > section > div > main")
@@ -518,7 +518,7 @@ describe("App Theming funtionality", function() {
       });
 
     cy.contains("Applied Theme")
-      .click()
+      // .click()
       .parent()
       .siblings()
       .find(".t--theme-card > main > section > div > main")
@@ -535,7 +535,7 @@ describe("App Theming funtionality", function() {
       .click({ force: true })
       .wait(1000); //Changing to one of featured themes
     cy.contains("Applied Theme")
-      .click()
+      // .click()
       .parent()
       .siblings()
       .find(".t--theme-card > main > section > div > main")
@@ -546,7 +546,7 @@ describe("App Theming funtionality", function() {
       });
 
     cy.contains("Applied Theme")
-      .click()
+      // .click()
       .parent()
       .siblings()
       .find(".t--theme-card > main > section > div > main")
@@ -563,7 +563,7 @@ describe("App Theming funtionality", function() {
       .click({ force: true })
       .wait(1000); //Changing to one of featured themes
     cy.contains("Applied Theme")
-      .click()
+      // .click()
       .parent()
       .siblings()
       .find(".t--theme-card > main > section > div > main")
@@ -574,7 +574,7 @@ describe("App Theming funtionality", function() {
       });
 
     cy.contains("Applied Theme")
-      .click()
+      // .click()
       .parent()
       .siblings()
       .find(".t--theme-card > main > section > div > main")
@@ -590,7 +590,7 @@ describe("App Theming funtionality", function() {
       .click({ force: true })
       .wait(1000); //Changing to one of featured themes
     cy.contains("Applied Theme")
-      .click()
+      // .click()
       .parent()
       .siblings()
       .find(".t--theme-card > main > section > div > main")
@@ -601,7 +601,7 @@ describe("App Theming funtionality", function() {
       });
 
     cy.contains("Applied Theme")
-      .click()
+      // .click()
       .parent()
       .siblings()
       .find(".t--theme-card > main > section > div > main")
@@ -617,7 +617,7 @@ describe("App Theming funtionality", function() {
       .click({ force: true })
       .wait(1000); //Changing to one of featured themes
     cy.contains("Applied Theme")
-      .click()
+      // .click()
       .parent()
       .siblings()
       .find(".t--theme-card > main > section > div > main")
@@ -628,7 +628,7 @@ describe("App Theming funtionality", function() {
       });
 
     cy.contains("Applied Theme")
-      .click()
+      // .click()
       .parent()
       .siblings()
       .find(".t--theme-card > main > section > div > main")
@@ -644,7 +644,7 @@ describe("App Theming funtionality", function() {
       .click({ force: true })
       .wait(1000); //Changing to one of featured themes
     cy.contains("Applied Theme")
-      .click()
+      // .click()
       .parent()
       .siblings()
       .find(".t--theme-card > main > section > div > main")
@@ -655,7 +655,7 @@ describe("App Theming funtionality", function() {
       });
 
     cy.contains("Applied Theme")
-      .click()
+      // .click()
       .parent()
       .siblings()
       .find(".t--theme-card > main > section > div > main")
@@ -671,7 +671,7 @@ describe("App Theming funtionality", function() {
       .click({ force: true })
       .wait(1000); //Changing to one of featured themes
     cy.contains("Applied Theme")
-      .click()
+      // .click()
       .parent()
       .siblings()
       .find(".t--theme-card > main > section > div > main")
@@ -682,7 +682,7 @@ describe("App Theming funtionality", function() {
       });
 
     cy.contains("Applied Theme")
-      .click()
+      // .click()
       .parent()
       .siblings()
       .find(".t--theme-card > main > section > div > main")
@@ -699,7 +699,7 @@ describe("App Theming funtionality", function() {
       .wait(1000); //Changing to created test theme
 
     cy.contains("Applied Theme")
-      .click()
+      // .click()
       .parent()
       .siblings()
       .find(".t--theme-card > main > section > div > main")
@@ -710,7 +710,7 @@ describe("App Theming funtionality", function() {
       });
 
     cy.contains("Applied Theme")
-      .click()
+      // .click()
       .parent()
       .siblings()
       .find(".t--theme-card > main > section > div > main")
@@ -781,7 +781,7 @@ describe("App Theming funtionality", function() {
     cy.get(explorer.widgetSwitchId).click();
     cy.dragAndDropToCanvas("buttonwidget", { x: 200, y: 400 }); //another button widget
     cy.assertPageSave();
-
+    cy.moveToStyleTab();
     //Change Color & verify
     cy.get(widgetsPage.colorPickerV2Popover)
       .click({ force: true })
@@ -906,8 +906,9 @@ describe("App Theming funtionality", function() {
 
     //Resetting back to theme
     ee.NavigateToSwitcher("explorer");
-    ee.ExpandCollapseEntity("WIDGETS"); //to expand widgets
+    ee.ExpandCollapseEntity("Widgets"); //to expand widgets
     ee.SelectEntityByName("Button2");
+    cy.moveToStyleTab();
     cy.get(".t--property-control-buttoncolor .reset-button").then(($elem) => {
       $elem[0].removeAttribute("display: none");
       $elem[0].click();
@@ -916,7 +917,6 @@ describe("App Theming funtionality", function() {
     cy.get(widgetsPage.widgetBtn)
       .eq(1)
       .should("have.css", "background-color", "rgb(126, 34, 206)"); //verify widget reverted to theme color
-
     cy.get(".t--property-control-borderradius .reset-button").then(($elem) => {
       $elem[0].removeAttribute("display: none");
       $elem[0].click();
@@ -1007,8 +1007,9 @@ describe("App Theming funtionality", function() {
 
     //Change individual widget properties for Button1
     ee.NavigateToSwitcher("explorer");
-    ee.ExpandCollapseEntity("WIDGETS"); //to expand widgets
+    ee.ExpandCollapseEntity("Widgets"); //to expand widgets
     ee.SelectEntityByName("Button1");
+    cy.moveToStyleTab();
 
     //Change Color & verify
     cy.get(widgetsPage.colorPickerV2Popover)
@@ -1144,8 +1145,9 @@ describe("App Theming funtionality", function() {
 
     //Resetting back to theme
     ee.NavigateToSwitcher("explorer");
-    ee.ExpandCollapseEntity("WIDGETS"); //to expand widgets
+    ee.ExpandCollapseEntity("Widgets"); //to expand widgets
     ee.SelectEntityByName("Button1");
+    cy.moveToStyleTab();
     cy.get(".t--property-control-buttoncolor .reset-button").then(($elem) => {
       $elem[0].removeAttribute("display: none");
       $elem[0].click();

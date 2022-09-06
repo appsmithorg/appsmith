@@ -9,8 +9,8 @@ import {
   EditorModes,
   TabBehaviour,
 } from "components/editorComponents/CodeEditor/EditorConfig";
-import { QUERY_EDITOR_FORM_NAME } from "constants/forms";
-import { AppState } from "reducers";
+import { QUERY_EDITOR_FORM_NAME } from "@appsmith/constants/forms";
+import { AppState } from "@appsmith/reducers";
 import styled from "styled-components";
 import TemplateMenu from "pages/Editor/QueryEditor/TemplateMenu";
 import { QUERY_BODY_FIELDS } from "constants/QueryEditorConstants";
