@@ -770,7 +770,7 @@ export class AggregateHelper {
     cy.get(this.locator._uploadFiles)
       .attachFile(fixtureName)
       .wait(2000);
-    toClickUpload && this.GetNClick(this.locator._uploadBtn, 0, false, 3000);
+    toClickUpload && this.GetNClick(this.locator._uploadBtn, 0, false);
   }
 
   public AssertDebugError(label: string, messgae: string) {

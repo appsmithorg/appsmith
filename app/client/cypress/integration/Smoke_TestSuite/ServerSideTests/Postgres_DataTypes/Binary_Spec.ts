@@ -100,8 +100,9 @@ describe("Binary Datatype tests", function() {
     agHelper.ClickButton("Insert");
     agHelper.AssertElementAbsence(locator._toastMsg); //Assert that Insert did not fail
     agHelper.AssertElementVisible(locator._spanButton("Run InsertQuery"));
+    agHelper.AssertElementAbsence(locator._spinner, 20000); //for the update row to appear at last
     table.WaitUntilTableLoad();
-    agHelper.Sleep(2000); //for all rows with images to be populated
+    agHelper.Sleep(2000); //some more time for all rows with images to be populated
     table.ReadTableRowColumnData(0, 0, 2000).then(($cellData) => {
       expect($cellData).to.eq("1"); //asserting serial column is inserting fine in sequence
     });
@@ -127,8 +128,9 @@ describe("Binary Datatype tests", function() {
     agHelper.ClickButton("Insert");
     agHelper.AssertElementAbsence(locator._toastMsg); //Assert that Insert did not fail
     agHelper.AssertElementVisible(locator._spanButton("Run InsertQuery"));
+    agHelper.AssertElementAbsence(locator._spinner, 20000); //for the update row to appear at last
     table.WaitUntilTableLoad();
-    agHelper.Sleep(2000); //for all rows with images to be populated
+    agHelper.Sleep(2000); //some more time for all rows with images to be populated
     table.ReadTableRowColumnData(1, 0, 2000).then(($cellData) => {
       expect($cellData).to.eq("2"); //asserting serial column is inserting fine in sequence
     });
@@ -154,8 +156,9 @@ describe("Binary Datatype tests", function() {
     agHelper.ClickButton("Insert");
     agHelper.AssertElementAbsence(locator._toastMsg); //Assert that Insert did not fail
     agHelper.AssertElementVisible(locator._spanButton("Run InsertQuery"));
+    agHelper.AssertElementAbsence(locator._spinner, 20000); //for the update row to appear at last
     table.WaitUntilTableLoad();
-    agHelper.Sleep(2000); //for all rows with images to be populated
+    agHelper.Sleep(2000); //some more time for all rows with images to be populated
     table.ReadTableRowColumnData(2, 0, 2000).then(($cellData) => {
       expect($cellData).to.eq("3"); //asserting serial column is inserting fine in sequence
     });
@@ -184,6 +187,7 @@ describe("Binary Datatype tests", function() {
     agHelper.AssertElementVisible(locator._spanButton("Run UpdateQuery"));
     agHelper.AssertElementAbsence(locator._spinner, 20000); //for the update row to appear at last
     table.WaitUntilTableLoad();
+    agHelper.Sleep(2000); //some more time for rows to rearrange!
     table.ReadTableRowColumnData(2, 0, 2000).then(($cellData) => {
       expect($cellData).to.eq("2"); //asserting serial column is inserting fine in sequence
     });
@@ -334,9 +338,10 @@ describe("Binary Datatype tests", function() {
     table.WaitUntilTableLoad();
     table.SelectTableRow(1);
     agHelper.ClickButton("DeleteQuery", 1);
+    agHelper.AssertElementAbsence(locator._spinner, 20000); //Allwowing time for delete to be success
     agHelper.ValidateNetworkStatus("@postExecute", 200);
     agHelper.ValidateNetworkStatus("@postExecute", 200);
-    agHelper.Sleep(10000); //Allwowing time for delete to be success
+    //agHelper.Sleep(10000); //Allwowing time for delete to be success
     table.ReadTableRowColumnData(1, 0, 2000).then(($cellData) => {
       expect($cellData).not.to.eq("3"); //asserting 2nd record is deleted
     });
