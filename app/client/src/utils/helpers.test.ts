@@ -584,11 +584,16 @@ describe("isNameValid()", () => {
       "ReferenceError",
       "clearTimeout",
       "parseInt",
-      "history",
       "eval",
     ];
+    // Some window object methods and properties names should be valid entity names since evaluation is done
+    // in the worker thread, and some of the window methods and properties are not available there.
+    const validEntityNames = ["history", "parent", "screen"];
     for (const invalidName of invalidEntityNames) {
       expect(isNameValid(invalidName, {})).toBe(false);
+    }
+    for (const validName of validEntityNames) {
+      expect(isNameValid(validName, {})).toBe(true);
     }
   });
 });
