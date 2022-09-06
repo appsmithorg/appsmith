@@ -285,7 +285,7 @@ export default function evaluateSync(
         originalBinding: userScript,
       });
     } finally {
-      logs = userLogs.flushLogs(!skipLogsOperations);
+      logs = userLogs.flushLogs(skipLogsOperations);
       for (const entity in GLOBAL_DATA) {
         // @ts-expect-error: Types are not available
         delete self[entity];
