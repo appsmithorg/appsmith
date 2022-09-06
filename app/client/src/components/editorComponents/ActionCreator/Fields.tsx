@@ -1,6 +1,12 @@
 import React from "react";
 
-import { TreeDropdown, Setter, TreeDropdownOption } from "design-system";
+import {
+  TreeDropdown,
+  Setter,
+  TreeDropdownOption,
+  Switcher,
+  SwitcherProps,
+} from "design-system";
 import {
   ControlWrapper,
   FieldWrapper,
@@ -16,7 +22,6 @@ import { Skin } from "constants/DefaultTheme";
 import { DropdownOption } from "components/constants";
 import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 import { NavigationTargetType } from "sagas/ActionExecution/NavigateActionSaga";
-import Switcher, { Switch, SwitcherProps } from "components/ads/Switcher";
 import DividerComponent from "widgets/DividerWidget/component";
 import store from "store";
 import { getPageList } from "selectors/entitiesSelector";
@@ -43,6 +48,12 @@ import { getPageList } from "selectors/entitiesSelector";
  * 1. Add the new action entry and its text in the baseOptions array
  * 2. Attach fields to the new action in the getFieldFromValue function
  **/
+
+type Switch = {
+  id: string;
+  text: string;
+  action: () => void;
+};
 
 const ALERT_STYLE_OPTIONS = [
   { label: "Info", value: "'info'", id: "info" },

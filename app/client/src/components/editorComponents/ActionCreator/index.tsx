@@ -60,7 +60,6 @@ import { filterCategories, SEARCH_CATEGORY_ID } from "../GlobalSearch/utils";
 import { ActionDataState } from "reducers/entityReducers/actionsReducer";
 import { selectFeatureFlags } from "selectors/usersSelectors";
 import FeatureFlags from "entities/FeatureFlags";
-import { Switch } from "components/ads/Switcher";
 import { connect } from "react-redux";
 import { isValidURL } from "utils/URLUtils";
 
@@ -143,6 +142,12 @@ const getBaseOptions = (featureFlags: FeatureFlags) => {
     }
   }
   return baseOptions;
+};
+
+type Switch = {
+  id: string;
+  text: string;
+  action: () => void;
 };
 
 function getFieldFromValue(
