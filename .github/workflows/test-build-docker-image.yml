@@ -495,19 +495,18 @@ jobs:
       - name: Install dependencies
         if: steps.run_result.outputs.run_result != 'success'
         run: yarn install --frozen-lockfile
-
       - name: Download the react build artifact
         if: steps.run_result.outputs.run_result != 'success'
         uses: actions/download-artifact@v2
         with:
-          name: build
+          name: client-build
           path: app/client/build
 
       - name: Download the server build artifact
         if: steps.run_result.outputs.run_result != 'success'
         uses: actions/download-artifact@v2
         with:
-          name: build
+          name: server-build
           path: app/server/dist
 
       # Start server
