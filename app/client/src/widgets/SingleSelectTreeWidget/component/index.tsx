@@ -225,6 +225,8 @@ function SingleSelectTreeComponent({
     [allowClear, value],
   );
 
+  const memoValue = useMemo(() => (value !== "" ? value : undefined), [value]);
+
   return (
     <TreeSelectContainer
       accentColor={accentColor}
@@ -308,7 +310,7 @@ function SingleSelectTreeComponent({
           treeDefaultExpandAll={expandAll}
           treeIcon
           treeNodeFilterProp="label"
-          value={value}
+          value={memoValue}
         />
       </InputContainer>
     </TreeSelectContainer>

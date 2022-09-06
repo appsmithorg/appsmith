@@ -128,6 +128,10 @@ describe("Single Select Widget Functionality", function() {
     cy.wait(100);
     cy.get(".t--widget-textwidget").should("contain", "");
     cy.get(formWidgetsPage.treeSelectClearAll).should("not.exist");
+    cy.get(formWidgetsPage.treeSelectPlaceholder).should(
+      "contain",
+      "Select options",
+    );
   });
 });
 afterEach(() => {
