@@ -1,8 +1,6 @@
 /// <reference types="Cypress" />
 
-const commonlocators = require("../../../../locators/commonlocators.json");
 const dsl = require("../../../../fixtures/formInputTableV2Dsl.json");
-const widgetsPage = require("../../../../locators/Widgets.json");
 const publish = require("../../../../locators/publishWidgetspage.json");
 const testdata = require("../../../../fixtures/testdata.json");
 

@@ -24,7 +24,6 @@ describe("Test Create Api and Bind to List widget", function() {
           .split('"')
           .join("")}`;
         cy.log(valueToTest);
-        apiData = valueToTest;
         cy.log("val1:" + valueToTest);
       });
   });

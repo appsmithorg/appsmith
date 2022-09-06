@@ -1,7 +1,5 @@
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const formWidgetsPage = require("../../../../../locators/FormWidgets.json");
-const modalWidgetPage = require("../../../../../locators/ModalWidget.json");
-const publish = require("../../../../../locators/publishWidgetspage.json");
 const dsl = require("../../../../../fixtures/SwitchGroupWidgetDsl.json");
 
 describe("Switch Group Widget Functionality", function() {
@@ -12,7 +10,7 @@ describe("Switch Group Widget Functionality", function() {
   beforeEach(() => {
     cy.openPropertyPane("switchgroupwidget");
   });
-/*
+  /*
   afterEach(() => {
     cy.goToEditFromPublish();
   });

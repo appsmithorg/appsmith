@@ -52,7 +52,7 @@ describe("JSObjects OnLoad Actions tests", function() {
           jsObjName +
           ".getEmployee.data}}",
       );
-      ee.SelectEntityByName("Table1", "WIDGETS");
+      ee.SelectEntityByName("Table1", "Widgets");
       propPane.UpdatePropertyFieldValue("Table Data", "{{GetEmployee.data}}");
       agHelper.ValidateToastMessage(
         "[GetEmployee, " +
@@ -82,12 +82,12 @@ describe("JSObjects OnLoad Actions tests", function() {
     agHelper.ClickButton("Yes");
     //agHelper.Sleep(1000);
     agHelper.ValidateToastMessage("getEmployee ran successfully"); //Verify this toast comes in EDIT page only
-    ee.SelectEntityByName(jsName as string, "QUERIES/JS");
+    ee.SelectEntityByName(jsName as string, "Queries/JS");
     jsEditor.VerifyAsyncFuncSettings("getEmployee", true, true);
   });
 
   it("4. Verify Error for OnPage Load - disable & Before Function calling enabled for JSOBject", function() {
-    ee.SelectEntityByName(jsName as string, "QUERIES/JS");
+    ee.SelectEntityByName(jsName as string, "Queries/JS");
     jsEditor.EnableDisableAsyncFuncSettings("getEmployee", false, true);
     deployMode.DeployApp(locator._widgetInDeployed("tablewidget"), false);
     agHelper.WaitUntilToastDisappear('The action "GetEmployee" has failed');
@@ -96,7 +96,7 @@ describe("JSObjects OnLoad Actions tests", function() {
   });
 
   it("5. Tc 53 - Verify OnPage Load - Enabling back & Before Function calling disabled for JSOBject", function() {
-    ee.SelectEntityByName(jsName as string, "QUERIES/JS");
+    ee.SelectEntityByName(jsName as string, "Queries/JS");
     jsEditor.EnableDisableAsyncFuncSettings("getEmployee", true, false);
     agHelper.Sleep(2000); //to allow for changes to take effect!
     agHelper.RefreshPage(); //For bug #
@@ -119,7 +119,7 @@ describe("JSObjects OnLoad Actions tests", function() {
   });
 
   it("6. Tc 55 - Verify OnPage Load - Enabling & Before Function calling Enabling for JSOBject", function() {
-    ee.ExpandCollapseEntity("QUERIES/JS");
+    ee.ExpandCollapseEntity("Queries/JS");
     ee.SelectEntityByName(jsName as string);
     jsEditor.EnableDisableAsyncFuncSettings("getEmployee", true, true);
     deployMode.DeployApp();
@@ -170,7 +170,7 @@ describe("JSObjects OnLoad Actions tests", function() {
     agHelper.ClickButton("Yes");
     agHelper.ValidateToastMessage("getEmployee ran successfully"); //Verify this toast comes in EDIT page only
 
-    ee.SelectEntityByName(jsName as string, "QUERIES/JS");
+    ee.SelectEntityByName(jsName as string, "Queries/JS");
     ee.ActionContextMenuByEntityName(
       jsName as string,
       "Delete",
@@ -221,7 +221,7 @@ describe("JSObjects OnLoad Actions tests", function() {
 
     cy.get("@jsObjName").then((jsObjName) => {
       jsName = jsObjName;
-      ee.SelectEntityByName(jsName as string, "QUERIES/JS");
+      ee.SelectEntityByName(jsName as string, "Queries/JS");
       ee.ActionContextMenuByEntityName(
         jsName as string,
         "Delete",
@@ -237,7 +237,7 @@ describe("JSObjects OnLoad Actions tests", function() {
       agHelper.AddDsl(val, locator._widgetInCanvas("imagewidget"));
     });
 
-    ee.ExpandCollapseEntity("QUERIES/JS");
+    ee.ExpandCollapseEntity("Queries/JS");
     apiPage.CreateAndFillApi(
       "https://api.forismatic.com/api/1.0/?method=getQuote&lang=en&format=json",
       "Quotes",
@@ -269,7 +269,7 @@ describe("JSObjects OnLoad Actions tests", function() {
 
     cy.get("@jsObjName").then((jsObjName) => {
       jsName = jsObjName;
-      ee.SelectEntityByName(jsName as string, "QUERIES/JS");
+      ee.SelectEntityByName(jsName as string, "Queries/JS");
       jsEditor.EnableDisableAsyncFuncSettings("callQuotes", false, false); //OnPageLoad made true once mapped with widget
       jsEditor.EnableDisableAsyncFuncSettings("callTrump", false, true); //OnPageLoad made true once mapped with widget
 
@@ -283,7 +283,7 @@ describe("JSObjects OnLoad Actions tests", function() {
       // let regex = new RegExp(`${onLoadToastMsg.join("|")}`, "g");
       // cy.get(locator._toastMsg).contains(regex)
 
-      ee.SelectEntityByName("Input1", "WIDGETS");
+      ee.SelectEntityByName("Input1", "Widgets");
       propPane.UpdatePropertyFieldValue(
         "Default Value",
         "{{" + jsObjName + ".callQuotes.data}}",
@@ -376,23 +376,23 @@ describe("JSObjects OnLoad Actions tests", function() {
     agHelper.ClickButton("No");
     agHelper.ValidateToastMessage("Failed to execute actions during page load");
 
-    ee.ExpandCollapseEntity("QUERIES/JS");
+    ee.ExpandCollapseEntity("Queries/JS");
     apiPage.CreateAndFillApi("https://catfact.ninja/fact", "CatFacts", 30000);
     apiPage.ToggleOnPageLoadRun(true);
     apiPage.ToggleConfirmBeforeRunningApi(true);
 
-    ee.SelectEntityByName("Image1", "WIDGETS");
+    ee.SelectEntityByName("Image1", "Widgets");
     propPane.EnterJSContext(
       "onClick",
       `{{CatFacts.run(() => showAlert('Your cat fact is :'+ CatFacts.data.fact,'success'), () => showAlert('Oh No!','error'))}}`,
     );
 
-    ee.SelectEntityByName("Quotes", "QUERIES/JS");
+    ee.SelectEntityByName("Quotes", "Queries/JS");
     apiPage.ToggleOnPageLoadRun(false);
     ee.SelectEntityByName("WhatTrumpThinks");
     apiPage.ToggleOnPageLoadRun(false);
 
-    ee.SelectEntityByName(jsName as string, "QUERIES/JS");
+    ee.SelectEntityByName(jsName as string, "Queries/JS");
     jsEditor.EnableDisableAsyncFuncSettings("callQuotes", false, false); //OnPageLoad made true once mapped with widget
     jsEditor.EnableDisableAsyncFuncSettings("callTrump", false, false); //OnPageLoad made true once mapped with widget
 
@@ -415,7 +415,7 @@ describe("JSObjects OnLoad Actions tests", function() {
     homePage.ImportApp("JSObjOnLoadApp.json");
     homePage.AssertImportToast();
 
-    ee.ExpandCollapseEntity("QUERIES/JS");
+    ee.ExpandCollapseEntity("Queries/JS");
     apiPage.CreateAndFillApi(
       "https://anapioficeandfire.com/api/books/{{this.params.id}}",
       "getBooks",
@@ -482,10 +482,10 @@ describe("JSObjects OnLoad Actions tests", function() {
       // );
       // apiPage.ConfirmBeforeRunningApi(true);
 
-      ee.SelectEntityByName(jsName as string, "QUERIES/JS");
+      ee.SelectEntityByName(jsName as string, "Queries/JS");
       //jsEditor.EnableDisableAsyncFuncSettings("callCountry", false, true); Bug # 13826
 
-      ee.SelectEntityByName("Select1", "WIDGETS");
+      ee.SelectEntityByName("Select1", "Widgets");
       propPane.UpdatePropertyFieldValue(
         "Options",
         `{{ getCitiesList.data.map((row) => {
@@ -564,7 +564,7 @@ describe("JSObjects OnLoad Actions tests", function() {
     agHelper.ClickButton("No");
     agHelper.ValidateToastMessage('The action "getBooks" has failed');
 
-    ee.SelectEntityByName(jsName as string, "QUERIES/JS");
+    ee.SelectEntityByName(jsName as string, "Queries/JS");
     ee.ActionContextMenuByEntityName(
       "getCitiesList",
       "Delete",

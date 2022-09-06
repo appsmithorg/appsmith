@@ -1,6 +1,5 @@
 const dsl = require("../../../../fixtures/jsonFormDslWithSchema.json");
 const { ObjectsRegistry } = require("../../../../support/Objects/Registry");
-let ee = ObjectsRegistry.EntityExplorer;
 
 describe("Property pane js enabled field", function() {
   before(() => {
@@ -15,7 +14,7 @@ describe("Property pane js enabled field", function() {
     cy.get(".t--property-control-buttonvariant")
       .find(".t--js-toggle")
       .first()
-      .click({force:true});
+      .click({ force: true });
 
     cy.get(".t--property-control-buttonvariant")
       .find(".t--js-toggle")

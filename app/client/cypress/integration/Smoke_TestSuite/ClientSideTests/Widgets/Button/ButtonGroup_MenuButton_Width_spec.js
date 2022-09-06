@@ -32,7 +32,6 @@ describe("In a button group widget, menu button width", function() {
   it("If target width is bigger than min width, The menu button popover width should always be the same as the target width", () => {
     const minWidth = 12 * 11.9375;
     const widgetId = "t5l24fccio";
-    const menuButtonId = "groupButton3";
 
     // Get the default menu button
     cy.get(`.appsmith_widget_${widgetId} div.t--buttongroup-widget`)
@@ -87,7 +86,6 @@ describe("In a button group widget, menu button width", function() {
   it("If an existing menu button width changes, its popover width should always be the same as the changed target width", () => {
     const minWidth = 12 * 11.9375;
     const widgetId = "t5l24fccio";
-    const menuButtonId = "groupButton1";
     cy.get(".t--property-pane-back-btn").click();
     // Change the first button text
     cy.get(".t--property-control-buttons input")
@@ -121,7 +119,6 @@ describe("In a button group widget, menu button width", function() {
 
   it("After changing the orientation to vertical , The menu button popover width should always be the same as the target width", () => {
     const widgetId = "mr048y04aq";
-    const menuButtonId = "groupButton3";
     // Open property pane of ButtonGroup3
     cy.get(`.appsmith_widget_${widgetId} div.t--buttongroup-widget`)
       .children()

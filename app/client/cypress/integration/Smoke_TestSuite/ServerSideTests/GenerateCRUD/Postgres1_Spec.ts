@@ -2,30 +2,18 @@ import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 
 let dsName: any;
 
-let agHelper = ObjectsRegistry.AggregateHelper,
+const agHelper = ObjectsRegistry.AggregateHelper,
   ee = ObjectsRegistry.EntityExplorer,
   locator = ObjectsRegistry.CommonLocators,
+  table = ObjectsRegistry.Table,
   homePage = ObjectsRegistry.HomePage,
   dataSources = ObjectsRegistry.DataSources,
-  deployMode = ObjectsRegistry.DeployMode,
-  table = ObjectsRegistry.Table,
-  propPane = ObjectsRegistry.PropertyPane;
+  propPane = ObjectsRegistry.PropertyPane,
+  deployMode = ObjectsRegistry.DeployMode;
 
-describe("Validate Mongo CRUD with JSON Form", () => {
-  before(() => {
-    //dataSources.StartDataSourceRoutes(); //already started in index.js beforeeach
-  });
-
-  beforeEach(function() {
-    if (Cypress.env("Mongo") === 0) {
-      cy.log("Mongo DB is not found. Using intercept");
-      dataSources.StartInterceptRoutesForMongo();
-    } else cy.log("Mongo DB is found, hence using actual DB");
-  });
-
+describe("Validate Postgres Generate CRUD with JSON Form", () => {
   it("1. Create DS & then Add new Page and generate CRUD template using created datasource", () => {
-    propPane.ChangeTheme("Water Lily");
-    dataSources.CreateDataSource("Mongo");
+    dataSources.CreateDataSource("Postgres");
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;
       ee.AddNewPage();
@@ -33,20 +21,22 @@ describe("Validate Mongo CRUD with JSON Form", () => {
       agHelper.GetNClick(dataSources._selectDatasourceDropdown);
       agHelper.GetNClickByContains(dataSources._dropdownOption, dsName);
     });
+
     agHelper.ValidateNetworkStatus("@getDatasourceStructure"); //Making sure table dropdown is populated
     agHelper.GetNClick(dataSources._selectTableDropdown);
-    agHelper.GetNClickByContains(dataSources._dropdownOption, "pokemon");
+    agHelper.GetNClickByContains(dataSources._dropdownOption, "film");
+
     GenerateCRUDNValidateDeployPage(
-      "http://www.serebii.net/pokemongo/pokemon/150.png",
-      "150",
-      `["Bug","Ghost","Dark"]`,
-      10,
+      "ACADEMY DINOSAUR",
+      "2006",
+      "English",
+      "film_id",
     );
 
     deployMode.NavigateBacktoEditor();
     table.WaitUntilTableLoad();
-
     //Delete the test data
+    ee.ExpandCollapseEntity("Pages");
     ee.ActionContextMenuByEntityName("Page2", "Delete", "Are you sure?");
     agHelper.ValidateNetworkStatus("@deletePage", 200);
 
@@ -55,41 +45,82 @@ describe("Validate Mongo CRUD with JSON Form", () => {
     cy.get("@dsName").then(($dsName) => {
       dsName = $dsName;
       dataSources.DeleteDatasouceFromActiveTab(dsName as string, 409);
+      agHelper.RefreshPage();
+      deployMode.DeployApp();
+      deployMode.NavigateBacktoEditor();
+      dataSources.DeleteDatasouceFromActiveTab(dsName as string, 200);
     });
-
-    // deployMode.DeployApp();
-    // agHelper.NavigateBacktoEditor();
   });
 
-  it("2. Generate CRUD page from datasource present in ACTIVE section", function() {
+  it("2. Create new app and Generate CRUD page using a new datasource", () => {
+    homePage.NavigateToHome();
+    homePage.CreateNewApplication();
+    agHelper.GetNClick(homePage._buildFromDataTableActionCard);
+    agHelper.GetNClick(dataSources._selectDatasourceDropdown);
+    agHelper.GetNClickByContains(
+      dataSources._dropdownOption,
+      "Connect New Datasource",
+    );
+    dataSources.CreateDataSource("Postgres", false);
+    agHelper.ValidateNetworkStatus("@getDatasourceStructure"); //Making sure table dropdown is populated
+    agHelper.GetNClick(dataSources._selectTableDropdown);
+    agHelper.GetNClickByContains(dataSources._dropdownOption, "suppliers");
+
+    GenerateCRUDNValidateDeployPage(
+      "Exotic Liquids",
+      "Purchasing Manager",
+      "49 Gilbert St.",
+      "supplier_id",
+    );
+
+    deployMode.NavigateBacktoEditor();
+    cy.get("@dsName").then(($dsName) => {
+      dsName = $dsName;
+    });
+    propPane.ChangeTheme("Sunrise");
+  });
+
+  it("3. Generate CRUD page from datasource present in ACTIVE section", function() {
     dataSources.NavigateFromActiveDS(dsName, false);
     agHelper.ValidateNetworkStatus("@getDatasourceStructure");
     agHelper.GetNClick(dataSources._selectTableDropdown);
-    agHelper.GetNClickByContains(dataSources._dropdownOption, "coffeeCafe");
-    GenerateCRUDNValidateDeployPage("", "", "Washington, US", 11);
+    agHelper.GetNClickByContains(dataSources._dropdownOption, "orders");
+
+    GenerateCRUDNValidateDeployPage(
+      "VINET",
+      "1996-07-04",
+      "1996-08-01",
+      "order_id",
+    );
+
     deployMode.NavigateBacktoEditor();
-    table.WaitUntilTableLoad(1, 0);
+    table.WaitUntilTableLoad();
     //Delete the test data
     ee.ExpandCollapseEntity("Pages");
-    ee.ActionContextMenuByEntityName("CoffeeCafe", "Delete", "Are you sure?");
+    ee.ActionContextMenuByEntityName(
+      "Public.orders",
+      "Delete",
+      "Are you sure?",
+    );
     agHelper.ValidateNetworkStatus("@deletePage", 200);
-    deployMode.DeployApp();
-    deployMode.NavigateBacktoEditor();
-    dataSources.DeleteDatasouceFromActiveTab(dsName as string, 200);
   });
 
-  //Update, delete, Add goes here
+  it("4. Verify Deletion of the datasource when Pages/Actions associated are not removed yet", () => {
+    deployMode.DeployApp();
+    deployMode.NavigateBacktoEditor();
+    dataSources.DeleteDatasouceFromWinthinDS(dsName, 409); //Suppliers Page - 1 still using this ds
+  });
 
   function GenerateCRUDNValidateDeployPage(
     col1Text: string,
     col2Text: string,
     col3Text: string,
-    idIndex: number,
+    jsonFromHeader: string,
   ) {
     agHelper.GetNClick(dataSources._generatePageBtn);
     agHelper.ValidateNetworkStatus("@replaceLayoutWithCRUDPage", 201);
-    agHelper.AssertContains("Successfully generated a page");// Commenting this since FindQuery failure appears sometimes
-    agHelper.ValidateNetworkStatus("@getActions", 200);
+    agHelper.AssertContains("Successfully generated a page");
+    //agHelper.ValidateNetworkStatus("@getActions", 200);//Since failing sometimes
     agHelper.ValidateNetworkStatus("@postExecute", 200);
     agHelper.ValidateNetworkStatus("@updateLayout", 200);
 
@@ -98,13 +129,13 @@ describe("Validate Mongo CRUD with JSON Form", () => {
 
     //Validating loaded table
     agHelper.AssertElementExist(dataSources._selectedRow);
-    table.ReadTableRowColumnData(0, 0, 2000).then(($cellData) => {
+    table.ReadTableRowColumnData(0, 1, 4000).then(($cellData) => {
       expect($cellData).to.eq(col1Text);
     });
     table.ReadTableRowColumnData(0, 3, 200).then(($cellData) => {
       expect($cellData).to.eq(col2Text);
     });
-    table.ReadTableRowColumnData(0, 6, 200).then(($cellData) => {
+    table.ReadTableRowColumnData(0, 4, 200).then(($cellData) => {
       expect($cellData).to.eq(col3Text);
     });
 
@@ -117,6 +148,6 @@ describe("Validate Mongo CRUD with JSON Form", () => {
           expect(classes).not.contain("bp3-disabled");
         });
     });
-    dataSources.AssertJSONFormHeader(0, idIndex, "Id", "", true);
+    dataSources.AssertJSONFormHeader(0, 0, jsonFromHeader);
   }
 });
