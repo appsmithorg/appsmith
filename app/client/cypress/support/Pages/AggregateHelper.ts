@@ -108,6 +108,16 @@ export class AggregateHelper {
     this.Sleep();
   }
 
+  public RenameWidget(oldName: string, newName: string) {
+    this.GetNClick(this.locator._widgetName(oldName));
+    cy.get(this.locator._widgetNameTxt)
+      .clear({ force: true })
+      .type(newName, { force: true })
+      .should("have.value", newName)
+      .blur();
+    this.Sleep();
+  }
+
   public AssertAutoSave() {
     // wait for save query to trigger & n/w call to finish occuring
     cy.get(this.locator._saveStatusSuccess, { timeout: 30000 }).should("exist"); //adding timeout since waiting more time is not worth it!
