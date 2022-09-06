@@ -246,7 +246,7 @@ describe("JS Function Execution", function() {
 
     // Fix parse error and assert that debugger error is removed
     jsEditor.EditJSObj(JS_OBJECT_WITHOUT_PARSE_ERROR, true, false);
-    agHelper.GetNClick(jsEditor._runButton);
+    jsEditor.RunJSObj();
     agHelper.AssertContains("ran successfully"); //to not hinder with next toast msg in next case!
     jsEditor.AssertParseError(false, true);
     agHelper.GetNClick(locator._errorTab);
@@ -259,7 +259,7 @@ describe("JS Function Execution", function() {
     agHelper.GetNClick(locator._responseTab);
     // Re-introduce parse errors
     jsEditor.EditJSObj(JS_OBJECT_WITH_PARSE_ERROR + "}}", false, false);
-    agHelper.GetNClick(jsEditor._runButton);
+    jsEditor.RunJSObj();
     // Assert that there is a function execution parse error
     jsEditor.AssertParseError(true, true);
 
