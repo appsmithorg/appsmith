@@ -25,7 +25,6 @@ import ReplayEditor from "entities/Replay/ReplayEntity/ReplayEditor";
 import { setFormEvaluationSaga } from "./formEval";
 import { isEmpty } from "lodash";
 import { EvalMetaUpdates } from "./DataTreeEvaluator/types";
-import { EvalTreePayload } from "../sagas/EvaluationsSaga";
 import { newLibraries } from "./Lint/utils";
 import { UserLogObject } from "./UserLog";
 
@@ -349,9 +348,11 @@ ctx.addEventListener(
           } catch (e) {
             await fetch(url)
               .then((res) => res.text())
-              .then(function(text: string) {
-                eval(text);
-              });
+              .then(
+                function(text: string) {
+                  eval(text);
+                }.bind({ ...self, window }),
+              );
           }
           // const text = await fetch(url).then((res) => res.());
           const newKeys = Object.keys(self);
