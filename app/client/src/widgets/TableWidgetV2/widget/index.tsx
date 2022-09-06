@@ -140,6 +140,10 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
     };
   }
 
+  static getLoadingProperties(): Array<RegExp> | undefined {
+    return [/\.tableData$/];
+  }
+
   /*
    * Function to get the table columns with appropriate render functions
    * based on columnType
