@@ -1,11 +1,9 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { ComponentProps } from "widgets/BaseComponent";
 import { BaseButton } from "widgets/ButtonWidget/component";
-import { Colors } from "constants/Colors";
 import Modal from "react-modal";
-import { QrReader } from "react-qr-reader";
-import ViewFinder from "./ViewFinder.svg";
-import styled, { createGlobalStyle, css } from "styled-components";
+import BarcodeScannerComponent from "react-qr-barcode-scanner";
+import styled, { createGlobalStyle } from "styled-components";
 import CloseIcon from "assets/icons/ads/cross.svg";
 import { getBrowserInfo, getPlatformOS, PLATFORM_OS } from "utils/helpers";
 import { Button, Icon, Menu, MenuItem, Position } from "@blueprintjs/core";
@@ -68,30 +66,39 @@ const QRScannerGlobalStyles = createGlobalStyle<{
       right: -36px;
     }
   }
+  
+  @keyframes scan {
+    from {top: 0%}
+    to {top: calc(100% - 4px);}
+  }
 
   .qr-camera-container {
     border-radius: ${({ borderRadius }) => borderRadius};
     overflow: hidden;
     height: 100%;
-  }
-
-  .qr-camera {
-    height: 100%;
-    position: relative;
 
     &::before {
       content: '';
       position: absolute;
-      top: 0;
+      top: 0%;
       left: 0;
-      height: 100%;
+      height: 4px;
       width: 100%;
-      background-image: url(${ViewFinder});
-      background-position: center;
-      background-repeat: no-repeat;
-      background-size: cover;
+      background-color: rgba(255, 0, 0, 0.75);
+      animation-name: scan;
+      animation-duration: 2s;
+      animation-direction: alternate;
+      animation-iteration-count: infinite;
+      animation-timing-function: ease-in-out;
       z-index: 1;
+      border-radius: ${({ borderRadius }) => borderRadius};
     }
+  }
+
+  .qr-camera-container video {
+    height: 100%;
+    position: relative;
+    object-fit: cover;
   }
 `;
 
@@ -297,7 +304,9 @@ function QRScannerComponent(props: QRScannerComponentProps) {
   const [error, setError] = useState<string>("");
   const [videoConstraints, setVideoConstraints] = useState<
     MediaTrackConstraints
-  >({});
+  >({
+    facingMode: "environment",
+  });
 
   const openModal = () => {
     setIsOpen(true);
@@ -360,17 +369,16 @@ function QRScannerComponent(props: QRScannerComponentProps) {
       );
     }
 
-    const handleOnResult = (result: any, error: any) => {
+    const handleOnResult = (err: any, result: any) => {
       if (!!result) {
-        const qrCodeData = result.getText();
+        const qrCodeData = result.text;
 
         setIsOpen(false);
-        // props.updateValue(qrCodeData);
         props.onCodeDetected(qrCodeData);
       }
 
-      if (!!error) {
-        log.debug(error);
+      if (!!err) {
+        log.debug(err);
       }
     };
 
@@ -388,14 +396,10 @@ function QRScannerComponent(props: QRScannerComponentProps) {
         >
           {modalIsOpen && (
             <div className="qr-camera-container">
-              <QrReader
-                // ViewFinder={ViewFinder}
-                className="qr-camera"
-                constraints={videoConstraints}
+              <BarcodeScannerComponent
                 key={JSON.stringify(videoConstraints)}
-                onResult={handleOnResult}
-                videoContainerStyle={{ height: "100%" }}
-                videoStyle={{ objectFit: "cover" }}
+                onUpdate={handleOnResult}
+                videoConstraints={videoConstraints}
               />
               <ControlPanel
                 appLayoutType={appLayout?.type}
