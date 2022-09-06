@@ -45,6 +45,7 @@ describe("Test Create Api and Bind to Table widget", function() {
     cy.changeColumnType("Image");
     cy.closePropertyPane();
     cy.SearchEntityandOpen("Table1");
+    cy.moveToStyleTab();
     cy.get(widgetsPage.centerAlign)
       .first()
       .click({ force: true });
@@ -53,6 +54,7 @@ describe("Test Create Api and Bind to Table widget", function() {
       .first()
       .should("have.css", "background-position", "50% 50%");
     cy.SearchEntityandOpen("Table1");
+    cy.moveToStyleTab();
     cy.get(widgetsPage.rightAlign)
       .first()
       .click({ force: true });
@@ -61,6 +63,7 @@ describe("Test Create Api and Bind to Table widget", function() {
       .first()
       .should("have.css", "background-position", "100% 50%");
     cy.SearchEntityandOpen("Table1");
+    cy.moveToStyleTab();
     cy.get(widgetsPage.leftAlign)
       .first()
       .click({ force: true });

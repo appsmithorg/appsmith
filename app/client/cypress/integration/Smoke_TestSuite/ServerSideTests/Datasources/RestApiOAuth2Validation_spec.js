@@ -22,7 +22,7 @@ describe("Datasource form OAuth2 client credentials related tests", function() {
       testdata.clientSecret,
       testdata.oauth2Scopes,
     );
-    ee.SelectEntityByName("TestOAuth", "QUERIES/JS");
+    ee.SelectEntityByName("TestOAuth", "Queries/JS");
     agHelper.ActionContextMenuWithInPane("Delete", "Are you sure?");
   });
 

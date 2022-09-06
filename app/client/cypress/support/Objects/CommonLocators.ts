@@ -26,7 +26,7 @@ export class CommonLocators {
     _backToEditor = ".t--back-to-editor"
     _newPage = ".pages .t--entity-add-btn"
     _toastMsg = "div.t--toast-action"
-    _toastConatiner = "div.Toastify__toast-container"
+    _toastContainer = "div.Toastify__toast-container"
     _specificToast = (toastText: string) => this._toastMsg + ":contains('" + toastText + "')"
     //_specificToast = (toastText: string | RegExp) => this._toastMsg + ":contains("+ (typeof toastText == 'string' ? "'"+ toastText+"'" : toastText)+ ")"//not working!
     _empty = "span[name='no-response']"
@@ -44,6 +44,9 @@ export class CommonLocators {
     _errorTab = "[data-cy=t--tab-ERROR]"
     _responseTab = "[data-cy=t--tab-response]"
     _debugErrorMsg = ".t--debugger-message"
+    _debuggerLogState = ".t--debugger-log-state"
+    _debuggerLogMessage = ".t--debugger-log-message"
+    _debuggerClearLogs = ".t--debugger-clear-logs"
     _debuggerLabel = "span.debugger-label"
     _modal = ".t--modal-widget"
     _entityProperties = (entityNameinLeftSidebar: string) => "//div[text()='" + entityNameinLeftSidebar + "']/ancestor::div[contains(@class, 't--entity-item')]/following-sibling::div//div[contains(@class, 't--entity-property')]//code"
@@ -87,5 +90,4 @@ export class CommonLocators {
     _deployedPage = `.t--page-switch-tab`
     _hints = "ul.CodeMirror-hints li"
     _cancelActionExecution = ".t--cancel-action-button"
-
 }

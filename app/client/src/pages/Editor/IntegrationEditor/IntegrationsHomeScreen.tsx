@@ -3,7 +3,7 @@ import { connect } from "react-redux";
 import { reduxForm, InjectedFormProps } from "redux-form";
 import styled from "styled-components";
 import { AppState } from "@appsmith/reducers";
-import { API_HOME_SCREEN_FORM } from "constants/forms";
+import { API_HOME_SCREEN_FORM } from "@appsmith/constants/forms";
 import { Colors } from "constants/Colors";
 import { TabComponent, TabProp } from "components/ads/Tabs";
 import { IconSize } from "design-system";

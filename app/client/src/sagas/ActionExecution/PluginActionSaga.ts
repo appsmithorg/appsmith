@@ -26,6 +26,7 @@ import {
   isActionSaving,
   getJSCollection,
 } from "selectors/entitiesSelector";
+import { getIsGitSyncModalOpen } from "selectors/gitSyncSelectors";
 import {
   getAppMode,
   getCurrentApplication,
@@ -100,7 +101,7 @@ import {
 import { requestModalConfirmationSaga } from "sagas/UtilSagas";
 import { ModalType } from "reducers/uiReducers/modalActionReducer";
 import { getFormNames, getFormValues } from "redux-form";
-import { CURL_IMPORT_FORM } from "constants/forms";
+import { CURL_IMPORT_FORM } from "@appsmith/constants/forms";
 import { submitCurlImportForm } from "actions/importActions";
 import { curlImportFormValues } from "pages/Editor/APIEditor/helpers";
 import { matchBasePath } from "pages/Editor/Explorer/helpers";
@@ -450,6 +451,11 @@ function* runActionShortcutSaga() {
   const pathname = window.location.pathname;
   const baseMatch = matchBasePath(pathname);
   if (!baseMatch) return;
+  // get gitSyncModal status
+  const isGitSyncModalOpen: boolean = yield select(getIsGitSyncModalOpen);
+  // if git sync modal is open, prevent action from being executed via shortcut keys.
+  if (isGitSyncModalOpen) return;
+
   const { path } = baseMatch;
   const match: any = matchPath(pathname, {
     path: [
