@@ -1,19 +1,20 @@
 package com.appsmith.server.authentication.handlers.ce;
 
-import com.appsmith.server.authentication.handlers.CustomServerOAuth2AuthorizationRequestResolver;
 import com.appsmith.external.constants.AnalyticsEvents;
+import com.appsmith.server.authentication.handlers.CustomServerOAuth2AuthorizationRequestResolver;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.Security;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.LoginSource;
 import com.appsmith.server.domains.User;
+import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.helpers.RedirectHelper;
-import com.appsmith.server.repositories.WorkspaceRepository;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserDataService;
+import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.solutions.ExamplesWorkspaceCloner;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -52,7 +53,7 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
     private final AnalyticsService analyticsService;
     private final UserDataService userDataService;
     private final UserRepository userRepository;
-    private final WorkspaceRepository workspaceRepository;
+    private final WorkspaceService workspaceService;
     private final ApplicationPageService applicationPageService;
 
     /**
@@ -103,7 +104,7 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
             }
             if(isFromSignup) {
                 boolean finalIsFromSignup = isFromSignup;
-                redirectionMono = createDefaultApplication(defaultWorkspaceId)
+                redirectionMono = createDefaultApplication(defaultWorkspaceId, authentication)
                         .flatMap(defaultApplication->handleOAuth2Redirect(webFilterExchange, defaultApplication, finalIsFromSignup));
             } else {
                 redirectionMono = handleOAuth2Redirect(webFilterExchange, null, isFromSignup);
@@ -111,7 +112,7 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
         } else {
             boolean finalIsFromSignup = isFromSignup;
             if(createDefaultApplication && isFromSignup) {
-                redirectionMono = createDefaultApplication(defaultWorkspaceId).flatMap(
+                redirectionMono = createDefaultApplication(defaultWorkspaceId, authentication).flatMap(
                         defaultApplication->handleRedirect(webFilterExchange, defaultApplication, finalIsFromSignup)
                 );
             } else {
@@ -167,12 +168,28 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
                 .then(redirectionMono);
     }
 
-    private Mono<Application> createDefaultApplication(String defaultWorkspaceId) {
+    protected Mono<Application> createDefaultApplication(String defaultWorkspaceId, Authentication authentication) {
+
         // need to create default application
         Application application = new Application();
         application.setWorkspaceId(defaultWorkspaceId);
         application.setName("My first application");
-        return applicationPageService.createApplication(application);
+        Mono<Application> applicationMono = Mono.just(application);
+        if (defaultWorkspaceId == null) {
+            String email = ((User) authentication.getPrincipal()).getEmail();
+            // This could happen if the user is signing up via SSO methods
+            log.debug("Creating blank default workspace for user '{}'.", email);
+
+            applicationMono = userRepository.findByEmail(email)
+                    .flatMap(user -> workspaceService.createDefault(new Workspace(), user))
+                    .map(workspace -> {
+                        application.setWorkspaceId(workspace.getId());
+                        return application;
+                    });
+        }
+
+        return applicationMono
+                .flatMap(application1 -> applicationPageService.createApplication(application1));
     }
 
     /**
