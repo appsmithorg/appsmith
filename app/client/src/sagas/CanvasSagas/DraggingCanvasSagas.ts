@@ -29,6 +29,7 @@ import { getWidget, getWidgets } from "sagas/selectors";
 import { getUpdateDslAfterCreatingChild } from "sagas/WidgetAdditionSagas";
 import { MainCanvasReduxState } from "reducers/uiReducers/mainCanvasReducer";
 import { CANVAS_DEFAULT_MIN_HEIGHT_PX } from "constants/AppConstants";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 export type WidgetMoveParams = {
   widgetId: string;
@@ -245,6 +246,7 @@ function* moveWidgetsSaga(
       draggedBlocksToUpdate,
       canvasId,
     );
+
     if (
       !collisionCheckPostReflow(
         updatedWidgetsOnMove,
@@ -255,6 +257,17 @@ function* moveWidgetsSaga(
       throw Error;
     }
     yield put(updateAndSaveLayout(updatedWidgetsOnMove));
+    AnalyticsUtil.logEvent("WIDGET_DRAG", {
+      widgets: draggedBlocksToUpdate.map((block) => {
+        const widget = updatedWidgetsOnMove[block.widgetId];
+        return {
+          widgetType: widget.type,
+          widgetName: widget.widgetName,
+        };
+      }),
+      multiple: draggedBlocksToUpdate.length > 1,
+      mainCanvas: canvasId === "0",
+    });
     log.debug("move computations took", performance.now() - start, "ms");
   } catch (error) {
     yield put({
