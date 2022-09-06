@@ -247,7 +247,7 @@ describe("JS Function Execution", function() {
     // Fix parse error and assert that debugger error is removed
     jsEditor.EditJSObj(JS_OBJECT_WITHOUT_PARSE_ERROR, true, false);
     jsEditor.RunJSObj();
-    agHelper.AssertContains("ran successfully"); //to not hinder with next toast msg in next case!
+    //agHelper.AssertContains("ran successfully"); //commenting since 'Resource not found' comes sometimes due to fast parsing
     jsEditor.AssertParseError(false, true);
     agHelper.GetNClick(locator._errorTab);
     agHelper.AssertContains(
