@@ -1,5 +1,6 @@
 import React, { memo, useCallback, useEffect, useRef } from "react";
-import _, { get, isEqual } from "lodash";
+import _, { get } from "lodash";
+import equal from "fast-deep-equal/es6";
 import * as log from "loglevel";
 
 import {
@@ -49,7 +50,6 @@ import { TooltipComponent } from "design-system";
 import { ReactComponent as ResetIcon } from "assets/icons/control/undo_2.svg";
 import { AppTheme } from "entities/AppTheming";
 import { JS_TOGGLE_DISABLED_MESSAGE } from "@appsmith/constants/messages";
-import { getWidgetParent } from "sagas/selectors";
 import { generateKeyAndSetFocusableField } from "actions/editorContextActions";
 import { AppState } from "ce/reducers";
 import { getshouldFocusPropertyPath } from "selectors/editorContextSelectors";
@@ -80,10 +80,7 @@ const PropertyControl = memo((props: Props) => {
     props.evaluatedDependencies,
   );
 
-  const widgetProperties: WidgetProperties = useSelector(
-    propsSelector,
-    isEqual,
-  );
+  const widgetProperties: WidgetProperties = useSelector(propsSelector, equal);
 
   // get the dataTreePath and apply enhancement if exists
   let dataTreePath: string | undefined =
@@ -94,12 +91,6 @@ const PropertyControl = memo((props: Props) => {
   const shouldFocusPropertyPath: boolean = useSelector((state: AppState) =>
     getshouldFocusPropertyPath(state, dataTreePath),
   );
-  /**
-   * get actual parent of widget
-   * for button inside form, button's parent is form
-   * for button on canvas, parent is main container
-   */
-  const parentWidget = useSelector(getWidgetParent(widgetProperties.widgetId));
 
   const enhancementSelector = getWidgetEnhancementSelector(
     widgetProperties.widgetId,
@@ -107,7 +98,7 @@ const PropertyControl = memo((props: Props) => {
 
   const { enhancementFns, parentIdWithEnhancementFn } = useSelector(
     enhancementSelector,
-    isEqual,
+    equal,
   );
 
   const selectedTheme = useSelector(getSelectedAppTheme);
@@ -454,8 +445,7 @@ const PropertyControl = memo((props: Props) => {
   if (widgetProperties) {
     // Do not render the control if it needs to be hidden
     if (
-      (props.hidden &&
-        props.hidden(widgetProperties, props.propertyName, parentWidget)) ||
+      (props.hidden && props.hidden(widgetProperties, props.propertyName)) ||
       props.invisible
     ) {
       return null;

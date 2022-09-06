@@ -11,7 +11,7 @@ import { watchDatasourcesSagas } from "sagas/DatasourcesSagas";
 import initSagas from "sagas/InitSagas";
 import apiPaneSagas from "sagas/ApiPaneSagas";
 import jsPaneSagas from "sagas/JSPaneSagas";
-import userSagas from "sagas/userSagas";
+import userSagas from "@appsmith/sagas/userSagas";
 import pluginSagas from "sagas/PluginSagas";
 import workspaceSagas from "sagas/WorkspaceSagas";
 import importedCollectionsSagas from "sagas/CollectionSagas";
@@ -40,6 +40,7 @@ import formEvaluationChangeListener from "sagas/FormEvaluationSaga";
 import SuperUserSagas from "@appsmith/sagas/SuperUserSagas";
 import NavigationSagas from "sagas/NavigationSagas";
 import editorContextSagas from "sagas/editorContextSagas";
+import PageVisibilitySaga from "sagas/PageVisibilitySagas";
 
 export const sagas = [
   initSagas,
@@ -84,4 +85,5 @@ export const sagas = [
   appThemingSaga,
   NavigationSagas,
   editorContextSagas,
+  PageVisibilitySaga,
 ];

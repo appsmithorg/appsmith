@@ -15,7 +15,7 @@ import {
   WELCOME_FORM_ROLE_NAME_FIELD_NAME,
   WELCOME_FORM_VERIFY_PASSWORD_FIELD_NAME,
   WELCOME_FORM_CUSTOM_USECASE_FIELD_NAME,
-} from "constants/forms";
+} from "@appsmith/constants/forms";
 import {
   FormErrors,
   formValueSelector,

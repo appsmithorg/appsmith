@@ -43,7 +43,7 @@ describe("Currency widget - ", () => {
     });
 
     cy.openPropertyPane(widgetName);
-    cy.selectDropdownValue(".t--property-control-decimals", "1");
+    cy.selectDropdownValue(".t--property-control-decimalsallowed ", "1");
 
     [
       //[input, {{CurrencyInput1.text}}:{{CurrencyInput1.value}}:{{CurrencyInput1.isValid}}:{{typeof CurrencyInput1.text}}:{{typeof CurrencyInput1.value}}:{{CurrencyInput1.countryCode}}:{{CurrencyInput1.currencyCode}}]
@@ -56,7 +56,7 @@ describe("Currency widget - ", () => {
     });
 
     cy.openPropertyPane(widgetName);
-    cy.selectDropdownValue(".t--property-control-decimals", "2");
+    cy.selectDropdownValue(".t--property-control-decimalsallowed ", "2");
 
     [
       //[input, {{CurrencyInput1.text}}:{{CurrencyInput1.value}}:{{CurrencyInput1.isValid}}:{{typeof CurrencyInput1.text}}:{{typeof CurrencyInput1.value}}:{{CurrencyInput1.countryCode}}:{{CurrencyInput1.currencyCode}}]
@@ -94,11 +94,14 @@ describe("Currency widget - ", () => {
   });
   it("should accept 0 decimal option", () => {
     cy.openPropertyPane(widgetName);
-    cy.selectDropdownValue(".t--property-control-decimals", "0");
+    cy.selectDropdownValue(".t--property-control-decimalsallowed ", "0");
     cy.closePropertyPane();
     cy.wait(500);
     cy.openPropertyPane(widgetName);
-    cy.get(".t--property-control-decimals .cs-text").should("have.text", "0");
+    cy.get(".t--property-control-decimalsallowed  .cs-text").should(
+      "have.text",
+      "0",
+    );
   });
 
   it("should check that widget input resets on submit", () => {
@@ -132,7 +135,7 @@ describe("Currency widget - ", () => {
       `{{CurrencyInput1.text}}:{{CurrencyInput1.value}}`,
     );
     cy.openPropertyPane(widgetName);
-    cy.selectDropdownValue(".t--property-control-decimals", "0");
+    cy.selectDropdownValue(".t--property-control-decimalsallowed ", "0");
 
     [
       //[input, {{CurrencyInput1.text}}:{{CurrencyInput1.value}}]
@@ -147,7 +150,7 @@ describe("Currency widget - ", () => {
     });
 
     cy.openPropertyPane(widgetName);
-    cy.selectDropdownValue(".t--property-control-decimals", "1");
+    cy.selectDropdownValue(".t--property-control-decimalsallowed ", "1");
     [
       //[input, {{CurrencyInput1.text}}:{{CurrencyInput1.value}}]
       ["100", "100:100"],
@@ -161,7 +164,7 @@ describe("Currency widget - ", () => {
     });
 
     cy.openPropertyPane(widgetName);
-    cy.selectDropdownValue(".t--property-control-decimals", "2");
+    cy.selectDropdownValue(".t--property-control-decimalsallowed ", "2");
     [
       //[input, {{CurrencyInput1.text}}:{{CurrencyInput1.value}}]
       ["100", "100:100"],
@@ -189,13 +192,13 @@ describe("Currency widget - ", () => {
 
   it("should test the formatting of defaultText", () => {
     function enterAndTest(input, expected) {
-      cy.updateCodeInput(".t--property-control-defaulttext", input);
+      cy.updateCodeInput(".t--property-control-defaultvalue", input);
       cy.wait(500);
       cy.get(widgetInput).should("contain.value", expected);
     }
 
     cy.openPropertyPane(widgetName);
-    cy.selectDropdownValue(".t--property-control-decimals", "0");
+    cy.selectDropdownValue(".t--property-control-decimalsallowed ", "0");
 
     [
       //[input, expected]
@@ -211,7 +214,7 @@ describe("Currency widget - ", () => {
     });
 
     cy.openPropertyPane(widgetName);
-    cy.selectDropdownValue(".t--property-control-decimals", "1");
+    cy.selectDropdownValue(".t--property-control-decimalsallowed ", "1");
     [
       //[input, expected]
       ["100", "100"],
@@ -228,7 +231,7 @@ describe("Currency widget - ", () => {
     });
 
     cy.openPropertyPane(widgetName);
-    cy.selectDropdownValue(".t--property-control-decimals", "2");
+    cy.selectDropdownValue(".t--property-control-decimalsallowed ", "2");
     [
       //[input, expected]
       ["100", "100"],
@@ -258,7 +261,7 @@ describe("Currency widget - ", () => {
     );
     // Init isDirty
     cy.openPropertyPane(widgetName);
-    cy.updateCodeInput(".t--property-control-defaulttext", "1");
+    cy.updateCodeInput(".t--property-control-defaultvalue", "1");
     cy.closePropertyPane();
     // Check if initial value of isDirty is false
     cy.get(".t--widget-textwidget").should("contain", "false");
@@ -269,7 +272,7 @@ describe("Currency widget - ", () => {
     cy.get(".t--widget-textwidget").should("contain", "true");
     // Change defaultText
     cy.openPropertyPane(widgetName);
-    cy.updateCodeInput(".t--property-control-defaulttext", "5");
+    cy.updateCodeInput(".t--property-control-defaultvalue", "5");
     // Check if isDirty is reset to false
     cy.get(".t--widget-textwidget").should("contain", "false");
   });
@@ -279,5 +282,17 @@ describe("Currency widget - ", () => {
     cy.focused().then(() => {
       cy.get(themelocators.popover).should("not.exist");
     });
+  });
+
+  it("Currency change dropdown should not close unexpectedly", function() {
+    cy.openPropertyPane(widgetName);
+
+    // Select the Currency dropdown option from property pane
+    // and enter a value that has space and returns 0 results
+    cy.get(".t--property-control-currency").click();
+    cy.get(".t--search-input input").type("gdp gdp");
+
+    // assert that the dropdown is still option
+    cy.get(".t--search-input input").should("be.visible");
   });
 });

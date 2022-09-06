@@ -339,8 +339,8 @@ export class DataSources {
         : this._datasourceCardGeneratePageBtn;
 
     this.ee.NavigateToSwitcher("explorer");
-    this.ee.ExpandCollapseEntity("DATASOURCES", false);
-    //this.ee.SelectEntityByName(datasourceName, "DATASOURCES");
+    this.ee.ExpandCollapseEntity("Datasources", false);
+    //this.ee.SelectEntityByName(datasourceName, "Datasources");
     //this.ee.ExpandCollapseEntity(datasourceName, false);
     this.NavigateToActiveTab();
     cy.get(this._datasourceCard)

@@ -1,4 +1,11 @@
-import { call, fork, take, select, put, race, delay } from "redux-saga/effects";
+import {
+  call,
+  take,
+  select,
+  put,
+  actionChannel,
+  ActionPattern,
+} from "redux-saga/effects";
 import {
   ReduxAction,
   ReduxActionTypes,
@@ -21,15 +28,14 @@ import { getAction } from "selectors/entitiesSelector";
 import { getDataTreeActionConfigPath } from "entities/Action/actionProperties";
 import { getDataTree } from "selectors/dataTreeSelectors";
 import { getDynamicBindings, isDynamicValue } from "utils/DynamicBindingUtils";
-import { get, isEmpty } from "lodash";
+import get from "lodash/get";
 import { klona } from "klona/lite";
 import { DataTree } from "entities/DataTree/dataTreeFactory";
 import {
   extractFetchDynamicValueFormConfigs,
   extractQueueOfValuesToBeFetched,
 } from "./helper";
-
-let isEvaluating = false; // Flag to maintain the queue of evals
+import { Action as ReduxActionType } from "redux";
 
 export type FormEvalActionPayload = {
   formId: string;
@@ -42,123 +48,80 @@ export type FormEvalActionPayload = {
   hasRouteChanged?: boolean;
 };
 
-const evalQueue: ReduxAction<FormEvalActionPayload>[] = [];
-
 // This value holds an array of values that needs to be dynamically fetched
 // when we run form evaluations we store dynamic values to be fetched in this array
 // and when evaluations are finally done, we pick the last dynamic values and call it.
-let fetchDynamicValQueue: any = [];
-
-// Function to set isEvaluating flag
-const setIsEvaluating = (newState: boolean) => {
-  isEvaluating = newState;
-};
 
 function* setFormEvaluationSagaAsync(
   action: ReduxAction<FormEvalActionPayload>,
 ): any {
-  // We have to add a queue here because the eval cannot happen before the initial state is set
-  if (isEvaluating) {
-    evalQueue.push(action);
-    yield;
-  } else {
-    setIsEvaluating(true);
-    try {
-      // Get current state from redux
-      const currentEvalState: FormEvaluationState = yield select(
-        getFormEvaluationState,
-      );
-      // Trigger the worker to compute the new eval state
-      const workerResponse = yield call(evalFormConfig, {
-        ...action,
-        currentEvalState,
-      });
+  try {
+    // Get current state from redux
+    const currentEvalState: FormEvaluationState = yield select(
+      getFormEvaluationState,
+    );
+    // Trigger the worker to compute the new eval state
+    const workerResponse = yield call(evalFormConfig, {
+      ...action,
+      currentEvalState,
+    });
 
-      if (action?.type === ReduxActionTypes.INIT_FORM_EVALUATION) {
-        const fetchDynamicValueFormConfigs = extractFetchDynamicValueFormConfigs(
-          workerResponse[action?.payload?.formId],
-        );
+    if (action?.type === ReduxActionTypes.INIT_FORM_EVALUATION) {
+      const fetchDynamicValueFormConfigs = extractFetchDynamicValueFormConfigs(
+        workerResponse[action?.payload?.formId],
+      );
+      yield put({
+        type: ReduxActionTypes.INIT_TRIGGER_VALUES,
+        payload: {
+          [action?.payload?.formId]: klona(fetchDynamicValueFormConfigs),
+        },
+      });
+    }
+    // RUN_FORM_EVALUATION shouldn't be called before INIT_FORM_EVALUATION has been called with
+    // the same `formId` else `extractQueueOfValuesToBeFetched` will be sent an undefined value.
+    let queueOfValuesToBeFetched;
+    if (
+      action?.type === ReduxActionTypes.RUN_FORM_EVALUATION &&
+      workerResponse[action?.payload?.formId]
+    ) {
+      queueOfValuesToBeFetched = extractQueueOfValuesToBeFetched(
+        workerResponse[action?.payload?.formId],
+      );
+    }
+
+    // Update the eval state in redux only if it is not empty
+    if (workerResponse) {
+      yield put({
+        type: ReduxActionTypes.SET_FORM_EVALUATION,
+        payload: workerResponse,
+      });
+    }
+    // If there are any actions in the queue, run them
+    // Once all the actions are done, extract the actions that need to be fetched dynamically
+    const formId = action.payload.formId;
+    const evalOutput = workerResponse[formId];
+    if (evalOutput && typeof evalOutput === "object") {
+      if (queueOfValuesToBeFetched) {
         yield put({
-          type: ReduxActionTypes.INIT_TRIGGER_VALUES,
+          type: ReduxActionTypes.FETCH_TRIGGER_VALUES_INIT,
           payload: {
-            [action?.payload?.formId]: klona(fetchDynamicValueFormConfigs),
+            formId,
+            values: queueOfValuesToBeFetched,
           },
         });
-      }
-      // RUN_FORM_EVALUATION shouldn't be called before INIT_FORM_EVALUATION has been called with
-      // the same `formId` else `extractQueueOfValuesToBeFetched` will be sent an undefined value.
-      if (
-        action?.type === ReduxActionTypes.RUN_FORM_EVALUATION &&
-        workerResponse[action?.payload?.formId]
-      ) {
-        const queue = extractQueueOfValuesToBeFetched(
-          workerResponse[action?.payload?.formId],
+
+        // Pass the queue to the saga to fetch the dynamic values
+        yield call(
+          fetchDynamicValuesSaga,
+          queueOfValuesToBeFetched,
+          formId,
+          action.payload.datasourceId ? action.payload.datasourceId : "",
+          action.payload.pluginId ? action.payload.pluginId : "",
         );
-        if (!isEmpty(queue)) {
-          fetchDynamicValQueue.push(queue);
-        }
       }
-
-      // Update the eval state in redux only if it is not empty
-      if (!!workerResponse) {
-        yield put({
-          type: ReduxActionTypes.SET_FORM_EVALUATION,
-          payload: workerResponse,
-        });
-      }
-      setIsEvaluating(false);
-      // If there are any actions in the queue, run them
-      if (evalQueue.length > 0) {
-        const nextAction = evalQueue.shift() as ReduxAction<
-          FormEvalActionPayload
-        >;
-        yield fork(setFormEvaluationSagaAsync, nextAction);
-      } else {
-        // Once all the actions are done, extract the actions that need to be fetched dynamically
-        const formId = action.payload.formId;
-        const evalOutput = workerResponse[formId];
-        if (!!evalOutput && typeof evalOutput === "object") {
-          // cloning the queue to prevent mutations in the formEvalutionState
-          const queueOfValuesToBeFetched = klona(
-            fetchDynamicValQueue[fetchDynamicValQueue.length - 1],
-          );
-
-          // whenever there's a queueOfValuesToBeFetched, call fetchDynamicValuesSaga on it.
-          if (!!queueOfValuesToBeFetched) {
-            yield put({
-              type: ReduxActionTypes.FETCH_TRIGGER_VALUES_INIT,
-              payload: {
-                formId,
-                values: queueOfValuesToBeFetched,
-              },
-            });
-
-            // resetting the fetch dynamic values.
-            fetchDynamicValQueue = [];
-
-            // wait for dataTree to be updated with the latest values before fetching dynamic values.
-            yield race([
-              ReduxActionTypes.SET_LOADING_ENTITIES,
-              ReduxActionTypes.SET_EVALUATION_INVERSE_DEPENDENCY_MAP,
-            ]);
-            // then wait some more just to be sure.
-            yield delay(300);
-
-            // Pass the queue to the saga to fetch the dynamic values
-            yield call(
-              fetchDynamicValuesSaga,
-              queueOfValuesToBeFetched,
-              formId,
-              action.payload.datasourceId ? action.payload.datasourceId : "",
-              action.payload.pluginId ? action.payload.pluginId : "",
-            );
-          }
-        }
-      }
-    } catch (e) {
-      log.error(e);
-      setIsEvaluating(false);
     }
+  } catch (e) {
+    log.error(e);
   }
 }
 
@@ -309,11 +272,14 @@ function* fetchDynamicValueSaga(
 }
 
 function* formEvaluationChangeListenerSaga() {
+  const formEvalChannel: ActionPattern<ReduxActionType<
+    FormEvalActionPayload
+  >> = yield actionChannel(FORM_EVALUATION_REDUX_ACTIONS);
   while (true) {
     const action: ReduxAction<FormEvalActionPayload> = yield take(
-      FORM_EVALUATION_REDUX_ACTIONS,
+      formEvalChannel,
     );
-    yield fork(setFormEvaluationSagaAsync, action);
+    yield call(setFormEvaluationSagaAsync, action);
   }
 }
 

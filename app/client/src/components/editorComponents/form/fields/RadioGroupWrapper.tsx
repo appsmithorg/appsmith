@@ -1,4 +1,4 @@
-import RadioComponent from "components/ads/Radio";
+import { RadioComponent } from "design-system";
 import React, { useEffect, useState } from "react";
 import { WrappedFieldInputProps } from "redux-form";
 

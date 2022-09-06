@@ -103,6 +103,7 @@ import { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTypeDefC
 import { getCodeEditorCursorPosition } from "selectors/editorContextSelectors";
 import { CursorPosition } from "reducers/uiReducers/editorContextReducer";
 import { generateKeyAndSetCodeEditorCursorPosition } from "actions/editorContextActions";
+import { updateCustomDef } from "utils/autocomplete/customDefUtils";
 
 type ReduxStateProps = ReturnType<typeof mapStateToProps>;
 type ReduxDispatchProps = ReturnType<typeof mapDispatchToProps>;
@@ -332,7 +333,6 @@ class CodeEditor extends Component<Props, State> {
           editor,
           this.props.hinting,
           this.props.dynamicData,
-          this.props.additionalDynamicData,
         );
 
         this.lintCode(editor);
@@ -479,10 +479,9 @@ class CodeEditor extends Component<Props, State> {
     editor: CodeMirror.Editor,
     hinting: Array<HintHelper>,
     dynamicData: DataTree,
-    additionalDynamicData?: AdditionalDynamicDataTree,
   ) {
     return hinting.map((helper) => {
-      return helper(editor, dynamicData, additionalDynamicData);
+      return helper(editor, dynamicData);
     });
   }
 
@@ -527,6 +526,8 @@ class CodeEditor extends Component<Props, State> {
   handleEditorFocus = (cm: CodeMirror.Editor) => {
     this.setState({ isFocused: true });
     if (!cm.state.completionActive) {
+      updateCustomDef(this.props.additionalDynamicData);
+
       const entityInformation = this.getEntityInformation();
       const { blockCompletions } = this.props;
       this.hinters
