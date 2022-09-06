@@ -63,7 +63,7 @@ describe("AForce - Community Issues page validations", function() {
   });
 
   it("2. Validate table navigation with Server Side pagination enabled with Default selected row", () => {
-    ee.SelectEntityByName("Table1", "WIDGETS");
+    ee.SelectEntityByName("Table1", "Widgets");
     agHelper.AssertExistingToggleState("serversidepagination", "checked");
 
     agHelper
@@ -107,7 +107,7 @@ describe("AForce - Community Issues page validations", function() {
   it("3. Validate table navigation with Server Side pagination disabled with Default selected row selection", () => {
     deployMode.NavigateBacktoEditor();
     table.WaitUntilTableLoad();
-    ee.SelectEntityByName("Table1", "WIDGETS");
+    ee.SelectEntityByName("Table1", "Widgets");
     propPane.ToggleOnOrOff("serversidepagination", "Off");
     deployMode.DeployApp();
     table.WaitUntilTableLoad();
@@ -115,7 +115,7 @@ describe("AForce - Community Issues page validations", function() {
     table.AssertSelectedRow(selectedRow);
     deployMode.NavigateBacktoEditor();
     table.WaitUntilTableLoad();
-    ee.SelectEntityByName("Table1", "WIDGETS");
+    ee.SelectEntityByName("Table1", "Widgets");
     propPane.ToggleOnOrOff("serversidepagination", "On");
   });
 
@@ -133,7 +133,7 @@ describe("AForce - Community Issues page validations", function() {
   });
 
   it.skip("5. Verify Default search text in table as per 'Default Search Text' property set + Bug 12228", () => {
-    ee.SelectEntityByName("Table1", "WIDGETS");
+    ee.SelectEntityByName("Table1", "Widgets");
     //propPane.EnterJSContext("Default Search Text", "Bug", false);
     propPane.TypeTextIntoField("Default Search Text", "Bug");
     deployMode.DeployApp();
@@ -142,7 +142,7 @@ describe("AForce - Community Issues page validations", function() {
     table.WaitUntilTableLoad();
     deployMode.NavigateBacktoEditor();
 
-    ee.SelectEntityByName("Table1", "WIDGETS");
+    ee.SelectEntityByName("Table1", "Widgets");
     //propPane.EnterJSContext("Default Search Text", "Question", false);
     propPane.TypeTextIntoField("Default Search Text", "Question");
 
@@ -152,7 +152,7 @@ describe("AForce - Community Issues page validations", function() {
     deployMode.NavigateBacktoEditor();
     table.WaitUntilTableLoad();
 
-    ee.SelectEntityByName("Table1", "WIDGETS");
+    ee.SelectEntityByName("Table1", "Widgets");
     //propPane.EnterJSContext("Default Search Text", "Epic", false);
     propPane.TypeTextIntoField("Default Search Text", "Epic"); //Bug 12228 - Searching based on hidden column value should not be allowed
     deployMode.DeployApp();
@@ -161,13 +161,13 @@ describe("AForce - Community Issues page validations", function() {
     deployMode.NavigateBacktoEditor();
     table.WaitUntilTableLoad();
 
-    ee.SelectEntityByName("Table1", "WIDGETS");
+    ee.SelectEntityByName("Table1", "Widgets");
     propPane.RemoveText("defaultsearchtext");
     table.WaitUntilTableLoad();
   });
 
   it.skip("6. Validate Search table with Client Side Search enabled & disabled", () => {
-    ee.SelectEntityByName("Table1", "WIDGETS");
+    ee.SelectEntityByName("Table1", "Widgets");
     agHelper.AssertExistingToggleState("enableclientsidesearch", "checked");
 
     deployMode.DeployApp();
@@ -184,7 +184,7 @@ describe("AForce - Community Issues page validations", function() {
     deployMode.NavigateBacktoEditor();
     table.WaitUntilTableLoad();
 
-    ee.SelectEntityByName("Table1", "WIDGETS");
+    ee.SelectEntityByName("Table1", "Widgets");
     propPane.ToggleOnOrOff("enableclientsidesearch", "Off");
 
     deployMode.DeployApp();
@@ -200,7 +200,7 @@ describe("AForce - Community Issues page validations", function() {
 
     deployMode.NavigateBacktoEditor();
     table.WaitUntilTableLoad();
-    ee.SelectEntityByName("Table1", "WIDGETS");
+    ee.SelectEntityByName("Table1", "Widgets");
     propPane.ToggleOnOrOff("enableclientsidesearch", "On");
   });
 

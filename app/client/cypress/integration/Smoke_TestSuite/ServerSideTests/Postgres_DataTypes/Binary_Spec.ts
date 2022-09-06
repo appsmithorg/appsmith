@@ -82,7 +82,7 @@ describe("Binary Datatype tests", function() {
     agHelper.GetNClick(dataSources._templateMenu);
     dataSources.EnterQuery(query);
 
-    ee.ExpandCollapseEntity("QUERIES/JS", false);
+    ee.ExpandCollapseEntity("Queries/JS", false);
     ee.ExpandCollapseEntity(dsName, false);
   });
 
@@ -200,7 +200,7 @@ describe("Binary Datatype tests", function() {
   it("8. Validating Binary (bytea) - escape, hex, base64 functions", () => {
     deployMode.NavigateBacktoEditor();
     table.WaitUntilTableLoad();
-    ee.ExpandCollapseEntity("QUERIES/JS");
+    ee.ExpandCollapseEntity("Queries/JS");
     dataSources.NavigateFromActiveDS(dsName, true);
     agHelper.RenameWithInPane("verifyBinaryFunctions");
 
@@ -298,7 +298,12 @@ describe("Binary Datatype tests", function() {
     dataSources.EnterQuery(query);
     dataSources.RunQuery();
     dataSources.AssertQueryResponseHeaders([
-      "Escape1", "Hex1", "Escape2", "Hex2",  "Escape3", "Hex3"
+      "Escape1",
+      "Hex1",
+      "Escape2",
+      "Hex2",
+      "Escape3",
+      "Hex3",
     ]);
     dataSources.ReadQueryTableResponse(0).then(($cellData) => {
       expect($cellData).to.eq("123abc456");
@@ -320,7 +325,7 @@ describe("Binary Datatype tests", function() {
     });
 
     agHelper.ActionContextMenuWithInPane("Delete");
-    ee.ExpandCollapseEntity("QUERIES/JS", false);
+    ee.ExpandCollapseEntity("Queries/JS", false);
   });
 
   it("9. Deleting records - binarytype", () => {
@@ -377,26 +382,26 @@ describe("Binary Datatype tests", function() {
 
   it("12. Validate Drop of the Newly Created - binarytype - Table from Postgres datasource", () => {
     deployMode.NavigateBacktoEditor();
-    ee.ExpandCollapseEntity("QUERIES/JS");
+    ee.ExpandCollapseEntity("Queries/JS");
     ee.SelectEntityByName("dropTable");
     dataSources.RunQuery();
     dataSources.ReadQueryTableResponse(0).then(($cellData) => {
       expect($cellData).to.eq("0"); //Success response for dropped table!
     });
-    ee.ExpandCollapseEntity("QUERIES/JS", false);
-    ee.ExpandCollapseEntity("DATASOURCES");
+    ee.ExpandCollapseEntity("Queries/JS", false);
+    ee.ExpandCollapseEntity("Datasources");
     ee.ExpandCollapseEntity(dsName);
     ee.ActionContextMenuByEntityName(dsName, "Refresh");
     agHelper.AssertElementAbsence(
       ee._entityNameInExplorer("public.binarytype"),
     );
     ee.ExpandCollapseEntity(dsName, false);
-    ee.ExpandCollapseEntity("DATASOURCES", false);
+    ee.ExpandCollapseEntity("Datasources", false);
   });
 
   it("13. Verify Deletion of all created queries", () => {
     dataSources.DeleteDatasouceFromWinthinDS(dsName, 409); //Since all queries exists
-    ee.ExpandCollapseEntity("QUERIES/JS");
+    ee.ExpandCollapseEntity("Queries/JS");
     ee.ActionContextMenuByEntityName("createTable", "Delete", "Are you sure?");
     ee.ActionContextMenuByEntityName(
       "deleteAllRecords",
@@ -417,7 +422,7 @@ describe("Binary Datatype tests", function() {
   it("14. Verify Deletion of datasource", () => {
     deployMode.DeployApp();
     deployMode.NavigateBacktoEditor();
-    ee.ExpandCollapseEntity("QUERIES/JS");
+    ee.ExpandCollapseEntity("Queries/JS");
     dataSources.DeleteDatasouceFromWinthinDS(dsName, 200);
   });
 });

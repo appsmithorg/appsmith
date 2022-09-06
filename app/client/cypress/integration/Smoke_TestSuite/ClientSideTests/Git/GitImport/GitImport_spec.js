@@ -142,7 +142,7 @@ describe("Git import flow", function() {
     cy.xpath("//input[@value='this is a test']");
     // verify js object binded to input widget
     cy.xpath("//input[@value='Success']");
-    cy.CheckAndUnfoldEntityItem("PAGES");
+    cy.CheckAndUnfoldEntityItem("Pages");
     // clone the page1 and validate data binding
     cy.get(".t--entity-name:contains(Page1)")
       .trigger("mouseover")
@@ -158,7 +158,7 @@ describe("Git import flow", function() {
       "response.body.responseMeta.status",
       201,
     );
-    cy.CheckAndUnfoldEntityItem("QUERIES/JS");
+    cy.CheckAndUnfoldEntityItem("Queries/JS");
     // verify jsObject is not duplicated
     cy.get(`.t--entity-name:contains(${jsObject})`).should("have.length", 1);
     cy.xpath("//input[@class='bp3-input' and @value='Success']").should(
