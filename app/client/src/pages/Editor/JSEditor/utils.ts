@@ -120,7 +120,7 @@ export const getJSFunctionLineGutter = (
         ? {
             line: config.line,
             element: createGutterMarker(() =>
-              runFuction(action, "GUTTER_BUTTON"),
+              runFuction(action, "JS_PANE_GUTTER_RUN_BUTTON"),
             ),
             isFocusedAction: () => {
               onFocusAction(action);

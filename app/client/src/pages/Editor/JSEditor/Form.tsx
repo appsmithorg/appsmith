@@ -247,7 +247,7 @@ function JSEditorForm({ jsCollection: currentJSCollection }: Props) {
                     | React.MouseEvent<HTMLElement, MouseEvent>
                     | KeyboardEvent,
                 ) => {
-                  handleRunAction(event, "MAIN_RUN_BUTTON");
+                  handleRunAction(event, "JS_PANE_MAIN_RUN_BUTTON");
                 }}
                 onSelect={handleJSActionOptionSelection}
                 options={convertJSActionsToDropdownOptions(jsActions)}
@@ -310,7 +310,7 @@ function JSEditorForm({ jsCollection: currentJSCollection }: Props) {
                   | React.MouseEvent<HTMLElement, MouseEvent>
                   | KeyboardEvent,
               ) => {
-                handleRunAction(event, "RESPONSE_RUN_BUTTON");
+                handleRunAction(event, "JS_PANE_RESPONSE_RUN_BUTTON");
               }}
               theme={theme}
             />
