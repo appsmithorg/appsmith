@@ -1,12 +1,16 @@
 import { createSelector } from "reselect";
 import { AppState } from "@appsmith/reducers";
-import { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
+import {
+  CanvasWidgetsReduxState,
+  FlattenedWidgetProps,
+} from "reducers/entityReducers/canvasWidgetsReducer";
 import { getExistingWidgetNames } from "sagas/selectors";
 import { getNextEntityName } from "utils/AppsmithUtils";
 
 import WidgetFactory from "utils/WidgetFactory";
-import { getParentToOpenIfAny } from "utils/hooks/useClickToSelectWidget";
-import { getFocusedWidget, getSelectedWidgets } from "./ui";
+import { getFocusedWidget, getSelectedWidget, getSelectedWidgets } from "./ui";
+import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
+import { get } from "lodash";
 
 export const getIsDraggingOrResizing = (state: AppState) =>
   state.ui.widgetDragResize.isResizing || state.ui.widgetDragResize.isDragging;
@@ -85,3 +89,47 @@ export const isCurrentWidgetFocused = (widgetId: string) => {
     (widget): boolean => widget === widgetId,
   );
 };
+
+// Check if current widget is the last selected widget
+export const isCurrentWidgetLastSelected = (widgetId: string) => {
+  return createSelector(
+    getSelectedWidget,
+    (widget): boolean => widget === widgetId,
+  );
+};
+
+// Check if current widget is one of multiple selected widgets
+export const isMultiSelectedWidget = (widgetId: string) => {
+  return createSelector(
+    getSelectedWidgets,
+    (widgets): boolean => widgets.length > 1 && widgets.includes(widgetId),
+  );
+};
+
+export function getParentToOpenIfAny(
+  widgetId: string | undefined,
+  widgets: CanvasWidgetsReduxState,
+) {
+  if (widgetId) {
+    let widget = get(widgets, widgetId, undefined);
+
+    // While this widget has a openParentPropertyPane equql to true
+    while (widget?.openParentPropertyPane) {
+      // Get parent widget props
+      const parent = get(widgets, `${widget.parentId}`, undefined);
+
+      // If parent has openParentPropertyPane = false, return the currnet parent
+      if (!parent?.openParentPropertyPane) {
+        return parent;
+      }
+
+      if (parent?.parentId && parent.parentId !== MAIN_CONTAINER_WIDGET_ID) {
+        widget = get(widgets, `${widget.parentId}`, undefined);
+
+        continue;
+      }
+    }
+  }
+
+  return;
+}
