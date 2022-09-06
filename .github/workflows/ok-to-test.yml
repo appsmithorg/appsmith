@@ -27,6 +27,8 @@ jobs:
           token: ${{ env.TOKEN }} # GitHub App installation access token
           reaction-token: ${{ secrets.GITHUB_TOKEN }}
           issue-type: pull-request
-          commands: ok-to-test
+          commands: |
+            ok-to-test
+            perf-test
           named-args: true
           permission: write
