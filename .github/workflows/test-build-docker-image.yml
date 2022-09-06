@@ -535,16 +535,6 @@ jobs:
         run: |
           sleep 30s
 
-      - name: Exit if Server hasnt started
-        if: steps.run_result.outputs.run_result != 'success'
-        run: |
-          if [[ `ps -ef | grep "server-1.0-SNAPSHOT" | grep java |wc -l` == 0 ]]; then
-             echo "Server Not Started";
-             exit 1;
-           else
-             echo "Server Found";
-           fi
-
       - name: Installing Yarn serve
         if: steps.run_result.outputs.run_result != 'success'
         run: |
