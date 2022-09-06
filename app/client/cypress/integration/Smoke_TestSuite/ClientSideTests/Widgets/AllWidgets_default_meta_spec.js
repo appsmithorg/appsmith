@@ -39,7 +39,7 @@ const widgetsToTest = {
       selectTableAndReset();
     },
   },
-  /*
+/*
   [WIDGET.SWITCHGROUP]: {
     widgetName: "SwitchGroup",
     widgetPrefixName: "SwitchGroup1",
@@ -80,6 +80,7 @@ const widgetsToTest = {
       multiTreeSelectAndReset();
     },
   },
+  */
   [WIDGET.RADIO_GROUP]: {
     widgetName: "RadioGroup",
     widgetPrefixName: "RadioGroup1",
@@ -88,7 +89,7 @@ const widgetsToTest = {
       radiogroupAndReset();
     },
   },
-
+/*
   [WIDGET.LIST]: {
     widgetName: "List",
     widgetPrefixName: "List1",
@@ -97,6 +98,7 @@ const widgetsToTest = {
       listwidgetAndReset();
     },
   },
+  */
 
   [WIDGET.RATING]: {
     widgetName: "Rating",
@@ -221,11 +223,11 @@ function selectTableAndReset() {
   cy.get(commonlocators.textWidgetContainer).each((item, index, list) => {
     cy.wrap(item).should("contain.text", "#2");
   });
-  cy.get("button:contains('Submit')").click({ force: true });
+  cy.get("button:contains('Submit')").dblclick({ force: true });
   cy.wait(1000);
-  cy.get("button:contains('Submit')").click({ force: true });
+  cy.get("button:contains('Submit')").dblclick({ force: true });
   cy.wait(2000);
-  cy.get("button:contains('Submit')").click({ force: true });
+  cy.get("button:contains('Submit')").dblclick({ force: true });
   cy.get(commonlocators.textWidgetContainer).each((item, index, list) => {
     cy.wrap(item).should("contain.text", "#1");
   });
@@ -311,7 +313,9 @@ function radiogroupAndReset() {
   cy.get(commonlocators.textWidgetContainer).each((item, index, list) => {
     cy.wrap(item).should("contain.text", "N");
   });
-  cy.get("button:contains('Submit')").click({ force: true });
+  cy.get("button:contains('Submit')").dblclick({ force: true });
+  cy.wait(1000);
+  cy.get("button:contains('Submit')").dblclick({ force: true });
   cy.wait(1000);
   cy.get(commonlocators.textWidgetContainer).each((item, index, list) => {
     cy.wrap(item).should("contain.text", "Y");
@@ -337,7 +341,9 @@ function ratingwidgetAndReset() {
   cy.get(commonlocators.textWidgetContainer).each((item, index, list) => {
     cy.wrap(item).should("not.contain.text", "3");
   });
-  cy.get("button:contains('Submit')").click({ force: true });
+  cy.get("button:contains('Submit')").dblclick({ force: true });
+  cy.wait(1000);
+  cy.get("button:contains('Submit')").dblclick({ force: true });
   cy.wait(1000);
   cy.get(commonlocators.textWidgetContainer).each((item, index, list) => {
     cy.wrap(item).should("contain.text", "3");
@@ -354,9 +360,9 @@ function checkboxGroupAndReset() {
   cy.get(commonlocators.textWidgetContainer).each((item, index, list) => {
     cy.wrap(item).should("contain.text", "RED");
   });
-  cy.get("button:contains('Submit')").click({ force: true });
+  cy.get("button:contains('Submit')").dblclick({ force: true });
   cy.wait(1000);
-  cy.get("button:contains('Submit')").click({ force: true });
+  cy.get("button:contains('Submit')").dblclick({ force: true });
   cy.wait(2000);
   cy.get(commonlocators.textWidgetContainer).each((item, index, list) => {
     cy.wrap(item).should("not.contain.text", "RED");
