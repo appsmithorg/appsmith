@@ -76,11 +76,11 @@ const StyledIcon = styled(Icon)`
 
 type PropertySectionProps = {
   id: string;
-  name: string | ((props: WidgetProps, propertyPath: string) => string);
+  name: string;
   collapsible?: boolean;
   children?: ReactNode;
   childrenWrapperRef?: React.RefObject<HTMLDivElement>;
-  hidden?: (props: any, propertyPath: string) => boolean;
+  hidden?: boolean;
   isDefaultOpen?: boolean;
   propertyPath?: string;
 };
@@ -95,22 +95,15 @@ export const CollapseContext: Context<boolean> = createContext<boolean>(false);
 export const PropertySection = memo((props: PropertySectionProps) => {
   const { isDefaultOpen = true } = props;
   const [isOpen, setIsOpen] = useState(!!isDefaultOpen);
-  const widgetProps: any = useSelector(getWidgetPropsForPropertyPane);
   const handleSectionTitleClick = useCallback(() => {
     if (props.collapsible) setIsOpen((x) => !x);
   }, []);
 
   if (props.hidden) {
-    if (props.hidden(widgetProps, props.propertyPath || "")) {
-      return null;
-    }
+    return null;
   }
 
-  const sectionName = isFunction(props.name)
-    ? props.name(widgetProps, props.propertyPath || "")
-    : props.name;
-
-  const className = sectionName
+  const className = props.name
     .split(" ")
     .join("")
     .toLowerCase();
@@ -120,7 +113,7 @@ export const PropertySection = memo((props: PropertySectionProps) => {
         className={`t--property-pane-section-collapse-${className} flex items-center`}
         onClick={handleSectionTitleClick}
       >
-        <span className="grow">{sectionName}</span>
+        <span className="grow">{props.name}</span>
         {props.collapsible && (
           <StyledIcon
             className="t--chevron-icon"
