@@ -52,6 +52,10 @@ export class EntityExplorer {
   _entityExplorerWrapper = ".t--entity-explorer-wrapper";
   _pinEntityExplorer = ".t--pin-entity-explorer";
   _entityExplorer = ".t--entity-explorer";
+  private _modalTextWidget = (modalName: string) =>
+    "//div[contains(@class, 't--entity-name')][text()='" +
+    modalName +
+    "']/ancestor::div[contains(@class, 't--entity-item')]/following-sibling::div//div[contains(@class, 't--entity-name')][contains(text(), 'Text')]";
 
   public SelectEntityByName(
     entityNameinLeftSidebar: string,
@@ -62,7 +66,20 @@ export class EntityExplorer {
     cy.xpath(this._entityNameInExplorer(entityNameinLeftSidebar))
       .last()
       .click({ multiple: true });
-    this.agHelper.Sleep();
+    this.agHelper.Sleep(500);
+  }
+
+  public SelectEntityInModal(
+    modalNameinEE: string,
+    section: "Widgets" | "Queries/JS" | "Datasources" | "" = "",
+  ) {
+    this.NavigateToSwitcher("explorer");
+    if (section) this.ExpandCollapseEntity(section); //to expand respective section
+    this.ExpandCollapseEntity(modalNameinEE);
+    cy.xpath(this._modalTextWidget(modalNameinEE))
+      .last()
+      .click({ multiple: true });
+    this.agHelper.Sleep(500);
   }
 
   public AddNewPage() {

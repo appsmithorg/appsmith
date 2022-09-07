@@ -229,13 +229,18 @@ export default function evaluateSync(
   isJSCollection: boolean,
   context?: EvaluateContext,
   evalArguments?: Array<any>,
+  skipLogsOperations = false,
 ): EvalResult {
   return (function() {
     const errors: EvaluationError[] = [];
     let logs: LogObject[] = [];
     let result;
+    // skipping log reset if the js collection is being evaluated without run
+    // Doing this because the promise execution is losing logs in the process due to resets
+    if (!skipLogsOperations) {
+      userLogs.resetLogs();
+    }
     /**** Setting the eval context ****/
-    userLogs.resetLogs();
     const GLOBAL_DATA: Record<string, any> = createGlobalData({
       dataTree,
       resolvedFunctions,
@@ -280,7 +285,7 @@ export default function evaluateSync(
         originalBinding: userScript,
       });
     } finally {
-      logs = userLogs.flushLogs();
+      logs = userLogs.flushLogs(skipLogsOperations);
       for (const entity in GLOBAL_DATA) {
         // @ts-expect-error: Types are not available
         delete self[entity];
@@ -352,6 +357,7 @@ export async function evaluateAsync(
         completePromise(requestId, {
           result,
           errors,
+          logs: [userLogs.parseLogs("log", ["failed to parse logs"])],
           triggers: Array.from(self.TRIGGER_COLLECTOR),
         });
       } finally {

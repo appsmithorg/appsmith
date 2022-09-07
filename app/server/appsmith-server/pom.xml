@@ -264,14 +264,6 @@
             <artifactId>ff4j-config-yaml</artifactId>
             <version>${ff4j.version}</version>
         </dependency>
-        <!-- Optional: the following dependency is required to avoid MacOSDnsServerAddressStreamProvider class not found exception
-        It's required for MacOS only
-         ref: https://stackoverflow.com/a/65976398/997566 -->
-        <dependency>
-            <groupId>io.netty</groupId>
-            <artifactId>netty-all</artifactId>
-            <scope>runtime</scope>
-        </dependency>
         <dependency>
             <groupId>com.appsmith</groupId>
             <artifactId>reactiveCaching</artifactId>
