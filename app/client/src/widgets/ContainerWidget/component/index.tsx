@@ -100,37 +100,28 @@ export const FlexContainer = styled.div<{
   overflow: ${({ overflow }) =>
     overflow?.indexOf("wrap") === -1 ? overflow : "hidden"};
   padding: 4px;
-
-  .wrapper {
-    flex: 1 1 33.3%;
-  }
 `;
 
-const StartWrapper = styled.div<{
+const SubWrapper = styled.div<{
   flexDirection: FlexDirection;
 }>`
+  flex: 1 1 33.3%;
   display: flex;
   flex-direction: ${({ flexDirection }) => flexDirection || "row"};
+  align-items: ${({ flexDirection }) =>
+    flexDirection === FlexDirection.Column ? "flex-start" : "center"};
+`;
+
+const StartWrapper = styled(SubWrapper)`
   justify-content: flex-start;
-  align-items: center;
 `;
 
-const EndWrapper = styled.div<{
-  flexDirection: FlexDirection;
-}>`
-  display: flex;
-  flex-direction: ${({ flexDirection }) => flexDirection || "row"};
+const EndWrapper = styled(SubWrapper)`
   justify-content: flex-end;
-  align-items: center;
 `;
 
-const CenterWrapper = styled.div<{
-  flexDirection: FlexDirection;
-}>`
-  display: flex;
-  flex-direction: ${({ flexDirection }) => flexDirection || "row"};
+const CenterWrapper = styled(SubWrapper)`
   justify-content: center;
-  align-items: center;
 `;
 
 function ContainerComponentWrapper(props: ContainerComponentProps) {
@@ -223,13 +214,13 @@ export function LayoutWrapper(props: FlexBoxProps): JSX.Element {
       useAutoLayout={props.useAutoLayout}
     >
       <StartWrapper
-        className={`wrapper start-wrapper-${props.widgetId}`}
+        className={`start-wrapper-${props.widgetId}`}
         flexDirection={layoutProps.flexDirection}
       >
         {start}
       </StartWrapper>
       <CenterWrapper
-        className={`wrapper center-wrapper-${props.widgetId} ${
+        className={`center-wrapper-${props.widgetId} ${
           hasFillChild ? "no-display" : ""
         }`}
         flexDirection={layoutProps.flexDirection}
@@ -237,7 +228,7 @@ export function LayoutWrapper(props: FlexBoxProps): JSX.Element {
         {center}
       </CenterWrapper>
       <EndWrapper
-        className={`wrapper end-wrapper-${props.widgetId} ${
+        className={`end-wrapper-${props.widgetId} ${
           hasFillChild ? "no-display" : ""
         }`}
         flexDirection={layoutProps.flexDirection}
