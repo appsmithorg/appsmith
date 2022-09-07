@@ -472,7 +472,7 @@ const DynamicHeightOverlay: React.FC<DynamicHeightOverlayProps> = memo(
       onAnyDotStop();
     }
 
-    /////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////
 
     useEffect(() => {
       setMinY(minDynamicHeight * 10);
