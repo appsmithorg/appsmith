@@ -2450,9 +2450,6 @@ public class DatabaseChangelog2 {
         // Find all public apps
         Query publicAppQuery = new Query();
         publicAppQuery.addCriteria(where(fieldName(QApplication.application.defaultPermissionGroup)).exists(true));
-        publicAppQuery.fields()
-                .include(fieldName(QApplication.application.defaultPermissionGroup))
-                .include(fieldName(QApplication.application.policies));
 
         org.springframework.data.util.StreamUtils.createStreamFromIterator(mongockTemplate.stream(publicAppQuery, Application.class))
                 .parallel()
@@ -2474,8 +2471,8 @@ public class DatabaseChangelog2 {
                     Query applicationActionsQuery = new Query().addCriteria(where(fieldName(QNewAction.newAction.applicationId)).is(application.getId()));
                     // Only fetch the datasources that are used in the action
                     applicationActionsQuery.fields()
-                            .include(fieldName(QNewAction.newAction.unpublishedAction) + fieldName(QNewAction.newAction.unpublishedAction.datasource))
-                            .include(fieldName(QNewAction.newAction.publishedAction) + fieldName(QNewAction.newAction.publishedAction.datasource));
+                            .include(fieldName(QNewAction.newAction.unpublishedAction) + "." + fieldName(QNewAction.newAction.unpublishedAction.datasource))
+                            .include(fieldName(QNewAction.newAction.publishedAction) + "." + fieldName(QNewAction.newAction.publishedAction.datasource));
 
                     mongockTemplate.stream(applicationActionsQuery, NewAction.class)
                             .stream()
@@ -2497,7 +2494,6 @@ public class DatabaseChangelog2 {
 
                     // Update datasources
                     Query datasourceQuery = new Query().addCriteria(where(fieldName(QDatasource.datasource.id)).in(datasourceIds));
-                    datasourceQuery.fields().include(fieldName(QDatasource.datasource.policies));
                     mongockTemplate.stream(datasourceQuery, Datasource.class)
                             .stream()
                             .parallel()

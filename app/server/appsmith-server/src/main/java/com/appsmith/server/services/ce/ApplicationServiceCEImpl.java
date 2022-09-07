@@ -295,7 +295,6 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
                     boolean isApplicationPublic = getIsApplicationPublic(application, publicPermissionGroupId);
 
                     // Validity checks before proceeding further
-
                     if (isApplicationPublic && applicationAccessDTO.getPublicAccess()) {
                         // No change. The required public access is the same as current public access. Do nothing
                         return Mono.just(application);
