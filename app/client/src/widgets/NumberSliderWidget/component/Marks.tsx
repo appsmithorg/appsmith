@@ -47,6 +47,33 @@ const MarkLabel = styled.p<{ color: string }>(({ color }) => ({
   whiteSpace: "nowrap",
 }));
 
+function transformStyles(
+  position: number,
+  labelLength: number,
+): React.CSSProperties {
+  // Handle long labels
+  if (labelLength > 5) {
+    // for labels on first 5 points on the slider
+    if (position <= 5) {
+      return {
+        transform: "translate(-20%, 0)",
+        textAlign: "start",
+      };
+      // for labels on last 5 points on the slider
+    } else if (position >= 95) {
+      return {
+        transform: "translate(-80%, 0)",
+        textAlign: "end",
+      };
+    }
+  }
+
+  return {
+    transform: "translate(-50%, 0)",
+    textAlign: "center",
+  };
+}
+
 export const Marks = React.memo(
   ({
     marks,
@@ -60,35 +87,6 @@ export const Marks = React.memo(
     value,
   }: MarksProps) => {
     if (!marks) return null;
-
-    function transformStyles(
-      position: number,
-      index: number,
-      labelLength: number,
-    ): React.CSSProperties {
-      // Handle long labels
-      if (labelLength > 4) {
-        // for labels on first 10 points on the slider
-        if (index === 0 && position < 10) {
-          return {
-            transform: "translate(-20%, 0)",
-            textAlign: "start",
-          };
-          // for labels on last 10 points on the slider
-          // @ts-expect-error: marks won't be undefined here
-        } else if (index === marks.length - 1 && position > 90) {
-          return {
-            transform: "translate(-80%, 0)",
-            textAlign: "end",
-          };
-        }
-      }
-
-      return {
-        transform: "translate(-50%, 0)",
-        textAlign: "center",
-      };
-    }
 
     const items = marks.map((mark, index) => {
       if (mark.value > max || mark.value < min) return null;
@@ -118,7 +116,7 @@ export const Marks = React.memo(
                 onChange(mark.value);
               }}
               style={{
-                ...transformStyles(position, index, mark.label.length),
+                ...transformStyles(position, mark.label.length),
               }}
             >
               {mark.label}
