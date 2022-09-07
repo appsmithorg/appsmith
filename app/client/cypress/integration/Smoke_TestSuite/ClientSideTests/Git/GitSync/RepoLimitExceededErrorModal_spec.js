@@ -13,7 +13,7 @@ describe("Repo Limit Exceeded Error Modal", function() {
     repoName4 = uuid.v4().split("-")[0];
   });
 
-  it("modal should be opened with proper components", function() {
+  it.skip("modal should be opened with proper components", function() {
     cy.createAppAndConnectGit(repoName1, false);
     cy.createAppAndConnectGit(repoName2, false);
     cy.createAppAndConnectGit(repoName3, false);
