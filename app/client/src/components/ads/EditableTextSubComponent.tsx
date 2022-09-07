@@ -14,7 +14,7 @@ import styled, { ThemeContext } from "styled-components";
 import { noop } from "lodash";
 
 import { Text, TextType } from "design-system";
-import Spinner from "./Spinner";
+import { Spinner } from "design-system";
 import { CommonComponentProps } from "./common";
 import { Icon, IconSize } from "design-system";
 import { UNFILLED_WIDTH } from "./EditableText";

@@ -11,7 +11,10 @@ import {
   StyledButton,
   TooltipComponent as Tooltip,
 } from "design-system";
-import { createMessage, NO_JS_FUNCTION_TO_RUN } from "ce/constants/messages";
+import {
+  createMessage,
+  NO_JS_FUNCTION_TO_RUN,
+} from "@appsmith/constants/messages";
 import { JSActionDropdownOption } from "./utils";
 import { RUN_BUTTON_DEFAULTS, testLocators } from "./constants";
 

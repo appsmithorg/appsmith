@@ -5,11 +5,17 @@ import { getUserApplicationsWorkspaces } from "selectors/applicationSelectors";
 import { isPermitted, PERMISSION_TYPE } from "./permissionHelpers";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { AppState } from "@appsmith/reducers";
-import { Button, Category, Dropdown, IconSize, Size } from "design-system";
+import {
+  Button,
+  Category,
+  Dropdown,
+  IconSize,
+  Size,
+  Spinner,
+} from "design-system";
 import { StyledDialog, ButtonWrapper, SpinnerWrapper } from "./ForkModalStyles";
 import { getIsFetchingApplications } from "selectors/applicationSelectors";
 import { useLocation } from "react-router";
-import Spinner from "components/ads/Spinner";
 import { matchViewerForkPath } from "constants/routes";
 import { Colors } from "constants/Colors";
 import {

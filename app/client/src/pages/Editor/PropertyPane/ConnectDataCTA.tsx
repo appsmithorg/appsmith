@@ -102,4 +102,4 @@ function ConnectDataCTA(props: ConnectDataCTAProps) {
   );
 }
 
-export default ConnectDataCTA;
+export default React.memo(ConnectDataCTA);
