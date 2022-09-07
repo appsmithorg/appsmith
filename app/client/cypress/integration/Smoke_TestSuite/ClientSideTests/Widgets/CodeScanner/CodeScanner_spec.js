@@ -47,12 +47,16 @@ describe("Code Scanner widget", () => {
     cy.get(publish.backToEditor).click();
   });
 
-  it("6. Open and close the Code Scanner modal", function() {
+  // TODO: Check if we are able to fake webcam video, otherwise disable this test for now
+  it("6. Open the Code Scanner modal and Scan a QR using fake webcam video.", function() {
     // Open
     cy.get(widgetsPage.codescannerwidget).click();
     //eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(2000);
-    // Close
-    cy.get(".code-scanner-close").click();
+    // Check if the QR code was read
+    cy.get(".t--widget-textwidget").should(
+      "contain",
+      "Hello Cypress, this is from Appsmith!",
+    );
   });
 });
