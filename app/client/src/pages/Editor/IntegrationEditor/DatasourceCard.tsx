@@ -45,6 +45,11 @@ import {
 } from "@appsmith/constants/messages";
 import { debounce } from "lodash";
 import { getCurrentPageId } from "selectors/editorSelectors";
+import {
+  isPermitted,
+  PERMISSION_TYPE,
+} from "pages/Applications/permissionHelpers";
+import { getCurrentAppWorkspace } from "selectors/workspaceSelectors";
 
 const Wrapper = styled.div`
   padding: 15px;
@@ -200,6 +205,15 @@ function DatasourceCard(props: DatasourceCardProps) {
       action.config.datasource.id === datasource.id,
   ).length;
 
+  const userWorkspacePermissions = useSelector(
+    (state: AppState) => getCurrentAppWorkspace(state).userPermissions ?? [],
+  );
+
+  const canCreateDatasourceActions = isPermitted(
+    userWorkspacePermissions,
+    PERMISSION_TYPE.CREATE_DATASOURCE_ACTIONS,
+  );
+
   const isDeletingDatasource = useSelector(getIsDeletingDatasource);
 
   const [confirmDelete, setConfirmDelete] = useState(false);
@@ -309,6 +323,7 @@ function DatasourceCard(props: DatasourceCardProps) {
               )}
               <NewActionButton
                 datasource={datasource}
+                disabled={!canCreateDatasourceActions}
                 eventFrom="active-datasources"
                 pluginType={plugin?.type}
               />

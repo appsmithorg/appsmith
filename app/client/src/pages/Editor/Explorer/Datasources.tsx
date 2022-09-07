@@ -135,9 +135,11 @@ const Datasources = React.memo(() => {
         datasourceElements
       ) : (
         <EmptyComponent
-          addBtnText={createMessage(EMPTY_DATASOURCE_BUTTON_TEXT)}
-          addFunction={addDatasource || noop}
           mainText={createMessage(EMPTY_DATASOURCE_MAIN_TEXT)}
+          {...(canCreateDatasource && {
+            addBtnText: createMessage(EMPTY_DATASOURCE_BUTTON_TEXT),
+            addFunction: addDatasource || noop,
+          })}
         />
       )}
       {datasourceElements.length > 0 && canCreateDatasource && (

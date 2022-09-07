@@ -11,6 +11,11 @@ import {
   createMessage,
   EMPTY_ACTIVE_DATA_SOURCES,
 } from "@appsmith/constants/messages";
+import {
+  isPermitted,
+  PERMISSION_TYPE,
+} from "pages/Applications/permissionHelpers";
+import { getCurrentAppWorkspace } from "selectors/workspaceSelectors";
 
 const QueryHomePage = styled.div`
   ${thinScrollbar};
@@ -58,6 +63,15 @@ function ActiveDataSources(props: ActiveDataSourcesProps) {
   });
   const pluginGroups = useMemo(() => keyBy(plugins, "id"), [plugins]);
 
+  const userWorkspacePermissions = useSelector(
+    (state: AppState) => getCurrentAppWorkspace(state).userPermissions ?? [],
+  );
+
+  const canCreateDatasource = isPermitted(
+    userWorkspacePermissions,
+    PERMISSION_TYPE.CREATE_DATASOURCE,
+  );
+
   if (dataSources.length === 0) {
     return (
       <EmptyActiveDatasource>
@@ -65,6 +79,7 @@ function ActiveDataSources(props: ActiveDataSourcesProps) {
           {createMessage(EMPTY_ACTIVE_DATA_SOURCES)}&nbsp;
           <CreateButton
             category={Category.primary}
+            disabled={!canCreateDatasource}
             onClick={props.onCreateNew}
             size={Size.medium}
             tag="button"

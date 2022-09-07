@@ -105,6 +105,7 @@ function NewActionButton(props: NewActionButtonProps) {
       iconPosition={IconPositions.left}
       isLoading={isSelected || props.isLoading}
       onClick={createQueryAction}
+      tag="button"
       text={pluginType === PluginType.DB ? "New Query" : "New API"}
     />
   );
