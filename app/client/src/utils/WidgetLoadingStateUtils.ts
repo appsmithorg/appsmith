@@ -1,6 +1,6 @@
 import { DataTree } from "entities/DataTree/dataTreeFactory";
 import { get, set } from "lodash";
-import { isJSObject } from "workers/evaluationUtils";
+import { isJSObject, isWidget } from "workers/evaluationUtils";
 import { DependencyMap } from "./DynamicBindingUtils";
 import WidgetFactory from "./WidgetFactory";
 
@@ -136,16 +136,18 @@ export const findLoadingEntities = (
   loadingEntityPaths.forEach((entityPath) => {
     const entityPathArray = entityPath.split(".");
     const entityName = entityPathArray[0];
-    const widgetType = get(dataTree, [entityName, "type"]);
-    const loadingProperties = WidgetFactory.getLoadingProperties(widgetType);
+    const widget = get(dataTree, [entityName]);
+    if (isWidget(widget)) {
+      const loadingProperties = WidgetFactory.getLoadingProperties(widget.type);
 
-    // check if propertyPath is listed in widgetConfig
-    if (
-      entityPathArray.length > 1 &&
-      loadingProperties &&
-      !loadingProperties.some((propRegExp) => propRegExp.test(entityPath))
-    ) {
-      return;
+      // check if propertyPath is listed in widgetConfig
+      if (
+        entityPathArray.length > 1 &&
+        loadingProperties &&
+        !loadingProperties.some((propRegExp) => propRegExp.test(entityPath))
+      ) {
+        return;
+      }
     }
 
     // check animateLoading is active on current widgets and set
