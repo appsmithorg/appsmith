@@ -130,6 +130,7 @@ type DialogComponentProps = {
   className?: string;
   maxWidth?: string;
   noModalBodyMarginTop?: boolean;
+  portalContainer?: HTMLElement;
 };
 
 export function DialogComponent(props: DialogComponentProps) {
@@ -183,6 +184,7 @@ export function DialogComponent(props: DialogComponentProps) {
         noModalBodyMarginTop={props.noModalBodyMarginTop}
         onClose={onClose}
         onOpening={props.onOpening}
+        portalContainer={props.portalContainer}
         setMaxWidth={props.setMaxWidth}
         showHeaderUnderline={props.showHeaderUnderline}
         title={props.title}
