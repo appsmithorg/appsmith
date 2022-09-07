@@ -3,6 +3,7 @@ package com.appsmith.server.authentication.handlers;
 import com.appsmith.server.authentication.handlers.ce.AuthenticationSuccessHandlerCE;
 import com.appsmith.server.helpers.RedirectHelper;
 import com.appsmith.server.repositories.UserRepository;
+import com.appsmith.server.repositories.WorkspaceRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.SessionUserService;
@@ -23,9 +24,10 @@ public class AuthenticationSuccessHandler extends AuthenticationSuccessHandlerCE
                                         UserDataService userDataService,
                                         UserRepository userRepository,
                                         WorkspaceService workspaceService,
+                                        WorkspaceRepository workspaceRepository,
                                         ApplicationPageService applicationPageService) {
 
         super(examplesWorkspaceCloner, redirectHelper, sessionUserService, analyticsService, userDataService,
-                userRepository, workspaceService, applicationPageService);
+                userRepository, workspaceRepository, workspaceService, applicationPageService);
     }
 }
