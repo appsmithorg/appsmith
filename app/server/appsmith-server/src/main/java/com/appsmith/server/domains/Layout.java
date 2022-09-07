@@ -11,6 +11,7 @@ import lombok.Setter;
 import lombok.ToString;
 import net.minidev.json.JSONObject;
 
+import java.util.Map;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
@@ -37,6 +38,9 @@ public class Layout extends BaseDomain {
     Set<DslActionDTO> layoutActions;
 
     List<Set<DslActionDTO>> layoutOnLoadActions;
+
+    // this attribute will be used to display errors caused white calculating allOnLoadAction PageLoadActionsUtilCEImpl.java
+    List<Map<String,Object>> layoutOnLoadActionErrors;
 
     @Deprecated
     @JsonIgnore

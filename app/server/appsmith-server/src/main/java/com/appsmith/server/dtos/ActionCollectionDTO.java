@@ -44,6 +44,9 @@ public class ActionCollectionDTO {
     // This field will only be populated if this collection is bound to one plugin (eg: JS)
     String pluginId;
 
+    //this attribute carries error messages while processing the actionCollection
+    List<Map<String, Object>> errorReports;
+
     PluginType pluginType;
 
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'", timezone = "UTC")

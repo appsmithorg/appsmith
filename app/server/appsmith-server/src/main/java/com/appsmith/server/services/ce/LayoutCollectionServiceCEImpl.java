@@ -32,12 +32,8 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.time.Instant;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNewFieldValuesIntoOldObject;
@@ -437,6 +433,8 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
         }
 
+        final String pageId = actionCollectionDTO.getPageId();
+
         Mono<ActionCollection> branchedActionCollectionMono = actionCollectionService
                 .findByBranchNameAndDefaultCollectionId(branchName, id, MANAGE_ACTIONS)
                 .cache();
@@ -532,6 +530,8 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
                         .collect(toMap(actionDTO -> actionDTO.getDefaultResources().getActionId(), ActionDTO::getId))
                 );
 
+        Mono<NewPage> newPageMono =  newPageService.findById(pageId, MANAGE_PAGES);
+
         // First collect all valid action ids from before, and diff against incoming action ids
         return branchedActionCollectionMono
                 .map(branchedActionCollection -> {
@@ -584,7 +584,16 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
                         .flatMap(actionCollectionDTO1 -> actionCollectionService.populateActionCollectionByViewMode(
                                 actionCollection.getUnpublishedCollection(),
                                 false)))
-                .map(responseUtils::updateCollectionDTOWithDefaultResources);
+                .map(responseUtils::updateCollectionDTOWithDefaultResources)
+                .zipWith(newPageMono,
+                        (branchedActionCollection, newPage) -> {
+                    if (newPage.getUnpublishedPage().getLayouts().size() > 0 ) {
+                        // redundant check as the collection lies inside a layout.
+                        branchedActionCollection.setErrorReports(newPage.getUnpublishedPage().getLayouts().get(0).getLayoutOnLoadActionErrors());
+                    }
+
+                    return branchedActionCollection;
+                });
     }
 
     @Override

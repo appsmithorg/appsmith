@@ -21,6 +21,7 @@ import java.time.Instant;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.Map;
 
 @Getter
 @Setter
@@ -60,6 +61,9 @@ public class ActionDTO {
     String collectionId;
 
     ActionConfiguration actionConfiguration;
+
+    //this attribute carries error messages while processing the actionCollection
+    List<Map<String, Object>> errorReports;
 
     Boolean executeOnLoad;
 

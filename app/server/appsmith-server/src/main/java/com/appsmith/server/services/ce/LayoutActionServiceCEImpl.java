@@ -758,11 +758,20 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
     @Override
     public Mono<ActionDTO> updateSingleActionWithBranchName(String defaultActionId, ActionDTO action, String branchName) {
 
+        String pageId = action.getPageId();
         action.setApplicationId(null);
         action.setPageId(null);
         return newActionService.findByBranchNameAndDefaultActionId(branchName, defaultActionId, MANAGE_ACTIONS)
                 .flatMap(newAction -> updateSingleAction(newAction.getId(), action))
-                .map(responseUtils::updateActionDTOWithDefaultResources);
+                .map(responseUtils::updateActionDTOWithDefaultResources)
+                .zipWith(newPageService.findPageById(pageId, MANAGE_PAGES, false), (actionDTO, pageDTO) ->
+                {
+                    if (pageDTO.getLayouts().size() > 0) {
+                        actionDTO.setErrorReports(pageDTO.getLayouts().get(0).getLayoutOnLoadActionErrors());
+                    }
+                    return actionDTO;
+                });
+
     }
 
     @Override
@@ -891,11 +900,15 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
 
         AtomicReference<Boolean> validOnPageLoadActions = new AtomicReference<>(Boolean.TRUE);
 
+        //setting the layoutOnLoadActionErrors to an empty List
+        layout.setLayoutOnLoadActionErrors(new ArrayList<>());
+
         Mono<List<Set<DslActionDTO>>> allOnLoadActionsMono = pageLoadActionsUtil
                 .findAllOnLoadActions(pageId, widgetNames, edges, widgetDynamicBindingsMap, flatmapPageLoadActions, actionsUsedInDSL)
                 .onErrorResume(AppsmithException.class, error -> {
                     log.info(error.getMessage());
                     validOnPageLoadActions.set(FALSE);
+                    layout.getLayoutOnLoadActionErrors().add(Map.of("errorMessage",error.getMessage(),"appErrorId",error.getAppErrorCode()));
                     return Mono.just(new ArrayList<>());
                 });
 
@@ -986,6 +999,7 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
         layoutDTO.setDsl(layout.getDsl());
         layoutDTO.setScreen(layout.getScreen());
         layoutDTO.setLayoutOnLoadActions(layout.getLayoutOnLoadActions());
+        layoutDTO.setLayoutOnLoadActionErrors(layout.getLayoutOnLoadActionErrors());
         layoutDTO.setUserPermissions(layout.getUserPermissions());
 
         return layoutDTO;

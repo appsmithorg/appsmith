@@ -7,6 +7,7 @@ import net.minidev.json.JSONObject;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 @Getter
@@ -20,6 +21,9 @@ public class LayoutDTO {
     JSONObject dsl;
 
     List<Set<DslActionDTO>> layoutOnLoadActions;
+
+    // this attribute will be used to display errors caused white calculating allOnLoadAction PageLoadActionsUtilCEImpl.java
+    List<Map<String,Object>> layoutOnLoadActionErrors;
 
     // All the actions which have been updated as part of updateLayout function call
     List<LayoutActionUpdateDTO> actionUpdates;
