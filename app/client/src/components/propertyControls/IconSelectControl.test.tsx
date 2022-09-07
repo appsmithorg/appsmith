@@ -78,7 +78,7 @@ describe("<IconSelectControl /> - Keyboard navigation", () => {
     await waitForElementToBeRemoved(screen.getAllByRole("list"));
   });
 
-  it.only("Pressing '{ArrowDown}' while search is in focus should remove the focus", async () => {
+  it("Pressing '{ArrowDown}' while search is in focus should remove the focus", async () => {
     render(getTestComponent());
     userEvent.tab();
     userEvent.keyboard("{Enter}");
