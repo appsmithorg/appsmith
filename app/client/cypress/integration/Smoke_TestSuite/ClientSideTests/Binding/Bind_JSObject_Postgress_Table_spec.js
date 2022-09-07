@@ -39,7 +39,7 @@ describe("Addwidget from Query and bind with other widgets", function() {
         .click({ force: true });
       cy.testJsontext("tabledata", "{{JSObject1.myFun1()}}");
       cy.isSelectRow(1);
-      cy.readTabledataPublish("1", "0").then((tabData) => {
+      cy.readTableV2dataPublish("1", "0").then((tabData) => {
         let tabValue = tabData;
         cy.log("the value is" + tabValue);
         expect(tabValue).to.be.equal("5");
@@ -86,7 +86,7 @@ describe("Addwidget from Query and bind with other widgets", function() {
         ).then(() => cy.wait(500));
 
         cy.isSelectRow(1);
-        cy.readTabledataPublish("1", "0").then((tabData) => {
+        cy.readTableV2dataPublish("1", "0").then((tabData) => {
           let tabValue = tabData;
           cy.log("Value in public viewing: " + tabValue);
           expect(tabValue).to.be.equal("5");

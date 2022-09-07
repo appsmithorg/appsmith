@@ -16,10 +16,7 @@ import TemplateMenu from "pages/Editor/QueryEditor/TemplateMenu";
 import { QUERY_BODY_FIELD } from "constants/QueryEditorConstants";
 import { getPluginResponseTypes } from "selectors/entitiesSelector";
 import history from "utils/history";
-import {
-  convertObjectToQueryParams,
-  getQueryParams,
-} from "utils/AppsmithUtils";
+import { convertObjectToQueryParams, getQueryParams } from "utils/URLUtils";
 import { actionPathFromName } from "components/formControls/utils";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 

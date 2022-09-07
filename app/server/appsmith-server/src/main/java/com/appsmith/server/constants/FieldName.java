@@ -20,6 +20,7 @@ public class FieldName {
     public static String PAGE_ID = "pageId";
     public static String LAYOUT_ID = "layoutId";
     public static String APPLICATION_ID = "applicationId";
+    public static String SOURCE_APPLICATION_ID = "sourceApplicationId";
     public static final String DEFAULT_RESOURCES = "defaultResources";
     public static String PLUGIN_ID = "pluginId";
     public static String DATASOURCE = "datasource";
@@ -71,6 +72,7 @@ public class FieldName {
     public static String ACTIONS = "actions";
     public static String ASSET = "asset";
     public static String APPLICATION = "application";
+    public static String SOURCE_APPLICATION = "sourceApplication";
     public static String COMMENT = "comment";
     public static String COMMENT_THREAD = "commentThread";
     public static String PUBLISHED_APPLICATION = "deployed application";
@@ -113,4 +115,7 @@ public class FieldName {
     public static final String THEME = "theme";
     public static final String EDIT_MODE_THEME = "editModeTheme";
     public static final String FLOW_NAME = "flowName";
+    public static final String AUDIT_DATA = "auditData";
+    public static final String MODE_OF_LOGIN = "modeOfLogin";
+    public static final String FORM_LOGIN = "FormLogin";
 }

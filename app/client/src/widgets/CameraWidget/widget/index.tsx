@@ -70,8 +70,6 @@ class CameraWidget extends BaseWidget<CameraWidgetProps, WidgetState> {
             label: "Mirrored",
             helpText: "Show camera preview and get the screenshot mirrored",
             controlType: "SWITCH",
-            hidden: (props: CameraWidgetProps) =>
-              props.mode === CameraModeTypes.VIDEO,
             dependencies: ["mode"],
             isJSConvertible: true,
             isBindProperty: true,

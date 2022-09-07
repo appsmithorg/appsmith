@@ -94,7 +94,7 @@ type State = {
   hasScrollableList: boolean;
 };
 
-const LIST_CLASSNAME = "tablewidget-primarycolumn-list";
+const LIST_CLASSNAME = "tablewidgetv2-primarycolumn-list";
 class PrimaryColumnsControlV2 extends BaseControl<ControlProps, State> {
   constructor(props: ControlProps) {
     super(props);

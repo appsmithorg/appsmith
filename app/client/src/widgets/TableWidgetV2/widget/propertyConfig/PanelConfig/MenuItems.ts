@@ -46,30 +46,56 @@ export default {
                 helpText: "Sets the background color of a menu item",
                 label: "Background color",
                 controlType: "PRIMARY_COLUMNS_COLOR_PICKER_V2",
+                customJSControl: "TABLE_COMPUTE_VALUE",
                 isJSConvertible: true,
                 isBindProperty: true,
                 isTriggerProperty: false,
                 dependencies: ["primaryColumns", "columnOrder"],
-                validation: { type: ValidationTypes.TEXT },
+                validation: {
+                  type: ValidationTypes.TABLE_PROPERTY,
+                  params: {
+                    type: ValidationTypes.TEXT,
+                    params: {
+                      regex: /^(?![<|{{]).+/,
+                    },
+                  },
+                },
               },
               {
                 propertyName: "textColor",
                 helpText: "Sets the text color of a menu item",
                 label: "Text color",
                 controlType: "PRIMARY_COLUMNS_COLOR_PICKER_V2",
-                isBindProperty: false,
+                customJSControl: "TABLE_COMPUTE_VALUE",
+                isJSConvertible: true,
+                isBindProperty: true,
                 isTriggerProperty: false,
                 dependencies: ["primaryColumns", "columnOrder"],
+                validation: {
+                  type: ValidationTypes.TABLE_PROPERTY,
+                  params: {
+                    type: ValidationTypes.TEXT,
+                    params: {
+                      regex: /^(?![<|{{]).+/,
+                    },
+                  },
+                },
               },
               {
                 propertyName: "isDisabled",
                 helpText: "Disables input to the widget",
                 label: "Disabled",
                 controlType: "SWITCH",
+                customJSControl: "TABLE_COMPUTE_VALUE",
                 isJSConvertible: true,
                 isBindProperty: true,
                 isTriggerProperty: false,
-                validation: { type: ValidationTypes.BOOLEAN },
+                validation: {
+                  type: ValidationTypes.TABLE_PROPERTY,
+                  params: {
+                    type: ValidationTypes.BOOLEAN,
+                  },
+                },
                 dependencies: ["primaryColumns", "columnOrder"],
               },
               {
@@ -77,10 +103,16 @@ export default {
                 helpText: "Controls the visibility of the widget",
                 label: "Visible",
                 controlType: "SWITCH",
+                customJSControl: "TABLE_COMPUTE_VALUE",
                 isJSConvertible: true,
                 isBindProperty: true,
                 isTriggerProperty: false,
-                validation: { type: ValidationTypes.BOOLEAN },
+                validation: {
+                  type: ValidationTypes.TABLE_PROPERTY,
+                  params: {
+                    type: ValidationTypes.BOOLEAN,
+                  },
+                },
                 dependencies: ["primaryColumns", "columnOrder"],
               },
             ],

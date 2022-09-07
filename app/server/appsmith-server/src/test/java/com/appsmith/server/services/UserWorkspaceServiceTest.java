@@ -174,7 +174,7 @@ public class UserWorkspaceServiceTest {
     public void leaveWorkspace_WhenUserDoesNotExistInWorkspace_ThrowsException() {
         Mono<User> userMono = userWorkspaceService.leaveWorkspace(this.workspace.getId());
         StepVerifier.create(userMono).expectErrorMessage(
-                AppsmithError.NO_RESOURCE_FOUND.getMessage(FieldName.USER + " api_user in the organization", workspace.getName())
+                AppsmithError.NO_RESOURCE_FOUND.getMessage(FieldName.USER + " api_user in the workspace", workspace.getName())
         ).verify();
     }
 

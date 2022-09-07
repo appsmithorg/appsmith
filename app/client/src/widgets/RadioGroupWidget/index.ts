@@ -13,7 +13,7 @@ export const CONFIG = {
   },
   searchTags: ["choice"],
   defaults: {
-    rows: 8,
+    rows: 4,
     columns: 20,
     animateLoading: true,
     label: "Label",

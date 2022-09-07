@@ -18,8 +18,9 @@ if [[ ${HTTPS_PROXY-} =~ ^https?://(.*):(.*)$ && ${BASH_REMATCH[2]} != 0 ]]; the
   proxy_configured=1
 fi
 
-if ! isset NO_PROXY; then
+if [[ -z "${NO_PROXY-}" ]]; then
   # A default for this value is set in entrypoint.sh script.
+  # If this variable is not set, just set it to empty string.
   NO_PROXY=""
 fi
 

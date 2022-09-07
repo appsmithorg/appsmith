@@ -25,6 +25,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.sql.Types;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -78,6 +79,17 @@ public class FilterDataServiceCE implements IFilterDataServiceCE {
             ConditionalOperator.NOT_IN, "NOT IN"
     );
 
+    private static final Map<DataType, Set<DataType>> datatypeCompatibilityMap = Map.of(
+            DataType.INTEGER, Set.of(),
+            DataType.LONG, Set.of(DataType.INTEGER),
+            DataType.FLOAT, Set.of(DataType.INTEGER, DataType.LONG),
+            DataType.DOUBLE, Set.of(DataType.INTEGER, DataType.LONG, DataType.FLOAT),
+            DataType.BOOLEAN, Set.of(),
+            DataType.STRING, Set.of(DataType.INTEGER, DataType.LONG, DataType.FLOAT, DataType.DOUBLE, DataType.BOOLEAN, DataType.DATE, DataType.TIME, DataType.TIMESTAMP),
+            DataType.DATE, Set.of(),
+            DataType.TIMESTAMP, Set.of()
+    );
+
     public FilterDataServiceCE() {
 
         objectMapper = new ObjectMapper();
@@ -119,7 +131,7 @@ public class FilterDataServiceCE implements IFilterDataServiceCE {
         insertAllData(tableName, items, schema, dataTypeConversionMap);
 
         // Filter the data
-        List<Map<String, Object>> finalResults = executeFilterQueryNew(tableName, schema, uqiDataFilterParams);
+        List<Map<String, Object>> finalResults = executeFilterQueryNew(tableName, schema, uqiDataFilterParams, dataTypeConversionMap);
 
         // Now that the data has been filtered. Clean Up. Drop the table
         dropTable(tableName);
@@ -130,7 +142,8 @@ public class FilterDataServiceCE implements IFilterDataServiceCE {
     }
 
     private List<Map<String, Object>> executeFilterQueryNew(String tableName, Map<String, DataType> schema,
-                                                            UQIDataFilterParams uqiDataFilterParams) {
+                                                            UQIDataFilterParams uqiDataFilterParams,
+                                                            Map<DataType, DataType> dataTypeConversionMap) {
 
         Condition condition = uqiDataFilterParams.getCondition();
         List<String> projectionColumns = uqiDataFilterParams.getProjectionColumns();
@@ -180,14 +193,13 @@ public class FilterDataServiceCE implements IFilterDataServiceCE {
         String selectQuery = sb.toString();
         log.debug("{} : Executing Query on H2 : {}", Thread.currentThread().getName(), selectQuery);
 
-        try {
-            PreparedStatement preparedStatement = conn.prepareStatement(selectQuery);
+        try (PreparedStatement preparedStatement = conn.prepareStatement(selectQuery)) {
             Iterator<PreparedStatementValueDTO> iterator = values.iterator();
             for (int i = 0; iterator.hasNext(); i++) {
                 PreparedStatementValueDTO dataInfo = iterator.next();
                 String value = dataInfo.getValue();
                 DataType dataType = dataInfo.getDataType();
-                setValueInStatement(preparedStatement, i + 1, value, dataType);
+                setValueInStatement(preparedStatement, i + 1, value, dataType, null);
             }
 
             ResultSet resultSet = preparedStatement.executeQuery();
@@ -421,8 +433,8 @@ public class FilterDataServiceCE implements IFilterDataServiceCE {
         Connection conn = checkAndGetConnection();
         log.debug("{} : Executing Query on H2 : {}", Thread.currentThread().getName(), query);
 
-        try {
-            conn.createStatement().execute(query);
+        try (Statement statement = conn.createStatement()) {
+            statement.execute(query);
         } catch (SQLException e) {
             log.error(e.getMessage());
             // Getting a SQL Exception here means that our generated query is incorrect. Raise an alarm!
@@ -440,9 +452,7 @@ public class FilterDataServiceCE implements IFilterDataServiceCE {
 
         String finalInsertQuery = insertQueryBuilder.toString();
 
-        try {
-            PreparedStatement preparedStatement = conn.prepareStatement(finalInsertQuery);
-
+        try (PreparedStatement preparedStatement = conn.prepareStatement(finalInsertQuery)) {
             int valueCounter = 0;
             while (valueCounter < inOrderValues.size()) {
 
@@ -577,7 +587,7 @@ public class FilterDataServiceCE implements IFilterDataServiceCE {
                                     } else {
                                         DataType foundDataType = stringToKnownDataTypeConverter(value);
                                         DataType convertedDataType = foundDataType;
-                                        if (name != "rowIndex" && dataTypeConversionMap != null) {
+                                        if (!"rowIndex".equals(name) && dataTypeConversionMap != null) {
                                             convertedDataType = dataTypeConversionMap.getOrDefault(foundDataType, foundDataType);
                                         }
                                         return convertedDataType;
@@ -659,8 +669,7 @@ public class FilterDataServiceCE implements IFilterDataServiceCE {
                 dataType = DataType.NULL;
             }
             //We are setting incompatible datatypes of each row to Null, rather allowing it and exit with error.
-            if (dataTypeConversionMap != null && inputDataType != dataType) {
-                log.debug("DataType Error : [" + inputDataType + "] " + value + " is not of type " + dataType + " which is the datatype of the column, hence ignored in filter.");
+            if (dataTypeConversionMap != null && inputDataType != dataType && !datatypeCompatibilityMap.getOrDefault(dataType, Set.of()).contains(inputDataType)) {
                 dataType = DataType.NULL;
             }
         }

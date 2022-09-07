@@ -194,3 +194,14 @@ export const updateChildrenDisabledStateHook = (
     ];
   }
 };
+
+export const isFieldTypeArrayOrObject = (
+  props: JSONFormWidgetProps,
+  propertyPath: string,
+) => {
+  const schemaItem: SchemaItem = get(props, propertyPath, {});
+  return (
+    schemaItem.fieldType === FieldType.ARRAY ||
+    schemaItem.fieldType === FieldType.OBJECT
+  );
+};

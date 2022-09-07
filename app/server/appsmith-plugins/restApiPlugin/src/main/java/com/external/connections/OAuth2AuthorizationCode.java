@@ -4,6 +4,7 @@ import com.appsmith.external.constants.Authentication;
 import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
 import com.appsmith.external.models.AuthenticationDTO;
 import com.appsmith.external.models.AuthenticationResponse;
+import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.OAuth2;
 import com.appsmith.external.models.UpdatableConnection;
 import lombok.AccessLevel;
@@ -14,6 +15,7 @@ import org.bson.internal.Base64;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
+import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.reactive.function.BodyExtractors;
@@ -25,6 +27,7 @@ import org.springframework.web.reactive.function.client.ExchangeStrategies;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriComponentsBuilder;
 import reactor.core.publisher.Mono;
+import reactor.netty.http.client.HttpClient;
 
 import java.net.URI;
 import java.time.Clock;
@@ -69,15 +72,16 @@ public class OAuth2AuthorizationCode extends APIConnection implements UpdatableC
         return true;
     }
 
-    public static Mono<OAuth2AuthorizationCode> create(OAuth2 oAuth2) {
-        if (oAuth2 == null) {
+    public static Mono<OAuth2AuthorizationCode> create(DatasourceConfiguration datasourceConfiguration) {
+        if (datasourceConfiguration == null || datasourceConfiguration.getAuthentication() == null) {
             return Mono.empty();
         }
+        final OAuth2 oAuth2 = (OAuth2) datasourceConfiguration.getAuthentication();
         // Create OAuth2Connection
         OAuth2AuthorizationCode connection = new OAuth2AuthorizationCode();
 
         if (!isAuthenticationResponseValid(oAuth2)) {
-            return connection.generateOAuth2Token(oAuth2)
+            return connection.generateOAuth2Token(datasourceConfiguration)
                     .flatMap(token -> {
                         updateConnection(connection, token);
                         return Mono.just(connection);
@@ -100,8 +104,13 @@ public class OAuth2AuthorizationCode extends APIConnection implements UpdatableC
         return now.isAfter(expiresAt.minus(Duration.ofMinutes(1)));
     }
 
-    private Mono<OAuth2> generateOAuth2Token(OAuth2 oAuth2) {
+    private Mono<OAuth2> generateOAuth2Token(DatasourceConfiguration datasourceConfiguration) {
+        final OAuth2 oAuth2 = (OAuth2) datasourceConfiguration.getAuthentication();
+        final HttpClient securedHttpClient = this.getSecuredHttpClient(datasourceConfiguration);
+
+        // Webclient
         WebClient.Builder webClientBuilder = WebClient.builder()
+                .clientConnector(new ReactorClientHttpConnector(securedHttpClient))
                 .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED_VALUE)
                 .exchangeStrategies(ExchangeStrategies
                         .builder()

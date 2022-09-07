@@ -12,7 +12,7 @@ export const PortalStyles = createGlobalStyle`
     position: relative;
     z-index: ${Layers.header};
   }
-  
+
 
   .bp3-portal {
     z-index: ${Layers.portals};
@@ -20,10 +20,6 @@ export const PortalStyles = createGlobalStyle`
 
   .file-picker-dialog.bp3-dialog .${Classes.DIALOG_BODY} {
     padding: 0;
-  }
-
-  .bp3-portal.inline-comment-thread {
-    z-index: ${Layers.appComments};
   }
 
   .${GitSyncClasses.MERGE_DROPDOWN} .ads-dropdown-options-wrapper {
@@ -52,7 +48,7 @@ export const PortalStyles = createGlobalStyle`
   .${GuidedTourClasses.GUIDED_TOUR_SHOW_BORDER} {
     border-color: rgba(191, 65, 9, 1);
   }
-  
+
   .${GuidedTourClasses.GUIDED_TOUR_INDICATOR} {
     position: fixed;
     z-index: 3;

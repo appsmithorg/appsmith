@@ -106,7 +106,7 @@ Check out some real applications that can be built with Appsmith:
 - 📄 [Application Tracking System App](https://app.appsmith.com/applications/5f43bce13697fd5df1c52ce4/pages/5f43c39c3697fd5df1c52d50/?utm_source=github&utm_medium=direct&utm_content=appsmith_apps&utm_campaign=null&utm_term=appsmith_apps)
 - 📦 [All Sample Apps](https://docs.appsmith.com/sample-apps?utm_source=github&utm_medium=direct&utm_content=appsmith_apps&utm_campaign=null&utm_term=appsmith_apps)
 
-- 🌟 Made something cool? [Share it with the community](https://discord.gg/Tx395War)
+- 🌟 Made something cool? [Share it with the community](https://discord.gg/rBTTVJp)
   <br><br>
 
 ## Tutorials

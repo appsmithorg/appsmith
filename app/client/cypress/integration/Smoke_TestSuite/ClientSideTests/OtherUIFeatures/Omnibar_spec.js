@@ -186,7 +186,10 @@ describe("Omnibar functionality test cases", () => {
       .invoke("removeAttr", "target")
       .click()
       .wait(2000);
-    cy.url().should("eq", "https://docs.appsmith.com/troubleshooting-guide"); // => true
+    cy.url().should(
+      "eq",
+      "https://docs.appsmith.com/core-concepts/connecting-to-data-sources",
+    ); // => true
     cy.go(-1);
   });
 });

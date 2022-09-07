@@ -17,6 +17,7 @@ type templateActions =
 export class EntityExplorer {
   public agHelper = ObjectsRegistry.AggregateHelper;
   public locator = ObjectsRegistry.CommonLocators;
+  private modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
 
   private _contextMenu = (entityNameinLeftSidebar: string) =>
     "//div[text()='" +
@@ -79,8 +80,8 @@ export class EntityExplorer {
   }
 
   public AssertEntityAbsenceInExplorer(entityNameinLeftSidebar: string) {
-    cy.xpath(this._entityNameInExplorer(entityNameinLeftSidebar)).should(
-      "not.exist",
+    this.agHelper.AssertElementAbsence(
+      this._entityNameInExplorer(entityNameinLeftSidebar),
     );
   }
 
@@ -167,5 +168,12 @@ export class EntityExplorer {
       .last()
       .click({ force: true });
     cy.xpath(this._visibleTextSpan(dsName)).click({ force: true });
+  }
+
+  public CopyPasteWidget(widgetName: string) {
+    this.NavigateToSwitcher("widgets");
+    this.SelectEntityByName(widgetName);
+    cy.get("body").type(`{${this.modifierKey}}{c}`);
+    cy.get("body").type(`{${this.modifierKey}}{v}`);
   }
 }

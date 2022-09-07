@@ -102,26 +102,31 @@ function DraggableList(props: any) {
   }, [items]);
 
   useEffect(() => {
-    if (focusedIndex && listRef && listRef.current) {
-      const container = listRef.current;
+    /*
+     * we need to wait for the ui to get rendered before scrolling to the focusedColumn
+     */
+    requestAnimationFrame(() => {
+      if (focusedIndex && listRef && listRef.current) {
+        const container = listRef.current;
 
-      if (focusedIndex * itemHeight < container.scrollTop) {
-        listRef.current.scrollTo({
-          top: (focusedIndex - 1) * itemHeight,
-          left: 0,
-          behavior: "smooth",
-        });
-      } else if (
-        (focusedIndex + 1) * itemHeight >
-        listRef.current.scrollTop + listRef.current.clientHeight
-      ) {
-        listRef.current.scrollTo({
-          top: (focusedIndex + 1) * itemHeight - listRef.current.clientHeight,
-          left: 0,
-          behavior: "smooth",
-        });
+        if (focusedIndex * itemHeight < container.scrollTop) {
+          listRef.current.scrollTo({
+            top: (focusedIndex - 1) * itemHeight,
+            left: 0,
+            behavior: "smooth",
+          });
+        } else if (
+          (focusedIndex + 1) * itemHeight >
+          listRef.current.scrollTop + listRef.current.clientHeight
+        ) {
+          listRef.current.scrollTo({
+            top: (focusedIndex + 1) * itemHeight - listRef.current.clientHeight,
+            left: 0,
+            behavior: "smooth",
+          });
+        }
       }
-    }
+    });
   }, [focusedIndex]);
 
   const [springs, setSprings] = useSprings<any>(

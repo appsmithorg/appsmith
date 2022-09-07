@@ -22,9 +22,6 @@ import { Theme } from "constants/DefaultTheme";
 import ProfileDropdown from "pages/common/ProfileDropdown";
 import PageTabsContainer from "./PageTabsContainer";
 import { getThemeDetails, ThemeMode } from "selectors/themeSelectors";
-import ToggleCommentModeButton, {
-  useHideComments,
-} from "pages/Editor/ToggleModeButton";
 import { showAppInviteUsersDialogSelector } from "selectors/applicationSelectors";
 import { getSelectedAppTheme } from "selectors/appThemingSelectors";
 import HtmlTitle from "./AppViewerHtmlTitle";
@@ -80,7 +77,6 @@ export function AppViewerHeader(props: AppViewerHeaderProps) {
   const queryParams = new URLSearchParams(search);
   const isEmbed = queryParams.get("embed");
   const hideHeader = !!isEmbed;
-  const shouldHideComments = useHideComments();
   const showAppInviteUsersDialog = useSelector(
     showAppInviteUsersDialogSelector,
   );
@@ -124,7 +120,6 @@ export function AppViewerHeader(props: AppViewerHeaderProps) {
             <section className="relative flex items-center ml-auto space-x-3 z-1">
               {currentApplicationDetails && (
                 <div className="hidden md:flex space-x-3">
-                  {!shouldHideComments && <ToggleCommentModeButton />}
                   <FormDialogComponent
                     Form={AppInviteUsersForm}
                     applicationId={currentApplicationDetails.id}

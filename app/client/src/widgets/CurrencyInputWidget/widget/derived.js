@@ -73,8 +73,8 @@ export default {
     if (text) {
       const parsed = parseFloat(
         text
-          .replace(new RegExp("\\" + getLocaleThousandSeparator(), "g"), "")
-          .replace(new RegExp("\\" + getLocaleDecimalSeperator()), "."),
+          .replace(new RegExp(`[${getLocaleThousandSeparator()}]`, "g"), "")
+          .replace(new RegExp(`[${getLocaleDecimalSeperator()}]`), "."),
       );
 
       if (_.isNaN(parsed)) {

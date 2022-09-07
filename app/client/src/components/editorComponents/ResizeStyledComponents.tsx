@@ -61,7 +61,7 @@ export const VerticalHandleStyles = css<{
   disableDot: boolean;
 }>`
   ${EdgeHandleStyles}
-  top:-${WIDGET_PADDING - 1}px;
+  top:${~(WIDGET_PADDING - 1) + 1}px;
   height: calc(100% + ${2 * WIDGET_PADDING - 1}px);
   ${(props) =>
     props.showAsBorder || props.disableDot ? "" : "cursor: col-resize;"}
@@ -79,7 +79,7 @@ export const HorizontalHandleStyles = css<{
   disableDot: boolean;
 }>`
   ${EdgeHandleStyles}
-  left: -${WIDGET_PADDING}px;
+  left: ${~WIDGET_PADDING + 1}px;
   width: calc(100% + ${2 * WIDGET_PADDING}px);
   ${(props) =>
     props.showAsBorder || props.disableDot ? "" : "cursor: row-resize;"}

@@ -12,7 +12,10 @@ import { TextSize } from "constants/WidgetConstants";
 
 // TODO(abstraction-issue): this needs to be a common import from somewhere in the platform
 // Alternatively, they need to be replicated.
-import { StyledCheckbox } from "widgets/CheckboxWidget/component";
+import {
+  CheckboxLabel,
+  StyledCheckbox,
+} from "widgets/CheckboxWidget/component";
 import { OptionProps, SelectAllState, SelectAllStates } from "../constants";
 import LabelWithTooltip, {
   labelLayoutStyles,
@@ -31,7 +34,7 @@ const InputContainer = styled.div<ThemeProp & InputContainerProps>`
   display: ${({ inline }) => (inline ? "inline-flex" : "flex")};
   ${({ inline }) => `
     flex-direction: ${inline ? "row" : "column"};
-    align-items: ${inline ? "center" : "flex-start"};
+    align-items:  "flex-start";
     ${inline && "flex-wrap: wrap"};
   `}
   justify-content: ${({ inline, optionAlignment, optionCount }) =>
@@ -45,12 +48,9 @@ const InputContainer = styled.div<ThemeProp & InputContainerProps>`
   width: 100%;
   height: ${({ inline, isDynamicHeightEnabled }) =>
     inline && !isDynamicHeightEnabled ? "32px" : "100%"};
+  flex-grow: 1;
+  height: 100%;
   border: 1px solid transparent;
-  ${({ theme, valid }) =>
-    !valid &&
-    `
-    border: 1px solid ${theme.colors.error};
-  `}
 
   .${Classes.CONTROL} {
     display: flex;
@@ -59,7 +59,7 @@ const InputContainer = styled.div<ThemeProp & InputContainerProps>`
     min-height: 30px;
 
     .bp3-control-indicator {
-      margin-top: 0;
+      margin-top: 0 !important;
     }
   }
 `;
@@ -78,7 +78,6 @@ export const CheckboxGroupContainer = styled.div<CheckboxGroupContainerProps>`
   }
   & .select-all {
     white-space: nowrap;
-    color: ${Colors.GREY_9} !important;
   }
 
   ${({ isDynamicHeightEnabled }) =>
@@ -91,32 +90,42 @@ export interface SelectAllProps {
   indeterminate?: boolean;
   inline?: boolean;
   onChange: React.FormEventHandler<HTMLInputElement>;
-  rowSpace: number;
   accentColor: string;
   borderRadius: string;
+  isDisabled?: boolean;
 }
 
 function SelectAll(props: SelectAllProps) {
   const {
     accentColor,
+    borderRadius,
     checked,
     disabled,
     indeterminate,
     inline,
+    isDisabled,
     onChange,
-    rowSpace,
   } = props;
   return (
     <StyledCheckbox
       accentColor={accentColor}
+      borderRadius={borderRadius}
       checked={checked}
       className="select-all"
       disabled={disabled}
       indeterminate={indeterminate}
       inline={inline}
-      label="Select All"
+      labelElement={
+        <CheckboxLabel
+          className="t--checkbox-widget-label"
+          disabled={isDisabled}
+          labelPosition={LabelPosition.Left}
+          labelTextColor={disabled ? Colors.GREY_8 : "inherit"}
+        >
+          Select all
+        </CheckboxLabel>
+      }
       onChange={onChange}
-      rowSpace={rowSpace}
     />
   );
 }
@@ -133,7 +142,7 @@ export interface CheckboxGroupComponentProps extends ComponentProps {
     state: SelectAllState,
   ) => React.FormEventHandler<HTMLInputElement>;
   options: OptionProps[];
-  rowSpace: number;
+
   selectedValues: string[];
   optionAlignment?: string;
   compactMode: boolean;
@@ -168,12 +177,10 @@ const CheckboxGroupComponent = React.forwardRef<
     labelTextColor,
     labelTextSize,
     labelWidth,
-    maxDynamicHeight,
     onChange,
     onSelectAllChange,
     optionAlignment,
     options,
-    rowSpace,
     selectedValues,
   } = props;
 
@@ -189,16 +196,6 @@ const CheckboxGroupComponent = React.forwardRef<
   let optionCount = (options || []).length;
   if (isSelectAll) {
     optionCount += 1;
-  }
-
-  const clientHeight = (ref as React.RefObject<HTMLDivElement>)?.current
-    ?.clientHeight;
-  const maxHeight = (maxDynamicHeight || 1000) * 10;
-
-  let toOverflowOrNot = false;
-
-  if (clientHeight) {
-    toOverflowOrNot = maxHeight < clientHeight;
   }
 
   const finalComponent = (
@@ -232,7 +229,6 @@ const CheckboxGroupComponent = React.forwardRef<
         isDynamicHeightEnabled={isDynamicHeightEnabled}
         optionAlignment={optionAlignment}
         optionCount={options.length}
-        valid={isValid}
       >
         {isSelectAll && (
           <SelectAll
@@ -243,7 +239,6 @@ const CheckboxGroupComponent = React.forwardRef<
             indeterminate={selectAllIndeterminate}
             inline={isInline}
             onChange={onSelectAllChange(selectAllState)}
-            rowSpace={rowSpace}
           />
         )}
         {options &&
@@ -254,12 +249,19 @@ const CheckboxGroupComponent = React.forwardRef<
               borderRadius={borderRadius}
               checked={(selectedValues || []).includes(option.value)}
               disabled={isDisabled}
-              indeterminate={isDisabled ? true : undefined}
+              hasError={!isValid}
               inline={isInline}
               key={generateReactKey()}
-              label={option.label}
+              labelElement={
+                <CheckboxLabel
+                  className="t--checkbox-widget-label"
+                  disabled={isDisabled}
+                  labelPosition={LabelPosition.Left}
+                >
+                  {option.label}
+                </CheckboxLabel>
+              }
               onChange={onChange(option.value)}
-              rowSpace={rowSpace}
             />
           ))}
       </InputContainer>
@@ -267,11 +269,7 @@ const CheckboxGroupComponent = React.forwardRef<
   );
 
   if (isDynamicHeightEnabled) {
-    return (
-      <div style={toOverflowOrNot ? { overflow: "auto" } : undefined}>
-        {finalComponent}
-      </div>
-    );
+    return <div style={{ overflow: "auto" }}>{finalComponent}</div>;
   } else {
     return finalComponent;
   }

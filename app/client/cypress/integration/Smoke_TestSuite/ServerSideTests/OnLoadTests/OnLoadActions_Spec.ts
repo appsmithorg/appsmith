@@ -11,12 +11,12 @@ const agHelper = ObjectsRegistry.AggregateHelper,
 describe("Layout OnLoad Actions tests", function() {
   before(() => {
     cy.fixture("onPageLoadActionsDsl").then((val: any) => {
+      agHelper.AddDsl(val);
       dsl = val;
     });
   });
 
   it("1. Bug 8595: OnPageLoad execution - when No api to run on Pageload", function() {
-    agHelper.AddDsl(dsl);
     ee.SelectEntityByName("WIDGETS");
     ee.SelectEntityByName("Page1");
     cy.url().then((url) => {
@@ -68,17 +68,20 @@ describe("Layout OnLoad Actions tests", function() {
     ee.SelectEntityByName("Image2");
     propPane.UpdatePropertyFieldValue(
       "Image",
-      `{{RandomUser.data.results[0].picture.large}}`);
+      `{{RandomUser.data.results[0].picture.large}}`,
+    );
 
     ee.SelectEntityByName("Text1");
     propPane.UpdatePropertyFieldValue(
       "Text",
-      `{{InspiringQuotes.data.quote.body}}\n--\n{{InspiringQuotes.data.quote.author}}\n`);
+      `{{InspiringQuotes.data.quote.body}}\n--\n{{InspiringQuotes.data.quote.author}}\n`,
+    );
 
     ee.SelectEntityByName("Text2");
     propPane.UpdatePropertyFieldValue(
       "Text",
-      `Hi, here is {{RandomUser.data.results[0].name.first}} & I'm {{RandomUser.data.results[0].dob.age}}'yo\nI live in {{RandomUser.data.results[0].location.country}}\nMy Suggestion : {{Suggestions.data.activity}}\n\nI'm {{Genderize.data.gender}}`);
+      `Hi, here is {{RandomUser.data.results[0].name.first}} & I'm {{RandomUser.data.results[0].dob.age}}'yo\nI live in {{RandomUser.data.results[0].location.country}}\nMy Suggestion : {{Suggestions.data.activity}}\n\nI'm {{Genderize.data.gender}}`,
+    );
 
     // cy.url().then((url) => {
     //   const pageid = url.split("/")[4]?.split("-").pop();

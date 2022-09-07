@@ -1,4 +1,5 @@
 import gitSyncLocators from "../../../../../locators/gitSyncLocators";
+
 describe("Git regenerate SSH key flow", function() {
   let repoName;
 
@@ -23,7 +24,7 @@ describe("Git regenerate SSH key flow", function() {
     cy.get("[data-cy=t--tab-GIT_CONNECTION]").click();
     cy.wait(2000);
     cy.get(gitSyncLocators.SSHKeycontextmenu).click();
-    cy.get(gitSyncLocators.regenerateSSHKey).click();
+    cy.get(gitSyncLocators.regenerateSSHKeyECDSA).click();
     cy.contains(Cypress.env("MESSAGES").REGENERATE_KEY_CONFIRM_MESSAGE());
     cy.xpath(gitSyncLocators.confirmButton).click();
     cy.reload();
@@ -35,5 +36,11 @@ describe("Git regenerate SSH key flow", function() {
       "response.body.responseMeta.status",
       400,
     );
+  });
+
+  it("3. Verify RSA SSH key regeneration flow ", () => {
+    cy.regenerateSSHKey(repoName, true, "RSA");
+    cy.get("body").click(0, 0);
+    cy.wait(2000);
   });
 });

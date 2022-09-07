@@ -20,7 +20,6 @@ import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import { XYCord } from "./hooks/useCanvasDragging";
 import { theme } from "constants/DefaultTheme";
 import { getIsDraggingForSelection } from "selectors/canvasSelectors";
-import { commentModeSelector } from "selectors/commentsSelectors";
 import { StickyCanvasArena } from "./StickyCanvasArena";
 import { getAbsolutePixels } from "utils/helpers";
 import {
@@ -53,7 +52,6 @@ export function CanvasSelectionArena({
   snapRowSpace: number;
 }) {
   const dispatch = useDispatch();
-  const isCommentMode = useSelector(commentModeSelector);
   const canvasPadding =
     widgetId === MAIN_CONTAINER_WIDGET_ID ? theme.canvasBottomPadding : 0;
   const slidingArenaRef = React.useRef<HTMLDivElement>(null);
@@ -467,7 +465,6 @@ export function CanvasSelectionArena({
     mainContainer,
     isDragging,
     isResizing,
-    isCommentMode,
     snapRows,
     snapColumnSpace,
     snapRowSpace,
@@ -476,8 +473,7 @@ export function CanvasSelectionArena({
   // Resizing state still shows selection arena to aid with scroll behavior
 
   const shouldShow =
-    appMode === APP_MODE.EDIT &&
-    !(isDragging || isCommentMode || isPreviewMode || dropDisabled);
+    appMode === APP_MODE.EDIT && !(isDragging || isPreviewMode || dropDisabled);
 
   const canvasRef = React.useRef({
     slidingArenaRef,

@@ -5,6 +5,7 @@
     "AddPage": ".pages .t--entity-add-btn",
     "addEntityAPI": ".datasources .t--entity-add-btn",
     "addEntityJSEditor": ".js_actions .t--entity-add-btn",
+    "createQueryMenu": ".file-ops",
     "entityExplorer": ".t--entity-explorer",
     "entityWidget": ".t--entity-name:contains('WIDGETS')",
     "entityTable": ".t--entity-name:contains('Table1')",

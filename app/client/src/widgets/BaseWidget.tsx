@@ -37,8 +37,6 @@ import {
 } from "utils/DynamicBindingUtils";
 import { PropertyPaneConfig } from "constants/PropertyControlConstants";
 import { BatchPropertyUpdatePayload } from "actions/controlActions";
-import OverlayCommentsWrapper from "comments/inlineComments/OverlayCommentsWrapper";
-import PreventInteractionsOverlay from "components/editorComponents/PreventInteractionsOverlay";
 import AppsmithConsole from "utils/AppsmithConsole";
 import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import PreviewModeComponent from "components/editorComponents/PreviewModeComponent";
@@ -210,12 +208,14 @@ abstract class BaseWidget<
     if (!isDynamicHeightEnabled) return false;
 
     const maxDynamicHeightInRows =
-      DynamicHeight.AUTO_HEIGHT_WITH_LIMITS && this.props.maxDynamicHeight
+      this.props.dynamicHeioght === DynamicHeight.AUTO_HEIGHT_WITH_LIMITS &&
+      this.props.maxDynamicHeight > 0
         ? this.props.maxDynamicHeight
         : WidgetHeightLimits.MAX_HEIGHT_IN_ROWS;
 
     const minDynamicHeightInRows =
-      DynamicHeight.AUTO_HEIGHT_WITH_LIMITS && this.props.minDynamicHeight
+      this.props.dynamicHeioght === DynamicHeight.AUTO_HEIGHT_WITH_LIMITS &&
+      this.props.minDynamicHeight > 0
         ? this.props.minDynamicHeight
         : WidgetHeightLimits.MIN_HEIGHT_IN_ROWS;
 
@@ -223,7 +223,10 @@ abstract class BaseWidget<
     // We're trying to see if we can increase the height
     if (currentHeightInRows < expectedHeightInRows) {
       // If we're not already at the max height, we can increase height
-      if (maxDynamicHeightInRows >= currentHeightInRows) {
+      if (
+        maxDynamicHeightInRows >= currentHeightInRows &&
+        Math.abs(maxDynamicHeightInRows - expectedHeightInRows) >= 2
+      ) {
         return true;
       }
     }
@@ -233,7 +236,10 @@ abstract class BaseWidget<
     if (currentHeightInRows > expectedHeightInRows) {
       // If our attempt to reduce does not go below the min possible height
       // We can safely reduce the height
-      if (minDynamicHeightInRows <= expectedHeightInRows) {
+      if (
+        minDynamicHeightInRows <= expectedHeightInRows &&
+        Math.abs(minDynamicHeightInRows - expectedHeightInRows) >= 2
+      ) {
         return true;
       }
 
@@ -404,32 +410,6 @@ abstract class BaseWidget<
     return <ErrorBoundary>{content}</ErrorBoundary>;
   }
 
-  /**
-   * These comments are rendered using position: absolute over the widget borders,
-   * they are not aware of the component structure.
-   * For additional component specific contexts, for eg.
-   * a comment bound to the scroll position or a specific section
-   * we would pass comments as props to the components
-   */
-  addOverlayComments(content: ReactNode) {
-    return (
-      <OverlayCommentsWrapper
-        refId={this.props.widgetId}
-        widgetType={this.props.type}
-      >
-        {content}
-      </OverlayCommentsWrapper>
-    );
-  }
-
-  addPreventInteractionOverlay(content: ReactNode) {
-    return (
-      <PreventInteractionsOverlay widgetType={this.props.type}>
-        {content}
-      </PreventInteractionsOverlay>
-    );
-  }
-
   addPreviewModeWidget(content: ReactNode): React.ReactElement {
     return (
       <PreviewModeComponent isVisible={this.props.isVisible}>
@@ -478,10 +458,6 @@ abstract class BaseWidget<
       case RenderModes.CANVAS:
         content = this.getCanvasView();
         content = this.addPreviewModeWidget(content);
-
-        content = this.addPreventInteractionOverlay(content);
-        content = this.addOverlayComments(content);
-
         if (!this.props.detachFromLayout) {
           if (!this.props.resizeDisabled) content = this.makeResizable(content);
           content = this.showWidgetName(content);
@@ -508,8 +484,6 @@ abstract class BaseWidget<
       case RenderModes.PAGE:
         content = this.getPageView();
         if (this.props.isVisible) {
-          content = this.addPreventInteractionOverlay(content);
-          content = this.addOverlayComments(content);
           content = this.addErrorBoundary(content);
           if (!this.props.detachFromLayout) {
             content = this.makePositioned(content);

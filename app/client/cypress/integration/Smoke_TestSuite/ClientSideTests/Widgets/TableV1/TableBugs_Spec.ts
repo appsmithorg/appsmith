@@ -1,5 +1,4 @@
 import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
-const dsl = require("../../../../../fixtures/tablev1NewDsl.json");
 
 let dataSet: any;
 const agHelper = ObjectsRegistry.AggregateHelper,
@@ -13,10 +12,12 @@ describe("Verify various Table property bugs", function() {
     cy.fixture("example").then(function(data: any) {
       dataSet = data;
     });
+    cy.fixture("tablev1NewDsl").then((val: any) => {
+      agHelper.AddDsl(val);
+    });
   });
 
   it("1. Adding Data to Table Widget", function() {
-    agHelper.AddDsl(dsl);
     ee.SelectEntityByName("Table1", "WIDGETS");
     propPane.UpdatePropertyFieldValue(
       "Table Data",

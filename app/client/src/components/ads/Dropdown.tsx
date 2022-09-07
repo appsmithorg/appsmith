@@ -21,7 +21,7 @@ import { TooltipComponent as Tooltip } from "design-system";
 import { isEllipsisActive } from "utils/helpers";
 import SegmentHeader from "components/ads/ListSegmentHeader";
 import { useTheme } from "styled-components";
-import { findIndex, isArray } from "lodash";
+import { debounce, findIndex, isArray } from "lodash";
 import { TooltipComponent } from "design-system";
 import { SubTextPosition } from "components/constants";
 import { DSEventTypes, emitDSEvent } from "utils/AppsmithUtils";
@@ -1149,12 +1149,36 @@ export default function Dropdown(props: DropdownProps) {
     [isOpen, props.options, props.selected, selected, highlight],
   );
 
-  let dropdownWrapperWidth = "100%";
+  const [dropdownWrapperWidth, setDropdownWrapperWidth] = useState<string>(
+    "100%",
+  );
 
-  if (dropdownWrapperRef.current) {
-    const { width } = dropdownWrapperRef.current.getBoundingClientRect();
-    dropdownWrapperWidth = `${width}px`;
-  }
+  const prevWidth = useRef(0);
+
+  const onParentResize = useCallback(
+    debounce((entries) => {
+      requestAnimationFrame(() => {
+        if (dropdownWrapperRef.current) {
+          const width = entries[0].borderBoxSize?.[0].inlineSize;
+          if (typeof width === "number" && width !== prevWidth.current) {
+            prevWidth.current = width;
+            setDropdownWrapperWidth(`${width}px`);
+          }
+        }
+      });
+    }, 300),
+    [dropdownWrapperRef.current],
+  );
+
+  useEffect(() => {
+    const resizeObserver = new ResizeObserver(onParentResize);
+    if (dropdownWrapperRef.current && props.fillOptions)
+      resizeObserver.observe(dropdownWrapperRef.current);
+
+    return () => {
+      resizeObserver.disconnect();
+    };
+  }, [dropdownWrapperRef.current, props.fillOptions]);
 
   let dropdownHeight = props.isMultiSelect ? "auto" : "36px";
   if (props.height) {

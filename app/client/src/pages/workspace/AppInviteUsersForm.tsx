@@ -2,7 +2,7 @@ import React, { useEffect } from "react";
 import styled, { css } from "styled-components";
 import { connect, useSelector } from "react-redux";
 import { AppState } from "reducers";
-import { getCurrentAppWorkspace } from "@appsmith/selectors/workspaceSelectors";
+import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import CopyToClipBoard from "components/ads/CopyToClipBoard";
 import {
@@ -18,6 +18,8 @@ import Toggle from "components/ads/Toggle";
 import { ANONYMOUS_USERNAME } from "constants/userConstants";
 import { Colors } from "constants/Colors";
 import { viewerURL } from "RouteBuilder";
+import { fetchWorkspace } from "actions/workspaceActions";
+import useWorkspace from "utils/hooks/useWorkspace";
 
 const StyledCopyToClipBoard = styled(CopyToClipBoard)`
   margin-bottom: 24px;
@@ -64,7 +66,8 @@ function AppInviteUsersForm(props: any) {
     isFetchingApplication,
   } = props;
 
-  const currentWorkspace = useSelector(getCurrentAppWorkspace);
+  const currentWorkspaceId = useSelector(getCurrentWorkspaceId);
+  const currentWorkspace = useWorkspace(currentWorkspaceId);
   const userWorkspacePermissions = currentWorkspace.userPermissions ?? [];
   const userAppPermissions = currentApplicationDetails?.userPermissions ?? [];
   const canInviteToWorkspace = isPermitted(
@@ -149,11 +152,6 @@ export default connect(
         },
       }),
     fetchCurrentWorkspace: (workspaceId: string) =>
-      dispatch({
-        type: ReduxActionTypes.FETCH_CURRENT_WORKSPACE,
-        payload: {
-          workspaceId,
-        },
-      }),
+      dispatch(fetchWorkspace(workspaceId)),
   }),
 )(AppInviteUsersForm);

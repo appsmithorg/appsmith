@@ -59,6 +59,11 @@ export type TreeDropdownProps = {
   modifiers?: IPopoverSharedProps["modifiers"];
   onMenuToggle?: (isOpen: boolean) => void;
   position?: Position;
+  menuWidth?: number;
+};
+
+export type StyledMenuProps = {
+  width?: number;
 };
 
 export const StyledMenu = styled(Menu)`
@@ -66,11 +71,13 @@ export const StyledMenu = styled(Menu)`
     `calc(100vh - ${props.theme.smallHeaderHeight} - ${props.theme.bottomBarHeight})`};
   overflow: auto;
   min-width: 220px;
+  width: ${(props: StyledMenuProps) => `${props.width}px`};
   padding: 0px;
   border-radius: 0px;
   background-color: ${(props) => props.theme.colors.treeDropdown.menuBg.normal};
   .${Classes.MENU} {
     min-width: 220px;
+    width: ${(props: StyledMenuProps) => `${props.width}px`};
     padding: 0px;
     border-radius: 0px;
     background-color: ${(props) =>
@@ -260,6 +267,7 @@ function TreeDropdown(props: TreeDropdownProps) {
     defaultText,
     displayValue,
     getDefaults,
+    menuWidth,
     onSelect,
     selectedLabelModifier,
     selectedValue,
@@ -525,7 +533,7 @@ function TreeDropdown(props: TreeDropdownProps) {
   };
 
   const list = optionTree.map(RenderTreeOption);
-  const menuItems = <StyledMenu>{list}</StyledMenu>;
+  const menuItems = <StyledMenu width={menuWidth || 220}>{list}</StyledMenu>;
   const defaultToggle = (
     <DropdownTarget>
       <Button

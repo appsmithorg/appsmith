@@ -39,6 +39,7 @@ function renderComponent(props: renderComponentProps) {
 
   return (
     <StyledCheckbox
+      cypressSelector={props?.input?.name}
       isDefaultChecked={props?.input?.checked as boolean}
       {...props}
       info={undefined}

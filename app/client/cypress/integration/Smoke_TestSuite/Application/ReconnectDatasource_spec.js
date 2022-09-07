@@ -11,7 +11,7 @@ describe("Reconnect Datasource Modal validation while importing application", fu
     // import application
     cy.generateUUID().then((uid) => {
       workspaceId = uid;
-      localStorage.setItem("OrgName", workspaceId);
+      localStorage.setItem("WorkspaceName", workspaceId);
       cy.createWorkspace();
       cy.wait("@createWorkspace").then((createWorkspaceInterception) => {
         newWorkspaceName = createWorkspaceInterception.response.body.data.name;
@@ -70,7 +70,7 @@ describe("Reconnect Datasource Modal validation while importing application", fu
           cy.get(".t--import-app-success-modal").should("be.visible");
           cy.get(".t--import-app-success-modal").should(
             "contain",
-            "All your datasources are configuered and ready to use.",
+            "All your datasources are configured and ready to use.",
           );
           cy.get(".t--import-success-modal-got-it").click({ force: true });
           cy.get(".t--import-app-success-modal").should("not.exist");

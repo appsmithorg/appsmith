@@ -18,7 +18,6 @@ import {
   getIsFirstTimeUserOnboardingEnabled,
 } from "selectors/onboardingSelectors";
 import Explorer from "pages/Editor/Explorer";
-import AppComments from "comments/AppComments/AppComments";
 import { setExplorerActiveAction } from "actions/explorerActions";
 import {
   getExplorerActive,
@@ -168,7 +167,6 @@ export const EntityExplorerSidebar = memo((props: Props) => {
         <EntityProperties />
         {/* Contains entity explorer & widgets library along with a switcher*/}
         <Explorer />
-        <AppComments />
       </div>
       {/* RESIZER */}
       <div

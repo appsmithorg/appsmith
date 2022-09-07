@@ -78,8 +78,6 @@ const pages = {};
 function pushChildPages(masterPage) {
   if (masterPage.pages) {
     masterPage.pages.forEach(page => {
-      if (masterPage.path)
-        page.path = (masterPage.path || masterPage.ref) + "/" + page.path;
       pushChildPages(page);
       page.pages = undefined;
       pages[page.id] = page;

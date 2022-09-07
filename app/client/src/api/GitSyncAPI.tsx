@@ -154,11 +154,12 @@ class GitSyncAPI extends Api {
 
   static generateSSHKeyPair(
     applicationId: string,
+    keyType: string,
     isImporting?: boolean,
   ): AxiosPromise<ApiResponse> {
     const url = isImporting
-      ? "v1/git/import/keys"
-      : ApplicationApi.baseURL + "/ssh-keypair/" + applicationId;
+      ? `v1/git/import/keys?keyType=${keyType}`
+      : `${ApplicationApi.baseURL}/ssh-keypair/${applicationId}?keyType=${keyType}`;
     return isImporting ? Api.get(url) : Api.post(url);
   }
 

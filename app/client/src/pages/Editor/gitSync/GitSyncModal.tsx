@@ -132,6 +132,7 @@ function GitSyncModal(props: { isImport?: boolean }) {
         canEscapeKeyClose
         canOutsideClickClose
         className={Classes.GIT_SYNC_MODAL}
+        data-testid="t--git-sync-modal"
         isOpen={isModalOpen}
         maxWidth={"900px"}
         noModalBodyMarginTop

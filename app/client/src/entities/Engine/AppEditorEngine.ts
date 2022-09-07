@@ -40,7 +40,12 @@ import history from "utils/history";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
-import AppEngine, { AppEnginePayload } from ".";
+import AppEngine, {
+  ActionsNotFoundError,
+  AppEnginePayload,
+  PluginFormConfigsNotFoundError,
+  PluginsNotFoundError,
+} from ".";
 
 export default class AppEditorEngine extends AppEngine {
   constructor(mode: APP_MODE) {
@@ -114,7 +119,10 @@ export default class AppEditorEngine extends AppEngine {
       failureActionEffects,
     );
 
-    if (!allActionCalls) return;
+    if (!allActionCalls)
+      throw new ActionsNotFoundError(
+        `Unable to fetch actions for the application: ${applicationId}`,
+      );
     yield put(fetchAllPageEntityCompletion([executePageLoadActions()]));
   }
 
@@ -147,7 +155,8 @@ export default class AppEditorEngine extends AppEngine {
       errorActions,
     );
 
-    if (!initActionCalls) return;
+    if (!initActionCalls)
+      throw new PluginsNotFoundError("Unable to fetch plugins");
 
     const pluginFormCall: boolean = yield call(
       failFastApiCalls,
@@ -155,7 +164,10 @@ export default class AppEditorEngine extends AppEngine {
       [ReduxActionTypes.FETCH_PLUGIN_FORM_CONFIGS_SUCCESS],
       [ReduxActionErrorTypes.FETCH_PLUGIN_FORM_CONFIGS_ERROR],
     );
-    if (!pluginFormCall) return;
+    if (!pluginFormCall)
+      throw new PluginFormConfigsNotFoundError(
+        "Unable to fetch plugin form configs",
+      );
   }
 
   public *loadAppEntities(toLoadPageId: string, applicationId: string): any {

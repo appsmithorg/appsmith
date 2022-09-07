@@ -1,5 +1,4 @@
 const datasource = require("../../../../locators/DatasourcesEditor.json");
-const queryEditor = require("../../../../locators/QueryEditor.json");
 const datasourceEditor = require("../../../../locators/DatasourcesEditor.json");
 
 let datasourceName;
@@ -44,8 +43,8 @@ describe("MsSQL datasource test cases", function() {
   });
 
   it("3. Create a new query from the datasource editor", function() {
-    // cy.get(datasource.createQuerty).click();
-    cy.get(`${datasourceEditor.datasourceCard} ${datasource.createQuerty}`)
+    // cy.get(datasource.createQuery).click();
+    cy.get(`${datasourceEditor.datasourceCard} ${datasource.createQuery}`)
       .last()
       .click();
     cy.wait("@createNewApi").should(

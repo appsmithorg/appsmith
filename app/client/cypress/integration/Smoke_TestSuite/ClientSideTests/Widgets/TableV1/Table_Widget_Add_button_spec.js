@@ -90,7 +90,7 @@ describe("Table Widget property pane feature validation", function() {
     cy.get(widgetsPage.buttonColor)
       .click({ force: true })
       .clear()
-      .type(color1);
+      .type(color1, { force: true });
     cy.get(widgetsPage.tableBtn).should("have.css", "background-color", color1);
 
     // Changing the color again to reproduce issue #9526

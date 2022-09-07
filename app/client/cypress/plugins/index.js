@@ -54,6 +54,7 @@ module.exports = (on, config) => {
     );
     if (browser.name === "chrome") {
       launchOptions.args.push("--disable-dev-shm-usage");
+      launchOptions.push("--window-size=1400,1100");
       return launchOptions;
     }
 
@@ -61,6 +62,9 @@ module.exports = (on, config) => {
       // && browser.isHeadless) {
       launchOptions.preferences.fullscreen = true;
       launchOptions.preferences.darkTheme = true;
+      launchOptions["width"] = 1400;
+      launchOptions["height"] = 1100;
+      launchOptions["resizable"] = false;
     }
 
     return launchOptions;
@@ -136,6 +140,7 @@ module.exports = (on, config) => {
 
   return config;
 };
+
 module.exports = (on, config) => {
   addMatchImageSnapshotPlugin(on, config);
 };

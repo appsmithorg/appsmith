@@ -3,6 +3,7 @@ import Api from "api/Api";
 import { ApiResponse } from "./ApiResponses";
 import { WidgetType } from "constants/WidgetConstants";
 import { ApplicationResponsePayload } from "./ApplicationApi";
+import { Datasource } from "entities/Datasource";
 
 export interface Template {
   id: string;
@@ -23,7 +24,11 @@ export type FilterKeys = "widgets" | "datasources";
 
 export type FetchTemplateResponse = ApiResponse<Template>;
 
-export type ImportTemplateResponse = ApiResponse<ApplicationResponsePayload>;
+export type ImportTemplateResponse = ApiResponse<{
+  isPartialImport: boolean;
+  unConfiguredDatasourceList: Datasource[];
+  application: ApplicationResponsePayload;
+}>;
 
 class TemplatesAPI extends Api {
   static baseUrl = "v1";

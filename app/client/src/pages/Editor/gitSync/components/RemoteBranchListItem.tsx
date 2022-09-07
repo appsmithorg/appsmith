@@ -10,6 +10,7 @@ export function RemoteBranchListItem({ branch, className, onClick }: any) {
     <BranchListItemContainer
       active={false}
       className={className}
+      data-testid="t--branch-list-item"
       isDefault={false}
       onClick={onClick}
       ref={null}

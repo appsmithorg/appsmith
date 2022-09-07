@@ -5,6 +5,7 @@ import com.appsmith.external.models.BaseDomain;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.constants.FieldName;
+import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserData;
 import com.appsmith.server.helpers.PolicyUtils;
@@ -168,7 +169,7 @@ public class AnalyticsServiceCEImpl implements AnalyticsServiceCE {
         // We will create an anonymous user object for event tracking if no user is present
         // Without this, a lot of flows meant for anonymous users will error out
 
-        // In case the event needs to be sent during sign in, then `sessionUserService.getCurrentUser()` returns Mono.emtpy()
+        // In case the event needs to be sent during sign in, then `sessionUserService.getCurrentUser()` returns Mono.empty()
         // Handle the same by returning an anonymous user only for sending events.
         User anonymousUser = new User();
         anonymousUser.setName(FieldName.ANONYMOUS_USER);
@@ -181,8 +182,11 @@ public class AnalyticsServiceCEImpl implements AnalyticsServiceCE {
         return userMono
                 .map(user -> {
 
-                    // In case the user is anonymous, don't raise an event, unless it's a signup event.
-                    if (user.isAnonymous() && !(object instanceof User && event == AnalyticsEvents.CREATE)) {
+                    // In case the user is anonymous, don't raise an event, unless it's a signup, logout or page view event.
+                    boolean isEventUserSignUpOrLogout = object instanceof User && (event == AnalyticsEvents.CREATE || event == AnalyticsEvents.LOGOUT);
+                    boolean isEventPageView = object instanceof NewPage && event == AnalyticsEvents.VIEW;
+                    boolean isAvoidLoggingEvent = user.isAnonymous() && !(isEventUserSignUpOrLogout || isEventPageView);
+                    if (isAvoidLoggingEvent) {
                         return object;
                     }
 
@@ -193,6 +197,8 @@ public class AnalyticsServiceCEImpl implements AnalyticsServiceCE {
                     analyticsProperties.put("oid", object.getId());
                     if (extraProperties != null) {
                         analyticsProperties.putAll(extraProperties);
+                        // To avoid sending extra audit data to analytics
+                        analyticsProperties.remove(FieldName.AUDIT_DATA);
                     }
 
                     sendEvent(eventTag, username, analyticsProperties);
@@ -218,6 +224,10 @@ public class AnalyticsServiceCEImpl implements AnalyticsServiceCE {
 
     public <T extends BaseDomain> Mono<T> sendDeleteEvent(T object, Map<String, Object> extraProperties) {
         return sendObjectEvent(AnalyticsEvents.DELETE, object, extraProperties);
+    }
+
+    public <T extends BaseDomain> Mono<T> sendArchiveEvent(T object, Map<String, Object> extraProperties) {
+        return sendObjectEvent(AnalyticsEvents.ARCHIVE, object, extraProperties);
     }
 
     public <T extends BaseDomain> Mono<T> sendDeleteEvent(T object) {

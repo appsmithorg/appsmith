@@ -2,16 +2,19 @@ package com.appsmith.server.controllers.ce;
 
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
+import com.appsmith.server.dtos.ApplicationImportDTO;
 import com.appsmith.server.dtos.ApplicationTemplate;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.services.ApplicationTemplateService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestParam;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
@@ -38,8 +41,8 @@ public class ApplicationTemplateControllerCE {
     }
 
     @GetMapping("{templateId}/similar")
-    public Mono<ResponseDTO<List<ApplicationTemplate>>> getSimilarTemplates(@PathVariable String templateId) {
-        return applicationTemplateService.getSimilarTemplates(templateId).collectList()
+    public Mono<ResponseDTO<List<ApplicationTemplate>>> getSimilarTemplates(@PathVariable String templateId, @RequestParam MultiValueMap<String, String> params) {
+        return applicationTemplateService.getSimilarTemplates(templateId, params).collectList()
                 .map(templates -> new ResponseDTO<>(HttpStatus.OK.value(), templates, null));
     }
 
@@ -50,8 +53,8 @@ public class ApplicationTemplateControllerCE {
     }
 
     @PostMapping("{templateId}/import/{workspaceId}")
-    public Mono<ResponseDTO<Application>> importApplicationFromTemplate(@PathVariable String templateId,
-                                                           @PathVariable String workspaceId) {
+    public Mono<ResponseDTO<ApplicationImportDTO>> importApplicationFromTemplate(@PathVariable String templateId,
+                                                                                 @PathVariable String workspaceId) {
         return applicationTemplateService.importApplicationFromTemplate(templateId, workspaceId)
                 .map(importedApp -> new ResponseDTO<>(HttpStatus.OK.value(), importedApp, null));
     }

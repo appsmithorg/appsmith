@@ -2,11 +2,6 @@ export const ANONYMOUS_USERNAME = "anonymousUser";
 
 type Gender = "MALE" | "FEMALE";
 
-export enum CommentsOnboardingState {
-  ONBOARDED = "ONBOARDED",
-  SKIPPED = "SKIPPED",
-}
-
 export type User = {
   email: string;
   workspaceIds: string[];
@@ -14,7 +9,6 @@ export type User = {
   name: string;
   gender: Gender;
   emptyInstance?: boolean;
-  commentOnboardingState?: CommentsOnboardingState | null;
   photoId?: string;
   isSuperUser: boolean;
   role?: string;

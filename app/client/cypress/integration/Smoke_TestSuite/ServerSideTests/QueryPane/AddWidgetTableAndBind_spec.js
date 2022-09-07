@@ -46,7 +46,7 @@ describe("Addwidget from Query and bind with other widgets", function() {
         cy.get(queryEditor.suggestedTableWidget).click();
         cy.SearchEntityandOpen("Table1");
         cy.isSelectRow(1);
-        cy.readTabledataPublish("1", "0").then((tabData) => {
+        cy.readTableV2dataPublish("1", "0").then((tabData) => {
           const tabValue = tabData;
           cy.log("the value is" + tabValue);
           expect(tabValue).to.be.equal("5");
@@ -70,7 +70,7 @@ describe("Addwidget from Query and bind with other widgets", function() {
 
   it("4. validation of data displayed in input widget based on row data selected", function() {
     cy.isSelectRow(1);
-    cy.readTabledataPublish("1", "0").then((tabData) => {
+    cy.readTableV2dataPublish("1", "0").then((tabData) => {
       const tabValue = tabData;
       cy.log("the value is" + tabValue);
       expect(tabValue).to.be.equal("5");
@@ -83,7 +83,7 @@ describe("Addwidget from Query and bind with other widgets", function() {
   });
 
   it("5. Input widget test with default value from table widget[Bug#4136]", () => {
-    cy.openPropertyPane("tablewidget");
+    cy.openPropertyPane("tablewidgetv2");
     cy.get(".t--property-pane-title").click({ force: true });
     cy.get(".t--property-pane-title")
       .type("TableUpdated", { delay: 300 })

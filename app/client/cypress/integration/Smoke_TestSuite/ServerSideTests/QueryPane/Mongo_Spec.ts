@@ -1,6 +1,6 @@
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 
-let guid: any, dsName: any;
+let dsName: any;
 
 let agHelper = ObjectsRegistry.AggregateHelper,
   ee = ObjectsRegistry.EntityExplorer,
@@ -32,16 +32,7 @@ describe("Validate Mongo Query Pane Validations", () => {
       dataSources._dropdownOption,
       "Connect New Datasource",
     );
-
-    agHelper.GenerateUUID();
-    cy.get("@guid").then((uid) => {
-      dataSources.CreatePlugIn("MongoDB");
-      guid = uid;
-      agHelper.RenameWithInPane("Mongo " + guid, false);
-      dataSources.FillMongoDSForm();
-      dataSources.TestSaveDatasource();
-      cy.wrap("Mongo " + guid).as("dsName");
-    });
+    dataSources.CreateDataSource("Mongo", false);
 
     agHelper.ValidateNetworkStatus("@getDatasourceStructure"); //Making sure table dropdown is populated
     agHelper.GetNClick(dataSources._selectTableDropdown);
@@ -649,7 +640,7 @@ describe("Validate Mongo Query Pane Validations", () => {
     agHelper.GetNClick(dataSources._templateMenu);
 
     dataSources.EnterQuery(dropCollection);
-    cy.get(".CodeMirror textarea").focus();
+     agHelper.FocusElement(locator._codeMirrorTextArea);;
     //agHelper.VerifyEvaluatedValue(tableCreateQuery);
 
     dataSources.RunQuery();
@@ -667,7 +658,7 @@ describe("Validate Mongo Query Pane Validations", () => {
     agHelper.GetNClick(dataSources._templateMenu);
     agHelper.RenameWithInPane("DropAuthorNAwards");
     dataSources.EnterQuery(dropCollection);
-    cy.get(locator._codeMirrorTextArea).focus();
+     agHelper.FocusElement(locator._codeMirrorTextArea);;
     //agHelper.VerifyEvaluatedValue(tableCreateQuery);
 
     dataSources.RunQuery(false);
@@ -768,7 +759,7 @@ describe("Validate Mongo Query Pane Validations", () => {
     agHelper.GetNClick(dataSources._templateMenu);
     agHelper.RenameWithInPane("DropBirthNDeath");
     dataSources.EnterQuery(dropCollection);
-    cy.get(".CodeMirror textarea").focus();
+     agHelper.FocusElement(locator._codeMirrorTextArea);;
     dataSources.RunQuery();
   });
 

@@ -79,10 +79,18 @@ export function getDependenciesFromInverseDependencies(
       const { entityName: entityDependency } = getEntityNameAndPropertyPath(
         dependency,
       );
-      if (entity !== entityName && entityDependency === entityName) {
-        directDependencies.add(entity);
-      } else if (entity === entityName && entityDependency !== entityName) {
-        inverseDependencies.add(entityDependency);
+
+      /**
+       * Remove appsmith from the entity dropdown, under the property pane.
+       * We need to add a separate entity page like we have for queries and api calls
+       * to list all the values under the appsmith entity.
+       */
+      if (entity !== "appsmith") {
+        if (entity !== entityName && entityDependency === entityName) {
+          directDependencies.add(entity);
+        } else if (entity === entityName && entityDependency !== entityName) {
+          inverseDependencies.add(entityDependency);
+        }
       }
     });
   });

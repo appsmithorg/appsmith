@@ -35,6 +35,7 @@ export function BranchListItem({
     <BranchListItemContainer
       active={active}
       className={className}
+      data-testid="t--branch-list-item"
       isDefault={isDefault}
       ref={itemRef}
       selected={selected}

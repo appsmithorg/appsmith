@@ -81,7 +81,7 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
 
         // Fork application is currently a slow API because it needs to create application, clone all the pages, and then
         // copy all the actions and collections. This process may take time and the client may cancel the request.
-        // This leads to the flow getting stopped mid way producing corrupted DB objects. The following ensures that even
+        // This leads to the flow getting stopped midway producing corrupted DB objects. The following ensures that even
         // though the client may have cancelled the flow, the forking of the application should proceed uninterrupted
         // and whenever the user refreshes the page, the sane forked application is available.
         // To achieve this, we use a synchronous sink which does not take subscription cancellations into account. This

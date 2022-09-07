@@ -1,6 +1,7 @@
 const guidedTourLocators = require("../../../../locators/GuidedTour.json");
 const onboardingLocators = require("../../../../locators/FirstTimeUserOnboarding.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
+const explorerLocators = require("../../../../locators/explorerlocators.json");
 
 describe("Guided Tour", function() {
   it("Guided tour should work when started from the editor", function() {
@@ -17,6 +18,7 @@ describe("Guided Tour", function() {
     cy.get(commonlocators.homeIcon).click({ force: true });
     cy.get(guidedTourLocators.welcomeTour).click();
     cy.get(guidedTourLocators.startBuilding).click();
+    cy.get(explorerLocators.entityExplorer).should("not.be.visible");
     // Step 1: Run query
     cy.runQuery();
     cy.get(guidedTourLocators.successButton).click();
@@ -70,7 +72,6 @@ describe("Guided Tour", function() {
     cy.get(guidedTourLocators.successButton).click();
     // Step 9: Deploy
     cy.PublishtheApp();
-    cy.wait("@getWorkspace");
     cy.get(guidedTourLocators.rating).should("be.visible");
     cy.get(guidedTourLocators.rating)
       .eq(4)

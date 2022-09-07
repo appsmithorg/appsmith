@@ -180,6 +180,7 @@ describe("Button Widget Functionality", function() {
   it("Toggle JS - Button-Unckeck Visible field Validation", function() {
     //Uncheck the disabled checkbox using JS and validate
     cy.get(widgetsPage.toggleVisible).click({ force: true });
+    cy.EnableAllCodeEditors();
     cy.testJsontext("visible", "false");
     cy.PublishtheApp();
     cy.get(publishPage.buttonWidget).should("not.exist");
@@ -187,6 +188,7 @@ describe("Button Widget Functionality", function() {
 
   it("Toggle JS - Button-Check Visible field Validation", function() {
     //Check the disabled checkbox using JS and Validate
+    cy.EnableAllCodeEditors();
     cy.testJsontext("visible", "true");
     cy.PublishtheApp();
     cy.get(publishPage.buttonWidget).should("be.visible");

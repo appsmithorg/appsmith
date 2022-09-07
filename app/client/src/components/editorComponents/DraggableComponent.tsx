@@ -9,7 +9,6 @@ import {
   useShowTableFilterPane,
   useWidgetDragResize,
 } from "utils/hooks/dragResizeHooks";
-import { commentModeSelector } from "selectors/commentsSelectors";
 import {
   previewModeSelector,
   snipingModeSelector,
@@ -47,13 +46,14 @@ type DraggableComponentProps = WidgetProps;
  * @param isResizingOrDragging
  * @param isDraggingDisabled
  * @param props
+ * @param isSnipingMode
+ * @param isPreviewMode
  * @returns
  */
 export const canDrag = (
   isResizingOrDragging: boolean,
   isDraggingDisabled: boolean,
   props: any,
-  isCommentMode: boolean,
   isSnipingMode: boolean,
   isPreviewMode: boolean,
 ) => {
@@ -61,7 +61,6 @@ export const canDrag = (
     !isResizingOrDragging &&
     !isDraggingDisabled &&
     !props?.dragDisabled &&
-    !isCommentMode &&
     !isSnipingMode &&
     !isPreviewMode
   );
@@ -70,8 +69,6 @@ export const canDrag = (
 function DraggableComponent(props: DraggableComponentProps) {
   // Dispatch hook handy to set a widget as focused/selected
   const { focusWidget, selectWidget } = useWidgetSelection();
-
-  const isCommentMode = useSelector(commentModeSelector);
   const isSnipingMode = useSelector(snipingModeSelector);
   const isPreviewMode = useSelector(previewModeSelector);
   // Dispatch hook handy to set any `DraggableComponent` as dragging/ not dragging
@@ -145,7 +142,6 @@ function DraggableComponent(props: DraggableComponentProps) {
     isResizingOrDragging,
     isDraggingDisabled,
     props,
-    isCommentMode,
     isSnipingMode,
     isPreviewMode,
   );

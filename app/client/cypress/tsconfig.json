@@ -33,7 +33,7 @@
     "sourceMap": true,
     "baseUrl": "./cypress",
     "noFallthroughCasesInSwitch": true,
-    "types": ["cypress", "node"]
+    "types": ["cypress", "node", "cypress-real-events"]
   },
   "include": ["/**/*.ts"]
 }

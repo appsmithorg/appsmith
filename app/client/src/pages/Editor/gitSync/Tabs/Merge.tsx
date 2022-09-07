@@ -282,6 +282,7 @@ export default function Merge() {
         showMergeButton && (
           <Button
             className="t--git-merge-button"
+            data-testid="t--git-merge-button"
             disabled={mergeBtnDisabled}
             isLoading={isMerging}
             onClick={mergeHandler}

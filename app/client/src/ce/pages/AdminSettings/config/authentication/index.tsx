@@ -29,7 +29,7 @@ const FormAuth: AdminConfigType = {
   type: SettingCategories.FORM_AUTH,
   controlType: SettingTypes.GROUP,
   title: "Form Login",
-  subText: "Enable your organization to sign in with Appsmith Form.",
+  subText: "Enable your workspace to sign in with Appsmith Form.",
   canSave: true,
   isConnected: false,
   settings: [
@@ -69,7 +69,7 @@ const GoogleAuth: AdminConfigType = {
   type: SettingCategories.GOOGLE_AUTH,
   controlType: SettingTypes.GROUP,
   title: "Google Authentication",
-  subText: "Enable your organization to sign in with Google (OAuth).",
+  subText: "Enable your workspace to sign in with Google (OAuth).",
   canSave: true,
   isConnected: enableGoogleOAuth,
   settings: [
@@ -116,7 +116,7 @@ const GithubAuth: AdminConfigType = {
   controlType: SettingTypes.GROUP,
   title: "Github Authentication",
   subText:
-    "Enable your organization to sign in with Github SAML single sign-on (SSO).",
+    "Enable your workspace to sign in with Github SAML single sign-on (SSO).",
   canSave: true,
   isConnected: enableGithubOAuth,
   settings: [
@@ -153,7 +153,7 @@ export const FormAuthCallout: AuthMethodType = {
   id: "APPSMITH_FORM_LOGIN_AUTH",
   category: SettingCategories.FORM_AUTH,
   label: "Form Login",
-  subText: "Enable your organization to sign in with Appsmith Form.",
+  subText: "Enable your workspace to sign in with Appsmith Form.",
   image: Lock,
   type: "LINK",
   isConnected: !disableLoginForm,
@@ -164,7 +164,7 @@ export const GoogleAuthCallout: AuthMethodType = {
   category: SettingCategories.GOOGLE_AUTH,
   label: "Google",
   subText:
-    "Enable your organization to sign in with Google (OAuth 2.0) single sign-on (SSO).",
+    "Enable your workspace to sign in with Google (OAuth 2.0) single sign-on (SSO).",
   image: Google,
   type: "LINK",
   isConnected: enableGoogleOAuth,
@@ -175,7 +175,7 @@ export const GithubAuthCallout: AuthMethodType = {
   category: SettingCategories.GITHUB_AUTH,
   label: "Github",
   subText:
-    "Enable your organization to sign in with Github (OAuth 2.0) single sign-on (SSO).",
+    "Enable your workspace to sign in with Github (OAuth 2.0) single sign-on (SSO).",
   image: Github,
   type: "LINK",
   isConnected: enableGithubOAuth,
@@ -185,7 +185,7 @@ export const SamlAuthCallout: AuthMethodType = {
   id: "APPSMITH_SAML_AUTH",
   category: "saml",
   label: "SAML 2.0",
-  subText: `Enable your organization to sign in with your preferred SAML2 compliant provider.`,
+  subText: `Enable your workspace to sign in with your preferred SAML2 compliant provider.`,
   image: SamlSso,
   needsUpgrade: true,
   type: "OTHER",
@@ -195,7 +195,7 @@ export const OidcAuthCallout: AuthMethodType = {
   id: "APPSMITH_OIDC_AUTH",
   category: "oidc",
   label: "OIDC",
-  subText: `Enable your organization to sign in with Open ID Connect.`,
+  subText: `Enable your workspace to sign in with Open ID Connect.`,
   image: OIDC,
   needsUpgrade: true,
   type: "OTHER",

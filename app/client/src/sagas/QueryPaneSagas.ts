@@ -31,7 +31,8 @@ import {
   createActionRequest,
   setActionProperty,
 } from "actions/pluginActionActions";
-import { getNextEntityName, getQueryParams } from "utils/AppsmithUtils";
+import { getNextEntityName } from "utils/AppsmithUtils";
+import { getQueryParams } from "utils/URLUtils";
 import { isEmpty, merge } from "lodash";
 import { getConfigInitialValues } from "components/formControls/utils";
 import { Variant } from "components/ads/common";

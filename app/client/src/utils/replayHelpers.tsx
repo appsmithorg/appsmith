@@ -5,7 +5,7 @@ import scrollIntoView from "scroll-into-view-if-needed";
 import {
   modText,
   flashElementsById,
-  isMac,
+  isMacOrIOS,
   flashElement,
   hasClass,
   shiftText,
@@ -31,7 +31,7 @@ export const getReplayToastActionText = (replayType = "undo") => {
     case "undo":
       return <>UNDO ({modText()} Z) </>;
     case "redo":
-      return isMac() ? (
+      return isMacOrIOS() ? (
         <>
           REDO ({modText()} {shiftText()} Z){" "}
         </>

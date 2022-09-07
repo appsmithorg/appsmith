@@ -188,7 +188,7 @@ const MyMapComponent = withGoogleMap((props: any) => {
             onDragEnd={(de) => {
               props.updateMarker(de.latLng.lat(), de.latLng.lng(), index);
             }}
-            position={{ lat: marker.lat, lng: marker.long }}
+            position={{ lat: Number(marker.lat), lng: Number(marker.long) }}
             title={marker.title}
           />
         ))}

@@ -1,4 +1,5 @@
 import React from "react";
+import { find } from "lodash";
 import TabsComponent from "../component";
 import BaseWidget, { WidgetState } from "../../BaseWidget";
 import WidgetFactory from "utils/WidgetFactory";
@@ -12,7 +13,6 @@ import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 import { WidgetProperties } from "selectors/propertyPaneSelectors";
 import { WIDGET_PADDING } from "constants/WidgetConstants";
 import derivedProperties from "./parseDerivedProperties";
-import { isEqual, find } from "lodash";
 
 export function selectedTabValidation(
   value: unknown,
@@ -291,50 +291,13 @@ class TabsWidget extends BaseWidget<
   }
 
   componentDidUpdate(prevProps: TabsWidgetProps<TabContainerWidgetProps>) {
-    if (!isEqual(prevProps, this.props)) {
-      const visibleTabs = this.getVisibleTabs();
-      if (
-        this.props.defaultTab &&
-        this.props.defaultTab !== prevProps.defaultTab
-      ) {
-        const selectedTab = find(visibleTabs, {
-          label: this.props.defaultTab,
-        });
-        const selectedTabWidgetId = selectedTab
-          ? selectedTab.widgetId
-          : undefined;
-        this.props.updateWidgetMetaProperty(
-          "selectedTabWidgetId",
-          selectedTabWidgetId,
-        );
-      }
-      // if selected tab is deleted
-      if (this.props.selectedTabWidgetId) {
-        if (visibleTabs.length > 0) {
-          const selectedTabWithinTabs = find(visibleTabs, {
-            widgetId: this.props.selectedTabWidgetId,
-          });
-          if (!selectedTabWithinTabs) {
-            // try to select default else select first
-            const defaultTab = find(visibleTabs, {
-              label: this.props.defaultTab,
-            });
-            this.props.updateWidgetMetaProperty(
-              "selectedTabWidgetId",
-              (defaultTab && defaultTab.widgetId) || visibleTabs[0].widgetId,
-            );
-          }
-        } else {
-          this.props.updateWidgetMetaProperty("selectedTabWidgetId", undefined);
-        }
-      } else if (!this.props.selectedTabWidgetId) {
-        if (visibleTabs.length > 0) {
-          this.props.updateWidgetMetaProperty(
-            "selectedTabWidgetId",
-            visibleTabs[0].widgetId,
-          );
-        }
-      }
+    const visibleTabs = this.getVisibleTabs();
+    const selectedTab = find(visibleTabs, {
+      widgetId: this.props.selectedTabWidgetId,
+    });
+
+    if (this.props.defaultTab !== prevProps.defaultTab || !selectedTab) {
+      this.setDefaultSelectedTabWidgetId();
     }
   }
 
@@ -350,42 +313,32 @@ class TabsWidget extends BaseWidget<
     return [];
   };
 
-  componentDidMount() {
+  setDefaultSelectedTabWidgetId = () => {
     const visibleTabs = this.getVisibleTabs();
-    // If we have a defaultTab
-    if (this.props.defaultTab && Object.keys(this.props.tabsObj || {}).length) {
-      // Find the default Tab object
-      const selectedTab = find(visibleTabs, {
-        label: this.props.defaultTab,
-      });
-      // Find the default Tab id
-      const selectedTabWidgetId = selectedTab
-        ? selectedTab.widgetId
-        : visibleTabs.length
-        ? visibleTabs[0].widgetId
-        : undefined; // in case the default tab is deleted
-      // If we have a legitimate default tab Id and it is not already the selected Tab
-      if (
-        selectedTabWidgetId &&
-        selectedTabWidgetId !== this.props.selectedTabWidgetId
-      ) {
-        // Select the default tab
-        this.props.updateWidgetMetaProperty(
-          "selectedTabWidgetId",
-          selectedTabWidgetId,
-        );
-      }
-    } else if (
-      !this.props.selectedTabWidgetId &&
-      Object.keys(this.props.tabsObj || {}).length
+    // Find the default Tab object
+    const defaultTab = find(visibleTabs, {
+      label: this.props.defaultTab,
+    });
+    // Find the default Tab id
+    const defaultTabWidgetId =
+      defaultTab?.widgetId ?? visibleTabs?.[0]?.widgetId; // in case the default tab is deleted
+
+    // If we have a legitimate default tab Id and it is not already the selected Tab
+    if (
+      defaultTabWidgetId &&
+      defaultTabWidgetId !== this.props.selectedTabWidgetId
     ) {
-      // If no tab is selected
-      // Select the first tab in the tabs list.
+      // Select the default tab
       this.props.updateWidgetMetaProperty(
         "selectedTabWidgetId",
-        visibleTabs.length ? visibleTabs[0].widgetId : undefined,
+        defaultTabWidgetId,
       );
     }
+  };
+
+  componentDidMount() {
+    Object.keys(this.props.tabsObj || {}).length &&
+      this.setDefaultSelectedTabWidgetId();
   }
 }
 

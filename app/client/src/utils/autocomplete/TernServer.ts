@@ -9,7 +9,6 @@ import xmlJs from "constants/defs/xmlParser.json";
 import forge from "constants/defs/forge.json";
 import CodeMirror, { Hint, Pos, cmpPos } from "codemirror";
 import {
-  getDynamicBindings,
   getDynamicStringSegments,
   isDynamicValue,
 } from "utils/DynamicBindingUtils";
@@ -19,8 +18,7 @@ import {
 } from "utils/autocomplete/EntityDefinitions";
 import { FieldEntityInformation } from "components/editorComponents/CodeEditor/EditorConfig";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
-import SortRules from "./dataTypeSortRules";
-import _ from "lodash";
+import { AutocompleteSorter } from "./AutocompleteSortRules";
 
 const DEFS: Def[] = [
   // @ts-expect-error: Types are not available
@@ -84,6 +82,29 @@ export type DataTreeDefEntityInformation = {
   type: ENTITY_TYPE;
   subType: string;
 };
+
+export function getDataType(type: string): AutocompleteDataType {
+  if (type === "?") return AutocompleteDataType.UNKNOWN;
+  else if (type === "number") return AutocompleteDataType.NUMBER;
+  else if (type === "string") return AutocompleteDataType.STRING;
+  else if (type === "bool") return AutocompleteDataType.BOOLEAN;
+  else if (type === "array") return AutocompleteDataType.ARRAY;
+  else if (/^fn\(/.test(type)) return AutocompleteDataType.FUNCTION;
+  else if (/^\[/.test(type)) return AutocompleteDataType.ARRAY;
+  else return AutocompleteDataType.OBJECT;
+}
+
+export function typeToIcon(type: string, isKeyword: boolean) {
+  let suffix;
+  if (isKeyword) suffix = "keyword";
+  else if (type === "?") suffix = "unknown";
+  else if (type === "number" || type === "string" || type === "bool")
+    suffix = type;
+  else if (/^fn\(/.test(type)) suffix = "fn";
+  else if (/^\[/.test(type)) suffix = "array";
+  else suffix = "object";
+  return cls + "completion " + cls + "completion-" + suffix;
+}
 
 class TernServer {
   server: Server;
@@ -188,13 +209,10 @@ class TernServer {
     ) {
       after = '"]';
     }
-    const bindings = getDynamicBindings(cm.getValue());
-    const onlySingleBinding = bindings.stringSegments.length === 1;
-    const searchText = (bindings.jsSnippets[0] || "").trim();
     for (let i = 0; i < data.completions.length; ++i) {
       const completion = data.completions[i];
-      let className = this.typeToIcon(completion.type, completion.isKeyword);
-      const dataType = this.getDataType(completion.type);
+      let className = typeToIcon(completion.type, completion.isKeyword);
+      const dataType = getDataType(completion.type);
       if (data.guess) className += " " + cls + "guess";
       let completionText = completion.name + after;
       if (dataType === "FUNCTION") {
@@ -222,10 +240,16 @@ class TernServer {
       completions.push(codeMirrorCompletion);
     }
 
-    completions = this.sortAndFilterCompletions(
+    const shouldComputeBestMatch =
+      this.fieldEntityInformation.entityType !== ENTITY_TYPE.JSACTION;
+
+    completions = AutocompleteSorter.sort(
       completions,
-      onlySingleBinding,
-      searchText,
+      this.fieldEntityInformation,
+      this.defEntityInformation.get(
+        this.fieldEntityInformation.entityName || "",
+      ),
+      shouldComputeBestMatch,
     );
     const indexToBeSelected =
       completions.length && completions[0].isHeader ? 1 : 0;
@@ -290,179 +314,6 @@ class TernServer {
         (error, data) => this.requestCallback(error, data, cm, resolve),
       );
     });
-  }
-
-  sortAndFilterCompletions(
-    completions: Completion[],
-    findBestMatch: boolean,
-    bestMatchSearch: string,
-  ) {
-    const {
-      entityName,
-      entityType,
-      expectedType = AutocompleteDataType.UNKNOWN,
-    } = this.fieldEntityInformation;
-    type CompletionType =
-      | "DATA_TREE"
-      | "MATCHING_TYPE"
-      | "OTHER"
-      | "CONTEXT"
-      | "JS"
-      | "LIBRARY";
-    const completionType: Record<CompletionType, Completion[]> = {
-      MATCHING_TYPE: [],
-      DATA_TREE: [],
-      CONTEXT: [],
-      JS: [],
-      LIBRARY: [],
-      OTHER: [],
-    };
-    completions.forEach((completion) => {
-      if (entityName && completion.text.includes(entityName)) {
-        return;
-      }
-      if (completion.origin) {
-        if (completion.origin && completion.origin.startsWith("DATA_TREE")) {
-          if (completion.text.includes(".")) {
-            // nested paths (with ".") should only be used for best match
-            if (completion.type === expectedType) {
-              completionType.MATCHING_TYPE.push(completion);
-            }
-          } else if (completion.origin === "DATA_TREE.APPSMITH.FUNCTIONS") {
-            // Global functions should be in best match as well as DataTree
-            if (
-              !entityType ||
-              ENTITY_TYPE.ACTION === entityType ||
-              ENTITY_TYPE.JSACTION === entityType ||
-              ENTITY_TYPE.WIDGET === entityType
-            ) {
-              completionType.MATCHING_TYPE.push(completion);
-              completionType.DATA_TREE.push(completion);
-            }
-          } else {
-            // All top level entities are set in data tree
-            completionType.DATA_TREE.push(completion);
-          }
-          return;
-        }
-        if (
-          completion.origin === "[doc]" ||
-          completion.origin === "customDataTree"
-        ) {
-          // [doc] are variables defined in the current context
-          // customDataTree are implicit context defined by platform
-          completionType.CONTEXT.push(completion);
-          return;
-        }
-        if (
-          completion.origin === "ecmascript" ||
-          completion.origin === "base64-js"
-        ) {
-          completionType.JS.push(completion);
-          return;
-        }
-        if (completion.origin.startsWith("LIB/")) {
-          completionType.LIBRARY.push(completion);
-          return;
-        }
-      }
-
-      // Generally keywords or other unCategorised completions
-      completionType.OTHER.push(completion);
-    });
-    completionType.DATA_TREE = completionType.DATA_TREE.sort(
-      (a: Completion, b: Completion) => {
-        if (a.type === "FUNCTION" && b.type !== "FUNCTION") {
-          return 1;
-        } else if (a.type !== "FUNCTION" && b.type === "FUNCTION") {
-          return -1;
-        }
-        return a.text.toLowerCase().localeCompare(b.text.toLowerCase());
-      },
-    );
-    completionType.MATCHING_TYPE = completionType.MATCHING_TYPE.filter((c) =>
-      c.text.toLowerCase().startsWith(bestMatchSearch.toLowerCase()),
-    );
-    if (findBestMatch && completionType.MATCHING_TYPE.length) {
-      const sortedMatches: Completion[] = [];
-      const groupedMatches = _.groupBy(completionType.MATCHING_TYPE, (c) => {
-        const name = c.text.split(".")[0];
-        const entityInfo = this.defEntityInformation.get(name);
-        if (!entityInfo) return c.text;
-        return c.text.replace(name, entityInfo.subType);
-      });
-
-      const expectedRules = SortRules[expectedType];
-      for (const [key, value] of Object.entries(groupedMatches)) {
-        const name = key.split(".")[0];
-        if (name === "JSACTION") {
-          sortedMatches.push(...value);
-        } else if (expectedRules.indexOf(key) !== -1) {
-          sortedMatches.push(...value);
-        }
-      }
-
-      sortedMatches.sort((a, b) => {
-        let aRank = 0;
-        let bRank = 0;
-        const aName = a.text.split(".")[0];
-        const bName = b.text.split(".")[0];
-        const aEntityInfo = this.defEntityInformation.get(aName);
-        const bEntityInfo = this.defEntityInformation.get(bName);
-        if (!aEntityInfo) return -1;
-        if (!bEntityInfo) return 1;
-        if (aEntityInfo.type === entityType) {
-          aRank = aRank + 1;
-        }
-        if (bEntityInfo.type === entityType) {
-          bRank = bRank + 1;
-        }
-        return aRank - bRank;
-      });
-      completionType.MATCHING_TYPE = _.take(sortedMatches, 3);
-      if (completionType.MATCHING_TYPE.length) {
-        completionType.MATCHING_TYPE.unshift(
-          createCompletionHeader("Best Match"),
-        );
-        completionType.DATA_TREE.unshift(
-          createCompletionHeader("Search Results"),
-        );
-      }
-    } else {
-      // Clear any matching type because we dont want to find best match
-      completionType.MATCHING_TYPE = [];
-    }
-    return [
-      ...completionType.CONTEXT,
-      ...completionType.MATCHING_TYPE,
-      ...completionType.DATA_TREE,
-      ...completionType.LIBRARY,
-      ...completionType.JS,
-      ...completionType.OTHER,
-    ];
-  }
-
-  getDataType(type: string): AutocompleteDataType {
-    if (type === "?") return AutocompleteDataType.UNKNOWN;
-    else if (type === "number") return AutocompleteDataType.NUMBER;
-    else if (type === "string") return AutocompleteDataType.STRING;
-    else if (type === "bool") return AutocompleteDataType.BOOLEAN;
-    else if (type === "array") return AutocompleteDataType.ARRAY;
-    else if (/^fn\(/.test(type)) return AutocompleteDataType.FUNCTION;
-    else if (/^\[/.test(type)) return AutocompleteDataType.ARRAY;
-    else return AutocompleteDataType.OBJECT;
-  }
-
-  typeToIcon(type: string, isKeyword: boolean) {
-    let suffix;
-    if (isKeyword) suffix = "keyword";
-    else if (type === "?") suffix = "unknown";
-    else if (type === "number" || type === "string" || type === "bool")
-      suffix = type;
-    else if (/^fn\(/.test(type)) suffix = "fn";
-    else if (/^\[/.test(type)) suffix = "array";
-    else suffix = "object";
-    return cls + "completion " + cls + "completion-" + suffix;
   }
 
   showContextInfo(cm: CodeMirror.Editor, queryName: string, callbackFn?: any) {
@@ -551,6 +402,8 @@ class TernServer {
       file?: any;
       includeKeywords?: boolean;
       inLiteral?: boolean;
+      depth?: number;
+      sort?: boolean;
     },
     pos?: CodeMirror.Position,
   ) {
@@ -560,6 +413,8 @@ class TernServer {
     if (!allowFragments) delete query.fullDocs;
     query.lineCharPositions = true;
     query.includeKeywords = true;
+    query.depth = 0;
+    query.sort = true;
     if (!query.end) {
       const lineValue = this.lineValue(doc);
       const focusedValue = this.getFocusedDynamicValue(doc);

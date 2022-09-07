@@ -441,15 +441,10 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
     cy.xpath(queryLocators.searchFilefield)
       .type("CRUD")
       .wait(7000); //for search to finish
-    expect(
-      cy.xpath(
-        "//div[@data-cy='overlay-comments-wrapper']//span[text()='CRUDNewPageFile']",
-      ),
-    ).to.exist;
 
-    cy.xpath(
-      "//div[@data-cy='overlay-comments-wrapper']//span[text()='CRUDNewPageFile']",
-    ).scrollIntoView();
+    cy.get(".t--widget-textwidget span:contains('CRUDNewPageFile')")
+      .should("have.length", 1)
+      .scrollIntoView();
 
     //Verifying CopyFile URL icon from UI - Browser pop up appearing
     // cy.xpath(queryLocators.copyURLicon).click()
@@ -524,8 +519,9 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
     cy.get(generatePage.uploadFilesS3).attachFile(fixturePath);
     cy.wait(2000);
     cy.get(generatePage.uploadBtn).click();
-    cy.wait(1000);
+    cy.wait(3000);
     cy.clickButton("Upload");
+    cy.wait(1000);
     cy.wait("@postExecute").should(
       "have.nested.property",
       "response.body.data.isExecutionSuccess",
@@ -540,19 +536,10 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
     cy.xpath(queryLocators.searchFilefield)
       .type("AAAGlobeChri")
       .wait(7000); //for search to finish
-    expect(
-      cy.xpath(
-        "//div[@data-cy='overlay-comments-wrapper']//span[text()='" +
-          fixturePath +
-          "']",
-      ),
-    ).to.exist;
 
-    cy.xpath(
-      "//div[@data-cy='overlay-comments-wrapper']//span[text()='" +
-        fixturePath +
-        "']",
-    ).scrollIntoView();
+    cy.get(`.t--widget-textwidget span:contains(${fixturePath})`)
+      .should("have.length", 1)
+      .scrollIntoView();
 
     //Verifying DeleteFile icon from UI
 
@@ -577,11 +564,10 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
       expect(response.body.data.isExecutionSuccess).to.eq(true);
     });
 
-    cy.xpath(
-      "//div[@data-cy='overlay-comments-wrapper']//span[text()='" +
-        fixturePath +
-        "']",
-    ).should("not.exist"); //verify Deletion of file is success from UI also
+    cy.get(`.t--widget-textwidget span:contains(${fixturePath})`).should(
+      "not.exist",
+    );
+    //verify Deletion of file is success from UI also
 
     //Upload: 2 - Bug verification 9201
     fixturePath = "AAAFlowerVase.jpeg";
@@ -590,7 +576,7 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
     cy.get(generatePage.uploadFilesS3).attachFile(fixturePath);
     cy.wait(2000);
     cy.get(generatePage.uploadBtn).click();
-    cy.wait(1000);
+    cy.wait(3000);
     cy.clickButton("Upload");
     cy.wait("@postExecute").should(
       "have.nested.property",
@@ -608,19 +594,11 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
       .wait(500)
       .type("AAAFlower")
       .wait(7000); //for search to finish
-    expect(
-      cy.xpath(
-        "//div[@data-cy='overlay-comments-wrapper']//span[text()='" +
-          fixturePath +
-          "']",
-      ),
-    ).to.exist; //Verifies bug # 9922
 
-    cy.xpath(
-      "//div[@data-cy='overlay-comments-wrapper']//span[text()='" +
-        fixturePath +
-        "']",
-    ).scrollIntoView();
+    cy.get(`.t--widget-textwidget span:contains(${fixturePath})`)
+      .should("have.length", 1)
+      .scrollIntoView();
+    //Verifies bug # 9922
 
     cy.wait(3000);
     //Verifying DeleteFile icon from UI
@@ -642,11 +620,10 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
     cy.wait("@postExecute").then(({ response }) => {
       expect(response.body.data.isExecutionSuccess).to.eq(true);
     });
-    cy.xpath(
-      "//div[@data-cy='overlay-comments-wrapper']//span[text()='" +
-        fixturePath +
-        "']",
-    ).should("not.exist"); //verify Deletion of file is success from UI also
+    cy.get(`.t--widget-textwidget span:contains(${fixturePath})`).should(
+      "not.exist",
+    );
+    //verify Deletion of file is success from UI also
 
     //Deleting the page:
     cy.actionContextMenuByEntityName(
@@ -679,7 +656,7 @@ describe("Validate CRUD queries for Amazon S3 along with UI flow verifications",
     cy.get(queryLocators.suggestedTableWidget)
       .click()
       .wait(1000);
-    cy.get(commonlocators.TableRow).validateWidgetExists();
+    cy.get(commonlocators.TableV2Row).validateWidgetExists();
 
     cy.get("@entity").then((entityN) => cy.selectEntityByName(entityN));
     cy.xpath(queryLocators.suggestedWidgetText)

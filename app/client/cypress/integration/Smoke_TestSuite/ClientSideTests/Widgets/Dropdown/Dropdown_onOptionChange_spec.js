@@ -15,6 +15,7 @@ describe("Dropdown Widget Functionality", function() {
   it("1. Dropdown-Modal Validation", function() {
     cy.CheckAndUnfoldWidgets();
     cy.SearchEntityandOpen("Dropdown1");
+    cy.EnableAllCodeEditors();
     cy.testJsontext("options", JSON.stringify(data.input));
     //creating the Modal and verify Modal name
     cy.createModal("Modal", this.data.ModalName);
@@ -121,6 +122,7 @@ describe("Dropdown Widget Functionality", function() {
     // calling the existing api
     cy.SearchEntityandOpen("Dropdown1");
     cy.get(formWidgetsPage.toggleOnOptionChange).click({ force: true });
+    cy.EnableAllCodeEditors();
     cy.testJsontext(
       "onoptionchange",
       "{{Query1.run(() => showAlert('Success','success'), () => showAlert('Error','error'))}}",

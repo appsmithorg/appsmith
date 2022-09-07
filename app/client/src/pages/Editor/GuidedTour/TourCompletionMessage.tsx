@@ -7,7 +7,7 @@ import {
   getPostWelcomeTourState,
   setPostWelcomeTourState,
 } from "utils/storage";
-import { getQueryParams } from "utils/AppsmithUtils";
+import { getQueryParams } from "utils/URLUtils";
 import { useDispatch } from "react-redux";
 import { showPostCompletionMessage } from "actions/onboardingActions";
 import AnalyticsUtil from "utils/AnalyticsUtil";

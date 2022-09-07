@@ -41,6 +41,7 @@ import {
   VIEW_ALL_TEMPLATES,
 } from "@appsmith/constants/messages";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import ReconnectDatasourceModal from "pages/Editor/gitSync/ReconnectDatasourceModal";
 
 const breakpointColumnsObject = {
   default: 4,
@@ -289,6 +290,7 @@ function TemplateView() {
         <TemplateNotFound />
       ) : (
         <Wrapper ref={containerRef}>
+          <ReconnectDatasourceModal />
           <TemplateViewWrapper>
             <HeaderWrapper>
               <div className="left">

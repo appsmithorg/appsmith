@@ -1,25 +1,39 @@
 const testdata = require("../../../../fixtures/testdata.json");
 const apiwidget = require("../../../../locators/apiWidgetslocator.json");
-const explorer = require("../../../../locators/explorerlocators.json");
 const pageid = "MyPage";
 
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
-let ee = ObjectsRegistry.EntityExplorer;
+let ee = ObjectsRegistry.EntityExplorer,
+  agHelper = ObjectsRegistry.AggregateHelper,
+  locator = ObjectsRegistry.CommonLocators,
+  homePage = ObjectsRegistry.HomePage;
 
 describe("Entity explorer API pane related testcases", function() {
   it("Empty Message validation for Widgets/API/Queries", function() {
-    cy.log("Login Successful");
-    cy.NavigateToWidgetsInExplorer();
-    cy.get(explorer.NoWidgetsMsg).should("be.visible");
-    cy.NavigateToAPI_Panel();
-    cy.NavigateToQueriesInExplorer();
-    cy.reload();
+    homePage.NavigateToHome();
+    homePage.CreateNewWorkspace("EmptyMsgCheck");
+    homePage.CreateAppInWorkspace("EmptyMsgCheck");
+    ee.ExpandCollapseEntity("WIDGETS");
+    agHelper.AssertElementVisible(
+      locator._visibleTextSpan("No widget to display"),
+    );
+    agHelper.AssertElementVisible(locator._visibleTextDiv("NEW WIDGET"));
+
+    ee.ExpandCollapseEntity("QUERIES/JS");
+    agHelper.AssertElementVisible(
+      locator._visibleTextSpan("No query/JS to display"),
+    );
+    agHelper.AssertElementVisible(locator._visibleTextDiv("NEW QUERY/JS"));
+
+    ee.ExpandCollapseEntity("DATASOURCES");
+    agHelper.AssertElementVisible(
+      locator._visibleTextSpan("No datasource to display"),
+    );
+    agHelper.AssertElementVisible(locator._visibleTextDiv("NEW DATASOURCE"));
   });
 
-  it.only("Move to page / edit API name /properties validation", function() {
-    cy.log("Login Successful");
+  it("Move to page / edit API name /properties validation", function() {
     cy.NavigateToAPI_Panel();
-    cy.log("Navigation to API Panel screen successful");
     cy.CreateAPI("FirstAPI");
     cy.log("Creation of FirstAPI Action successful");
     cy.enterDatasourceAndPath(testdata.baseUrl, testdata.methods);

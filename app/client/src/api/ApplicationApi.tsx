@@ -51,7 +51,6 @@ export interface ApplicationResponsePayload {
   pages: ApplicationPagePayload[];
   appIsExample: boolean;
   appLayout?: AppLayoutConfig;
-  unreadCommentThreads?: number;
   gitApplicationMetadata: GitApplicationMetadata;
   slug: string;
   applicationVersion: ApplicationVersion;

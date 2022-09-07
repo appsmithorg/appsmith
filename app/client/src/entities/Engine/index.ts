@@ -33,7 +33,11 @@ export interface IAppEngine {
   completeChore(): any;
 }
 
-export class PageNotFoundError extends Error {}
+export class AppEngineApiError extends Error {}
+export class PageNotFoundError extends AppEngineApiError {}
+export class ActionsNotFoundError extends AppEngineApiError {}
+export class PluginsNotFoundError extends AppEngineApiError {}
+export class PluginFormConfigsNotFoundError extends AppEngineApiError {}
 
 export default abstract class AppEngine {
   private _mode: APP_MODE;

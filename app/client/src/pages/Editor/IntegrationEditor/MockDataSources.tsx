@@ -6,7 +6,7 @@ import { getPluginImages } from "selectors/entitiesSelector";
 import { Colors } from "constants/Colors";
 import { addMockDatasourceToWorkspace } from "actions/datasourceActions";
 import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
-import { getQueryParams } from "utils/AppsmithUtils";
+import { getQueryParams } from "utils/URLUtils";
 import { AppState } from "reducers";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 

@@ -122,9 +122,7 @@ describe("Validate API request body panel", () => {
     ee.SelectEntityByName("FilePicker1", "WIDGETS");
     jsEditor.EnterJSContext(
       "onFilesSelected",
-      `{{JSObject1.upload()}}`,
-      true,
-      true,
+      `{{JSObject1.upload()}}`
     );
 
     ee.SelectEntityByName("Image1");

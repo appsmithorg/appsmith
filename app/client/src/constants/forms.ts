@@ -12,7 +12,7 @@ export const FORGOT_PASSWORD_FORM_NAME = "ForgotPasswordForm";
 export const RESET_PASSWORD_FORM_NAME = "ResetPasswordForm";
 export const CREATE_PASSWORD_FORM_NAME = "CreatePasswordForm";
 
-export const CREATE_WORKSPACE_FORM_NAME = "New Organization";
+export const CREATE_WORKSPACE_FORM_NAME = "New Workspace";
 export const CURL_IMPORT_FORM = "CurlImportForm";
 
 export const QUERY_EDITOR_FORM_NAME = "QueryEditorForm";

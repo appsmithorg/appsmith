@@ -19,7 +19,6 @@ import {
 import history from "utils/history";
 import Button from "components/editorComponents/Button";
 import ProfileDropdown from "./ProfileDropdown";
-import Bell from "notifications/Bell";
 import { Colors } from "constants/Colors";
 import { useIsMobileDevice } from "utils/hooks/useDeviceDetect";
 import { ReactComponent as TwoLineHamburger } from "assets/icons/ads/two-line-hamburger.svg";
@@ -198,26 +197,23 @@ export function PageHeader(props: PageHeaderProps) {
       </Tabs>
 
       {user && !isMobile && (
-        <>
-          {user.username !== ANONYMOUS_USERNAME && <Bell />}
-          <StyledDropDownContainer>
-            {user.username === ANONYMOUS_USERNAME ? (
-              <Button
-                filled
-                intent={"primary"}
-                onClick={() => history.push(loginUrl)}
-                size="small"
-                text="Sign In"
-              />
-            ) : (
-              <ProfileDropdown
-                name={user.name}
-                photoId={user?.photoId}
-                userName={user.username}
-              />
-            )}
-          </StyledDropDownContainer>
-        </>
+        <StyledDropDownContainer>
+          {user.username === ANONYMOUS_USERNAME ? (
+            <Button
+              filled
+              intent={"primary"}
+              onClick={() => history.push(loginUrl)}
+              size="small"
+              text="Sign In"
+            />
+          ) : (
+            <ProfileDropdown
+              name={user.name}
+              photoId={user?.photoId}
+              userName={user.username}
+            />
+          )}
+        </StyledDropDownContainer>
       )}
       {isMobile && !isMobileSidebarOpen && (
         <StyledTwoLineHamburger onClick={() => setIsMobileSidebarOpen(true)} />
