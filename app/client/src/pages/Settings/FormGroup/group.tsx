@@ -24,6 +24,7 @@ import Dropdown from "./Dropdown";
 import { Classes } from "@blueprintjs/core";
 import { Colors } from "constants/Colors";
 import Checkbox from "./Checkbox";
+import Radio from "./Radio";
 
 type GroupProps = {
   name?: string;
@@ -107,6 +108,16 @@ export default function Group({
               return null;
             }
             switch (setting.controlType) {
+              case SettingTypes.RADIO:
+                return (
+                  <div
+                    className={setting.isHidden ? "hide" : ""}
+                    data-testid="admin-settings-group-radio"
+                    key={setting.name || setting.id}
+                  >
+                    <Radio setting={setting} />
+                  </div>
+                );
               case SettingTypes.TEXTINPUT:
                 return (
                   <div

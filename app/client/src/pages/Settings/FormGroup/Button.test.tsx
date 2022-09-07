@@ -1,12 +1,15 @@
 import { render, screen } from "test/testUtils";
 import React from "react";
-import { SettingTypes } from "@appsmith/pages/AdminSettings/config/types";
+import {
+  Setting,
+  SettingTypes,
+} from "@appsmith/pages/AdminSettings/config/types";
 import ButtonComponent from "./Button";
 
 let container: any = null;
 const buttonClickHandler = jest.fn();
 const buttonIsDisabled = jest.fn();
-const setting = {
+const setting: Setting = {
   id: "SETTING_ID",
   text: "download",
   action: buttonClickHandler,

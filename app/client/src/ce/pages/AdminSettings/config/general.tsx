@@ -10,6 +10,7 @@ import {
   Setting,
 } from "@appsmith/pages/AdminSettings/config/types";
 import BrandingBadge from "pages/AppViewer/BrandingBadge";
+import { TagInput } from "design-system";
 
 export const APPSMITH_INSTANCE_NAME_SETTING_SETTING: Setting = {
   id: "APPSMITH_INSTANCE_NAME",
@@ -81,6 +82,56 @@ export const APPSMITH_HIDE_WATERMARK_SETTING: Setting = {
     "Hello, I would like to upgrade and remove the watermark.",
 };
 
+export const APPSMITH_ALLOWED_FRAME_ANCESTORS_SETTING: Setting = {
+  id: "APPSMITH_ALLOWED_FRAME_ANCESTORS",
+  name: "APPSMITH_ALLOWED_FRAME_ANCESTORS",
+  category: SettingCategories.GENERAL,
+  controlType: SettingTypes.RADIO,
+  controlTypeProps: {
+    options: [
+      {
+        label: "Allow embedding everywhere",
+        value: "ALLOW_EMBEDDING_EVERYWHERE",
+      },
+      {
+        label: "Limit embedding to certain URLs",
+        value: "LIMIT_EMBEDDING",
+        childNode: <TagInput input={{}} placeholder={""} type={"text"} />,
+        childNodeInputPath: "input",
+      },
+      {
+        label: "Disable embedding everywhere",
+        value: "DISABLE_EMBEDDING_EVERYWHERE",
+      },
+    ],
+  },
+  format: (value: string) => {
+    if (value === "*") {
+      return {
+        value: "ALLOW_EMBEDDING_EVERYWHERE",
+      };
+    } else if (value === "'none'") {
+      return {
+        value: "DISABLE_EMBEDDING_EVERYWHERE",
+      };
+    } else {
+      return {
+        value: "LIMIT_EMBEDDING",
+        additionalData: value,
+      };
+    }
+  },
+  normalize: (value: { value: string; additionalData?: any }) => {
+    if (value.value === "ALLOW_EMBEDDING_EVERYWHERE") {
+      return "*";
+    } else if (value.value === "DISABLE_EMBEDDING_EVERYWHERE") {
+      return "'none'";
+    } else {
+      return value.additionalData ?? "";
+    }
+  },
+};
+
 export const config: AdminConfigType = {
   type: SettingCategories.GENERAL,
   controlType: SettingTypes.GROUP,
@@ -92,5 +143,6 @@ export const config: AdminConfigType = {
     APPSMITH_DOWNLOAD_DOCKER_COMPOSE_FILE_SETTING,
     APPSMITH_DISABLE_TELEMETRY_SETTING,
     APPSMITH_HIDE_WATERMARK_SETTING,
+    APPSMITH_ALLOWED_FRAME_ANCESTORS_SETTING,
   ],
 } as AdminConfigType;
