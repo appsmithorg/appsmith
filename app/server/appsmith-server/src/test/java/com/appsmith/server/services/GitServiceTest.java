@@ -2308,12 +2308,12 @@ public class GitServiceTest {
                     try {
                         // Before fetching the git connected application, sleep for 5 seconds to ensure that the clone
                         // completes
-                        Thread.sleep(5000);
+                        Thread.sleep(10000);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
                     return applicationService
-                            .findByBranchNameAndDefaultApplicationId(createGitBranchDTO.getBranchName(), application.getId(), READ_APPLICATIONS);
+                            .findByBranchNameAndDefaultApplicationId(createGitBranchDTO.getBranchName(), application.getId(), MANAGE_APPLICATIONS);
                 });
 
         StepVerifier
