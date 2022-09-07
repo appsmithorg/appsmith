@@ -7,6 +7,8 @@ import {
 import _ from "lodash";
 import { Action } from "entities/Action";
 import { ActionResponse } from "api/ActionAPI";
+import { ActionExecutionResizerHeight } from "components/editorComponents/ApiResponseView";
+import { ApiPaneReduxState } from "reducers/uiReducers/apiPaneReducer";
 
 const initialState: QueryPaneReduxState = {
   isFetching: false,
@@ -16,6 +18,9 @@ const initialState: QueryPaneReduxState = {
   isDeleting: {},
   runErrorMessage: {},
   lastUsed: "", // NR
+  responseTabHeight: ActionExecutionResizerHeight,
+  selectedConfigTabIndex: 0,
+  selectedResponseTabIndex: 0,
 };
 
 export interface QueryPaneReduxState {
@@ -26,6 +31,9 @@ export interface QueryPaneReduxState {
   runErrorMessage: Record<string, string>;
   lastUsed: string; // NR
   isCreating: boolean; // RR
+  selectedConfigTabIndex: number;
+  selectedResponseTabIndex: number;
+  responseTabHeight: number;
 }
 
 const queryPaneReducer = createReducer(initialState, {
@@ -170,6 +178,36 @@ const queryPaneReducer = createReducer(initialState, {
         ...state.runError,
         [id]: error.message,
       },
+    };
+  },
+  [ReduxActionTypes.SET_QUERY_PANE_CONFIG_SELECTED_TAB]: (
+    state: QueryPaneReduxState,
+    action: ReduxAction<{ selectedTabIndex: number }>,
+  ) => {
+    const { selectedTabIndex } = action.payload;
+    return {
+      ...state,
+      selectedConfigTabIndex: selectedTabIndex,
+    };
+  },
+  [ReduxActionTypes.SET_QUERY_PANE_RESPONSE_SELECTED_TAB]: (
+    state: QueryPaneReduxState,
+    action: ReduxAction<{ selectedTabIndex: number }>,
+  ) => {
+    const { selectedTabIndex } = action.payload;
+    return {
+      ...state,
+      selectedResponseTabIndex: selectedTabIndex,
+    };
+  },
+  [ReduxActionTypes.SET_QUERY_PANE_RESPONSE_PANE_HEIGHT]: (
+    state: ApiPaneReduxState,
+    action: ReduxAction<{ height: number }>,
+  ) => {
+    const { height } = action.payload;
+    return {
+      ...state,
+      responseTabHeight: height,
     };
   },
 });
