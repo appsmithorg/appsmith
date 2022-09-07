@@ -42,10 +42,6 @@ const IconSelectorWrapper = styled.div`
   }
 `;
 
-const HeaderText = styled.div`
-  height: 48px;
-`;
-
 function GeneralSettings() {
   const dispatch = useDispatch();
   const applicationId = useSelector(getCurrentApplicationId);
@@ -80,10 +76,6 @@ function GeneralSettings() {
   };
   return (
     <>
-      <HeaderText className="leading-[3rem] font-medium">
-        General settings
-      </HeaderText>
-
       <div className="pb-1 text-[#575757]">App name</div>
       <div className="pb-2.5">
         <TextInput

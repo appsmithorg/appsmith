@@ -1,3 +1,4 @@
+import { ThemePropertyPane } from "pages/Editor/ThemePropertyPane";
 import React, { useState } from "react";
 import styled from "styled-components";
 import GeneralSettings from "./GeneralSettings";
@@ -14,6 +15,16 @@ const Wrapper = styled.div`
 
 const SectionContent = styled.div`
   box-shadow: -1px 0 0 0 #e0dede;
+`;
+
+const TabHeaderText = styled.div`
+  height: 48px;
+`;
+
+const ThemeTabContentWrapper = styled.div`
+  height: calc(100% - 48px);
+  overflow-y: auto;
+  scrollbar-gutter: stable;
 `;
 
 function AppSettings() {
@@ -49,16 +60,32 @@ function AppSettings() {
         <div className="border-t-[1px] border-[#d7d7d7]" />
       </div>
       <SectionContent className="w-1/2">
-        <div className="px-4">
-          {(() => {
-            switch (selectedTab) {
-              case Tabs.General:
-                return <GeneralSettings />;
-              case Tabs.Theme:
-                return <div>Theme settings</div>;
-            }
-          })()}
-        </div>
+        {(() => {
+          switch (selectedTab) {
+            case Tabs.General:
+              return (
+                <div className="px-4">
+                  <TabHeaderText className="leading-[3rem] font-medium">
+                    General settings
+                  </TabHeaderText>
+                  <GeneralSettings />
+                </div>
+              );
+            case Tabs.Theme:
+              return (
+                <>
+                  <div className="px-3">
+                    <TabHeaderText className="leading-[3rem] font-medium">
+                      Theme settings
+                    </TabHeaderText>
+                  </div>
+                  <ThemeTabContentWrapper>
+                    <ThemePropertyPane />
+                  </ThemeTabContentWrapper>
+                </>
+              );
+          }
+        })()}
       </SectionContent>
     </Wrapper>
   );
