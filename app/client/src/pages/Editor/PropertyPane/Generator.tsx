@@ -43,7 +43,7 @@ function Section(props: SectionProps) {
   const widgetProps: any = useSelector(getWidgetPropsForPropertyPane);
   const [hidden, setHidden] = useState(false);
 
-  const sectionHidden =
+  const isSectionHidden =
     sectionConfig.hidden &&
     sectionConfig.hidden(widgetProps, sectionConfig.propertySectionPath || "");
   const sectionName = isFunction(sectionConfig.sectionName)
@@ -71,7 +71,7 @@ function Section(props: SectionProps) {
       <PropertySection
         childrenWrapperRef={sectionRef}
         collapsible={sectionConfig.collapsible ?? true}
-        hidden={sectionHidden}
+        hidden={isSectionHidden}
         id={config.id || sectionName}
         isDefaultOpen={sectionConfig.isDefaultOpen}
         key={config.id + generatorProps.id + generatorProps.searchQuery}
