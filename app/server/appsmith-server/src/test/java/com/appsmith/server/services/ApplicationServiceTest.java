@@ -175,6 +175,9 @@ public class ApplicationServiceTest {
     @Autowired
     ThemeService themeService;
 
+    @Autowired
+    PermissionGroupService permissionGroupService;
+
     @MockBean
     ReleaseNotesService releaseNotesService;
 
@@ -808,18 +811,12 @@ public class ApplicationServiceTest {
                     return newPageService.findPageById(pageId, READ_PAGES, false);
                 });
 
-        Mono<PermissionGroup> appPermissionGroupMono = publicAppMono
-                .flatMap(publicApp -> {
-                    String permissionGroupId = publicApp.getDefaultPermissionGroup();
-                    assertThat(permissionGroupId).isNotNull();
-
-                    return permissionGroupRepository.findById(permissionGroupId);
-                });
+        Mono<PermissionGroup> publicPermissionGroupMono = permissionGroupService.getPublicPermissionGroup();
 
         User anonymousUser = userRepository.findByEmail(ANONYMOUS_USER).block();
 
         StepVerifier
-                .create(Mono.zip(publicAppMono, pageMono, appPermissionGroupMono))
+                .create(Mono.zip(publicAppMono, pageMono, publicPermissionGroupMono))
                 .assertNext(tuple -> {
                     Application publicApp = tuple.getT1();
                     PageDTO page = tuple.getT2();
@@ -925,7 +922,6 @@ public class ApplicationServiceTest {
                                     viewerPermissionGroup.getId()))
                             .build();
 
-                    assertThat(app.getDefaultPermissionGroup()).isNull();
                     assertThat(app.getIsPublic()).isFalse();
 
                     assertThat(app.getPolicies()).containsAll(Set.of(manageAppPolicy, readAppPolicy));
@@ -986,18 +982,12 @@ public class ApplicationServiceTest {
                 });
 
 
-        Mono<PermissionGroup> mainAppPermissionGroupMono = publicAppMono
-                .flatMap(publicApp -> {
-                    String permissionGroupId = publicApp.getDefaultPermissionGroup();
-                    assertThat(permissionGroupId).isNotNull();
-
-                    return permissionGroupRepository.findById(permissionGroupId);
-                });
+        Mono<PermissionGroup> publicPermissionGroupMono = permissionGroupService.getPublicPermissionGroup().cache();
 
         User anonymousUser = userRepository.findByEmail(ANONYMOUS_USER).block();
 
         StepVerifier
-                .create(Mono.zip(publicAppMono, pageMono, mainAppPermissionGroupMono))
+                .create(Mono.zip(publicAppMono, pageMono, publicPermissionGroupMono))
                 .assertNext(tuple -> {
                     Application publicApp = tuple.getT1();
                     PageDTO page = tuple.getT2();
@@ -1037,16 +1027,8 @@ public class ApplicationServiceTest {
         // Get branch application
         Mono<Application> branchApplicationMono = applicationService.findById(application.getId()).cache();
 
-        Mono<PermissionGroup> branchAppPermissionGroupMono = branchApplicationMono
-                .flatMap(branchApp -> {
-                    String permissionGroupId = branchApp.getDefaultPermissionGroup();
-                    assertThat(permissionGroupId).isNotNull();
-
-                    return permissionGroupRepository.findById(permissionGroupId);
-                });
-
         StepVerifier
-                .create(Mono.zip(branchApplicationMono,branchAppPermissionGroupMono))
+                .create(Mono.zip(branchApplicationMono,publicPermissionGroupMono))
                 .assertNext(tuple -> {
                     Application branchApplication = tuple.getT1();
                     String permissionGroupId = tuple.getT2().getId();
@@ -1233,13 +1215,7 @@ public class ApplicationServiceTest {
                 .changeViewAccess(createdApplication.getId(), applicationAccessDTO)
                 .cache();
 
-        Mono<PermissionGroup> appPermissionGroupMono = publicAppMono
-                .flatMap(publicApp -> {
-                    String permissionGroupId = publicApp.getDefaultPermissionGroup();
-                    assertThat(permissionGroupId).isNotNull();
-
-                    return permissionGroupRepository.findById(permissionGroupId);
-                });
+        Mono<PermissionGroup> publicPermissionGroupMono = permissionGroupService.getPublicPermissionGroup();
 
         User anonymousUser = userRepository.findByEmail(ANONYMOUS_USER).block();
 
@@ -1253,7 +1229,7 @@ public class ApplicationServiceTest {
                 .then(actionCollectionService.findById(savedActionCollection.getId(), READ_ACTIONS));
 
         StepVerifier
-                .create(Mono.zip(datasourceMono, actionMono, actionCollectionMono, appPermissionGroupMono))
+                .create(Mono.zip(datasourceMono, actionMono, actionCollectionMono, publicPermissionGroupMono))
                 .assertNext(tuple -> {
                     Datasource datasource1 = tuple.getT1();
                     NewAction action1 = tuple.getT2();
@@ -2913,18 +2889,12 @@ public class ApplicationServiceTest {
                 .filter(permissionGroup -> permissionGroup.getName().startsWith(VIEWER))
                 .findFirst().get();
 
-        Mono<PermissionGroup> mainAppPermissionGroupMono = applicationFromDbPostViewChange
-                .flatMap(publicApp -> {
-                    String permissionGroupId = publicApp.getDefaultPermissionGroup();
-                    assertThat(permissionGroupId).isNotNull();
-
-                    return permissionGroupRepository.findById(permissionGroupId);
-                });
+        Mono<PermissionGroup> publicPermissionGroupMono = permissionGroupService.getPublicPermissionGroup();
 
         User anonymousUser = userRepository.findByEmail(ANONYMOUS_USER).block();
 
         StepVerifier
-                .create(Mono.zip(applicationFromDbPostViewChange, actionsMono, pagesMono, datasourceMono, mainAppPermissionGroupMono))
+                .create(Mono.zip(applicationFromDbPostViewChange, actionsMono, pagesMono, datasourceMono, publicPermissionGroupMono))
                 .assertNext(tuple -> {
                     Application updatedApplication = tuple.getT1();
                     List<NewAction> actions = tuple.getT2();
