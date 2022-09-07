@@ -98,7 +98,7 @@ function CopyUrlForm(
           disabled
           handleCopy={handleCopy}
           helperText={props.helpText}
-          iscopy
+          iscopy="true"
           name={props.fieldName}
           {...props}
           asyncControl
