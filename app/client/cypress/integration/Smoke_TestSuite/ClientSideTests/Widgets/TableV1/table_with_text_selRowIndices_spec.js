@@ -22,7 +22,7 @@ describe("Table widget edge case scenario testing", function() {
     cy.get(`${widgetsPage.textWidget} .bp3-ui-text`).should("have.text", "");
 
     //Enable the "Enable Multi Row selection"
-    cy.get(widgetsPage.toggleEnableMultirowselection)
+    cy.get(widgetsPage.toggleEnableMultirowselection_tablev1)
       .first()
       .click({ force: true });
 

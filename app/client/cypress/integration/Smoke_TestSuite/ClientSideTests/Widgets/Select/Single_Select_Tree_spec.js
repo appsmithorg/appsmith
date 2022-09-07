@@ -16,7 +16,7 @@ describe("Single Select Widget Functionality", function() {
     );
     // Change defaultText
     cy.openPropertyPane("singleselecttreewidget");
-    cy.updateCodeInput(".t--property-control-defaultvalue", "GREEN");
+    cy.updateCodeInput(".t--property-control-defaultselectedvalue", "GREEN");
     // Check if isDirty is reset to false
     cy.get(".t--widget-textwidget").should("contain", "false");
     // Interact with UI
@@ -31,14 +31,14 @@ describe("Single Select Widget Functionality", function() {
     cy.get(".t--widget-textwidget").should("contain", "true");
     // Change defaultText
     cy.openPropertyPane("singleselecttreewidget");
-    cy.updateCodeInput(".t--property-control-defaultvalue", "RED");
+    cy.updateCodeInput(".t--property-control-defaultselectedvalue", "RED");
     // Check if isDirty is reset to false
     cy.get(".t--widget-textwidget").should("contain", "false");
   });
 
   it("2. Selects value with enter in default value", () => {
     cy.openPropertyPane("singleselecttreewidget");
-    cy.testJsontext("defaultvalue", "RED\n");
+    cy.testJsontext("defaultselectedvalue", "RED\n");
     cy.get(formWidgetsPage.singleselecttreeWidget)
       .find(".rc-tree-select-selection-item")
       .first()

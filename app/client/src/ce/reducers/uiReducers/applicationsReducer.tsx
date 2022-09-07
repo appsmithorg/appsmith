@@ -15,7 +15,7 @@ import { CreateApplicationFormValues } from "pages/Applications/helpers";
 import { AppLayoutConfig } from "reducers/entityReducers/pageListReducer";
 import { ConnectToGitResponse } from "actions/gitSyncActions";
 
-const initialState: ApplicationsReduxState = {
+export const initialState: ApplicationsReduxState = {
   isFetchingApplications: false,
   isSavingAppName: false,
   isErrorSavingAppName: false,
@@ -35,7 +35,7 @@ const initialState: ApplicationsReduxState = {
   workspaceIdForImport: null,
 };
 
-const applicationsReducer = createReducer(initialState, {
+export const handlers = {
   [ReduxActionTypes.DELETE_APPLICATION_INIT]: (
     state: ApplicationsReduxState,
   ) => {
@@ -487,7 +487,9 @@ const applicationsReducer = createReducer(initialState, {
       applicationList: [...state.applicationList, action.payload],
     };
   },
-});
+};
+
+const applicationsReducer = createReducer(initialState, handlers);
 
 export type creatingApplicationMap = Record<string, boolean>;
 

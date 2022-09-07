@@ -658,7 +658,7 @@ jobs:
           APPSMITH_GOOGLE_MAPS_API_KEY: ${{ secrets.APPSMITH_GOOGLE_MAPS_API_KEY }}
           COMMIT_INFO_MESSAGE: ${{ github.event.pull_request.title }}
         with:
-          browser: chrome
+          browser: electron
           headless: true
           record: true
           install: false
@@ -697,7 +697,7 @@ jobs:
           APPSMITH_GOOGLE_MAPS_API_KEY: ${{ secrets.APPSMITH_GOOGLE_MAPS_API_KEY }}
           COMMIT_INFO_MESSAGE: ${{ github.event.pull_request.title }}
         with:
-          browser: chrome
+          browser: electron
           headless: true
           record: true
           install: false
@@ -1041,7 +1041,7 @@ jobs:
           APPSMITH_GOOGLE_MAPS_API_KEY: ${{ secrets.APPSMITH_GOOGLE_MAPS_API_KEY }}
           COMMIT_INFO_MESSAGE: ${{ github.event.pull_request.title }}
         with:
-          browser: chrome
+          browser: electron
           headless: true
           record: true
           install: false
@@ -1079,7 +1079,7 @@ jobs:
           APPSMITH_GOOGLE_MAPS_API_KEY: ${{ secrets.APPSMITH_GOOGLE_MAPS_API_KEY }}
           COMMIT_INFO_MESSAGE: ${{ github.event.pull_request.title }}
         with:
-          browser: chrome
+          browser: electron
           headless: true
           record: true
           install: false
@@ -1549,6 +1549,7 @@ jobs:
           CYPRESS_TESTUSERNAME1: ${{ secrets.CYPRESS_TESTUSERNAME9 }}
           CYPRESS_TESTPASSWORD1: ${{ secrets.CYPRESS_TESTPASSWORD9 }}
           APPSMITH_PERFORMANCE_DB_CONFIG: ${{ secrets.APPSMITH_PERFORMANCE_DB_CONFIG }}
+          PERF_GITHUB_PAT: ${{ secrets.APPSMITH_PERF_INFRA_REPO_PAT }}
           APPSMITH_DISABLE_TELEMETRY: true
           POSTGRES_PASSWORD: postgres
           NODE_TLS_REJECT_UNAUTHORIZED: "0"

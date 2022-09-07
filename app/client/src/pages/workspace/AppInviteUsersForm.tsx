@@ -11,7 +11,7 @@ import {
 } from "../Applications/permissionHelpers";
 import WorkspaceInviteUsersForm, {
   InviteButtonWidth,
-} from "./WorkspaceInviteUsersForm";
+} from "@appsmith/pages/workspace/WorkspaceInviteUsersForm";
 import { getCurrentUser } from "selectors/usersSelectors";
 import { Text, TextType, Toggle } from "design-system";
 import { ANONYMOUS_USERNAME } from "constants/userConstants";
@@ -63,6 +63,7 @@ function AppInviteUsersForm(props: any) {
     fetchCurrentWorkspace,
     isChangingViewAccess,
     isFetchingApplication,
+    links,
   } = props;
 
   const currentWorkspaceId = useSelector(getCurrentWorkspaceId);
@@ -124,6 +125,7 @@ function AppInviteUsersForm(props: any) {
       {canInviteToWorkspace && (
         <WorkspaceInviteUsersForm
           isApplicationInvite
+          links={links}
           workspaceId={props.workspaceId}
         />
       )}

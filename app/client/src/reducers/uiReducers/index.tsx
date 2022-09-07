@@ -3,7 +3,7 @@ import editorReducer from "./editorReducer";
 import errorReducer from "./errorReducer";
 import propertyPaneReducer from "./propertyPaneReducer";
 import appViewReducer from "./appViewReducer";
-import applicationsReducer from "./applicationsReducer";
+import applicationsReducer from "@appsmith/reducers/uiReducers/applicationsReducer";
 import apiPaneReducer from "./apiPaneReducer";
 import datasourcePaneReducer from "./datasourcePaneReducer";
 import authReducer from "./authReducer";
