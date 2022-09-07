@@ -25,8 +25,10 @@ describe("Confirm run action", function() {
     cy.get("[data-cy=confirmBeforeExecute]")
       .find("span")
       .click();
-
-    cy.onlyQueryRun();
+    cy.xpath(queryEditor.runQuery)
+      .last()
+      .click({ force: true })
+      .wait(1000);
     cy.get(".bp3-dialog")
       .find("button")
       .contains("Yes")
