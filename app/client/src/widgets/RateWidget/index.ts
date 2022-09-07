@@ -15,7 +15,7 @@ export const CONFIG = {
     maxCount: 5,
     defaultRate: 3,
     activeColor: Colors.RATE_ACTIVE,
-    inactiveColor: "var(--wds-color-bg-disabled-light)",
+    inactiveColor: Colors.ALTO2,
     size: "LARGE",
     isRequired: false,
     isAllowHalf: false,
