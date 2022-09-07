@@ -635,7 +635,7 @@ jobs:
 
       - uses: browser-actions/setup-chrome@latest
       - run: |
-        echo "BROWSER_PATH=$(which chrome)" >> $GITHUB_ENV
+          echo "BROWSER_PATH=$(which chrome)" >> $GITHUB_ENV
 
       - name: Run the cypress test
         if: steps.run_result.outputs.run_result != 'success' && steps.run_result.outputs.run_result != 'failedtest'
@@ -1022,7 +1022,7 @@ jobs:
 
       - uses: browser-actions/setup-chrome@latest
       - run: |
-        echo "BROWSER_PATH=$(which chrome)" >> $GITHUB_ENV
+          echo "BROWSER_PATH=$(which chrome)" >> $GITHUB_ENV
 
       - name: Run the cypress test
         if: steps.run_result.outputs.run_result != 'success'  && steps.run_result.outputs.run_result != 'failedtest'
