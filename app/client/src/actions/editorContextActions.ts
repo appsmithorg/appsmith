@@ -1,6 +1,5 @@
 import { ReduxActionTypes } from "ce/constants/ReduxActionConstants";
 import {
-  CodeEditorContext,
   CursorPosition,
   EvaluatedPopupState,
 } from "reducers/uiReducers/editorContextReducer";
@@ -26,15 +25,6 @@ export const generateKeyAndSetCodeEditorCursorPosition = (
   return {
     type: ReduxActionTypes.GENERATE_KEY_AND_SET_CODE_EDITOR_CURSOR_POSITION,
     payload: { key, cursorPosition },
-  };
-};
-
-export const setCodeEditorHistory = (payload: {
-  [key: string]: CodeEditorContext;
-}) => {
-  return {
-    type: ReduxActionTypes.SET_CODE_EDITOR_CURSOR_HISTORY,
-    payload,
   };
 };
 

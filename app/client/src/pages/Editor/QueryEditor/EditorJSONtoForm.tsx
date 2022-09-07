@@ -1,4 +1,4 @@
-import React, { RefObject, useRef, useState } from "react";
+import React, { RefObject, useCallback, useRef } from "react";
 import { InjectedFormProps } from "redux-form";
 import { Icon, Tag } from "@blueprintjs/core";
 import { isString } from "lodash";
@@ -106,6 +106,16 @@ import {
 } from "components/editorComponents/ApiResponseView";
 import LoadingOverlayScreen from "components/editorComponents/LoadingOverlayScreen";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
+import {
+  getQueryPaneConfigSelectedTabIndex,
+  getQueryPaneResponsePaneHeight,
+  getQueryPaneResponseSelectedTabIndex,
+} from "selectors/queryPaneSelectors";
+import {
+  setQueryPaneConfigSelectedTabIndex,
+  setQueryPaneResponsePaneHeight,
+  setQueryPaneResponseSelectedTabIndex,
+} from "actions/queryPaneActions";
 
 const QueryFormContainer = styled.form`
   flex: 1;
@@ -482,9 +492,9 @@ export function EditorJSONtoForm(props: Props) {
   let output: Record<string, any>[] | null = null;
   let hintMessages: Array<string> = [];
   const panelRef: RefObject<HTMLDivElement> = useRef(null);
-  const [tableBodyHeight, setTableBodyHeightHeight] = useState(
-    window.innerHeight,
-  );
+  // const [tableBodyHeight, setTableBodyHeightHeight] = useState(
+  //   window.innerHeight,
+  // );
 
   const params = useParams<{ apiId?: string; queryId?: string }>();
 
@@ -741,7 +751,7 @@ export function EditorJSONtoForm(props: Props) {
         panelComponent: responseTabComponent(
           dataType.key,
           output,
-          tableBodyHeight,
+          // tableBodyHeight,
         ),
       };
     });
@@ -881,6 +891,23 @@ export function EditorJSONtoForm(props: Props) {
     [],
   );
 
+  const selectedConfigTab = useSelector(getQueryPaneConfigSelectedTabIndex);
+
+  const setSelectedConfigTab = useCallback((selectedIndex: number) => {
+    dispatch(setQueryPaneConfigSelectedTabIndex(selectedIndex));
+  }, []);
+
+  const selectedResponseTab = useSelector(getQueryPaneResponseSelectedTabIndex);
+
+  const setSelectedResponseTab = useCallback((selectedIndex: number) => {
+    dispatch(setQueryPaneResponseSelectedTabIndex(selectedIndex));
+  }, []);
+
+  const responsePaneHeight = useSelector(getQueryPaneResponsePaneHeight);
+  const setResponsePaneHeight = useCallback((height: number) => {
+    dispatch(setQueryPaneResponsePaneHeight(height));
+  }, []);
+
   // when switching between different redux forms, make sure this redux form has been initialized before rendering anything.
   // the initialized prop below comes from redux-form.
   if (!props.initialized) {
@@ -959,6 +986,8 @@ export function EditorJSONtoForm(props: Props) {
                 </DocumentationLink>
               )}
               <TabComponent
+                onSelect={setSelectedConfigTab}
+                selectedIndex={selectedConfigTab}
                 tabs={[
                   {
                     key: EDITOR_TABS.QUERY,
@@ -1017,13 +1046,16 @@ export function EditorJSONtoForm(props: Props) {
               />
             </TabContainerView>
 
-            <TabbedViewContainer ref={panelRef}>
+            <TabbedViewContainer
+              ref={panelRef}
+              style={{ height: `${responsePaneHeight}px` }}
+            >
               <Resizable
                 openResizer={isRunning}
                 panelRef={panelRef}
                 setContainerDimensions={(height: number) =>
                   // TableCellHeight in this case is the height of one table cell in pixels.
-                  setTableBodyHeightHeight(height - TableCellHeight)
+                  setResponsePaneHeight(height - TableCellHeight)
                 }
                 snapToHeight={ActionExecutionResizerHeight}
               />
@@ -1063,7 +1095,12 @@ export function EditorJSONtoForm(props: Props) {
                 </ResultsCount>
               )}
 
-              <EntityBottomTabs defaultIndex={0} tabs={responseTabs} />
+              <EntityBottomTabs
+                defaultIndex={0}
+                onSelectIndex={setSelectedResponseTab}
+                selectedTabIndex={selectedResponseTab}
+                tabs={responseTabs}
+              />
             </TabbedViewContainer>
           </SecondaryWrapper>
           <SidebarWrapper
