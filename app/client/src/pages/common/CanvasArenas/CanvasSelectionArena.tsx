@@ -5,7 +5,7 @@ import {
 import { throttle } from "lodash";
 import React, { useEffect, useCallback, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import { APP_MODE } from "entities/App";
 import { getWidget } from "sagas/selectors";
 import { getAppMode } from "selectors/applicationSelectors";

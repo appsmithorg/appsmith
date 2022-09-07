@@ -1,5 +1,5 @@
 import React from "react";
-import Checkbox from "components/ads/Checkbox";
+import { Checkbox } from "design-system";
 import BaseControl, { ControlProps } from "./BaseControl";
 import { ControlType } from "constants/PropertyControlConstants";
 import {

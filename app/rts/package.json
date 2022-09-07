@@ -21,5 +21,9 @@
     "socket.io-adapter": "^2.3.2",
     "source-map-support": "^0.5.19",
     "typescript": "^4.2.3"
+  },
+  "scripts": {
+    "preinstall": "CURRENT_SCOPE=rts node ../shared/build-shared-dep.js",
+    "postinstall": "CURRENT_SCOPE=rts node ../shared/install-dependencies.js"
   }
 }

@@ -57,7 +57,7 @@ import log from "loglevel";
 import { navigateToCanvas } from "pages/Editor/Explorer/Widgets/utils";
 import {
   getCurrentPageId,
-  getWidgetSpacesSelectorForContainer,
+  getContainerWidgetSpacesSelector,
 } from "selectors/editorSelectors";
 import { selectMultipleWidgetsInitAction } from "actions/widgetSelectionActions";
 
@@ -632,7 +632,7 @@ function* batchUpdateWidgetPropertySaga(
     "ms",
   );
   // Save the layout
-  yield put(updateAndSaveLayout(widgets, undefined, shouldReplay));
+  yield put(updateAndSaveLayout(widgets, { shouldReplay }));
   const uniqueActions = uniq(
     updatedWidgetAndActionsToDispatch.actionsToDispatch,
   );
@@ -669,6 +669,12 @@ function* batchUpdateMultipleWidgetsPropertiesSaga(
     stateWidgets,
   );
 
+  const updatedWidgetIds = uniq(
+    updatedWidgetsAndActionsToDispatch.map(
+      (each) => each.updatedWidget.widgetId,
+    ),
+  );
+
   log.debug(
     "Batch multi-widget properties update calculations took: ",
     performance.now() - start,
@@ -676,7 +682,11 @@ function* batchUpdateMultipleWidgetsPropertiesSaga(
   );
 
   // Save the layout
-  yield put(updateAndSaveLayout(updatedStateWidgets));
+  yield put(
+    updateAndSaveLayout(updatedStateWidgets, {
+      updatedWidgetIds,
+    }),
+  );
   for (const updatedWidgetAndActions of updatedWidgetsAndActionsToDispatch) {
     const uniqueActions = uniq(updatedWidgetAndActions.actionsToDispatch);
     for (const actionType of uniqueActions) {
@@ -1116,7 +1126,7 @@ function* getNewPositionsBasedOnSelectedWidgets(
     maxGridColumns: GridDefaults.DEFAULT_GRID_COLUMNS,
   };
 
-  const reflowSpacesSelector = getWidgetSpacesSelectorForContainer(parentId);
+  const reflowSpacesSelector = getContainerWidgetSpacesSelector(parentId);
   const widgetSpaces: WidgetSpace[] = yield select(reflowSpacesSelector) || [];
 
   // Ids of each pasting are changed just for reflow
@@ -1206,7 +1216,7 @@ function* getNewPositionsBasedOnMousePositions(
 
   if (!snapGrid || !mousePositions) return {};
 
-  const reflowSpacesSelector = getWidgetSpacesSelectorForContainer(canvasId);
+  const reflowSpacesSelector = getContainerWidgetSpacesSelector(canvasId);
   const widgetSpaces: WidgetSpace[] = yield select(reflowSpacesSelector) || [];
 
   let mouseTopRow = mousePositions.top;
@@ -1516,6 +1526,28 @@ function* pasteWidgetSaga(
               widget.widgetName = newWidgetName;
             } catch (error) {
               log.debug("Error updating table widget properties", error);
+            }
+          }
+
+          // TODO: here to move this to the widget definition
+          // Update the Select widget defaultValue properties
+          if (
+            widget.type === "MULTI_SELECT_WIDGET_V2" ||
+            widget.type === "SELECT_WIDGET"
+          ) {
+            try {
+              // If the defaultOptionValue exist
+              if (widget.defaultOptionValue) {
+                const value = widget.defaultOptionValue;
+                // replace All occurrence of old widget name
+                widget.defaultOptionValue = isString(value)
+                  ? value.replaceAll(`${oldWidgetName}.`, `${newWidgetName}.`)
+                  : value;
+              }
+              // Use the new widget name we used to replace the defaultValue properties above.
+              widget.widgetName = newWidgetName;
+            } catch (error) {
+              log.debug("Error updating widget properties", error);
             }
           }
 

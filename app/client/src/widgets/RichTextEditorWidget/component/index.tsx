@@ -6,9 +6,7 @@ import { Alignment } from "@blueprintjs/core";
 import { TextSize } from "constants/WidgetConstants";
 
 import { Colors } from "constants/Colors";
-import LabelWithTooltip, {
-  labelLayoutStyles,
-} from "components/ads/LabelWithTooltip";
+import { LabelWithTooltip, labelLayoutStyles } from "design-system";
 import { isMacOs } from "utils/AppsmithUtils";
 
 const StyledRTEditor = styled.div<{

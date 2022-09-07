@@ -1,14 +1,15 @@
 import React from "react";
 import styled from "styled-components";
 import { Colors } from "constants/Colors";
-import {
-  DropdownOption,
-  RenderDropdownOptionType,
-} from "components/ads/Dropdown";
 import { useSelector } from "react-redux";
 import { getPluginImages } from "selectors/entitiesSelector";
 import { Classes } from "components/ads/common";
-import { Text, TextType } from "design-system";
+import {
+  DropdownOption,
+  RenderDropdownOptionType,
+  Text,
+  TextType,
+} from "design-system";
 import { FormIcons } from "icons/FormIcons";
 import _ from "lodash";
 import { TooltipComponent } from "design-system";

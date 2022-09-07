@@ -5,7 +5,6 @@ import {
   isNumber,
   isString,
   isNil,
-  isEqual,
   xor,
   without,
   isBoolean,
@@ -15,6 +14,7 @@ import {
   isEmpty,
   find,
 } from "lodash";
+import equal from "fast-deep-equal/es6";
 
 import BaseWidget, { WidgetState } from "widgets/BaseWidget";
 import { RenderModes, WidgetType } from "constants/WidgetConstants";
@@ -574,7 +574,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
         if (
           xor(newColumnIds, columnOrder).length > 0 &&
           newColumnIds.length > 0 &&
-          !isEqual(sortBy(newColumnIds), sortBy(previousDerivedColumnIds))
+          !equal(sortBy(newColumnIds), sortBy(previousDerivedColumnIds))
         ) {
           propertiesToAdd["columnOrder"] = newColumnIds;
         }
@@ -718,7 +718,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     }
 
     // If the user changed the defaultSelectedRow(s)
-    if (!isEqual(this.props.defaultSelectedRow, prevProps.defaultSelectedRow)) {
+    if (!equal(this.props.defaultSelectedRow, prevProps.defaultSelectedRow)) {
       //Runs only when defaultSelectedRow is changed from property pane
       this.updateSelectedRowIndex();
     }
@@ -827,7 +827,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     this.props.updateWidgetMetaProperty("filters", filters);
 
     // Reset Page only when a filter is added
-    if (!isEmpty(xorWith(filters, defaultFilter, isEqual))) {
+    if (!isEmpty(xorWith(filters, defaultFilter, equal))) {
       this.props.updateWidgetMetaProperty("pageNo", 1);
     }
   };

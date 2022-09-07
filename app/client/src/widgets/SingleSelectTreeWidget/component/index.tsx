@@ -17,25 +17,22 @@ import {
 import "rc-tree-select/assets/index.less";
 import { DefaultValueType } from "rc-tree-select/lib/interface";
 import { TreeNodeProps } from "rc-tree-select/lib/TreeNode";
+import { DefaultOptionType } from "rc-tree-select/lib/TreeSelect";
+import styled from "styled-components";
 import { RenderMode, TextSize } from "constants/WidgetConstants";
 import { Alignment, Button, Classes, InputGroup } from "@blueprintjs/core";
 import { labelMargin, WidgetContainerDiff } from "widgets/WidgetUtils";
-import Icon from "components/ads/Icon";
+import { Icon } from "design-system";
 import { Colors } from "constants/Colors";
 import { LabelPosition } from "components/constants";
-import LabelWithTooltip from "components/ads/LabelWithTooltip";
+import { LabelWithTooltip } from "design-system";
 import useDropdown from "widgets/useDropdown";
 
 export interface TreeSelectProps
   extends Required<
     Pick<
       SelectProps,
-      | "disabled"
-      | "placeholder"
-      | "loading"
-      | "dropdownStyle"
-      | "allowClear"
-      | "options"
+      "disabled" | "placeholder" | "loading" | "dropdownStyle" | "allowClear"
     >
   > {
   value?: DefaultValueType;
@@ -60,7 +57,12 @@ export interface TreeSelectProps
   filterText?: string;
   isFilterable: boolean;
   renderMode?: RenderMode;
+  options?: DefaultOptionType[];
 }
+
+export const NoDataFoundContainer = styled.div`
+  text-align: center;
+`;
 
 const getSvg = (expanded: boolean) => (
   <i
@@ -162,12 +164,14 @@ const SingleSelectTreeComponent = React.forwardRef<
 
     const onSelectionChange = useCallback(
       (value?: DefaultValueType, labelList?: ReactNode[]) => {
-        setFilter("");
-        onChange(value, labelList);
+        if (value !== undefined) {
+          setFilter("");
+          onChange(value, labelList);
+        }
       },
       [],
     );
-    const onClear = useCallback(() => onChange([], []), []);
+    const onClear = useCallback(() => onChange("", []), []);
     const clearButton = useMemo(
       () =>
         filter ? (
@@ -231,6 +235,7 @@ const SingleSelectTreeComponent = React.forwardRef<
       // Clear the search input on closing the widget
       setFilter("");
     };
+
     return (
       <TreeSelectContainer
         accentColor={accentColor}
@@ -297,7 +302,9 @@ const SingleSelectTreeComponent = React.forwardRef<
             loading={loading}
             maxTagCount={"responsive"}
             maxTagPlaceholder={(e) => `+${e.length} more`}
-            notFoundContent="No Results Found"
+            notFoundContent={
+              <NoDataFoundContainer>No Results Found</NoDataFoundContainer>
+            }
             onChange={onSelectionChange}
             onClear={onClear}
             onDropdownVisibleChange={onDropdownVisibleChange}

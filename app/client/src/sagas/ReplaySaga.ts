@@ -71,7 +71,7 @@ import {
   DATASOURCE_DB_FORM,
   DATASOURCE_REST_API_FORM,
   QUERY_EDITOR_FORM_NAME,
-} from "constants/forms";
+} from "@appsmith/constants/forms";
 import { Canvas } from "entities/Replay/ReplayEntity/ReplayCanvas";
 import {
   setAppThemingModeStackAction,
@@ -215,7 +215,12 @@ export function* undoRedoSaga(action: ReduxAction<UndoRedoPayload>) {
         const isPropertyUpdate = replay.widgets && replay.propertyUpdates;
         AnalyticsUtil.logEvent(event, { paths, timeTaken });
 
-        yield put(updateAndSaveLayout(replayEntity.widgets, false, false));
+        yield put(
+          updateAndSaveLayout(replayEntity.widgets, {
+            isRetry: false,
+            shouldReplay: false,
+          }),
+        );
         if (isPropertyUpdate) {
           yield put(generateDynamicHeightComputationTree(true));
           yield call(openPropertyPaneSaga, replay);

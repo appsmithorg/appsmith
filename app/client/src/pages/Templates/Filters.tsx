@@ -3,8 +3,7 @@ import styled from "styled-components";
 import { useDispatch, useSelector } from "react-redux";
 import { Collapse } from "@blueprintjs/core";
 import { Classes } from "components/ads/common";
-import { Text, TextType } from "design-system";
-import Icon, { IconSize } from "components/ads/Icon";
+import { Icon, IconSize, Text, TextType } from "design-system";
 import { filterTemplates } from "actions/templateActions";
 import { createMessage, FILTERS } from "@appsmith/constants/messages";
 import {

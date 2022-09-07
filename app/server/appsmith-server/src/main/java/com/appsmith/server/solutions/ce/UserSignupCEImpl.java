@@ -1,10 +1,8 @@
 package com.appsmith.server.solutions.ce;
 
-import com.appsmith.external.models.Policy;
-import com.appsmith.server.acl.AclPermission;
+import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.server.authentication.handlers.AuthenticationSuccessHandler;
 import com.appsmith.server.configurations.CommonConfig;
-import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.LoginSource;
 import com.appsmith.server.domains.User;
@@ -13,14 +11,13 @@ import com.appsmith.server.domains.UserState;
 import com.appsmith.server.dtos.UserSignupRequestDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
-import com.appsmith.server.helpers.PolicyUtils;
+import com.appsmith.server.helpers.UserUtils;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.CaptchaService;
 import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.services.UserService;
 import com.appsmith.server.solutions.EnvManager;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.http.client.utils.URIBuilder;
@@ -40,8 +37,8 @@ import reactor.core.publisher.Mono;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import static com.appsmith.server.constants.Appsmith.DEFAULT_ORIGIN_HEADER;
 import static com.appsmith.server.constants.EnvVariables.APPSMITH_ADMIN_EMAILS;
@@ -54,7 +51,6 @@ import static com.appsmith.server.helpers.ValidationUtils.validateEmail;
 import static com.appsmith.server.helpers.ValidationUtils.validateLoginPassword;
 import static org.springframework.security.web.server.context.WebSessionServerSecurityContextRepository.DEFAULT_SPRING_SECURITY_CONTEXT_ATTR_NAME;
 
-@RequiredArgsConstructor
 @Slf4j
 public class UserSignupCEImpl implements UserSignupCE {
 
@@ -64,13 +60,34 @@ public class UserSignupCEImpl implements UserSignupCE {
     private final AuthenticationSuccessHandler authenticationSuccessHandler;
     private final ConfigService configService;
     private final AnalyticsService analyticsService;
-    private final PolicyUtils policyUtils;
     private final EnvManager envManager;
     private final CommonConfig commonConfig;
+    private final UserUtils userUtils;
 
     private static final ServerRedirectStrategy redirectStrategy = new DefaultServerRedirectStrategy();
 
     private static final WebFilterChain EMPTY_WEB_FILTER_CHAIN = serverWebExchange -> Mono.empty();
+
+    public UserSignupCEImpl(UserService userService,
+                            UserDataService userDataService,
+                            CaptchaService captchaService,
+                            AuthenticationSuccessHandler authenticationSuccessHandler,
+                            ConfigService configService,
+                            AnalyticsService analyticsService,
+                            EnvManager envManager,
+                            CommonConfig commonConfig,
+                            UserUtils userUtils) {
+
+        this.userService = userService;
+        this.userDataService = userDataService;
+        this.captchaService = captchaService;
+        this.authenticationSuccessHandler = authenticationSuccessHandler;
+        this.configService = configService;
+        this.analyticsService = analyticsService;
+        this.envManager = envManager;
+        this.commonConfig = commonConfig;
+        this.userUtils = userUtils;
+    }
 
     /**
      * This function does the sign-up flow of the given user object as a new user, and then logs that user. After the
@@ -117,10 +134,16 @@ public class UserSignupCEImpl implements UserSignupCE {
                     MultiValueMap<String, String> queryParams = exchange.getRequest().getQueryParams();
                     String redirectQueryParamValue = queryParams.getFirst(REDIRECT_URL_QUERY_PARAM);
 
+                    /* TODO
+                       - Add testcases for SignUp service
+                            - Verify that Workspace is created for the user
+                            - Verify that first application is created inside created workspace when “redirectUrl” query parameter is not present in the request
+                            - Verify that first application is not created when “redirectUrl” query parameter is present in the request
+                     */
                     boolean createApplication = StringUtils.isEmpty(redirectQueryParamValue) && !StringUtils.isEmpty(workspaceId);
                     // need to create default application
                     return authenticationSuccessHandler
-                            .onAuthenticationSuccess(webFilterExchange, authentication, createApplication, true)
+                            .onAuthenticationSuccess(webFilterExchange, authentication, createApplication, true, workspaceId)
                             .thenReturn(savedUser);
                 });
     }
@@ -191,13 +214,9 @@ public class UserSignupCEImpl implements UserSignupCE {
                     user.setIsEnabled(userFromRequest.isEnabled());
                     user.setPassword(userFromRequest.getPassword());
 
-                    policyUtils.addPoliciesToExistingObject(Map.of(
-                            AclPermission.MANAGE_INSTANCE_ENV.getValue(),
-                            Policy.builder().permission(AclPermission.MANAGE_INSTANCE_ENV.getValue()).users(Set.of(user.getEmail())).build()
-                    ), user);
-
                     return signupAndLogin(user, exchange);
                 })
+                .flatMap(user -> userUtils.makeSuperUser(List.of(user)).thenReturn(user))
                 .flatMap(user -> {
                     final UserData userData = new UserData();
                     userData.setRole(userFromRequest.getRole());

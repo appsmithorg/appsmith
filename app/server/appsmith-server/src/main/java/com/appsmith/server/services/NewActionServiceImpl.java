@@ -36,12 +36,13 @@ public class NewActionServiceImpl extends NewActionServiceCEImpl implements NewA
                                 PolicyUtils policyUtils,
                                 AuthenticationValidator authenticationValidator,
                                 ConfigService configService,
-                                ResponseUtils responseUtils) {
+                                ResponseUtils responseUtils,
+                                PermissionGroupService permissionGroupService) {
 
         super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService,
                 datasourceService, pluginService, datasourceContextService, pluginExecutorHelper, marketplaceService,
                 policyGenerator, newPageService, applicationService, sessionUserService, policyUtils,
-                authenticationValidator, configService, responseUtils);
+                authenticationValidator, configService, responseUtils, permissionGroupService);
 
     }
 }

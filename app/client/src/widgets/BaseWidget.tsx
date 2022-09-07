@@ -17,7 +17,7 @@ import {
   WIDGET_PADDING,
 } from "constants/WidgetConstants";
 import React, { Component, ReactNode } from "react";
-import { debounce, get, memoize } from "lodash";
+import { get, memoize } from "lodash";
 import DraggableComponent from "components/editorComponents/DraggableComponent";
 import SnipeableComponent from "components/editorComponents/SnipeableComponent";
 import ResizableComponent from "components/editorComponents/ResizableComponent";
@@ -44,6 +44,9 @@ import { DynamicHeight } from "utils/WidgetFeatures";
 import { isDynamicHeightEnabledForWidget } from "./WidgetUtils";
 import DynamicHeightOverlay from "components/editorComponents/DynamicHeightOverlay";
 import log from "loglevel";
+import { CanvasWidgetStructure } from "./constants";
+import { DataTreeWidget } from "entities/DataTree/dataTreeFactory";
+import Skeleton from "./Skeleton";
 
 /***
  * BaseWidget
@@ -451,12 +454,32 @@ abstract class BaseWidget<
       </div>
     );
   }
+  getWidgetComponent = () => {
+    const { renderMode, type } = this.props;
+
+    /**
+     * The widget mount calls the withWidgetProps with the widgetId and type to fetch the
+     * widget props. During the computation of the props (in withWidgetProps) if the evaluated
+     * values are not present (which will not be during mount), the widget type is changed to
+     * SKELETON_WIDGET.
+     *
+     * Note: This is done to retain the old rendering flow without any breaking changes.
+     * This could be refactored into not changing the widget type but to have a boolean flag.
+     */
+    if (type === "SKELETON_WIDGET") {
+      return <Skeleton />;
+    }
+
+    return renderMode === RenderModes.CANVAS
+      ? this.getCanvasView()
+      : this.getPageView();
+  };
 
   private getWidgetView(): ReactNode {
     let content: ReactNode;
     switch (this.props.renderMode) {
       case RenderModes.CANVAS:
-        content = this.getCanvasView();
+        content = this.getWidgetComponent();
         content = this.addPreviewModeWidget(content);
         if (!this.props.detachFromLayout) {
           if (!this.props.resizeDisabled) content = this.makeResizable(content);
@@ -482,7 +505,7 @@ abstract class BaseWidget<
 
       // return this.getCanvasView();
       case RenderModes.PAGE:
-        content = this.getPageView();
+        content = this.getWidgetComponent();
         if (this.props.isVisible) {
           content = this.addErrorBoundary(content);
           if (!this.props.detachFromLayout) {
@@ -564,7 +587,10 @@ export interface BaseStyle {
 
 export type WidgetState = Record<string, unknown>;
 
-export interface WidgetBuilder<T extends WidgetProps, S extends WidgetState> {
+export interface WidgetBuilder<
+  T extends CanvasWidgetStructure,
+  S extends WidgetState
+> {
   buildWidget(widgetProps: T): JSX.Element;
 }
 
@@ -575,6 +601,7 @@ export interface WidgetBaseProps {
   parentId?: string;
   renderMode: RenderMode;
   version: number;
+  childWidgets?: DataTreeWidget[];
 }
 
 export type WidgetRowCols = {

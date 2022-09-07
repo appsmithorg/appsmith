@@ -4,7 +4,7 @@ import {
   WrappedFieldMetaProps,
   WrappedFieldInputProps,
 } from "redux-form";
-import InputComponent, { InputType } from "../TextInput";
+import { TextInput, InputType } from "design-system";
 import { Intent } from "constants/DefaultTheme";
 import { Colors } from "constants/Colors";
 import styled from "styled-components";
@@ -41,7 +41,7 @@ const renderComponent = (
     <>
       {componentProps.label && <Label>{componentProps.label}</Label>}
       <InputCopyWrapper>
-        <InputComponent {...componentProps} {...componentProps.input} fill />
+        <TextInput {...componentProps} {...componentProps.input} fill />
         {componentProps.iscopy === "true" && (
           <CopyIcon
             className={"copy-icon"}

@@ -5,6 +5,7 @@ import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.QDatasource;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
+import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import com.mongodb.client.result.UpdateResult;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
@@ -22,8 +23,8 @@ import static org.springframework.data.mongodb.core.query.Query.query;
 
 public class CustomDatasourceRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Datasource> implements CustomDatasourceRepositoryCE {
 
-    public CustomDatasourceRepositoryCEImpl(ReactiveMongoOperations mongoOperations, MongoConverter mongoConverter) {
-        super(mongoOperations, mongoConverter);
+    public CustomDatasourceRepositoryCEImpl(ReactiveMongoOperations mongoOperations, MongoConverter mongoConverter, CacheableRepositoryHelper cacheableRepositoryHelper) {
+        super(mongoOperations, mongoConverter, cacheableRepositoryHelper);
     }
 
     @Override

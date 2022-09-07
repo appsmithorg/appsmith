@@ -8,6 +8,7 @@ import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.InvisibleActionFields;
 import com.appsmith.external.models.Policy;
 import com.appsmith.external.models.Property;
+import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.SerialiseApplicationObjective;
 import com.appsmith.server.domains.ActionCollection;
@@ -18,6 +19,7 @@ import com.appsmith.server.domains.GitApplicationMetadata;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
+import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.PluginType;
 import com.appsmith.server.domains.Theme;
@@ -38,6 +40,7 @@ import com.appsmith.server.migrations.ApplicationVersion;
 import com.appsmith.server.migrations.JsonSchemaMigration;
 import com.appsmith.server.migrations.JsonSchemaVersions;
 import com.appsmith.server.repositories.ApplicationRepository;
+import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.repositories.ThemeRepository;
 import com.appsmith.server.services.ActionCollectionService;
@@ -103,6 +106,7 @@ import static com.appsmith.server.acl.AclPermission.MANAGE_PAGES;
 import static com.appsmith.server.acl.AclPermission.READ_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_PAGES;
+import static com.appsmith.server.acl.AclPermission.READ_WORKSPACES;
 import static com.appsmith.server.constants.FieldName.DEFAULT_PAGE_LAYOUT;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -154,6 +158,9 @@ public class ImportExportApplicationServiceTests {
 
     @Autowired
     ApplicationService applicationService;
+
+    @Autowired
+    PermissionGroupRepository permissionGroupRepository;
 
     private static final String INVALID_JSON_FILE = "invalid json file";
     private static Plugin installedPlugin;
@@ -284,6 +291,38 @@ public class ImportExportApplicationServiceTests {
             .expectErrorMatches(throwable -> throwable instanceof AppsmithException &&
                 throwable.getMessage().equals(AppsmithError.INVALID_PARAMETER.getMessage(FieldName.APPLICATION_ID)))
             .verify();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void exportPublicApplicationTest() {
+
+        Application application = new Application();
+        application.setName("exportPublicApplicationTest-Test");
+
+        Application createdApplication = applicationPageService.createApplication(application, workspaceId).block();
+
+        Mono<Workspace> workspaceResponse = workspaceService.findById(workspaceId, READ_WORKSPACES);
+
+        ApplicationAccessDTO applicationAccessDTO = new ApplicationAccessDTO();
+        applicationAccessDTO.setPublicAccess(true);
+
+        // Make the application public
+        applicationService.changeViewAccess(createdApplication.getId(), applicationAccessDTO).block();
+
+        Mono<ApplicationJson> resultMono =
+                importExportApplicationService.exportApplicationById(createdApplication.getId(), "");
+
+        StepVerifier
+                .create(resultMono)
+                .assertNext(applicationJson -> {
+                    Application exportedApplication = applicationJson.getExportedApplication();
+                    assertThat(exportedApplication).isNotNull();
+                    // Assert that the exported application is NOT public
+                    assertThat(exportedApplication.getDefaultPermissionGroup()).isNull();
+                    assertThat(exportedApplication.getPolicies()).isNullOrEmpty();
+                })
+                .verifyComplete();
     }
 
     @Test
@@ -747,19 +786,42 @@ public class ImportExportApplicationServiceTests {
     
         Workspace newWorkspace = new Workspace();
         newWorkspace.setName("Template Workspace");
+
+        Mono<Workspace> workspaceMono = workspaceService
+            .create(newWorkspace).cache();
     
-        Policy manageAppPolicy = Policy.builder().permission(MANAGE_APPLICATIONS.getValue())
-            .users(Set.of("api_user"))
-            .build();
-        Policy readAppPolicy = Policy.builder().permission(READ_APPLICATIONS.getValue())
-            .users(Set.of("api_user"))
-            .build();
-    
-        final Mono<ApplicationImportDTO> resultMono = workspaceService
-            .create(newWorkspace)
+        final Mono<ApplicationImportDTO> resultMono = workspaceMono
             .flatMap(workspace -> importExportApplicationService
                 .extractFileAndSaveApplication(workspace.getId(), filePart)
             );
+
+        List<PermissionGroup> permissionGroups = workspaceMono
+            .flatMapMany(savedWorkspace -> {
+                Set<String> defaultPermissionGroups = savedWorkspace.getDefaultPermissionGroups();
+                return permissionGroupRepository.findAllById(defaultPermissionGroups);
+            })
+            .collectList()
+            .block();
+
+        PermissionGroup adminPermissionGroup = permissionGroups.stream()
+            .filter(permissionGroup -> permissionGroup.getName().startsWith(FieldName.ADMINISTRATOR))
+            .findFirst().get();
+
+        PermissionGroup developerPermissionGroup = permissionGroups.stream()
+            .filter(permissionGroup -> permissionGroup.getName().startsWith(FieldName.DEVELOPER))
+            .findFirst().get();
+
+        PermissionGroup viewerPermissionGroup = permissionGroups.stream()
+            .filter(permissionGroup -> permissionGroup.getName().startsWith(FieldName.VIEWER))
+            .findFirst().get();
+
+        Policy manageAppPolicy = Policy.builder().permission(MANAGE_APPLICATIONS.getValue())
+            .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId()))
+            .build();
+        Policy readAppPolicy = Policy.builder().permission(READ_APPLICATIONS.getValue())
+            .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId(),
+                    viewerPermissionGroup.getId()))
+            .build();
         
         StepVerifier
             .create(resultMono
@@ -932,18 +994,41 @@ public class ImportExportApplicationServiceTests {
         Workspace newWorkspace = new Workspace();
         newWorkspace.setName("Template Workspace");
 
-        Policy manageAppPolicy = Policy.builder().permission(MANAGE_APPLICATIONS.getValue())
-                .users(Set.of("api_user"))
-                .build();
-        Policy readAppPolicy = Policy.builder().permission(READ_APPLICATIONS.getValue())
-                .users(Set.of("api_user"))
-                .build();
+        Mono<Workspace> workspaceMono = workspaceService
+            .create(newWorkspace).cache();
 
-        final Mono<ApplicationImportDTO> resultMono = workspaceService
-                .create(newWorkspace)
+        final Mono<ApplicationImportDTO> resultMono = workspaceMono
                 .flatMap(workspace -> importExportApplicationService
                         .extractFileAndSaveApplication(workspace.getId(), filePart)
                 );
+
+        List<PermissionGroup> permissionGroups = workspaceMono
+            .flatMapMany(savedWorkspace -> {
+                Set<String> defaultPermissionGroups = savedWorkspace.getDefaultPermissionGroups();
+                return permissionGroupRepository.findAllById(defaultPermissionGroups);
+            })
+            .collectList()
+            .block();
+
+        PermissionGroup adminPermissionGroup = permissionGroups.stream()
+            .filter(permissionGroup -> permissionGroup.getName().startsWith(FieldName.ADMINISTRATOR))
+            .findFirst().get();
+
+        PermissionGroup developerPermissionGroup = permissionGroups.stream()
+            .filter(permissionGroup -> permissionGroup.getName().startsWith(FieldName.DEVELOPER))
+            .findFirst().get();
+
+        PermissionGroup viewerPermissionGroup = permissionGroups.stream()
+            .filter(permissionGroup -> permissionGroup.getName().startsWith(FieldName.VIEWER))
+            .findFirst().get();
+
+        Policy manageAppPolicy = Policy.builder().permission(MANAGE_APPLICATIONS.getValue())
+            .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId()))
+            .build();
+        Policy readAppPolicy = Policy.builder().permission(READ_APPLICATIONS.getValue())
+            .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId(),
+                    viewerPermissionGroup.getId()))
+            .build();
 
         StepVerifier
                 .create(resultMono
@@ -1155,18 +1240,41 @@ public class ImportExportApplicationServiceTests {
         Workspace newWorkspace = new Workspace();
         newWorkspace.setName("Template Workspace");
 
-        Policy manageAppPolicy = Policy.builder().permission(MANAGE_APPLICATIONS.getValue())
-                .users(Set.of("api_user"))
-                .build();
-        Policy readAppPolicy = Policy.builder().permission(READ_APPLICATIONS.getValue())
-                .users(Set.of("api_user"))
-                .build();
+        Mono<Workspace> workspaceMono = workspaceService
+            .create(newWorkspace).cache();
 
-        final Mono<ApplicationImportDTO> resultMono = workspaceService
-                .create(newWorkspace)
+        final Mono<ApplicationImportDTO> resultMono = workspaceMono
                 .flatMap(workspace -> importExportApplicationService
                         .extractFileAndSaveApplication(workspace.getId(), filePart)
                 );
+
+        List<PermissionGroup> permissionGroups = workspaceMono
+            .flatMapMany(savedWorkspace -> {
+                Set<String> defaultPermissionGroups = savedWorkspace.getDefaultPermissionGroups();
+                return permissionGroupRepository.findAllById(defaultPermissionGroups);
+            })
+            .collectList()
+            .block();
+    
+        PermissionGroup adminPermissionGroup = permissionGroups.stream()
+            .filter(permissionGroup -> permissionGroup.getName().startsWith(FieldName.ADMINISTRATOR))
+            .findFirst().get();
+
+        PermissionGroup developerPermissionGroup = permissionGroups.stream()
+            .filter(permissionGroup -> permissionGroup.getName().startsWith(FieldName.DEVELOPER))
+            .findFirst().get();
+
+        PermissionGroup viewerPermissionGroup = permissionGroups.stream()
+            .filter(permissionGroup -> permissionGroup.getName().startsWith(FieldName.VIEWER))
+            .findFirst().get();
+
+        Policy manageAppPolicy = Policy.builder().permission(MANAGE_APPLICATIONS.getValue())
+            .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId()))
+            .build();
+        Policy readAppPolicy = Policy.builder().permission(READ_APPLICATIONS.getValue())
+            .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId(),
+                viewerPermissionGroup.getId()))
+            .build();
 
         StepVerifier
                 .create(resultMono
@@ -1359,12 +1467,27 @@ public class ImportExportApplicationServiceTests {
         // Now add a page and export the same import it to the app
         // Check if the policies and visibility flag are not reset
 
-        Policy manageAppPolicy = Policy.builder().permission(MANAGE_APPLICATIONS.getValue())
-                .users(Set.of("api_user"))
-                .build();
-        Policy readAppPolicy = Policy.builder().permission(READ_APPLICATIONS.getValue())
-                .users(Set.of("api_user", FieldName.ANONYMOUS_USER))
-                .build();
+        Mono<Workspace> workspaceResponse = workspaceService.findById(workspaceId, AclPermission.READ_WORKSPACES);
+
+        List<PermissionGroup> permissionGroups = workspaceResponse
+                .flatMapMany(savedWorkspace -> {
+                    Set<String> defaultPermissionGroups = savedWorkspace.getDefaultPermissionGroups();
+                    return permissionGroupRepository.findAllById(defaultPermissionGroups);
+                })
+                .collectList()
+                .block();
+
+        PermissionGroup adminPermissionGroup = permissionGroups.stream()
+                .filter(permissionGroup -> permissionGroup.getName().startsWith(FieldName.ADMINISTRATOR))
+                .findFirst().get();
+
+        PermissionGroup developerPermissionGroup = permissionGroups.stream()
+                .filter(permissionGroup -> permissionGroup.getName().startsWith(FieldName.DEVELOPER))
+                .findFirst().get();
+
+        PermissionGroup viewerPermissionGroup = permissionGroups.stream()
+                .filter(permissionGroup -> permissionGroup.getName().startsWith(FieldName.VIEWER))
+                .findFirst().get();
 
         Application testApplication = new Application();
         testApplication.setName("importUpdatedApplicationIntoWorkspaceFromFile_publicApplication_visibilityFlagNotReset");
@@ -1384,7 +1507,17 @@ public class ImportExportApplicationServiceTests {
                 }).block();
         ApplicationAccessDTO applicationAccessDTO = new ApplicationAccessDTO();
         applicationAccessDTO.setPublicAccess(true);
-        applicationService.changeViewAccess(application.getId(), "master", applicationAccessDTO).block();
+        Application newApplication = applicationService.changeViewAccess(application.getId(), "master", applicationAccessDTO).block();
+
+        PermissionGroup anonymousPermissionGroup = permissionGroupRepository.findById(newApplication.getDefaultPermissionGroup()).block();
+
+        Policy manageAppPolicy = Policy.builder().permission(MANAGE_APPLICATIONS.getValue())
+                .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId()))
+                .build();
+        Policy readAppPolicy = Policy.builder().permission(READ_APPLICATIONS.getValue())
+                .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId(),
+                    viewerPermissionGroup.getId(), anonymousPermissionGroup.getId()))
+                .build();
 
         Mono<Application> applicationMono = importExportApplicationService.exportApplicationById(application.getId(), "master")
                 .flatMap(applicationJson -> importExportApplicationService.importApplicationInWorkspace(workspaceId, applicationJson, application.getId(), "master"));

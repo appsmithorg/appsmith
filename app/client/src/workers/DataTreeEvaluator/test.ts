@@ -385,55 +385,6 @@ describe("DataTreeEvaluator", () => {
     });
   });
 
-  describe("triggerfield dependency map", () => {
-    beforeEach(() => {
-      // @ts-expect-error: Types are not available
-      dataTreeEvaluator.createFirstTree(lintingUnEvalTree as DataTree);
-    });
-    it("Creates correct triggerFieldDependencyMap", () => {
-      expect(dataTreeEvaluator.triggerFieldDependencyMap).toEqual({
-        "Button3.onClick": ["Api1", "Button2", "Api2"],
-        "Button2.onClick": ["Api2"],
-      });
-    });
-    it("Creates correct triggerFieldInverseDependencyMap", () => {
-      expect(dataTreeEvaluator.triggerFieldInverseDependencyMap).toEqual({
-        Api1: ["Button3.onClick"],
-        Api2: ["Button3.onClick", "Button2.onClick"],
-        Button2: ["Button3.onClick"],
-      });
-    });
-    it("Correctly updates triggerFieldDependencyMap and triggerFieldInverseDependencyMap", () => {
-      const newUnEvalTree = ({ ...lintingUnEvalTree } as unknown) as DataTree;
-      // delete Api2
-      delete newUnEvalTree["Api2"];
-      dataTreeEvaluator.updateDataTree(newUnEvalTree);
-      expect(dataTreeEvaluator.triggerFieldDependencyMap).toEqual({
-        "Button3.onClick": ["Api1", "Button2"],
-        "Button2.onClick": [],
-      });
-      expect(dataTreeEvaluator.triggerFieldInverseDependencyMap).toEqual({
-        Api1: ["Button3.onClick"],
-        Button2: ["Button3.onClick"],
-      });
-
-      // Add Api2
-      // @ts-expect-error: Types are not available
-      newUnEvalTree["Api2"] = { ...lintingUnEvalTree }["Api2"];
-      dataTreeEvaluator.updateDataTree(newUnEvalTree);
-      expect(dataTreeEvaluator.triggerFieldDependencyMap).toEqual({
-        "Button3.onClick": ["Api1", "Button2", "Api2"],
-        "Button2.onClick": ["Api2"],
-      });
-
-      expect(dataTreeEvaluator.triggerFieldInverseDependencyMap).toEqual({
-        Api1: ["Button3.onClick"],
-        Api2: ["Button3.onClick", "Button2.onClick"],
-        Button2: ["Button3.onClick"],
-      });
-    });
-  });
-
   describe("lintTree", () => {
     const dataTreeEvaluator = new DataTreeEvaluator(widgetConfigMap);
     beforeEach(() => {
@@ -536,6 +487,75 @@ describe("DataTreeEvaluator", () => {
           "onClick",
         ),
       ).toEqual(expectedButton2LintError);
+    });
+  });
+
+  describe("triggerfield dependency map", () => {
+    beforeEach(() => {
+      // @ts-expect-error: Types are not available
+      dataTreeEvaluator.createFirstTree(lintingUnEvalTree as DataTree);
+    });
+    it("Creates correct triggerFieldDependencyMap", () => {
+      expect(dataTreeEvaluator.triggerFieldDependencyMap).toEqual({
+        "Button3.onClick": ["Api1", "Button2", "Api2"],
+        "Button2.onClick": ["Api2"],
+      });
+    });
+    it("Creates correct triggerFieldInverseDependencyMap", () => {
+      expect(dataTreeEvaluator.triggerFieldInverseDependencyMap).toEqual({
+        Api1: ["Button3.onClick"],
+        Api2: ["Button3.onClick", "Button2.onClick"],
+        Button2: ["Button3.onClick"],
+      });
+    });
+    it("Correctly updates triggerFieldDependencyMap and triggerFieldInverseDependencyMap", () => {
+      const newUnEvalTree = ({ ...lintingUnEvalTree } as unknown) as DataTree;
+      // delete Api2
+      delete newUnEvalTree["Api2"];
+      dataTreeEvaluator.updateDataTree(newUnEvalTree);
+      expect(dataTreeEvaluator.triggerFieldDependencyMap).toEqual({
+        "Button3.onClick": ["Api1", "Button2"],
+        "Button2.onClick": [],
+      });
+      expect(dataTreeEvaluator.triggerFieldInverseDependencyMap).toEqual({
+        Api1: ["Button3.onClick"],
+        Button2: ["Button3.onClick"],
+      });
+
+      // Add Api2
+      // @ts-expect-error: Types are not available
+      newUnEvalTree["Api2"] = { ...lintingUnEvalTree }["Api2"];
+      dataTreeEvaluator.updateDataTree(newUnEvalTree);
+      expect(dataTreeEvaluator.triggerFieldDependencyMap).toEqual({
+        "Button3.onClick": ["Api1", "Button2", "Api2"],
+        "Button2.onClick": ["Api2"],
+      });
+
+      expect(dataTreeEvaluator.triggerFieldInverseDependencyMap).toEqual({
+        Api1: ["Button3.onClick"],
+        Api2: ["Button3.onClick", "Button2.onClick"],
+        Button2: ["Button3.onClick"],
+      });
+
+      // self-reference Button2
+      const newButton2 = { ...lintingUnEvalTree }["Button2"];
+      newButton2.onClick = "{{Api2.run(); AbsentEntity.run(); Button2}}";
+      // @ts-expect-error: Types are not available
+      newUnEvalTree["Button2"] = newButton2;
+      dataTreeEvaluator.updateDataTree(newUnEvalTree);
+
+      // delete Button2
+      delete newUnEvalTree["Button2"];
+      dataTreeEvaluator.updateDataTree(newUnEvalTree);
+
+      expect(dataTreeEvaluator.triggerFieldDependencyMap).toEqual({
+        "Button3.onClick": ["Api1", "Api2"],
+      });
+
+      expect(dataTreeEvaluator.triggerFieldInverseDependencyMap).toEqual({
+        Api1: ["Button3.onClick"],
+        Api2: ["Button3.onClick"],
+      });
     });
   });
 });

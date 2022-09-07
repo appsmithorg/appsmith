@@ -8,7 +8,7 @@ import { getNextEntityName } from "utils/AppsmithUtils";
 import orderBy from "lodash/orderBy";
 import isString from "lodash/isString";
 import isUndefined from "lodash/isUndefined";
-import { Category, Size } from "components/ads/Button";
+import { Category, Size } from "design-system";
 import { DraggableListCard } from "components/ads/DraggableListCard";
 
 const StyledPropertyPaneButtonWrapper = styled.div`

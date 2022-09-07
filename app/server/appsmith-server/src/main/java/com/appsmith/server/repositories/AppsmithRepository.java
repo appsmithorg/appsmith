@@ -1,13 +1,14 @@
 package com.appsmith.server.repositories;
 
+import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
-import com.appsmith.server.domains.User;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.query.Criteria;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
+import java.util.Set;
 
 public interface AppsmithRepository<T> {
 
@@ -21,7 +22,9 @@ public interface AppsmithRepository<T> {
 
     Flux<T> queryAll(List<Criteria> criterias, List<String> includeFields, AclPermission permission, Sort sort);
 
-    T setUserPermissionsInObject(T obj, User user);
+    T setUserPermissionsInObject(T obj, Set<String> permissionGroups);
 
     Mono<T> findByGitSyncIdAndDefaultApplicationId(String defaultApplicationId, String gitSyncId, AclPermission permission);
+
+    Mono<Boolean> isPermissionPresentForUser(Set<Policy> policies, String permission, String username);
 }

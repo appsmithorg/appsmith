@@ -7,7 +7,7 @@ import {
   getConflictFoundDocUrlDeploy,
   getIsGitErrorPopupVisible,
 } from "selectors/gitSyncSelectors";
-import Icon, { IconSize } from "components/ads/Icon";
+import { Icon, IconSize } from "design-system";
 
 import {
   createMessage,

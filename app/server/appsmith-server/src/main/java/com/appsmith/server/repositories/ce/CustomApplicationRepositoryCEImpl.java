@@ -6,27 +6,24 @@ import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.domains.GitAuth;
 import com.appsmith.server.domains.QApplication;
+import com.appsmith.server.domains.User;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
-import com.mongodb.BasicDBObject;
-import com.mongodb.DBObject;
-import com.mongodb.client.model.Filters;
+import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import com.mongodb.client.result.UpdateResult;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
-import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
-import org.springframework.data.mongodb.core.query.BasicQuery;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
+import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.io.File;
 import java.time.Instant;
 import java.util.List;
 import java.util.Set;
@@ -37,10 +34,13 @@ import static org.springframework.data.mongodb.core.query.Criteria.where;
 public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Application>
         implements CustomApplicationRepositoryCE {
 
+    private final CacheableRepositoryHelper cacheableRepositoryHelper;
     @Autowired
     public CustomApplicationRepositoryCEImpl(@NonNull ReactiveMongoOperations mongoOperations,
-                                             @NonNull MongoConverter mongoConverter) {
-        super(mongoOperations, mongoConverter);
+                                             @NonNull MongoConverter mongoConverter,
+                                             CacheableRepositoryHelper cacheableRepositoryHelper) {
+        super(mongoOperations, mongoConverter, cacheableRepositoryHelper);
+        this.cacheableRepositoryHelper = cacheableRepositoryHelper;
     }
 
     @Override
@@ -72,6 +72,29 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
     public Flux<Application> findByMultipleWorkspaceIds(Set<String> workspaceIds, AclPermission permission) {
         Criteria workspaceIdCriteria = where(fieldName(QApplication.application.workspaceId)).in(workspaceIds);
         return queryAll(List.of(workspaceIdCriteria), permission);
+    }
+
+    @Override
+    public Flux<Application> findAllUserApps(AclPermission permission) {
+        Mono<User> currentUserWithTenantMono = ReactiveSecurityContextHolder.getContext()
+                .map(ctx -> ctx.getAuthentication())
+                .map(auth -> (User) auth.getPrincipal())
+                .flatMap(user -> {
+                    if (user.getTenantId() == null) {
+                        return cacheableRepositoryHelper.getDefaultTenantId()
+                                .map(tenantId -> {
+                                    user.setTenantId(tenantId);
+                                    return user;
+                                });
+                    }
+                    return Mono.just(user);
+                });
+
+        return currentUserWithTenantMono
+                .flatMap(cacheableRepositoryHelper::getPermissionGroupsOfUser)
+                .flatMapMany(permissionGroups -> queryAllWithPermissionGroups(
+                        List.of(), null, permission, null, permissionGroups)
+                );
     }
 
     @Override

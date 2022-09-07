@@ -45,8 +45,7 @@ Cypress.on("fail", (error) => {
 Cypress.env("MESSAGES", MESSAGES);
 
 before(function() {
-  this.timeout(1140000);
-  //console.warn = () => {};
+  //console.warn = () => {}; //to remove all warnings in cypress console
   initLocalstorage();
   initLocalstorageRegistry();
   cy.startServerAndRoutes();
@@ -98,6 +97,10 @@ before(function() {
 });
 
 beforeEach(function() {
+  //cy.window().then((win) => (win.onbeforeunload = undefined));
+  if (!navigator.userAgent.includes("Cypress")) {
+    window.addEventListener("beforeunload", this.beforeunloadFunction);
+  }
   initLocalstorage();
   Cypress.Cookies.preserveOnce("SESSION", "remember_token");
   cy.startServerAndRoutes();
@@ -110,4 +113,8 @@ after(function() {
   cy.DeleteAppByApi();
   //-- LogOut Application---//
   cy.LogOut();
+
+  const testUrl = "http://localhost:5001/v1/parent/cmd";
+  cy.log("Start the appsmith container");
+  cy.StartTheContainer(testUrl, "appsmith"); // stop the old container
 });

@@ -3,7 +3,7 @@ import styled from "styled-components";
 import { Colors } from "constants/Colors";
 import { useDispatch, useSelector } from "react-redux";
 import { createActionRequest } from "actions/pluginActionActions";
-import { AppState } from "reducers";
+import { AppState } from "@appsmith/reducers";
 import { createNewQueryName } from "utils/AppsmithUtils";
 import {
   getCurrentApplicationId,

@@ -24,7 +24,7 @@ export const CONFIG = {
     isDefaultClickDisabled: true,
     inputType: "html",
     labelText: "Label",
-    labelPosition: LabelPosition.Left,
+    labelPosition: LabelPosition.Top,
     labelAlignment: Alignment.LEFT,
     labelWidth: 5,
     version: 1,
@@ -34,6 +34,8 @@ export const CONFIG = {
     default: Widget.getDefaultPropertiesMap(),
     meta: Widget.getMetaPropertiesMap(),
     config: Widget.getPropertyPaneConfig(),
+    contentConfig: Widget.getPropertyPaneContentConfig(),
+    styleConfig: Widget.getPropertyPaneStyleConfig(),
   },
 };
 

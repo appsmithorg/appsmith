@@ -23,17 +23,18 @@ describe("Table Widget", function() {
       cy.updateCodeInput($el, jsContext);
     });
     cy.PublishtheApp();
-    cy.wait(30000);
+    cy.wait(5000);
     cy.getTableV2DataSelector("0", "0").then((element) => {
       cy.get(element).should("be.visible");
     });
+    cy.wait(2000);
     cy.readTableV2dataPublish("0", "0").then((value) => {
       expect(value).to.be.equal("joe");
     });
     cy.get(".t--switch-widget-active")
       .first()
       .click();
-    cy.wait(1000);
+    cy.wait(3000);
     cy.getTableV2DataSelector("0", "0").then((element) => {
       cy.get(element).should("be.visible");
     });
@@ -54,8 +55,8 @@ describe("Table Widget", function() {
     cy.get(publish.backToEditor)
       .click()
       .wait(1000);
-    cy.wait(30000);
-    cy.CheckAndUnfoldEntityItem("WIDGETS");
+    cy.wait(5000);
+    cy.CheckAndUnfoldEntityItem("Widgets");
     cy.actionContextMenuByEntityName("Switch1");
     cy.actionContextMenuByEntityName("Table1");
   });

@@ -1,7 +1,7 @@
 import React from "react";
 import { Collapse, Icon } from "@blueprintjs/core";
 import styled from "styled-components";
-import AdsIcon, { IconName, IconSize } from "components/ads/Icon";
+import { Icon as AdsIcon, IconName, IconSize } from "design-system";
 
 const SectionLabel = styled.div`
   font-weight: 500;

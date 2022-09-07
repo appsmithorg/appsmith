@@ -3,8 +3,7 @@ import React, { memo, useEffect, useMemo, useRef } from "react";
 import { useState } from "react";
 import { useSelector } from "react-redux";
 import { useDrag } from "react-use-gesture";
-import { AppState } from "reducers";
-import { getFocusedWidget } from "sagas/selectors";
+import { AppState } from "@appsmith/reducers";
 import { getCanvasWidgets } from "selectors/entitiesSelector";
 import styled from "styled-components";
 import EventEmitter from "utils/EventEmitter";
@@ -169,12 +168,6 @@ const MaxHeightOverlayHandle = styled(OverlayHandle)<OverlayHandleProps>`
   transform: translateY(${(props) => props.y}px);
 `;
 
-const MaxHeightOverlayHandleDot = styled(OverlayHandleDot)`
-  width: 10px;
-  height: 10px;
-  background-color: ${OVERLAY_COLOR};
-`;
-
 interface UseHoverStateFunctions {
   onMouseEnter: () => void;
   onMouseLeave: () => void;
@@ -300,58 +293,6 @@ const getSnappedValues = (
     x: Math.round(x / snapGrid.x) * snapGrid.x,
     y: Math.round(y / snapGrid.y) * snapGrid.y,
   };
-};
-
-const OverlayHandleLabelSlider = styled.div`
-  position: absolute;
-  right: 0;
-  transform: translateX(calc(100% + 16px));
-  padding: 1px 4px;
-  background: #191919;
-  font-weight: 400;
-  font-size: 10px;
-  line-height: 16px;
-  color: #ffffff;
-  text-align: center;
-  white-space: nowrap;
-`;
-
-const Bordered = styled.div<{ y: number }>`
-  pointer-events: none;
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: 0;
-  transform: translateY(${(props) => props.y}px);
-
-  &:after {
-    position: absolute;
-    content: "";
-    width: 100%;
-    height: 2px;
-    border-bottom: 1px dashed ${OVERLAY_COLOR};
-  }
-`;
-
-const OverlayLabels: React.FC<{
-  isActive: boolean;
-  minRows: number;
-  maxRows: number;
-}> = ({ isActive, maxRows, minRows }) => {
-  return (
-    <div style={{ display: isActive ? "block" : "none" }}>
-      <Bordered y={minRows * 10}>
-        <OverlayHandleLabelSlider>
-          Min-height: {minRows} rows
-        </OverlayHandleLabelSlider>
-      </Bordered>
-      <Bordered y={maxRows * 10}>
-        <OverlayHandleLabelSlider>
-          Max-height: {maxRows} rows
-        </OverlayHandleLabelSlider>
-      </Bordered>
-    </div>
-  );
 };
 
 const DynamicHeightOverlay: React.FC<DynamicHeightOverlayProps> = memo(

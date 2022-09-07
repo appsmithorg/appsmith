@@ -2835,4 +2835,18 @@ public class MongoPluginTest {
                 .expectErrorMatches(throwable -> throwable instanceof StaleConnectionException)
                 .verify();
     }
+
+    @Test
+    public void testValidateDatasource_withoutDefaultDBInURIString_returnsInvalid() {
+        final DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
+        List<Property> properties = new ArrayList<>();
+        properties.add(new Property("isUriString", "Yes"));
+        properties.add(new Property("uriString", "mongodb://user:pass@url.net/"));
+        datasourceConfiguration.setProperties(properties);
+
+        final Set<String> strings = pluginExecutor.validateDatasource(datasourceConfiguration);
+
+        assertEquals(1, strings.size());
+        assertTrue(strings.contains("Missing default database name."));
+    }
 }
