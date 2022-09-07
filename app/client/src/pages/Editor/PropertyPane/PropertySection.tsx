@@ -8,12 +8,8 @@ import React, {
   useCallback,
 } from "react";
 import { Collapse } from "@blueprintjs/core";
-import { useSelector } from "react-redux";
-import { getWidgetPropsForPropertyPane } from "selectors/propertyPaneSelectors";
 import styled from "constants/DefaultTheme";
 import { Colors } from "constants/Colors";
-import { WidgetProps } from "widgets/BaseWidget";
-import { isFunction } from "lodash";
 import { AppIcon as Icon, Size } from "design-system";
 
 const SectionTitle = styled.div`
