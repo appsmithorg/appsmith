@@ -36,7 +36,7 @@ type SnipeableComponentProps = WidgetProps;
 function SnipeableComponent(props: SnipeableComponentProps) {
   const { focusWidget } = useWidgetSelection();
   const dispatch = useDispatch();
-  const isSnipingMode = useSelector(snipingModeSelector, equal);
+  const isSnipingMode = useSelector(snipingModeSelector);
 
   const isFocusedWidget = useSelector(
     (state: AppState) =>

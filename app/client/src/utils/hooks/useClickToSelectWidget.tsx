@@ -66,27 +66,22 @@ export function ClickContentToOpenPropPane({
 
 export const useClickToSelectWidget = (widgetId: string) => {
   const { focusWidget, selectWidget } = useWidgetSelection();
-  const isPropPaneVisible = useSelector(getIsPropertyPaneVisible, equal);
-  const isTableFilterPaneVisible = useSelector(
-    getIsTableFilterPaneVisible,
-    equal,
-  );
+  const isPropPaneVisible = useSelector(getIsPropertyPaneVisible);
+  const isTableFilterPaneVisible = useSelector(getIsTableFilterPaneVisible);
 
-  const isFocused = useSelector(isCurrentWidgetFocused(widgetId), equal);
+  const isFocused = useSelector(isCurrentWidgetFocused(widgetId));
 
-  const isSelected = useSelector(isWidgetSelected(widgetId), equal);
+  const isSelected = useSelector(isWidgetSelected(widgetId));
 
   // This state tells us whether a `ResizableComponent` is resizing
   const isResizing = useSelector(
     (state: AppState) => state.ui.widgetDragResize.isResizing,
-    equal,
   );
-  const appMode = useSelector(getAppMode, equal);
+  const appMode = useSelector(getAppMode);
 
   // This state tells us whether a `DraggableComponent` is dragging
   const isDragging = useSelector(
     (state: AppState) => state.ui.widgetDragResize.isDragging,
-    equal,
   );
 
   const parentWidgetToOpen = useSelector(getFocusedParentToOpen, equal);

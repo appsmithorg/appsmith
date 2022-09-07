@@ -273,29 +273,7 @@ abstract class BaseWidget<
     return <SnipeableComponent {...this.props}>{content}</SnipeableComponent>;
   }
 
-  /**
-   * generates styles that positions the widget
-   */
-  private getPositionStyle_(): BaseStyle {
-    const { componentHeight, componentWidth } = this.getComponentDimensions();
-
-    return {
-      positionType: PositionTypes.ABSOLUTE,
-      componentHeight,
-      componentWidth,
-      yPosition:
-        this.props.topRow * this.props.parentRowSpace +
-        (this.props.noContainerOffset ? 0 : CONTAINER_GRID_PADDING),
-      xPosition:
-        this.props.leftColumn * this.props.parentColumnSpace +
-        (this.props.noContainerOffset ? 0 : CONTAINER_GRID_PADDING),
-      xPositionUnit: CSSUnits.PIXEL,
-      yPositionUnit: CSSUnits.PIXEL,
-    };
-  }
-
   makePositioned(content: ReactNode) {
-    // const style = this.getPositionStyle();
     const { componentHeight, componentWidth } = this.getComponentDimensions();
 
     return (
@@ -304,7 +282,6 @@ abstract class BaseWidget<
         componentWidth={componentWidth}
         focused={this.props.focused}
         leftColumn={this.props.leftColumn}
-        // style={style}
         noContainerOffset={this.props.noContainerOffset}
         parentColumnSpace={this.props.parentColumnSpace}
         parentId={this.props.parentId}
