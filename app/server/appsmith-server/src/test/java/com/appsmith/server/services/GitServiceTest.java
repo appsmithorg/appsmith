@@ -730,9 +730,9 @@ public class GitServiceTest {
         workspace.setName("Limit Private Repo Test Workspace");
         String limitPrivateRepoTestWorkspaceId = workspaceService.create(workspace).map(Workspace::getId).block();
 
-        Mockito
-                .when(gitCloudServicesUtils.getPrivateRepoLimitForOrg(eq(limitPrivateRepoTestWorkspaceId), Mockito.anyBoolean()))
-                .thenReturn(Mono.just(3));
+        GitService gitService1 = Mockito.spy(gitService);
+        Mockito.doReturn(Mono.just(Boolean.TRUE)).when(gitService1).isRepoLimitReached(Mockito.anyString(), Mockito.anyBoolean());
+
         Mockito.when(gitExecutor.cloneApplication(Mockito.any(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
                 .thenReturn(Mono.just("defaultBranchName"));
         Mockito.when(gitExecutor.commitApplication(Mockito.any(Path.class), Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyBoolean(), Mockito.anyBoolean()))
@@ -744,10 +744,6 @@ public class GitServiceTest {
         Mockito.when(gitFileUtils.checkIfDirectoryIsEmpty(Mockito.any(Path.class))).thenReturn(Mono.just(true));
         Mockito.when(gitFileUtils.initializeReadme(Mockito.any(Path.class), Mockito.anyString(), Mockito.anyString()))
                 .thenReturn(Mono.just(Paths.get("textPath")));
-
-        this.createApplicationConnectedToGit("private_repo_1", "master", limitPrivateRepoTestWorkspaceId);
-        this.createApplicationConnectedToGit("private_repo_2", "master", limitPrivateRepoTestWorkspaceId);
-        this.createApplicationConnectedToGit("private_repo_3", "master", limitPrivateRepoTestWorkspaceId);
 
         Application testApplication = new Application();
         GitApplicationMetadata gitApplicationMetadata = new GitApplicationMetadata();
@@ -763,7 +759,7 @@ public class GitServiceTest {
         Application application = applicationPageService.createApplication(testApplication).block();
 
         GitConnectDTO gitConnectDTO = getConnectRequest("git@github.com:test/testRepo.git", testUserProfile);
-        Mono<Application> applicationMono = gitService.connectApplicationToGit(application.getId(), gitConnectDTO, "baseUrl");
+        Mono<Application> applicationMono = gitService1.connectApplicationToGit(application.getId(), gitConnectDTO, "baseUrl");
 
         StepVerifier
                 .create(applicationMono)
@@ -2441,11 +2437,10 @@ public class GitServiceTest {
     public void importApplicationFromGit_privateRepoLimitReached_ThrowApplicationLimitError() {
         GitConnectDTO gitConnectDTO = getConnectRequest("git@github.com:test/testRepo.git", testUserProfile);
         gitService.generateSSHKey(null).block();
-        Mockito
-                .when(gitCloudServicesUtils.getPrivateRepoLimitForOrg(Mockito.any(), Mockito.anyBoolean()))
-                .thenReturn(Mono.just(0));
+        GitService gitService1 = Mockito.spy(gitService);
+        Mockito.doReturn(Mono.just(Boolean.TRUE)).when(gitService1).isRepoLimitReached(Mockito.anyString(), Mockito.anyBoolean());
 
-        Mono<ApplicationImportDTO> applicationMono = gitService.importApplicationFromGit(workspaceId, gitConnectDTO);
+        Mono<ApplicationImportDTO> applicationMono = gitService1.importApplicationFromGit(workspaceId, gitConnectDTO);
 
         StepVerifier
                 .create(applicationMono)
@@ -2923,6 +2918,8 @@ public class GitServiceTest {
                 .verifyComplete();
     }
 
+    @Test
+    @WithUserDetails(value = "api_user")
     public void deleteBranch_cancelledMidway_success() throws GitAPIException, IOException {
 
         final String DEFAULT_BRANCH = "master", TO_BE_DELETED_BRANCH = "deleteBranch";
@@ -3000,6 +2997,27 @@ public class GitServiceTest {
                     assertThat(tuple.getT1()).contains("committed successfully");
                     assertThat(tuple.getT2()).contains("committed successfully");
                 })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void getGitConnectedApps_privateRepositories_Success() throws GitAPIException, IOException {
+
+        Workspace workspace = new Workspace();
+        workspace.setName("Limit Private Repo Test Workspace");
+        String localWorkspaceId = workspaceService.create(workspace).map(Workspace::getId).block();
+
+        Mockito.when(gitCloudServicesUtils.getPrivateRepoLimitForOrg(eq(localWorkspaceId), Mockito.anyBoolean()))
+                .thenReturn(Mono.just(-1));
+
+        createApplicationConnectedToGit("private_repo_1", "master", localWorkspaceId);
+        createApplicationConnectedToGit("private_repo_2", "master", localWorkspaceId);
+        createApplicationConnectedToGit("private_repo_3", "master", localWorkspaceId);
+
+        StepVerifier
+                .create(gitService.getApplicationCountWithPrivateRepo(localWorkspaceId))
+                .assertNext(limit -> assertThat(limit).isEqualTo(3))
                 .verifyComplete();
     }
 }
