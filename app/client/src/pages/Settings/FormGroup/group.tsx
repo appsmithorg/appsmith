@@ -16,7 +16,7 @@ import {
   createMessage,
   REDIRECT_URL_TOOLTIP,
 } from "@appsmith/constants/messages";
-import { Callout } from "components/ads/CalloutV2";
+import { CalloutV2 } from "design-system";
 import { CopyUrlReduxForm } from "components/ads/formFields/CopyUrlForm";
 import Accordion from "./Accordion";
 import TagInputField from "./TagInputField";
@@ -151,7 +151,7 @@ export default function Group({
                     key={setting.name || setting.id}
                   >
                     {setting.action ? (
-                      <Callout
+                      <CalloutV2
                         actionLabel="READ MORE"
                         desc={createMessage(() => setting.label || "")}
                         onClick={() => {
@@ -162,7 +162,7 @@ export default function Group({
                         type={setting.calloutType || "Notify"}
                       />
                     ) : (
-                      <Callout
+                      <CalloutV2
                         actionLabel="READ MORE"
                         desc={createMessage(() => setting.label || "")}
                         type={setting.calloutType || "Notify"}
