@@ -23,8 +23,7 @@ const TabHeaderText = styled.div`
 
 const ThemeTabContentWrapper = styled.div`
   height: calc(100% - 48px);
-  overflow-y: auto;
-  scrollbar-gutter: stable;
+  overflow-y: overlay;
 `;
 
 function AppSettings() {
