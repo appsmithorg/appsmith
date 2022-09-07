@@ -28,6 +28,10 @@ const requiredParams = {
   isTriggerProperty: false,
 };
 
+const waitForParamsForSearchFocus = {
+  timeout: 3000,
+};
+
 describe("<IconSelectControl /> - Keyboard navigation", () => {
   const getTestComponent = (
     onPropertyChange: (
@@ -60,7 +64,7 @@ describe("<IconSelectControl /> - Keyboard navigation", () => {
       // Makes sure search bar is having focus
       await waitFor(() => {
         expect(screen.queryByRole("textbox")).toHaveFocus();
-      });
+      }, waitForParamsForSearchFocus);
     },
   );
 
@@ -74,14 +78,14 @@ describe("<IconSelectControl /> - Keyboard navigation", () => {
     await waitForElementToBeRemoved(screen.getAllByRole("list"));
   });
 
-  it("Pressing '{ArrowDown}' while search is in focus should remove the focus", async () => {
+  it.only("Pressing '{ArrowDown}' while search is in focus should remove the focus", async () => {
     render(getTestComponent());
     userEvent.tab();
     userEvent.keyboard("{Enter}");
     expect(screen.queryByRole("list")).toBeInTheDocument();
     await waitFor(() => {
       expect(screen.queryByRole("textbox")).toHaveFocus();
-    });
+    }, waitForParamsForSearchFocus);
     userEvent.keyboard("{ArrowDown}");
     expect(screen.queryByRole("textbox")).not.toHaveFocus();
   });
@@ -93,13 +97,13 @@ describe("<IconSelectControl /> - Keyboard navigation", () => {
     expect(screen.queryByRole("list")).toBeInTheDocument();
     await waitFor(() => {
       expect(screen.queryByRole("textbox")).toHaveFocus();
-    });
+    }, waitForParamsForSearchFocus);
     userEvent.keyboard("{ArrowDown}");
     expect(screen.queryByRole("textbox")).not.toHaveFocus();
     userEvent.keyboard("{Shift}{ArrowUp}");
     await waitFor(() => {
       expect(screen.queryByRole("textbox")).toHaveFocus();
-    });
+    }, waitForParamsForSearchFocus);
   });
 
   /*
@@ -115,7 +119,7 @@ describe("<IconSelectControl /> - Keyboard navigation", () => {
     userEvent.keyboard("{Enter}");
     await waitFor(() => {
       expect(screen.queryByRole("textbox")).toHaveFocus();
-    });
+    }, waitForParamsForSearchFocus);
     expect(document.querySelector("a.bp3-active")?.children[0]).toHaveClass(
       "bp3-icon-(none)",
     );
@@ -134,7 +138,7 @@ describe("<IconSelectControl /> - Keyboard navigation", () => {
     userEvent.keyboard("{Enter}");
     await waitFor(() => {
       expect(screen.queryByRole("textbox")).toHaveFocus();
-    });
+    }, waitForParamsForSearchFocus);
     expect(document.querySelector("a.bp3-active")?.children[0]).toHaveClass(
       "bp3-icon-(none)",
     );
@@ -160,7 +164,7 @@ describe("<IconSelectControl /> - Keyboard navigation", () => {
     userEvent.keyboard("{Enter}");
     await waitFor(() => {
       expect(screen.queryByRole("textbox")).toHaveFocus();
-    });
+    }, waitForParamsForSearchFocus);
     expect(document.querySelector("a.bp3-active")?.children[0]).toHaveClass(
       "bp3-icon-(none)",
     );
@@ -179,7 +183,7 @@ describe("<IconSelectControl /> - Keyboard navigation", () => {
     userEvent.keyboard("{Enter}");
     await waitFor(() => {
       expect(screen.queryByRole("textbox")).toHaveFocus();
-    });
+    }, waitForParamsForSearchFocus);
     expect(document.querySelector("a.bp3-active")?.children[0]).toHaveClass(
       "bp3-icon-(none)",
     );
@@ -209,7 +213,7 @@ describe("<IconSelectControl /> - Keyboard navigation", () => {
     userEvent.keyboard("{Enter}");
     await waitFor(() => {
       expect(screen.queryByRole("textbox")).toHaveFocus();
-    });
+    }, waitForParamsForSearchFocus);
     expect(document.querySelector("a.bp3-active")?.children[0]).toHaveClass(
       "bp3-icon-(none)",
     );
@@ -234,7 +238,7 @@ describe("<IconSelectControl /> - Keyboard navigation", () => {
     expect(screen.queryByRole("list")).toBeInTheDocument();
     await waitFor(() => {
       expect(screen.queryByRole("textbox")).toHaveFocus();
-    });
+    }, waitForParamsForSearchFocus);
     expect(document.querySelector("a.bp3-active")?.children[0]).toHaveClass(
       "bp3-icon-add-row-top",
     );
