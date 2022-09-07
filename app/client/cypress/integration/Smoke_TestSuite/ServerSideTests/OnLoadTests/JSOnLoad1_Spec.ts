@@ -98,8 +98,9 @@ describe("JSObjects OnLoad Actions tests", function() {
   it("5. Tc 53 - Verify OnPage Load - Enabling back & Before Function calling disabled for JSOBject", function() {
     ee.SelectEntityByName(jsName as string, "Queries/JS");
     jsEditor.EnableDisableAsyncFuncSettings("getEmployee", true, false);
-    agHelper.Sleep(2000); //to allow for changes to take effect!
-    agHelper.RefreshPage(); //For bug #
+    jsEditor.RunJSObj();
+    //agHelper.Sleep(2000); //to allow for changes to take effect!
+    //agHelper.RefreshPage(); //For bug #
     cy.wait("@jsCollections").then(({ response }) => {
       expect(response?.body.data.actions[0].executeOnLoad).to.eq(true);
       expect(response?.body.data.actions[0].confirmBeforeExecute).to.eq(false);
