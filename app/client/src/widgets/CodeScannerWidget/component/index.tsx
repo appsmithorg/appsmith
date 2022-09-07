@@ -100,6 +100,7 @@ const CodeScannerGlobalStyles = createGlobalStyle<{
     height: 100%;
     position: relative;
     object-fit: cover;
+    border-radius: ${({ borderRadius }) => borderRadius};
   }
 `;
 
