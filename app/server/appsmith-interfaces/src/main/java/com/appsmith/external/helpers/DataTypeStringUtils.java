@@ -2,10 +2,14 @@ package com.appsmith.external.helpers;
 
 import com.appsmith.external.constants.DataType;
 import com.appsmith.external.constants.DisplayDataType;
+import com.appsmith.external.datatypes.AppsmithType;
+import com.appsmith.external.datatypes.ClientDataType;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.models.ParsedDataType;
 import com.appsmith.external.plugins.SmartSubstitutionInterface;
+import com.appsmith.external.services.DataTypeService;
+import com.appsmith.external.services.DataTypeServiceImpl;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -58,6 +62,14 @@ public class DataTypeStringUtils {
     private static final TypeAdapter<JsonObject> strictGsonObjectAdapter =
             new Gson().getAdapter(JsonObject.class);
 
+    private static final DataTypeService dataTypeService = DataTypeServiceImpl.getInstance();
+
+    public static AppsmithType stringToKnownAppsmithTypeConverter(ClientDataType clientDataType, String value, Object... args) {
+        if (args == null) {
+            return dataTypeService.getAppsmithType(clientDataType, value);
+        }
+        return dataTypeService.getAppsmithType(clientDataType, value, (Map<ClientDataType, List<AppsmithType>>) args[0]);
+    }
 
     public static DataType stringToKnownDataTypeConverter(String input) {
 
