@@ -1,6 +1,7 @@
 import React, { memo, useMemo, useRef, useState } from "react";
 import styled from "styled-components";
 import _ from "lodash";
+import equal from "fast-deep-equal/es6";
 import Popper from "pages/Editor/Popper";
 import ReactJson from "react-json-view";
 import {
@@ -362,7 +363,7 @@ export const CurrentValueViewer = memo(
       prevProps.hideLabel === nextProps.hideLabel &&
       // Deep-compare evaluated values to ensure we only rerender
       // when the array actually changes
-      _.isEqual(prevProps.evaluatedValue, nextProps.evaluatedValue)
+      equal(prevProps.evaluatedValue, nextProps.evaluatedValue)
     );
   },
 );

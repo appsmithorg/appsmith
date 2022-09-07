@@ -1,12 +1,24 @@
 import React from "react";
+import styled from "styled-components";
 import BaseControl, { ControlData, ControlProps } from "./BaseControl";
-import Switch from "components/ads/Switch";
+import { Switch } from "design-system";
 import {
   DSEventDetail,
   DSEventTypes,
   DS_EVENT,
   emitInteractionAnalyticsEvent,
 } from "utils/AppsmithUtils";
+
+const StyledSwitch = styled(Switch)`
+  &&&& {
+    padding: 0;
+    margin-bottom: 4px;
+  }
+
+  &&&& .bp3-control-indicator {
+    margin: 0;
+  }
+`;
 
 class SwitchControl extends BaseControl<ControlProps> {
   isUpdatedViaKeyboard = false;
@@ -42,7 +54,7 @@ class SwitchControl extends BaseControl<ControlProps> {
   render() {
     return (
       <div ref={this.containerRef}>
-        <Switch
+        <StyledSwitch
           checked={this.props.propertyValue}
           className={this.props.propertyValue ? "checked" : "unchecked"}
           defaultChecked={this.props.propertyValue}

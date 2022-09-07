@@ -1,6 +1,6 @@
-import { isEqual } from "lodash";
+import equal from "fast-deep-equal/es6";
 import React from "react";
-import DraggableList from "./DraggableList";
+import { DraggableList } from "design-system";
 
 export type BaseItemProps = {
   id: string;
@@ -56,7 +56,7 @@ export class DroppableComponent<
     const presentOrder = this.props.items.map(this.getVisibleObject);
     const previousOrder = prevProps.items.map(this.getVisibleObject);
     return (
-      !isEqual(presentOrder, previousOrder) ||
+      !equal(presentOrder, previousOrder) ||
       this.props.focusedIndex !== prevProps.focusedIndex ||
       prevState.isDragging !== this.state.isDragging
     );

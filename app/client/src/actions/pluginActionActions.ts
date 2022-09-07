@@ -251,9 +251,13 @@ export type SetActionPropertyPayload = {
   skipSave?: boolean;
 };
 
-export const setActionProperty = (payload: SetActionPropertyPayload) => ({
+export const setActionProperty = (
+  payload: SetActionPropertyPayload,
+  postEvalActions?: Array<AnyReduxAction>,
+) => ({
   type: ReduxActionTypes.SET_ACTION_PROPERTY,
   payload,
+  postEvalActions,
 });
 
 export type UpdateActionPropertyActionPayload = {
@@ -264,10 +268,12 @@ export type UpdateActionPropertyActionPayload = {
 
 export const updateActionProperty = (
   payload: UpdateActionPropertyActionPayload,
+  postEvalActions?: Array<AnyReduxAction>,
 ) => {
   return batchAction({
     type: ReduxActionTypes.UPDATE_ACTION_PROPERTY,
     payload,
+    postEvalActions,
   });
 };
 
