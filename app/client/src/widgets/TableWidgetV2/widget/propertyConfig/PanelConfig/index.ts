@@ -221,7 +221,8 @@ export default {
             !(
               columnType === ColumnTypes.TEXT ||
               columnType === ColumnTypes.NUMBER ||
-              columnType === ColumnTypes.CHECKBOX
+              columnType === ColumnTypes.CHECKBOX ||
+              columnType === ColumnTypes.SWITCH
             ) || !isEditable
           );
         }
@@ -279,11 +280,16 @@ export default {
         },
         {
           propertyName: "onCheckChange",
-          label: "onCheckChange",
+          label: (props: TableWidgetProps, propertyPath: string) => {
+            const basePropertyPath = getBasePropertyPath(propertyPath);
+            const columnType = get(props, `${basePropertyPath}.columnType`);
+            return columnType === "switch" ? "onChange" : "onCheckChange";
+          },
           controlType: "ACTION_SELECTOR",
           hidden: (props: TableWidgetProps, propertyPath: string) => {
             return hideByColumnType(props, propertyPath, [
               ColumnTypes.CHECKBOX,
+              ColumnTypes.SWITCH,
             ]);
           },
           dependencies: ["primaryColumns"],
@@ -455,7 +461,9 @@ export default {
     {
       sectionName: (props: TableWidgetProps, propertyPath: string) => {
         const columnType = get(props, `${propertyPath}.columnType`);
-        return columnType === "checkbox" ? "Alignment" : "Text Formatting";
+        return columnType === "checkbox" || columnType === "switch"
+          ? "Alignment"
+          : "Text Formatting";
       },
       children: [
         {
@@ -547,7 +555,7 @@ export default {
           label: (props: TableWidgetProps, propertyPath: string) => {
             const basePropertyPath = getBasePropertyPath(propertyPath);
             const columnType = get(props, `${basePropertyPath}.columnType`);
-            return columnType === "checkbox"
+            return columnType === "checkbox" || columnType === "switch"
               ? "Horizontal Alignment"
               : "Text Align";
           },
@@ -588,6 +596,7 @@ export default {
               ColumnTypes.NUMBER,
               ColumnTypes.URL,
               ColumnTypes.CHECKBOX,
+              ColumnTypes.SWITCH,
             ]);
           },
         },
@@ -631,6 +640,7 @@ export default {
               ColumnTypes.NUMBER,
               ColumnTypes.URL,
               ColumnTypes.CHECKBOX,
+              ColumnTypes.SWITCH,
             ]);
           },
         },
