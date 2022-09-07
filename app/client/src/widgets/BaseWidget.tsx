@@ -283,10 +283,12 @@ abstract class BaseWidget<
     const style = this.getPositionStyle();
     return (
       <PositionedContainer
+        direction={this.props.direction}
         focused={this.props.focused}
         isWrapper={this.props.isWrapper}
         parentId={this.props.parentId}
         resizeDisabled={this.props.resizeDisabled}
+        responsiveBehavior={this.props.responsiveBehavior}
         selected={this.props.selected}
         style={style}
         useAutoLayout={this.props.useAutoLayout}
@@ -362,12 +364,6 @@ abstract class BaseWidget<
           content = this.makeDraggable(content);
           content = this.makeSnipeable(content);
           // NOTE: In sniping mode we are not blocking onClick events from PositionWrapper.
-          // if (
-          //   this.props.useAutoLayout &&
-          //   !this.props.widgetName.toUpperCase().includes("AUTO")
-          // ) {
-          //   content = this.addAutoLayoutWrapper(content);
-          // } else content = this.makePositioned(content);
           content = this.makePositioned(content);
           if (this.props.useAutoLayout)
             content = this.addAutoLayoutWrapper(content);
@@ -382,6 +378,7 @@ abstract class BaseWidget<
           if (!this.props.detachFromLayout) {
             content = this.makePositioned(content);
           }
+          content = this.addAutoLayoutWrapper(content);
           return content;
         }
         return null;

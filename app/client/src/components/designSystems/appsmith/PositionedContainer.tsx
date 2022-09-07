@@ -12,6 +12,7 @@ import { memoize } from "lodash";
 import { getReflowSelector } from "selectors/widgetReflowSelectors";
 import { AppState } from "@appsmith/reducers";
 import { POSITIONED_WIDGET } from "constants/componentClassNameConstants";
+import { LayoutDirection, ResponsiveBehavior } from "components/constants";
 
 const PositionedWidget = styled.div<{ zIndexOnHover: number }>`
   &:hover {
@@ -29,6 +30,8 @@ export type PositionedContainerProps = {
   resizeDisabled?: boolean;
   useAutoLayout?: boolean;
   isWrapper?: boolean;
+  responsiveBehavior?: ResponsiveBehavior;
+  direction?: LayoutDirection;
 };
 
 export const checkIsDropTarget = memoize(function isDropTarget(
@@ -111,7 +114,10 @@ export function PositionedContainer(props: PositionedContainerProps) {
           ? "auto"
           : props.style.componentHeight + (props.style.heightUnit || "px"),
       width:
-        reflowWidth || props.useAutoLayout
+        reflowWidth ||
+        (props.useAutoLayout &&
+          props.direction === LayoutDirection.Horizontal &&
+          props.responsiveBehavior === ResponsiveBehavior.Fill)
           ? "auto"
           : props.style.componentWidth + (props.style.widthUnit || "px"),
       padding: padding + "px",

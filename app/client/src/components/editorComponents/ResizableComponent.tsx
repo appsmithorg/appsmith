@@ -41,7 +41,11 @@ import { focusWidget } from "actions/widgetActions";
 import { GridDefaults } from "constants/WidgetConstants";
 import { DropTargetContext } from "./DropTargetComponent";
 import { XYCord } from "pages/common/CanvasArenas/hooks/useCanvasDragging";
-import { AlignItems, LayoutDirection } from "components/constants";
+import {
+  AlignItems,
+  LayoutDirection,
+  ResponsiveBehavior,
+} from "components/constants";
 import { AutoLayoutContext } from "utils/autoLayoutContext";
 import { getParentToOpenSelector } from "selectors/widgetSelectors";
 
@@ -302,6 +306,21 @@ export const ResizableComponent = memo(function ResizableComponent(
       widgetType: props.type,
     });
   };
+  let disabledHorizontalHandles: string[] = [];
+  if (
+    props.useAutoLayout &&
+    props.direction === LayoutDirection.Horizontal &&
+    props.responsiveBehavior === ResponsiveBehavior.Fill
+  ) {
+    disabledHorizontalHandles = [
+      "left",
+      "right",
+      "bottomLeft",
+      "bottomRight",
+      "topLeft",
+      "topRight",
+    ];
+  }
   const handles = useMemo(() => {
     const allHandles = {
       left: LeftHandleStyles,
@@ -316,8 +335,9 @@ export const ResizableComponent = memo(function ResizableComponent(
     let handlesToOmit = get(props, "disabledResizeHandles", []);
     if (disabledResizeHandles && disabledResizeHandles.length)
       handlesToOmit = [...handlesToOmit, ...disabledResizeHandles];
+    handlesToOmit = [...handlesToOmit, ...disabledHorizontalHandles];
     return omit(allHandles, handlesToOmit);
-  }, [props, disabledResizeHandles]);
+  }, [props, disabledResizeHandles, disabledHorizontalHandles]);
 
   const isEnabled =
     !isDragging &&
@@ -355,6 +375,7 @@ export const ResizableComponent = memo(function ResizableComponent(
       allowResize={!isMultiSelectedWidget}
       componentHeight={componentHeight}
       componentWidth={componentWidth}
+      direction={props.direction}
       enable={isEnabled}
       getResizedPositions={getResizedPositions}
       gridProps={gridProps}
@@ -364,6 +385,7 @@ export const ResizableComponent = memo(function ResizableComponent(
       onStop={updateSize}
       originalPositions={originalPositions}
       parentId={props.parentId}
+      responsiveBehavior={props.responsiveBehavior}
       snapGrid={{ x: props.parentColumnSpace, y: props.parentRowSpace }}
       updateBottomRow={updateBottomRow}
       useAutoLayout={useAutoLayout}

@@ -424,7 +424,7 @@ export interface ContainerWidgetProps<T extends WidgetProps>
   alignment?: Alignment;
   spacing?: Spacing;
   removeWrappers?: (id: string) => void;
-  addWrappers?: (id: string) => void;
+  addWrappers?: (id: string, direction: LayoutDirection) => void;
 }
 
 export interface ContainerWidgetState extends WidgetState {
