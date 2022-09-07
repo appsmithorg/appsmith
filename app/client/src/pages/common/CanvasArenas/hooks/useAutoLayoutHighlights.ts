@@ -370,8 +370,8 @@ export const useAutoLayoutHighlights = ({
 
       if (!offsets || !offsets.length)
         offsets = [getInitialOffset(isCanvasWrapper)];
-      console.log(`#### offsets: ${JSON.stringify(offsets)}`);
-      console.log(`#### END calculate highlight offsets`);
+      // console.log(`#### offsets: ${JSON.stringify(offsets)}`);
+      // console.log(`#### END calculate highlight offsets`);
     }
     return offsets;
   };
