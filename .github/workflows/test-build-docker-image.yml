@@ -883,7 +883,7 @@ jobs:
           APPSMITH_GOOGLE_MAPS_API_KEY: ${{ secrets.APPSMITH_GOOGLE_MAPS_API_KEY }}
           COMMIT_INFO_MESSAGE: ${{ github.event.pull_request.title }}
         with:
-          browser: chrome
+          browser: electron
           headless: true
           record: true
           install: false
@@ -935,7 +935,7 @@ jobs:
           APPSMITH_GOOGLE_MAPS_API_KEY: ${{ secrets.APPSMITH_GOOGLE_MAPS_API_KEY }}
           COMMIT_INFO_MESSAGE: ${{ github.event.pull_request.title }}
         with:
-          browser: chrome
+          browser: electron
           headless: true
           record: true
           install: false
@@ -1352,7 +1352,7 @@ jobs:
           APPSMITH_GOOGLE_MAPS_API_KEY: ${{ secrets.APPSMITH_GOOGLE_MAPS_API_KEY }}
           COMMIT_INFO_MESSAGE: ${{ github.event.pull_request.title }}
         with:
-          browser: chrome
+          browser: electron
           headless: true
           record: true
           install: false
@@ -1403,7 +1403,7 @@ jobs:
           APPSMITH_GOOGLE_MAPS_API_KEY: ${{ secrets.APPSMITH_GOOGLE_MAPS_API_KEY }}
           COMMIT_INFO_MESSAGE: ${{ github.event.pull_request.title }}
         with:
-          browser: chrome
+          browser: electron
           headless: true
           record: true
           install: false
