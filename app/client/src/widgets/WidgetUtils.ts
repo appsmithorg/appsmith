@@ -338,6 +338,12 @@ export const PopoverStyles = createGlobalStyle<{
       color: ${accentColor};
     }
 
+    .${portalClassName} .${DTClasses.DATEPICKER_FOOTER} .${
+    Classes.BUTTON
+  }:hover {
+      background-color: ${lightenColor(accentColor)};
+    }
+
     .${portalClassName} .${DTClasses.DATEPICKER_NAVBUTTON} span {
       color: var(--wds-color-icon) !important;
     }
@@ -352,6 +358,21 @@ export const PopoverStyles = createGlobalStyle<{
     Classes.ICON
   } {
       color: var(--wds-color-icon) !important;
+    }
+
+    .${portalClassName} .${DTClasses.DATERANGEPICKER_SHORTCUTS} li a {
+      border-radius: ${borderRadius};
+    }
+
+    .${portalClassName} .${DTClasses.DATERANGEPICKER_SHORTCUTS} li a:hover {
+      background-color: ${lightenColor(accentColor)};
+    }
+
+    .${portalClassName} .${DTClasses.DATERANGEPICKER_SHORTCUTS} li a.${
+    Classes.ACTIVE
+  } {
+      color: ${getComplementaryGrayscaleColor(accentColor)};
+      background-color: ${accentColor};
     }
   `}
 `;
