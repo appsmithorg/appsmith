@@ -1,16 +1,16 @@
-import { closeAppSettingsPaneAction } from "actions/appSettingsPaneActions";
+// import { closeAppSettingsPaneAction } from "actions/appSettingsPaneActions";
 import React, { useRef } from "react";
-import { useDispatch } from "react-redux";
+// import { useDispatch } from "react-redux";
 import { useOnClickOutside } from "utils/hooks/useOnClickOutside";
 import AppSettings from "./AppSettings";
 import PaneHeader from "./PaneHeader";
 
 function PaneContent() {
-  const dispatch = useDispatch();
+  // const dispatch = useDispatch();
   const paneRef = useRef(null);
 
   useOnClickOutside([paneRef], () => {
-    dispatch(closeAppSettingsPaneAction());
+    // dispatch(closeAppSettingsPaneAction());
   });
 
   return (
