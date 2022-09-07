@@ -293,6 +293,7 @@ describe("AForce - Community Issues page validations", function() {
     );
 
     agHelper.ClickButton("Confirm");
+    agHelper.AssertElementAbsence(locator._toastMsg);//Making sure internal api doesnt throw error
     agHelper.Sleep(3000);
     table.SearchTable("Suggestion", 2);
     table.WaitUntilTableLoad();
