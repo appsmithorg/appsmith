@@ -2,6 +2,7 @@ import {
   ReduxActionTypes,
   ReduxAction,
 } from "@appsmith/constants/ReduxActionConstants";
+import { CanvasWidgetsStructureReduxState } from "reducers/entityReducers/canvasWidgetsStructureReducer";
 
 export const selectWidgetAction = (
   widgetId?: string,
@@ -62,6 +63,16 @@ export const selectMultipleWidgetsInitAction = (widgetIds: string[]) => {
   return {
     type: ReduxActionTypes.SELECT_MULTIPLE_WIDGETS_INIT,
     payload: { widgetIds },
+  };
+};
+
+export const deselectModalWidgetAction = (
+  modalId: string,
+  modalWidgetChildren?: CanvasWidgetsStructureReduxState[],
+) => {
+  return {
+    type: ReduxActionTypes.DESELECT_MODAL_WIDGETS,
+    payload: { modalId, modalWidgetChildren },
   };
 };
 

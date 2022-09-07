@@ -1114,6 +1114,7 @@ function* restoreSelectedWidgetContext() {
   const allWidgets: CanvasWidgetsReduxState = yield select(
     getCanvasWidgetsWithParentId,
   );
+  if (!selectedWidgets.length) return;
 
   if (
     selectedWidgets.length === 1 &&
@@ -1123,6 +1124,13 @@ function* restoreSelectedWidgetContext() {
   } else if (allWidgets[selectedWidgets[0]]?.parentModalId) {
     yield put(showModal(allWidgets[selectedWidgets[0]]?.parentModalId, false));
   }
+
+  setTimeout(() => {
+    const el = document.getElementById(selectedWidgets[0]);
+    if (el) {
+      el.scrollIntoView({ block: "center" });
+    }
+  }, 0);
 }
 
 export default function* pageSagas() {

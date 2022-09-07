@@ -20,7 +20,7 @@ import {
 import Pagination from "pages/Editor/APIEditor/Pagination";
 import ApiAuthentication from "pages/Editor/APIEditor/ApiAuthentication";
 import ActionSettings from "pages/Editor/ActionSettings";
-import { API_EDITOR_FORM_NAME } from "constants/forms";
+import { API_EDITOR_FORM_NAME } from "@appsmith/constants/forms";
 import {
   HelpSection,
   ShowHideImportedHeaders,

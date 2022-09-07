@@ -63,7 +63,7 @@ function getFocusableDOMElement(
   element: HTMLDivElement | null,
 ): HTMLElement | undefined {
   return element?.children?.[1]?.querySelector(
-    'button, input, [tabindex]:not([tabindex="-1"])',
+    'button:not([tabindex="-1"]), input, [tabindex]:not([tabindex="-1"])',
   ) as HTMLElement | undefined;
 }
 

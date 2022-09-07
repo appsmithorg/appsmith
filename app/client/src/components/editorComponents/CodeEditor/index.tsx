@@ -339,10 +339,7 @@ class CodeEditor extends Component<Props, State> {
 
         if (this.props.cursorPosition) {
           editor.focus();
-          setTimeout(() => {
-            this.props.cursorPosition &&
-              editor.setCursor(this.props.cursorPosition);
-          }, 0);
+          editor.setCursor(this.props.cursorPosition);
         }
       }.bind(this);
 
@@ -517,9 +514,9 @@ class CodeEditor extends Component<Props, State> {
       mode &&
       [EditorModes.JAVASCRIPT, EditorModes.JSON].includes(mode.name)
     ) {
-      this.editor.setOption("matchBrackets", true);
+      this.editor?.setOption("matchBrackets", true);
     } else {
-      this.editor.setOption("matchBrackets", false);
+      this.editor?.setOption("matchBrackets", false);
     }
   };
 
@@ -543,7 +540,7 @@ class CodeEditor extends Component<Props, State> {
   handleEditorBlur = (cm: CodeMirror.Editor) => {
     this.handleChange();
     this.setState({ isFocused: false });
-    this.editor.setOption("matchBrackets", false);
+    this.editor?.setOption("matchBrackets", false);
     this.handleCustomGutter(null);
     const { ch, line } = cm.getCursor();
     this.props.setCursorPosition(this.props.dataTreePath, { line, ch });
@@ -582,7 +579,7 @@ class CodeEditor extends Component<Props, State> {
   };
 
   handleChange = (instance?: any, changeObj?: any) => {
-    const value = this.editor.getValue() || "";
+    const value = this.editor?.getValue() || "";
     if (changeObj && changeObj.origin === "complete") {
       AnalyticsUtil.logEvent("AUTO_COMPLETE_SELECT", {
         searchString: changeObj.text[0],

@@ -37,6 +37,7 @@ import { showModal } from "actions/widgetActions";
 import history from "utils/history";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import { builderURL } from "RouteBuilder";
+import { CanvasWidgetsStructureReduxState } from "reducers/entityReducers/canvasWidgetsStructureReducer";
 const WidgetTypes = WidgetFactory.widgetTypes;
 // The following is computed to be used in the entity explorer
 // Every time a widget is selected, we need to expand widget entities
@@ -364,6 +365,41 @@ function* deselectAllWidgetsSaga() {
   yield put(selectMultipleWidgetsAction([]));
 }
 
+function* deselectModalWidgetSaga(
+  action: ReduxAction<{
+    modalId: string;
+    modalWidgetChildren?: CanvasWidgetsStructureReduxState[];
+  }>,
+) {
+  const { modalId, modalWidgetChildren } = action.payload;
+  const selectedWidgets: string[] = yield select(getSelectedWidgets);
+  if (selectedWidgets.length == 0) return;
+
+  if (
+    (selectedWidgets.length === 1 && selectedWidgets[0] === modalId) ||
+    isWidgetPartOfChildren(selectedWidgets[0], modalWidgetChildren)
+  )
+    yield put(selectMultipleWidgetsAction([]));
+}
+
+function isWidgetPartOfChildren(
+  widgetId: string,
+  children?: CanvasWidgetsStructureReduxState[],
+) {
+  if (!children) return false;
+
+  for (const child of children) {
+    if (
+      child.widgetId === widgetId ||
+      isWidgetPartOfChildren(widgetId, child.children)
+    ) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
 export function* widgetSelectionSagas() {
   yield all([
     takeLatest(
@@ -400,6 +436,10 @@ export function* widgetSelectionSagas() {
       ReduxActionTypes.DESELECT_MULTIPLE_WIDGETS_INIT,
       canPerformSelectionSaga,
       deselectAllWidgetsSaga,
+    ),
+    takeLatest(
+      ReduxActionTypes.DESELECT_MODAL_WIDGETS,
+      deselectModalWidgetSaga,
     ),
     takeLatest(
       ReduxActionTypes.APPEND_SELECTED_WIDGET_TO_URL,
