@@ -9,7 +9,7 @@ export default [
         label: "Text",
         controlType: "INPUT_TEXT",
         helpText: "Sets the label of the button",
-        placeholderText: "Select Files",
+        placeholderText: "Scan a QR/Barcode",
         inputType: "TEXT",
         isBindProperty: true,
         isTriggerProperty: false,
@@ -67,8 +67,7 @@ export default [
     sectionName: "Events",
     children: [
       {
-        helpText:
-          "Triggers an action when the user selects a file. Upload files to a CDN and stores their URLs in filepicker.files",
+        helpText: "Triggers an action when a valid code is detected",
         propertyName: "onCodeDetected",
         label: "onCodeDetected",
         controlType: "ACTION_SELECTOR",
