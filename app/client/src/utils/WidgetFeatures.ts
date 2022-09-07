@@ -123,6 +123,14 @@ function updateMinMaxDynamicHeight(
         propertyValue: props.bottomRow - props.topRow,
       });
     }
+
+    // Case where maxDynamicHeight is zero
+    if (isNaN(maxDynamicHeight) || maxDynamicHeight === 0) {
+      updates.push({
+        propertyPath: "maxDynamicHeight",
+        propertyValue: props.bottomRow - props.topRow,
+      });
+    }
   } else if (propertyValue === DynamicHeight.AUTO_HEIGHT) {
     updates.push(
       {
@@ -206,15 +214,15 @@ export const PropertyPaneConfigTemplates = {
       },
       {
         propertyName: "minDynamicHeight",
-        onRelease: () => {
+        onBlur: () => {
           EventEmitter.emit("property_pane_input_blurred", "minDynamicHeight");
         },
-        onChange: () => {
+        onFocus: () => {
           EventEmitter.emit("property_pane_input_focused", "minDynamicHeight");
         },
         label: "Min Height (in rows)",
         helpText: "Minimum number of rows to occupy irrespective of contents",
-        controlType: "SLIDER",
+        controlType: "INPUT_TEXT",
         hidden: hideDynamicHeightPropertyControl,
         dependencies: ["dynamicHeight"],
         isJSConvertible: false,
@@ -235,15 +243,15 @@ export const PropertyPaneConfigTemplates = {
       },
       {
         propertyName: "maxDynamicHeight",
-        onChange: () => {
+        onFocus: () => {
           EventEmitter.emit("property_pane_input_focused", "maxDynamicHeight");
         },
-        onRelease: () => {
+        onBlur: () => {
           EventEmitter.emit("property_pane_input_blurred", "maxDynamicHeight");
         },
         label: "Max Height (in rows)",
         helpText: "Maximum Height, after which contents will scroll",
-        controlType: "SLIDER",
+        controlType: "INPUT_TEXT",
         dependencies: ["dynamicHeight"],
         hidden: hideDynamicHeightPropertyControl,
         updateHook: transformToNumber,

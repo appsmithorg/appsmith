@@ -111,6 +111,7 @@ const SwitchGroupComponent = React.forwardRef<
           fontSize={labelTextSize}
           fontStyle={labelStyle}
           inline={inline}
+          isDynamicHeightEnabled={isDynamicHeightEnabled}
           optionCount={optionCount}
           position={labelPosition}
           text={labelText}

@@ -198,9 +198,9 @@ abstract class BaseWidget<
       { diff: Math.abs(currentHeightInRows - expectedHeightInRows) },
     );
 
-    // // If the diff is of less than 2 rows, do nothing. If it is actually 2 rows,
-    // // then we need to compute.
-    // const diff = Math.abs(currentHeightInRows - expectedHeightInRows);
+    // If the diff is of less than 2 rows, do nothing. If it is actually 2 rows,
+    // then we need to compute.
+    // if (Math.abs(currentHeightInRows - expectedHeightInRows) < 2) return false;
     // Does this widget have dynamic height enabled
     const isDynamicHeightEnabled = isDynamicHeightEnabledForWidget(this.props);
 
@@ -242,6 +242,23 @@ abstract class BaseWidget<
       ) {
         return true;
       }
+
+      // If minDynamicHeightInRows is larger than expectedHeightInRows
+      if (minDynamicHeightInRows > expectedHeightInRows) {
+        return true;
+      }
+    }
+
+    // If current height is less than the minDynamicHeightInRows
+    // We're trying to see if we can increase the height
+    if (currentHeightInRows < minDynamicHeightInRows) {
+      return true;
+    }
+
+    // If current height is more than the maxDynamicHeightInRows
+    // We're trying to see if we can decrease the height
+    if (currentHeightInRows > maxDynamicHeightInRows) {
+      return true;
     }
 
     // Since the conditions to change height already return true
@@ -402,24 +419,36 @@ abstract class BaseWidget<
   }
 
   addDynamicHeightOverlay(content: ReactNode) {
-    const onMaxHeightSet = debounce((height: number) => {
+    const onMaxHeightSet = (height: number) => {
       this.updateWidgetProperty("maxDynamicHeight", Math.floor(height / 10));
-    }, 250);
+    };
 
-    const onMinHeightSet = debounce((height: number) => {
+    const onMinHeightSet = (height: number) => {
       this.updateWidgetProperty("minDynamicHeight", Math.floor(height / 10));
-    }, 250);
+    };
+
+    const onBatchUpdate = (height: number) => {
+      this.batchUpdateWidgetProperty({
+        modify: {
+          maxDynamicHeight: Math.floor(height / 10),
+          minDynamicHeight: Math.floor(height / 10),
+        },
+      });
+    };
 
     return (
-      <DynamicHeightOverlay
-        {...this.props}
-        maxDynamicHeight={this.props.maxDynamicHeight}
-        minDynamicHeight={this.props.minDynamicHeight}
-        onMaxHeightSet={onMaxHeightSet}
-        onMinHeightSet={onMinHeightSet}
-      >
+      <div>
+        <DynamicHeightOverlay
+          {...this.props}
+          batchUpdate={onBatchUpdate}
+          maxDynamicHeight={this.props.maxDynamicHeight}
+          minDynamicHeight={this.props.minDynamicHeight}
+          onMaxHeightSet={onMaxHeightSet}
+          onMinHeightSet={onMinHeightSet}
+          style={this.getPositionStyle()}
+        />
         {content}
-      </DynamicHeightOverlay>
+      </div>
     );
   }
 
@@ -430,6 +459,13 @@ abstract class BaseWidget<
         content = this.getCanvasView();
         content = this.addPreviewModeWidget(content);
         if (!this.props.detachFromLayout) {
+          if (!this.props.resizeDisabled) content = this.makeResizable(content);
+          content = this.showWidgetName(content);
+          content = this.makeDraggable(content);
+          content = this.makeSnipeable(content);
+          // NOTE: In sniping mode we are not blocking onClick events from PositionWrapper.
+          content = this.makePositioned(content);
+
           if (
             this.props.dynamicHeight === DynamicHeight.AUTO_HEIGHT_WITH_LIMITS
           ) {
@@ -440,13 +476,6 @@ abstract class BaseWidget<
             );
             content = this.addDynamicHeightOverlay(content);
           }
-          if (!this.props.resizeDisabled) content = this.makeResizable(content);
-          content = this.showWidgetName(content);
-          content = this.makeDraggable(content);
-
-          content = this.makeSnipeable(content);
-          // NOTE: In sniping mode we are not blocking onClick events from PositionWrapper.
-          content = this.makePositioned(content);
         }
 
         return content;

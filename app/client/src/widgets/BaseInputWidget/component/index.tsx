@@ -566,6 +566,7 @@ class BaseInputComponent extends React.Component<
       errorMessage,
       inputHTMLType,
       inputType,
+      isDynamicHeightEnabled,
       isInvalid,
       isLoading,
       label,
@@ -582,12 +583,7 @@ class BaseInputComponent extends React.Component<
     const showLabelHeader = label || tooltip;
 
     return (
-      <div
-        ref={this.props.innerRef}
-        style={
-          this.props.isDynamicHeightEnabled ? { height: "auto" } : undefined
-        }
-      >
+      <div ref={this.props.innerRef}>
         <InputComponentWrapper
           compactMode={compactMode}
           data-testid="input-container"
@@ -613,6 +609,7 @@ class BaseInputComponent extends React.Component<
               fontSize={labelTextSize}
               fontStyle={labelStyle}
               helpText={tooltip}
+              isDynamicHeightEnabled={isDynamicHeightEnabled}
               loading={isLoading}
               position={labelPosition}
               text={label}

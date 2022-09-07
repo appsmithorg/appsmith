@@ -14,6 +14,7 @@ import { AutocompleteDataType } from "utils/autocomplete/TernServer";
 import { OverflowTypes } from "../constants";
 import WidgetStyleContainer from "components/designSystems/appsmith/WidgetStyleContainer";
 import { pick } from "lodash";
+import { isDynamicHeightEnabledForWidget } from "widgets/WidgetUtils";
 
 const MAX_HTML_PARSING_LENGTH = 1000;
 class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
@@ -57,6 +58,9 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
             defaultValue: OverflowTypes.NONE,
             isBindProperty: false,
             isTriggerProperty: false,
+            hidden: (props: WidgetProps) =>
+              isDynamicHeightEnabledForWidget(props),
+            dependencies: ["dynamicHeight"],
           },
           {
             propertyName: "isVisible",

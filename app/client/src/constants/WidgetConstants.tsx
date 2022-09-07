@@ -83,7 +83,7 @@ export const GridDefaults = {
 
 export const WidgetHeightLimits = {
   MAX_HEIGHT_IN_ROWS: 9000,
-  MIN_HEIGHT_IN_ROWS: 4,
+  MIN_HEIGHT_IN_ROWS: 2,
 };
 
 export const CANVAS_MIN_HEIGHT = 380;
