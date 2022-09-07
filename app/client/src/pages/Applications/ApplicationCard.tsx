@@ -332,6 +332,8 @@ const CircleAppIcon = styled(AppIcon)`
   border-radius: 50%;
 
   svg {
+    width: 100%;
+    height: 100%;
     path {
       fill: #000 !important;
     }

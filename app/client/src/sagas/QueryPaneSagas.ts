@@ -8,7 +8,10 @@ import {
   ReduxFormActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
 import { getFormData } from "selectors/formSelectors";
-import { DATASOURCE_DB_FORM, QUERY_EDITOR_FORM_NAME } from "constants/forms";
+import {
+  DATASOURCE_DB_FORM,
+  QUERY_EDITOR_FORM_NAME,
+} from "@appsmith/constants/forms";
 import history from "utils/history";
 import { APPLICATIONS_URL, INTEGRATION_TABS } from "constants/routes";
 import {

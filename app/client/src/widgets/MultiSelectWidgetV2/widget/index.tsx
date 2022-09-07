@@ -597,7 +597,7 @@ class MultiSelectWidget extends BaseWidget<
             helpText: "Selects the option(s) with value by default",
             propertyName: "defaultOptionValue",
             label: "Default Selected Values",
-            controlType: "INPUT_TEXT",
+            controlType: "SELECT_DEFAULT_VALUE_CONTROL",
             placeholderText: "[GREEN]",
             isBindProperty: true,
             isTriggerProperty: false,
@@ -612,8 +612,7 @@ class MultiSelectWidget extends BaseWidget<
                 },
               },
             },
-            evaluationSubstitutionType:
-              EvaluationSubstitutionType.SMART_SUBSTITUTE,
+            dependencies: ["serverSideFiltering", "options"],
           },
         ],
       },
