@@ -34,16 +34,13 @@ import {
 } from "sagas/WidgetAdditionSagas";
 import { MainCanvasReduxState } from "reducers/uiReducers/mainCanvasReducer";
 import { CANVAS_DEFAULT_MIN_HEIGHT_PX } from "constants/AppConstants";
-import { generateReactKey } from "utils/generators";
 import {
-  Alignment,
-  ButtonBoxShadowTypes,
+  LayoutDirection,
   LayoutWrapperType,
   ResponsiveBehavior,
-  Spacing,
 } from "components/constants";
 import {
-  getLayoutWrapperName,
+  getLayoutWrapperPayload,
   purgeEmptyWrappers,
 } from "../WidgetOperationUtils";
 
@@ -357,11 +354,18 @@ function* autolayoutReorderSaga(
     index: number;
     parentId: string;
     wrapperType: LayoutWrapperType;
+    direction: LayoutDirection;
   }>,
 ) {
   const start = performance.now();
 
-  const { index, movedWidgets, parentId, wrapperType } = actionPayload.payload;
+  const {
+    direction,
+    index,
+    movedWidgets,
+    parentId,
+    wrapperType,
+  } = actionPayload.payload;
   // console.log(`#### moved widgets: ${JSON.stringify(movedWidgets)}`);
   // console.log(`#### parentId: ${parentId}`);
   try {
@@ -375,6 +379,7 @@ function* autolayoutReorderSaga(
         parentId,
         allWidgets,
         wrapperType,
+        direction,
       },
     );
 
@@ -391,8 +396,16 @@ function* reorderAutolayoutChildren(params: {
   parentId: string;
   allWidgets: CanvasWidgetsReduxState;
   wrapperType: LayoutWrapperType;
+  direction: LayoutDirection;
 }) {
-  const { allWidgets, index, movedWidgets, parentId, wrapperType } = params;
+  const {
+    allWidgets,
+    direction,
+    index,
+    movedWidgets,
+    parentId,
+    wrapperType,
+  } = params;
   const widgets = Object.assign({}, allWidgets);
   if (!movedWidgets) return widgets;
   const selectedWidgets = [...movedWidgets];
@@ -433,6 +446,7 @@ function* reorderAutolayoutChildren(params: {
     trimmedWidgets,
     parentId,
     wrapperType,
+    direction,
   );
   const items = [...(updatedWidgets[parentId].children || [])];
   // remove moved widegts from children
@@ -455,6 +469,7 @@ function* updateMovedWidgets(
   allWidgets: CanvasWidgetsReduxState,
   parentId: string,
   wrapperType: LayoutWrapperType,
+  direction: LayoutDirection,
 ) {
   const stateParent = allWidgets[parentId];
   if (!movedWidgets || !allWidgets)
@@ -493,33 +508,19 @@ function* updateMovedWidgets(
     }
 
     // wrap the widget in a wrapper widget
-    const wrapperPayload = {
-      newWidgetId: generateReactKey(),
-      type: "LAYOUT_WRAPPER_WIDGET",
-      widgetName: getLayoutWrapperName(allWidgets),
-      props: {
-        containerStyle: "none",
-        canExtend: false,
-        detachFromLayout: true,
-        children: [],
-        alignment: Alignment.Left,
-        spacing: Spacing.None,
-        isWrapper: true,
-        backgroundColor: "transparent",
-        boxShadow: ButtonBoxShadowTypes.NONE,
-        borderStyle: "none",
+    const wrapperPayload = getLayoutWrapperPayload(
+      allWidgets,
+      {
+        rows: widget.rows,
+        columns: widget.columns,
+        topRow: widget.topRow,
+        leftColumn: widget.leftColumn,
+        parentRowSpace: widget.parentRowSpace,
+        parentColumnSpace: stateParent.parentColumnSpace,
+        widgetId: parentId,
       },
-      rows: widget.rows ? widget.rows + 1 : widget.bottomRow - widget.top + 1,
-      columns: widget.columns
-        ? widget.columns + 1
-        : widget.rightColumn - widget.leftColumn + 1,
-      widgetId: parentId,
-      leftColumn: widget.leftColumn,
-      topRow: widget.topRow,
-      parentRowSpace: stateParent.parentRowSpace,
-      parentColumnSpace: stateParent.parentColumnSpace,
-      tabId: "",
-    };
+      direction,
+    );
     const containerPayload: GeneratedWidgetPayload = yield generateChildWidgets(
       stateParent,
       wrapperPayload,
@@ -545,15 +546,22 @@ function* addWidgetAndReorderSaga(
     index: number;
     parentId: string;
     wrapperType: LayoutWrapperType;
+    direction: LayoutDirection;
   }>,
 ) {
   const start = performance.now();
-  const { index, newWidget, parentId, wrapperType } = actionPayload.payload;
+  const {
+    direction,
+    index,
+    newWidget,
+    parentId,
+    wrapperType,
+  } = actionPayload.payload;
   try {
     const updatedWidgetsOnAddition: {
       widgets: CanvasWidgetsReduxState;
       containerId?: string;
-    } = yield call(addAutoLayoutChild, newWidget, parentId);
+    } = yield call(addAutoLayoutChild, newWidget, parentId, direction);
 
     const updatedWidgetsOnMove: CanvasWidgetsReduxState = yield call(
       reorderAutolayoutChildren,
@@ -565,6 +573,7 @@ function* addWidgetAndReorderSaga(
         parentId,
         allWidgets: updatedWidgetsOnAddition.widgets,
         wrapperType,
+        direction,
       },
     );
     yield put(updateAndSaveLayout(updatedWidgetsOnMove));
@@ -574,7 +583,11 @@ function* addWidgetAndReorderSaga(
   }
 }
 
-function* addAutoLayoutChild(newWidget: WidgetAddChild, parentId: string) {
+function* addAutoLayoutChild(
+  newWidget: WidgetAddChild,
+  parentId: string,
+  direction: LayoutDirection,
+) {
   const allWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
   const stateParent: FlattenedWidgetProps = allWidgets[parentId];
 
@@ -591,10 +604,14 @@ function* addAutoLayoutChild(newWidget: WidgetAddChild, parentId: string) {
     const updatedWidgetsOnAddition: {
       widgets: CanvasWidgetsReduxState;
       containerId?: string;
-    } = yield call(getUpdateDslAfterCreatingAutoLayoutChild, {
-      ...newWidget,
-      widgetId: parentId,
-    });
+    } = yield call(
+      getUpdateDslAfterCreatingAutoLayoutChild,
+      {
+        ...newWidget,
+        widgetId: parentId,
+      },
+      direction,
+    );
 
     return updatedWidgetsOnAddition;
   }

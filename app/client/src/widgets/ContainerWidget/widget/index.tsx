@@ -317,7 +317,8 @@ export class ContainerWidget extends BaseWidget<
       this.props.removeWrappers &&
         this.props.removeWrappers(this.props.widgetId);
     } else if (prevProps.positioning === Positioning.Fixed)
-      this.props.addWrappers && this.props.addWrappers(this.props.widgetId);
+      this.props.addWrappers &&
+        this.props.addWrappers(this.props.widgetId, this.state.direction);
   };
 
   getSnapSpaces = () => {
@@ -326,8 +327,7 @@ export class ContainerWidget extends BaseWidget<
     let padding = (CONTAINER_GRID_PADDING + WIDGET_PADDING) * 2;
     if (
       this.props.widgetId === MAIN_CONTAINER_WIDGET_ID ||
-      this.props.type === "CONTAINER_WIDGET" ||
-      this.props.type === "LAYOUT_WRAPPER_WIDGET"
+      this.props.type === "CONTAINER_WIDGET"
     ) {
       //For MainContainer and any Container Widget padding doesn't exist coz there is already container padding.
       padding = CONTAINER_GRID_PADDING * 2;
@@ -410,7 +410,8 @@ export class ContainerWidget extends BaseWidget<
 
 const mapDispatchToProps = (dispatch: any) => ({
   removeWrappers: (id: string) => dispatch(removeWrappers(id)),
-  addWrappers: (id: string) => dispatch(addWrappers(id)),
+  addWrappers: (id: string, direction: LayoutDirection) =>
+    dispatch(addWrappers(id, direction)),
 });
 
 export interface ContainerWidgetProps<T extends WidgetProps>

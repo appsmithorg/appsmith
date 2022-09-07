@@ -4,6 +4,7 @@ import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
 } from "ce/constants/ReduxActionConstants";
+import { LayoutDirection } from "components/constants";
 import log from "loglevel";
 import { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { all, call, put, select, takeLatest } from "redux-saga/effects";
@@ -12,6 +13,7 @@ import { purgeChildWrappers, wrapChildren } from "./WidgetOperationUtils";
 
 type LayoutUpdatePayload = {
   parentId: string;
+  direction: LayoutDirection;
 };
 
 function* removeChildWrappers(actionPayload: ReduxAction<LayoutUpdatePayload>) {
@@ -39,12 +41,13 @@ function* removeChildWrappers(actionPayload: ReduxAction<LayoutUpdatePayload>) {
 function* addChildWrappers(actionPayload: ReduxAction<LayoutUpdatePayload>) {
   try {
     const start = performance.now();
-    const { parentId } = actionPayload.payload;
+    const { direction, parentId } = actionPayload.payload;
     const allWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
     const updatedWidgets: CanvasWidgetsReduxState = yield call(
       wrapChildren,
       allWidgets,
       parentId,
+      direction,
     );
     yield put(updateAndSaveLayout(updatedWidgets));
     log.debug("empty wrapper removal took", performance.now() - start, "ms");
@@ -52,7 +55,7 @@ function* addChildWrappers(actionPayload: ReduxAction<LayoutUpdatePayload>) {
     yield put({
       type: ReduxActionErrorTypes.WIDGET_OPERATION_ERROR,
       payload: {
-        action: ReduxActionTypes.REMOVE_CHILD_WRAPPERS,
+        action: ReduxActionTypes.ADD_CHILD_WRAPPERS,
         error,
       },
     });

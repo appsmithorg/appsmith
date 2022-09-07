@@ -313,6 +313,7 @@ export const useBlocksToBeDraggedOnCanvas = ({
           movedWidgets: selectedWidgets,
           parentId: widgetId,
           wrapperType,
+          direction,
         },
       });
   };
@@ -357,6 +358,7 @@ export const useBlocksToBeDraggedOnCanvas = ({
         newWidget: widgetPayload,
         parentId: widgetId,
         wrapperType,
+        direction,
       },
     });
   };

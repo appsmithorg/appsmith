@@ -102,7 +102,7 @@ export const FlexContainer = styled.div<{
   padding: 4px;
 
   .wrapper {
-    flex: 1 1 auto;
+    flex: 1 1 33.3%;
   }
 `;
 

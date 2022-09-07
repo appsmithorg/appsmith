@@ -53,11 +53,17 @@ import { reflow } from "reflow";
 import { getBottomRowAfterReflow } from "utils/reflowHookUtils";
 import { DataTreeWidget } from "entities/DataTree/dataTreeFactory";
 import { isWidget } from "../workers/evaluationUtils";
-import { Alignment, ButtonBoxShadowTypes, Spacing } from "components/constants";
+import {
+  Alignment,
+  ButtonBoxShadowTypes,
+  LayoutDirection,
+  Spacing,
+} from "components/constants";
 import {
   generateChildWidgets,
   GeneratedWidgetPayload,
 } from "./WidgetAdditionSagas";
+import { WidgetAddChild } from "actions/pageActions";
 
 export interface CopiedWidgetGroup {
   widgetId: string;
@@ -1747,6 +1753,7 @@ export function purgeChildWrappers(
 export function* wrapChildren(
   allWidgets: CanvasWidgetsReduxState,
   containerId: string,
+  direction: LayoutDirection,
 ) {
   const widgets = { ...allWidgets };
   const container = widgets[containerId];
@@ -1762,7 +1769,6 @@ export function* wrapChildren(
     ...parent,
     children: [],
   };
-
   /**
    * Generate new wrappers
    * and wrap each child in its own wrapper
@@ -1771,33 +1777,19 @@ export function* wrapChildren(
     const child = widgets[each];
     if (!child || child.isWrapper) continue;
     // Create new wrapper
-    const wrapperPayload = {
-      newWidgetId: generateReactKey(),
-      type: "LAYOUT_WRAPPER_WIDGET",
-      widgetName: getLayoutWrapperName(widgets),
-      props: {
-        containerStyle: "none",
-        canExtend: false,
-        detachFromLayout: true,
-        children: [],
-        alignment: Alignment.Left,
-        spacing: Spacing.None,
-        isWrapper: true,
-        backgroundColor: "transparent",
-        boxShadow: ButtonBoxShadowTypes.NONE,
-        borderStyle: "none",
+    const wrapperPayload = getLayoutWrapperPayload(
+      widgets,
+      {
+        rows: child.rows,
+        columns: child.columns,
+        topRow: child.topRow,
+        leftColumn: child.leftColumn,
+        parentColumnSpace: parent.parentColumnSpace,
+        parentRowSpace: child.parentRowSpace,
+        widgetId: canvasId,
       },
-      rows: child.rows ? child.rows + 1 : child.bottomRow - child.top + 1,
-      columns: child.columns
-        ? child.columns + 1
-        : child.rightColumn - child.leftColumn + 1,
-      leftColumn: child.leftColumn,
-      topRow: child.topRow,
-      parentRowSpace: parent.parentRowSpace,
-      parentColumnSpace: parent.parentColumnSpace,
-      tabId: "",
-      widgetId: canvasId,
-    };
+      direction,
+    );
     const containerPayload: GeneratedWidgetPayload = yield generateChildWidgets(
       parent,
       wrapperPayload,
@@ -1831,4 +1823,34 @@ export function getLayoutWrapperName(widgets: CanvasWidgetsReduxState): string {
       .sort((a, b) => parseInt(b) - parseInt(a)) || [];
   const suffix = arr.length > 0 ? parseInt(arr[0]) + 1 : 1;
   return `LayoutWrapper${suffix}`;
+}
+
+export function getLayoutWrapperPayload(
+  widgets: CanvasWidgetsReduxState,
+  payload: Omit<
+    WidgetAddChild,
+    "newWidgetId" | "tabId" | "widgetName" | "type"
+  >,
+  direction: LayoutDirection = LayoutDirection.Vertical,
+): WidgetAddChild {
+  return {
+    ...payload,
+    newWidgetId: generateReactKey(),
+    type: "LAYOUT_WRAPPER_WIDGET",
+    widgetName: getLayoutWrapperName(widgets),
+    props: {
+      containerStyle: "none",
+      canExtend: false,
+      detachFromLayout: true,
+      children: [],
+      alignment: Alignment.Left,
+      spacing: Spacing.None,
+      isWrapper: true,
+      backgroundColor: "transparent",
+      boxShadow: ButtonBoxShadowTypes.NONE,
+      borderStyle: "none",
+    },
+    columns: direction === LayoutDirection.Vertical ? 64 : payload.columns + 1,
+    tabId: "0",
+  };
 }

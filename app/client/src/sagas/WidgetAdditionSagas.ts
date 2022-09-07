@@ -24,7 +24,7 @@ import {
   traverseTreeAndExecuteBlueprintChildOperations,
 } from "./WidgetBlueprintSagas";
 import {
-  getLayoutWrapperName,
+  getLayoutWrapperPayload,
   getParentBottomRowAfterAddingWidget,
 } from "./WidgetOperationUtils";
 import log from "loglevel";
@@ -39,7 +39,7 @@ import { getSelectedAppThemeStylesheet } from "selectors/appThemingSelectors";
 import { getPropertiesToUpdate } from "./WidgetOperationSagas";
 import { klona as clone } from "klona/full";
 import { DataTree } from "entities/DataTree/dataTreeFactory";
-import { Alignment, ButtonBoxShadowTypes, Spacing } from "components/constants";
+import { LayoutDirection } from "components/constants";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
 
@@ -327,6 +327,7 @@ export function* getUpdateDslAfterCreatingChild(
 
 export function* getUpdateDslAfterCreatingAutoLayoutChild(
   addChildPayload: WidgetAddChild,
+  direction: LayoutDirection,
 ) {
   // console.log(addChildPayload);
   // NOTE: widgetId here is the parentId of the dropped widget ( we should rename it to avoid confusion )
@@ -346,27 +347,11 @@ export function* getUpdateDslAfterCreatingAutoLayoutChild(
    */
 
   // Generate a payload for canvas widget
-  const newContainerWidgetPayload = {
-    ...addChildPayload,
-    newWidgetId: generateReactKey(),
-    type: "LAYOUT_WRAPPER_WIDGET",
-    widgetName: getLayoutWrapperName(widgets),
-    props: {
-      containerStyle: "none",
-      canExtend: false,
-      detachFromLayout: true,
-      children: [],
-      alignment: Alignment.Left,
-      spacing: Spacing.None,
-      isWrapper: true,
-      backgroundColor: "transparent",
-      boxShadow: ButtonBoxShadowTypes.NONE,
-      borderStyle: "none",
-    },
-    rows: addChildPayload.rows + 1,
-    columns: addChildPayload.columns + 2,
-  };
-  // console.log(newContainerWidgetPayload);
+  const newContainerWidgetPayload = getLayoutWrapperPayload(
+    widgets,
+    addChildPayload,
+    direction,
+  );
   const containerPayload: GeneratedWidgetPayload = yield generateChildWidgets(
     stateParent,
     newContainerWidgetPayload,
