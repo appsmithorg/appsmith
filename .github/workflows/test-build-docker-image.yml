@@ -831,7 +831,9 @@ jobs:
           chmod a+x ./cypress/setup-test-fat.sh
           ./cypress/setup-test-fat.sh
 
-      - uses: browser-actions/setup-chrome@stable
+      - uses: browser-actions/setup-chrome@latest
+        with:
+          chrome-version: stable
       - run: |
           echo "BROWSER_PATH=$(which chrome)" >> $GITHUB_ENV
 
@@ -1264,7 +1266,9 @@ jobs:
         run: |
           ./cypress/setup-test.sh
 
-      - uses: browser-actions/setup-chrome@stable
+      - uses: browser-actions/setup-chrome@latest
+        with:
+          chrome-version: stable
       - run: |
           echo "BROWSER_PATH=$(which chrome)" >> $GITHUB_ENV
 
