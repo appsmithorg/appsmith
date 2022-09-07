@@ -1,9 +1,12 @@
-import React, { useMemo, useState } from "react";
+import React, { useMemo } from "react";
 import styled from "styled-components";
 
 import { Colors } from "constants/Colors";
 import { TabTitle, TabComponent, TabProp } from "components/ads/Tabs";
 import { Tab, TabList, Tabs } from "react-tabs";
+import { useDispatch, useSelector } from "react-redux";
+import { getSelectedPropertyTabIndex } from "selectors/editorContextSelectors";
+import { setSelectedPropertyTabIndex } from "actions/editorContextActions";
 
 const StyledTabComponent = styled(TabComponent)`
   height: auto;
@@ -19,7 +22,7 @@ const StyledTabComponent = styled(TabComponent)`
 
 const StyledTabs = styled(Tabs)`
   position: sticky;
-  top: 90px;
+  top: 46px;
   z-index: 3;
   background: ${Colors.WHITE};
   padding: 0px 12px;
@@ -30,9 +33,15 @@ const StyledTabs = styled(Tabs)`
     border: 0;
     margin: 0;
   }
+
   .react-tabs__tab .tab-title {
     font-weight: 500;
     color: ${Colors.GRAY_700};
+  }
+
+  .react-tabs__tab {
+    border: 2px solid transparent;
+    bottom: -2px;
   }
 
   .react-tabs__tab--selected .tab-title {
@@ -47,8 +56,9 @@ const StyledTabs = styled(Tabs)`
   }
 
   .react-tabs__tab--selected {
-    border: 0;
+    border-width: 2px;
     border-radius: 0;
+    border-color: transparent;
     border-bottom: 2px solid ${Colors.PRIMARY_ORANGE};
   }
 
@@ -63,7 +73,12 @@ type PropertyPaneTabProps = {
 };
 
 export function PropertyPaneTab(props: PropertyPaneTabProps) {
-  const [selectedIndex, setSelectedIndex] = useState(0);
+  const dispatch = useDispatch();
+  const selectedIndex = useSelector(getSelectedPropertyTabIndex);
+
+  const setSelectedIndex = (index: number) => {
+    dispatch(setSelectedPropertyTabIndex(index));
+  };
 
   const tabs = useMemo(() => {
     const arr: TabProp[] = [];

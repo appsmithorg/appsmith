@@ -7,7 +7,7 @@ const Wrapper = styled.section<{ isFixed?: boolean }>`
     props.isFixed
       ? `margin: 0;
   position: fixed;
-  top: ${props.theme.homePage.header}px;;
+  top: ${props.theme.homePage.header}px;
   width: 100%;`
       : `margin-top: ${props.theme.homePage.header}px;`}
   && .fade {

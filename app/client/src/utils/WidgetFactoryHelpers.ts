@@ -9,7 +9,7 @@ import { PropertyPaneConfigTemplates, WidgetFeatures } from "./WidgetFeatures";
 /* This function recursively parses the property pane configuration and
    adds random hash values as `id`.
 
-   These are generated once when the Appsmith editor is loaded, 
+   These are generated once when the Appsmith editor is loaded,
    the resulting config is frozen and re-used during the lifecycle
    of the current browser session. See WidgetFactory
 */
@@ -30,6 +30,24 @@ export const addPropertyConfigIds = (config: PropertyPaneConfig[]) => {
       config.panelConfig.children = addPropertyConfigIds(
         config.panelConfig.children,
       );
+
+      if (
+        config.panelConfig.contentChildren &&
+        Array.isArray(config.panelConfig.contentChildren)
+      ) {
+        config.panelConfig.contentChildren = addPropertyConfigIds(
+          config.panelConfig.contentChildren,
+        );
+      }
+
+      if (
+        config.panelConfig.styleChildren &&
+        Array.isArray(config.panelConfig.styleChildren)
+      ) {
+        config.panelConfig.styleChildren = addPropertyConfigIds(
+          config.panelConfig.styleChildren,
+        );
+      }
 
       (sectionOrControlConfig as PropertyPaneControlConfig) = config;
     }
@@ -53,9 +71,9 @@ export function enhancePropertyPaneConfig(
   return config;
 }
 
-/* 
+/*
   ValidationTypes.FUNCTION, allow us to configure functions within them,
-  However, these are not serializable, which results in them not being able to 
+  However, these are not serializable, which results in them not being able to
   be sent to the workers.
   We convert these functions to strings and delete the original function properties
   in this function

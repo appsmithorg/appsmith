@@ -9,12 +9,13 @@ import React, {
   useCallback,
 } from "react";
 import { Collapse } from "@blueprintjs/core";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { getWidgetPropsForPropertyPane } from "selectors/propertyPaneSelectors";
 import styled from "constants/DefaultTheme";
 import { Colors } from "constants/Colors";
-import { getWidgetParent } from "sagas/selectors";
-import { WidgetProps } from "widgets/BaseWidget";
+import { getPropertySectionState } from "selectors/editorContextSelectors";
+import { AppState } from "@appsmith/reducers";
+import { setPropertySectionState } from "actions/editorContextActions";
 
 const SectionTitle = styled.div`
   display: grid;
@@ -80,11 +81,7 @@ type PropertySectionProps = {
   collapsible?: boolean;
   children?: ReactNode;
   childrenWrapperRef?: React.RefObject<HTMLDivElement>;
-  hidden?: (
-    props: any,
-    propertyPath: string,
-    widgetParentProps?: WidgetProps,
-  ) => boolean;
+  hidden?: (props: any, propertyPath: string) => boolean;
   isDefaultOpen?: boolean;
   propertyPath?: string;
 };
@@ -97,21 +94,32 @@ const areEqual = (prev: PropertySectionProps, next: PropertySectionProps) => {
 export const CollapseContext: Context<boolean> = createContext<boolean>(false);
 
 export const PropertySection = memo((props: PropertySectionProps) => {
+  const dispatch = useDispatch();
+  const widgetProps: any = useSelector(getWidgetPropsForPropertyPane);
   const { isDefaultOpen = true } = props;
-  const [isOpen, setIsOpen] = useState(!!isDefaultOpen);
-  const widgetProps: any = useSelector(getWidgetPropsForPropertyPane) || {};
+  const isDefaultContextOpen = useSelector(
+    (state: AppState) =>
+      getPropertySectionState(state, `${widgetProps?.widgetId}.${props.id}`),
+    () => true,
+  );
+  const [isOpen, setIsOpen] = useState(
+    isDefaultContextOpen !== undefined ? isDefaultContextOpen : !!isDefaultOpen,
+  );
+
   const handleSectionTitleClick = useCallback(() => {
-    if (props.collapsible) setIsOpen((x) => !x);
+    if (props.collapsible)
+      setIsOpen((x) => {
+        dispatch(
+          setPropertySectionState(`${widgetProps?.widgetId}.${props.id}`, !x),
+        );
+        return !x;
+      });
   }, []);
-  /**
-   * get actual parent of widget
-   * for button inside form, button's parent is form
-   * for button on canvas, parent is main container
-   */
-  const parentWidget = useSelector(getWidgetParent(widgetProps.widgetId));
+
+  if (!widgetProps) return null;
 
   if (props.hidden) {
-    if (props.hidden(widgetProps, props.propertyPath || "", parentWidget)) {
+    if (props.hidden(widgetProps, props.propertyPath || "")) {
       return null;
     }
   }

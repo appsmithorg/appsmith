@@ -8,6 +8,7 @@ describe("Menu Button Widget Functionality", () => {
 
   it("1. Icon alignment should not change when changing the icon", () => {
     cy.openPropertyPane("menubuttonwidget");
+    cy.moveToStyleTab();
     // Add an icon
     cy.get(".t--property-control-icon .bp3-icon-caret-down").click({
       force: true,
@@ -20,7 +21,7 @@ describe("Menu Button Widget Functionality", () => {
     // Assert if the icon exists
     cy.get(`${formWidgetsPage.menuButtonWidget} .bp3-icon-add`).should("exist");
     // Change its icon alignment to right
-    cy.get(".t--property-control-iconalignment .t--button-tab-right")
+    cy.get(".t--property-control-position .t--button-tab-right")
       .last()
       .click({ force: true });
     cy.wait(200);
@@ -51,7 +52,7 @@ describe("Menu Button Widget Functionality", () => {
 
   it("2. MenuButton widget functionality on undo after delete", function() {
     cy.openPropertyPane("menubuttonwidget");
-
+    cy.moveToContentTab();
     // Delete Second Menu Item
     cy.get(".t--property-control-menuitems .t--delete-column-btn")
       .eq(1)

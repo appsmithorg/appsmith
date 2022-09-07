@@ -4,7 +4,7 @@ import { CellWrapper, ColumnWrapper } from "./TableStyledWrappers";
 import { CellLayoutProperties, ColumnTypes } from "./Constants";
 import { ReactComponent as OpenNewTabIcon } from "assets/icons/control/open-new-tab.svg";
 import styled from "styled-components";
-import isEqual from "fast-deep-equal";
+import equal from "fast-deep-equal/es6";
 
 const TooltipContentWrapper = styled.div<{ width: number }>`
   word-break: break-all;
@@ -130,7 +130,7 @@ function AutoToolTipComponent(props: Props) {
 export default memo(
   AutoToolTipComponent,
   (prev, next) =>
-    isEqual(prev.cellProperties, next.cellProperties) &&
+    equal(prev.cellProperties, next.cellProperties) &&
     prev.isHidden === next.isHidden &&
     prev.isCellVisible === next.isCellVisible &&
     prev.noPadding === next.noPadding &&

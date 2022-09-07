@@ -119,6 +119,9 @@ import { DataTree } from "entities/DataTree/dataTreeFactory";
 import { builderURL, generateTemplateURL } from "RouteBuilder";
 import { failFastApiCalls } from "./InitSagas";
 import { takeEvery } from "redux-saga/effects";
+import { getSelectedWidgets } from "selectors/ui";
+import { getCanvasWidgetsWithParentId } from "selectors/entitiesSelector";
+import { showModal } from "actions/widgetActions";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
 
@@ -234,7 +237,7 @@ export function* handleFetchedPage({
     // dispatch fetch page success
     yield put(fetchPageSuccess());
 
-    yield put(selectMultipleWidgetsAction([]));
+    yield call(restoreSelectedWidgetContext);
 
     /* Currently, All Actions are fetched in initSagas and on pageSwitch we only fetch page
      */
@@ -1103,6 +1106,22 @@ export function* generateTemplatePageSaga(
     }
   } catch (error) {
     yield put(generateTemplateError());
+  }
+}
+
+function* restoreSelectedWidgetContext() {
+  const selectedWidgets: string[] = yield select(getSelectedWidgets);
+  const allWidgets: CanvasWidgetsReduxState = yield select(
+    getCanvasWidgetsWithParentId,
+  );
+
+  if (
+    selectedWidgets.length === 1 &&
+    allWidgets[selectedWidgets[0]]?.type === "MODAL_WIDGET"
+  ) {
+    yield put(showModal(selectedWidgets[0], false));
+  } else if (allWidgets[selectedWidgets[0]]?.parentModalId) {
+    yield put(showModal(allWidgets[selectedWidgets[0]]?.parentModalId, false));
   }
 }
 

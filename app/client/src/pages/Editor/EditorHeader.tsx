@@ -61,6 +61,8 @@ import {
   CLOSE_ENTITY_EXPLORER_MESSAGE,
   createMessage,
   DEPLOY_BUTTON_TOOLTIP,
+  INVITE_USERS_MESSAGE,
+  INVITE_USERS_PLACEHOLDER,
   LOCK_ENTITY_EXPLORER_MESSAGE,
   LOGO_TOOLTIP,
   RENAME_APPLICATION_TOOLTIP,
@@ -82,6 +84,7 @@ import EndTour from "./GuidedTour/EndTour";
 import { GUIDED_TOUR_STEPS } from "./GuidedTour/constants";
 import { viewerURL } from "RouteBuilder";
 import { useHref } from "./utils";
+import { inviteModalLinks } from "@appsmith/constants/forms";
 
 const HeaderWrapper = styled.div`
   width: 100%;
@@ -459,6 +462,9 @@ export function EditorHeader(props: EditorHeaderProps) {
                 bgColor: Colors.GEYSER_LIGHT,
               }}
               isOpen={showAppInviteUsersDialog}
+              links={inviteModalLinks}
+              message={createMessage(INVITE_USERS_MESSAGE)}
+              placeholder={createMessage(INVITE_USERS_PLACEHOLDER)}
               title={
                 currentApplication
                   ? currentApplication.name

@@ -1,6 +1,7 @@
 import React, { memo, useEffect, useMemo, useRef, useState } from "react";
 import styled from "styled-components";
 import _ from "lodash";
+import equal from "fast-deep-equal/es6";
 import Popper from "pages/Editor/Popper";
 import ReactJson from "react-json-view";
 import {
@@ -30,7 +31,7 @@ import { Variant } from "components/ads/common";
 import { useDispatch, useSelector } from "react-redux";
 import { getEvaluatedPopupState } from "selectors/editorContextSelectors";
 import { AppState } from "@appsmith/reducers";
-import { setEvalPopupState } from "actions/editorContextActions";
+import { generateKeyAndSetEvalPopupState } from "actions/editorContextActions";
 
 const modifiers: IPopoverSharedProps["modifiers"] = {
   offset: {
@@ -387,7 +388,7 @@ const ControlledCurrentValueViewer = memo(
       prevProps.openEvaluatedValue === nextProps.openEvaluatedValue &&
       // Deep-compare evaluated values to ensure we only rerender
       // when the array actually changes
-      _.isEqual(prevProps.evaluatedValue, nextProps.evaluatedValue)
+      equal(prevProps.evaluatedValue, nextProps.evaluatedValue)
     );
   },
 );
@@ -428,7 +429,7 @@ function PopoverContent(props: PopoverContentProps) {
 
   useEffect(() => {
     dispatch(
-      setEvalPopupState(props.dataTreePath, {
+      generateKeyAndSetEvalPopupState(props.dataTreePath, {
         type: openExpectedDataType,
         example: openExpectedExample,
         value: openEvaluatedValue,

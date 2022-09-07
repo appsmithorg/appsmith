@@ -62,7 +62,7 @@ function shouldStoreStateForCanvas(
   return (
     prevFocusEntity === FocusEntity.PROPERTY_PANE &&
     currFocusEntity !== FocusEntity.PROPERTY_PANE &&
-    currFocusEntity !== FocusEntity.CANVAS
+    (currFocusEntity !== FocusEntity.CANVAS || prevPath !== currPath)
   );
 }
 
