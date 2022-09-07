@@ -2457,6 +2457,7 @@ public class DatabaseChangelog2 {
                     String oldPermissionGroupId = application.getDefaultPermissionGroup();
                     // Store the existing permission group providing view access to the app for cleanup
                     oldPgIds.add(oldPermissionGroupId);
+                    application.setDefaultPermissionGroup(null);
 
                     // Update the application policies to use the public permission group
                     application.getPolicies()
@@ -2466,6 +2467,7 @@ public class DatabaseChangelog2 {
                                 policy.getPermissionGroups().remove(oldPermissionGroupId);
                                 policy.getPermissionGroups().add(permissionGroupId);
                             });
+                    mongockTemplate.save(application);
 
                     Set<String> datasourceIds = new HashSet<>();
                     Query applicationActionsQuery = new Query().addCriteria(where(fieldName(QNewAction.newAction.applicationId)).is(application.getId()));
