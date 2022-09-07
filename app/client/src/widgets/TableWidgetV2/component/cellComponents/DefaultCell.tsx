@@ -4,6 +4,7 @@ import { isNumber, isNil } from "lodash";
 import { BaseCellComponentProps } from "../Constants";
 import {
   ColumnTypes,
+  EditableCell,
   EditableCellActions,
 } from "widgets/TableWidgetV2/constants";
 import { TextCell } from "./TextCell";
@@ -15,7 +16,7 @@ export type RenderDefaultPropsType = BaseCellComponentProps & {
   tableWidth: number;
   isCellEditable: boolean;
   isCellEditMode?: boolean;
-  onCellTextChange: (value: string | number | null, inputValue: string) => void;
+  onCellTextChange: (value: EditableCell["value"], inputValue: string) => void;
   toggleCellEditMode: (
     enable: boolean,
     rowIndex: number,
@@ -29,6 +30,7 @@ export type RenderDefaultPropsType = BaseCellComponentProps & {
   disabledEditIcon: boolean;
   isEditableCellValid: boolean;
   validationErrorMessage: string;
+  widgetId: string;
 };
 
 type editPropertyType = {
@@ -85,12 +87,12 @@ function DefaultCell(props: RenderDefaultPropsType & editPropertyType) {
     validationErrorMessage,
     value,
     verticalAlignment,
+    widgetId,
   } = props;
 
   const editEvents = useMemo(
     () => ({
-      onChange: (value: string | number | null, inputValue: string) =>
-        onCellTextChange(value, inputValue),
+      onChange: onCellTextChange,
       onDiscard: () =>
         toggleCellEditMode(
           false,
@@ -160,6 +162,7 @@ function DefaultCell(props: RenderDefaultPropsType & editPropertyType) {
       validationErrorMessage={validationErrorMessage}
       value={getCellText(value, columnType, displayText)}
       verticalAlignment={verticalAlignment}
+      widgetId={widgetId}
     />
   );
 }

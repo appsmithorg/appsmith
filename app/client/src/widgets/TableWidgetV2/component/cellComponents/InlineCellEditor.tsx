@@ -4,6 +4,7 @@ import React, { useCallback, useEffect, useRef, useState } from "react";
 import styled from "styled-components";
 import BaseInputComponent from "widgets/BaseInputWidget/component";
 import { InputTypes } from "widgets/BaseInputWidget/constants";
+import { EditableCell } from "widgets/TableWidgetV2/constants";
 import { TABLE_SIZES, VerticalAlignment } from "../Constants";
 
 const Wrapper = styled.div<{
@@ -79,7 +80,7 @@ type InlineEditorPropsType = {
   compactMode: string;
   inputType: InputTypes.TEXT | InputTypes.NUMBER;
   multiline: boolean;
-  onChange: (value: string | number | null, inputValue: string) => void;
+  onChange: (value: EditableCell["value"], inputValue: string) => void;
   onDiscard: () => void;
   onSave: () => void;
   value: any;
@@ -88,6 +89,7 @@ type InlineEditorPropsType = {
   textSize?: string;
   isEditableCellValid: boolean;
   validationErrorMessage: string;
+  widgetId: string;
 };
 
 export function InlineCellEditor({
@@ -104,6 +106,7 @@ export function InlineCellEditor({
   allowCellWrapping,
   verticalAlignment,
   validationErrorMessage,
+  widgetId,
 }: InlineEditorPropsType) {
   const inputRef = useRef<HTMLTextAreaElement | HTMLInputElement>(null);
   const [cursorPos, setCursorPos] = useState(value.length);
@@ -134,7 +137,7 @@ export function InlineCellEditor({
     (inputValue: string) => {
       setCursorPos(inputRef.current?.selectionStart);
 
-      let value: string | number | null = inputValue;
+      let value: EditableCell["value"] = inputValue;
 
       if (inputType === InputTypes.NUMBER) {
         const parsedValue = Number(inputValue);
@@ -152,7 +155,7 @@ export function InlineCellEditor({
 
       onChange(value, inputValue);
     },
-    [setCursorPos, onChange],
+    [setCursorPos, onChange, inputType],
   );
 
   useEffect(() => {
@@ -184,6 +187,7 @@ export function InlineCellEditor({
         compactMode
         disableNewLineOnPressEnterKey={false}
         errorMessage={validationErrorMessage}
+        errorTooltipBoundary={`#table${widgetId} .tableWrap`}
         inputHTMLType={inputType}
         inputRef={inputRef}
         inputType={inputType}
@@ -194,7 +198,6 @@ export function InlineCellEditor({
         onFocusChange={onFocusChange}
         onKeyDown={onKeyDown}
         onValueChange={onTextChange}
-        preventErrorTooltipOverflow=".tableWrap"
         showError
         value={value}
         widgetId=""

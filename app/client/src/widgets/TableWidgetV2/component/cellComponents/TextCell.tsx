@@ -5,7 +5,7 @@ import AutoToolTipComponent from "./AutoToolTipComponent";
 import { RenderDefaultPropsType } from "./DefaultCell";
 import { ReactComponent as EditIcon } from "assets/icons/control/edit-variant1.svg";
 import { InlineCellEditor } from "./InlineCellEditor";
-import { ColumnTypes } from "widgets/TableWidgetV2/constants";
+import { ColumnTypes, EditableCell } from "widgets/TableWidgetV2/constants";
 import { ALIGN_ITEMS, TABLE_SIZES, VerticalAlignment } from "../Constants";
 import { InputTypes } from "widgets/BaseInputWidget/constants";
 import { CELL_WRAPPER_LINE_HEIGHT } from "../TableStyledWrappers";
@@ -89,7 +89,7 @@ const Content = styled.div`
 `;
 
 interface PropType extends RenderDefaultPropsType {
-  onChange: (value: string | number | null, inputValue: string) => void;
+  onChange: (value: EditableCell["value"], inputValue: string) => void;
   onDiscard: () => void;
   onSave: () => void;
   onEdit: () => void;
@@ -121,6 +121,7 @@ export function TextCell({
   validationErrorMessage,
   value,
   verticalAlignment,
+  widgetId,
 }: PropType) {
   const contentRef = useRef<HTMLDivElement>(null);
 
@@ -160,6 +161,7 @@ export function TextCell({
         validationErrorMessage={validationErrorMessage}
         value={value}
         verticalAlignment={verticalAlignment}
+        widgetId={widgetId}
       />
     );
   }

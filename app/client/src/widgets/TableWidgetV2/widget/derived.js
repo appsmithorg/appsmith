@@ -598,7 +598,7 @@ export default {
       return true;
     }
 
-    const CreateRegex = (regex) => {
+    const createRegex = (regex) => {
       if (!regex) {
         return new RegExp("//");
       }
@@ -646,7 +646,7 @@ export default {
       } else if (
         (!_.isNil(validation.isColumnEditableCellValid) &&
           !validation.isColumnEditableCellValid) ||
-        (validation.regex && !CreateRegex(validation.regex).test(value)) ||
+        (validation.regex && !createRegex(validation.regex).test(value)) ||
         (validation.isColumnEditableCellRequired && value === "")
       ) {
         return false;

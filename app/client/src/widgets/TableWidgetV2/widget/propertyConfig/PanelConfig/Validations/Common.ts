@@ -2,9 +2,9 @@ import { ValidationTypes } from "constants/WidgetValidation";
 
 export default [
   {
+    propertyName: "validation.regex",
     helpText:
       "Adds a validation to the cell value which displays an error on failure",
-    propertyName: "validation.regex",
     label: "Regex",
     controlType: "INPUT_TEXT",
     placeholderText: "^\\w+@[a-zA-Z_]+?\\.[a-zA-Z]{2,3}$",
@@ -13,8 +13,8 @@ export default [
     validation: { type: ValidationTypes.REGEX },
   },
   {
-    helpText: "Shows the validity of the cell validity",
     propertyName: "validation.isColumnEditableCellValid",
+    helpText: "Shows the validity of the cell validity",
     label: "Valid",
     controlType: "TABLE_INLINE_EDIT_VALIDATION",
     isJSConvertible: false,
@@ -29,9 +29,9 @@ export default [
     },
   },
   {
+    propertyName: "validation.errorMessage",
     helpText:
       "The error message to display if the regex or valid property check fails",
-    propertyName: "validation.errorMessage",
     label: "Error Message",
     controlType: "INPUT_TEXT",
     placeholderText: "Not a valid value!",
@@ -41,8 +41,8 @@ export default [
   },
   {
     propertyName: "validation.isColumnEditableCellRequired",
-    label: "Required",
     helpText: "Makes input to the widget mandatory",
+    label: "Required",
     controlType: "SWITCH",
     isJSConvertible: true,
     isBindProperty: true,

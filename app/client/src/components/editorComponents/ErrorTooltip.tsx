@@ -34,11 +34,11 @@ const Wrapper = styled.div`
 `;
 
 interface Props {
+  boundary?: string;
   isOpen: boolean;
   message: string;
   children: JSX.Element;
   customClass?: string;
-  preventOverflow?: string;
 }
 
 function ErrorTooltip(props: Props) {
@@ -46,8 +46,8 @@ function ErrorTooltip(props: Props) {
   let containerElement;
 
   if (
-    props.preventOverflow &&
-    (containerElement = document.querySelector(props.preventOverflow))
+    props.boundary &&
+    (containerElement = document.querySelector(props.boundary))
   ) {
     conditionalProps = {
       modifiers: {
@@ -72,7 +72,7 @@ function ErrorTooltip(props: Props) {
         content={props.message}
         isOpen={props.isOpen && !!props.message}
         portalClassName={`error-tooltip ${props.customClass || ""}`}
-        position={props.preventOverflow ? "auto" : "bottom"}
+        position={props.boundary ? "auto" : "bottom"}
         usePortal
         {...conditionalProps}
       >

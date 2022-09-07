@@ -82,16 +82,6 @@ export interface TableWidgetProps extends WidgetProps, WithMeta, TableStyles {
   isEditableCellValid: boolean;
 }
 
-export const getCurrentRowBinding = (
-  entityName: string,
-  userInput: string,
-  withBinding = true,
-) => {
-  let rowBinding = `${entityName}.processedTableData.map((currentRow, currentIndex) => ( ${userInput}))`;
-  if (withBinding) rowBinding = `{{${rowBinding}}}`;
-  return rowBinding;
-};
-
 export const ORIGINAL_INDEX_KEY = "__originalIndex__";
 
 export const PRIMARY_COLUMN_KEY_VALUE = "__primaryKey__";

@@ -555,7 +555,7 @@ export const migrateTableWidgetV2Validation = (currentDSL: DSLWidget) => {
       const primaryColumns = child.primaryColumns;
 
       for (const key in primaryColumns) {
-        if (Object.prototype.hasOwnProperty.call(primaryColumns, key)) {
+        if (primaryColumns.hasOwnProperty(key)) {
           primaryColumns[key].validation = {};
         }
       }

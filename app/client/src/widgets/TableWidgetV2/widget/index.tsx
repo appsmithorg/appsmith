@@ -29,6 +29,7 @@ import {
   DEFAULT_COLUMN_WIDTH,
   DEFAULT_MENU_BUTTON_LABEL,
   DEFAULT_MENU_VARIANT,
+  EditableCell,
   EditableCellActions,
   InlineEditingSaveOptions,
   OnColumnEventArgs,
@@ -85,7 +86,7 @@ const defaultFilter = [
 ];
 
 class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
-  editTimer: number | null = null;
+  inlineEditTimer: number | null = null;
 
   static getPropertyPaneConfig() {
     return tablePropertyPaneConfig;
@@ -551,8 +552,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
      */
     if (isTableDataModified) {
       this.props.updateWidgetMetaProperty("transientTableData", {});
-      this.props.updateWidgetMetaProperty("editableCell", defaultEditableCell);
-      this.props.updateWidgetMetaProperty("columnEditableCellValue", {});
+      this.clearEditableCell(true);
     }
 
     if (!pageNo) {
@@ -1103,20 +1103,6 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
     return "TABLE_WIDGET_V2";
   }
 
-  getColumnByAlias(alias: string) {
-    const { primaryColumns } = this.props;
-
-    if (primaryColumns) {
-      const column = Object.values(primaryColumns).find(
-        (column) => column.alias === alias,
-      );
-
-      if (column) {
-        return column;
-      }
-    }
-  }
-
   getColumnIdByAlias(alias: string) {
     const { primaryColumns } = this.props;
 
@@ -1586,6 +1572,16 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
         );
 
       default:
+        const shouldDisableEditIcon =
+          (this.props.inlineEditingSaveOption ===
+            InlineEditingSaveOptions.ROW_LEVEL &&
+            this.props.updatedRowIndices.length &&
+            this.props.updatedRowIndices.indexOf(originalIndex) === -1) ||
+          !this.props.isEditableCellValid;
+
+        const isCellEditMode =
+          props.cell.column.alias === this.props.editableCell.column &&
+          rowIndex === this.props.editableCell.index;
         return (
           <DefaultCell
             accentColor={this.props.accentColor}
@@ -1594,13 +1590,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
             cellBackground={cellProperties.cellBackground}
             columnType={column.columnType}
             compactMode={compactMode}
-            disabledEditIcon={
-              (this.props.inlineEditingSaveOption ===
-                InlineEditingSaveOptions.ROW_LEVEL &&
-                this.props.updatedRowIndices.length &&
-                this.props.updatedRowIndices.indexOf(originalIndex) === -1) ||
-              !this.props.isEditableCellValid
-            }
+            disabledEditIcon={shouldDisableEditIcon}
             displayText={cellProperties.displayText}
             fontStyle={cellProperties.fontStyle}
             hasUnsavedChanged={cellProperties.hasUnsavedChanged}
@@ -1625,13 +1615,14 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
             }
             value={props.cell.value}
             verticalAlignment={cellProperties.verticalAlignment}
+            widgetId={this.props.widgetId}
           />
         );
     }
   };
 
   onEditableCellTextChange = (
-    value: string | number | null,
+    value: EditableCell["value"],
     inputValue: string,
   ) => {
     this.props.updateWidgetMetaProperty("editableCell", {
@@ -1654,8 +1645,8 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
     action: EditableCellActions,
   ) => {
     if (enable) {
-      if (this.editTimer) {
-        clearTimeout(this.editTimer);
+      if (this.inlineEditTimer) {
+        clearTimeout(this.inlineEditTimer);
       }
 
       this.props.updateWidgetMetaProperty("editableCell", {
@@ -1717,15 +1708,21 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
     }
   };
 
-  clearEditableCell = () => {
-    /*
-     * We need to let the evaulations compute derived property (filteredTableData)
-     * before we clear the editableCell to avoid the text flickering
-     */
-    this.editTimer = setTimeout(() => {
+  clearEditableCell = (skipTimeout?: boolean) => {
+    const clear = () => {
       this.props.updateWidgetMetaProperty("editableCell", defaultEditableCell);
       this.props.updateWidgetMetaProperty("columnEditableCellValue", {});
-    }, 100);
+    };
+
+    if (skipTimeout) {
+      clear();
+    } else {
+      /*
+       * We need to let the evaulations compute derived property (filteredTableData)
+       * before we clear the editableCell to avoid the text flickering
+       */
+      this.inlineEditTimer = setTimeout(clear, 100);
+    }
   };
 
   isColumnCellEditable = (column: ColumnProperties, rowIndex: number) => {

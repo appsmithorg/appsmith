@@ -686,12 +686,12 @@ class BaseInputComponent extends React.Component<
           labelPosition={labelPosition}
         >
           <ErrorTooltip
+            boundary={this.props.errorTooltipBoundary}
             isOpen={isInvalid && showError}
             message={
               errorMessage ||
               createMessage(INPUT_WIDGET_DEFAULT_VALIDATION_ERROR)
             }
-            preventOverflow={this.props.preventErrorTooltipOverflow}
           >
             {this.renderInputComponent(inputHTMLType, !!multiline)}
           </ErrorTooltip>
@@ -759,7 +759,7 @@ export interface BaseInputComponentProps extends ComponentProps {
   borderRadius?: string;
   boxShadow?: string;
   accentColor?: string;
-  preventErrorTooltipOverflow?: string;
+  errorTooltipBoundary?: string;
 }
 
 export default BaseInputComponent;

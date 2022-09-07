@@ -19,6 +19,10 @@ import {
   stringToJS,
 } from "components/editorComponents/ActionCreator/Fields";
 import { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTypeDefCreator";
+import {
+  ORIGINAL_INDEX_KEY,
+  PRIMARY_COLUMN_KEY_VALUE,
+} from "widgets/TableWidgetV2/constants";
 
 const PromptMessage = styled.span`
   line-height: 17px;
@@ -93,7 +97,7 @@ const getBindingSuffix = (tableId: string, columnName: string) => `
     ${tableId}.columnEditableCellValue.${columnName} || "",
     ${tableId}.processedTableData[${tableId}.editableCell.index] ||
       Object.keys(${tableId}.processedTableData[0])
-        .filter(key => ["__originalIndex__", "__primaryKey__"].indexOf(key) === -1)
+        .filter(key => ["${ORIGINAL_INDEX_KEY}", "${PRIMARY_COLUMN_KEY_VALUE}"].indexOf(key) === -1)
         .reduce((prev, curr) => {
           prev[curr] = "";
           return prev;
@@ -113,18 +117,16 @@ class TableInlineEditValidationControlProperty extends BaseControl<
       label,
       propertyValue,
       theme,
+      widgetProperties,
     } = this.props;
-    const tableId = this.props.widgetProperties.widgetName;
+    const tableId = widgetProperties.widgetName;
     const value =
       propertyValue && isDynamicValue(propertyValue)
         ? this.getInputComputedValue(propertyValue, tableId)
-        : propertyValue
-        ? propertyValue
-        : defaultValue;
-    const evaluatedProperties = this.props.widgetProperties;
+        : propertyValue || defaultValue;
 
     const columns: Record<string, ColumnProperties> =
-      evaluatedProperties.primaryColumns || {};
+      widgetProperties.primaryColumns || {};
     const currentRow: { [key: string]: any } = {};
     Object.values(columns).forEach((column) => {
       currentRow[column.alias || column.originalId] = undefined;
