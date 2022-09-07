@@ -91,7 +91,7 @@ Cypress.Commands.add("selectDateFormat", (value) => {
 Cypress.Commands.add("selectDropdownValue", (element, value) => {
   cy.get(element)
     .last()
-    .click({ force: true });
+    .click();
   cy.get(".t--dropdown-option")
     .children()
     .contains(value)

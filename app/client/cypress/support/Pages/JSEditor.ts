@@ -150,8 +150,8 @@ export class JSEditor {
         .focus()
         .type(this.selectAllJSObjectContentShortcut)
         .type("{backspace}", { force: true });
-      this.agHelper.AssertAutoSave();
       this.agHelper.AssertContains("Start object with export default");
+      //this.agHelper.AssertAutoSave();
     }
 
     toWriteAfterToastsDisappear && this.agHelper.WaitUntilAllToastsDisappear();
@@ -165,7 +165,7 @@ export class JSEditor {
         } else {
           cy.get(el).type(JSCode, {
             parseSpecialCharSequences: false,
-            delay: 50,
+            delay: 40,
             force: true,
           });
         }
