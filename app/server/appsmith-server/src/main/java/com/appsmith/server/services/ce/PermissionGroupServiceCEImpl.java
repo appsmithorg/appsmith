@@ -239,7 +239,6 @@ public class PermissionGroupServiceCEImpl extends BaseService<PermissionGroupRep
 
     @Override
     public Mono<String> getPublicPermissionGroupId() {
-
         return getPublicPermissionGroup()
                 .map(PermissionGroup::getId);
     }

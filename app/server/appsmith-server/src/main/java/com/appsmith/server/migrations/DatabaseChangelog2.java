@@ -2435,4 +2435,112 @@ public class DatabaseChangelog2 {
                 });
     }
 
+    @ChangeSet(order = "035", id = "migrate-public-apps-single-pg", author = "")
+    public void migratePublicAppsSinglePg(MongockTemplate mongockTemplate, @NonLockGuarded PolicyUtils policyUtils, @NonLockGuarded PolicyGenerator policyGenerator, CacheableRepositoryHelper cacheableRepositoryHelper) {
+
+        Query anonymousUserPermissionConfig = new Query();
+        anonymousUserPermissionConfig.addCriteria(where(fieldName(QConfig.config1.name)).is(FieldName.PUBLIC_PERMISSION_GROUP));
+        Config publicPermissionGroupConfig = mongockTemplate.findOne(anonymousUserPermissionConfig, Config.class);
+
+        String permissionGroupId = publicPermissionGroupConfig.getConfig().getAsString(PERMISSION_GROUP_ID);
+
+        PermissionGroup publicPermissionGroup = mongockTemplate.findOne(query(where("_id").is(permissionGroupId)), PermissionGroup.class);
+
+        // Find all public apps
+        Query publicAppQuery = new Query();
+        publicAppQuery.addCriteria(where(fieldName(QApplication.application.defaultPermissionGroup)).exists(true));
+
+        org.springframework.data.util.StreamUtils.createStreamFromIterator(mongockTemplate.stream(publicAppQuery, Application.class))
+                        .parallel()
+                .forEach(application -> {
+                    String oldPermissionGroupId = application.getDefaultPermissionGroup();
+                    // Set the public permission group instead
+                    application.setDefaultPermissionGroup(permissionGroupId);
+
+                    // Update the application policies to use the public permission group
+                    application.getPolicies()
+                            .stream()
+                            .filter(policy -> policy.getPermissionGroups().contains(oldPermissionGroupId))
+                            .forEach(policy -> {
+                                policy.getPermissionGroups().remove(oldPermissionGroupId);
+                                policy.getPermissionGroups().add(permissionGroupId);
+                            });
+
+                    Set<String> datasourceIds = new HashSet<>();
+                    mongockTemplate.stream(new Query().addCriteria(Criteria.where(fieldName(QNewAction.newAction.applicationId)).is(application.getId())), NewAction.class)
+                            .stream()
+                            .forEach(newAction -> {
+                                ActionDTO unpublishedAction = newAction.getUnpublishedAction();
+                                ActionDTO publishedAction = newAction.getPublishedAction();
+
+                                if (unpublishedAction.getDatasource() != null &&
+                                        unpublishedAction.getDatasource().getId() != null) {
+                                    datasourceIds.add(unpublishedAction.getDatasource().getId());
+                                }
+
+                                if (publishedAction != null &&
+                                        publishedAction.getDatasource() != null &&
+                                        publishedAction.getDatasource().getId() != null) {
+                                    datasourceIds.add(publishedAction.getDatasource().getId());
+                                }
+                            });
+
+                    // Update datasources
+                    mongockTemplate.stream(new Query().addCriteria(Criteria.where(fieldName(QDatasource.datasource.id)).in(datasourceIds)), Datasource.class)
+                            .stream()
+                            .parallel()
+                            .forEach(datasource -> {
+                                // Update the datasource policies.
+                                datasource.getPolicies()
+                                        .stream()
+                                        .filter(policy -> policy.getPermissionGroups().contains(oldPermissionGroupId))
+                                        .forEach(policy -> {
+                                            policy.getPermissionGroups().remove(oldPermissionGroupId);
+                                            policy.getPermissionGroups().add(permissionGroupId);
+                                        });
+                                mongockTemplate.save(datasource);
+                            });
+
+                    // Update pages
+                    Set<Policy> pagePolicies = policyGenerator.getAllChildPolicies(application.getPolicies(), Application.class, Page.class);
+                    mongockTemplate.updateMulti(new Query().addCriteria(Criteria.where(fieldName(QNewPage.newPage.applicationId)).is(application.getId())),
+                            new Update().set("policies", pagePolicies),
+                            NewPage.class);
+
+                    // Update actions
+                    Set<Policy> actionPolicies = policyGenerator.getAllChildPolicies(pagePolicies, Page.class, Action.class);
+                    mongockTemplate.updateMulti(new Query().addCriteria(Criteria.where(fieldName(QNewAction.newAction.applicationId)).is(application.getId())),
+                            new Update().set("policies", actionPolicies),
+                            NewAction.class);
+
+                    // Update js objects
+                    mongockTemplate.updateMulti(new Query().addCriteria(Criteria.where(fieldName(QActionCollection.actionCollection.applicationId)).is(application.getId())),
+                            new Update().set("policies", actionPolicies),
+                            ActionCollection.class);
+
+                    // Update application themes
+                    Criteria nonSystemThemeCriteria = Criteria.where(fieldName(QTheme.theme.isSystemTheme)).is(false);
+                    Criteria idCriteria = Criteria.where(fieldName(QTheme.theme.id)).in(
+                            application.getEditModeThemeId(),
+                            application.getPublishedModeThemeId()
+                    );
+                    Criteria queryCriteria = new Criteria().andOperator(nonSystemThemeCriteria, idCriteria);
+                    Set<Policy> themePolicies = policyGenerator.getAllChildPolicies(application.getPolicies(), Application.class, Theme.class);
+                    mongockTemplate.updateMulti(new Query().addCriteria(queryCriteria),
+                            new Update().set("policies", themePolicies),
+                            Theme.class);
+                });
+
+        // Finally evict the anonymous user cache entry so that it gets recomputed on next use.
+        Query tenantQuery = new Query();
+        tenantQuery.addCriteria(where(fieldName(QTenant.tenant.slug)).is("default"));
+        Tenant tenant = mongockTemplate.findOne(tenantQuery, Tenant.class);
+
+        Query userQuery = new Query();
+        userQuery.addCriteria(where(fieldName(QUser.user.email)).is(FieldName.ANONYMOUS_USER))
+                .addCriteria(where(fieldName(QUser.user.tenantId)).is(tenant.getId()));
+        User anonymousUser = mongockTemplate.findOne(userQuery, User.class);
+        evictPermissionCacheForUsers(Set.of(anonymousUser.getId()), mongockTemplate, cacheableRepositoryHelper);
+    }
+
 }
