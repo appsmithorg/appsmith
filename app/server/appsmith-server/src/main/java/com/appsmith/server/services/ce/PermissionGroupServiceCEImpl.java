@@ -1,5 +1,6 @@
 package com.appsmith.server.services.ce;
 
+import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.PermissionGroup;
@@ -241,6 +242,16 @@ public class PermissionGroupServiceCEImpl extends BaseService<PermissionGroupRep
     public Mono<String> getPublicPermissionGroupId() {
         return getPublicPermissionGroup()
                 .map(PermissionGroup::getId);
+    }
+
+    @Override
+    public boolean isEntityAccessible(BaseDomain object, String permission, String permissionGroupId) {
+        return object.getPolicies()
+                .stream()
+                .filter(policy -> policy.getPermission().equals(permission) &&
+                        policy.getPermissionGroups().contains(permissionGroupId))
+                .findFirst()
+                .isPresent();
     }
 
 }

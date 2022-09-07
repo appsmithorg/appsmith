@@ -15,7 +15,6 @@ import com.appsmith.server.domains.GitAuth;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Page;
-import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.QApplication;
 import com.appsmith.server.domains.Theme;
 import com.appsmith.server.domains.User;
@@ -58,12 +57,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static com.appsmith.server.acl.AclPermission.ASSIGN_PERMISSION_GROUPS;
 import static com.appsmith.server.acl.AclPermission.EXECUTE_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.MAKE_PUBLIC_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
-import static com.appsmith.server.acl.AclPermission.UNASSIGN_PERMISSION_GROUPS;
 
 
 @Slf4j
@@ -292,7 +289,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
                     Application application = tuple.getT1();
                     String publicPermissionGroupId = tuple.getT2();
 
-                    boolean isApplicationPublic = getIsApplicationPublic(application, publicPermissionGroupId);
+                    boolean isApplicationPublic = permissionGroupService.isEntityAccessible(application, READ_APPLICATIONS.getValue(), publicPermissionGroupId);
 
                     // Validity checks before proceeding further
                     if (isApplicationPublic && applicationAccessDTO.getPublicAccess()) {
@@ -315,49 +312,6 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
         return Mono.create(sink -> updateApplicationMono
                 .subscribe(sink::success, sink::error, null, sink.currentContext())
         );
-    }
-
-    private static boolean getIsApplicationPublic(Application application, String publicPermissionGroupId) {
-        return application.getPolicies()
-                .stream()
-                .filter(policy -> policy.getPermission().equals(READ_APPLICATIONS.getValue()) &&
-                        policy.getPermissionGroups().contains(publicPermissionGroupId))
-                .findFirst()
-                .isPresent();
-    }
-
-    private Mono<PermissionGroup> createPublicPermissionGroup(Application application) {
-        return tenantService.getDefaultTenantId()
-                .flatMap(tenantId -> createPublicPermissionGroup(application, tenantId));
-    }
-
-    private Mono<PermissionGroup> createPublicPermissionGroup(Application application, String tenantId) {
-        PermissionGroup publicPermissionGroup = new PermissionGroup();
-        publicPermissionGroup.setName(application.getName() + " Public");
-        publicPermissionGroup.setTenantId(tenantId);
-        publicPermissionGroup.setDescription("Default permissions generated for sharing an application for viewing.");
-
-        Set<Policy> applicationPolicies = application.getPolicies();
-        Policy makePublicPolicy = applicationPolicies.stream()
-                .filter(policy -> policy.getPermission().equals(MAKE_PUBLIC_APPLICATIONS.getValue()))
-                .findFirst()
-                .get();
-
-
-        // Let this newly created permission group be assignable by everyone who has permission for make public application
-        Policy assignPermissionGroup = Policy.builder()
-                .permission(ASSIGN_PERMISSION_GROUPS.getValue())
-                .permissionGroups(makePublicPolicy.getPermissionGroups())
-                .build();
-        // Let this newly created permission group also be unassignable by everyone who has permission for make public application
-        Policy managePermissionGroup = Policy.builder()
-                .permission(UNASSIGN_PERMISSION_GROUPS.getValue())
-                .permissionGroups(makePublicPolicy.getPermissionGroups())
-                .build();
-
-        publicPermissionGroup.setPolicies(new HashSet<>(Set.of(assignPermissionGroup, managePermissionGroup)));
-
-        return permissionGroupService.create(publicPermissionGroup);
     }
 
     @Override
@@ -484,7 +438,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
                     Application application = tuple.getT2();
                     String publicPermissionGroupId = tuple.getT1();
 
-                    application.setIsPublic(getIsApplicationPublic(application, publicPermissionGroupId));
+                    application.setIsPublic(permissionGroupService.isEntityAccessible(application, READ_APPLICATIONS.getValue(), publicPermissionGroupId));
 
                     return application;
                 });
