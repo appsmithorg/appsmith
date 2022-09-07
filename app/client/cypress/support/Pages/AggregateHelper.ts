@@ -108,6 +108,16 @@ export class AggregateHelper {
     this.Sleep();
   }
 
+  public RenameWidget(oldName: string, newName: string) {
+    this.GetNClick(this.locator._widgetName(oldName));
+    cy.get(this.locator._widgetNameTxt)
+      .clear({ force: true })
+      .type(newName, { force: true })
+      .should("have.value", newName)
+      .blur();
+    this.Sleep();
+  }
+
   public AssertAutoSave() {
     // wait for save query to trigger & n/w call to finish occuring
     cy.get(this.locator._saveStatusSuccess, { timeout: 30000 }).should("exist"); //adding timeout since waiting more time is not worth it!
@@ -468,7 +478,7 @@ export class AggregateHelper {
       .focus()
       .type(value, {
         parseSpecialCharSequences: false,
-        delay: 2,
+        delay: 3,
         force: true,
       });
   }
@@ -766,13 +776,11 @@ export class AggregateHelper {
     return val;
   }
 
-  public UploadFile(fixtureName: string, execStat = true) {
+  public UploadFile(fixtureName: string, toClickUpload = true) {
     cy.get(this.locator._uploadFiles)
       .attachFile(fixtureName)
       .wait(2000);
-    cy.get(this.locator._uploadBtn)
-      .click()
-      .wait(3000);
+    toClickUpload && this.GetNClick(this.locator._uploadBtn, 0, false);
   }
 
   public AssertDebugError(label: string, messgae: string) {
