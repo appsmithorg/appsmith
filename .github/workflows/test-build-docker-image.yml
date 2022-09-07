@@ -832,8 +832,10 @@ jobs:
           ./cypress/setup-test-fat.sh
 
       - uses: browser-actions/setup-chrome@latest
+        with:
+          chrome-version: stable
       - run: |
-        echo "BROWSER_PATH=$(which chrome)" >> $GITHUB_ENV
+          echo "BROWSER_PATH=$(which chrome)" >> $GITHUB_ENV
 
       - name: Run the cypress test
         if: steps.run_result.outputs.run_result != 'success' && steps.run_result.outputs.run_result != 'failedtest'
@@ -1265,8 +1267,10 @@ jobs:
           ./cypress/setup-test.sh
 
       - uses: browser-actions/setup-chrome@latest
+        with:
+          chrome-version: stable
       - run: |
-        echo "BROWSER_PATH=$(which chrome)" >> $GITHUB_ENV
+          echo "BROWSER_PATH=$(which chrome)" >> $GITHUB_ENV
 
       - name: Run the cypress test
         if: steps.run_result.outputs.run_result != 'success' && steps.run_result.outputs.run_result != 'failedtest'
