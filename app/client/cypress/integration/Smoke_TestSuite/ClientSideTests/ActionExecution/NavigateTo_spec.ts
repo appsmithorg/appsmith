@@ -2,11 +2,9 @@ import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 
 const {
   AggregateHelper: agHelper,
-  ApiPage: apiPage,
   CommonLocators: locator,
   DeployMode: deployMode,
   EntityExplorer: ee,
-  JSEditor: jsEditor,
   PropertyPane: propPane,
 } = ObjectsRegistry;
 
@@ -19,7 +17,7 @@ describe("Navigate To feature", () => {
     cy.fixture("promisesBtnDsl").then((val: any) => {
       agHelper.AddDsl(val, locator._spanButton("Submit"));
     });
-    ee.SelectEntityByName("Button1", "WIDGETS");
+    ee.SelectEntityByName("Button1", "Widgets");
     propPane.SelectPropertiesDropDown("onClick", "Navigate to");
     cy.get(".t--open-dropdown-Select-Page").click();
     agHelper.AssertElementLength(".bp3-menu-item", 2);
@@ -34,7 +32,7 @@ describe("Navigate To feature", () => {
     cy.fixture("promisesBtnDsl").then((val: any) => {
       agHelper.AddDsl(val, locator._spanButton("Submit"));
     });
-    ee.SelectEntityByName("Button1", "WIDGETS");
+    ee.SelectEntityByName("Button1", "Widgets");
     propPane.SelectPropertiesDropDown("onClick", "Navigate to");
     cy.get("#switcher--url").click();
     cy.get("label")
@@ -53,7 +51,7 @@ describe("Navigate To feature", () => {
     cy.fixture("promisesBtnDsl").then((val: any) => {
       agHelper.AddDsl(val, locator._spanButton("Submit"));
     });
-    ee.SelectEntityByName("Button1", "WIDGETS");
+    ee.SelectEntityByName("Button1", "Widgets");
     propPane.SelectPropertiesDropDown("onClick", "Navigate to");
     cy.get("#switcher--url").click();
     cy.get("label")
@@ -65,5 +63,9 @@ describe("Navigate To feature", () => {
     deployMode.DeployApp();
     agHelper.ClickButton("Submit");
     cy.url().should("include", "google.com");
+    // go back to appsmith
+    cy.go(-1);
+    deployMode.NavigateBacktoEditor();
+    cy.wait(1000);
   });
 });
