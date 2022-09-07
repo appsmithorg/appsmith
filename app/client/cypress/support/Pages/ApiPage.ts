@@ -206,7 +206,7 @@ export class ApiPage {
       | "Settings",
   ) {
     this.agHelper.PressEscape();
-    this.agHelper.GetNClick(this._visibleTextSpan(tabName));
+    this.agHelper.GetNClick(this._visibleTextSpan(tabName), 0, true);
   }
 
   SelectSubTab(
