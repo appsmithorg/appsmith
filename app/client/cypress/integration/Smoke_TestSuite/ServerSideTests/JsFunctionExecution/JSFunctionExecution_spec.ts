@@ -245,7 +245,7 @@ describe("JS Function Execution", function() {
     );
 
     // Fix parse error and assert that debugger error is removed
-    jsEditor.EditJSObj(JS_OBJECT_WITHOUT_PARSE_ERROR, true);
+    jsEditor.EditJSObj(JS_OBJECT_WITHOUT_PARSE_ERROR, true, false);
     agHelper.GetNClick(jsEditor._runButton);
     agHelper.AssertContains("ran successfully"); //to not hinder with next toast msg in next case!
     jsEditor.AssertParseError(false, true);
@@ -258,13 +258,13 @@ describe("JS Function Execution", function() {
     // Switch back to response tab
     agHelper.GetNClick(locator._responseTab);
     // Re-introduce parse errors
-    jsEditor.EditJSObj(JS_OBJECT_WITH_PARSE_ERROR + "}}", false);
+    jsEditor.EditJSObj(JS_OBJECT_WITH_PARSE_ERROR + "}}", false, false);
     agHelper.GetNClick(jsEditor._runButton);
     // Assert that there is a function execution parse error
     jsEditor.AssertParseError(true, true);
 
     // Delete function
-    jsEditor.EditJSObj(JS_OBJECT_WITH_DELETED_FUNCTION, true);
+    jsEditor.EditJSObj(JS_OBJECT_WITH_DELETED_FUNCTION, true, false);
     // Assert that parse error is removed from debugger when function is deleted
     agHelper.GetNClick(locator._errorTab);
     agHelper.AssertContains(

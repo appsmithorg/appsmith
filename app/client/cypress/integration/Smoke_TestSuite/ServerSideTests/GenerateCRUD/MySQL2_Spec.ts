@@ -331,6 +331,7 @@ describe("Validate MySQL Generate CRUD with JSON Form", () => {
     //Delete the test data
     ee.ActionContextMenuByEntityName("Stores", "Delete", "Are you sure?");
     agHelper.ValidateNetworkStatus("@deletePage", 200);
+    agHelper.RefreshPage();
   });
 
   it("12. Validate Drop of the Newly Created - Stores - Table from MySQL datasource", () => {
