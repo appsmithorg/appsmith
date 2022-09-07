@@ -129,7 +129,7 @@ jobs:
       - run: echo "::set-output name=run_result::success" > ~/run_result
 
   build:
-    runs-on: ubuntu-latest
+    runs-on: buildjet-8vcpu-ubuntu-2004
     if: github.event_name == 'repository_dispatch' &&
       github.event.client_payload.slash_command.sha != '' &&
       contains(github.event.client_payload.pull_request.head.sha, github.event.client_payload.slash_command.sha)
@@ -1286,7 +1286,7 @@ jobs:
 
   package:
     needs: [ui-test, fat-container-test]
-    runs-on: ubuntu-latest
+    runs-on: buildjet-4vcpu-ubuntu-2004
     defaults:
       run:
         working-directory: app/client
