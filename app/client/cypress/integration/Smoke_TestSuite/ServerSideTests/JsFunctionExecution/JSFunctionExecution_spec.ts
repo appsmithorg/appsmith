@@ -204,7 +204,7 @@ describe("JS Function Execution", function() {
     );
   });
 
-  it("5. Verify that js function execution errors are logged in debugger and removed when function is deleted", () => {
+  it.skip("5. Verify that js function execution errors are logged in debugger and removed when function is deleted", () => {
     const JS_OBJECT_WITH_PARSE_ERROR = `export default {
       myVar1: [],
       myVar2: {},
