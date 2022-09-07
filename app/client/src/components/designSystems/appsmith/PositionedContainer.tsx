@@ -26,7 +26,6 @@ const PositionedWidget = styled.div<{ zIndexOnHover: number }>`
   }
 `;
 export type PositionedContainerProps = {
-  // style: BaseStyle;
   componentWidth: number;
   componentHeight: number;
   children: ReactNode;
@@ -52,21 +51,21 @@ export const checkIsDropTarget = memoize(function isDropTarget(
 export function PositionedContainer(props: PositionedContainerProps) {
   const { componentHeight, componentWidth } = props;
 
-  const getStyle = (componentWidth: number, componentHeight: number) => ({
-    positionType: PositionTypes.ABSOLUTE,
-    componentHeight,
-    componentWidth,
-    yPosition:
-      props.topRow * props.parentRowSpace +
-      (props.noContainerOffset ? 0 : CONTAINER_GRID_PADDING),
-    xPosition:
-      props.leftColumn * props.parentColumnSpace +
-      (props.noContainerOffset ? 0 : CONTAINER_GRID_PADDING),
-    xPositionUnit: CSSUnits.PIXEL,
-    yPositionUnit: CSSUnits.PIXEL,
-  });
+  // Moemoizing the style
   const style: BaseStyle = useMemo(
-    () => getStyle(componentWidth, componentHeight),
+    () => ({
+      positionType: PositionTypes.ABSOLUTE,
+      componentHeight,
+      componentWidth,
+      yPosition:
+        props.topRow * props.parentRowSpace +
+        (props.noContainerOffset ? 0 : CONTAINER_GRID_PADDING),
+      xPosition:
+        props.leftColumn * props.parentColumnSpace +
+        (props.noContainerOffset ? 0 : CONTAINER_GRID_PADDING),
+      xPositionUnit: CSSUnits.PIXEL,
+      yPositionUnit: CSSUnits.PIXEL,
+    }),
     [
       componentWidth,
       componentHeight,
@@ -94,12 +93,11 @@ export function PositionedContainer(props: PositionedContainerProps) {
     );
   }, [props.widgetType, props.widgetId]);
   const isDropTarget = checkIsDropTarget(props.widgetType);
-  const [onHoverZIndex, zIndex] = usePositionedContainerZIndex(
+
+  const { onHoverZIndex, zIndex } = usePositionedContainerZIndex(
     props,
     isDropTarget,
-  )
-    .split("__")
-    .map((a) => parseInt(a));
+  );
 
   const reflowSelector = getReflowSelector(props.widgetId);
 
@@ -195,9 +193,5 @@ export function PositionedContainer(props: PositionedContainerProps) {
   );
 }
 
-PositionedContainer.whyDidYouRender = {
-  logOnDifferentValues: true,
-  customName: "Menu",
-};
 PositionedContainer.padding = WIDGET_PADDING;
 export default PositionedContainer;

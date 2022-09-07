@@ -45,8 +45,8 @@ export const usePositionedContainerZIndex = (
 
   const zIndicesObj = useMemo(() => {
     const onHoverZIndex = isDragging ? zIndex : Layers.positionedWidget + 1;
-    return `${zIndex}__${onHoverZIndex}`;
-  }, [isDragging, zIndex]);
+    return { zIndex, onHoverZIndex };
+  }, [isDragging, zIndex, Layers.positionedWidget]);
 
   return zIndicesObj;
 };
