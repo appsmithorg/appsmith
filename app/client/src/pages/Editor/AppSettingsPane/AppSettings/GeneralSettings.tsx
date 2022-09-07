@@ -17,14 +17,6 @@ import styled from "styled-components";
 
 const IconSelectorWrapper = styled.div`
   position: relative;
-  // .t--icon-selected {
-  //   background-color: #fff;
-  //   svg {
-  //     path {
-  //       fill: #000;
-  //     }
-  //   }
-  // }
   .icon-selector {
     max-height: 100px;
     padding: 0;

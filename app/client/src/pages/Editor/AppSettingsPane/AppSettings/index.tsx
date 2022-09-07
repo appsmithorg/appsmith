@@ -74,7 +74,7 @@ function AppSettings() {
             case Tabs.Theme:
               return (
                 <>
-                  <div className="px-3">
+                  <div className="px-4">
                     <TabHeaderText className="leading-[3rem] font-medium">
                       Theme settings
                     </TabHeaderText>

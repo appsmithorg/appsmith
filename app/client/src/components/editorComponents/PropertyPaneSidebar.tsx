@@ -15,8 +15,6 @@ import useHorizontalResize from "utils/hooks/useHorizontalResize";
 import { getIsDraggingForSelection } from "selectors/canvasSelectors";
 import MultiSelectPropertyPane from "pages/Editor/MultiSelectPropertyPane";
 import { getIsDraggingOrResizing } from "selectors/widgetSelectors";
-import { ThemePropertyPane } from "pages/Editor/ThemePropertyPane";
-import { getAppThemingStack } from "selectors/appThemingSelectors";
 import equal from "fast-deep-equal";
 import { selectedWidgetsPresentInCanvas } from "selectors/propertyPaneSelectors";
 
@@ -43,7 +41,7 @@ export const PropertyPaneSidebar = memo((props: Props) => {
   );
 
   const isPreviewMode = useSelector(previewModeSelector);
-  const themingStack = useSelector(getAppThemingStack);
+  // const themingStack = useSelector(getAppThemingStack);
   const selectedWidgetIds = useSelector(getSelectedWidgets);
   const isDraggingOrResizing = useSelector(getIsDraggingOrResizing);
 
@@ -83,13 +81,8 @@ export const PropertyPaneSidebar = memo((props: Props) => {
       case selectedWidgets.length > 1:
         return <MultiSelectPropertyPane />;
       case selectedWidgets.length === 1:
-        if (shouldNotRenderPane)
-          return (
-            <CanvasPropertyPane skipThemeEditor={!keepThemeWhileDragging} />
-          );
+        if (shouldNotRenderPane) return <CanvasPropertyPane />;
         else return <WidgetPropertyPane />;
-      case themingStack.length > 0:
-        return <ThemePropertyPane />;
       case selectedWidgets.length === 0:
         return <CanvasPropertyPane />;
       default:
@@ -99,7 +92,6 @@ export const PropertyPaneSidebar = memo((props: Props) => {
     selectedWidgets.length,
     isDraggingForSelection,
     shouldNotRenderPane,
-    themingStack.join(","),
     keepThemeWhileDragging,
   ]);
 

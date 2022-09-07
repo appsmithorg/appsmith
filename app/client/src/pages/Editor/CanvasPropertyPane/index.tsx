@@ -2,7 +2,6 @@ import React from "react";
 import * as Sentry from "@sentry/react";
 
 import { MainContainerLayoutControl } from "../MainContainerLayoutControl";
-import ThemeEditor from "../ThemePropertyPane/ThemeEditor";
 import styled from "styled-components";
 import { Colors } from "constants/Colors";
 
@@ -10,11 +9,7 @@ const Title = styled.p`
   color: ${Colors.GRAY_800};
 `;
 
-type Props = {
-  skipThemeEditor?: boolean;
-};
-
-export function CanvasPropertyPane(props: Props) {
+export function CanvasPropertyPane() {
   return (
     <div className="relative ">
       <h3 className="px-4 py-3 text-sm font-medium uppercase">Properties</h3>
@@ -24,8 +19,6 @@ export function CanvasPropertyPane(props: Props) {
           <Title className="text-sm">Canvas Size</Title>
           <MainContainerLayoutControl />
         </div>
-
-        {!props.skipThemeEditor && <ThemeEditor />}
       </div>
     </div>
   );
