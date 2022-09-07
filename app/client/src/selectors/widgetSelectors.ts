@@ -113,12 +113,12 @@ export function getParentToOpenIfAny(
   if (widgetId) {
     let widget = get(widgets, widgetId, undefined);
 
-    // While this widget has a openParentPropertyPane equql to true
+    // While this widget has a openParentPropertyPane equal to true
     while (widget?.openParentPropertyPane) {
       // Get parent widget props
       const parent = get(widgets, `${widget.parentId}`, undefined);
 
-      // If parent has openParentPropertyPane = false, return the currnet parent
+      // If parent has openParentPropertyPane = false, return the current parent
       if (!parent?.openParentPropertyPane) {
         return parent;
       }

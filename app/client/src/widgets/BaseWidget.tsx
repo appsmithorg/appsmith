@@ -379,27 +379,6 @@ abstract class BaseWidget<
     );
   }
 
-  /**
-   * generates styles that positions the widget
-   */
-  private getPositionStyle(): BaseStyle {
-    const { componentHeight, componentWidth } = this.getComponentDimensions();
-
-    return {
-      positionType: PositionTypes.ABSOLUTE,
-      componentHeight,
-      componentWidth,
-      yPosition:
-        this.props.topRow * this.props.parentRowSpace +
-        (this.props.noContainerOffset ? 0 : CONTAINER_GRID_PADDING),
-      xPosition:
-        this.props.leftColumn * this.props.parentColumnSpace +
-        (this.props.noContainerOffset ? 0 : CONTAINER_GRID_PADDING),
-      xPositionUnit: CSSUnits.PIXEL,
-      yPositionUnit: CSSUnits.PIXEL,
-    };
-  }
-
   // TODO(abhinav): These defaultProps seem unneccessary. Check it out.
   static defaultProps: Partial<WidgetProps> | undefined = {
     parentRowSpace: 1,
