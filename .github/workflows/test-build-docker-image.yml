@@ -856,7 +856,7 @@ jobs:
           APPSMITH_GOOGLE_MAPS_API_KEY: ${{ secrets.APPSMITH_GOOGLE_MAPS_API_KEY }}
           COMMIT_INFO_MESSAGE: ${{ github.event.pull_request.title }}
         with:
-          browser: chrome
+          browser: electron
           headless: true
           record: true
           install: false
@@ -895,7 +895,7 @@ jobs:
           APPSMITH_GOOGLE_MAPS_API_KEY: ${{ secrets.APPSMITH_GOOGLE_MAPS_API_KEY }}
           COMMIT_INFO_MESSAGE: ${{ github.event.pull_request.title }}
         with:
-          browser: chrome
+          browser: electron
           headless: true
           record: true
           install: false
@@ -1285,7 +1285,7 @@ jobs:
           APPSMITH_GOOGLE_MAPS_API_KEY: ${{ secrets.APPSMITH_GOOGLE_MAPS_API_KEY }}
           COMMIT_INFO_MESSAGE: ${{ github.event.pull_request.title }}
         with:
-          browser: chrome
+          browser: electron
           headless: true
           record: true
           install: false
@@ -1323,7 +1323,7 @@ jobs:
           APPSMITH_GOOGLE_MAPS_API_KEY: ${{ secrets.APPSMITH_GOOGLE_MAPS_API_KEY }}
           COMMIT_INFO_MESSAGE: ${{ github.event.pull_request.title }}
         with:
-          browser: chrome
+          browser: electron
           headless: true
           record: true
           install: false
@@ -1481,7 +1481,7 @@ jobs:
 
   package:
     needs: ui-test
-    runs-on: ubuntu-latest
+    runs-on: buildjet-4vcpu-ubuntu-2004
 
     # Run this job irrespective of tests failing, if this is the release branch; or only if the tests pass, if this is the master branch.
     if: (success() && github.ref == 'refs/heads/master') ||
