@@ -15,6 +15,7 @@ const StyledContainer = styled.div`
 const TagContainer = styled.div`
   display: flex;
   align-items: baseline;
+  margin-bottom: 16px;
 `;
 
 const Tag = styled.div`
@@ -70,7 +71,7 @@ const StyledContent = styled.div<{ maxHeight: number }>`
 
   h2 {
     display: block;
-    font-size: 20px;
+    font-size: 18px;
     margin-block-start: 0.83em;
     margin-block-end: 0.83em;
     margin-inline-start: 0px;
@@ -158,7 +159,7 @@ const ReadMore = withTheme(
 );
 
 function ReleaseComponent({ release }: ReleaseProps) {
-  const { descriptionHtml, publishedAt, tagName } = release;
+  const { descriptionHtml, name, publishedAt, tagName } = release;
   const [isCollapsed, setCollapsed] = useState(true);
   const [shouldShowReadMore, setShouldShowReadMore] = useState(false);
   const contentRef = useRef<HTMLDivElement>(null);
@@ -191,6 +192,9 @@ function ReleaseComponent({ release }: ReleaseProps) {
         <Tag>{tagName}</Tag>
         <StyledDate>{moment(publishedAt).format("D MMM YYYY")}</StyledDate>
       </TagContainer>
+      <Text color={Colors.BLACK} type={TextType.H1}>
+        {name}
+      </Text>
       <StyledContent
         dangerouslySetInnerHTML={{ __html: descriptionHtml }}
         maxHeight={getHeight()}
