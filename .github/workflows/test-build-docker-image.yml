@@ -831,6 +831,12 @@ jobs:
           chmod a+x ./cypress/setup-test-fat.sh
           ./cypress/setup-test-fat.sh
 
+      - uses: browser-actions/setup-chrome@latest
+        with:
+          chrome-version: stable
+      - run: |
+          echo "BROWSER_PATH=$(which chrome)" >> $GITHUB_ENV
+
       - name: Run the cypress test
         if: steps.run_result.outputs.run_result != 'success' && steps.run_result.outputs.run_result != 'failedtest'
         uses: cypress-io/github-action@v2
@@ -856,7 +862,7 @@ jobs:
           APPSMITH_GOOGLE_MAPS_API_KEY: ${{ secrets.APPSMITH_GOOGLE_MAPS_API_KEY }}
           COMMIT_INFO_MESSAGE: ${{ github.event.pull_request.title }}
         with:
-          browser: electron
+          browser: ${{ env.BROWSER_PATH }}
           headless: true
           record: true
           install: false
@@ -895,7 +901,7 @@ jobs:
           APPSMITH_GOOGLE_MAPS_API_KEY: ${{ secrets.APPSMITH_GOOGLE_MAPS_API_KEY }}
           COMMIT_INFO_MESSAGE: ${{ github.event.pull_request.title }}
         with:
-          browser: electron
+          browser: ${{ env.BROWSER_PATH }}
           headless: true
           record: true
           install: false
@@ -1260,6 +1266,12 @@ jobs:
         run: |
           ./cypress/setup-test.sh
 
+      - uses: browser-actions/setup-chrome@latest
+        with:
+          chrome-version: stable
+      - run: |
+          echo "BROWSER_PATH=$(which chrome)" >> $GITHUB_ENV
+
       - name: Run the cypress test
         if: steps.run_result.outputs.run_result != 'success' && steps.run_result.outputs.run_result != 'failedtest'
         uses: cypress-io/github-action@v2
@@ -1285,7 +1297,7 @@ jobs:
           APPSMITH_GOOGLE_MAPS_API_KEY: ${{ secrets.APPSMITH_GOOGLE_MAPS_API_KEY }}
           COMMIT_INFO_MESSAGE: ${{ github.event.pull_request.title }}
         with:
-          browser: electron
+          browser: ${{ env.BROWSER_PATH }}
           headless: true
           record: true
           install: false
@@ -1323,7 +1335,7 @@ jobs:
           APPSMITH_GOOGLE_MAPS_API_KEY: ${{ secrets.APPSMITH_GOOGLE_MAPS_API_KEY }}
           COMMIT_INFO_MESSAGE: ${{ github.event.pull_request.title }}
         with:
-          browser: electron
+          browser: ${{ env.BROWSER_PATH }}
           headless: true
           record: true
           install: false
