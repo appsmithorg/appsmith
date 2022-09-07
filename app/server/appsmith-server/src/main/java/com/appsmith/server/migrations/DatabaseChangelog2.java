@@ -91,6 +91,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -2398,11 +2399,11 @@ public class DatabaseChangelog2 {
                     // This is an erroneous state where the theme is being used by multiple applications
                     if (applications != null && applications.size() > 1) {
                         // Create new themes for the rest of the applications which are copies of the original theme
-                        for (int i=0; i< applications.size(); i++) {
+                        for (int i = 0; i < applications.size(); i++) {
                             Application application = applications.get(i);
                             Set<Policy> themePolicies = policyGenerator.getAllChildPolicies(application.getPolicies(), Application.class, Theme.class);
 
-                            if (i==0) {
+                            if (i == 0) {
                                 // Don't create a new theme for the first application
                                 // Just update the policies
                                 theme.setPolicies(themePolicies);
@@ -2444,18 +2445,21 @@ public class DatabaseChangelog2 {
 
         String permissionGroupId = publicPermissionGroupConfig.getConfig().getAsString(PERMISSION_GROUP_ID);
 
-        PermissionGroup publicPermissionGroup = mongockTemplate.findOne(query(where("_id").is(permissionGroupId)), PermissionGroup.class);
-
+        ConcurrentHashMap<String, Boolean> oldPermissionGroupMap = new ConcurrentHashMap<>();
+        ConcurrentHashMap.KeySetView<Object, Boolean> oldPgIds = oldPermissionGroupMap.newKeySet();
         // Find all public apps
         Query publicAppQuery = new Query();
         publicAppQuery.addCriteria(where(fieldName(QApplication.application.defaultPermissionGroup)).exists(true));
+        publicAppQuery.fields()
+                .include(fieldName(QApplication.application.defaultPermissionGroup))
+                .include(fieldName(QApplication.application.policies));
 
         org.springframework.data.util.StreamUtils.createStreamFromIterator(mongockTemplate.stream(publicAppQuery, Application.class))
-                        .parallel()
+                .parallel()
                 .forEach(application -> {
                     String oldPermissionGroupId = application.getDefaultPermissionGroup();
-                    // Set the public permission group instead
-                    application.setDefaultPermissionGroup(permissionGroupId);
+                    // Store the existing permission group providing view access to the app for cleanup
+                    oldPgIds.add(oldPermissionGroupId);
 
                     // Update the application policies to use the public permission group
                     application.getPolicies()
@@ -2467,7 +2471,13 @@ public class DatabaseChangelog2 {
                             });
 
                     Set<String> datasourceIds = new HashSet<>();
-                    mongockTemplate.stream(new Query().addCriteria(Criteria.where(fieldName(QNewAction.newAction.applicationId)).is(application.getId())), NewAction.class)
+                    Query applicationActionsQuery = new Query().addCriteria(where(fieldName(QNewAction.newAction.applicationId)).is(application.getId()));
+                    // Only fetch the datasources that are used in the action
+                    applicationActionsQuery.fields()
+                            .include(fieldName(QNewAction.newAction.unpublishedAction) + fieldName(QNewAction.newAction.unpublishedAction.datasource))
+                            .include(fieldName(QNewAction.newAction.publishedAction) + fieldName(QNewAction.newAction.publishedAction.datasource));
+
+                    mongockTemplate.stream(applicationActionsQuery, NewAction.class)
                             .stream()
                             .forEach(newAction -> {
                                 ActionDTO unpublishedAction = newAction.getUnpublishedAction();
@@ -2486,7 +2496,9 @@ public class DatabaseChangelog2 {
                             });
 
                     // Update datasources
-                    mongockTemplate.stream(new Query().addCriteria(Criteria.where(fieldName(QDatasource.datasource.id)).in(datasourceIds)), Datasource.class)
+                    Query datasourceQuery = new Query().addCriteria(where(fieldName(QDatasource.datasource.id)).in(datasourceIds));
+                    datasourceQuery.fields().include(fieldName(QDatasource.datasource.policies));
+                    mongockTemplate.stream(datasourceQuery, Datasource.class)
                             .stream()
                             .parallel()
                             .forEach(datasource -> {
@@ -2504,18 +2516,18 @@ public class DatabaseChangelog2 {
                     // Update pages
                     Set<Policy> pagePolicies = policyGenerator.getAllChildPolicies(application.getPolicies(), Application.class, Page.class);
                     mongockTemplate.updateMulti(new Query().addCriteria(Criteria.where(fieldName(QNewPage.newPage.applicationId)).is(application.getId())),
-                            new Update().set("policies", pagePolicies),
+                            new Update().set(fieldName(QNewPage.newPage.policies), pagePolicies),
                             NewPage.class);
 
                     // Update actions
                     Set<Policy> actionPolicies = policyGenerator.getAllChildPolicies(pagePolicies, Page.class, Action.class);
-                    mongockTemplate.updateMulti(new Query().addCriteria(Criteria.where(fieldName(QNewAction.newAction.applicationId)).is(application.getId())),
-                            new Update().set("policies", actionPolicies),
+                    mongockTemplate.updateMulti(new Query().addCriteria(where(fieldName(QNewAction.newAction.applicationId)).is(application.getId())),
+                            new Update().set(fieldName(QNewAction.newAction.policies), actionPolicies),
                             NewAction.class);
 
                     // Update js objects
                     mongockTemplate.updateMulti(new Query().addCriteria(Criteria.where(fieldName(QActionCollection.actionCollection.applicationId)).is(application.getId())),
-                            new Update().set("policies", actionPolicies),
+                            new Update().set(fieldName(QActionCollection.actionCollection.policies), actionPolicies),
                             ActionCollection.class);
 
                     // Update application themes
@@ -2527,9 +2539,13 @@ public class DatabaseChangelog2 {
                     Criteria queryCriteria = new Criteria().andOperator(nonSystemThemeCriteria, idCriteria);
                     Set<Policy> themePolicies = policyGenerator.getAllChildPolicies(application.getPolicies(), Application.class, Theme.class);
                     mongockTemplate.updateMulti(new Query().addCriteria(queryCriteria),
-                            new Update().set("policies", themePolicies),
+                            new Update().set(fieldName(QTheme.theme.policies), themePolicies),
                             Theme.class);
                 });
+        // All the applications have been migrated.
+
+        // Clean up all the permission groups which were created to provide views to public apps
+        mongockTemplate.findAllAndRemove(new Query().addCriteria(Criteria.where(fieldName(QPermissionGroup.permissionGroup.id)).in(oldPgIds)), PermissionGroup.class);
 
         // Finally evict the anonymous user cache entry so that it gets recomputed on next use.
         Query tenantQuery = new Query();
