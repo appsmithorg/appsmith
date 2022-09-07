@@ -89,8 +89,7 @@ describe("Linting of entity properties", () => {
       .first()
       .trigger("mouseover");
     agHelper.AssertContains(`'JSObject1' is not defined`);
-
-    // create js object and assert lint error for unknown property
+    // create js object
     jsEditor.CreateJSObject(
       `export default {
         ${invalidProperty}: () => {
