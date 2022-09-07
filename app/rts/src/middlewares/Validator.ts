@@ -1,4 +1,4 @@
-import BaseController from "../controllers/BaseController";
+import BaseController from "@controllers/BaseController";
 import { validationResult } from "express-validator";
 import { Response, Request, NextFunction } from "express";
 
