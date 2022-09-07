@@ -107,6 +107,7 @@ describe("Checkbox Group Widget Functionality", function() {
 
   it("Checkbox Group Functionality To alignment options", function() {
     cy.openPropertyPane("checkboxgroupwidget");
+    cy.moveToStyleTab();
     // check default value
     cy.get(".t--property-control-alignment").should("exist");
     cy.get(".t--property-control-alignment span[type='p1']").should(

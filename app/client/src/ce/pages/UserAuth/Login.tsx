@@ -12,7 +12,7 @@ import {
   LOGIN_FORM_NAME,
   LOGIN_FORM_EMAIL_FIELD_NAME,
   LOGIN_FORM_PASSWORD_FIELD_NAME,
-} from "constants/forms";
+} from "@appsmith/constants/forms";
 import { FORGOT_PASSWORD_URL, SETUP, SIGN_UP_URL } from "constants/routes";
 import {
   LOGIN_PAGE_TITLE,
