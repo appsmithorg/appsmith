@@ -7,7 +7,7 @@ export const CONFIG = {
   name: "Code Scanner",
   iconSVG: IconSVG,
   needsMeta: true,
-  searchTags: ["barcode scanner, qr scanner, code detector"],
+  searchTags: ["barcode scanner", "qr scanner", "code detector"],
   defaults: {
     rows: 4,
     label: "Scan a QR/Barcode",
