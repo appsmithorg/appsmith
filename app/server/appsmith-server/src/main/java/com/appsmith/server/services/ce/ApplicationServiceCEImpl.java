@@ -23,7 +23,6 @@ import com.appsmith.server.dtos.ActionDTO;
 import com.appsmith.server.dtos.ApplicationAccessDTO;
 import com.appsmith.server.dtos.GitAuthDTO;
 import com.appsmith.server.dtos.GitDeployKeyDTO;
-import com.appsmith.server.dtos.Permission;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.GitDeployKeyGenerator;
@@ -58,14 +57,13 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import static com.appsmith.server.acl.AclPermission.ASSIGN_PERMISSION_GROUPS;
-import static com.appsmith.server.acl.AclPermission.UNASSIGN_PERMISSION_GROUPS;
 import static com.appsmith.server.acl.AclPermission.EXECUTE_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.MAKE_PUBLIC_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
+import static com.appsmith.server.acl.AclPermission.UNASSIGN_PERMISSION_GROUPS;
 import static com.appsmith.server.constants.FieldName.ANONYMOUS_USER;
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
@@ -288,8 +286,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
 
     @Override
     public Mono<Application> changeViewAccess(String id, ApplicationAccessDTO applicationAccessDTO) {
-        Mono<Application> updateApplicationMono = repository
-                .findById(id, MAKE_PUBLIC_APPLICATIONS)
+        Mono<Application> updateApplicationMono = repository.findById(id, MAKE_PUBLIC_APPLICATIONS)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.APPLICATION, id)))
                 // Validity checks before proceeding further
                 .flatMap(application -> {
@@ -307,42 +304,27 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
                 })
                 .flatMap(application -> {
 
-                    Mono<PermissionGroup> permissionGroupMono = null;
                     Mono<Application> applicationMono = Mono.just(application);
+                    Mono<String> publicPermissionGroupIdMono = permissionGroupService.getPublicPermissionGroupId().cache();
 
                     if (applicationAccessDTO.getPublicAccess()) {
-
-                        // if public access is being enabled, then create a public permission group for the application
-                        permissionGroupMono = createPublicPermissionGroup(application)
-                                .cache();
-
-                        // Set the permission group in application for sharing viewable applications
-                        applicationMono = permissionGroupMono
+                        // Set the permission group in application for sharing public view access to the application
+                        applicationMono = publicPermissionGroupIdMono
                                 .zipWith(Mono.just(application))
                                 .map(tuple -> {
-                                    PermissionGroup permissionGroup = tuple.getT1();
+                                    String permissionGroupId = tuple.getT1();
                                     Application application1 = tuple.getT2();
 
-                                    application1.setDefaultPermissionGroup(permissionGroup.getId());
+                                    application1.setDefaultPermissionGroup(permissionGroupId);
 
                                     return application1;
                                 });
 
                     } else {
-
+                        // Remove the default permission group from the application.
                         String existingPermissionGroupId = application.getDefaultPermissionGroup();
                         if (StringUtils.hasLength(existingPermissionGroupId)) {
                             log.debug("Application is being turned from public to private. Setting permission group to null in application");
-
-                            // Delete the permission group since it is no longer required.
-                            permissionGroupMono = permissionGroupService.findById(existingPermissionGroupId)
-                                    .flatMap(permissionGroup -> {
-                                        return permissionGroupService.delete(permissionGroup.getId())
-                                                .then(Mono.just(permissionGroup));
-                                    })
-                                    .cache();
-
-                            // Remove the default permission group from the application.
                             applicationMono = Mono.just(application)
                                     .map(application1 -> {
                                         application1.setDefaultPermissionGroup(null);
@@ -351,44 +333,16 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
                         }
                     }
 
-                    if (permissionGroupMono != null) {
+                    return publicPermissionGroupIdMono
+                            .zipWith(applicationMono)
+                            .flatMap(tuple -> {
+                                String permissionGroupId = tuple.getT1();
+                                Application application1 = tuple.getT2();
 
-                        Mono<PermissionGroup> updatedPermissionGroupMono = null;
-
-                        // Assign the permission group to anonymous user
-                        if (applicationAccessDTO.getPublicAccess()) {
-                            // Assign anonymousUser to use the newly created permission group
-                            updatedPermissionGroupMono = tenantService.getDefaultTenantId()
-                                    .flatMap(tenantId -> userRepository.findByEmailAndTenantId(ANONYMOUS_USER, tenantId))
-                                    .zipWith(permissionGroupMono)
-                                    .flatMap(tuple -> {
-                                        User anonymousUser = tuple.getT1();
-                                        PermissionGroup permissionGroup = tuple.getT2();
-                                        return permissionGroupService
-                                                .assignToUser(permissionGroup, anonymousUser);
-                                    })
-                                    .cache();
-                        } else {
-                            updatedPermissionGroupMono = permissionGroupMono;
-                        }
-
-                        Mono<Application> updatedApplicationMono = updatedPermissionGroupMono
-                                .zipWith(applicationMono)
-                                .flatMap(tuple -> {
-                                    PermissionGroup permissionGroup = tuple.getT1();
-                                    Application application1 = tuple.getT2();
-
-                                    // Set policies for view in all the objects with the permission group.
-                                    return generateAndSetPoliciesForView(application1, permissionGroup,
-                                            applicationAccessDTO.getPublicAccess());
-                                });
-
-                        return updatedPermissionGroupMono
-                                .then(updatedApplicationMono);
-                    }
-
-                    // This is an erroneous scenario where permissionGroupMono has not been initialized yet.
-                    return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
+                                // Set policies for view in all the objects with the permission group.
+                                return generateAndSetPoliciesForView(application1, permissionGroupId,
+                                        applicationAccessDTO.getPublicAccess());
+                            });
                 })
                 .flatMap(this::setTransientFields);
 
@@ -475,10 +429,8 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
                 });
     }
 
-    private Mono<? extends Application> generateAndSetPoliciesForView(Application application, PermissionGroup permissionGroup,
+    private Mono<? extends Application> generateAndSetPoliciesForView(Application application, String permissionGroupId,
                                                                       Boolean addViewAccess) {
-
-        String permissionGroupId = permissionGroup.getId();
 
         Map<String, Policy> applicationPolicyMap = policyUtils
                 .generatePolicyFromPermissionWithPermissionGroup(READ_APPLICATIONS, permissionGroupId);
@@ -531,35 +483,16 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
                                             datasourcePolicyMap, addViewAccess)
                                     .collectList();
 
-
-                    if (addViewAccess) {
-
-                        Set<Permission> datasourcePermissions = datasourceIds.stream()
-                                .map(datasourceId -> new Permission(datasourceId, EXECUTE_DATASOURCES))
-                                .collect(Collectors.toSet());
-                        // the newly created permission group must be updated to store the top level permissions
-                        Set<Permission> permissionGroupPermissions = permissionGroup.getPermissions();
-                        permissionGroupPermissions.add(new Permission(application.getId(), READ_APPLICATIONS));
-                        permissionGroupPermissions.addAll(datasourcePermissions);
-                        permissionGroup.setPermissions(permissionGroupPermissions);
-
-                        return permissionGroupService.update(permissionGroup.getId(), permissionGroup)
-                                .then(updatedDatasourcesMono);
-                    }
-
                     return updatedDatasourcesMono;
-
                 })
                 .thenReturn(application)
                 .flatMap(app -> {
                     Application updatedApplication;
-
                     if (addViewAccess) {
                         updatedApplication = policyUtils.addPoliciesToExistingObject(applicationPolicyMap, application);
                     } else {
                         updatedApplication = policyUtils.removePoliciesFromExistingObject(applicationPolicyMap, application);
                     }
-
                     return repository.save(updatedApplication);
                 });
 
