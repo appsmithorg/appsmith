@@ -8,6 +8,8 @@ export enum PERMISSION_TYPE {
   INVITE_USER_TO_WORKSPACE = "inviteUsers:workspace",
   MAKE_PUBLIC_APPLICATION = "makePublic:applications",
   PUBLISH_APPLICATION = "publish:workspaceApplications",
+  CREATE_DATASOURCE = "create:datasources",
+  CREATE_DATASOURCE_ACTIONS = "create:datasourceActions",
 }
 
 export const isPermitted = (permissions: string[], type: string) => {

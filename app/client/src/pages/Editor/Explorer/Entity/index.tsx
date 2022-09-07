@@ -187,6 +187,7 @@ const IconWrapper = styled.span`
 
 export type EntityProps = {
   entityId: string;
+  showAddButton?: boolean;
   className?: string;
   name: string;
   children?: ReactNode;
@@ -218,6 +219,7 @@ export type EntityProps = {
 
 export const Entity = forwardRef(
   (props: EntityProps, ref: React.Ref<HTMLDivElement>) => {
+    const { showAddButton = true } = props;
     const [isOpen, open] = useState(!!props.isDefaultExpanded);
     const isUpdating = useEntityUpdateState(props.entityId);
     const isEditing = useEntityEditState(props.entityId);
@@ -365,7 +367,7 @@ export const Entity = forwardRef(
                 {props.rightIcon}
               </IconWrapper>
             )}
-            {addButton}
+            {showAddButton && addButton}
             {props.contextMenu && (
               <ContextMenuWrapper>{props.contextMenu}</ContextMenuWrapper>
             )}

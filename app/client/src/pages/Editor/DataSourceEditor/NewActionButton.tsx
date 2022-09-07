@@ -34,12 +34,13 @@ const ActionButton = styled(Button)`
 
 type NewActionButtonProps = {
   datasource?: Datasource;
+  disabled?: boolean;
   pluginType?: PluginType;
   isLoading?: boolean;
   eventFrom?: string; // this is to track from where the new action is being generated
 };
 function NewActionButton(props: NewActionButtonProps) {
-  const { datasource, pluginType } = props;
+  const { datasource, disabled, pluginType } = props;
   const [isSelected, setIsSelected] = useState(false);
 
   const dispatch = useDispatch();
@@ -99,6 +100,7 @@ function NewActionButton(props: NewActionButtonProps) {
   return (
     <ActionButton
       className="t--create-query"
+      disabled={disabled}
       icon="plus"
       iconPosition={IconPositions.left}
       isLoading={isSelected || props.isLoading}

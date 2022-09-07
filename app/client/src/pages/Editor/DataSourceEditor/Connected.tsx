@@ -9,6 +9,11 @@ import { HeaderIcons } from "icons/HeaderIcons";
 import styled from "styled-components";
 import { renderDatasourceSection } from "./DatasourceSection";
 import NewActionButton from "./NewActionButton";
+import { getCurrentAppWorkspace } from "selectors/workspaceSelectors";
+import {
+  isPermitted,
+  PERMISSION_TYPE,
+} from "pages/Applications/permissionHelpers";
 
 const ConnectedText = styled.div`
   color: ${Colors.OXFORD_BLUE};
@@ -37,6 +42,15 @@ const Wrapper = styled.div`
 
 function Connected() {
   const params = useParams<{ datasourceId: string }>();
+  const userWorkspacePermissions = useSelector(
+    (state: AppState) => getCurrentAppWorkspace(state).userPermissions ?? [],
+  );
+
+  const canCreateDatasourceActions = isPermitted(
+    userWorkspacePermissions,
+    PERMISSION_TYPE.CREATE_DATASOURCE_ACTIONS,
+  );
+
   const datasource = useSelector((state: AppState) =>
     getDatasource(state, params.datasourceId),
   );
@@ -67,6 +81,7 @@ function Connected() {
 
         <NewActionButton
           datasource={datasource}
+          disabled={!canCreateDatasourceActions}
           eventFrom="datasource-pane"
           pluginType={plugin?.type}
         />
