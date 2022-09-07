@@ -140,6 +140,10 @@
                     <groupId>io.projectreactor</groupId>
                     <artifactId>reactor-core</artifactId>
                 </exclusion>
+                <exclusion>
+                    <groupId>io.netty</groupId>
+                    <artifactId>netty-resolver-dns-native-macos</artifactId>
+                </exclusion>
             </exclusions>
         </dependency>
 
