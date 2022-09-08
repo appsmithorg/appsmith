@@ -241,9 +241,8 @@ describe("JSON Form Widget Array Field", () => {
     cy.openFieldConfiguration("__array_item__");
 
     // Add new custom field
-    cy.get(".t--property-control-fieldconfiguration .t--add-column-btn").click({
-      force: true,
-    });
+    cy.get(".t--property-control-fieldconfiguration .t--add-column-btn")
+      .click({ force: true });
 
     cy.openFieldConfiguration("customField1");
     cy.selectDropdownValue(
@@ -279,9 +278,8 @@ describe("JSON Form Widget Array Field", () => {
     cy.openFieldConfiguration("__array_item__");
 
     // Add new custom field
-    cy.get(".t--property-control-fieldconfiguration .t--add-column-btn").click({
-      force: true,
-    });
+    cy.get(".t--property-control-fieldconfiguration .t--add-column-btn")
+    .click({ force: true });
 
     cy.openFieldConfiguration("customField1");
     cy.selectDropdownValue(commonlocators.jsonFormFieldType, /^Currency Input/);
