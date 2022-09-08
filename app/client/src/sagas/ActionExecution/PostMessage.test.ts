@@ -7,8 +7,8 @@ describe("PostMessageSaga", () => {
     const generator = postMessageSaga(
       {
         message: "hello world",
+        source: "window",
         targetOrigin: "https://dev.appsmith.com",
-        source: "",
       },
       {},
     );
@@ -19,8 +19,8 @@ describe("PostMessageSaga", () => {
           executePostMessage,
           {
             message: "hello world",
+            source: "window",
             targetOrigin: "https://dev.appsmith.com",
-            source: "",
           },
           {},
         ),
@@ -45,8 +45,8 @@ describe("PostMessageSaga", () => {
         executePostMessage,
         {
           message: "hello world",
+          source: "window",
           targetOrigin: "https://dev.appsmith.com",
-          source: "",
         },
         {},
       );
