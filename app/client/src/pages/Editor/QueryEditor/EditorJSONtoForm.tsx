@@ -97,12 +97,10 @@ import {
 import {
   responseTabComponent,
   InlineButton,
-  TableCellHeight,
   SectionDivider,
   CancelRequestButton,
   LoadingOverlayContainer,
   handleCancelActionExecution,
-  ActionExecutionResizerHeight,
 } from "components/editorComponents/ApiResponseView";
 import LoadingOverlayScreen from "components/editorComponents/LoadingOverlayScreen";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
@@ -116,6 +114,10 @@ import {
   setQueryPaneResponsePaneHeight,
   setQueryPaneResponseSelectedTabIndex,
 } from "actions/queryPaneActions";
+import {
+  ActionExecutionResizerHeight,
+  TableCellHeight,
+} from "pages/Editor/APIEditor/constants";
 
 const QueryFormContainer = styled.form`
   flex: 1;

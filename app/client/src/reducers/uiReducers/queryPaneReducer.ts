@@ -4,10 +4,10 @@ import {
   ReduxActionErrorTypes,
   ReduxAction,
 } from "@appsmith/constants/ReduxActionConstants";
-import _ from "lodash";
+import { omit } from "lodash";
 import { Action } from "entities/Action";
 import { ActionResponse } from "api/ActionAPI";
-import { ActionExecutionResizerHeight } from "components/editorComponents/ApiResponseView";
+import { ActionExecutionResizerHeight } from "pages/Editor/APIEditor/constants";
 import { ApiPaneReduxState } from "reducers/uiReducers/apiPaneReducer";
 
 const initialState: QueryPaneReduxState = {
@@ -159,7 +159,7 @@ const queryPaneReducer = createReducer(initialState, {
         ...state.isRunning,
         [actionId]: false,
       },
-      runErrorMessage: _.omit(state.runErrorMessage, [actionId]),
+      runErrorMessage: omit(state.runErrorMessage, [actionId]),
     };
   },
   [ReduxActionErrorTypes.RUN_ACTION_ERROR]: (

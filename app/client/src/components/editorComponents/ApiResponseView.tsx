@@ -51,6 +51,10 @@ import {
   setApiPaneResponsePaneHeight,
   setApiPaneResponseSelectedTabIndex,
 } from "actions/apiPaneActions";
+import {
+  ActionExecutionResizerHeight,
+  TableCellHeight,
+} from "pages/Editor/APIEditor/constants";
 
 type TextStyleProps = {
   accent: "primary" | "secondary" | "error";
@@ -258,10 +262,6 @@ const ResponseDataContainer = styled.div`
     overflow: hidden;
   }
 `;
-
-export const TableCellHeight = 39;
-// When action execution is triggered, open response container to height specified by this variable.
-export const ActionExecutionResizerHeight = 307;
 
 export const responseTabComponent = (
   responseType: string,

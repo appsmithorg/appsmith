@@ -6,7 +6,7 @@ import {
 } from "@appsmith/constants/ReduxActionConstants";
 import { Action } from "entities/Action";
 import { UpdateActionPropertyActionPayload } from "actions/pluginActionActions";
-import { ActionExecutionResizerHeight } from "components/editorComponents/ApiResponseView";
+import { ActionExecutionResizerHeight } from "pages/Editor/APIEditor/constants";
 
 const initialState: ApiPaneReduxState = {
   isCreating: false,

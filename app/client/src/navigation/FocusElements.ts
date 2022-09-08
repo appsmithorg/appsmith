@@ -24,7 +24,7 @@ import { getSelectedWidgets } from "selectors/ui";
 import { selectMultipleWidgetsInitAction } from "actions/widgetSelectionActions";
 
 import { FocusEntity } from "navigation/FocusEntity";
-import { ActionExecutionResizerHeight } from "components/editorComponents/ApiResponseView";
+import { ActionExecutionResizerHeight } from "pages/Editor/APIEditor/constants";
 
 export enum FocusElement {
   ApiPaneConfigTabs = "ApiPaneConfigTabs",
