@@ -57,6 +57,9 @@ jobs:
       - name: Print the Github event
         run: echo ${{ github.event_name }}
 
+      - name: Set up Depot CLI
+        uses: depot/setup-action@v1
+
       # Timestamp will be used to create cache key
       - id: timestamp
         run: echo "::set-output name=timestamp::$(timestamp +'%Y-%m-%dT%H:%M:%S')"
