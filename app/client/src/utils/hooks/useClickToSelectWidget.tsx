@@ -1,16 +1,13 @@
 import { getIsPropertyPaneVisible } from "selectors/propertyPaneSelectors";
-import { getIsTableFilterPaneVisible } from "selectors/tableFilterSelectors";
 import { useSelector } from "store";
 import { AppState } from "@appsmith/reducers";
-import { APP_MODE } from "entities/App";
-import { getAppMode } from "selectors/applicationSelectors";
 import { useWidgetSelection } from "./useWidgetSelection";
-import React, { ReactNode, useCallback, useMemo } from "react";
+import React, { ReactNode, useCallback } from "react";
 import { stopEventPropagation } from "utils/AppsmithUtils";
 import {
   getFocusedParentToOpen,
-  isCurrentWidgetFocused,
   isWidgetSelected,
+  shouldWidgetIgnoreClicksSelector,
 } from "selectors/widgetSelectors";
 import equal from "fast-deep-equal/es6";
 
@@ -62,31 +59,11 @@ export function ClickContentToOpenPropPane({
 export const useClickToSelectWidget = (widgetId: string) => {
   const { focusWidget, selectWidget } = useWidgetSelection();
   const isPropPaneVisible = useSelector(getIsPropertyPaneVisible);
-  const isTableFilterPaneVisible = useSelector(getIsTableFilterPaneVisible);
-
-  const isFocused = useSelector(isCurrentWidgetFocused(widgetId));
-
   const isSelected = useSelector(isWidgetSelected(widgetId));
-
-  // This state tells us whether a `ResizableComponent` is resizing
-  const isResizing = useSelector(
-    (state: AppState) => state.ui.widgetDragResize.isResizing,
-  );
-  const appMode = useSelector(getAppMode);
-
-  // This state tells us whether a `DraggableComponent` is dragging
-  const isDragging = useSelector(
-    (state: AppState) => state.ui.widgetDragResize.isDragging,
-  );
-
   const parentWidgetToOpen = useSelector(getFocusedParentToOpen, equal);
-
-  const shouldIgnoreClicks =
-    isResizing ||
-    isDragging ||
-    appMode !== APP_MODE.EDIT ||
-    !isFocused ||
-    isTableFilterPaneVisible;
+  const shouldIgnoreClicks = useSelector(
+    shouldWidgetIgnoreClicksSelector(widgetId),
+  );
 
   const clickToSelectWidget = useCallback(
     (e: any) => {

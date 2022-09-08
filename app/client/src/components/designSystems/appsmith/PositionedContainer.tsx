@@ -1,4 +1,4 @@
-import React, { CSSProperties, ReactNode, useCallback, useMemo } from "react";
+import React, { CSSProperties, ReactNode, useMemo } from "react";
 import { BaseStyle } from "widgets/BaseWidget";
 import {
   CONTAINER_GRID_PADDING,
@@ -15,8 +15,10 @@ import { useSelector } from "react-redux";
 import { snipingModeSelector } from "selectors/editorSelectors";
 import WidgetFactory from "utils/WidgetFactory";
 import { memoize } from "lodash";
-import { getReflowSelector } from "selectors/widgetReflowSelectors";
-import { AppState } from "@appsmith/reducers";
+import {
+  getIsReflowEffectedSelector,
+  getReflowSelector,
+} from "selectors/widgetReflowSelectors";
 import { POSITIONED_WIDGET } from "constants/componentClassNameConstants";
 import equal from "fast-deep-equal";
 
@@ -51,7 +53,7 @@ export const checkIsDropTarget = memoize(function isDropTarget(
 export function PositionedContainer(props: PositionedContainerProps) {
   const { componentHeight, componentWidth } = props;
 
-  // Moemoizing the style
+  // Memoizing the style
   const style: BaseStyle = useMemo(
     () => ({
       positionType: PositionTypes.ABSOLUTE,
@@ -82,7 +84,7 @@ export function PositionedContainer(props: PositionedContainerProps) {
   const padding = WIDGET_PADDING;
   const clickToSelectWidget = useClickToSelectWidget(props.widgetId);
   const isSnipingMode = useSelector(snipingModeSelector);
-  // memoized classname
+  // memoized className
   const containerClassName = useMemo(() => {
     return (
       generateClassName(props.widgetId) +
@@ -99,28 +101,24 @@ export function PositionedContainer(props: PositionedContainerProps) {
     isDropTarget,
   );
 
-  const reflowSelector = getReflowSelector(props.widgetId);
+  const reflowedPosition = useSelector(
+    getReflowSelector(props.widgetId),
+    equal,
+  );
 
-  const reflowedPosition = useSelector(reflowSelector, equal);
-  const dragDetails = useSelector(
-    (state: AppState) => state.ui.widgetDragResize.dragDetails,
+  const isReflowEffected = useSelector(
+    getIsReflowEffectedSelector(props.parentId, Boolean(reflowedPosition)),
   );
-  const isResizing = useSelector(
-    (state: AppState) => state.ui.widgetDragResize.isResizing,
-  );
-  const isCurrentCanvasReflowing =
-    (dragDetails && dragDetails.draggedOn === props.parentId) || isResizing;
 
   const containerStyle: CSSProperties = useMemo(() => {
     const reflowX = reflowedPosition?.X || 0;
     const reflowY = reflowedPosition?.Y || 0;
     const reflowWidth = reflowedPosition?.width;
     const reflowHeight = reflowedPosition?.height;
-    const reflowEffected = isCurrentCanvasReflowing && reflowedPosition;
     const hasReflowedPosition =
-      reflowEffected && (reflowX !== 0 || reflowY !== 0);
+      isReflowEffected && (reflowX !== 0 || reflowY !== 0);
     const hasReflowedDimensions =
-      reflowEffected &&
+      isReflowEffected &&
       ((reflowHeight && reflowHeight !== style.componentHeight) ||
         (reflowWidth && reflowWidth !== style.componentWidth));
     const effectedByReflow = hasReflowedPosition || hasReflowedDimensions;
@@ -155,13 +153,7 @@ export function PositionedContainer(props: PositionedContainerProps) {
       ...dropTargetStyles,
     };
     return styles;
-  }, [
-    style,
-    isCurrentCanvasReflowing,
-    onHoverZIndex,
-    zIndex,
-    reflowedPosition,
-  ]);
+  }, [style, isReflowEffected, onHoverZIndex, zIndex, reflowedPosition]);
 
   // TODO: Experimental fix for sniping mode. This should be handled with a single event
   const stopEventPropagation = (e: any) => {

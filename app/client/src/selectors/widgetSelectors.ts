@@ -11,6 +11,9 @@ import WidgetFactory from "utils/WidgetFactory";
 import { getFocusedWidget, getSelectedWidget, getSelectedWidgets } from "./ui";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import { get } from "lodash";
+import { getAppMode } from "selectors/applicationSelectors";
+import { APP_MODE } from "entities/App";
+import { getIsTableFilterPaneVisible } from "selectors/tableFilterSelectors";
 
 export const getIsDraggingOrResizing = (state: AppState) =>
   state.ui.widgetDragResize.isResizing || state.ui.widgetDragResize.isDragging;
@@ -133,3 +136,30 @@ export function getParentToOpenIfAny(
 
   return;
 }
+
+export const shouldWidgetIgnoreClicksSelector = (widgetId: string) => {
+  return createSelector(
+    getFocusedWidget,
+    getIsTableFilterPaneVisible,
+    (state: AppState) => state.ui.widgetDragResize.isResizing,
+    (state: AppState) => state.ui.widgetDragResize.isDragging,
+    getAppMode,
+    (
+      focusedWidgetId,
+      isTableFilterPaneVisible,
+      isResizing,
+      isDragging,
+      appMode,
+    ) => {
+      const isFocused = focusedWidgetId === widgetId;
+
+      return (
+        isResizing ||
+        isDragging ||
+        appMode !== APP_MODE.EDIT ||
+        !isFocused ||
+        isTableFilterPaneVisible
+      );
+    },
+  );
+};
