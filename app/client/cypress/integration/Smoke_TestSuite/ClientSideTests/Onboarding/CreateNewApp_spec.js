@@ -11,14 +11,14 @@ describe("Creating new app after discontinuing guided tour should not start the 
       .click({ force: true })
       .wait(4000); //for page to settle!
     cy.get(guidedTourLocators.welcomeTour)
-      .click({ force: true })
+      .click()
       .wait(2000);
     cy.get(guidedTourLocators.startBuilding).should("be.visible");
     // Go back to applications page
     cy.get(commonlocators.homeIcon).click({ force: true });
     cy.get(homePage.createNewAppButton)
       .first()
-      .click({ force: true });
+      .click();
     // Check if explorer is visible, explorer is collapsed initialy in guided tour
     cy.get(explorerLocators.entityExplorer).should("be.visible");
   });
