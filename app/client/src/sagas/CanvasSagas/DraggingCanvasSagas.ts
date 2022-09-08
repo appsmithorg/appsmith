@@ -260,9 +260,18 @@ function* moveWidgetsSaga(
     AnalyticsUtil.logEvent("WIDGET_DRAG", {
       widgets: draggedBlocksToUpdate.map((block) => {
         const widget = updatedWidgetsOnMove[block.widgetId];
+
+        const parentId = block.updateWidgetParams.payload.parentId;
+        const newParentId = block.updateWidgetParams.payload.newParentId;
+
+        const parentWidget = allWidgets[parentId].widgetName;
+        const newParentWidget = allWidgets[newParentId].widgetName;
+
         return {
           widgetType: widget.type,
           widgetName: widget.widgetName,
+          parentWidget,
+          newParentWidget,
         };
       }),
       multiple: draggedBlocksToUpdate.length > 1,
