@@ -56,6 +56,7 @@ import com.appsmith.server.services.LayoutService;
 import com.appsmith.server.services.MockDataService;
 import com.appsmith.server.services.NewActionService;
 import com.appsmith.server.services.NewPageService;
+import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.services.PluginService;
 import com.appsmith.server.services.UserService;
 import com.appsmith.server.services.WorkspaceService;
@@ -168,6 +169,9 @@ public class ActionServiceCE_Test {
 
     @Autowired
     PermissionGroupRepository permissionGroupRepository;
+
+    @Autowired
+    PermissionGroupService permissionGroupService;
 
     Application testApp = null;
 
@@ -1296,8 +1300,7 @@ public class ActionServiceCE_Test {
         Mono<NewAction> actionMono = publicAppMono
                 .then(newActionService.findById(savedAction.getId()));
 
-        Mono<PermissionGroup> publicAppPermissionGroupMono = publicAppMono
-                .flatMap(publicApp -> permissionGroupRepository.findById(publicApp.getDefaultPermissionGroup()));
+        Mono<PermissionGroup> publicAppPermissionGroupMono = permissionGroupService.getPublicPermissionGroup();
 
         User anonymousUser = userService.findByEmail("anonymousUser").block();
 
