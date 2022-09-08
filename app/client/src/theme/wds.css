@@ -5,10 +5,12 @@
   --wds-color-border-disabled: #E0DEDE;
   --wds-color-border-danger: #D91921;
   --wds-color-border-danger-hover: #B90707;
-  --wds-color-border-danger-focus-light: #EDDDDD;
+  --wds-color-border-danger-focus: #B90707;
+  --wds-color-border-danger-focus-light: #fedddd;
 
   --wds-color-bg: #FFFFFF;
   --wds-color-bg-hover: #EBEBEB;
+  --wds-color-bg-selected: #EBEBEB;
   --wds-color-bg-focus: #e3e3e3;
   --wds-color-bg-light: #EBEBEB;
   --wds-color-bg-strong: #E0DEDE;
