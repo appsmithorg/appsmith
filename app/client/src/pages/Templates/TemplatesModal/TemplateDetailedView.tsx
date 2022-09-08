@@ -44,7 +44,7 @@ const Wrapper = styled.div`
 
 const Body = styled.div`
   padding: 0 ${(props) => props.theme.spaces[11]}px;
-  padding-top: ${(props) => props.theme.spaces[12]}px;
+  padding-top: ${(props) => props.theme.spaces[7]}px;
   height: 80vh;
   overflow: auto;
   &&::-webkit-scrollbar-thumb {

@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import styled from "styled-components";
 import DialogComponent from "components/ads/DialogComponent";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -14,18 +13,8 @@ import {
 import TemplatesList from "./TemplateList";
 import { fetchDefaultPlugins } from "actions/pluginActions";
 import TemplateDetailedView from "./TemplateDetailedView";
-import { Classes } from "@blueprintjs/core";
 import { isEmpty } from "lodash";
 import { AppState } from "@appsmith/reducers";
-
-const StyledDialog = styled(DialogComponent)`
-  overflow: hidden;
-  && {
-    & .${Classes.DIALOG_BODY} {
-      margin-top: 0px;
-    }
-  }
-`;
 
 function TemplatesModal() {
   const templatesModalOpen = useSelector(templateModalOpenSelector);
@@ -71,10 +60,11 @@ function TemplatesModal() {
   };
 
   return (
-    <StyledDialog
+    <DialogComponent
       canEscapeKeyClose
       canOutsideClickClose
       isOpen={templatesModalOpen}
+      noModalBodyMarginTop
       onClose={onClose}
       width={"90%"}
     >
@@ -87,7 +77,7 @@ function TemplatesModal() {
       ) : (
         <TemplatesList onClose={onClose} onTemplateClick={onTemplateClick} />
       )}
-    </StyledDialog>
+    </DialogComponent>
   );
 }
 

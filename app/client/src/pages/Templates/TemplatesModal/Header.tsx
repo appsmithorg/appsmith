@@ -20,18 +20,21 @@ const CloseIcon = styled(Icon)`
 `;
 
 const HeaderWrapper = styled.div`
-  padding-bottom: ${(props) => props.theme.spaces[1]}px;
+  display: flex;
+  justify-content: space-between;
+  padding-bottom: ${(props) => props.theme.spaces[9]}px;
 `;
 
 type TemplateModalHeaderProps = {
   onBackPress?: () => void;
   onClose: () => void;
   hideBackButton?: boolean;
+  className?: string;
 };
 
 function TemplateModalHeader(props: TemplateModalHeaderProps) {
   return (
-    <HeaderWrapper className="flex justify-between">
+    <HeaderWrapper className={props.className}>
       <BackButtonWrapper
         hidden={props.hideBackButton}
         onClick={props.onBackPress}
