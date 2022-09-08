@@ -68,6 +68,9 @@ function AppSettings() {
           <SectionHeader key={config.name} {...config} />
         ))}
         <div className="border-t-[1px] border-[#d7d7d7]" />
+        <TabHeaderText className="leading-[3rem] font-medium px-4">
+          Page settings
+        </TabHeaderText>
         <DraggablePageList
           onPageSelect={(pageId: string) =>
             setSelectedTab({ type: Tabs.Page, pageId })

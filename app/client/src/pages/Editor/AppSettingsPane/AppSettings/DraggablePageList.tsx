@@ -2,7 +2,7 @@ import { setPageOrder } from "actions/pageActions";
 import { Page } from "ce/constants/ReduxActionConstants";
 import classNames from "classnames";
 import { ControlIcons, DraggableList } from "design-system";
-import React from "react";
+import React, { useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 
@@ -12,17 +12,25 @@ function PageListHeader(props: {
   onPageSelect: (pageId: string) => void;
 }) {
   const DragIcon = ControlIcons.DRAG_CONTROL;
+  const dragContainerRef = useRef(null);
   return (
     <div
       className={classNames({
-        "cursor-pointer": true,
+        "h-9 flex items-center cursor-pointer": true,
         "bg-[#e7e7e7]": props.selectedPage === props.page.pageId,
       })}
+      onClick={() => {
+        props.onPageSelect(props.page.pageId);
+      }}
     >
-      <DragIcon color="black" cursor="grab" height={20} width={20} />
-      <div onClick={() => props.onPageSelect(props.page.pageId)}>
-        {props.page.pageName}
+      <div
+        className="h-5"
+        onClick={(e) => e.stopPropagation()}
+        ref={dragContainerRef}
+      >
+        <DragIcon color="#b3b3b3" cursor="move" height={20} width={20} />
       </div>
+      <div>{props.page.pageName}</div>
     </div>
   );
 }
@@ -54,7 +62,7 @@ function DraggablePageList(props: {
           selectedPage={props.selectedPage}
         />
       )}
-      itemHeight={70}
+      itemHeight={37}
       items={props.pages}
       keyAccessor={"pageId"}
       onUpdate={onListOrderUpdate}
