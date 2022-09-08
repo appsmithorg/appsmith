@@ -4,11 +4,8 @@
  * Widgets are also responsible for dispatching actions and updating the state tree
  */
 import {
-  CONTAINER_GRID_PADDING,
   CSSUnit,
-  CSSUnits,
   PositionType,
-  PositionTypes,
   RenderMode,
   RenderModes,
   WidgetType,
