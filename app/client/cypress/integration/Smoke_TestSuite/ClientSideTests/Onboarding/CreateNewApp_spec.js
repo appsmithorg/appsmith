@@ -9,7 +9,7 @@ describe("Creating new app after discontinuing guided tour should not start the 
     // Start guided tour
     cy.get(commonlocators.homeIcon)
       .click({ force: true })
-      .wait(3000); //for page to settle!
+      .wait(4000); //for page to settle!
     cy.get(guidedTourLocators.welcomeTour)
       .click()
       .wait(2000);
