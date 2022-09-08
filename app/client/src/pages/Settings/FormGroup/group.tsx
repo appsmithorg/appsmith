@@ -58,28 +58,14 @@ const GroupBody = styled.div`
       margin-top: 0px;
     }
   }
-  & .tag-input {
-    .t--admin-settings-tag-input {
-      > div {
-        margin: 0;
-        .${Classes.TAG_INPUT}, .${Classes.TAG_INPUT}.${Classes.ACTIVE} {
-          border: 1.2px solid var(--appsmith-color-black-250);
-          box-shadow: none;
-          .bp3-tag {
-            background: var(--appsmith-color-black-50);
-            color: ${Colors.BLACK};
-            svg:hover {
-              cursor: pointer;
-              path {
-                fill: currentColor;
-              }
-            }
-          }
-        }
-        .${Classes.TAG_INPUT}.${Classes.ACTIVE} {
-          border: 1.2px solid var(--appsmith-input-focus-border-color);
-        }
-      }
+  &&&& {
+    .tag-input .${Classes.TAG} {
+      color: #575757;
+      background-color: #e7e7e7;
+    }
+
+    .tag-input .${Classes.TAG_INPUT}.${Classes.ACTIVE} {
+      border: 1.2px solid ${Colors.GRAY_400};
     }
   }
 `;

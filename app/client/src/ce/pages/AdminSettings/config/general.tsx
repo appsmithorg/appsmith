@@ -11,6 +11,7 @@ import {
 } from "@appsmith/pages/AdminSettings/config/types";
 import BrandingBadge from "pages/AppViewer/BrandingBadge";
 import { TagInput } from "design-system";
+import QuestionFillIcon from "remixicon-react/QuestionFillIcon";
 
 export const APPSMITH_INSTANCE_NAME_SETTING_SETTING: Setting = {
   id: "APPSMITH_INSTANCE_NAME",
@@ -87,17 +88,29 @@ export const APPSMITH_ALLOWED_FRAME_ANCESTORS_SETTING: Setting = {
   name: "APPSMITH_ALLOWED_FRAME_ANCESTORS",
   category: SettingCategories.GENERAL,
   controlType: SettingTypes.RADIO,
+  label: "Embed Settings",
   controlTypeProps: {
     options: [
       {
+        badge: "NOT RECOMMENDED",
+        tooltip: {
+          icon: <QuestionFillIcon />,
+          text:
+            "Lets all domains, including malicious ones, embed your Appsmith apps. ",
+          linkText: "SEE WHY THIS IS RISKY",
+          link:
+            "https://docs.appsmith.com/getting-started/setup/instance-configuration/frame-ancestors#why-should-i-control-this",
+        },
         label: "Allow embedding everywhere",
         value: "ALLOW_EMBEDDING_EVERYWHERE",
       },
       {
         label: "Limit embedding to certain URLs",
         value: "LIMIT_EMBEDDING",
-        childNode: <TagInput input={{}} placeholder={""} type={"text"} />,
-        childNodeInputPath: "input",
+        nodeLabel: "You can add one or more URLs",
+        node: <TagInput input={{}} placeholder={""} type={"text"} />,
+        nodeInputPath: "input",
+        nodeParentClass: "tag-input",
       },
       {
         label: "Disable embedding everywhere",
@@ -117,7 +130,7 @@ export const APPSMITH_ALLOWED_FRAME_ANCESTORS_SETTING: Setting = {
     } else {
       return {
         value: "LIMIT_EMBEDDING",
-        additionalData: value,
+        additionalData: value ? value.replace(" ", ",") : "",
       };
     }
   },
@@ -127,7 +140,7 @@ export const APPSMITH_ALLOWED_FRAME_ANCESTORS_SETTING: Setting = {
     } else if (value.value === "DISABLE_EMBEDDING_EVERYWHERE") {
       return "'none'";
     } else {
-      return value.additionalData ?? "";
+      return value.additionalData ? value.additionalData.replace(",", " ") : "";
     }
   },
 };
