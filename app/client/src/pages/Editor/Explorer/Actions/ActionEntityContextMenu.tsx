@@ -29,6 +29,12 @@ import {
 } from "@appsmith/constants/messages";
 import { builderURL } from "RouteBuilder";
 import { getCurrentPageId } from "selectors/editorSelectors";
+import { AppState } from "ce/reducers";
+import {
+  isPermitted,
+  PERMISSION_TYPE,
+} from "pages/Applications/permissionHelpers";
+import { getCurrentAppWorkspace } from "selectors/workspaceSelectors";
 
 type EntityContextMenuProps = {
   id: string;
@@ -101,6 +107,80 @@ export function ActionEntityContextMenu(props: EntityContextMenuProps) {
     [],
   );
 
+  const userWorkspacePermissions = useSelector(
+    (state: AppState) => getCurrentAppWorkspace(state).userPermissions ?? [],
+  );
+
+  const canEditActions = isPermitted(
+    userWorkspacePermissions,
+    PERMISSION_TYPE.MANAGE_ACTION,
+  );
+
+  const canDeleteActions = isPermitted(
+    userWorkspacePermissions,
+    PERMISSION_TYPE.DELETE_ACTION,
+  );
+
+  const manageOptions = [
+    {
+      value: "rename",
+      onSelect: editActionName,
+      label: createMessage(CONTEXT_EDIT_NAME),
+    },
+    {
+      value: "copy",
+      onSelect: noop,
+      label: createMessage(CONTEXT_COPY),
+      children: menuPages.map((page) => {
+        return {
+          ...page,
+          onSelect: () => copyActionToPage(props.id, props.name, page.id),
+        };
+      }),
+    },
+    {
+      value: "move",
+      onSelect: noop,
+      label: createMessage(CONTEXT_MOVE),
+      children:
+        menuPages.length > 1
+          ? menuPages
+              .filter((page) => page.id !== props.pageId) // Remove current page from the list
+              .map((page) => {
+                return {
+                  ...page,
+                  onSelect: () =>
+                    moveActionToPage(props.id, props.name, page.id),
+                };
+              })
+          : [
+              {
+                value: "No Pages",
+                onSelect: noop,
+                label: createMessage(CONTEXT_NO_PAGE),
+              },
+            ],
+    },
+  ];
+
+  const deleteOption = {
+    confirmDelete: confirmDelete,
+    className: "t--apiFormDeleteBtn single-select",
+    value: "delete",
+    label: confirmDelete
+      ? createMessage(CONFIRM_CONTEXT_DELETE)
+      : createMessage(CONTEXT_DELETE),
+    intent: "danger",
+    onSelect: () => {
+      confirmDelete
+        ? deleteActionFromPage(props.id, props.name, () => {
+            history.push(builderURL({ pageId }));
+            setConfirmDelete(false);
+          })
+        : setConfirmDelete(true);
+    },
+  };
+
   return (
     <TreeDropdown
       className={props.className}
@@ -108,68 +188,14 @@ export function ActionEntityContextMenu(props: EntityContextMenuProps) {
       modifiers={ContextMenuPopoverModifiers}
       onSelect={noop}
       optionTree={[
-        {
-          value: "rename",
-          onSelect: editActionName,
-          label: createMessage(CONTEXT_EDIT_NAME),
-        },
+        ...(canEditActions ? manageOptions : []),
         {
           value: "showBinding",
           onSelect: () => showBinding(props.id, props.name),
           label: createMessage(CONTEXT_SHOW_BINDING),
         },
-        {
-          value: "copy",
-          onSelect: noop,
-          label: createMessage(CONTEXT_COPY),
-          children: menuPages.map((page) => {
-            return {
-              ...page,
-              onSelect: () => copyActionToPage(props.id, props.name, page.id),
-            };
-          }),
-        },
-        {
-          value: "move",
-          onSelect: noop,
-          label: createMessage(CONTEXT_MOVE),
-          children:
-            menuPages.length > 1
-              ? menuPages
-                  .filter((page) => page.id !== props.pageId) // Remove current page from the list
-                  .map((page) => {
-                    return {
-                      ...page,
-                      onSelect: () =>
-                        moveActionToPage(props.id, props.name, page.id),
-                    };
-                  })
-              : [
-                  {
-                    value: "No Pages",
-                    onSelect: noop,
-                    label: createMessage(CONTEXT_NO_PAGE),
-                  },
-                ],
-        },
-        {
-          confirmDelete: confirmDelete,
-          className: "t--apiFormDeleteBtn single-select",
-          value: "delete",
-          label: confirmDelete
-            ? createMessage(CONFIRM_CONTEXT_DELETE)
-            : createMessage(CONTEXT_DELETE),
-          intent: "danger",
-          onSelect: () => {
-            confirmDelete
-              ? deleteActionFromPage(props.id, props.name, () => {
-                  history.push(builderURL({ pageId }));
-                  setConfirmDelete(false);
-                })
-              : setConfirmDelete(true);
-          },
-        },
-      ]}
+        ...(canDeleteActions ? [{ ...deleteOption }] : []),
+      ].filter(Boolean)}
       selectedValue=""
       setConfirmDelete={setConfirmDelete}
       toggle={<ContextMenuTrigger className="t--context-menu" />}

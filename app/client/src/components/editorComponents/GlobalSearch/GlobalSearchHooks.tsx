@@ -61,10 +61,10 @@ export const useFilteredFileOperations = (query = "") => {
     PERMISSION_TYPE.CREATE_DATASOURCE,
   );
 
-  const canCreateDatasourceActions = isPermitted(
-    userWorkspacePermissions,
+  const canCreateDatasourceActions = isPermitted(userWorkspacePermissions, [
     PERMISSION_TYPE.CREATE_DATASOURCE_ACTIONS,
-  );
+    PERMISSION_TYPE.CREATE_ACTION,
+  ]);
 
   const createAction = (
     pageId: string,

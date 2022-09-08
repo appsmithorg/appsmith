@@ -28,6 +28,11 @@ import {
 } from "@appsmith/constants/messages";
 import { useCloseMenuOnScroll } from "../hooks";
 import { SIDEBAR_ID } from "constants/Explorer";
+import {
+  isPermitted,
+  PERMISSION_TYPE,
+} from "pages/Applications/permissionHelpers";
+import { getCurrentAppWorkspace } from "selectors/workspaceSelectors";
 
 const SubMenuContainer = styled.div`
   width: 250px;
@@ -78,6 +83,15 @@ export default function ExplorerSubMenu({
   const [activeItemIdx, setActiveItemIdx] = useState(0);
   useEffect(() => setShow(openMenu), [openMenu]);
   useCloseMenuOnScroll(SIDEBAR_ID, show, () => setShow(false));
+
+  const userWorkspacePermissions = useSelector(
+    (state: AppState) => getCurrentAppWorkspace(state).userPermissions ?? [],
+  );
+
+  const canCreateActions = isPermitted(
+    userWorkspacePermissions,
+    PERMISSION_TYPE.CREATE_ACTION,
+  );
 
   useEffect(() => {
     setQuery("");
@@ -209,24 +223,26 @@ export default function ExplorerSubMenu({
       placement="right-start"
       transitionDuration={0}
     >
-      <TooltipComponent
-        boundary="viewport"
-        className={EntityClassNames.TOOLTIP}
-        content={
-          <>
-            {createMessage(ADD_QUERY_JS_BUTTON)} (
-            {comboHelpText[SEARCH_CATEGORY_ID.ACTION_OPERATION]})
-          </>
-        }
-        disabled={show}
-        hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
-        position="right"
-      >
-        <EntityAddButton
-          className={`${className} ${show ? "selected" : ""}`}
-          onClick={() => setShow(true)}
-        />
-      </TooltipComponent>
+      {canCreateActions && (
+        <TooltipComponent
+          boundary="viewport"
+          className={EntityClassNames.TOOLTIP}
+          content={
+            <>
+              {createMessage(ADD_QUERY_JS_BUTTON)} (
+              {comboHelpText[SEARCH_CATEGORY_ID.ACTION_OPERATION]})
+            </>
+          }
+          disabled={show}
+          hoverOpenDelay={TOOLTIP_HOVER_ON_DELAY}
+          position="right"
+        >
+          <EntityAddButton
+            className={`${className} ${show ? "selected" : ""}`}
+            onClick={() => setShow(true)}
+          />
+        </TooltipComponent>
+      )}
     </Popover2>
   );
 }

@@ -209,10 +209,10 @@ function DatasourceCard(props: DatasourceCardProps) {
     (state: AppState) => getCurrentAppWorkspace(state).userPermissions ?? [],
   );
 
-  const canCreateDatasourceActions = isPermitted(
-    userWorkspacePermissions,
+  const canCreateDatasourceActions = isPermitted(userWorkspacePermissions, [
     PERMISSION_TYPE.CREATE_DATASOURCE_ACTIONS,
-  );
+    PERMISSION_TYPE.CREATE_ACTION,
+  ]);
 
   const isDeletingDatasource = useSelector(getIsDeletingDatasource);
 

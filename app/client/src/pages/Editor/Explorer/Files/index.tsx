@@ -20,6 +20,12 @@ import { getExplorerStatus, saveExplorerStatus } from "../helpers";
 import { Icon } from "design-system";
 import { AddEntity, EmptyComponent } from "../common";
 import ExplorerSubMenu from "./Submenu";
+import { AppState } from "ce/reducers";
+import {
+  isPermitted,
+  PERMISSION_TYPE,
+} from "pages/Applications/permissionHelpers";
+import { getCurrentAppWorkspace } from "selectors/workspaceSelectors";
 
 function Files() {
   const applicationId = useSelector(getCurrentApplicationId);
@@ -48,6 +54,15 @@ function Files() {
       saveExplorerStatus(applicationId, "queriesAndJs", isOpen);
     },
     [applicationId],
+  );
+
+  const userWorkspacePermissions = useSelector(
+    (state: AppState) => getCurrentAppWorkspace(state).userPermissions ?? [],
+  );
+
+  const canCreateActions = isPermitted(
+    userWorkspacePermissions,
+    PERMISSION_TYPE.CREATE_ACTION,
   );
 
   const onMenuClose = useCallback(() => openMenu(false), [openMenu]);
@@ -118,12 +133,14 @@ function Files() {
         fileEntities
       ) : (
         <EmptyComponent
-          addBtnText={createMessage(EMPTY_QUERY_JS_BUTTON_TEXT)}
-          addFunction={onCreate}
           mainText={createMessage(EMPTY_QUERY_JS_MAIN_TEXT)}
+          {...(canCreateActions && {
+            addBtnText: createMessage(EMPTY_QUERY_JS_BUTTON_TEXT),
+            addFunction: onCreate,
+          })}
         />
       )}
-      {fileEntities.length > 0 && (
+      {fileEntities.length > 0 && canCreateActions && (
         <AddEntity
           action={onCreate}
           entityId={pageId + "_queries_js_add_new_datasource"}

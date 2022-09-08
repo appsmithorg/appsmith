@@ -46,10 +46,10 @@ function Connected() {
     (state: AppState) => getCurrentAppWorkspace(state).userPermissions ?? [],
   );
 
-  const canCreateDatasourceActions = isPermitted(
-    userWorkspacePermissions,
+  const canCreateDatasourceActions = isPermitted(userWorkspacePermissions, [
     PERMISSION_TYPE.CREATE_DATASOURCE_ACTIONS,
-  );
+    PERMISSION_TYPE.CREATE_ACTION,
+  ]);
 
   const datasource = useSelector((state: AppState) =>
     getDatasource(state, params.datasourceId),
