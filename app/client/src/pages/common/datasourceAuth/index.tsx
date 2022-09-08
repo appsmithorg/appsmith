@@ -4,7 +4,6 @@ import {
   ActionButton,
   SaveButtonContainer,
 } from "pages/Editor/DataSourceEditor/JSONtoForm";
-import EditButton from "components/editorComponents/Button";
 import { useDispatch, useSelector } from "react-redux";
 import {
   getEntities,
@@ -49,7 +48,7 @@ import {
   isPermitted,
   PERMISSION_TYPE,
 } from "pages/Applications/permissionHelpers";
-import { Button } from "design-system";
+import { Button, Category } from "design-system";
 
 interface Props {
   datasource: Datasource;
@@ -252,8 +251,6 @@ function DatasourceAuth({
     return {
       [DatasourceButtonType.DELETE]: (
         <ActionButton
-          buttonStyle="DANGER"
-          buttonVariant={ButtonVariantTypes.PRIMARY}
           // accent="error"
           className="t--delete-datasource"
           disabled={!canDeleteDatasource}
@@ -266,17 +263,18 @@ function DatasourceAuth({
               ? createMessage(CONFIRM_CONTEXT_DELETE)
               : createMessage(CONTEXT_DELETE)
           }
+          variant={Variant.danger}
         />
       ),
       [DatasourceButtonType.TEST]: (
         <ActionButton
           // accent="secondary"
-          buttonStyle="PRIMARY"
-          buttonVariant={ButtonVariantTypes.SECONDARY}
+          category={Category.secondary}
           className="t--test-datasource"
           loading={isTesting}
           onClick={handleDatasourceTest}
           text="Test"
+          variant={Variant.success}
         />
       ),
       [DatasourceButtonType.SAVE]: (
@@ -289,6 +287,7 @@ function DatasourceAuth({
           onClick={handleDefaultAuthDatasourceSave}
           size="small"
           text="Save"
+          variant={Variant.success}
         />
       ),
       [DatasourceButtonType.SAVE_AND_AUTHORIZE]: (
