@@ -34,7 +34,7 @@ describe("Table Widget", function() {
     cy.get(".t--switch-widget-active")
       .first()
       .click();
-    cy.wait(1000);
+    cy.wait(3000);
     cy.getTableV2DataSelector("0", "0").then((element) => {
       cy.get(element).should("be.visible");
     });
