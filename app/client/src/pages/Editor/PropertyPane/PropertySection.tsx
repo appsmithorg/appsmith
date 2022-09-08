@@ -82,7 +82,7 @@ type PropertySectionProps = {
 };
 
 const areEqual = (prev: PropertySectionProps, next: PropertySectionProps) => {
-  return prev.id === next.id;
+  return prev.id === next.id && prev.hidden === next.hidden;
 };
 
 //Context is being provided to re-render anything that subscribes to this context on open and close
