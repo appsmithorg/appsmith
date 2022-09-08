@@ -5,12 +5,17 @@ import {
   ReduxActionErrorTypes,
 } from "@appsmith/constants/ReduxActionConstants";
 import { JSCollection } from "entities/JSCollection";
+import { ActionExecutionResizerHeight } from "components/editorComponents/ApiResponseView";
+
 export interface JsPaneReduxState {
   isCreating: boolean;
   isFetching: boolean;
   isSaving: Record<string, boolean>;
   isDeleting: Record<string, boolean>;
   isDirty: Record<string, boolean>;
+  selectedConfigTabIndex: number;
+  selectedResponseTabIndex: number;
+  responseTabHeight: number;
 }
 
 const initialState: JsPaneReduxState = {
@@ -19,6 +24,9 @@ const initialState: JsPaneReduxState = {
   isSaving: {},
   isDeleting: {},
   isDirty: {},
+  responseTabHeight: ActionExecutionResizerHeight,
+  selectedConfigTabIndex: 0,
+  selectedResponseTabIndex: 0,
 };
 
 const jsPaneReducer = createReducer(initialState, {
@@ -163,6 +171,36 @@ const jsPaneReducer = createReducer(initialState, {
       [action.payload.id]: false,
     },
   }),
+  [ReduxActionTypes.SET_JS_PANE_CONFIG_SELECTED_TAB]: (
+    state: JsPaneReduxState,
+    action: ReduxAction<{ selectedTabIndex: number }>,
+  ) => {
+    const { selectedTabIndex } = action.payload;
+    return {
+      ...state,
+      selectedConfigTabIndex: selectedTabIndex,
+    };
+  },
+  [ReduxActionTypes.SET_JS_PANE_RESPONSE_SELECTED_TAB]: (
+    state: JsPaneReduxState,
+    action: ReduxAction<{ selectedTabIndex: number }>,
+  ) => {
+    const { selectedTabIndex } = action.payload;
+    return {
+      ...state,
+      selectedResponseTabIndex: selectedTabIndex,
+    };
+  },
+  [ReduxActionTypes.SET_JS_PANE_RESPONSE_PANE_HEIGHT]: (
+    state: JsPaneReduxState,
+    action: ReduxAction<{ height: number }>,
+  ) => {
+    const { height } = action.payload;
+    return {
+      ...state,
+      responseTabHeight: height,
+    };
+  },
 });
 
 export default jsPaneReducer;

@@ -25,12 +25,37 @@ import { selectMultipleWidgetsInitAction } from "actions/widgetSelectionActions"
 
 import { FocusEntity } from "navigation/FocusEntity";
 import { ActionExecutionResizerHeight } from "components/editorComponents/ApiResponseView";
+import {
+  getQueryPaneConfigSelectedTabIndex,
+  getQueryPaneResponsePaneHeight,
+  getQueryPaneResponseSelectedTabIndex,
+} from "selectors/queryPaneSelectors";
+import {
+  setQueryPaneConfigSelectedTabIndex,
+  setQueryPaneResponsePaneHeight,
+  setQueryPaneResponseSelectedTabIndex,
+} from "actions/queryPaneActions";
+import {
+  getJSPaneConfigSelectedTabIndex,
+  getJSPaneResponsePaneHeight,
+  getJSPaneResponseSelectedTabIndex,
+} from "selectors/jsPaneSelectors";
+import {
+  setJsPaneConfigSelectedTabIndex,
+  setJsPaneResponsePaneHeight,
+  setJsPaneResponseSelectedTabIndex,
+} from "actions/jsPaneActions";
 
 export enum FocusElement {
   ApiPaneConfigTabs = "ApiPaneConfigTabs",
   ApiPaneResponseTabs = "ApiPaneResponseTabs",
   ApiPaneResponseHeight = "ApiPaneResponseHeight",
-  CodeEditor = "CodeEditor",
+  QueryPaneConfigTabs = "QueryPaneConfigTabs",
+  QueryPaneResponseTabs = "QueryPaneResponseTabs",
+  QueryPaneResponseHeight = "QueryPaneResponseHeight",
+  JSPaneConfigTabs = "JSPaneConfigTabs",
+  JSPaneResponseTabs = "JSPaneResponseTabs",
+  JSPaneResponseHeight = "JSPaneResponseHeight",
   PropertyField = "PropertyField",
   PropertySections = "PropertySections",
   PropertyTabs = "PropertyTabs",
@@ -45,6 +70,7 @@ type Config = {
 };
 
 export const FocusElementsConfig: Record<FocusEntity, Config[]> = {
+  [FocusEntity.NONE]: [],
   [FocusEntity.CANVAS]: [
     {
       name: FocusElement.PropertySections,
@@ -59,8 +85,56 @@ export const FocusElementsConfig: Record<FocusEntity, Config[]> = {
       defaultValue: [],
     },
   ],
-  [FocusEntity.NONE]: [],
-  [FocusEntity.QUERY]: [],
+  [FocusEntity.JS_OBJECT]: [
+    {
+      name: FocusElement.PropertyField,
+      selector: getFocusableField,
+      setter: setFocusableField,
+    },
+    {
+      name: FocusElement.JSPaneConfigTabs,
+      selector: getJSPaneConfigSelectedTabIndex,
+      setter: setJsPaneConfigSelectedTabIndex,
+      defaultValue: 0,
+    },
+    {
+      name: FocusElement.JSPaneResponseTabs,
+      selector: getJSPaneResponseSelectedTabIndex,
+      setter: setJsPaneResponseSelectedTabIndex,
+      defaultValue: 0,
+    },
+    {
+      name: FocusElement.JSPaneResponseHeight,
+      selector: getJSPaneResponsePaneHeight,
+      setter: setJsPaneResponsePaneHeight,
+      defaultValue: ActionExecutionResizerHeight,
+    },
+  ],
+  [FocusEntity.QUERY]: [
+    {
+      name: FocusElement.PropertyField,
+      selector: getFocusableField,
+      setter: setFocusableField,
+    },
+    {
+      name: FocusElement.QueryPaneConfigTabs,
+      selector: getQueryPaneConfigSelectedTabIndex,
+      setter: setQueryPaneConfigSelectedTabIndex,
+      defaultValue: 0,
+    },
+    {
+      name: FocusElement.QueryPaneResponseTabs,
+      selector: getQueryPaneResponseSelectedTabIndex,
+      setter: setQueryPaneResponseSelectedTabIndex,
+      defaultValue: 0,
+    },
+    {
+      name: FocusElement.QueryPaneResponseHeight,
+      selector: getQueryPaneResponsePaneHeight,
+      setter: setQueryPaneResponsePaneHeight,
+      defaultValue: ActionExecutionResizerHeight,
+    },
+  ],
   [FocusEntity.PROPERTY_PANE]: [
     {
       name: FocusElement.PropertyTabs,
