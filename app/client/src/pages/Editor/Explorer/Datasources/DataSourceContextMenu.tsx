@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import {
   deleteDatasource,
   refreshDatasourceStructure,
@@ -16,6 +16,12 @@ import {
   CONFIRM_CONTEXT_DELETE,
   createMessage,
 } from "@appsmith/constants/messages";
+import { AppState } from "ce/reducers";
+import {
+  isPermitted,
+  PERMISSION_TYPE,
+} from "pages/Applications/permissionHelpers";
+import { getCurrentAppWorkspace } from "selectors/workspaceSelectors";
 
 export function DataSourceContextMenu(props: {
   datasourceId: string;
@@ -36,6 +42,43 @@ export function DataSourceContextMenu(props: {
 
   const [confirmDelete, setConfirmDelete] = useState(false);
 
+  const userWorkspacePermissions = useSelector(
+    (state: AppState) => getCurrentAppWorkspace(state).userPermissions ?? [],
+  );
+
+  const canDeleteDatasource = isPermitted(
+    userWorkspacePermissions,
+    PERMISSION_TYPE.DELETE_DATASOURCE,
+  );
+
+  const treeOptions = [
+    {
+      value: "rename",
+      onSelect: editDatasourceName,
+      label: createMessage(CONTEXT_EDIT_NAME),
+    },
+    {
+      value: "refresh",
+      onSelect: dispatchRefresh,
+      label: createMessage(CONTEXT_REFRESH),
+    },
+  ];
+
+  const deleteOption = [
+    {
+      confirmDelete: confirmDelete,
+      className: "t--apiFormDeleteBtn single-select",
+      value: "delete",
+      onSelect: () => {
+        confirmDelete ? dispatchDelete() : setConfirmDelete(true);
+      },
+      label: confirmDelete
+        ? createMessage(CONFIRM_CONTEXT_DELETE)
+        : createMessage(CONTEXT_DELETE),
+      intent: "danger",
+    },
+  ];
+
   return (
     <TreeDropdown
       className={props.className}
@@ -43,29 +86,9 @@ export function DataSourceContextMenu(props: {
       modifiers={ContextMenuPopoverModifiers}
       onSelect={noop}
       optionTree={[
-        {
-          value: "rename",
-          onSelect: editDatasourceName,
-          label: createMessage(CONTEXT_EDIT_NAME),
-        },
-        {
-          value: "refresh",
-          onSelect: dispatchRefresh,
-          label: createMessage(CONTEXT_REFRESH),
-        },
-        {
-          confirmDelete: confirmDelete,
-          className: "t--apiFormDeleteBtn single-select",
-          value: "delete",
-          onSelect: () => {
-            confirmDelete ? dispatchDelete() : setConfirmDelete(true);
-          },
-          label: confirmDelete
-            ? createMessage(CONFIRM_CONTEXT_DELETE)
-            : createMessage(CONTEXT_DELETE),
-          intent: "danger",
-        },
-      ]}
+        ...treeOptions,
+        ...(canDeleteDatasource ? deleteOption : []),
+      ].filter(Boolean)}
       selectedValue=""
       setConfirmDelete={setConfirmDelete}
       toggle={<ContextMenuTrigger className="t--context-menu" />}

@@ -10,6 +10,8 @@ export enum PERMISSION_TYPE {
   PUBLISH_APPLICATION = "publish:workspaceApplications",
   CREATE_DATASOURCE = "create:datasources",
   CREATE_DATASOURCE_ACTIONS = "create:datasourceActions",
+  DELETE_DATASOURCE = "delete:datasources",
+  MANAGE_DATASOURCE = "manage:datasources",
 }
 
 export const isPermitted = (permissions: string[], type: string) => {

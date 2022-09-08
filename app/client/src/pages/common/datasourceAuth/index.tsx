@@ -44,6 +44,12 @@ import {
   createMessage,
 } from "@appsmith/constants/messages";
 import { debounce } from "lodash";
+import { getCurrentAppWorkspace } from "selectors/workspaceSelectors";
+import {
+  isPermitted,
+  PERMISSION_TYPE,
+} from "pages/Applications/permissionHelpers";
+import { Button } from "design-system";
 
 interface Props {
   datasource: Datasource;
@@ -79,7 +85,7 @@ export const DatasourceButtonType: Record<
   SAVE_AND_AUTHORIZE: "SAVE_AND_AUTHORIZE",
 };
 
-const StyledButton = styled(EditButton)<{ fluidWidth?: boolean }>`
+const StyledButton = styled(Button)<{ fluidWidth?: boolean }>`
   &&&& {
     height: 32px;
     width: ${(props) => (props.fluidWidth ? "" : "87px")};
@@ -110,6 +116,20 @@ function DatasourceAuth({
 
   const { id: datasourceId } = datasource;
   const applicationId = useSelector(getCurrentApplicationId);
+
+  const userWorkspacePermissions = useSelector(
+    (state: AppState) => getCurrentAppWorkspace(state).userPermissions ?? [],
+  );
+
+  const canManageDatasource = isPermitted(
+    userWorkspacePermissions,
+    PERMISSION_TYPE.MANAGE_DATASOURCE,
+  );
+
+  const canDeleteDatasource = isPermitted(
+    userWorkspacePermissions,
+    PERMISSION_TYPE.DELETE_DATASOURCE,
+  );
 
   // hooks
   const dispatch = useDispatch();
@@ -236,6 +256,7 @@ function DatasourceAuth({
           buttonVariant={ButtonVariantTypes.PRIMARY}
           // accent="error"
           className="t--delete-datasource"
+          disabled={!canDeleteDatasource}
           loading={isDeleting}
           onClick={() => {
             confirmDelete ? handleDatasourceDelete() : setConfirmDelete(true);
@@ -261,7 +282,7 @@ function DatasourceAuth({
       [DatasourceButtonType.SAVE]: (
         <StyledButton
           className="t--save-datasource"
-          disabled={isInvalid}
+          disabled={isInvalid || !canManageDatasource}
           filled
           intent="primary"
           loading={isSaving}
@@ -273,7 +294,7 @@ function DatasourceAuth({
       [DatasourceButtonType.SAVE_AND_AUTHORIZE]: (
         <StyledButton
           className="t--save-datasource"
-          disabled={isInvalid}
+          disabled={isInvalid || !canManageDatasource}
           filled
           fluidWidth
           intent="primary"

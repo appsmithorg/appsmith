@@ -1,10 +1,6 @@
 import { rest } from "msw";
-import testMockApi from "./mockJsons/testMockApi.json";
 
 export const handlers = [
-  rest.get("/api/testMockApi", (req, res, ctx) => {
-    return res(ctx.status(200), ctx.json(testMockApi));
-  }),
   rest.get("/api/v1/workspaces/:workspaceId", async (req, res, ctx) => {
     const { workspaceId } = await req.params;
     return res(
@@ -16,7 +12,7 @@ export const handlers = [
           success: true,
         },
         data: {
-          id: "63186e4d78fc724fb25039bd",
+          id: workspaceId,
           userPermissions: [
             "publish:workspaceApplications",
             "delete:workspace",
