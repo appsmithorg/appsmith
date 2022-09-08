@@ -98,6 +98,7 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
      */
     private final String preWord = "\\b(";
     private final String postWord = ")\\b";
+    private final String layoutOnLoadActionErrorToastMessage = "A Cyclic dependency has been encountered on current page, \nqueries on Page load will not run. \nCheck debugger for more information";
 
 
     /**
@@ -908,7 +909,10 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
                 .onErrorResume(AppsmithException.class, error -> {
                     log.info(error.getMessage());
                     validOnPageLoadActions.set(FALSE);
-                    layout.getLayoutOnLoadActionErrors().add(Map.of("errorMessage",error.getMessage(),"appErrorId",error.getAppErrorCode()));
+                    layout.getLayoutOnLoadActionErrors().add(Map.of(
+                            "errorMessage", layoutOnLoadActionErrorToastMessage,
+                            "appErrorId", error.getAppErrorCode(),
+                            "debuggerErrorMessage", error.getMessage()));
                     return Mono.just(new ArrayList<>());
                 });
 

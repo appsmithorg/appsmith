@@ -1604,7 +1604,7 @@ public class LayoutActionServiceTest {
 
         // since the dependency has been introduced calling updateLayout will return a LayoutDTO with a populated layoutOnLoadActionErrors
         assert(firstLayout.getLayoutOnLoadActionErrors() instanceof List);
-        assert (firstLayout.getLayoutOnLoadActionErrors().size() > 0);
+        assert (firstLayout.getLayoutOnLoadActionErrors().get(0).keySet().equals(Set.of("appErrorId", "errorMessage", "debuggerErrorMessage")));
 
         // refactoring action to carry the existing error in DSL
         RefactorActionNameDTO refactorActionNameDTO = new RefactorActionNameDTO();
@@ -1616,8 +1616,8 @@ public class LayoutActionServiceTest {
 
         Mono<LayoutDTO> layoutDTOMono = layoutActionService.refactorActionName(refactorActionNameDTO);
         StepVerifier.create(layoutDTOMono
-                        .map(layoutDTO -> layoutDTO.getLayoutOnLoadActionErrors().size()))
-                .expectNext(1).verifyComplete();
+                        .map(layoutDTO -> layoutDTO.getLayoutOnLoadActionErrors().get(0).keySet()))
+                .expectNext(Set.of("appErrorId", "errorMessage", "debuggerErrorMessage")).verifyComplete();
 
 
         // updateAction to see if the error persists
@@ -1626,9 +1626,9 @@ public class LayoutActionServiceTest {
 
         StepVerifier.create(actionDTOMono.map(
 
-                actionDTO1 -> actionDTO1.getErrorReports().size()
+                actionDTO1 -> actionDTO1.getErrorReports().get(0).keySet()
                         ))
-                .expectNext(1).verifyComplete();
+                .expectNext(Set.of("appErrorId", "errorMessage", "debuggerErrorMessage")).verifyComplete();
 
 
 
