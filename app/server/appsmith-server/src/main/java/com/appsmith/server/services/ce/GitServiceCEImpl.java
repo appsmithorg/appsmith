@@ -2276,7 +2276,8 @@ public class GitServiceCEImpl implements GitServiceCE {
                 });
     }
 
-    private Mono<Long> getApplicationCountWithPrivateRepo(String workspaceId) {
+    @Override
+    public Mono<Long> getApplicationCountWithPrivateRepo(String workspaceId) {
         return applicationService.getGitConnectedApplicationsByWorkspaceId(workspaceId)
                 .flatMap(application -> {
                     GitApplicationMetadata gitData = application.getGitApplicationMetadata();
@@ -2435,7 +2436,8 @@ public class GitServiceCEImpl implements GitServiceCE {
                 });
     }
 
-    protected Mono<Boolean> isRepoLimitReached(String workspaceId, Boolean isClearCache) {
+    @Override
+    public Mono<Boolean> isRepoLimitReached(String workspaceId, Boolean isClearCache) {
         return gitCloudServicesUtils.getPrivateRepoLimitForOrg(workspaceId, isClearCache)
                 .flatMap(limit -> {
                     if (limit == -1) {
