@@ -204,77 +204,7 @@ describe("JS Function Execution", function() {
     );
   });
 
-  it.skip("5. Verify that js function execution errors are logged in debugger and removed when function is deleted", () => {
-    const JS_OBJECT_WITH_PARSE_ERROR = `export default {
-      myVar1: [],
-      myVar2: {},
-      myFun1: () => {
-        return Table1.unknown.id`;
-
-    const JS_OBJECT_WITHOUT_PARSE_ERROR = `export default {
-      myVar1: [],
-      myVar2: {},
-      myFun1: () => {
-        return Table1.unknown
-      }
-    }`;
-
-    const JS_OBJECT_WITH_DELETED_FUNCTION = `export default {
-      myVar1: [],
-      myVar2: {}
-    }`;
-
-    // Create js object
-    jsEditor.CreateJSObject(JS_OBJECT_WITH_PARSE_ERROR, {
-      paste: false,
-      completeReplace: true,
-      toRun: true,
-      shouldCreateNewJSObj: true,
-    });
-
-    // Assert that there is a function execution parse error
-    jsEditor.AssertParseError(true, true);
-    // click the debug icon
-    agHelper.GetNClick(jsEditor._debugCTA);
-    // Assert that errors tab is not empty
-    agHelper.AssertContains("No signs of trouble here!", "not.exist");
-    // Assert presence of typeError
-    agHelper.AssertContains(
-      "TypeError: Cannot read properties of undefined (reading 'id')",
-      "exist",
-    );
-
-    // Fix parse error and assert that debugger error is removed
-    jsEditor.EditJSObj(JS_OBJECT_WITHOUT_PARSE_ERROR, true, false);
-    jsEditor.RunJSObj();
-    //agHelper.AssertContains("ran successfully"); //commenting since 'Resource not found' comes sometimes due to fast parsing
-    jsEditor.AssertParseError(false, true);
-    agHelper.GetNClick(locator._errorTab);
-    agHelper.AssertContains(
-      "TypeError: Cannot read properties of undefined (reading 'id')",
-      "not.exist",
-    );
-
-    // Switch back to response tab
-    agHelper.GetNClick(locator._responseTab);
-    // Re-introduce parse errors
-    jsEditor.EditJSObj(JS_OBJECT_WITH_PARSE_ERROR + "}}", false, false);
-    jsEditor.RunJSObj();
-    // Assert that there is a function execution parse error
-    jsEditor.AssertParseError(true, true);
-
-    // Delete function
-    jsEditor.EditJSObj(JS_OBJECT_WITH_DELETED_FUNCTION, true, false);
-    // Assert that parse error is removed from debugger when function is deleted
-    agHelper.GetNClick(locator._errorTab);
-    agHelper.AssertContains(
-      "TypeError: Cannot read properties of undefined (reading 'id')",
-      "not.exist",
-    );
-    agHelper.ActionContextMenuWithInPane("Delete", "", true);
-  });
-
-  it("6. Supports the use of large JSON data (doesn't crash)", () => {
+  it("5. Supports the use of large JSON data (doesn't crash)", () => {
     const jsObjectWithLargeJSONData = `export default{
       largeData: ${JSON.stringify(largeJSONData)},
       myfun1: ()=> this.largeData
@@ -324,7 +254,7 @@ describe("JS Function Execution", function() {
     );
   });
 
-  it("7. Doesn't cause cyclic dependency when function name is edited", () => {
+  it("6. Doesn't cause cyclic dependency when function name is edited", () => {
     const syncJSCode = `export default {
       myFun1 :()=>{
         return "yes"`;
@@ -385,7 +315,7 @@ describe("JS Function Execution", function() {
     agHelper.AssertContains("Cyclic dependency", "not.exist");
   });
 
-  it("8. Maintains order of async functions in settings tab alphabetically at all times", function() {
+  it("7. Maintains order of async functions in settings tab alphabetically at all times", function() {
     functionsLength = FUNCTIONS_SETTINGS_DEFAULT_DATA.length;
     // Number of functions set to run on page load and should also confirm before execute
     onPageLoadAndConfirmExecuteFunctionsLength = FUNCTIONS_SETTINGS_DEFAULT_DATA.filter(
@@ -451,7 +381,7 @@ describe("JS Function Execution", function() {
     assertAsyncFunctionsOrder(FUNCTIONS_SETTINGS_DEFAULT_DATA);
   });
 
-  it("9. Verify Async methods have alphabetical order after cloning page and renaming it", () => {
+  it("8. Verify Async methods have alphabetical order after cloning page and renaming it", () => {
     const FUNCTIONS_SETTINGS_RENAMED_DATA: IFunctionSettingData[] = [
       {
         name: "newGetId",
@@ -501,7 +431,7 @@ describe("JS Function Execution", function() {
     assertAsyncFunctionsOrder(FUNCTIONS_SETTINGS_RENAMED_DATA);
   });
 
-  it("10. Bug 13197: Verify converting async functions to sync resets all settings", () => {
+  it("9. Bug 13197: Verify converting async functions to sync resets all settings", () => {
     const asyncJSCode = `export default {
 asyncToSync : async ()=>{
 return "yes";`;
@@ -533,5 +463,76 @@ return "yes";`;
       expect(response?.body.data.actions[0].executeOnLoad).to.eq(false);
       expect(response?.body.data.actions[0].confirmBeforeExecute).to.eq(false);
     });
+  });
+
+  it("10. Verify that js function execution errors are logged in debugger and removed when function is deleted", () => {
+    const JS_OBJECT_WITH_PARSE_ERROR = `export default {
+      myVar1: [],
+      myVar2: {},
+      myFun1: () => {
+        return Table1.unknown.id`;
+
+    const JS_OBJECT_WITHOUT_PARSE_ERROR = `export default {
+      myVar1: [],
+      myVar2: {},
+      myFun1: () => {
+        return Table1.unknown
+      }
+    }`;
+
+    const JS_OBJECT_WITH_DELETED_FUNCTION = `export default {
+      myVar1: [],
+      myVar2: {}
+    }`;
+
+    // Create js object
+    jsEditor.CreateJSObject(JS_OBJECT_WITH_PARSE_ERROR, {
+      paste: false,
+      completeReplace: true,
+      toRun: true,
+      shouldCreateNewJSObj: true,
+    });
+
+    // Assert that there is a function execution parse error
+    jsEditor.AssertParseError(true, true);
+    // click the debug icon
+    agHelper.GetNClick(jsEditor._debugCTA);
+    // Assert that errors tab is not empty
+    agHelper.AssertContains("No signs of trouble here!", "not.exist");
+    // Assert presence of typeError
+    agHelper.AssertContains(
+      "TypeError: Cannot read properties of undefined (reading 'id')",
+      "exist",
+    );
+
+    // Fix parse error and assert that debugger error is removed
+    jsEditor.EditJSObj(JS_OBJECT_WITHOUT_PARSE_ERROR, true, false);
+    jsEditor.RunJSObj();
+    //agHelper.AssertContains("ran successfully"); //commenting since 'Resource not found' comes sometimes due to fast parsing
+    agHelper.AssertElementAbsence(locator._runBtnSpinner, 5000);
+    jsEditor.AssertParseError(false, true);
+    agHelper.GetNClick(locator._errorTab);
+    agHelper.AssertContains(
+      "TypeError: Cannot read properties of undefined (reading 'id')",
+      "not.exist",
+    );
+
+    // Switch back to response tab
+    agHelper.GetNClick(locator._responseTab);
+    // Re-introduce parse errors
+    jsEditor.EditJSObj(JS_OBJECT_WITH_PARSE_ERROR + "}}", false, false);
+    jsEditor.RunJSObj();
+    // Assert that there is a function execution parse error
+    jsEditor.AssertParseError(true, true);
+
+    // Delete function
+    jsEditor.EditJSObj(JS_OBJECT_WITH_DELETED_FUNCTION, true, false);
+    // Assert that parse error is removed from debugger when function is deleted
+    agHelper.GetNClick(locator._errorTab);
+    agHelper.AssertContains(
+      "TypeError: Cannot read properties of undefined (reading 'id')",
+      "not.exist",
+    );
+    agHelper.ActionContextMenuWithInPane("Delete", "", true);
   });
 });
