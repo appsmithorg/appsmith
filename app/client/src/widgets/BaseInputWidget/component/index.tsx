@@ -668,7 +668,7 @@ class BaseInputComponent extends React.Component<
               fontSize={labelTextSize}
               fontStyle={labelStyle}
               helpText={tooltip}
-              isDynamicHeightEnabled={isDynamicHeightEnabled}
+              // isDynamicHeightEnabled={isDynamicHeightEnabled}
               loading={isLoading}
               position={labelPosition}
               text={label}

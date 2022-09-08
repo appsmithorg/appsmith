@@ -116,7 +116,6 @@ const MultiTreeSelectComponent = React.forwardRef<
       dropDownWidth,
       expandAll,
       filterText,
-      isDynamicHeightEnabled,
       isFilterable,
       isValid,
       labelAlignment,
@@ -258,7 +257,6 @@ const MultiTreeSelectComponent = React.forwardRef<
             disabled={disabled}
             fontSize={labelTextSize}
             fontStyle={labelStyle}
-            isDynamicHeightEnabled={isDynamicHeightEnabled}
             loading={loading}
             position={labelPosition}
             ref={labelRef}

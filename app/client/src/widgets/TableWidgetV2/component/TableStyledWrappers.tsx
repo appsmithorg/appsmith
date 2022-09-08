@@ -23,7 +23,7 @@ const HEADER_CONTROL_FONT_SIZE = "12px";
 
 export const TableWrapper = styled.div<{
   width: number;
-  $height: string;
+  height: number;
   $isDynamicHeightEnabled: boolean;
   tableSizes: TableSizes;
   accentColor: string;
@@ -74,7 +74,7 @@ export const TableWrapper = styled.div<{
       overflow: hidden;
     }
     .tbody {
-      height: ${(props) => props.$height}
+      height: ${(props) => props.height}
       width: 100%;
       overflow-y: auto;
       ${hideScrollbar};

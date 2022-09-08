@@ -39,6 +39,7 @@ import appThemingSaga from "sagas/AppThemingSaga";
 import formEvaluationChangeListener from "sagas/FormEvaluationSaga";
 import SuperUserSagas from "@appsmith/sagas/SuperUserSagas";
 import PageVisibilitySaga from "sagas/PageVisibilitySagas";
+import DynamicHeightSagas from "sagas/dynamicHeightSagas";
 
 export const sagas = [
   initSagas,
@@ -82,4 +83,5 @@ export const sagas = [
   SuperUserSagas,
   appThemingSaga,
   PageVisibilitySaga,
+  DynamicHeightSagas,
 ];

@@ -318,7 +318,6 @@ const MultiSelectComponent = React.forwardRef<HTMLDivElement, MultiSelectProps>(
             disabled={disabled}
             fontSize={labelTextSize}
             fontStyle={labelStyle}
-            isDynamicHeightEnabled={isDynamicHeightEnabled}
             loading={loading}
             position={labelPosition}
             ref={labelRef}
