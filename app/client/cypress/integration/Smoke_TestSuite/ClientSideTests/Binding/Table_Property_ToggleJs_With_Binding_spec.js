@@ -3,143 +3,79 @@
 const widgetsPage = require("../../../../locators/Widgets.json");
 const dsl = require("../../../../fixtures/tableNewDsl.json");
 const testdata = require("../../../../fixtures/testdata.json");
+import { ObjectsRegistry } from "../../../../support/Objects/Registry";
+
+const propPane = ObjectsRegistry.PropertyPane,
+  ee = ObjectsRegistry.EntityExplorer,
+  agHelper = ObjectsRegistry.AggregateHelper;
 
 describe("Table Widget property pane feature validation", function() {
   before(() => {
     cy.addDsl(dsl);
   });
 
-  it("Table widget toggle test for text alignment", function() {
-    cy.openPropertyPane("tablewidget");
+  it("1. Table widget toggle test for text alignment", function() {
+    ee.SelectEntityByName("Table1");
     cy.editColumn("id");
     //cy.movetoStyleTab();
-    cy.get(widgetsPage.toggleTextAlign)
-      .first()
-      .click({ force: true });
-    // eslint-disable-next-line cypress/no-unnecessary-waiting
-    cy.wait(1000);
-    cy.toggleJsAndUpdate("tabledata", testdata.bindingAlign);
+    agHelper.Sleep();
+    propPane.EnterJSContext("Text Align", testdata.bindingAlign);
+    cy.wait("@updateLayout");
     cy.readTabledataValidateCSS("0", "0", "justify-content", "flex-start");
     cy.readTabledataValidateCSS("1", "0", "justify-content", "flex-end");
   });
 
-  it("Table widget change text size and validate", function() {
+  it("2. Table widget change text size and validate", function() {
     cy.readTabledataValidateCSS("0", "0", "font-size", "14px");
-    cy.openPropertyPane("tablewidget");
-    cy.get(".t--property-pane-back-btn").click({ force: true });
-    cy.editColumn("id");
     //cy.movetoStyleTab();
-    cy.get(widgetsPage.toggleTextAlign)
-      .first()
-      .click({ force: true });
-    // eslint-disable-next-line cypress/no-unnecessary-waiting
-    cy.wait(1000);
     cy.get(widgetsPage.textSize)
       .last()
       .click({ force: true });
-    // eslint-disable-next-line cypress/no-unnecessary-waiting
-    cy.wait(1000);
+    agHelper.Sleep();
     cy.selectTxtSize("XL");
-
     cy.readTabledataValidateCSS("0", "0", "font-size", "30px");
   });
 
-  it("Table widget toggle test for text size", function() {
-    cy.openPropertyPane("tablewidget");
-    cy.get(".t--property-pane-back-btn").click({ force: true });
-    cy.editColumn("id");
+  it("3. Table widget toggle test for vertical Alignment", function() {
     //cy.movetoStyleTab();
-    cy.get(widgetsPage.toggleTextSize)
-      .first()
-      .click({ force: true });
-    // eslint-disable-next-line cypress/no-unnecessary-waiting
-    cy.wait(1000);
-    cy.toggleJsAndUpdate("tabledata", testdata.bindingSize);
-
-    cy.readTabledataValidateCSS("0", "0", "font-size", "14px");
-    cy.readTabledataValidateCSS("1", "0", "font-size", "24px");
-  });
-
-  it("Table widget toggle test for vertical Alignment", function() {
-    cy.openPropertyPane("tablewidget");
-    cy.get(".t--property-pane-back-btn").click({ force: true });
-    cy.editColumn("id");
-    //cy.movetoStyleTab();
-    cy.get(widgetsPage.toggleTextSize)
-      .first()
-      .click({ force: true });
-    // eslint-disable-next-line cypress/no-unnecessary-waiting
-    cy.wait(1000);
-    cy.get(widgetsPage.toggleVerticalAlig)
-      .first()
-      .click({ force: true });
-    // eslint-disable-next-line cypress/no-unnecessary-waiting
-    cy.wait(1000);
-    cy.toggleJsAndUpdate("tabledata", testdata.bindingVerticalAlig);
-
+    agHelper.Sleep();
+    propPane.EnterJSContext("Vertical Alignment", testdata.bindingVerticalAlig);
+    cy.wait("@updateLayout");
     cy.readTabledataValidateCSS("0", "0", "align-items", "flex-start");
     cy.readTabledataValidateCSS("1", "0", "align-items", "flex-end");
   });
 
-  it("Table widget toggle test for style Alignment", function() {
-    cy.get(".t--property-pane-back-btn").click({ force: true });
-    cy.openPropertyPane("tablewidget");
-    cy.editColumn("id");
+  it("4. Table widget toggle test for text size", function() {
     //cy.movetoStyleTab();
-    cy.get(widgetsPage.toggleVerticalAlig)
-      .first()
-      .click({ force: true });
-    // eslint-disable-next-line cypress/no-unnecessary-waiting
-    cy.wait(1000);
-    cy.get(widgetsPage.toggleTextStyle_tablev1)
-      .first()
-      .click({ force: true });
-    // eslint-disable-next-line cypress/no-unnecessary-waiting
-    cy.wait(1000);
-    cy.toggleJsAndUpdateWithIndex("tabledata", testdata.bindingStyle, 3);
+    agHelper.Sleep();
+    propPane.EnterJSContext("Text Size", testdata.bindingSize);
+    cy.wait("@updateLayout");
+    cy.readTabledataValidateCSS("0", "0", "font-size", "14px");
+    cy.readTabledataValidateCSS("1", "0", "font-size", "24px");
+  });
+
+  it("5. Table widget toggle test for style Alignment", function() {
+    //cy.movetoStyleTab();
+    agHelper.Sleep();
+    propPane.EnterJSContext("Font Style", testdata.bindingStyle);
+    cy.wait("@updateLayout");
     cy.readTabledataValidateCSS("0", "0", "font-style", "normal");
     cy.readTabledataValidateCSS("1", "0", "font-style", "italic");
   });
 
-  it("Table widget toggle test for text color", function() {
-    cy.openPropertyPane("tablewidget");
-    cy.get(".t--property-pane-back-btn").click({ force: true });
-    cy.editColumn("id");
+  it("6. Table widget toggle test for text color", function() {
     //cy.movetoStyleTab();
-    cy.get(widgetsPage.toggleVerticalAlig)
-      .first()
-      .click({ force: true });
-    // eslint-disable-next-line cypress/no-unnecessary-waiting
-    cy.wait(1000);
-    cy.get(widgetsPage.toggleJsColor)
-      .first()
-      .click({ force: true });
-    // eslint-disable-next-line cypress/no-unnecessary-waiting
-    cy.wait(1000);
-    cy.toggleJsAndUpdateWithIndex("tabledata", testdata.bindingTextColor, 5);
-
+    agHelper.Sleep();
+    propPane.EnterJSContext("Text Color", testdata.bindingTextColor);
     cy.wait("@updateLayout");
     cy.readTabledataValidateCSS("0", "0", "color", "rgb(0, 128, 0)");
     cy.readTabledataValidateCSS("1", "0", "color", "rgb(255, 0, 0)");
   });
 
-  it("Table widget toggle test for background color", function() {
-    cy.openPropertyPane("tablewidget");
-    cy.get(".t--property-pane-back-btn").click({ force: true });
-    cy.editColumn("id");
+  it("7. Table widget toggle test for background color", function() {
     //cy.movetoStyleTab();
-    cy.get(widgetsPage.toggleJsColor)
-      .first()
-      .click({ force: true });
-    // eslint-disable-next-line cypress/no-unnecessary-waiting
-    cy.wait(1000);
-    cy.get(widgetsPage.toggleJsBcgColor)
-      .first()
-      .click({ force: true });
-    // eslint-disable-next-line cypress/no-unnecessary-waiting
-    cy.wait(2000);
-    cy.toggleJsAndUpdateWithIndex("tabledata", testdata.bindingTextColor, 6);
-
+    agHelper.Sleep();
+    propPane.EnterJSContext("Cell Background", testdata.bindingTextColor);
     cy.wait("@updateLayout");
     cy.readTabledataValidateCSS(
       "0",
